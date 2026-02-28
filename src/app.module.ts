@@ -1,15 +1,57 @@
 import { Module } from '@nestjs/common';
-import { UsersModule } from './user/user.module';
+import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+
+// Prisma
+import { PrismaModule } from './prisma/prisma.module';
+
+// CORE
+import { UsersModule } from './core/users/user.module';
+import { AuthModule } from './core/auth/auth.module';
+import { RolesPermissionsModule } from './core/rolespermissions/rolespermissions.module';
+import { OrganizationModule } from './core/organization/organization.module';
+
+// LEARNING
+import { CoursesModule } from './learning/courses/courses.module';
+import { EnrollmentsModule } from './learning/enrollments/enrollments.module';
+import { LearningPathsModule } from './learning/learningpaths/learningpaths.module';
+import { AssessmentsModule } from './learning/assessments/assessments.module';
+import { ContentLibraryModule } from './learning/contentlibrary/contentlibrary.module';
+import { CertificatesModule } from './learning/certificates/certificates.module';
+import { MicroLearningModule } from './learning/microlearning/microlearning.module';
+import { AvatarTrainingModule } from './learning/avatartraining/avatartraining.module';
+import { TrainingModule } from './learning/training/training.module';
+import { EvaluationModule } from './learning/evaluation/evaluation.module';
+
+// HR
+import { PositionsModule } from './hr/positions/positions.module';
+import { PerformanceModule } from './hr/performance/performance.module';
+import { SuccessionModule } from './hr/succession/succession.module';
+import { OnboardingModule } from './hr/onboarding/onboarding.module';
+import { CompetencyMapModule } from './hr/competencymap/competencymap.module';
+import { TalentDevelopmentModule } from './hr/talentdevelopment/talentdevelopment.module';
+import { LeadershipModule } from './hr/leadership/leadership.module';
+import { KnowledgeModule } from './hr/knowledge/knowledge.module';
+import { ProcessStandardModule } from './hr/processstandard/processstandard.module';
+
+// INTELLIGENCE
+import { AnalyticsModule } from './intelligence/analytics/analytics.module';
+import { RoiImpactModule } from './intelligence/roiimpact/roiimpact.module';
+import { ReportsModule } from './intelligence/reports/reports.module';
+import { ScalabilityModule } from './intelligence/scalability/scalability.module';
+
+// ENGAGEMENT
+import { GamificationModule } from './engagement/gamification/gamification.module';
+import { FeedbackModule } from './engagement/feedback/feedback.module';
+
+// INFRA
+import { NotificationsModule } from './infra/notifications/notifications.module';
+import { AutomationModule } from './infra/automation/automation.module';
+import { AuditLogsModule } from './infra/auditlogs/auditlogs.module';
+import { ApiIntegrationModule } from './infra/apiintegration/apiintegration.module';
+
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { PrismaModule } from './prisma/prisma.module';
-import { AuthModule } from './auth/auth.module';
-import { CoursesModule } from './courses/courses.module';
-import { EnrollmentsModule } from './enrollments/enrollments.module';
-import { LeaderModule } from './leader/leader.module';
-import { DatabaseModule } from './database/database.module';
-import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
@@ -23,15 +65,54 @@ import { ConfigModule } from '@nestjs/config';
       autoLoadEntities: true,
       synchronize: true,
     }),
-    UsersModule,
+
     PrismaModule,
+
+    // CORE
+    UsersModule,
     AuthModule,
-    DatabaseModule,
+    RolesPermissionsModule,
+    OrganizationModule,
+
+    // LEARNING
     CoursesModule,
     EnrollmentsModule,
-    LeaderModule,
-  ],
+    LearningPathsModule,
+    AssessmentsModule,
+    ContentLibraryModule,
+    CertificatesModule,
+    MicroLearningModule,
+    AvatarTrainingModule,
+    TrainingModule,
+    EvaluationModule,
 
+    // HR
+    PositionsModule,
+    PerformanceModule,
+    SuccessionModule,
+    OnboardingModule,
+    CompetencyMapModule,
+    TalentDevelopmentModule,
+    LeadershipModule,
+    KnowledgeModule,
+    ProcessStandardModule,
+
+    // INTELLIGENCE
+    AnalyticsModule,
+    RoiImpactModule,
+    ReportsModule,
+    ScalabilityModule,
+
+    // ENGAGEMENT
+    GamificationModule,
+    FeedbackModule,
+
+    // INFRA
+    NotificationsModule,
+    AutomationModule,
+    AuditLogsModule,
+    ApiIntegrationModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

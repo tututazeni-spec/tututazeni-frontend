@@ -7,7 +7,12 @@
   "license": "UNLICENSED",
   "scripts": {
     "generate": "prisma generate",
+     "prisma:format": "prisma format",
+     "prisma:validate": "prisma validate",
+     "prisma:migrate": "prisma migrate dev --name init",
+     "prisma:generate": "prisma generate",
     "migrate:rename": "prisma migrate dev --name rename_name_to_fullName",
+    "prisma:setup": "prisma migrate dev && prisma generate",
     "db:update": "npm run migrate:rename && npm run generate",
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
