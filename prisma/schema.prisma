@@ -53,6 +53,13 @@ model User {
   departmentId            Int?
   department              Department?             @relation(fields: [departmentId], references: [id], onDelete: SetNull)
   historyRecords          HistoryRecord[]
+  mobileSessions          MobileSession[]
+  mobileSyncLogs          MobileSyncLog[]
+  executiveReports        ExecutiveReport[]
+  aiSessions              AiTutorSession[]
+  liveAttendances         LiveAttendance[]
+  liveMessages            LiveChatMessage[]
+  postClassResponses      PostClassResponse[]
 }
 
 model Answers {
@@ -103,6 +110,7 @@ model Department {
   units              Unit[]              @relation("UnitDepartment")
   users              User[]
   dashboardSnapshots DashboardSnapshot[]
+  executiveReports   ExecutiveReport[]
 
   @@index([name])
 }
@@ -175,6 +183,8 @@ model Course {
   analytics     CourseAnalytics[]
   feedbacks     CourseFeedback[]
   assessments   Assessment[]
+  aiSessions    AiTutorSession[]
+  liveClasses   LiveClass[]
 }
 
 model LearningPath {
@@ -241,6 +251,7 @@ model Enrollment {
   progresses  LessonProgress[]
   attempts    EvaluationAttempt[] @relation("EnrollmentAttempts")
   certificate Certificate?
+  aiSessions  AiTutorSession[]
 
   @@index([userId])
   @@index([courseId])
@@ -438,6 +449,68 @@ model TrainingParticipant {
   updatedAt DateTime        @updatedAt
   session   TrainingSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
   user      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model LiveClass {
+  id             Int                  @id @default(autoincrement())
+  courseId       Int
+  zoomMeetingId  String?
+  topic          String
+  scheduledAt    DateTime
+  duration       Int
+  recordingUrl   String?
+  createdAt      DateTime             @default(now())
+  course         Course               @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  attendances    LiveAttendance[]
+  messages       LiveChatMessage[]
+  postEvaluation PostClassEvaluation?
+
+  @@index([courseId])
+}
+
+model LiveAttendance {
+  id          Int       @id @default(autoincrement())
+  liveClassId Int
+  userId      Int
+  joinedAt    DateTime
+  leftAt      DateTime?
+  liveClass   LiveClass @relation(fields: [liveClassId], references: [id], onDelete: Cascade)
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([liveClassId, userId])
+}
+
+model LiveChatMessage {
+  id          Int       @id @default(autoincrement())
+  liveClassId Int
+  userId      Int
+  message     String
+  createdAt   DateTime  @default(now())
+  liveClass   LiveClass @relation(fields: [liveClassId], references: [id], onDelete: Cascade)
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([liveClassId])
+}
+
+model PostClassEvaluation {
+  id           Int                 @id @default(autoincrement())
+  liveClassId  Int                 @unique
+  averageScore Float               @default(0)
+  liveClass    LiveClass           @relation(fields: [liveClassId], references: [id], onDelete: Cascade)
+  responses    PostClassResponse[]
+}
+
+model PostClassResponse {
+  id           Int                 @id @default(autoincrement())
+  evaluationId Int
+  userId       Int
+  rating       Int
+  feedback     String?
+  createdAt    DateTime            @default(now())
+  evaluation   PostClassEvaluation @relation(fields: [evaluationId], references: [id], onDelete: Cascade)
+  user         User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([evaluationId, userId])
 }
 
 enum LessonContentType {
@@ -844,4 +917,103 @@ model RolePermission {
   permissionId Int
   role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
   permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+}
+
+//////////////////////////
+// MOBILE
+//////////////////////////
+
+model MobileSession {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  deviceId  String
+  platform  String // "ios" | "android"
+  lastLogin DateTime @default(now())
+  pushToken String?
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model MobileSyncLog {
+  id       Int      @id @default(autoincrement())
+  userId   Int
+  syncedAt DateTime @default(now())
+  entity   String // Ex: "Enrollment", "Progress", "EvaluationAttempt"
+  status   String // Ex: "SUCCESS", "FAILED"
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+//////////////////////////
+// REPORTING
+//////////////////////////
+
+model ExecutiveReport {
+  id            Int               @id @default(autoincrement())
+  title         String
+  generatedById Int
+  departmentId  Int?
+  filePath      String
+  format        ReportFormat
+  createdAt     DateTime          @default(now())
+  generatedBy   User              @relation(fields: [generatedById], references: [id], onDelete: Cascade)
+  department    Department?       @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+  metrics       ExecutiveMetric[]
+
+  @@index([generatedById])
+  @@index([departmentId])
+}
+
+model ExecutiveMetric {
+  id       Int             @id @default(autoincrement())
+  reportId Int
+  label    String
+  value    Float
+  report   ExecutiveReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
+
+  @@index([reportId])
+}
+
+enum ReportFormat {
+  PDF
+}
+
+//////////////////////////
+// AI
+//////////////////////////
+
+model AiTutorSession {
+  id           Int         @id @default(autoincrement())
+  userId       Int
+  courseId     Int?
+  enrollmentId Int?
+  startedAt    DateTime    @default(now())
+  endedAt      DateTime?
+  user         User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course       Course?     @relation(fields: [courseId], references: [id], onDelete: SetNull)
+  enrollment   Enrollment? @relation(fields: [enrollmentId], references: [id], onDelete: SetNull)
+  messages     AiMessage[]
+
+  @@index([userId])
+  @@index([courseId])
+}
+
+model AiMessage {
+  id         Int            @id @default(autoincrement())
+  sessionId  Int
+  role       AiRole
+  content    String
+  tokensUsed Int?
+  createdAt  DateTime       @default(now())
+  session    AiTutorSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId])
+}
+
+enum AiRole {
+  USER
+  ASSISTANT
+  SYSTEM
 }

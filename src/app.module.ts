@@ -24,6 +24,7 @@ import { MicroLearningModule } from './learning/microlearning/microlearning.modu
 import { AvatarTrainingModule } from './learning/avatartraining/avatartraining.module';
 import { TrainingModule } from './learning/training/training.module';
 import { EvaluationModule } from './learning/evaluation/evaluation.module';
+import { LiveModule } from './learning/live/live.module';
 
 // HR
 import { PositionsModule } from './hr/positions/positions.module';
@@ -54,6 +55,15 @@ import { NotificationsModule } from './infra/notifications/notifications.module'
 import { AutomationModule } from './infra/automation/automation.module';
 import { AuditLogsModule } from './infra/auditlogs/auditlogs.module';
 import { ApiIntegrationModule } from './infra/apiintegration/apiintegration.module';
+
+// MOBILE
+import { MobileModule } from './mobile/mobile.module';
+
+// REPORTING
+import { ExecutivePdfModule } from './reporting/executive-pdf/executive-pdf.module';
+
+// AI
+import { AiTutorModule } from './ai/tutor/ai-tutor.module';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -92,6 +102,7 @@ import { AppService } from './app.service';
     AvatarTrainingModule,
     TrainingModule,
     EvaluationModule,
+    LiveModule,
 
     // HR
     PositionsModule,
@@ -122,6 +133,16 @@ import { AppService } from './app.service';
     AutomationModule,
     AuditLogsModule,
     ApiIntegrationModule,
+
+    // MOBILE
+    MobileModule,
+
+    // REPORTING
+    ExecutivePdfModule,
+
+    // AI
+    AiTutorModule,
+
   ],
   controllers: [AppController],
   providers: [AppService],
