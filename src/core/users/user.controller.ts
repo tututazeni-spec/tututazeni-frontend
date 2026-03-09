@@ -7,7 +7,7 @@ import { User } from './entities/user.entity';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {} 
 
-     @Post()
+  @Post()
   create(@Body() createUserDto: CreateUserDto): Promise<User> {
     return this.usersService.create(createUserDto);
   }
@@ -16,5 +16,11 @@ export class UsersController {
   findAll(): Promise<User[]> {
     return this.usersService.findAll();
   }
-}
 
+  @Get('profile')
+  getProfile() {
+    return {
+      message: 'Perfil do utilizador'
+    };
+  }
+}
