@@ -1,23 +1,20 @@
-import { useEffect, useState } from "react";
-
-type User = {
-  id: string;
-  name: string;
-  email: string;
-};
+import { useEffect, useState } from 'react';
+import { getUsers } from '../services/userService'; // ✅ usa o serviço centralizado
+import { User } from '../types/user';
 
 export function useUsers() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchUsers() {
       try {
-        const res = await fetch("/api/users");
-        const data = await res.json();
+        const data = await getUsers();
         setUsers(data);
-      } catch (error) {
-        console.error("Erro ao buscar usuários:", error);
+      } catch (err) {
+        console.error('Erro ao buscar utilizadores:', err);
+        setError('Erro ao carregar utilizadores');
       } finally {
         setLoading(false);
       }
@@ -26,5 +23,5 @@ export function useUsers() {
     fetchUsers();
   }, []);
 
-  return { users, loading };
+  return { users, loading, error };
 }

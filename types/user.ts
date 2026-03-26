@@ -1,5 +1,6 @@
-export interface User {
+export type User = {
   id: number;
-  name: string;
+  fullName: string; // ✅ igual ao schema Prisma
   email: string;
-}
+  createdAt?: string;
+};

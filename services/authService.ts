@@ -1,16 +1,40 @@
-import axios, { InternalAxiosRequestConfig } from "axios";
+import api from './api'; // ✅ importa o axios já configurado
 
-export const api = axios.create({
-  baseURL: "/api",
-});
+// Tipos
+interface LoginPayload {
+  email: string;
+  password: string;
+}
 
-api.interceptors.request.use(
-  (config: InternalAxiosRequestConfig): InternalAxiosRequestConfig => {
-    config.headers = config.headers ?? {};
-    const token = localStorage.getItem("authToken") ?? "";
-    if (token) config.headers["Authorization"] = `Bearer ${token}`;
-    config.headers["Accept"] = "application/json";
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
+interface RegisterPayload {
+  email: string;
+  fullName: string;
+  password: string;
+}
+
+// Login
+export const login = async (payload: LoginPayload) => {
+  const response = await api.post('/auth/login', payload);
+  return response.data;
+};
+
+// Registo
+export const register = async (payload: RegisterPayload) => {
+  const response = await api.post('/auth/register', payload);
+  return response.data;
+};
+
+// Logout
+export const logout = () => {
+  localStorage.removeItem('authToken');
+};
+
+// Guardar token após login
+export const saveToken = (token: string) => {
+  localStorage.setItem('authToken', token);
+};
+
+// Obter token
+export const getToken = () => {
+  return localStorage.getItem('authToken');
+};

@@ -1,7 +1,8 @@
 import axios, { InternalAxiosRequestConfig } from "axios";
+import { API_URL } from '@/lib/api';
 
 const api = axios.create({
-  baseURL: "/api",
+  baseURL: API_URL, // ✅ usa a variável de ambiente
 });
 
 api.interceptors.request.use(
@@ -23,4 +24,3 @@ api.interceptors.request.use(
 );
 
 export default api;
-
