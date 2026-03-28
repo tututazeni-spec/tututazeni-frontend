@@ -1,9 +1,26 @@
-import { getUsers } from '../services/userService';
-import UserCard from '../components/UserCard';
-import { User } from '../types/user';
+"use client";
  
-export default async function Home() {
-  const users: User[] = await getUsers();
+import { useUsers } from "../hooks/useUsers";
+import UserCard from "../components/UserCard";
+ 
+export default function Home() {
+  const { users, loading, error } = useUsers();
+ 
+  if (loading) {
+    return (
+      <main style={{ padding: 40 }}>
+        <p>A carregar utilizadores...</p>
+      </main>
+    );
+  }
+ 
+  if (error) {
+    return (
+      <main style={{ padding: 40 }}>
+        <p style={{ color: "red" }}>{error}</p>
+      </main>
+    );
+  }
  
   return (
     <main style={{ padding: 40 }}>
@@ -15,4 +32,3 @@ export default async function Home() {
     </main>
   );
 }
- 
