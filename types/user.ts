@@ -1,6 +1,6 @@
 export type User = {
   id: number;
-  fullName: string; // ✅ igual ao schema Prisma
+  fullName: string;
   email: string;
   createdAt?: string;
 };
