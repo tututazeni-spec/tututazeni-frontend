@@ -8,10 +8,7 @@ export default function DashboardLayout({
 }) {
   return (
     <div style={{ display: "flex", minHeight: "100vh" }}>
-      {/* Sidebar fixa */}
       <Sidebar />
- 
-      {/* Conteúdo principal */}
       <div
         style={{
           marginLeft: "240px",
@@ -23,7 +20,6 @@ export default function DashboardLayout({
         }}
       >
         <Topbar title="Innova — Academia Digital" />
- 
         <main
           style={{
             flex: 1,
