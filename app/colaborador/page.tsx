@@ -1,7 +1,7 @@
 "use client";
  
 import { useEffect, useState } from "react";
-import { apiRequest } from "../../../lib/api";
+import { apiRequest } from "../../lib/api";
 import Link from "next/link";
  
 type Course = {
@@ -53,12 +53,7 @@ export default function ColaboradorDashboard() {
   if (!token) {
     return (
       <main className="p-8">
-        <p>
-          Precisa iniciar sessão.{" "}
-          <Link href="/login" className="text-blue-600 underline">
-            Ir para login
-          </Link>
-        </p>
+        <p>Precisa iniciar sessão. <Link href="/login" className="text-blue-600 underline">Ir para login</Link></p>
       </main>
     );
   }
@@ -69,36 +64,20 @@ export default function ColaboradorDashboard() {
   return (
     <main className="p-8 space-y-6">
       <h1 className="text-2xl font-semibold">Minha formação</h1>
- 
       <section>
         <h2 className="text-lg font-semibold mb-3">Cursos disponíveis</h2>
         <div className="grid gap-4 md:grid-cols-2">
           {courses.map((course) => (
-            <div
-              key={course.id}
-              className="border rounded-xl p-4 flex flex-col justify-between"
-            >
+            <div key={course.id} className="border rounded-xl p-4 flex flex-col justify-between">
               <div>
                 <h3 className="font-semibold">{course.title}</h3>
                 <p className="text-sm text-slate-600">{course.description}</p>
-                <p className="text-xs text-slate-500 mt-1">
-                  {course.category} • {course.workloadHours ?? 0}h
-                </p>
+                <p className="text-xs text-slate-500 mt-1">{course.category} • {course.workloadHours ?? 0}h</p>
               </div>
               <div className="mt-4 flex gap-2">
-                <Link
-                  href={`/cursos/${course.id}`}
-                  className="px-3 py-1 rounded bg-slate-100 text-xs"
-                >
-                  Ver curso
-                </Link>
+                <Link href={`/cursos/${course.id}`} className="px-3 py-1 rounded bg-slate-100 text-xs">Ver curso</Link>
                 {!enrolled.has(course.id) && (
-                  <button
-                    onClick={() => handleEnroll(course.id)}
-                    className="px-3 py-1 rounded bg-blue-600 text-white text-xs"
-                  >
-                    Inscrever-me
-                  </button>
+                  <button onClick={() => handleEnroll(course.id)} className="px-3 py-1 rounded bg-blue-600 text-white text-xs">Inscrever-me</button>
                 )}
               </div>
             </div>
