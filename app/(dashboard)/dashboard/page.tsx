@@ -16,7 +16,7 @@ export default function DashboardPage() {
       <ul>
         {users.map((user) => (
           <li key={user.id}>
-            {user.name} - {user.email}
+            {user.fullName} - {user.email}
           </li>
         ))}
       </ul>
