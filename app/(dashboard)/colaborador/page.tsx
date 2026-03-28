@@ -1,9 +1,9 @@
 "use client";
-
+ 
 import { useEffect, useState } from "react";
 import { apiRequest } from "../../../lib/api";
 import Link from "next/link";
-
+ 
 type Course = {
   id: string;
   title: string;
@@ -11,39 +11,45 @@ type Course = {
   category?: string;
   workloadHours?: number | null;
 };
-
+ 
+type ApiError = {
+  message?: string;
+};
+ 
 export default function ColaboradorDashboard() {
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [enrolled, setEnrolled] = useState<Set<string>>(new Set());
-
+ 
   const token =
     typeof window !== "undefined" ? localStorage.getItem("token") ?? "" : "";
-
+ 
   useEffect(() => {
     const load = async () => {
       try {
-        const data = await apiRequest("/courses", {}, token);
+        const data = await apiRequest("/courses", {}, token) as Course[];
         setCourses(data);
-      } catch (err: any) {
-        setError(err.message || "Erro ao carregar cursos");
+      } catch (err: unknown) {
+        const apiErr = err as ApiError;
+        setError(apiErr.message ?? "Erro ao carregar cursos");
       } finally {
         setLoading(false);
       }
     };
     if (token) load();
   }, [token]);
-
+ 
   const handleEnroll = async (courseId: string) => {
     try {
       await apiRequest(`/enrollments/${courseId}`, { method: "POST" }, token);
-      setEnrolled(new Set([...Array.from(enrolled), courseId]));
-    } catch (err: any) {
-      alert(err.message || "Erro ao inscrever");
+      setEnrolled((prev) => new Set([...Array.from(prev), courseId]));
+    } catch (err: unknown) {
+      const apiErr = err as ApiError;
+      alert(apiErr.message ?? "Erro ao inscrever");
     }
   };
-
+ 
   if (!token) {
     return (
       <main className="p-8">
@@ -56,14 +62,14 @@ export default function ColaboradorDashboard() {
       </main>
     );
   }
-
+ 
   if (loading) return <main className="p-8">A carregar cursos...</main>;
   if (error) return <main className="p-8 text-red-600">{error}</main>;
-
+ 
   return (
     <main className="p-8 space-y-6">
       <h1 className="text-2xl font-semibold">Minha formação</h1>
-
+ 
       <section>
         <h2 className="text-lg font-semibold mb-3">Cursos disponíveis</h2>
         <div className="grid gap-4 md:grid-cols-2">
@@ -74,9 +80,7 @@ export default function ColaboradorDashboard() {
             >
               <div>
                 <h3 className="font-semibold">{course.title}</h3>
-                <p className="text-sm text-slate-600">
-                  {course.description}
-                </p>
+                <p className="text-sm text-slate-600">{course.description}</p>
                 <p className="text-xs text-slate-500 mt-1">
                   {course.category} • {course.workloadHours ?? 0}h
                 </p>
