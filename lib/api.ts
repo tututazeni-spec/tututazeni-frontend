@@ -1,25 +1,20 @@
-export const API_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
-export async function apiRequest(
-  path: string,
-  options: RequestInit = {},
-  token?: string
-) {
-  const res = await fetch(`${API_URL}${path}`, {
+export async function apiRequest(path: string, options: RequestInit = {}) {
+  const res = await fetch(`${API_BASE}${path}`, {
     ...options,
     headers: {
       "Content-Type": "application/json",
       ...(options.headers || {}),
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
-    cache: "no-store",
   });
 
+  const data = await res.json();
+
   if (!res.ok) {
-    const text = await res.text();
-    throw new Error(text || "Erro na API");
+    // Lança o erro com a mensagem vinda da API (ex: "Credenciais inválidas")
+    throw new Error(data.message || "Erro desconhecido");
   }
 
-  return res.json();
+  return data;
 }
