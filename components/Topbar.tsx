@@ -1,87 +1,62 @@
 "use client";
+import { Bell, Search, User } from "lucide-react";
+import { useEffect, useState } from "react";
  
-import { useRouter } from "next/navigation";
+export default function Topbar() {
+  const [user, setUser] = useState<{ fullName?: string; email?: string } | null>(null);
  
-interface TopbarProps {
-  title: string;
-}
- 
-export default function Topbar({ title }: TopbarProps) {
-  const router = useRouter();
- 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    router.push("/login");
-  };
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("user");
+      if (raw) setUser(JSON.parse(raw));
+    } catch {}
+  }, []);
  
   return (
-    <header
-      style={{
-        height: "60px",
-        background: "var(--topbar-bg)",
-        borderBottom: "1px solid var(--topbar-border)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        padding: "0 28px",
-        position: "sticky",
-        top: 0,
-        zIndex: 40,
-      }}
-    >
-      {/* Título da página */}
-      <h1 style={{ fontSize: "16px", fontWeight: 600, color: "var(--text-primary)" }}>
-        {title}
-      </h1>
+    <header style={{
+      position: "fixed", top: 0, left: 240, right: 0, height: 56,
+      background: "#ffffff", borderBottom: "1px solid #e2e8f0",
+      display: "flex", alignItems: "center", justifyContent: "space-between",
+      padding: "0 24px", zIndex: 90,
+    }}>
+      {/* Search */}
+      <div style={{ display: "flex", alignItems: "center", gap: 8, background: "#f1f5f9", borderRadius: 8, padding: "6px 12px", width: 280 }}>
+        <Search size={14} color="#94a3b8" />
+        <input
+          placeholder="Pesquisar..."
+          style={{ border: "none", background: "transparent", outline: "none", fontSize: 13, color: "#1e293b", width: "100%" }}
+        />
+      </div>
  
-      {/* Acções */}
-      <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-        {/* Notificações */}
-        <button
-          style={{
-            width: "36px",
-            height: "36px",
-            borderRadius: "8px",
-            border: "1px solid var(--card-border)",
-            background: "transparent",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            cursor: "pointer",
-            color: "var(--text-secondary)",
-          }}
-        >
-          <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-            <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-          </svg>
+      {/* Right */}
+      <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+        <button style={{ position: "relative", background: "none", border: "none", cursor: "pointer" }}>
+          <Bell size={18} color="#64748b" />
+          <span style={{
+            position: "absolute", top: -4, right: -4, width: 8, height: 8,
+            borderRadius: "50%", background: "#ef4444",
+          }} />
         </button>
  
-        {/* Logout */}
-        <button
-          onClick={handleLogout}
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "6px",
-            padding: "7px 14px",
-            borderRadius: "8px",
-            border: "1px solid var(--card-border)",
-            background: "transparent",
-            cursor: "pointer",
-            fontSize: "13px",
-            color: "var(--text-secondary)",
-            fontWeight: 500,
-          }}
-        >
-          <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-            <polyline points="16 17 21 12 16 7" />
-            <line x1="21" y1="12" x2="9" y2="12" />
-          </svg>
-          Sair
-        </button>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div style={{
+            width: 32, height: 32, borderRadius: "50%",
+            background: "linear-gradient(135deg, #3b82f6, #6366f1)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+          }}>
+            <User size={16} color="#fff" />
+          </div>
+          <div>
+            <p style={{ fontSize: 13, fontWeight: 600, color: "#1e293b", margin: 0 }}>
+              {user?.fullName ?? "Utilizador"}
+            </p>
+            <p style={{ fontSize: 11, color: "#94a3b8", margin: 0 }}>
+              {user?.email ?? ""}
+            </p>
+          </div>
+        </div>
       </div>
     </header>
   );
 }
+ 
