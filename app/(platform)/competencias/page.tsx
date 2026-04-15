@@ -1,348 +1,805 @@
-﻿"use client";
-import { useEffect, useState } from "react";
-import { api } from "../../../lib/api";
+﻿'use client';
+
+import { useState, useEffect, useCallback } from 'react';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
-interface Competency {
-  id: number; name: string; description?: string;
-  _count?: { userCompetencies: number; courses: number };
-}
-interface UserCompetency {
-  id: number; level: number; evaluatedAt?: string;
-  competency: Competency;
-}
-interface GapItem {
-  competency: Competency; requiredLevel: number;
-  currentLevel: number; gap: number; met: boolean;
-}
-interface GapResult { gaps: GapItem[]; totalGap: number; readinessPercent: number; }
 
-// ─── Styles ───────────────────────────────────────────────────────────────────
-const card: React.CSSProperties = { background: "#fff", borderRadius: 14, border: "1px solid #e2e8f0", padding: 24 };
-const inputStyle: React.CSSProperties = { width: "100%", padding: "10px 12px", border: "1.5px solid #e2e8f0", borderRadius: 8, fontSize: 14, color: "#1e293b", background: "#fff", outline: "none", boxSizing: "border-box" };
-const labelStyle: React.CSSProperties = { display: "block", fontSize: 11, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase", color: "#64748b", marginBottom: 6 };
-const btnPrimary: React.CSSProperties = { padding: "10px 20px", background: "#1e40af", color: "#fff", border: "none", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer" };
-const btnGhost: React.CSSProperties = { padding: "10px 18px", background: "#f1f5f9", color: "#475569", border: "none", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer" };
+type CompetencyCategory = 'HARD_SKILL' | 'SOFT_SKILL' | 'LANGUAGE' | 'TOOL' | 'LEADERSHIP';
+type CompetencyStatus   = 'ACTIVE' | 'INACTIVE';
+type CompetencySource   = 'MANUAL' | 'COURSE' | 'ASSESSMENT' | 'MANAGER' | 'HRIS';
+
+interface ProficiencyLevel {
+  id: number;
+  value: number;
+  name: string;
+  description: string | null;
+}
+
+interface Competency {
+  id: number;
+  name: string;
+  description: string | null;
+  category: CompetencyCategory;
+  tags: string[];
+  status: CompetencyStatus;
+  _count: { userCompetencies: number; courses: number; positions: number };
+  proficiencyLevels?: ProficiencyLevel[];
+}
+
+interface UserCompetency {
+  id: number;
+  competencyId: number;
+  currentLevel: number;
+  targetLevel: number | null;
+  selfLevel: number | null;
+  managerLevel: number | null;
+  source: CompetencySource;
+  notes: string | null;
+  evaluatedAt: string;
+  competency: Competency;
+  gap: number | null;
+  divergence: number | null;
+}
+
+interface GapResult {
+  competency: Competency;
+  requiredLevel: number;
+  currentLevel: number;
+  gap: number;
+  met: boolean;
+  priority: string;
+  weight: number;
+  recommendedCourses: Array<{ id: number; title: string }>;
+}
+
+interface GapAnalysis {
+  gaps: GapResult[];
+  totalGap: number;
+  mandatoryGaps: number;
+  readinessPercent: number;
+}
+
+interface SkillMatrix {
+  users: Array<{ id: number; fullName: string; avatarUrl: string | null; position: { name: string } | null }>;
+  competencies: Competency[];
+  matrix: Array<{ user: any; levels: Array<{ competencyId: number; level: number }> }>;
+}
+
+interface OrgDashboard {
+  totalUsers: number;
+  usersWithCompetencies: number;
+  totalGaps: number;
+  criticalGaps: Array<{ id: number; name: string; category: string; usersWithGap: number }>;
+}
+
+type View = 'catalog' | 'my-profile' | 'matrix' | 'dashboard';
+
+// ─── API ──────────────────────────────────────────────────────────────────────
+
+const API = process.env.NEXT_PUBLIC_API_URL ?? '/api';
+
+async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
+  const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
+  const res = await fetch(`${API}${path}`, {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...options?.headers,
+    },
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ message: 'Erro' }));
+    throw new Error(err.message ?? `HTTP ${res.status}`);
+  }
+  return res.json();
+}
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-const LEVEL_CONFIG = [
-  { label: "Básico",       color: "#94a3b8", bg: "#f8fafc" },
-  { label: "Elementar",   color: "#f59e0b", bg: "#fffbeb" },
-  { label: "Intermédio",  color: "#0ea5e9", bg: "#f0f9ff" },
-  { label: "Avançado",    color: "#1e40af", bg: "#eff6ff" },
-  { label: "Especialista",color: "#16a34a", bg: "#ecfdf5" },
-];
 
-function LevelBadge({ level }: { level: number }) {
-  const cfg = LEVEL_CONFIG[level - 1] ?? { label: `Nível ${level}`, color: "#64748b", bg: "#f8fafc" };
-  return <span style={{ padding: "3px 10px", borderRadius: 20, fontSize: 11, fontWeight: 700, background: cfg.bg, color: cfg.color }}>{cfg.label} ({level}/5)</span>;
+function fmtDate(d: string): string {
+  return new Date(d).toLocaleDateString('pt-AO', { day: '2-digit', month: 'short', year: 'numeric' });
 }
 
-function LevelBar({ level, max = 5, color }: { level: number; max?: number; color?: string }) {
-  const pct = (level / max) * 100;
-  const c = color ?? (pct >= 80 ? "#16a34a" : pct >= 60 ? "#1e40af" : pct >= 40 ? "#f59e0b" : "#dc2626");
+function levelColor(level: number, max = 5): string {
+  const pct = level / max;
+  if (pct === 0)    return 'bg-gray-100 text-gray-400';
+  if (pct <= 0.25)  return 'bg-red-100 text-red-700';
+  if (pct <= 0.5)   return 'bg-amber-100 text-amber-700';
+  if (pct <= 0.75)  return 'bg-blue-100 text-blue-700';
+  return 'bg-emerald-100 text-emerald-700';
+}
+
+function levelBarColor(level: number): string {
+  if (level === 0)  return 'bg-gray-200';
+  if (level === 1)  return 'bg-red-400';
+  if (level === 2)  return 'bg-amber-400';
+  if (level === 3)  return 'bg-blue-400';
+  if (level === 4)  return 'bg-emerald-400';
+  return 'bg-emerald-600';
+}
+
+const LEVEL_LABELS = ['—', 'Básico', 'Elementar', 'Intermédio', 'Avançado', 'Especialista'];
+
+const CATEGORY_CFG: Record<CompetencyCategory, { label: string; cls: string }> = {
+  HARD_SKILL:  { label: 'Hard Skill',  cls: 'bg-blue-50 text-blue-700' },
+  SOFT_SKILL:  { label: 'Soft Skill',  cls: 'bg-purple-50 text-purple-700' },
+  LANGUAGE:    { label: 'Idioma',      cls: 'bg-emerald-50 text-emerald-700' },
+  TOOL:        { label: 'Ferramenta',  cls: 'bg-amber-50 text-amber-700' },
+  LEADERSHIP:  { label: 'Liderança',   cls: 'bg-red-50 text-red-700' },
+};
+
+// ─── Sub-components ───────────────────────────────────────────────────────────
+
+function CategoryBadge({ category }: { category: CompetencyCategory }) {
+  const { label, cls } = CATEGORY_CFG[category] ?? { label: category, cls: 'bg-gray-100 text-gray-600' };
+  return <span className={`px-2 py-0.5 rounded text-xs font-medium ${cls}`}>{label}</span>;
+}
+
+function LevelBar({ current, target, max = 5 }: { current: number; target?: number | null; max?: number }) {
   return (
-    <div>
-      <div style={{ height: 6, background: "#e2e8f0", borderRadius: 3, overflow: "hidden" }}>
-        <div style={{ height: "100%", width: `${pct}%`, background: c, borderRadius: 3, transition: "width 0.5s" }} />
-      </div>
-      <p style={{ margin: "3px 0 0", fontSize: 11, color: c, fontWeight: 600 }}>{level}/{max}</p>
-    </div>
-  );
-}
-
-// ─── Toast ────────────────────────────────────────────────────────────────────
-function Toast({ msg, type, onClose }: { msg: string; type: "success"|"error"; onClose: () => void }) {
-  useEffect(() => { const t = setTimeout(onClose, 4000); return () => clearTimeout(t); }, []);
-  return <div style={{ position: "fixed", bottom: 24, right: 24, zIndex: 999, background: type === "success" ? "#ecfdf5" : "#fef2f2", border: `1px solid ${type === "success" ? "#bbf7d0" : "#fecaca"}`, borderRadius: 12, padding: "14px 20px", maxWidth: 360, boxShadow: "0 8px 24px rgba(0,0,0,0.12)", display: "flex", alignItems: "center", gap: 10 }}><span style={{ fontSize: 18 }}>{type === "success" ? "✅" : "❌"}</span><p style={{ margin: 0, fontSize: 13, color: type === "success" ? "#16a34a" : "#dc2626", fontWeight: 600 }}>{msg}</p></div>;
-}
-
-// ─── Modal: Criar Competência ─────────────────────────────────────────────────
-function CreateModal({ onClose, onCreated }: { onClose: () => void; onCreated: () => void }) {
-  const [form, setForm] = useState({ name: "", description: "" });
-  const [saving, setSaving] = useState(false);
-  function set(k: string, v: string) { setForm(f => ({ ...f, [k]: v })); }
-  async function submit(e: React.FormEvent) {
-    e.preventDefault(); setSaving(true);
-    try { await api.post("/competencies", form); onCreated(); onClose(); }
-    catch (e: any) { alert(e.message); } finally { setSaving(false); }
-  }
-  return (
-    <div style={{ position: "fixed", inset: 0, zIndex: 500, background: "rgba(15,23,42,0.45)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }} onClick={onClose}>
-      <div style={{ ...card, width: "100%", maxWidth: 440, boxShadow: "0 24px 60px rgba(0,0,0,0.18)" }} onClick={e => e.stopPropagation()}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-          <h2 style={{ margin: 0, fontSize: 17, fontWeight: 700, color: "#1e293b" }}>🧠 Nova Competência</h2>
-          <button onClick={onClose} style={{ background: "none", border: "none", fontSize: 20, cursor: "pointer", color: "#94a3b8" }}>×</button>
-        </div>
-        <form onSubmit={submit}>
-          <div style={{ marginBottom: 14 }}><span style={labelStyle}>Nome *</span><input style={inputStyle} value={form.name} onChange={e => set("name", e.target.value)} placeholder="Ex: Liderança" required /></div>
-          <div style={{ marginBottom: 20 }}><span style={labelStyle}>Descrição</span><textarea style={{ ...inputStyle, height: 72, resize: "vertical" }} value={form.description} onChange={e => set("description", e.target.value)} placeholder="Descreve a competência..." /></div>
-          <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
-            <button type="button" onClick={onClose} style={btnGhost}>Cancelar</button>
-            <button type="submit" disabled={saving} style={{ ...btnPrimary, opacity: saving ? 0.7 : 1 }}>{saving ? "A criar..." : "Criar"}</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
-}
-
-// ─── Modal: Atribuir Competência a Utilizador ─────────────────────────────────
-function AssignModal({ onClose, onAssigned, competencies }: { onClose: () => void; onAssigned: () => void; competencies: Competency[] }) {
-  const [form, setForm] = useState({ userId: "", competencyId: "", level: "3" });
-  const [saving, setSaving] = useState(false);
-  function set(k: string, v: string) { setForm(f => ({ ...f, [k]: v })); }
-  async function submit(e: React.FormEvent) {
-    e.preventDefault(); setSaving(true);
-    try { await api.post("/competencies/user", { userId: +form.userId, competencyId: +form.competencyId, level: +form.level }); onAssigned(); onClose(); }
-    catch (e: any) { alert(e.message); } finally { setSaving(false); }
-  }
-  return (
-    <div style={{ position: "fixed", inset: 0, zIndex: 500, background: "rgba(15,23,42,0.45)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }} onClick={onClose}>
-      <div style={{ ...card, width: "100%", maxWidth: 440, boxShadow: "0 24px 60px rgba(0,0,0,0.18)" }} onClick={e => e.stopPropagation()}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-          <h2 style={{ margin: 0, fontSize: 17, fontWeight: 700, color: "#1e293b" }}>🎯 Atribuir Competência</h2>
-          <button onClick={onClose} style={{ background: "none", border: "none", fontSize: 20, cursor: "pointer", color: "#94a3b8" }}>×</button>
-        </div>
-        <form onSubmit={submit}>
-          <div style={{ marginBottom: 14 }}><span style={labelStyle}>ID do Utilizador *</span><input style={inputStyle} type="number" value={form.userId} onChange={e => set("userId", e.target.value)} required /></div>
-          <div style={{ marginBottom: 14 }}>
-            <span style={labelStyle}>Competência *</span>
-            <select style={inputStyle} value={form.competencyId} onChange={e => set("competencyId", e.target.value)} required>
-              <option value="">Selecciona...</option>
-              {competencies.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-            </select>
-          </div>
-          <div style={{ marginBottom: 20 }}>
-            <span style={labelStyle}>Nível (1–5)</span>
-            <div style={{ display: "flex", gap: 8 }}>
-              {[1,2,3,4,5].map(n => (
-                <button key={n} type="button" onClick={() => set("level", String(n))} style={{ flex: 1, padding: "8px 0", border: `2px solid ${+form.level === n ? LEVEL_CONFIG[n-1].color : "#e2e8f0"}`, borderRadius: 8, background: +form.level === n ? LEVEL_CONFIG[n-1].bg : "#fff", color: +form.level === n ? LEVEL_CONFIG[n-1].color : "#94a3b8", fontWeight: +form.level === n ? 700 : 500, cursor: "pointer", fontSize: 13 }}>
-                  {n}
-                </button>
-              ))}
-            </div>
-            <p style={{ margin: "6px 0 0", fontSize: 12, color: LEVEL_CONFIG[+form.level-1]?.color }}>{LEVEL_CONFIG[+form.level-1]?.label}</p>
-          </div>
-          <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
-            <button type="button" onClick={onClose} style={btnGhost}>Cancelar</button>
-            <button type="submit" disabled={saving} style={{ ...btnPrimary, opacity: saving ? 0.7 : 1 }}>{saving ? "A atribuir..." : "Atribuir"}</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
-}
-
-// ─── Gap Analysis Panel ───────────────────────────────────────────────────────
-function GapPanel({ onClose }: { onClose: () => void }) {
-  const [userId, setUserId] = useState("");
-  const [positionId, setPositionId] = useState("");
-  const [result, setResult] = useState<GapResult | null>(null);
-  const [loading, setLoading] = useState(false);
-
-  async function analyse() {
-    if (!userId || !positionId) return;
-    setLoading(true);
-    try { const r = await api.get<GapResult>(`/competencies/user/${userId}/gap/${positionId}`); setResult(r); }
-    catch (e: any) { alert(e.message); } finally { setLoading(false); }
-  }
-
-  return (
-    <div style={{ position: "fixed", inset: 0, zIndex: 500, background: "rgba(15,23,42,0.45)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }} onClick={onClose}>
-      <div style={{ ...card, width: "100%", maxWidth: 560, maxHeight: "90vh", overflow: "auto", boxShadow: "0 24px 60px rgba(0,0,0,0.18)" }} onClick={e => e.stopPropagation()}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-          <h2 style={{ margin: 0, fontSize: 17, fontWeight: 700, color: "#1e293b" }}>📊 Análise de Gap</h2>
-          <button onClick={onClose} style={{ background: "none", border: "none", fontSize: 20, cursor: "pointer", color: "#94a3b8" }}>×</button>
-        </div>
-        <div style={{ display: "flex", gap: 12, marginBottom: 16, flexWrap: "wrap" }}>
-          <div style={{ flex: 1, minWidth: 140 }}><span style={labelStyle}>ID Utilizador</span><input style={inputStyle} type="number" value={userId} onChange={e => setUserId(e.target.value)} placeholder="Ex: 1" /></div>
-          <div style={{ flex: 1, minWidth: 140 }}><span style={labelStyle}>ID Cargo/Posição</span><input style={inputStyle} type="number" value={positionId} onChange={e => setPositionId(e.target.value)} placeholder="Ex: 2" /></div>
-          <div style={{ display: "flex", alignItems: "flex-end" }}><button onClick={analyse} disabled={loading || !userId || !positionId} style={{ ...btnPrimary, opacity: loading ? 0.7 : 1 }}>{loading ? "..." : "Analisar"}</button></div>
-        </div>
-
-        {result && (
-          <>
-            {/* Readiness */}
-            <div style={{ display: "flex", alignItems: "center", gap: 20, padding: "16px 20px", background: result.readinessPercent >= 80 ? "#ecfdf5" : result.readinessPercent >= 50 ? "#fffbeb" : "#fef2f2", borderRadius: 10, marginBottom: 20, border: `1px solid ${result.readinessPercent >= 80 ? "#bbf7d0" : result.readinessPercent >= 50 ? "#fde68a" : "#fecaca"}` }}>
-              <div style={{ textAlign: "center", flexShrink: 0 }}>
-                <p style={{ margin: 0, fontSize: 36, fontWeight: 800, color: result.readinessPercent >= 80 ? "#16a34a" : result.readinessPercent >= 50 ? "#f59e0b" : "#dc2626" }}>{result.readinessPercent}%</p>
-                <p style={{ margin: 0, fontSize: 11, color: "#64748b", fontWeight: 600 }}>Prontidão</p>
-              </div>
-              <div>
-                <p style={{ margin: 0, fontSize: 14, fontWeight: 700, color: "#1e293b" }}>Gap Total: {result.totalGap} pontos</p>
-                <p style={{ margin: "4px 0 0", fontSize: 12, color: "#64748b" }}>{result.gaps.filter(g => g.met).length} de {result.gaps.length} competências atingidas</p>
-              </div>
-            </div>
-
-            {/* Gap list */}
-            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-              {result.gaps.map((g, i) => (
-                <div key={i} style={{ padding: "12px 16px", borderRadius: 10, background: g.met ? "#f0fdf4" : "#fef9f0", border: `1px solid ${g.met ? "#bbf7d0" : "#fed7aa"}` }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                    <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: "#1e293b" }}>{g.competency.name}</p>
-                    <span style={{ fontSize: 12, fontWeight: 700, color: g.met ? "#16a34a" : "#f97316" }}>{g.met ? "✅ Atingida" : `Gap: ${g.gap}`}</span>
-                  </div>
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
-                    <div><p style={{ margin: "0 0 4px", fontSize: 11, color: "#64748b" }}>Nível Actual</p><LevelBar level={g.currentLevel} color={g.met ? "#16a34a" : "#f97316"} /></div>
-                    <div><p style={{ margin: "0 0 4px", fontSize: 11, color: "#64748b" }}>Nível Requerido</p><LevelBar level={g.requiredLevel} color="#1e40af" /></div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </>
+    <div className="flex items-center gap-2">
+      <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden relative">
+        <div
+          className={`h-full rounded-full transition-all duration-500 ${levelBarColor(current)}`}
+          style={{ width: `${(current / max) * 100}%` }}
+        />
+        {target && target > current && (
+          <div
+            className="absolute top-0 bottom-0 w-0.5 bg-gray-400 opacity-60"
+            style={{ left: `${(target / max) * 100}%` }}
+          />
         )}
       </div>
+      <span className="text-xs font-mono text-gray-600 flex-shrink-0">{current}/{max}</span>
     </div>
   );
 }
 
-// ─── Tabs ─────────────────────────────────────────────────────────────────────
-type Tab = "catalog"|"my";
+function StarRating({ value, max = 5, onChange }: { value: number; max?: number; onChange?: (v: number) => void }) {
+  return (
+    <div className="flex gap-1">
+      {Array.from({ length: max }, (_, i) => i + 1).map(s => (
+        <button
+          key={s}
+          onClick={() => onChange?.(s)}
+          className={`text-xl transition-transform hover:scale-110 ${s <= value ? 'text-amber-400' : 'text-gray-200'} ${onChange ? 'cursor-pointer' : 'cursor-default'}`}
+        >
+          ★
+        </button>
+      ))}
+    </div>
+  );
+}
 
-// ─── Página Principal ─────────────────────────────────────────────────────────
-export default function CompetenciasPage() {
-  const [tab, setTab] = useState<Tab>("catalog");
-  const [competencies, setCompetencies] = useState<Competency[]>([]);
-  const [myComps, setMyComps] = useState<UserCompetency[]>([]);
-  const [total, setTotal] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState("");
-  const [showCreate, setShowCreate] = useState(false);
-  const [showAssign, setShowAssign] = useState(false);
-  const [showGap, setShowGap] = useState(false);
-  const [toast, setToast] = useState<{ msg: string; type: "success"|"error" } | null>(null);
+function Skeleton({ rows = 4 }: { rows?: number }) {
+  return (
+    <div className="space-y-3 animate-pulse">
+      {Array.from({ length: rows }).map((_, i) => <div key={i} className="h-16 bg-gray-100 rounded-xl" />)}
+    </div>
+  );
+}
 
-  function showToast(msg: string, type: "success"|"error") { setToast({ msg, type }); }
+function initials(name: string): string {
+  return name.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase();
+}
 
-  async function fetchAll() {
+// ─── View: Catalog ────────────────────────────────────────────────────────────
+
+function CatalogView({ onSelect }: { onSelect: (id: number) => void }) {
+  const [data, setData]         = useState<{ data: Competency[]; total: number } | null>(null);
+  const [loading, setLoading]   = useState(true);
+  const [search, setSearch]     = useState('');
+  const [category, setCategory] = useState('');
+  const [page, setPage]         = useState(1);
+
+  const load = useCallback(async () => {
     setLoading(true);
     try {
-      const p = new URLSearchParams({ limit: "50" });
-      if (search) p.set("search", search);
-      const [res, my] = await Promise.all([
-        api.get<any>(`/competencies?${p}`),
-        api.get<UserCompetency[]>("/competencies/my").catch(() => []),
-      ]);
-      setCompetencies(res.data ?? []); setTotal(res.total ?? 0);
-      setMyComps(my);
-    } catch {} finally { setLoading(false); }
-  }
+      const params = new URLSearchParams({
+        page: String(page), limit: '24', status: 'ACTIVE',
+        ...(search   ? { search }   : {}),
+        ...(category ? { category } : {}),
+      });
+      setData(await apiFetch(`/competencies?${params}`));
+    } finally {
+      setLoading(false);
+    }
+  }, [search, category, page]);
 
-  useEffect(() => { fetchAll(); }, [search]);
-
-  // Stats
-  const avgLevel = myComps.length ? +(myComps.reduce((s, c) => s + c.level, 0) / myComps.length).toFixed(1) : 0;
-  const maxLevel = myComps.length ? Math.max(...myComps.map(c => c.level)) : 0;
-  const gapComps = myComps.filter(c => c.level < 4).length;
+  useEffect(() => { load(); }, [load]);
 
   return (
     <div>
-      {/* Header */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 24, flexWrap: "wrap", gap: 12 }}>
-        <div>
-          <h1 style={{ fontSize: 24, fontWeight: 700, color: "#1e293b", margin: 0 }}>🧠 Competências</h1>
-          <p style={{ color: "#64748b", fontSize: 14, marginTop: 4 }}>Catálogo de competências e perfil de desenvolvimento</p>
+      <div className="flex flex-wrap items-center gap-3 mb-5">
+        <input
+          type="text"
+          placeholder="Pesquisar competências, tags…"
+          value={search}
+          onChange={e => { setSearch(e.target.value); setPage(1); }}
+          className="flex-1 min-w-[200px] text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+        <select value={category} onChange={e => { setCategory(e.target.value); setPage(1); }}
+          className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <option value="">Todas as categorias</option>
+          {Object.entries(CATEGORY_CFG).map(([k, v]) => (
+            <option key={k} value={k}>{v.label}</option>
+          ))}
+        </select>
+        <span className="text-sm text-gray-400">{data?.total ?? 0} competências</span>
+      </div>
+
+      {loading ? <Skeleton rows={6} /> : (
+        <div className="grid grid-cols-3 gap-3">
+          {data?.data.map(comp => (
+            <div
+              key={comp.id}
+              onClick={() => onSelect(comp.id)}
+              className="bg-white border border-gray-200 rounded-xl p-4 cursor-pointer hover:shadow-md hover:border-blue-300 transition-all"
+            >
+              <div className="flex items-start justify-between gap-2 mb-2">
+                <div className="flex-1">
+                  <div className="text-sm font-semibold text-gray-900 mb-1">{comp.name}</div>
+                  <CategoryBadge category={comp.category} />
+                </div>
+              </div>
+              {comp.description && (
+                <p className="text-xs text-gray-500 mb-2 line-clamp-2">{comp.description}</p>
+              )}
+              <div className="flex flex-wrap gap-1 mb-3">
+                {comp.tags.slice(0, 3).map(t => (
+                  <span key={t} className="px-1.5 py-0.5 bg-blue-50 text-blue-600 text-xs rounded">{t}</span>
+                ))}
+              </div>
+              <div className="flex items-center gap-3 text-xs text-gray-400">
+                <span>👥 {comp._count.userCompetencies}</span>
+                <span>📚 {comp._count.courses} cursos</span>
+                <span>🎯 {comp._count.positions} cargos</span>
+              </div>
+            </div>
+          ))}
+          {data?.data.length === 0 && (
+            <div className="col-span-3 py-12 text-center text-sm text-gray-400 border border-dashed border-gray-200 rounded-xl">
+              Nenhuma competência encontrada
+            </div>
+          )}
         </div>
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-          <button onClick={() => setShowGap(true)} style={{ ...btnGhost, background: "#f5f3ff", color: "#7c3aed" }}>📊 Análise de Gap</button>
-          <button onClick={() => setShowAssign(true)} style={btnGhost}>🎯 Atribuir</button>
-          <button onClick={() => setShowCreate(true)} style={btnPrimary}>+ Nova Competência</button>
-        </div>
-      </div>
-
-      {/* Stats */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 16, marginBottom: 24 }}>
-        {[
-          { label: "Total no Catálogo", value: total, icon: "🧠", color: "#1e40af", bg: "#eff6ff" },
-          { label: "Minhas Competências", value: myComps.length, icon: "👤", color: "#16a34a", bg: "#ecfdf5" },
-          { label: "Nível Médio", value: avgLevel, icon: "📊", color: "#7c3aed", bg: "#f5f3ff" },
-          { label: "A Desenvolver", value: gapComps, icon: "⚡", color: "#f59e0b", bg: "#fffbeb" },
-        ].map(s => (
-          <div key={s.label} style={{ ...card, display: "flex", alignItems: "center", gap: 14 }}>
-            <div style={{ width: 44, height: 44, borderRadius: 12, background: s.bg, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>{s.icon}</div>
-            <div><p style={{ margin: 0, fontSize: 22, fontWeight: 800, color: s.color }}>{s.value}</p><p style={{ margin: 0, fontSize: 11, color: "#64748b", fontWeight: 600 }}>{s.label}</p></div>
-          </div>
-        ))}
-      </div>
-
-      {/* Tabs */}
-      <div style={{ display: "flex", gap: 4, background: "#f1f5f9", borderRadius: 10, padding: 4, marginBottom: 24, width: "fit-content" }}>
-        {([["catalog","📚 Catálogo"],["my","👤 As Minhas"]] as [Tab,string][]).map(([k,l]) => (
-          <button key={k} onClick={() => setTab(k)} style={{ padding: "8px 20px", border: "none", cursor: "pointer", fontSize: 13, fontWeight: tab === k ? 700 : 500, borderRadius: 8, background: tab === k ? "#1e40af" : "transparent", color: tab === k ? "#fff" : "#64748b", transition: "all 0.15s" }}>{l}</button>
-        ))}
-      </div>
-
-      {/* Pesquisa */}
-      {tab === "catalog" && (
-        <input style={{ ...inputStyle, maxWidth: 300, marginBottom: 20 }} placeholder="🔍 Pesquisar competência..." value={search} onChange={e => setSearch(e.target.value)} />
       )}
+    </div>
+  );
+}
 
-      {loading ? <div style={{ textAlign: "center", padding: 60, color: "#94a3b8" }}>A carregar...</div> :
+// ─── View: My Competency Profile ──────────────────────────────────────────────
 
-        tab === "catalog" ? (
-          competencies.length === 0 ? (
-            <div style={{ ...card, textAlign: "center", padding: 60 }}><p style={{ fontSize: 32, marginBottom: 12 }}>🧠</p><p style={{ color: "#94a3b8", fontSize: 14 }}>Nenhuma competência no catálogo.</p></div>
-          ) : (
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(260px,1fr))", gap: 16 }}>
-              {competencies.map(c => (
-                <div key={c.id} style={{ ...card, padding: 20 }}>
-                  <div style={{ display: "flex", alignItems: "flex-start", gap: 12, marginBottom: 12 }}>
-                    <div style={{ width: 42, height: 42, borderRadius: 10, background: "#eff6ff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, flexShrink: 0 }}>🧠</div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <h3 style={{ margin: 0, fontSize: 14, fontWeight: 700, color: "#1e293b" }}>{c.name}</h3>
-                      {c.description && <p style={{ margin: "4px 0 0", fontSize: 12, color: "#64748b", overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>{c.description}</p>}
+function MyProfileView() {
+  const [competencies, setCompetencies] = useState<UserCompetency[]>([]);
+  const [loading, setLoading]           = useState(true);
+  const [tab, setTab]                   = useState<'profile' | 'gap' | 'evolution'>('profile');
+  const [positionId, setPositionId]     = useState('');
+  const [gap, setGap]                   = useState<GapAnalysis | null>(null);
+  const [loadingGap, setLoadingGap]     = useState(false);
+  const [selfAssessing, setSelfAssessing] = useState<number | null>(null);
+  const [selfLevel, setSelfLevel]       = useState(1);
+  const [savingAssess, setSavingAssess] = useState(false);
+  const [evolution, setEvolution]       = useState<any[]>([]);
+
+  useEffect(() => {
+    Promise.all([
+      apiFetch<UserCompetency[]>('/competencies/my/profile'),
+      apiFetch<any[]>('/competencies/my/evolution'),
+    ])
+      .then(([comps, evo]) => { setCompetencies(comps); setEvolution(evo); })
+      .finally(() => setLoading(false));
+  }, []);
+
+  const loadGap = async () => {
+    if (!positionId) return;
+    setLoadingGap(true);
+    try {
+      const result = await apiFetch<GapAnalysis>(`/competencies/my/gap/${positionId}`);
+      setGap(result);
+    } catch (e: any) { alert(e.message); }
+    finally { setLoadingGap(false); }
+  };
+
+  const handleSelfAssess = async (competencyId: number) => {
+    setSavingAssess(true);
+    try {
+      await apiFetch('/competencies/my/self-assess', {
+        method: 'POST',
+        body: JSON.stringify({ competencyId, selfLevel }),
+      });
+      const updated = await apiFetch<UserCompetency[]>('/competencies/my/profile');
+      setCompetencies(updated);
+      setSelfAssessing(null);
+    } catch (e: any) { alert(e.message); }
+    finally { setSavingAssess(false); }
+  };
+
+  if (loading) return <Skeleton />;
+
+  // Agrupar por categoria
+  const byCategory = competencies.reduce<Record<string, UserCompetency[]>>((acc, uc) => {
+    const cat = uc.competency.category;
+    if (!acc[cat]) acc[cat] = [];
+    acc[cat].push(uc);
+    return acc;
+  }, {});
+
+  return (
+    <div>
+      <div className="flex gap-1 mb-5 bg-gray-100 p-1 rounded-xl w-fit">
+        {(['profile', 'gap', 'evolution'] as const).map(t => (
+          <button key={t} onClick={() => setTab(t)}
+            className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+              tab === t ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            {{ profile: 'O meu perfil', gap: 'Análise de gaps', evolution: 'Evolução' }[t]}
+          </button>
+        ))}
+      </div>
+
+      {/* Profile tab */}
+      {tab === 'profile' && (
+        <div className="space-y-5">
+          {/* Summary cards */}
+          <div className="grid grid-cols-4 gap-3">
+            {[
+              { label: 'Competências', value: competencies.length },
+              { label: 'Com gap',      value: competencies.filter(c => (c.gap ?? 0) > 0).length, color: 'text-amber-600' },
+              { label: 'Divergências', value: competencies.filter(c => (c.divergence ?? 0) >= 2).length, color: 'text-red-600' },
+              { label: 'Nível médio',  value: competencies.length > 0
+                ? (competencies.reduce((s, c) => s + c.currentLevel, 0) / competencies.length).toFixed(1)
+                : '—',
+              },
+            ].map(({ label, value, color }) => (
+              <div key={label} className="bg-gray-50 rounded-xl p-4">
+                <div className="text-xs text-gray-400 mb-1">{label}</div>
+                <div className={`text-2xl font-semibold font-mono ${color ?? 'text-gray-900'}`}>{value}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Per category */}
+          {Object.entries(byCategory).map(([cat, items]) => (
+            <div key={cat}>
+              <div className="flex items-center gap-2 mb-3">
+                <CategoryBadge category={cat as CompetencyCategory} />
+                <span className="text-xs text-gray-400">{items.length} competências</span>
+              </div>
+              <div className="space-y-2">
+                {items.map(uc => (
+                  <div key={uc.id} className="bg-white border border-gray-200 rounded-xl p-4">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="text-sm font-medium text-gray-900">{uc.competency.name}</span>
+                          {(uc.divergence ?? 0) >= 2 && (
+                            <span className="text-xs bg-red-50 text-red-700 px-2 py-0.5 rounded">
+                              ⚠ Divergência ({uc.selfLevel} vs {uc.managerLevel})
+                            </span>
+                          )}
+                          {(uc.gap ?? 0) > 0 && (
+                            <span className="text-xs bg-amber-50 text-amber-700 px-2 py-0.5 rounded">
+                              Gap: {uc.gap}
+                            </span>
+                          )}
+                        </div>
+                        <LevelBar current={uc.currentLevel} target={uc.targetLevel} />
+                        <div className="flex items-center gap-4 mt-1.5 text-xs text-gray-400">
+                          <span>Actual: <strong className="text-gray-700">{LEVEL_LABELS[uc.currentLevel]}</strong></span>
+                          {uc.targetLevel && <span>Alvo: <strong className="text-gray-700">{LEVEL_LABELS[uc.targetLevel]}</strong></span>}
+                          {uc.selfLevel !== null && <span>Auto: {uc.selfLevel}</span>}
+                          {uc.managerLevel !== null && <span>Gestor: {uc.managerLevel}</span>}
+                          <span>{fmtDate(uc.evaluatedAt)}</span>
+                        </div>
+                      </div>
+
+                      <div className="flex-shrink-0">
+                        {selfAssessing === uc.competencyId ? (
+                          <div className="flex flex-col gap-2 items-end">
+                            <StarRating value={selfLevel} onChange={setSelfLevel} />
+                            <div className="flex gap-1">
+                              <button
+                                onClick={() => handleSelfAssess(uc.competencyId)}
+                                disabled={savingAssess}
+                                className="px-2 py-1 bg-blue-700 text-white text-xs rounded-lg disabled:opacity-50"
+                              >
+                                {savingAssess ? '…' : 'Guardar'}
+                              </button>
+                              <button onClick={() => setSelfAssessing(null)} className="px-2 py-1 text-xs border border-gray-200 rounded-lg">
+                                Cancelar
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <button
+                            onClick={() => { setSelfAssessing(uc.competencyId); setSelfLevel(uc.currentLevel); }}
+                            className="text-xs text-blue-600 hover:underline"
+                          >
+                            Autoavaliar
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </div>
-                  {c._count && (
-                    <div style={{ display: "flex", gap: 8 }}>
-                      <span style={{ padding: "3px 10px", borderRadius: 20, fontSize: 11, fontWeight: 700, background: "#f1f5f9", color: "#64748b" }}>👥 {c._count.userCompetencies} colaboradores</span>
-                      <span style={{ padding: "3px 10px", borderRadius: 20, fontSize: 11, fontWeight: 700, background: "#eff6ff", color: "#1e40af" }}>📚 {c._count.courses} cursos</span>
-                    </div>
-                  )}
+                ))}
+              </div>
+            </div>
+          ))}
+
+          {competencies.length === 0 && (
+            <div className="py-12 text-center text-sm text-gray-400 border border-dashed border-gray-200 rounded-xl">
+              Sem competências registadas. O RH ou gestor pode atribuí-las.
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Gap tab */}
+      {tab === 'gap' && (
+        <div>
+          <div className="flex items-center gap-3 mb-5">
+            <input
+              type="number"
+              placeholder="ID do cargo alvo"
+              value={positionId}
+              onChange={e => setPositionId(e.target.value)}
+              className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <button
+              onClick={loadGap}
+              disabled={!positionId || loadingGap}
+              className="px-4 py-2 bg-blue-700 text-white text-sm font-medium rounded-lg hover:bg-blue-800 disabled:opacity-50"
+            >
+              {loadingGap ? 'A analisar…' : 'Analisar gap'}
+            </button>
+          </div>
+
+          {gap && (
+            <div className="space-y-4">
+              {/* Summary */}
+              <div className="grid grid-cols-3 gap-3">
+                <div className="bg-emerald-50 rounded-xl p-4 text-center">
+                  <div className="text-3xl font-bold text-emerald-700">{gap.readinessPercent}%</div>
+                  <div className="text-xs text-emerald-600 mt-1">Preparação</div>
                 </div>
-              ))}
-            </div>
-          )
-        ) : (
-          myComps.length === 0 ? (
-            <div style={{ ...card, textAlign: "center", padding: 60 }}>
-              <p style={{ fontSize: 32, marginBottom: 12 }}>🧠</p>
-              <p style={{ color: "#94a3b8", fontSize: 14, margin: "0 0 16px" }}>Ainda não tens competências atribuídas.</p>
-              <button onClick={() => setShowAssign(true)} style={btnPrimary}>🎯 Atribuir Competência</button>
-            </div>
-          ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              {myComps.map(uc => (
-                <div key={uc.id} style={{ ...card, padding: 16, borderLeft: `4px solid ${LEVEL_CONFIG[uc.level-1]?.color ?? "#64748b"}` }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
-                        <h3 style={{ margin: 0, fontSize: 14, fontWeight: 700, color: "#1e293b" }}>{uc.competency.name}</h3>
-                        <LevelBadge level={uc.level} />
+                <div className="bg-red-50 rounded-xl p-4 text-center">
+                  <div className="text-3xl font-bold text-red-700">{gap.mandatoryGaps}</div>
+                  <div className="text-xs text-red-600 mt-1">Gaps obrigatórios</div>
+                </div>
+                <div className="bg-amber-50 rounded-xl p-4 text-center">
+                  <div className="text-3xl font-bold text-amber-700">{gap.totalGap}</div>
+                  <div className="text-xs text-amber-600 mt-1">Gap total</div>
+                </div>
+              </div>
+
+              {/* Gaps list */}
+              <div className="space-y-2">
+                {gap.gaps.map(g => (
+                  <div key={g.competency.id} className={`border rounded-xl p-4 ${g.met ? 'border-emerald-200 bg-emerald-50' : 'border-amber-200 bg-white'}`}>
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="text-sm font-medium text-gray-900">{g.competency.name}</span>
+                          <CategoryBadge category={g.competency.category} />
+                          {g.priority === 'MANDATORY' && (
+                            <span className="text-xs bg-red-50 text-red-700 px-1.5 rounded">Obrigatório</span>
+                          )}
+                          {g.met && <span className="text-xs text-emerald-600 font-medium">✓ Cumprido</span>}
+                        </div>
+                        <div className="flex items-center gap-4">
+                          <div>
+                            <div className="text-xs text-gray-400 mb-1">Actual</div>
+                            <LevelBar current={g.currentLevel} />
+                          </div>
+                          <div className="text-gray-300">→</div>
+                          <div>
+                            <div className="text-xs text-gray-400 mb-1">Requerido</div>
+                            <LevelBar current={g.requiredLevel} />
+                          </div>
+                        </div>
                       </div>
-                      {uc.competency.description && <p style={{ margin: "0 0 8px", fontSize: 12, color: "#64748b" }}>{uc.competency.description}</p>}
-                      <LevelBar level={uc.level} />
+                      {!g.met && g.gap > 0 && (
+                        <div className="flex-shrink-0 text-center">
+                          <div className="text-xl font-bold text-amber-600">{g.gap}</div>
+                          <div className="text-xs text-gray-400">níveis</div>
+                        </div>
+                      )}
                     </div>
-                    {uc.evaluatedAt && (
-                      <div style={{ textAlign: "right", flexShrink: 0 }}>
-                        <p style={{ margin: 0, fontSize: 11, color: "#94a3b8" }}>Avaliado em</p>
-                        <p style={{ margin: "2px 0 0", fontSize: 12, color: "#64748b", fontWeight: 600 }}>{new Date(uc.evaluatedAt).toLocaleDateString("pt-PT")}</p>
+
+                    {/* Recommended courses */}
+                    {!g.met && g.recommendedCourses.length > 0 && (
+                      <div className="mt-3 pt-3 border-t border-gray-100">
+                        <div className="text-xs text-gray-400 mb-1.5">📚 Cursos recomendados para colmatar este gap:</div>
+                        <div className="flex flex-wrap gap-2">
+                          {g.recommendedCourses.slice(0, 3).map((c: any) => (
+                            <a key={c.id} href={`/courses/${c.id}`}
+                              className="text-xs px-2 py-1 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100">
+                              {c.title}
+                            </a>
+                          ))}
+                        </div>
                       </div>
                     )}
                   </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Evolution tab */}
+      {tab === 'evolution' && (
+        <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+          <div className="grid grid-cols-[1fr_120px_80px_80px_160px] gap-3 px-4 py-2.5 border-b border-gray-100 text-xs font-medium text-gray-400 uppercase tracking-wide">
+            <div>Competência</div><div>Fonte</div><div>Anterior</div><div>Novo</div><div>Data</div>
+          </div>
+          {evolution.length === 0 ? (
+            <div className="px-4 py-8 text-center text-sm text-gray-400">Sem histórico de evolução</div>
+          ) : (
+            evolution.map((e: any) => (
+              <div key={e.id} className="grid grid-cols-[1fr_120px_80px_80px_160px] gap-3 items-center px-4 py-3 border-b border-gray-100 last:border-0">
+                <div className="text-sm text-gray-900">{e.competency?.name}</div>
+                <div className="text-xs text-gray-500">{e.source}</div>
+                <div className="text-xs font-mono text-gray-400">{e.previousLevel} → </div>
+                <div className={`text-xs font-mono font-semibold ${e.newLevel > e.previousLevel ? 'text-emerald-600' : 'text-red-600'}`}>
+                  {e.newLevel}
+                </div>
+                <div className="text-xs text-gray-400">{fmtDate(e.createdAt)}</div>
+              </div>
+            ))
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── View: Skill Matrix ───────────────────────────────────────────────────────
+
+function SkillMatrixView() {
+  const [matrix, setMatrix] = useState<SkillMatrix | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [deptId, setDeptId]   = useState('');
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      const params = new URLSearchParams(deptId ? { departmentId: deptId } : {});
+      setMatrix(await apiFetch<SkillMatrix>(`/competencies/skill-matrix?${params}`));
+    } finally {
+      setLoading(false);
+    }
+  }, [deptId]);
+
+  useEffect(() => { load(); }, [load]);
+
+  if (loading) return <Skeleton rows={6} />;
+  if (!matrix) return null;
+
+  return (
+    <div>
+      <div className="flex items-center gap-3 mb-5">
+        <input
+          type="number"
+          placeholder="ID do departamento (opcional)"
+          value={deptId}
+          onChange={e => setDeptId(e.target.value)}
+          className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+        {/* Legenda */}
+        <div className="flex gap-2 ml-auto text-xs text-gray-400">
+          {[
+            { color: 'bg-gray-200', label: '0 — Sem registo' },
+            { color: 'bg-red-400',  label: '1 — Básico' },
+            { color: 'bg-amber-400',label: '2 — Elementar' },
+            { color: 'bg-blue-400', label: '3 — Intermédio' },
+            { color: 'bg-emerald-400', label: '4 — Avançado' },
+            { color: 'bg-emerald-600', label: '5 — Especialista' },
+          ].map(({ color, label }) => (
+            <div key={label} className="flex items-center gap-1">
+              <div className={`w-3 h-3 rounded-sm ${color}`} />
+              {label}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Matrix table */}
+      <div className="overflow-x-auto">
+        <div className="min-w-max">
+          {/* Header row — competências */}
+          <div className="flex">
+            <div className="w-44 flex-shrink-0" />
+            {matrix.competencies.map(comp => (
+              <div
+                key={comp.id}
+                className="w-16 flex-shrink-0 text-xs text-gray-500 text-center leading-tight px-1 pb-2"
+                style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)', height: 100 }}
+              >
+                {comp.name}
+              </div>
+            ))}
+          </div>
+
+          {/* Rows — utilizadores */}
+          {matrix.matrix.map(row => (
+            <div key={row.user.id} className="flex items-center border-b border-gray-100 hover:bg-gray-50">
+              <div className="w-44 flex-shrink-0 flex items-center gap-2 pr-3 py-2">
+                <div className="w-7 h-7 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-semibold flex-shrink-0">
+                  {initials(row.user.fullName)}
+                </div>
+                <div>
+                  <div className="text-xs font-medium text-gray-900 truncate">{row.user.fullName}</div>
+                  <div className="text-xs text-gray-400 truncate">{row.user.position?.name}</div>
+                </div>
+              </div>
+              {row.levels.map(lv => (
+                <div key={lv.competencyId} className="w-16 flex-shrink-0 flex items-center justify-center py-2">
+                  <div className={`w-9 h-9 rounded-lg flex items-center justify-center text-xs font-bold ${levelColor(lv.level)}`}>
+                    {lv.level || '—'}
+                  </div>
                 </div>
               ))}
             </div>
-          )
-        )
-      }
+          ))}
 
-      {/* Modais */}
-      {showCreate && <CreateModal onClose={() => setShowCreate(false)} onCreated={() => { fetchAll(); showToast("Competência criada!", "success"); }} />}
-      {showAssign && <AssignModal onClose={() => setShowAssign(false)} competencies={competencies} onAssigned={() => { fetchAll(); showToast("Competência atribuída!", "success"); }} />}
-      {showGap && <GapPanel onClose={() => setShowGap(false)} />}
-      {toast && <Toast msg={toast.msg} type={toast.type} onClose={() => setToast(null)} />}
+          {matrix.matrix.length === 0 && (
+            <div className="py-12 text-center text-sm text-gray-400">Sem utilizadores encontrados</div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── View: Dashboard RH ───────────────────────────────────────────────────────
+
+function DashboardView() {
+  const [data, setData]     = useState<OrgDashboard | null>(null);
+  const [top, setTop]       = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    Promise.all([
+      apiFetch<OrgDashboard>('/competencies/dashboard/gaps'),
+      apiFetch<any[]>('/competencies/top?limit=8'),
+    ])
+      .then(([d, t]) => { setData(d); setTop(t); })
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading || !data) return <Skeleton rows={4} />;
+
+  return (
+    <div className="space-y-6">
+      {/* Métricas */}
+      <div className="grid grid-cols-4 gap-3">
+        {[
+          { label: 'Total colaboradores', value: data.totalUsers },
+          { label: 'Com competências',    value: data.usersWithCompetencies, color: 'text-emerald-600' },
+          { label: 'Sem competências',    value: data.totalUsers - data.usersWithCompetencies, color: 'text-amber-600' },
+          { label: 'Gaps identificados',  value: data.totalGaps, color: data.totalGaps > 0 ? 'text-red-600' : undefined },
+        ].map(({ label, value, color }) => (
+          <div key={label} className="bg-gray-50 rounded-xl p-4">
+            <div className="text-xs text-gray-400 mb-1">{label}</div>
+            <div className={`text-2xl font-semibold font-mono ${color ?? 'text-gray-900'}`}>{value}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Gaps críticos */}
+      {data.criticalGaps.length > 0 && (
+        <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+          <div className="px-4 py-3 border-b border-gray-100 text-xs font-medium text-gray-400 uppercase tracking-wide">
+            Competências críticas — mais gaps
+          </div>
+          {data.criticalGaps.map(c => {
+            const pct = data.totalUsers > 0 ? Math.round((c.usersWithGap / data.totalUsers) * 100) : 0;
+            return (
+              <div key={c.id} className="flex items-center gap-4 px-4 py-3 border-b border-gray-100 last:border-0">
+                <div className="flex-1">
+                  <div className="text-sm font-medium text-gray-900">{c.name}</div>
+                  <CategoryBadge category={c.category as CompetencyCategory} />
+                </div>
+                <div className="w-40">
+                  <div className="flex justify-between text-xs text-gray-400 mb-1">
+                    <span>{c.usersWithGap} utilizadores</span>
+                    <span>{pct}%</span>
+                  </div>
+                  <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                    <div className="h-1.5 bg-red-500 rounded-full" style={{ width: `${pct}%` }} />
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Top competências */}
+      {top.length > 0 && (
+        <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+          <div className="px-4 py-3 border-b border-gray-100 text-xs font-medium text-gray-400 uppercase tracking-wide">
+            Competências mais comuns na organização
+          </div>
+          {top.map((t: any, idx) => (
+            <div key={t.competencyId} className="flex items-center gap-4 px-4 py-3 border-b border-gray-100 last:border-0">
+              <span className="text-lg font-bold font-mono text-gray-200 w-6 text-center">{idx + 1}</span>
+              <div className="flex-1">
+                <div className="text-sm font-medium text-gray-900">{t.competency?.name ?? '—'}</div>
+                <CategoryBadge category={(t.competency?.category ?? 'HARD_SKILL') as CompetencyCategory} />
+              </div>
+              <div className="text-right">
+                <div className="text-sm font-mono text-gray-700">{t._count.competencyId} utilizadores</div>
+                <div className="text-xs text-gray-400">Nível médio: {t.avgLevel}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Page principal ───────────────────────────────────────────────────────────
+
+const NAV: Array<{ id: View; label: string }> = [
+  { id: 'catalog',    label: 'Catálogo' },
+  { id: 'my-profile', label: 'O meu perfil' },
+  { id: 'matrix',     label: 'Skill Matrix' },
+  { id: 'dashboard',  label: 'Dashboard RH' },
+];
+
+const TITLES: Record<View, string> = {
+  catalog:    'Catálogo de Competências',
+  'my-profile': 'O meu Perfil de Competências',
+  matrix:     'Skill Matrix',
+  dashboard:  'Dashboard de Competências',
+};
+
+export default function CompetenciesPage() {
+  const [view, setView]          = useState<View>('catalog');
+  const [selectedId, setSelectedId] = useState<number | null>(null);
+
+  return (
+    <div className="max-w-6xl mx-auto px-4 py-8">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-xl font-semibold text-gray-900">{TITLES[view]}</h1>
+          <p className="text-sm text-gray-400 mt-0.5">INNOVA — Gestão de Competências</p>
+        </div>
+        {view === 'catalog' && (
+          <button
+            onClick={() => alert('Abrir formulário de criação de competência')}
+            className="px-4 py-2 bg-blue-700 text-white text-sm font-medium rounded-lg hover:bg-blue-800"
+          >
+            + Nova competência
+          </button>
+        )}
+      </div>
+
+      {/* Tabs */}
+      <div className="flex gap-1 mb-6 bg-gray-100 p-1 rounded-xl w-fit">
+        {NAV.map(n => (
+          <button key={n.id} onClick={() => setView(n.id)}
+            className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+              view === n.id ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            {n.label}
+          </button>
+        ))}
+      </div>
+
+      {view === 'catalog'     && <CatalogView onSelect={id => { setSelectedId(id); }} />}
+      {view === 'my-profile'  && <MyProfileView />}
+      {view === 'matrix'      && <SkillMatrixView />}
+      {view === 'dashboard'   && <DashboardView />}
     </div>
   );
 }

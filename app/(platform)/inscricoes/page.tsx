@@ -1,692 +1,781 @@
-﻿"use client";
-import { useEffect, useState } from "react";
-import { api } from "../../../lib/api";
+﻿'use client';
+
+import { useState, useEffect, useCallback } from 'react';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
-type EnrollmentStatus = "EM_ANDAMENTO" | "CONCLUIDO" | "CANCELADO";
+
+type EnrollmentStatus = 'NOT_STARTED' | 'IN_PROGRESS' | 'COMPLETED' | 'OVERDUE' | 'EXPIRED' | 'CANCELLED';
+type EnrollmentOrigin = 'MANUAL' | 'SELF_ENROLL' | 'LEARNING_PATH' | 'ONBOARDING' | 'RULE_ENGINE' | 'CAMPAIGN';
 
 interface Enrollment {
   id: number;
-  userId: number;
   courseId: number;
+  userId: number;
   status: EnrollmentStatus;
+  mandatory: boolean;
+  origin: EnrollmentOrigin;
+  deadline: string | null;
+  startedAt: string | null;
+  completedAt: string | null;
   enrolledAt: string;
-  user?: { id: number; fullName: string; email: string };
-  course?: { id: number; title: string; workloadHours?: number; category?: string };
-  certificate?: { id: number; validationCode: string; fileUrl?: string };
-  _count?: { progresses: number };
+  progressPercent: number;
+  completedLessons: number;
+  totalLessons: number;
+  isOverdue: boolean;
+  user: { id: number; fullName: string; email: string; avatarUrl: string | null; department: { name: string } | null };
+  course: { id: number; title: string; thumbnailUrl: string | null; category: string | null; workloadHours: number | null };
+  certificate: { id: number; code: string; issuedAt: string } | null;
 }
 
-interface Course { id: number; title: string; category?: string }
-interface User   { id: number; fullName: string; email: string }
+interface MyEnrollmentsResponse {
+  enrollments: Enrollment[];
+  groups: {
+    overdue:    Enrollment[];
+    inProgress: Enrollment[];
+    notStarted: Enrollment[];
+    completed:  Enrollment[];
+    cancelled:  Enrollment[];
+  };
+}
+
+interface AdminDashboard {
+  enrollments: { total: number; completed: number; inProgress: number; notStarted: number; overdue: number };
+  mandatory:   number;
+  completionRate: number;
+  topCourses: Array<{ id: number; title: string; category: string | null; enrollments: number }>;
+}
+
+interface ComplianceDashboard {
+  mandatory: { total: number; completed: number; overdue: number; notStarted: number };
+  complianceRate: number;
+  topOverdueCourses: Array<{ id: number; title: string; overdueCount: number }>;
+}
+
+type View = 'my' | 'admin' | 'compliance' | 'team';
+
+// ─── API ──────────────────────────────────────────────────────────────────────
+
+const API = process.env.NEXT_PUBLIC_API_URL ?? '/api';
+
+async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
+  const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
+  const res = await fetch(`${API}${path}`, {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...options?.headers,
+    },
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ message: 'Erro' }));
+    throw new Error(err.message ?? `HTTP ${res.status}`);
+  }
+  return res.json();
+}
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-const STATUS_MAP: Record<EnrollmentStatus, { label: string; bg: string; color: string }> = {
-  EM_ANDAMENTO: { label: "Em Andamento", bg: "#fff7ed", color: "#ea580c" },
-  CONCLUIDO:    { label: "Concluído",    bg: "#f0fdf4", color: "#16a34a" },
-  CANCELADO:    { label: "Cancelado",    bg: "#fef2f2", color: "#dc2626" },
-};
 
-function Badge({ status }: { status: EnrollmentStatus }) {
-  const s = STATUS_MAP[status] ?? { label: status, bg: "#f1f5f9", color: "#64748b" };
+function fmtDate(d: string | null): string {
+  if (!d) return '—';
+  return new Date(d).toLocaleDateString('pt-AO', { day: '2-digit', month: 'short', year: 'numeric' });
+}
+
+function deadlineCountdown(deadline: string | null): string {
+  if (!deadline) return '';
+  const diff = new Date(deadline).getTime() - Date.now();
+  if (diff < 0) return 'Expirado';
+  const days = Math.ceil(diff / 86400000);
+  if (days === 0) return 'Hoje';
+  if (days === 1) return 'Amanhã';
+  return `${days} dias`;
+}
+
+function Skeleton({ rows = 4 }: { rows?: number }) {
   return (
-    <span style={{
-      background: s.bg, color: s.color, padding: "3px 10px",
-      borderRadius: 20, fontSize: 11, fontWeight: 700, whiteSpace: "nowrap",
-    }}>{s.label}</span>
+    <div className="space-y-2 animate-pulse">
+      {Array.from({ length: rows }).map((_, i) => <div key={i} className="h-16 bg-gray-100 rounded-xl" />)}
+    </div>
   );
 }
 
-// ─── Shared Styles ────────────────────────────────────────────────────────────
-const input: React.CSSProperties = {
-  width: "100%", padding: "10px 12px", border: "1.5px solid #e2e8f0",
-  borderRadius: 8, fontSize: 14, color: "#1e293b", background: "#fff",
-  outline: "none", boxSizing: "border-box",
-};
-const btnPrimary: React.CSSProperties = {
-  padding: "10px 20px", background: "#1e40af", color: "#fff",
-  border: "none", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer",
-};
-const btnGhost: React.CSSProperties = {
-  padding: "10px 20px", background: "#f1f5f9", color: "#475569",
-  border: "none", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer",
-};
-const label: React.CSSProperties = {
-  display: "block", fontSize: 11, fontWeight: 700, letterSpacing: 1,
-  textTransform: "uppercase", color: "#64748b", marginBottom: 6,
-};
+// ─── Badge components ─────────────────────────────────────────────────────────
 
-// ─── Modal: Nova Inscrição ────────────────────────────────────────────────────
-function ModalNova({ users, courses, onClose, onSave }: {
-  users: User[]; courses: Course[];
-  onClose: () => void; onSave: () => void;
-}) {
-  const [userId, setUserId]     = useState("");
-  const [courseId, setCourseId] = useState("");
-  const [saving, setSaving]     = useState(false);
-  const [err, setErr]           = useState("");
-
-  async function submit(e: React.FormEvent) {
-    e.preventDefault();
-    if (!userId || !courseId) { setErr("Preencha todos os campos."); return; }
-    setSaving(true); setErr("");
-    try {
-      // POST /enrollments — CreateEnrollmentDto: { userId, courseId }
-      await api.post("/enrollments", { userId: +userId, courseId: +courseId });
-      onSave();
-    } catch (e: any) { setErr(e.message ?? "Erro ao criar inscrição"); }
-    finally { setSaving(false); }
-  }
-
+function StatusBadge({ status }: { status: EnrollmentStatus }) {
+  const cfg: Record<EnrollmentStatus, { label: string; cls: string; dot: string }> = {
+    NOT_STARTED: { label: 'Não iniciado', cls: 'bg-gray-100 text-gray-500',     dot: 'bg-gray-400' },
+    IN_PROGRESS: { label: 'Em progresso', cls: 'bg-blue-50 text-blue-700',      dot: 'bg-blue-500' },
+    COMPLETED:   { label: 'Concluído',    cls: 'bg-emerald-50 text-emerald-700',dot: 'bg-emerald-500' },
+    OVERDUE:     { label: 'Atrasado',     cls: 'bg-red-50 text-red-700',        dot: 'bg-red-500' },
+    EXPIRED:     { label: 'Expirado',     cls: 'bg-orange-50 text-orange-700',  dot: 'bg-orange-500' },
+    CANCELLED:   { label: 'Cancelado',    cls: 'bg-gray-100 text-gray-400',     dot: 'bg-gray-300' },
+  };
+  const { label, cls, dot } = cfg[status];
   return (
-    <Overlay>
-      <Modal title="Nova Inscrição" onClose={onClose}>
-        <form onSubmit={submit}>
-          <div style={{ marginBottom: 16 }}>
-            <span style={label}>Utilizador</span>
-            <select value={userId} onChange={e => setUserId(e.target.value)} style={input} required>
-              <option value="">Seleccionar utilizador...</option>
-              {users.map(u => (
-                <option key={u.id} value={u.id}>{u.fullName} — {u.email}</option>
-              ))}
-            </select>
-          </div>
-          <div style={{ marginBottom: 16 }}>
-            <span style={label}>Curso</span>
-            <select value={courseId} onChange={e => setCourseId(e.target.value)} style={input} required>
-              <option value="">Seleccionar curso...</option>
-              {courses.map(c => (
-                <option key={c.id} value={c.id}>{c.title}</option>
-              ))}
-            </select>
-          </div>
-          {err && <p style={{ color: "#ef4444", fontSize: 13, marginBottom: 12 }}>{err}</p>}
-          <ModalFooter onClose={onClose} saving={saving} label="Criar Inscrição" />
-        </form>
-      </Modal>
-    </Overlay>
+    <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium ${cls}`}>
+      <span className={`w-1.5 h-1.5 rounded-full ${dot}`} />{label}
+    </span>
   );
 }
 
-// ─── Modal: Inscrição em Massa ────────────────────────────────────────────────
-function ModalBulk({ courses, onClose, onSave }: {
-  courses: Course[]; onClose: () => void; onSave: () => void;
-}) {
-  const [courseId, setCourseId] = useState("");
-  const [rawIds, setRawIds]     = useState("");
-  const [saving, setSaving]     = useState(false);
-  const [result, setResult]     = useState<{ success: number; errors: number } | null>(null);
-  const [err, setErr]           = useState("");
-
-  async function submit(e: React.FormEvent) {
-    e.preventDefault();
-    const userIds = rawIds.split(/[\n,]+/).map(s => parseInt(s.trim())).filter(n => !isNaN(n));
-    if (!courseId || userIds.length === 0) { setErr("Preencha o curso e pelo menos um ID."); return; }
-    setSaving(true); setErr("");
-    try {
-      // POST /enrollments/bulk — BulkEnrollDto: { userIds, courseId }
-      const res = await api.post<any>("/enrollments/bulk", { userIds, courseId: +courseId });
-      setResult(res);
-    } catch (e: any) { setErr(e.message ?? "Erro"); }
-    finally { setSaving(false); }
-  }
-
-  return (
-    <Overlay>
-      <Modal title="Inscrição em Massa" onClose={onClose}>
-        {result ? (
-          <div>
-            <div style={{ background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: 8, padding: 16, marginBottom: 20 }}>
-              <p style={{ color: "#16a34a", fontWeight: 700, margin: 0 }}>✓ {result.success} inscrições criadas com sucesso</p>
-              {result.errors > 0 && <p style={{ color: "#ea580c", margin: "4px 0 0", fontSize: 13 }}>{result.errors} falharam (já inscritos ou inválidos)</p>}
-            </div>
-            <button onClick={onSave} style={btnPrimary}>Fechar</button>
-          </div>
-        ) : (
-          <form onSubmit={submit}>
-            <div style={{ marginBottom: 16 }}>
-              <span style={label}>Curso</span>
-              <select value={courseId} onChange={e => setCourseId(e.target.value)} style={input} required>
-                <option value="">Seleccionar curso...</option>
-                {courses.map(c => <option key={c.id} value={c.id}>{c.title}</option>)}
-              </select>
-            </div>
-            <div style={{ marginBottom: 16 }}>
-              <span style={label}>IDs dos Utilizadores (um por linha ou separados por vírgula)</span>
-              <textarea
-                value={rawIds}
-                onChange={e => setRawIds(e.target.value)}
-                style={{ ...input, height: 100, resize: "vertical", fontFamily: "monospace" }}
-                placeholder={"1\n2\n3\nou: 1, 2, 3"}
-                required
-              />
-            </div>
-            {err && <p style={{ color: "#ef4444", fontSize: 13, marginBottom: 12 }}>{err}</p>}
-            <ModalFooter onClose={onClose} saving={saving} label="Inscrever em Massa" />
-          </form>
-        )}
-      </Modal>
-    </Overlay>
-  );
+function OriginBadge({ origin }: { origin: EnrollmentOrigin }) {
+  const labels: Record<EnrollmentOrigin, string> = {
+    MANUAL:        'Manual',
+    SELF_ENROLL:   'Auto-inscrição',
+    LEARNING_PATH: 'Trilha',
+    ONBOARDING:    'Onboarding',
+    RULE_ENGINE:   'Automático',
+    CAMPAIGN:      'Campanha',
+  };
+  return <span className="text-xs text-gray-400">{labels[origin]}</span>;
 }
 
-// ─── Modal: Alterar Estado ────────────────────────────────────────────────────
-function ModalStatus({ enrollment, onClose, onSave }: {
-  enrollment: Enrollment; onClose: () => void; onSave: () => void;
-}) {
-  const [status, setStatus] = useState<EnrollmentStatus>(enrollment.status);
-  const [saving, setSaving] = useState(false);
-  const [err, setErr]       = useState("");
-
-  async function submit(e: React.FormEvent) {
-    e.preventDefault();
-    setSaving(true); setErr("");
-    try {
-      // PUT /enrollments/:id/status — UpdateEnrollmentStatusDto: { status }
-      await api.put(`/enrollments/${enrollment.id}/status`, { status });
-      onSave();
-    } catch (e: any) { setErr(e.message ?? "Erro ao actualizar"); }
-    finally { setSaving(false); }
-  }
-
+function ProgressBar({ pct, overdue }: { pct: number; overdue: boolean }) {
   return (
-    <Overlay>
-      <Modal title="Alterar Estado" onClose={onClose}>
-        <p style={{ fontSize: 13, color: "#64748b", marginBottom: 20 }}>
-          <strong>{enrollment.user?.fullName}</strong> — {enrollment.course?.title}
-        </p>
-        <form onSubmit={submit}>
-          <div style={{ marginBottom: 16 }}>
-            <span style={label}>Novo Estado</span>
-            <select value={status} onChange={e => setStatus(e.target.value as EnrollmentStatus)} style={input}>
-              <option value="EM_ANDAMENTO">Em Andamento</option>
-              <option value="CONCLUIDO">Concluído</option>
-              <option value="CANCELADO">Cancelado</option>
-            </select>
-          </div>
-          {err && <p style={{ color: "#ef4444", fontSize: 13, marginBottom: 12 }}>{err}</p>}
-          <ModalFooter onClose={onClose} saving={saving} label="Guardar" />
-        </form>
-      </Modal>
-    </Overlay>
-  );
-}
-
-// ─── Modal: Detalhe ───────────────────────────────────────────────────────────
-function ModalDetalhe({ id, onClose }: { id: number; onClose: () => void }) {
-  const [data, setData]   = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    // GET /enrollments/:id
-    api.get<any>(`/enrollments/${id}`)
-      .then(setData)
-      .finally(() => setLoading(false));
-  }, [id]);
-
-  async function gerarCertificado() {
-    try {
-      // POST /enrollments/:id/certificate
-      await api.post(`/enrollments/${id}/certificate`, {});
-      alert("Certificado gerado com sucesso!");
-      onClose();
-    } catch (e: any) { alert(e.message); }
-  }
-
-  return (
-    <Overlay>
-      <Modal title="Detalhe da Inscrição" onClose={onClose} wide>
-        {loading ? (
-          <p style={{ color: "#94a3b8", textAlign: "center", padding: 32 }}>A carregar...</p>
-        ) : !data ? (
-          <p style={{ color: "#ef4444" }}>Erro ao carregar dados.</p>
-        ) : (
-          <div>
-            {/* Info básica */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 20 }}>
-              {[
-                { l: "Utilizador", v: data.user?.fullName },
-                { l: "Email",      v: data.user?.email },
-                { l: "Curso",      v: data.course?.title },
-                { l: "Estado",     v: <Badge status={data.status} /> },
-                { l: "Progresso",  v: `${data.progressPercent ?? 0}% (${data.completedLessons ?? 0}/${data.totalLessons ?? 0} lições)` },
-                { l: "Inscrito em", v: data.enrolledAt ? new Date(data.enrolledAt).toLocaleDateString("pt-PT") : "—" },
-              ].map(({ l, v }) => (
-                <div key={l} style={{ background: "#f8fafc", borderRadius: 8, padding: "10px 14px" }}>
-                  <p style={{ margin: 0, fontSize: 10, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: 0.8 }}>{l}</p>
-                  <p style={{ margin: "4px 0 0", fontSize: 14, color: "#1e293b", fontWeight: 500 }}>{v ?? "—"}</p>
-                </div>
-              ))}
-            </div>
-
-            {/* Barra de progresso */}
-            <div style={{ marginBottom: 20 }}>
-              <p style={{ ...label, marginBottom: 8 }}>Progresso do curso</p>
-              <div style={{ background: "#e2e8f0", borderRadius: 20, height: 10, overflow: "hidden" }}>
-                <div style={{
-                  width: `${data.progressPercent ?? 0}%`, height: "100%",
-                  background: "linear-gradient(90deg, #1e40af, #3b82f6)", borderRadius: 20,
-                  transition: "width 0.5s ease",
-                }} />
-              </div>
-            </div>
-
-            {/* Certificado */}
-            {data.certificate ? (
-              <div style={{ background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: 8, padding: 14, marginBottom: 16 }}>
-                <p style={{ margin: 0, color: "#16a34a", fontWeight: 700, fontSize: 13 }}>✓ Certificado emitido</p>
-                <p style={{ margin: "4px 0 0", fontSize: 12, color: "#64748b" }}>Código: {data.certificate.validationCode}</p>
-              </div>
-            ) : data.status === "CONCLUIDO" ? (
-              <button onClick={gerarCertificado} style={{ ...btnPrimary, marginBottom: 16 }}>
-                Gerar Certificado
-              </button>
-            ) : null}
-
-            {/* Tentativas */}
-            {data.attempts?.length > 0 && (
-              <div>
-                <p style={label}>Tentativas de Avaliação</p>
-                {data.attempts.slice(0, 3).map((a: any) => (
-                  <div key={a.id} style={{
-                    display: "flex", justifyContent: "space-between", alignItems: "center",
-                    padding: "8px 12px", background: "#f8fafc", borderRadius: 6, marginBottom: 6,
-                  }}>
-                    <span style={{ fontSize: 13, color: "#1e293b" }}>{a.evaluation?.title ?? `Tentativa #${a.id}`}</span>
-                    <span style={{ fontSize: 12, color: a.passed ? "#16a34a" : "#dc2626", fontWeight: 600 }}>
-                      {a.scorePercent != null ? `${a.scorePercent}%` : "—"} {a.passed ? "✓" : "✗"}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-      </Modal>
-    </Overlay>
-  );
-}
-
-// ─── Overlay + Modal helpers ──────────────────────────────────────────────────
-function Overlay({ children }: { children: React.ReactNode }) {
-  return (
-    <div style={{
-      position: "fixed", inset: 0, background: "rgba(15,23,42,0.55)",
-      display: "flex", alignItems: "center", justifyContent: "center", zIndex: 200,
-    }}>{children}</div>
-  );
-}
-
-function Modal({ title, onClose, children, wide }: {
-  title: string; onClose: () => void; children: React.ReactNode; wide?: boolean;
-}) {
-  return (
-    <div style={{
-      background: "#fff", borderRadius: 16, padding: 32,
-      width: wide ? 600 : 440, maxWidth: "95vw", maxHeight: "90vh",
-      overflowY: "auto", boxShadow: "0 24px 60px rgba(0,0,0,0.2)",
-    }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
-        <h2 style={{ fontSize: 18, fontWeight: 700, color: "#1e293b", margin: 0 }}>{title}</h2>
-        <button onClick={onClose} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 20, color: "#94a3b8", lineHeight: 1 }}>✕</button>
+    <div className="flex items-center gap-2">
+      <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+        <div
+          className={`h-1.5 rounded-full transition-all duration-500 ${overdue ? 'bg-red-400' : 'bg-blue-500'}`}
+          style={{ width: `${pct}%` }}
+        />
       </div>
-      {children}
+      <span className="text-xs font-mono text-gray-500 w-8 text-right">{pct}%</span>
     </div>
   );
 }
 
-function ModalFooter({ onClose, saving, label: lbl }: { onClose: () => void; saving: boolean; label: string }) {
+function DeadlinePill({ deadline, isOverdue }: { deadline: string | null; isOverdue: boolean }) {
+  if (!deadline) return null;
+  const countdown = deadlineCountdown(deadline);
+  const urgent    = !isOverdue && ['Hoje', 'Amanhã', '2 dias', '3 dias'].some(d => countdown.includes(d.split(' ')[0]));
   return (
-    <div style={{ display: "flex", gap: 12, justifyContent: "flex-end", marginTop: 8 }}>
-      <button type="button" onClick={onClose} style={btnGhost}>Cancelar</button>
-      <button type="submit" disabled={saving} style={{ ...btnPrimary, opacity: saving ? 0.7 : 1 }}>
-        {saving ? "A guardar..." : lbl}
-      </button>
+    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+      isOverdue ? 'bg-red-50 text-red-700' :
+      urgent    ? 'bg-amber-50 text-amber-700' :
+                  'bg-gray-100 text-gray-500'
+    }`}>
+      {isOverdue ? '⚠ ' : '⏳ '}{countdown}
+    </span>
+  );
+}
+
+function Avatar({ user }: { user: { fullName: string; avatarUrl: string | null } }) {
+  const initials = user.fullName.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase();
+  return user.avatarUrl ? (
+    <img src={user.avatarUrl} alt={user.fullName} className="w-8 h-8 rounded-full object-cover flex-shrink-0" />
+  ) : (
+    <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-semibold flex-shrink-0">
+      {initials}
     </div>
   );
 }
 
-// ─── Página Principal ─────────────────────────────────────────────────────────
-export default function InscricoesPage() {
-  const [enrollments, setEnrollments]   = useState<Enrollment[]>([]);
-  const [total, setTotal]               = useState(0);
-  const [totalPages, setTotalPages]     = useState(1);
-  const [page, setPage]                 = useState(1);
-  const [loading, setLoading]           = useState(true);
-  const [error, setError]               = useState("");
-  const [search, setSearch]             = useState("");
-  const [filterStatus, setFilterStatus] = useState("");
-  const [users, setUsers]               = useState<User[]>([]);
-  const [courses, setCourses]           = useState<Course[]>([]);
+// ─── Enrollment Card (learner view) ──────────────────────────────────────────
 
-  // Modais
-  const [modalNova, setModalNova]       = useState(false);
-  const [modalBulk, setModalBulk]       = useState(false);
-  const [modalStatus, setModalStatus]   = useState<Enrollment | null>(null);
-  const [modalDetalhe, setModalDetalhe] = useState<number | null>(null);
+function EnrollmentCard({
+  enrollment,
+  onCancel,
+}: {
+  enrollment: Enrollment;
+  onCancel?: (id: number) => void;
+}) {
+  const { course, status, mandatory, isOverdue, progressPercent, completedLessons, totalLessons, deadline } = enrollment;
 
-  const LIMIT = 15;
+  return (
+    <div className={`bg-white border rounded-xl overflow-hidden transition-all ${
+      isOverdue ? 'border-red-200' :
+      status === 'COMPLETED' ? 'border-emerald-200' :
+      status === 'IN_PROGRESS' ? 'border-blue-200' :
+      'border-gray-200'
+    }`}>
+      <div className="flex gap-4 p-4">
+        {/* Thumbnail */}
+        <div className="w-20 h-14 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
+          {course.thumbnailUrl ? (
+            <img src={course.thumbnailUrl} alt={course.title} className="w-full h-full object-cover" />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-2xl text-gray-300">📚</div>
+          )}
+        </div>
 
-  function load(p = 1) {
+        <div className="flex-1 min-w-0">
+          <div className="flex items-start justify-between gap-2 mb-1">
+            <div>
+              <div className="flex items-center gap-2 mb-0.5">
+                {mandatory && <span className="text-xs bg-red-50 text-red-700 px-1.5 py-0 rounded font-medium">Obrigatório</span>}
+                {course.category && <span className="text-xs text-gray-400">{course.category}</span>}
+              </div>
+              <div className="text-sm font-medium text-gray-900 line-clamp-1">{course.title}</div>
+            </div>
+            <StatusBadge status={status} />
+          </div>
+
+          {/* Progress */}
+          {status !== 'NOT_STARTED' && status !== 'CANCELLED' && totalLessons > 0 && (
+            <div className="mb-2">
+              <ProgressBar pct={progressPercent} overdue={isOverdue} />
+              <div className="text-xs text-gray-400 mt-0.5">{completedLessons}/{totalLessons} aulas</div>
+            </div>
+          )}
+
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <DeadlinePill deadline={deadline} isOverdue={isOverdue} />
+              {enrollment.certificate && (
+                <span className="text-xs bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded">🏆 Certificado</span>
+              )}
+            </div>
+
+            {/* CTA button */}
+            <div>
+              {status === 'NOT_STARTED' && (
+                <a href={`/courses/${enrollment.courseId}`}
+                  className="px-3 py-1.5 bg-blue-700 text-white text-xs font-medium rounded-lg hover:bg-blue-800">
+                  Iniciar →
+                </a>
+              )}
+              {status === 'IN_PROGRESS' && (
+                <a href={`/courses/${enrollment.courseId}`}
+                  className="px-3 py-1.5 bg-blue-700 text-white text-xs font-medium rounded-lg hover:bg-blue-800">
+                  Continuar →
+                </a>
+              )}
+              {status === 'OVERDUE' && (
+                <a href={`/courses/${enrollment.courseId}`}
+                  className="px-3 py-1.5 bg-red-600 text-white text-xs font-medium rounded-lg hover:bg-red-700">
+                  ⚠ Iniciar agora →
+                </a>
+              )}
+              {status === 'COMPLETED' && (
+                <span className="text-xs text-emerald-600 font-medium">✓ Concluído</span>
+              )}
+              {!mandatory && status !== 'COMPLETED' && status !== 'CANCELLED' && onCancel && (
+                <button onClick={() => onCancel(enrollment.id)}
+                  className="ml-2 text-xs text-gray-400 hover:text-red-500">
+                  Cancelar
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── View: My Enrollments ─────────────────────────────────────────────────────
+
+function MyEnrollmentsView() {
+  const [data, setData]       = useState<MyEnrollmentsResponse | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [tab, setTab]         = useState<'all' | 'overdue' | 'inProgress' | 'notStarted' | 'completed'>('all');
+  const [cancelling, setCancelling] = useState<number | null>(null);
+
+  const load = useCallback(async () => {
     setLoading(true);
-    // GET /enrollments — EnrollmentFilterDto: { page, limit, userId?, courseId?, status? }
-    const params = new URLSearchParams({
-      page: String(p), limit: String(LIMIT),
-      ...(filterStatus ? { status: filterStatus } : {}),
-    });
-    api.get<any>(`/enrollments?${params}`)
-      .then(res => {
-        setEnrollments(res?.data ?? []);
-        setTotal(res?.total ?? 0);
-        setTotalPages(res?.totalPages ?? 1);
-        setPage(p);
-      })
-      .catch(e => setError(e.message))
-      .finally(() => setLoading(false));
-  }
-
-  useEffect(() => { load(1); }, [filterStatus]);
-
-  useEffect(() => {
-    // Carregar listas para os selects dos modais
-    api.get<any>("/users?limit=500").then(r => setUsers(r?.data ?? [])).catch(() => {});
-    api.get<any>("/courses?limit=500").then(r => setCourses(r?.data ?? [])).catch(() => {});
+    try {
+      setData(await apiFetch<MyEnrollmentsResponse>('/enrollments/my'));
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  async function cancelar(id: number) {
-    if (!confirm("Tem a certeza que pretende cancelar esta inscrição?")) return;
+  useEffect(() => { load(); }, [load]);
+
+  const handleCancel = async (id: number) => {
+    if (!confirm('Cancelar esta matrícula?')) return;
+    setCancelling(id);
     try {
-      // PATCH /enrollments/:id/cancel
-      await api.patch(`/enrollments/${id}/cancel`, {});
-      load(page);
-    } catch (e: any) { alert(e.message); }
-  }
+      await apiFetch(`/enrollments/my/${id}/cancel`, { method: 'PATCH', body: '{}' });
+      await load();
+    } catch (e: any) {
+      alert(e.message);
+    } finally {
+      setCancelling(null);
+    }
+  };
 
-  // Filtro local por pesquisa
-  const filtered = search
-    ? enrollments.filter(e =>
-        e.user?.fullName?.toLowerCase().includes(search.toLowerCase()) ||
-        e.user?.email?.toLowerCase().includes(search.toLowerCase()) ||
-        e.course?.title?.toLowerCase().includes(search.toLowerCase())
-      )
-    : enrollments;
+  if (loading || !data) return <Skeleton rows={4} />;
 
-  // Stats da página actual
-  const emAndamento = enrollments.filter(e => e.status === "EM_ANDAMENTO").length;
-  const concluidos  = enrollments.filter(e => e.status === "CONCLUIDO").length;
-  const cancelados  = enrollments.filter(e => e.status === "CANCELADO").length;
+  const tabs: Array<{ id: typeof tab; label: string; count: number }> = [
+    { id: 'all',        label: 'Todos',          count: data.enrollments.length },
+    { id: 'overdue',    label: 'Atrasados',      count: data.groups.overdue.length },
+    { id: 'inProgress', label: 'Em progresso',   count: data.groups.inProgress.length },
+    { id: 'notStarted', label: 'Não iniciados',  count: data.groups.notStarted.length },
+    { id: 'completed',  label: 'Concluídos',     count: data.groups.completed.length },
+  ];
+
+  const displayed = tab === 'all' ? data.enrollments : data.groups[tab === 'all' ? 'inProgress' : tab] ?? [];
 
   return (
     <div>
-      {/* ── Header ── */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 24 }}>
-        <div>
-          <h1 style={{ fontSize: 24, fontWeight: 700, color: "#1e293b", margin: 0 }}>Inscrições</h1>
-          <p style={{ color: "#64748b", fontSize: 14, marginTop: 4 }}>
-            {total} inscrições no total
-          </p>
+      {/* Alertas de overdue */}
+      {data.groups.overdue.length > 0 && (
+        <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 mb-5 flex items-center gap-3">
+          <span className="text-red-600 text-lg">⚠</span>
+          <div>
+            <div className="text-sm font-medium text-red-800">
+              {data.groups.overdue.length} curso(s) com prazo expirado
+            </div>
+            <div className="text-xs text-red-600">
+              {data.groups.overdue.filter(e => e.mandatory).length} obrigatório(s) — conclua o mais rapidamente possível
+            </div>
+          </div>
         </div>
-        <div style={{ display: "flex", gap: 10 }}>
-          <button onClick={() => setModalBulk(true)} style={{ ...btnGhost, fontSize: 13 }}>
-            ⚡ Em Massa
+      )}
+
+      {/* Tabs */}
+      <div className="flex gap-1 mb-5 bg-gray-100 p-1 rounded-xl w-fit flex-wrap">
+        {tabs.map(t => (
+          <button key={t.id} onClick={() => setTab(t.id as any)}
+            className={`flex items-center gap-1.5 px-3 py-2 text-xs font-medium rounded-lg transition-colors ${
+              tab === t.id ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            {t.label}
+            {t.count > 0 && (
+              <span className={`px-1.5 py-0 rounded-full text-xs ${
+                t.id === 'overdue' ? 'bg-red-100 text-red-700' : 'bg-gray-200 text-gray-600'
+              }`}>
+                {t.count}
+              </span>
+            )}
           </button>
-          <button onClick={() => setModalNova(true)} style={{ ...btnPrimary, fontSize: 13 }}>
-            + Nova Inscrição
-          </button>
-        </div>
+        ))}
       </div>
 
-      {/* ── Stats ── */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, marginBottom: 20 }}>
-        {[
-          { label: "Total",        value: total,       color: "#1e40af", bg: "#eff6ff" },
-          { label: "Em Andamento", value: emAndamento, color: "#ea580c", bg: "#fff7ed" },
-          { label: "Concluídos",   value: concluidos,  color: "#16a34a", bg: "#f0fdf4" },
-          { label: "Cancelados",   value: cancelados,  color: "#dc2626", bg: "#fef2f2" },
-        ].map(s => (
-          <div key={s.label} style={{
-            background: s.bg, borderRadius: 10, padding: "14px 18px",
-            border: `1px solid ${s.color}22`, cursor: s.label !== "Total" ? "pointer" : "default",
-          }}
-            onClick={() => {
-              if (s.label === "Em Andamento") setFilterStatus("EM_ANDAMENTO");
-              else if (s.label === "Concluídos") setFilterStatus("CONCLUIDO");
-              else if (s.label === "Cancelados") setFilterStatus("CANCELADO");
-            }}
+      <div className="space-y-3">
+        {displayed.length === 0 ? (
+          <div className="py-12 text-center text-sm text-gray-400 border border-dashed border-gray-200 rounded-xl">
+            Sem matrículas nesta categoria
+          </div>
+        ) : (
+          displayed.map(e => (
+            <EnrollmentCard key={e.id} enrollment={e} onCancel={handleCancel} />
+          ))
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─── View: Admin Enrollments Table ────────────────────────────────────────────
+
+function AdminView() {
+  const [data, setData]         = useState<any>(null);
+  const [loading, setLoading]   = useState(true);
+  const [search, setSearch]     = useState('');
+  const [status, setStatus]     = useState('');
+  const [mandatory, setMandatory] = useState('');
+  const [overdue, setOverdue]   = useState('');
+  const [page, setPage]         = useState(1);
+  const [selected, setSelected] = useState<number[]>([]);
+  const [bulkDeadline, setBulkDeadline] = useState('');
+  const [bulkLoading, setBulkLoading] = useState(false);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      const params = new URLSearchParams({
+        page: String(page), limit: '20',
+        ...(search    ? { search }            : {}),
+        ...(status    ? { status }            : {}),
+        ...(mandatory ? { mandatory }         : {}),
+        ...(overdue   ? { overdue: 'true' }   : {}),
+      });
+      setData(await apiFetch<any>(`/enrollments?${params}`));
+    } finally {
+      setLoading(false);
+    }
+  }, [search, status, mandatory, overdue, page]);
+
+  useEffect(() => { load(); }, [load]);
+
+  const handleBulkDeadline = async () => {
+    if (!bulkDeadline || selected.length === 0) return;
+    setBulkLoading(true);
+    try {
+      await Promise.all(
+        selected.map(id =>
+          apiFetch(`/enrollments/${id}/deadline`, {
+            method: 'PATCH',
+            body:   JSON.stringify({ deadline: bulkDeadline }),
+          })
+        )
+      );
+      setSelected([]);
+      setBulkDeadline('');
+      await load();
+    } catch (e: any) {
+      alert(e.message);
+    } finally {
+      setBulkLoading(false);
+    }
+  };
+
+  const toggleSelect = (id: number) =>
+    setSelected(s => s.includes(id) ? s.filter(x => x !== id) : [...s, id]);
+
+  return (
+    <div>
+      {/* Filtros */}
+      <div className="flex flex-wrap items-center gap-3 mb-5">
+        <select value={status} onChange={e => { setStatus(e.target.value); setPage(1); }}
+          className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <option value="">Todos os estados</option>
+          <option value="NOT_STARTED">Não iniciado</option>
+          <option value="IN_PROGRESS">Em progresso</option>
+          <option value="COMPLETED">Concluído</option>
+          <option value="OVERDUE">Atrasado</option>
+          <option value="CANCELLED">Cancelado</option>
+        </select>
+        <select value={mandatory} onChange={e => { setMandatory(e.target.value); setPage(1); }}
+          className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <option value="">Obrigatório e opcional</option>
+          <option value="true">Apenas obrigatórios</option>
+          <option value="false">Apenas opcionais</option>
+        </select>
+        <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
+          <input type="checkbox" checked={!!overdue} onChange={e => setOverdue(e.target.checked ? 'true' : '')}
+            className="w-4 h-4 rounded border-gray-300 text-red-600 focus:ring-red-500" />
+          Apenas atrasados
+        </label>
+        <span className="text-sm text-gray-400 ml-auto">{data?.total ?? 0} matrículas</span>
+      </div>
+
+      {/* Bulk deadline */}
+      {selected.length > 0 && (
+        <div className="flex items-center gap-3 mb-4 px-4 py-2.5 bg-blue-50 border border-blue-100 rounded-xl">
+          <span className="text-sm font-medium text-blue-700">{selected.length} seleccionados</span>
+          <input
+            type="date"
+            value={bulkDeadline}
+            onChange={e => setBulkDeadline(e.target.value)}
+            className="text-sm border border-blue-200 rounded-lg px-2 py-1.5 bg-white focus:outline-none"
+          />
+          <button
+            onClick={handleBulkDeadline}
+            disabled={!bulkDeadline || bulkLoading}
+            className="px-3 py-1.5 bg-blue-700 text-white text-xs font-medium rounded-lg disabled:opacity-50"
           >
-            <p style={{ margin: 0, fontSize: 10, fontWeight: 700, color: s.color, textTransform: "uppercase", letterSpacing: 0.8 }}>
-              {s.label}
-            </p>
-            <p style={{ margin: "4px 0 0", fontSize: 26, fontWeight: 800, color: s.color }}>{s.value}</p>
+            {bulkLoading ? 'A aplicar…' : 'Actualizar deadline'}
+          </button>
+          <button onClick={() => setSelected([])} className="text-xs text-blue-600 ml-auto">Limpar</button>
+        </div>
+      )}
+
+      {/* Tabela */}
+      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+        <div className="grid grid-cols-[32px_1fr_180px_120px_100px_120px_80px] gap-3 px-4 py-2.5 border-b border-gray-100 text-xs font-medium text-gray-400 uppercase tracking-wide">
+          <div/>
+          <div>Colaborador / Curso</div>
+          <div>Estado</div>
+          <div>Progresso</div>
+          <div>Origem</div>
+          <div>Deadline</div>
+          <div>Tipo</div>
+        </div>
+
+        {loading && <div className="p-4"><Skeleton /></div>}
+
+        {!loading && data?.data?.map((e: any) => (
+          <div key={e.id}
+            className="grid grid-cols-[32px_1fr_180px_120px_100px_120px_80px] gap-3 items-center px-4 py-3 border-b border-gray-100 hover:bg-gray-50 last:border-0">
+            <input type="checkbox" checked={selected.includes(e.id)} onChange={() => toggleSelect(e.id)}
+              className="w-4 h-4 rounded border-gray-300 text-blue-600" />
+            <div className="flex flex-col gap-1">
+              <div className="flex items-center gap-2">
+                <Avatar user={e.user} />
+                <div>
+                  <div className="text-xs font-medium text-gray-900">{e.user?.fullName}</div>
+                  <div className="text-xs text-gray-400">{e.user?.email}</div>
+                </div>
+              </div>
+              <div className="text-xs text-gray-600 pl-10 truncate">{e.course?.title}</div>
+            </div>
+            <div><StatusBadge status={e.status} /></div>
+            <div>
+              <ProgressBar pct={e.progressPercent ?? 0} overdue={e.isOverdue} />
+            </div>
+            <div><OriginBadge origin={e.origin} /></div>
+            <div className="text-xs">
+              {e.deadline ? (
+                <DeadlinePill deadline={e.deadline} isOverdue={e.isOverdue} />
+              ) : (
+                <span className="text-gray-300">—</span>
+              )}
+            </div>
+            <div>
+              {e.mandatory
+                ? <span className="text-xs text-red-600 font-medium">Obrigatório</span>
+                : <span className="text-xs text-gray-400">Opcional</span>}
+            </div>
           </div>
         ))}
       </div>
 
-      {/* ── Filtros ── */}
-      <div style={{ display: "flex", gap: 12, marginBottom: 16, flexWrap: "wrap", alignItems: "center" }}>
-        <input
-          placeholder="Pesquisar por utilizador, email ou curso..."
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          style={{ ...input, width: 320 }}
-        />
-        <select
-          value={filterStatus}
-          onChange={e => setFilterStatus(e.target.value)}
-          style={{ ...input, width: 180 }}
-        >
-          <option value="">Todos os estados</option>
-          <option value="EM_ANDAMENTO">Em Andamento</option>
-          <option value="CONCLUIDO">Concluído</option>
-          <option value="CANCELADO">Cancelado</option>
-        </select>
-        {filterStatus && (
-          <button onClick={() => setFilterStatus("")} style={{ ...btnGhost, padding: "10px 14px" }}>
-            ✕ Limpar filtro
-          </button>
-        )}
-      </div>
-
-      {/* ── Erro ── */}
-      {error && (
-        <div style={{
-          background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 8,
-          padding: 14, color: "#dc2626", fontSize: 13, marginBottom: 16,
-        }}>
-          {error}
-        </div>
-      )}
-
-      {/* ── Tabela ── */}
-      <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e2e8f0", overflow: "hidden" }}>
-        {loading ? (
-          <div style={{ padding: 60, textAlign: "center" }}>
-            <div style={{
-              width: 32, height: 32, border: "3px solid #e2e8f0", borderTopColor: "#1e40af",
-              borderRadius: "50%", animation: "spin 0.7s linear infinite", margin: "0 auto 12px",
-            }} />
-            <p style={{ color: "#94a3b8", fontSize: 14 }}>A carregar inscrições...</p>
-            <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-          </div>
-        ) : filtered.length === 0 ? (
-          <div style={{ padding: 60, textAlign: "center", color: "#94a3b8" }}>
-            <p style={{ fontSize: 32, margin: "0 0 8px" }}>📋</p>
-            <p style={{ fontSize: 14, fontWeight: 500 }}>Nenhuma inscrição encontrada</p>
-            <p style={{ fontSize: 13, marginTop: 4 }}>Tente ajustar os filtros ou criar uma nova inscrição</p>
-          </div>
-        ) : (
-          <div style={{ overflowX: "auto" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
-              <thead>
-                <tr style={{ background: "#f8fafc", borderBottom: "1px solid #e2e8f0" }}>
-                  {["#", "Utilizador", "Curso", "Estado", "Progresso", "Data", "Certificado", "Acções"].map(h => (
-                    <th key={h} style={{
-                      padding: "11px 16px", textAlign: "left", fontWeight: 700,
-                      color: "#64748b", fontSize: 11, textTransform: "uppercase", letterSpacing: 0.6,
-                      whiteSpace: "nowrap",
-                    }}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map((e, i) => (
-                  <tr
-                    key={e.id}
-                    style={{ borderTop: "1px solid #f1f5f9", transition: "background 0.1s" }}
-                    onMouseEnter={ev => (ev.currentTarget.style.background = "#fafafa")}
-                    onMouseLeave={ev => (ev.currentTarget.style.background = "transparent")}
-                  >
-                    <td style={{ padding: "12px 16px", color: "#94a3b8", fontSize: 12 }}>
-                      {(page - 1) * LIMIT + i + 1}
-                    </td>
-                    <td style={{ padding: "12px 16px" }}>
-                      <div style={{ fontWeight: 600, color: "#1e293b" }}>
-                        {e.user?.fullName ?? `Utilizador #${e.userId}`}
-                      </div>
-                      <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 2 }}>
-                        {e.user?.email ?? ""}
-                      </div>
-                    </td>
-                    <td style={{ padding: "12px 16px", maxWidth: 220 }}>
-                      <div style={{ fontWeight: 500, color: "#1e293b", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                        {e.course?.title ?? `Curso #${e.courseId}`}
-                      </div>
-                      {e.course?.workloadHours && (
-                        <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 2 }}>
-                          {e.course.workloadHours}h
-                        </div>
-                      )}
-                    </td>
-                    <td style={{ padding: "12px 16px" }}>
-                      <Badge status={e.status} />
-                    </td>
-                    <td style={{ padding: "12px 16px", minWidth: 100 }}>
-                      <div style={{ fontSize: 11, color: "#64748b", marginBottom: 4 }}>
-                        {e._count?.progresses ?? 0} lições
-                      </div>
-                      <div style={{ background: "#e2e8f0", borderRadius: 10, height: 6, overflow: "hidden" }}>
-                        <div style={{
-                          width: `${Math.min((e._count?.progresses ?? 0) * 10, 100)}%`,
-                          height: "100%", background: "#1e40af", borderRadius: 10,
-                        }} />
-                      </div>
-                    </td>
-                    <td style={{ padding: "12px 16px", color: "#64748b", whiteSpace: "nowrap", fontSize: 12 }}>
-                      {e.enrolledAt ? new Date(e.enrolledAt).toLocaleDateString("pt-PT") : "—"}
-                    </td>
-                    <td style={{ padding: "12px 16px" }}>
-                      {e.certificate ? (
-                        <span style={{ color: "#16a34a", fontSize: 11, fontWeight: 700 }}>✓ Emitido</span>
-                      ) : (
-                        <span style={{ color: "#cbd5e1", fontSize: 11 }}>—</span>
-                      )}
-                    </td>
-                    <td style={{ padding: "12px 16px" }}>
-                      <div style={{ display: "flex", gap: 6, flexWrap: "nowrap" }}>
-                        <button
-                          onClick={() => setModalDetalhe(e.id)}
-                          style={{
-                            padding: "5px 10px", background: "#f1f5f9", color: "#475569",
-                            border: "none", borderRadius: 6, fontSize: 11, fontWeight: 600, cursor: "pointer",
-                          }}
-                        >
-                          Ver
-                        </button>
-                        <button
-                          onClick={() => setModalStatus(e)}
-                          style={{
-                            padding: "5px 10px", background: "#eff6ff", color: "#1e40af",
-                            border: "none", borderRadius: 6, fontSize: 11, fontWeight: 600, cursor: "pointer",
-                          }}
-                        >
-                          Estado
-                        </button>
-                        {e.status !== "CANCELADO" && (
-                          <button
-                            onClick={() => cancelar(e.id)}
-                            style={{
-                              padding: "5px 10px", background: "#fef2f2", color: "#dc2626",
-                              border: "none", borderRadius: 6, fontSize: 11, fontWeight: 600, cursor: "pointer",
-                            }}
-                          >
-                            Cancelar
-                          </button>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
-
-      {/* ── Paginação ── */}
-      {totalPages > 1 && (
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 16 }}>
-          <span style={{ fontSize: 13, color: "#64748b" }}>
-            A mostrar {(page - 1) * LIMIT + 1}–{Math.min(page * LIMIT, total)} de {total}
-          </span>
-          <div style={{ display: "flex", gap: 8 }}>
-            <button
-              onClick={() => load(page - 1)}
-              disabled={page === 1}
-              style={{ ...btnGhost, padding: "8px 16px", opacity: page === 1 ? 0.4 : 1 }}
-            >
+      {/* Paginação */}
+      {data && data.totalPages > 1 && (
+        <div className="flex items-center justify-between mt-4">
+          <span className="text-xs text-gray-400">Página {data.page} de {data.totalPages}</span>
+          <div className="flex gap-2">
+            <button disabled={page === 1} onClick={() => setPage(p => p - 1)}
+              className="px-3 py-1.5 text-xs border border-gray-200 rounded-lg disabled:opacity-40 hover:bg-gray-50">
               ← Anterior
             </button>
-            {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
-              const p = Math.max(1, page - 2) + i;
-              if (p > totalPages) return null;
-              return (
-                <button key={p} onClick={() => load(p)} style={{
-                  padding: "8px 13px", border: "none", borderRadius: 8, fontSize: 13,
-                  fontWeight: p === page ? 700 : 400, cursor: "pointer",
-                  background: p === page ? "#1e40af" : "#f1f5f9",
-                  color: p === page ? "#fff" : "#475569",
-                }}>{p}</button>
-              );
-            })}
-            <button
-              onClick={() => load(page + 1)}
-              disabled={page === totalPages}
-              style={{ ...btnGhost, padding: "8px 16px", opacity: page === totalPages ? 0.4 : 1 }}
-            >
-              Seguinte →
+            <button disabled={page === data.totalPages} onClick={() => setPage(p => p + 1)}
+              className="px-3 py-1.5 text-xs border border-gray-200 rounded-lg disabled:opacity-40 hover:bg-gray-50">
+              Próxima →
             </button>
           </div>
         </div>
       )}
+    </div>
+  );
+}
 
-      {/* ── Modais ── */}
-      {modalNova && (
-        <ModalNova
-          users={users} courses={courses}
-          onClose={() => setModalNova(false)}
-          onSave={() => { setModalNova(false); load(1); }}
-        />
+// ─── View: Compliance Dashboard ───────────────────────────────────────────────
+
+function ComplianceView() {
+  const [data, setData]       = useState<ComplianceDashboard | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [dashboard, setDashboard] = useState<AdminDashboard | null>(null);
+
+  useEffect(() => {
+    Promise.all([
+      apiFetch<ComplianceDashboard>('/enrollments/compliance'),
+      apiFetch<AdminDashboard>('/enrollments/admin/dashboard'),
+    ]).then(([c, d]) => { setData(c); setDashboard(d); })
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading || !data || !dashboard) return <Skeleton rows={3} />;
+
+  const pctColor = data.complianceRate >= 80 ? 'text-emerald-600' : data.complianceRate >= 50 ? 'text-amber-600' : 'text-red-600';
+
+  return (
+    <div className="space-y-6">
+      {/* Métricas globais */}
+      <div className="grid grid-cols-4 gap-3">
+        {[
+          { label: 'Total matrículas',  value: dashboard.enrollments.total                                        },
+          { label: 'Concluídas',        value: dashboard.enrollments.completed,   color: 'text-emerald-600'      },
+          { label: 'Taxa conclusão',    value: `${dashboard.completionRate}%`,     color: 'text-blue-600'         },
+          { label: 'Atrasadas',         value: dashboard.enrollments.overdue,      color: dashboard.enrollments.overdue > 0 ? 'text-red-600' : undefined },
+        ].map(({ label, value, color }) => (
+          <div key={label} className="bg-gray-50 rounded-xl p-4">
+            <div className="text-xs text-gray-400 mb-1">{label}</div>
+            <div className={`text-2xl font-semibold font-mono ${color ?? 'text-gray-900'}`}>{value}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Compliance de obrigatórios */}
+      <div className="bg-white border border-gray-200 rounded-xl p-5">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <div className="text-sm font-semibold text-gray-900">Compliance — Cursos obrigatórios</div>
+            <div className="text-xs text-gray-400 mt-0.5">
+              {data.mandatory.completed}/{data.mandatory.total} concluídos
+            </div>
+          </div>
+          <div className={`text-3xl font-bold font-mono ${pctColor}`}>
+            {data.complianceRate}%
+          </div>
+        </div>
+        <div className="h-3 bg-gray-100 rounded-full overflow-hidden mb-4">
+          <div
+            className={`h-3 rounded-full transition-all duration-700 ${
+              data.complianceRate >= 80 ? 'bg-emerald-500' :
+              data.complianceRate >= 50 ? 'bg-amber-500' :
+              'bg-red-500'
+            }`}
+            style={{ width: `${data.complianceRate}%` }}
+          />
+        </div>
+        <div className="grid grid-cols-3 gap-3 text-center">
+          {[
+            { label: 'Concluídos',    value: data.mandatory.completed,  cls: 'text-emerald-600' },
+            { label: 'Não iniciados', value: data.mandatory.notStarted, cls: 'text-gray-500'    },
+            { label: 'Atrasados',     value: data.mandatory.overdue,    cls: 'text-red-600'     },
+          ].map(({ label, value, cls }) => (
+            <div key={label} className="bg-gray-50 rounded-lg p-3">
+              <div className={`text-xl font-bold font-mono ${cls}`}>{value}</div>
+              <div className="text-xs text-gray-400">{label}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Top cursos com mais atrasos */}
+      {data.topOverdueCourses.length > 0 && (
+        <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+          <div className="px-4 py-3 border-b border-gray-100 text-xs font-medium text-gray-400 uppercase tracking-wide">
+            Cursos com mais atrasos
+          </div>
+          {data.topOverdueCourses.map((c, idx) => (
+            <div key={c.id} className="flex items-center gap-4 px-4 py-3 border-b border-gray-100 last:border-0">
+              <span className="text-sm font-bold font-mono text-gray-200 w-5">{idx + 1}</span>
+              <div className="flex-1 text-sm text-gray-800">{c.title}</div>
+              <span className="text-sm font-mono text-red-600">{c.overdueCount} atrasados</span>
+            </div>
+          ))}
+        </div>
       )}
-      {modalBulk && (
-        <ModalBulk
-          courses={courses}
-          onClose={() => setModalBulk(false)}
-          onSave={() => { setModalBulk(false); load(1); }}
-        />
+
+      {/* Top cursos por matrículas */}
+      {dashboard.topCourses.length > 0 && (
+        <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+          <div className="px-4 py-3 border-b border-gray-100 text-xs font-medium text-gray-400 uppercase tracking-wide">
+            Cursos mais populares
+          </div>
+          {dashboard.topCourses.map((c, idx) => (
+            <div key={c.id} className="flex items-center gap-4 px-4 py-3 border-b border-gray-100 last:border-0">
+              <span className="text-sm font-bold font-mono text-gray-200 w-5">{idx + 1}</span>
+              <div className="flex-1">
+                <div className="text-sm text-gray-800">{c.title}</div>
+                {c.category && <div className="text-xs text-gray-400">{c.category}</div>}
+              </div>
+              <span className="text-sm font-mono text-gray-500">{c.enrollments} matrículas</span>
+            </div>
+          ))}
+        </div>
       )}
-      {modalStatus && (
-        <ModalStatus
-          enrollment={modalStatus}
-          onClose={() => setModalStatus(null)}
-          onSave={() => { setModalStatus(null); load(page); }}
-        />
-      )}
-      {modalDetalhe !== null && (
-        <ModalDetalhe
-          id={modalDetalhe}
-          onClose={() => setModalDetalhe(null)}
-        />
-      )}
+    </div>
+  );
+}
+
+// ─── View: Team Progress ──────────────────────────────────────────────────────
+
+function TeamView() {
+  const [data, setData]       = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    apiFetch<any>('/enrollments/team')
+      .then(setData)
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading || !data) return <Skeleton rows={4} />;
+
+  if (data.team.length === 0) return (
+    <div className="py-12 text-center text-sm text-gray-400 border border-dashed border-gray-200 rounded-xl">
+      Sem subordinados directos
+    </div>
+  );
+
+  return (
+    <div>
+      <div className="text-xs text-gray-400 mb-4">{data.total} membros na equipa</div>
+      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+        <div className="grid grid-cols-[1fr_80px_80px_80px_100px] gap-3 px-4 py-2.5 border-b border-gray-100 text-xs font-medium text-gray-400 uppercase tracking-wide">
+          <div>Colaborador</div>
+          <div>Total</div>
+          <div>Concluídos</div>
+          <div>Atrasados</div>
+          <div>Compliance</div>
+        </div>
+        {data.team.map((member: any) => {
+          const compliance = member.stats.total > 0
+            ? Math.round((member.stats.completed / member.stats.total) * 100)
+            : 100;
+          return (
+            <div key={member.id}
+              className="grid grid-cols-[1fr_80px_80px_80px_100px] gap-3 items-center px-4 py-3 border-b border-gray-100 last:border-0">
+              <div className="flex items-center gap-3">
+                <Avatar user={member} />
+                <div>
+                  <div className="text-sm font-medium text-gray-900">{member.fullName}</div>
+                  <div className="text-xs text-gray-400">{member.email}</div>
+                </div>
+              </div>
+              <div className="text-sm font-mono text-gray-500">{member.stats.total}</div>
+              <div className="text-sm font-mono text-emerald-600">{member.stats.completed}</div>
+              <div className={`text-sm font-mono ${member.stats.overdue > 0 ? 'text-red-600 font-semibold' : 'text-gray-400'}`}>
+                {member.stats.overdue}
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                    <div
+                      className={`h-1.5 rounded-full ${compliance >= 80 ? 'bg-emerald-500' : compliance >= 50 ? 'bg-amber-500' : 'bg-red-500'}`}
+                      style={{ width: `${compliance}%` }}
+                    />
+                  </div>
+                  <span className="text-xs font-mono text-gray-500 w-8">{compliance}%</span>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ─── Page principal ───────────────────────────────────────────────────────────
+
+const NAV: Array<{ id: View; label: string }> = [
+  { id: 'my',         label: 'As minhas matrículas' },
+  { id: 'admin',      label: 'Gestão (Admin)' },
+  { id: 'compliance', label: 'Compliance' },
+  { id: 'team',       label: 'Equipa' },
+];
+
+const TITLES: Record<View, string> = {
+  my:         'As minhas matrículas',
+  admin:      'Gestão de Matrículas',
+  compliance: 'Dashboard de Compliance',
+  team:       'Progresso da Equipa',
+};
+
+export default function EnrollmentsPage() {
+  const [view, setView] = useState<View>('my');
+
+  return (
+    <div className="max-w-5xl mx-auto px-4 py-8">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-xl font-semibold text-gray-900">{TITLES[view]}</h1>
+          <p className="text-sm text-gray-400 mt-0.5">INNOVA — Gestão de Formação</p>
+        </div>
+        {view === 'admin' && (
+          <div className="flex gap-2">
+            <button
+              onClick={() => alert('Abrir formulário de matrícula')}
+              className="px-4 py-2 bg-blue-700 text-white text-sm font-medium rounded-lg hover:bg-blue-800"
+            >
+              + Matricular
+            </button>
+            <button
+              onClick={() => alert('Abrir modal de matrículas em massa')}
+              className="px-4 py-2 border border-gray-200 text-sm rounded-lg hover:bg-gray-50"
+            >
+              ⚡ Em massa
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Tabs */}
+      <div className="flex gap-1 mb-6 bg-gray-100 p-1 rounded-xl w-fit flex-wrap">
+        {NAV.map(n => (
+          <button key={n.id} onClick={() => setView(n.id)}
+            className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+              view === n.id ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            {n.label}
+          </button>
+        ))}
+      </div>
+
+      {view === 'my'         && <MyEnrollmentsView />}
+      {view === 'admin'      && <AdminView />}
+      {view === 'compliance' && <ComplianceView />}
+      {view === 'team'       && <TeamView />}
     </div>
   );
 }

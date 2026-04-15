@@ -1,878 +1,874 @@
-﻿"use client";
-import { useEffect, useState } from "react";
-import { api } from "../../../lib/api";
+﻿'use client';
+
+import { useState, useEffect, useCallback, useRef } from 'react';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
+
+type QType  = 'MULTIPLE_CHOICE_SINGLE' | 'MULTIPLE_CHOICE_MULTI' | 'TRUE_FALSE' | 'OPEN_TEXT' | 'FILE_UPLOAD' | 'ORDERING';
+type AStatus= 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
+type AttemptStatus = 'IN_PROGRESS' | 'SUBMITTED' | 'PASSED' | 'FAILED' | 'EXPIRED';
+
+interface QOption { text: string; isCorrect?: boolean; feedback?: string }
+
 interface Question {
   id: number;
-  question: string;
-  options: string[];
-  correctIndex: number;
+  type: QType;
+  questionText: string;
+  mediaUrl: string | null;
+  options: QOption[] | null;  // parsed from JSON
   weight: number;
+  difficulty: number;
+  seq: number;
 }
 
 interface Assessment {
   id: number;
-  courseId: number;
   title: string;
-  passScore: number;
-  questions: Question[];
-  _count?: { assessmentAttempts: number };
-}
-
-interface Attempt {
-  id: number;
-  assessmentId: number;
-  userId: number;
-  score: number;
-  passed: boolean;
+  description: string | null;
+  type: string;
+  status: AStatus;
+  passingScore: number;
+  maxAttempts: number;
+  cooldownHours: number;
+  timeLimitMinutes: number;
+  feedbackMode: string;
+  randomizeQuestions: boolean;
+  allowReview: boolean;
   createdAt: string;
-  assessment?: { title: string; passScore: number };
-  correctAnswers?: number;
-  total?: number;
+  questions: Question[];
+  _count: { questions: number; attempts: number };
 }
 
-interface Course { id: number; title: string }
-
-// ─── Styles ───────────────────────────────────────────────────────────────────
-const btnPrimary: React.CSSProperties = {
-  padding: "10px 20px", background: "#1e40af", color: "#fff",
-  border: "none", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer",
-};
-const btnGhost: React.CSSProperties = {
-  padding: "10px 20px", background: "#f1f5f9", color: "#475569",
-  border: "none", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer",
-};
-const inputStyle: React.CSSProperties = {
-  width: "100%", padding: "10px 12px", border: "1.5px solid #e2e8f0",
-  borderRadius: 8, fontSize: 14, color: "#1e293b", background: "#fff",
-  outline: "none", boxSizing: "border-box",
-};
-const labelStyle: React.CSSProperties = {
-  display: "block", fontSize: 11, fontWeight: 700, letterSpacing: 1,
-  textTransform: "uppercase", color: "#64748b", marginBottom: 6,
-};
-const card: React.CSSProperties = {
-  background: "#fff", borderRadius: 12, border: "1px solid #e2e8f0",
-};
-
-// ─── Helpers ─────────────────────────────────────────────────────────────────
-function PassBadge({ passed, score }: { passed: boolean; score: number }) {
-  return (
-    <span style={{
-      padding: "3px 10px", borderRadius: 20, fontSize: 11, fontWeight: 700,
-      background: passed ? "#ecfdf5" : "#fef2f2",
-      color: passed ? "#16a34a" : "#dc2626",
-    }}>
-      {passed ? "✓ Aprovado" : "✗ Reprovado"} — {score}%
-    </span>
-  );
+interface AttemptAnswer {
+  questionId: number;
+  selectedIndices?: number[];
+  textAnswer?: string;
+  fileUrl?: string;
 }
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+interface AttemptResult {
+  attempt: { id: number; status: AttemptStatus; score: number; passed: boolean | null };
+  score: number;
+  passed: boolean | null;
+  totalQuestions: number;
+  correctAnswers: number;
+  needsManualReview: boolean;
+  results?: Array<{
+    questionId: number;
+    questionText: string;
+    isCorrect: boolean | null;
+    earnedPoints: number;
+    correctAnswer?: string;
+    explanation?: string;
+    options?: QOption[];
+  }>;
+}
+
+type View = 'list' | 'player' | 'result' | 'review';
+
+// ─── API ──────────────────────────────────────────────────────────────────────
+
+const API = process.env.NEXT_PUBLIC_API_URL ?? '/api';
+
+async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
+  const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
+  const res = await fetch(`${API}${path}`, {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...options?.headers,
+    },
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ message: 'Erro' }));
+    throw new Error(err.message ?? `HTTP ${res.status}`);
+  }
+  return res.json();
+}
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function parseOptions(optionsJson: any): QOption[] | null {
+  if (!optionsJson) return null;
+  try {
+    return typeof optionsJson === 'string' ? JSON.parse(optionsJson) : optionsJson;
+  } catch { return null; }
+}
+
+function Skeleton({ rows = 3 }: { rows?: number }) {
   return (
-    <div style={{ marginBottom: 16 }}>
-      <span style={labelStyle}>{label}</span>
-      {children}
+    <div className="space-y-3 animate-pulse">
+      {Array.from({ length: rows }).map((_, i) => <div key={i} className="h-16 bg-gray-100 rounded-xl" />)}
     </div>
   );
 }
 
-function Overlay({ children }: { children: React.ReactNode }) {
+// ─── Timer component ──────────────────────────────────────────────────────────
+
+function CountdownTimer({ totalMinutes, onExpire }: { totalMinutes: number; onExpire: () => void }) {
+  const [secondsLeft, setSecondsLeft] = useState(totalMinutes * 60);
+
+  useEffect(() => {
+    if (secondsLeft <= 0) { onExpire(); return; }
+    const t = setTimeout(() => setSecondsLeft(s => s - 1), 1000);
+    return () => clearTimeout(t);
+  }, [secondsLeft, onExpire]);
+
+  const mins = Math.floor(secondsLeft / 60);
+  const secs = secondsLeft % 60;
+  const isUrgent = secondsLeft <= 60;
+
   return (
-    <div style={{
-      position: "fixed", inset: 0, background: "rgba(15,23,42,0.55)",
-      display: "flex", alignItems: "center", justifyContent: "center", zIndex: 200,
-    }}>{children}</div>
+    <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg font-mono font-semibold text-sm ${
+      isUrgent ? 'bg-red-50 text-red-700 animate-pulse' : 'bg-gray-100 text-gray-700'
+    }`}>
+      ⏱ {String(mins).padStart(2, '0')}:{String(secs).padStart(2, '0')}
+    </div>
   );
 }
 
-function Modal({ title, onClose, children, wide }: {
-  title: string; onClose: () => void; children: React.ReactNode; wide?: boolean;
+// ─── Question Player ──────────────────────────────────────────────────────────
+
+function QuestionPlayer({
+  question,
+  index,
+  total,
+  answer,
+  onChange,
+}: {
+  question: Question;
+  index: number;
+  total: number;
+  answer: AttemptAnswer | undefined;
+  onChange: (a: AttemptAnswer) => void;
 }) {
+  const options = parseOptions(question.options);
+
+  const handleSingleChoice = (idx: number) => {
+    onChange({ questionId: question.id, selectedIndices: [idx] });
+  };
+
+  const handleMultiChoice = (idx: number) => {
+    const current = answer?.selectedIndices ?? [];
+    const updated = current.includes(idx) ? current.filter(i => i !== idx) : [...current, idx];
+    onChange({ questionId: question.id, selectedIndices: updated });
+  };
+
   return (
-    <div style={{
-      background: "#fff", borderRadius: 16, padding: 32,
-      width: wide ? 700 : 520, maxWidth: "95vw", maxHeight: "90vh",
-      overflowY: "auto", boxShadow: "0 24px 60px rgba(0,0,0,0.2)",
-    }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
-        <h2 style={{ fontSize: 18, fontWeight: 700, color: "#1e293b", margin: 0 }}>{title}</h2>
-        <button onClick={onClose} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 20, color: "#94a3b8" }}>✕</button>
+    <div className="bg-white border border-gray-200 rounded-xl p-6">
+      {/* Question header */}
+      <div className="flex items-start justify-between gap-3 mb-5">
+        <div>
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-xs font-mono text-gray-400">Pergunta {index + 1} de {total}</span>
+            {question.difficulty > 1 && (
+              <span className={`text-xs px-2 py-0.5 rounded ${
+                question.difficulty >= 4 ? 'bg-red-50 text-red-700' :
+                question.difficulty >= 3 ? 'bg-amber-50 text-amber-700' :
+                'bg-blue-50 text-blue-600'
+              }`}>
+                {'★'.repeat(question.difficulty)}
+              </span>
+            )}
+          </div>
+          <p className="text-base font-medium text-gray-900 leading-relaxed">{question.questionText}</p>
+        </div>
+        {question.weight !== 1 && (
+          <span className="text-xs bg-blue-50 text-blue-600 px-2 py-0.5 rounded flex-shrink-0">
+            {question.weight} pts
+          </span>
+        )}
       </div>
-      {children}
+
+      {/* Media */}
+      {question.mediaUrl && (
+        <div className="mb-4 rounded-lg overflow-hidden bg-gray-100">
+          {question.mediaUrl.match(/\.(mp4|webm)$/) ? (
+            <video src={question.mediaUrl} controls className="w-full max-h-48 object-contain" />
+          ) : (
+            <img src={question.mediaUrl} alt="Media" className="w-full max-h-48 object-contain" />
+          )}
+        </div>
+      )}
+
+      {/* Options */}
+      {(question.type === 'MULTIPLE_CHOICE_SINGLE' || question.type === 'TRUE_FALSE') && options && (
+        <div className="space-y-2">
+          {options.map((opt, idx) => {
+            const selected = answer?.selectedIndices?.includes(idx);
+            return (
+              <label
+                key={idx}
+                className={`flex items-center gap-3 p-3.5 border rounded-xl cursor-pointer transition-all ${
+                  selected ? 'border-blue-400 bg-blue-50' : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                }`}
+              >
+                <input
+                  type="radio"
+                  name={`q-${question.id}`}
+                  checked={!!selected}
+                  onChange={() => handleSingleChoice(idx)}
+                  className="w-4 h-4 text-blue-600 focus:ring-blue-500"
+                />
+                <span className={`text-sm ${selected ? 'font-medium text-blue-900' : 'text-gray-700'}`}>
+                  {opt.text}
+                </span>
+              </label>
+            );
+          })}
+        </div>
+      )}
+
+      {question.type === 'MULTIPLE_CHOICE_MULTI' && options && (
+        <div className="space-y-2">
+          <div className="text-xs text-gray-400 mb-2">Pode seleccionar múltiplas respostas</div>
+          {options.map((opt, idx) => {
+            const selected = answer?.selectedIndices?.includes(idx);
+            return (
+              <label
+                key={idx}
+                className={`flex items-center gap-3 p-3.5 border rounded-xl cursor-pointer transition-all ${
+                  selected ? 'border-blue-400 bg-blue-50' : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                }`}
+              >
+                <input
+                  type="checkbox"
+                  checked={!!selected}
+                  onChange={() => handleMultiChoice(idx)}
+                  className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                />
+                <span className={`text-sm ${selected ? 'font-medium text-blue-900' : 'text-gray-700'}`}>
+                  {opt.text}
+                </span>
+              </label>
+            );
+          })}
+        </div>
+      )}
+
+      {question.type === 'OPEN_TEXT' && (
+        <textarea
+          value={answer?.textAnswer ?? ''}
+          onChange={e => onChange({ questionId: question.id, textAnswer: e.target.value })}
+          rows={5}
+          placeholder="Escreva a sua resposta aqui…"
+          className="w-full text-sm border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+        />
+      )}
+
+      {question.type === 'FILE_UPLOAD' && (
+        <div className="border-2 border-dashed border-gray-200 rounded-xl p-8 text-center">
+          <div className="text-3xl mb-3">📎</div>
+          <div className="text-sm font-medium text-gray-700 mb-1">Upload de ficheiro</div>
+          <button className="text-xs text-blue-600 underline">Seleccionar ficheiro</button>
+          {answer?.fileUrl && (
+            <div className="mt-2 text-xs text-emerald-600">✓ Ficheiro carregado</div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
 
-function ModalFooter({ onClose, saving, label }: { onClose: () => void; saving: boolean; label: string }) {
-  return (
-    <div style={{ display: "flex", gap: 12, justifyContent: "flex-end", marginTop: 16 }}>
-      <button type="button" onClick={onClose} style={btnGhost}>Cancelar</button>
-      <button type="submit" disabled={saving} style={{ ...btnPrimary, opacity: saving ? 0.7 : 1 }}>
-        {saving ? "A guardar..." : label}
-      </button>
-    </div>
-  );
-}
+// ─── Result Feedback ──────────────────────────────────────────────────────────
 
-// ─── Modal: Criar Avaliação ───────────────────────────────────────────────────
-function ModalCriar({ courses, onClose, onSave }: {
-  courses: Course[]; onClose: () => void; onSave: () => void;
+function ResultView({
+  result,
+  assessment,
+  onRetry,
+  onBack,
+}: {
+  result: AttemptResult;
+  assessment: Assessment;
+  onRetry: () => void;
+  onBack: () => void;
 }) {
-  const [courseId, setCourseId] = useState("");
-  const [title, setTitle]       = useState("");
-  const [passScore, setPassScore] = useState(70);
-  const [questions, setQuestions] = useState([
-    { question: "", options: ["", "", "", ""], correctIndex: 0, weight: 1 },
-  ]);
-  const [saving, setSaving] = useState(false);
-  const [err, setErr]       = useState("");
-
-  function addQuestion() {
-    setQuestions(q => [...q, { question: "", options: ["", "", "", ""], correctIndex: 0, weight: 1 }]);
-  }
-
-  function removeQuestion(i: number) {
-    setQuestions(q => q.filter((_, idx) => idx !== i));
-  }
-
-  function setQ(i: number, field: string, value: any) {
-    setQuestions(q => q.map((q2, idx) => idx === i ? { ...q2, [field]: value } : q2));
-  }
-
-  function setOption(qi: number, oi: number, value: string) {
-    setQuestions(q => q.map((q2, idx) => {
-      if (idx !== qi) return q2;
-      const opts = [...q2.options];
-      opts[oi] = value;
-      return { ...q2, options: opts };
-    }));
-  }
-
-  async function submit(e: React.FormEvent) {
-    e.preventDefault();
-    if (!courseId || !title) { setErr("Preencha o curso e o título."); return; }
-    if (questions.some(q => !q.question || q.options.some(o => !o))) {
-      setErr("Preencha todas as perguntas e opções."); return;
-    }
-    setSaving(true); setErr("");
-    try {
-      // POST /assessments — CreateAssessmentDto: { courseId, title, passScore, questions }
-      await api.post("/assessments", {
-        courseId: +courseId, title, passScore,
-        questions: questions.map(q => ({
-          question: q.question,
-          options: q.options,
-          correctIndex: q.correctIndex,
-          weight: q.weight,
-        })),
-      });
-      onSave();
-    } catch (e: any) { setErr(e.message ?? "Erro ao criar"); }
-    finally { setSaving(false); }
-  }
+  const { score, passed, totalQuestions, correctAnswers, needsManualReview } = result;
+  const isPass = passed === true;
 
   return (
-    <Overlay>
-      <Modal title="Nova Avaliação" onClose={onClose} wide>
-        <form onSubmit={submit}>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 16 }}>
-            <div>
-              <span style={labelStyle}>Curso</span>
-              <select value={courseId} onChange={e => setCourseId(e.target.value)} style={inputStyle} required>
-                <option value="">Seleccionar curso...</option>
-                {courses.map(c => <option key={c.id} value={c.id}>{c.title}</option>)}
-              </select>
-            </div>
-            <div>
-              <span style={labelStyle}>Pontuação Mínima (%)</span>
-              <input
-                type="number" min={0} max={100} value={passScore}
-                onChange={e => setPassScore(+e.target.value)}
-                style={inputStyle}
-              />
-            </div>
-          </div>
+    <div className="max-w-2xl mx-auto">
+      {/* Score card */}
+      <div className={`rounded-2xl p-8 text-center mb-6 ${
+        needsManualReview ? 'bg-amber-50 border border-amber-200' :
+        isPass ? 'bg-emerald-50 border border-emerald-200' :
+        'bg-red-50 border border-red-200'
+      }`}>
+        <div className="text-5xl mb-3">
+          {needsManualReview ? '⏳' : isPass ? '🎉' : '😔'}
+        </div>
+        <div className={`text-4xl font-bold font-mono mb-2 ${
+          needsManualReview ? 'text-amber-700' :
+          isPass ? 'text-emerald-700' : 'text-red-700'
+        }`}>
+          {score}%
+        </div>
+        <div className={`text-lg font-semibold mb-1 ${
+          needsManualReview ? 'text-amber-800' :
+          isPass ? 'text-emerald-800' : 'text-red-800'
+        }`}>
+          {needsManualReview ? 'Aguarda revisão manual' :
+           isPass ? 'Aprovado!' : 'Reprovado'}
+        </div>
+        <div className={`text-sm ${
+          needsManualReview ? 'text-amber-600' :
+          isPass ? 'text-emerald-600' : 'text-red-600'
+        }`}>
+          {needsManualReview
+            ? 'As tuas respostas abertas serão revistas pelo instrutor'
+            : `${correctAnswers}/${totalQuestions} corretas · Mínimo: ${assessment.passingScore}%`}
+        </div>
+      </div>
 
-          <Field label="Título da Avaliação">
-            <input value={title} onChange={e => setTitle(e.target.value)}
-              style={inputStyle} placeholder="ex: Quiz Módulo 1" required />
-          </Field>
+      {/* Progress visual */}
+      <div className="bg-white border border-gray-200 rounded-xl p-5 mb-5">
+        <div className="flex justify-between text-xs text-gray-400 mb-2">
+          <span>Score obtido</span>
+          <span>Mínimo: {assessment.passingScore}%</span>
+        </div>
+        <div className="relative h-4 bg-gray-100 rounded-full overflow-hidden">
+          <div
+            className={`h-full rounded-full transition-all duration-700 ${isPass ? 'bg-emerald-500' : 'bg-red-500'}`}
+            style={{ width: `${score}%` }}
+          />
+          {/* Passing line */}
+          <div
+            className="absolute top-0 bottom-0 w-0.5 bg-gray-400"
+            style={{ left: `${assessment.passingScore}%` }}
+          />
+        </div>
+      </div>
 
-          {/* Perguntas */}
-          <div style={{ marginBottom: 16 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-              <span style={labelStyle}>Perguntas ({questions.length})</span>
-              <button type="button" onClick={addQuestion} style={{ ...btnGhost, padding: "6px 14px", fontSize: 12 }}>
-                + Pergunta
-              </button>
-            </div>
-
-            <div style={{ display: "flex", flexDirection: "column", gap: 16, maxHeight: 360, overflowY: "auto", paddingRight: 4 }}>
-              {questions.map((q, qi) => (
-                <div key={qi} style={{
-                  background: "#f8fafc", borderRadius: 10, padding: 16,
-                  border: "1px solid #e2e8f0",
-                }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10 }}>
-                    <span style={{ fontSize: 12, fontWeight: 700, color: "#1e40af" }}>
-                      Pergunta {qi + 1}
-                    </span>
-                    {questions.length > 1 && (
-                      <button type="button" onClick={() => removeQuestion(qi)} style={{
-                        background: "none", border: "none", cursor: "pointer",
-                        color: "#dc2626", fontSize: 13, fontWeight: 600,
-                      }}>Remover</button>
-                    )}
-                  </div>
-
-                  <input
-                    value={q.question}
-                    onChange={e => setQ(qi, "question", e.target.value)}
-                    style={{ ...inputStyle, marginBottom: 10, background: "#fff" }}
-                    placeholder="Escreve a pergunta..."
-                    required
-                  />
-
-                  <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                    {q.options.map((opt, oi) => (
-                      <div key={oi} style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                        <input
-                          type="radio" name={`correct-${qi}`}
-                          checked={q.correctIndex === oi}
-                          onChange={() => setQ(qi, "correctIndex", oi)}
-                          style={{ width: 16, height: 16, accentColor: "#1e40af" }}
-                        />
-                        <input
-                          value={opt}
-                          onChange={e => setOption(qi, oi, e.target.value)}
-                          style={{
-                            ...inputStyle, flex: 1, background: "#fff",
-                            borderColor: q.correctIndex === oi ? "#1e40af" : "#e2e8f0",
-                          }}
-                          placeholder={`Opção ${oi + 1}${q.correctIndex === oi ? " (correcta)" : ""}`}
-                          required
-                        />
-                      </div>
-                    ))}
-                  </div>
-
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 10 }}>
-                    <span style={{ fontSize: 11, color: "#94a3b8" }}>Peso:</span>
-                    <input
-                      type="number" min={1} max={10} value={q.weight}
-                      onChange={e => setQ(qi, "weight", +e.target.value)}
-                      style={{ ...inputStyle, width: 70, background: "#fff" }}
-                    />
-                  </div>
+      {/* Per-question feedback */}
+      {result.results && result.results.length > 0 && (
+        <div className="space-y-3 mb-5">
+          <div className="text-sm font-semibold text-gray-700">Revisão das respostas</div>
+          {result.results.map((r, idx) => (
+            <div
+              key={r.questionId}
+              className={`border rounded-xl p-4 ${
+                r.isCorrect === null ? 'border-amber-200 bg-amber-50' :
+                r.isCorrect ? 'border-emerald-200 bg-emerald-50' :
+                'border-red-200 bg-red-50'
+              }`}
+            >
+              <div className="flex items-start gap-2 mb-2">
+                <span className={`text-sm flex-shrink-0 ${
+                  r.isCorrect === null ? 'text-amber-600' :
+                  r.isCorrect ? 'text-emerald-600' : 'text-red-600'
+                }`}>
+                  {r.isCorrect === null ? '⏳' : r.isCorrect ? '✓' : '✗'}
+                </span>
+                <span className="text-sm font-medium text-gray-800">{r.questionText}</span>
+              </div>
+              {r.explanation && (
+                <div className="text-xs text-gray-600 mt-2 pl-5">
+                  💡 {r.explanation}
                 </div>
-              ))}
+              )}
             </div>
-          </div>
+          ))}
+        </div>
+      )}
 
-          {err && <p style={{ color: "#ef4444", fontSize: 13, marginBottom: 12 }}>{err}</p>}
-          <ModalFooter onClose={onClose} saving={saving} label="Criar Avaliação" />
-        </form>
-      </Modal>
-    </Overlay>
+      {/* Actions */}
+      <div className="flex gap-3">
+        <button onClick={onBack} className="flex-1 py-2.5 border border-gray-200 text-sm rounded-xl hover:bg-gray-50">
+          ← Voltar
+        </button>
+        {!isPass && assessment.maxAttempts === 0 && (
+          <button
+            onClick={onRetry}
+            className="flex-1 py-2.5 bg-blue-700 text-white text-sm font-medium rounded-xl hover:bg-blue-800"
+          >
+            🔄 Repetir avaliação
+          </button>
+        )}
+      </div>
+    </div>
   );
 }
 
-// ─── Modal: Fazer Quiz ────────────────────────────────────────────────────────
-function ModalQuiz({ assessment, onClose, onDone }: {
-  assessment: Assessment; onClose: () => void;
-  onDone: (result: any) => void;
+// ─── Assessment Player ────────────────────────────────────────────────────────
+
+function AssessmentPlayer({
+  assessmentId,
+  onBack,
+}: {
+  assessmentId: number;
+  onBack: () => void;
 }) {
-  const [answers, setAnswers]   = useState<Record<number, number>>({});
+  const [assessment, setAssessment] = useState<Assessment | null>(null);
+  const [attempt, setAttempt]       = useState<any>(null);
+  const [answers, setAnswers]       = useState<Record<number, AttemptAnswer>>({});
+  const [currentIdx, setCurrentIdx] = useState(0);
+  const [result, setResult]         = useState<AttemptResult | null>(null);
+  const [loading, setLoading]       = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [result, setResult]     = useState<any>(null);
-  const [err, setErr]           = useState("");
+  const [showConfirm, setShowConfirm] = useState(false);
+  const autoSaveRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const answered = Object.keys(answers).length;
-  const total    = assessment.questions.length;
-  const allAnswered = answered === total;
+  // Carregar avaliação e iniciar tentativa
+  useEffect(() => {
+    const init = async () => {
+      try {
+        const a = await apiFetch<Assessment>(`/assessments/${assessmentId}`);
+        // Parse options para cada pergunta
+        const parsed = {
+          ...a,
+          questions: a.questions.map(q => ({ ...q, options: parseOptions((q as any).options) })),
+        };
+        setAssessment(parsed);
 
-  async function submit() {
-    if (!allAnswered) { setErr("Responde a todas as perguntas antes de submeter."); return; }
-    setSubmitting(true); setErr("");
+        const att = await apiFetch<any>('/assessments/attempts/start', {
+          method: 'POST',
+          body: JSON.stringify({ assessmentId }),
+        });
+        setAttempt(att);
+
+        // Restaurar auto-save
+        if (att.savedAnswers && att.savedAnswers !== '{}') {
+          try {
+            const saved = JSON.parse(att.savedAnswers);
+            const restored: Record<number, AttemptAnswer> = {};
+            if (Array.isArray(saved)) {
+              saved.forEach((a: AttemptAnswer) => { restored[a.questionId] = a; });
+            }
+            setAnswers(restored);
+          } catch { /* ignore */ }
+        }
+      } catch (e: any) {
+        alert(e.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    init();
+  }, [assessmentId]);
+
+  // Auto-save a cada 30s
+  useEffect(() => {
+    if (!attempt || !assessment) return;
+    const interval = setInterval(async () => {
+      const answersList = Object.values(answers);
+      if (answersList.length === 0) return;
+      await apiFetch('/assessments/attempts/save', {
+        method: 'POST',
+        body: JSON.stringify({ attemptId: attempt.id, answers: answersList }),
+      }).catch(() => {});
+    }, 30000);
+    return () => clearInterval(interval);
+  }, [attempt, answers, assessment]);
+
+  const handleSubmit = async () => {
+    if (!attempt || !assessment) return;
+    setSubmitting(true);
     try {
-      // POST /assessments/submit — SubmitAssessmentDto: { assessmentId, answers }
-      const res = await api.post<any>("/assessments/submit", {
-        assessmentId: assessment.id,
-        answers: assessment.questions.map((_, i) => answers[i] ?? 0),
+      const answersList = assessment.questions.map(q => answers[q.id] ?? { questionId: q.id });
+      const res = await apiFetch<AttemptResult>('/assessments/attempts/submit', {
+        method: 'POST',
+        body: JSON.stringify({ attemptId: attempt.id, answers: answersList }),
       });
       setResult(res);
-    } catch (e: any) { setErr(e.message ?? "Erro ao submeter"); }
-    finally { setSubmitting(false); }
+    } catch (e: any) {
+      alert(e.message);
+    } finally {
+      setSubmitting(false);
+      setShowConfirm(false);
+    }
+  };
+
+  const handleAnswer = (a: AttemptAnswer) => {
+    setAnswers(prev => ({ ...prev, [a.questionId]: a }));
+  };
+
+  const handleTimerExpire = () => {
+    alert('Tempo esgotado! A submeter automaticamente.');
+    handleSubmit();
+  };
+
+  if (loading || !assessment) return <div className="p-8"><Skeleton rows={4} /></div>;
+
+  // Mostrar resultado
+  if (result) {
+    return (
+      <ResultView
+        result={result}
+        assessment={assessment}
+        onRetry={() => { setResult(null); setAnswers({}); setCurrentIdx(0); }}
+        onBack={onBack}
+      />
+    );
   }
 
-  return (
-    <Overlay>
-      <Modal title={assessment.title} onClose={onClose} wide>
-        {result ? (
-          /* Resultado */
-          <div style={{ textAlign: "center" }}>
-            <div style={{
-              width: 100, height: 100, borderRadius: "50%", margin: "0 auto 20px",
-              background: result.passed ? "#ecfdf5" : "#fef2f2",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              fontSize: 44,
-            }}>
-              {result.passed ? "🎉" : "😔"}
-            </div>
-            <h3 style={{ fontSize: 22, fontWeight: 800, color: "#1e293b", margin: "0 0 8px" }}>
-              {result.passed ? "Aprovado!" : "Não Aprovado"}
-            </h3>
-            <p style={{ fontSize: 14, color: "#64748b", margin: "0 0 24px" }}>
-              {result.passed
-                ? "Parabéns! Concluíste a avaliação com sucesso."
-                : `Precisas de ${assessment.passScore}% para passar. Tenta novamente!`}
-            </p>
-
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, marginBottom: 24 }}>
-              {[
-                { label: "Pontuação",    value: `${result.score}%`,            color: result.passed ? "#16a34a" : "#dc2626" },
-                { label: "Correctas",   value: `${result.correctAnswers}/${result.total}`, color: "#1e40af" },
-                { label: "Mínimo",      value: `${assessment.passScore}%`,     color: "#64748b" },
-              ].map(s => (
-                <div key={s.label} style={{ background: "#f8fafc", borderRadius: 10, padding: "12px 16px" }}>
-                  <p style={{ margin: 0, fontSize: 10, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: 0.8 }}>{s.label}</p>
-                  <p style={{ margin: "4px 0 0", fontSize: 20, fontWeight: 800, color: s.color }}>{s.value}</p>
-                </div>
-              ))}
-            </div>
-
-            {result.passed && (
-              <div style={{
-                background: "#fffbeb", border: "1px solid #fde68a", borderRadius: 10,
-                padding: "12px 16px", marginBottom: 20, fontSize: 13, color: "#92400e",
-              }}>
-                🏆 +50 pontos adicionados ao teu perfil!
-              </div>
-            )}
-
-            <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
-              <button onClick={onClose} style={btnGhost}>Fechar</button>
-              <button onClick={() => onDone(result)} style={btnPrimary}>Ver Tentativas</button>
-            </div>
-          </div>
-        ) : (
-          /* Quiz */
-          <div>
-            {/* Progresso */}
-            <div style={{ marginBottom: 20 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-                <span style={{ fontSize: 12, color: "#64748b" }}>
-                  {answered} de {total} respondidas
-                </span>
-                <span style={{ fontSize: 12, color: "#64748b" }}>
-                  Mínimo: {assessment.passScore}%
-                </span>
-              </div>
-              <div style={{ background: "#e2e8f0", borderRadius: 10, height: 6, overflow: "hidden" }}>
-                <div style={{
-                  width: `${(answered / total) * 100}%`, height: "100%",
-                  background: "#1e40af", borderRadius: 10, transition: "width 0.3s",
-                }} />
-              </div>
-            </div>
-
-            {/* Perguntas */}
-            <div style={{ display: "flex", flexDirection: "column", gap: 20, maxHeight: 420, overflowY: "auto", paddingRight: 4 }}>
-              {assessment.questions.map((q, qi) => (
-                <div key={q.id} style={{
-                  background: answers[qi] !== undefined ? "#f0fdf4" : "#f8fafc",
-                  borderRadius: 12, padding: 16,
-                  border: `1px solid ${answers[qi] !== undefined ? "#bbf7d0" : "#e2e8f0"}`,
-                  transition: "all 0.2s",
-                }}>
-                  <p style={{ margin: "0 0 12px", fontSize: 14, fontWeight: 600, color: "#1e293b" }}>
-                    <span style={{ color: "#1e40af" }}>{qi + 1}.</span> {q.question}
-                  </p>
-                  <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                    {q.options.map((opt, oi) => (
-                      <button
-                        key={oi}
-                        type="button"
-                        onClick={() => setAnswers(a => ({ ...a, [qi]: oi }))}
-                        style={{
-                          padding: "10px 14px", borderRadius: 8, textAlign: "left",
-                          fontSize: 13, cursor: "pointer", transition: "all 0.15s",
-                          background: answers[qi] === oi ? "#1e40af" : "#fff",
-                          color: answers[qi] === oi ? "#fff" : "#1e293b",
-                          border: `1.5px solid ${answers[qi] === oi ? "#1e40af" : "#e2e8f0"}`,
-                          fontWeight: answers[qi] === oi ? 600 : 400,
-                        }}
-                      >
-                        <span style={{
-                          display: "inline-block", width: 22, height: 22, borderRadius: "50%",
-                          background: answers[qi] === oi ? "rgba(255,255,255,0.2)" : "#f1f5f9",
-                          textAlign: "center", lineHeight: "22px", fontSize: 11,
-                          fontWeight: 700, marginRight: 8,
-                          color: answers[qi] === oi ? "#fff" : "#64748b",
-                        }}>
-                          {String.fromCharCode(65 + oi)}
-                        </span>
-                        {opt}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {err && <p style={{ color: "#ef4444", fontSize: 13, marginTop: 12 }}>{err}</p>}
-
-            <div style={{ display: "flex", gap: 12, justifyContent: "flex-end", marginTop: 20 }}>
-              <button type="button" onClick={onClose} style={btnGhost}>Cancelar</button>
-              <button
-                onClick={submit}
-                disabled={submitting || !allAnswered}
-                style={{
-                  ...btnPrimary,
-                  opacity: submitting || !allAnswered ? 0.6 : 1,
-                  cursor: !allAnswered ? "not-allowed" : "pointer",
-                }}
-              >
-                {submitting ? "A submeter..." : `Submeter (${answered}/${total})`}
-              </button>
-            </div>
-          </div>
-        )}
-      </Modal>
-    </Overlay>
-  );
-}
-
-// ─── Modal: Detalhe + Editar Avaliação ───────────────────────────────────────
-function ModalDetalhe({ id, onClose, onDelete }: {
-  id: number; onClose: () => void; onDelete: () => void;
-}) {
-  const [data, setData]     = useState<Assessment | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [deleting, setDeleting] = useState(false);
-
-  useEffect(() => {
-    // GET /assessments/:id
-    api.get<Assessment>(`/assessments/${id}`)
-      .then(setData)
-      .finally(() => setLoading(false));
-  }, [id]);
-
-  async function remove() {
-    if (!confirm("Remover esta avaliação permanentemente?")) return;
-    setDeleting(true);
-    try {
-      // DELETE /assessments/:id
-      await api.delete(`/assessments/${id}`);
-      onDelete();
-    } catch (e: any) { alert(e.message); setDeleting(false); }
-  }
+  const questions = assessment.questions;
+  const currentQ  = questions[currentIdx];
+  const answeredCount = Object.keys(answers).length;
 
   return (
-    <Overlay>
-      <Modal title="Detalhe da Avaliação" onClose={onClose} wide>
-        {loading ? (
-          <p style={{ color: "#94a3b8", textAlign: "center", padding: 32 }}>A carregar...</p>
-        ) : !data ? (
-          <p style={{ color: "#ef4444" }}>Erro ao carregar avaliação.</p>
-        ) : (
-          <div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12, marginBottom: 20 }}>
-              {[
-                { label: "Curso ID",       value: `#${data.courseId}` },
-                { label: "Pontuação Mínima", value: `${data.passScore}%` },
-                { label: "Tentativas",     value: data._count?.assessmentAttempts ?? 0 },
-              ].map(s => (
-                <div key={s.label} style={{ background: "#f8fafc", borderRadius: 8, padding: "10px 14px" }}>
-                  <p style={{ margin: 0, fontSize: 10, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: 0.8 }}>{s.label}</p>
-                  <p style={{ margin: "4px 0 0", fontSize: 18, fontWeight: 800, color: "#1e293b" }}>{s.value}</p>
-                </div>
-              ))}
-            </div>
-
-            <p style={{ ...labelStyle, marginBottom: 12 }}>Perguntas ({data.questions.length})</p>
-            <div style={{ display: "flex", flexDirection: "column", gap: 12, maxHeight: 360, overflowY: "auto" }}>
-              {data.questions.map((q, i) => (
-                <div key={q.id} style={{
-                  background: "#f8fafc", borderRadius: 10, padding: "14px 16px",
-                  border: "1px solid #e2e8f0",
-                }}>
-                  <p style={{ margin: "0 0 10px", fontSize: 13, fontWeight: 600, color: "#1e293b" }}>
-                    <span style={{ color: "#1e40af" }}>{i + 1}.</span> {q.question}
-                    <span style={{ marginLeft: 8, fontSize: 11, color: "#94a3b8" }}>peso: {q.weight}</span>
-                  </p>
-                  <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                    {q.options.map((opt, oi) => (
-                      <div key={oi} style={{
-                        display: "flex", alignItems: "center", gap: 8,
-                        padding: "6px 10px", borderRadius: 6,
-                        background: oi === q.correctIndex ? "#ecfdf5" : "transparent",
-                        border: `1px solid ${oi === q.correctIndex ? "#bbf7d0" : "transparent"}`,
-                      }}>
-                        <span style={{
-                          width: 20, height: 20, borderRadius: "50%", flexShrink: 0,
-                          background: oi === q.correctIndex ? "#10b981" : "#e2e8f0",
-                          display: "flex", alignItems: "center", justifyContent: "center",
-                          fontSize: 10, fontWeight: 700,
-                          color: oi === q.correctIndex ? "#fff" : "#64748b",
-                        }}>
-                          {String.fromCharCode(65 + oi)}
-                        </span>
-                        <span style={{ fontSize: 13, color: "#1e293b", fontWeight: oi === q.correctIndex ? 600 : 400 }}>
-                          {opt}
-                          {oi === q.correctIndex && <span style={{ marginLeft: 6, color: "#10b981", fontSize: 11 }}>✓ Correcta</span>}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div style={{ display: "flex", justifyContent: "space-between", marginTop: 20 }}>
-              <button
-                onClick={remove}
-                disabled={deleting}
-                style={{
-                  padding: "10px 20px", background: "#fef2f2", color: "#dc2626",
-                  border: "none", borderRadius: 8, fontSize: 13, fontWeight: 600,
-                  cursor: "pointer", opacity: deleting ? 0.7 : 1,
-                }}
-              >
-                {deleting ? "A remover..." : "🗑 Remover Avaliação"}
-              </button>
-              <button onClick={onClose} style={btnGhost}>Fechar</button>
-            </div>
-          </div>
-        )}
-      </Modal>
-    </Overlay>
-  );
-}
-
-// ─── Tab: Tentativas ──────────────────────────────────────────────────────────
-function TabTentativas() {
-  const [attempts, setAttempts] = useState<Attempt[]>([]);
-  const [loading, setLoading]   = useState(true);
-
-  useEffect(() => {
-    // GET /assessments/attempts/my
-    api.get<Attempt[]>("/assessments/attempts/my")
-      .then(res => setAttempts(Array.isArray(res) ? res : []))
-      .finally(() => setLoading(false));
-  }, []);
-
-  if (loading) return <p style={{ color: "#94a3b8", padding: 32, textAlign: "center" }}>A carregar tentativas...</p>;
-
-  if (attempts.length === 0) return (
-    <div style={{ padding: 60, textAlign: "center", ...card }}>
-      <p style={{ fontSize: 32, margin: "0 0 8px" }}>📝</p>
-      <p style={{ fontSize: 14, color: "#94a3b8" }}>Ainda sem tentativas de avaliação.</p>
-    </div>
-  );
-
-  return (
-    <div style={{ ...card, overflow: "hidden" }}>
-      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
-        <thead>
-          <tr style={{ background: "#f8fafc" }}>
-            {["Avaliação", "Pontuação", "Resultado", "Correctas", "Data"].map(h => (
-              <th key={h} style={{
-                padding: "11px 16px", textAlign: "left", fontWeight: 700,
-                color: "#64748b", fontSize: 11, textTransform: "uppercase", letterSpacing: 0.6,
-              }}>{h}</th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {attempts.map(a => (
-            <tr key={a.id} style={{ borderTop: "1px solid #f1f5f9" }}
-              onMouseEnter={e => (e.currentTarget.style.background = "#fafafa")}
-              onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
-            >
-              <td style={{ padding: "12px 16px", fontWeight: 600, color: "#1e293b" }}>
-                {a.assessment?.title ?? `Avaliação #${a.assessmentId}`}
-              </td>
-              <td style={{ padding: "12px 16px" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <div style={{ background: "#e2e8f0", borderRadius: 10, height: 8, width: 80, overflow: "hidden" }}>
-                    <div style={{
-                      width: `${a.score}%`, height: "100%", borderRadius: 10,
-                      background: a.passed ? "#10b981" : "#ef4444",
-                    }} />
-                  </div>
-                  <span style={{ fontSize: 13, fontWeight: 700, color: a.passed ? "#16a34a" : "#dc2626" }}>
-                    {a.score}%
-                  </span>
-                </div>
-              </td>
-              <td style={{ padding: "12px 16px" }}>
-                <PassBadge passed={a.passed} score={a.score} />
-              </td>
-              <td style={{ padding: "12px 16px", color: "#64748b" }}>
-                {a.correctAnswers !== undefined ? `${a.correctAnswers}/${a.total}` : "—"}
-              </td>
-              <td style={{ padding: "12px 16px", color: "#94a3b8", fontSize: 12, whiteSpace: "nowrap" }}>
-                {new Date(a.createdAt).toLocaleDateString("pt-PT")}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-}
-
-// ─── Página Principal ─────────────────────────────────────────────────────────
-type Tab = "avaliacoes" | "tentativas";
-
-export default function AssessmentsPage() {
-  const [tab, setTab]                   = useState<Tab>("avaliacoes");
-  const [assessments, setAssessments]   = useState<Assessment[]>([]);
-  const [courses, setCourses]           = useState<Course[]>([]);
-  const [loading, setLoading]           = useState(true);
-  const [error, setError]               = useState("");
-  const [search, setSearch]             = useState("");
-  const [filterCourse, setFilterCourse] = useState("");
-  const [modalCriar, setModalCriar]     = useState(false);
-  const [modalQuiz, setModalQuiz]       = useState<Assessment | null>(null);
-  const [modalDetalhe, setModalDetalhe] = useState<number | null>(null);
-
-  function load() {
-    setLoading(true);
-    // Carrega todos os cursos e para cada um os assessments
-    api.get<any>("/courses?limit=200")
-      .then(async res => {
-        const cs: Course[] = res?.data ?? [];
-        setCourses(cs);
-        // GET /assessments/course/:courseId para cada curso
-        const all = await Promise.all(
-          cs.slice(0, 20).map(c =>
-            api.get<Assessment[]>(`/assessments/course/${c.id}`)
-              .then(a => (Array.isArray(a) ? a : []))
-              .catch(() => [])
-          )
-        );
-        setAssessments(all.flat());
-      })
-      .catch(e => setError(e.message))
-      .finally(() => setLoading(false));
-  }
-
-  useEffect(() => { load(); }, []);
-
-  const filtered = assessments.filter(a => {
-    const matchSearch = !search || a.title.toLowerCase().includes(search.toLowerCase());
-    const matchCourse = !filterCourse || a.courseId === +filterCourse;
-    return matchSearch && matchCourse;
-  });
-
-  const TAB_STYLE = (active: boolean): React.CSSProperties => ({
-    padding: "8px 20px", border: "none", cursor: "pointer", fontSize: 13,
-    fontWeight: active ? 700 : 500, borderRadius: 8,
-    background: active ? "#1e40af" : "transparent",
-    color: active ? "#fff" : "#64748b", transition: "all 0.15s",
-  });
-
-  return (
-    <div>
-      {/* ── Header ── */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 24 }}>
+    <div className="max-w-3xl mx-auto">
+      {/* Header bar */}
+      <div className="flex items-center justify-between mb-5 gap-4">
         <div>
-          <h1 style={{ fontSize: 24, fontWeight: 700, color: "#1e293b", margin: 0 }}>⭐ Avaliações</h1>
-          <p style={{ color: "#64748b", fontSize: 14, marginTop: 4 }}>
-            Quizzes e avaliações dos cursos — {assessments.length} avaliações
-          </p>
+          <div className="text-base font-semibold text-gray-900">{assessment.title}</div>
+          <div className="text-xs text-gray-400">{answeredCount}/{questions.length} respondidas</div>
         </div>
-        <button onClick={() => setModalCriar(true)} style={btnPrimary}>
-          + Nova Avaliação
+        <div className="flex items-center gap-3">
+          {assessment.timeLimitMinutes > 0 && attempt && (
+            <CountdownTimer totalMinutes={assessment.timeLimitMinutes} onExpire={handleTimerExpire} />
+          )}
+          <button
+            onClick={() => setShowConfirm(true)}
+            disabled={submitting}
+            className="px-4 py-2 bg-blue-700 text-white text-sm font-medium rounded-lg hover:bg-blue-800 disabled:opacity-50"
+          >
+            {submitting ? 'A submeter…' : 'Submeter'}
+          </button>
+        </div>
+      </div>
+
+      {/* Progress bar */}
+      <div className="mb-5">
+        <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+          <div
+            className="h-1.5 bg-blue-600 rounded-full transition-all"
+            style={{ width: `${((currentIdx + 1) / questions.length) * 100}%` }}
+          />
+        </div>
+        <div className="flex justify-between text-xs text-gray-400 mt-1">
+          <span>Pergunta {currentIdx + 1}</span>
+          <span>{questions.length} perguntas</span>
+        </div>
+      </div>
+
+      {/* Question */}
+      {currentQ && (
+        <QuestionPlayer
+          question={currentQ}
+          index={currentIdx}
+          total={questions.length}
+          answer={answers[currentQ.id]}
+          onChange={handleAnswer}
+        />
+      )}
+
+      {/* Navigation */}
+      <div className="flex items-center justify-between mt-5">
+        <button
+          onClick={() => setCurrentIdx(i => Math.max(0, i - 1))}
+          disabled={currentIdx === 0}
+          className="px-4 py-2 text-sm border border-gray-200 rounded-lg disabled:opacity-30 hover:bg-gray-50"
+        >
+          ← Anterior
+        </button>
+
+        {/* Question dots */}
+        <div className="flex gap-1.5">
+          {questions.map((q, idx) => (
+            <button
+              key={q.id}
+              onClick={() => setCurrentIdx(idx)}
+              className={`w-6 h-6 rounded-full text-xs font-mono transition-all ${
+                idx === currentIdx ? 'bg-blue-600 text-white scale-110' :
+                answers[q.id] ? 'bg-emerald-100 text-emerald-700' :
+                'bg-gray-100 text-gray-400'
+              }`}
+            >
+              {idx + 1}
+            </button>
+          ))}
+        </div>
+
+        <button
+          onClick={() => {
+            if (currentIdx < questions.length - 1) setCurrentIdx(i => i + 1);
+            else setShowConfirm(true);
+          }}
+          className="px-4 py-2 text-sm bg-blue-700 text-white rounded-lg hover:bg-blue-800"
+        >
+          {currentIdx < questions.length - 1 ? 'Próxima →' : 'Submeter'}
         </button>
       </div>
 
-      {/* ── Stats ── */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, marginBottom: 20 }}>
-        {[
-          { label: "Total Avaliações", value: assessments.length,
-            color: "#1e40af", bg: "#eff6ff" },
-          { label: "Total Tentativas",
-            value: assessments.reduce((s, a) => s + (a._count?.assessmentAttempts ?? 0), 0),
-            color: "#8b5cf6", bg: "#f5f3ff" },
-          { label: "Cursos com Avaliação",
-            value: new Set(assessments.map(a => a.courseId)).size,
-            color: "#10b981", bg: "#ecfdf5" },
-        ].map(s => (
-          <div key={s.label} style={{
-            background: s.bg, borderRadius: 10, padding: "14px 18px",
-            border: `1px solid ${s.color}22`,
-          }}>
-            <p style={{ margin: 0, fontSize: 10, fontWeight: 700, color: s.color, textTransform: "uppercase", letterSpacing: 0.8 }}>{s.label}</p>
-            <p style={{ margin: "4px 0 0", fontSize: 26, fontWeight: 800, color: s.color }}>{s.value}</p>
+      {/* Confirm modal */}
+      {showConfirm && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50 }}>
+          <div className="bg-white rounded-2xl p-6 max-w-sm w-full mx-4">
+            <div className="text-base font-semibold text-gray-900 mb-2">Submeter avaliação?</div>
+            <div className="text-sm text-gray-500 mb-5">
+              Respondeste {answeredCount} de {questions.length} perguntas.
+              {answeredCount < questions.length && (
+                <span className="text-amber-600"> {questions.length - answeredCount} perguntas sem resposta.</span>
+              )}
+            </div>
+            <div className="flex gap-3">
+              <button onClick={() => setShowConfirm(false)} className="flex-1 py-2.5 border border-gray-200 text-sm rounded-lg hover:bg-gray-50">
+                Continuar
+              </button>
+              <button
+                onClick={handleSubmit}
+                disabled={submitting}
+                className="flex-1 py-2.5 bg-blue-700 text-white text-sm font-medium rounded-lg hover:bg-blue-800 disabled:opacity-50"
+              >
+                {submitting ? 'A submeter…' : 'Confirmar'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── View: List ───────────────────────────────────────────────────────────────
+
+function ListView({ onStart }: { onStart: (id: number) => void }) {
+  const [data, setData]       = useState<Assessment[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [attempts, setAttempts] = useState<any[]>([]);
+
+  useEffect(() => {
+    Promise.all([
+      apiFetch<Assessment[]>('/assessments?status=PUBLISHED'),
+      apiFetch<any[]>('/assessments/my/attempts'),
+    ])
+      .then(([asms, atts]) => { setData(asms); setAttempts(atts); })
+      .finally(() => setLoading(false));
+  }, []);
+
+  const getMyBestScore = (assessmentId: number) => {
+    const myAttempts = attempts.filter(a => a.assessmentId === assessmentId && a.status !== 'IN_PROGRESS');
+    if (!myAttempts.length) return null;
+    return Math.max(...myAttempts.map(a => a.score ?? 0));
+  };
+
+  const getMyStatus = (assessmentId: number): AttemptStatus | null => {
+    const latest = attempts
+      .filter(a => a.assessmentId === assessmentId)
+      .sort((a, b) => new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime())[0];
+    return latest?.status ?? null;
+  };
+
+  if (loading) return <Skeleton />;
+
+  return (
+    <div className="space-y-3">
+      {data.length === 0 && (
+        <div className="py-12 text-center text-sm text-gray-400 border border-dashed border-gray-200 rounded-xl">
+          Sem avaliações disponíveis
+        </div>
+      )}
+      {data.map(a => {
+        const bestScore = getMyBestScore(a.id);
+        const status    = getMyStatus(a.id);
+        return (
+          <div
+            key={a.id}
+            className="bg-white border border-gray-200 rounded-xl p-5 flex items-center gap-4 hover:shadow-sm transition-all"
+          >
+            <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-xl flex-shrink-0 ${
+              a.type === 'QUIZ'       ? 'bg-blue-50' :
+              a.type === 'EXAM'       ? 'bg-purple-50' :
+              a.type === 'DIAGNOSTIC' ? 'bg-amber-50' :
+              'bg-gray-50'
+            }`}>
+              {{ QUIZ: '❓', EXAM: '📋', DIAGNOSTIC: '🔍', PRACTICAL: '🛠️', SURVEY: '📊' }[a.type] ?? '📝'}
+            </div>
+            <div className="flex-1">
+              <div className="text-sm font-semibold text-gray-900 mb-0.5">{a.title}</div>
+              <div className="flex flex-wrap items-center gap-3 text-xs text-gray-400">
+                <span>{a._count.questions} perguntas</span>
+                {a.timeLimitMinutes > 0 && <span>⏱ {a.timeLimitMinutes}min</span>}
+                <span>Aprovação: {a.passingScore}%</span>
+                {a.maxAttempts > 0 && <span>Máx. {a.maxAttempts} tentativas</span>}
+              </div>
+            </div>
+            <div className="flex items-center gap-3 flex-shrink-0">
+              {bestScore !== null && (
+                <div className="text-right">
+                  <div className={`text-sm font-bold font-mono ${bestScore >= a.passingScore ? 'text-emerald-600' : 'text-red-600'}`}>
+                    {bestScore}%
+                  </div>
+                  <div className="text-xs text-gray-400">melhor score</div>
+                </div>
+              )}
+              <button
+                onClick={() => onStart(a.id)}
+                className={`px-4 py-2 text-sm font-medium rounded-lg ${
+                  status === 'PASSED' ? 'border border-emerald-300 text-emerald-700 hover:bg-emerald-50' :
+                  status === 'IN_PROGRESS' ? 'bg-amber-600 text-white hover:bg-amber-700' :
+                  'bg-blue-700 text-white hover:bg-blue-800'
+                }`}
+              >
+                {status === 'PASSED' ? '✓ Repetir' :
+                 status === 'IN_PROGRESS' ? '▶ Continuar' :
+                 '▶ Iniciar'}
+              </button>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// ─── View: Review (Attempted) ─────────────────────────────────────────────────
+
+function ReviewView() {
+  const [attempts, setAttempts] = useState<any[]>([]);
+  const [loading, setLoading]   = useState(true);
+  const [selectedAttempt, setSelected] = useState<any>(null);
+  const [detail, setDetail]     = useState<any>(null);
+  const [loadingDetail, setLoadingDetail] = useState(false);
+
+  useEffect(() => {
+    apiFetch<any[]>('/assessments/my/attempts')
+      .then(d => setAttempts(d.filter(a => a.status !== 'IN_PROGRESS')))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const loadDetail = async (attempt: any) => {
+    setSelected(attempt);
+    setLoadingDetail(true);
+    try {
+      const d = await apiFetch<any>(`/assessments/attempts/${attempt.id}`);
+      setDetail(d);
+    } catch { /* silent */ }
+    finally { setLoadingDetail(false); }
+  };
+
+  if (loading) return <Skeleton />;
+
+  return (
+    <div className="grid grid-cols-[280px_1fr] gap-5">
+      {/* Attempts list */}
+      <div className="space-y-2">
+        <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-2">Histórico</div>
+        {attempts.length === 0 && (
+          <div className="text-sm text-gray-400 text-center py-6">Sem tentativas concluídas</div>
+        )}
+        {attempts.map(a => (
+          <div
+            key={a.id}
+            onClick={() => loadDetail(a)}
+            className={`p-3 border rounded-xl cursor-pointer transition-colors ${
+              selectedAttempt?.id === a.id ? 'border-blue-300 bg-blue-50' : 'border-gray-200 hover:bg-gray-50'
+            }`}
+          >
+            <div className="text-xs font-medium text-gray-800 truncate">{a.assessment?.title}</div>
+            <div className="flex items-center justify-between mt-1">
+              <span className={`text-sm font-bold font-mono ${(a.score ?? 0) >= (a.assessment?.passingScore ?? 70) ? 'text-emerald-600' : 'text-red-600'}`}>
+                {a.score ?? '—'}%
+              </span>
+              <span className={`text-xs px-1.5 rounded ${
+                a.status === 'PASSED' ? 'bg-emerald-50 text-emerald-700' :
+                a.status === 'FAILED' ? 'bg-red-50 text-red-600' :
+                'bg-amber-50 text-amber-700'
+              }`}>{a.status}</span>
+            </div>
           </div>
         ))}
       </div>
 
-      {/* ── Tabs ── */}
-      <div style={{ display: "flex", gap: 4, background: "#f1f5f9", borderRadius: 10, padding: 4, marginBottom: 20, width: "fit-content" }}>
-        <button onClick={() => setTab("avaliacoes")} style={TAB_STYLE(tab === "avaliacoes")}>
-          📋 Avaliações
-        </button>
-        <button onClick={() => setTab("tentativas")} style={TAB_STYLE(tab === "tentativas")}>
-          📊 As Minhas Tentativas
-        </button>
+      {/* Detail */}
+      <div>
+        {!selectedAttempt && (
+          <div className="flex items-center justify-center h-48 text-sm text-gray-400 border border-dashed border-gray-200 rounded-xl">
+            Selecciona uma tentativa para rever
+          </div>
+        )}
+        {loadingDetail && <Skeleton rows={3} />}
+        {detail && !loadingDetail && (
+          <div className="space-y-3">
+            <div className="bg-white border border-gray-200 rounded-xl p-4">
+              <div className="text-sm font-semibold text-gray-900 mb-2">{detail.assessment?.title}</div>
+              <div className="grid grid-cols-3 gap-3">
+                {[
+                  { label: 'Score', value: `${detail.score ?? '—'}%` },
+                  { label: 'Status', value: detail.status },
+                  { label: 'Tempo', value: detail.timeSpentMinutes ? `${detail.timeSpentMinutes}min` : '—' },
+                ].map(({ label, value }) => (
+                  <div key={label} className="bg-gray-50 rounded-lg p-3 text-center">
+                    <div className="text-xs text-gray-400">{label}</div>
+                    <div className="text-sm font-semibold text-gray-900 mt-1">{value}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            {detail.answers?.map((ans: any) => (
+              <div key={ans.id} className={`border rounded-xl p-4 ${
+                ans.isCorrect === null ? 'border-amber-200 bg-amber-50' :
+                ans.isCorrect ? 'border-emerald-200 bg-emerald-50' :
+                'border-red-200 bg-red-50'
+              }`}>
+                <div className="flex items-start gap-2 mb-1">
+                  <span>{ans.isCorrect === null ? '⏳' : ans.isCorrect ? '✓' : '✗'}</span>
+                  <p className="text-xs font-medium text-gray-800">{ans.question?.questionText}</p>
+                </div>
+                {ans.textAnswer && <p className="text-xs text-gray-600 pl-5 mt-1">{ans.textAnswer}</p>}
+                {ans.reviewComment && (
+                  <p className="text-xs text-blue-700 pl-5 mt-1">💬 {ans.reviewComment}</p>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─── Page principal ───────────────────────────────────────────────────────────
+
+const TITLES: Record<View, string> = {
+  list:   'Avaliações disponíveis',
+  player: 'Avaliação em progresso',
+  result: 'Resultado',
+  review: 'Histórico de tentativas',
+};
+
+export default function AssessmentsPage() {
+  const [view, setView]         = useState<View>('list');
+  const [selectedId, setSelectedId] = useState<number | null>(null);
+
+  const handleStart = (id: number) => { setSelectedId(id); setView('player'); };
+  const handleBack  = () => { setSelectedId(null); setView('list'); };
+
+  return (
+    <div className="max-w-4xl mx-auto px-4 py-8">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-xl font-semibold text-gray-900">{TITLES[view]}</h1>
+          <p className="text-sm text-gray-400 mt-0.5">INNOVA — Avaliações</p>
+        </div>
       </div>
 
-      {/* ── Erro ── */}
-      {error && (
-        <div style={{
-          background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 8,
-          padding: 14, color: "#dc2626", fontSize: 13, marginBottom: 16,
-        }}>{error}</div>
-      )}
-
-      {/* ══ TAB: AVALIAÇÕES ══ */}
-      {tab === "avaliacoes" && (
-        <>
-          {/* Filtros */}
-          <div style={{ display: "flex", gap: 12, marginBottom: 16, flexWrap: "wrap" }}>
-            <input
-              placeholder="Pesquisar avaliações..."
-              value={search} onChange={e => setSearch(e.target.value)}
-              style={{ ...inputStyle, width: 280 }}
-            />
-            <select
-              value={filterCourse} onChange={e => setFilterCourse(e.target.value)}
-              style={{ ...inputStyle, width: 220 }}
+      {/* Tabs */}
+      {view === 'list' || view === 'review' ? (
+        <div className="flex gap-1 mb-6 bg-gray-100 p-1 rounded-xl w-fit">
+          {(['list', 'review'] as const).map(v => (
+            <button key={v} onClick={() => setView(v)}
+              className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                view === v ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+              }`}
             >
-              <option value="">Todos os cursos</option>
-              {courses.map(c => <option key={c.id} value={c.id}>{c.title}</option>)}
-            </select>
-            {(search || filterCourse) && (
-              <button onClick={() => { setSearch(""); setFilterCourse(""); }}
-                style={{ ...btnGhost, padding: "10px 14px" }}>✕</button>
-            )}
-          </div>
-
-          {/* Grid de avaliações */}
-          {loading ? (
-            <div style={{ padding: 60, textAlign: "center", color: "#94a3b8", fontSize: 14 }}>
-              A carregar avaliações...
-            </div>
-          ) : filtered.length === 0 ? (
-            <div style={{ padding: 60, textAlign: "center", ...card }}>
-              <p style={{ fontSize: 32, margin: "0 0 12px" }}>📋</p>
-              <p style={{ fontSize: 14, fontWeight: 500, color: "#1e293b" }}>
-                {assessments.length === 0 ? "Nenhuma avaliação criada" : "Nenhuma avaliação encontrada"}
-              </p>
-              <p style={{ fontSize: 13, color: "#94a3b8", marginTop: 4, marginBottom: 20 }}>
-                {assessments.length === 0 && "Cria a primeira avaliação para um curso"}
-              </p>
-              {assessments.length === 0 && (
-                <button onClick={() => setModalCriar(true)} style={btnPrimary}>+ Nova Avaliação</button>
-              )}
-            </div>
-          ) : (
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: 14 }}>
-              {filtered.map(a => {
-                const course = courses.find(c => c.id === a.courseId);
-                return (
-                  <div key={a.id} style={{
-                    ...card, overflow: "hidden",
-                    transition: "box-shadow 0.2s",
-                  }}
-                    onMouseEnter={e => (e.currentTarget.style.boxShadow = "0 4px 16px rgba(0,0,0,0.08)")}
-                    onMouseLeave={e => (e.currentTarget.style.boxShadow = "none")}
-                  >
-                    {/* Header */}
-                    <div style={{ padding: "16px 18px", borderBottom: "1px solid #f1f5f9" }}>
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                        <div style={{ flex: 1 }}>
-                          <p style={{ margin: 0, fontSize: 15, fontWeight: 700, color: "#1e293b" }}>{a.title}</p>
-                          <p style={{ margin: "4px 0 0", fontSize: 12, color: "#94a3b8" }}>
-                            {course?.title ?? `Curso #${a.courseId}`}
-                          </p>
-                        </div>
-                        <span style={{
-                          padding: "3px 10px", borderRadius: 20, fontSize: 11, fontWeight: 700,
-                          background: "#fff7ed", color: "#ea580c",
-                        }}>
-                          Min: {a.passScore}%
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Body */}
-                    <div style={{ padding: "12px 18px" }}>
-                      <div style={{ display: "flex", gap: 16, marginBottom: 12 }}>
-                        <div style={{ textAlign: "center" }}>
-                          <p style={{ margin: 0, fontSize: 10, color: "#94a3b8", fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.6 }}>Perguntas</p>
-                          <p style={{ margin: "2px 0 0", fontSize: 20, fontWeight: 800, color: "#1e40af" }}>{a.questions.length}</p>
-                        </div>
-                        <div style={{ textAlign: "center" }}>
-                          <p style={{ margin: 0, fontSize: 10, color: "#94a3b8", fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.6 }}>Tentativas</p>
-                          <p style={{ margin: "2px 0 0", fontSize: 20, fontWeight: 800, color: "#8b5cf6" }}>{a._count?.assessmentAttempts ?? 0}</p>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Acções */}
-                    <div style={{
-                      padding: "10px 18px", background: "#f8fafc",
-                      borderTop: "1px solid #f1f5f9", display: "flex", gap: 8,
-                    }}>
-                      <button
-                        onClick={() => setModalQuiz(a)}
-                        style={{
-                          flex: 1, padding: "8px", background: "#1e40af", color: "#fff",
-                          border: "none", borderRadius: 6, fontSize: 12, fontWeight: 700, cursor: "pointer",
-                        }}
-                      >
-                        ▶ Fazer Quiz
-                      </button>
-                      <button
-                        onClick={() => setModalDetalhe(a.id)}
-                        style={{
-                          padding: "8px 14px", background: "#f1f5f9", color: "#475569",
-                          border: "none", borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: "pointer",
-                        }}
-                      >
-                        Ver
-                      </button>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </>
+              {{ list: 'Disponíveis', review: 'Histórico' }[v]}
+            </button>
+          ))}
+        </div>
+      ) : (
+        <button onClick={handleBack} className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-800 mb-5">
+          ← Voltar
+        </button>
       )}
 
-      {/* ══ TAB: TENTATIVAS ══ */}
-      {tab === "tentativas" && <TabTentativas />}
-
-      {/* ── Modais ── */}
-      {modalCriar && (
-        <ModalCriar
-          courses={courses}
-          onClose={() => setModalCriar(false)}
-          onSave={() => { setModalCriar(false); load(); }}
-        />
+      {view === 'list'   && <ListView onStart={handleStart} />}
+      {view === 'player' && selectedId !== null && (
+        <AssessmentPlayer assessmentId={selectedId} onBack={handleBack} />
       )}
-      {modalQuiz && (
-        <ModalQuiz
-          assessment={modalQuiz}
-          onClose={() => setModalQuiz(null)}
-          onDone={() => { setModalQuiz(null); setTab("tentativas"); }}
-        />
-      )}
-      {modalDetalhe !== null && (
-        <ModalDetalhe
-          id={modalDetalhe}
-          onClose={() => setModalDetalhe(null)}
-          onDelete={() => { setModalDetalhe(null); load(); }}
-        />
-      )}
+      {view === 'review' && <ReviewView />}
     </div>
   );
 }

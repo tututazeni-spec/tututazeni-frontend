@@ -8,7 +8,7 @@ import {
   ChevronDown, ChevronRight, BookMarked, Map, Crown, UserPlus,
   Layers, Play, Cpu, Database, Globe, Target, PieChart,
   Clock, MessageSquare, Scroll, Library, DollarSign, Activity,
-  FileOutput, CheckSquare, LogOut, Network,
+  Download, CheckSquare, Building2, LogOut, Share2,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -16,85 +16,92 @@ const NAV = [
   {
     label: "Principal",
     items: [
-      { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
-      { href: "/dashboard-rh", icon: Users, label: "Dashboard RH" },
-      { href: "/analytics", icon: BarChart2, label: "Analytics" },
-      { href: "/relatorios", icon: FileText, label: "Relatórios" },
+      { href: "/dashboard",    icon: LayoutDashboard, label: "Dashboard"    },
+      { href: "/dashboard-rh", icon: Users,           label: "Dashboard RH" },
+      { href: "/analytics",    icon: BarChart2,        label: "Indicadores de Desempenho"    },
+      { href: "/relatorios",   icon: FileText,         label: "Relatórios"   },
     ],
   },
   {
     label: "Aprendizagem",
     items: [
-      { href: "/cursos", icon: BookOpen, label: "Cursos" },
-      { href: "/cursos/modulos", icon: Layers, label: "Módulos & Lições" },
-      { href: "/percursos", icon: Map, label: "Percursos" },
-      { href: "/inscricoes", icon: ClipboardList, label: "Inscrições" },
-      { href: "/avaliacoes", icon: Star, label: "Avaliações" },
-      { href: "/avaliacao-cursos", icon: CheckSquare, label: "Aval. Cursos" },
-      { href: "/microlearning", icon: Zap, label: "Micro Learning" },
-      { href: "/live", icon: Play, label: "Aulas ao Vivo" },
-      { href: "/biblioteca", icon: Library, label: "Biblioteca" },
-      { href: "/conhecimento", icon: BookMarked, label: "Conhecimento" },
-      { href: "/ai-tutor", icon: Bot, label: "AI Tutor" },
-      { href: "/avatar-training", icon: Cpu, label: "Avatar Training" },
+      { href: "/cursos",           icon: BookOpen,   label: "Cursos"           },
+      { href: "/cursos/modulos",   icon: Layers,     label: "Módulos & Lições" },
+      { href: "/learning-paths",   icon: GitBranch,  label: "Percursos de Aprendizagem" },
+      { href: "/percursos",        icon: Map,        label: "Percursos"        },
+      { href: "/inscricoes",       icon: ClipboardList, label: "Inscrições"    },
+      { href: "/avaliacoes",       icon: Star,       label: "Avaliações"       },
+      { href: "/avaliacao-cursos", icon: CheckSquare,label: "Aval. Cursos"     },
+      { href: "/microlearning",    icon: Zap,        label: "Microaprendizagem"   },
+      { href: "/live",             icon: Play,       label: "Aulas ao Vivo"    },
+      { href: "/biblioteca",       icon: Library,    label: "Biblioteca"       },
+      { href: "/conhecimento",     icon: BookMarked, label: "Conhecimento"     },
+      { href: "/ai-tutor",         icon: Bot,        label: "Tutor de IA"         },
+      { href: "/avatar-training",  icon: Cpu,        label: "Treino de Avatar"  },
     ],
   },
   {
     label: "Recursos Humanos",
     items: [
-      { href: "/users", icon: Users, label: "Utilizadores" },
-      { href: "/colaborador", icon: UserCheck, label: "Colaborador" },
-      { href: "/cargos", icon: Briefcase, label: "Cargos" },
-      { href: "/desempenho", icon: TrendingUp, label: "Desempenho" },
-      { href: "/competencias", icon: Award, label: "Competências" },
-      { href: "/mapa-competencias", icon: Network, label: "Mapa Competências" },
-      { href: "/feedback", icon: MessageSquare, label: "Feedback 360°" },
-      { href: "/onboarding", icon: UserPlus, label: "Onboarding" },
-      { href: "/sucessao", icon: GitBranch, label: "Sucessão" },
-      { href: "/formacoes", icon: GraduationCap, label: "Formações" },
+      { href: "/users",             icon: Users,         label: "Utilizadores"     },
+      { href: "/colaborador",       icon: UserCheck,     label: "Colaborador"      },
+      { href: "/ferias",            icon: Calendar,      label: "Férias & Licenças" }, 
+      { href: "/departments",       icon: Building2,     label: "Departamentos"    },
+      { href: "/cargos",            icon: Briefcase,     label: "Cargos"           },
+      { href: "/desempenho",        icon: TrendingUp,    label: "Desempenho"       },
+      { href: "/competencias",      icon: Award,         label: "Competências"     },
+      { href: "/mapa-competencias", icon: Share2,        label: "Mapa Competências" }, // ← Share2 (era Network)
+      { href: "/feedback",          icon: MessageSquare, label: "Feedback 360°"    },
+      { href: "/onboarding",        icon: UserPlus,      label: "Integração"       },
+      { href: "/sucessao",          icon: GitBranch,     label: "Sucessão"         },
+      { href: "/payslips",           icon: FileText,      label: "Recibos Salariais"          },
+      { href: "/organization",      icon: Share2,        label: "Organograma" },
+      { href: "/formacoes",         icon: GraduationCap, label: "Formações"        },
     ],
   },
   {
     label: "Carreira",
     items: [
-      { href: "/carreira", icon: Target, label: "Carreira" },
-      { href: "/planos-carreira", icon: Layers, label: "Planos Carreira" },
-      { href: "/desenvolvimento", icon: Activity, label: "Desenvolvimento" },
-      { href: "/lideranca", icon: Crown, label: "Liderança" },
-      { href: "/certificados", icon: Scroll, label: "Certificados" },
+      { href: "/carreira",        icon: Target,   label: "Carreira"       },
+      { href: "/planos-carreira", icon: Layers,   label: "Planos Carreira"},
+      { href: "/desenvolvimento", icon: Activity, label: "Planos de Desenvolvimento" },
+      { href: "/lideranca",       icon: Crown,    label: "Liderança"       },
+      { href: "/leadership",      icon: BookOpen, label: "Programas Liderança" },
+      { href: "/certificados",    icon: Scroll,   label: "Certificados"    },
     ],
   },
   {
     label: "Engagement",
     items: [
-      { href: "/gamificacao", icon: Trophy, label: "Gamificação" },
-      { href: "/eventos", icon: Calendar, label: "Eventos" },
+      { href: "/gamificacao", icon: Trophy,        label: "Gamificação" },
+      { href: "/eventos",     icon: Calendar,      label: "Eventos"     },
+      { href: "/engagement",  icon: MessageSquare, label: "Participação"  },
       { href: "/instrutores", icon: GraduationCap, label: "Instrutores" },
     ],
   },
   {
     label: "Processos",
     items: [
-      { href: "/processos", icon: Database, label: "Processos" },
-      { href: "/automacoes", icon: Zap, label: "Automações" },
-      { href: "/integracoes", icon: Globe, label: "Integrações" },
-      { href: "/historico", icon: Clock, label: "Histórico" },
-      { href: "/auditoria", icon: Shield, label: "Auditoria" },
+      { href: "/processos",   icon: Database, label: "Processos"   },
+      { href: "/automacoes",  icon: Zap,      label: "Automações"  },
+      { href: "/integracoes", icon: Globe,    label: "Integrações" },
+      { href: "/historico",   icon: Clock,    label: "Histórico"   },
+      { href: "/auditoria",   icon: Shield,   label: "Auditoria"   },
     ],
   },
   {
     label: "Relatórios",
     items: [
-      { href: "/roi", icon: DollarSign, label: "ROI & Impacto" },
-      { href: "/escalabilidade", icon: PieChart, label: "Escalabilidade" },
-      { href: "/executive-pdf", icon: FileOutput, label: "Relatório Exec." },
+      { href: "/roi",           icon: DollarSign, label: "ROI & Impacto"  },
+      { href: "/escalabilidade",icon: PieChart,   label: "Escalabilidade" },
+      { href: "/executive-pdf", icon: Download,   label: "Relatório Exec." }, // ← Download (era FileOutput)
     ],
   },
   {
     label: "Sistema",
     items: [
-      { href: "/notificacoes", icon: Bell, label: "Notificações" },
-      { href: "/settings", icon: Settings, label: "Definições" },
+      { href: "/notificacoes", icon: Bell,     label: "Notificações" },
+      { href: "/settings",     icon: Settings, label: "Definições"   },
     ],
   },
 ];
@@ -150,11 +157,13 @@ export default function Sidebar() {
               {section.label}
               {collapsed[section.label]
                 ? <ChevronRight size={12} />
-                : <ChevronDown size={12} />}
+                : <ChevronDown  size={12} />}
             </button>
 
             {!collapsed[section.label] && section.items.map(item => {
-              const active = pathname === item.href || pathname.startsWith(item.href + "/");
+              const active =
+                pathname === item.href ||
+                pathname.startsWith(item.href + "/");
               return (
                 <Link
                   key={item.href}
@@ -162,7 +171,8 @@ export default function Sidebar() {
                   style={{
                     display: "flex", alignItems: "center", gap: 10,
                     padding: "7px 16px", margin: "1px 8px", borderRadius: 8,
-                    textDecoration: "none", fontSize: 13, fontWeight: active ? 600 : 400,
+                    textDecoration: "none", fontSize: 13,
+                    fontWeight: active ? 600 : 400,
                     color: active ? "#f1f5f9" : "#94a3b8",
                     background: active ? "#1e293b" : "transparent",
                     borderLeft: active ? "3px solid #3b82f6" : "3px solid transparent",
