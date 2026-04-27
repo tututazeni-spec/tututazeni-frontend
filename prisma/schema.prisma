@@ -953,14 +953,32 @@ model AutomationRule {
 }
 
 model AuditLog {
-  id        Int      @id @default(autoincrement())
-  userId    Int?
-  action    String
-  entity    String
-  entityId  Int?
-  metadata  Json?
-  timestamp DateTime @default(now())
-  user      User?    @relation(fields: [userId], references: [id])
+  id           Int      @id @default(autoincrement())
+  userId       Int?
+  action       String                          // CREATE|UPDATE|DELETE|LOGIN|EXPORT|SEND|READ|APPROVE|REJECT|DENIED|FAILED
+  entity       String                          // ex: User, PDI, Course, Payslip
+  entityId     Int?
+  entityName   String?
+  before       String?  @db.Text               // JSON snapshot anterior
+  after        String?  @db.Text               // JSON snapshot posterior
+  changes      String?  @db.Text               // JSON diff (apenas campos alterados)
+  status       String   @default("SUCCESS")    // SUCCESS|FAILED|DENIED
+  severity     String   @default("LOW")        // LOW|MEDIUM|HIGH|CRITICAL
+  ip           String?
+  userAgent    String?
+  reason       String?
+  metadata     String?  @db.Text               // JSON extra
+  hash         String?                         // SHA-256 deste registo
+  previousHash String?                         // SHA-256 do registo anterior
+  timestamp    DateTime @default(now())
+  user User? @relation(fields: [userId], references: [id])
+  @@index([userId])
+  @@index([entity])
+  @@index([action])
+  @@index([severity])
+  @@index([status])
+  @@index([timestamp])
+  @@index([ip])
 }
 
 model IntegrationConfig {

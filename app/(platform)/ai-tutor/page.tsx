@@ -1,599 +1,650 @@
-﻿"use client";
-import { useEffect, useRef, useState } from "react";
-import { api } from "../../../lib/api";
+﻿// src/app/(dashboard)/ai-tutor/page.tsx
+'use client';
+
+import { useState, useEffect, useRef, useCallback } from 'react';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
-interface Session {
-  id: number;
-  courseId?: number;
-  startedAt: string;
-  endedAt?: string;
-  course?: { id: number; title: string };
-  _count?: { messages: number };
-}
 
 interface Message {
   id: number;
-  role: "USER" | "ASSISTANT";
+  role: 'USER' | 'ASSISTANT';
   content: string;
-  tokensUsed?: number;
   createdAt: string;
+  latencyMs: number | null;
+  rating: number | null;
+  provider: string | null;
+  agentAction: string | null;
 }
 
-interface SessionDetail extends Session {
-  messages: Message[];
+interface Session {
+  id: number;
+  courseId: number | null;
+  startedAt: string;
+  endedAt: string | null;
+  course?: { id: number; title: string } | null;
+  _count?: { messages: number };
 }
 
-interface Provider {
+interface GeneratedContent {
+  type: string;
+  content: any;
+  raw: string;
   provider: string;
-  model?: string;
-  free?: boolean;
 }
 
-interface Stats {
-  totalSessions: number;
-  totalMessages: number;
-  totalTokensUsed: number;
-  currentProvider: Provider;
-  cost: string;
+interface Recommendation {
+  courses:        Array<{ id: number; title: string; category: string; workloadHours: number | null }>;
+  competencyGaps: string[];
+  aiInsight:      string;
+  provider:       string;
 }
 
-interface Course { id: number; title: string }
+type View = 'chat' | 'history' | 'generate' | 'recommendations';
 
-// ─── Shared Styles ────────────────────────────────────────────────────────────
-const btnPrimary: React.CSSProperties = {
-  padding: "10px 20px", background: "#1e40af", color: "#fff",
-  border: "none", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer",
-};
-const btnGhost: React.CSSProperties = {
-  padding: "10px 20px", background: "#f1f5f9", color: "#475569",
-  border: "none", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer",
-};
-const inputStyle: React.CSSProperties = {
-  width: "100%", padding: "10px 12px", border: "1.5px solid #e2e8f0",
-  borderRadius: 8, fontSize: 14, color: "#1e293b", background: "#fff",
-  outline: "none", boxSizing: "border-box",
-};
-const labelStyle: React.CSSProperties = {
-  display: "block", fontSize: 11, fontWeight: 700, letterSpacing: 1,
-  textTransform: "uppercase", color: "#64748b", marginBottom: 6,
-};
+const QUICK_ACTIONS = [
+  { label: '❓ Explicar de outra forma', value: 'Podes explicar isso de outra forma, com um exemplo prático?' },
+  { label: '📝 Resumo',                 value: 'Faz um resumo dos pontos mais importantes até agora' },
+  { label: '🎯 Próximo passo',          value: 'O que devo estudar ou fazer a seguir?' },
+  { label: '💡 Exemplo real',           value: 'Podes dar um exemplo prático e real desta matéria?' },
+  { label: '📊 Quiz rápido',            value: 'Cria um quiz de 5 perguntas sobre o que acabámos de discutir' },
+];
 
-// ─── Modal: Nova Sessão ───────────────────────────────────────────────────────
-function ModalNovaSessao({ courses, onClose, onStart }: {
-  courses: Course[]; onClose: () => void;
-  onStart: (session: any, greeting: string, provider: Provider) => void;
-}) {
-  const [courseId, setCourseId] = useState("");
-  const [saving, setSaving]     = useState(false);
-  const [err, setErr]           = useState("");
+// ─── API ──────────────────────────────────────────────────────────────────────
 
-  async function submit(e: React.FormEvent) {
-    e.preventDefault();
-    setSaving(true); setErr("");
-    try {
-      // POST /ai-tutor/sessions — StartAiSessionDto: { courseId? }
-      const res = await api.post<any>("/ai-tutor/sessions", {
-        ...(courseId ? { courseId: +courseId } : {}),
-      });
-      onStart(res.session, res.greeting, res.provider);
-    } catch (e: any) { setErr(e.message ?? "Erro ao iniciar sessão"); }
-    finally { setSaving(false); }
+const API = process.env.NEXT_PUBLIC_API_URL ?? '/api';
+
+async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
+  const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
+  const res = await fetch(`${API}${path}`, {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...options?.headers,
+    },
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ message: 'Erro' }));
+    throw new Error(err.message ?? `HTTP ${res.status}`);
   }
+  return res.json();
+}
 
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function fmtDate(d: string) {
+  return new Date(d).toLocaleDateString('pt-AO', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+}
+
+function Skeleton({ rows = 3, h = 'h-12' }: { rows?: number; h?: string }) {
   return (
-    <div style={{
-      position: "fixed", inset: 0, background: "rgba(15,23,42,0.55)",
-      display: "flex", alignItems: "center", justifyContent: "center", zIndex: 200,
-    }}>
-      <div style={{
-        background: "#fff", borderRadius: 16, padding: 32, width: 440,
-        boxShadow: "0 24px 60px rgba(0,0,0,0.2)",
-      }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
-          <h2 style={{ fontSize: 18, fontWeight: 700, color: "#1e293b", margin: 0 }}>Nova Sessão com AI Tutor</h2>
-          <button onClick={onClose} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 20, color: "#94a3b8" }}>✕</button>
-        </div>
-        <form onSubmit={submit}>
-          <div style={{ marginBottom: 20 }}>
-            <span style={labelStyle}>Curso (opcional)</span>
-            <select value={courseId} onChange={e => setCourseId(e.target.value)} style={inputStyle}>
-              <option value="">Sem contexto de curso (geral)</option>
-              {courses.map(c => <option key={c.id} value={c.id}>{c.title}</option>)}
-            </select>
-            <p style={{ fontSize: 12, color: "#94a3b8", marginTop: 6 }}>
-              Seleccionar um curso dá contexto ao tutor para respostas mais relevantes.
-            </p>
-          </div>
-          {err && <p style={{ color: "#ef4444", fontSize: 13, marginBottom: 12 }}>{err}</p>}
-          <div style={{ display: "flex", gap: 12, justifyContent: "flex-end" }}>
-            <button type="button" onClick={onClose} style={btnGhost}>Cancelar</button>
-            <button type="submit" disabled={saving} style={{ ...btnPrimary, opacity: saving ? 0.7 : 1 }}>
-              {saving ? "A iniciar..." : "🤖 Iniciar Sessão"}
-            </button>
-          </div>
-        </form>
-      </div>
+    <div className="space-y-2 animate-pulse">
+      {Array.from({ length: rows }).map((_, i) => <div key={i} className={`${h} bg-gray-100 rounded-xl`} />)}
     </div>
   );
 }
 
-// ─── Chat View ────────────────────────────────────────────────────────────────
-function ChatView({ session, greeting, provider, onEnd, onBack }: {
-  session: Session;
-  greeting: string;
-  provider: Provider;
-  onEnd: () => void;
-  onBack: () => void;
-}) {
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [input, setInput]       = useState("");
-  const [sending, setSending]   = useState(false);
-  const [ended, setEnded]       = useState(!!session.endedAt);
-  const bottomRef               = useRef<HTMLDivElement>(null);
+function TypingDots() {
+  return (
+    <div className="flex items-center gap-1 px-4 py-3">
+      {[0, 1, 2].map(i => (
+        <div key={i} className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: `${i * 0.15}s` }} />
+      ))}
+    </div>
+  );
+}
 
-  // Mensagem de boas vindas do sistema
-  useEffect(() => {
-    if (greeting) {
-      setMessages([{
-        id: 0, role: "ASSISTANT", content: greeting,
-        createdAt: new Date().toISOString(),
-      }]);
-    }
-  }, []);
+// ─── Message Bubble ───────────────────────────────────────────────────────────
 
-  useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, sending]);
+function MessageBubble({ msg, onRate }: { msg: Message; onRate: (id: number, r: number) => void }) {
+  const isUser = msg.role === 'USER';
+  const [hover, setHover] = useState(false);
 
-  async function send() {
-    if (!input.trim() || sending || ended) return;
-    const userMsg: Message = {
-      id: Date.now(), role: "USER", content: input,
-      createdAt: new Date().toISOString(),
-    };
-    setMessages(m => [...m, userMsg]);
-    setInput("");
-    setSending(true);
-    try {
-      // POST /ai-tutor/sessions/message — SendAiMessageDto: { sessionId, message }
-      const res = await api.post<any>("/ai-tutor/sessions/message", {
-        sessionId: session.id,
-        message: userMsg.content,
-      });
-      setMessages(m => [...m, {
-        id: res.message.id,
-        role: "ASSISTANT",
-        content: res.message.content,
-        tokensUsed: res.message.tokensUsed,
-        createdAt: res.message.createdAt,
-      }]);
-    } catch (e: any) {
-      setMessages(m => [...m, {
-        id: Date.now(), role: "ASSISTANT",
-        content: `Erro: ${e.message ?? "Não foi possível obter resposta"}`,
-        createdAt: new Date().toISOString(),
-      }]);
-    } finally { setSending(false); }
-  }
-
-  async function encerrar() {
-    if (!confirm("Encerrar esta sessão?")) return;
-    try {
-      // PATCH /ai-tutor/sessions/:id/end
-      await api.patch(`/ai-tutor/sessions/${session.id}/end`, {});
-      setEnded(true);
-      onEnd();
-    } catch (e: any) { alert(e.message); }
-  }
-
-  function handleKey(e: React.KeyboardEvent) {
-    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); }
-  }
+  // Formatar markdown simples
+  const formatContent = (text: string) => {
+    return text
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.*?)\*/g,     '<em>$1</em>')
+      .replace(/\n/g,            '<br/>');
+  };
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "calc(100vh - 140px)" }}>
-      {/* Header do chat */}
-      <div style={{
-        background: "#fff", borderRadius: "12px 12px 0 0", border: "1px solid #e2e8f0",
-        borderBottom: "none", padding: "14px 20px",
-        display: "flex", justifyContent: "space-between", alignItems: "center",
-      }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <button onClick={onBack} style={{ ...btnGhost, padding: "6px 12px", fontSize: 12 }}>
-            ← Voltar
-          </button>
-          <div>
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <div style={{
-                width: 8, height: 8, borderRadius: "50%",
-                background: ended ? "#94a3b8" : "#22c55e",
-              }} />
-              <span style={{ fontSize: 14, fontWeight: 600, color: "#1e293b" }}>
-                {session.course?.title ? `AI Tutor — ${session.course.title}` : "AI Tutor — Geral"}
-              </span>
-            </div>
-            <p style={{ fontSize: 11, color: "#94a3b8", margin: 0 }}>
-              {provider.provider} {provider.model ? `· ${provider.model}` : ""} · {provider.free ? "Gratuito" : ""}
-            </p>
-          </div>
+    <div className={`flex ${isUser ? 'justify-end' : 'justify-start'} mb-3`}>
+      {!isUser && (
+        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-sm font-bold mr-2 flex-shrink-0 mt-1">
+          N
         </div>
-        {!ended && (
-          <button onClick={encerrar} style={{
-            padding: "6px 14px", background: "#fef2f2", color: "#dc2626",
-            border: "none", borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: "pointer",
-          }}>
-            Encerrar Sessão
-          </button>
-        )}
-        {ended && (
-          <span style={{
-            padding: "4px 12px", background: "#f1f5f9", color: "#64748b",
-            borderRadius: 20, fontSize: 11, fontWeight: 600,
-          }}>Sessão encerrada</span>
-        )}
-      </div>
+      )}
+      <div className={`max-w-[75%] ${isUser ? 'items-end' : 'items-start'} flex flex-col`}>
+        <div
+          onMouseEnter={() => setHover(true)}
+          onMouseLeave={() => setHover(false)}
+          className={`px-4 py-3 rounded-2xl text-sm leading-relaxed ${
+            isUser
+              ? 'bg-blue-700 text-white rounded-tr-sm'
+              : 'bg-white border border-gray-200 text-gray-800 rounded-tl-sm shadow-sm'
+          }`}
+        >
+          <span dangerouslySetInnerHTML={{ __html: formatContent(msg.content) }} />
+        </div>
 
-      {/* Mensagens */}
-      <div style={{
-        flex: 1, overflowY: "auto", padding: "20px",
-        background: "#f8fafc", border: "1px solid #e2e8f0", borderTop: "none", borderBottom: "none",
-      }}>
-        {messages.map((msg, i) => (
-          <div key={msg.id ?? i} style={{
-            display: "flex", justifyContent: msg.role === "USER" ? "flex-end" : "flex-start",
-            marginBottom: 16,
-          }}>
-            {msg.role === "ASSISTANT" && (
-              <div style={{
-                width: 32, height: 32, borderRadius: "50%", flexShrink: 0, marginRight: 10,
-                background: "linear-gradient(135deg, #1e40af, #6366f1)",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                fontSize: 14,
-              }}>🤖</div>
-            )}
-            <div style={{ maxWidth: "70%" }}>
-              <div style={{
-                background: msg.role === "USER" ? "#1e40af" : "#fff",
-                color: msg.role === "USER" ? "#fff" : "#1e293b",
-                padding: "12px 16px", borderRadius: msg.role === "USER"
-                  ? "16px 16px 4px 16px" : "16px 16px 16px 4px",
-                fontSize: 14, lineHeight: 1.6,
-                boxShadow: "0 1px 4px rgba(0,0,0,0.08)",
-                border: msg.role === "ASSISTANT" ? "1px solid #e2e8f0" : "none",
-                whiteSpace: "pre-wrap",
-              }}>
-                {msg.content}
-              </div>
-              <div style={{
-                fontSize: 10, color: "#94a3b8", marginTop: 4,
-                textAlign: msg.role === "USER" ? "right" : "left",
-              }}>
-                {new Date(msg.createdAt).toLocaleTimeString("pt-PT", { hour: "2-digit", minute: "2-digit" })}
-                {msg.tokensUsed ? ` · ${msg.tokensUsed} tokens` : ""}
-              </div>
-            </div>
-            {msg.role === "USER" && (
-              <div style={{
-                width: 32, height: 32, borderRadius: "50%", flexShrink: 0, marginLeft: 10,
-                background: "#e2e8f0", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14,
-              }}>👤</div>
-            )}
-          </div>
-        ))}
+        <div className={`flex items-center gap-2 mt-1 px-1 ${isUser ? 'flex-row-reverse' : 'flex-row'}`}>
+          <span className="text-xs text-gray-400">{fmtDate(msg.createdAt)}</span>
+          {msg.latencyMs && <span className="text-xs text-gray-300">{msg.latencyMs}ms</span>}
 
-        {/* Indicador de typing */}
-        {sending && (
-          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
-            <div style={{
-              width: 32, height: 32, borderRadius: "50%", flexShrink: 0,
-              background: "linear-gradient(135deg, #1e40af, #6366f1)",
-              display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14,
-            }}>🤖</div>
-            <div style={{
-              background: "#fff", border: "1px solid #e2e8f0", borderRadius: "16px 16px 16px 4px",
-              padding: "12px 16px", display: "flex", gap: 4, alignItems: "center",
-            }}>
-              {[0, 1, 2].map(i => (
-                <div key={i} style={{
-                  width: 6, height: 6, borderRadius: "50%", background: "#94a3b8",
-                  animation: `bounce 1s ease-in-out ${i * 0.2}s infinite`,
-                }} />
+          {/* Rating para mensagens do tutor */}
+          {!isUser && hover && !msg.rating && (
+            <div className="flex gap-0.5">
+              {[1, 2, 3, 4, 5].map(r => (
+                <button key={r} onClick={() => onRate(msg.id, r)} className="text-gray-300 hover:text-amber-400 text-xs">★</button>
               ))}
             </div>
-          </div>
-        )}
-
-        <div ref={bottomRef} />
-      </div>
-
-      {/* Input */}
-      <div style={{
-        background: "#fff", border: "1px solid #e2e8f0", borderRadius: "0 0 12px 12px",
-        padding: "12px 16px", display: "flex", gap: 10, alignItems: "flex-end",
-      }}>
-        {ended ? (
-          <p style={{ flex: 1, color: "#94a3b8", fontSize: 13, textAlign: "center", padding: "10px 0", margin: 0 }}>
-            Esta sessão foi encerrada. Inicia uma nova sessão para continuar.
-          </p>
-        ) : (
-          <>
-            <textarea
-              value={input}
-              onChange={e => setInput(e.target.value)}
-              onKeyDown={handleKey}
-              placeholder="Escreve a tua pergunta... (Enter para enviar, Shift+Enter para nova linha)"
-              rows={2}
-              style={{
-                flex: 1, resize: "none", border: "1.5px solid #e2e8f0", borderRadius: 10,
-                padding: "10px 14px", fontSize: 14, color: "#1e293b", outline: "none",
-                fontFamily: "inherit", lineHeight: 1.5,
-              }}
-            />
-            <button
-              onClick={send}
-              disabled={!input.trim() || sending}
-              style={{
-                ...btnPrimary, padding: "12px 20px", borderRadius: 10, fontSize: 20,
-                opacity: !input.trim() || sending ? 0.5 : 1,
-              }}
-            >
-              ↑
-            </button>
-          </>
-        )}
-      </div>
-
-      <style>{`
-        @keyframes bounce {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-4px); }
-        }
-      `}</style>
-    </div>
-  );
-}
-
-// ─── Session Card ─────────────────────────────────────────────────────────────
-function SessionCard({ session, onOpen }: { session: Session; onOpen: () => void }) {
-  const isActive = !session.endedAt;
-  return (
-    <div
-      onClick={onOpen}
-      style={{
-        background: "#fff", borderRadius: 10, border: "1px solid #e2e8f0",
-        padding: "14px 16px", cursor: "pointer", transition: "all 0.15s",
-      }}
-      onMouseEnter={e => (e.currentTarget.style.borderColor = "#1e40af")}
-      onMouseLeave={e => (e.currentTarget.style.borderColor = "#e2e8f0")}
-    >
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-        <div style={{ flex: 1 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-            <span style={{ fontSize: 16 }}>🤖</span>
-            <span style={{ fontSize: 13, fontWeight: 600, color: "#1e293b" }}>
-              {session.course?.title ?? "Sessão Geral"}
-            </span>
-          </div>
-          <p style={{ fontSize: 12, color: "#64748b", margin: 0 }}>
-            {session._count?.messages ?? 0} mensagens ·{" "}
-            {new Date(session.startedAt).toLocaleDateString("pt-PT")}
-          </p>
+          )}
+          {!isUser && msg.rating && (
+            <div className="flex gap-0.5">
+              {[1, 2, 3, 4, 5].map(r => (
+                <span key={r} className={`text-xs ${r <= msg.rating! ? 'text-amber-400' : 'text-gray-200'}`}>★</span>
+              ))}
+            </div>
+          )}
         </div>
-        <span style={{
-          padding: "3px 10px", borderRadius: 20, fontSize: 10, fontWeight: 700,
-          background: isActive ? "#f0fdf4" : "#f1f5f9",
-          color: isActive ? "#16a34a" : "#94a3b8",
-        }}>
-          {isActive ? "● Activa" : "Encerrada"}
-        </span>
       </div>
     </div>
   );
 }
 
-// ─── Página Principal ─────────────────────────────────────────────────────────
-export default function AiTutorPage() {
-  const [sessions, setSessions]     = useState<Session[]>([]);
-  const [total, setTotal]           = useState(0);
-  const [totalPages, setTotalPages] = useState(1);
-  const [page, setPage]             = useState(1);
-  const [loading, setLoading]       = useState(true);
-  const [error, setError]           = useState("");
-  const [courses, setCourses]       = useState<Course[]>([]);
-  const [provider, setProvider]     = useState<Provider | null>(null);
-  const [stats, setStats]           = useState<Stats | null>(null);
-  const [modalNova, setModalNova]   = useState(false);
+// ─── View: Chat ───────────────────────────────────────────────────────────────
 
-  // Estado do chat activo
-  const [activeSession, setActiveSession]   = useState<Session | null>(null);
-  const [activeGreeting, setActiveGreeting] = useState("");
-  const [activeProvider, setActiveProvider] = useState<Provider>({ provider: "AI" });
-
-  const LIMIT = 10;
-
-  function loadSessions(p = 1) {
-    setLoading(true);
-    // GET /ai-tutor/sessions
-    api.get<any>(`/ai-tutor/sessions?page=${p}&limit=${LIMIT}`)
-      .then(res => {
-        setSessions(res?.data ?? []);
-        setTotal(res?.total ?? 0);
-        setTotalPages(res?.totalPages ?? 1);
-        setPage(p);
-      })
-      .catch(e => setError(e.message))
-      .finally(() => setLoading(false));
-  }
-
-  async function openSession(session: Session) {
-    try {
-      // GET /ai-tutor/sessions/:id
-      const detail = await api.get<SessionDetail>(`/ai-tutor/sessions/${session.id}`);
-      setActiveSession(detail);
-      setActiveGreeting("");
-      setActiveProvider(provider ?? { provider: "AI" });
-    } catch (e: any) { alert(e.message); }
-  }
+function ChatView() {
+  const [session, setSession]     = useState<{ id: number; greeting: string } | null>(null);
+  const [messages, setMessages]   = useState<Message[]>([]);
+  const [input, setInput]         = useState('');
+  const [thinking, setThinking]   = useState(false);
+  const [starting, setStarting]   = useState(false);
+  const [personality, setPersonality] = useState('FRIENDLY');
+  const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    loadSessions(1);
-    // GET /ai-tutor/provider
-    api.get<Provider>("/ai-tutor/provider").then(setProvider).catch(() => {});
-    // GET /ai-tutor/stats
-    api.get<Stats>("/ai-tutor/stats").then(setStats).catch(() => {});
-    // Cursos para o modal
-    api.get<any>("/courses?limit=200").then(r => setCourses(r?.data ?? [])).catch(() => {});
-  }, []);
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages, thinking]);
 
-  // Se está em modo chat
-  if (activeSession) {
+  const start = async () => {
+    setStarting(true);
+    try {
+      const res: any = await apiFetch('/ai-tutor/sessions', {
+        method: 'POST',
+        body:   JSON.stringify({ personality }),
+      });
+      setSession({ id: res.session.id, greeting: res.greeting });
+      setMessages([{
+        id: 0, role: 'ASSISTANT', content: res.greeting,
+        createdAt: new Date().toISOString(), latencyMs: null, rating: null,
+        provider: res.provider?.provider ?? null, agentAction: null,
+      }]);
+    } catch (e: any) { alert(e.message); }
+    finally { setStarting(false); }
+  };
+
+  const send = async (text?: string) => {
+    const msg = (text ?? input).trim();
+    if (!msg || !session || thinking) return;
+    setInput('');
+
+    const userMsg: Message = {
+      id: Date.now(), role: 'USER', content: msg,
+      createdAt: new Date().toISOString(), latencyMs: null, rating: null, provider: null, agentAction: null,
+    };
+    setMessages(prev => [...prev, userMsg]);
+    setThinking(true);
+
+    try {
+      const res: any = await apiFetch('/ai-tutor/sessions/message', {
+        method: 'POST',
+        body:   JSON.stringify({ sessionId: session.id, message: msg }),
+      });
+      setMessages(prev => [...prev, {
+        id:          res.message.id,
+        role:        'ASSISTANT',
+        content:     res.message.content,
+        createdAt:   res.message.createdAt,
+        latencyMs:   res.latencyMs,
+        rating:      null,
+        provider:    res.provider,
+        agentAction: res.message.agentAction,
+      }]);
+    } catch (e: any) {
+      setMessages(prev => [...prev, {
+        id: Date.now(), role: 'ASSISTANT',
+        content: `⚠️ Erro: ${e.message}`,
+        createdAt: new Date().toISOString(), latencyMs: null, rating: null, provider: null, agentAction: null,
+      }]);
+    } finally { setThinking(false); }
+  };
+
+  const handleRate = async (msgId: number, rating: number) => {
+    await apiFetch('/ai-tutor/messages/rate', {
+      method: 'PATCH',
+      body:   JSON.stringify({ messageId: msgId, rating }),
+    }).catch(() => {});
+    setMessages(prev => prev.map(m => m.id === msgId ? { ...m, rating } : m));
+  };
+
+  if (!session) {
     return (
-      <ChatView
-        session={activeSession}
-        greeting={activeGreeting}
-        provider={activeProvider}
-        onEnd={() => loadSessions(1)}
-        onBack={() => { setActiveSession(null); loadSessions(1); }}
-      />
+      <div className="flex flex-col items-center justify-center h-[60vh]">
+        <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-3xl font-bold mb-5">
+          N
+        </div>
+        <h2 className="text-xl font-semibold text-gray-900 mb-2">NOVA — Tutor IA INNOVA</h2>
+        <p className="text-sm text-gray-500 mb-6 text-center max-w-sm">
+          O teu assistente de aprendizagem inteligente. Disponível 24/7 para dúvidas, quizzes, resumos e muito mais.
+        </p>
+
+        <div className="flex gap-2 mb-5">
+          {[
+            { id: 'FRIENDLY',     label: '😊 Amigável' },
+            { id: 'PROFESSIONAL', label: '💼 Profissional' },
+            { id: 'COACH',        label: '🎯 Coach' },
+            { id: 'GAMIFIED',     label: '🏆 Gamificado' },
+          ].map(p => (
+            <button key={p.id} onClick={() => setPersonality(p.id)}
+              className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
+                personality === p.id ? 'bg-blue-700 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+            >
+              {p.label}
+            </button>
+          ))}
+        </div>
+
+        <button onClick={start} disabled={starting}
+          className="px-8 py-3 bg-blue-700 text-white font-semibold rounded-xl hover:bg-blue-800 disabled:opacity-60 shadow-lg shadow-blue-200">
+          {starting ? 'A iniciar…' : '🚀 Iniciar conversa com NOVA'}
+        </button>
+      </div>
     );
   }
 
   return (
-    <div>
-      {/* ── Header ── */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 24 }}>
+    <div className="flex flex-col h-[75vh] bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm">
+      {/* Header */}
+      <div className="flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-blue-700 to-purple-700 text-white">
+        <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center text-lg font-bold">N</div>
         <div>
-          <h1 style={{ fontSize: 24, fontWeight: 700, color: "#1e293b", margin: 0 }}>
-            🤖 AI Tutor
-          </h1>
-          <p style={{ color: "#64748b", fontSize: 14, marginTop: 4 }}>
-            Tutor com Inteligência Artificial — {provider ? `${provider.provider} · Gratuito` : "A carregar..."}
-          </p>
+          <div className="text-sm font-semibold">NOVA — Tutor IA</div>
+          <div className="text-xs text-blue-200 flex items-center gap-1">
+            <span className="w-1.5 h-1.5 bg-green-400 rounded-full" />
+            Online · Sessão #{session.id}
+          </div>
         </div>
-        <button onClick={() => setModalNova(true)} style={{ ...btnPrimary, fontSize: 13 }}>
-          + Nova Sessão
+        <button
+          onClick={() => { setSession(null); setMessages([]); }}
+          className="ml-auto text-xs text-white/60 hover:text-white">
+          Nova sessão
         </button>
       </div>
 
-      {/* ── Stats ── */}
-      {stats && (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, marginBottom: 24 }}>
-          {[
-            { label: "Total Sessões",  value: stats.totalSessions,   color: "#1e40af", bg: "#eff6ff" },
-            { label: "Mensagens",      value: stats.totalMessages,    color: "#8b5cf6", bg: "#f5f3ff" },
-            { label: "Tokens Usados",  value: stats.totalTokensUsed,  color: "#0891b2", bg: "#ecfeff" },
-            { label: "Custo",          value: "GRÁTIS 🎉",            color: "#16a34a", bg: "#f0fdf4" },
-          ].map(s => (
-            <div key={s.label} style={{
-              background: s.bg, borderRadius: 10, padding: "14px 18px",
-              border: `1px solid ${s.color}22`,
-            }}>
-              <p style={{ margin: 0, fontSize: 10, fontWeight: 700, color: s.color, textTransform: "uppercase", letterSpacing: 0.8 }}>
-                {s.label}
-              </p>
-              <p style={{ margin: "4px 0 0", fontSize: s.label === "Custo" ? 16 : 24, fontWeight: 800, color: s.color }}>
-                {typeof s.value === "number" ? s.value.toLocaleString("pt-PT") : s.value}
-              </p>
+      {/* Messages */}
+      <div className="flex-1 overflow-y-auto px-4 py-4 bg-gray-50">
+        {messages.map(m => (
+          <MessageBubble key={m.id} msg={m} onRate={handleRate} />
+        ))}
+        {thinking && (
+          <div className="flex justify-start mb-3">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-sm font-bold mr-2 flex-shrink-0">N</div>
+            <div className="bg-white border border-gray-200 rounded-2xl rounded-tl-sm shadow-sm">
+              <TypingDots />
+            </div>
+          </div>
+        )}
+        <div ref={bottomRef} />
+      </div>
+
+      {/* Quick actions */}
+      <div className="px-3 py-2 bg-white border-t border-gray-100 flex gap-1.5 overflow-x-auto">
+        {QUICK_ACTIONS.map(a => (
+          <button key={a.label} onClick={() => send(a.value)}
+            className="flex-shrink-0 px-2.5 py-1 text-xs bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 whitespace-nowrap">
+            {a.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Input */}
+      <div className="px-3 py-3 bg-white border-t border-gray-100 flex gap-2">
+        <input
+          type="text"
+          value={input}
+          onChange={e => setInput(e.target.value)}
+          onKeyDown={e => e.key === 'Enter' && !e.shiftKey && send()}
+          placeholder="Escreve a tua pergunta…"
+          disabled={thinking}
+          className="flex-1 text-sm border border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+        />
+        <button
+          onClick={() => send()}
+          disabled={!input.trim() || thinking}
+          className="px-4 py-2.5 bg-blue-700 text-white rounded-xl hover:bg-blue-800 disabled:opacity-40 font-medium text-sm"
+        >
+          ➤
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ─── View: History ────────────────────────────────────────────────────────────
+
+function HistoryView() {
+  const [sessions, setSessions] = useState<Session[]>([]);
+  const [loading, setLoading]   = useState(true);
+  const [selected, setSelected] = useState<number | null>(null);
+  const [detail, setDetail]     = useState<{ messages: Message[] } | null>(null);
+
+  useEffect(() => {
+    apiFetch<any>('/ai-tutor/sessions').then(r => setSessions(r.data)).finally(() => setLoading(false));
+  }, []);
+
+  const loadDetail = async (id: number) => {
+    setSelected(id);
+    const s: any = await apiFetch(`/ai-tutor/sessions/${id}`);
+    setDetail({ messages: s.messages });
+  };
+
+  if (loading) return <Skeleton rows={4} />;
+
+  if (selected && detail) {
+    return (
+      <div>
+        <button onClick={() => { setSelected(null); setDetail(null); }}
+          className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-800 mb-4">
+          ← Voltar
+        </button>
+        <div className="bg-white border border-gray-200 rounded-xl p-4 space-y-3 max-h-[65vh] overflow-y-auto">
+          {detail.messages.map(m => (
+            <div key={m.id} className={`flex ${m.role === 'USER' ? 'justify-end' : 'justify-start'}`}>
+              <div className={`max-w-[70%] px-4 py-2.5 rounded-2xl text-sm ${
+                m.role === 'USER' ? 'bg-blue-700 text-white' : 'bg-gray-100 text-gray-800'
+              }`}>
+                {m.content}
+              </div>
             </div>
           ))}
         </div>
-      )}
+      </div>
+    );
+  }
 
-      {/* ── Provider Info ── */}
-      {provider && (
-        <div style={{
-          background: "linear-gradient(135deg, #1e40af08, #6366f108)",
-          border: "1px solid #1e40af22", borderRadius: 12, padding: "16px 20px",
-          marginBottom: 24, display: "flex", alignItems: "center", gap: 16,
-        }}>
-          <span style={{ fontSize: 28 }}>🤖</span>
-          <div>
-            <p style={{ margin: 0, fontSize: 14, fontWeight: 700, color: "#1e293b" }}>
-              Fornecedor Activo: {provider.provider}
-              {provider.model && <span style={{ color: "#64748b", fontWeight: 400 }}> · {provider.model}</span>}
-            </p>
-            <p style={{ margin: "2px 0 0", fontSize: 12, color: "#16a34a", fontWeight: 600 }}>
-              ✓ Sem custo de API — utilização gratuita
-            </p>
+  return (
+    <div className="space-y-2">
+      {sessions.map(s => (
+        <div key={s.id} onClick={() => loadDetail(s.id)}
+          className="flex items-center gap-4 bg-white border border-gray-200 rounded-xl p-4 cursor-pointer hover:shadow-sm">
+          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold flex-shrink-0">N</div>
+          <div className="flex-1 min-w-0">
+            <div className="text-sm font-medium text-gray-900">
+              Sessão #{s.id}{s.course ? ` · ${s.course.title}` : ''}
+            </div>
+            <div className="text-xs text-gray-400">{fmtDate(s.startedAt)}</div>
+          </div>
+          <div className="text-xs text-gray-400 flex-shrink-0">{s._count?.messages ?? 0} mensagens</div>
+          {s.endedAt ? (
+            <span className="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded">Encerrada</span>
+          ) : (
+            <span className="text-xs bg-green-50 text-green-700 px-2 py-0.5 rounded">Activa</span>
+          )}
+        </div>
+      ))}
+      {sessions.length === 0 && (
+        <div className="py-10 text-center text-sm text-gray-400 border border-dashed border-gray-200 rounded-xl">
+          Nenhuma sessão iniciada ainda
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── View: Generate ───────────────────────────────────────────────────────────
+
+function GenerateView() {
+  const [type, setType]     = useState<'QUIZ' | 'FLASHCARDS' | 'SUMMARY' | 'STUDY_PLAN'>('QUIZ');
+  const [topic, setTopic]   = useState('');
+  const [count, setCount]   = useState(5);
+  const [result, setResult] = useState<GeneratedContent | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const generate = async () => {
+    if (!topic.trim()) { alert('Introduz um tema'); return; }
+    setLoading(true);
+    try {
+      const res = await apiFetch<GeneratedContent>('/ai-tutor/generate', {
+        method: 'POST',
+        body:   JSON.stringify({ type, topic, count }),
+      });
+      setResult(res);
+    } catch (e: any) { alert(e.message); }
+    finally { setLoading(false); }
+  };
+
+  const renderContent = () => {
+    if (!result) return null;
+
+    if (type === 'QUIZ' && Array.isArray(result.content)) {
+      return (
+        <div className="space-y-4">
+          {result.content.map((q: any, i: number) => (
+            <div key={i} className="bg-white border border-gray-200 rounded-xl p-4">
+              <div className="text-sm font-semibold text-gray-900 mb-3">{i + 1}. {q.question}</div>
+              <div className="space-y-1.5">
+                {(q.options ?? []).map((opt: string, j: number) => (
+                  <div key={j} className={`text-sm px-3 py-2 rounded-lg ${
+                    opt.startsWith(q.correct) ? 'bg-emerald-50 text-emerald-700 font-medium' : 'bg-gray-50 text-gray-700'
+                  }`}>
+                    {opt}
+                  </div>
+                ))}
+              </div>
+              {q.explanation && (
+                <div className="mt-3 text-xs text-blue-600 bg-blue-50 rounded-lg px-3 py-2">💡 {q.explanation}</div>
+              )}
+            </div>
+          ))}
+        </div>
+      );
+    }
+
+    if (type === 'FLASHCARDS' && Array.isArray(result.content)) {
+      return (
+        <div className="grid grid-cols-2 gap-3">
+          {result.content.map((c: any, i: number) => (
+            <div key={i} className="bg-white border border-gray-200 rounded-xl p-4">
+              <div className="text-xs text-gray-400 mb-1">FRENTE</div>
+              <div className="text-sm font-semibold text-gray-900 mb-3">{c.front}</div>
+              <div className="h-px bg-gray-100 mb-3" />
+              <div className="text-xs text-gray-400 mb-1">VERSO</div>
+              <div className="text-sm text-gray-700">{c.back}</div>
+            </div>
+          ))}
+        </div>
+      );
+    }
+
+    // SUMMARY ou raw text
+    return (
+      <div className="bg-white border border-gray-200 rounded-xl p-5 text-sm text-gray-700 leading-relaxed whitespace-pre-line">
+        {typeof result.content === 'string' ? result.content : result.raw}
+      </div>
+    );
+  };
+
+  return (
+    <div>
+      <div className="bg-white border border-gray-200 rounded-xl p-5 mb-5">
+        <div className="text-sm font-semibold text-gray-900 mb-4">Geração de conteúdo com IA</div>
+
+        {/* Tipo */}
+        <div className="flex gap-2 mb-4 flex-wrap">
+          {([
+            { id: 'QUIZ',       label: '📊 Quiz' },
+            { id: 'FLASHCARDS', label: '🃏 Flashcards' },
+            { id: 'SUMMARY',    label: '📝 Resumo' },
+            { id: 'STUDY_PLAN', label: '📅 Plano de estudo' },
+          ] as const).map(t => (
+            <button key={t.id} onClick={() => setType(t.id)}
+              className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
+                type === t.id ? 'bg-blue-700 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Tema */}
+        <input
+          type="text" placeholder="Tema (ex: Gestão de riscos de crédito, Liderança situacional…)"
+          value={topic} onChange={e => setTopic(e.target.value)}
+          className="w-full text-sm border border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 mb-3"
+        />
+
+        {type !== 'SUMMARY' && type !== 'STUDY_PLAN' && (
+          <div className="flex items-center gap-3 mb-4">
+            <span className="text-xs text-gray-500">Quantidade:</span>
+            {[3, 5, 8, 10].map(n => (
+              <button key={n} onClick={() => setCount(n)}
+                className={`w-8 h-8 text-xs rounded-lg ${count === n ? 'bg-blue-700 text-white' : 'bg-gray-100 text-gray-600'}`}>
+                {n}
+              </button>
+            ))}
+          </div>
+        )}
+
+        <button onClick={generate} disabled={loading || !topic.trim()}
+          className="w-full py-2.5 bg-blue-700 text-white text-sm font-semibold rounded-xl hover:bg-blue-800 disabled:opacity-50">
+          {loading ? (
+            <span className="flex items-center justify-center gap-2">
+              <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+              </svg>
+              A gerar com IA…
+            </span>
+          ) : `⚡ Gerar ${type === 'QUIZ' ? 'Quiz' : type === 'FLASHCARDS' ? 'Flashcards' : type === 'SUMMARY' ? 'Resumo' : 'Plano de estudo'}`}
+        </button>
+      </div>
+
+      {result && (
+        <div>
+          <div className="text-xs text-gray-400 mb-3">Gerado por {result.provider}</div>
+          {renderContent()}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── View: Recommendations ────────────────────────────────────────────────────
+
+function RecommendationsView() {
+  const [data, setData]     = useState<Recommendation | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    apiFetch<Recommendation>('/ai-tutor/recommendations').then(setData).finally(() => setLoading(false));
+  }, []);
+
+  if (loading) return <Skeleton rows={4} />;
+  if (!data)   return null;
+
+  return (
+    <div className="space-y-5">
+      {/* AI Insight */}
+      <div className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-xl p-5">
+        <div className="flex items-center gap-2 mb-3">
+          <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-xs font-bold">N</div>
+          <span className="text-xs font-semibold text-blue-700">Insight do NOVA</span>
+          <span className="text-xs text-gray-400 ml-auto">{data.provider}</span>
+        </div>
+        <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-line">{data.aiInsight}</p>
+      </div>
+
+      {/* Gaps */}
+      {data.competencyGaps.length > 0 && (
+        <div className="bg-white border border-gray-200 rounded-xl p-4">
+          <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">⚡ Gaps de competência identificados</div>
+          <div className="flex flex-wrap gap-2">
+            {data.competencyGaps.map(g => (
+              <span key={g} className="text-xs bg-amber-50 text-amber-700 px-2.5 py-1 rounded-lg border border-amber-200">{g}</span>
+            ))}
           </div>
         </div>
       )}
 
-      {/* ── Erro ── */}
-      {error && (
-        <div style={{
-          background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 8,
-          padding: 14, color: "#dc2626", fontSize: 13, marginBottom: 16,
-        }}>{error}</div>
-      )}
+      {/* Cursos */}
+      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+        <div className="px-4 py-3 border-b border-gray-100 text-xs font-medium text-gray-400 uppercase tracking-wide">
+          Cursos recomendados
+        </div>
+        {data.courses.map(c => (
+          <div key={c.id} className="flex items-center gap-3 px-4 py-3 border-b border-gray-100 last:border-0">
+            <div className="w-9 h-9 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600 text-lg flex-shrink-0">
+              🎓
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-sm font-medium text-gray-900 truncate">{c.title}</div>
+              <div className="text-xs text-gray-400">{c.category}{c.workloadHours ? ` · ${c.workloadHours}h` : ''}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
-      {/* ── Lista de Sessões ── */}
-      <div style={{ marginBottom: 16, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <h2 style={{ fontSize: 16, fontWeight: 700, color: "#1e293b", margin: 0 }}>
-          As Minhas Sessões <span style={{ color: "#94a3b8", fontWeight: 400, fontSize: 14 }}>({total})</span>
-        </h2>
+// ─── Page principal ───────────────────────────────────────────────────────────
+
+const NAV: Array<{ id: View; label: string }> = [
+  { id: 'chat',            label: '💬 Chat' },
+  { id: 'generate',        label: '⚡ Gerar conteúdo' },
+  { id: 'recommendations', label: '🎯 Recomendações' },
+  { id: 'history',         label: '🕐 Histórico' },
+];
+
+const TITLES: Record<View, string> = {
+  chat:            'NOVA — Tutor IA',
+  generate:        'Gerar conteúdo com IA',
+  recommendations: 'Recomendações personalizadas',
+  history:         'Histórico de sessões',
+};
+
+export default function AiTutorPage() {
+  const [view, setView] = useState<View>('chat');
+
+  return (
+    <div className="max-w-4xl mx-auto px-4 py-8">
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-xl font-semibold text-gray-900">{TITLES[view]}</h1>
+          <p className="text-sm text-gray-400 mt-0.5">INNOVA — Assistente de Aprendizagem Inteligente</p>
+        </div>
       </div>
 
-      {loading ? (
-        <div style={{ padding: 60, textAlign: "center", color: "#94a3b8", fontSize: 14 }}>
-          A carregar sessões...
-        </div>
-      ) : sessions.length === 0 ? (
-        <div style={{
-          padding: 60, textAlign: "center", background: "#fff",
-          borderRadius: 12, border: "1px solid #e2e8f0",
-        }}>
-          <p style={{ fontSize: 40, margin: "0 0 12px" }}>🤖</p>
-          <p style={{ fontSize: 16, fontWeight: 600, color: "#1e293b", margin: "0 0 8px" }}>
-            Ainda sem sessões
-          </p>
-          <p style={{ fontSize: 13, color: "#64748b", margin: "0 0 20px" }}>
-            Inicia a tua primeira sessão com o AI Tutor
-          </p>
-          <button onClick={() => setModalNova(true)} style={btnPrimary}>
-            + Nova Sessão
+      <div className="flex gap-1 mb-6 bg-gray-100 p-1 rounded-xl w-fit">
+        {NAV.map(n => (
+          <button key={n.id} onClick={() => setView(n.id)}
+            className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+              view === n.id ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            {n.label}
           </button>
-        </div>
-      ) : (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: 12 }}>
-          {sessions.map(s => (
-            <SessionCard key={s.id} session={s} onOpen={() => openSession(s)} />
-          ))}
-        </div>
-      )}
+        ))}
+      </div>
 
-      {/* ── Paginação ── */}
-      {totalPages > 1 && (
-        <div style={{ display: "flex", justifyContent: "center", gap: 8, marginTop: 20 }}>
-          <button onClick={() => loadSessions(page - 1)} disabled={page === 1}
-            style={{ ...btnGhost, padding: "8px 16px", opacity: page === 1 ? 0.4 : 1 }}>
-            ← Anterior
-          </button>
-          <span style={{ fontSize: 13, color: "#64748b", padding: "8px 16px" }}>
-            {page} / {totalPages}
-          </span>
-          <button onClick={() => loadSessions(page + 1)} disabled={page === totalPages}
-            style={{ ...btnGhost, padding: "8px 16px", opacity: page === totalPages ? 0.4 : 1 }}>
-            Seguinte →
-          </button>
-        </div>
-      )}
-
-      {/* ── Modal Nova Sessão ── */}
-      {modalNova && (
-        <ModalNovaSessao
-          courses={courses}
-          onClose={() => setModalNova(false)}
-          onStart={(session, greeting, prov) => {
-            setModalNova(false);
-            setActiveSession(session);
-            setActiveGreeting(greeting);
-            setActiveProvider(prov);
-            loadSessions(1);
-          }}
-        />
-      )}
+      {view === 'chat'            && <ChatView />}
+      {view === 'generate'        && <GenerateView />}
+      {view === 'recommendations' && <RecommendationsView />}
+      {view === 'history'         && <HistoryView />}
     </div>
   );
 }

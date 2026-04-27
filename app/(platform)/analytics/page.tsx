@@ -1,736 +1,597 @@
-﻿"use client";
-import { useEffect, useState } from "react";
-import { api } from "../../../lib/api";
+﻿// src/app/(dashboard)/analytics/page.tsx
+'use client';
+
+import { useState, useEffect, useCallback } from 'react';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
-interface Overview {
-  users: { total: number; active: number };
-  courses: { total: number; active: number };
+
+interface OrgOverview {
+  users:       { total: number; active: number };
+  courses:     { total: number; published: number };
   enrollments: { total: number; completed: number; completionRate: number };
-  engagement: { totalPoints: number; totalBadges: number; totalLearningPaths: number; activeMicroLearnings: number };
+  pdi:         { total: number; active: number; adoptionRate: number };
+  engagement:  { totalXp: number; totalBadges: number; totalLearningPaths: number };
+  performance: { avgScore: number };
 }
 
-interface LearningAnalytics {
-  enrollmentsByStatus: { status: string; _count: number }[];
-  topCourses: { course: { id: number; title: string; category?: string }; totalCompleted: number; totalEnrollments: number; avgScore?: number }[];
-  performanceByPeriod: { period: string; _avg: { score: number } }[];
-  monthlyEnrollments: { month: string; count: number }[];
+interface CollaboratorDashboard {
+  learning:    { completed: number; inProgress: number; totalHours: number; totalCourses: number };
+  xp:          { total: number; badges: number };
+  streak:      { current: number; longest: number };
+  pdi:         any[];
+  competencies:Array<{ name: string; category: string; currentLevel: number; targetLevel: number | null }>;
 }
 
-interface EngagementMetrics {
-  totalUsers: number;
-  activeUsersLast30Days: number;
-  engagementRate: number;
-  microLearningViews: number;
-  knowledgeInteractions: number;
-  aiTutorSessions: number;
-  topUsers: { user: { id: number; fullName: string }; points: number }[];
+interface ManagerDashboard {
+  team:          any[];
+  metrics:       {
+    headcount: number; enrollments: number; completions: number;
+    completionRate: number; activePDIs: number; pdiAdoptionRate: number;
+    avgPerformance: number; overdueActions: number;
+  };
+  competencyGaps:Array<{ name: string; avgGap: number; count: number }>;
+  nineBox:       Array<{ userId: number; fullName: string; avatarUrl: string | null; performanceAxis: number; potentialAxis: number }>;
+  alerts:        Array<{ type: string; message: string }>;
 }
 
-interface ROI {
-  impacts: { id: number; courseId: number; metric: string; impactRate: number; calculatedAt: string }[];
-  totalHoursInvested: number;
-  totalCompletions: number;
+interface RiskAlert {
+  summary:                { inactiveCount: number; overduePDICount: number; criticalActionCount: number };
+  inactiveCollaborators:  Array<{ id: number; fullName: string; avatarUrl: string | null }>;
+  overduePDIs:            Array<{ planId: number; planName: string; user: any; daysOverdue: number }>;
+  criticalActions:        Array<{ actionId: number; actionTitle: string; user: any; daysOverdue: number }>;
 }
 
-interface Snapshot {
-  id: number;
-  totalUsers: number;
-  totalCoursesCompleted: number;
-  averageScore: number;
-  activePlans: number;
-  generatedAt: string;
-  department?: { name: string };
-}
+type View = 'overview' | 'my' | 'manager' | 'hr' | 'risks';
 
-interface Department { id: number; name: string }
+// ─── API ──────────────────────────────────────────────────────────────────────
 
-// ─── Styles ───────────────────────────────────────────────────────────────────
-const btnPrimary: React.CSSProperties = {
-  padding: "10px 20px", background: "#1e40af", color: "#fff",
-  border: "none", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer",
-};
-const btnGhost: React.CSSProperties = {
-  padding: "10px 20px", background: "#f1f5f9", color: "#475569",
-  border: "none", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer",
-};
-const card: React.CSSProperties = {
-  background: "#fff", borderRadius: 12, border: "1px solid #e2e8f0", padding: 20,
-};
+const API = process.env.NEXT_PUBLIC_API_URL ?? '/api';
 
-// ─── KPI Card ─────────────────────────────────────────────────────────────────
-function KpiCard({ label, value, sub, color, bg, icon }: {
-  label: string; value: string | number; sub?: string;
-  color: string; bg: string; icon: string;
-}) {
-  return (
-    <div style={{ ...card, display: "flex", alignItems: "center", gap: 16 }}>
-      <div style={{
-        width: 52, height: 52, borderRadius: 14, background: bg,
-        display: "flex", alignItems: "center", justifyContent: "center",
-        fontSize: 22, flexShrink: 0,
-      }}>{icon}</div>
-      <div style={{ flex: 1 }}>
-        <p style={{ margin: 0, fontSize: 11, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: 0.8 }}>{label}</p>
-        <p style={{ margin: "4px 0 0", fontSize: 26, fontWeight: 800, color }}>{value}</p>
-        {sub && <p style={{ margin: "2px 0 0", fontSize: 12, color: "#94a3b8" }}>{sub}</p>}
-      </div>
-    </div>
-  );
-}
-
-// ─── Bar Chart (CSS) ──────────────────────────────────────────────────────────
-function BarChart({ data, color = "#1e40af", height = 160 }: {
-  data: { label: string; value: number }[]; color?: string; height?: number;
-}) {
-  const max = Math.max(...data.map(d => d.value), 1);
-  return (
-    <div style={{ display: "flex", alignItems: "flex-end", gap: 6, height, padding: "0 4px" }}>
-      {data.map((d, i) => (
-        <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 4, height: "100%" }}>
-          <div style={{ flex: 1, display: "flex", alignItems: "flex-end", width: "100%" }}>
-            <div style={{
-              width: "100%", height: `${Math.max((d.value / max) * 100, 2)}%`,
-              background: color, borderRadius: "4px 4px 0 0", transition: "height 0.5s ease",
-              position: "relative",
-            }}>
-              <span style={{
-                position: "absolute", top: -20, left: "50%", transform: "translateX(-50%)",
-                fontSize: 10, fontWeight: 700, color: "#1e293b", whiteSpace: "nowrap",
-              }}>{d.value}</span>
-            </div>
-          </div>
-          <span style={{ fontSize: 9, color: "#94a3b8", textAlign: "center", lineHeight: 1.2 }}>
-            {d.label}
-          </span>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-// ─── Donut Chart (SVG) ───────────────────────────────────────────────────────
-function DonutChart({ value, max, color, label }: {
-  value: number; max: number; color: string; label: string;
-}) {
-  const pct = max > 0 ? Math.min((value / max) * 100, 100) : 0;
-  const r = 36, c = 2 * Math.PI * r;
-  const dash = (pct / 100) * c;
-  return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
-      <div style={{ position: "relative", width: 88, height: 88 }}>
-        <svg width="88" height="88" viewBox="0 0 88 88">
-          <circle cx="44" cy="44" r={r} fill="none" stroke="#e2e8f0" strokeWidth="10" />
-          <circle
-            cx="44" cy="44" r={r} fill="none" stroke={color} strokeWidth="10"
-            strokeDasharray={`${dash} ${c}`} strokeDashoffset={c / 4}
-            strokeLinecap="round" style={{ transition: "stroke-dasharray 0.6s ease" }}
-          />
-        </svg>
-        <div style={{
-          position: "absolute", inset: 0, display: "flex",
-          alignItems: "center", justifyContent: "center",
-          fontSize: 15, fontWeight: 800, color: "#1e293b",
-        }}>{Math.round(pct)}%</div>
-      </div>
-      <span style={{ fontSize: 12, color: "#64748b", fontWeight: 500, textAlign: "center" }}>{label}</span>
-    </div>
-  );
-}
-
-// ─── Section Header ───────────────────────────────────────────────────────────
-function SectionHeader({ title, action }: { title: string; action?: React.ReactNode }) {
-  return (
-    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-      <h2 style={{ fontSize: 15, fontWeight: 700, color: "#1e293b", margin: 0 }}>{title}</h2>
-      {action}
-    </div>
-  );
-}
-
-// ─── Tab ─────────────────────────────────────────────────────────────────────
-type Tab = "overview" | "learning" | "engagement" | "roi" | "snapshots";
-
-const TAB_STYLE = (active: boolean): React.CSSProperties => ({
-  padding: "8px 18px", border: "none", cursor: "pointer", fontSize: 13,
-  fontWeight: active ? 700 : 500, borderRadius: 8,
-  background: active ? "#1e40af" : "transparent",
-  color: active ? "#fff" : "#64748b",
-  transition: "all 0.15s",
-});
-
-const STATUS_LABEL: Record<string, string> = {
-  EM_ANDAMENTO: "Em Andamento",
-  CONCLUIDO: "Concluído",
-  CANCELADO: "Cancelado",
-};
-const STATUS_COLOR: Record<string, string> = {
-  EM_ANDAMENTO: "#f59e0b",
-  CONCLUIDO: "#10b981",
-  CANCELADO: "#ef4444",
-};
-
-// ─── Página Principal ─────────────────────────────────────────────────────────
-export default function AnalyticsPage() {
-  const [tab, setTab]                   = useState<Tab>("overview");
-  const [overview, setOverview]         = useState<Overview | null>(null);
-  const [learning, setLearning]         = useState<LearningAnalytics | null>(null);
-  const [engagement, setEngagement]     = useState<EngagementMetrics | null>(null);
-  const [roi, setRoi]                   = useState<ROI | null>(null);
-  const [snapshots, setSnapshots]       = useState<Snapshot[]>([]);
-  const [departments, setDepartments]   = useState<Department[]>([]);
-  const [deptId, setDeptId]             = useState("");
-  const [generating, setGenerating]     = useState(false);
-  const [loading, setLoading]           = useState<Record<Tab, boolean>>({
-    overview: true, learning: true, engagement: true, roi: false, snapshots: false,
+async function apiFetch<T>(path: string): Promise<T> {
+  const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
+  const res = await fetch(`${API}${path}`, {
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
   });
-  const [error, setError]               = useState("");
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
+}
 
-  // Carregar dados por tab
-  useEffect(() => {
-    // Overview sempre
-    api.get<Overview>("/analytics/overview")
-      .then(setOverview)
-      .catch(e => setError(e.message))
-      .finally(() => setLoading(l => ({ ...l, overview: false })));
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 
-    // Learning
-    api.get<LearningAnalytics>("/analytics/learning")
-      .then(setLearning)
-      .finally(() => setLoading(l => ({ ...l, learning: false })));
+function initials(name: string) {
+  return name.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase();
+}
 
-    // Engagement
-    api.get<EngagementMetrics>("/analytics/engagement")
-      .then(setEngagement)
-      .finally(() => setLoading(l => ({ ...l, engagement: false })));
+function Avatar({ name, avatarUrl, size = 'sm' }: { name: string; avatarUrl?: string | null; size?: 'sm' | 'md' }) {
+  const dim = size === 'sm' ? 'w-8 h-8 text-xs' : 'w-10 h-10 text-sm';
+  return avatarUrl ? (
+    <img src={avatarUrl} alt={name} className={`${dim} rounded-full object-cover flex-shrink-0`} />
+  ) : (
+    <div className={`${dim} rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-semibold flex-shrink-0`}>
+      {initials(name)}
+    </div>
+  );
+}
 
-    // Departments para filtros
-    api.get<any>("/departments?limit=100")
-      .then(r => setDepartments(r?.data ?? r ?? []))
-      .catch(() => {});
-  }, []);
+function Skeleton({ rows = 3, h = 'h-16' }: { rows?: number; h?: string }) {
+  return (
+    <div className="space-y-3 animate-pulse">
+      {Array.from({ length: rows }).map((_, i) => <div key={i} className={`${h} bg-gray-100 rounded-xl`} />)}
+    </div>
+  );
+}
 
-  function loadRoi() {
-    setLoading(l => ({ ...l, roi: true }));
-    api.get<ROI>("/analytics/roi")
-      .then(setRoi)
-      .catch(e => setError(e.message))
-      .finally(() => setLoading(l => ({ ...l, roi: false })));
-  }
+function KpiCard({ label, value, sub, color = 'text-gray-900', bg = 'bg-gray-50' }: {
+  label: string; value: string | number; sub?: string; color?: string; bg?: string;
+}) {
+  return (
+    <div className={`${bg} rounded-xl p-4`}>
+      <div className="text-xs text-gray-400 mb-1">{label}</div>
+      <div className={`text-2xl font-bold font-mono ${color}`}>{value}</div>
+      {sub && <div className="text-xs text-gray-400 mt-0.5">{sub}</div>}
+    </div>
+  );
+}
 
-  function loadSnapshots() {
-    setLoading(l => ({ ...l, snapshots: true }));
-    api.get<Snapshot[]>("/analytics/snapshots")
-      .then(setSnapshots)
-      .catch(e => setError(e.message))
-      .finally(() => setLoading(l => ({ ...l, snapshots: false })));
-  }
+function ProgressBar({ pct, color = 'bg-blue-500', h = 'h-2' }: { pct: number; color?: string; h?: string }) {
+  return (
+    <div className="flex items-center gap-2">
+      <div className={`flex-1 ${h} bg-gray-100 rounded-full overflow-hidden`}>
+        <div className={`h-full ${color} rounded-full`} style={{ width: `${Math.min(pct, 100)}%` }} />
+      </div>
+      <span className="text-xs font-mono text-gray-500 w-8 flex-shrink-0">{pct}%</span>
+    </div>
+  );
+}
 
-  async function generateSnapshot() {
-    setGenerating(true);
-    try {
-      // POST /analytics/snapshots/generate
-      await api.post("/analytics/snapshots/generate", {});
-      loadSnapshots();
-    } catch (e: any) { alert(e.message); }
-    finally { setGenerating(false); }
-  }
+// ─── 9-Box Matrix ─────────────────────────────────────────────────────────────
 
-  function handleTab(t: Tab) {
-    setTab(t);
-    if (t === "roi" && !roi) loadRoi();
-    if (t === "snapshots" && snapshots.length === 0) loadSnapshots();
-  }
-
-  const isLoading = loading[tab];
+function NineBox({ data }: { data: ManagerDashboard['nineBox'] }) {
+  const labels: Record<string, string> = {
+    '3-3': 'Alto Potencial',  '2-3': 'Potencial Emergente', '1-3': 'Enigma',
+    '3-2': 'Profissional',    '2-2': 'Núcleo Sólido',       '1-2': 'Inconsistente',
+    '3-1': 'Especialista',    '2-1': 'Eficiente Limitado',  '1-1': 'Alto Risco',
+  };
+  const colors: Record<string, string> = {
+    '3-3': 'bg-emerald-200', '2-3': 'bg-emerald-100', '1-3': 'bg-amber-100',
+    '3-2': 'bg-blue-100',    '2-2': 'bg-gray-100',    '1-2': 'bg-amber-50',
+    '3-1': 'bg-blue-50',     '2-1': 'bg-red-50',      '1-1': 'bg-red-100',
+  };
 
   return (
     <div>
-      {/* ── Header ── */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 24 }}>
-        <div>
-          <h1 style={{ fontSize: 24, fontWeight: 700, color: "#1e293b", margin: 0 }}>📊 Analytics</h1>
-          <p style={{ color: "#64748b", fontSize: 14, marginTop: 4 }}>
-            Análise e inteligência organizacional em tempo real
-          </p>
+      <div className="text-xs text-gray-400 text-center mb-1">Desempenho →</div>
+      <div className="grid grid-cols-3 gap-1">
+        {[3, 2, 1].map(pot =>
+          [1, 2, 3].map(perf => {
+            const key   = `${perf}-${pot}`;
+            const users = data.filter(u => u.performanceAxis === perf && u.potentialAxis === pot);
+            return (
+              <div key={key} className={`${colors[key] ?? 'bg-gray-100'} rounded-lg p-2 min-h-[70px]`}>
+                <div className="text-xs font-medium text-gray-600 mb-1 leading-tight">{labels[key]}</div>
+                <div className="flex flex-wrap gap-1">
+                  {users.map(u => (
+                    <Avatar key={u.userId} name={u.fullName} avatarUrl={u.avatarUrl} size="sm" />
+                  ))}
+                  {users.length === 0 && <div className="text-xs text-gray-300">—</div>}
+                </div>
+              </div>
+            );
+          })
+        )}
+      </div>
+      <div className="text-xs text-gray-400 text-right mt-1">← Potencial</div>
+    </div>
+  );
+}
+
+// ─── View: Overview ───────────────────────────────────────────────────────────
+
+function OverviewView() {
+  const [data, setData]     = useState<OrgOverview | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    apiFetch<OrgOverview>('/analytics/overview').then(setData).finally(() => setLoading(false));
+  }, []);
+
+  if (loading || !data) return <Skeleton rows={4} />;
+
+  return (
+    <div className="space-y-5">
+      {/* KPIs principais */}
+      <div className="grid grid-cols-4 gap-3">
+        <KpiCard label="Colaboradores activos" value={data.users.active}       bg="bg-blue-50"  color="text-blue-700" />
+        <KpiCard label="Taxa de conclusão"      value={`${data.enrollments.completionRate}%`} bg="bg-emerald-50" color="text-emerald-700" />
+        <KpiCard label="Adopção de PDI"         value={`${data.pdi.adoptionRate}%`}           bg="bg-purple-50"  color="text-purple-700" />
+        <KpiCard label="Performance média"      value={data.performance.avgScore}              bg="bg-amber-50"   color="text-amber-700" />
+      </div>
+
+      {/* Segunda linha */}
+      <div className="grid grid-cols-3 gap-3">
+        <div className="bg-white border border-gray-200 rounded-xl p-5">
+          <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">Cursos</div>
+          <div className="grid grid-cols-2 gap-3">
+            <KpiCard label="Total"     value={data.courses.total}     bg="bg-gray-50" />
+            <KpiCard label="Publicados"value={data.courses.published}  bg="bg-gray-50" />
+          </div>
+        </div>
+        <div className="bg-white border border-gray-200 rounded-xl p-5">
+          <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">Matrículas</div>
+          <div className="grid grid-cols-2 gap-3">
+            <KpiCard label="Total"     value={data.enrollments.total}     bg="bg-gray-50" />
+            <KpiCard label="Concluídas"value={data.enrollments.completed}  bg="bg-gray-50" color="text-emerald-600" />
+          </div>
+        </div>
+        <div className="bg-white border border-gray-200 rounded-xl p-5">
+          <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">Gamificação</div>
+          <div className="grid grid-cols-2 gap-3">
+            <KpiCard label="XP total"  value={data.engagement.totalXp}     bg="bg-gray-50" color="text-amber-600" />
+            <KpiCard label="Badges"    value={data.engagement.totalBadges}  bg="bg-gray-50" color="text-purple-600" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── View: My Dashboard ───────────────────────────────────────────────────────
+
+function MyDashboardView() {
+  const [data, setData]     = useState<CollaboratorDashboard | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    apiFetch<CollaboratorDashboard>('/analytics/me').then(setData).finally(() => setLoading(false));
+  }, []);
+
+  if (loading || !data) return <Skeleton />;
+
+  return (
+    <div className="space-y-5">
+      {/* Stats pessoais */}
+      <div className="grid grid-cols-4 gap-3">
+        <KpiCard label="Cursos concluídos"  value={data.learning.completed}  color="text-emerald-600" />
+        <KpiCard label="Em progresso"        value={data.learning.inProgress} color="text-blue-600" />
+        <KpiCard label="Horas de aprendizagem" value={`${data.learning.totalHours}h`} color="text-purple-600" />
+        <KpiCard label="XP ganho"           value={data.xp.total}           color="text-amber-600" />
+      </div>
+
+      {/* Streak + Badges */}
+      <div className="grid grid-cols-2 gap-4">
+        <div className="bg-gradient-to-r from-amber-500 to-orange-500 rounded-xl p-5 text-white">
+          <div className="text-sm text-amber-100 mb-1">Streak de aprendizagem</div>
+          <div className="text-4xl font-bold">{data.streak.current}</div>
+          <div className="text-sm text-amber-100 mt-1">dias consecutivos 🔥 (recorde: {data.streak.longest})</div>
+        </div>
+        <div className="bg-white border border-gray-200 rounded-xl p-5">
+          <div className="text-xs text-gray-400 mb-3">Competências top</div>
+          <div className="space-y-2">
+            {data.competencies.slice(0, 4).map(c => (
+              <div key={c.name} className="flex items-center gap-3">
+                <div className="text-xs text-gray-700 w-28 truncate">{c.name}</div>
+                <div className="flex-1">
+                  <ProgressBar
+                    pct={Math.round((c.currentLevel / 5) * 100)}
+                    color={c.targetLevel && c.currentLevel < c.targetLevel ? 'bg-amber-400' : 'bg-emerald-500'}
+                  />
+                </div>
+                <div className="text-xs font-mono text-gray-500 flex-shrink-0">{c.currentLevel}/5</div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* ── KPIs rápidos (sempre visíveis) ── */}
-      {overview && (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, marginBottom: 24 }}>
-          <KpiCard icon="👥" label="Utilizadores Activos" value={overview.users.active}
-            sub={`${overview.users.total} no total`} color="#1e40af" bg="#eff6ff" />
-          <KpiCard icon="📚" label="Cursos Activos" value={overview.courses.active}
-            sub={`${overview.courses.total} no total`} color="#8b5cf6" bg="#f5f3ff" />
-          <KpiCard icon="✅" label="Taxa de Conclusão" value={`${overview.enrollments.completionRate}%`}
-            sub={`${overview.enrollments.completed} concluídos`} color="#10b981" bg="#ecfdf5" />
-          <KpiCard icon="🏆" label="Total de Pontos" value={overview.engagement.totalPoints.toLocaleString("pt-PT")}
-            sub={`${overview.engagement.totalBadges} badges atribuídos`} color="#f59e0b" bg="#fffbeb" />
+      {/* PDI */}
+      {data.pdi.length > 0 && (
+        <div className="bg-white border border-gray-200 rounded-xl p-5">
+          <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">Os meus PDIs activos</div>
+          <div className="space-y-3">
+            {data.pdi.map((p: any) => (
+              <div key={p.id} className="flex items-center gap-3">
+                <div className="flex-1">
+                  <div className="text-sm font-medium text-gray-900 mb-1">{p.name}</div>
+                  <ProgressBar
+                    pct={p.actionsTotal > 0 ? Math.round((p.actionsDone / p.actionsTotal) * 100) : 0}
+                  />
+                </div>
+                <div className="text-right flex-shrink-0">
+                  <div className="text-xs font-mono font-bold text-blue-600">
+                    {p.actionsDone}/{p.actionsTotal}
+                  </div>
+                  {p.overdueActions > 0 && (
+                    <div className="text-xs text-red-600">⚠ {p.overdueActions} atrasadas</div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── View: Manager ────────────────────────────────────────────────────────────
+
+function ManagerView() {
+  const [data, setData]     = useState<ManagerDashboard | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [tab, setTab]       = useState<'overview' | 'ninebox' | 'gaps'>('overview');
+
+  useEffect(() => {
+    apiFetch<ManagerDashboard>('/analytics/manager').then(setData).finally(() => setLoading(false));
+  }, []);
+
+  if (loading || !data) return <Skeleton rows={4} />;
+
+  const { metrics, alerts, competencyGaps, nineBox } = data;
+
+  return (
+    <div className="space-y-5">
+      {/* Alertas */}
+      {alerts.length > 0 && (
+        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+          <div className="text-sm font-semibold text-amber-800 mb-2">⚠ Alertas da equipa</div>
+          {alerts.map((a, i) => (
+            <div key={i} className="text-xs text-amber-700">• {a.message}</div>
+          ))}
         </div>
       )}
 
-      {/* ── Tabs ── */}
-      <div style={{ display: "flex", gap: 4, background: "#f1f5f9", borderRadius: 10, padding: 4, marginBottom: 24, width: "fit-content" }}>
-        {([
-          { key: "overview",   label: "📈 Visão Geral" },
-          { key: "learning",   label: "🎓 Aprendizagem" },
-          { key: "engagement", label: "⚡ Engagement" },
-          { key: "roi",        label: "💰 ROI" },
-          { key: "snapshots",  label: "📸 Snapshots" },
-        ] as { key: Tab; label: string }[]).map(t => (
-          <button key={t.key} onClick={() => handleTab(t.key)} style={TAB_STYLE(tab === t.key)}>
-            {t.label}
+      {/* KPIs */}
+      <div className="grid grid-cols-4 gap-3">
+        <KpiCard label="Equipa"          value={metrics.headcount}       />
+        <KpiCard label="PDIs activos"    value={`${metrics.pdiAdoptionRate}%`} color="text-blue-600" sub="adopção" />
+        <KpiCard label="Conclusão cursos"value={`${metrics.completionRate}%`}  color="text-emerald-600" />
+        <KpiCard label="Perf. média"     value={metrics.avgPerformance}         color="text-amber-600" />
+      </div>
+      {metrics.overdueActions > 0 && (
+        <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-2.5 text-sm text-red-700">
+          🔴 {metrics.overdueActions} acções de PDI atrasadas na equipa
+        </div>
+      )}
+
+      {/* Tabs */}
+      <div className="flex gap-1 bg-gray-100 p-1 rounded-xl w-fit">
+        {(['overview', 'ninebox', 'gaps'] as const).map(t => (
+          <button key={t} onClick={() => setTab(t)}
+            className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+              tab === t ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            {{ overview: '👥 Equipa', ninebox: '🗃 9-Box', gaps: '📊 Gaps' }[t]}
           </button>
         ))}
       </div>
 
-      {/* ── Erro ── */}
-      {error && (
-        <div style={{
-          background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 8,
-          padding: 14, color: "#dc2626", fontSize: 13, marginBottom: 16,
-        }}>{error}</div>
-      )}
-
-      {isLoading && (
-        <div style={{ padding: 60, textAlign: "center", color: "#94a3b8", fontSize: 14 }}>
-          A carregar dados...
+      {tab === 'overview' && (
+        <div className="space-y-2">
+          {data.team.map((u: any) => (
+            <div key={u.id} className="flex items-center gap-3 bg-white border border-gray-200 rounded-xl px-4 py-3">
+              <Avatar name={u.fullName} avatarUrl={u.avatarUrl} size="sm" />
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-medium text-gray-900">{u.fullName}</div>
+                <div className="text-xs text-gray-400">{u.position?.name} · {u.department?.name}</div>
+              </div>
+            </div>
+          ))}
         </div>
       )}
 
-      {/* ══════ TAB: OVERVIEW ══════ */}
-      {tab === "overview" && !isLoading && overview && (
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-          {/* Donut charts */}
-          <div style={{ ...card }}>
-            <SectionHeader title="Métricas Chave" />
-            <div style={{ display: "flex", justifyContent: "space-around", padding: "12px 0" }}>
-              <DonutChart
-                value={overview.users.active} max={overview.users.total}
-                color="#1e40af" label="Utilizadores Activos"
-              />
-              <DonutChart
-                value={overview.enrollments.completed} max={overview.enrollments.total}
-                color="#10b981" label="Cursos Concluídos"
-              />
-              <DonutChart
-                value={overview.courses.active} max={overview.courses.total}
-                color="#8b5cf6" label="Cursos Activos"
-              />
-            </div>
-          </div>
-
-          {/* Stats de engagement */}
-          <div style={{ ...card }}>
-            <SectionHeader title="Engagement" />
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-              {[
-                { label: "Micro Learnings", value: overview.engagement.activeMicroLearnings, icon: "⚡" },
-                { label: "Percursos",       value: overview.engagement.totalLearningPaths,   icon: "🗺️" },
-                { label: "Badges",          value: overview.engagement.totalBadges,          icon: "🏅" },
-                { label: "Total Pontos",    value: overview.engagement.totalPoints,          icon: "⭐" },
-              ].map(s => (
-                <div key={s.label} style={{
-                  background: "#f8fafc", borderRadius: 10, padding: "12px 14px",
-                  display: "flex", alignItems: "center", gap: 10,
-                }}>
-                  <span style={{ fontSize: 20 }}>{s.icon}</span>
-                  <div>
-                    <p style={{ margin: 0, fontSize: 10, color: "#94a3b8", fontWeight: 600, textTransform: "uppercase", letterSpacing: 0.6 }}>{s.label}</p>
-                    <p style={{ margin: "2px 0 0", fontSize: 18, fontWeight: 800, color: "#1e293b" }}>
-                      {s.value.toLocaleString("pt-PT")}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Inscrições totais */}
-          <div style={{ ...card, gridColumn: "1 / -1" }}>
-            <SectionHeader title="Inscrições — Resumo" />
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }}>
-              {[
-                { label: "Total",        value: overview.enrollments.total,     color: "#1e40af", bg: "#eff6ff" },
-                { label: "Concluídas",   value: overview.enrollments.completed, color: "#10b981", bg: "#ecfdf5" },
-                { label: "Taxa Conclusão", value: `${overview.enrollments.completionRate}%`, color: "#f59e0b", bg: "#fffbeb" },
-              ].map(s => (
-                <div key={s.label} style={{
-                  background: s.bg, borderRadius: 10, padding: "16px 20px",
-                  border: `1px solid ${s.color}22`, textAlign: "center",
-                }}>
-                  <p style={{ margin: 0, fontSize: 11, fontWeight: 700, color: s.color, textTransform: "uppercase", letterSpacing: 0.8 }}>{s.label}</p>
-                  <p style={{ margin: "6px 0 0", fontSize: 32, fontWeight: 800, color: s.color }}>{s.value}</p>
-                </div>
-              ))}
-            </div>
-          </div>
+      {tab === 'ninebox' && (
+        <div className="bg-white border border-gray-200 rounded-xl p-5">
+          <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-4">Matriz 9-Box</div>
+          <NineBox data={nineBox} />
+          {nineBox.length === 0 && (
+            <div className="text-center text-sm text-gray-400 py-6">Sem dados de 9-box para a equipa</div>
+          )}
         </div>
       )}
 
-      {/* ══════ TAB: LEARNING ══════ */}
-      {tab === "learning" && !isLoading && learning && (
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-          {/* Inscrições por estado */}
-          <div style={card}>
-            <SectionHeader title="Inscrições por Estado" />
-            <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 8 }}>
-              {learning.enrollmentsByStatus.map(s => (
-                <div key={s.status}>
-                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
-                    <span style={{ fontSize: 13, color: "#1e293b", fontWeight: 500 }}>
-                      {STATUS_LABEL[s.status] ?? s.status}
-                    </span>
-                    <span style={{ fontSize: 13, fontWeight: 700, color: STATUS_COLOR[s.status] ?? "#64748b" }}>
-                      {s._count}
-                    </span>
-                  </div>
-                  <div style={{ background: "#e2e8f0", borderRadius: 10, height: 8, overflow: "hidden" }}>
-                    <div style={{
-                      width: `${Math.min((s._count / (learning.enrollmentsByStatus.reduce((a, b) => a + b._count, 0) || 1)) * 100, 100)}%`,
-                      height: "100%", background: STATUS_COLOR[s.status] ?? "#94a3b8",
-                      borderRadius: 10, transition: "width 0.5s ease",
-                    }} />
+      {tab === 'gaps' && (
+        <div className="bg-white border border-gray-200 rounded-xl p-5">
+          <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-4">Top Gaps de Competências</div>
+          <div className="space-y-3">
+            {competencyGaps.map(g => (
+              <div key={g.name} className="flex items-center gap-3">
+                <div className="text-xs text-gray-700 w-40 truncate">{g.name}</div>
+                <div className="flex-1">
+                  <div className="h-2 bg-red-100 rounded-full overflow-hidden">
+                    <div className="h-full bg-red-400 rounded-full" style={{ width: `${Math.min(g.avgGap * 20, 100)}%` }} />
                   </div>
                 </div>
-              ))}
-            </div>
+                <div className="text-xs font-mono text-red-600 flex-shrink-0 w-12 text-right">Gap: {g.avgGap}</div>
+                <div className="text-xs text-gray-400 flex-shrink-0">{g.count} pessoas</div>
+              </div>
+            ))}
+            {competencyGaps.length === 0 && (
+              <div className="text-center text-sm text-gray-400 py-4">Sem gaps identificados</div>
+            )}
           </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
-          {/* Inscrições mensais */}
-          <div style={card}>
-            <SectionHeader title="Inscrições Mensais (12 meses)" />
-            {learning.monthlyEnrollments.length > 0 ? (
-              <div style={{ marginTop: 24 }}>
-                <BarChart
-                  data={learning.monthlyEnrollments.slice(-8).map(m => ({
-                    label: m.month.slice(5), value: m.count,
-                  }))}
-                  color="#1e40af"
-                  height={140}
+// ─── View: Risk Alerts ────────────────────────────────────────────────────────
+
+function RisksView() {
+  const [data, setData]     = useState<RiskAlert | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [tab, setTab]       = useState<'inactive' | 'pdis' | 'actions'>('inactive');
+
+  useEffect(() => {
+    apiFetch<RiskAlert>('/analytics/risks').then(setData).finally(() => setLoading(false));
+  }, []);
+
+  if (loading || !data) return <Skeleton />;
+
+  const { summary } = data;
+
+  return (
+    <div className="space-y-5">
+      {/* Summary */}
+      <div className="grid grid-cols-3 gap-3">
+        <KpiCard label="Inactivos (+60 dias)" value={summary.inactiveCount}       color={summary.inactiveCount > 0 ? 'text-amber-600' : 'text-gray-900'} bg="bg-amber-50" />
+        <KpiCard label="PDIs atrasados"        value={summary.overduePDICount}     color={summary.overduePDICount > 0 ? 'text-red-600' : 'text-gray-900'} bg="bg-red-50" />
+        <KpiCard label="Acções críticas"        value={summary.criticalActionCount} color={summary.criticalActionCount > 0 ? 'text-red-600' : 'text-gray-900'} bg="bg-red-50" />
+      </div>
+
+      <div className="flex gap-1 bg-gray-100 p-1 rounded-xl w-fit">
+        {(['inactive', 'pdis', 'actions'] as const).map(t => (
+          <button key={t} onClick={() => setTab(t)}
+            className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+              tab === t ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            {{ inactive: '😴 Inactivos', pdis: '📋 PDIs', actions: '⚠ Acções' }[t]}
+          </button>
+        ))}
+      </div>
+
+      {tab === 'inactive' && (
+        <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+          {data.inactiveCollaborators.map(u => (
+            <div key={u.id} className="flex items-center gap-3 px-4 py-3 border-b border-gray-100 last:border-0">
+              <Avatar name={u.fullName} avatarUrl={u.avatarUrl} size="sm" />
+              <div className="flex-1 text-sm text-gray-800">{u.fullName}</div>
+              <span className="text-xs text-amber-600 font-medium">Sem actividade há +60 dias</span>
+            </div>
+          ))}
+          {data.inactiveCollaborators.length === 0 && (
+            <div className="px-4 py-8 text-center text-sm text-gray-400">✅ Sem colaboradores inactivos</div>
+          )}
+        </div>
+      )}
+
+      {tab === 'pdis' && (
+        <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+          {data.overduePDIs.map(p => (
+            <div key={p.planId} className="flex items-center gap-3 px-4 py-3 border-b border-gray-100 last:border-0">
+              <Avatar name={p.user.fullName} avatarUrl={p.user.avatarUrl} size="sm" />
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-medium text-gray-900 truncate">{p.planName}</div>
+                <div className="text-xs text-gray-400">{p.user.fullName}</div>
+              </div>
+              <span className="text-xs text-red-600 font-medium flex-shrink-0">
+                ⚠ {p.daysOverdue} dias em atraso
+              </span>
+            </div>
+          ))}
+          {data.overduePDIs.length === 0 && (
+            <div className="px-4 py-8 text-center text-sm text-gray-400">✅ Sem PDIs atrasados</div>
+          )}
+        </div>
+      )}
+
+      {tab === 'actions' && (
+        <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+          {data.criticalActions.map(a => (
+            <div key={a.actionId} className="flex items-center gap-3 px-4 py-3 border-b border-gray-100 last:border-0">
+              <Avatar name={a.user.fullName} avatarUrl={a.user.avatarUrl} size="sm" />
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-medium text-gray-900 truncate">{a.actionTitle}</div>
+                <div className="text-xs text-gray-400">{a.user.fullName}</div>
+              </div>
+              <span className="text-xs text-red-600 font-medium flex-shrink-0">
+                🔴 {a.daysOverdue} dias
+              </span>
+            </div>
+          ))}
+          {data.criticalActions.length === 0 && (
+            <div className="px-4 py-8 text-center text-sm text-gray-400">✅ Sem acções críticas</div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── View: HR Dashboard ───────────────────────────────────────────────────────
+
+function HRDashboardView() {
+  const [data, setData]     = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    apiFetch<any>('/analytics/hr').then(setData).finally(() => setLoading(false));
+  }, []);
+
+  if (loading || !data) return <Skeleton rows={5} />;
+
+  return (
+    <div className="space-y-5">
+      {/* People */}
+      <div className="bg-white border border-gray-200 rounded-xl p-5">
+        <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">People Analytics</div>
+        <div className="grid grid-cols-4 gap-3">
+          <KpiCard label="Activos"   value={data.people.total}       />
+          <KpiCard label="Admitidos" value={data.people.hired}        color="text-emerald-600" />
+          <KpiCard label="Saídas"    value={data.people.terminated}   color="text-red-600" />
+          <KpiCard label="Turnover"  value={`${data.people.turnoverRate}%`} color={data.people.turnoverRate > 10 ? 'text-red-600' : 'text-gray-900'} />
+        </div>
+      </div>
+
+      {/* Learning */}
+      <div className="bg-white border border-gray-200 rounded-xl p-5">
+        <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">Learning Analytics</div>
+        <div className="grid grid-cols-4 gap-3">
+          <KpiCard label="Matrículas"   value={data.learning.enrollments}           />
+          <KpiCard label="Concluídas"   value={data.learning.completed}              color="text-emerald-600" />
+          <KpiCard label="Taxa conclusão" value={`${data.learning.completionRate}%`} color="text-blue-600" />
+          <KpiCard label="Abandonadas"  value={data.learning.abandoned}              color={data.learning.abandonRate > 20 ? 'text-red-600' : 'text-gray-900'} />
+        </div>
+      </div>
+
+      {/* PDI */}
+      <div className="bg-white border border-gray-200 rounded-xl p-5">
+        <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">PDI Analytics</div>
+        <div className="grid grid-cols-4 gap-3">
+          <KpiCard label="PDIs activos"      value={data.pdi.active}              color="text-blue-600" />
+          <KpiCard label="Adopção"           value={`${data.pdi.adoptionRate}%`}  color="text-purple-600" />
+          <KpiCard label="Ag. aprovação"     value={data.pdi.pendingApproval}     color={data.pdi.pendingApproval > 0 ? 'text-amber-600' : 'text-gray-900'} />
+          <KpiCard label="Concluídos (mês)"  value={data.pdi.completed}           color="text-emerald-600" />
+        </div>
+      </div>
+
+      {/* Headcount por departamento */}
+      {data.headcountByDept?.length > 0 && (
+        <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+          <div className="px-4 py-3 border-b border-gray-100 text-xs font-medium text-gray-400 uppercase tracking-wide">
+            Headcount por departamento
+          </div>
+          {data.headcountByDept.map((d: any) => (
+            <div key={d.id} className="flex items-center gap-4 px-4 py-3 border-b border-gray-100 last:border-0">
+              <div className="text-sm font-medium text-gray-900 w-48 truncate">{d.name}</div>
+              <div className="flex-1">
+                <ProgressBar
+                  pct={Math.round((d.count / data.people.total) * 100)}
+                  color="bg-blue-400"
+                  h="h-1.5"
                 />
               </div>
-            ) : (
-              <p style={{ color: "#94a3b8", fontSize: 13, textAlign: "center", padding: 20 }}>
-                Sem dados mensais disponíveis.
-              </p>
-            )}
-          </div>
-
-          {/* Top Cursos */}
-          <div style={{ ...card, gridColumn: "1 / -1" }}>
-            <SectionHeader title="Top 10 Cursos por Conclusões" />
-            {learning.topCourses.length === 0 ? (
-              <p style={{ color: "#94a3b8", fontSize: 13, textAlign: "center", padding: 20 }}>
-                Sem dados de cursos disponíveis.
-              </p>
-            ) : (
-              <div style={{ overflowX: "auto" }}>
-                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
-                  <thead>
-                    <tr style={{ background: "#f8fafc" }}>
-                      {["#", "Curso", "Categoria", "Conclusões", "Inscrições", "Taxa"].map(h => (
-                        <th key={h} style={{
-                          padding: "10px 14px", textAlign: "left", fontWeight: 700,
-                          color: "#64748b", fontSize: 11, textTransform: "uppercase", letterSpacing: 0.6,
-                        }}>{h}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {learning.topCourses.map((c, i) => {
-                      const rate = c.totalEnrollments > 0
-                        ? Math.round((c.totalCompleted / c.totalEnrollments) * 100) : 0;
-                      return (
-                        <tr key={c.course.id} style={{ borderTop: "1px solid #f1f5f9" }}>
-                          <td style={{ padding: "10px 14px", color: "#94a3b8", fontSize: 12 }}>
-                            {i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : i + 1}
-                          </td>
-                          <td style={{ padding: "10px 14px", fontWeight: 600, color: "#1e293b" }}>
-                            {c.course.title}
-                          </td>
-                          <td style={{ padding: "10px 14px" }}>
-                            {c.course.category ? (
-                              <span style={{
-                                padding: "2px 8px", background: "#eff6ff", color: "#1e40af",
-                                borderRadius: 6, fontSize: 11, fontWeight: 600,
-                              }}>{c.course.category}</span>
-                            ) : "—"}
-                          </td>
-                          <td style={{ padding: "10px 14px", fontWeight: 700, color: "#10b981" }}>
-                            {c.totalCompleted}
-                          </td>
-                          <td style={{ padding: "10px 14px", color: "#64748b" }}>
-                            {c.totalEnrollments}
-                          </td>
-                          <td style={{ padding: "10px 14px", minWidth: 100 }}>
-                            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                              <div style={{ flex: 1, background: "#e2e8f0", borderRadius: 10, height: 6, overflow: "hidden" }}>
-                                <div style={{ width: `${rate}%`, height: "100%", background: "#10b981", borderRadius: 10 }} />
-                              </div>
-                              <span style={{ fontSize: 11, fontWeight: 700, color: "#10b981", minWidth: 32 }}>
-                                {rate}%
-                              </span>
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-
-          {/* Performance por período */}
-          {learning.performanceByPeriod.length > 0 && (
-            <div style={{ ...card, gridColumn: "1 / -1" }}>
-              <SectionHeader title="Performance Média por Período" />
-              <BarChart
-                data={learning.performanceByPeriod.slice(0, 8).map(p => ({
-                  label: p.period,
-                  value: Math.round(p._avg.score ?? 0),
-                }))}
-                color="#8b5cf6"
-                height={120}
-              />
+              <div className="text-sm font-mono font-bold text-gray-900 w-8 text-right">{d.count}</div>
             </div>
-          )}
+          ))}
         </div>
       )}
+    </div>
+  );
+}
 
-      {/* ══════ TAB: ENGAGEMENT ══════ */}
-      {tab === "engagement" && !isLoading && engagement && (
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-          {/* Métricas principais */}
-          <div style={card}>
-            <SectionHeader title="Métricas de Engagement" />
-            <div style={{ display: "flex", justifyContent: "center", marginBottom: 20 }}>
-              <DonutChart
-                value={engagement.activeUsersLast30Days}
-                max={engagement.totalUsers}
-                color="#10b981"
-                label="Activos nos últimos 30 dias"
-              />
-            </div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-              {[
-                { label: "Utilizadores Totais",    value: engagement.totalUsers,             icon: "👥" },
-                { label: "Taxa de Engagement",     value: `${engagement.engagementRate}%`,   icon: "📈" },
-                { label: "Micro Learning Views",   value: engagement.microLearningViews,     icon: "⚡" },
-                { label: "Interacções Conhecimento", value: engagement.knowledgeInteractions, icon: "📖" },
-                { label: "Sessões AI Tutor",       value: engagement.aiTutorSessions,        icon: "🤖" },
-              ].map(s => (
-                <div key={s.label} style={{
-                  background: "#f8fafc", borderRadius: 8, padding: "10px 12px",
-                  display: "flex", alignItems: "center", gap: 8,
-                }}>
-                  <span style={{ fontSize: 18 }}>{s.icon}</span>
-                  <div>
-                    <p style={{ margin: 0, fontSize: 10, color: "#94a3b8", fontWeight: 600, textTransform: "uppercase", letterSpacing: 0.5 }}>{s.label}</p>
-                    <p style={{ margin: "2px 0 0", fontSize: 16, fontWeight: 800, color: "#1e293b" }}>
-                      {typeof s.value === "number" ? s.value.toLocaleString("pt-PT") : s.value}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+// ─── Page principal ───────────────────────────────────────────────────────────
 
-          {/* Leaderboard */}
-          <div style={card}>
-            <SectionHeader title="🏆 Top 5 Utilizadores" />
-            {engagement.topUsers.length === 0 ? (
-              <p style={{ color: "#94a3b8", fontSize: 13, textAlign: "center", padding: 20 }}>
-                Sem dados de pontuação.
-              </p>
-            ) : (
-              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                {engagement.topUsers.map((u, i) => (
-                  <div key={u.user.id} style={{
-                    display: "flex", alignItems: "center", gap: 12,
-                    padding: "10px 12px", background: i === 0 ? "#fffbeb" : "#f8fafc",
-                    borderRadius: 10, border: i === 0 ? "1px solid #fde68a" : "1px solid #f1f5f9",
-                  }}>
-                    <span style={{ fontSize: 20, minWidth: 28, textAlign: "center" }}>
-                      {i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : `${i + 1}.`}
-                    </span>
-                    <div style={{ flex: 1 }}>
-                      <p style={{ margin: 0, fontSize: 13, fontWeight: 600, color: "#1e293b" }}>{u.user.fullName}</p>
-                    </div>
-                    <span style={{
-                      fontSize: 14, fontWeight: 800, color: "#f59e0b",
-                      background: "#fffbeb", padding: "3px 10px", borderRadius: 20,
-                    }}>
-                      ⭐ {u.points.toLocaleString("pt-PT")}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+const NAV: Array<{ id: View; label: string }> = [
+  { id: 'overview', label: '🏢 Visão geral' },
+  { id: 'my',       label: '👤 O meu progresso' },
+  { id: 'manager',  label: '👥 Equipa' },
+  { id: 'hr',       label: '📊 RH' },
+  { id: 'risks',    label: '⚠ Riscos' },
+];
 
-          {/* Barra de engagement visual */}
-          <div style={{ ...card, gridColumn: "1 / -1" }}>
-            <SectionHeader title="Taxa de Engagement por Canal" />
-            <div style={{ display: "flex", flexDirection: "column", gap: 14, marginTop: 8 }}>
-              {[
-                { label: "Utilizadores Activos (30d)", value: engagement.activeUsersLast30Days, max: engagement.totalUsers, color: "#10b981" },
-                { label: "Micro Learning Views",       value: engagement.microLearningViews,     max: Math.max(engagement.microLearningViews, 1), color: "#f59e0b" },
-                { label: "Interacções Conhecimento",   value: engagement.knowledgeInteractions,  max: Math.max(engagement.knowledgeInteractions, 1), color: "#8b5cf6" },
-                { label: "Sessões AI Tutor",           value: engagement.aiTutorSessions,        max: Math.max(engagement.aiTutorSessions, 1), color: "#1e40af" },
-              ].map(s => (
-                <div key={s.label}>
-                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
-                    <span style={{ fontSize: 13, color: "#475569", fontWeight: 500 }}>{s.label}</span>
-                    <span style={{ fontSize: 13, fontWeight: 700, color: s.color }}>
-                      {s.value.toLocaleString("pt-PT")}
-                    </span>
-                  </div>
-                  <div style={{ background: "#e2e8f0", borderRadius: 10, height: 10, overflow: "hidden" }}>
-                    <div style={{
-                      width: `${Math.min((s.value / s.max) * 100, 100)}%`,
-                      height: "100%", background: s.color, borderRadius: 10,
-                      transition: "width 0.6s ease",
-                    }} />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
+const TITLES: Record<View, string> = {
+  overview: 'Analytics INNOVA',
+  my:       'O meu Dashboard',
+  manager:  'Dashboard Gestor',
+  hr:       'Dashboard RH',
+  risks:    'Alertas de Risco',
+};
 
-      {/* ══════ TAB: ROI ══════ */}
-      {tab === "roi" && !loading.roi && roi && (
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-          <KpiCard icon="⏱️" label="Horas Investidas em Formação"
-            value={roi.totalHoursInvested.toLocaleString("pt-PT")}
-            sub="horas totais de conteúdo concluído"
-            color="#1e40af" bg="#eff6ff" />
-          <KpiCard icon="🎓" label="Total de Conclusões"
-            value={roi.totalCompletions.toLocaleString("pt-PT")}
-            sub="cursos concluídos na plataforma"
-            color="#10b981" bg="#ecfdf5" />
+export default function AnalyticsPage() {
+  const [view, setView] = useState<View>('overview');
 
-          <div style={{ ...card, gridColumn: "1 / -1" }}>
-            <SectionHeader title="Impacto de Treinamento Registado" />
-            {roi.impacts.length === 0 ? (
-              <p style={{ color: "#94a3b8", fontSize: 13, textAlign: "center", padding: 30 }}>
-                Nenhum impacto de treinamento registado ainda.
-              </p>
-            ) : (
-              <div style={{ overflowX: "auto" }}>
-                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
-                  <thead>
-                    <tr style={{ background: "#f8fafc" }}>
-                      {["Curso ID", "Métrica", "Taxa de Impacto", "Calculado em"].map(h => (
-                        <th key={h} style={{
-                          padding: "10px 14px", textAlign: "left", fontWeight: 700,
-                          color: "#64748b", fontSize: 11, textTransform: "uppercase", letterSpacing: 0.6,
-                        }}>{h}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {roi.impacts.map(imp => (
-                      <tr key={imp.id} style={{ borderTop: "1px solid #f1f5f9" }}>
-                        <td style={{ padding: "10px 14px", color: "#64748b" }}>#{imp.courseId}</td>
-                        <td style={{ padding: "10px 14px", fontWeight: 600, color: "#1e293b" }}>{imp.metric}</td>
-                        <td style={{ padding: "10px 14px" }}>
-                          <span style={{
-                            padding: "3px 10px", borderRadius: 20, fontSize: 12, fontWeight: 700,
-                            background: imp.impactRate >= 70 ? "#ecfdf5" : imp.impactRate >= 40 ? "#fffbeb" : "#fef2f2",
-                            color: imp.impactRate >= 70 ? "#10b981" : imp.impactRate >= 40 ? "#f59e0b" : "#ef4444",
-                          }}>
-                            {imp.impactRate.toFixed(1)}%
-                          </span>
-                        </td>
-                        <td style={{ padding: "10px 14px", color: "#64748b", fontSize: 12 }}>
-                          {new Date(imp.calculatedAt).toLocaleDateString("pt-PT")}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* ══════ TAB: SNAPSHOTS ══════ */}
-      {tab === "snapshots" && !loading.snapshots && (
+  return (
+    <div className="max-w-6xl mx-auto px-4 py-8">
+      <div className="flex items-center justify-between mb-6">
         <div>
-          <SectionHeader
-            title="Snapshots do Dashboard"
-            action={
-              <button
-                onClick={generateSnapshot}
-                disabled={generating}
-                style={{ ...btnPrimary, opacity: generating ? 0.7 : 1 }}
-              >
-                {generating ? "A gerar..." : "📸 Gerar Snapshot"}
-              </button>
-            }
-          />
-
-          {snapshots.length === 0 ? (
-            <div style={{
-              ...card, padding: 60, textAlign: "center", color: "#94a3b8",
-            }}>
-              <p style={{ fontSize: 32, margin: "0 0 12px" }}>📸</p>
-              <p style={{ fontSize: 14, fontWeight: 500 }}>Nenhum snapshot gerado ainda</p>
-              <p style={{ fontSize: 13, marginTop: 4, marginBottom: 20 }}>
-                Gera um snapshot para guardar o estado actual da organização
-              </p>
-              <button onClick={generateSnapshot} disabled={generating} style={btnPrimary}>
-                {generating ? "A gerar..." : "📸 Gerar Primeiro Snapshot"}
-              </button>
-            </div>
-          ) : (
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 14 }}>
-              {snapshots.map(s => (
-                <div key={s.id} style={{
-                  ...card, borderLeft: "4px solid #1e40af",
-                }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
-                    <div>
-                      <p style={{ margin: 0, fontSize: 12, fontWeight: 700, color: "#1e40af" }}>
-                        {s.department?.name ?? "Organização Geral"}
-                      </p>
-                      <p style={{ margin: "2px 0 0", fontSize: 11, color: "#94a3b8" }}>
-                        {new Date(s.generatedAt).toLocaleDateString("pt-PT", {
-                          day: "2-digit", month: "short", year: "numeric",
-                          hour: "2-digit", minute: "2-digit",
-                        })}
-                      </p>
-                    </div>
-                    <span style={{
-                      padding: "2px 8px", background: "#eff6ff", color: "#1e40af",
-                      borderRadius: 6, fontSize: 10, fontWeight: 700,
-                    }}>#{s.id}</span>
-                  </div>
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
-                    {[
-                      { label: "Utilizadores",  value: s.totalUsers },
-                      { label: "Concluídos",    value: s.totalCoursesCompleted },
-                      { label: "Média Score",   value: `${s.averageScore.toFixed(1)}%` },
-                      { label: "Planos Activos", value: s.activePlans },
-                    ].map(m => (
-                      <div key={m.label} style={{ background: "#f8fafc", borderRadius: 8, padding: "8px 10px" }}>
-                        <p style={{ margin: 0, fontSize: 9, color: "#94a3b8", fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.5 }}>{m.label}</p>
-                        <p style={{ margin: "2px 0 0", fontSize: 16, fontWeight: 800, color: "#1e293b" }}>{m.value}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+          <h1 className="text-xl font-semibold text-gray-900">{TITLES[view]}</h1>
+          <p className="text-sm text-gray-400 mt-0.5">INNOVA — Inteligência de dados de RH e Aprendizagem</p>
         </div>
-      )}
+      </div>
+
+      <div className="flex gap-1 mb-6 bg-gray-100 p-1 rounded-xl w-fit">
+        {NAV.map(n => (
+          <button key={n.id} onClick={() => setView(n.id)}
+            className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+              view === n.id ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            {n.label}
+          </button>
+        ))}
+      </div>
+
+      {view === 'overview' && <OverviewView />}
+      {view === 'my'       && <MyDashboardView />}
+      {view === 'manager'  && <ManagerView />}
+      {view === 'hr'       && <HRDashboardView />}
+      {view === 'risks'    && <RisksView />}
     </div>
   );
 }
