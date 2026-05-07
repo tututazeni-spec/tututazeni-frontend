@@ -1,397 +1,582 @@
-"use client";
-import { useEffect, useState } from "react";
-import { api } from "../../../lib/api";
+'use client';
+// src/app/(dashboard)/dashboard-rh/page.tsx
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+import { useState, useEffect, useCallback } from 'react';
+import {
+  Users, TrendingUp, TrendingDown, Activity, Star, BookOpen,
+  Shield, Brain, AlertTriangle, CheckCircle, Target, Zap,
+  BarChart2, ChevronRight, RefreshCw, Clock, Award,
+  UserMinus, UserPlus, Heart, Filter,
+} from 'lucide-react';
 
-interface FullDashboard {
-  headcount: {
-    totalActive: number;
-    totalInactive: number;
-    turnoverRate: number;
-  };
-  recruitment: {
-    newHiresThisMonth: number;
-    hiringTrend: number;
-  };
-  pendingActions: {
-    leaves: number;
-    payslips: number;
-    declarations: number;
-  };
-  retention: {
-    avgTenureMonths: number;
-    approvedLeavesThisMonth: number;
-  };
-  distribution: {
-    byDepartment: { departmentId: number; _count: number }[];
-    byPosition:   { positionId:   number; _count: number }[];
-  };
-  generatedAt: string;
+// ─── Types ───────────────────────────────────────────────────────
+
+type Panel = 'overview' | 'headcount' | 'turnover' | 'performance' | 'training' | 'engagement' | 'talent' | 'correlations';
+
+interface Alert { type: string; severity: 'HIGH' | 'MEDIUM' | 'LOW'; message: string; count?: number }
+
+// ─── Helpers ─────────────────────────────────────────────────────
+
+const BASE = '/api';
+async function api(path: string) {
+  const r = await fetch(`${BASE}${path}`, {
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token') ?? ''}` },
+  });
+  if (!r.ok) throw new Error();
+  return r.json();
 }
 
-interface Anniversary {
-  id: number;
-  fullName: string;
-  hireDate: string;
-  years: number;
-  department?: { name: string };
+function Skeleton({ count = 4 }: { count?: number }) {
+  return <div className="grid grid-cols-2 md:grid-cols-4 gap-4 animate-pulse">{[...Array(count)].map((_, i) => <div key={i} className="bg-slate-100 rounded-xl h-24" />)}</div>;
 }
 
-interface TrendPoint {
-  month: string;
-  count: number;
+function ProgressBar({ value, color = 'bg-indigo-500', height = 'h-1.5' }: { value: number; color?: string; height?: string }) {
+  return (
+    <div className={`w-full ${height} bg-slate-100 rounded-full`}>
+      <div className={`${height} ${color} rounded-full transition-all`} style={{ width: `${Math.min(value, 100)}%` }} />
+    </div>
+  );
 }
 
-// ─── Styles ───────────────────────────────────────────────────────────────────
-
-const card: React.CSSProperties = {
-  background: "#fff",
-  borderRadius: 12,
-  border: "1px solid #e2e8f0",
-  padding: 20,
-};
-
-const labelStyle: React.CSSProperties = {
-  fontSize: 10,
-  fontWeight: 700,
-  letterSpacing: 1,
-  textTransform: "uppercase",
-  color: "#64748b",
-};
-
-// ─── Helpers ─────────────────────────────────────────────────────────────────
-
-function formatTrend(v: number) {
-  if (v > 0) return { label: `+${v}%`, color: "#16a34a" };
-  if (v < 0) return { label: `${v}%`,  color: "#dc2626" };
-  return { label: "0%", color: "#94a3b8" };
+function Avatar({ name, url, size = 8 }: { name: string; url?: string; size?: number }) {
+  const i = name.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase();
+  return url
+    ? <img src={url} alt={name} className={`w-${size} h-${size} rounded-full object-cover`} />
+    : <div className={`w-${size} h-${size} rounded-full bg-gradient-to-br from-indigo-500 to-violet-600
+        flex items-center justify-center text-white text-xs font-bold shrink-0`}>{i}</div>;
 }
 
-function formatMonths(m: number) {
-  const years = Math.floor(m / 12);
-  const months = Math.round(m % 12);
-  if (years === 0) return `${months}m`;
-  return months > 0 ? `${years}a ${months}m` : `${years}a`;
-}
-
-// ─── Stat Card ────────────────────────────────────────────────────────────────
-
-function StatCard({ icon, label, value, sub, color = "#1e40af", bg = "#eff6ff" }: {
-  icon: string; label: string; value: string | number;
-  sub?: React.ReactNode; color?: string; bg?: string;
+function KPICard({ icon: Icon, label, value, sub, trend, color = 'text-indigo-600', bg = 'bg-indigo-50', status }: {
+  icon: any; label: string; value: string | number; sub?: string;
+  trend?: number; color?: string; bg?: string; status?: string;
 }) {
   return (
-    <div style={{ ...card, display: "flex", alignItems: "center", gap: 16 }}>
-      <div style={{ width: 48, height: 48, borderRadius: 12, background: bg, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, flexShrink: 0 }}>
-        {icon}
+    <div className="bg-white rounded-xl border border-slate-100 p-4 shadow-sm">
+      <div className="flex items-start justify-between mb-3">
+        <div className={`p-2 rounded-lg ${bg}`}><Icon size={18} className={color} /></div>
+        <div className="flex items-center gap-1">
+          {status && <span className="text-base">{status}</span>}
+          {trend !== undefined && (
+            <span className={`text-xs font-medium flex items-center gap-0.5 ${trend >= 0 ? 'text-emerald-500' : 'text-red-500'}`}>
+              {trend >= 0 ? <TrendingUp size={11} /> : <TrendingDown size={11} />}
+              {Math.abs(trend)}%
+            </span>
+          )}
+        </div>
       </div>
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <p style={{ ...labelStyle, margin: "0 0 4px" }}>{label}</p>
-        <p style={{ margin: 0, fontSize: 24, fontWeight: 800, color, lineHeight: 1 }}>{value}</p>
-        {sub && <div style={{ marginTop: 4 }}>{sub}</div>}
-      </div>
+      <p className="text-2xl font-bold text-slate-800">{value}</p>
+      <p className="text-xs text-slate-500 mt-0.5">{label}</p>
+      {sub && <p className="text-[10px] text-slate-400 mt-0.5">{sub}</p>}
     </div>
   );
 }
 
-// ─── Pending Badge ────────────────────────────────────────────────────────────
+// ─── Alert Banners ────────────────────────────────────────────────
 
-function PendingItem({ label, count, color, bg }: { label: string; count: number; color: string; bg: string }) {
+function AlertStrip({ alerts }: { alerts: Alert[] }) {
+  if (!alerts.length) return (
+    <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-100 rounded-xl px-4 py-3">
+      <CheckCircle size={16} className="text-emerald-500" />
+      <p className="text-sm text-emerald-700 font-medium">Sem alertas críticos activos</p>
+    </div>
+  );
+
   return (
-    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 14px", background: bg, borderRadius: 8, border: `1px solid ${color}22` }}>
-      <span style={{ fontSize: 13, fontWeight: 600, color: "#1e293b" }}>{label}</span>
-      <span style={{ padding: "2px 10px", borderRadius: 20, fontSize: 12, fontWeight: 800, background: bg, color, border: `1px solid ${color}44` }}>{count}</span>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+      {alerts.map((a, i) => {
+        const conf = {
+          HIGH:   { bg: 'bg-red-50 border-red-200',    icon: AlertTriangle, color: 'text-red-700',  btnBg: 'bg-red-600' },
+          MEDIUM: { bg: 'bg-amber-50 border-amber-200', icon: Clock,         color: 'text-amber-700',btnBg: 'bg-amber-600' },
+          LOW:    { bg: 'bg-teal-50 border-teal-100',   icon: CheckCircle,   color: 'text-teal-700', btnBg: 'bg-teal-600' },
+        }[a.severity];
+        const AlertIcon = conf.icon;
+        return (
+          <div key={i} className={`border rounded-xl px-4 py-3 flex items-center gap-3 ${conf.bg}`}>
+            <AlertIcon size={14} className={`${conf.color} shrink-0`} />
+            <p className={`text-sm flex-1 ${conf.color}`}>{a.message}</p>
+          </div>
+        );
+      })}
     </div>
   );
 }
 
-// ─── Trend Chart (SVG) ────────────────────────────────────────────────────────
+// ─── Overview Panel ───────────────────────────────────────────────
 
-function TrendChart({ data }: { data: TrendPoint[] }) {
+function OverviewPanel() {
+  const [data, setData]     = useState<any | null>(null);
+  const [alerts, setAlerts] = useState<Alert[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    Promise.all([api('/dashboard-rh'), api('/dashboard-rh/alerts')])
+      .then(([d, a]) => { setData(d); setAlerts(a ?? []); })
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) return <div className="space-y-4"><Skeleton count={6} /></div>;
+  const k = data?.kpis ?? {};
+
+  return (
+    <div className="space-y-5">
+      <AlertStrip alerts={alerts} />
+
+      {/* Top KPIs */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <KPICard icon={Users}       label="Colaboradores Activos"  value={k.headcount?.total ?? 0}      status={k.headcount?.status} />
+        <KPICard icon={UserMinus}   label="Turnover"               value={`${k.turnover?.rate ?? 0}%`}  status={k.turnover?.status} color="text-red-500" bg="bg-red-50" />
+        <KPICard icon={UserPlus}    label="Novas Admissões (mês)"  value={k.newHires?.count ?? 0}       trend={k.newHires?.trend} color="text-emerald-600" bg="bg-emerald-50" />
+        <KPICard icon={Star}        label="Performance Média"      value={k.performance?.avg?.toFixed(1) ?? '–'} color="text-amber-600" bg="bg-amber-50" />
+        <KPICard icon={Target}      label="Cobertura PDI"          value={`${k.pdpCoverage?.pct ?? 0}%`} status={k.pdpCoverage?.status} color="text-indigo-600" bg="bg-indigo-50" />
+        <KPICard icon={BookOpen}    label="Conclusões (mês)"       value={k.completions?.count ?? 0}    color="text-teal-600" bg="bg-teal-50" />
+        <KPICard icon={Activity}    label="Respostas a Surveys"    value={k.engagement?.surveyResponses ?? 0} color="text-violet-600" bg="bg-violet-50" />
+        <KPICard icon={Shield}      label="Formações Obrigatórias" value={k.mandatoryCompliance ?? 0}   color="text-red-600" bg="bg-red-50" />
+      </div>
+
+      {/* Dept distribution */}
+      {(data?.distribution?.byDepartment?.length ?? 0) > 0 && (
+        <div className="bg-white rounded-xl border border-slate-100 p-5">
+          <h3 className="font-semibold text-slate-700 mb-4">Distribuição por Departamento</h3>
+          <div className="space-y-2">
+            {(data.distribution.byDepartment as any[]).slice(0, 8).map((d: any, i: number) => {
+              const maxCount = Math.max(...(data.distribution.byDepartment as any[]).map((x: any) => x.count));
+              return (
+                <div key={i}>
+                  <div className="flex justify-between text-xs mb-0.5">
+                    <span className="text-slate-600 truncate">{d.name ?? `Dept ${d.id}`}</span>
+                    <span className="font-semibold text-slate-700">{d.count}</span>
+                  </div>
+                  <ProgressBar value={(d.count / maxCount) * 100} />
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Headcount Panel ──────────────────────────────────────────────
+
+function HeadcountPanel() {
+  const [data, setData]   = useState<any | null>(null);
+  const [trend, setTrend] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    Promise.all([api('/dashboard-rh/headcount'), api('/dashboard-rh/headcount-trend?months=6')])
+      .then(([d, t]) => { setData(d); setTrend(t ?? []); })
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) return <Skeleton />;
+
+  return (
+    <div className="space-y-5">
+      {/* KPIs */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <KPICard icon={Users}      label="Total"           value={data?.total ?? 0} />
+        <KPICard icon={CheckCircle} label="Activos"         value={data?.active ?? 0}        color="text-emerald-600" bg="bg-emerald-50" />
+        <KPICard icon={UserMinus}  label="Turnover"        value={`${data?.turnoverRate ?? 0}%`} color="text-red-500" bg="bg-red-50" />
+        <KPICard icon={Clock}      label="Tenure Médio"    value={`${data?.avgTenureMonths ?? 0}m`} sub={`≈ ${((data?.avgTenureMonths ?? 0) / 12).toFixed(1)} anos`} />
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        {/* Tenure buckets */}
+        {data?.byTenure && (
+          <div className="bg-white rounded-xl border border-slate-100 p-5">
+            <h4 className="font-semibold text-slate-700 mb-4">Distribuição por Tempo de Casa</h4>
+            {Object.entries(data.byTenure as Record<string, number>).map(([k, v]) => {
+              const max = Math.max(...Object.values(data.byTenure as Record<string, number>));
+              return (
+                <div key={k} className="mb-2">
+                  <div className="flex justify-between text-xs mb-0.5">
+                    <span className="text-slate-600">{k}</span>
+                    <span className="font-semibold text-slate-700">{v}</span>
+                  </div>
+                  <ProgressBar value={max > 0 ? (v / max) * 100 : 0} />
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Monthly trend */}
+        <div className="bg-white rounded-xl border border-slate-100 p-5">
+          <h4 className="font-semibold text-slate-700 mb-4">Evolução Mensal</h4>
+          <div className="space-y-2">
+            {trend.map((t: any, i: number) => {
+              const max = Math.max(...trend.map(x => x.count));
+              return (
+                <div key={i}>
+                  <div className="flex justify-between text-xs mb-0.5">
+                    <span className="text-slate-600">{t.month}</span>
+                    <span className="font-semibold text-slate-700">{t.count}</span>
+                  </div>
+                  <ProgressBar value={(t.count / max) * 100} color="bg-indigo-400" />
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* Anniversaries */}
+      <AnniversariesWidget />
+    </div>
+  );
+}
+
+function AnniversariesWidget() {
+  const [data, setData] = useState<any[]>([]);
+  useEffect(() => { api('/dashboard-rh/anniversaries').then(d => setData(d ?? [])).catch(() => {}); }, []);
   if (!data.length) return null;
-  const W = 520, H = 140, PAD = 28;
-  const counts = data.map(d => d.count);
-  const min = Math.min(...counts);
-  const max = Math.max(...counts);
-  const range = max - min || 1;
-  const pts = data.map((d, i) => {
-    const x = PAD + (i / Math.max(data.length - 1, 1)) * (W - PAD * 2);
-    const y = PAD + ((max - d.count) / range) * (H - PAD * 2);
-    return { x, y, ...d };
-  });
-  const pathD = pts.map((p, i) => `${i === 0 ? "M" : "L"}${p.x},${p.y}`).join(" ");
-  const areaD = `${pathD} L${pts[pts.length - 1].x},${H - PAD} L${pts[0].x},${H - PAD} Z`;
-
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", height: 140 }}>
-      <defs>
-        <linearGradient id="tg" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%"   stopColor="#1e40af" stopOpacity="0.15" />
-          <stop offset="100%" stopColor="#1e40af" stopOpacity="0"    />
-        </linearGradient>
-      </defs>
-      <path d={areaD} fill="url(#tg)" />
-      <path d={pathD} fill="none" stroke="#1e40af" strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />
-      {pts.map((p, i) => (
-        <g key={i}>
-          <circle cx={p.x} cy={p.y} r={4} fill="#1e40af" />
-          <text x={p.x} y={H - 4} textAnchor="middle" fontSize={9} fill="#94a3b8">{p.month.slice(5)}</text>
-          <text x={p.x} y={p.y - 8} textAnchor="middle" fontSize={10} fontWeight="700" fill="#1e40af">{p.count}</text>
-        </g>
-      ))}
-    </svg>
-  );
-}
-
-// ─── Section Header ───────────────────────────────────────────────────────────
-
-function SectionTitle({ children }: { children: React.ReactNode }) {
-  return (
-    <h2 style={{ margin: "0 0 14px", fontSize: 15, fontWeight: 700, color: "#1e293b", display: "flex", alignItems: "center", gap: 8 }}>
-      {children}
-    </h2>
-  );
-}
-
-// ─── Página Principal ─────────────────────────────────────────────────────────
-
-export default function DashboardRhPage() {
-  const [dashboard, setDashboard]         = useState<FullDashboard | null>(null);
-  const [anniversaries, setAnniversaries] = useState<Anniversary[]>([]);
-  const [trend, setTrend]                 = useState<TrendPoint[]>([]);
-  const [trendMonths, setTrendMonths]     = useState(6);
-  const [loading, setLoading]             = useState(true);
-  const [error, setError]                 = useState("");
-
-  async function load() {
-    setLoading(true); setError("");
-    try {
-      const [dash, ann, tr] = await Promise.all([
-        api.get<FullDashboard>("/dashboard-rh"),
-        api.get<Anniversary[]>("/dashboard-rh/anniversaries"),
-        api.get<TrendPoint[]>(`/dashboard-rh/headcount-trend?months=${trendMonths}`),
-      ]);
-      setDashboard(dash);
-      setAnniversaries(ann);
-      setTrend(tr);
-    } catch (e: any) {
-      setError(e.message ?? "Erro ao carregar dashboard");
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  useEffect(() => { load(); }, [trendMonths]);
-
-  if (loading) {
-    return (
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 80, gap: 16 }}>
-        <div style={{ width: 36, height: 36, border: "3px solid #e2e8f0", borderTopColor: "#1e40af", borderRadius: "50%", animation: "spin 0.7s linear infinite" }} />
-        <p style={{ color: "#94a3b8", fontSize: 14 }}>A carregar dashboard RH...</p>
-        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div style={{ background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 10, padding: 24, color: "#dc2626", fontSize: 14 }}>
-        ❌ {error}
-        <button onClick={load} style={{ marginLeft: 16, padding: "6px 14px", background: "#1e40af", color: "#fff", border: "none", borderRadius: 7, fontSize: 13, cursor: "pointer" }}>Tentar novamente</button>
-      </div>
-    );
-  }
-
-  if (!dashboard) return null;
-
-  const { headcount, recruitment, pendingActions, retention } = dashboard;
-  const hiringTrendFmt = formatTrend(recruitment.hiringTrend);
-  const totalPending = pendingActions.leaves + pendingActions.payslips + pendingActions.declarations;
-
-  return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
-
-      {/* ── Header ── */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 12 }}>
-        <div>
-          <h1 style={{ fontSize: 24, fontWeight: 700, color: "#1e293b", margin: 0 }}>🏢 Dashboard RH</h1>
-          <p style={{ color: "#64748b", fontSize: 14, marginTop: 4 }}>
-            Painel de Recursos Humanos — actualizado em {new Date(dashboard.generatedAt).toLocaleTimeString("pt-PT", { hour: "2-digit", minute: "2-digit" })}
-          </p>
-        </div>
-        <button onClick={load} style={{ padding: "9px 18px", background: "#f1f5f9", color: "#475569", border: "none", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
-          🔄 Actualizar
-        </button>
-      </div>
-
-      {/* ── Headcount ── */}
-      <section>
-        <SectionTitle>👥 Headcount</SectionTitle>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 14 }}>
-          <StatCard icon="👥" label="Colaboradores Activos" value={headcount.totalActive} color="#1e40af" bg="#eff6ff" />
-          <StatCard icon="🚪" label="Inactivos" value={headcount.totalInactive} color="#dc2626" bg="#fef2f2" />
-          <StatCard
-            icon="📉" label="Taxa de Rotatividade" value={`${headcount.turnoverRate}%`}
-            color={headcount.turnoverRate > 15 ? "#dc2626" : headcount.turnoverRate > 8 ? "#f59e0b" : "#16a34a"}
-            bg={headcount.turnoverRate > 15 ? "#fef2f2" : headcount.turnoverRate > 8 ? "#fffbeb" : "#ecfdf5"}
-          />
-          <StatCard
-            icon="🆕" label="Novas Contratações (mês)"
-            value={recruitment.newHiresThisMonth}
-            color="#16a34a" bg="#ecfdf5"
-            sub={
-              <span style={{ fontSize: 11, color: hiringTrendFmt.color, fontWeight: 600 }}>
-                {hiringTrendFmt.label} vs. mês anterior
-              </span>
-            }
-          />
-          <StatCard
-            icon="⏳" label="Tempo Médio de Empresa"
-            value={formatMonths(retention.avgTenureMonths)}
-            color="#7c3aed" bg="#f5f3ff"
-          />
-          <StatCard
-            icon="✅" label="Licenças Aprovadas (mês)"
-            value={retention.approvedLeavesThisMonth}
-            color="#0369a1" bg="#f0f9ff"
-          />
-        </div>
-      </section>
-
-      {/* ── Acções Pendentes ── */}
-      <section>
-        <div style={{ ...card }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-            <SectionTitle>⏰ Acções Pendentes</SectionTitle>
-            {totalPending > 0 && (
-              <span style={{ padding: "3px 12px", borderRadius: 20, fontSize: 11, fontWeight: 800, background: "#fef2f2", color: "#dc2626" }}>
-                {totalPending} pendentes
-              </span>
-            )}
-          </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            <PendingItem label="Pedidos de Licença"       count={pendingActions.leaves}       color="#f59e0b" bg="#fffbeb" />
-            <PendingItem label="Recibos de Vencimento"    count={pendingActions.payslips}     color="#1e40af" bg="#eff6ff" />
-            <PendingItem label="Declarações de Trabalho"  count={pendingActions.declarations} color="#8b5cf6" bg="#f5f3ff" />
-          </div>
-        </div>
-      </section>
-
-      {/* ── Tendência de Headcount ── */}
-      <section>
-        <div style={card}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-            <SectionTitle>📈 Evolução do Headcount</SectionTitle>
-            <div style={{ display: "flex", gap: 6 }}>
-              {[3, 6, 12].map(m => (
-                <button key={m} onClick={() => setTrendMonths(m)} style={{ padding: "5px 12px", border: "none", borderRadius: 7, fontSize: 12, fontWeight: trendMonths === m ? 700 : 500, cursor: "pointer", background: trendMonths === m ? "#1e40af" : "#f1f5f9", color: trendMonths === m ? "#fff" : "#64748b" }}>
-                  {m}m
-                </button>
-              ))}
+    <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+      <h4 className="font-semibold text-amber-700 mb-3 flex items-center gap-2">
+        🎉 Aniversários de Empresa este Mês
+      </h4>
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+        {data.slice(0, 6).map((u: any, i) => (
+          <div key={i} className="flex items-center gap-2 bg-white rounded-lg px-3 py-2">
+            <Avatar name={u.fullName} url={u.avatarUrl} size={7} />
+            <div className="min-w-0">
+              <p className="text-xs font-medium text-slate-700 truncate">{u.fullName}</p>
+              <p className="text-[10px] text-amber-600 font-semibold">{u.years} {u.years === 1 ? 'ano' : 'anos'} 🏆</p>
             </div>
           </div>
-          <TrendChart data={trend} />
-          {trend.length === 0 && <p style={{ textAlign: "center", color: "#94a3b8", padding: 20, fontSize: 13 }}>Sem dados de tendência.</p>}
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ─── Performance Panel ────────────────────────────────────────────
+
+function PerformancePanel() {
+  const [data, setData]   = useState<any | null>(null);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => { api('/dashboard-rh/performance').then(setData).finally(() => setLoading(false)); }, []);
+  if (loading) return <Skeleton />;
+  const dist = data?.distribution ?? {};
+  const total = Object.values(dist as Record<string, number>).reduce((a, b) => a + b, 0);
+
+  return (
+    <div className="space-y-5">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <KPICard icon={Star}       label="Score Médio"    value={data?.avgScore?.toFixed(1) ?? '–'} status={data?.status} color="text-amber-600" bg="bg-amber-50" />
+        <KPICard icon={Users}      label="Avaliados"      value={data?.total ?? 0} />
+        <KPICard icon={Zap}        label="High Potentials" value={data?.hiPos ?? 0} sub={`${data?.hiPoRatio ?? 0}% da equipa`} color="text-emerald-600" bg="bg-emerald-50" />
+        <KPICard icon={AlertTriangle} label="Em Risco"    value={data?.atRisk ?? 0} color="text-red-500" bg="bg-red-50" />
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        {/* Distribution */}
+        <div className="bg-white rounded-xl border border-slate-100 p-5">
+          <h4 className="font-semibold text-slate-700 mb-4">Distribuição de Performance</h4>
+          {[
+            { key: 'exceptional', label: '⭐ Excepcional', color: 'bg-emerald-500' },
+            { key: 'above',       label: '✅ Acima',       color: 'bg-teal-400' },
+            { key: 'expected',    label: '👍 Esperado',    color: 'bg-amber-400' },
+            { key: 'below',       label: '⚠️ Abaixo',      color: 'bg-orange-400' },
+            { key: 'critical',    label: '🔴 Crítico',     color: 'bg-red-400' },
+          ].map(b => {
+            const val = dist[b.key] ?? 0;
+            const pct = total > 0 ? Math.round((val / total) * 100) : 0;
+            return (
+              <div key={b.key} className="mb-2">
+                <div className="flex justify-between text-xs mb-0.5">
+                  <span className="text-slate-600">{b.label}</span>
+                  <span className="font-semibold text-slate-700">{val} ({pct}%)</span>
+                </div>
+                <ProgressBar value={pct} color={b.color} />
+              </div>
+            );
+          })}
         </div>
-      </section>
 
-      {/* ── Distribuição ── */}
-      <section>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+        {/* By dept */}
+        <div className="bg-white rounded-xl border border-slate-100 p-5">
+          <h4 className="font-semibold text-slate-700 mb-4">Score por Departamento</h4>
+          {(data?.byDepartment ?? []).slice(0, 6).map((d: any, i: number) => (
+            <div key={i} className="mb-2">
+              <div className="flex justify-between text-xs mb-0.5">
+                <span className="text-slate-600 truncate">{d.department}</span>
+                <span className={`font-bold text-xs ${d.avgScore >= 4 ? 'text-emerald-600' : d.avgScore >= 3 ? 'text-amber-600' : 'text-red-500'}`}>
+                  {d.avgScore.toFixed(1)}
+                </span>
+              </div>
+              <ProgressBar value={(d.avgScore / 5) * 100}
+                color={d.avgScore >= 4 ? 'bg-emerald-500' : d.avgScore >= 3 ? 'bg-amber-400' : 'bg-red-400'} />
+            </div>
+          ))}
+        </div>
+      </div>
 
-          {/* Por Departamento */}
-          <div style={card}>
-            <SectionTitle>🏗️ Por Departamento</SectionTitle>
-            {dashboard.distribution.byDepartment.length === 0
-              ? <p style={{ color: "#94a3b8", fontSize: 13, textAlign: "center", padding: 16 }}>Sem dados.</p>
-              : (
-                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                  {dashboard.distribution.byDepartment
-                    .sort((a, b) => b._count - a._count)
-                    .slice(0, 8)
-                    .map((d, i) => {
-                      const maxCount = Math.max(...dashboard.distribution.byDepartment.map(x => x._count));
-                      const pct = Math.round((d._count / maxCount) * 100);
-                      return (
-                        <div key={i}>
-                          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 3 }}>
-                            <span style={{ fontSize: 12, color: "#64748b" }}>Depto #{d.departmentId}</span>
-                            <span style={{ fontSize: 12, fontWeight: 700, color: "#1e293b" }}>{d._count}</span>
-                          </div>
-                          <div style={{ height: 5, background: "#e2e8f0", borderRadius: 3, overflow: "hidden" }}>
-                            <div style={{ height: "100%", width: `${pct}%`, background: "#1e40af", borderRadius: 3 }} />
-                          </div>
-                        </div>
-                      );
-                    })}
+      {/* Insights */}
+      {(data?.insights ?? []).length > 0 && (
+        <div className="bg-violet-50 border border-violet-100 rounded-xl p-4">
+          {data.insights.map((ins: string, i: number) => <p key={i} className="text-xs text-violet-800">{ins}</p>)}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Training Panel ───────────────────────────────────────────────
+
+function TrainingPanel() {
+  const [data, setData]   = useState<any | null>(null);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => { api('/dashboard-rh/training').then(setData).finally(() => setLoading(false)); }, []);
+  if (loading) return <Skeleton />;
+
+  return (
+    <div className="space-y-5">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <KPICard icon={BookOpen}    label="Conclusões (mês)"    value={data?.completed ?? 0}      color="text-teal-600"    bg="bg-teal-50" />
+        <KPICard icon={Activity}    label="Taxa de Conclusão"   value={`${data?.completionRate ?? 0}%`} />
+        <KPICard icon={Shield}      label="Formações Obrig."    value={`${data?.mandatoryRate ?? 0}%`} status={data?.mandatoryStatus} color="text-red-600" bg="bg-red-50" />
+        <KPICard icon={Clock}       label="Horas Estimadas"     value={`${data?.estimatedHours ?? 0}h`} color="text-violet-600" bg="bg-violet-50" />
+      </div>
+
+      {/* Top courses */}
+      {(data?.topCourses ?? []).length > 0 && (
+        <div className="bg-white rounded-xl border border-slate-100 p-5">
+          <h4 className="font-semibold text-slate-700 mb-3">Top 5 Cursos</h4>
+          <div className="space-y-2">
+            {data.topCourses.map((c: any, i: number) => (
+              <div key={i} className="flex items-center gap-3">
+                <span className="text-xs font-bold text-slate-300 w-4">#{i+1}</span>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-medium text-slate-700 truncate">{c.course?.title ?? `Curso ${c.courseId}`}</p>
+                  <p className="text-[10px] text-slate-400">{c.course?.category}</p>
                 </div>
-              )}
-          </div>
-
-          {/* Por Função */}
-          <div style={card}>
-            <SectionTitle>💼 Por Função</SectionTitle>
-            {dashboard.distribution.byPosition.length === 0
-              ? <p style={{ color: "#94a3b8", fontSize: 13, textAlign: "center", padding: 16 }}>Sem dados.</p>
-              : (
-                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                  {dashboard.distribution.byPosition
-                    .sort((a, b) => b._count - a._count)
-                    .slice(0, 8)
-                    .map((p, i) => {
-                      const maxCount = Math.max(...dashboard.distribution.byPosition.map(x => x._count));
-                      const pct = Math.round((p._count / maxCount) * 100);
-                      return (
-                        <div key={i}>
-                          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 3 }}>
-                            <span style={{ fontSize: 12, color: "#64748b" }}>Cargo #{p.positionId}</span>
-                            <span style={{ fontSize: 12, fontWeight: 700, color: "#1e293b" }}>{p._count}</span>
-                          </div>
-                          <div style={{ height: 5, background: "#e2e8f0", borderRadius: 3, overflow: "hidden" }}>
-                            <div style={{ height: "100%", width: `${pct}%`, background: "#6366f1", borderRadius: 3 }} />
-                          </div>
-                        </div>
-                      );
-                    })}
-                </div>
-              )}
+                <span className="text-xs font-bold text-indigo-600">{c.count} inscrições</span>
+              </div>
+            ))}
           </div>
         </div>
-      </section>
+      )}
 
-      {/* ── Aniversários de Empresa ── */}
-      <section>
-        <div style={card}>
-          <SectionTitle>🎂 Aniversários de Empresa Este Mês</SectionTitle>
-          {anniversaries.length === 0 ? (
-            <p style={{ color: "#94a3b8", fontSize: 13, textAlign: "center", padding: 20 }}>Nenhum aniversário de empresa este mês.</p>
-          ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-              {anniversaries.map(a => (
-                <div key={a.id} style={{ display: "flex", alignItems: "center", gap: 14, padding: "10px 14px", background: "#f8fafc", borderRadius: 8 }}>
-                  <div style={{ width: 36, height: 36, borderRadius: "50%", background: "linear-gradient(135deg,#1e40af,#6366f1)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 700, fontSize: 14, flexShrink: 0 }}>
-                    {a.fullName.charAt(0)}
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: "#1e293b" }}>{a.fullName}</p>
-                    {a.department && <p style={{ margin: "1px 0 0", fontSize: 11, color: "#94a3b8" }}>{a.department.name}</p>}
-                  </div>
-                  <div style={{ textAlign: "right" }}>
-                    <span style={{ padding: "3px 10px", borderRadius: 20, fontSize: 11, fontWeight: 800, background: "#fffbeb", color: "#f59e0b" }}>
-                      🎉 {a.years} {a.years === 1 ? "ano" : "anos"}
-                    </span>
-                    <p style={{ margin: "3px 0 0", fontSize: 10, color: "#94a3b8" }}>
-                      desde {new Date(a.hireDate).toLocaleDateString("pt-PT", { day: "2-digit", month: "short", year: "numeric" })}
-                    </p>
-                  </div>
-                </div>
-              ))}
+      {(data?.insights ?? []).length > 0 && (
+        <div className="bg-violet-50 border border-violet-100 rounded-xl p-4">
+          {data.insights.map((ins: string, i: number) => <p key={i} className="text-xs text-violet-800">{ins}</p>)}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Correlations Panel ───────────────────────────────────────────
+
+function CorrelationsPanel() {
+  const [data, setData]   = useState<any | null>(null);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => { api('/dashboard-rh/correlations').then(setData).finally(() => setLoading(false)); }, []);
+  if (loading) return <Skeleton count={2} />;
+
+  return (
+    <div className="space-y-5">
+      <div className="flex items-center gap-2 mb-2">
+        <Brain size={18} className="text-violet-600" />
+        <h3 className="font-semibold text-slate-700">People Analytics — Correlações</h3>
+        <span className="text-xs text-slate-400">Base: {data?.sampleSize ?? 0} colaboradores</span>
+      </div>
+
+      {data?.trainingVsPerformance && (
+        <div className="bg-white rounded-xl border border-slate-100 p-5">
+          <h4 className="font-semibold text-slate-700 mb-1">📚 Formação × Performance</h4>
+          <p className="text-xs text-violet-700 bg-violet-50 rounded-lg px-3 py-2 mb-4">
+            💡 {data.trainingVsPerformance.insight}
+          </p>
+          <div className="grid grid-cols-2 gap-4">
+            {[
+              { label: 'Alto treino (3+ cursos)', value: data.trainingVsPerformance.highTrainingAvgPerf, color: 'bg-emerald-500' },
+              { label: 'Baixo treino',            value: data.trainingVsPerformance.lowTrainingAvgPerf,  color: 'bg-red-400' },
+            ].map(item => (
+              <div key={item.label} className="text-center">
+                <p className={`text-3xl font-black ${item.value >= 3.5 ? 'text-emerald-600' : 'text-red-500'}`}>
+                  {item.value?.toFixed(1) ?? '–'}
+                </p>
+                <p className="text-xs text-slate-500">{item.label}</p>
+                <ProgressBar value={(item.value / 5) * 100} color={item.color} height="h-2" />
+              </div>
+            ))}
+          </div>
+          {data.trainingVsPerformance.lift > 0 && (
+            <div className="mt-3 text-center">
+              <span className="text-sm font-bold text-emerald-600">+{data.trainingVsPerformance.lift} pts lift</span>
+              <span className="text-xs text-slate-400 ml-2">por alto consumo de formação</span>
             </div>
           )}
         </div>
-      </section>
+      )}
 
+      {data?.engagementVsPerformance && (
+        <div className="bg-white rounded-xl border border-slate-100 p-5">
+          <h4 className="font-semibold text-slate-700 mb-1">💬 Engagement × Performance</h4>
+          <p className="text-xs text-violet-700 bg-violet-50 rounded-lg px-3 py-2 mb-4">
+            💡 {data.engagementVsPerformance.insight}
+          </p>
+          <div className="grid grid-cols-2 gap-4">
+            {[
+              { label: 'Alto engagement',  value: data.engagementVsPerformance.highEngAvgPerf, color: 'bg-emerald-500' },
+              { label: 'Baixo engagement', value: data.engagementVsPerformance.lowEngAvgPerf,  color: 'bg-red-400' },
+            ].map(item => (
+              <div key={item.label} className="text-center">
+                <p className={`text-3xl font-black ${item.value >= 3.5 ? 'text-emerald-600' : 'text-red-500'}`}>
+                  {item.value?.toFixed(1) ?? '–'}
+                </p>
+                <p className="text-xs text-slate-500">{item.label}</p>
+                <ProgressBar value={(item.value / 5) * 100} color={item.color} height="h-2" />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
+
+// ─── Talent Pipeline Panel ────────────────────────────────────────
+
+function TalentPanel() {
+  const [data, setData]   = useState<any | null>(null);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => { api('/dashboard-rh/talent-pipeline').then(setData).finally(() => setLoading(false)); }, []);
+  if (loading) return <Skeleton count={3} />;
+
+  return (
+    <div className="space-y-5">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <KPICard icon={Target}  label="Posições Cobertas"     value={`${data?.coverageRate ?? 0}%`}   color="text-indigo-600" bg="bg-indigo-50" />
+        <KPICard icon={Users}   label="Planos de Sucessão"    value={data?.successionPlans?.length ?? 0} />
+        <KPICard icon={Star}    label="High Potentials"       value={data?.hiPoCount ?? 0}             color="text-amber-600" bg="bg-amber-50" />
+        <KPICard icon={AlertTriangle} label="Posições em Risco" value={data?.positionsAtRisk?.length ?? 0} color="text-red-500" bg="bg-red-50" />
+      </div>
+
+      {/* Succession plans */}
+      {(data?.successionPlans ?? []).length > 0 && (
+        <div className="bg-white rounded-xl border border-slate-100 p-5">
+          <h4 className="font-semibold text-slate-700 mb-3">Planos de Sucessão</h4>
+          <div className="space-y-2">
+            {(data.successionPlans as any[]).slice(0, 8).map((p: any, i: number) => (
+              <div key={i} className="flex items-center gap-3 py-2 border-b border-slate-50 last:border-0">
+                <Avatar name={p.candidate?.fullName ?? '?'} url={p.candidate?.avatarUrl} />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-slate-700">{p.candidate?.fullName}</p>
+                  <p className="text-[10px] text-slate-400">→ {p.position?.name}</p>
+                </div>
+                {p.readiness && <span className="text-xs px-2 py-0.5 bg-indigo-100 text-indigo-700 rounded-full font-medium">{p.readiness}</span>}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Positions at risk */}
+      {(data?.positionsAtRisk ?? []).length > 0 && (
+        <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+          <h4 className="font-semibold text-red-700 mb-2">⚠️ Posições Sem Sucessor</h4>
+          <div className="space-y-1">
+            {data.positionsAtRisk.map((p: any, i: number) => (
+              <p key={i} className="text-xs text-red-700">• {p.name} (Nível {p.level})</p>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Main Page ───────────────────────────────────────────────────
+
+const PANELS: { id: Panel; label: string; icon: any }[] = [
+  { id: 'overview',      label: 'Visão Geral',    icon: BarChart2 },
+  { id: 'headcount',     label: 'Headcount',      icon: Users },
+  { id: 'performance',   label: 'Performance',    icon: Star },
+  { id: 'training',      label: 'Formação',       icon: BookOpen },
+  { id: 'talent',        label: 'Talento',        icon: Target },
+  { id: 'correlations',  label: 'People Analytics',icon: Brain },
+];
+
+export default function DashboardRhPage() {
+  const [panel, setPanel] = useState<Panel>('overview');
+
+  const PANEL_CONTENT: Record<Panel, JSX.Element> = {
+    overview:     <OverviewPanel />,
+    headcount:    <HeadcountPanel />,
+    turnover:     <OverviewPanel />,
+    performance:  <PerformancePanel />,
+    training:     <TrainingPanel />,
+    engagement:   <OverviewPanel />,
+    talent:       <TalentPanel />,
+    correlations: <CorrelationsPanel />,
+  };
+
+  return (
+    <div className="min-h-screen bg-slate-50">
+      {/* Header */}
+      <div className="bg-white border-b border-slate-200 px-6 py-5">
+        <div className="max-w-7xl mx-auto flex items-start justify-between">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <div className="p-1.5 bg-indigo-100 rounded-lg"><Users size={18} className="text-indigo-600" /></div>
+              <h1 className="text-xl font-bold text-slate-800">Dashboard RH</h1>
+              <span className="text-xs bg-violet-100 text-violet-700 px-2 py-0.5 rounded-full font-medium">People Analytics</span>
+            </div>
+            <p className="text-sm text-slate-400">Centro de comando · Headcount · Performance · Talento · Formação</p>
+          </div>
+          <button onClick={() => window.location.reload()} className="p-2 bg-white border border-slate-200 rounded-lg hover:border-slate-300">
+            <RefreshCw size={15} className="text-slate-500" />
+          </button>
+        </div>
+      </div>
+
+      {/* Tabs */}
+      <div className="bg-white border-b border-slate-200 px-6">
+        <div className="max-w-7xl mx-auto flex overflow-x-auto">
+          {PANELS.map(p => {
+            const Icon = p.icon;
+            return (
+              <button key={p.id} onClick={() => setPanel(p.id)}
+                className={`flex items-center gap-2 px-5 py-4 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
+                  panel === p.id ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-slate-500 hover:text-slate-700'}`}>
+                <Icon size={15} />{p.label}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="max-w-7xl mx-auto px-6 py-6">
+        {PANEL_CONTENT[panel]}
+      </div>
+    </div>
+  );
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

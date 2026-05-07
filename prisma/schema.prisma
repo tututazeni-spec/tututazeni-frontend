@@ -553,24 +553,221 @@ model Position {
 }
 
 model PerformanceReview {
-  id        Int      @id @default(autoincrement())
-  userId    Int
-  score     Float
-  comment   String?  @db.Text
-  period    String
-  createdAt DateTime @default(now())
-  user      User     @relation(fields: [userId], references: [id])
+  id             Int      @id @default(autoincrement())
+  userId         Int
+  cycleId        Int
+  reviewerId     Int?
+  type           String                              // SELF|MANAGER|PEER|R360
+  status         String   @default("PENDING_SELF")
+  score          Float?
+  potentialScore Int?
+  feedback       String?
+  justification  String?
+  category       String?                             // LOW|MEDIUM|HIGH
+  submittedAt    DateTime?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  user     User              @relation("ReviewedUser",   fields: [userId],     references: [id])
+  reviewer User?             @relation("ReviewerUser",   fields: [reviewerId], references: [id])
+  cycle    PerformanceCycle  @relation(fields: [cycleId],references: [id])
+  goals            GoalEvaluation[]
+  competencyEvals  CompetencyEvaluation[]
+  calibrationLogs  CalibrationLog[]
+  disputes         PerformanceDispute[]
+  @@unique([userId, cycleId, type])
+  @@index([userId])
+  @@index([status])
 }
 
-model SuccessionPlan {
-  id          Int      @id @default(autoincrement())
-  positionId  Int
-  candidateId Int
-  readiness   String   @db.Text
-  createdAt   DateTime @default(now())
-  position    Position @relation(fields: [positionId], references: [id])
-  candidate   User     @relation(fields: [candidateId], references: [id])
+model CompetencyEvaluation {
+  id             Int  @id @default(autoincrement())
+  reviewId       Int
+  competencyId   Int
+  evaluatedLevel Int
+  feedback       String?
+  review PerformanceReview @relation(fields: [reviewId],     references: [id], onDelete: Cascade)
+  @@unique([reviewId, competencyId])
 }
+
+model ContinuousFeedback {
+  id            Int      @id @default(autoincrement())
+  giverId       Int
+  userId        Int
+  cycleId       Int?
+  type          String                               // PRAISE|IMPROVEMENT|GENERAL
+  message       String
+  visibleToUser Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  giver User             @relation("FeedbackGiver",    fields: [giverId],  references: [id])
+  user  User             @relation("FeedbackReceived", fields: [userId],   references: [id])
+  cycle PerformanceCycle?@relation(fields: [cycleId],  references: [id])
+  @@index([userId])
+}
+
+model CalibrationLog {
+  id              Int      @id @default(autoincrement())
+  reviewId        Int
+  calibratorId    Int
+  previousScore   Float?
+  calibratedScore Float
+  reason          String
+  createdAt       DateTime @default(now())
+  review     PerformanceReview @relation(fields: [reviewId],      references: [id])
+  calibrator User              @relation(fields: [calibratorId],  references: [id])
+}
+
+model PerformanceDispute {
+  id         Int      @id @default(autoincrement())
+  reviewId   Int
+  userId     Int
+  reason     String
+  evidence   String?
+  status     String   @default("OPEN")  // OPEN|RESOLVED|REJECTED
+  resolution String?
+  createdAt  DateTime @default(now())
+  review PerformanceReview @relation(fields: [reviewId], references: [id])
+  user   User              @relation(fields: [userId],   references: [id])
+}
+
+model NineBoxPlacement {
+  id              Int      @id @default(autoincrement())
+  userId          Int
+  cycleId         Int?
+  performanceAxis Int                                // 1-3
+  potentialAxis   Int                                // 1-3
+  justification   String
+  updatedById     Int
+  updatedAt       DateTime @default(now())
+  user  User              @relation(fields: [userId],      references: [id])
+  cycle PerformanceCycle? @relation(fields: [cycleId],     references: [id])
+  @@unique([userId, cycleId])
+}
+
+
+model PerformanceCycle {
+  id                  Int      @id @default(autoincrement())
+  name                String
+  type                String                        // PROBATION|QUARTERLY|SEMESTER|ANNUAL|AD_HOC
+  status              String   @default("PLANNED")  // PLANNED|ACTIVE|CLOSED|CANCELLED
+  startDate           DateTime
+  endDate             DateTime
+  selfEvalDeadline    DateTime?
+  managerEvalDeadline DateTime?
+  goalsWeight         Int      @default(40)
+  competenciesWeight  Int      @default(40)
+  behaviorsWeight     Int      @default(20)
+  selfBeforeManager   Boolean  @default(true)
+  anonymous360        Boolean  @default(true)
+  scoreScale          Int      @default(5)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  reviews     PerformanceReview[]
+  goals       PerformanceGoal[]
+  feedback    ContinuousFeedback[]
+  nineBox     NineBoxPlacement[]
+  @@index([status])
+}
+
+model PerformanceGoal {
+  id           Int      @id @default(autoincrement())
+  userId       Int
+  cycleId      Int
+  title        String
+  description  String?
+  targetValue  Float
+  currentValue Float    @default(0)
+  progress     Int      @default(0)    // 0-100%
+  weight       Float    @default(100)
+  unit         String?
+  status       String   @default("ON_TRACK")
+  notes        String?
+  dueDate      DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  user       User             @relation(fields: [userId],   references: [id])
+  cycle      PerformanceCycle @relation(fields: [cycleId],  references: [id])
+  evaluations GoalEvaluation[]
+  @@index([userId])
+}
+
+model GoalEvaluation {
+  id       Int   @id @default(autoincrement())
+  reviewId Int
+  goalId   Int
+  score    Float
+  comment  String?
+  review PerformanceReview @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  goal   PerformanceGoal   @relation(fields: [goalId],   references: [id])
+  @@unique([reviewId, goalId])
+}
+
+
+model SuccessionPlan {
+  id                  Int      @id @default(autoincrement())
+  criticalPositionId  Int
+  candidateId         Int
+  readinessLevel      String   // READY_NOW|READY_SOON|NEEDS_DEVELOPMENT
+  priority            String   // PRIMARY|SECONDARY|TERTIARY
+  matchScore          Float?
+  geographicMobility  Boolean  @default(true)
+  available           Boolean  @default(true)
+  notes               String?
+  readinessByDate     DateTime?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  criticalPosition CriticalPosition @relation(fields: [criticalPositionId], references: [id], onDelete: Cascade)
+  candidate        User             @relation(fields: [candidateId],        references: [id])
+  pdi              SuccessionPDI?
+  @@unique([criticalPositionId, candidateId])
+  @@index([readinessLevel])
+  @@index([candidateId])
+}
+
+model TalentPool {
+  id                  Int      @id @default(autoincrement())
+  userId              Int      @unique
+  readinessLevel      String
+  mentorId            Int?
+  notes               String?
+  geographicMobility  Boolean  @default(true)
+  createdAt           DateTime @default(now())
+  user   User  @relation(fields: [userId],   references: [id])
+  mentor User? @relation("TalentPoolMentor", fields: [mentorId], references: [id])
+}
+
+model SuccessionPDI {
+  id                Int      @id @default(autoincrement())
+  successionPlanId  Int      @unique
+  gaps              String   // JSON
+  developmentGoals  String?
+  learningPathIds   Int[]
+  courseIds         Int[]
+  status            String   @default("ACTIVE")
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  successionPlan SuccessionPlan @relation(fields: [successionPlanId], references: [id], onDelete: Cascade)
+}
+
+
+model CriticalPosition {
+  id                  Int      @id @default(autoincrement())
+  positionId          Int      @unique
+  businessImpact      String   // LOW|MEDIUM|HIGH|CRITICAL
+  replacementTime     String   // IMMEDIATE|SHORT_TERM|MEDIUM_TERM|LONG_TERM
+  exitRisk            String   // LOW|MEDIUM|HIGH|CRITICAL
+  expectedExitDate    DateTime?
+  criticalReason      String?
+  keyPersonRisk       Boolean  @default(false)
+  minSuccessorsRequired Int    @default(2)
+  requiresDocumentation Boolean @default(false)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  position       Position         @relation(fields: [positionId],  references: [id])
+  successionPlans SuccessionPlan[]
+  @@index([exitRisk])
+  @@index([businessImpact])
+}
+
 
 model OnboardingPlan {
   id        Int      @id @default(autoincrement())
@@ -581,14 +778,35 @@ model OnboardingPlan {
 }
 
 model Competency {
-  id               Int                  @id @default(autoincrement())
-  name             String               @unique
-  description      String?              @db.Text
-  createdAt        DateTime             @default(now())
-  courses          CourseCompetency[]
-  userCompetencies UserCompetency[]
-  positions        PositionCompetency[]
+  id          Int    @id @default(autoincrement())
+  name        String @unique
+  description String?
+  category    String @default("HARD_SKILL")
+  tags        String[]
+  status      String @default("ACTIVE")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  userCompetencies   UserCompetency[]
+  courses            CourseCompetency[]
+  positions          PositionCompetency[]
+  proficiencyLevels  ProficiencyLevel[]
+  endorsements       CompetencyEndorsement[]
+  evolutionLogs      CompetencyEvolutionLog[]
+  @@index([category])
+  @@index([status])
 }
+
+model ProficiencyLevel {
+  id           Int    @id @default(autoincrement())
+  competencyId Int
+  name         String
+  value        Int    // 1-5
+  description  String?
+  competency Competency @relation(fields: [competencyId], references: [id], onDelete: Cascade)
+  @@unique([competencyId, value])
+}
+
+
 
 model CourseCompetency {
   id           Int        @id @default(autoincrement())
@@ -599,16 +817,51 @@ model CourseCompetency {
 }
 
 model UserCompetency {
-  id           Int        @id @default(autoincrement())
+  id           Int      @id @default(autoincrement())
   userId       Int
   competencyId Int
-  level        Int
-  evaluatedAt  DateTime   @default(now())
-  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  competency   Competency @relation(fields: [competencyId], references: [id], onDelete: Cascade)
-
+  currentLevel Int      @default(0)
+  targetLevel  Int?
+  selfLevel    Int?
+  managerLevel Int?
+  source       String   @default("MANUAL")
+  notes        String?
+  evidenceUrl  String?
+  evaluatedAt  DateTime @default(now())
+  user       User       @relation(fields: [userId],       references: [id])
+  competency Competency @relation(fields: [competencyId], references: [id])
   @@unique([userId, competencyId])
+  @@index([userId])
 }
+
+model CompetencyEvolutionLog {
+  id            Int      @id @default(autoincrement())
+  userId        Int
+  competencyId  Int
+  previousLevel Int
+  newLevel      Int
+  source        String
+  updatedById   Int?
+  createdAt     DateTime @default(now())
+  user       User       @relation(fields: [userId],       references: [id])
+  competency Competency @relation(fields: [competencyId], references: [id])
+  @@index([userId])
+  @@index([competencyId])
+}
+
+model CompetencyEndorsement {
+  id           Int      @id @default(autoincrement())
+  endorserId   Int
+  userId       Int
+  competencyId Int
+  comment      String?
+  createdAt    DateTime @default(now())
+  endorser   User       @relation("EndorsementGiven",    fields: [endorserId],   references: [id])
+  user       User       @relation("EndorsementReceived", fields: [userId],       references: [id])
+  competency Competency @relation(fields: [competencyId], references: [id])
+  @@unique([endorserId, userId, competencyId])
+}
+
 
 model DevelopmentPlan {
   id           Int           @id @default(autoincrement())
@@ -621,26 +874,154 @@ model DevelopmentPlan {
 }
 
 model LeadershipProgram {
-  id           Int                     @id @default(autoincrement())
-  name         String
-  description  String?                 @db.Text
-  active       Boolean                 @default(true)
-  createdAt    DateTime                @default(now())
+  id                 Int      @id @default(autoincrement())
+  name               String
+  description        String?
+  level              String   // INITIAL|INTERMEDIATE|ADVANCED
+  status             String   @default("DRAFT")
+  durationWeeks      Int?
+  learningPathId     Int?
+  mandatory          Boolean  @default(false)
+  minLeadershipScore Int?
+  startDate          DateTime?
+  endDate            DateTime?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
   participants LeadershipParticipant[]
-  certificates Certificate[]
+  @@index([level])
+  @@index([status])
 }
 
-model LeadershipParticipant {
-  id         Int               @id @default(autoincrement())
-  userId     Int
-  programId  Int
-  status     String            @default("ENROLLED")
-  progress   Int               @default(0)
-  enrolledAt DateTime          @default(now())
-  user       User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  program    LeadershipProgram @relation(fields: [programId], references: [id], onDelete: Cascade)
 
+model LeadershipParticipant {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  programId   Int
+  progress    Int      @default(0)
+  status      String   @default("ENROLLED")
+  notes       String?
+  enrolledAt  DateTime @default(now())
+  completedAt DateTime?
+  user    User              @relation(fields: [userId],    references: [id])
+  program LeadershipProgram @relation(fields: [programId], references: [id], onDelete: Cascade)
   @@unique([userId, programId])
+  @@index([userId])
+}
+
+model OneOnOne {
+  id              Int      @id @default(autoincrement())
+  managerId       Int
+  subordinateId   Int
+  scheduledAt     DateTime
+  durationMinutes Int      @default(30)
+  status          String   @default("SCHEDULED")
+  agenda          String?
+  meetingUrl      String?
+  minutes         String?
+  actionItems     String?
+  nextMeetingDate DateTime?
+  completedAt     DateTime?
+  createdAt       DateTime @default(now())
+  manager     User @relation("OneOnOneManager",     fields: [managerId],     references: [id])
+  subordinate User @relation("OneOnOneSubordinate", fields: [subordinateId], references: [id])
+  @@index([managerId])
+}
+
+model LeadershipFeedback360 {
+  id                  Int      @id @default(autoincrement())
+  leaderId            Int
+  respondentId        Int?    // null = anónimo
+  cycleId             Int?
+  anonymous           Boolean  @default(false)
+  qualitativeFeedback String?
+  createdAt           DateTime @default(now())
+  leader    User                          @relation("LeaderFeedback",    fields: [leaderId],    references: [id])
+  responses LeadershipFeedback360Response[]
+  @@index([leaderId])
+}
+
+model LeadershipFeedback360Response {
+  id         Int    @id @default(autoincrement())
+  feedbackId Int
+  competency String // COMMUNICATION|DEVELOPMENT|RECOGNITION|AUTONOMY|FAIRNESS|EXAMPLE|STRATEGY|RESILIENCE
+  score      Int    // 1-5
+  feedback LeadershipFeedback360 @relation(fields: [feedbackId], references: [id], onDelete: Cascade)
+}
+
+model LeadershipPulse {
+  id           Int      @id @default(autoincrement())
+  leaderId     Int
+  respondentId Int
+  overallScore Int      // 1-5
+  q1           String?
+  q2           String?
+  q3           String?
+  month        Int
+  year         Int
+  createdAt    DateTime @default(now())
+  @@index([leaderId])
+  @@unique([leaderId, respondentId, month, year])
+}
+
+model Mentoring {
+  id               Int      @id @default(autoincrement())
+  mentorId         Int
+  menteeId         Int
+  objective        String?
+  durationMonths   Int?
+  reverseMentoring Boolean  @default(false)
+  status           String   @default("ACTIVE")
+  startedAt        DateTime @default(now())
+  completedAt      DateTime?
+  mentor   User              @relation("MentoringMentor", fields: [mentorId], references: [id])
+  mentee   User              @relation("MentoringMentee", fields: [menteeId], references: [id])
+  sessions MentoringSession[]
+  @@index([mentorId])
+  @@index([menteeId])
+}
+
+model MentoringSession {
+  id              Int      @id @default(autoincrement())
+  mentoringId     Int
+  sessionDate     DateTime
+  durationMinutes Int?
+  summary         String
+  actionItems     String?
+  rating          Int?     // 1-5
+  createdAt       DateTime @default(now())
+  mentoring Mentoring @relation(fields: [mentoringId], references: [id], onDelete: Cascade)
+}
+
+model TeamHealth {
+  id                  Int      @id @default(autoincrement())
+  managerId           Int      @unique
+  engagementScore     Float?
+  turnoverRate        Float?
+  absenteeismRate     Float?
+  pdisCompletedPct    Float?
+  evaluationsOnTimePct Float?
+  updatedAt           DateTime @default(now())
+}
+
+model LeadershipScore {
+  id             Int      @id @default(autoincrement())
+  userId         Int      @unique
+  score          Int      @default(0)    // 0-1000
+  classification String   @default("AVERAGE")
+  calculatedAt   DateTime @default(now())
+  user User @relation(fields: [userId], references: [id])
+}
+
+model Kudos {
+  id         Int      @id @default(autoincrement())
+  senderId   Int
+  receiverId Int
+  message    String
+  badge      String?
+  createdAt  DateTime @default(now())
+  sender   User @relation("KudosSender",   fields: [senderId],   references: [id])
+  receiver User @relation("KudosReceiver", fields: [receiverId], references: [id])
+  @@index([receiverId])
 }
 
 model KnowledgeArticle {
@@ -726,7 +1107,8 @@ model PositionCompetency {
   requiredLevel Int
   position      CareerPosition @relation(fields: [positionId], references: [id], onDelete: Cascade)
   competency    Competency     @relation(fields: [competencyId], references: [id], onDelete: Cascade)
-
+  priority      String @default("MANDATORY")
+  weight        Float  @default(1)
   @@unique([positionId, competencyId])
   @@index([positionId])
   @@index([competencyId])

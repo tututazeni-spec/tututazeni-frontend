@@ -1,433 +1,809 @@
-"use client";
-import { useEffect, useState } from "react";
-import { api } from "../../../lib/api";
+'use client';
+// src/app/(dashboard)/engagement/page.tsx
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-interface Question { id: number; text: string; type: string; order: number; }
-interface Survey {
-  id: number; title: string; description?: string; status: string;
-  endDate?: string; createdAt: string;
-  questions?: Question[];
-  _count?: { responses: number; questions: number };
-}
-interface SurveyResults {
-  survey: { id: number; title: string };
-  totalResponses: number; avgScore: number;
-  questionStats: { question: string; avgScore: number; responses: number }[];
-}
-interface EngagementIndex {
-  currentIndex: number; trend: number;
-  history: { surveyId: number; title: string; date: string; avgScore: number; responses: number }[];
+import { useState, useEffect, useCallback } from 'react';
+import {
+  Smile, BarChart2, MessageSquare, Heart, Award, Users,
+  TrendingUp, TrendingDown, AlertTriangle, CheckCircle,
+  Star, Zap, Target, Activity, Plus, ChevronRight,
+  ThumbsUp, Meh, Frown, Send, RefreshCw, ArrowUp,
+} from 'lucide-react';
+
+// ─── Types ───────────────────────────────────────────────────────
+
+type Tab = 'overview' | 'surveys' | 'recognition' | 'feedback' | 'analytics';
+
+interface DashboardData {
+  kpis: {
+    totalUsers: number; activeSurveys: number; engagementIndex: number;
+    engagementTrend: number; participationRate: number; enps: number;
+    totalRecognitions: number; totalFeedback: number; engagementLevel: string;
+  };
+  engagementHistory: { surveyId: number; title: string; avgScore: number; responses: number; date: string }[];
+  enpsBreakdown: { enps: number; promoterPct: number; detractorPct: number; total: number; label: string };
+  recentRecognitions: any[];
 }
 
-// ─── Styles ───────────────────────────────────────────────────────────────────
-const card: React.CSSProperties = { background: "#fff", borderRadius: 14, border: "1px solid #e2e8f0", padding: 24 };
-const inputStyle: React.CSSProperties = { width: "100%", padding: "10px 12px", border: "1.5px solid #e2e8f0", borderRadius: 8, fontSize: 14, color: "#1e293b", background: "#fff", outline: "none", boxSizing: "border-box" };
-const labelStyle: React.CSSProperties = { display: "block", fontSize: 11, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase", color: "#64748b", marginBottom: 6 };
-const btnPrimary: React.CSSProperties = { padding: "10px 20px", background: "#1e40af", color: "#fff", border: "none", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer" };
-const btnGhost: React.CSSProperties = { padding: "8px 14px", background: "#f1f5f9", color: "#475569", border: "none", borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: "pointer" };
+interface MySummary {
+  pendingSurveys: number; surveys: any[];
+  recognitionsReceived: number; xpPoints: number;
+  lastMood: number | null; humanSuccessScore: number; hssGrade: string;
+}
 
-// ─── Toast ────────────────────────────────────────────────────────────────────
-function Toast({ msg, type, onClose }: { msg: string; type: "success" | "error"; onClose: () => void }) {
-  useEffect(() => { const t = setTimeout(onClose, 4000); return () => clearTimeout(t); }, []);
+// ─── Helpers ─────────────────────────────────────────────────────
+
+const BASE = '/api';
+async function api(path: string, opts?: RequestInit) {
+  const r = await fetch(`${BASE}${path}`, {
+    headers: { 'Content-Type': 'application/json',
+      Authorization: `Bearer ${localStorage.getItem('token') ?? ''}` },
+    ...opts,
+  });
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+
+const LEVEL_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
+  EXCELLENT: { label: 'Excelente',     color: 'text-emerald-700', bg: 'bg-emerald-50 border-emerald-200' },
+  GOOD:      { label: 'Bom',           color: 'text-teal-700',    bg: 'bg-teal-50 border-teal-200' },
+  FAIR:      { label: 'Razoável',      color: 'text-amber-700',   bg: 'bg-amber-50 border-amber-200' },
+  AT_RISK:   { label: 'Em Risco',      color: 'text-red-700',     bg: 'bg-red-50 border-red-200' },
+};
+
+const GRADE_COLOR: Record<string, string> = {
+  A: 'text-emerald-600 border-emerald-400',
+  B: 'text-teal-600 border-teal-400',
+  C: 'text-amber-600 border-amber-400',
+  D: 'text-red-600 border-red-400',
+};
+
+const MOOD_EMOJI: Record<number, string> = { 5: '😄', 4: '🙂', 3: '😐', 2: '😔', 1: '😞' };
+const MOOD_LABEL: Record<number, string> = { 5: 'Óptimo', 4: 'Bem', 3: 'Normal', 2: 'Triste', 1: 'Péssimo' };
+
+function ProgressBar({ value, color = 'bg-indigo-500', height = 'h-1.5' }: {
+  value: number; color?: string; height?: string;
+}) {
   return (
-    <div style={{ position: "fixed", bottom: 24, right: 24, zIndex: 999, background: type === "success" ? "#ecfdf5" : "#fef2f2", border: `1px solid ${type === "success" ? "#bbf7d0" : "#fecaca"}`, borderRadius: 12, padding: "14px 20px", maxWidth: 360, boxShadow: "0 8px 24px rgba(0,0,0,0.12)", display: "flex", alignItems: "center", gap: 10 }}>
-      <span style={{ fontSize: 18 }}>{type === "success" ? "✅" : "❌"}</span>
-      <p style={{ margin: 0, fontSize: 13, color: type === "success" ? "#16a34a" : "#dc2626", fontWeight: 600 }}>{msg}</p>
+    <div className={`w-full ${height} bg-slate-100 rounded-full`}>
+      <div className={`${height} ${color} rounded-full transition-all`}
+        style={{ width: `${Math.min(value, 100)}%` }} />
     </div>
   );
 }
 
-// ─── Score Gauge ──────────────────────────────────────────────────────────────
-function ScoreGauge({ score, max = 5, size = 100 }: { score: number; max?: number; size?: number }) {
-  const pct = score / max;
-  const color = pct >= 0.8 ? "#16a34a" : pct >= 0.6 ? "#1e40af" : pct >= 0.4 ? "#f59e0b" : "#dc2626";
-  const r = (size - 12) / 2;
-  const circ = 2 * Math.PI * r;
-  const offset = circ - pct * circ;
-  return (
-    <svg width={size} height={size} style={{ flexShrink: 0 }}>
-      <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="#e2e8f0" strokeWidth={8} />
-      <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={color} strokeWidth={8}
-        strokeDasharray={circ} strokeDashoffset={offset} strokeLinecap="round"
-        transform={`rotate(-90 ${size/2} ${size/2})`} style={{ transition: "stroke-dashoffset 0.6s" }} />
-      <text x="50%" y="50%" dominantBaseline="middle" textAnchor="middle" style={{ fontSize: size * 0.22, fontWeight: 800, fill: color }}>{score.toFixed(1)}</text>
-    </svg>
-  );
+function Avatar({ name, url, size = 8 }: { name: string; url?: string; size?: number }) {
+  const initials = name.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase();
+  return url
+    ? <img src={url} alt={name} className={`w-${size} h-${size} rounded-full object-cover`} />
+    : <div className={`w-${size} h-${size} rounded-full bg-gradient-to-br from-violet-500 to-pink-500
+        flex items-center justify-center text-white font-semibold text-xs`}>{initials}</div>;
 }
 
-// ─── Modal: Criar Inquérito ───────────────────────────────────────────────────
-function CreateSurveyModal({ onClose, onCreated }: { onClose: () => void; onCreated: () => void }) {
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [endDate, setEndDate] = useState("");
-  const [questions, setQuestions] = useState([{ text: "", type: "RATING", order: 1 }]);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState("");
-
-  function addQuestion() { setQuestions(q => [...q, { text: "", type: "RATING", order: q.length + 1 }]); }
-  function removeQuestion(i: number) { setQuestions(q => q.filter((_, idx) => idx !== i).map((q, idx) => ({ ...q, order: idx + 1 }))); }
-  function setQ(i: number, k: string, v: string) { setQuestions(q => q.map((item, idx) => idx === i ? { ...item, [k]: v } : item)); }
-
-  async function submit(e: React.FormEvent) {
-    e.preventDefault();
-    if (questions.some(q => !q.text)) { setError("Todas as perguntas precisam de texto."); return; }
-    setSaving(true); setError("");
-    try {
-      await api.post("/engagement/surveys", { title, description: description || undefined, endDate: endDate || undefined, questions });
-      onCreated(); onClose();
-    } catch (e: any) { setError(e.message ?? "Erro ao criar inquérito"); }
-    finally { setSaving(false); }
-  }
-
+function KpiCard({ icon: Icon, label, value, sub, color = 'text-indigo-600', bg = 'bg-indigo-50', trend }: {
+  icon: any; label: string; value: string | number; sub?: string;
+  color?: string; bg?: string; trend?: number;
+}) {
   return (
-    <div style={{ position: "fixed", inset: 0, zIndex: 500, background: "rgba(15,23,42,0.45)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }} onClick={onClose}>
-      <div style={{ ...card, width: "100%", maxWidth: 560, maxHeight: "90vh", overflow: "auto", boxShadow: "0 24px 60px rgba(0,0,0,0.18)" }} onClick={e => e.stopPropagation()}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-          <h2 style={{ margin: 0, fontSize: 17, fontWeight: 700, color: "#1e293b" }}>📋 Novo Inquérito</h2>
-          <button onClick={onClose} style={{ background: "none", border: "none", fontSize: 20, cursor: "pointer", color: "#94a3b8" }}>×</button>
-        </div>
-        <form onSubmit={submit}>
-          <div style={{ marginBottom: 14 }}><span style={labelStyle}>Título *</span><input style={inputStyle} value={title} onChange={e => setTitle(e.target.value)} placeholder="Ex: Inquérito de Satisfação Q2 2026" required /></div>
-          <div style={{ marginBottom: 14 }}><span style={labelStyle}>Descrição</span><textarea style={{ ...inputStyle, height: 60, resize: "vertical" }} value={description} onChange={e => setDescription(e.target.value)} /></div>
-          <div style={{ marginBottom: 20 }}><span style={labelStyle}>Data de Fecho</span><input style={inputStyle} type="date" value={endDate} onChange={e => setEndDate(e.target.value)} /></div>
-
-          <div style={{ marginBottom: 6 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
-              <span style={labelStyle}>Perguntas *</span>
-              <button type="button" onClick={addQuestion} style={{ ...btnGhost, padding: "5px 10px", fontSize: 12 }}>+ Pergunta</button>
-            </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-              {questions.map((q, i) => (
-                <div key={i} style={{ padding: "12px 14px", background: "#f8fafc", borderRadius: 10, border: "1px solid #e2e8f0" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-                    <span style={{ fontSize: 12, fontWeight: 700, color: "#94a3b8", minWidth: 20 }}>{i + 1}.</span>
-                    <input style={{ ...inputStyle, fontSize: 13 }} value={q.text} onChange={e => setQ(i, "text", e.target.value)} placeholder="Texto da pergunta..." required />
-                    <select style={{ ...inputStyle, maxWidth: 110, fontSize: 12 }} value={q.type} onChange={e => setQ(i, "type", e.target.value)}>
-                      <option value="RATING">Classificação</option>
-                      <option value="TEXT">Texto</option>
-                      <option value="YESNO">Sim/Não</option>
-                    </select>
-                    {questions.length > 1 && <button type="button" onClick={() => removeQuestion(i)} style={{ background: "none", border: "none", cursor: "pointer", color: "#dc2626", fontSize: 16, flexShrink: 0 }}>×</button>}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {error && <div style={{ background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 8, padding: "10px 14px", margin: "14px 0" }}><p style={{ margin: 0, fontSize: 13, color: "#dc2626" }}>{error}</p></div>}
-          <div style={{ display: "flex", gap: 10, justifyContent: "flex-end", marginTop: 20 }}>
-            <button type="button" onClick={onClose} style={btnGhost}>Cancelar</button>
-            <button type="submit" disabled={saving} style={{ ...btnPrimary, opacity: saving ? 0.7 : 1 }}>{saving ? "A criar..." : "Criar Inquérito"}</button>
-          </div>
-        </form>
+    <div className="bg-white rounded-xl border border-slate-100 p-4 shadow-sm">
+      <div className="flex items-start justify-between mb-3">
+        <div className={`p-2 rounded-lg ${bg}`}><Icon size={18} className={color} /></div>
+        {trend !== undefined && (
+          <span className={`text-xs font-medium flex items-center gap-0.5 ${trend >= 0 ? 'text-emerald-500' : 'text-red-500'}`}>
+            {trend >= 0 ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
+            {Math.abs(trend)}
+          </span>
+        )}
       </div>
+      <p className="text-2xl font-bold text-slate-800">{value}</p>
+      <p className="text-xs text-slate-500 mt-0.5">{label}</p>
+      {sub && <p className="text-[10px] text-slate-400 mt-0.5">{sub}</p>}
     </div>
   );
 }
 
-// ─── Modal: Responder Inquérito ───────────────────────────────────────────────
-function RespondModal({ survey, onClose, onResponded }: { survey: Survey; onClose: () => void; onResponded: () => void }) {
-  const [detail, setDetail] = useState<Survey | null>(null);
-  const [answers, setAnswers] = useState<Record<number, { value: number; comment: string }>>({});
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState("");
+function Skeleton() {
+  return <div className="space-y-4 animate-pulse">{[...Array(3)].map((_, i) => (
+    <div key={i} className="bg-slate-100 rounded-xl h-24" />))}</div>;
+}
 
-  useEffect(() => { api.get<Survey>(`/engagement/surveys/${survey.id}`).then(setDetail).catch(() => {}); }, [survey.id]);
+// ─── Mood Quick Check-in ─────────────────────────────────────────
 
-  function setAnswer(qId: number, value: number) { setAnswers(a => ({ ...a, [qId]: { value, comment: a[qId]?.comment ?? "" } })); }
-  function setComment(qId: number, comment: string) { setAnswers(a => ({ ...a, [qId]: { value: a[qId]?.value ?? 3, comment } })); }
+function MoodCheckin({ onDone }: { onDone: () => void }) {
+  const [selected, setSelected]   = useState<number | null>(null);
+  const [note, setNote]           = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [done, setDone]           = useState(false);
 
-  async function submit(e: React.FormEvent) {
-    e.preventDefault();
-    const qs = detail?.questions ?? [];
-    const missing = qs.filter(q => !answers[q.id]);
-    if (missing.length) { setError(`Responde a todas as ${qs.length} perguntas.`); return; }
-    setSaving(true); setError("");
+  const submit = async () => {
+    if (!selected) return;
+    setSubmitting(true);
     try {
-      const payload = { surveyId: survey.id, answers: Object.entries(answers).map(([qId, a]) => ({ questionId: +qId, value: a.value, comment: a.comment || undefined })) };
-      const res = await api.post<any>("/engagement/surveys/respond", payload);
-      if (res.alreadySubmitted) { onClose(); return; }
-      onResponded(); onClose();
-    } catch (e: any) { setError(e.message ?? "Erro ao submeter"); }
-    finally { setSaving(false); }
-  }
+      await api('/engagement/mood/checkin', {
+        method: 'POST',
+        body: JSON.stringify({ mood: selected, note: note || undefined }),
+      });
+      setDone(true);
+      onDone();
+    } catch {} finally { setSubmitting(false); }
+  };
 
-  const questions = detail?.questions ?? [];
+  if (done) return (
+    <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 flex items-center gap-3">
+      <CheckCircle size={20} className="text-emerald-500" />
+      <p className="text-sm text-emerald-700 font-medium">Check-in registado! +5 XP 🎉</p>
+    </div>
+  );
 
   return (
-    <div style={{ position: "fixed", inset: 0, zIndex: 600, background: "rgba(15,23,42,0.45)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }} onClick={onClose}>
-      <div style={{ ...card, width: "100%", maxWidth: 540, maxHeight: "90vh", overflow: "auto", boxShadow: "0 24px 60px rgba(0,0,0,0.18)" }} onClick={e => e.stopPropagation()}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16 }}>
-          <div>
-            <h2 style={{ margin: 0, fontSize: 17, fontWeight: 700, color: "#1e293b" }}>📝 {survey.title}</h2>
-            {survey.description && <p style={{ margin: "4px 0 0", fontSize: 13, color: "#64748b" }}>{survey.description}</p>}
+    <div className="bg-gradient-to-br from-violet-50 to-pink-50 border border-violet-100 rounded-xl p-5">
+      <p className="text-sm font-semibold text-slate-700 mb-3">
+        💫 Como te sentes hoje?
+      </p>
+      <div className="flex gap-3 mb-3">
+        {[5, 4, 3, 2, 1].map(m => (
+          <button key={m} onClick={() => setSelected(m)}
+            className={`flex flex-col items-center gap-1 p-2 rounded-xl border-2 transition-all ${
+              selected === m ? 'border-violet-500 bg-white scale-110 shadow-md' : 'border-transparent hover:border-violet-200'}`}>
+            <span className="text-2xl">{MOOD_EMOJI[m]}</span>
+            <span className="text-[10px] text-slate-500">{MOOD_LABEL[m]}</span>
+          </button>
+        ))}
+      </div>
+      {selected && (
+        <div className="flex gap-2 mt-2">
+          <input value={note} onChange={e => setNote(e.target.value)}
+            placeholder="Nota opcional (não é obrigatório)..."
+            className="flex-1 text-sm border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:border-violet-400" />
+          <button onClick={submit} disabled={submitting}
+            className="px-4 py-2 bg-violet-600 text-white rounded-lg text-sm hover:bg-violet-700 transition-colors disabled:opacity-60">
+            <Send size={14} />
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Overview Tab ────────────────────────────────────────────────
+
+function OverviewTab({ userId }: { userId?: number }) {
+  const [dash, setDash]       = useState<DashboardData | null>(null);
+  const [summary, setSummary] = useState<MySummary | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  const load = useCallback(() => {
+    setLoading(true);
+    Promise.all([
+      api('/engagement/dashboard'),
+      api('/engagement/my-summary'),
+    ]).then(([d, s]) => { setDash(d); setSummary(s); }).finally(() => setLoading(false));
+  }, []);
+
+  useEffect(() => { load(); }, [load]);
+
+  if (loading) return <Skeleton />;
+
+  const level = LEVEL_CONFIG[dash?.kpis.engagementLevel ?? 'FAIR'];
+
+  return (
+    <div className="space-y-6">
+      {/* Mood checkin */}
+      <MoodCheckin onDone={load} />
+
+      {/* Personal summary */}
+      {summary && (
+        <div className={`rounded-xl border p-4 ${level.bg}`}>
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-xs text-slate-500 mb-1">Engagement Score da Organização</p>
+              <p className={`text-3xl font-black ${level.color}`}>{dash?.kpis.engagementIndex ?? 0}%</p>
+              <span className={`text-xs font-medium ${level.color}`}>{level.label}</span>
+            </div>
+            <div className="text-right">
+              <p className="text-xs text-slate-500">Human Success Score</p>
+              <div className={`w-16 h-16 rounded-full border-4 ${GRADE_COLOR[summary.hssGrade]}
+                flex flex-col items-center justify-center`}>
+                <span className={`text-2xl font-black ${GRADE_COLOR[summary.hssGrade].split(' ')[0]}`}>
+                  {summary.hssGrade}
+                </span>
+              </div>
+            </div>
           </div>
-          <button onClick={onClose} style={{ background: "none", border: "none", fontSize: 20, cursor: "pointer", color: "#94a3b8" }}>×</button>
+        </div>
+      )}
+
+      {/* KPIs */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <KpiCard icon={Smile}       label="Engajamento"       value={`${dash?.kpis.engagementIndex ?? 0}%`}
+          color="text-violet-600" bg="bg-violet-50" trend={dash?.kpis.engagementTrend} />
+        <KpiCard icon={Users}       label="Participação"      value={`${dash?.kpis.participationRate ?? 0}%`}
+          color="text-indigo-600" bg="bg-indigo-50" />
+        <KpiCard icon={TrendingUp}  label="eNPS"              value={dash?.kpis.enps ?? 0}
+          sub={dash?.enpsBreakdown.label}
+          color={( dash?.kpis.enps ?? 0) >= 0 ? 'text-emerald-600' : 'text-red-600'}
+          bg={(dash?.kpis.enps ?? 0) >= 0 ? 'bg-emerald-50' : 'bg-red-50'} />
+        <KpiCard icon={Award}       label="Reconhecimentos"   value={dash?.kpis.totalRecognitions ?? 0}
+          color="text-amber-600" bg="bg-amber-50" />
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* eNPS visual */}
+        <div className="bg-white rounded-xl border border-slate-100 p-5">
+          <h3 className="font-semibold text-slate-700 mb-4">eNPS Breakdown</h3>
+          {dash?.enpsBreakdown && (
+            <div className="space-y-3">
+              {[
+                { label: 'Promotores',  pct: dash.enpsBreakdown.promoterPct,  color: 'bg-emerald-500' },
+                { label: 'Passivos',    pct: 100 - dash.enpsBreakdown.promoterPct - dash.enpsBreakdown.detractorPct, color: 'bg-amber-400' },
+                { label: 'Detractores', pct: dash.enpsBreakdown.detractorPct, color: 'bg-red-400' },
+              ].map(e => (
+                <div key={e.label}>
+                  <div className="flex justify-between text-xs mb-1">
+                    <span className="text-slate-600">{e.label}</span>
+                    <span className="font-semibold">{e.pct.toFixed(1)}%</span>
+                  </div>
+                  <ProgressBar value={e.pct} color={e.color} height="h-2" />
+                </div>
+              ))}
+              <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
+                <span className="text-sm text-slate-500">Score eNPS</span>
+                <span className={`text-2xl font-bold ${(dash.enpsBreakdown.enps ?? 0) >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                  {dash.enpsBreakdown.enps ?? 'N/A'}
+                </span>
+              </div>
+            </div>
+          )}
         </div>
 
-        {!detail ? <p style={{ textAlign: "center", color: "#94a3b8", padding: 20 }}>A carregar perguntas...</p> : (
-          <form onSubmit={submit}>
-            <div style={{ display: "flex", flexDirection: "column", gap: 16, marginBottom: 20 }}>
-              {questions.map((q, i) => (
-                <div key={q.id} style={{ padding: "16px", background: "#f8fafc", borderRadius: 10, border: "1px solid #e2e8f0" }}>
-                  <p style={{ margin: "0 0 12px", fontSize: 14, fontWeight: 600, color: "#1e293b" }}>{i + 1}. {q.text}</p>
-                  {q.type === "RATING" && (
-                    <div>
-                      <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
-                        {[1, 2, 3, 4, 5].map(n => (
-                          <button key={n} type="button" onClick={() => setAnswer(q.id, n)} style={{ flex: 1, padding: "10px 0", border: `2px solid ${answers[q.id]?.value === n ? "#1e40af" : "#e2e8f0"}`, borderRadius: 8, background: answers[q.id]?.value === n ? "#eff6ff" : "#fff", color: answers[q.id]?.value === n ? "#1e40af" : "#94a3b8", fontWeight: answers[q.id]?.value === n ? 800 : 500, cursor: "pointer", fontSize: 16 }}>
-                            {n}
-                          </button>
-                        ))}
-                      </div>
-                      <div style={{ display: "flex", justifyContent: "space-between" }}>
-                        <span style={{ fontSize: 10, color: "#94a3b8" }}>Discordo totalmente</span>
-                        <span style={{ fontSize: 10, color: "#94a3b8" }}>Concordo totalmente</span>
-                      </div>
-                    </div>
-                  )}
-                  {q.type === "YESNO" && (
-                    <div style={{ display: "flex", gap: 10 }}>
-                      {[[1, "✅ Sim"], [0, "❌ Não"]].map(([v, l]) => (
-                        <button key={v} type="button" onClick={() => setAnswer(q.id, +v)} style={{ flex: 1, padding: "10px", border: `2px solid ${answers[q.id]?.value === +v ? "#1e40af" : "#e2e8f0"}`, borderRadius: 8, background: answers[q.id]?.value === +v ? "#eff6ff" : "#fff", color: answers[q.id]?.value === +v ? "#1e40af" : "#475569", fontWeight: 600, cursor: "pointer", fontSize: 13 }}>{l}</button>
-                      ))}
-                    </div>
-                  )}
-                  {q.type === "TEXT" && (
-                    <div>
-                      <input type="hidden" value={answers[q.id]?.value ?? 3} onChange={() => {}} />
-                      {!answers[q.id] && <button type="button" onClick={() => setAnswer(q.id, 3)} style={{ display: "none" }} />}
-                      <textarea style={{ ...inputStyle, height: 64, resize: "vertical" }} value={answers[q.id]?.comment ?? ""} onChange={e => { setAnswer(q.id, 3); setComment(q.id, e.target.value); }} placeholder="A tua resposta..." onClick={() => !answers[q.id] && setAnswer(q.id, 3)} />
-                    </div>
-                  )}
-                  <div style={{ marginTop: 8 }}>
-                    <input style={{ ...inputStyle, fontSize: 12, padding: "6px 10px" }} value={answers[q.id]?.comment ?? ""} onChange={e => setComment(q.id, e.target.value)} placeholder="Comentário opcional..." />
+        {/* Recent recognitions */}
+        <div className="bg-white rounded-xl border border-slate-100 p-5">
+          <h3 className="font-semibold text-slate-700 mb-4">🏆 Reconhecimentos Recentes</h3>
+          {(dash?.recentRecognitions.length ?? 0) === 0 ? (
+            <p className="text-sm text-slate-400 text-center py-8">Sem reconhecimentos recentes</p>
+          ) : (
+            <div className="space-y-3">
+              {dash?.recentRecognitions.map((r: any, i: number) => (
+                <div key={i} className="flex items-center gap-3">
+                  <Avatar name={r.from?.fullName ?? 'User'} url={r.from?.avatarUrl} size={8} />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs text-slate-600">
+                      <span className="font-medium">{r.from?.fullName}</span>
+                      {' → '}
+                      <span className="font-medium">{r.to?.fullName}</span>
+                    </p>
+                    <p className="text-[10px] text-slate-400 truncate">{r.message}</p>
                   </div>
+                  <span className="text-sm">{r.type === 'KUDOS' ? '👏' : '🏅'}</span>
                 </div>
               ))}
             </div>
-            {error && <div style={{ background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 8, padding: "10px 14px", marginBottom: 14 }}><p style={{ margin: 0, fontSize: 13, color: "#dc2626" }}>{error}</p></div>}
-            <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
-              <button type="button" onClick={onClose} style={btnGhost}>Cancelar</button>
-              <button type="submit" disabled={saving} style={{ ...btnPrimary, opacity: saving ? 0.7 : 1 }}>{saving ? "A submeter..." : "Submeter Respostas"}</button>
+          )}
+        </div>
+      </div>
+
+      {/* Pending surveys */}
+      {(summary?.surveys.length ?? 0) > 0 && (
+        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+          <div className="flex items-center gap-2 mb-3">
+            <AlertTriangle size={16} className="text-amber-600" />
+            <p className="text-sm font-semibold text-amber-700">
+              {summary!.surveys.length} survey{summary!.surveys.length > 1 ? 's' : ''} pendente{summary!.surveys.length > 1 ? 's' : ''}
+            </p>
+          </div>
+          <div className="space-y-2">
+            {summary!.surveys.map((s: any) => (
+              <div key={s.id} className="flex items-center justify-between bg-white rounded-lg px-3 py-2">
+                <div>
+                  <p className="text-sm font-medium text-slate-700">{s.title}</p>
+                  <p className="text-xs text-slate-400">{s.type}</p>
+                </div>
+                <button className="text-xs px-3 py-1.5 bg-amber-600 text-white rounded-lg hover:bg-amber-700">
+                  Responder
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Surveys Tab ─────────────────────────────────────────────────
+
+function SurveysTab() {
+  const [data, setData]       = useState<{ data: any[]; meta: any } | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [status, setStatus]   = useState('ACTIVE');
+
+  useEffect(() => {
+    setLoading(true);
+    api(`/engagement/surveys?limit=30${status ? `&status=${status}` : ''}`)
+      .then(setData).finally(() => setLoading(false));
+  }, [status]);
+
+  if (loading) return <Skeleton />;
+
+  const TYPE_ICON: Record<string, string> = {
+    CLIMATE: '🌡️', PULSE: '💓', ENPS: '📊', ONBOARDING: '👋',
+    OFFBOARDING: '🚪', WELLBEING: '🌿', CUSTOM: '⚙️',
+  };
+
+  const STATUS_COLOR: Record<string, string> = {
+    DRAFT:     'bg-slate-100 text-slate-600',
+    ACTIVE:    'bg-emerald-100 text-emerald-700',
+    PAUSED:    'bg-amber-100 text-amber-700',
+    COMPLETED: 'bg-blue-100 text-blue-700',
+    ARCHIVED:  'bg-slate-100 text-slate-400',
+  };
+
+  return (
+    <div className="space-y-4">
+      {/* Status filter */}
+      <div className="flex flex-wrap gap-2">
+        {['ACTIVE', 'DRAFT', 'COMPLETED', ''].map(s => (
+          <button key={s} onClick={() => setStatus(s)}
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+              status === s ? 'bg-indigo-600 text-white' : 'bg-white border border-slate-200 text-slate-600'}`}>
+            {s || 'Todos'}
+          </button>
+        ))}
+        <span className="ml-auto text-xs text-slate-400 self-center">{data?.meta.total ?? 0} surveys</span>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+        {data?.data.map((s: any) => (
+          <div key={s.id} className="bg-white rounded-xl border border-slate-100 p-4 hover:shadow-md transition-shadow">
+            <div className="flex items-start justify-between mb-3">
+              <span className="text-2xl">{TYPE_ICON[s.type] ?? '📋'}</span>
+              <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${STATUS_COLOR[s.status]}`}>
+                {s.status}
+              </span>
             </div>
-          </form>
+            <h4 className="text-sm font-semibold text-slate-800 mb-1">{s.title}</h4>
+            <p className="text-xs text-slate-400 mb-3 line-clamp-2">{s.description}</p>
+
+            <div className="flex items-center gap-3 text-xs text-slate-500 mb-3">
+              <span>📝 {s._count?.questions ?? 0} perguntas</span>
+              <span>👥 {s._count?.responses ?? 0} respostas</span>
+            </div>
+
+            {s.status === 'ACTIVE' && (
+              <div>
+                <div className="flex justify-between text-xs mb-1">
+                  <span className="text-slate-400">Participação</span>
+                  <span className="font-semibold text-indigo-600">{s.participationRate ?? 0}%</span>
+                </div>
+                <ProgressBar value={s.participationRate ?? 0} color="bg-indigo-500" />
+              </div>
+            )}
+
+            {s.endDate && (
+              <p className="text-[10px] text-slate-400 mt-2">
+                ⏳ Termina: {new Date(s.endDate).toLocaleDateString('pt')}
+              </p>
+            )}
+          </div>
+        ))}
+
+        {(data?.data.length ?? 0) === 0 && (
+          <div className="col-span-3 py-16 text-center text-slate-400">
+            <BarChart2 size={40} className="mx-auto mb-3 opacity-30" />
+            <p>Nenhum survey encontrado</p>
+          </div>
         )}
       </div>
     </div>
   );
 }
 
-// ─── Modal: Resultados ────────────────────────────────────────────────────────
-function ResultsModal({ surveyId, onClose }: { surveyId: number; onClose: () => void }) {
-  const [results, setResults] = useState<SurveyResults | null>(null);
+// ─── Recognition Tab ─────────────────────────────────────────────
+
+function RecognitionTab() {
+  const [feed, setFeed]       = useState<any[]>([]);
+  const [board, setBoard]     = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  useEffect(() => { api.get<SurveyResults>(`/engagement/surveys/${surveyId}/results`).then(setResults).catch(() => {}).finally(() => setLoading(false)); }, [surveyId]);
+  const [kudosMsg, setKudosMsg] = useState('');
+  const [kudosTo, setKudosTo]   = useState('');
+
+  useEffect(() => {
+    Promise.all([
+      api('/engagement/recognition/feed?limit=20'),
+      api('/engagement/recognition/leaderboard?type=points&limit=10'),
+    ]).then(([f, b]) => { setFeed(f.data ?? []); setBoard(b ?? []); }).finally(() => setLoading(false));
+  }, []);
+
+  if (loading) return <Skeleton />;
 
   return (
-    <div style={{ position: "fixed", inset: 0, zIndex: 600, background: "rgba(15,23,42,0.45)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }} onClick={onClose}>
-      <div style={{ ...card, width: "100%", maxWidth: 540, maxHeight: "90vh", overflow: "auto", boxShadow: "0 24px 60px rgba(0,0,0,0.18)" }} onClick={e => e.stopPropagation()}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-          <h2 style={{ margin: 0, fontSize: 17, fontWeight: 700, color: "#1e293b" }}>📊 Resultados</h2>
-          <button onClick={onClose} style={{ background: "none", border: "none", fontSize: 20, cursor: "pointer", color: "#94a3b8" }}>×</button>
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      {/* Feed */}
+      <div className="lg:col-span-2 space-y-4">
+        {/* Quick kudos box */}
+        <div className="bg-white rounded-xl border border-slate-100 p-4">
+          <h3 className="font-semibold text-slate-700 mb-3">👏 Dar Kudos</h3>
+          <div className="flex gap-2">
+            <input value={kudosTo} onChange={e => setKudosTo(e.target.value)}
+              placeholder="@colaborador..."
+              className="w-32 text-sm border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:border-violet-400" />
+            <input value={kudosMsg} onChange={e => setKudosMsg(e.target.value)}
+              placeholder="Escreve uma mensagem de reconhecimento..."
+              className="flex-1 text-sm border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:border-violet-400" />
+            <button className="px-4 py-2 bg-violet-600 text-white rounded-lg text-sm hover:bg-violet-700">
+              Enviar 🏆
+            </button>
+          </div>
         </div>
-        {loading ? <p style={{ textAlign: "center", color: "#94a3b8", padding: 24 }}>A carregar...</p> :
-          !results ? <p style={{ textAlign: "center", color: "#94a3b8" }}>Sem resultados disponíveis.</p> : (
-            <div>
-              <div style={{ display: "flex", alignItems: "center", gap: 20, padding: "16px 20px", background: "#eff6ff", borderRadius: 12, marginBottom: 20, border: "1px solid #bfdbfe" }}>
-                <ScoreGauge score={results.avgScore} />
-                <div>
-                  <h3 style={{ margin: "0 0 4px", fontSize: 16, fontWeight: 700, color: "#1e293b" }}>{results.survey.title}</h3>
-                  <p style={{ margin: 0, fontSize: 13, color: "#64748b" }}>{results.totalResponses} resposta(s)</p>
-                  <p style={{ margin: "4px 0 0", fontSize: 12, color: "#1e40af", fontWeight: 600 }}>Média geral: {results.avgScore}/5</p>
+
+        {/* Feed */}
+        <div className="space-y-3">
+          {feed.map((r: any, i) => (
+            <div key={i} className="bg-white rounded-xl border border-slate-100 p-4">
+              <div className="flex items-start gap-3">
+                <Avatar name={r.from?.fullName ?? 'User'} url={r.from?.avatarUrl} size={10} />
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-sm font-semibold text-slate-700">{r.from?.fullName}</span>
+                    <span className="text-xs text-slate-400">reconheceu</span>
+                    <span className="text-sm font-semibold text-violet-700">{r.to?.fullName}</span>
+                    <span className="text-xs bg-violet-100 text-violet-600 px-2 py-0.5 rounded-full">
+                      {r.type === 'KUDOS' ? '👏 Kudos' : r.type === 'ACHIEVEMENT' ? '🏆 Achievement' : r.type}
+                    </span>
+                  </div>
+                  <p className="text-sm text-slate-600 mt-1">{r.message}</p>
+                  <p className="text-[10px] text-slate-400 mt-1">
+                    {new Date(r.createdAt).toLocaleDateString('pt')}
+                    {r.to?.department?.name && ` · ${r.to.department.name}`}
+                  </p>
                 </div>
               </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                {results.questionStats.map((qs, i) => {
-                  const pct = (qs.avgScore / 5) * 100;
-                  const color = pct >= 80 ? "#16a34a" : pct >= 60 ? "#1e40af" : pct >= 40 ? "#f59e0b" : "#dc2626";
-                  return (
-                    <div key={i} style={{ padding: "12px 14px", background: "#f8fafc", borderRadius: 10 }}>
-                      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-                        <p style={{ margin: 0, fontSize: 13, fontWeight: 600, color: "#1e293b", flex: 1 }}>{i + 1}. {qs.question}</p>
-                        <span style={{ fontSize: 14, fontWeight: 800, color, marginLeft: 12 }}>{qs.avgScore}</span>
-                      </div>
-                      <div style={{ height: 6, background: "#e2e8f0", borderRadius: 3, overflow: "hidden" }}>
-                        <div style={{ height: "100%", width: `${pct}%`, background: color, borderRadius: 3, transition: "width 0.5s" }} />
-                      </div>
-                      <p style={{ margin: "4px 0 0", fontSize: 11, color: "#94a3b8" }}>{qs.responses} resposta(s)</p>
-                    </div>
-                  );
-                })}
-              </div>
+            </div>
+          ))}
+
+          {feed.length === 0 && (
+            <div className="py-12 text-center text-slate-400">
+              <Heart size={36} className="mx-auto mb-2 opacity-30" />
+              <p className="text-sm">Nenhum reconhecimento ainda</p>
+              <p className="text-xs">Sê o primeiro a reconhecer um colega!</p>
             </div>
           )}
-      </div>
-    </div>
-  );
-}
-
-// ─── Survey Card ──────────────────────────────────────────────────────────────
-function SurveyCard({ survey, onRespond, onResults }: { survey: Survey; onRespond: () => void; onResults: () => void }) {
-  const isActive = survey.status === "ACTIVE";
-  return (
-    <div style={{ ...card, borderLeft: `4px solid ${isActive ? "#1e40af" : "#94a3b8"}` }}>
-      <div style={{ display: "flex", alignItems: "flex-start", gap: 14 }}>
-        <div style={{ width: 46, height: 46, borderRadius: 12, background: isActive ? "#eff6ff" : "#f8fafc", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, flexShrink: 0 }}>📋</div>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4, flexWrap: "wrap" }}>
-            <h3 style={{ margin: 0, fontSize: 14, fontWeight: 700, color: "#1e293b" }}>{survey.title}</h3>
-            <span style={{ padding: "2px 8px", borderRadius: 20, fontSize: 10, fontWeight: 700, background: isActive ? "#eff6ff" : "#f8fafc", color: isActive ? "#1e40af" : "#94a3b8" }}>{survey.status}</span>
-          </div>
-          {survey.description && <p style={{ margin: "0 0 6px", fontSize: 12, color: "#64748b" }}>{survey.description}</p>}
-          <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-            {survey._count && <span style={{ fontSize: 11, color: "#94a3b8" }}>📝 {survey._count.questions} perguntas</span>}
-            {survey._count && <span style={{ fontSize: 11, color: "#94a3b8" }}>👥 {survey._count.responses} respostas</span>}
-            {survey.endDate && <span style={{ fontSize: 11, color: "#94a3b8" }}>📅 Até {new Date(survey.endDate).toLocaleDateString("pt-PT")}</span>}
-          </div>
         </div>
-        <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
-          <button onClick={onResults} style={btnGhost}>📊 Resultados</button>
-          {isActive && <button onClick={onRespond} style={btnPrimary}>📝 Responder</button>}
+      </div>
+
+      {/* Leaderboard */}
+      <div className="bg-white rounded-xl border border-slate-100 p-5 h-fit">
+        <h3 className="font-semibold text-slate-700 mb-4">🏅 Leaderboard</h3>
+        <div className="space-y-3">
+          {board.map((u: any, i) => (
+            <div key={i} className="flex items-center gap-3">
+              <span className={`w-6 text-center text-sm font-bold ${
+                i === 0 ? 'text-amber-500' : i === 1 ? 'text-slate-400' : i === 2 ? 'text-amber-700' : 'text-slate-400'
+              }`}>{i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `#${i + 1}`}</span>
+              <Avatar name={u.user?.fullName ?? 'User'} url={u.user?.avatarUrl} size={8} />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-slate-700 truncate">{u.user?.fullName}</p>
+                <p className="text-[10px] text-slate-400">{u.user?.position?.name}</p>
+              </div>
+              <div className="flex items-center gap-1 text-sm font-bold text-violet-600">
+                <Zap size={12} className="text-amber-400" />
+                {u.points ?? u.count}
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>
   );
 }
 
-// ─── Tab ─────────────────────────────────────────────────────────────────────
-type Tab = "active" | "all" | "index";
+// ─── Feedback Tab ────────────────────────────────────────────────
 
-// ─── Página Principal ─────────────────────────────────────────────────────────
-export default function EngagementPage() {
-  const [tab, setTab] = useState<Tab>("active");
-  const [surveys, setSurveys] = useState<Survey[]>([]);
-  const [allSurveys, setAllSurveys] = useState<Survey[]>([]);
-  const [engIndex, setEngIndex] = useState<EngagementIndex | null>(null);
+function FeedbackTab({ userId }: { userId?: number }) {
+  const [data, setData]       = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showCreate, setShowCreate] = useState(false);
-  const [respondTarget, setRespondTarget] = useState<Survey | null>(null);
-  const [resultsTarget, setResultsTarget] = useState<number | null>(null);
-  const [toast, setToast] = useState<{ msg: string; type: "success" | "error" } | null>(null);
+  const [type, setType]       = useState('');
+  const [msg, setMsg]         = useState('');
+  const [anon, setAnon]       = useState(false);
 
-  function showToast(msg: string, type: "success" | "error") { setToast({ msg, type }); }
-
-  async function fetchAll() {
+  useEffect(() => {
     setLoading(true);
-    try {
-      const [active, all, idx] = await Promise.all([
-        api.get<Survey[]>("/engagement/surveys"),
-        api.get<Survey[]>("/engagement/surveys/all").catch(() => []),
-        api.get<EngagementIndex>("/engagement/index").catch(() => null),
-      ]);
-      setSurveys(active); setAllSurveys(all); setEngIndex(idx);
-    } catch (e: any) { showToast(e.message ?? "Erro", "error"); }
-    finally { setLoading(false); }
-  }
+    api(`/engagement/feedback?limit=20${type ? `&type=${type}` : ''}`)
+      .then(r => setData(r.data ?? [])).finally(() => setLoading(false));
+  }, [type]);
 
-  useEffect(() => { fetchAll(); }, []);
+  const send = async () => {
+    if (!msg.trim()) return;
+    await api('/engagement/feedback', {
+      method: 'POST',
+      body: JSON.stringify({ type: type || 'OPEN', message: msg, anonymous: anon }),
+    });
+    setMsg('');
+  };
 
-  const displayed = tab === "active" ? surveys : tab === "all" ? allSurveys : [];
+  if (loading) return <Skeleton />;
+
+  const TYPE_COLOR: Record<string, string> = {
+    OPEN: 'bg-blue-100 text-blue-700', ANONYMOUS: 'bg-slate-100 text-slate-600',
+    PEER: 'bg-violet-100 text-violet-700', MANAGER: 'bg-amber-100 text-amber-700',
+    RECOGNITION: 'bg-emerald-100 text-emerald-700',
+  };
 
   return (
-    <div>
-      {/* Header */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 24, flexWrap: "wrap", gap: 12 }}>
-        <div>
-          <h1 style={{ fontSize: 24, fontWeight: 700, color: "#1e293b", margin: 0 }}>💬 Engagement</h1>
-          <p style={{ color: "#64748b", fontSize: 14, marginTop: 4 }}>Inquéritos de satisfação e índice de engajamento</p>
+    <div className="space-y-4">
+      {/* New feedback box */}
+      <div className="bg-white rounded-xl border border-slate-100 p-5">
+        <h3 className="font-semibold text-slate-700 mb-3">💬 Novo Feedback</h3>
+        <div className="flex gap-2 mb-3">
+          {['OPEN', 'PEER', 'MANAGER'].map(t => (
+            <button key={t} onClick={() => setType(t)}
+              className={`px-3 py-1.5 text-xs rounded-lg border transition-colors ${
+                type === t ? 'border-indigo-500 bg-indigo-50 text-indigo-700' : 'border-slate-200 text-slate-500'}`}>
+              {t}
+            </button>
+          ))}
         </div>
-        <button onClick={() => setShowCreate(true)} style={btnPrimary}>+ Novo Inquérito</button>
+        <textarea value={msg} onChange={e => setMsg(e.target.value)} rows={3}
+          placeholder="Escreve o teu feedback..."
+          className="w-full text-sm border border-slate-200 rounded-lg px-3 py-2 focus:outline-none
+            focus:border-indigo-400 resize-none" />
+        <div className="flex items-center justify-between mt-2">
+          <label className="flex items-center gap-2 text-xs text-slate-500 cursor-pointer">
+            <input type="checkbox" checked={anon} onChange={e => setAnon(e.target.checked)}
+              className="rounded" />
+            Enviar anonimamente
+          </label>
+          <button onClick={send}
+            className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm hover:bg-indigo-700">
+            Enviar
+          </button>
+        </div>
       </div>
 
-      {/* Tabs */}
-      <div style={{ display: "flex", gap: 4, background: "#f1f5f9", borderRadius: 10, padding: 4, marginBottom: 24, width: "fit-content" }}>
-        {([
-          ["active", `📋 Activos (${surveys.length})`],
-          ["all",    `📂 Todos (${allSurveys.length})`],
-          ["index",  "📈 Índice de Engagement"],
-        ] as [Tab, string][]).map(([k, l]) => (
-          <button key={k} onClick={() => setTab(k)} style={{ padding: "8px 18px", border: "none", cursor: "pointer", fontSize: 13, fontWeight: tab === k ? 700 : 500, borderRadius: 8, background: tab === k ? "#1e40af" : "transparent", color: tab === k ? "#fff" : "#64748b", transition: "all 0.15s" }}>{l}</button>
+      {/* Filter */}
+      <div className="flex gap-2">
+        {['', 'OPEN', 'ANONYMOUS', 'PEER', 'MANAGER'].map(t => (
+          <button key={t} onClick={() => setType(t)}
+            className={`px-3 py-1.5 text-xs rounded-lg transition-colors ${
+              type === t ? 'bg-indigo-600 text-white' : 'bg-white border border-slate-200 text-slate-600'}`}>
+            {t || 'Todos'}
+          </button>
         ))}
       </div>
 
-      {loading ? <div style={{ textAlign: "center", padding: 60, color: "#94a3b8" }}>A carregar...</div> : (
-
-        /* ── ÍNDICE DE ENGAGEMENT ── */
-        tab === "index" ? (
-          !engIndex ? <div style={{ ...card, textAlign: "center", padding: 60 }}><p style={{ color: "#94a3b8" }}>Sem dados de índice disponíveis. Completa alguns inquéritos primeiro.</p></div> : (
-            <div>
-              {/* Score principal */}
-              <div style={{ ...card, marginBottom: 24, display: "flex", alignItems: "center", gap: 24, flexWrap: "wrap", background: engIndex.currentIndex >= 4 ? "linear-gradient(135deg,#ecfdf5,#d1fae5)" : engIndex.currentIndex >= 3 ? "linear-gradient(135deg,#eff6ff,#dbeafe)" : "linear-gradient(135deg,#fffbeb,#fef3c7)", border: "none" }}>
-                <ScoreGauge score={engIndex.currentIndex} size={120} />
+      {/* List */}
+      <div className="space-y-3">
+        {data.map((f: any, i) => (
+          <div key={i} className="bg-white rounded-xl border border-slate-100 p-4">
+            <div className="flex items-start justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <Avatar name={f.from?.fullName ?? 'Anónimo'} url={f.from?.avatarUrl} size={8} />
                 <div>
-                  <h2 style={{ margin: "0 0 6px", fontSize: 22, fontWeight: 800, color: "#1e293b" }}>Índice de Engagement</h2>
-                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                    <span style={{ fontSize: 18, fontWeight: 800, color: "#1e293b" }}>{engIndex.currentIndex}/5</span>
-                    <span style={{ padding: "4px 12px", borderRadius: 20, fontSize: 13, fontWeight: 700, background: engIndex.trend >= 0 ? "#ecfdf5" : "#fef2f2", color: engIndex.trend >= 0 ? "#16a34a" : "#dc2626" }}>
-                      {engIndex.trend >= 0 ? "▲" : "▼"} {Math.abs(engIndex.trend)} vs anterior
-                    </span>
-                  </div>
-                  <p style={{ margin: "6px 0 0", fontSize: 13, color: "#64748b" }}>Baseado nos últimos {engIndex.history.length} inquérito(s) concluído(s)</p>
+                  <p className="text-sm font-medium text-slate-700">{f.from?.fullName ?? 'Anónimo'}</p>
+                  <p className="text-[10px] text-slate-400">{new Date(f.createdAt).toLocaleDateString('pt')}</p>
                 </div>
               </div>
-
-              {/* Histórico */}
-              {engIndex.history.length > 0 && (
-                <div style={card}>
-                  <h3 style={{ margin: "0 0 16px", fontSize: 15, fontWeight: 700, color: "#1e293b" }}>📈 Histórico de Inquéritos</h3>
-                  <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                    {engIndex.history.map((h, i) => {
-                      const pct = (h.avgScore / 5) * 100;
-                      const color = pct >= 80 ? "#16a34a" : pct >= 60 ? "#1e40af" : pct >= 40 ? "#f59e0b" : "#dc2626";
-                      return (
-                        <div key={i} style={{ display: "flex", alignItems: "center", gap: 14, padding: "10px 14px", background: "#f8fafc", borderRadius: 10 }}>
-                          <div style={{ flex: 1, minWidth: 0 }}>
-                            <p style={{ margin: "0 0 4px", fontSize: 13, fontWeight: 600, color: "#1e293b", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{h.title}</p>
-                            <div style={{ display: "flex", gap: 8 }}>
-                              <span style={{ fontSize: 11, color: "#94a3b8" }}>📅 {new Date(h.date).toLocaleDateString("pt-PT")}</span>
-                              <span style={{ fontSize: 11, color: "#94a3b8" }}>👥 {h.responses} respostas</span>
-                            </div>
-                          </div>
-                          <div style={{ textAlign: "right", flexShrink: 0 }}>
-                            <p style={{ margin: 0, fontSize: 20, fontWeight: 800, color }}>{h.avgScore}</p>
-                            <div style={{ height: 4, width: 80, background: "#e2e8f0", borderRadius: 2, overflow: "hidden", marginTop: 4 }}>
-                              <div style={{ height: "100%", width: `${pct}%`, background: color, borderRadius: 2 }} />
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
+              <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${TYPE_COLOR[f.type] ?? ''}`}>
+                {f.type}
+              </span>
             </div>
-          )
+            <p className="text-sm text-slate-600 ml-10">{f.message}</p>
+            {f.reply && (
+              <div className="mt-2 ml-10 p-2 bg-slate-50 rounded-lg border-l-2 border-indigo-400">
+                <p className="text-xs text-slate-500">Resposta:</p>
+                <p className="text-xs text-slate-700">{f.reply}</p>
+              </div>
+            )}
+          </div>
+        ))}
+        {data.length === 0 && (
+          <div className="py-12 text-center text-slate-400">
+            <MessageSquare size={36} className="mx-auto mb-2 opacity-30" />
+            <p className="text-sm">Nenhum feedback encontrado</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
 
-        /* ── LISTA INQUÉRITOS ── */
-        ) : displayed.length === 0 ? (
-          <div style={{ ...card, textAlign: "center", padding: 60 }}>
-            <p style={{ fontSize: 32, marginBottom: 12 }}>📋</p>
-            <p style={{ color: "#94a3b8", fontSize: 14, margin: "0 0 16px" }}>{tab === "active" ? "Nenhum inquérito activo." : "Nenhum inquérito criado."}</p>
-            <button onClick={() => setShowCreate(true)} style={btnPrimary}>+ Criar Inquérito</button>
+// ─── Analytics Tab ───────────────────────────────────────────────
+
+function AnalyticsTab() {
+  const [index, setIndex]     = useState<any | null>(null);
+  const [heatmap, setHeatmap] = useState<any[]>([]);
+  const [metric, setMetric]   = useState<'score' | 'participation' | 'mood'>('score');
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    setLoading(true);
+    Promise.all([
+      api('/engagement/index'),
+      api(`/engagement/heatmap?metric=${metric}`),
+    ]).then(([i, h]) => { setIndex(i); setHeatmap(h); }).finally(() => setLoading(false));
+  }, [metric]);
+
+  const LEVEL_BAR = { EXCELLENT: 'bg-emerald-500', GOOD: 'bg-teal-500', FAIR: 'bg-amber-400', AT_RISK: 'bg-red-400' };
+
+  if (loading) return <Skeleton />;
+
+  return (
+    <div className="space-y-6">
+      {/* Engagement index card */}
+      {index && (
+        <div className={`rounded-xl border p-5 ${LEVEL_CONFIG[index.level]?.bg ?? 'bg-slate-50'}`}>
+          <div className="flex items-start justify-between">
+            <div>
+              <p className="text-xs text-slate-500 mb-1">Índice de Engajamento</p>
+              <p className={`text-4xl font-black ${LEVEL_CONFIG[index.level]?.color ?? ''}`}>
+                {index.currentIndex}%
+              </p>
+              <div className="flex items-center gap-2 mt-1">
+                <span className={`text-xs flex items-center gap-1 ${index.trend >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
+                  {index.trend >= 0 ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
+                  {Math.abs(index.trend).toFixed(1)} pts vs. anterior
+                </span>
+              </div>
+            </div>
+            <div className="text-right">
+              <p className="text-xs text-slate-500">Participação</p>
+              <p className="text-2xl font-bold text-slate-700">{index.latestParticipation}%</p>
+              <p className="text-xs text-slate-400">{index.totalUsers} colaboradores</p>
+            </div>
           </div>
-        ) : (
-          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-            {displayed.map(s => (
-              <SurveyCard key={s.id} survey={s}
-                onRespond={() => setRespondTarget(s)}
-                onResults={() => setResultsTarget(s.id)} />
-            ))}
-          </div>
-        )
+        </div>
       )}
 
-      {/* Modais */}
-      {showCreate && <CreateSurveyModal onClose={() => setShowCreate(false)} onCreated={() => { fetchAll(); showToast("Inquérito criado!", "success"); }} />}
-      {respondTarget && <RespondModal survey={respondTarget} onClose={() => setRespondTarget(null)} onResponded={() => { fetchAll(); showToast("Resposta submetida! Obrigado. 🎉", "success"); }} />}
-      {resultsTarget !== null && <ResultsModal surveyId={resultsTarget} onClose={() => setResultsTarget(null)} />}
-      {toast && <Toast msg={toast.msg} type={toast.type} onClose={() => setToast(null)} />}
+      {/* History */}
+      {(index?.history.length ?? 0) > 0 && (
+        <div className="bg-white rounded-xl border border-slate-100 p-5">
+          <h3 className="font-semibold text-slate-700 mb-4">Histórico de Surveys</h3>
+          <div className="space-y-3">
+            {index!.history.map((h: any, i: number) => (
+              <div key={i} className="flex items-center gap-4">
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-medium text-slate-700 truncate">{h.title}</p>
+                  <p className="text-[10px] text-slate-400">{h.responses} respostas · {new Date(h.date).toLocaleDateString('pt')}</p>
+                </div>
+                <div className="flex items-center gap-3 shrink-0">
+                  <div className="w-24">
+                    <ProgressBar value={h.avgScore * 20}
+                      color={h.avgScore >= 4 ? 'bg-emerald-500' : h.avgScore >= 3 ? 'bg-teal-500' : h.avgScore >= 2 ? 'bg-amber-400' : 'bg-red-400'} />
+                  </div>
+                  <span className="text-sm font-bold text-slate-700 w-8 text-right">{h.avgScore}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Heatmap */}
+      <div className="bg-white rounded-xl border border-slate-100 p-5">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="font-semibold text-slate-700">Heatmap por Departamento</h3>
+          <div className="flex gap-1">
+            {(['score', 'participation', 'mood'] as const).map(m => (
+              <button key={m} onClick={() => setMetric(m)}
+                className={`px-3 py-1 text-xs rounded-lg transition-colors ${
+                  metric === m ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-600'}`}>
+                {m === 'score' ? 'Score' : m === 'participation' ? 'Participação' : 'Humor'}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          {heatmap.map((row: any, i: number) => {
+            const v = row.value;
+            const pct = metric === 'score' ? (v !== null ? (v / 5) * 100 : null)
+              : metric === 'mood' ? (v !== null ? (v / 5) * 100 : null)
+              : v;
+            const color = pct === null ? 'bg-slate-100' :
+              pct >= 75 ? 'bg-emerald-500' :
+              pct >= 50 ? 'bg-teal-400' :
+              pct >= 30 ? 'bg-amber-400' : 'bg-red-400';
+
+            return (
+              <div key={i} className="flex items-center gap-3">
+                <p className="text-xs text-slate-600 w-32 truncate">{row.department}</p>
+                <div className="flex-1 h-5 bg-slate-100 rounded">
+                  {pct !== null && (
+                    <div className={`h-5 ${color} rounded text-[10px] text-white flex items-center px-2`}
+                      style={{ width: `${pct}%` }}>
+                      {v?.toFixed ? v.toFixed(1) : v ?? '–'}
+                    </div>
+                  )}
+                </div>
+                {pct === null && <span className="text-xs text-slate-400">Sem dados</span>}
+              </div>
+            );
+          })}
+
+          {heatmap.length === 0 && (
+            <p className="text-sm text-slate-400 text-center py-8">Sem dados disponíveis</p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Main Page ───────────────────────────────────────────────────
+
+const TABS: { id: Tab; label: string; icon: any }[] = [
+  { id: 'overview',    label: 'Visão Geral',    icon: Smile },
+  { id: 'surveys',     label: 'Surveys',        icon: BarChart2 },
+  { id: 'recognition', label: 'Reconhecimento', icon: Award },
+  { id: 'feedback',    label: 'Feedback',       icon: MessageSquare },
+  { id: 'analytics',   label: 'Analytics',      icon: Activity },
+];
+
+export default function EngagementPage() {
+  const [tab, setTab] = useState<Tab>('overview');
+
+  const TAB_COMPONENTS: Record<Tab, JSX.Element> = {
+    overview:    <OverviewTab />,
+    surveys:     <SurveysTab />,
+    recognition: <RecognitionTab />,
+    feedback:    <FeedbackTab />,
+    analytics:   <AnalyticsTab />,
+  };
+
+  return (
+    <div className="min-h-screen bg-slate-50">
+      {/* Header */}
+      <div className="bg-white border-b border-slate-200 px-6 py-5">
+        <div className="max-w-7xl mx-auto flex items-start justify-between">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <div className="p-1.5 bg-violet-100 rounded-lg">
+                <Smile size={18} className="text-violet-600" />
+              </div>
+              <h1 className="text-xl font-bold text-slate-800">Engagement</h1>
+            </div>
+            <p className="text-sm text-slate-400">
+              Surveys · Reconhecimento · Feedback · Mood · Analytics
+            </p>
+          </div>
+          <div className="flex gap-2">
+            <button className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200
+              text-slate-600 text-sm rounded-lg hover:border-violet-300 transition-colors">
+              <RefreshCw size={14} />
+              Actualizar
+            </button>
+            <button className="flex items-center gap-2 px-4 py-2 bg-violet-600 text-white
+              text-sm rounded-lg hover:bg-violet-700 transition-colors">
+              <Plus size={14} />
+              Novo Survey
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Tabs */}
+      <div className="bg-white border-b border-slate-200 px-6">
+        <div className="max-w-7xl mx-auto flex overflow-x-auto">
+          {TABS.map(t => {
+            const Icon = t.icon;
+            return (
+              <button key={t.id} onClick={() => setTab(t.id)}
+                className={`flex items-center gap-2 px-5 py-4 text-sm font-medium whitespace-nowrap
+                  border-b-2 transition-colors ${
+                    tab === t.id
+                      ? 'border-violet-600 text-violet-600'
+                      : 'border-transparent text-slate-500 hover:text-slate-700'}`}>
+                <Icon size={15} />
+                {t.label}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="max-w-7xl mx-auto px-6 py-6">
+        {TAB_COMPONENTS[tab]}
+      </div>
     </div>
   );
 }

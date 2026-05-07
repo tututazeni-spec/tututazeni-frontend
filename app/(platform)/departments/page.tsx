@@ -1,3 +1,4 @@
+// src/app/(dashboard)/departments/page.tsx
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
