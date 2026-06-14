@@ -16,7 +16,7 @@ interface TimelineEvent {
   id: string; source: string; timestamp: string;
   category: string; module: string; impactScore: number;
   milestone: boolean; icon: string; title: string;
-  action: string; entity: string; userId: number;
+  action: string; entity: string; entityId?: string | number; userId: number;
   user?: { fullName: string; avatarUrl?: string };
 }
 

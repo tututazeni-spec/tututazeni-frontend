@@ -497,7 +497,7 @@ function AlertsTab({ alerts }: { alerts: Alert[] }) {
                 <div style={{ fontSize: 14, fontWeight: 700, color: '#e2e8f0', marginBottom: 4 }}>{alert.title}</div>
                 <div style={{ fontSize: 13, color: '#64748b', lineHeight: 1.5 }}>{alert.message}</div>
               </div>
-              <SmallButton label="Resolver" onClick={() => alert('Resolver alerta...')} />
+              <SmallButton label="Resolver" onClick={() => window.alert('Resolver alerta...')} />
             </div>
           </div>
         ))}

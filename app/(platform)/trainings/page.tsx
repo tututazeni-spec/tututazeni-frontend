@@ -289,7 +289,7 @@ function CatalogView({ onSelect }: { onSelect: (id: number) => void }) {
               </div>
             )}
           </div>
-          {(data?.totalPages ?? 1) > 1 && (
+          {(data?.total ?? 0) > 12 && (
             <div className="flex justify-center gap-2">
               <button disabled={page === 1} onClick={() => setPage(p => p - 1)}
                 className="px-4 py-2 text-xs border border-gray-200 rounded-lg disabled:opacity-40 hover:bg-gray-50">

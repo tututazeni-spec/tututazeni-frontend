@@ -857,7 +857,7 @@ export default function CourseLearnPage() {
 //
 // Exemplo de como renderizar dentro da tua página de aula:
 
-export function LessonContent({ lesson }: { lesson: Lesson }) {
+function LessonContent({ lesson }: { lesson: Lesson }) {
   const isTextLesson = lesson.contentType === 'TEXT' && !!lesson.textContent;
  
   return (
@@ -947,8 +947,9 @@ export function LessonContent({ lesson }: { lesson: Lesson }) {
 //    ElevenLabs ou Azure Cognitive Speech (substituir o bloco speakChunk)
 //
 // =============================================================================
- 
-export default LessonContent;
+//
+// Nota: a página exporta CourseLearnPage como default (ver acima).
+// LessonContent é um componente interno — não pode ser um segundo export default.
 
 // Setup em 5 passos (10 minutos)
 //1. Criar conta gratuita

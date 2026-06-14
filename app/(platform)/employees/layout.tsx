@@ -1,4 +1,4 @@
-import DashboardShell from "../../components/DashboardShell";
+import DashboardShell from "../../../components/DashboardShell";
  
 export default function EmployeesLayout({
   children,

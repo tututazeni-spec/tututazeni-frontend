@@ -17,6 +17,7 @@ interface User {
   avatarUrl: string | null;
   country: string | null;
   city: string | null;
+  language: string | null;
   active: boolean;
   accountStatus: AccountStatus;
   hrStatus: HrStatus;

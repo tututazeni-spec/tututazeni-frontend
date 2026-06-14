@@ -213,7 +213,7 @@ function MatrixTab() {
 
   if (loading) return <Skeleton />;
 
-  const subjects = [...new Set((data?.permissions ?? []).map((p: any) => p.subject as string))];
+  const subjects: string[] = [...new Set<string>((data?.permissions ?? []).map((p: any) => String(p.subject)))];
   const filtered = (data?.permissions ?? []).filter((p: any) => !subjectFilter || p.subject === subjectFilter);
 
   return (

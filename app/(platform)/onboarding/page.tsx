@@ -255,7 +255,7 @@ function TaskCard({
       {task.status === 'PENDING' || task.status === 'IN_PROGRESS' ? (
         <button
           onClick={() => onComplete(task.id)}
-          disabled={task.status === 'BLOCKED'}
+          disabled={(task.status as string) === 'BLOCKED'}
           className="flex-shrink-0 px-3 py-1.5 bg-blue-700 text-white text-xs font-medium rounded-lg hover:bg-blue-800 disabled:opacity-30"
         >
           Executar

@@ -340,7 +340,7 @@ function PreferencesView() {
   };
 
   const toggle = (key: keyof Preferences) => {
-    setPrefs(prev => prev ? { ...prev, [key]: !prev[key as any] } : null);
+    setPrefs(prev => prev ? { ...prev, [key]: !prev[key] } : null);
   };
 
   const toggleCategory = (cat: string) => {

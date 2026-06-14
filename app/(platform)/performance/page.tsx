@@ -5,7 +5,7 @@ import { useState, useEffect, useCallback } from 'react';
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 type CycleStatus   = 'PLANNED' | 'ACTIVE' | 'CLOSED' | 'CANCELLED';
-type ReviewStatus  = 'DRAFT' | 'PENDING_SELF' | 'PENDING_MANAGER' | 'CALIBRATION' | 'PUBLISHED' | 'DISPUTE' | 'FINALIZED';
+type ReviewStatus  = 'DRAFT' | 'PENDING_SELF' | 'PENDING_MANAGER' | 'PENDING_360' | 'CALIBRATION' | 'PUBLISHED' | 'DISPUTE' | 'FINALIZED';
 type ReviewType    = 'SELF' | 'MANAGER' | 'PEER' | 'R360';
 type GoalStatus    = 'ON_TRACK' | 'AT_RISK' | 'OFF_TRACK' | 'COMPLETED';
 type FeedbackType  = 'PRAISE' | 'IMPROVEMENT' | 'GENERAL';

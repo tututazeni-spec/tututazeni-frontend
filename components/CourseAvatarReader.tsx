@@ -51,6 +51,7 @@ interface CourseAvatarReaderProps {
   text: string;
   avatarSrc: string;
   avatarName?: string;
+  lang?: string;
 }
 
 type PlayerState = 'idle' | 'loading' | 'playing' | 'paused' | 'error';

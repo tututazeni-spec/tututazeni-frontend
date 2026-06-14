@@ -2,7 +2,7 @@
 import { Bell, Search, User } from "lucide-react";
 import { useEffect, useState } from "react";
  
-export default function Topbar() {
+export default function Topbar({ title }: { title?: string }) {
   const [user, setUser] = useState<{ fullName?: string; email?: string } | null>(null);
  
   useEffect(() => {
@@ -19,13 +19,20 @@ export default function Topbar() {
       display: "flex", alignItems: "center", justifyContent: "space-between",
       padding: "0 24px", zIndex: 90,
     }}>
-      {/* Search */}
-      <div style={{ display: "flex", alignItems: "center", gap: 8, background: "#f1f5f9", borderRadius: 8, padding: "6px 12px", width: 280 }}>
-        <Search size={14} color="#94a3b8" />
-        <input
-          placeholder="Pesquisar..."
-          style={{ border: "none", background: "transparent", outline: "none", fontSize: 13, color: "#1e293b", width: "100%" }}
-        />
+      {/* Left: optional title + search */}
+      <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+        {title && (
+          <span style={{ fontSize: 14, fontWeight: 700, color: "#1e293b", whiteSpace: "nowrap" }}>
+            {title}
+          </span>
+        )}
+        <div style={{ display: "flex", alignItems: "center", gap: 8, background: "#f1f5f9", borderRadius: 8, padding: "6px 12px", width: 280 }}>
+          <Search size={14} color="#94a3b8" />
+          <input
+            placeholder="Pesquisar..."
+            style={{ border: "none", background: "transparent", outline: "none", fontSize: 13, color: "#1e293b", width: "100%" }}
+          />
+        </div>
       </div>
  
       {/* Right */}

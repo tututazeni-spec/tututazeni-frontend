@@ -503,8 +503,8 @@ function PositionsView() {
                   <div className="text-lg font-semibold text-gray-900">{summary.criticalPosition.position.name}</div>
                   <div className="flex items-center gap-2 mt-1">
                     <RiskBadge risk={summary.criticalPosition.exitRisk} />
-                    <span className={`text-xs px-2 py-0.5 rounded ${COVERAGE_CFG[summary.coverageStatus].cls}`}>
-                      {COVERAGE_CFG[summary.coverageStatus].label}
+                    <span className={`text-xs px-2 py-0.5 rounded ${COVERAGE_CFG[summary.coverageStatus as CoverageStatus].cls}`}>
+                      {COVERAGE_CFG[summary.coverageStatus as CoverageStatus].label}
                     </span>
                     {summary.criticalPosition.keyPersonRisk && (
                       <span className="text-xs bg-purple-50 text-purple-700 px-1.5 py-0.5 rounded">🔑 Key Person</span>

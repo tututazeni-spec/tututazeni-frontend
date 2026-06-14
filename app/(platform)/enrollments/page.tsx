@@ -305,7 +305,7 @@ function MyEnrollmentsView() {
     { id: 'completed',  label: 'Concluídos',     count: data.groups.completed.length },
   ];
 
-  const displayed = tab === 'all' ? data.enrollments : data.groups[tab === 'all' ? 'inProgress' : tab] ?? [];
+  const displayed = tab === 'all' ? data.enrollments : (data.groups[tab] ?? []);
 
   return (
     <div>

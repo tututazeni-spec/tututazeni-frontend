@@ -1,4 +1,4 @@
-
+"use client";
 import { useEffect, useRef, useState, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { api } from "../../../../lib/api";
@@ -613,7 +613,7 @@ export default function LiveRoomPage() {
               ].map(f => (
                 <div key={f.label} style={{ display: "flex", justifyContent: "space-between", padding: "5px 0", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
                   <span style={{ fontSize: 11.5, color: "#475569" }}>{f.label}</span>
-                  <span style={{ fontSize: 11.5, color: "#94a3b8", fontFamily: f.label === "Sala Jitsi" ? "monospace" : undefined, fontSize: f.label === "Sala Jitsi" ? 10 : 11.5 }}>{f.value}</span>
+                  <span style={{ fontSize: f.label === "Sala Jitsi" ? 10 : 11.5, color: "#94a3b8", fontFamily: f.label === "Sala Jitsi" ? "monospace" : undefined }}>{f.value}</span>
                 </div>
               ))}
 
