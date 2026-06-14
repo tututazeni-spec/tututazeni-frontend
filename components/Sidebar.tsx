@@ -8,7 +8,7 @@ import {
   ChevronDown, ChevronRight, BookMarked, Map, Crown, UserPlus,
   Layers, Play, Cpu, Database, Globe, Target, PieChart,
   Clock, MessageSquare, Scroll, Library, DollarSign, Activity,
-  Download, CheckSquare, Building2, LogOut, Share2,
+  Download, CheckSquare, Building2, LogOut, Share2, Brain,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -28,9 +28,9 @@ const NAV = [
       { href: "/courses",          icon: BookOpen,   label: "Cursos"           },
       { href: "/course-modules",   icon: Layers,     label: "Módulos & Lições" },
       { href: "/learning-paths",   icon: GitBranch,  label: "Percursos de Aprendizagem" },
-      { href: "/enrollments",      icon: ClipboardList, label: "Inscrições"    },
+      { href: "/enrollments",      icon: ClipboardList, label: "Matrículas"    },
       { href: "/evaluation",       icon: Star,       label: "Avaliações"       },
-      { href: "/micro-learning",   icon: Zap,        label: "Microaprendizagem"   },
+      { href: "/micro-learning",   icon: Zap,        label: "Micro-aprendizagem"   },
       { href: "/live-classes",     icon: Play,       label: "Aulas ao Vivo"    },
       { href: "/content-library",  icon: Library,    label: "Biblioteca"       },
       { href: "/knowledge",        icon: BookMarked, label: "Conhecimento"     },
@@ -43,12 +43,12 @@ const NAV = [
     items: [
       { href: "/users",             icon: Users,         label: "Utilizadores"     },
       { href: "/employees",         icon: UserCheck,     label: "Colaborador"      },
-      { href: "/leave-management",  icon: Calendar,      label: "Férias & Licenças" }, 
+      { href: "/leave-management",  icon: Calendar,      label: "Férias e Licenças" }, 
       { href: "/departments",       icon: Building2,     label: "Departamentos"    },
       { href: "/roles-permissions", icon: Briefcase,     label: "Permissões por Cargos"           },
       { href: "/performance",       icon: TrendingUp,    label: "Desempenho"       },
       { href: "/competencies",      icon: Award,         label: "Competências"     },
-      { href: "/competency-map",    icon: Share2,        label: "Mapa Competências" }, 
+      { href: "/competency-map",    icon: Share2,        label: "Mapa de Competências" }, 
       { href: "/evaluation360",     icon: MessageSquare, label: "Avaliação 360°"    },
       { href: "/onboarding",        icon: UserPlus,      label: "Integração"       },
       { href: "/succession",        icon: GitBranch,     label: "Sucessão"         },
@@ -61,10 +61,10 @@ const NAV = [
     label: "Carreira",
     items: [
       { href: "/career",            icon: Target,   label: "Carreira"       },
-      { href: "/career-plans",      icon: Layers,   label: "Planos Carreira"},
+      { href: "/career-plans",      icon: Layers,   label: "Planos de Carreira"},
       { href: "/development-plans", icon: Activity, label: "Planos de Desenvolvimento" },
       { href: "/leader",            icon: Crown,    label: "Liderança"       },
-      { href: "/leadership",        icon: BookOpen, label: "Programas Liderança" },
+      { href: "/leadership",        icon: BookOpen, label: "Programas de Liderança" },
       { href: "/certificates",      icon: Scroll,   label: "Certificados"    },
       { href: "/talent-development",      icon: Brain, label: "Desenvolvimento de Talentos" },
     ],
@@ -72,7 +72,7 @@ const NAV = [
   {
     label: "Compromisso",
     items: [
-      { href: "/events",           icon: Calendar,      label: "Eventos"     },
+      { href: "/events",           icon: Calendar,      label: "Eventos Corporativos"     },
       { href: "/engagement",       icon: MessageSquare, label: "Participação"  },
       { href: "/instructor",       icon: GraduationCap, label: "Instrutores" },
     ],
@@ -82,7 +82,7 @@ const NAV = [
     items: [
       { href: "/process-standard", icon: Database, label: "Processos"   },
       { href: "/automation",       icon: Zap,      label: "Automações"  },
-      { href: "/api-integration",  icon: Globe,    label: "Integrações" },
+      { href: "/api-integration",  icon: Globe,    label: "Integrações com Sistemas Externos" },
       { href: "/history",          icon: Clock,    label: "Histórico"   },
       { href: "/audit",            icon: Shield,   label: "Auditoria"   },
     ],
@@ -90,9 +90,9 @@ const NAV = [
   {
     label: "Relatórios",
     items: [
-      { href: "/roi-impact",       icon: DollarSign, label: "ROI & Impacto"  },
+      { href: "/roi-impact",       icon: DollarSign, label: "ROI e Impacto"  },
       { href: "/scalability",      icon: PieChart,   label: "Escalabilidade" },
-      { href: "/executive-reports",    icon: Download,   label: "Relatório Exec." },
+      { href: "/executive-reports",    icon: Download,   label: "Relatório Executivos" },
     ],
   },
   {
