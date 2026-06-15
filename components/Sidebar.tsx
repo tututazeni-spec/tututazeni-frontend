@@ -113,8 +113,13 @@ export default function Sidebar() {
   }
 
   function logout() {
-    localStorage.removeItem("token");
-    window.location.href = "/login";
+    // Pede ao backend para limpar o cookie httpOnly e redirecciona para /login.
+    void fetch(`${process.env.NEXT_PUBLIC_API_URL ?? ""}/auth/logout`, {
+      method: "POST",
+      credentials: "include",
+    }).finally(() => {
+      window.location.href = "/login";
+    });
   }
 
   return (

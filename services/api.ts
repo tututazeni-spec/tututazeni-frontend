@@ -1,27 +1,28 @@
-import axios, { InternalAxiosRequestConfig } from "axios";
+import axios from "axios";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
+// Instância axios partilhada. Autenticação por cookie httpOnly:
+// `withCredentials` envia o cookie automaticamente; o token nunca é lido em JS.
 const api = axios.create({
   baseURL: API_URL,
+  withCredentials: true,
+  headers: { Accept: "application/json" },
 });
 
-api.interceptors.request.use(
-  (config: InternalAxiosRequestConfig): InternalAxiosRequestConfig => {
-    config.headers = config.headers ?? {};
-
-    if (typeof window !== "undefined") {
-      const token = localStorage.getItem("token") ?? ""; // ← corrigido de "authToken" para "token"
-      if (token) {
-        config.headers["Authorization"] = `Bearer ${token}`;
-      }
+// Logout automático quando a sessão expira (401).
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (
+      typeof window !== "undefined" &&
+      error?.response?.status === 401 &&
+      !window.location.pathname.startsWith("/login")
+    ) {
+      window.location.href = "/login";
     }
-
-    config.headers["Accept"] = "application/json";
-
-    return config;
+    return Promise.reject(error);
   },
-  (error) => Promise.reject(error)
 );
 
 export default api;

@@ -1,25 +1,22 @@
 export const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
-function getToken() {
-  if (typeof window === 'undefined') return null;
-  return localStorage.getItem('token');
-}
-
+// Cliente fetch tipado. Autenticação por cookie httpOnly: enviamos sempre
+// `credentials: 'include'` e nunca lemos o token em JS (mitiga XSS).
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
-  const token = getToken();
   const res = await fetch(`${API_URL}${path}`, {
     ...options,
+    credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...options.headers,
     },
   });
 
   if (res.status === 401) {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    window.location.href = '/login';
+    // Sessão expirada -> logout automático.
+    if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/login')) {
+      window.location.href = '/login';
+    }
     throw new Error('Sessão expirada');
   }
 

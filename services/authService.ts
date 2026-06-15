@@ -1,4 +1,5 @@
-import api from './api'; // ✅ importa o axios já configurado
+import api from './api'; // axios com withCredentials (cookie httpOnly)
+import { logout as cookieLogout } from '../lib/auth';
 
 // Tipos
 interface LoginPayload {
@@ -12,7 +13,7 @@ interface RegisterPayload {
   password: string;
 }
 
-// Login
+// Login — o backend define o cookie httpOnly 'token'. O JS nunca guarda o token.
 export const login = async (payload: LoginPayload) => {
   const response = await api.post('/auth/login', payload);
   return response.data;
@@ -24,17 +25,5 @@ export const register = async (payload: RegisterPayload) => {
   return response.data;
 };
 
-// Logout
-export const logout = () => {
-  localStorage.removeItem('authToken');
-};
-
-// Guardar token após login
-export const saveToken = (token: string) => {
-  localStorage.setItem('authToken', token);
-};
-
-// Obter token
-export const getToken = () => {
-  return localStorage.getItem('authToken');
-};
+// Logout — pede ao backend para limpar o cookie e redirecciona para o login.
+export const logout = () => cookieLogout();

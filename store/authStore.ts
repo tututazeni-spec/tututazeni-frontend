@@ -1,21 +1,21 @@
 import { create } from "zustand";
+import { logout as logoutRequest } from "../lib/auth";
 
+// Estado de autenticação leve. O token vive num cookie httpOnly (o JS nunca lhe
+// acede), por isso aqui guardamos apenas se há sessão activa — nunca o token.
 interface AuthState {
-  token: string | null;
-  login: (token: string) => void;
+  isAuthenticated: boolean;
+  setAuthenticated: (value: boolean) => void;
   logout: () => void;
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
-  token: null,
+  isAuthenticated: false,
 
-  login: (token) => {
-    localStorage.setItem("token", token);
-    set({ token });
-  },
+  setAuthenticated: (value) => set({ isAuthenticated: value }),
 
   logout: () => {
-    localStorage.removeItem("token");
-    set({ token: null });
+    set({ isAuthenticated: false });
+    void logoutRequest(); // pede ao backend para limpar o cookie + redirecciona
   },
 }));

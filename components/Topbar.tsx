@@ -4,12 +4,17 @@ import { useEffect, useState } from "react";
  
 export default function Topbar({ title }: { title?: string }) {
   const [user, setUser] = useState<{ fullName?: string; email?: string } | null>(null);
- 
+
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem("user");
-      if (raw) setUser(JSON.parse(raw));
-    } catch {}
+    // O perfil vem do backend via cookie httpOnly — já não há "user" em
+    // localStorage. O fetch global injecta credentials automaticamente.
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "";
+    fetch(`${apiUrl}/auth/me`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (data) setUser({ fullName: data.fullName, email: data.email });
+      })
+      .catch(() => {});
   }, []);
  
   return (

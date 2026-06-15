@@ -1,13 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
 async function apiRequest(path: string, options: RequestInit = {}): Promise<unknown> {
   const res = await fetch(`${API_URL}${path}`, {
     ...options,
+    credentials: 'include', // recebe o cookie httpOnly definido pelo backend
     headers: {
       'Content-Type': 'application/json',
       ...options.headers,
@@ -20,11 +20,9 @@ async function apiRequest(path: string, options: RequestInit = {}): Promise<unkn
   return res.json();
 }
 
-type LoginResponse = { accessToken: string };
 type ApiError = { message?: string };
 
 export default function LoginPage() {
-  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPass, setShowPass] = useState(false);
@@ -36,12 +34,13 @@ export default function LoginPage() {
     setError(null);
     setLoading(true);
     try {
-      const res = (await apiRequest("/auth/login", {
+      // O backend define o cookie httpOnly 'token'; o JS nunca toca no token.
+      await apiRequest("/auth/login", {
         method: "POST",
         body: JSON.stringify({ email, password }),
-      })) as LoginResponse;
-      localStorage.setItem("token", res.accessToken);
-      router.push("/dashboard");
+      });
+      // Navegação forçada para garantir que o middleware revê o cookie.
+      window.location.href = "/dashboard";
     } catch (err: unknown) {
       const apiErr = err as ApiError;
       setError(apiErr.message ?? "Erro ao entrar");
