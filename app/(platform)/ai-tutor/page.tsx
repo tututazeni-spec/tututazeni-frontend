@@ -2,6 +2,7 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { sanitizeHtml } from '@/lib/sanitize';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -125,7 +126,7 @@ function MessageBubble({ msg, onRate }: { msg: Message; onRate: (id: number, r: 
               : 'bg-white border border-gray-200 text-gray-800 rounded-tl-sm shadow-sm'
           }`}
         >
-          <span dangerouslySetInnerHTML={{ __html: formatContent(msg.content) }} />
+          <span dangerouslySetInnerHTML={{ __html: sanitizeHtml(formatContent(msg.content)) }} />
         </div>
 
         <div className={`flex items-center gap-2 mt-1 px-1 ${isUser ? 'flex-row-reverse' : 'flex-row'}`}>

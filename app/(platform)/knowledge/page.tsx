@@ -2,6 +2,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { sanitizeHtml } from '@/lib/sanitize';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -506,7 +507,7 @@ function ArticleDetailView({ articleId, onBack }: { articleId: number; onBack: (
         <div className="bg-white border border-gray-200 rounded-xl p-6 mb-5">
           <div
             className="prose prose-sm max-w-none text-gray-700"
-            dangerouslySetInnerHTML={{ __html: article.content }}
+            dangerouslySetInnerHTML={{ __html: sanitizeHtml(article.content) }}
           />
         </div>
 

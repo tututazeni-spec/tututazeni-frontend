@@ -13,6 +13,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'next/navigation';
+import { sanitizeHtml } from '@/lib/sanitize';
 import { CourseAvatarReader } from '@/components/CourseAvatarReader';
 
 // ─── Tipo do conteúdo da lição ───────────────────────────────────────────────
@@ -865,7 +866,7 @@ function LessonContent({ lesson }: { lesson: Lesson }) {
       {/* ─── Conteúdo da aula ─────────────────────────────────────────────── */}
       <div className="prose prose-sm max-w-none text-gray-800 leading-relaxed">
         {lesson.textContent && (
-          <div dangerouslySetInnerHTML={{ __html: lesson.textContent }} />
+          <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(lesson.textContent) }} />
         )}
       </div>
  

@@ -976,7 +976,7 @@ export default function EmployeesPage() {
                     key={emp.id}
                     employee={emp}
                     onView={setSelected}
-                    onEdit={e => console.log('Edit', e.id)} // → navegar para /{id}/edit
+                    onEdit={e => setSelected(e)} // edição abre o perfil; navegação dedicada a definir
                   />
                 ))}
             {!loading && data?.data.length === 0 && (
@@ -1025,7 +1025,7 @@ export default function EmployeesPage() {
                           key={emp.id}
                           employee={emp}
                           onView={setSelected}
-                          onEdit={e => console.log('Edit', e.id)}
+                          onEdit={e => setSelected(e)}
                         />
                       ))}
                 </tbody>

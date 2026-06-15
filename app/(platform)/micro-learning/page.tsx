@@ -2,6 +2,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { sanitizeHtml } from '@/lib/sanitize';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -433,7 +434,7 @@ function PlayerView({ item, onBack, onNext }: {
       {item.contentType === 'TEXT' && item.textContent && (
         <div className="bg-white border border-gray-200 rounded-2xl p-6 mb-5">
           <div className="prose prose-sm max-w-none text-gray-700 leading-relaxed"
-            dangerouslySetInnerHTML={{ __html: item.textContent }} />
+            dangerouslySetInnerHTML={{ __html: sanitizeHtml(item.textContent) }} />
         </div>
       )}
 
