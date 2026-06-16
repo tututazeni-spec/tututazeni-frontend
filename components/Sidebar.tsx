@@ -25,8 +25,9 @@ const NAV = [
   {
     label: "CRM",
     items: [
-      { href: "/crm/beneficiaries", icon: UserCheck, label: "Beneficiários" },
-      { href: "/crm/partners",      icon: Briefcase, label: "Parceiros"     },
+      { href: "/crm/beneficiaries", icon: UserCheck,  label: "Beneficiários" },
+      { href: "/crm/partners",      icon: Briefcase,  label: "Parceiros"     },
+      { href: "/crm/funders",       icon: DollarSign, label: "Financiadores" },
     ],
   },
   {
