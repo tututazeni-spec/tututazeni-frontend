@@ -38,6 +38,7 @@ const NAV = [
       { href: "/academic/programs", icon: GraduationCap, label: "Gestão Académica" },
       { href: "/course-modules",   icon: Layers,     label: "Módulos & Lições" },
       { href: "/learning-paths",   icon: GitBranch,  label: "Percursos de Aprendizagem" },
+      { href: "/lms/paths",        icon: Play,       label: "LMS — Percursos & Sessões" },
       { href: "/enrollments",      icon: ClipboardList, label: "Matrículas"    },
       { href: "/evaluation",       icon: Star,       label: "Avaliações"       },
       { href: "/micro-learning",   icon: Zap,        label: "Micro-aprendizagem"   },
