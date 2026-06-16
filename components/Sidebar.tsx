@@ -23,6 +23,12 @@ const NAV = [
     ],
   },
   {
+    label: "CRM",
+    items: [
+      { href: "/crm/beneficiaries", icon: UserCheck, label: "Beneficiários" },
+    ],
+  },
+  {
     label: "Aprendizagem",
     items: [
       { href: "/courses",          icon: BookOpen,   label: "Cursos"           },
