@@ -75,6 +75,7 @@ const NAV = [
       { href: "/leader",            icon: Crown,    label: "Liderança"       },
       { href: "/leadership",        icon: BookOpen, label: "Programas de Liderança" },
       { href: "/certificates",      icon: Scroll,   label: "Certificados"    },
+      { href: "/certification/templates", icon: Award, label: "Templates Certificado" },
       { href: "/talent-development",      icon: Brain, label: "Desenvolvimento de Talentos" },
     ],
   },

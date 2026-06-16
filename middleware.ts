@@ -5,11 +5,20 @@ import type { NextRequest } from 'next/server';
 // backend no login. O middleware corre no servidor, por isso consegue ler o
 // cookie httpOnly (o JavaScript do browser nunca lhe acede — mitiga XSS).
 const PUBLIC_PATHS = ['/login'];
+// Rotas totalmente abertas (verificação pública de certificados): acessíveis
+// com ou sem login e sem qualquer redireccionamento.
+const OPEN_PATHS = ['/verify'];
 
 export function middleware(request: NextRequest) {
   const token = request.cookies.get('token')?.value;
   const isAuth = Boolean(token);
   const { pathname } = request.nextUrl;
+
+  const isOpen = OPEN_PATHS.some(
+    (p) => pathname === p || pathname.startsWith(`${p}/`),
+  );
+  if (isOpen) return NextResponse.next();
+
   const isPublic = PUBLIC_PATHS.some(
     (p) => pathname === p || pathname.startsWith(`${p}/`),
   );
