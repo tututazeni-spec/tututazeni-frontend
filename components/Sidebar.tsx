@@ -17,6 +17,7 @@ const NAV = [
     label: "Principal",
     items: [
       { href: "/dashboard",    icon: LayoutDashboard,  label: "Dashboard"    },
+      { href: "/dashboard/institutional", icon: PieChart, label: "Dashboard Institucional" },
       { href: "/dashboard-rh", icon: Users,            label: "Dashboard RH" },
       { href: "/analytics",    icon: BarChart2,        label: "Indicadores de Desempenho"    },
       { href: "/reports",      icon: FileText,         label: "Relatórios"   },
