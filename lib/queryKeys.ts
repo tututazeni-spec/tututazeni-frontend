@@ -390,6 +390,28 @@ export const queryKeys = {
     stats: () => [...queryKeys.notifications.all, 'stats'] as const,
   },
 
+  declarations: {
+    all: ['declarations'] as const,
+    templates: () => [...queryKeys.declarations.all, 'templates'] as const,
+    purposes: () => [...queryKeys.declarations.all, 'purposes'] as const,
+    myDocs: () => [...queryKeys.declarations.all, 'my-docs'] as const,
+    allDocs: () => [...queryKeys.declarations.all, 'all-docs'] as const,
+    workPending: () => [...queryKeys.declarations.all, 'work-pending'] as const,
+    workSubmissions: () =>
+      [...queryKeys.declarations.all, 'work-submissions'] as const,
+    docDashboard: () => [...queryKeys.declarations.all, 'doc-dashboard'] as const,
+    workDashboard: () =>
+      [...queryKeys.declarations.all, 'work-dashboard'] as const,
+  },
+
+  documents: {
+    all: ['documents'] as const,
+    list: (params: Record<string, unknown>) =>
+      [...queryKeys.documents.all, 'list', params] as const,
+    dashboard: () => [...queryKeys.documents.all, 'dashboard'] as const,
+    tags: () => [...queryKeys.documents.all, 'tags'] as const,
+  },
+
   careerPlans: {
     all: ['career-plans'] as const,
     my: () => [...queryKeys.careerPlans.all, 'my'] as const,

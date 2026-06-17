@@ -4,7 +4,7 @@
 // INNOVA — Módulo de Declarações (Documentos + Work Declarations)
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState } from 'react';
 import {
   FileText, Plus, Check, X, Eye, Download, Clock, Shield,
   RefreshCcw, AlertCircle, ChevronRight, Loader2,
@@ -12,6 +12,10 @@ import {
   Users, BarChart3, Bell, Settings, QrCode, Send,
   BookOpen, Calendar, ArrowUpRight, Filter,
 } from 'lucide-react';
+import { useApiQuery } from '../../../hooks/useApiQuery';
+import { apiClient } from '../../../lib/apiClient';
+import { queryKeys } from '../../../lib/queryKeys';
+import { STALE_TIME } from '../../../lib/queryClient';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -87,23 +91,6 @@ const WORK_TYPE_LABELS: Record<WorkDeclType, string> = {
   COMPLIANCE: 'Compliance', GENERAL: 'Geral',
 };
 
-// ─── API ──────────────────────────────────────────────────────────────────────
-
-const API = process.env.NEXT_PUBLIC_API_URL ?? '/api';
-
-async function apiFetch<T>(path: string, opts?: RequestInit): Promise<T> {
-  const token = typeof window !== 'undefined' ? localStorage.getItem('innova_token') : null;
-  const res = await fetch(`${API}${path}`, {
-    headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-    ...opts,
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({ message: `Error ${res.status}` }));
-    throw new Error(err.message ?? `Error ${res.status}`);
-  }
-  return res.json();
-}
-
 // ─── Utility ──────────────────────────────────────────────────────────────────
 
 function StatusBadge({ status, type = 'doc' }: { status: string; type?: 'doc'|'work' }) {
@@ -156,7 +143,7 @@ function NewDocRequestModal({ templates, purposes, onClose, onSuccess }: {
   const loadPreview = async () => {
     if (!form.templateId) return;
     setPreviewLoading(true);
-    try { setPreview(await apiFetch(`/declarations/documents/templates/${form.templateId}/preview`)); }
+    try { setPreview(await apiClient.get(`/declarations/documents/templates/${form.templateId}/preview`)); }
     catch {}
     finally { setPreviewLoading(false); }
   };
@@ -164,10 +151,7 @@ function NewDocRequestModal({ templates, purposes, onClose, onSuccess }: {
   const handleSubmit = async () => {
     setLoading(true); setError('');
     try {
-      await apiFetch('/declarations/documents', {
-        method: 'POST',
-        body: JSON.stringify({ ...form, purposeId: form.purposeId || undefined }),
-      });
+      await apiClient.post('/declarations/documents', { ...form, purposeId: form.purposeId || undefined });
       onSuccess(); onClose();
     } catch (e: any) { setError(e.message); }
     finally { setLoading(false); }
@@ -297,13 +281,10 @@ function WorkDeclFormModal({ form, onClose, onSuccess }: {
   const handleSubmit = async (draft = false) => {
     setLoading(true); setError('');
     try {
-      await apiFetch('/declarations/work/submit', {
-        method: 'POST',
-        body: JSON.stringify({
-          formId: form.id,
-          answers: Object.entries(answers).map(([key, value]) => ({ key, value })),
-          saveAsDraft: draft,
-        }),
+      await apiClient.post('/declarations/work/submit', {
+        formId: form.id,
+        answers: Object.entries(answers).map(([key, value]) => ({ key, value })),
+        saveAsDraft: draft,
       });
       onSuccess(); onClose();
     } catch (e: any) { setError(e.message); }
@@ -399,41 +380,54 @@ export default function DeclarationsPage() {
   const [showDocModal, setShowDocModal] = useState(false);
   const [showWorkModal, setShowWorkModal] = useState<WorkForm | null>(null);
 
-  const [templates, setTemplates]       = useState<Template[]>([]);
-  const [purposes, setPurposes]         = useState<Purpose[]>([]);
-  const [myDocs, setMyDocs]             = useState<{ data: DocRequest[] } | null>(null);
-  const [allDocs, setAllDocs]           = useState<{ data: DocRequest[] } | null>(null);
-  const [pendingWork, setPendingWork]   = useState<{ pending: WorkForm[]; total: number } | null>(null);
-  const [workSubs, setWorkSubs]         = useState<{ data: WorkSubmission[] } | null>(null);
-  const [docDash, setDocDash]           = useState<DashboardData | null>(null);
-  const [workDash, setWorkDash]         = useState<WorkDashboard | null>(null);
-  const [loading, setLoading]           = useState(false);
+  const templatesQuery = useApiQuery<Template[]>(
+    queryKeys.declarations.templates(), '/declarations/documents/templates',
+    { staleTime: STALE_TIME.STATIC },
+  );
+  const purposesQuery = useApiQuery<Purpose[]>(
+    queryKeys.declarations.purposes(), '/declarations/documents/purposes',
+    { staleTime: STALE_TIME.STATIC },
+  );
+  const myDocsQuery = useApiQuery<{ data: DocRequest[] }>(
+    queryKeys.declarations.myDocs(), '/declarations/documents/my',
+    { staleTime: STALE_TIME.DYNAMIC },
+  );
+  const allDocsQuery = useApiQuery<{ data: DocRequest[] }>(
+    queryKeys.declarations.allDocs(), '/declarations/documents',
+    { staleTime: STALE_TIME.DYNAMIC },
+  );
+  const pendingWorkQuery = useApiQuery<{ pending: WorkForm[]; total: number }>(
+    queryKeys.declarations.workPending(), '/declarations/work/my/pending',
+    { staleTime: STALE_TIME.DYNAMIC },
+  );
+  const workSubsQuery = useApiQuery<{ data: WorkSubmission[] }>(
+    queryKeys.declarations.workSubmissions(), '/declarations/work/my/submissions',
+    { staleTime: STALE_TIME.DYNAMIC },
+  );
+  const docDashQuery = useApiQuery<DashboardData>(
+    queryKeys.declarations.docDashboard(), '/declarations/documents/dashboard',
+    { staleTime: STALE_TIME.SEMI_STATIC },
+  );
+  const workDashQuery = useApiQuery<WorkDashboard>(
+    queryKeys.declarations.workDashboard(), '/declarations/work/dashboard',
+    { staleTime: STALE_TIME.SEMI_STATIC },
+  );
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    try {
-      const [tmpl, purp, my, all, pending, subs, dd, wd] = await Promise.allSettled([
-        apiFetch<Template[]>('/declarations/documents/templates'),
-        apiFetch<Purpose[]>('/declarations/documents/purposes'),
-        apiFetch<any>('/declarations/documents/my'),
-        apiFetch<any>('/declarations/documents'),
-        apiFetch<any>('/declarations/work/my/pending'),
-        apiFetch<any>('/declarations/work/my/submissions'),
-        apiFetch<DashboardData>('/declarations/documents/dashboard'),
-        apiFetch<WorkDashboard>('/declarations/work/dashboard'),
-      ]);
-      if (tmpl.status === 'fulfilled')    setTemplates(tmpl.value);
-      if (purp.status === 'fulfilled')    setPurposes(purp.value);
-      if (my.status === 'fulfilled')      setMyDocs(my.value);
-      if (all.status === 'fulfilled')     setAllDocs(all.value);
-      if (pending.status === 'fulfilled') setPendingWork(pending.value);
-      if (subs.status === 'fulfilled')    setWorkSubs(subs.value);
-      if (dd.status === 'fulfilled')      setDocDash(dd.value);
-      if (wd.status === 'fulfilled')      setWorkDash(wd.value);
-    } finally { setLoading(false); }
-  }, []);
+  const templates   = templatesQuery.data ?? [];
+  const purposes    = purposesQuery.data ?? [];
+  const myDocs      = myDocsQuery.data ?? null;
+  const allDocs     = allDocsQuery.data ?? null;
+  const pendingWork = pendingWorkQuery.data ?? null;
+  const workSubs    = workSubsQuery.data ?? null;
+  const docDash     = docDashQuery.data ?? null;
+  const workDash    = workDashQuery.data ?? null;
+  const loading     = templatesQuery.isFetching || myDocsQuery.isFetching;
 
-  useEffect(() => { load(); }, [load]);
+  const load = () => {
+    [templatesQuery, purposesQuery, myDocsQuery, allDocsQuery,
+     pendingWorkQuery, workSubsQuery, docDashQuery, workDashQuery]
+      .forEach(q => q.refetch());
+  };
 
   const tabs: Array<{ key: TabKey; label: string; icon: any; badge?: number }> = [
     { key: 'docs-my',    label: 'Minhas Declarações', icon: FileText,  },
@@ -619,11 +613,11 @@ export default function DeclarationsPage() {
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                             {d.status === 'PENDING' && (
-                              <button onClick={async () => { await apiFetch(`/declarations/documents/${d.id}/approve`, { method: 'PATCH', body: JSON.stringify({ approved: true }) }); load(); }}
+                              <button onClick={async () => { await apiClient.patch(`/declarations/documents/${d.id}/approve`, { approved: true }); load(); }}
                                 className="p-1.5 rounded-lg hover:bg-emerald-100 text-emerald-600"><Check size={13}/></button>
                             )}
                             {d.status === 'APPROVED' && (
-                              <button onClick={async () => { await apiFetch(`/declarations/documents/${d.id}/generate`, { method: 'PATCH' }); load(); }}
+                              <button onClick={async () => { await apiClient.patch(`/declarations/documents/${d.id}/generate`, {}); load(); }}
                                 className="p-1.5 rounded-lg hover:bg-blue-100 text-blue-600"><FileCheck size={13}/></button>
                             )}
                           </div>
@@ -651,7 +645,7 @@ export default function DeclarationsPage() {
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
               <div className="px-5 py-4 border-b border-gray-50 flex items-center justify-between">
                 <h2 className="text-sm font-semibold text-gray-900">Submissões de Declarações</h2>
-                <button onClick={async () => { await apiFetch('/declarations/work/trigger/periodic', { method: 'POST' }); load(); }}
+                <button onClick={async () => { await apiClient.post('/declarations/work/trigger/periodic', {}); load(); }}
                   className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-gray-600 border border-gray-200 rounded-xl hover:bg-gray-50">
                   <Bell size={12}/> Enviar lembretes
                 </button>
@@ -676,9 +670,9 @@ export default function DeclarationsPage() {
                         <td className="px-4 py-3">
                           {s.status === 'SUBMITTED' && (
                             <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                              <button onClick={async () => { await apiFetch(`/declarations/work/submissions/${s.id}/review`, { method: 'PATCH', body: JSON.stringify({ approved: true }) }); load(); }}
+                              <button onClick={async () => { await apiClient.patch(`/declarations/work/submissions/${s.id}/review`, { approved: true }); load(); }}
                                 className="p-1.5 rounded-lg hover:bg-emerald-100 text-emerald-600"><Check size={13}/></button>
-                              <button onClick={async () => { await apiFetch(`/declarations/work/submissions/${s.id}/review`, { method: 'PATCH', body: JSON.stringify({ approved: false }) }); load(); }}
+                              <button onClick={async () => { await apiClient.patch(`/declarations/work/submissions/${s.id}/review`, { approved: false }); load(); }}
                                 className="p-1.5 rounded-lg hover:bg-red-100 text-red-600"><X size={13}/></button>
                             </div>
                           )}

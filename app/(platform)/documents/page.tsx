@@ -4,7 +4,7 @@
 // INNOVA — Document Repository (estilo Google Drive)
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState } from 'react';
 import {
   FileText, Folder, Upload, Search, Filter, Grid, List,
   Download, Share2, Trash2, Archive, Edit2, Eye, Clock,
@@ -13,6 +13,12 @@ import {
   Link2, Lock, File, Image, Video, FileSpreadsheet, Loader2,
   History, FolderOpen, Star, SortAsc,
 } from 'lucide-react';
+import { keepPreviousData } from '@tanstack/react-query';
+import { useApiQuery } from '../../../hooks/useApiQuery';
+import { apiClient } from '../../../lib/apiClient';
+import { queryKeys } from '../../../lib/queryKeys';
+import { STALE_TIME } from '../../../lib/queryClient';
+import { useDebounce } from '../../../hooks/useDebounce';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -83,61 +89,38 @@ function formatBytes(bytes?: number): string {
   return `${(bytes / 1048576).toFixed(1)} MB`;
 }
 
-// ─── API ──────────────────────────────────────────────────────────────────────
-
-const API = process.env.NEXT_PUBLIC_API_URL ?? '/api';
-
-async function apiFetch<T>(path: string, opts?: RequestInit): Promise<T> {
-  const token = typeof window !== 'undefined' ? localStorage.getItem('innova_token') : null;
-  const res = await fetch(`${API}${path}`, {
-    headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-    ...opts,
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({ message: `Error ${res.status}` }));
-    throw new Error(err.message ?? `Error ${res.status}`);
-  }
-  return res.json();
-}
-
 // ─── Hooks ────────────────────────────────────────────────────────────────────
 
 function useDocuments(search: string, category: string, sensitivity: string, tag: string, expiringSoon: boolean) {
-  const [data, setData]     = useState<{ data: Document[]; meta: any } | null>(null);
-  const [loading, setLoading] = useState(false);
-
-  const fetch = useCallback(async () => {
-    setLoading(true);
-    try {
-      const params = new URLSearchParams();
-      if (search)       params.set('search', search);
-      if (category)     params.set('category', category);
-      if (sensitivity)  params.set('sensitivity', sensitivity);
-      if (tag)          params.set('tag', tag);
-      if (expiringSoon) params.set('expiringSoon', 'true');
-      setData(await apiFetch(`/documents?${params}`));
-    } catch {}
-    finally { setLoading(false); }
-  }, [search, category, sensitivity, tag, expiringSoon]);
-
-  useEffect(() => { fetch(); }, [fetch]);
-  return { data, loading, refetch: fetch };
+  const debouncedSearch = useDebounce(search, 300);
+  const params = {
+    ...(debouncedSearch ? { search: debouncedSearch } : {}),
+    ...(category ? { category } : {}),
+    ...(sensitivity ? { sensitivity } : {}),
+    ...(tag ? { tag } : {}),
+    ...(expiringSoon ? { expiringSoon: 'true' } : {}),
+  };
+  const { data, isLoading, refetch } = useApiQuery<{ data: Document[]; meta: any }>(
+    queryKeys.documents.list(params), '/documents',
+    { params, staleTime: STALE_TIME.DYNAMIC, placeholderData: keepPreviousData },
+  );
+  return { data: data ?? null, loading: isLoading, refetch };
 }
 
 function useDashboard() {
-  const [data, setData] = useState<DashboardData | null>(null);
-  useEffect(() => {
-    apiFetch<DashboardData>('/documents/dashboard').then(setData).catch(() => {});
-  }, []);
-  return data;
+  const { data } = useApiQuery<DashboardData>(
+    queryKeys.documents.dashboard(), '/documents/dashboard',
+    { staleTime: STALE_TIME.SEMI_STATIC },
+  );
+  return data ?? null;
 }
 
 function useTags() {
-  const [tags, setTags] = useState<Array<{ tag: string; count: number }>>([]);
-  useEffect(() => {
-    apiFetch<Array<{ tag: string; count: number }>>('/documents/tags').then(setTags).catch(() => {});
-  }, []);
-  return tags;
+  const { data } = useApiQuery<Array<{ tag: string; count: number }>>(
+    queryKeys.documents.tags(), '/documents/tags',
+    { staleTime: STALE_TIME.SEMI_STATIC },
+  );
+  return data ?? [];
 }
 
 // ─── Upload Modal ─────────────────────────────────────────────────────────────
@@ -163,7 +146,7 @@ function UploadModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: (
     if (!form.title || !form.fileUrl) { setError('Título e ficheiro são obrigatórios'); return; }
     setLoading(true); setError('');
     try {
-      await apiFetch('/documents', { method: 'POST', body: JSON.stringify(form) });
+      await apiClient.post('/documents', form);
       onSuccess(); onClose();
     } catch (e: any) { setError(e.message); }
     finally { setLoading(false); }
@@ -396,7 +379,7 @@ export default function DocumentRepositoryPage() {
 
   const handleDownload = async (doc: Document) => {
     try {
-      const result = await apiFetch<{ fileUrl: string }>(`/documents/${doc.id}/download`);
+      const result = await apiClient.get<{ fileUrl: string }>(`/documents/${doc.id}/download`);
       window.open(result.fileUrl, '_blank');
     } catch (e: any) { alert(e.message); }
   };
