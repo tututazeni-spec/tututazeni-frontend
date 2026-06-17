@@ -1,7 +1,11 @@
 ﻿// src/app/(dashboard)/succession/page.tsx
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState } from 'react';
+import { useApiQuery } from '@/hooks/useApiQuery';
+import { apiClient } from '@/lib/apiClient';
+import { queryKeys } from '@/lib/queryKeys';
+import { STALE_TIME } from '@/lib/queryClient';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -90,27 +94,6 @@ interface Dashboard {
 }
 
 type View = 'dashboard' | 'org-chart' | 'talent-pool' | 'positions';
-
-// ─── API ──────────────────────────────────────────────────────────────────────
-
-const API = process.env.NEXT_PUBLIC_API_URL ?? '/api';
-
-async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
-  const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
-  const res = await fetch(`${API}${path}`, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...options?.headers,
-    },
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({ message: 'Erro' }));
-    throw new Error(err.message ?? `HTTP ${res.status}`);
-  }
-  return res.json();
-}
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -214,14 +197,10 @@ function SuccessorCard({ plan, rank }: { plan: SuccessionPlan; rank: number }) {
 // ─── View: Dashboard ──────────────────────────────────────────────────────────
 
 function DashboardView() {
-  const [data, setData]     = useState<Dashboard | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    apiFetch<Dashboard>('/succession/dashboard')
-      .then(setData)
-      .finally(() => setLoading(false));
-  }, []);
+  const { data, isLoading: loading } = useApiQuery<Dashboard>(
+    queryKeys.succession.dashboard(), '/succession/dashboard',
+    { staleTime: STALE_TIME.SEMI_STATIC },
+  );
 
   if (loading) return <Skeleton rows={3} />;
   if (!data) return null;
@@ -319,15 +298,11 @@ function DashboardView() {
 // ─── View: Org Chart ──────────────────────────────────────────────────────────
 
 function OrgChartView() {
-  const [nodes, setNodes]   = useState<OrgChartNode[]>([]);
-  const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<OrgChartNode | null>(null);
-
-  useEffect(() => {
-    apiFetch<OrgChartNode[]>('/succession/org-chart')
-      .then(setNodes)
-      .finally(() => setLoading(false));
-  }, []);
+  const { data: nodes = [], isLoading: loading } = useApiQuery<OrgChartNode[]>(
+    queryKeys.succession.orgChart(), '/succession/org-chart',
+    { staleTime: STALE_TIME.SEMI_STATIC },
+  );
 
   if (loading) return <Skeleton rows={4} />;
 
@@ -337,7 +312,7 @@ function OrgChartView() {
     <div className="flex gap-5">
       {/* Cards list */}
       <div className="flex-1 space-y-3">
-        {nodes.sort((a, b) => riskOrder[b.exitRisk] - riskOrder[a.exitRisk]).map(node => (
+        {[...nodes].sort((a, b) => riskOrder[b.exitRisk] - riskOrder[a.exitRisk]).map(node => (
           <div
             key={node.id}
             onClick={() => setSelected(selected?.id === node.id ? null : node)}
@@ -433,23 +408,20 @@ function OrgChartView() {
 // ─── View: Positions (Chair View) ─────────────────────────────────────────────
 
 function PositionsView() {
-  const [positions, setPositions] = useState<{ data: CriticalPosition[] } | null>(null);
-  const [loading, setLoading]     = useState(true);
   const [selected, setSelected]   = useState<number | null>(null);
   const [summary, setSummary]     = useState<any>(null);
   const [loadingSummary, setLoadingSummary] = useState(false);
 
-  useEffect(() => {
-    apiFetch<{ data: CriticalPosition[] }>('/succession/critical-positions?limit=50')
-      .then(setPositions)
-      .finally(() => setLoading(false));
-  }, []);
+  const { data: positions, isLoading: loading } = useApiQuery<{ data: CriticalPosition[] }>(
+    queryKeys.succession.criticalPositions(), '/succession/critical-positions',
+    { params: { limit: 50 }, staleTime: STALE_TIME.SEMI_STATIC },
+  );
 
   const loadSummary = async (positionId: number) => {
     setSelected(positionId);
     setLoadingSummary(true);
     try {
-      const s = await apiFetch<any>(`/succession/position/${positionId}/summary`);
+      const s = await apiClient.get<any>(`/succession/position/${positionId}/summary`);
       setSummary(s);
     } catch (e: any) { alert(e.message); }
     finally { setLoadingSummary(false); }
@@ -566,15 +538,11 @@ function PositionsView() {
 // ─── View: Talent Pool ────────────────────────────────────────────────────────
 
 function TalentPoolView() {
-  const [pool, setPool]   = useState<TalentPoolEntry[]>([]);
-  const [loading, setLoading] = useState(true);
   const [filter, setFilter]   = useState<ReadinessLevel | ''>('');
-
-  useEffect(() => {
-    apiFetch<TalentPoolEntry[]>('/succession/talent-pool/all')
-      .then(setPool)
-      .finally(() => setLoading(false));
-  }, []);
+  const { data: pool = [], isLoading: loading } = useApiQuery<TalentPoolEntry[]>(
+    queryKeys.succession.talentPool(), '/succession/talent-pool/all',
+    { staleTime: STALE_TIME.SEMI_STATIC },
+  );
 
   const filtered = filter ? pool.filter(p => p.readinessLevel === filter) : pool;
 
@@ -630,7 +598,7 @@ function TalentPoolView() {
               </div>
 
               {entry.notes && (
-                <p className="text-xs text-gray-500 mt-2 italic">"{entry.notes}"</p>
+                <p className="text-xs text-gray-500 mt-2 italic">&quot;{entry.notes}&quot;</p>
               )}
             </div>
           );
