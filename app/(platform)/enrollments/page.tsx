@@ -1,6 +1,11 @@
 ﻿'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState } from 'react';
+import { keepPreviousData } from '@tanstack/react-query';
+import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
+import { apiClient } from '@/lib/apiClient';
+import { queryKeys } from '@/lib/queryKeys';
+import { STALE_TIME } from '@/lib/queryClient';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -52,27 +57,6 @@ interface ComplianceDashboard {
 }
 
 type View = 'my' | 'admin' | 'compliance' | 'team';
-
-// ─── API ──────────────────────────────────────────────────────────────────────
-
-const API = process.env.NEXT_PUBLIC_API_URL ?? '/api';
-
-async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
-  const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
-  const res = await fetch(`${API}${path}`, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...options?.headers,
-    },
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({ message: 'Erro' }));
-    throw new Error(err.message ?? `HTTP ${res.status}`);
-  }
-  return res.json();
-}
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -266,36 +250,24 @@ function EnrollmentCard({
 // ─── View: My Enrollments ─────────────────────────────────────────────────────
 
 function MyEnrollmentsView() {
-  const [data, setData]       = useState<MyEnrollmentsResponse | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [tab, setTab]         = useState<'all' | 'overdue' | 'inProgress' | 'notStarted' | 'completed'>('all');
-  const [cancelling, setCancelling] = useState<number | null>(null);
+  const [tab, setTab] = useState<'all' | 'overdue' | 'inProgress' | 'notStarted' | 'completed'>('all');
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    try {
-      setData(await apiFetch<MyEnrollmentsResponse>('/enrollments/my'));
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const { data, isLoading } = useApiQuery<MyEnrollmentsResponse>(
+    queryKeys.enrollments.my(), '/enrollments/my',
+    { staleTime: STALE_TIME.DYNAMIC },
+  );
 
-  useEffect(() => { load(); }, [load]);
+  const cancel = useApiMutation(
+    (id: number) => apiClient.patch(`/enrollments/my/${id}/cancel`, {}),
+    { invalidateKeys: [queryKeys.enrollments.my()], onError: (e) => alert(e.message) },
+  );
 
-  const handleCancel = async (id: number) => {
+  const handleCancel = (id: number) => {
     if (!confirm('Cancelar esta matrícula?')) return;
-    setCancelling(id);
-    try {
-      await apiFetch(`/enrollments/my/${id}/cancel`, { method: 'PATCH', body: '{}' });
-      await load();
-    } catch (e: any) {
-      alert(e.message);
-    } finally {
-      setCancelling(null);
-    }
+    cancel.mutate(id);
   };
 
-  if (loading || !data) return <Skeleton rows={4} />;
+  if (isLoading || !data) return <Skeleton rows={4} />;
 
   const tabs: Array<{ id: typeof tab; label: string; count: number }> = [
     { id: 'all',        label: 'Todos',          count: data.enrollments.length },
@@ -362,55 +334,42 @@ function MyEnrollmentsView() {
 // ─── View: Admin Enrollments Table ────────────────────────────────────────────
 
 function AdminView() {
-  const [data, setData]         = useState<any>(null);
-  const [loading, setLoading]   = useState(true);
-  const [search, setSearch]     = useState('');
   const [status, setStatus]     = useState('');
   const [mandatory, setMandatory] = useState('');
   const [overdue, setOverdue]   = useState('');
   const [page, setPage]         = useState(1);
   const [selected, setSelected] = useState<number[]>([]);
   const [bulkDeadline, setBulkDeadline] = useState('');
-  const [bulkLoading, setBulkLoading] = useState(false);
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    try {
-      const params = new URLSearchParams({
-        page: String(page), limit: '20',
-        ...(search    ? { search }            : {}),
-        ...(status    ? { status }            : {}),
-        ...(mandatory ? { mandatory }         : {}),
-        ...(overdue   ? { overdue: 'true' }   : {}),
-      });
-      setData(await apiFetch<any>(`/enrollments?${params}`));
-    } finally {
-      setLoading(false);
-    }
-  }, [search, status, mandatory, overdue, page]);
+  const params = {
+    page, limit: 20,
+    status, mandatory,
+    overdue: overdue ? 'true' : undefined,
+  };
 
-  useEffect(() => { load(); }, [load]);
+  const { data, isLoading: loading } = useApiQuery<any>(
+    queryKeys.enrollments.list(params), '/enrollments',
+    { params, staleTime: STALE_TIME.DYNAMIC, placeholderData: keepPreviousData },
+  );
 
-  const handleBulkDeadline = async () => {
+  // Deadline em massa: dispara os PATCH em paralelo; ao concluir invalida as listas.
+  const bulkDeadlineMut = useApiMutation(
+    () => Promise.all(
+      selected.map((id) =>
+        apiClient.patch(`/enrollments/${id}/deadline`, { deadline: bulkDeadline }),
+      ),
+    ),
+    {
+      invalidateKeys: [queryKeys.enrollments.lists()],
+      onSuccess: () => { setSelected([]); setBulkDeadline(''); },
+      onError: (e) => alert(e.message),
+    },
+  );
+  const bulkLoading = bulkDeadlineMut.isPending;
+
+  const handleBulkDeadline = () => {
     if (!bulkDeadline || selected.length === 0) return;
-    setBulkLoading(true);
-    try {
-      await Promise.all(
-        selected.map(id =>
-          apiFetch(`/enrollments/${id}/deadline`, {
-            method: 'PATCH',
-            body:   JSON.stringify({ deadline: bulkDeadline }),
-          })
-        )
-      );
-      setSelected([]);
-      setBulkDeadline('');
-      await load();
-    } catch (e: any) {
-      alert(e.message);
-    } finally {
-      setBulkLoading(false);
-    }
+    bulkDeadlineMut.mutate(undefined);
   };
 
   const toggleSelect = (id: number) =>
@@ -537,19 +496,17 @@ function AdminView() {
 // ─── View: Compliance Dashboard ───────────────────────────────────────────────
 
 function ComplianceView() {
-  const [data, setData]       = useState<ComplianceDashboard | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [dashboard, setDashboard] = useState<AdminDashboard | null>(null);
+  // Duas queries independentes → correm em paralelo.
+  const { data } = useApiQuery<ComplianceDashboard>(
+    queryKeys.enrollments.compliance(), '/enrollments/compliance',
+    { staleTime: STALE_TIME.SEMI_STATIC },
+  );
+  const { data: dashboard } = useApiQuery<AdminDashboard>(
+    queryKeys.enrollments.adminDashboard(), '/enrollments/admin/dashboard',
+    { staleTime: STALE_TIME.SEMI_STATIC },
+  );
 
-  useEffect(() => {
-    Promise.all([
-      apiFetch<ComplianceDashboard>('/enrollments/compliance'),
-      apiFetch<AdminDashboard>('/enrollments/admin/dashboard'),
-    ]).then(([c, d]) => { setData(c); setDashboard(d); })
-      .finally(() => setLoading(false));
-  }, []);
-
-  if (loading || !data || !dashboard) return <Skeleton rows={3} />;
+  if (!data || !dashboard) return <Skeleton rows={3} />;
 
   const pctColor = data.complianceRate >= 80 ? 'text-emerald-600' : data.complianceRate >= 50 ? 'text-amber-600' : 'text-red-600';
 
@@ -648,16 +605,12 @@ function ComplianceView() {
 // ─── View: Team Progress ──────────────────────────────────────────────────────
 
 function TeamView() {
-  const [data, setData]       = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+  const { data, isLoading } = useApiQuery<any>(
+    queryKeys.enrollments.team(), '/enrollments/team',
+    { staleTime: STALE_TIME.DYNAMIC },
+  );
 
-  useEffect(() => {
-    apiFetch<any>('/enrollments/team')
-      .then(setData)
-      .finally(() => setLoading(false));
-  }, []);
-
-  if (loading || !data) return <Skeleton rows={4} />;
+  if (isLoading || !data) return <Skeleton rows={4} />;
 
   if (data.team.length === 0) return (
     <div className="py-12 text-center text-sm text-gray-400 border border-dashed border-gray-200 rounded-xl">

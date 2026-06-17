@@ -53,6 +53,18 @@ export const queryKeys = {
       [...queryKeys.employees.all, 'detail', id] as const,
   },
 
+  enrollments: {
+    all: ['enrollments'] as const,
+    my: () => [...queryKeys.enrollments.all, 'my'] as const,
+    lists: () => [...queryKeys.enrollments.all, 'list'] as const,
+    list: (params: Record<string, unknown>) =>
+      [...queryKeys.enrollments.lists(), params] as const,
+    compliance: () => [...queryKeys.enrollments.all, 'compliance'] as const,
+    adminDashboard: () =>
+      [...queryKeys.enrollments.all, 'admin-dashboard'] as const,
+    team: () => [...queryKeys.enrollments.all, 'team'] as const,
+  },
+
   attendance: {
     all: ['attendance'] as const,
     dashboard: () => [...queryKeys.attendance.all, 'dashboard'] as const,
