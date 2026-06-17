@@ -1,16 +1,8 @@
 'use client';
-import { useState, useEffect, useCallback } from 'react';
-
-const API = process.env.NEXT_PUBLIC_API_URL ?? '/api';
-
-function authHeaders(): Record<string, string> {
-  const token =
-    typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
-  return {
-    'Content-Type': 'application/json',
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-  };
-}
+import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
+import { apiClient } from '@/lib/apiClient';
+import { queryKeys } from '@/lib/queryKeys';
+import { STALE_TIME } from '@/lib/queryClient';
 
 interface MyEvaluation {
   id: string;
@@ -35,36 +27,41 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 export default function EvaluationsPage() {
-  const [mine, setMine] = useState<MyEvaluation[]>([]);
-  const [toComplete, setToComplete] = useState<ToComplete[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [submittingId, setSubmittingId] = useState<string | null>(null);
+  // Duas queries independentes → em paralelo (sem waterfall).
+  const mineQ = useApiQuery<MyEvaluation[]>(
+    queryKeys.monitoring.myEvaluations(),
+    '/monitoring/evaluation/my-evaluations',
+    { staleTime: STALE_TIME.DYNAMIC },
+  );
+  const todoQ = useApiQuery<ToComplete[]>(
+    queryKeys.monitoring.evaluationsToComplete(),
+    '/monitoring/evaluation/to-complete',
+    { staleTime: STALE_TIME.DYNAMIC },
+  );
 
-  const fetchData = useCallback(async () => {
-    setLoading(true);
-    setError('');
-    try {
-      const opts = { credentials: 'include' as const, headers: authHeaders() };
-      const [mineRes, todoRes] = await Promise.all([
-        fetch(`${API}/monitoring/evaluation/my-evaluations`, opts),
-        fetch(`${API}/monitoring/evaluation/to-complete`, opts),
-      ]);
-      if (!mineRes.ok) throw new Error('Erro ao carregar avaliações');
-      setMine(await mineRes.json());
-      if (todoRes.ok) setToComplete(await todoRes.json());
-    } catch (e: any) {
-      setError(e.message || 'Erro inesperado');
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const mine = mineQ.data ?? [];
+  const toComplete = todoQ.data ?? [];
+  const loading = mineQ.isLoading;
+  const error = mineQ.error?.message ?? '';
+  const fetchData = () => { mineQ.refetch(); todoQ.refetch(); };
 
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+  const submitMut = useApiMutation(
+    (vars: { id: string; score: number; feedback?: string }) =>
+      apiClient.put(`/monitoring/evaluation/${vars.id}/submit`, {
+        score: vars.score,
+        ...(vars.feedback && { feedback: vars.feedback }),
+      }),
+    {
+      invalidateKeys: [
+        queryKeys.monitoring.myEvaluations(),
+        queryKeys.monitoring.evaluationsToComplete(),
+      ],
+      onError: (e) => alert(e.message || 'Erro inesperado'),
+    },
+  );
+  const submittingId = submitMut.isPending ? submitMut.variables?.id ?? null : null;
 
-  async function submit(id: string) {
+  function submit(id: string) {
     const scoreStr = window.prompt('Pontuação (0-100):');
     if (!scoreStr) return;
     const score = Number(scoreStr);
@@ -73,26 +70,7 @@ export default function EvaluationsPage() {
       return;
     }
     const feedback = window.prompt('Feedback (opcional):') || undefined;
-    setSubmittingId(id);
-    try {
-      const res = await fetch(`${API}/monitoring/evaluation/${id}/submit`, {
-        method: 'PUT',
-        credentials: 'include',
-        headers: authHeaders(),
-        body: JSON.stringify({ score, ...(feedback && { feedback }) }),
-      });
-      if (!res.ok) {
-        const j = await res.json().catch(() => ({ message: 'Erro' }));
-        throw new Error(
-          Array.isArray(j.message) ? j.message.join(', ') : j.message,
-        );
-      }
-      await fetchData();
-    } catch (e: any) {
-      alert(e.message || 'Erro inesperado');
-    } finally {
-      setSubmittingId(null);
-    }
+    submitMut.mutate({ id, score, feedback });
   }
 
   if (loading)

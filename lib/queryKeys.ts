@@ -53,6 +53,17 @@ export const queryKeys = {
       [...queryKeys.employees.all, 'detail', id] as const,
   },
 
+  monitoring: {
+    all: ['monitoring'] as const,
+    myEvaluations: () => [...queryKeys.monitoring.all, 'my-evaluations'] as const,
+    evaluationsToComplete: () =>
+      [...queryKeys.monitoring.all, 'evaluations-to-complete'] as const,
+    indicators: (params: Record<string, unknown>) =>
+      [...queryKeys.monitoring.all, 'indicators', params] as const,
+    okrs: (params: Record<string, unknown>) =>
+      [...queryKeys.monitoring.all, 'okrs', params] as const,
+  },
+
   leave: {
     all: ['leave'] as const,
     types: () => [...queryKeys.leave.all, 'types'] as const,
