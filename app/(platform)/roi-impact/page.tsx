@@ -1,24 +1,18 @@
 ﻿'use client';
 // src/app/(dashboard)/roi-impact/page.tsx
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import {
   TrendingUp, TrendingDown, DollarSign, Target, BookOpen,
   Users, Star, BarChart2, Brain, Zap, CheckCircle,
   AlertTriangle, ChevronRight, RefreshCw, ArrowUp, ArrowDown,
 } from 'lucide-react';
+import { useApiQuery } from '@/hooks/useApiQuery';
+import { apiClient } from '@/lib/apiClient';
+import { queryKeys } from '@/lib/queryKeys';
+import { STALE_TIME } from '@/lib/queryClient';
 
 // ─── Helpers ─────────────────────────────────────────────────────
-
-const BASE = '/api';
-async function api(path: string, opts?: RequestInit) {
-  const r = await fetch(`${BASE}${path}`, {
-    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token') ?? ''}` },
-    ...opts,
-  });
-  if (!r.ok) throw new Error();
-  return r.json();
-}
 
 type Tab = 'executive' | 'learning' | 'retention' | 'performance' | 'simulator' | 'programs';
 
@@ -79,9 +73,9 @@ function ConfidenceBadge({ level }: { level?: string }) {
 // ─── Executive Tab ────────────────────────────────────────────────
 
 function ExecutiveTab() {
-  const [data, setData]   = useState<any | null>(null);
-  const [loading, setLoading] = useState(true);
-  useEffect(() => { api('/roi-impact/executive').then(setData).finally(() => setLoading(false)); }, []);
+  const { data, isLoading: loading } = useApiQuery<any>(
+    queryKeys.roiImpact.executive(), '/roi-impact/executive', { staleTime: STALE_TIME.SEMI_STATIC },
+  );
   if (loading) return <Skeleton />;
 
   const h = data?.headline ?? {};
@@ -155,9 +149,9 @@ function ExecutiveTab() {
 // ─── Learning Tab ─────────────────────────────────────────────────
 
 function LearningTab() {
-  const [data, setData]   = useState<any | null>(null);
-  const [loading, setLoading] = useState(true);
-  useEffect(() => { api('/roi-impact/impact/learning').then(setData).finally(() => setLoading(false)); }, []);
+  const { data, isLoading: loading } = useApiQuery<any>(
+    queryKeys.roiImpact.learning(), '/roi-impact/impact/learning', { staleTime: STALE_TIME.SEMI_STATIC },
+  );
   if (loading) return <Skeleton />;
 
   const v = data?.volume ?? {}, f = data?.financial ?? {};
@@ -219,9 +213,9 @@ function LearningTab() {
 // ─── Retention Tab ────────────────────────────────────────────────
 
 function RetentionTab() {
-  const [data, setData]   = useState<any | null>(null);
-  const [loading, setLoading] = useState(true);
-  useEffect(() => { api('/roi-impact/impact/retention').then(setData).finally(() => setLoading(false)); }, []);
+  const { data, isLoading: loading } = useApiQuery<any>(
+    queryKeys.roiImpact.retention(), '/roi-impact/impact/retention', { staleTime: STALE_TIME.SEMI_STATIC },
+  );
   if (loading) return <Skeleton />;
 
   return (
@@ -277,7 +271,7 @@ function SimulatorTab() {
 
   const run = async () => {
     setLoading(true);
-    api('/roi-impact/simulate', { method: 'POST', body: JSON.stringify({ targetCompletionRate: targetRate }) })
+    apiClient.post<any>('/roi-impact/simulate', { targetCompletionRate: targetRate })
       .then(setResult).finally(() => setLoading(false));
   };
 
@@ -355,9 +349,9 @@ function SimulatorTab() {
 // ─── Programs Tab ─────────────────────────────────────────────────
 
 function ProgramsTab() {
-  const [data, setData]   = useState<any | null>(null);
-  const [loading, setLoading] = useState(true);
-  useEffect(() => { api('/roi-impact/programs').then(setData).finally(() => setLoading(false)); }, []);
+  const { data, isLoading: loading } = useApiQuery<any>(
+    queryKeys.roiImpact.programs(), '/roi-impact/programs', { staleTime: STALE_TIME.SEMI_STATIC },
+  );
   if (loading) return <Skeleton count={3} />;
 
   return (
@@ -422,9 +416,9 @@ export default function RoiImpactPage() {
   const [tab, setTab] = useState<Tab>('executive');
 
   const PerformanceTab = () => {
-    const [data, setData] = useState<any | null>(null);
-    const [loading, setLoading] = useState(true);
-    useEffect(() => { api('/roi-impact/impact/performance').then(setData).finally(() => setLoading(false)); }, []);
+    const { data, isLoading: loading } = useApiQuery<any>(
+      queryKeys.roiImpact.performance(), '/roi-impact/impact/performance', { staleTime: STALE_TIME.SEMI_STATIC },
+    );
     if (loading) return <Skeleton />;
     return (
       <div className="space-y-5">

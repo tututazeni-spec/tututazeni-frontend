@@ -1,28 +1,20 @@
 ﻿'use client';
 // src/app/(dashboard)/leader/page.tsx
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import {
   Users, Star, Target, BookOpen, Brain, AlertTriangle, CheckCircle,
   MessageSquare, Calendar, TrendingUp, TrendingDown, Zap, Award,
   ChevronRight, RefreshCw, Clock, ArrowUp,
 } from 'lucide-react';
+import { useApiQuery } from '@/hooks/useApiQuery';
+import { apiClient } from '@/lib/apiClient';
+import { queryKeys } from '@/lib/queryKeys';
+import { STALE_TIME } from '@/lib/queryClient';
 
 // ─── Types ───────────────────────────────────────────────────────
 
 type Tab = 'dashboard' | 'team' | 'performance' | 'pipeline' | 'plans';
-
-// ─── Helpers ─────────────────────────────────────────────────────
-
-const BASE = '/api';
-async function api(path: string, opts?: RequestInit) {
-  const r = await fetch(`${BASE}${path}`, {
-    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token') ?? ''}` },
-    ...opts,
-  });
-  if (!r.ok) throw new Error();
-  return r.json();
-}
 
 const RISK_COLOR: Record<string, string> = {
   HIGH:   'bg-red-100 text-red-700',
@@ -78,14 +70,11 @@ function KPICard({ icon: Icon, label, value, sub, status, trend, color = 'text-i
 // ─── Dashboard Tab ────────────────────────────────────────────────
 
 function DashboardTab() {
-  const [dash, setDash]   = useState<any | null>(null);
-  const [recs, setRecs]   = useState<any | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    Promise.all([api('/leaders/my-dashboard'), api('/leaders/my-recommendations')])
-      .then(([d, r]) => { setDash(d); setRecs(r); }).finally(() => setLoading(false));
-  }, []);
+  const dashQ = useApiQuery<any>(queryKeys.leader.dashboard(), '/leaders/my-dashboard', { staleTime: STALE_TIME.DYNAMIC });
+  const recsQ = useApiQuery<any>(queryKeys.leader.recommendations(), '/leaders/my-recommendations', { staleTime: STALE_TIME.DYNAMIC });
+  const dash = dashQ.data ?? null;
+  const recs = recsQ.data ?? null;
+  const loading = dashQ.isLoading;
 
   if (loading) return <Skeleton />;
   const k = dash?.kpis ?? {};
@@ -164,14 +153,11 @@ function DashboardTab() {
 // ─── Team Tab ─────────────────────────────────────────────────────
 
 function TeamTab() {
-  const [data, setData]   = useState<any | null>(null);
   const [search, setSearch] = useState('');
-  const [loading, setLoading] = useState(true);
   const [feedback, setFeedback] = useState<{ userId: number; name: string } | null>(null);
-
-  useEffect(() => {
-    api('/leaders/my-team').then(setData).finally(() => setLoading(false));
-  }, []);
+  const { data, isLoading: loading } = useApiQuery<any>(
+    queryKeys.leader.team(), '/leaders/my-team', { staleTime: STALE_TIME.DYNAMIC },
+  );
 
   if (loading) return <Skeleton />;
 
@@ -275,7 +261,7 @@ function FeedbackForm({ recipientId, onClose }: { recipientId: number; onClose: 
   const send = async () => {
     if (!content.trim()) return;
     setSending(true);
-    await api('/leaders/feedback', { method: 'POST', body: JSON.stringify({ recipientId, type, content }) });
+    await apiClient.post('/leaders/feedback', { recipientId, type, content }).catch(() => {});
     setSending(false);
     onClose();
   };
@@ -309,9 +295,9 @@ function FeedbackForm({ recipientId, onClose }: { recipientId: number; onClose: 
 // ─── Performance Tab ──────────────────────────────────────────────
 
 function PerformanceTab() {
-  const [data, setData]   = useState<any | null>(null);
-  const [loading, setLoading] = useState(true);
-  useEffect(() => { api('/leaders/my-dashboard').then(setData).finally(() => setLoading(false)); }, []);
+  const { data, isLoading: loading } = useApiQuery<any>(
+    queryKeys.leader.dashboard(), '/leaders/my-dashboard', { staleTime: STALE_TIME.DYNAMIC },
+  );
 
   return (
     <div className="space-y-4">
@@ -334,9 +320,9 @@ function PerformanceTab() {
 // ─── Talent Pipeline Tab ──────────────────────────────────────────
 
 function TalentPipelineTab() {
-  const [data, setData]   = useState<any | null>(null);
-  const [loading, setLoading] = useState(true);
-  useEffect(() => { api('/leaders/my-talent-pipeline').then(setData).finally(() => setLoading(false)); }, []);
+  const { data, isLoading: loading } = useApiQuery<any>(
+    queryKeys.leader.pipeline(), '/leaders/my-talent-pipeline', { staleTime: STALE_TIME.DYNAMIC },
+  );
   if (loading) return <Skeleton />;
 
   const sections = [
@@ -385,9 +371,9 @@ function TalentPipelineTab() {
 // ─── Plans Tab ────────────────────────────────────────────────────
 
 function PlansTab() {
-  const [data, setData]   = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  useEffect(() => { api('/leaders/my-team-plans').then(setData).finally(() => setLoading(false)); }, []);
+  const { data = [], isLoading: loading } = useApiQuery<any[]>(
+    queryKeys.leader.plans(), '/leaders/my-team-plans', { staleTime: STALE_TIME.DYNAMIC },
+  );
 
   if (loading) return <Skeleton />;
 
@@ -409,7 +395,7 @@ function PlansTab() {
             <ProgressBar value={p.progress}
               color={p.progress >= 75 ? 'bg-emerald-500' : p.progress >= 40 ? 'bg-amber-400' : 'bg-red-400'} />
           </div>
-          <button onClick={() => api(`/leaders/plans/${p.id}/approve`, { method: 'PATCH' })}
+          <button onClick={() => { void apiClient.patch(`/leaders/plans/${p.id}/approve`, {}).catch(() => {}); }}
             className="shrink-0 text-xs px-3 py-1.5 border border-indigo-200 text-indigo-700 rounded-lg hover:bg-indigo-50">
             Aprovar
           </button>

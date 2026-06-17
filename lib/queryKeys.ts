@@ -141,6 +141,24 @@ export const queryKeys = {
     top: () => [...queryKeys.competencies.all, 'top'] as const,
   },
 
+  leader: {
+    all: ['leader'] as const,
+    dashboard: () => [...queryKeys.leader.all, 'dashboard'] as const,
+    recommendations: () => [...queryKeys.leader.all, 'recommendations'] as const,
+    team: () => [...queryKeys.leader.all, 'team'] as const,
+    pipeline: () => [...queryKeys.leader.all, 'pipeline'] as const,
+    plans: () => [...queryKeys.leader.all, 'plans'] as const,
+  },
+
+  roiImpact: {
+    all: ['roi-impact'] as const,
+    executive: () => [...queryKeys.roiImpact.all, 'executive'] as const,
+    learning: () => [...queryKeys.roiImpact.all, 'learning'] as const,
+    retention: () => [...queryKeys.roiImpact.all, 'retention'] as const,
+    performance: () => [...queryKeys.roiImpact.all, 'performance'] as const,
+    programs: () => [...queryKeys.roiImpact.all, 'programs'] as const,
+  },
+
   search: {
     all: ['search'] as const,
     suggestions: () => [...queryKeys.search.all, 'suggestions'] as const,
