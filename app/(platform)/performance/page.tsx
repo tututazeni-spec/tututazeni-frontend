@@ -1,6 +1,10 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState } from 'react';
+import { useApiQuery } from '@/hooks/useApiQuery';
+import { apiClient } from '@/lib/apiClient';
+import { queryKeys } from '@/lib/queryKeys';
+import { STALE_TIME } from '@/lib/queryClient';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -96,27 +100,6 @@ interface NineBoxGrid {
 
 type View = 'dashboard' | 'team' | 'matrix9box' | 'analytics';
 
-// ─── API ──────────────────────────────────────────────────────────────────────
-
-const API = process.env.NEXT_PUBLIC_API_URL ?? '/api';
-
-async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
-  const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
-  const res = await fetch(`${API}${path}`, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...options?.headers,
-    },
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({ message: 'Erro' }));
-    throw new Error(err.message ?? `HTTP ${res.status}`);
-  }
-  return res.json();
-}
-
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function fmtDate(d: string | null): string {
@@ -208,9 +191,6 @@ function Skeleton({ rows = 4 }: { rows?: number }) {
 // ─── View: My Dashboard ───────────────────────────────────────────────────────
 
 function MyDashboard() {
-  const [history, setHistory] = useState<any>(null);
-  const [cycle, setCycle]     = useState<Cycle | null>(null);
-  const [loading, setLoading] = useState(true);
   const [newGoalTitle, setNewGoalTitle] = useState('');
   const [newGoalTarget, setNewGoalTarget] = useState('');
   const [creatingGoal, setCreatingGoal] = useState(false);
@@ -218,25 +198,18 @@ function MyDashboard() {
   const [feedbackTarget, setFeedbackTarget] = useState('');
   const [sendingFeedback, setSendingFeedback] = useState(false);
 
-  useEffect(() => {
-    Promise.all([
-      apiFetch<any>('/performance/my'),
-      apiFetch<Cycle | null>('/performance/cycles/current').catch(() => null),
-    ])
-      .then(([h, c]) => { setHistory(h); setCycle(c); })
-      .finally(() => setLoading(false));
-  }, []);
+  const historyQ = useApiQuery<any>(queryKeys.performance.my(), '/performance/my', { staleTime: STALE_TIME.DYNAMIC });
+  const cycleQ = useApiQuery<Cycle | null>(queryKeys.performance.currentCycle(), '/performance/cycles/current', { staleTime: STALE_TIME.SEMI_STATIC, retry: false });
+  const history = historyQ.data ?? null;
+  const cycle = cycleQ.data ?? null;
+  const loading = historyQ.isLoading;
 
   const handleCreateGoal = async () => {
     if (!newGoalTitle || !newGoalTarget || !cycle) return;
     setCreatingGoal(true);
     try {
-      await apiFetch('/performance/goals', {
-        method: 'POST',
-        body: JSON.stringify({ userId: 0, cycleId: cycle.id, title: newGoalTitle, targetValue: parseFloat(newGoalTarget) }),
-      });
-      const h = await apiFetch<any>('/performance/my');
-      setHistory(h);
+      await apiClient.post('/performance/goals', { userId: 0, cycleId: cycle.id, title: newGoalTitle, targetValue: parseFloat(newGoalTarget) });
+      await historyQ.refetch();
       setNewGoalTitle(''); setNewGoalTarget('');
     } catch (e: any) { alert(e.message); }
     finally { setCreatingGoal(false); }
@@ -244,12 +217,8 @@ function MyDashboard() {
 
   const handleUpdateProgress = async (goalId: number, currentValue: number) => {
     try {
-      await apiFetch(`/performance/goals/${goalId}/progress`, {
-        method: 'PATCH',
-        body: JSON.stringify({ currentValue }),
-      });
-      const h = await apiFetch<any>('/performance/my');
-      setHistory(h);
+      await apiClient.patch(`/performance/goals/${goalId}/progress`, { currentValue });
+      await historyQ.refetch();
     } catch (e: any) { alert(e.message); }
   };
 
@@ -257,13 +226,10 @@ function MyDashboard() {
     if (!feedbackMsg || !feedbackTarget) return;
     setSendingFeedback(true);
     try {
-      await apiFetch('/performance/feedback', {
-        method: 'POST',
-        body: JSON.stringify({
-          targetUserId: parseInt(feedbackTarget),
-          type: 'PRAISE', message: feedbackMsg,
-          cycleId: cycle?.id,
-        }),
+      await apiClient.post('/performance/feedback', {
+        targetUserId: parseInt(feedbackTarget),
+        type: 'PRAISE', message: feedbackMsg,
+        cycleId: cycle?.id,
       });
       setFeedbackMsg(''); setFeedbackTarget('');
       alert('Feedback enviado!');
@@ -451,18 +417,11 @@ function MyDashboard() {
 // ─── View: Team Performance ───────────────────────────────────────────────────
 
 function TeamView() {
-  const [data, setData]     = useState<{ team: TeamMember[]; total: number } | null>(null);
-  const [cycle, setCycle]   = useState<Cycle | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    Promise.all([
-      apiFetch<any>('/performance/team'),
-      apiFetch<Cycle | null>('/performance/cycles/current').catch(() => null),
-    ])
-      .then(([d, c]) => { setData(d); setCycle(c); })
-      .finally(() => setLoading(false));
-  }, []);
+  const dataQ = useApiQuery<{ team: TeamMember[]; total: number }>(queryKeys.performance.team(), '/performance/team', { staleTime: STALE_TIME.DYNAMIC });
+  const cycleQ = useApiQuery<Cycle | null>(queryKeys.performance.currentCycle(), '/performance/cycles/current', { staleTime: STALE_TIME.SEMI_STATIC, retry: false });
+  const data = dataQ.data ?? null;
+  const cycle = cycleQ.data ?? null;
+  const loading = dataQ.isLoading;
 
   if (loading) return <Skeleton />;
   if (!data) return null;
@@ -543,14 +502,9 @@ const BOX_LABELS: Record<string, { label: string; cls: string; desc: string }> =
 };
 
 function NineBoxView() {
-  const [data, setData]     = useState<NineBoxGrid | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    apiFetch<NineBoxGrid>('/performance/9box')
-      .then(setData)
-      .finally(() => setLoading(false));
-  }, []);
+  const { data, isLoading: loading } = useApiQuery<NineBoxGrid>(
+    queryKeys.performance.nineBox(), '/performance/9box', { staleTime: STALE_TIME.SEMI_STATIC },
+  );
 
   if (loading) return <Skeleton rows={3} />;
   if (!data) return null;
@@ -614,14 +568,9 @@ function NineBoxView() {
 // ─── View: Analytics ─────────────────────────────────────────────────────────
 
 function AnalyticsView() {
-  const [data, setData]     = useState<Analytics | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    apiFetch<Analytics>('/performance/analytics')
-      .then(setData)
-      .finally(() => setLoading(false));
-  }, []);
+  const { data, isLoading: loading } = useApiQuery<Analytics>(
+    queryKeys.performance.analytics(), '/performance/analytics', { staleTime: STALE_TIME.SEMI_STATIC },
+  );
 
   if (loading) return <Skeleton rows={3} />;
   if (!data) return null;
