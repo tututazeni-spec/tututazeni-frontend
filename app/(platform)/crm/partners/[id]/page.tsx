@@ -1,17 +1,10 @@
 'use client';
-import { useState, useEffect, useCallback } from 'react';
+import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-
-const API = process.env.NEXT_PUBLIC_API_URL ?? '/api';
-
-function authHeaders(): Record<string, string> {
-  const token =
-    typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
-  return {
-    'Content-Type': 'application/json',
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-  };
-}
+import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
+import { apiClient } from '@/lib/apiClient';
+import { queryKeys } from '@/lib/queryKeys';
+import { STALE_TIME } from '@/lib/queryClient';
 
 interface Interaction {
   id: string;
@@ -89,12 +82,7 @@ export default function PartnerDetailPage() {
   const router = useRouter();
   const id = params?.id as string;
 
-  const [p, setP] = useState<PartnerDetail | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-
   const [showForm, setShowForm] = useState(false);
-  const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({
     type: 'MEETING',
     subject: '',
@@ -103,76 +91,46 @@ export default function PartnerDetailPage() {
     satisfaction: '',
   });
 
-  const fetchData = useCallback(async () => {
-    setLoading(true);
-    setError('');
-    try {
-      const res = await fetch(`${API}/crm/partners/${id}`, {
-        credentials: 'include',
-        headers: authHeaders(),
-      });
-      if (!res.ok) throw new Error('Erro ao carregar parceiro');
-      setP(await res.json());
-    } catch (e: any) {
-      setError(e.message || 'Erro inesperado');
-    } finally {
-      setLoading(false);
-    }
-  }, [id]);
+  const { data: p, isLoading: loading, error: queryError } =
+    useApiQuery<PartnerDetail>(
+      queryKeys.partners.detail(id), `/crm/partners/${id}`,
+      { enabled: !!id, staleTime: STALE_TIME.DYNAMIC },
+    );
+  const error = queryError?.message ?? '';
+  const detailKey = queryKeys.partners.detail(id);
 
-  useEffect(() => {
-    if (id) fetchData();
-  }, [id, fetchData]);
+  const intMut = useApiMutation(
+    () => apiClient.post(`/crm/partners/${id}/interactions`, {
+      type: form.type,
+      subject: form.subject,
+      description: form.description,
+      ...(form.outcome && { outcome: form.outcome }),
+      ...(form.satisfaction && { satisfaction: Number(form.satisfaction) }),
+    }),
+    {
+      invalidateKeys: [detailKey],
+      onSuccess: () => {
+        setShowForm(false);
+        setForm({ type: 'MEETING', subject: '', description: '', outcome: '', satisfaction: '' });
+      },
+      onError: (e) => alert(e.message || 'Erro inesperado'),
+    },
+  );
+  const saving = intMut.isPending;
 
-  async function submitInteraction(e: React.FormEvent) {
+  const completeMut = useApiMutation(
+    (milestoneId: string) =>
+      apiClient.put(`/crm/partners/milestones/${milestoneId}/complete`, {}),
+    { invalidateKeys: [detailKey], onError: (e) => alert(e.message || 'Erro inesperado') },
+  );
+
+  function submitInteraction(e: React.FormEvent) {
     e.preventDefault();
-    setSaving(true);
-    try {
-      const payload: any = {
-        type: form.type,
-        subject: form.subject,
-        description: form.description,
-        ...(form.outcome && { outcome: form.outcome }),
-        ...(form.satisfaction && { satisfaction: Number(form.satisfaction) }),
-      };
-      const res = await fetch(`${API}/crm/partners/${id}/interactions`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: authHeaders(),
-        body: JSON.stringify(payload),
-      });
-      if (!res.ok) throw new Error('Erro ao guardar interacção');
-      setShowForm(false);
-      setForm({
-        type: 'MEETING',
-        subject: '',
-        description: '',
-        outcome: '',
-        satisfaction: '',
-      });
-      await fetchData();
-    } catch (e: any) {
-      alert(e.message || 'Erro inesperado');
-    } finally {
-      setSaving(false);
-    }
+    intMut.mutate(undefined);
   }
 
-  async function completeMilestone(milestoneId: string) {
-    try {
-      const res = await fetch(
-        `${API}/crm/partners/milestones/${milestoneId}/complete`,
-        {
-          method: 'PUT',
-          credentials: 'include',
-          headers: authHeaders(),
-        },
-      );
-      if (!res.ok) throw new Error('Erro ao concluir milestone');
-      await fetchData();
-    } catch (e: any) {
-      alert(e.message || 'Erro inesperado');
-    }
+  function completeMilestone(milestoneId: string) {
+    completeMut.mutate(milestoneId);
   }
 
   if (loading)
