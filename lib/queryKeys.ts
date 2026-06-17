@@ -100,6 +100,23 @@ export const queryKeys = {
     transcript: () => [...queryKeys.academic.all, 'transcript'] as const,
   },
 
+  payslips: {
+    all: ['payslips'] as const,
+    list: (params: Record<string, unknown>) =>
+      [...queryKeys.payslips.all, 'list', params] as const,
+    detail: (id: number) => [...queryKeys.payslips.all, 'detail', id] as const,
+    annual: (year: string) =>
+      [...queryKeys.payslips.all, 'annual', year] as const,
+  },
+
+  assessments: {
+    all: ['assessments'] as const,
+    list: () => [...queryKeys.assessments.all, 'list'] as const,
+    myAttempts: () => [...queryKeys.assessments.all, 'my-attempts'] as const,
+    detail: (id: number) =>
+      [...queryKeys.assessments.all, 'detail', id] as const,
+  },
+
   departments: {
     all: ['departments'] as const,
     list: (params: Record<string, unknown>) =>

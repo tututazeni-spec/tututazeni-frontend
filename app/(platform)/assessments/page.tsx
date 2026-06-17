@@ -2,7 +2,11 @@
 // Inclui: player de avaliação, resultado, lista, e builder admin
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { useApiQuery } from '@/hooks/useApiQuery';
+import { apiClient } from '@/lib/apiClient';
+import { queryKeys } from '@/lib/queryKeys';
+import { STALE_TIME } from '@/lib/queryClient';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -67,27 +71,6 @@ interface AttemptResult {
 }
 
 type View = 'list' | 'player' | 'result' | 'review';
-
-// ─── API ──────────────────────────────────────────────────────────────────────
-
-const API = process.env.NEXT_PUBLIC_API_URL ?? '/api';
-
-async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
-  const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
-  const res = await fetch(`${API}${path}`, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...options?.headers,
-    },
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({ message: 'Erro' }));
-    throw new Error(err.message ?? `HTTP ${res.status}`);
-  }
-  return res.json();
-}
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -415,7 +398,7 @@ function AssessmentPlayer({
   useEffect(() => {
     const init = async () => {
       try {
-        const a = await apiFetch<Assessment>(`/assessments/${assessmentId}`);
+        const a = await apiClient.get<Assessment>(`/assessments/${assessmentId}`);
         // Parse options para cada pergunta
         const parsed = {
           ...a,
@@ -423,10 +406,7 @@ function AssessmentPlayer({
         };
         setAssessment(parsed);
 
-        const att = await apiFetch<any>('/assessments/attempts/start', {
-          method: 'POST',
-          body: JSON.stringify({ assessmentId }),
-        });
+        const att = await apiClient.post<any>('/assessments/attempts/start', { assessmentId });
         setAttempt(att);
 
         // Restaurar auto-save
@@ -455,10 +435,7 @@ function AssessmentPlayer({
     const interval = setInterval(async () => {
       const answersList = Object.values(answers);
       if (answersList.length === 0) return;
-      await apiFetch('/assessments/attempts/save', {
-        method: 'POST',
-        body: JSON.stringify({ attemptId: attempt.id, answers: answersList }),
-      }).catch(() => {});
+      await apiClient.post('/assessments/attempts/save', { attemptId: attempt.id, answers: answersList }).catch(() => {});
     }, 30000);
     return () => clearInterval(interval);
   }, [attempt, answers, assessment]);
@@ -468,10 +445,7 @@ function AssessmentPlayer({
     setSubmitting(true);
     try {
       const answersList = assessment.questions.map(q => answers[q.id] ?? { questionId: q.id });
-      const res = await apiFetch<AttemptResult>('/assessments/attempts/submit', {
-        method: 'POST',
-        body: JSON.stringify({ attemptId: attempt.id, answers: answersList }),
-      });
+      const res = await apiClient.post<AttemptResult>('/assessments/attempts/submit', { attemptId: attempt.id, answers: answersList });
       setResult(res);
     } catch (e: any) {
       alert(e.message);
@@ -626,18 +600,17 @@ function AssessmentPlayer({
 // ─── View: List ───────────────────────────────────────────────────────────────
 
 function ListView({ onStart }: { onStart: (id: number) => void }) {
-  const [data, setData]       = useState<Assessment[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [attempts, setAttempts] = useState<any[]>([]);
-
-  useEffect(() => {
-    Promise.all([
-      apiFetch<Assessment[]>('/assessments?status=PUBLISHED'),
-      apiFetch<any[]>('/assessments/my/attempts'),
-    ])
-      .then(([asms, atts]) => { setData(asms); setAttempts(atts); })
-      .finally(() => setLoading(false));
-  }, []);
+  const dataQ = useApiQuery<Assessment[]>(
+    queryKeys.assessments.list(), '/assessments',
+    { params: { status: 'PUBLISHED' }, staleTime: STALE_TIME.SEMI_STATIC },
+  );
+  const attemptsQ = useApiQuery<any[]>(
+    queryKeys.assessments.myAttempts(), '/assessments/my/attempts',
+    { staleTime: STALE_TIME.DYNAMIC },
+  );
+  const data = dataQ.data ?? [];
+  const attempts = attemptsQ.data ?? [];
+  const loading = dataQ.isLoading;
 
   const getMyBestScore = (assessmentId: number) => {
     const myAttempts = attempts.filter(a => a.assessmentId === assessmentId && a.status !== 'IN_PROGRESS');
@@ -718,23 +691,21 @@ function ListView({ onStart }: { onStart: (id: number) => void }) {
 // ─── View: Review (Attempted) ─────────────────────────────────────────────────
 
 function ReviewView() {
-  const [attempts, setAttempts] = useState<any[]>([]);
-  const [loading, setLoading]   = useState(true);
   const [selectedAttempt, setSelected] = useState<any>(null);
   const [detail, setDetail]     = useState<any>(null);
   const [loadingDetail, setLoadingDetail] = useState(false);
 
-  useEffect(() => {
-    apiFetch<any[]>('/assessments/my/attempts')
-      .then(d => setAttempts(d.filter(a => a.status !== 'IN_PROGRESS')))
-      .finally(() => setLoading(false));
-  }, []);
+  const { data: allAttempts = [], isLoading: loading } = useApiQuery<any[]>(
+    queryKeys.assessments.myAttempts(), '/assessments/my/attempts',
+    { staleTime: STALE_TIME.DYNAMIC },
+  );
+  const attempts = allAttempts.filter(a => a.status !== 'IN_PROGRESS');
 
   const loadDetail = async (attempt: any) => {
     setSelected(attempt);
     setLoadingDetail(true);
     try {
-      const d = await apiFetch<any>(`/assessments/attempts/${attempt.id}`);
+      const d = await apiClient.get<any>(`/assessments/attempts/${attempt.id}`);
       setDetail(d);
     } catch { /* silent */ }
     finally { setLoadingDetail(false); }

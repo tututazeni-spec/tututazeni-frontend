@@ -2,7 +2,11 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import { keepPreviousData } from '@tanstack/react-query';
+import { useApiQuery } from '@/hooks/useApiQuery';
+import { apiClient, API_URL } from '@/lib/apiClient';
+import { queryKeys } from '@/lib/queryKeys';
+import { STALE_TIME } from '@/lib/queryClient';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -94,24 +98,8 @@ interface SimulateResult {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? '/api';
-
-async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
-  const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
-  const res = await fetch(`${API_BASE}${path}`, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...options?.headers,
-    },
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({ message: 'Erro desconhecido' }));
-    throw new Error(err.message ?? `HTTP ${res.status}`);
-  }
-  return res.json();
-}
+// Base usada para links directos de PDF/export (navegação do browser com cookie).
+const API_BASE = API_URL;
 
 function fmtKz(value: number): string {
   return new Intl.NumberFormat('pt-AO', { style: 'currency', currency: 'AOA', maximumFractionDigits: 0 })
@@ -185,28 +173,15 @@ function ListView({
 }: {
   onSelect: (id: number) => void;
 }) {
-  const [data, setData] = useState<PaginatedPayslips | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [year, setYear] = useState(new Date().getFullYear().toString());
   const [page, setPage] = useState(1);
+  const params = { year, page, limit: 12 };
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const result = await apiFetch<PaginatedPayslips>(
-        `/payslips/my?year=${year}&page=${page}&limit=12`
-      );
-      setData(result);
-    } catch (e: any) {
-      setError(e.message);
-    } finally {
-      setLoading(false);
-    }
-  }, [year, page]);
-
-  useEffect(() => { load(); }, [load]);
+  const { data, isLoading: loading, error: queryError } = useApiQuery<PaginatedPayslips>(
+    queryKeys.payslips.list(params), '/payslips/my',
+    { params, staleTime: STALE_TIME.SEMI_STATIC, placeholderData: keepPreviousData },
+  );
+  const error = queryError?.message ?? null;
 
   const years = Array.from({ length: 4 }, (_, i) => (new Date().getFullYear() - i).toString());
 
@@ -316,9 +291,6 @@ function DetailView({
   payslipId: number;
   onBack: () => void;
 }) {
-  const [data, setData] = useState<Payslip | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [maskedData, setMaskedData] = useState(true);
   const [acknowledging, setAcknowledging] = useState(false);
   const [showDispute, setShowDispute] = useState(false);
@@ -326,19 +298,18 @@ function DetailView({
   const [disputeDetails, setDisputeDetails] = useState('');
   const [disputeLoading, setDisputeLoading] = useState(false);
 
-  useEffect(() => {
-    apiFetch<Payslip>(`/payslips/my/${payslipId}`)
-      .then(setData)
-      .catch(e => setError(e.message))
-      .finally(() => setLoading(false));
-  }, [payslipId]);
+  const { data, isLoading: loading, error: queryError, refetch } = useApiQuery<Payslip>(
+    queryKeys.payslips.detail(payslipId), `/payslips/my/${payslipId}`,
+    { enabled: !!payslipId, staleTime: STALE_TIME.DYNAMIC },
+  );
+  const error = queryError?.message ?? null;
 
   const acknowledge = async () => {
     if (!data || data.status === 'ACKNOWLEDGED') return;
     setAcknowledging(true);
     try {
-      const updated = await apiFetch<Payslip>(`/payslips/my/${payslipId}/acknowledge`, { method: 'PATCH' });
-      setData(updated);
+      await apiClient.patch(`/payslips/my/${payslipId}/acknowledge`, {});
+      await refetch();
     } catch (e: any) {
       alert(e.message);
     } finally {
@@ -350,10 +321,7 @@ function DetailView({
     if (!disputeReason.trim()) return;
     setDisputeLoading(true);
     try {
-      await apiFetch(`/payslips/my/${payslipId}/dispute`, {
-        method: 'POST',
-        body: JSON.stringify({ reason: disputeReason, details: disputeDetails }),
-      });
+      await apiClient.post(`/payslips/my/${payslipId}/dispute`, { reason: disputeReason, details: disputeDetails });
       setShowDispute(false);
       alert('Disputa registada com sucesso. O RH será notificado.');
     } catch (e: any) {
@@ -595,7 +563,7 @@ function CompareView() {
     setLoading(true);
     setError(null);
     try {
-      const data = await apiFetch<CompareResult>(`/payslips/my/compare?periodA=${periodA}&periodB=${periodB}`);
+      const data = await apiClient.get<CompareResult>('/payslips/my/compare', { params: { periodA, periodB } });
       setResult(data);
     } catch (e: any) {
       setError(e.message);
@@ -723,10 +691,7 @@ function SimulateView() {
   const simulate = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await apiFetch<SimulateResult>('/payslips/simulate', {
-        method: 'POST',
-        body: JSON.stringify(form),
-      });
+      const data = await apiClient.post<SimulateResult>('/payslips/simulate', form);
       setResult(data);
     } catch {
       // silent — keep old result
@@ -857,24 +822,12 @@ function SimulateView() {
 // 5. Resumo anual
 function AnnualView() {
   const [year, setYear] = useState(new Date().getFullYear().toString());
-  const [data, setData] = useState<AnnualSummary | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const result = await apiFetch<AnnualSummary>(`/payslips/my/annual-summary?year=${year}`);
-      setData(result);
-    } catch (e: any) {
-      setError(e.message);
-    } finally {
-      setLoading(false);
-    }
-  }, [year]);
-
-  useEffect(() => { load(); }, [load]);
+  const { data, isLoading: loading, error: queryError } = useApiQuery<AnnualSummary>(
+    queryKeys.payslips.annual(year), '/payslips/my/annual-summary',
+    { params: { year }, staleTime: STALE_TIME.SEMI_STATIC },
+  );
+  const error = queryError?.message ?? null;
 
   const years = Array.from({ length: 4 }, (_, i) => (new Date().getFullYear() - i).toString());
 
