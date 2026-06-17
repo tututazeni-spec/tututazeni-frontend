@@ -1,6 +1,12 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState } from 'react';
+import { keepPreviousData } from '@tanstack/react-query';
+import { useApiQuery } from '../../../hooks/useApiQuery';
+import { apiClient } from '../../../lib/apiClient';
+import { queryKeys } from '../../../lib/queryKeys';
+import { STALE_TIME } from '../../../lib/queryClient';
+import { useDebounce } from '../../../hooks/useDebounce';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -81,27 +87,6 @@ interface HeadcountRow {
 
 type View = 'dashboard' | 'chart' | 'departments' | 'positions' | 'timeline';
 
-// ─── API ──────────────────────────────────────────────────────────────────────
-
-const API = process.env.NEXT_PUBLIC_API_URL ?? '/api';
-
-async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
-  const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
-  const res = await fetch(`${API}${path}`, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...options?.headers,
-    },
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({ message: 'Erro' }));
-    throw new Error(err.message ?? `HTTP ${res.status}`);
-  }
-  return res.json();
-}
-
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function initials(name: string): string {
@@ -161,20 +146,19 @@ const CHANGE_CFG: Record<ChangeType, { label: string; cls: string; icon: string 
 // ─── View: Dashboard ──────────────────────────────────────────────────────────
 
 function DashboardView() {
-  const [stats, setStats]       = useState<OrgStats | null>(null);
-  const [headcount, setHeadcount] = useState<HeadcountRow[]>([]);
-  const [loading, setLoading]   = useState(true);
+  const statsQuery = useApiQuery<OrgStats>(
+    queryKeys.organization.stats(), '/organization/stats',
+    { staleTime: STALE_TIME.SEMI_STATIC },
+  );
+  const headcountQuery = useApiQuery<HeadcountRow[]>(
+    queryKeys.organization.headcount(), '/organization/headcount',
+    { staleTime: STALE_TIME.SEMI_STATIC },
+  );
 
-  useEffect(() => {
-    Promise.all([
-      apiFetch<OrgStats>('/organization/stats'),
-      apiFetch<HeadcountRow[]>('/organization/headcount').catch(() => []),
-    ])
-      .then(([s, h]) => { setStats(s); setHeadcount(h); })
-      .finally(() => setLoading(false));
-  }, []);
+  const stats     = statsQuery.data ?? null;
+  const headcount = headcountQuery.data ?? [];
 
-  if (loading || !stats) return <Skeleton rows={4} />;
+  if (statsQuery.isLoading || !stats) return <Skeleton rows={4} />;
 
   const { headcount: hc, kpis } = stats;
 
@@ -315,23 +299,13 @@ function OrgChartNode({ node, depth = 0 }: { node: OrgNode; depth?: number }) {
 // ─── View: Org Chart ──────────────────────────────────────────────────────────
 
 function OrgChartView() {
-  const [data, setData]   = useState<OrgNode[]>([]);
-  const [loading, setLoading] = useState(true);
   const [depth, setDepth] = useState(3);
   const [search, setSearch] = useState('');
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    try {
-      const params = new URLSearchParams({ depth: String(depth) });
-      const res = await apiFetch<OrgNode[]>(`/organization/chart?${params}`);
-      setData(res);
-    } finally {
-      setLoading(false);
-    }
-  }, [depth]);
-
-  useEffect(() => { load(); }, [load]);
+  const { data = [], isLoading: loading } = useApiQuery<OrgNode[]>(
+    queryKeys.organization.chart(depth), '/organization/chart',
+    { params: { depth }, staleTime: STALE_TIME.SEMI_STATIC, placeholderData: keepPreviousData },
+  );
 
   return (
     <div>
@@ -372,26 +346,21 @@ function OrgChartView() {
 // ─── View: Departments ────────────────────────────────────────────────────────
 
 function DepartmentsView() {
-  const [data, setData]       = useState<{ data: Department[]; total: number } | null>(null);
-  const [loading, setLoading] = useState(true);
   const [search, setSearch]   = useState('');
   const [selected, setSelected] = useState<any>(null);
   const [loadingDetail, setLoadingDetail] = useState(false);
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    try {
-      const params = new URLSearchParams({ limit: '50', ...(search ? { search } : {}) });
-      setData(await apiFetch(`/organization/departments?${params}`));
-    } finally { setLoading(false); }
-  }, [search]);
-
-  useEffect(() => { load(); }, [load]);
+  const debouncedSearch = useDebounce(search, 300);
+  const params = { limit: 50, ...(debouncedSearch ? { search: debouncedSearch } : {}) };
+  const { data, isLoading: loading } = useApiQuery<{ data: Department[]; total: number }>(
+    queryKeys.organization.departments(debouncedSearch), '/organization/departments',
+    { params, staleTime: STALE_TIME.SEMI_STATIC, placeholderData: keepPreviousData },
+  );
 
   const loadDetail = async (id: number) => {
     setLoadingDetail(true);
     try {
-      setSelected(await apiFetch(`/organization/departments/${id}`));
+      setSelected(await apiClient.get(`/organization/departments/${id}`));
     } finally { setLoadingDetail(false); }
   };
 
@@ -523,23 +492,17 @@ function DepartmentsView() {
 // ─── View: Positions ─────────────────────────────────────────────────────────
 
 function PositionsView() {
-  const [data, setData]       = useState<{ data: Position[]; total: number } | null>(null);
-  const [loading, setLoading] = useState(true);
   const [filter, setFilter]   = useState('');
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    try {
-      const params = new URLSearchParams({ limit: '50', ...(filter ? { level: filter } : {}) });
-      setData(await apiFetch(`/organization/positions?${params}`));
-    } finally { setLoading(false); }
-  }, [filter]);
-
-  useEffect(() => { load(); }, [load]);
+  const params = { limit: 50, ...(filter ? { level: filter } : {}) };
+  const { data, isLoading } = useApiQuery<{ data: Position[]; total: number }>(
+    queryKeys.organization.positions(filter), '/organization/positions',
+    { params, staleTime: STALE_TIME.SEMI_STATIC, placeholderData: keepPreviousData },
+  );
 
   const levels: PosLevel[] = ['INTERN', 'JUNIOR', 'MID', 'SENIOR', 'LEAD', 'MANAGER', 'DIRECTOR', 'EXECUTIVE'];
 
-  if (loading) return <Skeleton />;
+  if (isLoading) return <Skeleton />;
 
   return (
     <div>
@@ -597,16 +560,12 @@ function PositionsView() {
 // ─── View: Timeline ───────────────────────────────────────────────────────────
 
 function TimelineView() {
-  const [data, setData]     = useState<OrgChange[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data = [], isLoading } = useApiQuery<OrgChange[]>(
+    queryKeys.organization.timeline(), '/organization/timeline',
+    { staleTime: STALE_TIME.SEMI_STATIC },
+  );
 
-  useEffect(() => {
-    apiFetch<OrgChange[]>('/organization/timeline')
-      .then(setData)
-      .finally(() => setLoading(false));
-  }, []);
-
-  if (loading) return <Skeleton />;
+  if (isLoading) return <Skeleton />;
 
   return (
     <div className="space-y-3">
@@ -631,7 +590,7 @@ function TimelineView() {
                 {change.fromPosition && change.toPosition && (
                   <span>{change.fromPosition.name} → {change.toPosition.name}</span>
                 )}
-                {change.reason && <span className="italic">"{change.reason}"</span>}
+                {change.reason && <span className="italic">&quot;{change.reason}&quot;</span>}
               </div>
             </div>
           </div>

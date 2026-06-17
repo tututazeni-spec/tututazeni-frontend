@@ -1,6 +1,10 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState } from 'react';
+import { useApiQuery } from '../../../hooks/useApiQuery';
+import { apiClient } from '../../../lib/apiClient';
+import { queryKeys } from '../../../lib/queryKeys';
+import { STALE_TIME } from '../../../lib/queryClient';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -87,27 +91,6 @@ interface RankingEntry {
 
 type View = 'my-dashboard' | 'team' | 'programs' | 'feedback360' | 'ranking' | 'kudos';
 
-// ─── API ──────────────────────────────────────────────────────────────────────
-
-const API = process.env.NEXT_PUBLIC_API_URL ?? '/api';
-
-async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
-  const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
-  const res = await fetch(`${API}${path}`, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...options?.headers,
-    },
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({ message: 'Erro' }));
-    throw new Error(err.message ?? `HTTP ${res.status}`);
-  }
-  return res.json();
-}
-
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function initials(name: string): string {
@@ -185,33 +168,27 @@ function ProgressBar({ pct, color = 'bg-blue-500' }: { pct: number; color?: stri
 // ─── View: My Dashboard ───────────────────────────────────────────────────────
 
 function MyDashboardView() {
-  const [data, setData]     = useState<any>(null);
-  const [loading, setLoading] = useState(true);
   const [kudosMsg, setKudosMsg] = useState('');
   const [kudosTarget, setKudosTarget] = useState('');
   const [sendingKudos, setSendingKudos] = useState(false);
 
-  useEffect(() => {
-    apiFetch<any>('/leadership/my/dashboard')
-      .then(setData)
-      .finally(() => setLoading(false));
-  }, []);
+  const { data, isLoading } = useApiQuery<any>(
+    queryKeys.leadership.myDashboard(), '/leadership/my/dashboard',
+    { staleTime: STALE_TIME.DYNAMIC },
+  );
 
   const handleKudos = async () => {
     if (!kudosMsg || !kudosTarget) return;
     setSendingKudos(true);
     try {
-      await apiFetch('/leadership/kudos', {
-        method: 'POST',
-        body: JSON.stringify({ receiverId: parseInt(kudosTarget), message: kudosMsg, badge: '⭐' }),
-      });
+      await apiClient.post('/leadership/kudos', { receiverId: parseInt(kudosTarget), message: kudosMsg, badge: '⭐' });
       setKudosMsg(''); setKudosTarget('');
       alert('Kudos enviados! 🎉');
     } catch (e: any) { alert(e.message); }
     finally { setSendingKudos(false); }
   };
 
-  if (loading) return <Skeleton />;
+  if (isLoading) return <Skeleton />;
   if (!data) return null;
 
   const score: LeadershipScore | null = data.score;
@@ -351,16 +328,12 @@ function MyDashboardView() {
 // ─── View: Team Dashboard ─────────────────────────────────────────────────────
 
 function TeamView() {
-  const [data, setData]     = useState<TeamDashboard | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { data, isLoading } = useApiQuery<TeamDashboard>(
+    queryKeys.leadership.teamDashboard(), '/leadership/team/dashboard',
+    { staleTime: STALE_TIME.DYNAMIC },
+  );
 
-  useEffect(() => {
-    apiFetch<TeamDashboard>('/leadership/team/dashboard')
-      .then(setData)
-      .finally(() => setLoading(false));
-  }, []);
-
-  if (loading) return <Skeleton />;
+  if (isLoading) return <Skeleton />;
   if (!data) return null;
 
   const { teamHealth } = data;
@@ -463,25 +436,22 @@ function TeamView() {
 // ─── View: Programs ───────────────────────────────────────────────────────────
 
 function ProgramsView() {
-  const [data, setData]     = useState<{ data: LeadershipProgram[] } | null>(null);
-  const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<ProgramLevel | ''>('');
 
-  useEffect(() => {
-    const params = new URLSearchParams({ status: 'ACTIVE', ...(filter ? { level: filter } : {}) });
-    apiFetch<{ data: LeadershipProgram[] }>(`/leadership/programs?${params}`)
-      .then(setData)
-      .finally(() => setLoading(false));
-  }, [filter]);
+  const params = { status: 'ACTIVE', ...(filter ? { level: filter } : {}) };
+  const { data, isLoading } = useApiQuery<{ data: LeadershipProgram[] }>(
+    queryKeys.leadership.programs(filter), '/leadership/programs',
+    { params, staleTime: STALE_TIME.SEMI_STATIC },
+  );
 
   const handleEnroll = async (programId: number) => {
     try {
-      await apiFetch(`/leadership/programs/${programId}/self-enroll`, { method: 'POST', body: '{}' });
+      await apiClient.post(`/leadership/programs/${programId}/self-enroll`, {});
       alert('Inscrito com sucesso!');
     } catch (e: any) { alert(e.message); }
   };
 
-  if (loading) return <Skeleton />;
+  if (isLoading) return <Skeleton />;
 
   return (
     <div>
@@ -542,18 +512,15 @@ function ProgramsView() {
 // ─── View: Feedback 360° ──────────────────────────────────────────────────────
 
 function Feedback360View() {
-  const [summary, setSummary] = useState<Feedback360Summary | null>(null);
-  const [loading, setLoading] = useState(true);
   const [feedbackForm, setFeedbackForm] = useState<Record<string, number>>({});
   const [targetLeader, setTargetLeader] = useState('');
   const [qualitative, setQualitative] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
-  useEffect(() => {
-    apiFetch<Feedback360Summary>('/leadership/feedback-360/my/summary')
-      .then(setSummary)
-      .finally(() => setLoading(false));
-  }, []);
+  const { data: summary, isLoading: loading } = useApiQuery<Feedback360Summary>(
+    queryKeys.leadership.feedback360Summary(), '/leadership/feedback-360/my/summary',
+    { staleTime: STALE_TIME.SEMI_STATIC },
+  );
 
   const competencies: Competency[] = ['COMMUNICATION', 'DEVELOPMENT', 'RECOGNITION', 'AUTONOMY', 'FAIRNESS', 'EXAMPLE'];
 
@@ -565,14 +532,11 @@ function Feedback360View() {
     setSubmitting(true);
     try {
       const responses = Object.entries(feedbackForm).map(([competency, score]) => ({ competency, score }));
-      await apiFetch('/leadership/feedback-360', {
-        method: 'POST',
-        body: JSON.stringify({
-          leaderId: parseInt(targetLeader),
-          responses,
-          qualitativeFeedback: qualitative || undefined,
-          anonymous: true,
-        }),
+      await apiClient.post('/leadership/feedback-360', {
+        leaderId: parseInt(targetLeader),
+        responses,
+        qualitativeFeedback: qualitative || undefined,
+        anonymous: true,
       });
       setFeedbackForm({}); setTargetLeader(''); setQualitative('');
       alert('Feedback 360° submetido anonimamente!');
@@ -680,16 +644,12 @@ function Feedback360View() {
 // ─── View: Ranking ────────────────────────────────────────────────────────────
 
 function RankingView() {
-  const [data, setData]     = useState<RankingEntry[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data = [], isLoading } = useApiQuery<RankingEntry[]>(
+    queryKeys.leadership.ranking(), '/leadership/ranking',
+    { staleTime: STALE_TIME.SEMI_STATIC },
+  );
 
-  useEffect(() => {
-    apiFetch<RankingEntry[]>('/leadership/ranking')
-      .then(setData)
-      .finally(() => setLoading(false));
-  }, []);
-
-  if (loading) return <Skeleton rows={6} />;
+  if (isLoading) return <Skeleton rows={6} />;
 
   return (
     <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
@@ -745,16 +705,12 @@ function RankingView() {
 // ─── View: Kudos Wall ─────────────────────────────────────────────────────────
 
 function KudosView() {
-  const [kudos, setKudos] = useState<KudosItem[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: kudos = [], isLoading } = useApiQuery<KudosItem[]>(
+    queryKeys.leadership.kudos(), '/leadership/kudos',
+    { staleTime: STALE_TIME.DYNAMIC },
+  );
 
-  useEffect(() => {
-    apiFetch<KudosItem[]>('/leadership/kudos')
-      .then(setKudos)
-      .finally(() => setLoading(false));
-  }, []);
-
-  if (loading) return <Skeleton />;
+  if (isLoading) return <Skeleton />;
 
   return (
     <div>

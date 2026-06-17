@@ -390,6 +390,31 @@ export const queryKeys = {
     stats: () => [...queryKeys.notifications.all, 'stats'] as const,
   },
 
+  leadership: {
+    all: ['leadership'] as const,
+    myDashboard: () => [...queryKeys.leadership.all, 'my-dashboard'] as const,
+    teamDashboard: () => [...queryKeys.leadership.all, 'team-dashboard'] as const,
+    programs: (filter: string) =>
+      [...queryKeys.leadership.all, 'programs', filter] as const,
+    feedback360Summary: () =>
+      [...queryKeys.leadership.all, 'feedback-360-summary'] as const,
+    ranking: () => [...queryKeys.leadership.all, 'ranking'] as const,
+    kudos: () => [...queryKeys.leadership.all, 'kudos'] as const,
+  },
+
+  organization: {
+    all: ['organization'] as const,
+    stats: () => [...queryKeys.organization.all, 'stats'] as const,
+    headcount: () => [...queryKeys.organization.all, 'headcount'] as const,
+    chart: (depth: number) =>
+      [...queryKeys.organization.all, 'chart', depth] as const,
+    departments: (search: string) =>
+      [...queryKeys.organization.all, 'departments', search] as const,
+    positions: (level: string) =>
+      [...queryKeys.organization.all, 'positions', level] as const,
+    timeline: () => [...queryKeys.organization.all, 'timeline'] as const,
+  },
+
   developmentPlans: {
     all: ['development-plans'] as const,
     my: () => [...queryKeys.developmentPlans.all, 'my'] as const,
