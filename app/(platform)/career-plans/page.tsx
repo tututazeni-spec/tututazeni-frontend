@@ -4,13 +4,17 @@
 // INNOVA — Módulo de Planos de Carreira
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState } from 'react';
 import {
   TrendingUp, Star, Target, CheckCircle2, Clock, ChevronRight,
   Plus, RefreshCcw, ArrowUpRight, Users, BarChart3, Briefcase,
   BookOpen, Zap, Award, AlertCircle, Loader2, X, Check,
   ChevronDown, Flame, MapPin, Compass,
 } from 'lucide-react';
+import { useApiQuery } from '../../../hooks/useApiQuery';
+import { apiClient } from '../../../lib/apiClient';
+import { queryKeys } from '../../../lib/queryKeys';
+import { STALE_TIME } from '../../../lib/queryClient';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -68,23 +72,6 @@ const GOAL_TYPE_ICONS: Record<GoalType, any> = {
   COURSE: BookOpen, PROJECT: Briefcase, MENTORING: Users,
   CERTIFICATION: Award, SKILL: Zap, OTHER: Target,
 };
-
-// ─── API ──────────────────────────────────────────────────────────────────────
-
-const API = process.env.NEXT_PUBLIC_API_URL ?? '/api';
-
-async function apiFetch<T>(path: string, opts?: RequestInit): Promise<T> {
-  const token = typeof window !== 'undefined' ? localStorage.getItem('innova_token') : null;
-  const res = await fetch(`${API}${path}`, {
-    headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-    ...opts,
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({ message: `Error ${res.status}` }));
-    throw new Error(err.message ?? `Error ${res.status}`);
-  }
-  return res.json();
-}
 
 // ─── Utility ──────────────────────────────────────────────────────────────────
 
@@ -253,8 +240,8 @@ function GoalCard({ goal, onUpdateProgress }: {
 
 // ─── Simulate Modal ───────────────────────────────────────────────────────────
 
-function SimulateModal({ userId, roles, onClose }: {
-  userId: number; roles: Role[]; onClose: () => void;
+function SimulateModal({ roles, onClose }: {
+  roles: Role[]; onClose: () => void;
 }) {
   const [targetRoleId, setTargetRoleId] = useState(0);
   const [result, setResult]   = useState<any>(null);
@@ -264,7 +251,7 @@ function SimulateModal({ userId, roles, onClose }: {
   const simulate = async () => {
     if (!targetRoleId) { setError('Seleccione um cargo alvo'); return; }
     setLoading(true); setError('');
-    try { setResult(await apiFetch('/career-plans/simulate', { method: 'POST', body: JSON.stringify({ userId, targetRoleId }) })); }
+    try { setResult(await apiClient.post('/career-plans/simulate', { targetRoleId })); }
     catch (e: any) { setError(e.message); }
     finally { setLoading(false); }
   };
@@ -303,7 +290,7 @@ function SimulateModal({ userId, roles, onClose }: {
             <div className="space-y-4 border-t border-gray-100 pt-4">
               <div className={`p-4 rounded-2xl border ${readinessCfg.bg}`}>
                 <div className="flex items-center justify-between mb-2">
-                  <p className="font-semibold text-gray-900">{result.readiness.readinessEmoji} Prontidão para "{result.targetRole.name}"</p>
+                  <p className="font-semibold text-gray-900">{result.readiness.readinessEmoji} Prontidão para &quot;{result.targetRole.name}&quot;</p>
                   <span className={`text-xl font-bold ${readinessCfg.color}`}>{result.readiness.score}%</span>
                 </div>
                 <ReadinessBar score={result.readiness.score} level={result.readiness.readinessLevel}/>
@@ -359,49 +346,31 @@ type TabKey = 'my' | 'team' | 'analytics';
 
 export default function CareerPlansPage() {
   const [tab, setTab]             = useState<TabKey>('my');
-  const [myPlan, setMyPlan]       = useState<CareerPlan | null>(null);
-  const [roles, setRoles]         = useState<Role[]>([]);
-  const [analytics, setAnalytics] = useState<any>(null);
-  const [loading, setLoading]     = useState(false);
   const [showSimulate, setShowSimulate] = useState(false);
-  const [currentUserId, setCurrentUserId] = useState(0);
 
-  const loadData = useCallback(async () => {
-    setLoading(true);
-    try {
-      const [plan, roleList] = await Promise.allSettled([
-        apiFetch<CareerPlan | null>('/career-plans/my'),
-        apiFetch<Role[]>('/career-plans/roles'),
-      ]);
-      if (plan.status === 'fulfilled')     setMyPlan(plan.value);
-      if (roleList.status === 'fulfilled') setRoles(roleList.value);
+  const planQuery = useApiQuery<CareerPlan | null>(
+    queryKeys.careerPlans.my(), '/career-plans/my',
+    { staleTime: STALE_TIME.DYNAMIC },
+  );
+  const rolesQuery = useApiQuery<Role[]>(
+    queryKeys.careerPlans.roles(), '/career-plans/roles',
+    { staleTime: STALE_TIME.STATIC },
+  );
+  const analyticsQuery = useApiQuery<any>(
+    queryKeys.careerPlans.analytics(), '/career-plans/analytics',
+    { staleTime: STALE_TIME.SEMI_STATIC, enabled: tab === 'analytics' },
+  );
 
-      // Buscar userId do token
-      const token = typeof window !== 'undefined' ? localStorage.getItem('innova_token') : null;
-      if (token) {
-        try {
-          const payload = JSON.parse(atob(token.split('.')[1]));
-          setCurrentUserId(payload.sub ?? 0);
-        } catch {}
-      }
-    } finally { setLoading(false); }
-  }, []);
+  const myPlan    = planQuery.data ?? null;
+  const roles     = rolesQuery.data ?? [];
+  const analytics = analyticsQuery.data ?? null;
+  const loading   = planQuery.isLoading || rolesQuery.isLoading;
 
-  const loadAnalytics = useCallback(async () => {
-    try { setAnalytics(await apiFetch('/career-plans/analytics')); }
-    catch {}
-  }, []);
-
-  useEffect(() => {
-    loadData();
-    if (tab === 'analytics') loadAnalytics();
-  }, [loadData, loadAnalytics, tab]);
+  const loadData = () => { planQuery.refetch(); rolesQuery.refetch(); };
 
   const handleGoalProgress = async (goalId: number, progress: number) => {
     try {
-      await apiFetch(`/career-plans/goals/${goalId}/progress`, {
-        method: 'PATCH', body: JSON.stringify({ progress }),
-      });
+      await apiClient.patch(`/career-plans/goals/${goalId}/progress`, { progress });
       loadData();
     } catch {}
   };
@@ -478,7 +447,7 @@ export default function CareerPlansPage() {
                 {myPlan.readiness && (
                   <div className="mt-2">
                     <div className="flex justify-between text-xs text-blue-200 mb-1">
-                      <span>Progresso para "{myPlan.readiness.targetRoleName}"</span>
+                      <span>Progresso para &quot;{myPlan.readiness.targetRoleName}&quot;</span>
                       <span>{myPlan.readiness.metRequirements}/{myPlan.readiness.totalRequirements} requisitos</span>
                     </div>
                     <div className="h-2 bg-white/20 rounded-full overflow-hidden">
@@ -577,7 +546,6 @@ export default function CareerPlansPage() {
 
       {showSimulate && (
         <SimulateModal
-          userId={currentUserId}
           roles={roles}
           onClose={() => setShowSimulate(false)}
         />

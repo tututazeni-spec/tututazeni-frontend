@@ -390,6 +390,30 @@ export const queryKeys = {
     stats: () => [...queryKeys.notifications.all, 'stats'] as const,
   },
 
+  careerPlans: {
+    all: ['career-plans'] as const,
+    my: () => [...queryKeys.careerPlans.all, 'my'] as const,
+    roles: () => [...queryKeys.careerPlans.all, 'roles'] as const,
+    analytics: () => [...queryKeys.careerPlans.all, 'analytics'] as const,
+  },
+
+  talentDevelopment: {
+    all: ['talent-development'] as const,
+    pool: (tier: string) =>
+      [...queryKeys.talentDevelopment.all, 'pool', tier] as const,
+    matrix: () => [...queryKeys.talentDevelopment.all, 'matrix'] as const,
+    plans: (status: string) =>
+      [...queryKeys.talentDevelopment.all, 'plans', status] as const,
+    trainingNeeds: () =>
+      [...queryKeys.talentDevelopment.all, 'training-needs'] as const,
+    skillHeatmap: () =>
+      [...queryKeys.talentDevelopment.all, 'skill-heatmap'] as const,
+    mentoring: (status: string) =>
+      [...queryKeys.talentDevelopment.all, 'mentoring', status] as const,
+    analytics: () => [...queryKeys.talentDevelopment.all, 'analytics'] as const,
+    health: () => [...queryKeys.talentDevelopment.all, 'health'] as const,
+  },
+
   contentLibrary: {
     all: ['content-library'] as const,
     recommended: () => [...queryKeys.contentLibrary.all, 'recommended'] as const,

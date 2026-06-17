@@ -1,13 +1,16 @@
 'use client';
 // src/app/(dashboard)/talent-development/page.tsx
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState } from 'react';
 import {
   Users, TrendingUp, Target, BookOpen, Award, AlertTriangle,
   ChevronRight, Plus, Filter, Search, Star, Zap, Brain,
   BarChart2, CheckCircle, Clock, ArrowUp, X, ChevronDown,
   Layers, UserCheck, Activity, RefreshCw,
 } from 'lucide-react';
+import { useApiQuery } from '../../../hooks/useApiQuery';
+import { queryKeys } from '../../../lib/queryKeys';
+import { STALE_TIME } from '../../../lib/queryClient';
 
 // ─── Types ────────────────────────────────────────────────────────
 
@@ -46,18 +49,6 @@ interface DashboardData {
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────
-
-const BASE = '/api';
-
-async function api(path: string, opts?: RequestInit) {
-  const r = await fetch(`${BASE}${path}`, {
-    headers: { 'Content-Type': 'application/json',
-      Authorization: `Bearer ${localStorage.getItem('token') ?? ''}` },
-    ...opts,
-  });
-  if (!r.ok) throw new Error(await r.text());
-  return r.json();
-}
 
 const TIER_COLOR: Record<Tier, string> = {
   HIGH:       'bg-emerald-100 text-emerald-700',
@@ -197,24 +188,27 @@ const TABS: { id: Tab; label: string; icon: any }[] = [
 // ─── Pool Tab ─────────────────────────────────────────────────────
 
 function PoolTab() {
-  const [data, setData]         = useState<{ data: TalentUser[]; meta: any } | null>(null);
-  const [matrix, setMatrix]     = useState<any | null>(null);
-  const [loading, setLoading]   = useState(true);
   const [search, setSearch]     = useState('');
   const [tier, setTier]         = useState<string>('');
 
-  useEffect(() => {
-    Promise.all([
-      api(`/talent/pool?limit=100${tier ? `&tier=${tier}` : ''}`),
-      api('/talent/matrix'),
-    ]).then(([pool, mat]) => { setData(pool); setMatrix(mat); }).finally(() => setLoading(false));
-  }, [tier]);
+  const poolParams = { limit: 100, ...(tier ? { tier } : {}) };
+  const poolQuery = useApiQuery<{ data: TalentUser[]; meta: any }>(
+    queryKeys.talentDevelopment.pool(tier), '/talent/pool',
+    { params: poolParams, staleTime: STALE_TIME.SEMI_STATIC },
+  );
+  const matrixQuery = useApiQuery<any>(
+    queryKeys.talentDevelopment.matrix(), '/talent/matrix',
+    { staleTime: STALE_TIME.SEMI_STATIC },
+  );
+
+  const data   = poolQuery.data ?? null;
+  const matrix = matrixQuery.data ?? null;
 
   const filtered = data?.data.filter(u =>
     u.user.fullName.toLowerCase().includes(search.toLowerCase()),
   ) ?? [];
 
-  if (loading) return <Skeleton />;
+  if (poolQuery.isLoading || matrixQuery.isLoading) return <Skeleton />;
 
   return (
     <div className="space-y-6">
@@ -292,18 +286,15 @@ function PoolTab() {
 // ─── Plans Tab ────────────────────────────────────────────────────
 
 function PlansTab() {
-  const [data, setData]       = useState<{ data: Plan[]; meta: any } | null>(null);
-  const [loading, setLoading] = useState(true);
   const [status, setStatus]   = useState('');
   const [search, setSearch]   = useState('');
 
-  const load = useCallback(() => {
-    setLoading(true);
-    api(`/talent/plans?limit=40&isTemplate=false${status ? `&status=${status}` : ''}`)
-      .then(setData).finally(() => setLoading(false));
-  }, [status]);
-
-  useEffect(() => { load(); }, [load]);
+  const params = { limit: 40, isTemplate: false, ...(status ? { status } : {}) };
+  const { data, isLoading } = useApiQuery<{ data: Plan[]; meta: any }>(
+    queryKeys.talentDevelopment.plans(status), '/talent/plans',
+    { params, staleTime: STALE_TIME.SEMI_STATIC },
+  );
+  const loading = isLoading;
 
   const filtered = data?.data.filter(p =>
     p.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -426,19 +417,21 @@ function PlansTab() {
 // ─── Skill Gaps Tab ───────────────────────────────────────────────
 
 function SkillGapsTab() {
-  const [needs, setNeeds]     = useState<any[]>([]);
-  const [heatmap, setHeatmap] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
   const [view, setView]       = useState<'needs' | 'heatmap'>('needs');
 
-  useEffect(() => {
-    Promise.all([
-      api('/talent/training-needs'),
-      api('/talent/skill-heatmap'),
-    ]).then(([n, h]) => { setNeeds(n); setHeatmap(h); }).finally(() => setLoading(false));
-  }, []);
+  const needsQuery = useApiQuery<any[]>(
+    queryKeys.talentDevelopment.trainingNeeds(), '/talent/training-needs',
+    { staleTime: STALE_TIME.SEMI_STATIC },
+  );
+  const heatmapQuery = useApiQuery<any[]>(
+    queryKeys.talentDevelopment.skillHeatmap(), '/talent/skill-heatmap',
+    { staleTime: STALE_TIME.SEMI_STATIC },
+  );
 
-  if (loading) return <Skeleton />;
+  const needs   = needsQuery.data ?? [];
+  const heatmap = heatmapQuery.data ?? [];
+
+  if (needsQuery.isLoading || heatmapQuery.isLoading) return <Skeleton />;
 
   return (
     <div className="space-y-4">
@@ -543,16 +536,15 @@ function SkillGapsTab() {
 // ─── Mentoring Tab ────────────────────────────────────────────────
 
 function MentoringTab() {
-  const [data, setData]       = useState<{ data: any[]; meta: any } | null>(null);
-  const [loading, setLoading] = useState(true);
   const [status, setStatus]   = useState('ACTIVE');
 
-  useEffect(() => {
-    setLoading(true);
-    api(`/talent/mentoring?status=${status}&limit=30`).then(setData).finally(() => setLoading(false));
-  }, [status]);
+  const params = { status, limit: 30 };
+  const { data, isLoading } = useApiQuery<{ data: any[]; meta: any }>(
+    queryKeys.talentDevelopment.mentoring(status), '/talent/mentoring',
+    { params, staleTime: STALE_TIME.SEMI_STATIC },
+  );
 
-  if (loading) return <Skeleton />;
+  if (isLoading) return <Skeleton />;
 
   return (
     <div className="space-y-4">
@@ -601,7 +593,7 @@ function MentoringTab() {
             <p className="text-xs text-slate-500 mb-2">→ {m.mentee.fullName}</p>
 
             {m.objective && (
-              <p className="text-xs text-slate-400 italic mb-3 line-clamp-2">"{m.objective}"</p>
+              <p className="text-xs text-slate-400 italic mb-3 line-clamp-2">&quot;{m.objective}&quot;</p>
             )}
 
             <div className="flex items-center justify-between text-xs text-slate-500">
@@ -633,18 +625,19 @@ function MentoringTab() {
 // ─── Analytics Tab ────────────────────────────────────────────────
 
 function AnalyticsTab() {
-  const [dash, setDash]       = useState<DashboardData | null>(null);
-  const [health, setHealth]   = useState<HealthScore | null>(null);
-  const [loading, setLoading] = useState(true);
+  const dashQuery = useApiQuery<DashboardData>(
+    queryKeys.talentDevelopment.analytics(), '/talent/analytics/dashboard',
+    { staleTime: STALE_TIME.SEMI_STATIC },
+  );
+  const healthQuery = useApiQuery<HealthScore>(
+    queryKeys.talentDevelopment.health(), '/talent/analytics/talent-health',
+    { staleTime: STALE_TIME.SEMI_STATIC },
+  );
 
-  useEffect(() => {
-    Promise.all([
-      api('/talent/analytics/dashboard'),
-      api('/talent/analytics/talent-health'),
-    ]).then(([d, h]) => { setDash(d); setHealth(h); }).finally(() => setLoading(false));
-  }, []);
+  const dash   = dashQuery.data ?? null;
+  const health = healthQuery.data ?? null;
 
-  if (loading) return <Skeleton />;
+  if (dashQuery.isLoading || healthQuery.isLoading) return <Skeleton />;
 
   const GRADE_COLOR: Record<string, string> = {
     A: 'text-emerald-600 border-emerald-500',
