@@ -59,6 +59,13 @@ export const queryKeys = {
       [...queryKeys.employees.all, 'detail', id] as const,
   },
 
+  library: {
+    all: ['library'] as const,
+    items: (params: Record<string, unknown>) =>
+      [...queryKeys.library.all, 'items', params] as const,
+    item: (id: string) => [...queryKeys.library.all, 'item', id] as const,
+  },
+
   certification: {
     all: ['certification'] as const,
     myCertificates: () =>

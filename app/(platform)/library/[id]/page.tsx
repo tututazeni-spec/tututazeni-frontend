@@ -1,17 +1,10 @@
 'use client';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-
-const API = process.env.NEXT_PUBLIC_API_URL ?? '/api';
-
-function authHeaders(): Record<string, string> {
-  const token =
-    typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
-  return {
-    'Content-Type': 'application/json',
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-  };
-}
+import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
+import { apiClient } from '@/lib/apiClient';
+import { queryKeys } from '@/lib/queryKeys';
+import { STALE_TIME } from '@/lib/queryClient';
 
 interface Comment {
   id: string;
@@ -64,100 +57,60 @@ export default function LibraryItemPage() {
   const router = useRouter();
   const id = params?.id as string;
 
-  const [item, setItem] = useState<ItemDetail | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
   const [score, setScore] = useState(0);
   const [comment, setComment] = useState('');
   const [newComment, setNewComment] = useState('');
-  const [saving, setSaving] = useState(false);
 
-  const fetchData = useCallback(async () => {
-    setLoading(true);
-    setError('');
-    try {
-      const res = await fetch(`${API}/library/items/${id}`, {
-        credentials: 'include',
-        headers: authHeaders(),
-      });
-      if (!res.ok) throw new Error('Erro ao carregar o recurso');
-      setItem(await res.json());
-      // Regista visualização (best-effort)
-      void fetch(`${API}/library/items/${id}/view`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: authHeaders(),
-      });
-    } catch (e: any) {
-      setError(e.message || 'Erro inesperado');
-    } finally {
-      setLoading(false);
-    }
+  const { data: item, isLoading: loading, error: queryError } =
+    useApiQuery<ItemDetail>(
+      queryKeys.library.item(id), `/library/items/${id}`,
+      { enabled: !!id, staleTime: STALE_TIME.DYNAMIC },
+    );
+  const error = queryError?.message ?? '';
+
+  // Regista visualização (best-effort) uma vez por id.
+  useEffect(() => {
+    if (id) void apiClient.post(`/library/items/${id}/view`, {}).catch(() => {});
   }, [id]);
 
-  useEffect(() => {
-    if (id) fetchData();
-  }, [id, fetchData]);
+  const downloadMut = useApiMutation(
+    () => apiClient.post<{ fileUrl?: string }>(`/library/items/${id}/download`, {}),
+    {
+      onSuccess: (json) => { if (json.fileUrl) window.open(json.fileUrl, '_blank'); },
+      onError: (e) => alert(e.message || 'Erro inesperado'),
+    },
+  );
+  const download = () => downloadMut.mutate(undefined);
 
-  async function download() {
-    try {
-      const res = await fetch(`${API}/library/items/${id}/download`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: authHeaders(),
-      });
-      if (!res.ok) throw new Error('Erro ao obter o ficheiro');
-      const json = await res.json();
-      if (json.fileUrl) window.open(json.fileUrl, '_blank');
-    } catch (e: any) {
-      alert(e.message || 'Erro inesperado');
-    }
-  }
+  const rateMut = useApiMutation(
+    () => apiClient.post(`/library/items/${id}/rate`, { score, ...(comment && { comment }) }),
+    {
+      invalidateKeys: [queryKeys.library.item(id)],
+      onSuccess: () => { setScore(0); setComment(''); },
+      onError: (e) => alert(e.message || 'Erro inesperado'),
+    },
+  );
 
-  async function submitRating(e: React.FormEvent) {
+  const commentMut = useApiMutation(
+    () => apiClient.post(`/library/items/${id}/comments`, { content: newComment }),
+    {
+      invalidateKeys: [queryKeys.library.item(id)],
+      onSuccess: () => setNewComment(''),
+      onError: (e) => alert(e.message || 'Erro inesperado'),
+    },
+  );
+  const saving = rateMut.isPending || commentMut.isPending;
+
+  function submitRating(e: React.FormEvent) {
     e.preventDefault();
-    if (!score) {
-      alert('Selecciona uma pontuação');
-      return;
-    }
-    setSaving(true);
-    try {
-      const res = await fetch(`${API}/library/items/${id}/rate`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: authHeaders(),
-        body: JSON.stringify({ score, ...(comment && { comment }) }),
-      });
-      if (!res.ok) throw new Error('Erro ao avaliar');
-      setScore(0);
-      setComment('');
-      await fetchData();
-    } catch (e: any) {
-      alert(e.message || 'Erro inesperado');
-    } finally {
-      setSaving(false);
-    }
+    if (!score) { alert('Selecciona uma pontuação'); return; }
+    rateMut.mutate(undefined);
   }
 
-  async function submitComment(e: React.FormEvent) {
+  function submitComment(e: React.FormEvent) {
     e.preventDefault();
     if (!newComment.trim()) return;
-    setSaving(true);
-    try {
-      const res = await fetch(`${API}/library/items/${id}/comments`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: authHeaders(),
-        body: JSON.stringify({ content: newComment }),
-      });
-      if (!res.ok) throw new Error('Erro ao comentar');
-      setNewComment('');
-      await fetchData();
-    } catch (e: any) {
-      alert(e.message || 'Erro inesperado');
-    } finally {
-      setSaving(false);
-    }
+    commentMut.mutate(undefined);
   }
 
   if (loading)
