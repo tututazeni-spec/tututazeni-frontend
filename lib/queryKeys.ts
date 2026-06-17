@@ -163,6 +163,25 @@ export const queryKeys = {
     talent: () => [...queryKeys.dashboardRh.all, 'talent'] as const,
   },
 
+  evaluation: {
+    all: ['evaluation'] as const,
+    myProgress: () => [...queryKeys.evaluation.all, 'my-progress'] as const,
+    pending: () => [...queryKeys.evaluation.all, 'pending'] as const,
+    results: (userId: string | number) =>
+      [...queryKeys.evaluation.all, 'results', userId] as const,
+    cycles: () => [...queryKeys.evaluation.all, 'cycles'] as const,
+    analytics: () => [...queryKeys.evaluation.all, 'analytics'] as const,
+  },
+
+  analyticsPage: {
+    all: ['analytics-page'] as const,
+    overview: () => [...queryKeys.analyticsPage.all, 'overview'] as const,
+    me: () => [...queryKeys.analyticsPage.all, 'me'] as const,
+    manager: () => [...queryKeys.analyticsPage.all, 'manager'] as const,
+    hr: () => [...queryKeys.analyticsPage.all, 'hr'] as const,
+    risks: () => [...queryKeys.analyticsPage.all, 'risks'] as const,
+  },
+
   performance: {
     all: ['performance'] as const,
     my: () => [...queryKeys.performance.all, 'my'] as const,

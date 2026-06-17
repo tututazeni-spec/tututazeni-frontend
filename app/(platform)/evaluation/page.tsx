@@ -1,13 +1,17 @@
 ﻿'use client';
 // src/app/(dashboard)/evaluations/page.tsx
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState } from 'react';
 import {
   Users, Star, TrendingUp, TrendingDown, BarChart2, Target,
   CheckCircle, Clock, AlertTriangle, ChevronRight, Plus,
   RefreshCw, Award, Brain, Shield, Layers, ArrowUp, ArrowDown,
   Activity, Eye, Zap, Send,
 } from 'lucide-react';
+import { useApiQuery } from '@/hooks/useApiQuery';
+import { apiClient } from '@/lib/apiClient';
+import { queryKeys } from '@/lib/queryKeys';
+import { STALE_TIME } from '@/lib/queryClient';
 
 // ─── Types ───────────────────────────────────────────────────────
 
@@ -37,17 +41,6 @@ interface EvalResults {
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────
-
-const BASE = '/api';
-async function api(path: string, opts?: RequestInit) {
-  const r = await fetch(`${BASE}${path}`, {
-    headers: { 'Content-Type': 'application/json',
-      Authorization: `Bearer ${localStorage.getItem('token') ?? ''}` },
-    ...opts,
-  });
-  if (!r.ok) throw new Error(await r.text());
-  return r.json();
-}
 
 const STATUS_COLOR: Record<string, string> = {
   DRAFT:       'bg-slate-100 text-slate-600',
@@ -185,26 +178,16 @@ function RadarChart({ data, size = 200 }: { data: { label: string; value: number
 // ─── Overview Tab ─────────────────────────────────────────────────
 
 function OverviewTab({ userId }: { userId?: number }) {
-  const [progress, setProgress]     = useState<any | null>(null);
-  const [myResults, setMyResults]   = useState<EvalResults | null>(null);
-  const [pending, setPending]       = useState<EvalRequest[]>([]);
-  const [loading, setLoading]       = useState(true);
-
-  useEffect(() => {
-    Promise.all([
-      api('/evaluations/my-progress'),
-      api('/evaluations/pending'),
-    ]).then(([prog, pend]) => {
-      setProgress(prog);
-      setPending(pend ?? []);
-    }).finally(() => setLoading(false));
-
-    if (userId) {
-      api(`/evaluations/results/${userId}`).then(r => {
-        if (r?.hasResults !== false) setMyResults(r);
-      }).catch(() => {});
-    }
-  }, [userId]);
+  const progressQ = useApiQuery<any>(queryKeys.evaluation.myProgress(), '/evaluations/my-progress', { staleTime: STALE_TIME.DYNAMIC });
+  const pendingQ = useApiQuery<EvalRequest[]>(queryKeys.evaluation.pending(), '/evaluations/pending', { staleTime: STALE_TIME.DYNAMIC });
+  const resultsQ = useApiQuery<EvalResults>(
+    queryKeys.evaluation.results(userId ?? 0), `/evaluations/results/${userId}`,
+    { enabled: !!userId, retry: false, staleTime: STALE_TIME.DYNAMIC },
+  );
+  const progress = progressQ.data ?? null;
+  const pending = pendingQ.data ?? [];
+  const myResults = (resultsQ.data && (resultsQ.data as any).hasResults !== false) ? resultsQ.data : null;
+  const loading = progressQ.isLoading;
 
   if (loading) return <Skeleton />;
 
@@ -322,12 +305,9 @@ function OverviewTab({ userId }: { userId?: number }) {
 // ─── Cycles Tab ───────────────────────────────────────────────────
 
 function CyclesTab() {
-  const [data, setData]       = useState<{ data: Cycle[]; meta: any } | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    api('/evaluations/cycles').then(setData).finally(() => setLoading(false));
-  }, []);
+  const { data, isLoading: loading } = useApiQuery<{ data: Cycle[]; meta: any }>(
+    queryKeys.evaluation.cycles(), '/evaluations/cycles', { staleTime: STALE_TIME.SEMI_STATIC },
+  );
 
   if (loading) return <Skeleton />;
 
@@ -375,7 +355,7 @@ function CyclesTab() {
             {/* Actions */}
             {cycle.status === 'DRAFT' && (
               <button
-                onClick={() => api(`/evaluations/cycles/${cycle.id}/publish`, { method: 'POST' })
+                onClick={() => apiClient.post(`/evaluations/cycles/${cycle.id}/publish`, {})
                   .then(() => window.location.reload())}
                 className="mt-3 w-full py-1.5 border border-indigo-300 text-indigo-600 text-xs
                   rounded-lg hover:bg-indigo-50 transition-colors">
@@ -384,7 +364,7 @@ function CyclesTab() {
             )}
             {cycle.status === 'PUBLISHED' && (
               <button
-                onClick={() => api(`/evaluations/cycles/${cycle.id}/activate`, { method: 'POST' })
+                onClick={() => apiClient.post(`/evaluations/cycles/${cycle.id}/activate`, {})
                   .then(() => window.location.reload())}
                 className="mt-3 w-full py-1.5 bg-indigo-600 text-white text-xs
                   rounded-lg hover:bg-indigo-700 transition-colors">
@@ -408,12 +388,9 @@ function CyclesTab() {
 // ─── Pending Tab ─────────────────────────────────────────────────
 
 function PendingTab() {
-  const [pending, setPending] = useState<EvalRequest[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    api('/evaluations/pending').then(r => setPending(r ?? [])).finally(() => setLoading(false));
-  }, []);
+  const { data: pending = [], isLoading: loading } = useApiQuery<EvalRequest[]>(
+    queryKeys.evaluation.pending(), '/evaluations/pending', { staleTime: STALE_TIME.DYNAMIC },
+  );
 
   if (loading) return <Skeleton />;
 
@@ -502,8 +479,8 @@ function ResultsTab() {
     setLoading(true);
     try {
       const [r, ev] = await Promise.all([
-        api(`/evaluations/results/${userId}`),
-        api(`/evaluations/evolution/${userId}`),
+        apiClient.get<EvalResults>(`/evaluations/results/${userId}`),
+        apiClient.get<any>(`/evaluations/evolution/${userId}`),
       ]);
       setResult(r);
       setEvolution(ev);
@@ -638,7 +615,7 @@ function ResultsTab() {
 
           {/* PDI trigger */}
           <button
-            onClick={() => api(`/evaluations/results/${userId}/trigger-pdi`, { method: 'POST' })}
+            onClick={() => { void apiClient.post(`/evaluations/results/${userId}/trigger-pdi`, {}).catch(() => {}); }}
             className="w-full py-3 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 transition-colors">
             🎯 Gerar Sugestão de PDI com base nestes resultados
           </button>
@@ -651,12 +628,9 @@ function ResultsTab() {
 // ─── Analytics Tab ────────────────────────────────────────────────
 
 function AnalyticsTab() {
-  const [data, setData]   = useState<any | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    api('/evaluations/analytics/dashboard').then(setData).finally(() => setLoading(false));
-  }, []);
+  const { data, isLoading: loading } = useApiQuery<any>(
+    queryKeys.evaluation.analytics(), '/evaluations/analytics/dashboard', { staleTime: STALE_TIME.SEMI_STATIC },
+  );
 
   if (loading) return <Skeleton />;
   if (!data?.hasData) return (
@@ -757,7 +731,7 @@ function CalibrationTab() {
   const load = async () => {
     if (!cycleId) return;
     setLoading(true);
-    api(`/evaluations/calibration/${cycleId}`).then(setData).finally(() => setLoading(false));
+    apiClient.get<any>(`/evaluations/calibration/${cycleId}`).then(setData).finally(() => setLoading(false));
   };
 
   return (
@@ -825,10 +799,7 @@ function CalibrationTab() {
                     onBlur={async e => {
                       const val = parseFloat(e.target.value);
                       if (val >= 0 && val <= 5 && val !== p.avgScore) {
-                        await api(`/evaluations/calibration/${cycleId}/calibrate`, {
-                          method: 'POST',
-                          body: JSON.stringify({ evaluatedId: p.evaluated.id, calibratedScore: val }),
-                        });
+                        await apiClient.post(`/evaluations/calibration/${cycleId}/calibrate`, { evaluatedId: p.evaluated.id, calibratedScore: val });
                       }
                     }} />
                 </div>

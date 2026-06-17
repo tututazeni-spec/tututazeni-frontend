@@ -1,7 +1,10 @@
 ﻿// src/app/(dashboard)/analytics/page.tsx
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState } from 'react';
+import { useApiQuery } from '@/hooks/useApiQuery';
+import { queryKeys } from '@/lib/queryKeys';
+import { STALE_TIME } from '@/lib/queryClient';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -42,22 +45,6 @@ interface RiskAlert {
 }
 
 type View = 'overview' | 'my' | 'manager' | 'hr' | 'risks';
-
-// ─── API ──────────────────────────────────────────────────────────────────────
-
-const API = process.env.NEXT_PUBLIC_API_URL ?? '/api';
-
-async function apiFetch<T>(path: string): Promise<T> {
-  const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
-  const res = await fetch(`${API}${path}`, {
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-  });
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  return res.json();
-}
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -151,14 +138,11 @@ function NineBox({ data }: { data: ManagerDashboard['nineBox'] }) {
 // ─── View: Overview ───────────────────────────────────────────────────────────
 
 function OverviewView() {
-  const [data, setData]     = useState<OrgOverview | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { data, isLoading } = useApiQuery<OrgOverview>(
+    queryKeys.analyticsPage.overview(), '/analytics/overview', { staleTime: STALE_TIME.SEMI_STATIC },
+  );
 
-  useEffect(() => {
-    apiFetch<OrgOverview>('/analytics/overview').then(setData).finally(() => setLoading(false));
-  }, []);
-
-  if (loading || !data) return <Skeleton rows={4} />;
+  if (isLoading || !data) return <Skeleton rows={4} />;
 
   return (
     <div className="space-y-5">
@@ -201,14 +185,11 @@ function OverviewView() {
 // ─── View: My Dashboard ───────────────────────────────────────────────────────
 
 function MyDashboardView() {
-  const [data, setData]     = useState<CollaboratorDashboard | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { data, isLoading } = useApiQuery<CollaboratorDashboard>(
+    queryKeys.analyticsPage.me(), '/analytics/me', { staleTime: STALE_TIME.DYNAMIC },
+  );
 
-  useEffect(() => {
-    apiFetch<CollaboratorDashboard>('/analytics/me').then(setData).finally(() => setLoading(false));
-  }, []);
-
-  if (loading || !data) return <Skeleton />;
+  if (isLoading || !data) return <Skeleton />;
 
   return (
     <div className="space-y-5">
@@ -279,15 +260,12 @@ function MyDashboardView() {
 // ─── View: Manager ────────────────────────────────────────────────────────────
 
 function ManagerView() {
-  const [data, setData]     = useState<ManagerDashboard | null>(null);
-  const [loading, setLoading] = useState(true);
   const [tab, setTab]       = useState<'overview' | 'ninebox' | 'gaps'>('overview');
+  const { data, isLoading } = useApiQuery<ManagerDashboard>(
+    queryKeys.analyticsPage.manager(), '/analytics/manager', { staleTime: STALE_TIME.DYNAMIC },
+  );
 
-  useEffect(() => {
-    apiFetch<ManagerDashboard>('/analytics/manager').then(setData).finally(() => setLoading(false));
-  }, []);
-
-  if (loading || !data) return <Skeleton rows={4} />;
+  if (isLoading || !data) return <Skeleton rows={4} />;
 
   const { metrics, alerts, competencyGaps, nineBox } = data;
 
@@ -382,15 +360,12 @@ function ManagerView() {
 // ─── View: Risk Alerts ────────────────────────────────────────────────────────
 
 function RisksView() {
-  const [data, setData]     = useState<RiskAlert | null>(null);
-  const [loading, setLoading] = useState(true);
   const [tab, setTab]       = useState<'inactive' | 'pdis' | 'actions'>('inactive');
+  const { data, isLoading } = useApiQuery<RiskAlert>(
+    queryKeys.analyticsPage.risks(), '/analytics/risks', { staleTime: STALE_TIME.DYNAMIC },
+  );
 
-  useEffect(() => {
-    apiFetch<RiskAlert>('/analytics/risks').then(setData).finally(() => setLoading(false));
-  }, []);
-
-  if (loading || !data) return <Skeleton />;
+  if (isLoading || !data) return <Skeleton />;
 
   const { summary } = data;
 
@@ -476,14 +451,11 @@ function RisksView() {
 // ─── View: HR Dashboard ───────────────────────────────────────────────────────
 
 function HRDashboardView() {
-  const [data, setData]     = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+  const { data, isLoading } = useApiQuery<any>(
+    queryKeys.analyticsPage.hr(), '/analytics/hr', { staleTime: STALE_TIME.SEMI_STATIC },
+  );
 
-  useEffect(() => {
-    apiFetch<any>('/analytics/hr').then(setData).finally(() => setLoading(false));
-  }, []);
-
-  if (loading || !data) return <Skeleton rows={5} />;
+  if (isLoading || !data) return <Skeleton rows={5} />;
 
   return (
     <div className="space-y-5">
