@@ -1,16 +1,8 @@
 'use client';
-import { useState, useEffect, useCallback } from 'react';
-
-const API = process.env.NEXT_PUBLIC_API_URL ?? '/api';
-
-function authHeaders(): Record<string, string> {
-  const token =
-    typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
-  return {
-    'Content-Type': 'application/json',
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-  };
-}
+import { useState, useEffect } from 'react';
+import { useApiQuery } from '@/hooks/useApiQuery';
+import { queryKeys } from '@/lib/queryKeys';
+import { STALE_TIME } from '@/lib/queryClient';
 
 interface KeyResult {
   id: string;
@@ -42,49 +34,28 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 export default function OkrsPage() {
-  const [cycles, setCycles] = useState<Cycle[]>([]);
   const [selectedCycle, setSelectedCycle] = useState<string>('');
-  const [objectives, setObjectives] = useState<Objective[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
 
-  const fetchCycles = useCallback(async () => {
-    setLoading(true);
-    setError('');
-    try {
-      const res = await fetch(`${API}/monitoring/okr/cycles`, {
-        credentials: 'include',
-        headers: authHeaders(),
-      });
-      if (!res.ok) throw new Error('Erro ao carregar ciclos');
-      const json = await res.json();
-      setCycles(json);
-      if (json.length > 0) setSelectedCycle(json[0].id);
-    } catch (e: any) {
-      setError(e.message || 'Erro inesperado');
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const { data: cycles = [], isLoading: loading, error: cyclesError, refetch } =
+    useApiQuery<Cycle[]>(
+      queryKeys.monitoring.okrs({ kind: 'cycles' }), '/monitoring/okr/cycles',
+      { staleTime: STALE_TIME.SEMI_STATIC },
+    );
 
-  const fetchObjectives = useCallback(async (cycleId: string) => {
-    try {
-      const res = await fetch(
-        `${API}/monitoring/okr/cycles/${cycleId}/objectives`,
-        { credentials: 'include', headers: authHeaders() },
-      );
-      if (res.ok) setObjectives(await res.json());
-    } catch {
-      /* silencioso */
-    }
-  }, []);
-
+  // Selecciona o 1.º ciclo assim que a lista chega.
   useEffect(() => {
-    fetchCycles();
-  }, [fetchCycles]);
-  useEffect(() => {
-    if (selectedCycle) fetchObjectives(selectedCycle);
-  }, [selectedCycle, fetchObjectives]);
+    if (!selectedCycle && cycles.length > 0) setSelectedCycle(cycles[0].id);
+  }, [cycles, selectedCycle]);
+
+  // Objectivos dependem do ciclo escolhido (waterfall legítimo) → enabled.
+  const { data: objectives = [] } = useApiQuery<Objective[]>(
+    queryKeys.monitoring.okrs({ kind: 'objectives', cycleId: selectedCycle }),
+    `/monitoring/okr/cycles/${selectedCycle}/objectives`,
+    { enabled: !!selectedCycle, staleTime: STALE_TIME.DYNAMIC },
+  );
+
+  const error = cyclesError?.message ?? '';
+  const fetchCycles = () => refetch();
 
   if (loading)
     return (
