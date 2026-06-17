@@ -7,6 +7,10 @@ import {
   TrendingUp, Clock, X, ChevronRight, Zap, Award,
   Filter, BarChart2,
 } from 'lucide-react';
+import { useApiQuery } from '@/hooks/useApiQuery';
+import { apiClient } from '@/lib/apiClient';
+import { queryKeys } from '@/lib/queryKeys';
+import { STALE_TIME } from '@/lib/queryClient';
 
 // ─── Types ───────────────────────────────────────────────────────
 
@@ -20,15 +24,6 @@ interface SearchResponse {
   query: string;
   grouped: Record<string, SearchResult[]>;
   counts: Record<string, number>;
-}
-
-const BASE = '/api';
-async function api(path: string) {
-  const r = await fetch(`${BASE}${path}`, {
-    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token') ?? ''}` },
-  });
-  if (!r.ok) throw new Error();
-  return r.json();
 }
 
 // ─── Icons & Config ───────────────────────────────────────────────
@@ -78,13 +73,15 @@ function ResultCard({ result }: { result: SearchResult }) {
 // ─── Suggestions Panel ────────────────────────────────────────────
 
 function SuggestionsPanel({ onSearch }: { onSearch: (q: string) => void }) {
-  const [data, setData] = useState<any | null>(null);
-  const [history, setHistory] = useState<any[]>([]);
-
-  useEffect(() => {
-    api('/search/suggestions').then(setData).catch(() => {});
-    api('/search/history?limit=8').then(d => setHistory(d.history ?? [])).catch(() => {});
-  }, []);
+  const { data } = useApiQuery<any>(
+    queryKeys.search.suggestions(), '/search/suggestions',
+    { staleTime: STALE_TIME.SEMI_STATIC, retry: false },
+  );
+  const { data: historyResp } = useApiQuery<any>(
+    queryKeys.search.history(), '/search/history',
+    { params: { limit: 8 }, staleTime: STALE_TIME.DYNAMIC, retry: false },
+  );
+  const history = historyResp?.history ?? [];
 
   return (
     <div className="space-y-6">
@@ -194,14 +191,14 @@ function ResultsView({ data, activeType, setActiveType }: {
       <div className="md:col-span-3">
         <div className="flex items-center justify-between mb-3">
           <p className="text-sm text-slate-500">
-            {displayResults.length} resultado(s) para <strong>"{data.query}"</strong>
+            {displayResults.length} resultado(s) para <strong>&quot;{data.query}&quot;</strong>
           </p>
         </div>
 
         {displayResults.length === 0 ? (
           <div className="bg-white rounded-xl border border-slate-100 py-16 text-center text-slate-400">
             <Search size={36} className="mx-auto mb-2 opacity-30" />
-            <p className="text-sm">Sem resultados para "{data.query}"</p>
+            <p className="text-sm">Sem resultados para &quot;{data.query}&quot;</p>
             <p className="text-xs mt-1">Tenta um termo diferente</p>
           </div>
         ) : (
@@ -230,7 +227,7 @@ export default function SearchPage() {
     if (!query || query.length < 2) { setSuggestions([]); return; }
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
-      api(`/search/autocomplete?q=${encodeURIComponent(query)}&limit=6`)
+      apiClient.get<any>('/search/autocomplete', { params: { q: query, limit: 6 } })
         .then(d => setSuggestions(d.suggestions ?? [])).catch(() => {});
     }, 200);
   }, [query]);
@@ -239,7 +236,7 @@ export default function SearchPage() {
     if (!q.trim()) return;
     setSuggestions([]);
     setLoading(true);
-    api(`/search?q=${encodeURIComponent(q)}&limit=10`)
+    apiClient.get<SearchResponse>('/search', { params: { q, limit: 10 } })
       .then(d => { setResults(d); setActiveType('all'); })
       .finally(() => setLoading(false));
   }, []);
@@ -295,7 +292,7 @@ export default function SearchPage() {
             {Object.entries(TYPE_CONFIG).map(([key, conf]) => {
               const Icon = conf.icon;
               return (
-                <button key={key} onClick={() => { if (query) { setLoading(true); api(`/search/${conf.path}?q=${encodeURIComponent(query)}&limit=20`).then(d => { setResults({ query, grouped: { [key]: d.results }, counts: { [key]: d.count } }); setActiveType(key); }).finally(() => setLoading(false)); } }}
+                <button key={key} onClick={() => { if (query) { setLoading(true); apiClient.get<any>(`/search/${conf.path}`, { params: { q: query, limit: 20 } }).then(d => { setResults({ query, grouped: { [key]: d.results }, counts: { [key]: d.count } }); setActiveType(key); }).finally(() => setLoading(false)); } }}
                   className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border ${conf.bg} ${conf.color} border-transparent hover:border-current`}>
                   <Icon size={12} />{conf.label}
                 </button>

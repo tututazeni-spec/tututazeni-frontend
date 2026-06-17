@@ -8,6 +8,10 @@ import {
   Search, Plus, Clock, CheckCircle, AlertTriangle,
   ChevronRight, RefreshCw, Filter, Bookmark, Calendar,
 } from 'lucide-react';
+import { useApiQuery } from '@/hooks/useApiQuery';
+import { apiClient } from '@/lib/apiClient';
+import { queryKeys } from '@/lib/queryKeys';
+import { STALE_TIME } from '@/lib/queryClient';
 
 // ─── Types ───────────────────────────────────────────────────────
 
@@ -18,16 +22,6 @@ interface Template {
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────
-
-const BASE = '/api';
-async function api(path: string, opts?: RequestInit) {
-  const r = await fetch(`${BASE}${path}`, {
-    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token') ?? ''}` },
-    ...opts,
-  });
-  if (!r.ok) throw new Error();
-  return r.json();
-}
 
 function defaultRange(months = 1) {
   const to   = new Date().toISOString().split('T')[0];
@@ -88,14 +82,13 @@ function TemplateCard({ tpl, onRun }: { tpl: Template; onRun: (t: Template) => v
 // ─── Report Hub (Home) ────────────────────────────────────────────
 
 function ReportHub({ onRun }: { onRun: (t: Template) => void }) {
-  const [templates, setTemplates] = useState<Template[]>([]);
   const [search, setSearch]       = useState('');
   const [category, setCategory]   = useState('');
-  const [loading, setLoading]     = useState(true);
 
-  useEffect(() => {
-    api('/reports/templates').then(setTemplates).finally(() => setLoading(false));
-  }, []);
+  const { data: templates = [], isLoading: loading } = useApiQuery<Template[]>(
+    queryKeys.reports.templates(), '/reports/templates',
+    { staleTime: STALE_TIME.STATIC },
+  );
 
   const filtered = templates.filter(t =>
     (!category || t.category === category) &&
@@ -140,7 +133,6 @@ function ReportViewer({ template, onBack }: { template: Template; onBack: () => 
 
   const run = useCallback(() => {
     setLoading(true);
-    const qs = new URLSearchParams({ from, to, ...(deptId ? { departmentId: deptId } : {}) });
     const path = {
       headcount:   `/reports/hr/headcount`,
       turnover:    `/reports/hr/turnover`,
@@ -152,7 +144,8 @@ function ReportViewer({ template, onBack }: { template: Template; onBack: () => 
       compliance:  `/reports/compliance`,
       usage:       `/reports/operational/usage`,
     }[template.reportKey] ?? `/reports/learning/training`;
-    api(`${path}?${qs}`).then(setData).finally(() => setLoading(false));
+    apiClient.get<any>(path, { params: { from, to, departmentId: deptId || undefined } })
+      .then(setData).finally(() => setLoading(false));
   }, [template.reportKey, from, to, deptId]);
 
   useEffect(() => { run(); }, []);
@@ -288,13 +281,11 @@ function ReportOutput({ data, reportKey }: { data: any; reportKey: string }) {
 // ─── Insights Tab ─────────────────────────────────────────────────
 
 function InsightsTab() {
-  const [data, setData]     = useState<any | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const range = defaultRange(1);
-    api(`/reports/insights?from=${range.from}&to=${range.to}`).then(setData).finally(() => setLoading(false));
-  }, []);
+  const range = defaultRange(1);
+  const { data, isLoading: loading } = useApiQuery<any>(
+    queryKeys.reports.insights({ from: range.from, to: range.to }), '/reports/insights',
+    { params: { from: range.from, to: range.to }, staleTime: STALE_TIME.SEMI_STATIC },
+  );
 
   const SEV_CONFIG: Record<string, { color: string; bg: string; icon: any }> = {
     HIGH:   { color: 'text-red-700',    bg: 'bg-red-50 border-red-200',    icon: AlertTriangle },

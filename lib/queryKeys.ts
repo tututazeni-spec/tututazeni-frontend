@@ -141,6 +141,19 @@ export const queryKeys = {
     top: () => [...queryKeys.competencies.all, 'top'] as const,
   },
 
+  search: {
+    all: ['search'] as const,
+    suggestions: () => [...queryKeys.search.all, 'suggestions'] as const,
+    history: () => [...queryKeys.search.all, 'history'] as const,
+  },
+
+  reports: {
+    all: ['reports'] as const,
+    templates: () => [...queryKeys.reports.all, 'templates'] as const,
+    insights: (params: Record<string, unknown>) =>
+      [...queryKeys.reports.all, 'insights', params] as const,
+  },
+
   audit: {
     all: ['audit'] as const,
     list: (params: Record<string, unknown>) =>
