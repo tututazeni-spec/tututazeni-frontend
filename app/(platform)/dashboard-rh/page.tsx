@@ -1,30 +1,22 @@
 'use client';
 // src/app/(dashboard)/dashboard-rh/page.tsx
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState } from 'react';
 import {
   Users, TrendingUp, TrendingDown, Activity, Star, BookOpen,
   Shield, Brain, AlertTriangle, CheckCircle, Target, Zap,
   BarChart2, ChevronRight, RefreshCw, Clock, Award,
   UserMinus, UserPlus, Heart, Filter,
 } from 'lucide-react';
+import { useApiQuery } from '@/hooks/useApiQuery';
+import { queryKeys } from '@/lib/queryKeys';
+import { STALE_TIME } from '@/lib/queryClient';
 
 // ─── Types ───────────────────────────────────────────────────────
 
 type Panel = 'overview' | 'headcount' | 'turnover' | 'performance' | 'training' | 'engagement' | 'talent' | 'correlations';
 
 interface Alert { type: string; severity: 'HIGH' | 'MEDIUM' | 'LOW'; message: string; count?: number }
-
-// ─── Helpers ─────────────────────────────────────────────────────
-
-const BASE = '/api';
-async function api(path: string) {
-  const r = await fetch(`${BASE}${path}`, {
-    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token') ?? ''}` },
-  });
-  if (!r.ok) throw new Error();
-  return r.json();
-}
 
 function Skeleton({ count = 4 }: { count?: number }) {
   return <div className="grid grid-cols-2 md:grid-cols-4 gap-4 animate-pulse">{[...Array(count)].map((_, i) => <div key={i} className="bg-slate-100 rounded-xl h-24" />)}</div>;
@@ -104,15 +96,11 @@ function AlertStrip({ alerts }: { alerts: Alert[] }) {
 // ─── Overview Panel ───────────────────────────────────────────────
 
 function OverviewPanel() {
-  const [data, setData]     = useState<any | null>(null);
-  const [alerts, setAlerts] = useState<Alert[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    Promise.all([api('/dashboard-rh'), api('/dashboard-rh/alerts')])
-      .then(([d, a]) => { setData(d); setAlerts(a ?? []); })
-      .finally(() => setLoading(false));
-  }, []);
+  const dataQ = useApiQuery<any>(queryKeys.dashboardRh.overview(), '/dashboard-rh', { staleTime: STALE_TIME.DYNAMIC });
+  const alertsQ = useApiQuery<Alert[]>(queryKeys.dashboardRh.alerts(), '/dashboard-rh/alerts', { staleTime: STALE_TIME.DYNAMIC });
+  const data = dataQ.data ?? null;
+  const alerts = alertsQ.data ?? [];
+  const loading = dataQ.isLoading;
 
   if (loading) return <div className="space-y-4"><Skeleton count={6} /></div>;
   const k = data?.kpis ?? {};
@@ -160,15 +148,11 @@ function OverviewPanel() {
 // ─── Headcount Panel ──────────────────────────────────────────────
 
 function HeadcountPanel() {
-  const [data, setData]   = useState<any | null>(null);
-  const [trend, setTrend] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    Promise.all([api('/dashboard-rh/headcount'), api('/dashboard-rh/headcount-trend?months=6')])
-      .then(([d, t]) => { setData(d); setTrend(t ?? []); })
-      .finally(() => setLoading(false));
-  }, []);
+  const dataQ = useApiQuery<any>(queryKeys.dashboardRh.headcount(), '/dashboard-rh/headcount', { staleTime: STALE_TIME.SEMI_STATIC });
+  const trendQ = useApiQuery<any[]>(queryKeys.dashboardRh.headcountTrend(), '/dashboard-rh/headcount-trend', { params: { months: 6 }, staleTime: STALE_TIME.SEMI_STATIC });
+  const data = dataQ.data ?? null;
+  const trend = trendQ.data ?? [];
+  const loading = dataQ.isLoading;
 
   if (loading) return <Skeleton />;
 
@@ -229,8 +213,10 @@ function HeadcountPanel() {
 }
 
 function AnniversariesWidget() {
-  const [data, setData] = useState<any[]>([]);
-  useEffect(() => { api('/dashboard-rh/anniversaries').then(d => setData(d ?? [])).catch(() => {}); }, []);
+  const { data = [] } = useApiQuery<any[]>(
+    queryKeys.dashboardRh.anniversaries(), '/dashboard-rh/anniversaries',
+    { staleTime: STALE_TIME.SEMI_STATIC, retry: false },
+  );
   if (!data.length) return null;
   return (
     <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
@@ -255,9 +241,9 @@ function AnniversariesWidget() {
 // ─── Performance Panel ────────────────────────────────────────────
 
 function PerformancePanel() {
-  const [data, setData]   = useState<any | null>(null);
-  const [loading, setLoading] = useState(true);
-  useEffect(() => { api('/dashboard-rh/performance').then(setData).finally(() => setLoading(false)); }, []);
+  const { data, isLoading: loading } = useApiQuery<any>(
+    queryKeys.dashboardRh.performance(), '/dashboard-rh/performance', { staleTime: STALE_TIME.SEMI_STATIC },
+  );
   if (loading) return <Skeleton />;
   const dist = data?.distribution ?? {};
   const total = Object.values(dist as Record<string, number>).reduce((a, b) => a + b, 0);
@@ -327,9 +313,9 @@ function PerformancePanel() {
 // ─── Training Panel ───────────────────────────────────────────────
 
 function TrainingPanel() {
-  const [data, setData]   = useState<any | null>(null);
-  const [loading, setLoading] = useState(true);
-  useEffect(() => { api('/dashboard-rh/training').then(setData).finally(() => setLoading(false)); }, []);
+  const { data, isLoading: loading } = useApiQuery<any>(
+    queryKeys.dashboardRh.training(), '/dashboard-rh/training', { staleTime: STALE_TIME.SEMI_STATIC },
+  );
   if (loading) return <Skeleton />;
 
   return (
@@ -372,9 +358,9 @@ function TrainingPanel() {
 // ─── Correlations Panel ───────────────────────────────────────────
 
 function CorrelationsPanel() {
-  const [data, setData]   = useState<any | null>(null);
-  const [loading, setLoading] = useState(true);
-  useEffect(() => { api('/dashboard-rh/correlations').then(setData).finally(() => setLoading(false)); }, []);
+  const { data, isLoading: loading } = useApiQuery<any>(
+    queryKeys.dashboardRh.correlations(), '/dashboard-rh/correlations', { staleTime: STALE_TIME.SEMI_STATIC },
+  );
   if (loading) return <Skeleton count={2} />;
 
   return (
@@ -443,9 +429,9 @@ function CorrelationsPanel() {
 // ─── Talent Pipeline Panel ────────────────────────────────────────
 
 function TalentPanel() {
-  const [data, setData]   = useState<any | null>(null);
-  const [loading, setLoading] = useState(true);
-  useEffect(() => { api('/dashboard-rh/talent-pipeline').then(setData).finally(() => setLoading(false)); }, []);
+  const { data, isLoading: loading } = useApiQuery<any>(
+    queryKeys.dashboardRh.talent(), '/dashboard-rh/talent-pipeline', { staleTime: STALE_TIME.SEMI_STATIC },
+  );
   if (loading) return <Skeleton count={3} />;
 
   return (

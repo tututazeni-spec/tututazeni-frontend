@@ -141,6 +141,28 @@ export const queryKeys = {
     top: () => [...queryKeys.competencies.all, 'top'] as const,
   },
 
+  automation: {
+    all: ['automation'] as const,
+    rules: () => [...queryKeys.automation.all, 'rules'] as const,
+    executions: (status: string) =>
+      [...queryKeys.automation.all, 'executions', status] as const,
+    templates: () => [...queryKeys.automation.all, 'templates'] as const,
+    stats: () => [...queryKeys.automation.all, 'stats'] as const,
+  },
+
+  dashboardRh: {
+    all: ['dashboard-rh'] as const,
+    overview: () => [...queryKeys.dashboardRh.all, 'overview'] as const,
+    alerts: () => [...queryKeys.dashboardRh.all, 'alerts'] as const,
+    headcount: () => [...queryKeys.dashboardRh.all, 'headcount'] as const,
+    headcountTrend: () => [...queryKeys.dashboardRh.all, 'headcount-trend'] as const,
+    anniversaries: () => [...queryKeys.dashboardRh.all, 'anniversaries'] as const,
+    performance: () => [...queryKeys.dashboardRh.all, 'performance'] as const,
+    training: () => [...queryKeys.dashboardRh.all, 'training'] as const,
+    correlations: () => [...queryKeys.dashboardRh.all, 'correlations'] as const,
+    talent: () => [...queryKeys.dashboardRh.all, 'talent'] as const,
+  },
+
   performance: {
     all: ['performance'] as const,
     my: () => [...queryKeys.performance.all, 'my'] as const,

@@ -2,24 +2,18 @@
 'use client';
 // src/app/(dashboard)/automation/page.tsx
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import {
   Zap, Play, Pause, Copy, Trash2, Plus, RefreshCw,
   CheckCircle, AlertTriangle, Clock, BarChart2, BookOpen,
   ChevronRight, Activity, Settings,
 } from 'lucide-react';
+import { useApiQuery } from '@/hooks/useApiQuery';
+import { apiClient } from '@/lib/apiClient';
+import { queryKeys } from '@/lib/queryKeys';
+import { STALE_TIME } from '@/lib/queryClient';
 
 type Tab = 'rules' | 'executions' | 'templates' | 'stats';
-
-const BASE = '/api';
-async function api(path: string, opts?: RequestInit) {
-  const r = await fetch(`${BASE}${path}`, {
-    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token') ?? ''}` },
-    ...opts,
-  });
-  if (!r.ok) throw new Error();
-  return r.json();
-}
 
 const CATEGORY_COLOR: Record<string, string> = {
   HR:          'bg-violet-100 text-violet-700',
@@ -54,17 +48,17 @@ function Skeleton({ count = 3 }: { count?: number }) {
 // ─── Rules Tab ────────────────────────────────────────────────────
 
 function RulesTab() {
-  const [rules, setRules]   = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
   const [running, setRunning] = useState(false);
 
-  const load = () => { setLoading(true); api('/automation/rules').then(setRules).finally(() => setLoading(false)); };
-  useEffect(() => { load(); }, []);
+  const { data: rules = [], isLoading: loading, refetch } = useApiQuery<any[]>(
+    queryKeys.automation.rules(), '/automation/rules', { staleTime: STALE_TIME.DYNAMIC },
+  );
+  const load = () => { void refetch(); };
 
-  const toggle = async (id: number) => { await api(`/automation/rules/${id}/toggle`, { method: 'PATCH' }); load(); };
-  const clone  = async (id: number) => { await api(`/automation/rules/${id}/clone`, { method: 'POST' }); load(); };
-  const remove = async (id: number) => { if (confirm('Remover regra?')) { await api(`/automation/rules/${id}`, { method: 'DELETE' }); load(); } };
-  const runAll = async () => { setRunning(true); const r = await api('/automation/run', { method: 'POST' }); setRunning(false); alert(`Executadas: ${r.executed} regras`); };
+  const toggle = async (id: number) => { await apiClient.patch(`/automation/rules/${id}/toggle`, {}); load(); };
+  const clone  = async (id: number) => { await apiClient.post(`/automation/rules/${id}/clone`, {}); load(); };
+  const remove = async (id: number) => { if (confirm('Remover regra?')) { await apiClient.delete(`/automation/rules/${id}`); load(); } };
+  const runAll = async () => { setRunning(true); const r = await apiClient.post<any>('/automation/run', {}); setRunning(false); alert(`Executadas: ${r.executed} regras`); };
 
   if (loading) return <Skeleton />;
 
@@ -140,16 +134,11 @@ function RulesTab() {
 // ─── Executions Tab ───────────────────────────────────────────────
 
 function ExecutionsTab() {
-  const [data, setData]   = useState<any | null>(null);
   const [status, setStatus] = useState('');
-  const [loading, setLoading] = useState(true);
-
-  const load = (s = '') => {
-    setLoading(true);
-    api(`/automation/executions${s ? `?status=${s}` : ''}`).then(setData).finally(() => setLoading(false));
-  };
-
-  useEffect(() => { load(); }, []);
+  const { data, isLoading: loading } = useApiQuery<any>(
+    queryKeys.automation.executions(status), '/automation/executions',
+    { params: { status: status || undefined }, staleTime: STALE_TIME.DYNAMIC },
+  );
 
   const STATUS_COLOR: Record<string, string> = {
     SUCCESS: 'bg-emerald-100 text-emerald-700',
@@ -165,7 +154,7 @@ function ExecutionsTab() {
     <div className="space-y-4">
       <div className="flex gap-2">
         {['', 'SUCCESS', 'FAILED', 'PENDING'].map(s => (
-          <button key={s} onClick={() => { setStatus(s); load(s); }}
+          <button key={s} onClick={() => setStatus(s)}
             className={`text-xs px-3 py-1.5 rounded-lg ${status === s ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-600'}`}>
             {s || 'Todas'}
           </button>
@@ -189,7 +178,7 @@ function ExecutionsTab() {
                 {e.startedAt ? new Date(e.startedAt).toLocaleString('pt') : '–'}
               </span>
               {e.status === 'FAILED' && (
-                <button onClick={() => api(`/automation/executions/${e.id}/rerun`, { method: 'POST' })}
+                <button onClick={() => { void apiClient.post(`/automation/executions/${e.id}/rerun`, {}).catch(() => {}); }}
                   className="text-[10px] px-2 py-1 border border-slate-200 text-slate-600 rounded-lg hover:bg-slate-50 shrink-0">
                   Retry
                 </button>
@@ -211,15 +200,14 @@ function ExecutionsTab() {
 // ─── Templates Tab ────────────────────────────────────────────────
 
 function TemplatesTab() {
-  const [templates, setTemplates] = useState<any[]>([]);
   const [applying, setApplying]   = useState<number | null>(null);
-  const [loading, setLoading]     = useState(true);
-
-  useEffect(() => { api('/automation/templates').then(setTemplates).finally(() => setLoading(false)); }, []);
+  const { data: templates = [], isLoading: loading } = useApiQuery<any[]>(
+    queryKeys.automation.templates(), '/automation/templates', { staleTime: STALE_TIME.STATIC },
+  );
 
   const apply = async (index: number) => {
     setApplying(index);
-    const r = await api(`/automation/templates/${index}/apply`, { method: 'POST' }).catch(() => null);
+    const r = await apiClient.post<any>(`/automation/templates/${index}/apply`, {}).catch(() => null);
     setApplying(null);
     if (r) alert(r.message ?? 'Template aplicado!');
   };
@@ -259,9 +247,9 @@ function TemplatesTab() {
 // ─── Stats Tab ────────────────────────────────────────────────────
 
 function StatsTab() {
-  const [data, setData]   = useState<any | null>(null);
-  const [loading, setLoading] = useState(true);
-  useEffect(() => { api('/automation/stats').then(setData).finally(() => setLoading(false)); }, []);
+  const { data, isLoading: loading } = useApiQuery<any>(
+    queryKeys.automation.stats(), '/automation/stats', { staleTime: STALE_TIME.DYNAMIC },
+  );
   if (loading) return <Skeleton />;
   const e = data?.executions ?? {};
   const r = data?.rules ?? {};
