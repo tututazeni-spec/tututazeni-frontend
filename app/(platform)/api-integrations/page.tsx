@@ -1,26 +1,20 @@
 'use client';
 // src/app/(dashboard)/api-integrations/page.tsx
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import {
   Plug, Key, Zap, BarChart2, Activity, CheckCircle, AlertTriangle,
   RefreshCw, Plus, Trash2, Play, Pause, RotateCcw, Copy, Eye, EyeOff,
   Clock, TrendingUp,
 } from 'lucide-react';
+import { useApiQuery } from '@/hooks/useApiQuery';
+import { apiClient } from '@/lib/apiClient';
+import { queryKeys } from '@/lib/queryKeys';
+import { STALE_TIME } from '@/lib/queryClient';
 
 // ─── Types ───────────────────────────────────────────────────────
 
 type Tab = 'integrations' | 'webhooks' | 'api-keys' | 'monitoring';
-
-const BASE = '/api';
-async function api(path: string, opts?: RequestInit) {
-  const r = await fetch(`${BASE}${path}`, {
-    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token') ?? ''}` },
-    ...opts,
-  });
-  if (!r.ok) throw new Error();
-  return r.json();
-}
 
 function Skeleton({ count = 3 }: { count?: number }) {
   return <div className="space-y-3 animate-pulse">{[...Array(count)].map((_, i) => <div key={i} className="bg-slate-100 rounded-xl h-16" />)}</div>;
@@ -38,22 +32,22 @@ const HEALTH_CONFIG: Record<string, { color: string; bg: string; dot: string }> 
 // ─── Integrations Tab ────────────────────────────────────────────
 
 function IntegrationsTab() {
-  const [list, setList]   = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
   const [testing, setTesting] = useState<number | null>(null);
 
-  const load = () => { setLoading(true); api('/api-integrations').then(setList).finally(() => setLoading(false)); };
-  useEffect(() => { load(); }, []);
+  const { data: list = [], isLoading: loading, refetch } = useApiQuery<any[]>(
+    queryKeys.apiIntegrations.list(), '/api-integrations', { staleTime: STALE_TIME.DYNAMIC },
+  );
+  const load = () => { void refetch(); };
 
   const testIntegration = async (id: number) => {
     setTesting(id);
-    const r = await api(`/api-integrations/${id}/test`, { method: 'POST' }).catch(() => null);
+    const r = await apiClient.post<any>(`/api-integrations/${id}/test`, {}).catch(() => null);
     setTesting(null);
     if (r) alert(r.success ? `✅ ${r.message}` : `❌ ${r.message}`);
     load();
   };
 
-  const toggle = async (id: number) => { await api(`/api-integrations/${id}/toggle`, { method: 'PATCH' }); load(); };
+  const toggle = async (id: number) => { await apiClient.patch(`/api-integrations/${id}/toggle`, {}); load(); };
 
   if (loading) return <Skeleton />;
 
@@ -112,13 +106,12 @@ function IntegrationsTab() {
 // ─── Webhooks Tab ─────────────────────────────────────────────────
 
 function WebhooksTab() {
-  const [list, setList]   = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: list = [], isLoading: loading, refetch } = useApiQuery<any[]>(
+    queryKeys.apiIntegrations.webhooks(), '/api-integrations/webhooks/list', { staleTime: STALE_TIME.DYNAMIC },
+  );
+  const load = () => { void refetch(); };
 
-  const load = () => { setLoading(true); api('/api-integrations/webhooks/list').then(setList).finally(() => setLoading(false)); };
-  useEffect(() => { load(); }, []);
-
-  const remove = async (id: number) => { if (confirm('Remover webhook?')) { await api(`/api-integrations/webhooks/${id}`, { method: 'DELETE' }); load(); } };
+  const remove = async (id: number) => { if (confirm('Remover webhook?')) { await apiClient.delete(`/api-integrations/webhooks/${id}`); load(); } };
 
   if (loading) return <Skeleton />;
 
@@ -181,22 +174,22 @@ function WebhooksTab() {
 // ─── API Keys Tab ─────────────────────────────────────────────────
 
 function ApiKeysTab() {
-  const [keys, setKeys]     = useState<any[]>([]);
   const [newKey, setNewKey] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
 
-  const load = () => { setLoading(true); api('/api-integrations/api-keys/list').then(setKeys).finally(() => setLoading(false)); };
-  useEffect(() => { load(); }, []);
+  const { data: keys = [], isLoading: loading, refetch } = useApiQuery<any[]>(
+    queryKeys.apiIntegrations.apiKeys(), '/api-integrations/api-keys/list', { staleTime: STALE_TIME.DYNAMIC },
+  );
+  const load = () => { void refetch(); };
 
   const create = async () => {
     const name = prompt('Nome da API Key:');
     if (!name) return;
-    const r = await api('/api-integrations/api-keys', { method: 'POST', body: JSON.stringify({ name, scopes: ['read'] }) });
+    const r = await apiClient.post<any>('/api-integrations/api-keys', { name, scopes: ['read'] });
     if (r.key) { setNewKey(r.key); load(); }
   };
 
   const revoke = async (id: number) => {
-    if (confirm('Revogar esta API Key?')) { await api(`/api-integrations/api-keys/${id}/revoke`, { method: 'POST' }); load(); }
+    if (confirm('Revogar esta API Key?')) { await apiClient.post(`/api-integrations/api-keys/${id}/revoke`, {}); load(); }
   };
 
   if (loading) return <Skeleton />;
@@ -244,7 +237,7 @@ function ApiKeysTab() {
                 </span>
               )}
               <div className="flex gap-1 shrink-0">
-                <button onClick={async () => { const r = await api(`/api-integrations/api-keys/${k.id}/rotate`, { method: 'POST' }); if (r.key) setNewKey(r.key); load(); }}
+                <button onClick={async () => { const r = await apiClient.post<any>(`/api-integrations/api-keys/${k.id}/rotate`, {}); if (r.key) setNewKey(r.key); load(); }}
                   className="p-1 rounded hover:bg-amber-50 text-slate-400 hover:text-amber-600" title="Rotacionar">
                   <RotateCcw size={12} />
                 </button>
@@ -270,9 +263,9 @@ function ApiKeysTab() {
 // ─── Monitoring Tab ───────────────────────────────────────────────
 
 function MonitoringTab() {
-  const [data, setData]   = useState<any | null>(null);
-  const [loading, setLoading] = useState(true);
-  useEffect(() => { api('/api-integrations/stats').then(setData).finally(() => setLoading(false)); }, []);
+  const { data, isLoading: loading } = useApiQuery<any>(
+    queryKeys.apiIntegrations.stats(), '/api-integrations/stats', { staleTime: STALE_TIME.DYNAMIC },
+  );
   if (loading) return <Skeleton />;
   const s = data?.summary ?? {};
 

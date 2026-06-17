@@ -1,23 +1,17 @@
 'use client';
 // src/app/(dashboard)/roles-permissions/page.tsx
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import {
   Shield, Users, Key, CheckCircle, AlertTriangle,
   Copy, Trash2, Plus, ChevronRight, Search, Brain, Activity,
 } from 'lucide-react';
+import { useApiQuery } from '@/hooks/useApiQuery';
+import { apiClient } from '@/lib/apiClient';
+import { queryKeys } from '@/lib/queryKeys';
+import { STALE_TIME } from '@/lib/queryClient';
 
 type Tab = 'roles' | 'matrix' | 'simulator' | 'governance';
-
-const BASE = '/api';
-async function api(path: string, opts?: RequestInit) {
-  const r = await fetch(`${BASE}${path}`, {
-    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token') ?? ''}` },
-    ...opts,
-  });
-  if (!r.ok) throw new Error();
-  return r.json();
-}
 
 function Skeleton({ count = 3 }: { count?: number }) {
   return <div className="space-y-3 animate-pulse">{[...Array(count)].map((_, i) => <div key={i} className="bg-slate-100 rounded-xl h-16" />)}</div>;
@@ -26,13 +20,13 @@ function Skeleton({ count = 3 }: { count?: number }) {
 // ─── Roles Tab ────────────────────────────────────────────────────
 
 function RolesTab() {
-  const [roles, setRoles]   = useState<any[]>([]);
   const [selected, setSel]  = useState<any | null>(null);
-  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
 
-  const load = () => { setLoading(true); api('/roles-permissions').then(setRoles).finally(() => setLoading(false)); };
-  useEffect(() => { load(); }, []);
+  const { data: roles = [], isLoading: loading, refetch } = useApiQuery<any[]>(
+    queryKeys.rolesPermissions.roles(), '/roles-permissions', { staleTime: STALE_TIME.SEMI_STATIC },
+  );
+  const load = () => { void refetch(); };
 
   const filtered = roles.filter(r => !search || r.name.toLowerCase().includes(search.toLowerCase()));
 
@@ -82,12 +76,12 @@ function RolesTab() {
                 <p className="text-xs text-slate-400 font-mono">{selected.code} · {selected._count?.users ?? 0} utilizadores</p>
               </div>
               <div className="flex gap-2">
-                <button onClick={() => { const n = prompt('Nome do clone:'); if (n) api(`/roles-permissions/${selected.id}/clone`, { method: 'POST', body: JSON.stringify({ newName: n }) }).then(load); }}
+                <button onClick={() => { const n = prompt('Nome do clone:'); if (n) apiClient.post(`/roles-permissions/${selected.id}/clone`, { newName: n }).then(load); }}
                   className="flex items-center gap-1 text-xs px-3 py-1.5 border border-slate-200 text-slate-600 rounded-lg hover:bg-slate-50">
                   <Copy size={12} />Clonar
                 </button>
                 {!(selected.isSystem) && selected._count?.users === 0 && (
-                  <button onClick={() => { if (confirm('Remover role?')) api(`/roles-permissions/${selected.id}`, { method: 'DELETE' }).then(() => { setSel(null); load(); }); }}
+                  <button onClick={() => { if (confirm('Remover role?')) apiClient.delete(`/roles-permissions/${selected.id}`).then(() => { setSel(null); load(); }); }}
                     className="flex items-center gap-1 text-xs px-3 py-1.5 border border-red-200 text-red-600 rounded-lg hover:bg-red-50">
                     <Trash2 size={12} />Remover
                   </button>
@@ -131,11 +125,10 @@ function RolesTab() {
 // ─── Matrix Tab ───────────────────────────────────────────────────
 
 function MatrixTab() {
-  const [data, setData]   = useState<any | null>(null);
   const [subject, setSubject] = useState('');
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => { api('/roles-permissions/matrix').then(setData).finally(() => setLoading(false)); }, []);
+  const { data, isLoading: loading } = useApiQuery<any>(
+    queryKeys.rolesPermissions.matrix(), '/roles-permissions/matrix', { staleTime: STALE_TIME.SEMI_STATIC },
+  );
 
   if (loading) return <Skeleton />;
 
@@ -200,7 +193,7 @@ function SimulatorTab() {
   const run = async () => {
     if (!userId || !resource || !action) return;
     setLoading(true);
-    api('/roles-permissions/simulate', { method: 'POST', body: JSON.stringify({ userId: +userId, resource, action }) })
+    apiClient.post<any>('/roles-permissions/simulate', { userId: +userId, resource, action })
       .then(setResult).finally(() => setLoading(false));
   };
 
@@ -288,9 +281,9 @@ function SimulatorTab() {
 // ─── Governance Tab ───────────────────────────────────────────────
 
 function GovernanceTab() {
-  const [data, setData]   = useState<any | null>(null);
-  const [loading, setLoading] = useState(true);
-  useEffect(() => { api('/roles-permissions/governance-stats').then(setData).finally(() => setLoading(false)); }, []);
+  const { data, isLoading: loading } = useApiQuery<any>(
+    queryKeys.rolesPermissions.governance(), '/roles-permissions/governance-stats', { staleTime: STALE_TIME.DYNAMIC },
+  );
   if (loading) return <Skeleton />;
 
   return (

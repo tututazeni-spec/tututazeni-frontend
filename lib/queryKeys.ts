@@ -168,6 +168,21 @@ export const queryKeys = {
     programs: () => [...queryKeys.roiImpact.all, 'programs'] as const,
   },
 
+  rolesPermissions: {
+    all: ['roles-permissions'] as const,
+    roles: () => [...queryKeys.rolesPermissions.all, 'roles'] as const,
+    matrix: () => [...queryKeys.rolesPermissions.all, 'matrix'] as const,
+    governance: () => [...queryKeys.rolesPermissions.all, 'governance'] as const,
+  },
+
+  apiIntegrations: {
+    all: ['api-integrations'] as const,
+    list: () => [...queryKeys.apiIntegrations.all, 'list'] as const,
+    webhooks: () => [...queryKeys.apiIntegrations.all, 'webhooks'] as const,
+    apiKeys: () => [...queryKeys.apiIntegrations.all, 'api-keys'] as const,
+    stats: () => [...queryKeys.apiIntegrations.all, 'stats'] as const,
+  },
+
   search: {
     all: ['search'] as const,
     suggestions: () => [...queryKeys.search.all, 'suggestions'] as const,
