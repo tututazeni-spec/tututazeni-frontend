@@ -390,6 +390,32 @@ export const queryKeys = {
     stats: () => [...queryKeys.notifications.all, 'stats'] as const,
   },
 
+  processes: {
+    all: ['processes'] as const,
+    library: (params: Record<string, unknown>) =>
+      [...queryKeys.processes.all, 'library', params] as const,
+    detail: (id: number) =>
+      [...queryKeys.processes.all, 'detail', id] as const,
+    instance: (id: number) =>
+      [...queryKeys.processes.all, 'instance', id] as const,
+    myTasks: () => [...queryKeys.processes.all, 'my-tasks'] as const,
+    dashboard: () => [...queryKeys.processes.all, 'dashboard'] as const,
+  },
+
+  learningPaths: {
+    all: ['learning-paths'] as const,
+    catalog: (params: Record<string, unknown>) =>
+      [...queryKeys.learningPaths.all, 'catalog', params] as const,
+    detail: (id: number) =>
+      [...queryKeys.learningPaths.all, 'detail', id] as const,
+    progress: (id: number) =>
+      [...queryKeys.learningPaths.all, 'progress', id] as const,
+    myEnrollments: () =>
+      [...queryKeys.learningPaths.all, 'my-enrollments'] as const,
+    adminDashboard: () =>
+      [...queryKeys.learningPaths.all, 'admin-dashboard'] as const,
+  },
+
   leadership: {
     all: ['leadership'] as const,
     myDashboard: () => [...queryKeys.leadership.all, 'my-dashboard'] as const,

@@ -1,6 +1,12 @@
 ﻿'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
+import { keepPreviousData } from '@tanstack/react-query';
+import { useApiQuery } from '../../../hooks/useApiQuery';
+import { apiClient } from '../../../lib/apiClient';
+import { queryKeys } from '../../../lib/queryKeys';
+import { STALE_TIME } from '../../../lib/queryClient';
+import { useDebounce } from '../../../hooks/useDebounce';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -94,25 +100,6 @@ interface Dashboard {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? '/api';
-
-async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
-  const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
-  const res = await fetch(`${API_BASE}${path}`, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...options?.headers,
-    },
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({ message: 'Erro desconhecido' }));
-    throw new Error(err.message ?? `HTTP ${res.status}`);
-  }
-  return res.json();
-}
-
 function fmtDate(d: string | null): string {
   if (!d) return '—';
   return new Date(d).toLocaleDateString('pt-AO', { day: '2-digit', month: '2-digit', year: 'numeric' });
@@ -195,35 +182,22 @@ function Skeleton({ rows = 5 }: { rows?: number }) {
 // ─── View: Library (lista de processos) ──────────────────────────────────────
 
 function LibraryView({ onSelect }: { onSelect: (id: number) => void }) {
-  const [data, setData] = useState<PaginatedProcesses | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState('');
   const [risk, setRisk] = useState('');
   const [page, setPage] = useState(1);
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const params = new URLSearchParams({
-        page: String(page),
-        limit: '15',
-        ...(search ? { search } : {}),
-        ...(status ? { status } : {}),
-        ...(risk   ? { riskLevel: risk } : {}),
-      });
-      const result = await apiFetch<PaginatedProcesses>(`/processes?${params}`);
-      setData(result);
-    } catch (e: any) {
-      setError(e.message);
-    } finally {
-      setLoading(false);
-    }
-  }, [search, status, risk, page]);
-
-  useEffect(() => { load(); }, [load]);
+  const debouncedSearch = useDebounce(search, 300);
+  const params = {
+    page, limit: 15,
+    ...(debouncedSearch ? { search: debouncedSearch } : {}),
+    ...(status ? { status } : {}),
+    ...(risk   ? { riskLevel: risk } : {}),
+  };
+  const { data, isLoading: loading, error } = useApiQuery<PaginatedProcesses>(
+    queryKeys.processes.library(params), '/processes',
+    { params, staleTime: STALE_TIME.SEMI_STATIC, placeholderData: keepPreviousData },
+  );
 
   return (
     <div>
@@ -273,7 +247,7 @@ function LibraryView({ onSelect }: { onSelect: (id: number) => void }) {
         </div>
 
         {loading && <div className="p-4"><Skeleton /></div>}
-        {error && <div className="px-4 py-8 text-center text-sm text-red-500">{error}</div>}
+        {error && <div className="px-4 py-8 text-center text-sm text-red-500">{error.message}</div>}
 
         {!loading && data?.data.length === 0 && (
           <div className="px-4 py-12 text-center text-sm text-gray-400">Nenhum processo encontrado</div>
@@ -342,25 +316,20 @@ function ProcessViewer({
   onBack: () => void;
   onStartInstance: (instanceId: number) => void;
 }) {
-  const [process, setProcess] = useState<Process | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'flow' | 'info' | 'history'>('flow');
   const [submitting, setSubmitting] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
 
-  useEffect(() => {
-    apiFetch<Process>(`/processes/${processId}`)
-      .then(setProcess)
-      .catch(e => setError(e.message))
-      .finally(() => setLoading(false));
-  }, [processId]);
+  const { data: process, isLoading: loading, error, refetch } = useApiQuery<Process>(
+    queryKeys.processes.detail(processId), `/processes/${processId}`,
+    { staleTime: STALE_TIME.SEMI_STATIC },
+  );
 
   const handleSubmitReview = async () => {
     setSubmitting(true);
     try {
-      const updated = await apiFetch<Process>(`/processes/${processId}/submit-review`, { method: 'PATCH' });
-      setProcess(updated);
+      await apiClient.patch(`/processes/${processId}/submit-review`, {});
+      await refetch();
     } catch (e: any) {
       alert(e.message);
     } finally {
@@ -373,11 +342,8 @@ function ProcessViewer({
     if (action === 'reject' && !comment) return;
     setActionLoading(true);
     try {
-      const updated = await apiFetch<Process>(`/processes/${processId}/approval`, {
-        method: 'PATCH',
-        body: JSON.stringify({ action, comment }),
-      });
-      setProcess(updated);
+      await apiClient.patch(`/processes/${processId}/approval`, { action, comment });
+      await refetch();
     } catch (e: any) {
       alert(e.message);
     } finally {
@@ -390,10 +356,7 @@ function ProcessViewer({
     if (!targetUserIdStr) return;
     setActionLoading(true);
     try {
-      const inst = await apiFetch<ProcessInstance>(`/processes/${processId}/start`, {
-        method: 'POST',
-        body: JSON.stringify({ targetUserId: parseInt(targetUserIdStr) }),
-      });
+      const inst = await apiClient.post<ProcessInstance>(`/processes/${processId}/start`, { targetUserId: parseInt(targetUserIdStr) });
       onStartInstance(inst.id);
     } catch (e: any) {
       alert(e.message);
@@ -406,8 +369,8 @@ function ProcessViewer({
     if (!confirm('Criar nova versão? O processo voltará a DRAFT.')) return;
     setActionLoading(true);
     try {
-      const updated = await apiFetch<Process>(`/processes/${processId}/new-version`, { method: 'POST' });
-      setProcess(updated);
+      await apiClient.post(`/processes/${processId}/new-version`, {});
+      await refetch();
     } catch (e: any) {
       alert(e.message);
     } finally {
@@ -418,7 +381,7 @@ function ProcessViewer({
   if (loading) return <div className="p-4"><Skeleton rows={6} /></div>;
   if (error || !process) return (
     <div className="py-12 text-center">
-      <p className="text-sm text-red-500 mb-4">{error ?? 'Processo não encontrado'}</p>
+      <p className="text-sm text-red-500 mb-4">{error?.message ?? 'Processo não encontrado'}</p>
       <button onClick={onBack} className="text-sm text-blue-600 underline">← Voltar</button>
     </div>
   );
@@ -650,39 +613,30 @@ function ProcessViewer({
 // ─── View: Task Runner (Executor) ─────────────────────────────────────────────
 
 function TaskRunner({ instanceId, onBack }: { instanceId: number; onBack: () => void }) {
-  const [instance, setInstance] = useState<ProcessInstance | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [activeStep, setActiveStep] = useState<StepProgress | null>(null);
   const [notes, setNotes] = useState('');
   const [completing, setCompleting] = useState(false);
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    try {
-      const inst = await apiFetch<ProcessInstance>(`/processes/instances/${instanceId}`);
-      setInstance(inst);
-      const nextPending = inst.stepProgress.find(sp => sp.status === 'PENDING');
-      if (nextPending) setActiveStep(nextPending);
-    } catch (e: any) {
-      setError(e.message);
-    } finally {
-      setLoading(false);
-    }
-  }, [instanceId]);
+  const { data: instance, isLoading: loading, error, refetch } = useApiQuery<ProcessInstance>(
+    queryKeys.processes.instance(instanceId), `/processes/instances/${instanceId}`,
+    { staleTime: STALE_TIME.DYNAMIC },
+  );
 
-  useEffect(() => { load(); }, [load]);
+  // Auto-selecciona a próxima etapa pendente sempre que a instância é (re)carregada.
+  useEffect(() => {
+    if (instance) {
+      const nextPending = instance.stepProgress.find(sp => sp.status === 'PENDING');
+      if (nextPending) setActiveStep(nextPending);
+    }
+  }, [instance]);
 
   const completeStep = async () => {
     if (!activeStep) return;
     setCompleting(true);
     try {
-      await apiFetch(`/processes/instances/${instanceId}/steps/${activeStep.stepId}/complete`, {
-        method: 'POST',
-        body: JSON.stringify({ notes }),
-      });
+      await apiClient.post(`/processes/instances/${instanceId}/steps/${activeStep.stepId}/complete`, { notes });
       setNotes('');
-      await load();
+      await refetch();
     } catch (e: any) {
       alert(e.message);
     } finally {
@@ -695,11 +649,8 @@ function TaskRunner({ instanceId, onBack }: { instanceId: number; onBack: () => 
     const reason = prompt('Motivo da rejeição:');
     if (!reason) return;
     try {
-      await apiFetch(`/processes/instances/${instanceId}/steps/${activeStep.stepId}/reject`, {
-        method: 'POST',
-        body: JSON.stringify({ reason }),
-      });
-      await load();
+      await apiClient.post(`/processes/instances/${instanceId}/steps/${activeStep.stepId}/reject`, { reason });
+      await refetch();
     } catch (e: any) {
       alert(e.message);
     }
@@ -708,7 +659,7 @@ function TaskRunner({ instanceId, onBack }: { instanceId: number; onBack: () => 
   if (loading) return <div className="p-4"><Skeleton rows={4} /></div>;
   if (error || !instance) return (
     <div className="py-12 text-center">
-      <p className="text-sm text-red-500 mb-4">{error ?? 'Instância não encontrada'}</p>
+      <p className="text-sm text-red-500 mb-4">{error?.message ?? 'Instância não encontrada'}</p>
       <button onClick={onBack} className="text-sm text-blue-600 underline">← Voltar</button>
     </div>
   );
@@ -903,19 +854,13 @@ function TaskRunner({ instanceId, onBack }: { instanceId: number; onBack: () => 
 // ─── View: My Tasks ───────────────────────────────────────────────────────────
 
 function MyTasksView({ onOpenInstance }: { onOpenInstance: (id: number) => void }) {
-  const [tasks, setTasks] = useState<StepProgress[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { data: tasks = [], isLoading, error } = useApiQuery<StepProgress[]>(
+    queryKeys.processes.myTasks(), '/processes/my-tasks',
+    { staleTime: STALE_TIME.DYNAMIC },
+  );
 
-  useEffect(() => {
-    apiFetch<StepProgress[]>('/processes/my-tasks')
-      .then(setTasks)
-      .catch(e => setError(e.message))
-      .finally(() => setLoading(false));
-  }, []);
-
-  if (loading) return <Skeleton rows={4} />;
-  if (error) return <div className="text-sm text-red-500">{error}</div>;
+  if (isLoading) return <Skeleton rows={4} />;
+  if (error) return <div className="text-sm text-red-500">{error.message}</div>;
 
   if (tasks.length === 0) return (
     <div className="py-12 text-center text-sm text-gray-400 border border-dashed border-gray-200 rounded-xl">
@@ -963,20 +908,14 @@ function MyTasksView({ onOpenInstance }: { onOpenInstance: (id: number) => void 
 // ─── View: Dashboard ─────────────────────────────────────────────────────────
 
 function DashboardView({ onOpenInstance }: { onOpenInstance: (id: number) => void }) {
-  const [data, setData] = useState<Dashboard | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { data, isLoading, error } = useApiQuery<Dashboard>(
+    queryKeys.processes.dashboard(), '/processes/dashboard',
+    { staleTime: STALE_TIME.SEMI_STATIC },
+  );
 
-  useEffect(() => {
-    apiFetch<Dashboard>('/processes/dashboard')
-      .then(setData)
-      .catch(e => setError(e.message))
-      .finally(() => setLoading(false));
-  }, []);
-
-  if (loading) return <Skeleton rows={3} />;
-  if (error)   return <div className="text-sm text-red-500">{error}</div>;
-  if (!data)   return null;
+  if (isLoading) return <Skeleton rows={3} />;
+  if (error)     return <div className="text-sm text-red-500">{error.message}</div>;
+  if (!data)     return null;
 
   const MetricCard = ({ label, value, sub, accent }: { label: string; value: number | string; sub?: string; accent?: string }) => (
     <div className="bg-gray-50 rounded-xl p-4">

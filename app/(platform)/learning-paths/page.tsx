@@ -1,6 +1,12 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState } from 'react';
+import { keepPreviousData } from '@tanstack/react-query';
+import { useApiQuery } from '../../../hooks/useApiQuery';
+import { apiClient } from '../../../lib/apiClient';
+import { queryKeys } from '../../../lib/queryKeys';
+import { STALE_TIME } from '../../../lib/queryClient';
+import { useDebounce } from '../../../hooks/useDebounce';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -76,27 +82,6 @@ interface LPAnalytics {
 }
 
 type View = 'catalog' | 'detail' | 'my-paths' | 'dashboard';
-
-// ─── API ──────────────────────────────────────────────────────────────────────
-
-const API = process.env.NEXT_PUBLIC_API_URL ?? '/api';
-
-async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
-  const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
-  const res = await fetch(`${API}${path}`, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...options?.headers,
-    },
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({ message: 'Erro' }));
-    throw new Error(err.message ?? `HTTP ${res.status}`);
-  }
-  return res.json();
-}
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -239,36 +224,24 @@ function LearningPathCard({
 // ─── View: Catalog ────────────────────────────────────────────────────────────
 
 function CatalogView({ onSelect }: { onSelect: (id: number) => void }) {
-  const [data, setData]         = useState<PaginatedLPs | null>(null);
-  const [loading, setLoading]   = useState(true);
-  const [error, setError]       = useState<string | null>(null);
   const [search, setSearch]     = useState('');
   const [level, setLevel]       = useState('');
   const [pathType, setPathType] = useState('');
   const [mandatory, setMandatory] = useState('');
   const [page, setPage]         = useState(1);
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const params = new URLSearchParams({
-        page: String(page), limit: '12',
-        status: 'PUBLISHED',
-        ...(search    ? { search }           : {}),
-        ...(level     ? { level }            : {}),
-        ...(pathType  ? { pathType }         : {}),
-        ...(mandatory ? { mandatory }        : {}),
-      });
-      setData(await apiFetch<PaginatedLPs>(`/learning-paths?${params}`));
-    } catch (e: any) {
-      setError(e.message);
-    } finally {
-      setLoading(false);
-    }
-  }, [search, level, pathType, mandatory, page]);
-
-  useEffect(() => { load(); }, [load]);
+  const debouncedSearch = useDebounce(search, 300);
+  const params = {
+    page, limit: 12, status: 'PUBLISHED',
+    ...(debouncedSearch ? { search: debouncedSearch } : {}),
+    ...(level     ? { level }     : {}),
+    ...(pathType  ? { pathType }  : {}),
+    ...(mandatory ? { mandatory } : {}),
+  };
+  const { data, isLoading: loading, error } = useApiQuery<PaginatedLPs>(
+    queryKeys.learningPaths.catalog(params), '/learning-paths',
+    { params, staleTime: STALE_TIME.SEMI_STATIC, placeholderData: keepPreviousData },
+  );
 
   return (
     <div>
@@ -304,7 +277,7 @@ function CatalogView({ onSelect }: { onSelect: (id: number) => void }) {
         </select>
       </div>
 
-      {error && <div className="text-sm text-red-500 mb-4">{error}</div>}
+      {error && <div className="text-sm text-red-500 mb-4">{error.message}</div>}
       {loading && <Skeleton />}
 
       {!loading && data && (
@@ -344,35 +317,27 @@ function CatalogView({ onSelect }: { onSelect: (id: number) => void }) {
 // ─── View: LP Detail + Roadmap ────────────────────────────────────────────────
 
 function LPDetailView({ pathId, onBack }: { pathId: number; onBack: () => void }) {
-  const [path, setPath]         = useState<LearningPath | null>(null);
-  const [progress, setProgress] = useState<LPProgress | null>(null);
-  const [loading, setLoading]   = useState(true);
   const [enrolling, setEnrolling] = useState(false);
   const [tab, setTab]           = useState<'roadmap' | 'info'>('roadmap');
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    try {
-      const [p, pr] = await Promise.all([
-        apiFetch<LearningPath>(`/learning-paths/${pathId}`),
-        apiFetch<LPProgress>(`/learning-paths/${pathId}/progress`).catch(() => null),
-      ]);
-      setPath(p);
-      setProgress(pr);
-    } catch (e: any) {
-      alert(e.message);
-    } finally {
-      setLoading(false);
-    }
-  }, [pathId]);
+  const pathQuery = useApiQuery<LearningPath>(
+    queryKeys.learningPaths.detail(pathId), `/learning-paths/${pathId}`,
+    { staleTime: STALE_TIME.SEMI_STATIC },
+  );
+  const progressQuery = useApiQuery<LPProgress>(
+    queryKeys.learningPaths.progress(pathId), `/learning-paths/${pathId}/progress`,
+    { staleTime: STALE_TIME.DYNAMIC, retry: false },
+  );
 
-  useEffect(() => { load(); }, [load]);
+  const path     = pathQuery.data ?? null;
+  const progress = progressQuery.data ?? null;
+  const loading  = pathQuery.isLoading;
 
   const handleEnroll = async () => {
     setEnrolling(true);
     try {
-      await apiFetch(`/learning-paths/${pathId}/enroll`, { method: 'POST', body: '{}' });
-      await load();
+      await apiClient.post(`/learning-paths/${pathId}/enroll`, {});
+      await Promise.all([pathQuery.refetch(), progressQuery.refetch()]);
     } catch (e: any) {
       alert(e.message);
     } finally {
@@ -608,19 +573,16 @@ function LPDetailView({ pathId, onBack }: { pathId: number; onBack: () => void }
 // ─── View: My Paths ───────────────────────────────────────────────────────────
 
 function MyPathsView({ onSelect }: { onSelect: (id: number) => void }) {
-  const [data, setData]       = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
   const [filter, setFilter]   = useState('');
 
-  useEffect(() => {
-    apiFetch<any[]>('/learning-paths/my/enrollments')
-      .then(setData)
-      .finally(() => setLoading(false));
-  }, []);
+  const { data = [], isLoading } = useApiQuery<any[]>(
+    queryKeys.learningPaths.myEnrollments(), '/learning-paths/my/enrollments',
+    { staleTime: STALE_TIME.DYNAMIC },
+  );
 
   const filtered = filter ? data.filter(e => e.status === filter) : data;
 
-  if (loading) return <Skeleton />;
+  if (isLoading) return <Skeleton />;
 
   return (
     <div>
@@ -691,16 +653,12 @@ function MyPathsView({ onSelect }: { onSelect: (id: number) => void }) {
 // ─── View: Admin Dashboard ────────────────────────────────────────────────────
 
 function DashboardView({ onSelect }: { onSelect: (id: number) => void }) {
-  const [data, setData]       = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+  const { data, isLoading } = useApiQuery<any>(
+    queryKeys.learningPaths.adminDashboard(), '/learning-paths/admin/dashboard',
+    { staleTime: STALE_TIME.SEMI_STATIC },
+  );
 
-  useEffect(() => {
-    apiFetch<any>('/learning-paths/admin/dashboard')
-      .then(setData)
-      .finally(() => setLoading(false));
-  }, []);
-
-  if (loading || !data) return <Skeleton rows={3} />;
+  if (isLoading || !data) return <Skeleton rows={3} />;
 
   return (
     <div className="space-y-6">
