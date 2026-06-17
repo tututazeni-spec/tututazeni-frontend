@@ -1,13 +1,17 @@
 'use client';
 // src/app/(dashboard)/engagement/page.tsx
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState } from 'react';
 import {
   Smile, BarChart2, MessageSquare, Heart, Award, Users,
   TrendingUp, TrendingDown, AlertTriangle, CheckCircle,
   Star, Zap, Target, Activity, Plus, ChevronRight,
   ThumbsUp, Meh, Frown, Send, RefreshCw, ArrowUp,
 } from 'lucide-react';
+import { useApiQuery } from '../../../hooks/useApiQuery';
+import { apiClient } from '../../../lib/apiClient';
+import { queryKeys } from '../../../lib/queryKeys';
+import { STALE_TIME } from '../../../lib/queryClient';
 
 // ─── Types ───────────────────────────────────────────────────────
 
@@ -31,17 +35,6 @@ interface MySummary {
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────
-
-const BASE = '/api';
-async function api(path: string, opts?: RequestInit) {
-  const r = await fetch(`${BASE}${path}`, {
-    headers: { 'Content-Type': 'application/json',
-      Authorization: `Bearer ${localStorage.getItem('token') ?? ''}` },
-    ...opts,
-  });
-  if (!r.ok) throw new Error(await r.text());
-  return r.json();
-}
 
 const LEVEL_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
   EXCELLENT: { label: 'Excelente',     color: 'text-emerald-700', bg: 'bg-emerald-50 border-emerald-200' },
@@ -118,9 +111,8 @@ function MoodCheckin({ onDone }: { onDone: () => void }) {
     if (!selected) return;
     setSubmitting(true);
     try {
-      await api('/engagement/mood/checkin', {
-        method: 'POST',
-        body: JSON.stringify({ mood: selected, note: note || undefined }),
+      await apiClient.post('/engagement/mood/checkin', {
+        mood: selected, note: note || undefined,
       });
       setDone(true);
       onDone();
@@ -167,21 +159,21 @@ function MoodCheckin({ onDone }: { onDone: () => void }) {
 // ─── Overview Tab ────────────────────────────────────────────────
 
 function OverviewTab({ userId }: { userId?: number }) {
-  const [dash, setDash]       = useState<DashboardData | null>(null);
-  const [summary, setSummary] = useState<MySummary | null>(null);
-  const [loading, setLoading] = useState(true);
+  const dashQuery = useApiQuery<DashboardData>(
+    queryKeys.engagement.dashboard(), '/engagement/dashboard',
+    { staleTime: STALE_TIME.DYNAMIC },
+  );
+  const summaryQuery = useApiQuery<MySummary>(
+    queryKeys.engagement.mySummary(), '/engagement/my-summary',
+    { staleTime: STALE_TIME.DYNAMIC },
+  );
 
-  const load = useCallback(() => {
-    setLoading(true);
-    Promise.all([
-      api('/engagement/dashboard'),
-      api('/engagement/my-summary'),
-    ]).then(([d, s]) => { setDash(d); setSummary(s); }).finally(() => setLoading(false));
-  }, []);
+  const dash = dashQuery.data ?? null;
+  const summary = summaryQuery.data ?? null;
 
-  useEffect(() => { load(); }, [load]);
+  const load = () => { dashQuery.refetch(); summaryQuery.refetch(); };
 
-  if (loading) return <Skeleton />;
+  if (dashQuery.isLoading || summaryQuery.isLoading) return <Skeleton />;
 
   const level = LEVEL_CONFIG[dash?.kpis.engagementLevel ?? 'FAIR'];
 
@@ -312,17 +304,15 @@ function OverviewTab({ userId }: { userId?: number }) {
 // ─── Surveys Tab ─────────────────────────────────────────────────
 
 function SurveysTab() {
-  const [data, setData]       = useState<{ data: any[]; meta: any } | null>(null);
-  const [loading, setLoading] = useState(true);
   const [status, setStatus]   = useState('ACTIVE');
 
-  useEffect(() => {
-    setLoading(true);
-    api(`/engagement/surveys?limit=30${status ? `&status=${status}` : ''}`)
-      .then(setData).finally(() => setLoading(false));
-  }, [status]);
+  const params = { limit: 30, ...(status ? { status } : {}) };
+  const { data, isLoading } = useApiQuery<{ data: any[]; meta: any }>(
+    queryKeys.engagement.surveys(params), '/engagement/surveys',
+    { params, staleTime: STALE_TIME.SEMI_STATIC },
+  );
 
-  if (loading) return <Skeleton />;
+  if (isLoading) return <Skeleton />;
 
   const TYPE_ICON: Record<string, string> = {
     CLIMATE: '🌡️', PULSE: '💓', ENPS: '📊', ONBOARDING: '👋',
@@ -400,20 +390,22 @@ function SurveysTab() {
 // ─── Recognition Tab ─────────────────────────────────────────────
 
 function RecognitionTab() {
-  const [feed, setFeed]       = useState<any[]>([]);
-  const [board, setBoard]     = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
   const [kudosMsg, setKudosMsg] = useState('');
   const [kudosTo, setKudosTo]   = useState('');
 
-  useEffect(() => {
-    Promise.all([
-      api('/engagement/recognition/feed?limit=20'),
-      api('/engagement/recognition/leaderboard?type=points&limit=10'),
-    ]).then(([f, b]) => { setFeed(f.data ?? []); setBoard(b ?? []); }).finally(() => setLoading(false));
-  }, []);
+  const feedQuery = useApiQuery<{ data: any[] }>(
+    queryKeys.engagement.recognitionFeed(), '/engagement/recognition/feed',
+    { params: { limit: 20 }, staleTime: STALE_TIME.DYNAMIC },
+  );
+  const boardQuery = useApiQuery<any[]>(
+    queryKeys.engagement.recognitionLeaderboard(), '/engagement/recognition/leaderboard',
+    { params: { type: 'points', limit: 10 }, staleTime: STALE_TIME.SEMI_STATIC },
+  );
 
-  if (loading) return <Skeleton />;
+  const feed  = feedQuery.data?.data ?? [];
+  const board = boardQuery.data ?? [];
+
+  if (feedQuery.isLoading || boardQuery.isLoading) return <Skeleton />;
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -499,28 +491,27 @@ function RecognitionTab() {
 // ─── Feedback Tab ────────────────────────────────────────────────
 
 function FeedbackTab({ userId }: { userId?: number }) {
-  const [data, setData]       = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
   const [type, setType]       = useState('');
   const [msg, setMsg]         = useState('');
   const [anon, setAnon]       = useState(false);
 
-  useEffect(() => {
-    setLoading(true);
-    api(`/engagement/feedback?limit=20${type ? `&type=${type}` : ''}`)
-      .then(r => setData(r.data ?? [])).finally(() => setLoading(false));
-  }, [type]);
+  const params = { limit: 20, ...(type ? { type } : {}) };
+  const { data: resp, isLoading, refetch } = useApiQuery<{ data: any[] }>(
+    queryKeys.engagement.feedback(type), '/engagement/feedback',
+    { params, staleTime: STALE_TIME.DYNAMIC },
+  );
+  const data = resp?.data ?? [];
 
   const send = async () => {
     if (!msg.trim()) return;
-    await api('/engagement/feedback', {
-      method: 'POST',
-      body: JSON.stringify({ type: type || 'OPEN', message: msg, anonymous: anon }),
+    await apiClient.post('/engagement/feedback', {
+      type: type || 'OPEN', message: msg, anonymous: anon,
     });
     setMsg('');
+    refetch();
   };
 
-  if (loading) return <Skeleton />;
+  if (isLoading) return <Skeleton />;
 
   const TYPE_COLOR: Record<string, string> = {
     OPEN: 'bg-blue-100 text-blue-700', ANONYMOUS: 'bg-slate-100 text-slate-600',
@@ -609,22 +600,23 @@ function FeedbackTab({ userId }: { userId?: number }) {
 // ─── Analytics Tab ───────────────────────────────────────────────
 
 function AnalyticsTab() {
-  const [index, setIndex]     = useState<any | null>(null);
-  const [heatmap, setHeatmap] = useState<any[]>([]);
   const [metric, setMetric]   = useState<'score' | 'participation' | 'mood'>('score');
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    setLoading(true);
-    Promise.all([
-      api('/engagement/index'),
-      api(`/engagement/heatmap?metric=${metric}`),
-    ]).then(([i, h]) => { setIndex(i); setHeatmap(h); }).finally(() => setLoading(false));
-  }, [metric]);
+  const indexQuery = useApiQuery<any>(
+    queryKeys.engagement.index(), '/engagement/index',
+    { staleTime: STALE_TIME.SEMI_STATIC },
+  );
+  const heatmapQuery = useApiQuery<any[]>(
+    queryKeys.engagement.heatmap(metric), '/engagement/heatmap',
+    { params: { metric }, staleTime: STALE_TIME.SEMI_STATIC },
+  );
+
+  const index   = indexQuery.data ?? null;
+  const heatmap = heatmapQuery.data ?? [];
 
   const LEVEL_BAR = { EXCELLENT: 'bg-emerald-500', GOOD: 'bg-teal-500', FAIR: 'bg-amber-400', AT_RISK: 'bg-red-400' };
 
-  if (loading) return <Skeleton />;
+  if (indexQuery.isLoading || heatmapQuery.isLoading) return <Skeleton />;
 
   return (
     <div className="space-y-6">

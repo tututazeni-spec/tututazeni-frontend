@@ -390,6 +390,31 @@ export const queryKeys = {
     stats: () => [...queryKeys.notifications.all, 'stats'] as const,
   },
 
+  engagement: {
+    all: ['engagement'] as const,
+    dashboard: () => [...queryKeys.engagement.all, 'dashboard'] as const,
+    mySummary: () => [...queryKeys.engagement.all, 'my-summary'] as const,
+    surveys: (params: Record<string, unknown>) =>
+      [...queryKeys.engagement.all, 'surveys', params] as const,
+    recognitionFeed: () =>
+      [...queryKeys.engagement.all, 'recognition', 'feed'] as const,
+    recognitionLeaderboard: () =>
+      [...queryKeys.engagement.all, 'recognition', 'leaderboard'] as const,
+    feedback: (type: string) =>
+      [...queryKeys.engagement.all, 'feedback', type] as const,
+    index: () => [...queryKeys.engagement.all, 'index'] as const,
+    heatmap: (metric: string) =>
+      [...queryKeys.engagement.all, 'heatmap', metric] as const,
+  },
+
+  competencyMap: {
+    all: ['competency-map'] as const,
+    my: () => [...queryKeys.competencyMap.all, 'my'] as const,
+    myRadar: () => [...queryKeys.competencyMap.all, 'my', 'radar'] as const,
+    skills: (params: Record<string, unknown>) =>
+      [...queryKeys.competencyMap.all, 'skills', params] as const,
+  },
+
   courses: {
     all: ['courses'] as const,
     lists: () => [...queryKeys.courses.all, 'list'] as const,

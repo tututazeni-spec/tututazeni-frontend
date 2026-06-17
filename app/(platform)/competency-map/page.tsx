@@ -4,13 +4,17 @@
 // INNOVA — Mapa de Competências
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState } from 'react';
 import {
   Target, Star, TrendingUp, AlertCircle, CheckCircle2,
   BookOpen, Users, BarChart3, Zap, Award, RefreshCcw,
   ChevronRight, Plus, Eye, Loader2, X, ArrowUpRight,
   Filter, Download, Settings,
 } from 'lucide-react';
+import { useApiQuery } from '../../../hooks/useApiQuery';
+import { apiClient } from '../../../lib/apiClient';
+import { queryKeys } from '../../../lib/queryKeys';
+import { STALE_TIME } from '../../../lib/queryClient';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -69,30 +73,13 @@ const PRIORITY_CONFIG: Record<GapPriority, { label: string; color: string }> = {
   LOW:    { label: 'Baixa', color: 'bg-gray-100 text-gray-600'  },
 };
 
-// ─── API ──────────────────────────────────────────────────────────────────────
-
-const API = process.env.NEXT_PUBLIC_API_URL ?? '/api';
-
-async function apiFetch<T>(path: string, opts?: RequestInit): Promise<T> {
-  const token = typeof window !== 'undefined' ? localStorage.getItem('innova_token') : null;
-  const res = await fetch(`${API}${path}`, {
-    headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-    ...opts,
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({ message: `Error ${res.status}` }));
-    throw new Error(err.message ?? `Error ${res.status}`);
-  }
-  return res.json();
-}
-
 // ─── Self-Assessment Modal ─────────────────────────────────────────────────────
 
 function SelfAssessModal({
-  skills, userId, onClose, onSuccess,
+  skills, onClose, onSuccess,
 }: {
   skills: Array<{ id: number; name: string; type: SkillType; maxLevel: number }>;
-  userId: number; onClose: () => void; onSuccess: () => void;
+  onClose: () => void; onSuccess: () => void;
 }) {
   const [levels, setLevels] = useState<Record<number, number>>({});
   const [loading, setLoading] = useState(false);
@@ -106,9 +93,8 @@ function SelfAssessModal({
 
     setLoading(true); setError('');
     try {
-      await apiFetch('/competency-map/assess/batch', {
-        method: 'POST',
-        body: JSON.stringify({ userId, source: 'SELF', assessments }),
+      await apiClient.post('/competency-map/assess/batch', {
+        source: 'SELF', assessments,
       });
       onSuccess(); onClose();
     } catch (e: any) { setError(e.message); }
@@ -276,34 +262,30 @@ type TabKey = 'my' | 'gap' | 'team' | 'catalogue';
 
 export default function CompetencyMapPage() {
   const [tab, setTab]           = useState<TabKey>('my');
-  const [myMap, setMyMap]       = useState<CompetencyMap | null>(null);
-  const [radar, setRadar]       = useState<RadarData | null>(null);
-  const [allSkills, setAllSkills] = useState<any[]>([]);
-  const [loading, setLoading]   = useState(false);
   const [showAssess, setShowAssess] = useState(false);
-  const [currentUserId, setCurrentUserId] = useState(0);
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    try {
-      const [map, radarData, skills] = await Promise.allSettled([
-        apiFetch<CompetencyMap>('/competency-map/my'),
-        apiFetch<RadarData>('/competency-map/my/radar'),
-        apiFetch<{data: any[]}>('/competency-map/skills?limit=100'),
-      ]);
-      if (map.status === 'fulfilled')     setMyMap(map.value);
-      if (radarData.status === 'fulfilled') setRadar(radarData.value);
-      if (skills.status === 'fulfilled')  setAllSkills(skills.value.data ?? []);
+  const skillsParams = { limit: 100 };
+  const mapQuery = useApiQuery<CompetencyMap>(
+    queryKeys.competencyMap.my(), '/competency-map/my',
+    { staleTime: STALE_TIME.SEMI_STATIC },
+  );
+  const radarQuery = useApiQuery<RadarData>(
+    queryKeys.competencyMap.myRadar(), '/competency-map/my/radar',
+    { staleTime: STALE_TIME.SEMI_STATIC },
+  );
+  const skillsQuery = useApiQuery<{ data: any[] }>(
+    queryKeys.competencyMap.skills(skillsParams), '/competency-map/skills',
+    { params: skillsParams, staleTime: STALE_TIME.STATIC },
+  );
 
-      // Token decode para userId
-      const token = typeof window !== 'undefined' ? localStorage.getItem('innova_token') : null;
-      if (token) {
-        try { const p = JSON.parse(atob(token.split('.')[1])); setCurrentUserId(p.sub ?? 0); } catch {}
-      }
-    } finally { setLoading(false); }
-  }, []);
+  const myMap     = mapQuery.data ?? null;
+  const radar     = radarQuery.data ?? null;
+  const allSkills = skillsQuery.data?.data ?? [];
+  const loading   = mapQuery.isLoading || radarQuery.isLoading || skillsQuery.isLoading;
 
-  useEffect(() => { load(); }, [load]);
+  const load = () => {
+    mapQuery.refetch(); radarQuery.refetch(); skillsQuery.refetch();
+  };
 
   const gap      = myMap?.gapAnalysis;
   const rcfg     = gap ? READINESS_CONFIG[gap.readinessLevel] : null;
@@ -376,7 +358,7 @@ export default function CompetencyMapPage() {
                       {rcfg && gap && (
                         <div className="mb-4">
                           <div className="flex justify-between text-xs mb-1">
-                            <span className={`font-semibold ${rcfg.color}`}>{rcfg.emoji} {rcfg.label} para "{gap.targetRole}"</span>
+                            <span className={`font-semibold ${rcfg.color}`}>{rcfg.emoji} {rcfg.label} para &quot;{gap.targetRole}&quot;</span>
                             <span className="font-bold text-gray-900">{gap.readinessScore}%</span>
                           </div>
                           <div className="h-2.5 bg-gray-100 rounded-full overflow-hidden">
@@ -443,7 +425,7 @@ export default function CompetencyMapPage() {
             {rcfg && (
               <div className={`rounded-2xl border p-5 ${rcfg.bar === 'bg-emerald-500' ? 'bg-emerald-50 border-emerald-200' : rcfg.bar === 'bg-amber-500' ? 'bg-amber-50 border-amber-200' : 'bg-red-50 border-red-200'}`}>
                 <div className="flex items-center justify-between mb-2">
-                  <p className="font-semibold text-gray-900">{rcfg.emoji} Prontidão: "{gap.targetRole}"</p>
+                  <p className="font-semibold text-gray-900">{rcfg.emoji} Prontidão: &quot;{gap.targetRole}&quot;</p>
                   <span className={`text-2xl font-bold ${rcfg.color}`}>{gap.readinessScore}%</span>
                 </div>
                 <div className="h-2.5 bg-white/60 rounded-full overflow-hidden">
@@ -566,7 +548,6 @@ export default function CompetencyMapPage() {
       {showAssess && (
         <SelfAssessModal
           skills={allSkills.map(s => ({ id: s.id, name: s.name, type: s.type, maxLevel: s.maxLevel }))}
-          userId={currentUserId}
           onClose={() => setShowAssess(false)}
           onSuccess={load}
         />
