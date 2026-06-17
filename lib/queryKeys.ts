@@ -100,6 +100,33 @@ export const queryKeys = {
     transcript: () => [...queryKeys.academic.all, 'transcript'] as const,
   },
 
+  microLearning: {
+    all: ['micro-learning'] as const,
+    feed: (params: Record<string, unknown>) =>
+      [...queryKeys.microLearning.all, 'feed', params] as const,
+    dashboard: () => [...queryKeys.microLearning.all, 'dashboard'] as const,
+    saved: () => [...queryKeys.microLearning.all, 'saved'] as const,
+  },
+
+  knowledge: {
+    all: ['knowledge'] as const,
+    categories: () => [...queryKeys.knowledge.all, 'categories'] as const,
+    trending: () => [...queryKeys.knowledge.all, 'trending'] as const,
+    list: (params: Record<string, unknown>) =>
+      [...queryKeys.knowledge.all, 'list', params] as const,
+    article: (id: number) => [...queryKeys.knowledge.all, 'article', id] as const,
+    adminDashboard: () =>
+      [...queryKeys.knowledge.all, 'admin-dashboard'] as const,
+  },
+
+  aiTutor: {
+    all: ['ai-tutor'] as const,
+    sessions: () => [...queryKeys.aiTutor.all, 'sessions'] as const,
+    session: (id: number) => [...queryKeys.aiTutor.all, 'session', id] as const,
+    recommendations: () =>
+      [...queryKeys.aiTutor.all, 'recommendations'] as const,
+  },
+
   lms: {
     all: ['lms'] as const,
     sessions: (params: Record<string, unknown>) =>

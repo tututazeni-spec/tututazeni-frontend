@@ -1,7 +1,13 @@
 ﻿// src/app/(dashboard)/micro-learning/page.tsx
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { keepPreviousData } from '@tanstack/react-query';
+import { useApiQuery } from '@/hooks/useApiQuery';
+import { useDebounce } from '@/hooks/useDebounce';
+import { apiClient } from '@/lib/apiClient';
+import { queryKeys } from '@/lib/queryKeys';
+import { STALE_TIME } from '@/lib/queryClient';
 import { sanitizeHtml } from '@/lib/sanitize';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -45,27 +51,6 @@ interface QuizQuestion {
 }
 
 type View = 'feed' | 'player' | 'dashboard' | 'saved';
-
-// ─── API ──────────────────────────────────────────────────────────────────────
-
-const API = process.env.NEXT_PUBLIC_API_URL ?? '/api';
-
-async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
-  const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
-  const res = await fetch(`${API}${path}`, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...options?.headers,
-    },
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({ message: 'Erro' }));
-    throw new Error(err.message ?? `HTTP ${res.status}`);
-  }
-  return res.json();
-}
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -177,27 +162,17 @@ function MicroCard({ item, onClick }: { item: MicroLearning; onClick: () => void
 // ─── View: Feed ───────────────────────────────────────────────────────────────
 
 function FeedView({ onSelect }: { onSelect: (item: MicroLearning) => void }) {
-  const [data, setData]       = useState<{ data: MicroLearning[]; total: number } | null>(null);
-  const [loading, setLoading] = useState(true);
   const [type, setType]       = useState<ContentType | ''>('');
   const [level, setLevel]     = useState<ContentLevel | ''>('');
   const [search, setSearch]   = useState('');
   const [page, setPage]       = useState(1);
+  const debouncedSearch = useDebounce(search);
+  const params = { page, limit: 12, contentType: type, level, search: debouncedSearch };
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    try {
-      const params = new URLSearchParams({
-        page: String(page), limit: '12',
-        ...(type   ? { contentType: type }  : {}),
-        ...(level  ? { level }              : {}),
-        ...(search ? { search }             : {}),
-      });
-      setData(await apiFetch(`/micro-learning/feed/me?${params}`));
-    } finally { setLoading(false); }
-  }, [type, level, search, page]);
-
-  useEffect(() => { load(); }, [load]);
+  const { data, isLoading: loading } = useApiQuery<{ data: MicroLearning[]; total: number }>(
+    queryKeys.microLearning.feed(params), '/micro-learning/feed/me',
+    { params, staleTime: STALE_TIME.DYNAMIC, placeholderData: keepPreviousData },
+  );
 
   return (
     <div>
@@ -294,18 +269,16 @@ function PlayerView({ item, onBack, onNext }: {
 
   const saveProgress = async (pct: number) => {
     try {
-      await apiFetch('/micro-learning/progress', {
-        method: 'POST',
-        body: JSON.stringify({ microLearningId: item.id, progress: Math.round(pct) }),
+      await apiClient.post('/micro-learning/progress', {
+        microLearningId: item.id, progress: Math.round(pct),
       });
     } catch { /* ignorar */ }
   };
 
   const handleInteract = async (action: 'LIKE' | 'SAVE') => {
     try {
-      const res = await apiFetch<any>('/micro-learning/interact', {
-        method: 'POST',
-        body: JSON.stringify({ microLearningId: item.id, action }),
+      const res = await apiClient.post<any>('/micro-learning/interact', {
+        microLearningId: item.id, action,
       });
       if (action === 'LIKE') setLiked(res.active);
       if (action === 'SAVE') setSaved(res.active);
@@ -321,9 +294,8 @@ function PlayerView({ item, onBack, onNext }: {
   const handleQuizSubmit = async () => {
     setSubmitting(true);
     try {
-      const result = await apiFetch<any>('/micro-learning/quiz/submit', {
-        method: 'POST',
-        body: JSON.stringify({ microLearningId: item.id, answers: quizAnswers }),
+      const result = await apiClient.post<any>('/micro-learning/quiz/submit', {
+        microLearningId: item.id, answers: quizAnswers,
       });
       setQuizResult(result);
       if (result.score >= 60) {
@@ -529,16 +501,12 @@ function PlayerView({ item, onBack, onNext }: {
 // ─── View: Dashboard ──────────────────────────────────────────────────────────
 
 function DashboardView() {
-  const [data, setData]     = useState<MyDashboard | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { data, isLoading } = useApiQuery<MyDashboard>(
+    queryKeys.microLearning.dashboard(), '/micro-learning/dashboard/me',
+    { staleTime: STALE_TIME.DYNAMIC },
+  );
 
-  useEffect(() => {
-    apiFetch<MyDashboard>('/micro-learning/dashboard/me')
-      .then(setData)
-      .finally(() => setLoading(false));
-  }, []);
-
-  if (loading || !data) return <Skeleton rows={4} />;
+  if (isLoading || !data) return <Skeleton rows={4} />;
 
   const { streak, stats } = data;
 
@@ -602,14 +570,10 @@ function DashboardView() {
 // ─── View: Saved ──────────────────────────────────────────────────────────────
 
 function SavedView({ onSelect }: { onSelect: (item: MicroLearning) => void }) {
-  const [data, setData]     = useState<MicroLearning[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    apiFetch<MicroLearning[]>('/micro-learning/saved/me')
-      .then(setData)
-      .finally(() => setLoading(false));
-  }, []);
+  const { data = [], isLoading: loading } = useApiQuery<MicroLearning[]>(
+    queryKeys.microLearning.saved(), '/micro-learning/saved/me',
+    { staleTime: STALE_TIME.DYNAMIC },
+  );
 
   if (loading) return <Skeleton />;
 
