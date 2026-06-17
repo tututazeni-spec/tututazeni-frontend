@@ -6,7 +6,12 @@
 // Styling: Tailwind CSS
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo } from 'react';
+import { keepPreviousData } from '@tanstack/react-query';
+import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
+import { apiClient } from '@/lib/apiClient';
+import { queryKeys } from '@/lib/queryKeys';
+import { STALE_TIME } from '@/lib/queryClient';
 import {
   Search, SlidersHorizontal, Users, UserPlus, Download, RefreshCcw,
   ChevronDown, ChevronRight, Eye, Edit2, Trash2, MoreHorizontal,
@@ -126,69 +131,36 @@ const CONTRACT_DESCRIPTIONS: Record<ContractType, string> = {
   PART_TIME:           'Jornada inferior à normal (Art. 103.º)',
 };
 
-// ─── API Helpers ──────────────────────────────────────────────────────────────
-
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? '/api';
-
-async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
-  const token = typeof window !== 'undefined' ? localStorage.getItem('innova_token') : null;
-  const res = await fetch(`${API_BASE}${path}`, {
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-    ...options,
-  });
-  if (!res.ok) throw new Error(`API error: ${res.status}`);
-  return res.json();
-}
+// ─── API Helpers (React Query) ──────────────────────────────────────────────
 
 function useEmployees(filters: FilterState, page: number) {
-  const [data, setData]       = useState<{ data: Employee[]; meta: any } | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError]     = useState<string | null>(null);
-
-  const fetch = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const params = new URLSearchParams();
-      params.set('page', String(page));
-      params.set('limit', '20');
-      if (filters.search)      params.set('search', filters.search);
-      if (filters.department)  params.set('department', filters.department);
-      if (filters.status)      params.set('status', filters.status);
-      if (filters.seniority)   params.set('seniority', filters.seniority);
-      if (filters.workMode)    params.set('workMode', filters.workMode);
-      if (filters.contractType)params.set('contractType', filters.contractType);
-
-      const result = await apiFetch<{ data: Employee[]; meta: any }>(`/employees?${params}`);
-      setData(result);
-    } catch (e: any) {
-      setError(e.message);
-    } finally {
-      setLoading(false);
-    }
-  }, [filters, page]);
-
-  useEffect(() => { fetch(); }, [fetch]);
-
-  return { data, loading, error, refetch: fetch };
+  const params = {
+    page, limit: 20,
+    search: filters.search,
+    department: filters.department,
+    status: filters.status,
+    seniority: filters.seniority,
+    workMode: filters.workMode,
+    contractType: filters.contractType,
+  };
+  const q = useApiQuery<{ data: Employee[]; meta: any }>(
+    queryKeys.employees.list(params), '/employees',
+    { params, staleTime: STALE_TIME.DYNAMIC, placeholderData: keepPreviousData },
+  );
+  return {
+    data: q.data ?? null,
+    loading: q.isLoading,
+    error: q.error?.message ?? null,
+    refetch: q.refetch,
+  };
 }
 
 function useHeadcount() {
-  const [stats, setStats]     = useState<HeadcountStats | null>(null);
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    setLoading(true);
-    apiFetch<HeadcountStats>('/employees/headcount')
-      .then(setStats)
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  }, []);
-
-  return { stats, loading };
+  const q = useApiQuery<HeadcountStats>(
+    queryKeys.employees.headcount(), '/employees/headcount',
+    { staleTime: STALE_TIME.SEMI_STATIC },
+  );
+  return { stats: q.data ?? null, loading: q.isLoading };
 }
 
 // ─── Utility Components ───────────────────────────────────────────────────────
@@ -554,10 +526,7 @@ function CreateEmployeeModal({ onClose, onSuccess }: {
     setLoading(true);
     setError('');
     try {
-      await apiFetch('/employees', {
-        method: 'POST',
-        body: JSON.stringify(form),
-      });
+      await apiClient.post('/employees', form);
       onSuccess();
       onClose();
     } catch (e: any) {
@@ -784,7 +753,7 @@ export default function EmployeesPage() {
 
   const handleExport = async () => {
     try {
-      const result = await apiFetch<{ data: any[] }>('/employees/export');
+      const result = await apiClient.get<{ data: any[] }>('/employees/export');
       const csv = [
         Object.keys(result.data[0] ?? {}).join(','),
         ...result.data.map(row => Object.values(row).join(','))
@@ -933,7 +902,7 @@ export default function EmployeesPage() {
           </div>
 
           <button
-            onClick={refetch}
+            onClick={() => refetch()}
             className="p-2.5 text-gray-500 hover:text-gray-700 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors shadow-sm"
           >
             <RefreshCcw size={15} className={loading ? 'animate-spin' : ''} />
@@ -962,7 +931,7 @@ export default function EmployeesPage() {
               <p className="font-medium">Erro ao carregar colaboradores</p>
               <p className="text-xs text-red-500 mt-0.5">{error}</p>
             </div>
-            <button onClick={refetch} className="ml-auto text-xs underline hover:no-underline">Tentar novamente</button>
+            <button onClick={() => refetch()} className="ml-auto text-xs underline hover:no-underline">Tentar novamente</button>
           </div>
         )}
 
