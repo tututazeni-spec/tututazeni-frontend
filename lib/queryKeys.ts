@@ -100,6 +100,30 @@ export const queryKeys = {
     transcript: () => [...queryKeys.academic.all, 'transcript'] as const,
   },
 
+  departments: {
+    all: ['departments'] as const,
+    list: (params: Record<string, unknown>) =>
+      [...queryKeys.departments.all, 'list', params] as const,
+    tree: () => [...queryKeys.departments.all, 'tree'] as const,
+    detail: (id: number) => [...queryKeys.departments.all, 'detail', id] as const,
+    metrics: (id: number) =>
+      [...queryKeys.departments.all, 'metrics', id] as const,
+    comparative: () => [...queryKeys.departments.all, 'comparative'] as const,
+  },
+
+  competencies: {
+    all: ['competencies'] as const,
+    catalog: (params: Record<string, unknown>) =>
+      [...queryKeys.competencies.all, 'catalog', params] as const,
+    myProfile: () => [...queryKeys.competencies.all, 'my-profile'] as const,
+    myEvolution: () => [...queryKeys.competencies.all, 'my-evolution'] as const,
+    skillMatrix: (deptId: string) =>
+      [...queryKeys.competencies.all, 'skill-matrix', deptId] as const,
+    dashboardGaps: () =>
+      [...queryKeys.competencies.all, 'dashboard-gaps'] as const,
+    top: () => [...queryKeys.competencies.all, 'top'] as const,
+  },
+
   audit: {
     all: ['audit'] as const,
     list: (params: Record<string, unknown>) =>

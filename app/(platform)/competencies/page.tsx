@@ -1,7 +1,13 @@
 ﻿// src/app/(dashboard)/competencies/page.tsx
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState } from 'react';
+import { keepPreviousData } from '@tanstack/react-query';
+import { useApiQuery } from '@/hooks/useApiQuery';
+import { useDebounce } from '@/hooks/useDebounce';
+import { apiClient } from '@/lib/apiClient';
+import { queryKeys } from '@/lib/queryKeys';
+import { STALE_TIME } from '@/lib/queryClient';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -74,27 +80,6 @@ interface OrgDashboard {
 }
 
 type View = 'catalog' | 'my-profile' | 'matrix' | 'dashboard';
-
-// ─── API ──────────────────────────────────────────────────────────────────────
-
-const API = process.env.NEXT_PUBLIC_API_URL ?? '/api';
-
-async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
-  const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
-  const res = await fetch(`${API}${path}`, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...options?.headers,
-    },
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({ message: 'Erro' }));
-    throw new Error(err.message ?? `HTTP ${res.status}`);
-  }
-  return res.json();
-}
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -188,27 +173,16 @@ function initials(name: string): string {
 // ─── View: Catalog ────────────────────────────────────────────────────────────
 
 function CatalogView({ onSelect }: { onSelect: (id: number) => void }) {
-  const [data, setData]         = useState<{ data: Competency[]; total: number } | null>(null);
-  const [loading, setLoading]   = useState(true);
   const [search, setSearch]     = useState('');
   const [category, setCategory] = useState('');
   const [page, setPage]         = useState(1);
+  const debouncedSearch = useDebounce(search);
+  const params = { page, limit: 24, status: 'ACTIVE', search: debouncedSearch, category };
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    try {
-      const params = new URLSearchParams({
-        page: String(page), limit: '24', status: 'ACTIVE',
-        ...(search   ? { search }   : {}),
-        ...(category ? { category } : {}),
-      });
-      setData(await apiFetch(`/competencies?${params}`));
-    } finally {
-      setLoading(false);
-    }
-  }, [search, category, page]);
-
-  useEffect(() => { load(); }, [load]);
+  const { data, isLoading: loading } = useApiQuery<{ data: Competency[]; total: number }>(
+    queryKeys.competencies.catalog(params), '/competencies',
+    { params, staleTime: STALE_TIME.SEMI_STATIC, placeholderData: keepPreviousData },
+  );
 
   return (
     <div>
@@ -273,8 +247,6 @@ function CatalogView({ onSelect }: { onSelect: (id: number) => void }) {
 // ─── View: My Competency Profile ──────────────────────────────────────────────
 
 function MyProfileView() {
-  const [competencies, setCompetencies] = useState<UserCompetency[]>([]);
-  const [loading, setLoading]           = useState(true);
   const [tab, setTab]                   = useState<'profile' | 'gap' | 'evolution'>('profile');
   const [positionId, setPositionId]     = useState('');
   const [gap, setGap]                   = useState<GapAnalysis | null>(null);
@@ -282,22 +254,24 @@ function MyProfileView() {
   const [selfAssessing, setSelfAssessing] = useState<number | null>(null);
   const [selfLevel, setSelfLevel]       = useState(1);
   const [savingAssess, setSavingAssess] = useState(false);
-  const [evolution, setEvolution]       = useState<any[]>([]);
 
-  useEffect(() => {
-    Promise.all([
-      apiFetch<UserCompetency[]>('/competencies/my/profile'),
-      apiFetch<any[]>('/competencies/my/evolution'),
-    ])
-      .then(([comps, evo]) => { setCompetencies(comps); setEvolution(evo); })
-      .finally(() => setLoading(false));
-  }, []);
+  const profileQ = useApiQuery<UserCompetency[]>(
+    queryKeys.competencies.myProfile(), '/competencies/my/profile',
+    { staleTime: STALE_TIME.DYNAMIC },
+  );
+  const evolutionQ = useApiQuery<any[]>(
+    queryKeys.competencies.myEvolution(), '/competencies/my/evolution',
+    { staleTime: STALE_TIME.SEMI_STATIC },
+  );
+  const competencies = profileQ.data ?? [];
+  const evolution = evolutionQ.data ?? [];
+  const loading = profileQ.isLoading;
 
   const loadGap = async () => {
     if (!positionId) return;
     setLoadingGap(true);
     try {
-      const result = await apiFetch<GapAnalysis>(`/competencies/my/gap/${positionId}`);
+      const result = await apiClient.get<GapAnalysis>(`/competencies/my/gap/${positionId}`);
       setGap(result);
     } catch (e: any) { alert(e.message); }
     finally { setLoadingGap(false); }
@@ -306,12 +280,8 @@ function MyProfileView() {
   const handleSelfAssess = async (competencyId: number) => {
     setSavingAssess(true);
     try {
-      await apiFetch('/competencies/my/self-assess', {
-        method: 'POST',
-        body: JSON.stringify({ competencyId, selfLevel }),
-      });
-      const updated = await apiFetch<UserCompetency[]>('/competencies/my/profile');
-      setCompetencies(updated);
+      await apiClient.post('/competencies/my/self-assess', { competencyId, selfLevel });
+      await profileQ.refetch();
       setSelfAssessing(null);
     } catch (e: any) { alert(e.message); }
     finally { setSavingAssess(false); }
@@ -562,21 +532,14 @@ function MyProfileView() {
 // ─── View: Skill Matrix ───────────────────────────────────────────────────────
 
 function SkillMatrixView() {
-  const [matrix, setMatrix] = useState<SkillMatrix | null>(null);
-  const [loading, setLoading] = useState(true);
   const [deptId, setDeptId]   = useState('');
+  const debouncedDept = useDebounce(deptId);
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    try {
-      const params = new URLSearchParams(deptId ? { departmentId: deptId } : {});
-      setMatrix(await apiFetch<SkillMatrix>(`/competencies/skill-matrix?${params}`));
-    } finally {
-      setLoading(false);
-    }
-  }, [deptId]);
-
-  useEffect(() => { load(); }, [load]);
+  const { data: matrix, isLoading: loading } = useApiQuery<SkillMatrix>(
+    queryKeys.competencies.skillMatrix(debouncedDept), '/competencies/skill-matrix',
+    { params: { departmentId: debouncedDept || undefined }, staleTime: STALE_TIME.SEMI_STATIC,
+      placeholderData: keepPreviousData },
+  );
 
   if (loading) return <Skeleton rows={6} />;
   if (!matrix) return null;
@@ -660,18 +623,17 @@ function SkillMatrixView() {
 // ─── View: Dashboard RH ───────────────────────────────────────────────────────
 
 function DashboardView() {
-  const [data, setData]     = useState<OrgDashboard | null>(null);
-  const [top, setTop]       = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    Promise.all([
-      apiFetch<OrgDashboard>('/competencies/dashboard/gaps'),
-      apiFetch<any[]>('/competencies/top?limit=8'),
-    ])
-      .then(([d, t]) => { setData(d); setTop(t); })
-      .finally(() => setLoading(false));
-  }, []);
+  const dataQ = useApiQuery<OrgDashboard>(
+    queryKeys.competencies.dashboardGaps(), '/competencies/dashboard/gaps',
+    { staleTime: STALE_TIME.SEMI_STATIC },
+  );
+  const topQ = useApiQuery<any[]>(
+    queryKeys.competencies.top(), '/competencies/top',
+    { params: { limit: 8 }, staleTime: STALE_TIME.SEMI_STATIC },
+  );
+  const data = dataQ.data ?? null;
+  const top = topQ.data ?? [];
+  const loading = dataQ.isLoading;
 
   if (loading || !data) return <Skeleton rows={4} />;
 

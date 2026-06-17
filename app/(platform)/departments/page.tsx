@@ -1,7 +1,13 @@
 // src/app/(dashboard)/departments/page.tsx
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState } from 'react';
+import { keepPreviousData } from '@tanstack/react-query';
+import { useApiQuery } from '@/hooks/useApiQuery';
+import { useDebounce } from '@/hooks/useDebounce';
+import { apiClient } from '@/lib/apiClient';
+import { queryKeys } from '@/lib/queryKeys';
+import { STALE_TIME } from '@/lib/queryClient';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -64,27 +70,6 @@ interface ComparativeRow {
 }
 
 type View = 'list' | 'tree' | 'detail' | 'dashboard';
-
-// ─── API helper ───────────────────────────────────────────────────────────────
-
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? '/api';
-
-async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
-  const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
-  const res = await fetch(`${API_BASE}${path}`, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...options?.headers,
-    },
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({ message: 'Erro desconhecido' }));
-    throw new Error(err.message ?? `HTTP ${res.status}`);
-  }
-  return res.json();
-}
 
 // ─── Helpers / Micro components ───────────────────────────────────────────────
 
@@ -217,32 +202,17 @@ function OrgNode({
 // ─── View: List ───────────────────────────────────────────────────────────────
 
 function ListView({ onSelect }: { onSelect: (id: number) => void }) {
-  const [data, setData] = useState<PaginatedDepts | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [activeFilter, setActiveFilter] = useState('');
   const [page, setPage] = useState(1);
+  const debouncedSearch = useDebounce(search);
+  const params = { page, limit: 20, search: debouncedSearch, active: activeFilter || undefined };
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const params = new URLSearchParams({
-        page: String(page), limit: '20',
-        ...(search ? { search } : {}),
-        ...(activeFilter !== '' ? { active: activeFilter } : {}),
-      });
-      const result = await apiFetch<PaginatedDepts>(`/departments?${params}`);
-      setData(result);
-    } catch (e: any) {
-      setError(e.message);
-    } finally {
-      setLoading(false);
-    }
-  }, [search, activeFilter, page]);
-
-  useEffect(() => { load(); }, [load]);
+  const { data, isLoading: loading, error: queryError } = useApiQuery<PaginatedDepts>(
+    queryKeys.departments.list(params), '/departments',
+    { params, staleTime: STALE_TIME.SEMI_STATIC, placeholderData: keepPreviousData },
+  );
+  const error = queryError?.message ?? null;
 
   return (
     <div>
@@ -339,19 +309,13 @@ function ListView({ onSelect }: { onSelect: (id: number) => void }) {
 // ─── View: Tree (Org Chart) ───────────────────────────────────────────────────
 
 function TreeView({ onSelect }: { onSelect: (id: number) => void }) {
-  const [tree, setTree] = useState<DepartmentNode[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    apiFetch<DepartmentNode[]>('/departments/tree')
-      .then(setTree)
-      .catch(e => setError(e.message))
-      .finally(() => setLoading(false));
-  }, []);
+  const { data: tree = [], isLoading: loading, error: queryError } = useApiQuery<DepartmentNode[]>(
+    queryKeys.departments.tree(), '/departments/tree',
+    { staleTime: STALE_TIME.SEMI_STATIC },
+  );
 
   if (loading) return <div><Skeleton rows={8} /></div>;
-  if (error)   return <div className="text-sm text-red-500">{error}</div>;
+  if (queryError) return <div className="text-sm text-red-500">{queryError.message}</div>;
 
   return (
     <div>
@@ -374,9 +338,6 @@ function TreeView({ onSelect }: { onSelect: (id: number) => void }) {
 // ─── View: Department Detail ──────────────────────────────────────────────────
 
 function DetailView({ deptId, onBack }: { deptId: number; onBack: () => void }) {
-  const [dept, setDept] = useState<Department & { users: Member[]; headHistory: any[] } | null>(null);
-  const [metrics, setMetrics] = useState<Metrics | null>(null);
-  const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'members' | 'subdepts' | 'history' | 'metrics'>('members');
   const [transferUserId, setTransferUserId] = useState('');
   const [transferTargetId, setTransferTargetId] = useState('');
@@ -384,30 +345,25 @@ function DetailView({ deptId, onBack }: { deptId: number; onBack: () => void }) 
   const [transferLoading, setTransferLoading] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    try {
-      const [d, m] = await Promise.all([
-        apiFetch<any>(`/departments/${deptId}`),
-        apiFetch<Metrics>(`/departments/${deptId}/metrics`),
-      ]);
-      setDept(d);
-      setMetrics(m);
-    } catch (e: any) {
-      alert(e.message);
-    } finally {
-      setLoading(false);
-    }
-  }, [deptId]);
-
-  useEffect(() => { load(); }, [load]);
+  const deptQ = useApiQuery<Department & { users: Member[]; headHistory: any[] }>(
+    queryKeys.departments.detail(deptId), `/departments/${deptId}`,
+    { enabled: !!deptId, staleTime: STALE_TIME.DYNAMIC },
+  );
+  const metricsQ = useApiQuery<Metrics>(
+    queryKeys.departments.metrics(deptId), `/departments/${deptId}/metrics`,
+    { enabled: !!deptId, staleTime: STALE_TIME.DYNAMIC },
+  );
+  const dept = deptQ.data ?? null;
+  const metrics = metricsQ.data ?? null;
+  const loading = deptQ.isLoading;
+  const reload = async () => { await Promise.all([deptQ.refetch(), metricsQ.refetch()]); };
 
   const handleToggleActive = async () => {
     if (!dept) return;
     setActionLoading(true);
     try {
-      await apiFetch(`/departments/${deptId}/${dept.active ? 'deactivate' : 'activate'}`, { method: 'PATCH' });
-      await load();
+      await apiClient.patch(`/departments/${deptId}/${dept.active ? 'deactivate' : 'activate'}`, {});
+      await reload();
     } catch (e: any) {
       alert(e.message);
     } finally {
@@ -419,17 +375,14 @@ function DetailView({ deptId, onBack }: { deptId: number; onBack: () => void }) 
     if (!transferUserId || !transferTargetId) return;
     setTransferLoading(true);
     try {
-      await apiFetch('/departments/members/transfer', {
-        method: 'POST',
-        body: JSON.stringify({
-          userId: parseInt(transferUserId),
-          targetDepartmentId: parseInt(transferTargetId),
-          reason: transferReason || undefined,
-        }),
+      await apiClient.post('/departments/members/transfer', {
+        userId: parseInt(transferUserId),
+        targetDepartmentId: parseInt(transferTargetId),
+        reason: transferReason || undefined,
       });
       alert('Transferência realizada com sucesso');
       setTransferUserId(''); setTransferTargetId(''); setTransferReason('');
-      await load();
+      await reload();
     } catch (e: any) {
       alert(e.message);
     } finally {
@@ -662,19 +615,13 @@ function DetailView({ deptId, onBack }: { deptId: number; onBack: () => void }) 
 // ─── View: Comparative Dashboard ─────────────────────────────────────────────
 
 function DashboardView({ onSelect }: { onSelect: (id: number) => void }) {
-  const [rows, setRows] = useState<ComparativeRow[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    apiFetch<ComparativeRow[]>('/departments/dashboard/comparative')
-      .then(setRows)
-      .catch(e => setError(e.message))
-      .finally(() => setLoading(false));
-  }, []);
+  const { data: rows = [], isLoading: loading, error: queryError } = useApiQuery<ComparativeRow[]>(
+    queryKeys.departments.comparative(), '/departments/dashboard/comparative',
+    { staleTime: STALE_TIME.SEMI_STATIC },
+  );
 
   if (loading) return <Skeleton rows={5} />;
-  if (error)   return <div className="text-sm text-red-500">{error}</div>;
+  if (queryError) return <div className="text-sm text-red-500">{queryError.message}</div>;
 
   const maxMembers = Math.max(...rows.map(r => r.totalMembers), 1);
   const totalMembers = rows.reduce((s, r) => s + r.totalMembers, 0);
