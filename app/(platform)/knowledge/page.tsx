@@ -1,7 +1,13 @@
 // src/app/(dashboard)/knowledge/page.tsx
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState } from 'react';
+import { keepPreviousData, useQueryClient } from '@tanstack/react-query';
+import { useApiQuery } from '@/hooks/useApiQuery';
+import { useDebounce } from '@/hooks/useDebounce';
+import { apiClient } from '@/lib/apiClient';
+import { queryKeys } from '@/lib/queryKeys';
+import { STALE_TIME } from '@/lib/queryClient';
 import { sanitizeHtml } from '@/lib/sanitize';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -80,27 +86,6 @@ interface Dashboard {
 }
 
 type View = 'portal' | 'library' | 'article' | 'dashboard';
-
-// ─── API ──────────────────────────────────────────────────────────────────────
-
-const API = process.env.NEXT_PUBLIC_API_URL ?? '/api';
-
-async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
-  const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
-  const res = await fetch(`${API}${path}`, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...options?.headers,
-    },
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({ message: 'Erro' }));
-    throw new Error(err.message ?? `HTTP ${res.status}`);
-  }
-  return res.json();
-}
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -222,27 +207,30 @@ function PortalView({ onSelectArticle, onSearch }: {
   onSelectArticle: (id: number) => void;
   onSearch: (q: string) => void;
 }) {
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [trending, setTrending]     = useState<Article[]>([]);
-  const [loading, setLoading]       = useState(true);
   const [searchQ, setSearchQ]       = useState('');
   const [searchResults, setSearchResults] = useState<SearchResult[] | null>(null);
   const [searching, setSearching]   = useState(false);
 
-  useEffect(() => {
-    Promise.all([
-      apiFetch<Category[]>('/knowledge/categories'),
-      apiFetch<Article[]>('/knowledge/trending?limit=6'),
-    ])
-      .then(([cats, trend]) => { setCategories(cats); setTrending(trend); })
-      .finally(() => setLoading(false));
-  }, []);
+  // Categorias e trending em paralelo (cache).
+  const catsQ = useApiQuery<Category[]>(
+    queryKeys.knowledge.categories(), '/knowledge/categories',
+    { staleTime: STALE_TIME.STATIC },
+  );
+  const trendQ = useApiQuery<Article[]>(
+    queryKeys.knowledge.trending(), '/knowledge/trending',
+    { params: { limit: 6 }, staleTime: STALE_TIME.SEMI_STATIC },
+  );
+  const categories = catsQ.data ?? [];
+  const trending = trendQ.data ?? [];
+  const loading = catsQ.isLoading;
 
   const handleSearch = async () => {
     if (!searchQ.trim()) return;
     setSearching(true);
     try {
-      const results = await apiFetch<SearchResult[]>(`/knowledge/search?q=${encodeURIComponent(searchQ)}`);
+      const results = await apiClient.get<SearchResult[]>('/knowledge/search', {
+        params: { q: searchQ },
+      });
       setSearchResults(results);
     } finally { setSearching(false); }
   };
@@ -278,7 +266,7 @@ function PortalView({ onSelectArticle, onSearch }: {
       {searchResults !== null && (
         <div>
           <div className="flex items-center justify-between mb-3">
-            <div className="text-sm font-semibold text-gray-900">{searchResults.length} resultados para "{searchQ}"</div>
+            <div className="text-sm font-semibold text-gray-900">{searchResults.length} resultados para &quot;{searchQ}&quot;</div>
             <button onClick={() => setSearchResults(null)} className="text-xs text-gray-400 hover:text-gray-700">Limpar</button>
           </div>
           {searchResults.length === 0 ? (
@@ -343,26 +331,17 @@ function PortalView({ onSelectArticle, onSearch }: {
 // ─── View: Library ────────────────────────────────────────────────────────────
 
 function LibraryView({ onSelectArticle }: { onSelectArticle: (id: number) => void }) {
-  const [data, setData]         = useState<{ data: Article[]; total: number } | null>(null);
-  const [loading, setLoading]   = useState(true);
   const [search, setSearch]     = useState('');
-  const [categoryId, setCategoryId] = useState('');
+  const [categoryId] = useState('');
   const [sortBy, setSortBy]     = useState('RECENT');
   const [page, setPage]         = useState(1);
+  const debouncedSearch = useDebounce(search);
+  const params = { page, limit: 12, sortBy, search: debouncedSearch, categoryId };
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    try {
-      const params = new URLSearchParams({
-        page: String(page), limit: '12', sortBy,
-        ...(search     ? { search }     : {}),
-        ...(categoryId ? { categoryId } : {}),
-      });
-      setData(await apiFetch(`/knowledge?${params}`));
-    } finally { setLoading(false); }
-  }, [search, categoryId, sortBy, page]);
-
-  useEffect(() => { load(); }, [load]);
+  const { data, isLoading: loading } = useApiQuery<{ data: Article[]; total: number }>(
+    queryKeys.knowledge.list(params), '/knowledge',
+    { params, staleTime: STALE_TIME.SEMI_STATIC, placeholderData: keepPreviousData },
+  );
 
   return (
     <div>
@@ -401,37 +380,30 @@ function LibraryView({ onSelectArticle }: { onSelectArticle: (id: number) => voi
 // ─── View: Article Detail ─────────────────────────────────────────────────────
 
 function ArticleDetailView({ articleId, onBack }: { articleId: number; onBack: () => void }) {
-  const [article, setArticle]   = useState<Article | null>(null);
-  const [loading, setLoading]   = useState(true);
+  const qc = useQueryClient();
   const [comment, setComment]   = useState('');
   const [posting, setPosting]   = useState(false);
   const [rating, setRating]     = useState(0);
   const [hovRating, setHovRating] = useState(0);
   const [acknowledging, setAcknowledging] = useState(false);
 
-  useEffect(() => {
-    apiFetch<Article>(`/knowledge/${articleId}`)
-      .then(a => { setArticle(a); if (a.userRating) setRating(a.userRating); })
-      .finally(() => setLoading(false));
-  }, [articleId]);
+  const articleKey = queryKeys.knowledge.article(articleId);
+  const { data: article, isLoading: loading } = useApiQuery<Article>(
+    articleKey, `/knowledge/${articleId}`,
+    { enabled: !!articleId, staleTime: STALE_TIME.DYNAMIC },
+  );
 
   const handleBookmark = async () => {
     if (!article) return;
     try {
-      const res = await apiFetch<any>('/knowledge/interact', {
-        method: 'POST',
-        body: JSON.stringify({ articleId, action: 'BOOKMARK' }),
-      });
-      setArticle(prev => prev ? { ...prev, userBookmarked: res.active } : null);
+      const res = await apiClient.post<any>('/knowledge/interact', { articleId, action: 'BOOKMARK' });
+      qc.setQueryData<Article>(articleKey, prev => prev ? { ...prev, userBookmarked: res.active } : prev);
     } catch (e: any) { alert(e.message); }
   };
 
   const handleRate = async (score: number) => {
     try {
-      await apiFetch('/knowledge/rate', {
-        method: 'POST',
-        body: JSON.stringify({ articleId, score }),
-      });
+      await apiClient.post('/knowledge/rate', { articleId, score });
       setRating(score);
     } catch (e: any) { alert(e.message); }
   };
@@ -440,13 +412,9 @@ function ArticleDetailView({ articleId, onBack }: { articleId: number; onBack: (
     if (!comment.trim()) return;
     setPosting(true);
     try {
-      await apiFetch('/knowledge/comments', {
-        method: 'POST',
-        body: JSON.stringify({ articleId, content: comment }),
-      });
+      await apiClient.post('/knowledge/comments', { articleId, content: comment });
       setComment('');
-      const a = await apiFetch<Article>(`/knowledge/${articleId}`);
-      setArticle(a);
+      await qc.invalidateQueries({ queryKey: articleKey });
     } catch (e: any) { alert(e.message); }
     finally { setPosting(false); }
   };
@@ -454,14 +422,13 @@ function ArticleDetailView({ articleId, onBack }: { articleId: number; onBack: (
   const handleAcknowledge = async () => {
     setAcknowledging(true);
     try {
-      await apiFetch('/knowledge/acknowledge', {
-        method: 'POST',
-        body: JSON.stringify({ articleId }),
-      });
-      setArticle(prev => prev ? { ...prev, userAcknowledged: true } : null);
+      await apiClient.post('/knowledge/acknowledge', { articleId });
+      qc.setQueryData<Article>(articleKey, prev => prev ? { ...prev, userAcknowledged: true } : prev);
     } catch (e: any) { alert(e.message); }
     finally { setAcknowledging(false); }
   };
+
+  const displayRating = hovRating || rating || article?.userRating || 0;
 
   if (loading || !article) return <Skeleton rows={6} />;
 
@@ -598,7 +565,7 @@ function ArticleDetailView({ articleId, onBack }: { articleId: number; onBack: (
                 onMouseEnter={() => setHovRating(s)}
                 onMouseLeave={() => setHovRating(0)}
                 className={`text-2xl transition-colors hover:scale-110 ${
-                  s <= (hovRating || rating) ? 'text-amber-400' : 'text-gray-200'
+                  s <= displayRating ? 'text-amber-400' : 'text-gray-200'
                 }`}
               >
                 ★
@@ -651,16 +618,12 @@ function ArticleDetailView({ articleId, onBack }: { articleId: number; onBack: (
 // ─── View: Admin Dashboard ────────────────────────────────────────────────────
 
 function AdminDashboardView() {
-  const [data, setData]     = useState<Dashboard | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { data, isLoading } = useApiQuery<Dashboard>(
+    queryKeys.knowledge.adminDashboard(), '/knowledge/admin/dashboard',
+    { staleTime: STALE_TIME.SEMI_STATIC },
+  );
 
-  useEffect(() => {
-    apiFetch<Dashboard>('/knowledge/admin/dashboard')
-      .then(setData)
-      .finally(() => setLoading(false));
-  }, []);
-
-  if (loading || !data) return <Skeleton rows={4} />;
+  if (isLoading || !data) return <Skeleton rows={4} />;
 
   return (
     <div className="space-y-6">
@@ -688,7 +651,7 @@ function AdminDashboardView() {
           <div className="grid grid-cols-2 gap-2">
             {data.knowledgeGaps.map(gap => (
               <div key={gap.query} className="flex justify-between text-xs py-1.5 border-b border-amber-100">
-                <span className="text-amber-800 font-medium">"{gap.query}"</span>
+                <span className="text-amber-800 font-medium">&quot;{gap.query}&quot;</span>
                 <span className="text-amber-600">{gap.searches}× buscado</span>
               </div>
             ))}
