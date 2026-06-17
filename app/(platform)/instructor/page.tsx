@@ -1,7 +1,11 @@
 ﻿// src/app/(dashboard)/instructor/page.tsx
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState } from 'react';
+import { useApiQuery } from '../../../hooks/useApiQuery';
+import { apiClient } from '../../../lib/apiClient';
+import { queryKeys } from '../../../lib/queryKeys';
+import { STALE_TIME } from '../../../lib/queryClient';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -76,27 +80,6 @@ interface AtRiskStudent {
 }
 
 type View = 'dashboard' | 'cohorts' | 'cohort-detail' | 'at-risk' | 'profile';
-
-// ─── API ──────────────────────────────────────────────────────────────────────
-
-const API = process.env.NEXT_PUBLIC_API_URL ?? '/api';
-
-async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
-  const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
-  const res = await fetch(`${API}${path}`, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...options?.headers,
-    },
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({ message: 'Erro' }));
-    throw new Error(err.message ?? `HTTP ${res.status}`);
-  }
-  return res.json();
-}
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -177,14 +160,12 @@ function Stars({ rating }: { rating: number }) {
 // ─── View: Dashboard ──────────────────────────────────────────────────────────
 
 function DashboardView({ onSelectCohort }: { onSelectCohort: (id: number) => void }) {
-  const [data, setData]     = useState<DashboardData | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { data, isLoading } = useApiQuery<DashboardData>(
+    queryKeys.instructor.dashboard(), '/instructors/my/dashboard',
+    { staleTime: STALE_TIME.DYNAMIC },
+  );
 
-  useEffect(() => {
-    apiFetch<DashboardData>('/instructors/my/dashboard').then(setData).finally(() => setLoading(false));
-  }, []);
-
-  if (loading || !data) return <Skeleton rows={4} />;
+  if (isLoading || !data) return <Skeleton rows={4} />;
 
   const { metrics, cohorts, recentReviews } = data;
 
@@ -285,30 +266,26 @@ function DashboardView({ onSelectCohort }: { onSelectCohort: (id: number) => voi
 // ─── View: Cohorts ────────────────────────────────────────────────────────────
 
 function CohortsView({ onSelectCohort }: { onSelectCohort: (id: number) => void }) {
-  const [data, setData]     = useState<{ data: CohortSummary[] } | null>(null);
-  const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState('');
   const [creating, setCreating]         = useState(false);
   const [form, setForm]                 = useState({ name: '', courseId: '', startDate: '', modalidade: 'ONLINE', maxParticipants: '30' });
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    const params = new URLSearchParams(statusFilter ? { status: statusFilter } : {});
-    apiFetch<any>(`/instructors/my/cohorts?${params}`).then(r => setData(r)).finally(() => setLoading(false));
-  }, [statusFilter]);
-
-  useEffect(() => { load(); }, [load]);
+  const params = statusFilter ? { status: statusFilter } : {};
+  const { data, isLoading: loading, refetch } = useApiQuery<{ data: CohortSummary[] }>(
+    queryKeys.instructor.cohorts(statusFilter), '/instructors/my/cohorts',
+    { params, staleTime: STALE_TIME.DYNAMIC },
+  );
 
   const handleCreate = async () => {
     if (!form.name || !form.courseId || !form.startDate) { alert('Nome, curso e data de início obrigatórios'); return; }
     try {
-      await apiFetch('/instructors/my/cohorts', {
-        method: 'POST',
-        body:   JSON.stringify({ name: form.name, courseId: parseInt(form.courseId), startDate: form.startDate, modalidade: form.modalidade, maxParticipants: parseInt(form.maxParticipants) }),
+      await apiClient.post('/instructors/my/cohorts', {
+        name: form.name, courseId: parseInt(form.courseId), startDate: form.startDate,
+        modalidade: form.modalidade, maxParticipants: parseInt(form.maxParticipants),
       });
       setCreating(false);
       setForm({ name: '', courseId: '', startDate: '', modalidade: 'ONLINE', maxParticipants: '30' });
-      load();
+      refetch();
     } catch (e: any) { alert(e.message); }
   };
 
@@ -398,17 +375,14 @@ function CohortsView({ onSelectCohort }: { onSelectCohort: (id: number) => void 
 // ─── View: Cohort Detail ──────────────────────────────────────────────────────
 
 function CohortDetailView({ cohortId, onBack }: { cohortId: number; onBack: () => void }) {
-  const [data, setData]   = useState<CohortDetail | null>(null);
-  const [loading, setLoading] = useState(true);
   const [tab, setTab]     = useState<'students' | 'atrisk'>('students');
 
-  useEffect(() => {
-    apiFetch<CohortDetail>(`/instructors/my/cohorts/${cohortId}`)
-      .then(setData)
-      .finally(() => setLoading(false));
-  }, [cohortId]);
+  const { data, isLoading } = useApiQuery<CohortDetail>(
+    queryKeys.instructor.cohortDetail(cohortId), `/instructors/my/cohorts/${cohortId}`,
+    { staleTime: STALE_TIME.DYNAMIC },
+  );
 
-  if (loading || !data) return <Skeleton rows={5} />;
+  if (isLoading || !data) return <Skeleton rows={5} />;
 
   const atRiskSet   = new Set(data.atRisk);
   const statusCfg   = STATUS_CFG[data.status]      ?? STATUS_CFG.DRAFT;
@@ -501,14 +475,12 @@ function CohortDetailView({ cohortId, onBack }: { cohortId: number; onBack: () =
 // ─── View: At-Risk ────────────────────────────────────────────────────────────
 
 function AtRiskView() {
-  const [data, setData]   = useState<{ count: number; students: AtRiskStudent[] } | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { data, isLoading } = useApiQuery<{ count: number; students: AtRiskStudent[] }>(
+    queryKeys.instructor.atRisk(), '/instructors/my/at-risk-students',
+    { staleTime: STALE_TIME.DYNAMIC },
+  );
 
-  useEffect(() => {
-    apiFetch<any>('/instructors/my/at-risk-students').then(setData).finally(() => setLoading(false));
-  }, []);
-
-  if (loading || !data) return <Skeleton rows={3} />;
+  if (isLoading || !data) return <Skeleton rows={3} />;
 
   return (
     <div>

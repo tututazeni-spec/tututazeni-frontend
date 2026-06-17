@@ -390,6 +390,26 @@ export const queryKeys = {
     stats: () => [...queryKeys.notifications.all, 'stats'] as const,
   },
 
+  instructor: {
+    all: ['instructor'] as const,
+    dashboard: () => [...queryKeys.instructor.all, 'dashboard'] as const,
+    cohorts: (status: string) =>
+      [...queryKeys.instructor.all, 'cohorts', status] as const,
+    cohortDetail: (id: number) =>
+      [...queryKeys.instructor.all, 'cohort-detail', id] as const,
+    atRisk: () => [...queryKeys.instructor.all, 'at-risk'] as const,
+  },
+
+  events: {
+    all: ['events'] as const,
+    catalog: (params: Record<string, unknown>) =>
+      [...queryKeys.events.all, 'catalog', params] as const,
+    my: () => [...queryKeys.events.all, 'my'] as const,
+    detail: (id: number) => [...queryKeys.events.all, 'detail', id] as const,
+    organizerDashboard: () =>
+      [...queryKeys.events.all, 'organizer-dashboard'] as const,
+  },
+
   declarations: {
     all: ['declarations'] as const,
     templates: () => [...queryKeys.declarations.all, 'templates'] as const,

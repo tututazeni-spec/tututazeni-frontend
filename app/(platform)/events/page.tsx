@@ -1,7 +1,12 @@
 ﻿// src/app/(dashboard)/events/page.tsx
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState } from 'react';
+import { keepPreviousData } from '@tanstack/react-query';
+import { useApiQuery } from '../../../hooks/useApiQuery';
+import { apiClient } from '../../../lib/apiClient';
+import { queryKeys } from '../../../lib/queryKeys';
+import { STALE_TIME } from '../../../lib/queryClient';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -47,27 +52,6 @@ interface OrganizerDashboard {
 }
 
 type View = 'catalog' | 'my-events' | 'detail' | 'organizer' | 'create';
-
-// ─── API ──────────────────────────────────────────────────────────────────────
-
-const API = process.env.NEXT_PUBLIC_API_URL ?? '/api';
-
-async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
-  const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
-  const res = await fetch(`${API}${path}`, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...options?.headers,
-    },
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({ message: 'Erro' }));
-    throw new Error(err.message ?? `HTTP ${res.status}`);
-  }
-  return res.json();
-}
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -213,22 +197,18 @@ function EventCard({ event, onSelect, myStatus }: { event: Event; onSelect: () =
 // ─── View: Catalog ────────────────────────────────────────────────────────────
 
 function CatalogView({ onSelect }: { onSelect: (id: number) => void }) {
-  const [data, setData]     = useState<{ data: Event[]; total: number } | null>(null);
-  const [loading, setLoading] = useState(true);
   const [typeFilter, setTypeFilter]         = useState('');
   const [modalityFilter, setModalityFilter] = useState('');
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    const params = new URLSearchParams({
-      upcoming: 'true',
-      ...(typeFilter     ? { type:      typeFilter }     : {}),
-      ...(modalityFilter ? { modalidade:modalityFilter } : {}),
-    });
-    apiFetch<any>(`/events?${params}`).then(setData).finally(() => setLoading(false));
-  }, [typeFilter, modalityFilter]);
-
-  useEffect(() => { load(); }, [load]);
+  const params = {
+    upcoming: 'true',
+    ...(typeFilter     ? { type:       typeFilter }     : {}),
+    ...(modalityFilter ? { modalidade: modalityFilter } : {}),
+  };
+  const { data, isLoading: loading } = useApiQuery<{ data: Event[]; total: number }>(
+    queryKeys.events.catalog(params), '/events',
+    { params, staleTime: STALE_TIME.SEMI_STATIC, placeholderData: keepPreviousData },
+  );
 
   return (
     <div>
@@ -270,15 +250,14 @@ function CatalogView({ onSelect }: { onSelect: (id: number) => void }) {
 // ─── View: My Events ──────────────────────────────────────────────────────────
 
 function MyEventsView({ onSelect }: { onSelect: (id: number) => void }) {
-  const [data, setData]     = useState<MyEvents | null>(null);
-  const [loading, setLoading] = useState(true);
   const [tab, setTab]       = useState<'upcoming' | 'past'>('upcoming');
 
-  useEffect(() => {
-    apiFetch<MyEvents>('/events/my').then(setData).finally(() => setLoading(false));
-  }, []);
+  const { data, isLoading } = useApiQuery<MyEvents>(
+    queryKeys.events.my(), '/events/my',
+    { staleTime: STALE_TIME.DYNAMIC },
+  );
 
-  if (loading) return <Skeleton />;
+  if (isLoading) return <Skeleton />;
 
   const items = tab === 'upcoming' ? (data?.upcoming ?? []) : (data?.past ?? []);
 
@@ -316,8 +295,6 @@ function MyEventsView({ onSelect }: { onSelect: (id: number) => void }) {
 // ─── View: Event Detail ───────────────────────────────────────────────────────
 
 function DetailView({ eventId, onBack }: { eventId: number; onBack: () => void }) {
-  const [event, setEvent]     = useState<any>(null);
-  const [loading, setLoading] = useState(true);
   const [joining, setJoining] = useState(false);
   const [checkingIn, setCheckingIn] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
@@ -325,16 +302,16 @@ function DetailView({ eventId, onBack }: { eventId: number; onBack: () => void }
   const [submitFeedback, setSubmitFeedback] = useState(false);
   const [tab, setTab]         = useState<'info' | 'participants'>('info');
 
-  useEffect(() => {
-    apiFetch<any>(`/events/${eventId}`).then(setEvent).finally(() => setLoading(false));
-  }, [eventId]);
+  const { data: event, isLoading: loading, refetch } = useApiQuery<any>(
+    queryKeys.events.detail(eventId), `/events/${eventId}`,
+    { staleTime: STALE_TIME.DYNAMIC },
+  );
 
   const handleJoin = async () => {
     setJoining(true);
     try {
-      await apiFetch(`/events/${eventId}/join`, { method: 'POST', body: '{}' });
-      const e = await apiFetch<any>(`/events/${eventId}`);
-      setEvent(e);
+      await apiClient.post(`/events/${eventId}/join`, {});
+      await refetch();
     } catch (e: any) { alert(e.message); }
     finally { setJoining(false); }
   };
@@ -342,18 +319,16 @@ function DetailView({ eventId, onBack }: { eventId: number; onBack: () => void }
   const handleLeave = async () => {
     if (!confirm('Cancelar inscrição neste evento?')) return;
     try {
-      await apiFetch(`/events/${eventId}/leave`, { method: 'POST', body: '{}' });
-      const e = await apiFetch<any>(`/events/${eventId}`);
-      setEvent(e);
+      await apiClient.post(`/events/${eventId}/leave`, {});
+      await refetch();
     } catch (e: any) { alert(e.message); }
   };
 
   const handleCheckIn = async () => {
     setCheckingIn(true);
     try {
-      await apiFetch('/events/checkin', { method: 'POST', body: JSON.stringify({ eventId }) });
-      const e = await apiFetch<any>(`/events/${eventId}`);
-      setEvent(e);
+      await apiClient.post('/events/checkin', { eventId });
+      await refetch();
       alert('✅ Check-in realizado! +20 XP');
     } catch (e: any) { alert(e.message); }
     finally { setCheckingIn(false); }
@@ -362,7 +337,7 @@ function DetailView({ eventId, onBack }: { eventId: number; onBack: () => void }
   const handleFeedback = async () => {
     setSubmitFeedback(true);
     try {
-      await apiFetch(`/events/${eventId}/feedback`, { method: 'POST', body: JSON.stringify(feedback) });
+      await apiClient.post(`/events/${eventId}/feedback`, feedback);
       setShowFeedback(false);
       alert('✅ Feedback enviado! Obrigado pela tua avaliação.');
     } catch (e: any) { alert(e.message); }
@@ -538,14 +513,12 @@ function DetailView({ eventId, onBack }: { eventId: number; onBack: () => void }
 // ─── View: Organizer Dashboard ────────────────────────────────────────────────
 
 function OrganizerView() {
-  const [data, setData]     = useState<OrganizerDashboard | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { data, isLoading } = useApiQuery<OrganizerDashboard>(
+    queryKeys.events.organizerDashboard(), '/events/organizer/dashboard',
+    { staleTime: STALE_TIME.SEMI_STATIC },
+  );
 
-  useEffect(() => {
-    apiFetch<OrganizerDashboard>('/events/organizer/dashboard').then(setData).finally(() => setLoading(false));
-  }, []);
-
-  if (loading || !data) return <Skeleton rows={4} />;
+  if (isLoading || !data) return <Skeleton rows={4} />;
 
   return (
     <div className="space-y-5">
