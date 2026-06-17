@@ -1,16 +1,7 @@
 'use client';
-import { useState, useEffect, useCallback } from 'react';
-
-const API = process.env.NEXT_PUBLIC_API_URL ?? '/api';
-
-function authHeaders(): Record<string, string> {
-  const token =
-    typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
-  return {
-    'Content-Type': 'application/json',
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-  };
-}
+import { useApiQuery } from '@/hooks/useApiQuery';
+import { queryKeys } from '@/lib/queryKeys';
+import { STALE_TIME } from '@/lib/queryClient';
 
 interface Summary {
   people: { total: number; newThisMonth: number };
@@ -87,36 +78,26 @@ function MiniBarChart({ data }: { data: TrendPoint[] }) {
 }
 
 export default function InstitutionalDashboardPage() {
-  const [summary, setSummary] = useState<Summary | null>(null);
-  const [trend, setTrend] = useState<TrendPoint[]>([]);
-  const [alerts, setAlerts] = useState<Alerts | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  // Três queries independentes → em paralelo (sem waterfall).
+  const sumQ = useApiQuery<Summary>(
+    queryKeys.dashboard.institutionalSummary(), '/dashboard-institutional/summary',
+    { staleTime: STALE_TIME.SEMI_STATIC },
+  );
+  const trendQ = useApiQuery<TrendPoint[]>(
+    queryKeys.dashboard.institutionalTrend(6), '/dashboard-institutional/growth-trend',
+    { params: { months: 6 }, staleTime: STALE_TIME.SEMI_STATIC },
+  );
+  const alertsQ = useApiQuery<Alerts>(
+    queryKeys.dashboard.institutionalAlerts(), '/dashboard-institutional/alerts',
+    { staleTime: STALE_TIME.DYNAMIC },
+  );
 
-  const fetchAll = useCallback(async () => {
-    setLoading(true);
-    setError('');
-    try {
-      const opts = { credentials: 'include' as const, headers: authHeaders() };
-      const [sumRes, trendRes, alertRes] = await Promise.all([
-        fetch(`${API}/dashboard-institutional/summary`, opts),
-        fetch(`${API}/dashboard-institutional/growth-trend?months=6`, opts),
-        fetch(`${API}/dashboard-institutional/alerts`, opts),
-      ]);
-      if (!sumRes.ok) throw new Error('Erro ao carregar o dashboard');
-      setSummary(await sumRes.json());
-      setTrend(await trendRes.json());
-      setAlerts(await alertRes.json());
-    } catch (e: any) {
-      setError(e.message || 'Erro inesperado');
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchAll();
-  }, [fetchAll]);
+  const summary = sumQ.data ?? null;
+  const trend = trendQ.data ?? [];
+  const alerts = alertsQ.data ?? null;
+  const loading = sumQ.isLoading;
+  const error = sumQ.error?.message ?? '';
+  const fetchAll = () => { sumQ.refetch(); trendQ.refetch(); alertsQ.refetch(); };
 
   if (loading)
     return (
