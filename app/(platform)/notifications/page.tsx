@@ -1,7 +1,12 @@
 ﻿// src/app/(dashboard)/notifications/page.tsx
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
+import { useApiQuery, useApiMutation, useOptimisticMutation } from '@/hooks/useApiQuery';
+import { useQueryClient } from '@tanstack/react-query';
+import { apiClient } from '@/lib/apiClient';
+import { queryKeys } from '@/lib/queryKeys';
+import { STALE_TIME } from '@/lib/queryClient';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -57,27 +62,6 @@ interface Stats {
 }
 
 type View = 'inbox' | 'preferences' | 'admin';
-
-// ─── API ──────────────────────────────────────────────────────────────────────
-
-const API = process.env.NEXT_PUBLIC_API_URL ?? '/api';
-
-async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
-  const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
-  const res = await fetch(`${API}${path}`, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...options?.headers,
-    },
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({ message: 'Erro' }));
-    throw new Error(err.message ?? `HTTP ${res.status}`);
-  }
-  return res.json();
-}
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -204,48 +188,73 @@ function NotifItem({
 // ─── View: Inbox ──────────────────────────────────────────────────────────────
 
 function InboxView() {
-  const [data, setData]         = useState<NotifData | null>(null);
-  const [loading, setLoading]   = useState(true);
+  const qc = useQueryClient();
   const [category, setCategory] = useState('');
   const [readFilter, setReadFilter] = useState<'all' | 'unread' | 'read'>('all');
-  const [marking, setMarking]   = useState(false);
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    try {
-      const params = new URLSearchParams({ limit: '50', ...(category ? { category } : {}), ...(readFilter !== 'all' ? { read: String(readFilter === 'read') } : {}) });
-      setData(await apiFetch(`/notifications/my?${params}`));
-    } finally { setLoading(false); }
-  }, [category, readFilter]);
+  const params = {
+    limit: 50,
+    category,
+    read: readFilter === 'all' ? undefined : String(readFilter === 'read'),
+  };
+  const listKey = queryKeys.notifications.my(params);
 
-  useEffect(() => { load(); }, [load]);
+  // Polling inteligente: a caixa de entrada refresca a cada 60s.
+  const { data, isLoading: loading } = useApiQuery<NotifData>(
+    listKey, '/notifications/my',
+    { params, staleTime: STALE_TIME.DYNAMIC, refetchInterval: 60_000 },
+  );
 
-  const handleRead = async (id: number) => {
-    await apiFetch(`/notifications/my/${id}/read`, { method: 'PATCH', body: '{}' }).catch(() => {});
-    setData(prev => prev ? {
-      ...prev,
-      unreadCount: Math.max(0, prev.unreadCount - 1),
-      data: prev.data.map(n => n.id === id ? { ...n, read: true } : n),
-      grouped: {
-        today:     prev.grouped.today.map(n => n.id === id ? { ...n, read: true } : n),
-        yesterday: prev.grouped.yesterday.map(n => n.id === id ? { ...n, read: true } : n),
-        thisWeek:  prev.grouped.thisWeek.map(n => n.id === id ? { ...n, read: true } : n),
-        older:     prev.grouped.older.map(n => n.id === id ? { ...n, read: true } : n),
+  // Marcar lida: optimistic na lista activa + no badge global; rollback em erro.
+  const markRead = useApiMutation(
+    (id: number) => apiClient.patch(`/notifications/my/${id}/read`, {}),
+    {
+      onMutate: async (id: number) => {
+        await qc.cancelQueries({ queryKey: listKey });
+        const prev = qc.getQueryData<NotifData>(listKey);
+        const flip = (arr: Notification[]) =>
+          arr.map((n) => (n.id === id ? { ...n, read: true } : n));
+        if (prev) {
+          qc.setQueryData<NotifData>(listKey, {
+            ...prev,
+            unreadCount: Math.max(0, prev.unreadCount - 1),
+            data: flip(prev.data),
+            grouped: {
+              today: flip(prev.grouped.today),
+              yesterday: flip(prev.grouped.yesterday),
+              thisWeek: flip(prev.grouped.thisWeek),
+              older: flip(prev.grouped.older),
+            },
+          });
+        }
+        qc.setQueryData<{ count: number }>(
+          queryKeys.notifications.unreadCount(),
+          (c) => (c ? { count: Math.max(0, c.count - 1) } : c),
+        );
+        return { prev };
       },
-    } : null);
-  };
+      onError: (_e, _id, ctx) => {
+        const prev = (ctx as { prev?: NotifData } | undefined)?.prev;
+        if (prev) qc.setQueryData(listKey, prev);
+      },
+      invalidateKeys: [queryKeys.notifications.unreadCount()],
+    },
+  );
 
-  const handleArchive = async (id: number) => {
-    await apiFetch(`/notifications/my/${id}/archive`, { method: 'PATCH', body: '{}' }).catch(() => {});
-    await load();
-  };
+  const archive = useApiMutation(
+    (id: number) => apiClient.patch(`/notifications/my/${id}/archive`, {}),
+    { invalidateKeys: [listKey, queryKeys.notifications.unreadCount()] },
+  );
 
-  const handleReadAll = async () => {
-    setMarking(true);
-    await apiFetch('/notifications/my/read-all', { method: 'PATCH', body: '{}' }).catch(() => {});
-    await load();
-    setMarking(false);
-  };
+  const readAll = useApiMutation(
+    () => apiClient.patch('/notifications/my/read-all', {}),
+    { invalidateKeys: [listKey, queryKeys.notifications.unreadCount()] },
+  );
+
+  const handleRead = (id: number) => markRead.mutate(id);
+  const handleArchive = (id: number) => archive.mutate(id);
+  const handleReadAll = () => readAll.mutate(undefined);
+  const marking = readAll.isPending;
 
   const renderGroup = (label: string, items: Notification[]) => {
     if (!items.length) return null;
@@ -319,25 +328,26 @@ function InboxView() {
 // ─── View: Preferences ────────────────────────────────────────────────────────
 
 function PreferencesView() {
+  // Cache das preferências + cópia local editável (sincroniza quando chega).
+  const { data, isLoading } = useApiQuery<Preferences>(
+    queryKeys.notifications.preferences(), '/notifications/preferences',
+    { staleTime: STALE_TIME.SEMI_STATIC },
+  );
   const [prefs, setPrefs] = useState<Preferences | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving]   = useState(false);
-  const [saved, setSaved]     = useState(false);
+  const [saved, setSaved] = useState(false);
 
-  useEffect(() => {
-    apiFetch<Preferences>('/notifications/preferences').then(setPrefs).finally(() => setLoading(false));
-  }, []);
+  useEffect(() => { if (data) setPrefs(data); }, [data]);
 
-  const handleSave = async () => {
-    if (!prefs) return;
-    setSaving(true);
-    try {
-      await apiFetch('/notifications/preferences', { method: 'PATCH', body: JSON.stringify(prefs) });
-      setSaved(true);
-      setTimeout(() => setSaved(false), 2000);
-    } catch (e: any) { alert(e.message); }
-    finally { setSaving(false); }
-  };
+  const save = useApiMutation(
+    () => apiClient.patch('/notifications/preferences', prefs),
+    {
+      invalidateKeys: [queryKeys.notifications.preferences()],
+      onSuccess: () => { setSaved(true); setTimeout(() => setSaved(false), 2000); },
+      onError: (e) => alert(e.message),
+    },
+  );
+  const saving = save.isPending;
+  const handleSave = () => { if (prefs) save.mutate(undefined); };
 
   const toggle = (key: keyof Preferences) => {
     setPrefs(prev => prev ? { ...prev, [key]: !prev[key] } : null);
@@ -352,7 +362,7 @@ function PreferencesView() {
     });
   };
 
-  if (loading || !prefs) return <Skeleton rows={4} />;
+  if (isLoading || !prefs) return <Skeleton rows={4} />;
 
   return (
     <div className="max-w-xl space-y-5">
@@ -468,30 +478,33 @@ function PreferencesView() {
 // ─── View: Admin ──────────────────────────────────────────────────────────────
 
 function AdminView() {
-  const [stats, setStats]     = useState<Stats | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [sending, setSending] = useState(false);
-  const [form, setForm]       = useState({ type: 'ANNOUNCEMENT', message: '', title: '' });
+  const [form, setForm] = useState({ type: 'ANNOUNCEMENT', message: '', title: '' });
 
-  useEffect(() => {
-    apiFetch<Stats>('/notifications/stats').then(setStats).finally(() => setLoading(false));
-  }, []);
+  const { data: stats, isLoading } = useApiQuery<Stats>(
+    queryKeys.notifications.stats(), '/notifications/stats',
+    { staleTime: STALE_TIME.SEMI_STATIC },
+  );
 
-  const handleSendAll = async () => {
+  const sendAll = useApiMutation(
+    () => apiClient.post<{ sent: number }>('/notifications/send-all', form),
+    {
+      // Um envio em massa altera stats e as caixas de entrada → invalida tudo.
+      invalidateKeys: [queryKeys.notifications.all],
+      onSuccess: (res) => {
+        alert(`✓ Enviado a ${res.sent} colaboradores`);
+        setForm({ type: 'ANNOUNCEMENT', message: '', title: '' });
+      },
+      onError: (e) => alert(e.message),
+    },
+  );
+  const sending = sendAll.isPending;
+
+  const handleSendAll = () => {
     if (!form.message.trim()) { alert('Mensagem obrigatória'); return; }
-    setSending(true);
-    try {
-      const res: any = await apiFetch('/notifications/send-all', {
-        method: 'POST',
-        body: JSON.stringify(form),
-      });
-      alert(`✓ Enviado a ${res.sent} colaboradores`);
-      setForm({ type: 'ANNOUNCEMENT', message: '', title: '' });
-    } catch (e: any) { alert(e.message); }
-    finally { setSending(false); }
+    sendAll.mutate(undefined);
   };
 
-  if (loading || !stats) return <Skeleton rows={3} />;
+  if (isLoading || !stats) return <Skeleton rows={3} />;
 
   return (
     <div className="space-y-5">
@@ -568,14 +581,14 @@ const TITLES: Record<View, string> = {
 };
 
 export default function NotificationsPage() {
-  const [view, setView]       = useState<View>('inbox');
-  const [unread, setUnread]   = useState(0);
+  const [view, setView] = useState<View>('inbox');
 
-  useEffect(() => {
-    apiFetch<{ count: number }>('/notifications/my/unread-count')
-      .then(r => setUnread(r.count))
-      .catch(() => {});
-  }, []);
+  // Badge de não lidas com polling (60s). Key partilhada com as mutações do inbox.
+  const { data: unreadData } = useApiQuery<{ count: number }>(
+    queryKeys.notifications.unreadCount(), '/notifications/my/unread-count',
+    { refetchInterval: 60_000 },
+  );
+  const unread = unreadData?.count ?? 0;
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">

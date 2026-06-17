@@ -53,6 +53,15 @@ export const queryKeys = {
       [...queryKeys.employees.all, 'detail', id] as const,
   },
 
+  notifications: {
+    all: ['notifications'] as const,
+    my: (params: Record<string, unknown>) =>
+      [...queryKeys.notifications.all, 'my', params] as const,
+    unreadCount: () => [...queryKeys.notifications.all, 'unread-count'] as const,
+    preferences: () => [...queryKeys.notifications.all, 'preferences'] as const,
+    stats: () => [...queryKeys.notifications.all, 'stats'] as const,
+  },
+
   courses: {
     all: ['courses'] as const,
     lists: () => [...queryKeys.courses.all, 'list'] as const,
