@@ -1,16 +1,11 @@
 'use client';
-import { useState, useEffect, useCallback } from 'react';
-
-const API = process.env.NEXT_PUBLIC_API_URL ?? '/api';
-
-function authHeaders(): Record<string, string> {
-  const token =
-    typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
-  return {
-    'Content-Type': 'application/json',
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-  };
-}
+import { useState } from 'react';
+import { keepPreviousData } from '@tanstack/react-query';
+import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
+import { useDebounce } from '@/hooks/useDebounce';
+import { apiClient } from '@/lib/apiClient';
+import { queryKeys } from '@/lib/queryKeys';
+import { STALE_TIME } from '@/lib/queryClient';
 
 interface Path {
   id: string;
@@ -30,60 +25,32 @@ const LEVEL_COLORS: Record<string, string> = {
 };
 
 export default function LearningPathsPage() {
-  const [data, setData] = useState<Path[]>([]);
-  const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
   const [search, setSearch] = useState('');
+  const debouncedSearch = useDebounce(search);
+  const params = { page, limit: 20, search: debouncedSearch };
 
-  const fetchData = useCallback(async () => {
-    setLoading(true);
-    setError('');
-    try {
-      const params = new URLSearchParams({
-        page: String(page),
-        limit: '20',
-        ...(search && { search }),
-      });
-      const res = await fetch(`${API}/lms/paths?${params}`, {
-        credentials: 'include',
-        headers: authHeaders(),
-      });
-      if (!res.ok) throw new Error('Erro ao carregar percursos');
-      const json = await res.json();
-      setData(json.data);
-      setTotal(json.total);
-      setTotalPages(json.totalPages);
-    } catch (e: any) {
-      setError(e.message || 'Erro inesperado');
-    } finally {
-      setLoading(false);
-    }
-  }, [page, search]);
+  const { data: resp, isLoading: loading, error: queryError, refetch } =
+    useApiQuery<{ data: Path[]; total: number; totalPages: number }>(
+      queryKeys.lms.paths(params), '/lms/paths',
+      { params, staleTime: STALE_TIME.SEMI_STATIC, placeholderData: keepPreviousData },
+    );
 
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+  const data = resp?.data ?? [];
+  const total = resp?.total ?? 0;
+  const totalPages = resp?.totalPages ?? 1;
+  const error = queryError?.message ?? '';
+  const fetchData = () => refetch();
 
-  async function enroll(pathId: string) {
-    try {
-      const res = await fetch(`${API}/lms/paths/${pathId}/enroll`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: authHeaders(),
-      });
-      if (res.ok) {
-        alert('Inscrição realizada com sucesso!');
-      } else {
-        const j = await res.json().catch(() => ({ message: 'Erro' }));
-        alert(j.message || 'Erro ao inscrever');
-      }
-    } catch {
-      alert('Erro ao inscrever');
-    }
-  }
+  const enrollMut = useApiMutation(
+    (pathId: string) => apiClient.post(`/lms/paths/${pathId}/enroll`, {}),
+    {
+      invalidateKeys: [queryKeys.lms.all],
+      onSuccess: () => alert('Inscrição realizada com sucesso!'),
+      onError: (e) => alert(e.message || 'Erro ao inscrever'),
+    },
+  );
+  const enroll = (pathId: string) => enrollMut.mutate(pathId);
 
   if (loading)
     return (

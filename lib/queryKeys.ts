@@ -53,6 +53,16 @@ export const queryKeys = {
       [...queryKeys.employees.all, 'detail', id] as const,
   },
 
+  lms: {
+    all: ['lms'] as const,
+    sessions: (params: Record<string, unknown>) =>
+      [...queryKeys.lms.all, 'sessions', params] as const,
+    myPaths: () => [...queryKeys.lms.all, 'my-paths'] as const,
+    myAnalytics: () => [...queryKeys.lms.all, 'my-analytics'] as const,
+    paths: (params: Record<string, unknown>) =>
+      [...queryKeys.lms.all, 'paths', params] as const,
+  },
+
   monitoring: {
     all: ['monitoring'] as const,
     myEvaluations: () => [...queryKeys.monitoring.all, 'my-evaluations'] as const,

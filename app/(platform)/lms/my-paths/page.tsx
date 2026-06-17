@@ -1,16 +1,7 @@
 'use client';
-import { useState, useEffect, useCallback } from 'react';
-
-const API = process.env.NEXT_PUBLIC_API_URL ?? '/api';
-
-function authHeaders(): Record<string, string> {
-  const token =
-    typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
-  return {
-    'Content-Type': 'application/json',
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-  };
-}
+import { useApiQuery } from '@/hooks/useApiQuery';
+import { queryKeys } from '@/lib/queryKeys';
+import { STALE_TIME } from '@/lib/queryClient';
 
 interface MyPath {
   id: string;
@@ -43,33 +34,21 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 export default function MyPathsPage() {
-  const [paths, setPaths] = useState<MyPath[]>([]);
-  const [analytics, setAnalytics] = useState<Analytics | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  // Percursos e analytics em paralelo (queries independentes).
+  const pathsQ = useApiQuery<MyPath[]>(
+    queryKeys.lms.myPaths(), '/lms/my-paths',
+    { staleTime: STALE_TIME.DYNAMIC },
+  );
+  const anaQ = useApiQuery<Analytics>(
+    queryKeys.lms.myAnalytics(), '/lms/my-analytics',
+    { staleTime: STALE_TIME.DYNAMIC },
+  );
 
-  const fetchData = useCallback(async () => {
-    setLoading(true);
-    setError('');
-    try {
-      const opts = { credentials: 'include' as const, headers: authHeaders() };
-      const [pathsRes, anaRes] = await Promise.all([
-        fetch(`${API}/lms/my-paths`, opts),
-        fetch(`${API}/lms/my-analytics`, opts),
-      ]);
-      if (!pathsRes.ok) throw new Error('Erro ao carregar os percursos');
-      setPaths(await pathsRes.json());
-      if (anaRes.ok) setAnalytics(await anaRes.json());
-    } catch (e: any) {
-      setError(e.message || 'Erro inesperado');
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+  const paths = pathsQ.data ?? [];
+  const analytics = anaQ.data ?? null;
+  const loading = pathsQ.isLoading;
+  const error = pathsQ.error?.message ?? '';
+  const fetchData = () => { pathsQ.refetch(); anaQ.refetch(); };
 
   if (loading)
     return (
