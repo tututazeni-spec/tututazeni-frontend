@@ -2,24 +2,16 @@
 'use client';
 // src/app/(dashboard)/acl/page.tsx
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import {
   Shield, Users, Key, Lock, AlertTriangle, CheckCircle,
   Settings, ChevronRight, Plus, RefreshCw, Eye, Trash2,
   BarChart2, Activity,
 } from 'lucide-react';
-
-// ─── Helpers ─────────────────────────────────────────────────────
-
-const BASE = '/api';
-async function api(path: string, opts?: RequestInit) {
-  const r = await fetch(`${BASE}${path}`, {
-    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token') ?? ''}` },
-    ...opts,
-  });
-  if (!r.ok) throw new Error();
-  return r.json();
-}
+import { useApiQuery } from '@/hooks/useApiQuery';
+import { apiClient } from '@/lib/apiClient';
+import { queryKeys } from '@/lib/queryKeys';
+import { STALE_TIME } from '@/lib/queryClient';
 
 type Tab = 'overview' | 'roles' | 'matrix' | 'policies' | 'audit';
 
@@ -30,14 +22,11 @@ function Skeleton({ count = 3 }: { count?: number }) {
 // ─── Overview ─────────────────────────────────────────────────────
 
 function OverviewTab() {
-  const [stats, setStats]     = useState<any | null>(null);
-  const [myPerms, setMyPerms] = useState<any | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    Promise.all([api('/acl/stats'), api('/acl/my-permissions')])
-      .then(([s, m]) => { setStats(s); setMyPerms(m); }).finally(() => setLoading(false));
-  }, []);
+  const statsQ = useApiQuery<any>(queryKeys.acl.stats(), '/acl/stats', { staleTime: STALE_TIME.DYNAMIC });
+  const permsQ = useApiQuery<any>(queryKeys.acl.myPermissions(), '/acl/my-permissions', { staleTime: STALE_TIME.SEMI_STATIC });
+  const stats = statsQ.data ?? null;
+  const myPerms = permsQ.data ?? null;
+  const loading = statsQ.isLoading;
 
   if (loading) return <Skeleton />;
 
@@ -129,11 +118,10 @@ function OverviewTab() {
 // ─── Roles Tab ────────────────────────────────────────────────────
 
 function RolesTab() {
-  const [roles, setRoles]   = useState<any[]>([]);
   const [selected, setSelected] = useState<any | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => { api('/acl/roles').then(setRoles).finally(() => setLoading(false)); }, []);
+  const { data: roles = [], isLoading: loading } = useApiQuery<any[]>(
+    queryKeys.acl.roles(), '/acl/roles', { staleTime: STALE_TIME.SEMI_STATIC },
+  );
 
   if (loading) return <Skeleton />;
 
@@ -205,11 +193,10 @@ function RolesTab() {
 // ─── Matrix Tab ───────────────────────────────────────────────────
 
 function MatrixTab() {
-  const [data, setData]   = useState<any | null>(null);
-  const [loading, setLoading] = useState(true);
   const [subjectFilter, setSubjectFilter] = useState('');
-
-  useEffect(() => { api('/acl/matrix').then(setData).finally(() => setLoading(false)); }, []);
+  const { data, isLoading: loading } = useApiQuery<any>(
+    queryKeys.acl.matrix(), '/acl/matrix', { staleTime: STALE_TIME.SEMI_STATIC },
+  );
 
   if (loading) return <Skeleton />;
 
@@ -271,16 +258,11 @@ function MatrixTab() {
 // ─── Audit Tab ────────────────────────────────────────────────────
 
 function AuditTab() {
-  const [data, setData]     = useState<any | null>(null);
-  const [denied, setDenied] = useState<any | null>(null);
   const [view, setView]     = useState<'all' | 'denied'>('all');
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const path = view === 'denied' ? '/acl/audit/denied' : '/acl/audit';
-    setLoading(true);
-    api(path).then(setData).finally(() => setLoading(false));
-  }, [view]);
+  const { data, isLoading: loading } = useApiQuery<any>(
+    queryKeys.acl.audit(view), view === 'denied' ? '/acl/audit/denied' : '/acl/audit',
+    { staleTime: STALE_TIME.DYNAMIC },
+  );
 
   if (loading) return <Skeleton />;
 
@@ -337,10 +319,9 @@ function AuditTab() {
 // ─── Policies Tab ────────────────────────────────────────────────
 
 function PoliciesTab() {
-  const [data, setData]   = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => { api('/acl/policies').then(d => setData(d ?? [])).finally(() => setLoading(false)); }, []);
+  const { data = [], isLoading: loading } = useApiQuery<any[]>(
+    queryKeys.acl.policies(), '/acl/policies', { staleTime: STALE_TIME.SEMI_STATIC },
+  );
 
   if (loading) return <Skeleton />;
 
@@ -412,7 +393,7 @@ export default function AclPage() {
             </div>
             <p className="text-sm text-slate-400">RBAC · ABAC · Roles · Permissões · Políticas · Auditoria</p>
           </div>
-          <button onClick={() => api('/acl/seed-permissions', { method: 'POST' })}
+          <button onClick={() => { void apiClient.post('/acl/seed-permissions', {}).catch(() => {}); }}
             className="flex items-center gap-2 px-4 py-2 bg-slate-100 text-slate-600 text-xs rounded-lg hover:bg-slate-200">
             <RefreshCw size={13} />
             Seed Permissões
