@@ -100,6 +100,37 @@ export const queryKeys = {
     transcript: () => [...queryKeys.academic.all, 'transcript'] as const,
   },
 
+  trainings: {
+    all: ['trainings'] as const,
+    list: (params: Record<string, unknown>) =>
+      [...queryKeys.trainings.all, 'list', params] as const,
+    detail: (id: number) => [...queryKeys.trainings.all, 'detail', id] as const,
+    my: () => [...queryKeys.trainings.all, 'my'] as const,
+    adminDashboard: () =>
+      [...queryKeys.trainings.all, 'admin-dashboard'] as const,
+  },
+
+  acl: {
+    all: ['acl'] as const,
+    stats: () => [...queryKeys.acl.all, 'stats'] as const,
+    myPermissions: () => [...queryKeys.acl.all, 'my-permissions'] as const,
+    roles: () => [...queryKeys.acl.all, 'roles'] as const,
+    matrix: () => [...queryKeys.acl.all, 'matrix'] as const,
+    audit: (view: string) => [...queryKeys.acl.all, 'audit', view] as const,
+    policies: () => [...queryKeys.acl.all, 'policies'] as const,
+  },
+
+  succession: {
+    all: ['succession'] as const,
+    dashboard: () => [...queryKeys.succession.all, 'dashboard'] as const,
+    orgChart: () => [...queryKeys.succession.all, 'org-chart'] as const,
+    criticalPositions: () =>
+      [...queryKeys.succession.all, 'critical-positions'] as const,
+    positionSummary: (id: number) =>
+      [...queryKeys.succession.all, 'position-summary', id] as const,
+    talentPool: () => [...queryKeys.succession.all, 'talent-pool'] as const,
+  },
+
   microLearning: {
     all: ['micro-learning'] as const,
     feed: (params: Record<string, unknown>) =>

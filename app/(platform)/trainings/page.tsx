@@ -1,7 +1,13 @@
 ﻿// src/app/(dashboard)/trainings/page.tsx
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState } from 'react';
+import { keepPreviousData } from '@tanstack/react-query';
+import { useApiQuery } from '@/hooks/useApiQuery';
+import { useDebounce } from '@/hooks/useDebounce';
+import { apiClient } from '@/lib/apiClient';
+import { queryKeys } from '@/lib/queryKeys';
+import { STALE_TIME } from '@/lib/queryClient';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -76,27 +82,6 @@ interface Dashboard {
 }
 
 type View = 'catalog' | 'detail' | 'my-trainings' | 'dashboard';
-
-// ─── API ──────────────────────────────────────────────────────────────────────
-
-const API = process.env.NEXT_PUBLIC_API_URL ?? '/api';
-
-async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
-  const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
-  const res = await fetch(`${API}${path}`, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...options?.headers,
-    },
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({ message: 'Erro' }));
-    throw new Error(err.message ?? `HTTP ${res.status}`);
-  }
-  return res.json();
-}
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -233,27 +218,17 @@ function TrainingCard({ training, onClick }: { training: Training; onClick: () =
 // ─── View: Catalog ────────────────────────────────────────────────────────────
 
 function CatalogView({ onSelect }: { onSelect: (id: number) => void }) {
-  const [data, setData]       = useState<{ data: Training[]; total: number } | null>(null);
-  const [loading, setLoading] = useState(true);
   const [type, setType]       = useState<TrainingType | ''>('');
   const [level, setLevel]     = useState<TrainingLevel | ''>('');
   const [search, setSearch]   = useState('');
   const [page, setPage]       = useState(1);
+  const debouncedSearch = useDebounce(search);
+  const params = { page, limit: 12, type, level, search: debouncedSearch };
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    try {
-      const params = new URLSearchParams({
-        page: String(page), limit: '12',
-        ...(type   ? { type }   : {}),
-        ...(level  ? { level }  : {}),
-        ...(search ? { search } : {}),
-      });
-      setData(await apiFetch(`/trainings?${params}`));
-    } finally { setLoading(false); }
-  }, [type, level, search, page]);
-
-  useEffect(() => { load(); }, [load]);
+  const { data, isLoading: loading } = useApiQuery<{ data: Training[]; total: number }>(
+    queryKeys.trainings.list(params), '/trainings',
+    { params, staleTime: STALE_TIME.SEMI_STATIC, placeholderData: keepPreviousData },
+  );
 
   return (
     <div>
@@ -310,26 +285,22 @@ function CatalogView({ onSelect }: { onSelect: (id: number) => void }) {
 // ─── View: Detail ─────────────────────────────────────────────────────────────
 
 function DetailView({ trainingId, onBack }: { trainingId: number; onBack: () => void }) {
-  const [training, setTraining] = useState<Training | null>(null);
-  const [loading, setLoading]   = useState(true);
   const [enrolling, setEnrolling] = useState<number | null>(null);
   const [rating, setRating]     = useState(0);
   const [comment, setComment]   = useState('');
   const [submittingRating, setSubmittingRating] = useState(false);
 
-  useEffect(() => {
-    apiFetch<Training>(`/trainings/${trainingId}`)
-      .then(setTraining)
-      .finally(() => setLoading(false));
-  }, [trainingId]);
+  const { data: training, isLoading: loading, refetch } = useApiQuery<Training>(
+    queryKeys.trainings.detail(trainingId), `/trainings/${trainingId}`,
+    { enabled: !!trainingId, staleTime: STALE_TIME.DYNAMIC },
+  );
 
   const handleEnroll = async (sessionId: number) => {
     setEnrolling(sessionId);
     try {
-      await apiFetch(`/trainings/sessions/${sessionId}/self-register`, { method: 'POST', body: '{}' });
+      await apiClient.post(`/trainings/sessions/${sessionId}/self-register`, {});
       alert('Inscrição realizada!');
-      const t = await apiFetch<Training>(`/trainings/${trainingId}`);
-      setTraining(t);
+      await refetch();
     } catch (e: any) { alert(e.message); }
     finally { setEnrolling(null); }
   };
@@ -338,10 +309,7 @@ function DetailView({ trainingId, onBack }: { trainingId: number; onBack: () => 
     if (!rating) return;
     setSubmittingRating(true);
     try {
-      await apiFetch('/trainings/rate', {
-        method: 'POST',
-        body: JSON.stringify({ trainingId, rating, comment: comment || undefined }),
-      });
+      await apiClient.post('/trainings/rate', { trainingId, rating, comment: comment || undefined });
       alert('Avaliação enviada!');
       setRating(0); setComment('');
     } catch (e: any) { alert(e.message); }
@@ -509,15 +477,12 @@ function DetailView({ trainingId, onBack }: { trainingId: number; onBack: () => 
 // ─── View: My Trainings ───────────────────────────────────────────────────────
 
 function MyTrainingsView({ onSelect }: { onSelect: (id: number) => void }) {
-  const [data, setData]     = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<ParticipantStatus | ''>('');
 
-  useEffect(() => {
-    apiFetch<any[]>('/trainings/my')
-      .then(setData)
-      .finally(() => setLoading(false));
-  }, []);
+  const { data = [], isLoading: loading } = useApiQuery<any[]>(
+    queryKeys.trainings.my(), '/trainings/my',
+    { staleTime: STALE_TIME.DYNAMIC },
+  );
 
   const filtered = filter ? data.filter(d => d.status === filter) : data;
 
@@ -592,16 +557,12 @@ function MyTrainingsView({ onSelect }: { onSelect: (id: number) => void }) {
 // ─── View: Dashboard ──────────────────────────────────────────────────────────
 
 function DashboardView() {
-  const [data, setData]     = useState<Dashboard | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { data, isLoading } = useApiQuery<Dashboard>(
+    queryKeys.trainings.adminDashboard(), '/trainings/admin/dashboard',
+    { staleTime: STALE_TIME.SEMI_STATIC },
+  );
 
-  useEffect(() => {
-    apiFetch<Dashboard>('/trainings/admin/dashboard')
-      .then(setData)
-      .finally(() => setLoading(false));
-  }, []);
-
-  if (loading || !data) return <Skeleton rows={3} />;
+  if (isLoading || !data) return <Skeleton rows={3} />;
 
   return (
     <div className="space-y-6">
