@@ -1,7 +1,11 @@
 ﻿// src/app/(dashboard)/ai-tutor/page.tsx
 'use client';
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { useApiQuery } from '@/hooks/useApiQuery';
+import { apiClient } from '@/lib/apiClient';
+import { queryKeys } from '@/lib/queryKeys';
+import { STALE_TIME } from '@/lib/queryClient';
 import { sanitizeHtml } from '@/lib/sanitize';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -49,27 +53,6 @@ const QUICK_ACTIONS = [
   { label: '💡 Exemplo real',           value: 'Podes dar um exemplo prático e real desta matéria?' },
   { label: '📊 Quiz rápido',            value: 'Cria um quiz de 5 perguntas sobre o que acabámos de discutir' },
 ];
-
-// ─── API ──────────────────────────────────────────────────────────────────────
-
-const API = process.env.NEXT_PUBLIC_API_URL ?? '/api';
-
-async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
-  const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
-  const res = await fetch(`${API}${path}`, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...options?.headers,
-    },
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({ message: 'Erro' }));
-    throw new Error(err.message ?? `HTTP ${res.status}`);
-  }
-  return res.json();
-}
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -172,10 +155,7 @@ function ChatView() {
   const start = async () => {
     setStarting(true);
     try {
-      const res: any = await apiFetch('/ai-tutor/sessions', {
-        method: 'POST',
-        body:   JSON.stringify({ personality }),
-      });
+      const res: any = await apiClient.post('/ai-tutor/sessions', { personality });
       setSession({ id: res.session.id, greeting: res.greeting });
       setMessages([{
         id: 0, role: 'ASSISTANT', content: res.greeting,
@@ -199,9 +179,8 @@ function ChatView() {
     setThinking(true);
 
     try {
-      const res: any = await apiFetch('/ai-tutor/sessions/message', {
-        method: 'POST',
-        body:   JSON.stringify({ sessionId: session.id, message: msg }),
+      const res: any = await apiClient.post('/ai-tutor/sessions/message', {
+        sessionId: session.id, message: msg,
       });
       setMessages(prev => [...prev, {
         id:          res.message.id,
@@ -223,10 +202,7 @@ function ChatView() {
   };
 
   const handleRate = async (msgId: number, rating: number) => {
-    await apiFetch('/ai-tutor/messages/rate', {
-      method: 'PATCH',
-      body:   JSON.stringify({ messageId: msgId, rating }),
-    }).catch(() => {});
+    await apiClient.patch('/ai-tutor/messages/rate', { messageId: msgId, rating }).catch(() => {});
     setMessages(prev => prev.map(m => m.id === msgId ? { ...m, rating } : m));
   };
 
@@ -337,18 +313,18 @@ function ChatView() {
 // ─── View: History ────────────────────────────────────────────────────────────
 
 function HistoryView() {
-  const [sessions, setSessions] = useState<Session[]>([]);
-  const [loading, setLoading]   = useState(true);
   const [selected, setSelected] = useState<number | null>(null);
   const [detail, setDetail]     = useState<{ messages: Message[] } | null>(null);
 
-  useEffect(() => {
-    apiFetch<any>('/ai-tutor/sessions').then(r => setSessions(r.data)).finally(() => setLoading(false));
-  }, []);
+  const { data: sessionsResp, isLoading: loading } = useApiQuery<{ data: Session[] }>(
+    queryKeys.aiTutor.sessions(), '/ai-tutor/sessions',
+    { staleTime: STALE_TIME.DYNAMIC },
+  );
+  const sessions = sessionsResp?.data ?? [];
 
   const loadDetail = async (id: number) => {
     setSelected(id);
-    const s: any = await apiFetch(`/ai-tutor/sessions/${id}`);
+    const s: any = await apiClient.get(`/ai-tutor/sessions/${id}`);
     setDetail({ messages: s.messages });
   };
 
@@ -418,10 +394,7 @@ function GenerateView() {
     if (!topic.trim()) { alert('Introduz um tema'); return; }
     setLoading(true);
     try {
-      const res = await apiFetch<GeneratedContent>('/ai-tutor/generate', {
-        method: 'POST',
-        body:   JSON.stringify({ type, topic, count }),
-      });
+      const res = await apiClient.post<GeneratedContent>('/ai-tutor/generate', { type, topic, count });
       setResult(res);
     } catch (e: any) { alert(e.message); }
     finally { setLoading(false); }
@@ -547,12 +520,10 @@ function GenerateView() {
 // ─── View: Recommendations ────────────────────────────────────────────────────
 
 function RecommendationsView() {
-  const [data, setData]     = useState<Recommendation | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    apiFetch<Recommendation>('/ai-tutor/recommendations').then(setData).finally(() => setLoading(false));
-  }, []);
+  const { data, isLoading: loading } = useApiQuery<Recommendation>(
+    queryKeys.aiTutor.recommendations(), '/ai-tutor/recommendations',
+    { staleTime: STALE_TIME.SEMI_STATIC },
+  );
 
   if (loading) return <Skeleton rows={4} />;
   if (!data)   return null;
