@@ -1,17 +1,10 @@
 'use client';
-import { useState, useEffect, useCallback } from 'react';
+import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-
-const API = process.env.NEXT_PUBLIC_API_URL ?? '/api';
-
-function authHeaders(): Record<string, string> {
-  const token =
-    typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
-  return {
-    'Content-Type': 'application/json',
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-  };
-}
+import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
+import { apiClient } from '@/lib/apiClient';
+import { queryKeys } from '@/lib/queryKeys';
+import { STALE_TIME } from '@/lib/queryClient';
 
 interface Grant {
   id: string;
@@ -95,10 +88,6 @@ export default function FunderDetailPage() {
   const router = useRouter();
   const id = params?.id as string;
 
-  const [f, setF] = useState<FunderDetail | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-
   const [showGrantForm, setShowGrantForm] = useState(false);
   const [grantForm, setGrantForm] = useState({
     title: '',
@@ -114,82 +103,71 @@ export default function FunderDetailPage() {
     description: '',
     outcome: '',
   });
-  const [saving, setSaving] = useState(false);
 
-  const fetchData = useCallback(async () => {
-    setLoading(true);
-    setError('');
-    try {
-      const res = await fetch(`${API}/crm/funders/${id}`, {
-        credentials: 'include',
-        headers: authHeaders(),
-      });
-      if (!res.ok) throw new Error('Erro ao carregar financiador');
-      setF(await res.json());
-    } catch (e: any) {
-      setError(e.message || 'Erro inesperado');
-    } finally {
-      setLoading(false);
-    }
-  }, [id]);
+  const { data: f, isLoading: loading, error: queryError } =
+    useApiQuery<FunderDetail>(
+      queryKeys.funders.detail(id), `/crm/funders/${id}`,
+      { enabled: !!id, staleTime: STALE_TIME.DYNAMIC },
+    );
+  const error = queryError?.message ?? '';
+  const detailKey = queryKeys.funders.detail(id);
 
-  useEffect(() => {
-    if (id) fetchData();
-  }, [id, fetchData]);
+  const grantMut = useApiMutation(
+    () => apiClient.post(`/crm/funders/${id}/grants`, {
+      title: grantForm.title,
+      amount: Number(grantForm.amount),
+      startDate: grantForm.startDate,
+      ...(grantForm.endDate && { endDate: grantForm.endDate }),
+    }),
+    {
+      invalidateKeys: [detailKey],
+      onSuccess: () => {
+        setShowGrantForm(false);
+        setGrantForm({ title: '', amount: '', startDate: '', endDate: '' });
+      },
+      onError: (e) => alert(e.message || 'Erro inesperado'),
+    },
+  );
 
-  async function submitGrant(e: React.FormEvent) {
+  const intMut = useApiMutation(
+    () => apiClient.post(`/crm/funders/${id}/interactions`, {
+      type: intForm.type,
+      subject: intForm.subject,
+      description: intForm.description,
+      ...(intForm.outcome && { outcome: intForm.outcome }),
+    }),
+    {
+      invalidateKeys: [detailKey],
+      onSuccess: () => {
+        setShowIntForm(false);
+        setIntForm({ type: 'MEETING', subject: '', description: '', outcome: '' });
+      },
+      onError: (e) => alert(e.message || 'Erro inesperado'),
+    },
+  );
+
+  const disbMut = useApiMutation(
+    (vars: { grantId: string; amount: number }) =>
+      apiClient.post(`/crm/funders/grants/${vars.grantId}/disbursements`, {
+        amount: vars.amount,
+        receivedAt: new Date().toISOString().slice(0, 10),
+      }),
+    { invalidateKeys: [detailKey], onError: (e) => alert(e.message || 'Erro inesperado') },
+  );
+
+  const saving = grantMut.isPending || intMut.isPending;
+
+  function submitGrant(e: React.FormEvent) {
     e.preventDefault();
-    setSaving(true);
-    try {
-      const res = await fetch(`${API}/crm/funders/${id}/grants`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: authHeaders(),
-        body: JSON.stringify({
-          title: grantForm.title,
-          amount: Number(grantForm.amount),
-          startDate: grantForm.startDate,
-          ...(grantForm.endDate && { endDate: grantForm.endDate }),
-        }),
-      });
-      if (!res.ok) throw new Error('Erro ao criar grant');
-      setShowGrantForm(false);
-      setGrantForm({ title: '', amount: '', startDate: '', endDate: '' });
-      await fetchData();
-    } catch (e: any) {
-      alert(e.message || 'Erro inesperado');
-    } finally {
-      setSaving(false);
-    }
+    grantMut.mutate(undefined);
   }
 
-  async function submitInteraction(e: React.FormEvent) {
+  function submitInteraction(e: React.FormEvent) {
     e.preventDefault();
-    setSaving(true);
-    try {
-      const res = await fetch(`${API}/crm/funders/${id}/interactions`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: authHeaders(),
-        body: JSON.stringify({
-          type: intForm.type,
-          subject: intForm.subject,
-          description: intForm.description,
-          ...(intForm.outcome && { outcome: intForm.outcome }),
-        }),
-      });
-      if (!res.ok) throw new Error('Erro ao guardar interacção');
-      setShowIntForm(false);
-      setIntForm({ type: 'MEETING', subject: '', description: '', outcome: '' });
-      await fetchData();
-    } catch (e: any) {
-      alert(e.message || 'Erro inesperado');
-    } finally {
-      setSaving(false);
-    }
+    intMut.mutate(undefined);
   }
 
-  async function addDisbursement(grantId: string) {
+  function addDisbursement(grantId: string) {
     const amountStr = window.prompt('Valor do desembolso (AOA):');
     if (!amountStr) return;
     const amount = Number(amountStr);
@@ -197,29 +175,7 @@ export default function FunderDetailPage() {
       alert('Valor inválido');
       return;
     }
-    try {
-      const res = await fetch(
-        `${API}/crm/funders/grants/${grantId}/disbursements`,
-        {
-          method: 'POST',
-          credentials: 'include',
-          headers: authHeaders(),
-          body: JSON.stringify({
-            amount,
-            receivedAt: new Date().toISOString().slice(0, 10),
-          }),
-        },
-      );
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({ message: 'Erro' }));
-        throw new Error(
-          Array.isArray(err.message) ? err.message.join(', ') : err.message,
-        );
-      }
-      await fetchData();
-    } catch (e: any) {
-      alert(e.message || 'Erro inesperado');
-    }
+    disbMut.mutate({ grantId, amount });
   }
 
   if (loading)

@@ -31,6 +31,22 @@ export const queryKeys = {
       [...queryKeys.beneficiaries.all, 'detail', id] as const,
   },
 
+  funders: {
+    all: ['funders'] as const,
+    lists: () => [...queryKeys.funders.all, 'list'] as const,
+    list: (params: Record<string, unknown>) =>
+      [...queryKeys.funders.lists(), params] as const,
+    detail: (id: string) => [...queryKeys.funders.all, 'detail', id] as const,
+  },
+
+  partners: {
+    all: ['partners'] as const,
+    lists: () => [...queryKeys.partners.all, 'list'] as const,
+    list: (params: Record<string, unknown>) =>
+      [...queryKeys.partners.lists(), params] as const,
+    detail: (id: string) => [...queryKeys.partners.all, 'detail', id] as const,
+  },
+
   users: {
     all: ['users'] as const,
     lists: () => [...queryKeys.users.all, 'list'] as const,

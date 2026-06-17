@@ -1,17 +1,9 @@
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-
-const API = process.env.NEXT_PUBLIC_API_URL ?? '/api';
-
-function authHeaders(): Record<string, string> {
-  const token =
-    typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
-  return {
-    'Content-Type': 'application/json',
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-  };
-}
+import { useApiMutation } from '@/hooks/useApiQuery';
+import { apiClient } from '@/lib/apiClient';
+import { queryKeys } from '@/lib/queryKeys';
 
 const TYPES: Record<string, string> = {
   GOVERNMENT: 'Governo',
@@ -25,7 +17,6 @@ const TYPES: Record<string, string> = {
 
 export default function NovoFinanciadorPage() {
   const router = useRouter();
-  const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
 
   const [form, setForm] = useState({
@@ -53,37 +44,27 @@ export default function NovoFinanciadorPage() {
     setForm((f) => ({ ...f, [field]: value }));
   }
 
-  async function submit(e: React.FormEvent) {
-    e.preventDefault();
-    setSaving(true);
-    setError('');
-    try {
+  const createMut = useApiMutation(
+    () => {
       const payload: any = { type: form.type, name: form.name };
       for (const [k, v] of Object.entries(form)) {
         if (k === 'type' || k === 'name') continue;
         if (v !== '' && v != null) payload[k] = v;
       }
-      const res = await fetch(`${API}/crm/funders`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: authHeaders(),
-        body: JSON.stringify(payload),
-      });
-      if (!res.ok) {
-        const err = await res
-          .json()
-          .catch(() => ({ message: 'Erro ao criar financiador' }));
-        throw new Error(
-          Array.isArray(err.message) ? err.message.join(', ') : err.message,
-        );
-      }
-      const created = await res.json();
-      router.push(`/crm/funders/${created.id}`);
-    } catch (e: any) {
-      setError(e.message || 'Erro inesperado');
-    } finally {
-      setSaving(false);
-    }
+      return apiClient.post<{ id: string }>('/crm/funders', payload);
+    },
+    {
+      invalidateKeys: [queryKeys.funders.lists()],
+      onSuccess: (created) => router.push(`/crm/funders/${created.id}`),
+      onError: (e) => setError(e.message || 'Erro inesperado'),
+    },
+  );
+  const saving = createMut.isPending;
+
+  function submit(e: React.FormEvent) {
+    e.preventDefault();
+    setError('');
+    createMut.mutate(undefined);
   }
 
   return (

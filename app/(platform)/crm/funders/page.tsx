@@ -1,16 +1,11 @@
 'use client';
-import { useState, useEffect, useCallback } from 'react';
-
-const API = process.env.NEXT_PUBLIC_API_URL ?? '/api';
-
-function authHeaders(): Record<string, string> {
-  const token =
-    typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
-  return {
-    'Content-Type': 'application/json',
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-  };
-}
+import { useState } from 'react';
+import Link from 'next/link';
+import { keepPreviousData } from '@tanstack/react-query';
+import { useApiQuery } from '@/hooks/useApiQuery';
+import { useDebounce } from '@/hooks/useDebounce';
+import { queryKeys } from '@/lib/queryKeys';
+import { STALE_TIME } from '@/lib/queryClient';
 
 interface Funder {
   id: string;
@@ -42,46 +37,27 @@ const TYPE_LABELS: Record<string, string> = {
 };
 
 export default function FundersPage() {
-  const [data, setData] = useState<Funder[]>([]);
-  const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
+  const debouncedSearch = useDebounce(search);
+  const params = {
+    page, limit: 20, search: debouncedSearch,
+    type: typeFilter, status: statusFilter,
+  };
 
-  const fetchData = useCallback(async () => {
-    setLoading(true);
-    setError('');
-    try {
-      const params = new URLSearchParams({
-        page: String(page),
-        limit: '20',
-        ...(search && { search }),
-        ...(typeFilter && { type: typeFilter }),
-        ...(statusFilter && { status: statusFilter }),
-      });
-      const res = await fetch(`${API}/crm/funders?${params}`, {
-        credentials: 'include',
-        headers: authHeaders(),
-      });
-      if (!res.ok) throw new Error('Erro ao carregar financiadores');
-      const json = await res.json();
-      setData(json.data);
-      setTotal(json.total);
-      setTotalPages(json.totalPages);
-    } catch (e: any) {
-      setError(e.message || 'Erro inesperado');
-    } finally {
-      setLoading(false);
-    }
-  }, [page, search, typeFilter, statusFilter]);
+  const { data: resp, isLoading: loading, error: queryError, refetch } =
+    useApiQuery<{ data: Funder[]; total: number; totalPages: number }>(
+      queryKeys.funders.list(params), '/crm/funders',
+      { params, staleTime: STALE_TIME.DYNAMIC, placeholderData: keepPreviousData },
+    );
 
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+  const data = resp?.data ?? [];
+  const total = resp?.total ?? 0;
+  const totalPages = resp?.totalPages ?? 1;
+  const error = queryError?.message ?? '';
+  const fetchData = () => refetch();
 
   if (loading)
     return (
@@ -112,12 +88,12 @@ export default function FundersPage() {
           <h1 className="text-2xl font-bold text-gray-900">Financiadores</h1>
           <p className="text-gray-500">{total} financiadores registados</p>
         </div>
-        <a
+        <Link
           href="/crm/funders/novo"
           className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
         >
           + Novo Financiador
-        </a>
+        </Link>
       </div>
 
       {/* Filtros */}
