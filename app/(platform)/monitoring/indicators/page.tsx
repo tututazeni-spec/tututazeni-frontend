@@ -1,16 +1,9 @@
 'use client';
-import { useState, useEffect, useCallback } from 'react';
-
-const API = process.env.NEXT_PUBLIC_API_URL ?? '/api';
-
-function authHeaders(): Record<string, string> {
-  const token =
-    typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
-  return {
-    'Content-Type': 'application/json',
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-  };
-}
+import { useState } from 'react';
+import { keepPreviousData } from '@tanstack/react-query';
+import { useApiQuery } from '@/hooks/useApiQuery';
+import { queryKeys } from '@/lib/queryKeys';
+import { STALE_TIME } from '@/lib/queryClient';
 
 interface Indicator {
   id: string;
@@ -25,37 +18,20 @@ interface Indicator {
 }
 
 export default function IndicatorsPage() {
-  const [data, setData] = useState<Indicator[]>([]);
-  const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const params = { page, limit: 20 };
 
-  const fetchData = useCallback(async () => {
-    setLoading(true);
-    setError('');
-    try {
-      const params = new URLSearchParams({ page: String(page), limit: '20' });
-      const res = await fetch(`${API}/monitoring/indicators?${params}`, {
-        credentials: 'include',
-        headers: authHeaders(),
-      });
-      if (!res.ok) throw new Error('Erro ao carregar indicadores');
-      const json = await res.json();
-      setData(json.data);
-      setTotal(json.total);
-      setTotalPages(json.totalPages);
-    } catch (e: any) {
-      setError(e.message || 'Erro inesperado');
-    } finally {
-      setLoading(false);
-    }
-  }, [page]);
+  const { data: resp, isLoading: loading, error: queryError, refetch } =
+    useApiQuery<{ data: Indicator[]; total: number; totalPages: number }>(
+      queryKeys.monitoring.indicators(params), '/monitoring/indicators',
+      { params, staleTime: STALE_TIME.DYNAMIC, placeholderData: keepPreviousData },
+    );
 
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+  const data = resp?.data ?? [];
+  const total = resp?.total ?? 0;
+  const totalPages = resp?.totalPages ?? 1;
+  const error = queryError?.message ?? '';
+  const fetchData = () => refetch();
 
   if (loading)
     return (
