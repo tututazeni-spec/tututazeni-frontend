@@ -390,6 +390,37 @@ export const queryKeys = {
     stats: () => [...queryKeys.notifications.all, 'stats'] as const,
   },
 
+  contentLibrary: {
+    all: ['content-library'] as const,
+    recommended: () => [...queryKeys.contentLibrary.all, 'recommended'] as const,
+    trending: () => [...queryKeys.contentLibrary.all, 'trending'] as const,
+    new: () => [...queryKeys.contentLibrary.all, 'new'] as const,
+    continueWatching: () =>
+      [...queryKeys.contentLibrary.all, 'continue-watching'] as const,
+    mandatory: () => [...queryKeys.contentLibrary.all, 'mandatory'] as const,
+    catalogue: (params: Record<string, unknown>) =>
+      [...queryKeys.contentLibrary.all, 'catalogue', params] as const,
+    paths: () => [...queryKeys.contentLibrary.all, 'paths'] as const,
+    myProgress: () => [...queryKeys.contentLibrary.all, 'my-progress'] as const,
+    myStats: () => [...queryKeys.contentLibrary.all, 'my-stats'] as const,
+    bookmarks: () => [...queryKeys.contentLibrary.all, 'bookmarks'] as const,
+    analytics: () => [...queryKeys.contentLibrary.all, 'analytics'] as const,
+  },
+
+  avatarTraining: {
+    all: ['avatar-training'] as const,
+    recommended: () =>
+      [...queryKeys.avatarTraining.all, 'recommended'] as const,
+    myHistory: (limit: number) =>
+      [...queryKeys.avatarTraining.all, 'my-history', limit] as const,
+    scenarios: (params: Record<string, unknown>) =>
+      [...queryKeys.avatarTraining.all, 'scenarios', params] as const,
+    leaderboard: () =>
+      [...queryKeys.avatarTraining.all, 'leaderboard'] as const,
+    analytics: () =>
+      [...queryKeys.avatarTraining.all, 'analytics'] as const,
+  },
+
   engagement: {
     all: ['engagement'] as const,
     dashboard: () => [...queryKeys.engagement.all, 'dashboard'] as const,

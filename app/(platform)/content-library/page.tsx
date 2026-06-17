@@ -1,13 +1,19 @@
 ﻿'use client';
 // src/app/(dashboard)/content-library/page.tsx
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState } from 'react';
 import {
   BookOpen, Search, Play, Clock, Star, TrendingUp, Bookmark,
   BarChart2, Award, Zap, ChevronRight, Filter, Plus,
   Video, FileText, Headphones, Brain, Shield, Globe,
   X, Eye, CheckCircle, BookMarked, Layers, RotateCcw,
 } from 'lucide-react';
+import { keepPreviousData } from '@tanstack/react-query';
+import { useApiQuery } from '../../../hooks/useApiQuery';
+import { apiClient } from '../../../lib/apiClient';
+import { queryKeys } from '../../../lib/queryKeys';
+import { STALE_TIME } from '../../../lib/queryClient';
+import { useDebounce } from '../../../hooks/useDebounce';
 
 // ─── Types ───────────────────────────────────────────────────────
 
@@ -30,17 +36,6 @@ interface LearningPath {
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────
-
-const BASE = '/api';
-async function api(path: string, opts?: RequestInit) {
-  const r = await fetch(`${BASE}${path}`, {
-    headers: { 'Content-Type': 'application/json',
-      Authorization: `Bearer ${localStorage.getItem('token') ?? ''}` },
-    ...opts,
-  });
-  if (!r.ok) throw new Error(await r.text());
-  return r.json();
-}
 
 const FORMAT_ICON: Record<string, any> = {
   VIDEO: Video, ARTICLE: FileText, PODCAST: Headphones,
@@ -103,12 +98,12 @@ function ContentCard({ content, onBookmark, compact = false }: {
 
   const handleBookmark = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    await api(`/content-library/${content.id}/bookmark`, { method: 'PATCH' });
+    await apiClient.patch(`/content-library/${content.id}/bookmark`, {});
     onBookmark?.(content.id);
   };
 
   const handleView = async () => {
-    await api(`/content-library/${content.id}/view`, { method: 'PATCH' }).catch(() => {});
+    await apiClient.patch(`/content-library/${content.id}/view`, {}).catch(() => {});
     window.open(content.url, '_blank');
   };
 
@@ -246,30 +241,35 @@ function ContentRow({ title, items, loading, icon: Icon = BookOpen }: {
 // ─── Home Tab ─────────────────────────────────────────────────────
 
 function HomeTab() {
-  const [recommended, setRecommended] = useState<Content[]>([]);
-  const [trending, setTrending]       = useState<Content[]>([]);
-  const [newContent, setNewContent]   = useState<Content[]>([]);
-  const [continueW, setContinueW]     = useState<Content[]>([]);
-  const [mandatory, setMandatory]     = useState<Content[]>([]);
-  const [loading, setLoading]         = useState(true);
   const [search, setSearch]           = useState('');
 
-  useEffect(() => {
-    setLoading(true);
-    Promise.all([
-      api('/content-library/recommended?limit=8'),
-      api('/content-library/trending?limit=8'),
-      api('/content-library/new?limit=6'),
-      api('/content-library/continue-watching?limit=5'),
-      api('/content-library/mandatory'),
-    ]).then(([rec, tr, nw, cw, man]) => {
-      setRecommended(rec ?? []);
-      setTrending(tr ?? []);
-      setNewContent(nw ?? []);
-      setContinueW(cw ?? []);
-      setMandatory(man ?? []);
-    }).finally(() => setLoading(false));
-  }, []);
+  const recQuery = useApiQuery<Content[]>(
+    queryKeys.contentLibrary.recommended(), '/content-library/recommended',
+    { params: { limit: 8 }, staleTime: STALE_TIME.SEMI_STATIC },
+  );
+  const trendingQuery = useApiQuery<Content[]>(
+    queryKeys.contentLibrary.trending(), '/content-library/trending',
+    { params: { limit: 8 }, staleTime: STALE_TIME.SEMI_STATIC },
+  );
+  const newQuery = useApiQuery<Content[]>(
+    queryKeys.contentLibrary.new(), '/content-library/new',
+    { params: { limit: 6 }, staleTime: STALE_TIME.SEMI_STATIC },
+  );
+  const continueQuery = useApiQuery<Content[]>(
+    queryKeys.contentLibrary.continueWatching(), '/content-library/continue-watching',
+    { params: { limit: 5 }, staleTime: STALE_TIME.DYNAMIC },
+  );
+  const mandatoryQuery = useApiQuery<Content[]>(
+    queryKeys.contentLibrary.mandatory(), '/content-library/mandatory',
+    { staleTime: STALE_TIME.SEMI_STATIC },
+  );
+
+  const recommended = recQuery.data ?? [];
+  const trending    = trendingQuery.data ?? [];
+  const newContent  = newQuery.data ?? [];
+  const continueW   = continueQuery.data ?? [];
+  const mandatory   = mandatoryQuery.data ?? [];
+  const loading = recQuery.isLoading || trendingQuery.isLoading || newQuery.isLoading;
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -335,8 +335,6 @@ function HomeTab() {
 // ─── Catalogue Tab ────────────────────────────────────────────────
 
 function CatalogueTab() {
-  const [data, setData]       = useState<{ data: Content[]; meta: any } | null>(null);
-  const [loading, setLoading] = useState(true);
   const [search, setSearch]   = useState('');
   const [format, setFormat]   = useState('');
   const [level, setLevel]     = useState('');
@@ -345,20 +343,20 @@ function CatalogueTab() {
   const [cert, setCert]       = useState(false);
   const [page, setPage]       = useState(1);
 
-  const load = useCallback(() => {
-    setLoading(true);
-    const params = new URLSearchParams({
-      page: String(page), limit: '20', sortBy,
-      ...(search ? { search } : {}),
-      ...(format ? { format } : {}),
-      ...(level  ? { level  } : {}),
-      ...(micro  ? { isMicrolearning: 'true' } : {}),
-      ...(cert   ? { hasCertification: 'true' } : {}),
-    });
-    api(`/content-library?${params}`).then(setData).finally(() => setLoading(false));
-  }, [search, format, level, sortBy, micro, cert, page]);
-
-  useEffect(() => { load(); }, [load]);
+  const debouncedSearch = useDebounce(search, 300);
+  const params = {
+    page, limit: 20, sortBy,
+    ...(debouncedSearch ? { search: debouncedSearch } : {}),
+    ...(format ? { format } : {}),
+    ...(level  ? { level  } : {}),
+    ...(micro  ? { isMicrolearning: 'true' } : {}),
+    ...(cert   ? { hasCertification: 'true' } : {}),
+  };
+  const { data, isLoading } = useApiQuery<{ data: Content[]; meta: any }>(
+    queryKeys.contentLibrary.catalogue(params), '/content-library',
+    { params, staleTime: STALE_TIME.SEMI_STATIC, placeholderData: keepPreviousData },
+  );
+  const loading = isLoading;
 
   const FORMATS = ['VIDEO', 'ARTICLE', 'PODCAST', 'PDF', 'SCORM', 'COURSE', 'MICROLEARNING', 'QUIZ'];
   const LEVELS  = ['BEGINNER', 'INTERMEDIATE', 'ADVANCED', 'EXPERT'];
@@ -451,14 +449,13 @@ function CatalogueTab() {
 // ─── Learning Paths Tab ───────────────────────────────────────────
 
 function PathsTab() {
-  const [data, setData]       = useState<LearningPath[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: resp, isLoading } = useApiQuery<{ data: LearningPath[] }>(
+    queryKeys.contentLibrary.paths(), '/content-library/paths/all',
+    { staleTime: STALE_TIME.SEMI_STATIC },
+  );
+  const data = resp?.data ?? [];
 
-  useEffect(() => {
-    api('/content-library/paths/all').then(r => setData(r.data ?? [])).finally(() => setLoading(false));
-  }, []);
-
-  if (loading) return <Skeleton count={3} />;
+  if (isLoading) return <Skeleton count={3} />;
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
@@ -504,7 +501,7 @@ function PathsTab() {
             </div>
 
             <button
-              onClick={() => api(`/content-library/paths/${path.id}/enroll`, { method: 'POST' })}
+              onClick={() => apiClient.post(`/content-library/paths/${path.id}/enroll`, {})}
               className="mt-3 w-full py-2 bg-indigo-600 text-white text-sm rounded-lg
                 hover:bg-indigo-700 transition-colors font-medium">
               {(path.overallProgress ?? 0) > 0 ? 'Continuar' : 'Iniciar Trilha'}
@@ -526,24 +523,25 @@ function PathsTab() {
 // ─── My Progress Tab ─────────────────────────────────────────────
 
 function MyProgressTab() {
-  const [progress, setProgress] = useState<any | null>(null);
-  const [stats, setStats]       = useState<any | null>(null);
-  const [bookmarks, setBookmarks] = useState<Content[]>([]);
-  const [loading, setLoading]   = useState(true);
+  const progressQuery = useApiQuery<any>(
+    queryKeys.contentLibrary.myProgress(), '/content-library/my/progress',
+    { staleTime: STALE_TIME.DYNAMIC },
+  );
+  const statsQuery = useApiQuery<any>(
+    queryKeys.contentLibrary.myStats(), '/content-library/analytics/my-stats',
+    { staleTime: STALE_TIME.DYNAMIC },
+  );
+  const bookmarksQuery = useApiQuery<Content[]>(
+    queryKeys.contentLibrary.bookmarks(), '/content-library/bookmarks',
+    { staleTime: STALE_TIME.DYNAMIC },
+  );
 
-  useEffect(() => {
-    Promise.all([
-      api('/content-library/my/progress'),
-      api('/content-library/analytics/my-stats'),
-      api('/content-library/bookmarks'),
-    ]).then(([p, s, b]) => {
-      setProgress(p);
-      setStats(s);
-      setBookmarks(b ?? []);
-    }).finally(() => setLoading(false));
-  }, []);
+  const progress  = progressQuery.data ?? null;
+  const stats     = statsQuery.data ?? null;
+  const bookmarks = bookmarksQuery.data ?? [];
 
-  if (loading) return <Skeleton count={4} />;
+  if (progressQuery.isLoading || statsQuery.isLoading || bookmarksQuery.isLoading)
+    return <Skeleton count={4} />;
 
   return (
     <div className="space-y-6">
@@ -628,14 +626,12 @@ function MyProgressTab() {
 // ─── Analytics Tab ───────────────────────────────────────────────
 
 function AnalyticsTab() {
-  const [data, setData]   = useState<any | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { data, isLoading } = useApiQuery<any>(
+    queryKeys.contentLibrary.analytics(), '/content-library/analytics/dashboard',
+    { staleTime: STALE_TIME.SEMI_STATIC },
+  );
 
-  useEffect(() => {
-    api('/content-library/analytics/dashboard').then(setData).finally(() => setLoading(false));
-  }, []);
-
-  if (loading) return <Skeleton count={4} />;
+  if (isLoading) return <Skeleton count={4} />;
 
   return (
     <div className="space-y-6">

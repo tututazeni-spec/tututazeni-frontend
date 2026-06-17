@@ -1,13 +1,19 @@
 ﻿'use client';
 // src/app/(dashboard)/avatar-training/page.tsx
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   Bot, Play, Star, TrendingUp, Award, Zap, Users, Target,
   MessageSquare, BarChart2, Clock, CheckCircle, ChevronRight,
   Mic, Send, X, Brain, Shield, Headphones, Trophy, Flame,
   RefreshCw, ArrowRight, AlertTriangle, Volume2,
 } from 'lucide-react';
+import { keepPreviousData } from '@tanstack/react-query';
+import { useApiQuery } from '../../../hooks/useApiQuery';
+import { apiClient } from '../../../lib/apiClient';
+import { queryKeys } from '../../../lib/queryKeys';
+import { STALE_TIME } from '../../../lib/queryClient';
+import { useDebounce } from '../../../hooks/useDebounce';
 
 // ─── Types ───────────────────────────────────────────────────────
 
@@ -36,17 +42,6 @@ interface ActiveSession {
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────
-
-const BASE = '/api';
-async function api(path: string, opts?: RequestInit) {
-  const r = await fetch(`${BASE}${path}`, {
-    headers: { 'Content-Type': 'application/json',
-      Authorization: `Bearer ${localStorage.getItem('token') ?? ''}` },
-    ...opts,
-  });
-  if (!r.ok) throw new Error(await r.text());
-  return r.json();
-}
 
 const CATEGORY_CONFIG: Record<string, { label: string; icon: any; color: string; bg: string }> = {
   SOFT_SKILLS:     { label: 'Soft Skills',     icon: Brain,     color: 'text-violet-600', bg: 'bg-violet-50' },
@@ -184,9 +179,8 @@ function ChatSession({
     setSending(true);
 
     try {
-      const r = await api(`/avatar-training/sessions/${session.id}/message`, {
-        method: 'POST',
-        body: JSON.stringify({ message: input, turnIndex: messages.filter(m => m.role === 'USER').length }),
+      const r = await apiClient.post<any>(`/avatar-training/sessions/${session.id}/message`, {
+        message: input, turnIndex: messages.filter(m => m.role === 'USER').length,
       });
 
       const avatarMsg: SessionMessage = {
@@ -206,9 +200,8 @@ function ChatSession({
   const complete = async () => {
     setCompleting(true);
     try {
-      const r = await api(`/avatar-training/sessions/${session.id}/complete`, {
-        method: 'POST',
-        body: JSON.stringify({ score: runningScore ?? undefined }),
+      const r = await apiClient.post(`/avatar-training/sessions/${session.id}/complete`, {
+        score: runningScore ?? undefined,
       });
       onComplete(r);
     } catch {} finally { setCompleting(false); }
@@ -444,19 +437,19 @@ function ResultsModal({ result, onClose, onRetry, onNext }: {
 // ─── Home Tab ─────────────────────────────────────────────────────
 
 function HomeTab({ onStartScenario }: { onStartScenario: (s: Scenario) => void }) {
-  const [recommended, setRecommended] = useState<Scenario[]>([]);
-  const [history, setHistory]         = useState<any | null>(null);
-  const [loading, setLoading]         = useState(true);
+  const recQuery = useApiQuery<Scenario[]>(
+    queryKeys.avatarTraining.recommended(), '/avatar-training/scenarios/recommended',
+    { params: { limit: 4 }, staleTime: STALE_TIME.SEMI_STATIC },
+  );
+  const histQuery = useApiQuery<any>(
+    queryKeys.avatarTraining.myHistory(5), '/avatar-training/my-history',
+    { params: { limit: 5 }, staleTime: STALE_TIME.DYNAMIC },
+  );
 
-  useEffect(() => {
-    Promise.all([
-      api('/avatar-training/scenarios/recommended?limit=4'),
-      api('/avatar-training/my-history?limit=5'),
-    ]).then(([rec, hist]) => { setRecommended(rec ?? []); setHistory(hist); })
-      .finally(() => setLoading(false));
-  }, []);
+  const recommended = recQuery.data ?? [];
+  const history     = histQuery.data ?? null;
 
-  if (loading) return <Skeleton />;
+  if (recQuery.isLoading || histQuery.isLoading) return <Skeleton />;
 
   return (
     <div className="space-y-6">
@@ -522,23 +515,21 @@ function HomeTab({ onStartScenario }: { onStartScenario: (s: Scenario) => void }
 // ─── Scenarios Tab ────────────────────────────────────────────────
 
 function ScenariosTab({ onStart }: { onStart: (s: Scenario) => void }) {
-  const [data, setData]         = useState<{ data: Scenario[]; meta: any } | null>(null);
-  const [loading, setLoading]   = useState(true);
   const [category, setCategory] = useState('');
   const [difficulty, setDifficulty] = useState('');
   const [search, setSearch]     = useState('');
+  const debouncedSearch = useDebounce(search, 300);
 
-  const load = useCallback(() => {
-    setLoading(true);
-    const p = new URLSearchParams({ limit: '30',
-      ...(category   ? { category }   : {}),
-      ...(difficulty ? { difficulty } : {}),
-      ...(search     ? { search }     : {}),
-    });
-    api(`/avatar-training/scenarios?${p}`).then(setData).finally(() => setLoading(false));
-  }, [category, difficulty, search]);
-
-  useEffect(() => { load(); }, [load]);
+  const params = { limit: 30,
+    ...(category   ? { category }   : {}),
+    ...(difficulty ? { difficulty } : {}),
+    ...(debouncedSearch ? { search: debouncedSearch } : {}),
+  };
+  const { data, isLoading } = useApiQuery<{ data: Scenario[]; meta: any }>(
+    queryKeys.avatarTraining.scenarios(params), '/avatar-training/scenarios',
+    { params, staleTime: STALE_TIME.SEMI_STATIC, placeholderData: keepPreviousData },
+  );
+  const loading = isLoading;
 
   const DIFFS = ['BEGINNER', 'INTERMEDIATE', 'ADVANCED', 'EXPERT'];
 
@@ -587,14 +578,12 @@ function ScenariosTab({ onStart }: { onStart: (s: Scenario) => void }) {
 // ─── History Tab ──────────────────────────────────────────────────
 
 function HistoryTab() {
-  const [data, setData]   = useState<any | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { data, isLoading } = useApiQuery<any>(
+    queryKeys.avatarTraining.myHistory(30), '/avatar-training/my-history',
+    { params: { limit: 30 }, staleTime: STALE_TIME.DYNAMIC },
+  );
 
-  useEffect(() => {
-    api('/avatar-training/my-history?limit=30').then(setData).finally(() => setLoading(false));
-  }, []);
-
-  if (loading) return <Skeleton />;
+  if (isLoading) return <Skeleton />;
 
   const STATUS_COLOR: Record<string, string> = {
     COMPLETED:   'bg-emerald-100 text-emerald-700',
@@ -663,14 +652,13 @@ function HistoryTab() {
 // ─── Leaderboard Tab ─────────────────────────────────────────────
 
 function LeaderboardTab() {
-  const [data, setData]   = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: board, isLoading } = useApiQuery<any[]>(
+    queryKeys.avatarTraining.leaderboard(), '/avatar-training/leaderboard',
+    { staleTime: STALE_TIME.SEMI_STATIC },
+  );
+  const data = board ?? [];
 
-  useEffect(() => {
-    api('/avatar-training/leaderboard').then(r => setData(r ?? [])).finally(() => setLoading(false));
-  }, []);
-
-  if (loading) return <Skeleton />;
+  if (isLoading) return <Skeleton />;
 
   return (
     <div className="bg-white rounded-xl border border-slate-100">
@@ -716,14 +704,12 @@ function LeaderboardTab() {
 // ─── Analytics Tab ────────────────────────────────────────────────
 
 function AnalyticsTab() {
-  const [data, setData]   = useState<any | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { data, isLoading } = useApiQuery<any>(
+    queryKeys.avatarTraining.analytics(), '/avatar-training/analytics/dashboard',
+    { staleTime: STALE_TIME.SEMI_STATIC },
+  );
 
-  useEffect(() => {
-    api('/avatar-training/analytics/dashboard').then(setData).finally(() => setLoading(false));
-  }, []);
-
-  if (loading) return <Skeleton />;
+  if (isLoading) return <Skeleton />;
 
   return (
     <div className="space-y-5">
@@ -825,9 +811,8 @@ export default function AvatarTrainingPage() {
   const handleStart = async (scenario: Scenario) => {
     setLastScenario(scenario);
     try {
-      const r = await api('/avatar-training/sessions/start', {
-        method: 'POST',
-        body: JSON.stringify({ scenarioId: scenario.id }),
+      const r = await apiClient.post<any>('/avatar-training/sessions/start', {
+        scenarioId: scenario.id,
       });
       setActiveSession({
         id:                  r.session.id,
