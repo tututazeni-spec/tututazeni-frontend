@@ -11,8 +11,13 @@
 
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
+import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
+import { apiClient } from '@/lib/apiClient';
+import { queryKeys } from '@/lib/queryKeys';
+import { STALE_TIME } from '@/lib/queryClient';
 import { sanitizeHtml } from '@/lib/sanitize';
 import { CourseAvatarReader } from '@/components/CourseAvatarReader';
 
@@ -88,27 +93,6 @@ interface Module {
   lessons: any[];
   materials: ModuleMaterial[];
   _count: { lessons: number };
-}
-
-// ─── API ──────────────────────────────────────────────────────────────────────
-
-const API = process.env.NEXT_PUBLIC_API_URL ?? '/api';
-
-async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
-  const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
-  const res = await fetch(`${API}${path}`, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...options?.headers,
-    },
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({ message: 'Erro' }));
-    throw new Error(err.message ?? `HTTP ${res.status}`);
-  }
-  return res.json();
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -385,7 +369,7 @@ function ModuleCompletedBanner({ module: mod, onContinue }: { module: ModuleProg
       <div className="text-white text-center max-w-sm">
         <div className="text-6xl mb-4">🎉</div>
         <h2 className="text-2xl font-bold mb-2">Módulo concluído!</h2>
-        <p className="text-gray-300 mb-6">Concluíste "{mod.title}" com sucesso.</p>
+        <p className="text-gray-300 mb-6">Concluíste &quot;{mod.title}&quot; com sucesso.</p>
         <button
           onClick={onContinue}
           className="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700"
@@ -400,43 +384,33 @@ function ModuleCompletedBanner({ module: mod, onContinue }: { module: ModuleProg
 // ─── Admin Module Builder ─────────────────────────────────────────────────────
 
 function ModuleBuilder({ courseId }: { courseId: number }) {
-  const [modules, setModules] = useState<Module[]>([]);
-  const [loading, setLoading] = useState(true);
+  const qc = useQueryClient();
   const [editingModule, setEditingModule] = useState<number | null>(null);
   const [creatingModule, setCreatingModule] = useState(false);
   const [newModuleTitle, setNewModuleTitle] = useState('');
   const [saving, setSaving] = useState(false);
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    try {
-      const course = await apiFetch<any>(`/courses/${courseId}`);
-      setModules(course.modules ?? []);
-    } catch (e: any) {
-      alert(e.message);
-    } finally {
-      setLoading(false);
-    }
-  }, [courseId]);
-
-  useEffect(() => { load(); }, [load]);
+  const { data: course, isLoading: loading } = useApiQuery<any>(
+    queryKeys.courses.detail(courseId), `/courses/${courseId}`,
+    { enabled: !!courseId, staleTime: STALE_TIME.DYNAMIC },
+  );
+  const modules: Module[] = course?.modules ?? [];
+  const reload = () =>
+    qc.invalidateQueries({ queryKey: queryKeys.courses.detail(courseId) });
 
   const handleCreateModule = async () => {
     if (!newModuleTitle.trim()) return;
     setSaving(true);
     try {
       const maxSeq = modules.reduce((m, mod) => Math.max(m, mod.seq), -1);
-      await apiFetch('/modules', {
-        method: 'POST',
-        body: JSON.stringify({
-          courseId,
-          title: newModuleTitle,
-          seq:   maxSeq + 1,
-        }),
+      await apiClient.post('/modules', {
+        courseId,
+        title: newModuleTitle,
+        seq: maxSeq + 1,
       });
       setNewModuleTitle('');
       setCreatingModule(false);
-      await load();
+      await reload();
     } catch (e: any) {
       alert(e.message);
     } finally {
@@ -446,8 +420,8 @@ function ModuleBuilder({ courseId }: { courseId: number }) {
 
   const handlePublish = async (moduleId: number) => {
     try {
-      await apiFetch(`/modules/${moduleId}/publish`, { method: 'PATCH' });
-      await load();
+      await apiClient.patch(`/modules/${moduleId}/publish`, {});
+      await reload();
     } catch (e: any) {
       alert(e.message);
     }
@@ -456,8 +430,8 @@ function ModuleBuilder({ courseId }: { courseId: number }) {
   const handleDelete = async (moduleId: number) => {
     if (!confirm('Eliminar módulo? Esta acção não pode ser desfeita.')) return;
     try {
-      await apiFetch(`/modules/${moduleId}`, { method: 'DELETE' });
-      await load();
+      await apiClient.delete(`/modules/${moduleId}`);
+      await reload();
     } catch (e: any) {
       alert(e.message);
     }
@@ -529,11 +503,8 @@ function ModuleBuilder({ courseId }: { courseId: number }) {
                     autoFocus
                     onBlur={async e => {
                       if (e.target.value !== mod.title) {
-                        await apiFetch(`/modules/${mod.id}`, {
-                          method: 'PUT',
-                          body:   JSON.stringify({ title: e.target.value }),
-                        });
-                        await load();
+                        await apiClient.put(`/modules/${mod.id}`, { title: e.target.value });
+                        await reload();
                       }
                       setEditingModule(null);
                     }}
@@ -624,47 +595,38 @@ export default function CourseLearnPage() {
   const params = useParams();
   const courseId = parseInt(params?.courseId as string ?? '0');
 
+  const qc = useQueryClient();
   const [mode, setMode]           = useState<PageMode>('learn');
-  const [modules, setModules]     = useState<ModuleProgress[]>([]);
-  const [loading, setLoading]     = useState(true);
   const [activeLesson, setActiveLesson]   = useState<LessonProgress | null>(null);
   const [activeModule, setActiveModule]   = useState<ModuleProgress | null>(null);
-  const [completing, setCompleting]       = useState(false);
   const [justCompletedModule, setJustCompletedModule] = useState<ModuleProgress | null>(null);
-  const [overallPct, setOverallPct]       = useState(0);
   const [sidebarOpen, setSidebarOpen]     = useState(true);
 
-  const loadProgress = useCallback(async () => {
-    setLoading(true);
-    try {
-      const data = await apiFetch<ModuleProgress[]>(`/courses/${courseId}/progress`);
-      setModules(data);
+  const progressKey = queryKeys.courses.progress(courseId);
+  const { data: modules = [], isLoading: loading } = useApiQuery<ModuleProgress[]>(
+    progressKey, `/courses/${courseId}/progress`,
+    { enabled: !!courseId, staleTime: STALE_TIME.DYNAMIC },
+  );
 
-      // Calcular progresso geral
-      const total     = data.reduce((s, m) => s + m.totalCount, 0);
-      const completed = data.reduce((s, m) => s + m.completedCount, 0);
-      setOverallPct(total > 0 ? Math.round((completed / total) * 100) : 0);
+  const totalLessons     = modules.reduce((s, m) => s + m.totalCount, 0);
+  const completedLessons = modules.reduce((s, m) => s + m.completedCount, 0);
+  const overallPct = totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
 
-      // Auto-seleccionar aula activa (continuar de onde parou)
-      if (!activeLesson) {
-        for (const mod of data) {
-          if (mod.locked) continue;
-          const pending = mod.lessons.find(l => !l.completed);
-          if (pending) {
-            setActiveLesson(pending);
-            setActiveModule(mod);
-            break;
-          }
-        }
-      }
-    } catch (e: any) {
-      console.error(e.message);
-    } finally {
-      setLoading(false);
+  // Auto-seleccionar aula activa (continuar de onde parou) quando o progresso chega.
+  useEffect(() => {
+    if (activeLesson || modules.length === 0) return;
+    for (const mod of modules) {
+      if (mod.locked) continue;
+      const pending = mod.lessons.find(l => !l.completed);
+      if (pending) { setActiveLesson(pending); setActiveModule(mod); break; }
     }
-  }, [courseId]);
+  }, [modules, activeLesson]);
 
-  useEffect(() => { loadProgress(); }, [loadProgress]);
+  const completeMut = useApiMutation<unknown, number>(
+    (lessonId) => apiClient.post('/lessons/progress', { lessonId }),
+    { onError: (e) => alert(e.message) },
+  );
+  const completing = completeMut.isPending;
 
   const handleSelectLesson = (lesson: LessonProgress, mod: ModuleProgress) => {
     if (mod.locked) return;
@@ -675,38 +637,27 @@ export default function CourseLearnPage() {
 
   const handleMarkComplete = async () => {
     if (!activeLesson || !activeModule) return;
-    setCompleting(true);
     try {
-      await apiFetch('/lessons/progress', {
-        method: 'POST',
-        body:   JSON.stringify({ lessonId: activeLesson.id }),
-      });
+      await completeMut.mutateAsync(activeLesson.id);
+      // Recarrega o progresso fresco e actualiza a cache.
+      const updated = await apiClient.get<ModuleProgress[]>(`/courses/${courseId}/progress`);
+      qc.setQueryData(progressKey, updated);
 
-      // Recarregar progresso
-      await loadProgress();
-
-      // Verificar se módulo foi concluído
-      const updatedModules = await apiFetch<ModuleProgress[]>(`/courses/${courseId}/progress`);
-      const updatedModule  = updatedModules.find(m => m.id === activeModule.id);
+      const updatedModule = updated.find(m => m.id === activeModule.id);
       if (updatedModule?.completed && !activeModule.completed) {
         setJustCompletedModule(updatedModule);
         return;
       }
-
-      // Auto-avançar para próxima aula
-      const currentModule = updatedModules.find(m => m.id === activeModule.id);
-      if (currentModule) {
-        const currentIdx = currentModule.lessons.findIndex(l => l.id === activeLesson.id);
-        const nextLesson = currentModule.lessons[currentIdx + 1];
+      if (updatedModule) {
+        const idx = updatedModule.lessons.findIndex(l => l.id === activeLesson.id);
+        const nextLesson = updatedModule.lessons[idx + 1];
         if (nextLesson && !nextLesson.completed) {
           setActiveLesson(nextLesson);
-          setActiveModule(currentModule);
+          setActiveModule(updatedModule);
         }
       }
-    } catch (e: any) {
-      alert(e.message);
-    } finally {
-      setCompleting(false);
+    } catch {
+      /* erro já tratado no onError */
     }
   };
 
