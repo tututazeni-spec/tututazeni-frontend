@@ -390,6 +390,26 @@ export const queryKeys = {
     stats: () => [...queryKeys.notifications.all, 'stats'] as const,
   },
 
+  developmentPlans: {
+    all: ['development-plans'] as const,
+    my: () => [...queryKeys.developmentPlans.all, 'my'] as const,
+    myStats: () => [...queryKeys.developmentPlans.all, 'my-stats'] as const,
+    detail: (id: number) =>
+      [...queryKeys.developmentPlans.all, 'detail', id] as const,
+    teamDashboard: () =>
+      [...queryKeys.developmentPlans.all, 'team-dashboard'] as const,
+  },
+
+  executiveReports: {
+    all: ['executive-reports'] as const,
+    list: (params: Record<string, unknown>) =>
+      [...queryKeys.executiveReports.all, 'list', params] as const,
+    stats: () => [...queryKeys.executiveReports.all, 'stats'] as const,
+    detail: (id: number) =>
+      [...queryKeys.executiveReports.all, 'detail', id] as const,
+    templates: () => [...queryKeys.executiveReports.all, 'templates'] as const,
+  },
+
   instructor: {
     all: ['instructor'] as const,
     dashboard: () => [...queryKeys.instructor.all, 'dashboard'] as const,

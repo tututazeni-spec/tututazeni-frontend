@@ -1,7 +1,11 @@
 ﻿// src/app/(dashboard)/development-plans/page.tsx
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState } from 'react';
+import { useApiQuery } from '../../../hooks/useApiQuery';
+import { apiClient } from '../../../lib/apiClient';
+import { queryKeys } from '../../../lib/queryKeys';
+import { STALE_TIME } from '../../../lib/queryClient';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -86,27 +90,6 @@ interface MyStats {
 }
 
 type View = 'my-plans' | 'detail' | 'team' | 'create';
-
-// ─── API ──────────────────────────────────────────────────────────────────────
-
-const API = process.env.NEXT_PUBLIC_API_URL ?? '/api';
-
-async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
-  const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
-  const res = await fetch(`${API}${path}`, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...options?.headers,
-    },
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({ message: 'Erro' }));
-    throw new Error(err.message ?? `HTTP ${res.status}`);
-  }
-  return res.json();
-}
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -248,19 +231,19 @@ function PlanCard({ plan, onClick }: { plan: Plan; onClick: () => void }) {
 // ─── View: My Plans + Stats ───────────────────────────────────────────────────
 
 function MyPlansView({ onSelect }: { onSelect: (id: number) => void }) {
-  const [plans, setPlans]   = useState<Plan[]>([]);
-  const [stats, setStats]   = useState<MyStats | null>(null);
-  const [loading, setLoading] = useState(true);
+  const plansQuery = useApiQuery<Plan[]>(
+    queryKeys.developmentPlans.my(), '/development-plans/my',
+    { staleTime: STALE_TIME.DYNAMIC },
+  );
+  const statsQuery = useApiQuery<MyStats>(
+    queryKeys.developmentPlans.myStats(), '/development-plans/my/stats',
+    { staleTime: STALE_TIME.DYNAMIC },
+  );
 
-  useEffect(() => {
-    Promise.all([
-      apiFetch<Plan[]>('/development-plans/my'),
-      apiFetch<MyStats>('/development-plans/my/stats'),
-    ]).then(([p, s]) => { setPlans(p); setStats(s); })
-      .finally(() => setLoading(false));
-  }, []);
+  const plans = plansQuery.data ?? [];
+  const stats = statsQuery.data ?? null;
 
-  if (loading) return <Skeleton />;
+  if (plansQuery.isLoading || statsQuery.isLoading) return <Skeleton />;
 
   return (
     <div className="space-y-6">
@@ -299,28 +282,20 @@ function MyPlansView({ onSelect }: { onSelect: (id: number) => void }) {
 // ─── View: Detail ─────────────────────────────────────────────────────────────
 
 function DetailView({ planId, onBack }: { planId: number; onBack: () => void }) {
-  const [plan, setPlan]       = useState<Plan | null>(null);
-  const [loading, setLoading] = useState(true);
   const [updatingAction, setUpdatingAction] = useState<number | null>(null);
   const [updatingGoal, setUpdatingGoal] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState<'actions' | 'goals' | 'checkpoints'>('actions');
 
-  const load = useCallback(async () => {
-    const p = await apiFetch<Plan>(`/development-plans/${planId}`);
-    setPlan(p);
-    setLoading(false);
-  }, [planId]);
-
-  useEffect(() => { load(); }, [load]);
+  const { data: plan, isLoading: loading, refetch } = useApiQuery<Plan>(
+    queryKeys.developmentPlans.detail(planId), `/development-plans/${planId}`,
+    { staleTime: STALE_TIME.DYNAMIC },
+  );
 
   const handleCompleteAction = async (actionId: number, xpReward: number) => {
     setUpdatingAction(actionId);
     try {
-      await apiFetch(`/development-plans/actions/${actionId}`, {
-        method: 'PUT',
-        body: JSON.stringify({ status: 'COMPLETED', progress: 100 }),
-      });
-      await load();
+      await apiClient.put(`/development-plans/actions/${actionId}`, { status: 'COMPLETED', progress: 100 });
+      await refetch();
     } catch (e: any) { alert(e.message); }
     finally { setUpdatingAction(null); }
   };
@@ -328,19 +303,16 @@ function DetailView({ planId, onBack }: { planId: number; onBack: () => void }) 
   const handleGoalProgress = async (goalId: number, progress: number) => {
     setUpdatingGoal(goalId);
     try {
-      await apiFetch('/development-plans/goals/progress', {
-        method: 'PATCH',
-        body: JSON.stringify({ goalId, progress }),
-      });
-      await load();
+      await apiClient.patch('/development-plans/goals/progress', { goalId, progress });
+      await refetch();
     } catch (e: any) { alert(e.message); }
     finally { setUpdatingGoal(null); }
   };
 
   const handleSubmit = async () => {
     try {
-      await apiFetch(`/development-plans/${planId}/submit`, { method: 'PATCH', body: '{}' });
-      await load();
+      await apiClient.patch(`/development-plans/${planId}/submit`, {});
+      await refetch();
     } catch (e: any) { alert(e.message); }
   };
 
@@ -572,16 +544,12 @@ function DetailView({ planId, onBack }: { planId: number; onBack: () => void }) 
 // ─── View: Team ────────────────────────────────────────────────────────────────
 
 function TeamView({ onSelect }: { onSelect: (id: number) => void }) {
-  const [plans, setPlans]   = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: plans = [], isLoading } = useApiQuery<any[]>(
+    queryKeys.developmentPlans.teamDashboard(), '/development-plans/team/dashboard',
+    { staleTime: STALE_TIME.DYNAMIC },
+  );
 
-  useEffect(() => {
-    apiFetch<any[]>('/development-plans/team/dashboard')
-      .then(setPlans)
-      .finally(() => setLoading(false));
-  }, []);
-
-  if (loading) return <Skeleton />;
+  if (isLoading) return <Skeleton />;
 
   return (
     <div>

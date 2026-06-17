@@ -473,7 +473,7 @@ export default function DocumentRepositoryPage() {
             </button>
           </div>
 
-          <button onClick={refetch} className="p-2.5 text-gray-500 border border-gray-200 bg-white rounded-xl hover:bg-gray-50">
+          <button onClick={() => refetch()} className="p-2.5 text-gray-500 border border-gray-200 bg-white rounded-xl hover:bg-gray-50">
             <RefreshCcw size={15} className={loading ? 'animate-spin' : ''}/>
           </button>
         </div>

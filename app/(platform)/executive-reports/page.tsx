@@ -1,7 +1,12 @@
 ﻿// src/app/(dashboard)/executive-reports/page.tsx
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState } from 'react';
+import { keepPreviousData } from '@tanstack/react-query';
+import { useApiQuery } from '../../../hooks/useApiQuery';
+import { apiClient } from '../../../lib/apiClient';
+import { queryKeys } from '../../../lib/queryKeys';
+import { STALE_TIME } from '../../../lib/queryClient';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -55,27 +60,6 @@ interface ReportStats {
 }
 
 type View = 'list' | 'detail' | 'generate';
-
-// ─── API ──────────────────────────────────────────────────────────────────────
-
-const API = process.env.NEXT_PUBLIC_API_URL ?? '/api';
-
-async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
-  const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
-  const res = await fetch(`${API}${path}`, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...options?.headers,
-    },
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({ message: 'Erro' }));
-    throw new Error(err.message ?? `HTTP ${res.status}`);
-  }
-  return res.json();
-}
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -215,29 +199,21 @@ function ReportCard({ report, onClick }: { report: Report; onClick: () => void }
 // ─── View: List ───────────────────────────────────────────────────────────────
 
 function ListView({ onSelect, onGenerate }: { onSelect: (id: number) => void; onGenerate: () => void }) {
-  const [data, setData]     = useState<{ data: Report[]; total: number } | null>(null);
-  const [stats, setStats]   = useState<ReportStats | null>(null);
-  const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState('');
   const [typeFilter, setTypeFilter]     = useState('');
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    try {
-      const params = new URLSearchParams({
-        ...(statusFilter ? { status: statusFilter } : {}),
-        ...(typeFilter   ? { type:   typeFilter   } : {}),
-      });
-      const [reports, s] = await Promise.all([
-        apiFetch<any>(`/executive-reports?${params}`),
-        apiFetch<ReportStats>('/executive-reports/stats'),
-      ]);
-      setData(reports);
-      setStats(s);
-    } finally { setLoading(false); }
-  }, [statusFilter, typeFilter]);
-
-  useEffect(() => { load(); }, [load]);
+  const params = {
+    ...(statusFilter ? { status: statusFilter } : {}),
+    ...(typeFilter   ? { type:   typeFilter   } : {}),
+  };
+  const { data, isLoading: loading } = useApiQuery<{ data: Report[]; total: number }>(
+    queryKeys.executiveReports.list(params), '/executive-reports',
+    { params, staleTime: STALE_TIME.SEMI_STATIC, placeholderData: keepPreviousData },
+  );
+  const { data: stats } = useApiQuery<ReportStats>(
+    queryKeys.executiveReports.stats(), '/executive-reports/stats',
+    { staleTime: STALE_TIME.SEMI_STATIC },
+  );
 
   return (
     <div>
@@ -300,27 +276,23 @@ function ListView({ onSelect, onGenerate }: { onSelect: (id: number) => void; on
 // ─── View: Detail ─────────────────────────────────────────────────────────────
 
 function DetailView({ reportId, onBack }: { reportId: number; onBack: () => void }) {
-  const [report, setReport]   = useState<Report | null>(null);
-  const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [activeTab, setActiveTab]   = useState<'kpis' | 'narrative' | 'actions'>('kpis');
 
-  useEffect(() => {
-    apiFetch<Report>(`/executive-reports/${reportId}`)
-      .then(setReport)
-      .finally(() => setLoading(false));
-  }, [reportId]);
+  const { data: report, isLoading: loading, refetch } = useApiQuery<Report>(
+    queryKeys.executiveReports.detail(reportId), `/executive-reports/${reportId}`,
+    { staleTime: STALE_TIME.DYNAMIC },
+  );
 
   const handleWorkflow = async (action: string) => {
     setSubmitting(true);
     try {
       if (action === 'submit') {
-        await apiFetch(`/executive-reports/${reportId}/submit`, { method: 'PATCH', body: '{}' });
+        await apiClient.patch(`/executive-reports/${reportId}/submit`, {});
       } else if (action === 'publish') {
-        await apiFetch(`/executive-reports/${reportId}/publish`, { method: 'PATCH', body: '{}' });
+        await apiClient.patch(`/executive-reports/${reportId}/publish`, {});
       }
-      const r = await apiFetch<Report>(`/executive-reports/${reportId}`);
-      setReport(r);
+      await refetch();
     } catch (e: any) { alert(e.message); }
     finally { setSubmitting(false); }
   };
@@ -474,19 +446,16 @@ function DetailView({ reportId, onBack }: { reportId: number; onBack: () => void
 function GenerateView({ onSuccess }: { onSuccess: (id: number) => void }) {
   const [type, setType]         = useState<ReportType>('MONTHLY');
   const [generating, setGenerating] = useState(false);
-  const [templates, setTemplates]   = useState<any[]>([]);
 
-  useEffect(() => {
-    apiFetch<any[]>('/executive-reports/templates').then(setTemplates).catch(() => {});
-  }, []);
+  const { data: templates = [] } = useApiQuery<any[]>(
+    queryKeys.executiveReports.templates(), '/executive-reports/templates',
+    { staleTime: STALE_TIME.STATIC },
+  );
 
   const handleGenerate = async () => {
     setGenerating(true);
     try {
-      const report = await apiFetch<Report>(`/executive-reports/auto-generate?type=${type}`, {
-        method: 'POST',
-        body:   '{}',
-      });
+      const report = await apiClient.post<Report>('/executive-reports/auto-generate', {}, { params: { type } });
       onSuccess(report.id);
     } catch (e: any) { alert(e.message); }
     finally { setGenerating(false); }
