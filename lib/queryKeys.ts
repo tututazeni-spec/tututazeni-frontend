@@ -53,6 +53,16 @@ export const queryKeys = {
       [...queryKeys.employees.all, 'detail', id] as const,
   },
 
+  leave: {
+    all: ['leave'] as const,
+    types: () => [...queryKeys.leave.all, 'types'] as const,
+    myBalance: () => [...queryKeys.leave.all, 'my-balance'] as const,
+    myRequests: () => [...queryKeys.leave.all, 'my-requests'] as const,
+    dashboard: () => [...queryKeys.leave.all, 'dashboard'] as const,
+    pendingApprovals: () =>
+      [...queryKeys.leave.all, 'pending-approvals'] as const,
+  },
+
   enrollments: {
     all: ['enrollments'] as const,
     my: () => [...queryKeys.enrollments.all, 'my'] as const,

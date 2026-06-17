@@ -5,7 +5,11 @@
 // Deps: lucide-react, Tailwind CSS
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState } from 'react';
+import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
+import { apiClient } from '@/lib/apiClient';
+import { queryKeys } from '@/lib/queryKeys';
+import { STALE_TIME } from '@/lib/queryClient';
 import {
   Calendar, Plus, Clock, Check, X, AlertCircle,
   ChevronLeft, ChevronRight, Users, BarChart3,
@@ -68,83 +72,48 @@ const CATEGORY_LABELS: Record<LeaveCategory, string> = {
 
 const MONTH_NAMES = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
 
-// ─── API ──────────────────────────────────────────────────────────────────────
-
-const API = process.env.NEXT_PUBLIC_API_URL ?? '/api';
-
-async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
-  const token = typeof window !== 'undefined' ? localStorage.getItem('innova_token') : null;
-  const res = await fetch(`${API}${path}`, {
-    headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-    ...options,
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({ message: `Error ${res.status}` }));
-    throw new Error(err.message ?? `Error ${res.status}`);
-  }
-  return res.json();
-}
-
-// ─── Hooks ────────────────────────────────────────────────────────────────────
+// ─── Hooks (React Query) ──────────────────────────────────────────────────────
 
 function useLeaveTypes() {
-  const [types, setTypes] = useState<LeaveType[]>([]);
-  useEffect(() => {
-    apiFetch<LeaveType[]>('/leave/types').then(setTypes).catch(() => {});
-  }, []);
-  return types;
+  // Catálogo quase imutável → cache longa (STATIC).
+  const q = useApiQuery<LeaveType[]>(
+    queryKeys.leave.types(), '/leave/types',
+    { staleTime: STALE_TIME.STATIC },
+  );
+  return q.data ?? [];
 }
 
 function useMyBalance() {
-  const [balances, setBalances] = useState<LeaveBalance[]>([]);
-  const [loading, setLoading]   = useState(false);
-  const fetch = useCallback(async () => {
-    setLoading(true);
-    try { setBalances(await apiFetch<LeaveBalance[]>('/leave/my/balance')); }
-    catch {}
-    finally { setLoading(false); }
-  }, []);
-  useEffect(() => { fetch(); }, [fetch]);
-  return { balances, loading, refetch: fetch };
+  const q = useApiQuery<LeaveBalance[]>(
+    queryKeys.leave.myBalance(), '/leave/my/balance',
+    { staleTime: STALE_TIME.DYNAMIC },
+  );
+  return { balances: q.data ?? [], loading: q.isLoading, refetch: q.refetch };
 }
 
 function useMyRequests() {
-  const [data, setData]     = useState<{ data: LeaveRequest[]; meta: any } | null>(null);
-  const [loading, setLoading] = useState(false);
-  const fetch = useCallback(async () => {
-    setLoading(true);
-    try { setData(await apiFetch('/leave/my')); }
-    catch {}
-    finally { setLoading(false); }
-  }, []);
-  useEffect(() => { fetch(); }, [fetch]);
-  return { data, loading, refetch: fetch };
+  const q = useApiQuery<{ data: LeaveRequest[]; meta: any }>(
+    queryKeys.leave.myRequests(), '/leave/my',
+    { staleTime: STALE_TIME.DYNAMIC },
+  );
+  return { data: q.data ?? null, loading: q.isLoading, refetch: q.refetch };
 }
 
 function useDashboard() {
-  const [data, setData]     = useState<DashboardData | null>(null);
-  const [loading, setLoading] = useState(false);
-  const fetch = useCallback(async () => {
-    setLoading(true);
-    try { setData(await apiFetch('/leave/dashboard')); }
-    catch {}
-    finally { setLoading(false); }
-  }, []);
-  useEffect(() => { fetch(); }, [fetch]);
-  return { data, loading, refetch: fetch };
+  const q = useApiQuery<DashboardData>(
+    queryKeys.leave.dashboard(), '/leave/dashboard',
+    { staleTime: STALE_TIME.SEMI_STATIC },
+  );
+  return { data: q.data ?? null, loading: q.isLoading, refetch: q.refetch };
 }
 
 function usePendingApprovals() {
-  const [data, setData]     = useState<LeaveRequest[]>([]);
-  const [loading, setLoading] = useState(false);
-  const fetch = useCallback(async () => {
-    setLoading(true);
-    try { setData(await apiFetch('/leave/pending-approvals')); }
-    catch {}
-    finally { setLoading(false); }
-  }, []);
-  useEffect(() => { fetch(); }, [fetch]);
-  return { data, loading, refetch: fetch };
+  // Fila de aprovações → polling de 60s.
+  const q = useApiQuery<LeaveRequest[]>(
+    queryKeys.leave.pendingApprovals(), '/leave/pending-approvals',
+    { staleTime: STALE_TIME.DYNAMIC, refetchInterval: 60_000 },
+  );
+  return { data: q.data ?? [], loading: q.isLoading, refetch: q.refetch };
 }
 
 // ─── Utility Components ───────────────────────────────────────────────────────
@@ -246,8 +215,6 @@ function NewLeaveModal({
     reason: '', saveAsDraft: false,
   });
   const [conflicts, setConflicts] = useState<any>(null);
-  const [impact, setImpact]       = useState<any>(null);
-  const [loading, setLoading]     = useState(false);
   const [error, setError]         = useState('');
 
   const selectedType  = leaveTypes.find(t => t.code === form.leaveTypeCode);
@@ -256,22 +223,29 @@ function NewLeaveModal({
   const checkConflicts = async () => {
     if (!form.startDate || !form.endDate) return;
     try {
-      const r = await apiFetch<any>(`/leave/conflict-check?userId=me&startDate=${form.startDate}&endDate=${form.endDate}`);
+      const r = await apiClient.get<any>('/leave/conflict-check', {
+        params: { userId: 'me', startDate: form.startDate, endDate: form.endDate },
+      });
       setConflicts(r);
     } catch {}
   };
 
-  const handleSubmit = async () => {
+  const create = useApiMutation(
+    () => apiClient.post('/leave', form),
+    {
+      invalidateKeys: [queryKeys.leave.all],
+      onSuccess: () => { onSuccess(); onClose(); },
+      onError: (e) => setError(e.message),
+    },
+  );
+  const loading = create.isPending;
+
+  const handleSubmit = () => {
     if (!form.leaveTypeCode || !form.startDate || !form.endDate) {
       setError('Preencha todos os campos obrigatórios'); return;
     }
-    setLoading(true);
     setError('');
-    try {
-      await apiFetch('/leave', { method: 'POST', body: JSON.stringify(form) });
-      onSuccess(); onClose();
-    } catch (e: any) { setError(e.message); }
-    finally { setLoading(false); }
+    create.mutate(undefined);
   };
 
   return (
@@ -592,20 +566,41 @@ export default function LeavePage() {
   const { data: dashboard, loading: dLoading, refetch: dRefetch }  = useDashboard();
   const { data: pending, loading: pLoading, refetch: pRefetch } = usePendingApprovals();
 
+  const approve = useApiMutation(
+    ({ id, action }: { id: number; action: string }) =>
+      apiClient.patch(`/leave/${id}/approve`, { action }),
+    {
+      invalidateKeys: [queryKeys.leave.pendingApprovals(), queryKeys.leave.dashboard()],
+      onError: (e) => alert(e.message),
+    },
+  );
+
+  const cancel = useApiMutation(
+    (id: number) => apiClient.patch(`/leave/${id}/cancel`, {}),
+    {
+      invalidateKeys: [queryKeys.leave.myRequests(), queryKeys.leave.myBalance()],
+      onError: (e) => alert(e.message),
+    },
+  );
+
+  const bulkApprove = useApiMutation(
+    (ids: number[]) =>
+      apiClient.post('/leave/bulk-approve', { requestIds: ids, action: 'APPROVE' }),
+    {
+      invalidateKeys: [queryKeys.leave.pendingApprovals(), queryKeys.leave.dashboard()],
+      onError: (e) => alert(e.message),
+    },
+  );
+
+  // ApprovalCard faz `await onDecide(...)` para gerir o seu loading; engolimos o
+  // erro aqui (o alert já é tratado no onError da mutação).
   const handleApprovalDecide = async (requestId: number, action: string) => {
-    await apiFetch(`/leave/${requestId}/approve`, {
-      method: 'PATCH',
-      body: JSON.stringify({ action }),
-    });
-    pRefetch();
+    try { await approve.mutateAsync({ id: requestId, action }); } catch { /* tratado */ }
   };
 
-  const handleCancel = async (requestId: number) => {
+  const handleCancel = (requestId: number) => {
     if (!confirm('Tem a certeza que quer cancelar este pedido?')) return;
-    try {
-      await apiFetch(`/leave/${requestId}/cancel`, { method: 'PATCH' });
-      mRefetch(); bRefetch();
-    } catch (e: any) { alert(e.message); }
+    cancel.mutate(requestId);
   };
 
   const tabs: Array<{ key: TabKey; label: string; icon: any; badge?: number }> = [
@@ -705,11 +700,9 @@ export default function LeavePage() {
             <div className="flex items-center justify-between">
               <h2 className="text-sm font-semibold text-gray-700">Pedidos Pendentes de Aprovação</h2>
               {pending.length > 1 && (
-                <button onClick={async () => {
-                  const ids = pending.map(r => r.id);
-                  await apiFetch('/leave/bulk-approve', { method: 'POST', body: JSON.stringify({ requestIds: ids, action: 'APPROVE' }) });
-                  pRefetch();
-                }} className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-xl hover:bg-emerald-100 transition-colors">
+                <button onClick={() => bulkApprove.mutate(pending.map(r => r.id))}
+                  disabled={bulkApprove.isPending}
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-xl hover:bg-emerald-100 transition-colors disabled:opacity-50">
                   <Check size={13} /> Aprovar todos ({pending.length})
                 </button>
               )}
