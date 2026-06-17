@@ -1,0 +1,70 @@
+// lib/queryKeys.ts
+// Factory central de query-keys. Manter as chaves num só sítio evita strings
+// soltas, garante invalidação consistente e dedup correcto entre componentes.
+//
+// Convenção: cada recurso expõe `all`, `lists()`/`list(params)` e `detail(id)`.
+// Invalidar `keys.beneficiaries.all` invalida listas e detalhes de uma vez.
+
+export const queryKeys = {
+  dashboard: {
+    all: ['dashboard'] as const,
+    my: () => [...queryKeys.dashboard.all, 'my'] as const,
+    manager: () => [...queryKeys.dashboard.all, 'manager'] as const,
+    organization: (period: string) =>
+      [...queryKeys.dashboard.all, 'organization', period] as const,
+    alerts: () => [...queryKeys.dashboard.all, 'alerts'] as const,
+    search: (q: string) => [...queryKeys.dashboard.all, 'search', q] as const,
+  },
+
+  beneficiaries: {
+    all: ['beneficiaries'] as const,
+    lists: () => [...queryKeys.beneficiaries.all, 'list'] as const,
+    list: (params: Record<string, unknown>) =>
+      [...queryKeys.beneficiaries.lists(), params] as const,
+    detail: (id: string) =>
+      [...queryKeys.beneficiaries.all, 'detail', id] as const,
+  },
+
+  users: {
+    all: ['users'] as const,
+    lists: () => [...queryKeys.users.all, 'list'] as const,
+    list: (params: Record<string, unknown>) =>
+      [...queryKeys.users.lists(), params] as const,
+    detail: (id: number | string) =>
+      [...queryKeys.users.all, 'detail', id] as const,
+    stats: (id: number | string) =>
+      [...queryKeys.users.all, 'stats', id] as const,
+    auditLogs: (id: number | string) =>
+      [...queryKeys.users.all, 'audit-logs', id] as const,
+    team: (id: number | string) =>
+      [...queryKeys.users.all, 'team', id] as const,
+    adminDashboard: () => [...queryKeys.users.all, 'admin-dashboard'] as const,
+    directory: (search: string) =>
+      [...queryKeys.users.all, 'directory', search] as const,
+  },
+
+  employees: {
+    all: ['employees'] as const,
+    lists: () => [...queryKeys.employees.all, 'list'] as const,
+    list: (params: Record<string, unknown>) =>
+      [...queryKeys.employees.lists(), params] as const,
+    headcount: () => [...queryKeys.employees.all, 'headcount'] as const,
+    detail: (id: string | number) =>
+      [...queryKeys.employees.all, 'detail', id] as const,
+  },
+
+  courses: {
+    all: ['courses'] as const,
+    lists: () => [...queryKeys.courses.all, 'list'] as const,
+    list: (params: Record<string, unknown>) =>
+      [...queryKeys.courses.lists(), params] as const,
+    detail: (id: number | string) =>
+      [...queryKeys.courses.all, 'detail', id] as const,
+    progress: (id: number | string) =>
+      [...queryKeys.courses.all, 'progress', id] as const,
+    categories: () => [...queryKeys.courses.all, 'categories'] as const,
+    myEnrollments: () => [...queryKeys.courses.all, 'my-enrollments'] as const,
+    myCertificates: () => [...queryKeys.courses.all, 'my-certificates'] as const,
+    adminDashboard: () => [...queryKeys.courses.all, 'admin-dashboard'] as const,
+  },
+} as const;

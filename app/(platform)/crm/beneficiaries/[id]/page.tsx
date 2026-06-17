@@ -1,17 +1,10 @@
 'use client';
-import { useState, useEffect, useCallback } from 'react';
+import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-
-const API = process.env.NEXT_PUBLIC_API_URL ?? '/api';
-
-function authHeaders(): Record<string, string> {
-  const token =
-    typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
-  return {
-    'Content-Type': 'application/json',
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-  };
-}
+import { useApiQuery, useOptimisticMutation } from '@/hooks/useApiQuery';
+import { apiClient } from '@/lib/apiClient';
+import { queryKeys } from '@/lib/queryKeys';
+import { STALE_TIME } from '@/lib/queryClient';
 
 interface Interaction {
   id: string;
@@ -22,6 +15,8 @@ interface Interaction {
   outcome: string | null;
   satisfaction: number | null;
   user?: { fullName: string } | null;
+  /** Marcador local enquanto a API não confirma (optimistic UI). */
+  _optimistic?: boolean;
 }
 
 interface BeneficiaryDocument {
@@ -66,6 +61,14 @@ interface BeneficiaryDetail {
   needs: Need[];
 }
 
+interface InteractionForm {
+  type: string;
+  subject: string;
+  description: string;
+  outcome: string;
+  satisfaction: string;
+}
+
 const PRIORITY_COLORS: Record<string, string> = {
   LOW: 'bg-gray-100 text-gray-600',
   MEDIUM: 'bg-blue-100 text-blue-800',
@@ -73,85 +76,80 @@ const PRIORITY_COLORS: Record<string, string> = {
   URGENT: 'bg-red-100 text-red-800',
 };
 
+const EMPTY_FORM: InteractionForm = {
+  type: 'CALL',
+  subject: '',
+  description: '',
+  outcome: '',
+  satisfaction: '',
+};
+
 export default function BeneficiaryDetailPage() {
   const params = useParams();
   const router = useRouter();
   const id = params?.id as string;
 
-  const [b, setB] = useState<BeneficiaryDetail | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-
-  // Formulário de nova interacção
   const [showForm, setShowForm] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [form, setForm] = useState({
-    type: 'CALL',
-    subject: '',
-    description: '',
-    outcome: '',
-    satisfaction: '',
+  const [form, setForm] = useState<InteractionForm>(EMPTY_FORM);
+
+  // GET com cache + cancelamento automático ao desmontar/mudar id.
+  const {
+    data: b,
+    isLoading,
+    isError,
+    error,
+  } = useApiQuery<BeneficiaryDetail>(
+    queryKeys.beneficiaries.detail(id),
+    `/crm/beneficiaries/${id}`,
+    { enabled: !!id, staleTime: STALE_TIME.DYNAMIC },
+  );
+
+  // Optimistic UI: a nova interacção aparece na lista antes de a API responder;
+  // em erro faz rollback automático e re-sincroniza no fim.
+  const addInteraction = useOptimisticMutation<BeneficiaryDetail, InteractionForm>({
+    key: queryKeys.beneficiaries.detail(id),
+    mutationFn: (f) => {
+      const payload = {
+        type: f.type,
+        subject: f.subject,
+        description: f.description,
+        ...(f.outcome && { outcome: f.outcome }),
+        ...(f.satisfaction && { satisfaction: Number(f.satisfaction) }),
+      };
+      return apiClient.post<BeneficiaryDetail>(
+        `/crm/beneficiaries/${id}/interactions`,
+        payload,
+      );
+    },
+    applyOptimistic: (prev, f) => {
+      if (!prev) return prev;
+      const optimistic: Interaction = {
+        id: `optimistic-${Date.now()}`,
+        type: f.type,
+        subject: f.subject,
+        description: f.description,
+        date: new Date().toISOString(),
+        outcome: f.outcome || null,
+        satisfaction: f.satisfaction ? Number(f.satisfaction) : null,
+        user: null,
+        _optimistic: true,
+      };
+      return { ...prev, interactions: [optimistic, ...prev.interactions] };
+    },
+    onError: (err) => {
+      alert(err.message || 'Erro ao guardar interacção');
+    },
   });
 
-  const fetchData = useCallback(async () => {
-    setLoading(true);
-    setError('');
-    try {
-      const res = await fetch(`${API}/crm/beneficiaries/${id}`, {
-        credentials: 'include',
-        headers: authHeaders(),
-      });
-      if (!res.ok) throw new Error('Erro ao carregar beneficiário');
-      setB(await res.json());
-    } catch (e: any) {
-      setError(e.message || 'Erro inesperado');
-    } finally {
-      setLoading(false);
-    }
-  }, [id]);
-
-  useEffect(() => {
-    if (id) fetchData();
-  }, [id, fetchData]);
-
-  async function submitInteraction(e: React.FormEvent) {
+  function submitInteraction(e: React.FormEvent) {
     e.preventDefault();
-    setSaving(true);
-    try {
-      const payload: any = {
-        type: form.type,
-        subject: form.subject,
-        description: form.description,
-        ...(form.outcome && { outcome: form.outcome }),
-        ...(form.satisfaction && { satisfaction: Number(form.satisfaction) }),
-      };
-      const res = await fetch(
-        `${API}/crm/beneficiaries/${id}/interactions`,
-        {
-          method: 'POST',
-          credentials: 'include',
-          headers: authHeaders(),
-          body: JSON.stringify(payload),
-        },
-      );
-      if (!res.ok) throw new Error('Erro ao guardar interacção');
-      setShowForm(false);
-      setForm({
-        type: 'CALL',
-        subject: '',
-        description: '',
-        outcome: '',
-        satisfaction: '',
-      });
-      await fetchData();
-    } catch (e: any) {
-      alert(e.message || 'Erro inesperado');
-    } finally {
-      setSaving(false);
-    }
+    // UI optimista: fecha o form e limpa de imediato; a entrada já aparece na lista.
+    addInteraction.mutate(form);
+    setShowForm(false);
+    setForm(EMPTY_FORM);
   }
 
-  if (loading)
+  if (isLoading)
     return (
       <div className="p-6 space-y-4">
         <div className="h-24 bg-gray-100 rounded-lg animate-pulse" />
@@ -159,11 +157,11 @@ export default function BeneficiaryDetailPage() {
       </div>
     );
 
-  if (error || !b)
+  if (isError || !b)
     return (
       <div className="p-6">
         <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-lg">
-          {error || 'Beneficiário não encontrado'}
+          {error?.message || 'Beneficiário não encontrado'}
           <button onClick={() => router.back()} className="ml-4 underline">
             Voltar
           </button>
@@ -353,10 +351,9 @@ export default function BeneficiaryDetailPage() {
             />
             <button
               type="submit"
-              disabled={saving}
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50"
+              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
             >
-              {saving ? 'A guardar...' : 'Guardar Interacção'}
+              Guardar Interacção
             </button>
           </form>
         )}
@@ -366,7 +363,10 @@ export default function BeneficiaryDetailPage() {
             <p className="p-4 text-gray-400">Sem interacções registadas</p>
           ) : (
             b.interactions.map((it) => (
-              <div key={it.id} className="p-4">
+              <div
+                key={it.id}
+                className={`p-4 ${it._optimistic ? 'opacity-60' : ''}`}
+              >
                 <div className="flex justify-between items-center">
                   <span className="font-medium">
                     <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded mr-2">
@@ -375,7 +375,7 @@ export default function BeneficiaryDetailPage() {
                     {it.subject}
                   </span>
                   <span className="text-xs text-gray-400">
-                    {formatDate(it.date)}
+                    {it._optimistic ? 'A guardar…' : formatDate(it.date)}
                   </span>
                 </div>
                 <p className="text-sm text-gray-600 mt-1">{it.description}</p>

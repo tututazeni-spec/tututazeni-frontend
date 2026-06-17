@@ -38,7 +38,13 @@
 
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
+import { keepPreviousData } from '@tanstack/react-query';
+import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
+import { useDebounce } from '@/hooks/useDebounce';
+import { apiClient } from '@/lib/apiClient';
+import { queryKeys } from '@/lib/queryKeys';
+import { STALE_TIME } from '@/lib/queryClient';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -116,27 +122,6 @@ interface AdminDashboard {
   enrollments:    { total: number; completed: number; overdue: number };
   completionRate: number;
   topCourses:     Course[];
-}
-
-// ─── API ──────────────────────────────────────────────────────────────────────
-
-const API = process.env.NEXT_PUBLIC_API_URL ?? '/api';
-
-async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
-  const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
-  const res = await fetch(`${API}${path}`, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...options?.headers,
-    },
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({ message: 'Erro desconhecido' }));
-    throw new Error(err.message ?? `HTTP ${res.status}`);
-  }
-  return res.json();
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -303,42 +288,29 @@ function CourseCard({
 // ─── View: Catalog ────────────────────────────────────────────────────────────
 
 function CatalogView({ onSelect }: { onSelect: (id: number) => void }) {
-  const [data, setData]       = useState<PaginatedCourses | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError]     = useState<string | null>(null);
   const [search, setSearch]   = useState('');
   const [category, setCategory] = useState('');
   const [level, setLevel]     = useState('');
   const [mandatory, setMandatory] = useState('');
   const [page, setPage]       = useState(1);
-  const [categories, setCategories] = useState<string[]>([]);
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const params = new URLSearchParams({
-        page: String(page), limit: '12',
-        status: 'PUBLISHED',
-        ...(search   ? { search }   : {}),
-        ...(category ? { category } : {}),
-        ...(level    ? { level }    : {}),
-        ...(mandatory ? { mandatory } : {}),
-      });
-      const [result, cats] = await Promise.all([
-        apiFetch<PaginatedCourses>(`/courses?${params}`),
-        apiFetch<Array<{ category: string; count: number }>>('/courses/categories'),
-      ]);
-      setData(result);
-      setCategories(cats.map(c => c.category).filter(Boolean) as string[]);
-    } catch (e: any) {
-      setError(e.message);
-    } finally {
-      setLoading(false);
-    }
-  }, [search, category, level, mandatory, page]);
+  const debouncedSearch = useDebounce(search);
+  const params = {
+    page, limit: 12, status: 'PUBLISHED',
+    search: debouncedSearch, category, level, mandatory,
+  };
 
-  useEffect(() => { load(); }, [load]);
+  // Lista e categorias correm em paralelo (queries independentes).
+  const { data, isLoading: loading, error } = useApiQuery<PaginatedCourses>(
+    queryKeys.courses.list(params), '/courses',
+    { params, staleTime: STALE_TIME.SEMI_STATIC, placeholderData: keepPreviousData },
+  );
+  // Categorias mudam pouco → cache longa (STATIC).
+  const { data: cats = [] } = useApiQuery<Array<{ category: string; count: number }>>(
+    queryKeys.courses.categories(), '/courses/categories',
+    { staleTime: STALE_TIME.STATIC },
+  );
+  const categories = cats.map(c => c.category).filter(Boolean) as string[];
 
   return (
     <div>
@@ -371,7 +343,7 @@ function CatalogView({ onSelect }: { onSelect: (id: number) => void }) {
         </select>
       </div>
 
-      {error && <div className="text-sm text-red-500 mb-4">{error}</div>}
+      {error && <div className="text-sm text-red-500 mb-4">{error.message}</div>}
 
       {loading && <Skeleton rows={3} />}
 
@@ -407,87 +379,71 @@ function CatalogView({ onSelect }: { onSelect: (id: number) => void }) {
 // ─── View: Course Detail + Player ────────────────────────────────────────────
 
 function CourseDetail({ courseId, onBack }: { courseId: number; onBack: () => void }) {
-  const [course, setCourse]     = useState<Course & { modules: any[]; feedbacks: any[] } | null>(null);
-  const [progress, setProgress] = useState<CourseProgress | null>(null);
-  const [loading, setLoading]   = useState(true);
   const [activeLesson, setActiveLesson] = useState<Lesson | null>(null);
-  const [enrolling, setEnrolling] = useState(false);
-  const [completing, setCompleting] = useState(false);
   const [rating, setRating]     = useState(0);
   const [comment, setComment]   = useState('');
-  const [feedbackLoading, setFeedbackLoading] = useState(false);
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    try {
-      const [c, p] = await Promise.all([
-        apiFetch<any>(`/courses/${courseId}`),
-        apiFetch<CourseProgress>(`/courses/${courseId}/progress`).catch(() => null),
-      ]);
-      setCourse(c);
-      setProgress(p);
-      // Auto-select first incomplete lesson
-      if (p) {
-        for (const mod of p.modules) {
-          const pending = mod.lessons.find((l: Lesson) => !l.completed);
-          if (pending) { setActiveLesson(pending); break; }
-        }
-      }
-    } catch (e: any) {
-      alert(e.message);
-    } finally {
-      setLoading(false);
+  // course e progress em paralelo. O progress dá 4xx quando não inscrito → o RQ
+  // não repete 4xx; tratamos a ausência como "não inscrito" (progress = null).
+  const { data: course, isLoading: loadingCourse } = useApiQuery<
+    Course & { modules: any[]; feedbacks: any[] }
+  >(queryKeys.courses.detail(courseId), `/courses/${courseId}`, {
+    staleTime: STALE_TIME.SEMI_STATIC,
+  });
+  const { data: progress = null } = useApiQuery<CourseProgress>(
+    queryKeys.courses.progress(courseId), `/courses/${courseId}/progress`,
+    { staleTime: STALE_TIME.DYNAMIC, retry: false },
+  );
+
+  // Auto-selecciona a 1ª aula incompleta quando o progresso chega.
+  useEffect(() => {
+    if (!progress || activeLesson) return;
+    for (const mod of progress.modules) {
+      const pending = mod.lessons.find((l: Lesson) => !l.completed);
+      if (pending) { setActiveLesson(pending); break; }
     }
-  }, [courseId]);
+  }, [progress, activeLesson]);
 
-  useEffect(() => { load(); }, [load]);
+  const enroll = useApiMutation(
+    () => apiClient.post(`/courses/${courseId}/enroll`, {}),
+    {
+      invalidateKeys: [
+        queryKeys.courses.detail(courseId),
+        queryKeys.courses.progress(courseId),
+        queryKeys.courses.myEnrollments(),
+      ],
+      onError: (e) => alert(e.message),
+    },
+  );
 
-  const handleEnroll = async () => {
-    setEnrolling(true);
-    try {
-      await apiFetch(`/courses/${courseId}/enroll`, { method: 'POST', body: '{}' });
-      await load();
-    } catch (e: any) {
-      alert(e.message);
-    } finally {
-      setEnrolling(false);
-    }
-  };
+  const markComplete = useApiMutation(
+    (lessonId: number) => apiClient.post(`/courses/lessons/${lessonId}/complete`, {}),
+    {
+      invalidateKeys: [
+        queryKeys.courses.progress(courseId),
+        queryKeys.courses.detail(courseId),
+      ],
+      onError: (e) => alert(e.message),
+    },
+  );
 
-  const handleMarkComplete = async () => {
-    if (!activeLesson) return;
-    setCompleting(true);
-    try {
-      await apiFetch(`/courses/lessons/${activeLesson.id}/complete`, {
-        method: 'POST',
-        body: JSON.stringify({}),
-      });
-      await load();
-    } catch (e: any) {
-      alert(e.message);
-    } finally {
-      setCompleting(false);
-    }
-  };
+  const feedback = useApiMutation(
+    () => apiClient.post(`/courses/${courseId}/feedback`, { rating, comment }),
+    {
+      invalidateKeys: [queryKeys.courses.detail(courseId)],
+      onSuccess: () => { alert('Obrigado pelo feedback!'); setRating(0); setComment(''); },
+      onError: (e) => alert(e.message),
+    },
+  );
 
-  const handleFeedback = async () => {
-    if (!rating) return;
-    setFeedbackLoading(true);
-    try {
-      await apiFetch(`/courses/${courseId}/feedback`, {
-        method: 'POST',
-        body: JSON.stringify({ rating, comment }),
-      });
-      alert('Obrigado pelo feedback!');
-      setRating(0); setComment('');
-    } catch (e: any) {
-      alert(e.message);
-    } finally {
-      setFeedbackLoading(false);
-    }
-  };
+  const handleEnroll = () => enroll.mutate(undefined);
+  const handleMarkComplete = () => { if (activeLesson) markComplete.mutate(activeLesson.id); };
+  const handleFeedback = () => { if (rating) feedback.mutate(undefined); };
+  const enrolling = enroll.isPending;
+  const completing = markComplete.isPending;
+  const feedbackLoading = feedback.isPending;
 
-  if (loading || !course) return <div><Skeleton rows={5} /></div>;
+  if (loadingCourse || !course) return <div><Skeleton rows={5} /></div>;
 
   const isEnrolled = !!progress?.enrollment;
   const progressPct = progress?.courseProgress.pct ?? 0;
@@ -738,22 +694,17 @@ function CourseDetail({ courseId, onBack }: { courseId: number; onBack: () => vo
 // ─── View: My Enrollments ────────────────────────────────────────────────────
 
 function MyEnrollmentsView({ onSelect }: { onSelect: (id: number) => void }) {
-  const [data, setData]       = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError]     = useState<string | null>(null);
-  const [filter, setFilter]   = useState('');
+  const [filter, setFilter] = useState('');
 
-  useEffect(() => {
-    apiFetch<any[]>('/courses/my/enrollments')
-      .then(setData)
-      .catch(e => setError(e.message))
-      .finally(() => setLoading(false));
-  }, []);
+  const { data = [], isLoading: loading, error } = useApiQuery<any[]>(
+    queryKeys.courses.myEnrollments(), '/courses/my/enrollments',
+    { staleTime: STALE_TIME.DYNAMIC },
+  );
 
   const filtered = filter ? data.filter(e => e.status === filter) : data;
 
   if (loading) return <Skeleton />;
-  if (error)   return <div className="text-sm text-red-500">{error}</div>;
+  if (error)   return <div className="text-sm text-red-500">{error.message}</div>;
 
   return (
     <div>
@@ -817,26 +768,23 @@ function MyEnrollmentsView({ onSelect }: { onSelect: (id: number) => void }) {
 // ─── View: Certificates ───────────────────────────────────────────────────────
 
 function CertificatesView() {
-  const [data, setData]       = useState<Certificate[]>([]);
-  const [loading, setLoading] = useState(true);
   const [verifyCode, setVerifyCode] = useState('');
   const [verifyResult, setVerifyResult] = useState<any>(null);
 
-  useEffect(() => {
-    apiFetch<Certificate[]>('/courses/my/certificates')
-      .then(setData)
-      .finally(() => setLoading(false));
-  }, []);
+  const { data = [], isLoading: loading } = useApiQuery<Certificate[]>(
+    queryKeys.courses.myCertificates(), '/courses/my/certificates',
+    { staleTime: STALE_TIME.SEMI_STATIC },
+  );
 
-  const verify = async () => {
-    if (!verifyCode.trim()) return;
-    try {
-      const result = await apiFetch<any>(`/courses/certificates/verify/${verifyCode.trim()}`);
-      setVerifyResult(result);
-    } catch (e: any) {
-      setVerifyResult({ error: e.message });
-    }
-  };
+  // Verificação on-demand de um código → mutação (acção pontual, não cacheada).
+  const verifyMut = useApiMutation(
+    (code: string) => apiClient.get<any>(`/courses/certificates/verify/${code}`),
+    {
+      onSuccess: (r) => setVerifyResult(r),
+      onError: (e) => setVerifyResult({ error: e.message }),
+    },
+  );
+  const verify = () => { if (verifyCode.trim()) verifyMut.mutate(verifyCode.trim()); };
 
   if (loading) return <Skeleton rows={3} />;
 
@@ -909,16 +857,12 @@ function CertificatesView() {
 // ─── View: Admin Dashboard ───────────────────────────────────────────────────
 
 function AdminDashboardView({ onSelect }: { onSelect: (id: number) => void }) {
-  const [data, setData]       = useState<AdminDashboard | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { data, isLoading } = useApiQuery<AdminDashboard>(
+    queryKeys.courses.adminDashboard(), '/courses/admin/dashboard',
+    { staleTime: STALE_TIME.SEMI_STATIC },
+  );
 
-  useEffect(() => {
-    apiFetch<AdminDashboard>('/courses/admin/dashboard')
-      .then(setData)
-      .finally(() => setLoading(false));
-  }, []);
-
-  if (loading || !data) return <Skeleton rows={3} />;
+  if (isLoading || !data) return <Skeleton rows={3} />;
 
   return (
     <div className="space-y-6">

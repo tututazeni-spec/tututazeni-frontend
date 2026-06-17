@@ -1,6 +1,7 @@
 import "./globals.css";
 import type { Metadata } from "next";
 import ClientInit from "../components/ClientInit";
+import ReactQueryProvider from "../providers/ReactQueryProvider";
 
 export const metadata: Metadata = {
   title: {
@@ -20,7 +21,7 @@ export default function RootLayout({
     <html lang="pt">
       <body style={{ margin: 0, padding: 0 }}>
         <ClientInit />
-        {children}
+        <ReactQueryProvider>{children}</ReactQueryProvider>
       </body>
     </html>
   );

@@ -1,13 +1,17 @@
 'use client';
 // src/app/(dashboard)/dashboard/page.tsx
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import {
   LayoutDashboard, Users, BookOpen, Target, Star, Zap, Award,
   TrendingUp, TrendingDown, AlertTriangle, CheckCircle, Clock,
   Search, Bell, BarChart2, Brain, ChevronRight, Shield,
   Activity, RefreshCw, ArrowUp, ArrowDown,
 } from 'lucide-react';
+import { useApiQuery } from '@/hooks/useApiQuery';
+import { useDebounce } from '@/hooks/useDebounce';
+import { queryKeys } from '@/lib/queryKeys';
+import { STALE_TIME } from '@/lib/queryClient';
 
 // ─── Types ───────────────────────────────────────────────────────
 
@@ -133,16 +137,11 @@ function StatCard({ icon, label, value, color, bg, sub }: { icon: string; label:
 type Tab = "my" | "manager" | "org";
 
 // ─── Helpers ─────────────────────────────────────────────────────
+// Os dados vêm do React Query (useApiQuery) — cookie httpOnly, cache, retry com
+// backoff e cancelamento automático. A key /dashboard/alerts é partilhada entre
+// componentes, por isso é pedida uma única vez (dedup) em vez de 3×.
 
-const BASE = '/api';
-async function api(path: string) {
-  const r = await fetch(`${BASE}${path}`, {
-    headers: { 'Content-Type': 'application/json',
-      Authorization: `Bearer ${localStorage.getItem('token') ?? ''}` },
-  });
-  if (!r.ok) throw new Error();
-  return r.json();
-}
+const ALERTS_POLL_MS = 60_000; // polling inteligente: alertas refrescam a cada 60s
 
 function ProgressBar({ value, color = 'bg-indigo-500', height = 'h-1.5' }: { value: number; color?: string; height?: string }) {
   return (
@@ -226,19 +225,19 @@ function AlertBanner({ alerts }: { alerts: Alert[] }) {
 // ─── Colaborador Dashboard ────────────────────────────────────────
 
 function ColaboradorDashboard() {
-  const [data, setData]   = useState<any | null>(null);
-  const [alerts, setAlerts] = useState<Alert[]>([]);
-  const [loading, setLoading] = useState(true);
+  // Duas queries independentes → correm em paralelo (sem waterfall).
+  const { data, isLoading } = useApiQuery<any>(
+    queryKeys.dashboard.my(),
+    '/dashboard/my',
+    { staleTime: STALE_TIME.DYNAMIC },
+  );
+  const { data: alerts = [] } = useApiQuery<Alert[]>(
+    queryKeys.dashboard.alerts(),
+    '/dashboard/alerts',
+    { refetchInterval: ALERTS_POLL_MS },
+  );
 
-  useEffect(() => {
-    Promise.all([
-      api('/dashboard/my'),
-      api('/dashboard/alerts'),
-    ]).then(([d, a]) => { setData(d); setAlerts(a ?? []); })
-      .finally(() => setLoading(false));
-  }, []);
-
-  if (loading) return <div className="space-y-4"><Skeleton count={4} /><Skeleton count={2} /></div>;
+  if (isLoading) return <div className="space-y-4"><Skeleton count={4} /><Skeleton count={2} /></div>;
 
   const plan     = data?.development?.activePlan;
   const level    = data?.gamification?.level;
@@ -346,19 +345,19 @@ function ColaboradorDashboard() {
 // ─── Manager Dashboard ────────────────────────────────────────────
 
 function ManagerDashboard() {
-  const [data, setData]     = useState<any | null>(null);
-  const [alerts, setAlerts] = useState<Alert[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data, isLoading } = useApiQuery<any>(
+    queryKeys.dashboard.manager(),
+    '/dashboard/manager',
+    { staleTime: STALE_TIME.DYNAMIC },
+  );
+  // Mesma key de alerts → reutiliza a cache partilhada (não há novo pedido).
+  const { data: alerts = [] } = useApiQuery<Alert[]>(
+    queryKeys.dashboard.alerts(),
+    '/dashboard/alerts',
+    { refetchInterval: ALERTS_POLL_MS },
+  );
 
-  useEffect(() => {
-    Promise.all([
-      api('/dashboard/manager'),
-      api('/dashboard/alerts'),
-    ]).then(([d, a]) => { setData(d); setAlerts(a ?? []); })
-      .finally(() => setLoading(false));
-  }, []);
-
-  if (loading) return <div className="space-y-4"><Skeleton count={4} /></div>;
+  if (isLoading) return <div className="space-y-4"><Skeleton count={4} /></div>;
 
   const kpis = data?.kpis ?? {};
 
@@ -433,18 +432,17 @@ function ManagerDashboard() {
 // ─── RH / Organisation Dashboard ─────────────────────────────────
 
 function OrgDashboard() {
-  const [data, setData]     = useState<any | null>(null);
-  const [loading, setLoading] = useState(true);
   const [period, setPeriod] = useState('MONTH');
 
-  const load = useCallback(() => {
-    setLoading(true);
-    api(`/dashboard/organization?period=${period}`).then(setData).finally(() => setLoading(false));
-  }, [period]);
+  // A key inclui o período → cada período tem cache própria; voltar a um período
+  // já visto é instantâneo. params enxutos via apiClient.
+  const { data, isLoading } = useApiQuery<any>(
+    queryKeys.dashboard.organization(period),
+    '/dashboard/organization',
+    { params: { period }, staleTime: STALE_TIME.SEMI_STATIC },
+  );
 
-  useEffect(() => { load(); }, [load]);
-
-  if (loading) return <Skeleton count={6} />;
+  if (isLoading) return <Skeleton count={6} />;
 
   const k = data?.kpis ?? {};
   const GRADE_COLOR: Record<string, string> = { A: 'text-emerald-600', B: 'text-teal-600', C: 'text-amber-600', D: 'text-red-600' };
@@ -558,19 +556,20 @@ function OrgDashboard() {
 // ─── Global Search ────────────────────────────────────────────────
 
 function GlobalSearch({ onClose }: { onClose: () => void }) {
-  const [query, setQuery]   = useState('');
-  const [results, setResults] = useState<any | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [query, setQuery] = useState('');
+  const debouncedQuery = useDebounce(query, 300);
+  const enabled = debouncedQuery.length >= 2;
 
-  useEffect(() => {
-    if (query.length < 2) { setResults(null); return; }
-    const t = setTimeout(() => {
-      setLoading(true);
-      api(`/dashboard/search?q=${encodeURIComponent(query)}&limit=5`)
-        .then(setResults).finally(() => setLoading(false));
-    }, 300);
-    return () => clearTimeout(t);
-  }, [query]);
+  // enabled controla quando dispara; pedidos obsoletos são cancelados (signal).
+  const { data: results, isFetching: loading } = useApiQuery<any>(
+    queryKeys.dashboard.search(debouncedQuery),
+    '/dashboard/search',
+    {
+      params: { q: debouncedQuery, limit: 5 },
+      enabled,
+      staleTime: STALE_TIME.DYNAMIC,
+    },
+  );
 
   return (
     <div className="fixed inset-0 z-50 bg-slate-900/50 flex items-start justify-center pt-20 px-4">
@@ -613,7 +612,7 @@ function GlobalSearch({ onClose }: { onClose: () => void }) {
               </div>
             )}
             {!results.users?.length && !results.courses?.length && (
-              <p className="text-sm text-slate-400 text-center py-4">Sem resultados para "{query}"</p>
+              <p className="text-sm text-slate-400 text-center py-4">Sem resultados para &quot;{query}&quot;</p>
             )}
           </div>
         )}
@@ -634,12 +633,14 @@ export default function DashboardPage() {
   const [tab, setTab]           = useState('personal');
   const [showSearch, setShowSearch] = useState(false);
   const [role] = useState<Role>('COLABORADOR'); // In real app, from auth context
-  const [alertCount, setAlertCount] = useState(0);
 
-  useEffect(() => {
-    api('/dashboard/alerts').then(a => setAlertCount(a?.filter((x: any) => x.priority === 'URGENT').length ?? 0))
-      .catch(() => {});
-  }, []);
+  // Partilha a mesma key /dashboard/alerts dos sub-dashboards → 0 pedidos extra.
+  const { data: alerts = [] } = useApiQuery<Alert[]>(
+    queryKeys.dashboard.alerts(),
+    '/dashboard/alerts',
+    { refetchInterval: ALERTS_POLL_MS },
+  );
+  const alertCount = alerts.filter((x) => x.priority === 'URGENT').length;
 
   const availableTabs = TABS.filter(t => t.roles.includes(role));
 

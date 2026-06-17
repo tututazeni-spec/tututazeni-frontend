@@ -1,16 +1,11 @@
 'use client';
-import { useState, useEffect, useCallback } from 'react';
-
-const API = process.env.NEXT_PUBLIC_API_URL ?? '/api';
-
-function authHeaders(): Record<string, string> {
-  const token =
-    typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
-  return {
-    'Content-Type': 'application/json',
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-  };
-}
+import { useState } from 'react';
+import Link from 'next/link';
+import { keepPreviousData } from '@tanstack/react-query';
+import { useApiQuery } from '../../../../hooks/useApiQuery';
+import { useDebounce } from '../../../../hooks/useDebounce';
+import { queryKeys } from '../../../../lib/queryKeys';
+import { STALE_TIME } from '../../../../lib/queryClient';
 
 interface Beneficiary {
   id: string;
@@ -26,6 +21,12 @@ interface Beneficiary {
   _count: { interactions: number };
 }
 
+interface BeneficiaryList {
+  data: Beneficiary[];
+  total: number;
+  totalPages: number;
+}
+
 const STATUS_COLORS: Record<string, string> = {
   ACTIVE: 'bg-green-100 text-green-800',
   INACTIVE: 'bg-gray-100 text-gray-600',
@@ -35,48 +36,46 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 export default function BeneficiariesPage() {
-  const [data, setData] = useState<Beneficiary[]>([]);
-  const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [typeFilter, setTypeFilter] = useState('');
 
-  const fetchData = useCallback(async () => {
-    setLoading(true);
-    setError('');
-    try {
-      const params = new URLSearchParams({
-        page: String(page),
-        limit: '20',
-        ...(search && { search }),
-        ...(statusFilter && { status: statusFilter }),
-        ...(typeFilter && { type: typeFilter }),
-      });
-      const res = await fetch(`${API}/crm/beneficiaries?${params}`, {
-        credentials: 'include',
-        headers: authHeaders(),
-      });
-      if (!res.ok) throw new Error('Erro ao carregar beneficiários');
-      const json = await res.json();
-      setData(json.data);
-      setTotal(json.total);
-      setTotalPages(json.totalPages);
-    } catch (e: any) {
-      setError(e.message || 'Erro inesperado');
-    } finally {
-      setLoading(false);
-    }
-  }, [page, search, statusFilter, typeFilter]);
+  // Pesquisa com debounce: 1 pedido depois de parar de escrever, não 1 por tecla.
+  const debouncedSearch = useDebounce(search);
 
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+  // params enxutos — o apiClient omite os vazios (optimização de payload).
+  const params = {
+    page,
+    limit: 20,
+    search: debouncedSearch,
+    status: statusFilter,
+    type: typeFilter,
+  };
 
-  if (loading)
+  const { data, isLoading, isFetching, isError, error, refetch } =
+    useApiQuery<BeneficiaryList>(
+      queryKeys.beneficiaries.list(params),
+      '/crm/beneficiaries',
+      {
+        params,
+        staleTime: STALE_TIME.DYNAMIC,
+        // Mantém a página anterior visível enquanto a próxima carrega (sem flash).
+        placeholderData: keepPreviousData,
+      },
+    );
+
+  const total = data?.total ?? 0;
+  const totalPages = data?.totalPages ?? 1;
+  const rows = data?.data ?? [];
+
+  function onFilterChange(setter: (v: string) => void, value: string) {
+    setter(value);
+    setPage(1);
+  }
+
+  // Loading inicial (sem dados em cache).
+  if (isLoading)
     return (
       <div className="p-6 space-y-4">
         {[...Array(5)].map((_, i) => (
@@ -85,12 +84,12 @@ export default function BeneficiariesPage() {
       </div>
     );
 
-  if (error)
+  if (isError)
     return (
       <div className="p-6">
         <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-lg">
-          {error}
-          <button onClick={fetchData} className="ml-4 underline">
+          {error?.message || 'Erro ao carregar beneficiários'}
+          <button onClick={() => refetch()} className="ml-4 underline">
             Tentar novamente
           </button>
         </div>
@@ -105,32 +104,26 @@ export default function BeneficiariesPage() {
           <h1 className="text-2xl font-bold text-gray-900">Beneficiários</h1>
           <p className="text-gray-500">{total} beneficiários registados</p>
         </div>
-        <a
+        <Link
           href="/crm/beneficiaries/novo"
           className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
         >
           + Novo Beneficiário
-        </a>
+        </Link>
       </div>
 
       {/* Filtros */}
-      <div className="flex gap-4 flex-wrap">
+      <div className="flex gap-4 flex-wrap items-center">
         <input
           type="text"
           placeholder="Pesquisar por nome, email, código..."
           value={search}
-          onChange={(e) => {
-            setSearch(e.target.value);
-            setPage(1);
-          }}
+          onChange={(e) => onFilterChange(setSearch, e.target.value)}
           className="border rounded-lg px-4 py-2 flex-1 min-w-[200px]"
         />
         <select
           value={statusFilter}
-          onChange={(e) => {
-            setStatusFilter(e.target.value);
-            setPage(1);
-          }}
+          onChange={(e) => onFilterChange(setStatusFilter, e.target.value)}
           className="border rounded-lg px-4 py-2"
         >
           <option value="">Todos os estados</option>
@@ -141,10 +134,7 @@ export default function BeneficiariesPage() {
         </select>
         <select
           value={typeFilter}
-          onChange={(e) => {
-            setTypeFilter(e.target.value);
-            setPage(1);
-          }}
+          onChange={(e) => onFilterChange(setTypeFilter, e.target.value)}
           className="border rounded-lg px-4 py-2"
         >
           <option value="">Todos os tipos</option>
@@ -154,6 +144,10 @@ export default function BeneficiariesPage() {
           <option value="COMMUNITY">Comunidade</option>
           <option value="GROUP">Grupo</option>
         </select>
+        {/* Indicador discreto de refetch em fundo (paginação/filtros). */}
+        {isFetching && (
+          <span className="text-xs text-gray-400 animate-pulse">A actualizar…</span>
+        )}
       </div>
 
       {/* Tabela */}
@@ -172,14 +166,14 @@ export default function BeneficiariesPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
-            {data.length === 0 ? (
+            {rows.length === 0 ? (
               <tr>
                 <td colSpan={8} className="px-4 py-8 text-center text-gray-400">
                   Nenhum beneficiário encontrado
                 </td>
               </tr>
             ) : (
-              data.map((b) => (
+              rows.map((b) => (
                 <tr key={b.id} className="hover:bg-gray-50">
                   <td className="px-4 py-3 font-mono text-blue-600">{b.code}</td>
                   <td className="px-4 py-3 font-medium">{b.fullName}</td>

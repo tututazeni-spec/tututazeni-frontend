@@ -1,7 +1,13 @@
 
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState } from 'react';
+import { keepPreviousData } from '@tanstack/react-query';
+import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
+import { useDebounce } from '@/hooks/useDebounce';
+import { apiClient } from '@/lib/apiClient';
+import { queryKeys } from '@/lib/queryKeys';
+import { STALE_TIME } from '@/lib/queryClient';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -55,27 +61,6 @@ interface AdminDashboard {
 }
 
 type View = 'list' | 'detail' | 'create' | 'dashboard' | 'directory';
-
-// ─── API ──────────────────────────────────────────────────────────────────────
-
-const API = process.env.NEXT_PUBLIC_API_URL ?? '/api';
-
-async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
-  const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
-  const res = await fetch(`${API}${path}`, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...options?.headers,
-    },
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({ message: 'Erro' }));
-    throw new Error(err.message ?? `HTTP ${res.status}`);
-  }
-  return res.json();
-}
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -154,54 +139,41 @@ function UserListView({
   onSelect: (id: number) => void;
   onCreate: () => void;
 }) {
-  const [data, setData]         = useState<PaginatedUsers | null>(null);
-  const [loading, setLoading]   = useState(true);
-  const [error, setError]       = useState<string | null>(null);
   const [search, setSearch]     = useState('');
   const [status, setStatus]     = useState('');
   const [hrStatus, setHrStatus] = useState('');
   const [page, setPage]         = useState(1);
   const [selected, setSelected] = useState<number[]>([]);
   const [bulkAction, setBulkAction] = useState('');
-  const [bulkLoading, setBulkLoading] = useState(false);
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const params = new URLSearchParams({
-        page: String(page), limit: '20',
-        ...(search   ? { search }              : {}),
-        ...(status   ? { accountStatus: status }: {}),
-        ...(hrStatus ? { hrStatus }            : {}),
-      });
-      setData(await apiFetch<PaginatedUsers>(`/users?${params}`));
-    } catch (e: any) {
-      setError(e.message);
-    } finally {
-      setLoading(false);
-    }
-  }, [search, status, hrStatus, page]);
-
-  useEffect(() => { load(); }, [load]);
-
-  const handleBulkAction = async () => {
-    if (!bulkAction || selected.length === 0) return;
-    setBulkLoading(true);
-    try {
-      await apiFetch('/users/bulk-action', {
-        method: 'POST',
-        body:   JSON.stringify({ userIds: selected, action: bulkAction }),
-      });
-      setSelected([]);
-      setBulkAction('');
-      await load();
-    } catch (e: any) {
-      alert(e.message);
-    } finally {
-      setBulkLoading(false);
-    }
+  const debouncedSearch = useDebounce(search);
+  const params = {
+    page, limit: 20,
+    search: debouncedSearch,
+    accountStatus: status,
+    hrStatus,
   };
+
+  const { data, isLoading: loading, error } = useApiQuery<PaginatedUsers>(
+    queryKeys.users.list(params), '/users',
+    { params, staleTime: STALE_TIME.DYNAMIC, placeholderData: keepPreviousData },
+  );
+
+  // Bulk action como mutação: ao concluir, invalida as listas de utilizadores.
+  const bulk = useApiMutation(
+    () => apiClient.post('/users/bulk-action', { userIds: selected, action: bulkAction }),
+    {
+      invalidateKeys: [queryKeys.users.lists()],
+      onSuccess: () => { setSelected([]); setBulkAction(''); },
+      onError: (e) => alert(e.message),
+    },
+  );
+
+  const handleBulkAction = () => {
+    if (!bulkAction || selected.length === 0) return;
+    bulk.mutate(undefined);
+  };
+  const bulkLoading = bulk.isPending;
 
   const toggleSelect = (id: number) =>
     setSelected(s => s.includes(id) ? s.filter(x => x !== id) : [...s, id]);
@@ -275,7 +247,7 @@ function UserListView({
         </div>
 
         {loading && <div className="p-4"><Skeleton /></div>}
-        {error    && <div className="px-4 py-8 text-center text-sm text-red-500">{error}</div>}
+        {error    && <div className="px-4 py-8 text-center text-sm text-red-500">{error.message}</div>}
         {!loading && data?.data.length === 0 && (
           <div className="px-4 py-12 text-center text-sm text-gray-400">Nenhum utilizador encontrado</div>
         )}
@@ -344,54 +316,41 @@ function UserListView({
 // ─── View: User Profile Detail ────────────────────────────────────────────────
 
 function UserProfileView({ userId, onBack }: { userId: number; onBack: () => void }) {
-  const [user, setUser]       = useState<User | null>(null);
-  const [stats, setStats]     = useState<UserStats | null>(null);
-  const [auditLogs, setAuditLogs] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [tab, setTab]         = useState<'overview' | 'learning' | 'team' | 'audit'>('overview');
-  const [actionLoading, setActionLoading] = useState(false);
+  const [tab, setTab] = useState<'overview' | 'learning' | 'team' | 'audit'>('overview');
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    try {
-      const [u, s] = await Promise.all([
-        apiFetch<User>(`/users/${userId}`),
-        apiFetch<UserStats>(`/users/${userId}/stats`),
-      ]);
-      setUser(u);
-      setStats(s);
-    } catch (e: any) {
-      alert(e.message);
-    } finally {
-      setLoading(false);
-    }
-  }, [userId]);
+  // user e stats correm em paralelo (sem waterfall).
+  const { data: user, isLoading: loadingUser } = useApiQuery<User>(
+    queryKeys.users.detail(userId), `/users/${userId}`,
+    { staleTime: STALE_TIME.DYNAMIC },
+  );
+  const { data: stats } = useApiQuery<UserStats>(
+    queryKeys.users.stats(userId), `/users/${userId}/stats`,
+    { staleTime: STALE_TIME.DYNAMIC },
+  );
+  // Auditoria só é pedida quando o separador é aberto (lazy).
+  const { data: auditData } = useApiQuery<{ data: any[] }>(
+    queryKeys.users.auditLogs(userId), `/users/${userId}/audit-logs`,
+    { enabled: tab === 'audit', staleTime: STALE_TIME.DYNAMIC },
+  );
+  const auditLogs = auditData?.data ?? [];
 
-  useEffect(() => { load(); }, [load]);
+  // Acções (activate/deactivate/suspend): invalidam detalhe + listas após sucesso.
+  const action = useApiMutation(
+    (act: 'activate' | 'deactivate' | 'suspend') =>
+      apiClient.patch(`/users/${userId}/${act}`, {}),
+    {
+      invalidateKeys: [queryKeys.users.detail(userId), queryKeys.users.lists()],
+      onError: (e) => alert(e.message),
+    },
+  );
+  const actionLoading = action.isPending;
 
-  const loadAuditLogs = async () => {
-    const logs = await apiFetch<any>(`/users/${userId}/audit-logs`);
-    setAuditLogs(logs.data ?? []);
+  const handleAction = (act: 'activate' | 'deactivate' | 'suspend') => {
+    if (!confirm(`${act} este utilizador?`)) return;
+    action.mutate(act);
   };
 
-  useEffect(() => {
-    if (tab === 'audit') loadAuditLogs();
-  }, [tab]);
-
-  const handleAction = async (action: 'activate' | 'deactivate' | 'suspend') => {
-    if (!confirm(`${action} este utilizador?`)) return;
-    setActionLoading(true);
-    try {
-      await apiFetch(`/users/${userId}/${action}`, { method: 'PATCH', body: '{}' });
-      await load();
-    } catch (e: any) {
-      alert(e.message);
-    } finally {
-      setActionLoading(false);
-    }
-  };
-
-  if (loading || !user) return <div><Skeleton rows={6} /></div>;
+  if (loadingUser || !user) return <div><Skeleton rows={6} /></div>;
 
   const tabs: Array<{ id: typeof tab; label: string }> = [
     { id: 'overview', label: 'Visão geral' },
@@ -612,14 +571,10 @@ function UserProfileView({ userId, onBack }: { userId: number; onBack: () => voi
 // ─── View: Team ───────────────────────────────────────────────────────────────
 
 function TeamView({ managerId }: { managerId: number }) {
-  const [data, setData]       = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    apiFetch<any>(`/users/${managerId}/team`)
-      .then(setData)
-      .finally(() => setLoading(false));
-  }, [managerId]);
+  const { data, isLoading: loading } = useApiQuery<any>(
+    queryKeys.users.team(managerId), `/users/${managerId}/team`,
+    { staleTime: STALE_TIME.DYNAMIC },
+  );
 
   if (loading) return <Skeleton rows={4} />;
   if (!data || data.team.length === 0) return (
@@ -666,31 +621,29 @@ function CreateUserView({ onBack, onCreated }: { onBack: () => void; onCreated: 
     phone: '', departmentId: '', positionId: '', hireDate: '',
     accountStatus: 'PENDING',
   });
-  const [saving, setSaving] = useState(false);
 
   const handle = (k: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
     setForm(f => ({ ...f, [k]: e.target.value }));
 
-  const handleSubmit = async () => {
+  const create = useApiMutation(
+    () => apiClient.post('/users', {
+      ...form,
+      departmentId: form.departmentId ? parseInt(form.departmentId) : undefined,
+      positionId:   form.positionId   ? parseInt(form.positionId)   : undefined,
+      hireDate:     form.hireDate     || undefined,
+      password:     form.password     || undefined,
+    }),
+    {
+      invalidateKeys: [queryKeys.users.lists()],
+      onSuccess: () => onCreated(),
+      onError: (e) => alert(e.message),
+    },
+  );
+  const saving = create.isPending;
+
+  const handleSubmit = () => {
     if (!form.fullName || !form.email) return;
-    setSaving(true);
-    try {
-      await apiFetch('/users', {
-        method: 'POST',
-        body: JSON.stringify({
-          ...form,
-          departmentId: form.departmentId ? parseInt(form.departmentId) : undefined,
-          positionId:   form.positionId   ? parseInt(form.positionId)   : undefined,
-          hireDate:     form.hireDate     || undefined,
-          password:     form.password     || undefined,
-        }),
-      });
-      onCreated();
-    } catch (e: any) {
-      alert(e.message);
-    } finally {
-      setSaving(false);
-    }
+    create.mutate(undefined);
   };
 
   const Field = ({ label, id, type = 'text', required = false }: {
@@ -769,16 +722,12 @@ function CreateUserView({ onBack, onCreated }: { onBack: () => void; onCreated: 
 // ─── View: Admin Dashboard ────────────────────────────────────────────────────
 
 function DashboardView() {
-  const [data, setData]       = useState<AdminDashboard | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { data, isLoading } = useApiQuery<AdminDashboard>(
+    queryKeys.users.adminDashboard(), '/users/admin/dashboard',
+    { staleTime: STALE_TIME.SEMI_STATIC },
+  );
 
-  useEffect(() => {
-    apiFetch<AdminDashboard>('/users/admin/dashboard')
-      .then(setData)
-      .finally(() => setLoading(false));
-  }, []);
-
-  if (loading || !data) return <Skeleton rows={3} />;
+  if (isLoading || !data) return <Skeleton rows={3} />;
 
   return (
     <div className="space-y-6">
@@ -815,21 +764,14 @@ function DashboardView() {
 // ─── View: Internal Directory ─────────────────────────────────────────────────
 
 function DirectoryView({ onSelect }: { onSelect: (id: number) => void }) {
-  const [data, setData]       = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [search, setSearch]   = useState('');
+  const [search, setSearch] = useState('');
+  const debouncedSearch = useDebounce(search);
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    try {
-      const params = new URLSearchParams(search ? { search } : {});
-      setData(await apiFetch<any[]>(`/users/directory?${params}`));
-    } finally {
-      setLoading(false);
-    }
-  }, [search]);
-
-  useEffect(() => { load(); }, [load]);
+  const { data = [], isLoading: loading } = useApiQuery<any[]>(
+    queryKeys.users.directory(debouncedSearch), '/users/directory',
+    { params: { search: debouncedSearch }, staleTime: STALE_TIME.SEMI_STATIC,
+      placeholderData: keepPreviousData },
+  );
 
   return (
     <div>
