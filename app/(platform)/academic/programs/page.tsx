@@ -1,16 +1,10 @@
 'use client';
-import { useState, useEffect, useCallback } from 'react';
-
-const API = process.env.NEXT_PUBLIC_API_URL ?? '/api';
-
-function authHeaders(): Record<string, string> {
-  const token =
-    typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
-  return {
-    'Content-Type': 'application/json',
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-  };
-}
+import { useState } from 'react';
+import { keepPreviousData } from '@tanstack/react-query';
+import { useApiQuery } from '@/hooks/useApiQuery';
+import { useDebounce } from '@/hooks/useDebounce';
+import { queryKeys } from '@/lib/queryKeys';
+import { STALE_TIME } from '@/lib/queryClient';
 
 interface Program {
   id: string;
@@ -30,44 +24,23 @@ const LEVEL_COLORS: Record<string, string> = {
 };
 
 export default function AcademicProgramsPage() {
-  const [data, setData] = useState<Program[]>([]);
-  const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
   const [search, setSearch] = useState('');
   const [levelFilter, setLevelFilter] = useState('');
+  const debouncedSearch = useDebounce(search);
+  const params = { page, limit: 20, search: debouncedSearch, level: levelFilter };
 
-  const fetchData = useCallback(async () => {
-    setLoading(true);
-    setError('');
-    try {
-      const params = new URLSearchParams({
-        page: String(page),
-        limit: '20',
-        ...(search && { search }),
-        ...(levelFilter && { level: levelFilter }),
-      });
-      const res = await fetch(`${API}/academic/programs?${params}`, {
-        credentials: 'include',
-        headers: authHeaders(),
-      });
-      if (!res.ok) throw new Error('Erro ao carregar programas');
-      const json = await res.json();
-      setData(json.data);
-      setTotal(json.total);
-      setTotalPages(json.totalPages);
-    } catch (e: any) {
-      setError(e.message || 'Erro inesperado');
-    } finally {
-      setLoading(false);
-    }
-  }, [page, search, levelFilter]);
+  const { data: resp, isLoading: loading, error: queryError, refetch } =
+    useApiQuery<{ data: Program[]; total: number; totalPages: number }>(
+      queryKeys.academic.programs(params), '/academic/programs',
+      { params, staleTime: STALE_TIME.SEMI_STATIC, placeholderData: keepPreviousData },
+    );
 
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+  const data = resp?.data ?? [];
+  const total = resp?.total ?? 0;
+  const totalPages = resp?.totalPages ?? 1;
+  const error = queryError?.message ?? '';
+  const fetchData = () => refetch();
 
   if (loading)
     return (

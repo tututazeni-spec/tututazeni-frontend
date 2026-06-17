@@ -1,17 +1,9 @@
 'use client';
-import { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-
-const API = process.env.NEXT_PUBLIC_API_URL ?? '/api';
-
-function authHeaders(): Record<string, string> {
-  const token =
-    typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
-  return {
-    'Content-Type': 'application/json',
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-  };
-}
+import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
+import { apiClient } from '@/lib/apiClient';
+import { queryKeys } from '@/lib/queryKeys';
+import { STALE_TIME } from '@/lib/queryClient';
 
 interface AcademicClass {
   id: string;
@@ -53,68 +45,36 @@ export default function ProgramDetailPage() {
   const router = useRouter();
   const id = params?.id as string;
 
-  const [p, setP] = useState<ProgramDetail | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [enrolling, setEnrolling] = useState(false);
+  const { data: p, isLoading: loading, error: queryError } =
+    useApiQuery<ProgramDetail>(
+      queryKeys.academic.program(id), `/academic/programs/${id}`,
+      { enabled: !!id, staleTime: STALE_TIME.SEMI_STATIC },
+    );
+  const error = queryError?.message ?? '';
 
-  const fetchData = useCallback(async () => {
-    setLoading(true);
-    setError('');
-    try {
-      const res = await fetch(`${API}/academic/programs/${id}`, {
-        credentials: 'include',
-        headers: authHeaders(),
-      });
-      if (!res.ok) throw new Error('Erro ao carregar programa');
-      setP(await res.json());
-    } catch (e: any) {
-      setError(e.message || 'Erro inesperado');
-    } finally {
-      setLoading(false);
-    }
-  }, [id]);
-
-  useEffect(() => {
-    if (id) fetchData();
-  }, [id, fetchData]);
-
-  async function enroll(classId?: string) {
-    setEnrolling(true);
-    try {
-      const meRes = await fetch(`${API}/auth/me`, {
-        credentials: 'include',
-        headers: authHeaders(),
-      });
-      if (!meRes.ok) throw new Error('Não foi possível identificar o utilizador');
-      const me = await meRes.json();
+  const enrollMut = useApiMutation(
+    async (classId: string | undefined) => {
+      // O backend precisa do userId → obtém-se de /auth/me antes do POST.
+      const me = await apiClient.get<any>('/auth/me');
       const userId = me?.id ?? me?.user?.id;
       if (!userId) throw new Error('Utilizador sem ID');
-
-      const res = await fetch(`${API}/academic/enrollments`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: authHeaders(),
-        body: JSON.stringify({
-          userId: Number(userId),
-          programId: id,
-          ...(classId && { classId }),
-        }),
+      return apiClient.post('/academic/enrollments', {
+        userId: Number(userId),
+        programId: id,
+        ...(classId && { classId }),
       });
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({ message: 'Erro' }));
-        throw new Error(
-          Array.isArray(err.message) ? err.message.join(', ') : err.message,
-        );
-      }
-      alert('Matrícula submetida com sucesso!');
-      router.push('/academic/transcript');
-    } catch (e: any) {
-      alert(e.message || 'Erro inesperado');
-    } finally {
-      setEnrolling(false);
-    }
-  }
+    },
+    {
+      invalidateKeys: [queryKeys.academic.program(id), queryKeys.academic.transcript()],
+      onSuccess: () => {
+        alert('Matrícula submetida com sucesso!');
+        router.push('/academic/transcript');
+      },
+      onError: (e) => alert(e.message || 'Erro inesperado'),
+    },
+  );
+  const enrolling = enrollMut.isPending;
+  const enroll = (classId?: string) => enrollMut.mutate(classId);
 
   if (loading)
     return (

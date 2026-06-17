@@ -53,6 +53,15 @@ export const queryKeys = {
       [...queryKeys.employees.all, 'detail', id] as const,
   },
 
+  academic: {
+    all: ['academic'] as const,
+    programs: (params: Record<string, unknown>) =>
+      [...queryKeys.academic.all, 'programs', params] as const,
+    program: (id: string) =>
+      [...queryKeys.academic.all, 'program', id] as const,
+    transcript: () => [...queryKeys.academic.all, 'transcript'] as const,
+  },
+
   lms: {
     all: ['lms'] as const,
     sessions: (params: Record<string, unknown>) =>

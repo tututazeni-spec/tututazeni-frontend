@@ -1,16 +1,7 @@
 'use client';
-import { useState, useEffect, useCallback } from 'react';
-
-const API = process.env.NEXT_PUBLIC_API_URL ?? '/api';
-
-function authHeaders(): Record<string, string> {
-  const token =
-    typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
-  return {
-    'Content-Type': 'application/json',
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-  };
-}
+import { useApiQuery } from '@/hooks/useApiQuery';
+import { queryKeys } from '@/lib/queryKeys';
+import { STALE_TIME } from '@/lib/queryClient';
 
 interface Grade {
   id: string;
@@ -51,33 +42,16 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 export default function TranscriptPage() {
-  const [transcript, setTranscript] = useState<Transcript | null>(null);
-  const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const { data, isLoading: loading, error: queryError, refetch } =
+    useApiQuery<{ transcript: Transcript | null; enrollments: Enrollment[] }>(
+      queryKeys.academic.transcript(), '/academic/transcript',
+      { staleTime: STALE_TIME.DYNAMIC },
+    );
 
-  const fetchData = useCallback(async () => {
-    setLoading(true);
-    setError('');
-    try {
-      const res = await fetch(`${API}/academic/transcript`, {
-        credentials: 'include',
-        headers: authHeaders(),
-      });
-      if (!res.ok) throw new Error('Erro ao carregar a transcrição');
-      const json = await res.json();
-      setTranscript(json.transcript);
-      setEnrollments(json.enrollments || []);
-    } catch (e: any) {
-      setError(e.message || 'Erro inesperado');
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+  const transcript = data?.transcript ?? null;
+  const enrollments = data?.enrollments ?? [];
+  const error = queryError?.message ?? '';
+  const fetchData = () => refetch();
 
   if (loading)
     return (
