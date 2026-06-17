@@ -100,6 +100,24 @@ export const queryKeys = {
     transcript: () => [...queryKeys.academic.all, 'transcript'] as const,
   },
 
+  audit: {
+    all: ['audit'] as const,
+    list: (params: Record<string, unknown>) =>
+      [...queryKeys.audit.all, 'list', params] as const,
+    stats: () => [...queryKeys.audit.all, 'stats'] as const,
+    anomalies: () => [...queryKeys.audit.all, 'anomalies'] as const,
+    integrity: () => [...queryKeys.audit.all, 'integrity'] as const,
+  },
+
+  career: {
+    all: ['career'] as const,
+    me: () => [...queryKeys.career.all, 'me'] as const,
+    paths: () => [...queryKeys.career.all, 'paths'] as const,
+    vacancies: (type: string) =>
+      [...queryKeys.career.all, 'vacancies', type] as const,
+    plan: () => [...queryKeys.career.all, 'plan'] as const,
+  },
+
   history: {
     all: ['history'] as const,
     timeline: (params: Record<string, unknown>) =>

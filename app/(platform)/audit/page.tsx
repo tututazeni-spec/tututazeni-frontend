@@ -1,7 +1,12 @@
 ﻿// src/app/(dashboard)/audit/page.tsx
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState } from 'react';
+import { keepPreviousData } from '@tanstack/react-query';
+import { useApiQuery } from '@/hooks/useApiQuery';
+import { apiClient } from '@/lib/apiClient';
+import { queryKeys } from '@/lib/queryKeys';
+import { STALE_TIME } from '@/lib/queryClient';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -52,24 +57,6 @@ interface Timeline {
 }
 
 type View = 'logs' | 'stats' | 'anomalies' | 'timeline';
-
-// ─── API ──────────────────────────────────────────────────────────────────────
-
-const API = process.env.NEXT_PUBLIC_API_URL ?? '/api';
-
-async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
-  const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
-  const res = await fetch(`${API}${path}`, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...options?.headers,
-    },
-  });
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  return res.json();
-}
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -218,27 +205,18 @@ function LogRow({ log }: { log: AuditLog }) {
 // ─── View: Logs ───────────────────────────────────────────────────────────────
 
 function LogsView() {
-  const [data, setData]       = useState<{ data: AuditLog[]; total: number; totalPages: number } | null>(null);
-  const [loading, setLoading] = useState(true);
   const [page, setPage]       = useState(1);
   const [filters, setFilters] = useState({ action: '', severity: '', status: '', entity: '', criticalOnly: false });
+  const params = {
+    page, limit: 50,
+    action: filters.action, severity: filters.severity, status: filters.status,
+    entity: filters.entity, criticalOnly: filters.criticalOnly ? 'true' : undefined,
+  };
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    try {
-      const params = new URLSearchParams({
-        page: String(page), limit: '50',
-        ...(filters.action       ? { action:      filters.action }             : {}),
-        ...(filters.severity     ? { severity:    filters.severity }           : {}),
-        ...(filters.status       ? { status:      filters.status }             : {}),
-        ...(filters.entity       ? { entity:      filters.entity }             : {}),
-        ...(filters.criticalOnly ? { criticalOnly:'true' }                     : {}),
-      });
-      setData(await apiFetch(`/audit?${params}`));
-    } finally { setLoading(false); }
-  }, [page, filters]);
-
-  useEffect(() => { load(); }, [load]);
+  const { data, isLoading: loading } = useApiQuery<{ data: AuditLog[]; total: number; totalPages: number }>(
+    queryKeys.audit.list(params), '/audit',
+    { params, staleTime: STALE_TIME.DYNAMIC, placeholderData: keepPreviousData },
+  );
 
   return (
     <div>
@@ -315,12 +293,9 @@ function LogsView() {
 // ─── View: Stats ──────────────────────────────────────────────────────────────
 
 function StatsView() {
-  const [data, setData]     = useState<AuditStats | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    apiFetch<AuditStats>('/audit/stats').then(setData).finally(() => setLoading(false));
-  }, []);
+  const { data, isLoading: loading } = useApiQuery<AuditStats>(
+    queryKeys.audit.stats(), '/audit/stats', { staleTime: STALE_TIME.DYNAMIC },
+  );
 
   if (loading || !data) return <Skeleton rows={4} />;
 
@@ -392,17 +367,14 @@ function StatsView() {
 // ─── View: Anomalies ──────────────────────────────────────────────────────────
 
 function AnomaliesView() {
-  const [data, setData]     = useState<Anomalies | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [integrity, setIntegrity] = useState<any>(null);
-
-  useEffect(() => {
-    Promise.all([
-      apiFetch<Anomalies>('/audit/anomalies'),
-      apiFetch<any>('/audit/integrity/verify?limit=200'),
-    ]).then(([a, i]) => { setData(a); setIntegrity(i); })
-      .finally(() => setLoading(false));
-  }, []);
+  const dataQ = useApiQuery<Anomalies>(queryKeys.audit.anomalies(), '/audit/anomalies', { staleTime: STALE_TIME.DYNAMIC });
+  const integrityQ = useApiQuery<any>(
+    queryKeys.audit.integrity(), '/audit/integrity/verify',
+    { params: { limit: 200 }, staleTime: STALE_TIME.DYNAMIC },
+  );
+  const data = dataQ.data ?? null;
+  const integrity = integrityQ.data ?? null;
+  const loading = dataQ.isLoading;
 
   if (loading || !data) return <Skeleton rows={4} />;
 
@@ -472,7 +444,7 @@ function TimelineView() {
     if (!entity.trim() || !entityId.trim()) return;
     setLoading(true);
     try {
-      setData(await apiFetch(`/audit/timeline/${entity}/${entityId}`));
+      setData(await apiClient.get<Timeline>(`/audit/timeline/${entity}/${entityId}`));
     } finally { setLoading(false); }
   };
 
@@ -516,7 +488,7 @@ function TimelineView() {
                       <div className="flex items-center gap-2 text-xs text-gray-500">
                         {e.user && <span>por {e.user.fullName}</span>}
                         {e.ip   && <span>· IP: {e.ip}</span>}
-                        {e.reason && <span>· "{e.reason}"</span>}
+                        {e.reason && <span>· &quot;{e.reason}&quot;</span>}
                       </div>
                       {e.changes && <DiffViewer changes={e.changes} />}
                     </div>

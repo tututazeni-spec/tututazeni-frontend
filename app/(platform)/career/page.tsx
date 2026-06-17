@@ -1,7 +1,11 @@
 // src/app/(dashboard)/career/page.tsx
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState } from 'react';
+import { useApiQuery } from '@/hooks/useApiQuery';
+import { apiClient } from '@/lib/apiClient';
+import { queryKeys } from '@/lib/queryKeys';
+import { STALE_TIME } from '@/lib/queryClient';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -44,27 +48,6 @@ interface InternalVacancy { id: number; title: string; type: string; status: str
 interface SimulationResult { targetPosition: any; readinessScore: number; competencyGaps: any[]; summary: any; recommendedCourses: any[] }
 
 type View = 'dashboard' | 'paths' | 'vacancies' | 'plan' | 'succession';
-
-// ─── API ──────────────────────────────────────────────────────────────────────
-
-const API = process.env.NEXT_PUBLIC_API_URL ?? '/api';
-
-async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
-  const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
-  const res = await fetch(`${API}${path}`, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...options?.headers,
-    },
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({ message: 'Erro' }));
-    throw new Error(err.message ?? `HTTP ${res.status}`);
-  }
-  return res.json();
-}
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -123,21 +106,19 @@ const READINESS_CFG: Record<string, { label: string; cls: string }> = {
 // ─── View: Dashboard de Carreira ──────────────────────────────────────────────
 
 function DashboardView() {
-  const [profile, setProfile] = useState<CareerProfile | null>(null);
-  const [loading, setLoading] = useState(true);
   const [simTarget, setSimTarget] = useState('');
   const [simulation, setSimulation] = useState<SimulationResult | null>(null);
   const [simLoading, setSimLoading] = useState(false);
 
-  useEffect(() => {
-    apiFetch<CareerProfile>('/career/me').then(setProfile).finally(() => setLoading(false));
-  }, []);
+  const { data: profile, isLoading: loading } = useApiQuery<CareerProfile>(
+    queryKeys.career.me(), '/career/me', { staleTime: STALE_TIME.DYNAMIC },
+  );
 
   const runSimulation = async () => {
     if (!simTarget) return;
     setSimLoading(true);
     try {
-      const result = await apiFetch<SimulationResult>(`/career/me/simulate/${simTarget}`);
+      const result = await apiClient.get<SimulationResult>(`/career/me/simulate/${simTarget}`);
       setSimulation(result);
     } catch (e: any) { alert(e.message); }
     finally { setSimLoading(false); }
@@ -361,13 +342,10 @@ function DashboardView() {
 // ─── View: Trilhas de Carreira ─────────────────────────────────────────────────
 
 function PathsView() {
-  const [paths, setPaths] = useState<CareerPath[]>([]);
-  const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<CareerPath | null>(null);
-
-  useEffect(() => {
-    apiFetch<CareerPath[]>('/career/paths').then(setPaths).finally(() => setLoading(false));
-  }, []);
+  const { data: paths = [], isLoading: loading } = useApiQuery<CareerPath[]>(
+    queryKeys.career.paths(), '/career/paths', { staleTime: STALE_TIME.SEMI_STATIC },
+  );
 
   if (loading) return <Skeleton />;
 
@@ -447,24 +425,20 @@ function PathsView() {
 // ─── View: Vagas Internas ──────────────────────────────────────────────────────
 
 function VacanciesView() {
-  const [vacancies, setVacancies] = useState<InternalVacancy[]>([]);
-  const [loading, setLoading] = useState(true);
   const [typeFilter, setTypeFilter] = useState('');
   const [applying, setApplying] = useState<number | null>(null);
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    const params = new URLSearchParams({ ...(typeFilter ? { type: typeFilter } : {}) });
-    apiFetch<any>(`/career/vacancies?${params}`).then(r => setVacancies(r.data ?? [])).finally(() => setLoading(false));
-  }, [typeFilter]);
-
-  useEffect(() => { load(); }, [load]);
+  const { data: resp, isLoading: loading, refetch } = useApiQuery<{ data: InternalVacancy[] }>(
+    queryKeys.career.vacancies(typeFilter), '/career/vacancies',
+    { params: { type: typeFilter }, staleTime: STALE_TIME.SEMI_STATIC },
+  );
+  const vacancies = resp?.data ?? [];
 
   const apply = async (vacancyId: number) => {
     setApplying(vacancyId);
     try {
-      await apiFetch(`/career/vacancies/${vacancyId}/apply`, { method: 'POST', body: '{}' });
-      await load();
+      await apiClient.post(`/career/vacancies/${vacancyId}/apply`, {});
+      await refetch();
       alert('✅ Candidatura enviada com sucesso!');
     } catch (e: any) { alert(e.message); }
     finally { setApplying(null); }
@@ -545,22 +519,20 @@ function VacanciesView() {
 // ─── View: Plano de Carreira ───────────────────────────────────────────────────
 
 function PlanView() {
-  const [plan, setPlan] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
   const [title, setTitle] = useState('');
   const [updatingGoal, setUpdatingGoal] = useState<number | null>(null);
 
-  useEffect(() => {
-    apiFetch<any>('/career/me/plan').then(setPlan).finally(() => setLoading(false));
-  }, []);
+  const { data: plan, isLoading: loading, refetch } = useApiQuery<any>(
+    queryKeys.career.plan(), '/career/me/plan', { staleTime: STALE_TIME.DYNAMIC },
+  );
 
   const createPlan = async () => {
     if (!title.trim()) return;
     setCreating(true);
     try {
-      const p = await apiFetch<any>('/career/me/plan', { method: 'POST', body: JSON.stringify({ title }) });
-      setPlan(p);
+      await apiClient.post('/career/me/plan', { title });
+      await refetch();
       setTitle('');
     } catch (e: any) { alert(e.message); }
     finally { setCreating(false); }
@@ -569,9 +541,8 @@ function PlanView() {
   const updateGoalProgress = async (goalId: number, progress: number) => {
     setUpdatingGoal(goalId);
     try {
-      await apiFetch(`/career/me/goals/${goalId}/progress`, { method: 'PATCH', body: JSON.stringify({ progress }) });
-      const p = await apiFetch<any>('/career/me/plan');
-      setPlan(p);
+      await apiClient.patch(`/career/me/goals/${goalId}/progress`, { progress });
+      await refetch();
     } finally { setUpdatingGoal(null); }
   };
 
