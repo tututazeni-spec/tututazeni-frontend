@@ -1,29 +1,19 @@
 'use client';
-import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
-
-const API = process.env.NEXT_PUBLIC_API_URL ?? '/api';
+import { useApiQuery } from '@/hooks/useApiQuery';
+import { queryKeys } from '@/lib/queryKeys';
+import { STALE_TIME } from '@/lib/queryClient';
 
 export default function VerifyCertificatePage() {
   const params = useParams();
   const code = params?.code as string;
-  const [result, setResult] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    async function verify() {
-      try {
-        const res = await fetch(`${API}/certification/verify/${code}`);
-        const json = await res.json();
-        setResult(json);
-      } catch {
-        setResult({ valid: false, reason: 'Erro ao verificar' });
-      } finally {
-        setLoading(false);
-      }
-    }
-    if (code) verify();
-  }, [code]);
+  // Página pública: verifica o certificado por código. Erro → resultado inválido.
+  const { data, isLoading: loading, error } = useApiQuery<any>(
+    queryKeys.certification.verify(code), `/certification/verify/${code}`,
+    { enabled: !!code, staleTime: STALE_TIME.STATIC, retry: false },
+  );
+  const result = data ?? (error ? { valid: false, reason: 'Erro ao verificar' } : null);
 
   if (loading)
     return (

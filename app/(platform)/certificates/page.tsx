@@ -1,16 +1,7 @@
 'use client';
-import { useState, useEffect, useCallback } from 'react';
-
-const API = process.env.NEXT_PUBLIC_API_URL ?? '/api';
-
-function authHeaders(): Record<string, string> {
-  const token =
-    typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
-  return {
-    'Content-Type': 'application/json',
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-  };
-}
+import { useApiQuery } from '@/hooks/useApiQuery';
+import { queryKeys } from '@/lib/queryKeys';
+import { STALE_TIME } from '@/lib/queryClient';
 
 interface Certificate {
   id: string;
@@ -23,31 +14,14 @@ interface Certificate {
 }
 
 export default function MyCertificatesPage() {
-  const [data, setData] = useState<Certificate[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-
-  const fetchData = useCallback(async () => {
-    setLoading(true);
-    setError('');
-    try {
-      const res = await fetch(`${API}/certification/my-certificates`, {
-        credentials: 'include',
-        headers: authHeaders(),
-      });
-      if (!res.ok) throw new Error('Erro ao carregar certificados');
-      const json = await res.json();
-      setData(json.data);
-    } catch (e: any) {
-      setError(e.message || 'Erro inesperado');
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+  const { data: resp, isLoading: loading, error: queryError, refetch } =
+    useApiQuery<{ data: Certificate[] }>(
+      queryKeys.certification.myCertificates(), '/certification/my-certificates',
+      { staleTime: STALE_TIME.SEMI_STATIC },
+    );
+  const data = resp?.data ?? [];
+  const error = queryError?.message ?? '';
+  const fetchData = () => refetch();
 
   if (loading)
     return (

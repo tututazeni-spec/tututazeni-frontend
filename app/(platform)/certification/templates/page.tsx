@@ -1,16 +1,9 @@
 'use client';
-import { useState, useEffect, useCallback } from 'react';
-
-const API = process.env.NEXT_PUBLIC_API_URL ?? '/api';
-
-function authHeaders(): Record<string, string> {
-  const token =
-    typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
-  return {
-    'Content-Type': 'application/json',
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-  };
-}
+import { useState } from 'react';
+import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
+import { apiClient } from '@/lib/apiClient';
+import { queryKeys } from '@/lib/queryKeys';
+import { STALE_TIME } from '@/lib/queryClient';
 
 interface Template {
   id: string;
@@ -28,11 +21,7 @@ const TYPES = [
 ];
 
 export default function CertificateTemplatesPage() {
-  const [data, setData] = useState<Template[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
   const [showForm, setShowForm] = useState(false);
-  const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({
     name: '',
     description: '',
@@ -44,31 +33,16 @@ export default function CertificateTemplatesPage() {
     isDefault: false,
   });
 
-  const fetchData = useCallback(async () => {
-    setLoading(true);
-    setError('');
-    try {
-      const res = await fetch(`${API}/certification/templates`, {
-        credentials: 'include',
-        headers: authHeaders(),
-      });
-      if (!res.ok) throw new Error('Erro ao carregar templates');
-      setData(await res.json());
-    } catch (e: any) {
-      setError(e.message || 'Erro inesperado');
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const { data = [], isLoading: loading, error: queryError, refetch } =
+    useApiQuery<Template[]>(
+      queryKeys.certification.templates(), '/certification/templates',
+      { staleTime: STALE_TIME.SEMI_STATIC },
+    );
+  const error = queryError?.message ?? '';
+  const fetchData = () => refetch();
 
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
-
-  async function submit(e: React.FormEvent) {
-    e.preventDefault();
-    setSaving(true);
-    try {
+  const createMut = useApiMutation(
+    () => {
       const payload: any = {
         name: form.name,
         type: form.type,
@@ -79,36 +53,31 @@ export default function CertificateTemplatesPage() {
       if (form.signatoryName) payload.signatoryName = form.signatoryName;
       if (form.signatoryTitle) payload.signatoryTitle = form.signatoryTitle;
       if (form.validityDays) payload.validityDays = Number(form.validityDays);
+      return apiClient.post('/certification/templates', payload);
+    },
+    {
+      invalidateKeys: [queryKeys.certification.templates()],
+      onSuccess: () => {
+        setShowForm(false);
+        setForm({
+          name: '',
+          description: '',
+          type: 'COURSE',
+          html: '<div style="text-align:center"><h1>{{recipientName}}</h1><p>{{title}}</p><p>{{date}}</p></div>',
+          signatoryName: '',
+          signatoryTitle: '',
+          validityDays: '',
+          isDefault: false,
+        });
+      },
+      onError: (e) => alert(e.message || 'Erro inesperado'),
+    },
+  );
+  const saving = createMut.isPending;
 
-      const res = await fetch(`${API}/certification/templates`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: authHeaders(),
-        body: JSON.stringify(payload),
-      });
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({ message: 'Erro' }));
-        throw new Error(
-          Array.isArray(err.message) ? err.message.join(', ') : err.message,
-        );
-      }
-      setShowForm(false);
-      setForm({
-        name: '',
-        description: '',
-        type: 'COURSE',
-        html: '<div style="text-align:center"><h1>{{recipientName}}</h1><p>{{title}}</p><p>{{date}}</p></div>',
-        signatoryName: '',
-        signatoryTitle: '',
-        validityDays: '',
-        isDefault: false,
-      });
-      await fetchData();
-    } catch (e: any) {
-      alert(e.message || 'Erro inesperado');
-    } finally {
-      setSaving(false);
-    }
+  function submit(e: React.FormEvent) {
+    e.preventDefault();
+    createMut.mutate(undefined);
   }
 
   if (loading)

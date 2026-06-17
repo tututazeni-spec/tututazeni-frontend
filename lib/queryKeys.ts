@@ -59,6 +59,15 @@ export const queryKeys = {
       [...queryKeys.employees.all, 'detail', id] as const,
   },
 
+  certification: {
+    all: ['certification'] as const,
+    myCertificates: () =>
+      [...queryKeys.certification.all, 'my-certificates'] as const,
+    templates: () => [...queryKeys.certification.all, 'templates'] as const,
+    verify: (code: string) =>
+      [...queryKeys.certification.all, 'verify', code] as const,
+  },
+
   academic: {
     all: ['academic'] as const,
     programs: (params: Record<string, unknown>) =>
