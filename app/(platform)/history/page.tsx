@@ -1,12 +1,16 @@
 ﻿'use client';
 // src/app/(dashboard)/history/page.tsx
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState } from 'react';
 import {
   Clock, Activity, Star, Award, Filter, Search,
   ChevronDown, ChevronRight, Flame, Zap, BarChart2,
   BookOpen, Target, Users, Shield, Calendar, TrendingUp,
 } from 'lucide-react';
+import { keepPreviousData } from '@tanstack/react-query';
+import { useApiQuery } from '@/hooks/useApiQuery';
+import { queryKeys } from '@/lib/queryKeys';
+import { STALE_TIME } from '@/lib/queryClient';
 
 // ─── Types ───────────────────────────────────────────────────────
 
@@ -21,18 +25,6 @@ interface TimelineEvent {
 }
 
 interface GroupedEvents { month: string; items: TimelineEvent[] }
-
-// ─── Helpers ─────────────────────────────────────────────────────
-
-const BASE = '/api';
-async function api(path: string, opts?: RequestInit) {
-  const r = await fetch(`${BASE}${path}`, {
-    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token') ?? ''}` },
-    ...opts,
-  });
-  if (!r.ok) throw new Error();
-  return r.json();
-}
 
 const CATEGORY_COLOR: Record<string, { color: string; bg: string }> = {
   LEARNING:     { color: 'text-blue-700',    bg: 'bg-blue-100' },
@@ -138,19 +130,15 @@ function EventCard({ event, compact = false }: { event: TimelineEvent; compact?:
 // ─── Timeline Tab ─────────────────────────────────────────────────
 
 function TimelineTab() {
-  const [data, setData]         = useState<{ grouped: GroupedEvents[]; milestones: any[]; meta: any } | null>(null);
-  const [loading, setLoading]   = useState(true);
   const [category, setCategory] = useState('');
   const [search, setSearch]     = useState('');
   const [page, setPage]         = useState(1);
+  const params = { page, limit: 20, category };
 
-  const load = useCallback(() => {
-    setLoading(true);
-    const qs = new URLSearchParams({ page: String(page), limit: '20', ...(category ? { category } : {}) });
-    api(`/history/timeline/me?${qs}`).then(setData).finally(() => setLoading(false));
-  }, [page, category]);
-
-  useEffect(() => { load(); }, [load]);
+  const { data, isLoading: loading } = useApiQuery<{ grouped: GroupedEvents[]; milestones: any[]; meta: any }>(
+    queryKeys.history.timeline(params), '/history/timeline/me',
+    { params, staleTime: STALE_TIME.DYNAMIC, placeholderData: keepPreviousData },
+  );
 
   const CATS = ['LEARNING', 'PERFORMANCE', 'CAREER', 'ENGAGEMENT', 'SYSTEM', 'COMPLIANCE', 'ATTENDANCE'];
 
@@ -241,9 +229,10 @@ function TimelineTab() {
 // ─── Milestones Tab ───────────────────────────────────────────────
 
 function MilestonesTab() {
-  const [data, setData]   = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  useEffect(() => { api('/history/milestones/me').then(setData).finally(() => setLoading(false)); }, []);
+  const { data = [], isLoading: loading } = useApiQuery<any[]>(
+    queryKeys.history.milestones(), '/history/milestones/me',
+    { staleTime: STALE_TIME.SEMI_STATIC },
+  );
 
   if (loading) return <Skeleton />;
 
@@ -281,9 +270,10 @@ function MilestonesTab() {
 // ─── Stats Tab ────────────────────────────────────────────────────
 
 function StatsTab() {
-  const [data, setData]   = useState<any | null>(null);
-  const [loading, setLoading] = useState(true);
-  useEffect(() => { api('/history/stats/me').then(setData).finally(() => setLoading(false)); }, []);
+  const { data, isLoading: loading } = useApiQuery<any>(
+    queryKeys.history.stats(), '/history/stats/me',
+    { staleTime: STALE_TIME.SEMI_STATIC },
+  );
 
   if (loading) return <Skeleton />;
 
@@ -371,16 +361,11 @@ function StatsTab() {
 // ─── Audit Tab ────────────────────────────────────────────────────
 
 function AuditTab() {
-  const [data, setData]   = useState<any | null>(null);
-  const [upcoming, setUpcoming] = useState<any | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    Promise.all([
-      api('/history/audit/stats'),
-      api('/history/upcoming'),
-    ]).then(([a, u]) => { setData(a); setUpcoming(u); }).finally(() => setLoading(false));
-  }, []);
+  const dataQ = useApiQuery<any>(queryKeys.history.auditStats(), '/history/audit/stats', { staleTime: STALE_TIME.DYNAMIC });
+  const upcomingQ = useApiQuery<any>(queryKeys.history.upcoming(), '/history/upcoming', { staleTime: STALE_TIME.SEMI_STATIC });
+  const data = dataQ.data ?? null;
+  const upcoming = upcomingQ.data ?? null;
+  const loading = dataQ.isLoading;
 
   if (loading) return <Skeleton />;
 

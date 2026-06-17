@@ -1,6 +1,10 @@
 ﻿'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState } from 'react';
+import { useApiQuery } from '@/hooks/useApiQuery';
+import { apiClient } from '@/lib/apiClient';
+import { queryKeys } from '@/lib/queryKeys';
+import { STALE_TIME } from '@/lib/queryClient';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -89,27 +93,6 @@ interface Dashboard {
 }
 
 type View = 'my-plan' | 'dashboard' | 'templates';
-
-// ─── API ──────────────────────────────────────────────────────────────────────
-
-const API = process.env.NEXT_PUBLIC_API_URL ?? '/api';
-
-async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
-  const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
-  const res = await fetch(`${API}${path}`, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...options?.headers,
-    },
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({ message: 'Erro' }));
-    throw new Error(err.message ?? `HTTP ${res.status}`);
-  }
-  return res.json();
-}
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -268,45 +251,31 @@ function TaskCard({
 // ─── View: My Plan ────────────────────────────────────────────────────────────
 
 function MyPlanView() {
-  const [plans, setPlans]         = useState<OnboardingPlan[]>([]);
-  const [loading, setLoading]     = useState(true);
-  const [completing, setCompleting] = useState<number | null>(null);
   const [surveyScore, setSurveyScore] = useState(0);
   const [surveyComment, setSurveyComment] = useState('');
   const [submittingSurvey, setSubmittingSurvey] = useState(false);
   const [activeTab, setActiveTab] = useState<'tasks' | 'docs' | 'team' | 'survey'>('tasks');
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    try {
-      const d = await apiFetch<OnboardingPlan[]>('/onboarding/my');
-      setPlans(d);
-    } finally { setLoading(false); }
-  }, []);
-
-  useEffect(() => { load(); }, [load]);
+  const { data: plans = [], isLoading: loading, refetch } = useApiQuery<OnboardingPlan[]>(
+    queryKeys.onboarding.my(), '/onboarding/my',
+    { staleTime: STALE_TIME.DYNAMIC },
+  );
 
   const handleComplete = async (taskId: number) => {
-    setCompleting(taskId);
     try {
-      await apiFetch('/onboarding/tasks/complete', {
-        method: 'POST',
-        body: JSON.stringify({ taskInstanceId: taskId }),
-      });
-      await load();
+      await apiClient.post('/onboarding/tasks/complete', { taskInstanceId: taskId });
+      await refetch();
     } catch (e: any) { alert(e.message); }
-    finally { setCompleting(null); }
   };
 
   const handleSurvey = async (planId: number) => {
     if (!surveyScore) { alert('Seleccione uma nota'); return; }
     setSubmittingSurvey(true);
     try {
-      await apiFetch('/onboarding/surveys', {
-        method: 'POST',
-        body: JSON.stringify({ planId, milestone: 'DAY_1', score: surveyScore, comment: surveyComment }),
+      await apiClient.post('/onboarding/surveys', {
+        planId, milestone: 'DAY_1', score: surveyScore, comment: surveyComment,
       });
-      await load();
+      await refetch();
       setSurveyScore(0); setSurveyComment('');
       alert('Pesquisa submetida! Obrigado pelo feedback.');
     } catch (e: any) { alert(e.message); }
@@ -535,16 +504,12 @@ function MyPlanView() {
 // ─── View: Dashboard RH/Gestor ────────────────────────────────────────────────
 
 function DashboardView() {
-  const [data, setData]     = useState<Dashboard | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { data, isLoading } = useApiQuery<Dashboard>(
+    queryKeys.onboarding.dashboard(), '/onboarding/dashboard',
+    { staleTime: STALE_TIME.SEMI_STATIC },
+  );
 
-  useEffect(() => {
-    apiFetch<Dashboard>('/onboarding/dashboard')
-      .then(setData)
-      .finally(() => setLoading(false));
-  }, []);
-
-  if (loading || !data) return <Skeleton rows={4} />;
+  if (isLoading || !data) return <Skeleton rows={4} />;
 
   const { summary, active } = data;
 
@@ -610,14 +575,10 @@ function DashboardView() {
 // ─── View: Templates ──────────────────────────────────────────────────────────
 
 function TemplatesView() {
-  const [data, setData]     = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    apiFetch<any[]>('/onboarding/templates')
-      .then(setData)
-      .finally(() => setLoading(false));
-  }, []);
+  const { data = [], isLoading: loading } = useApiQuery<any[]>(
+    queryKeys.onboarding.templates(), '/onboarding/templates',
+    { staleTime: STALE_TIME.SEMI_STATIC },
+  );
 
   if (loading) return <Skeleton />;
 

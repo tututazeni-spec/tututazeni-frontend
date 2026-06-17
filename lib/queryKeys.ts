@@ -100,6 +100,23 @@ export const queryKeys = {
     transcript: () => [...queryKeys.academic.all, 'transcript'] as const,
   },
 
+  history: {
+    all: ['history'] as const,
+    timeline: (params: Record<string, unknown>) =>
+      [...queryKeys.history.all, 'timeline', params] as const,
+    milestones: () => [...queryKeys.history.all, 'milestones'] as const,
+    stats: () => [...queryKeys.history.all, 'stats'] as const,
+    auditStats: () => [...queryKeys.history.all, 'audit-stats'] as const,
+    upcoming: () => [...queryKeys.history.all, 'upcoming'] as const,
+  },
+
+  onboarding: {
+    all: ['onboarding'] as const,
+    my: () => [...queryKeys.onboarding.all, 'my'] as const,
+    dashboard: () => [...queryKeys.onboarding.all, 'dashboard'] as const,
+    templates: () => [...queryKeys.onboarding.all, 'templates'] as const,
+  },
+
   trainings: {
     all: ['trainings'] as const,
     list: (params: Record<string, unknown>) =>
