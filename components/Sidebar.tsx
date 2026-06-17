@@ -59,6 +59,7 @@ const NAV = [
       { href: "/departments",       icon: Building2,     label: "Departamentos"    },
       { href: "/roles-permissions", icon: Briefcase,     label: "Permissões por Cargos"           },
       { href: "/performance",       icon: TrendingUp,    label: "Desempenho"       },
+      { href: "/monitoring/okrs",   icon: Target,        label: "Monitoria e Avaliação" },
       { href: "/competencies",      icon: Award,         label: "Competências"     },
       { href: "/competency-map",    icon: Share2,        label: "Mapa de Competências" }, 
       { href: "/evaluation360",     icon: MessageSquare, label: "Avaliação 360°"    },
