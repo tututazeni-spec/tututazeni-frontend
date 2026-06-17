@@ -53,6 +53,14 @@ export const queryKeys = {
       [...queryKeys.employees.all, 'detail', id] as const,
   },
 
+  attendance: {
+    all: ['attendance'] as const,
+    dashboard: () => [...queryKeys.attendance.all, 'dashboard'] as const,
+    my: (params: Record<string, unknown>) =>
+      [...queryKeys.attendance.all, 'my', params] as const,
+    leaveBalance: () => [...queryKeys.attendance.all, 'leave-balance'] as const,
+  },
+
   notifications: {
     all: ['notifications'] as const,
     my: (params: Record<string, unknown>) =>

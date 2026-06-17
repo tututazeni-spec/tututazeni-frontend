@@ -5,7 +5,11 @@
 // Dependências: lucide-react, Tailwind CSS
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect } from 'react';
+import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
+import { apiClient } from '@/lib/apiClient';
+import { queryKeys } from '@/lib/queryKeys';
+import { STALE_TIME } from '@/lib/queryClient';
 import {
   Clock, LogIn, LogOut, QrCode, MapPin, Users, Calendar,
   CheckCircle2, XCircle, AlertCircle, TrendingUp, TrendingDown,
@@ -99,65 +103,32 @@ const LEAVE_STATUS_CONFIG: Record<LeaveStatus, { label: string; color: string }>
   CANCELLED: { label: 'Cancelado', color: 'bg-gray-100 text-gray-500' },
 };
 
-// ─── API ──────────────────────────────────────────────────────────────────────
-
-const API = process.env.NEXT_PUBLIC_API_URL ?? '/api';
-
-async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
-  const token = typeof window !== 'undefined' ? localStorage.getItem('innova_token') : null;
-  const res = await fetch(`${API}${path}`, {
-    headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-    ...options,
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({ message: `Error ${res.status}` }));
-    throw new Error(err.message ?? `Error ${res.status}`);
-  }
-  return res.json();
-}
-
-// ─── Hooks ───────────────────────────────────────────────────────────────────
+// ─── Hooks (React Query) ──────────────────────────────────────────────────────
 
 function useDashboard() {
-  const [data, setData]     = useState<DashboardData | null>(null);
-  const [loading, setLoading] = useState(false);
-
-  const fetch = useCallback(async () => {
-    setLoading(true);
-    try { setData(await apiFetch<DashboardData>('/attendance/dashboard')); }
-    catch {}
-    finally { setLoading(false); }
-  }, []);
-
-  useEffect(() => { fetch(); }, [fetch]);
-  return { data, loading, refetch: fetch };
+  // Presenças ao vivo → polling de 60s.
+  const q = useApiQuery<DashboardData>(
+    queryKeys.attendance.dashboard(), '/attendance/dashboard',
+    { staleTime: STALE_TIME.DYNAMIC, refetchInterval: 60_000 },
+  );
+  return { data: q.data ?? null, loading: q.isLoading, refetch: q.refetch };
 }
 
 function useMyAttendance(from?: string, to?: string) {
-  const [data, setData]     = useState<any>(null);
-  const [loading, setLoading] = useState(false);
-
-  const fetch = useCallback(async () => {
-    setLoading(true);
-    try {
-      const params = new URLSearchParams();
-      if (from) params.set('from', from);
-      if (to)   params.set('to', to);
-      setData(await apiFetch(`/attendance/my?${params}`));
-    } catch {}
-    finally { setLoading(false); }
-  }, [from, to]);
-
-  useEffect(() => { fetch(); }, [fetch]);
-  return { data, loading, refetch: fetch };
+  const params = { from, to };
+  const q = useApiQuery<any>(
+    queryKeys.attendance.my(params), '/attendance/my',
+    { params, staleTime: STALE_TIME.DYNAMIC },
+  );
+  return { data: q.data ?? null, loading: q.isLoading, refetch: q.refetch };
 }
 
 function useLeaveBalance() {
-  const [data, setData] = useState<LeaveBalance[]>([]);
-  useEffect(() => {
-    apiFetch<LeaveBalance[]>('/attendance/my/leave-balance').then(setData).catch(() => {});
-  }, []);
-  return data;
+  const q = useApiQuery<LeaveBalance[]>(
+    queryKeys.attendance.leaveBalance(), '/attendance/my/leave-balance',
+    { staleTime: STALE_TIME.SEMI_STATIC },
+  );
+  return q.data ?? [];
 }
 
 // ─── Small Components ─────────────────────────────────────────────────────────
@@ -226,57 +197,64 @@ function MinutesToTime(min: number): string {
 
 function ClockWidget({ onAction }: { onAction: () => void }) {
   const [time, setTime]     = useState(new Date());
-  const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState<'idle' | 'checked-in' | 'checked-out'>('idle');
   const [clockInTime, setClockInTime] = useState<string | null>(null);
   const [error, setError]   = useState('');
   const [notes, setNotes]   = useState('');
 
+  // Relógio ao vivo (sem rede).
   useEffect(() => {
     const t = setInterval(() => setTime(new Date()), 1000);
-    // Verificar se já tem clock-in hoje
-    apiFetch<any>('/attendance/my?from=' + new Date().toISOString().split('T')[0])
-      .then(r => {
-        const today = r.records?.find((rec: any) => {
-          const d = new Date(rec.date).toDateString();
-          return d === new Date().toDateString() && rec.context === 'WORK';
-        });
-        if (today?.clockIn && !today.clockOut) {
-          setStatus('checked-in');
-          setClockInTime(today.clockIn);
-        } else if (today?.clockOut) {
-          setStatus('checked-out');
-          setClockInTime(today.clockIn);
-        }
-      }).catch(() => {});
     return () => clearInterval(t);
   }, []);
 
-  const handleClockIn = async () => {
-    setLoading(true);
-    setError('');
-    try {
-      await apiFetch('/attendance/clock-in', {
-        method: 'POST',
-        body: JSON.stringify({ method: 'MANUAL', context: 'WORK', notes }),
-      });
-      setStatus('checked-in');
-      setClockInTime(time.toTimeString().slice(0, 5));
-      onAction();
-    } catch (e: any) { setError(e.message); }
-    finally { setLoading(false); }
-  };
+  // Verificar se já tem clock-in hoje (query cacheada).
+  const todayStr = new Date().toISOString().split('T')[0];
+  const { data: todayData } = useApiQuery<any>(
+    queryKeys.attendance.my({ from: todayStr }), '/attendance/my',
+    { params: { from: todayStr }, staleTime: STALE_TIME.DYNAMIC },
+  );
 
-  const handleClockOut = async () => {
-    setLoading(true);
-    setError('');
-    try {
-      await apiFetch('/attendance/clock-out', { method: 'POST', body: JSON.stringify({}) });
+  useEffect(() => {
+    if (!todayData || status !== 'idle') return;
+    const rec = todayData.records?.find((r: any) => {
+      const d = new Date(r.date).toDateString();
+      return d === new Date().toDateString() && r.context === 'WORK';
+    });
+    if (rec?.clockIn && !rec.clockOut) {
+      setStatus('checked-in');
+      setClockInTime(rec.clockIn);
+    } else if (rec?.clockOut) {
       setStatus('checked-out');
-      onAction();
-    } catch (e: any) { setError(e.message); }
-    finally { setLoading(false); }
-  };
+      setClockInTime(rec.clockIn);
+    }
+  }, [todayData, status]);
+
+  const clockIn = useApiMutation(
+    () => apiClient.post('/attendance/clock-in', { method: 'MANUAL', context: 'WORK', notes }),
+    {
+      invalidateKeys: [queryKeys.attendance.all],
+      onSuccess: () => {
+        setStatus('checked-in');
+        setClockInTime(time.toTimeString().slice(0, 5));
+        onAction();
+      },
+      onError: (e) => setError(e.message),
+    },
+  );
+
+  const clockOut = useApiMutation(
+    () => apiClient.post('/attendance/clock-out', {}),
+    {
+      invalidateKeys: [queryKeys.attendance.all],
+      onSuccess: () => { setStatus('checked-out'); onAction(); },
+      onError: (e) => setError(e.message),
+    },
+  );
+
+  const loading = clockIn.isPending || clockOut.isPending;
+  const handleClockIn = () => { setError(''); clockIn.mutate(undefined); };
+  const handleClockOut = () => { setError(''); clockOut.mutate(undefined); };
 
   const timeStr = time.toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
   const dateStr = time.toLocaleDateString('pt-PT', { weekday: 'long', day: 'numeric', month: 'long' });
@@ -345,18 +323,23 @@ function ClockWidget({ onAction }: { onAction: () => void }) {
 // ─── Leave Request Modal ──────────────────────────────────────────────────────
 
 function LeaveModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: () => void }) {
-  const [form, setForm]       = useState({ type: 'VACATION', startDate: '', endDate: '', reason: '', halfDay: false });
-  const [loading, setLoading] = useState(false);
-  const [error, setError]     = useState('');
+  const [form, setForm]   = useState({ type: 'VACATION', startDate: '', endDate: '', reason: '', halfDay: false });
+  const [error, setError] = useState('');
 
-  const handleSubmit = async () => {
+  const submit = useApiMutation(
+    () => apiClient.post('/attendance/leaves', form),
+    {
+      invalidateKeys: [queryKeys.attendance.all],
+      onSuccess: () => { onSuccess(); onClose(); },
+      onError: (e) => setError(e.message),
+    },
+  );
+  const loading = submit.isPending;
+
+  const handleSubmit = () => {
     if (!form.startDate || !form.endDate || !form.reason) { setError('Preencha todos os campos'); return; }
-    setLoading(true);
-    try {
-      await apiFetch('/attendance/leaves', { method: 'POST', body: JSON.stringify(form) });
-      onSuccess(); onClose();
-    } catch (e: any) { setError(e.message); }
-    finally { setLoading(false); }
+    setError('');
+    submit.mutate(undefined);
   };
 
   return (
@@ -630,7 +613,7 @@ export default function AttendancePage() {
               <Plus size={15} /> Pedir Licença
             </button>
             <button
-              onClick={dashRefetch}
+              onClick={() => dashRefetch()}
               className="p-2 text-gray-500 hover:text-gray-700 border border-gray-200 bg-white rounded-xl hover:bg-gray-50 transition-colors"
             >
               <RefreshCcw size={15} className={dashLoading ? 'animate-spin' : ''} />
