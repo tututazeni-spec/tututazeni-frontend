@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import Link from "next/link";
 import {
   FileText,
   Plus,
@@ -826,13 +827,13 @@ export default function WorkDeclarationsPage() {
               ou pelo código único.
             </p>
           </div>
-          <a
+          <Link
             href="/verify"
             className="shrink-0 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-sky-600/20 hover:bg-sky-600/30 text-sky-300 text-sm font-medium transition-colors border border-sky-500/20"
           >
             <QrCode size={14} />
             Verificar
-          </a>
+          </Link>
         </div>
       </div>
 

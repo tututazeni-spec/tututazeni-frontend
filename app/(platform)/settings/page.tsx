@@ -118,7 +118,7 @@ function TabPerfil({ user }: { user: Me }) {
         {user.profile?.bio && (
           <div style={{ marginTop: 16, padding: "12px 16px", background: "#f8fafc", borderRadius: 8 }}>
             <p style={{ margin: 0, fontSize: 13, color: "#475569", fontStyle: "italic" }}>
-              "{user.profile.bio}"
+              &quot;{user.profile.bio}&quot;
             </p>
           </div>
         )}

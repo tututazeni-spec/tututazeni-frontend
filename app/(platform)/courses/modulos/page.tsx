@@ -276,7 +276,7 @@ function ModuleBlock({ mod, onEditModule, onDeleteModule, onAddLesson, onEditLes
       {open && (
         <div style={{ padding: "14px 18px", display: "flex", flexDirection: "column", gap: 8 }}>
           {mod.lessons.length === 0
-            ? <p style={{ color: "#94a3b8", fontSize: 13, textAlign: "center", padding: "12px 0", margin: 0 }}>Nenhuma lição. Clica em "+ Lição" para adicionar.</p>
+            ? <p style={{ color: "#94a3b8", fontSize: 13, textAlign: "center", padding: "12px 0", margin: 0 }}>Nenhuma lição. Clica em &quot;+ Lição&quot; para adicionar.</p>
             : mod.lessons.map(l => (
                 <LessonRow key={l.id} lesson={l}
                   onEdit={() => onEditLesson(l)}
