@@ -29,6 +29,7 @@ const NAV = [
       { href: "/crm/beneficiaries", icon: UserCheck,  label: "Beneficiários" },
       { href: "/crm/partners",      icon: Briefcase,  label: "Parceiros"     },
       { href: "/crm/funders",       icon: DollarSign, label: "Financiadores" },
+      { href: "/crm/funders/overdue-reports", icon: Clock, label: "Relatórios em Atraso" },
     ],
   },
   {

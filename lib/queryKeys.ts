@@ -37,6 +37,8 @@ export const queryKeys = {
     list: (params: Record<string, unknown>) =>
       [...queryKeys.funders.lists(), params] as const,
     detail: (id: string) => [...queryKeys.funders.all, 'detail', id] as const,
+    overdueReports: (params: Record<string, unknown>) =>
+      [...queryKeys.funders.all, 'overdue-reports', params] as const,
   },
 
   partners: {
