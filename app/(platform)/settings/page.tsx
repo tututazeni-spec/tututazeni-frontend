@@ -440,8 +440,6 @@ export default function SettingsPage() {
     api.get<Me>("/auth/me")
       .then(res => {
         setUser(res);
-        // Guardar no localStorage para o Topbar
-        localStorage.setItem("user", JSON.stringify({ fullName: res.fullName, email: res.email }));
       })
       .catch(e => setError(e.message))
       .finally(() => setLoading(false));
@@ -449,7 +447,6 @@ export default function SettingsPage() {
 
   function logout() {
     localStorage.removeItem("token");
-    localStorage.removeItem("user");
     window.location.href = "/login";
   }
 

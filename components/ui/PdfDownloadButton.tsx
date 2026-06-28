@@ -30,9 +30,7 @@ export function PdfDownloadButton({
         `${process.env.NEXT_PUBLIC_API_URL}/pdf/${type}/${id}`,
         {
           method: 'GET',
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-          },
+          credentials: 'include',
         }
       );
 
