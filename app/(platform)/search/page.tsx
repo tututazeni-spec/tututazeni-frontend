@@ -11,6 +11,7 @@ import { useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
+import Image from 'next/image';
 
 // ─── Types ───────────────────────────────────────────────────────
 
@@ -47,9 +48,10 @@ function ResultCard({ result }: { result: SearchResult }) {
   return (
     <a href={result.url ?? '#'}
       className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 transition-colors group">
-      {result.avatarUrl || result.thumbnailUrl ? (
-        <img src={result.avatarUrl ?? result.thumbnailUrl}
+      {(result.avatarUrl || result.thumbnailUrl) ? (
+        <Image src={(result.avatarUrl || result.thumbnailUrl)!}
           alt={result.title}
+          width={36} height={36}
           className="w-9 h-9 rounded-lg object-cover shrink-0" />
       ) : (
         <div className={`w-9 h-9 rounded-lg ${conf.bg} flex items-center justify-center shrink-0`}>

@@ -6,6 +6,7 @@ import { useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
+import Image from 'next/image';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -58,7 +59,9 @@ function initials(name: string) {
 function Avatar({ name, url, size = 'sm' }: { name: string; url?: string | null; size?: 'sm' | 'md' | 'lg' }) {
   const dim = size === 'sm' ? 'w-8 h-8 text-xs' : size === 'md' ? 'w-10 h-10 text-sm' : 'w-14 h-14 text-base';
   return url ? (
-    <img src={url} alt={name} className={`${dim} rounded-full object-cover flex-shrink-0`} />
+    <div className={`${dim} rounded-full overflow-hidden relative flex-shrink-0`}>
+      <Image src={url} alt={name} fill className="object-cover" />
+    </div>
   ) : (
     <div className={`${dim} rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold flex-shrink-0`}>
       {initials(name)}

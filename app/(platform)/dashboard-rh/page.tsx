@@ -11,6 +11,7 @@ import {
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
+import Image from 'next/image';
 
 // ─── Types ───────────────────────────────────────────────────────
 
@@ -33,7 +34,7 @@ function ProgressBar({ value, color = 'bg-indigo-500', height = 'h-1.5' }: { val
 function Avatar({ name, url, size = 8 }: { name: string; url?: string; size?: number }) {
   const i = name.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase();
   return url
-    ? <img src={url} alt={name} className={`w-${size} h-${size} rounded-full object-cover`} />
+    ? <div className={`w-${size} h-${size} rounded-full overflow-hidden relative`}><Image src={url} alt={name} fill className="object-cover" /></div>
     : <div className={`w-${size} h-${size} rounded-full bg-gradient-to-br from-indigo-500 to-violet-600
         flex items-center justify-center text-white text-xs font-bold shrink-0`}>{i}</div>;
 }

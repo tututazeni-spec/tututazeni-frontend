@@ -45,6 +45,7 @@ import { useDebounce } from '@/hooks/useDebounce';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
+import Image from 'next/image';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -237,7 +238,7 @@ function CourseCard({
       {/* Thumbnail */}
       <div className="aspect-video bg-gray-100 relative overflow-hidden">
         {course.thumbnailUrl ? (
-          <img src={course.thumbnailUrl} alt={course.title} className="w-full h-full object-cover" />
+          <Image src={course.thumbnailUrl} alt={course.title} fill className="object-cover" />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-4xl text-gray-300">
             📚
@@ -584,8 +585,8 @@ function CourseDetail({ courseId, onBack }: { courseId: number; onBack: () => vo
           {/* CTA card */}
           <div className="bg-white border border-gray-200 rounded-xl p-5">
             {course.thumbnailUrl && (
-              <div className="aspect-video rounded-lg overflow-hidden mb-4">
-                <img src={course.thumbnailUrl} alt={course.title} className="w-full h-full object-cover" />
+              <div className="aspect-video rounded-lg overflow-hidden mb-4 relative">
+                <Image src={course.thumbnailUrl} alt={course.title} fill className="object-cover" />
               </div>
             )}
             {!isEnrolled && course.status === 'PUBLISHED' && (
@@ -734,9 +735,9 @@ function MyEnrollmentsView({ onSelect }: { onSelect: (id: number) => void }) {
               className="flex items-center gap-4 bg-white border border-gray-200 rounded-xl p-4 cursor-pointer hover:bg-gray-50"
               onClick={() => onSelect(e.courseId)}
             >
-              <div className="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
+              <div className="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0 relative">
                 {e.course.thumbnailUrl ? (
-                  <img src={e.course.thumbnailUrl} alt="" className="w-full h-full object-cover" />
+                  <Image src={e.course.thumbnailUrl} alt="" fill className="object-cover" />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-2xl text-gray-300">📚</div>
                 )}

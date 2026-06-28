@@ -8,6 +8,7 @@ import { useDebounce } from '@/hooks/useDebounce';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
+import Image from 'next/image';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -104,7 +105,9 @@ function HrBadge({ status }: { status: HrStatus }) {
 function Avatar({ user, size = 'sm' }: { user: Pick<User, 'fullName' | 'avatarUrl'>; size?: 'sm' | 'md' | 'lg' }) {
   const dim = { sm: 'w-8 h-8 text-xs', md: 'w-10 h-10 text-sm', lg: 'w-16 h-16 text-xl' }[size];
   return user.avatarUrl ? (
-    <img src={user.avatarUrl} alt={user.fullName} className={`${dim} rounded-full object-cover flex-shrink-0`} />
+    <div className={`${dim} rounded-full overflow-hidden relative flex-shrink-0`}>
+      <Image src={user.avatarUrl} alt={user.fullName} fill className="object-cover" />
+    </div>
   ) : (
     <div className={`${dim} rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-semibold flex-shrink-0`}>
       {initials(user.fullName)}
@@ -519,9 +522,9 @@ function UserProfileView({ userId, onBack }: { userId: number; onBack: () => voi
               </div>
               {stats.recentActivity.map((e: any) => (
                 <div key={e.id} className="flex items-center gap-4 px-4 py-3 border-b border-gray-100 last:border-0">
-                  <div className="w-10 h-10 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
+                  <div className="w-10 h-10 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0 relative">
                     {e.course?.thumbnailUrl ? (
-                      <img src={e.course.thumbnailUrl} alt="" className="w-full h-full object-cover" />
+                      <Image src={e.course.thumbnailUrl} alt="" fill className="object-cover" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-lg">📚</div>
                     )}

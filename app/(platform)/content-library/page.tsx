@@ -13,6 +13,7 @@ import { useApiQuery } from '../../../hooks/useApiQuery';
 import { apiClient } from '../../../lib/apiClient';
 import { queryKeys } from '../../../lib/queryKeys';
 import { STALE_TIME } from '../../../lib/queryClient';
+import Image from 'next/image';
 import { useDebounce } from '../../../hooks/useDebounce';
 
 // ─── Types ───────────────────────────────────────────────────────
@@ -132,7 +133,7 @@ function ContentCard({ content, onBookmark, compact = false }: {
       <div className="relative bg-gradient-to-br from-slate-100 to-slate-200 h-36 flex items-center justify-center"
         onClick={handleView}>
         {content.thumbnailUrl
-          ? <img src={content.thumbnailUrl} alt={content.title} className="w-full h-full object-cover" />
+          ? <Image src={content.thumbnailUrl} alt={content.title} fill className="object-cover" />
           : <Icon size={32} className="text-slate-400" />
         }
         {/* Overlay */}
@@ -464,7 +465,7 @@ function PathsTab() {
           className="bg-white rounded-xl border border-slate-100 overflow-hidden hover:shadow-md transition-all">
           <div className="h-28 bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center relative">
             {path.thumbnailUrl
-              ? <img src={path.thumbnailUrl} alt={path.title} className="w-full h-full object-cover" />
+              ? <Image src={path.thumbnailUrl} alt={path.title} fill className="object-cover" />
               : <Layers size={36} className="text-white opacity-60" />
             }
             {path.hasCertification && (

@@ -8,6 +8,7 @@ import { useDebounce } from '@/hooks/useDebounce';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
+import Image from 'next/image';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -110,7 +111,9 @@ function Skeleton({ rows = 4 }: { rows?: number }) {
 function Avatar({ name, avatarUrl, size = 'sm' }: { name: string; avatarUrl?: string | null; size?: 'sm' | 'md' }) {
   const dim = size === 'sm' ? 'w-8 h-8 text-xs' : 'w-10 h-10 text-sm';
   return avatarUrl ? (
-    <img src={avatarUrl} alt={name} className={`${dim} rounded-full object-cover flex-shrink-0`} />
+    <div className={`${dim} rounded-full overflow-hidden relative flex-shrink-0`}>
+      <Image src={avatarUrl} alt={name} fill className="object-cover" />
+    </div>
   ) : (
     <div className={`${dim} rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-semibold flex-shrink-0`}>
       {initials(name)}
@@ -167,7 +170,7 @@ function TrainingCard({ training, onClick }: { training: Training; onClick: () =
       {/* Thumbnail */}
       <div className="aspect-video bg-gradient-to-br from-blue-600 to-blue-900 relative overflow-hidden">
         {training.thumbnailUrl ? (
-          <img src={training.thumbnailUrl} alt="" className="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform" />
+          <Image src={training.thumbnailUrl} alt="" fill className="object-cover opacity-80 group-hover:scale-105 transition-transform" />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-5xl opacity-30">
             {typeCfg.icon}
@@ -331,7 +334,7 @@ function DetailView({ trainingId, onBack }: { trainingId: number; onBack: () => 
       <div className="bg-white border border-gray-200 rounded-xl overflow-hidden mb-5">
         <div className="h-40 bg-gradient-to-br from-blue-700 to-blue-900 relative overflow-hidden">
           {training.thumbnailUrl && (
-            <img src={training.thumbnailUrl} alt="" className="w-full h-full object-cover opacity-40 absolute inset-0" />
+            <Image src={training.thumbnailUrl} alt="" fill className="object-cover opacity-40" />
           )}
           <div className="absolute inset-0 flex items-end p-5">
             <div className="flex items-center gap-2 flex-wrap">
@@ -513,9 +516,9 @@ function MyTrainingsView({ onSelect }: { onSelect: (id: number) => void }) {
               onClick={() => onSelect(training.id)}
               className="flex items-center gap-4 bg-white border border-gray-200 rounded-xl p-4 cursor-pointer hover:bg-gray-50 transition-colors"
             >
-              <div className="w-16 h-12 rounded-lg overflow-hidden bg-gradient-to-br from-blue-600 to-blue-800 flex-shrink-0">
+              <div className="w-16 h-12 rounded-lg overflow-hidden bg-gradient-to-br from-blue-600 to-blue-800 flex-shrink-0 relative">
                 {training.thumbnailUrl ? (
-                  <img src={training.thumbnailUrl} alt="" className="w-full h-full object-cover opacity-80" />
+                  <Image src={training.thumbnailUrl} alt="" fill className="object-cover opacity-80" />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-2xl">
                     {TYPE_CFG[training.type as TrainingType]?.icon ?? '📚'}

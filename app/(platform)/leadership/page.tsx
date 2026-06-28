@@ -5,6 +5,7 @@ import { useApiQuery } from '../../../hooks/useApiQuery';
 import { apiClient } from '../../../lib/apiClient';
 import { queryKeys } from '../../../lib/queryKeys';
 import { STALE_TIME } from '../../../lib/queryClient';
+import Image from 'next/image';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -113,7 +114,9 @@ function Skeleton({ rows = 4 }: { rows?: number }) {
 function Avatar({ name, avatarUrl, size = 'sm' }: { name: string; avatarUrl?: string | null; size?: 'sm' | 'md' }) {
   const dim = size === 'sm' ? 'w-8 h-8 text-xs' : 'w-10 h-10 text-sm';
   return avatarUrl ? (
-    <img src={avatarUrl} alt={name} className={`${dim} rounded-full object-cover flex-shrink-0`} />
+    <div className={`${dim} rounded-full overflow-hidden relative flex-shrink-0`}>
+      <Image src={avatarUrl} alt={name} fill className="object-cover" />
+    </div>
   ) : (
     <div className={`${dim} rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-semibold flex-shrink-0`}>
       {initials(name)}

@@ -13,6 +13,7 @@ import { useApiQuery } from '../../../hooks/useApiQuery';
 import { apiClient } from '../../../lib/apiClient';
 import { queryKeys } from '../../../lib/queryKeys';
 import { STALE_TIME } from '../../../lib/queryClient';
+import Image from 'next/image';
 import { useDebounce } from '../../../hooks/useDebounce';
 
 // ─── Types ───────────────────────────────────────────────────────
@@ -97,7 +98,7 @@ function ScenarioCard({ scenario, onStart }: { scenario: Scenario; onStart: (s: 
       {/* Thumbnail */}
       <div className={`h-32 ${cat.bg} flex items-center justify-center relative`}>
         {scenario.thumbnailUrl
-          ? <img src={scenario.thumbnailUrl} className="w-full h-full object-cover" alt="" />
+          ? <Image src={scenario.thumbnailUrl} fill className="object-cover" alt="" />
           : <Icon size={40} className={`${cat.color} opacity-40`} />
         }
         {done !== null && (
@@ -216,9 +217,9 @@ function ChatSession({
         {/* Header */}
         <div className="flex items-center gap-3 px-5 py-4 border-b border-slate-100">
           <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-violet-600
-            flex items-center justify-center overflow-hidden shrink-0">
+            flex items-center justify-center overflow-hidden shrink-0 relative">
             {avatarImage
-              ? <img src={avatarImage} alt={avatarName} className="w-full h-full object-cover" />
+              ? <Image src={avatarImage} alt={avatarName} fill className="object-cover" />
               : <Bot size={18} className="text-white" />
             }
           </div>

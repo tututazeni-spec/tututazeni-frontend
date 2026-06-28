@@ -1,7 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Permite usar next/image com avatares/thumbnails remotos (http/https).
+  experimental: {
+    reactCompiler: true,
+  },
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "**" },
