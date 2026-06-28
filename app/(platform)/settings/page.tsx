@@ -241,10 +241,11 @@ function TabSeguranca({ onToast }: { onToast: (msg: string, type: "success" | "e
         </h3>
         <form onSubmit={submit}>
           <div style={{ marginBottom: 16 }}>
-            <span style={labelStyle}>Senha Actual</span>
+            <label style={labelStyle} htmlFor="current-password">Senha Actual</label>
             <div style={{ position: "relative" }}>
               <input
                 type={showPass ? "text" : "password"}
+                id="current-password"
                 value={form.currentPassword}
                 onChange={e => set("currentPassword", e.target.value)}
                 style={{ ...inputStyle, paddingRight: 44 }}
@@ -261,8 +262,9 @@ function TabSeguranca({ onToast }: { onToast: (msg: string, type: "success" | "e
           </div>
 
           <div style={{ marginBottom: 16 }}>
-            <span style={labelStyle}>Nova Senha</span>
+            <label style={labelStyle} htmlFor="new-password">Nova Senha</label>
             <input
+              id="new-password"
               type="password"
               value={form.newPassword}
               onChange={e => set("newPassword", e.target.value)}
@@ -289,8 +291,9 @@ function TabSeguranca({ onToast }: { onToast: (msg: string, type: "success" | "e
           </div>
 
           <div style={{ marginBottom: 20 }}>
-            <span style={labelStyle}>Confirmar Nova Senha</span>
+            <label style={labelStyle} htmlFor="confirm-password">Confirmar Nova Senha</label>
             <input
+              id="confirm-password"
               type="password"
               value={form.confirmPassword}
               onChange={e => set("confirmPassword", e.target.value)}

@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useId } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
 import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
 import { useConfirm } from '@/providers/ConfirmProvider';
@@ -653,17 +653,21 @@ function CreateUserView({ onBack, onCreated }: { onBack: () => void; onCreated: 
 
   const Field = ({ label, id, type = 'text', required = false }: {
     label: string; id: keyof typeof form; type?: string; required?: boolean;
-  }) => (
-    <div>
-      <label className="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-1.5">{label}{required && ' *'}</label>
-      <input
-        type={type}
-        value={form[id]}
-        onChange={handle(id)}
-        className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500"
-      />
-    </div>
-  );
+  }) => {
+    const fieldId = useId();
+    return (
+      <div>
+        <label htmlFor={fieldId} className="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-1.5">{label}{required && ' *'}</label>
+        <input
+          id={fieldId}
+          type={type}
+          value={form[id]}
+          onChange={handle(id)}
+          className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+      </div>
+    );
+  };
 
   return (
     <div>
