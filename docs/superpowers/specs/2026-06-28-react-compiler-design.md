@@ -1,76 +1,82 @@
-# Spec — Ligar o React Compiler (otimização de re-renders)
+# Spec — Otimização de performance do frontend (Compiler + estrutural)
 
 > Data: 2026-06-28
 > Repo: innova-frontend (Next.js 15.3 + React 19.2)
 > Branch: `perf/react-compiler`
-> Origem: pedido de otimização de performance (memoização: react.memo/useCallback/useMemo).
+> Origem: pedido de otimização (memoização + ganhos estruturais).
 
 ## Contexto e problema
 
 O frontend tem ~84 componentes client, 660 `useState`, 874 `.map(` e **zero
-memoização** (`React.memo`/`memo()`: 0; `useCallback`: 23; `useMemo`: 3). As
-páginas são monolíticas (employees 1033 linhas, processes 997, courses 907…).
-Re-renders desnecessários são prováveis e generalizados.
+memoização** (`React.memo`/`memo()`: 0; `useCallback`: 23; `useMemo`: 3). Páginas
+monolíticas (employees 1033 linhas, courses 907…). Além disso: **46 `<img>` raw**
+(0 `next/image`), listas **sem paginação** em services/hooks (renderizam tudo), e
+0 `dynamic()`.
 
-Em React 19, a forma moderna e segura de resolver isto é o **React Compiler**,
-que auto-memoiza componentes e hooks no build — equivalente a aplicar
-`memo`/`useMemo`/`useCallback` corretamente em todo o lado, sem espalhar
-memoização à mão por dezenas de ficheiros grandes (propenso a erros/esquecimentos).
-
-Estado atual: `next.config.ts` **não** tem o compiler ativado.
-
-Decisão do utilizador (brainstorming): **React Compiler** (não manual).
+Decisões do utilizador (brainstorming):
+- Memoização via **React Compiler** (não manual).
+- Incluir ganhos estruturais: **`next/image`** e **virtualização**.
+- **Sem** code-split manual — o Next já divide por rota e não há libs pesadas
+  (só `dompurify`) nem subárvores client óbvias; forçá-lo seria prematuro.
 
 ## Objetivo
 
-Ativar o React Compiler para que os componentes client sejam auto-memoizados no
-build, sem alterar o código dos componentes nem o comportamento da aplicação, e
-com visibilidade dos componentes que o compiler salta (violações das Regras do
-React).
+Reduzir re-renders e custo de render/carregamento sem alterar comportamento:
+(1) auto-memoização via React Compiler; (2) imagens otimizadas com `next/image`;
+(3) virtualização das listas genuinamente grandes. Entregue em **3 fases
+independentes**.
 
 ## Design
 
-### 1. Ativar o compiler
+### Fase 1 — React Compiler
 
-- Instalar `babel-plugin-react-compiler` (versão compatível com React 19).
-- `next.config.ts`: adicionar `experimental: { reactCompiler: true }`, preservando
-  `images` e `rewrites` já existentes.
-- Efeito: no build, o compiler memoiza automaticamente componentes/hooks. Onde um
-  componente viola as Regras do React, o compiler **salta-o** (sem memoizar, sem
-  partir). Sem dependência de runtime nova (build-time apenas).
-- Custo conhecido: o passo do compiler usa Babel → builds um pouco mais lentos.
-  Trade-off aceitável.
+- Instalar `babel-plugin-react-compiler` (compatível com React 19).
+- `next.config.ts`: `experimental: { reactCompiler: true }`, preservando
+  `images`/`rewrites`.
+- Efeito: auto-memoiza componentes/hooks no build. Componentes que violam as
+  Regras do React são **saltados** (sem memoizar, sem partir). Build-time apenas.
+- ESLint: ativar a regra do React Compiler no `eslint.config.mjs`
+  (`eslint-plugin-react-hooks` v5 — `react-hooks/react-compiler` — ou
+  `eslint-plugin-react-compiler`) para ver os bailouts. Corrigir só os críticos
+  triviais.
+- Custo: builds um pouco mais lentos (Babel). Trade-off aceitável.
 
-### 2. ESLint do compiler (visibilidade dos bailouts)
+### Fase 2 — `next/image`
 
-- Ativar a regra do React Compiler no `eslint.config.mjs` (via
-  `eslint-plugin-react-hooks` v5 — regra `react-hooks/react-compiler` — ou
-  `eslint-plugin-react-compiler`).
-- Serve de mapa: assinala os componentes que o compiler vai saltar. Não é
-  obrigatório corrigir todos; corrigir apenas os **críticos** (páginas pesadas)
-  quando a violação for trivial.
+- Converter os **46 `<img>` raw** para `<Image>` do `next/image`. O
+  `next.config.ts` já permite imagens remotas (http/https `**`).
+- Cada conversão: `width`/`height` (avatares/thumbnails) ou `fill` + container
+  dimensionado (responsivas); **`alt` sempre** (a11y).
+- Exceções: SVG/data-URI inline ficam como estão.
+- Ganho: lazy-load, WebP, redimensionamento → Core Web Vitals.
 
-### 3. Verificação (sem testes automatizados no projeto)
+### Fase 3 — Virtualização
 
-O projeto não tem jest/test script. Verificação manual:
-1. `npm run build` (`next build`) → compila sem erros; o compiler reporta no build.
-2. `npm run dev` → arranca sem erros; smoke a 2-3 páginas pesadas (`employees`,
-   `users`, `courses`) — renderizam e interagem na mesma.
-3. `npx tsc --noEmit` → zero erros TypeScript.
-4. `npm run lint` → ver bailouts do compiler; corrigir os críticos triviais.
+- Instalar `@tanstack/react-virtual`.
+- Alvo: as **2-3 listas genuinamente grandes** — `users` (~6000) e `employees`
+  primeiro. (As services não paginam → renderizam tudo.)
+- Refactor por lista: container com altura fixa + virtualizer que só renderiza as
+  linhas visíveis.
+- NÃO virtualizar as 85 páginas — só as de listas enormes (YAGNI).
+
+### Verificação (sem testes automatizados no projeto)
+
+Por fase: `npm run build` (compila), `npm run dev` (arranca + smoke a páginas
+pesadas), `npx tsc --noEmit` (zero erros), `npm run lint` (bailouts do compiler /
+regras). Fase 2: sem layout-shift visível. Fase 3: scroll fluido, dados corretos.
 
 ## Critério de sucesso
 
-1. `experimental.reactCompiler: true` ativo e `babel-plugin-react-compiler`
-   instalado.
-2. `next build` e `next dev` funcionam; comportamento das páginas inalterado.
-3. `tsc --noEmit` limpo.
-4. Lista de bailouts conhecida (críticos triviais corrigidos).
+1. `reactCompiler: true` ativo, `babel-plugin-react-compiler` instalado, build/dev
+   ok, comportamento inalterado.
+2. Os 46 `<img>` convertidos para `next/image` (exceto SVG/data-URI), com `alt`.
+3. `users` e `employees` (e outra lista enorme, se houver) virtualizadas.
+4. `tsc --noEmit` limpo em todas as fases.
 
 ## Fora de âmbito
 
-- Virtualização de listas grandes, code-splitting/`dynamic()`, `next/image` —
-  ganhos estruturais complementares para um ciclo seguinte.
+- Code-split manual / `dynamic()` (Next já divide por rota; sem libs pesadas).
 - Restantes pontos do `FRONTEND-AUDIT-GUIDE.md` (JWT, middleware, paginação,
-  error boundary, etc.) — não fazem parte deste pedido.
+  error boundary, etc.).
 - Memoização manual (substituída pelo compiler).
+- Virtualizar listas pequenas / todas as páginas.
