@@ -229,7 +229,7 @@ function NewDocRequestModal({ templates, purposes, onClose, onSuccess }: {
               </button>
               {preview && (
                 <div className="border border-gray-200 rounded-xl p-4 bg-gray-50 max-h-48 overflow-y-auto">
-                  <pre className="text-xs text-gray-700 whitespace-pre-wrap font-sans" dangerouslySetInnerHTML={{ __html: preview.previewHtml.replace(/<[^>]*>/g, ' ').trim() }} />
+                  <pre className="text-xs text-gray-700 whitespace-pre-wrap font-sans">{preview.previewHtml.replace(/<[^>]*>/g, ' ').trim()}</pre>
                 </div>
               )}
               <div className="bg-gray-50 rounded-xl p-4 space-y-2 text-sm">
