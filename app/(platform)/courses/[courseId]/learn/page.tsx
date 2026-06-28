@@ -15,6 +15,7 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
+import { useConfirm } from '@/providers/ConfirmProvider';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -427,8 +428,9 @@ function ModuleBuilder({ courseId }: { courseId: number }) {
     }
   };
 
+  const confirm = useConfirm();
   const handleDelete = async (moduleId: number) => {
-    if (!confirm('Eliminar módulo? Esta acção não pode ser desfeita.')) return;
+    if (!(await confirm({ title: 'Eliminar módulo?', message: 'Esta ação não pode ser desfeita.', confirmLabel: 'Eliminar', destructive: true }))) return;
     try {
       await apiClient.delete(`/modules/${moduleId}`);
       await reload();

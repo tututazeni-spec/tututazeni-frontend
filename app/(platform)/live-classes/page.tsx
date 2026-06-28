@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { api } from "../../../lib/api";
+import { useConfirm } from "../../../providers/ConfirmProvider";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -219,8 +220,9 @@ export default function LivePage() {
 
   // ── Handlers ────────────────────────────────────────────────────────────────
 
+  const confirm = useConfirm();
   async function deleteClass(lc: LiveClass) {
-    if (!confirm(`Eliminar "${lc.topic}"?`)) return;
+    if (!(await confirm({ title: `Eliminar "${lc.topic}"?`, confirmLabel: 'Eliminar', destructive: true }))) return;
     try {
       await api.delete(`/live-classes/${lc.id}`);
       setClasses(prev => prev.filter(x => x.id !== lc.id));

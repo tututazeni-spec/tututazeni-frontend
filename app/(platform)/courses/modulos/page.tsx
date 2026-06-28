@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { api } from "../../../../lib/api";
+import { useConfirm } from "../../../../providers/ConfirmProvider";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface Lesson {
@@ -323,9 +324,10 @@ export default function CourseModulesPage() {
     } catch {}
   }
 
+  const confirm = useConfirm();
   // ── Delete module ─────────────────────────────────────────────────────────
   async function deleteModule(mod: CourseModule) {
-    if (!confirm(`Remover módulo "${mod.title}"?`)) return;
+    if (!(await confirm({ title: `Remover módulo "${mod.title}"?`, confirmLabel: 'Remover', destructive: true }))) return;
     try {
       await api.delete(`/modules/${mod.id}`);
       setModules(prev => prev.filter(m => m.id !== mod.id));
@@ -335,7 +337,7 @@ export default function CourseModulesPage() {
 
   // ── Delete lesson ─────────────────────────────────────────────────────────
   async function deleteLesson(lesson: Lesson) {
-    if (!confirm(`Remover lição "${lesson.title}"?`)) return;
+    if (!(await confirm({ title: `Remover lição "${lesson.title}"?`, confirmLabel: 'Remover', destructive: true }))) return;
     try {
       await api.delete(`/lessons/${lesson.id}`);
       await refreshModule(lesson.moduleId);

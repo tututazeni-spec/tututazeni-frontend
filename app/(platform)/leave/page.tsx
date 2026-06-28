@@ -7,6 +7,7 @@
 
 import { useState } from 'react';
 import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
+import { useConfirm } from '@/providers/ConfirmProvider';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -598,8 +599,9 @@ export default function LeavePage() {
     try { await approve.mutateAsync({ id: requestId, action }); } catch { /* tratado */ }
   };
 
-  const handleCancel = (requestId: number) => {
-    if (!confirm('Tem a certeza que quer cancelar este pedido?')) return;
+  const confirm = useConfirm();
+  const handleCancel = async (requestId: number) => {
+    if (!(await confirm({ title: 'Cancelar este pedido?', message: 'Tem a certeza?', confirmLabel: 'Cancelar pedido', destructive: true }))) return;
     cancel.mutate(requestId);
   };
 
