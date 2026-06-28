@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
 import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
+import { useConfirm } from '@/providers/ConfirmProvider';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -263,8 +264,9 @@ function MyEnrollmentsView() {
     { invalidateKeys: [queryKeys.enrollments.my()], onError: (e) => alert(e.message) },
   );
 
-  const handleCancel = (id: number) => {
-    if (!confirm('Cancelar esta matrícula?')) return;
+  const confirm = useConfirm();
+  const handleCancel = async (id: number) => {
+    if (!(await confirm({ title: 'Cancelar esta matrícula?', confirmLabel: 'Cancelar matrícula', destructive: true }))) return;
     cancel.mutate(id);
   };
 

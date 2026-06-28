@@ -7,6 +7,7 @@ import {
   Copy, Trash2, Plus, ChevronRight, Search, Brain, Activity,
 } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
+import { useConfirm } from '@/providers/ConfirmProvider';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -27,6 +28,7 @@ function RolesTab() {
     queryKeys.rolesPermissions.roles(), '/roles-permissions', { staleTime: STALE_TIME.SEMI_STATIC },
   );
   const load = () => { void refetch(); };
+  const confirm = useConfirm();
 
   const filtered = roles.filter(r => !search || r.name.toLowerCase().includes(search.toLowerCase()));
 
@@ -81,7 +83,7 @@ function RolesTab() {
                   <Copy size={12} />Clonar
                 </button>
                 {!(selected.isSystem) && selected._count?.users === 0 && (
-                  <button onClick={() => { if (confirm('Remover role?')) apiClient.delete(`/roles-permissions/${selected.id}`).then(() => { setSel(null); load(); }); }}
+                  <button onClick={async () => { if (await confirm({ title: 'Remover role?', confirmLabel: 'Remover', destructive: true })) apiClient.delete(`/roles-permissions/${selected.id}`).then(() => { setSel(null); load(); }); }}
                     className="flex items-center gap-1 text-xs px-3 py-1.5 border border-red-200 text-red-600 rounded-lg hover:bg-red-50">
                     <Trash2 size={12} />Remover
                   </button>
