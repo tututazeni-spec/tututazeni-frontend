@@ -6,6 +6,7 @@ import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
+import Image from 'next/image';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -146,7 +147,7 @@ function DeadlinePill({ deadline, isOverdue }: { deadline: string | null; isOver
 function Avatar({ user }: { user: { fullName: string; avatarUrl: string | null } }) {
   const initials = user.fullName.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase();
   return user.avatarUrl ? (
-    <img src={user.avatarUrl} alt={user.fullName} className="w-8 h-8 rounded-full object-cover flex-shrink-0" />
+    <Image src={user.avatarUrl} alt={user.fullName} width={32} height={32} className="w-8 h-8 rounded-full object-cover flex-shrink-0" />
   ) : (
     <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-semibold flex-shrink-0">
       {initials}
@@ -174,9 +175,9 @@ function EnrollmentCard({
     }`}>
       <div className="flex gap-4 p-4">
         {/* Thumbnail */}
-        <div className="w-20 h-14 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
+        <div className="w-20 h-14 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0 relative">
           {course.thumbnailUrl ? (
-            <img src={course.thumbnailUrl} alt={course.title} className="w-full h-full object-cover" />
+            <Image src={course.thumbnailUrl} alt={course.title} fill className="object-cover" />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-2xl text-gray-300">📚</div>
           )}

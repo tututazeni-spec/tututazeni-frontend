@@ -9,6 +9,7 @@ import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { sanitizeHtml } from '@/lib/sanitize';
+import Image from 'next/image';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -107,7 +108,7 @@ function MicroCard({ item, onClick }: { item: MicroLearning; onClick: () => void
       {/* Thumbnail */}
       <div className="relative aspect-video bg-gradient-to-br from-gray-800 to-gray-900 overflow-hidden">
         {item.thumbnailUrl ? (
-          <img src={item.thumbnailUrl} alt="" className="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-300" />
+          <Image src={item.thumbnailUrl} alt="" fill className="object-cover opacity-80 group-hover:scale-105 transition-transform duration-300" />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-5xl opacity-40">
             {typeCfg.icon}
@@ -324,7 +325,7 @@ function PlayerView({ item, onBack, onNext }: {
         {/* Thumbnail / Media */}
         <div className="relative aspect-video bg-gray-900">
           {item.thumbnailUrl && (
-            <img src={item.thumbnailUrl} alt="" className="w-full h-full object-cover opacity-60" />
+            <Image src={item.thumbnailUrl} alt="" fill className="object-cover opacity-60" />
           )}
           {(item.contentType === 'VIDEO' || item.contentType === 'AUDIO') && item.mediaUrl ? (
             <div className="absolute inset-0 flex items-center justify-center">

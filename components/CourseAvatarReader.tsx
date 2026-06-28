@@ -38,6 +38,7 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
+import Image from 'next/image';
 
 // ─── Configuração ─────────────────────────────────────────────────────────────
 
@@ -294,8 +295,8 @@ export function CourseAvatarReader({
             className="group flex items-center gap-2.5 bg-white border border-gray-200 shadow-lg rounded-full pl-1 pr-4 py-1 hover:shadow-xl hover:border-blue-300 transition-all duration-200 relative"
           >
             {/* Avatar miniatura */}
-            <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-blue-500 flex-shrink-0">
-              <img src={avatarSrc} alt={avatarName} className="w-full h-full object-cover" />
+            <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-blue-500 flex-shrink-0 relative">
+              <Image src={avatarSrc} alt={avatarName} fill className="object-cover" />
             </div>
             <span className="text-xs font-semibold text-gray-700 group-hover:text-blue-700 transition-colors">
               Ouvir aula

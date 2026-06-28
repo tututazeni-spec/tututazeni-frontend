@@ -7,6 +7,7 @@ import { apiClient } from '../../../lib/apiClient';
 import { queryKeys } from '../../../lib/queryKeys';
 import { STALE_TIME } from '../../../lib/queryClient';
 import { useDebounce } from '../../../hooks/useDebounce';
+import Image from 'next/image';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -174,7 +175,7 @@ function LearningPathCard({
       {/* Thumbnail */}
       <div className="aspect-video bg-gradient-to-br from-blue-600 to-blue-900 relative overflow-hidden">
         {path.thumbnailUrl ? (
-          <img src={path.thumbnailUrl} alt={path.title} className="w-full h-full object-cover opacity-80" />
+          <Image src={path.thumbnailUrl} alt={path.title} fill className="object-cover opacity-80" />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-5xl">🗺️</div>
         )}
@@ -363,7 +364,7 @@ function LPDetailView({ pathId, onBack }: { pathId: number; onBack: () => void }
       <div className="bg-white border border-gray-200 rounded-xl overflow-hidden mb-5">
         <div className="h-36 bg-gradient-to-br from-blue-700 to-blue-900 relative">
           {path.thumbnailUrl && (
-            <img src={path.thumbnailUrl} alt={path.title} className="w-full h-full object-cover opacity-40 absolute inset-0" />
+            <Image src={path.thumbnailUrl} alt={path.title} fill className="object-cover opacity-40" />
           )}
           <div className="absolute inset-0 flex items-end p-5">
             <div className="flex items-center gap-2 flex-wrap">
@@ -482,9 +483,9 @@ function LPDetailView({ pathId, onBack }: { pathId: number; onBack: () => void }
                 }`}>
                   <div className="flex items-center gap-4 p-4">
                     {/* Thumbnail */}
-                    <div className="w-16 h-12 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
+                    <div className="w-16 h-12 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0 relative">
                       {step.course?.thumbnailUrl ? (
-                        <img src={step.course.thumbnailUrl} alt="" className="w-full h-full object-cover" />
+                        <Image src={step.course.thumbnailUrl} alt="" fill className="object-cover" />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-xl text-gray-300">📚</div>
                       )}
@@ -610,9 +611,9 @@ function MyPathsView({ onSelect }: { onSelect: (id: number) => void }) {
               className="flex items-center gap-4 bg-white border border-gray-200 rounded-xl p-4 cursor-pointer hover:bg-gray-50"
               onClick={() => onSelect(e.learningPathId)}
             >
-              <div className="w-16 h-12 rounded-lg overflow-hidden flex-shrink-0 bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center">
+              <div className="w-16 h-12 rounded-lg overflow-hidden flex-shrink-0 bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center relative">
                 {e.learningPath?.thumbnailUrl ? (
-                  <img src={e.learningPath.thumbnailUrl} alt="" className="w-full h-full object-cover opacity-80" />
+                  <Image src={e.learningPath.thumbnailUrl} alt="" fill className="object-cover opacity-80" />
                 ) : (
                   <span className="text-2xl">🗺️</span>
                 )}

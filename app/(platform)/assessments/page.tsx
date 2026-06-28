@@ -7,6 +7,7 @@ import { useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
+import Image from 'next/image';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -172,7 +173,9 @@ function QuestionPlayer({
           {question.mediaUrl.match(/\.(mp4|webm)$/) ? (
             <video src={question.mediaUrl} controls className="w-full max-h-48 object-contain" />
           ) : (
-            <img src={question.mediaUrl} alt="Media" className="w-full max-h-48 object-contain" />
+            <div className="relative w-full h-48">
+              <Image src={question.mediaUrl} alt="Media" fill className="object-contain" />
+            </div>
           )}
         </div>
       )}
