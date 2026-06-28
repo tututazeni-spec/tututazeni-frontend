@@ -4,6 +4,7 @@
 import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
 import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
+import { useConfirm } from '@/providers/ConfirmProvider';
 import { useDebounce } from '@/hooks/useDebounce';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -347,9 +348,10 @@ function UserProfileView({ userId, onBack }: { userId: number; onBack: () => voi
     },
   );
   const actionLoading = action.isPending;
+  const confirm = useConfirm();
 
-  const handleAction = (act: 'activate' | 'deactivate' | 'suspend') => {
-    if (!confirm(`${act} este utilizador?`)) return;
+  const handleAction = async (act: 'activate' | 'deactivate' | 'suspend') => {
+    if (!(await confirm({ title: `${act} este utilizador?`, confirmLabel: act, destructive: true }))) return;
     action.mutate(act);
   };
 

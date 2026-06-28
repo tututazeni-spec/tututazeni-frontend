@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
 import { useApiQuery } from '../../../hooks/useApiQuery';
+import { useConfirm } from '../../../providers/ConfirmProvider';
 import { apiClient } from '../../../lib/apiClient';
 import { queryKeys } from '../../../lib/queryKeys';
 import { STALE_TIME } from '../../../lib/queryClient';
@@ -365,8 +366,9 @@ function ProcessViewer({
     }
   };
 
+  const confirm = useConfirm();
   const handleNewVersion = async () => {
-    if (!confirm('Criar nova versão? O processo voltará a DRAFT.')) return;
+    if (!(await confirm({ title: 'Criar nova versão?', message: 'O processo voltará a DRAFT.', confirmLabel: 'Criar versão' }))) return;
     setActionLoading(true);
     try {
       await apiClient.post(`/processes/${processId}/new-version`, {});

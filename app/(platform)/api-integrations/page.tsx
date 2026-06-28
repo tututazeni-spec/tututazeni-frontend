@@ -8,6 +8,7 @@ import {
   Clock, TrendingUp,
 } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
+import { useConfirm } from '@/providers/ConfirmProvider';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -111,7 +112,8 @@ function WebhooksTab() {
   );
   const load = () => { void refetch(); };
 
-  const remove = async (id: number) => { if (confirm('Remover webhook?')) { await apiClient.delete(`/api-integrations/webhooks/${id}`); load(); } };
+  const confirm = useConfirm();
+  const remove = async (id: number) => { if (await confirm({ title: 'Remover webhook?', confirmLabel: 'Remover', destructive: true })) { await apiClient.delete(`/api-integrations/webhooks/${id}`); load(); } };
 
   if (loading) return <Skeleton />;
 
@@ -188,8 +190,9 @@ function ApiKeysTab() {
     if (r.key) { setNewKey(r.key); load(); }
   };
 
+  const confirm = useConfirm();
   const revoke = async (id: number) => {
-    if (confirm('Revogar esta API Key?')) { await apiClient.post(`/api-integrations/api-keys/${id}/revoke`, {}); load(); }
+    if (await confirm({ title: 'Revogar esta API Key?', confirmLabel: 'Revogar', destructive: true })) { await apiClient.post(`/api-integrations/api-keys/${id}/revoke`, {}); load(); }
   };
 
   if (loading) return <Skeleton />;

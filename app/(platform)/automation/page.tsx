@@ -9,6 +9,7 @@ import {
   ChevronRight, Activity, Settings,
 } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
+import { useConfirm } from '@/providers/ConfirmProvider';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -57,7 +58,8 @@ function RulesTab() {
 
   const toggle = async (id: number) => { await apiClient.patch(`/automation/rules/${id}/toggle`, {}); load(); };
   const clone  = async (id: number) => { await apiClient.post(`/automation/rules/${id}/clone`, {}); load(); };
-  const remove = async (id: number) => { if (confirm('Remover regra?')) { await apiClient.delete(`/automation/rules/${id}`); load(); } };
+  const confirm = useConfirm();
+  const remove = async (id: number) => { if (await confirm({ title: 'Remover regra?', confirmLabel: 'Remover', destructive: true })) { await apiClient.delete(`/automation/rules/${id}`); load(); } };
   const runAll = async () => { setRunning(true); const r = await apiClient.post<any>('/automation/run', {}); setRunning(false); alert(`Executadas: ${r.executed} regras`); };
 
   if (loading) return <Skeleton />;

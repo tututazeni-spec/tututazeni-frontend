@@ -4,6 +4,7 @@
 import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
 import { useApiQuery } from '../../../hooks/useApiQuery';
+import { useConfirm } from '../../../providers/ConfirmProvider';
 import { apiClient } from '../../../lib/apiClient';
 import { queryKeys } from '../../../lib/queryKeys';
 import { STALE_TIME } from '../../../lib/queryClient';
@@ -319,8 +320,9 @@ function DetailView({ eventId, onBack }: { eventId: number; onBack: () => void }
     finally { setJoining(false); }
   };
 
+  const confirm = useConfirm();
   const handleLeave = async () => {
-    if (!confirm('Cancelar inscrição neste evento?')) return;
+    if (!(await confirm({ title: 'Cancelar inscrição neste evento?', confirmLabel: 'Cancelar inscrição', destructive: true }))) return;
     try {
       await apiClient.post(`/events/${eventId}/leave`, {});
       await refetch();

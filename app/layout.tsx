@@ -2,6 +2,7 @@ import "./globals.css";
 import type { Metadata } from "next";
 import ClientInit from "../components/ClientInit";
 import ReactQueryProvider from "../providers/ReactQueryProvider";
+import { ConfirmProvider } from "../providers/ConfirmProvider";
 
 export const metadata: Metadata = {
   title: {
@@ -21,7 +22,9 @@ export default function RootLayout({
     <html lang="pt">
       <body style={{ margin: 0, padding: 0 }}>
         <ClientInit />
-        <ReactQueryProvider>{children}</ReactQueryProvider>
+        <ReactQueryProvider>
+          <ConfirmProvider>{children}</ConfirmProvider>
+        </ReactQueryProvider>
       </body>
     </html>
   );
