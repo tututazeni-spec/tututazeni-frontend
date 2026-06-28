@@ -1,6 +1,7 @@
 ﻿"use client";
 
 import { useEffect, useState, useCallback } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { api } from "../../../lib/api";
 
@@ -83,6 +84,23 @@ function Toast({ msg, type, onClose }: { msg: string; type: "success" | "error" 
       {msg}
       <button onClick={onClose} style={{ background: "none", border: "none", cursor: "pointer", color: c.cl, fontSize: 16, marginLeft: 8 }}>×</button>
     </div>
+  );
+}
+
+// ─── Youtube Thumbnail ────────────────────────────────────────────────────────
+
+function YoutubeThumbnail({ src, alt }: { src: string; alt: string }) {
+  const [thumbError, setThumbError] = useState(false);
+  if (thumbError) return null;
+  return (
+    <Image
+      src={src}
+      alt={alt}
+      fill
+      className="object-cover"
+      style={{ opacity: 0.7 }}
+      onError={() => setThumbError(true)}
+    />
   );
 }
 
@@ -431,11 +449,9 @@ export default function LivePage() {
                       onClick={() => setViewRecording(lc)}
                       style={{ position: "relative", background: "#0f172a", aspectRatio: "16/9", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
                       {embedUrl?.includes("youtube") ? (
-                        <img
+                        <YoutubeThumbnail
                           src={`https://img.youtube.com/vi/${embedUrl.split("/embed/")[1]?.split("?")[0]}/hqdefault.jpg`}
                           alt={lc.topic}
-                          style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.7 }}
-                          onError={e => (e.currentTarget.style.display = "none")}
                         />
                       ) : null}
                       <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>

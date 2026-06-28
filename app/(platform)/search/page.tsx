@@ -48,8 +48,8 @@ function ResultCard({ result }: { result: SearchResult }) {
   return (
     <a href={result.url ?? '#'}
       className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 transition-colors group">
-      {result.avatarUrl || result.thumbnailUrl ? (
-        <Image src={result.avatarUrl ?? result.thumbnailUrl ?? ''}
+      {(result.avatarUrl || result.thumbnailUrl) ? (
+        <Image src={(result.avatarUrl || result.thumbnailUrl)!}
           alt={result.title}
           width={36} height={36}
           className="w-9 h-9 rounded-lg object-cover shrink-0" />
