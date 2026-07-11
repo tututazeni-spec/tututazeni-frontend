@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { API_URL } from "@/lib/api";
 import {
   LayoutDashboard, BookOpen, Users, ClipboardList, Star, Award,
   TrendingUp, Briefcase, Trophy, BarChart2, FileText, Bell, Shield,
@@ -128,7 +129,7 @@ export default function Sidebar() {
 
   function logout() {
     // Pede ao backend para limpar o cookie httpOnly e redirecciona para /login.
-    void fetch(`${process.env.NEXT_PUBLIC_API_URL ?? ""}/auth/logout`, {
+    void fetch(`${API_URL}/auth/logout`, {
       method: "POST",
       credentials: "include",
     }).finally(() => {

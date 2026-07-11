@@ -2,6 +2,7 @@
 'use client';
 
 import { useState } from 'react';
+import { API_URL } from '@/lib/api';
 
 type PdfType = 'declaration' | 'certificate' | 'payslip' | 'report';
 
@@ -27,7 +28,7 @@ export function PdfDownloadButton({
 
     try {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/pdf/${type}/${id}`,
+        `${API_URL}/pdf/${type}/${id}`,
         {
           method: 'GET',
           credentials: 'include',

@@ -1,15 +1,11 @@
 // Patch global ao window.fetch para o frontend INNOVA.
 //
-// Porquê: depois da migração para cookie httpOnly, o token deixa de estar
-// acessível ao JavaScript. Para que o cookie seja enviado em pedidos
-// cross-origin (frontend :3000 -> backend :4000) é obrigatório
-// `credentials: 'include'`. As ~60 páginas fazem `fetch` inline sem essa
-// opção; em vez de editar cada uma, garantimos o comportamento num único sítio.
+// Porquê: depois da migração para cookie httpOnly e base same-origin `/api`,
+// `credentials: 'include'` é mantido para garantir que o cookie acompanha
+// todos os pedidos sem depender de cada página passar a opção individualmente.
 //
 // Também centraliza o "logout automático" em 401 (sessão expirada), cumprindo
 // o requisito do interceptor sem depender de cada página.
-
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? '';
 
 function resolveUrl(input: RequestInfo | URL): string {
   if (typeof input === 'string') return input;
@@ -17,10 +13,9 @@ function resolveUrl(input: RequestInfo | URL): string {
   return input.url;
 }
 
-// Só forçamos credentials/401 nos pedidos à NOSSA API (backend ou rotas
-// relativas). Pedidos a terceiros (ex.: Google Fonts) ficam intactos.
 function isApiRequest(url: string): boolean {
-  if (API_BASE && url.startsWith(API_BASE)) return true;
+  // Pedidos relativos são à NOSSA app (/api e rotas do Next); URLs absolutos
+  // de terceiros (ex.: fontes externas) ficam intactos.
   return url.startsWith('/');
 }
 

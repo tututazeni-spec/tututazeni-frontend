@@ -5,7 +5,9 @@
 // getToken()/setToken() — apenas o logout, que pede ao backend para limpar o
 // cookie.
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? '';
+import { API_URL } from './api';
+
+const API_BASE = API_URL;
 
 export async function logout(): Promise<void> {
   try {
