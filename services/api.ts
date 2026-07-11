@@ -1,6 +1,5 @@
 import axios from "axios";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+import { API_URL } from "@/lib/api";
 
 // Instância axios partilhada. Autenticação por cookie httpOnly:
 // `withCredentials` envia o cookie automaticamente; o token nunca é lido em JS.

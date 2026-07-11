@@ -13,8 +13,9 @@
 
 import { recordRequest, normalizePath } from './performanceMonitor';
 
-export const API_URL =
-  process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+import { API_URL } from './api';
+
+export { API_URL };
 
 export class ApiError extends Error {
   constructor(

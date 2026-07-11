@@ -1,4 +1,7 @@
-export const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+// Base única da API (auditoria A-1, achado F3): caminho relativo same-origin.
+// Em dev o rewrite do next.config.ts faz proxy para o Nest; em produção o
+// Caddy interceta /api na borda. Zero dependência de NEXT_PUBLIC_API_URL.
+export const API_URL = '/api';
 
 // Cliente fetch tipado. Autenticação por cookie httpOnly: enviamos sempre
 // `credentials: 'include'` e nunca lemos o token em JS (mitiga XSS).

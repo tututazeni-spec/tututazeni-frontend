@@ -9,7 +9,9 @@
 // Também centraliza o "logout automático" em 401 (sessão expirada), cumprindo
 // o requisito do interceptor sem depender de cada página.
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? '';
+import { API_URL } from './api';
+
+const API_BASE = API_URL;
 
 function resolveUrl(input: RequestInfo | URL): string {
   if (typeof input === 'string') return input;

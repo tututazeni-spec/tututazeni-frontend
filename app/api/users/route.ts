@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
  
 export async function GET() {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+  const apiUrl = process.env.API_INTERNAL_URL || "http://localhost:4000";
  
   try {
     const res = await fetch(`${apiUrl}/users`, { cache: "no-store" });

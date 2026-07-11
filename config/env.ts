@@ -1,3 +1,5 @@
+import { API_URL } from "@/lib/api";
+
 export const env = {
-  API_URL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000",
+  API_URL,
 };
