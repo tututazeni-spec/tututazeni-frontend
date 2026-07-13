@@ -88,12 +88,20 @@ export default function FundersPage() {
           <h1 className="text-2xl font-bold text-gray-900">Financiadores</h1>
           <p className="text-gray-500">{total} financiadores registados</p>
         </div>
-        <Link
-          href="/crm/funders/novo"
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-        >
-          + Novo Financiador
-        </Link>
+        <div className="flex gap-2">
+          <Link
+            href="/crm/funders/overdue-reports"
+            className="px-4 py-2 border rounded-lg hover:bg-gray-50 text-gray-700"
+          >
+            Relatórios em atraso
+          </Link>
+          <Link
+            href="/crm/funders/novo"
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+          >
+            + Novo Financiador
+          </Link>
+        </div>
       </div>
 
       {/* Filtros */}
