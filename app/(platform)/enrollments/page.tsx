@@ -337,23 +337,17 @@ function MyEnrollmentsView() {
 // ─── View: Admin Enrollments Table ────────────────────────────────────────────
 
 function AdminView() {
-  // Um só objecto para os filtros + page: mudar qualquer filtro repõe a
-  // página a 1 automaticamente (o checkbox "overdue" não fazia isto antes).
-  const [filters, setFilters] = useState({ status: '', mandatory: '', overdue: '', page: 1 });
+  const [status, setStatus]     = useState('');
+  const [mandatory, setMandatory] = useState('');
+  const [overdue, setOverdue]   = useState('');
+  const [page, setPage]         = useState(1);
   const [selected, setSelected] = useState<number[]>([]);
   const [bulkDeadline, setBulkDeadline] = useState('');
 
-  function updateFilters(patch: Partial<Omit<typeof filters, 'page'>>) {
-    setFilters(f => ({ ...f, ...patch, page: 1 }));
-  }
-  function goToPage(delta: number) {
-    setFilters(f => ({ ...f, page: f.page + delta }));
-  }
-
   const params = {
-    page: filters.page, limit: 20,
-    status: filters.status, mandatory: filters.mandatory,
-    overdue: filters.overdue ? 'true' : undefined,
+    page, limit: 20,
+    status, mandatory,
+    overdue: overdue ? 'true' : undefined,
   };
 
   const { data, isLoading: loading } = useApiQuery<any>(
@@ -388,7 +382,7 @@ function AdminView() {
     <div>
       {/* Filtros */}
       <div className="flex flex-wrap items-center gap-3 mb-5">
-        <select value={filters.status} onChange={e => updateFilters({ status: e.target.value })}
+        <select value={status} onChange={e => { setStatus(e.target.value); setPage(1); }}
           className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
           <option value="">Todos os estados</option>
           <option value="NOT_STARTED">Não iniciado</option>
@@ -397,14 +391,14 @@ function AdminView() {
           <option value="OVERDUE">Atrasado</option>
           <option value="CANCELLED">Cancelado</option>
         </select>
-        <select value={filters.mandatory} onChange={e => updateFilters({ mandatory: e.target.value })}
+        <select value={mandatory} onChange={e => { setMandatory(e.target.value); setPage(1); }}
           className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
           <option value="">Obrigatório e opcional</option>
           <option value="true">Apenas obrigatórios</option>
           <option value="false">Apenas opcionais</option>
         </select>
         <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
-          <input type="checkbox" checked={!!filters.overdue} onChange={e => updateFilters({ overdue: e.target.checked ? 'true' : '' })}
+          <input type="checkbox" checked={!!overdue} onChange={e => setOverdue(e.target.checked ? 'true' : '')}
             className="w-4 h-4 rounded border-gray-300 text-red-600 focus:ring-red-500" />
           Apenas atrasados
         </label>
@@ -487,11 +481,11 @@ function AdminView() {
         <div className="flex items-center justify-between mt-4">
           <span className="text-xs text-gray-400">Página {data.page} de {data.totalPages}</span>
           <div className="flex gap-2">
-            <button disabled={filters.page === 1} onClick={() => goToPage(-1)}
+            <button disabled={page === 1} onClick={() => setPage(p => p - 1)}
               className="px-3 py-1.5 text-xs border border-gray-200 rounded-lg disabled:opacity-40 hover:bg-gray-50">
               ← Anterior
             </button>
-            <button disabled={filters.page === data.totalPages} onClick={() => goToPage(1)}
+            <button disabled={page === data.totalPages} onClick={() => setPage(p => p + 1)}
               className="px-3 py-1.5 text-xs border border-gray-200 rounded-lg disabled:opacity-40 hover:bg-gray-50">
               Próxima →
             </button>

@@ -288,30 +288,12 @@ function CourseCard({
 
 // ─── View: Catalog ────────────────────────────────────────────────────────────
 
-// Um só objecto para os filtros + page: mudar qualquer filtro tem sempre de
-// repor a página a 1, e um setter partilhado torna isso automático em vez de
-// repetido (e potencialmente esquecido) em cada handler.
-interface CatalogFilters {
-  search: string;
-  category: string;
-  level: string;
-  mandatory: string;
-  page: number;
-}
-const INITIAL_CATALOG_FILTERS: CatalogFilters = {
-  search: '', category: '', level: '', mandatory: '', page: 1,
-};
-
 function CatalogView({ onSelect }: { onSelect: (id: number) => void }) {
-  const [filters, setFilters] = useState<CatalogFilters>(INITIAL_CATALOG_FILTERS);
-  const { search, category, level, mandatory, page } = filters;
-
-  function updateFilters(patch: Partial<Omit<CatalogFilters, 'page'>>) {
-    setFilters(f => ({ ...f, ...patch, page: 1 }));
-  }
-  function goToPage(delta: number) {
-    setFilters(f => ({ ...f, page: f.page + delta }));
-  }
+  const [search, setSearch]   = useState('');
+  const [category, setCategory] = useState('');
+  const [level, setLevel]     = useState('');
+  const [mandatory, setMandatory] = useState('');
+  const [page, setPage]       = useState(1);
 
   const debouncedSearch = useDebounce(search);
   const params = {
@@ -339,22 +321,22 @@ function CatalogView({ onSelect }: { onSelect: (id: number) => void }) {
           type="text"
           placeholder="Pesquisar cursos, competências, tópicos…"
           value={search}
-          onChange={e => updateFilters({ search: e.target.value })}
+          onChange={e => { setSearch(e.target.value); setPage(1); }}
           className="flex-1 min-w-[200px] text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
-        <select value={category} onChange={e => updateFilters({ category: e.target.value })}
+        <select value={category} onChange={e => { setCategory(e.target.value); setPage(1); }}
           className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
           <option value="">Todas as categorias</option>
           {categories.map(c => <option key={c} value={c}>{c}</option>)}
         </select>
-        <select value={level} onChange={e => updateFilters({ level: e.target.value })}
+        <select value={level} onChange={e => { setLevel(e.target.value); setPage(1); }}
           className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
           <option value="">Todos os níveis</option>
           <option value="BEGINNER">Iniciante</option>
           <option value="INTERMEDIATE">Intermédio</option>
           <option value="ADVANCED">Avançado</option>
         </select>
-        <select value={mandatory} onChange={e => updateFilters({ mandatory: e.target.value })}
+        <select value={mandatory} onChange={e => { setMandatory(e.target.value); setPage(1); }}
           className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
           <option value="">Obrigatório e opcional</option>
           <option value="true">Apenas obrigatórios</option>
@@ -378,11 +360,11 @@ function CatalogView({ onSelect }: { onSelect: (id: number) => void }) {
             <div className="flex items-center justify-between">
               <span className="text-xs text-gray-400">Página {data.page} de {data.totalPages}</span>
               <div className="flex gap-2">
-                <button disabled={page === 1} onClick={() => goToPage(-1)}
+                <button disabled={page === 1} onClick={() => setPage(p => p - 1)}
                   className="px-3 py-1.5 text-xs border border-gray-200 rounded-lg disabled:opacity-40 hover:bg-gray-50">
                   ← Anterior
                 </button>
-                <button disabled={page === data.totalPages} onClick={() => goToPage(1)}
+                <button disabled={page === data.totalPages} onClick={() => setPage(p => p + 1)}
                   className="px-3 py-1.5 text-xs border border-gray-200 rounded-lg disabled:opacity-40 hover:bg-gray-50">
                   Próxima →
                 </button>
@@ -931,13 +913,8 @@ function AdminDashboardView({ onSelect }: { onSelect: (id: number) => void }) {
 // ─── Page principal ───────────────────────────────────────────────────────────
 
 type View = 'catalog' | 'detail' | 'my-courses' | 'certificates' | 'dashboard';
-type TopLevelView = Exclude<View, 'detail'>;
 
-// view e selectedId eram dois useState separados sempre definidos em conjunto
-// (handleSelect/handleBack) — um único estado torna "detail sem id" irrepresentável.
-type Nav = { view: TopLevelView } | { view: 'detail'; selectedId: number };
-
-const NAV: Array<{ id: TopLevelView; label: string }> = [
+const NAV: Array<{ id: View; label: string }> = [
   { id: 'catalog',      label: 'Catálogo' },
   { id: 'my-courses',   label: 'Os meus cursos' },
   { id: 'certificates', label: 'Certificados' },
@@ -953,20 +930,28 @@ const TITLES: Record<View, string> = {
 };
 
 export default function CoursesPage() {
-  const [nav, setNav] = useState<Nav>({ view: 'catalog' });
+  const [view, setView]         = useState<View>('catalog');
+  const [selectedId, setSelectedId] = useState<number | null>(null);
 
-  const handleSelect = (id: number) => setNav({ view: 'detail', selectedId: id });
-  const handleBack = () => setNav({ view: 'catalog' });
+  const handleSelect = (id: number) => {
+    setSelectedId(id);
+    setView('detail');
+  };
+
+  const handleBack = () => {
+    setSelectedId(null);
+    setView('catalog');
+  };
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-xl font-semibold text-gray-900">{TITLES[nav.view]}</h1>
+          <h1 className="text-xl font-semibold text-gray-900">{TITLES[view]}</h1>
           <p className="text-sm text-gray-400 mt-0.5">INNOVA — Academia Corporativa</p>
         </div>
-        {nav.view === 'catalog' && (
+        {view === 'catalog' && (
           <button
             onClick={() => alert('Abrir formulário de criação de curso')}
             className="px-4 py-2 bg-blue-700 text-white text-sm font-medium rounded-lg hover:bg-blue-800"
@@ -977,14 +962,14 @@ export default function CoursesPage() {
       </div>
 
       {/* Tabs */}
-      {nav.view !== 'detail' && (
+      {view !== 'detail' && (
         <div className="flex gap-1 mb-6 bg-gray-100 p-1 rounded-xl w-fit">
           {NAV.map(n => (
             <button
               key={n.id}
-              onClick={() => setNav({ view: n.id })}
+              onClick={() => setView(n.id)}
               className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-                nav.view === n.id ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+                view === n.id ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
               }`}
             >
               {n.label}
@@ -993,13 +978,13 @@ export default function CoursesPage() {
         </div>
       )}
 
-      {nav.view === 'catalog'      && <CatalogView onSelect={handleSelect} />}
-      {nav.view === 'detail' && (
-        <CourseDetail courseId={nav.selectedId} onBack={handleBack} />
+      {view === 'catalog'      && <CatalogView onSelect={handleSelect} />}
+      {view === 'detail' && selectedId !== null && (
+        <CourseDetail courseId={selectedId} onBack={handleBack} />
       )}
-      {nav.view === 'my-courses'   && <MyEnrollmentsView onSelect={handleSelect} />}
-      {nav.view === 'certificates' && <CertificatesView />}
-      {nav.view === 'dashboard'    && <AdminDashboardView onSelect={handleSelect} />}
+      {view === 'my-courses'   && <MyEnrollmentsView onSelect={handleSelect} />}
+      {view === 'certificates' && <CertificatesView />}
+      {view === 'dashboard'    && <AdminDashboardView onSelect={handleSelect} />}
     </div>
   );
 }

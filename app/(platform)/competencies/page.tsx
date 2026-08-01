@@ -726,6 +726,7 @@ const TITLES: Record<View, string> = {
 
 export default function CompetenciesPage() {
   const [view, setView]          = useState<View>('catalog');
+  const [selectedId, setSelectedId] = useState<number | null>(null);
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
@@ -758,9 +759,7 @@ export default function CompetenciesPage() {
         ))}
       </div>
 
-      {/* Sem vista de detalhe ligada ainda — o CatalogView exige onSelect mas
-          nada consome o id seleccionado neste momento. */}
-      {view === 'catalog'     && <CatalogView onSelect={() => {}} />}
+      {view === 'catalog'     && <CatalogView onSelect={id => { setSelectedId(id); }} />}
       {view === 'my-profile'  && <MyProfileView />}
       {view === 'matrix'      && <SkillMatrixView />}
       {view === 'dashboard'   && <DashboardView />}

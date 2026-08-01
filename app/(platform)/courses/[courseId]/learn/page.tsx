@@ -11,7 +11,7 @@
 
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
@@ -600,6 +600,7 @@ export default function CourseLearnPage() {
   const qc = useQueryClient();
   const [mode, setMode]           = useState<PageMode>('learn');
   const [activeLesson, setActiveLesson]   = useState<LessonProgress | null>(null);
+  const [activeModule, setActiveModule]   = useState<ModuleProgress | null>(null);
   const [justCompletedModule, setJustCompletedModule] = useState<ModuleProgress | null>(null);
   const [sidebarOpen, setSidebarOpen]     = useState(true);
 
@@ -607,14 +608,6 @@ export default function CourseLearnPage() {
   const { data: modules = [], isLoading: loading } = useApiQuery<ModuleProgress[]>(
     progressKey, `/courses/${courseId}/progress`,
     { enabled: !!courseId, staleTime: STALE_TIME.DYNAMIC },
-  );
-
-  // activeModule é sempre "o módulo que contém activeLesson" — mantê-lo como
-  // segundo useState arriscava desincronizar os dois (eram sempre definidos
-  // em conjunto em 4 pontos diferentes do ficheiro).
-  const activeModule = useMemo(
-    () => (activeLesson ? modules.find(m => m.lessons.some(l => l.id === activeLesson.id)) ?? null : null),
-    [modules, activeLesson],
   );
 
   const totalLessons     = modules.reduce((s, m) => s + m.totalCount, 0);
@@ -627,7 +620,7 @@ export default function CourseLearnPage() {
     for (const mod of modules) {
       if (mod.locked) continue;
       const pending = mod.lessons.find(l => !l.completed);
-      if (pending) { setActiveLesson(pending); break; }
+      if (pending) { setActiveLesson(pending); setActiveModule(mod); break; }
     }
   }, [modules, activeLesson]);
 
@@ -640,6 +633,7 @@ export default function CourseLearnPage() {
   const handleSelectLesson = (lesson: LessonProgress, mod: ModuleProgress) => {
     if (mod.locked) return;
     setActiveLesson(lesson);
+    setActiveModule(mod);
     setJustCompletedModule(null);
   };
 
@@ -661,6 +655,7 @@ export default function CourseLearnPage() {
         const nextLesson = updatedModule.lessons[idx + 1];
         if (nextLesson && !nextLesson.completed) {
           setActiveLesson(nextLesson);
+          setActiveModule(updatedModule);
         }
       }
     } catch {
@@ -677,6 +672,7 @@ export default function CourseLearnPage() {
       const firstLesson = nextMod.lessons[0];
       if (firstLesson) {
         setActiveLesson(firstLesson);
+        setActiveModule(nextMod);
       }
     }
   };

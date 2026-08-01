@@ -720,25 +720,22 @@ const TITLES: Record<View, string> = {
   dashboard: 'Dashboard de Learning Paths',
 };
 
-// view e selectedId eram dois useState separados sempre definidos em conjunto
-// — um único estado torna "detail sem id" irrepresentável.
-type Nav = { view: Exclude<View, 'detail'> } | { view: 'detail'; selectedId: number };
-
 export default function LearningPathsPage() {
-  const [nav, setNav] = useState<Nav>({ view: 'catalog' });
+  const [view, setView]         = useState<View>('catalog');
+  const [selectedId, setSelectedId] = useState<number | null>(null);
 
-  const handleSelect = (id: number) => setNav({ view: 'detail', selectedId: id });
-  const handleBack   = () => setNav({ view: 'catalog' });
+  const handleSelect = (id: number) => { setSelectedId(id); setView('detail'); };
+  const handleBack   = () => { setSelectedId(null); setView('catalog'); };
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-xl font-semibold text-gray-900">{TITLES[nav.view]}</h1>
+          <h1 className="text-xl font-semibold text-gray-900">{TITLES[view]}</h1>
           <p className="text-sm text-gray-400 mt-0.5">INNOVA — Academia Corporativa</p>
         </div>
-        {nav.view === 'catalog' && (
+        {view === 'catalog' && (
           <button
             onClick={() => alert('Abrir formulário de criação de trilha')}
             className="px-4 py-2 bg-blue-700 text-white text-sm font-medium rounded-lg hover:bg-blue-800"
@@ -749,12 +746,12 @@ export default function LearningPathsPage() {
       </div>
 
       {/* Tabs */}
-      {nav.view !== 'detail' && (
+      {view !== 'detail' && (
         <div className="flex gap-1 mb-6 bg-gray-100 p-1 rounded-xl w-fit">
           {NAV.map(n => (
-            <button key={n.id} onClick={() => setNav({ view: n.id })}
+            <button key={n.id} onClick={() => setView(n.id)}
               className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-                nav.view === n.id ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+                view === n.id ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
               }`}
             >
               {n.label}
@@ -763,12 +760,12 @@ export default function LearningPathsPage() {
         </div>
       )}
 
-      {nav.view === 'catalog'   && <CatalogView onSelect={handleSelect} />}
-      {nav.view === 'detail' && (
-        <LPDetailView pathId={nav.selectedId} onBack={handleBack} />
+      {view === 'catalog'   && <CatalogView onSelect={handleSelect} />}
+      {view === 'detail' && selectedId !== null && (
+        <LPDetailView pathId={selectedId} onBack={handleBack} />
       )}
-      {nav.view === 'my-paths'  && <MyPathsView onSelect={handleSelect} />}
-      {nav.view === 'dashboard' && <DashboardView onSelect={handleSelect} />}
+      {view === 'my-paths'  && <MyPathsView onSelect={handleSelect} />}
+      {view === 'dashboard' && <DashboardView onSelect={handleSelect} />}
     </div>
   );
 }

@@ -1,7 +1,22 @@
 "use client";
 import { useEffect, useState } from "react";
 import { api } from "../../../lib/api";
-import { useCurrentUser, type CurrentUser as Me } from "../../../hooks/useCurrentUser";
+
+// ─── Types ────────────────────────────────────────────────────────────────────
+interface Me {
+  id: number;
+  fullName: string;
+  email: string;
+  active: boolean;
+  createdAt: string;
+  role?: { name: string; permissions: { name: string }[] };
+  unit?: { name: string };
+  department?: { name: string };
+  position?: { name: string; level?: string };
+  profile?: { bio: string };
+  points?: { points: number };
+  badgeAwards?: { badge: { name: string; description?: string }; awardedAt: string }[];
+}
 
 // ─── Styles ───────────────────────────────────────────────────────────────────
 const btnPrimary: React.CSSProperties = {
@@ -414,13 +429,24 @@ function TabPermissoes({ user }: { user: Me }) {
 // ─── Página Principal ─────────────────────────────────────────────────────────
 export default function SettingsPage() {
   const [tab, setTab]       = useState<Tab>("perfil");
+  const [user, setUser]     = useState<Me | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError]   = useState("");
   const [toast, setToast]   = useState<{ msg: string; type: "success" | "error" } | null>(null);
-  const { data: user, isLoading: loading, error: queryError } = useCurrentUser();
-  const error = queryError?.message ?? "";
 
   function showToast(msg: string, type: "success" | "error") {
     setToast({ msg, type });
   }
+
+  useEffect(() => {
+    // GET /auth/me
+    api.get<Me>("/auth/me")
+      .then(res => {
+        setUser(res);
+      })
+      .catch(e => setError(e.message))
+      .finally(() => setLoading(false));
+  }, []);
 
   function logout() {
     localStorage.removeItem("token");
