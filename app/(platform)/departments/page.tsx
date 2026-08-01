@@ -679,25 +679,21 @@ function DashboardView({ onSelect }: { onSelect: (id: number) => void }) {
 
 // ─── Page principal ───────────────────────────────────────────────────────────
 
-const NAV: Array<{ id: View; label: string }> = [
+const NAV: Array<{ id: Exclude<View, 'detail'>; label: string }> = [
   { id: 'list',      label: 'Lista' },
   { id: 'tree',      label: 'Organograma' },
   { id: 'dashboard', label: 'Dashboard' },
 ];
 
+// view e selectedId eram dois useState separados sempre definidos em conjunto
+// — um único estado torna "detail sem id" irrepresentável.
+type Nav = { view: Exclude<View, 'detail'> } | { view: 'detail'; selectedId: number };
+
 export default function DepartmentsPage() {
-  const [view, setView] = useState<View>('list');
-  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [nav, setNav] = useState<Nav>({ view: 'list' });
 
-  const handleSelect = (id: number) => {
-    setSelectedId(id);
-    setView('detail');
-  };
-
-  const handleBack = () => {
-    setSelectedId(null);
-    setView('list');
-  };
+  const handleSelect = (id: number) => setNav({ view: 'detail', selectedId: id });
+  const handleBack = () => setNav({ view: 'list' });
 
   const titles: Record<View, string> = {
     list:      'Departamentos',
@@ -711,10 +707,10 @@ export default function DepartmentsPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-xl font-semibold text-gray-900">{titles[view]}</h1>
+          <h1 className="text-xl font-semibold text-gray-900">{titles[nav.view]}</h1>
           <p className="text-sm text-gray-400 mt-0.5">INNOVA — Estrutura Organizacional</p>
         </div>
-        {view === 'list' && (
+        {nav.view === 'list' && (
           <button
             onClick={() => alert('Abrir formulário de criação de departamento')}
             className="px-4 py-2 bg-blue-700 text-white text-sm font-medium rounded-lg hover:bg-blue-800"
@@ -725,14 +721,14 @@ export default function DepartmentsPage() {
       </div>
 
       {/* Tabs */}
-      {view !== 'detail' && (
+      {nav.view !== 'detail' && (
         <div className="flex gap-1 mb-6 bg-gray-100 p-1 rounded-xl w-fit">
           {NAV.map(n => (
             <button
               key={n.id}
-              onClick={() => setView(n.id)}
+              onClick={() => setNav({ view: n.id })}
               className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-                view === n.id ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+                nav.view === n.id ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
               }`}
             >
               {n.label}
@@ -742,12 +738,12 @@ export default function DepartmentsPage() {
       )}
 
       {/* Views */}
-      {view === 'list'      && <ListView onSelect={handleSelect} />}
-      {view === 'tree'      && <TreeView onSelect={handleSelect} />}
-      {view === 'detail' && selectedId !== null && (
-        <DetailView deptId={selectedId} onBack={handleBack} />
+      {nav.view === 'list'      && <ListView onSelect={handleSelect} />}
+      {nav.view === 'tree'      && <TreeView onSelect={handleSelect} />}
+      {nav.view === 'detail' && (
+        <DetailView deptId={nav.selectedId} onBack={handleBack} />
       )}
-      {view === 'dashboard' && <DashboardView onSelect={handleSelect} />}
+      {nav.view === 'dashboard' && <DashboardView onSelect={handleSelect} />}
     </div>
   );
 }

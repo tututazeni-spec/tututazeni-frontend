@@ -540,30 +540,33 @@ const TITLES: Record<View, string> = {
   generate: 'Gerar Relatório',
 };
 
-export default function ExecutiveReportsPage() {
-  const [view, setView]         = useState<View>('list');
-  const [selectedId, setSelectedId] = useState<number | null>(null);
+// view e selectedId eram dois useState separados sempre definidos em conjunto
+// — um único estado torna "detail sem id" irrepresentável.
+type Nav = { view: Exclude<View, 'detail'> } | { view: 'detail'; selectedId: number };
 
-  const handleSelect   = (id: number) => { setSelectedId(id); setView('detail'); };
-  const handleBack     = ()           => { setSelectedId(null); setView('list'); };
-  const handleGenerated= (id: number) => { setSelectedId(id);  setView('detail'); };
+export default function ExecutiveReportsPage() {
+  const [nav, setNav] = useState<Nav>({ view: 'list' });
+
+  const handleSelect   = (id: number) => setNav({ view: 'detail', selectedId: id });
+  const handleBack     = () => setNav({ view: 'list' });
+  const handleGenerated= (id: number) => setNav({ view: 'detail', selectedId: id });
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-xl font-semibold text-gray-900">{TITLES[view]}</h1>
+          <h1 className="text-xl font-semibold text-gray-900">{TITLES[nav.view]}</h1>
           <p className="text-sm text-gray-400 mt-0.5">INNOVA — Inteligência Executiva</p>
         </div>
-        {view === 'list' && (
+        {nav.view === 'list' && (
           <div className="flex gap-2">
-            <button onClick={() => setView('generate')}
+            <button onClick={() => setNav({ view: 'generate' })}
               className="px-4 py-2 bg-blue-700 text-white text-sm font-medium rounded-lg hover:bg-blue-800">
               ⚡ Gerar automático
             </button>
           </div>
         )}
-        {view !== 'list' && (
+        {nav.view !== 'list' && (
           <button onClick={handleBack}
             className="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200">
             ← Voltar
@@ -571,9 +574,9 @@ export default function ExecutiveReportsPage() {
         )}
       </div>
 
-      {view === 'list'     && <ListView onSelect={handleSelect} onGenerate={() => setView('generate')} />}
-      {view === 'detail' && selectedId !== null && <DetailView reportId={selectedId} onBack={handleBack} />}
-      {view === 'generate' && <GenerateView onSuccess={handleGenerated} />}
+      {nav.view === 'list'     && <ListView onSelect={handleSelect} onGenerate={() => setNav({ view: 'generate' })} />}
+      {nav.view === 'detail' && <DetailView reportId={nav.selectedId} onBack={handleBack} />}
+      {nav.view === 'generate' && <GenerateView onSuccess={handleGenerated} />}
     </div>
   );
 }

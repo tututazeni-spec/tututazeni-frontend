@@ -607,21 +607,24 @@ const TITLES: Record<View, string> = {
   create:     'Novo PDI',
 };
 
-export default function DevelopmentPlansPage() {
-  const [view, setView]         = useState<View>('my-plans');
-  const [selectedId, setSelectedId] = useState<number | null>(null);
+// view e selectedId eram dois useState separados sempre definidos em conjunto
+// — um único estado torna "detail sem id" irrepresentável.
+type Nav = { view: Exclude<View, 'detail'> } | { view: 'detail'; selectedId: number };
 
-  const handleSelect = (id: number) => { setSelectedId(id); setView('detail'); };
-  const handleBack   = () => { setSelectedId(null); setView('my-plans'); };
+export default function DevelopmentPlansPage() {
+  const [nav, setNav] = useState<Nav>({ view: 'my-plans' });
+
+  const handleSelect = (id: number) => setNav({ view: 'detail', selectedId: id });
+  const handleBack   = () => setNav({ view: 'my-plans' });
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-xl font-semibold text-gray-900">{TITLES[view]}</h1>
+          <h1 className="text-xl font-semibold text-gray-900">{TITLES[nav.view]}</h1>
           <p className="text-sm text-gray-400 mt-0.5">INNOVA — Planos de Desenvolvimento Individual</p>
         </div>
-        {view !== 'detail' && (
+        {nav.view !== 'detail' && (
           <button
             onClick={() => alert('Abrir formulário de criação de PDI')}
             className="px-4 py-2 bg-blue-700 text-white text-sm font-medium rounded-lg hover:bg-blue-800"
@@ -631,12 +634,12 @@ export default function DevelopmentPlansPage() {
         )}
       </div>
 
-      {view !== 'detail' && (
+      {nav.view !== 'detail' && (
         <div className="flex gap-1 mb-6 bg-gray-100 p-1 rounded-xl w-fit">
           {NAV.map(n => (
-            <button key={n.id} onClick={() => setView(n.id as View)}
+            <button key={n.id} onClick={() => setNav({ view: n.id })}
               className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-                view === n.id ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+                nav.view === n.id ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
               }`}
             >
               {n.label}
@@ -645,11 +648,11 @@ export default function DevelopmentPlansPage() {
         </div>
       )}
 
-      {view === 'my-plans' && <MyPlansView onSelect={handleSelect} />}
-      {view === 'detail' && selectedId !== null && (
-        <DetailView planId={selectedId} onBack={handleBack} />
+      {nav.view === 'my-plans' && <MyPlansView onSelect={handleSelect} />}
+      {nav.view === 'detail' && (
+        <DetailView planId={nav.selectedId} onBack={handleBack} />
       )}
-      {view === 'team' && <TeamView onSelect={handleSelect} />}
+      {nav.view === 'team' && <TeamView onSelect={handleSelect} />}
     </div>
   );
 }

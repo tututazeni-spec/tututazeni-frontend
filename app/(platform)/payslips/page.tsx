@@ -1,9 +1,9 @@
 // src/app/(dashboard)/payslips/page.tsx
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useReducer } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
-import { useApiQuery } from '@/hooks/useApiQuery';
+import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient, API_URL } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -283,6 +283,33 @@ function ListView({
   );
 }
 
+// showDispute/disputeReason/disputeDetails/disputeLoading eram 4 useState
+// separados que só existem, na prática, como uma unidade lógica ("modal de
+// disputa"); um reducer torna impossível um reset parcial (ex: fechar o modal
+// sem limpar o texto do motivo).
+type DisputeState =
+  | { open: false }
+  | { open: true; reason: string; details: string; submitting: boolean };
+
+type DisputeAction =
+  | { type: 'OPEN' }
+  | { type: 'CLOSE' }
+  | { type: 'SET_REASON'; reason: string }
+  | { type: 'SET_DETAILS'; details: string }
+  | { type: 'SUBMIT_START' }
+  | { type: 'SUBMIT_END' };
+
+function disputeReducer(state: DisputeState, action: DisputeAction): DisputeState {
+  switch (action.type) {
+    case 'OPEN':    return { open: true, reason: '', details: '', submitting: false };
+    case 'CLOSE':   return { open: false };
+    case 'SET_REASON':  return state.open ? { ...state, reason: action.reason } : state;
+    case 'SET_DETAILS': return state.open ? { ...state, details: action.details } : state;
+    case 'SUBMIT_START': return state.open ? { ...state, submitting: true } : state;
+    case 'SUBMIT_END':   return state.open ? { ...state, submitting: false } : state;
+  }
+}
+
 // 2. Detalhe do recibo
 function DetailView({
   payslipId,
@@ -293,10 +320,7 @@ function DetailView({
 }) {
   const [maskedData, setMaskedData] = useState(true);
   const [acknowledging, setAcknowledging] = useState(false);
-  const [showDispute, setShowDispute] = useState(false);
-  const [disputeReason, setDisputeReason] = useState('');
-  const [disputeDetails, setDisputeDetails] = useState('');
-  const [disputeLoading, setDisputeLoading] = useState(false);
+  const [dispute, dispatchDispute] = useReducer(disputeReducer, { open: false });
 
   const { data, isLoading: loading, error: queryError, refetch } = useApiQuery<Payslip>(
     queryKeys.payslips.detail(payslipId), `/payslips/my/${payslipId}`,
@@ -318,16 +342,15 @@ function DetailView({
   };
 
   const submitDispute = async () => {
-    if (!disputeReason.trim()) return;
-    setDisputeLoading(true);
+    if (!dispute.open || !dispute.reason.trim()) return;
+    dispatchDispute({ type: 'SUBMIT_START' });
     try {
-      await apiClient.post(`/payslips/my/${payslipId}/dispute`, { reason: disputeReason, details: disputeDetails });
-      setShowDispute(false);
+      await apiClient.post(`/payslips/my/${payslipId}/dispute`, { reason: dispute.reason, details: dispute.details });
+      dispatchDispute({ type: 'CLOSE' });
       alert('Disputa registada com sucesso. O RH será notificado.');
     } catch (e: any) {
       alert(e.message);
-    } finally {
-      setDisputeLoading(false);
+      dispatchDispute({ type: 'SUBMIT_END' });
     }
   };
 
@@ -505,7 +528,7 @@ function DetailView({
 
             {data.status !== 'DISPUTED' && (
               <button
-                onClick={() => setShowDispute(true)}
+                onClick={() => dispatchDispute({ type: 'OPEN' })}
                 className="flex items-center gap-2 px-4 py-2 border border-red-200 text-red-600 text-sm rounded-lg hover:bg-red-50 transition-colors"
               >
                 ⚠ Abrir disputa
@@ -514,31 +537,31 @@ function DetailView({
           </div>
 
           {/* Modal disputa (inline) */}
-          {showDispute && (
+          {dispute.open && (
             <div className="border border-red-100 bg-red-50 rounded-xl p-4 space-y-3">
               <div className="text-sm font-medium text-red-800">Abrir disputa sobre este recibo</div>
               <input
                 className="w-full text-sm border border-red-200 rounded-lg px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-red-400"
                 placeholder="Motivo da disputa *"
-                value={disputeReason}
-                onChange={e => setDisputeReason(e.target.value)}
+                value={dispute.reason}
+                onChange={e => dispatchDispute({ type: 'SET_REASON', reason: e.target.value })}
               />
               <textarea
                 className="w-full text-sm border border-red-200 rounded-lg px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-red-400 resize-none"
                 placeholder="Detalhes adicionais (opcional)"
                 rows={3}
-                value={disputeDetails}
-                onChange={e => setDisputeDetails(e.target.value)}
+                value={dispute.details}
+                onChange={e => dispatchDispute({ type: 'SET_DETAILS', details: e.target.value })}
               />
               <div className="flex gap-2">
                 <button
                   onClick={submitDispute}
-                  disabled={!disputeReason.trim() || disputeLoading}
+                  disabled={!dispute.reason.trim() || dispute.submitting}
                   className="px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 disabled:opacity-50"
                 >
-                  {disputeLoading ? 'A enviar…' : 'Enviar disputa'}
+                  {dispute.submitting ? 'A enviar…' : 'Enviar disputa'}
                 </button>
-                <button onClick={() => setShowDispute(false)} className="px-4 py-2 text-sm border border-gray-200 rounded-lg hover:bg-gray-50">
+                <button onClick={() => dispatchDispute({ type: 'CLOSE' })} className="px-4 py-2 text-sm border border-gray-200 rounded-lg hover:bg-gray-50">
                   Cancelar
                 </button>
               </div>
@@ -555,22 +578,14 @@ function CompareView() {
   const currentYear = new Date().getFullYear();
   const [periodA, setPeriodA] = useState(`${currentYear}-${String(new Date().getMonth() + 1).padStart(2, '0')}`);
   const [periodB, setPeriodB] = useState(`${currentYear}-${String(new Date().getMonth()).padStart(2, '0')}`);
-  const [result, setResult] = useState<CompareResult | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
-  const compare = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await apiClient.get<CompareResult>('/payslips/my/compare', { params: { periodA, periodB } });
-      setResult(data);
-    } catch (e: any) {
-      setError(e.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+  // useApiMutation em vez de loading/error/data à mão: mesmo padrão usado no
+  // resto da página (DetailView usa useApiQuery), com retry/backoff de borla.
+  const compareMut = useApiMutation<CompareResult, void>(() =>
+    apiClient.get<CompareResult>('/payslips/my/compare', { params: { periodA, periodB } }),
+  );
+  const { data: result, isPending: loading, error } = compareMut;
+  const compare = () => compareMut.mutate();
 
   const compareFields: Array<{ key: string; label: string }> = [
     { key: 'baseSalary',     label: 'Salário base' },
@@ -608,7 +623,7 @@ function CompareView() {
         </button>
       </div>
 
-      {error && <div className="text-sm text-red-500 mb-4">{error}</div>}
+      {error && <div className="text-sm text-red-500 mb-4">{error.message}</div>}
 
       {result && (
         <div>
@@ -916,26 +931,22 @@ function AnnualView() {
 
 type View = 'list' | 'detail' | 'compare' | 'simulate' | 'annual';
 
-const NAV: Array<{ id: View; label: string }> = [
+const NAV: Array<{ id: Exclude<View, 'detail'>; label: string }> = [
   { id: 'list',     label: 'Os meus recibos' },
   { id: 'compare',  label: 'Comparar meses' },
   { id: 'simulate', label: 'Simulador IRT' },
   { id: 'annual',   label: 'Resumo anual' },
 ];
 
+// view e selectedId eram dois useState separados sempre definidos em conjunto
+// — um único estado torna "detail sem id" irrepresentável.
+type Nav = { view: Exclude<View, 'detail'> } | { view: 'detail'; selectedId: number };
+
 export default function PayslipsPage() {
-  const [view, setView] = useState<View>('list');
-  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [nav, setNav] = useState<Nav>({ view: 'list' });
 
-  const handleSelect = (id: number) => {
-    setSelectedId(id);
-    setView('detail');
-  };
-
-  const handleBack = () => {
-    setSelectedId(null);
-    setView('list');
-  };
+  const handleSelect = (id: number) => setNav({ view: 'detail', selectedId: id });
+  const handleBack = () => setNav({ view: 'list' });
 
   const titles: Record<View, string> = {
     list:     'Os meus recibos',
@@ -950,10 +961,10 @@ export default function PayslipsPage() {
       {/* Page header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-xl font-semibold text-gray-900">{titles[view]}</h1>
+          <h1 className="text-xl font-semibold text-gray-900">{titles[nav.view]}</h1>
           <p className="text-sm text-gray-400 mt-0.5">INNOVA — Recursos Humanos</p>
         </div>
-        {view === 'list' && (
+        {nav.view === 'list' && (
           <button
             onClick={() => window.open(`${API_BASE}/payslips/my/annual-summary/export`, '_blank')}
             className="flex items-center gap-2 px-4 py-2 text-sm border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
@@ -964,14 +975,14 @@ export default function PayslipsPage() {
       </div>
 
       {/* Tabs (não mostrar em detail) */}
-      {view !== 'detail' && (
+      {nav.view !== 'detail' && (
         <div className="flex gap-1 mb-6 bg-gray-100 p-1 rounded-xl w-fit">
           {NAV.map(n => (
             <button
               key={n.id}
-              onClick={() => setView(n.id)}
+              onClick={() => setNav({ view: n.id })}
               className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-                view === n.id
+                nav.view === n.id
                   ? 'bg-white text-gray-900 shadow-sm'
                   : 'text-gray-500 hover:text-gray-700'
               }`}
@@ -983,11 +994,11 @@ export default function PayslipsPage() {
       )}
 
       {/* Views */}
-      {view === 'list'     && <ListView onSelect={handleSelect} />}
-      {view === 'detail'   && selectedId !== null && <DetailView payslipId={selectedId} onBack={handleBack} />}
-      {view === 'compare'  && <CompareView />}
-      {view === 'simulate' && <SimulateView />}
-      {view === 'annual'   && <AnnualView />}
+      {nav.view === 'list'     && <ListView onSelect={handleSelect} />}
+      {nav.view === 'detail'   && <DetailView payslipId={nav.selectedId} onBack={handleBack} />}
+      {nav.view === 'compare'  && <CompareView />}
+      {nav.view === 'simulate' && <SimulateView />}
+      {nav.view === 'annual'   && <AnnualView />}
     </div>
   );
 }
