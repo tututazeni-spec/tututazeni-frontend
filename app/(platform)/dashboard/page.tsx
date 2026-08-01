@@ -9,6 +9,7 @@ import {
   Activity, RefreshCw, ArrowUp, ArrowDown,
 } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useDebounce } from '@/hooks/useDebounce';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -16,7 +17,11 @@ import Image from 'next/image';
 
 // ─── Types ───────────────────────────────────────────────────────
 
-type Role = 'COLABORADOR' | 'LIDER' | 'RH' | 'ADMIN';
+// Espelha src/auth/enums/role.enum.ts (backend) — o RolesGuard compara contra
+// user.role.name, por isso os valores têm de coincidir exactamente.
+type Role =
+  | 'COLABORADOR' | 'LIDER' | 'GESTOR' | 'RH' | 'ADMIN'
+  | 'INSTRUCTOR' | 'DIRECTOR' | 'AUDITOR';
 
 interface KPICardProps {
   icon: any; label: string; value: string | number;
@@ -624,16 +629,19 @@ function GlobalSearch({ onClose }: { onClose: () => void }) {
 
 // ─── Main Page ───────────────────────────────────────────────────
 
+// roles por separador alinhados com @Roles(...MGMT_ROLES)/@Roles(...ADMIN_ROLES)
+// em src/dashboard/dashboard.controller.ts — não alargar sem confirmar lá primeiro.
 const TABS = [
-  { id: 'personal',  label: 'O Meu Dashboard', icon: LayoutDashboard, roles: ['COLABORADOR', 'LIDER', 'RH', 'ADMIN'] },
-  { id: 'manager',   label: 'Gestor',           icon: Users,           roles: ['LIDER', 'RH', 'ADMIN'] },
+  { id: 'personal',  label: 'O Meu Dashboard', icon: LayoutDashboard, roles: ['COLABORADOR', 'LIDER', 'GESTOR', 'RH', 'ADMIN', 'INSTRUCTOR', 'DIRECTOR', 'AUDITOR'] },
+  { id: 'manager',   label: 'Gestor',           icon: Users,           roles: ['LIDER', 'GESTOR', 'RH', 'ADMIN'] },
   { id: 'org',       label: 'Organização',      icon: BarChart2,       roles: ['RH', 'ADMIN'] },
 ];
 
 export default function DashboardPage() {
   const [tab, setTab]           = useState('personal');
   const [showSearch, setShowSearch] = useState(false);
-  const [role] = useState<Role>('COLABORADOR'); // In real app, from auth context
+  const { data: currentUser } = useCurrentUser();
+  const role = (currentUser?.role?.name ?? 'COLABORADOR') as Role;
 
   // Partilha a mesma key /dashboard/alerts dos sub-dashboards → 0 pedidos extra.
   const { data: alerts = [] } = useApiQuery<Alert[]>(

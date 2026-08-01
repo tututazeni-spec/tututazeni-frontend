@@ -596,27 +596,30 @@ const TITLES: Record<View, string> = {
   create:    'Criar Evento',
 };
 
-export default function EventsPage() {
-  const [view, setView]       = useState<View>('catalog');
-  const [selectedId, setSelectedId] = useState<number | null>(null);
+// view e selectedId eram dois useState separados sempre definidos em conjunto
+// — um único estado torna "detail sem id" irrepresentável.
+type Nav = { view: Exclude<View, 'detail'> } | { view: 'detail'; selectedId: number };
 
-  const handleSelect = (id: number) => { setSelectedId(id); setView('detail'); };
-  const handleBack   = () => { setSelectedId(null); setView('catalog'); };
+export default function EventsPage() {
+  const [nav, setNav] = useState<Nav>({ view: 'catalog' });
+
+  const handleSelect = (id: number) => setNav({ view: 'detail', selectedId: id });
+  const handleBack   = () => setNav({ view: 'catalog' });
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-xl font-semibold text-gray-900">{TITLES[view]}</h1>
+          <h1 className="text-xl font-semibold text-gray-900">{TITLES[nav.view]}</h1>
           <p className="text-sm text-gray-400 mt-0.5">INNOVA — Eventos Corporativos</p>
         </div>
-        {view !== 'detail' && (
+        {nav.view !== 'detail' && (
           <button onClick={() => alert('Abrir formulário de criação de evento')}
             className="px-4 py-2 bg-blue-700 text-white text-sm font-medium rounded-lg hover:bg-blue-800">
             + Criar evento
           </button>
         )}
-        {view === 'detail' && (
+        {nav.view === 'detail' && (
           <button onClick={handleBack}
             className="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200">
             ← Voltar
@@ -624,21 +627,21 @@ export default function EventsPage() {
         )}
       </div>
 
-      {view !== 'detail' && (
+      {nav.view !== 'detail' && (
         <div className="flex gap-1 mb-6 bg-gray-100 p-1 rounded-xl w-fit">
           {NAV.map(n => (
-            <button key={n.id} onClick={() => setView(n.id)}
-              className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${view === n.id ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>
+            <button key={n.id} onClick={() => setNav({ view: n.id })}
+              className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${nav.view === n.id ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>
               {n.label}
             </button>
           ))}
         </div>
       )}
 
-      {view === 'catalog'    && <CatalogView   onSelect={handleSelect} />}
-      {view === 'my-events'  && <MyEventsView  onSelect={handleSelect} />}
-      {view === 'organizer'  && <OrganizerView />}
-      {view === 'detail' && selectedId !== null && <DetailView eventId={selectedId} onBack={handleBack} />}
+      {nav.view === 'catalog'    && <CatalogView   onSelect={handleSelect} />}
+      {nav.view === 'my-events'  && <MyEventsView  onSelect={handleSelect} />}
+      {nav.view === 'organizer'  && <OrganizerView />}
+      {nav.view === 'detail' && <DetailView eventId={nav.selectedId} onBack={handleBack} />}
     </div>
   );
 }

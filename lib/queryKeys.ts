@@ -6,6 +6,11 @@
 // Invalidar `keys.beneficiaries.all` invalida listas e detalhes de uma vez.
 
 export const queryKeys = {
+  auth: {
+    all: ['auth'] as const,
+    me: () => [...queryKeys.auth.all, 'me'] as const,
+  },
+
   dashboard: {
     all: ['dashboard'] as const,
     my: () => [...queryKeys.dashboard.all, 'my'] as const,
