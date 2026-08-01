@@ -909,29 +909,9 @@ function LessonContent({ lesson }: { lesson: Lesson }) {
 //
 // Nota: a página exporta CourseLearnPage como default (ver acima).
 // LessonContent é um componente interno — não pode ser um segundo export default.
-
-// Setup em 5 passos (10 minutos)
-//1. Criar conta gratuita
-//→ elevenlabs.io — sem cartão de crédito
-//2. Clonar a tua voz
-//→ Perfil → Voice Lab → Add Voice → Voice Cloning
-//→ Faz upload de 1–3 minutos de áudio teu a falar (qualquer gravação limpa)
-//→ O ElevenLabs analisa e cria a voz — copia o Voice ID
-//3. Obter a API Key
-//→ Perfil → API Key → copiar a chave
-//4. Adicionar ao .env.local
-//bashNEXT_PUBLIC_ELEVENLABS_API_KEY=sk_xxxxxxxxxxxxxxxxxxxxxx
-//NEXT_PUBLIC_ELEVENLABS_VOICE_ID=xxxxxxxxxxxxxxxxxxxxxxxx
-//5. Usar na página de aula
-//tsximport { CourseAvatarReader } from '@/components/CourseAvatarReader';
-
-// Dentro do render da aula — SÓ aparece em aulas de texto:
-//{lesson.contentType === 'TEXT' && lesson.textContent && (
-//  <CourseAvatarReader
-//    text={lesson.textContent}
-//    avatarSrc="/images/avatar.png"
-//    avatarName="Ana — INNOVA Academy"
-//  />
-// )}
-
+//
+// Setup do CourseAvatarReader (ElevenLabs): ver cabeçalho de
+// components/CourseAvatarReader.tsx — a chave fica no .env do BACKEND
+// (ELEVENLABS_API_KEY/VOICE_ID), nunca em NEXT_PUBLIC_*. O componente chama
+// GET /lessons/:id/audio e requer a prop lessonId (ver exemplo acima).
 
