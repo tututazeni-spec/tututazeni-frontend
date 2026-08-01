@@ -19,6 +19,18 @@ function isApiRequest(url: string): boolean {
   return url.startsWith('/');
 }
 
+// Segunda camada de defesa CSRF (par do csrf-header-guard.ts no backend):
+// pedidos de escrita levam este cabeçalho custom. Um <form>/navegação
+// cross-site forjada não consegue defini-lo; o backend rejeita com 403
+// qualquer escrita autenticada por cookie que não o traga.
+const CSRF_HEADER = 'X-Requested-With';
+const CSRF_HEADER_VALUE = 'XMLHttpRequest';
+const STATE_CHANGING_METHODS = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
+
+function isStateChanging(method: string | undefined): boolean {
+  return STATE_CHANGING_METHODS.has((method ?? 'GET').toUpperCase());
+}
+
 export function installApiFetch(): void {
   if (typeof window === 'undefined') return;
   const w = window as typeof window & { __innovaFetchPatched?: boolean };
@@ -36,6 +48,12 @@ export function installApiFetch(): void {
 
     if (api && (!init || init.credentials === undefined)) {
       init = { ...init, credentials: 'include' };
+    }
+
+    if (api && isStateChanging(init?.method)) {
+      const headers = new Headers(init?.headers);
+      headers.set(CSRF_HEADER, CSRF_HEADER_VALUE);
+      init = { ...init, headers };
     }
 
     const response = await originalFetch(input, init);
