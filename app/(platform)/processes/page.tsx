@@ -977,45 +977,45 @@ function DashboardView({ onOpenInstance }: { onOpenInstance: (id: number) => voi
 
 // ─── Page principal ───────────────────────────────────────────────────────────
 
-type View = 'library' | 'viewer' | 'runner' | 'tasks' | 'dashboard';
+type TabKey = 'library' | 'tasks' | 'dashboard';
 
-const NAV: Array<{ id: View; label: string }> = [
+type Nav =
+  | { view: 'library' }
+  | { view: 'tasks' }
+  | { view: 'dashboard' }
+  | { view: 'viewer'; processId: number }
+  | { view: 'runner'; instanceId: number; processId: number | null };
+
+const NAV: Array<{ id: TabKey; label: string }> = [
   { id: 'library',   label: 'Biblioteca' },
   { id: 'tasks',     label: 'Minhas tarefas' },
   { id: 'dashboard', label: 'Dashboard' },
 ];
 
 export default function ProcessStandardPage() {
-  const [view, setView] = useState<View>('library');
-  const [selectedProcessId, setSelectedProcessId] = useState<number | null>(null);
-  const [selectedInstanceId, setSelectedInstanceId] = useState<number | null>(null);
+  const [nav, setNav] = useState<Nav>({ view: 'library' });
 
   const handleSelectProcess = (id: number) => {
-    setSelectedProcessId(id);
-    setView('viewer');
+    setNav({ view: 'viewer', processId: id });
   };
 
   const handleStartInstance = (instanceId: number) => {
-    setSelectedInstanceId(instanceId);
-    setView('runner');
+    setNav({ view: 'runner', instanceId, processId: nav.view === 'viewer' ? nav.processId : null });
   };
 
   const handleOpenInstance = (instanceId: number) => {
-    setSelectedInstanceId(instanceId);
-    setView('runner');
+    setNav({ view: 'runner', instanceId, processId: null });
   };
 
   const handleBack = () => {
-    if (view === 'runner' && selectedProcessId) {
-      setView('viewer');
+    if (nav.view === 'runner' && nav.processId !== null) {
+      setNav({ view: 'viewer', processId: nav.processId });
     } else {
-      setSelectedProcessId(null);
-      setSelectedInstanceId(null);
-      setView('library');
+      setNav({ view: 'library' });
     }
   };
 
-  const titles: Record<View, string> = {
+  const titles: Record<Nav['view'], string> = {
     library:   'Biblioteca de Processos',
     viewer:    'Visualizar Processo',
     runner:    'Executar Processo',
@@ -1028,10 +1028,10 @@ export default function ProcessStandardPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-xl font-semibold text-gray-900">{titles[view]}</h1>
+          <h1 className="text-xl font-semibold text-gray-900">{titles[nav.view]}</h1>
           <p className="text-sm text-gray-400 mt-0.5">INNOVA — Process Standard (BPM/SOP)</p>
         </div>
-        {view === 'library' && (
+        {nav.view === 'library' && (
           <button
             onClick={() => alert('Abrir formulário de criação de processo')}
             className="flex items-center gap-2 px-4 py-2 bg-blue-700 text-white text-sm font-medium rounded-lg hover:bg-blue-800"
@@ -1042,14 +1042,14 @@ export default function ProcessStandardPage() {
       </div>
 
       {/* Tabs (não mostrar em viewer/runner) */}
-      {view !== 'viewer' && view !== 'runner' && (
+      {nav.view !== 'viewer' && nav.view !== 'runner' && (
         <div className="flex gap-1 mb-6 bg-gray-100 p-1 rounded-xl w-fit">
           {NAV.map(n => (
             <button
               key={n.id}
-              onClick={() => setView(n.id)}
+              onClick={() => setNav({ view: n.id })}
               className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-                view === n.id
+                nav.view === n.id
                   ? 'bg-white text-gray-900 shadow-sm'
                   : 'text-gray-500 hover:text-gray-700'
               }`}
@@ -1061,23 +1061,23 @@ export default function ProcessStandardPage() {
       )}
 
       {/* Views */}
-      {view === 'library' && (
+      {nav.view === 'library' && (
         <LibraryView onSelect={handleSelectProcess} />
       )}
-      {view === 'viewer' && selectedProcessId !== null && (
+      {nav.view === 'viewer' && (
         <ProcessViewer
-          processId={selectedProcessId}
+          processId={nav.processId}
           onBack={handleBack}
           onStartInstance={handleStartInstance}
         />
       )}
-      {view === 'runner' && selectedInstanceId !== null && (
-        <TaskRunner instanceId={selectedInstanceId} onBack={handleBack} />
+      {nav.view === 'runner' && (
+        <TaskRunner instanceId={nav.instanceId} onBack={handleBack} />
       )}
-      {view === 'tasks' && (
+      {nav.view === 'tasks' && (
         <MyTasksView onOpenInstance={handleOpenInstance} />
       )}
-      {view === 'dashboard' && (
+      {nav.view === 'dashboard' && (
         <DashboardView onOpenInstance={handleOpenInstance} />
       )}
     </div>

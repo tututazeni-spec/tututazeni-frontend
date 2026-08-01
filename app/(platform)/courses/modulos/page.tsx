@@ -1,6 +1,9 @@
 "use client";
-import { useEffect, useState } from "react";
-import { api } from "../../../../lib/api";
+import { useEffect, useState, useReducer } from "react";
+import { useApiQuery } from "../../../../hooks/useApiQuery";
+import { apiClient } from "../../../../lib/apiClient";
+import { queryKeys } from "../../../../lib/queryKeys";
+import { STALE_TIME } from "../../../../lib/queryClient";
 import { useConfirm } from "../../../../providers/ConfirmProvider";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -54,8 +57,8 @@ function ModuleModal({ courseId, editing, onClose, onSaved }: {
   async function submit(e: React.FormEvent) {
     e.preventDefault(); setSaving(true);
     try {
-      if (editing) await api.put(`/modules/${editing.id}`, { title: form.title, seq: +form.seq });
-      else await api.post("/modules", { courseId, title: form.title, seq: +form.seq });
+      if (editing) await apiClient.put(`/modules/${editing.id}`, { title: form.title, seq: +form.seq });
+      else await apiClient.post("/modules", { courseId, title: form.title, seq: +form.seq });
       onSaved(); onClose();
     } catch (e: any) { alert(e.message); } finally { setSaving(false); }
   }
@@ -98,8 +101,8 @@ function LessonModal({ moduleId, editing, onClose, onSaved }: {
     e.preventDefault(); setSaving(true);
     try {
       const payload = { moduleId, title: form.title, contentType: form.contentType, seq: +form.seq, videoUrl: form.videoUrl || undefined, pdfUrl: form.pdfUrl || undefined };
-      if (editing) await api.put(`/lessons/${editing.id}`, payload);
-      else await api.post("/lessons", payload);
+      if (editing) await apiClient.put(`/lessons/${editing.id}`, payload);
+      else await apiClient.post("/lessons", payload);
       onSaved(); onClose();
     } catch (e: any) { alert(e.message); } finally { setSaving(false); }
   }
@@ -154,14 +157,14 @@ function ProgressModal({ onClose, onMarked }: { onClose: () => void; onMarked: (
   async function loadProgress() {
     if (!enrollmentId) return;
     setLoading(true);
-    try { const d = await api.get<LessonProgress[]>(`/lessons/progress/${enrollmentId}`); setProgress(d); }
+    try { const d = await apiClient.get<LessonProgress[]>(`/lessons/progress/${enrollmentId}`); setProgress(d); }
     catch (e: any) { alert(e.message); } finally { setLoading(false); }
   }
 
   async function markComplete() {
     if (!enrollmentId || !lessonId) return;
     setMarking(true);
-    try { await api.post("/lessons/progress", { enrollmentId: +enrollmentId, lessonId: +lessonId }); onMarked(); loadProgress(); }
+    try { await apiClient.post("/lessons/progress", { enrollmentId: +enrollmentId, lessonId: +lessonId }); onMarked(); loadProgress(); }
     catch (e: any) { alert(e.message); } finally { setMarking(false); }
   }
 
@@ -289,48 +292,66 @@ function ModuleBlock({ mod, onEditModule, onDeleteModule, onAddLesson, onEditLes
   );
 }
 
+// ─── Modal trio (module / lesson / progress) ───────────────────────────────────
+type ModalState =
+  | { kind: "none" }
+  | { kind: "module"; editing: CourseModule | null }
+  | { kind: "lesson"; moduleId: number; editing: Lesson | null }
+  | { kind: "progress" };
+
+type ModalAction =
+  | { type: "openNewModule" }
+  | { type: "openEditModule"; mod: CourseModule }
+  | { type: "openNewLesson"; moduleId: number }
+  | { type: "openEditLesson"; moduleId: number; lesson: Lesson }
+  | { type: "openProgress" }
+  | { type: "close" };
+
+function modalReducer(_state: ModalState, action: ModalAction): ModalState {
+  switch (action.type) {
+    case "openNewModule":  return { kind: "module", editing: null };
+    case "openEditModule": return { kind: "module", editing: action.mod };
+    case "openNewLesson":  return { kind: "lesson", moduleId: action.moduleId, editing: null };
+    case "openEditLesson": return { kind: "lesson", moduleId: action.moduleId, editing: action.lesson };
+    case "openProgress":   return { kind: "progress" };
+    case "close":          return { kind: "none" };
+  }
+}
+
 // ─── Página Principal ─────────────────────────────────────────────────────────
 export default function CourseModulesPage() {
-  const [courseId, setCourseId] = useState("");
-  const [modules, setModules] = useState<CourseModule[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [loaded, setLoaded] = useState(false);
-
-  // Modais
-  const [moduleModal, setModuleModal] = useState<CourseModule | "new" | null>(null);
-  const [lessonModal, setLessonModal] = useState<{ moduleId: number; lesson: Lesson | null } | null>(null);
-  const [showProgress, setShowProgress] = useState(false);
+  const [courseIdInput, setCourseIdInput] = useState("");
+  const [submittedCourseId, setSubmittedCourseId] = useState<number | null>(null);
+  const [modal, dispatchModal] = useReducer(modalReducer, { kind: "none" });
 
   const [toast, setToast] = useState<{ msg: string; type: "success" | "error" } | null>(null);
   function showToast(msg: string, type: "success" | "error") { setToast({ msg, type }); }
 
   // ── Fetch curso ──────────────────────────────────────────────────────────
-  async function loadCourse() {
-    if (!courseId) return;
-    setLoading(true);
-    try {
-      const course = await api.get<any>(`/courses/${courseId}`);
-      setModules(course.modules ?? []);
-      setLoaded(true);
-    } catch (e: any) {
-      showToast(e.message ?? "Curso não encontrado", "error");
-    } finally { setLoading(false); }
+  function loadCourse() {
+    if (!courseIdInput) return;
+    setSubmittedCourseId(+courseIdInput);
   }
 
-  async function refreshModule(modId: number) {
-    try {
-      const mod = await api.get<CourseModule>(`/modules/${modId}`);
-      setModules(prev => prev.map(m => m.id === modId ? mod : m));
-    } catch {}
-  }
+  const { data: course, isLoading: loading, isError, error, refetch } = useApiQuery<{ modules?: CourseModule[] }>(
+    queryKeys.courses.detail(submittedCourseId ?? ""), `/courses/${submittedCourseId}`,
+    { enabled: submittedCourseId !== null, staleTime: STALE_TIME.SEMI_STATIC },
+  );
+  const modules = course?.modules ?? [];
+  const status: "empty" | "loading" | "error" | "ready" =
+    submittedCourseId === null ? "empty" :
+    loading ? "loading" :
+    isError ? "error" :
+    "ready";
+  const loaded = status === "ready";
 
   const confirm = useConfirm();
   // ── Delete module ─────────────────────────────────────────────────────────
   async function deleteModule(mod: CourseModule) {
     if (!(await confirm({ title: `Remover módulo "${mod.title}"?`, confirmLabel: 'Remover', destructive: true }))) return;
     try {
-      await api.delete(`/modules/${mod.id}`);
-      setModules(prev => prev.filter(m => m.id !== mod.id));
+      await apiClient.delete(`/modules/${mod.id}`);
+      await refetch();
       showToast("Módulo removido", "success");
     } catch (e: any) { showToast(e.message, "error"); }
   }
@@ -339,8 +360,8 @@ export default function CourseModulesPage() {
   async function deleteLesson(lesson: Lesson) {
     if (!(await confirm({ title: `Remover lição "${lesson.title}"?`, confirmLabel: 'Remover', destructive: true }))) return;
     try {
-      await api.delete(`/lessons/${lesson.id}`);
-      await refreshModule(lesson.moduleId);
+      await apiClient.delete(`/lessons/${lesson.id}`);
+      await refetch();
       showToast("Lição removida", "success");
     } catch (e: any) { showToast(e.message, "error"); }
   }
@@ -361,8 +382,8 @@ export default function CourseModulesPage() {
           <p style={{ color: "#64748b", fontSize: 14, marginTop: 4 }}>Estrutura de conteúdo dos cursos</p>
         </div>
         <div style={{ display: "flex", gap: 8 }}>
-          <button onClick={() => setShowProgress(true)} style={{ ...btnGhost, background: "#f5f3ff", color: "#7c3aed" }}>📊 Progresso</button>
-          {loaded && <button onClick={() => setModuleModal("new")} style={btnPrimary}>+ Novo Módulo</button>}
+          <button onClick={() => dispatchModal({ type: "openProgress" })} style={{ ...btnGhost, background: "#f5f3ff", color: "#7c3aed" }}>📊 Progresso</button>
+          {loaded && <button onClick={() => dispatchModal({ type: "openNewModule" })} style={btnPrimary}>+ Novo Módulo</button>}
         </div>
       </div>
 
@@ -372,9 +393,9 @@ export default function CourseModulesPage() {
         <div style={{ display: "flex", gap: 12, alignItems: "flex-end", flexWrap: "wrap" }}>
           <div style={{ flex: 1, minWidth: 200 }}>
             <span style={labelStyle}>ID do Curso</span>
-            <input style={inputStyle} type="number" value={courseId} onChange={e => { setCourseId(e.target.value); setLoaded(false); setModules([]); }} placeholder="Ex: 1" onKeyDown={e => e.key === "Enter" && loadCourse()} />
+            <input style={inputStyle} type="number" value={courseIdInput} onChange={e => { setCourseIdInput(e.target.value); setSubmittedCourseId(null); }} placeholder="Ex: 1" onKeyDown={e => e.key === "Enter" && loadCourse()} />
           </div>
-          <button onClick={loadCourse} disabled={loading || !courseId} style={{ ...btnPrimary, opacity: !courseId ? 0.5 : 1 }}>
+          <button onClick={loadCourse} disabled={loading || !courseIdInput} style={{ ...btnPrimary, opacity: !courseIdInput ? 0.5 : 1 }}>
             {loading ? "A carregar..." : "Carregar Curso"}
           </button>
         </div>
@@ -401,7 +422,12 @@ export default function CourseModulesPage() {
       )}
 
       {/* ── Lista de módulos ── */}
-      {!loaded ? (
+      {status === "error" ? (
+        <div style={{ ...card, textAlign: "center", padding: 60 }}>
+          <p style={{ fontSize: 32, marginBottom: 12 }}>⚠️</p>
+          <p style={{ color: "#dc2626", fontSize: 14 }}>{error?.message ?? "Curso não encontrado"}</p>
+        </div>
+      ) : status !== "ready" ? (
         <div style={{ ...card, textAlign: "center", padding: 60 }}>
           <p style={{ fontSize: 32, marginBottom: 12 }}>📦</p>
           <p style={{ color: "#94a3b8", fontSize: 14 }}>Insere o ID do curso para gerir os seus módulos e lições.</p>
@@ -410,17 +436,17 @@ export default function CourseModulesPage() {
         <div style={{ ...card, textAlign: "center", padding: 60 }}>
           <p style={{ fontSize: 32, marginBottom: 12 }}>📦</p>
           <p style={{ color: "#94a3b8", fontSize: 14, margin: "0 0 16px" }}>Este curso não tem módulos ainda.</p>
-          <button onClick={() => setModuleModal("new")} style={btnPrimary}>+ Criar Primeiro Módulo</button>
+          <button onClick={() => dispatchModal({ type: "openNewModule" })} style={btnPrimary}>+ Criar Primeiro Módulo</button>
         </div>
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           {modules.sort((a, b) => a.seq - b.seq).map(mod => (
             <ModuleBlock
               key={mod.id} mod={mod}
-              onEditModule={() => setModuleModal(mod)}
+              onEditModule={() => dispatchModal({ type: "openEditModule", mod })}
               onDeleteModule={() => deleteModule(mod)}
-              onAddLesson={() => setLessonModal({ moduleId: mod.id, lesson: null })}
-              onEditLesson={l => setLessonModal({ moduleId: mod.id, lesson: l })}
+              onAddLesson={() => dispatchModal({ type: "openNewLesson", moduleId: mod.id })}
+              onEditLesson={l => dispatchModal({ type: "openEditLesson", moduleId: mod.id, lesson: l })}
               onDeleteLesson={deleteLesson}
             />
           ))}
@@ -428,25 +454,25 @@ export default function CourseModulesPage() {
       )}
 
       {/* ── Modais ── */}
-      {moduleModal !== null && (
+      {modal.kind === "module" && (
         <ModuleModal
-          courseId={+courseId}
-          editing={moduleModal === "new" ? null : moduleModal}
-          onClose={() => setModuleModal(null)}
-          onSaved={() => { loadCourse(); showToast(moduleModal === "new" ? "Módulo criado!" : "Módulo actualizado!", "success"); }}
+          courseId={submittedCourseId!}
+          editing={modal.editing}
+          onClose={() => dispatchModal({ type: "close" })}
+          onSaved={() => { refetch(); showToast(modal.editing ? "Módulo actualizado!" : "Módulo criado!", "success"); }}
         />
       )}
-      {lessonModal !== null && (
+      {modal.kind === "lesson" && (
         <LessonModal
-          moduleId={lessonModal.moduleId}
-          editing={lessonModal.lesson}
-          onClose={() => setLessonModal(null)}
-          onSaved={async () => { await refreshModule(lessonModal.moduleId); showToast(lessonModal.lesson ? "Lição actualizada!" : "Lição criada!", "success"); }}
+          moduleId={modal.moduleId}
+          editing={modal.editing}
+          onClose={() => dispatchModal({ type: "close" })}
+          onSaved={async () => { await refetch(); showToast(modal.editing ? "Lição actualizada!" : "Lição criada!", "success"); }}
         />
       )}
-      {showProgress && (
+      {modal.kind === "progress" && (
         <ProgressModal
-          onClose={() => setShowProgress(false)}
+          onClose={() => dispatchModal({ type: "close" })}
           onMarked={() => showToast("Lição marcada como concluída!", "success")}
         />
       )}

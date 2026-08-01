@@ -51,7 +51,13 @@ interface QuizQuestion {
   options: string; // JSON
 }
 
-type View = 'feed' | 'player' | 'dashboard' | 'saved';
+type TabKey = 'feed' | 'saved' | 'dashboard';
+
+type Nav =
+  | { view: 'feed' }
+  | { view: 'saved' }
+  | { view: 'dashboard' }
+  | { view: 'player'; item: MicroLearning };
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -598,13 +604,13 @@ function SavedView({ onSelect }: { onSelect: (item: MicroLearning) => void }) {
 
 // ─── Page principal ───────────────────────────────────────────────────────────
 
-const NAV: Array<{ id: View; label: string }> = [
+const NAV: Array<{ id: TabKey; label: string }> = [
   { id: 'feed',      label: '⚡ Feed' },
   { id: 'saved',     label: '🔖 Guardados' },
   { id: 'dashboard', label: '📊 O meu progresso' },
 ];
 
-const TITLES: Record<View, string> = {
+const TITLES: Record<Nav['view'], string> = {
   feed:      'Micro-Learning',
   player:    'A aprender',
   saved:     'Guardados',
@@ -612,30 +618,28 @@ const TITLES: Record<View, string> = {
 };
 
 export default function MicroLearningPage() {
-  const [view, setView]     = useState<View>('feed');
-  const [selected, setSelected] = useState<MicroLearning | null>(null);
-  const [feedItems, setFeedItems] = useState<MicroLearning[]>([]);
+  const [nav, setNav] = useState<Nav>({ view: 'feed' });
 
-  const handleSelect = (item: MicroLearning) => { setSelected(item); setView('player'); };
-  const handleBack   = () => { setSelected(null); setView('feed'); };
+  const handleSelect = (item: MicroLearning) => setNav({ view: 'player', item });
+  const handleBack   = () => setNav({ view: 'feed' });
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-xl font-semibold text-gray-900">{TITLES[view]}</h1>
+          <h1 className="text-xl font-semibold text-gray-900">{TITLES[nav.view]}</h1>
           <p className="text-sm text-gray-400 mt-0.5">INNOVA — Aprendizagem rápida</p>
         </div>
       </div>
 
       {/* Tabs */}
-      {view !== 'player' && (
+      {nav.view !== 'player' && (
         <div className="flex gap-1 mb-6 bg-gray-100 p-1 rounded-xl w-fit">
           {NAV.map(n => (
-            <button key={n.id} onClick={() => setView(n.id)}
+            <button key={n.id} onClick={() => setNav({ view: n.id })}
               className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-                view === n.id ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+                nav.view === n.id ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
               }`}
             >
               {n.label}
@@ -644,12 +648,10 @@ export default function MicroLearningPage() {
         </div>
       )}
 
-      {view === 'feed'      && <FeedView onSelect={handleSelect} />}
-      {view === 'player' && selected && (
-        <PlayerView item={selected} onBack={handleBack} />
-      )}
-      {view === 'saved'     && <SavedView onSelect={handleSelect} />}
-      {view === 'dashboard' && <DashboardView />}
+      {nav.view === 'feed'      && <FeedView onSelect={handleSelect} />}
+      {nav.view === 'player'    && <PlayerView item={nav.item} onBack={handleBack} />}
+      {nav.view === 'saved'     && <SavedView onSelect={handleSelect} />}
+      {nav.view === 'dashboard' && <DashboardView />}
     </div>
   );
 }

@@ -242,6 +242,8 @@ export const queryKeys = {
     templates: () => [...queryKeys.reports.all, 'templates'] as const,
     insights: (params: Record<string, unknown>) =>
       [...queryKeys.reports.all, 'insights', params] as const,
+    view: (reportKey: string, params: Record<string, unknown>) =>
+      [...queryKeys.reports.all, 'view', reportKey, params] as const,
   },
 
   audit: {
@@ -486,6 +488,15 @@ export const queryKeys = {
     detail: (id: number) => [...queryKeys.events.all, 'detail', id] as const,
     organizerDashboard: () =>
       [...queryKeys.events.all, 'organizer-dashboard'] as const,
+  },
+
+  liveClasses: {
+    all: ['live-classes'] as const,
+    list: (params: Record<string, unknown>) =>
+      [...queryKeys.liveClasses.all, 'list', params] as const,
+    detail: (id: number) =>
+      [...queryKeys.liveClasses.all, 'detail', id] as const,
+    upcoming: () => [...queryKeys.liveClasses.all, 'upcoming'] as const,
   },
 
   declarations: {
