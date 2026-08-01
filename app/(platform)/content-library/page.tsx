@@ -335,14 +335,24 @@ function HomeTab() {
 
 // ─── Catalogue Tab ────────────────────────────────────────────────
 
+interface CatalogueFilters {
+  search: string; format: string; level: string; sortBy: string;
+  micro: boolean; cert: boolean; page: number;
+}
+const INITIAL_CATALOGUE_FILTERS: CatalogueFilters = {
+  search: '', format: '', level: '', sortBy: 'newest', micro: false, cert: false, page: 1,
+};
+
 function CatalogueTab() {
-  const [search, setSearch]   = useState('');
-  const [format, setFormat]   = useState('');
-  const [level, setLevel]     = useState('');
-  const [sortBy, setSortBy]   = useState('newest');
-  const [micro, setMicro]     = useState(false);
-  const [cert, setCert]       = useState(false);
-  const [page, setPage]       = useState(1);
+  const [filters, setFilters] = useState<CatalogueFilters>(INITIAL_CATALOGUE_FILTERS);
+  const { search, format, level, sortBy, micro, cert, page } = filters;
+
+  function updateFilters(patch: Partial<Omit<CatalogueFilters, 'page'>>) {
+    setFilters(f => ({ ...f, ...patch, page: 1 }));
+  }
+  function goToPage(delta: number) {
+    setFilters(f => ({ ...f, page: f.page + delta }));
+  }
 
   const debouncedSearch = useDebounce(search, 300);
   const params = {
@@ -368,7 +378,7 @@ function CatalogueTab() {
       <div className="bg-white rounded-xl border border-slate-100 p-4 space-y-3">
         <div className="relative">
           <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-          <input value={search} onChange={e => { setSearch(e.target.value); setPage(1); }}
+          <input value={search} onChange={e => updateFilters({ search: e.target.value })}
             placeholder="Pesquisar conteúdos..."
             className="w-full pl-9 pr-4 py-2.5 text-sm border border-slate-200 rounded-lg
               focus:outline-none focus:border-indigo-400" />
@@ -376,21 +386,21 @@ function CatalogueTab() {
 
         <div className="flex flex-wrap gap-2 items-center">
           {/* Format */}
-          <select value={format} onChange={e => { setFormat(e.target.value); setPage(1); }}
+          <select value={format} onChange={e => updateFilters({ format: e.target.value })}
             className="text-xs border border-slate-200 rounded-lg px-2 py-1.5 focus:outline-none">
             <option value="">Todos os formatos</option>
             {FORMATS.map(f => <option key={f} value={f}>{f}</option>)}
           </select>
 
           {/* Level */}
-          <select value={level} onChange={e => { setLevel(e.target.value); setPage(1); }}
+          <select value={level} onChange={e => updateFilters({ level: e.target.value })}
             className="text-xs border border-slate-200 rounded-lg px-2 py-1.5 focus:outline-none">
             <option value="">Todos os níveis</option>
             {LEVELS.map(l => <option key={l} value={l}>{l}</option>)}
           </select>
 
           {/* Sort */}
-          <select value={sortBy} onChange={e => setSortBy(e.target.value)}
+          <select value={sortBy} onChange={e => updateFilters({ sortBy: e.target.value })}
             className="text-xs border border-slate-200 rounded-lg px-2 py-1.5 focus:outline-none">
             <option value="newest">Mais recente</option>
             <option value="popular">Mais visto</option>
@@ -400,10 +410,10 @@ function CatalogueTab() {
 
           {/* Toggles */}
           {[
-            { label: '⚡ Micro', value: micro, set: setMicro },
-            { label: '🎓 Certif.', value: cert, set: setCert },
+            { label: '⚡ Micro', value: micro, key: 'micro' as const },
+            { label: '🎓 Certif.', value: cert, key: 'cert' as const },
           ].map(t => (
-            <button key={t.label} onClick={() => t.set(!t.value)}
+            <button key={t.label} onClick={() => updateFilters({ [t.key]: !t.value })}
               className={`text-xs px-3 py-1.5 rounded-lg border transition-colors ${
                 t.value ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white border-slate-200 text-slate-600'}`}>
               {t.label}
@@ -430,14 +440,14 @@ function CatalogueTab() {
       {/* Pagination */}
       {data && data.meta.totalPages > 1 && (
         <div className="flex justify-center gap-2 pt-4">
-          <button disabled={page === 1} onClick={() => setPage(p => p - 1)}
+          <button disabled={page === 1} onClick={() => goToPage(-1)}
             className="px-4 py-2 text-sm rounded-lg border border-slate-200 disabled:opacity-40">
             ← Anterior
           </button>
           <span className="px-4 py-2 text-sm text-slate-600">
             {page} / {data.meta.totalPages}
           </span>
-          <button disabled={page === data.meta.totalPages} onClick={() => setPage(p => p + 1)}
+          <button disabled={page === data.meta.totalPages} onClick={() => goToPage(1)}
             className="px-4 py-2 text-sm rounded-lg border border-slate-200 disabled:opacity-40">
             Próxima →
           </button>

@@ -1,7 +1,11 @@
 "use client";
 import { useEffect, useRef, useState, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { api } from "../../../../lib/api";
+import { useQueryClient } from "@tanstack/react-query";
+import { useApiQuery } from "../../../../hooks/useApiQuery";
+import { apiClient } from "../../../../lib/apiClient";
+import { queryKeys } from "../../../../lib/queryKeys";
+import { STALE_TIME } from "../../../../lib/queryClient";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -316,7 +320,7 @@ function RecordingPanel({ liveClass, onUrlSaved }: {
     if (!url) return;
     setSavingUrl(true);
     try {
-      await api.put(`/live-classes/${liveClass.id}`, {
+      await apiClient.put(`/live-classes/${liveClass.id}`, {
         courseId:     liveClass.course?.id,
         topic:        liveClass.topic,
         scheduledAt:  liveClass.scheduledAt,
@@ -479,25 +483,23 @@ export default function LiveRoomPage() {
   const router   = useRouter();
   const classId  = parseInt(params.id);
 
-  const [liveClass, setLiveClass]   = useState<LiveClass | null>(null);
-  const [loading, setLoading]       = useState(true);
-  const [error, setError]           = useState("");
+  const queryClient = useQueryClient();
+  const { data: liveClass, isLoading: loading, isError, error: queryError } = useApiQuery<LiveClass>(
+    queryKeys.liveClasses.detail(classId), `/live-classes/${classId}`,
+    { staleTime: STALE_TIME.DYNAMIC },
+  );
   const [joined, setJoined]         = useState(false);
   const [sessionTime, setSessionTime] = useState(0);
   const [showSidebar, setShowSidebar] = useState(true);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    api.get<LiveClass>(`/live-classes/${classId}`)
-      .then(setLiveClass)
-      .catch(e => setError(e.message ?? "Aula não encontrada"))
-      .finally(() => setLoading(false));
     return () => { if (timerRef.current) clearInterval(timerRef.current); };
   }, [classId]);
 
   async function handleJoined() {
     setJoined(true);
-    try { await api.post(`/live-classes/${classId}/join`, {}); } catch { /* silent */ }
+    try { await apiClient.post(`/live-classes/${classId}/join`, {}); } catch { /* silent */ }
     // Session timer
     const start = Date.now();
     timerRef.current = setInterval(() => {
@@ -507,7 +509,7 @@ export default function LiveRoomPage() {
 
   async function handleLeft() {
     if (timerRef.current) clearInterval(timerRef.current);
-    try { await api.post(`/live-classes/${classId}/leave`, {}); } catch { /* silent */ }
+    try { await apiClient.post(`/live-classes/${classId}/leave`, {}); } catch { /* silent */ }
     router.push("/live");
   }
 
@@ -522,10 +524,10 @@ export default function LiveRoomPage() {
     );
   }
 
-  if (error || !liveClass) {
+  if (isError || !liveClass) {
     return (
       <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100vh", background: "#0f172a", flexDirection: "column", gap: 12 }}>
-        <p style={{ color: "#fca5a5", fontSize: 16 }}>❌ {error || "Aula não encontrada"}</p>
+        <p style={{ color: "#fca5a5", fontSize: 16 }}>❌ {queryError?.message || "Aula não encontrada"}</p>
         <button onClick={() => router.push("/live")} style={{ padding: "9px 20px", background: "#dc2626", border: "none", borderRadius: 9, color: "#fff", cursor: "pointer", fontSize: 13, fontWeight: 700 }}>
           ← Voltar
         </button>
@@ -630,7 +632,10 @@ export default function LiveRoomPage() {
             <div style={{ padding: 16, flex: 1 }}>
               <RecordingPanel
                 liveClass={liveClass}
-                onUrlSaved={url => setLiveClass(lc => lc ? { ...lc, recordingUrl: url } : lc)}
+                onUrlSaved={url => queryClient.setQueryData<LiveClass>(
+                  queryKeys.liveClasses.detail(classId),
+                  lc => lc ? { ...lc, recordingUrl: url } : lc,
+                )}
               />
             </div>
           </div>

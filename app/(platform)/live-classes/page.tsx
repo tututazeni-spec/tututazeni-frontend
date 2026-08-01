@@ -1,9 +1,13 @@
 ﻿"use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
+import { keepPreviousData } from "@tanstack/react-query";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { api } from "../../../lib/api";
+import { useApiQuery, useApiMutation } from "../../../hooks/useApiQuery";
+import { apiClient } from "../../../lib/apiClient";
+import { queryKeys } from "../../../lib/queryKeys";
+import { STALE_TIME } from "../../../lib/queryClient";
 import { useConfirm } from "../../../providers/ConfirmProvider";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -171,62 +175,58 @@ function RecordingModal({ lc, onClose }: { lc: LiveClass; onClose: () => void })
 
 type MainTab = "live" | "recordings";
 
+interface Filters { page: number; courseId: string; }
+const INITIAL_FILTERS: Filters = { page: 1, courseId: "" };
+
 export default function LivePage() {
   const router = useRouter();
-  const [tab, setTab]               = useState<MainTab>("live");
-  const [classes, setClasses]       = useState<LiveClass[]>([]);
-  const [upcoming, setUpcoming]     = useState<LiveClass[]>([]);
-  const [recordings, setRecordings] = useState<LiveClass[]>([]);
-  const [total, setTotal]           = useState(0);
-  const [totalPages, setTotalPages] = useState(1);
-  const [page, setPage]             = useState(1);
-  const [loading, setLoading]       = useState(true);
-  const [search, setSearch]         = useState("");
-  const [filterCourseId, setFilterCourseId] = useState("");
-  const [viewRecording, setViewRecording]   = useState<LiveClass | null>(null);
-  const [showCreate, setShowCreate]         = useState(false);
-  const [editClass, setEditClass]           = useState<LiveClass | null>(null);
-  const [toast, setToast]                   = useState<{ msg: string; type: "success"|"error"|"info" } | null>(null);
+  const [tab, setTab]         = useState<MainTab>("live");
+  const [filters, setFilters] = useState<Filters>(INITIAL_FILTERS);
+  const [search, setSearch]   = useState("");
+  const [viewRecording, setViewRecording] = useState<LiveClass | null>(null);
+  const [toast, setToast]     = useState<{ msg: string; type: "success"|"error"|"info" } | null>(null);
+
+  function updateFilters(patch: Partial<Omit<Filters, "page">>) {
+    setFilters(f => ({ ...f, ...patch, page: 1 }));
+  }
+  function goToPage(delta: number) {
+    setFilters(f => ({ ...f, page: f.page + delta }));
+  }
 
   const showToast = (msg: string, type: "success"|"error"|"info") => setToast({ msg, type });
 
   // ── Fetch ──────────────────────────────────────────────────────────────────
 
-  const loadClasses = useCallback(async (p = 1) => {
-    setLoading(true);
-    try {
-      const q = new URLSearchParams({ page: String(p), limit: "12" });
-      if (filterCourseId) q.set("courseId", filterCourseId);
-      const res = await api.get<PaginatedClasses>(`/live-classes?${q}`);
-      setClasses(res.data);
-      setTotal(res.total);
-      setTotalPages(res.totalPages);
-      setPage(res.page);
-      // Extract recordings
-      setRecordings(res.data.filter(lc => lc.recordingUrl));
-    } catch (e: any) { showToast(e.message ?? "Erro", "error"); }
-    finally { setLoading(false); }
-  }, [filterCourseId]);
+  const listParams = {
+    page: filters.page, limit: 12,
+    ...(filters.courseId ? { courseId: filters.courseId } : {}),
+  };
+  const { data: classesData, isLoading: loading } = useApiQuery<PaginatedClasses>(
+    queryKeys.liveClasses.list(listParams), "/live-classes",
+    { params: listParams, staleTime: STALE_TIME.DYNAMIC, placeholderData: keepPreviousData },
+  );
+  const classes    = classesData?.data ?? [];
+  const total      = classesData?.total ?? 0;
+  const totalPages = classesData?.totalPages ?? 1;
+  // Nota: só reflecte gravações da página actual, tal como o comportamento original.
+  const recordings = classes.filter(lc => lc.recordingUrl);
 
-  const loadUpcoming = useCallback(async () => {
-    try {
-      const res = await api.get<LiveClass[]>("/live-classes/upcoming");
-      setUpcoming(Array.isArray(res) ? res : []);
-    } catch { /* silent */ }
-  }, []);
-
-  useEffect(() => { loadClasses(1); loadUpcoming(); }, [filterCourseId]);
-  useEffect(() => { const t = setInterval(loadUpcoming, 30_000); return () => clearInterval(t); }, []);
+  const { data: upcoming = [] } = useApiQuery<LiveClass[]>(
+    queryKeys.liveClasses.upcoming(), "/live-classes/upcoming",
+    { staleTime: STALE_TIME.DYNAMIC, refetchInterval: 30_000 },
+  );
 
   // ── Handlers ────────────────────────────────────────────────────────────────
 
   const confirm = useConfirm();
+  const deleteMutation = useApiMutation<void, number>(
+    (id) => apiClient.delete(`/live-classes/${id}`),
+    { invalidateKeys: [queryKeys.liveClasses.all] },
+  );
   async function deleteClass(lc: LiveClass) {
     if (!(await confirm({ title: `Eliminar "${lc.topic}"?`, confirmLabel: 'Eliminar', destructive: true }))) return;
     try {
-      await api.delete(`/live-classes/${lc.id}`);
-      setClasses(prev => prev.filter(x => x.id !== lc.id));
-      setRecordings(prev => prev.filter(x => x.id !== lc.id));
+      await deleteMutation.mutateAsync(lc.id);
       showToast("Aula eliminada.", "info");
     } catch (e: any) { showToast(e.message, "error"); }
   }
@@ -345,10 +345,10 @@ export default function LivePage() {
         <div style={{ display: "flex", gap: 12, marginBottom: 18, flexWrap: "wrap", alignItems: "center" }}>
           <input value={search} onChange={e => setSearch(e.target.value)} placeholder="🔍 Pesquisar por tópico ou curso..." style={{ ...INP, minWidth: 260 }} />
           {tab === "live" && (
-            <input value={filterCourseId} onChange={e => setFilterCourseId(e.target.value)} placeholder="ID do Curso" type="number" style={{ ...INP, width: 130 }} />
+            <input value={filters.courseId} onChange={e => updateFilters({ courseId: e.target.value })} placeholder="ID do Curso" type="number" style={{ ...INP, width: 130 }} />
           )}
-          {(search || filterCourseId) && (
-            <button onClick={() => { setSearch(""); setFilterCourseId(""); }} style={{ padding: "9px 14px", borderRadius: 9, border: "1px solid #e2e8f0", background: "#fff", cursor: "pointer", fontSize: 12.5, color: "#64748b" }}>✕</button>
+          {(search || filters.courseId) && (
+            <button onClick={() => { setSearch(""); updateFilters({ courseId: "" }); }} style={{ padding: "9px 14px", borderRadius: 9, border: "1px solid #e2e8f0", background: "#fff", cursor: "pointer", fontSize: 12.5, color: "#64748b" }}>✕</button>
           )}
         </div>
 
@@ -421,9 +421,9 @@ export default function LivePage() {
               {/* Pagination */}
               {totalPages > 1 && (
                 <div style={{ display: "flex", justifyContent: "center", gap: 8, marginTop: 24 }}>
-                  <button onClick={() => loadClasses(page - 1)} disabled={page === 1} style={{ padding: "8px 16px", borderRadius: 8, border: "1px solid #e2e8f0", background: "#fff", cursor: "pointer", fontSize: 12.5, opacity: page === 1 ? 0.4 : 1 }}>← Anterior</button>
-                  <span style={{ padding: "8px 14px", fontSize: 13, color: "#64748b" }}>{page} / {totalPages}</span>
-                  <button onClick={() => loadClasses(page + 1)} disabled={page === totalPages} style={{ padding: "8px 16px", borderRadius: 8, border: "1px solid #e2e8f0", background: "#fff", cursor: "pointer", fontSize: 12.5, opacity: page === totalPages ? 0.4 : 1 }}>Seguinte →</button>
+                  <button onClick={() => goToPage(-1)} disabled={filters.page === 1} style={{ padding: "8px 16px", borderRadius: 8, border: "1px solid #e2e8f0", background: "#fff", cursor: "pointer", fontSize: 12.5, opacity: filters.page === 1 ? 0.4 : 1 }}>← Anterior</button>
+                  <span style={{ padding: "8px 14px", fontSize: 13, color: "#64748b" }}>{filters.page} / {totalPages}</span>
+                  <button onClick={() => goToPage(1)} disabled={filters.page === totalPages} style={{ padding: "8px 16px", borderRadius: 8, border: "1px solid #e2e8f0", background: "#fff", cursor: "pointer", fontSize: 12.5, opacity: filters.page === totalPages ? 0.4 : 1 }}>Seguinte →</button>
                 </div>
               )}
             </>
