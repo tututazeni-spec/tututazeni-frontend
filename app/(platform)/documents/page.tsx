@@ -91,14 +91,19 @@ function formatBytes(bytes?: number): string {
 
 // ─── Hooks ────────────────────────────────────────────────────────────────────
 
-function useDocuments(search: string, category: string, sensitivity: string, tag: string, expiringSoon: boolean) {
-  const debouncedSearch = useDebounce(search, 300);
+interface DocFilters {
+  search: string; category: string; sensitivity: string; tag: string; expiringSoon: boolean;
+}
+const INITIAL_DOC_FILTERS: DocFilters = { search: '', category: '', sensitivity: '', tag: '', expiringSoon: false };
+
+function useDocuments(filters: DocFilters) {
+  const debouncedSearch = useDebounce(filters.search, 300);
   const params = {
     ...(debouncedSearch ? { search: debouncedSearch } : {}),
-    ...(category ? { category } : {}),
-    ...(sensitivity ? { sensitivity } : {}),
-    ...(tag ? { tag } : {}),
-    ...(expiringSoon ? { expiringSoon: 'true' } : {}),
+    ...(filters.category ? { category: filters.category } : {}),
+    ...(filters.sensitivity ? { sensitivity: filters.sensitivity } : {}),
+    ...(filters.tag ? { tag: filters.tag } : {}),
+    ...(filters.expiringSoon ? { expiringSoon: 'true' } : {}),
   };
   const { data, isLoading, refetch } = useApiQuery<{ data: Document[]; meta: any }>(
     queryKeys.documents.list(params), '/documents',
@@ -365,15 +370,15 @@ type ViewMode = 'grid' | 'list';
 
 export default function DocumentRepositoryPage() {
   const [view, setView]             = useState<ViewMode>('grid');
-  const [search, setSearch]         = useState('');
-  const [category, setCategory]     = useState('');
-  const [sensitivity, setSensitivity] = useState('');
-  const [activeTag, setActiveTag]   = useState('');
-  const [expiringSoon, setExpiringSoon] = useState(false);
+  const [filters, setFilters]       = useState<DocFilters>(INITIAL_DOC_FILTERS);
   const [showUpload, setShowUpload] = useState(false);
   const [selectedDoc, setSelectedDoc] = useState<Document | null>(null);
 
-  const { data, loading, refetch } = useDocuments(search, category, sensitivity, activeTag, expiringSoon);
+  function updateFilters(patch: Partial<DocFilters>) {
+    setFilters(f => ({ ...f, ...patch }));
+  }
+
+  const { data, loading, refetch } = useDocuments(filters);
   const dashboard = useDashboard();
   const allTags   = useTags();
 
@@ -400,8 +405,8 @@ export default function DocumentRepositoryPage() {
           <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Filtros</p>
           <div className="space-y-1">
             {[
-              { label: 'Todos os documentos', icon: Folder, action: () => { setCategory(''); setExpiringSoon(false); setActiveTag(''); } },
-              { label: 'A Expirar',           icon: AlertCircle, action: () => setExpiringSoon(true), badge: dashboard?.kpis.expiringSoon },
+              { label: 'Todos os documentos', icon: Folder, action: () => updateFilters({ category: '', expiringSoon: false, tag: '' }) },
+              { label: 'A Expirar',           icon: AlertCircle, action: () => updateFilters({ expiringSoon: true }), badge: dashboard?.kpis.expiringSoon },
             ].map(item => (
               <button key={item.label} onClick={item.action}
                 className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-600 rounded-xl hover:bg-gray-100 transition-colors text-left">
@@ -420,8 +425,8 @@ export default function DocumentRepositoryPage() {
           <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Categorias</p>
           <div className="space-y-1">
             {Object.entries(CATEGORY_CONFIG).map(([k, v]) => (
-              <button key={k} onClick={() => { setCategory(category === k ? '' : k); setExpiringSoon(false); }}
-                className={`w-full flex items-center gap-2 px-3 py-1.5 text-xs rounded-xl transition-colors text-left ${category === k ? 'bg-blue-50 text-blue-700 font-semibold' : 'text-gray-600 hover:bg-gray-100'}`}>
+              <button key={k} onClick={() => updateFilters({ category: filters.category === k ? '' : k, expiringSoon: false })}
+                className={`w-full flex items-center gap-2 px-3 py-1.5 text-xs rounded-xl transition-colors text-left ${filters.category === k ? 'bg-blue-50 text-blue-700 font-semibold' : 'text-gray-600 hover:bg-gray-100'}`}>
                 <span className={`w-2 h-2 rounded-full ${v.color.split(' ')[0]}`}/>
                 {v.label}
               </button>
@@ -435,8 +440,8 @@ export default function DocumentRepositoryPage() {
             <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Tags</p>
             <div className="flex flex-wrap gap-1.5">
               {allTags.slice(0, 12).map(t => (
-                <button key={t.tag} onClick={() => setActiveTag(activeTag === t.tag ? '' : t.tag)}
-                  className={`text-xs px-2 py-0.5 rounded-full transition-colors ${activeTag === t.tag ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>
+                <button key={t.tag} onClick={() => updateFilters({ tag: filters.tag === t.tag ? '' : t.tag })}
+                  className={`text-xs px-2 py-0.5 rounded-full transition-colors ${filters.tag === t.tag ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>
                   {t.tag}
                 </button>
               ))}
@@ -451,13 +456,13 @@ export default function DocumentRepositoryPage() {
         <div className="bg-white border-b border-gray-100 px-6 py-4 flex items-center gap-3">
           <div className="flex-1 relative">
             <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"/>
-            <input value={search} onChange={e => setSearch(e.target.value)}
+            <input value={filters.search} onChange={e => updateFilters({ search: e.target.value })}
               placeholder="Pesquisar por nome, tag, OCR text..."
               className="w-full pl-9 pr-4 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-colors"/>
-            {search && <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"><X size={14}/></button>}
+            {filters.search && <button onClick={() => updateFilters({ search: '' })} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"><X size={14}/></button>}
           </div>
 
-          <select value={sensitivity} onChange={e => setSensitivity(e.target.value)}
+          <select value={filters.sensitivity} onChange={e => updateFilters({ sensitivity: e.target.value })}
             className="px-3 py-2.5 text-sm border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
             <option value="">Todas as sensibilidades</option>
             {Object.entries(SENSITIVITY_CONFIG).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
@@ -502,9 +507,9 @@ export default function DocumentRepositoryPage() {
           <div className="flex items-center justify-between mb-4">
             <p className="text-sm text-gray-500">
               <span className="font-semibold text-gray-900">{data?.meta?.total ?? 0}</span> documentos
-              {category && ` · ${CATEGORY_CONFIG[category as DocCategory]?.label}`}
-              {activeTag && ` · #${activeTag}`}
-              {expiringSoon && ' · A Expirar'}
+              {filters.category && ` · ${CATEGORY_CONFIG[filters.category as DocCategory]?.label}`}
+              {filters.tag && ` · #${filters.tag}`}
+              {filters.expiringSoon && ' · A Expirar'}
             </p>
           </div>
 
