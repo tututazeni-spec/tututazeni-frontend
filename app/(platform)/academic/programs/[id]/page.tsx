@@ -1,6 +1,7 @@
 'use client';
 import { useParams, useRouter } from 'next/navigation';
 import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -52,11 +53,13 @@ export default function ProgramDetailPage() {
     );
   const error = queryError?.message ?? '';
 
+  const { data: currentUser } = useCurrentUser();
+
   const enrollMut = useApiMutation(
     async (classId: string | undefined) => {
-      // O backend precisa do userId → obtém-se de /auth/me antes do POST.
-      const me = await apiClient.get<any>('/auth/me');
-      const userId = me?.id ?? me?.user?.id;
+      // Reusa a mesma cache de /auth/me partilhada pelo resto da app (useCurrentUser)
+      // em vez de refazer o fetch a cada matrícula.
+      const userId = currentUser?.id;
       if (!userId) throw new Error('Utilizador sem ID');
       return apiClient.post('/academic/enrollments', {
         userId: Number(userId),

@@ -701,7 +701,7 @@ function AdminDashboardView() {
 
 // ─── Page principal ───────────────────────────────────────────────────────────
 
-const NAV: Array<{ id: View; label: string }> = [
+const NAV: Array<{ id: Exclude<View, 'article'>; label: string }> = [
   { id: 'portal',    label: '🏠 Portal' },
   { id: 'library',   label: '📚 Biblioteca' },
   { id: 'dashboard', label: '📊 Admin' },
@@ -714,19 +714,22 @@ const TITLES: Record<View, string> = {
   dashboard: 'Dashboard Admin',
 };
 
-export default function KnowledgePage() {
-  const [view, setView]         = useState<View>('portal');
-  const [selectedId, setSelectedId] = useState<number | null>(null);
+// view e selectedId eram dois useState separados sempre definidos em conjunto
+// — um único estado torna "article sem id" irrepresentável.
+type Nav = { view: Exclude<View, 'article'> } | { view: 'article'; selectedId: number };
 
-  const handleSelectArticle = (id: number) => { setSelectedId(id); setView('article'); };
-  const handleBack          = () => { setSelectedId(null); setView('library'); };
+export default function KnowledgePage() {
+  const [nav, setNav] = useState<Nav>({ view: 'portal' });
+
+  const handleSelectArticle = (id: number) => setNav({ view: 'article', selectedId: id });
+  const handleBack          = () => setNav({ view: 'library' });
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-xl font-semibold text-gray-900">{TITLES[view]}</h1>
+          <h1 className="text-xl font-semibold text-gray-900">{TITLES[nav.view]}</h1>
           <p className="text-sm text-gray-400 mt-0.5">INNOVA — Gestão do Conhecimento</p>
         </div>
         <button
@@ -738,12 +741,12 @@ export default function KnowledgePage() {
       </div>
 
       {/* Tabs */}
-      {view !== 'article' && (
+      {nav.view !== 'article' && (
         <div className="flex gap-1 mb-6 bg-gray-100 p-1 rounded-xl w-fit">
           {NAV.map(n => (
-            <button key={n.id} onClick={() => setView(n.id)}
+            <button key={n.id} onClick={() => setNav({ view: n.id })}
               className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-                view === n.id ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+                nav.view === n.id ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
               }`}
             >
               {n.label}
@@ -752,12 +755,12 @@ export default function KnowledgePage() {
         </div>
       )}
 
-      {view === 'portal'    && <PortalView onSelectArticle={handleSelectArticle} onSearch={() => {}} />}
-      {view === 'library'   && <LibraryView onSelectArticle={handleSelectArticle} />}
-      {view === 'article' && selectedId !== null && (
-        <ArticleDetailView articleId={selectedId} onBack={handleBack} />
+      {nav.view === 'portal'    && <PortalView onSelectArticle={handleSelectArticle} onSearch={() => {}} />}
+      {nav.view === 'library'   && <LibraryView onSelectArticle={handleSelectArticle} />}
+      {nav.view === 'article' && (
+        <ArticleDetailView articleId={nav.selectedId} onBack={handleBack} />
       )}
-      {view === 'dashboard' && <AdminDashboardView />}
+      {nav.view === 'dashboard' && <AdminDashboardView />}
     </div>
   );
 }

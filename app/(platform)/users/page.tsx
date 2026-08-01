@@ -143,19 +143,25 @@ function UserListView({
   onSelect: (id: number) => void;
   onCreate: () => void;
 }) {
-  const [search, setSearch]     = useState('');
-  const [status, setStatus]     = useState('');
-  const [hrStatus, setHrStatus] = useState('');
-  const [page, setPage]         = useState(1);
+  // Um só objecto para os filtros + page: mudar qualquer filtro repõe a
+  // página a 1 automaticamente, em vez de cada handler repetir setPage(1).
+  const [filters, setFilters] = useState({ search: '', status: '', hrStatus: '', page: 1 });
   const [selected, setSelected] = useState<number[]>([]);
   const [bulkAction, setBulkAction] = useState('');
 
-  const debouncedSearch = useDebounce(search);
+  function updateFilters(patch: Partial<Omit<typeof filters, 'page'>>) {
+    setFilters(f => ({ ...f, ...patch, page: 1 }));
+  }
+  function goToPage(delta: number) {
+    setFilters(f => ({ ...f, page: f.page + delta }));
+  }
+
+  const debouncedSearch = useDebounce(filters.search);
   const params = {
-    page, limit: 20,
+    page: filters.page, limit: 20,
     search: debouncedSearch,
-    accountStatus: status,
-    hrStatus,
+    accountStatus: filters.status,
+    hrStatus: filters.hrStatus,
   };
 
   const { data, isLoading: loading, error } = useApiQuery<PaginatedUsers>(
@@ -189,11 +195,11 @@ function UserListView({
         <input
           type="text"
           placeholder="Pesquisar por nome, email, nº funcionário…"
-          value={search}
-          onChange={e => { setSearch(e.target.value); setPage(1); }}
+          value={filters.search}
+          onChange={e => updateFilters({ search: e.target.value })}
           className="flex-1 min-w-[200px] text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
-        <select value={status} onChange={e => { setStatus(e.target.value); setPage(1); }}
+        <select value={filters.status} onChange={e => updateFilters({ status: e.target.value })}
           className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
           <option value="">Todos os estados</option>
           <option value="ACTIVE">Activo</option>
@@ -201,7 +207,7 @@ function UserListView({
           <option value="SUSPENDED">Suspenso</option>
           <option value="INACTIVE">Inactivo</option>
         </select>
-        <select value={hrStatus} onChange={e => { setHrStatus(e.target.value); setPage(1); }}
+        <select value={filters.hrStatus} onChange={e => updateFilters({ hrStatus: e.target.value })}
           className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
           <option value="">Estado RH: Todos</option>
           <option value="ACTIVE">Activo</option>
@@ -302,11 +308,11 @@ function UserListView({
         <div className="flex items-center justify-between mt-4">
           <span className="text-xs text-gray-400">Página {data.page} de {data.totalPages}</span>
           <div className="flex gap-2">
-            <button disabled={page === 1} onClick={() => setPage(p => p - 1)}
+            <button disabled={filters.page === 1} onClick={() => goToPage(-1)}
               className="px-3 py-1.5 text-xs border border-gray-200 rounded-lg disabled:opacity-40 hover:bg-gray-50">
               ← Anterior
             </button>
-            <button disabled={page === data.totalPages} onClick={() => setPage(p => p + 1)}
+            <button disabled={filters.page === data.totalPages} onClick={() => goToPage(1)}
               className="px-3 py-1.5 text-xs border border-gray-200 rounded-lg disabled:opacity-40 hover:bg-gray-50">
               Próxima →
             </button>
@@ -837,24 +843,27 @@ const TITLES: Record<View, string> = {
   directory: 'Diretório Interno',
 };
 
-export default function UsersPage() {
-  const [view, setView]         = useState<View>('list');
-  const [selectedId, setSelectedId] = useState<number | null>(null);
+// view e selectedId eram dois useState separados sempre definidos em conjunto
+// — um único estado torna "detail sem id" irrepresentável.
+type Nav = { view: Exclude<View, 'detail'> } | { view: 'detail'; selectedId: number };
 
-  const handleSelect = (id: number) => { setSelectedId(id); setView('detail'); };
-  const handleBack   = () => { setSelectedId(null); setView('list'); };
-  const handleCreate = () => setView('create');
-  const handleCreated = () => { setView('list'); };
+export default function UsersPage() {
+  const [nav, setNav] = useState<Nav>({ view: 'list' });
+
+  const handleSelect = (id: number) => setNav({ view: 'detail', selectedId: id });
+  const handleBack   = () => setNav({ view: 'list' });
+  const handleCreate = () => setNav({ view: 'create' });
+  const handleCreated = () => setNav({ view: 'list' });
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-xl font-semibold text-gray-900">{TITLES[view]}</h1>
+          <h1 className="text-xl font-semibold text-gray-900">{TITLES[nav.view]}</h1>
           <p className="text-sm text-gray-400 mt-0.5">INNOVA — Recursos Humanos</p>
         </div>
-        {view === 'list' && (
+        {nav.view === 'list' && (
           <div className="flex gap-2">
             <button
               onClick={handleCreate}
@@ -873,12 +882,12 @@ export default function UsersPage() {
       </div>
 
       {/* Tabs */}
-      {view !== 'detail' && view !== 'create' && (
+      {nav.view !== 'detail' && nav.view !== 'create' && (
         <div className="flex gap-1 mb-6 bg-gray-100 p-1 rounded-xl w-fit">
           {NAV.map(n => (
-            <button key={n.id} onClick={() => setView(n.id)}
+            <button key={n.id} onClick={() => setNav({ view: n.id })}
               className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-                view === n.id ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+                nav.view === n.id ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
               }`}
             >
               {n.label}
@@ -887,13 +896,13 @@ export default function UsersPage() {
         </div>
       )}
 
-      {view === 'list'      && <UserListView onSelect={handleSelect} onCreate={handleCreate} />}
-      {view === 'detail' && selectedId !== null && (
-        <UserProfileView userId={selectedId} onBack={handleBack} />
+      {nav.view === 'list'      && <UserListView onSelect={handleSelect} onCreate={handleCreate} />}
+      {nav.view === 'detail' && (
+        <UserProfileView userId={nav.selectedId} onBack={handleBack} />
       )}
-      {view === 'create'    && <CreateUserView onBack={handleBack} onCreated={handleCreated} />}
-      {view === 'dashboard' && <DashboardView />}
-      {view === 'directory' && <DirectoryView onSelect={handleSelect} />}
+      {nav.view === 'create'    && <CreateUserView onBack={handleBack} onCreated={handleCreated} />}
+      {nav.view === 'dashboard' && <DashboardView />}
+      {nav.view === 'directory' && <DirectoryView onSelect={handleSelect} />}
     </div>
   );
 }

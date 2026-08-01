@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { API_URL } from "@/lib/api";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 import {
   LayoutDashboard, BookOpen, Users, ClipboardList, Star, Award,
   TrendingUp, Briefcase, Trophy, BarChart2, FileText, Bell, Shield,
@@ -13,24 +14,39 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 
-const NAV = [
+// Espelha src/auth/enums/role.enum.ts (backend) — comparado contra role.name.
+type Role =
+  | "ADMIN" | "RH" | "GESTOR" | "LIDER" | "COLABORADOR"
+  | "INSTRUCTOR" | "DIRECTOR" | "AUDITOR";
+
+interface NavItem {
+  href: string;
+  icon: typeof LayoutDashboard;
+  label: string;
+  /** Omitido = sem @Roles() no endpoint principal da página → visível a todos.
+   *  Confirmado por leitura directa dos controllers, não adivinhado — ver
+   *  memory project_innova_sidebar_rbac para a fonte de cada restrição. */
+  roles?: Role[];
+}
+
+const NAV: Array<{ label: string; items: NavItem[] }> = [
   {
     label: "Principal",
     items: [
       { href: "/dashboard",    icon: LayoutDashboard,  label: "Dashboard"    },
-      { href: "/dashboard/institutional", icon: PieChart, label: "Dashboard Institucional" },
-      { href: "/dashboard-rh", icon: Users,            label: "Dashboard RH" },
-      { href: "/analytics",    icon: BarChart2,        label: "Indicadores de Desempenho"    },
-      { href: "/reports",      icon: FileText,         label: "Relatórios"   },
+      { href: "/dashboard/institutional", icon: PieChart, label: "Dashboard Institucional", roles: ["ADMIN", "RH", "GESTOR"] },
+      { href: "/dashboard-rh", icon: Users,            label: "Dashboard RH", roles: ["ADMIN", "RH", "DIRECTOR"] },
+      { href: "/analytics",    icon: BarChart2,        label: "Indicadores de Desempenho", roles: ["ADMIN", "RH", "GESTOR"] },
+      { href: "/reports",      icon: FileText,         label: "Relatórios", roles: ["ADMIN", "RH", "LIDER", "DIRECTOR", "GESTOR"] },
     ],
   },
   {
     label: "CRM",
     items: [
-      { href: "/crm/beneficiaries", icon: UserCheck,  label: "Beneficiários" },
-      { href: "/crm/partners",      icon: Briefcase,  label: "Parceiros"     },
-      { href: "/crm/funders",       icon: DollarSign, label: "Financiadores" },
-      { href: "/crm/funders/overdue-reports", icon: Clock, label: "Relatórios em Atraso" },
+      { href: "/crm/beneficiaries", icon: UserCheck,  label: "Beneficiários", roles: ["ADMIN", "RH", "GESTOR"] },
+      { href: "/crm/partners",      icon: Briefcase,  label: "Parceiros", roles: ["ADMIN", "RH", "GESTOR"] },
+      { href: "/crm/funders",       icon: DollarSign, label: "Financiadores", roles: ["ADMIN", "RH", "GESTOR"] },
+      { href: "/crm/funders/overdue-reports", icon: Clock, label: "Relatórios em Atraso", roles: ["ADMIN", "RH", "GESTOR"] },
     ],
   },
   {
@@ -38,35 +54,35 @@ const NAV = [
     items: [
       { href: "/courses",          icon: BookOpen,   label: "Cursos"           },
       { href: "/academic/programs", icon: GraduationCap, label: "Gestão Académica" },
-      { href: "/course-modules",   icon: Layers,     label: "Módulos & Lições" },
+      { href: "/courses/modulos",  icon: Layers,     label: "Módulos & Lições" },
       { href: "/learning-paths",   icon: GitBranch,  label: "Percursos de Aprendizagem" },
       { href: "/lms/paths",        icon: Play,       label: "LMS — Percursos & Sessões" },
       { href: "/enrollments",      icon: ClipboardList, label: "Matrículas"    },
       { href: "/evaluation",       icon: Star,       label: "Avaliações"       },
       { href: "/micro-learning",   icon: Zap,        label: "Micro-aprendizagem"   },
       { href: "/live-classes",     icon: Play,       label: "Aulas ao Vivo"    },
-      { href: "/content-library",  icon: Library,    label: "Biblioteca"       },
+      { href: "/content-library",  icon: Library,    label: "Biblioteca", roles: ["ADMIN", "RH", "LIDER", "COLABORADOR", "INSTRUCTOR"] },
       { href: "/library",          icon: BookMarked, label: "Biblioteca Digital" },
       { href: "/knowledge",        icon: BookMarked, label: "Conhecimento"     },
       { href: "/ai-tutor",         icon: Bot,        label: "Tutor de IA"         },
-      { href: "/avatar-training",  icon: Cpu,        label: "Treino de Avatar"  },
+      { href: "/avatar-training",  icon: Cpu,        label: "Treino de Avatar", roles: ["ADMIN", "RH", "LIDER", "COLABORADOR"] },
     ],
   },
   {
     label: "Recursos Humanos",
     items: [
-      { href: "/users",             icon: Users,         label: "Utilizadores"     },
-      { href: "/employees",         icon: UserCheck,     label: "Colaborador"      },
-      { href: "/leave-management",  icon: Calendar,      label: "Férias e Licenças" }, 
+      { href: "/users",             icon: Users,         label: "Utilizadores", roles: ["ADMIN", "RH", "GESTOR"] },
+      { href: "/employees",         icon: UserCheck,     label: "Colaborador", roles: ["ADMIN", "RH", "LIDER"] },
+      { href: "/leave",              icon: Calendar,      label: "Férias e Licenças" },
       { href: "/departments",       icon: Building2,     label: "Departamentos"    },
-      { href: "/roles-permissions", icon: Briefcase,     label: "Permissões por Cargos"           },
+      { href: "/roles-permissions", icon: Briefcase,     label: "Permissões por Cargos", roles: ["ADMIN", "RH"] },
       { href: "/performance",       icon: TrendingUp,    label: "Desempenho"       },
       { href: "/monitoring/okrs",   icon: Target,        label: "Monitoria e Avaliação" },
       { href: "/competencies",      icon: Award,         label: "Competências"     },
-      { href: "/competency-map",    icon: Share2,        label: "Mapa de Competências" }, 
+      { href: "/competency-map",    icon: Share2,        label: "Mapa de Competências" },
       { href: "/evaluation360",     icon: MessageSquare, label: "Avaliação 360°"    },
       { href: "/onboarding",        icon: UserPlus,      label: "Integração"       },
-      { href: "/succession",        icon: GitBranch,     label: "Sucessão"         },
+      { href: "/sucession",         icon: GitBranch,     label: "Sucessão", roles: ["ADMIN", "RH", "GESTOR"] },
       { href: "/payslips",          icon: FileText,      label: "Recibos Salariais" },
       { href: "/organization",      icon: Share2,        label: "Organograma" },
       { href: "/trainings",         icon: GraduationCap, label: "Formações"        },
@@ -78,37 +94,37 @@ const NAV = [
       { href: "/career",            icon: Target,   label: "Carreira"       },
       { href: "/career-plans",      icon: Layers,   label: "Planos de Carreira"},
       { href: "/development-plans", icon: Activity, label: "Planos de Desenvolvimento" },
-      { href: "/leader",            icon: Crown,    label: "Liderança"       },
+      { href: "/leader",            icon: Crown,    label: "Liderança", roles: ["ADMIN", "RH", "LIDER", "DIRECTOR", "GESTOR"] },
       { href: "/leadership",        icon: BookOpen, label: "Programas de Liderança" },
       { href: "/certificates",      icon: Scroll,   label: "Certificados"    },
       { href: "/certification/templates", icon: Award, label: "Templates Certificado" },
-      { href: "/talent-development",      icon: Brain, label: "Desenvolvimento de Talentos" },
+      { href: "/talent-development",      icon: Brain, label: "Desenvolvimento de Talentos", roles: ["ADMIN", "RH", "LIDER", "GESTOR"] },
     ],
   },
   {
     label: "Compromisso",
     items: [
       { href: "/events",           icon: Calendar,      label: "Eventos Corporativos"     },
-      { href: "/engagement",       icon: MessageSquare, label: "Participação"  },
+      { href: "/engagement",       icon: MessageSquare, label: "Participação", roles: ["ADMIN", "RH", "LIDER", "GESTOR"] },
       { href: "/instructor",       icon: GraduationCap, label: "Instrutores" },
     ],
   },
   {
     label: "Processos",
     items: [
-      { href: "/process-standard", icon: Database, label: "Processos"   },
-      { href: "/automation",       icon: Zap,      label: "Automações"  },
-      { href: "/api-integration",  icon: Globe,    label: "Integrações com Sistemas Externos" },
+      { href: "/processes",        icon: Database, label: "Processos"   },
+      { href: "/automation",       icon: Zap,      label: "Automações", roles: ["ADMIN", "RH"] },
+      { href: "/api-integrations", icon: Globe,    label: "Integrações com Sistemas Externos", roles: ["ADMIN", "RH"] },
       { href: "/history",          icon: Clock,    label: "Histórico"   },
-      { href: "/audit",            icon: Shield,   label: "Auditoria"   },
+      { href: "/audit",            icon: Shield,   label: "Auditoria", roles: ["ADMIN", "RH"] },
     ],
   },
   {
     label: "Relatórios",
     items: [
-      { href: "/roi-impact",       icon: DollarSign, label: "ROI e Impacto"  },
+      { href: "/roi-impact",       icon: DollarSign, label: "ROI e Impacto", roles: ["ADMIN", "RH", "DIRECTOR"] },
       { href: "/scalability",      icon: PieChart,   label: "Escalabilidade" },
-      { href: "/executive-reports",    icon: Download,   label: "Relatório Executivos" },
+      { href: "/executive-reports",    icon: Download,   label: "Relatório Executivos", roles: ["ADMIN", "RH"] },
     ],
   },
   {
@@ -123,6 +139,18 @@ const NAV = [
 export default function Sidebar() {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
+  const { data: currentUser } = useCurrentUser();
+  const role = currentUser?.role?.name as Role | undefined;
+
+  // Enquanto a role ainda não chegou (primeiro render após login/reload),
+  // mostra tudo em vez de esconder e voltar a mostrar — evita "flash" no
+  // arranque e nunca esconde algo que o utilizador deveria ver.
+  const visibleNav = NAV
+    .map(section => ({
+      ...section,
+      items: section.items.filter(item => !item.roles || !role || item.roles.includes(role)),
+    }))
+    .filter(section => section.items.length > 0);
 
   function toggle(label: string) {
     setCollapsed(c => ({ ...c, [label]: !c[label] }));
@@ -161,7 +189,7 @@ export default function Sidebar() {
 
       {/* Nav */}
       <nav style={{ flex: 1, padding: "8px 0" }}>
-        {NAV.map(section => (
+        {visibleNav.map(section => (
           <div key={section.label}>
             <button
               onClick={() => toggle(section.label)}

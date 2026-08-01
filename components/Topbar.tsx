@@ -1,23 +1,10 @@
 "use client";
 import { Bell, Search, User } from "lucide-react";
-import { useEffect, useState } from "react";
-import { API_URL } from "@/lib/api";
- 
-export default function Topbar({ title }: { title?: string }) {
-  const [user, setUser] = useState<{ fullName?: string; email?: string } | null>(null);
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 
-  useEffect(() => {
-    // O perfil vem do backend via cookie httpOnly — já não há "user" em
-    // localStorage. O fetch global injecta credentials automaticamente.
-    const apiUrl = API_URL;
-    fetch(`${apiUrl}/auth/me`)
-      .then((r) => (r.ok ? r.json() : null))
-      .then((data) => {
-        if (data) setUser({ fullName: data.fullName, email: data.email });
-      })
-      .catch(() => {});
-  }, []);
- 
+export default function Topbar({ title }: { title?: string }) {
+  const { data: user } = useCurrentUser();
+
   return (
     <header style={{
       position: "fixed", top: 0, left: 240, right: 0, height: 56,
