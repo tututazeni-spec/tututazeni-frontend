@@ -830,6 +830,7 @@ function LessonContent({ lesson }: { lesson: Lesson }) {
       {/* ─── Avatar de leitura — SÓ para aulas em texto ──────────────────── */}
       {isTextLesson && (
         <CourseAvatarReader
+          lessonId={lesson.id}
           text={lesson.textContent!}
           avatarSrc="/images/avatar.png"        // ← caminho da tua imagem
           avatarName="Ana — INNOVA Academy"     // ← nome do teu avatar

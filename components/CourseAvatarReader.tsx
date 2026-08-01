@@ -13,14 +13,20 @@
 //  3. Obter API Key:
 //     → Perfil → "API Key" → copiar
 //
-//  4. Adicionar ao .env.local do projecto Next.js:
-//       NEXT_PUBLIC_ELEVENLABS_API_KEY=sk_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-//       NEXT_PUBLIC_ELEVENLABS_VOICE_ID=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+//  4. Adicionar ao .env do BACKEND (nunca ao frontend — a chave nunca deve
+//     ter o prefixo NEXT_PUBLIC_, senão fica embutida no bundle do browser
+//     e qualquer visitante consegue lê-la e gastar a quota da conta):
+//       ELEVENLABS_API_KEY=sk_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+//       ELEVENLABS_VOICE_ID=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+//     O backend expõe GET /lessons/:id/audio (JwtAuthGuard + verificação de
+//     matrícula) que faz a chamada à ElevenLabs por nós — ver
+//     CourseModulesService.getLessonAudio.
 //
 //  5. Usar o componente na página de aula (só para contentType === 'TEXT'):
 //       import { CourseAvatarReader } from '@/components/CourseAvatarReader';
 //       {lesson.contentType === 'TEXT' && lesson.textContent && (
 //         <CourseAvatarReader
+//           lessonId={lesson.id}
 //           text={lesson.textContent}
 //           avatarSrc="/images/avatar.png"
 //           avatarName="Ana — INNOVA Academy"
@@ -39,16 +45,12 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import Image from 'next/image';
-
-// ─── Configuração ─────────────────────────────────────────────────────────────
-
-const ELEVENLABS_API_KEY  = process.env.NEXT_PUBLIC_ELEVENLABS_API_KEY  ?? '';
-const ELEVENLABS_VOICE_ID = process.env.NEXT_PUBLIC_ELEVENLABS_VOICE_ID ?? '';
-const ELEVENLABS_MODEL    = 'eleven_multilingual_v2'; // suporta PT nativamente
+import { API_URL } from '@/lib/api';
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
 interface CourseAvatarReaderProps {
+  lessonId: number;
   text: string;
   avatarSrc: string;
   avatarName?: string;
@@ -98,38 +100,17 @@ function loadAudioCache(key: string): string | null {
   try { return sessionStorage.getItem(key); } catch { return null; }
 }
 
-// ─── Chamada ElevenLabs ───────────────────────────────────────────────────────
+// ─── Chamada ao backend (proxy da ElevenLabs — a chave nunca chega ao browser) ─
 
-async function fetchElevenLabsAudio(text: string): Promise<Blob> {
-  if (!ELEVENLABS_API_KEY || !ELEVENLABS_VOICE_ID) {
-    throw new Error('ELEVENLABS_API_KEY ou ELEVENLABS_VOICE_ID não configurados em .env.local');
-  }
-
-  const response = await fetch(
-    `https://api.elevenlabs.io/v1/text-to-speech/${ELEVENLABS_VOICE_ID}`,
-    {
-      method: 'POST',
-      headers: {
-        'Accept':       'audio/mpeg',
-        'Content-Type': 'application/json',
-        'xi-api-key':   ELEVENLABS_API_KEY,
-      },
-      body: JSON.stringify({
-        text,
-        model_id: ELEVENLABS_MODEL,
-        voice_settings: {
-          stability:        0.50,  // 0.0–1.0 (mais alto = mais consistente)
-          similarity_boost: 0.80,  // 0.0–1.0 (mais alto = mais parecido com a voz clonada)
-          style:            0.20,  // expressividade
-          use_speaker_boost:true,
-        },
-      }),
-    }
-  );
+async function fetchLessonAudio(lessonId: number): Promise<Blob> {
+  const response = await fetch(`${API_URL}/lessons/${lessonId}/audio`, {
+    method: 'GET',
+    credentials: 'include', // cookie httpOnly, mesmo padrão do resto da app
+  });
 
   if (!response.ok) {
     const err = await response.json().catch(() => ({}));
-    throw new Error(err?.detail?.message ?? `ElevenLabs erro ${response.status}`);
+    throw new Error(err?.message ?? `Erro ${response.status} ao gerar áudio`);
   }
 
   return response.blob();
@@ -138,6 +119,7 @@ async function fetchElevenLabsAudio(text: string): Promise<Blob> {
 // ─── Componente principal ─────────────────────────────────────────────────────
 
 export function CourseAvatarReader({
+  lessonId,
   text,
   avatarSrc,
   avatarName = 'Assistente INNOVA',
@@ -185,12 +167,8 @@ export function CourseAvatarReader({
       if (cached) {
         audioSrc = cached;
       } else {
-        // 2. Gerar áudio via ElevenLabs
-        const blob = await fetchElevenLabsAudio(
-          cleanText.length > 5000
-            ? cleanText.slice(0, 5000) + '...'  // segurança: limita a 5k chars por chamada
-            : cleanText
-        );
+        // 2. Gerar áudio via backend (proxy da ElevenLabs)
+        const blob = await fetchLessonAudio(lessonId);
         saveAudioCache(key, blob);
 
         // Liberar URL anterior
@@ -226,7 +204,7 @@ export function CourseAvatarReader({
       setState('error');
       setErrorMsg(e.message ?? 'Erro desconhecido');
     }
-  }, [text]);
+  }, [text, lessonId]);
 
   const handlePlay = async () => {
     if (state === 'paused' && audioRef.current) {
@@ -437,7 +415,7 @@ export function CourseAvatarReader({
             {/* Mensagem de erro */}
             {state === 'error' && (
               <div className="mx-3 mb-2 px-2.5 py-2 bg-red-50 border border-red-200 rounded-lg text-red-600 text-center leading-tight" style={{ fontSize: 10 }}>
-                {errorMsg || 'Erro ao gerar áudio. Verifica a API Key.'}
+                {errorMsg || 'Erro ao gerar áudio. Tenta novamente mais tarde.'}
               </div>
             )}
 
