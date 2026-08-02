@@ -3,7 +3,7 @@
 
 import { useState } from 'react';
 import { keepPreviousData, useQueryClient } from '@tanstack/react-query';
-import { useApiQuery } from '@/hooks/useApiQuery';
+import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
 import { useDebounce } from '@/hooks/useDebounce';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -211,8 +211,6 @@ function PortalView({ onSelectArticle, onSearch }: {
   onSearch: (q: string) => void;
 }) {
   const [searchQ, setSearchQ]       = useState('');
-  const [searchResults, setSearchResults] = useState<SearchResult[] | null>(null);
-  const [searching, setSearching]   = useState(false);
 
   // Categorias e trending em paralelo (cache).
   const catsQ = useApiQuery<Category[]>(
@@ -227,16 +225,13 @@ function PortalView({ onSelectArticle, onSearch }: {
   const trending = trendQ.data ?? [];
   const loading = catsQ.isLoading;
 
-  const handleSearch = async () => {
-    if (!searchQ.trim()) return;
-    setSearching(true);
-    try {
-      const results = await apiClient.get<SearchResult[]>('/knowledge/search', {
-        params: { q: searchQ },
-      });
-      setSearchResults(results);
-    } finally { setSearching(false); }
-  };
+  const searchMutation = useApiMutation(
+    (q: string) => apiClient.get<SearchResult[]>('/knowledge/search', { params: { q } }),
+  );
+  const searchResults = searchMutation.data ?? null;
+  const searching = searchMutation.isPending;
+
+  const handleSearch = () => { if (searchQ.trim()) searchMutation.mutate(searchQ); };
 
   if (loading) return <Skeleton rows={3} />;
 
@@ -270,7 +265,7 @@ function PortalView({ onSelectArticle, onSearch }: {
         <div>
           <div className="flex items-center justify-between mb-3">
             <div className="text-sm font-semibold text-gray-900">{searchResults.length} resultados para &quot;{searchQ}&quot;</div>
-            <button onClick={() => setSearchResults(null)} className="text-xs text-gray-400 hover:text-gray-700">Limpar</button>
+            <button onClick={() => searchMutation.reset()} className="text-xs text-gray-400 hover:text-gray-700">Limpar</button>
           </div>
           {searchResults.length === 0 ? (
             <div className="py-8 text-center text-sm text-gray-400 border border-dashed border-gray-200 rounded-xl">
@@ -385,10 +380,8 @@ function LibraryView({ onSelectArticle }: { onSelectArticle: (id: number) => voi
 function ArticleDetailView({ articleId, onBack }: { articleId: number; onBack: () => void }) {
   const qc = useQueryClient();
   const [comment, setComment]   = useState('');
-  const [posting, setPosting]   = useState(false);
   const [rating, setRating]     = useState(0);
   const [hovRating, setHovRating] = useState(0);
-  const [acknowledging, setAcknowledging] = useState(false);
 
   const articleKey = queryKeys.knowledge.article(articleId);
   const { data: article, isLoading: loading } = useApiQuery<Article>(
@@ -411,25 +404,26 @@ function ArticleDetailView({ articleId, onBack }: { articleId: number; onBack: (
     } catch (e: any) { alert(e.message); }
   };
 
-  const handleComment = async () => {
-    if (!comment.trim()) return;
-    setPosting(true);
-    try {
-      await apiClient.post('/knowledge/comments', { articleId, content: comment });
-      setComment('');
-      await qc.invalidateQueries({ queryKey: articleKey });
-    } catch (e: any) { alert(e.message); }
-    finally { setPosting(false); }
-  };
+  const commentMutation = useApiMutation(
+    () => apiClient.post('/knowledge/comments', { articleId, content: comment }),
+    {
+      invalidateKeys: [articleKey],
+      onSuccess: () => setComment(''),
+      onError: (e) => alert(e.message),
+    },
+  );
+  const posting = commentMutation.isPending;
+  const handleComment = () => { if (comment.trim()) commentMutation.mutate(undefined); };
 
-  const handleAcknowledge = async () => {
-    setAcknowledging(true);
-    try {
-      await apiClient.post('/knowledge/acknowledge', { articleId });
-      qc.setQueryData<Article>(articleKey, prev => prev ? { ...prev, userAcknowledged: true } : prev);
-    } catch (e: any) { alert(e.message); }
-    finally { setAcknowledging(false); }
-  };
+  const acknowledgeMutation = useApiMutation(
+    () => apiClient.post('/knowledge/acknowledge', { articleId }),
+    {
+      onSuccess: () => qc.setQueryData<Article>(articleKey, prev => prev ? { ...prev, userAcknowledged: true } : prev),
+      onError: (e) => alert(e.message),
+    },
+  );
+  const acknowledging = acknowledgeMutation.isPending;
+  const handleAcknowledge = () => acknowledgeMutation.mutate(undefined);
 
   const displayRating = hovRating || rating || article?.userRating || 0;
 

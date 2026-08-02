@@ -2,7 +2,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useApiQuery } from '@/hooks/useApiQuery';
+import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -412,22 +412,21 @@ function OrgChartView() {
 
 function PositionsView() {
   const [selected, setSelected]   = useState<number | null>(null);
-  const [summary, setSummary]     = useState<any>(null);
-  const [loadingSummary, setLoadingSummary] = useState(false);
 
   const { data: positions, isLoading: loading } = useApiQuery<{ data: CriticalPosition[] }>(
     queryKeys.succession.criticalPositions(), '/succession/critical-positions',
     { params: { limit: 50 }, staleTime: STALE_TIME.SEMI_STATIC },
   );
 
-  const loadSummary = async (positionId: number) => {
+  const summaryMutation = useApiMutation(
+    (positionId: number) => apiClient.get<any>(`/succession/position/${positionId}/summary`),
+    { onError: (e) => alert(e.message) },
+  );
+  const summary = summaryMutation.data ?? null;
+  const loadingSummary = summaryMutation.isPending;
+  const loadSummary = (positionId: number) => {
     setSelected(positionId);
-    setLoadingSummary(true);
-    try {
-      const s = await apiClient.get<any>(`/succession/position/${positionId}/summary`);
-      setSummary(s);
-    } catch (e: any) { alert(e.message); }
-    finally { setLoadingSummary(false); }
+    summaryMutation.mutate(positionId);
   };
 
   if (loading) return <Skeleton />;

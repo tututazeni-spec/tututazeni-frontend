@@ -3,7 +3,7 @@
 
 import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
-import { useApiQuery } from '@/hooks/useApiQuery';
+import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
 import { useDebounce } from '@/hooks/useDebounce';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -342,8 +342,6 @@ function DetailView({ deptId, onBack }: { deptId: number; onBack: () => void }) 
   const [transferUserId, setTransferUserId] = useState('');
   const [transferTargetId, setTransferTargetId] = useState('');
   const [transferReason, setTransferReason] = useState('');
-  const [transferLoading, setTransferLoading] = useState(false);
-  const [actionLoading, setActionLoading] = useState(false);
 
   const deptQ = useApiQuery<Department & { users: Member[]; headHistory: any[] }>(
     queryKeys.departments.detail(deptId), `/departments/${deptId}`,
@@ -356,38 +354,35 @@ function DetailView({ deptId, onBack }: { deptId: number; onBack: () => void }) 
   const dept = deptQ.data ?? null;
   const metrics = metricsQ.data ?? null;
   const loading = deptQ.isLoading;
-  const reload = async () => { await Promise.all([deptQ.refetch(), metricsQ.refetch()]); };
 
-  const handleToggleActive = async () => {
-    if (!dept) return;
-    setActionLoading(true);
-    try {
-      await apiClient.patch(`/departments/${deptId}/${dept.active ? 'deactivate' : 'activate'}`, {});
-      await reload();
-    } catch (e: any) {
-      alert(e.message);
-    } finally {
-      setActionLoading(false);
-    }
-  };
+  const reloadKeys = [queryKeys.departments.detail(deptId), queryKeys.departments.metrics(deptId)];
 
-  const handleTransfer = async () => {
+  const toggleActive = useApiMutation(
+    () => apiClient.patch(`/departments/${deptId}/${dept!.active ? 'deactivate' : 'activate'}`, {}),
+    { invalidateKeys: reloadKeys, onError: (e) => alert(e.message) },
+  );
+  const actionLoading = toggleActive.isPending;
+  const handleToggleActive = () => { if (dept) toggleActive.mutate(undefined); };
+
+  const transferMutation = useApiMutation(
+    () => apiClient.post('/departments/members/transfer', {
+      userId: parseInt(transferUserId),
+      targetDepartmentId: parseInt(transferTargetId),
+      reason: transferReason || undefined,
+    }),
+    {
+      invalidateKeys: reloadKeys,
+      onSuccess: () => {
+        alert('Transferência realizada com sucesso');
+        setTransferUserId(''); setTransferTargetId(''); setTransferReason('');
+      },
+      onError: (e) => alert(e.message),
+    },
+  );
+  const transferLoading = transferMutation.isPending;
+  const handleTransfer = () => {
     if (!transferUserId || !transferTargetId) return;
-    setTransferLoading(true);
-    try {
-      await apiClient.post('/departments/members/transfer', {
-        userId: parseInt(transferUserId),
-        targetDepartmentId: parseInt(transferTargetId),
-        reason: transferReason || undefined,
-      });
-      alert('Transferência realizada com sucesso');
-      setTransferUserId(''); setTransferTargetId(''); setTransferReason('');
-      await reload();
-    } catch (e: any) {
-      alert(e.message);
-    } finally {
-      setTransferLoading(false);
-    }
+    transferMutation.mutate(undefined);
   };
 
   if (loading || !dept) return <div><Skeleton rows={6} /></div>;

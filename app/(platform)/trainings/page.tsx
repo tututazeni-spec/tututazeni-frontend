@@ -3,7 +3,7 @@
 
 import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
-import { useApiQuery } from '@/hooks/useApiQuery';
+import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
 import { useDebounce } from '@/hooks/useDebounce';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -288,36 +288,34 @@ function CatalogView({ onSelect }: { onSelect: (id: number) => void }) {
 // ─── View: Detail ─────────────────────────────────────────────────────────────
 
 function DetailView({ trainingId, onBack }: { trainingId: number; onBack: () => void }) {
-  const [enrolling, setEnrolling] = useState<number | null>(null);
   const [rating, setRating]     = useState(0);
   const [comment, setComment]   = useState('');
-  const [submittingRating, setSubmittingRating] = useState(false);
 
-  const { data: training, isLoading: loading, refetch } = useApiQuery<Training>(
+  const { data: training, isLoading: loading } = useApiQuery<Training>(
     queryKeys.trainings.detail(trainingId), `/trainings/${trainingId}`,
     { enabled: !!trainingId, staleTime: STALE_TIME.DYNAMIC },
   );
 
-  const handleEnroll = async (sessionId: number) => {
-    setEnrolling(sessionId);
-    try {
-      await apiClient.post(`/trainings/sessions/${sessionId}/self-register`, {});
-      alert('Inscrição realizada!');
-      await refetch();
-    } catch (e: any) { alert(e.message); }
-    finally { setEnrolling(null); }
-  };
+  const enrollMutation = useApiMutation(
+    (sessionId: number) => apiClient.post(`/trainings/sessions/${sessionId}/self-register`, {}),
+    {
+      invalidateKeys: [queryKeys.trainings.detail(trainingId)],
+      onSuccess: () => alert('Inscrição realizada!'),
+      onError: (e) => alert(e.message),
+    },
+  );
+  const enrolling = enrollMutation.isPending ? enrollMutation.variables ?? null : null;
+  const handleEnroll = (sessionId: number) => enrollMutation.mutate(sessionId);
 
-  const handleRate = async () => {
-    if (!rating) return;
-    setSubmittingRating(true);
-    try {
-      await apiClient.post('/trainings/rate', { trainingId, rating, comment: comment || undefined });
-      alert('Avaliação enviada!');
-      setRating(0); setComment('');
-    } catch (e: any) { alert(e.message); }
-    finally { setSubmittingRating(false); }
-  };
+  const rateMutation = useApiMutation(
+    () => apiClient.post('/trainings/rate', { trainingId, rating, comment: comment || undefined }),
+    {
+      onSuccess: () => { alert('Avaliação enviada!'); setRating(0); setComment(''); },
+      onError: (e) => alert(e.message),
+    },
+  );
+  const submittingRating = rateMutation.isPending;
+  const handleRate = () => { if (rating) rateMutation.mutate(undefined); };
 
   if (loading || !training) return <Skeleton rows={6} />;
 

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
-import { useApiQuery } from '../../../hooks/useApiQuery';
+import { useApiQuery, useApiMutation } from '../../../hooks/useApiQuery';
 import { apiClient } from '../../../lib/apiClient';
 import { queryKeys } from '../../../lib/queryKeys';
 import { STALE_TIME } from '../../../lib/queryClient';
@@ -350,8 +350,6 @@ function OrgChartView() {
 
 function DepartmentsView() {
   const [search, setSearch]   = useState('');
-  const [selected, setSelected] = useState<any>(null);
-  const [loadingDetail, setLoadingDetail] = useState(false);
 
   const debouncedSearch = useDebounce(search, 300);
   const params = { limit: 50, ...(debouncedSearch ? { search: debouncedSearch } : {}) };
@@ -360,12 +358,12 @@ function DepartmentsView() {
     { params, staleTime: STALE_TIME.SEMI_STATIC, placeholderData: keepPreviousData },
   );
 
-  const loadDetail = async (id: number) => {
-    setLoadingDetail(true);
-    try {
-      setSelected(await apiClient.get(`/organization/departments/${id}`));
-    } finally { setLoadingDetail(false); }
-  };
+  const detailMutation = useApiMutation(
+    (id: number) => apiClient.get<any>(`/organization/departments/${id}`),
+  );
+  const selected = detailMutation.data ?? null;
+  const loadingDetail = detailMutation.isPending;
+  const loadDetail = (id: number) => detailMutation.mutate(id);
 
   return (
     <div className="grid grid-cols-[1fr_320px] gap-5">

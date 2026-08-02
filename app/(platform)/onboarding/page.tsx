@@ -1,7 +1,7 @@
 ﻿'use client';
 
 import { useState } from 'react';
-import { useApiQuery } from '@/hooks/useApiQuery';
+import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -256,7 +256,6 @@ function TaskCard({
 function MyPlanView() {
   const [surveyScore, setSurveyScore] = useState(0);
   const [surveyComment, setSurveyComment] = useState('');
-  const [submittingSurvey, setSubmittingSurvey] = useState(false);
   const [activeTab, setActiveTab] = useState<'tasks' | 'docs' | 'team' | 'survey'>('tasks');
 
   const { data: plans = [], isLoading: loading, refetch } = useApiQuery<OnboardingPlan[]>(
@@ -271,18 +270,23 @@ function MyPlanView() {
     } catch (e: any) { alert(e.message); }
   };
 
-  const handleSurvey = async (planId: number) => {
+  const surveyMutation = useApiMutation(
+    (planId: number) => apiClient.post('/onboarding/surveys', {
+      planId, milestone: 'DAY_1', score: surveyScore, comment: surveyComment,
+    }),
+    {
+      onSuccess: async () => {
+        await refetch();
+        setSurveyScore(0); setSurveyComment('');
+        alert('Pesquisa submetida! Obrigado pelo feedback.');
+      },
+      onError: (e) => alert(e.message),
+    },
+  );
+  const submittingSurvey = surveyMutation.isPending;
+  const handleSurvey = (planId: number) => {
     if (!surveyScore) { alert('Seleccione uma nota'); return; }
-    setSubmittingSurvey(true);
-    try {
-      await apiClient.post('/onboarding/surveys', {
-        planId, milestone: 'DAY_1', score: surveyScore, comment: surveyComment,
-      });
-      await refetch();
-      setSurveyScore(0); setSurveyComment('');
-      alert('Pesquisa submetida! Obrigado pelo feedback.');
-    } catch (e: any) { alert(e.message); }
-    finally { setSubmittingSurvey(false); }
+    surveyMutation.mutate(planId);
   };
 
   if (loading) return <Skeleton />;

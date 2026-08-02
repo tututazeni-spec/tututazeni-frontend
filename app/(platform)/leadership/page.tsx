@@ -173,23 +173,21 @@ function ProgressBar({ pct, color = 'bg-blue-500' }: { pct: number; color?: stri
 function MyDashboardView() {
   const [kudosMsg, setKudosMsg] = useState('');
   const [kudosTarget, setKudosTarget] = useState('');
-  const [sendingKudos, setSendingKudos] = useState(false);
 
   const { data, isLoading } = useApiQuery<any>(
     queryKeys.leadership.myDashboard(), '/leadership/my/dashboard',
     { staleTime: STALE_TIME.DYNAMIC },
   );
 
-  const handleKudos = async () => {
-    if (!kudosMsg || !kudosTarget) return;
-    setSendingKudos(true);
-    try {
-      await apiClient.post('/leadership/kudos', { receiverId: parseInt(kudosTarget), message: kudosMsg, badge: '⭐' });
-      setKudosMsg(''); setKudosTarget('');
-      alert('Kudos enviados! 🎉');
-    } catch (e: any) { alert(e.message); }
-    finally { setSendingKudos(false); }
-  };
+  const kudosMutation = useApiMutation(
+    () => apiClient.post('/leadership/kudos', { receiverId: parseInt(kudosTarget), message: kudosMsg, badge: '⭐' }),
+    {
+      onSuccess: () => { setKudosMsg(''); setKudosTarget(''); alert('Kudos enviados! 🎉'); },
+      onError: (e) => alert(e.message),
+    },
+  );
+  const sendingKudos = kudosMutation.isPending;
+  const handleKudos = () => { if (kudosMsg && kudosTarget) kudosMutation.mutate(undefined); };
 
   if (isLoading) return <Skeleton />;
   if (!data) return null;

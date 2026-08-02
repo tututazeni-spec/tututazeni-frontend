@@ -7,7 +7,7 @@ import {
   MessageSquare, Calendar, TrendingUp, TrendingDown, Zap, Award,
   ChevronRight, RefreshCw, Clock, ArrowUp,
 } from 'lucide-react';
-import { useApiQuery } from '@/hooks/useApiQuery';
+import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -257,15 +257,13 @@ function TeamTab() {
 function FeedbackForm({ recipientId, onClose }: { recipientId: number; onClose: () => void }) {
   const [type, setType]     = useState('POSITIVE');
   const [content, setContent] = useState('');
-  const [sending, setSending] = useState(false);
 
-  const send = async () => {
-    if (!content.trim()) return;
-    setSending(true);
-    await apiClient.post('/leaders/feedback', { recipientId, type, content }).catch(() => {});
-    setSending(false);
-    onClose();
-  };
+  const sendFeedback = useApiMutation(
+    () => apiClient.post('/leaders/feedback', { recipientId, type, content }),
+    { onSettled: onClose },
+  );
+  const sending = sendFeedback.isPending;
+  const send = () => { if (content.trim()) sendFeedback.mutate(undefined); };
 
   return (
     <div className="space-y-3">

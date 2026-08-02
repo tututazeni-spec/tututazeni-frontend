@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
-import { useApiQuery } from '../../../hooks/useApiQuery';
+import { useApiQuery, useApiMutation } from '../../../hooks/useApiQuery';
 import { apiClient } from '../../../lib/apiClient';
 import { queryKeys } from '../../../lib/queryKeys';
 import { STALE_TIME } from '../../../lib/queryClient';
@@ -318,7 +318,6 @@ function CatalogView({ onSelect }: { onSelect: (id: number) => void }) {
 // ─── View: LP Detail + Roadmap ────────────────────────────────────────────────
 
 function LPDetailView({ pathId, onBack }: { pathId: number; onBack: () => void }) {
-  const [enrolling, setEnrolling] = useState(false);
   const [tab, setTab]           = useState<'roadmap' | 'info'>('roadmap');
 
   const pathQuery = useApiQuery<LearningPath>(
@@ -334,17 +333,15 @@ function LPDetailView({ pathId, onBack }: { pathId: number; onBack: () => void }
   const progress = progressQuery.data ?? null;
   const loading  = pathQuery.isLoading;
 
-  const handleEnroll = async () => {
-    setEnrolling(true);
-    try {
-      await apiClient.post(`/learning-paths/${pathId}/enroll`, {});
-      await Promise.all([pathQuery.refetch(), progressQuery.refetch()]);
-    } catch (e: any) {
-      alert(e.message);
-    } finally {
-      setEnrolling(false);
-    }
-  };
+  const enrollMutation = useApiMutation(
+    () => apiClient.post(`/learning-paths/${pathId}/enroll`, {}),
+    {
+      invalidateKeys: [queryKeys.learningPaths.detail(pathId), queryKeys.learningPaths.progress(pathId)],
+      onError: (e) => alert(e.message),
+    },
+  );
+  const enrolling = enrollMutation.isPending;
+  const handleEnroll = () => enrollMutation.mutate(undefined);
 
   if (loading || !path) return <div><Skeleton rows={5} /></div>;
 
