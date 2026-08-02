@@ -3,7 +3,7 @@
 
 import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
-import { useApiQuery } from '@/hooks/useApiQuery';
+import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -438,15 +438,17 @@ function AnomaliesView() {
 function TimelineView() {
   const [entity, setEntity]     = useState('');
   const [entityId, setEntityId] = useState('');
-  const [data, setData]         = useState<Timeline | null>(null);
-  const [loading, setLoading]   = useState(false);
 
-  const load = async () => {
+  const loadTimeline = useApiMutation(
+    ({ entity, entityId }: { entity: string; entityId: string }) =>
+      apiClient.get<Timeline>(`/audit/timeline/${entity}/${entityId}`),
+  );
+  const data = loadTimeline.data ?? null;
+  const loading = loadTimeline.isPending;
+
+  const load = () => {
     if (!entity.trim() || !entityId.trim()) return;
-    setLoading(true);
-    try {
-      setData(await apiClient.get<Timeline>(`/audit/timeline/${entity}/${entityId}`));
-    } finally { setLoading(false); }
+    loadTimeline.mutate({ entity, entityId });
   };
 
   return (

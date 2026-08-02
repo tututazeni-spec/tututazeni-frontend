@@ -8,7 +8,7 @@ import {
   Star, Zap, Target, Activity, Plus, ChevronRight,
   ThumbsUp, Meh, Frown, Send, RefreshCw, ArrowUp,
 } from 'lucide-react';
-import { useApiQuery } from '../../../hooks/useApiQuery';
+import { useApiQuery, useApiMutation } from '../../../hooks/useApiQuery';
 import { apiClient } from '../../../lib/apiClient';
 import { queryKeys } from '../../../lib/queryKeys';
 import { STALE_TIME } from '../../../lib/queryClient';
@@ -105,20 +105,14 @@ function Skeleton() {
 function MoodCheckin({ onDone }: { onDone: () => void }) {
   const [selected, setSelected]   = useState<number | null>(null);
   const [note, setNote]           = useState('');
-  const [submitting, setSubmitting] = useState(false);
   const [done, setDone]           = useState(false);
 
-  const submit = async () => {
-    if (!selected) return;
-    setSubmitting(true);
-    try {
-      await apiClient.post('/engagement/mood/checkin', {
-        mood: selected, note: note || undefined,
-      });
-      setDone(true);
-      onDone();
-    } catch {} finally { setSubmitting(false); }
-  };
+  const checkin = useApiMutation(
+    () => apiClient.post('/engagement/mood/checkin', { mood: selected, note: note || undefined }),
+    { onSuccess: () => { setDone(true); onDone(); } },
+  );
+  const submitting = checkin.isPending;
+  const submit = () => { if (selected) checkin.mutate(undefined); };
 
   if (done) return (
     <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 flex items-center gap-3">

@@ -54,14 +54,20 @@ function ModuleModal({ courseId, editing, onClose, onSaved }: {
   onClose: () => void; onSaved: () => void;
 }) {
   const [form, setForm] = useState({ title: editing?.title ?? "", seq: editing?.seq ?? 1 });
-  const [saving, setSaving] = useState(false);
-  async function submit(e: React.FormEvent) {
-    e.preventDefault(); setSaving(true);
-    try {
-      if (editing) await apiClient.put(`/modules/${editing.id}`, { title: form.title, seq: +form.seq });
-      else await apiClient.post("/modules", { courseId, title: form.title, seq: +form.seq });
-      onSaved(); onClose();
-    } catch (e: any) { alert(e.message); } finally { setSaving(false); }
+
+  const saveModule = useApiMutation(
+    () => editing
+      ? apiClient.put(`/modules/${editing.id}`, { title: form.title, seq: +form.seq })
+      : apiClient.post("/modules", { courseId, title: form.title, seq: +form.seq }),
+    {
+      onSuccess: () => { onSaved(); onClose(); },
+      onError: (e) => alert(e.message),
+    },
+  );
+  const saving = saveModule.isPending;
+  function submit(e: React.FormEvent) {
+    e.preventDefault();
+    saveModule.mutate(undefined);
   }
   return (
     <div style={{ position: "fixed", inset: 0, zIndex: 500, background: "rgba(15,23,42,0.45)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }} onClick={onClose}>
@@ -95,17 +101,22 @@ function LessonModal({ moduleId, editing, onClose, onSaved }: {
     pdfUrl: editing?.pdfUrl ?? "",
     seq: editing?.seq ?? 1,
   });
-  const [saving, setSaving] = useState(false);
   function set(k: string, v: string | number) { setForm(f => ({ ...f, [k]: v })); }
 
-  async function submit(e: React.FormEvent) {
-    e.preventDefault(); setSaving(true);
-    try {
+  const saveLesson = useApiMutation(
+    () => {
       const payload = { moduleId, title: form.title, contentType: form.contentType, seq: +form.seq, videoUrl: form.videoUrl || undefined, pdfUrl: form.pdfUrl || undefined };
-      if (editing) await apiClient.put(`/lessons/${editing.id}`, payload);
-      else await apiClient.post("/lessons", payload);
-      onSaved(); onClose();
-    } catch (e: any) { alert(e.message); } finally { setSaving(false); }
+      return editing ? apiClient.put(`/lessons/${editing.id}`, payload) : apiClient.post("/lessons", payload);
+    },
+    {
+      onSuccess: () => { onSaved(); onClose(); },
+      onError: (e) => alert(e.message),
+    },
+  );
+  const saving = saveLesson.isPending;
+  function submit(e: React.FormEvent) {
+    e.preventDefault();
+    saveLesson.mutate(undefined);
   }
 
   const ct = CONTENT_TYPE[form.contentType];

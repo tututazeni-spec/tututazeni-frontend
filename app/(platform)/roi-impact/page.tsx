@@ -7,7 +7,7 @@ import {
   Users, Star, BarChart2, Brain, Zap, CheckCircle,
   AlertTriangle, ChevronRight, RefreshCw, ArrowUp, ArrowDown,
 } from 'lucide-react';
-import { useApiQuery } from '@/hooks/useApiQuery';
+import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -266,14 +266,14 @@ function RetentionTab() {
 
 function SimulatorTab() {
   const [targetRate, setTargetRate]   = useState(80);
-  const [result, setResult]           = useState<any | null>(null);
-  const [loading, setLoading]         = useState(false);
 
-  const run = async () => {
-    setLoading(true);
-    apiClient.post<any>('/roi-impact/simulate', { targetCompletionRate: targetRate })
-      .then(setResult).finally(() => setLoading(false));
-  };
+  const simulateMutation = useApiMutation(
+    (rate: number) => apiClient.post<any>('/roi-impact/simulate', { targetCompletionRate: rate }),
+  );
+  const result = simulateMutation.data ?? null;
+  const loading = simulateMutation.isPending;
+
+  const run = () => simulateMutation.mutate(targetRate);
 
   return (
     <div className="space-y-5">

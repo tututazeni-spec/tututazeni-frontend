@@ -3,7 +3,7 @@
 
 import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
-import { useApiQuery } from '../../../hooks/useApiQuery';
+import { useApiQuery, useApiMutation } from '../../../hooks/useApiQuery';
 import { apiClient } from '../../../lib/apiClient';
 import { queryKeys } from '../../../lib/queryKeys';
 import { STALE_TIME } from '../../../lib/queryClient';
@@ -279,26 +279,22 @@ function ListView({ onSelect, onGenerate }: { onSelect: (id: number) => void; on
 // ─── View: Detail ─────────────────────────────────────────────────────────────
 
 function DetailView({ reportId, onBack }: { reportId: number; onBack: () => void }) {
-  const [submitting, setSubmitting] = useState(false);
   const [activeTab, setActiveTab]   = useState<'kpis' | 'narrative' | 'actions'>('kpis');
 
-  const { data: report, isLoading: loading, refetch } = useApiQuery<Report>(
+  const { data: report, isLoading: loading } = useApiQuery<Report>(
     queryKeys.executiveReports.detail(reportId), `/executive-reports/${reportId}`,
     { staleTime: STALE_TIME.DYNAMIC },
   );
 
-  const handleWorkflow = async (action: string) => {
-    setSubmitting(true);
-    try {
-      if (action === 'submit') {
-        await apiClient.patch(`/executive-reports/${reportId}/submit`, {});
-      } else if (action === 'publish') {
-        await apiClient.patch(`/executive-reports/${reportId}/publish`, {});
-      }
-      await refetch();
-    } catch (e: any) { alert(e.message); }
-    finally { setSubmitting(false); }
-  };
+  const workflowMutation = useApiMutation(
+    (action: string) => {
+      if (action === 'submit') return apiClient.patch(`/executive-reports/${reportId}/submit`, {});
+      return apiClient.patch(`/executive-reports/${reportId}/publish`, {});
+    },
+    { invalidateKeys: [queryKeys.executiveReports.detail(reportId)], onError: (e) => alert(e.message) },
+  );
+  const submitting = workflowMutation.isPending;
+  const handleWorkflow = (action: string) => workflowMutation.mutate(action);
 
   if (loading || !report) return <Skeleton rows={6} />;
 

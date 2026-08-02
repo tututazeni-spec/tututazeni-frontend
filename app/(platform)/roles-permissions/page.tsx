@@ -6,7 +6,7 @@ import {
   Shield, Users, Key, CheckCircle, AlertTriangle,
   Copy, Trash2, Plus, ChevronRight, Search, Brain, Activity,
 } from 'lucide-react';
-import { useApiQuery } from '@/hooks/useApiQuery';
+import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -189,14 +189,17 @@ function SimulatorTab() {
   const [userId, setUserId]   = useState('');
   const [resource, setResource] = useState('');
   const [action, setAction]   = useState('');
-  const [result, setResult]   = useState<any | null>(null);
-  const [loading, setLoading] = useState(false);
 
-  const run = async () => {
+  const simulateMutation = useApiMutation(
+    (payload: { userId: number; resource: string; action: string }) =>
+      apiClient.post<any>('/roles-permissions/simulate', payload),
+  );
+  const result = simulateMutation.data ?? null;
+  const loading = simulateMutation.isPending;
+
+  const run = () => {
     if (!userId || !resource || !action) return;
-    setLoading(true);
-    apiClient.post<any>('/roles-permissions/simulate', { userId: +userId, resource, action })
-      .then(setResult).finally(() => setLoading(false));
+    simulateMutation.mutate({ userId: +userId, resource, action });
   };
 
   return (

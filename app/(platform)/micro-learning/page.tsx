@@ -3,7 +3,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
-import { useApiQuery } from '@/hooks/useApiQuery';
+import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
 import { useDebounce } from '@/hooks/useDebounce';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -292,26 +292,26 @@ function useMicroLearningProgress(item: MicroLearning) {
 // Sub-domínio do quiz, separado do progresso: respostas, resultado e envio.
 function useQuizAttempt(item: MicroLearning, onPassed: () => Promise<void> | void) {
   const [answers, setAnswers] = useState<number[]>([]);
-  const [result, setResult] = useState<any>(null);
-  const [submitting, setSubmitting] = useState(false);
 
   const setAnswer = (idx: number, optionIdx: number) => {
     setAnswers(prev => { const next = [...prev]; next[idx] = optionIdx; return next; });
   };
 
-  const submit = async () => {
-    setSubmitting(true);
-    try {
-      const res = await apiClient.post<any>('/micro-learning/quiz/submit', {
-        microLearningId: item.id, answers,
-      });
-      setResult(res);
-      if (res.score >= 60) await onPassed();
-    } catch (e: any) { alert(e.message); }
-    finally { setSubmitting(false); }
-  };
+  const submitQuiz = useApiMutation(
+    () => apiClient.post<any>('/micro-learning/quiz/submit', { microLearningId: item.id, answers }),
+    {
+      onSuccess: async (res) => { if (res.score >= 60) await onPassed(); },
+      onError: (e) => alert(e.message),
+    },
+  );
 
-  return { answers, result, submitting, setAnswer, submit };
+  return {
+    answers,
+    result: submitQuiz.data ?? null,
+    submitting: submitQuiz.isPending,
+    setAnswer,
+    submit: () => submitQuiz.mutate(undefined),
+  };
 }
 
 // ─── View: Player ─────────────────────────────────────────────────────────────

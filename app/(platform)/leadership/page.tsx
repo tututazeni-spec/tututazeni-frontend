@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useApiQuery } from '../../../hooks/useApiQuery';
+import { useApiQuery, useApiMutation } from '../../../hooks/useApiQuery';
 import { apiClient } from '../../../lib/apiClient';
 import { queryKeys } from '../../../lib/queryKeys';
 import { STALE_TIME } from '../../../lib/queryClient';
@@ -518,7 +518,6 @@ function Feedback360View() {
   const [feedbackForm, setFeedbackForm] = useState<Record<string, number>>({});
   const [targetLeader, setTargetLeader] = useState('');
   const [qualitative, setQualitative] = useState('');
-  const [submitting, setSubmitting] = useState(false);
 
   const { data: summary, isLoading: loading } = useApiQuery<Feedback360Summary>(
     queryKeys.leadership.feedback360Summary(), '/leadership/feedback-360/my/summary',
@@ -527,24 +526,33 @@ function Feedback360View() {
 
   const competencies: Competency[] = ['COMMUNICATION', 'DEVELOPMENT', 'RECOGNITION', 'AUTONOMY', 'FAIRNESS', 'EXAMPLE'];
 
-  const handleSubmit360 = async () => {
-    if (!targetLeader || Object.keys(feedbackForm).length < 3) {
-      alert('Preencha pelo menos 3 competências');
-      return;
-    }
-    setSubmitting(true);
-    try {
+  const submit360 = useApiMutation(
+    () => {
       const responses = Object.entries(feedbackForm).map(([competency, score]) => ({ competency, score }));
-      await apiClient.post('/leadership/feedback-360', {
+      return apiClient.post('/leadership/feedback-360', {
         leaderId: parseInt(targetLeader),
         responses,
         qualitativeFeedback: qualitative || undefined,
         anonymous: true,
       });
-      setFeedbackForm({}); setTargetLeader(''); setQualitative('');
-      alert('Feedback 360° submetido anonimamente!');
-    } catch (e: any) { alert(e.message); }
-    finally { setSubmitting(false); }
+    },
+    {
+      invalidateKeys: [queryKeys.leadership.feedback360Summary()],
+      onSuccess: () => {
+        setFeedbackForm({}); setTargetLeader(''); setQualitative('');
+        alert('Feedback 360° submetido anonimamente!');
+      },
+      onError: (e) => alert(e.message),
+    },
+  );
+  const submitting = submit360.isPending;
+
+  const handleSubmit360 = () => {
+    if (!targetLeader || Object.keys(feedbackForm).length < 3) {
+      alert('Preencha pelo menos 3 competências');
+      return;
+    }
+    submit360.mutate(undefined);
   };
 
   return (

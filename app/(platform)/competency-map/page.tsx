@@ -11,7 +11,7 @@ import {
   ChevronRight, Plus, Eye, Loader2, X, ArrowUpRight,
   Filter, Download, Settings,
 } from 'lucide-react';
-import { useApiQuery } from '../../../hooks/useApiQuery';
+import { useApiQuery, useApiMutation } from '../../../hooks/useApiQuery';
 import { apiClient } from '../../../lib/apiClient';
 import { queryKeys } from '../../../lib/queryKeys';
 import { STALE_TIME } from '../../../lib/queryClient';
@@ -82,23 +82,25 @@ function SelfAssessModal({
   onClose: () => void; onSuccess: () => void;
 }) {
   const [levels, setLevels] = useState<Record<number, number>>({});
-  const [loading, setLoading] = useState(false);
   const [error, setError]    = useState('');
 
-  const handleSubmit = async () => {
+  const submitAssessments = useApiMutation(
+    (assessments: Array<{ skillId: number; currentLevel: number }>) =>
+      apiClient.post('/competency-map/assess/batch', { source: 'SELF', assessments }),
+    {
+      onSuccess: () => { onSuccess(); onClose(); },
+      onError: (e) => setError(e.message),
+    },
+  );
+  const loading = submitAssessments.isPending;
+
+  const handleSubmit = () => {
     const assessments = Object.entries(levels)
       .filter(([_, v]) => v > 0)
       .map(([skillId, currentLevel]) => ({ skillId: +skillId, currentLevel }));
     if (!assessments.length) { setError('Avalie pelo menos uma competência'); return; }
-
-    setLoading(true); setError('');
-    try {
-      await apiClient.post('/competency-map/assess/batch', {
-        source: 'SELF', assessments,
-      });
-      onSuccess(); onClose();
-    } catch (e: any) { setError(e.message); }
-    finally { setLoading(false); }
+    setError('');
+    submitAssessments.mutate(assessments);
   };
 
   const byType = skills.reduce((acc: any, s) => {

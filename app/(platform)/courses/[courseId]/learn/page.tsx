@@ -389,7 +389,6 @@ function ModuleBuilder({ courseId }: { courseId: number }) {
   const [editingModule, setEditingModule] = useState<number | null>(null);
   const [creatingModule, setCreatingModule] = useState(false);
   const [newModuleTitle, setNewModuleTitle] = useState('');
-  const [saving, setSaving] = useState(false);
 
   const { data: course, isLoading: loading } = useApiQuery<any>(
     queryKeys.courses.detail(courseId), `/courses/${courseId}`,
@@ -399,24 +398,22 @@ function ModuleBuilder({ courseId }: { courseId: number }) {
   const reload = () =>
     qc.invalidateQueries({ queryKey: queryKeys.courses.detail(courseId) });
 
-  const handleCreateModule = async () => {
-    if (!newModuleTitle.trim()) return;
-    setSaving(true);
-    try {
+  const createModule = useApiMutation(
+    () => {
       const maxSeq = modules.reduce((m, mod) => Math.max(m, mod.seq), -1);
-      await apiClient.post('/modules', {
-        courseId,
-        title: newModuleTitle,
-        seq: maxSeq + 1,
-      });
-      setNewModuleTitle('');
-      setCreatingModule(false);
-      await reload();
-    } catch (e: any) {
-      alert(e.message);
-    } finally {
-      setSaving(false);
-    }
+      return apiClient.post('/modules', { courseId, title: newModuleTitle, seq: maxSeq + 1 });
+    },
+    {
+      invalidateKeys: [queryKeys.courses.detail(courseId)],
+      onSuccess: () => { setNewModuleTitle(''); setCreatingModule(false); },
+      onError: (e) => alert(e.message),
+    },
+  );
+  const saving = createModule.isPending;
+
+  const handleCreateModule = () => {
+    if (!newModuleTitle.trim()) return;
+    createModule.mutate(undefined);
   };
 
   const handlePublish = async (moduleId: number) => {

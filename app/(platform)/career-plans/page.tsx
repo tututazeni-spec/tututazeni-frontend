@@ -11,7 +11,7 @@ import {
   BookOpen, Zap, Award, AlertCircle, Loader2, X, Check,
   ChevronDown, Flame, MapPin, Compass,
 } from 'lucide-react';
-import { useApiQuery } from '../../../hooks/useApiQuery';
+import { useApiQuery, useApiMutation } from '../../../hooks/useApiQuery';
 import { apiClient } from '../../../lib/apiClient';
 import { queryKeys } from '../../../lib/queryKeys';
 import { STALE_TIME } from '../../../lib/queryClient';
@@ -244,16 +244,19 @@ function SimulateModal({ roles, onClose }: {
   roles: Role[]; onClose: () => void;
 }) {
   const [targetRoleId, setTargetRoleId] = useState(0);
-  const [result, setResult]   = useState<any>(null);
-  const [loading, setLoading] = useState(false);
   const [error, setError]     = useState('');
 
-  const simulate = async () => {
+  const simulateMutation = useApiMutation(
+    (roleId: number) => apiClient.post<any>('/career-plans/simulate', { targetRoleId: roleId }),
+    { onError: (e) => setError(e.message) },
+  );
+  const result = simulateMutation.data ?? null;
+  const loading = simulateMutation.isPending;
+
+  const simulate = () => {
     if (!targetRoleId) { setError('Seleccione um cargo alvo'); return; }
-    setLoading(true); setError('');
-    try { setResult(await apiClient.post('/career-plans/simulate', { targetRoleId })); }
-    catch (e: any) { setError(e.message); }
-    finally { setLoading(false); }
+    setError('');
+    simulateMutation.mutate(targetRoleId);
   };
 
   const readinessCfg = result ? READINESS_CONFIG[result.readiness.readinessLevel as ReadinessLevel] : null;
@@ -274,7 +277,7 @@ function SimulateModal({ roles, onClose }: {
 
           <div>
             <label className="block text-xs font-medium text-gray-600 mb-1">Cargo Alvo</label>
-            <select value={targetRoleId} onChange={e => { setTargetRoleId(+e.target.value); setResult(null); }}
+            <select value={targetRoleId} onChange={e => { setTargetRoleId(+e.target.value); simulateMutation.reset(); }}
               className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
               <option value={0}>Seleccionar...</option>
               {roles.map(r => <option key={r.id} value={r.id}>{r.name} — {r.department} (Nível {r.level})</option>)}

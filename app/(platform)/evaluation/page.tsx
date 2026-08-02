@@ -8,7 +8,7 @@ import {
   RefreshCw, Award, Brain, Shield, Layers, ArrowUp, ArrowDown,
   Activity, Eye, Zap, Send,
 } from 'lucide-react';
-import { useApiQuery } from '@/hooks/useApiQuery';
+import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -471,22 +471,18 @@ function PendingTab() {
 
 function ResultsTab() {
   const [userId, setUserId]   = useState('');
-  const [result, setResult]   = useState<EvalResults | null>(null);
-  const [evolution, setEvolution] = useState<any | null>(null);
-  const [loading, setLoading] = useState(false);
 
-  const load = async () => {
-    if (!userId) return;
-    setLoading(true);
-    try {
-      const [r, ev] = await Promise.all([
-        apiClient.get<EvalResults>(`/evaluations/results/${userId}`),
-        apiClient.get<any>(`/evaluations/evolution/${userId}`),
-      ]);
-      setResult(r);
-      setEvolution(ev);
-    } catch {} finally { setLoading(false); }
-  };
+  const loadResults = useApiMutation(
+    (uid: string) => Promise.all([
+      apiClient.get<EvalResults>(`/evaluations/results/${uid}`),
+      apiClient.get<any>(`/evaluations/evolution/${uid}`),
+    ]),
+  );
+  const result = loadResults.data?.[0] ?? null;
+  const evolution = loadResults.data?.[1] ?? null;
+  const loading = loadResults.isPending;
+
+  const load = () => { if (userId) loadResults.mutate(userId); };
 
   return (
     <div className="space-y-4">
@@ -726,14 +722,14 @@ function AnalyticsTab() {
 
 function CalibrationTab() {
   const [cycleId, setCycleId] = useState('');
-  const [data, setData]       = useState<any | null>(null);
-  const [loading, setLoading] = useState(false);
 
-  const load = async () => {
-    if (!cycleId) return;
-    setLoading(true);
-    apiClient.get<any>(`/evaluations/calibration/${cycleId}`).then(setData).finally(() => setLoading(false));
-  };
+  const loadCalibration = useApiMutation(
+    (id: string) => apiClient.get<any>(`/evaluations/calibration/${id}`),
+  );
+  const data = loadCalibration.data ?? null;
+  const loading = loadCalibration.isPending;
+
+  const load = () => { if (cycleId) loadCalibration.mutate(cycleId); };
 
   return (
     <div className="space-y-4">
