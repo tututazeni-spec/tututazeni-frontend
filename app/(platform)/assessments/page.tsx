@@ -2,7 +2,7 @@
 // Inclui: player de avaliação, resultado, lista, e builder admin
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useReducer, useRef } from 'react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -380,6 +380,65 @@ function ResultView({
 
 // ─── Assessment Player ────────────────────────────────────────────────────────
 
+// Estado do player como máquina de estados explícita: loading → playing →
+// submitting → result. Evita combinações impossíveis (ex: submitting=true e
+// result já preenchido em simultâneo) que os useState soltos anteriores
+// permitiam.
+type PlayerStatus = 'loading' | 'playing' | 'submitting' | 'result';
+
+interface PlayerState {
+  status: PlayerStatus;
+  assessment: Assessment | null;
+  attempt: any;
+  answers: Record<number, AttemptAnswer>;
+  currentIdx: number;
+  result: AttemptResult | null;
+  showConfirm: boolean;
+}
+
+type PlayerAction =
+  | { type: 'LOADED'; assessment: Assessment; attempt: any; answers: Record<number, AttemptAnswer> }
+  | { type: 'ANSWER'; answer: AttemptAnswer }
+  | { type: 'SET_IDX'; idx: number }
+  | { type: 'REQUEST_CONFIRM'; show: boolean }
+  | { type: 'SUBMIT_START' }
+  | { type: 'SUBMIT_DONE'; result: AttemptResult }
+  | { type: 'SUBMIT_ERROR' }
+  | { type: 'RETRY' };
+
+const initialPlayerState: PlayerState = {
+  status: 'loading',
+  assessment: null,
+  attempt: null,
+  answers: {},
+  currentIdx: 0,
+  result: null,
+  showConfirm: false,
+};
+
+function playerReducer(state: PlayerState, action: PlayerAction): PlayerState {
+  switch (action.type) {
+    case 'LOADED':
+      return { ...state, status: 'playing', assessment: action.assessment, attempt: action.attempt, answers: action.answers };
+    case 'ANSWER':
+      return { ...state, answers: { ...state.answers, [action.answer.questionId]: action.answer } };
+    case 'SET_IDX':
+      return { ...state, currentIdx: action.idx };
+    case 'REQUEST_CONFIRM':
+      return { ...state, showConfirm: action.show };
+    case 'SUBMIT_START':
+      return { ...state, status: 'submitting' };
+    case 'SUBMIT_DONE':
+      return { ...state, status: 'result', result: action.result, showConfirm: false };
+    case 'SUBMIT_ERROR':
+      return { ...state, status: 'playing', showConfirm: false };
+    case 'RETRY':
+      return { ...state, status: 'playing', result: null, answers: {}, currentIdx: 0 };
+    default:
+      return state;
+  }
+}
+
 function AssessmentPlayer({
   assessmentId,
   onBack,
@@ -387,15 +446,16 @@ function AssessmentPlayer({
   assessmentId: number;
   onBack: () => void;
 }) {
-  const [assessment, setAssessment] = useState<Assessment | null>(null);
-  const [attempt, setAttempt]       = useState<any>(null);
-  const [answers, setAnswers]       = useState<Record<number, AttemptAnswer>>({});
-  const [currentIdx, setCurrentIdx] = useState(0);
-  const [result, setResult]         = useState<AttemptResult | null>(null);
-  const [loading, setLoading]       = useState(true);
-  const [submitting, setSubmitting] = useState(false);
-  const [showConfirm, setShowConfirm] = useState(false);
-  const autoSaveRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [state, dispatch] = useReducer(playerReducer, initialPlayerState);
+  const { status, assessment, attempt, answers, currentIdx, result, showConfirm } = state;
+
+  // Ref sincronizado com `answers`, lido dentro do setInterval de auto-save.
+  // Antes, `answers` estava nas deps do useEffect do auto-save: cada resposta
+  // do utilizador recriava o setInterval de 30s, reiniciando a contagem — o
+  // auto-save podia nunca disparar durante uso activo. Usando um ref, o
+  // efeito do intervalo só depende de `attempt`/`assessment`.
+  const answersRef = useRef(answers);
+  useEffect(() => { answersRef.current = answers; }, [answers]);
 
   // Carregar avaliação e iniciar tentativa
   useEffect(() => {
@@ -407,26 +467,23 @@ function AssessmentPlayer({
           ...a,
           questions: a.questions.map(q => ({ ...q, options: parseOptions((q as any).options) })),
         };
-        setAssessment(parsed);
 
         const att = await apiClient.post<any>('/assessments/attempts/start', { assessmentId });
-        setAttempt(att);
 
         // Restaurar auto-save
+        const restored: Record<number, AttemptAnswer> = {};
         if (att.savedAnswers && att.savedAnswers !== '{}') {
           try {
             const saved = JSON.parse(att.savedAnswers);
-            const restored: Record<number, AttemptAnswer> = {};
             if (Array.isArray(saved)) {
-              saved.forEach((a: AttemptAnswer) => { restored[a.questionId] = a; });
+              saved.forEach((ans: AttemptAnswer) => { restored[ans.questionId] = ans; });
             }
-            setAnswers(restored);
           } catch { /* ignore */ }
         }
+
+        dispatch({ type: 'LOADED', assessment: parsed, attempt: att, answers: restored });
       } catch (e: any) {
         alert(e.message);
-      } finally {
-        setLoading(false);
       }
     };
     init();
@@ -436,30 +493,28 @@ function AssessmentPlayer({
   useEffect(() => {
     if (!attempt || !assessment) return;
     const interval = setInterval(async () => {
-      const answersList = Object.values(answers);
+      const answersList = Object.values(answersRef.current);
       if (answersList.length === 0) return;
       await apiClient.post('/assessments/attempts/save', { attemptId: attempt.id, answers: answersList }).catch(() => {});
     }, 30000);
     return () => clearInterval(interval);
-  }, [attempt, answers, assessment]);
+  }, [attempt, assessment]);
 
   const handleSubmit = async () => {
     if (!attempt || !assessment) return;
-    setSubmitting(true);
+    dispatch({ type: 'SUBMIT_START' });
     try {
-      const answersList = assessment.questions.map(q => answers[q.id] ?? { questionId: q.id });
+      const answersList = assessment.questions.map(q => answersRef.current[q.id] ?? { questionId: q.id });
       const res = await apiClient.post<AttemptResult>('/assessments/attempts/submit', { attemptId: attempt.id, answers: answersList });
-      setResult(res);
+      dispatch({ type: 'SUBMIT_DONE', result: res });
     } catch (e: any) {
       alert(e.message);
-    } finally {
-      setSubmitting(false);
-      setShowConfirm(false);
+      dispatch({ type: 'SUBMIT_ERROR' });
     }
   };
 
   const handleAnswer = (a: AttemptAnswer) => {
-    setAnswers(prev => ({ ...prev, [a.questionId]: a }));
+    dispatch({ type: 'ANSWER', answer: a });
   };
 
   const handleTimerExpire = () => {
@@ -467,15 +522,15 @@ function AssessmentPlayer({
     handleSubmit();
   };
 
-  if (loading || !assessment) return <div className="p-8"><Skeleton rows={4} /></div>;
+  if (status === 'loading' || !assessment) return <div className="p-8"><Skeleton rows={4} /></div>;
 
   // Mostrar resultado
-  if (result) {
+  if (status === 'result' && result) {
     return (
       <ResultView
         result={result}
         assessment={assessment}
-        onRetry={() => { setResult(null); setAnswers({}); setCurrentIdx(0); }}
+        onRetry={() => dispatch({ type: 'RETRY' })}
         onBack={onBack}
       />
     );
@@ -484,6 +539,7 @@ function AssessmentPlayer({
   const questions = assessment.questions;
   const currentQ  = questions[currentIdx];
   const answeredCount = Object.keys(answers).length;
+  const submitting = status === 'submitting';
 
   return (
     <div className="max-w-3xl mx-auto">
@@ -498,7 +554,7 @@ function AssessmentPlayer({
             <CountdownTimer totalMinutes={assessment.timeLimitMinutes} onExpire={handleTimerExpire} />
           )}
           <button
-            onClick={() => setShowConfirm(true)}
+            onClick={() => dispatch({ type: 'REQUEST_CONFIRM', show: true })}
             disabled={submitting}
             className="px-4 py-2 bg-blue-700 text-white text-sm font-medium rounded-lg hover:bg-blue-800 disabled:opacity-50"
           >
@@ -535,7 +591,7 @@ function AssessmentPlayer({
       {/* Navigation */}
       <div className="flex items-center justify-between mt-5">
         <button
-          onClick={() => setCurrentIdx(i => Math.max(0, i - 1))}
+          onClick={() => dispatch({ type: 'SET_IDX', idx: Math.max(0, currentIdx - 1) })}
           disabled={currentIdx === 0}
           className="px-4 py-2 text-sm border border-gray-200 rounded-lg disabled:opacity-30 hover:bg-gray-50"
         >
@@ -547,7 +603,7 @@ function AssessmentPlayer({
           {questions.map((q, idx) => (
             <button
               key={q.id}
-              onClick={() => setCurrentIdx(idx)}
+              onClick={() => dispatch({ type: 'SET_IDX', idx })}
               className={`w-6 h-6 rounded-full text-xs font-mono transition-all ${
                 idx === currentIdx ? 'bg-blue-600 text-white scale-110' :
                 answers[q.id] ? 'bg-emerald-100 text-emerald-700' :
@@ -561,8 +617,8 @@ function AssessmentPlayer({
 
         <button
           onClick={() => {
-            if (currentIdx < questions.length - 1) setCurrentIdx(i => i + 1);
-            else setShowConfirm(true);
+            if (currentIdx < questions.length - 1) dispatch({ type: 'SET_IDX', idx: currentIdx + 1 });
+            else dispatch({ type: 'REQUEST_CONFIRM', show: true });
           }}
           className="px-4 py-2 text-sm bg-blue-700 text-white rounded-lg hover:bg-blue-800"
         >
@@ -582,7 +638,7 @@ function AssessmentPlayer({
               )}
             </div>
             <div className="flex gap-3">
-              <button onClick={() => setShowConfirm(false)} className="flex-1 py-2.5 border border-gray-200 text-sm rounded-lg hover:bg-gray-50">
+              <button onClick={() => dispatch({ type: 'REQUEST_CONFIRM', show: false })} className="flex-1 py-2.5 border border-gray-200 text-sm rounded-lg hover:bg-gray-50">
                 Continuar
               </button>
               <button

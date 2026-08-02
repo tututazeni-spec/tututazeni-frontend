@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { api } from "../../../lib/api";
 import { useCurrentUser, type CurrentUser as Me } from "../../../hooks/useCurrentUser";
+import { useAutoDismiss } from "../../../hooks/useAutoDismiss";
 
 // ─── Styles ───────────────────────────────────────────────────────────────────
 const btnPrimary: React.CSSProperties = {
@@ -37,7 +38,7 @@ const TAB_STYLE = (active: boolean): React.CSSProperties => ({
 
 // ─── Toast ────────────────────────────────────────────────────────────────────
 function Toast({ msg, type, onClose }: { msg: string; type: "success" | "error"; onClose: () => void }) {
-  useEffect(() => { const t = setTimeout(onClose, 3500); return () => clearTimeout(t); }, []);
+  useAutoDismiss(onClose, 3500);
   return (
     <div style={{
       position: "fixed", bottom: 24, right: 24, zIndex: 300,

@@ -3,7 +3,7 @@
 
 import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
-import { useApiQuery } from '@/hooks/useApiQuery';
+import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
 import { useDebounce } from '@/hooks/useDebounce';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -249,11 +249,8 @@ function CatalogView({ onSelect }: { onSelect: (id: number) => void }) {
 function MyProfileView() {
   const [tab, setTab]                   = useState<'profile' | 'gap' | 'evolution'>('profile');
   const [positionId, setPositionId]     = useState('');
-  const [gap, setGap]                   = useState<GapAnalysis | null>(null);
-  const [loadingGap, setLoadingGap]     = useState(false);
   const [selfAssessing, setSelfAssessing] = useState<number | null>(null);
   const [selfLevel, setSelfLevel]       = useState(1);
-  const [savingAssess, setSavingAssess] = useState(false);
 
   const profileQ = useApiQuery<UserCompetency[]>(
     queryKeys.competencies.myProfile(), '/competencies/my/profile',
@@ -267,25 +264,23 @@ function MyProfileView() {
   const evolution = evolutionQ.data ?? [];
   const loading = profileQ.isLoading;
 
-  const loadGap = async () => {
-    if (!positionId) return;
-    setLoadingGap(true);
-    try {
-      const result = await apiClient.get<GapAnalysis>(`/competencies/my/gap/${positionId}`);
-      setGap(result);
-    } catch (e: any) { alert(e.message); }
-    finally { setLoadingGap(false); }
-  };
+  const gapMutation = useApiMutation(
+    (posId: string) => apiClient.get<GapAnalysis>(`/competencies/my/gap/${posId}`),
+    { onError: (e) => alert(e.message) },
+  );
+  const gap = gapMutation.data ?? null;
+  const loadingGap = gapMutation.isPending;
+  const loadGap = () => { if (positionId) gapMutation.mutate(positionId); };
 
-  const handleSelfAssess = async (competencyId: number) => {
-    setSavingAssess(true);
-    try {
-      await apiClient.post('/competencies/my/self-assess', { competencyId, selfLevel });
-      await profileQ.refetch();
-      setSelfAssessing(null);
-    } catch (e: any) { alert(e.message); }
-    finally { setSavingAssess(false); }
-  };
+  const selfAssessMutation = useApiMutation(
+    (competencyId: number) => apiClient.post('/competencies/my/self-assess', { competencyId, selfLevel }),
+    {
+      onSuccess: () => { profileQ.refetch(); setSelfAssessing(null); },
+      onError: (e) => alert(e.message),
+    },
+  );
+  const savingAssess = selfAssessMutation.isPending;
+  const handleSelfAssess = (competencyId: number) => selfAssessMutation.mutate(competencyId);
 
   if (loading) return <Skeleton />;
 

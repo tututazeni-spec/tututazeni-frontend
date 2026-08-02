@@ -4,7 +4,7 @@
 // INNOVA — Módulo de Declarações (Documentos + Work Declarations)
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { useState } from 'react';
+import { useState, useReducer } from 'react';
 import {
   FileText, Plus, Check, X, Eye, Download, Clock, Shield,
   RefreshCcw, AlertCircle, ChevronRight, Loader2,
@@ -128,33 +128,86 @@ function KpiCard({ label, value, icon: Icon, color = 'blue', sub }: {
 
 // ─── New Document Request Modal ───────────────────────────────────────────────
 
+// Wizard de 3 passos: step/form avançam juntos e preview/previewLoading só
+// fazem sentido no passo 3. Um reducer com acções por passo torna as
+// transições explícitas e evita estados impossíveis (ex: previewLoading=true
+// no passo 1) que os useState soltos anteriores não impediam.
+interface WizardForm { templateId: number; purposeId: number; addressedTo: string; observations: string; saveAsDraft: boolean }
+
+interface WizardState {
+  step: 1 | 2 | 3;
+  form: WizardForm;
+  preview: any;
+  previewLoading: boolean;
+  submitting: boolean;
+  error: string;
+}
+
+type WizardAction =
+  | { type: 'SET_FIELD'; field: keyof WizardForm; value: any }
+  | { type: 'NEXT_STEP' }
+  | { type: 'PREV_STEP' }
+  | { type: 'PREVIEW_START' }
+  | { type: 'PREVIEW_SUCCESS'; preview: any }
+  | { type: 'PREVIEW_ERROR' }
+  | { type: 'SUBMIT_START' }
+  | { type: 'SUBMIT_ERROR'; error: string };
+
+const initialWizardState: WizardState = {
+  step: 1,
+  form: { templateId: 0, purposeId: 0, addressedTo: '', observations: '', saveAsDraft: false },
+  preview: null,
+  previewLoading: false,
+  submitting: false,
+  error: '',
+};
+
+function wizardReducer(state: WizardState, action: WizardAction): WizardState {
+  switch (action.type) {
+    case 'SET_FIELD':
+      return { ...state, form: { ...state.form, [action.field]: action.value } };
+    case 'NEXT_STEP':
+      return { ...state, step: (Math.min(3, state.step + 1) as 1 | 2 | 3) };
+    case 'PREV_STEP':
+      return { ...state, step: (Math.max(1, state.step - 1) as 1 | 2 | 3) };
+    case 'PREVIEW_START':
+      return { ...state, previewLoading: true };
+    case 'PREVIEW_SUCCESS':
+      return { ...state, previewLoading: false, preview: action.preview };
+    case 'PREVIEW_ERROR':
+      return { ...state, previewLoading: false };
+    case 'SUBMIT_START':
+      return { ...state, submitting: true, error: '' };
+    case 'SUBMIT_ERROR':
+      return { ...state, submitting: false, error: action.error };
+    default:
+      return state;
+  }
+}
+
 function NewDocRequestModal({ templates, purposes, onClose, onSuccess }: {
   templates: Template[]; purposes: Purpose[];
   onClose: () => void; onSuccess: () => void;
 }) {
-  const [step, setStep]         = useState<1|2|3>(1);
-  const [form, setForm]         = useState({ templateId: 0, purposeId: 0, addressedTo: '', observations: '', saveAsDraft: false });
-  const [preview, setPreview]   = useState<any>(null);
-  const [loading, setLoading]   = useState(false);
-  const [previewLoading, setPreviewLoading] = useState(false);
-  const [error, setError]       = useState('');
+  const [state, dispatch] = useReducer(wizardReducer, initialWizardState);
+  const { step, form, preview, previewLoading, submitting: loading, error } = state;
   const selected = templates.find(t => t.id === form.templateId);
 
   const loadPreview = async () => {
     if (!form.templateId) return;
-    setPreviewLoading(true);
-    try { setPreview(await apiClient.get(`/declarations/documents/templates/${form.templateId}/preview`)); }
-    catch {}
-    finally { setPreviewLoading(false); }
+    dispatch({ type: 'PREVIEW_START' });
+    try {
+      const p = await apiClient.get(`/declarations/documents/templates/${form.templateId}/preview`);
+      dispatch({ type: 'PREVIEW_SUCCESS', preview: p });
+    } catch { dispatch({ type: 'PREVIEW_ERROR' }); }
   };
 
   const handleSubmit = async () => {
-    setLoading(true); setError('');
+    dispatch({ type: 'SUBMIT_START' });
     try {
       await apiClient.post('/declarations/documents', { ...form, purposeId: form.purposeId || undefined });
       onSuccess(); onClose();
-    } catch (e: any) { setError(e.message); }
-    finally { setLoading(false); }
+    } catch (e: any) { dispatch({ type: 'SUBMIT_ERROR', error: e.message }); }
   };
 
   return (
@@ -181,7 +234,7 @@ function NewDocRequestModal({ templates, purposes, onClose, onSuccess }: {
               <p className="text-sm font-medium text-gray-700">Seleccione o tipo de declaração</p>
               <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
                 {templates.map(t => (
-                  <button key={t.id} onClick={() => setForm(f => ({...f, templateId: t.id}))}
+                  <button key={t.id} onClick={() => dispatch({ type: 'SET_FIELD', field: 'templateId', value: t.id })}
                     className={`w-full flex items-start gap-3 p-3 rounded-xl border-2 text-left transition-all ${form.templateId === t.id ? 'border-blue-500 bg-blue-50' : 'border-gray-100 hover:border-gray-200'}`}>
                     <div className={`p-2 rounded-xl flex-shrink-0 ${form.templateId === t.id ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-500'}`}>
                       <FileText size={16}/>
@@ -201,7 +254,7 @@ function NewDocRequestModal({ templates, purposes, onClose, onSuccess }: {
             <div className="space-y-4">
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">Finalidade</label>
-                <select value={form.purposeId} onChange={e => setForm(f => ({...f, purposeId: +e.target.value}))}
+                <select value={form.purposeId} onChange={e => dispatch({ type: 'SET_FIELD', field: 'purposeId', value: +e.target.value })}
                   className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
                   <option value={0}>Seleccionar finalidade...</option>
                   {purposes.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
@@ -209,13 +262,13 @@ function NewDocRequestModal({ templates, purposes, onClose, onSuccess }: {
               </div>
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">Dirigida a (opcional)</label>
-                <input value={form.addressedTo} onChange={e => setForm(f => ({...f, addressedTo: e.target.value}))}
+                <input value={form.addressedTo} onChange={e => dispatch({ type: 'SET_FIELD', field: 'addressedTo', value: e.target.value })}
                   placeholder="Ex: Banco Angolano de Investimentos"
                   className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500" />
               </div>
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">Observações</label>
-                <textarea value={form.observations} onChange={e => setForm(f => ({...f, observations: e.target.value}))}
+                <textarea value={form.observations} onChange={e => dispatch({ type: 'SET_FIELD', field: 'observations', value: e.target.value })}
                   rows={2} className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none" />
               </div>
             </div>
@@ -240,7 +293,7 @@ function NewDocRequestModal({ templates, purposes, onClose, onSuccess }: {
                 <div className="flex justify-between"><span className="text-gray-500">Aprovação</span><span className={selected?.requiresApproval ? 'text-amber-600' : 'text-emerald-600'}>{selected?.requiresApproval ? 'Necessária' : 'Automática'}</span></div>
               </div>
               <label className="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" checked={form.saveAsDraft} onChange={e => setForm(f => ({...f, saveAsDraft: e.target.checked}))}
+                <input type="checkbox" checked={form.saveAsDraft} onChange={e => dispatch({ type: 'SET_FIELD', field: 'saveAsDraft', value: e.target.checked })}
                   className="w-4 h-4 rounded border-gray-300 text-blue-600" />
                 <span className="text-sm text-gray-700">Guardar como rascunho</span>
               </label>
@@ -249,11 +302,11 @@ function NewDocRequestModal({ templates, purposes, onClose, onSuccess }: {
         </div>
 
         <div className="p-6 border-t border-gray-100 flex gap-3">
-          {step > 1 && <button onClick={() => setStep(s => (s-1) as any)} className="px-4 py-2.5 text-sm text-gray-600 border border-gray-200 rounded-xl hover:bg-gray-50">← Voltar</button>}
+          {step > 1 && <button onClick={() => dispatch({ type: 'PREV_STEP' })} className="px-4 py-2.5 text-sm text-gray-600 border border-gray-200 rounded-xl hover:bg-gray-50">← Voltar</button>}
           <button onClick={onClose} className="px-3 py-2.5 text-sm text-gray-500 hover:text-gray-700">Cancelar</button>
           <div className="flex-1"/>
           {step < 3
-            ? <button onClick={() => setStep(s => (s+1) as any)} disabled={step === 1 && !form.templateId}
+            ? <button onClick={() => dispatch({ type: 'NEXT_STEP' })} disabled={step === 1 && !form.templateId}
                 className="px-5 py-2.5 text-sm text-white bg-blue-600 rounded-xl hover:bg-blue-700 disabled:opacity-40">Continuar →</button>
             : <button onClick={handleSubmit} disabled={loading}
                 className="px-5 py-2.5 text-sm text-white bg-blue-600 rounded-xl hover:bg-blue-700 disabled:opacity-50 flex items-center gap-2">

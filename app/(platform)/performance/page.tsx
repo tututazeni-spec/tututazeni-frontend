@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useApiQuery } from '@/hooks/useApiQuery';
+import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -193,52 +193,75 @@ function Skeleton({ rows = 4 }: { rows?: number }) {
 
 // ─── View: My Dashboard ───────────────────────────────────────────────────────
 
-function MyDashboard() {
-  const [newGoalTitle, setNewGoalTitle] = useState('');
-  const [newGoalTarget, setNewGoalTarget] = useState('');
-  const [creatingGoal, setCreatingGoal] = useState(false);
-  const [feedbackMsg, setFeedbackMsg] = useState('');
-  const [feedbackTarget, setFeedbackTarget] = useState('');
-  const [sendingFeedback, setSendingFeedback] = useState(false);
+// Formulário "criar goal" — sub-domínio independente do formulário de
+// feedback abaixo (não partilham estado, apenas coexistiam no mesmo
+// componente). Cada hook expõe os seus campos + `submit`/`submitting` via
+// useApiMutation, eliminando o setLoading/try/catch/finally manual.
+function useGoalForm(cycle: Cycle | null, onCreated: () => void) {
+  const [title, setTitle]   = useState('');
+  const [target, setTarget] = useState('');
 
+  const createGoal = useApiMutation(
+    () => apiClient.post('/performance/goals', {
+      userId: 0, cycleId: cycle!.id, title, targetValue: parseFloat(target),
+    }),
+    {
+      onSuccess: () => { setTitle(''); setTarget(''); onCreated(); },
+      onError: (e) => alert(e.message),
+    },
+  );
+
+  const submit = () => {
+    if (!title || !target || !cycle) return;
+    createGoal.mutate(undefined);
+  };
+
+  return { title, setTitle, target, setTarget, submitting: createGoal.isPending, submit };
+}
+
+// Formulário "enviar feedback" — sub-domínio independente do de goals acima.
+function useFeedbackForm(cycleId: number | undefined, onSent: () => void) {
+  const [message, setMessage]         = useState('');
+  const [targetUserId, setTargetUserId] = useState('');
+
+  const sendFeedback = useApiMutation(
+    () => apiClient.post('/performance/feedback', {
+      targetUserId: parseInt(targetUserId), type: 'PRAISE', message, cycleId,
+    }),
+    {
+      onSuccess: () => { setMessage(''); setTargetUserId(''); onSent(); alert('Feedback enviado!'); },
+      onError: (e) => alert(e.message),
+    },
+  );
+
+  const submit = () => {
+    if (!message || !targetUserId) return;
+    sendFeedback.mutate(undefined);
+  };
+
+  return { message, setMessage, targetUserId, setTargetUserId, submitting: sendFeedback.isPending, submit };
+}
+
+function MyDashboard() {
   const historyQ = useApiQuery<any>(queryKeys.performance.my(), '/performance/my', { staleTime: STALE_TIME.DYNAMIC });
   const cycleQ = useApiQuery<Cycle | null>(queryKeys.performance.currentCycle(), '/performance/cycles/current', { staleTime: STALE_TIME.SEMI_STATIC, retry: false });
   const history = historyQ.data ?? null;
   const cycle = cycleQ.data ?? null;
   const loading = historyQ.isLoading;
 
-  const handleCreateGoal = async () => {
-    if (!newGoalTitle || !newGoalTarget || !cycle) return;
-    setCreatingGoal(true);
-    try {
-      await apiClient.post('/performance/goals', { userId: 0, cycleId: cycle.id, title: newGoalTitle, targetValue: parseFloat(newGoalTarget) });
-      await historyQ.refetch();
-      setNewGoalTitle(''); setNewGoalTarget('');
-    } catch (e: any) { alert(e.message); }
-    finally { setCreatingGoal(false); }
-  };
+  const goalForm = useGoalForm(cycle, () => historyQ.refetch());
+  const feedbackForm = useFeedbackForm(cycle?.id, () => historyQ.refetch());
 
-  const handleUpdateProgress = async (goalId: number, currentValue: number) => {
-    try {
-      await apiClient.patch(`/performance/goals/${goalId}/progress`, { currentValue });
-      await historyQ.refetch();
-    } catch (e: any) { alert(e.message); }
-  };
-
-  const handleFeedback = async () => {
-    if (!feedbackMsg || !feedbackTarget) return;
-    setSendingFeedback(true);
-    try {
-      await apiClient.post('/performance/feedback', {
-        targetUserId: parseInt(feedbackTarget),
-        type: 'PRAISE', message: feedbackMsg,
-        cycleId: cycle?.id,
-      });
-      setFeedbackMsg(''); setFeedbackTarget('');
-      alert('Feedback enviado!');
-    } catch (e: any) { alert(e.message); }
-    finally { setSendingFeedback(false); }
-  };
+  const updateProgress = useApiMutation(
+    ({ goalId, currentValue }: { goalId: number; currentValue: number }) =>
+      apiClient.patch(`/performance/goals/${goalId}/progress`, { currentValue }),
+    {
+      onSuccess: () => historyQ.refetch(),
+      onError: (e) => alert(e.message),
+    },
+  );
+  const handleUpdateProgress = (goalId: number, currentValue: number) =>
+    updateProgress.mutate({ goalId, currentValue });
 
   if (loading) return <Skeleton />;
   if (!history) return null;
@@ -338,24 +361,24 @@ function MyDashboard() {
                 <input
                   type="text"
                   placeholder="Título do goal"
-                  value={newGoalTitle}
-                  onChange={e => setNewGoalTitle(e.target.value)}
+                  value={goalForm.title}
+                  onChange={e => goalForm.setTitle(e.target.value)}
                   className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 mb-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
                 <div className="flex gap-2">
                   <input
                     type="number"
                     placeholder="Valor alvo"
-                    value={newGoalTarget}
-                    onChange={e => setNewGoalTarget(e.target.value)}
+                    value={goalForm.target}
+                    onChange={e => goalForm.setTarget(e.target.value)}
                     className="flex-1 text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                   <button
-                    onClick={handleCreateGoal}
-                    disabled={!newGoalTitle || !newGoalTarget || creatingGoal}
+                    onClick={goalForm.submit}
+                    disabled={!goalForm.title || !goalForm.target || goalForm.submitting}
                     className="px-3 py-2 bg-blue-700 text-white text-xs rounded-lg disabled:opacity-50"
                   >
-                    {creatingGoal ? '…' : 'Criar'}
+                    {goalForm.submitting ? '…' : 'Criar'}
                   </button>
                 </div>
               </div>
@@ -391,23 +414,23 @@ function MyDashboard() {
               <input
                 type="number"
                 placeholder="ID do colega"
-                value={feedbackTarget}
-                onChange={e => setFeedbackTarget(e.target.value)}
+                value={feedbackForm.targetUserId}
+                onChange={e => feedbackForm.setTargetUserId(e.target.value)}
                 className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 mb-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
               <textarea
                 placeholder="Escreva o feedback…"
-                value={feedbackMsg}
-                onChange={e => setFeedbackMsg(e.target.value)}
+                value={feedbackForm.message}
+                onChange={e => feedbackForm.setMessage(e.target.value)}
                 rows={2}
                 className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2"
               />
               <button
-                onClick={handleFeedback}
-                disabled={!feedbackMsg || !feedbackTarget || sendingFeedback}
+                onClick={feedbackForm.submit}
+                disabled={!feedbackForm.message || !feedbackForm.targetUserId || feedbackForm.submitting}
                 className="w-full py-2 bg-blue-700 text-white text-xs font-medium rounded-lg disabled:opacity-50"
               >
-                {sendingFeedback ? 'A enviar…' : '📤 Enviar feedback'}
+                {feedbackForm.submitting ? 'A enviar…' : '📤 Enviar feedback'}
               </button>
             </div>
           </div>

@@ -8,8 +8,12 @@
 
 import { useState, useCallback, useMemo } from 'react';
 import Image from 'next/image';
-import { keepPreviousData } from '@tanstack/react-query';
 import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
+import {
+  useEmployees, useHeadcount,
+  type Employee, type EmployeeStatus, type SeniorityLevel, type WorkMode, type ContractType,
+  type FilterState, type HeadcountStats,
+} from '@/hooks/useEmployees';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -22,45 +26,9 @@ import {
 } from 'lucide-react';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
-
-type EmployeeStatus = 'ACTIVE' | 'INACTIVE' | 'ON_LEAVE' | 'TERMINATED' | 'SUSPENDED';
-type SeniorityLevel = 'JUNIOR' | 'MID' | 'SENIOR' | 'LEAD' | 'MANAGER' | 'DIRECTOR' | 'C_LEVEL';
-type WorkMode = 'REMOTE' | 'HYBRID' | 'ON_SITE';
-type ContractType =
-  | 'INDEFINITE'
-  | 'FIXED_TERM'
-  | 'UNCERTAIN_TERM'
-  | 'APPRENTICESHIP'
-  | 'INTERNSHIP'
-  | 'SERVICE_PROVISION'
-  | 'TEMPORARY_PLACEMENT'
-  | 'PART_TIME';
-
-interface Employee {
-  id: number;
-  matricula?: string;
-  name: string;
-  email: string;
-  phone?: string;
-  avatarUrl?: string;
-  role: string;
-  jobTitle?: string;
-  department?: string;
-  location?: string;
-  seniority?: SeniorityLevel;
-  contractType?: ContractType;
-  workMode?: WorkMode;
-  status: EmployeeStatus;
-  joinedAt: string;
-  manager?: { id: number; name: string; avatarUrl?: string };
-  _count?: {
-    contracts: number;
-    feedbacks: number;
-    pdis: number;
-    employeeSkills: number;
-    documents: number;
-  };
-}
+// Employee, EmployeeStatus, SeniorityLevel, WorkMode, ContractType, FilterState
+// e HeadcountStats vivem em hooks/useEmployees.ts (importados acima), junto
+// com os hooks useEmployees/useHeadcount que os consomem.
 
 interface EmployeeStats {
   avgFeedbackScore: number;
@@ -71,22 +39,6 @@ interface EmployeeStats {
   activePdiTitle?: string;
   totalHoursWorked: number;
   totalBadges: number;
-}
-
-interface FilterState {
-  search: string;
-  department: string;
-  status: string;
-  seniority: string;
-  workMode: string;
-  contractType: string;
-}
-
-interface HeadcountStats {
-  total: number;
-  byStatus: Array<{ status: string; _count: number }>;
-  byDepartment: Array<{ department: string; _count: number }>;
-  recentHires: number;
 }
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -131,38 +83,6 @@ const CONTRACT_DESCRIPTIONS: Record<ContractType, string> = {
   TEMPORARY_PLACEMENT: 'Cedência por empresa de trabalho temporário',
   PART_TIME:           'Jornada inferior à normal (Art. 103.º)',
 };
-
-// ─── API Helpers (React Query) ──────────────────────────────────────────────
-
-function useEmployees(filters: FilterState, page: number) {
-  const params = {
-    page, limit: 20,
-    search: filters.search,
-    department: filters.department,
-    status: filters.status,
-    seniority: filters.seniority,
-    workMode: filters.workMode,
-    contractType: filters.contractType,
-  };
-  const q = useApiQuery<{ data: Employee[]; meta: any }>(
-    queryKeys.employees.list(params), '/employees',
-    { params, staleTime: STALE_TIME.DYNAMIC, placeholderData: keepPreviousData },
-  );
-  return {
-    data: q.data ?? null,
-    loading: q.isLoading,
-    error: q.error?.message ?? null,
-    refetch: q.refetch,
-  };
-}
-
-function useHeadcount() {
-  const q = useApiQuery<HeadcountStats>(
-    queryKeys.employees.headcount(), '/employees/headcount',
-    { staleTime: STALE_TIME.SEMI_STATIC },
-  );
-  return { stats: q.data ?? null, loading: q.isLoading };
-}
 
 // ─── Utility Components ───────────────────────────────────────────────────────
 
