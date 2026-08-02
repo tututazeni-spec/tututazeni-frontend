@@ -10,6 +10,13 @@ const compat = new FlatCompat({
 });
  
 const eslintConfig = [
+  {
+    // FlatCompat não herda os ignores por omissão do eslint-config-next
+    // (ex: .next/) — sem isto, um `.next/` deixado por um build anterior faz
+    // o lint varrer os .ts auto-gerados em .next/types/ e rebentar com
+    // milhares de erros que nada têm a ver com o código-fonte.
+    ignores: [".next/**"],
+  },
   ...compat.extends("next/core-web-vitals", "next/typescript"),
   {
     rules: {
