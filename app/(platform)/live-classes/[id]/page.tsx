@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
-import { useApiQuery } from "../../../../hooks/useApiQuery";
+import { useApiQuery, useApiMutation } from "../../../../hooks/useApiQuery";
 import { useStopwatch } from "../../../../hooks/useStopwatch";
 import { apiClient } from "../../../../lib/apiClient";
 import { queryKeys } from "../../../../lib/queryKeys";
@@ -309,28 +309,29 @@ function RecordingPanel({ liveClass, onUrlSaved }: {
   onUrlSaved: (url: string) => void;
 }) {
   const rec = useRecording();
-  const [savingUrl, setSavingUrl]   = useState(false);
   const [customUrl, setCustomUrl]   = useState(liveClass.recordingUrl ?? "");
   const [urlSaved, setUrlSaved]     = useState(false);
   const [showHelp, setShowHelp]     = useState(false);
 
   const filename = `innova-aula-${liveClass.id}-${Date.now()}.webm`;
 
-  async function saveUrl(url: string) {
+  const saveUrlMutation = useApiMutation(
+    (url: string) => apiClient.put(`/live-classes/${liveClass.id}`, {
+      courseId:     liveClass.course?.id,
+      topic:        liveClass.topic,
+      scheduledAt:  liveClass.scheduledAt,
+      duration:     liveClass.duration,
+      recordingUrl: url,
+    }),
+    {
+      onSuccess: (_data, url) => { setUrlSaved(true); onUrlSaved(url); },
+      onError: (e) => alert(e.message),
+    },
+  );
+  const savingUrl = saveUrlMutation.isPending;
+  function saveUrl(url: string) {
     if (!url) return;
-    setSavingUrl(true);
-    try {
-      await apiClient.put(`/live-classes/${liveClass.id}`, {
-        courseId:     liveClass.course?.id,
-        topic:        liveClass.topic,
-        scheduledAt:  liveClass.scheduledAt,
-        duration:     liveClass.duration,
-        recordingUrl: url,
-      });
-      setUrlSaved(true);
-      onUrlSaved(url);
-    } catch (e: any) { alert(e.message); }
-    finally { setSavingUrl(false); }
+    saveUrlMutation.mutate(url);
   }
 
   return (

@@ -9,7 +9,7 @@ import {
   RefreshCw, ArrowRight, AlertTriangle, Volume2,
 } from 'lucide-react';
 import { keepPreviousData } from '@tanstack/react-query';
-import { useApiQuery } from '../../../hooks/useApiQuery';
+import { useApiQuery, useApiMutation } from '../../../hooks/useApiQuery';
 import { apiClient } from '../../../lib/apiClient';
 import { queryKeys } from '../../../lib/queryKeys';
 import { STALE_TIME } from '../../../lib/queryClient';
@@ -165,7 +165,6 @@ function ChatSession({
   const [sending, setSending]   = useState(false);
   const [runningScore, setRunningScore] = useState<number | null>(null);
   const [isLastTurn, setIsLastTurn]     = useState(false);
-  const [completing, setCompleting]     = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -198,15 +197,12 @@ function ChatSession({
     }
   };
 
-  const complete = async () => {
-    setCompleting(true);
-    try {
-      const r = await apiClient.post(`/avatar-training/sessions/${session.id}/complete`, {
-        score: runningScore ?? undefined,
-      });
-      onComplete(r);
-    } catch {} finally { setCompleting(false); }
-  };
+  const completeMutation = useApiMutation(
+    () => apiClient.post(`/avatar-training/sessions/${session.id}/complete`, { score: runningScore ?? undefined }),
+    { onSuccess: (r) => onComplete(r) },
+  );
+  const completing = completeMutation.isPending;
+  const complete = () => completeMutation.mutate(undefined);
 
   const avatarName  = session.avatar?.name ?? 'Avatar';
   const avatarImage = session.avatar?.avatarImageUrl;

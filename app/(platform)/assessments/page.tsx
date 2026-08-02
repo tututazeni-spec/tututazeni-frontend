@@ -3,7 +3,7 @@
 'use client';
 
 import { useState, useEffect, useReducer, useRef } from 'react';
-import { useApiQuery } from '@/hooks/useApiQuery';
+import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -751,8 +751,6 @@ function ListView({ onStart }: { onStart: (id: number) => void }) {
 
 function ReviewView() {
   const [selectedAttempt, setSelected] = useState<any>(null);
-  const [detail, setDetail]     = useState<any>(null);
-  const [loadingDetail, setLoadingDetail] = useState(false);
 
   const { data: allAttempts = [], isLoading: loading } = useApiQuery<any[]>(
     queryKeys.assessments.myAttempts(), '/assessments/my/attempts',
@@ -760,14 +758,15 @@ function ReviewView() {
   );
   const attempts = allAttempts.filter(a => a.status !== 'IN_PROGRESS');
 
-  const loadDetail = async (attempt: any) => {
+  const detailMutation = useApiMutation(
+    (attemptId: number) => apiClient.get<any>(`/assessments/attempts/${attemptId}`),
+  );
+  const detail = detailMutation.data ?? null;
+  const loadingDetail = detailMutation.isPending;
+
+  const loadDetail = (attempt: any) => {
     setSelected(attempt);
-    setLoadingDetail(true);
-    try {
-      const d = await apiClient.get<any>(`/assessments/attempts/${attempt.id}`);
-      setDetail(d);
-    } catch { /* silent */ }
-    finally { setLoadingDetail(false); }
+    detailMutation.mutate(attempt.id);
   };
 
   if (loading) return <Skeleton />;

@@ -2,7 +2,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useApiQuery } from '@/hooks/useApiQuery';
+import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -110,22 +110,18 @@ const READINESS_CFG: Record<string, { label: string; cls: string }> = {
 
 function DashboardView() {
   const [simTarget, setSimTarget] = useState('');
-  const [simulation, setSimulation] = useState<SimulationResult | null>(null);
-  const [simLoading, setSimLoading] = useState(false);
 
   const { data: profile, isLoading: loading } = useApiQuery<CareerProfile>(
     queryKeys.career.me(), '/career/me', { staleTime: STALE_TIME.DYNAMIC },
   );
 
-  const runSimulation = async () => {
-    if (!simTarget) return;
-    setSimLoading(true);
-    try {
-      const result = await apiClient.get<SimulationResult>(`/career/me/simulate/${simTarget}`);
-      setSimulation(result);
-    } catch (e: any) { alert(e.message); }
-    finally { setSimLoading(false); }
-  };
+  const simulateMutation = useApiMutation(
+    (target: string) => apiClient.get<SimulationResult>(`/career/me/simulate/${target}`),
+    { onError: (e) => alert(e.message) },
+  );
+  const simulation = simulateMutation.data ?? null;
+  const simLoading = simulateMutation.isPending;
+  const runSimulation = () => { if (simTarget) simulateMutation.mutate(simTarget); };
 
   if (loading || !profile) return <Skeleton rows={6} />;
 
@@ -522,32 +518,30 @@ function VacanciesView() {
 // ─── View: Plano de Carreira ───────────────────────────────────────────────────
 
 function PlanView() {
-  const [creating, setCreating] = useState(false);
   const [title, setTitle] = useState('');
-  const [updatingGoal, setUpdatingGoal] = useState<number | null>(null);
 
-  const { data: plan, isLoading: loading, refetch } = useApiQuery<any>(
+  const { data: plan, isLoading: loading } = useApiQuery<any>(
     queryKeys.career.plan(), '/career/me/plan', { staleTime: STALE_TIME.DYNAMIC },
   );
 
-  const createPlan = async () => {
-    if (!title.trim()) return;
-    setCreating(true);
-    try {
-      await apiClient.post('/career/me/plan', { title });
-      await refetch();
-      setTitle('');
-    } catch (e: any) { alert(e.message); }
-    finally { setCreating(false); }
-  };
+  const createPlanMutation = useApiMutation(
+    () => apiClient.post('/career/me/plan', { title }),
+    {
+      invalidateKeys: [queryKeys.career.plan()],
+      onSuccess: () => setTitle(''),
+      onError: (e) => alert(e.message),
+    },
+  );
+  const creating = createPlanMutation.isPending;
+  const createPlan = () => { if (title.trim()) createPlanMutation.mutate(undefined); };
 
-  const updateGoalProgress = async (goalId: number, progress: number) => {
-    setUpdatingGoal(goalId);
-    try {
-      await apiClient.patch(`/career/me/goals/${goalId}/progress`, { progress });
-      await refetch();
-    } finally { setUpdatingGoal(null); }
-  };
+  const updateGoalMutation = useApiMutation(
+    ({ goalId, progress }: { goalId: number; progress: number }) =>
+      apiClient.patch(`/career/me/goals/${goalId}/progress`, { progress }),
+    { invalidateKeys: [queryKeys.career.plan()] },
+  );
+  const updatingGoal = updateGoalMutation.isPending ? updateGoalMutation.variables?.goalId ?? null : null;
+  const updateGoalProgress = (goalId: number, progress: number) => updateGoalMutation.mutate({ goalId, progress });
 
   if (loading) return <Skeleton />;
 

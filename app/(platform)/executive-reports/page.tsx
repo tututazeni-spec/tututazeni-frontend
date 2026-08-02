@@ -444,21 +444,21 @@ function DetailView({ reportId, onBack }: { reportId: number; onBack: () => void
 
 function GenerateView({ onSuccess }: { onSuccess: (id: number) => void }) {
   const [type, setType]         = useState<ReportType>('MONTHLY');
-  const [generating, setGenerating] = useState(false);
 
   const { data: templates = [] } = useApiQuery<any[]>(
     queryKeys.executiveReports.templates(), '/executive-reports/templates',
     { staleTime: STALE_TIME.STATIC },
   );
 
-  const handleGenerate = async () => {
-    setGenerating(true);
-    try {
-      const report = await apiClient.post<Report>('/executive-reports/auto-generate', {}, { params: { type } });
-      onSuccess(report.id);
-    } catch (e: any) { alert(e.message); }
-    finally { setGenerating(false); }
-  };
+  const generateMutation = useApiMutation(
+    (t: ReportType) => apiClient.post<Report>('/executive-reports/auto-generate', {}, { params: { type: t } }),
+    {
+      onSuccess: (report) => onSuccess(report.id),
+      onError: (e) => alert(e.message),
+    },
+  );
+  const generating = generateMutation.isPending;
+  const handleGenerate = () => generateMutation.mutate(type);
 
   return (
     <div className="max-w-2xl mx-auto">
