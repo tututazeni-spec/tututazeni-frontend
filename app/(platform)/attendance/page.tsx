@@ -5,7 +5,7 @@
 // Dependências: lucide-react, Tailwind CSS
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -216,8 +216,16 @@ function ClockWidget({ onAction }: { onAction: () => void }) {
     { params: { from: todayStr }, staleTime: STALE_TIME.DYNAMIC },
   );
 
+  // Inicializa o estado a partir do servidor uma única vez (quando `todayData`
+  // chega pela primeira vez). Antes, o guard usava `status !== 'idle'` — o
+  // próprio estado que o efeito escreve — o que funciona mas é confuso: cada
+  // `setStatus` disparava o efeito de novo só para sair logo a seguir. Um ref
+  // dedicado tem a mesma semântica ("só inicializa uma vez") sem essa
+  // dependência circular.
+  const initializedFromServerRef = useRef(false);
   useEffect(() => {
-    if (!todayData || status !== 'idle') return;
+    if (!todayData || initializedFromServerRef.current) return;
+    initializedFromServerRef.current = true;
     const rec = todayData.records?.find((r: any) => {
       const d = new Date(r.date).toDateString();
       return d === new Date().toDateString() && r.context === 'WORK';
@@ -229,7 +237,7 @@ function ClockWidget({ onAction }: { onAction: () => void }) {
       setStatus('checked-out');
       setClockInTime(rec.clockIn);
     }
-  }, [todayData, status]);
+  }, [todayData]);
 
   const clockIn = useApiMutation(
     () => apiClient.post('/attendance/clock-in', { method: 'MANUAL', context: 'WORK', notes }),

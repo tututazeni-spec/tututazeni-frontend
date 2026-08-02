@@ -3,6 +3,7 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { useApiQuery } from "../../../../hooks/useApiQuery";
+import { useStopwatch } from "../../../../hooks/useStopwatch";
 import { apiClient } from "../../../../lib/apiClient";
 import { queryKeys } from "../../../../lib/queryKeys";
 import { STALE_TIME } from "../../../../lib/queryClient";
@@ -78,13 +79,18 @@ function fmtDuration(sec: number) {
 function useRecording() {
   const [state, setState]           = useState<RecordingState>("idle");
   const [data, setData]             = useState<RecordingData | null>(null);
-  const [elapsed, setElapsed]       = useState(0);
   const [error, setError]           = useState("");
   const mediaRecorderRef            = useRef<MediaRecorder | null>(null);
   const chunksRef                   = useRef<Blob[]>([]);
   const streamRef                   = useRef<MediaStream | null>(null);
-  const timerRef                    = useRef<NodeJS.Timeout | null>(null);
-  const startTimeRef                = useRef<number>(0);
+  // Ref sincronizado com `data`, lido no cleanup de unmount (ver useEffect
+  // abaixo) — esse cleanup só corre uma vez e antes fechava sobre o `data`
+  // inicial (sempre null), nunca revogando de facto o object URL da última
+  // gravação ao desmontar o componente.
+  const dataRef                     = useRef<RecordingData | null>(null);
+  const { seconds: elapsed, start: startStopwatch, stop: stopStopwatch, reset: resetStopwatch, elapsedNow } = useStopwatch();
+
+  useEffect(() => { dataRef.current = data; }, [data]);
 
   const start = useCallback(async () => {
     setError("");
@@ -115,7 +121,7 @@ function useRecording() {
       recorder.onstop = () => {
         const blob = new Blob(chunksRef.current, { type: mimeType });
         const url  = URL.createObjectURL(blob);
-        const dur  = Math.round((Date.now() - startTimeRef.current) / 1000);
+        const dur  = elapsedNow();
         setData({ blob, url, duration: dur, size: blob.size });
         setState("stopped");
         // Cleanup stream tracks
@@ -127,17 +133,12 @@ function useRecording() {
         if (mediaRecorderRef.current?.state === "recording") {
           mediaRecorderRef.current.stop();
         }
-        if (timerRef.current) clearInterval(timerRef.current);
+        stopStopwatch();
       };
 
       recorder.start(1000); // chunk every second
-      startTimeRef.current = Date.now();
+      startStopwatch();
       setState("recording");
-
-      // Elapsed timer
-      timerRef.current = setInterval(() => {
-        setElapsed(Math.round((Date.now() - startTimeRef.current) / 1000));
-      }, 1000);
 
     } catch (e: any) {
       if (e.name === "NotAllowedError") {
@@ -146,23 +147,23 @@ function useRecording() {
         setError(e.message ?? "Erro ao iniciar gravação.");
       }
     }
-  }, []);
+  }, [startStopwatch, stopStopwatch, elapsedNow]);
 
   const stop = useCallback(() => {
-    if (timerRef.current) clearInterval(timerRef.current);
+    stopStopwatch();
     if (mediaRecorderRef.current?.state === "recording") {
       mediaRecorderRef.current.stop();
     }
-  }, []);
+  }, [stopStopwatch]);
 
   const reset = useCallback(() => {
     if (data?.url) URL.revokeObjectURL(data.url);
     setData(null);
-    setElapsed(0);
+    resetStopwatch();
     setError("");
     setState("idle");
     chunksRef.current = [];
-  }, [data]);
+  }, [data, resetStopwatch]);
 
   const download = useCallback((filename: string) => {
     if (!data) return;
@@ -176,9 +177,8 @@ function useRecording() {
 
   useEffect(() => {
     return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
       streamRef.current?.getTracks().forEach(t => t.stop());
-      if (data?.url) URL.revokeObjectURL(data.url);
+      if (dataRef.current?.url) URL.revokeObjectURL(dataRef.current.url);
     };
   }, []);
 
@@ -202,27 +202,7 @@ function JitsiRoom({ liveClass, onJoined, onLeft }: {
     .replace(/[^a-z0-9]/g, "-")
     .slice(0, 30)}`;
 
-  useEffect(() => {
-    // Load Jitsi External API script dynamically
-    const existing = document.getElementById("jitsi-api-script");
-    if (existing) {
-      initJitsi();
-      return;
-    }
-    const script = document.createElement("script");
-    script.id  = "jitsi-api-script";
-    script.src = "https://meet.jit.si/external_api.js";
-    script.async = true;
-    script.onload = initJitsi;
-    script.onerror = () => console.error("Falha ao carregar Jitsi External API");
-    document.head.appendChild(script);
-
-    return () => {
-      apiRef.current?.dispose();
-    };
-  }, []);
-
-  function initJitsi() {
+  const initJitsi = useCallback(() => {
     if (!containerRef.current || !window.JitsiMeetExternalAPI) return;
 
     const jitsi = new window.JitsiMeetExternalAPI("meet.jit.si", {
@@ -280,7 +260,27 @@ function JitsiRoom({ liveClass, onJoined, onLeft }: {
       participantJoined: () => { setParticipants(jitsi.getNumberOfParticipants()); },
       participantLeft:   () => { setParticipants(jitsi.getNumberOfParticipants()); },
     });
-  }
+  }, [roomName, liveClass.topic, onJoined, onLeft]);
+
+  useEffect(() => {
+    // Load Jitsi External API script dynamically
+    const existing = document.getElementById("jitsi-api-script");
+    if (existing) {
+      initJitsi();
+      return;
+    }
+    const script = document.createElement("script");
+    script.id  = "jitsi-api-script";
+    script.src = "https://meet.jit.si/external_api.js";
+    script.async = true;
+    script.onload = initJitsi;
+    script.onerror = () => console.error("Falha ao carregar Jitsi External API");
+    document.head.appendChild(script);
+
+    return () => {
+      apiRef.current?.dispose();
+    };
+  }, [initJitsi]);
 
   return (
     <div style={{ position: "relative", width: "100%", height: "100%", background: "#0f172a", borderRadius: 14, overflow: "hidden" }}>
@@ -489,29 +489,23 @@ export default function LiveRoomPage() {
     { staleTime: STALE_TIME.DYNAMIC },
   );
   const [joined, setJoined]         = useState(false);
-  const [sessionTime, setSessionTime] = useState(0);
   const [showSidebar, setShowSidebar] = useState(true);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const { seconds: sessionTime, start: startSessionTimer, stop: stopSessionTimer } = useStopwatch();
 
-  useEffect(() => {
-    return () => { if (timerRef.current) clearInterval(timerRef.current); };
-  }, [classId]);
-
-  async function handleJoined() {
+  // `handleJoined`/`handleLeft` estabilizados com useCallback: são passados a
+  // JitsiRoom, cujo initJitsi (também useCallback) depende deles — sem
+  // identidade estável aqui, o Jitsi seria reinicializado a cada render.
+  const handleJoined = useCallback(async () => {
     setJoined(true);
     try { await apiClient.post(`/live-classes/${classId}/join`, {}); } catch { /* silent */ }
-    // Session timer
-    const start = Date.now();
-    timerRef.current = setInterval(() => {
-      setSessionTime(Math.round((Date.now() - start) / 1000));
-    }, 1000);
-  }
+    startSessionTimer();
+  }, [classId, startSessionTimer]);
 
-  async function handleLeft() {
-    if (timerRef.current) clearInterval(timerRef.current);
+  const handleLeft = useCallback(async () => {
+    stopSessionTimer();
     try { await apiClient.post(`/live-classes/${classId}/leave`, {}); } catch { /* silent */ }
     router.push("/live");
-  }
+  }, [classId, stopSessionTimer, router]);
 
   // Loading
   if (loading) {

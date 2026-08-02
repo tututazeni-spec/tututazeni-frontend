@@ -1,7 +1,7 @@
 'use client';
 // src/app/(dashboard)/dashboard/page.tsx
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   LayoutDashboard, Users, BookOpen, Target, Star, Zap, Award,
   TrendingUp, TrendingDown, AlertTriangle, CheckCircle, Clock,
@@ -43,22 +43,30 @@ const SLIDES = [
 function Slideshow() {
   const [current, setCurrent] = useState(0);
   const [fading, setFading] = useState(false);
+  // Guarda o setTimeout da transição de fade para poder cancelá-lo — sem isto,
+  // desmontar a meio dos 400ms de fade disparava setCurrent/setFading num
+  // componente já desmontado.
+  const fadeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     const interval = setInterval(() => {
       setFading(true);
-      setTimeout(() => {
+      fadeTimeoutRef.current = setTimeout(() => {
         setCurrent(c => (c + 1) % SLIDES.length);
         setFading(false);
       }, 400);
     }, 10000);
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      if (fadeTimeoutRef.current) clearTimeout(fadeTimeoutRef.current);
+    };
   }, []);
 
   function goTo(i: number) {
     if (i === current) return;
     setFading(true);
-    setTimeout(() => { setCurrent(i); setFading(false); }, 400);
+    if (fadeTimeoutRef.current) clearTimeout(fadeTimeoutRef.current);
+    fadeTimeoutRef.current = setTimeout(() => { setCurrent(i); setFading(false); }, 400);
   }
 
   const slide = SLIDES[current];

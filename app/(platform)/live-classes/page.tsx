@@ -5,6 +5,7 @@ import { keepPreviousData } from "@tanstack/react-query";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useApiQuery, useApiMutation } from "../../../hooks/useApiQuery";
+import { useAutoDismiss } from "../../../hooks/useAutoDismiss";
 import { apiClient } from "../../../lib/apiClient";
 import { queryKeys } from "../../../lib/queryKeys";
 import { STALE_TIME } from "../../../lib/queryClient";
@@ -82,7 +83,7 @@ function Spinner() {
 }
 
 function Toast({ msg, type, onClose }: { msg: string; type: "success" | "error" | "info"; onClose: () => void }) {
-  useEffect(() => { const t = setTimeout(onClose, 3500); return () => clearTimeout(t); }, []);
+  useAutoDismiss(onClose, 3500);
   const c = { success: { bg: "#f0fdf4", bd: "#bbf7d0", cl: "#16a34a" }, error: { bg: "#fef2f2", bd: "#fecaca", cl: "#dc2626" }, info: { bg: "#eff6ff", bd: "#bfdbfe", cl: "#2563eb" } }[type];
   return (
     <div style={{ position: "fixed", bottom: 24, right: 24, zIndex: 9999, background: c.bg, border: `1px solid ${c.bd}`, borderRadius: 12, padding: "12px 18px", boxShadow: "0 8px 24px rgba(0,0,0,0.1)", display: "flex", alignItems: "center", gap: 10, fontSize: 13, color: c.cl, fontWeight: 500 }}>

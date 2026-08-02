@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState, useReducer } from "react";
-import { useApiQuery } from "../../../../hooks/useApiQuery";
+import { useApiQuery, useApiMutation } from "../../../../hooks/useApiQuery";
+import { useAutoDismiss } from "../../../../hooks/useAutoDismiss";
 import { apiClient } from "../../../../lib/apiClient";
 import { queryKeys } from "../../../../lib/queryKeys";
 import { STALE_TIME } from "../../../../lib/queryClient";
@@ -38,7 +39,7 @@ const btnDanger: React.CSSProperties = { padding: "6px 12px", background: "#fef2
 
 // ─── Toast ────────────────────────────────────────────────────────────────────
 function Toast({ msg, type, onClose }: { msg: string; type: "success" | "error"; onClose: () => void }) {
-  useEffect(() => { const t = setTimeout(onClose, 4000); return () => clearTimeout(t); }, []);
+  useAutoDismiss(onClose, 4000);
   return (
     <div style={{ position: "fixed", bottom: 24, right: 24, zIndex: 999, background: type === "success" ? "#ecfdf5" : "#fef2f2", border: `1px solid ${type === "success" ? "#bbf7d0" : "#fecaca"}`, borderRadius: 12, padding: "14px 20px", maxWidth: 360, boxShadow: "0 8px 24px rgba(0,0,0,0.12)", display: "flex", alignItems: "center", gap: 10 }}>
       <span style={{ fontSize: 18 }}>{type === "success" ? "✅" : "❌"}</span>
@@ -150,23 +151,24 @@ function LessonModal({ moduleId, editing, onClose, onSaved }: {
 function ProgressModal({ onClose, onMarked }: { onClose: () => void; onMarked: () => void }) {
   const [enrollmentId, setEnrollmentId] = useState("");
   const [lessonId, setLessonId] = useState("");
-  const [progress, setProgress] = useState<LessonProgress[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [marking, setMarking] = useState(false);
 
-  async function loadProgress() {
-    if (!enrollmentId) return;
-    setLoading(true);
-    try { const d = await apiClient.get<LessonProgress[]>(`/lessons/progress/${enrollmentId}`); setProgress(d); }
-    catch (e: any) { alert(e.message); } finally { setLoading(false); }
-  }
+  const progressQuery = useApiMutation(
+    (enrId: string) => apiClient.get<LessonProgress[]>(`/lessons/progress/${enrId}`),
+    { onError: (e) => alert(e.message) },
+  );
+  const progress = progressQuery.data ?? [];
+  const loading = progressQuery.isPending;
+  const loadProgress = () => { if (enrollmentId) progressQuery.mutate(enrollmentId); };
 
-  async function markComplete() {
-    if (!enrollmentId || !lessonId) return;
-    setMarking(true);
-    try { await apiClient.post("/lessons/progress", { enrollmentId: +enrollmentId, lessonId: +lessonId }); onMarked(); loadProgress(); }
-    catch (e: any) { alert(e.message); } finally { setMarking(false); }
-  }
+  const markCompleteMutation = useApiMutation(
+    () => apiClient.post("/lessons/progress", { enrollmentId: +enrollmentId, lessonId: +lessonId }),
+    {
+      onSuccess: () => { onMarked(); loadProgress(); },
+      onError: (e) => alert(e.message),
+    },
+  );
+  const marking = markCompleteMutation.isPending;
+  const markComplete = () => { if (enrollmentId && lessonId) markCompleteMutation.mutate(undefined); };
 
   const completedCount = progress.filter(p => p.completed).length;
 

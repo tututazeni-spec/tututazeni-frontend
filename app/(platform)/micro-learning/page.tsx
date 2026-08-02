@@ -1,7 +1,7 @@
 ﻿// src/app/(dashboard)/micro-learning/page.tsx
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { useDebounce } from '@/hooks/useDebounce';
@@ -235,36 +235,42 @@ function FeedView({ onSelect }: { onSelect: (item: MicroLearning) => void }) {
   );
 }
 
-// ─── View: Player ─────────────────────────────────────────────────────────────
+// ─── Hooks: progresso e quiz ────────────────────────────────────────────────
 
-function PlayerView({ item, onBack, onNext }: {
-  item: MicroLearning;
-  onBack: () => void;
-  onNext?: () => void;
-}) {
-  const [progress, setProgress]       = useState(item.userProgress?.progress ?? 0);
-  const [quizAnswers, setQuizAnswers]  = useState<number[]>([]);
-  const [quizResult, setQuizResult]   = useState<any>(null);
-  const [submitting, setSubmitting]   = useState(false);
-  const [liked, setLiked]             = useState(item.userLiked ?? false);
-  const [saved, setSaved]             = useState(item.userSaved ?? false);
-  const [completed, setCompleted]     = useState(item.isCompleted ?? false);
+// Progresso de leitura/audição, incluindo o auto-progress (setInterval) para
+// conteúdo de texto/áudio. `progressRef`/`completedRef` evitam closures stale
+// dentro do setInterval: o efeito só recria quando `item.id` muda, por isso o
+// intervalo lê sempre os valores mais recentes via ref em vez do valor
+// capturado no momento em que o efeito correu (bug anterior: `completed` no
+// corpo do interval ficava sempre `false`, o valor inicial).
+function useMicroLearningProgress(item: MicroLearning) {
+  const [progress, setProgress] = useState(item.userProgress?.progress ?? 0);
+  const [completed, setCompleted] = useState(item.isCompleted ?? false);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const progressRef = useRef(progress);
+  const completedRef = useRef(completed);
 
   useEffect(() => { progressRef.current = progress; }, [progress]);
+  useEffect(() => { completedRef.current = completed; }, [completed]);
 
-  // Auto-progress para conteúdo de texto/áudio
+  const saveProgress = useCallback(async (pct: number) => {
+    try {
+      await apiClient.post('/micro-learning/progress', {
+        microLearningId: item.id, progress: Math.round(pct),
+      });
+    } catch { /* ignorar */ }
+  }, [item.id]);
+
   useEffect(() => {
     if (item.contentType === 'TEXT' || item.contentType === 'AUDIO') {
-      if (progress >= 100) return;
+      if (progressRef.current >= 100) return;
       const duration = item.durationSeconds ?? 60;
       const step     = (100 / duration) * 2; // actualiza a cada 2s
 
       intervalRef.current = setInterval(async () => {
         const newPct = Math.min(100, progressRef.current + step);
         setProgress(newPct);
-        if (newPct >= 100 && !completed) {
+        if (newPct >= 100 && !completedRef.current) {
           clearInterval(intervalRef.current!);
           await saveProgress(100);
           setCompleted(true);
@@ -272,15 +278,53 @@ function PlayerView({ item, onBack, onNext }: {
       }, 2000);
     }
     return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
-  }, [item.id]);
+  }, [item.id, item.contentType, item.durationSeconds, saveProgress]);
 
-  const saveProgress = async (pct: number) => {
-    try {
-      await apiClient.post('/micro-learning/progress', {
-        microLearningId: item.id, progress: Math.round(pct),
-      });
-    } catch { /* ignorar */ }
+  const markComplete = async () => {
+    await saveProgress(100);
+    setProgress(100);
+    setCompleted(true);
   };
+
+  return { progress, completed, markComplete };
+}
+
+// Sub-domínio do quiz, separado do progresso: respostas, resultado e envio.
+function useQuizAttempt(item: MicroLearning, onPassed: () => Promise<void> | void) {
+  const [answers, setAnswers] = useState<number[]>([]);
+  const [result, setResult] = useState<any>(null);
+  const [submitting, setSubmitting] = useState(false);
+
+  const setAnswer = (idx: number, optionIdx: number) => {
+    setAnswers(prev => { const next = [...prev]; next[idx] = optionIdx; return next; });
+  };
+
+  const submit = async () => {
+    setSubmitting(true);
+    try {
+      const res = await apiClient.post<any>('/micro-learning/quiz/submit', {
+        microLearningId: item.id, answers,
+      });
+      setResult(res);
+      if (res.score >= 60) await onPassed();
+    } catch (e: any) { alert(e.message); }
+    finally { setSubmitting(false); }
+  };
+
+  return { answers, result, submitting, setAnswer, submit };
+}
+
+// ─── View: Player ─────────────────────────────────────────────────────────────
+
+function PlayerView({ item, onBack, onNext }: {
+  item: MicroLearning;
+  onBack: () => void;
+  onNext?: () => void;
+}) {
+  const { progress, completed, markComplete } = useMicroLearningProgress(item);
+  const quiz = useQuizAttempt(item, markComplete);
+  const [liked, setLiked]             = useState(item.userLiked ?? false);
+  const [saved, setSaved]             = useState(item.userSaved ?? false);
 
   const handleInteract = async (action: 'LIKE' | 'SAVE') => {
     try {
@@ -290,27 +334,6 @@ function PlayerView({ item, onBack, onNext }: {
       if (action === 'LIKE') setLiked(res.active);
       if (action === 'SAVE') setSaved(res.active);
     } catch { /* ignorar */ }
-  };
-
-  const handleMarkComplete = async () => {
-    await saveProgress(100);
-    setProgress(100);
-    setCompleted(true);
-  };
-
-  const handleQuizSubmit = async () => {
-    setSubmitting(true);
-    try {
-      const result = await apiClient.post<any>('/micro-learning/quiz/submit', {
-        microLearningId: item.id, answers: quizAnswers,
-      });
-      setQuizResult(result);
-      if (result.score >= 60) {
-        await saveProgress(100);
-        setCompleted(true);
-      }
-    } catch (e: any) { alert(e.message); }
-    finally { setSubmitting(false); }
   };
 
   const typeCfg  = TYPE_CFG[item.contentType];
@@ -433,7 +456,7 @@ function PlayerView({ item, onBack, onNext }: {
       )}
 
       {/* Quiz */}
-      {item.contentType === 'QUIZ' && quizQs.length > 0 && !quizResult && (
+      {item.contentType === 'QUIZ' && quizQs.length > 0 && !quiz.result && (
         <div className="bg-white border border-gray-200 rounded-2xl p-5 mb-5">
           <div className="text-sm font-semibold text-gray-900 mb-4">❓ Quiz — {quizQs.length} perguntas</div>
           {quizQs.map((q: any, idx: number) => (
@@ -443,18 +466,14 @@ function PlayerView({ item, onBack, onNext }: {
                 {q.options.map((opt: any, oi: number) => (
                   <label key={oi}
                     className={`flex items-center gap-3 p-3 border rounded-xl cursor-pointer transition-colors ${
-                      quizAnswers[idx] === oi ? 'border-blue-400 bg-blue-50' : 'border-gray-200 hover:border-gray-300'
+                      quiz.answers[idx] === oi ? 'border-blue-400 bg-blue-50' : 'border-gray-200 hover:border-gray-300'
                     }`}
                   >
                     <input
                       type="radio"
                       name={`q-${idx}`}
-                      checked={quizAnswers[idx] === oi}
-                      onChange={() => {
-                        const a = [...quizAnswers];
-                        a[idx] = oi;
-                        setQuizAnswers(a);
-                      }}
+                      checked={quiz.answers[idx] === oi}
+                      onChange={() => quiz.setAnswer(idx, oi)}
                       className="text-blue-600"
                     />
                     <span className="text-sm text-gray-700">{opt.text}</span>
@@ -464,24 +483,24 @@ function PlayerView({ item, onBack, onNext }: {
             </div>
           ))}
           <button
-            onClick={handleQuizSubmit}
-            disabled={quizAnswers.length < quizQs.length || submitting}
+            onClick={quiz.submit}
+            disabled={quiz.answers.length < quizQs.length || quiz.submitting}
             className="w-full py-2.5 bg-blue-700 text-white text-sm font-medium rounded-xl hover:bg-blue-800 disabled:opacity-50"
           >
-            {submitting ? 'A corrigir…' : 'Submeter respostas'}
+            {quiz.submitting ? 'A corrigir…' : 'Submeter respostas'}
           </button>
         </div>
       )}
 
       {/* Resultado quiz */}
-      {quizResult && (
-        <div className={`border rounded-2xl p-5 mb-5 ${quizResult.score >= 60 ? 'bg-emerald-50 border-emerald-200' : 'bg-red-50 border-red-200'}`}>
-          <div className={`text-center mb-4 ${quizResult.score >= 60 ? 'text-emerald-700' : 'text-red-700'}`}>
-            <div className="text-4xl font-bold font-mono">{quizResult.score}%</div>
+      {quiz.result && (
+        <div className={`border rounded-2xl p-5 mb-5 ${quiz.result.score >= 60 ? 'bg-emerald-50 border-emerald-200' : 'bg-red-50 border-red-200'}`}>
+          <div className={`text-center mb-4 ${quiz.result.score >= 60 ? 'text-emerald-700' : 'text-red-700'}`}>
+            <div className="text-4xl font-bold font-mono">{quiz.result.score}%</div>
             <div className="text-sm font-medium mt-1">
-              {quizResult.score >= 60 ? '🎉 Aprovado!' : '😔 Tenta novamente'}
+              {quiz.result.score >= 60 ? '🎉 Aprovado!' : '😔 Tenta novamente'}
             </div>
-            <div className="text-xs mt-0.5">{quizResult.correct}/{quizResult.total} correctas</div>
+            <div className="text-xs mt-0.5">{quiz.result.correct}/{quiz.result.total} correctas</div>
           </div>
         </div>
       )}
@@ -489,7 +508,7 @@ function PlayerView({ item, onBack, onNext }: {
       {/* Botão concluir (para não-quiz) */}
       {item.contentType !== 'QUIZ' && !completed && (
         <button
-          onClick={handleMarkComplete}
+          onClick={markComplete}
           className="w-full py-3 bg-emerald-600 text-white text-sm font-semibold rounded-2xl hover:bg-emerald-700 mb-5"
         >
           ✅ Marcar como concluído

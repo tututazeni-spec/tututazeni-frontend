@@ -8,6 +8,7 @@ import {
   Filter, BarChart2,
 } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
+import { useDebounce } from '@/hooks/useDebounce';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -222,17 +223,14 @@ export default function SearchPage() {
   const [activeType, setActiveType] = useState('all');
   const [suggestions, setSuggestions] = useState<any[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
-  const debounceRef = useRef<NodeJS.Timeout | null>(null);
+  const debouncedQuery = useDebounce(query, 200);
 
   // Autocomplete
   useEffect(() => {
-    if (!query || query.length < 2) { setSuggestions([]); return; }
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => {
-      apiClient.get<any>('/search/autocomplete', { params: { q: query, limit: 6 } })
-        .then(d => setSuggestions(d.suggestions ?? [])).catch(() => {});
-    }, 200);
-  }, [query]);
+    if (!debouncedQuery || debouncedQuery.length < 2) { setSuggestions([]); return; }
+    apiClient.get<any>('/search/autocomplete', { params: { q: debouncedQuery, limit: 6 } })
+      .then(d => setSuggestions(d.suggestions ?? [])).catch(() => {});
+  }, [debouncedQuery]);
 
   const doSearch = useCallback((q: string) => {
     if (!q.trim()) return;
