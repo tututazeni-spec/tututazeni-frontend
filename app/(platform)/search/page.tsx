@@ -7,7 +7,7 @@ import {
   TrendingUp, Clock, X, ChevronRight, Zap, Award,
   Filter, BarChart2,
 } from 'lucide-react';
-import { useApiQuery } from '@/hooks/useApiQuery';
+import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
 import { useDebounce } from '@/hooks/useDebounce';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -219,7 +219,6 @@ function ResultsView({ data, activeType, setActiveType }: {
 export default function SearchPage() {
   const [query, setQuery]     = useState('');
   const [results, setResults] = useState<SearchResponse | null>(null);
-  const [loading, setLoading] = useState(false);
   const [activeType, setActiveType] = useState('all');
   const [suggestions, setSuggestions] = useState<any[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -232,13 +231,37 @@ export default function SearchPage() {
       .then(d => setSuggestions(d.suggestions ?? [])).catch(() => {});
   }, [debouncedQuery]);
 
+  // Pesquisa geral (todos os tipos) e pesquisa filtrada por um único tipo
+  // partilhavam `results`/`loading`/`activeType` mas eram dois blocos
+  // setLoading/then/finally separados. Consolidados numa única mutação
+  // parametrizada por "acção" — cada uma sabe como moldar o SearchResponse.
+  type SearchAction =
+    | { kind: 'full'; q: string }
+    | { kind: 'byType'; key: string; path: string; q: string };
+
+  const searchAction = useApiMutation(
+    async (action: SearchAction) => {
+      if (action.kind === 'full') {
+        const data = await apiClient.get<SearchResponse>('/search', { params: { q: action.q, limit: 10 } });
+        return { activeType: 'all', results: data };
+      }
+      const d = await apiClient.get<any>(`/search/${action.path}`, { params: { q: action.q, limit: 20 } });
+      return {
+        activeType: action.key,
+        results: { query: action.q, grouped: { [action.key]: d.results }, counts: { [action.key]: d.count } } as SearchResponse,
+      };
+    },
+    {
+      onSuccess: ({ activeType: t, results: r }) => { setResults(r); setActiveType(t); },
+    },
+  );
+  const loading = searchAction.isPending;
+
   const doSearch = useCallback((q: string) => {
     if (!q.trim()) return;
     setSuggestions([]);
-    setLoading(true);
-    apiClient.get<SearchResponse>('/search', { params: { q, limit: 10 } })
-      .then(d => { setResults(d); setActiveType('all'); })
-      .finally(() => setLoading(false));
+    searchAction.mutate({ kind: 'full', q });
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- `mutate` do useMutation é estável entre renders (React Query), por isso omitir `searchAction` das deps não cria closure stale.
   }, []);
 
   useEffect(() => { inputRef.current?.focus(); }, []);
@@ -292,7 +315,7 @@ export default function SearchPage() {
             {Object.entries(TYPE_CONFIG).map(([key, conf]) => {
               const Icon = conf.icon;
               return (
-                <button key={key} onClick={() => { if (query) { setLoading(true); apiClient.get<any>(`/search/${conf.path}`, { params: { q: query, limit: 20 } }).then(d => { setResults({ query, grouped: { [key]: d.results }, counts: { [key]: d.count } }); setActiveType(key); }).finally(() => setLoading(false)); } }}
+                <button key={key} onClick={() => { if (query) searchAction.mutate({ kind: 'byType', key, path: conf.path, q: query }); }}
                   className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border ${conf.bg} ${conf.color} border-transparent hover:border-current`}>
                   <Icon size={12} />{conf.label}
                 </button>

@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { api } from "../../../lib/api";
+import { useApiMutation } from "../../../hooks/useApiQuery";
 import { useCurrentUser, type CurrentUser as Me } from "../../../hooks/useCurrentUser";
 import { useAutoDismiss } from "../../../hooks/useAutoDismiss";
 
@@ -176,12 +177,24 @@ function TabSeguranca({ onToast }: { onToast: (msg: string, type: "success" | "e
   const [form, setForm] = useState({
     currentPassword: "", newPassword: "", confirmPassword: "",
   });
-  const [saving, setSaving]   = useState(false);
   const [showPass, setShowPass] = useState(false);
+
+  // POST /auth/change-password — ChangePasswordDto: { currentPassword, newPassword }
+  const changePassword = useApiMutation(
+    (payload: { currentPassword: string; newPassword: string }) => api.post("/auth/change-password", payload),
+    {
+      onSuccess: () => {
+        onToast("Senha alterada com sucesso!", "success");
+        setForm({ currentPassword: "", newPassword: "", confirmPassword: "" });
+      },
+      onError: (e) => onToast(e.message ?? "Erro ao alterar senha", "error"),
+    },
+  );
+  const saving = changePassword.isPending;
 
   function set(k: string, v: string) { setForm(f => ({ ...f, [k]: v })); }
 
-  async function submit(e: React.FormEvent) {
+  function submit(e: React.FormEvent) {
     e.preventDefault();
     if (form.newPassword !== form.confirmPassword) {
       onToast("As senhas não coincidem.", "error"); return;
@@ -189,18 +202,7 @@ function TabSeguranca({ onToast }: { onToast: (msg: string, type: "success" | "e
     if (form.newPassword.length < 6) {
       onToast("A nova senha deve ter pelo menos 6 caracteres.", "error"); return;
     }
-    setSaving(true);
-    try {
-      // POST /auth/change-password — ChangePasswordDto: { currentPassword, newPassword }
-      await api.post("/auth/change-password", {
-        currentPassword: form.currentPassword,
-        newPassword:     form.newPassword,
-      });
-      onToast("Senha alterada com sucesso!", "success");
-      setForm({ currentPassword: "", newPassword: "", confirmPassword: "" });
-    } catch (e: any) {
-      onToast(e.message ?? "Erro ao alterar senha", "error");
-    } finally { setSaving(false); }
+    changePassword.mutate({ currentPassword: form.currentPassword, newPassword: form.newPassword });
   }
 
   const strength = (p: string) => {

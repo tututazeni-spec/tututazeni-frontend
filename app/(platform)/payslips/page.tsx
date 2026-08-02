@@ -319,26 +319,22 @@ function DetailView({
   onBack: () => void;
 }) {
   const [maskedData, setMaskedData] = useState(true);
-  const [acknowledging, setAcknowledging] = useState(false);
   const [dispute, dispatchDispute] = useReducer(disputeReducer, { open: false });
 
-  const { data, isLoading: loading, error: queryError, refetch } = useApiQuery<Payslip>(
+  const { data, isLoading: loading, error: queryError } = useApiQuery<Payslip>(
     queryKeys.payslips.detail(payslipId), `/payslips/my/${payslipId}`,
     { enabled: !!payslipId, staleTime: STALE_TIME.DYNAMIC },
   );
   const error = queryError?.message ?? null;
 
-  const acknowledge = async () => {
+  const acknowledgeMutation = useApiMutation(
+    () => apiClient.patch(`/payslips/my/${payslipId}/acknowledge`, {}),
+    { invalidateKeys: [queryKeys.payslips.detail(payslipId)], onError: (e) => alert(e.message) },
+  );
+  const acknowledging = acknowledgeMutation.isPending;
+  const acknowledge = () => {
     if (!data || data.status === 'ACKNOWLEDGED') return;
-    setAcknowledging(true);
-    try {
-      await apiClient.patch(`/payslips/my/${payslipId}/acknowledge`, {});
-      await refetch();
-    } catch (e: any) {
-      alert(e.message);
-    } finally {
-      setAcknowledging(false);
-    }
+    acknowledgeMutation.mutate(undefined);
   };
 
   const submitDispute = async () => {
@@ -700,25 +696,20 @@ function SimulateView() {
     mealAllowance: 25000,
     otherAllowances: 0,
   });
-  const [result, setResult] = useState<SimulateResult | null>(null);
-  const [loading, setLoading] = useState(false);
-
-  const simulate = useCallback(async () => {
-    setLoading(true);
-    try {
-      const data = await apiClient.post<SimulateResult>('/payslips/simulate', form);
-      setResult(data);
-    } catch {
-      // silent — keep old result
-    } finally {
-      setLoading(false);
-    }
-  }, [form]);
+  // Simulação disparada 400ms após o form mudar. Em erro, `data` do
+  // useMutation mantém o último resultado bem-sucedido (mesmo comportamento
+  // do try/catch silencioso anterior — "keep old result").
+  const simulateMutation = useApiMutation(
+    (payload: typeof form) => apiClient.post<SimulateResult>('/payslips/simulate', payload),
+  );
+  const result = simulateMutation.data ?? null;
+  const loading = simulateMutation.isPending;
 
   useEffect(() => {
-    const t = setTimeout(simulate, 400);
+    const t = setTimeout(() => simulateMutation.mutate(form), 400);
     return () => clearTimeout(t);
-  }, [simulate]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- `mutate` do useMutation é estável entre renders; só `form` deve disparar o debounce.
+  }, [form]);
 
   const IRT_BRACKETS = [
     { min: 0,        max: 150000,   label: '1',  rate: 'Isento' },

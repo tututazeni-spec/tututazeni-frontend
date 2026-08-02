@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { useApiQuery } from '@/hooks/useApiQuery';
+import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -144,7 +144,6 @@ function ChatView() {
   const [messages, setMessages]   = useState<Message[]>([]);
   const [input, setInput]         = useState('');
   const [thinking, setThinking]   = useState(false);
-  const [starting, setStarting]   = useState(false);
   const [personality, setPersonality] = useState('FRIENDLY');
   const bottomRef = useRef<HTMLDivElement>(null);
 
@@ -152,19 +151,22 @@ function ChatView() {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, thinking]);
 
-  const start = async () => {
-    setStarting(true);
-    try {
-      const res: any = await apiClient.post('/ai-tutor/sessions', { personality });
-      setSession({ id: res.session.id, greeting: res.greeting });
-      setMessages([{
-        id: 0, role: 'ASSISTANT', content: res.greeting,
-        createdAt: new Date().toISOString(), latencyMs: null, rating: null,
-        provider: res.provider?.provider ?? null, agentAction: null,
-      }]);
-    } catch (e: any) { alert(e.message); }
-    finally { setStarting(false); }
-  };
+  const startSession = useApiMutation(
+    (p: string) => apiClient.post<any>('/ai-tutor/sessions', { personality: p }),
+    {
+      onSuccess: (res) => {
+        setSession({ id: res.session.id, greeting: res.greeting });
+        setMessages([{
+          id: 0, role: 'ASSISTANT', content: res.greeting,
+          createdAt: new Date().toISOString(), latencyMs: null, rating: null,
+          provider: res.provider?.provider ?? null, agentAction: null,
+        }]);
+      },
+      onError: (e) => alert(e.message),
+    },
+  );
+  const starting = startSession.isPending;
+  const start = () => startSession.mutate(personality);
 
   const send = async (text?: string) => {
     const msg = (text ?? input).trim();
@@ -387,17 +389,17 @@ function GenerateView() {
   const [type, setType]     = useState<'QUIZ' | 'FLASHCARDS' | 'SUMMARY' | 'STUDY_PLAN'>('QUIZ');
   const [topic, setTopic]   = useState('');
   const [count, setCount]   = useState(5);
-  const [result, setResult] = useState<GeneratedContent | null>(null);
-  const [loading, setLoading] = useState(false);
+  const generateMutation = useApiMutation(
+    (payload: { type: typeof type; topic: string; count: number }) =>
+      apiClient.post<GeneratedContent>('/ai-tutor/generate', payload),
+    { onError: (e) => alert(e.message) },
+  );
+  const result = generateMutation.data ?? null;
+  const loading = generateMutation.isPending;
 
-  const generate = async () => {
+  const generate = () => {
     if (!topic.trim()) { alert('Introduz um tema'); return; }
-    setLoading(true);
-    try {
-      const res = await apiClient.post<GeneratedContent>('/ai-tutor/generate', { type, topic, count });
-      setResult(res);
-    } catch (e: any) { alert(e.message); }
-    finally { setLoading(false); }
+    generateMutation.mutate({ type, topic, count });
   };
 
   const renderContent = () => {

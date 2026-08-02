@@ -442,25 +442,24 @@ function CreateEmployeeModal({ onClose, onSuccess }: {
   onSuccess: () => void;
 }) {
   const [form, setForm]       = useState({ name: '', email: '', role: '', department: '', joinedAt: '', seniority: '', workMode: '', contractType: '' });
-  const [loading, setLoading] = useState(false);
   const [error, setError]     = useState('');
 
-  const handleSubmit = async () => {
+  const createEmployee = useApiMutation(
+    () => apiClient.post('/employees', form),
+    {
+      onSuccess: () => { onSuccess(); onClose(); },
+      onError: () => setError('Erro ao criar colaborador. Verifique os dados.'),
+    },
+  );
+  const loading = createEmployee.isPending;
+
+  const handleSubmit = () => {
     if (!form.name || !form.email || !form.role || !form.joinedAt) {
       setError('Preencha os campos obrigatórios');
       return;
     }
-    setLoading(true);
     setError('');
-    try {
-      await apiClient.post('/employees', form);
-      onSuccess();
-      onClose();
-    } catch (e: any) {
-      setError('Erro ao criar colaborador. Verifique os dados.');
-    } finally {
-      setLoading(false);
-    }
+    createEmployee.mutate(undefined);
   };
 
   return (

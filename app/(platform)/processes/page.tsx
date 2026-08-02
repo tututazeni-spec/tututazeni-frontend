@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
-import { useApiQuery } from '../../../hooks/useApiQuery';
+import { useApiQuery, useApiMutation } from '../../../hooks/useApiQuery';
 import { useConfirm } from '../../../providers/ConfirmProvider';
 import { apiClient } from '../../../lib/apiClient';
 import { queryKeys } from '../../../lib/queryKeys';
@@ -318,67 +318,55 @@ function ProcessViewer({
   onStartInstance: (instanceId: number) => void;
 }) {
   const [activeTab, setActiveTab] = useState<'flow' | 'info' | 'history'>('flow');
-  const [submitting, setSubmitting] = useState(false);
-  const [actionLoading, setActionLoading] = useState(false);
 
-  const { data: process, isLoading: loading, error, refetch } = useApiQuery<Process>(
+  const { data: process, isLoading: loading, error } = useApiQuery<Process>(
     queryKeys.processes.detail(processId), `/processes/${processId}`,
     { staleTime: STALE_TIME.SEMI_STATIC },
   );
 
-  const handleSubmitReview = async () => {
-    setSubmitting(true);
-    try {
-      await apiClient.patch(`/processes/${processId}/submit-review`, {});
-      await refetch();
-    } catch (e: any) {
-      alert(e.message);
-    } finally {
-      setSubmitting(false);
-    }
-  };
+  // As 4 acções abaixo partilhavam dois booleans (`submitting`/`actionLoading`)
+  // e cada uma fazia setLoading/try/catch/finally + refetch manual. Migradas
+  // para useApiMutation, que já invalida a query certa (`invalidateKeys`) em
+  // vez de um refetch() explícito.
+  const submitReview = useApiMutation(
+    () => apiClient.patch(`/processes/${processId}/submit-review`, {}),
+    { invalidateKeys: [queryKeys.processes.detail(processId)], onError: (e) => alert(e.message) },
+  );
+  const submitting = submitReview.isPending;
+  const handleSubmitReview = () => submitReview.mutate(undefined);
 
-  const handleApproval = async (action: 'approve' | 'reject') => {
+  const approval = useApiMutation(
+    (vars: { action: 'approve' | 'reject'; comment?: string }) =>
+      apiClient.patch(`/processes/${processId}/approval`, vars),
+    { invalidateKeys: [queryKeys.processes.detail(processId)], onError: (e) => alert(e.message) },
+  );
+  const handleApproval = (action: 'approve' | 'reject') => {
     const comment = action === 'reject' ? prompt('Motivo da rejeição:') : undefined;
     if (action === 'reject' && !comment) return;
-    setActionLoading(true);
-    try {
-      await apiClient.patch(`/processes/${processId}/approval`, { action, comment });
-      await refetch();
-    } catch (e: any) {
-      alert(e.message);
-    } finally {
-      setActionLoading(false);
-    }
+    approval.mutate({ action, comment: comment ?? undefined });
   };
 
-  const handleStartInstance = async () => {
+  const startInstance = useApiMutation(
+    (targetUserId: number) => apiClient.post<ProcessInstance>(`/processes/${processId}/start`, { targetUserId }),
+    { onSuccess: (inst) => onStartInstance(inst.id), onError: (e) => alert(e.message) },
+  );
+  const handleStartInstance = () => {
     const targetUserIdStr = prompt('ID do colaborador alvo:');
     if (!targetUserIdStr) return;
-    setActionLoading(true);
-    try {
-      const inst = await apiClient.post<ProcessInstance>(`/processes/${processId}/start`, { targetUserId: parseInt(targetUserIdStr) });
-      onStartInstance(inst.id);
-    } catch (e: any) {
-      alert(e.message);
-    } finally {
-      setActionLoading(false);
-    }
+    startInstance.mutate(parseInt(targetUserIdStr));
   };
 
   const confirm = useConfirm();
+  const newVersion = useApiMutation(
+    () => apiClient.post(`/processes/${processId}/new-version`, {}),
+    { invalidateKeys: [queryKeys.processes.detail(processId)], onError: (e) => alert(e.message) },
+  );
   const handleNewVersion = async () => {
     if (!(await confirm({ title: 'Criar nova versão?', message: 'O processo voltará a DRAFT.', confirmLabel: 'Criar versão' }))) return;
-    setActionLoading(true);
-    try {
-      await apiClient.post(`/processes/${processId}/new-version`, {});
-      await refetch();
-    } catch (e: any) {
-      alert(e.message);
-    } finally {
-      setActionLoading(false);
-    }
+    newVersion.mutate(undefined);
   };
+
+  const actionLoading = approval.isPending || startInstance.isPending || newVersion.isPending;
 
   if (loading) return <div className="p-4"><Skeleton rows={6} /></div>;
   if (error || !process) return (
@@ -617,9 +605,8 @@ function ProcessViewer({
 function TaskRunner({ instanceId, onBack }: { instanceId: number; onBack: () => void }) {
   const [activeStep, setActiveStep] = useState<StepProgress | null>(null);
   const [notes, setNotes] = useState('');
-  const [completing, setCompleting] = useState(false);
 
-  const { data: instance, isLoading: loading, error, refetch } = useApiQuery<ProcessInstance>(
+  const { data: instance, isLoading: loading, error } = useApiQuery<ProcessInstance>(
     queryKeys.processes.instance(instanceId), `/processes/instances/${instanceId}`,
     { staleTime: STALE_TIME.DYNAMIC },
   );
@@ -632,30 +619,26 @@ function TaskRunner({ instanceId, onBack }: { instanceId: number; onBack: () => 
     }
   }, [instance]);
 
-  const completeStep = async () => {
-    if (!activeStep) return;
-    setCompleting(true);
-    try {
-      await apiClient.post(`/processes/instances/${instanceId}/steps/${activeStep.stepId}/complete`, { notes });
-      setNotes('');
-      await refetch();
-    } catch (e: any) {
-      alert(e.message);
-    } finally {
-      setCompleting(false);
-    }
-  };
+  const completeStepMutation = useApiMutation(
+    () => apiClient.post(`/processes/instances/${instanceId}/steps/${activeStep!.stepId}/complete`, { notes }),
+    {
+      invalidateKeys: [queryKeys.processes.instance(instanceId)],
+      onSuccess: () => setNotes(''),
+      onError: (e) => alert(e.message),
+    },
+  );
+  const completing = completeStepMutation.isPending;
+  const completeStep = () => { if (activeStep) completeStepMutation.mutate(undefined); };
 
-  const rejectStep = async () => {
+  const rejectStepMutation = useApiMutation(
+    (reason: string) => apiClient.post(`/processes/instances/${instanceId}/steps/${activeStep!.stepId}/reject`, { reason }),
+    { invalidateKeys: [queryKeys.processes.instance(instanceId)], onError: (e) => alert(e.message) },
+  );
+  const rejectStep = () => {
     if (!activeStep) return;
     const reason = prompt('Motivo da rejeição:');
     if (!reason) return;
-    try {
-      await apiClient.post(`/processes/instances/${instanceId}/steps/${activeStep.stepId}/reject`, { reason });
-      await refetch();
-    } catch (e: any) {
-      alert(e.message);
-    }
+    rejectStepMutation.mutate(reason);
   };
 
   if (loading) return <div className="p-4"><Skeleton rows={4} /></div>;

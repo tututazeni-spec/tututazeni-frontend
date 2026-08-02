@@ -12,7 +12,7 @@ import {
   Users, BarChart3, Bell, Settings, QrCode, Send,
   BookOpen, Calendar, ArrowUpRight, Filter,
 } from 'lucide-react';
-import { useApiQuery } from '../../../hooks/useApiQuery';
+import { useApiQuery, useApiMutation } from '../../../hooks/useApiQuery';
 import { apiClient } from '../../../lib/apiClient';
 import { queryKeys } from '../../../lib/queryKeys';
 import { STALE_TIME } from '../../../lib/queryClient';
@@ -325,7 +325,6 @@ function WorkDeclFormModal({ form, onClose, onSuccess }: {
   form: WorkForm; onClose: () => void; onSuccess: () => void;
 }) {
   const [answers, setAnswers] = useState<Record<string, any>>({});
-  const [loading, setLoading] = useState(false);
   const [error, setError]     = useState('');
 
   const questions = (form.questions ?? []).filter(q => {
@@ -333,18 +332,19 @@ function WorkDeclFormModal({ form, onClose, onSuccess }: {
     return answers[q.conditionalKey] == q.conditionalValue;
   }).sort((a, b) => a.order - b.order);
 
-  const handleSubmit = async (draft = false) => {
-    setLoading(true); setError('');
-    try {
-      await apiClient.post('/declarations/work/submit', {
-        formId: form.id,
-        answers: Object.entries(answers).map(([key, value]) => ({ key, value })),
-        saveAsDraft: draft,
-      });
-      onSuccess(); onClose();
-    } catch (e: any) { setError(e.message); }
-    finally { setLoading(false); }
-  };
+  const submitForm = useApiMutation(
+    (draft: boolean) => apiClient.post('/declarations/work/submit', {
+      formId: form.id,
+      answers: Object.entries(answers).map(([key, value]) => ({ key, value })),
+      saveAsDraft: draft,
+    }),
+    {
+      onSuccess: () => { onSuccess(); onClose(); },
+      onError: (e) => setError(e.message),
+    },
+  );
+  const loading = submitForm.isPending;
+  const handleSubmit = (draft = false) => { setError(''); submitForm.mutate(draft); };
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">

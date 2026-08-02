@@ -14,7 +14,7 @@ import {
   History, FolderOpen, Star, SortAsc,
 } from 'lucide-react';
 import { keepPreviousData } from '@tanstack/react-query';
-import { useApiQuery } from '../../../hooks/useApiQuery';
+import { useApiQuery, useApiMutation } from '../../../hooks/useApiQuery';
 import { apiClient } from '../../../lib/apiClient';
 import { queryKeys } from '../../../lib/queryKeys';
 import { STALE_TIME } from '../../../lib/queryClient';
@@ -137,7 +137,6 @@ function UploadModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: (
     fileSize: 0, tags: [] as string[], expiresAt: '', department: '',
   });
   const [tagInput, setTagInput] = useState('');
-  const [loading, setLoading]   = useState(false);
   const [error, setError]       = useState('');
 
   const addTag = () => {
@@ -147,14 +146,19 @@ function UploadModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: (
     }
   };
 
-  const handleSubmit = async () => {
+  const uploadDoc = useApiMutation(
+    () => apiClient.post('/documents', form),
+    {
+      onSuccess: () => { onSuccess(); onClose(); },
+      onError: (e) => setError(e.message),
+    },
+  );
+  const loading = uploadDoc.isPending;
+
+  const handleSubmit = () => {
     if (!form.title || !form.fileUrl) { setError('Título e ficheiro são obrigatórios'); return; }
-    setLoading(true); setError('');
-    try {
-      await apiClient.post('/documents', form);
-      onSuccess(); onClose();
-    } catch (e: any) { setError(e.message); }
-    finally { setLoading(false); }
+    setError('');
+    uploadDoc.mutate(undefined);
   };
 
   return (
