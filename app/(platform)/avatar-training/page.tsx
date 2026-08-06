@@ -15,6 +15,7 @@ import { queryKeys } from '../../../lib/queryKeys';
 import { STALE_TIME } from '../../../lib/queryClient';
 import Image from 'next/image';
 import { useDebounce } from '../../../hooks/useDebounce';
+import type { LucideIcon } from 'lucide-react';
 
 // ─── Types ───────────────────────────────────────────────────────
 
@@ -37,14 +38,91 @@ interface SessionMessage {
 interface ActiveSession {
   id: number; scenarioId: number;
   conversationHistory: SessionMessage[];
-  scenario: { title: string; objective?: string; turns: any[] };
+  scenario: { title: string; objective?: string; turns: unknown[] };
   openingMessage?: string;
   avatar?: { name: string; avatarImageUrl?: string; role: string };
 }
 
+interface HistorySession {
+  id: number;
+  scenario?: { title?: string; category?: string; competency?: { name: string } };
+  startedAt: string;
+  status: string;
+  score?: number | null;
+}
+
+interface HistoryStats {
+  total: number;
+  completed: number;
+  avgScore?: number | null;
+  totalXP?: number;
+  streak?: number;
+}
+
+interface MyHistory {
+  stats: HistoryStats;
+  sessions: HistorySession[];
+}
+
+interface LeaderboardEntry {
+  rank: number;
+  user?: { fullName?: string; department?: { name?: string } };
+  avgScore?: number;
+  score?: number;
+  sessions?: number;
+}
+
+interface TopScenarioStat {
+  scenario?: { title?: string };
+  completions: number;
+  avgScore?: number | null;
+}
+
+interface CategoryBreakdownItem {
+  category: string;
+  count: number;
+}
+
+interface RecentCompletion {
+  user?: { fullName?: string };
+  scenario?: { title?: string };
+}
+
+interface AnalyticsDashboard {
+  kpis: { totalScenarios?: number; activeSessions?: number; completedSessions?: number; avgScore?: number | null };
+  topScenarios?: TopScenarioStat[];
+  categoryBreakdown?: CategoryBreakdownItem[];
+  recentCompletions?: RecentCompletion[];
+}
+
+interface StartSessionResponse {
+  session: { id: number; scenario: ActiveSession['scenario'] };
+  openingMessage: string;
+  avatar?: ActiveSession['avatar'];
+}
+
+interface MessageResponse {
+  avatarResponse: string;
+  turnScore?: number;
+  behavioral?: Record<string, number>;
+  runningScore: number | null;
+  isLastTurn: boolean;
+}
+
+interface SessionResult {
+  finalScore?: number;
+  grade?: string;
+  xpEarned?: number;
+  durationSeconds?: number;
+  behavioral?: Record<string, number>;
+  strengths?: string[];
+  improvements?: string[];
+  nextScenario?: Scenario;
+}
+
 // ─── Helpers ─────────────────────────────────────────────────────
 
-const CATEGORY_CONFIG: Record<string, { label: string; icon: any; color: string; bg: string }> = {
+const CATEGORY_CONFIG: Record<string, { label: string; icon: LucideIcon; color: string; bg: string }> = {
   SOFT_SKILLS:     { label: 'Soft Skills',     icon: Brain,     color: 'text-violet-600', bg: 'bg-violet-50' },
   SALES:           { label: 'Vendas',          icon: TrendingUp,color: 'text-emerald-600',bg: 'bg-emerald-50' },
   CUSTOMER_SERVICE:{ label: 'Atendimento',     icon: Headphones,color: 'text-blue-600',   bg: 'bg-blue-50' },
@@ -158,7 +236,7 @@ function ScenarioCard({ scenario, onStart }: { scenario: Scenario; onStart: (s: 
 function ChatSession({
   session, onComplete, onClose,
 }: {
-  session: ActiveSession; onComplete: (result: any) => void; onClose: () => void;
+  session: ActiveSession; onComplete: (result: SessionResult) => void; onClose: () => void;
 }) {
   const [messages, setMessages] = useState<SessionMessage[]>(session.conversationHistory ?? []);
   const [input, setInput]       = useState('');
@@ -179,7 +257,7 @@ function ChatSession({
     setSending(true);
 
     try {
-      const r = await apiClient.post<any>(`/avatar-training/sessions/${session.id}/message`, {
+      const r = await apiClient.post<MessageResponse>(`/avatar-training/sessions/${session.id}/message`, {
         message: input, turnIndex: messages.filter(m => m.role === 'USER').length,
       });
 
@@ -198,7 +276,7 @@ function ChatSession({
   };
 
   const completeMutation = useApiMutation(
-    () => apiClient.post(`/avatar-training/sessions/${session.id}/complete`, { score: runningScore ?? undefined }),
+    () => apiClient.post<SessionResult>(`/avatar-training/sessions/${session.id}/complete`, { score: runningScore ?? undefined }),
     { onSuccess: (r) => onComplete(r) },
   );
   const completing = completeMutation.isPending;
@@ -335,7 +413,7 @@ function ChatSession({
 // ─── Results Modal ────────────────────────────────────────────────
 
 function ResultsModal({ result, onClose, onRetry, onNext }: {
-  result: any; onClose: () => void; onRetry: () => void; onNext?: () => void;
+  result: SessionResult; onClose: () => void; onRetry: () => void; onNext?: () => void;
 }) {
   const score = result.finalScore ?? 0;
   const grade = result.grade ?? 'AVERAGE';
@@ -388,20 +466,20 @@ function ResultsModal({ result, onClose, onRetry, onNext }: {
         )}
 
         {/* Strengths / Improvements */}
-        {(result.strengths?.length > 0 || result.improvements?.length > 0) && (
+        {((result.strengths?.length ?? 0) > 0 || (result.improvements?.length ?? 0) > 0) && (
           <div className="grid grid-cols-2 gap-3 mb-4">
-            {result.strengths?.length > 0 && (
+            {(result.strengths?.length ?? 0) > 0 && (
               <div className="bg-emerald-50 rounded-xl p-3">
                 <p className="text-xs font-bold text-emerald-700 mb-1">💪 Pontos Fortes</p>
-                {result.strengths.slice(0, 2).map((s: string, i: number) => (
+                {result.strengths?.slice(0, 2).map((s, i) => (
                   <p key={i} className="text-[10px] text-emerald-700">• {s}</p>
                 ))}
               </div>
             )}
-            {result.improvements?.length > 0 && (
+            {(result.improvements?.length ?? 0) > 0 && (
               <div className="bg-amber-50 rounded-xl p-3">
                 <p className="text-xs font-bold text-amber-700 mb-1">🎯 Melhorar</p>
-                {result.improvements.slice(0, 2).map((s: string, i: number) => (
+                {result.improvements?.slice(0, 2).map((s, i) => (
                   <p key={i} className="text-[10px] text-amber-700">• {s}</p>
                 ))}
               </div>
@@ -438,7 +516,7 @@ function HomeTab({ onStartScenario }: { onStartScenario: (s: Scenario) => void }
     queryKeys.avatarTraining.recommended(), '/avatar-training/scenarios/recommended',
     { params: { limit: 4 }, staleTime: STALE_TIME.SEMI_STATIC },
   );
-  const histQuery = useApiQuery<any>(
+  const histQuery = useApiQuery<MyHistory>(
     queryKeys.avatarTraining.myHistory(5), '/avatar-training/my-history',
     { params: { limit: 5 }, staleTime: STALE_TIME.DYNAMIC },
   );
@@ -522,7 +600,7 @@ function ScenariosTab({ onStart }: { onStart: (s: Scenario) => void }) {
     ...(difficulty ? { difficulty } : {}),
     ...(debouncedSearch ? { search: debouncedSearch } : {}),
   };
-  const { data, isLoading } = useApiQuery<{ data: Scenario[]; meta: any }>(
+  const { data, isLoading } = useApiQuery<{ data: Scenario[]; meta: { total: number } }>(
     queryKeys.avatarTraining.scenarios(params), '/avatar-training/scenarios',
     { params, staleTime: STALE_TIME.SEMI_STATIC, placeholderData: keepPreviousData },
   );
@@ -575,7 +653,7 @@ function ScenariosTab({ onStart }: { onStart: (s: Scenario) => void }) {
 // ─── History Tab ──────────────────────────────────────────────────
 
 function HistoryTab() {
-  const { data, isLoading } = useApiQuery<any>(
+  const { data, isLoading } = useApiQuery<MyHistory>(
     queryKeys.avatarTraining.myHistory(30), '/avatar-training/my-history',
     { params: { limit: 30 }, staleTime: STALE_TIME.DYNAMIC },
   );
@@ -610,17 +688,17 @@ function HistoryTab() {
 
       <div className="bg-white rounded-xl border border-slate-100">
         <div className="divide-y divide-slate-50">
-          {(data?.sessions ?? []).map((s: any) => {
-            const cat = CATEGORY_CONFIG[(s.scenario as any)?.category] ?? CATEGORY_CONFIG.SOFT_SKILLS;
+          {(data?.sessions ?? []).map(s => {
+            const cat = CATEGORY_CONFIG[s.scenario?.category ?? ''] ?? CATEGORY_CONFIG.SOFT_SKILLS;
             const Icon = cat.icon;
             return (
               <div key={s.id} className="flex items-center gap-3 px-4 py-3 hover:bg-slate-50">
                 <div className={`p-2 rounded-lg ${cat.bg} shrink-0`}><Icon size={14} className={cat.color} /></div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-slate-700 truncate">{(s.scenario as any)?.title}</p>
+                  <p className="text-sm font-medium text-slate-700 truncate">{s.scenario?.title}</p>
                   <p className="text-[10px] text-slate-400">
                     {new Date(s.startedAt).toLocaleDateString('pt')}
-                    {(s.scenario as any)?.competency && ` · ${(s.scenario as any).competency.name}`}
+                    {s.scenario?.competency && ` · ${s.scenario.competency.name}`}
                   </p>
                 </div>
                 <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${STATUS_COLOR[s.status]}`}>
@@ -649,7 +727,7 @@ function HistoryTab() {
 // ─── Leaderboard Tab ─────────────────────────────────────────────
 
 function LeaderboardTab() {
-  const { data: board, isLoading } = useApiQuery<any[]>(
+  const { data: board, isLoading } = useApiQuery<LeaderboardEntry[]>(
     queryKeys.avatarTraining.leaderboard(), '/avatar-training/leaderboard',
     { staleTime: STALE_TIME.SEMI_STATIC },
   );
@@ -666,7 +744,7 @@ function LeaderboardTab() {
         </h3>
       </div>
       <div className="divide-y divide-slate-50">
-        {data.map((u: any) => (
+        {data.map(u => (
           <div key={u.rank} className="flex items-center gap-3 px-5 py-3">
             <span className={`w-8 text-center font-bold text-sm ${
               u.rank === 1 ? 'text-amber-500' : u.rank === 2 ? 'text-slate-400' : u.rank === 3 ? 'text-amber-700' : 'text-slate-400'
@@ -701,7 +779,7 @@ function LeaderboardTab() {
 // ─── Analytics Tab ────────────────────────────────────────────────
 
 function AnalyticsTab() {
-  const { data, isLoading } = useApiQuery<any>(
+  const { data, isLoading } = useApiQuery<AnalyticsDashboard>(
     queryKeys.avatarTraining.analytics(), '/avatar-training/analytics/dashboard',
     { staleTime: STALE_TIME.SEMI_STATIC },
   );
@@ -731,7 +809,7 @@ function AnalyticsTab() {
         <div className="bg-white rounded-xl border border-slate-100 p-5">
           <h3 className="font-semibold text-slate-700 mb-3">Top Cenários</h3>
           <div className="space-y-3">
-            {(data?.topScenarios ?? []).map((s: any, i: number) => (
+            {(data?.topScenarios ?? []).map((s, i) => (
               <div key={i} className="flex items-center gap-3">
                 <span className="text-xs text-slate-300 font-bold w-4">#{i+1}</span>
                 <div className="flex-1 min-w-0">
@@ -750,8 +828,8 @@ function AnalyticsTab() {
         <div className="bg-white rounded-xl border border-slate-100 p-5">
           <h3 className="font-semibold text-slate-700 mb-3">Por Categoria</h3>
           <div className="space-y-2">
-            {(data?.categoryBreakdown ?? []).map((c: any) => {
-              const total = (data?.categoryBreakdown ?? []).reduce((a: number, x: any) => a + x.count, 0);
+            {(data?.categoryBreakdown ?? []).map(c => {
+              const total = (data?.categoryBreakdown ?? []).reduce((a, x) => a + x.count, 0);
               const pct   = total > 0 ? Math.round((c.count / total) * 100) : 0;
               const cat   = CATEGORY_CONFIG[c.category] ?? CATEGORY_CONFIG.SOFT_SKILLS;
               return (
@@ -773,7 +851,7 @@ function AnalyticsTab() {
         <div className="bg-white rounded-xl border border-slate-100 p-5">
           <h3 className="font-semibold text-slate-700 mb-3">Conclusões Recentes</h3>
           <div className="flex flex-wrap gap-2">
-            {data.recentCompletions.map((s: any, i: number) => (
+            {(data?.recentCompletions ?? []).map((s, i) => (
               <div key={i} className="flex items-center gap-2 bg-slate-50 rounded-lg px-3 py-2">
                 <CheckCircle size={12} className="text-emerald-500" />
                 <div>
@@ -791,7 +869,7 @@ function AnalyticsTab() {
 
 // ─── Main Page ───────────────────────────────────────────────────
 
-const TABS: { id: Tab; label: string; icon: any }[] = [
+const TABS: { id: Tab; label: string; icon: LucideIcon }[] = [
   { id: 'home',        label: 'Início',      icon: Bot },
   { id: 'scenarios',   label: 'Cenários',    icon: Play },
   { id: 'history',     label: 'Histórico',   icon: Clock },
@@ -802,13 +880,13 @@ const TABS: { id: Tab; label: string; icon: any }[] = [
 export default function AvatarTrainingPage() {
   const [tab, setTab]           = useState<Tab>('home');
   const [activeSession, setActiveSession] = useState<ActiveSession | null>(null);
-  const [sessionResult, setSessionResult] = useState<any | null>(null);
+  const [sessionResult, setSessionResult] = useState<SessionResult | null>(null);
   const [lastScenario, setLastScenario]   = useState<Scenario | null>(null);
 
   const handleStart = async (scenario: Scenario) => {
     setLastScenario(scenario);
     try {
-      const r = await apiClient.post<any>('/avatar-training/sessions/start', {
+      const r = await apiClient.post<StartSessionResponse>('/avatar-training/sessions/start', {
         scenarioId: scenario.id,
       });
       setActiveSession({
@@ -823,7 +901,7 @@ export default function AvatarTrainingPage() {
     }
   };
 
-  const handleComplete = (result: any) => {
+  const handleComplete = (result: SessionResult) => {
     setActiveSession(null);
     setSessionResult(result);
   };
