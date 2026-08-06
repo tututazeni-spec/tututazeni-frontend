@@ -53,8 +53,17 @@ interface Timeline {
   entity: string; entityId: number;
   events: Array<{
     id: number; action: string; severity: string; status: string;
-    user: any; timestamp: string; changes: any; reason: string | null; ip: string | null;
+    user: { id: number; fullName: string } | null;
+    timestamp: string;
+    changes: Record<string, { from: unknown; to: unknown }> | null;
+    reason: string | null; ip: string | null;
   }>;
+}
+
+interface IntegrityCheck {
+  valid: boolean;
+  checked: number;
+  broken: number[];
 }
 
 type View = 'logs' | 'stats' | 'anomalies' | 'timeline';
@@ -113,7 +122,7 @@ const ACTION_ICONS: Record<string, string> = {
 
 // ─── Diff viewer ──────────────────────────────────────────────────────────────
 
-function DiffViewer({ changes }: { changes: Record<string, { from: any; to: any }> }) {
+function DiffViewer({ changes }: { changes: Record<string, { from: unknown; to: unknown }> }) {
   if (!changes || Object.keys(changes).length === 0) return null;
   return (
     <div className="mt-2 border border-gray-200 rounded-lg overflow-hidden text-xs font-mono">
@@ -354,7 +363,7 @@ function StatsView() {
               <div className="flex-1 min-w-0">
                 <span className="text-xs font-medium text-gray-800">{log.action}</span>
                 <span className="text-xs text-gray-500"> em {log.entity}</span>
-                {(log as any).user && <span className="text-xs text-gray-400"> por {(log as any).user.fullName}</span>}
+                {log.user && <span className="text-xs text-gray-400"> por {log.user.fullName}</span>}
               </div>
               <span className="text-xs text-gray-400 flex-shrink-0">{fmtTs(log.timestamp)}</span>
             </div>
@@ -369,7 +378,7 @@ function StatsView() {
 
 function AnomaliesView() {
   const dataQ = useApiQuery<Anomalies>(queryKeys.audit.anomalies(), '/audit/anomalies', { staleTime: STALE_TIME.DYNAMIC });
-  const integrityQ = useApiQuery<any>(
+  const integrityQ = useApiQuery<IntegrityCheck>(
     queryKeys.audit.integrity(), '/audit/integrity/verify',
     { params: { limit: 200 }, staleTime: STALE_TIME.DYNAMIC },
   );
