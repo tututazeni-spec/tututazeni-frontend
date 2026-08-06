@@ -18,16 +18,35 @@ interface OrgOverview {
   performance: { avgScore: number };
 }
 
+interface UserRef {
+  fullName: string;
+  avatarUrl: string | null;
+}
+
+interface CollaboratorPdiSummary {
+  id: number;
+  name: string;
+  actionsTotal: number;
+  actionsDone: number;
+  overdueActions: number;
+}
+
 interface CollaboratorDashboard {
   learning:    { completed: number; inProgress: number; totalHours: number; totalCourses: number };
   xp:          { total: number; badges: number };
   streak:      { current: number; longest: number };
-  pdi:         any[];
+  pdi:         CollaboratorPdiSummary[];
   competencies:Array<{ name: string; category: string; currentLevel: number; targetLevel: number | null }>;
 }
 
+interface TeamMember extends UserRef {
+  id: number;
+  position?: { name: string };
+  department?: { name: string };
+}
+
 interface ManagerDashboard {
-  team:          any[];
+  team:          TeamMember[];
   metrics:       {
     headcount: number; enrollments: number; completions: number;
     completionRate: number; activePDIs: number; pdiAdoptionRate: number;
@@ -41,8 +60,21 @@ interface ManagerDashboard {
 interface RiskAlert {
   summary:                { inactiveCount: number; overduePDICount: number; criticalActionCount: number };
   inactiveCollaborators:  Array<{ id: number; fullName: string; avatarUrl: string | null }>;
-  overduePDIs:            Array<{ planId: number; planName: string; user: any; daysOverdue: number }>;
-  criticalActions:        Array<{ actionId: number; actionTitle: string; user: any; daysOverdue: number }>;
+  overduePDIs:            Array<{ planId: number; planName: string; user: UserRef; daysOverdue: number }>;
+  criticalActions:        Array<{ actionId: number; actionTitle: string; user: UserRef; daysOverdue: number }>;
+}
+
+interface DeptHeadcount {
+  id: number;
+  name: string;
+  count: number;
+}
+
+interface HRDashboard {
+  people: { total: number; hired: number; terminated: number; turnoverRate: number };
+  learning: { enrollments: number; completed: number; completionRate: number; abandoned: number; abandonRate: number };
+  pdi: { active: number; adoptionRate: number; pendingApproval: number; completed: number };
+  headcountByDept?: DeptHeadcount[];
 }
 
 type View = 'overview' | 'my' | 'manager' | 'hr' | 'risks';
@@ -235,7 +267,7 @@ function MyDashboardView() {
         <div className="bg-white border border-gray-200 rounded-xl p-5">
           <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">Os meus PDIs activos</div>
           <div className="space-y-3">
-            {data.pdi.map((p: any) => (
+            {data.pdi.map(p => (
               <div key={p.id} className="flex items-center gap-3">
                 <div className="flex-1">
                   <div className="text-sm font-medium text-gray-900 mb-1">{p.name}</div>
@@ -312,7 +344,7 @@ function ManagerView() {
 
       {tab === 'overview' && (
         <div className="space-y-2">
-          {data.team.map((u: any) => (
+          {data.team.map(u => (
             <div key={u.id} className="flex items-center gap-3 bg-white border border-gray-200 rounded-xl px-4 py-3">
               <Avatar name={u.fullName} avatarUrl={u.avatarUrl} size="sm" />
               <div className="flex-1 min-w-0">
@@ -454,7 +486,7 @@ function RisksView() {
 // ─── View: HR Dashboard ───────────────────────────────────────────────────────
 
 function HRDashboardView() {
-  const { data, isLoading } = useApiQuery<any>(
+  const { data, isLoading } = useApiQuery<HRDashboard>(
     queryKeys.analyticsPage.hr(), '/analytics/hr', { staleTime: STALE_TIME.SEMI_STATIC },
   );
 
@@ -496,12 +528,12 @@ function HRDashboardView() {
       </div>
 
       {/* Headcount por departamento */}
-      {data.headcountByDept?.length > 0 && (
+      {(data.headcountByDept?.length ?? 0) > 0 && (
         <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
           <div className="px-4 py-3 border-b border-gray-100 text-xs font-medium text-gray-400 uppercase tracking-wide">
             Headcount por departamento
           </div>
-          {data.headcountByDept.map((d: any) => (
+          {(data.headcountByDept ?? []).map(d => (
             <div key={d.id} className="flex items-center gap-4 px-4 py-3 border-b border-gray-100 last:border-0">
               <div className="text-sm font-medium text-gray-900 w-48 truncate">{d.name}</div>
               <div className="flex-1">
