@@ -73,12 +73,52 @@ interface AttemptResult {
 
 type View = 'list' | 'player' | 'result' | 'review';
 
+interface Attempt {
+  id: number;
+  savedAnswers?: string;
+}
+
+// A API devolve as perguntas com `options` ainda como JSON bruto (string ou
+// já array, conforme a origem) — só depois de parseOptions() é que passam a
+// respeitar o formato QOption[] | null usado no resto do ficheiro.
+interface RawQuestion extends Omit<Question, 'options'> {
+  options: string | QOption[] | null;
+}
+interface RawAssessment extends Omit<Assessment, 'questions'> {
+  questions: RawQuestion[];
+}
+
+interface MyAttemptSummary {
+  id: number;
+  assessmentId: number;
+  status: AttemptStatus;
+  score: number | null;
+  startedAt: string;
+  assessment?: { title: string; passingScore: number };
+}
+
+interface AttemptAnswerDetail {
+  id: number;
+  isCorrect: boolean | null;
+  textAnswer?: string;
+  reviewComment?: string;
+  question?: { questionText: string };
+}
+
+interface AttemptDetail {
+  assessment?: { title: string };
+  score: number | null;
+  status: AttemptStatus;
+  timeSpentMinutes?: number;
+  answers?: AttemptAnswerDetail[];
+}
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function parseOptions(optionsJson: any): QOption[] | null {
+function parseOptions(optionsJson: unknown): QOption[] | null {
   if (!optionsJson) return null;
   try {
-    return typeof optionsJson === 'string' ? JSON.parse(optionsJson) : optionsJson;
+    return typeof optionsJson === 'string' ? JSON.parse(optionsJson) : (optionsJson as QOption[]);
   } catch { return null; }
 }
 
@@ -389,7 +429,7 @@ type PlayerStatus = 'loading' | 'playing' | 'submitting' | 'result';
 interface PlayerState {
   status: PlayerStatus;
   assessment: Assessment | null;
-  attempt: any;
+  attempt: Attempt | null;
   answers: Record<number, AttemptAnswer>;
   currentIdx: number;
   result: AttemptResult | null;
@@ -397,7 +437,7 @@ interface PlayerState {
 }
 
 type PlayerAction =
-  | { type: 'LOADED'; assessment: Assessment; attempt: any; answers: Record<number, AttemptAnswer> }
+  | { type: 'LOADED'; assessment: Assessment; attempt: Attempt; answers: Record<number, AttemptAnswer> }
   | { type: 'ANSWER'; answer: AttemptAnswer }
   | { type: 'SET_IDX'; idx: number }
   | { type: 'REQUEST_CONFIRM'; show: boolean }
@@ -461,14 +501,14 @@ function AssessmentPlayer({
   useEffect(() => {
     const init = async () => {
       try {
-        const a = await apiClient.get<Assessment>(`/assessments/${assessmentId}`);
+        const a = await apiClient.get<RawAssessment>(`/assessments/${assessmentId}`);
         // Parse options para cada pergunta
-        const parsed = {
+        const parsed: Assessment = {
           ...a,
-          questions: a.questions.map(q => ({ ...q, options: parseOptions((q as any).options) })),
+          questions: a.questions.map(q => ({ ...q, options: parseOptions(q.options) })),
         };
 
-        const att = await apiClient.post<any>('/assessments/attempts/start', { assessmentId });
+        const att = await apiClient.post<Attempt>('/assessments/attempts/start', { assessmentId });
 
         // Restaurar auto-save
         const restored: Record<number, AttemptAnswer> = {};
@@ -482,8 +522,8 @@ function AssessmentPlayer({
         }
 
         dispatch({ type: 'LOADED', assessment: parsed, attempt: att, answers: restored });
-      } catch (e: any) {
-        alert(e.message);
+      } catch (e) {
+        alert(e instanceof Error ? e.message : String(e));
       }
     };
     init();
@@ -507,8 +547,8 @@ function AssessmentPlayer({
       const answersList = assessment.questions.map(q => answersRef.current[q.id] ?? { questionId: q.id });
       const res = await apiClient.post<AttemptResult>('/assessments/attempts/submit', { attemptId: attempt.id, answers: answersList });
       dispatch({ type: 'SUBMIT_DONE', result: res });
-    } catch (e: any) {
-      alert(e.message);
+    } catch (e) {
+      alert(e instanceof Error ? e.message : String(e));
       dispatch({ type: 'SUBMIT_ERROR' });
     }
   };
@@ -663,7 +703,7 @@ function ListView({ onStart }: { onStart: (id: number) => void }) {
     queryKeys.assessments.list(), '/assessments',
     { params: { status: 'PUBLISHED' }, staleTime: STALE_TIME.SEMI_STATIC },
   );
-  const attemptsQ = useApiQuery<any[]>(
+  const attemptsQ = useApiQuery<MyAttemptSummary[]>(
     queryKeys.assessments.myAttempts(), '/assessments/my/attempts',
     { staleTime: STALE_TIME.DYNAMIC },
   );
@@ -750,21 +790,21 @@ function ListView({ onStart }: { onStart: (id: number) => void }) {
 // ─── View: Review (Attempted) ─────────────────────────────────────────────────
 
 function ReviewView() {
-  const [selectedAttempt, setSelected] = useState<any>(null);
+  const [selectedAttempt, setSelected] = useState<MyAttemptSummary | null>(null);
 
-  const { data: allAttempts = [], isLoading: loading } = useApiQuery<any[]>(
+  const { data: allAttempts = [], isLoading: loading } = useApiQuery<MyAttemptSummary[]>(
     queryKeys.assessments.myAttempts(), '/assessments/my/attempts',
     { staleTime: STALE_TIME.DYNAMIC },
   );
   const attempts = allAttempts.filter(a => a.status !== 'IN_PROGRESS');
 
   const detailMutation = useApiMutation(
-    (attemptId: number) => apiClient.get<any>(`/assessments/attempts/${attemptId}`),
+    (attemptId: number) => apiClient.get<AttemptDetail>(`/assessments/attempts/${attemptId}`),
   );
   const detail = detailMutation.data ?? null;
   const loadingDetail = detailMutation.isPending;
 
-  const loadDetail = (attempt: any) => {
+  const loadDetail = (attempt: MyAttemptSummary) => {
     setSelected(attempt);
     detailMutation.mutate(attempt.id);
   };
@@ -827,7 +867,7 @@ function ReviewView() {
                 ))}
               </div>
             </div>
-            {detail.answers?.map((ans: any) => (
+            {detail.answers?.map(ans => (
               <div key={ans.id} className={`border rounded-xl p-4 ${
                 ans.isCorrect === null ? 'border-amber-200 bg-amber-50' :
                 ans.isCorrect ? 'border-emerald-200 bg-emerald-50' :
