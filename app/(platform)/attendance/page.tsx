@@ -19,6 +19,7 @@ import {
   UserCheck, UserX, Timer, Award,
 } from 'lucide-react';
 import Image from 'next/image';
+import type { LucideIcon } from 'lucide-react';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -72,9 +73,21 @@ interface LeaveBalance {
   remaining: number;
 }
 
+interface MyAttendanceSummary {
+  presentDays: number;
+  absentDays: number;
+  lateDays: number;
+  attendanceRate: number;
+}
+
+interface MyAttendanceData {
+  summary?: MyAttendanceSummary;
+  records?: AttendanceRecord[];
+}
+
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const STATUS_CONFIG: Record<AttendanceStatus, { label: string; color: string; dot: string; icon: any }> = {
+const STATUS_CONFIG: Record<AttendanceStatus, { label: string; color: string; dot: string; icon: LucideIcon }> = {
   PRESENT:   { label: 'Presente',   color: 'bg-emerald-100 text-emerald-700', dot: 'bg-emerald-500', icon: CheckCircle2 },
   LATE:      { label: 'Atrasado',   color: 'bg-amber-100 text-amber-700',    dot: 'bg-amber-500',   icon: Clock },
   PARTIAL:   { label: 'Parcial',    color: 'bg-blue-100 text-blue-700',      dot: 'bg-blue-400',    icon: Timer },
@@ -117,7 +130,7 @@ function useDashboard() {
 
 function useMyAttendance(from?: string, to?: string) {
   const params = { from, to };
-  const q = useApiQuery<any>(
+  const q = useApiQuery<MyAttendanceData>(
     queryKeys.attendance.my(params), '/attendance/my',
     { params, staleTime: STALE_TIME.DYNAMIC },
   );
@@ -148,7 +161,7 @@ function StatusBadge({ status }: { status: AttendanceStatus }) {
 function KpiTile({
   label, value, icon: Icon, sub, color = 'blue', trend,
 }: {
-  label: string; value: string | number; icon: any; sub?: string;
+  label: string; value: string | number; icon: LucideIcon; sub?: string;
   color?: 'blue' | 'emerald' | 'amber' | 'red' | 'violet'; trend?: 'up' | 'down';
 }) {
   const colors = {
@@ -211,7 +224,7 @@ function ClockWidget({ onAction }: { onAction: () => void }) {
 
   // Verificar se já tem clock-in hoje (query cacheada).
   const todayStr = new Date().toISOString().split('T')[0];
-  const { data: todayData } = useApiQuery<any>(
+  const { data: todayData } = useApiQuery<MyAttendanceData>(
     queryKeys.attendance.my({ from: todayStr }), '/attendance/my',
     { params: { from: todayStr }, staleTime: STALE_TIME.DYNAMIC },
   );
@@ -226,16 +239,16 @@ function ClockWidget({ onAction }: { onAction: () => void }) {
   useEffect(() => {
     if (!todayData || initializedFromServerRef.current) return;
     initializedFromServerRef.current = true;
-    const rec = todayData.records?.find((r: any) => {
+    const rec = todayData.records?.find(r => {
       const d = new Date(r.date).toDateString();
       return d === new Date().toDateString() && r.context === 'WORK';
     });
     if (rec?.clockIn && !rec.clockOut) {
       setStatus('checked-in');
-      setClockInTime(rec.clockIn);
+      setClockInTime(rec.clockIn ?? null);
     } else if (rec?.clockOut) {
       setStatus('checked-out');
-      setClockInTime(rec.clockIn);
+      setClockInTime(rec.clockIn ?? null);
     }
   }, [todayData]);
 
@@ -596,7 +609,7 @@ export default function AttendancePage() {
   const { data: myData, loading: myLoading, refetch: myRefetch }        = useMyAttendance(period.from, period.to);
   const leaveBalance = useLeaveBalance();
 
-  const tabs: Array<{ key: TabKey; label: string; icon: any }> = [
+  const tabs: Array<{ key: TabKey; label: string; icon: LucideIcon }> = [
     { key: 'overview', label: 'Visão Geral',     icon: BarChart3 },
     { key: 'my',       label: 'Minhas Presenças', icon: Clock     },
     { key: 'team',     label: 'Equipa',           icon: Users     },
