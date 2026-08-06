@@ -30,11 +30,39 @@ interface Session {
   _count?: { messages: number };
 }
 
+interface QuizQuestion {
+  question: string;
+  options?: string[];
+  correct: string;
+  explanation?: string;
+}
+
+interface Flashcard {
+  front: string;
+  back: string;
+}
+
 interface GeneratedContent {
   type: string;
-  content: any;
+  content: QuizQuestion[] | Flashcard[] | string;
   raw: string;
   provider: string;
+}
+
+interface StartSessionResponse {
+  session: { id: number };
+  greeting: string;
+  provider?: { provider: string };
+}
+
+interface SendMessageResponse {
+  message: { id: number; content: string; createdAt: string; agentAction: string | null };
+  latencyMs: number | null;
+  provider: string | null;
+}
+
+interface SessionDetail {
+  messages: Message[];
 }
 
 interface Recommendation {
@@ -152,7 +180,7 @@ function ChatView() {
   }, [messages, thinking]);
 
   const startSession = useApiMutation(
-    (p: string) => apiClient.post<any>('/ai-tutor/sessions', { personality: p }),
+    (p: string) => apiClient.post<StartSessionResponse>('/ai-tutor/sessions', { personality: p }),
     {
       onSuccess: (res) => {
         setSession({ id: res.session.id, greeting: res.greeting });
@@ -181,7 +209,7 @@ function ChatView() {
     setThinking(true);
 
     try {
-      const res: any = await apiClient.post('/ai-tutor/sessions/message', {
+      const res = await apiClient.post<SendMessageResponse>('/ai-tutor/sessions/message', {
         sessionId: session.id, message: msg,
       });
       setMessages(prev => [...prev, {
@@ -194,10 +222,11 @@ function ChatView() {
         provider:    res.provider,
         agentAction: res.message.agentAction,
       }]);
-    } catch (e: any) {
+    } catch (e) {
+      const errMsg = e instanceof Error ? e.message : String(e);
       setMessages(prev => [...prev, {
         id: Date.now(), role: 'ASSISTANT',
-        content: `⚠️ Erro: ${e.message}`,
+        content: `⚠️ Erro: ${errMsg}`,
         createdAt: new Date().toISOString(), latencyMs: null, rating: null, provider: null, agentAction: null,
       }]);
     } finally { setThinking(false); }
@@ -326,7 +355,7 @@ function HistoryView() {
 
   const loadDetail = async (id: number) => {
     setSelected(id);
-    const s: any = await apiClient.get(`/ai-tutor/sessions/${id}`);
+    const s = await apiClient.get<SessionDetail>(`/ai-tutor/sessions/${id}`);
     setDetail({ messages: s.messages });
   };
 
@@ -408,7 +437,7 @@ function GenerateView() {
     if (type === 'QUIZ' && Array.isArray(result.content)) {
       return (
         <div className="space-y-4">
-          {result.content.map((q: any, i: number) => (
+          {(result.content as QuizQuestion[]).map((q, i) => (
             <div key={i} className="bg-white border border-gray-200 rounded-xl p-4">
               <div className="text-sm font-semibold text-gray-900 mb-3">{i + 1}. {q.question}</div>
               <div className="space-y-1.5">
@@ -432,7 +461,7 @@ function GenerateView() {
     if (type === 'FLASHCARDS' && Array.isArray(result.content)) {
       return (
         <div className="grid grid-cols-2 gap-3">
-          {result.content.map((c: any, i: number) => (
+          {(result.content as Flashcard[]).map((c, i) => (
             <div key={i} className="bg-white border border-gray-200 rounded-xl p-4">
               <div className="text-xs text-gray-400 mb-1">FRENTE</div>
               <div className="text-sm font-semibold text-gray-900 mb-3">{c.front}</div>
