@@ -8,12 +8,86 @@ import {
   Settings, ChevronRight, Plus, RefreshCw, Eye, Trash2,
   BarChart2, Activity,
 } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 
 type Tab = 'overview' | 'roles' | 'matrix' | 'policies' | 'audit';
+
+interface AclPermission {
+  id?: string;
+  name: string;
+  subject: string;
+  action: string;
+}
+
+interface AclRoleSummary {
+  role?: { name?: string };
+  count: number;
+}
+
+interface AclDeniedLogEntry {
+  user?: { fullName?: string };
+  userId: string;
+  changes?: string;
+  entity?: string;
+  timestamp: string;
+}
+
+interface AclStats {
+  totalUsers: number;
+  totalRoles: number;
+  totalPermissions: number;
+  deniedCount: number;
+  roleBreakdown: AclRoleSummary[];
+  recentDenied: AclDeniedLogEntry[];
+}
+
+interface MyPermissions {
+  roleCode: string;
+  permissions: string[];
+}
+
+interface AclRole {
+  id: string;
+  code?: string;
+  name: string;
+  _count?: { users?: number };
+  permissions?: AclPermission[];
+}
+
+interface AclMatrixData {
+  permissions: AclPermission[];
+  roles: { id: string; name: string }[];
+  matrix: Record<string, boolean>[];
+}
+
+interface AclAuditLogEntry {
+  user?: { fullName?: string };
+  userId: string;
+  action: string;
+  changes?: string;
+  timestamp: string;
+}
+
+interface AclAuditResponse {
+  data: AclAuditLogEntry[];
+  meta?: { total: number; totalPages: number };
+}
+
+interface AclPolicy {
+  id?: string;
+  name: string;
+  effect: 'ALLOW' | 'DENY';
+  description?: string;
+  subject?: string;
+  action?: string;
+  requiresJustification?: boolean;
+  priority: number;
+  condition?: string;
+}
 
 function Skeleton({ count = 3 }: { count?: number }) {
   return <div className="space-y-3 animate-pulse">{[...Array(count)].map((_, i) => <div key={i} className="bg-slate-100 rounded-xl h-16" />)}</div>;
@@ -22,8 +96,8 @@ function Skeleton({ count = 3 }: { count?: number }) {
 // ─── Overview ─────────────────────────────────────────────────────
 
 function OverviewTab() {
-  const statsQ = useApiQuery<any>(queryKeys.acl.stats(), '/acl/stats', { staleTime: STALE_TIME.DYNAMIC });
-  const permsQ = useApiQuery<any>(queryKeys.acl.myPermissions(), '/acl/my-permissions', { staleTime: STALE_TIME.SEMI_STATIC });
+  const statsQ = useApiQuery<AclStats>(queryKeys.acl.stats(), '/acl/stats', { staleTime: STALE_TIME.DYNAMIC });
+  const permsQ = useApiQuery<MyPermissions>(queryKeys.acl.myPermissions(), '/acl/my-permissions', { staleTime: STALE_TIME.SEMI_STATIC });
   const stats = statsQ.data ?? null;
   const myPerms = permsQ.data ?? null;
   const loading = statsQ.isLoading;
@@ -49,11 +123,11 @@ function OverviewTab() {
       </div>
 
       {/* Role distribution */}
-      {(stats?.roleBreakdown ?? []).length > 0 && (
+      {stats && stats.roleBreakdown.length > 0 && (
         <div className="bg-white rounded-xl border border-slate-100 p-5">
           <h4 className="font-semibold text-slate-700 mb-4">Distribuição de Roles</h4>
           <div className="space-y-2">
-            {(stats.roleBreakdown as any[]).map((r: any, i: number) => {
+            {stats.roleBreakdown.map((r, i) => {
               const max = stats.roleBreakdown[0].count;
               return (
                 <div key={i} className="flex items-center gap-3">
@@ -82,7 +156,7 @@ function OverviewTab() {
                 ✅ ADMIN — Acesso Total (*)
               </span>
             ) : (
-              (myPerms.permissions as string[]).slice(0, 20).map((p: string, i: number) => (
+              myPerms.permissions.slice(0, 20).map((p, i) => (
                 <span key={i} className="text-xs px-2 py-0.5 bg-slate-100 text-slate-700 rounded-lg font-mono">{p}</span>
               ))
             )}
@@ -94,13 +168,13 @@ function OverviewTab() {
       )}
 
       {/* Recent denied */}
-      {(stats?.recentDenied ?? []).length > 0 && (
+      {stats && stats.recentDenied.length > 0 && (
         <div className="bg-red-50 border border-red-200 rounded-xl p-5">
           <h4 className="font-semibold text-red-700 mb-3 flex items-center gap-2">
             <AlertTriangle size={14} />Acessos Negados Recentes
           </h4>
           <div className="space-y-1.5">
-            {(stats.recentDenied as any[]).map((d: any, i: number) => (
+            {stats.recentDenied.map((d, i) => (
               <div key={i} className="flex items-center gap-3 text-xs">
                 <span className="text-red-600 font-medium">{d.user?.fullName ?? `User ${d.userId}`}</span>
                 <span className="text-slate-400">·</span>
@@ -118,8 +192,8 @@ function OverviewTab() {
 // ─── Roles Tab ────────────────────────────────────────────────────
 
 function RolesTab() {
-  const [selected, setSelected] = useState<any | null>(null);
-  const { data: roles = [], isLoading: loading } = useApiQuery<any[]>(
+  const [selected, setSelected] = useState<AclRole | null>(null);
+  const { data: roles = [], isLoading: loading } = useApiQuery<AclRole[]>(
     queryKeys.acl.roles(), '/acl/roles', { staleTime: STALE_TIME.SEMI_STATIC },
   );
 
@@ -137,7 +211,7 @@ function RolesTab() {
             <button key={r.id} onClick={() => setSelected(r)}
               className={`w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-50 transition-colors ${selected?.id === r.id ? 'bg-indigo-50' : ''}`}>
               <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-xs font-bold text-indigo-700 shrink-0">
-                {r.code?.[0] ?? r.name[0]}
+                {r.code?.[0] ?? r.name?.[0]}
               </div>
               <div className="flex-1 min-w-0 text-left">
                 <p className="text-sm font-medium text-slate-700">{r.name}</p>
@@ -174,7 +248,7 @@ function RolesTab() {
               Permissões ({selected.permissions?.length ?? 0})
             </p>
             <div className="flex flex-wrap gap-1.5 max-h-64 overflow-y-auto">
-              {(selected.permissions ?? []).map((p: any, i: number) => (
+              {(selected.permissions ?? []).map((p, i) => (
                 <div key={i} className="flex items-center gap-1 text-[10px] bg-slate-100 text-slate-700 px-2 py-1 rounded-lg">
                   <span className="font-mono">{p.name}</span>
                 </div>
@@ -194,14 +268,14 @@ function RolesTab() {
 
 function MatrixTab() {
   const [subjectFilter, setSubjectFilter] = useState('');
-  const { data, isLoading: loading } = useApiQuery<any>(
+  const { data, isLoading: loading } = useApiQuery<AclMatrixData>(
     queryKeys.acl.matrix(), '/acl/matrix', { staleTime: STALE_TIME.SEMI_STATIC },
   );
 
   if (loading) return <Skeleton />;
 
-  const subjects: string[] = [...new Set<string>((data?.permissions ?? []).map((p: any) => String(p.subject)))];
-  const filtered = (data?.permissions ?? []).filter((p: any) => !subjectFilter || p.subject === subjectFilter);
+  const subjects: string[] = [...new Set<string>((data?.permissions ?? []).map(p => String(p.subject)))];
+  const filtered = (data?.permissions ?? []).filter(p => !subjectFilter || p.subject === subjectFilter);
 
   return (
     <div className="space-y-4">
@@ -225,13 +299,13 @@ function MatrixTab() {
           <thead className="bg-slate-50 sticky top-0">
             <tr>
               <th className="px-3 py-2 text-left text-slate-500 font-medium whitespace-nowrap">Permissão</th>
-              {(data?.roles ?? []).map((r: any) => (
+              {(data?.roles ?? []).map(r => (
                 <th key={r.id} className="px-2 py-2 text-center text-slate-500 font-medium whitespace-nowrap">{r.name}</th>
               ))}
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-50">
-            {filtered.map((p: any, i: number) => (
+            {filtered.map((p, i) => (
               <tr key={i} className="hover:bg-slate-50">
                 <td className="px-3 py-1.5">
                   <div>
@@ -239,9 +313,9 @@ function MatrixTab() {
                     <p className="text-[10px] text-slate-400">{p.subject} · {p.action}</p>
                   </div>
                 </td>
-                {(data?.roles ?? []).map((r: any) => (
+                {(data?.roles ?? []).map(r => (
                   <td key={r.id} className="px-2 py-1.5 text-center">
-                    {data.matrix[i]?.[r.name]
+                    {data?.matrix[i]?.[r.name]
                       ? <CheckCircle size={14} className="text-emerald-500 mx-auto" />
                       : <span className="text-slate-200">—</span>}
                   </td>
@@ -259,7 +333,7 @@ function MatrixTab() {
 
 function AuditTab() {
   const [view, setView]     = useState<'all' | 'denied'>('all');
-  const { data, isLoading: loading } = useApiQuery<any>(
+  const { data, isLoading: loading } = useApiQuery<AclAuditResponse>(
     queryKeys.acl.audit(view), view === 'denied' ? '/acl/audit/denied' : '/acl/audit',
     { staleTime: STALE_TIME.DYNAMIC },
   );
@@ -280,7 +354,7 @@ function AuditTab() {
 
       <div className="bg-white rounded-xl border border-slate-100">
         <div className="divide-y divide-slate-50 max-h-[500px] overflow-y-auto">
-          {(data?.data ?? []).map((log: any, i: number) => {
+          {(data?.data ?? []).map((log, i) => {
             const changes = log.changes ? (() => { try { return JSON.parse(log.changes); } catch { return null; } })() : null;
             return (
               <div key={i} className="px-4 py-3 flex items-start gap-3">
@@ -307,9 +381,9 @@ function AuditTab() {
       </div>
 
       {/* Pagination */}
-      {data?.meta?.totalPages > 1 && (
+      {(data?.meta?.totalPages ?? 0) > 1 && (
         <p className="text-xs text-slate-400 text-center">
-          Pág. 1 / {data.meta.totalPages} — {data.meta.total} registos totais
+          Pág. 1 / {data?.meta?.totalPages} — {data?.meta?.total} registos totais
         </p>
       )}
     </div>
@@ -319,7 +393,7 @@ function AuditTab() {
 // ─── Policies Tab ────────────────────────────────────────────────
 
 function PoliciesTab() {
-  const { data = [], isLoading: loading } = useApiQuery<any[]>(
+  const { data = [], isLoading: loading } = useApiQuery<AclPolicy[]>(
     queryKeys.acl.policies(), '/acl/policies', { staleTime: STALE_TIME.SEMI_STATIC },
   );
 
@@ -327,7 +401,7 @@ function PoliciesTab() {
 
   return (
     <div className="space-y-3">
-      {data.map((p: any, i: number) => (
+      {data.map((p, i) => (
         <div key={i} className={`bg-white rounded-xl border p-4 ${p.effect === 'DENY' ? 'border-red-200' : 'border-emerald-200'}`}>
           <div className="flex items-start justify-between mb-2">
             <h4 className="font-semibold text-slate-800">{p.name}</h4>
@@ -363,7 +437,7 @@ function PoliciesTab() {
 
 // ─── Main Page ───────────────────────────────────────────────────
 
-const TABS: { id: Tab; label: string; icon: any }[] = [
+const TABS: { id: Tab; label: string; icon: LucideIcon }[] = [
   { id: 'overview',  label: 'Visão Geral', icon: BarChart2 },
   { id: 'roles',     label: 'Roles',       icon: Shield },
   { id: 'matrix',    label: 'Matriz',      icon: Key },
