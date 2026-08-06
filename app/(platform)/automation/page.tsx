@@ -8,6 +8,7 @@ import {
   CheckCircle, AlertTriangle, Clock, BarChart2, BookOpen,
   ChevronRight, Activity, Settings,
 } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { apiClient } from '@/lib/apiClient';
@@ -15,6 +16,69 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 
 type Tab = 'rules' | 'executions' | 'templates' | 'stats';
+
+interface RuleStats {
+  total: number;
+  success: number;
+  failed: number;
+  successRate: number;
+}
+
+interface AutomationRule {
+  id: number;
+  name: string;
+  active: boolean;
+  category?: string;
+  trigger: string;
+  action: string;
+  stats?: RuleStats;
+}
+
+interface RunAllResponse {
+  executed: number;
+}
+
+interface Execution {
+  id: number;
+  ruleId: number;
+  status: string;
+  error?: string | null;
+  startedAt?: string | null;
+}
+
+interface ExecutionsResponse {
+  data: Execution[];
+  meta?: { total: number };
+}
+
+interface AutomationTemplate {
+  name: string;
+  description?: string;
+  category?: string;
+  trigger: string;
+  action: string;
+}
+
+interface ApplyTemplateResponse {
+  message?: string;
+}
+
+interface CategoryCount {
+  category: string;
+  count: number;
+}
+
+interface RecentFail {
+  ruleId: number;
+  error?: string;
+}
+
+interface AutomationStats {
+  executions?: { total?: number; successRate?: number; failed?: number };
+  rules?: { active?: number };
+  byCategory?: CategoryCount[];
+  recentFails?: RecentFail[];
+}
 
 const CATEGORY_COLOR: Record<string, string> = {
   HR:          'bg-violet-100 text-violet-700',
@@ -51,7 +115,7 @@ function Skeleton({ count = 3 }: { count?: number }) {
 function RulesTab() {
   const [running, setRunning] = useState(false);
 
-  const { data: rules = [], isLoading: loading, refetch } = useApiQuery<any[]>(
+  const { data: rules = [], isLoading: loading, refetch } = useApiQuery<AutomationRule[]>(
     queryKeys.automation.rules(), '/automation/rules', { staleTime: STALE_TIME.DYNAMIC },
   );
   const load = () => { void refetch(); };
@@ -60,7 +124,7 @@ function RulesTab() {
   const clone  = async (id: number) => { await apiClient.post(`/automation/rules/${id}/clone`, {}); load(); };
   const confirm = useConfirm();
   const remove = async (id: number) => { if (await confirm({ title: 'Remover regra?', confirmLabel: 'Remover', destructive: true })) { await apiClient.delete(`/automation/rules/${id}`); load(); } };
-  const runAll = async () => { setRunning(true); const r = await apiClient.post<any>('/automation/run', {}); setRunning(false); alert(`Executadas: ${r.executed} regras`); };
+  const runAll = async () => { setRunning(true); const r = await apiClient.post<RunAllResponse>('/automation/run', {}); setRunning(false); alert(`Executadas: ${r.executed} regras`); };
 
   if (loading) return <Skeleton />;
 
@@ -81,7 +145,7 @@ function RulesTab() {
       </div>
 
       <div className="space-y-2">
-        {rules.map((r: any) => (
+        {rules.map(r => (
           <div key={r.id} className={`bg-white rounded-xl border p-4 ${r.active ? 'border-slate-100' : 'border-slate-100 opacity-60'}`}>
             <div className="flex items-start gap-3">
               <div className={`w-2.5 h-2.5 rounded-full shrink-0 mt-1.5 ${r.active ? 'bg-emerald-500' : 'bg-slate-300'}`} />
@@ -137,7 +201,7 @@ function RulesTab() {
 
 function ExecutionsTab() {
   const [status, setStatus] = useState('');
-  const { data, isLoading: loading } = useApiQuery<any>(
+  const { data, isLoading: loading } = useApiQuery<ExecutionsResponse>(
     queryKeys.automation.executions(status), '/automation/executions',
     { params: { status: status || undefined }, staleTime: STALE_TIME.DYNAMIC },
   );
@@ -166,7 +230,7 @@ function ExecutionsTab() {
 
       <div className="bg-white rounded-xl border border-slate-100">
         <div className="divide-y divide-slate-50 max-h-[500px] overflow-y-auto">
-          {(data?.data ?? []).map((e: any, i: number) => (
+          {(data?.data ?? []).map((e, i) => (
             <div key={i} className="flex items-center gap-3 px-4 py-3 hover:bg-slate-50">
               <div className={`w-2 h-2 rounded-full shrink-0 ${e.status === 'SUCCESS' ? 'bg-emerald-500' : e.status === 'FAILED' ? 'bg-red-500' : 'bg-amber-400'}`} />
               <div className="flex-1 min-w-0">
@@ -203,13 +267,13 @@ function ExecutionsTab() {
 
 function TemplatesTab() {
   const [applying, setApplying]   = useState<number | null>(null);
-  const { data: templates = [], isLoading: loading } = useApiQuery<any[]>(
+  const { data: templates = [], isLoading: loading } = useApiQuery<AutomationTemplate[]>(
     queryKeys.automation.templates(), '/automation/templates', { staleTime: STALE_TIME.STATIC },
   );
 
   const apply = async (index: number) => {
     setApplying(index);
-    const r = await apiClient.post<any>(`/automation/templates/${index}/apply`, {}).catch(() => null);
+    const r = await apiClient.post<ApplyTemplateResponse>(`/automation/templates/${index}/apply`, {}).catch(() => null);
     setApplying(null);
     if (r) alert(r.message ?? 'Template aplicado!');
   };
@@ -218,7 +282,7 @@ function TemplatesTab() {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      {templates.map((t: any, i: number) => (
+      {templates.map((t, i) => (
         <div key={i} className="bg-white rounded-xl border border-slate-100 p-4">
           <div className="flex items-start justify-between mb-2">
             <div>
@@ -249,7 +313,7 @@ function TemplatesTab() {
 // ─── Stats Tab ────────────────────────────────────────────────────
 
 function StatsTab() {
-  const { data, isLoading: loading } = useApiQuery<any>(
+  const { data, isLoading: loading } = useApiQuery<AutomationStats>(
     queryKeys.automation.stats(), '/automation/stats', { staleTime: STALE_TIME.DYNAMIC },
   );
   if (loading) return <Skeleton />;
@@ -262,8 +326,8 @@ function StatsTab() {
         {[
           { label: 'Regras Activas',  value: r.active ?? 0,       color: 'text-indigo-600' },
           { label: 'Total Execuções', value: e.total ?? 0,        color: 'text-slate-800' },
-          { label: 'Taxa de Sucesso', value: `${e.successRate ?? 0}%`, color: e.successRate >= 90 ? 'text-emerald-600' : 'text-amber-600' },
-          { label: 'Falhas',          value: e.failed ?? 0,       color: e.failed > 0 ? 'text-red-600' : 'text-emerald-600' },
+          { label: 'Taxa de Sucesso', value: `${e.successRate ?? 0}%`, color: (e.successRate ?? 0) >= 90 ? 'text-emerald-600' : 'text-amber-600' },
+          { label: 'Falhas',          value: e.failed ?? 0,       color: (e.failed ?? 0) > 0 ? 'text-red-600' : 'text-emerald-600' },
         ].map(k => (
           <div key={k.label} className="bg-white rounded-xl border border-slate-100 p-4">
             <p className={`text-2xl font-bold ${k.color}`}>{k.value}</p>
@@ -275,8 +339,8 @@ function StatsTab() {
       {(data?.byCategory ?? []).length > 0 && (
         <div className="bg-white rounded-xl border border-slate-100 p-5">
           <h4 className="font-semibold text-slate-700 mb-4">Por Categoria</h4>
-          {(data.byCategory as any[]).map((c: any, i: number) => {
-            const max = Math.max(...(data.byCategory as any[]).map((x: any) => x.count));
+          {(data?.byCategory ?? []).map((c, i) => {
+            const max = Math.max(...(data?.byCategory ?? []).map(x => x.count));
             return (
               <div key={i} className="mb-2">
                 <div className="flex justify-between text-xs mb-0.5">
@@ -297,7 +361,7 @@ function StatsTab() {
           <h4 className="font-semibold text-red-700 mb-2 flex items-center gap-2">
             <AlertTriangle size={14} />Falhas Recentes
           </h4>
-          {(data.recentFails as any[]).map((f: any, i: number) => (
+          {(data?.recentFails ?? []).map((f, i) => (
             <div key={i} className="text-xs text-red-700 py-1 border-b border-red-100 last:border-0">
               Rule #{f.ruleId} — {f.error ?? 'Erro desconhecido'}
             </div>
@@ -310,7 +374,7 @@ function StatsTab() {
 
 // ─── Main Page ───────────────────────────────────────────────────
 
-const TABS: { id: Tab; label: string; icon: any }[] = [
+const TABS: { id: Tab; label: string; icon: LucideIcon }[] = [
   { id: 'rules',      label: 'Automações',  icon: Zap },
   { id: 'executions', label: 'Execuções',   icon: Activity },
   { id: 'templates',  label: 'Templates',   icon: BookOpen },
