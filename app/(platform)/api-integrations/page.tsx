@@ -7,6 +7,7 @@ import {
   RefreshCw, Plus, Trash2, Play, Pause, RotateCcw, Copy, Eye, EyeOff,
   Clock, TrendingUp,
 } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { apiClient } from '@/lib/apiClient';
@@ -16,6 +17,65 @@ import { STALE_TIME } from '@/lib/queryClient';
 // ─── Types ───────────────────────────────────────────────────────
 
 type Tab = 'integrations' | 'webhooks' | 'api-keys' | 'monitoring';
+
+interface Integration {
+  id: number;
+  name: string;
+  endpoint: string;
+  health: string;
+  active: boolean;
+  lastTested?: string | null;
+}
+
+interface TestIntegrationResponse {
+  success: boolean;
+  message: string;
+}
+
+interface WebhookStats {
+  delivered: number;
+  failed: number;
+}
+
+interface Webhook {
+  id: number;
+  name: string;
+  url: string;
+  active: boolean;
+  events?: string[];
+  stats?: WebhookStats;
+}
+
+interface ApiKeyItem {
+  id: number;
+  name: string;
+  preview: string;
+  active: boolean;
+  scopes?: string[];
+  expiresAt?: string | null;
+}
+
+interface CreateApiKeyResponse {
+  key?: string;
+}
+
+interface IntegrationHealthItem {
+  name: string;
+  health: string;
+  logs7d: number;
+  errorRate: number;
+}
+
+interface MonitoringStats {
+  summary?: {
+    activeIntegrations?: number;
+    totalLogs24h?: number;
+    errorRate24h?: number;
+    avgLatencyMs?: number;
+  };
+  integrationHealth?: IntegrationHealthItem[];
+  generatedAt?: string;
+}
 
 function Skeleton({ count = 3 }: { count?: number }) {
   return <div className="space-y-3 animate-pulse">{[...Array(count)].map((_, i) => <div key={i} className="bg-slate-100 rounded-xl h-16" />)}</div>;
@@ -35,14 +95,14 @@ const HEALTH_CONFIG: Record<string, { color: string; bg: string; dot: string }> 
 function IntegrationsTab() {
   const [testing, setTesting] = useState<number | null>(null);
 
-  const { data: list = [], isLoading: loading, refetch } = useApiQuery<any[]>(
+  const { data: list = [], isLoading: loading, refetch } = useApiQuery<Integration[]>(
     queryKeys.apiIntegrations.list(), '/api-integrations', { staleTime: STALE_TIME.DYNAMIC },
   );
   const load = () => { void refetch(); };
 
   const testIntegration = async (id: number) => {
     setTesting(id);
-    const r = await apiClient.post<any>(`/api-integrations/${id}/test`, {}).catch(() => null);
+    const r = await apiClient.post<TestIntegrationResponse>(`/api-integrations/${id}/test`, {}).catch(() => null);
     setTesting(null);
     if (r) alert(r.success ? `✅ ${r.message}` : `❌ ${r.message}`);
     load();
@@ -62,7 +122,7 @@ function IntegrationsTab() {
       </div>
 
       <div className="grid gap-3">
-        {list.map((i: any) => {
+        {list.map(i => {
           const hc = HEALTH_CONFIG[i.health] ?? HEALTH_CONFIG.UNKNOWN;
           return (
             <div key={i.id} className="bg-white rounded-xl border border-slate-100 p-4 flex items-center gap-4">
@@ -107,7 +167,7 @@ function IntegrationsTab() {
 // ─── Webhooks Tab ─────────────────────────────────────────────────
 
 function WebhooksTab() {
-  const { data: list = [], isLoading: loading, refetch } = useApiQuery<any[]>(
+  const { data: list = [], isLoading: loading, refetch } = useApiQuery<Webhook[]>(
     queryKeys.apiIntegrations.webhooks(), '/api-integrations/webhooks/list', { staleTime: STALE_TIME.DYNAMIC },
   );
   const load = () => { void refetch(); };
@@ -127,7 +187,7 @@ function WebhooksTab() {
       </div>
 
       <div className="grid gap-3">
-        {list.map((h: any) => (
+        {list.map(h => (
           <div key={h.id} className="bg-white rounded-xl border border-slate-100 p-4">
             <div className="flex items-start justify-between mb-2">
               <div>
@@ -178,7 +238,7 @@ function WebhooksTab() {
 function ApiKeysTab() {
   const [newKey, setNewKey] = useState<string | null>(null);
 
-  const { data: keys = [], isLoading: loading, refetch } = useApiQuery<any[]>(
+  const { data: keys = [], isLoading: loading, refetch } = useApiQuery<ApiKeyItem[]>(
     queryKeys.apiIntegrations.apiKeys(), '/api-integrations/api-keys/list', { staleTime: STALE_TIME.DYNAMIC },
   );
   const load = () => { void refetch(); };
@@ -186,7 +246,7 @@ function ApiKeysTab() {
   const create = async () => {
     const name = prompt('Nome da API Key:');
     if (!name) return;
-    const r = await apiClient.post<any>('/api-integrations/api-keys', { name, scopes: ['read'] });
+    const r = await apiClient.post<CreateApiKeyResponse>('/api-integrations/api-keys', { name, scopes: ['read'] });
     if (r.key) { setNewKey(r.key); load(); }
   };
 
@@ -222,7 +282,7 @@ function ApiKeysTab() {
 
       <div className="bg-white rounded-xl border border-slate-100">
         <div className="divide-y divide-slate-50">
-          {keys.map((k: any, i: number) => (
+          {keys.map((k, i) => (
             <div key={i} className="flex items-center gap-3 px-4 py-3">
               <div className={`w-2 h-2 rounded-full shrink-0 ${k.active ? 'bg-emerald-500' : 'bg-slate-300'}`} />
               <div className="flex-1 min-w-0">
@@ -240,7 +300,7 @@ function ApiKeysTab() {
                 </span>
               )}
               <div className="flex gap-1 shrink-0">
-                <button onClick={async () => { const r = await apiClient.post<any>(`/api-integrations/api-keys/${k.id}/rotate`, {}); if (r.key) setNewKey(r.key); load(); }}
+                <button onClick={async () => { const r = await apiClient.post<CreateApiKeyResponse>(`/api-integrations/api-keys/${k.id}/rotate`, {}); if (r.key) setNewKey(r.key); load(); }}
                   className="p-1 rounded hover:bg-amber-50 text-slate-400 hover:text-amber-600" title="Rotacionar">
                   <RotateCcw size={12} />
                 </button>
@@ -266,7 +326,7 @@ function ApiKeysTab() {
 // ─── Monitoring Tab ───────────────────────────────────────────────
 
 function MonitoringTab() {
-  const { data, isLoading: loading } = useApiQuery<any>(
+  const { data, isLoading: loading } = useApiQuery<MonitoringStats>(
     queryKeys.apiIntegrations.stats(), '/api-integrations/stats', { staleTime: STALE_TIME.DYNAMIC },
   );
   if (loading) return <Skeleton />;
@@ -279,7 +339,7 @@ function MonitoringTab() {
         {[
           { label: 'Integrações Activas', value: s.activeIntegrations ?? 0, icon: Plug,     color: 'text-indigo-600', bg: 'bg-indigo-50' },
           { label: 'Chamadas (24h)',       value: s.totalLogs24h ?? 0,       icon: Activity, color: 'text-teal-600',   bg: 'bg-teal-50' },
-          { label: 'Taxa de Erro',         value: `${s.errorRate24h ?? 0}%`, icon: AlertTriangle, color: s.errorRate24h > 5 ? 'text-red-600' : 'text-emerald-600', bg: s.errorRate24h > 5 ? 'bg-red-50' : 'bg-emerald-50' },
+          { label: 'Taxa de Erro',         value: `${s.errorRate24h ?? 0}%`, icon: AlertTriangle, color: (s.errorRate24h ?? 0) > 5 ? 'text-red-600' : 'text-emerald-600', bg: (s.errorRate24h ?? 0) > 5 ? 'bg-red-50' : 'bg-emerald-50' },
           { label: 'Latência Média',       value: s.avgLatencyMs ? `${s.avgLatencyMs}ms` : '–', icon: TrendingUp, color: 'text-amber-600', bg: 'bg-amber-50' },
         ].map(k => (
           <div key={k.label} className="bg-white rounded-xl border border-slate-100 p-4">
@@ -295,7 +355,7 @@ function MonitoringTab() {
         <div className="bg-white rounded-xl border border-slate-100 p-5">
           <h4 className="font-semibold text-slate-700 mb-4">Saúde das Integrações</h4>
           <div className="grid gap-2">
-            {(data.integrationHealth as any[]).map((i: any, idx: number) => {
+            {(data?.integrationHealth ?? []).map((i, idx) => {
               const hc = HEALTH_CONFIG[i.health] ?? HEALTH_CONFIG.UNKNOWN;
               return (
                 <div key={idx} className="flex items-center gap-3">
@@ -313,14 +373,14 @@ function MonitoringTab() {
         </div>
       )}
 
-      <div className="text-xs text-slate-400 text-right">Actualizado: {new Date(data?.generatedAt).toLocaleString('pt')}</div>
+      <div className="text-xs text-slate-400 text-right">Actualizado: {new Date(data?.generatedAt ?? Date.now()).toLocaleString('pt')}</div>
     </div>
   );
 }
 
 // ─── Main Page ───────────────────────────────────────────────────
 
-const TABS: { id: Tab; label: string; icon: any }[] = [
+const TABS: { id: Tab; label: string; icon: LucideIcon }[] = [
   { id: 'integrations', label: 'Integrações', icon: Plug },
   { id: 'webhooks',     label: 'Webhooks',    icon: Zap },
   { id: 'api-keys',     label: 'API Keys',    icon: Key },
