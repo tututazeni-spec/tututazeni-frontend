@@ -36,19 +36,45 @@ interface MicroLearning {
   userLiked?: boolean;
   userSaved?: boolean;
   isCompleted?: boolean;
+  quizQuestions?: QuizQuestion[];
   _count: { likes: number; comments: number };
+}
+
+interface RecentActivityEntry {
+  id: number;
+  progress: number;
+  completedAt: string | null;
+  microLearning?: { contentType: ContentType; title: string } | null;
 }
 
 interface MyDashboard {
   streak: { current: number; longest: number; lastActivity: string | null };
   stats: { completed: number; totalMinutes: number; totalXp: number; avgQuizScore: number };
-  recentActivity: any[];
+  recentActivity: RecentActivityEntry[];
 }
 
 interface QuizQuestion {
   id: number;
   question: string;
   options: string; // JSON
+}
+
+interface QuizOption {
+  text: string;
+}
+
+interface ParsedQuizQuestion extends Omit<QuizQuestion, 'options'> {
+  options: QuizOption[];
+}
+
+interface QuizResult {
+  score: number;
+  correct: number;
+  total: number;
+}
+
+interface InteractResult {
+  active: boolean;
 }
 
 type TabKey = 'feed' | 'saved' | 'dashboard';
@@ -193,7 +219,7 @@ function FeedView({ onSelect }: { onSelect: (item: MicroLearning) => void }) {
         {/* Tipo */}
         <div className="flex gap-1">
           {(['', 'VIDEO', 'TEXT', 'AUDIO', 'QUIZ'] as const).map(t => (
-            <button key={t} onClick={() => { setType(t as any); setPage(1); }}
+            <button key={t} onClick={() => { setType(t); setPage(1); }}
               className={`px-3 py-1.5 text-xs font-medium rounded-xl transition-colors ${
                 type === t ? 'bg-blue-700 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
@@ -298,7 +324,7 @@ function useQuizAttempt(item: MicroLearning, onPassed: () => Promise<void> | voi
   };
 
   const submitQuiz = useApiMutation(
-    () => apiClient.post<any>('/micro-learning/quiz/submit', { microLearningId: item.id, answers }),
+    () => apiClient.post<QuizResult>('/micro-learning/quiz/submit', { microLearningId: item.id, answers }),
     {
       onSuccess: async (res) => { if (res.score >= 60) await onPassed(); },
       onError: (e) => alert(e.message),
@@ -328,7 +354,7 @@ function PlayerView({ item, onBack, onNext }: {
 
   const handleInteract = async (action: 'LIKE' | 'SAVE') => {
     try {
-      const res = await apiClient.post<any>('/micro-learning/interact', {
+      const res = await apiClient.post<InteractResult>('/micro-learning/interact', {
         microLearningId: item.id, action,
       });
       if (action === 'LIKE') setLiked(res.active);
@@ -339,8 +365,8 @@ function PlayerView({ item, onBack, onNext }: {
   const typeCfg  = TYPE_CFG[item.contentType];
   const levelCfg = LEVEL_CFG[item.level];
 
-  let quizQs: any[] = [];
-  try { quizQs = (item as any).quizQuestions?.map((q: any) => ({ ...q, options: JSON.parse(q.options) })) ?? []; }
+  let quizQs: ParsedQuizQuestion[] = [];
+  try { quizQs = item.quizQuestions?.map(q => ({ ...q, options: JSON.parse(q.options) as QuizOption[] })) ?? []; }
   catch { quizQs = []; }
 
   return (
@@ -459,11 +485,11 @@ function PlayerView({ item, onBack, onNext }: {
       {item.contentType === 'QUIZ' && quizQs.length > 0 && !quiz.result && (
         <div className="bg-white border border-gray-200 rounded-2xl p-5 mb-5">
           <div className="text-sm font-semibold text-gray-900 mb-4">❓ Quiz — {quizQs.length} perguntas</div>
-          {quizQs.map((q: any, idx: number) => (
+          {quizQs.map((q, idx) => (
             <div key={q.id} className="mb-5 pb-5 border-b border-gray-100 last:border-0">
               <div className="text-sm font-medium text-gray-800 mb-3">{idx + 1}. {q.question}</div>
               <div className="space-y-2">
-                {q.options.map((opt: any, oi: number) => (
+                {q.options.map((opt, oi) => (
                   <label key={oi}
                     className={`flex items-center gap-3 p-3 border rounded-xl cursor-pointer transition-colors ${
                       quiz.answers[idx] === oi ? 'border-blue-400 bg-blue-50' : 'border-gray-200 hover:border-gray-300'
@@ -573,7 +599,7 @@ function DashboardView() {
           <div className="px-4 py-3 border-b border-gray-100 text-xs font-medium text-gray-400 uppercase tracking-wide">
             Actividade recente
           </div>
-          {data.recentActivity.map((a: any) => (
+          {data.recentActivity.map((a) => (
             <div key={a.id} className="flex items-center gap-3 px-4 py-3 border-b border-gray-100 last:border-0">
               <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-lg flex-shrink-0 ${TYPE_CFG[a.microLearning?.contentType as ContentType]?.cls ?? 'bg-gray-100'}`}>
                 {TYPE_CFG[a.microLearning?.contentType as ContentType]?.icon ?? '📄'}
