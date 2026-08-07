@@ -28,25 +28,99 @@ interface PromotionEligibility {
   };
 }
 
+interface CareerUserRef {
+  fullName: string;
+  avatarUrl?: string | null;
+  position?: { name?: string };
+  department?: { name?: string };
+  points?: { points: number };
+}
+
+interface CareerPlanSummary {
+  title: string;
+  goals?: { id: number }[];
+  targetDate?: string;
+}
+
+interface UserCompetency {
+  id: number;
+  name: string;
+  category?: string;
+  currentLevel?: number;
+}
+
+interface CareerHistoryEntry {
+  id: number;
+  position?: { name?: string };
+  startedAt: string;
+  endedAt?: string | null;
+}
+
+interface CareerStats {
+  certificates: number;
+  enrollments: number;
+  userCompetencies: number;
+  badgeAwards: number;
+}
+
+interface MatchingVacancy {
+  id: number;
+  title: string;
+  department?: { name?: string };
+  matchScore?: number;
+}
+
 interface CareerProfile {
-  user: any;
-  careerPlan: any;
-  competencies: any[];
-  careerHistory: any[];
-  certificates: any[];
-  completedCourses: any[];
-  performanceHistory: any[];
-  stats: any;
+  user: CareerUserRef;
+  careerPlan: CareerPlanSummary | null;
+  competencies: UserCompetency[];
+  careerHistory: CareerHistoryEntry[];
+  certificates: unknown[];
+  completedCourses: unknown[];
+  performanceHistory: unknown[];
+  stats: CareerStats;
   insights: {
     competencyGaps:       CompetencyGap[];
     promotionEligibility: PromotionEligibility | null;
-    matchingVacancies:    any[];
+    matchingVacancies:    MatchingVacancy[];
   };
 }
 
-interface CareerPath { id: number; name: string; type: string; description: string | null; steps: any[] }
-interface InternalVacancy { id: number; title: string; type: string; status: string; matchScore?: number; applied?: boolean; applicationStatus?: string; position: any; department: any; _count: any; closingDate?: string }
-interface SimulationResult { targetPosition: any; readinessScore: number; competencyGaps: any[]; summary: any; recommendedCourses: any[] }
+interface CareerPathStep {
+  id: number;
+  order: number;
+  position?: { name?: string; competencies?: Array<{ competency: { id: number; name: string } }> };
+  minMonthsRequired?: number;
+  minPerformanceScore?: number;
+  requiredCourseIds?: number[];
+}
+interface CareerPath { id: number; name: string; type: string; description: string | null; steps: CareerPathStep[] }
+interface InternalVacancy {
+  id: number; title: string; type: string; status: string; matchScore?: number; applied?: boolean; applicationStatus?: string;
+  position?: { name?: string }; department?: { name?: string }; _count: { applications: number }; closingDate?: string;
+}
+interface SimulationResult {
+  targetPosition: { name: string };
+  readinessScore: number;
+  competencyGaps: CompetencyGap[];
+  summary: { requirementsMet: number; totalRequirements: number; ready: boolean; estimatedTimeMonths?: number };
+  recommendedCourses: Array<{ id: number; title: string }>;
+}
+
+interface CareerGoal {
+  id: number;
+  title: string;
+  description?: string;
+  status: string;
+  progress: number;
+}
+interface CareerPlan {
+  title: string;
+  description?: string;
+  targetDate?: string;
+  mentor?: { fullName: string };
+  goals?: CareerGoal[];
+}
 
 type View = 'dashboard' | 'paths' | 'vacancies' | 'plan' | 'succession';
 
@@ -211,7 +285,7 @@ function DashboardView() {
                     <div className="text-xs font-medium text-gray-900 truncate">{v.title}</div>
                     <div className="text-xs text-gray-400">{v.department?.name}</div>
                   </div>
-                  <div className={`text-xs font-bold flex-shrink-0 ${v.matchScore >= 80 ? 'text-emerald-600' : v.matchScore >= 60 ? 'text-amber-600' : 'text-gray-400'}`}>
+                  <div className={`text-xs font-bold flex-shrink-0 ${(v.matchScore ?? 0) >= 80 ? 'text-emerald-600' : (v.matchScore ?? 0) >= 60 ? 'text-amber-600' : 'text-gray-400'}`}>
                     {v.matchScore}%
                   </div>
                 </div>
@@ -320,7 +394,7 @@ function DashboardView() {
       {careerHistory.length > 0 && (
         <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
           <div className="px-4 py-3 border-b border-gray-100 text-sm font-semibold text-gray-900">🕐 Histórico de Carreira</div>
-          {careerHistory.map((c: any) => (
+          {careerHistory.map(c => (
             <div key={c.id} className="flex items-center gap-3 px-4 py-3 border-b border-gray-100 last:border-0">
               <div className="w-2 h-2 rounded-full bg-blue-400 flex-shrink-0" />
               <div className="flex-1">
@@ -386,7 +460,7 @@ function PathsView() {
 
             {/* Passos / Cargos */}
             <div className="space-y-3">
-              {selected.steps.map((step: any, idx: number) => (
+              {selected.steps.map((step, idx) => (
                 <div key={step.id} className="flex items-start gap-3">
                   <div className="flex flex-col items-center">
                     <div className="w-8 h-8 rounded-full bg-blue-700 text-white flex items-center justify-center text-xs font-bold flex-shrink-0">
@@ -399,11 +473,11 @@ function PathsView() {
                     <div className="flex gap-3 text-xs text-gray-400 mt-1">
                       {step.minMonthsRequired && <span>⏱ {step.minMonthsRequired}m mínimos</span>}
                       {step.minPerformanceScore && <span>⭐ Score ≥{step.minPerformanceScore}</span>}
-                      {step.requiredCourseIds?.length > 0 && <span>📚 {step.requiredCourseIds.length} cursos obrigatórios</span>}
+                      {(step.requiredCourseIds?.length ?? 0) > 0 && <span>📚 {step.requiredCourseIds?.length} cursos obrigatórios</span>}
                     </div>
-                    {step.position?.competencies?.length > 0 && (
+                    {(step.position?.competencies?.length ?? 0) > 0 && (
                       <div className="flex flex-wrap gap-1 mt-2">
-                        {step.position.competencies.slice(0, 4).map((pc: any) => (
+                        {step.position?.competencies?.slice(0, 4).map(pc => (
                           <span key={pc.competency.id} className="text-xs bg-blue-50 text-blue-700 px-1.5 py-0.5 rounded">
                             {pc.competency.name}
                           </span>
@@ -439,7 +513,7 @@ function VacanciesView() {
       await apiClient.post(`/career/vacancies/${vacancyId}/apply`, {});
       await refetch();
       alert('✅ Candidatura enviada com sucesso!');
-    } catch (e: any) { alert(e.message); }
+    } catch (e) { alert(e instanceof Error ? e.message : String(e)); }
     finally { setApplying(null); }
   };
 
@@ -520,7 +594,7 @@ function VacanciesView() {
 function PlanView() {
   const [title, setTitle] = useState('');
 
-  const { data: plan, isLoading: loading } = useApiQuery<any>(
+  const { data: plan, isLoading: loading } = useApiQuery<CareerPlan>(
     queryKeys.career.plan(), '/career/me/plan', { staleTime: STALE_TIME.DYNAMIC },
   );
 
@@ -565,7 +639,7 @@ function PlanView() {
   }
 
   const goals = plan.goals ?? [];
-  const completed = goals.filter((g: any) => g.status === 'COMPLETED').length;
+  const completed = goals.filter(g => g.status === 'COMPLETED').length;
 
   return (
     <div className="space-y-5">
@@ -601,7 +675,7 @@ function PlanView() {
         {goals.length === 0 ? (
           <div className="px-4 py-8 text-center text-sm text-gray-400">Sem objetivos. Adiciona o primeiro objetivo ao plano.</div>
         ) : (
-          goals.map((g: any) => (
+          goals.map(g => (
             <div key={g.id} className="flex items-center gap-4 px-4 py-3.5 border-b border-gray-100 last:border-0">
               <div className={`w-4 h-4 rounded-full flex-shrink-0 border-2 ${
                 g.status === 'COMPLETED' ? 'bg-emerald-500 border-emerald-500' :
