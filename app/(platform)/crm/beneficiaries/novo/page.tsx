@@ -43,8 +43,8 @@ export default function NovoBeneficiarioPage() {
   const createMut = useApiMutation(
     () => {
       // Remove campos vazios para não falhar validação dos enums/datas.
-      const payload: any = { type: form.type, fullName: form.fullName };
-      for (const [k, v] of Object.entries(form)) {
+      const payload: Partial<typeof form> = { type: form.type, fullName: form.fullName };
+      for (const [k, v] of Object.entries(form) as Array<[keyof typeof form, string]>) {
         if (k === 'type' || k === 'fullName') continue;
         if (v !== '' && v != null) payload[k] = v;
       }
