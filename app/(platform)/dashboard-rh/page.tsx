@@ -12,12 +12,65 @@ import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import Image from 'next/image';
+import type { LucideIcon } from 'lucide-react';
 
 // ─── Types ───────────────────────────────────────────────────────
 
 type Panel = 'overview' | 'headcount' | 'turnover' | 'performance' | 'training' | 'engagement' | 'talent' | 'correlations';
 
 interface Alert { type: string; severity: 'HIGH' | 'MEDIUM' | 'LOW'; message: string; count?: number }
+
+interface DeptCount { id?: number; name?: string; count: number }
+interface OverviewKpis {
+  headcount?: { total?: number; status?: string };
+  turnover?: { rate?: number; status?: string };
+  newHires?: { count?: number; trend?: number };
+  performance?: { avg?: number };
+  pdpCoverage?: { pct?: number; status?: string };
+  completions?: { count?: number };
+  engagement?: { surveyResponses?: number };
+  mandatoryCompliance?: number;
+}
+interface OverviewData {
+  kpis?: OverviewKpis;
+  distribution?: { byDepartment?: DeptCount[] };
+}
+
+interface HeadcountData {
+  total?: number; active?: number; turnoverRate?: number; avgTenureMonths?: number;
+  byTenure?: Record<string, number>;
+}
+interface HeadcountTrendPoint { month: string; count: number }
+interface AnniversaryUser { fullName: string; avatarUrl?: string; years: number }
+
+interface PerformanceDeptScore { department: string; avgScore: number }
+interface PerformanceData {
+  avgScore?: number; status?: string; total?: number; hiPos?: number; hiPoRatio?: number; atRisk?: number;
+  distribution?: Record<string, number>;
+  byDepartment?: PerformanceDeptScore[];
+  insights?: string[];
+}
+
+interface TrainingTopCourse { course?: { title?: string; category?: string }; courseId?: number; count: number }
+interface TrainingData {
+  completed?: number; completionRate?: number; mandatoryRate?: number; mandatoryStatus?: string; estimatedHours?: number;
+  topCourses?: TrainingTopCourse[];
+  insights?: string[];
+}
+
+interface CorrelationBucket { insight: string; highTrainingAvgPerf?: number; lowTrainingAvgPerf?: number; lift?: number }
+interface EngagementCorrelation { insight: string; highEngAvgPerf?: number; lowEngAvgPerf?: number }
+interface CorrelationsData {
+  sampleSize?: number;
+  trainingVsPerformance?: CorrelationBucket;
+  engagementVsPerformance?: EngagementCorrelation;
+}
+
+interface SuccessionPlan { candidate?: { fullName?: string; avatarUrl?: string }; position?: { name?: string }; readiness?: string }
+interface PositionAtRisk { name: string; level: number }
+interface TalentData {
+  coverageRate?: number; successionPlans?: SuccessionPlan[]; hiPoCount?: number; positionsAtRisk?: PositionAtRisk[];
+}
 
 function Skeleton({ count = 4 }: { count?: number }) {
   return <div className="grid grid-cols-2 md:grid-cols-4 gap-4 animate-pulse">{[...Array(count)].map((_, i) => <div key={i} className="bg-slate-100 rounded-xl h-24" />)}</div>;
@@ -40,7 +93,7 @@ function Avatar({ name, url, size = 8 }: { name: string; url?: string; size?: nu
 }
 
 function KPICard({ icon: Icon, label, value, sub, trend, color = 'text-indigo-600', bg = 'bg-indigo-50', status }: {
-  icon: any; label: string; value: string | number; sub?: string;
+  icon: LucideIcon; label: string; value: string | number; sub?: string;
   trend?: number; color?: string; bg?: string; status?: string;
 }) {
   return (
@@ -97,7 +150,7 @@ function AlertStrip({ alerts }: { alerts: Alert[] }) {
 // ─── Overview Panel ───────────────────────────────────────────────
 
 function OverviewPanel() {
-  const dataQ = useApiQuery<any>(queryKeys.dashboardRh.overview(), '/dashboard-rh', { staleTime: STALE_TIME.DYNAMIC });
+  const dataQ = useApiQuery<OverviewData>(queryKeys.dashboardRh.overview(), '/dashboard-rh', { staleTime: STALE_TIME.DYNAMIC });
   const alertsQ = useApiQuery<Alert[]>(queryKeys.dashboardRh.alerts(), '/dashboard-rh/alerts', { staleTime: STALE_TIME.DYNAMIC });
   const data = dataQ.data ?? null;
   const alerts = alertsQ.data ?? [];
@@ -127,8 +180,8 @@ function OverviewPanel() {
         <div className="bg-white rounded-xl border border-slate-100 p-5">
           <h3 className="font-semibold text-slate-700 mb-4">Distribuição por Departamento</h3>
           <div className="space-y-2">
-            {(data.distribution.byDepartment as any[]).slice(0, 8).map((d: any, i: number) => {
-              const maxCount = Math.max(...(data.distribution.byDepartment as any[]).map((x: any) => x.count));
+            {(data?.distribution?.byDepartment ?? []).slice(0, 8).map((d, i) => {
+              const maxCount = Math.max(...(data?.distribution?.byDepartment ?? []).map(x => x.count));
               return (
                 <div key={i}>
                   <div className="flex justify-between text-xs mb-0.5">
@@ -149,8 +202,8 @@ function OverviewPanel() {
 // ─── Headcount Panel ──────────────────────────────────────────────
 
 function HeadcountPanel() {
-  const dataQ = useApiQuery<any>(queryKeys.dashboardRh.headcount(), '/dashboard-rh/headcount', { staleTime: STALE_TIME.SEMI_STATIC });
-  const trendQ = useApiQuery<any[]>(queryKeys.dashboardRh.headcountTrend(), '/dashboard-rh/headcount-trend', { params: { months: 6 }, staleTime: STALE_TIME.SEMI_STATIC });
+  const dataQ = useApiQuery<HeadcountData>(queryKeys.dashboardRh.headcount(), '/dashboard-rh/headcount', { staleTime: STALE_TIME.SEMI_STATIC });
+  const trendQ = useApiQuery<HeadcountTrendPoint[]>(queryKeys.dashboardRh.headcountTrend(), '/dashboard-rh/headcount-trend', { params: { months: 6 }, staleTime: STALE_TIME.SEMI_STATIC });
   const data = dataQ.data ?? null;
   const trend = trendQ.data ?? [];
   const loading = dataQ.isLoading;
@@ -191,7 +244,7 @@ function HeadcountPanel() {
         <div className="bg-white rounded-xl border border-slate-100 p-5">
           <h4 className="font-semibold text-slate-700 mb-4">Evolução Mensal</h4>
           <div className="space-y-2">
-            {trend.map((t: any, i: number) => {
+            {trend.map((t, i) => {
               const max = Math.max(...trend.map(x => x.count));
               return (
                 <div key={i}>
@@ -214,7 +267,7 @@ function HeadcountPanel() {
 }
 
 function AnniversariesWidget() {
-  const { data = [] } = useApiQuery<any[]>(
+  const { data = [] } = useApiQuery<AnniversaryUser[]>(
     queryKeys.dashboardRh.anniversaries(), '/dashboard-rh/anniversaries',
     { staleTime: STALE_TIME.SEMI_STATIC, retry: false },
   );
@@ -225,7 +278,7 @@ function AnniversariesWidget() {
         🎉 Aniversários de Empresa este Mês
       </h4>
       <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-        {data.slice(0, 6).map((u: any, i) => (
+        {data.slice(0, 6).map((u, i) => (
           <div key={i} className="flex items-center gap-2 bg-white rounded-lg px-3 py-2">
             <Avatar name={u.fullName} url={u.avatarUrl} size={7} />
             <div className="min-w-0">
@@ -242,7 +295,7 @@ function AnniversariesWidget() {
 // ─── Performance Panel ────────────────────────────────────────────
 
 function PerformancePanel() {
-  const { data, isLoading: loading } = useApiQuery<any>(
+  const { data, isLoading: loading } = useApiQuery<PerformanceData>(
     queryKeys.dashboardRh.performance(), '/dashboard-rh/performance', { staleTime: STALE_TIME.SEMI_STATIC },
   );
   if (loading) return <Skeleton />;
@@ -286,7 +339,7 @@ function PerformancePanel() {
         {/* By dept */}
         <div className="bg-white rounded-xl border border-slate-100 p-5">
           <h4 className="font-semibold text-slate-700 mb-4">Score por Departamento</h4>
-          {(data?.byDepartment ?? []).slice(0, 6).map((d: any, i: number) => (
+          {(data?.byDepartment ?? []).slice(0, 6).map((d, i) => (
             <div key={i} className="mb-2">
               <div className="flex justify-between text-xs mb-0.5">
                 <span className="text-slate-600 truncate">{d.department}</span>
@@ -302,9 +355,9 @@ function PerformancePanel() {
       </div>
 
       {/* Insights */}
-      {(data?.insights ?? []).length > 0 && (
+      {(data?.insights?.length ?? 0) > 0 && (
         <div className="bg-violet-50 border border-violet-100 rounded-xl p-4">
-          {data.insights.map((ins: string, i: number) => <p key={i} className="text-xs text-violet-800">{ins}</p>)}
+          {data?.insights?.map((ins, i) => <p key={i} className="text-xs text-violet-800">{ins}</p>)}
         </div>
       )}
     </div>
@@ -314,7 +367,7 @@ function PerformancePanel() {
 // ─── Training Panel ───────────────────────────────────────────────
 
 function TrainingPanel() {
-  const { data, isLoading: loading } = useApiQuery<any>(
+  const { data, isLoading: loading } = useApiQuery<TrainingData>(
     queryKeys.dashboardRh.training(), '/dashboard-rh/training', { staleTime: STALE_TIME.SEMI_STATIC },
   );
   if (loading) return <Skeleton />;
@@ -333,7 +386,7 @@ function TrainingPanel() {
         <div className="bg-white rounded-xl border border-slate-100 p-5">
           <h4 className="font-semibold text-slate-700 mb-3">Top 5 Cursos</h4>
           <div className="space-y-2">
-            {data.topCourses.map((c: any, i: number) => (
+            {(data?.topCourses ?? []).map((c, i) => (
               <div key={i} className="flex items-center gap-3">
                 <span className="text-xs font-bold text-slate-300 w-4">#{i+1}</span>
                 <div className="flex-1 min-w-0">
@@ -347,9 +400,9 @@ function TrainingPanel() {
         </div>
       )}
 
-      {(data?.insights ?? []).length > 0 && (
+      {(data?.insights?.length ?? 0) > 0 && (
         <div className="bg-violet-50 border border-violet-100 rounded-xl p-4">
-          {data.insights.map((ins: string, i: number) => <p key={i} className="text-xs text-violet-800">{ins}</p>)}
+          {data?.insights?.map((ins, i) => <p key={i} className="text-xs text-violet-800">{ins}</p>)}
         </div>
       )}
     </div>
@@ -359,7 +412,7 @@ function TrainingPanel() {
 // ─── Correlations Panel ───────────────────────────────────────────
 
 function CorrelationsPanel() {
-  const { data, isLoading: loading } = useApiQuery<any>(
+  const { data, isLoading: loading } = useApiQuery<CorrelationsData>(
     queryKeys.dashboardRh.correlations(), '/dashboard-rh/correlations', { staleTime: STALE_TIME.SEMI_STATIC },
   );
   if (loading) return <Skeleton count={2} />;
@@ -384,15 +437,15 @@ function CorrelationsPanel() {
               { label: 'Baixo treino',            value: data.trainingVsPerformance.lowTrainingAvgPerf,  color: 'bg-red-400' },
             ].map(item => (
               <div key={item.label} className="text-center">
-                <p className={`text-3xl font-black ${item.value >= 3.5 ? 'text-emerald-600' : 'text-red-500'}`}>
+                <p className={`text-3xl font-black ${(item.value ?? 0) >= 3.5 ? 'text-emerald-600' : 'text-red-500'}`}>
                   {item.value?.toFixed(1) ?? '–'}
                 </p>
                 <p className="text-xs text-slate-500">{item.label}</p>
-                <ProgressBar value={(item.value / 5) * 100} color={item.color} height="h-2" />
+                <ProgressBar value={((item.value ?? 0) / 5) * 100} color={item.color} height="h-2" />
               </div>
             ))}
           </div>
-          {data.trainingVsPerformance.lift > 0 && (
+          {(data.trainingVsPerformance.lift ?? 0) > 0 && (
             <div className="mt-3 text-center">
               <span className="text-sm font-bold text-emerald-600">+{data.trainingVsPerformance.lift} pts lift</span>
               <span className="text-xs text-slate-400 ml-2">por alto consumo de formação</span>
@@ -413,11 +466,11 @@ function CorrelationsPanel() {
               { label: 'Baixo engagement', value: data.engagementVsPerformance.lowEngAvgPerf,  color: 'bg-red-400' },
             ].map(item => (
               <div key={item.label} className="text-center">
-                <p className={`text-3xl font-black ${item.value >= 3.5 ? 'text-emerald-600' : 'text-red-500'}`}>
+                <p className={`text-3xl font-black ${(item.value ?? 0) >= 3.5 ? 'text-emerald-600' : 'text-red-500'}`}>
                   {item.value?.toFixed(1) ?? '–'}
                 </p>
                 <p className="text-xs text-slate-500">{item.label}</p>
-                <ProgressBar value={(item.value / 5) * 100} color={item.color} height="h-2" />
+                <ProgressBar value={((item.value ?? 0) / 5) * 100} color={item.color} height="h-2" />
               </div>
             ))}
           </div>
@@ -430,7 +483,7 @@ function CorrelationsPanel() {
 // ─── Talent Pipeline Panel ────────────────────────────────────────
 
 function TalentPanel() {
-  const { data, isLoading: loading } = useApiQuery<any>(
+  const { data, isLoading: loading } = useApiQuery<TalentData>(
     queryKeys.dashboardRh.talent(), '/dashboard-rh/talent-pipeline', { staleTime: STALE_TIME.SEMI_STATIC },
   );
   if (loading) return <Skeleton count={3} />;
@@ -449,7 +502,7 @@ function TalentPanel() {
         <div className="bg-white rounded-xl border border-slate-100 p-5">
           <h4 className="font-semibold text-slate-700 mb-3">Planos de Sucessão</h4>
           <div className="space-y-2">
-            {(data.successionPlans as any[]).slice(0, 8).map((p: any, i: number) => (
+            {(data?.successionPlans ?? []).slice(0, 8).map((p, i) => (
               <div key={i} className="flex items-center gap-3 py-2 border-b border-slate-50 last:border-0">
                 <Avatar name={p.candidate?.fullName ?? '?'} url={p.candidate?.avatarUrl} />
                 <div className="flex-1 min-w-0">
@@ -468,7 +521,7 @@ function TalentPanel() {
         <div className="bg-red-50 border border-red-200 rounded-xl p-4">
           <h4 className="font-semibold text-red-700 mb-2">⚠️ Posições Sem Sucessor</h4>
           <div className="space-y-1">
-            {data.positionsAtRisk.map((p: any, i: number) => (
+            {(data?.positionsAtRisk ?? []).map((p, i) => (
               <p key={i} className="text-xs text-red-700">• {p.name} (Nível {p.level})</p>
             ))}
           </div>
@@ -480,7 +533,7 @@ function TalentPanel() {
 
 // ─── Main Page ───────────────────────────────────────────────────
 
-const PANELS: { id: Panel; label: string; icon: any }[] = [
+const PANELS: { id: Panel; label: string; icon: LucideIcon }[] = [
   { id: 'overview',      label: 'Visão Geral',    icon: BarChart2 },
   { id: 'headcount',     label: 'Headcount',      icon: Users },
   { id: 'performance',   label: 'Performance',    icon: Star },
