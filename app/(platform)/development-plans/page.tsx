@@ -34,7 +34,7 @@ interface Plan {
   actions?: Action[];
   goals?: Goal[];
   checkpoints?: Checkpoint[];
-  certificates?: any[];
+  certificates?: unknown[];
   _count: { actions: number; goals: number; checkpoints: number };
 }
 
@@ -88,6 +88,15 @@ interface MyStats {
   actions: Record<string, number>;
   completionRate: number;
   totalXp: number;
+}
+
+interface TeamPlanSummary {
+  id: number;
+  name: string;
+  progress: number;
+  overdueActions?: number;
+  pendingApproval?: boolean;
+  user: { fullName: string; avatarUrl: string | null; position?: { name: string } | null };
 }
 
 type View = 'my-plans' | 'detail' | 'team' | 'create';
@@ -299,7 +308,7 @@ function DetailView({ planId, onBack }: { planId: number; onBack: () => void }) 
     try {
       await apiClient.put(`/development-plans/actions/${actionId}`, { status: 'COMPLETED', progress: 100 });
       await refetch();
-    } catch (e: any) { alert(e.message); }
+    } catch (e) { alert(e instanceof Error ? e.message : String(e)); }
     finally { setUpdatingAction(null); }
   };
 
@@ -308,7 +317,7 @@ function DetailView({ planId, onBack }: { planId: number; onBack: () => void }) 
     try {
       await apiClient.patch('/development-plans/goals/progress', { goalId, progress });
       await refetch();
-    } catch (e: any) { alert(e.message); }
+    } catch (e) { alert(e instanceof Error ? e.message : String(e)); }
     finally { setUpdatingGoal(null); }
   };
 
@@ -316,7 +325,7 @@ function DetailView({ planId, onBack }: { planId: number; onBack: () => void }) 
     try {
       await apiClient.patch(`/development-plans/${planId}/submit`, {});
       await refetch();
-    } catch (e: any) { alert(e.message); }
+    } catch (e) { alert(e instanceof Error ? e.message : String(e)); }
   };
 
   if (loading || !plan) return <Skeleton rows={5} />;
@@ -547,7 +556,7 @@ function DetailView({ planId, onBack }: { planId: number; onBack: () => void }) 
 // ─── View: Team ────────────────────────────────────────────────────────────────
 
 function TeamView({ onSelect }: { onSelect: (id: number) => void }) {
-  const { data: plans = [], isLoading } = useApiQuery<any[]>(
+  const { data: plans = [], isLoading } = useApiQuery<TeamPlanSummary[]>(
     queryKeys.developmentPlans.teamDashboard(), '/development-plans/team/dashboard',
     { staleTime: STALE_TIME.DYNAMIC },
   );
@@ -574,7 +583,7 @@ function TeamView({ onSelect }: { onSelect: (id: number) => void }) {
             </div>
             <div className="text-right flex-shrink-0">
               <div className="text-sm font-bold font-mono text-blue-700">{p.progress}%</div>
-              {p.overdueActions > 0 && (
+              {(p.overdueActions ?? 0) > 0 && (
                 <div className="text-xs text-red-600">⚠ {p.overdueActions} atrasadas</div>
               )}
               {p.pendingApproval && (
