@@ -4,12 +4,20 @@ import type { NextConfig } from "next";
 // Caddy — aqui ficam os headers de conteúdo. `script-src 'unsafe-inline'` é a
 // concessão aos scripts inline de hidratação do App Router; migrar para nonces
 // (via middleware) é iteração futura registada no spec.
+//
+// `'unsafe-eval'` só em dev: o runtime de Fast Refresh do `next dev` usa
+// eval() para aplicar HMR; sem isto o CSP bloqueia o bundle inteiro logo no
+// arranque (EvalError silencioso na consola, app fica sem hidratar — toda a
+// interactividade morre, incluindo formulários). Produção não usa eval(),
+// por isso fica de fora do build final.
+const isDev = process.env.NODE_ENV !== "production";
+
 const securityHeaders = [
   {
     key: "Content-Security-Policy",
     value: [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline'",
+      `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: blob: https:",
       "font-src 'self' data:",
