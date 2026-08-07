@@ -344,8 +344,8 @@ function DetailView({
       await apiClient.post(`/payslips/my/${payslipId}/dispute`, { reason: dispute.reason, details: dispute.details });
       dispatchDispute({ type: 'CLOSE' });
       alert('Disputa registada com sucesso. O RH será notificado.');
-    } catch (e: any) {
-      alert(e.message);
+    } catch (e) {
+      alert(e instanceof Error ? e.message : String(e));
       dispatchDispute({ type: 'SUBMIT_END' });
     }
   };
