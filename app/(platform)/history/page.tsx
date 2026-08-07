@@ -12,10 +12,30 @@ import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import Image from 'next/image';
+import type { LucideIcon } from 'lucide-react';
 
 // ─── Types ───────────────────────────────────────────────────────
 
 type Tab = 'timeline' | 'milestones' | 'stats' | 'audit';
+
+interface Milestone { icon: string; title: string; date: string; impactScore: number; type: string }
+
+interface HistoryStats {
+  streak?: number; activeDays?: number; completions?: number; xpPoints?: number;
+  heatmap?: Record<string, number>;
+  byCategory?: Record<string, number>;
+}
+
+interface AuditActionCount { action: string; count: number }
+interface AuditAlert { action: string; user?: { fullName?: string }; userId: number; timestamp: string }
+interface AuditStats {
+  total?: number;
+  byAction?: AuditActionCount[];
+  topUsers?: unknown[];
+  recentAlerts?: AuditAlert[];
+}
+interface UpcomingAnniversary { fullName: string; years: number }
+interface UpcomingData { anniversaries?: UpcomingAnniversary[] }
 
 interface TimelineEvent {
   id: string; source: string; timestamp: string;
@@ -136,7 +156,7 @@ function TimelineTab() {
   const [page, setPage]         = useState(1);
   const params = { page, limit: 20, category };
 
-  const { data, isLoading: loading } = useApiQuery<{ grouped: GroupedEvents[]; milestones: any[]; meta: any }>(
+  const { data, isLoading: loading } = useApiQuery<{ grouped: GroupedEvents[]; milestones: Milestone[]; meta: { totalPages: number } }>(
     queryKeys.history.timeline(params), '/history/timeline/me',
     { params, staleTime: STALE_TIME.DYNAMIC, placeholderData: keepPreviousData },
   );
@@ -230,7 +250,7 @@ function TimelineTab() {
 // ─── Milestones Tab ───────────────────────────────────────────────
 
 function MilestonesTab() {
-  const { data = [], isLoading: loading } = useApiQuery<any[]>(
+  const { data = [], isLoading: loading } = useApiQuery<Milestone[]>(
     queryKeys.history.milestones(), '/history/milestones/me',
     { staleTime: STALE_TIME.SEMI_STATIC },
   );
@@ -271,7 +291,7 @@ function MilestonesTab() {
 // ─── Stats Tab ────────────────────────────────────────────────────
 
 function StatsTab() {
-  const { data, isLoading: loading } = useApiQuery<any>(
+  const { data, isLoading: loading } = useApiQuery<HistoryStats>(
     queryKeys.history.stats(), '/history/stats/me',
     { staleTime: STALE_TIME.SEMI_STATIC },
   );
@@ -362,8 +382,8 @@ function StatsTab() {
 // ─── Audit Tab ────────────────────────────────────────────────────
 
 function AuditTab() {
-  const dataQ = useApiQuery<any>(queryKeys.history.auditStats(), '/history/audit/stats', { staleTime: STALE_TIME.DYNAMIC });
-  const upcomingQ = useApiQuery<any>(queryKeys.history.upcoming(), '/history/upcoming', { staleTime: STALE_TIME.SEMI_STATIC });
+  const dataQ = useApiQuery<AuditStats>(queryKeys.history.auditStats(), '/history/audit/stats', { staleTime: STALE_TIME.DYNAMIC });
+  const upcomingQ = useApiQuery<UpcomingData>(queryKeys.history.upcoming(), '/history/upcoming', { staleTime: STALE_TIME.SEMI_STATIC });
   const data = dataQ.data ?? null;
   const upcoming = upcomingQ.data ?? null;
   const loading = dataQ.isLoading;
@@ -392,8 +412,8 @@ function AuditTab() {
         <div className="bg-white rounded-xl border border-slate-100 p-5">
           <h4 className="font-semibold text-slate-700 mb-3">Top Acções</h4>
           <div className="space-y-1.5">
-            {data.byAction.slice(0, 8).map((a: any, i: number) => {
-              const max = data.byAction[0].count;
+            {(data?.byAction ?? []).slice(0, 8).map((a, i) => {
+              const max = data?.byAction?.[0]?.count ?? 1;
               return (
                 <div key={i} className="flex items-center gap-3">
                   <span className="text-xs text-slate-300 w-5 text-right">#{i+1}</span>
@@ -414,7 +434,7 @@ function AuditTab() {
         <div className="bg-amber-50 border border-amber-200 rounded-xl p-5">
           <h4 className="font-semibold text-amber-700 mb-3">🎉 Aniversários de Empresa este Mês</h4>
           <div className="grid grid-cols-2 gap-2">
-            {(upcoming.anniversaries as any[]).slice(0, 6).map((u: any, i: number) => (
+            {(upcoming?.anniversaries ?? []).slice(0, 6).map((u, i) => (
               <div key={i} className="flex items-center gap-2 bg-white rounded-lg px-3 py-2">
                 <div className="w-7 h-7 rounded-full bg-amber-200 flex items-center justify-center text-xs font-bold text-amber-700 shrink-0">
                   {u.fullName[0]}
@@ -436,7 +456,7 @@ function AuditTab() {
             <Shield size={14} className="text-red-500" />Eventos de Segurança Recentes
           </h4>
           <div className="space-y-2">
-            {(data.recentAlerts as any[]).map((a: any, i: number) => (
+            {(data?.recentAlerts ?? []).map((a, i) => (
               <div key={i} className="flex items-center gap-2 text-xs text-slate-600 py-1.5 border-b border-slate-50">
                 <span className="font-mono text-red-500 shrink-0">{a.action}</span>
                 <span>·</span>
@@ -453,7 +473,7 @@ function AuditTab() {
 
 // ─── Main Page ───────────────────────────────────────────────────
 
-const TABS: { id: Tab; label: string; icon: any }[] = [
+const TABS: { id: Tab; label: string; icon: LucideIcon }[] = [
   { id: 'timeline',   label: 'Timeline',   icon: Clock },
   { id: 'milestones', label: 'Marcos',     icon: Award },
   { id: 'stats',      label: 'Actividade', icon: Activity },
