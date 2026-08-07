@@ -57,8 +57,8 @@ interface OnboardingPlan {
   user: { id: number; fullName: string; email: string; avatarUrl: string | null; department: { name: string } | null; position: { name: string } | null };
   template: { id: number; name: string; durationDays: number; welcomeVideoUrl: string | null };
   buddy: { id: number; fullName: string; avatarUrl: string | null; position: { name: string } | null } | null;
-  manager: { id: number; fullName: string; avatarUrl: string | null } | null;
-  hrResponsible: { id: number; fullName: string; avatarUrl: string | null } | null;
+  manager: { id: number; fullName: string; avatarUrl: string | null; position?: { name: string } | null } | null;
+  hrResponsible: { id: number; fullName: string; avatarUrl: string | null; position?: { name: string } | null } | null;
   taskInstances: TaskInstance[];
   documents: OnboardingDoc[];
   surveys: Survey[];
@@ -91,6 +91,25 @@ interface Dashboard {
     avgSurveyScore: number;
   };
   active: Array<OnboardingPlan & { daysIn: number }>;
+}
+
+interface TemplateTaskSummary {
+  id: number;
+  category: TaskCategory;
+  title: string;
+  xpReward: number;
+}
+
+interface OnboardingTemplate {
+  id: number;
+  name: string;
+  description: string | null;
+  active: boolean;
+  durationDays: number;
+  position?: { name: string } | null;
+  department?: { name: string } | null;
+  _count?: { tasks: number; plans: number };
+  tasks?: TemplateTaskSummary[];
 }
 
 type View = 'my-plan' | 'dashboard' | 'templates';
@@ -267,7 +286,7 @@ function MyPlanView() {
     try {
       await apiClient.post('/onboarding/tasks/complete', { taskInstanceId: taskId });
       await refetch();
-    } catch (e: any) { alert(e.message); }
+    } catch (e) { alert(e instanceof Error ? e.message : String(e)); }
   };
 
   const surveyMutation = useApiMutation(
@@ -441,8 +460,8 @@ function MyPlanView() {
                 <div className="flex flex-col items-center gap-2">
                   <Avatar name={person.fullName} avatarUrl={person.avatarUrl} size="lg" />
                   <div className="text-sm font-medium text-gray-900">{person.fullName}</div>
-                  {(person as any).position && (
-                    <div className="text-xs text-gray-400">{(person as any).position.name}</div>
+                  {person.position && (
+                    <div className="text-xs text-gray-400">{person.position.name}</div>
                   )}
                   <button className="text-xs text-blue-600 hover:underline mt-1">💬 Enviar mensagem</button>
                 </div>
@@ -582,7 +601,7 @@ function DashboardView() {
 // ─── View: Templates ──────────────────────────────────────────────────────────
 
 function TemplatesView() {
-  const { data = [], isLoading: loading } = useApiQuery<any[]>(
+  const { data = [], isLoading: loading } = useApiQuery<OnboardingTemplate[]>(
     queryKeys.onboarding.templates(), '/onboarding/templates',
     { staleTime: STALE_TIME.SEMI_STATIC },
   );
@@ -613,8 +632,8 @@ function TemplatesView() {
 
           {t.tasks && t.tasks.length > 0 && (
             <div className="space-y-1">
-              {t.tasks.slice(0, 3).map((task: any) => {
-                const catCfg = CATEGORY_CFG[task.category as TaskCategory];
+              {t.tasks.slice(0, 3).map((task) => {
+                const catCfg = CATEGORY_CFG[task.category];
                 return (
                   <div key={task.id} className="flex items-center gap-2 text-xs text-gray-600">
                     <span>{catCfg?.icon ?? '•'}</span>
