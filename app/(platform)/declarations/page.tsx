@@ -16,6 +16,7 @@ import { useApiQuery, useApiMutation } from '../../../hooks/useApiQuery';
 import { apiClient } from '../../../lib/apiClient';
 import { queryKeys } from '../../../lib/queryKeys';
 import { STALE_TIME } from '../../../lib/queryClient';
+import type { LucideIcon } from 'lucide-react';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -66,7 +67,7 @@ interface WorkDashboard {
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const DOC_STATUS: Record<DocStatus, { label: string; color: string; icon: any }> = {
+const DOC_STATUS: Record<DocStatus, { label: string; color: string; icon: LucideIcon }> = {
   DRAFT:     { label: 'Rascunho',   color: 'bg-gray-100 text-gray-600',      icon: FileText    },
   PENDING:   { label: 'Pendente',   color: 'bg-amber-100 text-amber-700',    icon: Clock       },
   APPROVED:  { label: 'Aprovado',   color: 'bg-blue-100 text-blue-700',      icon: Check       },
@@ -97,7 +98,7 @@ function StatusBadge({ status, type = 'doc' }: { status: string; type?: 'doc'|'w
   const cfg = type === 'doc'
     ? DOC_STATUS[status as DocStatus] ?? DOC_STATUS.DRAFT
     : { ...WORK_STATUS[status as WorkStatus] ?? WORK_STATUS.DRAFT, icon: Clock };
-  const Icon = (cfg as any).icon ?? Clock;
+  const Icon = cfg.icon ?? Clock;
   return (
     <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${cfg.color}`}>
       <Icon size={11} />{cfg.label}
@@ -106,7 +107,7 @@ function StatusBadge({ status, type = 'doc' }: { status: string; type?: 'doc'|'w
 }
 
 function KpiCard({ label, value, icon: Icon, color = 'blue', sub }: {
-  label: string; value: string|number; icon: any; color?: string; sub?: string;
+  label: string; value: string|number; icon: LucideIcon; color?: string; sub?: string;
 }) {
   const colors: Record<string, string> = {
     blue: 'bg-blue-50 text-blue-600', emerald: 'bg-emerald-50 text-emerald-600',
@@ -134,21 +135,23 @@ function KpiCard({ label, value, icon: Icon, color = 'blue', sub }: {
 // no passo 1) que os useState soltos anteriores não impediam.
 interface WizardForm { templateId: number; purposeId: number; addressedTo: string; observations: string; saveAsDraft: boolean }
 
+interface DocPreview { previewHtml: string }
+
 interface WizardState {
   step: 1 | 2 | 3;
   form: WizardForm;
-  preview: any;
+  preview: DocPreview | null;
   previewLoading: boolean;
   submitting: boolean;
   error: string;
 }
 
 type WizardAction =
-  | { type: 'SET_FIELD'; field: keyof WizardForm; value: any }
+  | { type: 'SET_FIELD'; field: keyof WizardForm; value: WizardForm[keyof WizardForm] }
   | { type: 'NEXT_STEP' }
   | { type: 'PREV_STEP' }
   | { type: 'PREVIEW_START' }
-  | { type: 'PREVIEW_SUCCESS'; preview: any }
+  | { type: 'PREVIEW_SUCCESS'; preview: DocPreview }
   | { type: 'PREVIEW_ERROR' }
   | { type: 'SUBMIT_START' }
   | { type: 'SUBMIT_ERROR'; error: string };
@@ -197,7 +200,7 @@ function NewDocRequestModal({ templates, purposes, onClose, onSuccess }: {
     if (!form.templateId) return;
     dispatch({ type: 'PREVIEW_START' });
     try {
-      const p = await apiClient.get(`/declarations/documents/templates/${form.templateId}/preview`);
+      const p = await apiClient.get<DocPreview>(`/declarations/documents/templates/${form.templateId}/preview`);
       dispatch({ type: 'PREVIEW_SUCCESS', preview: p });
     } catch { dispatch({ type: 'PREVIEW_ERROR' }); }
   };
@@ -207,7 +210,7 @@ function NewDocRequestModal({ templates, purposes, onClose, onSuccess }: {
     try {
       await apiClient.post('/declarations/documents', { ...form, purposeId: form.purposeId || undefined });
       onSuccess(); onClose();
-    } catch (e: any) { dispatch({ type: 'SUBMIT_ERROR', error: e.message }); }
+    } catch (e) { dispatch({ type: 'SUBMIT_ERROR', error: e instanceof Error ? e.message : String(e) }); }
   };
 
   return (
@@ -324,7 +327,7 @@ function NewDocRequestModal({ templates, purposes, onClose, onSuccess }: {
 function WorkDeclFormModal({ form, onClose, onSuccess }: {
   form: WorkForm; onClose: () => void; onSuccess: () => void;
 }) {
-  const [answers, setAnswers] = useState<Record<string, any>>({});
+  const [answers, setAnswers] = useState<Record<string, string | number | boolean>>({});
   const [error, setError]     = useState('');
 
   const questions = (form.questions ?? []).filter(q => {
@@ -370,9 +373,9 @@ function WorkDeclFormModal({ form, onClose, onSuccess }: {
 
               {['TEXT','TEXTAREA'].includes(q.fieldType) && (
                 q.fieldType === 'TEXTAREA'
-                  ? <textarea value={answers[q.key] ?? ''} onChange={e => setAnswers(a => ({...a, [q.key]: e.target.value}))}
+                  ? <textarea value={String(answers[q.key] ?? '')} onChange={e => setAnswers(a => ({...a, [q.key]: e.target.value}))}
                       rows={3} className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none" />
-                  : <input value={answers[q.key] ?? ''} onChange={e => setAnswers(a => ({...a, [q.key]: e.target.value}))}
+                  : <input value={String(answers[q.key] ?? '')} onChange={e => setAnswers(a => ({...a, [q.key]: e.target.value}))}
                       className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500" />
               )}
 
@@ -388,7 +391,7 @@ function WorkDeclFormModal({ form, onClose, onSuccess }: {
               )}
 
               {['SELECT','MULTI_SELECT'].includes(q.fieldType) && (
-                <select value={answers[q.key] ?? ''} onChange={e => setAnswers(a => ({...a, [q.key]: e.target.value}))}
+                <select value={String(answers[q.key] ?? '')} onChange={e => setAnswers(a => ({...a, [q.key]: e.target.value}))}
                   className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
                   <option value="">Seleccionar...</option>
                   {q.options.map(o => <option key={o} value={o}>{o}</option>)}
@@ -396,13 +399,13 @@ function WorkDeclFormModal({ form, onClose, onSuccess }: {
               )}
 
               {q.fieldType === 'DATE' && (
-                <input type="date" value={answers[q.key] ?? ''}
+                <input type="date" value={String(answers[q.key] ?? '')}
                   onChange={e => setAnswers(a => ({...a, [q.key]: e.target.value}))}
                   className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500" />
               )}
 
               {q.fieldType === 'NUMBER' && (
-                <input type="number" value={answers[q.key] ?? ''} onChange={e => setAnswers(a => ({...a, [q.key]: +e.target.value}))}
+                <input type="number" value={String(answers[q.key] ?? '')} onChange={e => setAnswers(a => ({...a, [q.key]: +e.target.value}))}
                   className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500" />
               )}
             </div>
@@ -484,7 +487,7 @@ export default function DeclarationsPage() {
       .forEach(q => q.refetch());
   };
 
-  const tabs: Array<{ key: TabKey; label: string; icon: any; badge?: number }> = [
+  const tabs: Array<{ key: TabKey; label: string; icon: LucideIcon; badge?: number }> = [
     { key: 'docs-my',    label: 'Minhas Declarações', icon: FileText,  },
     { key: 'work-my',    label: 'Formulários',        icon: Clipboard, badge: pendingWork?.total },
     { key: 'docs-admin', label: 'Gerir Pedidos',      icon: BarChart3, },
