@@ -224,6 +224,14 @@ function ContentCard({
     return (
       <div
         onClick={handleView}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            handleView();
+          }
+        }}
         className="bg-white rounded-lg border border-slate-100 p-3 flex items-center gap-3 hover:shadow-sm transition-all cursor-pointer"
       >
         <div
@@ -253,6 +261,14 @@ function ContentCard({
       <div
         className="relative bg-gradient-to-br from-slate-100 to-slate-200 h-36 flex items-center justify-center"
         onClick={handleView}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            handleView();
+          }
+        }}
       >
         {content.thumbnailUrl ? (
           <Image
