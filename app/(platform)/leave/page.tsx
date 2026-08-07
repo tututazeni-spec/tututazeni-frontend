@@ -19,6 +19,7 @@ import {
   CheckCircle2, XCircle, Timer, Sun, Briefcase,
   ArrowUpRight, RefreshCcw, ChevronDown,
 } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -36,7 +37,13 @@ interface LeaveType {
 interface LeaveBalance {
   leaveTypeCode: string; balance: number; used: number;
   pendingDays: number; futureBalance: number; effectiveBalance: number;
-  leaveType: { name: string; code: string; color: string; icon: string };
+  leaveType: { name: string; code: string; color: string; icon: string; annualLimit?: number };
+}
+
+interface ConflictCheck {
+  hasUserConflict: boolean;
+  isAtRisk: boolean;
+  teamConflictCount: number;
 }
 
 interface LeaveRequest {
@@ -57,7 +64,7 @@ interface DashboardData {
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const STATUS_CONFIG: Record<LeaveStatus, { label: string; color: string; icon: any }> = {
+const STATUS_CONFIG: Record<LeaveStatus, { label: string; color: string; icon: LucideIcon }> = {
   DRAFT:     { label: 'Rascunho',  color: 'bg-gray-100 text-gray-600',      icon: FileText     },
   PENDING:   { label: 'Pendente',  color: 'bg-amber-100 text-amber-700',    icon: Clock        },
   APPROVED:  { label: 'Aprovado',  color: 'bg-emerald-100 text-emerald-700',icon: CheckCircle2 },
@@ -93,7 +100,7 @@ function useMyBalance() {
 }
 
 function useMyRequests() {
-  const q = useApiQuery<{ data: LeaveRequest[]; meta: any }>(
+  const q = useApiQuery<{ data: LeaveRequest[]; meta: { total: number } }>(
     queryKeys.leave.myRequests(), '/leave/my',
     { staleTime: STALE_TIME.DYNAMIC },
   );
@@ -130,7 +137,7 @@ function StatusBadge({ status }: { status: LeaveStatus }) {
 }
 
 function BalanceBar({ balance }: { balance: LeaveBalance }) {
-  const total = (balance.leaveType as any)?.annualLimit ?? (balance.balance + balance.used);
+  const total = balance.leaveType?.annualLimit ?? (balance.balance + balance.used);
   const usedPct   = total > 0 ? Math.round((balance.used / total) * 100) : 0;
   const pendingPct= total > 0 ? Math.round((balance.pendingDays / total) * 100) : 0;
 
@@ -179,7 +186,7 @@ function BalanceBar({ balance }: { balance: LeaveBalance }) {
 }
 
 function KpiCard({ label, value, icon: Icon, color = 'blue', sub }: {
-  label: string; value: string|number; icon: any; color?: string; sub?: string;
+  label: string; value: string|number; icon: LucideIcon; color?: string; sub?: string;
 }) {
   const colors: Record<string, string> = {
     blue: 'bg-blue-50 text-blue-600', emerald: 'bg-emerald-50 text-emerald-600',
@@ -215,7 +222,7 @@ function NewLeaveModal({
     durationMode: 'FULL_DAY' as DurationMode,
     reason: '', saveAsDraft: false,
   });
-  const [conflicts, setConflicts] = useState<any>(null);
+  const [conflicts, setConflicts] = useState<ConflictCheck | null>(null);
   const [error, setError]         = useState('');
 
   const selectedType  = leaveTypes.find(t => t.code === form.leaveTypeCode);
@@ -224,7 +231,7 @@ function NewLeaveModal({
   const checkConflicts = async () => {
     if (!form.startDate || !form.endDate) return;
     try {
-      const r = await apiClient.get<any>('/leave/conflict-check', {
+      const r = await apiClient.get<ConflictCheck>('/leave/conflict-check', {
         params: { userId: 'me', startDate: form.startDate, endDate: form.endDate },
       });
       setConflicts(r);
@@ -413,7 +420,7 @@ function NewLeaveModal({
         {/* Footer */}
         <div className="p-6 border-t border-gray-100 flex gap-3">
           {step > 1 && (
-            <button onClick={() => setStep(s => (s - 1) as any)}
+            <button onClick={() => setStep(s => Math.max(1, s - 1) as 1 | 2 | 3)}
               className="px-4 py-2.5 text-sm text-gray-600 border border-gray-200 rounded-xl hover:bg-gray-50">
               ← Voltar
             </button>
@@ -424,7 +431,7 @@ function NewLeaveModal({
           <div className="flex-1" />
           {step < 3 ? (
             <button
-              onClick={() => setStep(s => (s + 1) as any)}
+              onClick={() => setStep(s => Math.min(3, s + 1) as 1 | 2 | 3)}
               disabled={step === 1 && !form.leaveTypeCode}
               className="px-5 py-2.5 text-sm text-white bg-blue-600 rounded-xl hover:bg-blue-700 disabled:opacity-40 transition-colors"
             >
@@ -605,7 +612,7 @@ export default function LeavePage() {
     cancel.mutate(requestId);
   };
 
-  const tabs: Array<{ key: TabKey; label: string; icon: any; badge?: number }> = [
+  const tabs: Array<{ key: TabKey; label: string; icon: LucideIcon; badge?: number }> = [
     { key: 'my',        label: 'Minhas Ausências', icon: Calendar },
     { key: 'approvals', label: 'Aprovações',        icon: CheckCircle2, badge: pending.length },
     { key: 'dashboard', label: 'Dashboard RH',      icon: BarChart3 },
