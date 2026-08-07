@@ -392,16 +392,16 @@ function ArticleDetailView({ articleId, onBack }: { articleId: number; onBack: (
   const handleBookmark = async () => {
     if (!article) return;
     try {
-      const res = await apiClient.post<any>('/knowledge/interact', { articleId, action: 'BOOKMARK' });
+      const res = await apiClient.post<{ active: boolean }>('/knowledge/interact', { articleId, action: 'BOOKMARK' });
       qc.setQueryData<Article>(articleKey, prev => prev ? { ...prev, userBookmarked: res.active } : prev);
-    } catch (e: any) { alert(e.message); }
+    } catch (e) { alert(e instanceof Error ? e.message : String(e)); }
   };
 
   const handleRate = async (score: number) => {
     try {
       await apiClient.post('/knowledge/rate', { articleId, score });
       setRating(score);
-    } catch (e: any) { alert(e.message); }
+    } catch (e) { alert(e instanceof Error ? e.message : String(e)); }
   };
 
   const commentMutation = useApiMutation(
