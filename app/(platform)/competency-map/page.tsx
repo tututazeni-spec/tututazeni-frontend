@@ -15,6 +15,7 @@ import { useApiQuery, useApiMutation } from '../../../hooks/useApiQuery';
 import { apiClient } from '../../../lib/apiClient';
 import { queryKeys } from '../../../lib/queryKeys';
 import { STALE_TIME } from '../../../lib/queryClient';
+import type { LucideIcon } from 'lucide-react';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -49,6 +50,12 @@ interface CompetencyMap {
 interface RadarData {
   userId: number; readinessScore: number;
   radarByType: Array<{ type: SkillType; avgCurrent: number; avgRequired: number; count: number }>;
+}
+
+interface CatalogueSkill {
+  id: number; name: string; type: SkillType; maxLevel: number;
+  category?: { name: string };
+  _count?: { employeeSkills: number };
 }
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -103,7 +110,7 @@ function SelfAssessModal({
     submitAssessments.mutate(assessments);
   };
 
-  const byType = skills.reduce((acc: any, s) => {
+  const byType = skills.reduce<Record<string, typeof skills>>((acc, s) => {
     if (!acc[s.type]) acc[s.type] = [];
     acc[s.type].push(s);
     return acc;
@@ -123,7 +130,7 @@ function SelfAssessModal({
         <div className="p-6 space-y-6">
           {error && <div className="flex items-center gap-2 p-3 bg-red-50 text-red-700 rounded-xl text-sm"><AlertCircle size={15}/>{error}</div>}
 
-          {Object.entries(byType).map(([type, typeSkills]: any) => {
+          {Object.entries(byType).map(([type, typeSkills]) => {
             const cfg = TYPE_CONFIG[type as SkillType];
             return (
               <div key={type}>
@@ -131,7 +138,7 @@ function SelfAssessModal({
                   {cfg.label}
                 </div>
                 <div className="space-y-4">
-                  {typeSkills.map((s: any) => (
+                  {typeSkills.map(s => (
                     <div key={s.id}>
                       <div className="flex items-center justify-between mb-1.5">
                         <span className="text-sm font-medium text-gray-800">{s.name}</span>
@@ -275,7 +282,7 @@ export default function CompetencyMapPage() {
     queryKeys.competencyMap.myRadar(), '/competency-map/my/radar',
     { staleTime: STALE_TIME.SEMI_STATIC },
   );
-  const skillsQuery = useApiQuery<{ data: any[] }>(
+  const skillsQuery = useApiQuery<{ data: CatalogueSkill[] }>(
     queryKeys.competencyMap.skills(skillsParams), '/competency-map/skills',
     { params: skillsParams, staleTime: STALE_TIME.STATIC },
   );
@@ -292,7 +299,7 @@ export default function CompetencyMapPage() {
   const gap      = myMap?.gapAnalysis;
   const rcfg     = gap ? READINESS_CONFIG[gap.readinessLevel] : null;
 
-  const tabs: Array<{ key: TabKey; label: string; icon: any; badge?: number }> = [
+  const tabs: Array<{ key: TabKey; label: string; icon: LucideIcon; badge?: number }> = [
     { key: 'my',       label: 'Minhas Skills',  icon: Target    },
     { key: 'gap',      label: 'Gap Analysis',   icon: AlertCircle, badge: gap?.gaps.mandatory.length },
     { key: 'team',     label: 'Equipa',         icon: Users     },
@@ -372,7 +379,7 @@ export default function CompetencyMapPage() {
 
                       {/* By type pills */}
                       <div className="flex flex-wrap gap-2">
-                        {Object.entries(myMap.byType ?? {}).map(([type, skills]: any) => {
+                        {Object.entries(myMap.byType ?? {}).map(([type, skills]) => {
                           const cfg = TYPE_CONFIG[type as SkillType];
                           const avg = skills.length ? +(skills.reduce((a: number, s: EmployeeSkill) => a + s.currentLevel, 0) / skills.length).toFixed(1) : 0;
                           return (
@@ -398,7 +405,7 @@ export default function CompetencyMapPage() {
 
               {/* Skills by type */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {Object.entries(myMap.byType ?? {}).map(([type, skills]: any) => {
+                {Object.entries(myMap.byType ?? {}).map(([type, skills]) => {
                   const cfg = TYPE_CONFIG[type as SkillType];
                   return (
                     <div key={type} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
