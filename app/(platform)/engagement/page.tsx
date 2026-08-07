@@ -13,10 +13,26 @@ import { apiClient } from '../../../lib/apiClient';
 import { queryKeys } from '../../../lib/queryKeys';
 import { STALE_TIME } from '../../../lib/queryClient';
 import Image from 'next/image';
+import type { LucideIcon } from 'lucide-react';
 
 // ─── Types ───────────────────────────────────────────────────────
 
 type Tab = 'overview' | 'surveys' | 'recognition' | 'feedback' | 'analytics';
+
+interface EngagementUserRef {
+  fullName?: string; avatarUrl?: string;
+  department?: { name?: string }; position?: { name?: string };
+}
+
+interface Recognition {
+  from?: EngagementUserRef;
+  to?: EngagementUserRef;
+  message: string;
+  type: string;
+  createdAt: string;
+}
+
+interface PendingSurvey { id: number; title: string; type: string }
 
 interface DashboardData {
   kpis: {
@@ -26,13 +42,52 @@ interface DashboardData {
   };
   engagementHistory: { surveyId: number; title: string; avgScore: number; responses: number; date: string }[];
   enpsBreakdown: { enps: number; promoterPct: number; detractorPct: number; total: number; label: string };
-  recentRecognitions: any[];
+  recentRecognitions: Recognition[];
 }
 
 interface MySummary {
-  pendingSurveys: number; surveys: any[];
+  pendingSurveys: number; surveys: PendingSurvey[];
   recognitionsReceived: number; xpPoints: number;
   lastMood: number | null; humanSuccessScore: number; hssGrade: string;
+}
+
+interface SurveyItem {
+  id: number;
+  type: string;
+  status: string;
+  title: string;
+  description?: string;
+  _count?: { questions?: number; responses?: number };
+  participationRate?: number;
+  endDate?: string;
+}
+
+interface LeaderboardEntry {
+  user?: EngagementUserRef;
+  points?: number;
+  count?: number;
+}
+
+interface FeedbackItem {
+  from?: EngagementUserRef;
+  createdAt: string;
+  type: string;
+  message: string;
+  reply?: string;
+}
+
+interface EngagementIndex {
+  level: string;
+  currentIndex: number;
+  trend: number;
+  latestParticipation: number;
+  totalUsers: number;
+  history: Array<{ title: string; responses: number; date: string; avgScore: number }>;
+}
+
+interface HeatmapRow {
+  department: string;
+  value: number | null;
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────
@@ -74,7 +129,7 @@ function Avatar({ name, url, size = 8 }: { name: string; url?: string; size?: nu
 }
 
 function KpiCard({ icon: Icon, label, value, sub, color = 'text-indigo-600', bg = 'bg-indigo-50', trend }: {
-  icon: any; label: string; value: string | number; sub?: string;
+  icon: LucideIcon; label: string; value: string | number; sub?: string;
   color?: string; bg?: string; trend?: number;
 }) {
   return (
@@ -249,7 +304,7 @@ function OverviewTab({ userId }: { userId?: number }) {
             <p className="text-sm text-slate-400 text-center py-8">Sem reconhecimentos recentes</p>
           ) : (
             <div className="space-y-3">
-              {dash?.recentRecognitions.map((r: any, i: number) => (
+              {dash?.recentRecognitions.map((r, i) => (
                 <div key={i} className="flex items-center gap-3">
                   <Avatar name={r.from?.fullName ?? 'User'} url={r.from?.avatarUrl} size={8} />
                   <div className="flex-1 min-w-0">
@@ -278,7 +333,7 @@ function OverviewTab({ userId }: { userId?: number }) {
             </p>
           </div>
           <div className="space-y-2">
-            {summary!.surveys.map((s: any) => (
+            {summary!.surveys.map(s => (
               <div key={s.id} className="flex items-center justify-between bg-white rounded-lg px-3 py-2">
                 <div>
                   <p className="text-sm font-medium text-slate-700">{s.title}</p>
@@ -302,7 +357,7 @@ function SurveysTab() {
   const [status, setStatus]   = useState('ACTIVE');
 
   const params = { limit: 30, ...(status ? { status } : {}) };
-  const { data, isLoading } = useApiQuery<{ data: any[]; meta: any }>(
+  const { data, isLoading } = useApiQuery<{ data: SurveyItem[]; meta: { total: number } }>(
     queryKeys.engagement.surveys(params), '/engagement/surveys',
     { params, staleTime: STALE_TIME.SEMI_STATIC },
   );
@@ -337,7 +392,7 @@ function SurveysTab() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-        {data?.data.map((s: any) => (
+        {data?.data.map(s => (
           <div key={s.id} className="bg-white rounded-xl border border-slate-100 p-4 hover:shadow-md transition-shadow">
             <div className="flex items-start justify-between mb-3">
               <span className="text-2xl">{TYPE_ICON[s.type] ?? '📋'}</span>
@@ -388,11 +443,11 @@ function RecognitionTab() {
   const [kudosMsg, setKudosMsg] = useState('');
   const [kudosTo, setKudosTo]   = useState('');
 
-  const feedQuery = useApiQuery<{ data: any[] }>(
+  const feedQuery = useApiQuery<{ data: Recognition[] }>(
     queryKeys.engagement.recognitionFeed(), '/engagement/recognition/feed',
     { params: { limit: 20 }, staleTime: STALE_TIME.DYNAMIC },
   );
-  const boardQuery = useApiQuery<any[]>(
+  const boardQuery = useApiQuery<LeaderboardEntry[]>(
     queryKeys.engagement.recognitionLeaderboard(), '/engagement/recognition/leaderboard',
     { params: { type: 'points', limit: 10 }, staleTime: STALE_TIME.SEMI_STATIC },
   );
@@ -424,7 +479,7 @@ function RecognitionTab() {
 
         {/* Feed */}
         <div className="space-y-3">
-          {feed.map((r: any, i) => (
+          {feed.map((r, i) => (
             <div key={i} className="bg-white rounded-xl border border-slate-100 p-4">
               <div className="flex items-start gap-3">
                 <Avatar name={r.from?.fullName ?? 'User'} url={r.from?.avatarUrl} size={10} />
@@ -461,7 +516,7 @@ function RecognitionTab() {
       <div className="bg-white rounded-xl border border-slate-100 p-5 h-fit">
         <h3 className="font-semibold text-slate-700 mb-4">🏅 Leaderboard</h3>
         <div className="space-y-3">
-          {board.map((u: any, i) => (
+          {board.map((u, i) => (
             <div key={i} className="flex items-center gap-3">
               <span className={`w-6 text-center text-sm font-bold ${
                 i === 0 ? 'text-amber-500' : i === 1 ? 'text-slate-400' : i === 2 ? 'text-amber-700' : 'text-slate-400'
@@ -491,7 +546,7 @@ function FeedbackTab({ userId }: { userId?: number }) {
   const [anon, setAnon]       = useState(false);
 
   const params = { limit: 20, ...(type ? { type } : {}) };
-  const { data: resp, isLoading, refetch } = useApiQuery<{ data: any[] }>(
+  const { data: resp, isLoading, refetch } = useApiQuery<{ data: FeedbackItem[] }>(
     queryKeys.engagement.feedback(type), '/engagement/feedback',
     { params, staleTime: STALE_TIME.DYNAMIC },
   );
@@ -558,7 +613,7 @@ function FeedbackTab({ userId }: { userId?: number }) {
 
       {/* List */}
       <div className="space-y-3">
-        {data.map((f: any, i) => (
+        {data.map((f, i) => (
           <div key={i} className="bg-white rounded-xl border border-slate-100 p-4">
             <div className="flex items-start justify-between mb-2">
               <div className="flex items-center gap-2">
@@ -597,11 +652,11 @@ function FeedbackTab({ userId }: { userId?: number }) {
 function AnalyticsTab() {
   const [metric, setMetric]   = useState<'score' | 'participation' | 'mood'>('score');
 
-  const indexQuery = useApiQuery<any>(
+  const indexQuery = useApiQuery<EngagementIndex>(
     queryKeys.engagement.index(), '/engagement/index',
     { staleTime: STALE_TIME.SEMI_STATIC },
   );
-  const heatmapQuery = useApiQuery<any[]>(
+  const heatmapQuery = useApiQuery<HeatmapRow[]>(
     queryKeys.engagement.heatmap(metric), '/engagement/heatmap',
     { params: { metric }, staleTime: STALE_TIME.SEMI_STATIC },
   );
@@ -645,7 +700,7 @@ function AnalyticsTab() {
         <div className="bg-white rounded-xl border border-slate-100 p-5">
           <h3 className="font-semibold text-slate-700 mb-4">Histórico de Surveys</h3>
           <div className="space-y-3">
-            {index!.history.map((h: any, i: number) => (
+            {index!.history.map((h, i) => (
               <div key={i} className="flex items-center gap-4">
                 <div className="flex-1 min-w-0">
                   <p className="text-xs font-medium text-slate-700 truncate">{h.title}</p>
@@ -680,7 +735,7 @@ function AnalyticsTab() {
         </div>
 
         <div className="space-y-2">
-          {heatmap.map((row: any, i: number) => {
+          {heatmap.map((row, i) => {
             const v = row.value;
             const pct = metric === 'score' ? (v !== null ? (v / 5) * 100 : null)
               : metric === 'mood' ? (v !== null ? (v / 5) * 100 : null)
@@ -717,7 +772,7 @@ function AnalyticsTab() {
 
 // ─── Main Page ───────────────────────────────────────────────────
 
-const TABS: { id: Tab; label: string; icon: any }[] = [
+const TABS: { id: Tab; label: string; icon: LucideIcon }[] = [
   { id: 'overview',    label: 'Visão Geral',    icon: Smile },
   { id: 'surveys',     label: 'Surveys',        icon: BarChart2 },
   { id: 'recognition', label: 'Reconhecimento', icon: Award },
