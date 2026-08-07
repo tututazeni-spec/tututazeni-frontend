@@ -15,6 +15,7 @@ import { useApiQuery, useApiMutation } from '../../../hooks/useApiQuery';
 import { apiClient } from '../../../lib/apiClient';
 import { queryKeys } from '../../../lib/queryKeys';
 import { STALE_TIME } from '../../../lib/queryClient';
+import type { LucideIcon } from 'lucide-react';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -55,6 +56,20 @@ interface Role {
   skillRequirements?: Array<{ skill: { name: string; type: string }; requiredLevel: number; mandatory: boolean }>;
 }
 
+interface SimulationResult {
+  targetRole: { name: string };
+  readiness: Readiness;
+  estimatedMonths: number;
+  estimatedDate: string;
+  recommendedActions?: Array<{ id: number; title: string }>;
+}
+
+interface CareerPlansAnalytics {
+  plans: { active: number; completed: number };
+  promotions: { approved: number };
+  avgPromotionDays: number;
+}
+
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const READINESS_CONFIG: Record<ReadinessLevel, { label: string; color: string; bg: string; bar: string }> = {
@@ -68,7 +83,7 @@ const GOAL_TYPE_LABELS: Record<GoalType, string> = {
   CERTIFICATION: 'Certificação', SKILL: 'Skill', OTHER: 'Outro',
 };
 
-const GOAL_TYPE_ICONS: Record<GoalType, any> = {
+const GOAL_TYPE_ICONS: Record<GoalType, LucideIcon> = {
   COURSE: BookOpen, PROJECT: Briefcase, MENTORING: Users,
   CERTIFICATION: Award, SKILL: Zap, OTHER: Target,
 };
@@ -91,7 +106,7 @@ function ReadinessBar({ score, level }: { score: number; level: ReadinessLevel }
 }
 
 function KpiCard({ label, value, icon: Icon, color = 'blue', sub }: {
-  label: string; value: string|number; icon: any; color?: string; sub?: string;
+  label: string; value: string|number; icon: LucideIcon; color?: string; sub?: string;
 }) {
   const colors: Record<string, string> = {
     blue: 'bg-blue-50 text-blue-600', emerald: 'bg-emerald-50 text-emerald-600',
@@ -247,7 +262,7 @@ function SimulateModal({ roles, onClose }: {
   const [error, setError]     = useState('');
 
   const simulateMutation = useApiMutation(
-    (roleId: number) => apiClient.post<any>('/career-plans/simulate', { targetRoleId: roleId }),
+    (roleId: number) => apiClient.post<SimulationResult>('/career-plans/simulate', { targetRoleId: roleId }),
     { onError: (e) => setError(e.message) },
   );
   const result = simulateMutation.data ?? null;
@@ -323,11 +338,11 @@ function SimulateModal({ roles, onClose }: {
                 </div>
               )}
 
-              {result.recommendedActions?.length > 0 && (
+              {(result.recommendedActions?.length ?? 0) > 0 && (
                 <div>
                   <p className="text-xs font-bold text-gray-600 mb-2">Cursos Recomendados</p>
                   <div className="space-y-1.5">
-                    {result.recommendedActions.map((c: any) => (
+                    {result.recommendedActions?.map(c => (
                       <div key={c.id} className="flex items-center gap-2 text-sm text-blue-700 hover:underline cursor-pointer">
                         <BookOpen size={13}/>{c.title}
                       </div>
@@ -359,7 +374,7 @@ export default function CareerPlansPage() {
     queryKeys.careerPlans.roles(), '/career-plans/roles',
     { staleTime: STALE_TIME.STATIC },
   );
-  const analyticsQuery = useApiQuery<any>(
+  const analyticsQuery = useApiQuery<CareerPlansAnalytics>(
     queryKeys.careerPlans.analytics(), '/career-plans/analytics',
     { staleTime: STALE_TIME.SEMI_STATIC, enabled: tab === 'analytics' },
   );
@@ -378,7 +393,7 @@ export default function CareerPlansPage() {
     } catch {}
   };
 
-  const tabs: Array<{ key: TabKey; label: string; icon: any }> = [
+  const tabs: Array<{ key: TabKey; label: string; icon: LucideIcon }> = [
     { key: 'my',        label: 'Minha Carreira', icon: Target     },
     { key: 'team',      label: 'Equipa',         icon: Users      },
     { key: 'analytics', label: 'Analytics',      icon: BarChart3  },
