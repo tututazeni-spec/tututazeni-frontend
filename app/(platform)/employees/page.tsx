@@ -10,19 +10,48 @@ import { useState, useCallback, useMemo } from 'react';
 import Image from 'next/image';
 import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
 import {
-  useEmployees, useHeadcount,
-  type Employee, type EmployeeStatus, type SeniorityLevel, type WorkMode, type ContractType,
-  type FilterState, type HeadcountStats,
+  useEmployees,
+  useHeadcount,
+  type Employee,
+  type EmployeeStatus,
+  type SeniorityLevel,
+  type WorkMode,
+  type ContractType,
+  type FilterState,
+  type HeadcountStats,
 } from '@/hooks/useEmployees';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import {
-  Search, SlidersHorizontal, Users, UserPlus, Download, RefreshCcw,
-  ChevronDown, ChevronRight, Eye, Edit2, Trash2, MoreHorizontal,
-  Building2, MapPin, Briefcase, Calendar, Star, BookOpen,
-  TrendingUp, Award, Clock, Filter, X, CheckCircle2, AlertCircle,
-  ArrowUpRight, BarChart3, Loader2,
+  Search,
+  SlidersHorizontal,
+  Users,
+  UserPlus,
+  Download,
+  RefreshCcw,
+  ChevronDown,
+  ChevronRight,
+  Eye,
+  Edit2,
+  Trash2,
+  MoreHorizontal,
+  Building2,
+  MapPin,
+  Briefcase,
+  Calendar,
+  Star,
+  BookOpen,
+  TrendingUp,
+  Award,
+  Clock,
+  Filter,
+  X,
+  CheckCircle2,
+  AlertCircle,
+  ArrowUpRight,
+  BarChart3,
+  Loader2,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
@@ -44,67 +73,126 @@ interface EmployeeStats {
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const STATUS_CONFIG: Record<EmployeeStatus, { label: string; color: string; dot: string }> = {
-  ACTIVE:     { label: 'Ativo',      color: 'bg-emerald-100 text-emerald-700',  dot: 'bg-emerald-500' },
-  INACTIVE:   { label: 'Inativo',    color: 'bg-gray-100 text-gray-600',        dot: 'bg-gray-400'    },
-  ON_LEAVE:   { label: 'Afastado',   color: 'bg-amber-100 text-amber-700',      dot: 'bg-amber-500'   },
-  TERMINATED: { label: 'Desligado',  color: 'bg-red-100 text-red-700',          dot: 'bg-red-500'     },
-  SUSPENDED:  { label: 'Suspenso',   color: 'bg-orange-100 text-orange-700',    dot: 'bg-orange-500'  },
+const STATUS_CONFIG: Record<
+  EmployeeStatus,
+  { label: string; color: string; dot: string }
+> = {
+  ACTIVE: {
+    label: 'Ativo',
+    color: 'bg-emerald-100 text-emerald-700',
+    dot: 'bg-emerald-500',
+  },
+  INACTIVE: {
+    label: 'Inativo',
+    color: 'bg-gray-100 text-gray-600',
+    dot: 'bg-gray-400',
+  },
+  ON_LEAVE: {
+    label: 'Afastado',
+    color: 'bg-amber-100 text-amber-700',
+    dot: 'bg-amber-500',
+  },
+  TERMINATED: {
+    label: 'Desligado',
+    color: 'bg-red-100 text-red-700',
+    dot: 'bg-red-500',
+  },
+  SUSPENDED: {
+    label: 'Suspenso',
+    color: 'bg-orange-100 text-orange-700',
+    dot: 'bg-orange-500',
+  },
 };
 
 const SENIORITY_LABELS: Record<SeniorityLevel, string> = {
-  JUNIOR: 'Júnior', MID: 'Pleno', SENIOR: 'Sênior',
-  LEAD: 'Líder', MANAGER: 'Gerente', DIRECTOR: 'Diretor', C_LEVEL: 'C-Level',
+  JUNIOR: 'Júnior',
+  MID: 'Pleno',
+  SENIOR: 'Sênior',
+  LEAD: 'Líder',
+  MANAGER: 'Gerente',
+  DIRECTOR: 'Diretor',
+  C_LEVEL: 'C-Level',
 };
 
 const WORKMODE_LABELS: Record<WorkMode, string> = {
-  REMOTE: 'Remoto', HYBRID: 'Híbrido', ON_SITE: 'Presencial',
+  REMOTE: 'Remoto',
+  HYBRID: 'Híbrido',
+  ON_SITE: 'Presencial',
 };
 
 // Tipos de contrato — Lei Geral do Trabalho de Angola (Lei n.º 7/15)
 const CONTRACT_LABELS: Record<ContractType, string> = {
-  INDEFINITE:          'Tempo Indeterminado',
-  FIXED_TERM:          'A Prazo Certo',
-  UNCERTAIN_TERM:      'A Prazo Incerto',
-  APPRENTICESHIP:      'Aprendizagem',
-  INTERNSHIP:          'Estágio Profissional',
-  SERVICE_PROVISION:   'Prestação de Serviços',
+  INDEFINITE: 'Tempo Indeterminado',
+  FIXED_TERM: 'A Prazo Certo',
+  UNCERTAIN_TERM: 'A Prazo Incerto',
+  APPRENTICESHIP: 'Aprendizagem',
+  INTERNSHIP: 'Estágio Profissional',
+  SERVICE_PROVISION: 'Prestação de Serviços',
   TEMPORARY_PLACEMENT: 'Cedência Temporária',
-  PART_TIME:           'Tempo Parcial',
+  PART_TIME: 'Tempo Parcial',
 };
 
 // Tooltips descritivos para o formulário
 const CONTRACT_DESCRIPTIONS: Record<ContractType, string> = {
-  INDEFINITE:          'Vínculo permanente — regime geral (Art. 12.º)',
-  FIXED_TERM:          'Duração máxima 3 anos, renovável 2× (Art. 13.º)',
-  UNCERTAIN_TERM:      'Obra ou serviço determinado sem data fim definida (Art. 14.º)',
-  APPRENTICESHIP:      'Formação profissional + trabalho, até 25 anos (Art. 230.º)',
-  INTERNSHIP:          'Inserção no mercado de trabalho — estágio profissional',
-  SERVICE_PROVISION:   'Trabalhador independente / consultor externo',
+  INDEFINITE: 'Vínculo permanente — regime geral (Art. 12.º)',
+  FIXED_TERM: 'Duração máxima 3 anos, renovável 2× (Art. 13.º)',
+  UNCERTAIN_TERM:
+    'Obra ou serviço determinado sem data fim definida (Art. 14.º)',
+  APPRENTICESHIP: 'Formação profissional + trabalho, até 25 anos (Art. 230.º)',
+  INTERNSHIP: 'Inserção no mercado de trabalho — estágio profissional',
+  SERVICE_PROVISION: 'Trabalhador independente / consultor externo',
   TEMPORARY_PLACEMENT: 'Cedência por empresa de trabalho temporário',
-  PART_TIME:           'Jornada inferior à normal (Art. 103.º)',
+  PART_TIME: 'Jornada inferior à normal (Art. 103.º)',
 };
 
 // ─── Utility Components ───────────────────────────────────────────────────────
 
-function Avatar({ src, name, size = 'md' }: { src?: string; name: string; size?: 'sm' | 'md' | 'lg' }) {
-  const sizes = { sm: 'w-8 h-8 text-xs', md: 'w-10 h-10 text-sm', lg: 'w-14 h-14 text-base' };
-  const initials = name.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase();
+function Avatar({
+  src,
+  name,
+  size = 'md',
+}: {
+  src?: string;
+  name: string;
+  size?: 'sm' | 'md' | 'lg';
+}) {
+  const sizes = {
+    sm: 'w-8 h-8 text-xs',
+    md: 'w-10 h-10 text-sm',
+    lg: 'w-14 h-14 text-base',
+  };
+  const initials = name
+    .split(' ')
+    .slice(0, 2)
+    .map((n) => n[0])
+    .join('')
+    .toUpperCase();
   const [imgError, setImgError] = useState(false);
 
-  const colors = ['bg-violet-500', 'bg-blue-500', 'bg-emerald-500', 'bg-amber-500', 'bg-rose-500', 'bg-indigo-500'];
-  const color  = colors[name.charCodeAt(0) % colors.length];
+  const colors = [
+    'bg-violet-500',
+    'bg-blue-500',
+    'bg-emerald-500',
+    'bg-amber-500',
+    'bg-rose-500',
+    'bg-indigo-500',
+  ];
+  const color = colors[name.charCodeAt(0) % colors.length];
 
   if (!src || imgError) {
     return (
-      <div className={`${sizes[size]} ${color} rounded-full flex items-center justify-center text-white font-semibold flex-shrink-0`}>
+      <div
+        className={`${sizes[size]} ${color} rounded-full flex items-center justify-center text-white font-semibold flex-shrink-0`}
+      >
         {initials}
       </div>
     );
   }
 
   return (
-    <div className={`${sizes[size]} relative rounded-full overflow-hidden ring-2 ring-white flex-shrink-0`}>
+    <div
+      className={`${sizes[size]} relative rounded-full overflow-hidden ring-2 ring-white flex-shrink-0`}
+    >
       <Image
         src={src}
         alt={name}
@@ -119,7 +207,9 @@ function Avatar({ src, name, size = 'md' }: { src?: string; name: string; size?:
 function StatusBadge({ status }: { status: EmployeeStatus }) {
   const cfg = STATUS_CONFIG[status] ?? STATUS_CONFIG.INACTIVE;
   return (
-    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${cfg.color}`}>
+    <span
+      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${cfg.color}`}
+    >
       <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot}`} />
       {cfg.label}
     </span>
@@ -127,15 +217,23 @@ function StatusBadge({ status }: { status: EmployeeStatus }) {
 }
 
 function KpiCard({
-  label, value, icon: Icon, trend, color = 'blue',
+  label,
+  value,
+  icon: Icon,
+  trend,
+  color = 'blue',
 }: {
-  label: string; value: string | number; icon: LucideIcon; trend?: string; color?: string;
+  label: string;
+  value: string | number;
+  icon: LucideIcon;
+  trend?: string;
+  color?: string;
 }) {
   const colors: Record<string, string> = {
-    blue:    'bg-blue-50 text-blue-600',
+    blue: 'bg-blue-50 text-blue-600',
     emerald: 'bg-emerald-50 text-emerald-600',
-    violet:  'bg-violet-50 text-violet-600',
-    amber:   'bg-amber-50 text-amber-600',
+    violet: 'bg-violet-50 text-violet-600',
+    amber: 'bg-amber-50 text-amber-600',
   };
   return (
     <div className="bg-white rounded-2xl border border-gray-100 p-5 flex items-start gap-4 shadow-sm hover:shadow-md transition-shadow">
@@ -143,9 +241,16 @@ function KpiCard({
         <Icon size={20} />
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">{label}</p>
+        <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">
+          {label}
+        </p>
         <p className="text-2xl font-bold text-gray-900 mt-0.5">{value}</p>
-        {trend && <p className="text-xs text-emerald-600 mt-1 flex items-center gap-1"><ArrowUpRight size={12} />{trend}</p>}
+        {trend && (
+          <p className="text-xs text-emerald-600 mt-1 flex items-center gap-1">
+            <ArrowUpRight size={12} />
+            {trend}
+          </p>
+        )}
       </div>
     </div>
   );
@@ -168,7 +273,11 @@ function SkeletonCard() {
 
 // ─── Employee Card ─────────────────────────────────────────────────────────────
 
-function EmployeeCard({ employee, onView, onEdit }: {
+function EmployeeCard({
+  employee,
+  onView,
+  onEdit,
+}: {
   employee: Employee;
   onView: (e: Employee) => void;
   onEdit: (e: Employee) => void;
@@ -176,10 +285,10 @@ function EmployeeCard({ employee, onView, onEdit }: {
   const [menuOpen, setMenuOpen] = useState(false);
   const tenure = useMemo(() => {
     const joined = new Date(employee.joinedAt);
-    const now    = new Date();
-    const years  = now.getFullYear() - joined.getFullYear();
+    const now = new Date();
+    const years = now.getFullYear() - joined.getFullYear();
     const months = now.getMonth() - joined.getMonth();
-    const total  = years * 12 + months;
+    const total = years * 12 + months;
     if (total < 12) return `${total}m de empresa`;
     return `${Math.floor(total / 12)}a ${total % 12}m de empresa`;
   }, [employee.joinedAt]);
@@ -193,9 +302,13 @@ function EmployeeCard({ employee, onView, onEdit }: {
             <h3 className="font-semibold text-gray-900 text-sm leading-tight group-hover:text-blue-600 transition-colors">
               {employee.name}
             </h3>
-            <p className="text-xs text-gray-500 mt-0.5">{employee.jobTitle ?? employee.role}</p>
+            <p className="text-xs text-gray-500 mt-0.5">
+              {employee.jobTitle ?? employee.role}
+            </p>
             {employee.matricula && (
-              <p className="text-xs text-gray-400 font-mono">{employee.matricula}</p>
+              <p className="text-xs text-gray-400 font-mono">
+                {employee.matricula}
+              </p>
             )}
           </div>
         </div>
@@ -210,13 +323,19 @@ function EmployeeCard({ employee, onView, onEdit }: {
           {menuOpen && (
             <div className="absolute right-0 top-full mt-1 w-36 bg-white rounded-xl border border-gray-100 shadow-lg z-20 py-1">
               <button
-                onClick={() => { onView(employee); setMenuOpen(false); }}
+                onClick={() => {
+                  onView(employee);
+                  setMenuOpen(false);
+                }}
                 className="flex items-center gap-2 px-3 py-2 text-xs text-gray-700 hover:bg-gray-50 w-full"
               >
                 <Eye size={13} /> Ver perfil
               </button>
               <button
-                onClick={() => { onEdit(employee); setMenuOpen(false); }}
+                onClick={() => {
+                  onEdit(employee);
+                  setMenuOpen(false);
+                }}
                 className="flex items-center gap-2 px-3 py-2 text-xs text-gray-700 hover:bg-gray-50 w-full"
               >
                 <Edit2 size={13} /> Editar
@@ -264,15 +383,21 @@ function EmployeeCard({ employee, onView, onEdit }: {
       {employee._count && (
         <div className="mt-3 pt-3 border-t border-gray-50 grid grid-cols-3 gap-2 text-center">
           <div>
-            <p className="text-sm font-bold text-gray-900">{employee._count.employeeSkills}</p>
+            <p className="text-sm font-bold text-gray-900">
+              {employee._count.employeeSkills}
+            </p>
             <p className="text-xs text-gray-400">Skills</p>
           </div>
           <div>
-            <p className="text-sm font-bold text-gray-900">{employee._count.pdis}</p>
+            <p className="text-sm font-bold text-gray-900">
+              {employee._count.pdis}
+            </p>
             <p className="text-xs text-gray-400">PDIs</p>
           </div>
           <div>
-            <p className="text-sm font-bold text-gray-900">{employee._count.feedbacks}</p>
+            <p className="text-sm font-bold text-gray-900">
+              {employee._count.feedbacks}
+            </p>
             <p className="text-xs text-gray-400">Feedbacks</p>
           </div>
         </div>
@@ -283,13 +408,20 @@ function EmployeeCard({ employee, onView, onEdit }: {
 
 // ─── Employee Row (List view) ──────────────────────────────────────────────────
 
-function EmployeeRow({ employee, onView, onEdit }: {
+function EmployeeRow({
+  employee,
+  onView,
+  onEdit,
+}: {
   employee: Employee;
   onView: (e: Employee) => void;
   onEdit: (e: Employee) => void;
 }) {
   return (
-    <tr className="hover:bg-blue-50/30 transition-colors group cursor-pointer" onClick={() => onView(employee)}>
+    <tr
+      className="hover:bg-blue-50/30 transition-colors group cursor-pointer"
+      onClick={() => onView(employee)}
+    >
       <td className="px-4 py-3">
         <div className="flex items-center gap-3">
           <Avatar src={employee.avatarUrl} name={employee.name} size="sm" />
@@ -302,18 +434,26 @@ function EmployeeRow({ employee, onView, onEdit }: {
         </div>
       </td>
       <td className="px-4 py-3">
-        <p className="text-sm text-gray-700">{employee.jobTitle ?? employee.role}</p>
+        <p className="text-sm text-gray-700">
+          {employee.jobTitle ?? employee.role}
+        </p>
         <p className="text-xs text-gray-400">{employee.department ?? '—'}</p>
       </td>
-      <td className="px-4 py-3 text-sm text-gray-600">{employee.location ?? '—'}</td>
+      <td className="px-4 py-3 text-sm text-gray-600">
+        {employee.location ?? '—'}
+      </td>
       <td className="px-4 py-3">
         {employee.seniority ? (
           <span className="text-xs font-medium text-gray-600 bg-gray-100 px-2 py-1 rounded-full">
             {SENIORITY_LABELS[employee.seniority]}
           </span>
-        ) : '—'}
+        ) : (
+          '—'
+        )}
       </td>
-      <td className="px-4 py-3"><StatusBadge status={employee.status} /></td>
+      <td className="px-4 py-3">
+        <StatusBadge status={employee.status} />
+      </td>
       <td className="px-4 py-3">
         <p className="text-xs text-gray-500">
           {new Date(employee.joinedAt).toLocaleDateString('pt-BR')}
@@ -322,13 +462,19 @@ function EmployeeRow({ employee, onView, onEdit }: {
       <td className="px-4 py-3">
         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
           <button
-            onClick={e => { e.stopPropagation(); onView(employee); }}
+            onClick={(e) => {
+              e.stopPropagation();
+              onView(employee);
+            }}
             className="p-1.5 rounded-lg hover:bg-blue-100 text-blue-600 transition-colors"
           >
             <Eye size={14} />
           </button>
           <button
-            onClick={e => { e.stopPropagation(); onEdit(employee); }}
+            onClick={(e) => {
+              e.stopPropagation();
+              onEdit(employee);
+            }}
             className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-600 transition-colors"
           >
             <Edit2 size={14} />
@@ -342,7 +488,9 @@ function EmployeeRow({ employee, onView, onEdit }: {
 // ─── Filter Panel ─────────────────────────────────────────────────────────────
 
 function FilterPanel({
-  filters, onChange, onClose,
+  filters,
+  onChange,
+  onClose,
 }: {
   filters: FilterState;
   onChange: (f: Partial<FilterState>) => void;
@@ -352,27 +500,35 @@ function FilterPanel({
     <div className="absolute right-0 top-full mt-2 w-80 bg-white rounded-2xl border border-gray-100 shadow-xl z-30 p-5">
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-semibold text-gray-900">Filtros</h3>
-        <button onClick={onClose} className="p-1 rounded-lg hover:bg-gray-100 text-gray-500">
+        <button
+          onClick={onClose}
+          aria-label="Fechar"
+          className="p-1 rounded-lg hover:bg-gray-100 text-gray-500"
+        >
           <X size={16} />
         </button>
       </div>
 
       <div className="space-y-3">
         <div>
-          <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Departamento</label>
+          <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+            Departamento
+          </label>
           <input
             value={filters.department}
-            onChange={e => onChange({ department: e.target.value })}
+            onChange={(e) => onChange({ department: e.target.value })}
             placeholder="Ex: Tecnologia"
             className="mt-1 w-full px-3 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
         </div>
 
         <div>
-          <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Status</label>
+          <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+            Status
+          </label>
           <select
             value={filters.status}
-            onChange={e => onChange({ status: e.target.value })}
+            onChange={(e) => onChange({ status: e.target.value })}
             className="mt-1 w-full px-3 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
           >
             <option value="">Todos</option>
@@ -384,49 +540,69 @@ function FilterPanel({
         </div>
 
         <div>
-          <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Senioridade</label>
+          <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+            Senioridade
+          </label>
           <select
             value={filters.seniority}
-            onChange={e => onChange({ seniority: e.target.value })}
+            onChange={(e) => onChange({ seniority: e.target.value })}
             className="mt-1 w-full px-3 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
           >
             <option value="">Todos</option>
             {Object.entries(SENIORITY_LABELS).map(([k, v]) => (
-              <option key={k} value={k}>{v}</option>
+              <option key={k} value={k}>
+                {v}
+              </option>
             ))}
           </select>
         </div>
 
         <div>
-          <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Modalidade</label>
+          <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+            Modalidade
+          </label>
           <select
             value={filters.workMode}
-            onChange={e => onChange({ workMode: e.target.value })}
+            onChange={(e) => onChange({ workMode: e.target.value })}
             className="mt-1 w-full px-3 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
           >
             <option value="">Todos</option>
             {Object.entries(WORKMODE_LABELS).map(([k, v]) => (
-              <option key={k} value={k}>{v}</option>
+              <option key={k} value={k}>
+                {v}
+              </option>
             ))}
           </select>
         </div>
 
         <div>
-          <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Contrato</label>
+          <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+            Contrato
+          </label>
           <select
             value={filters.contractType}
-            onChange={e => onChange({ contractType: e.target.value })}
+            onChange={(e) => onChange({ contractType: e.target.value })}
             className="mt-1 w-full px-3 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
           >
             <option value="">Todos</option>
             {Object.entries(CONTRACT_LABELS).map(([k, v]) => (
-              <option key={k} value={k}>{v}</option>
+              <option key={k} value={k}>
+                {v}
+              </option>
             ))}
           </select>
         </div>
 
         <button
-          onClick={() => onChange({ department: '', status: '', seniority: '', workMode: '', contractType: '' })}
+          onClick={() =>
+            onChange({
+              department: '',
+              status: '',
+              seniority: '',
+              workMode: '',
+              contractType: '',
+            })
+          }
           className="w-full py-2 text-sm text-gray-500 hover:text-gray-700 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors"
         >
           Limpar filtros
@@ -438,17 +614,32 @@ function FilterPanel({
 
 // ─── Create Employee Modal ────────────────────────────────────────────────────
 
-function CreateEmployeeModal({ onClose, onSuccess }: {
+function CreateEmployeeModal({
+  onClose,
+  onSuccess,
+}: {
   onClose: () => void;
   onSuccess: () => void;
 }) {
-  const [form, setForm]       = useState({ name: '', email: '', role: '', department: '', joinedAt: '', seniority: '', workMode: '', contractType: '' });
-  const [error, setError]     = useState('');
+  const [form, setForm] = useState({
+    name: '',
+    email: '',
+    role: '',
+    department: '',
+    joinedAt: '',
+    seniority: '',
+    workMode: '',
+    contractType: '',
+  });
+  const [error, setError] = useState('');
 
   const createEmployee = useApiMutation(
     () => apiClient.post('/employees', form),
     {
-      onSuccess: () => { onSuccess(); onClose(); },
+      onSuccess: () => {
+        onSuccess();
+        onClose();
+      },
       onError: () => setError('Erro ao criar colaborador. Verifique os dados.'),
     },
   );
@@ -469,10 +660,18 @@ function CreateEmployeeModal({ onClose, onSuccess }: {
         <div className="p-6 border-b border-gray-100">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-lg font-bold text-gray-900">Novo Colaborador</h2>
-              <p className="text-sm text-gray-500 mt-0.5">Preencha os dados básicos</p>
+              <h2 className="text-lg font-bold text-gray-900">
+                Novo Colaborador
+              </h2>
+              <p className="text-sm text-gray-500 mt-0.5">
+                Preencha os dados básicos
+              </p>
             </div>
-            <button onClick={onClose} className="p-2 rounded-xl hover:bg-gray-100 text-gray-500">
+            <button
+              onClick={onClose}
+              aria-label="Fechar"
+              className="p-2 rounded-xl hover:bg-gray-100 text-gray-500"
+            >
               <X size={18} />
             </button>
           </div>
@@ -481,7 +680,8 @@ function CreateEmployeeModal({ onClose, onSuccess }: {
         <div className="p-6 space-y-4">
           {error && (
             <div className="flex items-center gap-2 p-3 bg-red-50 text-red-700 rounded-xl text-sm">
-              <AlertCircle size={16} />{error}
+              <AlertCircle size={16} />
+              {error}
             </div>
           )}
 
@@ -492,7 +692,9 @@ function CreateEmployeeModal({ onClose, onSuccess }: {
               </label>
               <input
                 value={form.name}
-                onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, name: e.target.value }))
+                }
                 className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="Ex: Ana Ferreira"
               />
@@ -505,7 +707,9 @@ function CreateEmployeeModal({ onClose, onSuccess }: {
               <input
                 type="email"
                 value={form.email}
-                onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, email: e.target.value }))
+                }
                 className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="ana@empresa.com"
               />
@@ -518,16 +722,22 @@ function CreateEmployeeModal({ onClose, onSuccess }: {
                 </label>
                 <input
                   value={form.role}
-                  onChange={e => setForm(f => ({ ...f, role: e.target.value }))}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, role: e.target.value }))
+                  }
                   className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="Ex: Desenvolvedor"
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Departamento</label>
+                <label className="block text-xs font-medium text-gray-600 mb-1">
+                  Departamento
+                </label>
                 <input
                   value={form.department}
-                  onChange={e => setForm(f => ({ ...f, department: e.target.value }))}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, department: e.target.value }))
+                  }
                   className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="Ex: Tecnologia"
                 />
@@ -541,43 +751,69 @@ function CreateEmployeeModal({ onClose, onSuccess }: {
               <input
                 type="date"
                 value={form.joinedAt}
-                onChange={e => setForm(f => ({ ...f, joinedAt: e.target.value }))}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, joinedAt: e.target.value }))
+                }
                 className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
 
             <div className="grid grid-cols-3 gap-3">
               <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Senioridade</label>
+                <label className="block text-xs font-medium text-gray-600 mb-1">
+                  Senioridade
+                </label>
                 <select
                   value={form.seniority}
-                  onChange={e => setForm(f => ({ ...f, seniority: e.target.value }))}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, seniority: e.target.value }))
+                  }
                   className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
                 >
                   <option value="">—</option>
-                  {Object.entries(SENIORITY_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+                  {Object.entries(SENIORITY_LABELS).map(([k, v]) => (
+                    <option key={k} value={k}>
+                      {v}
+                    </option>
+                  ))}
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Modalidade</label>
+                <label className="block text-xs font-medium text-gray-600 mb-1">
+                  Modalidade
+                </label>
                 <select
                   value={form.workMode}
-                  onChange={e => setForm(f => ({ ...f, workMode: e.target.value }))}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, workMode: e.target.value }))
+                  }
                   className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
                 >
                   <option value="">—</option>
-                  {Object.entries(WORKMODE_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+                  {Object.entries(WORKMODE_LABELS).map(([k, v]) => (
+                    <option key={k} value={k}>
+                      {v}
+                    </option>
+                  ))}
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Contrato</label>
+                <label className="block text-xs font-medium text-gray-600 mb-1">
+                  Contrato
+                </label>
                 <select
                   value={form.contractType}
-                  onChange={e => setForm(f => ({ ...f, contractType: e.target.value }))}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, contractType: e.target.value }))
+                  }
                   className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
                 >
                   <option value="">—</option>
-                  {Object.entries(CONTRACT_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+                  {Object.entries(CONTRACT_LABELS).map(([k, v]) => (
+                    <option key={k} value={k}>
+                      {v}
+                    </option>
+                  ))}
                 </select>
               </div>
             </div>
@@ -596,7 +832,13 @@ function CreateEmployeeModal({ onClose, onSuccess }: {
             disabled={loading}
             className="flex-1 py-2.5 text-sm text-white bg-blue-600 rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
           >
-            {loading ? <><Loader2 size={16} className="animate-spin" /> Criando...</> : 'Criar Colaborador'}
+            {loading ? (
+              <>
+                <Loader2 size={16} className="animate-spin" /> Criando...
+              </>
+            ) : (
+              'Criar Colaborador'
+            )}
           </button>
         </div>
       </div>
@@ -607,9 +849,13 @@ function CreateEmployeeModal({ onClose, onSuccess }: {
 // ─── Pagination ────────────────────────────────────────────────────────────────
 
 function Pagination({
-  page, totalPages, onPage,
+  page,
+  totalPages,
+  onPage,
 }: {
-  page: number; totalPages: number; onPage: (p: number) => void;
+  page: number;
+  totalPages: number;
+  onPage: (p: number) => void;
 }) {
   if (totalPages <= 1) return null;
 
@@ -629,7 +875,7 @@ function Pagination({
       >
         ←
       </button>
-      {pages.map(p => (
+      {pages.map((p) => (
         <button
           key={p}
           onClick={() => onPage(p)}
@@ -656,39 +902,48 @@ function Pagination({
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function EmployeesPage() {
-  const [view, setView]               = useState<'grid' | 'list'>('grid');
-  const [page, setPage]               = useState(1);
+  const [view, setView] = useState<'grid' | 'list'>('grid');
+  const [page, setPage] = useState(1);
   const [showFilters, setShowFilters] = useState(false);
-  const [showCreate, setShowCreate]   = useState(false);
-  const [selected, setSelected]       = useState<Employee | null>(null);
-  const [filters, setFilters]         = useState<FilterState>({
-    search: '', department: '', status: 'ACTIVE',
-    seniority: '', workMode: '', contractType: '',
+  const [showCreate, setShowCreate] = useState(false);
+  const [selected, setSelected] = useState<Employee | null>(null);
+  const [filters, setFilters] = useState<FilterState>({
+    search: '',
+    department: '',
+    status: 'ACTIVE',
+    seniority: '',
+    workMode: '',
+    contractType: '',
   });
 
   const { data, loading, error, refetch } = useEmployees(filters, page);
   const { stats } = useHeadcount();
 
   const updateFilters = useCallback((f: Partial<FilterState>) => {
-    setFilters(prev => ({ ...prev, ...f }));
+    setFilters((prev) => ({ ...prev, ...f }));
     setPage(1);
   }, []);
 
-  const activeFilterCount = Object.entries(filters).filter(([k, v]) =>
-    k !== 'search' && v !== '' && v !== 'ACTIVE'
-  ).length + (filters.status && filters.status !== 'ACTIVE' ? 1 : 0);
+  const activeFilterCount =
+    Object.entries(filters).filter(
+      ([k, v]) => k !== 'search' && v !== '' && v !== 'ACTIVE',
+    ).length + (filters.status && filters.status !== 'ACTIVE' ? 1 : 0);
 
   const handleExport = async () => {
     try {
-      const result = await apiClient.get<{ data: Array<Record<string, unknown>> }>('/employees/export');
+      const result = await apiClient.get<{
+        data: Array<Record<string, unknown>>;
+      }>('/employees/export');
       const csv = [
         Object.keys(result.data[0] ?? {}).join(','),
-        ...result.data.map(row => Object.values(row).join(','))
+        ...result.data.map((row) => Object.values(row).join(',')),
       ].join('\n');
       const blob = new Blob([csv], { type: 'text/csv' });
-      const url  = URL.createObjectURL(blob);
-      const a    = document.createElement('a');
-      a.href = url; a.download = `colaboradores-${Date.now()}.csv`; a.click();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `colaboradores-${Date.now()}.csv`;
+      a.click();
       URL.revokeObjectURL(url);
     } catch {}
   };
@@ -702,7 +957,9 @@ export default function EmployeesPage() {
             <div>
               <h1 className="text-xl font-bold text-gray-900">Colaboradores</h1>
               <p className="text-sm text-gray-500">
-                {stats ? `${stats.total} ativos` : 'Gestão de pessoas e talentos'}
+                {stats
+                  ? `${stats.total} ativos`
+                  : 'Gestão de pessoas e talentos'}
               </p>
             </div>
             <div className="flex items-center gap-2">
@@ -734,10 +991,13 @@ export default function EmployeesPage() {
               color="blue"
               trend={`+${stats.recentHires} este mês`}
             />
-            {stats.byStatus?.find(s => s.status === 'ON_LEAVE') && (
+            {stats.byStatus?.find((s) => s.status === 'ON_LEAVE') && (
               <KpiCard
                 label="Afastados"
-                value={stats.byStatus.find(s => s.status === 'ON_LEAVE')?._count ?? 0}
+                value={
+                  stats.byStatus.find((s) => s.status === 'ON_LEAVE')?._count ??
+                  0
+                }
                 icon={AlertCircle}
                 color="amber"
               />
@@ -761,10 +1021,13 @@ export default function EmployeesPage() {
         {/* ── Toolbar */}
         <div className="flex items-center gap-3">
           <div className="flex-1 relative">
-            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <Search
+              size={16}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+            />
             <input
               value={filters.search}
-              onChange={e => updateFilters({ search: e.target.value })}
+              onChange={(e) => updateFilters({ search: e.target.value })}
               placeholder="Buscar por nome, e-mail, matrícula, cargo..."
               className="w-full pl-9 pr-4 py-2.5 text-sm bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm"
             />
@@ -810,10 +1073,38 @@ export default function EmployeesPage() {
               className={`p-2.5 transition-colors ${view === 'grid' ? 'bg-blue-600 text-white' : 'text-gray-500 hover:bg-gray-50'}`}
             >
               <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
-                <rect x="1" y="1" width="5.5" height="5.5" rx="1" fill="currentColor" />
-                <rect x="8.5" y="1" width="5.5" height="5.5" rx="1" fill="currentColor" />
-                <rect x="1" y="8.5" width="5.5" height="5.5" rx="1" fill="currentColor" />
-                <rect x="8.5" y="8.5" width="5.5" height="5.5" rx="1" fill="currentColor" />
+                <rect
+                  x="1"
+                  y="1"
+                  width="5.5"
+                  height="5.5"
+                  rx="1"
+                  fill="currentColor"
+                />
+                <rect
+                  x="8.5"
+                  y="1"
+                  width="5.5"
+                  height="5.5"
+                  rx="1"
+                  fill="currentColor"
+                />
+                <rect
+                  x="1"
+                  y="8.5"
+                  width="5.5"
+                  height="5.5"
+                  rx="1"
+                  fill="currentColor"
+                />
+                <rect
+                  x="8.5"
+                  y="8.5"
+                  width="5.5"
+                  height="5.5"
+                  rx="1"
+                  fill="currentColor"
+                />
               </svg>
             </button>
             <button
@@ -821,9 +1112,30 @@ export default function EmployeesPage() {
               className={`p-2.5 transition-colors ${view === 'list' ? 'bg-blue-600 text-white' : 'text-gray-500 hover:bg-gray-50'}`}
             >
               <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
-                <rect x="1" y="2" width="13" height="2" rx="1" fill="currentColor" />
-                <rect x="1" y="6.5" width="13" height="2" rx="1" fill="currentColor" />
-                <rect x="1" y="11" width="13" height="2" rx="1" fill="currentColor" />
+                <rect
+                  x="1"
+                  y="2"
+                  width="13"
+                  height="2"
+                  rx="1"
+                  fill="currentColor"
+                />
+                <rect
+                  x="1"
+                  y="6.5"
+                  width="13"
+                  height="2"
+                  rx="1"
+                  fill="currentColor"
+                />
+                <rect
+                  x="1"
+                  y="11"
+                  width="13"
+                  height="2"
+                  rx="1"
+                  fill="currentColor"
+                />
               </svg>
             </button>
           </div>
@@ -840,7 +1152,10 @@ export default function EmployeesPage() {
         {data && !loading && (
           <div className="flex items-center justify-between">
             <p className="text-sm text-gray-500">
-              <span className="font-semibold text-gray-900">{data.meta.total}</span> colaboradores encontrados
+              <span className="font-semibold text-gray-900">
+                {data.meta.total}
+              </span>{' '}
+              colaboradores encontrados
             </p>
             {data.meta.total > 0 && (
               <p className="text-xs text-gray-400">
@@ -858,7 +1173,12 @@ export default function EmployeesPage() {
               <p className="font-medium">Erro ao carregar colaboradores</p>
               <p className="text-xs text-red-500 mt-0.5">{error}</p>
             </div>
-            <button onClick={() => refetch()} className="ml-auto text-xs underline hover:no-underline">Tentar novamente</button>
+            <button
+              onClick={() => refetch()}
+              className="ml-auto text-xs underline hover:no-underline"
+            >
+              Tentar novamente
+            </button>
           </div>
         )}
 
@@ -866,20 +1186,26 @@ export default function EmployeesPage() {
         {view === 'grid' && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {loading
-              ? Array.from({ length: 8 }).map((_, i) => <SkeletonCard key={i} />)
-              : data?.data.map(emp => (
+              ? Array.from({ length: 8 }).map((_, i) => (
+                  <SkeletonCard key={i} />
+                ))
+              : data?.data.map((emp) => (
                   <EmployeeCard
                     key={emp.id}
                     employee={emp}
                     onView={setSelected}
-                    onEdit={e => setSelected(e)} // edição abre o perfil; navegação dedicada a definir
+                    onEdit={(e) => setSelected(e)} // edição abre o perfil; navegação dedicada a definir
                   />
                 ))}
             {!loading && data?.data.length === 0 && (
               <div className="col-span-full flex flex-col items-center justify-center py-20 text-gray-400">
                 <Users size={48} className="mb-4 opacity-30" />
-                <p className="text-lg font-medium">Nenhum colaborador encontrado</p>
-                <p className="text-sm mt-1">Tente ajustar os filtros ou adicione um novo colaborador</p>
+                <p className="text-lg font-medium">
+                  Nenhum colaborador encontrado
+                </p>
+                <p className="text-sm mt-1">
+                  Tente ajustar os filtros ou adicione um novo colaborador
+                </p>
                 <button
                   onClick={() => setShowCreate(true)}
                   className="mt-4 flex items-center gap-2 px-4 py-2 text-sm text-blue-600 border border-blue-200 rounded-xl hover:bg-blue-50 transition-colors"
@@ -898,8 +1224,19 @@ export default function EmployeesPage() {
               <table className="w-full">
                 <thead>
                   <tr className="bg-gray-50/70 border-b border-gray-100">
-                    {['Colaborador', 'Cargo / Depto', 'Localidade', 'Senioridade', 'Status', 'Admissão', ''].map(h => (
-                      <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide whitespace-nowrap">
+                    {[
+                      'Colaborador',
+                      'Cargo / Depto',
+                      'Localidade',
+                      'Senioridade',
+                      'Status',
+                      'Admissão',
+                      '',
+                    ].map((h) => (
+                      <th
+                        key={h}
+                        className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide whitespace-nowrap"
+                      >
                         {h}
                       </th>
                     ))}
@@ -911,17 +1248,20 @@ export default function EmployeesPage() {
                         <tr key={i}>
                           {Array.from({ length: 7 }).map((_, j) => (
                             <td key={j} className="px-4 py-3">
-                              <div className="h-4 bg-gray-100 rounded animate-pulse" style={{ width: j === 0 ? '140px' : '80px' }} />
+                              <div
+                                className="h-4 bg-gray-100 rounded animate-pulse"
+                                style={{ width: j === 0 ? '140px' : '80px' }}
+                              />
                             </td>
                           ))}
                         </tr>
                       ))
-                    : data?.data.map(emp => (
+                    : data?.data.map((emp) => (
                         <EmployeeRow
                           key={emp.id}
                           employee={emp}
                           onView={setSelected}
-                          onEdit={e => setSelected(e)}
+                          onEdit={(e) => setSelected(e)}
                         />
                       ))}
                 </tbody>
@@ -956,24 +1296,40 @@ export default function EmployeesPage() {
 
       {/* ── Quick Preview Drawer */}
       {selected && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 flex justify-end" onClick={() => setSelected(null)}>
+        <div
+          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 flex justify-end"
+          onClick={() => setSelected(null)}
+        >
           <div
             className="bg-white w-full max-w-md h-full overflow-y-auto shadow-2xl"
-            onClick={e => e.stopPropagation()}
+            onClick={(e) => e.stopPropagation()}
           >
             <div className="p-6 border-b border-gray-100">
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-4">
-                  <Avatar src={selected.avatarUrl} name={selected.name} size="lg" />
+                  <Avatar
+                    src={selected.avatarUrl}
+                    name={selected.name}
+                    size="lg"
+                  />
                   <div>
-                    <h2 className="text-lg font-bold text-gray-900">{selected.name}</h2>
-                    <p className="text-sm text-gray-500">{selected.jobTitle ?? selected.role}</p>
+                    <h2 className="text-lg font-bold text-gray-900">
+                      {selected.name}
+                    </h2>
+                    <p className="text-sm text-gray-500">
+                      {selected.jobTitle ?? selected.role}
+                    </p>
                     {selected.matricula && (
-                      <p className="text-xs font-mono text-gray-400 mt-0.5">{selected.matricula}</p>
+                      <p className="text-xs font-mono text-gray-400 mt-0.5">
+                        {selected.matricula}
+                      </p>
                     )}
                   </div>
                 </div>
-                <button onClick={() => setSelected(null)} className="p-2 rounded-xl hover:bg-gray-100 text-gray-500">
+                <button
+                  onClick={() => setSelected(null)}
+                  className="p-2 rounded-xl hover:bg-gray-100 text-gray-500"
+                >
                   <X size={18} />
                 </button>
               </div>
@@ -984,31 +1340,94 @@ export default function EmployeesPage() {
 
               <div className="space-y-3">
                 {[
-                  { icon: Building2, label: 'Departamento', value: selected.department },
-                  { icon: MapPin, label: 'Localidade', value: selected.location },
-                  { icon: Briefcase, label: 'Contrato', value: selected.contractType ? CONTRACT_LABELS[selected.contractType as ContractType] : undefined },
-                  { icon: TrendingUp, label: 'Senioridade', value: selected.seniority ? SENIORITY_LABELS[selected.seniority as SeniorityLevel] : undefined },
-                  { icon: Calendar, label: 'Admissão', value: new Date(selected.joinedAt).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' }) },
-                  { icon: Users, label: 'Gestor', value: selected.manager?.name },
-                ].filter(row => row.value).map(row => (
-                  <div key={row.label} className="flex items-center gap-3 py-2 border-b border-gray-50 last:border-0">
-                    <row.icon size={16} className="text-gray-400 flex-shrink-0" />
-                    <span className="text-xs text-gray-500 w-24 flex-shrink-0">{row.label}</span>
-                    <span className="text-sm font-medium text-gray-900 flex-1">{row.value}</span>
-                  </div>
-                ))}
+                  {
+                    icon: Building2,
+                    label: 'Departamento',
+                    value: selected.department,
+                  },
+                  {
+                    icon: MapPin,
+                    label: 'Localidade',
+                    value: selected.location,
+                  },
+                  {
+                    icon: Briefcase,
+                    label: 'Contrato',
+                    value: selected.contractType
+                      ? CONTRACT_LABELS[selected.contractType as ContractType]
+                      : undefined,
+                  },
+                  {
+                    icon: TrendingUp,
+                    label: 'Senioridade',
+                    value: selected.seniority
+                      ? SENIORITY_LABELS[selected.seniority as SeniorityLevel]
+                      : undefined,
+                  },
+                  {
+                    icon: Calendar,
+                    label: 'Admissão',
+                    value: new Date(selected.joinedAt).toLocaleDateString(
+                      'pt-BR',
+                      { day: '2-digit', month: 'long', year: 'numeric' },
+                    ),
+                  },
+                  {
+                    icon: Users,
+                    label: 'Gestor',
+                    value: selected.manager?.name,
+                  },
+                ]
+                  .filter((row) => row.value)
+                  .map((row) => (
+                    <div
+                      key={row.label}
+                      className="flex items-center gap-3 py-2 border-b border-gray-50 last:border-0"
+                    >
+                      <row.icon
+                        size={16}
+                        className="text-gray-400 flex-shrink-0"
+                      />
+                      <span className="text-xs text-gray-500 w-24 flex-shrink-0">
+                        {row.label}
+                      </span>
+                      <span className="text-sm font-medium text-gray-900 flex-1">
+                        {row.value}
+                      </span>
+                    </div>
+                  ))}
               </div>
 
               {selected._count && (
                 <div className="grid grid-cols-3 gap-3">
                   {[
-                    { label: 'Skills', value: selected._count.employeeSkills, icon: Star },
-                    { label: 'PDIs', value: selected._count.pdis, icon: TrendingUp },
-                    { label: 'Docs', value: selected._count.documents, icon: BookOpen },
-                  ].map(s => (
-                    <div key={s.label} className="bg-gray-50 rounded-xl p-3 text-center">
-                      <s.icon size={16} className="text-gray-400 mx-auto mb-1" />
-                      <p className="text-xl font-bold text-gray-900">{s.value}</p>
+                    {
+                      label: 'Skills',
+                      value: selected._count.employeeSkills,
+                      icon: Star,
+                    },
+                    {
+                      label: 'PDIs',
+                      value: selected._count.pdis,
+                      icon: TrendingUp,
+                    },
+                    {
+                      label: 'Docs',
+                      value: selected._count.documents,
+                      icon: BookOpen,
+                    },
+                  ].map((s) => (
+                    <div
+                      key={s.label}
+                      className="bg-gray-50 rounded-xl p-3 text-center"
+                    >
+                      <s.icon
+                        size={16}
+                        className="text-gray-400 mx-auto mb-1"
+                      />
+                      <p className="text-xl font-bold text-gray-900">
+                        {s.value}
+                      </p>
                       <p className="text-xs text-gray-500">{s.label}</p>
                     </div>
                   ))}

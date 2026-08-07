@@ -469,6 +469,7 @@ function ChatSession({
           )}
           <button
             onClick={onClose}
+            aria-label="Fechar"
             className="p-2 rounded-lg hover:bg-slate-100 transition-colors"
           >
             <X size={16} className="text-slate-500" />
@@ -578,6 +579,7 @@ function ChatSession({
               <button
                 onClick={send}
                 disabled={sending || !input.trim()}
+                aria-label="Enviar"
                 className="p-2.5 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 disabled:opacity-40 transition-colors"
               >
                 <Send size={16} />

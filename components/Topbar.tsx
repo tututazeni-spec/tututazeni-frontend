@@ -69,6 +69,7 @@ export default function Topbar({ title }: TopbarProps) {
       {/* Right */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
         <button
+          aria-label="Notificações"
           style={{
             position: 'relative',
             background: 'none',

@@ -290,6 +290,9 @@ function ContentCard({
         </div>
         <button
           onClick={handleBookmark}
+          aria-label={
+            content.isBookmarked ? 'Remover dos guardados' : 'Guardar'
+          }
           className="absolute top-2 right-2 p-1.5 bg-white/80 rounded-full hover:bg-white transition-colors"
         >
           <Bookmark

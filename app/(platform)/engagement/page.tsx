@@ -357,6 +357,7 @@ function MoodCheckin({ onDone }: { onDone: () => void }) {
           <button
             onClick={submit}
             disabled={submitting}
+            aria-label="Enviar"
             className="px-4 py-2 bg-violet-600 text-white rounded-lg text-sm hover:bg-violet-700 transition-colors disabled:opacity-60"
           >
             <Send size={14} />
