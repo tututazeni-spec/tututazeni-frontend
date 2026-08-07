@@ -24,6 +24,7 @@ import {
   TrendingUp, Award, Clock, Filter, X, CheckCircle2, AlertCircle,
   ArrowUpRight, BarChart3, Loader2,
 } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 // Employee, EmployeeStatus, SeniorityLevel, WorkMode, ContractType, FilterState
@@ -128,7 +129,7 @@ function StatusBadge({ status }: { status: EmployeeStatus }) {
 function KpiCard({
   label, value, icon: Icon, trend, color = 'blue',
 }: {
-  label: string; value: string | number; icon: any; trend?: string; color?: string;
+  label: string; value: string | number; icon: LucideIcon; trend?: string; color?: string;
 }) {
   const colors: Record<string, string> = {
     blue:    'bg-blue-50 text-blue-600',
@@ -679,7 +680,7 @@ export default function EmployeesPage() {
 
   const handleExport = async () => {
     try {
-      const result = await apiClient.get<{ data: any[] }>('/employees/export');
+      const result = await apiClient.get<{ data: Array<Record<string, unknown>> }>('/employees/export');
       const csv = [
         Object.keys(result.data[0] ?? {}).join(','),
         ...result.data.map(row => Object.values(row).join(','))
