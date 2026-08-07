@@ -49,8 +49,16 @@ interface Report {
   generatedBy: { id: number; fullName: string; avatarUrl: string | null };
   department: { id: number; name: string } | null;
   metrics: Metric[];
-  approvals?: any[];
+  approvals?: unknown[];
   _count?: { accessLogs: number };
+}
+
+interface ReportTemplate {
+  id: number;
+  type: ReportType;
+  name: string;
+  description?: string;
+  sections: string[];
 }
 
 interface ReportStats {
@@ -445,7 +453,7 @@ function DetailView({ reportId, onBack }: { reportId: number; onBack: () => void
 function GenerateView({ onSuccess }: { onSuccess: (id: number) => void }) {
   const [type, setType]         = useState<ReportType>('MONTHLY');
 
-  const { data: templates = [] } = useApiQuery<any[]>(
+  const { data: templates = [] } = useApiQuery<ReportTemplate[]>(
     queryKeys.executiveReports.templates(), '/executive-reports/templates',
     { staleTime: STALE_TIME.STATIC },
   );
