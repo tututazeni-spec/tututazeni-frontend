@@ -229,7 +229,7 @@ export default function LivePage() {
     try {
       await deleteMutation.mutateAsync(lc.id);
       showToast("Aula eliminada.", "info");
-    } catch (e: any) { showToast(e.message, "error"); }
+    } catch (e) { showToast(e instanceof Error ? e.message : String(e), "error"); }
   }
 
   // ── Filters ────────────────────────────────────────────────────────────────
