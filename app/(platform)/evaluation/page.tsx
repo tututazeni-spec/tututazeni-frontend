@@ -13,10 +13,39 @@ import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import Image from 'next/image';
+import type { LucideIcon } from 'lucide-react';
 
 // ─── Types ───────────────────────────────────────────────────────
 
 type Tab = 'overview' | 'cycles' | 'pending' | 'results' | 'analytics' | 'calibration';
+
+interface MyProgress { completed: number; pending: number; completionRate: number }
+
+interface AnalyticsTopPerformer {
+  user?: { fullName?: string; avatarUrl?: string; department?: { name?: string } };
+  avgScore: number;
+  percentile: number;
+}
+interface AnalyticsByDepartment { department: string; avgScore: number }
+interface AnalyticsData {
+  hasData: boolean;
+  message?: string;
+  kpis: { totalParticipants: number; avgScore?: number; participationRate: number; totalEvaluations: number };
+  distribution: Record<string, number>;
+  topPerformers?: AnalyticsTopPerformer[];
+  byDepartment?: AnalyticsByDepartment[];
+}
+
+interface BiasedEvaluator { evaluatorId: number; avg: number; deviation: number }
+interface CalibrationParticipant {
+  evaluated: { id: number; fullName?: string; avatarUrl?: string; position?: { name?: string }; department?: { name?: string } };
+  avgScore: number; percentile: number; dispersion?: number;
+}
+interface CalibrationData {
+  biasedEvaluators?: BiasedEvaluator[];
+  globalAvg?: number;
+  participants?: CalibrationParticipant[];
+}
 
 interface Cycle {
   id: number; name: string; model: string; status: string;
@@ -39,6 +68,7 @@ interface EvalResults {
   concordance: { selfScore: number; othersScore: number; gap: number; label: string } | null;
   totalEvaluators: number;
   qualitative: { strengths: string[]; improvements: string[]; recommendations: string[] };
+  hasResults?: boolean;
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────
@@ -98,7 +128,7 @@ function Skeleton({ count = 3 }: { count?: number }) {
 }
 
 function KpiCard({ icon: Icon, label, value, sub, color = 'text-indigo-600', bg = 'bg-indigo-50', trend }: {
-  icon: any; label: string; value: string | number; sub?: string;
+  icon: LucideIcon; label: string; value: string | number; sub?: string;
   color?: string; bg?: string; trend?: number;
 }) {
   return (
@@ -179,7 +209,7 @@ function RadarChart({ data, size = 200 }: { data: { label: string; value: number
 // ─── Overview Tab ─────────────────────────────────────────────────
 
 function OverviewTab({ userId }: { userId?: number }) {
-  const progressQ = useApiQuery<any>(queryKeys.evaluation.myProgress(), '/evaluations/my-progress', { staleTime: STALE_TIME.DYNAMIC });
+  const progressQ = useApiQuery<MyProgress>(queryKeys.evaluation.myProgress(), '/evaluations/my-progress', { staleTime: STALE_TIME.DYNAMIC });
   const pendingQ = useApiQuery<EvalRequest[]>(queryKeys.evaluation.pending(), '/evaluations/pending', { staleTime: STALE_TIME.DYNAMIC });
   const resultsQ = useApiQuery<EvalResults>(
     queryKeys.evaluation.results(userId ?? 0), `/evaluations/results/${userId}`,
@@ -187,7 +217,7 @@ function OverviewTab({ userId }: { userId?: number }) {
   );
   const progress = progressQ.data ?? null;
   const pending = pendingQ.data ?? [];
-  const myResults = (resultsQ.data && (resultsQ.data as any).hasResults !== false) ? resultsQ.data : null;
+  const myResults = (resultsQ.data && resultsQ.data.hasResults !== false) ? resultsQ.data : null;
   const loading = progressQ.isLoading;
 
   if (loading) return <Skeleton />;
@@ -306,7 +336,7 @@ function OverviewTab({ userId }: { userId?: number }) {
 // ─── Cycles Tab ───────────────────────────────────────────────────
 
 function CyclesTab() {
-  const { data, isLoading: loading } = useApiQuery<{ data: Cycle[]; meta: any }>(
+  const { data, isLoading: loading } = useApiQuery<{ data: Cycle[]; meta: { total: number } }>(
     queryKeys.evaluation.cycles(), '/evaluations/cycles', { staleTime: STALE_TIME.SEMI_STATIC },
   );
 
@@ -475,7 +505,7 @@ function ResultsTab() {
   const loadResults = useApiMutation(
     (uid: string) => Promise.all([
       apiClient.get<EvalResults>(`/evaluations/results/${uid}`),
-      apiClient.get<any>(`/evaluations/evolution/${uid}`),
+      apiClient.get<unknown>(`/evaluations/evolution/${uid}`),
     ]),
   );
   const result = loadResults.data?.[0] ?? null;
@@ -625,7 +655,7 @@ function ResultsTab() {
 // ─── Analytics Tab ────────────────────────────────────────────────
 
 function AnalyticsTab() {
-  const { data, isLoading: loading } = useApiQuery<any>(
+  const { data, isLoading: loading } = useApiQuery<AnalyticsData>(
     queryKeys.evaluation.analytics(), '/evaluations/analytics/dashboard', { staleTime: STALE_TIME.SEMI_STATIC },
   );
 
@@ -642,7 +672,7 @@ function AnalyticsTab() {
       {/* KPIs */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <KpiCard icon={Users}       label="Participantes"       value={data.kpis.totalParticipants} />
-        <KpiCard icon={Star}        label="Score Médio"         value={data.kpis.avgScore?.toFixed(1)}
+        <KpiCard icon={Star}        label="Score Médio"         value={data.kpis.avgScore?.toFixed(1) ?? '–'}
           color="text-amber-600" bg="bg-amber-50" />
         <KpiCard icon={CheckCircle} label="Taxa Participação"   value={`${data.kpis.participationRate}%`}
           color="text-emerald-600" bg="bg-emerald-50" />
@@ -659,7 +689,7 @@ function AnalyticsTab() {
             { key: 'expected',    label: 'Esperado',    color: 'bg-amber-500',   textColor: 'text-amber-700' },
             { key: 'below',       label: 'Abaixo',      color: 'bg-red-400',     textColor: 'text-red-700' },
           ].map(d => {
-            const total = Object.values(data.distribution as Record<string, number>).reduce((a, b) => a + b, 0);
+            const total = Object.values(data.distribution).reduce((a, b) => a + b, 0);
             const pct   = total > 0 ? Math.round((data.distribution[d.key] / total) * 100) : 0;
             return (
               <div key={d.key} className="text-center p-3 rounded-xl border bg-white">
@@ -680,7 +710,7 @@ function AnalyticsTab() {
         <div className="bg-white rounded-xl border border-slate-100 p-5">
           <h3 className="font-semibold text-slate-700 mb-4">🏆 Top Performers</h3>
           <div className="space-y-2">
-            {(data.topPerformers ?? []).slice(0, 8).map((p: any, i: number) => (
+            {(data.topPerformers ?? []).slice(0, 8).map((p, i) => (
               <div key={i} className="flex items-center gap-3">
                 <span className="text-xs font-bold text-slate-300 w-5 text-right">#{i+1}</span>
                 <Avatar name={p.user?.fullName ?? '?'} url={p.user?.avatarUrl} size={7} />
@@ -701,7 +731,7 @@ function AnalyticsTab() {
         <div className="bg-white rounded-xl border border-slate-100 p-5">
           <h3 className="font-semibold text-slate-700 mb-4">Score por Departamento</h3>
           <div className="space-y-2">
-            {(data.byDepartment ?? []).map((d: any, i: number) => (
+            {(data.byDepartment ?? []).map((d, i) => (
               <div key={i}>
                 <div className="flex justify-between text-xs mb-1">
                   <span className="text-slate-600 truncate">{d.department}</span>
@@ -724,7 +754,7 @@ function CalibrationTab() {
   const [cycleId, setCycleId] = useState('');
 
   const loadCalibration = useApiMutation(
-    (id: string) => apiClient.get<any>(`/evaluations/calibration/${id}`),
+    (id: string) => apiClient.get<CalibrationData>(`/evaluations/calibration/${id}`),
   );
   const data = loadCalibration.data ?? null;
   const loading = loadCalibration.isPending;
@@ -751,10 +781,10 @@ function CalibrationTab() {
           {(data.biasedEvaluators ?? []).length > 0 && (
             <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
               <p className="text-sm font-semibold text-amber-700 mb-2">
-                ⚠️ {data.biasedEvaluators.length} avaliadores com viés detectado
+                ⚠️ {data.biasedEvaluators?.length} avaliadores com viés detectado
               </p>
               <div className="space-y-1">
-                {data.biasedEvaluators.map((e: any, i: number) => (
+                {(data.biasedEvaluators ?? []).map((e, i) => (
                   <p key={i} className="text-xs text-amber-700">
                     Avaliador #{e.evaluatorId}: média {e.avg.toFixed(1)} (desvio {e.deviation > 0 ? '+' : ''}{e.deviation.toFixed(2)})
                     {e.deviation > 0 ? ' — muito generoso' : ' — muito rigoroso'}
@@ -771,7 +801,7 @@ function CalibrationTab() {
               <span className="text-xs text-slate-400">Média global: {data.globalAvg?.toFixed(2)}</span>
             </div>
             <div className="divide-y divide-slate-50 max-h-[480px] overflow-y-auto">
-              {(data.participants ?? []).map((p: any, i: number) => (
+              {(data.participants ?? []).map((p, i) => (
                 <div key={i} className="px-4 py-3 flex items-center gap-3">
                   <span className="text-xs font-bold text-slate-300 w-5 text-right">#{i+1}</span>
                   <Avatar name={p.evaluated?.fullName ?? '?'} url={p.evaluated?.avatarUrl} />
@@ -785,9 +815,9 @@ function CalibrationTab() {
                     <p className={`text-sm font-bold ${SCORE_COLOR(p.avgScore)}`}>{p.avgScore.toFixed(1)}</p>
                     <p className="text-[10px] text-slate-400">P{p.percentile}</p>
                   </div>
-                  {p.dispersion > 1 && (
+                  {(p.dispersion ?? 0) > 1 && (
                     <span className="text-[10px] bg-red-100 text-red-600 px-1.5 py-0.5 rounded">
-                      ±{p.dispersion.toFixed(1)}
+                      ±{p.dispersion?.toFixed(1)}
                     </span>
                   )}
                   <input type="number" min="0" max="5" step="0.1"
@@ -811,7 +841,7 @@ function CalibrationTab() {
 
 // ─── Main Page ───────────────────────────────────────────────────
 
-const TABS: { id: Tab; label: string; icon: any }[] = [
+const TABS: { id: Tab; label: string; icon: LucideIcon }[] = [
   { id: 'overview',     label: 'Visão Geral',  icon: Star },
   { id: 'cycles',       label: 'Ciclos',       icon: Layers },
   { id: 'pending',      label: 'Pendentes',    icon: Clock },
