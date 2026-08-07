@@ -8,6 +8,7 @@ import {
   Search, Plus, Clock, CheckCircle, AlertTriangle,
   ChevronRight, RefreshCw, Filter, Bookmark, Calendar,
 } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -18,6 +19,49 @@ type Tab = 'hub' | 'hr' | 'learning' | 'performance' | 'talent' | 'engagement' |
 
 interface Template {
   id: string; name: string; category: string; reportKey: string; description: string;
+}
+
+interface ReportDeptEntry {
+  department?: string;
+  name?: string;
+  count?: number;
+  avgScore?: number;
+  completions?: number;
+}
+
+interface ReportTopItem {
+  user?: { fullName: string; department?: { name: string } | null };
+  course?: { title: string; category?: string };
+  competency?: { name: string; type?: string };
+  content?: { title: string };
+  name?: string;
+  score?: number;
+  avgScore?: number;
+  completionRate?: number;
+  views?: number;
+  avgGap?: number;
+}
+
+interface ReportData {
+  summary?: Record<string, string | number | boolean | null | Record<string, unknown>>;
+  insights?: string[];
+  byDepartment?: ReportDeptEntry[];
+  topPerformers?: ReportTopItem[];
+  topCourses?: ReportTopItem[];
+  skills?: ReportTopItem[];
+  topContent?: ReportTopItem[];
+}
+
+interface InsightItem {
+  severity: string;
+  type: string;
+  message: string;
+  recommendation?: string;
+}
+
+interface InsightsData {
+  count: number;
+  insights: InsightItem[];
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────
@@ -48,7 +92,7 @@ function StatusBadge({ value, thresholds = [60, 80] }: { value: number; threshol
 
 // ─── Category config ─────────────────────────────────────────────
 
-const CAT_CONFIG: Record<string, { label: string; icon: any; color: string; bg: string }> = {
+const CAT_CONFIG: Record<string, { label: string; icon: LucideIcon; color: string; bg: string }> = {
   HR:          { label: 'RH & Pessoas',    icon: Users,     color: 'text-violet-600', bg: 'bg-violet-50' },
   LEARNING:    { label: 'Aprendizagem',    icon: BookOpen,  color: 'text-blue-600',   bg: 'bg-blue-50' },
   PERFORMANCE: { label: 'Performance',     icon: Star,      color: 'text-amber-600',  bg: 'bg-amber-50' },
@@ -143,7 +187,7 @@ function ReportViewer({ template, onBack }: { template: Template; onBack: () => 
 
   const path = REPORT_PATHS[template.reportKey] ?? REPORT_PATHS.training;
   const params = { from: submitted.from, to: submitted.to, departmentId: submitted.deptId || undefined };
-  const { data, isLoading: loading, refetch } = useApiQuery<any>(
+  const { data, isLoading: loading, refetch } = useApiQuery<ReportData>(
     queryKeys.reports.view(template.reportKey, params), path,
     { params, staleTime: STALE_TIME.DYNAMIC },
   );
@@ -192,7 +236,7 @@ function ReportViewer({ template, onBack }: { template: Template; onBack: () => 
 
 // ─── Generic Report Output ────────────────────────────────────────
 
-function ReportOutput({ data, reportKey }: { data: any; reportKey: string }) {
+function ReportOutput({ data }: { data: ReportData; reportKey: string }) {
   const summary = data.summary ?? {};
 
   return (
@@ -203,7 +247,7 @@ function ReportOutput({ data, reportKey }: { data: any; reportKey: string }) {
           <h4 className="text-xs font-semibold text-violet-700 uppercase tracking-wide mb-2 flex items-center gap-1">
             <Brain size={12} />Insights
           </h4>
-          {data.insights.map((ins: string, i: number) => (
+          {(data.insights ?? []).map((ins, i) => (
             <p key={i} className="text-xs text-violet-800 mb-1">{ins}</p>
           ))}
         </div>
@@ -217,7 +261,7 @@ function ReportOutput({ data, reportKey }: { data: any; reportKey: string }) {
           const isRate = k.toLowerCase().includes('rate') || k.toLowerCase().includes('pct') || k.toLowerCase().includes('ratio');
           return (
             <div key={k} className="bg-white rounded-xl border border-slate-100 p-3">
-              <p className="text-xl font-bold text-slate-800">{typeof v === 'number' ? (isRate ? `${v}%` : v) : v as any}</p>
+              <p className="text-xl font-bold text-slate-800">{typeof v === 'number' ? (isRate ? `${v}%` : v) : String(v)}</p>
               <p className="text-[10px] text-slate-400 mt-0.5">{label}</p>
             </div>
           );
@@ -229,9 +273,9 @@ function ReportOutput({ data, reportKey }: { data: any; reportKey: string }) {
         <div className="bg-white rounded-xl border border-slate-100 p-5">
           <h4 className="font-semibold text-slate-700 mb-4">Por Departamento</h4>
           <div className="space-y-2">
-            {(data.byDepartment as any[]).slice(0, 8).map((d: any, i: number) => {
+            {(data.byDepartment ?? []).slice(0, 8).map((d, i) => {
               const val = d.count ?? d.avgScore ?? d.completions ?? 0;
-              const max = Math.max(...(data.byDepartment as any[]).map((x: any) => x.count ?? x.avgScore ?? x.completions ?? 0));
+              const max = Math.max(...(data.byDepartment ?? []).map((x) => x.count ?? x.avgScore ?? x.completions ?? 0));
               return (
                 <div key={i}>
                   <div className="flex justify-between text-xs mb-0.5">
@@ -253,11 +297,11 @@ function ReportOutput({ data, reportKey }: { data: any; reportKey: string }) {
             {data.topPerformers ? 'Top Performers' : data.topCourses ? 'Top Cursos' : data.skills ? 'Gaps Críticos' : 'Top Conteúdos'}
           </h4>
           <div className="space-y-2">
-            {(data.topPerformers ?? data.topCourses ?? (data.skills ?? []).slice(0, 8) ?? data.topContent ?? []).map((item: any, i: number) => {
+            {(data.topPerformers ?? data.topCourses ?? (data.skills ?? []).slice(0, 8) ?? data.topContent ?? []).map((item, i) => {
               const name   = item.user?.fullName ?? item.course?.title ?? item.competency?.name ?? item.content?.title ?? item.name ?? `Item ${i+1}`;
               const val    = item.score ?? item.avgScore ?? item.completionRate ?? item.views ?? item.avgGap ?? 0;
               const sub    = item.user?.department?.name ?? item.course?.category ?? item.competency?.type ?? '';
-              const isGap  = data.skills;
+              const isGap  = !!data.skills;
               return (
                 <div key={i} className="flex items-center gap-3">
                   <span className="text-xs text-slate-300 font-bold w-5 text-right">#{i+1}</span>
@@ -286,12 +330,12 @@ function ReportOutput({ data, reportKey }: { data: any; reportKey: string }) {
 
 function InsightsTab() {
   const range = defaultRange(1);
-  const { data, isLoading: loading } = useApiQuery<any>(
+  const { data, isLoading: loading } = useApiQuery<InsightsData>(
     queryKeys.reports.insights({ from: range.from, to: range.to }), '/reports/insights',
     { params: { from: range.from, to: range.to }, staleTime: STALE_TIME.SEMI_STATIC },
   );
 
-  const SEV_CONFIG: Record<string, { color: string; bg: string; icon: any }> = {
+  const SEV_CONFIG: Record<string, { color: string; bg: string; icon: LucideIcon }> = {
     HIGH:   { color: 'text-red-700',    bg: 'bg-red-50 border-red-200',    icon: AlertTriangle },
     MEDIUM: { color: 'text-amber-700',  bg: 'bg-amber-50 border-amber-200',icon: Clock },
     LOW:    { color: 'text-teal-700',   bg: 'bg-teal-50 border-teal-100',  icon: CheckCircle },
@@ -319,7 +363,7 @@ function InsightsTab() {
         </div>
       )}
 
-      {(data?.insights ?? []).map((ins: any, i: number) => {
+      {(data?.insights ?? []).map((ins, i) => {
         const conf = SEV_CONFIG[ins.severity] ?? SEV_CONFIG.LOW;
         const Icon = conf.icon;
         return (
@@ -350,7 +394,7 @@ function InsightsTab() {
 
 // ─── Main Page ───────────────────────────────────────────────────
 
-const TABS: { id: Tab; label: string; icon: any }[] = [
+const TABS: { id: Tab; label: string; icon: LucideIcon }[] = [
   { id: 'hub',         label: 'Report Hub',   icon: BarChart2 },
   { id: 'insights',    label: 'Insights IA',  icon: Brain },
 ];
