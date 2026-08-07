@@ -14,6 +14,7 @@ import { useDebounce } from '@/hooks/useDebounce';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import Image from 'next/image';
+import type { LucideIcon } from 'lucide-react';
 
 // ─── Types ───────────────────────────────────────────────────────
 
@@ -24,11 +25,54 @@ type Role =
   | 'INSTRUCTOR' | 'DIRECTOR' | 'AUDITOR';
 
 interface KPICardProps {
-  icon: any; label: string; value: string | number;
+  icon: LucideIcon; label: string; value: string | number;
   sub?: string; trend?: number; color?: string; bg?: string;
 }
 
 interface Alert { type: string; message: string; priority: 'URGENT' | 'ATTENTION' | 'INFORMATIVE'; actionUrl?: string }
+
+interface MyDashboardData {
+  user?: { fullName?: string; avatarUrl?: string; position?: { name?: string }; department?: { name?: string } };
+  development?: { activePlan?: { status: string; name: string; progress: number; completedActions: number; goals: number } };
+  gamification?: { level?: { label: string; level: number; nextAt: number }; totalPoints?: number; recentBadges?: unknown[] };
+  learning?: { inProgress?: number; completed?: number };
+  engagement?: { pendingSurveys?: number };
+  pendingItems?: Array<{ priority: string; label: string }>;
+  skills?: Array<{ name: string; current: number; target?: number }>;
+}
+
+interface ManagerTeamMember {
+  user: { id: number; fullName: string; avatarUrl?: string; position?: { name?: string } };
+  plan?: { progress: number };
+  lastScore?: number;
+  alert?: boolean;
+}
+interface ManagerDashboardData {
+  teamSize?: number;
+  kpis?: { activePlans?: number; pdpCoverage?: number; avgScore?: number; scoreTrend?: number; mandatoryRate?: number };
+  team?: ManagerTeamMember[];
+  alerts?: Array<{ priority: string; message: string }>;
+}
+
+interface OrgDepartment { id: number; name: string; headcount: number }
+interface OrgTopContent { content?: { title?: string; type?: string }; views: number }
+interface OrgDashboardData {
+  kpis?: {
+    headcount?: { active?: number; new?: number; newTrend?: number };
+    learning?: { completions?: number; completionsTrend?: number; trainingHours?: number };
+    development?: { activePlans?: number; coverage?: number };
+    performance?: { avgScore?: number };
+    talent?: { hiPos?: number; successionCoverage?: number };
+    engagement?: { activeSurveys?: number };
+  };
+  departments?: OrgDepartment[];
+  insights?: string[];
+  topContent?: OrgTopContent[];
+}
+
+interface SearchUserResult { id: number; fullName: string; avatarUrl?: string; position?: { name?: string }; department?: { name?: string } }
+interface SearchCourseResult { id: number; title: string }
+interface SearchResults { users?: SearchUserResult[]; courses?: SearchCourseResult[] }
 
 // ─── Slideshow images ─────────────────────────────────────────────────────────
 // Substitui os URLs pelos teus — recomendado: 1400×400 px (banner horizontal)
@@ -240,7 +284,7 @@ function AlertBanner({ alerts }: { alerts: Alert[] }) {
 
 function ColaboradorDashboard() {
   // Duas queries independentes → correm em paralelo (sem waterfall).
-  const { data, isLoading } = useApiQuery<any>(
+  const { data, isLoading } = useApiQuery<MyDashboardData>(
     queryKeys.dashboard.my(),
     '/dashboard/my',
     { staleTime: STALE_TIME.DYNAMIC },
@@ -322,7 +366,7 @@ function ColaboradorDashboard() {
             <p className="text-sm text-slate-400 text-center py-4">Tudo em dia! 🎉</p>
           ) : (
             <div className="space-y-2">
-              {(data?.pendingItems ?? []).map((item: any, i: number) => (
+              {(data?.pendingItems ?? []).map((item, i) => (
                 <div key={i} className="flex items-center gap-2 text-sm text-slate-600">
                   <span className={`w-2 h-2 rounded-full shrink-0 ${item.priority === 'HIGH' ? 'bg-red-500' : 'bg-amber-400'}`} />
                   {item.label}
@@ -338,7 +382,7 @@ function ColaboradorDashboard() {
         <div className="bg-white rounded-xl border border-slate-100 p-5">
           <h3 className="font-semibold text-slate-700 mb-3">Evolução de Competências</h3>
           <div className="space-y-2">
-            {data.skills.map((s: any, i: number) => (
+            {(data?.skills ?? []).map((s, i) => (
               <div key={i}>
                 <div className="flex justify-between text-xs mb-0.5">
                   <span className="text-slate-600">{s.name}</span>
@@ -359,7 +403,7 @@ function ColaboradorDashboard() {
 // ─── Manager Dashboard ────────────────────────────────────────────
 
 function ManagerDashboard() {
-  const { data, isLoading } = useApiQuery<any>(
+  const { data, isLoading } = useApiQuery<ManagerDashboardData>(
     queryKeys.dashboard.manager(),
     '/dashboard/manager',
     { staleTime: STALE_TIME.DYNAMIC },
@@ -387,7 +431,7 @@ function ManagerDashboard() {
         <KPICard icon={Star}        label="Score Médio"         value={kpis.avgScore?.toFixed(1) ?? '–'}
           trend={kpis.scoreTrend} color="text-amber-600" bg="bg-amber-50" />
         <KPICard icon={Shield}      label="Formação Obrigatória" value={`${kpis.mandatoryRate ?? 0}%`}
-          color={kpis.mandatoryRate >= 80 ? 'text-emerald-600' : 'text-red-500'} bg="bg-emerald-50" />
+          color={(kpis.mandatoryRate ?? 0) >= 80 ? 'text-emerald-600' : 'text-red-500'} bg="bg-emerald-50" />
       </div>
 
       {/* Team table */}
@@ -397,7 +441,7 @@ function ManagerDashboard() {
           <span className="text-xs text-slate-400">{data?.teamSize ?? 0} colaboradores</span>
         </div>
         <div className="divide-y divide-slate-50 max-h-80 overflow-y-auto">
-          {(data?.team ?? []).map((u: any) => (
+          {(data?.team ?? []).map(u => (
             <div key={u.user.id} className="flex items-center gap-3 px-5 py-3 hover:bg-slate-50">
               <Avatar name={u.user.fullName} url={u.user.avatarUrl} />
               <div className="flex-1 min-w-0">
@@ -430,7 +474,7 @@ function ManagerDashboard() {
         <div className="bg-white rounded-xl border border-slate-100 p-5">
           <h3 className="font-semibold text-slate-700 mb-3">⚠️ Alertas da Equipa</h3>
           <div className="space-y-2">
-            {data.alerts.map((a: any, i: number) => (
+            {(data?.alerts ?? []).map((a, i) => (
               <div key={i} className="flex items-center gap-3">
                 <span className={`w-2 h-2 rounded-full shrink-0 ${a.priority === 'URGENT' ? 'bg-red-500' : 'bg-amber-400'}`} />
                 <p className="text-sm text-slate-700">{a.message}</p>
@@ -450,7 +494,7 @@ function OrgDashboard() {
 
   // A key inclui o período → cada período tem cache própria; voltar a um período
   // já visto é instantâneo. params enxutos via apiClient.
-  const { data, isLoading } = useApiQuery<any>(
+  const { data, isLoading } = useApiQuery<OrgDashboardData>(
     queryKeys.dashboard.organization(period),
     '/dashboard/organization',
     { params: { period }, staleTime: STALE_TIME.SEMI_STATIC },
@@ -512,8 +556,8 @@ function OrgDashboard() {
         <div className="bg-white rounded-xl border border-slate-100 p-5">
           <h3 className="font-semibold text-slate-700 mb-4">Departamentos</h3>
           <div className="space-y-2">
-            {(data?.departments ?? []).slice(0, 6).map((d: any) => {
-              const total = (data?.departments ?? []).reduce((a: number, x: any) => a + x.headcount, 0);
+            {(data?.departments ?? []).slice(0, 6).map(d => {
+              const total = (data?.departments ?? []).reduce((a, x) => a + x.headcount, 0);
               const pct   = total > 0 ? Math.round((d.headcount / total) * 100) : 0;
               return (
                 <div key={d.id}>
@@ -535,7 +579,7 @@ function OrgDashboard() {
           </h3>
           {(data?.insights ?? []).length > 0 ? (
             <div className="space-y-2">
-              {(data.insights ?? []).map((ins: string, i: number) => (
+              {(data?.insights ?? []).map((ins, i) => (
                 <p key={i} className="text-xs text-slate-600 bg-violet-50 rounded-lg px-3 py-2">{ins}</p>
               ))}
             </div>
@@ -550,7 +594,7 @@ function OrgDashboard() {
         <div className="bg-white rounded-xl border border-slate-100 p-5">
           <h3 className="font-semibold text-slate-700 mb-3">Conteúdos Mais Vistos</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-            {data.topContent.map((c: any, i: number) => (
+            {(data?.topContent ?? []).map((c, i) => (
               <div key={i} className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-50">
                 <span className="text-xs font-bold text-slate-300 w-4">#{i+1}</span>
                 <div className="flex-1 min-w-0">
@@ -575,7 +619,7 @@ function GlobalSearch({ onClose }: { onClose: () => void }) {
   const enabled = debouncedQuery.length >= 2;
 
   // enabled controla quando dispara; pedidos obsoletos são cancelados (signal).
-  const { data: results, isFetching: loading } = useApiQuery<any>(
+  const { data: results, isFetching: loading } = useApiQuery<SearchResults>(
     queryKeys.dashboard.search(debouncedQuery),
     '/dashboard/search',
     {
@@ -600,10 +644,10 @@ function GlobalSearch({ onClose }: { onClose: () => void }) {
 
         {results && (
           <div className="px-5 py-3 max-h-80 overflow-y-auto">
-            {results.users?.length > 0 && (
+            {(results.users?.length ?? 0) > 0 && (
               <div className="mb-3">
                 <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide mb-2">Colaboradores</p>
-                {results.users.map((u: any) => (
+                {results.users?.map(u => (
                   <div key={u.id} className="flex items-center gap-2 py-1.5 hover:bg-slate-50 rounded-lg px-2 cursor-pointer">
                     <Avatar name={u.fullName} url={u.avatarUrl} size={7} />
                     <div>
@@ -614,10 +658,10 @@ function GlobalSearch({ onClose }: { onClose: () => void }) {
                 ))}
               </div>
             )}
-            {results.courses?.length > 0 && (
+            {(results.courses?.length ?? 0) > 0 && (
               <div className="mb-3">
                 <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide mb-2">Cursos</p>
-                {results.courses.map((c: any) => (
+                {results.courses?.map(c => (
                   <div key={c.id} className="flex items-center gap-2 py-1.5 hover:bg-slate-50 rounded-lg px-2 cursor-pointer">
                     <BookOpen size={14} className="text-indigo-500 shrink-0" />
                     <p className="text-sm text-slate-700">{c.title}</p>
