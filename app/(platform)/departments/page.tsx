@@ -43,6 +43,13 @@ interface Member {
   position: { name: string } | null;
 }
 
+interface HeadHistoryEntry {
+  id: number;
+  head: { fullName: string };
+  startedAt: string;
+  endedAt?: string | null;
+}
+
 interface Metrics {
   departmentId: number;
   totalUsers: number;
@@ -343,7 +350,7 @@ function DetailView({ deptId, onBack }: { deptId: number; onBack: () => void }) 
   const [transferTargetId, setTransferTargetId] = useState('');
   const [transferReason, setTransferReason] = useState('');
 
-  const deptQ = useApiQuery<Department & { users: Member[]; headHistory: any[] }>(
+  const deptQ = useApiQuery<Department & { users: Member[]; headHistory: HeadHistoryEntry[] }>(
     queryKeys.departments.detail(deptId), `/departments/${deptId}`,
     { enabled: !!deptId, staleTime: STALE_TIME.DYNAMIC },
   );
@@ -547,7 +554,7 @@ function DetailView({ deptId, onBack }: { deptId: number; onBack: () => void }) 
               Sem sub-departamentos
             </div>
           ) : (
-            dept.children.map((child: any) => (
+            dept.children.map(child => (
               <div key={child.id} className="flex items-center gap-3 p-4 bg-white border border-gray-200 rounded-xl hover:bg-gray-50">
                 <div className="w-2.5 h-2.5 rounded-full" style={{ background: child.color ?? '#cbd5e1' }} />
                 <div className="flex-1">
@@ -590,7 +597,7 @@ function DetailView({ deptId, onBack }: { deptId: number; onBack: () => void }) 
           {dept.headHistory.length === 0 ? (
             <div className="px-4 py-8 text-center text-sm text-gray-400">Sem histórico de gestores</div>
           ) : (
-            dept.headHistory.map((h: any) => (
+            dept.headHistory.map(h => (
               <div key={h.id} className="grid grid-cols-[1fr_160px_160px] gap-3 items-center px-4 py-3 border-b border-gray-100 last:border-0">
                 <div className="flex items-center gap-2">
                   <Avatar name={h.head.fullName} size="sm" />
