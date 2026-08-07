@@ -8,6 +8,7 @@ import {
   BarChart2, CheckCircle, Clock, ArrowUp, X, ChevronDown,
   Layers, UserCheck, Activity, RefreshCw,
 } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { useApiQuery } from '../../../hooks/useApiQuery';
 import { queryKeys } from '../../../lib/queryKeys';
 import { STALE_TIME } from '../../../lib/queryClient';
@@ -47,6 +48,35 @@ interface DashboardData {
   plansByStatus: { status: string; count: number }[];
   topTrainingNeeds: { skill: { name: string }; avgGap: number; count: number }[];
   recentCompletions: { name: string; user: { fullName: string } }[];
+}
+
+interface NineBoxCell { box: string; label: string; count: number }
+interface NineBoxResponse { matrix: NineBoxCell[] }
+interface PoolMeta { tierCounts: Record<string, number> }
+interface ListMeta { total: number }
+
+interface TrainingNeed {
+  skill?: { name: string } | null;
+  competency?: { name: string } | null;
+  category: string;
+  count: number;
+  avgGap: number;
+}
+
+interface SkillHeatmapRow {
+  skill: string;
+  departments: Array<{ department: string; avgLevel: number | null }>;
+}
+
+interface MentoringPair {
+  id: number;
+  status: string;
+  reverseMentoring?: boolean;
+  objective?: string | null;
+  durationMonths?: number | null;
+  mentor: { fullName: string; avatarUrl?: string };
+  mentee: { fullName: string; avatarUrl?: string };
+  _count?: { sessions: number };
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────
@@ -103,7 +133,7 @@ function ScoreBadge({ score }: { score: number }) {
 }
 
 function KpiCard({ icon: Icon, label, value, sub, color = 'text-indigo-600', trend }: {
-  icon: any; label: string; value: string | number; sub?: string;
+  icon: LucideIcon; label: string; value: string | number; sub?: string;
   color?: string; trend?: number;
 }) {
   return (
@@ -126,7 +156,7 @@ function KpiCard({ icon: Icon, label, value, sub, color = 'text-indigo-600', tre
 
 // ─── Nine Box Matrix ─────────────────────────────────────────────
 
-function NineBoxMatrix({ matrix }: { matrix: any[] }) {
+function NineBoxMatrix({ matrix }: { matrix: NineBoxCell[] }) {
   const BOX_COLORS: Record<string, string> = {
     '3_3': 'bg-emerald-50 border-emerald-200', '3_2': 'bg-teal-50 border-teal-200',
     '3_1': 'bg-sky-50 border-sky-200',         '2_3': 'bg-violet-50 border-violet-200',
@@ -178,7 +208,7 @@ function NineBoxMatrix({ matrix }: { matrix: any[] }) {
 
 // ─── Tabs ─────────────────────────────────────────────────────────
 
-const TABS: { id: Tab; label: string; icon: any }[] = [
+const TABS: { id: Tab; label: string; icon: LucideIcon }[] = [
   { id: 'pool',       label: 'Pool de Talento',   icon: Users },
   { id: 'plans',      label: 'Planos (PDI)',       icon: Target },
   { id: 'skill-gaps', label: 'Skill Gaps',         icon: Brain },
@@ -193,11 +223,11 @@ function PoolTab() {
   const [tier, setTier]         = useState<string>('');
 
   const poolParams = { limit: 100, ...(tier ? { tier } : {}) };
-  const poolQuery = useApiQuery<{ data: TalentUser[]; meta: any }>(
+  const poolQuery = useApiQuery<{ data: TalentUser[]; meta: PoolMeta }>(
     queryKeys.talentDevelopment.pool(tier), '/talent/pool',
     { params: poolParams, staleTime: STALE_TIME.SEMI_STATIC },
   );
-  const matrixQuery = useApiQuery<any>(
+  const matrixQuery = useApiQuery<NineBoxResponse>(
     queryKeys.talentDevelopment.matrix(), '/talent/matrix',
     { staleTime: STALE_TIME.SEMI_STATIC },
   );
@@ -226,7 +256,7 @@ function PoolTab() {
               tier === t.key.toUpperCase() ? 'border-indigo-500' : 'border-slate-100'}`}>
             <div className={`w-3 h-3 rounded-full ${t.color} mb-2`} />
             <p className="text-xl font-bold text-slate-800">
-              {(data?.meta.tierCounts as any)?.[t.key] ?? 0}
+              {data?.meta.tierCounts?.[t.key] ?? 0}
             </p>
             <p className="text-xs text-slate-500">{t.label}</p>
           </button>
@@ -291,7 +321,7 @@ function PlansTab() {
   const [search, setSearch]   = useState('');
 
   const params = { limit: 40, isTemplate: false, ...(status ? { status } : {}) };
-  const { data, isLoading } = useApiQuery<{ data: Plan[]; meta: any }>(
+  const { data, isLoading } = useApiQuery<{ data: Plan[]; meta: ListMeta }>(
     queryKeys.talentDevelopment.plans(status), '/talent/plans',
     { params, staleTime: STALE_TIME.SEMI_STATIC },
   );
@@ -420,11 +450,11 @@ function PlansTab() {
 function SkillGapsTab() {
   const [view, setView]       = useState<'needs' | 'heatmap'>('needs');
 
-  const needsQuery = useApiQuery<any[]>(
+  const needsQuery = useApiQuery<TrainingNeed[]>(
     queryKeys.talentDevelopment.trainingNeeds(), '/talent/training-needs',
     { staleTime: STALE_TIME.SEMI_STATIC },
   );
-  const heatmapQuery = useApiQuery<any[]>(
+  const heatmapQuery = useApiQuery<SkillHeatmapRow[]>(
     queryKeys.talentDevelopment.skillHeatmap(), '/talent/skill-heatmap',
     { staleTime: STALE_TIME.SEMI_STATIC },
   );
@@ -492,7 +522,7 @@ function SkillGapsTab() {
             <thead className="bg-slate-50">
               <tr>
                 <th className="px-4 py-2 text-left text-slate-500 font-medium">Skill</th>
-                {Array.from(new Set(heatmap.flatMap(h => h.departments.map((d: any) => d.department)))).map((dept: any) => (
+                {Array.from(new Set(heatmap.flatMap(h => h.departments.map((d) => d.department)))).map((dept) => (
                   <th key={dept} className="px-3 py-2 text-center text-slate-500 font-medium whitespace-nowrap">
                     {dept}
                   </th>
@@ -501,12 +531,12 @@ function SkillGapsTab() {
             </thead>
             <tbody className="divide-y divide-slate-50">
               {heatmap.map((row, i) => {
-                const depts = Array.from(new Set(heatmap.flatMap(h => h.departments.map((d: any) => d.department))));
+                const depts = Array.from(new Set(heatmap.flatMap(h => h.departments.map((d) => d.department))));
                 return (
                   <tr key={i} className="hover:bg-slate-50">
                     <td className="px-4 py-2 font-medium text-slate-700">{row.skill}</td>
-                    {depts.map((dept: any) => {
-                      const d = row.departments.find((x: any) => x.department === dept);
+                    {depts.map((dept) => {
+                      const d = row.departments.find((x) => x.department === dept);
                       const lvl = d?.avgLevel ?? null;
                       const bg = lvl === null ? 'bg-slate-50' :
                         lvl >= 4 ? 'bg-emerald-100 text-emerald-700' :
@@ -540,7 +570,7 @@ function MentoringTab() {
   const [status, setStatus]   = useState('ACTIVE');
 
   const params = { status, limit: 30 };
-  const { data, isLoading } = useApiQuery<{ data: any[]; meta: any }>(
+  const { data, isLoading } = useApiQuery<{ data: MentoringPair[]; meta: ListMeta }>(
     queryKeys.talentDevelopment.mentoring(status), '/talent/mentoring',
     { params, staleTime: STALE_TIME.SEMI_STATIC },
   );
@@ -562,7 +592,7 @@ function MentoringTab() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-        {data?.data.map((m: any) => (
+        {data?.data.map((m) => (
           <div key={m.id} className="bg-white rounded-xl border border-slate-100 p-4">
             <div className="flex items-center justify-between mb-3">
               <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${STATUS_COLOR[m.status] ?? ''}`}>
@@ -737,7 +767,7 @@ function AnalyticsTab() {
         <div className="bg-white rounded-xl border border-slate-100 p-6">
           <h3 className="font-semibold text-slate-700 mb-3">Conclusões Recentes</h3>
           <div className="flex flex-wrap gap-2">
-            {dash?.recentCompletions.map((c: any, i) => (
+            {dash?.recentCompletions.map((c, i) => (
               <div key={i} className="flex items-center gap-2 bg-emerald-50 rounded-lg px-3 py-2">
                 <CheckCircle size={13} className="text-emerald-500 shrink-0" />
                 <div>
