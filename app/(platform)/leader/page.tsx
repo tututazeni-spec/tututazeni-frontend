@@ -12,10 +12,51 @@ import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import Image from 'next/image';
+import type { LucideIcon } from 'lucide-react';
 
 // ─── Types ───────────────────────────────────────────────────────
 
 type Tab = 'dashboard' | 'team' | 'performance' | 'pipeline' | 'plans';
+
+interface LeaderAlert { severity: string; message: string }
+interface LeaderRecommendation { urgency: string; message: string; action?: string }
+interface RecentBadge { user?: { fullName?: string }; badge?: { name?: string } }
+interface LeaderKpis {
+  teamSize?: number; avgPerfScore?: number; perfStatus?: string; activePlans?: number;
+  atRiskCount?: number; activeEnrollments?: number; completedThisMonth?: number;
+  engagementResponses?: number; pendingLeaves?: number;
+}
+interface LeaderDashboard {
+  kpis?: LeaderKpis;
+  alerts?: LeaderAlert[];
+  recentBadges?: RecentBadge[];
+}
+interface LeaderRecommendations { recommendations?: LeaderRecommendation[] }
+
+interface TeamMemberEntry {
+  id: number; fullName: string; avatarUrl?: string;
+  position?: { name?: string }; tenure?: number;
+  activePlan?: boolean; planProgress?: number;
+  latestPerfScore?: number | null; riskLevel: string;
+}
+interface TeamSummary { headcount: number; atRisk: number; avgScore?: number; avgTenureMonths?: number }
+interface TeamData { data?: TeamMemberEntry[]; summary?: TeamSummary }
+
+interface PipelinePerson {
+  user: { fullName: string; avatarUrl?: string; position?: { name?: string } };
+  score?: number;
+}
+interface TalentPipeline {
+  hipos?: PipelinePerson[];
+  promotionReady?: PipelinePerson[];
+  developing?: PipelinePerson[];
+  atRisk?: PipelinePerson[];
+}
+
+interface TeamPlanEntry {
+  id: number; user?: { fullName?: string; avatarUrl?: string };
+  health: string; name: string; actCompleted: number; totalActions: number; progress: number;
+}
 
 const RISK_COLOR: Record<string, string> = {
   HIGH:   'bg-red-100 text-red-700',
@@ -45,7 +86,7 @@ function ProgressBar({ value, color = 'bg-indigo-500', height = 'h-1.5' }: { val
 }
 
 function KPICard({ icon: Icon, label, value, sub, status, trend, color = 'text-indigo-600', bg = 'bg-indigo-50' }: {
-  icon: any; label: string; value: string | number; sub?: string;
+  icon: LucideIcon; label: string; value: string | number; sub?: string;
   status?: string; trend?: number; color?: string; bg?: string;
 }) {
   return (
@@ -71,8 +112,8 @@ function KPICard({ icon: Icon, label, value, sub, status, trend, color = 'text-i
 // ─── Dashboard Tab ────────────────────────────────────────────────
 
 function DashboardTab() {
-  const dashQ = useApiQuery<any>(queryKeys.leader.dashboard(), '/leaders/my-dashboard', { staleTime: STALE_TIME.DYNAMIC });
-  const recsQ = useApiQuery<any>(queryKeys.leader.recommendations(), '/leaders/my-recommendations', { staleTime: STALE_TIME.DYNAMIC });
+  const dashQ = useApiQuery<LeaderDashboard>(queryKeys.leader.dashboard(), '/leaders/my-dashboard', { staleTime: STALE_TIME.DYNAMIC });
+  const recsQ = useApiQuery<LeaderRecommendations>(queryKeys.leader.recommendations(), '/leaders/my-recommendations', { staleTime: STALE_TIME.DYNAMIC });
   const dash = dashQ.data ?? null;
   const recs = recsQ.data ?? null;
   const loading = dashQ.isLoading;
@@ -85,7 +126,7 @@ function DashboardTab() {
       {/* Alerts */}
       {(dash?.alerts ?? []).length > 0 && (
         <div className="space-y-2">
-          {(dash.alerts as any[]).map((a: any, i: number) => (
+          {(dash?.alerts ?? []).map((a, i) => (
             <div key={i} className={`border rounded-xl px-4 py-3 flex items-center gap-3 ${a.severity === 'HIGH' ? 'bg-red-50 border-red-200' : 'bg-amber-50 border-amber-200'}`}>
               <AlertTriangle size={14} className={a.severity === 'HIGH' ? 'text-red-500' : 'text-amber-500'} />
               <p className={`text-sm ${a.severity === 'HIGH' ? 'text-red-700' : 'text-amber-700'}`}>{a.message}</p>
@@ -114,7 +155,7 @@ function DashboardTab() {
             Recomendações IA
           </h3>
           <div className="space-y-2">
-            {(recs.recommendations as any[]).map((r: any, i: number) => (
+            {(recs?.recommendations ?? []).map((r, i) => (
               <div key={i} className="flex items-start gap-3 p-3 rounded-xl bg-violet-50 border border-violet-100">
                 <div className={`w-2 h-2 rounded-full shrink-0 mt-1.5 ${r.urgency === 'HIGH' ? 'bg-red-500' : 'bg-amber-400'}`} />
                 <div>
@@ -135,7 +176,7 @@ function DashboardTab() {
         <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
           <h4 className="font-semibold text-amber-700 mb-3">🏅 Badges Conquistados esta Semana</h4>
           <div className="flex flex-wrap gap-2">
-            {(dash.recentBadges as any[]).map((b: any, i: number) => (
+            {(dash?.recentBadges ?? []).map((b, i) => (
               <div key={i} className="flex items-center gap-2 bg-white rounded-lg px-3 py-1.5 border border-amber-100">
                 <span className="text-sm">🏅</span>
                 <div>
@@ -156,13 +197,13 @@ function DashboardTab() {
 function TeamTab() {
   const [search, setSearch] = useState('');
   const [feedback, setFeedback] = useState<{ userId: number; name: string } | null>(null);
-  const { data, isLoading: loading } = useApiQuery<any>(
+  const { data, isLoading: loading } = useApiQuery<TeamData>(
     queryKeys.leader.team(), '/leaders/my-team', { staleTime: STALE_TIME.DYNAMIC },
   );
 
   if (loading) return <Skeleton />;
 
-  const filtered = (data?.data ?? []).filter((u: any) =>
+  const filtered = (data?.data ?? []).filter(u =>
     !search || u.fullName.toLowerCase().includes(search.toLowerCase()),
   );
 
@@ -193,7 +234,7 @@ function TeamTab() {
       {/* Team list */}
       <div className="bg-white rounded-xl border border-slate-100">
         <div className="divide-y divide-slate-50">
-          {filtered.map((u: any, i: number) => (
+          {filtered.map((u, i) => (
             <div key={i} className="flex items-center gap-3 px-4 py-3 hover:bg-slate-50">
               <Avatar name={u.fullName} url={u.avatarUrl} />
               <div className="flex-1 min-w-0">
@@ -205,15 +246,15 @@ function TeamTab() {
               {u.activePlan && (
                 <div className="w-20 hidden md:block">
                   <p className="text-[9px] text-slate-400 mb-0.5">PDI</p>
-                  <ProgressBar value={u.planProgress}
-                    color={u.planProgress >= 75 ? 'bg-emerald-500' : 'bg-indigo-400'} />
+                  <ProgressBar value={u.planProgress ?? 0}
+                    color={(u.planProgress ?? 0) >= 75 ? 'bg-emerald-500' : 'bg-indigo-400'} />
                   <p className="text-[9px] text-slate-400 text-right">{u.planProgress}%</p>
                 </div>
               )}
 
               {/* Score */}
               {u.latestPerfScore !== null && (
-                <span className={`text-sm font-bold ${u.latestPerfScore >= 4 ? 'text-emerald-600' : u.latestPerfScore >= 3 ? 'text-amber-600' : 'text-red-500'}`}>
+                <span className={`text-sm font-bold ${(u.latestPerfScore ?? 0) >= 4 ? 'text-emerald-600' : (u.latestPerfScore ?? 0) >= 3 ? 'text-amber-600' : 'text-red-500'}`}>
                   {u.latestPerfScore?.toFixed(1)}
                 </span>
               )}
@@ -294,7 +335,7 @@ function FeedbackForm({ recipientId, onClose }: { recipientId: number; onClose: 
 // ─── Performance Tab ──────────────────────────────────────────────
 
 function PerformanceTab() {
-  const { data, isLoading: loading } = useApiQuery<any>(
+  const { data, isLoading: loading } = useApiQuery<LeaderDashboard>(
     queryKeys.leader.dashboard(), '/leaders/my-dashboard', { staleTime: STALE_TIME.DYNAMIC },
   );
 
@@ -319,12 +360,12 @@ function PerformanceTab() {
 // ─── Talent Pipeline Tab ──────────────────────────────────────────
 
 function TalentPipelineTab() {
-  const { data, isLoading: loading } = useApiQuery<any>(
+  const { data, isLoading: loading } = useApiQuery<TalentPipeline>(
     queryKeys.leader.pipeline(), '/leaders/my-talent-pipeline', { staleTime: STALE_TIME.DYNAMIC },
   );
   if (loading) return <Skeleton />;
 
-  const sections = [
+  const sections: Array<{ key: keyof TalentPipeline; label: string; bg: string; border: string }> = [
     { key: 'hipos',          label: '🌟 High Potentials',       bg: 'bg-amber-50', border: 'border-amber-200' },
     { key: 'promotionReady', label: '🚀 Prontos para Promoção', bg: 'bg-emerald-50', border: 'border-emerald-200' },
     { key: 'developing',     label: '📈 Em Desenvolvimento',    bg: 'bg-blue-50',   border: 'border-blue-200' },
@@ -334,13 +375,13 @@ function TalentPipelineTab() {
   return (
     <div className="space-y-4">
       {sections.map(s => {
-        const items = (data as any)?.[s.key] ?? [];
+        const items = data?.[s.key] ?? [];
         if (!items.length) return null;
         return (
           <div key={s.key} className={`${s.bg} border ${s.border} rounded-xl p-4`}>
             <h4 className="font-semibold text-slate-700 mb-3">{s.label} ({items.length})</h4>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-              {(items as any[]).map((u: any, i: number) => (
+              {items.map((u, i) => (
                 <div key={i} className="flex items-center gap-2 bg-white rounded-lg px-3 py-2.5 border border-white">
                   <Avatar name={u.user.fullName} url={u.user.avatarUrl} />
                   <div className="flex-1 min-w-0">
@@ -370,7 +411,7 @@ function TalentPipelineTab() {
 // ─── Plans Tab ────────────────────────────────────────────────────
 
 function PlansTab() {
-  const { data = [], isLoading: loading } = useApiQuery<any[]>(
+  const { data = [], isLoading: loading } = useApiQuery<TeamPlanEntry[]>(
     queryKeys.leader.plans(), '/leaders/my-team-plans', { staleTime: STALE_TIME.DYNAMIC },
   );
 
@@ -378,7 +419,7 @@ function PlansTab() {
 
   return (
     <div className="space-y-3">
-      {data.map((p: any, i: number) => (
+      {data.map((p, i) => (
         <div key={i} className="bg-white rounded-xl border border-slate-100 p-4 flex items-center gap-4">
           <Avatar name={p.user?.fullName ?? '?'} url={p.user?.avatarUrl} />
           <div className="flex-1 min-w-0">
@@ -412,7 +453,7 @@ function PlansTab() {
 
 // ─── Main Page ───────────────────────────────────────────────────
 
-const TABS: { id: Tab; label: string; icon: any }[] = [
+const TABS: { id: Tab; label: string; icon: LucideIcon }[] = [
   { id: 'dashboard',   label: 'Dashboard',    icon: TrendingUp },
   { id: 'team',        label: 'Equipa',       icon: Users },
   { id: 'performance', label: 'Performance',  icon: Star },
