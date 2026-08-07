@@ -62,8 +62,16 @@ interface LearningPath {
   createdAt: string;
   publishedAt: string | null;
   _count: { courses: number; enrollments: number };
-  courses?: any[];
-  milestones?: any[];
+  courses?: LPCourseRef[];
+  milestones?: unknown[];
+}
+
+interface LPCourseRef {
+  seq: number;
+  courseId: number;
+  required: boolean;
+  deadlineDays: number | null;
+  course: LPStep['course'];
 }
 
 interface PaginatedLPs {
@@ -80,6 +88,22 @@ interface LPAnalytics {
   completionRate: number;
   overdue: number;
   stepDropoff: Array<{ seq: number; courseId: number; title: string; completed: number }>;
+}
+
+interface MyLPEnrollment {
+  id: number;
+  learningPathId: number;
+  status: string;
+  deadline: string | null;
+  mandatory?: boolean;
+  learningPath?: { title?: string; thumbnailUrl?: string | null; pathType?: LPType; _count?: { courses?: number } };
+}
+
+interface AdminDashboard {
+  paths: { total: number; published: number };
+  enrollments: { total: number };
+  completionRate: number;
+  topPaths: LearningPath[];
 }
 
 type View = 'catalog' | 'detail' | 'my-paths' | 'dashboard';
@@ -449,7 +473,7 @@ function LPDetailView({ pathId, onBack }: { pathId: number; onBack: () => void }
       {/* Roadmap (stepper visual) */}
       {tab === 'roadmap' && (
         <div className="space-y-0">
-          {(progress?.steps ?? (path.courses?.map((lpc: any, idx: number) => ({
+          {(progress?.steps ?? (path.courses?.map((lpc, idx) => ({
             seq: lpc.seq, courseId: lpc.courseId, required: lpc.required,
             course: lpc.course, status: 'NOT_ENROLLED', locked: idx > 0, completedAt: null, progress: 0, deadlineDays: lpc.deadlineDays,
           })) ?? [])).map((step, idx, arr) => (
@@ -573,7 +597,7 @@ function LPDetailView({ pathId, onBack }: { pathId: number; onBack: () => void }
 function MyPathsView({ onSelect }: { onSelect: (id: number) => void }) {
   const [filter, setFilter]   = useState('');
 
-  const { data = [], isLoading } = useApiQuery<any[]>(
+  const { data = [], isLoading } = useApiQuery<MyLPEnrollment[]>(
     queryKeys.learningPaths.myEnrollments(), '/learning-paths/my/enrollments',
     { staleTime: STALE_TIME.DYNAMIC },
   );
@@ -602,7 +626,7 @@ function MyPathsView({ onSelect }: { onSelect: (id: number) => void }) {
         </div>
       ) : (
         <div className="space-y-3">
-          {filtered.map((e: any) => (
+          {filtered.map(e => (
             <div
               key={e.id}
               className="flex items-center gap-4 bg-white border border-gray-200 rounded-xl p-4 cursor-pointer hover:bg-gray-50"
@@ -651,7 +675,7 @@ function MyPathsView({ onSelect }: { onSelect: (id: number) => void }) {
 // ─── View: Admin Dashboard ────────────────────────────────────────────────────
 
 function DashboardView({ onSelect }: { onSelect: (id: number) => void }) {
-  const { data, isLoading } = useApiQuery<any>(
+  const { data, isLoading } = useApiQuery<AdminDashboard>(
     queryKeys.learningPaths.adminDashboard(), '/learning-paths/admin/dashboard',
     { staleTime: STALE_TIME.SEMI_STATIC },
   );
@@ -681,7 +705,7 @@ function DashboardView({ onSelect }: { onSelect: (id: number) => void }) {
           <div className="px-4 py-3 border-b border-gray-100 text-xs font-medium text-gray-400 uppercase tracking-wide">
             Trilhas mais populares
           </div>
-          {data.topPaths.map((p: any, idx: number) => (
+          {data.topPaths.map((p, idx) => (
             <div
               key={p.id}
               className="flex items-center gap-4 px-4 py-3 border-b border-gray-100 last:border-0 cursor-pointer hover:bg-gray-50"
