@@ -58,6 +58,19 @@ interface ComplianceDashboard {
   topOverdueCourses: Array<{ id: number; title: string; overdueCount: number }>;
 }
 
+interface TeamMember {
+  id: number;
+  fullName: string;
+  email: string;
+  avatarUrl: string | null;
+  stats: { total: number; completed: number; overdue: number };
+}
+
+interface TeamProgress {
+  team: TeamMember[];
+  total: number;
+}
+
 type View = 'my' | 'admin' | 'compliance' | 'team';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -302,7 +315,7 @@ function MyEnrollmentsView() {
       {/* Tabs */}
       <div className="flex gap-1 mb-5 bg-gray-100 p-1 rounded-xl w-fit flex-wrap">
         {tabs.map(t => (
-          <button key={t.id} onClick={() => setTab(t.id as any)}
+          <button key={t.id} onClick={() => setTab(t.id)}
             className={`flex items-center gap-1.5 px-3 py-2 text-xs font-medium rounded-lg transition-colors ${
               tab === t.id ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
             }`}
@@ -356,7 +369,7 @@ function AdminView() {
     overdue: filters.overdue ? 'true' : undefined,
   };
 
-  const { data, isLoading: loading } = useApiQuery<any>(
+  const { data, isLoading: loading } = useApiQuery<{ data: Enrollment[]; total: number; page: number; totalPages: number }>(
     queryKeys.enrollments.list(params), '/enrollments',
     { params, staleTime: STALE_TIME.DYNAMIC, placeholderData: keepPreviousData },
   );
@@ -446,7 +459,7 @@ function AdminView() {
 
         {loading && <div className="p-4"><Skeleton /></div>}
 
-        {!loading && data?.data?.map((e: any) => (
+        {!loading && data?.data?.map(e => (
           <div key={e.id}
             className="grid grid-cols-[32px_1fr_180px_120px_100px_120px_80px] gap-3 items-center px-4 py-3 border-b border-gray-100 hover:bg-gray-50 last:border-0">
             <input type="checkbox" checked={selected.includes(e.id)} onChange={() => toggleSelect(e.id)}
@@ -614,7 +627,7 @@ function ComplianceView() {
 // ─── View: Team Progress ──────────────────────────────────────────────────────
 
 function TeamView() {
-  const { data, isLoading } = useApiQuery<any>(
+  const { data, isLoading } = useApiQuery<TeamProgress>(
     queryKeys.enrollments.team(), '/enrollments/team',
     { staleTime: STALE_TIME.DYNAMIC },
   );
@@ -638,7 +651,7 @@ function TeamView() {
           <div>Atrasados</div>
           <div>Compliance</div>
         </div>
-        {data.team.map((member: any) => {
+        {data.team.map(member => {
           const compliance = member.stats.total > 0
             ? Math.round((member.stats.completed / member.stats.total) * 100)
             : 100;
