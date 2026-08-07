@@ -4,12 +4,25 @@ import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 
+interface VerificationResult {
+  valid: boolean;
+  reason?: string;
+  revokeReason?: string;
+  certificate?: {
+    holder: string;
+    title: string;
+    score: number | null;
+    issuedAt: string;
+    verificationCode: string;
+  };
+}
+
 export default function VerifyCertificatePage() {
   const params = useParams();
   const code = params?.code as string;
 
   // Página pública: verifica o certificado por código. Erro → resultado inválido.
-  const { data, isLoading: loading, error } = useApiQuery<any>(
+  const { data, isLoading: loading, error } = useApiQuery<VerificationResult>(
     queryKeys.certification.verify(code), `/certification/verify/${code}`,
     { enabled: !!code, staleTime: STALE_TIME.STATIC, retry: false },
   );
@@ -25,7 +38,7 @@ export default function VerifyCertificatePage() {
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
       <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-8 text-center">
-        {result?.valid ? (
+        {result?.valid && result.certificate ? (
           <>
             <div className="text-6xl mb-4">✅</div>
             <h1 className="text-2xl font-bold text-green-700 mb-2">
