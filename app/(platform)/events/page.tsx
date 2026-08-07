@@ -53,6 +53,16 @@ interface OrganizerDashboard {
   events:  Array<{ id: number; title: string; type: string; status: string; startAt: string; participants: number; maxCapacity: number; occupancyRate: number | null; feedbackCount: number; avgNps: number | null }>;
 }
 
+interface EventParticipant {
+  userId: number;
+  status: ParticipantStatus;
+  user?: { fullName?: string; avatarUrl?: string | null };
+}
+
+interface EventDetail extends Event {
+  participants?: EventParticipant[];
+}
+
 type View = 'catalog' | 'my-events' | 'detail' | 'organizer' | 'create';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -303,7 +313,7 @@ function DetailView({ eventId, onBack }: { eventId: number; onBack: () => void }
   const [feedback, setFeedback] = useState({ nps: 8, rating: 4, comment: '' });
   const [tab, setTab]         = useState<'info' | 'participants'>('info');
 
-  const { data: event, isLoading: loading, refetch } = useApiQuery<any>(
+  const { data: event, isLoading: loading, refetch } = useApiQuery<EventDetail>(
     queryKeys.events.detail(eventId), `/events/${eventId}`,
     { staleTime: STALE_TIME.DYNAMIC },
   );
@@ -323,7 +333,7 @@ function DetailView({ eventId, onBack }: { eventId: number; onBack: () => void }
     try {
       await apiClient.post(`/events/${eventId}/leave`, {});
       await refetch();
-    } catch (e: any) { alert(e.message); }
+    } catch (e) { alert(e instanceof Error ? e.message : String(e)); }
   };
 
   const checkInMutation = useApiMutation(
@@ -492,7 +502,7 @@ function DetailView({ eventId, onBack }: { eventId: number; onBack: () => void }
 
       {tab === 'participants' && (
         <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-          {(event.participants ?? []).map((p: any) => (
+          {(event.participants ?? []).map(p => (
             <div key={p.userId} className="flex items-center gap-3 px-4 py-3 border-b border-gray-100 last:border-0">
               <Avatar name={p.user?.fullName ?? 'U'} avatarUrl={p.user?.avatarUrl} size="sm" />
               <div className="flex-1 text-sm text-gray-800">{p.user?.fullName}</div>
