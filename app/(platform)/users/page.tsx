@@ -46,7 +46,43 @@ interface UserStats {
   completionRate: number;
   gamification: { points: number; badges: number };
   competencies: number;
-  recentActivity: any[];
+  recentActivity: RecentActivityEntry[];
+}
+
+interface RecentActivityEntry {
+  id: number;
+  status: string;
+  course?: { title: string; thumbnailUrl: string | null } | null;
+}
+
+interface AuditLogEntry {
+  id: number;
+  action: string;
+  meta?: string | null;
+  performedBy?: { fullName: string } | null;
+  createdAt: string;
+}
+
+interface TeamMember {
+  id: number;
+  fullName: string;
+  avatarUrl: string | null;
+  position?: { name: string } | null;
+  accountStatus: AccountStatus;
+  learningStats: { completed: number; inProgress: number; overdue: number };
+}
+
+interface TeamResponse {
+  team: TeamMember[];
+}
+
+interface DirectoryUser {
+  id: number;
+  fullName: string;
+  avatarUrl: string | null;
+  email?: string;
+  position?: { name: string } | null;
+  department?: { name: string } | null;
 }
 
 interface PaginatedUsers {
@@ -338,7 +374,7 @@ function UserProfileView({ userId, onBack }: { userId: number; onBack: () => voi
     { staleTime: STALE_TIME.DYNAMIC },
   );
   // Auditoria só é pedida quando o separador é aberto (lazy).
-  const { data: auditData } = useApiQuery<{ data: any[] }>(
+  const { data: auditData } = useApiQuery<{ data: AuditLogEntry[] }>(
     queryKeys.users.auditLogs(userId), `/users/${userId}/audit-logs`,
     { enabled: tab === 'audit', staleTime: STALE_TIME.DYNAMIC },
   );
@@ -528,7 +564,7 @@ function UserProfileView({ userId, onBack }: { userId: number; onBack: () => voi
               <div className="px-4 py-3 border-b border-gray-100 text-xs font-medium text-gray-400 uppercase tracking-wide">
                 Actividade recente
               </div>
-              {stats.recentActivity.map((e: any) => (
+              {stats.recentActivity.map((e) => (
                 <div key={e.id} className="flex items-center gap-4 px-4 py-3 border-b border-gray-100 last:border-0">
                   <div className="w-10 h-10 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0 relative">
                     {e.course?.thumbnailUrl ? (
@@ -562,7 +598,7 @@ function UserProfileView({ userId, onBack }: { userId: number; onBack: () => voi
           {auditLogs.length === 0 ? (
             <div className="px-4 py-8 text-center text-sm text-gray-400">Sem logs de auditoria</div>
           ) : (
-            auditLogs.map((log: any) => (
+            auditLogs.map((log) => (
               <div key={log.id} className="grid grid-cols-[1fr_160px_200px] gap-3 items-center px-4 py-3 border-b border-gray-100 last:border-0">
                 <div>
                   <div className="text-xs font-medium font-mono text-gray-700">{log.action}</div>
@@ -582,7 +618,7 @@ function UserProfileView({ userId, onBack }: { userId: number; onBack: () => voi
 // ─── View: Team ───────────────────────────────────────────────────────────────
 
 function TeamView({ managerId }: { managerId: number }) {
-  const { data, isLoading: loading } = useApiQuery<any>(
+  const { data, isLoading: loading } = useApiQuery<TeamResponse>(
     queryKeys.users.team(managerId), `/users/${managerId}/team`,
     { staleTime: STALE_TIME.DYNAMIC },
   );
@@ -603,7 +639,7 @@ function TeamView({ managerId }: { managerId: number }) {
         <div>Atrasos</div>
         <div>Estado</div>
       </div>
-      {data.team.map((member: any) => (
+      {data.team.map((member) => (
         <div key={member.id} className="grid grid-cols-[1fr_100px_100px_100px_100px] gap-3 items-center px-4 py-3 border-b border-gray-100 last:border-0">
           <div className="flex items-center gap-3">
             <Avatar user={member} size="sm" />
@@ -782,7 +818,7 @@ function DirectoryView({ onSelect }: { onSelect: (id: number) => void }) {
   const [search, setSearch] = useState('');
   const debouncedSearch = useDebounce(search);
 
-  const { data = [], isLoading: loading } = useApiQuery<any[]>(
+  const { data = [], isLoading: loading } = useApiQuery<DirectoryUser[]>(
     queryKeys.users.directory(debouncedSearch), '/users/directory',
     { params: { search: debouncedSearch }, staleTime: STALE_TIME.SEMI_STATIC,
       placeholderData: keepPreviousData },
@@ -799,7 +835,7 @@ function DirectoryView({ onSelect }: { onSelect: (id: number) => void }) {
       />
       {loading ? <Skeleton /> : (
         <div className="grid grid-cols-3 gap-3">
-          {data.map((user: any) => (
+          {data.map((user) => (
             <div
               key={user.id}
               className="bg-white border border-gray-200 rounded-xl p-4 flex items-center gap-3 cursor-pointer hover:shadow-md hover:border-blue-300 transition-all"
