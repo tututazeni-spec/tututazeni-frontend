@@ -87,6 +87,35 @@ interface AdminDashboard {
   topCourses:     Course[];
 }
 
+interface CourseDetailModule {
+  id: number;
+  title: string;
+  lessons?: Array<{ id: number; title: string; type: LessonType; durationMinutes: number | null; isFree: boolean }>;
+}
+
+interface CourseFeedback {
+  id: number;
+  rating: number;
+  comment: string;
+  user: { fullName: string };
+}
+
+interface MyEnrollment {
+  id: number;
+  courseId: number;
+  status: EnrollmentStatus;
+  deadline: string | null;
+  mandatory?: boolean;
+  course: { title: string; thumbnailUrl: string | null; category: string | null; workloadHours: number | null };
+}
+
+interface CertificateVerifyResult {
+  valid?: boolean;
+  error?: string;
+  user?: { fullName: string };
+  course?: { title: string };
+}
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function fmtDuration(h: number | null, minutes?: number | null): string {
@@ -367,7 +396,7 @@ function CourseDetail({ courseId, onBack }: { courseId: number; onBack: () => vo
   // course e progress em paralelo. O progress dá 4xx quando não inscrito → o RQ
   // não repete 4xx; tratamos a ausência como "não inscrito" (progress = null).
   const { data: course, isLoading: loadingCourse } = useApiQuery<
-    Course & { modules: any[]; feedbacks: any[] }
+    Course & { modules?: CourseDetailModule[]; feedbacks?: CourseFeedback[] }
   >(queryKeys.courses.detail(courseId), `/courses/${courseId}`, {
     staleTime: STALE_TIME.SEMI_STATIC,
   });
@@ -598,14 +627,14 @@ function CourseDetail({ courseId, onBack }: { courseId: number; onBack: () => vo
           <div className="px-4 py-3 border-b border-gray-100 text-sm font-semibold text-gray-900">
             Conteúdo do curso
           </div>
-          {course.modules.map((mod: any) => (
+          {course.modules.map(mod => (
             <details key={mod.id} className="border-b border-gray-100 last:border-0">
               <summary className="flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-gray-50">
                 <span className="text-sm font-medium text-gray-800">{mod.title}</span>
                 <span className="text-xs text-gray-400">{mod.lessons?.length ?? 0} aulas</span>
               </summary>
               <div className="px-4 pb-2">
-                {mod.lessons?.map((l: any) => (
+                {mod.lessons?.map(l => (
                   <div key={l.id} className="flex items-center gap-2 py-1.5 text-xs text-gray-600 border-b border-gray-50 last:border-0">
                     <LessonIcon type={l.type} />
                     <span className="flex-1">{l.title}</span>
@@ -652,11 +681,11 @@ function CourseDetail({ courseId, onBack }: { courseId: number; onBack: () => vo
       )}
 
       {/* Feedbacks existentes */}
-      {course.feedbacks?.length > 0 && (
+      {(course.feedbacks?.length ?? 0) > 0 && (
         <div className="bg-white border border-gray-200 rounded-xl p-5">
           <div className="text-sm font-semibold text-gray-900 mb-3">Avaliações</div>
           <div className="space-y-3">
-            {course.feedbacks.map((f: any) => (
+            {course.feedbacks?.map(f => (
               <div key={f.id} className="border-b border-gray-100 pb-3 last:border-0">
                 <div className="flex items-center gap-2 mb-1">
                   <span className="text-sm font-medium text-gray-800">{f.user.fullName}</span>
@@ -677,7 +706,7 @@ function CourseDetail({ courseId, onBack }: { courseId: number; onBack: () => vo
 function MyEnrollmentsView({ onSelect }: { onSelect: (id: number) => void }) {
   const [filter, setFilter] = useState('');
 
-  const { data = [], isLoading: loading, error } = useApiQuery<any[]>(
+  const { data = [], isLoading: loading, error } = useApiQuery<MyEnrollment[]>(
     queryKeys.courses.myEnrollments(), '/courses/my/enrollments',
     { staleTime: STALE_TIME.DYNAMIC },
   );
@@ -709,7 +738,7 @@ function MyEnrollmentsView({ onSelect }: { onSelect: (id: number) => void }) {
         </div>
       ) : (
         <div className="space-y-3">
-          {filtered.map((e: any) => (
+          {filtered.map(e => (
             <div
               key={e.id}
               className="flex items-center gap-4 bg-white border border-gray-200 rounded-xl p-4 cursor-pointer hover:bg-gray-50"
@@ -750,7 +779,7 @@ function MyEnrollmentsView({ onSelect }: { onSelect: (id: number) => void }) {
 
 function CertificatesView() {
   const [verifyCode, setVerifyCode] = useState('');
-  const [verifyResult, setVerifyResult] = useState<any>(null);
+  const [verifyResult, setVerifyResult] = useState<CertificateVerifyResult | null>(null);
 
   const { data = [], isLoading: loading } = useApiQuery<Certificate[]>(
     queryKeys.courses.myCertificates(), '/courses/my/certificates',
@@ -759,7 +788,7 @@ function CertificatesView() {
 
   // Verificação on-demand de um código → mutação (acção pontual, não cacheada).
   const verifyMut = useApiMutation(
-    (code: string) => apiClient.get<any>(`/courses/certificates/verify/${code}`),
+    (code: string) => apiClient.get<CertificateVerifyResult>(`/courses/certificates/verify/${code}`),
     {
       onSuccess: (r) => setVerifyResult(r),
       onError: (e) => setVerifyResult({ error: e.message }),
@@ -880,7 +909,7 @@ function AdminDashboardView({ onSelect }: { onSelect: (id: number) => void }) {
                 <div className="text-sm font-medium text-gray-900">{c.title}</div>
                 <div className="text-xs text-gray-400">{c.category ?? '—'} · {c.level}</div>
               </div>
-              <div className="text-sm text-gray-500">{(c as any)._count.enrollments} matrículas</div>
+              <div className="text-sm text-gray-500">{c._count.enrollments} matrículas</div>
               <StatusBadge status={c.status} />
             </div>
           ))}
