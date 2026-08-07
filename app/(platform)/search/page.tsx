@@ -7,6 +7,7 @@ import {
   TrendingUp, Clock, X, ChevronRight, Zap, Award,
   Filter, BarChart2,
 } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
 import { useDebounce } from '@/hooks/useDebounce';
 import { apiClient } from '@/lib/apiClient';
@@ -28,9 +29,23 @@ interface SearchResponse {
   counts: Record<string, number>;
 }
 
+interface SuggestionsData {
+  trendingSearches?: string[];
+  recommendedCourses?: SearchResult[];
+  popularContent?: SearchResult[];
+}
+
+interface HistoryEntry { query: string; }
+interface HistoryResponse { history?: HistoryEntry[]; }
+
+interface AutocompleteSuggestion { text: string; type: string; }
+interface AutocompleteResponse { suggestions?: AutocompleteSuggestion[]; }
+
+interface ByTypeSearchResponse { results: SearchResult[]; count: number; }
+
 // ─── Icons & Config ───────────────────────────────────────────────
 
-const TYPE_CONFIG: Record<string, { label: string; icon: any; color: string; bg: string; path: string }> = {
+const TYPE_CONFIG: Record<string, { label: string; icon: LucideIcon; color: string; bg: string; path: string }> = {
   user:       { label: 'Colaboradores', icon: Users,     color: 'text-indigo-600', bg: 'bg-indigo-50',  path: 'users' },
   course:     { label: 'Cursos',        icon: BookOpen,  color: 'text-teal-600',   bg: 'bg-teal-50',    path: 'courses' },
   content:    { label: 'Conteúdos',     icon: Zap,       color: 'text-blue-600',   bg: 'bg-blue-50',    path: 'content' },
@@ -76,11 +91,11 @@ function ResultCard({ result }: { result: SearchResult }) {
 // ─── Suggestions Panel ────────────────────────────────────────────
 
 function SuggestionsPanel({ onSearch }: { onSearch: (q: string) => void }) {
-  const { data } = useApiQuery<any>(
+  const { data } = useApiQuery<SuggestionsData>(
     queryKeys.search.suggestions(), '/search/suggestions',
     { staleTime: STALE_TIME.SEMI_STATIC, retry: false },
   );
-  const { data: historyResp } = useApiQuery<any>(
+  const { data: historyResp } = useApiQuery<HistoryResponse>(
     queryKeys.search.history(), '/search/history',
     { params: { limit: 8 }, staleTime: STALE_TIME.DYNAMIC, retry: false },
   );
@@ -95,7 +110,7 @@ function SuggestionsPanel({ onSearch }: { onSearch: (q: string) => void }) {
             <Clock size={12} />Pesquisas Recentes
           </h3>
           <div className="flex flex-wrap gap-2">
-            {history.slice(0, 8).map((h: any, i: number) => (
+            {history.slice(0, 8).map((h, i) => (
               <button key={i} onClick={() => onSearch(h.query)}
                 className="text-xs px-3 py-1.5 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200">
                 {h.query}
@@ -112,7 +127,7 @@ function SuggestionsPanel({ onSearch }: { onSearch: (q: string) => void }) {
             <TrendingUp size={12} />Em Alta
           </h3>
           <div className="flex flex-wrap gap-2">
-            {(data.trendingSearches as string[]).slice(0, 6).map((t, i) => (
+            {(data?.trendingSearches ?? []).slice(0, 6).map((t, i) => (
               <button key={i} onClick={() => onSearch(t)}
                 className="text-xs px-3 py-1.5 bg-indigo-50 text-indigo-700 rounded-lg hover:bg-indigo-100">
                 {t}
@@ -127,7 +142,7 @@ function SuggestionsPanel({ onSearch }: { onSearch: (q: string) => void }) {
         <div>
           <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3">Cursos Recomendados</h3>
           <div className="space-y-1">
-            {(data.recommendedCourses as SearchResult[]).map((r, i) => (
+            {(data?.recommendedCourses ?? []).map((r, i) => (
               <ResultCard key={i} result={r} />
             ))}
           </div>
@@ -139,7 +154,7 @@ function SuggestionsPanel({ onSearch }: { onSearch: (q: string) => void }) {
         <div>
           <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3">Conteúdo Popular</h3>
           <div className="space-y-1">
-            {(data.popularContent as SearchResult[]).slice(0, 4).map((r, i) => (
+            {(data?.popularContent ?? []).slice(0, 4).map((r, i) => (
               <ResultCard key={i} result={r} />
             ))}
           </div>
@@ -220,14 +235,14 @@ export default function SearchPage() {
   const [query, setQuery]     = useState('');
   const [results, setResults] = useState<SearchResponse | null>(null);
   const [activeType, setActiveType] = useState('all');
-  const [suggestions, setSuggestions] = useState<any[]>([]);
+  const [suggestions, setSuggestions] = useState<AutocompleteSuggestion[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
   const debouncedQuery = useDebounce(query, 200);
 
   // Autocomplete
   useEffect(() => {
     if (!debouncedQuery || debouncedQuery.length < 2) { setSuggestions([]); return; }
-    apiClient.get<any>('/search/autocomplete', { params: { q: debouncedQuery, limit: 6 } })
+    apiClient.get<AutocompleteResponse>('/search/autocomplete', { params: { q: debouncedQuery, limit: 6 } })
       .then(d => setSuggestions(d.suggestions ?? [])).catch(() => {});
   }, [debouncedQuery]);
 
@@ -245,7 +260,7 @@ export default function SearchPage() {
         const data = await apiClient.get<SearchResponse>('/search', { params: { q: action.q, limit: 10 } });
         return { activeType: 'all', results: data };
       }
-      const d = await apiClient.get<any>(`/search/${action.path}`, { params: { q: action.q, limit: 20 } });
+      const d = await apiClient.get<ByTypeSearchResponse>(`/search/${action.path}`, { params: { q: action.q, limit: 20 } });
       return {
         activeType: action.key,
         results: { query: action.q, grouped: { [action.key]: d.results }, counts: { [action.key]: d.count } } as SearchResponse,
@@ -298,7 +313,7 @@ export default function SearchPage() {
             {/* Autocomplete dropdown */}
             {suggestions.length > 0 && !results && (
               <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded-xl border border-slate-200 shadow-lg z-20">
-                {suggestions.map((s: any, i: number) => (
+                {suggestions.map((s, i) => (
                   <button key={i} onClick={() => { setQuery(s.text); doSearch(s.text); }}
                     className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-slate-50 text-left">
                     <Clock size={12} className="text-slate-300 shrink-0" />
