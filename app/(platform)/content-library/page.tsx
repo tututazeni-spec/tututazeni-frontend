@@ -15,6 +15,7 @@ import { queryKeys } from '../../../lib/queryKeys';
 import { STALE_TIME } from '../../../lib/queryClient';
 import Image from 'next/image';
 import { useDebounce } from '../../../hooks/useDebounce';
+import type { LucideIcon } from 'lucide-react';
 
 // ─── Types ───────────────────────────────────────────────────────
 
@@ -28,6 +29,32 @@ interface Content {
   hasCertification?: boolean; viewCount?: number;
   avgRating?: number; progress?: { progress: number } | null;
   isBookmarked?: boolean; createdAt: string;
+  completed?: boolean;
+}
+
+interface ProgressEntry {
+  contentId: number;
+  progress: number;
+  content?: Content;
+}
+interface MyProgressResponse {
+  data: ProgressEntry[];
+  stats: { completed: number };
+}
+interface MyContentStats {
+  viewCount: number;
+  completions: number;
+  bookmarkCount: number;
+  totalHours: number;
+}
+interface FormatBreakdownItem { format: string; count: number }
+interface MostViewedItem { content?: { title: string; type?: string }; weeklyViews: number }
+interface RecentlyAddedItem { id: number; type: string; title: string; createdAt: string }
+interface ContentAnalytics {
+  kpis: { totalContent?: number; activeContent?: number; totalViews?: number; totalCompletions?: number };
+  formatBreakdown?: FormatBreakdownItem[];
+  mostViewed?: MostViewedItem[];
+  recentlyAdded?: RecentlyAddedItem[];
 }
 
 interface LearningPath {
@@ -38,7 +65,7 @@ interface LearningPath {
 
 // ─── Helpers ─────────────────────────────────────────────────────
 
-const FORMAT_ICON: Record<string, any> = {
+const FORMAT_ICON: Record<string, LucideIcon> = {
   VIDEO: Video, ARTICLE: FileText, PODCAST: Headphones,
   PDF: FileText, EBOOK: BookOpen, SCORM: Brain, COURSE: BookOpen,
   MICROLEARNING: Zap, QUIZ: Brain, WEBINAR: Video, HTML5: Globe,
@@ -63,7 +90,7 @@ const LEVEL_COLOR: Record<string, string> = {
   EXPERT:       'text-red-600',
 };
 
-const CATEGORY_ICON: Record<string, any> = {
+const CATEGORY_ICON: Record<string, LucideIcon> = {
   HARD_SKILLS: Brain, SOFT_SKILLS: Star, COMPLIANCE: Shield,
   ONBOARDING: BookOpen, LANGUAGES: Globe, LEADERSHIP: TrendingUp,
 };
@@ -212,7 +239,7 @@ function ContentCard({ content, onBookmark, compact = false }: {
 // ─── Content Row ─────────────────────────────────────────────────
 
 function ContentRow({ title, items, loading, icon: Icon = BookOpen }: {
-  title: string; items: Content[]; loading?: boolean; icon?: any;
+  title: string; items: Content[]; loading?: boolean; icon?: LucideIcon;
 }) {
   if (loading) return (
     <div>
@@ -311,11 +338,11 @@ function HomeTab() {
             <Shield size={16} className="text-red-500" />
             <h3 className="font-semibold text-slate-700">Conteúdos Obrigatórios</h3>
             <span className="text-xs bg-red-100 text-red-600 px-2 py-0.5 rounded-full font-medium">
-              {mandatory.filter((c: any) => !c.completed).length} pendentes
+              {mandatory.filter(c => !c.completed).length} pendentes
             </span>
           </div>
           <div className="grid grid-cols-1 gap-2">
-            {mandatory.slice(0, 4).map((c: any) => (
+            {mandatory.slice(0, 4).map(c => (
               <ContentCard key={c.id} content={c} compact />
             ))}
           </div>
@@ -363,7 +390,7 @@ function CatalogueTab() {
     ...(micro  ? { isMicrolearning: 'true' } : {}),
     ...(cert   ? { hasCertification: 'true' } : {}),
   };
-  const { data, isLoading } = useApiQuery<{ data: Content[]; meta: any }>(
+  const { data, isLoading } = useApiQuery<{ data: Content[]; meta: { total: number; totalPages: number } }>(
     queryKeys.contentLibrary.catalogue(params), '/content-library',
     { params, staleTime: STALE_TIME.SEMI_STATIC, placeholderData: keepPreviousData },
   );
@@ -534,11 +561,11 @@ function PathsTab() {
 // ─── My Progress Tab ─────────────────────────────────────────────
 
 function MyProgressTab() {
-  const progressQuery = useApiQuery<any>(
+  const progressQuery = useApiQuery<MyProgressResponse>(
     queryKeys.contentLibrary.myProgress(), '/content-library/my/progress',
     { staleTime: STALE_TIME.DYNAMIC },
   );
-  const statsQuery = useApiQuery<any>(
+  const statsQuery = useApiQuery<MyContentStats>(
     queryKeys.contentLibrary.myStats(), '/content-library/analytics/my-stats',
     { staleTime: STALE_TIME.DYNAMIC },
   );
@@ -575,17 +602,17 @@ function MyProgressTab() {
       )}
 
       {/* In progress */}
-      {(progress?.data.filter((p: any) => p.progress > 0 && p.progress < 100).length ?? 0) > 0 && (
+      {(progress?.data.filter(p => p.progress > 0 && p.progress < 100).length ?? 0) > 0 && (
         <div className="bg-white rounded-xl border border-slate-100 p-5">
           <h3 className="font-semibold text-slate-700 mb-3 flex items-center gap-2">
             <RotateCcw size={16} className="text-indigo-500" />
             Em Progresso
           </h3>
           <div className="space-y-2">
-            {progress.data
-              .filter((p: any) => p.progress > 0 && p.progress < 100)
+            {progress!.data
+              .filter(p => p.progress > 0 && p.progress < 100)
               .slice(0, 5)
-              .map((p: any) => (
+              .map(p => (
                 <div key={p.contentId} className="flex items-center gap-3">
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-slate-700 truncate">{p.content?.title}</p>
@@ -605,14 +632,14 @@ function MyProgressTab() {
         <div className="bg-white rounded-xl border border-slate-100 p-5">
           <h3 className="font-semibold text-slate-700 mb-3 flex items-center gap-2">
             <CheckCircle size={16} className="text-emerald-500" />
-            Concluídos ({progress.stats.completed})
+            Concluídos ({progress?.stats.completed})
           </h3>
           <div className="grid grid-cols-1 gap-2">
-            {progress.data
-              .filter((p: any) => p.progress === 100)
+            {progress!.data
+              .filter(p => p.progress === 100 && p.content)
               .slice(0, 8)
-              .map((p: any) => (
-                <ContentCard key={p.contentId} content={{ ...p.content, progress: p }} compact />
+              .map(p => (
+                <ContentCard key={p.contentId} content={{ ...p.content!, progress: p }} compact />
               ))}
           </div>
         </div>
@@ -637,7 +664,7 @@ function MyProgressTab() {
 // ─── Analytics Tab ───────────────────────────────────────────────
 
 function AnalyticsTab() {
-  const { data, isLoading } = useApiQuery<any>(
+  const { data, isLoading } = useApiQuery<ContentAnalytics>(
     queryKeys.contentLibrary.analytics(), '/content-library/analytics/dashboard',
     { staleTime: STALE_TIME.SEMI_STATIC },
   );
@@ -669,8 +696,8 @@ function AnalyticsTab() {
         <div className="bg-white rounded-xl border border-slate-100 p-5">
           <h3 className="font-semibold text-slate-700 mb-4">Distribuição por Formato</h3>
           <div className="space-y-2">
-            {(data?.formatBreakdown ?? []).map((f: any) => {
-              const total = (data?.formatBreakdown ?? []).reduce((s: number, x: any) => s + x.count, 0);
+            {(data?.formatBreakdown ?? []).map(f => {
+              const total = (data?.formatBreakdown ?? []).reduce((s, x) => s + x.count, 0);
               const pct   = total > 0 ? Math.round((f.count / total) * 100) : 0;
               return (
                 <div key={f.format} className="flex items-center gap-3">
@@ -692,7 +719,7 @@ function AnalyticsTab() {
         <div className="bg-white rounded-xl border border-slate-100 p-5">
           <h3 className="font-semibold text-slate-700 mb-4">Mais Vistos (30 dias)</h3>
           <div className="space-y-3">
-            {(data?.mostViewed ?? []).map((v: any, i: number) => (
+            {(data?.mostViewed ?? []).map((v, i) => (
               <div key={i} className="flex items-center gap-3">
                 <span className="text-xs font-bold text-slate-300 w-4">#{i + 1}</span>
                 <div className="flex-1 min-w-0">
@@ -712,11 +739,11 @@ function AnalyticsTab() {
       </div>
 
       {/* Recently added */}
-      {(data?.recentlyAdded.length ?? 0) > 0 && (
+      {(data?.recentlyAdded?.length ?? 0) > 0 && (
         <div className="bg-white rounded-xl border border-slate-100 p-5">
           <h3 className="font-semibold text-slate-700 mb-3">Adicionados Recentemente</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-            {data!.recentlyAdded.map((c: any) => (
+            {(data?.recentlyAdded ?? []).map(c => (
               <div key={c.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-50">
                 <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium w-20 text-center
                   ${FORMAT_COLOR[c.type] ?? 'bg-slate-100 text-slate-600'}`}>
@@ -737,7 +764,7 @@ function AnalyticsTab() {
 
 // ─── Main Page ───────────────────────────────────────────────────
 
-const TABS: { id: Tab; label: string; icon: any }[] = [
+const TABS: { id: Tab; label: string; icon: LucideIcon }[] = [
   { id: 'home',        label: 'Início',      icon: BookOpen },
   { id: 'catalogue',   label: 'Catálogo',    icon: Search },
   { id: 'paths',       label: 'Trilhas',     icon: Layers },
