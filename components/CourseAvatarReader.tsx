@@ -200,9 +200,9 @@ export function CourseAvatarReader({
       await audio.play();
       setState('playing');
 
-    } catch (e: any) {
+    } catch (e) {
       setState('error');
-      setErrorMsg(e.message ?? 'Erro desconhecido');
+      setErrorMsg(e instanceof Error ? e.message : 'Erro desconhecido');
     }
   }, [text, lessonId]);
 
