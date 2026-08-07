@@ -66,10 +66,14 @@ interface GapAnalysis {
   readinessPercent: number;
 }
 
+interface MatrixUser {
+  id: number; fullName: string; avatarUrl: string | null; position: { name: string } | null;
+}
+
 interface SkillMatrix {
-  users: Array<{ id: number; fullName: string; avatarUrl: string | null; position: { name: string } | null }>;
+  users: MatrixUser[];
   competencies: Competency[];
-  matrix: Array<{ user: any; levels: Array<{ competencyId: number; level: number }> }>;
+  matrix: Array<{ user: MatrixUser; levels: Array<{ competencyId: number; level: number }> }>;
 }
 
 interface OrgDashboard {
@@ -77,6 +81,22 @@ interface OrgDashboard {
   usersWithCompetencies: number;
   totalGaps: number;
   criticalGaps: Array<{ id: number; name: string; category: string; usersWithGap: number }>;
+}
+
+interface CompetencyEvolutionEntry {
+  id: number;
+  competency?: { name: string };
+  source: string;
+  previousLevel: number;
+  newLevel: number;
+  createdAt: string;
+}
+
+interface TopCompetency {
+  competencyId: number;
+  competency?: { name: string; category: string };
+  _count: { competencyId: number };
+  avgLevel: number;
 }
 
 type View = 'catalog' | 'my-profile' | 'matrix' | 'dashboard';
@@ -256,7 +276,7 @@ function MyProfileView() {
     queryKeys.competencies.myProfile(), '/competencies/my/profile',
     { staleTime: STALE_TIME.DYNAMIC },
   );
-  const evolutionQ = useApiQuery<any[]>(
+  const evolutionQ = useApiQuery<CompetencyEvolutionEntry[]>(
     queryKeys.competencies.myEvolution(), '/competencies/my/evolution',
     { staleTime: STALE_TIME.SEMI_STATIC },
   );
@@ -480,7 +500,7 @@ function MyProfileView() {
                       <div className="mt-3 pt-3 border-t border-gray-100">
                         <div className="text-xs text-gray-400 mb-1.5">📚 Cursos recomendados para colmatar este gap:</div>
                         <div className="flex flex-wrap gap-2">
-                          {g.recommendedCourses.slice(0, 3).map((c: any) => (
+                          {g.recommendedCourses.slice(0, 3).map(c => (
                             <a key={c.id} href={`/courses/${c.id}`}
                               className="text-xs px-2 py-1 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100">
                               {c.title}
@@ -506,7 +526,7 @@ function MyProfileView() {
           {evolution.length === 0 ? (
             <div className="px-4 py-8 text-center text-sm text-gray-400">Sem histórico de evolução</div>
           ) : (
-            evolution.map((e: any) => (
+            evolution.map(e => (
               <div key={e.id} className="grid grid-cols-[1fr_120px_80px_80px_160px] gap-3 items-center px-4 py-3 border-b border-gray-100 last:border-0">
                 <div className="text-sm text-gray-900">{e.competency?.name}</div>
                 <div className="text-xs text-gray-500">{e.source}</div>
@@ -622,7 +642,7 @@ function DashboardView() {
     queryKeys.competencies.dashboardGaps(), '/competencies/dashboard/gaps',
     { staleTime: STALE_TIME.SEMI_STATIC },
   );
-  const topQ = useApiQuery<any[]>(
+  const topQ = useApiQuery<TopCompetency[]>(
     queryKeys.competencies.top(), '/competencies/top',
     { params: { limit: 8 }, staleTime: STALE_TIME.SEMI_STATIC },
   );
@@ -684,7 +704,7 @@ function DashboardView() {
           <div className="px-4 py-3 border-b border-gray-100 text-xs font-medium text-gray-400 uppercase tracking-wide">
             Competências mais comuns na organização
           </div>
-          {top.map((t: any, idx) => (
+          {top.map((t, idx) => (
             <div key={t.competencyId} className="flex items-center gap-4 px-4 py-3 border-b border-gray-100 last:border-0">
               <span className="text-lg font-bold font-mono text-gray-200 w-6 text-center">{idx + 1}</span>
               <div className="flex-1">
