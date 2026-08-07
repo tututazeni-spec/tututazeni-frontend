@@ -20,6 +20,17 @@ const TYPES = [
   'COURSE', 'PROGRAM', 'COMPETENCY', 'ATTENDANCE', 'PARTICIPATION', 'ACHIEVEMENT',
 ];
 
+interface CreateTemplatePayload {
+  name: string;
+  type: string;
+  html: string;
+  isDefault: boolean;
+  description?: string;
+  signatoryName?: string;
+  signatoryTitle?: string;
+  validityDays?: number;
+}
+
 export default function CertificateTemplatesPage() {
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({
@@ -43,7 +54,7 @@ export default function CertificateTemplatesPage() {
 
   const createMut = useApiMutation(
     () => {
-      const payload: any = {
+      const payload: CreateTemplatePayload = {
         name: form.name,
         type: form.type,
         html: form.html,
