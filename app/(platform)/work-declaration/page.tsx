@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { useState, useEffect, useCallback } from "react";
-import Link from "next/link";
+import { useState, useEffect, useCallback } from 'react';
+import Link from 'next/link';
 import {
   FileText,
   Plus,
@@ -29,17 +29,13 @@ import {
   Building2,
   FileSignature,
   RefreshCw,
-} from "lucide-react";
+} from 'lucide-react';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type DeclarationStatus = "draft" | "issued" | "signed" | "expired" | "revoked";
+type DeclarationStatus = 'draft' | 'issued' | 'signed' | 'expired' | 'revoked';
 type DeclarationType =
-  | "employment"
-  | "training"
-  | "attendance"
-  | "performance"
-  | "custom";
+  'employment' | 'training' | 'attendance' | 'performance' | 'custom';
 
 interface Declaration {
   id: string;
@@ -71,114 +67,114 @@ const STATUS_META: Record<
   { label: string; color: string; bg: string; icon: React.ReactNode }
 > = {
   draft: {
-    label: "Rascunho",
-    color: "text-slate-400",
-    bg: "bg-slate-800/60",
+    label: 'Rascunho',
+    color: 'text-slate-400',
+    bg: 'bg-slate-800/60',
     icon: <Clock size={12} />,
   },
   issued: {
-    label: "Emitida",
-    color: "text-sky-400",
-    bg: "bg-sky-900/40",
+    label: 'Emitida',
+    color: 'text-sky-400',
+    bg: 'bg-sky-900/40',
     icon: <ArrowUpRight size={12} />,
   },
   signed: {
-    label: "Assinada",
-    color: "text-emerald-400",
-    bg: "bg-emerald-900/40",
+    label: 'Assinada',
+    color: 'text-emerald-400',
+    bg: 'bg-emerald-900/40',
     icon: <CheckCircle size={12} />,
   },
   expired: {
-    label: "Expirada",
-    color: "text-amber-400",
-    bg: "bg-amber-900/40",
+    label: 'Expirada',
+    color: 'text-amber-400',
+    bg: 'bg-amber-900/40',
     icon: <AlertTriangle size={12} />,
   },
   revoked: {
-    label: "Revogada",
-    color: "text-red-400",
-    bg: "bg-red-900/40",
+    label: 'Revogada',
+    color: 'text-red-400',
+    bg: 'bg-red-900/40',
     icon: <XCircle size={12} />,
   },
 };
 
 const TYPE_LABELS: Record<DeclarationType, string> = {
-  employment: "Vínculo Empregatício",
-  training: "Formação / Treino",
-  attendance: "Frequência",
-  performance: "Desempenho",
-  custom: "Personalizada",
+  employment: 'Vínculo Empregatício',
+  training: 'Formação / Treino',
+  attendance: 'Frequência',
+  performance: 'Desempenho',
+  custom: 'Personalizada',
 };
 
 // ─── Mocked data ─────────────────────────────────────────────────────────────
 
 const MOCK_DECLARATIONS: Declaration[] = [
   {
-    id: "1",
-    code: "INNOVA-2025-0041",
-    title: "Declaração de Vínculo Empregatício",
-    type: "employment",
-    status: "signed",
-    employeeName: "Ana Ferreira",
-    employeeRole: "Product Designer",
-    department: "Design",
-    createdAt: "2025-04-12",
-    issuedAt: "2025-04-13",
-    expiresAt: "2025-07-13",
-    createdBy: "Maria Silva (RH)",
+    id: '1',
+    code: 'INNOVA-2025-0041',
+    title: 'Declaração de Vínculo Empregatício',
+    type: 'employment',
+    status: 'signed',
+    employeeName: 'Ana Ferreira',
+    employeeRole: 'Product Designer',
+    department: 'Design',
+    createdAt: '2025-04-12',
+    issuedAt: '2025-04-13',
+    expiresAt: '2025-07-13',
+    createdBy: 'Maria Silva (RH)',
   },
   {
-    id: "2",
-    code: "INNOVA-2025-0042",
-    title: "Declaração de Participação em Formação",
-    type: "training",
-    status: "issued",
-    employeeName: "Bruno Costa",
-    employeeRole: "Engenheiro de Software",
-    department: "Tecnologia",
-    createdAt: "2025-04-15",
-    issuedAt: "2025-04-16",
-    createdBy: "Maria Silva (RH)",
+    id: '2',
+    code: 'INNOVA-2025-0042',
+    title: 'Declaração de Participação em Formação',
+    type: 'training',
+    status: 'issued',
+    employeeName: 'Bruno Costa',
+    employeeRole: 'Engenheiro de Software',
+    department: 'Tecnologia',
+    createdAt: '2025-04-15',
+    issuedAt: '2025-04-16',
+    createdBy: 'Maria Silva (RH)',
   },
   {
-    id: "3",
-    code: "INNOVA-2025-0043",
-    title: "Declaração para Fins Bancários",
-    type: "employment",
-    status: "draft",
-    employeeName: "Carla Mendes",
-    employeeRole: "Analista Financeira",
-    department: "Finanças",
-    createdAt: "2025-04-22",
-    createdBy: "João Pinto (RH)",
+    id: '3',
+    code: 'INNOVA-2025-0043',
+    title: 'Declaração para Fins Bancários',
+    type: 'employment',
+    status: 'draft',
+    employeeName: 'Carla Mendes',
+    employeeRole: 'Analista Financeira',
+    department: 'Finanças',
+    createdAt: '2025-04-22',
+    createdBy: 'João Pinto (RH)',
   },
   {
-    id: "4",
-    code: "INNOVA-2025-0039",
-    title: "Declaração de Frequência",
-    type: "attendance",
-    status: "expired",
-    employeeName: "Diogo Alves",
-    employeeRole: "Sales Manager",
-    department: "Comercial",
-    createdAt: "2025-01-10",
-    issuedAt: "2025-01-11",
-    expiresAt: "2025-04-11",
-    createdBy: "Maria Silva (RH)",
+    id: '4',
+    code: 'INNOVA-2025-0039',
+    title: 'Declaração de Frequência',
+    type: 'attendance',
+    status: 'expired',
+    employeeName: 'Diogo Alves',
+    employeeRole: 'Sales Manager',
+    department: 'Comercial',
+    createdAt: '2025-01-10',
+    issuedAt: '2025-01-11',
+    expiresAt: '2025-04-11',
+    createdBy: 'Maria Silva (RH)',
   },
   {
-    id: "5",
-    code: "INNOVA-2025-0044",
-    title: "Declaração de Desempenho",
-    type: "performance",
-    status: "signed",
-    employeeName: "Elena Rocha",
-    employeeRole: "Tech Lead",
-    department: "Tecnologia",
-    createdAt: "2025-04-18",
-    issuedAt: "2025-04-19",
-    expiresAt: "2025-07-19",
-    createdBy: "João Pinto (RH)",
+    id: '5',
+    code: 'INNOVA-2025-0044',
+    title: 'Declaração de Desempenho',
+    type: 'performance',
+    status: 'signed',
+    employeeName: 'Elena Rocha',
+    employeeRole: 'Tech Lead',
+    department: 'Tecnologia',
+    createdAt: '2025-04-18',
+    issuedAt: '2025-04-19',
+    expiresAt: '2025-07-19',
+    createdBy: 'João Pinto (RH)',
   },
 ];
 
@@ -252,7 +248,9 @@ function DeclarationRow({
           <span className="text-sm font-medium text-white leading-snug">
             {dec.title}
           </span>
-          <span className="text-xs text-slate-500">{TYPE_LABELS[dec.type]}</span>
+          <span className="text-xs text-slate-500">
+            {TYPE_LABELS[dec.type]}
+          </span>
         </div>
       </td>
 
@@ -279,7 +277,7 @@ function DeclarationRow({
           {dec.expiresAt && (
             <span
               className={
-                dec.status === "expired" ? "text-amber-400" : "text-slate-500"
+                dec.status === 'expired' ? 'text-amber-400' : 'text-slate-500'
               }
             >
               Expira: {dec.expiresAt}
@@ -292,24 +290,24 @@ function DeclarationRow({
       <td className="px-5 py-4">
         <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
           <button
-            onClick={() => onAction("view", dec.id)}
+            onClick={() => onAction('view', dec.id)}
             className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors"
             title="Ver detalhes"
           >
             <Eye size={14} />
           </button>
-          {(dec.status === "issued" || dec.status === "signed") && (
+          {(dec.status === 'issued' || dec.status === 'signed') && (
             <button
-              onClick={() => onAction("pdf", dec.id)}
+              onClick={() => onAction('pdf', dec.id)}
               className="p-1.5 rounded-lg text-slate-400 hover:text-sky-400 hover:bg-sky-900/30 transition-colors"
               title="Exportar PDF"
             >
               <Download size={14} />
             </button>
           )}
-          {dec.status === "draft" && (
+          {dec.status === 'draft' && (
             <button
-              onClick={() => onAction("issue", dec.id)}
+              onClick={() => onAction('issue', dec.id)}
               className="p-1.5 rounded-lg text-slate-400 hover:text-emerald-400 hover:bg-emerald-900/30 transition-colors"
               title="Emitir"
             >
@@ -326,28 +324,40 @@ function DeclarationRow({
             {menuOpen && (
               <div className="absolute right-0 top-8 z-50 w-44 rounded-xl bg-[#1a2235] border border-white/10 shadow-xl py-1">
                 <button
-                  onClick={() => { onAction("send-email", dec.id); setMenuOpen(false); }}
+                  onClick={() => {
+                    onAction('send-email', dec.id);
+                    setMenuOpen(false);
+                  }}
                   className="w-full flex items-center gap-2 px-3 py-2 text-sm text-slate-300 hover:text-white hover:bg-white/5"
                 >
                   <Send size={13} /> Enviar por email
                 </button>
                 <button
-                  onClick={() => { onAction("qr", dec.id); setMenuOpen(false); }}
+                  onClick={() => {
+                    onAction('qr', dec.id);
+                    setMenuOpen(false);
+                  }}
                   className="w-full flex items-center gap-2 px-3 py-2 text-sm text-slate-300 hover:text-white hover:bg-white/5"
                 >
                   <QrCode size={13} /> Ver QR Code
                 </button>
-                {dec.status === "issued" && (
+                {dec.status === 'issued' && (
                   <button
-                    onClick={() => { onAction("sign", dec.id); setMenuOpen(false); }}
+                    onClick={() => {
+                      onAction('sign', dec.id);
+                      setMenuOpen(false);
+                    }}
                     className="w-full flex items-center gap-2 px-3 py-2 text-sm text-emerald-400 hover:bg-emerald-900/20"
                   >
                     <FileSignature size={13} /> Assinar
                   </button>
                 )}
-                {(dec.status === "issued" || dec.status === "signed") && (
+                {(dec.status === 'issued' || dec.status === 'signed') && (
                   <button
-                    onClick={() => { onAction("revoke", dec.id); setMenuOpen(false); }}
+                    onClick={() => {
+                      onAction('revoke', dec.id);
+                      setMenuOpen(false);
+                    }}
                     className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-400 hover:bg-red-900/20"
                   >
                     <XCircle size={13} /> Revogar
@@ -368,11 +378,11 @@ function CreateModal({ onClose }: { onClose: () => void }) {
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
-    type: "" as DeclarationType | "",
-    templateId: "",
-    employeeId: "",
-    language: "PT",
-    purpose: "",
+    type: '' as DeclarationType | '',
+    templateId: '',
+    employeeId: '',
+    language: 'PT',
+    purpose: '',
   });
 
   const handleSubmit = () => {
@@ -399,12 +409,11 @@ function CreateModal({ onClose }: { onClose: () => void }) {
             <h2 className="text-base font-semibold text-white">
               Nova Declaração
             </h2>
-            <p className="text-xs text-slate-500 mt-0.5">
-              Passo {step} de 3
-            </p>
+            <p className="text-xs text-slate-500 mt-0.5">Passo {step} de 3</p>
           </div>
           <button
             onClick={onClose}
+            aria-label="Fechar"
             className="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors"
           >
             <X size={16} />
@@ -429,11 +438,11 @@ function CreateModal({ onClose }: { onClose: () => void }) {
               <div className="grid grid-cols-2 gap-3">
                 {(
                   [
-                    ["employment", "Vínculo Empregatício", Building2],
-                    ["training", "Formação / Treino", BookOpen],
-                    ["attendance", "Frequência", Users],
-                    ["performance", "Desempenho", TrendingUp],
-                    ["custom", "Personalizada", FileText],
+                    ['employment', 'Vínculo Empregatício', Building2],
+                    ['training', 'Formação / Treino', BookOpen],
+                    ['attendance', 'Frequência', Users],
+                    ['performance', 'Desempenho', TrendingUp],
+                    ['custom', 'Personalizada', FileText],
                   ] as const
                 ).map(([val, label, Icon]) => (
                   <button
@@ -441,8 +450,8 @@ function CreateModal({ onClose }: { onClose: () => void }) {
                     onClick={() => setForm({ ...form, type: val })}
                     className={`flex flex-col items-start gap-2 p-4 rounded-xl border transition-all text-left ${
                       form.type === val
-                        ? "border-sky-500 bg-sky-900/20 text-sky-300"
-                        : "border-white/8 bg-white/[0.02] text-slate-400 hover:border-white/20 hover:text-slate-200"
+                        ? 'border-sky-500 bg-sky-900/20 text-sky-300'
+                        : 'border-white/8 bg-white/[0.02] text-slate-400 hover:border-white/20 hover:text-slate-200'
                     }`}
                   >
                     <Icon size={18} />
@@ -485,14 +494,14 @@ function CreateModal({ onClose }: { onClose: () => void }) {
                     Idioma
                   </label>
                   <div className="flex gap-2">
-                    {["PT", "EN", "FR"].map((lang) => (
+                    {['PT', 'EN', 'FR'].map((lang) => (
                       <button
                         key={lang}
                         onClick={() => setForm({ ...form, language: lang })}
                         className={`px-4 py-2 rounded-xl text-xs font-medium border transition-all ${
                           form.language === lang
-                            ? "border-sky-500 bg-sky-900/20 text-sky-300"
-                            : "border-white/8 text-slate-500 hover:text-slate-300"
+                            ? 'border-sky-500 bg-sky-900/20 text-sky-300'
+                            : 'border-white/8 text-slate-500 hover:text-slate-300'
                         }`}
                       >
                         {lang}
@@ -506,19 +515,22 @@ function CreateModal({ onClose }: { onClose: () => void }) {
 
           {step === 3 && (
             <div className="space-y-4">
-              <p className="text-sm text-slate-400">
-                Revisão e confirmação
-              </p>
+              <p className="text-sm text-slate-400">Revisão e confirmação</p>
               <div className="rounded-xl bg-white/[0.03] border border-white/8 divide-y divide-white/8">
                 {[
-                  ["Tipo", TYPE_LABELS[form.type as DeclarationType] || "—"],
-                  ["Idioma", form.language],
-                  ["Template", "Template Padrão — Vínculo"],
-                  ["Status inicial", "Rascunho"],
+                  ['Tipo', TYPE_LABELS[form.type as DeclarationType] || '—'],
+                  ['Idioma', form.language],
+                  ['Template', 'Template Padrão — Vínculo'],
+                  ['Status inicial', 'Rascunho'],
                 ].map(([label, value]) => (
-                  <div key={label} className="flex items-center justify-between px-4 py-3">
+                  <div
+                    key={label}
+                    className="flex items-center justify-between px-4 py-3"
+                  >
                     <span className="text-xs text-slate-500">{label}</span>
-                    <span className="text-xs text-white font-medium">{value}</span>
+                    <span className="text-xs text-white font-medium">
+                      {value}
+                    </span>
                   </div>
                 ))}
               </div>
@@ -531,7 +543,7 @@ function CreateModal({ onClose }: { onClose: () => void }) {
           <button
             onClick={() => step > 1 && setStep((s) => (s - 1) as 1 | 2 | 3)}
             className={`px-4 py-2 rounded-xl text-sm text-slate-400 hover:text-white transition-colors ${
-              step === 1 ? "invisible" : ""
+              step === 1 ? 'invisible' : ''
             }`}
           >
             Anterior
@@ -556,7 +568,7 @@ function CreateModal({ onClose }: { onClose: () => void }) {
               ) : (
                 <Check size={14} />
               )}
-              {loading ? "A criar..." : "Criar Declaração"}
+              {loading ? 'A criar...' : 'Criar Declaração'}
             </button>
           )}
         </div>
@@ -571,44 +583,44 @@ export default function WorkDeclarationsPage() {
   const [declarations, setDeclarations] =
     useState<Declaration[]>(MOCK_DECLARATIONS);
   const [stats] = useState<Stats>(MOCK_STATS);
-  const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState<DeclarationStatus | "all">(
-    "all"
+  const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState<DeclarationStatus | 'all'>(
+    'all',
   );
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [toast, setToast] = useState<{
     msg: string;
-    type: "success" | "error";
+    type: 'success' | 'error';
   } | null>(null);
 
   const showToast = useCallback(
-    (msg: string, type: "success" | "error" = "success") => {
+    (msg: string, type: 'success' | 'error' = 'success') => {
       setToast({ msg, type });
       setTimeout(() => setToast(null), 3500);
     },
-    []
+    [],
   );
 
   const handleAction = useCallback(
     (action: string, id: string) => {
       const messages: Record<string, string> = {
-        pdf: "PDF gerado com sucesso.",
-        issue: "Declaração emitida com sucesso.",
-        sign: "Declaração assinada.",
-        revoke: "Declaração revogada.",
-        "send-email": "Email enviado ao colaborador.",
-        qr: "QR Code aberto.",
-        view: "A abrir detalhes...",
+        pdf: 'PDF gerado com sucesso.',
+        issue: 'Declaração emitida com sucesso.',
+        sign: 'Declaração assinada.',
+        revoke: 'Declaração revogada.',
+        'send-email': 'Email enviado ao colaborador.',
+        qr: 'QR Code aberto.',
+        view: 'A abrir detalhes...',
       };
-      if (action === "issue") {
+      if (action === 'issue') {
         setDeclarations((prev) =>
-          prev.map((d) => (d.id === id ? { ...d, status: "issued" } : d))
+          prev.map((d) => (d.id === id ? { ...d, status: 'issued' } : d)),
         );
       }
-      showToast(messages[action] ?? "Ação executada.");
+      showToast(messages[action] ?? 'Ação executada.');
     },
-    [showToast]
+    [showToast],
   );
 
   const filtered = declarations.filter((d) => {
@@ -616,7 +628,7 @@ export default function WorkDeclarationsPage() {
       d.employeeName.toLowerCase().includes(search.toLowerCase()) ||
       d.title.toLowerCase().includes(search.toLowerCase()) ||
       d.code.toLowerCase().includes(search.toLowerCase());
-    const matchStatus = statusFilter === "all" || d.status === statusFilter;
+    const matchStatus = statusFilter === 'all' || d.status === statusFilter;
     return matchSearch && matchStatus;
   });
 
@@ -630,7 +642,7 @@ export default function WorkDeclarationsPage() {
             linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
             linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px)
           `,
-          backgroundSize: "40px 40px",
+          backgroundSize: '40px 40px',
         }}
       />
 
@@ -712,11 +724,11 @@ export default function WorkDeclarationsPage() {
           <div className="flex items-center gap-2">
             {(
               [
-                ["all", "Todas"],
-                ["draft", "Rascunho"],
-                ["issued", "Emitida"],
-                ["signed", "Assinada"],
-                ["expired", "Expirada"],
+                ['all', 'Todas'],
+                ['draft', 'Rascunho'],
+                ['issued', 'Emitida'],
+                ['signed', 'Assinada'],
+                ['expired', 'Expirada'],
               ] as const
             ).map(([val, label]) => (
               <button
@@ -724,8 +736,8 @@ export default function WorkDeclarationsPage() {
                 onClick={() => setStatusFilter(val)}
                 className={`px-3 py-2 rounded-xl text-xs font-medium transition-all whitespace-nowrap ${
                   statusFilter === val
-                    ? "bg-sky-900/40 text-sky-300 border border-sky-500/30"
-                    : "text-slate-500 hover:text-slate-300 border border-transparent"
+                    ? 'bg-sky-900/40 text-sky-300 border border-sky-500/30'
+                    : 'text-slate-500 hover:text-slate-300 border border-transparent'
                 }`}
               >
                 {label}
@@ -738,7 +750,7 @@ export default function WorkDeclarationsPage() {
         <div className="rounded-2xl bg-[#0b1121] border border-white/5 overflow-hidden">
           <div className="flex items-center justify-between px-5 py-4 border-b border-white/5">
             <span className="text-sm text-slate-400">
-              {filtered.length} declaração{filtered.length !== 1 ? "ões" : ""}
+              {filtered.length} declaração{filtered.length !== 1 ? 'ões' : ''}
             </span>
             <button
               onClick={() => setIsLoading(true)}
@@ -747,7 +759,7 @@ export default function WorkDeclarationsPage() {
             >
               <RefreshCw
                 size={14}
-                className={isLoading ? "animate-spin" : ""}
+                className={isLoading ? 'animate-spin' : ''}
               />
             </button>
           </div>
@@ -774,10 +786,7 @@ export default function WorkDeclarationsPage() {
                       colSpan={5}
                       className="px-5 py-16 text-center text-slate-600"
                     >
-                      <FileText
-                        size={32}
-                        className="mx-auto mb-3 opacity-30"
-                      />
+                      <FileText size={32} className="mx-auto mb-3 opacity-30" />
                       <p className="text-sm">Nenhuma declaração encontrada</p>
                     </td>
                   </tr>
@@ -846,12 +855,12 @@ export default function WorkDeclarationsPage() {
       {toast && (
         <div
           className={`fixed bottom-6 right-6 z-50 flex items-center gap-3 px-5 py-3 rounded-xl shadow-2xl text-sm font-medium transition-all ${
-            toast.type === "success"
-              ? "bg-emerald-900/80 border border-emerald-500/30 text-emerald-200"
-              : "bg-red-900/80 border border-red-500/30 text-red-200"
+            toast.type === 'success'
+              ? 'bg-emerald-900/80 border border-emerald-500/30 text-emerald-200'
+              : 'bg-red-900/80 border border-red-500/30 text-red-200'
           } backdrop-blur-md`}
         >
-          {toast.type === "success" ? (
+          {toast.type === 'success' ? (
             <CheckCircle size={15} />
           ) : (
             <XCircle size={15} />

@@ -276,6 +276,8 @@ function Slideshow() {
           <button
             key={i}
             onClick={() => goTo(i)}
+            aria-label={`Ir para o slide ${i + 1}`}
+            aria-current={i === current}
             style={{
               width: i === current ? 24 : 8,
               height: 8,
@@ -298,6 +300,7 @@ function Slideshow() {
         <button
           key={pos}
           onClick={() => goTo((current + dir + SLIDES.length) % SLIDES.length)}
+          aria-label={dir === -1 ? 'Slide anterior' : 'Próximo slide'}
           style={{
             position: 'absolute',
             top: '50%',
@@ -1142,6 +1145,7 @@ function GlobalSearch({ onClose }: { onClose: () => void }) {
           />
           <button
             onClick={onClose}
+            aria-label="Fechar"
             className="text-slate-400 hover:text-slate-600"
           >
             ✕
@@ -1284,7 +1288,10 @@ export default function DashboardPage() {
               <Search size={14} />
               Pesquisar
             </button>
-            <button className="relative flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 text-slate-600 text-sm rounded-lg hover:border-slate-300 transition-colors">
+            <button
+              aria-label="Notificações"
+              className="relative flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 text-slate-600 text-sm rounded-lg hover:border-slate-300 transition-colors"
+            >
               <Bell size={14} />
               {alertCount > 0 && (
                 <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[9px] rounded-full flex items-center justify-center font-bold">
@@ -1294,6 +1301,7 @@ export default function DashboardPage() {
             </button>
             <button
               onClick={() => window.location.reload()}
+              aria-label="Actualizar"
               className="p-2 bg-white border border-slate-200 rounded-lg hover:border-slate-300"
             >
               <RefreshCw size={15} className="text-slate-500" />
