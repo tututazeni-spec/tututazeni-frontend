@@ -366,7 +366,7 @@ export default function CourseModulesPage() {
       await apiClient.delete(`/modules/${mod.id}`);
       await refetch();
       showToast("Módulo removido", "success");
-    } catch (e: any) { showToast(e.message, "error"); }
+    } catch (e) { showToast(e instanceof Error ? e.message : String(e), "error"); }
   }
 
   // ── Delete lesson ─────────────────────────────────────────────────────────
@@ -376,7 +376,7 @@ export default function CourseModulesPage() {
       await apiClient.delete(`/lessons/${lesson.id}`);
       await refetch();
       showToast("Lição removida", "success");
-    } catch (e: any) { showToast(e.message, "error"); }
+    } catch (e) { showToast(e instanceof Error ? e.message : String(e), "error"); }
   }
 
   // Stats
