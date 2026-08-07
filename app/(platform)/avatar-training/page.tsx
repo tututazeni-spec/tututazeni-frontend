@@ -3,10 +3,31 @@
 
 import { useState, useEffect, useRef } from 'react';
 import {
-  Bot, Play, Star, TrendingUp, Award, Zap, Users, Target,
-  MessageSquare, BarChart2, Clock, CheckCircle, ChevronRight,
-  Mic, Send, X, Brain, Shield, Headphones, Trophy, Flame,
-  RefreshCw, ArrowRight, AlertTriangle, Volume2,
+  Bot,
+  Play,
+  Star,
+  TrendingUp,
+  Award,
+  Zap,
+  Users,
+  Target,
+  MessageSquare,
+  BarChart2,
+  Clock,
+  CheckCircle,
+  ChevronRight,
+  Mic,
+  Send,
+  X,
+  Brain,
+  Shield,
+  Headphones,
+  Trophy,
+  Flame,
+  RefreshCw,
+  ArrowRight,
+  AlertTriangle,
+  Volume2,
 } from 'lucide-react';
 import { keepPreviousData } from '@tanstack/react-query';
 import { useApiQuery, useApiMutation } from '../../../hooks/useApiQuery';
@@ -19,24 +40,35 @@ import type { LucideIcon } from 'lucide-react';
 
 // ─── Types ───────────────────────────────────────────────────────
 
-type Tab = 'home' | 'scenarios' | 'session' | 'history' | 'leaderboard' | 'analytics';
+type Tab =
+  'home' | 'scenarios' | 'session' | 'history' | 'leaderboard' | 'analytics';
 
 interface Scenario {
-  id: number; title: string; description?: string; category: string;
-  difficulty: string; estimatedMinutes?: number; xpReward?: number;
-  thumbnailUrl?: string; completions?: number; avgScore?: number;
+  id: number;
+  title: string;
+  description?: string;
+  category: string;
+  difficulty: string;
+  estimatedMinutes?: number;
+  xpReward?: number;
+  thumbnailUrl?: string;
+  completions?: number;
+  avgScore?: number;
   bestSession?: { score: number } | null;
   competency?: { name: string };
 }
 
 interface SessionMessage {
   role: 'USER' | 'AVATAR' | 'SYSTEM';
-  content: string; timestamp: string;
-  score?: number; behavioral?: Record<string, number>;
+  content: string;
+  timestamp: string;
+  score?: number;
+  behavioral?: Record<string, number>;
 }
 
 interface ActiveSession {
-  id: number; scenarioId: number;
+  id: number;
+  scenarioId: number;
   conversationHistory: SessionMessage[];
   scenario: { title: string; objective?: string; turns: unknown[] };
   openingMessage?: string;
@@ -45,7 +77,11 @@ interface ActiveSession {
 
 interface HistorySession {
   id: number;
-  scenario?: { title?: string; category?: string; competency?: { name: string } };
+  scenario?: {
+    title?: string;
+    category?: string;
+    competency?: { name: string };
+  };
   startedAt: string;
   status: string;
   score?: number | null;
@@ -89,7 +125,12 @@ interface RecentCompletion {
 }
 
 interface AnalyticsDashboard {
-  kpis: { totalScenarios?: number; activeSessions?: number; completedSessions?: number; avgScore?: number | null };
+  kpis: {
+    totalScenarios?: number;
+    activeSessions?: number;
+    completedSessions?: number;
+    avgScore?: number | null;
+  };
   topScenarios?: TopScenarioStat[];
   categoryBreakdown?: CategoryBreakdownItem[];
   recentCompletions?: RecentCompletion[];
@@ -122,35 +163,91 @@ interface SessionResult {
 
 // ─── Helpers ─────────────────────────────────────────────────────
 
-const CATEGORY_CONFIG: Record<string, { label: string; icon: LucideIcon; color: string; bg: string }> = {
-  SOFT_SKILLS:     { label: 'Soft Skills',     icon: Brain,     color: 'text-violet-600', bg: 'bg-violet-50' },
-  SALES:           { label: 'Vendas',          icon: TrendingUp,color: 'text-emerald-600',bg: 'bg-emerald-50' },
-  CUSTOMER_SERVICE:{ label: 'Atendimento',     icon: Headphones,color: 'text-blue-600',   bg: 'bg-blue-50' },
-  ONBOARDING:      { label: 'Onboarding',      icon: Users,     color: 'text-teal-600',   bg: 'bg-teal-50' },
-  COMPLIANCE:      { label: 'Compliance',      icon: Shield,    color: 'text-red-600',    bg: 'bg-red-50' },
-  LEADERSHIP:      { label: 'Liderança',       icon: Star,      color: 'text-amber-600',  bg: 'bg-amber-50' },
-  NEGOTIATION:     { label: 'Negociação',      icon: MessageSquare, color: 'text-indigo-600', bg: 'bg-indigo-50' },
-  SECURITY:        { label: 'Segurança',       icon: Shield,    color: 'text-slate-600',  bg: 'bg-slate-50' },
+const CATEGORY_CONFIG: Record<
+  string,
+  { label: string; icon: LucideIcon; color: string; bg: string }
+> = {
+  SOFT_SKILLS: {
+    label: 'Soft Skills',
+    icon: Brain,
+    color: 'text-violet-600',
+    bg: 'bg-violet-50',
+  },
+  SALES: {
+    label: 'Vendas',
+    icon: TrendingUp,
+    color: 'text-emerald-600',
+    bg: 'bg-emerald-50',
+  },
+  CUSTOMER_SERVICE: {
+    label: 'Atendimento',
+    icon: Headphones,
+    color: 'text-blue-600',
+    bg: 'bg-blue-50',
+  },
+  ONBOARDING: {
+    label: 'Onboarding',
+    icon: Users,
+    color: 'text-teal-600',
+    bg: 'bg-teal-50',
+  },
+  COMPLIANCE: {
+    label: 'Compliance',
+    icon: Shield,
+    color: 'text-red-600',
+    bg: 'bg-red-50',
+  },
+  LEADERSHIP: {
+    label: 'Liderança',
+    icon: Star,
+    color: 'text-amber-600',
+    bg: 'bg-amber-50',
+  },
+  NEGOTIATION: {
+    label: 'Negociação',
+    icon: MessageSquare,
+    color: 'text-indigo-600',
+    bg: 'bg-indigo-50',
+  },
+  SECURITY: {
+    label: 'Segurança',
+    icon: Shield,
+    color: 'text-slate-600',
+    bg: 'bg-slate-50',
+  },
 };
 
 const DIFF_COLOR: Record<string, string> = {
-  BEGINNER:     'bg-emerald-100 text-emerald-700',
+  BEGINNER: 'bg-emerald-100 text-emerald-700',
   INTERMEDIATE: 'bg-amber-100 text-amber-700',
-  ADVANCED:     'bg-orange-100 text-orange-700',
-  EXPERT:       'bg-red-100 text-red-700',
+  ADVANCED: 'bg-orange-100 text-orange-700',
+  EXPERT: 'bg-red-100 text-red-700',
 };
 
 const SCORE_COLOR = (s: number) =>
-  s >= 90 ? 'text-emerald-600' : s >= 75 ? 'text-teal-600' :
-  s >= 60 ? 'text-amber-600'  : 'text-red-500';
+  s >= 90
+    ? 'text-emerald-600'
+    : s >= 75
+      ? 'text-teal-600'
+      : s >= 60
+        ? 'text-amber-600'
+        : 'text-red-500';
 
-function ProgressBar({ value, color = 'bg-indigo-500', height = 'h-1.5' }: {
-  value: number; color?: string; height?: string;
+function ProgressBar({
+  value,
+  color = 'bg-indigo-500',
+  height = 'h-1.5',
+}: {
+  value: number;
+  color?: string;
+  height?: string;
 }) {
   return (
     <div className={`w-full ${height} bg-slate-100 rounded-full`}>
-      <div className={`${height} ${color} rounded-full transition-all duration-500`}
-        style={{ width: `${Math.min(value, 100)}%` }} />
+      <div
+        className={`${height} ${color} rounded-full transition-all duration-500`}
+        style={{ width: `${Math.min(value, 100)}%` }}
+      />
     </div>
   );
 }
@@ -158,38 +255,53 @@ function ProgressBar({ value, color = 'bg-indigo-500', height = 'h-1.5' }: {
 function Skeleton({ count = 3 }: { count?: number }) {
   return (
     <div className="space-y-4 animate-pulse">
-      {[...Array(count)].map((_, i) => <div key={i} className="bg-slate-100 rounded-xl h-28" />)}
+      {[...Array(count)].map((_, i) => (
+        <div key={i} className="bg-slate-100 rounded-xl h-28" />
+      ))}
     </div>
   );
 }
 
 // ─── Scenario Card ────────────────────────────────────────────────
 
-function ScenarioCard({ scenario, onStart }: { scenario: Scenario; onStart: (s: Scenario) => void }) {
-  const cat  = CATEGORY_CONFIG[scenario.category] ?? CATEGORY_CONFIG.SOFT_SKILLS;
+function ScenarioCard({
+  scenario,
+  onStart,
+}: {
+  scenario: Scenario;
+  onStart: (s: Scenario) => void;
+}) {
+  const cat = CATEGORY_CONFIG[scenario.category] ?? CATEGORY_CONFIG.SOFT_SKILLS;
   const Icon = cat.icon;
   const done = scenario.bestSession?.score ?? null;
 
   return (
-    <div className="bg-white rounded-xl border border-slate-100 overflow-hidden hover:shadow-lg
-      transition-all group">
+    <div className="bg-white rounded-xl border border-slate-100 overflow-hidden hover:shadow-lg transition-all group">
       {/* Thumbnail */}
-      <div className={`h-32 ${cat.bg} flex items-center justify-center relative`}>
-        {scenario.thumbnailUrl
-          ? <Image src={scenario.thumbnailUrl} fill className="object-cover" alt="" />
-          : <Icon size={40} className={`${cat.color} opacity-40`} />
-        }
+      <div
+        className={`h-32 ${cat.bg} flex items-center justify-center relative`}
+      >
+        {scenario.thumbnailUrl ? (
+          <Image
+            src={scenario.thumbnailUrl}
+            fill
+            className="object-cover"
+            alt=""
+          />
+        ) : (
+          <Icon size={40} className={`${cat.color} opacity-40`} />
+        )}
         {done !== null && (
-          <div className="absolute top-2 right-2 flex items-center gap-1 bg-white/90
-            rounded-full px-2 py-0.5 text-xs font-bold text-emerald-700">
-            <CheckCircle size={10} />{done}%
+          <div className="absolute top-2 right-2 flex items-center gap-1 bg-white/90 rounded-full px-2 py-0.5 text-xs font-bold text-emerald-700">
+            <CheckCircle size={10} />
+            {done}%
           </div>
         )}
-        <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity
-          flex items-center justify-center">
-          <button onClick={() => onStart(scenario)}
-            className="flex items-center gap-2 px-5 py-2 bg-white text-slate-800 rounded-full
-              font-semibold text-sm shadow-lg hover:shadow-xl">
+        <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+          <button
+            onClick={() => onStart(scenario)}
+            className="flex items-center gap-2 px-5 py-2 bg-white text-slate-800 rounded-full font-semibold text-sm shadow-lg hover:shadow-xl"
+          >
             <Play size={14} className="ml-0.5" />
             Iniciar
           </button>
@@ -199,20 +311,31 @@ function ScenarioCard({ scenario, onStart }: { scenario: Scenario; onStart: (s: 
       {/* Body */}
       <div className="p-3">
         <div className="flex items-center gap-2 mb-1.5">
-          <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${DIFF_COLOR[scenario.difficulty]}`}>
+          <span
+            className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${DIFF_COLOR[scenario.difficulty]}`}
+          >
             {scenario.difficulty}
           </span>
-          <span className={`text-[10px] font-medium ${cat.color}`}>{cat.label}</span>
+          <span className={`text-[10px] font-medium ${cat.color}`}>
+            {cat.label}
+          </span>
           {scenario.competency && (
-            <span className="text-[10px] text-slate-400 ml-auto truncate">{scenario.competency.name}</span>
+            <span className="text-[10px] text-slate-400 ml-auto truncate">
+              {scenario.competency.name}
+            </span>
           )}
         </div>
 
-        <h4 className="text-sm font-semibold text-slate-800 line-clamp-2 mb-2">{scenario.title}</h4>
+        <h4 className="text-sm font-semibold text-slate-800 line-clamp-2 mb-2">
+          {scenario.title}
+        </h4>
 
         <div className="flex items-center gap-3 text-[10px] text-slate-400">
           {scenario.estimatedMinutes && (
-            <span className="flex items-center gap-0.5"><Clock size={10} />{scenario.estimatedMinutes} min</span>
+            <span className="flex items-center gap-0.5">
+              <Clock size={10} />
+              {scenario.estimatedMinutes} min
+            </span>
           )}
           {scenario.xpReward && (
             <span className="flex items-center gap-0.5 text-amber-500 font-semibold">
@@ -234,15 +357,21 @@ function ScenarioCard({ scenario, onStart }: { scenario: Scenario; onStart: (s: 
 // ─── Chat Session UI ──────────────────────────────────────────────
 
 function ChatSession({
-  session, onComplete, onClose,
+  session,
+  onComplete,
+  onClose,
 }: {
-  session: ActiveSession; onComplete: (result: SessionResult) => void; onClose: () => void;
+  session: ActiveSession;
+  onComplete: (result: SessionResult) => void;
+  onClose: () => void;
 }) {
-  const [messages, setMessages] = useState<SessionMessage[]>(session.conversationHistory ?? []);
-  const [input, setInput]       = useState('');
-  const [sending, setSending]   = useState(false);
+  const [messages, setMessages] = useState<SessionMessage[]>(
+    session.conversationHistory ?? [],
+  );
+  const [input, setInput] = useState('');
+  const [sending, setSending] = useState(false);
   const [runningScore, setRunningScore] = useState<number | null>(null);
-  const [isLastTurn, setIsLastTurn]     = useState(false);
+  const [isLastTurn, setIsLastTurn] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -251,38 +380,60 @@ function ChatSession({
 
   const send = async () => {
     if (!input.trim() || sending) return;
-    const userMsg: SessionMessage = { role: 'USER', content: input, timestamp: new Date().toISOString() };
-    setMessages(prev => [...prev, userMsg]);
+    const userMsg: SessionMessage = {
+      role: 'USER',
+      content: input,
+      timestamp: new Date().toISOString(),
+    };
+    setMessages((prev) => [...prev, userMsg]);
     setInput('');
     setSending(true);
 
     try {
-      const r = await apiClient.post<MessageResponse>(`/avatar-training/sessions/${session.id}/message`, {
-        message: input, turnIndex: messages.filter(m => m.role === 'USER').length,
-      });
+      const r = await apiClient.post<MessageResponse>(
+        `/avatar-training/sessions/${session.id}/message`,
+        {
+          message: input,
+          turnIndex: messages.filter((m) => m.role === 'USER').length,
+        },
+      );
 
       const avatarMsg: SessionMessage = {
-        role: 'AVATAR', content: r.avatarResponse, timestamp: new Date().toISOString(),
-        score: r.turnScore, behavioral: r.behavioral,
+        role: 'AVATAR',
+        content: r.avatarResponse,
+        timestamp: new Date().toISOString(),
+        score: r.turnScore,
+        behavioral: r.behavioral,
       };
-      setMessages(prev => [...prev, avatarMsg]);
+      setMessages((prev) => [...prev, avatarMsg]);
       setRunningScore(r.runningScore);
       setIsLastTurn(r.isLastTurn);
     } catch (e) {
-      setMessages(prev => [...prev, { role: 'SYSTEM', content: '⚠️ Erro na comunicação', timestamp: new Date().toISOString() }]);
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: 'SYSTEM',
+          content: '⚠️ Erro na comunicação',
+          timestamp: new Date().toISOString(),
+        },
+      ]);
     } finally {
       setSending(false);
     }
   };
 
   const completeMutation = useApiMutation(
-    () => apiClient.post<SessionResult>(`/avatar-training/sessions/${session.id}/complete`, { score: runningScore ?? undefined }),
+    () =>
+      apiClient.post<SessionResult>(
+        `/avatar-training/sessions/${session.id}/complete`,
+        { score: runningScore ?? undefined },
+      ),
     { onSuccess: (r) => onComplete(r) },
   );
   const completing = completeMutation.isPending;
   const complete = () => completeMutation.mutate(undefined);
 
-  const avatarName  = session.avatar?.name ?? 'Avatar';
+  const avatarName = session.avatar?.name ?? 'Avatar';
   const avatarImage = session.avatar?.avatarImageUrl;
 
   return (
@@ -290,24 +441,36 @@ function ChatSession({
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl flex flex-col max-h-[90vh]">
         {/* Header */}
         <div className="flex items-center gap-3 px-5 py-4 border-b border-slate-100">
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-violet-600
-            flex items-center justify-center overflow-hidden shrink-0 relative">
-            {avatarImage
-              ? <Image src={avatarImage} alt={avatarName} fill className="object-cover" />
-              : <Bot size={18} className="text-white" />
-            }
+          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center overflow-hidden shrink-0 relative">
+            {avatarImage ? (
+              <Image
+                src={avatarImage}
+                alt={avatarName}
+                fill
+                className="object-cover"
+              />
+            ) : (
+              <Bot size={18} className="text-white" />
+            )}
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-semibold text-slate-800">{avatarName}</p>
-            <p className="text-xs text-slate-400 truncate">{session.scenario.title}</p>
+            <p className="text-xs text-slate-400 truncate">
+              {session.scenario.title}
+            </p>
           </div>
           {runningScore !== null && (
             <div className="text-center px-3 py-1 rounded-lg bg-indigo-50">
-              <p className={`text-lg font-bold ${SCORE_COLOR(runningScore)}`}>{runningScore}</p>
+              <p className={`text-lg font-bold ${SCORE_COLOR(runningScore)}`}>
+                {runningScore}
+              </p>
               <p className="text-[9px] text-slate-400">Score</p>
             </div>
           )}
-          <button onClick={onClose} className="p-2 rounded-lg hover:bg-slate-100 transition-colors">
+          <button
+            onClick={onClose}
+            className="p-2 rounded-lg hover:bg-slate-100 transition-colors"
+          >
             <X size={16} className="text-slate-500" />
           </button>
         </div>
@@ -316,7 +479,8 @@ function ChatSession({
         {session.scenario.objective && (
           <div className="px-5 py-2 bg-indigo-50 border-b border-indigo-100">
             <p className="text-xs text-indigo-700">
-              🎯 <span className="font-medium">Objectivo:</span> {session.scenario.objective}
+              🎯 <span className="font-medium">Objectivo:</span>{' '}
+              {session.scenario.objective}
             </p>
           </div>
         )}
@@ -324,34 +488,45 @@ function ChatSession({
         {/* Messages */}
         <div className="flex-1 overflow-y-auto p-4 space-y-3">
           {messages.map((m, i) => (
-            <div key={i} className={`flex ${m.role === 'USER' ? 'justify-end' : 'justify-start'} gap-2`}>
+            <div
+              key={i}
+              className={`flex ${m.role === 'USER' ? 'justify-end' : 'justify-start'} gap-2`}
+            >
               {m.role === 'AVATAR' && (
                 <div className="w-7 h-7 rounded-full bg-indigo-600 flex items-center justify-center shrink-0 mt-0.5">
                   <Bot size={12} className="text-white" />
                 </div>
               )}
-              <div className={`max-w-[80%] ${m.role === 'SYSTEM' ? 'mx-auto' : ''}`}>
-                <div className={`px-4 py-2.5 rounded-2xl text-sm leading-relaxed ${
-                  m.role === 'USER'
-                    ? 'bg-indigo-600 text-white rounded-br-sm'
-                    : m.role === 'SYSTEM'
-                    ? 'bg-slate-100 text-slate-500 text-xs text-center'
-                    : 'bg-slate-100 text-slate-800 rounded-bl-sm'
-                }`}>
+              <div
+                className={`max-w-[80%] ${m.role === 'SYSTEM' ? 'mx-auto' : ''}`}
+              >
+                <div
+                  className={`px-4 py-2.5 rounded-2xl text-sm leading-relaxed ${
+                    m.role === 'USER'
+                      ? 'bg-indigo-600 text-white rounded-br-sm'
+                      : m.role === 'SYSTEM'
+                        ? 'bg-slate-100 text-slate-500 text-xs text-center'
+                        : 'bg-slate-100 text-slate-800 rounded-bl-sm'
+                  }`}
+                >
                   {m.content}
                 </div>
                 {m.role === 'AVATAR' && m.score !== undefined && (
                   <div className="flex items-center gap-2 mt-1 px-1">
-                    <span className={`text-[10px] font-bold ${SCORE_COLOR(m.score)}`}>
+                    <span
+                      className={`text-[10px] font-bold ${SCORE_COLOR(m.score)}`}
+                    >
                       Score: {m.score}
                     </span>
                     {m.behavioral && (
                       <div className="flex gap-1">
-                        {Object.entries(m.behavioral).slice(0, 3).map(([k, v]) => (
-                          <span key={k} className="text-[9px] text-slate-400">
-                            {k.slice(0, 3)}: {v}
-                          </span>
-                        ))}
+                        {Object.entries(m.behavioral)
+                          .slice(0, 3)
+                          .map(([k, v]) => (
+                            <span key={k} className="text-[9px] text-slate-400">
+                              {k.slice(0, 3)}: {v}
+                            </span>
+                          ))}
                       </div>
                     )}
                   </div>
@@ -367,8 +542,11 @@ function ChatSession({
               <div className="bg-slate-100 rounded-2xl rounded-bl-sm px-4 py-2.5">
                 <div className="flex gap-1">
                   {[...Array(3)].map((_, i) => (
-                    <div key={i} className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce"
-                      style={{ animationDelay: `${i * 150}ms` }} />
+                    <div
+                      key={i}
+                      className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce"
+                      style={{ animationDelay: `${i * 150}ms` }}
+                    />
                   ))}
                 </div>
               </div>
@@ -380,26 +558,35 @@ function ChatSession({
         {/* Input */}
         <div className="border-t border-slate-100 p-4">
           {isLastTurn ? (
-            <button onClick={complete} disabled={completing}
-              className="w-full py-3 bg-emerald-600 text-white rounded-xl font-semibold
-                hover:bg-emerald-700 transition-colors disabled:opacity-60 flex items-center justify-center gap-2">
+            <button
+              onClick={complete}
+              disabled={completing}
+              className="w-full py-3 bg-emerald-600 text-white rounded-xl font-semibold hover:bg-emerald-700 transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
+            >
               <CheckCircle size={16} />
               {completing ? 'A concluir…' : 'Concluir Sessão e Ver Resultados'}
             </button>
           ) : (
             <div className="flex gap-2">
-              <input value={input} onChange={e => setInput(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && !e.shiftKey && send()}
+              <input
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && send()}
                 placeholder="Escreve a tua resposta..."
-                className="flex-1 px-4 py-2.5 text-sm border border-slate-200 rounded-xl
-                  focus:outline-none focus:border-indigo-400" />
-              <button onClick={send} disabled={sending || !input.trim()}
-                className="p-2.5 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700
-                  disabled:opacity-40 transition-colors">
+                className="flex-1 px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:border-indigo-400"
+              />
+              <button
+                onClick={send}
+                disabled={sending || !input.trim()}
+                className="p-2.5 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 disabled:opacity-40 transition-colors"
+              >
                 <Send size={16} />
               </button>
-              <button onClick={complete} disabled={completing}
-                className="px-3 py-2 border border-slate-200 text-slate-600 text-xs rounded-xl hover:bg-slate-50">
+              <button
+                onClick={complete}
+                disabled={completing}
+                className="px-3 py-2 border border-slate-200 text-slate-600 text-xs rounded-xl hover:bg-slate-50"
+              >
                 Concluir
               </button>
             </div>
@@ -412,18 +599,45 @@ function ChatSession({
 
 // ─── Results Modal ────────────────────────────────────────────────
 
-function ResultsModal({ result, onClose, onRetry, onNext }: {
-  result: SessionResult; onClose: () => void; onRetry: () => void; onNext?: () => void;
+function ResultsModal({
+  result,
+  onClose,
+  onRetry,
+  onNext,
+}: {
+  result: SessionResult;
+  onClose: () => void;
+  onRetry: () => void;
+  onNext?: () => void;
 }) {
   const score = result.finalScore ?? 0;
   const grade = result.grade ?? 'AVERAGE';
 
-  const GRADE_CONFIG: Record<string, { emoji: string; color: string; label: string }> = {
-    EXCEPTIONAL:    { emoji: '🏆', color: 'text-emerald-600', label: 'Excepcional' },
-    ABOVE_AVERAGE:  { emoji: '⭐', color: 'text-teal-600',    label: 'Acima Média' },
-    AVERAGE:        { emoji: '👍', color: 'text-amber-600',   label: 'Médio' },
-    BELOW_AVERAGE:  { emoji: '📈', color: 'text-orange-600',  label: 'Abaixo Média' },
-    NEEDS_IMPROVEMENT: { emoji: '🎯', color: 'text-red-600', label: 'Melhorar' },
+  const GRADE_CONFIG: Record<
+    string,
+    { emoji: string; color: string; label: string }
+  > = {
+    EXCEPTIONAL: {
+      emoji: '🏆',
+      color: 'text-emerald-600',
+      label: 'Excepcional',
+    },
+    ABOVE_AVERAGE: {
+      emoji: '⭐',
+      color: 'text-teal-600',
+      label: 'Acima Média',
+    },
+    AVERAGE: { emoji: '👍', color: 'text-amber-600', label: 'Médio' },
+    BELOW_AVERAGE: {
+      emoji: '📈',
+      color: 'text-orange-600',
+      label: 'Abaixo Média',
+    },
+    NEEDS_IMPROVEMENT: {
+      emoji: '🎯',
+      color: 'text-red-600',
+      label: 'Melhorar',
+    },
   };
 
   const g = GRADE_CONFIG[grade] ?? GRADE_CONFIG.AVERAGE;
@@ -442,7 +656,8 @@ function ResultsModal({ result, onClose, onRetry, onNext }: {
             </span>
             {result.durationSeconds && (
               <span className="flex items-center gap-1 text-slate-400 text-xs">
-                <Clock size={12} />{Math.round(result.durationSeconds / 60)} min
+                <Clock size={12} />
+                {Math.round(result.durationSeconds / 60)} min
               </span>
             )}
           </div>
@@ -451,36 +666,57 @@ function ResultsModal({ result, onClose, onRetry, onNext }: {
         {/* Behavioral scores */}
         {result.behavioral && Object.keys(result.behavioral).length > 0 && (
           <div className="mb-4 space-y-2">
-            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Comportamental</p>
-            {Object.entries(result.behavioral as Record<string, number>).map(([k, v]) => (
-              <div key={k}>
-                <div className="flex justify-between text-xs mb-0.5">
-                  <span className="text-slate-600 capitalize">{k}</span>
-                  <span className={`font-bold ${SCORE_COLOR(+v)}`}>{+v}</span>
+            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
+              Comportamental
+            </p>
+            {Object.entries(result.behavioral as Record<string, number>).map(
+              ([k, v]) => (
+                <div key={k}>
+                  <div className="flex justify-between text-xs mb-0.5">
+                    <span className="text-slate-600 capitalize">{k}</span>
+                    <span className={`font-bold ${SCORE_COLOR(+v)}`}>{+v}</span>
+                  </div>
+                  <ProgressBar
+                    value={+v}
+                    color={
+                      +v >= 70
+                        ? 'bg-emerald-500'
+                        : +v >= 50
+                          ? 'bg-amber-400'
+                          : 'bg-red-400'
+                    }
+                  />
                 </div>
-                <ProgressBar value={+v}
-                  color={+v >= 70 ? 'bg-emerald-500' : +v >= 50 ? 'bg-amber-400' : 'bg-red-400'} />
-              </div>
-            ))}
+              ),
+            )}
           </div>
         )}
 
         {/* Strengths / Improvements */}
-        {((result.strengths?.length ?? 0) > 0 || (result.improvements?.length ?? 0) > 0) && (
+        {((result.strengths?.length ?? 0) > 0 ||
+          (result.improvements?.length ?? 0) > 0) && (
           <div className="grid grid-cols-2 gap-3 mb-4">
             {(result.strengths?.length ?? 0) > 0 && (
               <div className="bg-emerald-50 rounded-xl p-3">
-                <p className="text-xs font-bold text-emerald-700 mb-1">💪 Pontos Fortes</p>
+                <p className="text-xs font-bold text-emerald-700 mb-1">
+                  💪 Pontos Fortes
+                </p>
                 {result.strengths?.slice(0, 2).map((s, i) => (
-                  <p key={i} className="text-[10px] text-emerald-700">• {s}</p>
+                  <p key={i} className="text-[10px] text-emerald-700">
+                    • {s}
+                  </p>
                 ))}
               </div>
             )}
             {(result.improvements?.length ?? 0) > 0 && (
               <div className="bg-amber-50 rounded-xl p-3">
-                <p className="text-xs font-bold text-amber-700 mb-1">🎯 Melhorar</p>
+                <p className="text-xs font-bold text-amber-700 mb-1">
+                  🎯 Melhorar
+                </p>
                 {result.improvements?.slice(0, 2).map((s, i) => (
-                  <p key={i} className="text-[10px] text-amber-700">• {s}</p>
+                  <p key={i} className="text-[10px] text-amber-700">
+                    • {s}
+                  </p>
                 ))}
               </div>
             )}
@@ -489,18 +725,26 @@ function ResultsModal({ result, onClose, onRetry, onNext }: {
 
         {/* Actions */}
         <div className="flex gap-2">
-          <button onClick={onRetry}
-            className="flex-1 py-2.5 border border-slate-200 text-slate-600 text-sm rounded-xl hover:bg-slate-50">
-            <RefreshCw size={13} className="inline mr-1" />Repetir
+          <button
+            onClick={onRetry}
+            className="flex-1 py-2.5 border border-slate-200 text-slate-600 text-sm rounded-xl hover:bg-slate-50"
+          >
+            <RefreshCw size={13} className="inline mr-1" />
+            Repetir
           </button>
           {result.nextScenario && (
-            <button onClick={onNext}
-              className="flex-1 py-2.5 bg-indigo-600 text-white text-sm rounded-xl hover:bg-indigo-700">
-              Próximo<ArrowRight size={13} className="inline ml-1" />
+            <button
+              onClick={onNext}
+              className="flex-1 py-2.5 bg-indigo-600 text-white text-sm rounded-xl hover:bg-indigo-700"
+            >
+              Próximo
+              <ArrowRight size={13} className="inline ml-1" />
             </button>
           )}
-          <button onClick={onClose}
-            className="px-4 py-2.5 border border-slate-200 text-slate-600 text-sm rounded-xl hover:bg-slate-50">
+          <button
+            onClick={onClose}
+            className="px-4 py-2.5 border border-slate-200 text-slate-600 text-sm rounded-xl hover:bg-slate-50"
+          >
             Fechar
           </button>
         </div>
@@ -511,18 +755,24 @@ function ResultsModal({ result, onClose, onRetry, onNext }: {
 
 // ─── Home Tab ─────────────────────────────────────────────────────
 
-function HomeTab({ onStartScenario }: { onStartScenario: (s: Scenario) => void }) {
+function HomeTab({
+  onStartScenario,
+}: {
+  onStartScenario: (s: Scenario) => void;
+}) {
   const recQuery = useApiQuery<Scenario[]>(
-    queryKeys.avatarTraining.recommended(), '/avatar-training/scenarios/recommended',
+    queryKeys.avatarTraining.recommended(),
+    '/avatar-training/scenarios/recommended',
     { params: { limit: 4 }, staleTime: STALE_TIME.SEMI_STATIC },
   );
   const histQuery = useApiQuery<MyHistory>(
-    queryKeys.avatarTraining.myHistory(5), '/avatar-training/my-history',
+    queryKeys.avatarTraining.myHistory(5),
+    '/avatar-training/my-history',
     { params: { limit: 5 }, staleTime: STALE_TIME.DYNAMIC },
   );
 
   const recommended = recQuery.data ?? [];
-  const history     = histQuery.data ?? null;
+  const history = histQuery.data ?? null;
 
   if (recQuery.isLoading || histQuery.isLoading) return <Skeleton />;
 
@@ -532,13 +782,42 @@ function HomeTab({ onStartScenario }: { onStartScenario: (s: Scenario) => void }
       {history && (
         <div className="grid grid-cols-4 gap-3">
           {[
-            { label: 'Sessões',   value: history.stats.total,     icon: Play,       color: 'text-indigo-600', bg: 'bg-indigo-50' },
-            { label: 'Concluídas',value: history.stats.completed, icon: CheckCircle,color: 'text-emerald-600',bg: 'bg-emerald-50' },
-            { label: 'Score Médio',value: history.stats.avgScore ?? '–', icon: Star, color: 'text-amber-600', bg: 'bg-amber-50' },
-            { label: 'Streak',    value: `${history.stats.streak}🔥`, icon: Flame, color: 'text-orange-600', bg: 'bg-orange-50' },
-          ].map(s => (
-            <div key={s.label} className="bg-white rounded-xl border border-slate-100 p-3">
-              <div className={`p-1.5 rounded-lg ${s.bg} w-fit mb-2`}><s.icon size={14} className={s.color} /></div>
+            {
+              label: 'Sessões',
+              value: history.stats.total,
+              icon: Play,
+              color: 'text-indigo-600',
+              bg: 'bg-indigo-50',
+            },
+            {
+              label: 'Concluídas',
+              value: history.stats.completed,
+              icon: CheckCircle,
+              color: 'text-emerald-600',
+              bg: 'bg-emerald-50',
+            },
+            {
+              label: 'Score Médio',
+              value: history.stats.avgScore ?? '–',
+              icon: Star,
+              color: 'text-amber-600',
+              bg: 'bg-amber-50',
+            },
+            {
+              label: 'Streak',
+              value: `${history.stats.streak}🔥`,
+              icon: Flame,
+              color: 'text-orange-600',
+              bg: 'bg-orange-50',
+            },
+          ].map((s) => (
+            <div
+              key={s.label}
+              className="bg-white rounded-xl border border-slate-100 p-3"
+            >
+              <div className={`p-1.5 rounded-lg ${s.bg} w-fit mb-2`}>
+                <s.icon size={14} className={s.color} />
+              </div>
               <p className="text-xl font-bold text-slate-800">{s.value}</p>
               <p className="text-[10px] text-slate-400">{s.label}</p>
             </div>
@@ -554,17 +833,28 @@ function HomeTab({ onStartScenario }: { onStartScenario: (s: Scenario) => void }
           </div>
           <div>
             <h2 className="text-xl font-bold">Treina com IA</h2>
-            <p className="text-indigo-200 text-sm">Cenários imersivos com avatares inteligentes</p>
+            <p className="text-indigo-200 text-sm">
+              Cenários imersivos com avatares inteligentes
+            </p>
           </div>
         </div>
         <p className="text-indigo-100 text-sm mb-4">
-          Pratica soft skills, vendas, liderança e compliance com feedback comportamental em tempo real.
+          Pratica soft skills, vendas, liderança e compliance com feedback
+          comportamental em tempo real.
         </p>
         <div className="flex gap-2">
-          <span className="text-[10px] bg-white/20 px-2 py-1 rounded-full">🎭 Roleplay</span>
-          <span className="text-[10px] bg-white/20 px-2 py-1 rounded-full">🧠 Avaliação IA</span>
-          <span className="text-[10px] bg-white/20 px-2 py-1 rounded-full">⚡ XP + Badges</span>
-          <span className="text-[10px] bg-white/20 px-2 py-1 rounded-full">📊 Analytics</span>
+          <span className="text-[10px] bg-white/20 px-2 py-1 rounded-full">
+            🎭 Roleplay
+          </span>
+          <span className="text-[10px] bg-white/20 px-2 py-1 rounded-full">
+            🧠 Avaliação IA
+          </span>
+          <span className="text-[10px] bg-white/20 px-2 py-1 rounded-full">
+            ⚡ XP + Badges
+          </span>
+          <span className="text-[10px] bg-white/20 px-2 py-1 rounded-full">
+            📊 Analytics
+          </span>
         </div>
       </div>
 
@@ -575,7 +865,9 @@ function HomeTab({ onStartScenario }: { onStartScenario: (s: Scenario) => void }
           Recomendados para ti
         </h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          {recommended.map(s => <ScenarioCard key={s.id} scenario={s} onStart={onStartScenario} />)}
+          {recommended.map((s) => (
+            <ScenarioCard key={s.id} scenario={s} onStart={onStartScenario} />
+          ))}
           {recommended.length === 0 && (
             <div className="col-span-4 py-8 text-center text-slate-400 text-sm">
               Sem recomendações — completa o teu perfil de competências
@@ -592,18 +884,23 @@ function HomeTab({ onStartScenario }: { onStartScenario: (s: Scenario) => void }
 function ScenariosTab({ onStart }: { onStart: (s: Scenario) => void }) {
   const [category, setCategory] = useState('');
   const [difficulty, setDifficulty] = useState('');
-  const [search, setSearch]     = useState('');
+  const [search, setSearch] = useState('');
   const debouncedSearch = useDebounce(search, 300);
 
-  const params = { limit: 30,
-    ...(category   ? { category }   : {}),
+  const params = {
+    limit: 30,
+    ...(category ? { category } : {}),
     ...(difficulty ? { difficulty } : {}),
     ...(debouncedSearch ? { search: debouncedSearch } : {}),
   };
-  const { data, isLoading } = useApiQuery<{ data: Scenario[]; meta: { total: number } }>(
-    queryKeys.avatarTraining.scenarios(params), '/avatar-training/scenarios',
-    { params, staleTime: STALE_TIME.SEMI_STATIC, placeholderData: keepPreviousData },
-  );
+  const { data, isLoading } = useApiQuery<{
+    data: Scenario[];
+    meta: { total: number };
+  }>(queryKeys.avatarTraining.scenarios(params), '/avatar-training/scenarios', {
+    params,
+    staleTime: STALE_TIME.SEMI_STATIC,
+    placeholderData: keepPreviousData,
+  });
   const loading = isLoading;
 
   const DIFFS = ['BEGINNER', 'INTERMEDIATE', 'ADVANCED', 'EXPERT'];
@@ -612,32 +909,54 @@ function ScenariosTab({ onStart }: { onStart: (s: Scenario) => void }) {
     <div className="space-y-4">
       {/* Filters */}
       <div className="bg-white rounded-xl border border-slate-100 p-4 flex flex-wrap gap-2">
-        <input value={search} onChange={e => setSearch(e.target.value)}
+        <input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
           placeholder="Pesquisar cenários..."
-          className="flex-1 min-w-[180px] text-sm border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:border-indigo-400" />
+          className="flex-1 min-w-[180px] text-sm border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:border-indigo-400"
+        />
 
-        <select value={category} onChange={e => setCategory(e.target.value)}
-          className="text-xs border border-slate-200 rounded-lg px-2 py-2 focus:outline-none">
+        <select
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+          className="text-xs border border-slate-200 rounded-lg px-2 py-2 focus:outline-none"
+        >
           <option value="">Todas as categorias</option>
-          {Object.entries(CATEGORY_CONFIG).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
+          {Object.entries(CATEGORY_CONFIG).map(([k, v]) => (
+            <option key={k} value={k}>
+              {v.label}
+            </option>
+          ))}
         </select>
 
         <div className="flex gap-1">
-          {['', ...DIFFS].map(d => (
-            <button key={d} onClick={() => setDifficulty(d)}
+          {['', ...DIFFS].map((d) => (
+            <button
+              key={d}
+              onClick={() => setDifficulty(d)}
               className={`px-2.5 py-1.5 text-xs rounded-lg transition-colors ${
-                difficulty === d ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-600'}`}>
+                difficulty === d
+                  ? 'bg-indigo-600 text-white'
+                  : 'bg-slate-100 text-slate-600'
+              }`}
+            >
               {d || 'Todos'}
             </button>
           ))}
         </div>
 
-        <span className="text-xs text-slate-400 self-center ml-auto">{data?.meta.total ?? 0} cenários</span>
+        <span className="text-xs text-slate-400 self-center ml-auto">
+          {data?.meta.total ?? 0} cenários
+        </span>
       </div>
 
-      {loading ? <Skeleton count={6} /> : (
+      {loading ? (
+        <Skeleton count={6} />
+      ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
-          {data?.data.map(s => <ScenarioCard key={s.id} scenario={s} onStart={onStart} />)}
+          {data?.data.map((s) => (
+            <ScenarioCard key={s.id} scenario={s} onStart={onStart} />
+          ))}
           {(data?.data.length ?? 0) === 0 && (
             <div className="col-span-4 py-16 text-center text-slate-400">
               <Bot size={40} className="mx-auto mb-3 opacity-30" />
@@ -654,17 +973,18 @@ function ScenariosTab({ onStart }: { onStart: (s: Scenario) => void }) {
 
 function HistoryTab() {
   const { data, isLoading } = useApiQuery<MyHistory>(
-    queryKeys.avatarTraining.myHistory(30), '/avatar-training/my-history',
+    queryKeys.avatarTraining.myHistory(30),
+    '/avatar-training/my-history',
     { params: { limit: 30 }, staleTime: STALE_TIME.DYNAMIC },
   );
 
   if (isLoading) return <Skeleton />;
 
   const STATUS_COLOR: Record<string, string> = {
-    COMPLETED:   'bg-emerald-100 text-emerald-700',
+    COMPLETED: 'bg-emerald-100 text-emerald-700',
     IN_PROGRESS: 'bg-blue-100 text-blue-700',
-    PAUSED:      'bg-amber-100 text-amber-700',
-    ABANDONED:   'bg-slate-100 text-slate-500',
+    PAUSED: 'bg-amber-100 text-amber-700',
+    ABANDONED: 'bg-slate-100 text-slate-500',
   };
 
   return (
@@ -677,8 +997,11 @@ function HistoryTab() {
             { label: 'Concluídas', value: data.stats.completed },
             { label: 'Score Médio', value: data.stats.avgScore ?? '–' },
             { label: 'XP Total', value: data.stats.totalXP },
-          ].map(s => (
-            <div key={s.label} className="bg-white rounded-xl border border-slate-100 p-3 text-center">
+          ].map((s) => (
+            <div
+              key={s.label}
+              className="bg-white rounded-xl border border-slate-100 p-3 text-center"
+            >
               <p className="text-2xl font-bold text-slate-800">{s.value}</p>
               <p className="text-xs text-slate-400">{s.label}</p>
             </div>
@@ -688,24 +1011,38 @@ function HistoryTab() {
 
       <div className="bg-white rounded-xl border border-slate-100">
         <div className="divide-y divide-slate-50">
-          {(data?.sessions ?? []).map(s => {
-            const cat = CATEGORY_CONFIG[s.scenario?.category ?? ''] ?? CATEGORY_CONFIG.SOFT_SKILLS;
+          {(data?.sessions ?? []).map((s) => {
+            const cat =
+              CATEGORY_CONFIG[s.scenario?.category ?? ''] ??
+              CATEGORY_CONFIG.SOFT_SKILLS;
             const Icon = cat.icon;
             return (
-              <div key={s.id} className="flex items-center gap-3 px-4 py-3 hover:bg-slate-50">
-                <div className={`p-2 rounded-lg ${cat.bg} shrink-0`}><Icon size={14} className={cat.color} /></div>
+              <div
+                key={s.id}
+                className="flex items-center gap-3 px-4 py-3 hover:bg-slate-50"
+              >
+                <div className={`p-2 rounded-lg ${cat.bg} shrink-0`}>
+                  <Icon size={14} className={cat.color} />
+                </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-slate-700 truncate">{s.scenario?.title}</p>
+                  <p className="text-sm font-medium text-slate-700 truncate">
+                    {s.scenario?.title}
+                  </p>
                   <p className="text-[10px] text-slate-400">
                     {new Date(s.startedAt).toLocaleDateString('pt')}
-                    {s.scenario?.competency && ` · ${s.scenario.competency.name}`}
+                    {s.scenario?.competency &&
+                      ` · ${s.scenario.competency.name}`}
                   </p>
                 </div>
-                <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${STATUS_COLOR[s.status]}`}>
+                <span
+                  className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${STATUS_COLOR[s.status]}`}
+                >
                   {s.status}
                 </span>
                 {s.score !== null && s.score !== undefined && (
-                  <span className={`text-sm font-bold ${SCORE_COLOR(s.score)} w-10 text-right`}>
+                  <span
+                    className={`text-sm font-bold ${SCORE_COLOR(s.score)} w-10 text-right`}
+                  >
                     {s.score}
                   </span>
                 )}
@@ -728,7 +1065,8 @@ function HistoryTab() {
 
 function LeaderboardTab() {
   const { data: board, isLoading } = useApiQuery<LeaderboardEntry[]>(
-    queryKeys.avatarTraining.leaderboard(), '/avatar-training/leaderboard',
+    queryKeys.avatarTraining.leaderboard(),
+    '/avatar-training/leaderboard',
     { staleTime: STALE_TIME.SEMI_STATIC },
   );
   const data = board ?? [];
@@ -744,24 +1082,47 @@ function LeaderboardTab() {
         </h3>
       </div>
       <div className="divide-y divide-slate-50">
-        {data.map(u => (
+        {data.map((u) => (
           <div key={u.rank} className="flex items-center gap-3 px-5 py-3">
-            <span className={`w-8 text-center font-bold text-sm ${
-              u.rank === 1 ? 'text-amber-500' : u.rank === 2 ? 'text-slate-400' : u.rank === 3 ? 'text-amber-700' : 'text-slate-400'
-            }`}>
-              {u.rank === 1 ? '🥇' : u.rank === 2 ? '🥈' : u.rank === 3 ? '🥉' : `#${u.rank}`}
+            <span
+              className={`w-8 text-center font-bold text-sm ${
+                u.rank === 1
+                  ? 'text-amber-500'
+                  : u.rank === 2
+                    ? 'text-slate-400'
+                    : u.rank === 3
+                      ? 'text-amber-700'
+                      : 'text-slate-400'
+              }`}
+            >
+              {u.rank === 1
+                ? '🥇'
+                : u.rank === 2
+                  ? '🥈'
+                  : u.rank === 3
+                    ? '🥉'
+                    : `#${u.rank}`}
             </span>
-            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-500 to-violet-600
-              flex items-center justify-center text-white text-xs font-bold shrink-0">
+            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-white text-xs font-bold shrink-0">
               {u.user?.fullName?.split(' ')[0]?.[0] ?? '?'}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-slate-700">{u.user?.fullName}</p>
-              <p className="text-[10px] text-slate-400">{u.user?.department?.name}</p>
+              <p className="text-sm font-medium text-slate-700">
+                {u.user?.fullName}
+              </p>
+              <p className="text-[10px] text-slate-400">
+                {u.user?.department?.name}
+              </p>
             </div>
             <div className="text-right">
-              <p className={`text-sm font-bold ${SCORE_COLOR(u.avgScore ?? 0)}`}>{u.avgScore ?? u.score}</p>
-              <p className="text-[10px] text-slate-400">{u.sessions ?? ''} sessões</p>
+              <p
+                className={`text-sm font-bold ${SCORE_COLOR(u.avgScore ?? 0)}`}
+              >
+                {u.avgScore ?? u.score}
+              </p>
+              <p className="text-[10px] text-slate-400">
+                {u.sessions ?? ''} sessões
+              </p>
             </div>
           </div>
         ))}
@@ -780,7 +1141,8 @@ function LeaderboardTab() {
 
 function AnalyticsTab() {
   const { data, isLoading } = useApiQuery<AnalyticsDashboard>(
-    queryKeys.avatarTraining.analytics(), '/avatar-training/analytics/dashboard',
+    queryKeys.avatarTraining.analytics(),
+    '/avatar-training/analytics/dashboard',
     { staleTime: STALE_TIME.SEMI_STATIC },
   );
 
@@ -791,13 +1153,38 @@ function AnalyticsTab() {
       {/* KPIs */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { label: 'Cenários', value: data?.kpis.totalScenarios, icon: Bot, color: 'text-indigo-600' },
-          { label: 'Em Progresso', value: data?.kpis.activeSessions, icon: Play, color: 'text-blue-600' },
-          { label: 'Concluídas', value: data?.kpis.completedSessions, icon: CheckCircle, color: 'text-emerald-600' },
-          { label: 'Score Médio', value: data?.kpis.avgScore ?? '–', icon: Star, color: 'text-amber-600' },
-        ].map(k => (
-          <div key={k.label} className="bg-white rounded-xl border border-slate-100 p-4">
-            <div className="flex items-center gap-2 mb-1"><k.icon size={15} className={k.color} /></div>
+          {
+            label: 'Cenários',
+            value: data?.kpis.totalScenarios,
+            icon: Bot,
+            color: 'text-indigo-600',
+          },
+          {
+            label: 'Em Progresso',
+            value: data?.kpis.activeSessions,
+            icon: Play,
+            color: 'text-blue-600',
+          },
+          {
+            label: 'Concluídas',
+            value: data?.kpis.completedSessions,
+            icon: CheckCircle,
+            color: 'text-emerald-600',
+          },
+          {
+            label: 'Score Médio',
+            value: data?.kpis.avgScore ?? '–',
+            icon: Star,
+            color: 'text-amber-600',
+          },
+        ].map((k) => (
+          <div
+            key={k.label}
+            className="bg-white rounded-xl border border-slate-100 p-4"
+          >
+            <div className="flex items-center gap-2 mb-1">
+              <k.icon size={15} className={k.color} />
+            </div>
             <p className="text-2xl font-bold text-slate-800">{k.value ?? 0}</p>
             <p className="text-xs text-slate-500">{k.label}</p>
           </div>
@@ -811,12 +1198,20 @@ function AnalyticsTab() {
           <div className="space-y-3">
             {(data?.topScenarios ?? []).map((s, i) => (
               <div key={i} className="flex items-center gap-3">
-                <span className="text-xs text-slate-300 font-bold w-4">#{i+1}</span>
+                <span className="text-xs text-slate-300 font-bold w-4">
+                  #{i + 1}
+                </span>
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs font-medium text-slate-700 truncate">{s.scenario?.title}</p>
-                  <p className="text-[10px] text-slate-400">{s.completions} sessões</p>
+                  <p className="text-xs font-medium text-slate-700 truncate">
+                    {s.scenario?.title}
+                  </p>
+                  <p className="text-[10px] text-slate-400">
+                    {s.completions} sessões
+                  </p>
                 </div>
-                <span className={`text-sm font-bold ${SCORE_COLOR(s.avgScore ?? 0)}`}>
+                <span
+                  className={`text-sm font-bold ${SCORE_COLOR(s.avgScore ?? 0)}`}
+                >
                   {s.avgScore ?? '–'}
                 </span>
               </div>
@@ -828,15 +1223,21 @@ function AnalyticsTab() {
         <div className="bg-white rounded-xl border border-slate-100 p-5">
           <h3 className="font-semibold text-slate-700 mb-3">Por Categoria</h3>
           <div className="space-y-2">
-            {(data?.categoryBreakdown ?? []).map(c => {
-              const total = (data?.categoryBreakdown ?? []).reduce((a, x) => a + x.count, 0);
-              const pct   = total > 0 ? Math.round((c.count / total) * 100) : 0;
-              const cat   = CATEGORY_CONFIG[c.category] ?? CATEGORY_CONFIG.SOFT_SKILLS;
+            {(data?.categoryBreakdown ?? []).map((c) => {
+              const total = (data?.categoryBreakdown ?? []).reduce(
+                (a, x) => a + x.count,
+                0,
+              );
+              const pct = total > 0 ? Math.round((c.count / total) * 100) : 0;
+              const cat =
+                CATEGORY_CONFIG[c.category] ?? CATEGORY_CONFIG.SOFT_SKILLS;
               return (
                 <div key={c.category}>
                   <div className="flex justify-between text-xs mb-0.5">
                     <span className="text-slate-600">{cat.label}</span>
-                    <span className="font-semibold text-slate-700">{c.count} ({pct}%)</span>
+                    <span className="font-semibold text-slate-700">
+                      {c.count} ({pct}%)
+                    </span>
                   </div>
                   <ProgressBar value={pct} />
                 </div>
@@ -849,14 +1250,23 @@ function AnalyticsTab() {
       {/* Recent completions */}
       {(data?.recentCompletions?.length ?? 0) > 0 && (
         <div className="bg-white rounded-xl border border-slate-100 p-5">
-          <h3 className="font-semibold text-slate-700 mb-3">Conclusões Recentes</h3>
+          <h3 className="font-semibold text-slate-700 mb-3">
+            Conclusões Recentes
+          </h3>
           <div className="flex flex-wrap gap-2">
             {(data?.recentCompletions ?? []).map((s, i) => (
-              <div key={i} className="flex items-center gap-2 bg-slate-50 rounded-lg px-3 py-2">
+              <div
+                key={i}
+                className="flex items-center gap-2 bg-slate-50 rounded-lg px-3 py-2"
+              >
                 <CheckCircle size={12} className="text-emerald-500" />
                 <div>
-                  <p className="text-xs font-medium text-slate-700">{s.user?.fullName}</p>
-                  <p className="text-[10px] text-slate-400 truncate max-w-[120px]">{s.scenario?.title}</p>
+                  <p className="text-xs font-medium text-slate-700">
+                    {s.user?.fullName}
+                  </p>
+                  <p className="text-[10px] text-slate-400 truncate max-w-[120px]">
+                    {s.scenario?.title}
+                  </p>
                 </div>
               </div>
             ))}
@@ -870,31 +1280,44 @@ function AnalyticsTab() {
 // ─── Main Page ───────────────────────────────────────────────────
 
 const TABS: { id: Tab; label: string; icon: LucideIcon }[] = [
-  { id: 'home',        label: 'Início',      icon: Bot },
-  { id: 'scenarios',   label: 'Cenários',    icon: Play },
-  { id: 'history',     label: 'Histórico',   icon: Clock },
-  { id: 'leaderboard', label: 'Ranking',     icon: Trophy },
-  { id: 'analytics',   label: 'Analytics',  icon: BarChart2 },
+  { id: 'home', label: 'Início', icon: Bot },
+  { id: 'scenarios', label: 'Cenários', icon: Play },
+  { id: 'history', label: 'Histórico', icon: Clock },
+  { id: 'leaderboard', label: 'Ranking', icon: Trophy },
+  { id: 'analytics', label: 'Analytics', icon: BarChart2 },
 ];
 
 export default function AvatarTrainingPage() {
-  const [tab, setTab]           = useState<Tab>('home');
-  const [activeSession, setActiveSession] = useState<ActiveSession | null>(null);
-  const [sessionResult, setSessionResult] = useState<SessionResult | null>(null);
-  const [lastScenario, setLastScenario]   = useState<Scenario | null>(null);
+  const [tab, setTab] = useState<Tab>('home');
+  const [activeSession, setActiveSession] = useState<ActiveSession | null>(
+    null,
+  );
+  const [sessionResult, setSessionResult] = useState<SessionResult | null>(
+    null,
+  );
+  const [lastScenario, setLastScenario] = useState<Scenario | null>(null);
 
   const handleStart = async (scenario: Scenario) => {
     setLastScenario(scenario);
     try {
-      const r = await apiClient.post<StartSessionResponse>('/avatar-training/sessions/start', {
-        scenarioId: scenario.id,
-      });
+      const r = await apiClient.post<StartSessionResponse>(
+        '/avatar-training/sessions/start',
+        {
+          scenarioId: scenario.id,
+        },
+      );
       setActiveSession({
-        id:                  r.session.id,
-        scenarioId:          scenario.id,
-        conversationHistory: [{ role: 'AVATAR', content: r.openingMessage, timestamp: new Date().toISOString() }],
-        scenario:            r.session.scenario,
-        avatar:              r.avatar,
+        id: r.session.id,
+        scenarioId: scenario.id,
+        conversationHistory: [
+          {
+            role: 'AVATAR',
+            content: r.openingMessage,
+            timestamp: new Date().toISOString(),
+          },
+        ],
+        scenario: r.session.scenario,
+        avatar: r.avatar,
       });
     } catch (e) {
       alert('Erro ao iniciar sessão. Tenta novamente.');
@@ -913,16 +1336,17 @@ export default function AvatarTrainingPage() {
 
   const handleNext = async () => {
     setSessionResult(null);
-    if (sessionResult?.nextScenario) await handleStart(sessionResult.nextScenario);
+    if (sessionResult?.nextScenario)
+      await handleStart(sessionResult.nextScenario);
   };
 
   const TAB_COMPONENTS: Record<Tab, JSX.Element> = {
-    home:        <HomeTab onStartScenario={handleStart} />,
-    scenarios:   <ScenariosTab onStart={handleStart} />,
-    history:     <HistoryTab />,
+    home: <HomeTab onStartScenario={handleStart} />,
+    scenarios: <ScenariosTab onStart={handleStart} />,
+    history: <HistoryTab />,
     leaderboard: <LeaderboardTab />,
-    analytics:   <AnalyticsTab />,
-    session:     <div />,
+    analytics: <AnalyticsTab />,
+    session: <div />,
   };
 
   return (
@@ -954,7 +1378,9 @@ export default function AvatarTrainingPage() {
               <div className="p-1.5 bg-indigo-100 rounded-lg">
                 <Bot size={18} className="text-indigo-600" />
               </div>
-              <h1 className="text-xl font-bold text-slate-800">Avatar Training</h1>
+              <h1 className="text-xl font-bold text-slate-800">
+                Avatar Training
+              </h1>
             </div>
             <p className="text-sm text-slate-400">
               Simulações imersivas · Roleplay com IA · Feedback comportamental
@@ -966,15 +1392,19 @@ export default function AvatarTrainingPage() {
       {/* Tabs */}
       <div className="bg-white border-b border-slate-200 px-6">
         <div className="max-w-7xl mx-auto flex overflow-x-auto">
-          {TABS.map(t => {
+          {TABS.map((t) => {
             const Icon = t.icon;
             return (
-              <button key={t.id} onClick={() => setTab(t.id)}
+              <button
+                key={t.id}
+                onClick={() => setTab(t.id)}
                 className={`flex items-center gap-2 px-5 py-4 text-sm font-medium whitespace-nowrap
                   border-b-2 transition-colors ${
                     tab === t.id
                       ? 'border-indigo-600 text-indigo-600'
-                      : 'border-transparent text-slate-500 hover:text-slate-700'}`}>
+                      : 'border-transparent text-slate-500 hover:text-slate-700'
+                  }`}
+              >
                 <Icon size={15} />
                 {t.label}
               </button>
@@ -984,21 +1414,7 @@ export default function AvatarTrainingPage() {
       </div>
 
       {/* Content */}
-      <div className="max-w-7xl mx-auto px-6 py-6">
-        {TAB_COMPONENTS[tab]}
-      </div>
+      <div className="max-w-7xl mx-auto px-6 py-6">{TAB_COMPONENTS[tab]}</div>
     </div>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
