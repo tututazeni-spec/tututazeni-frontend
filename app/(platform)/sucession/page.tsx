@@ -68,7 +68,11 @@ interface TalentPoolEntry {
 
 interface OrgChartNode {
   id: number;
-  position: { id: number; name: string; level: string | null; users: any[]; department: any };
+  position: {
+    id: number; name: string; level: string | null;
+    users: Array<{ id: number; fullName: string; avatarUrl: string | null }>;
+    department: { id: number; name: string } | null;
+  };
   exitRisk: RiskLevel;
   businessImpact: BusinessImpact;
   keyPersonRisk: boolean;
@@ -92,6 +96,13 @@ interface Dashboard {
   criticalAlerts: Array<{
     id: number; position: string; exitRisk: RiskLevel; alert: string | null; daysUntilExit: number | null;
   }>;
+}
+
+interface PositionSummary {
+  criticalPosition: CriticalPosition;
+  coverageStatus: CoverageStatus;
+  daysUntilExit: number | null;
+  byReadiness: Partial<Record<ReadinessLevel, SuccessionPlan[]>>;
 }
 
 type View = 'dashboard' | 'org-chart' | 'talent-pool' | 'positions';
@@ -419,7 +430,7 @@ function PositionsView() {
   );
 
   const summaryMutation = useApiMutation(
-    (positionId: number) => apiClient.get<any>(`/succession/position/${positionId}/summary`),
+    (positionId: number) => apiClient.get<PositionSummary>(`/succession/position/${positionId}/summary`),
     { onError: (e) => alert(e.message) },
   );
   const summary = summaryMutation.data ?? null;
