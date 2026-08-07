@@ -19,6 +19,22 @@ const TYPES: Record<string, string> = {
   OTHER: 'Outro',
 };
 
+interface LibraryItemPayload {
+  type: string;
+  title: string;
+  fileUrl: string;
+  language: string;
+  subtitle?: string;
+  description?: string;
+  author?: string;
+  publisher?: string;
+  isbn?: string;
+  year?: number;
+  pages?: number;
+  categories?: string[];
+  keywords?: string[];
+}
+
 export default function NovoRecursoPage() {
   const router = useRouter();
   const [error, setError] = useState('');
@@ -45,7 +61,7 @@ export default function NovoRecursoPage() {
 
   const createMut = useApiMutation(
     () => {
-      const payload: any = {
+      const payload: LibraryItemPayload = {
         type: form.type,
         title: form.title,
         fileUrl: form.fileUrl,
