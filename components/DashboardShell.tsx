@@ -1,33 +1,33 @@
-"use client";
- 
-import Sidebar from "./Sidebar";
-import Topbar from "./Topbar";
- 
-export default function DashboardShell({
-  children,
-}: {
+'use client';
+
+import Sidebar from './Sidebar';
+import Topbar from './Topbar';
+
+interface DashboardShellProps {
   children: React.ReactNode;
-}) {
+}
+
+export default function DashboardShell({ children }: DashboardShellProps) {
   return (
-    <div style={{ display: "flex", minHeight: "100vh" }}>
+    <div style={{ display: 'flex', minHeight: '100vh' }}>
       <Sidebar />
       <div
         style={{
-          marginLeft: "240px",
+          marginLeft: '240px',
           flex: 1,
-          display: "flex",
-          flexDirection: "column",
-          minHeight: "100vh",
-          background: "var(--content-bg)",
+          display: 'flex',
+          flexDirection: 'column',
+          minHeight: '100vh',
+          background: 'var(--content-bg)',
         }}
       >
         <Topbar title="Innova — Academia Digital" />
         <main
           style={{
             flex: 1,
-            padding: "28px",
-            maxWidth: "1280px",
-            width: "100%",
+            padding: '28px',
+            maxWidth: '1280px',
+            width: '100%',
           }}
         >
           {children}
