@@ -24,7 +24,7 @@ import { CourseAvatarReader } from '@/components/CourseAvatarReader';
 
 // ─── Tipo do conteúdo da lição ───────────────────────────────────────────────
 // (adapta conforme o teu schema)
- 
+
 interface Lesson {
   id: number;
   title: string;
@@ -36,9 +36,10 @@ interface Lesson {
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type LessonType  = 'VIDEO' | 'PDF' | 'TEXT' | 'AUDIO' | 'SLIDE' | 'LINK' | 'SCORM' | 'QUIZ';
-type ModuleType  = 'THEORETICAL' | 'PRACTICAL' | 'ASSESSMENT' | 'PROJECT';
-type ModuleStatus= 'DRAFT' | 'PUBLISHED';
+type LessonType =
+  'VIDEO' | 'PDF' | 'TEXT' | 'AUDIO' | 'SLIDE' | 'LINK' | 'SCORM' | 'QUIZ';
+type ModuleType = 'THEORETICAL' | 'PRACTICAL' | 'ASSESSMENT' | 'PROJECT';
+type ModuleStatus = 'DRAFT' | 'PUBLISHED';
 
 interface LessonProgress {
   id: number;
@@ -115,23 +116,56 @@ function fmtDuration(min: number | null): string {
 }
 
 function lessonIcon(type: LessonType): string {
-  return { VIDEO: '▶', PDF: '📄', TEXT: '📝', AUDIO: '🎵', SLIDE: '📊', LINK: '🔗', SCORM: '📦', QUIZ: '❓' }[type] ?? '📄';
+  return (
+    {
+      VIDEO: '▶',
+      PDF: '📄',
+      TEXT: '📝',
+      AUDIO: '🎵',
+      SLIDE: '📊',
+      LINK: '🔗',
+      SCORM: '📦',
+      QUIZ: '❓',
+    }[type] ?? '📄'
+  );
 }
 
 function moduleTypeLabel(type: ModuleType | null): string {
   if (!type) return '';
-  return { THEORETICAL: 'Teórico', PRACTICAL: 'Prático', ASSESSMENT: 'Avaliação', PROJECT: 'Projecto' }[type] ?? type;
+  return (
+    {
+      THEORETICAL: 'Teórico',
+      PRACTICAL: 'Prático',
+      ASSESSMENT: 'Avaliação',
+      PROJECT: 'Projecto',
+    }[type] ?? type
+  );
 }
 
 function ProgressRing({ pct, size = 36 }: { pct: number; size?: number }) {
-  const r   = (size - 4) / 2;
+  const r = (size - 4) / 2;
   const circ = 2 * Math.PI * r;
   const dash = (pct / 100) * circ;
   return (
     <svg width={size} height={size} style={{ transform: 'rotate(-90deg)' }}>
-      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="#e5e7eb" strokeWidth={3} />
-      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="#2563eb" strokeWidth={3}
-        strokeDasharray={`${dash} ${circ}`} strokeLinecap="round" />
+      <circle
+        cx={size / 2}
+        cy={size / 2}
+        r={r}
+        fill="none"
+        stroke="#e5e7eb"
+        strokeWidth={3}
+      />
+      <circle
+        cx={size / 2}
+        cy={size / 2}
+        r={r}
+        fill="none"
+        stroke="#2563eb"
+        strokeWidth={3}
+        strokeDasharray={`${dash} ${circ}`}
+        strokeLinecap="round"
+      />
     </svg>
   );
 }
@@ -139,17 +173,27 @@ function ProgressRing({ pct, size = 36 }: { pct: number; size?: number }) {
 function Skeleton({ rows = 4 }: { rows?: number }) {
   return (
     <div className="space-y-2 animate-pulse">
-      {Array.from({ length: rows }).map((_, i) => <div key={i} className="h-12 bg-gray-100 rounded-xl" />)}
+      {Array.from({ length: rows }).map((_, i) => (
+        <div key={i} className="h-12 bg-gray-100 rounded-xl" />
+      ))}
     </div>
   );
 }
 
 // ─── Module Status Icon ───────────────────────────────────────────────────────
 
-function ModuleStatusIcon({ locked, completed, pct }: { locked: boolean; completed: boolean; pct: number }) {
-  if (locked)    return <span className="text-gray-300 text-base">🔒</span>;
+function ModuleStatusIcon({
+  locked,
+  completed,
+  pct,
+}: {
+  locked: boolean;
+  completed: boolean;
+  pct: number;
+}) {
+  if (locked) return <span className="text-gray-300 text-base">🔒</span>;
   if (completed) return <span className="text-emerald-500 text-base">✅</span>;
-  if (pct > 0)   return <span className="text-blue-500 text-base">▶️</span>;
+  if (pct > 0) return <span className="text-blue-500 text-base">▶️</span>;
   return <span className="text-gray-300 text-base">○</span>;
 }
 
@@ -169,29 +213,52 @@ function LessonRow({
   return (
     <div
       onClick={!isLocked ? onClick : undefined}
+      role="button"
+      tabIndex={isLocked ? -1 : 0}
+      aria-disabled={isLocked}
+      onKeyDown={(e) => {
+        if (!isLocked && (e.key === 'Enter' || e.key === ' ')) {
+          e.preventDefault();
+          onClick();
+        }
+      }}
       className={`flex items-center gap-3 px-4 py-2.5 border-b border-gray-100 last:border-0 transition-colors ${
-        isLocked ? 'opacity-40 cursor-not-allowed' :
-        isActive  ? 'bg-blue-50 cursor-pointer' :
-                    'hover:bg-gray-50 cursor-pointer'
+        isLocked
+          ? 'opacity-40 cursor-not-allowed'
+          : isActive
+            ? 'bg-blue-50 cursor-pointer'
+            : 'hover:bg-gray-50 cursor-pointer'
       }`}
     >
       {/* Completion indicator */}
-      <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 text-xs ${
-        lesson.completed ? 'bg-emerald-100 text-emerald-700' :
-        isActive         ? 'bg-blue-600 text-white' :
-                           'bg-gray-100 text-gray-400'
-      }`}>
+      <div
+        className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 text-xs ${
+          lesson.completed
+            ? 'bg-emerald-100 text-emerald-700'
+            : isActive
+              ? 'bg-blue-600 text-white'
+              : 'bg-gray-100 text-gray-400'
+        }`}
+      >
         {lesson.completed ? '✓' : lessonIcon(lesson.type)}
       </div>
 
       <div className="flex-1 min-w-0">
-        <div className={`text-xs truncate font-medium ${
-          isActive ? 'text-blue-800' : lesson.completed ? 'text-gray-500' : 'text-gray-700'
-        }`}>
+        <div
+          className={`text-xs truncate font-medium ${
+            isActive
+              ? 'text-blue-800'
+              : lesson.completed
+                ? 'text-gray-500'
+                : 'text-gray-700'
+          }`}
+        >
           {lesson.title}
         </div>
         {lesson.durationMinutes && (
-          <div className="text-xs text-gray-400">{fmtDuration(lesson.durationMinutes)}</div>
+          <div className="text-xs text-gray-400">
+            {fmtDuration(lesson.durationMinutes)}
+          </div>
         )}
       </div>
 
@@ -216,34 +283,51 @@ function ModuleAccordion({
   const [open, setOpen] = useState(defaultOpen);
 
   return (
-    <div className={`border-b border-gray-100 last:border-0 ${mod.locked ? 'opacity-60' : ''}`}>
+    <div
+      className={`border-b border-gray-100 last:border-0 ${mod.locked ? 'opacity-60' : ''}`}
+    >
       {/* Module header */}
       <div
         className={`flex items-center gap-3 px-4 py-3 cursor-pointer select-none transition-colors ${
           open ? 'bg-gray-50' : 'hover:bg-gray-50'
         }`}
-        onClick={() => !mod.locked && setOpen(v => !v)}
+        onClick={() => !mod.locked && setOpen((v) => !v)}
       >
-        <ModuleStatusIcon locked={mod.locked} completed={mod.completed} pct={mod.pct} />
+        <ModuleStatusIcon
+          locked={mod.locked}
+          completed={mod.completed}
+          pct={mod.pct}
+        />
 
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1.5 mb-0.5">
-            <span className={`text-xs font-semibold truncate ${mod.locked ? 'text-gray-400' : 'text-gray-800'}`}>
+            <span
+              className={`text-xs font-semibold truncate ${mod.locked ? 'text-gray-400' : 'text-gray-800'}`}
+            >
               {mod.title}
             </span>
             {!mod.mandatory && (
-              <span className="text-xs px-1.5 py-0 bg-blue-50 text-blue-600 rounded">Opcional</span>
+              <span className="text-xs px-1.5 py-0 bg-blue-50 text-blue-600 rounded">
+                Opcional
+              </span>
             )}
             {mod.type && (
-              <span className="text-xs text-gray-400">{moduleTypeLabel(mod.type)}</span>
+              <span className="text-xs text-gray-400">
+                {moduleTypeLabel(mod.type)}
+              </span>
             )}
           </div>
           {!mod.locked && mod.totalCount > 0 && (
             <div className="flex items-center gap-2">
               <div className="flex-1 h-1 bg-gray-200 rounded-full overflow-hidden">
-                <div className="h-1 bg-blue-500 rounded-full" style={{ width: `${mod.pct}%` }} />
+                <div
+                  className="h-1 bg-blue-500 rounded-full"
+                  style={{ width: `${mod.pct}%` }}
+                />
               </div>
-              <span className="text-xs text-gray-400 flex-shrink-0">{mod.completedCount}/{mod.totalCount}</span>
+              <span className="text-xs text-gray-400 flex-shrink-0">
+                {mod.completedCount}/{mod.totalCount}
+              </span>
             </div>
           )}
           {mod.locked && mod.lockedReason && (
@@ -252,14 +336,16 @@ function ModuleAccordion({
         </div>
 
         {!mod.locked && (
-          <span className="text-gray-400 text-xs flex-shrink-0">{open ? '▲' : '▼'}</span>
+          <span className="text-gray-400 text-xs flex-shrink-0">
+            {open ? '▲' : '▼'}
+          </span>
         )}
       </div>
 
       {/* Lessons */}
       {open && !mod.locked && (
         <div className="border-t border-gray-100">
-          {mod.lessons.map(lesson => (
+          {mod.lessons.map((lesson) => (
             <LessonRow
               key={lesson.id}
               lesson={lesson}
@@ -275,7 +361,7 @@ function ModuleAccordion({
               <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-1.5">
                 Materiais
               </div>
-              {mod.materials.map(mat => (
+              {mod.materials.map((mat) => (
                 <a
                   key={mat.id}
                   href={mat.url}
@@ -285,7 +371,9 @@ function ModuleAccordion({
                 >
                   <span>📎</span>
                   <span className="truncate">{mat.title}</span>
-                  {mat.fileType && <span className="text-gray-400">{mat.fileType}</span>}
+                  {mat.fileType && (
+                    <span className="text-gray-400">{mat.fileType}</span>
+                  )}
                 </a>
               ))}
             </div>
@@ -326,20 +414,27 @@ function ContentPlayer({
           <div className="text-white text-center">
             <div className="text-6xl mb-4">▶</div>
             <div className="text-base font-medium">{lesson.title}</div>
-            <div className="text-sm text-gray-400 mt-2">Player de vídeo (YouTube / Vimeo / próprio)</div>
+            <div className="text-sm text-gray-400 mt-2">
+              Player de vídeo (YouTube / Vimeo / próprio)
+            </div>
           </div>
         ) : lesson.type === 'PDF' ? (
           <div className="text-white text-center">
             <div className="text-6xl mb-4">📄</div>
             <div className="text-base font-medium">{lesson.title}</div>
-            <a href="#" className="mt-3 inline-block text-sm text-blue-400 hover:text-blue-300">
+            <a
+              href="#"
+              className="mt-3 inline-block text-sm text-blue-400 hover:text-blue-300"
+            >
               Abrir PDF →
             </a>
           </div>
         ) : lesson.type === 'TEXT' ? (
           <div className="max-w-2xl mx-auto text-white p-8">
             <h2 className="text-xl font-semibold mb-4">{lesson.title}</h2>
-            <p className="text-gray-300 leading-relaxed">Conteúdo de texto da aula aqui…</p>
+            <p className="text-gray-300 leading-relaxed">
+              Conteúdo de texto da aula aqui…
+            </p>
           </div>
         ) : (
           <div className="text-white text-center">
@@ -352,9 +447,13 @@ function ContentPlayer({
       {/* Bottom bar */}
       <div className="flex items-center justify-between px-6 py-4 border-t border-gray-200 bg-white">
         <div>
-          <div className="text-sm font-medium text-gray-900">{lesson.title}</div>
+          <div className="text-sm font-medium text-gray-900">
+            {lesson.title}
+          </div>
           {lesson.durationMinutes && (
-            <div className="text-xs text-gray-400">{fmtDuration(lesson.durationMinutes)}</div>
+            <div className="text-xs text-gray-400">
+              {fmtDuration(lesson.durationMinutes)}
+            </div>
           )}
         </div>
         <button
@@ -366,7 +465,11 @@ function ContentPlayer({
               : 'bg-blue-700 text-white hover:bg-blue-800'
           }`}
         >
-          {lesson.completed ? '✓ Concluída' : completing ? 'A marcar…' : 'Marcar como concluída →'}
+          {lesson.completed
+            ? '✓ Concluída'
+            : completing
+              ? 'A marcar…'
+              : 'Marcar como concluída →'}
         </button>
       </div>
     </div>
@@ -375,13 +478,21 @@ function ContentPlayer({
 
 // ─── Module Completion Celebration ───────────────────────────────────────────
 
-function ModuleCompletedBanner({ module: mod, onContinue }: { module: ModuleProgress; onContinue: () => void }) {
+function ModuleCompletedBanner({
+  module: mod,
+  onContinue,
+}: {
+  module: ModuleProgress;
+  onContinue: () => void;
+}) {
   return (
     <div className="flex-1 bg-gray-950 flex items-center justify-center">
       <div className="text-white text-center max-w-sm">
         <div className="text-6xl mb-4">🎉</div>
         <h2 className="text-2xl font-bold mb-2">Módulo concluído!</h2>
-        <p className="text-gray-300 mb-6">Concluíste &quot;{mod.title}&quot; com sucesso.</p>
+        <p className="text-gray-300 mb-6">
+          Concluíste &quot;{mod.title}&quot; com sucesso.
+        </p>
         <button
           onClick={onContinue}
           className="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700"
@@ -402,7 +513,8 @@ function ModuleBuilder({ courseId }: { courseId: number }) {
   const [newModuleTitle, setNewModuleTitle] = useState('');
 
   const { data: course, isLoading: loading } = useApiQuery<CourseDetail>(
-    queryKeys.courses.detail(courseId), `/courses/${courseId}`,
+    queryKeys.courses.detail(courseId),
+    `/courses/${courseId}`,
     { enabled: !!courseId, staleTime: STALE_TIME.DYNAMIC },
   );
   const modules: Module[] = course?.modules ?? [];
@@ -412,11 +524,18 @@ function ModuleBuilder({ courseId }: { courseId: number }) {
   const createModule = useApiMutation(
     () => {
       const maxSeq = modules.reduce((m, mod) => Math.max(m, mod.seq), -1);
-      return apiClient.post('/modules', { courseId, title: newModuleTitle, seq: maxSeq + 1 });
+      return apiClient.post('/modules', {
+        courseId,
+        title: newModuleTitle,
+        seq: maxSeq + 1,
+      });
     },
     {
       invalidateKeys: [queryKeys.courses.detail(courseId)],
-      onSuccess: () => { setNewModuleTitle(''); setCreatingModule(false); },
+      onSuccess: () => {
+        setNewModuleTitle('');
+        setCreatingModule(false);
+      },
       onError: (e) => alert(e.message),
     },
   );
@@ -438,7 +557,15 @@ function ModuleBuilder({ courseId }: { courseId: number }) {
 
   const confirm = useConfirm();
   const handleDelete = async (moduleId: number) => {
-    if (!(await confirm({ title: 'Eliminar módulo?', message: 'Esta ação não pode ser desfeita.', confirmLabel: 'Eliminar', destructive: true }))) return;
+    if (
+      !(await confirm({
+        title: 'Eliminar módulo?',
+        message: 'Esta ação não pode ser desfeita.',
+        confirmLabel: 'Eliminar',
+        destructive: true,
+      }))
+    )
+      return;
     try {
       await apiClient.delete(`/modules/${moduleId}`);
       await reload();
@@ -466,13 +593,15 @@ function ModuleBuilder({ courseId }: { courseId: number }) {
       {/* Create module form */}
       {creatingModule && (
         <div className="mb-4 p-4 bg-blue-50 border border-blue-100 rounded-xl">
-          <div className="text-xs font-medium text-blue-700 mb-2">Novo módulo</div>
+          <div className="text-xs font-medium text-blue-700 mb-2">
+            Novo módulo
+          </div>
           <input
             type="text"
             placeholder="Título do módulo"
             value={newModuleTitle}
-            onChange={e => setNewModuleTitle(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && handleCreateModule()}
+            onChange={(e) => setNewModuleTitle(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleCreateModule()}
             autoFocus
             className="w-full text-sm border border-blue-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white mb-2"
           />
@@ -485,7 +614,10 @@ function ModuleBuilder({ courseId }: { courseId: number }) {
               {saving ? 'A criar…' : 'Criar'}
             </button>
             <button
-              onClick={() => { setCreatingModule(false); setNewModuleTitle(''); }}
+              onClick={() => {
+                setCreatingModule(false);
+                setNewModuleTitle('');
+              }}
               className="px-3 py-1.5 text-xs text-gray-600 border border-gray-200 rounded-lg"
             >
               Cancelar
@@ -497,7 +629,10 @@ function ModuleBuilder({ courseId }: { courseId: number }) {
       {/* Module list */}
       <div className="space-y-2">
         {modules.map((mod, idx) => (
-          <div key={mod.id} className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+          <div
+            key={mod.id}
+            className="bg-white border border-gray-200 rounded-xl overflow-hidden"
+          >
             {/* Module header */}
             <div className="flex items-center gap-3 px-4 py-3">
               {/* Drag handle */}
@@ -511,9 +646,11 @@ function ModuleBuilder({ courseId }: { courseId: number }) {
                     type="text"
                     defaultValue={mod.title}
                     autoFocus
-                    onBlur={async e => {
+                    onBlur={async (e) => {
                       if (e.target.value !== mod.title) {
-                        await apiClient.put(`/modules/${mod.id}`, { title: e.target.value });
+                        await apiClient.put(`/modules/${mod.id}`, {
+                          title: e.target.value,
+                        });
                         await reload();
                       }
                       setEditingModule(null);
@@ -522,22 +659,32 @@ function ModuleBuilder({ courseId }: { courseId: number }) {
                   />
                 ) : (
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium text-gray-900">{mod.title}</span>
+                    <span className="text-sm font-medium text-gray-900">
+                      {mod.title}
+                    </span>
                     {mod.type && (
-                      <span className="text-xs text-gray-400">{moduleTypeLabel(mod.type)}</span>
+                      <span className="text-xs text-gray-400">
+                        {moduleTypeLabel(mod.type)}
+                      </span>
                     )}
-                    <span className={`text-xs px-1.5 rounded ${mod.status === 'PUBLISHED' ? 'bg-emerald-50 text-emerald-700' : 'bg-gray-100 text-gray-500'}`}>
+                    <span
+                      className={`text-xs px-1.5 rounded ${mod.status === 'PUBLISHED' ? 'bg-emerald-50 text-emerald-700' : 'bg-gray-100 text-gray-500'}`}
+                    >
                       {mod.status === 'PUBLISHED' ? 'Publicado' : 'Rascunho'}
                     </span>
                     {!mod.mandatory && (
-                      <span className="text-xs bg-blue-50 text-blue-600 px-1.5 rounded">Opcional</span>
+                      <span className="text-xs bg-blue-50 text-blue-600 px-1.5 rounded">
+                        Opcional
+                      </span>
                     )}
                   </div>
                 )}
                 <div className="text-xs text-gray-400 mt-0.5">
                   {mod._count.lessons} aulas
                   {mod.dripDays ? ` · Drip: ${mod.dripDays} dias` : ''}
-                  {mod.progressionType === 'SEQUENTIAL' ? ' · Sequencial' : ' · Livre'}
+                  {mod.progressionType === 'SEQUENTIAL'
+                    ? ' · Sequencial'
+                    : ' · Livre'}
                 </div>
               </div>
 
@@ -572,15 +719,24 @@ function ModuleBuilder({ courseId }: { courseId: number }) {
             {/* Lessons preview */}
             {mod.lessons.length > 0 && (
               <div className="border-t border-gray-100 px-4 py-2">
-                {mod.lessons.slice(0, 3).map(l => (
-                  <div key={l.id} className="flex items-center gap-2 py-1 text-xs text-gray-500">
+                {mod.lessons.slice(0, 3).map((l) => (
+                  <div
+                    key={l.id}
+                    className="flex items-center gap-2 py-1 text-xs text-gray-500"
+                  >
                     <span>{lessonIcon(l.type)}</span>
                     <span className="truncate">{l.title}</span>
-                    {l.durationMinutes && <span className="text-gray-300">{fmtDuration(l.durationMinutes)}</span>}
+                    {l.durationMinutes && (
+                      <span className="text-gray-300">
+                        {fmtDuration(l.durationMinutes)}
+                      </span>
+                    )}
                   </div>
                 ))}
                 {mod.lessons.length > 3 && (
-                  <div className="text-xs text-gray-400 mt-1">+{mod.lessons.length - 3} mais aulas</div>
+                  <div className="text-xs text-gray-400 mt-1">
+                    +{mod.lessons.length - 3} mais aulas
+                  </div>
                 )}
               </div>
             )}
@@ -603,39 +759,51 @@ type PageMode = 'learn' | 'build';
 
 export default function CourseLearnPage() {
   const params = useParams();
-  const courseId = parseInt(params?.courseId as string ?? '0');
+  const courseId = parseInt((params?.courseId as string) ?? '0');
 
   const qc = useQueryClient();
-  const [mode, setMode]           = useState<PageMode>('learn');
-  const [activeLesson, setActiveLesson]   = useState<LessonProgress | null>(null);
-  const [justCompletedModule, setJustCompletedModule] = useState<ModuleProgress | null>(null);
-  const [sidebarOpen, setSidebarOpen]     = useState(true);
+  const [mode, setMode] = useState<PageMode>('learn');
+  const [activeLesson, setActiveLesson] = useState<LessonProgress | null>(null);
+  const [justCompletedModule, setJustCompletedModule] =
+    useState<ModuleProgress | null>(null);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
   const progressKey = queryKeys.courses.progress(courseId);
-  const { data: modules = [], isLoading: loading } = useApiQuery<ModuleProgress[]>(
-    progressKey, `/courses/${courseId}/progress`,
-    { enabled: !!courseId, staleTime: STALE_TIME.DYNAMIC },
-  );
+  const { data: modules = [], isLoading: loading } = useApiQuery<
+    ModuleProgress[]
+  >(progressKey, `/courses/${courseId}/progress`, {
+    enabled: !!courseId,
+    staleTime: STALE_TIME.DYNAMIC,
+  });
 
   // activeModule é sempre "o módulo que contém activeLesson" — mantê-lo como
   // segundo useState arriscava desincronizar os dois (eram sempre definidos
   // em conjunto em 4 pontos diferentes do ficheiro).
   const activeModule = useMemo(
-    () => (activeLesson ? modules.find(m => m.lessons.some(l => l.id === activeLesson.id)) ?? null : null),
+    () =>
+      activeLesson
+        ? (modules.find((m) =>
+            m.lessons.some((l) => l.id === activeLesson.id),
+          ) ?? null)
+        : null,
     [modules, activeLesson],
   );
 
-  const totalLessons     = modules.reduce((s, m) => s + m.totalCount, 0);
+  const totalLessons = modules.reduce((s, m) => s + m.totalCount, 0);
   const completedLessons = modules.reduce((s, m) => s + m.completedCount, 0);
-  const overallPct = totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
+  const overallPct =
+    totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
 
   // Auto-seleccionar aula activa (continuar de onde parou) quando o progresso chega.
   useEffect(() => {
     if (activeLesson || modules.length === 0) return;
     for (const mod of modules) {
       if (mod.locked) continue;
-      const pending = mod.lessons.find(l => !l.completed);
-      if (pending) { setActiveLesson(pending); break; }
+      const pending = mod.lessons.find((l) => !l.completed);
+      if (pending) {
+        setActiveLesson(pending);
+        break;
+      }
     }
   }, [modules, activeLesson]);
 
@@ -656,16 +824,20 @@ export default function CourseLearnPage() {
     try {
       await completeMut.mutateAsync(activeLesson.id);
       // Recarrega o progresso fresco e actualiza a cache.
-      const updated = await apiClient.get<ModuleProgress[]>(`/courses/${courseId}/progress`);
+      const updated = await apiClient.get<ModuleProgress[]>(
+        `/courses/${courseId}/progress`,
+      );
       qc.setQueryData(progressKey, updated);
 
-      const updatedModule = updated.find(m => m.id === activeModule.id);
+      const updatedModule = updated.find((m) => m.id === activeModule.id);
       if (updatedModule?.completed && !activeModule.completed) {
         setJustCompletedModule(updatedModule);
         return;
       }
       if (updatedModule) {
-        const idx = updatedModule.lessons.findIndex(l => l.id === activeLesson.id);
+        const idx = updatedModule.lessons.findIndex(
+          (l) => l.id === activeLesson.id,
+        );
         const nextLesson = updatedModule.lessons[idx + 1];
         if (nextLesson && !nextLesson.completed) {
           setActiveLesson(nextLesson);
@@ -680,7 +852,9 @@ export default function CourseLearnPage() {
     setJustCompletedModule(null);
     // Seleccionar primeira aula do próximo módulo
     if (!activeModule) return;
-    const nextMod = modules.find(m => m.seq === activeModule.seq + 1 && !m.locked);
+    const nextMod = modules.find(
+      (m) => m.seq === activeModule.seq + 1 && !m.locked,
+    );
     if (nextMod) {
       const firstLesson = nextMod.lessons[0];
       if (firstLesson) {
@@ -694,11 +868,17 @@ export default function CourseLearnPage() {
       {/* Top bar */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-white flex-shrink-0">
         <div className="flex items-center gap-4">
-          <button className="text-sm text-gray-500 hover:text-gray-800">← Voltar</button>
+          <button className="text-sm text-gray-500 hover:text-gray-800">
+            ← Voltar
+          </button>
           <div>
-            <div className="text-sm font-semibold text-gray-900">Curso #{courseId}</div>
+            <div className="text-sm font-semibold text-gray-900">
+              Curso #{courseId}
+            </div>
             <div className="text-xs text-gray-400">
-              {overallPct}% concluído · {modules.reduce((s, m) => s + m.completedCount, 0)}/{modules.reduce((s, m) => s + m.totalCount, 0)} aulas
+              {overallPct}% concluído ·{' '}
+              {modules.reduce((s, m) => s + m.completedCount, 0)}/
+              {modules.reduce((s, m) => s + m.totalCount, 0)} aulas
             </div>
           </div>
         </div>
@@ -707,17 +887,21 @@ export default function CourseLearnPage() {
           {/* Overall progress */}
           <div className="flex items-center gap-2">
             <ProgressRing pct={overallPct} size={32} />
-            <span className="text-xs font-mono text-gray-600">{overallPct}%</span>
+            <span className="text-xs font-mono text-gray-600">
+              {overallPct}%
+            </span>
           </div>
 
           {/* Mode toggle */}
           <div className="flex bg-gray-100 rounded-lg p-1">
-            {(['learn', 'build'] as PageMode[]).map(m => (
+            {(['learn', 'build'] as PageMode[]).map((m) => (
               <button
                 key={m}
                 onClick={() => setMode(m)}
                 className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
-                  mode === m ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+                  mode === m
+                    ? 'bg-white text-gray-900 shadow-sm'
+                    : 'text-gray-500 hover:text-gray-700'
                 }`}
               >
                 {{ learn: 'Aprender', build: 'Construtor' }[m]}
@@ -726,7 +910,7 @@ export default function CourseLearnPage() {
           </div>
 
           <button
-            onClick={() => setSidebarOpen(v => !v)}
+            onClick={() => setSidebarOpen((v) => !v)}
             className="text-xs text-gray-500 hover:text-gray-800 border border-gray-200 rounded-lg px-2 py-1"
           >
             {sidebarOpen ? '⊟ Ocultar' : '⊞ Estrutura'}
@@ -738,9 +922,11 @@ export default function CourseLearnPage() {
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar */}
         {sidebarOpen && (
-          <div className={`flex-shrink-0 overflow-y-auto border-r border-gray-200 bg-white ${
-            mode === 'build' ? 'w-full' : 'w-72'
-          }`}>
+          <div
+            className={`flex-shrink-0 overflow-y-auto border-r border-gray-200 bg-white ${
+              mode === 'build' ? 'w-full' : 'w-72'
+            }`}
+          >
             {mode === 'learn' ? (
               <div>
                 {/* Sidebar header */}
@@ -750,20 +936,34 @@ export default function CourseLearnPage() {
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="flex-1 h-1.5 bg-gray-200 rounded-full overflow-hidden">
-                      <div className="h-1.5 bg-blue-600 rounded-full" style={{ width: `${overallPct}%` }} />
+                      <div
+                        className="h-1.5 bg-blue-600 rounded-full"
+                        style={{ width: `${overallPct}%` }}
+                      />
                     </div>
-                    <span className="text-xs font-mono text-gray-500">{overallPct}%</span>
+                    <span className="text-xs font-mono text-gray-500">
+                      {overallPct}%
+                    </span>
                   </div>
                 </div>
 
-                {loading ? <div className="p-4"><Skeleton /></div> : (
+                {loading ? (
+                  <div className="p-4">
+                    <Skeleton />
+                  </div>
+                ) : (
                   modules.map((mod, idx) => (
                     <ModuleAccordion
                       key={mod.id}
                       module={mod}
                       activeLesson={activeLesson}
-                      onSelectLesson={lesson => handleSelectLesson(lesson, mod)}
-                      defaultOpen={!mod.locked && (idx === 0 || (idx > 0 && modules[idx - 1].completed))}
+                      onSelectLesson={(lesson) =>
+                        handleSelectLesson(lesson, mod)
+                      }
+                      defaultOpen={
+                        !mod.locked &&
+                        (idx === 0 || (idx > 0 && modules[idx - 1].completed))
+                      }
                     />
                   ))
                 )}
@@ -795,8 +995,12 @@ export default function CourseLearnPage() {
               <div className="flex-1 bg-gray-950 flex items-center justify-center text-white text-center">
                 <div>
                   <div className="text-5xl mb-4">📚</div>
-                  <div className="text-lg font-medium mb-2">Selecciona uma aula para começar</div>
-                  <div className="text-sm text-gray-400">Navega pela estrutura do curso na barra lateral</div>
+                  <div className="text-lg font-medium mb-2">
+                    Selecciona uma aula para começar
+                  </div>
+                  <div className="text-sm text-gray-400">
+                    Navega pela estrutura do curso na barra lateral
+                  </div>
                 </div>
               </div>
             )}
@@ -825,24 +1029,28 @@ export default function CourseLearnPage() {
 
 function LessonContent({ lesson }: { lesson: Lesson }) {
   const isTextLesson = lesson.contentType === 'TEXT' && !!lesson.textContent;
- 
+
   return (
     <div className="relative">
       {/* ─── Conteúdo da aula ─────────────────────────────────────────────── */}
       <div className="prose prose-sm max-w-none text-gray-800 leading-relaxed">
         {lesson.textContent && (
-          <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(lesson.textContent) }} />
+          <div
+            dangerouslySetInnerHTML={{
+              __html: sanitizeHtml(lesson.textContent),
+            }}
+          />
         )}
       </div>
- 
+
       {/* ─── Avatar de leitura — SÓ para aulas em texto ──────────────────── */}
       {isTextLesson && (
         <CourseAvatarReader
           lessonId={lesson.id}
           text={lesson.textContent!}
-          avatarSrc="/images/avatar.png"        // ← caminho da tua imagem
-          avatarName="Ana — INNOVA Academy"     // ← nome do teu avatar
-          lang="pt-PT"                          // ← idioma da voz
+          avatarSrc="/images/avatar.png" // ← caminho da tua imagem
+          avatarName="Ana — INNOVA Academy" // ← nome do teu avatar
+          lang="pt-PT" // ← idioma da voz
         />
       )}
     </div>
@@ -922,4 +1130,3 @@ function LessonContent({ lesson }: { lesson: Lesson }) {
 // components/CourseAvatarReader.tsx — a chave fica no .env do BACKEND
 // (ELEVENLABS_API_KEY/VOICE_ID), nunca em NEXT_PUBLIC_*. O componente chama
 // GET /lessons/:id/audio e requer a prop lessonId (ver exemplo acima).
-

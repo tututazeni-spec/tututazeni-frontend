@@ -41,7 +41,12 @@ interface Article {
   updatedAt: string;
   publishedAt: string | null;
   author: { id: number; fullName: string; avatarUrl: string | null };
-  category: { id: number; name: string; icon: string | null; color: string | null } | null;
+  category: {
+    id: number;
+    name: string;
+    icon: string | null;
+    color: string | null;
+  } | null;
   tags: Array<{ id: number; name: string }>;
   _count: { comments: number; questions: number; acknowledgements: number };
   userBookmarked?: boolean;
@@ -91,11 +96,20 @@ type View = 'portal' | 'library' | 'article' | 'dashboard';
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function initials(name: string): string {
-  return name.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase();
+  return name
+    .split(' ')
+    .slice(0, 2)
+    .map((n) => n[0])
+    .join('')
+    .toUpperCase();
 }
 
 function fmtDate(d: string): string {
-  return new Date(d).toLocaleDateString('pt-AO', { day: '2-digit', month: 'short', year: 'numeric' });
+  return new Date(d).toLocaleDateString('pt-AO', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  });
 }
 
 function timeAgo(d: string): string {
@@ -110,19 +124,33 @@ function timeAgo(d: string): string {
 function Skeleton({ rows = 4 }: { rows?: number }) {
   return (
     <div className="space-y-3 animate-pulse">
-      {Array.from({ length: rows }).map((_, i) => <div key={i} className="h-16 bg-gray-100 rounded-xl" />)}
+      {Array.from({ length: rows }).map((_, i) => (
+        <div key={i} className="h-16 bg-gray-100 rounded-xl" />
+      ))}
     </div>
   );
 }
 
-function Avatar({ name, avatarUrl, size = 'sm' }: { name: string; avatarUrl?: string | null; size?: 'sm' | 'md' }) {
+function Avatar({
+  name,
+  avatarUrl,
+  size = 'sm',
+}: {
+  name: string;
+  avatarUrl?: string | null;
+  size?: 'sm' | 'md';
+}) {
   const dim = size === 'sm' ? 'w-7 h-7 text-xs' : 'w-9 h-9 text-sm';
   return avatarUrl ? (
-    <div className={`${dim} rounded-full overflow-hidden relative flex-shrink-0`}>
+    <div
+      className={`${dim} rounded-full overflow-hidden relative flex-shrink-0`}
+    >
       <Image src={avatarUrl} alt={name} fill className="object-cover" />
     </div>
   ) : (
-    <div className={`${dim} rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-semibold flex-shrink-0`}>
+    <div
+      className={`${dim} rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-semibold flex-shrink-0`}
+    >
       {initials(name)}
     </div>
   );
@@ -132,21 +160,39 @@ function Avatar({ name, avatarUrl, size = 'sm' }: { name: string; avatarUrl?: st
 
 function StatusBadge({ status }: { status: ArticleStatus }) {
   const cfg: Record<ArticleStatus, { label: string; cls: string }> = {
-    DRAFT:     { label: 'Rascunho',   cls: 'bg-gray-100 text-gray-500' },
+    DRAFT: { label: 'Rascunho', cls: 'bg-gray-100 text-gray-500' },
     IN_REVIEW: { label: 'Em revisão', cls: 'bg-amber-50 text-amber-700' },
-    PUBLISHED: { label: 'Publicado',  cls: 'bg-emerald-50 text-emerald-700' },
-    ARCHIVED:  { label: 'Arquivado',  cls: 'bg-gray-100 text-gray-400' },
+    PUBLISHED: { label: 'Publicado', cls: 'bg-emerald-50 text-emerald-700' },
+    ARCHIVED: { label: 'Arquivado', cls: 'bg-gray-100 text-gray-400' },
   };
   const { label, cls } = cfg[status];
-  return <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium ${cls}`}>{label}</span>;
+  return (
+    <span
+      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium ${cls}`}
+    >
+      {label}
+    </span>
+  );
 }
 
-function StarRating({ value, max = 5 }: { value: number | null; max?: number }) {
-  if (!value) return <span className="text-xs text-gray-300">Sem avaliação</span>;
+function StarRating({
+  value,
+  max = 5,
+}: {
+  value: number | null;
+  max?: number;
+}) {
+  if (!value)
+    return <span className="text-xs text-gray-300">Sem avaliação</span>;
   return (
     <div className="flex gap-0.5">
-      {Array.from({ length: max }, (_, i) => i + 1).map(s => (
-        <span key={s} className={`text-sm ${s <= Math.round(value) ? 'text-amber-400' : 'text-gray-200'}`}>★</span>
+      {Array.from({ length: max }, (_, i) => i + 1).map((s) => (
+        <span
+          key={s}
+          className={`text-sm ${s <= Math.round(value) ? 'text-amber-400' : 'text-gray-200'}`}
+        >
+          ★
+        </span>
       ))}
       <span className="text-xs text-gray-400 ml-1">{value.toFixed(1)}</span>
     </div>
@@ -155,18 +201,36 @@ function StarRating({ value, max = 5 }: { value: number | null; max?: number }) 
 
 // ─── Article Card ─────────────────────────────────────────────────────────────
 
-function ArticleCard({ article, onClick }: { article: Article; onClick: () => void }) {
+function ArticleCard({
+  article,
+  onClick,
+}: {
+  article: Article;
+  onClick: () => void;
+}) {
   return (
     <div
       onClick={onClick}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onClick();
+        }
+      }}
       className="bg-white border border-gray-200 rounded-xl p-5 cursor-pointer hover:shadow-md hover:border-blue-200 transition-all group"
     >
       <div className="flex items-start justify-between gap-3 mb-2">
         <div className="flex-1">
           {article.category && (
             <div className="flex items-center gap-1.5 mb-1.5">
-              {article.category.icon && <span className="text-sm">{article.category.icon}</span>}
-              <span className="text-xs text-blue-600 font-medium">{article.category.name}</span>
+              {article.category.icon && (
+                <span className="text-sm">{article.category.icon}</span>
+              )}
+              <span className="text-xs text-blue-600 font-medium">
+                {article.category.name}
+              </span>
             </div>
           )}
           <div className="text-sm font-semibold text-gray-900 group-hover:text-blue-700 transition-colors leading-tight">
@@ -174,23 +238,36 @@ function ArticleCard({ article, onClick }: { article: Article; onClick: () => vo
           </div>
         </div>
         {article.mandatory && (
-          <span className="text-xs bg-red-50 text-red-700 px-2 py-0.5 rounded flex-shrink-0">Obrigatório</span>
+          <span className="text-xs bg-red-50 text-red-700 px-2 py-0.5 rounded flex-shrink-0">
+            Obrigatório
+          </span>
         )}
       </div>
 
       {article.summary && (
-        <p className="text-xs text-gray-500 mb-3 line-clamp-2 leading-relaxed">{article.summary}</p>
+        <p className="text-xs text-gray-500 mb-3 line-clamp-2 leading-relaxed">
+          {article.summary}
+        </p>
       )}
 
       <div className="flex flex-wrap gap-1.5 mb-3">
-        {article.tags.slice(0, 4).map(t => (
-          <span key={t.id} className="px-1.5 py-0.5 bg-gray-100 text-gray-600 text-xs rounded">#{t.name}</span>
+        {article.tags.slice(0, 4).map((t) => (
+          <span
+            key={t.id}
+            className="px-1.5 py-0.5 bg-gray-100 text-gray-600 text-xs rounded"
+          >
+            #{t.name}
+          </span>
         ))}
       </div>
 
       <div className="flex items-center justify-between text-xs text-gray-400">
         <div className="flex items-center gap-2">
-          <Avatar name={article.author.fullName} avatarUrl={article.author.avatarUrl} size="sm" />
+          <Avatar
+            name={article.author.fullName}
+            avatarUrl={article.author.avatarUrl}
+            size="sm"
+          />
           <span>{article.author.fullName}</span>
         </div>
         <div className="flex items-center gap-3">
@@ -206,32 +283,39 @@ function ArticleCard({ article, onClick }: { article: Article; onClick: () => vo
 
 // ─── View: Portal ─────────────────────────────────────────────────────────────
 
-function PortalView({ onSelectArticle, onSearch }: {
+function PortalView({
+  onSelectArticle,
+  onSearch,
+}: {
   onSelectArticle: (id: number) => void;
   onSearch: (q: string) => void;
 }) {
-  const [searchQ, setSearchQ]       = useState('');
+  const [searchQ, setSearchQ] = useState('');
 
   // Categorias e trending em paralelo (cache).
   const catsQ = useApiQuery<Category[]>(
-    queryKeys.knowledge.categories(), '/knowledge/categories',
+    queryKeys.knowledge.categories(),
+    '/knowledge/categories',
     { staleTime: STALE_TIME.STATIC },
   );
   const trendQ = useApiQuery<Article[]>(
-    queryKeys.knowledge.trending(), '/knowledge/trending',
+    queryKeys.knowledge.trending(),
+    '/knowledge/trending',
     { params: { limit: 6 }, staleTime: STALE_TIME.SEMI_STATIC },
   );
   const categories = catsQ.data ?? [];
   const trending = trendQ.data ?? [];
   const loading = catsQ.isLoading;
 
-  const searchMutation = useApiMutation(
-    (q: string) => apiClient.get<SearchResult[]>('/knowledge/search', { params: { q } }),
+  const searchMutation = useApiMutation((q: string) =>
+    apiClient.get<SearchResult[]>('/knowledge/search', { params: { q } }),
   );
   const searchResults = searchMutation.data ?? null;
   const searching = searchMutation.isPending;
 
-  const handleSearch = () => { if (searchQ.trim()) searchMutation.mutate(searchQ); };
+  const handleSearch = () => {
+    if (searchQ.trim()) searchMutation.mutate(searchQ);
+  };
 
   if (loading) return <Skeleton rows={3} />;
 
@@ -239,15 +323,19 @@ function PortalView({ onSelectArticle, onSearch }: {
     <div className="space-y-8">
       {/* Search hero */}
       <div className="bg-gradient-to-br from-blue-700 to-blue-900 rounded-2xl p-8 text-center">
-        <div className="text-2xl font-bold text-white mb-2">Base de Conhecimento INNOVA</div>
-        <div className="text-blue-200 text-sm mb-5">Encontra políticas, processos, guias e muito mais</div>
+        <div className="text-2xl font-bold text-white mb-2">
+          Base de Conhecimento INNOVA
+        </div>
+        <div className="text-blue-200 text-sm mb-5">
+          Encontra políticas, processos, guias e muito mais
+        </div>
         <div className="flex gap-2 max-w-xl mx-auto">
           <input
             type="text"
             placeholder="Pesquisar artigos, políticas, processos…"
             value={searchQ}
-            onChange={e => setSearchQ(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && handleSearch()}
+            onChange={(e) => setSearchQ(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
             className="flex-1 text-sm px-4 py-3 rounded-xl border-0 focus:outline-none focus:ring-2 focus:ring-white/50"
           />
           <button
@@ -264,25 +352,43 @@ function PortalView({ onSelectArticle, onSearch }: {
       {searchResults !== null && (
         <div>
           <div className="flex items-center justify-between mb-3">
-            <div className="text-sm font-semibold text-gray-900">{searchResults.length} resultados para &quot;{searchQ}&quot;</div>
-            <button onClick={() => searchMutation.reset()} className="text-xs text-gray-400 hover:text-gray-700">Limpar</button>
+            <div className="text-sm font-semibold text-gray-900">
+              {searchResults.length} resultados para &quot;{searchQ}&quot;
+            </div>
+            <button
+              onClick={() => searchMutation.reset()}
+              className="text-xs text-gray-400 hover:text-gray-700"
+            >
+              Limpar
+            </button>
           </div>
           {searchResults.length === 0 ? (
             <div className="py-8 text-center text-sm text-gray-400 border border-dashed border-gray-200 rounded-xl">
-              🔍 Sem resultados. Esta pesquisa foi registada para análise de gaps de conhecimento.
+              🔍 Sem resultados. Esta pesquisa foi registada para análise de
+              gaps de conhecimento.
             </div>
           ) : (
             <div className="space-y-2">
-              {searchResults.map(r => (
+              {searchResults.map((r) => (
                 <div
                   key={r.id}
                   onClick={() => onSelectArticle(r.id)}
                   className="flex items-center gap-3 bg-white border border-gray-200 rounded-xl px-4 py-3 cursor-pointer hover:shadow-sm"
                 >
-                  {r.category?.icon && <span className="text-xl flex-shrink-0">{r.category.icon}</span>}
+                  {r.category?.icon && (
+                    <span className="text-xl flex-shrink-0">
+                      {r.category.icon}
+                    </span>
+                  )}
                   <div className="flex-1">
-                    <div className="text-sm font-medium text-gray-900">{r.title}</div>
-                    {r.summary && <p className="text-xs text-gray-500 truncate">{r.summary}</p>}
+                    <div className="text-sm font-medium text-gray-900">
+                      {r.title}
+                    </div>
+                    {r.summary && (
+                      <p className="text-xs text-gray-500 truncate">
+                        {r.summary}
+                      </p>
+                    )}
                   </div>
                   <span className="text-xs text-gray-400">👁 {r.viewCount}</span>
                 </div>
@@ -296,16 +402,22 @@ function PortalView({ onSelectArticle, onSearch }: {
       {!searchResults && (
         <>
           <div>
-            <div className="text-sm font-semibold text-gray-900 mb-4">Categorias</div>
+            <div className="text-sm font-semibold text-gray-900 mb-4">
+              Categorias
+            </div>
             <div className="grid grid-cols-4 gap-3">
-              {categories.map(cat => (
+              {categories.map((cat) => (
                 <div
                   key={cat.id}
                   className="bg-white border border-gray-200 rounded-xl p-4 cursor-pointer hover:shadow-sm hover:border-blue-200 transition-all text-center"
                 >
                   <div className="text-3xl mb-2">{cat.icon ?? '📄'}</div>
-                  <div className="text-xs font-medium text-gray-900">{cat.name}</div>
-                  <div className="text-xs text-gray-400 mt-0.5">{cat._count.articles} artigos</div>
+                  <div className="text-xs font-medium text-gray-900">
+                    {cat.name}
+                  </div>
+                  <div className="text-xs text-gray-400 mt-0.5">
+                    {cat._count.articles} artigos
+                  </div>
                 </div>
               ))}
             </div>
@@ -313,10 +425,16 @@ function PortalView({ onSelectArticle, onSearch }: {
 
           {/* Trending */}
           <div>
-            <div className="text-sm font-semibold text-gray-900 mb-4">🔥 Em destaque</div>
+            <div className="text-sm font-semibold text-gray-900 mb-4">
+              🔥 Em destaque
+            </div>
             <div className="grid grid-cols-3 gap-4">
-              {trending.map(art => (
-                <ArticleCard key={art.id} article={art} onClick={() => onSelectArticle(art.id)} />
+              {trending.map((art) => (
+                <ArticleCard
+                  key={art.id}
+                  article={art}
+                  onClick={() => onSelectArticle(art.id)}
+                />
               ))}
             </div>
           </div>
@@ -328,41 +446,71 @@ function PortalView({ onSelectArticle, onSearch }: {
 
 // ─── View: Library ────────────────────────────────────────────────────────────
 
-function LibraryView({ onSelectArticle }: { onSelectArticle: (id: number) => void }) {
-  const [search, setSearch]     = useState('');
+function LibraryView({
+  onSelectArticle,
+}: {
+  onSelectArticle: (id: number) => void;
+}) {
+  const [search, setSearch] = useState('');
   const [categoryId] = useState('');
-  const [sortBy, setSortBy]     = useState('RECENT');
-  const [page, setPage]         = useState(1);
+  const [sortBy, setSortBy] = useState('RECENT');
+  const [page, setPage] = useState(1);
   const debouncedSearch = useDebounce(search);
-  const params = { page, limit: 12, sortBy, search: debouncedSearch, categoryId };
+  const params = {
+    page,
+    limit: 12,
+    sortBy,
+    search: debouncedSearch,
+    categoryId,
+  };
 
-  const { data, isLoading: loading } = useApiQuery<{ data: Article[]; total: number }>(
-    queryKeys.knowledge.list(params), '/knowledge',
-    { params, staleTime: STALE_TIME.SEMI_STATIC, placeholderData: keepPreviousData },
-  );
+  const { data, isLoading: loading } = useApiQuery<{
+    data: Article[];
+    total: number;
+  }>(queryKeys.knowledge.list(params), '/knowledge', {
+    params,
+    staleTime: STALE_TIME.SEMI_STATIC,
+    placeholderData: keepPreviousData,
+  });
 
   return (
     <div>
       <div className="flex flex-wrap items-center gap-3 mb-5">
         <input
-          type="text" placeholder="Pesquisar…"
-          value={search} onChange={e => { setSearch(e.target.value); setPage(1); }}
+          type="text"
+          placeholder="Pesquisar…"
+          value={search}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            setPage(1);
+          }}
           className="flex-1 min-w-[200px] text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
-        <select value={sortBy} onChange={e => setSortBy(e.target.value)}
-          className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <select
+          value={sortBy}
+          onChange={(e) => setSortBy(e.target.value)}
+          className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
           <option value="RECENT">Mais recentes</option>
           <option value="POPULAR">Mais vistos</option>
           <option value="RATING">Melhor avaliados</option>
           <option value="UPDATED">Actualizados</option>
         </select>
-        <span className="text-xs text-gray-400">{data?.total ?? 0} artigos</span>
+        <span className="text-xs text-gray-400">
+          {data?.total ?? 0} artigos
+        </span>
       </div>
 
-      {loading ? <Skeleton /> : (
+      {loading ? (
+        <Skeleton />
+      ) : (
         <div className="grid grid-cols-3 gap-4">
-          {data?.data.map(article => (
-            <ArticleCard key={article.id} article={article} onClick={() => onSelectArticle(article.id)} />
+          {data?.data.map((article) => (
+            <ArticleCard
+              key={article.id}
+              article={article}
+              onClick={() => onSelectArticle(article.id)}
+            />
           ))}
           {data?.data.length === 0 && (
             <div className="col-span-3 py-12 text-center text-sm text-gray-400 border border-dashed border-gray-200 rounded-xl">
@@ -377,35 +525,52 @@ function LibraryView({ onSelectArticle }: { onSelectArticle: (id: number) => voi
 
 // ─── View: Article Detail ─────────────────────────────────────────────────────
 
-function ArticleDetailView({ articleId, onBack }: { articleId: number; onBack: () => void }) {
+function ArticleDetailView({
+  articleId,
+  onBack,
+}: {
+  articleId: number;
+  onBack: () => void;
+}) {
   const qc = useQueryClient();
-  const [comment, setComment]   = useState('');
-  const [rating, setRating]     = useState(0);
+  const [comment, setComment] = useState('');
+  const [rating, setRating] = useState(0);
   const [hovRating, setHovRating] = useState(0);
 
   const articleKey = queryKeys.knowledge.article(articleId);
   const { data: article, isLoading: loading } = useApiQuery<Article>(
-    articleKey, `/knowledge/${articleId}`,
+    articleKey,
+    `/knowledge/${articleId}`,
     { enabled: !!articleId, staleTime: STALE_TIME.DYNAMIC },
   );
 
   const handleBookmark = async () => {
     if (!article) return;
     try {
-      const res = await apiClient.post<{ active: boolean }>('/knowledge/interact', { articleId, action: 'BOOKMARK' });
-      qc.setQueryData<Article>(articleKey, prev => prev ? { ...prev, userBookmarked: res.active } : prev);
-    } catch (e) { alert(e instanceof Error ? e.message : String(e)); }
+      const res = await apiClient.post<{ active: boolean }>(
+        '/knowledge/interact',
+        { articleId, action: 'BOOKMARK' },
+      );
+      qc.setQueryData<Article>(articleKey, (prev) =>
+        prev ? { ...prev, userBookmarked: res.active } : prev,
+      );
+    } catch (e) {
+      alert(e instanceof Error ? e.message : String(e));
+    }
   };
 
   const handleRate = async (score: number) => {
     try {
       await apiClient.post('/knowledge/rate', { articleId, score });
       setRating(score);
-    } catch (e) { alert(e instanceof Error ? e.message : String(e)); }
+    } catch (e) {
+      alert(e instanceof Error ? e.message : String(e));
+    }
   };
 
   const commentMutation = useApiMutation(
-    () => apiClient.post('/knowledge/comments', { articleId, content: comment }),
+    () =>
+      apiClient.post('/knowledge/comments', { articleId, content: comment }),
     {
       invalidateKeys: [articleKey],
       onSuccess: () => setComment(''),
@@ -413,12 +578,17 @@ function ArticleDetailView({ articleId, onBack }: { articleId: number; onBack: (
     },
   );
   const posting = commentMutation.isPending;
-  const handleComment = () => { if (comment.trim()) commentMutation.mutate(undefined); };
+  const handleComment = () => {
+    if (comment.trim()) commentMutation.mutate(undefined);
+  };
 
   const acknowledgeMutation = useApiMutation(
     () => apiClient.post('/knowledge/acknowledge', { articleId }),
     {
-      onSuccess: () => qc.setQueryData<Article>(articleKey, prev => prev ? { ...prev, userAcknowledged: true } : prev),
+      onSuccess: () =>
+        qc.setQueryData<Article>(articleKey, (prev) =>
+          prev ? { ...prev, userAcknowledged: true } : prev,
+        ),
       onError: (e) => alert(e.message),
     },
   );
@@ -433,7 +603,10 @@ function ArticleDetailView({ articleId, onBack }: { articleId: number; onBack: (
     <div className="grid grid-cols-[1fr_260px] gap-6">
       {/* Main content */}
       <div>
-        <button onClick={onBack} className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-800 mb-5">
+        <button
+          onClick={onBack}
+          className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-800 mb-5"
+        >
           ← Voltar
         </button>
 
@@ -442,27 +615,46 @@ function ArticleDetailView({ articleId, onBack }: { articleId: number; onBack: (
           {article.category && (
             <div className="flex items-center gap-1.5 mb-2">
               {article.category.icon && <span>{article.category.icon}</span>}
-              <span className="text-xs text-blue-600 font-medium">{article.category.name}</span>
+              <span className="text-xs text-blue-600 font-medium">
+                {article.category.name}
+              </span>
             </div>
           )}
-          <h1 className="text-2xl font-bold text-gray-900 mb-3">{article.title}</h1>
-          {article.summary && <p className="text-sm text-gray-600 mb-4">{article.summary}</p>}
+          <h1 className="text-2xl font-bold text-gray-900 mb-3">
+            {article.title}
+          </h1>
+          {article.summary && (
+            <p className="text-sm text-gray-600 mb-4">{article.summary}</p>
+          )}
 
           <div className="flex flex-wrap items-center gap-4 text-xs text-gray-400 mb-4">
             <div className="flex items-center gap-2">
-              <Avatar name={article.author.fullName} avatarUrl={article.author.avatarUrl} size="sm" />
+              <Avatar
+                name={article.author.fullName}
+                avatarUrl={article.author.avatarUrl}
+                size="sm"
+              />
               <span>{article.author.fullName}</span>
             </div>
             <span>📅 {fmtDate(article.updatedAt)}</span>
             <span>⏱ {article.readingMinutes} min de leitura</span>
             <span>👁 {article.viewCount} visualizações</span>
             <StatusBadge status={article.status} />
-            {article.mandatory && <span className="bg-red-50 text-red-700 px-2 py-0.5 rounded">Obrigatório</span>}
+            {article.mandatory && (
+              <span className="bg-red-50 text-red-700 px-2 py-0.5 rounded">
+                Obrigatório
+              </span>
+            )}
           </div>
 
           <div className="flex flex-wrap gap-1.5">
-            {article.tags.map(t => (
-              <span key={t.id} className="px-2 py-0.5 bg-blue-50 text-blue-600 text-xs rounded">#{t.name}</span>
+            {article.tags.map((t) => (
+              <span
+                key={t.id}
+                className="px-2 py-0.5 bg-blue-50 text-blue-600 text-xs rounded"
+              >
+                #{t.name}
+              </span>
             ))}
           </div>
         </div>
@@ -482,8 +674,10 @@ function ArticleDetailView({ articleId, onBack }: { articleId: number; onBack: (
           </div>
           <div className="flex gap-3 mb-4">
             <textarea
-              value={comment} onChange={e => setComment(e.target.value)}
-              rows={2} placeholder="Escreve um comentário…"
+              value={comment}
+              onChange={(e) => setComment(e.target.value)}
+              rows={2}
+              placeholder="Escreve um comentário…"
               className="flex-1 text-sm border border-gray-200 rounded-xl px-4 py-2.5 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             <button
@@ -495,21 +689,37 @@ function ArticleDetailView({ articleId, onBack }: { articleId: number; onBack: (
             </button>
           </div>
           <div className="space-y-4">
-            {article.comments?.map(c => (
+            {article.comments?.map((c) => (
               <div key={c.id} className="flex gap-3">
-                <Avatar name={c.author.fullName} avatarUrl={c.author.avatarUrl} size="sm" />
+                <Avatar
+                  name={c.author.fullName}
+                  avatarUrl={c.author.avatarUrl}
+                  size="sm"
+                />
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="text-xs font-medium text-gray-900">{c.author.fullName}</span>
-                    <span className="text-xs text-gray-400">{timeAgo(c.createdAt)}</span>
+                    <span className="text-xs font-medium text-gray-900">
+                      {c.author.fullName}
+                    </span>
+                    <span className="text-xs text-gray-400">
+                      {timeAgo(c.createdAt)}
+                    </span>
                   </div>
                   <p className="text-sm text-gray-700">{c.content}</p>
-                  {c.replies?.map(r => (
+                  {c.replies?.map((r) => (
                     <div key={r.id} className="flex gap-2 mt-2 ml-4">
-                      <Avatar name={r.author.fullName} avatarUrl={r.author.avatarUrl} size="sm" />
+                      <Avatar
+                        name={r.author.fullName}
+                        avatarUrl={r.author.avatarUrl}
+                        size="sm"
+                      />
                       <div>
-                        <span className="text-xs font-medium text-gray-800">{r.author.fullName} </span>
-                        <span className="text-sm text-gray-700">{r.content}</span>
+                        <span className="text-xs font-medium text-gray-800">
+                          {r.author.fullName}{' '}
+                        </span>
+                        <span className="text-sm text-gray-700">
+                          {r.content}
+                        </span>
                       </div>
                     </div>
                   ))}
@@ -555,7 +765,7 @@ function ArticleDetailView({ articleId, onBack }: { articleId: number; onBack: (
         <div className="bg-white border border-gray-200 rounded-xl p-4">
           <div className="text-xs text-gray-400 mb-2">Avaliar artigo</div>
           <div className="flex gap-1 mb-1">
-            {[1, 2, 3, 4, 5].map(s => (
+            {[1, 2, 3, 4, 5].map((s) => (
               <button
                 key={s}
                 onClick={() => handleRate(s)}
@@ -570,19 +780,24 @@ function ArticleDetailView({ articleId, onBack }: { articleId: number; onBack: (
             ))}
           </div>
           {article.avgRating && (
-            <div className="text-xs text-gray-400">Média: {article.avgRating.toFixed(1)}/5</div>
+            <div className="text-xs text-gray-400">
+              Média: {article.avgRating.toFixed(1)}/5
+            </div>
           )}
         </div>
 
         {/* Stats */}
         <div className="bg-gray-50 rounded-xl p-4 space-y-2 text-xs text-gray-500">
           {[
-            ['Visualizações',    article.viewCount],
-            ['Comentários',      article._count.comments],
-            ['Perguntas',        article._count.questions],
-            ['Confirmações',     article._count.acknowledgements],
-            ['Publicado',        article.publishedAt ? fmtDate(article.publishedAt) : '—'],
-            ['Actualizado',      fmtDate(article.updatedAt)],
+            ['Visualizações', article.viewCount],
+            ['Comentários', article._count.comments],
+            ['Perguntas', article._count.questions],
+            ['Confirmações', article._count.acknowledgements],
+            [
+              'Publicado',
+              article.publishedAt ? fmtDate(article.publishedAt) : '—',
+            ],
+            ['Actualizado', fmtDate(article.updatedAt)],
           ].map(([l, v]) => (
             <div key={String(l)} className="flex justify-between">
               <span>{l}</span>
@@ -594,12 +809,21 @@ function ArticleDetailView({ articleId, onBack }: { articleId: number; onBack: (
         {/* Q&A */}
         {article.questions && article.questions.length > 0 && (
           <div className="bg-white border border-gray-200 rounded-xl p-4">
-            <div className="text-xs font-medium text-gray-700 mb-3">❓ Perguntas ({article._count.questions})</div>
-            {article.questions.slice(0, 3).map(q => (
-              <div key={q.id} className="mb-3 pb-3 border-b border-gray-100 last:border-0">
-                <p className="text-xs font-medium text-gray-800 mb-1">{q.question}</p>
+            <div className="text-xs font-medium text-gray-700 mb-3">
+              ❓ Perguntas ({article._count.questions})
+            </div>
+            {article.questions.slice(0, 3).map((q) => (
+              <div
+                key={q.id}
+                className="mb-3 pb-3 border-b border-gray-100 last:border-0"
+              >
+                <p className="text-xs font-medium text-gray-800 mb-1">
+                  {q.question}
+                </p>
                 {q.answer ? (
-                  <p className="text-xs text-gray-600 pl-2 border-l-2 border-emerald-300">{q.answer}</p>
+                  <p className="text-xs text-gray-600 pl-2 border-l-2 border-emerald-300">
+                    {q.answer}
+                  </p>
                 ) : (
                   <p className="text-xs text-gray-400 italic">Sem resposta</p>
                 )}
@@ -616,7 +840,8 @@ function ArticleDetailView({ articleId, onBack }: { articleId: number; onBack: (
 
 function AdminDashboardView() {
   const { data, isLoading } = useApiQuery<Dashboard>(
-    queryKeys.knowledge.adminDashboard(), '/knowledge/admin/dashboard',
+    queryKeys.knowledge.adminDashboard(),
+    '/knowledge/admin/dashboard',
     { staleTime: STALE_TIME.SEMI_STATIC },
   );
 
@@ -627,14 +852,26 @@ function AdminDashboardView() {
       {/* KPIs */}
       <div className="grid grid-cols-4 gap-3">
         {[
-          { label: 'Total artigos',       value: data.articles.total   },
-          { label: 'Publicados',          value: data.articles.published, color: 'text-emerald-600' },
-          { label: 'Total visualizações', value: data.views            },
-          { label: 'Artigos desactualiz.',value: data.articles.stale,   color: data.articles.stale > 0 ? 'text-amber-600' : undefined },
+          { label: 'Total artigos', value: data.articles.total },
+          {
+            label: 'Publicados',
+            value: data.articles.published,
+            color: 'text-emerald-600',
+          },
+          { label: 'Total visualizações', value: data.views },
+          {
+            label: 'Artigos desactualiz.',
+            value: data.articles.stale,
+            color: data.articles.stale > 0 ? 'text-amber-600' : undefined,
+          },
         ].map(({ label, value, color }) => (
           <div key={label} className="bg-gray-50 rounded-xl p-4">
             <div className="text-xs text-gray-400 mb-1">{label}</div>
-            <div className={`text-2xl font-semibold font-mono ${color ?? 'text-gray-900'}`}>{value}</div>
+            <div
+              className={`text-2xl font-semibold font-mono ${color ?? 'text-gray-900'}`}
+            >
+              {value}
+            </div>
           </div>
         ))}
       </div>
@@ -643,12 +880,18 @@ function AdminDashboardView() {
       {data.knowledgeGaps.length > 0 && (
         <div className="bg-amber-50 border border-amber-200 rounded-xl p-5">
           <div className="text-sm font-semibold text-amber-800 mb-3">
-            🔍 Gaps de Conhecimento — Buscas sem resultado ({data.emptySearches})
+            🔍 Gaps de Conhecimento — Buscas sem resultado ({data.emptySearches}
+            )
           </div>
           <div className="grid grid-cols-2 gap-2">
-            {data.knowledgeGaps.map(gap => (
-              <div key={gap.query} className="flex justify-between text-xs py-1.5 border-b border-amber-100">
-                <span className="text-amber-800 font-medium">&quot;{gap.query}&quot;</span>
+            {data.knowledgeGaps.map((gap) => (
+              <div
+                key={gap.query}
+                className="flex justify-between text-xs py-1.5 border-b border-amber-100"
+              >
+                <span className="text-amber-800 font-medium">
+                  &quot;{gap.query}&quot;
+                </span>
                 <span className="text-amber-600">{gap.searches}× buscado</span>
               </div>
             ))}
@@ -663,13 +906,22 @@ function AdminDashboardView() {
             Mais vistos
           </div>
           {data.topArticles.map((a, idx) => (
-            <div key={a.id} className="flex items-center gap-3 px-4 py-3 border-b border-gray-100 last:border-0">
-              <span className="text-lg font-bold font-mono text-gray-200 w-5 text-center">{idx + 1}</span>
+            <div
+              key={a.id}
+              className="flex items-center gap-3 px-4 py-3 border-b border-gray-100 last:border-0"
+            >
+              <span className="text-lg font-bold font-mono text-gray-200 w-5 text-center">
+                {idx + 1}
+              </span>
               <div className="flex-1 min-w-0">
-                <div className="text-xs font-medium text-gray-900 truncate">{a.title}</div>
+                <div className="text-xs font-medium text-gray-900 truncate">
+                  {a.title}
+                </div>
                 <div className="text-xs text-gray-400">{a.author.fullName}</div>
               </div>
-              <span className="text-xs text-gray-400 flex-shrink-0">👁 {a.viewCount}</span>
+              <span className="text-xs text-gray-400 flex-shrink-0">
+                👁 {a.viewCount}
+              </span>
             </div>
           ))}
         </div>
@@ -678,13 +930,20 @@ function AdminDashboardView() {
           <div className="px-4 py-3 border-b border-gray-100 text-xs font-medium text-gray-400 uppercase tracking-wide">
             Actualizados recentemente
           </div>
-          {data.recentlyUpdated.map(a => (
-            <div key={a.id} className="flex items-center gap-3 px-4 py-3 border-b border-gray-100 last:border-0">
+          {data.recentlyUpdated.map((a) => (
+            <div
+              key={a.id}
+              className="flex items-center gap-3 px-4 py-3 border-b border-gray-100 last:border-0"
+            >
               <div className="flex-1 min-w-0">
-                <div className="text-xs font-medium text-gray-900 truncate">{a.title}</div>
+                <div className="text-xs font-medium text-gray-900 truncate">
+                  {a.title}
+                </div>
                 <div className="text-xs text-gray-400">{a.author.fullName}</div>
               </div>
-              <span className="text-xs text-gray-400 flex-shrink-0">{timeAgo(a.updatedAt)}</span>
+              <span className="text-xs text-gray-400 flex-shrink-0">
+                {timeAgo(a.updatedAt)}
+              </span>
             </div>
           ))}
         </div>
@@ -696,35 +955,41 @@ function AdminDashboardView() {
 // ─── Page principal ───────────────────────────────────────────────────────────
 
 const NAV: Array<{ id: Exclude<View, 'article'>; label: string }> = [
-  { id: 'portal',    label: '🏠 Portal' },
-  { id: 'library',   label: '📚 Biblioteca' },
+  { id: 'portal', label: '🏠 Portal' },
+  { id: 'library', label: '📚 Biblioteca' },
   { id: 'dashboard', label: '📊 Admin' },
 ];
 
 const TITLES: Record<View, string> = {
-  portal:    'Base de Conhecimento',
-  library:   'Biblioteca de Artigos',
-  article:   'Artigo',
+  portal: 'Base de Conhecimento',
+  library: 'Biblioteca de Artigos',
+  article: 'Artigo',
   dashboard: 'Dashboard Admin',
 };
 
 // view e selectedId eram dois useState separados sempre definidos em conjunto
 // — um único estado torna "article sem id" irrepresentável.
-type Nav = { view: Exclude<View, 'article'> } | { view: 'article'; selectedId: number };
+type Nav =
+  { view: Exclude<View, 'article'> } | { view: 'article'; selectedId: number };
 
 export default function KnowledgePage() {
   const [nav, setNav] = useState<Nav>({ view: 'portal' });
 
-  const handleSelectArticle = (id: number) => setNav({ view: 'article', selectedId: id });
-  const handleBack          = () => setNav({ view: 'library' });
+  const handleSelectArticle = (id: number) =>
+    setNav({ view: 'article', selectedId: id });
+  const handleBack = () => setNav({ view: 'library' });
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-xl font-semibold text-gray-900">{TITLES[nav.view]}</h1>
-          <p className="text-sm text-gray-400 mt-0.5">INNOVA — Gestão do Conhecimento</p>
+          <h1 className="text-xl font-semibold text-gray-900">
+            {TITLES[nav.view]}
+          </h1>
+          <p className="text-sm text-gray-400 mt-0.5">
+            INNOVA — Gestão do Conhecimento
+          </p>
         </div>
         <button
           onClick={() => alert('Abrir editor de artigo')}
@@ -737,10 +1002,14 @@ export default function KnowledgePage() {
       {/* Tabs */}
       {nav.view !== 'article' && (
         <div className="flex gap-1 mb-6 bg-gray-100 p-1 rounded-xl w-fit">
-          {NAV.map(n => (
-            <button key={n.id} onClick={() => setNav({ view: n.id })}
+          {NAV.map((n) => (
+            <button
+              key={n.id}
+              onClick={() => setNav({ view: n.id })}
               className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-                nav.view === n.id ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+                nav.view === n.id
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-500 hover:text-gray-700'
               }`}
             >
               {n.label}
@@ -749,8 +1018,12 @@ export default function KnowledgePage() {
         </div>
       )}
 
-      {nav.view === 'portal'    && <PortalView onSelectArticle={handleSelectArticle} onSearch={() => {}} />}
-      {nav.view === 'library'   && <LibraryView onSelectArticle={handleSelectArticle} />}
+      {nav.view === 'portal' && (
+        <PortalView onSelectArticle={handleSelectArticle} onSearch={() => {}} />
+      )}
+      {nav.view === 'library' && (
+        <LibraryView onSelectArticle={handleSelectArticle} />
+      )}
       {nav.view === 'article' && (
         <ArticleDetailView articleId={nav.selectedId} onBack={handleBack} />
       )}

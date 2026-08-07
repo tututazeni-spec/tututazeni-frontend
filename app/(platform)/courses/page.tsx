@@ -11,10 +11,11 @@ import Image from 'next/image';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type CourseStatus    = 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
-type CourseLevel     = 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED';
-type LessonType      = 'VIDEO' | 'PDF' | 'TEXT' | 'AUDIO' | 'SLIDE' | 'LINK' | 'SCORM' | 'QUIZ';
-type EnrollmentStatus= 'NOT_STARTED' | 'IN_PROGRESS' | 'COMPLETED' | 'EXPIRED';
+type CourseStatus = 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
+type CourseLevel = 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED';
+type LessonType =
+  'VIDEO' | 'PDF' | 'TEXT' | 'AUDIO' | 'SLIDE' | 'LINK' | 'SCORM' | 'QUIZ';
+type EnrollmentStatus = 'NOT_STARTED' | 'IN_PROGRESS' | 'COMPLETED' | 'EXPIRED';
 
 interface Course {
   id: number;
@@ -60,7 +61,11 @@ interface CourseModule {
 
 interface CourseProgress {
   enrollment: { id: number; status: EnrollmentStatus; deadline: string | null };
-  courseProgress: { totalLessons: number; completedLessons: number; pct: number };
+  courseProgress: {
+    totalLessons: number;
+    completedLessons: number;
+    pct: number;
+  };
   modules: CourseModule[];
 }
 
@@ -69,7 +74,12 @@ interface Certificate {
   code: string;
   issuedAt: string;
   expiresAt: string | null;
-  course: { id: number; title: string; thumbnailUrl: string | null; category: string | null };
+  course: {
+    id: number;
+    title: string;
+    thumbnailUrl: string | null;
+    category: string | null;
+  };
 }
 
 interface PaginatedCourses {
@@ -81,16 +91,22 @@ interface PaginatedCourses {
 }
 
 interface AdminDashboard {
-  courses:        { total: number; published: number };
-  enrollments:    { total: number; completed: number; overdue: number };
+  courses: { total: number; published: number };
+  enrollments: { total: number; completed: number; overdue: number };
   completionRate: number;
-  topCourses:     Course[];
+  topCourses: Course[];
 }
 
 interface CourseDetailModule {
   id: number;
   title: string;
-  lessons?: Array<{ id: number; title: string; type: LessonType; durationMinutes: number | null; isFree: boolean }>;
+  lessons?: Array<{
+    id: number;
+    title: string;
+    type: LessonType;
+    durationMinutes: number | null;
+    isFree: boolean;
+  }>;
 }
 
 interface CourseFeedback {
@@ -106,7 +122,12 @@ interface MyEnrollment {
   status: EnrollmentStatus;
   deadline: string | null;
   mandatory?: boolean;
-  course: { title: string; thumbnailUrl: string | null; category: string | null; workloadHours: number | null };
+  course: {
+    title: string;
+    thumbnailUrl: string | null;
+    category: string | null;
+    workloadHours: number | null;
+  };
 }
 
 interface CertificateVerifyResult {
@@ -119,14 +140,21 @@ interface CertificateVerifyResult {
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function fmtDuration(h: number | null, minutes?: number | null): string {
-  if (minutes) return minutes < 60 ? `${minutes}min` : `${Math.floor(minutes / 60)}h ${minutes % 60}min`;
+  if (minutes)
+    return minutes < 60
+      ? `${minutes}min`
+      : `${Math.floor(minutes / 60)}h ${minutes % 60}min`;
   if (!h) return '—';
   return `${h}h`;
 }
 
 function fmtDate(d: string | null): string {
   if (!d) return '—';
-  return new Date(d).toLocaleDateString('pt-AO', { day: '2-digit', month: 'short', year: 'numeric' });
+  return new Date(d).toLocaleDateString('pt-AO', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  });
 }
 
 function isOverdue(deadline: string | null): boolean {
@@ -137,42 +165,59 @@ function isOverdue(deadline: string | null): boolean {
 
 function LevelBadge({ level }: { level: CourseLevel }) {
   const cfg: Record<CourseLevel, { label: string; cls: string }> = {
-    BEGINNER:     { label: 'Iniciante',     cls: 'bg-emerald-50 text-emerald-700' },
-    INTERMEDIATE: { label: 'Intermédio',    cls: 'bg-amber-50 text-amber-700' },
-    ADVANCED:     { label: 'Avançado',      cls: 'bg-red-50 text-red-700' },
+    BEGINNER: { label: 'Iniciante', cls: 'bg-emerald-50 text-emerald-700' },
+    INTERMEDIATE: { label: 'Intermédio', cls: 'bg-amber-50 text-amber-700' },
+    ADVANCED: { label: 'Avançado', cls: 'bg-red-50 text-red-700' },
   };
   const { label, cls } = cfg[level];
-  return <span className={`px-2 py-0.5 rounded text-xs font-medium ${cls}`}>{label}</span>;
-}
-
-function StatusBadge({ status }: { status: CourseStatus }) {
-  const cfg: Record<CourseStatus, { label: string; cls: string }> = {
-    DRAFT:     { label: 'Rascunho',   cls: 'bg-gray-100 text-gray-500' },
-    PUBLISHED: { label: 'Publicado',  cls: 'bg-emerald-50 text-emerald-700' },
-    ARCHIVED:  { label: 'Arquivado',  cls: 'bg-gray-100 text-gray-400' },
-  };
-  const { label, cls } = cfg[status];
   return (
-    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${cls}`}>
-      <span className="w-1.5 h-1.5 rounded-full bg-current" />{label}
+    <span className={`px-2 py-0.5 rounded text-xs font-medium ${cls}`}>
+      {label}
     </span>
   );
 }
 
-function EnrollBadge({ status, deadline }: { status: EnrollmentStatus; deadline: string | null }) {
+function StatusBadge({ status }: { status: CourseStatus }) {
+  const cfg: Record<CourseStatus, { label: string; cls: string }> = {
+    DRAFT: { label: 'Rascunho', cls: 'bg-gray-100 text-gray-500' },
+    PUBLISHED: { label: 'Publicado', cls: 'bg-emerald-50 text-emerald-700' },
+    ARCHIVED: { label: 'Arquivado', cls: 'bg-gray-100 text-gray-400' },
+  };
+  const { label, cls } = cfg[status];
+  return (
+    <span
+      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${cls}`}
+    >
+      <span className="w-1.5 h-1.5 rounded-full bg-current" />
+      {label}
+    </span>
+  );
+}
+
+function EnrollBadge({
+  status,
+  deadline,
+}: {
+  status: EnrollmentStatus;
+  deadline: string | null;
+}) {
   const overdue = isOverdue(deadline);
   const cfg: Record<EnrollmentStatus, { label: string; cls: string }> = {
     NOT_STARTED: { label: 'Não iniciado', cls: 'bg-gray-100 text-gray-500' },
     IN_PROGRESS: { label: 'Em progresso', cls: 'bg-blue-50 text-blue-700' },
-    COMPLETED:   { label: 'Concluído',    cls: 'bg-emerald-50 text-emerald-700' },
-    EXPIRED:     { label: 'Expirado',     cls: 'bg-red-50 text-red-600' },
+    COMPLETED: { label: 'Concluído', cls: 'bg-emerald-50 text-emerald-700' },
+    EXPIRED: { label: 'Expirado', cls: 'bg-red-50 text-red-600' },
   };
   const { label, cls } = cfg[status];
   return (
     <div className="flex items-center gap-1.5">
-      <span className={`px-2 py-0.5 rounded text-xs font-medium ${cls}`}>{label}</span>
+      <span className={`px-2 py-0.5 rounded text-xs font-medium ${cls}`}>
+        {label}
+      </span>
       {overdue && status !== 'COMPLETED' && (
-        <span className="text-xs text-red-600 font-medium">⚠ Prazo expirado</span>
+        <span className="text-xs text-red-600 font-medium">
+          ⚠ Prazo expirado
+        </span>
       )}
     </div>
   );
@@ -180,13 +225,25 @@ function EnrollBadge({ status, deadline }: { status: EnrollmentStatus; deadline:
 
 function LessonIcon({ type }: { type: LessonType }) {
   const icons: Record<LessonType, string> = {
-    VIDEO: '▶', PDF: '📄', TEXT: '📝', AUDIO: '🎵',
-    SLIDE: '📊', LINK: '🔗', SCORM: '📦', QUIZ: '❓',
+    VIDEO: '▶',
+    PDF: '📄',
+    TEXT: '📝',
+    AUDIO: '🎵',
+    SLIDE: '📊',
+    LINK: '🔗',
+    SCORM: '📦',
+    QUIZ: '❓',
   };
   return <span className="text-sm">{icons[type] ?? '📄'}</span>;
 }
 
-function ProgressBar({ pct, size = 'sm' }: { pct: number; size?: 'sm' | 'md' }) {
+function ProgressBar({
+  pct,
+  size = 'sm',
+}: {
+  pct: number;
+  size?: 'sm' | 'md';
+}) {
   const h = size === 'sm' ? 'h-1.5' : 'h-2.5';
   return (
     <div className={`w-full ${h} bg-gray-100 rounded-full overflow-hidden`}>
@@ -225,11 +282,24 @@ function CourseCard({
     <div
       className="bg-white border border-gray-200 rounded-xl overflow-hidden cursor-pointer hover:shadow-md hover:border-blue-300 transition-all"
       onClick={onClick}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onClick();
+        }
+      }}
     >
       {/* Thumbnail */}
       <div className="aspect-video bg-gray-100 relative overflow-hidden">
         {course.thumbnailUrl ? (
-          <Image src={course.thumbnailUrl} alt={course.title} fill className="object-cover" />
+          <Image
+            src={course.thumbnailUrl}
+            alt={course.title}
+            fill
+            className="object-cover"
+          />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-4xl text-gray-300">
             📚
@@ -243,7 +313,10 @@ function CourseCard({
         {progress !== undefined && progress > 0 && (
           <div className="absolute bottom-0 left-0 right-0">
             <div className="h-1 bg-gray-200">
-              <div className="h-1 bg-blue-600" style={{ width: `${progress}%` }} />
+              <div
+                className="h-1 bg-blue-600"
+                style={{ width: `${progress}%` }}
+              />
             </div>
           </div>
         )}
@@ -252,18 +325,26 @@ function CourseCard({
       <div className="p-4">
         {/* Category */}
         {course.category && (
-          <div className="text-xs text-blue-600 font-medium mb-1">{course.category}</div>
+          <div className="text-xs text-blue-600 font-medium mb-1">
+            {course.category}
+          </div>
         )}
         {/* Title */}
-        <div className="text-sm font-semibold text-gray-900 mb-1 line-clamp-2">{course.title}</div>
+        <div className="text-sm font-semibold text-gray-900 mb-1 line-clamp-2">
+          {course.title}
+        </div>
         {/* Short desc */}
         {course.shortDescription && (
-          <div className="text-xs text-gray-500 mb-2 line-clamp-2">{course.shortDescription}</div>
+          <div className="text-xs text-gray-500 mb-2 line-clamp-2">
+            {course.shortDescription}
+          </div>
         )}
 
         {/* Meta */}
         <div className="flex items-center gap-3 text-xs text-gray-400 mb-2">
-          {course.workloadHours && <span>⏱ {fmtDuration(course.workloadHours)}</span>}
+          {course.workloadHours && (
+            <span>⏱ {fmtDuration(course.workloadHours)}</span>
+          )}
           <LevelBadge level={course.level} />
           <span>👥 {course._count.enrollments}</span>
         </div>
@@ -290,37 +371,58 @@ interface CatalogFilters {
   page: number;
 }
 const INITIAL_CATALOG_FILTERS: CatalogFilters = {
-  search: '', category: '', level: '', mandatory: '', page: 1,
+  search: '',
+  category: '',
+  level: '',
+  mandatory: '',
+  page: 1,
 };
 
 function CatalogView({ onSelect }: { onSelect: (id: number) => void }) {
-  const [filters, setFilters] = useState<CatalogFilters>(INITIAL_CATALOG_FILTERS);
+  const [filters, setFilters] = useState<CatalogFilters>(
+    INITIAL_CATALOG_FILTERS,
+  );
   const { search, category, level, mandatory, page } = filters;
 
   function updateFilters(patch: Partial<Omit<CatalogFilters, 'page'>>) {
-    setFilters(f => ({ ...f, ...patch, page: 1 }));
+    setFilters((f) => ({ ...f, ...patch, page: 1 }));
   }
   function goToPage(delta: number) {
-    setFilters(f => ({ ...f, page: f.page + delta }));
+    setFilters((f) => ({ ...f, page: f.page + delta }));
   }
 
   const debouncedSearch = useDebounce(search);
   const params = {
-    page, limit: 12, status: 'PUBLISHED',
-    search: debouncedSearch, category, level, mandatory,
+    page,
+    limit: 12,
+    status: 'PUBLISHED',
+    search: debouncedSearch,
+    category,
+    level,
+    mandatory,
   };
 
   // Lista e categorias correm em paralelo (queries independentes).
-  const { data, isLoading: loading, error } = useApiQuery<PaginatedCourses>(
-    queryKeys.courses.list(params), '/courses',
-    { params, staleTime: STALE_TIME.SEMI_STATIC, placeholderData: keepPreviousData },
+  const {
+    data,
+    isLoading: loading,
+    error,
+  } = useApiQuery<PaginatedCourses>(
+    queryKeys.courses.list(params),
+    '/courses',
+    {
+      params,
+      staleTime: STALE_TIME.SEMI_STATIC,
+      placeholderData: keepPreviousData,
+    },
   );
   // Categorias mudam pouco → cache longa (STATIC).
-  const { data: cats = [] } = useApiQuery<Array<{ category: string; count: number }>>(
-    queryKeys.courses.categories(), '/courses/categories',
-    { staleTime: STALE_TIME.STATIC },
-  );
-  const categories = cats.map(c => c.category).filter(Boolean) as string[];
+  const { data: cats = [] } = useApiQuery<
+    Array<{ category: string; count: number }>
+  >(queryKeys.courses.categories(), '/courses/categories', {
+    staleTime: STALE_TIME.STATIC,
+  });
+  const categories = cats.map((c) => c.category).filter(Boolean) as string[];
 
   return (
     <div>
@@ -330,51 +432,80 @@ function CatalogView({ onSelect }: { onSelect: (id: number) => void }) {
           type="text"
           placeholder="Pesquisar cursos, competências, tópicos…"
           value={search}
-          onChange={e => updateFilters({ search: e.target.value })}
+          onChange={(e) => updateFilters({ search: e.target.value })}
           className="flex-1 min-w-[200px] text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
-        <select value={category} onChange={e => updateFilters({ category: e.target.value })}
-          className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <select
+          value={category}
+          onChange={(e) => updateFilters({ category: e.target.value })}
+          className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
           <option value="">Todas as categorias</option>
-          {categories.map(c => <option key={c} value={c}>{c}</option>)}
+          {categories.map((c) => (
+            <option key={c} value={c}>
+              {c}
+            </option>
+          ))}
         </select>
-        <select value={level} onChange={e => updateFilters({ level: e.target.value })}
-          className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <select
+          value={level}
+          onChange={(e) => updateFilters({ level: e.target.value })}
+          className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
           <option value="">Todos os níveis</option>
           <option value="BEGINNER">Iniciante</option>
           <option value="INTERMEDIATE">Intermédio</option>
           <option value="ADVANCED">Avançado</option>
         </select>
-        <select value={mandatory} onChange={e => updateFilters({ mandatory: e.target.value })}
-          className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <select
+          value={mandatory}
+          onChange={(e) => updateFilters({ mandatory: e.target.value })}
+          className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
           <option value="">Obrigatório e opcional</option>
           <option value="true">Apenas obrigatórios</option>
           <option value="false">Apenas opcionais</option>
         </select>
       </div>
 
-      {error && <div className="text-sm text-red-500 mb-4">{error.message}</div>}
+      {error && (
+        <div className="text-sm text-red-500 mb-4">{error.message}</div>
+      )}
 
       {loading && <Skeleton rows={3} />}
 
       {!loading && data && (
         <>
-          <div className="text-xs text-gray-400 mb-4">{data.total} cursos encontrados</div>
+          <div className="text-xs text-gray-400 mb-4">
+            {data.total} cursos encontrados
+          </div>
           <div className="grid grid-cols-3 gap-4 mb-6">
-            {data.data.map(course => (
-              <CourseCard key={course.id} course={course} onClick={() => onSelect(course.id)} />
+            {data.data.map((course) => (
+              <CourseCard
+                key={course.id}
+                course={course}
+                onClick={() => onSelect(course.id)}
+              />
             ))}
           </div>
           {data.totalPages > 1 && (
             <div className="flex items-center justify-between">
-              <span className="text-xs text-gray-400">Página {data.page} de {data.totalPages}</span>
+              <span className="text-xs text-gray-400">
+                Página {data.page} de {data.totalPages}
+              </span>
               <div className="flex gap-2">
-                <button disabled={page === 1} onClick={() => goToPage(-1)}
-                  className="px-3 py-1.5 text-xs border border-gray-200 rounded-lg disabled:opacity-40 hover:bg-gray-50">
+                <button
+                  disabled={page === 1}
+                  onClick={() => goToPage(-1)}
+                  className="px-3 py-1.5 text-xs border border-gray-200 rounded-lg disabled:opacity-40 hover:bg-gray-50"
+                >
                   ← Anterior
                 </button>
-                <button disabled={page === data.totalPages} onClick={() => goToPage(1)}
-                  className="px-3 py-1.5 text-xs border border-gray-200 rounded-lg disabled:opacity-40 hover:bg-gray-50">
+                <button
+                  disabled={page === data.totalPages}
+                  onClick={() => goToPage(1)}
+                  className="px-3 py-1.5 text-xs border border-gray-200 rounded-lg disabled:opacity-40 hover:bg-gray-50"
+                >
                   Próxima →
                 </button>
               </div>
@@ -388,10 +519,16 @@ function CatalogView({ onSelect }: { onSelect: (id: number) => void }) {
 
 // ─── View: Course Detail + Player ────────────────────────────────────────────
 
-function CourseDetail({ courseId, onBack }: { courseId: number; onBack: () => void }) {
+function CourseDetail({
+  courseId,
+  onBack,
+}: {
+  courseId: number;
+  onBack: () => void;
+}) {
   const [activeLesson, setActiveLesson] = useState<Lesson | null>(null);
-  const [rating, setRating]     = useState(0);
-  const [comment, setComment]   = useState('');
+  const [rating, setRating] = useState(0);
+  const [comment, setComment] = useState('');
 
   // course e progress em paralelo. O progress dá 4xx quando não inscrito → o RQ
   // não repete 4xx; tratamos a ausência como "não inscrito" (progress = null).
@@ -401,7 +538,8 @@ function CourseDetail({ courseId, onBack }: { courseId: number; onBack: () => vo
     staleTime: STALE_TIME.SEMI_STATIC,
   });
   const { data: progress = null } = useApiQuery<CourseProgress>(
-    queryKeys.courses.progress(courseId), `/courses/${courseId}/progress`,
+    queryKeys.courses.progress(courseId),
+    `/courses/${courseId}/progress`,
     { staleTime: STALE_TIME.DYNAMIC, retry: false },
   );
 
@@ -410,7 +548,10 @@ function CourseDetail({ courseId, onBack }: { courseId: number; onBack: () => vo
     if (!progress || activeLesson) return;
     for (const mod of progress.modules) {
       const pending = mod.lessons.find((l: Lesson) => !l.completed);
-      if (pending) { setActiveLesson(pending); break; }
+      if (pending) {
+        setActiveLesson(pending);
+        break;
+      }
     }
   }, [progress, activeLesson]);
 
@@ -427,7 +568,8 @@ function CourseDetail({ courseId, onBack }: { courseId: number; onBack: () => vo
   );
 
   const markComplete = useApiMutation(
-    (lessonId: number) => apiClient.post(`/courses/lessons/${lessonId}/complete`, {}),
+    (lessonId: number) =>
+      apiClient.post(`/courses/lessons/${lessonId}/complete`, {}),
     {
       invalidateKeys: [
         queryKeys.courses.progress(courseId),
@@ -441,26 +583,42 @@ function CourseDetail({ courseId, onBack }: { courseId: number; onBack: () => vo
     () => apiClient.post(`/courses/${courseId}/feedback`, { rating, comment }),
     {
       invalidateKeys: [queryKeys.courses.detail(courseId)],
-      onSuccess: () => { alert('Obrigado pelo feedback!'); setRating(0); setComment(''); },
+      onSuccess: () => {
+        alert('Obrigado pelo feedback!');
+        setRating(0);
+        setComment('');
+      },
       onError: (e) => alert(e.message),
     },
   );
 
   const handleEnroll = () => enroll.mutate(undefined);
-  const handleMarkComplete = () => { if (activeLesson) markComplete.mutate(activeLesson.id); };
-  const handleFeedback = () => { if (rating) feedback.mutate(undefined); };
+  const handleMarkComplete = () => {
+    if (activeLesson) markComplete.mutate(activeLesson.id);
+  };
+  const handleFeedback = () => {
+    if (rating) feedback.mutate(undefined);
+  };
   const enrolling = enroll.isPending;
   const completing = markComplete.isPending;
   const feedbackLoading = feedback.isPending;
 
-  if (loadingCourse || !course) return <div><Skeleton rows={5} /></div>;
+  if (loadingCourse || !course)
+    return (
+      <div>
+        <Skeleton rows={5} />
+      </div>
+    );
 
   const isEnrolled = !!progress?.enrollment;
   const progressPct = progress?.courseProgress.pct ?? 0;
 
   return (
     <div>
-      <button onClick={onBack} className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-800 mb-5">
+      <button
+        onClick={onBack}
+        className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-800 mb-5"
+      >
         ← Voltar ao catálogo
       </button>
 
@@ -473,21 +631,33 @@ function CourseDetail({ courseId, onBack }: { courseId: number; onBack: () => vo
               {activeLesson.type === 'VIDEO' ? (
                 <div className="text-white text-center">
                   <div className="text-5xl mb-3">▶</div>
-                  <div className="text-sm text-gray-300">{activeLesson.title}</div>
-                  <div className="text-xs text-gray-500 mt-1">Player de vídeo aqui (embed YouTube/Vimeo/próprio)</div>
+                  <div className="text-sm text-gray-300">
+                    {activeLesson.title}
+                  </div>
+                  <div className="text-xs text-gray-500 mt-1">
+                    Player de vídeo aqui (embed YouTube/Vimeo/próprio)
+                  </div>
                 </div>
               ) : (
                 <div className="text-white text-center">
-                  <div className="text-5xl mb-3"><LessonIcon type={activeLesson.type} /></div>
-                  <div className="text-sm text-gray-300">{activeLesson.title}</div>
+                  <div className="text-5xl mb-3">
+                    <LessonIcon type={activeLesson.type} />
+                  </div>
+                  <div className="text-sm text-gray-300">
+                    {activeLesson.title}
+                  </div>
                 </div>
               )}
             </div>
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h3 className="text-base font-semibold text-gray-900">{activeLesson.title}</h3>
+                <h3 className="text-base font-semibold text-gray-900">
+                  {activeLesson.title}
+                </h3>
                 {activeLesson.durationMinutes && (
-                  <span className="text-xs text-gray-400">{fmtDuration(null, activeLesson.durationMinutes)}</span>
+                  <span className="text-xs text-gray-400">
+                    {fmtDuration(null, activeLesson.durationMinutes)}
+                  </span>
                 )}
               </div>
               <button
@@ -499,18 +669,27 @@ function CourseDetail({ courseId, onBack }: { courseId: number; onBack: () => vo
                     : 'bg-blue-700 text-white hover:bg-blue-800'
                 }`}
               >
-                {activeLesson.completed ? '✓ Concluída' : completing ? 'A marcar…' : 'Marcar concluída'}
+                {activeLesson.completed
+                  ? '✓ Concluída'
+                  : completing
+                    ? 'A marcar…'
+                    : 'Marcar concluída'}
               </button>
             </div>
             {/* Progress */}
             <div className="bg-gray-50 rounded-xl p-4">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-medium text-gray-600">Progresso geral</span>
-                <span className="text-xs font-mono font-medium text-blue-700">{progressPct}%</span>
+                <span className="text-xs font-medium text-gray-600">
+                  Progresso geral
+                </span>
+                <span className="text-xs font-mono font-medium text-blue-700">
+                  {progressPct}%
+                </span>
               </div>
               <ProgressBar pct={progressPct} size="md" />
               <div className="text-xs text-gray-400 mt-1">
-                {progress?.courseProgress.completedLessons}/{progress?.courseProgress.totalLessons} aulas concluídas
+                {progress?.courseProgress.completedLessons}/
+                {progress?.courseProgress.totalLessons} aulas concluídas
               </div>
             </div>
           </div>
@@ -521,31 +700,49 @@ function CourseDetail({ courseId, onBack }: { courseId: number; onBack: () => vo
               Conteúdo do curso
             </div>
             <div className="overflow-y-auto max-h-[450px]">
-              {progress?.modules.map(mod => (
+              {progress?.modules.map((mod) => (
                 <div key={mod.id}>
                   <div className="px-4 py-2 bg-gray-50 border-b border-gray-100">
-                    <div className="text-xs font-medium text-gray-700">{mod.title}</div>
-                    <div className="text-xs text-gray-400">{mod.completedCount}/{mod.totalCount} aulas</div>
+                    <div className="text-xs font-medium text-gray-700">
+                      {mod.title}
+                    </div>
+                    <div className="text-xs text-gray-400">
+                      {mod.completedCount}/{mod.totalCount} aulas
+                    </div>
                   </div>
-                  {mod.lessons.map(lesson => (
+                  {mod.lessons.map((lesson) => (
                     <div
                       key={lesson.id}
                       onClick={() => setActiveLesson(lesson)}
                       className={`flex items-center gap-3 px-4 py-2.5 border-b border-gray-100 cursor-pointer transition-colors ${
-                        activeLesson?.id === lesson.id ? 'bg-blue-50' : 'hover:bg-gray-50'
+                        activeLesson?.id === lesson.id
+                          ? 'bg-blue-50'
+                          : 'hover:bg-gray-50'
                       }`}
                     >
-                      <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 text-xs ${
-                        lesson.completed ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-400'
-                      }`}>
-                        {lesson.completed ? '✓' : <LessonIcon type={lesson.type} />}
+                      <div
+                        className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 text-xs ${
+                          lesson.completed
+                            ? 'bg-emerald-100 text-emerald-700'
+                            : 'bg-gray-100 text-gray-400'
+                        }`}
+                      >
+                        {lesson.completed ? (
+                          '✓'
+                        ) : (
+                          <LessonIcon type={lesson.type} />
+                        )}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className={`text-xs truncate ${activeLesson?.id === lesson.id ? 'text-blue-800 font-medium' : 'text-gray-700'}`}>
+                        <div
+                          className={`text-xs truncate ${activeLesson?.id === lesson.id ? 'text-blue-800 font-medium' : 'text-gray-700'}`}
+                        >
                           {lesson.title}
                         </div>
                         {lesson.durationMinutes && (
-                          <div className="text-xs text-gray-400">{fmtDuration(null, lesson.durationMinutes)}</div>
+                          <div className="text-xs text-gray-400">
+                            {fmtDuration(null, lesson.durationMinutes)}
+                          </div>
                         )}
                       </div>
                     </div>
@@ -560,30 +757,50 @@ function CourseDetail({ courseId, onBack }: { courseId: number; onBack: () => vo
         <div className="grid grid-cols-[1fr_320px] gap-6 mb-6">
           <div>
             <div className="flex items-center gap-2 mb-2 flex-wrap">
-              {course.category && <span className="text-xs text-blue-600 font-medium">{course.category}</span>}
+              {course.category && (
+                <span className="text-xs text-blue-600 font-medium">
+                  {course.category}
+                </span>
+              )}
               <LevelBadge level={course.level} />
               <StatusBadge status={course.status} />
               {course.mandatory && (
-                <span className="px-2 py-0.5 bg-red-50 text-red-700 text-xs font-medium rounded">Obrigatório</span>
+                <span className="px-2 py-0.5 bg-red-50 text-red-700 text-xs font-medium rounded">
+                  Obrigatório
+                </span>
               )}
             </div>
-            <h1 className="text-2xl font-semibold text-gray-900 mb-2">{course.title}</h1>
+            <h1 className="text-2xl font-semibold text-gray-900 mb-2">
+              {course.title}
+            </h1>
             {course.shortDescription && (
-              <p className="text-sm text-gray-600 mb-4">{course.shortDescription}</p>
+              <p className="text-sm text-gray-600 mb-4">
+                {course.shortDescription}
+              </p>
             )}
             <div className="flex flex-wrap gap-4 text-sm text-gray-500 mb-4">
-              {course.workloadHours && <span>⏱ {fmtDuration(course.workloadHours)}</span>}
+              {course.workloadHours && (
+                <span>⏱ {fmtDuration(course.workloadHours)}</span>
+              )}
               <span>👥 {course._count.enrollments} matriculados</span>
               <span>📋 {course._count.modules} módulos</span>
-              {course.internalCode && <span className="font-mono text-xs">{course.internalCode}</span>}
+              {course.internalCode && (
+                <span className="font-mono text-xs">{course.internalCode}</span>
+              )}
             </div>
             {course.learningObjectives.length > 0 && (
               <div className="bg-emerald-50 rounded-xl p-4 mb-4">
-                <div className="text-xs font-medium text-emerald-700 mb-2 uppercase tracking-wide">Objectivos de aprendizagem</div>
+                <div className="text-xs font-medium text-emerald-700 mb-2 uppercase tracking-wide">
+                  Objectivos de aprendizagem
+                </div>
                 <ul className="space-y-1">
                   {course.learningObjectives.map((obj, i) => (
-                    <li key={i} className="flex items-start gap-2 text-xs text-emerald-800">
-                      <span className="text-emerald-500 mt-0.5">✓</span>{obj}
+                    <li
+                      key={i}
+                      className="flex items-start gap-2 text-xs text-emerald-800"
+                    >
+                      <span className="text-emerald-500 mt-0.5">✓</span>
+                      {obj}
                     </li>
                   ))}
                 </ul>
@@ -595,7 +812,12 @@ function CourseDetail({ courseId, onBack }: { courseId: number; onBack: () => vo
           <div className="bg-white border border-gray-200 rounded-xl p-5">
             {course.thumbnailUrl && (
               <div className="aspect-video rounded-lg overflow-hidden mb-4 relative">
-                <Image src={course.thumbnailUrl} alt={course.title} fill className="object-cover" />
+                <Image
+                  src={course.thumbnailUrl}
+                  alt={course.title}
+                  fill
+                  className="object-cover"
+                />
               </div>
             )}
             {!isEnrolled && course.status === 'PUBLISHED' && (
@@ -614,7 +836,9 @@ function CourseDetail({ courseId, onBack }: { courseId: number; onBack: () => vo
                   deadline={progress!.enrollment.deadline}
                 />
                 <ProgressBar pct={progressPct} size="md" />
-                <div className="text-xs text-gray-400 text-center">{progressPct}% concluído</div>
+                <div className="text-xs text-gray-400 text-center">
+                  {progressPct}% concluído
+                </div>
               </div>
             )}
           </div>
@@ -627,19 +851,37 @@ function CourseDetail({ courseId, onBack }: { courseId: number; onBack: () => vo
           <div className="px-4 py-3 border-b border-gray-100 text-sm font-semibold text-gray-900">
             Conteúdo do curso
           </div>
-          {course.modules.map(mod => (
-            <details key={mod.id} className="border-b border-gray-100 last:border-0">
+          {course.modules.map((mod) => (
+            <details
+              key={mod.id}
+              className="border-b border-gray-100 last:border-0"
+            >
               <summary className="flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-gray-50">
-                <span className="text-sm font-medium text-gray-800">{mod.title}</span>
-                <span className="text-xs text-gray-400">{mod.lessons?.length ?? 0} aulas</span>
+                <span className="text-sm font-medium text-gray-800">
+                  {mod.title}
+                </span>
+                <span className="text-xs text-gray-400">
+                  {mod.lessons?.length ?? 0} aulas
+                </span>
               </summary>
               <div className="px-4 pb-2">
-                {mod.lessons?.map(l => (
-                  <div key={l.id} className="flex items-center gap-2 py-1.5 text-xs text-gray-600 border-b border-gray-50 last:border-0">
+                {mod.lessons?.map((l) => (
+                  <div
+                    key={l.id}
+                    className="flex items-center gap-2 py-1.5 text-xs text-gray-600 border-b border-gray-50 last:border-0"
+                  >
                     <LessonIcon type={l.type} />
                     <span className="flex-1">{l.title}</span>
-                    {l.durationMinutes && <span className="text-gray-400">{fmtDuration(null, l.durationMinutes)}</span>}
-                    {l.isFree && <span className="text-emerald-600 font-medium">Grátis</span>}
+                    {l.durationMinutes && (
+                      <span className="text-gray-400">
+                        {fmtDuration(null, l.durationMinutes)}
+                      </span>
+                    )}
+                    {l.isFree && (
+                      <span className="text-emerald-600 font-medium">
+                        Grátis
+                      </span>
+                    )}
                   </div>
                 ))}
               </div>
@@ -651,9 +893,11 @@ function CourseDetail({ courseId, onBack }: { courseId: number; onBack: () => vo
       {/* Feedback section */}
       {isEnrolled && progress?.enrollment.status === 'COMPLETED' && (
         <div className="bg-white border border-gray-200 rounded-xl p-5 mb-6">
-          <div className="text-sm font-semibold text-gray-900 mb-3">Avalie este curso</div>
+          <div className="text-sm font-semibold text-gray-900 mb-3">
+            Avalie este curso
+          </div>
           <div className="flex gap-1 mb-3">
-            {[1, 2, 3, 4, 5].map(s => (
+            {[1, 2, 3, 4, 5].map((s) => (
               <button
                 key={s}
                 onClick={() => setRating(s)}
@@ -665,7 +909,7 @@ function CourseDetail({ courseId, onBack }: { courseId: number; onBack: () => vo
           </div>
           <textarea
             value={comment}
-            onChange={e => setComment(e.target.value)}
+            onChange={(e) => setComment(e.target.value)}
             rows={3}
             placeholder="Partilhe a sua experiência…"
             className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none mb-3"
@@ -683,12 +927,19 @@ function CourseDetail({ courseId, onBack }: { courseId: number; onBack: () => vo
       {/* Feedbacks existentes */}
       {(course.feedbacks?.length ?? 0) > 0 && (
         <div className="bg-white border border-gray-200 rounded-xl p-5">
-          <div className="text-sm font-semibold text-gray-900 mb-3">Avaliações</div>
+          <div className="text-sm font-semibold text-gray-900 mb-3">
+            Avaliações
+          </div>
           <div className="space-y-3">
-            {course.feedbacks?.map(f => (
-              <div key={f.id} className="border-b border-gray-100 pb-3 last:border-0">
+            {course.feedbacks?.map((f) => (
+              <div
+                key={f.id}
+                className="border-b border-gray-100 pb-3 last:border-0"
+              >
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="text-sm font-medium text-gray-800">{f.user.fullName}</span>
+                  <span className="text-sm font-medium text-gray-800">
+                    {f.user.fullName}
+                  </span>
                   <span className="text-amber-400">{'★'.repeat(f.rating)}</span>
                 </div>
                 <p className="text-xs text-gray-600">{f.comment}</p>
@@ -706,28 +957,42 @@ function CourseDetail({ courseId, onBack }: { courseId: number; onBack: () => vo
 function MyEnrollmentsView({ onSelect }: { onSelect: (id: number) => void }) {
   const [filter, setFilter] = useState('');
 
-  const { data = [], isLoading: loading, error } = useApiQuery<MyEnrollment[]>(
-    queryKeys.courses.myEnrollments(), '/courses/my/enrollments',
+  const {
+    data = [],
+    isLoading: loading,
+    error,
+  } = useApiQuery<MyEnrollment[]>(
+    queryKeys.courses.myEnrollments(),
+    '/courses/my/enrollments',
     { staleTime: STALE_TIME.DYNAMIC },
   );
 
-  const filtered = filter ? data.filter(e => e.status === filter) : data;
+  const filtered = filter ? data.filter((e) => e.status === filter) : data;
 
   if (loading) return <Skeleton />;
-  if (error)   return <div className="text-sm text-red-500">{error.message}</div>;
+  if (error) return <div className="text-sm text-red-500">{error.message}</div>;
 
   return (
     <div>
       <div className="flex gap-2 mb-5">
-        {['', 'NOT_STARTED', 'IN_PROGRESS', 'COMPLETED'].map(s => (
+        {['', 'NOT_STARTED', 'IN_PROGRESS', 'COMPLETED'].map((s) => (
           <button
             key={s}
             onClick={() => setFilter(s)}
             className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
-              filter === s ? 'bg-blue-700 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              filter === s
+                ? 'bg-blue-700 text-white'
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
             }`}
           >
-            {{ '': 'Todos', NOT_STARTED: 'Não iniciados', IN_PROGRESS: 'Em progresso', COMPLETED: 'Concluídos' }[s]}
+            {
+              {
+                '': 'Todos',
+                NOT_STARTED: 'Não iniciados',
+                IN_PROGRESS: 'Em progresso',
+                COMPLETED: 'Concluídos',
+              }[s]
+            }
           </button>
         ))}
       </div>
@@ -738,7 +1003,7 @@ function MyEnrollmentsView({ onSelect }: { onSelect: (id: number) => void }) {
         </div>
       ) : (
         <div className="space-y-3">
-          {filtered.map(e => (
+          {filtered.map((e) => (
             <div
               key={e.id}
               className="flex items-center gap-4 bg-white border border-gray-200 rounded-xl p-4 cursor-pointer hover:bg-gray-50"
@@ -746,25 +1011,42 @@ function MyEnrollmentsView({ onSelect }: { onSelect: (id: number) => void }) {
             >
               <div className="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0 relative">
                 {e.course.thumbnailUrl ? (
-                  <Image src={e.course.thumbnailUrl} alt="" fill className="object-cover" />
+                  <Image
+                    src={e.course.thumbnailUrl}
+                    alt=""
+                    fill
+                    className="object-cover"
+                  />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center text-2xl text-gray-300">📚</div>
+                  <div className="w-full h-full flex items-center justify-center text-2xl text-gray-300">
+                    📚
+                  </div>
                 )}
               </div>
               <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium text-gray-900 mb-1">{e.course.title}</div>
+                <div className="text-sm font-medium text-gray-900 mb-1">
+                  {e.course.title}
+                </div>
                 <div className="flex items-center gap-3 text-xs text-gray-400 mb-2">
                   {e.course.category && <span>{e.course.category}</span>}
-                  {e.course.workloadHours && <span>⏱ {fmtDuration(e.course.workloadHours)}</span>}
+                  {e.course.workloadHours && (
+                    <span>⏱ {fmtDuration(e.course.workloadHours)}</span>
+                  )}
                 </div>
                 <EnrollBadge status={e.status} deadline={e.deadline} />
               </div>
               {e.mandatory && (
-                <span className="text-xs px-2 py-0.5 bg-red-50 text-red-700 rounded flex-shrink-0">Obrigatório</span>
+                <span className="text-xs px-2 py-0.5 bg-red-50 text-red-700 rounded flex-shrink-0">
+                  Obrigatório
+                </span>
               )}
               {e.deadline && (
-                <div className={`text-xs flex-shrink-0 ${isOverdue(e.deadline) ? 'text-red-600' : 'text-gray-400'}`}>
-                  {isOverdue(e.deadline) ? '⚠ Atrasado' : `Prazo: ${fmtDate(e.deadline)}`}
+                <div
+                  className={`text-xs flex-shrink-0 ${isOverdue(e.deadline) ? 'text-red-600' : 'text-gray-400'}`}
+                >
+                  {isOverdue(e.deadline)
+                    ? '⚠ Atrasado'
+                    : `Prazo: ${fmtDate(e.deadline)}`}
                 </div>
               )}
             </div>
@@ -779,22 +1061,29 @@ function MyEnrollmentsView({ onSelect }: { onSelect: (id: number) => void }) {
 
 function CertificatesView() {
   const [verifyCode, setVerifyCode] = useState('');
-  const [verifyResult, setVerifyResult] = useState<CertificateVerifyResult | null>(null);
+  const [verifyResult, setVerifyResult] =
+    useState<CertificateVerifyResult | null>(null);
 
   const { data = [], isLoading: loading } = useApiQuery<Certificate[]>(
-    queryKeys.courses.myCertificates(), '/courses/my/certificates',
+    queryKeys.courses.myCertificates(),
+    '/courses/my/certificates',
     { staleTime: STALE_TIME.SEMI_STATIC },
   );
 
   // Verificação on-demand de um código → mutação (acção pontual, não cacheada).
   const verifyMut = useApiMutation(
-    (code: string) => apiClient.get<CertificateVerifyResult>(`/courses/certificates/verify/${code}`),
+    (code: string) =>
+      apiClient.get<CertificateVerifyResult>(
+        `/courses/certificates/verify/${code}`,
+      ),
     {
       onSuccess: (r) => setVerifyResult(r),
       onError: (e) => setVerifyResult({ error: e.message }),
     },
   );
-  const verify = () => { if (verifyCode.trim()) verifyMut.mutate(verifyCode.trim()); };
+  const verify = () => {
+    if (verifyCode.trim()) verifyMut.mutate(verifyCode.trim());
+  };
 
   if (loading) return <Skeleton rows={3} />;
 
@@ -802,13 +1091,15 @@ function CertificatesView() {
     <div className="space-y-6">
       {/* Verificar certificado */}
       <div className="bg-gray-50 rounded-xl p-4">
-        <div className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-3">Verificar certificado</div>
+        <div className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-3">
+          Verificar certificado
+        </div>
         <div className="flex gap-3">
           <input
             type="text"
             placeholder="Código do certificado (ex: CERT-1-42-1234567890)"
             value={verifyCode}
-            onChange={e => setVerifyCode(e.target.value)}
+            onChange={(e) => setVerifyCode(e.target.value)}
             className="flex-1 text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <button
@@ -819,7 +1110,9 @@ function CertificatesView() {
           </button>
         </div>
         {verifyResult && (
-          <div className={`mt-3 p-3 rounded-lg text-sm ${verifyResult.error ? 'bg-red-50 text-red-700' : verifyResult.valid ? 'bg-emerald-50 text-emerald-800' : 'bg-amber-50 text-amber-800'}`}>
+          <div
+            className={`mt-3 p-3 rounded-lg text-sm ${verifyResult.error ? 'bg-red-50 text-red-700' : verifyResult.valid ? 'bg-emerald-50 text-emerald-800' : 'bg-amber-50 text-amber-800'}`}
+          >
             {verifyResult.error
               ? `❌ ${verifyResult.error}`
               : verifyResult.valid
@@ -836,18 +1129,33 @@ function CertificatesView() {
         </div>
       ) : (
         <div className="grid grid-cols-2 gap-4">
-          {data.map(cert => (
-            <div key={cert.id} className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+          {data.map((cert) => (
+            <div
+              key={cert.id}
+              className="bg-white border border-gray-200 rounded-xl overflow-hidden"
+            >
               <div className="bg-gradient-to-r from-blue-700 to-blue-900 p-5 text-white">
-                <div className="text-xs text-blue-200 mb-1">Certificado de conclusão</div>
-                <div className="text-base font-semibold">{cert.course.title}</div>
-                <div className="text-xs text-blue-300 mt-1 font-mono">{cert.code}</div>
+                <div className="text-xs text-blue-200 mb-1">
+                  Certificado de conclusão
+                </div>
+                <div className="text-base font-semibold">
+                  {cert.course.title}
+                </div>
+                <div className="text-xs text-blue-300 mt-1 font-mono">
+                  {cert.code}
+                </div>
               </div>
               <div className="px-4 py-3">
                 <div className="flex justify-between text-xs text-gray-500">
                   <span>Emitido: {fmtDate(cert.issuedAt)}</span>
                   {cert.expiresAt && (
-                    <span className={new Date() > new Date(cert.expiresAt) ? 'text-red-600' : ''}>
+                    <span
+                      className={
+                        new Date() > new Date(cert.expiresAt)
+                          ? 'text-red-600'
+                          : ''
+                      }
+                    >
                       Validade: {fmtDate(cert.expiresAt)}
                     </span>
                   )}
@@ -868,7 +1176,8 @@ function CertificatesView() {
 
 function AdminDashboardView({ onSelect }: { onSelect: (id: number) => void }) {
   const { data, isLoading } = useApiQuery<AdminDashboard>(
-    queryKeys.courses.adminDashboard(), '/courses/admin/dashboard',
+    queryKeys.courses.adminDashboard(),
+    '/courses/admin/dashboard',
     { staleTime: STALE_TIME.SEMI_STATIC },
   );
 
@@ -879,14 +1188,36 @@ function AdminDashboardView({ onSelect }: { onSelect: (id: number) => void }) {
       {/* Métricas */}
       <div className="grid grid-cols-4 gap-3">
         {[
-          { label: 'Total de cursos',   value: data.courses.total,        sub: `${data.courses.published} publicados` },
-          { label: 'Total matrículas',  value: data.enrollments.total,    sub: undefined },
-          { label: 'Taxa de conclusão', value: `${data.completionRate}%`, sub: `${data.enrollments.completed} concluídas`, color: 'text-emerald-600' },
-          { label: 'Atrasos',           value: data.enrollments.overdue,  sub: 'deadlines vencidos', color: data.enrollments.overdue > 0 ? 'text-red-600' : undefined },
+          {
+            label: 'Total de cursos',
+            value: data.courses.total,
+            sub: `${data.courses.published} publicados`,
+          },
+          {
+            label: 'Total matrículas',
+            value: data.enrollments.total,
+            sub: undefined,
+          },
+          {
+            label: 'Taxa de conclusão',
+            value: `${data.completionRate}%`,
+            sub: `${data.enrollments.completed} concluídas`,
+            color: 'text-emerald-600',
+          },
+          {
+            label: 'Atrasos',
+            value: data.enrollments.overdue,
+            sub: 'deadlines vencidos',
+            color: data.enrollments.overdue > 0 ? 'text-red-600' : undefined,
+          },
         ].map(({ label, value, sub, color }) => (
           <div key={label} className="bg-gray-50 rounded-xl p-4">
             <div className="text-xs text-gray-400 mb-1">{label}</div>
-            <div className={`text-2xl font-semibold font-mono ${color ?? 'text-gray-900'}`}>{value}</div>
+            <div
+              className={`text-2xl font-semibold font-mono ${color ?? 'text-gray-900'}`}
+            >
+              {value}
+            </div>
             {sub && <div className="text-xs text-gray-400 mt-1">{sub}</div>}
           </div>
         ))}
@@ -904,12 +1235,20 @@ function AdminDashboardView({ onSelect }: { onSelect: (id: number) => void }) {
               className="flex items-center gap-4 px-4 py-3 border-b border-gray-100 last:border-0 cursor-pointer hover:bg-gray-50"
               onClick={() => onSelect(c.id)}
             >
-              <span className="text-lg font-bold font-mono text-gray-200 w-6 text-center">{idx + 1}</span>
+              <span className="text-lg font-bold font-mono text-gray-200 w-6 text-center">
+                {idx + 1}
+              </span>
               <div className="flex-1">
-                <div className="text-sm font-medium text-gray-900">{c.title}</div>
-                <div className="text-xs text-gray-400">{c.category ?? '—'} · {c.level}</div>
+                <div className="text-sm font-medium text-gray-900">
+                  {c.title}
+                </div>
+                <div className="text-xs text-gray-400">
+                  {c.category ?? '—'} · {c.level}
+                </div>
               </div>
-              <div className="text-sm text-gray-500">{c._count.enrollments} matrículas</div>
+              <div className="text-sm text-gray-500">
+                {c._count.enrollments} matrículas
+              </div>
               <StatusBadge status={c.status} />
             </div>
           ))}
@@ -929,24 +1268,25 @@ type TopLevelView = Exclude<View, 'detail'>;
 type Nav = { view: TopLevelView } | { view: 'detail'; selectedId: number };
 
 const NAV: Array<{ id: TopLevelView; label: string }> = [
-  { id: 'catalog',      label: 'Catálogo' },
-  { id: 'my-courses',   label: 'Os meus cursos' },
+  { id: 'catalog', label: 'Catálogo' },
+  { id: 'my-courses', label: 'Os meus cursos' },
   { id: 'certificates', label: 'Certificados' },
-  { id: 'dashboard',    label: 'Dashboard (Admin)' },
+  { id: 'dashboard', label: 'Dashboard (Admin)' },
 ];
 
 const TITLES: Record<View, string> = {
-  catalog:      'Catálogo de Cursos',
-  detail:       'Curso',
+  catalog: 'Catálogo de Cursos',
+  detail: 'Curso',
   'my-courses': 'Os meus cursos',
   certificates: 'Os meus certificados',
-  dashboard:    'Dashboard de Formação',
+  dashboard: 'Dashboard de Formação',
 };
 
 export default function CoursesPage() {
   const [nav, setNav] = useState<Nav>({ view: 'catalog' });
 
-  const handleSelect = (id: number) => setNav({ view: 'detail', selectedId: id });
+  const handleSelect = (id: number) =>
+    setNav({ view: 'detail', selectedId: id });
   const handleBack = () => setNav({ view: 'catalog' });
 
   return (
@@ -954,8 +1294,12 @@ export default function CoursesPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-xl font-semibold text-gray-900">{TITLES[nav.view]}</h1>
-          <p className="text-sm text-gray-400 mt-0.5">INNOVA — Academia Corporativa</p>
+          <h1 className="text-xl font-semibold text-gray-900">
+            {TITLES[nav.view]}
+          </h1>
+          <p className="text-sm text-gray-400 mt-0.5">
+            INNOVA — Academia Corporativa
+          </p>
         </div>
         {nav.view === 'catalog' && (
           <button
@@ -970,12 +1314,14 @@ export default function CoursesPage() {
       {/* Tabs */}
       {nav.view !== 'detail' && (
         <div className="flex gap-1 mb-6 bg-gray-100 p-1 rounded-xl w-fit">
-          {NAV.map(n => (
+          {NAV.map((n) => (
             <button
               key={n.id}
               onClick={() => setNav({ view: n.id })}
               className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-                nav.view === n.id ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+                nav.view === n.id
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-500 hover:text-gray-700'
               }`}
             >
               {n.label}
@@ -984,13 +1330,17 @@ export default function CoursesPage() {
         </div>
       )}
 
-      {nav.view === 'catalog'      && <CatalogView onSelect={handleSelect} />}
+      {nav.view === 'catalog' && <CatalogView onSelect={handleSelect} />}
       {nav.view === 'detail' && (
         <CourseDetail courseId={nav.selectedId} onBack={handleBack} />
       )}
-      {nav.view === 'my-courses'   && <MyEnrollmentsView onSelect={handleSelect} />}
+      {nav.view === 'my-courses' && (
+        <MyEnrollmentsView onSelect={handleSelect} />
+      )}
       {nav.view === 'certificates' && <CertificatesView />}
-      {nav.view === 'dashboard'    && <AdminDashboardView onSelect={handleSelect} />}
+      {nav.view === 'dashboard' && (
+        <AdminDashboardView onSelect={handleSelect} />
+      )}
     </div>
   );
 }
