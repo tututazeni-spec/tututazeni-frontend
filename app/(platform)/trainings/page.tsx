@@ -82,6 +82,16 @@ interface Dashboard {
   topTrainings: Training[];
 }
 
+interface MyTrainingEntry {
+  id: number;
+  status: ParticipantStatus;
+  finalScore: number | null;
+  session?: {
+    sessionDate: string;
+    training: Pick<Training, 'id' | 'title' | 'thumbnailUrl' | 'type' | 'workloadHours'>;
+  } | null;
+}
+
 type View = 'catalog' | 'detail' | 'my-trainings' | 'dashboard';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -242,12 +252,12 @@ function CatalogView({ onSelect }: { onSelect: (id: number) => void }) {
           value={search} onChange={e => { setSearch(e.target.value); setPage(1); }}
           className="flex-1 min-w-[200px] text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
-        <select value={type} onChange={e => { setType(e.target.value as any); setPage(1); }}
+        <select value={type} onChange={e => { setType(e.target.value as TrainingType | ''); setPage(1); }}
           className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
           <option value="">Todos os formatos</option>
           {Object.entries(TYPE_CFG).map(([k, v]) => <option key={k} value={k}>{v.icon} {v.label}</option>)}
         </select>
-        <select value={level} onChange={e => { setLevel(e.target.value as any); setPage(1); }}
+        <select value={level} onChange={e => { setLevel(e.target.value as TrainingLevel | ''); setPage(1); }}
           className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
           <option value="">Todos os níveis</option>
           {Object.entries(LEVEL_CFG).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
@@ -480,7 +490,7 @@ function DetailView({ trainingId, onBack }: { trainingId: number; onBack: () => 
 function MyTrainingsView({ onSelect }: { onSelect: (id: number) => void }) {
   const [filter, setFilter] = useState<ParticipantStatus | ''>('');
 
-  const { data = [], isLoading: loading } = useApiQuery<any[]>(
+  const { data = [], isLoading: loading } = useApiQuery<MyTrainingEntry[]>(
     queryKeys.trainings.my(), '/trainings/my',
     { staleTime: STALE_TIME.DYNAMIC },
   );
@@ -504,10 +514,10 @@ function MyTrainingsView({ onSelect }: { onSelect: (id: number) => void }) {
       </div>
 
       <div className="space-y-3">
-        {filtered.map((entry: any) => {
+        {filtered.map((entry) => {
           const training = entry.session?.training;
           if (!training) return null;
-          const statusCfg = PARTICIPANT_CFG[entry.status as ParticipantStatus];
+          const statusCfg = PARTICIPANT_CFG[entry.status];
           return (
             <div
               key={entry.id}
@@ -528,7 +538,7 @@ function MyTrainingsView({ onSelect }: { onSelect: (id: number) => void }) {
                 <div className="flex items-center gap-2 text-xs text-gray-400 mt-0.5">
                   <span>{TYPE_CFG[training.type as TrainingType]?.label}</span>
                   <span>⏱ {fmtHours(training.workloadHours)}</span>
-                  <span>📅 {fmtDate(entry.session?.sessionDate)}</span>
+                  <span>📅 {fmtDate(entry.session?.sessionDate ?? null)}</span>
                 </div>
               </div>
               <div className="flex items-center gap-3 flex-shrink-0">
