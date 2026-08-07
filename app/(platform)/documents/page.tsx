@@ -19,6 +19,7 @@ import { apiClient } from '../../../lib/apiClient';
 import { queryKeys } from '../../../lib/queryKeys';
 import { STALE_TIME } from '../../../lib/queryClient';
 import { useDebounce } from '../../../hooks/useDebounce';
+import type { LucideIcon } from 'lucide-react';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -60,7 +61,7 @@ const CATEGORY_CONFIG: Record<DocCategory, { label: string; color: string }> = {
   OTHER:       { label: 'Outro',         color: 'bg-gray-100 text-gray-500'    },
 };
 
-const SENSITIVITY_CONFIG: Record<DocSensitivity, { label: string; icon: any; color: string }> = {
+const SENSITIVITY_CONFIG: Record<DocSensitivity, { label: string; icon: LucideIcon; color: string }> = {
   PUBLIC:       { label: 'Público',        icon: CheckCircle2, color: 'text-emerald-600' },
   INTERNAL:     { label: 'Interno',        icon: FileText,     color: 'text-blue-600'    },
   CONFIDENTIAL: { label: 'Confidencial',   icon: Lock,         color: 'text-amber-600'   },
@@ -68,7 +69,7 @@ const SENSITIVITY_CONFIG: Record<DocSensitivity, { label: string; icon: any; col
   SECRET:       { label: 'Secreto',        icon: Shield,       color: 'text-red-600'      },
 };
 
-const MIME_ICONS: Record<string, any> = {
+const MIME_ICONS: Record<string, LucideIcon> = {
   'application/pdf':  FileText,
   'image/':           Image,
   'video/':           Video,
@@ -105,7 +106,7 @@ function useDocuments(filters: DocFilters) {
     ...(filters.tag ? { tag: filters.tag } : {}),
     ...(filters.expiringSoon ? { expiringSoon: 'true' } : {}),
   };
-  const { data, isLoading, refetch } = useApiQuery<{ data: Document[]; meta: any }>(
+  const { data, isLoading, refetch } = useApiQuery<{ data: Document[]; meta: { total: number } }>(
     queryKeys.documents.list(params), '/documents',
     { params, staleTime: STALE_TIME.DYNAMIC, placeholderData: keepPreviousData },
   );
@@ -390,7 +391,7 @@ export default function DocumentRepositoryPage() {
     try {
       const result = await apiClient.get<{ fileUrl: string }>(`/documents/${doc.id}/download`);
       window.open(result.fileUrl, '_blank');
-    } catch (e: any) { alert(e.message); }
+    } catch (e) { alert(e instanceof Error ? e.message : String(e)); }
   };
 
   return (
