@@ -94,9 +94,23 @@ interface Analytics {
   highDivergences: Array<{ userId: number; divergence: number }>;
 }
 
+interface NineBoxUser {
+  id: number;
+  fullName: string;
+  avatarUrl: string | null;
+  position: { name: string } | null;
+}
+
 interface NineBoxGrid {
-  grid: Record<string, Array<{ user: any; placement: any }>>;
+  grid: Record<string, Array<{ user: NineBoxUser; placement: unknown }>>;
   cycleId: number | null;
+}
+
+interface MyPerformanceHistory {
+  reviews: Review[];
+  goals: Goal[];
+  feedback: Feedback[];
+  avgScore: number;
 }
 
 type View = 'dashboard' | 'team' | 'matrix9box' | 'analytics';
@@ -243,7 +257,7 @@ function useFeedbackForm(cycleId: number | undefined, onSent: () => void) {
 }
 
 function MyDashboard() {
-  const historyQ = useApiQuery<any>(queryKeys.performance.my(), '/performance/my', { staleTime: STALE_TIME.DYNAMIC });
+  const historyQ = useApiQuery<MyPerformanceHistory>(queryKeys.performance.my(), '/performance/my', { staleTime: STALE_TIME.DYNAMIC });
   const cycleQ = useApiQuery<Cycle | null>(queryKeys.performance.currentCycle(), '/performance/cycles/current', { staleTime: STALE_TIME.SEMI_STATIC, retry: false });
   const history = historyQ.data ?? null;
   const cycle = cycleQ.data ?? null;
@@ -562,7 +576,7 @@ function NineBoxView() {
                     <div className="text-xs font-semibold text-gray-700 mb-1">{box?.label}</div>
                     <div className="text-xs text-gray-400 mb-2">{box?.desc}</div>
                     <div className="space-y-1">
-                      {items.map((item: any) => (
+                      {items.map((item) => (
                         <div key={item.user.id} className="flex items-center gap-1.5 bg-white rounded-lg px-2 py-1 shadow-sm">
                           <Avatar name={item.user.fullName} avatarUrl={item.user.avatarUrl} size="sm" />
                           <div className="flex-1 min-w-0">
