@@ -275,7 +275,7 @@ function OverviewTab({ data }: { data: DashboardData }) {
   );
 }
 
-function StatusCard({ title, color, rows }: { title: string; color: string; rows: { label: string; value: any; accent?: string }[] }) {
+function StatusCard({ title, color, rows }: { title: string; color: string; rows: { label: string; value: string | number; accent?: string }[] }) {
   return (
     <div style={{
       background: '#111827', border: '1px solid #1e2a3a', borderRadius: 10, padding: '18px 20px',
