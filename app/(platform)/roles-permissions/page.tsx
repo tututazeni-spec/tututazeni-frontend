@@ -6,6 +6,7 @@ import {
   Shield, Users, Key, CheckCircle, AlertTriangle,
   Copy, Trash2, Plus, ChevronRight, Search, Brain, Activity,
 } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { apiClient } from '@/lib/apiClient';
@@ -14,6 +15,58 @@ import { STALE_TIME } from '@/lib/queryClient';
 
 type Tab = 'roles' | 'matrix' | 'simulator' | 'governance';
 
+// ─── API data shapes ───────────────────────────────────────────────
+
+interface RolePermission { name: string; }
+interface RoleUser { fullName: string; }
+
+interface Role {
+  id: number;
+  name: string;
+  code?: string | null;
+  isSystem?: boolean;
+  _count?: { users: number };
+  effectivePermissions?: number;
+  permissions?: RolePermission[];
+  users?: RoleUser[];
+}
+
+interface MatrixPermission { name: string; subject: string; action: string; }
+interface MatrixRole { id: number; name: string; }
+
+interface MatrixData {
+  grouped?: Array<{ subject: string }>;
+  permissions?: MatrixPermission[];
+  roles?: MatrixRole[];
+  matrix?: Array<Record<string, boolean>>;
+}
+
+interface SimulationStep { step: string; check: string; detail: string; result: boolean; }
+
+interface SimulationResult {
+  allowed: boolean;
+  reason: string;
+  user?: { fullName: string };
+  role?: { name: string } | null;
+  resource: string;
+  action: string;
+  chain?: SimulationStep[];
+}
+
+interface GovernanceAlert { type: string; message: string; }
+interface RoleUserCount { role?: { name: string } | null; count: number; }
+interface UnusedRole { name: string; }
+
+interface GovernanceData {
+  totalRoles?: number;
+  totalPermissions?: number;
+  usersWithoutRole?: number;
+  deniedAccesses?: number;
+  alerts?: GovernanceAlert[];
+  usersPerRole?: RoleUserCount[];
+  unusedRoles?: UnusedRole[];
+}
+
 function Skeleton({ count = 3 }: { count?: number }) {
   return <div className="space-y-3 animate-pulse">{[...Array(count)].map((_, i) => <div key={i} className="bg-slate-100 rounded-xl h-16" />)}</div>;
 }
@@ -21,10 +74,10 @@ function Skeleton({ count = 3 }: { count?: number }) {
 // ─── Roles Tab ────────────────────────────────────────────────────
 
 function RolesTab() {
-  const [selected, setSel]  = useState<any | null>(null);
+  const [selected, setSel]  = useState<Role | null>(null);
   const [search, setSearch] = useState('');
 
-  const { data: roles = [], isLoading: loading, refetch } = useApiQuery<any[]>(
+  const { data: roles = [], isLoading: loading, refetch } = useApiQuery<Role[]>(
     queryKeys.rolesPermissions.roles(), '/roles-permissions', { staleTime: STALE_TIME.SEMI_STATIC },
   );
   const load = () => { void refetch(); };
@@ -95,7 +148,7 @@ function RolesTab() {
               Permissões ({selected.permissions?.length ?? 0})
             </p>
             <div className="flex flex-wrap gap-1.5 max-h-48 overflow-y-auto mb-4">
-              {(selected.permissions ?? []).map((p: any, i: number) => (
+              {(selected.permissions ?? []).map((p, i) => (
                 <span key={i} className="text-[10px] font-mono bg-slate-100 text-slate-700 px-2 py-0.5 rounded-lg">{p.name}</span>
               ))}
               {!selected.permissions?.length && <p className="text-sm text-slate-400">Sem permissões</p>}
@@ -106,7 +159,7 @@ function RolesTab() {
               <div>
                 <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">Utilizadores</p>
                 <div className="flex flex-wrap gap-2">
-                  {selected.users.slice(0, 10).map((u: any, i: number) => (
+                  {(selected.users ?? []).slice(0, 10).map((u, i) => (
                     <div key={i} className="flex items-center gap-1.5 bg-slate-50 rounded-lg px-2.5 py-1.5">
                       <div className="w-5 h-5 rounded-full bg-indigo-200 flex items-center justify-center text-[9px] font-bold text-indigo-700">
                         {u.fullName[0]}
@@ -128,15 +181,15 @@ function RolesTab() {
 
 function MatrixTab() {
   const [subject, setSubject] = useState('');
-  const { data, isLoading: loading } = useApiQuery<any>(
+  const { data, isLoading: loading } = useApiQuery<MatrixData>(
     queryKeys.rolesPermissions.matrix(), '/roles-permissions/matrix', { staleTime: STALE_TIME.SEMI_STATIC },
   );
 
   if (loading) return <Skeleton />;
 
-  const subjects = (data?.grouped ?? []).map((g: any) => g.subject);
+  const subjects = (data?.grouped ?? []).map((g) => g.subject);
   const filtered = subject
-    ? (data?.permissions ?? []).filter((p: any) => p.subject === subject)
+    ? (data?.permissions ?? []).filter((p) => p.subject === subject)
     : (data?.permissions ?? []);
 
   return (
@@ -155,21 +208,21 @@ function MatrixTab() {
           <thead className="bg-slate-50">
             <tr>
               <th className="px-3 py-2 text-left text-slate-500 font-medium">Permissão</th>
-              {(data?.roles ?? []).map((r: any) => (
+              {(data?.roles ?? []).map((r) => (
                 <th key={r.id} className="px-2 py-2 text-center text-slate-500 font-medium whitespace-nowrap">{r.name}</th>
               ))}
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-50">
-            {filtered.map((p: any, i: number) => (
+            {filtered.map((p, i) => (
               <tr key={i} className="hover:bg-slate-50">
                 <td className="px-3 py-1.5">
                   <p className="font-mono text-slate-700">{p.name}</p>
                   <p className="text-[10px] text-slate-400">{p.subject} · {p.action}</p>
                 </td>
-                {(data?.roles ?? []).map((r: any) => (
+                {(data?.roles ?? []).map((r) => (
                   <td key={r.id} className="px-2 py-1.5 text-center">
-                    {data.matrix[i]?.[r.name]
+                    {data?.matrix?.[i]?.[r.name]
                       ? <CheckCircle size={14} className="text-emerald-500 mx-auto" />
                       : <span className="text-slate-200">—</span>}
                   </td>
@@ -192,7 +245,7 @@ function SimulatorTab() {
 
   const simulateMutation = useApiMutation(
     (payload: { userId: number; resource: string; action: string }) =>
-      apiClient.post<any>('/roles-permissions/simulate', payload),
+      apiClient.post<SimulationResult>('/roles-permissions/simulate', payload),
   );
   const result = simulateMutation.data ?? null;
   const loading = simulateMutation.isPending;
@@ -262,7 +315,7 @@ function SimulatorTab() {
           {/* Decision chain */}
           <div>
             <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">Cadeia de Decisão</p>
-            {(result.chain ?? []).map((s: any, i: number) => (
+            {(result.chain ?? []).map((s, i) => (
               <div key={i} className="flex items-center gap-3 mb-1.5">
                 <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold ${s.result ? 'bg-emerald-500 text-white' : 'bg-red-400 text-white'}`}>
                   {s.step}
@@ -286,7 +339,7 @@ function SimulatorTab() {
 // ─── Governance Tab ───────────────────────────────────────────────
 
 function GovernanceTab() {
-  const { data, isLoading: loading } = useApiQuery<any>(
+  const { data, isLoading: loading } = useApiQuery<GovernanceData>(
     queryKeys.rolesPermissions.governance(), '/roles-permissions/governance-stats', { staleTime: STALE_TIME.DYNAMIC },
   );
   if (loading) return <Skeleton />;
@@ -297,8 +350,8 @@ function GovernanceTab() {
         {[
           { label: 'Roles',           value: data?.totalRoles     ?? 0, icon: Shield,    color: 'text-indigo-600' },
           { label: 'Permissões',      value: data?.totalPermissions ?? 0, icon: Key,    color: 'text-teal-600' },
-          { label: 'Sem Role',        value: data?.usersWithoutRole ?? 0, icon: Users,  color: data?.usersWithoutRole > 0 ? 'text-red-600' : 'text-emerald-600' },
-          { label: 'Acessos Negados', value: data?.deniedAccesses   ?? 0, icon: AlertTriangle, color: data?.deniedAccesses > 50 ? 'text-red-600' : 'text-slate-600' },
+          { label: 'Sem Role',        value: data?.usersWithoutRole ?? 0, icon: Users,  color: (data?.usersWithoutRole ?? 0) > 0 ? 'text-red-600' : 'text-emerald-600' },
+          { label: 'Acessos Negados', value: data?.deniedAccesses   ?? 0, icon: AlertTriangle, color: (data?.deniedAccesses ?? 0) > 50 ? 'text-red-600' : 'text-slate-600' },
         ].map(k => (
           <div key={k.label} className="bg-white rounded-xl border border-slate-100 p-4">
             <k.icon size={16} className={`${k.color} mb-2`} />
@@ -311,7 +364,7 @@ function GovernanceTab() {
       {/* Alerts */}
       {(data?.alerts ?? []).length > 0 && (
         <div className="space-y-2">
-          {(data.alerts as any[]).map((a: any, i: number) => (
+          {(data?.alerts ?? []).map((a, i) => (
             <div key={i} className={`border rounded-xl px-4 py-3 flex items-center gap-3 ${a.type === 'ALERT' ? 'bg-red-50 border-red-200' : a.type === 'WARNING' ? 'bg-amber-50 border-amber-200' : 'bg-blue-50 border-blue-200'}`}>
               <AlertTriangle size={14} className={a.type === 'ALERT' ? 'text-red-500' : a.type === 'WARNING' ? 'text-amber-500' : 'text-blue-500'} />
               <p className="text-sm">{a.message}</p>
@@ -324,8 +377,8 @@ function GovernanceTab() {
       {(data?.usersPerRole ?? []).length > 0 && (
         <div className="bg-white rounded-xl border border-slate-100 p-5">
           <h4 className="font-semibold text-slate-700 mb-4">Utilizadores por Role</h4>
-          {(data.usersPerRole as any[]).map((r: any, i: number) => {
-            const max = data.usersPerRole[0].count;
+          {(data?.usersPerRole ?? []).map((r, i) => {
+            const max = (data?.usersPerRole ?? [])[0].count;
             return (
               <div key={i} className="mb-2">
                 <div className="flex justify-between text-xs mb-0.5">
@@ -346,7 +399,7 @@ function GovernanceTab() {
         <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
           <h4 className="font-semibold text-amber-700 mb-2">⚠️ Roles sem Utilizadores</h4>
           <div className="flex flex-wrap gap-2">
-            {(data.unusedRoles as any[]).map((r: any, i: number) => (
+            {(data?.unusedRoles ?? []).map((r, i) => (
               <span key={i} className="text-xs font-mono bg-amber-100 text-amber-700 px-2 py-0.5 rounded">{r.name}</span>
             ))}
           </div>
@@ -358,7 +411,7 @@ function GovernanceTab() {
 
 // ─── Main Page ───────────────────────────────────────────────────
 
-const TABS: { id: Tab; label: string; icon: any }[] = [
+const TABS: { id: Tab; label: string; icon: LucideIcon }[] = [
   { id: 'roles',      label: 'Roles',       icon: Shield },
   { id: 'matrix',     label: 'Matriz',      icon: Key },
   { id: 'simulator',  label: 'Simulador',   icon: Brain },
