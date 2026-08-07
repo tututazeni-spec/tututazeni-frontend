@@ -47,7 +47,7 @@ export default function NovoParceiroPage() {
 
   const createMut = useApiMutation(
     () => {
-      const payload: any = { type: form.type, name: form.name };
+      const payload: Record<string, string | number> = { type: form.type, name: form.name };
       for (const [k, v] of Object.entries(form)) {
         if (k === 'type' || k === 'name') continue;
         if (v === '' || v == null) continue;
