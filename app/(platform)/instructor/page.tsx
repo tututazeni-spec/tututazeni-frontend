@@ -27,7 +27,13 @@ interface DashboardData {
   profile: { id: number; fullName: string; expertiseArea: string; ratingAverage: number; totalCourses: number; instructorType: string };
   metrics: { activeCohorts: number; totalStudents: number; avgCompletionRate: number; totalAtRisk: number; totalReviews: number; ratingAverage: number };
   cohorts: CohortSummary[];
-  recentReviews: any[];
+  recentReviews: InstructorReview[];
+}
+
+interface InstructorReview {
+  user?: { fullName?: string; avatarUrl?: string | null };
+  rating: number;
+  comment?: string;
 }
 
 interface CohortSummary {
@@ -247,7 +253,7 @@ function DashboardView({ onSelectCohort }: { onSelectCohort: (id: number) => voi
         <div className="bg-white border border-gray-200 rounded-xl p-5">
           <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">Avaliações recentes</div>
           <div className="space-y-3">
-            {recentReviews.map((r: any, i: number) => (
+            {recentReviews.map((r, i) => (
               <div key={i} className="flex items-start gap-3">
                 <Avatar name={r.user?.fullName ?? 'A'} avatarUrl={r.user?.avatarUrl} size="sm" />
                 <div className="flex-1">
@@ -289,7 +295,7 @@ function CohortsView({ onSelectCohort }: { onSelectCohort: (id: number) => void 
       setCreating(false);
       setForm({ name: '', courseId: '', startDate: '', modalidade: 'ONLINE', maxParticipants: '30' });
       refetch();
-    } catch (e: any) { alert(e.message); }
+    } catch (e) { alert(e instanceof Error ? e.message : String(e)); }
   };
 
   return (
