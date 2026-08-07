@@ -84,6 +84,14 @@ interface ProcessInstance {
   _count?: { stepProgress: number };
 }
 
+interface MyTask extends StepProgress {
+  instance: {
+    id: number;
+    process: { code: string; title: string };
+    targetUser: { fullName: string };
+  };
+}
+
 interface PaginatedProcesses {
   data: Process[];
   total: number;
@@ -839,7 +847,7 @@ function TaskRunner({ instanceId, onBack }: { instanceId: number; onBack: () => 
 // ─── View: My Tasks ───────────────────────────────────────────────────────────
 
 function MyTasksView({ onOpenInstance }: { onOpenInstance: (id: number) => void }) {
-  const { data: tasks = [], isLoading, error } = useApiQuery<StepProgress[]>(
+  const { data: tasks = [], isLoading, error } = useApiQuery<MyTask[]>(
     queryKeys.processes.myTasks(), '/processes/my-tasks',
     { staleTime: STALE_TIME.DYNAMIC },
   );
@@ -861,7 +869,7 @@ function MyTasksView({ onOpenInstance }: { onOpenInstance: (id: number) => void 
         <div>Tipo</div>
         <div>SLA</div>
       </div>
-      {tasks.map((t: any) => (
+      {tasks.map((t) => (
         <div
           key={t.id}
           className="grid grid-cols-[1fr_160px_100px_120px] gap-3 items-center px-4 py-3.5 border-b border-gray-100 hover:bg-gray-50 cursor-pointer last:border-0"
