@@ -45,7 +45,13 @@ interface TeamMember {
 interface TeamDashboard {
   team: TeamMember[];
   alerts: Array<{ userId: number; name: string; type: string; message: string }>;
-  teamHealth: { globalScore: number; healthStatus: HealthStatus; metrics: any };
+  teamHealth: {
+    globalScore: number; healthStatus: HealthStatus;
+    metrics: {
+      engagementScore: number; turnoverRate: number; absenteeismRate: number;
+      pdisCompletedPct: number; evaluationsOnTimePct: number;
+    };
+  };
   total: number;
 }
 
@@ -62,6 +68,13 @@ interface LeadershipScore {
   score: number;
   classification: string;
   calculatedAt: string;
+}
+
+interface MyProgramEnrollment {
+  id: number;
+  progress: number;
+  status: string;
+  program?: { name?: string; level?: ProgramLevel };
 }
 
 interface OneOnOne {
@@ -81,6 +94,13 @@ interface KudosItem {
   createdAt: string;
   sender: { id: number; fullName: string; avatarUrl: string | null };
   receiver: { id: number; fullName: string; avatarUrl: string | null };
+}
+
+interface MyDashboardData {
+  score: LeadershipScore | null;
+  programs?: MyProgramEnrollment[];
+  upcoming1on1s?: OneOnOne[];
+  recentKudos?: KudosItem[];
 }
 
 interface RankingEntry {
@@ -174,7 +194,7 @@ function MyDashboardView() {
   const [kudosMsg, setKudosMsg] = useState('');
   const [kudosTarget, setKudosTarget] = useState('');
 
-  const { data, isLoading } = useApiQuery<any>(
+  const { data, isLoading } = useApiQuery<MyDashboardData>(
     queryKeys.leadership.myDashboard(), '/leadership/my/dashboard',
     { staleTime: STALE_TIME.DYNAMIC },
   );
@@ -228,7 +248,7 @@ function MyDashboardView() {
         <div>
           <div className="text-sm font-semibold text-gray-900 mb-3">Os meus programas</div>
           <div className="space-y-2">
-            {data.programs?.slice(0, 4).map((p: any) => (
+            {data.programs?.slice(0, 4).map(p => (
               <div key={p.id} className="bg-white border border-gray-200 rounded-xl p-4">
                 <div className="flex items-center justify-between mb-1">
                   <div className="text-xs font-medium text-gray-900 truncate">{p.program?.name}</div>
@@ -449,7 +469,7 @@ function ProgramsView() {
     try {
       await apiClient.post(`/leadership/programs/${programId}/self-enroll`, {});
       alert('Inscrito com sucesso!');
-    } catch (e: any) { alert(e.message); }
+    } catch (e) { alert(e instanceof Error ? e.message : String(e)); }
   };
 
   if (isLoading) return <Skeleton />;
