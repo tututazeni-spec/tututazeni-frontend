@@ -7,6 +7,7 @@ import {
   Users, Star, BarChart2, Brain, Zap, CheckCircle,
   AlertTriangle, ChevronRight, RefreshCw, ArrowUp, ArrowDown,
 } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -15,6 +16,77 @@ import { STALE_TIME } from '@/lib/queryClient';
 // ─── Helpers ─────────────────────────────────────────────────────
 
 type Tab = 'executive' | 'learning' | 'retention' | 'performance' | 'simulator' | 'programs';
+
+// ─── API data shapes ───────────────────────────────────────────────
+
+interface ExecutiveData {
+  headline?: { overallRoi?: number; totalBenefit?: number; totalCost?: number; status?: string; narrative?: string };
+  domains?: {
+    learning?: { roi?: number; cost?: number; completions?: number };
+    retention?: { savedValue?: number; turnoverRate?: number };
+    performance?: { lift?: number; benefit?: number };
+  };
+  alerts?: Array<{ severity: string; message: string }>;
+  topInsights?: string[];
+  confidence?: string;
+}
+
+interface CourseImpact {
+  course?: { title?: string; category?: string };
+  completions?: number;
+  roi?: number;
+  bcr?: number;
+}
+
+interface LearningData {
+  volume?: { completed?: number; completionRate?: number };
+  financial?: { roi?: number; hoursEstimated?: number; costEstimated?: number; benefitEstimated?: number };
+  topCourses?: CourseImpact[];
+  insights?: string[];
+}
+
+interface RetentionData {
+  headcount?: { active?: number };
+  turnoverRate?: number;
+  turnoverTrend?: number;
+  retentionRate?: number;
+  savedValue?: number;
+  saved?: number;
+  prevTurnoverRate?: number;
+  insights?: string[];
+}
+
+interface SimulateSnapshot {
+  completionRate?: number;
+  cost?: number;
+  benefit?: number;
+  roi?: number;
+}
+
+interface SimulateResult {
+  narrative: string;
+  current: SimulateSnapshot;
+  projected: SimulateSnapshot;
+  delta: { roiLift: number; benefitDelta: number; costDelta: number };
+}
+
+interface ProgramsData {
+  total?: number;
+  avgRoi?: number;
+  topByRoi?: unknown[];
+  programs?: CourseImpact[];
+}
+
+interface PerformanceData {
+  before?: number;
+  after?: number;
+  lift?: number | null;
+  monetised?: { productivityBenefit?: number };
+  highPerformers?: number;
+  atRisk?: number;
+  insights?: string[];
+  confidence?: string;
+}
 
 function fmt$(val: number): string {
   if (val >= 1000000) return `$${(val / 1000000).toFixed(1)}M`;
@@ -35,7 +107,7 @@ function Skeleton({ count = 4 }: { count?: number }) {
 }
 
 function KPICard({ icon: Icon, label, value, sub, color = 'text-indigo-600', bg = 'bg-indigo-50', status, trend }: {
-  icon: any; label: string; value: string | number; sub?: string;
+  icon: LucideIcon; label: string; value: string | number; sub?: string;
   color?: string; bg?: string; status?: string; trend?: number;
 }) {
   return (
@@ -73,7 +145,7 @@ function ConfidenceBadge({ level }: { level?: string }) {
 // ─── Executive Tab ────────────────────────────────────────────────
 
 function ExecutiveTab() {
-  const { data, isLoading: loading } = useApiQuery<any>(
+  const { data, isLoading: loading } = useApiQuery<ExecutiveData>(
     queryKeys.roiImpact.executive(), '/roi-impact/executive', { staleTime: STALE_TIME.SEMI_STATIC },
   );
   if (loading) return <Skeleton />;
@@ -84,12 +156,12 @@ function ExecutiveTab() {
   return (
     <div className="space-y-6">
       {/* ROI Hero */}
-      <div className={`rounded-2xl p-6 ${h.overallRoi >= 100 ? 'bg-gradient-to-br from-emerald-600 to-teal-700' : h.overallRoi >= 0 ? 'bg-gradient-to-br from-amber-500 to-orange-600' : 'bg-gradient-to-br from-red-600 to-rose-700'} text-white`}>
+      <div className={`rounded-2xl p-6 ${(h.overallRoi ?? 0) >= 100 ? 'bg-gradient-to-br from-emerald-600 to-teal-700' : (h.overallRoi ?? 0) >= 0 ? 'bg-gradient-to-br from-amber-500 to-orange-600' : 'bg-gradient-to-br from-red-600 to-rose-700'} text-white`}>
         <div className="flex items-start justify-between mb-4">
           <div>
             <p className="text-white/70 text-sm mb-1">ROI Total do Investimento em Pessoas</p>
             <p className="text-6xl font-black">{h.overallRoi ?? 0}%</p>
-            <p className="text-white/80 text-sm mt-1">BCR: {h.totalCost > 0 ? (h.totalBenefit / h.totalCost).toFixed(2) : '–'} · Status: {h.status}</p>
+            <p className="text-white/80 text-sm mt-1">BCR: {(h.totalCost ?? 0) > 0 ? ((h.totalBenefit ?? 0) / (h.totalCost ?? 1)).toFixed(2) : '–'} · Status: {h.status}</p>
           </div>
           <div className="text-right">
             <p className="text-white/70 text-xs mb-1">Benefício Total</p>
@@ -123,7 +195,7 @@ function ExecutiveTab() {
       {/* Alerts */}
       {(data?.alerts ?? []).length > 0 && (
         <div className="space-y-2">
-          {data.alerts.map((a: any, i: number) => (
+          {(data?.alerts ?? []).map((a, i) => (
             <div key={i} className={`border rounded-xl px-4 py-3 flex items-center gap-3 ${a.severity === 'HIGH' ? 'bg-red-50 border-red-200' : 'bg-amber-50 border-amber-200'}`}>
               <AlertTriangle size={14} className={a.severity === 'HIGH' ? 'text-red-600' : 'text-amber-600'} />
               <p className={`text-sm ${a.severity === 'HIGH' ? 'text-red-700' : 'text-amber-700'}`}>{a.message}</p>
@@ -136,10 +208,10 @@ function ExecutiveTab() {
       {(data?.topInsights ?? []).length > 0 && (
         <div className="bg-violet-50 border border-violet-100 rounded-xl p-5">
           <h4 className="font-semibold text-violet-700 mb-3 flex items-center gap-2"><Brain size={14} />Insights Automáticos</h4>
-          {data.topInsights.slice(0, 4).map((ins: string, i: number) => (
+          {(data?.topInsights ?? []).slice(0, 4).map((ins, i) => (
             <p key={i} className="text-xs text-violet-800 mb-1">{ins}</p>
           ))}
-          {data.confidence && <div className="mt-2"><ConfidenceBadge level={data.confidence} /></div>}
+          {data?.confidence && <div className="mt-2"><ConfidenceBadge level={data.confidence} /></div>}
         </div>
       )}
     </div>
@@ -149,7 +221,7 @@ function ExecutiveTab() {
 // ─── Learning Tab ─────────────────────────────────────────────────
 
 function LearningTab() {
-  const { data, isLoading: loading } = useApiQuery<any>(
+  const { data, isLoading: loading } = useApiQuery<LearningData>(
     queryKeys.roiImpact.learning(), '/roi-impact/impact/learning', { staleTime: STALE_TIME.SEMI_STATIC },
   );
   if (loading) return <Skeleton />;
@@ -161,7 +233,7 @@ function LearningTab() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <KPICard icon={BookOpen}  label="Conclusões"           value={v.completed ?? 0}          color="text-teal-600"    bg="bg-teal-50" />
         <KPICard icon={Target}    label="Taxa de Conclusão"    value={`${v.completionRate ?? 0}%`} />
-        <KPICard icon={DollarSign}label="ROI Estimado"         value={`${f.roi ?? 0}%`}           color={f.roi >= 0 ? 'text-emerald-600' : 'text-red-500'} bg={f.roi >= 0 ? 'bg-emerald-50' : 'bg-red-50'} />
+        <KPICard icon={DollarSign}label="ROI Estimado"         value={`${f.roi ?? 0}%`}           color={(f.roi ?? 0) >= 0 ? 'text-emerald-600' : 'text-red-500'} bg={(f.roi ?? 0) >= 0 ? 'bg-emerald-50' : 'bg-red-50'} />
         <KPICard icon={Zap}       label="Horas de Formação"    value={`${f.hoursEstimated ?? 0}h`} color="text-violet-600" bg="bg-violet-50" />
       </div>
 
@@ -172,7 +244,7 @@ function LearningTab() {
           {[
             { label: 'Custo Total',    value: fmt$(f.costEstimated ?? 0),    color: 'text-red-600' },
             { label: 'Benefício Est.', value: fmt$(f.benefitEstimated ?? 0), color: 'text-emerald-600' },
-            { label: 'Benefício Líq.', value: fmt$((f.benefitEstimated ?? 0) - (f.costEstimated ?? 0)), color: (f.benefitEstimated - f.costEstimated) >= 0 ? 'text-emerald-600' : 'text-red-500' },
+            { label: 'Benefício Líq.', value: fmt$((f.benefitEstimated ?? 0) - (f.costEstimated ?? 0)), color: ((f.benefitEstimated ?? 0) - (f.costEstimated ?? 0)) >= 0 ? 'text-emerald-600' : 'text-red-500' },
           ].map(item => (
             <div key={item.label} className="text-center p-3 rounded-xl bg-slate-50">
               <p className={`text-2xl font-bold ${item.color}`}>{item.value}</p>
@@ -187,7 +259,7 @@ function LearningTab() {
         <div className="bg-white rounded-xl border border-slate-100 p-5">
           <h4 className="font-semibold text-slate-700 mb-3">Cursos com Mais Impacto</h4>
           <div className="space-y-2">
-            {data.topCourses.map((c: any, i: number) => (
+            {(data?.topCourses ?? []).map((c, i) => (
               <div key={i} className="flex items-center gap-3">
                 <span className="text-xs text-slate-300 font-bold w-4">#{i+1}</span>
                 <div className="flex-1 min-w-0">
@@ -203,7 +275,7 @@ function LearningTab() {
 
       {(data?.insights ?? []).length > 0 && (
         <div className="bg-violet-50 border border-violet-100 rounded-xl p-4">
-          {data.insights.map((ins: string, i: number) => <p key={i} className="text-xs text-violet-800">{ins}</p>)}
+          {(data?.insights ?? []).map((ins, i) => <p key={i} className="text-xs text-violet-800">{ins}</p>)}
         </div>
       )}
     </div>
@@ -213,7 +285,7 @@ function LearningTab() {
 // ─── Retention Tab ────────────────────────────────────────────────
 
 function RetentionTab() {
-  const { data, isLoading: loading } = useApiQuery<any>(
+  const { data, isLoading: loading } = useApiQuery<RetentionData>(
     queryKeys.roiImpact.retention(), '/roi-impact/impact/retention', { staleTime: STALE_TIME.SEMI_STATIC },
   );
   if (loading) return <Skeleton />;
@@ -255,7 +327,7 @@ function RetentionTab() {
 
       {(data?.insights ?? []).length > 0 && (
         <div className="bg-violet-50 border border-violet-100 rounded-xl p-4">
-          {data.insights.map((ins: string, i: number) => <p key={i} className="text-xs text-violet-800">{ins}</p>)}
+          {(data?.insights ?? []).map((ins, i) => <p key={i} className="text-xs text-violet-800">{ins}</p>)}
         </div>
       )}
     </div>
@@ -268,7 +340,7 @@ function SimulatorTab() {
   const [targetRate, setTargetRate]   = useState(80);
 
   const simulateMutation = useApiMutation(
-    (rate: number) => apiClient.post<any>('/roi-impact/simulate', { targetCompletionRate: rate }),
+    (rate: number) => apiClient.post<SimulateResult>('/roi-impact/simulate', { targetCompletionRate: rate }),
   );
   const result = simulateMutation.data ?? null;
   const loading = simulateMutation.isPending;
@@ -349,7 +421,7 @@ function SimulatorTab() {
 // ─── Programs Tab ─────────────────────────────────────────────────
 
 function ProgramsTab() {
-  const { data, isLoading: loading } = useApiQuery<any>(
+  const { data, isLoading: loading } = useApiQuery<ProgramsData>(
     queryKeys.roiImpact.programs(), '/roi-impact/programs', { staleTime: STALE_TIME.SEMI_STATIC },
   );
   if (loading) return <Skeleton count={3} />;
@@ -376,7 +448,7 @@ function ProgramsTab() {
           <h4 className="font-semibold text-slate-700">Ranking de Programas por ROI</h4>
         </div>
         <div className="divide-y divide-slate-50 max-h-96 overflow-y-auto">
-          {(data?.programs ?? []).map((p: any, i: number) => (
+          {(data?.programs ?? []).map((p, i) => (
             <div key={i} className="flex items-center gap-3 px-5 py-3 hover:bg-slate-50">
               <span className="text-xs text-slate-300 font-bold w-5 text-right">#{i+1}</span>
               <div className="flex-1 min-w-0">
@@ -384,7 +456,7 @@ function ProgramsTab() {
                 <p className="text-[10px] text-slate-400">{p.course?.category} · {p.completions} conclusões</p>
               </div>
               <div className="text-right shrink-0">
-                <p className={`text-sm font-bold ${p.roi >= 100 ? 'text-emerald-600' : p.roi >= 0 ? 'text-amber-600' : 'text-red-500'}`}>{p.roi}%</p>
+                <p className={`text-sm font-bold ${(p.roi ?? 0) >= 100 ? 'text-emerald-600' : (p.roi ?? 0) >= 0 ? 'text-amber-600' : 'text-red-500'}`}>{p.roi}%</p>
                 <p className="text-[10px] text-slate-400">BCR: {p.bcr}</p>
               </div>
             </div>
@@ -403,7 +475,7 @@ function ProgramsTab() {
 
 // ─── Main Page ───────────────────────────────────────────────────
 
-const TABS: { id: Tab; label: string; icon: any }[] = [
+const TABS: { id: Tab; label: string; icon: LucideIcon }[] = [
   { id: 'executive',   label: 'Executivo',   icon: DollarSign },
   { id: 'learning',    label: 'Aprendizagem',icon: BookOpen },
   { id: 'retention',   label: 'Retenção',    icon: Users },
@@ -416,7 +488,7 @@ export default function RoiImpactPage() {
   const [tab, setTab] = useState<Tab>('executive');
 
   const PerformanceTab = () => {
-    const { data, isLoading: loading } = useApiQuery<any>(
+    const { data, isLoading: loading } = useApiQuery<PerformanceData>(
       queryKeys.roiImpact.performance(), '/roi-impact/impact/performance', { staleTime: STALE_TIME.SEMI_STATIC },
     );
     if (loading) return <Skeleton />;
@@ -425,7 +497,7 @@ export default function RoiImpactPage() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <KPICard icon={Star}       label="Score Antes"     value={data?.before?.toFixed(1) ?? '–'} />
           <KPICard icon={TrendingUp} label="Score Depois"    value={data?.after?.toFixed(1) ?? '–'}  />
-          <KPICard icon={Zap}        label="Lift"            value={data?.lift !== null ? `${data.lift >= 0 ? '+' : ''}${data.lift}pts` : '–'} color={data?.lift >= 0 ? 'text-emerald-600' : 'text-red-500'} bg={data?.lift >= 0 ? 'bg-emerald-50' : 'bg-red-50'} />
+          <KPICard icon={Zap}        label="Lift"            value={data?.lift != null ? `${data.lift >= 0 ? '+' : ''}${data.lift}pts` : '–'} color={(data?.lift ?? 0) >= 0 ? 'text-emerald-600' : 'text-red-500'} bg={(data?.lift ?? 0) >= 0 ? 'bg-emerald-50' : 'bg-red-50'} />
           <KPICard icon={DollarSign} label="Benefício Est."  value={fmt$(data?.monetised?.productivityBenefit ?? 0)} color="text-teal-600" bg="bg-teal-50" />
         </div>
         <div className="grid grid-cols-2 gap-4">
@@ -434,7 +506,7 @@ export default function RoiImpactPage() {
         </div>
         {(data?.insights ?? []).length > 0 && (
           <div className="bg-violet-50 border border-violet-100 rounded-xl p-4">
-            {data.insights.map((ins: string, i: number) => <p key={i} className="text-xs text-violet-800">{ins}</p>)}
+            {(data?.insights ?? []).map((ins, i) => <p key={i} className="text-xs text-violet-800">{ins}</p>)}
           </div>
         )}
         <div className="text-center"><ConfidenceBadge level={data?.confidence} /></div>
