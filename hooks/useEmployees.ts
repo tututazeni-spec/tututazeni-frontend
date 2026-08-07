@@ -65,6 +65,12 @@ export interface HeadcountStats {
   recentHires: number;
 }
 
+export interface EmployeesListMeta {
+  total: number;
+  page: number;
+  totalPages: number;
+}
+
 export function useEmployees(filters: FilterState, page: number) {
   const params = {
     page, limit: 20,
@@ -75,7 +81,7 @@ export function useEmployees(filters: FilterState, page: number) {
     workMode: filters.workMode,
     contractType: filters.contractType,
   };
-  const q = useApiQuery<{ data: Employee[]; meta: any }>(
+  const q = useApiQuery<{ data: Employee[]; meta: EmployeesListMeta }>(
     queryKeys.employees.list(params), '/employees',
     { params, staleTime: STALE_TIME.DYNAMIC, placeholderData: keepPreviousData },
   );
