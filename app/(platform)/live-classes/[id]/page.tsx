@@ -39,7 +39,7 @@ interface JitsiOptions {
 }
 
 interface JitsiAPI {
-  addEventListeners: (events: Record<string, (...args: any[]) => void>) => void;
+  addEventListeners: (events: Record<string, (...args: unknown[]) => void>) => void;
   executeCommand: (command: string, ...args: unknown[]) => void;
   getNumberOfParticipants: () => number;
   dispose: () => void;
@@ -140,11 +140,11 @@ function useRecording() {
       startStopwatch();
       setState("recording");
 
-    } catch (e: any) {
-      if (e.name === "NotAllowedError") {
+    } catch (e) {
+      if (e instanceof DOMException && e.name === "NotAllowedError") {
         setError("Permissão de partilha de ecrã negada.");
       } else {
-        setError(e.message ?? "Erro ao iniciar gravação.");
+        setError(e instanceof Error ? e.message : "Erro ao iniciar gravação.");
       }
     }
   }, [startStopwatch, stopStopwatch, elapsedNow]);
