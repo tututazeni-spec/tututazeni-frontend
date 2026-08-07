@@ -86,6 +86,10 @@ interface HeadcountRow {
   occupancyPct: number | null;
 }
 
+interface DepartmentDetail extends Department {
+  users?: Array<{ id: number; fullName: string; avatarUrl: string | null; position?: { name: string } | null }>;
+}
+
 type View = 'dashboard' | 'chart' | 'departments' | 'positions' | 'timeline';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -359,7 +363,7 @@ function DepartmentsView() {
   );
 
   const detailMutation = useApiMutation(
-    (id: number) => apiClient.get<any>(`/organization/departments/${id}`),
+    (id: number) => apiClient.get<DepartmentDetail>(`/organization/departments/${id}`),
   );
   const selected = detailMutation.data ?? null;
   const loadingDetail = detailMutation.isPending;
@@ -473,7 +477,7 @@ function DepartmentsView() {
             )}
 
             <div className="max-h-64 overflow-y-auto">
-              {selected.users?.map((u: any) => (
+              {selected.users?.map((u) => (
                 <div key={u.id} className="flex items-center gap-2 px-4 py-2.5 border-b border-gray-100 last:border-0 hover:bg-gray-50">
                   <Avatar name={u.fullName} avatarUrl={u.avatarUrl} size="sm" />
                   <div className="flex-1 min-w-0">
