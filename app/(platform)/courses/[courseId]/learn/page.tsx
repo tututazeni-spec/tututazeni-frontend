@@ -91,9 +91,20 @@ interface Module {
   mandatory: boolean;
   dripDays: number | null;
   availableFrom: string | null;
-  lessons: any[];
+  lessons: LessonSummary[];
   materials: ModuleMaterial[];
   _count: { lessons: number };
+}
+
+interface LessonSummary {
+  id: number;
+  title: string;
+  type: LessonType;
+  durationMinutes: number | null;
+}
+
+interface CourseDetail {
+  modules?: Module[];
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -390,7 +401,7 @@ function ModuleBuilder({ courseId }: { courseId: number }) {
   const [creatingModule, setCreatingModule] = useState(false);
   const [newModuleTitle, setNewModuleTitle] = useState('');
 
-  const { data: course, isLoading: loading } = useApiQuery<any>(
+  const { data: course, isLoading: loading } = useApiQuery<CourseDetail>(
     queryKeys.courses.detail(courseId), `/courses/${courseId}`,
     { enabled: !!courseId, staleTime: STALE_TIME.DYNAMIC },
   );
@@ -420,8 +431,8 @@ function ModuleBuilder({ courseId }: { courseId: number }) {
     try {
       await apiClient.patch(`/modules/${moduleId}/publish`, {});
       await reload();
-    } catch (e: any) {
-      alert(e.message);
+    } catch (e) {
+      alert(e instanceof Error ? e.message : String(e));
     }
   };
 
@@ -431,8 +442,8 @@ function ModuleBuilder({ courseId }: { courseId: number }) {
     try {
       await apiClient.delete(`/modules/${moduleId}`);
       await reload();
-    } catch (e: any) {
-      alert(e.message);
+    } catch (e) {
+      alert(e instanceof Error ? e.message : String(e));
     }
   };
 
@@ -561,7 +572,7 @@ function ModuleBuilder({ courseId }: { courseId: number }) {
             {/* Lessons preview */}
             {mod.lessons.length > 0 && (
               <div className="border-t border-gray-100 px-4 py-2">
-                {mod.lessons.slice(0, 3).map((l: any) => (
+                {mod.lessons.slice(0, 3).map(l => (
                   <div key={l.id} className="flex items-center gap-2 py-1 text-xs text-gray-500">
                     <span>{lessonIcon(l.type)}</span>
                     <span className="truncate">{l.title}</span>
