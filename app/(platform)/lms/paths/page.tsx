@@ -6,7 +6,6 @@ import { useDebounce } from '@/hooks/useDebounce';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { usePageTitle } from '@/hooks/usePageTitle';
 
 interface Path {
   id: string;
@@ -26,8 +25,6 @@ const LEVEL_COLORS: Record<string, string> = {
 };
 
 export default function LearningPathsPage() {
-  usePageTitle('LMS — Percursos & Sessões');
-
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
   const debouncedSearch = useDebounce(search);

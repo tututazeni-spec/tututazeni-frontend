@@ -54,7 +54,6 @@ import {
   Loader2,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
-import { usePageTitle } from '@/hooks/usePageTitle';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 // Employee, EmployeeStatus, SeniorityLevel, WorkMode, ContractType, FilterState
@@ -903,8 +902,6 @@ function Pagination({
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function EmployeesPage() {
-  usePageTitle('Colaborador');
-
   const [view, setView] = useState<'grid' | 'list'>('grid');
   const [page, setPage] = useState(1);
   const [showFilters, setShowFilters] = useState(false);

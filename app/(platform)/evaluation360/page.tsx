@@ -6,7 +6,6 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { usePageTitle } from '@/hooks/usePageTitle';
 
 // ─── TYPES ───────────────────────────────────────────────────
 type EvaluatorRole = 'SELF' | 'MANAGER' | 'PEER' | 'SUBORDINATE';
@@ -1688,8 +1687,6 @@ const TABS: { id: TabId; label: string; icon: string }[] = [
 ];
 
 export default function Evaluation360Page() {
-  usePageTitle('Avaliação 360°');
-
   const [activeTab, setActiveTab] = useState<TabId>('overview');
 
   const renderTab = () => {

@@ -5,7 +5,6 @@ import { useApiQuery } from '@/hooks/useApiQuery';
 import { useDebounce } from '@/hooks/useDebounce';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { usePageTitle } from '@/hooks/usePageTitle';
 
 interface Program {
   id: string;
@@ -25,8 +24,6 @@ const LEVEL_COLORS: Record<string, string> = {
 };
 
 export default function AcademicProgramsPage() {
-  usePageTitle('Gestão Académica');
-
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
   const [levelFilter, setLevelFilter] = useState('');

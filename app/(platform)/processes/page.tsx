@@ -9,7 +9,6 @@ import { queryKeys } from '../../../lib/queryKeys';
 import { STALE_TIME } from '../../../lib/queryClient';
 import { useDebounce } from '../../../hooks/useDebounce';
 import { Skeleton as SharedSkeleton } from '@/components/ui/Skeleton';
-import { usePageTitle } from '@/hooks/usePageTitle';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -1364,8 +1363,6 @@ const NAV: Array<{ id: TabKey; label: string }> = [
 ];
 
 export default function ProcessStandardPage() {
-  usePageTitle('Processos');
-
   const [nav, setNav] = useState<Nav>({ view: 'library' });
 
   const handleSelectProcess = (id: number) => {

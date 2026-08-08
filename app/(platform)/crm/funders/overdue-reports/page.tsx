@@ -5,7 +5,6 @@ import { keepPreviousData } from '@tanstack/react-query';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { usePageTitle } from '@/hooks/usePageTitle';
 
 interface OverdueReport {
   id: string;
@@ -40,8 +39,6 @@ function formatDate(d: string): string {
 }
 
 export default function OverdueReportsPage() {
-  usePageTitle('Relatórios em Atraso');
-
   const [page, setPage] = useState(1);
   const params = { page, limit: 20 };
 

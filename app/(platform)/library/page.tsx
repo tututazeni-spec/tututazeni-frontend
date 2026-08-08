@@ -6,7 +6,6 @@ import { useApiQuery } from '@/hooks/useApiQuery';
 import { useDebounce } from '@/hooks/useDebounce';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { usePageTitle } from '@/hooks/usePageTitle';
 
 interface Item {
   id: string;
@@ -34,8 +33,6 @@ const TYPE_ICONS: Record<string, string> = {
 };
 
 export default function LibraryPage() {
-  usePageTitle('Biblioteca Digital');
-
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState('');

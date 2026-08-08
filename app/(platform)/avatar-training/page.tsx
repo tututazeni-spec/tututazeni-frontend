@@ -38,7 +38,6 @@ import Image from 'next/image';
 import { useDebounce } from '../../../hooks/useDebounce';
 import type { LucideIcon } from 'lucide-react';
 import { Skeleton as SharedSkeleton } from '@/components/ui/Skeleton';
-import { usePageTitle } from '@/hooks/usePageTitle';
 
 // ─── Types ───────────────────────────────────────────────────────
 
@@ -1292,8 +1291,6 @@ const TABS: { id: Tab; label: string; icon: LucideIcon }[] = [
 ];
 
 export default function AvatarTrainingPage() {
-  usePageTitle('Treino de Avatar');
-
   const [tab, setTab] = useState<Tab>('home');
   const [activeSession, setActiveSession] = useState<ActiveSession | null>(
     null,

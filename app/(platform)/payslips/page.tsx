@@ -7,7 +7,6 @@ import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient, API_URL } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { usePageTitle } from '@/hooks/usePageTitle';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -1324,8 +1323,6 @@ type Nav =
   { view: Exclude<View, 'detail'> } | { view: 'detail'; selectedId: number };
 
 export default function PayslipsPage() {
-  usePageTitle('Recibos Salariais');
-
   const [nav, setNav] = useState<Nav>({ view: 'list' });
 
   const handleSelect = (id: number) =>

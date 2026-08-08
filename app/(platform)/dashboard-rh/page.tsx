@@ -31,7 +31,6 @@ import { STALE_TIME } from '@/lib/queryClient';
 import Image from 'next/image';
 import type { LucideIcon } from 'lucide-react';
 import { Skeleton as SharedSkeleton } from '@/components/ui/Skeleton';
-import { usePageTitle } from '@/hooks/usePageTitle';
 
 // ─── Types ───────────────────────────────────────────────────────
 
@@ -999,8 +998,6 @@ const PANELS: { id: Panel; label: string; icon: LucideIcon }[] = [
 ];
 
 export default function DashboardRhPage() {
-  usePageTitle('Dashboard RH');
-
   const [panel, setPanel] = useState<Panel>('overview');
 
   const PANEL_CONTENT: Record<Panel, JSX.Element> = {

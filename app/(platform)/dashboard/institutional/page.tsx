@@ -2,7 +2,6 @@
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { usePageTitle } from '@/hooks/usePageTitle';
 
 interface Summary {
   people: { total: number; newThisMonth: number };
@@ -83,8 +82,6 @@ function MiniBarChart({ data }: { data: TrendPoint[] }) {
 }
 
 export default function InstitutionalDashboardPage() {
-  usePageTitle('Dashboard Institucional');
-
   // Três queries independentes → em paralelo (sem waterfall).
   const sumQ = useApiQuery<Summary>(
     queryKeys.dashboard.institutionalSummary(),

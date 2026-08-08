@@ -29,7 +29,6 @@ import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Skeleton as SharedSkeleton } from '@/components/ui/Skeleton';
-import { usePageTitle } from '@/hooks/usePageTitle';
 
 // ─── Types ───────────────────────────────────────────────────────
 
@@ -620,8 +619,6 @@ const TABS: { id: Tab; label: string; icon: LucideIcon }[] = [
 ];
 
 export default function ApiIntegrationsPage() {
-  usePageTitle('Integrações com Sistemas Externos');
-
   const [tab, setTab] = useState<Tab>('integrations');
 
   const PANELS: Record<Tab, JSX.Element> = {

@@ -3,7 +3,6 @@ import { useState, useEffect } from 'react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { usePageTitle } from '@/hooks/usePageTitle';
 
 interface KeyResult {
   id: string;
@@ -35,8 +34,6 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 export default function OkrsPage() {
-  usePageTitle('Monitoria e Avaliação');
-
   const [selectedCycle, setSelectedCycle] = useState<string>('');
 
   const {

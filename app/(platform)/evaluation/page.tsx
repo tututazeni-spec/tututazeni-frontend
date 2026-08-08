@@ -33,7 +33,6 @@ import { STALE_TIME } from '@/lib/queryClient';
 import Image from 'next/image';
 import type { LucideIcon } from 'lucide-react';
 import { Skeleton as SharedSkeleton } from '@/components/ui/Skeleton';
-import { usePageTitle } from '@/hooks/usePageTitle';
 
 // ─── Types ───────────────────────────────────────────────────────
 
@@ -1342,8 +1341,6 @@ const TABS: { id: Tab; label: string; icon: LucideIcon }[] = [
 ];
 
 export default function EvaluationsPage() {
-  usePageTitle('Avaliações');
-
   const [tab, setTab] = useState<Tab>('overview');
 
   const TAB_COMPONENTS: Record<Tab, JSX.Element> = {

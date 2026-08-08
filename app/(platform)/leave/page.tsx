@@ -41,7 +41,6 @@ import {
   ChevronDown,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
-import { usePageTitle } from '@/hooks/usePageTitle';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -956,8 +955,6 @@ function MonthlyChart({
 type TabKey = 'my' | 'approvals' | 'dashboard';
 
 export default function LeavePage() {
-  usePageTitle('Férias e Licenças');
-
   const [tab, setTab] = useState<TabKey>('my');
   const [showModal, setShowModal] = useState(false);
 

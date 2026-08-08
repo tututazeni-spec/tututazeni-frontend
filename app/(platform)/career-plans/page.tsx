@@ -35,7 +35,6 @@ import { apiClient } from '../../../lib/apiClient';
 import { queryKeys } from '../../../lib/queryKeys';
 import { STALE_TIME } from '../../../lib/queryClient';
 import type { LucideIcon } from 'lucide-react';
-import { usePageTitle } from '@/hooks/usePageTitle';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -614,8 +613,6 @@ function SimulateModal({
 type TabKey = 'my' | 'team' | 'analytics';
 
 export default function CareerPlansPage() {
-  usePageTitle('Planos de Carreira');
-
   const [tab, setTab] = useState<TabKey>('my');
   const [showSimulate, setShowSimulate] = useState(false);
 

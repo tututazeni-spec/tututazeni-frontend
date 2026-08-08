@@ -7,7 +7,6 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import Image from 'next/image';
 import { Skeleton as SharedSkeleton } from '@/components/ui/Skeleton';
-import { usePageTitle } from '@/hooks/usePageTitle';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -957,8 +956,6 @@ const TITLES: Record<View, string> = {
 };
 
 export default function AnalyticsPage() {
-  usePageTitle('Indicadores de Desempenho');
-
   const [view, setView] = useState<View>('overview');
 
   return (
