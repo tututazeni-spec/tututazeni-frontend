@@ -35,20 +35,15 @@ import Image from 'next/image';
 import type { LucideIcon } from 'lucide-react';
 import { Skeleton as SharedSkeleton } from '@/components/ui/Skeleton';
 import { getInitials } from '@/lib/format';
+import {
+  ADMIN_ROLES,
+  AUTHENTICATED_ROLES,
+  filterByRole,
+  MGMT_ROLES,
+  type Role,
+} from '@/lib/roles';
 
 // ─── Types ───────────────────────────────────────────────────────
-
-// Espelha src/auth/enums/role.enum.ts (backend) — o RolesGuard compara contra
-// user.role.name, por isso os valores têm de coincidir exactamente.
-type Role =
-  | 'COLABORADOR'
-  | 'LIDER'
-  | 'GESTOR'
-  | 'RH'
-  | 'ADMIN'
-  | 'INSTRUCTOR'
-  | 'DIRECTOR'
-  | 'AUDITOR';
 
 interface KPICardProps {
   icon: LucideIcon;
@@ -1210,31 +1205,24 @@ function GlobalSearch({ onClose }: { onClose: () => void }) {
 
 // ─── Main Page ───────────────────────────────────────────────────
 
-// roles por separador alinhados com @Roles(...MGMT_ROLES)/@Roles(...ADMIN_ROLES)
-// em src/dashboard/dashboard.controller.ts — não alargar sem confirmar lá primeiro.
+// roles por separador alinhados com @Roles(...ALL_ROLES)/@Roles(...MGMT_ROLES)/
+// @Roles(...ADMIN_ROLES) em src/dashboard/dashboard.controller.ts — os grupos
+// vêm de lib/roles.ts (fonte única partilhada com o Sidebar), não alargar sem
+// confirmar lá e no controller primeiro.
 const TABS = [
   {
     id: 'personal',
     label: 'O Meu Dashboard',
     icon: LayoutDashboard,
-    roles: [
-      'COLABORADOR',
-      'LIDER',
-      'GESTOR',
-      'RH',
-      'ADMIN',
-      'INSTRUCTOR',
-      'DIRECTOR',
-      'AUDITOR',
-    ],
+    roles: AUTHENTICATED_ROLES,
   },
   {
     id: 'manager',
     label: 'Gestor',
     icon: Users,
-    roles: ['LIDER', 'GESTOR', 'RH', 'ADMIN'],
+    roles: MGMT_ROLES,
   },
-  { id: 'org', label: 'Organização', icon: BarChart2, roles: ['RH', 'ADMIN'] },
+  { id: 'org', label: 'Organização', icon: BarChart2, roles: ADMIN_ROLES },
 ];
 
 export default function DashboardPage() {
@@ -1251,7 +1239,7 @@ export default function DashboardPage() {
   );
   const alertCount = alerts.filter((x) => x.priority === 'URGENT').length;
 
-  const availableTabs = TABS.filter((t) => t.roles.includes(role));
+  const availableTabs = filterByRole(TABS, role);
 
   const TAB_CONTENT: Record<string, JSX.Element> = {
     personal: <ColaboradorDashboard />,
