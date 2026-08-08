@@ -7,6 +7,7 @@ import { apiClient } from '../../../lib/apiClient';
 import { queryKeys } from '../../../lib/queryKeys';
 import { STALE_TIME } from '../../../lib/queryClient';
 import Image from 'next/image';
+import { Skeleton as SharedSkeleton } from '@/components/ui/Skeleton';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -163,11 +164,11 @@ function isOverdue(d: string | null, status: string): boolean {
 
 function Skeleton({ rows = 3 }: { rows?: number }) {
   return (
-    <div className="space-y-3 animate-pulse">
-      {Array.from({ length: rows }).map((_, i) => (
-        <div key={i} className="h-16 bg-gray-100 rounded-xl" />
-      ))}
-    </div>
+    <SharedSkeleton
+      rows={rows}
+      wrapperClassName="space-y-3 animate-pulse"
+      itemClassName="h-16 bg-gray-100 rounded-xl"
+    />
   );
 }
 

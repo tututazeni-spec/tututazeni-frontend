@@ -2,16 +2,30 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useApiQuery, useApiMutation, useOptimisticMutation } from '@/hooks/useApiQuery';
+import {
+  useApiQuery,
+  useApiMutation,
+  useOptimisticMutation,
+} from '@/hooks/useApiQuery';
 import { useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
+import { Skeleton as SharedSkeleton } from '@/components/ui/Skeleton';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 type Priority = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
-type Category = 'LMS' | 'PDI' | 'PERFORMANCE' | 'HR' | 'ENGAGEMENT' | 'GAMIFICATION' | 'SYSTEM' | 'ONBOARDING' | 'KNOWLEDGE';
+type Category =
+  | 'LMS'
+  | 'PDI'
+  | 'PERFORMANCE'
+  | 'HR'
+  | 'ENGAGEMENT'
+  | 'GAMIFICATION'
+  | 'SYSTEM'
+  | 'ONBOARDING'
+  | 'KNOWLEDGE';
 
 interface Notification {
   id: number;
@@ -32,10 +46,10 @@ interface Notification {
 interface NotifData {
   data: Notification[];
   grouped: {
-    today:     Notification[];
+    today: Notification[];
     yesterday: Notification[];
-    thisWeek:  Notification[];
-    older:     Notification[];
+    thisWeek: Notification[];
+    older: Notification[];
   };
   total: number;
   unreadCount: number;
@@ -45,17 +59,20 @@ interface NotifData {
 interface Preferences {
   inApp: boolean;
   email: boolean;
-  push:  boolean;
+  push: boolean;
   slack: boolean;
-  sms:   boolean;
-  quietHourStart:    number;
-  quietHourEnd:      number;
-  digestFrequency:   string;
-  disabledCategories:string[];
+  sms: boolean;
+  quietHourStart: number;
+  quietHourEnd: number;
+  digestFrequency: string;
+  disabledCategories: string[];
 }
 
 interface Stats {
-  total: number; read: number; unread: number; openRate: number;
+  total: number;
+  read: number;
+  unread: number;
+  openRate: number;
   byType: Array<{ type: string; count: number }>;
   byCategory: Array<{ category: string; count: number }>;
   byPriority: Record<string, number>;
@@ -68,7 +85,7 @@ type View = 'inbox' | 'preferences' | 'admin';
 function timeAgo(d: string): string {
   const diff = Date.now() - new Date(d).getTime();
   const m = Math.floor(diff / 60000);
-  if (m < 1)  return 'agora mesmo';
+  if (m < 1) return 'agora mesmo';
   if (m < 60) return `há ${m}min`;
   const h = Math.floor(m / 60);
   if (h < 24) return `há ${h}h`;
@@ -78,31 +95,59 @@ function timeAgo(d: string): string {
 
 function Skeleton({ rows = 4 }: { rows?: number }) {
   return (
-    <div className="space-y-2 animate-pulse">
-      {Array.from({ length: rows }).map((_, i) => <div key={i} className="h-16 bg-gray-100 rounded-xl" />)}
-    </div>
+    <SharedSkeleton
+      rows={rows}
+      wrapperClassName="space-y-2 animate-pulse"
+      itemClassName="h-16 bg-gray-100 rounded-xl"
+    />
   );
 }
 
 // ─── Config ───────────────────────────────────────────────────────────────────
 
-const PRIORITY_CFG: Record<Priority, { icon: string; cls: string; border: string }> = {
-  LOW:      { icon: '○',  cls: 'text-gray-400',  border: 'border-gray-100' },
-  MEDIUM:   { icon: '●',  cls: 'text-blue-500',  border: 'border-blue-100' },
-  HIGH:     { icon: '▲',  cls: 'text-amber-500', border: 'border-amber-100' },
-  CRITICAL: { icon: '🔴', cls: 'text-red-600',   border: 'border-red-200' },
+const PRIORITY_CFG: Record<
+  Priority,
+  { icon: string; cls: string; border: string }
+> = {
+  LOW: { icon: '○', cls: 'text-gray-400', border: 'border-gray-100' },
+  MEDIUM: { icon: '●', cls: 'text-blue-500', border: 'border-blue-100' },
+  HIGH: { icon: '▲', cls: 'text-amber-500', border: 'border-amber-100' },
+  CRITICAL: { icon: '🔴', cls: 'text-red-600', border: 'border-red-200' },
 };
 
-const CATEGORY_CFG: Record<string, { icon: string; label: string; cls: string }> = {
-  LMS:         { icon: '🎓', label: 'Aprendizagem',  cls: 'bg-blue-50 text-blue-700' },
-  PDI:         { icon: '🎯', label: 'PDI',           cls: 'bg-purple-50 text-purple-700' },
-  PERFORMANCE: { icon: '📊', label: 'Performance',   cls: 'bg-amber-50 text-amber-700' },
-  HR:          { icon: '👤', label: 'RH',            cls: 'bg-emerald-50 text-emerald-700' },
-  ENGAGEMENT:  { icon: '💬', label: 'Engagement',    cls: 'bg-pink-50 text-pink-700' },
-  GAMIFICATION:{ icon: '🏆', label: 'Gamificação',   cls: 'bg-yellow-50 text-yellow-700' },
-  SYSTEM:      { icon: '⚙️', label: 'Sistema',       cls: 'bg-gray-100 text-gray-600' },
-  ONBOARDING:  { icon: '🚀', label: 'Onboarding',    cls: 'bg-teal-50 text-teal-700' },
-  KNOWLEDGE:   { icon: '📚', label: 'Conhecimento',  cls: 'bg-indigo-50 text-indigo-700' },
+const CATEGORY_CFG: Record<
+  string,
+  { icon: string; label: string; cls: string }
+> = {
+  LMS: { icon: '🎓', label: 'Aprendizagem', cls: 'bg-blue-50 text-blue-700' },
+  PDI: { icon: '🎯', label: 'PDI', cls: 'bg-purple-50 text-purple-700' },
+  PERFORMANCE: {
+    icon: '📊',
+    label: 'Performance',
+    cls: 'bg-amber-50 text-amber-700',
+  },
+  HR: { icon: '👤', label: 'RH', cls: 'bg-emerald-50 text-emerald-700' },
+  ENGAGEMENT: {
+    icon: '💬',
+    label: 'Engagement',
+    cls: 'bg-pink-50 text-pink-700',
+  },
+  GAMIFICATION: {
+    icon: '🏆',
+    label: 'Gamificação',
+    cls: 'bg-yellow-50 text-yellow-700',
+  },
+  SYSTEM: { icon: '⚙️', label: 'Sistema', cls: 'bg-gray-100 text-gray-600' },
+  ONBOARDING: {
+    icon: '🚀',
+    label: 'Onboarding',
+    cls: 'bg-teal-50 text-teal-700',
+  },
+  KNOWLEDGE: {
+    icon: '📚',
+    label: 'Conhecimento',
+    cls: 'bg-indigo-50 text-indigo-700',
+  },
 };
 
 // ─── Notification Item ────────────────────────────────────────────────────────
@@ -117,7 +162,7 @@ function NotifItem({
   onArchive: (id: number) => void;
 }) {
   const priorityCfg = PRIORITY_CFG[notif.priority] ?? PRIORITY_CFG.MEDIUM;
-  const catCfg      = notif.category ? CATEGORY_CFG[notif.category] : null;
+  const catCfg = notif.category ? CATEGORY_CFG[notif.category] : null;
 
   return (
     <div
@@ -135,11 +180,15 @@ function NotifItem({
         <div className="flex items-start justify-between gap-2">
           <div className="flex-1">
             {notif.title && (
-              <div className={`text-sm font-semibold mb-0.5 ${!notif.read ? 'text-gray-900' : 'text-gray-700'}`}>
+              <div
+                className={`text-sm font-semibold mb-0.5 ${!notif.read ? 'text-gray-900' : 'text-gray-700'}`}
+              >
                 {notif.title}
               </div>
             )}
-            <p className={`text-sm leading-relaxed ${!notif.read ? 'text-gray-800' : 'text-gray-500'}`}>
+            <p
+              className={`text-sm leading-relaxed ${!notif.read ? 'text-gray-800' : 'text-gray-500'}`}
+            >
               {notif.message}
             </p>
           </div>
@@ -155,10 +204,13 @@ function NotifItem({
               {catCfg.icon} {catCfg.label}
             </span>
           )}
-          <span className="text-xs text-gray-400">{timeAgo(notif.createdAt)}</span>
+          <span className="text-xs text-gray-400">
+            {timeAgo(notif.createdAt)}
+          </span>
 
           {notif.actionUrl && (
-            <a href={notif.actionUrl}
+            <a
+              href={notif.actionUrl}
               className="text-xs text-blue-600 hover:underline font-medium"
               onClick={() => !notif.read && onRead(notif.id)}
             >
@@ -169,13 +221,17 @@ function NotifItem({
           {/* Acções hover */}
           <div className="ml-auto flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
             {!notif.read && (
-              <button onClick={() => onRead(notif.id)}
-                className="text-xs text-blue-600 hover:text-blue-800">
+              <button
+                onClick={() => onRead(notif.id)}
+                className="text-xs text-blue-600 hover:text-blue-800"
+              >
                 Marcar lida
               </button>
             )}
-            <button onClick={() => onArchive(notif.id)}
-              className="text-xs text-gray-400 hover:text-gray-600">
+            <button
+              onClick={() => onArchive(notif.id)}
+              className="text-xs text-gray-400 hover:text-gray-600"
+            >
               Arquivar
             </button>
           </div>
@@ -190,7 +246,9 @@ function NotifItem({
 function InboxView() {
   const qc = useQueryClient();
   const [category, setCategory] = useState('');
-  const [readFilter, setReadFilter] = useState<'all' | 'unread' | 'read'>('all');
+  const [readFilter, setReadFilter] = useState<'all' | 'unread' | 'read'>(
+    'all',
+  );
 
   const params = {
     limit: 50,
@@ -201,7 +259,8 @@ function InboxView() {
 
   // Polling inteligente: a caixa de entrada refresca a cada 60s.
   const { data, isLoading: loading } = useApiQuery<NotifData>(
-    listKey, '/notifications/my',
+    listKey,
+    '/notifications/my',
     { params, staleTime: STALE_TIME.DYNAMIC, refetchInterval: 60_000 },
   );
 
@@ -263,8 +322,13 @@ function InboxView() {
         <div className="px-4 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wide bg-gray-50 border-b border-gray-100">
           {label}
         </div>
-        {items.map(n => (
-          <NotifItem key={n.id} notif={n} onRead={handleRead} onArchive={handleArchive} />
+        {items.map((n) => (
+          <NotifItem
+            key={n.id}
+            notif={n}
+            onRead={handleRead}
+            onArchive={handleArchive}
+          />
         ))}
       </div>
     );
@@ -275,20 +339,29 @@ function InboxView() {
       {/* Toolbar */}
       <div className="flex items-center gap-3 mb-4 flex-wrap">
         {/* Category filter */}
-        <select value={category} onChange={e => setCategory(e.target.value)}
-          className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <select
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+          className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
           <option value="">Todas as categorias</option>
           {Object.entries(CATEGORY_CFG).map(([k, v]) => (
-            <option key={k} value={k}>{v.icon} {v.label}</option>
+            <option key={k} value={k}>
+              {v.icon} {v.label}
+            </option>
           ))}
         </select>
 
         {/* Read filter */}
         <div className="flex gap-1 bg-gray-100 p-1 rounded-lg">
-          {(['all', 'unread', 'read'] as const).map(f => (
-            <button key={f} onClick={() => setReadFilter(f)}
+          {(['all', 'unread', 'read'] as const).map((f) => (
+            <button
+              key={f}
+              onClick={() => setReadFilter(f)}
               className={`px-3 py-1 text-xs font-medium rounded transition-colors ${
-                readFilter === f ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+                readFilter === f
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-500 hover:text-gray-700'
               }`}
             >
               {{ all: 'Todas', unread: 'Não lidas', read: 'Lidas' }[f]}
@@ -297,26 +370,35 @@ function InboxView() {
         </div>
 
         {data && data.unreadCount > 0 && (
-          <button onClick={handleReadAll} disabled={marking}
-            className="ml-auto text-xs text-blue-600 hover:text-blue-800 font-medium disabled:opacity-50">
-            {marking ? 'A marcar…' : `Marcar todas como lidas (${data.unreadCount})`}
+          <button
+            onClick={handleReadAll}
+            disabled={marking}
+            className="ml-auto text-xs text-blue-600 hover:text-blue-800 font-medium disabled:opacity-50"
+          >
+            {marking
+              ? 'A marcar…'
+              : `Marcar todas como lidas (${data.unreadCount})`}
           </button>
         )}
       </div>
 
-      {loading ? <Skeleton /> : !data ? null : (
+      {loading ? (
+        <Skeleton />
+      ) : !data ? null : (
         <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
           {data.data.length === 0 ? (
             <div className="py-16 text-center">
               <div className="text-5xl mb-3">🔔</div>
-              <div className="text-sm text-gray-400">Nenhuma notificação encontrada</div>
+              <div className="text-sm text-gray-400">
+                Nenhuma notificação encontrada
+              </div>
             </div>
           ) : (
             <>
-              {renderGroup('Hoje',       data.grouped.today)}
-              {renderGroup('Ontem',      data.grouped.yesterday)}
-              {renderGroup('Esta semana',data.grouped.thisWeek)}
-              {renderGroup('Antigas',    data.grouped.older)}
+              {renderGroup('Hoje', data.grouped.today)}
+              {renderGroup('Ontem', data.grouped.yesterday)}
+              {renderGroup('Esta semana', data.grouped.thisWeek)}
+              {renderGroup('Antigas', data.grouped.older)}
             </>
           )}
         </div>
@@ -330,34 +412,44 @@ function InboxView() {
 function PreferencesView() {
   // Cache das preferências + cópia local editável (sincroniza quando chega).
   const { data, isLoading } = useApiQuery<Preferences>(
-    queryKeys.notifications.preferences(), '/notifications/preferences',
+    queryKeys.notifications.preferences(),
+    '/notifications/preferences',
     { staleTime: STALE_TIME.SEMI_STATIC },
   );
   const [prefs, setPrefs] = useState<Preferences | null>(null);
   const [saved, setSaved] = useState(false);
 
-  useEffect(() => { if (data) setPrefs(data); }, [data]);
+  useEffect(() => {
+    if (data) setPrefs(data);
+  }, [data]);
 
   const save = useApiMutation(
     () => apiClient.patch('/notifications/preferences', prefs),
     {
       invalidateKeys: [queryKeys.notifications.preferences()],
-      onSuccess: () => { setSaved(true); setTimeout(() => setSaved(false), 2000); },
+      onSuccess: () => {
+        setSaved(true);
+        setTimeout(() => setSaved(false), 2000);
+      },
       onError: (e) => alert(e.message),
     },
   );
   const saving = save.isPending;
-  const handleSave = () => { if (prefs) save.mutate(undefined); };
+  const handleSave = () => {
+    if (prefs) save.mutate(undefined);
+  };
 
   const toggle = (key: keyof Preferences) => {
-    setPrefs(prev => prev ? { ...prev, [key]: !prev[key] } : null);
+    setPrefs((prev) => (prev ? { ...prev, [key]: !prev[key] } : null));
   };
 
   const toggleCategory = (cat: string) => {
-    setPrefs(prev => {
+    setPrefs((prev) => {
       if (!prev) return null;
       const disabled = prev.disabledCategories ?? [];
-      const updated  = disabled.includes(cat) ? disabled.filter(c => c !== cat) : [...disabled, cat];
+      const updated = disabled.includes(cat)
+        ? disabled.filter((c) => c !== cat)
+        : [...disabled, cat];
       return { ...prev, disabledCategories: updated };
     });
   };
@@ -368,14 +460,39 @@ function PreferencesView() {
     <div className="max-w-xl space-y-5">
       {/* Canais */}
       <div className="bg-white border border-gray-200 rounded-xl p-5">
-        <div className="text-sm font-semibold text-gray-900 mb-4">Canais de notificação</div>
+        <div className="text-sm font-semibold text-gray-900 mb-4">
+          Canais de notificação
+        </div>
         {[
-          { key: 'inApp' as const, label: 'In-app', sub: 'Centro de notificações da plataforma', icon: '🔔' },
-          { key: 'email' as const, label: 'E-mail', sub: 'Receber notificações por e-mail',       icon: '📧' },
-          { key: 'push'  as const, label: 'Push',   sub: 'Notificações do browser/mobile',         icon: '📱' },
-          { key: 'slack' as const, label: 'Slack',  sub: 'Integração com Slack',                   icon: '💬' },
+          {
+            key: 'inApp' as const,
+            label: 'In-app',
+            sub: 'Centro de notificações da plataforma',
+            icon: '🔔',
+          },
+          {
+            key: 'email' as const,
+            label: 'E-mail',
+            sub: 'Receber notificações por e-mail',
+            icon: '📧',
+          },
+          {
+            key: 'push' as const,
+            label: 'Push',
+            sub: 'Notificações do browser/mobile',
+            icon: '📱',
+          },
+          {
+            key: 'slack' as const,
+            label: 'Slack',
+            sub: 'Integração com Slack',
+            icon: '💬',
+          },
         ].map(({ key, label, sub, icon }) => (
-          <div key={key} className="flex items-center justify-between py-3 border-b border-gray-100 last:border-0">
+          <div
+            key={key}
+            className="flex items-center justify-between py-3 border-b border-gray-100 last:border-0"
+          >
             <div className="flex items-center gap-3">
               <span className="text-xl">{icon}</span>
               <div>
@@ -387,7 +504,9 @@ function PreferencesView() {
               onClick={() => toggle(key)}
               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${prefs[key] ? 'bg-blue-600' : 'bg-gray-200'}`}
             >
-              <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${prefs[key] ? 'translate-x-6' : 'translate-x-1'}`} />
+              <span
+                className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${prefs[key] ? 'translate-x-6' : 'translate-x-1'}`}
+              />
             </button>
           </div>
         ))}
@@ -395,18 +514,28 @@ function PreferencesView() {
 
       {/* Horário silencioso */}
       <div className="bg-white border border-gray-200 rounded-xl p-5">
-        <div className="text-sm font-semibold text-gray-900 mb-1">🌙 Horário silencioso</div>
-        <div className="text-xs text-gray-400 mb-4">Sem notificações push/SMS neste período</div>
+        <div className="text-sm font-semibold text-gray-900 mb-1">
+          🌙 Horário silencioso
+        </div>
+        <div className="text-xs text-gray-400 mb-4">
+          Sem notificações push/SMS neste período
+        </div>
         <div className="flex items-center gap-3">
           <div>
             <div className="text-xs text-gray-400 mb-1">Das</div>
             <select
               value={prefs.quietHourStart}
-              onChange={e => setPrefs(p => p ? { ...p, quietHourStart: parseInt(e.target.value) } : null)}
+              onChange={(e) =>
+                setPrefs((p) =>
+                  p ? { ...p, quietHourStart: parseInt(e.target.value) } : null,
+                )
+              }
               className="text-sm border border-gray-200 rounded-lg px-2 py-1.5"
             >
               {Array.from({ length: 24 }, (_, h) => (
-                <option key={h} value={h}>{String(h).padStart(2, '0')}:00</option>
+                <option key={h} value={h}>
+                  {String(h).padStart(2, '0')}:00
+                </option>
               ))}
             </select>
           </div>
@@ -415,11 +544,17 @@ function PreferencesView() {
             <div className="text-xs text-gray-400 mb-1">Às</div>
             <select
               value={prefs.quietHourEnd}
-              onChange={e => setPrefs(p => p ? { ...p, quietHourEnd: parseInt(e.target.value) } : null)}
+              onChange={(e) =>
+                setPrefs((p) =>
+                  p ? { ...p, quietHourEnd: parseInt(e.target.value) } : null,
+                )
+              }
               className="text-sm border border-gray-200 rounded-lg px-2 py-1.5"
             >
               {Array.from({ length: 24 }, (_, h) => (
-                <option key={h} value={h}>{String(h).padStart(2, '0')}:00</option>
+                <option key={h} value={h}>
+                  {String(h).padStart(2, '0')}:00
+                </option>
               ))}
             </select>
           </div>
@@ -428,15 +563,27 @@ function PreferencesView() {
 
       {/* Digest */}
       <div className="bg-white border border-gray-200 rounded-xl p-5">
-        <div className="text-sm font-semibold text-gray-900 mb-3">📋 Resumo periódico (Digest)</div>
+        <div className="text-sm font-semibold text-gray-900 mb-3">
+          📋 Resumo periódico (Digest)
+        </div>
         <div className="flex gap-2">
-          {(['NONE', 'DAILY', 'WEEKLY'] as const).map(freq => (
-            <button key={freq} onClick={() => setPrefs(p => p ? { ...p, digestFrequency: freq } : null)}
+          {(['NONE', 'DAILY', 'WEEKLY'] as const).map((freq) => (
+            <button
+              key={freq}
+              onClick={() =>
+                setPrefs((p) => (p ? { ...p, digestFrequency: freq } : null))
+              }
               className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
-                prefs.digestFrequency === freq ? 'bg-blue-700 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                prefs.digestFrequency === freq
+                  ? 'bg-blue-700 text-white'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
             >
-              {{ NONE: 'Desactivado', DAILY: 'Diário', WEEKLY: 'Semanal' }[freq]}
+              {
+                { NONE: 'Desactivado', DAILY: 'Diário', WEEKLY: 'Semanal' }[
+                  freq
+                ]
+              }
             </button>
           ))}
         </div>
@@ -444,15 +591,23 @@ function PreferencesView() {
 
       {/* Categorias desactivadas */}
       <div className="bg-white border border-gray-200 rounded-xl p-5">
-        <div className="text-sm font-semibold text-gray-900 mb-1">🔕 Categorias silenciadas</div>
-        <div className="text-xs text-gray-400 mb-4">Não receber notificações destas categorias</div>
+        <div className="text-sm font-semibold text-gray-900 mb-1">
+          🔕 Categorias silenciadas
+        </div>
+        <div className="text-xs text-gray-400 mb-4">
+          Não receber notificações destas categorias
+        </div>
         <div className="flex flex-wrap gap-2">
           {Object.entries(CATEGORY_CFG).map(([k, v]) => {
             const disabled = (prefs.disabledCategories ?? []).includes(k);
             return (
-              <button key={k} onClick={() => toggleCategory(k)}
+              <button
+                key={k}
+                onClick={() => toggleCategory(k)}
                 className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
-                  disabled ? 'bg-red-50 text-red-600 line-through' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  disabled
+                    ? 'bg-red-50 text-red-600 line-through'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >
                 {v.icon} {v.label}
@@ -466,7 +621,9 @@ function PreferencesView() {
         onClick={handleSave}
         disabled={saving}
         className={`w-full py-2.5 text-sm font-semibold rounded-xl transition-colors ${
-          saved ? 'bg-emerald-600 text-white' : 'bg-blue-700 text-white hover:bg-blue-800 disabled:opacity-60'
+          saved
+            ? 'bg-emerald-600 text-white'
+            : 'bg-blue-700 text-white hover:bg-blue-800 disabled:opacity-60'
         }`}
       >
         {saving ? 'A guardar…' : saved ? '✓ Guardado!' : 'Guardar preferências'}
@@ -478,10 +635,15 @@ function PreferencesView() {
 // ─── View: Admin ──────────────────────────────────────────────────────────────
 
 function AdminView() {
-  const [form, setForm] = useState({ type: 'ANNOUNCEMENT', message: '', title: '' });
+  const [form, setForm] = useState({
+    type: 'ANNOUNCEMENT',
+    message: '',
+    title: '',
+  });
 
   const { data: stats, isLoading } = useApiQuery<Stats>(
-    queryKeys.notifications.stats(), '/notifications/stats',
+    queryKeys.notifications.stats(),
+    '/notifications/stats',
     { staleTime: STALE_TIME.SEMI_STATIC },
   );
 
@@ -500,7 +662,10 @@ function AdminView() {
   const sending = sendAll.isPending;
 
   const handleSendAll = () => {
-    if (!form.message.trim()) { alert('Mensagem obrigatória'); return; }
+    if (!form.message.trim()) {
+      alert('Mensagem obrigatória');
+      return;
+    }
     sendAll.mutate(undefined);
   };
 
@@ -511,14 +676,26 @@ function AdminView() {
       {/* Stats */}
       <div className="grid grid-cols-4 gap-3">
         {[
-          { label: 'Total enviadas',  value: stats.total },
-          { label: 'Lidas',          value: stats.read,    color: 'text-emerald-600' },
-          { label: 'Não lidas',       value: stats.unread,  color: stats.unread > 100 ? 'text-red-600' : 'text-amber-600' },
-          { label: 'Taxa de abertura',value: `${stats.openRate}%`, color: 'text-blue-600' },
+          { label: 'Total enviadas', value: stats.total },
+          { label: 'Lidas', value: stats.read, color: 'text-emerald-600' },
+          {
+            label: 'Não lidas',
+            value: stats.unread,
+            color: stats.unread > 100 ? 'text-red-600' : 'text-amber-600',
+          },
+          {
+            label: 'Taxa de abertura',
+            value: `${stats.openRate}%`,
+            color: 'text-blue-600',
+          },
         ].map(({ label, value, color }) => (
           <div key={label} className="bg-gray-50 rounded-xl p-4">
             <div className="text-xs text-gray-400 mb-1">{label}</div>
-            <div className={`text-2xl font-bold font-mono ${color ?? 'text-gray-900'}`}>{value}</div>
+            <div
+              className={`text-2xl font-bold font-mono ${color ?? 'text-gray-900'}`}
+            >
+              {value}
+            </div>
           </div>
         ))}
       </div>
@@ -526,14 +703,23 @@ function AdminView() {
       {/* Por categoria */}
       <div className="grid grid-cols-2 gap-4">
         <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">Por categoria</div>
-          {stats.byCategory.map(c => {
+          <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">
+            Por categoria
+          </div>
+          {stats.byCategory.map((c) => {
             const cfg = c.category ? CATEGORY_CFG[c.category] : null;
             return (
-              <div key={c.category} className="flex items-center gap-2 py-1.5 border-b border-gray-50 last:border-0">
+              <div
+                key={c.category}
+                className="flex items-center gap-2 py-1.5 border-b border-gray-50 last:border-0"
+              >
                 <span className="text-sm">{cfg?.icon ?? '📌'}</span>
-                <span className="text-xs text-gray-700 flex-1">{cfg?.label ?? c.category ?? '—'}</span>
-                <span className="text-xs font-mono font-bold text-gray-900">{c.count}</span>
+                <span className="text-xs text-gray-700 flex-1">
+                  {cfg?.label ?? c.category ?? '—'}
+                </span>
+                <span className="text-xs font-mono font-bold text-gray-900">
+                  {c.count}
+                </span>
               </div>
             );
           })}
@@ -541,20 +727,31 @@ function AdminView() {
 
         {/* Envio em massa */}
         <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">Enviar a todos</div>
+          <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">
+            Enviar a todos
+          </div>
           <div className="space-y-3">
             <input
-              type="text" placeholder="Título (opcional)"
-              value={form.title} onChange={e => setForm(p => ({ ...p, title: e.target.value }))}
+              type="text"
+              placeholder="Título (opcional)"
+              value={form.title}
+              onChange={(e) =>
+                setForm((p) => ({ ...p, title: e.target.value }))
+              }
               className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             <textarea
-              rows={3} placeholder="Mensagem…"
-              value={form.message} onChange={e => setForm(p => ({ ...p, message: e.target.value }))}
+              rows={3}
+              placeholder="Mensagem…"
+              value={form.message}
+              onChange={(e) =>
+                setForm((p) => ({ ...p, message: e.target.value }))
+              }
               className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             <button
-              onClick={handleSendAll} disabled={sending}
+              onClick={handleSendAll}
+              disabled={sending}
               className="w-full py-2 bg-blue-700 text-white text-sm font-medium rounded-lg hover:bg-blue-800 disabled:opacity-50"
             >
               {sending ? 'A enviar…' : '📣 Enviar a todos os colaboradores'}
@@ -569,15 +766,15 @@ function AdminView() {
 // ─── Page principal ───────────────────────────────────────────────────────────
 
 const NAV: Array<{ id: View; label: string }> = [
-  { id: 'inbox',       label: '🔔 Caixa de entrada' },
+  { id: 'inbox', label: '🔔 Caixa de entrada' },
   { id: 'preferences', label: '⚙️ Preferências' },
-  { id: 'admin',       label: '📊 Admin' },
+  { id: 'admin', label: '📊 Admin' },
 ];
 
 const TITLES: Record<View, string> = {
-  inbox:       'Notificações',
+  inbox: 'Notificações',
   preferences: 'Preferências de notificação',
-  admin:       'Gestão de notificações',
+  admin: 'Gestão de notificações',
 };
 
 export default function NotificationsPage() {
@@ -585,7 +782,8 @@ export default function NotificationsPage() {
 
   // Badge de não lidas com polling (60s). Key partilhada com as mutações do inbox.
   const { data: unreadData } = useApiQuery<{ count: number }>(
-    queryKeys.notifications.unreadCount(), '/notifications/my/unread-count',
+    queryKeys.notifications.unreadCount(),
+    '/notifications/my/unread-count',
     { refetchInterval: 60_000 },
   );
   const unread = unreadData?.count ?? 0;
@@ -595,22 +793,30 @@ export default function NotificationsPage() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <div className="flex items-center gap-3">
-            <h1 className="text-xl font-semibold text-gray-900">{TITLES[view]}</h1>
+            <h1 className="text-xl font-semibold text-gray-900">
+              {TITLES[view]}
+            </h1>
             {view === 'inbox' && unread > 0 && (
               <span className="bg-blue-600 text-white text-xs font-bold px-2 py-0.5 rounded-full">
                 {unread > 99 ? '99+' : unread}
               </span>
             )}
           </div>
-          <p className="text-sm text-gray-400 mt-0.5">INNOVA — Centro de notificações</p>
+          <p className="text-sm text-gray-400 mt-0.5">
+            INNOVA — Centro de notificações
+          </p>
         </div>
       </div>
 
       <div className="flex gap-1 mb-6 bg-gray-100 p-1 rounded-xl w-fit">
-        {NAV.map(n => (
-          <button key={n.id} onClick={() => setView(n.id)}
+        {NAV.map((n) => (
+          <button
+            key={n.id}
+            onClick={() => setView(n.id)}
             className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-              view === n.id ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+              view === n.id
+                ? 'bg-white text-gray-900 shadow-sm'
+                : 'text-gray-500 hover:text-gray-700'
             }`}
           >
             {n.label}
@@ -623,9 +829,9 @@ export default function NotificationsPage() {
         ))}
       </div>
 
-      {view === 'inbox'       && <InboxView />}
+      {view === 'inbox' && <InboxView />}
       {view === 'preferences' && <PreferencesView />}
-      {view === 'admin'       && <AdminView />}
+      {view === 'admin' && <AdminView />}
     </div>
   );
 }

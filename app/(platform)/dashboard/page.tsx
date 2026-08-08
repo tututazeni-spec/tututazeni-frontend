@@ -33,6 +33,7 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import Image from 'next/image';
 import type { LucideIcon } from 'lucide-react';
+import { Skeleton as SharedSkeleton } from '@/components/ui/Skeleton';
 
 // ─── Types ───────────────────────────────────────────────────────
 
@@ -512,11 +513,11 @@ function KPICard({
 
 function Skeleton({ count = 4 }: { count?: number }) {
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 animate-pulse">
-      {[...Array(count)].map((_, i) => (
-        <div key={i} className="bg-slate-100 rounded-xl h-24" />
-      ))}
-    </div>
+    <SharedSkeleton
+      rows={count}
+      wrapperClassName="grid grid-cols-2 md:grid-cols-4 gap-4 animate-pulse"
+      itemClassName="bg-slate-100 rounded-xl h-24"
+    />
   );
 }
 

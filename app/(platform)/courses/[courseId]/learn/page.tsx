@@ -21,6 +21,7 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { sanitizeHtml } from '@/lib/sanitize';
 import { CourseAvatarReader } from '@/components/CourseAvatarReader';
+import { Skeleton as SharedSkeleton } from '@/components/ui/Skeleton';
 
 // ─── Tipo do conteúdo da lição ───────────────────────────────────────────────
 // (adapta conforme o teu schema)
@@ -172,11 +173,11 @@ function ProgressRing({ pct, size = 36 }: { pct: number; size?: number }) {
 
 function Skeleton({ rows = 4 }: { rows?: number }) {
   return (
-    <div className="space-y-2 animate-pulse">
-      {Array.from({ length: rows }).map((_, i) => (
-        <div key={i} className="h-12 bg-gray-100 rounded-xl" />
-      ))}
-    </div>
+    <SharedSkeleton
+      rows={rows}
+      wrapperClassName="space-y-2 animate-pulse"
+      itemClassName="h-12 bg-gray-100 rounded-xl"
+    />
   );
 }
 

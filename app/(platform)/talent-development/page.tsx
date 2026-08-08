@@ -32,6 +32,7 @@ import { useApiQuery } from '../../../hooks/useApiQuery';
 import { queryKeys } from '../../../lib/queryKeys';
 import { STALE_TIME } from '../../../lib/queryClient';
 import Image from 'next/image';
+import { Skeleton as SharedSkeleton } from '@/components/ui/Skeleton';
 
 // ─── Types ────────────────────────────────────────────────────────
 
@@ -1164,13 +1165,13 @@ function AnalyticsTab() {
 
 // ─── Skeleton ─────────────────────────────────────────────────────
 
-function Skeleton() {
+function Skeleton({ rows = 3 }: { rows?: number }) {
   return (
-    <div className="space-y-4 animate-pulse">
-      {[...Array(3)].map((_, i) => (
-        <div key={i} className="bg-slate-100 rounded-xl h-24" />
-      ))}
-    </div>
+    <SharedSkeleton
+      rows={rows}
+      wrapperClassName="space-y-4 animate-pulse"
+      itemClassName="bg-slate-100 rounded-xl h-24"
+    />
   );
 }
 
