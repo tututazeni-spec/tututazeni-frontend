@@ -31,7 +31,9 @@ jobs:
         run: npm run lint
         continue-on-error: true
 
-      # Passo bloqueante: testes unitários (vitest).
+      # Passo bloqueante: testes unitários (vitest) — introduzido junto com
+      # lib/roles.ts, primeira lógica de negócio extraída para funções puras
+      # testáveis fora dos componentes.
       - name: Testes unitários
         run: npm test
 
