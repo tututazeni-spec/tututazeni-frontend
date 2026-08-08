@@ -46,10 +46,7 @@ export interface RequestOptions extends Omit<RequestInit, 'body'> {
   signal?: AbortSignal;
 }
 
-function buildUrl(
-  path: string,
-  params?: RequestOptions['params'],
-): string {
+function buildUrl(path: string, params?: RequestOptions['params']): string {
   const base = `${API_URL}${path}`;
   if (!params) return base;
   const qs = new URLSearchParams();
@@ -61,13 +58,31 @@ function buildUrl(
   return str ? `${base}?${str}` : base;
 }
 
+// Evita disparar vários POST /auth/logout em paralelo quando várias
+// queries falham com 401 ao mesmo tempo (ex.: dashboard com 2+ pedidos
+// simultâneos) — só o primeiro 401 dispara o logout+redirect.
+let loggingOut = false;
+
 function redirectToLoginIfNeeded(status: number): void {
   if (
     status === 401 &&
     typeof window !== 'undefined' &&
-    !window.location.pathname.startsWith('/login')
+    !window.location.pathname.startsWith('/login') &&
+    !loggingOut
   ) {
-    window.location.href = '/login';
+    loggingOut = true;
+    // Limpa o cookie httpOnly de sessão (agora inválido/expirado, mas ainda
+    // presente) antes de redireccionar. Sem isto, o middleware só verifica
+    // a PRESENÇA do cookie (não a validade do JWT) — via o cookie ainda lá,
+    // tratava /login como "já autenticado" e reenviava logo para /dashboard,
+    // que voltava a fazer 401, criando um loop infinito de redirecionamento
+    // (achado ao testar a app com uma sessão de várias horas).
+    void fetch('/api/auth/logout', {
+      method: 'POST',
+      credentials: 'include',
+    }).finally(() => {
+      window.location.href = '/login';
+    });
   }
 }
 
