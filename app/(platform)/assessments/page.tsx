@@ -8,21 +8,33 @@ import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import Image from 'next/image';
+import { Skeleton as SharedSkeleton } from '@/components/ui/Skeleton';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type QType  = 'MULTIPLE_CHOICE_SINGLE' | 'MULTIPLE_CHOICE_MULTI' | 'TRUE_FALSE' | 'OPEN_TEXT' | 'FILE_UPLOAD' | 'ORDERING';
-type AStatus= 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
-type AttemptStatus = 'IN_PROGRESS' | 'SUBMITTED' | 'PASSED' | 'FAILED' | 'EXPIRED';
+type QType =
+  | 'MULTIPLE_CHOICE_SINGLE'
+  | 'MULTIPLE_CHOICE_MULTI'
+  | 'TRUE_FALSE'
+  | 'OPEN_TEXT'
+  | 'FILE_UPLOAD'
+  | 'ORDERING';
+type AStatus = 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
+type AttemptStatus =
+  'IN_PROGRESS' | 'SUBMITTED' | 'PASSED' | 'FAILED' | 'EXPIRED';
 
-interface QOption { text: string; isCorrect?: boolean; feedback?: string }
+interface QOption {
+  text: string;
+  isCorrect?: boolean;
+  feedback?: string;
+}
 
 interface Question {
   id: number;
   type: QType;
   questionText: string;
   mediaUrl: string | null;
-  options: QOption[] | null;  // parsed from JSON
+  options: QOption[] | null; // parsed from JSON
   weight: number;
   difficulty: number;
   seq: number;
@@ -54,7 +66,12 @@ interface AttemptAnswer {
 }
 
 interface AttemptResult {
-  attempt: { id: number; status: AttemptStatus; score: number; passed: boolean | null };
+  attempt: {
+    id: number;
+    status: AttemptStatus;
+    score: number;
+    passed: boolean | null;
+  };
   score: number;
   passed: boolean | null;
   totalQuestions: number;
@@ -118,26 +135,41 @@ interface AttemptDetail {
 function parseOptions(optionsJson: unknown): QOption[] | null {
   if (!optionsJson) return null;
   try {
-    return typeof optionsJson === 'string' ? JSON.parse(optionsJson) : (optionsJson as QOption[]);
-  } catch { return null; }
+    return typeof optionsJson === 'string'
+      ? JSON.parse(optionsJson)
+      : (optionsJson as QOption[]);
+  } catch {
+    return null;
+  }
 }
 
 function Skeleton({ rows = 3 }: { rows?: number }) {
   return (
-    <div className="space-y-3 animate-pulse">
-      {Array.from({ length: rows }).map((_, i) => <div key={i} className="h-16 bg-gray-100 rounded-xl" />)}
-    </div>
+    <SharedSkeleton
+      rows={rows}
+      wrapperClassName="space-y-3 animate-pulse"
+      itemClassName="h-16 bg-gray-100 rounded-xl"
+    />
   );
 }
 
 // ─── Timer component ──────────────────────────────────────────────────────────
 
-function CountdownTimer({ totalMinutes, onExpire }: { totalMinutes: number; onExpire: () => void }) {
+function CountdownTimer({
+  totalMinutes,
+  onExpire,
+}: {
+  totalMinutes: number;
+  onExpire: () => void;
+}) {
   const [secondsLeft, setSecondsLeft] = useState(totalMinutes * 60);
 
   useEffect(() => {
-    if (secondsLeft <= 0) { onExpire(); return; }
-    const t = setTimeout(() => setSecondsLeft(s => s - 1), 1000);
+    if (secondsLeft <= 0) {
+      onExpire();
+      return;
+    }
+    const t = setTimeout(() => setSecondsLeft((s) => s - 1), 1000);
     return () => clearTimeout(t);
   }, [secondsLeft, onExpire]);
 
@@ -146,9 +178,13 @@ function CountdownTimer({ totalMinutes, onExpire }: { totalMinutes: number; onEx
   const isUrgent = secondsLeft <= 60;
 
   return (
-    <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg font-mono font-semibold text-sm ${
-      isUrgent ? 'bg-red-50 text-red-700 animate-pulse' : 'bg-gray-100 text-gray-700'
-    }`}>
+    <div
+      className={`flex items-center gap-2 px-3 py-1.5 rounded-lg font-mono font-semibold text-sm ${
+        isUrgent
+          ? 'bg-red-50 text-red-700 animate-pulse'
+          : 'bg-gray-100 text-gray-700'
+      }`}
+    >
       ⏱ {String(mins).padStart(2, '0')}:{String(secs).padStart(2, '0')}
     </div>
   );
@@ -177,7 +213,9 @@ function QuestionPlayer({
 
   const handleMultiChoice = (idx: number) => {
     const current = answer?.selectedIndices ?? [];
-    const updated = current.includes(idx) ? current.filter(i => i !== idx) : [...current, idx];
+    const updated = current.includes(idx)
+      ? current.filter((i) => i !== idx)
+      : [...current, idx];
     onChange({ questionId: question.id, selectedIndices: updated });
   };
 
@@ -187,18 +225,26 @@ function QuestionPlayer({
       <div className="flex items-start justify-between gap-3 mb-5">
         <div>
           <div className="flex items-center gap-2 mb-2">
-            <span className="text-xs font-mono text-gray-400">Pergunta {index + 1} de {total}</span>
+            <span className="text-xs font-mono text-gray-400">
+              Pergunta {index + 1} de {total}
+            </span>
             {question.difficulty > 1 && (
-              <span className={`text-xs px-2 py-0.5 rounded ${
-                question.difficulty >= 4 ? 'bg-red-50 text-red-700' :
-                question.difficulty >= 3 ? 'bg-amber-50 text-amber-700' :
-                'bg-blue-50 text-blue-600'
-              }`}>
+              <span
+                className={`text-xs px-2 py-0.5 rounded ${
+                  question.difficulty >= 4
+                    ? 'bg-red-50 text-red-700'
+                    : question.difficulty >= 3
+                      ? 'bg-amber-50 text-amber-700'
+                      : 'bg-blue-50 text-blue-600'
+                }`}
+              >
                 {'★'.repeat(question.difficulty)}
               </span>
             )}
           </div>
-          <p className="text-base font-medium text-gray-900 leading-relaxed">{question.questionText}</p>
+          <p className="text-base font-medium text-gray-900 leading-relaxed">
+            {question.questionText}
+          </p>
         </div>
         {question.weight !== 1 && (
           <span className="text-xs bg-blue-50 text-blue-600 px-2 py-0.5 rounded flex-shrink-0">
@@ -211,53 +257,72 @@ function QuestionPlayer({
       {question.mediaUrl && (
         <div className="mb-4 rounded-lg overflow-hidden bg-gray-100">
           {question.mediaUrl.match(/\.(mp4|webm)$/) ? (
-            <video src={question.mediaUrl} controls className="w-full max-h-48 object-contain" />
+            <video
+              src={question.mediaUrl}
+              controls
+              className="w-full max-h-48 object-contain"
+            />
           ) : (
             <div className="relative w-full h-48">
-              <Image src={question.mediaUrl} alt="Media" fill className="object-contain" />
+              <Image
+                src={question.mediaUrl}
+                alt="Media"
+                fill
+                className="object-contain"
+              />
             </div>
           )}
         </div>
       )}
 
       {/* Options */}
-      {(question.type === 'MULTIPLE_CHOICE_SINGLE' || question.type === 'TRUE_FALSE') && options && (
-        <div className="space-y-2">
-          {options.map((opt, idx) => {
-            const selected = answer?.selectedIndices?.includes(idx);
-            return (
-              <label
-                key={idx}
-                className={`flex items-center gap-3 p-3.5 border rounded-xl cursor-pointer transition-all ${
-                  selected ? 'border-blue-400 bg-blue-50' : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
-                }`}
-              >
-                <input
-                  type="radio"
-                  name={`q-${question.id}`}
-                  checked={!!selected}
-                  onChange={() => handleSingleChoice(idx)}
-                  className="w-4 h-4 text-blue-600 focus:ring-blue-500"
-                />
-                <span className={`text-sm ${selected ? 'font-medium text-blue-900' : 'text-gray-700'}`}>
-                  {opt.text}
-                </span>
-              </label>
-            );
-          })}
-        </div>
-      )}
+      {(question.type === 'MULTIPLE_CHOICE_SINGLE' ||
+        question.type === 'TRUE_FALSE') &&
+        options && (
+          <div className="space-y-2">
+            {options.map((opt, idx) => {
+              const selected = answer?.selectedIndices?.includes(idx);
+              return (
+                <label
+                  key={idx}
+                  className={`flex items-center gap-3 p-3.5 border rounded-xl cursor-pointer transition-all ${
+                    selected
+                      ? 'border-blue-400 bg-blue-50'
+                      : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name={`q-${question.id}`}
+                    checked={!!selected}
+                    onChange={() => handleSingleChoice(idx)}
+                    className="w-4 h-4 text-blue-600 focus:ring-blue-500"
+                  />
+                  <span
+                    className={`text-sm ${selected ? 'font-medium text-blue-900' : 'text-gray-700'}`}
+                  >
+                    {opt.text}
+                  </span>
+                </label>
+              );
+            })}
+          </div>
+        )}
 
       {question.type === 'MULTIPLE_CHOICE_MULTI' && options && (
         <div className="space-y-2">
-          <div className="text-xs text-gray-400 mb-2">Pode seleccionar múltiplas respostas</div>
+          <div className="text-xs text-gray-400 mb-2">
+            Pode seleccionar múltiplas respostas
+          </div>
           {options.map((opt, idx) => {
             const selected = answer?.selectedIndices?.includes(idx);
             return (
               <label
                 key={idx}
                 className={`flex items-center gap-3 p-3.5 border rounded-xl cursor-pointer transition-all ${
-                  selected ? 'border-blue-400 bg-blue-50' : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                  selected
+                    ? 'border-blue-400 bg-blue-50'
+                    : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
                 }`}
               >
                 <input
@@ -266,7 +331,9 @@ function QuestionPlayer({
                   onChange={() => handleMultiChoice(idx)}
                   className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
                 />
-                <span className={`text-sm ${selected ? 'font-medium text-blue-900' : 'text-gray-700'}`}>
+                <span
+                  className={`text-sm ${selected ? 'font-medium text-blue-900' : 'text-gray-700'}`}
+                >
                   {opt.text}
                 </span>
               </label>
@@ -278,7 +345,9 @@ function QuestionPlayer({
       {question.type === 'OPEN_TEXT' && (
         <textarea
           value={answer?.textAnswer ?? ''}
-          onChange={e => onChange({ questionId: question.id, textAnswer: e.target.value })}
+          onChange={(e) =>
+            onChange({ questionId: question.id, textAnswer: e.target.value })
+          }
           rows={5}
           placeholder="Escreva a sua resposta aqui…"
           className="w-full text-sm border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
@@ -288,10 +357,16 @@ function QuestionPlayer({
       {question.type === 'FILE_UPLOAD' && (
         <div className="border-2 border-dashed border-gray-200 rounded-xl p-8 text-center">
           <div className="text-3xl mb-3">📎</div>
-          <div className="text-sm font-medium text-gray-700 mb-1">Upload de ficheiro</div>
-          <button className="text-xs text-blue-600 underline">Seleccionar ficheiro</button>
+          <div className="text-sm font-medium text-gray-700 mb-1">
+            Upload de ficheiro
+          </div>
+          <button className="text-xs text-blue-600 underline">
+            Seleccionar ficheiro
+          </button>
           {answer?.fileUrl && (
-            <div className="mt-2 text-xs text-emerald-600">✓ Ficheiro carregado</div>
+            <div className="mt-2 text-xs text-emerald-600">
+              ✓ Ficheiro carregado
+            </div>
           )}
         </div>
       )}
@@ -312,37 +387,60 @@ function ResultView({
   onRetry: () => void;
   onBack: () => void;
 }) {
-  const { score, passed, totalQuestions, correctAnswers, needsManualReview } = result;
+  const { score, passed, totalQuestions, correctAnswers, needsManualReview } =
+    result;
   const isPass = passed === true;
 
   return (
     <div className="max-w-2xl mx-auto">
       {/* Score card */}
-      <div className={`rounded-2xl p-8 text-center mb-6 ${
-        needsManualReview ? 'bg-amber-50 border border-amber-200' :
-        isPass ? 'bg-emerald-50 border border-emerald-200' :
-        'bg-red-50 border border-red-200'
-      }`}>
+      <div
+        className={`rounded-2xl p-8 text-center mb-6 ${
+          needsManualReview
+            ? 'bg-amber-50 border border-amber-200'
+            : isPass
+              ? 'bg-emerald-50 border border-emerald-200'
+              : 'bg-red-50 border border-red-200'
+        }`}
+      >
         <div className="text-5xl mb-3">
           {needsManualReview ? '⏳' : isPass ? '🎉' : '😔'}
         </div>
-        <div className={`text-4xl font-bold font-mono mb-2 ${
-          needsManualReview ? 'text-amber-700' :
-          isPass ? 'text-emerald-700' : 'text-red-700'
-        }`}>
+        <div
+          className={`text-4xl font-bold font-mono mb-2 ${
+            needsManualReview
+              ? 'text-amber-700'
+              : isPass
+                ? 'text-emerald-700'
+                : 'text-red-700'
+          }`}
+        >
           {score}%
         </div>
-        <div className={`text-lg font-semibold mb-1 ${
-          needsManualReview ? 'text-amber-800' :
-          isPass ? 'text-emerald-800' : 'text-red-800'
-        }`}>
-          {needsManualReview ? 'Aguarda revisão manual' :
-           isPass ? 'Aprovado!' : 'Reprovado'}
+        <div
+          className={`text-lg font-semibold mb-1 ${
+            needsManualReview
+              ? 'text-amber-800'
+              : isPass
+                ? 'text-emerald-800'
+                : 'text-red-800'
+          }`}
+        >
+          {needsManualReview
+            ? 'Aguarda revisão manual'
+            : isPass
+              ? 'Aprovado!'
+              : 'Reprovado'}
         </div>
-        <div className={`text-sm ${
-          needsManualReview ? 'text-amber-600' :
-          isPass ? 'text-emerald-600' : 'text-red-600'
-        }`}>
+        <div
+          className={`text-sm ${
+            needsManualReview
+              ? 'text-amber-600'
+              : isPass
+                ? 'text-emerald-600'
+                : 'text-red-600'
+          }`}
+        >
           {needsManualReview
             ? 'As tuas respostas abertas serão revistas pelo instrutor'
             : `${correctAnswers}/${totalQuestions} corretas · Mínimo: ${assessment.passingScore}%`}
@@ -371,24 +469,35 @@ function ResultView({
       {/* Per-question feedback */}
       {result.results && result.results.length > 0 && (
         <div className="space-y-3 mb-5">
-          <div className="text-sm font-semibold text-gray-700">Revisão das respostas</div>
+          <div className="text-sm font-semibold text-gray-700">
+            Revisão das respostas
+          </div>
           {result.results.map((r, idx) => (
             <div
               key={r.questionId}
               className={`border rounded-xl p-4 ${
-                r.isCorrect === null ? 'border-amber-200 bg-amber-50' :
-                r.isCorrect ? 'border-emerald-200 bg-emerald-50' :
-                'border-red-200 bg-red-50'
+                r.isCorrect === null
+                  ? 'border-amber-200 bg-amber-50'
+                  : r.isCorrect
+                    ? 'border-emerald-200 bg-emerald-50'
+                    : 'border-red-200 bg-red-50'
               }`}
             >
               <div className="flex items-start gap-2 mb-2">
-                <span className={`text-sm flex-shrink-0 ${
-                  r.isCorrect === null ? 'text-amber-600' :
-                  r.isCorrect ? 'text-emerald-600' : 'text-red-600'
-                }`}>
+                <span
+                  className={`text-sm flex-shrink-0 ${
+                    r.isCorrect === null
+                      ? 'text-amber-600'
+                      : r.isCorrect
+                        ? 'text-emerald-600'
+                        : 'text-red-600'
+                  }`}
+                >
                   {r.isCorrect === null ? '⏳' : r.isCorrect ? '✓' : '✗'}
                 </span>
-                <span className="text-sm font-medium text-gray-800">{r.questionText}</span>
+                <span className="text-sm font-medium text-gray-800">
+                  {r.questionText}
+                </span>
               </div>
               {r.explanation && (
                 <div className="text-xs text-gray-600 mt-2 pl-5">
@@ -402,7 +511,10 @@ function ResultView({
 
       {/* Actions */}
       <div className="flex gap-3">
-        <button onClick={onBack} className="flex-1 py-2.5 border border-gray-200 text-sm rounded-xl hover:bg-gray-50">
+        <button
+          onClick={onBack}
+          className="flex-1 py-2.5 border border-gray-200 text-sm rounded-xl hover:bg-gray-50"
+        >
           ← Voltar
         </button>
         {!isPass && assessment.maxAttempts === 0 && (
@@ -437,7 +549,12 @@ interface PlayerState {
 }
 
 type PlayerAction =
-  | { type: 'LOADED'; assessment: Assessment; attempt: Attempt; answers: Record<number, AttemptAnswer> }
+  | {
+      type: 'LOADED';
+      assessment: Assessment;
+      attempt: Attempt;
+      answers: Record<number, AttemptAnswer>;
+    }
   | { type: 'ANSWER'; answer: AttemptAnswer }
   | { type: 'SET_IDX'; idx: number }
   | { type: 'REQUEST_CONFIRM'; show: boolean }
@@ -459,9 +576,21 @@ const initialPlayerState: PlayerState = {
 function playerReducer(state: PlayerState, action: PlayerAction): PlayerState {
   switch (action.type) {
     case 'LOADED':
-      return { ...state, status: 'playing', assessment: action.assessment, attempt: action.attempt, answers: action.answers };
+      return {
+        ...state,
+        status: 'playing',
+        assessment: action.assessment,
+        attempt: action.attempt,
+        answers: action.answers,
+      };
     case 'ANSWER':
-      return { ...state, answers: { ...state.answers, [action.answer.questionId]: action.answer } };
+      return {
+        ...state,
+        answers: {
+          ...state.answers,
+          [action.answer.questionId]: action.answer,
+        },
+      };
     case 'SET_IDX':
       return { ...state, currentIdx: action.idx };
     case 'REQUEST_CONFIRM':
@@ -469,11 +598,22 @@ function playerReducer(state: PlayerState, action: PlayerAction): PlayerState {
     case 'SUBMIT_START':
       return { ...state, status: 'submitting' };
     case 'SUBMIT_DONE':
-      return { ...state, status: 'result', result: action.result, showConfirm: false };
+      return {
+        ...state,
+        status: 'result',
+        result: action.result,
+        showConfirm: false,
+      };
     case 'SUBMIT_ERROR':
       return { ...state, status: 'playing', showConfirm: false };
     case 'RETRY':
-      return { ...state, status: 'playing', result: null, answers: {}, currentIdx: 0 };
+      return {
+        ...state,
+        status: 'playing',
+        result: null,
+        answers: {},
+        currentIdx: 0,
+      };
     default:
       return state;
   }
@@ -487,7 +627,15 @@ function AssessmentPlayer({
   onBack: () => void;
 }) {
   const [state, dispatch] = useReducer(playerReducer, initialPlayerState);
-  const { status, assessment, attempt, answers, currentIdx, result, showConfirm } = state;
+  const {
+    status,
+    assessment,
+    attempt,
+    answers,
+    currentIdx,
+    result,
+    showConfirm,
+  } = state;
 
   // Ref sincronizado com `answers`, lido dentro do setInterval de auto-save.
   // Antes, `answers` estava nas deps do useEffect do auto-save: cada resposta
@@ -495,20 +643,30 @@ function AssessmentPlayer({
   // auto-save podia nunca disparar durante uso activo. Usando um ref, o
   // efeito do intervalo só depende de `attempt`/`assessment`.
   const answersRef = useRef(answers);
-  useEffect(() => { answersRef.current = answers; }, [answers]);
+  useEffect(() => {
+    answersRef.current = answers;
+  }, [answers]);
 
   // Carregar avaliação e iniciar tentativa
   useEffect(() => {
     const init = async () => {
       try {
-        const a = await apiClient.get<RawAssessment>(`/assessments/${assessmentId}`);
+        const a = await apiClient.get<RawAssessment>(
+          `/assessments/${assessmentId}`,
+        );
         // Parse options para cada pergunta
         const parsed: Assessment = {
           ...a,
-          questions: a.questions.map(q => ({ ...q, options: parseOptions(q.options) })),
+          questions: a.questions.map((q) => ({
+            ...q,
+            options: parseOptions(q.options),
+          })),
         };
 
-        const att = await apiClient.post<Attempt>('/assessments/attempts/start', { assessmentId });
+        const att = await apiClient.post<Attempt>(
+          '/assessments/attempts/start',
+          { assessmentId },
+        );
 
         // Restaurar auto-save
         const restored: Record<number, AttemptAnswer> = {};
@@ -516,12 +674,21 @@ function AssessmentPlayer({
           try {
             const saved = JSON.parse(att.savedAnswers);
             if (Array.isArray(saved)) {
-              saved.forEach((ans: AttemptAnswer) => { restored[ans.questionId] = ans; });
+              saved.forEach((ans: AttemptAnswer) => {
+                restored[ans.questionId] = ans;
+              });
             }
-          } catch { /* ignore */ }
+          } catch {
+            /* ignore */
+          }
         }
 
-        dispatch({ type: 'LOADED', assessment: parsed, attempt: att, answers: restored });
+        dispatch({
+          type: 'LOADED',
+          assessment: parsed,
+          attempt: att,
+          answers: restored,
+        });
       } catch (e) {
         alert(e instanceof Error ? e.message : String(e));
       }
@@ -535,7 +702,12 @@ function AssessmentPlayer({
     const interval = setInterval(async () => {
       const answersList = Object.values(answersRef.current);
       if (answersList.length === 0) return;
-      await apiClient.post('/assessments/attempts/save', { attemptId: attempt.id, answers: answersList }).catch(() => {});
+      await apiClient
+        .post('/assessments/attempts/save', {
+          attemptId: attempt.id,
+          answers: answersList,
+        })
+        .catch(() => {});
     }, 30000);
     return () => clearInterval(interval);
   }, [attempt, assessment]);
@@ -544,8 +716,13 @@ function AssessmentPlayer({
     if (!attempt || !assessment) return;
     dispatch({ type: 'SUBMIT_START' });
     try {
-      const answersList = assessment.questions.map(q => answersRef.current[q.id] ?? { questionId: q.id });
-      const res = await apiClient.post<AttemptResult>('/assessments/attempts/submit', { attemptId: attempt.id, answers: answersList });
+      const answersList = assessment.questions.map(
+        (q) => answersRef.current[q.id] ?? { questionId: q.id },
+      );
+      const res = await apiClient.post<AttemptResult>(
+        '/assessments/attempts/submit',
+        { attemptId: attempt.id, answers: answersList },
+      );
       dispatch({ type: 'SUBMIT_DONE', result: res });
     } catch (e) {
       alert(e instanceof Error ? e.message : String(e));
@@ -562,7 +739,12 @@ function AssessmentPlayer({
     handleSubmit();
   };
 
-  if (status === 'loading' || !assessment) return <div className="p-8"><Skeleton rows={4} /></div>;
+  if (status === 'loading' || !assessment)
+    return (
+      <div className="p-8">
+        <Skeleton rows={4} />
+      </div>
+    );
 
   // Mostrar resultado
   if (status === 'result' && result) {
@@ -577,7 +759,7 @@ function AssessmentPlayer({
   }
 
   const questions = assessment.questions;
-  const currentQ  = questions[currentIdx];
+  const currentQ = questions[currentIdx];
   const answeredCount = Object.keys(answers).length;
   const submitting = status === 'submitting';
 
@@ -586,12 +768,19 @@ function AssessmentPlayer({
       {/* Header bar */}
       <div className="flex items-center justify-between mb-5 gap-4">
         <div>
-          <div className="text-base font-semibold text-gray-900">{assessment.title}</div>
-          <div className="text-xs text-gray-400">{answeredCount}/{questions.length} respondidas</div>
+          <div className="text-base font-semibold text-gray-900">
+            {assessment.title}
+          </div>
+          <div className="text-xs text-gray-400">
+            {answeredCount}/{questions.length} respondidas
+          </div>
         </div>
         <div className="flex items-center gap-3">
           {assessment.timeLimitMinutes > 0 && attempt && (
-            <CountdownTimer totalMinutes={assessment.timeLimitMinutes} onExpire={handleTimerExpire} />
+            <CountdownTimer
+              totalMinutes={assessment.timeLimitMinutes}
+              onExpire={handleTimerExpire}
+            />
           )}
           <button
             onClick={() => dispatch({ type: 'REQUEST_CONFIRM', show: true })}
@@ -631,7 +820,9 @@ function AssessmentPlayer({
       {/* Navigation */}
       <div className="flex items-center justify-between mt-5">
         <button
-          onClick={() => dispatch({ type: 'SET_IDX', idx: Math.max(0, currentIdx - 1) })}
+          onClick={() =>
+            dispatch({ type: 'SET_IDX', idx: Math.max(0, currentIdx - 1) })
+          }
           disabled={currentIdx === 0}
           className="px-4 py-2 text-sm border border-gray-200 rounded-lg disabled:opacity-30 hover:bg-gray-50"
         >
@@ -645,9 +836,11 @@ function AssessmentPlayer({
               key={q.id}
               onClick={() => dispatch({ type: 'SET_IDX', idx })}
               className={`w-6 h-6 rounded-full text-xs font-mono transition-all ${
-                idx === currentIdx ? 'bg-blue-600 text-white scale-110' :
-                answers[q.id] ? 'bg-emerald-100 text-emerald-700' :
-                'bg-gray-100 text-gray-400'
+                idx === currentIdx
+                  ? 'bg-blue-600 text-white scale-110'
+                  : answers[q.id]
+                    ? 'bg-emerald-100 text-emerald-700'
+                    : 'bg-gray-100 text-gray-400'
               }`}
             >
               {idx + 1}
@@ -657,7 +850,8 @@ function AssessmentPlayer({
 
         <button
           onClick={() => {
-            if (currentIdx < questions.length - 1) dispatch({ type: 'SET_IDX', idx: currentIdx + 1 });
+            if (currentIdx < questions.length - 1)
+              dispatch({ type: 'SET_IDX', idx: currentIdx + 1 });
             else dispatch({ type: 'REQUEST_CONFIRM', show: true });
           }}
           className="px-4 py-2 text-sm bg-blue-700 text-white rounded-lg hover:bg-blue-800"
@@ -668,17 +862,37 @@ function AssessmentPlayer({
 
       {/* Confirm modal */}
       {showConfirm && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50 }}>
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0,0,0,0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 50,
+          }}
+        >
           <div className="bg-white rounded-2xl p-6 max-w-sm w-full mx-4">
-            <div className="text-base font-semibold text-gray-900 mb-2">Submeter avaliação?</div>
+            <div className="text-base font-semibold text-gray-900 mb-2">
+              Submeter avaliação?
+            </div>
             <div className="text-sm text-gray-500 mb-5">
               Respondeste {answeredCount} de {questions.length} perguntas.
               {answeredCount < questions.length && (
-                <span className="text-amber-600"> {questions.length - answeredCount} perguntas sem resposta.</span>
+                <span className="text-amber-600">
+                  {' '}
+                  {questions.length - answeredCount} perguntas sem resposta.
+                </span>
               )}
             </div>
             <div className="flex gap-3">
-              <button onClick={() => dispatch({ type: 'REQUEST_CONFIRM', show: false })} className="flex-1 py-2.5 border border-gray-200 text-sm rounded-lg hover:bg-gray-50">
+              <button
+                onClick={() =>
+                  dispatch({ type: 'REQUEST_CONFIRM', show: false })
+                }
+                className="flex-1 py-2.5 border border-gray-200 text-sm rounded-lg hover:bg-gray-50"
+              >
                 Continuar
               </button>
               <button
@@ -700,11 +914,13 @@ function AssessmentPlayer({
 
 function ListView({ onStart }: { onStart: (id: number) => void }) {
   const dataQ = useApiQuery<Assessment[]>(
-    queryKeys.assessments.list(), '/assessments',
+    queryKeys.assessments.list(),
+    '/assessments',
     { params: { status: 'PUBLISHED' }, staleTime: STALE_TIME.SEMI_STATIC },
   );
   const attemptsQ = useApiQuery<MyAttemptSummary[]>(
-    queryKeys.assessments.myAttempts(), '/assessments/my/attempts',
+    queryKeys.assessments.myAttempts(),
+    '/assessments/my/attempts',
     { staleTime: STALE_TIME.DYNAMIC },
   );
   const data = dataQ.data ?? [];
@@ -712,15 +928,20 @@ function ListView({ onStart }: { onStart: (id: number) => void }) {
   const loading = dataQ.isLoading;
 
   const getMyBestScore = (assessmentId: number) => {
-    const myAttempts = attempts.filter(a => a.assessmentId === assessmentId && a.status !== 'IN_PROGRESS');
+    const myAttempts = attempts.filter(
+      (a) => a.assessmentId === assessmentId && a.status !== 'IN_PROGRESS',
+    );
     if (!myAttempts.length) return null;
-    return Math.max(...myAttempts.map(a => a.score ?? 0));
+    return Math.max(...myAttempts.map((a) => a.score ?? 0));
   };
 
   const getMyStatus = (assessmentId: number): AttemptStatus | null => {
     const latest = attempts
-      .filter(a => a.assessmentId === assessmentId)
-      .sort((a, b) => new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime())[0];
+      .filter((a) => a.assessmentId === assessmentId)
+      .sort(
+        (a, b) =>
+          new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime(),
+      )[0];
     return latest?.status ?? null;
   };
 
@@ -733,35 +954,54 @@ function ListView({ onStart }: { onStart: (id: number) => void }) {
           Sem avaliações disponíveis
         </div>
       )}
-      {data.map(a => {
+      {data.map((a) => {
         const bestScore = getMyBestScore(a.id);
-        const status    = getMyStatus(a.id);
+        const status = getMyStatus(a.id);
         return (
           <div
             key={a.id}
             className="bg-white border border-gray-200 rounded-xl p-5 flex items-center gap-4 hover:shadow-sm transition-all"
           >
-            <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-xl flex-shrink-0 ${
-              a.type === 'QUIZ'       ? 'bg-blue-50' :
-              a.type === 'EXAM'       ? 'bg-purple-50' :
-              a.type === 'DIAGNOSTIC' ? 'bg-amber-50' :
-              'bg-gray-50'
-            }`}>
-              {{ QUIZ: '❓', EXAM: '📋', DIAGNOSTIC: '🔍', PRACTICAL: '🛠️', SURVEY: '📊' }[a.type] ?? '📝'}
+            <div
+              className={`w-12 h-12 rounded-xl flex items-center justify-center text-xl flex-shrink-0 ${
+                a.type === 'QUIZ'
+                  ? 'bg-blue-50'
+                  : a.type === 'EXAM'
+                    ? 'bg-purple-50'
+                    : a.type === 'DIAGNOSTIC'
+                      ? 'bg-amber-50'
+                      : 'bg-gray-50'
+              }`}
+            >
+              {{
+                QUIZ: '❓',
+                EXAM: '📋',
+                DIAGNOSTIC: '🔍',
+                PRACTICAL: '🛠️',
+                SURVEY: '📊',
+              }[a.type] ?? '📝'}
             </div>
             <div className="flex-1">
-              <div className="text-sm font-semibold text-gray-900 mb-0.5">{a.title}</div>
+              <div className="text-sm font-semibold text-gray-900 mb-0.5">
+                {a.title}
+              </div>
               <div className="flex flex-wrap items-center gap-3 text-xs text-gray-400">
                 <span>{a._count.questions} perguntas</span>
-                {a.timeLimitMinutes > 0 && <span>⏱ {a.timeLimitMinutes}min</span>}
+                {a.timeLimitMinutes > 0 && (
+                  <span>⏱ {a.timeLimitMinutes}min</span>
+                )}
                 <span>Aprovação: {a.passingScore}%</span>
-                {a.maxAttempts > 0 && <span>Máx. {a.maxAttempts} tentativas</span>}
+                {a.maxAttempts > 0 && (
+                  <span>Máx. {a.maxAttempts} tentativas</span>
+                )}
               </div>
             </div>
             <div className="flex items-center gap-3 flex-shrink-0">
               {bestScore !== null && (
                 <div className="text-right">
-                  <div className={`text-sm font-bold font-mono ${bestScore >= a.passingScore ? 'text-emerald-600' : 'text-red-600'}`}>
+                  <div
+                    className={`text-sm font-bold font-mono ${bestScore >= a.passingScore ? 'text-emerald-600' : 'text-red-600'}`}
+                  >
                     {bestScore}%
                   </div>
                   <div className="text-xs text-gray-400">melhor score</div>
@@ -770,14 +1010,18 @@ function ListView({ onStart }: { onStart: (id: number) => void }) {
               <button
                 onClick={() => onStart(a.id)}
                 className={`px-4 py-2 text-sm font-medium rounded-lg ${
-                  status === 'PASSED' ? 'border border-emerald-300 text-emerald-700 hover:bg-emerald-50' :
-                  status === 'IN_PROGRESS' ? 'bg-amber-600 text-white hover:bg-amber-700' :
-                  'bg-blue-700 text-white hover:bg-blue-800'
+                  status === 'PASSED'
+                    ? 'border border-emerald-300 text-emerald-700 hover:bg-emerald-50'
+                    : status === 'IN_PROGRESS'
+                      ? 'bg-amber-600 text-white hover:bg-amber-700'
+                      : 'bg-blue-700 text-white hover:bg-blue-800'
                 }`}
               >
-                {status === 'PASSED' ? '✓ Repetir' :
-                 status === 'IN_PROGRESS' ? '▶ Continuar' :
-                 '▶ Iniciar'}
+                {status === 'PASSED'
+                  ? '✓ Repetir'
+                  : status === 'IN_PROGRESS'
+                    ? '▶ Continuar'
+                    : '▶ Iniciar'}
               </button>
             </div>
           </div>
@@ -790,16 +1034,19 @@ function ListView({ onStart }: { onStart: (id: number) => void }) {
 // ─── View: Review (Attempted) ─────────────────────────────────────────────────
 
 function ReviewView() {
-  const [selectedAttempt, setSelected] = useState<MyAttemptSummary | null>(null);
-
-  const { data: allAttempts = [], isLoading: loading } = useApiQuery<MyAttemptSummary[]>(
-    queryKeys.assessments.myAttempts(), '/assessments/my/attempts',
-    { staleTime: STALE_TIME.DYNAMIC },
+  const [selectedAttempt, setSelected] = useState<MyAttemptSummary | null>(
+    null,
   );
-  const attempts = allAttempts.filter(a => a.status !== 'IN_PROGRESS');
 
-  const detailMutation = useApiMutation(
-    (attemptId: number) => apiClient.get<AttemptDetail>(`/assessments/attempts/${attemptId}`),
+  const { data: allAttempts = [], isLoading: loading } = useApiQuery<
+    MyAttemptSummary[]
+  >(queryKeys.assessments.myAttempts(), '/assessments/my/attempts', {
+    staleTime: STALE_TIME.DYNAMIC,
+  });
+  const attempts = allAttempts.filter((a) => a.status !== 'IN_PROGRESS');
+
+  const detailMutation = useApiMutation((attemptId: number) =>
+    apiClient.get<AttemptDetail>(`/assessments/attempts/${attemptId}`),
   );
   const detail = detailMutation.data ?? null;
   const loadingDetail = detailMutation.isPending;
@@ -815,28 +1062,44 @@ function ReviewView() {
     <div className="grid grid-cols-[280px_1fr] gap-5">
       {/* Attempts list */}
       <div className="space-y-2">
-        <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-2">Histórico</div>
+        <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-2">
+          Histórico
+        </div>
         {attempts.length === 0 && (
-          <div className="text-sm text-gray-400 text-center py-6">Sem tentativas concluídas</div>
+          <div className="text-sm text-gray-400 text-center py-6">
+            Sem tentativas concluídas
+          </div>
         )}
-        {attempts.map(a => (
+        {attempts.map((a) => (
           <div
             key={a.id}
             onClick={() => loadDetail(a)}
             className={`p-3 border rounded-xl cursor-pointer transition-colors ${
-              selectedAttempt?.id === a.id ? 'border-blue-300 bg-blue-50' : 'border-gray-200 hover:bg-gray-50'
+              selectedAttempt?.id === a.id
+                ? 'border-blue-300 bg-blue-50'
+                : 'border-gray-200 hover:bg-gray-50'
             }`}
           >
-            <div className="text-xs font-medium text-gray-800 truncate">{a.assessment?.title}</div>
+            <div className="text-xs font-medium text-gray-800 truncate">
+              {a.assessment?.title}
+            </div>
             <div className="flex items-center justify-between mt-1">
-              <span className={`text-sm font-bold font-mono ${(a.score ?? 0) >= (a.assessment?.passingScore ?? 70) ? 'text-emerald-600' : 'text-red-600'}`}>
+              <span
+                className={`text-sm font-bold font-mono ${(a.score ?? 0) >= (a.assessment?.passingScore ?? 70) ? 'text-emerald-600' : 'text-red-600'}`}
+              >
                 {a.score ?? '—'}%
               </span>
-              <span className={`text-xs px-1.5 rounded ${
-                a.status === 'PASSED' ? 'bg-emerald-50 text-emerald-700' :
-                a.status === 'FAILED' ? 'bg-red-50 text-red-600' :
-                'bg-amber-50 text-amber-700'
-              }`}>{a.status}</span>
+              <span
+                className={`text-xs px-1.5 rounded ${
+                  a.status === 'PASSED'
+                    ? 'bg-emerald-50 text-emerald-700'
+                    : a.status === 'FAILED'
+                      ? 'bg-red-50 text-red-600'
+                      : 'bg-amber-50 text-amber-700'
+                }`}
+              >
+                {a.status}
+              </span>
             </div>
           </div>
         ))}
@@ -853,33 +1116,60 @@ function ReviewView() {
         {detail && !loadingDetail && (
           <div className="space-y-3">
             <div className="bg-white border border-gray-200 rounded-xl p-4">
-              <div className="text-sm font-semibold text-gray-900 mb-2">{detail.assessment?.title}</div>
+              <div className="text-sm font-semibold text-gray-900 mb-2">
+                {detail.assessment?.title}
+              </div>
               <div className="grid grid-cols-3 gap-3">
                 {[
                   { label: 'Score', value: `${detail.score ?? '—'}%` },
                   { label: 'Status', value: detail.status },
-                  { label: 'Tempo', value: detail.timeSpentMinutes ? `${detail.timeSpentMinutes}min` : '—' },
+                  {
+                    label: 'Tempo',
+                    value: detail.timeSpentMinutes
+                      ? `${detail.timeSpentMinutes}min`
+                      : '—',
+                  },
                 ].map(({ label, value }) => (
-                  <div key={label} className="bg-gray-50 rounded-lg p-3 text-center">
+                  <div
+                    key={label}
+                    className="bg-gray-50 rounded-lg p-3 text-center"
+                  >
                     <div className="text-xs text-gray-400">{label}</div>
-                    <div className="text-sm font-semibold text-gray-900 mt-1">{value}</div>
+                    <div className="text-sm font-semibold text-gray-900 mt-1">
+                      {value}
+                    </div>
                   </div>
                 ))}
               </div>
             </div>
-            {detail.answers?.map(ans => (
-              <div key={ans.id} className={`border rounded-xl p-4 ${
-                ans.isCorrect === null ? 'border-amber-200 bg-amber-50' :
-                ans.isCorrect ? 'border-emerald-200 bg-emerald-50' :
-                'border-red-200 bg-red-50'
-              }`}>
+            {detail.answers?.map((ans) => (
+              <div
+                key={ans.id}
+                className={`border rounded-xl p-4 ${
+                  ans.isCorrect === null
+                    ? 'border-amber-200 bg-amber-50'
+                    : ans.isCorrect
+                      ? 'border-emerald-200 bg-emerald-50'
+                      : 'border-red-200 bg-red-50'
+                }`}
+              >
                 <div className="flex items-start gap-2 mb-1">
-                  <span>{ans.isCorrect === null ? '⏳' : ans.isCorrect ? '✓' : '✗'}</span>
-                  <p className="text-xs font-medium text-gray-800">{ans.question?.questionText}</p>
+                  <span>
+                    {ans.isCorrect === null ? '⏳' : ans.isCorrect ? '✓' : '✗'}
+                  </span>
+                  <p className="text-xs font-medium text-gray-800">
+                    {ans.question?.questionText}
+                  </p>
                 </div>
-                {ans.textAnswer && <p className="text-xs text-gray-600 pl-5 mt-1">{ans.textAnswer}</p>}
+                {ans.textAnswer && (
+                  <p className="text-xs text-gray-600 pl-5 mt-1">
+                    {ans.textAnswer}
+                  </p>
+                )}
                 {ans.reviewComment && (
-                  <p className="text-xs text-blue-700 pl-5 mt-1">💬 {ans.reviewComment}</p>
+                  <p className="text-xs text-blue-700 pl-5 mt-1">
+                    💬 {ans.reviewComment}
+                  </p>
                 )}
               </div>
             ))}
@@ -893,7 +1183,7 @@ function ReviewView() {
 // ─── Page principal ───────────────────────────────────────────────────────────
 
 const TITLES: Record<View, string> = {
-  list:   'Avaliações disponíveis',
+  list: 'Avaliações disponíveis',
   player: 'Avaliação em progresso',
   result: 'Resultado',
   review: 'Histórico de tentativas',
@@ -901,20 +1191,24 @@ const TITLES: Record<View, string> = {
 
 // view e selectedId eram dois useState separados sempre definidos em conjunto
 // — um único estado torna "player sem id" irrepresentável.
-type Nav = { view: Exclude<View, 'player'> } | { view: 'player'; selectedId: number };
+type Nav =
+  { view: Exclude<View, 'player'> } | { view: 'player'; selectedId: number };
 
 export default function AssessmentsPage() {
   const [nav, setNav] = useState<Nav>({ view: 'list' });
 
-  const handleStart = (id: number) => setNav({ view: 'player', selectedId: id });
-  const handleBack  = () => setNav({ view: 'list' });
+  const handleStart = (id: number) =>
+    setNav({ view: 'player', selectedId: id });
+  const handleBack = () => setNav({ view: 'list' });
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-xl font-semibold text-gray-900">{TITLES[nav.view]}</h1>
+          <h1 className="text-xl font-semibold text-gray-900">
+            {TITLES[nav.view]}
+          </h1>
           <p className="text-sm text-gray-400 mt-0.5">INNOVA — Avaliações</p>
         </div>
       </div>
@@ -922,10 +1216,14 @@ export default function AssessmentsPage() {
       {/* Tabs */}
       {nav.view === 'list' || nav.view === 'review' ? (
         <div className="flex gap-1 mb-6 bg-gray-100 p-1 rounded-xl w-fit">
-          {(['list', 'review'] as const).map(v => (
-            <button key={v} onClick={() => setNav({ view: v })}
+          {(['list', 'review'] as const).map((v) => (
+            <button
+              key={v}
+              onClick={() => setNav({ view: v })}
               className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-                nav.view === v ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+                nav.view === v
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-500 hover:text-gray-700'
               }`}
             >
               {{ list: 'Disponíveis', review: 'Histórico' }[v]}
@@ -933,12 +1231,15 @@ export default function AssessmentsPage() {
           ))}
         </div>
       ) : (
-        <button onClick={handleBack} className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-800 mb-5">
+        <button
+          onClick={handleBack}
+          className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-800 mb-5"
+        >
           ← Voltar
         </button>
       )}
 
-      {nav.view === 'list'   && <ListView onStart={handleStart} />}
+      {nav.view === 'list' && <ListView onStart={handleStart} />}
       {nav.view === 'player' && (
         <AssessmentPlayer assessmentId={nav.selectedId} onBack={handleBack} />
       )}

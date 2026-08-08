@@ -37,6 +37,7 @@ import { STALE_TIME } from '../../../lib/queryClient';
 import Image from 'next/image';
 import { useDebounce } from '../../../hooks/useDebounce';
 import type { LucideIcon } from 'lucide-react';
+import { Skeleton as SharedSkeleton } from '@/components/ui/Skeleton';
 
 // ─── Types ───────────────────────────────────────────────────────
 
@@ -254,11 +255,11 @@ function ProgressBar({
 
 function Skeleton({ count = 3 }: { count?: number }) {
   return (
-    <div className="space-y-4 animate-pulse">
-      {[...Array(count)].map((_, i) => (
-        <div key={i} className="bg-slate-100 rounded-xl h-28" />
-      ))}
-    </div>
+    <SharedSkeleton
+      rows={count}
+      wrapperClassName="space-y-4 animate-pulse"
+      itemClassName="bg-slate-100 rounded-xl h-28"
+    />
   );
 }
 

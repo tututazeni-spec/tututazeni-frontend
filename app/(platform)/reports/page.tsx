@@ -3,22 +3,52 @@
 
 import { useState } from 'react';
 import {
-  BarChart2, FileText, Users, BookOpen, Star, Shield,
-  Activity, Brain, TrendingUp, TrendingDown, Download,
-  Search, Plus, Clock, CheckCircle, AlertTriangle,
-  ChevronRight, RefreshCw, Filter, Bookmark, Calendar,
+  BarChart2,
+  FileText,
+  Users,
+  BookOpen,
+  Star,
+  Shield,
+  Activity,
+  Brain,
+  TrendingUp,
+  TrendingDown,
+  Download,
+  Search,
+  Plus,
+  Clock,
+  CheckCircle,
+  AlertTriangle,
+  ChevronRight,
+  RefreshCw,
+  Filter,
+  Bookmark,
+  Calendar,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
+import { Skeleton as SharedSkeleton } from '@/components/ui/Skeleton';
 
 // ─── Types ───────────────────────────────────────────────────────
 
-type Tab = 'hub' | 'hr' | 'learning' | 'performance' | 'talent' | 'engagement' | 'compliance' | 'insights';
+type Tab =
+  | 'hub'
+  | 'hr'
+  | 'learning'
+  | 'performance'
+  | 'talent'
+  | 'engagement'
+  | 'compliance'
+  | 'insights';
 
 interface Template {
-  id: string; name: string; category: string; reportKey: string; description: string;
+  id: string;
+  name: string;
+  category: string;
+  reportKey: string;
+  description: string;
 }
 
 interface ReportDeptEntry {
@@ -43,7 +73,10 @@ interface ReportTopItem {
 }
 
 interface ReportData {
-  summary?: Record<string, string | number | boolean | null | Record<string, unknown>>;
+  summary?: Record<
+    string,
+    string | number | boolean | null | Record<string, unknown>
+  >;
   insights?: string[];
   byDepartment?: ReportDeptEntry[];
   topPerformers?: ReportTopItem[];
@@ -67,56 +100,146 @@ interface InsightsData {
 // ─── Helpers ─────────────────────────────────────────────────────
 
 function defaultRange(months = 1) {
-  const to   = new Date().toISOString().split('T')[0];
-  const from = new Date(Date.now() - months * 30 * 86400000).toISOString().split('T')[0];
+  const to = new Date().toISOString().split('T')[0];
+  const from = new Date(Date.now() - months * 30 * 86400000)
+    .toISOString()
+    .split('T')[0];
   return { from, to };
 }
 
 function Skeleton({ count = 3 }: { count?: number }) {
-  return <div className="space-y-3 animate-pulse">{[...Array(count)].map((_, i) => <div key={i} className="bg-slate-100 rounded-xl h-20" />)}</div>;
+  return (
+    <SharedSkeleton
+      rows={count}
+      wrapperClassName="space-y-3 animate-pulse"
+      itemClassName="bg-slate-100 rounded-xl h-20"
+    />
+  );
 }
 
-function ProgressBar({ value, color = 'bg-indigo-500', height = 'h-1.5' }: { value: number; color?: string; height?: string }) {
+function ProgressBar({
+  value,
+  color = 'bg-indigo-500',
+  height = 'h-1.5',
+}: {
+  value: number;
+  color?: string;
+  height?: string;
+}) {
   return (
     <div className={`w-full ${height} bg-slate-100 rounded-full`}>
-      <div className={`${height} ${color} rounded-full transition-all`} style={{ width: `${Math.min(value, 100)}%` }} />
+      <div
+        className={`${height} ${color} rounded-full transition-all`}
+        style={{ width: `${Math.min(value, 100)}%` }}
+      />
     </div>
   );
 }
 
-function StatusBadge({ value, thresholds = [60, 80] }: { value: number; thresholds?: [number, number] }) {
-  const color = value >= thresholds[1] ? 'bg-emerald-100 text-emerald-700' :
-                value >= thresholds[0] ? 'bg-amber-100 text-amber-700'   : 'bg-red-100 text-red-600';
-  return <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${color}`}>{value}%</span>;
+function StatusBadge({
+  value,
+  thresholds = [60, 80],
+}: {
+  value: number;
+  thresholds?: [number, number];
+}) {
+  const color =
+    value >= thresholds[1]
+      ? 'bg-emerald-100 text-emerald-700'
+      : value >= thresholds[0]
+        ? 'bg-amber-100 text-amber-700'
+        : 'bg-red-100 text-red-600';
+  return (
+    <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${color}`}>
+      {value}%
+    </span>
+  );
 }
 
 // ─── Category config ─────────────────────────────────────────────
 
-const CAT_CONFIG: Record<string, { label: string; icon: LucideIcon; color: string; bg: string }> = {
-  HR:          { label: 'RH & Pessoas',    icon: Users,     color: 'text-violet-600', bg: 'bg-violet-50' },
-  LEARNING:    { label: 'Aprendizagem',    icon: BookOpen,  color: 'text-blue-600',   bg: 'bg-blue-50' },
-  PERFORMANCE: { label: 'Performance',     icon: Star,      color: 'text-amber-600',  bg: 'bg-amber-50' },
-  TALENT:      { label: 'Talento',         icon: TrendingUp,color: 'text-emerald-600',bg: 'bg-emerald-50' },
-  ENGAGEMENT:  { label: 'Engagement',      icon: Activity,  color: 'text-pink-600',   bg: 'bg-pink-50' },
-  COMPLIANCE:  { label: 'Compliance',      icon: Shield,    color: 'text-red-600',    bg: 'bg-red-50' },
-  OPERATIONAL: { label: 'Operacional',     icon: BarChart2, color: 'text-slate-600',  bg: 'bg-slate-50' },
-  FINANCIAL:   { label: 'Financeiro',      icon: BarChart2, color: 'text-teal-600',   bg: 'bg-teal-50' },
+const CAT_CONFIG: Record<
+  string,
+  { label: string; icon: LucideIcon; color: string; bg: string }
+> = {
+  HR: {
+    label: 'RH & Pessoas',
+    icon: Users,
+    color: 'text-violet-600',
+    bg: 'bg-violet-50',
+  },
+  LEARNING: {
+    label: 'Aprendizagem',
+    icon: BookOpen,
+    color: 'text-blue-600',
+    bg: 'bg-blue-50',
+  },
+  PERFORMANCE: {
+    label: 'Performance',
+    icon: Star,
+    color: 'text-amber-600',
+    bg: 'bg-amber-50',
+  },
+  TALENT: {
+    label: 'Talento',
+    icon: TrendingUp,
+    color: 'text-emerald-600',
+    bg: 'bg-emerald-50',
+  },
+  ENGAGEMENT: {
+    label: 'Engagement',
+    icon: Activity,
+    color: 'text-pink-600',
+    bg: 'bg-pink-50',
+  },
+  COMPLIANCE: {
+    label: 'Compliance',
+    icon: Shield,
+    color: 'text-red-600',
+    bg: 'bg-red-50',
+  },
+  OPERATIONAL: {
+    label: 'Operacional',
+    icon: BarChart2,
+    color: 'text-slate-600',
+    bg: 'bg-slate-50',
+  },
+  FINANCIAL: {
+    label: 'Financeiro',
+    icon: BarChart2,
+    color: 'text-teal-600',
+    bg: 'bg-teal-50',
+  },
 };
 
 // ─── Template Card ────────────────────────────────────────────────
 
-function TemplateCard({ tpl, onRun }: { tpl: Template; onRun: (t: Template) => void }) {
-  const cat  = CAT_CONFIG[tpl.category] ?? CAT_CONFIG.HR;
+function TemplateCard({
+  tpl,
+  onRun,
+}: {
+  tpl: Template;
+  onRun: (t: Template) => void;
+}) {
+  const cat = CAT_CONFIG[tpl.category] ?? CAT_CONFIG.HR;
   const Icon = cat.icon;
   return (
-    <div className="bg-white rounded-xl border border-slate-100 p-4 hover:shadow-md transition-all cursor-pointer"
-      onClick={() => onRun(tpl)}>
-      <div className={`p-2 rounded-lg ${cat.bg} w-fit mb-3`}><Icon size={16} className={cat.color} /></div>
+    <div
+      className="bg-white rounded-xl border border-slate-100 p-4 hover:shadow-md transition-all cursor-pointer"
+      onClick={() => onRun(tpl)}
+    >
+      <div className={`p-2 rounded-lg ${cat.bg} w-fit mb-3`}>
+        <Icon size={16} className={cat.color} />
+      </div>
       <h4 className="text-sm font-semibold text-slate-800 mb-1">{tpl.name}</h4>
       <p className="text-xs text-slate-400 mb-3">{tpl.description}</p>
       <div className="flex items-center justify-between">
-        <span className={`text-[10px] font-medium ${cat.color}`}>{cat.label}</span>
-        <span className="text-[10px] text-indigo-600 font-semibold hover:underline">Executar →</span>
+        <span className={`text-[10px] font-medium ${cat.color}`}>
+          {cat.label}
+        </span>
+        <span className="text-[10px] text-indigo-600 font-semibold hover:underline">
+          Executar →
+        </span>
       </div>
     </div>
   );
@@ -125,17 +248,19 @@ function TemplateCard({ tpl, onRun }: { tpl: Template; onRun: (t: Template) => v
 // ─── Report Hub (Home) ────────────────────────────────────────────
 
 function ReportHub({ onRun }: { onRun: (t: Template) => void }) {
-  const [search, setSearch]       = useState('');
-  const [category, setCategory]   = useState('');
+  const [search, setSearch] = useState('');
+  const [category, setCategory] = useState('');
 
   const { data: templates = [], isLoading: loading } = useApiQuery<Template[]>(
-    queryKeys.reports.templates(), '/reports/templates',
+    queryKeys.reports.templates(),
+    '/reports/templates',
     { staleTime: STALE_TIME.STATIC },
   );
 
-  const filtered = templates.filter(t =>
-    (!category || t.category === category) &&
-    (!search || t.name.toLowerCase().includes(search.toLowerCase())),
+  const filtered = templates.filter(
+    (t) =>
+      (!category || t.category === category) &&
+      (!search || t.name.toLowerCase().includes(search.toLowerCase())),
   );
 
   return (
@@ -143,22 +268,41 @@ function ReportHub({ onRun }: { onRun: (t: Template) => void }) {
       {/* Search + filter */}
       <div className="bg-white rounded-xl border border-slate-100 p-4 flex flex-wrap gap-3">
         <div className="relative flex-1 min-w-[200px]">
-          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-          <input value={search} onChange={e => setSearch(e.target.value)}
+          <Search
+            size={14}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+          />
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
             placeholder="Pesquisar templates..."
-            className="w-full pl-9 pr-4 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:border-indigo-400" />
+            className="w-full pl-9 pr-4 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:border-indigo-400"
+          />
         </div>
-        <select value={category} onChange={e => setCategory(e.target.value)}
-          className="text-xs border border-slate-200 rounded-lg px-3 py-2 focus:outline-none">
+        <select
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+          className="text-xs border border-slate-200 rounded-lg px-3 py-2 focus:outline-none"
+        >
           <option value="">Todas as categorias</option>
-          {Object.entries(CAT_CONFIG).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
+          {Object.entries(CAT_CONFIG).map(([k, v]) => (
+            <option key={k} value={k}>
+              {v.label}
+            </option>
+          ))}
         </select>
-        <span className="text-xs text-slate-400 self-center">{filtered.length} templates</span>
+        <span className="text-xs text-slate-400 self-center">
+          {filtered.length} templates
+        </span>
       </div>
 
-      {loading ? <Skeleton count={6} /> : (
+      {loading ? (
+        <Skeleton count={6} />
+      ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
-          {filtered.map(t => <TemplateCard key={t.id} tpl={t} onRun={onRun} />)}
+          {filtered.map((t) => (
+            <TemplateCard key={t.id} tpl={t} onRun={onRun} />
+          ))}
         </div>
       )}
     </div>
@@ -168,32 +312,57 @@ function ReportHub({ onRun }: { onRun: (t: Template) => void }) {
 // ─── Report Viewer ────────────────────────────────────────────────
 
 const REPORT_PATHS: Record<string, string> = {
-  headcount:   `/reports/hr/headcount`,
-  turnover:    `/reports/hr/turnover`,
-  training:    `/reports/learning/training`,
+  headcount: `/reports/hr/headcount`,
+  turnover: `/reports/hr/turnover`,
+  training: `/reports/learning/training`,
   'skill-gap': `/reports/learning/skill-gap`,
   performance: `/reports/performance`,
-  talent:      `/reports/talent`,
-  engagement:  `/reports/engagement`,
-  compliance:  `/reports/compliance`,
-  usage:       `/reports/operational/usage`,
+  talent: `/reports/talent`,
+  engagement: `/reports/engagement`,
+  compliance: `/reports/compliance`,
+  usage: `/reports/operational/usage`,
 };
 
-interface ReportRange { from: string; to: string; deptId: string; }
+interface ReportRange {
+  from: string;
+  to: string;
+  deptId: string;
+}
 
-function ReportViewer({ template, onBack }: { template: Template; onBack: () => void }) {
-  const [range, setRange]         = useState<ReportRange>(() => ({ ...defaultRange(1), deptId: '' }));
+function ReportViewer({
+  template,
+  onBack,
+}: {
+  template: Template;
+  onBack: () => void;
+}) {
+  const [range, setRange] = useState<ReportRange>(() => ({
+    ...defaultRange(1),
+    deptId: '',
+  }));
   const [submitted, setSubmitted] = useState<ReportRange>(range);
 
   const path = REPORT_PATHS[template.reportKey] ?? REPORT_PATHS.training;
-  const params = { from: submitted.from, to: submitted.to, departmentId: submitted.deptId || undefined };
-  const { data, isLoading: loading, refetch } = useApiQuery<ReportData>(
-    queryKeys.reports.view(template.reportKey, params), path,
+  const params = {
+    from: submitted.from,
+    to: submitted.to,
+    departmentId: submitted.deptId || undefined,
+  };
+  const {
+    data,
+    isLoading: loading,
+    refetch,
+  } = useApiQuery<ReportData>(
+    queryKeys.reports.view(template.reportKey, params),
+    path,
     { params, staleTime: STALE_TIME.DYNAMIC },
   );
 
   function run() {
-    const unchanged = range.from === submitted.from && range.to === submitted.to && range.deptId === submitted.deptId;
+    const unchanged =
+      range.from === submitted.from &&
+      range.to === submitted.to &&
+      range.deptId === submitted.deptId;
     setSubmitted(range);
     if (unchanged) refetch();
   }
@@ -202,27 +371,46 @@ function ReportViewer({ template, onBack }: { template: Template; onBack: () => 
     <div className="space-y-4">
       {/* Header */}
       <div className="bg-white rounded-xl border border-slate-100 p-4 flex flex-wrap items-center gap-3">
-        <button onClick={onBack} className="text-slate-500 hover:text-slate-700 text-sm flex items-center gap-1">
+        <button
+          onClick={onBack}
+          className="text-slate-500 hover:text-slate-700 text-sm flex items-center gap-1"
+        >
           ← Voltar
         </button>
         <h3 className="font-semibold text-slate-700 flex-1">{template.name}</h3>
         {/* Filters */}
-        <input type="date" value={range.from} onChange={e => setRange(r => ({ ...r, from: e.target.value }))}
-          className="text-xs border border-slate-200 rounded-lg px-2 py-1.5 focus:outline-none" />
+        <input
+          type="date"
+          value={range.from}
+          onChange={(e) => setRange((r) => ({ ...r, from: e.target.value }))}
+          className="text-xs border border-slate-200 rounded-lg px-2 py-1.5 focus:outline-none"
+        />
         <span className="text-slate-300">→</span>
-        <input type="date" value={range.to} onChange={e => setRange(r => ({ ...r, to: e.target.value }))}
-          className="text-xs border border-slate-200 rounded-lg px-2 py-1.5 focus:outline-none" />
-        <button onClick={run}
-          className="flex items-center gap-1 px-3 py-1.5 bg-indigo-600 text-white text-xs rounded-lg hover:bg-indigo-700">
-          <RefreshCw size={12} />Executar
+        <input
+          type="date"
+          value={range.to}
+          onChange={(e) => setRange((r) => ({ ...r, to: e.target.value }))}
+          className="text-xs border border-slate-200 rounded-lg px-2 py-1.5 focus:outline-none"
+        />
+        <button
+          onClick={run}
+          className="flex items-center gap-1 px-3 py-1.5 bg-indigo-600 text-white text-xs rounded-lg hover:bg-indigo-700"
+        >
+          <RefreshCw size={12} />
+          Executar
         </button>
-        <a href={`/api/reports/export/${template.reportKey}-csv?from=${range.from}&to=${range.to}`}
-          className="flex items-center gap-1 px-3 py-1.5 border border-slate-200 text-slate-600 text-xs rounded-lg hover:bg-slate-50">
-          <Download size={12} />CSV
+        <a
+          href={`/api/reports/export/${template.reportKey}-csv?from=${range.from}&to=${range.to}`}
+          className="flex items-center gap-1 px-3 py-1.5 border border-slate-200 text-slate-600 text-xs rounded-lg hover:bg-slate-50"
+        >
+          <Download size={12} />
+          CSV
         </a>
       </div>
 
-      {loading ? <Skeleton count={4} /> : data ? (
+      {loading ? (
+        <Skeleton count={4} />
+      ) : data ? (
         <ReportOutput data={data} reportKey={template.reportKey} />
       ) : (
         <div className="py-16 text-center text-slate-400">
@@ -245,42 +433,71 @@ function ReportOutput({ data }: { data: ReportData; reportKey: string }) {
       {(data.insights ?? []).length > 0 && (
         <div className="bg-violet-50 border border-violet-100 rounded-xl p-4">
           <h4 className="text-xs font-semibold text-violet-700 uppercase tracking-wide mb-2 flex items-center gap-1">
-            <Brain size={12} />Insights
+            <Brain size={12} />
+            Insights
           </h4>
           {(data.insights ?? []).map((ins, i) => (
-            <p key={i} className="text-xs text-violet-800 mb-1">{ins}</p>
+            <p key={i} className="text-xs text-violet-800 mb-1">
+              {ins}
+            </p>
           ))}
         </div>
       )}
 
       {/* Summary KPIs */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        {Object.entries(summary).slice(0, 8).map(([k, v]) => {
-          if (typeof v === 'object') return null;
-          const label = k.replace(/([A-Z])/g, ' $1').replace(/^./, c => c.toUpperCase());
-          const isRate = k.toLowerCase().includes('rate') || k.toLowerCase().includes('pct') || k.toLowerCase().includes('ratio');
-          return (
-            <div key={k} className="bg-white rounded-xl border border-slate-100 p-3">
-              <p className="text-xl font-bold text-slate-800">{typeof v === 'number' ? (isRate ? `${v}%` : v) : String(v)}</p>
-              <p className="text-[10px] text-slate-400 mt-0.5">{label}</p>
-            </div>
-          );
-        })}
+        {Object.entries(summary)
+          .slice(0, 8)
+          .map(([k, v]) => {
+            if (typeof v === 'object') return null;
+            const label = k
+              .replace(/([A-Z])/g, ' $1')
+              .replace(/^./, (c) => c.toUpperCase());
+            const isRate =
+              k.toLowerCase().includes('rate') ||
+              k.toLowerCase().includes('pct') ||
+              k.toLowerCase().includes('ratio');
+            return (
+              <div
+                key={k}
+                className="bg-white rounded-xl border border-slate-100 p-3"
+              >
+                <p className="text-xl font-bold text-slate-800">
+                  {typeof v === 'number' ? (isRate ? `${v}%` : v) : String(v)}
+                </p>
+                <p className="text-[10px] text-slate-400 mt-0.5">{label}</p>
+              </div>
+            );
+          })}
       </div>
 
       {/* By Department */}
       {(data.byDepartment ?? []).length > 0 && (
         <div className="bg-white rounded-xl border border-slate-100 p-5">
-          <h4 className="font-semibold text-slate-700 mb-4">Por Departamento</h4>
+          <h4 className="font-semibold text-slate-700 mb-4">
+            Por Departamento
+          </h4>
           <div className="space-y-2">
             {(data.byDepartment ?? []).slice(0, 8).map((d, i) => {
               const val = d.count ?? d.avgScore ?? d.completions ?? 0;
-              const max = Math.max(...(data.byDepartment ?? []).map((x) => x.count ?? x.avgScore ?? x.completions ?? 0));
+              const max = Math.max(
+                ...(data.byDepartment ?? []).map(
+                  (x) => x.count ?? x.avgScore ?? x.completions ?? 0,
+                ),
+              );
               return (
                 <div key={i}>
                   <div className="flex justify-between text-xs mb-0.5">
-                    <span className="text-slate-600 truncate">{d.department ?? d.name}</span>
-                    <span className="font-semibold text-slate-700">{typeof val === 'number' ? (val > 10 ? val : val.toFixed(1)) : val}</span>
+                    <span className="text-slate-600 truncate">
+                      {d.department ?? d.name}
+                    </span>
+                    <span className="font-semibold text-slate-700">
+                      {typeof val === 'number'
+                        ? val > 10
+                          ? val
+                          : val.toFixed(1)
+                        : val}
+                    </span>
                   </div>
                   <ProgressBar value={max > 0 ? (val / max) * 100 : 0} />
                 </div>
@@ -291,29 +508,78 @@ function ReportOutput({ data }: { data: ReportData; reportKey: string }) {
       )}
 
       {/* Top list */}
-      {(data.topPerformers ?? data.topCourses ?? data.skills ?? data.topContent ?? []).length > 0 && (
+      {(
+        data.topPerformers ??
+        data.topCourses ??
+        data.skills ??
+        data.topContent ??
+        []
+      ).length > 0 && (
         <div className="bg-white rounded-xl border border-slate-100 p-5">
           <h4 className="font-semibold text-slate-700 mb-4">
-            {data.topPerformers ? 'Top Performers' : data.topCourses ? 'Top Cursos' : data.skills ? 'Gaps Críticos' : 'Top Conteúdos'}
+            {data.topPerformers
+              ? 'Top Performers'
+              : data.topCourses
+                ? 'Top Cursos'
+                : data.skills
+                  ? 'Gaps Críticos'
+                  : 'Top Conteúdos'}
           </h4>
           <div className="space-y-2">
-            {(data.topPerformers ?? data.topCourses ?? (data.skills ?? []).slice(0, 8) ?? data.topContent ?? []).map((item, i) => {
-              const name   = item.user?.fullName ?? item.course?.title ?? item.competency?.name ?? item.content?.title ?? item.name ?? `Item ${i+1}`;
-              const val    = item.score ?? item.avgScore ?? item.completionRate ?? item.views ?? item.avgGap ?? 0;
-              const sub    = item.user?.department?.name ?? item.course?.category ?? item.competency?.type ?? '';
-              const isGap  = !!data.skills;
+            {(
+              data.topPerformers ??
+              data.topCourses ??
+              (data.skills ?? []).slice(0, 8) ??
+              data.topContent ??
+              []
+            ).map((item, i) => {
+              const name =
+                item.user?.fullName ??
+                item.course?.title ??
+                item.competency?.name ??
+                item.content?.title ??
+                item.name ??
+                `Item ${i + 1}`;
+              const val =
+                item.score ??
+                item.avgScore ??
+                item.completionRate ??
+                item.views ??
+                item.avgGap ??
+                0;
+              const sub =
+                item.user?.department?.name ??
+                item.course?.category ??
+                item.competency?.type ??
+                '';
+              const isGap = !!data.skills;
               return (
                 <div key={i} className="flex items-center gap-3">
-                  <span className="text-xs text-slate-300 font-bold w-5 text-right">#{i+1}</span>
+                  <span className="text-xs text-slate-300 font-bold w-5 text-right">
+                    #{i + 1}
+                  </span>
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs font-medium text-slate-700 truncate">{name}</p>
+                    <p className="text-xs font-medium text-slate-700 truncate">
+                      {name}
+                    </p>
                     {sub && <p className="text-[10px] text-slate-400">{sub}</p>}
                   </div>
-                  <span className={`text-sm font-bold shrink-0 ${
-                    isGap ? (val >= 2 ? 'text-red-500' : 'text-amber-500') :
-                    (typeof val === 'number' && val >= 70) ? 'text-emerald-600' : 'text-slate-700'
-                  }`}>
-                    {typeof val === 'number' ? (val > 10 ? val : val.toFixed(1)) : val}
+                  <span
+                    className={`text-sm font-bold shrink-0 ${
+                      isGap
+                        ? val >= 2
+                          ? 'text-red-500'
+                          : 'text-amber-500'
+                        : typeof val === 'number' && val >= 70
+                          ? 'text-emerald-600'
+                          : 'text-slate-700'
+                    }`}
+                  >
+                    {typeof val === 'number'
+                      ? val > 10
+                        ? val
+                        : val.toFixed(1)
+                      : val}
                     {isGap ? ' gap' : ''}
                   </span>
                 </div>
@@ -331,14 +597,33 @@ function ReportOutput({ data }: { data: ReportData; reportKey: string }) {
 function InsightsTab() {
   const range = defaultRange(1);
   const { data, isLoading: loading } = useApiQuery<InsightsData>(
-    queryKeys.reports.insights({ from: range.from, to: range.to }), '/reports/insights',
-    { params: { from: range.from, to: range.to }, staleTime: STALE_TIME.SEMI_STATIC },
+    queryKeys.reports.insights({ from: range.from, to: range.to }),
+    '/reports/insights',
+    {
+      params: { from: range.from, to: range.to },
+      staleTime: STALE_TIME.SEMI_STATIC,
+    },
   );
 
-  const SEV_CONFIG: Record<string, { color: string; bg: string; icon: LucideIcon }> = {
-    HIGH:   { color: 'text-red-700',    bg: 'bg-red-50 border-red-200',    icon: AlertTriangle },
-    MEDIUM: { color: 'text-amber-700',  bg: 'bg-amber-50 border-amber-200',icon: Clock },
-    LOW:    { color: 'text-teal-700',   bg: 'bg-teal-50 border-teal-100',  icon: CheckCircle },
+  const SEV_CONFIG: Record<
+    string,
+    { color: string; bg: string; icon: LucideIcon }
+  > = {
+    HIGH: {
+      color: 'text-red-700',
+      bg: 'bg-red-50 border-red-200',
+      icon: AlertTriangle,
+    },
+    MEDIUM: {
+      color: 'text-amber-700',
+      bg: 'bg-amber-50 border-amber-200',
+      icon: Clock,
+    },
+    LOW: {
+      color: 'text-teal-700',
+      bg: 'bg-teal-50 border-teal-100',
+      icon: CheckCircle,
+    },
   };
 
   if (loading) return <Skeleton count={4} />;
@@ -359,7 +644,9 @@ function InsightsTab() {
         <div className="py-16 text-center bg-emerald-50 rounded-xl border border-emerald-100">
           <CheckCircle size={36} className="mx-auto mb-2 text-emerald-500" />
           <p className="font-medium text-emerald-700">Organização saudável!</p>
-          <p className="text-sm text-emerald-600">Sem alertas críticos identificados</p>
+          <p className="text-sm text-emerald-600">
+            Sem alertas críticos identificados
+          </p>
         </div>
       )}
 
@@ -372,15 +659,24 @@ function InsightsTab() {
               <Icon size={16} className={`${conf.color} shrink-0 mt-0.5`} />
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1">
-                  <span className={`text-[10px] font-bold ${conf.color} uppercase tracking-wide`}>{ins.type}</span>
-                  <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${conf.color} ${conf.bg} border`}>
+                  <span
+                    className={`text-[10px] font-bold ${conf.color} uppercase tracking-wide`}
+                  >
+                    {ins.type}
+                  </span>
+                  <span
+                    className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${conf.color} ${conf.bg} border`}
+                  >
                     {ins.severity}
                   </span>
                 </div>
-                <p className={`text-sm font-medium ${conf.color} mb-1`}>{ins.message}</p>
+                <p className={`text-sm font-medium ${conf.color} mb-1`}>
+                  {ins.message}
+                </p>
                 {ins.recommendation && (
                   <p className="text-xs text-slate-600 bg-white/60 rounded-lg px-3 py-1.5 border border-white">
-                    💡 <span className="font-medium">Recomendação:</span> {ins.recommendation}
+                    💡 <span className="font-medium">Recomendação:</span>{' '}
+                    {ins.recommendation}
                   </p>
                 )}
               </div>
@@ -395,15 +691,17 @@ function InsightsTab() {
 // ─── Main Page ───────────────────────────────────────────────────
 
 const TABS: { id: Tab; label: string; icon: LucideIcon }[] = [
-  { id: 'hub',         label: 'Report Hub',   icon: BarChart2 },
-  { id: 'insights',    label: 'Insights IA',  icon: Brain },
+  { id: 'hub', label: 'Report Hub', icon: BarChart2 },
+  { id: 'insights', label: 'Insights IA', icon: Brain },
 ];
 
 export default function ReportsPage() {
-  const [tab, setTab]             = useState<Tab>('hub');
+  const [tab, setTab] = useState<Tab>('hub');
   const [activeTemplate, setActiveTemplate] = useState<Template | null>(null);
 
-  const handleRun = (t: Template) => { setActiveTemplate(t); };
+  const handleRun = (t: Template) => {
+    setActiveTemplate(t);
+  };
   const handleBack = () => setActiveTemplate(null);
 
   return (
@@ -430,15 +728,24 @@ export default function ReportsPage() {
 
       <div className="bg-white border-b border-slate-200 px-6">
         <div className="max-w-7xl mx-auto flex overflow-x-auto">
-          {TABS.map(t => {
+          {TABS.map((t) => {
             const Icon = t.icon;
             return (
-              <button key={t.id} onClick={() => { setTab(t.id); setActiveTemplate(null); }}
+              <button
+                key={t.id}
+                onClick={() => {
+                  setTab(t.id);
+                  setActiveTemplate(null);
+                }}
                 className={`flex items-center gap-2 px-5 py-4 text-sm font-medium whitespace-nowrap
-                  border-b-2 transition-colors ${tab === t.id && !activeTemplate
-                    ? 'border-indigo-600 text-indigo-600'
-                    : 'border-transparent text-slate-500 hover:text-slate-700'}`}>
-                <Icon size={15} />{t.label}
+                  border-b-2 transition-colors ${
+                    tab === t.id && !activeTemplate
+                      ? 'border-indigo-600 text-indigo-600'
+                      : 'border-transparent text-slate-500 hover:text-slate-700'
+                  }`}
+              >
+                <Icon size={15} />
+                {t.label}
               </button>
             );
           })}
@@ -446,30 +753,14 @@ export default function ReportsPage() {
       </div>
 
       <div className="max-w-7xl mx-auto px-6 py-6">
-        {activeTemplate
-          ? <ReportViewer template={activeTemplate} onBack={handleBack} />
-          : tab === 'hub'
-          ? <ReportHub onRun={handleRun} />
-          : <InsightsTab />
-        }
+        {activeTemplate ? (
+          <ReportViewer template={activeTemplate} onBack={handleBack} />
+        ) : tab === 'hub' ? (
+          <ReportHub onRun={handleRun} />
+        ) : (
+          <InsightsTab />
+        )}
       </div>
     </div>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

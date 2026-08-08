@@ -8,6 +8,7 @@ import { useDebounce } from '@/hooks/useDebounce';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
+import { Skeleton as SharedSkeleton } from '@/components/ui/Skeleton';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -82,7 +83,9 @@ type View = 'list' | 'tree' | 'detail' | 'dashboard';
 
 function StatusBadge({ active }: { active: boolean }) {
   return (
-    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${active ? 'bg-emerald-50 text-emerald-700' : 'bg-gray-100 text-gray-500'}`}>
+    <span
+      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${active ? 'bg-emerald-50 text-emerald-700' : 'bg-gray-100 text-gray-500'}`}
+    >
       <span className="w-1.5 h-1.5 rounded-full bg-current" />
       {active ? 'Activo' : 'Inactivo'}
     </span>
@@ -90,22 +93,39 @@ function StatusBadge({ active }: { active: boolean }) {
 }
 
 function Avatar({ name, size = 'sm' }: { name: string; size?: 'sm' | 'md' }) {
-  const initials = name.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase();
+  const initials = name
+    .split(' ')
+    .slice(0, 2)
+    .map((n) => n[0])
+    .join('')
+    .toUpperCase();
   const dim = size === 'sm' ? 'w-7 h-7 text-xs' : 'w-10 h-10 text-sm';
   return (
-    <div className={`${dim} rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-semibold flex-shrink-0`}>
+    <div
+      className={`${dim} rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-semibold flex-shrink-0`}
+    >
       {initials}
     </div>
   );
 }
 
-function Breadcrumb({ items }: { items: Array<{ id: number; name: string; code: string }> }) {
+function Breadcrumb({
+  items,
+}: {
+  items: Array<{ id: number; name: string; code: string }>;
+}) {
   return (
     <div className="flex items-center gap-1 text-xs text-gray-400 flex-wrap">
       {items.map((item, i) => (
         <span key={item.id} className="flex items-center gap-1">
           {i > 0 && <span className="text-gray-300">›</span>}
-          <span className={i === items.length - 1 ? 'text-gray-700 font-medium' : ''}>{item.name}</span>
+          <span
+            className={
+              i === items.length - 1 ? 'text-gray-700 font-medium' : ''
+            }
+          >
+            {item.name}
+          </span>
         </span>
       ))}
     </div>
@@ -114,16 +134,24 @@ function Breadcrumb({ items }: { items: Array<{ id: number; name: string; code: 
 
 function Skeleton({ rows = 5 }: { rows?: number }) {
   return (
-    <div className="space-y-2 animate-pulse">
-      {Array.from({ length: rows }).map((_, i) => (
-        <div key={i} className="h-14 bg-gray-100 rounded-xl" />
-      ))}
-    </div>
+    <SharedSkeleton
+      rows={rows}
+      wrapperClassName="space-y-2 animate-pulse"
+      itemClassName="h-14 bg-gray-100 rounded-xl"
+    />
   );
 }
 
-function MetricCard({ label, value, sub, color = 'text-gray-900' }: {
-  label: string; value: number | string; sub?: string; color?: string;
+function MetricCard({
+  label,
+  value,
+  sub,
+  color = 'text-gray-900',
+}: {
+  label: string;
+  value: number | string;
+  sub?: string;
+  color?: string;
 }) {
   return (
     <div className="bg-gray-50 rounded-xl p-4">
@@ -152,7 +180,9 @@ function OrgNode({
     <div className="relative">
       <div
         className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-colors mb-1 ${
-          !node.active ? 'opacity-50 bg-gray-50 border-gray-100' : 'bg-white border-gray-200 hover:border-blue-300 hover:bg-blue-50'
+          !node.active
+            ? 'opacity-50 bg-gray-50 border-gray-100'
+            : 'bg-white border-gray-200 hover:border-blue-300 hover:bg-blue-50'
         }`}
         style={{ marginLeft: level * 24 }}
         onClick={() => onSelect(node.id)}
@@ -161,7 +191,10 @@ function OrgNode({
         {hasChildren && (
           <button
             className="w-5 h-5 text-xs text-gray-400 hover:text-gray-700 flex-shrink-0"
-            onClick={e => { e.stopPropagation(); setExpanded(v => !v); }}
+            onClick={(e) => {
+              e.stopPropagation();
+              setExpanded((v) => !v);
+            }}
           >
             {expanded ? '▼' : '▶'}
           </button>
@@ -177,9 +210,13 @@ function OrgNode({
         {/* Info */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <span className="text-sm font-medium text-gray-900 truncate">{node.name}</span>
+            <span className="text-sm font-medium text-gray-900 truncate">
+              {node.name}
+            </span>
             <span className="text-xs font-mono text-gray-400">{node.code}</span>
-            {!node.active && <span className="text-xs text-gray-400">(inactivo)</span>}
+            {!node.active && (
+              <span className="text-xs text-gray-400">(inactivo)</span>
+            )}
           </div>
           <div className="text-xs text-gray-400 mt-0.5 flex items-center gap-3">
             {node.head && (
@@ -197,8 +234,13 @@ function OrgNode({
       {/* Children */}
       {expanded && hasChildren && (
         <div>
-          {node.children.map(child => (
-            <OrgNode key={child.id} node={child} onSelect={onSelect} level={level + 1} />
+          {node.children.map((child) => (
+            <OrgNode
+              key={child.id}
+              node={child}
+              onSelect={onSelect}
+              level={level + 1}
+            />
           ))}
         </div>
       )}
@@ -213,11 +255,25 @@ function ListView({ onSelect }: { onSelect: (id: number) => void }) {
   const [activeFilter, setActiveFilter] = useState('');
   const [page, setPage] = useState(1);
   const debouncedSearch = useDebounce(search);
-  const params = { page, limit: 20, search: debouncedSearch, active: activeFilter || undefined };
+  const params = {
+    page,
+    limit: 20,
+    search: debouncedSearch,
+    active: activeFilter || undefined,
+  };
 
-  const { data, isLoading: loading, error: queryError } = useApiQuery<PaginatedDepts>(
-    queryKeys.departments.list(params), '/departments',
-    { params, staleTime: STALE_TIME.SEMI_STATIC, placeholderData: keepPreviousData },
+  const {
+    data,
+    isLoading: loading,
+    error: queryError,
+  } = useApiQuery<PaginatedDepts>(
+    queryKeys.departments.list(params),
+    '/departments',
+    {
+      params,
+      staleTime: STALE_TIME.SEMI_STATIC,
+      placeholderData: keepPreviousData,
+    },
   );
   const error = queryError?.message ?? null;
 
@@ -229,19 +285,27 @@ function ListView({ onSelect }: { onSelect: (id: number) => void }) {
           type="text"
           placeholder="Pesquisar por nome, código ou gestor…"
           value={search}
-          onChange={e => { setSearch(e.target.value); setPage(1); }}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            setPage(1);
+          }}
           className="flex-1 min-w-[220px] text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <select
           value={activeFilter}
-          onChange={e => { setActiveFilter(e.target.value); setPage(1); }}
+          onChange={(e) => {
+            setActiveFilter(e.target.value);
+            setPage(1);
+          }}
           className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
           <option value="">Todos os estados</option>
           <option value="true">Activos</option>
           <option value="false">Inactivos</option>
         </select>
-        <span className="text-sm text-gray-400">{data?.total ?? 0} departamentos</span>
+        <span className="text-sm text-gray-400">
+          {data?.total ?? 0} departamentos
+        </span>
       </div>
 
       {/* Tabela */}
@@ -255,55 +319,85 @@ function ListView({ onSelect }: { onSelect: (id: number) => void }) {
           <div>Sub-deptos</div>
         </div>
 
-        {loading && <div className="p-4"><Skeleton /></div>}
-        {error && <div className="px-4 py-8 text-center text-sm text-red-500">{error}</div>}
+        {loading && (
+          <div className="p-4">
+            <Skeleton />
+          </div>
+        )}
+        {error && (
+          <div className="px-4 py-8 text-center text-sm text-red-500">
+            {error}
+          </div>
+        )}
         {!loading && data?.data.length === 0 && (
-          <div className="px-4 py-12 text-center text-sm text-gray-400">Nenhum departamento encontrado</div>
+          <div className="px-4 py-12 text-center text-sm text-gray-400">
+            Nenhum departamento encontrado
+          </div>
         )}
 
-        {!loading && data?.data.map(d => (
-          <div
-            key={d.id}
-            className="grid grid-cols-[2fr_90px_160px_80px_90px_70px] gap-3 items-center px-4 py-3.5 border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition-colors last:border-0"
-            onClick={() => onSelect(d.id)}
-          >
-            <div className="flex items-center gap-2">
-              <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: d.color ?? '#cbd5e1' }} />
+        {!loading &&
+          data?.data.map((d) => (
+            <div
+              key={d.id}
+              className="grid grid-cols-[2fr_90px_160px_80px_90px_70px] gap-3 items-center px-4 py-3.5 border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition-colors last:border-0"
+              onClick={() => onSelect(d.id)}
+            >
+              <div className="flex items-center gap-2">
+                <div
+                  className="w-2.5 h-2.5 rounded-full flex-shrink-0"
+                  style={{ background: d.color ?? '#cbd5e1' }}
+                />
+                <div>
+                  <div className="text-sm font-medium text-gray-900">
+                    {d.name}
+                  </div>
+                  {d.parent && (
+                    <div className="text-xs text-gray-400 mt-0.5">
+                      ↳ {d.parent.name}
+                    </div>
+                  )}
+                </div>
+              </div>
+              <div className="text-xs font-mono text-gray-500">{d.code}</div>
               <div>
-                <div className="text-sm font-medium text-gray-900">{d.name}</div>
-                {d.parent && (
-                  <div className="text-xs text-gray-400 mt-0.5">↳ {d.parent.name}</div>
+                {d.head ? (
+                  <div className="flex items-center gap-2">
+                    <Avatar name={d.head.fullName} size="sm" />
+                    <span className="text-xs text-gray-700 truncate">
+                      {d.head.fullName}
+                    </span>
+                  </div>
+                ) : (
+                  <span className="text-xs text-gray-400">—</span>
                 )}
               </div>
+              <div className="text-sm text-gray-500">{d._count.users}</div>
+              <div>
+                <StatusBadge active={d.active} />
+              </div>
+              <div className="text-sm text-gray-400">{d._count.children}</div>
             </div>
-            <div className="text-xs font-mono text-gray-500">{d.code}</div>
-            <div>
-              {d.head ? (
-                <div className="flex items-center gap-2">
-                  <Avatar name={d.head.fullName} size="sm" />
-                  <span className="text-xs text-gray-700 truncate">{d.head.fullName}</span>
-                </div>
-              ) : (
-                <span className="text-xs text-gray-400">—</span>
-              )}
-            </div>
-            <div className="text-sm text-gray-500">{d._count.users}</div>
-            <div><StatusBadge active={d.active} /></div>
-            <div className="text-sm text-gray-400">{d._count.children}</div>
-          </div>
-        ))}
+          ))}
       </div>
 
       {data && data.totalPages > 1 && (
         <div className="flex items-center justify-between mt-4">
-          <span className="text-xs text-gray-400">Página {data.page} de {data.totalPages}</span>
+          <span className="text-xs text-gray-400">
+            Página {data.page} de {data.totalPages}
+          </span>
           <div className="flex gap-2">
-            <button disabled={page === 1} onClick={() => setPage(p => p - 1)}
-              className="px-3 py-1.5 text-xs border border-gray-200 rounded-lg disabled:opacity-40 hover:bg-gray-50">
+            <button
+              disabled={page === 1}
+              onClick={() => setPage((p) => p - 1)}
+              className="px-3 py-1.5 text-xs border border-gray-200 rounded-lg disabled:opacity-40 hover:bg-gray-50"
+            >
               ← Anterior
             </button>
-            <button disabled={page === data.totalPages} onClick={() => setPage(p => p + 1)}
-              className="px-3 py-1.5 text-xs border border-gray-200 rounded-lg disabled:opacity-40 hover:bg-gray-50">
+            <button
+              disabled={page === data.totalPages}
+              onClick={() => setPage((p) => p + 1)}
+              className="px-3 py-1.5 text-xs border border-gray-200 rounded-lg disabled:opacity-40 hover:bg-gray-50"
+            >
               Próxima →
             </button>
           </div>
@@ -316,24 +410,41 @@ function ListView({ onSelect }: { onSelect: (id: number) => void }) {
 // ─── View: Tree (Org Chart) ───────────────────────────────────────────────────
 
 function TreeView({ onSelect }: { onSelect: (id: number) => void }) {
-  const { data: tree = [], isLoading: loading, error: queryError } = useApiQuery<DepartmentNode[]>(
-    queryKeys.departments.tree(), '/departments/tree',
+  const {
+    data: tree = [],
+    isLoading: loading,
+    error: queryError,
+  } = useApiQuery<DepartmentNode[]>(
+    queryKeys.departments.tree(),
+    '/departments/tree',
     { staleTime: STALE_TIME.SEMI_STATIC },
   );
 
-  if (loading) return <div><Skeleton rows={8} /></div>;
-  if (queryError) return <div className="text-sm text-red-500">{queryError.message}</div>;
+  if (loading)
+    return (
+      <div>
+        <Skeleton rows={8} />
+      </div>
+    );
+  if (queryError)
+    return <div className="text-sm text-red-500">{queryError.message}</div>;
 
   return (
     <div>
       <div className="flex items-center gap-2 mb-4 text-xs text-gray-400">
-        <span>▼ expandir</span><span>·</span><span>▶ recolher</span><span>·</span><span>clique → ver detalhe</span>
+        <span>▼ expandir</span>
+        <span>·</span>
+        <span>▶ recolher</span>
+        <span>·</span>
+        <span>clique → ver detalhe</span>
       </div>
       <div className="bg-white border border-gray-200 rounded-xl p-4">
         {tree.length === 0 ? (
-          <div className="py-12 text-center text-sm text-gray-400">Sem departamentos na hierarquia</div>
+          <div className="py-12 text-center text-sm text-gray-400">
+            Sem departamentos na hierarquia
+          </div>
         ) : (
-          tree.map(node => (
+          tree.map((node) => (
             <OrgNode key={node.id} node={node} onSelect={onSelect} level={0} />
           ))
         )}
@@ -344,44 +455,67 @@ function TreeView({ onSelect }: { onSelect: (id: number) => void }) {
 
 // ─── View: Department Detail ──────────────────────────────────────────────────
 
-function DetailView({ deptId, onBack }: { deptId: number; onBack: () => void }) {
-  const [activeTab, setActiveTab] = useState<'members' | 'subdepts' | 'history' | 'metrics'>('members');
+function DetailView({
+  deptId,
+  onBack,
+}: {
+  deptId: number;
+  onBack: () => void;
+}) {
+  const [activeTab, setActiveTab] = useState<
+    'members' | 'subdepts' | 'history' | 'metrics'
+  >('members');
   const [transferUserId, setTransferUserId] = useState('');
   const [transferTargetId, setTransferTargetId] = useState('');
   const [transferReason, setTransferReason] = useState('');
 
-  const deptQ = useApiQuery<Department & { users: Member[]; headHistory: HeadHistoryEntry[] }>(
-    queryKeys.departments.detail(deptId), `/departments/${deptId}`,
-    { enabled: !!deptId, staleTime: STALE_TIME.DYNAMIC },
-  );
+  const deptQ = useApiQuery<
+    Department & { users: Member[]; headHistory: HeadHistoryEntry[] }
+  >(queryKeys.departments.detail(deptId), `/departments/${deptId}`, {
+    enabled: !!deptId,
+    staleTime: STALE_TIME.DYNAMIC,
+  });
   const metricsQ = useApiQuery<Metrics>(
-    queryKeys.departments.metrics(deptId), `/departments/${deptId}/metrics`,
+    queryKeys.departments.metrics(deptId),
+    `/departments/${deptId}/metrics`,
     { enabled: !!deptId, staleTime: STALE_TIME.DYNAMIC },
   );
   const dept = deptQ.data ?? null;
   const metrics = metricsQ.data ?? null;
   const loading = deptQ.isLoading;
 
-  const reloadKeys = [queryKeys.departments.detail(deptId), queryKeys.departments.metrics(deptId)];
+  const reloadKeys = [
+    queryKeys.departments.detail(deptId),
+    queryKeys.departments.metrics(deptId),
+  ];
 
   const toggleActive = useApiMutation(
-    () => apiClient.patch(`/departments/${deptId}/${dept!.active ? 'deactivate' : 'activate'}`, {}),
+    () =>
+      apiClient.patch(
+        `/departments/${deptId}/${dept!.active ? 'deactivate' : 'activate'}`,
+        {},
+      ),
     { invalidateKeys: reloadKeys, onError: (e) => alert(e.message) },
   );
   const actionLoading = toggleActive.isPending;
-  const handleToggleActive = () => { if (dept) toggleActive.mutate(undefined); };
+  const handleToggleActive = () => {
+    if (dept) toggleActive.mutate(undefined);
+  };
 
   const transferMutation = useApiMutation(
-    () => apiClient.post('/departments/members/transfer', {
-      userId: parseInt(transferUserId),
-      targetDepartmentId: parseInt(transferTargetId),
-      reason: transferReason || undefined,
-    }),
+    () =>
+      apiClient.post('/departments/members/transfer', {
+        userId: parseInt(transferUserId),
+        targetDepartmentId: parseInt(transferTargetId),
+        reason: transferReason || undefined,
+      }),
     {
       invalidateKeys: reloadKeys,
       onSuccess: () => {
         alert('Transferência realizada com sucesso');
-        setTransferUserId(''); setTransferTargetId(''); setTransferReason('');
+        setTransferUserId('');
+        setTransferTargetId('');
+        setTransferReason('');
       },
       onError: (e) => alert(e.message),
     },
@@ -392,23 +526,35 @@ function DetailView({ deptId, onBack }: { deptId: number; onBack: () => void }) 
     transferMutation.mutate(undefined);
   };
 
-  if (loading || !dept) return <div><Skeleton rows={6} /></div>;
+  if (loading || !dept)
+    return (
+      <div>
+        <Skeleton rows={6} />
+      </div>
+    );
 
   const tabs: Array<{ id: typeof activeTab; label: string }> = [
-    { id: 'members',  label: `Membros (${dept._count.users})` },
+    { id: 'members', label: `Membros (${dept._count.users})` },
     { id: 'subdepts', label: `Sub-departamentos (${dept._count.children})` },
-    { id: 'metrics',  label: 'Métricas' },
-    { id: 'history',  label: 'Histórico gestores' },
+    { id: 'metrics', label: 'Métricas' },
+    { id: 'history', label: 'Histórico gestores' },
   ];
 
   return (
     <div>
-      <button onClick={onBack} className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-800 mb-5">
+      <button
+        onClick={onBack}
+        className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-800 mb-5"
+      >
         ← Voltar
       </button>
 
       {/* Breadcrumb */}
-      {metrics && <div className="mb-4"><Breadcrumb items={metrics.breadcrumb} /></div>}
+      {metrics && (
+        <div className="mb-4">
+          <Breadcrumb items={metrics.breadcrumb} />
+        </div>
+      )}
 
       {/* Header */}
       <div className="bg-white border border-gray-200 rounded-xl p-5 mb-5">
@@ -422,15 +568,40 @@ function DetailView({ deptId, onBack }: { deptId: number; onBack: () => void }) 
             </div>
             <div>
               <div className="flex items-center gap-2 mb-1 flex-wrap">
-                <span className="font-mono text-sm text-gray-400">{dept.code}</span>
+                <span className="font-mono text-sm text-gray-400">
+                  {dept.code}
+                </span>
                 <StatusBadge active={dept.active} />
               </div>
-              <h2 className="text-lg font-semibold text-gray-900">{dept.name}</h2>
-              {dept.description && <p className="text-sm text-gray-500 mt-1">{dept.description}</p>}
+              <h2 className="text-lg font-semibold text-gray-900">
+                {dept.name}
+              </h2>
+              {dept.description && (
+                <p className="text-sm text-gray-500 mt-1">{dept.description}</p>
+              )}
               <div className="flex flex-wrap gap-4 mt-2 text-xs text-gray-400">
-                {dept.parent && <span>Pertence a: <strong className="text-gray-700">{dept.parent.name}</strong></span>}
-                {dept.costCenter && <span>Centro de custo: <strong className="text-gray-700">{dept.costCenter}</strong></span>}
-                {dept.trainingBudget && <span>Budget formação: <strong className="text-gray-700">{dept.trainingBudget.toLocaleString('pt-AO')} Kz</strong></span>}
+                {dept.parent && (
+                  <span>
+                    Pertence a:{' '}
+                    <strong className="text-gray-700">
+                      {dept.parent.name}
+                    </strong>
+                  </span>
+                )}
+                {dept.costCenter && (
+                  <span>
+                    Centro de custo:{' '}
+                    <strong className="text-gray-700">{dept.costCenter}</strong>
+                  </span>
+                )}
+                {dept.trainingBudget && (
+                  <span>
+                    Budget formação:{' '}
+                    <strong className="text-gray-700">
+                      {dept.trainingBudget.toLocaleString('pt-AO')} Kz
+                    </strong>
+                  </span>
+                )}
               </div>
             </div>
           </div>
@@ -455,8 +626,12 @@ function DetailView({ deptId, onBack }: { deptId: number; onBack: () => void }) 
           <div className="mt-4 pt-4 border-t border-gray-100 flex items-center gap-3">
             <Avatar name={dept.head.fullName} size="md" />
             <div>
-              <div className="text-sm font-medium text-gray-900">{dept.head.fullName}</div>
-              <div className="text-xs text-gray-400">{dept.head.email} · Responsável</div>
+              <div className="text-sm font-medium text-gray-900">
+                {dept.head.fullName}
+              </div>
+              <div className="text-xs text-gray-400">
+                {dept.head.email} · Responsável
+              </div>
             </div>
           </div>
         )}
@@ -469,12 +644,14 @@ function DetailView({ deptId, onBack }: { deptId: number; onBack: () => void }) 
 
       {/* Tabs */}
       <div className="flex gap-1 mb-5 bg-gray-100 p-1 rounded-xl w-fit flex-wrap">
-        {tabs.map(t => (
+        {tabs.map((t) => (
           <button
             key={t.id}
             onClick={() => setActiveTab(t.id)}
             className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-              activeTab === t.id ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+              activeTab === t.id
+                ? 'bg-white text-gray-900 shadow-sm'
+                : 'text-gray-500 hover:text-gray-700'
             }`}
           >
             {t.label}
@@ -487,32 +664,36 @@ function DetailView({ deptId, onBack }: { deptId: number; onBack: () => void }) 
         <div>
           {/* Transfer form */}
           <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 mb-4">
-            <div className="text-xs font-medium text-blue-700 uppercase tracking-wide mb-3">Transferir colaborador</div>
+            <div className="text-xs font-medium text-blue-700 uppercase tracking-wide mb-3">
+              Transferir colaborador
+            </div>
             <div className="flex flex-wrap gap-3">
               <input
                 type="number"
                 placeholder="ID do colaborador"
                 value={transferUserId}
-                onChange={e => setTransferUserId(e.target.value)}
+                onChange={(e) => setTransferUserId(e.target.value)}
                 className="flex-1 min-w-[140px] text-sm border border-blue-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white"
               />
               <input
                 type="number"
                 placeholder="ID do departamento destino"
                 value={transferTargetId}
-                onChange={e => setTransferTargetId(e.target.value)}
+                onChange={(e) => setTransferTargetId(e.target.value)}
                 className="flex-1 min-w-[180px] text-sm border border-blue-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white"
               />
               <input
                 type="text"
                 placeholder="Motivo (opcional)"
                 value={transferReason}
-                onChange={e => setTransferReason(e.target.value)}
+                onChange={(e) => setTransferReason(e.target.value)}
                 className="flex-1 min-w-[160px] text-sm border border-blue-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white"
               />
               <button
                 onClick={handleTransfer}
-                disabled={!transferUserId || !transferTargetId || transferLoading}
+                disabled={
+                  !transferUserId || !transferTargetId || transferLoading
+                }
                 className="px-4 py-2 bg-blue-700 text-white text-sm font-medium rounded-lg hover:bg-blue-800 disabled:opacity-50"
               >
                 {transferLoading ? 'A transferir…' : 'Transferir'}
@@ -523,13 +704,20 @@ function DetailView({ deptId, onBack }: { deptId: number; onBack: () => void }) 
           {/* Members list */}
           <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
             <div className="grid grid-cols-[1fr_180px_80px] gap-3 px-4 py-2.5 border-b border-gray-100 text-xs font-medium text-gray-400 uppercase tracking-wide">
-              <div>Colaborador</div><div>Cargo</div><div>Estado</div>
+              <div>Colaborador</div>
+              <div>Cargo</div>
+              <div>Estado</div>
             </div>
             {(dept.users as Member[]).length === 0 ? (
-              <div className="px-4 py-8 text-center text-sm text-gray-400">Sem membros neste departamento</div>
+              <div className="px-4 py-8 text-center text-sm text-gray-400">
+                Sem membros neste departamento
+              </div>
             ) : (
-              (dept.users as Member[]).map(u => (
-                <div key={u.id} className="grid grid-cols-[1fr_180px_80px] gap-3 items-center px-4 py-3 border-b border-gray-100 last:border-0">
+              (dept.users as Member[]).map((u) => (
+                <div
+                  key={u.id}
+                  className="grid grid-cols-[1fr_180px_80px] gap-3 items-center px-4 py-3 border-b border-gray-100 last:border-0"
+                >
                   <div className="flex items-center gap-2">
                     <Avatar name={u.fullName} size="sm" />
                     <div>
@@ -537,8 +725,12 @@ function DetailView({ deptId, onBack }: { deptId: number; onBack: () => void }) 
                       <div className="text-xs text-gray-400">{u.email}</div>
                     </div>
                   </div>
-                  <div className="text-xs text-gray-500">{u.position?.name ?? '—'}</div>
-                  <div><StatusBadge active={u.active} /></div>
+                  <div className="text-xs text-gray-500">
+                    {u.position?.name ?? '—'}
+                  </div>
+                  <div>
+                    <StatusBadge active={u.active} />
+                  </div>
                 </div>
               ))
             )}
@@ -554,18 +746,34 @@ function DetailView({ deptId, onBack }: { deptId: number; onBack: () => void }) 
               Sem sub-departamentos
             </div>
           ) : (
-            dept.children.map(child => (
-              <div key={child.id} className="flex items-center gap-3 p-4 bg-white border border-gray-200 rounded-xl hover:bg-gray-50">
-                <div className="w-2.5 h-2.5 rounded-full" style={{ background: child.color ?? '#cbd5e1' }} />
+            dept.children.map((child) => (
+              <div
+                key={child.id}
+                className="flex items-center gap-3 p-4 bg-white border border-gray-200 rounded-xl hover:bg-gray-50"
+              >
+                <div
+                  className="w-2.5 h-2.5 rounded-full"
+                  style={{ background: child.color ?? '#cbd5e1' }}
+                />
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium text-gray-900">{child.name}</span>
-                    <span className="text-xs font-mono text-gray-400">{child.code}</span>
+                    <span className="text-sm font-medium text-gray-900">
+                      {child.name}
+                    </span>
+                    <span className="text-xs font-mono text-gray-400">
+                      {child.code}
+                    </span>
                     <StatusBadge active={child.active} />
                   </div>
-                  {child.head && <div className="text-xs text-gray-400 mt-0.5">{child.head.fullName}</div>}
+                  {child.head && (
+                    <div className="text-xs text-gray-400 mt-0.5">
+                      {child.head.fullName}
+                    </div>
+                  )}
                 </div>
-                <div className="text-sm text-gray-400">{child._count.users} membros</div>
+                <div className="text-sm text-gray-400">
+                  {child._count.users} membros
+                </div>
               </div>
             ))
           )}
@@ -576,13 +784,23 @@ function DetailView({ deptId, onBack }: { deptId: number; onBack: () => void }) 
       {activeTab === 'metrics' && metrics && (
         <div className="space-y-4">
           <div className="grid grid-cols-4 gap-3">
-            <MetricCard label="Total membros"   value={metrics.totalUsers}    />
-            <MetricCard label="Activos"         value={metrics.activeUsers}   color="text-emerald-600" />
-            <MetricCard label="Inactivos"       value={metrics.inactiveUsers} />
-            <MetricCard label="Transferências ↑" value={metrics.transfers.in}  sub={`↓ saídas: ${metrics.transfers.out}`} />
+            <MetricCard label="Total membros" value={metrics.totalUsers} />
+            <MetricCard
+              label="Activos"
+              value={metrics.activeUsers}
+              color="text-emerald-600"
+            />
+            <MetricCard label="Inactivos" value={metrics.inactiveUsers} />
+            <MetricCard
+              label="Transferências ↑"
+              value={metrics.transfers.in}
+              sub={`↓ saídas: ${metrics.transfers.out}`}
+            />
           </div>
           <div className="bg-white border border-gray-200 rounded-xl p-4">
-            <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">Hierarquia organizacional</div>
+            <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">
+              Hierarquia organizacional
+            </div>
             <Breadcrumb items={metrics.breadcrumb} />
           </div>
         </div>
@@ -592,19 +810,36 @@ function DetailView({ deptId, onBack }: { deptId: number; onBack: () => void }) 
       {activeTab === 'history' && (
         <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
           <div className="grid grid-cols-[1fr_160px_160px] gap-3 px-4 py-2.5 border-b border-gray-100 text-xs font-medium text-gray-400 uppercase tracking-wide">
-            <div>Gestor</div><div>Início</div><div>Fim</div>
+            <div>Gestor</div>
+            <div>Início</div>
+            <div>Fim</div>
           </div>
           {dept.headHistory.length === 0 ? (
-            <div className="px-4 py-8 text-center text-sm text-gray-400">Sem histórico de gestores</div>
+            <div className="px-4 py-8 text-center text-sm text-gray-400">
+              Sem histórico de gestores
+            </div>
           ) : (
-            dept.headHistory.map(h => (
-              <div key={h.id} className="grid grid-cols-[1fr_160px_160px] gap-3 items-center px-4 py-3 border-b border-gray-100 last:border-0">
+            dept.headHistory.map((h) => (
+              <div
+                key={h.id}
+                className="grid grid-cols-[1fr_160px_160px] gap-3 items-center px-4 py-3 border-b border-gray-100 last:border-0"
+              >
                 <div className="flex items-center gap-2">
                   <Avatar name={h.head.fullName} size="sm" />
-                  <span className="text-sm text-gray-800">{h.head.fullName}</span>
+                  <span className="text-sm text-gray-800">
+                    {h.head.fullName}
+                  </span>
                 </div>
-                <div className="text-xs text-gray-500">{new Date(h.startedAt).toLocaleDateString('pt-AO')}</div>
-                <div className="text-xs text-gray-500">{h.endedAt ? new Date(h.endedAt).toLocaleDateString('pt-AO') : <span className="text-emerald-600">Actual</span>}</div>
+                <div className="text-xs text-gray-500">
+                  {new Date(h.startedAt).toLocaleDateString('pt-AO')}
+                </div>
+                <div className="text-xs text-gray-500">
+                  {h.endedAt ? (
+                    new Date(h.endedAt).toLocaleDateString('pt-AO')
+                  ) : (
+                    <span className="text-emerald-600">Actual</span>
+                  )}
+                </div>
               </div>
             ))
           )}
@@ -617,35 +852,47 @@ function DetailView({ deptId, onBack }: { deptId: number; onBack: () => void }) 
 // ─── View: Comparative Dashboard ─────────────────────────────────────────────
 
 function DashboardView({ onSelect }: { onSelect: (id: number) => void }) {
-  const { data: rows = [], isLoading: loading, error: queryError } = useApiQuery<ComparativeRow[]>(
-    queryKeys.departments.comparative(), '/departments/dashboard/comparative',
+  const {
+    data: rows = [],
+    isLoading: loading,
+    error: queryError,
+  } = useApiQuery<ComparativeRow[]>(
+    queryKeys.departments.comparative(),
+    '/departments/dashboard/comparative',
     { staleTime: STALE_TIME.SEMI_STATIC },
   );
 
   if (loading) return <Skeleton rows={5} />;
-  if (queryError) return <div className="text-sm text-red-500">{queryError.message}</div>;
+  if (queryError)
+    return <div className="text-sm text-red-500">{queryError.message}</div>;
 
-  const maxMembers = Math.max(...rows.map(r => r.totalMembers), 1);
+  const maxMembers = Math.max(...rows.map((r) => r.totalMembers), 1);
   const totalMembers = rows.reduce((s, r) => s + r.totalMembers, 0);
-  const activeCount = rows.filter(r => r.active).length;
+  const activeCount = rows.filter((r) => r.active).length;
 
   return (
     <div className="space-y-6">
       {/* Summary cards */}
       <div className="grid grid-cols-3 gap-4">
-        <MetricCard label="Total departamentos"  value={rows.length}     />
-        <MetricCard label="Activos"              value={activeCount}     color="text-emerald-600" />
-        <MetricCard label="Total colaboradores"  value={totalMembers}    />
+        <MetricCard label="Total departamentos" value={rows.length} />
+        <MetricCard
+          label="Activos"
+          value={activeCount}
+          color="text-emerald-600"
+        />
+        <MetricCard label="Total colaboradores" value={totalMembers} />
       </div>
 
       {/* Distribution chart */}
       <div className="bg-white border border-gray-200 rounded-xl p-5">
-        <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-4">Distribuição de colaboradores</div>
+        <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-4">
+          Distribuição de colaboradores
+        </div>
         <div className="space-y-3">
           {rows
-            .filter(r => r.active)
+            .filter((r) => r.active)
             .sort((a, b) => b.totalMembers - a.totalMembers)
-            .map(r => {
+            .map((r) => {
               const pct = Math.round((r.totalMembers / maxMembers) * 100);
               return (
                 <div
@@ -653,15 +900,21 @@ function DashboardView({ onSelect }: { onSelect: (id: number) => void }) {
                   className="flex items-center gap-3 cursor-pointer group"
                   onClick={() => onSelect(r.id)}
                 >
-                  <div className="w-32 text-xs text-gray-700 truncate group-hover:text-blue-700">{r.name}</div>
+                  <div className="w-32 text-xs text-gray-700 truncate group-hover:text-blue-700">
+                    {r.name}
+                  </div>
                   <div className="flex-1 h-6 bg-gray-100 rounded overflow-hidden">
                     <div
                       className="h-full bg-blue-500 rounded transition-all duration-500 group-hover:bg-blue-600"
                       style={{ width: `${pct}%` }}
                     />
                   </div>
-                  <div className="w-20 text-right text-xs font-mono text-gray-600">{r.totalMembers} membros</div>
-                  <div className="w-24 text-xs text-gray-400 truncate">{r.headName}</div>
+                  <div className="w-20 text-right text-xs font-mono text-gray-600">
+                    {r.totalMembers} membros
+                  </div>
+                  <div className="w-24 text-xs text-gray-400 truncate">
+                    {r.headName}
+                  </div>
                 </div>
               );
             })}
@@ -669,10 +922,17 @@ function DashboardView({ onSelect }: { onSelect: (id: number) => void }) {
       </div>
 
       {/* Depts without head warning */}
-      {rows.filter(r => r.active && r.headName === '—').length > 0 && (
+      {rows.filter((r) => r.active && r.headName === '—').length > 0 && (
         <div className="bg-amber-50 border border-amber-100 rounded-xl px-4 py-3 text-sm text-amber-800">
-          ⚠ <strong>{rows.filter(r => r.active && r.headName === '—').length}</strong> departamento(s) activo(s) sem gestor definido:
-          {' '}{rows.filter(r => r.active && r.headName === '—').map(r => r.name).join(', ')}
+          ⚠{' '}
+          <strong>
+            {rows.filter((r) => r.active && r.headName === '—').length}
+          </strong>{' '}
+          departamento(s) activo(s) sem gestor definido:{' '}
+          {rows
+            .filter((r) => r.active && r.headName === '—')
+            .map((r) => r.name)
+            .join(', ')}
         </div>
       )}
     </div>
@@ -682,25 +942,27 @@ function DashboardView({ onSelect }: { onSelect: (id: number) => void }) {
 // ─── Page principal ───────────────────────────────────────────────────────────
 
 const NAV: Array<{ id: Exclude<View, 'detail'>; label: string }> = [
-  { id: 'list',      label: 'Lista' },
-  { id: 'tree',      label: 'Organograma' },
+  { id: 'list', label: 'Lista' },
+  { id: 'tree', label: 'Organograma' },
   { id: 'dashboard', label: 'Dashboard' },
 ];
 
 // view e selectedId eram dois useState separados sempre definidos em conjunto
 // — um único estado torna "detail sem id" irrepresentável.
-type Nav = { view: Exclude<View, 'detail'> } | { view: 'detail'; selectedId: number };
+type Nav =
+  { view: Exclude<View, 'detail'> } | { view: 'detail'; selectedId: number };
 
 export default function DepartmentsPage() {
   const [nav, setNav] = useState<Nav>({ view: 'list' });
 
-  const handleSelect = (id: number) => setNav({ view: 'detail', selectedId: id });
+  const handleSelect = (id: number) =>
+    setNav({ view: 'detail', selectedId: id });
   const handleBack = () => setNav({ view: 'list' });
 
   const titles: Record<View, string> = {
-    list:      'Departamentos',
-    tree:      'Organograma',
-    detail:    'Detalhe do Departamento',
+    list: 'Departamentos',
+    tree: 'Organograma',
+    detail: 'Detalhe do Departamento',
     dashboard: 'Dashboard Organizacional',
   };
 
@@ -709,8 +971,12 @@ export default function DepartmentsPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-xl font-semibold text-gray-900">{titles[nav.view]}</h1>
-          <p className="text-sm text-gray-400 mt-0.5">INNOVA — Estrutura Organizacional</p>
+          <h1 className="text-xl font-semibold text-gray-900">
+            {titles[nav.view]}
+          </h1>
+          <p className="text-sm text-gray-400 mt-0.5">
+            INNOVA — Estrutura Organizacional
+          </p>
         </div>
         {nav.view === 'list' && (
           <button
@@ -725,12 +991,14 @@ export default function DepartmentsPage() {
       {/* Tabs */}
       {nav.view !== 'detail' && (
         <div className="flex gap-1 mb-6 bg-gray-100 p-1 rounded-xl w-fit">
-          {NAV.map(n => (
+          {NAV.map((n) => (
             <button
               key={n.id}
               onClick={() => setNav({ view: n.id })}
               className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-                nav.view === n.id ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+                nav.view === n.id
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-500 hover:text-gray-700'
               }`}
             >
               {n.label}
@@ -740,8 +1008,8 @@ export default function DepartmentsPage() {
       )}
 
       {/* Views */}
-      {nav.view === 'list'      && <ListView onSelect={handleSelect} />}
-      {nav.view === 'tree'      && <TreeView onSelect={handleSelect} />}
+      {nav.view === 'list' && <ListView onSelect={handleSelect} />}
+      {nav.view === 'tree' && <TreeView onSelect={handleSelect} />}
       {nav.view === 'detail' && (
         <DetailView deptId={nav.selectedId} onBack={handleBack} />
       )}

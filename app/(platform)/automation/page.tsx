@@ -1,12 +1,23 @@
-﻿
-'use client';
+﻿'use client';
 // src/app/(dashboard)/automation/page.tsx
 
 import { useState } from 'react';
 import {
-  Zap, Play, Pause, Copy, Trash2, Plus, RefreshCw,
-  CheckCircle, AlertTriangle, Clock, BarChart2, BookOpen,
-  ChevronRight, Activity, Settings,
+  Zap,
+  Play,
+  Pause,
+  Copy,
+  Trash2,
+  Plus,
+  RefreshCw,
+  CheckCircle,
+  AlertTriangle,
+  Clock,
+  BarChart2,
+  BookOpen,
+  ChevronRight,
+  Activity,
+  Settings,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
@@ -14,6 +25,7 @@ import { useConfirm } from '@/providers/ConfirmProvider';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
+import { Skeleton as SharedSkeleton } from '@/components/ui/Skeleton';
 
 type Tab = 'rules' | 'executions' | 'templates' | 'stats';
 
@@ -81,33 +93,39 @@ interface AutomationStats {
 }
 
 const CATEGORY_COLOR: Record<string, string> = {
-  HR:          'bg-violet-100 text-violet-700',
-  LMS:         'bg-blue-100 text-blue-700',
+  HR: 'bg-violet-100 text-violet-700',
+  LMS: 'bg-blue-100 text-blue-700',
   PERFORMANCE: 'bg-amber-100 text-amber-700',
-  ENGAGEMENT:  'bg-pink-100 text-pink-700',
-  GAMIFICATION:'bg-yellow-100 text-yellow-700',
+  ENGAGEMENT: 'bg-pink-100 text-pink-700',
+  GAMIFICATION: 'bg-yellow-100 text-yellow-700',
   OPERATIONAL: 'bg-slate-100 text-slate-600',
-  CUSTOM:      'bg-teal-100 text-teal-700',
+  CUSTOM: 'bg-teal-100 text-teal-700',
 };
 
 const TRIGGER_LABEL: Record<string, string> = {
-  'employee.created':       '👤 Novo Colaborador',
-  'employee.deactivated':   '🚪 Colaborador Desactivado',
-  'course.completed':       '📚 Curso Concluído',
-  'pdi.approved':           '✅ PDI Aprovado',
-  'evaluation.submitted':   '⭐ Avaliação Submetida',
-  'badge.awarded':          '🏅 Badge Atribuído',
-  'cron.daily':             '🗓️ Diário',
-  'cron.weekly':            '📅 Semanal',
-  'cron.monthly':           '📆 Mensal',
-  'BIRTHDAY_TODAY':         '🎂 Aniversário',
-  'ENROLLMENT_EXPIRING':    '⏰ Formação Pendente',
-  'PAYSLIP_DUE':            '💰 Recibos Pendentes',
-  'manual':                 '▶️ Manual',
+  'employee.created': '👤 Novo Colaborador',
+  'employee.deactivated': '🚪 Colaborador Desactivado',
+  'course.completed': '📚 Curso Concluído',
+  'pdi.approved': '✅ PDI Aprovado',
+  'evaluation.submitted': '⭐ Avaliação Submetida',
+  'badge.awarded': '🏅 Badge Atribuído',
+  'cron.daily': '🗓️ Diário',
+  'cron.weekly': '📅 Semanal',
+  'cron.monthly': '📆 Mensal',
+  BIRTHDAY_TODAY: '🎂 Aniversário',
+  ENROLLMENT_EXPIRING: '⏰ Formação Pendente',
+  PAYSLIP_DUE: '💰 Recibos Pendentes',
+  manual: '▶️ Manual',
 };
 
 function Skeleton({ count = 3 }: { count?: number }) {
-  return <div className="space-y-3 animate-pulse">{[...Array(count)].map((_, i) => <div key={i} className="bg-slate-100 rounded-xl h-16" />)}</div>;
+  return (
+    <SharedSkeleton
+      rows={count}
+      wrapperClassName="space-y-3 animate-pulse"
+      itemClassName="bg-slate-100 rounded-xl h-16"
+    />
+  );
 }
 
 // ─── Rules Tab ────────────────────────────────────────────────────
@@ -115,45 +133,95 @@ function Skeleton({ count = 3 }: { count?: number }) {
 function RulesTab() {
   const [running, setRunning] = useState(false);
 
-  const { data: rules = [], isLoading: loading, refetch } = useApiQuery<AutomationRule[]>(
-    queryKeys.automation.rules(), '/automation/rules', { staleTime: STALE_TIME.DYNAMIC },
+  const {
+    data: rules = [],
+    isLoading: loading,
+    refetch,
+  } = useApiQuery<AutomationRule[]>(
+    queryKeys.automation.rules(),
+    '/automation/rules',
+    { staleTime: STALE_TIME.DYNAMIC },
   );
-  const load = () => { void refetch(); };
+  const load = () => {
+    void refetch();
+  };
 
-  const toggle = async (id: number) => { await apiClient.patch(`/automation/rules/${id}/toggle`, {}); load(); };
-  const clone  = async (id: number) => { await apiClient.post(`/automation/rules/${id}/clone`, {}); load(); };
+  const toggle = async (id: number) => {
+    await apiClient.patch(`/automation/rules/${id}/toggle`, {});
+    load();
+  };
+  const clone = async (id: number) => {
+    await apiClient.post(`/automation/rules/${id}/clone`, {});
+    load();
+  };
   const confirm = useConfirm();
-  const remove = async (id: number) => { if (await confirm({ title: 'Remover regra?', confirmLabel: 'Remover', destructive: true })) { await apiClient.delete(`/automation/rules/${id}`); load(); } };
-  const runAll = async () => { setRunning(true); const r = await apiClient.post<RunAllResponse>('/automation/run', {}); setRunning(false); alert(`Executadas: ${r.executed} regras`); };
+  const remove = async (id: number) => {
+    if (
+      await confirm({
+        title: 'Remover regra?',
+        confirmLabel: 'Remover',
+        destructive: true,
+      })
+    ) {
+      await apiClient.delete(`/automation/rules/${id}`);
+      load();
+    }
+  };
+  const runAll = async () => {
+    setRunning(true);
+    const r = await apiClient.post<RunAllResponse>('/automation/run', {});
+    setRunning(false);
+    alert(`Executadas: ${r.executed} regras`);
+  };
 
   if (loading) return <Skeleton />;
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <span className="text-sm text-slate-500">{rules.length} regra(s) · {rules.filter(r => r.active).length} activas</span>
+        <span className="text-sm text-slate-500">
+          {rules.length} regra(s) · {rules.filter((r) => r.active).length}{' '}
+          activas
+        </span>
         <div className="flex gap-2">
-          <button onClick={runAll} disabled={running}
-            className="flex items-center gap-1 text-xs px-3 py-2 border border-slate-200 text-slate-600 rounded-lg hover:bg-slate-50 disabled:opacity-60">
-            {running ? <RefreshCw size={12} className="animate-spin" /> : <Play size={12} />}
+          <button
+            onClick={runAll}
+            disabled={running}
+            className="flex items-center gap-1 text-xs px-3 py-2 border border-slate-200 text-slate-600 rounded-lg hover:bg-slate-50 disabled:opacity-60"
+          >
+            {running ? (
+              <RefreshCw size={12} className="animate-spin" />
+            ) : (
+              <Play size={12} />
+            )}
             Executar Todas
           </button>
           <button className="flex items-center gap-1 text-xs px-3 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
-            <Plus size={12} />Nova Regra
+            <Plus size={12} />
+            Nova Regra
           </button>
         </div>
       </div>
 
       <div className="space-y-2">
-        {rules.map(r => (
-          <div key={r.id} className={`bg-white rounded-xl border p-4 ${r.active ? 'border-slate-100' : 'border-slate-100 opacity-60'}`}>
+        {rules.map((r) => (
+          <div
+            key={r.id}
+            className={`bg-white rounded-xl border p-4 ${r.active ? 'border-slate-100' : 'border-slate-100 opacity-60'}`}
+          >
             <div className="flex items-start gap-3">
-              <div className={`w-2.5 h-2.5 rounded-full shrink-0 mt-1.5 ${r.active ? 'bg-emerald-500' : 'bg-slate-300'}`} />
+              <div
+                className={`w-2.5 h-2.5 rounded-full shrink-0 mt-1.5 ${r.active ? 'bg-emerald-500' : 'bg-slate-300'}`}
+              />
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap mb-1">
-                  <p className="text-sm font-semibold text-slate-800">{r.name}</p>
+                  <p className="text-sm font-semibold text-slate-800">
+                    {r.name}
+                  </p>
                   {r.category && (
-                    <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-medium ${CATEGORY_COLOR[r.category] ?? CATEGORY_COLOR.CUSTOM}`}>
+                    <span
+                      className={`text-[9px] px-1.5 py-0.5 rounded-full font-medium ${CATEGORY_COLOR[r.category] ?? CATEGORY_COLOR.CUSTOM}`}
+                    >
                       {r.category}
                     </span>
                   )}
@@ -165,21 +233,41 @@ function RulesTab() {
                 </div>
                 {r.stats && (
                   <div className="flex gap-3 mt-1 text-[10px]">
-                    <span className="text-slate-400">{r.stats.total} execuções</span>
-                    <span className="text-emerald-600">{r.stats.success} ✅</span>
-                    {r.stats.failed > 0 && <span className="text-red-500">{r.stats.failed} ❌</span>}
-                    <span className="text-indigo-500 font-semibold">{r.stats.successRate}% ok</span>
+                    <span className="text-slate-400">
+                      {r.stats.total} execuções
+                    </span>
+                    <span className="text-emerald-600">
+                      {r.stats.success} ✅
+                    </span>
+                    {r.stats.failed > 0 && (
+                      <span className="text-red-500">{r.stats.failed} ❌</span>
+                    )}
+                    <span className="text-indigo-500 font-semibold">
+                      {r.stats.successRate}% ok
+                    </span>
                   </div>
                 )}
               </div>
               <div className="flex gap-1 shrink-0">
-                <button onClick={() => toggle(r.id)} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400" title="Toggle">
+                <button
+                  onClick={() => toggle(r.id)}
+                  className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400"
+                  title="Toggle"
+                >
                   {r.active ? <Pause size={13} /> : <Play size={13} />}
                 </button>
-                <button onClick={() => clone(r.id)} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400" title="Clonar">
+                <button
+                  onClick={() => clone(r.id)}
+                  className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400"
+                  title="Clonar"
+                >
                   <Copy size={13} />
                 </button>
-                <button onClick={() => remove(r.id)} className="p-1.5 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500" title="Remover">
+                <button
+                  onClick={() => remove(r.id)}
+                  className="p-1.5 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500"
+                  title="Remover"
+                >
                   <Trash2 size={13} />
                 </button>
               </div>
@@ -189,7 +277,9 @@ function RulesTab() {
         {rules.length === 0 && (
           <div className="py-16 text-center bg-white rounded-xl border border-slate-100 text-slate-400">
             <Zap size={36} className="mx-auto mb-2 opacity-30" />
-            <p className="text-sm">Sem automações — usa os templates para começar</p>
+            <p className="text-sm">
+              Sem automações — usa os templates para começar
+            </p>
           </div>
         )}
       </div>
@@ -202,13 +292,14 @@ function RulesTab() {
 function ExecutionsTab() {
   const [status, setStatus] = useState('');
   const { data, isLoading: loading } = useApiQuery<ExecutionsResponse>(
-    queryKeys.automation.executions(status), '/automation/executions',
+    queryKeys.automation.executions(status),
+    '/automation/executions',
     { params: { status: status || undefined }, staleTime: STALE_TIME.DYNAMIC },
   );
 
   const STATUS_COLOR: Record<string, string> = {
     SUCCESS: 'bg-emerald-100 text-emerald-700',
-    FAILED:  'bg-red-100 text-red-700',
+    FAILED: 'bg-red-100 text-red-700',
     RUNNING: 'bg-blue-100 text-blue-700',
     PENDING: 'bg-amber-100 text-amber-700',
     SKIPPED: 'bg-slate-100 text-slate-500',
@@ -219,33 +310,55 @@ function ExecutionsTab() {
   return (
     <div className="space-y-4">
       <div className="flex gap-2">
-        {['', 'SUCCESS', 'FAILED', 'PENDING'].map(s => (
-          <button key={s} onClick={() => setStatus(s)}
-            className={`text-xs px-3 py-1.5 rounded-lg ${status === s ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-600'}`}>
+        {['', 'SUCCESS', 'FAILED', 'PENDING'].map((s) => (
+          <button
+            key={s}
+            onClick={() => setStatus(s)}
+            className={`text-xs px-3 py-1.5 rounded-lg ${status === s ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-600'}`}
+          >
             {s || 'Todas'}
           </button>
         ))}
-        <span className="ml-auto text-xs text-slate-400 self-center">{data?.meta?.total ?? 0} execuções</span>
+        <span className="ml-auto text-xs text-slate-400 self-center">
+          {data?.meta?.total ?? 0} execuções
+        </span>
       </div>
 
       <div className="bg-white rounded-xl border border-slate-100">
         <div className="divide-y divide-slate-50 max-h-[500px] overflow-y-auto">
           {(data?.data ?? []).map((e, i) => (
-            <div key={i} className="flex items-center gap-3 px-4 py-3 hover:bg-slate-50">
-              <div className={`w-2 h-2 rounded-full shrink-0 ${e.status === 'SUCCESS' ? 'bg-emerald-500' : e.status === 'FAILED' ? 'bg-red-500' : 'bg-amber-400'}`} />
+            <div
+              key={i}
+              className="flex items-center gap-3 px-4 py-3 hover:bg-slate-50"
+            >
+              <div
+                className={`w-2 h-2 rounded-full shrink-0 ${e.status === 'SUCCESS' ? 'bg-emerald-500' : e.status === 'FAILED' ? 'bg-red-500' : 'bg-amber-400'}`}
+              />
               <div className="flex-1 min-w-0">
-                <p className="text-xs font-medium text-slate-700">Rule #{e.ruleId}</p>
-                {e.error && <p className="text-[10px] text-red-500 truncate">{e.error}</p>}
+                <p className="text-xs font-medium text-slate-700">
+                  Rule #{e.ruleId}
+                </p>
+                {e.error && (
+                  <p className="text-[10px] text-red-500 truncate">{e.error}</p>
+                )}
               </div>
-              <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-medium ${STATUS_COLOR[e.status] ?? STATUS_COLOR.PENDING}`}>
+              <span
+                className={`text-[9px] px-1.5 py-0.5 rounded-full font-medium ${STATUS_COLOR[e.status] ?? STATUS_COLOR.PENDING}`}
+              >
                 {e.status}
               </span>
               <span className="text-[10px] text-slate-400 shrink-0">
                 {e.startedAt ? new Date(e.startedAt).toLocaleString('pt') : '–'}
               </span>
               {e.status === 'FAILED' && (
-                <button onClick={() => { void apiClient.post(`/automation/executions/${e.id}/rerun`, {}).catch(() => {}); }}
-                  className="text-[10px] px-2 py-1 border border-slate-200 text-slate-600 rounded-lg hover:bg-slate-50 shrink-0">
+                <button
+                  onClick={() => {
+                    void apiClient
+                      .post(`/automation/executions/${e.id}/rerun`, {})
+                      .catch(() => {});
+                  }}
+                  className="text-[10px] px-2 py-1 border border-slate-200 text-slate-600 rounded-lg hover:bg-slate-50 shrink-0"
+                >
                   Retry
                 </button>
               )}
@@ -266,14 +379,18 @@ function ExecutionsTab() {
 // ─── Templates Tab ────────────────────────────────────────────────
 
 function TemplatesTab() {
-  const [applying, setApplying]   = useState<number | null>(null);
-  const { data: templates = [], isLoading: loading } = useApiQuery<AutomationTemplate[]>(
-    queryKeys.automation.templates(), '/automation/templates', { staleTime: STALE_TIME.STATIC },
-  );
+  const [applying, setApplying] = useState<number | null>(null);
+  const { data: templates = [], isLoading: loading } = useApiQuery<
+    AutomationTemplate[]
+  >(queryKeys.automation.templates(), '/automation/templates', {
+    staleTime: STALE_TIME.STATIC,
+  });
 
   const apply = async (index: number) => {
     setApplying(index);
-    const r = await apiClient.post<ApplyTemplateResponse>(`/automation/templates/${index}/apply`, {}).catch(() => null);
+    const r = await apiClient
+      .post<ApplyTemplateResponse>(`/automation/templates/${index}/apply`, {})
+      .catch(() => null);
     setApplying(null);
     if (r) alert(r.message ?? 'Template aplicado!');
   };
@@ -283,14 +400,21 @@ function TemplatesTab() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       {templates.map((t, i) => (
-        <div key={i} className="bg-white rounded-xl border border-slate-100 p-4">
+        <div
+          key={i}
+          className="bg-white rounded-xl border border-slate-100 p-4"
+        >
           <div className="flex items-start justify-between mb-2">
             <div>
               <p className="text-sm font-semibold text-slate-800">{t.name}</p>
-              {t.description && <p className="text-xs text-slate-400 mt-0.5">{t.description}</p>}
+              {t.description && (
+                <p className="text-xs text-slate-400 mt-0.5">{t.description}</p>
+              )}
             </div>
             {t.category && (
-              <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-medium shrink-0 ml-2 ${CATEGORY_COLOR[t.category] ?? CATEGORY_COLOR.CUSTOM}`}>
+              <span
+                className={`text-[9px] px-1.5 py-0.5 rounded-full font-medium shrink-0 ml-2 ${CATEGORY_COLOR[t.category] ?? CATEGORY_COLOR.CUSTOM}`}
+              >
                 {t.category}
               </span>
             )}
@@ -300,8 +424,11 @@ function TemplatesTab() {
             <span>→</span>
             <span className="font-mono">{t.action}</span>
           </div>
-          <button onClick={() => apply(i)} disabled={applying === i}
-            className="w-full text-xs py-1.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-60">
+          <button
+            onClick={() => apply(i)}
+            disabled={applying === i}
+            className="w-full text-xs py-1.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-60"
+          >
             {applying === i ? 'A aplicar…' : 'Aplicar Template'}
           </button>
         </div>
@@ -314,7 +441,9 @@ function TemplatesTab() {
 
 function StatsTab() {
   const { data, isLoading: loading } = useApiQuery<AutomationStats>(
-    queryKeys.automation.stats(), '/automation/stats', { staleTime: STALE_TIME.DYNAMIC },
+    queryKeys.automation.stats(),
+    '/automation/stats',
+    { staleTime: STALE_TIME.DYNAMIC },
   );
   if (loading) return <Skeleton />;
   const e = data?.executions ?? {};
@@ -324,12 +453,34 @@ function StatsTab() {
     <div className="space-y-5">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { label: 'Regras Activas',  value: r.active ?? 0,       color: 'text-indigo-600' },
-          { label: 'Total Execuções', value: e.total ?? 0,        color: 'text-slate-800' },
-          { label: 'Taxa de Sucesso', value: `${e.successRate ?? 0}%`, color: (e.successRate ?? 0) >= 90 ? 'text-emerald-600' : 'text-amber-600' },
-          { label: 'Falhas',          value: e.failed ?? 0,       color: (e.failed ?? 0) > 0 ? 'text-red-600' : 'text-emerald-600' },
-        ].map(k => (
-          <div key={k.label} className="bg-white rounded-xl border border-slate-100 p-4">
+          {
+            label: 'Regras Activas',
+            value: r.active ?? 0,
+            color: 'text-indigo-600',
+          },
+          {
+            label: 'Total Execuções',
+            value: e.total ?? 0,
+            color: 'text-slate-800',
+          },
+          {
+            label: 'Taxa de Sucesso',
+            value: `${e.successRate ?? 0}%`,
+            color:
+              (e.successRate ?? 0) >= 90
+                ? 'text-emerald-600'
+                : 'text-amber-600',
+          },
+          {
+            label: 'Falhas',
+            value: e.failed ?? 0,
+            color: (e.failed ?? 0) > 0 ? 'text-red-600' : 'text-emerald-600',
+          },
+        ].map((k) => (
+          <div
+            key={k.label}
+            className="bg-white rounded-xl border border-slate-100 p-4"
+          >
             <p className={`text-2xl font-bold ${k.color}`}>{k.value}</p>
             <p className="text-xs text-slate-500">{k.label}</p>
           </div>
@@ -340,15 +491,24 @@ function StatsTab() {
         <div className="bg-white rounded-xl border border-slate-100 p-5">
           <h4 className="font-semibold text-slate-700 mb-4">Por Categoria</h4>
           {(data?.byCategory ?? []).map((c, i) => {
-            const max = Math.max(...(data?.byCategory ?? []).map(x => x.count));
+            const max = Math.max(
+              ...(data?.byCategory ?? []).map((x) => x.count),
+            );
             return (
               <div key={i} className="mb-2">
                 <div className="flex justify-between text-xs mb-0.5">
-                  <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium ${CATEGORY_COLOR[c.category] ?? CATEGORY_COLOR.CUSTOM}`}>{c.category}</span>
+                  <span
+                    className={`px-1.5 py-0.5 rounded text-[10px] font-medium ${CATEGORY_COLOR[c.category] ?? CATEGORY_COLOR.CUSTOM}`}
+                  >
+                    {c.category}
+                  </span>
                   <span className="font-bold text-slate-700">{c.count}</span>
                 </div>
                 <div className="w-full h-1.5 bg-slate-100 rounded-full">
-                  <div className="h-1.5 bg-indigo-400 rounded-full" style={{ width: `${(c.count / max) * 100}%` }} />
+                  <div
+                    className="h-1.5 bg-indigo-400 rounded-full"
+                    style={{ width: `${(c.count / max) * 100}%` }}
+                  />
                 </div>
               </div>
             );
@@ -359,10 +519,14 @@ function StatsTab() {
       {(data?.recentFails ?? []).length > 0 && (
         <div className="bg-red-50 border border-red-200 rounded-xl p-4">
           <h4 className="font-semibold text-red-700 mb-2 flex items-center gap-2">
-            <AlertTriangle size={14} />Falhas Recentes
+            <AlertTriangle size={14} />
+            Falhas Recentes
           </h4>
           {(data?.recentFails ?? []).map((f, i) => (
-            <div key={i} className="text-xs text-red-700 py-1 border-b border-red-100 last:border-0">
+            <div
+              key={i}
+              className="text-xs text-red-700 py-1 border-b border-red-100 last:border-0"
+            >
               Rule #{f.ruleId} — {f.error ?? 'Erro desconhecido'}
             </div>
           ))}
@@ -375,20 +539,20 @@ function StatsTab() {
 // ─── Main Page ───────────────────────────────────────────────────
 
 const TABS: { id: Tab; label: string; icon: LucideIcon }[] = [
-  { id: 'rules',      label: 'Automações',  icon: Zap },
-  { id: 'executions', label: 'Execuções',   icon: Activity },
-  { id: 'templates',  label: 'Templates',   icon: BookOpen },
-  { id: 'stats',      label: 'Analytics',   icon: BarChart2 },
+  { id: 'rules', label: 'Automações', icon: Zap },
+  { id: 'executions', label: 'Execuções', icon: Activity },
+  { id: 'templates', label: 'Templates', icon: BookOpen },
+  { id: 'stats', label: 'Analytics', icon: BarChart2 },
 ];
 
 export default function AutomationPage() {
   const [tab, setTab] = useState<Tab>('rules');
 
   const PANELS: Record<Tab, JSX.Element> = {
-    rules:      <RulesTab />,
+    rules: <RulesTab />,
     executions: <ExecutionsTab />,
-    templates:  <TemplatesTab />,
-    stats:      <StatsTab />,
+    templates: <TemplatesTab />,
+    stats: <StatsTab />,
   };
 
   return (
@@ -396,46 +560,40 @@ export default function AutomationPage() {
       <div className="bg-white border-b border-slate-200 px-6 py-5">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center gap-2 mb-1">
-            <div className="p-1.5 bg-amber-100 rounded-lg"><Zap size={18} className="text-amber-600" /></div>
+            <div className="p-1.5 bg-amber-100 rounded-lg">
+              <Zap size={18} className="text-amber-600" />
+            </div>
             <h1 className="text-xl font-bold text-slate-800">Automation</h1>
           </div>
-          <p className="text-sm text-slate-400">Regras · Triggers · Execuções · Templates · Analytics</p>
+          <p className="text-sm text-slate-400">
+            Regras · Triggers · Execuções · Templates · Analytics
+          </p>
         </div>
       </div>
 
       <div className="bg-white border-b border-slate-200 px-6">
         <div className="max-w-7xl mx-auto flex overflow-x-auto">
-          {TABS.map(t => {
+          {TABS.map((t) => {
             const Icon = t.icon;
             return (
-              <button key={t.id} onClick={() => setTab(t.id)}
+              <button
+                key={t.id}
+                onClick={() => setTab(t.id)}
                 className={`flex items-center gap-2 px-5 py-4 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
-                  tab === t.id ? 'border-amber-600 text-amber-700' : 'border-transparent text-slate-500 hover:text-slate-700'}`}>
-                <Icon size={15} />{t.label}
+                  tab === t.id
+                    ? 'border-amber-600 text-amber-700'
+                    : 'border-transparent text-slate-500 hover:text-slate-700'
+                }`}
+              >
+                <Icon size={15} />
+                {t.label}
               </button>
             );
           })}
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 py-6">
-        {PANELS[tab]}
-      </div>
+      <div className="max-w-7xl mx-auto px-6 py-6">{PANELS[tab]}</div>
     </div>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
