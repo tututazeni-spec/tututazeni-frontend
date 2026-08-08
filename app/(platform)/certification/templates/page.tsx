@@ -4,7 +4,6 @@ import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { usePageTitle } from '@/hooks/usePageTitle';
 
 interface Template {
   id: string;
@@ -38,8 +37,6 @@ interface CreateTemplatePayload {
 }
 
 export default function CertificateTemplatesPage() {
-  usePageTitle('Templates Certificado');
-
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({
     name: '',

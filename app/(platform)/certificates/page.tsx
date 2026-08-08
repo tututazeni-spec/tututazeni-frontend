@@ -2,7 +2,6 @@
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { usePageTitle } from '@/hooks/usePageTitle';
 
 interface Certificate {
   id: string;
@@ -15,8 +14,6 @@ interface Certificate {
 }
 
 export default function MyCertificatesPage() {
-  usePageTitle('Certificados');
-
   const {
     data: resp,
     isLoading: loading,

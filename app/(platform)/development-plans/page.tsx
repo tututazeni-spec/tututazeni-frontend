@@ -8,7 +8,6 @@ import { queryKeys } from '../../../lib/queryKeys';
 import { STALE_TIME } from '../../../lib/queryClient';
 import Image from 'next/image';
 import { Skeleton as SharedSkeleton } from '@/components/ui/Skeleton';
-import { usePageTitle } from '@/hooks/usePageTitle';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -917,8 +916,6 @@ type Nav =
   { view: Exclude<View, 'detail'> } | { view: 'detail'; selectedId: number };
 
 export default function DevelopmentPlansPage() {
-  usePageTitle('Planos de Desenvolvimento');
-
   const [nav, setNav] = useState<Nav>({ view: 'my-plans' });
 
   const handleSelect = (id: number) =>

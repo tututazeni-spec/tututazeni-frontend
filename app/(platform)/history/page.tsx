@@ -28,7 +28,6 @@ import { STALE_TIME } from '@/lib/queryClient';
 import Image from 'next/image';
 import type { LucideIcon } from 'lucide-react';
 import { Skeleton as SharedSkeleton } from '@/components/ui/Skeleton';
-import { usePageTitle } from '@/hooks/usePageTitle';
 
 // ─── Types ───────────────────────────────────────────────────────
 
@@ -803,8 +802,6 @@ const TABS: { id: Tab; label: string; icon: LucideIcon }[] = [
 ];
 
 export default function HistoryPage() {
-  usePageTitle('Histórico');
-
   const [tab, setTab] = useState<Tab>('timeline');
 
   const PANELS: Record<Tab, JSX.Element> = {

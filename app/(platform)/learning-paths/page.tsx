@@ -9,7 +9,6 @@ import { STALE_TIME } from '../../../lib/queryClient';
 import { useDebounce } from '../../../hooks/useDebounce';
 import Image from 'next/image';
 import { Skeleton as SharedSkeleton } from '@/components/ui/Skeleton';
-import { usePageTitle } from '@/hooks/usePageTitle';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -1047,8 +1046,6 @@ type Nav =
   { view: Exclude<View, 'detail'> } | { view: 'detail'; selectedId: number };
 
 export default function LearningPathsPage() {
-  usePageTitle('Percursos de Aprendizagem');
-
   const [nav, setNav] = useState<Nav>({ view: 'catalog' });
 
   const handleSelect = (id: number) =>

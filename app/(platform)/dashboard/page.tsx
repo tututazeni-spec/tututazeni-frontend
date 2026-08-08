@@ -34,7 +34,6 @@ import { STALE_TIME } from '@/lib/queryClient';
 import Image from 'next/image';
 import type { LucideIcon } from 'lucide-react';
 import { Skeleton as SharedSkeleton } from '@/components/ui/Skeleton';
-import { usePageTitle } from '@/hooks/usePageTitle';
 
 // ─── Types ───────────────────────────────────────────────────────
 
@@ -1243,8 +1242,6 @@ const TABS = [
 ];
 
 export default function DashboardPage() {
-  usePageTitle('Dashboard');
-
   const [tab, setTab] = useState('personal');
   const [showSearch, setShowSearch] = useState(false);
   const { data: currentUser } = useCurrentUser();

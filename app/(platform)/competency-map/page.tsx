@@ -32,7 +32,6 @@ import { apiClient } from '../../../lib/apiClient';
 import { queryKeys } from '../../../lib/queryKeys';
 import { STALE_TIME } from '../../../lib/queryClient';
 import type { LucideIcon } from 'lucide-react';
-import { usePageTitle } from '@/hooks/usePageTitle';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -479,8 +478,6 @@ function SkillBar({
 type TabKey = 'my' | 'gap' | 'team' | 'catalogue';
 
 export default function CompetencyMapPage() {
-  usePageTitle('Mapa de Competências');
-
   const [tab, setTab] = useState<TabKey>('my');
   const [showAssess, setShowAssess] = useState(false);
 

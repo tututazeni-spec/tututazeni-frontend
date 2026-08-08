@@ -30,7 +30,6 @@ import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Skeleton as SharedSkeleton } from '@/components/ui/Skeleton';
-import { usePageTitle } from '@/hooks/usePageTitle';
 
 // ─── Types ───────────────────────────────────────────────────────
 
@@ -697,8 +696,6 @@ const TABS: { id: Tab; label: string; icon: LucideIcon }[] = [
 ];
 
 export default function ReportsPage() {
-  usePageTitle('Relatórios');
-
   const [tab, setTab] = useState<Tab>('hub');
   const [activeTemplate, setActiveTemplate] = useState<Template | null>(null);
 

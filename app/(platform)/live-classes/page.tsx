@@ -10,7 +10,6 @@ import { apiClient } from '../../../lib/apiClient';
 import { queryKeys } from '../../../lib/queryKeys';
 import { STALE_TIME } from '../../../lib/queryClient';
 import { useConfirm } from '../../../providers/ConfirmProvider';
-import { usePageTitle } from '@/hooks/usePageTitle';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -411,8 +410,6 @@ interface Filters {
 const INITIAL_FILTERS: Filters = { page: 1, courseId: '' };
 
 export default function LivePage() {
-  usePageTitle('Aulas ao Vivo');
-
   const router = useRouter();
   const [tab, setTab] = useState<MainTab>('live');
   const [filters, setFilters] = useState<Filters>(INITIAL_FILTERS);

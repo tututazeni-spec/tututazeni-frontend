@@ -8,7 +8,6 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { sanitizeHtml } from '@/lib/sanitize';
 import { Skeleton as SharedSkeleton } from '@/components/ui/Skeleton';
-import { usePageTitle } from '@/hooks/usePageTitle';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -850,8 +849,6 @@ const TITLES: Record<View, string> = {
 };
 
 export default function AiTutorPage() {
-  usePageTitle('Tutor de IA');
-
   const [view, setView] = useState<View>('chat');
 
   return (

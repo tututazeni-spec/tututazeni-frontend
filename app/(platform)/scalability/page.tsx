@@ -6,7 +6,6 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { usePageTitle } from '@/hooks/usePageTitle';
 
 // ─── TYPES ──────────────────────────────────────────────────
 type AlertSeverity = 'CRITICAL' | 'WARNING' | 'INFO';
@@ -1782,8 +1781,6 @@ function FilterChip({ label, active }: { label: string; active?: boolean }) {
 // ─── MAIN PAGE ────────────────────────────────────────────
 
 export default function ScalabilityPage() {
-  usePageTitle('Escalabilidade');
-
   const [activeTab, setActiveTab] = useState('overview');
   const [dashboard, setDashboard] = useState<DashboardData>(MOCK_DASHBOARD);
   const [alerts, setAlerts] = useState<Alert[]>(MOCK_ALERTS);

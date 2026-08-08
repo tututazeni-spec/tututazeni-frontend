@@ -9,7 +9,6 @@ import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Skeleton as SharedSkeleton } from '@/components/ui/Skeleton';
-import { usePageTitle } from '@/hooks/usePageTitle';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -954,8 +953,6 @@ type Nav =
   { view: Exclude<View, 'detail'> } | { view: 'detail'; selectedId: number };
 
 export default function DepartmentsPage() {
-  usePageTitle('Departamentos');
-
   const [nav, setNav] = useState<Nav>({ view: 'list' });
 
   const handleSelect = (id: number) =>

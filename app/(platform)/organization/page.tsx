@@ -9,7 +9,6 @@ import { STALE_TIME } from '../../../lib/queryClient';
 import { useDebounce } from '../../../hooks/useDebounce';
 import Image from 'next/image';
 import { Skeleton as SharedSkeleton } from '@/components/ui/Skeleton';
-import { usePageTitle } from '@/hooks/usePageTitle';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -884,8 +883,6 @@ const TITLES: Record<View, string> = {
 };
 
 export default function OrganizationPage() {
-  usePageTitle('Organograma');
-
   const [view, setView] = useState<View>('dashboard');
 
   return (

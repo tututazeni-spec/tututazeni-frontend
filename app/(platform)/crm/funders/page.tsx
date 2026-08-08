@@ -6,7 +6,6 @@ import { useApiQuery } from '@/hooks/useApiQuery';
 import { useDebounce } from '@/hooks/useDebounce';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { usePageTitle } from '@/hooks/usePageTitle';
 
 interface Funder {
   id: string;
@@ -38,8 +37,6 @@ const TYPE_LABELS: Record<string, string> = {
 };
 
 export default function FundersPage() {
-  usePageTitle('Financiadores');
-
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState('');

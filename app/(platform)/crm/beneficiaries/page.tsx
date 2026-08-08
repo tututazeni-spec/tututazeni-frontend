@@ -6,7 +6,6 @@ import { useApiQuery } from '../../../../hooks/useApiQuery';
 import { useDebounce } from '../../../../hooks/useDebounce';
 import { queryKeys } from '../../../../lib/queryKeys';
 import { STALE_TIME } from '../../../../lib/queryClient';
-import { usePageTitle } from '@/hooks/usePageTitle';
 
 interface Beneficiary {
   id: string;
@@ -37,8 +36,6 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 export default function BeneficiariesPage() {
-  usePageTitle('Beneficiários');
-
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');

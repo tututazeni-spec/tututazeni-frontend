@@ -23,7 +23,6 @@ import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Skeleton as SharedSkeleton } from '@/components/ui/Skeleton';
-import { usePageTitle } from '@/hooks/usePageTitle';
 
 type Tab = 'roles' | 'matrix' | 'simulator' | 'governance';
 
@@ -660,8 +659,6 @@ const TABS: { id: Tab; label: string; icon: LucideIcon }[] = [
 ];
 
 export default function RolesPermissionsPage() {
-  usePageTitle('Permissões por Cargos');
-
   const [tab, setTab] = useState<Tab>('roles');
 
   const PANELS: Record<Tab, JSX.Element> = {

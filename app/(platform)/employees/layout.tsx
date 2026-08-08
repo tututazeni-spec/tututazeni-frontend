@@ -1,3 +1,7 @@
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = { title: 'Colaborador' };
+
 // O shell (Sidebar+Topbar) já vem de app/(platform)/layout.tsx — envolver os
 // filhos noutro DashboardShell aqui montava tudo a dobrar (2x fetch de
 // /auth/me, Sidebar/Topbar duplicados) só nesta rota.

@@ -12,7 +12,6 @@ import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Skeleton as SharedSkeleton } from '@/components/ui/Skeleton';
-import { usePageTitle } from '@/hooks/usePageTitle';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -779,8 +778,6 @@ const TITLES: Record<View, string> = {
 };
 
 export default function NotificationsPage() {
-  usePageTitle('Notificações');
-
   const [view, setView] = useState<View>('inbox');
 
   // Badge de não lidas com polling (60s). Key partilhada com as mutações do inbox.
