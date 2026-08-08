@@ -10,6 +10,8 @@ import { STALE_TIME } from '../../../lib/queryClient';
 import { useDebounce } from '../../../hooks/useDebounce';
 import { Skeleton as SharedSkeleton } from '@/components/ui/Skeleton';
 import { formatDate as fmtDate } from '@/lib/format';
+import { StatusBadge } from '@/components/ui/StatusBadge';
+import type { StatusBadgeMap } from '@/lib/statusBadge';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -125,72 +127,35 @@ function isOverdue(deadline: string | null): boolean {
 
 // ─── Badge components ─────────────────────────────────────────────────────────
 
-function StatusBadge({ status }: { status: ProcessStatus }) {
-  const cfg: Record<ProcessStatus, { label: string; cls: string }> = {
-    DRAFT: { label: 'Rascunho', cls: 'bg-gray-100 text-gray-600' },
-    IN_REVIEW: { label: 'Em revisão', cls: 'bg-amber-50 text-amber-700' },
-    ACTIVE: { label: 'Activo', cls: 'bg-emerald-50 text-emerald-700' },
-    ARCHIVED: { label: 'Arquivado', cls: 'bg-gray-100 text-gray-400' },
-  };
-  const { label, cls } = cfg[status];
-  return (
-    <span
-      className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium ${cls}`}
-    >
-      <span className="w-1.5 h-1.5 rounded-full bg-current" />
-      {label}
-    </span>
-  );
-}
+const PROCESS_STATUS_MAP: StatusBadgeMap<ProcessStatus> = {
+  DRAFT: { label: 'Rascunho', cls: 'bg-gray-100 text-gray-600' },
+  IN_REVIEW: { label: 'Em revisão', cls: 'bg-amber-50 text-amber-700' },
+  ACTIVE: { label: 'Activo', cls: 'bg-emerald-50 text-emerald-700' },
+  ARCHIVED: { label: 'Arquivado', cls: 'bg-gray-100 text-gray-400' },
+};
 
-function RiskBadge({ level }: { level: RiskLevel }) {
-  const cfg: Record<RiskLevel, { label: string; cls: string }> = {
-    LOW: { label: 'Baixo', cls: 'bg-emerald-50 text-emerald-700' },
-    MEDIUM: { label: 'Médio', cls: 'bg-amber-50 text-amber-700' },
-    HIGH: { label: 'Alto', cls: 'bg-orange-50 text-orange-700' },
-    CRITICAL: { label: 'Crítico', cls: 'bg-red-50 text-red-700' },
-  };
-  const { label, cls } = cfg[level];
-  return (
-    <span className={`px-2 py-0.5 rounded text-xs font-medium ${cls}`}>
-      {label}
-    </span>
-  );
-}
+const RISK_LEVEL_MAP: StatusBadgeMap<RiskLevel> = {
+  LOW: { label: 'Baixo', cls: 'bg-emerald-50 text-emerald-700' },
+  MEDIUM: { label: 'Médio', cls: 'bg-amber-50 text-amber-700' },
+  HIGH: { label: 'Alto', cls: 'bg-orange-50 text-orange-700' },
+  CRITICAL: { label: 'Crítico', cls: 'bg-red-50 text-red-700' },
+};
 
-function InstanceStatusBadge({ status }: { status: InstanceStatus }) {
-  const cfg: Record<InstanceStatus, { label: string; cls: string }> = {
-    IN_PROGRESS: { label: 'Em progresso', cls: 'bg-blue-50 text-blue-700' },
-    COMPLETED: { label: 'Concluído', cls: 'bg-emerald-50 text-emerald-700' },
-    CANCELLED: { label: 'Cancelado', cls: 'bg-gray-100 text-gray-500' },
-    ON_HOLD: { label: 'Suspenso', cls: 'bg-amber-50 text-amber-700' },
-  };
-  const { label, cls } = cfg[status];
-  return (
-    <span
-      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${cls}`}
-    >
-      {label}
-    </span>
-  );
-}
+const INSTANCE_STATUS_MAP: StatusBadgeMap<InstanceStatus> = {
+  IN_PROGRESS: { label: 'Em progresso', cls: 'bg-blue-50 text-blue-700' },
+  COMPLETED: { label: 'Concluído', cls: 'bg-emerald-50 text-emerald-700' },
+  CANCELLED: { label: 'Cancelado', cls: 'bg-gray-100 text-gray-500' },
+  ON_HOLD: { label: 'Suspenso', cls: 'bg-amber-50 text-amber-700' },
+};
 
-function StepTypeBadge({ type }: { type: StepType }) {
-  const cfg: Record<StepType, { label: string; cls: string }> = {
-    START: { label: 'Início', cls: 'bg-emerald-100 text-emerald-800' },
-    END: { label: 'Fim', cls: 'bg-gray-100 text-gray-600' },
-    TASK: { label: 'Tarefa', cls: 'bg-blue-50 text-blue-700' },
-    DECISION: { label: 'Decisão', cls: 'bg-purple-50 text-purple-700' },
-    GATEWAY: { label: 'Gateway', cls: 'bg-amber-50 text-amber-700' },
-    REVIEW: { label: 'Revisão', cls: 'bg-orange-50 text-orange-700' },
-  };
-  const { label, cls } = cfg[type];
-  return (
-    <span className={`px-2 py-0.5 rounded text-xs font-medium ${cls}`}>
-      {label}
-    </span>
-  );
-}
+const STEP_TYPE_MAP: StatusBadgeMap<StepType> = {
+  START: { label: 'Início', cls: 'bg-emerald-100 text-emerald-800' },
+  END: { label: 'Fim', cls: 'bg-gray-100 text-gray-600' },
+  TASK: { label: 'Tarefa', cls: 'bg-blue-50 text-blue-700' },
+  DECISION: { label: 'Decisão', cls: 'bg-purple-50 text-purple-700' },
+  GATEWAY: { label: 'Gateway', cls: 'bg-amber-50 text-amber-700' },
+  REVIEW: { label: 'Revisão', cls: 'bg-orange-50 text-orange-700' },
+};
 
 function Skeleton({ rows = 5 }: { rows?: number }) {
   return (
@@ -339,10 +304,14 @@ function LibraryView({ onSelect }: { onSelect: (id: number) => void }) {
                 {p.department?.name ?? '—'}
               </div>
               <div>
-                <RiskBadge level={p.riskLevel} />
+                <StatusBadge value={p.riskLevel} map={RISK_LEVEL_MAP} />
               </div>
               <div>
-                <StatusBadge status={p.status} />
+                <StatusBadge
+                  value={p.status}
+                  map={PROCESS_STATUS_MAP}
+                  variant="dot"
+                />
               </div>
               <div className="text-sm text-gray-500">{p._count.instances}</div>
             </div>
@@ -508,8 +477,12 @@ function ProcessViewer({
               <span className="text-xs font-mono bg-gray-100 text-gray-600 px-2 py-0.5 rounded">
                 v{process.version}
               </span>
-              <StatusBadge status={process.status} />
-              <RiskBadge level={process.riskLevel} />
+              <StatusBadge
+                value={process.status}
+                map={PROCESS_STATUS_MAP}
+                variant="dot"
+              />
+              <StatusBadge value={process.riskLevel} map={RISK_LEVEL_MAP} />
             </div>
             <h2 className="text-lg font-semibold text-gray-900">
               {process.title}
@@ -672,7 +645,7 @@ function ProcessViewer({
                 <div className="flex items-start justify-between gap-3 flex-wrap">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
-                      <StepTypeBadge type={step.type} />
+                      <StatusBadge value={step.type} map={STEP_TYPE_MAP} />
                       <span className="text-sm font-medium text-gray-900">
                         {step.title}
                       </span>
@@ -919,8 +892,15 @@ function TaskRunner({
               <span className="font-mono text-sm text-gray-400">
                 {instance.process.code}
               </span>
-              <InstanceStatusBadge status={instance.status} />
-              <RiskBadge level={instance.process.riskLevel} />
+              <StatusBadge
+                value={instance.status}
+                map={INSTANCE_STATUS_MAP}
+                variant="pill"
+              />
+              <StatusBadge
+                value={instance.process.riskLevel}
+                map={RISK_LEVEL_MAP}
+              />
             </div>
             <div className="text-base font-semibold text-gray-900">
               {instance.process.title}
@@ -1020,7 +1000,7 @@ function TaskRunner({
           {activeStep && activeStep.status === 'PENDING' ? (
             <div className="bg-white border border-gray-200 rounded-xl p-5">
               <div className="flex items-center gap-2 mb-1">
-                <StepTypeBadge type={activeStep.step.type} />
+                <StatusBadge value={activeStep.step.type} map={STEP_TYPE_MAP} />
                 <span className="text-base font-semibold text-gray-900">
                   {activeStep.step.title}
                 </span>
@@ -1189,7 +1169,7 @@ function MyTasksView({
             {t.instance.targetUser.fullName}
           </div>
           <div>
-            <StepTypeBadge type={t.step.type} />
+            <StatusBadge value={t.step.type} map={STEP_TYPE_MAP} />
           </div>
           <div>
             {t.slaDeadline ? (
@@ -1326,8 +1306,15 @@ function DashboardView({
                     {inst.targetUser.fullName} · {fmtDate(inst.startedAt)}
                   </div>
                 </div>
-                <InstanceStatusBadge status={inst.status} />
-                <RiskBadge level={inst.process.riskLevel} />
+                <StatusBadge
+                  value={inst.status}
+                  map={INSTANCE_STATUS_MAP}
+                  variant="pill"
+                />
+                <StatusBadge
+                  value={inst.process.riskLevel}
+                  map={RISK_LEVEL_MAP}
+                />
               </div>
             ))}
           </div>

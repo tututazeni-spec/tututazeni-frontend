@@ -11,6 +11,8 @@ import { STALE_TIME } from '@/lib/queryClient';
 import Image from 'next/image';
 import { Skeleton as SharedSkeleton } from '@/components/ui/Skeleton';
 import { formatDateTime, getInitials as initials } from '@/lib/format';
+import { StatusBadge } from '@/components/ui/StatusBadge';
+import type { StatusBadgeMap } from '@/lib/statusBadge';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -171,16 +173,13 @@ const TYPE_CFG: Record<
   HYBRID: { label: 'Híbrido', icon: '🔀', cls: 'bg-amber-50 text-amber-700' },
 };
 
-const LEVEL_CFG: Record<TrainingLevel, { label: string; cls: string }> = {
+const LEVEL_CFG: StatusBadgeMap<TrainingLevel> = {
   BEGINNER: { label: 'Básico', cls: 'bg-emerald-50 text-emerald-700' },
   INTERMEDIATE: { label: 'Intermédio', cls: 'bg-amber-50 text-amber-700' },
   ADVANCED: { label: 'Avançado', cls: 'bg-red-50 text-red-700' },
 };
 
-const PARTICIPANT_CFG: Record<
-  ParticipantStatus,
-  { label: string; cls: string }
-> = {
+const PARTICIPANT_CFG: StatusBadgeMap<ParticipantStatus> = {
   WAITLIST: { label: 'Lista espera', cls: 'bg-gray-100 text-gray-500' },
   REGISTERED: { label: 'Inscrito', cls: 'bg-blue-50 text-blue-700' },
   ATTENDED: { label: 'Presente', cls: 'bg-emerald-50 text-emerald-700' },
@@ -217,7 +216,6 @@ function TrainingCard({
   onClick: () => void;
 }) {
   const typeCfg = TYPE_CFG[training.type];
-  const levelCfg = LEVEL_CFG[training.level];
 
   return (
     <div
@@ -277,9 +275,7 @@ function TrainingCard({
         )}
 
         <div className="flex items-center gap-2 mb-2 flex-wrap">
-          <span className={`text-xs px-2 py-0.5 rounded ${levelCfg.cls}`}>
-            {levelCfg.label}
-          </span>
+          <StatusBadge value={training.level} map={LEVEL_CFG} />
           <span className="text-xs text-gray-400">
             ⏱ {fmtHours(training.workloadHours)}
           </span>
@@ -478,7 +474,6 @@ function DetailView({
   if (loading || !training) return <Skeleton rows={6} />;
 
   const typeCfg = TYPE_CFG[training.type];
-  const levelCfg = LEVEL_CFG[training.level];
 
   return (
     <div>
@@ -507,9 +502,7 @@ function DetailView({
               >
                 {typeCfg.icon} {typeCfg.label}
               </span>
-              <span className={`text-xs px-2 py-0.5 rounded ${levelCfg.cls}`}>
-                {levelCfg.label}
-              </span>
+              <StatusBadge value={training.level} map={LEVEL_CFG} />
               {training.mandatory && (
                 <span className="bg-red-600 text-white text-xs px-2 py-0.5 rounded">
                   Obrigatório
@@ -756,7 +749,6 @@ function MyTrainingsView({ onSelect }: { onSelect: (id: number) => void }) {
         {filtered.map((entry) => {
           const training = entry.session?.training;
           if (!training) return null;
-          const statusCfg = PARTICIPANT_CFG[entry.status];
           return (
             <div
               key={entry.id}
@@ -796,11 +788,7 @@ function MyTrainingsView({ onSelect }: { onSelect: (id: number) => void }) {
                     <div className="text-xs text-gray-400">nota</div>
                   </div>
                 )}
-                <span
-                  className={`text-xs px-2 py-0.5 rounded font-medium ${statusCfg.cls}`}
-                >
-                  {statusCfg.label}
-                </span>
+                <StatusBadge value={entry.status} map={PARTICIPANT_CFG} />
               </div>
             </div>
           );

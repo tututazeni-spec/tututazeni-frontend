@@ -10,6 +10,8 @@ import { useDebounce } from '../../../hooks/useDebounce';
 import Image from 'next/image';
 import { Skeleton as SharedSkeleton } from '@/components/ui/Skeleton';
 import { formatDate as fmtDate } from '../../../lib/format';
+import { StatusBadge } from '../../../components/ui/StatusBadge';
+import type { StatusBadgeMap } from '../../../lib/statusBadge';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -154,36 +156,17 @@ function isOverdue(deadline: string | null): boolean {
 
 // ─── Badge components ─────────────────────────────────────────────────────────
 
-function StatusBadge({ status }: { status: LPStatus }) {
-  const cfg: Record<LPStatus, { label: string; cls: string }> = {
-    DRAFT: { label: 'Rascunho', cls: 'bg-gray-100 text-gray-500' },
-    PUBLISHED: { label: 'Publicado', cls: 'bg-emerald-50 text-emerald-700' },
-    ARCHIVED: { label: 'Arquivado', cls: 'bg-gray-100 text-gray-400' },
-  };
-  const { label, cls } = cfg[status];
-  return (
-    <span
-      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${cls}`}
-    >
-      <span className="w-1.5 h-1.5 rounded-full bg-current" />
-      {label}
-    </span>
-  );
-}
+const LP_STATUS_MAP: StatusBadgeMap<LPStatus> = {
+  DRAFT: { label: 'Rascunho', cls: 'bg-gray-100 text-gray-500' },
+  PUBLISHED: { label: 'Publicado', cls: 'bg-emerald-50 text-emerald-700' },
+  ARCHIVED: { label: 'Arquivado', cls: 'bg-gray-100 text-gray-400' },
+};
 
-function LevelBadge({ level }: { level: LPLevel }) {
-  const cfg: Record<LPLevel, { label: string; cls: string }> = {
-    BEGINNER: { label: 'Básico', cls: 'bg-emerald-50 text-emerald-700' },
-    INTERMEDIATE: { label: 'Intermédio', cls: 'bg-amber-50 text-amber-700' },
-    ADVANCED: { label: 'Avançado', cls: 'bg-red-50 text-red-700' },
-  };
-  const { label, cls } = cfg[level];
-  return (
-    <span className={`px-2 py-0.5 rounded text-xs font-medium ${cls}`}>
-      {label}
-    </span>
-  );
-}
+const LP_LEVEL_MAP: StatusBadgeMap<LPLevel> = {
+  BEGINNER: { label: 'Básico', cls: 'bg-emerald-50 text-emerald-700' },
+  INTERMEDIATE: { label: 'Intermédio', cls: 'bg-amber-50 text-amber-700' },
+  ADVANCED: { label: 'Avançado', cls: 'bg-red-50 text-red-700' },
+};
 
 function TypeBadge({ type }: { type: LPType }) {
   const labels: Record<LPType, string> = {
@@ -304,7 +287,7 @@ function LearningPathCard({
         <div className="flex items-center gap-3 text-xs text-gray-400 mb-2">
           <span>📚 {path._count.courses} cursos</span>
           {path.totalHours > 0 && <span>⏱ {fmtHours(path.totalHours)}</span>}
-          <LevelBadge level={path.level} />
+          <StatusBadge value={path.level} map={LP_LEVEL_MAP} />
         </div>
         <div className="flex items-center justify-between">
           <span className="text-xs text-gray-400">
@@ -541,8 +524,12 @@ function LPDetailView({
           <div className="absolute inset-0 flex items-end p-5">
             <div className="flex items-center gap-2 flex-wrap">
               <TypeBadge type={path.pathType} />
-              <LevelBadge level={path.level} />
-              <StatusBadge status={path.status} />
+              <StatusBadge value={path.level} map={LP_LEVEL_MAP} />
+              <StatusBadge
+                value={path.status}
+                map={LP_STATUS_MAP}
+                variant="dot"
+              />
               {path.mandatory && (
                 <span className="bg-red-600 text-white text-xs font-medium px-2 py-0.5 rounded">
                   Obrigatório
@@ -1008,7 +995,7 @@ function DashboardView({ onSelect }: { onSelect: (id: number) => void }) {
               <div className="text-sm text-gray-500">
                 {p._count.enrollments} matrículas
               </div>
-              <StatusBadge status={p.status} />
+              <StatusBadge value={p.status} map={LP_STATUS_MAP} variant="dot" />
             </div>
           ))}
         </div>

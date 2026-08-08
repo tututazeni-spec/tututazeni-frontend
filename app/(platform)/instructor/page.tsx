@@ -12,6 +12,8 @@ import {
   formatDate as fmtDate,
   getInitials as initials,
 } from '../../../lib/format';
+import { StatusBadge } from '../../../components/ui/StatusBadge';
+import type { StatusBadgeMap } from '../../../lib/statusBadge';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -171,7 +173,7 @@ function ProgressBar({
 
 // ─── Config ───────────────────────────────────────────────────────────────────
 
-const STATUS_CFG: Record<string, { label: string; cls: string }> = {
+const STATUS_CFG: StatusBadgeMap<string> = {
   DRAFT: { label: 'Rascunho', cls: 'bg-gray-100 text-gray-500' },
   OPEN: { label: 'Aberta', cls: 'bg-blue-50 text-blue-700' },
   ACTIVE: { label: 'Activa', cls: 'bg-emerald-50 text-emerald-700' },
@@ -185,7 +187,7 @@ const MODALITY_CFG: Record<string, { icon: string; label: string }> = {
   HYBRID: { icon: '🔀', label: 'Híbrido' },
 };
 
-const STUDENT_STATUS: Record<string, { cls: string; label: string }> = {
+const STUDENT_STATUS: StatusBadgeMap<string> = {
   ACTIVE: { cls: 'bg-emerald-50 text-emerald-700', label: 'Activo' },
   COMPLETED: { cls: 'bg-blue-50 text-blue-700', label: 'Concluído' },
   AT_RISK: { cls: 'bg-red-50 text-red-700', label: 'Em risco' },
@@ -281,7 +283,6 @@ function DashboardView({
           </div>
         ) : (
           cohorts.map((c) => {
-            const statusCfg = STATUS_CFG[c.status] ?? STATUS_CFG.DRAFT;
             const modalityCfg =
               MODALITY_CFG[c.modalidade] ?? MODALITY_CFG.ONLINE;
             return (
@@ -295,11 +296,7 @@ function DashboardView({
                     <span className="text-sm font-medium text-gray-900">
                       {c.name}
                     </span>
-                    <span
-                      className={`text-xs px-1.5 py-0.5 rounded ${statusCfg.cls}`}
-                    >
-                      {statusCfg.label}
-                    </span>
+                    <StatusBadge value={c.status} map={STATUS_CFG} />
                     <span className="text-xs text-gray-400">
                       {modalityCfg.icon} {modalityCfg.label}
                     </span>
@@ -510,7 +507,6 @@ function CohortsView({
       ) : (
         <div className="grid grid-cols-2 gap-3">
           {(data?.data ?? []).map((c) => {
-            const statusCfg = STATUS_CFG[c.status] ?? STATUS_CFG.DRAFT;
             const modalityCfg =
               MODALITY_CFG[c.modalidade] ?? MODALITY_CFG.ONLINE;
             return (
@@ -522,11 +518,7 @@ function CohortsView({
                 <div className="flex items-start justify-between mb-2">
                   <div>
                     <div className="flex items-center gap-2 mb-1">
-                      <span
-                        className={`text-xs px-1.5 py-0.5 rounded ${statusCfg.cls}`}
-                      >
-                        {statusCfg.label}
-                      </span>
+                      <StatusBadge value={c.status} map={STATUS_CFG} />
                       <span className="text-xs text-gray-400">
                         {modalityCfg.icon}
                       </span>
@@ -581,7 +573,6 @@ function CohortDetailView({
   if (isLoading || !data) return <Skeleton rows={5} />;
 
   const atRiskSet = new Set(data.atRisk);
-  const statusCfg = STATUS_CFG[data.status] ?? STATUS_CFG.DRAFT;
   const modalityCfg = MODALITY_CFG[data.modalidade] ?? MODALITY_CFG.ONLINE;
   const atRiskList = data.participants.filter((p) => atRiskSet.has(p.userId));
   const activeList = data.participants.filter((p) => !atRiskSet.has(p.userId));
@@ -600,11 +591,7 @@ function CohortDetailView({
         <div className="flex items-start justify-between">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <span
-                className={`text-xs px-2 py-0.5 rounded font-medium ${statusCfg.cls}`}
-              >
-                {statusCfg.label}
-              </span>
+              <StatusBadge value={data.status} map={STATUS_CFG} />
               <span className="text-xs text-gray-400">
                 {modalityCfg.icon} {modalityCfg.label}
               </span>
@@ -695,12 +682,7 @@ function CohortDetailView({
                 </div>
               </div>
               <div className="text-right flex-shrink-0">
-                <span
-                  className={`text-xs px-1.5 py-0.5 rounded ${STUDENT_STATUS[p.enrollmentStatus]?.cls ?? 'bg-gray-100 text-gray-500'}`}
-                >
-                  {STUDENT_STATUS[p.enrollmentStatus]?.label ??
-                    p.enrollmentStatus}
-                </span>
+                <StatusBadge value={p.enrollmentStatus} map={STUDENT_STATUS} />
                 <div className="text-xs text-gray-400 mt-0.5">
                   Inscrito: {fmtDate(p.enrolledAt)}
                 </div>

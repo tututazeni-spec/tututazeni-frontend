@@ -12,6 +12,8 @@ import { sanitizeHtml } from '@/lib/sanitize';
 import Image from 'next/image';
 import { Skeleton as SharedSkeleton } from '@/components/ui/Skeleton';
 import { formatDate as fmtDate, getInitials as initials } from '@/lib/format';
+import { StatusBadge } from '@/components/ui/StatusBadge';
+import type { StatusBadgeMap } from '@/lib/statusBadge';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -143,22 +145,12 @@ function Avatar({
 
 // ─── Badges ───────────────────────────────────────────────────────────────────
 
-function StatusBadge({ status }: { status: ArticleStatus }) {
-  const cfg: Record<ArticleStatus, { label: string; cls: string }> = {
-    DRAFT: { label: 'Rascunho', cls: 'bg-gray-100 text-gray-500' },
-    IN_REVIEW: { label: 'Em revisão', cls: 'bg-amber-50 text-amber-700' },
-    PUBLISHED: { label: 'Publicado', cls: 'bg-emerald-50 text-emerald-700' },
-    ARCHIVED: { label: 'Arquivado', cls: 'bg-gray-100 text-gray-400' },
-  };
-  const { label, cls } = cfg[status];
-  return (
-    <span
-      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium ${cls}`}
-    >
-      {label}
-    </span>
-  );
-}
+const ARTICLE_STATUS_MAP: StatusBadgeMap<ArticleStatus> = {
+  DRAFT: { label: 'Rascunho', cls: 'bg-gray-100 text-gray-500' },
+  IN_REVIEW: { label: 'Em revisão', cls: 'bg-amber-50 text-amber-700' },
+  PUBLISHED: { label: 'Publicado', cls: 'bg-emerald-50 text-emerald-700' },
+  ARCHIVED: { label: 'Arquivado', cls: 'bg-gray-100 text-gray-400' },
+};
 
 function StarRating({
   value,
@@ -624,7 +616,7 @@ function ArticleDetailView({
             <span>📅 {fmtDate(article.updatedAt)}</span>
             <span>⏱ {article.readingMinutes} min de leitura</span>
             <span>👁 {article.viewCount} visualizações</span>
-            <StatusBadge status={article.status} />
+            <StatusBadge value={article.status} map={ARTICLE_STATUS_MAP} />
             {article.mandatory && (
               <span className="bg-red-50 text-red-700 px-2 py-0.5 rounded">
                 Obrigatório

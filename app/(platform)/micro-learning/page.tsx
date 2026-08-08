@@ -12,6 +12,8 @@ import { sanitizeHtml } from '@/lib/sanitize';
 import Image from 'next/image';
 import { Skeleton as SharedSkeleton } from '@/components/ui/Skeleton';
 import { getInitials as initials } from '@/lib/format';
+import { StatusBadge } from '@/components/ui/StatusBadge';
+import type { StatusBadgeMap } from '@/lib/statusBadge';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -133,7 +135,7 @@ const TYPE_CFG: Record<
   QUIZ: { label: 'Quiz', icon: '❓', cls: 'bg-emerald-50 text-emerald-700' },
 };
 
-const LEVEL_CFG: Record<ContentLevel, { label: string; cls: string }> = {
+const LEVEL_CFG: StatusBadgeMap<ContentLevel> = {
   BEGINNER: { label: 'Básico', cls: 'bg-emerald-100 text-emerald-700' },
   INTERMEDIATE: { label: 'Intermédio', cls: 'bg-amber-100 text-amber-700' },
   ADVANCED: { label: 'Avançado', cls: 'bg-red-100 text-red-700' },
@@ -149,7 +151,6 @@ function MicroCard({
   onClick: () => void;
 }) {
   const typeCfg = TYPE_CFG[item.contentType];
-  const levelCfg = LEVEL_CFG[item.level];
   const pct = item.userProgress?.progress ?? 0;
 
   return (
@@ -212,9 +213,7 @@ function MicroCard({
         </div>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5">
-            <span className={`text-xs px-1.5 py-0.5 rounded ${levelCfg.cls}`}>
-              {levelCfg.label}
-            </span>
+            <StatusBadge value={item.level} map={LEVEL_CFG} />
             {item.tags.slice(0, 1).map((t) => (
               <span key={t} className="text-xs text-gray-400">
                 #{t}
@@ -479,7 +478,6 @@ function PlayerView({
   };
 
   const typeCfg = TYPE_CFG[item.contentType];
-  const levelCfg = LEVEL_CFG[item.level];
 
   let quizQs: ParsedQuizQuestion[] = [];
   try {
@@ -550,9 +548,7 @@ function PlayerView({
                 >
                   {typeCfg.label}
                 </span>
-                <span className={`text-xs px-2 py-0.5 rounded ${levelCfg.cls}`}>
-                  {levelCfg.label}
-                </span>
+                <StatusBadge value={item.level} map={LEVEL_CFG} />
                 <span className="text-xs text-gray-400">
                   ⏱ {fmtDuration(item.durationSeconds)}
                 </span>

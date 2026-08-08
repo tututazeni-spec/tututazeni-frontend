@@ -8,6 +8,8 @@ import { apiClient, API_URL } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { formatDate as fmtDate, formatKz as fmtKz } from '@/lib/format';
+import { StatusBadge } from '@/components/ui/StatusBadge';
+import type { StatusBadgeMap } from '@/lib/statusBadge';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -142,26 +144,12 @@ function maskString(value: string, visibleEnd = 4): string {
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
-function StatusBadge({ status }: { status: PayslipStatus }) {
-  const config: Record<PayslipStatus, { label: string; className: string }> = {
-    DRAFT: { label: 'Rascunho', className: 'bg-gray-100 text-gray-600' },
-    ISSUED: { label: 'Emitido', className: 'bg-emerald-50 text-emerald-700' },
-    ACKNOWLEDGED: {
-      label: 'Confirmado',
-      className: 'bg-blue-50 text-blue-700',
-    },
-    DISPUTED: { label: 'Disputa', className: 'bg-red-50 text-red-700' },
-  };
-  const { label, className } = config[status];
-  return (
-    <span
-      className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium ${className}`}
-    >
-      <span className="w-1.5 h-1.5 rounded-full bg-current" />
-      {label}
-    </span>
-  );
-}
+const PAYSLIP_STATUS_MAP: StatusBadgeMap<PayslipStatus> = {
+  DRAFT: { label: 'Rascunho', cls: 'bg-gray-100 text-gray-600' },
+  ISSUED: { label: 'Emitido', cls: 'bg-emerald-50 text-emerald-700' },
+  ACKNOWLEDGED: { label: 'Confirmado', cls: 'bg-blue-50 text-blue-700' },
+  DISPUTED: { label: 'Disputa', cls: 'bg-red-50 text-red-700' },
+};
 
 function SkeletonRow() {
   return (
@@ -286,7 +274,11 @@ function ListView({ onSelect }: { onSelect: (id: number) => void }) {
                 {fmtKz(p.netSalary)}
               </div>
               <div>
-                <StatusBadge status={p.status} />
+                <StatusBadge
+                  value={p.status}
+                  map={PAYSLIP_STATUS_MAP}
+                  variant="dot"
+                />
               </div>
               <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
                 <button
@@ -499,7 +491,11 @@ function DetailView({
                 {data.receiptCode}
               </div>
             </div>
-            <StatusBadge status={data.status} />
+            <StatusBadge
+              value={data.status}
+              map={PAYSLIP_STATUS_MAP}
+              variant="dot"
+            />
           </div>
         </div>
 

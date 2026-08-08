@@ -13,6 +13,8 @@ import {
   formatDate as fmtDate,
   getInitials as initials,
 } from '../../../lib/format';
+import { StatusBadge } from '../../../components/ui/StatusBadge';
+import type { StatusBadgeMap } from '../../../lib/statusBadge';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -140,7 +142,7 @@ const TYPE_CFG: Record<
   AUDIT: { label: 'Auditoria', icon: '🔍', cls: 'bg-red-50 text-red-700' },
 };
 
-const STATUS_CFG: Record<ReportStatus, { label: string; cls: string }> = {
+const STATUS_CFG: StatusBadgeMap<ReportStatus> = {
   DRAFT: { label: 'Rascunho', cls: 'bg-gray-100 text-gray-500' },
   IN_REVIEW: { label: 'Em revisão', cls: 'bg-amber-50 text-amber-700' },
   APPROVED: { label: 'Aprovado', cls: 'bg-blue-50 text-blue-700' },
@@ -222,7 +224,6 @@ function ReportCard({
   onClick: () => void;
 }) {
   const typeCfg = TYPE_CFG[report.type];
-  const statusCfg = STATUS_CFG[report.status];
   const redCount = report.metrics.filter((m) => m.status === 'RED').length;
 
   return (
@@ -246,9 +247,7 @@ function ReportCard({
             >
               {typeCfg.icon} {typeCfg.label}
             </span>
-            <span className={`text-xs px-2 py-0.5 rounded ${statusCfg.cls}`}>
-              {statusCfg.label}
-            </span>
+            <StatusBadge value={report.status} map={STATUS_CFG} />
             {report.confidentiality === 'CONFIDENTIAL' && (
               <span className="text-xs text-gray-400">🔒 Confidencial</span>
             )}
@@ -449,7 +448,6 @@ function DetailView({
   if (loading || !report) return <Skeleton rows={6} />;
 
   const typeCfg = TYPE_CFG[report.type];
-  const statusCfg = STATUS_CFG[report.status];
   const greenKpis = report.metrics.filter((m) => m.status === 'GREEN').length;
   const yellowKpis = report.metrics.filter((m) => m.status === 'YELLOW').length;
   const redKpis = report.metrics.filter((m) => m.status === 'RED').length;
@@ -473,9 +471,7 @@ function DetailView({
               >
                 {typeCfg.icon} {typeCfg.label}
               </span>
-              <span className={`text-xs px-2 py-0.5 rounded ${statusCfg.cls}`}>
-                {statusCfg.label}
-              </span>
+              <StatusBadge value={report.status} map={STATUS_CFG} />
               <span className="text-xs text-gray-400">
                 🔒 {report.confidentiality}
               </span>

@@ -15,6 +15,8 @@ import {
   formatDateTime as fmtDateTime,
   getInitials as initials,
 } from '@/lib/format';
+import { StatusBadge } from '@/components/ui/StatusBadge';
+import type { StatusBadgeMap } from '@/lib/statusBadge';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -196,7 +198,7 @@ const MODALITY_CFG: Record<EventModalidade, { icon: string; label: string }> = {
   HYBRID: { icon: '🔀', label: 'Híbrido' },
 };
 
-const STATUS_CFG: Record<EventStatus, { label: string; cls: string }> = {
+const STATUS_CFG: StatusBadgeMap<EventStatus> = {
   DRAFT: { label: 'Rascunho', cls: 'bg-gray-100 text-gray-500' },
   PUBLISHED: { label: 'Publicado', cls: 'bg-blue-50 text-blue-700' },
   LIVE: { label: 'Ao vivo 🔴', cls: 'bg-red-50 text-red-700' },
@@ -204,10 +206,7 @@ const STATUS_CFG: Record<EventStatus, { label: string; cls: string }> = {
   CANCELLED: { label: 'Cancelado', cls: 'bg-red-50 text-red-500' },
 };
 
-const PARTICIPANT_STATUS: Record<
-  ParticipantStatus,
-  { label: string; cls: string }
-> = {
+const PARTICIPANT_STATUS: StatusBadgeMap<ParticipantStatus> = {
   PENDING: { label: 'Pendente', cls: 'bg-amber-50 text-amber-700' },
   CONFIRMED: { label: 'Confirmado ✓', cls: 'bg-emerald-50 text-emerald-700' },
   WAITLIST: { label: 'Lista de espera', cls: 'bg-blue-50 text-blue-700' },
@@ -230,7 +229,6 @@ function EventCard({
 }) {
   const typeCfg = TYPE_CFG[event.type] ?? TYPE_CFG.TRAINING;
   const modalityCfg = MODALITY_CFG[event.modalidade] ?? MODALITY_CFG.ONLINE;
-  const statusCfg = STATUS_CFG[event.status] ?? STATUS_CFG.PUBLISHED;
 
   return (
     <div
@@ -260,9 +258,11 @@ function EventCard({
             <span className={`text-xs px-1.5 py-0.5 rounded ${typeCfg.cls}`}>
               {typeCfg.icon} {typeCfg.label}
             </span>
-            <span className={`text-xs px-1.5 py-0.5 rounded ${statusCfg.cls}`}>
-              {statusCfg.label}
-            </span>
+            <StatusBadge
+              value={event.status}
+              map={STATUS_CFG}
+              fallback={STATUS_CFG.PUBLISHED}
+            />
             {event.mandatory && (
               <span className="text-xs text-red-600 font-medium">
                 Obrigatório
@@ -304,11 +304,7 @@ function EventCard({
               {event.isFull && <span className="text-red-600">• Lotado</span>}
             </div>
             {myStatus && (
-              <span
-                className={`text-xs px-1.5 py-0.5 rounded ${PARTICIPANT_STATUS[myStatus]?.cls ?? 'bg-gray-100 text-gray-400'}`}
-              >
-                {PARTICIPANT_STATUS[myStatus]?.label}
-              </span>
+              <StatusBadge value={myStatus} map={PARTICIPANT_STATUS} />
             )}
           </div>
         </div>
@@ -535,8 +531,6 @@ function DetailView({
   const typeCfg = TYPE_CFG[event.type as EventType] ?? TYPE_CFG.TRAINING;
   const modalityCfg =
     MODALITY_CFG[event.modalidade as EventModalidade] ?? MODALITY_CFG.ONLINE;
-  const statusCfg =
-    STATUS_CFG[event.status as EventStatus] ?? STATUS_CFG.PUBLISHED;
   const isLive = event.status === 'LIVE';
 
   return (
@@ -565,9 +559,11 @@ function DetailView({
               <span className={`text-xs px-2 py-0.5 rounded ${typeCfg.cls}`}>
                 {typeCfg.icon} {typeCfg.label}
               </span>
-              <span className={`text-xs px-2 py-0.5 rounded ${statusCfg.cls}`}>
-                {statusCfg.label}
-              </span>
+              <StatusBadge
+                value={event.status as EventStatus}
+                map={STATUS_CFG}
+                fallback={STATUS_CFG.PUBLISHED}
+              />
               <span className="text-xs text-gray-400">
                 {modalityCfg.icon} {modalityCfg.label}
               </span>
@@ -786,12 +782,10 @@ function DetailView({
               <div className="flex-1 text-sm text-gray-800">
                 {p.user?.fullName}
               </div>
-              <span
-                className={`text-xs px-1.5 py-0.5 rounded ${PARTICIPANT_STATUS[p.status as ParticipantStatus]?.cls ?? 'bg-gray-100 text-gray-400'}`}
-              >
-                {PARTICIPANT_STATUS[p.status as ParticipantStatus]?.label ??
-                  p.status}
-              </span>
+              <StatusBadge
+                value={p.status as ParticipantStatus}
+                map={PARTICIPANT_STATUS}
+              />
             </div>
           ))}
           {(event.participants ?? []).length === 0 && (
@@ -855,8 +849,6 @@ function OrganizerView() {
           Os meus eventos
         </div>
         {data.events.map((e) => {
-          const statusCfg =
-            STATUS_CFG[e.status as EventStatus] ?? STATUS_CFG.PUBLISHED;
           return (
             <div
               key={e.id}
@@ -867,11 +859,11 @@ function OrganizerView() {
                   <span className="text-sm font-medium text-gray-900 truncate">
                     {e.title}
                   </span>
-                  <span
-                    className={`text-xs px-1.5 py-0.5 rounded flex-shrink-0 ${statusCfg.cls}`}
-                  >
-                    {statusCfg.label}
-                  </span>
+                  <StatusBadge
+                    value={e.status as EventStatus}
+                    map={STATUS_CFG}
+                    fallback={STATUS_CFG.PUBLISHED}
+                  />
                 </div>
                 <div className="text-xs text-gray-400">
                   {fmtDate(e.startAt)}
