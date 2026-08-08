@@ -6,6 +6,7 @@ import { apiClient } from '../../../../lib/apiClient';
 import { queryKeys } from '../../../../lib/queryKeys';
 import { STALE_TIME } from '../../../../lib/queryClient';
 import { useConfirm } from '../../../../providers/ConfirmProvider';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface Lesson {
@@ -1041,6 +1042,8 @@ function modalReducer(_state: ModalState, action: ModalAction): ModalState {
 
 // ─── Página Principal ─────────────────────────────────────────────────────────
 export default function CourseModulesPage() {
+  usePageTitle('Módulos & Lições');
+
   const [courseIdInput, setCourseIdInput] = useState('');
   const [submittedCourseId, setSubmittedCourseId] = useState<number | null>(
     null,

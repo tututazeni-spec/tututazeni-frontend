@@ -7,6 +7,7 @@ import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient, API_URL } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -73,13 +74,20 @@ interface AnnualSummary {
   totalChristmasAllowance: number;
   totalBonuses: number;
   totalDeductions: number;
-  monthlySeries: { period: string; grossSalary: number; netSalary: number; incomeTax: number; socialSecurity: number }[];
+  monthlySeries: {
+    period: string;
+    grossSalary: number;
+    netSalary: number;
+    incomeTax: number;
+    socialSecurity: number;
+  }[];
 }
 
 interface CompareResult {
   periodA: string;
   periodB: string;
-  [key: string]: { a: number; b: number; delta: number; pct: number | null } | string;
+  [key: string]:
+    { a: number; b: number; delta: number; pct: number | null } | string;
 }
 
 interface SimulateResult {
@@ -90,7 +98,12 @@ interface SimulateResult {
   totalDeductions: number;
   netSalary: number;
   irtDetails: {
-    bracket: { min: number; max: number | null; rate: number; deduction: number };
+    bracket: {
+      min: number;
+      max: number | null;
+      rate: number;
+      deduction: number;
+    };
     formula: string;
     effectiveRate: number;
   };
@@ -102,7 +115,11 @@ interface SimulateResult {
 const API_BASE = API_URL;
 
 function fmtKz(value: number): string {
-  return new Intl.NumberFormat('pt-AO', { style: 'currency', currency: 'AOA', maximumFractionDigits: 0 })
+  return new Intl.NumberFormat('pt-AO', {
+    style: 'currency',
+    currency: 'AOA',
+    maximumFractionDigits: 0,
+  })
     .format(value)
     .replace('AOA', 'Kz')
     .trim();
@@ -110,13 +127,30 @@ function fmtKz(value: number): string {
 
 function fmtPeriod(period: string): string {
   const [year, month] = period.split('-');
-  const months = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  const months = [
+    'Janeiro',
+    'Fevereiro',
+    'Março',
+    'Abril',
+    'Maio',
+    'Junho',
+    'Julho',
+    'Agosto',
+    'Setembro',
+    'Outubro',
+    'Novembro',
+    'Dezembro',
+  ];
   return `${months[parseInt(month, 10) - 1]} ${year}`;
 }
 
 function fmtDate(dateStr: string | null): string {
   if (!dateStr) return '—';
-  return new Date(dateStr).toLocaleDateString('pt-AO', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  return new Date(dateStr).toLocaleDateString('pt-AO', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  });
 }
 
 function maskString(value: string, visibleEnd = 4): string {
@@ -130,14 +164,19 @@ function maskString(value: string, visibleEnd = 4): string {
 
 function StatusBadge({ status }: { status: PayslipStatus }) {
   const config: Record<PayslipStatus, { label: string; className: string }> = {
-    DRAFT:        { label: 'Rascunho',  className: 'bg-gray-100 text-gray-600' },
-    ISSUED:       { label: 'Emitido',   className: 'bg-emerald-50 text-emerald-700' },
-    ACKNOWLEDGED: { label: 'Confirmado',className: 'bg-blue-50 text-blue-700' },
-    DISPUTED:     { label: 'Disputa',   className: 'bg-red-50 text-red-700' },
+    DRAFT: { label: 'Rascunho', className: 'bg-gray-100 text-gray-600' },
+    ISSUED: { label: 'Emitido', className: 'bg-emerald-50 text-emerald-700' },
+    ACKNOWLEDGED: {
+      label: 'Confirmado',
+      className: 'bg-blue-50 text-blue-700',
+    },
+    DISPUTED: { label: 'Disputa', className: 'bg-red-50 text-red-700' },
   };
   const { label, className } = config[status];
   return (
-    <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium ${className}`}>
+    <span
+      className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium ${className}`}
+    >
       <span className="w-1.5 h-1.5 rounded-full bg-current" />
       {label}
     </span>
@@ -156,11 +195,15 @@ function SkeletonRow() {
 }
 
 function DeltaBadge({ delta, pct }: { delta: number; pct: number | null }) {
-  if (delta === 0) return <span className="text-xs text-gray-400 font-mono">—</span>;
+  if (delta === 0)
+    return <span className="text-xs text-gray-400 font-mono">—</span>;
   const up = delta > 0;
   return (
-    <span className={`text-xs font-mono font-medium ${up ? 'text-emerald-600' : 'text-red-600'}`}>
-      {up ? '↑' : '↓'} {pct !== null ? `${Math.abs(pct).toFixed(1)}%` : fmtKz(Math.abs(delta))}
+    <span
+      className={`text-xs font-mono font-medium ${up ? 'text-emerald-600' : 'text-red-600'}`}
+    >
+      {up ? '↑' : '↓'}{' '}
+      {pct !== null ? `${Math.abs(pct).toFixed(1)}%` : fmtKz(Math.abs(delta))}
     </span>
   );
 }
@@ -168,22 +211,29 @@ function DeltaBadge({ delta, pct }: { delta: number; pct: number | null }) {
 // ─── Views ────────────────────────────────────────────────────────────────────
 
 // 1. Lista de recibos
-function ListView({
-  onSelect,
-}: {
-  onSelect: (id: number) => void;
-}) {
+function ListView({ onSelect }: { onSelect: (id: number) => void }) {
   const [year, setYear] = useState(new Date().getFullYear().toString());
   const [page, setPage] = useState(1);
   const params = { year, page, limit: 12 };
 
-  const { data, isLoading: loading, error: queryError } = useApiQuery<PaginatedPayslips>(
-    queryKeys.payslips.list(params), '/payslips/my',
-    { params, staleTime: STALE_TIME.SEMI_STATIC, placeholderData: keepPreviousData },
+  const {
+    data,
+    isLoading: loading,
+    error: queryError,
+  } = useApiQuery<PaginatedPayslips>(
+    queryKeys.payslips.list(params),
+    '/payslips/my',
+    {
+      params,
+      staleTime: STALE_TIME.SEMI_STATIC,
+      placeholderData: keepPreviousData,
+    },
   );
   const error = queryError?.message ?? null;
 
-  const years = Array.from({ length: 4 }, (_, i) => (new Date().getFullYear() - i).toString());
+  const years = Array.from({ length: 4 }, (_, i) =>
+    (new Date().getFullYear() - i).toString(),
+  );
 
   return (
     <div>
@@ -191,12 +241,21 @@ function ListView({
       <div className="flex items-center gap-3 mb-5">
         <select
           value={year}
-          onChange={e => { setYear(e.target.value); setPage(1); }}
+          onChange={(e) => {
+            setYear(e.target.value);
+            setPage(1);
+          }}
           className="text-sm border border-gray-200 rounded-lg px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
-          {years.map(y => <option key={y} value={y}>{y}</option>)}
+          {years.map((y) => (
+            <option key={y} value={y}>
+              {y}
+            </option>
+          ))}
         </select>
-        <span className="text-sm text-gray-400">{data?.total ?? 0} recibos</span>
+        <span className="text-sm text-gray-400">
+          {data?.total ?? 0} recibos
+        </span>
       </div>
 
       {/* Tabela */}
@@ -210,10 +269,13 @@ function ListView({
           <div>Acções</div>
         </div>
 
-        {loading && Array.from({ length: 5 }).map((_, i) => <SkeletonRow key={i} />)}
+        {loading &&
+          Array.from({ length: 5 }).map((_, i) => <SkeletonRow key={i} />)}
 
         {error && (
-          <div className="px-4 py-8 text-center text-sm text-red-500">{error}</div>
+          <div className="px-4 py-8 text-center text-sm text-red-500">
+            {error}
+          </div>
         )}
 
         {!loading && !error && data?.data.length === 0 && (
@@ -222,37 +284,50 @@ function ListView({
           </div>
         )}
 
-        {!loading && data?.data.map(p => (
-          <div
-            key={p.id}
-            className="grid grid-cols-[1fr_120px_160px_130px_100px] gap-3 items-center px-4 py-3.5 border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition-colors last:border-0"
-            onClick={() => onSelect(p.id)}
-          >
-            <div>
-              <div className="text-sm font-medium text-gray-900">{fmtPeriod(p.period)}</div>
-              <div className="text-xs text-gray-400 font-mono mt-0.5">{p.receiptCode}</div>
+        {!loading &&
+          data?.data.map((p) => (
+            <div
+              key={p.id}
+              className="grid grid-cols-[1fr_120px_160px_130px_100px] gap-3 items-center px-4 py-3.5 border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition-colors last:border-0"
+              onClick={() => onSelect(p.id)}
+            >
+              <div>
+                <div className="text-sm font-medium text-gray-900">
+                  {fmtPeriod(p.period)}
+                </div>
+                <div className="text-xs text-gray-400 font-mono mt-0.5">
+                  {p.receiptCode}
+                </div>
+              </div>
+              <div className="text-sm text-gray-500">
+                {fmtDate(p.paymentDate)}
+              </div>
+              <div className="text-sm font-semibold font-mono text-gray-900">
+                {fmtKz(p.netSalary)}
+              </div>
+              <div>
+                <StatusBadge status={p.status} />
+              </div>
+              <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
+                <button
+                  onClick={() => onSelect(p.id)}
+                  className="w-8 h-8 flex items-center justify-center border border-gray-200 rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors text-sm"
+                  title="Ver detalhe"
+                >
+                  &#128065;
+                </button>
+                <button
+                  onClick={() =>
+                    window.open(`${API_BASE}/payslips/my/${p.id}/pdf`, '_blank')
+                  }
+                  className="w-8 h-8 flex items-center justify-center border border-gray-200 rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors text-sm"
+                  title="Download PDF"
+                >
+                  &#8595;
+                </button>
+              </div>
             </div>
-            <div className="text-sm text-gray-500">{fmtDate(p.paymentDate)}</div>
-            <div className="text-sm font-semibold font-mono text-gray-900">{fmtKz(p.netSalary)}</div>
-            <div><StatusBadge status={p.status} /></div>
-            <div className="flex gap-2" onClick={e => e.stopPropagation()}>
-              <button
-                onClick={() => onSelect(p.id)}
-                className="w-8 h-8 flex items-center justify-center border border-gray-200 rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors text-sm"
-                title="Ver detalhe"
-              >
-                &#128065;
-              </button>
-              <button
-                onClick={() => window.open(`${API_BASE}/payslips/my/${p.id}/pdf`, '_blank')}
-                className="w-8 h-8 flex items-center justify-center border border-gray-200 rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors text-sm"
-                title="Download PDF"
-              >
-                &#8595;
-              </button>
-            </div>
-          </div>
-        ))}
+          ))}
       </div>
 
       {/* Paginação */}
@@ -264,14 +339,14 @@ function ListView({
           <div className="flex gap-2">
             <button
               disabled={page === 1}
-              onClick={() => setPage(p => p - 1)}
+              onClick={() => setPage((p) => p - 1)}
               className="px-3 py-1.5 text-xs border border-gray-200 rounded-lg disabled:opacity-40 hover:bg-gray-50"
             >
               ← Anterior
             </button>
             <button
               disabled={page === data.totalPages}
-              onClick={() => setPage(p => p + 1)}
+              onClick={() => setPage((p) => p + 1)}
               className="px-3 py-1.5 text-xs border border-gray-200 rounded-lg disabled:opacity-40 hover:bg-gray-50"
             >
               Próxima →
@@ -299,14 +374,23 @@ type DisputeAction =
   | { type: 'SUBMIT_START' }
   | { type: 'SUBMIT_END' };
 
-function disputeReducer(state: DisputeState, action: DisputeAction): DisputeState {
+function disputeReducer(
+  state: DisputeState,
+  action: DisputeAction,
+): DisputeState {
   switch (action.type) {
-    case 'OPEN':    return { open: true, reason: '', details: '', submitting: false };
-    case 'CLOSE':   return { open: false };
-    case 'SET_REASON':  return state.open ? { ...state, reason: action.reason } : state;
-    case 'SET_DETAILS': return state.open ? { ...state, details: action.details } : state;
-    case 'SUBMIT_START': return state.open ? { ...state, submitting: true } : state;
-    case 'SUBMIT_END':   return state.open ? { ...state, submitting: false } : state;
+    case 'OPEN':
+      return { open: true, reason: '', details: '', submitting: false };
+    case 'CLOSE':
+      return { open: false };
+    case 'SET_REASON':
+      return state.open ? { ...state, reason: action.reason } : state;
+    case 'SET_DETAILS':
+      return state.open ? { ...state, details: action.details } : state;
+    case 'SUBMIT_START':
+      return state.open ? { ...state, submitting: true } : state;
+    case 'SUBMIT_END':
+      return state.open ? { ...state, submitting: false } : state;
   }
 }
 
@@ -319,17 +403,27 @@ function DetailView({
   onBack: () => void;
 }) {
   const [maskedData, setMaskedData] = useState(true);
-  const [dispute, dispatchDispute] = useReducer(disputeReducer, { open: false });
+  const [dispute, dispatchDispute] = useReducer(disputeReducer, {
+    open: false,
+  });
 
-  const { data, isLoading: loading, error: queryError } = useApiQuery<Payslip>(
-    queryKeys.payslips.detail(payslipId), `/payslips/my/${payslipId}`,
+  const {
+    data,
+    isLoading: loading,
+    error: queryError,
+  } = useApiQuery<Payslip>(
+    queryKeys.payslips.detail(payslipId),
+    `/payslips/my/${payslipId}`,
     { enabled: !!payslipId, staleTime: STALE_TIME.DYNAMIC },
   );
   const error = queryError?.message ?? null;
 
   const acknowledgeMutation = useApiMutation(
     () => apiClient.patch(`/payslips/my/${payslipId}/acknowledge`, {}),
-    { invalidateKeys: [queryKeys.payslips.detail(payslipId)], onError: (e) => alert(e.message) },
+    {
+      invalidateKeys: [queryKeys.payslips.detail(payslipId)],
+      onError: (e) => alert(e.message),
+    },
   );
   const acknowledging = acknowledgeMutation.isPending;
   const acknowledge = () => {
@@ -341,7 +435,10 @@ function DetailView({
     if (!dispute.open || !dispute.reason.trim()) return;
     dispatchDispute({ type: 'SUBMIT_START' });
     try {
-      await apiClient.post(`/payslips/my/${payslipId}/dispute`, { reason: dispute.reason, details: dispute.details });
+      await apiClient.post(`/payslips/my/${payslipId}/dispute`, {
+        reason: dispute.reason,
+        details: dispute.details,
+      });
       dispatchDispute({ type: 'CLOSE' });
       alert('Disputa registada com sucesso. O RH será notificado.');
     } catch (e) {
@@ -350,35 +447,57 @@ function DetailView({
     }
   };
 
-  if (loading) return (
-    <div className="space-y-3 animate-pulse">
-      <div className="h-24 bg-gray-100 rounded-xl" />
-      <div className="h-48 bg-gray-100 rounded-xl" />
-    </div>
-  );
+  if (loading)
+    return (
+      <div className="space-y-3 animate-pulse">
+        <div className="h-24 bg-gray-100 rounded-xl" />
+        <div className="h-48 bg-gray-100 rounded-xl" />
+      </div>
+    );
 
-  if (error || !data) return (
-    <div className="py-12 text-center">
-      <p className="text-sm text-red-500 mb-4">{error ?? 'Recibo não encontrado'}</p>
-      <button onClick={onBack} className="text-sm text-blue-600 underline">← Voltar</button>
-    </div>
-  );
+  if (error || !data)
+    return (
+      <div className="py-12 text-center">
+        <p className="text-sm text-red-500 mb-4">
+          {error ?? 'Recibo não encontrado'}
+        </p>
+        <button onClick={onBack} className="text-sm text-blue-600 underline">
+          ← Voltar
+        </button>
+      </div>
+    );
 
-  const SalaryRow = ({ label, amount, type = 'neutral', sub }: { label: string; amount: number; type?: 'positive' | 'deduction' | 'neutral'; sub?: string }) => (
+  const SalaryRow = ({
+    label,
+    amount,
+    type = 'neutral',
+    sub,
+  }: {
+    label: string;
+    amount: number;
+    type?: 'positive' | 'deduction' | 'neutral';
+    sub?: string;
+  }) => (
     <div className="flex justify-between items-baseline py-1.5 border-b border-gray-100 last:border-0">
       <div>
         <span className="text-sm text-gray-600">{label}</span>
         {sub && <span className="text-xs text-gray-400 ml-2">{sub}</span>}
       </div>
-      <span className={`text-sm font-mono font-medium ${type === 'positive' ? 'text-emerald-600' : type === 'deduction' ? 'text-red-600' : 'text-gray-900'}`}>
-        {type === 'deduction' ? '− ' : ''}{fmtKz(amount)}
+      <span
+        className={`text-sm font-mono font-medium ${type === 'positive' ? 'text-emerald-600' : type === 'deduction' ? 'text-red-600' : 'text-gray-900'}`}
+      >
+        {type === 'deduction' ? '− ' : ''}
+        {fmtKz(amount)}
       </span>
     </div>
   );
 
   return (
     <div>
-      <button onClick={onBack} className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-800 mb-5 transition-colors">
+      <button
+        onClick={onBack}
+        className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-800 mb-5 transition-colors"
+      >
         ← Voltar aos recibos
       </button>
 
@@ -392,9 +511,13 @@ function DetailView({
                 <span>NIF: 5000045678</span>
                 <span>Rua da Missão, 42, Luanda</span>
                 <span>Período: {fmtPeriod(data.period)}</span>
-                {data.paymentDate && <span>Pagamento: {fmtDate(data.paymentDate)}</span>}
+                {data.paymentDate && (
+                  <span>Pagamento: {fmtDate(data.paymentDate)}</span>
+                )}
               </div>
-              <div className="text-xs text-blue-300 mt-2 font-mono">{data.receiptCode}</div>
+              <div className="text-xs text-blue-300 mt-2 font-mono">
+                {data.receiptCode}
+              </div>
             </div>
             <StatusBadge status={data.status} />
           </div>
@@ -404,7 +527,9 @@ function DetailView({
           {/* Info colaborador + dados fiscais */}
           <div className="grid grid-cols-2 gap-6">
             <div>
-              <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">Colaborador</div>
+              <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">
+                Colaborador
+              </div>
               <div className="space-y-0">
                 {[
                   ['Nome', data.user?.fullName ?? '—'],
@@ -413,18 +538,25 @@ function DetailView({
                   ['Departamento', data.user?.department?.name ?? '—'],
                   ['Admissão', fmtDate(data.user?.hireDate ?? null)],
                 ].map(([label, value]) => (
-                  <div key={label} className="flex justify-between py-1.5 border-b border-gray-100 last:border-0">
+                  <div
+                    key={label}
+                    className="flex justify-between py-1.5 border-b border-gray-100 last:border-0"
+                  >
                     <span className="text-xs text-gray-500">{label}</span>
-                    <span className="text-xs font-medium text-gray-900">{value}</span>
+                    <span className="text-xs font-medium text-gray-900">
+                      {value}
+                    </span>
                   </div>
                 ))}
               </div>
             </div>
             <div>
               <div className="flex items-center gap-2 mb-3">
-                <div className="text-xs font-medium text-gray-400 uppercase tracking-wide">Dados fiscais</div>
+                <div className="text-xs font-medium text-gray-400 uppercase tracking-wide">
+                  Dados fiscais
+                </div>
                 <button
-                  onClick={() => setMaskedData(m => !m)}
+                  onClick={() => setMaskedData((m) => !m)}
                   className="text-xs text-blue-600 hover:underline"
                 >
                   {maskedData ? '👁 mostrar' : '🔒 ocultar'}
@@ -432,15 +564,37 @@ function DetailView({
               </div>
               <div className="space-y-0">
                 {[
-                  ['NIF/BI', maskedData ? maskString(data.user?.nif ?? '', 3) : (data.user?.nif ?? '—')],
-                  ['NIB', maskedData ? maskString(data.user?.nib ?? '', 4) : (data.user?.nib ?? '—')],
+                  [
+                    'NIF/BI',
+                    maskedData
+                      ? maskString(data.user?.nif ?? '', 3)
+                      : (data.user?.nif ?? '—'),
+                  ],
+                  [
+                    'NIB',
+                    maskedData
+                      ? maskString(data.user?.nib ?? '', 4)
+                      : (data.user?.nib ?? '—'),
+                  ],
                   ['INSS colaborador', '3%'],
                   ['INSS empregador', '8%'],
-                  ['Escalão IRT', data.irtBracketRate !== null ? `${((data.irtBracketRate ?? 0) * 100).toFixed(0)}%` : '—'],
+                  [
+                    'Escalão IRT',
+                    data.irtBracketRate !== null
+                      ? `${((data.irtBracketRate ?? 0) * 100).toFixed(0)}%`
+                      : '—',
+                  ],
                 ].map(([label, value]) => (
-                  <div key={label} className="flex justify-between py-1.5 border-b border-gray-100 last:border-0">
+                  <div
+                    key={label}
+                    className="flex justify-between py-1.5 border-b border-gray-100 last:border-0"
+                  >
                     <span className="text-xs text-gray-500">{label}</span>
-                    <span className={`text-xs font-medium ${maskedData && (label === 'NIF/BI' || label === 'NIB') ? 'text-gray-400 tracking-widest' : 'text-gray-900'}`}>{value}</span>
+                    <span
+                      className={`text-xs font-medium ${maskedData && (label === 'NIF/BI' || label === 'NIB') ? 'text-gray-400 tracking-widest' : 'text-gray-900'}`}
+                    >
+                      {value}
+                    </span>
                   </div>
                 ))}
               </div>
@@ -455,30 +609,115 @@ function DetailView({
           {/* Remunerações + Deduções */}
           <div className="grid grid-cols-2 gap-6">
             <div>
-              <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">Remunerações</div>
+              <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">
+                Remunerações
+              </div>
               <SalaryRow label="Salário base" amount={data.baseSalary} />
-              {data.mealAllowance > 0 && <SalaryRow label="Subsídio de alimentação" amount={data.mealAllowance} type="positive" />}
-              {data.vacationAllowance > 0 && <SalaryRow label="Subsídio de férias" amount={data.vacationAllowance} type="positive" />}
-              {data.christmasAllowance > 0 && <SalaryRow label="Subsídio de Natal" amount={data.christmasAllowance} type="positive" />}
-              {data.overtime > 0 && <SalaryRow label="Horas extras" amount={data.overtime} type="positive" />}
-              {data.bonuses > 0 && <SalaryRow label="Prémios / Comissões" amount={data.bonuses} type="positive" />}
-              {data.otherAllowances > 0 && <SalaryRow label="Outros subsídios" amount={data.otherAllowances} type="positive" />}
+              {data.mealAllowance > 0 && (
+                <SalaryRow
+                  label="Subsídio de alimentação"
+                  amount={data.mealAllowance}
+                  type="positive"
+                />
+              )}
+              {data.vacationAllowance > 0 && (
+                <SalaryRow
+                  label="Subsídio de férias"
+                  amount={data.vacationAllowance}
+                  type="positive"
+                />
+              )}
+              {data.christmasAllowance > 0 && (
+                <SalaryRow
+                  label="Subsídio de Natal"
+                  amount={data.christmasAllowance}
+                  type="positive"
+                />
+              )}
+              {data.overtime > 0 && (
+                <SalaryRow
+                  label="Horas extras"
+                  amount={data.overtime}
+                  type="positive"
+                />
+              )}
+              {data.bonuses > 0 && (
+                <SalaryRow
+                  label="Prémios / Comissões"
+                  amount={data.bonuses}
+                  type="positive"
+                />
+              )}
+              {data.otherAllowances > 0 && (
+                <SalaryRow
+                  label="Outros subsídios"
+                  amount={data.otherAllowances}
+                  type="positive"
+                />
+              )}
               <div className="flex justify-between items-baseline py-2 mt-1">
-                <span className="text-sm font-medium text-gray-900">Total bruto</span>
-                <span className="text-sm font-mono font-semibold text-gray-900">{fmtKz(data.grossSalary)}</span>
+                <span className="text-sm font-medium text-gray-900">
+                  Total bruto
+                </span>
+                <span className="text-sm font-mono font-semibold text-gray-900">
+                  {fmtKz(data.grossSalary)}
+                </span>
               </div>
             </div>
             <div>
-              <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">Deduções</div>
-              <SalaryRow label="IRT" amount={data.incomeTax} type="deduction" sub={data.irtBracketRate !== null ? `${((data.irtBracketRate ?? 0) * 100).toFixed(0)}%` : undefined} />
-              <SalaryRow label="INSS colaborador (3%)" amount={data.socialSecurity} type="deduction" />
-              {data.healthInsurance > 0 && <SalaryRow label="Seguro de saúde" amount={data.healthInsurance} type="deduction" />}
-              {data.loanDeduction > 0 && <SalaryRow label="Dedução empréstimo" amount={data.loanDeduction} type="deduction" />}
-              {data.advanceDeduction > 0 && <SalaryRow label="Adiantamento salarial" amount={data.advanceDeduction} type="deduction" />}
-              {data.otherDeductions > 0 && <SalaryRow label="Outras deduções" amount={data.otherDeductions} type="deduction" />}
+              <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">
+                Deduções
+              </div>
+              <SalaryRow
+                label="IRT"
+                amount={data.incomeTax}
+                type="deduction"
+                sub={
+                  data.irtBracketRate !== null
+                    ? `${((data.irtBracketRate ?? 0) * 100).toFixed(0)}%`
+                    : undefined
+                }
+              />
+              <SalaryRow
+                label="INSS colaborador (3%)"
+                amount={data.socialSecurity}
+                type="deduction"
+              />
+              {data.healthInsurance > 0 && (
+                <SalaryRow
+                  label="Seguro de saúde"
+                  amount={data.healthInsurance}
+                  type="deduction"
+                />
+              )}
+              {data.loanDeduction > 0 && (
+                <SalaryRow
+                  label="Dedução empréstimo"
+                  amount={data.loanDeduction}
+                  type="deduction"
+                />
+              )}
+              {data.advanceDeduction > 0 && (
+                <SalaryRow
+                  label="Adiantamento salarial"
+                  amount={data.advanceDeduction}
+                  type="deduction"
+                />
+              )}
+              {data.otherDeductions > 0 && (
+                <SalaryRow
+                  label="Outras deduções"
+                  amount={data.otherDeductions}
+                  type="deduction"
+                />
+              )}
               <div className="flex justify-between items-baseline py-2 mt-1">
-                <span className="text-sm font-medium text-gray-900">Total deduções</span>
-                <span className="text-sm font-mono font-semibold text-red-600">− {fmtKz(data.totalDeductions)}</span>
+                <span className="text-sm font-medium text-gray-900">
+                  Total deduções
+                </span>
+                <span className="text-sm font-mono font-semibold text-red-600">
+                  − {fmtKz(data.totalDeductions)}
+                </span>
               </div>
             </div>
           </div>
@@ -486,13 +725,18 @@ function DetailView({
           {/* Resumo final */}
           <div className="bg-blue-50 rounded-xl px-5 py-4 flex items-center justify-between">
             <div>
-              <div className="text-sm font-semibold text-gray-900">Salário líquido</div>
+              <div className="text-sm font-semibold text-gray-900">
+                Salário líquido
+              </div>
               <div className="text-xs text-gray-500 mt-0.5">
                 INSS empregador (informativo): {fmtKz(data.employerInss)}
-                &nbsp;·&nbsp; Encargo total empresa: {fmtKz(data.grossSalary + data.employerInss)}
+                &nbsp;·&nbsp; Encargo total empresa:{' '}
+                {fmtKz(data.grossSalary + data.employerInss)}
               </div>
             </div>
-            <div className="text-2xl font-bold font-mono text-blue-700">{fmtKz(data.netSalary)}</div>
+            <div className="text-2xl font-bold font-mono text-blue-700">
+              {fmtKz(data.netSalary)}
+            </div>
           </div>
 
           {/* Acções */}
@@ -535,19 +779,31 @@ function DetailView({
           {/* Modal disputa (inline) */}
           {dispute.open && (
             <div className="border border-red-100 bg-red-50 rounded-xl p-4 space-y-3">
-              <div className="text-sm font-medium text-red-800">Abrir disputa sobre este recibo</div>
+              <div className="text-sm font-medium text-red-800">
+                Abrir disputa sobre este recibo
+              </div>
               <input
                 className="w-full text-sm border border-red-200 rounded-lg px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-red-400"
                 placeholder="Motivo da disputa *"
                 value={dispute.reason}
-                onChange={e => dispatchDispute({ type: 'SET_REASON', reason: e.target.value })}
+                onChange={(e) =>
+                  dispatchDispute({
+                    type: 'SET_REASON',
+                    reason: e.target.value,
+                  })
+                }
               />
               <textarea
                 className="w-full text-sm border border-red-200 rounded-lg px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-red-400 resize-none"
                 placeholder="Detalhes adicionais (opcional)"
                 rows={3}
                 value={dispute.details}
-                onChange={e => dispatchDispute({ type: 'SET_DETAILS', details: e.target.value })}
+                onChange={(e) =>
+                  dispatchDispute({
+                    type: 'SET_DETAILS',
+                    details: e.target.value,
+                  })
+                }
               />
               <div className="flex gap-2">
                 <button
@@ -557,7 +813,10 @@ function DetailView({
                 >
                   {dispute.submitting ? 'A enviar…' : 'Enviar disputa'}
                 </button>
-                <button onClick={() => dispatchDispute({ type: 'CLOSE' })} className="px-4 py-2 text-sm border border-gray-200 rounded-lg hover:bg-gray-50">
+                <button
+                  onClick={() => dispatchDispute({ type: 'CLOSE' })}
+                  className="px-4 py-2 text-sm border border-gray-200 rounded-lg hover:bg-gray-50"
+                >
                   Cancelar
                 </button>
               </div>
@@ -572,26 +831,32 @@ function DetailView({
 // 3. Comparador
 function CompareView() {
   const currentYear = new Date().getFullYear();
-  const [periodA, setPeriodA] = useState(`${currentYear}-${String(new Date().getMonth() + 1).padStart(2, '0')}`);
-  const [periodB, setPeriodB] = useState(`${currentYear}-${String(new Date().getMonth()).padStart(2, '0')}`);
+  const [periodA, setPeriodA] = useState(
+    `${currentYear}-${String(new Date().getMonth() + 1).padStart(2, '0')}`,
+  );
+  const [periodB, setPeriodB] = useState(
+    `${currentYear}-${String(new Date().getMonth()).padStart(2, '0')}`,
+  );
 
   // useApiMutation em vez de loading/error/data à mão: mesmo padrão usado no
   // resto da página (DetailView usa useApiQuery), com retry/backoff de borla.
   const compareMut = useApiMutation<CompareResult, void>(() =>
-    apiClient.get<CompareResult>('/payslips/my/compare', { params: { periodA, periodB } }),
+    apiClient.get<CompareResult>('/payslips/my/compare', {
+      params: { periodA, periodB },
+    }),
   );
   const { data: result, isPending: loading, error } = compareMut;
   const compare = () => compareMut.mutate();
 
   const compareFields: Array<{ key: string; label: string }> = [
-    { key: 'baseSalary',     label: 'Salário base' },
-    { key: 'grossSalary',    label: 'Bruto total' },
-    { key: 'incomeTax',      label: 'IRT' },
+    { key: 'baseSalary', label: 'Salário base' },
+    { key: 'grossSalary', label: 'Bruto total' },
+    { key: 'incomeTax', label: 'IRT' },
     { key: 'socialSecurity', label: 'INSS (3%)' },
-    { key: 'bonuses',        label: 'Prémios' },
-    { key: 'overtime',       label: 'Horas extras' },
-    { key: 'totalDeductions',label: 'Total deduções' },
-    { key: 'netSalary',      label: 'Salário líquido' },
+    { key: 'bonuses', label: 'Prémios' },
+    { key: 'overtime', label: 'Horas extras' },
+    { key: 'totalDeductions', label: 'Total deduções' },
+    { key: 'netSalary', label: 'Salário líquido' },
   ];
 
   return (
@@ -600,14 +865,14 @@ function CompareView() {
         <input
           type="month"
           value={periodA}
-          onChange={e => setPeriodA(e.target.value)}
+          onChange={(e) => setPeriodA(e.target.value)}
           className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <span className="text-sm text-gray-400">vs</span>
         <input
           type="month"
           value={periodB}
-          onChange={e => setPeriodB(e.target.value)}
+          onChange={(e) => setPeriodB(e.target.value)}
           className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <button
@@ -619,20 +884,34 @@ function CompareView() {
         </button>
       </div>
 
-      {error && <div className="text-sm text-red-500 mb-4">{error.message}</div>}
+      {error && (
+        <div className="text-sm text-red-500 mb-4">{error.message}</div>
+      )}
 
       {result && (
         <div>
           <div className="grid grid-cols-[1fr_80px_1fr] gap-4 bg-white border border-gray-200 rounded-xl overflow-hidden">
             {/* Col A */}
             <div className="p-4">
-              <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">{fmtPeriod(result.periodA)}</div>
-              {compareFields.map(f => {
-                const field = result[f.key] as { a: number; b: number; delta: number; pct: number | null };
+              <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">
+                {fmtPeriod(result.periodA)}
+              </div>
+              {compareFields.map((f) => {
+                const field = result[f.key] as {
+                  a: number;
+                  b: number;
+                  delta: number;
+                  pct: number | null;
+                };
                 return (
-                  <div key={f.key} className="flex justify-between py-2 border-b border-gray-100 last:border-0">
+                  <div
+                    key={f.key}
+                    className="flex justify-between py-2 border-b border-gray-100 last:border-0"
+                  >
                     <span className="text-xs text-gray-500">{f.label}</span>
-                    <span className={`text-xs font-mono font-medium ${f.key === 'netSalary' ? 'text-blue-700' : 'text-gray-900'}`}>
+                    <span
+                      className={`text-xs font-mono font-medium ${f.key === 'netSalary' ? 'text-blue-700' : 'text-gray-900'}`}
+                    >
                       {fmtKz(field.a)}
                     </span>
                   </div>
@@ -642,10 +921,18 @@ function CompareView() {
 
             {/* Delta col */}
             <div className="bg-gray-50 flex flex-col pt-9">
-              {compareFields.map(f => {
-                const field = result[f.key] as { a: number; b: number; delta: number; pct: number | null };
+              {compareFields.map((f) => {
+                const field = result[f.key] as {
+                  a: number;
+                  b: number;
+                  delta: number;
+                  pct: number | null;
+                };
                 return (
-                  <div key={f.key} className="flex items-center justify-center py-2 border-b border-gray-100 last:border-0 h-[37px]">
+                  <div
+                    key={f.key}
+                    className="flex items-center justify-center py-2 border-b border-gray-100 last:border-0 h-[37px]"
+                  >
                     <DeltaBadge delta={field.delta} pct={field.pct} />
                   </div>
                 );
@@ -654,13 +941,25 @@ function CompareView() {
 
             {/* Col B */}
             <div className="p-4">
-              <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">{fmtPeriod(result.periodB)}</div>
-              {compareFields.map(f => {
-                const field = result[f.key] as { a: number; b: number; delta: number; pct: number | null };
+              <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">
+                {fmtPeriod(result.periodB)}
+              </div>
+              {compareFields.map((f) => {
+                const field = result[f.key] as {
+                  a: number;
+                  b: number;
+                  delta: number;
+                  pct: number | null;
+                };
                 return (
-                  <div key={f.key} className="flex justify-between py-2 border-b border-gray-100 last:border-0">
+                  <div
+                    key={f.key}
+                    className="flex justify-between py-2 border-b border-gray-100 last:border-0"
+                  >
                     <span className="text-xs text-gray-500">{f.label}</span>
-                    <span className={`text-xs font-mono font-medium ${f.key === 'netSalary' ? 'text-blue-700' : 'text-gray-900'}`}>
+                    <span
+                      className={`text-xs font-mono font-medium ${f.key === 'netSalary' ? 'text-blue-700' : 'text-gray-900'}`}
+                    >
                       {fmtKz(field.b)}
                     </span>
                   </div>
@@ -671,12 +970,20 @@ function CompareView() {
 
           {/* Insight automático */}
           {(() => {
-            const net = result['netSalary'] as { delta: number; pct: number | null };
+            const net = result['netSalary'] as {
+              delta: number;
+              pct: number | null;
+            };
             if (!net || net.delta === 0) return null;
             const up = net.delta > 0;
             return (
-              <div className={`mt-4 px-4 py-3 rounded-xl text-sm ${up ? 'bg-emerald-50 text-emerald-800' : 'bg-red-50 text-red-800'}`}>
-                <strong>{up ? '↑' : '↓'} Variação de {fmtKz(Math.abs(net.delta))} no salário líquido</strong>
+              <div
+                className={`mt-4 px-4 py-3 rounded-xl text-sm ${up ? 'bg-emerald-50 text-emerald-800' : 'bg-red-50 text-red-800'}`}
+              >
+                <strong>
+                  {up ? '↑' : '↓'} Variação de {fmtKz(Math.abs(net.delta))} no
+                  salário líquido
+                </strong>
                 {net.pct !== null && ` (${Math.abs(net.pct).toFixed(1)}%)`}
               </div>
             );
@@ -699,8 +1006,8 @@ function SimulateView() {
   // Simulação disparada 400ms após o form mudar. Em erro, `data` do
   // useMutation mantém o último resultado bem-sucedido (mesmo comportamento
   // do try/catch silencioso anterior — "keep old result").
-  const simulateMutation = useApiMutation(
-    (payload: typeof form) => apiClient.post<SimulateResult>('/payslips/simulate', payload),
+  const simulateMutation = useApiMutation((payload: typeof form) =>
+    apiClient.post<SimulateResult>('/payslips/simulate', payload),
   );
   const result = simulateMutation.data ?? null;
   const loading = simulateMutation.isPending;
@@ -712,37 +1019,46 @@ function SimulateView() {
   }, [form]);
 
   const IRT_BRACKETS = [
-    { min: 0,        max: 150000,   label: '1',  rate: 'Isento' },
-    { min: 150001,   max: 200000,   label: '2',  rate: '10%' },
-    { min: 200001,   max: 300000,   label: '3',  rate: '13%' },
-    { min: 300001,   max: 500000,   label: '4',  rate: '16%' },
-    { min: 500001,   max: 1000000,  label: '5',  rate: '18%' },
-    { min: 1000001,  max: 1500000,  label: '6',  rate: '19%' },
-    { min: 1500001,  max: Infinity, label: '7',  rate: '25%' },
+    { min: 0, max: 150000, label: '1', rate: 'Isento' },
+    { min: 150001, max: 200000, label: '2', rate: '10%' },
+    { min: 200001, max: 300000, label: '3', rate: '13%' },
+    { min: 300001, max: 500000, label: '4', rate: '16%' },
+    { min: 500001, max: 1000000, label: '5', rate: '18%' },
+    { min: 1000001, max: 1500000, label: '6', rate: '19%' },
+    { min: 1500001, max: Infinity, label: '7', rate: '25%' },
   ];
 
-  const activeIdx = result ? IRT_BRACKETS.findIndex(
-    b => form.baseSalary >= b.min && form.baseSalary <= b.max
-  ) : -1;
+  const activeIdx = result
+    ? IRT_BRACKETS.findIndex(
+        (b) => form.baseSalary >= b.min && form.baseSalary <= b.max,
+      )
+    : -1;
 
   return (
     <div className="grid grid-cols-2 gap-6">
       {/* Inputs */}
       <div className="space-y-4">
         {[
-          { key: 'baseSalary',     label: 'Salário base (Kz)' },
-          { key: 'mealAllowance',  label: 'Subsídio de alimentação (Kz)' },
-          { key: 'overtime',       label: 'Horas extras (Kz)' },
-          { key: 'bonuses',        label: 'Prémios / Comissões (Kz)' },
-          { key: 'otherAllowances',label: 'Outros subsídios (Kz)' },
+          { key: 'baseSalary', label: 'Salário base (Kz)' },
+          { key: 'mealAllowance', label: 'Subsídio de alimentação (Kz)' },
+          { key: 'overtime', label: 'Horas extras (Kz)' },
+          { key: 'bonuses', label: 'Prémios / Comissões (Kz)' },
+          { key: 'otherAllowances', label: 'Outros subsídios (Kz)' },
         ].map(({ key, label }) => (
           <div key={key}>
-            <label className="block text-xs font-medium text-gray-500 mb-1.5 uppercase tracking-wide">{label}</label>
+            <label className="block text-xs font-medium text-gray-500 mb-1.5 uppercase tracking-wide">
+              {label}
+            </label>
             <input
               type="number"
               min={0}
               value={form[key as keyof typeof form]}
-              onChange={e => setForm(prev => ({ ...prev, [key]: parseFloat(e.target.value) || 0 }))}
+              onChange={(e) =>
+                setForm((prev) => ({
+                  ...prev,
+                  [key]: parseFloat(e.target.value) || 0,
+                }))
+              }
               className="w-full text-sm font-mono border border-gray-200 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
             />
           </div>
@@ -750,7 +1066,9 @@ function SimulateView() {
 
         {/* Tabela IRT */}
         <div className="bg-gray-50 rounded-xl p-4">
-          <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">Tabela IRT Angola 2026</div>
+          <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">
+            Tabela IRT Angola 2026
+          </div>
           <table className="w-full text-xs">
             <thead>
               <tr className="text-gray-400">
@@ -767,8 +1085,12 @@ function SimulateView() {
                   className={`${i === activeIdx ? 'bg-blue-100 text-blue-800 font-medium' : 'text-gray-600'} rounded`}
                 >
                   <td className="py-1 pl-1 rounded-l">{b.label}</td>
-                  <td className="py-1 font-mono">{b.min.toLocaleString('pt-AO')}</td>
-                  <td className="py-1 font-mono">{b.max === Infinity ? '—' : b.max.toLocaleString('pt-AO')}</td>
+                  <td className="py-1 font-mono">
+                    {b.min.toLocaleString('pt-AO')}
+                  </td>
+                  <td className="py-1 font-mono">
+                    {b.max === Infinity ? '—' : b.max.toLocaleString('pt-AO')}
+                  </td>
                   <td className="py-1 text-right rounded-r">{b.rate}</td>
                 </tr>
               ))}
@@ -780,24 +1102,49 @@ function SimulateView() {
       {/* Resultado */}
       <div>
         <div className="bg-blue-50 rounded-xl p-5 space-y-3">
-          <div className="text-xs font-medium text-blue-700 uppercase tracking-wide">Resultado estimado</div>
+          <div className="text-xs font-medium text-blue-700 uppercase tracking-wide">
+            Resultado estimado
+          </div>
 
           {[
             { label: 'Bruto total', value: result?.grossSalary },
-            { label: `IRT (${result ? ((result.irtDetails.bracket.rate) * 100).toFixed(0) : '—'}%)`, value: result?.incomeTax, negative: true },
-            { label: 'INSS colaborador (3%)', value: result?.socialSecurity, negative: true },
-            { label: 'Total deduções', value: result?.totalDeductions, negative: true },
+            {
+              label: `IRT (${result ? (result.irtDetails.bracket.rate * 100).toFixed(0) : '—'}%)`,
+              value: result?.incomeTax,
+              negative: true,
+            },
+            {
+              label: 'INSS colaborador (3%)',
+              value: result?.socialSecurity,
+              negative: true,
+            },
+            {
+              label: 'Total deduções',
+              value: result?.totalDeductions,
+              negative: true,
+            },
           ].map(({ label, value, negative }) => (
-            <div key={label} className="flex justify-between items-baseline border-b border-blue-100 pb-2 last:border-0">
+            <div
+              key={label}
+              className="flex justify-between items-baseline border-b border-blue-100 pb-2 last:border-0"
+            >
               <span className="text-sm text-gray-600">{label}</span>
-              <span className={`text-sm font-mono font-medium ${negative ? 'text-red-600' : 'text-gray-900'}`}>
-                {loading ? '…' : value !== undefined ? `${negative ? '− ' : ''}${fmtKz(value)}` : '—'}
+              <span
+                className={`text-sm font-mono font-medium ${negative ? 'text-red-600' : 'text-gray-900'}`}
+              >
+                {loading
+                  ? '…'
+                  : value !== undefined
+                    ? `${negative ? '− ' : ''}${fmtKz(value)}`
+                    : '—'}
               </span>
             </div>
           ))}
 
           <div className="flex items-center justify-between pt-1">
-            <span className="text-sm font-semibold text-gray-900">Salário líquido</span>
+            <span className="text-sm font-semibold text-gray-900">
+              Salário líquido
+            </span>
             <span className="text-2xl font-bold font-mono text-blue-700">
               {loading ? '…' : result ? fmtKz(result.netSalary) : '—'}
             </span>
@@ -816,7 +1163,8 @@ function SimulateView() {
             </div>
 
             <div className="mt-3 p-3 bg-gray-50 rounded-xl text-xs text-gray-500">
-              Simulação meramente indicativa. Os valores finais podem variar com deduções adicionais aprovadas pelo RH.
+              Simulação meramente indicativa. Os valores finais podem variar com
+              deduções adicionais aprovadas pelo RH.
             </div>
           </>
         )}
@@ -829,30 +1177,43 @@ function SimulateView() {
 function AnnualView() {
   const [year, setYear] = useState(new Date().getFullYear().toString());
 
-  const { data, isLoading: loading, error: queryError } = useApiQuery<AnnualSummary>(
-    queryKeys.payslips.annual(year), '/payslips/my/annual-summary',
+  const {
+    data,
+    isLoading: loading,
+    error: queryError,
+  } = useApiQuery<AnnualSummary>(
+    queryKeys.payslips.annual(year),
+    '/payslips/my/annual-summary',
     { params: { year }, staleTime: STALE_TIME.SEMI_STATIC },
   );
   const error = queryError?.message ?? null;
 
-  const years = Array.from({ length: 4 }, (_, i) => (new Date().getFullYear() - i).toString());
+  const years = Array.from({ length: 4 }, (_, i) =>
+    (new Date().getFullYear() - i).toString(),
+  );
 
   return (
     <div>
       <div className="flex items-center gap-3 mb-5">
         <select
           value={year}
-          onChange={e => setYear(e.target.value)}
+          onChange={(e) => setYear(e.target.value)}
           className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
-          {years.map(y => <option key={y} value={y}>{y}</option>)}
+          {years.map((y) => (
+            <option key={y} value={y}>
+              {y}
+            </option>
+          ))}
         </select>
         <button className="px-3 py-2 text-sm border border-gray-200 rounded-lg hover:bg-gray-50">
           ⬇ Exportar CSV
         </button>
       </div>
 
-      {loading && <div className="text-sm text-gray-400 animate-pulse">A carregar…</div>}
+      {loading && (
+        <div className="text-sm text-gray-400 animate-pulse">A carregar…</div>
+      )}
       {error && <div className="text-sm text-red-500">{error}</div>}
 
       {data && (
@@ -867,23 +1228,40 @@ function AnnualView() {
             ].map(({ label, value }) => (
               <div key={label} className="bg-gray-50 rounded-xl p-4">
                 <div className="text-xs text-gray-400 mb-1.5">{label}</div>
-                <div className="text-lg font-semibold font-mono text-gray-900">{fmtKz(value)}</div>
+                <div className="text-lg font-semibold font-mono text-gray-900">
+                  {fmtKz(value)}
+                </div>
               </div>
             ))}
           </div>
 
           {/* Subsídios */}
-          {(data.totalMealAllowance + data.totalVacationAllowance + data.totalChristmasAllowance + data.totalBonuses) > 0 && (
+          {data.totalMealAllowance +
+            data.totalVacationAllowance +
+            data.totalChristmasAllowance +
+            data.totalBonuses >
+            0 && (
             <div className="grid grid-cols-4 gap-3 mb-6">
               {[
-                { label: 'Subsídio alimentação', value: data.totalMealAllowance },
-                { label: 'Subsídio férias', value: data.totalVacationAllowance },
-                { label: 'Subsídio Natal', value: data.totalChristmasAllowance },
+                {
+                  label: 'Subsídio alimentação',
+                  value: data.totalMealAllowance,
+                },
+                {
+                  label: 'Subsídio férias',
+                  value: data.totalVacationAllowance,
+                },
+                {
+                  label: 'Subsídio Natal',
+                  value: data.totalChristmasAllowance,
+                },
                 { label: 'Prémios', value: data.totalBonuses },
               ].map(({ label, value }) => (
                 <div key={label} className="bg-emerald-50 rounded-xl p-4">
                   <div className="text-xs text-emerald-600 mb-1.5">{label}</div>
-                  <div className="text-base font-semibold font-mono text-emerald-800">{fmtKz(value)}</div>
+                  <div className="text-base font-semibold font-mono text-emerald-800">
+                    {fmtKz(value)}
+                  </div>
                 </div>
               ))}
             </div>
@@ -894,20 +1272,31 @@ function AnnualView() {
             <div className="px-4 py-3 border-b border-gray-100 text-xs font-medium text-gray-400 uppercase tracking-wide">
               Evolução mensal {year}
             </div>
-            {data.monthlySeries.map(m => {
-              const maxVal = Math.max(...data.monthlySeries.map(x => x.grossSalary));
+            {data.monthlySeries.map((m) => {
+              const maxVal = Math.max(
+                ...data.monthlySeries.map((x) => x.grossSalary),
+              );
               const pct = (m.netSalary / maxVal) * 100;
               return (
-                <div key={m.period} className="flex items-center gap-4 px-4 py-2.5 border-b border-gray-100 last:border-0">
-                  <div className="w-20 text-xs text-gray-500 flex-shrink-0">{fmtPeriod(m.period)}</div>
+                <div
+                  key={m.period}
+                  className="flex items-center gap-4 px-4 py-2.5 border-b border-gray-100 last:border-0"
+                >
+                  <div className="w-20 text-xs text-gray-500 flex-shrink-0">
+                    {fmtPeriod(m.period)}
+                  </div>
                   <div className="flex-1 h-5 bg-gray-100 rounded overflow-hidden">
                     <div
                       className="h-full bg-blue-600 rounded transition-all duration-500"
                       style={{ width: `${pct.toFixed(1)}%` }}
                     />
                   </div>
-                  <div className="w-28 text-right text-xs font-mono font-medium text-gray-900">{fmtKz(m.netSalary)}</div>
-                  <div className="w-20 text-right text-xs font-mono text-red-500">IRT {fmtKz(m.incomeTax)}</div>
+                  <div className="w-28 text-right text-xs font-mono font-medium text-gray-900">
+                    {fmtKz(m.netSalary)}
+                  </div>
+                  <div className="w-20 text-right text-xs font-mono text-red-500">
+                    IRT {fmtKz(m.incomeTax)}
+                  </div>
                 </div>
               );
             })}
@@ -923,28 +1312,32 @@ function AnnualView() {
 type View = 'list' | 'detail' | 'compare' | 'simulate' | 'annual';
 
 const NAV: Array<{ id: Exclude<View, 'detail'>; label: string }> = [
-  { id: 'list',     label: 'Os meus recibos' },
-  { id: 'compare',  label: 'Comparar meses' },
+  { id: 'list', label: 'Os meus recibos' },
+  { id: 'compare', label: 'Comparar meses' },
   { id: 'simulate', label: 'Simulador IRT' },
-  { id: 'annual',   label: 'Resumo anual' },
+  { id: 'annual', label: 'Resumo anual' },
 ];
 
 // view e selectedId eram dois useState separados sempre definidos em conjunto
 // — um único estado torna "detail sem id" irrepresentável.
-type Nav = { view: Exclude<View, 'detail'> } | { view: 'detail'; selectedId: number };
+type Nav =
+  { view: Exclude<View, 'detail'> } | { view: 'detail'; selectedId: number };
 
 export default function PayslipsPage() {
+  usePageTitle('Recibos Salariais');
+
   const [nav, setNav] = useState<Nav>({ view: 'list' });
 
-  const handleSelect = (id: number) => setNav({ view: 'detail', selectedId: id });
+  const handleSelect = (id: number) =>
+    setNav({ view: 'detail', selectedId: id });
   const handleBack = () => setNav({ view: 'list' });
 
   const titles: Record<View, string> = {
-    list:     'Os meus recibos',
-    detail:   'Detalhe do recibo',
-    compare:  'Comparar meses',
+    list: 'Os meus recibos',
+    detail: 'Detalhe do recibo',
+    compare: 'Comparar meses',
     simulate: 'Simulador IRT Angola 2026',
-    annual:   'Resumo anual',
+    annual: 'Resumo anual',
   };
 
   return (
@@ -952,12 +1345,21 @@ export default function PayslipsPage() {
       {/* Page header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-xl font-semibold text-gray-900">{titles[nav.view]}</h1>
-          <p className="text-sm text-gray-400 mt-0.5">INNOVA — Recursos Humanos</p>
+          <h1 className="text-xl font-semibold text-gray-900">
+            {titles[nav.view]}
+          </h1>
+          <p className="text-sm text-gray-400 mt-0.5">
+            INNOVA — Recursos Humanos
+          </p>
         </div>
         {nav.view === 'list' && (
           <button
-            onClick={() => window.open(`${API_BASE}/payslips/my/annual-summary/export`, '_blank')}
+            onClick={() =>
+              window.open(
+                `${API_BASE}/payslips/my/annual-summary/export`,
+                '_blank',
+              )
+            }
             className="flex items-center gap-2 px-4 py-2 text-sm border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
           >
             ⬇ Exportar ano
@@ -968,7 +1370,7 @@ export default function PayslipsPage() {
       {/* Tabs (não mostrar em detail) */}
       {nav.view !== 'detail' && (
         <div className="flex gap-1 mb-6 bg-gray-100 p-1 rounded-xl w-fit">
-          {NAV.map(n => (
+          {NAV.map((n) => (
             <button
               key={n.id}
               onClick={() => setNav({ view: n.id })}
@@ -985,11 +1387,13 @@ export default function PayslipsPage() {
       )}
 
       {/* Views */}
-      {nav.view === 'list'     && <ListView onSelect={handleSelect} />}
-      {nav.view === 'detail'   && <DetailView payslipId={nav.selectedId} onBack={handleBack} />}
-      {nav.view === 'compare'  && <CompareView />}
+      {nav.view === 'list' && <ListView onSelect={handleSelect} />}
+      {nav.view === 'detail' && (
+        <DetailView payslipId={nav.selectedId} onBack={handleBack} />
+      )}
+      {nav.view === 'compare' && <CompareView />}
       {nav.view === 'simulate' && <SimulateView />}
-      {nav.view === 'annual'   && <AnnualView />}
+      {nav.view === 'annual' && <AnnualView />}
     </div>
   );
 }

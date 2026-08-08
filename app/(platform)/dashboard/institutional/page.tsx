@@ -2,6 +2,7 @@
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 interface Summary {
   people: { total: number; newThisMonth: number };
@@ -17,7 +18,11 @@ interface Summary {
     funders: number;
     totalFunding: number;
   };
-  knowledge: { libraryItems: number; certificates: number; badgesIssued: number };
+  knowledge: {
+    libraryItems: number;
+    certificates: number;
+    badgesIssued: number;
+  };
 }
 
 interface TrendPoint {
@@ -78,17 +83,22 @@ function MiniBarChart({ data }: { data: TrendPoint[] }) {
 }
 
 export default function InstitutionalDashboardPage() {
+  usePageTitle('Dashboard Institucional');
+
   // Três queries independentes → em paralelo (sem waterfall).
   const sumQ = useApiQuery<Summary>(
-    queryKeys.dashboard.institutionalSummary(), '/dashboard-institutional/summary',
+    queryKeys.dashboard.institutionalSummary(),
+    '/dashboard-institutional/summary',
     { staleTime: STALE_TIME.SEMI_STATIC },
   );
   const trendQ = useApiQuery<TrendPoint[]>(
-    queryKeys.dashboard.institutionalTrend(6), '/dashboard-institutional/growth-trend',
+    queryKeys.dashboard.institutionalTrend(6),
+    '/dashboard-institutional/growth-trend',
     { params: { months: 6 }, staleTime: STALE_TIME.SEMI_STATIC },
   );
   const alertsQ = useApiQuery<Alerts>(
-    queryKeys.dashboard.institutionalAlerts(), '/dashboard-institutional/alerts',
+    queryKeys.dashboard.institutionalAlerts(),
+    '/dashboard-institutional/alerts',
     { staleTime: STALE_TIME.DYNAMIC },
   );
 
@@ -97,7 +107,11 @@ export default function InstitutionalDashboardPage() {
   const alerts = alertsQ.data ?? null;
   const loading = sumQ.isLoading;
   const error = sumQ.error?.message ?? '';
-  const fetchAll = () => { sumQ.refetch(); trendQ.refetch(); alertsQ.refetch(); };
+  const fetchAll = () => {
+    sumQ.refetch();
+    trendQ.refetch();
+    alertsQ.refetch();
+  };
 
   if (loading)
     return (
@@ -127,31 +141,34 @@ export default function InstitutionalDashboardPage() {
       </h1>
 
       {/* Alertas */}
-      {alerts && (alerts.critical > 0 || alerts.warnings > 0 || alerts.reminders > 0) && (
-        <div className="flex gap-4 flex-wrap">
-          {alerts.critical > 0 && (
-            <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-3 flex-1 min-w-[180px]">
-              <span className="text-red-700 font-semibold">
-                {alerts.critical} alertas críticos
-              </span>
-            </div>
-          )}
-          {alerts.warnings > 0 && (
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg px-4 py-3 flex-1 min-w-[180px]">
-              <span className="text-yellow-700 font-semibold">
-                {alerts.warnings} avisos
-              </span>
-            </div>
-          )}
-          {alerts.reminders > 0 && (
-            <div className="bg-blue-50 border border-blue-200 rounded-lg px-4 py-3 flex-1 min-w-[180px]">
-              <span className="text-blue-700 font-semibold">
-                {alerts.reminders} lembretes
-              </span>
-            </div>
-          )}
-        </div>
-      )}
+      {alerts &&
+        (alerts.critical > 0 ||
+          alerts.warnings > 0 ||
+          alerts.reminders > 0) && (
+          <div className="flex gap-4 flex-wrap">
+            {alerts.critical > 0 && (
+              <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-3 flex-1 min-w-[180px]">
+                <span className="text-red-700 font-semibold">
+                  {alerts.critical} alertas críticos
+                </span>
+              </div>
+            )}
+            {alerts.warnings > 0 && (
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg px-4 py-3 flex-1 min-w-[180px]">
+                <span className="text-yellow-700 font-semibold">
+                  {alerts.warnings} avisos
+                </span>
+              </div>
+            )}
+            {alerts.reminders > 0 && (
+              <div className="bg-blue-50 border border-blue-200 rounded-lg px-4 py-3 flex-1 min-w-[180px]">
+                <span className="text-blue-700 font-semibold">
+                  {alerts.reminders} lembretes
+                </span>
+              </div>
+            )}
+          </div>
+        )}
 
       {/* KPIs principais */}
       {summary && (
@@ -176,7 +193,10 @@ export default function InstitutionalDashboardPage() {
           />
           <KpiCard label="Cursos" value={summary.learning.courses} />
           <KpiCard label="Parceiros" value={summary.crm.partners} />
-          <KpiCard label="Certificados" value={summary.knowledge.certificates} />
+          <KpiCard
+            label="Certificados"
+            value={summary.knowledge.certificates}
+          />
           <KpiCard
             label="Biblioteca"
             value={summary.knowledge.libraryItems}

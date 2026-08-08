@@ -6,6 +6,7 @@ import { useApiQuery } from '../../../../hooks/useApiQuery';
 import { useDebounce } from '../../../../hooks/useDebounce';
 import { queryKeys } from '../../../../lib/queryKeys';
 import { STALE_TIME } from '../../../../lib/queryClient';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 interface Beneficiary {
   id: string;
@@ -36,6 +37,8 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 export default function BeneficiariesPage() {
+  usePageTitle('Beneficiários');
+
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
@@ -146,7 +149,9 @@ export default function BeneficiariesPage() {
         </select>
         {/* Indicador discreto de refetch em fundo (paginação/filtros). */}
         {isFetching && (
-          <span className="text-xs text-gray-400 animate-pulse">A actualizar…</span>
+          <span className="text-xs text-gray-400 animate-pulse">
+            A actualizar…
+          </span>
         )}
       </div>
 
@@ -175,10 +180,14 @@ export default function BeneficiariesPage() {
             ) : (
               rows.map((b) => (
                 <tr key={b.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-3 font-mono text-blue-600">{b.code}</td>
+                  <td className="px-4 py-3 font-mono text-blue-600">
+                    {b.code}
+                  </td>
                   <td className="px-4 py-3 font-medium">{b.fullName}</td>
                   <td className="px-4 py-3 text-gray-600">{b.type}</td>
-                  <td className="px-4 py-3 text-gray-600">{b.province || '—'}</td>
+                  <td className="px-4 py-3 text-gray-600">
+                    {b.province || '—'}
+                  </td>
                   <td className="px-4 py-3">
                     <span
                       className={`px-2 py-1 rounded-full text-xs font-medium ${

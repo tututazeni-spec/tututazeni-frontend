@@ -7,6 +7,7 @@ import {
   type CurrentUser as Me,
 } from '../../../hooks/useCurrentUser';
 import { useAutoDismiss } from '../../../hooks/useAutoDismiss';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 // ─── Styles ───────────────────────────────────────────────────────────────────
 const btnPrimary: React.CSSProperties = {
@@ -745,6 +746,8 @@ function TabPermissoes({ user }: { user: Me }) {
 
 // ─── Página Principal ─────────────────────────────────────────────────────────
 export default function SettingsPage() {
+  usePageTitle('Definições');
+
   const [tab, setTab] = useState<Tab>('perfil');
   const [toast, setToast] = useState<{
     msg: string;

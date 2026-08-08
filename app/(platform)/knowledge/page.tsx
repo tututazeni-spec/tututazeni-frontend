@@ -11,6 +11,7 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { sanitizeHtml } from '@/lib/sanitize';
 import Image from 'next/image';
 import { Skeleton as SharedSkeleton } from '@/components/ui/Skeleton';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -974,6 +975,8 @@ type Nav =
   { view: Exclude<View, 'article'> } | { view: 'article'; selectedId: number };
 
 export default function KnowledgePage() {
+  usePageTitle('Conhecimento');
+
   const [nav, setNav] = useState<Nav>({ view: 'portal' });
 
   const handleSelectArticle = (id: number) =>

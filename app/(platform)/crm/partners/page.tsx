@@ -6,6 +6,7 @@ import { useApiQuery } from '@/hooks/useApiQuery';
 import { useDebounce } from '@/hooks/useDebounce';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 interface Partner {
   id: string;
@@ -34,21 +35,35 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 export default function PartnersPage() {
+  usePageTitle('Parceiros');
+
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
   const [tierFilter, setTierFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const debouncedSearch = useDebounce(search);
   const params = {
-    page, limit: 20, search: debouncedSearch,
-    tier: tierFilter, status: statusFilter,
+    page,
+    limit: 20,
+    search: debouncedSearch,
+    tier: tierFilter,
+    status: statusFilter,
   };
 
-  const { data: resp, isLoading: loading, error: queryError, refetch } =
-    useApiQuery<{ data: Partner[]; total: number; totalPages: number }>(
-      queryKeys.partners.list(params), '/crm/partners',
-      { params, staleTime: STALE_TIME.DYNAMIC, placeholderData: keepPreviousData },
-    );
+  const {
+    data: resp,
+    isLoading: loading,
+    error: queryError,
+    refetch,
+  } = useApiQuery<{ data: Partner[]; total: number; totalPages: number }>(
+    queryKeys.partners.list(params),
+    '/crm/partners',
+    {
+      params,
+      staleTime: STALE_TIME.DYNAMIC,
+      placeholderData: keepPreviousData,
+    },
+  );
 
   const data = resp?.data ?? [];
   const total = resp?.total ?? 0;
@@ -161,7 +176,9 @@ export default function PartnersPage() {
             ) : (
               data.map((p) => (
                 <tr key={p.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-3 font-mono text-blue-600">{p.code}</td>
+                  <td className="px-4 py-3 font-mono text-blue-600">
+                    {p.code}
+                  </td>
                   <td className="px-4 py-3 font-medium">{p.name}</td>
                   <td className="px-4 py-3 text-gray-600">{p.type}</td>
                   <td className="px-4 py-3">

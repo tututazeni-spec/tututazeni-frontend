@@ -26,6 +26,7 @@ import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Skeleton as SharedSkeleton } from '@/components/ui/Skeleton';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 type Tab = 'rules' | 'executions' | 'templates' | 'stats';
 
@@ -546,6 +547,8 @@ const TABS: { id: Tab; label: string; icon: LucideIcon }[] = [
 ];
 
 export default function AutomationPage() {
+  usePageTitle('Automações');
+
   const [tab, setTab] = useState<Tab>('rules');
 
   const PANELS: Record<Tab, JSX.Element> = {

@@ -6,6 +6,7 @@ import { useApiQuery } from '@/hooks/useApiQuery';
 import { useDebounce } from '@/hooks/useDebounce';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 interface Item {
   id: string;
@@ -33,17 +34,28 @@ const TYPE_ICONS: Record<string, string> = {
 };
 
 export default function LibraryPage() {
+  usePageTitle('Biblioteca Digital');
+
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState('');
   const debouncedSearch = useDebounce(search);
   const params = { page, limit: 20, search: debouncedSearch, type: typeFilter };
 
-  const { data: resp, isLoading: loading, error: queryError, refetch } =
-    useApiQuery<{ data: Item[]; total: number; totalPages: number }>(
-      queryKeys.library.items(params), '/library/items',
-      { params, staleTime: STALE_TIME.SEMI_STATIC, placeholderData: keepPreviousData },
-    );
+  const {
+    data: resp,
+    isLoading: loading,
+    error: queryError,
+    refetch,
+  } = useApiQuery<{ data: Item[]; total: number; totalPages: number }>(
+    queryKeys.library.items(params),
+    '/library/items',
+    {
+      params,
+      staleTime: STALE_TIME.SEMI_STATIC,
+      placeholderData: keepPreviousData,
+    },
+  );
 
   const data = resp?.data ?? [];
   const total = resp?.total ?? 0;

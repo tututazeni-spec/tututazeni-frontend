@@ -7,6 +7,7 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import Image from 'next/image';
 import { Skeleton as SharedSkeleton } from '@/components/ui/Skeleton';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -1061,6 +1062,8 @@ const TITLES: Record<View, string> = {
 };
 
 export default function PerformancePage() {
+  usePageTitle('Desempenho');
+
   const [view, setView] = useState<View>('dashboard');
 
   return (

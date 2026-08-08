@@ -6,6 +6,7 @@ import { useDebounce } from '@/hooks/useDebounce';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 interface Path {
   id: string;
@@ -25,16 +26,27 @@ const LEVEL_COLORS: Record<string, string> = {
 };
 
 export default function LearningPathsPage() {
+  usePageTitle('LMS — Percursos & Sessões');
+
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
   const debouncedSearch = useDebounce(search);
   const params = { page, limit: 20, search: debouncedSearch };
 
-  const { data: resp, isLoading: loading, error: queryError, refetch } =
-    useApiQuery<{ data: Path[]; total: number; totalPages: number }>(
-      queryKeys.lms.paths(params), '/lms/paths',
-      { params, staleTime: STALE_TIME.SEMI_STATIC, placeholderData: keepPreviousData },
-    );
+  const {
+    data: resp,
+    isLoading: loading,
+    error: queryError,
+    refetch,
+  } = useApiQuery<{ data: Path[]; total: number; totalPages: number }>(
+    queryKeys.lms.paths(params),
+    '/lms/paths',
+    {
+      params,
+      staleTime: STALE_TIME.SEMI_STATIC,
+      placeholderData: keepPreviousData,
+    },
+  );
 
   const data = resp?.data ?? [];
   const total = resp?.total ?? 0;
