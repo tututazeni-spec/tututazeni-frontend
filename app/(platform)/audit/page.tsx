@@ -9,6 +9,7 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import Image from 'next/image';
 import { Skeleton as SharedSkeleton } from '@/components/ui/Skeleton';
+import { getInitials as initials } from '@/lib/format';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -95,15 +96,6 @@ function fmtTs(d: string): string {
     minute: '2-digit',
     second: '2-digit',
   });
-}
-
-function initials(name: string) {
-  return name
-    .split(' ')
-    .slice(0, 2)
-    .map((n) => n[0])
-    .join('')
-    .toUpperCase();
 }
 
 function Avatar({

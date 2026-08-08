@@ -9,6 +9,7 @@ import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Skeleton as SharedSkeleton } from '@/components/ui/Skeleton';
+import { formatDate as fmtDate, getInitials as initials } from '@/lib/format';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -115,14 +116,6 @@ interface TopCompetency {
 type View = 'catalog' | 'my-profile' | 'matrix' | 'dashboard';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function fmtDate(d: string): string {
-  return new Date(d).toLocaleDateString('pt-AO', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-  });
-}
 
 function levelColor(level: number, max = 5): string {
   const pct = level / max;
@@ -236,15 +229,6 @@ function Skeleton({ rows = 4 }: { rows?: number }) {
       itemClassName="h-16 bg-gray-100 rounded-xl"
     />
   );
-}
-
-function initials(name: string): string {
-  return name
-    .split(' ')
-    .slice(0, 2)
-    .map((n) => n[0])
-    .join('')
-    .toUpperCase();
 }
 
 // ─── View: Catalog ────────────────────────────────────────────────────────────

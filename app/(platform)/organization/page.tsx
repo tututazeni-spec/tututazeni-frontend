@@ -9,6 +9,11 @@ import { STALE_TIME } from '../../../lib/queryClient';
 import { useDebounce } from '../../../hooks/useDebounce';
 import Image from 'next/image';
 import { Skeleton as SharedSkeleton } from '@/components/ui/Skeleton';
+import {
+  formatDate as fmtDate,
+  formatKz as fmtKz,
+  getInitials as initials,
+} from '../../../lib/format';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -122,32 +127,6 @@ interface DepartmentDetail extends Department {
 type View = 'dashboard' | 'chart' | 'departments' | 'positions' | 'timeline';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function initials(name: string): string {
-  return name
-    .split(' ')
-    .slice(0, 2)
-    .map((n) => n[0])
-    .join('')
-    .toUpperCase();
-}
-
-function fmtDate(d: string): string {
-  return new Date(d).toLocaleDateString('pt-AO', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-  });
-}
-
-function fmtKz(v: number | null): string {
-  if (!v) return '—';
-  return new Intl.NumberFormat('pt-AO', {
-    style: 'currency',
-    currency: 'AOA',
-    maximumFractionDigits: 0,
-  }).format(v);
-}
 
 function Skeleton({ rows = 4 }: { rows?: number }) {
   return (

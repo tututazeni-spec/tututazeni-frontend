@@ -11,6 +11,7 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { sanitizeHtml } from '@/lib/sanitize';
 import Image from 'next/image';
 import { Skeleton as SharedSkeleton } from '@/components/ui/Skeleton';
+import { getInitials as initials } from '@/lib/format';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -103,15 +104,6 @@ function fmtDuration(seconds: number | null): string {
   const m = Math.floor(seconds / 60);
   const s = seconds % 60;
   return s > 0 ? `${m}min ${s}s` : `${m}min`;
-}
-
-function initials(name: string): string {
-  return name
-    .split(' ')
-    .slice(0, 2)
-    .map((n) => n[0])
-    .join('')
-    .toUpperCase();
 }
 
 function Skeleton({ rows = 3 }: { rows?: number }) {

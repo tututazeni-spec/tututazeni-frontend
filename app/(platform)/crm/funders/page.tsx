@@ -6,6 +6,7 @@ import { useApiQuery } from '@/hooks/useApiQuery';
 import { useDebounce } from '@/hooks/useDebounce';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
+import { formatKz } from '@/lib/format';
 
 interface Funder {
   id: string;
@@ -206,14 +207,10 @@ export default function FundersPage() {
                     </span>
                   </td>
                   <td className="px-4 py-3 text-right text-gray-700">
-                    {f.totalCommitted > 0
-                      ? `AOA ${f.totalCommitted.toLocaleString('pt-AO')}`
-                      : '—'}
+                    {f.totalCommitted > 0 ? formatKz(f.totalCommitted) : '—'}
                   </td>
                   <td className="px-4 py-3 text-right text-green-700">
-                    {f.totalReceived > 0
-                      ? `AOA ${f.totalReceived.toLocaleString('pt-AO')}`
-                      : '—'}
+                    {f.totalReceived > 0 ? formatKz(f.totalReceived) : '—'}
                   </td>
                   <td className="px-4 py-3 text-center text-gray-600">
                     {f._count?.grants || 0}

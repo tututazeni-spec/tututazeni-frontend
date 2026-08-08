@@ -10,6 +10,11 @@ import { apiClient } from '../../../lib/apiClient';
 import { queryKeys } from '../../../lib/queryKeys';
 import { STALE_TIME } from '../../../lib/queryClient';
 import { useConfirm } from '../../../providers/ConfirmProvider';
+import {
+  formatDate,
+  formatTime as fmtTime,
+  getInitials,
+} from '../../../lib/format';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -34,28 +39,8 @@ interface PaginatedClasses {
 
 // ─── Utilities ────────────────────────────────────────────────────────────────
 
-function fmtDate(iso: string) {
-  return new Date(iso).toLocaleDateString('pt-PT', {
-    weekday: 'short',
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-  });
-}
-function fmtTime(iso: string) {
-  return new Date(iso).toLocaleTimeString('pt-PT', {
-    hour: '2-digit',
-    minute: '2-digit',
-  });
-}
-function getInitials(name: string) {
-  return name
-    .split(' ')
-    .slice(0, 2)
-    .map((n) => n[0])
-    .join('')
-    .toUpperCase();
-}
+const fmtDate = (iso: string) => formatDate(iso, { weekday: 'short' });
+
 function isVideoUrl(url: string) {
   return (
     /\.(mp4|webm|ogg|mov)(\?|$)/i.test(url) ||

@@ -10,6 +10,7 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import Image from 'next/image';
 import { Skeleton as SharedSkeleton } from '@/components/ui/Skeleton';
+import { formatDateTime, getInitials as initials } from '@/lib/format';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -112,25 +113,8 @@ type View = 'catalog' | 'detail' | 'my-trainings' | 'dashboard';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function initials(name: string) {
-  return name
-    .split(' ')
-    .slice(0, 2)
-    .map((n) => n[0])
-    .join('')
-    .toUpperCase();
-}
-
-function fmtDate(d: string | null) {
-  if (!d) return '—';
-  return new Date(d).toLocaleDateString('pt-AO', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
-}
+// fmtDate mostra data+hora (mantido com este nome nos vários usos abaixo).
+const fmtDate = (d: string | null) => formatDateTime(d, { year: 'numeric' });
 
 function fmtHours(h: number | null) {
   if (!h) return '—';

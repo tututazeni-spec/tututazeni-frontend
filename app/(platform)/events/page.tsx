@@ -10,6 +10,11 @@ import { queryKeys } from '../../../lib/queryKeys';
 import { STALE_TIME } from '../../../lib/queryClient';
 import Image from 'next/image';
 import { Skeleton as SharedSkeleton } from '@/components/ui/Skeleton';
+import {
+  formatDate as fmtDate,
+  formatDateTime as fmtDateTime,
+  getInitials as initials,
+} from '@/lib/format';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -102,32 +107,6 @@ interface EventDetail extends Event {
 type View = 'catalog' | 'my-events' | 'detail' | 'organizer' | 'create';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function fmtDate(d: string) {
-  return new Date(d).toLocaleDateString('pt-AO', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-  });
-}
-
-function fmtDateTime(d: string) {
-  return new Date(d).toLocaleString('pt-AO', {
-    day: '2-digit',
-    month: 'short',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
-}
-
-function initials(name: string) {
-  return name
-    .split(' ')
-    .slice(0, 2)
-    .map((n) => n[0])
-    .join('')
-    .toUpperCase();
-}
 
 function Avatar({
   name,

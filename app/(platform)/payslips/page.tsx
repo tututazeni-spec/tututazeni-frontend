@@ -7,6 +7,7 @@ import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient, API_URL } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
+import { formatDate as fmtDate, formatKz as fmtKz } from '@/lib/format';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -113,17 +114,6 @@ interface SimulateResult {
 // Base usada para links directos de PDF/export (navegação do browser com cookie).
 const API_BASE = API_URL;
 
-function fmtKz(value: number): string {
-  return new Intl.NumberFormat('pt-AO', {
-    style: 'currency',
-    currency: 'AOA',
-    maximumFractionDigits: 0,
-  })
-    .format(value)
-    .replace('AOA', 'Kz')
-    .trim();
-}
-
 function fmtPeriod(period: string): string {
   const [year, month] = period.split('-');
   const months = [
@@ -141,15 +131,6 @@ function fmtPeriod(period: string): string {
     'Dezembro',
   ];
   return `${months[parseInt(month, 10) - 1]} ${year}`;
-}
-
-function fmtDate(dateStr: string | null): string {
-  if (!dateStr) return '—';
-  return new Date(dateStr).toLocaleDateString('pt-AO', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-  });
 }
 
 function maskString(value: string, visibleEnd = 4): string {
