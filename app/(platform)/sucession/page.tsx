@@ -8,6 +8,7 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import Image from 'next/image';
 import { Skeleton as SharedSkeleton } from '@/components/ui/Skeleton';
+import { getInitials as initials } from '@/lib/format';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -134,15 +135,6 @@ interface PositionSummary {
 type View = 'dashboard' | 'org-chart' | 'talent-pool' | 'positions';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function initials(name: string): string {
-  return name
-    .split(' ')
-    .slice(0, 2)
-    .map((n) => n[0])
-    .join('')
-    .toUpperCase();
-}
 
 function Skeleton({ rows = 4 }: { rows?: number }) {
   return (

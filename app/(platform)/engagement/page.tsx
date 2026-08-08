@@ -33,6 +33,7 @@ import { STALE_TIME } from '../../../lib/queryClient';
 import Image from 'next/image';
 import type { LucideIcon } from 'lucide-react';
 import { Skeleton as SharedSkeleton } from '@/components/ui/Skeleton';
+import { getInitials } from '../../../lib/format';
 
 // ─── Types ───────────────────────────────────────────────────────
 
@@ -220,12 +221,7 @@ function Avatar({
   url?: string;
   size?: number;
 }) {
-  const initials = name
-    .split(' ')
-    .slice(0, 2)
-    .map((n) => n[0])
-    .join('')
-    .toUpperCase();
+  const initials = getInitials(name);
   return url ? (
     <div
       className={`w-${size} h-${size} rounded-full overflow-hidden relative`}

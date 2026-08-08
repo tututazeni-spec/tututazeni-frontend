@@ -9,6 +9,7 @@ import { STALE_TIME } from '../../../lib/queryClient';
 import { useDebounce } from '../../../hooks/useDebounce';
 import Image from 'next/image';
 import { Skeleton as SharedSkeleton } from '@/components/ui/Skeleton';
+import { formatDate as fmtDate } from '../../../lib/format';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -141,15 +142,6 @@ interface AdminDashboard {
 type View = 'catalog' | 'detail' | 'my-paths' | 'dashboard';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function fmtDate(d: string | null): string {
-  if (!d) return '—';
-  return new Date(d).toLocaleDateString('pt-AO', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-  });
-}
 
 function fmtHours(h: number): string {
   if (!h) return '—';

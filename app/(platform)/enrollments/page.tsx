@@ -9,6 +9,7 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import Image from 'next/image';
 import { Skeleton as SharedSkeleton } from '@/components/ui/Skeleton';
+import { formatDate as fmtDate, getInitials } from '@/lib/format';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -115,15 +116,6 @@ interface TeamProgress {
 type View = 'my' | 'admin' | 'compliance' | 'team';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function fmtDate(d: string | null): string {
-  if (!d) return '—';
-  return new Date(d).toLocaleDateString('pt-AO', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-  });
-}
 
 function deadlineCountdown(deadline: string | null): string {
   if (!deadline) return '';
@@ -257,12 +249,7 @@ function Avatar({
 }: {
   user: { fullName: string; avatarUrl: string | null };
 }) {
-  const initials = user.fullName
-    .split(' ')
-    .slice(0, 2)
-    .map((n) => n[0])
-    .join('')
-    .toUpperCase();
+  const initials = getInitials(user.fullName);
   return user.avatarUrl ? (
     <Image
       src={user.avatarUrl}

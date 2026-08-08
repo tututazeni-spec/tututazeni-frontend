@@ -9,6 +9,7 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import Image from 'next/image';
 import { Skeleton as SharedSkeleton } from '@/components/ui/Skeleton';
+import { formatDate as fmtDate } from '@/lib/format';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -147,15 +148,6 @@ function fmtDuration(h: number | null, minutes?: number | null): string {
       : `${Math.floor(minutes / 60)}h ${minutes % 60}min`;
   if (!h) return '—';
   return `${h}h`;
-}
-
-function fmtDate(d: string | null): string {
-  if (!d) return '—';
-  return new Date(d).toLocaleDateString('pt-AO', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-  });
 }
 
 function isOverdue(deadline: string | null): boolean {

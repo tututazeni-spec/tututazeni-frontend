@@ -8,6 +8,7 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import Image from 'next/image';
 import { Skeleton as SharedSkeleton } from '@/components/ui/Skeleton';
+import { getInitials as initials } from '@/lib/format';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -159,15 +160,6 @@ interface CareerPlan {
 type View = 'dashboard' | 'paths' | 'vacancies' | 'plan' | 'succession';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function initials(name: string) {
-  return name
-    .split(' ')
-    .slice(0, 2)
-    .map((n) => n[0])
-    .join('')
-    .toUpperCase();
-}
 
 function Avatar({
   name,

@@ -54,6 +54,7 @@ import {
   Loader2,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
+import { getInitials } from '@/lib/format';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 // Employee, EmployeeStatus, SeniorityLevel, WorkMode, ContractType, FilterState
@@ -161,12 +162,7 @@ function Avatar({
     md: 'w-10 h-10 text-sm',
     lg: 'w-14 h-14 text-base',
   };
-  const initials = name
-    .split(' ')
-    .slice(0, 2)
-    .map((n) => n[0])
-    .join('')
-    .toUpperCase();
+  const initials = getInitials(name);
   const [imgError, setImgError] = useState(false);
 
   const colors = [

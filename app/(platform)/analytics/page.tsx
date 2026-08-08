@@ -7,6 +7,7 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import Image from 'next/image';
 import { Skeleton as SharedSkeleton } from '@/components/ui/Skeleton';
+import { getInitials as initials } from '@/lib/format';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -140,15 +141,6 @@ interface HRDashboard {
 type View = 'overview' | 'my' | 'manager' | 'hr' | 'risks';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function initials(name: string) {
-  return name
-    .split(' ')
-    .slice(0, 2)
-    .map((n) => n[0])
-    .join('')
-    .toUpperCase();
-}
 
 function Avatar({
   name,

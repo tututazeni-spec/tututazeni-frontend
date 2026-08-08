@@ -8,6 +8,7 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { sanitizeHtml } from '@/lib/sanitize';
 import { Skeleton as SharedSkeleton } from '@/components/ui/Skeleton';
+import { formatDateTime as fmtDate } from '@/lib/format';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -106,15 +107,6 @@ const QUICK_ACTIONS = [
 ];
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function fmtDate(d: string) {
-  return new Date(d).toLocaleDateString('pt-AO', {
-    day: '2-digit',
-    month: 'short',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
-}
 
 function Skeleton({ rows = 3 }: { rows?: number }) {
   return (
