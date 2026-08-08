@@ -26,6 +26,7 @@ import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Skeleton as SharedSkeleton } from '@/components/ui/Skeleton';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 // ─── Helpers ─────────────────────────────────────────────────────
 
@@ -807,6 +808,8 @@ const TABS: { id: Tab; label: string; icon: LucideIcon }[] = [
 ];
 
 export default function RoiImpactPage() {
+  usePageTitle('ROI e Impacto');
+
   const [tab, setTab] = useState<Tab>('executive');
 
   const PerformanceTab = () => {

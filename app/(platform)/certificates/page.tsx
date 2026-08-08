@@ -2,6 +2,7 @@
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 interface Certificate {
   id: string;
@@ -14,11 +15,18 @@ interface Certificate {
 }
 
 export default function MyCertificatesPage() {
-  const { data: resp, isLoading: loading, error: queryError, refetch } =
-    useApiQuery<{ data: Certificate[] }>(
-      queryKeys.certification.myCertificates(), '/certification/my-certificates',
-      { staleTime: STALE_TIME.SEMI_STATIC },
-    );
+  usePageTitle('Certificados');
+
+  const {
+    data: resp,
+    isLoading: loading,
+    error: queryError,
+    refetch,
+  } = useApiQuery<{ data: Certificate[] }>(
+    queryKeys.certification.myCertificates(),
+    '/certification/my-certificates',
+    { staleTime: STALE_TIME.SEMI_STATIC },
+  );
   const data = resp?.data ?? [];
   const error = queryError?.message ?? '';
   const fetchData = () => refetch();
@@ -60,8 +68,7 @@ export default function MyCertificatesPage() {
                 <h3 className="font-semibold text-gray-900">{c.title}</h3>
                 <p className="text-sm text-gray-500 font-mono">{c.code}</p>
                 <p className="text-xs text-gray-400 mt-1">
-                  Emitido em{' '}
-                  {new Date(c.issuedAt).toLocaleDateString('pt-AO')}
+                  Emitido em {new Date(c.issuedAt).toLocaleDateString('pt-AO')}
                   {c.isRevoked && (
                     <span className="text-red-500 ml-2">• Revogado</span>
                   )}

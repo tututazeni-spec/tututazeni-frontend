@@ -5,6 +5,7 @@ import { keepPreviousData } from '@tanstack/react-query';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 interface OverdueReport {
   id: string;
@@ -28,7 +29,10 @@ const REPORT_COLORS: Record<string, string> = {
 const MS_PER_DAY = 86_400_000;
 
 function daysOverdue(dueDate: string): number {
-  return Math.max(0, Math.floor((Date.now() - new Date(dueDate).getTime()) / MS_PER_DAY));
+  return Math.max(
+    0,
+    Math.floor((Date.now() - new Date(dueDate).getTime()) / MS_PER_DAY),
+  );
 }
 
 function formatDate(d: string): string {
@@ -36,18 +40,25 @@ function formatDate(d: string): string {
 }
 
 export default function OverdueReportsPage() {
+  usePageTitle('Relatórios em Atraso');
+
   const [page, setPage] = useState(1);
   const params = { page, limit: 20 };
 
-  const { data: resp, isLoading: loading, error: queryError, refetch } =
-    useApiQuery<{
-      data: OverdueReport[];
-      total: number;
-      totalPages: number;
-    }>(
-      queryKeys.funders.overdueReports(params), '/crm/funders/overdue-reports',
-      { params, staleTime: STALE_TIME.DYNAMIC, placeholderData: keepPreviousData },
-    );
+  const {
+    data: resp,
+    isLoading: loading,
+    error: queryError,
+    refetch,
+  } = useApiQuery<{
+    data: OverdueReport[];
+    total: number;
+    totalPages: number;
+  }>(queryKeys.funders.overdueReports(params), '/crm/funders/overdue-reports', {
+    params,
+    staleTime: STALE_TIME.DYNAMIC,
+    placeholderData: keepPreviousData,
+  });
 
   const data = resp?.data ?? [];
   const total = resp?.total ?? 0;
@@ -80,9 +91,12 @@ export default function OverdueReportsPage() {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Relatórios em Atraso</h1>
+          <h1 className="text-2xl font-bold text-gray-900">
+            Relatórios em Atraso
+          </h1>
           <p className="text-gray-500">
-            {total} {total === 1 ? 'relatório por entregar' : 'relatórios por entregar'}
+            {total}{' '}
+            {total === 1 ? 'relatório por entregar' : 'relatórios por entregar'}
           </p>
         </div>
         <Link
@@ -145,7 +159,9 @@ export default function OverdueReportsPage() {
                       )}
                     </td>
                     <td className="px-4 py-3 text-gray-600">{r.period}</td>
-                    <td className="px-4 py-3 text-gray-600">{formatDate(r.dueDate)}</td>
+                    <td className="px-4 py-3 text-gray-600">
+                      {formatDate(r.dueDate)}
+                    </td>
                     <td className="px-4 py-3 text-center">
                       <span
                         className={`font-medium ${

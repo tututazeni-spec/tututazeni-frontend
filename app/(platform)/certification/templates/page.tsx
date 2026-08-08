@@ -4,6 +4,7 @@ import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 interface Template {
   id: string;
@@ -17,7 +18,12 @@ interface Template {
 }
 
 const TYPES = [
-  'COURSE', 'PROGRAM', 'COMPETENCY', 'ATTENDANCE', 'PARTICIPATION', 'ACHIEVEMENT',
+  'COURSE',
+  'PROGRAM',
+  'COMPETENCY',
+  'ATTENDANCE',
+  'PARTICIPATION',
+  'ACHIEVEMENT',
 ];
 
 interface CreateTemplatePayload {
@@ -32,6 +38,8 @@ interface CreateTemplatePayload {
 }
 
 export default function CertificateTemplatesPage() {
+  usePageTitle('Templates Certificado');
+
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({
     name: '',
@@ -44,11 +52,16 @@ export default function CertificateTemplatesPage() {
     isDefault: false,
   });
 
-  const { data = [], isLoading: loading, error: queryError, refetch } =
-    useApiQuery<Template[]>(
-      queryKeys.certification.templates(), '/certification/templates',
-      { staleTime: STALE_TIME.SEMI_STATIC },
-    );
+  const {
+    data = [],
+    isLoading: loading,
+    error: queryError,
+    refetch,
+  } = useApiQuery<Template[]>(
+    queryKeys.certification.templates(),
+    '/certification/templates',
+    { staleTime: STALE_TIME.SEMI_STATIC },
+  );
   const error = queryError?.message ?? '';
   const fetchData = () => refetch();
 

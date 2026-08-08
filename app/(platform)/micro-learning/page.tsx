@@ -11,6 +11,7 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { sanitizeHtml } from '@/lib/sanitize';
 import Image from 'next/image';
 import { Skeleton as SharedSkeleton } from '@/components/ui/Skeleton';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -891,6 +892,8 @@ const TITLES: Record<Nav['view'], string> = {
 };
 
 export default function MicroLearningPage() {
+  usePageTitle('Micro-aprendizagem');
+
   const [nav, setNav] = useState<Nav>({ view: 'feed' });
 
   const handleSelect = (item: MicroLearning) =>

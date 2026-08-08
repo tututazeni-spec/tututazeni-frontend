@@ -6,6 +6,7 @@ import { useApiQuery } from '@/hooks/useApiQuery';
 import { useDebounce } from '@/hooks/useDebounce';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 interface Funder {
   id: string;
@@ -37,21 +38,35 @@ const TYPE_LABELS: Record<string, string> = {
 };
 
 export default function FundersPage() {
+  usePageTitle('Financiadores');
+
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const debouncedSearch = useDebounce(search);
   const params = {
-    page, limit: 20, search: debouncedSearch,
-    type: typeFilter, status: statusFilter,
+    page,
+    limit: 20,
+    search: debouncedSearch,
+    type: typeFilter,
+    status: statusFilter,
   };
 
-  const { data: resp, isLoading: loading, error: queryError, refetch } =
-    useApiQuery<{ data: Funder[]; total: number; totalPages: number }>(
-      queryKeys.funders.list(params), '/crm/funders',
-      { params, staleTime: STALE_TIME.DYNAMIC, placeholderData: keepPreviousData },
-    );
+  const {
+    data: resp,
+    isLoading: loading,
+    error: queryError,
+    refetch,
+  } = useApiQuery<{ data: Funder[]; total: number; totalPages: number }>(
+    queryKeys.funders.list(params),
+    '/crm/funders',
+    {
+      params,
+      staleTime: STALE_TIME.DYNAMIC,
+      placeholderData: keepPreviousData,
+    },
+  );
 
   const data = resp?.data ?? [];
   const total = resp?.total ?? 0;
@@ -174,12 +189,16 @@ export default function FundersPage() {
             ) : (
               data.map((f) => (
                 <tr key={f.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-3 font-mono text-blue-600">{f.code}</td>
+                  <td className="px-4 py-3 font-mono text-blue-600">
+                    {f.code}
+                  </td>
                   <td className="px-4 py-3 font-medium">{f.name}</td>
                   <td className="px-4 py-3 text-gray-600">
                     {TYPE_LABELS[f.type] || f.type}
                   </td>
-                  <td className="px-4 py-3 text-gray-600">{f.country || '—'}</td>
+                  <td className="px-4 py-3 text-gray-600">
+                    {f.country || '—'}
+                  </td>
                   <td className="px-4 py-3">
                     <span
                       className={`px-2 py-1 rounded-full text-xs font-medium ${

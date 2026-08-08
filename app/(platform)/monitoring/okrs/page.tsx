@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 interface KeyResult {
   id: string;
@@ -34,13 +35,20 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 export default function OkrsPage() {
+  usePageTitle('Monitoria e Avaliação');
+
   const [selectedCycle, setSelectedCycle] = useState<string>('');
 
-  const { data: cycles = [], isLoading: loading, error: cyclesError, refetch } =
-    useApiQuery<Cycle[]>(
-      queryKeys.monitoring.okrs({ kind: 'cycles' }), '/monitoring/okr/cycles',
-      { staleTime: STALE_TIME.SEMI_STATIC },
-    );
+  const {
+    data: cycles = [],
+    isLoading: loading,
+    error: cyclesError,
+    refetch,
+  } = useApiQuery<Cycle[]>(
+    queryKeys.monitoring.okrs({ kind: 'cycles' }),
+    '/monitoring/okr/cycles',
+    { staleTime: STALE_TIME.SEMI_STATIC },
+  );
 
   // Selecciona o 1.º ciclo assim que a lista chega.
   useEffect(() => {
@@ -166,7 +174,8 @@ export default function OkrsPage() {
                         </div>
                         <span
                           className={`px-2 py-1 rounded-full text-xs font-medium ${
-                            STATUS_COLORS[kr.status] ?? 'bg-gray-100 text-gray-600'
+                            STATUS_COLORS[kr.status] ??
+                            'bg-gray-100 text-gray-600'
                           }`}
                         >
                           {Math.round(kr.progress)}%

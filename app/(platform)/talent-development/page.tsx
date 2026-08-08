@@ -33,6 +33,7 @@ import { queryKeys } from '../../../lib/queryKeys';
 import { STALE_TIME } from '../../../lib/queryClient';
 import Image from 'next/image';
 import { Skeleton as SharedSkeleton } from '@/components/ui/Skeleton';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 // ─── Types ────────────────────────────────────────────────────────
 
@@ -1178,6 +1179,8 @@ function Skeleton({ rows = 3 }: { rows?: number }) {
 // ─── Main Page ───────────────────────────────────────────────────
 
 export default function TalentDevelopmentPage() {
+  usePageTitle('Desenvolvimento de Talentos');
+
   const [tab, setTab] = useState<Tab>('pool');
 
   const TAB_COMPONENTS: Record<Tab, JSX.Element> = {

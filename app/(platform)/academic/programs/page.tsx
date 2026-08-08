@@ -5,6 +5,7 @@ import { useApiQuery } from '@/hooks/useApiQuery';
 import { useDebounce } from '@/hooks/useDebounce';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 interface Program {
   id: string;
@@ -24,17 +25,33 @@ const LEVEL_COLORS: Record<string, string> = {
 };
 
 export default function AcademicProgramsPage() {
+  usePageTitle('Gestão Académica');
+
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
   const [levelFilter, setLevelFilter] = useState('');
   const debouncedSearch = useDebounce(search);
-  const params = { page, limit: 20, search: debouncedSearch, level: levelFilter };
+  const params = {
+    page,
+    limit: 20,
+    search: debouncedSearch,
+    level: levelFilter,
+  };
 
-  const { data: resp, isLoading: loading, error: queryError, refetch } =
-    useApiQuery<{ data: Program[]; total: number; totalPages: number }>(
-      queryKeys.academic.programs(params), '/academic/programs',
-      { params, staleTime: STALE_TIME.SEMI_STATIC, placeholderData: keepPreviousData },
-    );
+  const {
+    data: resp,
+    isLoading: loading,
+    error: queryError,
+    refetch,
+  } = useApiQuery<{ data: Program[]; total: number; totalPages: number }>(
+    queryKeys.academic.programs(params),
+    '/academic/programs',
+    {
+      params,
+      staleTime: STALE_TIME.SEMI_STATIC,
+      placeholderData: keepPreviousData,
+    },
+  );
 
   const data = resp?.data ?? [];
   const total = resp?.total ?? 0;
@@ -120,7 +137,9 @@ export default function AcademicProgramsPage() {
               className="bg-white rounded-lg shadow hover:shadow-md transition p-5 flex flex-col"
             >
               <div className="flex justify-between items-start mb-2">
-                <span className="font-mono text-xs text-blue-600">{p.code}</span>
+                <span className="font-mono text-xs text-blue-600">
+                  {p.code}
+                </span>
                 <span
                   className={`px-2 py-0.5 rounded-full text-xs font-medium ${
                     LEVEL_COLORS[p.level] ?? 'bg-gray-100 text-gray-600'
