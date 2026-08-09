@@ -7,56 +7,21 @@ import {
   useApiMutation,
   useOptimisticMutation,
 } from '@/hooks/useApiQuery';
-import { useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { Skeleton as SharedSkeleton } from '@/components/ui/Skeleton';
 import { useFormValidation } from '@/hooks/useFormValidation';
 import { required } from '@/lib/validation';
+import {
+  useNotificationsInbox,
+  type ReadFilter,
+} from '@/hooks/useNotificationsInbox';
+import { InboxView as InboxDetailView } from '@/components/notifications/InboxView';
+import { CATEGORY_CFG, Skeleton } from '@/components/notifications/shared';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
-
-type Priority = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
-type Category =
-  | 'LMS'
-  | 'PDI'
-  | 'PERFORMANCE'
-  | 'HR'
-  | 'ENGAGEMENT'
-  | 'GAMIFICATION'
-  | 'SYSTEM'
-  | 'ONBOARDING'
-  | 'KNOWLEDGE';
-
-interface Notification {
-  id: number;
-  type: string;
-  title: string | null;
-  message: string;
-  priority: Priority;
-  category: Category | null;
-  actionUrl: string | null;
-  actionLabel: string | null;
-  read: boolean;
-  readAt: string | null;
-  archived: boolean;
-  expiresAt: string | null;
-  createdAt: string;
-}
-
-interface NotifData {
-  data: Notification[];
-  grouped: {
-    today: Notification[];
-    yesterday: Notification[];
-    thisWeek: Notification[];
-    older: Notification[];
-  };
-  total: number;
-  unreadCount: number;
-  totalPages: number;
-}
+// Priority/Category/Notification/NotifData vivem em
+// components/notifications/types.ts (partilhados com InboxView/NotifItem).
 
 interface Preferences {
   inApp: boolean;
@@ -82,330 +47,34 @@ interface Stats {
 
 type View = 'inbox' | 'preferences' | 'admin';
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function timeAgo(d: string): string {
-  const diff = Date.now() - new Date(d).getTime();
-  const m = Math.floor(diff / 60000);
-  if (m < 1) return 'agora mesmo';
-  if (m < 60) return `há ${m}min`;
-  const h = Math.floor(m / 60);
-  if (h < 24) return `há ${h}h`;
-  const days = Math.floor(h / 24);
-  return `há ${days} dias`;
-}
-
-function Skeleton({ rows = 4 }: { rows?: number }) {
-  return (
-    <SharedSkeleton
-      rows={rows}
-      wrapperClassName="space-y-2 animate-pulse"
-      itemClassName="h-16 bg-gray-100 rounded-xl"
-    />
-  );
-}
-
-// ─── Config ───────────────────────────────────────────────────────────────────
-
-const PRIORITY_CFG: Record<
-  Priority,
-  { icon: string; cls: string; border: string }
-> = {
-  LOW: { icon: '○', cls: 'text-gray-400', border: 'border-gray-100' },
-  MEDIUM: { icon: '●', cls: 'text-blue-500', border: 'border-blue-100' },
-  HIGH: { icon: '▲', cls: 'text-amber-500', border: 'border-amber-100' },
-  CRITICAL: { icon: '🔴', cls: 'text-red-600', border: 'border-red-200' },
-};
-
-const CATEGORY_CFG: Record<
-  string,
-  { icon: string; label: string; cls: string }
-> = {
-  LMS: { icon: '🎓', label: 'Aprendizagem', cls: 'bg-blue-50 text-blue-700' },
-  PDI: { icon: '🎯', label: 'PDI', cls: 'bg-purple-50 text-purple-700' },
-  PERFORMANCE: {
-    icon: '📊',
-    label: 'Performance',
-    cls: 'bg-amber-50 text-amber-700',
-  },
-  HR: { icon: '👤', label: 'RH', cls: 'bg-emerald-50 text-emerald-700' },
-  ENGAGEMENT: {
-    icon: '💬',
-    label: 'Engagement',
-    cls: 'bg-pink-50 text-pink-700',
-  },
-  GAMIFICATION: {
-    icon: '🏆',
-    label: 'Gamificação',
-    cls: 'bg-yellow-50 text-yellow-700',
-  },
-  SYSTEM: { icon: '⚙️', label: 'Sistema', cls: 'bg-gray-100 text-gray-600' },
-  ONBOARDING: {
-    icon: '🚀',
-    label: 'Onboarding',
-    cls: 'bg-teal-50 text-teal-700',
-  },
-  KNOWLEDGE: {
-    icon: '📚',
-    label: 'Conhecimento',
-    cls: 'bg-indigo-50 text-indigo-700',
-  },
-};
-
-// ─── Notification Item ────────────────────────────────────────────────────────
-
-function NotifItem({
-  notif,
-  onRead,
-  onArchive,
-}: {
-  notif: Notification;
-  onRead: (id: number) => void;
-  onArchive: (id: number) => void;
-}) {
-  const priorityCfg = PRIORITY_CFG[notif.priority] ?? PRIORITY_CFG.MEDIUM;
-  const catCfg = notif.category ? CATEGORY_CFG[notif.category] : null;
-
-  return (
-    <div
-      className={`group flex items-start gap-3 px-4 py-3.5 border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors ${
-        !notif.read ? 'bg-blue-50/40' : ''
-      } ${notif.priority === 'CRITICAL' ? 'border-l-4 border-l-red-400' : ''}`}
-    >
-      {/* Priority indicator */}
-      <div className={`mt-1 text-sm flex-shrink-0 ${priorityCfg.cls}`}>
-        {priorityCfg.icon}
-      </div>
-
-      {/* Content */}
-      <div className="flex-1 min-w-0">
-        <div className="flex items-start justify-between gap-2">
-          <div className="flex-1">
-            {notif.title && (
-              <div
-                className={`text-sm font-semibold mb-0.5 ${!notif.read ? 'text-gray-900' : 'text-gray-700'}`}
-              >
-                {notif.title}
-              </div>
-            )}
-            <p
-              className={`text-sm leading-relaxed ${!notif.read ? 'text-gray-800' : 'text-gray-500'}`}
-            >
-              {notif.message}
-            </p>
-          </div>
-
-          {!notif.read && (
-            <div className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0 mt-1.5" />
-          )}
-        </div>
-
-        <div className="flex items-center gap-3 mt-1.5 flex-wrap">
-          {catCfg && (
-            <span className={`text-xs px-1.5 py-0.5 rounded ${catCfg.cls}`}>
-              {catCfg.icon} {catCfg.label}
-            </span>
-          )}
-          <span className="text-xs text-gray-400">
-            {timeAgo(notif.createdAt)}
-          </span>
-
-          {notif.actionUrl && (
-            <a
-              href={notif.actionUrl}
-              className="text-xs text-blue-600 hover:underline font-medium"
-              onClick={() => !notif.read && onRead(notif.id)}
-            >
-              {notif.actionLabel ?? 'Ver →'}
-            </a>
-          )}
-
-          {/* Acções hover */}
-          <div className="ml-auto flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-            {!notif.read && (
-              <button
-                onClick={() => onRead(notif.id)}
-                className="text-xs text-blue-600 hover:text-blue-800"
-              >
-                Marcar lida
-              </button>
-            )}
-            <button
-              onClick={() => onArchive(notif.id)}
-              className="text-xs text-gray-400 hover:text-gray-600"
-            >
-              Arquivar
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
+// timeAgo/PRIORITY_CFG/NotifItem vivem em components/notifications/
+// InboxView.tsx (só usados aí); CATEGORY_CFG/Skeleton em
+// components/notifications/shared.tsx (partilhados com PreferencesView/
+// AdminView abaixo).
 
 // ─── View: Inbox ──────────────────────────────────────────────────────────────
 
+// Container: useNotificationsInbox trata a query + mutações; a apresentação
+// (toolbar de filtros + lista) vive em components/notifications/InboxView.tsx.
 function InboxView() {
-  const qc = useQueryClient();
   const [category, setCategory] = useState('');
-  const [readFilter, setReadFilter] = useState<'all' | 'unread' | 'read'>(
-    'all',
-  );
-
-  const params = {
-    limit: 50,
-    category,
-    read: readFilter === 'all' ? undefined : String(readFilter === 'read'),
-  };
-  const listKey = queryKeys.notifications.my(params);
-
-  // Polling inteligente: a caixa de entrada refresca a cada 60s.
-  const { data, isLoading: loading } = useApiQuery<NotifData>(
-    listKey,
-    '/notifications/my',
-    { params, staleTime: STALE_TIME.DYNAMIC, refetchInterval: 60_000 },
-  );
-
-  // Marcar lida: optimistic na lista activa + no badge global; rollback em erro.
-  const markRead = useApiMutation(
-    (id: number) => apiClient.patch(`/notifications/my/${id}/read`, {}),
-    {
-      onMutate: async (id: number) => {
-        await qc.cancelQueries({ queryKey: listKey });
-        const prev = qc.getQueryData<NotifData>(listKey);
-        const flip = (arr: Notification[]) =>
-          arr.map((n) => (n.id === id ? { ...n, read: true } : n));
-        if (prev) {
-          qc.setQueryData<NotifData>(listKey, {
-            ...prev,
-            unreadCount: Math.max(0, prev.unreadCount - 1),
-            data: flip(prev.data),
-            grouped: {
-              today: flip(prev.grouped.today),
-              yesterday: flip(prev.grouped.yesterday),
-              thisWeek: flip(prev.grouped.thisWeek),
-              older: flip(prev.grouped.older),
-            },
-          });
-        }
-        qc.setQueryData<{ count: number }>(
-          queryKeys.notifications.unreadCount(),
-          (c) => (c ? { count: Math.max(0, c.count - 1) } : c),
-        );
-        return { prev };
-      },
-      onError: (_e, _id, ctx) => {
-        const prev = (ctx as { prev?: NotifData } | undefined)?.prev;
-        if (prev) qc.setQueryData(listKey, prev);
-      },
-      invalidateKeys: [queryKeys.notifications.unreadCount()],
-    },
-  );
-
-  const archive = useApiMutation(
-    (id: number) => apiClient.patch(`/notifications/my/${id}/archive`, {}),
-    { invalidateKeys: [listKey, queryKeys.notifications.unreadCount()] },
-  );
-
-  const readAll = useApiMutation(
-    () => apiClient.patch('/notifications/my/read-all', {}),
-    { invalidateKeys: [listKey, queryKeys.notifications.unreadCount()] },
-  );
-
-  const handleRead = (id: number) => markRead.mutate(id);
-  const handleArchive = (id: number) => archive.mutate(id);
-  const handleReadAll = () => readAll.mutate(undefined);
-  const marking = readAll.isPending;
-
-  const renderGroup = (label: string, items: Notification[]) => {
-    if (!items.length) return null;
-    return (
-      <div key={label}>
-        <div className="px-4 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wide bg-gray-50 border-b border-gray-100">
-          {label}
-        </div>
-        {items.map((n) => (
-          <NotifItem
-            key={n.id}
-            notif={n}
-            onRead={handleRead}
-            onArchive={handleArchive}
-          />
-        ))}
-      </div>
-    );
-  };
+  const [readFilter, setReadFilter] = useState<ReadFilter>('all');
+  const { data, loading, handleRead, handleArchive, handleReadAll, marking } =
+    useNotificationsInbox(category, readFilter);
 
   return (
-    <div>
-      {/* Toolbar */}
-      <div className="flex items-center gap-3 mb-4 flex-wrap">
-        {/* Category filter */}
-        <select
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          <option value="">Todas as categorias</option>
-          {Object.entries(CATEGORY_CFG).map(([k, v]) => (
-            <option key={k} value={k}>
-              {v.icon} {v.label}
-            </option>
-          ))}
-        </select>
-
-        {/* Read filter */}
-        <div className="flex gap-1 bg-gray-100 p-1 rounded-lg">
-          {(['all', 'unread', 'read'] as const).map((f) => (
-            <button
-              key={f}
-              onClick={() => setReadFilter(f)}
-              className={`px-3 py-1 text-xs font-medium rounded transition-colors ${
-                readFilter === f
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-500 hover:text-gray-700'
-              }`}
-            >
-              {{ all: 'Todas', unread: 'Não lidas', read: 'Lidas' }[f]}
-            </button>
-          ))}
-        </div>
-
-        {data && data.unreadCount > 0 && (
-          <button
-            onClick={handleReadAll}
-            disabled={marking}
-            className="ml-auto text-xs text-blue-600 hover:text-blue-800 font-medium disabled:opacity-50"
-          >
-            {marking
-              ? 'A marcar…'
-              : `Marcar todas como lidas (${data.unreadCount})`}
-          </button>
-        )}
-      </div>
-
-      {loading ? (
-        <Skeleton />
-      ) : !data ? null : (
-        <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-          {data.data.length === 0 ? (
-            <div className="py-16 text-center">
-              <div className="text-5xl mb-3">🔔</div>
-              <div className="text-sm text-gray-400">
-                Nenhuma notificação encontrada
-              </div>
-            </div>
-          ) : (
-            <>
-              {renderGroup('Hoje', data.grouped.today)}
-              {renderGroup('Ontem', data.grouped.yesterday)}
-              {renderGroup('Esta semana', data.grouped.thisWeek)}
-              {renderGroup('Antigas', data.grouped.older)}
-            </>
-          )}
-        </div>
-      )}
-    </div>
+    <InboxDetailView
+      category={category}
+      onCategoryChange={setCategory}
+      readFilter={readFilter}
+      onReadFilterChange={setReadFilter}
+      data={data}
+      loading={loading}
+      onRead={handleRead}
+      onArchive={handleArchive}
+      onReadAll={handleReadAll}
+      marking={marking}
+    />
   );
 }
 
