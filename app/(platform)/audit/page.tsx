@@ -100,13 +100,12 @@ function fmtTs(d: string): string {
   });
 }
 
-function Avatar({
-  name,
-  avatarUrl,
-}: {
+interface AvatarProps {
   name: string;
   avatarUrl?: string | null;
-}) {
+}
+
+function Avatar({ name, avatarUrl }: AvatarProps) {
   return avatarUrl ? (
     <Image
       src={avatarUrl}
@@ -122,7 +121,11 @@ function Avatar({
   );
 }
 
-function Skeleton({ rows = 5 }: { rows?: number }) {
+interface SkeletonProps {
+  rows?: number;
+}
+
+function Skeleton({ rows = 5 }: SkeletonProps) {
   return (
     <SharedSkeleton
       rows={rows}
@@ -164,11 +167,11 @@ const ACTION_ICONS: Record<string, string> = {
 
 // ─── Diff viewer ──────────────────────────────────────────────────────────────
 
-function DiffViewer({
-  changes,
-}: {
+interface DiffViewerProps {
   changes: Record<string, { from: unknown; to: unknown }>;
-}) {
+}
+
+function DiffViewer({ changes }: DiffViewerProps) {
   if (!changes || Object.keys(changes).length === 0) return null;
   return (
     <div className="mt-2 border border-gray-200 rounded-lg overflow-hidden text-xs font-mono">
@@ -191,7 +194,11 @@ function DiffViewer({
 
 // ─── Log Row ──────────────────────────────────────────────────────────────────
 
-function LogRow({ log }: { log: AuditLog }) {
+interface LogRowProps {
+  log: AuditLog;
+}
+
+function LogRow({ log }: LogRowProps) {
   const [expanded, setExpanded] = useState(false);
   const sevCfg = SEVERITY_CFG[log.severity] ?? SEVERITY_CFG.LOW;
   const actionIcon = ACTION_ICONS[log.action] ?? '📋';

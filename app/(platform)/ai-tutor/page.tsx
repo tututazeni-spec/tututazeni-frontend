@@ -108,7 +108,11 @@ const QUICK_ACTIONS = [
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function Skeleton({ rows = 3 }: { rows?: number }) {
+interface SkeletonProps {
+  rows?: number;
+}
+
+function Skeleton({ rows = 3 }: SkeletonProps) {
   return (
     <SharedSkeleton
       rows={rows}
@@ -134,13 +138,12 @@ function TypingDots() {
 
 // ─── Message Bubble ───────────────────────────────────────────────────────────
 
-function MessageBubble({
-  msg,
-  onRate,
-}: {
+interface MessageBubbleProps {
   msg: Message;
   onRate: (id: number, r: number) => void;
-}) {
+}
+
+function MessageBubble({ msg, onRate }: MessageBubbleProps) {
   const isUser = msg.role === 'USER';
   const [hover, setHover] = useState(false);
 

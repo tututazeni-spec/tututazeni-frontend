@@ -143,7 +143,11 @@ function parseOptions(optionsJson: unknown): QOption[] | null {
   }
 }
 
-function Skeleton({ rows = 3 }: { rows?: number }) {
+interface SkeletonProps {
+  rows?: number;
+}
+
+function Skeleton({ rows = 3 }: SkeletonProps) {
   return (
     <SharedSkeleton
       rows={rows}
@@ -155,13 +159,12 @@ function Skeleton({ rows = 3 }: { rows?: number }) {
 
 // ─── Timer component ──────────────────────────────────────────────────────────
 
-function CountdownTimer({
-  totalMinutes,
-  onExpire,
-}: {
+interface CountdownTimerProps {
   totalMinutes: number;
   onExpire: () => void;
-}) {
+}
+
+function CountdownTimer({ totalMinutes, onExpire }: CountdownTimerProps) {
   const [secondsLeft, setSecondsLeft] = useState(totalMinutes * 60);
 
   useEffect(() => {
@@ -192,19 +195,21 @@ function CountdownTimer({
 
 // ─── Question Player ──────────────────────────────────────────────────────────
 
+interface QuestionPlayerProps {
+  question: Question;
+  index: number;
+  total: number;
+  answer: AttemptAnswer | undefined;
+  onChange: (a: AttemptAnswer) => void;
+}
+
 function QuestionPlayer({
   question,
   index,
   total,
   answer,
   onChange,
-}: {
-  question: Question;
-  index: number;
-  total: number;
-  answer: AttemptAnswer | undefined;
-  onChange: (a: AttemptAnswer) => void;
-}) {
+}: QuestionPlayerProps) {
   const options = parseOptions(question.options);
 
   const handleSingleChoice = (idx: number) => {
@@ -376,17 +381,14 @@ function QuestionPlayer({
 
 // ─── Result Feedback ──────────────────────────────────────────────────────────
 
-function ResultView({
-  result,
-  assessment,
-  onRetry,
-  onBack,
-}: {
+interface ResultViewProps {
   result: AttemptResult;
   assessment: Assessment;
   onRetry: () => void;
   onBack: () => void;
-}) {
+}
+
+function ResultView({ result, assessment, onRetry, onBack }: ResultViewProps) {
   const { score, passed, totalQuestions, correctAnswers, needsManualReview } =
     result;
   const isPass = passed === true;
@@ -619,13 +621,12 @@ function playerReducer(state: PlayerState, action: PlayerAction): PlayerState {
   }
 }
 
-function AssessmentPlayer({
-  assessmentId,
-  onBack,
-}: {
+interface AssessmentPlayerProps {
   assessmentId: number;
   onBack: () => void;
-}) {
+}
+
+function AssessmentPlayer({ assessmentId, onBack }: AssessmentPlayerProps) {
   const [state, dispatch] = useReducer(playerReducer, initialPlayerState);
   const {
     status,
@@ -912,7 +913,11 @@ function AssessmentPlayer({
 
 // ─── View: List ───────────────────────────────────────────────────────────────
 
-function ListView({ onStart }: { onStart: (id: number) => void }) {
+interface ListViewProps {
+  onStart: (id: number) => void;
+}
+
+function ListView({ onStart }: ListViewProps) {
   const dataQ = useApiQuery<Assessment[]>(
     queryKeys.assessments.list(),
     '/assessments',
