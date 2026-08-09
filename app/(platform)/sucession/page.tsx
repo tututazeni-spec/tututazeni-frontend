@@ -138,7 +138,11 @@ type View = 'dashboard' | 'org-chart' | 'talent-pool' | 'positions';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function Skeleton({ rows = 4 }: { rows?: number }) {
+interface SkeletonProps {
+  rows?: number;
+}
+
+function Skeleton({ rows = 4 }: SkeletonProps) {
   return (
     <SharedSkeleton
       rows={rows}
@@ -148,15 +152,13 @@ function Skeleton({ rows = 4 }: { rows?: number }) {
   );
 }
 
-function Avatar({
-  name,
-  avatarUrl,
-  size = 'sm',
-}: {
+interface AvatarProps {
   name: string;
   avatarUrl?: string | null;
   size?: 'sm' | 'md' | 'lg';
-}) {
+}
+
+function Avatar({ name, avatarUrl, size = 'sm' }: AvatarProps) {
   const dim = {
     sm: 'w-8 h-8 text-xs',
     md: 'w-10 h-10 text-sm',
@@ -213,7 +215,11 @@ const COVERAGE_CFG: StatusBadgeMap<CoverageStatus> = {
   CRITICAL: { label: 'Crítico', cls: 'bg-red-50 text-red-700' },
 };
 
-function ReadinessBadge({ level }: { level: ReadinessLevel }) {
+interface ReadinessBadgeProps {
+  level: ReadinessLevel;
+}
+
+function ReadinessBadge({ level }: ReadinessBadgeProps) {
   const { label, cls, dot } = READINESS_CFG[level];
   return (
     <span
@@ -225,7 +231,11 @@ function ReadinessBadge({ level }: { level: ReadinessLevel }) {
   );
 }
 
-function MatchScore({ score }: { score: number | null }) {
+interface MatchScoreProps {
+  score: number | null;
+}
+
+function MatchScore({ score }: MatchScoreProps) {
   if (score === null) return <span className="text-xs text-gray-300">—</span>;
   const color =
     score >= 70
@@ -254,7 +264,12 @@ function MatchScore({ score }: { score: number | null }) {
 
 // ─── Successor Card ───────────────────────────────────────────────────────────
 
-function SuccessorCard({ plan, rank }: { plan: SuccessionPlan; rank: number }) {
+interface SuccessorCardProps {
+  plan: SuccessionPlan;
+  rank: number;
+}
+
+function SuccessorCard({ plan, rank }: SuccessorCardProps) {
   const priorityLabel: Record<SuccessorPriority, string> = {
     PRIMARY: '1º',
     SECONDARY: '2º',

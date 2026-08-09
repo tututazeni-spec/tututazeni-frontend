@@ -102,7 +102,11 @@ interface GovernanceData {
   unusedRoles?: UnusedRole[];
 }
 
-function Skeleton({ count = 3 }: { count?: number }) {
+interface SkeletonProps {
+  count?: number;
+}
+
+function Skeleton({ count = 3 }: SkeletonProps) {
   return (
     <SharedSkeleton
       rows={count}

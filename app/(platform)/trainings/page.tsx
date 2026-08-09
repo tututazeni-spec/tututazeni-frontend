@@ -123,7 +123,11 @@ function fmtHours(h: number | null) {
   return h < 1 ? `${h * 60}min` : `${h}h`;
 }
 
-function Skeleton({ rows = 4 }: { rows?: number }) {
+interface SkeletonProps {
+  rows?: number;
+}
+
+function Skeleton({ rows = 4 }: SkeletonProps) {
   return (
     <SharedSkeleton
       rows={rows}
@@ -133,15 +137,13 @@ function Skeleton({ rows = 4 }: { rows?: number }) {
   );
 }
 
-function Avatar({
-  name,
-  avatarUrl,
-  size = 'sm',
-}: {
+interface AvatarProps {
   name: string;
   avatarUrl?: string | null;
   size?: 'sm' | 'md';
-}) {
+}
+
+function Avatar({ name, avatarUrl, size = 'sm' }: AvatarProps) {
   const dim = size === 'sm' ? 'w-8 h-8 text-xs' : 'w-10 h-10 text-sm';
   return avatarUrl ? (
     <div
@@ -188,7 +190,11 @@ const PARTICIPANT_CFG: StatusBadgeMap<ParticipantStatus> = {
   COMPLETED: { label: 'Concluído', cls: 'bg-emerald-100 text-emerald-800' },
 };
 
-function StarRating({ value }: { value: number | null }) {
+interface StarRatingProps {
+  value: number | null;
+}
+
+function StarRating({ value }: StarRatingProps) {
   if (!value)
     return <span className="text-xs text-gray-300">Sem avaliação</span>;
   return (
@@ -208,13 +214,12 @@ function StarRating({ value }: { value: number | null }) {
 
 // ─── Training Card ────────────────────────────────────────────────────────────
 
-function TrainingCard({
-  training,
-  onClick,
-}: {
+interface TrainingCardProps {
   training: Training;
   onClick: () => void;
-}) {
+}
+
+function TrainingCard({ training, onClick }: TrainingCardProps) {
   const typeCfg = TYPE_CFG[training.type];
 
   return (
@@ -310,7 +315,11 @@ function TrainingCard({
 
 // ─── View: Catalog ────────────────────────────────────────────────────────────
 
-function CatalogView({ onSelect }: { onSelect: (id: number) => void }) {
+interface CatalogViewProps {
+  onSelect: (id: number) => void;
+}
+
+function CatalogView({ onSelect }: CatalogViewProps) {
   const [type, setType] = useState<TrainingType | ''>('');
   const [level, setLevel] = useState<TrainingLevel | ''>('');
   const [search, setSearch] = useState('');
@@ -420,13 +429,12 @@ function CatalogView({ onSelect }: { onSelect: (id: number) => void }) {
 
 // ─── View: Detail ─────────────────────────────────────────────────────────────
 
-function DetailView({
-  trainingId,
-  onBack,
-}: {
+interface DetailViewProps {
   trainingId: number;
   onBack: () => void;
-}) {
+}
+
+function DetailView({ trainingId, onBack }: DetailViewProps) {
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState('');
 
@@ -712,7 +720,11 @@ function DetailView({
 
 // ─── View: My Trainings ───────────────────────────────────────────────────────
 
-function MyTrainingsView({ onSelect }: { onSelect: (id: number) => void }) {
+interface MyTrainingsViewProps {
+  onSelect: (id: number) => void;
+}
+
+function MyTrainingsView({ onSelect }: MyTrainingsViewProps) {
   const [filter, setFilter] = useState<ParticipantStatus | ''>('');
 
   const { data = [], isLoading: loading } = useApiQuery<MyTrainingEntry[]>(

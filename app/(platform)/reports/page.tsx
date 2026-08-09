@@ -107,7 +107,11 @@ function defaultRange(months = 1) {
   return { from, to };
 }
 
-function Skeleton({ count = 3 }: { count?: number }) {
+interface SkeletonProps {
+  count?: number;
+}
+
+function Skeleton({ count = 3 }: SkeletonProps) {
   return (
     <SharedSkeleton
       rows={count}
@@ -117,15 +121,17 @@ function Skeleton({ count = 3 }: { count?: number }) {
   );
 }
 
+interface ProgressBarProps {
+  value: number;
+  color?: string;
+  height?: string;
+}
+
 function ProgressBar({
   value,
   color = 'bg-indigo-500',
   height = 'h-1.5',
-}: {
-  value: number;
-  color?: string;
-  height?: string;
-}) {
+}: ProgressBarProps) {
   return (
     <div className={`w-full ${height} bg-slate-100 rounded-full`}>
       <div
@@ -136,13 +142,12 @@ function ProgressBar({
   );
 }
 
-function StatusBadge({
-  value,
-  thresholds = [60, 80],
-}: {
+interface StatusBadgeProps {
   value: number;
   thresholds?: [number, number];
-}) {
+}
+
+function StatusBadge({ value, thresholds = [60, 80] }: StatusBadgeProps) {
   const color =
     value >= thresholds[1]
       ? 'bg-emerald-100 text-emerald-700'
@@ -214,13 +219,12 @@ const CAT_CONFIG: Record<
 
 // ─── Template Card ────────────────────────────────────────────────
 
-function TemplateCard({
-  tpl,
-  onRun,
-}: {
+interface TemplateCardProps {
   tpl: Template;
   onRun: (t: Template) => void;
-}) {
+}
+
+function TemplateCard({ tpl, onRun }: TemplateCardProps) {
   const cat = CAT_CONFIG[tpl.category] ?? CAT_CONFIG.HR;
   const Icon = cat.icon;
   return (
@@ -247,7 +251,11 @@ function TemplateCard({
 
 // ─── Report Hub (Home) ────────────────────────────────────────────
 
-function ReportHub({ onRun }: { onRun: (t: Template) => void }) {
+interface ReportHubProps {
+  onRun: (t: Template) => void;
+}
+
+function ReportHub({ onRun }: ReportHubProps) {
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('');
 
@@ -329,13 +337,12 @@ interface ReportRange {
   deptId: string;
 }
 
-function ReportViewer({
-  template,
-  onBack,
-}: {
+interface ReportViewerProps {
   template: Template;
   onBack: () => void;
-}) {
+}
+
+function ReportViewer({ template, onBack }: ReportViewerProps) {
   const [range, setRange] = useState<ReportRange>(() => ({
     ...defaultRange(1),
     deptId: '',
@@ -424,7 +431,12 @@ function ReportViewer({
 
 // ─── Generic Report Output ────────────────────────────────────────
 
-function ReportOutput({ data }: { data: ReportData; reportKey: string }) {
+interface ReportOutputProps {
+  data: ReportData;
+  reportKey: string;
+}
+
+function ReportOutput({ data }: ReportOutputProps) {
   const summary = data.summary ?? {};
 
   return (

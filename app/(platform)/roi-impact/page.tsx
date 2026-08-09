@@ -125,15 +125,17 @@ function fmt$(val: number): string {
   return `$${val.toLocaleString()}`;
 }
 
+interface ProgressBarProps {
+  value: number;
+  color?: string;
+  height?: string;
+}
+
 function ProgressBar({
   value,
   color = 'bg-indigo-500',
   height = 'h-1.5',
-}: {
-  value: number;
-  color?: string;
-  height?: string;
-}) {
+}: ProgressBarProps) {
   return (
     <div className={`w-full ${height} bg-slate-100 rounded-full`}>
       <div
@@ -144,7 +146,11 @@ function ProgressBar({
   );
 }
 
-function Skeleton({ count = 4 }: { count?: number }) {
+interface SkeletonProps {
+  count?: number;
+}
+
+function Skeleton({ count = 4 }: SkeletonProps) {
   return (
     <SharedSkeleton
       rows={count}
@@ -152,6 +158,17 @@ function Skeleton({ count = 4 }: { count?: number }) {
       itemClassName="bg-slate-100 rounded-xl h-24"
     />
   );
+}
+
+interface KPICardProps {
+  icon: LucideIcon;
+  label: string;
+  value: string | number;
+  sub?: string;
+  color?: string;
+  bg?: string;
+  status?: string;
+  trend?: number;
 }
 
 function KPICard({
@@ -163,16 +180,7 @@ function KPICard({
   bg = 'bg-indigo-50',
   status,
   trend,
-}: {
-  icon: LucideIcon;
-  label: string;
-  value: string | number;
-  sub?: string;
-  color?: string;
-  bg?: string;
-  status?: string;
-  trend?: number;
-}) {
+}: KPICardProps) {
   return (
     <div className="bg-white rounded-xl border border-slate-100 p-4 shadow-sm">
       <div className="flex items-start justify-between mb-3">
@@ -200,7 +208,11 @@ function KPICard({
 
 // ─── Confidence Badge ─────────────────────────────────────────────
 
-function ConfidenceBadge({ level }: { level?: string }) {
+interface ConfidenceBadgeProps {
+  level?: string;
+}
+
+function ConfidenceBadge({ level }: ConfidenceBadgeProps) {
   const cfg: Record<string, { color: string; label: string }> = {
     HIGH: { color: 'bg-emerald-100 text-emerald-700', label: 'Alta Confiança' },
     MEDIUM: { color: 'bg-amber-100 text-amber-700', label: 'Média Confiança' },

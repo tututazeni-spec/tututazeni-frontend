@@ -130,7 +130,11 @@ const TYPE_CONFIG: Record<
 
 // ─── Result Card ──────────────────────────────────────────────────
 
-function ResultCard({ result }: { result: SearchResult }) {
+interface ResultCardProps {
+  result: SearchResult;
+}
+
+function ResultCard({ result }: ResultCardProps) {
   const conf = TYPE_CONFIG[result.type] ?? TYPE_CONFIG.content;
   const Icon = conf.icon;
 
@@ -177,7 +181,11 @@ function ResultCard({ result }: { result: SearchResult }) {
 
 // ─── Suggestions Panel ────────────────────────────────────────────
 
-function SuggestionsPanel({ onSearch }: { onSearch: (q: string) => void }) {
+interface SuggestionsPanelProps {
+  onSearch: (q: string) => void;
+}
+
+function SuggestionsPanel({ onSearch }: SuggestionsPanelProps) {
   const { data } = useApiQuery<SuggestionsData>(
     queryKeys.search.suggestions(),
     '/search/suggestions',
@@ -267,15 +275,13 @@ function SuggestionsPanel({ onSearch }: { onSearch: (q: string) => void }) {
 
 // ─── Results View ─────────────────────────────────────────────────
 
-function ResultsView({
-  data,
-  activeType,
-  setActiveType,
-}: {
+interface ResultsViewProps {
   data: SearchResponse;
   activeType: string;
   setActiveType: (t: string) => void;
-}) {
+}
+
+function ResultsView({ data, activeType, setActiveType }: ResultsViewProps) {
   const types = Object.keys(data.grouped).filter(
     (t) => (data.grouped[t]?.length ?? 0) > 0,
   );
