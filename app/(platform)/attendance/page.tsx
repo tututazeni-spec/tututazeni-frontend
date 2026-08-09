@@ -52,19 +52,15 @@ import Image from 'next/image';
 import type { LucideIcon } from 'lucide-react';
 import { useFormValidation } from '@/hooks/useFormValidation';
 import { required } from '@/lib/validation';
+import { useClockInOut } from '@/hooks/useClockInOut';
+import { ClockWidgetView } from '@/components/attendance/ClockWidgetView';
+import type {
+  AttendanceRecord,
+  AttendanceStatus,
+  MyAttendanceData,
+} from '@/components/attendance/types';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
-
-type AttendanceStatus =
-  | 'PRESENT'
-  | 'LATE'
-  | 'PARTIAL'
-  | 'ABSENT'
-  | 'JUSTIFIED'
-  | 'REMOTE'
-  | 'ON_LEAVE'
-  | 'HOLIDAY'
-  | 'RECORDED';
 
 type LeaveType =
   | 'VACATION'
@@ -78,27 +74,8 @@ type LeaveType =
 
 type LeaveStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'CANCELLED';
 
-interface AttendanceRecord {
-  id: number;
-  userId: number;
-  date: string;
-  status: AttendanceStatus;
-  context: string;
-  method: string;
-  clockIn?: string;
-  clockOut?: string;
-  workMinutes?: number;
-  hoursWorked?: number;
-  overtimeMinutes?: number;
-  locationLabel?: string;
-  notes?: string;
-  user?: {
-    id: number;
-    name: string;
-    email: string;
-    employee?: { department: string; avatarUrl?: string };
-  };
-}
+// AttendanceRecord/MyAttendanceSummary/MyAttendanceData vivem em
+// components/attendance/types.ts (partilhados com hooks/useClockInOut.ts).
 
 interface DashboardData {
   date: string;
@@ -128,18 +105,6 @@ interface LeaveBalance {
   entitled: number;
   used: number;
   remaining: number;
-}
-
-interface MyAttendanceSummary {
-  presentDays: number;
-  absentDays: number;
-  lateDays: number;
-  attendanceRate: number;
-}
-
-interface MyAttendanceData {
-  summary?: MyAttendanceSummary;
-  records?: AttendanceRecord[];
 }
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -366,171 +331,32 @@ function MinutesToTime(min: number): string {
 
 // ─── Clock-in Widget ──────────────────────────────────────────────────────────
 
+// Container: useClockInOut trata a query do dia, a inicialização a partir
+// do servidor e as mutações; a apresentação (relógio ao vivo + JSX) vive em
+// components/attendance/ClockWidgetView.tsx.
 function ClockWidget({ onAction }: { onAction: () => void }) {
-  const [time, setTime] = useState(new Date());
-  const [status, setStatus] = useState<'idle' | 'checked-in' | 'checked-out'>(
-    'idle',
-  );
-  const [clockInTime, setClockInTime] = useState<string | null>(null);
-  const [error, setError] = useState('');
-  const [notes, setNotes] = useState('');
-
-  // Relógio ao vivo (sem rede).
-  useEffect(() => {
-    const t = setInterval(() => setTime(new Date()), 1000);
-    return () => clearInterval(t);
-  }, []);
-
-  // Verificar se já tem clock-in hoje (query cacheada).
-  const todayStr = new Date().toISOString().split('T')[0];
-  const { data: todayData } = useApiQuery<MyAttendanceData>(
-    queryKeys.attendance.my({ from: todayStr }),
-    '/attendance/my',
-    { params: { from: todayStr }, staleTime: STALE_TIME.DYNAMIC },
-  );
-
-  // Inicializa o estado a partir do servidor uma única vez (quando `todayData`
-  // chega pela primeira vez). Antes, o guard usava `status !== 'idle'` — o
-  // próprio estado que o efeito escreve — o que funciona mas é confuso: cada
-  // `setStatus` disparava o efeito de novo só para sair logo a seguir. Um ref
-  // dedicado tem a mesma semântica ("só inicializa uma vez") sem essa
-  // dependência circular.
-  const initializedFromServerRef = useRef(false);
-  useEffect(() => {
-    if (!todayData || initializedFromServerRef.current) return;
-    initializedFromServerRef.current = true;
-    const rec = todayData.records?.find((r) => {
-      const d = new Date(r.date).toDateString();
-      return d === new Date().toDateString() && r.context === 'WORK';
-    });
-    if (rec?.clockIn && !rec.clockOut) {
-      setStatus('checked-in');
-      setClockInTime(rec.clockIn ?? null);
-    } else if (rec?.clockOut) {
-      setStatus('checked-out');
-      setClockInTime(rec.clockIn ?? null);
-    }
-  }, [todayData]);
-
-  const clockIn = useApiMutation(
-    () =>
-      apiClient.post('/attendance/clock-in', {
-        method: 'MANUAL',
-        context: 'WORK',
-        notes,
-      }),
-    {
-      invalidateKeys: [queryKeys.attendance.all],
-      onSuccess: () => {
-        setStatus('checked-in');
-        setClockInTime(time.toTimeString().slice(0, 5));
-        onAction();
-      },
-      onError: (e) => setError(e.message),
-    },
-  );
-
-  const clockOut = useApiMutation(
-    () => apiClient.post('/attendance/clock-out', {}),
-    {
-      invalidateKeys: [queryKeys.attendance.all],
-      onSuccess: () => {
-        setStatus('checked-out');
-        onAction();
-      },
-      onError: (e) => setError(e.message),
-    },
-  );
-
-  const loading = clockIn.isPending || clockOut.isPending;
-  const handleClockIn = () => {
-    setError('');
-    clockIn.mutate(undefined);
-  };
-  const handleClockOut = () => {
-    setError('');
-    clockOut.mutate(undefined);
-  };
-
-  const timeStr = time.toLocaleTimeString('pt-PT', {
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-  });
-  const dateStr = time.toLocaleDateString('pt-PT', {
-    weekday: 'long',
-    day: 'numeric',
-    month: 'long',
-  });
+  const {
+    status,
+    clockInTime,
+    error,
+    notes,
+    setNotes,
+    loading,
+    handleClockIn,
+    handleClockOut,
+  } = useClockInOut(onAction);
 
   return (
-    <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-3xl p-6 text-white shadow-lg">
-      <div className="text-center mb-6">
-        <p className="text-blue-200 text-sm capitalize">{dateStr}</p>
-        <p className="text-5xl font-bold mt-1 tabular-nums tracking-tight">
-          {timeStr}
-        </p>
-      </div>
-
-      {status === 'idle' && (
-        <div className="space-y-3">
-          <textarea
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-            placeholder="Notas (opcional)..."
-            rows={2}
-            className="w-full px-3 py-2 text-sm bg-white/10 border border-white/20 rounded-xl text-white placeholder-blue-200 focus:outline-none focus:ring-2 focus:ring-white/30 resize-none"
-          />
-          <button
-            onClick={handleClockIn}
-            disabled={loading}
-            className="w-full py-3 bg-white text-blue-700 font-bold rounded-2xl hover:bg-blue-50 transition-colors flex items-center justify-center gap-2 disabled:opacity-60"
-          >
-            {loading ? (
-              <Loader2 size={18} className="animate-spin" />
-            ) : (
-              <LogIn size={18} />
-            )}
-            Check-in
-          </button>
-        </div>
-      )}
-
-      {status === 'checked-in' && (
-        <div className="space-y-3">
-          <div className="bg-white/10 rounded-2xl p-3 text-center">
-            <p className="text-blue-200 text-xs">Entrada registada</p>
-            <p className="text-2xl font-bold mt-0.5">{clockInTime}</p>
-          </div>
-          <button
-            onClick={handleClockOut}
-            disabled={loading}
-            className="w-full py-3 bg-red-500 hover:bg-red-600 text-white font-bold rounded-2xl transition-colors flex items-center justify-center gap-2 disabled:opacity-60"
-          >
-            {loading ? (
-              <Loader2 size={18} className="animate-spin" />
-            ) : (
-              <LogOut size={18} />
-            )}
-            Check-out
-          </button>
-        </div>
-      )}
-
-      {status === 'checked-out' && (
-        <div className="bg-white/10 rounded-2xl p-4 text-center">
-          <CheckCircle2 size={28} className="mx-auto mb-2 text-emerald-300" />
-          <p className="text-sm text-blue-100">Dia registado com sucesso</p>
-          <p className="text-xs text-blue-200 mt-0.5">Entrada: {clockInTime}</p>
-        </div>
-      )}
-
-      {error && (
-        <div className="mt-3 p-2.5 bg-red-500/20 border border-red-400/30 rounded-xl text-xs text-red-200 text-center">
-          {error}
-        </div>
-      )}
-    </div>
+    <ClockWidgetView
+      status={status}
+      clockInTime={clockInTime}
+      error={error}
+      notes={notes}
+      onNotesChange={setNotes}
+      loading={loading}
+      onClockIn={handleClockIn}
+      onClockOut={handleClockOut}
+    />
   );
 }
 
