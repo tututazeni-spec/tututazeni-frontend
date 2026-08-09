@@ -234,15 +234,17 @@ const SCORE_COLOR = (s: number) =>
         ? 'text-amber-600'
         : 'text-red-500';
 
+interface ProgressBarProps {
+  value: number;
+  color?: string;
+  height?: string;
+}
+
 function ProgressBar({
   value,
   color = 'bg-indigo-500',
   height = 'h-1.5',
-}: {
-  value: number;
-  color?: string;
-  height?: string;
-}) {
+}: ProgressBarProps) {
   return (
     <div className={`w-full ${height} bg-slate-100 rounded-full`}>
       <div
@@ -253,7 +255,11 @@ function ProgressBar({
   );
 }
 
-function Skeleton({ count = 3 }: { count?: number }) {
+interface SkeletonProps {
+  count?: number;
+}
+
+function Skeleton({ count = 3 }: SkeletonProps) {
   return (
     <SharedSkeleton
       rows={count}
@@ -265,13 +271,12 @@ function Skeleton({ count = 3 }: { count?: number }) {
 
 // ─── Scenario Card ────────────────────────────────────────────────
 
-function ScenarioCard({
-  scenario,
-  onStart,
-}: {
+interface ScenarioCardProps {
   scenario: Scenario;
   onStart: (s: Scenario) => void;
-}) {
+}
+
+function ScenarioCard({ scenario, onStart }: ScenarioCardProps) {
   const cat = CATEGORY_CONFIG[scenario.category] ?? CATEGORY_CONFIG.SOFT_SKILLS;
   const Icon = cat.icon;
   const done = scenario.bestSession?.score ?? null;
@@ -357,15 +362,13 @@ function ScenarioCard({
 
 // ─── Chat Session UI ──────────────────────────────────────────────
 
-function ChatSession({
-  session,
-  onComplete,
-  onClose,
-}: {
+interface ChatSessionProps {
   session: ActiveSession;
   onComplete: (result: SessionResult) => void;
   onClose: () => void;
-}) {
+}
+
+function ChatSession({ session, onComplete, onClose }: ChatSessionProps) {
   const [messages, setMessages] = useState<SessionMessage[]>(
     session.conversationHistory ?? [],
   );
@@ -602,17 +605,14 @@ function ChatSession({
 
 // ─── Results Modal ────────────────────────────────────────────────
 
-function ResultsModal({
-  result,
-  onClose,
-  onRetry,
-  onNext,
-}: {
+interface ResultsModalProps {
   result: SessionResult;
   onClose: () => void;
   onRetry: () => void;
   onNext?: () => void;
-}) {
+}
+
+function ResultsModal({ result, onClose, onRetry, onNext }: ResultsModalProps) {
   const score = result.finalScore ?? 0;
   const grade = result.grade ?? 'AVERAGE';
 
@@ -758,11 +758,11 @@ function ResultsModal({
 
 // ─── Home Tab ─────────────────────────────────────────────────────
 
-function HomeTab({
-  onStartScenario,
-}: {
+interface HomeTabProps {
   onStartScenario: (s: Scenario) => void;
-}) {
+}
+
+function HomeTab({ onStartScenario }: HomeTabProps) {
   const recQuery = useApiQuery<Scenario[]>(
     queryKeys.avatarTraining.recommended(),
     '/avatar-training/scenarios/recommended',
@@ -884,7 +884,11 @@ function HomeTab({
 
 // ─── Scenarios Tab ────────────────────────────────────────────────
 
-function ScenariosTab({ onStart }: { onStart: (s: Scenario) => void }) {
+interface ScenariosTabProps {
+  onStart: (s: Scenario) => void;
+}
+
+function ScenariosTab({ onStart }: ScenariosTabProps) {
   const [category, setCategory] = useState('');
   const [difficulty, setDifficulty] = useState('');
   const [search, setSearch] = useState('');

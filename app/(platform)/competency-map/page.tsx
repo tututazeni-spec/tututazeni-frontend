@@ -168,11 +168,7 @@ const PRIORITY_CONFIG: StatusBadgeMap<GapPriority> = {
 
 // ─── Self-Assessment Modal ─────────────────────────────────────────────────────
 
-function SelfAssessModal({
-  skills,
-  onClose,
-  onSuccess,
-}: {
+interface SelfAssessModalProps {
   skills: Array<{
     id: number;
     name: string;
@@ -181,7 +177,9 @@ function SelfAssessModal({
   }>;
   onClose: () => void;
   onSuccess: () => void;
-}) {
+}
+
+function SelfAssessModal({ skills, onClose, onSuccess }: SelfAssessModalProps) {
   const [levels, setLevels] = useState<Record<number, number>>({});
   const [error, setError] = useState('');
 
@@ -325,7 +323,11 @@ function SelfAssessModal({
 
 // ─── Radar SVG ────────────────────────────────────────────────────────────────
 
-function RadarChart({ data }: { data: RadarData }) {
+interface RadarChartProps {
+  data: RadarData;
+}
+
+function RadarChart({ data }: RadarChartProps) {
   const points = data.radarByType;
   if (!points.length) return null;
 
@@ -431,13 +433,12 @@ function RadarChart({ data }: { data: RadarData }) {
 
 // ─── Skill Level Bar ──────────────────────────────────────────────────────────
 
-function SkillBar({
-  skill,
-  requiredLevel,
-}: {
+interface SkillBarProps {
   skill: EmployeeSkill;
   requiredLevel?: number;
-}) {
+}
+
+function SkillBar({ skill, requiredLevel }: SkillBarProps) {
   const max = skill.skill.maxLevel;
   const current = skill.currentLevel;
   const required = requiredLevel;
