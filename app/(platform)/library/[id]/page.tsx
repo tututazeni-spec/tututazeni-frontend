@@ -47,9 +47,17 @@ interface ItemDetail {
 }
 
 const TYPE_ICONS: Record<string, string> = {
-  PDF: '📄', EBOOK: '📚', VIDEO: '🎬', AUDIO: '🎵',
-  PRESENTATION: '📊', SPREADSHEET: '📈', DOCUMENT: '📝',
-  IMAGE: '🖼️', LINK: '🔗', SCORM: '🎓', OTHER: '📦',
+  PDF: '📄',
+  EBOOK: '📚',
+  VIDEO: '🎬',
+  AUDIO: '🎵',
+  PRESENTATION: '📊',
+  SPREADSHEET: '📈',
+  DOCUMENT: '📝',
+  IMAGE: '🖼️',
+  LINK: '🔗',
+  SCORM: '🎓',
+  OTHER: '📦',
 };
 
 export default function LibraryItemPage() {
@@ -61,38 +69,54 @@ export default function LibraryItemPage() {
   const [comment, setComment] = useState('');
   const [newComment, setNewComment] = useState('');
 
-  const { data: item, isLoading: loading, error: queryError } =
-    useApiQuery<ItemDetail>(
-      queryKeys.library.item(id), `/library/items/${id}`,
-      { enabled: !!id, staleTime: STALE_TIME.DYNAMIC },
-    );
+  const {
+    data: item,
+    isLoading: loading,
+    error: queryError,
+  } = useApiQuery<ItemDetail>(
+    queryKeys.library.item(id),
+    `/library/items/${id}`,
+    { enabled: !!id, staleTime: STALE_TIME.DYNAMIC },
+  );
   const error = queryError?.message ?? '';
 
   // Regista visualização (best-effort) uma vez por id.
   useEffect(() => {
-    if (id) void apiClient.post(`/library/items/${id}/view`, {}).catch(() => {});
+    if (id)
+      void apiClient.post(`/library/items/${id}/view`, {}).catch(() => {});
   }, [id]);
 
   const downloadMut = useApiMutation(
-    () => apiClient.post<{ fileUrl?: string }>(`/library/items/${id}/download`, {}),
+    () =>
+      apiClient.post<{ fileUrl?: string }>(`/library/items/${id}/download`, {}),
     {
-      onSuccess: (json) => { if (json.fileUrl) window.open(json.fileUrl, '_blank'); },
+      onSuccess: (json) => {
+        if (json.fileUrl) window.open(json.fileUrl, '_blank');
+      },
       onError: (e) => alert(e.message || 'Erro inesperado'),
     },
   );
   const download = () => downloadMut.mutate(undefined);
 
   const rateMut = useApiMutation(
-    () => apiClient.post(`/library/items/${id}/rate`, { score, ...(comment && { comment }) }),
+    () =>
+      apiClient.post(`/library/items/${id}/rate`, {
+        score,
+        ...(comment && { comment }),
+      }),
     {
       invalidateKeys: [queryKeys.library.item(id)],
-      onSuccess: () => { setScore(0); setComment(''); },
+      onSuccess: () => {
+        setScore(0);
+        setComment('');
+      },
       onError: (e) => alert(e.message || 'Erro inesperado'),
     },
   );
 
   const commentMut = useApiMutation(
-    () => apiClient.post(`/library/items/${id}/comments`, { content: newComment }),
+    () =>
+      apiClient.post(`/library/items/${id}/comments`, { content: newComment }),
     {
       invalidateKeys: [queryKeys.library.item(id)],
       onSuccess: () => setNewComment(''),
@@ -103,7 +127,10 @@ export default function LibraryItemPage() {
 
   function submitRating(e: React.FormEvent) {
     e.preventDefault();
-    if (!score) { alert('Selecciona uma pontuação'); return; }
+    if (!score) {
+      alert('Selecciona uma pontuação');
+      return;
+    }
     rateMut.mutate(undefined);
   }
 
@@ -152,7 +179,9 @@ export default function LibraryItemPage() {
               {item.subtitle && (
                 <p className="text-gray-500">{item.subtitle}</p>
               )}
-              <p className="text-xs font-mono text-blue-600 mt-1">{item.code}</p>
+              <p className="text-xs font-mono text-blue-600 mt-1">
+                {item.code}
+              </p>
             </div>
             {!item.isApproved && (
               <span className="px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
@@ -284,13 +313,12 @@ export default function LibraryItemPage() {
   );
 }
 
-function Info({
-  label,
-  value,
-}: {
+interface InfoProps {
   label: string;
   value: string | null | undefined;
-}) {
+}
+
+function Info({ label, value }: InfoProps) {
   return (
     <div>
       <p className="text-xs text-gray-400 uppercase">{label}</p>

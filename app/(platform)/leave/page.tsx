@@ -242,7 +242,11 @@ function usePendingApprovals() {
 
 // ─── Utility Components ───────────────────────────────────────────────────────
 
-function StatusBadge({ status }: { status: LeaveStatus }) {
+interface StatusBadgeProps {
+  status: LeaveStatus;
+}
+
+function StatusBadge({ status }: StatusBadgeProps) {
   const cfg = STATUS_CONFIG[status];
   const Icon = cfg.icon;
   return (
@@ -255,7 +259,11 @@ function StatusBadge({ status }: { status: LeaveStatus }) {
   );
 }
 
-function BalanceBar({ balance }: { balance: LeaveBalance }) {
+interface BalanceBarProps {
+  balance: LeaveBalance;
+}
+
+function BalanceBar({ balance }: BalanceBarProps) {
   const total =
     balance.leaveType?.annualLimit ?? balance.balance + balance.used;
   const usedPct = total > 0 ? Math.round((balance.used / total) * 100) : 0;
@@ -317,19 +325,21 @@ function BalanceBar({ balance }: { balance: LeaveBalance }) {
   );
 }
 
+interface KpiCardProps {
+  label: string;
+  value: string | number;
+  icon: LucideIcon;
+  color?: string;
+  sub?: string;
+}
+
 function KpiCard({
   label,
   value,
   icon: Icon,
   color = 'blue',
   sub,
-}: {
-  label: string;
-  value: string | number;
-  icon: LucideIcon;
-  color?: string;
-  sub?: string;
-}) {
+}: KpiCardProps) {
   const colors: Record<string, string> = {
     blue: 'bg-blue-50 text-blue-600',
     emerald: 'bg-emerald-50 text-emerald-600',
@@ -356,17 +366,19 @@ function KpiCard({
 
 // ─── New Leave Request Modal ──────────────────────────────────────────────────
 
+interface NewLeaveModalProps {
+  leaveTypes: LeaveType[];
+  balances: LeaveBalance[];
+  onClose: () => void;
+  onSuccess: () => void;
+}
+
 function NewLeaveModal({
   leaveTypes,
   balances,
   onClose,
   onSuccess,
-}: {
-  leaveTypes: LeaveType[];
-  balances: LeaveBalance[];
-  onClose: () => void;
-  onSuccess: () => void;
-}) {
+}: NewLeaveModalProps) {
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const {
     values: form,
@@ -756,15 +768,13 @@ function NewLeaveModal({
 
 // ─── Request Row ──────────────────────────────────────────────────────────────
 
-function RequestRow({
-  request,
-  onCancel,
-  onView,
-}: {
+interface RequestRowProps {
   request: LeaveRequest;
   onCancel: (id: number) => void;
   onView: (r: LeaveRequest) => void;
-}) {
+}
+
+function RequestRow({ request, onCancel, onView }: RequestRowProps) {
   const start = new Date(request.startDate).toLocaleDateString('pt-PT', {
     day: '2-digit',
     month: 'short',
@@ -830,13 +840,12 @@ function RequestRow({
 
 // ─── Approval Card ────────────────────────────────────────────────────────────
 
-function ApprovalCard({
-  request,
-  onDecide,
-}: {
+interface ApprovalCardProps {
   request: LeaveRequest;
   onDecide: (id: number, action: string) => void;
-}) {
+}
+
+function ApprovalCard({ request, onDecide }: ApprovalCardProps) {
   const [loading, setLoading] = useState(false);
   const handle = async (action: string) => {
     setLoading(true);
@@ -927,11 +936,11 @@ function ApprovalCard({
 
 // ─── Monthly Bar Chart ────────────────────────────────────────────────────────
 
-function MonthlyChart({
-  data,
-}: {
+interface MonthlyChartProps {
   data: Array<{ month: number; count: number; days: number }>;
-}) {
+}
+
+function MonthlyChart({ data }: MonthlyChartProps) {
   const max = Math.max(...data.map((d) => d.days), 1);
   return (
     <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">

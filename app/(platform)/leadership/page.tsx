@@ -165,7 +165,11 @@ type View =
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function Skeleton({ rows = 4 }: { rows?: number }) {
+interface SkeletonProps {
+  rows?: number;
+}
+
+function Skeleton({ rows = 4 }: SkeletonProps) {
   return (
     <SharedSkeleton
       rows={rows}
@@ -175,15 +179,13 @@ function Skeleton({ rows = 4 }: { rows?: number }) {
   );
 }
 
-function Avatar({
-  name,
-  avatarUrl,
-  size = 'sm',
-}: {
+interface AvatarProps {
   name: string;
   avatarUrl?: string | null;
   size?: 'sm' | 'md';
-}) {
+}
+
+function Avatar({ name, avatarUrl, size = 'sm' }: AvatarProps) {
   const dim = size === 'sm' ? 'w-8 h-8 text-xs' : 'w-10 h-10 text-sm';
   return avatarUrl ? (
     <div
@@ -239,13 +241,12 @@ const COMP_LABELS: Record<Competency, string> = {
   RESILIENCE: 'Resiliência',
 };
 
-function ProgressBar({
-  pct,
-  color = 'bg-blue-500',
-}: {
+interface ProgressBarProps {
   pct: number;
   color?: string;
-}) {
+}
+
+function ProgressBar({ pct, color = 'bg-blue-500' }: ProgressBarProps) {
   return (
     <div className="flex items-center gap-2">
       <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">

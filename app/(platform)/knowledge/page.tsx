@@ -108,7 +108,11 @@ function timeAgo(d: string): string {
   return fmtDate(d);
 }
 
-function Skeleton({ rows = 4 }: { rows?: number }) {
+interface SkeletonProps {
+  rows?: number;
+}
+
+function Skeleton({ rows = 4 }: SkeletonProps) {
   return (
     <SharedSkeleton
       rows={rows}
@@ -118,15 +122,13 @@ function Skeleton({ rows = 4 }: { rows?: number }) {
   );
 }
 
-function Avatar({
-  name,
-  avatarUrl,
-  size = 'sm',
-}: {
+interface AvatarProps {
   name: string;
   avatarUrl?: string | null;
   size?: 'sm' | 'md';
-}) {
+}
+
+function Avatar({ name, avatarUrl, size = 'sm' }: AvatarProps) {
   const dim = size === 'sm' ? 'w-7 h-7 text-xs' : 'w-9 h-9 text-sm';
   return avatarUrl ? (
     <div
@@ -152,13 +154,12 @@ const ARTICLE_STATUS_MAP: StatusBadgeMap<ArticleStatus> = {
   ARCHIVED: { label: 'Arquivado', cls: 'bg-gray-100 text-gray-400' },
 };
 
-function StarRating({
-  value,
-  max = 5,
-}: {
+interface StarRatingProps {
   value: number | null;
   max?: number;
-}) {
+}
+
+function StarRating({ value, max = 5 }: StarRatingProps) {
   if (!value)
     return <span className="text-xs text-gray-300">Sem avaliação</span>;
   return (
@@ -178,13 +179,12 @@ function StarRating({
 
 // ─── Article Card ─────────────────────────────────────────────────────────────
 
-function ArticleCard({
-  article,
-  onClick,
-}: {
+interface ArticleCardProps {
   article: Article;
   onClick: () => void;
-}) {
+}
+
+function ArticleCard({ article, onClick }: ArticleCardProps) {
   return (
     <div
       onClick={onClick}
@@ -260,13 +260,12 @@ function ArticleCard({
 
 // ─── View: Portal ─────────────────────────────────────────────────────────────
 
-function PortalView({
-  onSelectArticle,
-  onSearch,
-}: {
+interface PortalViewProps {
   onSelectArticle: (id: number) => void;
   onSearch: (q: string) => void;
-}) {
+}
+
+function PortalView({ onSelectArticle, onSearch }: PortalViewProps) {
   const [searchQ, setSearchQ] = useState('');
 
   // Categorias e trending em paralelo (cache).
@@ -423,11 +422,11 @@ function PortalView({
 
 // ─── View: Library ────────────────────────────────────────────────────────────
 
-function LibraryView({
-  onSelectArticle,
-}: {
+interface LibraryViewProps {
   onSelectArticle: (id: number) => void;
-}) {
+}
+
+function LibraryView({ onSelectArticle }: LibraryViewProps) {
   const [search, setSearch] = useState('');
   const [categoryId] = useState('');
   const [sortBy, setSortBy] = useState('RECENT');
@@ -502,13 +501,12 @@ function LibraryView({
 
 // ─── View: Article Detail ─────────────────────────────────────────────────────
 
-function ArticleDetailView({
-  articleId,
-  onBack,
-}: {
+interface ArticleDetailViewProps {
   articleId: number;
   onBack: () => void;
-}) {
+}
+
+function ArticleDetailView({ articleId, onBack }: ArticleDetailViewProps) {
   const qc = useQueryClient();
   const [comment, setComment] = useState('');
   const [rating, setRating] = useState(0);
