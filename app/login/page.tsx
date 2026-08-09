@@ -19,7 +19,9 @@ async function apiRequest(path: string, options: RequestInit = {}): Promise<unkn
   return res.json();
 }
 
-type ApiError = { message?: string };
+interface ApiError {
+  message?: string;
+}
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
