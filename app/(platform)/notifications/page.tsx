@@ -2,26 +2,23 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import {
-  useApiQuery,
-  useApiMutation,
-  useOptimisticMutation,
-} from '@/hooks/useApiQuery';
+import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { useFormValidation } from '@/hooks/useFormValidation';
-import { required } from '@/lib/validation';
 import {
   useNotificationsInbox,
   type ReadFilter,
 } from '@/hooks/useNotificationsInbox';
+import { useNotificationsAdmin } from '@/hooks/useNotificationsAdmin';
 import { InboxView as InboxDetailView } from '@/components/notifications/InboxView';
+import { AdminView as AdminDetailView } from '@/components/notifications/AdminView';
 import { CATEGORY_CFG, Skeleton } from '@/components/notifications/shared';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
-// Priority/Category/Notification/NotifData vivem em
-// components/notifications/types.ts (partilhados com InboxView/NotifItem).
+// Priority/Category/Notification/NotifData/Stats/AdminForm vivem em
+// components/notifications/types.ts (partilhados com InboxView/NotifItem e
+// AdminView).
 
 interface Preferences {
   inApp: boolean;
@@ -33,16 +30,6 @@ interface Preferences {
   quietHourEnd: number;
   digestFrequency: string;
   disabledCategories: string[];
-}
-
-interface Stats {
-  total: number;
-  read: number;
-  unread: number;
-  openRate: number;
-  byType: Array<{ type: string; count: number }>;
-  byCategory: Array<{ category: string; count: number }>;
-  byPriority: Record<string, number>;
 }
 
 type View = 'inbox' | 'preferences' | 'admin';
@@ -305,139 +292,22 @@ function PreferencesView() {
 
 // ─── View: Admin ──────────────────────────────────────────────────────────────
 
+// Container: useNotificationsAdmin trata stats + formulário de envio em
+// massa; a apresentação (cards de stats + form) vive em
+// components/notifications/AdminView.tsx.
 function AdminView() {
-  const {
-    values: form,
-    setValues: setForm,
-    validateAll,
-  } = useFormValidation(
-    {
-      type: 'ANNOUNCEMENT',
-      message: '',
-      title: '',
-    },
-    { message: [required('Mensagem obrigatória')] },
-  );
-
-  const { data: stats, isLoading } = useApiQuery<Stats>(
-    queryKeys.notifications.stats(),
-    '/notifications/stats',
-    { staleTime: STALE_TIME.SEMI_STATIC },
-  );
-
-  const sendAll = useApiMutation(
-    () => apiClient.post<{ sent: number }>('/notifications/send-all', form),
-    {
-      // Um envio em massa altera stats e as caixas de entrada → invalida tudo.
-      invalidateKeys: [queryKeys.notifications.all],
-      onSuccess: (res) => {
-        alert(`✓ Enviado a ${res.sent} colaboradores`);
-        setForm({ type: 'ANNOUNCEMENT', message: '', title: '' });
-      },
-      onError: (e) => alert(e.message),
-    },
-  );
-  const sending = sendAll.isPending;
-
-  const handleSendAll = () => {
-    if (!validateAll()) {
-      alert('Mensagem obrigatória');
-      return;
-    }
-    sendAll.mutate(undefined);
-  };
-
-  if (isLoading || !stats) return <Skeleton rows={3} />;
+  const { stats, loading, form, setForm, sending, handleSendAll } =
+    useNotificationsAdmin();
 
   return (
-    <div className="space-y-5">
-      {/* Stats */}
-      <div className="grid grid-cols-4 gap-3">
-        {[
-          { label: 'Total enviadas', value: stats.total },
-          { label: 'Lidas', value: stats.read, color: 'text-emerald-600' },
-          {
-            label: 'Não lidas',
-            value: stats.unread,
-            color: stats.unread > 100 ? 'text-red-600' : 'text-amber-600',
-          },
-          {
-            label: 'Taxa de abertura',
-            value: `${stats.openRate}%`,
-            color: 'text-blue-600',
-          },
-        ].map(({ label, value, color }) => (
-          <div key={label} className="bg-gray-50 rounded-xl p-4">
-            <div className="text-xs text-gray-400 mb-1">{label}</div>
-            <div
-              className={`text-2xl font-bold font-mono ${color ?? 'text-gray-900'}`}
-            >
-              {value}
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Por categoria */}
-      <div className="grid grid-cols-2 gap-4">
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">
-            Por categoria
-          </div>
-          {stats.byCategory.map((c) => {
-            const cfg = c.category ? CATEGORY_CFG[c.category] : null;
-            return (
-              <div
-                key={c.category}
-                className="flex items-center gap-2 py-1.5 border-b border-gray-50 last:border-0"
-              >
-                <span className="text-sm">{cfg?.icon ?? '📌'}</span>
-                <span className="text-xs text-gray-700 flex-1">
-                  {cfg?.label ?? c.category ?? '—'}
-                </span>
-                <span className="text-xs font-mono font-bold text-gray-900">
-                  {c.count}
-                </span>
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Envio em massa */}
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">
-            Enviar a todos
-          </div>
-          <div className="space-y-3">
-            <input
-              type="text"
-              placeholder="Título (opcional)"
-              value={form.title}
-              onChange={(e) =>
-                setForm((p) => ({ ...p, title: e.target.value }))
-              }
-              className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <textarea
-              rows={3}
-              placeholder="Mensagem…"
-              value={form.message}
-              onChange={(e) =>
-                setForm((p) => ({ ...p, message: e.target.value }))
-              }
-              className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <button
-              onClick={handleSendAll}
-              disabled={sending}
-              className="w-full py-2 bg-blue-700 text-white text-sm font-medium rounded-lg hover:bg-blue-800 disabled:opacity-50"
-            >
-              {sending ? 'A enviar…' : '📣 Enviar a todos os colaboradores'}
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
+    <AdminDetailView
+      stats={stats}
+      loading={loading}
+      form={form}
+      setForm={setForm}
+      sending={sending}
+      handleSendAll={handleSendAll}
+    />
   );
 }
 

@@ -44,3 +44,22 @@ export interface NotifData {
   unreadCount: number;
   totalPages: number;
 }
+
+// Usados por hooks/useNotificationsAdmin.ts e
+// components/notifications/AdminView.tsx.
+
+export interface Stats {
+  total: number;
+  read: number;
+  unread: number;
+  openRate: number;
+  byType: Array<{ type: string; count: number }>;
+  byCategory: Array<{ category: string; count: number }>;
+  byPriority: Record<string, number>;
+}
+
+export interface AdminForm {
+  type: string;
+  message: string;
+  title: string;
+}
