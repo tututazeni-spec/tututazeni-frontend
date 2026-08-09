@@ -116,15 +116,13 @@ const RISK_COLOR: Record<string, string> = {
   NONE: 'bg-slate-100 text-slate-500',
 };
 
-function Avatar({
-  name,
-  url,
-  size = 8,
-}: {
+interface AvatarProps {
   name: string;
   url?: string;
   size?: number;
-}) {
+}
+
+function Avatar({ name, url, size = 8 }: AvatarProps) {
   const i = name
     .split(' ')
     .slice(0, 2)
@@ -147,7 +145,11 @@ function Avatar({
   );
 }
 
-function Skeleton({ count = 4 }: { count?: number }) {
+interface SkeletonProps {
+  count?: number;
+}
+
+function Skeleton({ count = 4 }: SkeletonProps) {
   return (
     <SharedSkeleton
       rows={count}
@@ -157,15 +159,17 @@ function Skeleton({ count = 4 }: { count?: number }) {
   );
 }
 
+interface ProgressBarProps {
+  value: number;
+  color?: string;
+  height?: string;
+}
+
 function ProgressBar({
   value,
   color = 'bg-indigo-500',
   height = 'h-1.5',
-}: {
-  value: number;
-  color?: string;
-  height?: string;
-}) {
+}: ProgressBarProps) {
   return (
     <div className={`w-full ${height} bg-slate-100 rounded-full`}>
       <div
@@ -174,6 +178,17 @@ function ProgressBar({
       />
     </div>
   );
+}
+
+interface KPICardProps {
+  icon: LucideIcon;
+  label: string;
+  value: string | number;
+  sub?: string;
+  status?: string;
+  trend?: number;
+  color?: string;
+  bg?: string;
 }
 
 function KPICard({
@@ -185,16 +200,7 @@ function KPICard({
   trend,
   color = 'text-indigo-600',
   bg = 'bg-indigo-50',
-}: {
-  icon: LucideIcon;
-  label: string;
-  value: string | number;
-  sub?: string;
-  status?: string;
-  trend?: number;
-  color?: string;
-  bg?: string;
-}) {
+}: KPICardProps) {
   return (
     <div className="bg-white rounded-xl border border-slate-100 p-4 shadow-sm">
       <div className="flex items-start justify-between mb-3">
@@ -546,13 +552,12 @@ function TeamTab() {
   );
 }
 
-function FeedbackForm({
-  recipientId,
-  onClose,
-}: {
+interface FeedbackFormProps {
   recipientId: number;
   onClose: () => void;
-}) {
+}
+
+function FeedbackForm({ recipientId, onClose }: FeedbackFormProps) {
   const [type, setType] = useState('POSITIVE');
   const [content, setContent] = useState('');
 

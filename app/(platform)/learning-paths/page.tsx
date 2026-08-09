@@ -168,7 +168,11 @@ const LP_LEVEL_MAP: StatusBadgeMap<LPLevel> = {
   ADVANCED: { label: 'Avançado', cls: 'bg-red-50 text-red-700' },
 };
 
-function TypeBadge({ type }: { type: LPType }) {
+interface TypeBadgeProps {
+  type: LPType;
+}
+
+function TypeBadge({ type }: TypeBadgeProps) {
   const labels: Record<LPType, string> = {
     ONBOARDING: 'Onboarding',
     UPSKILLING: 'Upskilling',
@@ -185,13 +189,12 @@ function TypeBadge({ type }: { type: LPType }) {
   );
 }
 
-function StepStatusIcon({
-  status,
-  locked,
-}: {
+interface StepStatusIconProps {
   status: StepStatus;
   locked: boolean;
-}) {
+}
+
+function StepStatusIcon({ status, locked }: StepStatusIconProps) {
   if (locked) return <span className="text-gray-300 text-lg">🔒</span>;
   if (status === 'COMPLETED')
     return <span className="text-emerald-500 text-lg">✅</span>;
@@ -200,7 +203,11 @@ function StepStatusIcon({
   return <span className="text-gray-300 text-lg">○</span>;
 }
 
-function Skeleton({ rows = 4 }: { rows?: number }) {
+interface SkeletonProps {
+  rows?: number;
+}
+
+function Skeleton({ rows = 4 }: SkeletonProps) {
   return (
     <SharedSkeleton
       rows={rows}
@@ -212,17 +219,19 @@ function Skeleton({ rows = 4 }: { rows?: number }) {
 
 // ─── LP Card ─────────────────────────────────────────────────────────────────
 
+interface LearningPathCardProps {
+  path: LearningPath;
+  onClick: () => void;
+  enrolled?: boolean;
+  progress?: number;
+}
+
 function LearningPathCard({
   path,
   onClick,
   enrolled,
   progress,
-}: {
-  path: LearningPath;
-  onClick: () => void;
-  enrolled?: boolean;
-  progress?: number;
-}) {
+}: LearningPathCardProps) {
   return (
     <div
       className="bg-white border border-gray-200 rounded-xl overflow-hidden cursor-pointer hover:shadow-md hover:border-blue-300 transition-all"
@@ -308,7 +317,11 @@ function LearningPathCard({
 
 // ─── View: Catalog ────────────────────────────────────────────────────────────
 
-function CatalogView({ onSelect }: { onSelect: (id: number) => void }) {
+interface CatalogViewProps {
+  onSelect: (id: number) => void;
+}
+
+function CatalogView({ onSelect }: CatalogViewProps) {
   const [search, setSearch] = useState('');
   const [level, setLevel] = useState('');
   const [pathType, setPathType] = useState('');
@@ -449,13 +462,12 @@ function CatalogView({ onSelect }: { onSelect: (id: number) => void }) {
 
 // ─── View: LP Detail + Roadmap ────────────────────────────────────────────────
 
-function LPDetailView({
-  pathId,
-  onBack,
-}: {
+interface LPDetailViewProps {
   pathId: number;
   onBack: () => void;
-}) {
+}
+
+function LPDetailView({ pathId, onBack }: LPDetailViewProps) {
   const [tab, setTab] = useState<'roadmap' | 'info'>('roadmap');
 
   const pathQuery = useApiQuery<LearningPath>(
@@ -817,7 +829,11 @@ function LPDetailView({
 
 // ─── View: My Paths ───────────────────────────────────────────────────────────
 
-function MyPathsView({ onSelect }: { onSelect: (id: number) => void }) {
+interface MyPathsViewProps {
+  onSelect: (id: number) => void;
+}
+
+function MyPathsView({ onSelect }: MyPathsViewProps) {
   const [filter, setFilter] = useState('');
 
   const { data = [], isLoading } = useApiQuery<MyLPEnrollment[]>(
@@ -931,7 +947,11 @@ function MyPathsView({ onSelect }: { onSelect: (id: number) => void }) {
 
 // ─── View: Admin Dashboard ────────────────────────────────────────────────────
 
-function DashboardView({ onSelect }: { onSelect: (id: number) => void }) {
+interface DashboardViewProps {
+  onSelect: (id: number) => void;
+}
+
+function DashboardView({ onSelect }: DashboardViewProps) {
   const { data, isLoading } = useApiQuery<AdminDashboard>(
     queryKeys.learningPaths.adminDashboard(),
     '/learning-paths/admin/dashboard',

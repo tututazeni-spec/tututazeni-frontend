@@ -201,15 +201,13 @@ function useRecording() {
 
 // ─── Jitsi Room Component ─────────────────────────────────────────────────────
 
-function JitsiRoom({
-  liveClass,
-  onJoined,
-  onLeft,
-}: {
+interface JitsiRoomProps {
   liveClass: LiveClass;
   onJoined: () => void;
   onLeft: () => void;
-}) {
+}
+
+function JitsiRoom({ liveClass, onJoined, onLeft }: JitsiRoomProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const apiRef = useRef<JitsiAPI | null>(null);
   const [loaded, setLoaded] = useState(false);
@@ -409,13 +407,12 @@ function JitsiRoom({
 
 // ─── Recording Panel ──────────────────────────────────────────────────────────
 
-function RecordingPanel({
-  liveClass,
-  onUrlSaved,
-}: {
+interface RecordingPanelProps {
   liveClass: LiveClass;
   onUrlSaved: (url: string) => void;
-}) {
+}
+
+function RecordingPanel({ liveClass, onUrlSaved }: RecordingPanelProps) {
   const rec = useRecording();
   const [customUrl, setCustomUrl] = useState(liveClass.recordingUrl ?? '');
   const [urlSaved, setUrlSaved] = useState(false);
