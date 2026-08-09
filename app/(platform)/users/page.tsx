@@ -11,6 +11,11 @@ import { STALE_TIME } from '@/lib/queryClient';
 import Image from 'next/image';
 import { Skeleton as SharedSkeleton } from '@/components/ui/Skeleton';
 import { formatDate as fmtDate, getInitials as initials } from '@/lib/format';
+import { useFormValidation } from '@/hooks/useFormValidation';
+import {
+  email as emailValidator,
+  required as requiredRule,
+} from '@/lib/validation';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import type { StatusBadgeMap } from '@/lib/statusBadge';
 
@@ -894,22 +899,35 @@ function CreateUserView({
   onBack: () => void;
   onCreated: () => void;
 }) {
-  const [form, setForm] = useState({
-    fullName: '',
-    email: '',
-    password: '',
-    employeeNumber: '',
-    phone: '',
-    departmentId: '',
-    positionId: '',
-    hireDate: '',
-    accountStatus: 'PENDING',
-  });
+  const {
+    values: form,
+    setField,
+    errorMessage: validationError,
+    handleSubmit: withValidation,
+  } = useFormValidation(
+    {
+      fullName: '',
+      email: '',
+      password: '',
+      employeeNumber: '',
+      phone: '',
+      departmentId: '',
+      positionId: '',
+      hireDate: '',
+      accountStatus: 'PENDING',
+    },
+    {
+      fullName: [requiredRule()],
+      email: [requiredRule(), emailValidator()],
+    },
+  );
+  const [submitError, setSubmitError] = useState('');
+  const error = validationError || submitError;
 
   const handle =
-    (k: string) =>
+    (k: keyof typeof form) =>
     (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
-      setForm((f) => ({ ...f, [k]: e.target.value }));
+      setField(k, e.target.value);
 
   const create = useApiMutation(
     () =>
@@ -925,15 +943,15 @@ function CreateUserView({
     {
       invalidateKeys: [queryKeys.users.lists()],
       onSuccess: () => onCreated(),
-      onError: (e) => alert(e.message),
+      onError: (e) => setSubmitError(e.message),
     },
   );
   const saving = create.isPending;
 
-  const handleSubmit = () => {
-    if (!form.fullName || !form.email) return;
+  const handleSubmit = withValidation(() => {
+    setSubmitError('');
     create.mutate(undefined);
-  };
+  });
 
   const Field = ({
     label,
@@ -980,6 +998,12 @@ function CreateUserView({
           Novo colaborador
         </div>
 
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 text-sm mb-4">
+            {error}
+          </div>
+        )}
+
         <div className="grid grid-cols-2 gap-5 mb-6">
           <div className="col-span-2">
             <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3 pb-2 border-b border-gray-100">
@@ -1019,7 +1043,7 @@ function CreateUserView({
         <div className="flex gap-3">
           <button
             onClick={handleSubmit}
-            disabled={!form.fullName || !form.email || saving}
+            disabled={saving}
             className="px-5 py-2.5 bg-blue-700 text-white text-sm font-medium rounded-lg hover:bg-blue-800 disabled:opacity-50"
           >
             {saving ? 'A criar…' : 'Criar colaborador'}

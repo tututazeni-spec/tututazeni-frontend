@@ -49,6 +49,8 @@ import { queryKeys } from '../../../lib/queryKeys';
 import { STALE_TIME } from '../../../lib/queryClient';
 import { useDebounce } from '../../../hooks/useDebounce';
 import type { LucideIcon } from 'lucide-react';
+import { useFormValidation } from '../../../hooks/useFormValidation';
+import { required } from '../../../lib/validation';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -214,20 +216,29 @@ function UploadModal({
   onClose: () => void;
   onSuccess: () => void;
 }) {
-  const [form, setForm] = useState({
-    title: '',
-    description: '',
-    category: 'CORPORATE' as DocCategory,
-    sensitivity: 'INTERNAL' as DocSensitivity,
-    fileUrl: '',
-    mimeType: 'application/pdf',
-    fileSize: 0,
-    tags: [] as string[],
-    expiresAt: '',
-    department: '',
-  });
+  const {
+    values: form,
+    setValues: setForm,
+    errorMessage: validationError,
+    handleSubmit: withValidation,
+  } = useFormValidation(
+    {
+      title: '',
+      description: '',
+      category: 'CORPORATE' as DocCategory,
+      sensitivity: 'INTERNAL' as DocSensitivity,
+      fileUrl: '',
+      mimeType: 'application/pdf',
+      fileSize: 0,
+      tags: [] as string[],
+      expiresAt: '',
+      department: '',
+    },
+    { title: [required()], fileUrl: [required()] },
+  );
   const [tagInput, setTagInput] = useState('');
-  const [error, setError] = useState('');
+  const [submitError, setSubmitError] = useState('');
+  const error = validationError || submitError;
 
   const addTag = () => {
     if (tagInput.trim() && !form.tags.includes(tagInput.trim())) {
@@ -241,18 +252,14 @@ function UploadModal({
       onSuccess();
       onClose();
     },
-    onError: (e) => setError(e.message),
+    onError: (e) => setSubmitError(e.message),
   });
   const loading = uploadDoc.isPending;
 
-  const handleSubmit = () => {
-    if (!form.title || !form.fileUrl) {
-      setError('Título e ficheiro são obrigatórios');
-      return;
-    }
-    setError('');
+  const handleSubmit = withValidation(() => {
+    setSubmitError('');
     uploadDoc.mutate(undefined);
-  };
+  });
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">

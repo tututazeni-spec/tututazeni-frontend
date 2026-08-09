@@ -55,6 +55,8 @@ import {
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { getInitials } from '@/lib/format';
+import { useFormValidation } from '@/hooks/useFormValidation';
+import { email as emailValidator, required } from '@/lib/validation';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 // Employee, EmployeeStatus, SeniorityLevel, WorkMode, ContractType, FilterState
@@ -617,17 +619,31 @@ function CreateEmployeeModal({
   onClose: () => void;
   onSuccess: () => void;
 }) {
-  const [form, setForm] = useState({
-    name: '',
-    email: '',
-    role: '',
-    department: '',
-    joinedAt: '',
-    seniority: '',
-    workMode: '',
-    contractType: '',
-  });
-  const [error, setError] = useState('');
+  const {
+    values: form,
+    setField,
+    errorMessage: validationError,
+    handleSubmit: withValidation,
+  } = useFormValidation(
+    {
+      name: '',
+      email: '',
+      role: '',
+      department: '',
+      joinedAt: '',
+      seniority: '',
+      workMode: '',
+      contractType: '',
+    },
+    {
+      name: [required()],
+      email: [required(), emailValidator()],
+      role: [required()],
+      joinedAt: [required()],
+    },
+  );
+  const [submitError, setSubmitError] = useState('');
+  const error = validationError || submitError;
 
   const createEmployee = useApiMutation(
     () => apiClient.post('/employees', form),
@@ -636,19 +652,16 @@ function CreateEmployeeModal({
         onSuccess();
         onClose();
       },
-      onError: () => setError('Erro ao criar colaborador. Verifique os dados.'),
+      onError: () =>
+        setSubmitError('Erro ao criar colaborador. Verifique os dados.'),
     },
   );
   const loading = createEmployee.isPending;
 
-  const handleSubmit = () => {
-    if (!form.name || !form.email || !form.role || !form.joinedAt) {
-      setError('Preencha os campos obrigatórios');
-      return;
-    }
-    setError('');
+  const handleSubmit = withValidation(() => {
+    setSubmitError('');
     createEmployee.mutate(undefined);
-  };
+  });
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
@@ -688,9 +701,7 @@ function CreateEmployeeModal({
               </label>
               <input
                 value={form.name}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, name: e.target.value }))
-                }
+                onChange={(e) => setField('name', e.target.value)}
                 className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="Ex: Ana Ferreira"
               />
@@ -703,9 +714,7 @@ function CreateEmployeeModal({
               <input
                 type="email"
                 value={form.email}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, email: e.target.value }))
-                }
+                onChange={(e) => setField('email', e.target.value)}
                 className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="ana@empresa.com"
               />
@@ -718,9 +727,7 @@ function CreateEmployeeModal({
                 </label>
                 <input
                   value={form.role}
-                  onChange={(e) =>
-                    setForm((f) => ({ ...f, role: e.target.value }))
-                  }
+                  onChange={(e) => setField('role', e.target.value)}
                   className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="Ex: Desenvolvedor"
                 />
@@ -731,9 +738,7 @@ function CreateEmployeeModal({
                 </label>
                 <input
                   value={form.department}
-                  onChange={(e) =>
-                    setForm((f) => ({ ...f, department: e.target.value }))
-                  }
+                  onChange={(e) => setField('department', e.target.value)}
                   className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="Ex: Tecnologia"
                 />
@@ -747,9 +752,7 @@ function CreateEmployeeModal({
               <input
                 type="date"
                 value={form.joinedAt}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, joinedAt: e.target.value }))
-                }
+                onChange={(e) => setField('joinedAt', e.target.value)}
                 className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
@@ -761,9 +764,7 @@ function CreateEmployeeModal({
                 </label>
                 <select
                   value={form.seniority}
-                  onChange={(e) =>
-                    setForm((f) => ({ ...f, seniority: e.target.value }))
-                  }
+                  onChange={(e) => setField('seniority', e.target.value)}
                   className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
                 >
                   <option value="">—</option>
@@ -780,9 +781,7 @@ function CreateEmployeeModal({
                 </label>
                 <select
                   value={form.workMode}
-                  onChange={(e) =>
-                    setForm((f) => ({ ...f, workMode: e.target.value }))
-                  }
+                  onChange={(e) => setField('workMode', e.target.value)}
                   className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
                 >
                   <option value="">—</option>
@@ -799,9 +798,7 @@ function CreateEmployeeModal({
                 </label>
                 <select
                   value={form.contractType}
-                  onChange={(e) =>
-                    setForm((f) => ({ ...f, contractType: e.target.value }))
-                  }
+                  onChange={(e) => setField('contractType', e.target.value)}
                   className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
                 >
                   <option value="">—</option>

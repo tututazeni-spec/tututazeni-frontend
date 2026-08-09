@@ -50,6 +50,8 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import type { LucideIcon } from 'lucide-react';
+import { useFormValidation } from '@/hooks/useFormValidation';
+import { required } from '@/lib/validation';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -541,14 +543,27 @@ function LeaveModal({
   onClose: () => void;
   onSuccess: () => void;
 }) {
-  const [form, setForm] = useState({
-    type: 'VACATION',
-    startDate: '',
-    endDate: '',
-    reason: '',
-    halfDay: false,
-  });
-  const [error, setError] = useState('');
+  const {
+    values: form,
+    setValues: setForm,
+    errorMessage: validationError,
+    handleSubmit: withValidation,
+  } = useFormValidation(
+    {
+      type: 'VACATION',
+      startDate: '',
+      endDate: '',
+      reason: '',
+      halfDay: false,
+    },
+    {
+      startDate: [required()],
+      endDate: [required()],
+      reason: [required()],
+    },
+  );
+  const [submitError, setSubmitError] = useState('');
+  const error = validationError || submitError;
 
   const submit = useApiMutation(
     () => apiClient.post('/attendance/leaves', form),
@@ -558,19 +573,15 @@ function LeaveModal({
         onSuccess();
         onClose();
       },
-      onError: (e) => setError(e.message),
+      onError: (e) => setSubmitError(e.message),
     },
   );
   const loading = submit.isPending;
 
-  const handleSubmit = () => {
-    if (!form.startDate || !form.endDate || !form.reason) {
-      setError('Preencha todos os campos');
-      return;
-    }
-    setError('');
+  const handleSubmit = withValidation(() => {
+    setSubmitError('');
     submit.mutate(undefined);
-  };
+  });
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">

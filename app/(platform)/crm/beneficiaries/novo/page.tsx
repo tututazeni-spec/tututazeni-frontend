@@ -4,47 +4,73 @@ import { useRouter } from 'next/navigation';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
+import { useFormValidation } from '@/hooks/useFormValidation';
+import { email as emailValidator, required } from '@/lib/validation';
 
 const PROVINCES = [
-  'BENGO', 'BENGUELA', 'BIE', 'CABINDA', 'CUANDO_CUBANGO',
-  'CUANZA_NORTE', 'CUANZA_SUL', 'CUNENE', 'HUAMBO', 'HUILA',
-  'LUANDA', 'LUNDA_NORTE', 'LUNDA_SUL', 'MALANJE', 'MOXICO',
-  'NAMIBE', 'UIGE', 'ZAIRE',
+  'BENGO',
+  'BENGUELA',
+  'BIE',
+  'CABINDA',
+  'CUANDO_CUBANGO',
+  'CUANZA_NORTE',
+  'CUANZA_SUL',
+  'CUNENE',
+  'HUAMBO',
+  'HUILA',
+  'LUANDA',
+  'LUNDA_NORTE',
+  'LUNDA_SUL',
+  'MALANJE',
+  'MOXICO',
+  'NAMIBE',
+  'UIGE',
+  'ZAIRE',
 ];
 
 export default function NovoBeneficiarioPage() {
   const router = useRouter();
-  const [error, setError] = useState('');
 
-  const [form, setForm] = useState({
-    type: 'INDIVIDUAL',
-    fullName: '',
-    category: '',
-    gender: '',
-    birthDate: '',
-    nationality: '',
-    nif: '',
-    email: '',
-    phone: '',
-    mobile: '',
-    address: '',
-    city: '',
-    province: '',
-    source: '',
-    segment: '',
-    notes: '',
-    nextFollowUpAt: '',
-  });
-
-  function set(field: string, value: string) {
-    setForm((f) => ({ ...f, [field]: value }));
-  }
+  const {
+    values: form,
+    setField: set,
+    errorMessage: validationError,
+    handleSubmit: withValidation,
+  } = useFormValidation(
+    {
+      type: 'INDIVIDUAL',
+      fullName: '',
+      category: '',
+      gender: '',
+      birthDate: '',
+      nationality: '',
+      nif: '',
+      email: '',
+      phone: '',
+      mobile: '',
+      address: '',
+      city: '',
+      province: '',
+      source: '',
+      segment: '',
+      notes: '',
+      nextFollowUpAt: '',
+    },
+    { fullName: [required()], email: [emailValidator()] },
+  );
+  const [submitError, setSubmitError] = useState('');
+  const error = validationError || submitError;
 
   const createMut = useApiMutation(
     () => {
       // Remove campos vazios para não falhar validação dos enums/datas.
-      const payload: Partial<typeof form> = { type: form.type, fullName: form.fullName };
-      for (const [k, v] of Object.entries(form) as Array<[keyof typeof form, string]>) {
+      const payload: Partial<typeof form> = {
+        type: form.type,
+        fullName: form.fullName,
+      };
+      for (const [k, v] of Object.entries(form) as Array<
+        [keyof typeof form, string]
+      >) {
         if (k === 'type' || k === 'fullName') continue;
         if (v !== '' && v != null) payload[k] = v;
       }
@@ -53,16 +79,15 @@ export default function NovoBeneficiarioPage() {
     {
       invalidateKeys: [queryKeys.beneficiaries.lists()],
       onSuccess: (created) => router.push(`/crm/beneficiaries/${created.id}`),
-      onError: (e) => setError(e.message || 'Erro inesperado'),
+      onError: (e) => setSubmitError(e.message || 'Erro inesperado'),
     },
   );
   const saving = createMut.isPending;
 
-  function submit(e: React.FormEvent) {
-    e.preventDefault();
-    setError('');
+  const submit = withValidation(() => {
+    setSubmitError('');
     createMut.mutate(undefined);
-  }
+  });
 
   return (
     <div className="p-6 max-w-3xl">

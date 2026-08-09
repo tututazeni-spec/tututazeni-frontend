@@ -4,6 +4,8 @@ import { useRouter } from 'next/navigation';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
+import { useFormValidation } from '@/hooks/useFormValidation';
+import { required } from '@/lib/validation';
 
 const TYPES: Record<string, string> = {
   PDF: 'PDF',
@@ -37,27 +39,32 @@ interface LibraryItemPayload {
 
 export default function NovoRecursoPage() {
   const router = useRouter();
-  const [error, setError] = useState('');
 
-  const [form, setForm] = useState({
-    type: 'PDF',
-    title: '',
-    subtitle: '',
-    description: '',
-    fileUrl: '',
-    author: '',
-    publisher: '',
-    isbn: '',
-    year: '',
-    language: 'pt',
-    pages: '',
-    categoriesText: '',
-    keywordsText: '',
-  });
-
-  function set(field: string, value: string) {
-    setForm((f) => ({ ...f, [field]: value }));
-  }
+  const {
+    values: form,
+    setField: set,
+    errorMessage: validationError,
+    handleSubmit: withValidation,
+  } = useFormValidation(
+    {
+      type: 'PDF',
+      title: '',
+      subtitle: '',
+      description: '',
+      fileUrl: '',
+      author: '',
+      publisher: '',
+      isbn: '',
+      year: '',
+      language: 'pt',
+      pages: '',
+      categoriesText: '',
+      keywordsText: '',
+    },
+    { title: [required()], fileUrl: [required()] },
+  );
+  const [submitError, setSubmitError] = useState('');
+  const error = validationError || submitError;
 
   const createMut = useApiMutation(
     () => {
@@ -75,24 +82,29 @@ export default function NovoRecursoPage() {
       if (form.year) payload.year = Number(form.year);
       if (form.pages) payload.pages = Number(form.pages);
       if (form.categoriesText)
-        payload.categories = form.categoriesText.split(',').map((s) => s.trim()).filter(Boolean);
+        payload.categories = form.categoriesText
+          .split(',')
+          .map((s) => s.trim())
+          .filter(Boolean);
       if (form.keywordsText)
-        payload.keywords = form.keywordsText.split(',').map((s) => s.trim()).filter(Boolean);
+        payload.keywords = form.keywordsText
+          .split(',')
+          .map((s) => s.trim())
+          .filter(Boolean);
       return apiClient.post<{ id: string }>('/library/items', payload);
     },
     {
       invalidateKeys: [queryKeys.library.all],
       onSuccess: (created) => router.push(`/library/${created.id}`),
-      onError: (e) => setError(e.message || 'Erro inesperado'),
+      onError: (e) => setSubmitError(e.message || 'Erro inesperado'),
     },
   );
   const saving = createMut.isPending;
 
-  function submit(e: React.FormEvent) {
-    e.preventDefault();
-    setError('');
+  const submit = withValidation(() => {
+    setSubmitError('');
     createMut.mutate(undefined);
-  }
+  });
 
   return (
     <div className="p-6 max-w-3xl">

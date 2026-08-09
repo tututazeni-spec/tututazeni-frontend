@@ -4,6 +4,8 @@ import { useRouter } from 'next/navigation';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
+import { useFormValidation } from '@/hooks/useFormValidation';
+import { email as emailValidator, required } from '@/lib/validation';
 
 const TYPES: Record<string, string> = {
   GOVERNMENT: 'Governo',
@@ -17,37 +19,47 @@ const TYPES: Record<string, string> = {
 
 export default function NovoFinanciadorPage() {
   const router = useRouter();
-  const [error, setError] = useState('');
 
-  const [form, setForm] = useState({
-    type: 'BILATERAL',
-    name: '',
-    legalName: '',
-    category: '',
-    contactName: '',
-    contactTitle: '',
-    email: '',
-    phone: '',
-    mobile: '',
-    website: '',
-    country: '',
-    region: '',
-    nif: '',
-    currency: 'AOA',
-    reportingReqs: '',
-    relationshipStart: '',
-    notes: '',
-    nextReportDue: '',
-  });
-
-  function set(field: string, value: string) {
-    setForm((f) => ({ ...f, [field]: value }));
-  }
+  const {
+    values: form,
+    setField: set,
+    errorMessage: validationError,
+    handleSubmit: withValidation,
+  } = useFormValidation(
+    {
+      type: 'BILATERAL',
+      name: '',
+      legalName: '',
+      category: '',
+      contactName: '',
+      contactTitle: '',
+      email: '',
+      phone: '',
+      mobile: '',
+      website: '',
+      country: '',
+      region: '',
+      nif: '',
+      currency: 'AOA',
+      reportingReqs: '',
+      relationshipStart: '',
+      notes: '',
+      nextReportDue: '',
+    },
+    { name: [required()], email: [emailValidator()] },
+  );
+  const [submitError, setSubmitError] = useState('');
+  const error = validationError || submitError;
 
   const createMut = useApiMutation(
     () => {
-      const payload: Partial<typeof form> = { type: form.type, name: form.name };
-      for (const [k, v] of Object.entries(form) as Array<[keyof typeof form, string]>) {
+      const payload: Partial<typeof form> = {
+        type: form.type,
+        name: form.name,
+      };
+      for (const [k, v] of Object.entries(form) as Array<
+        [keyof typeof form, string]
+      >) {
         if (k === 'type' || k === 'name') continue;
         if (v !== '' && v != null) payload[k] = v;
       }
@@ -56,16 +68,15 @@ export default function NovoFinanciadorPage() {
     {
       invalidateKeys: [queryKeys.funders.lists()],
       onSuccess: (created) => router.push(`/crm/funders/${created.id}`),
-      onError: (e) => setError(e.message || 'Erro inesperado'),
+      onError: (e) => setSubmitError(e.message || 'Erro inesperado'),
     },
   );
   const saving = createMut.isPending;
 
-  function submit(e: React.FormEvent) {
-    e.preventDefault();
-    setError('');
+  const submit = withValidation(() => {
+    setSubmitError('');
     createMut.mutate(undefined);
-  }
+  });
 
   return (
     <div className="p-6 max-w-3xl">

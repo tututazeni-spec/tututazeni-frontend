@@ -12,6 +12,8 @@ import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Skeleton as SharedSkeleton } from '@/components/ui/Skeleton';
+import { useFormValidation } from '@/hooks/useFormValidation';
+import { required } from '@/lib/validation';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -635,11 +637,18 @@ function PreferencesView() {
 // ─── View: Admin ──────────────────────────────────────────────────────────────
 
 function AdminView() {
-  const [form, setForm] = useState({
-    type: 'ANNOUNCEMENT',
-    message: '',
-    title: '',
-  });
+  const {
+    values: form,
+    setValues: setForm,
+    validateAll,
+  } = useFormValidation(
+    {
+      type: 'ANNOUNCEMENT',
+      message: '',
+      title: '',
+    },
+    { message: [required('Mensagem obrigatória')] },
+  );
 
   const { data: stats, isLoading } = useApiQuery<Stats>(
     queryKeys.notifications.stats(),
@@ -662,7 +671,7 @@ function AdminView() {
   const sending = sendAll.isPending;
 
   const handleSendAll = () => {
-    if (!form.message.trim()) {
+    if (!validateAll()) {
       alert('Mensagem obrigatória');
       return;
     }

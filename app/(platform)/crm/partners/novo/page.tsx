@@ -4,50 +4,67 @@ import { useRouter } from 'next/navigation';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
+import { useFormValidation } from '@/hooks/useFormValidation';
+import { email as emailValidator, required } from '@/lib/validation';
 
 const TYPES = [
-  'TECHNOLOGY', 'CONTENT', 'TRAINING', 'FUNDING', 'INSTITUTIONAL',
-  'COMMERCIAL', 'MEDIA', 'GOVERNMENT', 'OTHER',
+  'TECHNOLOGY',
+  'CONTENT',
+  'TRAINING',
+  'FUNDING',
+  'INSTITUTIONAL',
+  'COMMERCIAL',
+  'MEDIA',
+  'GOVERNMENT',
+  'OTHER',
 ];
 
 export default function NovoParceiroPage() {
   const router = useRouter();
-  const [error, setError] = useState('');
 
-  const [form, setForm] = useState({
-    type: 'TECHNOLOGY',
-    name: '',
-    legalName: '',
-    tier: 'STANDARD',
-    contactName: '',
-    contactTitle: '',
-    email: '',
-    phone: '',
-    mobile: '',
-    website: '',
-    linkedin: '',
-    nif: '',
-    address: '',
-    city: '',
-    province: '',
-    annualValue: '',
-    currency: 'AOA',
-    revenueSharing: '',
-    contractStart: '',
-    contractEnd: '',
-    notes: '',
-    nextReviewAt: '',
-  });
-
-  function set(field: string, value: string) {
-    setForm((f) => ({ ...f, [field]: value }));
-  }
+  const {
+    values: form,
+    setField: set,
+    errorMessage: validationError,
+    handleSubmit: withValidation,
+  } = useFormValidation(
+    {
+      type: 'TECHNOLOGY',
+      name: '',
+      legalName: '',
+      tier: 'STANDARD',
+      contactName: '',
+      contactTitle: '',
+      email: '',
+      phone: '',
+      mobile: '',
+      website: '',
+      linkedin: '',
+      nif: '',
+      address: '',
+      city: '',
+      province: '',
+      annualValue: '',
+      currency: 'AOA',
+      revenueSharing: '',
+      contractStart: '',
+      contractEnd: '',
+      notes: '',
+      nextReviewAt: '',
+    },
+    { name: [required()], email: [emailValidator()] },
+  );
+  const [submitError, setSubmitError] = useState('');
+  const error = validationError || submitError;
 
   const NUMERIC = new Set(['annualValue', 'revenueSharing']);
 
   const createMut = useApiMutation(
     () => {
-      const payload: Record<string, string | number> = { type: form.type, name: form.name };
+      const payload: Record<string, string | number> = {
+        type: form.type,
+        name: form.name,
+      };
       for (const [k, v] of Object.entries(form)) {
         if (k === 'type' || k === 'name') continue;
         if (v === '' || v == null) continue;
@@ -58,16 +75,15 @@ export default function NovoParceiroPage() {
     {
       invalidateKeys: [queryKeys.partners.lists()],
       onSuccess: (created) => router.push(`/crm/partners/${created.id}`),
-      onError: (e) => setError(e.message || 'Erro inesperado'),
+      onError: (e) => setSubmitError(e.message || 'Erro inesperado'),
     },
   );
   const saving = createMut.isPending;
 
-  function submit(e: React.FormEvent) {
-    e.preventDefault();
-    setError('');
+  const submit = withValidation(() => {
+    setSubmitError('');
     createMut.mutate(undefined);
-  }
+  });
 
   return (
     <div className="p-6 max-w-3xl">
