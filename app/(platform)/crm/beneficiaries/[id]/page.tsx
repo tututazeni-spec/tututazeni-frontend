@@ -106,7 +106,10 @@ export default function BeneficiaryDetailPage() {
 
   // Optimistic UI: a nova interacção aparece na lista antes de a API responder;
   // em erro faz rollback automático e re-sincroniza no fim.
-  const addInteraction = useOptimisticMutation<BeneficiaryDetail, InteractionForm>({
+  const addInteraction = useOptimisticMutation<
+    BeneficiaryDetail,
+    InteractionForm
+  >({
     key: queryKeys.beneficiaries.detail(id),
     mutationFn: (f) => {
       const payload = {
@@ -395,13 +398,12 @@ export default function BeneficiaryDetailPage() {
   );
 }
 
-function Info({
-  label,
-  value,
-}: {
+interface InfoProps {
   label: string;
   value: string | null | undefined;
-}) {
+}
+
+function Info({ label, value }: InfoProps) {
   return (
     <div>
       <p className="text-xs text-gray-400 uppercase">{label}</p>

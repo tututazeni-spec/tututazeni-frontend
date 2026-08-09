@@ -294,13 +294,12 @@ export default function NovoBeneficiarioPage() {
   );
 }
 
-function Field({
-  label,
-  children,
-}: {
+interface FieldProps {
   label: string;
   children: React.ReactNode;
-}) {
+}
+
+function Field({ label, children }: FieldProps) {
   return (
     <label className="block">
       <span className="text-xs text-gray-500 uppercase">{label}</span>
