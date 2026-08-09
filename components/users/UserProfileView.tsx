@@ -26,7 +26,11 @@ import {
   type UserStats,
 } from './types';
 
-function TeamView({ managerId }: { managerId: number }) {
+interface TeamViewProps {
+  managerId: number;
+}
+
+function TeamView({ managerId }: TeamViewProps) {
   const { data, isLoading: loading } = useApiQuery<TeamResponse>(
     queryKeys.users.team(managerId),
     `/users/${managerId}/team`,

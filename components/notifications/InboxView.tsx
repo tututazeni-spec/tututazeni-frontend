@@ -31,15 +31,13 @@ const PRIORITY_CFG: Record<
   CRITICAL: { icon: '🔴', cls: 'text-red-600', border: 'border-red-200' },
 };
 
-function NotifItem({
-  notif,
-  onRead,
-  onArchive,
-}: {
+interface NotifItemProps {
   notif: Notification;
   onRead: (id: number) => void;
   onArchive: (id: number) => void;
-}) {
+}
+
+function NotifItem({ notif, onRead, onArchive }: NotifItemProps) {
   const priorityCfg = PRIORITY_CFG[notif.priority] ?? PRIORITY_CFG.MEDIUM;
   const catCfg = notif.category ? CATEGORY_CFG[notif.category] : null;
 

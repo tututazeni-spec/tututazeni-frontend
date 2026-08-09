@@ -40,7 +40,11 @@ export const CATEGORY_CFG: Record<
   },
 };
 
-export function Skeleton({ rows = 4 }: { rows?: number }) {
+export interface SkeletonProps {
+  rows?: number;
+}
+
+export function Skeleton({ rows = 4 }: SkeletonProps) {
   return (
     <SharedSkeleton
       rows={rows}

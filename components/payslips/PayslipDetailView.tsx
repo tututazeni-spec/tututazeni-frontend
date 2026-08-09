@@ -70,17 +70,19 @@ export function PayslipDetailView({
       </div>
     );
 
+  interface SalaryRowProps {
+    label: string;
+    amount: number;
+    type?: 'positive' | 'deduction' | 'neutral';
+    sub?: string;
+  }
+
   const SalaryRow = ({
     label,
     amount,
     type = 'neutral',
     sub,
-  }: {
-    label: string;
-    amount: number;
-    type?: 'positive' | 'deduction' | 'neutral';
-    sub?: string;
-  }) => (
+  }: SalaryRowProps) => (
     <div className="flex justify-between items-baseline py-1.5 border-b border-gray-100 last:border-0">
       <div>
         <span className="text-sm text-gray-600">{label}</span>

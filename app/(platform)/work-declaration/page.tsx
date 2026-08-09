@@ -188,7 +188,11 @@ const MOCK_STATS: Stats = {
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
-function StatusBadge({ status }: { status: DeclarationStatus }) {
+interface StatusBadgeProps {
+  status: DeclarationStatus;
+}
+
+function StatusBadge({ status }: StatusBadgeProps) {
   const meta = STATUS_META[status];
   return (
     <span
@@ -200,17 +204,14 @@ function StatusBadge({ status }: { status: DeclarationStatus }) {
   );
 }
 
-function StatCard({
-  label,
-  value,
-  icon,
-  accent,
-}: {
+interface StatCardProps {
   label: string;
   value: number;
   icon: React.ReactNode;
   accent: string;
-}) {
+}
+
+function StatCard({ label, value, icon, accent }: StatCardProps) {
   return (
     <div className="relative overflow-hidden rounded-2xl bg-[#111827] border border-white/5 p-5 flex flex-col gap-3">
       <div
@@ -230,13 +231,12 @@ function StatCard({
   );
 }
 
-function DeclarationRow({
-  dec,
-  onAction,
-}: {
+interface DeclarationRowProps {
   dec: Declaration;
   onAction: (action: string, id: string) => void;
-}) {
+}
+
+function DeclarationRow({ dec, onAction }: DeclarationRowProps) {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
@@ -374,7 +374,11 @@ function DeclarationRow({
 
 // ─── Create Modal ─────────────────────────────────────────────────────────────
 
-function CreateModal({ onClose }: { onClose: () => void }) {
+interface CreateModalProps {
+  onClose: () => void;
+}
+
+function CreateModal({ onClose }: CreateModalProps) {
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({

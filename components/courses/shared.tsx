@@ -39,13 +39,12 @@ export const COURSE_STATUS_MAP: StatusBadgeMap<CourseStatus> = {
   ARCHIVED: { label: 'Arquivado', cls: 'bg-gray-100 text-gray-400' },
 };
 
-export function EnrollBadge({
-  status,
-  deadline,
-}: {
+export interface EnrollBadgeProps {
   status: EnrollmentStatus;
   deadline: string | null;
-}) {
+}
+
+export function EnrollBadge({ status, deadline }: EnrollBadgeProps) {
   const overdue = isOverdue(deadline);
   const cfg: Record<EnrollmentStatus, { label: string; cls: string }> = {
     NOT_STARTED: { label: 'Não iniciado', cls: 'bg-gray-100 text-gray-500' },
@@ -68,7 +67,11 @@ export function EnrollBadge({
   );
 }
 
-export function LessonIcon({ type }: { type: LessonType }) {
+export interface LessonIconProps {
+  type: LessonType;
+}
+
+export function LessonIcon({ type }: LessonIconProps) {
   const icons: Record<LessonType, string> = {
     VIDEO: '▶',
     PDF: '📄',
@@ -82,13 +85,12 @@ export function LessonIcon({ type }: { type: LessonType }) {
   return <span className="text-sm">{icons[type] ?? '📄'}</span>;
 }
 
-export function ProgressBar({
-  pct,
-  size = 'sm',
-}: {
+export interface ProgressBarProps {
   pct: number;
   size?: 'sm' | 'md';
-}) {
+}
+
+export function ProgressBar({ pct, size = 'sm' }: ProgressBarProps) {
   const h = size === 'sm' ? 'h-1.5' : 'h-2.5';
   return (
     <div className={`w-full ${h} bg-gray-100 rounded-full overflow-hidden`}>
@@ -100,7 +102,11 @@ export function ProgressBar({
   );
 }
 
-export function Skeleton({ rows = 4 }: { rows?: number }) {
+export interface SkeletonProps {
+  rows?: number;
+}
+
+export function Skeleton({ rows = 4 }: SkeletonProps) {
   return (
     <SharedSkeleton
       rows={rows}
