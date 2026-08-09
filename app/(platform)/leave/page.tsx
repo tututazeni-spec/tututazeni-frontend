@@ -41,6 +41,8 @@ import {
   ChevronDown,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
+import { useFormValidation } from '@/hooks/useFormValidation';
+import { required } from '@/lib/validation';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -366,16 +368,29 @@ function NewLeaveModal({
   onSuccess: () => void;
 }) {
   const [step, setStep] = useState<1 | 2 | 3>(1);
-  const [form, setForm] = useState({
-    leaveTypeCode: '',
-    startDate: '',
-    endDate: '',
-    durationMode: 'FULL_DAY' as DurationMode,
-    reason: '',
-    saveAsDraft: false,
-  });
+  const {
+    values: form,
+    setValues: setForm,
+    errorMessage: validationError,
+    handleSubmit: withValidation,
+  } = useFormValidation(
+    {
+      leaveTypeCode: '',
+      startDate: '',
+      endDate: '',
+      durationMode: 'FULL_DAY' as DurationMode,
+      reason: '',
+      saveAsDraft: false,
+    },
+    {
+      leaveTypeCode: [required()],
+      startDate: [required()],
+      endDate: [required()],
+    },
+  );
   const [conflicts, setConflicts] = useState<ConflictCheck | null>(null);
-  const [error, setError] = useState('');
+  const [submitError, setSubmitError] = useState('');
+  const error = validationError || submitError;
 
   const selectedType = leaveTypes.find((t) => t.code === form.leaveTypeCode);
   const selectedBalance = balances.find(
@@ -402,18 +417,14 @@ function NewLeaveModal({
       onSuccess();
       onClose();
     },
-    onError: (e) => setError(e.message),
+    onError: (e) => setSubmitError(e.message),
   });
   const loading = create.isPending;
 
-  const handleSubmit = () => {
-    if (!form.leaveTypeCode || !form.startDate || !form.endDate) {
-      setError('Preencha todos os campos obrigatórios');
-      return;
-    }
-    setError('');
+  const handleSubmit = withValidation(() => {
+    setSubmitError('');
     create.mutate(undefined);
-  };
+  });
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">

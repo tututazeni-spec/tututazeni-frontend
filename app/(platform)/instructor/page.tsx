@@ -12,6 +12,8 @@ import {
   formatDate as fmtDate,
   getInitials as initials,
 } from '../../../lib/format';
+import { useFormValidation } from '../../../hooks/useFormValidation';
+import { required } from '../../../lib/validation';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -374,13 +376,27 @@ function CohortsView({
 }) {
   const [statusFilter, setStatusFilter] = useState('');
   const [creating, setCreating] = useState(false);
-  const [form, setForm] = useState({
-    name: '',
-    courseId: '',
-    startDate: '',
-    modalidade: 'ONLINE',
-    maxParticipants: '30',
-  });
+  const {
+    values: form,
+    setValues: setForm,
+    errorMessage: validationError,
+    handleSubmit: withValidation,
+  } = useFormValidation(
+    {
+      name: '',
+      courseId: '',
+      startDate: '',
+      modalidade: 'ONLINE',
+      maxParticipants: '30',
+    },
+    {
+      name: [required()],
+      courseId: [required()],
+      startDate: [required()],
+    },
+  );
+  const [submitError, setSubmitError] = useState('');
+  const error = validationError || submitError;
 
   const params = statusFilter ? { status: statusFilter } : {};
   const {
@@ -393,11 +409,8 @@ function CohortsView({
     { params, staleTime: STALE_TIME.DYNAMIC },
   );
 
-  const handleCreate = async () => {
-    if (!form.name || !form.courseId || !form.startDate) {
-      alert('Nome, curso e data de início obrigatórios');
-      return;
-    }
+  const handleCreate = withValidation(async () => {
+    setSubmitError('');
     try {
       await apiClient.post('/instructors/my/cohorts', {
         name: form.name,
@@ -416,9 +429,9 @@ function CohortsView({
       });
       refetch();
     } catch (e) {
-      alert(e instanceof Error ? e.message : String(e));
+      setSubmitError(e instanceof Error ? e.message : String(e));
     }
-  };
+  });
 
   return (
     <div>
@@ -448,6 +461,11 @@ function CohortsView({
           <div className="text-sm font-semibold text-gray-900 mb-3">
             Nova turma
           </div>
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 text-sm mb-3">
+              {error}
+            </div>
+          )}
           <div className="grid grid-cols-2 gap-3">
             <input
               type="text"
