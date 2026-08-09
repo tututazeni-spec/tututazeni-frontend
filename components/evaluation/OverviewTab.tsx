@@ -1,0 +1,229 @@
+// components/evaluation/OverviewTab.tsx
+// Separador "Visão Geral" — progresso pessoal, pendentes urgentes e
+// resultados/radar próprios. Dados próprios (useApiQuery) + apresentação,
+// mesmo padrão auto-contido usado em components/payslips/page.tsx.
+// Extraído de app/(platform)/evaluation/page.tsx.
+//
+// `userId` nunca é passado pelo container (page.tsx renderiza
+// `<OverviewTab />` sem prop) — resultsQ fica sempre `enabled: false` e
+// `myResults` é sempre null. Comportamento idêntico ao ficheiro original,
+// não corrigido aqui (fora do âmbito de um refactor estrutural).
+
+'use client';
+
+import {
+  AlertTriangle,
+  Activity,
+  CheckCircle,
+  ChevronRight,
+  Clock,
+  Star,
+} from 'lucide-react';
+import { useApiQuery } from '@/hooks/useApiQuery';
+import { queryKeys } from '@/lib/queryKeys';
+import { STALE_TIME } from '@/lib/queryClient';
+import { Avatar, KpiCard, ProgressBar, Skeleton } from './atoms';
+import { RadarChart } from './RadarChart';
+import { SCORE_BG, SCORE_COLOR, TYPE_LABEL } from './constants';
+import type { EvalRequest, EvalResults, MyProgress } from './types';
+
+export interface OverviewTabProps {
+  userId?: number;
+}
+
+export function OverviewTab({ userId }: OverviewTabProps) {
+  const progressQ = useApiQuery<MyProgress>(
+    queryKeys.evaluation.myProgress(),
+    '/evaluations/my-progress',
+    { staleTime: STALE_TIME.DYNAMIC },
+  );
+  const pendingQ = useApiQuery<EvalRequest[]>(
+    queryKeys.evaluation.pending(),
+    '/evaluations/pending',
+    { staleTime: STALE_TIME.DYNAMIC },
+  );
+  const resultsQ = useApiQuery<EvalResults>(
+    queryKeys.evaluation.results(userId ?? 0),
+    `/evaluations/results/${userId}`,
+    { enabled: !!userId, retry: false, staleTime: STALE_TIME.DYNAMIC },
+  );
+  const progress = progressQ.data ?? null;
+  const pending = pendingQ.data ?? [];
+  const myResults =
+    resultsQ.data && resultsQ.data.hasResults !== false ? resultsQ.data : null;
+  const loading = progressQ.isLoading;
+
+  if (loading) return <Skeleton />;
+
+  return (
+    <div className="space-y-6">
+      {/* My completion progress */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <KpiCard
+          icon={CheckCircle}
+          label="Concluídas"
+          value={progress?.completed ?? 0}
+          color="text-emerald-600"
+          bg="bg-emerald-50"
+        />
+        <KpiCard
+          icon={Clock}
+          label="Pendentes"
+          value={progress?.pending ?? 0}
+          color="text-amber-600"
+          bg="bg-amber-50"
+        />
+        <KpiCard
+          icon={Activity}
+          label="Taxa Conclusão"
+          value={`${progress?.completionRate ?? 0}%`}
+          color="text-indigo-600"
+          bg="bg-indigo-50"
+        />
+        <KpiCard
+          icon={Star}
+          label="Último Score"
+          value={myResults ? myResults.finalScore.toFixed(1) : '–'}
+          sub={myResults?.scoreLabel}
+          color="text-violet-600"
+          bg="bg-violet-50"
+        />
+      </div>
+
+      {/* Pending evaluations urgent banner */}
+      {pending.length > 0 && (
+        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+          <div className="flex items-center gap-2 mb-3">
+            <AlertTriangle size={16} className="text-amber-600" />
+            <p className="text-sm font-semibold text-amber-700">
+              {pending.length} avaliação{pending.length > 1 ? 'ões' : ''}{' '}
+              pendente{pending.length > 1 ? 's' : ''}
+            </p>
+          </div>
+          <div className="space-y-2">
+            {pending.slice(0, 3).map((r) => (
+              <div
+                key={r.id}
+                className="flex items-center gap-3 bg-white rounded-lg px-3 py-2.5 border border-amber-100"
+              >
+                <Avatar
+                  name={r.evaluated.fullName}
+                  url={r.evaluated.avatarUrl}
+                />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-slate-700">
+                    {r.evaluated.fullName}
+                  </p>
+                  <p className="text-xs text-slate-400">
+                    {TYPE_LABEL[r.type]} · {r.cycle?.name}
+                  </p>
+                </div>
+                {r.dueDate && (
+                  <span className="text-xs text-amber-600 font-medium shrink-0">
+                    {new Date(r.dueDate).toLocaleDateString('pt')}
+                  </span>
+                )}
+                <ChevronRight size={14} className="text-slate-400" />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* My results radar */}
+      {myResults && (
+        <div className="bg-white rounded-xl border border-slate-100 p-5">
+          <h3 className="font-semibold text-slate-700 mb-4">
+            Os Meus Resultados
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Score breakdown */}
+            <div>
+              <div
+                className={`rounded-xl border p-4 mb-4 ${SCORE_BG(myResults.finalScore)}`}
+              >
+                <p className="text-xs text-slate-500 mb-0.5">Score Final</p>
+                <p
+                  className={`text-4xl font-black ${SCORE_COLOR(myResults.finalScore)}`}
+                >
+                  {myResults.finalScore.toFixed(1)}
+                </p>
+                <p className="text-sm text-slate-600 font-medium">
+                  {myResults.scoreLabel}
+                </p>
+              </div>
+
+              {/* By type */}
+              <div className="space-y-2">
+                {Object.entries(myResults.byType).map(([type, score]) => (
+                  <div key={type}>
+                    <div className="flex justify-between text-xs mb-0.5">
+                      <span className="text-slate-500">
+                        {TYPE_LABEL[type] ?? type}
+                      </span>
+                      <span className={`font-bold ${SCORE_COLOR(+score)}`}>
+                        {(+score).toFixed(1)}
+                      </span>
+                    </div>
+                    <ProgressBar
+                      value={(+score / 5) * 100}
+                      color={
+                        +score >= 4
+                          ? 'bg-emerald-500'
+                          : +score >= 3
+                            ? 'bg-teal-400'
+                            : 'bg-amber-400'
+                      }
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Radar + Concordance */}
+            <div>
+              {Object.keys(myResults.competencies).length > 0 && (
+                <RadarChart
+                  data={Object.entries(myResults.competencies).map(
+                    ([id, score]) => ({
+                      label: `Comp.${id}`,
+                      value: +score,
+                      max: 5,
+                    }),
+                  )}
+                  size={180}
+                />
+              )}
+
+              {myResults.concordance && (
+                <div className="mt-3 p-3 rounded-lg bg-slate-50 border border-slate-200">
+                  <p className="text-xs font-semibold text-slate-600 mb-1">
+                    Concordância
+                  </p>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-slate-500">
+                      Auto: <b>{myResults.concordance.selfScore.toFixed(1)}</b>
+                    </span>
+                    <span
+                      className={`font-bold text-xs px-2 py-0.5 rounded-full ${
+                        myResults.concordance.label === 'Alinhado'
+                          ? 'bg-emerald-100 text-emerald-700'
+                          : 'bg-amber-100 text-amber-700'
+                      }`}
+                    >
+                      {myResults.concordance.label}
+                    </span>
+                    <span className="text-slate-500">
+                      Outros:{' '}
+                      <b>{myResults.concordance.othersScore.toFixed(1)}</b>
+                    </span>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
