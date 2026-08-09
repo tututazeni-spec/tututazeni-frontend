@@ -42,11 +42,16 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 export default function TranscriptPage() {
-  const { data, isLoading: loading, error: queryError, refetch } =
-    useApiQuery<{ transcript: Transcript | null; enrollments: Enrollment[] }>(
-      queryKeys.academic.transcript(), '/academic/transcript',
-      { staleTime: STALE_TIME.DYNAMIC },
-    );
+  const {
+    data,
+    isLoading: loading,
+    error: queryError,
+    refetch,
+  } = useApiQuery<{ transcript: Transcript | null; enrollments: Enrollment[] }>(
+    queryKeys.academic.transcript(),
+    '/academic/transcript',
+    { staleTime: STALE_TIME.DYNAMIC },
+  );
 
   const transcript = data?.transcript ?? null;
   const enrollments = data?.enrollments ?? [];
@@ -169,15 +174,13 @@ export default function TranscriptPage() {
   );
 }
 
-function SummaryCard({
-  label,
-  value,
-  color,
-}: {
+interface SummaryCardProps {
   label: string;
   value: string;
   color?: string;
-}) {
+}
+
+function SummaryCard({ label, value, color }: SummaryCardProps) {
   return (
     <div className="bg-white rounded-lg shadow p-4">
       <p className="text-xs text-gray-400 uppercase">{label}</p>

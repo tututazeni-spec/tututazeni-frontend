@@ -223,7 +223,11 @@ function useLeaveBalance() {
 
 // ─── Small Components ─────────────────────────────────────────────────────────
 
-function StatusBadge({ status }: { status: AttendanceStatus }) {
+interface StatusBadgeProps {
+  status: AttendanceStatus;
+}
+
+function StatusBadge({ status }: StatusBadgeProps) {
   const cfg = STATUS_CONFIG[status] ?? STATUS_CONFIG.ABSENT;
   const Icon = cfg.icon;
   return (
@@ -236,6 +240,15 @@ function StatusBadge({ status }: { status: AttendanceStatus }) {
   );
 }
 
+interface KpiTileProps {
+  label: string;
+  value: string | number;
+  icon: LucideIcon;
+  sub?: string;
+  color?: 'blue' | 'emerald' | 'amber' | 'red' | 'violet';
+  trend?: 'up' | 'down';
+}
+
 function KpiTile({
   label,
   value,
@@ -243,14 +256,7 @@ function KpiTile({
   sub,
   color = 'blue',
   trend,
-}: {
-  label: string;
-  value: string | number;
-  icon: LucideIcon;
-  sub?: string;
-  color?: 'blue' | 'emerald' | 'amber' | 'red' | 'violet';
-  trend?: 'up' | 'down';
-}) {
+}: KpiTileProps) {
   const colors = {
     blue: 'bg-blue-50 text-blue-600 border-blue-100',
     emerald: 'bg-emerald-50 text-emerald-600 border-emerald-100',
@@ -285,15 +291,13 @@ function KpiTile({
   );
 }
 
-function Avatar({
-  name,
-  src,
-  size = 'sm',
-}: {
+interface AvatarProps {
   name: string;
   src?: string;
   size?: 'sm' | 'md';
-}) {
+}
+
+function Avatar({ name, src, size = 'sm' }: AvatarProps) {
   const s = size === 'sm' ? 'w-8 h-8 text-xs' : 'w-10 h-10 text-sm';
   const colors = [
     'bg-violet-500',
@@ -334,7 +338,11 @@ function MinutesToTime(min: number): string {
 // Container: useClockInOut trata a query do dia, a inicialização a partir
 // do servidor e as mutações; a apresentação (relógio ao vivo + JSX) vive em
 // components/attendance/ClockWidgetView.tsx.
-function ClockWidget({ onAction }: { onAction: () => void }) {
+interface ClockWidgetProps {
+  onAction: () => void;
+}
+
+function ClockWidget({ onAction }: ClockWidgetProps) {
   const {
     status,
     clockInTime,
@@ -362,13 +370,12 @@ function ClockWidget({ onAction }: { onAction: () => void }) {
 
 // ─── Leave Request Modal ──────────────────────────────────────────────────────
 
-function LeaveModal({
-  onClose,
-  onSuccess,
-}: {
+interface LeaveModalProps {
   onClose: () => void;
   onSuccess: () => void;
-}) {
+}
+
+function LeaveModal({ onClose, onSuccess }: LeaveModalProps) {
   const {
     values: form,
     setValues: setForm,
@@ -533,7 +540,11 @@ function LeaveModal({
 
 // ─── History Table ────────────────────────────────────────────────────────────
 
-function AttendanceHistory({ records }: { records: AttendanceRecord[] }) {
+interface AttendanceHistoryProps {
+  records: AttendanceRecord[];
+}
+
+function AttendanceHistory({ records }: AttendanceHistoryProps) {
   return (
     <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
       <div className="px-5 py-4 border-b border-gray-50">
@@ -614,7 +625,11 @@ function AttendanceHistory({ records }: { records: AttendanceRecord[] }) {
 
 // ─── Leave Balance Bars ───────────────────────────────────────────────────────
 
-function LeaveBalanceCard({ balances }: { balances: LeaveBalance[] }) {
+interface LeaveBalanceCardProps {
+  balances: LeaveBalance[];
+}
+
+function LeaveBalanceCard({ balances }: LeaveBalanceCardProps) {
   return (
     <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
       <h3 className="font-semibold text-gray-900 text-sm mb-4">
@@ -651,15 +666,13 @@ function LeaveBalanceCard({ balances }: { balances: LeaveBalance[] }) {
 
 // ─── Dashboard Tab ────────────────────────────────────────────────────────────
 
-function DashboardTab({
-  data,
-  loading,
-  refetch,
-}: {
+interface DashboardTabProps {
   data: DashboardData | null;
   loading: boolean;
   refetch: () => void;
-}) {
+}
+
+function DashboardTab({ data, loading, refetch }: DashboardTabProps) {
   if (loading)
     return (
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 animate-pulse">

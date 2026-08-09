@@ -46,11 +46,15 @@ export default function ProgramDetailPage() {
   const router = useRouter();
   const id = params?.id as string;
 
-  const { data: p, isLoading: loading, error: queryError } =
-    useApiQuery<ProgramDetail>(
-      queryKeys.academic.program(id), `/academic/programs/${id}`,
-      { enabled: !!id, staleTime: STALE_TIME.SEMI_STATIC },
-    );
+  const {
+    data: p,
+    isLoading: loading,
+    error: queryError,
+  } = useApiQuery<ProgramDetail>(
+    queryKeys.academic.program(id),
+    `/academic/programs/${id}`,
+    { enabled: !!id, staleTime: STALE_TIME.SEMI_STATIC },
+  );
   const error = queryError?.message ?? '';
 
   const { data: currentUser } = useCurrentUser();
@@ -68,7 +72,10 @@ export default function ProgramDetailPage() {
       });
     },
     {
-      invalidateKeys: [queryKeys.academic.program(id), queryKeys.academic.transcript()],
+      invalidateKeys: [
+        queryKeys.academic.program(id),
+        queryKeys.academic.transcript(),
+      ],
       onSuccess: () => {
         alert('Matrícula submetida com sucesso!');
         router.push('/academic/transcript');
@@ -122,17 +129,12 @@ export default function ProgramDetailPage() {
             {p.level}
           </span>
         </div>
-        {p.description && (
-          <p className="text-gray-600 mt-3">{p.description}</p>
-        )}
+        {p.description && <p className="text-gray-600 mt-3">{p.description}</p>}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
           <Info label="Carga horária" value={`${p.durationHours}h`} />
           <Info label="Nota mínima" value={`${p.passingScore}%`} />
           <Info label="Alunos" value={String(p._count.enrollments)} />
-          <Info
-            label="Obrigatório"
-            value={p.isMandatory ? 'Sim' : 'Não'}
-          />
+          <Info label="Obrigatório" value={p.isMandatory ? 'Sim' : 'Não'} />
         </div>
         <button
           onClick={() => enroll()}
@@ -181,7 +183,12 @@ export default function ProgramDetailPage() {
   );
 }
 
-function Info({ label, value }: { label: string; value: string }) {
+interface InfoProps {
+  label: string;
+  value: string;
+}
+
+function Info({ label, value }: InfoProps) {
   return (
     <div>
       <p className="text-xs text-gray-400 uppercase">{label}</p>

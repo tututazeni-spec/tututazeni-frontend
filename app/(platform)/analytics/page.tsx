@@ -142,15 +142,13 @@ type View = 'overview' | 'my' | 'manager' | 'hr' | 'risks';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function Avatar({
-  name,
-  avatarUrl,
-  size = 'sm',
-}: {
+interface AvatarProps {
   name: string;
   avatarUrl?: string | null;
   size?: 'sm' | 'md';
-}) {
+}
+
+function Avatar({ name, avatarUrl, size = 'sm' }: AvatarProps) {
   const dim = size === 'sm' ? 'w-8 h-8 text-xs' : 'w-10 h-10 text-sm';
   return avatarUrl ? (
     <div
@@ -167,7 +165,11 @@ function Avatar({
   );
 }
 
-function Skeleton({ rows = 3 }: { rows?: number }) {
+interface SkeletonProps {
+  rows?: number;
+}
+
+function Skeleton({ rows = 3 }: SkeletonProps) {
   return (
     <SharedSkeleton
       rows={rows}
@@ -177,19 +179,21 @@ function Skeleton({ rows = 3 }: { rows?: number }) {
   );
 }
 
+interface KpiCardProps {
+  label: string;
+  value: string | number;
+  sub?: string;
+  color?: string;
+  bg?: string;
+}
+
 function KpiCard({
   label,
   value,
   sub,
   color = 'text-gray-900',
   bg = 'bg-gray-50',
-}: {
-  label: string;
-  value: string | number;
-  sub?: string;
-  color?: string;
-  bg?: string;
-}) {
+}: KpiCardProps) {
   return (
     <div className={`${bg} rounded-xl p-4`}>
       <div className="text-xs text-gray-400 mb-1">{label}</div>
@@ -199,15 +203,17 @@ function KpiCard({
   );
 }
 
+interface ProgressBarProps {
+  pct: number;
+  color?: string;
+  h?: string;
+}
+
 function ProgressBar({
   pct,
   color = 'bg-blue-500',
   h = 'h-2',
-}: {
-  pct: number;
-  color?: string;
-  h?: string;
-}) {
+}: ProgressBarProps) {
   return (
     <div className="flex items-center gap-2">
       <div className={`flex-1 ${h} bg-gray-100 rounded-full overflow-hidden`}>
@@ -225,7 +231,11 @@ function ProgressBar({
 
 // ─── 9-Box Matrix ─────────────────────────────────────────────────────────────
 
-function NineBox({ data }: { data: ManagerDashboard['nineBox'] }) {
+interface NineBoxProps {
+  data: ManagerDashboard['nineBox'];
+}
+
+function NineBox({ data }: NineBoxProps) {
   const labels: Record<string, string> = {
     '3-3': 'Alto Potencial',
     '2-3': 'Potencial Emergente',
