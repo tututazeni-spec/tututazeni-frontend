@@ -1,10 +1,11 @@
 // components/evaluation360/types.ts
 // Tipos do domínio "avaliação 360º" — movidos verbatim de
 // app/(platform)/evaluation360/page.tsx. Usados por hooks/useEvaluation360.ts
-// (dono dos dados, mock por agora) e pelos componentes de apresentação que
-// continuam em page.tsx (OverviewTab, RadarChart, CompetencyHeatmap,
-// FeedbackTab, NineBoxGrid, EvaluationFormTab).
-// Ver memory project_innova_component_separation_audit, item 3.6.
+// (dono dos dados, mock por agora) e pelos componentes de apresentação em
+// components/evaluation360/ (Evaluation360View, OverviewTab, RadarChart,
+// CompetencyHeatmap, FeedbackTab, NineBoxGrid, EvaluationFormTab) — page.tsx
+// é hoje só o container que liga o hook à Evaluation360View.
+// Ver memory project_innova_component_separation_audit.
 
 export type EvaluatorRole = 'SELF' | 'MANAGER' | 'PEER' | 'SUBORDINATE';
 export type AlertType = 'STRENGTH' | 'GAP' | 'INFO';

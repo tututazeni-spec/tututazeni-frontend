@@ -2,10 +2,12 @@
 // Container da página de Avaliação 360º — hoje devolve dados mock, mas já
 // na forma exacta que uma query real devolveria, para que a troca para o
 // backend real seja só dentro deste ficheiro (nenhum componente de
-// apresentação em app/(platform)/evaluation360/page.tsx precisa de mudar).
+// apresentação em components/evaluation360/ precisa de mudar).
 // Extraído porque a página inteira (2159 linhas) estava 100% em dados mock
-// module-level, sem nenhum ponto de wiring — ver memory
-// project_innova_component_separation_audit, item 3.6.
+// module-level, sem nenhum ponto de wiring; a apresentação foi depois
+// separada em components/evaluation360/Evaluation360View.tsx + sub-
+// componentes, deixando app/(platform)/evaluation360/page.tsx como container
+// puro — ver memory project_innova_component_separation_audit.
 //
 // Quando o backend existir, substituir os `return` abaixo por
 // `useApiQuery`/`useApiMutation` a estes endpoints (mantendo a mesma forma
