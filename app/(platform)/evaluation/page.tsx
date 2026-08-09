@@ -193,15 +193,13 @@ const SCORE_BG = (score: number) =>
         ? 'bg-amber-50 border-amber-200'
         : 'bg-red-50 border-red-200';
 
-function Avatar({
-  name,
-  url,
-  size = 8,
-}: {
+interface AvatarProps {
   name: string;
   url?: string;
   size?: number;
-}) {
+}
+
+function Avatar({ name, url, size = 8 }: AvatarProps) {
   const initials = getInitials(name);
   return url ? (
     <div
@@ -219,15 +217,17 @@ function Avatar({
   );
 }
 
+interface ProgressBarProps {
+  value: number;
+  color?: string;
+  height?: string;
+}
+
 function ProgressBar({
   value,
   color = 'bg-indigo-500',
   height = 'h-1.5',
-}: {
-  value: number;
-  color?: string;
-  height?: string;
-}) {
+}: ProgressBarProps) {
   return (
     <div className={`w-full ${height} bg-slate-100 rounded-full`}>
       <div
@@ -238,7 +238,11 @@ function ProgressBar({
   );
 }
 
-function Skeleton({ count = 3 }: { count?: number }) {
+interface SkeletonProps {
+  count?: number;
+}
+
+function Skeleton({ count = 3 }: SkeletonProps) {
   return (
     <SharedSkeleton
       rows={count}
@@ -246,6 +250,16 @@ function Skeleton({ count = 3 }: { count?: number }) {
       itemClassName="bg-slate-100 rounded-xl h-24"
     />
   );
+}
+
+interface KpiCardProps {
+  icon: LucideIcon;
+  label: string;
+  value: string | number;
+  sub?: string;
+  color?: string;
+  bg?: string;
+  trend?: number;
 }
 
 function KpiCard({
@@ -256,15 +270,7 @@ function KpiCard({
   color = 'text-indigo-600',
   bg = 'bg-indigo-50',
   trend,
-}: {
-  icon: LucideIcon;
-  label: string;
-  value: string | number;
-  sub?: string;
-  color?: string;
-  bg?: string;
-  trend?: number;
-}) {
+}: KpiCardProps) {
   return (
     <div className="bg-white rounded-xl border border-slate-100 p-4 shadow-sm">
       <div className="flex items-start justify-between mb-3">
@@ -289,13 +295,12 @@ function KpiCard({
 
 // ─── Radar Chart (SVG) ────────────────────────────────────────────
 
-function RadarChart({
-  data,
-  size = 200,
-}: {
+interface RadarChartProps {
   data: { label: string; value: number; max?: number }[];
   size?: number;
-}) {
+}
+
+function RadarChart({ data, size = 200 }: RadarChartProps) {
   if (!data.length) return null;
   const cx = size / 2,
     cy = size / 2,
@@ -390,7 +395,11 @@ function RadarChart({
 
 // ─── Overview Tab ─────────────────────────────────────────────────
 
-function OverviewTab({ userId }: { userId?: number }) {
+interface OverviewTabProps {
+  userId?: number;
+}
+
+function OverviewTab({ userId }: OverviewTabProps) {
   const progressQ = useApiQuery<MyProgress>(
     queryKeys.evaluation.myProgress(),
     '/evaluations/my-progress',

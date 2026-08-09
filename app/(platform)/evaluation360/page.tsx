@@ -58,7 +58,11 @@ function scoreColor(score: number): string {
 }
 
 // ─── RADAR CHART SVG ─────────────────────────────────────────
-function RadarChart({ competencies }: { competencies: CompetencyScore[] }) {
+interface RadarChartProps {
+  competencies: CompetencyScore[];
+}
+
+function RadarChart({ competencies }: RadarChartProps) {
   const cx = 220;
   const cy = 220;
   const r = 160;
@@ -352,11 +356,11 @@ function RadarChart({ competencies }: { competencies: CompetencyScore[] }) {
 }
 
 // ─── COMPETENCY HEATMAP ───────────────────────────────────────
-function CompetencyHeatmap({
-  competencies,
-}: {
+interface CompetencyHeatmapProps {
   competencies: CompetencyScore[];
-}) {
+}
+
+function CompetencyHeatmap({ competencies }: CompetencyHeatmapProps) {
   return (
     <div style={{ overflowX: 'auto' }}>
       <table
@@ -501,7 +505,11 @@ function CompetencyHeatmap({
 }
 
 // ─── NINE BOX ─────────────────────────────────────────────────
-function NineBoxGrid({ entries }: { entries: NineBoxEntry[] }) {
+interface NineBoxGridProps {
+  entries: NineBoxEntry[];
+}
+
+function NineBoxGrid({ entries }: NineBoxGridProps) {
   const boxConfig: Record<
     string,
     { label: string; color: string; bg: string }
@@ -650,13 +658,12 @@ function NineBoxGrid({ entries }: { entries: NineBoxEntry[] }) {
 }
 
 // ─── OVERVIEW TAB ─────────────────────────────────────────────
-function OverviewTab({
-  result,
-  cycle,
-}: {
+interface OverviewTabProps {
   result: ParticipantResult;
   cycle: CycleInfo;
-}) {
+}
+
+function OverviewTab({ result, cycle }: OverviewTabProps) {
   const completionPct = Math.round(
     (cycle.completedCount / cycle.participantsCount) * 100,
   );
@@ -965,7 +972,11 @@ function OverviewTab({
 }
 
 // ─── FEEDBACK TAB ──────────────────────────────────────────────
-function FeedbackTab({ feedbacks }: { feedbacks: ContinuousFeedback[] }) {
+interface FeedbackTabProps {
+  feedbacks: ContinuousFeedback[];
+}
+
+function FeedbackTab({ feedbacks }: FeedbackTabProps) {
   const typeConfig: Record<
     string,
     { label: string; color: string; icon: string }
@@ -1099,13 +1110,15 @@ function FeedbackTab({ feedbacks }: { feedbacks: ContinuousFeedback[] }) {
 }
 
 // ─── EVALUATION FORM ──────────────────────────────────────────
+interface EvaluationFormTabProps {
+  questions: EvaluationQuestion[];
+  participantName: string;
+}
+
 function EvaluationFormTab({
   questions,
   participantName,
-}: {
-  questions: EvaluationQuestion[];
-  participantName: string;
-}) {
+}: EvaluationFormTabProps) {
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const freqLabels = [
     'Nunca',

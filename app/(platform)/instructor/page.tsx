@@ -118,15 +118,13 @@ type View = 'dashboard' | 'cohorts' | 'cohort-detail' | 'at-risk' | 'profile';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function Avatar({
-  name,
-  avatarUrl,
-  size = 'sm',
-}: {
+interface AvatarProps {
   name: string;
   avatarUrl?: string | null;
   size?: 'sm' | 'md';
-}) {
+}
+
+function Avatar({ name, avatarUrl, size = 'sm' }: AvatarProps) {
   const dim = size === 'sm' ? 'w-8 h-8 text-xs' : 'w-10 h-10 text-sm';
   return avatarUrl ? (
     <div
@@ -143,7 +141,11 @@ function Avatar({
   );
 }
 
-function Skeleton({ rows = 3 }: { rows?: number }) {
+interface SkeletonProps {
+  rows?: number;
+}
+
+function Skeleton({ rows = 3 }: SkeletonProps) {
   return (
     <SharedSkeleton
       rows={rows}
@@ -153,13 +155,12 @@ function Skeleton({ rows = 3 }: { rows?: number }) {
   );
 }
 
-function ProgressBar({
-  pct,
-  color = 'bg-blue-500',
-}: {
+interface ProgressBarProps {
   pct: number;
   color?: string;
-}) {
+}
+
+function ProgressBar({ pct, color = 'bg-blue-500' }: ProgressBarProps) {
   return (
     <div className="flex items-center gap-2">
       <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
@@ -198,7 +199,11 @@ const STUDENT_STATUS: StatusBadgeMap<string> = {
 
 // ─── Stars ────────────────────────────────────────────────────────────────────
 
-function Stars({ rating }: { rating: number }) {
+interface StarsProps {
+  rating: number;
+}
+
+function Stars({ rating }: StarsProps) {
   return (
     <div className="flex gap-0.5">
       {[1, 2, 3, 4, 5].map((n) => (
@@ -215,11 +220,11 @@ function Stars({ rating }: { rating: number }) {
 
 // ─── View: Dashboard ──────────────────────────────────────────────────────────
 
-function DashboardView({
-  onSelectCohort,
-}: {
+interface DashboardViewProps {
   onSelectCohort: (id: number) => void;
-}) {
+}
+
+function DashboardView({ onSelectCohort }: DashboardViewProps) {
   const { data, isLoading } = useApiQuery<DashboardData>(
     queryKeys.instructor.dashboard(),
     '/instructors/my/dashboard',
@@ -366,11 +371,11 @@ function DashboardView({
 
 // ─── View: Cohorts ────────────────────────────────────────────────────────────
 
-function CohortsView({
-  onSelectCohort,
-}: {
+interface CohortsViewProps {
   onSelectCohort: (id: number) => void;
-}) {
+}
+
+function CohortsView({ onSelectCohort }: CohortsViewProps) {
   const [statusFilter, setStatusFilter] = useState('');
   const [creating, setCreating] = useState(false);
   const {
@@ -573,13 +578,12 @@ function CohortsView({
 
 // ─── View: Cohort Detail ──────────────────────────────────────────────────────
 
-function CohortDetailView({
-  cohortId,
-  onBack,
-}: {
+interface CohortDetailViewProps {
   cohortId: number;
   onBack: () => void;
-}) {
+}
+
+function CohortDetailView({ cohortId, onBack }: CohortDetailViewProps) {
   const [tab, setTab] = useState<'students' | 'atrisk'>('students');
 
   const { data, isLoading } = useApiQuery<CohortDetail>(

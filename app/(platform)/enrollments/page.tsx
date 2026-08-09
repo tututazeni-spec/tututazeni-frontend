@@ -127,7 +127,11 @@ function deadlineCountdown(deadline: string | null): string {
   return `${days} dias`;
 }
 
-function Skeleton({ rows = 4 }: { rows?: number }) {
+interface SkeletonProps {
+  rows?: number;
+}
+
+function Skeleton({ rows = 4 }: SkeletonProps) {
   return (
     <SharedSkeleton
       rows={rows}
@@ -139,7 +143,11 @@ function Skeleton({ rows = 4 }: { rows?: number }) {
 
 // ─── Badge components ─────────────────────────────────────────────────────────
 
-function StatusBadge({ status }: { status: EnrollmentStatus }) {
+interface StatusBadgeProps {
+  status: EnrollmentStatus;
+}
+
+function StatusBadge({ status }: StatusBadgeProps) {
   const cfg: Record<
     EnrollmentStatus,
     { label: string; cls: string; dot: string }
@@ -186,7 +194,11 @@ function StatusBadge({ status }: { status: EnrollmentStatus }) {
   );
 }
 
-function OriginBadge({ origin }: { origin: EnrollmentOrigin }) {
+interface OriginBadgeProps {
+  origin: EnrollmentOrigin;
+}
+
+function OriginBadge({ origin }: OriginBadgeProps) {
   const labels: Record<EnrollmentOrigin, string> = {
     MANUAL: 'Manual',
     SELF_ENROLL: 'Auto-inscrição',
@@ -198,7 +210,12 @@ function OriginBadge({ origin }: { origin: EnrollmentOrigin }) {
   return <span className="text-xs text-gray-400">{labels[origin]}</span>;
 }
 
-function ProgressBar({ pct, overdue }: { pct: number; overdue: boolean }) {
+interface ProgressBarProps {
+  pct: number;
+  overdue: boolean;
+}
+
+function ProgressBar({ pct, overdue }: ProgressBarProps) {
   return (
     <div className="flex items-center gap-2">
       <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
@@ -214,13 +231,12 @@ function ProgressBar({ pct, overdue }: { pct: number; overdue: boolean }) {
   );
 }
 
-function DeadlinePill({
-  deadline,
-  isOverdue,
-}: {
+interface DeadlinePillProps {
   deadline: string | null;
   isOverdue: boolean;
-}) {
+}
+
+function DeadlinePill({ deadline, isOverdue }: DeadlinePillProps) {
   if (!deadline) return null;
   const countdown = deadlineCountdown(deadline);
   const urgent =
@@ -244,11 +260,11 @@ function DeadlinePill({
   );
 }
 
-function Avatar({
-  user,
-}: {
+interface AvatarProps {
   user: { fullName: string; avatarUrl: string | null };
-}) {
+}
+
+function Avatar({ user }: AvatarProps) {
   const initials = getInitials(user.fullName);
   return user.avatarUrl ? (
     <Image
@@ -267,13 +283,12 @@ function Avatar({
 
 // ─── Enrollment Card (learner view) ──────────────────────────────────────────
 
-function EnrollmentCard({
-  enrollment,
-  onCancel,
-}: {
+interface EnrollmentCardProps {
   enrollment: Enrollment;
   onCancel?: (id: number) => void;
-}) {
+}
+
+function EnrollmentCard({ enrollment, onCancel }: EnrollmentCardProps) {
   const {
     course,
     status,

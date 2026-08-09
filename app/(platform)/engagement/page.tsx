@@ -193,15 +193,17 @@ const MOOD_LABEL: Record<number, string> = {
   1: 'Péssimo',
 };
 
+interface ProgressBarProps {
+  value: number;
+  color?: string;
+  height?: string;
+}
+
 function ProgressBar({
   value,
   color = 'bg-indigo-500',
   height = 'h-1.5',
-}: {
-  value: number;
-  color?: string;
-  height?: string;
-}) {
+}: ProgressBarProps) {
   return (
     <div className={`w-full ${height} bg-slate-100 rounded-full`}>
       <div
@@ -212,15 +214,13 @@ function ProgressBar({
   );
 }
 
-function Avatar({
-  name,
-  url,
-  size = 8,
-}: {
+interface AvatarProps {
   name: string;
   url?: string;
   size?: number;
-}) {
+}
+
+function Avatar({ name, url, size = 8 }: AvatarProps) {
   const initials = getInitials(name);
   return url ? (
     <div
@@ -238,6 +238,16 @@ function Avatar({
   );
 }
 
+interface KpiCardProps {
+  icon: LucideIcon;
+  label: string;
+  value: string | number;
+  sub?: string;
+  color?: string;
+  bg?: string;
+  trend?: number;
+}
+
 function KpiCard({
   icon: Icon,
   label,
@@ -246,15 +256,7 @@ function KpiCard({
   color = 'text-indigo-600',
   bg = 'bg-indigo-50',
   trend,
-}: {
-  icon: LucideIcon;
-  label: string;
-  value: string | number;
-  sub?: string;
-  color?: string;
-  bg?: string;
-  trend?: number;
-}) {
+}: KpiCardProps) {
   return (
     <div className="bg-white rounded-xl border border-slate-100 p-4 shadow-sm">
       <div className="flex items-start justify-between mb-3">
@@ -277,7 +279,11 @@ function KpiCard({
   );
 }
 
-function Skeleton({ rows = 3 }: { rows?: number }) {
+interface SkeletonProps {
+  rows?: number;
+}
+
+function Skeleton({ rows = 3 }: SkeletonProps) {
   return (
     <SharedSkeleton
       rows={rows}
@@ -289,7 +295,11 @@ function Skeleton({ rows = 3 }: { rows?: number }) {
 
 // ─── Mood Quick Check-in ─────────────────────────────────────────
 
-function MoodCheckin({ onDone }: { onDone: () => void }) {
+interface MoodCheckinProps {
+  onDone: () => void;
+}
+
+function MoodCheckin({ onDone }: MoodCheckinProps) {
   const [selected, setSelected] = useState<number | null>(null);
   const [note, setNote] = useState('');
   const [done, setDone] = useState(false);
@@ -367,7 +377,11 @@ function MoodCheckin({ onDone }: { onDone: () => void }) {
 
 // ─── Overview Tab ────────────────────────────────────────────────
 
-function OverviewTab({ userId }: { userId?: number }) {
+interface OverviewTabProps {
+  userId?: number;
+}
+
+function OverviewTab({ userId }: OverviewTabProps) {
   const dashQuery = useApiQuery<DashboardData>(
     queryKeys.engagement.dashboard(),
     '/engagement/dashboard',
@@ -846,7 +860,11 @@ function RecognitionTab() {
 
 // ─── Feedback Tab ────────────────────────────────────────────────
 
-function FeedbackTab({ userId }: { userId?: number }) {
+interface FeedbackTabProps {
+  userId?: number;
+}
+
+function FeedbackTab({ userId }: FeedbackTabProps) {
   const [type, setType] = useState('');
   const [msg, setMsg] = useState('');
   const [anon, setAnon] = useState(false);

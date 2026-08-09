@@ -110,15 +110,13 @@ type View = 'catalog' | 'my-events' | 'detail' | 'organizer' | 'create';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function Avatar({
-  name,
-  avatarUrl,
-  size = 'sm',
-}: {
+interface AvatarProps {
   name: string;
   avatarUrl?: string | null;
   size?: 'sm' | 'md';
-}) {
+}
+
+function Avatar({ name, avatarUrl, size = 'sm' }: AvatarProps) {
   const dim = size === 'sm' ? 'w-7 h-7 text-xs' : 'w-9 h-9 text-sm';
   return avatarUrl ? (
     <div
@@ -135,7 +133,11 @@ function Avatar({
   );
 }
 
-function Skeleton({ rows = 3 }: { rows?: number }) {
+interface SkeletonProps {
+  rows?: number;
+}
+
+function Skeleton({ rows = 3 }: SkeletonProps) {
   return (
     <SharedSkeleton
       rows={rows}
@@ -218,15 +220,13 @@ const PARTICIPANT_STATUS: StatusBadgeMap<ParticipantStatus> = {
 
 // ─── Event Card ───────────────────────────────────────────────────────────────
 
-function EventCard({
-  event,
-  onSelect,
-  myStatus,
-}: {
+interface EventCardProps {
   event: Event;
   onSelect: () => void;
   myStatus?: ParticipantStatus;
-}) {
+}
+
+function EventCard({ event, onSelect, myStatus }: EventCardProps) {
   const typeCfg = TYPE_CFG[event.type] ?? TYPE_CFG.TRAINING;
   const modalityCfg = MODALITY_CFG[event.modalidade] ?? MODALITY_CFG.ONLINE;
 
@@ -325,7 +325,11 @@ function EventCard({
 
 // ─── View: Catalog ────────────────────────────────────────────────────────────
 
-function CatalogView({ onSelect }: { onSelect: (id: number) => void }) {
+interface CatalogViewProps {
+  onSelect: (id: number) => void;
+}
+
+function CatalogView({ onSelect }: CatalogViewProps) {
   const [typeFilter, setTypeFilter] = useState('');
   const [modalityFilter, setModalityFilter] = useState('');
 
@@ -396,7 +400,11 @@ function CatalogView({ onSelect }: { onSelect: (id: number) => void }) {
 
 // ─── View: My Events ──────────────────────────────────────────────────────────
 
-function MyEventsView({ onSelect }: { onSelect: (id: number) => void }) {
+interface MyEventsViewProps {
+  onSelect: (id: number) => void;
+}
+
+function MyEventsView({ onSelect }: MyEventsViewProps) {
   const [tab, setTab] = useState<'upcoming' | 'past'>('upcoming');
 
   const { data, isLoading } = useApiQuery<MyEvents>(
@@ -453,13 +461,12 @@ function MyEventsView({ onSelect }: { onSelect: (id: number) => void }) {
 
 // ─── View: Event Detail ───────────────────────────────────────────────────────
 
-function DetailView({
-  eventId,
-  onBack,
-}: {
+interface DetailViewProps {
   eventId: number;
   onBack: () => void;
-}) {
+}
+
+function DetailView({ eventId, onBack }: DetailViewProps) {
   const [showFeedback, setShowFeedback] = useState(false);
   const [feedback, setFeedback] = useState({ nps: 8, rating: 4, comment: '' });
   const [tab, setTab] = useState<'info' | 'participants'>('info');

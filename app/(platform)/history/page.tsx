@@ -126,15 +126,13 @@ function monthLabel(key: string): string {
   return `${months[+m - 1]} ${y}`;
 }
 
-function Avatar({
-  name,
-  url,
-  size = 7,
-}: {
+interface AvatarProps {
   name: string;
   url?: string;
   size?: number;
-}) {
+}
+
+function Avatar({ name, url, size = 7 }: AvatarProps) {
   const i = name
     .split(' ')
     .slice(0, 2)
@@ -157,7 +155,11 @@ function Avatar({
   );
 }
 
-function Skeleton({ rows = 3 }: { rows?: number }) {
+interface SkeletonProps {
+  rows?: number;
+}
+
+function Skeleton({ rows = 3 }: SkeletonProps) {
   return (
     <SharedSkeleton
       rows={rows}
@@ -169,13 +171,12 @@ function Skeleton({ rows = 3 }: { rows?: number }) {
 
 // ─── Event Card ───────────────────────────────────────────────────
 
-function EventCard({
-  event,
-  compact = false,
-}: {
+interface EventCardProps {
   event: TimelineEvent;
   compact?: boolean;
-}) {
+}
+
+function EventCard({ event, compact = false }: EventCardProps) {
   const [expanded, setExpanded] = useState(false);
   const cat = CATEGORY_COLOR[event.category] ?? CATEGORY_COLOR.SYSTEM;
 

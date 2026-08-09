@@ -81,15 +81,13 @@ type View = 'list' | 'detail' | 'generate';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function Avatar({
-  name,
-  avatarUrl,
-  size = 'sm',
-}: {
+interface AvatarProps {
   name: string;
   avatarUrl?: string | null;
   size?: 'sm' | 'md';
-}) {
+}
+
+function Avatar({ name, avatarUrl, size = 'sm' }: AvatarProps) {
   const dim = size === 'sm' ? 'w-7 h-7 text-xs' : 'w-9 h-9 text-sm';
   return avatarUrl ? (
     <div
@@ -106,7 +104,11 @@ function Avatar({
   );
 }
 
-function Skeleton({ rows = 3 }: { rows?: number }) {
+interface SkeletonProps {
+  rows?: number;
+}
+
+function Skeleton({ rows = 3 }: SkeletonProps) {
   return (
     <SharedSkeleton
       rows={rows}
@@ -161,7 +163,11 @@ const KPI_STATUS: Record<
 
 // ─── KPI Card ─────────────────────────────────────────────────────────────────
 
-function KpiCard({ metric }: { metric: Metric }) {
+interface KpiCardProps {
+  metric: Metric;
+}
+
+function KpiCard({ metric }: KpiCardProps) {
   const statusCfg = metric.status ? KPI_STATUS[metric.status] : null;
   const variation =
     metric.previousValue && metric.previousValue !== 0
@@ -216,13 +222,12 @@ function KpiCard({ metric }: { metric: Metric }) {
 
 // ─── Report Card ──────────────────────────────────────────────────────────────
 
-function ReportCard({
-  report,
-  onClick,
-}: {
+interface ReportCardProps {
   report: Report;
   onClick: () => void;
-}) {
+}
+
+function ReportCard({ report, onClick }: ReportCardProps) {
   const typeCfg = TYPE_CFG[report.type];
   const redCount = report.metrics.filter((m) => m.status === 'RED').length;
 
@@ -294,13 +299,12 @@ function ReportCard({
 
 // ─── View: List ───────────────────────────────────────────────────────────────
 
-function ListView({
-  onSelect,
-  onGenerate,
-}: {
+interface ListViewProps {
   onSelect: (id: number) => void;
   onGenerate: () => void;
-}) {
+}
+
+function ListView({ onSelect, onGenerate }: ListViewProps) {
   const [statusFilter, setStatusFilter] = useState('');
   const [typeFilter, setTypeFilter] = useState('');
 
@@ -414,13 +418,12 @@ function ListView({
 
 // ─── View: Detail ─────────────────────────────────────────────────────────────
 
-function DetailView({
-  reportId,
-  onBack,
-}: {
+interface DetailViewProps {
   reportId: number;
   onBack: () => void;
-}) {
+}
+
+function DetailView({ reportId, onBack }: DetailViewProps) {
   const [activeTab, setActiveTab] = useState<'kpis' | 'narrative' | 'actions'>(
     'kpis',
   );
@@ -658,7 +661,11 @@ function DetailView({
 
 // ─── View: Generate ───────────────────────────────────────────────────────────
 
-function GenerateView({ onSuccess }: { onSuccess: (id: number) => void }) {
+interface GenerateViewProps {
+  onSuccess: (id: number) => void;
+}
+
+function GenerateView({ onSuccess }: GenerateViewProps) {
   const [type, setType] = useState<ReportType>('MONTHLY');
 
   const { data: templates = [] } = useApiQuery<ReportTemplate[]>(
