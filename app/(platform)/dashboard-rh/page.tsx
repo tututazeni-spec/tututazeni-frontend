@@ -152,7 +152,11 @@ interface TalentData {
   positionsAtRisk?: PositionAtRisk[];
 }
 
-function Skeleton({ count = 4 }: { count?: number }) {
+interface SkeletonProps {
+  count?: number;
+}
+
+function Skeleton({ count = 4 }: SkeletonProps) {
   return (
     <SharedSkeleton
       rows={count}
@@ -162,15 +166,17 @@ function Skeleton({ count = 4 }: { count?: number }) {
   );
 }
 
+interface ProgressBarProps {
+  value: number;
+  color?: string;
+  height?: string;
+}
+
 function ProgressBar({
   value,
   color = 'bg-indigo-500',
   height = 'h-1.5',
-}: {
-  value: number;
-  color?: string;
-  height?: string;
-}) {
+}: ProgressBarProps) {
   return (
     <div className={`w-full ${height} bg-slate-100 rounded-full`}>
       <div
@@ -181,15 +187,13 @@ function ProgressBar({
   );
 }
 
-function Avatar({
-  name,
-  url,
-  size = 8,
-}: {
+interface AvatarProps {
   name: string;
   url?: string;
   size?: number;
-}) {
+}
+
+function Avatar({ name, url, size = 8 }: AvatarProps) {
   const i = name
     .split(' ')
     .slice(0, 2)
@@ -212,6 +216,17 @@ function Avatar({
   );
 }
 
+interface KPICardProps {
+  icon: LucideIcon;
+  label: string;
+  value: string | number;
+  sub?: string;
+  trend?: number;
+  color?: string;
+  bg?: string;
+  status?: string;
+}
+
 function KPICard({
   icon: Icon,
   label,
@@ -221,16 +236,7 @@ function KPICard({
   color = 'text-indigo-600',
   bg = 'bg-indigo-50',
   status,
-}: {
-  icon: LucideIcon;
-  label: string;
-  value: string | number;
-  sub?: string;
-  trend?: number;
-  color?: string;
-  bg?: string;
-  status?: string;
-}) {
+}: KPICardProps) {
   return (
     <div className="bg-white rounded-xl border border-slate-100 p-4 shadow-sm">
       <div className="flex items-start justify-between mb-3">
@@ -262,7 +268,11 @@ function KPICard({
 
 // ─── Alert Banners ────────────────────────────────────────────────
 
-function AlertStrip({ alerts }: { alerts: Alert[] }) {
+interface AlertStripProps {
+  alerts: Alert[];
+}
+
+function AlertStrip({ alerts }: AlertStripProps) {
   if (!alerts.length)
     return (
       <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-100 rounded-xl px-4 py-3">

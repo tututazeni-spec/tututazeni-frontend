@@ -147,7 +147,11 @@ function isOverdue(d: string | null, status: string): boolean {
   );
 }
 
-function Skeleton({ rows = 3 }: { rows?: number }) {
+interface SkeletonProps {
+  rows?: number;
+}
+
+function Skeleton({ rows = 3 }: SkeletonProps) {
   return (
     <SharedSkeleton
       rows={rows}
@@ -157,15 +161,13 @@ function Skeleton({ rows = 3 }: { rows?: number }) {
   );
 }
 
-function Avatar({
-  name,
-  avatarUrl,
-  size = 'sm',
-}: {
+interface AvatarProps {
   name: string;
   avatarUrl?: string | null;
   size?: 'sm' | 'md';
-}) {
+}
+
+function Avatar({ name, avatarUrl, size = 'sm' }: AvatarProps) {
   const dim = size === 'sm' ? 'w-8 h-8 text-xs' : 'w-10 h-10 text-sm';
   return avatarUrl ? (
     <div
@@ -254,13 +256,12 @@ const PRIORITY_CFG: StatusBadgeMap<Priority> = {
   URGENT: { label: 'Urgente', cls: 'bg-red-100 text-red-700' },
 };
 
-function ProgressBar({
-  pct,
-  color = 'bg-blue-500',
-}: {
+interface ProgressBarProps {
   pct: number;
   color?: string;
-}) {
+}
+
+function ProgressBar({ pct, color = 'bg-blue-500' }: ProgressBarProps) {
   return (
     <div className="flex items-center gap-2">
       <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
@@ -278,7 +279,12 @@ function ProgressBar({
 
 // ─── Plan Card ────────────────────────────────────────────────────────────────
 
-function PlanCard({ plan, onClick }: { plan: Plan; onClick: () => void }) {
+interface PlanCardProps {
+  plan: Plan;
+  onClick: () => void;
+}
+
+function PlanCard({ plan, onClick }: PlanCardProps) {
   const pct = plan.actionProgress ?? plan.overallProgress;
   const hasOverdue = (plan.overdueActions ?? 0) > 0;
 
@@ -359,7 +365,11 @@ function PlanCard({ plan, onClick }: { plan: Plan; onClick: () => void }) {
 
 // ─── View: My Plans + Stats ───────────────────────────────────────────────────
 
-function MyPlansView({ onSelect }: { onSelect: (id: number) => void }) {
+interface MyPlansViewProps {
+  onSelect: (id: number) => void;
+}
+
+function MyPlansView({ onSelect }: MyPlansViewProps) {
   const plansQuery = useApiQuery<Plan[]>(
     queryKeys.developmentPlans.my(),
     '/development-plans/my',
@@ -430,13 +440,12 @@ function MyPlansView({ onSelect }: { onSelect: (id: number) => void }) {
 
 // ─── View: Detail ─────────────────────────────────────────────────────────────
 
-function DetailView({
-  planId,
-  onBack,
-}: {
+interface DetailViewProps {
   planId: number;
   onBack: () => void;
-}) {
+}
+
+function DetailView({ planId, onBack }: DetailViewProps) {
   const [updatingAction, setUpdatingAction] = useState<number | null>(null);
   const [updatingGoal, setUpdatingGoal] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState<
@@ -799,7 +808,11 @@ function DetailView({
 
 // ─── View: Team ────────────────────────────────────────────────────────────────
 
-function TeamView({ onSelect }: { onSelect: (id: number) => void }) {
+interface TeamViewProps {
+  onSelect: (id: number) => void;
+}
+
+function TeamView({ onSelect }: TeamViewProps) {
   const { data: plans = [], isLoading } = useApiQuery<TeamPlanSummary[]>(
     queryKeys.developmentPlans.teamDashboard(),
     '/development-plans/team/dashboard',

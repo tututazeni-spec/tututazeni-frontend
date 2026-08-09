@@ -82,7 +82,11 @@ type View = 'list' | 'tree' | 'detail' | 'dashboard';
 
 // ─── Helpers / Micro components ───────────────────────────────────────────────
 
-function StatusBadge({ active }: { active: boolean }) {
+interface StatusBadgeProps {
+  active: boolean;
+}
+
+function StatusBadge({ active }: StatusBadgeProps) {
   return (
     <span
       className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${active ? 'bg-emerald-50 text-emerald-700' : 'bg-gray-100 text-gray-500'}`}
@@ -93,7 +97,12 @@ function StatusBadge({ active }: { active: boolean }) {
   );
 }
 
-function Avatar({ name, size = 'sm' }: { name: string; size?: 'sm' | 'md' }) {
+interface AvatarProps {
+  name: string;
+  size?: 'sm' | 'md';
+}
+
+function Avatar({ name, size = 'sm' }: AvatarProps) {
   const initials = getInitials(name);
   const dim = size === 'sm' ? 'w-7 h-7 text-xs' : 'w-10 h-10 text-sm';
   return (
@@ -105,11 +114,11 @@ function Avatar({ name, size = 'sm' }: { name: string; size?: 'sm' | 'md' }) {
   );
 }
 
-function Breadcrumb({
-  items,
-}: {
+interface BreadcrumbProps {
   items: Array<{ id: number; name: string; code: string }>;
-}) {
+}
+
+function Breadcrumb({ items }: BreadcrumbProps) {
   return (
     <div className="flex items-center gap-1 text-xs text-gray-400 flex-wrap">
       {items.map((item, i) => (
@@ -128,7 +137,11 @@ function Breadcrumb({
   );
 }
 
-function Skeleton({ rows = 5 }: { rows?: number }) {
+interface SkeletonProps {
+  rows?: number;
+}
+
+function Skeleton({ rows = 5 }: SkeletonProps) {
   return (
     <SharedSkeleton
       rows={rows}
@@ -138,17 +151,19 @@ function Skeleton({ rows = 5 }: { rows?: number }) {
   );
 }
 
+interface MetricCardProps {
+  label: string;
+  value: number | string;
+  sub?: string;
+  color?: string;
+}
+
 function MetricCard({
   label,
   value,
   sub,
   color = 'text-gray-900',
-}: {
-  label: string;
-  value: number | string;
-  sub?: string;
-  color?: string;
-}) {
+}: MetricCardProps) {
   return (
     <div className="bg-gray-50 rounded-xl p-4">
       <div className="text-xs text-gray-400 mb-1">{label}</div>
@@ -160,15 +175,13 @@ function MetricCard({
 
 // ─── Org chart node (recursive) ───────────────────────────────────────────────
 
-function OrgNode({
-  node,
-  onSelect,
-  level = 0,
-}: {
+interface OrgNodeProps {
   node: DepartmentNode;
   onSelect: (id: number) => void;
   level?: number;
-}) {
+}
+
+function OrgNode({ node, onSelect, level = 0 }: OrgNodeProps) {
   const [expanded, setExpanded] = useState(level < 2);
   const hasChildren = node.children.length > 0;
 
@@ -246,7 +259,11 @@ function OrgNode({
 
 // ─── View: List ───────────────────────────────────────────────────────────────
 
-function ListView({ onSelect }: { onSelect: (id: number) => void }) {
+interface ListViewProps {
+  onSelect: (id: number) => void;
+}
+
+function ListView({ onSelect }: ListViewProps) {
   const [search, setSearch] = useState('');
   const [activeFilter, setActiveFilter] = useState('');
   const [page, setPage] = useState(1);
@@ -405,7 +422,11 @@ function ListView({ onSelect }: { onSelect: (id: number) => void }) {
 
 // ─── View: Tree (Org Chart) ───────────────────────────────────────────────────
 
-function TreeView({ onSelect }: { onSelect: (id: number) => void }) {
+interface TreeViewProps {
+  onSelect: (id: number) => void;
+}
+
+function TreeView({ onSelect }: TreeViewProps) {
   const {
     data: tree = [],
     isLoading: loading,
@@ -451,13 +472,12 @@ function TreeView({ onSelect }: { onSelect: (id: number) => void }) {
 
 // ─── View: Department Detail ──────────────────────────────────────────────────
 
-function DetailView({
-  deptId,
-  onBack,
-}: {
+interface DetailViewProps {
   deptId: number;
   onBack: () => void;
-}) {
+}
+
+function DetailView({ deptId, onBack }: DetailViewProps) {
   const [activeTab, setActiveTab] = useState<
     'members' | 'subdepts' | 'history' | 'metrics'
   >('members');
@@ -847,7 +867,11 @@ function DetailView({
 
 // ─── View: Comparative Dashboard ─────────────────────────────────────────────
 
-function DashboardView({ onSelect }: { onSelect: (id: number) => void }) {
+interface DashboardViewProps {
+  onSelect: (id: number) => void;
+}
+
+function DashboardView({ onSelect }: DashboardViewProps) {
   const {
     data: rows = [],
     isLoading: loading,

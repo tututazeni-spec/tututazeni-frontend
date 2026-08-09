@@ -209,13 +209,12 @@ function useTags() {
 
 // ─── Upload Modal ─────────────────────────────────────────────────────────────
 
-function UploadModal({
-  onClose,
-  onSuccess,
-}: {
+interface UploadModalProps {
   onClose: () => void;
   onSuccess: () => void;
-}) {
+}
+
+function UploadModal({ onClose, onSuccess }: UploadModalProps) {
   const {
     values: form,
     setValues: setForm,
@@ -470,15 +469,13 @@ function UploadModal({
 
 // ─── Document Card (Grid) ─────────────────────────────────────────────────────
 
-function DocCard({
-  doc,
-  onView,
-  onDownload,
-}: {
+interface DocCardProps {
   doc: Document;
   onView: (d: Document) => void;
   onDownload: (d: Document) => void;
-}) {
+}
+
+function DocCard({ doc, onView, onDownload }: DocCardProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const Icon = getFileIcon(doc.mimeType);
   const catCfg = CATEGORY_CONFIG[doc.category];
@@ -606,15 +603,13 @@ function DocCard({
 
 // ─── Document Row (List view) ─────────────────────────────────────────────────
 
-function DocRow({
-  doc,
-  onView,
-  onDownload,
-}: {
+interface DocRowProps {
   doc: Document;
   onView: (d: Document) => void;
   onDownload: (d: Document) => void;
-}) {
+}
+
+function DocRow({ doc, onView, onDownload }: DocRowProps) {
   const Icon = getFileIcon(doc.mimeType);
   const catCfg = CATEGORY_CONFIG[doc.category];
   const isExpired = doc.status === 'EXPIRED';
