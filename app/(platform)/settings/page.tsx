@@ -72,15 +72,13 @@ const TAB_STYLE = (active: boolean): React.CSSProperties => ({
 });
 
 // ─── Toast ────────────────────────────────────────────────────────────────────
-function Toast({
-  msg,
-  type,
-  onClose,
-}: {
+interface ToastProps {
   msg: string;
   type: 'success' | 'error';
   onClose: () => void;
-}) {
+}
+
+function Toast({ msg, type, onClose }: ToastProps) {
   useAutoDismiss(onClose, 3500);
   return (
     <div
@@ -116,7 +114,11 @@ function Toast({
 }
 
 // ─── Tab: Perfil ──────────────────────────────────────────────────────────────
-function TabPerfil({ user }: { user: Me }) {
+interface TabPerfilProps {
+  user: Me;
+}
+
+function TabPerfil({ user }: TabPerfilProps) {
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
       {/* Cartão principal */}
@@ -361,11 +363,11 @@ function TabPerfil({ user }: { user: Me }) {
 }
 
 // ─── Tab: Segurança ───────────────────────────────────────────────────────────
-function TabSeguranca({
-  onToast,
-}: {
+interface TabSegurancaProps {
   onToast: (msg: string, type: 'success' | 'error') => void;
-}) {
+}
+
+function TabSeguranca({ onToast }: TabSegurancaProps) {
   const [form, setForm] = useState({
     currentPassword: '',
     newPassword: '',
@@ -636,7 +638,11 @@ function TabSeguranca({
 }
 
 // ─── Tab: Permissões ──────────────────────────────────────────────────────────
-function TabPermissoes({ user }: { user: Me }) {
+interface TabPermissoesProps {
+  user: Me;
+}
+
+function TabPermissoes({ user }: TabPermissoesProps) {
   const permissions = user.role?.permissions ?? [];
 
   const grouped = permissions.reduce(

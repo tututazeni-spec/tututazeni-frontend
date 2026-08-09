@@ -175,15 +175,13 @@ const PRIORITY_COLOR: Record<string, string> = {
   CRITICAL: 'text-red-600',
 };
 
-function Avatar({
-  name,
-  url,
-  size = 8,
-}: {
+interface AvatarProps {
   name: string;
   url?: string;
   size?: number;
-}) {
+}
+
+function Avatar({ name, url, size = 8 }: AvatarProps) {
   const initials = getInitials(name);
   return url ? (
     <div
@@ -201,15 +199,17 @@ function Avatar({
   );
 }
 
+interface ProgressBarProps {
+  value: number;
+  color?: string;
+  height?: string;
+}
+
 function ProgressBar({
   value,
   color = 'bg-indigo-500',
   height = 'h-1.5',
-}: {
-  value: number;
-  color?: string;
-  height?: string;
-}) {
+}: ProgressBarProps) {
   return (
     <div
       className={`w-full ${height} bg-slate-100 rounded-full overflow-hidden`}
@@ -222,7 +222,11 @@ function ProgressBar({
   );
 }
 
-function ScoreBadge({ score }: { score: number }) {
+interface ScoreBadgeProps {
+  score: number;
+}
+
+function ScoreBadge({ score }: ScoreBadgeProps) {
   const color =
     score >= 4
       ? 'text-emerald-600'
@@ -234,6 +238,15 @@ function ScoreBadge({ score }: { score: number }) {
   );
 }
 
+interface KpiCardProps {
+  icon: LucideIcon;
+  label: string;
+  value: string | number;
+  sub?: string;
+  color?: string;
+  trend?: number;
+}
+
 function KpiCard({
   icon: Icon,
   label,
@@ -241,14 +254,7 @@ function KpiCard({
   sub,
   color = 'text-indigo-600',
   trend,
-}: {
-  icon: LucideIcon;
-  label: string;
-  value: string | number;
-  sub?: string;
-  color?: string;
-  trend?: number;
-}) {
+}: KpiCardProps) {
   return (
     <div className="bg-white rounded-xl p-5 shadow-sm border border-slate-100 flex items-start gap-4">
       <div className={`p-3 rounded-xl bg-slate-50 ${color}`}>
@@ -273,7 +279,11 @@ function KpiCard({
 
 // ─── Nine Box Matrix ─────────────────────────────────────────────
 
-function NineBoxMatrix({ matrix }: { matrix: NineBoxCell[] }) {
+interface NineBoxMatrixProps {
+  matrix: NineBoxCell[];
+}
+
+function NineBoxMatrix({ matrix }: NineBoxMatrixProps) {
   const BOX_COLORS: Record<string, string> = {
     '3_3': 'bg-emerald-50 border-emerald-200',
     '3_2': 'bg-teal-50 border-teal-200',
@@ -1161,7 +1171,11 @@ function AnalyticsTab() {
 
 // ─── Skeleton ─────────────────────────────────────────────────────
 
-function Skeleton({ rows = 3 }: { rows?: number }) {
+interface SkeletonProps {
+  rows?: number;
+}
+
+function Skeleton({ rows = 3 }: SkeletonProps) {
   return (
     <SharedSkeleton
       rows={rows}

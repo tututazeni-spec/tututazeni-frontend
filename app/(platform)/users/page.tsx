@@ -65,13 +65,12 @@ type View = 'list' | 'detail' | 'create' | 'dashboard' | 'directory';
 
 // ─── View: User List ──────────────────────────────────────────────────────────
 
-function UserListView({
-  onSelect,
-  onCreate,
-}: {
+interface UserListViewProps {
   onSelect: (id: number) => void;
   onCreate: () => void;
-}) {
+}
+
+function UserListView({ onSelect, onCreate }: UserListViewProps) {
   // Um só objecto para os filtros + page: mudar qualquer filtro repõe a
   // página a 1 automaticamente, em vez de cada handler repetir setPage(1).
   const [filters, setFilters] = useState({
@@ -325,13 +324,12 @@ function UserListView({
 // Container: useUserProfile trata as 3 queries + mutação de acção; a
 // apresentação (header, tabs, TeamView) vive em
 // components/users/UserProfileView.tsx.
-function UserProfileView({
-  userId,
-  onBack,
-}: {
+interface UserProfileViewProps {
   userId: number;
   onBack: () => void;
-}) {
+}
+
+function UserProfileView({ userId, onBack }: UserProfileViewProps) {
   const [tab, setTab] = useState<ProfileTab>('overview');
   const { user, loadingUser, stats, auditLogs, actionLoading, handleAction } =
     useUserProfile(userId, tab);
@@ -354,13 +352,12 @@ function UserProfileView({
 
 // ─── View: Create User ────────────────────────────────────────────────────────
 
-function CreateUserView({
-  onBack,
-  onCreated,
-}: {
+interface CreateUserViewProps {
   onBack: () => void;
   onCreated: () => void;
-}) {
+}
+
+function CreateUserView({ onBack, onCreated }: CreateUserViewProps) {
   const {
     values: form,
     setField,
@@ -415,17 +412,19 @@ function CreateUserView({
     create.mutate(undefined);
   });
 
+  interface FieldProps {
+    label: string;
+    id: keyof typeof form;
+    type?: string;
+    required?: boolean;
+  }
+
   const Field = ({
     label,
     id,
     type = 'text',
     required = false,
-  }: {
-    label: string;
-    id: keyof typeof form;
-    type?: string;
-    required?: boolean;
-  }) => {
+  }: FieldProps) => {
     const fieldId = useId();
     return (
       <div>
@@ -589,7 +588,11 @@ function DashboardView() {
 
 // ─── View: Internal Directory ─────────────────────────────────────────────────
 
-function DirectoryView({ onSelect }: { onSelect: (id: number) => void }) {
+interface DirectoryViewProps {
+  onSelect: (id: number) => void;
+}
+
+function DirectoryView({ onSelect }: DirectoryViewProps) {
   const [search, setSearch] = useState('');
   const debouncedSearch = useDebounce(search);
 
