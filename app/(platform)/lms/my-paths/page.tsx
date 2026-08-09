@@ -36,11 +36,13 @@ const STATUS_COLORS: Record<string, string> = {
 export default function MyPathsPage() {
   // Percursos e analytics em paralelo (queries independentes).
   const pathsQ = useApiQuery<MyPath[]>(
-    queryKeys.lms.myPaths(), '/lms/my-paths',
+    queryKeys.lms.myPaths(),
+    '/lms/my-paths',
     { staleTime: STALE_TIME.DYNAMIC },
   );
   const anaQ = useApiQuery<Analytics>(
-    queryKeys.lms.myAnalytics(), '/lms/my-analytics',
+    queryKeys.lms.myAnalytics(),
+    '/lms/my-analytics',
     { staleTime: STALE_TIME.DYNAMIC },
   );
 
@@ -48,7 +50,10 @@ export default function MyPathsPage() {
   const analytics = anaQ.data ?? null;
   const loading = pathsQ.isLoading;
   const error = pathsQ.error?.message ?? '';
-  const fetchData = () => { pathsQ.refetch(); anaQ.refetch(); };
+  const fetchData = () => {
+    pathsQ.refetch();
+    anaQ.refetch();
+  };
 
   if (loading)
     return (
@@ -73,9 +78,7 @@ export default function MyPathsPage() {
   return (
     <div className="p-6 space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-900">
-          Os Meus Percursos
-        </h1>
+        <h1 className="text-2xl font-bold text-gray-900">Os Meus Percursos</h1>
         <a href="/lms/paths" className="text-sm text-blue-600 hover:underline">
           Explorar percursos →
         </a>
@@ -139,7 +142,12 @@ export default function MyPathsPage() {
   );
 }
 
-function Stat({ label, value }: { label: string; value: string | number }) {
+interface StatProps {
+  label: string;
+  value: string | number;
+}
+
+function Stat({ label, value }: StatProps) {
   return (
     <div className="bg-white rounded-lg shadow p-4">
       <p className="text-xs text-gray-400 uppercase">{label}</p>

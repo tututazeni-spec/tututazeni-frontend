@@ -108,7 +108,11 @@ function fmtDuration(seconds: number | null): string {
   return s > 0 ? `${m}min ${s}s` : `${m}min`;
 }
 
-function Skeleton({ rows = 3 }: { rows?: number }) {
+interface SkeletonProps {
+  rows?: number;
+}
+
+function Skeleton({ rows = 3 }: SkeletonProps) {
   return (
     <SharedSkeleton
       rows={rows}
@@ -143,13 +147,12 @@ const LEVEL_CFG: StatusBadgeMap<ContentLevel> = {
 
 // ─── Micro Card ───────────────────────────────────────────────────────────────
 
-function MicroCard({
-  item,
-  onClick,
-}: {
+interface MicroCardProps {
   item: MicroLearning;
   onClick: () => void;
-}) {
+}
+
+function MicroCard({ item, onClick }: MicroCardProps) {
   const typeCfg = TYPE_CFG[item.contentType];
   const pct = item.userProgress?.progress ?? 0;
 
@@ -234,7 +237,11 @@ function MicroCard({
 
 // ─── View: Feed ───────────────────────────────────────────────────────────────
 
-function FeedView({ onSelect }: { onSelect: (item: MicroLearning) => void }) {
+interface FeedViewProps {
+  onSelect: (item: MicroLearning) => void;
+}
+
+function FeedView({ onSelect }: FeedViewProps) {
   const [type, setType] = useState<ContentType | ''>('');
   const [level, setLevel] = useState<ContentLevel | ''>('');
   const [search, setSearch] = useState('');
@@ -447,15 +454,13 @@ function useQuizAttempt(
 
 // ─── View: Player ─────────────────────────────────────────────────────────────
 
-function PlayerView({
-  item,
-  onBack,
-  onNext,
-}: {
+interface PlayerViewProps {
   item: MicroLearning;
   onBack: () => void;
   onNext?: () => void;
-}) {
+}
+
+function PlayerView({ item, onBack, onNext }: PlayerViewProps) {
   const { progress, completed, markComplete } = useMicroLearningProgress(item);
   const quiz = useQuizAttempt(item, markComplete);
   const [liked, setLiked] = useState(item.userLiked ?? false);
@@ -832,7 +837,11 @@ function DashboardView() {
 
 // ─── View: Saved ──────────────────────────────────────────────────────────────
 
-function SavedView({ onSelect }: { onSelect: (item: MicroLearning) => void }) {
+interface SavedViewProps {
+  onSelect: (item: MicroLearning) => void;
+}
+
+function SavedView({ onSelect }: SavedViewProps) {
   const { data = [], isLoading: loading } = useApiQuery<MicroLearning[]>(
     queryKeys.microLearning.saved(),
     '/micro-learning/saved/me',

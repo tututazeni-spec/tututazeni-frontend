@@ -130,7 +130,11 @@ type View = 'dashboard' | 'chart' | 'departments' | 'positions' | 'timeline';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function Skeleton({ rows = 4 }: { rows?: number }) {
+interface SkeletonProps {
+  rows?: number;
+}
+
+function Skeleton({ rows = 4 }: SkeletonProps) {
   return (
     <SharedSkeleton
       rows={rows}
@@ -140,15 +144,13 @@ function Skeleton({ rows = 4 }: { rows?: number }) {
   );
 }
 
-function Avatar({
-  name,
-  avatarUrl,
-  size = 'sm',
-}: {
+interface AvatarProps {
   name: string;
   avatarUrl?: string | null;
   size?: 'sm' | 'md';
-}) {
+}
+
+function Avatar({ name, avatarUrl, size = 'sm' }: AvatarProps) {
   const dim = size === 'sm' ? 'w-8 h-8 text-xs' : 'w-10 h-10 text-sm';
   return avatarUrl ? (
     <div
@@ -342,7 +344,12 @@ function DashboardView() {
 
 // ─── Org Chart Node ───────────────────────────────────────────────────────────
 
-function OrgChartNode({ node, depth = 0 }: { node: OrgNode; depth?: number }) {
+interface OrgChartNodeProps {
+  node: OrgNode;
+  depth?: number;
+}
+
+function OrgChartNode({ node, depth = 0 }: OrgChartNodeProps) {
   const [expanded, setExpanded] = useState(depth < 1);
 
   const hasChildren = node.children && node.children.length > 0;

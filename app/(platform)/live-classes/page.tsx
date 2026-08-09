@@ -101,15 +101,13 @@ function Spinner() {
   );
 }
 
-function Toast({
-  msg,
-  type,
-  onClose,
-}: {
+interface ToastProps {
   msg: string;
   type: 'success' | 'error' | 'info';
   onClose: () => void;
-}) {
+}
+
+function Toast({ msg, type, onClose }: ToastProps) {
   useAutoDismiss(onClose, 3500);
   const c = {
     success: { bg: '#f0fdf4', bd: '#bbf7d0', cl: '#16a34a' },
@@ -157,7 +155,12 @@ function Toast({
 
 // ─── Youtube Thumbnail ────────────────────────────────────────────────────────
 
-function YoutubeThumbnail({ src, alt }: { src: string; alt: string }) {
+interface YoutubeThumbnailProps {
+  src: string;
+  alt: string;
+}
+
+function YoutubeThumbnail({ src, alt }: YoutubeThumbnailProps) {
   const [thumbError, setThumbError] = useState(false);
   if (thumbError) return null;
   return (
@@ -174,13 +177,12 @@ function YoutubeThumbnail({ src, alt }: { src: string; alt: string }) {
 
 // ─── Recording Player Modal ───────────────────────────────────────────────────
 
-function RecordingModal({
-  lc,
-  onClose,
-}: {
+interface RecordingModalProps {
   lc: LiveClass;
   onClose: () => void;
-}) {
+}
+
+function RecordingModal({ lc, onClose }: RecordingModalProps) {
   const embedUrl = lc.recordingUrl ? getEmbedUrl(lc.recordingUrl) : null;
   const isNative = lc.recordingUrl
     ? isVideoUrl(lc.recordingUrl) && !embedUrl

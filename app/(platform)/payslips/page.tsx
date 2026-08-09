@@ -90,7 +90,12 @@ function SkeletonRow() {
   );
 }
 
-function DeltaBadge({ delta, pct }: { delta: number; pct: number | null }) {
+interface DeltaBadgeProps {
+  delta: number;
+  pct: number | null;
+}
+
+function DeltaBadge({ delta, pct }: DeltaBadgeProps) {
   if (delta === 0)
     return <span className="text-xs text-gray-400 font-mono">—</span>;
   const up = delta > 0;
@@ -107,7 +112,11 @@ function DeltaBadge({ delta, pct }: { delta: number; pct: number | null }) {
 // ─── Views ────────────────────────────────────────────────────────────────────
 
 // 1. Lista de recibos
-function ListView({ onSelect }: { onSelect: (id: number) => void }) {
+interface ListViewProps {
+  onSelect: (id: number) => void;
+}
+
+function ListView({ onSelect }: ListViewProps) {
   const [year, setYear] = useState(new Date().getFullYear().toString());
   const [page, setPage] = useState(1);
   const params = { year, page, limit: 12 };
@@ -261,13 +270,12 @@ function ListView({ onSelect }: { onSelect: (id: number) => void }) {
 // 2. Detalhe do recibo
 // Container: usePayslipDetail trata dados/mutações/disputa; a apresentação
 // (JSX do recibo) vive em components/payslips/PayslipDetailView.tsx.
-function DetailView({
-  payslipId,
-  onBack,
-}: {
+interface DetailViewProps {
   payslipId: number;
   onBack: () => void;
-}) {
+}
+
+function DetailView({ payslipId, onBack }: DetailViewProps) {
   const {
     payslip,
     loading,

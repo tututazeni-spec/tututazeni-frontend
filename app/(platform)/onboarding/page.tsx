@@ -161,7 +161,11 @@ function isOverdue(d: string | null): boolean {
   return !!d && new Date() > new Date(d);
 }
 
-function Skeleton({ rows = 4 }: { rows?: number }) {
+interface SkeletonProps {
+  rows?: number;
+}
+
+function Skeleton({ rows = 4 }: SkeletonProps) {
   return (
     <SharedSkeleton
       rows={rows}
@@ -171,15 +175,13 @@ function Skeleton({ rows = 4 }: { rows?: number }) {
   );
 }
 
-function Avatar({
-  name,
-  avatarUrl,
-  size = 'sm',
-}: {
+interface AvatarProps {
   name: string;
   avatarUrl?: string | null;
   size?: 'sm' | 'md' | 'lg';
-}) {
+}
+
+function Avatar({ name, avatarUrl, size = 'sm' }: AvatarProps) {
   const dim = {
     sm: 'w-8 h-8 text-xs',
     md: 'w-10 h-10 text-sm',
@@ -273,13 +275,12 @@ const PHASE_ORDER: TaskPhase[] = [
   'DAY_90',
 ];
 
-function ProgressBar({
-  pct,
-  color = 'bg-blue-500',
-}: {
+interface ProgressBarProps {
   pct: number;
   color?: string;
-}) {
+}
+
+function ProgressBar({ pct, color = 'bg-blue-500' }: ProgressBarProps) {
   return (
     <div className="flex items-center gap-2">
       <div className="flex-1 h-2.5 bg-gray-100 rounded-full overflow-hidden">
@@ -297,13 +298,12 @@ function ProgressBar({
 
 // ─── Task Card ────────────────────────────────────────────────────────────────
 
-function TaskCard({
-  task,
-  onComplete,
-}: {
+interface TaskCardProps {
   task: TaskInstance;
   onComplete: (taskId: number) => void;
-}) {
+}
+
+function TaskCard({ task, onComplete }: TaskCardProps) {
   const statusCfg = TASK_STATUS_CFG[task.status];
   const catCfg = CATEGORY_CFG[task.templateTask.category];
   const overdue = isOverdue(task.dueDate) && task.status !== 'COMPLETED';
