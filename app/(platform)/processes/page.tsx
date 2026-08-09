@@ -157,7 +157,11 @@ const STEP_TYPE_MAP: StatusBadgeMap<StepType> = {
   REVIEW: { label: 'Revisão', cls: 'bg-orange-50 text-orange-700' },
 };
 
-function Skeleton({ rows = 5 }: { rows?: number }) {
+interface SkeletonProps {
+  rows?: number;
+}
+
+function Skeleton({ rows = 5 }: SkeletonProps) {
   return (
     <SharedSkeleton
       rows={rows}
@@ -169,7 +173,11 @@ function Skeleton({ rows = 5 }: { rows?: number }) {
 
 // ─── View: Library (lista de processos) ──────────────────────────────────────
 
-function LibraryView({ onSelect }: { onSelect: (id: number) => void }) {
+interface LibraryViewProps {
+  onSelect: (id: number) => void;
+}
+
+function LibraryView({ onSelect }: LibraryViewProps) {
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState('');
   const [risk, setRisk] = useState('');
@@ -348,15 +356,17 @@ function LibraryView({ onSelect }: { onSelect: (id: number) => void }) {
 
 // ─── View: Process Viewer ─────────────────────────────────────────────────────
 
+interface ProcessViewerProps {
+  processId: number;
+  onBack: () => void;
+  onStartInstance: (instanceId: number) => void;
+}
+
 function ProcessViewer({
   processId,
   onBack,
   onStartInstance,
-}: {
-  processId: number;
-  onBack: () => void;
-  onStartInstance: (instanceId: number) => void;
-}) {
+}: ProcessViewerProps) {
   const [activeTab, setActiveTab] = useState<'flow' | 'info' | 'history'>(
     'flow',
   );
@@ -785,13 +795,12 @@ function ProcessViewer({
 
 // ─── View: Task Runner (Executor) ─────────────────────────────────────────────
 
-function TaskRunner({
-  instanceId,
-  onBack,
-}: {
+interface TaskRunnerProps {
   instanceId: number;
   onBack: () => void;
-}) {
+}
+
+function TaskRunner({ instanceId, onBack }: TaskRunnerProps) {
   const [activeStep, setActiveStep] = useState<StepProgress | null>(null);
   const [notes, setNotes] = useState('');
 
@@ -1118,11 +1127,11 @@ function TaskRunner({
 
 // ─── View: My Tasks ───────────────────────────────────────────────────────────
 
-function MyTasksView({
-  onOpenInstance,
-}: {
+interface MyTasksViewProps {
   onOpenInstance: (id: number) => void;
-}) {
+}
+
+function MyTasksView({ onOpenInstance }: MyTasksViewProps) {
   const {
     data: tasks = [],
     isLoading,
@@ -1192,11 +1201,11 @@ function MyTasksView({
 
 // ─── View: Dashboard ─────────────────────────────────────────────────────────
 
-function DashboardView({
-  onOpenInstance,
-}: {
+interface DashboardViewProps {
   onOpenInstance: (id: number) => void;
-}) {
+}
+
+function DashboardView({ onOpenInstance }: DashboardViewProps) {
   const { data, isLoading, error } = useApiQuery<Dashboard>(
     queryKeys.processes.dashboard(),
     '/processes/dashboard',
@@ -1207,17 +1216,14 @@ function DashboardView({
   if (error) return <div className="text-sm text-red-500">{error.message}</div>;
   if (!data) return null;
 
-  const MetricCard = ({
-    label,
-    value,
-    sub,
-    accent,
-  }: {
+  interface MetricCardProps {
     label: string;
     value: number | string;
     sub?: string;
     accent?: string;
-  }) => (
+  }
+
+  const MetricCard = ({ label, value, sub, accent }: MetricCardProps) => (
     <div className="bg-gray-50 rounded-xl p-4">
       <div className="text-xs text-gray-400 mb-1.5">{label}</div>
       <div

@@ -180,15 +180,13 @@ const GOAL_STATUS_MAP: StatusBadgeMap<GoalStatus> = {
   COMPLETED: { label: 'Concluído', cls: 'bg-blue-50 text-blue-700' },
 };
 
-function Avatar({
-  name,
-  avatarUrl,
-  size = 'sm',
-}: {
+interface AvatarProps {
   name: string;
   avatarUrl?: string | null;
   size?: 'sm' | 'md';
-}) {
+}
+
+function Avatar({ name, avatarUrl, size = 'sm' }: AvatarProps) {
   const dim = size === 'sm' ? 'w-8 h-8 text-xs' : 'w-10 h-10 text-sm';
   return avatarUrl ? (
     <div
@@ -205,13 +203,12 @@ function Avatar({
   );
 }
 
-function ProgressBar({
-  pct,
-  color = 'bg-blue-500',
-}: {
+interface ProgressBarProps {
   pct: number;
   color?: string;
-}) {
+}
+
+function ProgressBar({ pct, color = 'bg-blue-500' }: ProgressBarProps) {
   return (
     <div className="flex items-center gap-2">
       <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
@@ -227,7 +224,11 @@ function ProgressBar({
   );
 }
 
-function Skeleton({ rows = 4 }: { rows?: number }) {
+interface SkeletonProps {
+  rows?: number;
+}
+
+function Skeleton({ rows = 4 }: SkeletonProps) {
   return (
     <SharedSkeleton
       rows={rows}
