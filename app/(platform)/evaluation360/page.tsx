@@ -5,301 +5,24 @@
 
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
+import { useEvaluation360 } from '@/hooks/useEvaluation360';
+import type {
+  CompetencyScore,
+  ContinuousFeedback,
+  CycleInfo,
+  EvaluationQuestion,
+  NineBoxEntry,
+  ParticipantResult,
+  TabId,
+} from '@/components/evaluation360/types';
 
-// ─── TYPES ───────────────────────────────────────────────────
-type EvaluatorRole = 'SELF' | 'MANAGER' | 'PEER' | 'SUBORDINATE';
-type AlertType = 'STRENGTH' | 'GAP' | 'INFO';
-type TabId =
-  | 'overview'
-  | 'radar'
-  | 'competencies'
-  | 'feedback'
-  | 'ninebox'
-  | 'cycles'
-  | 'form';
-
-interface CompetencyScore {
-  id: string;
-  name: string;
-  category: string;
-  type: 'HARD_SKILL' | 'SOFT_SKILL' | 'LEADERSHIP' | 'VITALITY';
-  selfScore: number;
-  othersScore: number; // média ponderada dos outros avaliadores
-  managerScore: number;
-  peerScore: number;
-  gap: number; // selfScore - othersScore (positivo = overestima-se)
-  benchmark: number; // média do cargo/nível
-}
-
-interface ParticipantResult {
-  userId: string;
-  fullName: string;
-  position: string;
-  department: string;
-  overallScore: number;
-  weightedScore: number;
-  selfScore: number;
-  managerScore: number;
-  peerScore: number;
-  competencies: CompetencyScore[];
-  strengths: CompetencyScore[];
-  gaps: CompetencyScore[];
-  isEligiblePromotion: boolean;
-  isEligibleBonus: boolean;
-}
-
-interface CycleInfo {
-  id: string;
-  name: string;
-  model: string;
-  status: string;
-  startDate: string;
-  endDate: string;
-  participantsCount: number;
-  completedCount: number;
-}
-
-interface NineBoxEntry {
-  participantId: string;
-  name: string;
-  performance: 'LOW' | 'MID' | 'HIGH';
-  potential: 'LOW' | 'MID' | 'HIGH';
-  score: number;
-}
-
-interface ContinuousFeedback {
-  id: string;
-  fromName: string;
-  type: 'RECOGNITION' | 'DEVELOPMENT' | 'CHECK_IN';
-  message: string;
-  competency?: string;
-  createdAt: string;
-}
-
-// ─── MOCK DATA ────────────────────────────────────────────────
-const MOCK_COMPETENCIES: CompetencyScore[] = [
-  {
-    id: '1',
-    name: 'Comunicação',
-    category: 'Interpessoal',
-    type: 'SOFT_SKILL',
-    selfScore: 4.2,
-    othersScore: 3.6,
-    managerScore: 3.5,
-    peerScore: 3.7,
-    gap: 0.6,
-    benchmark: 3.8,
-  },
-  {
-    id: '2',
-    name: 'Liderança',
-    category: 'Gestão',
-    type: 'LEADERSHIP',
-    selfScore: 3.8,
-    othersScore: 4.1,
-    managerScore: 4.3,
-    peerScore: 3.9,
-    gap: -0.3,
-    benchmark: 3.5,
-  },
-  {
-    id: '3',
-    name: 'Pensamento Estratégico',
-    category: 'Cognitivo',
-    type: 'HARD_SKILL',
-    selfScore: 4.0,
-    othersScore: 3.8,
-    managerScore: 4.0,
-    peerScore: 3.7,
-    gap: 0.2,
-    benchmark: 3.6,
-  },
-  {
-    id: '4',
-    name: 'Trabalho em Equipa',
-    category: 'Interpessoal',
-    type: 'SOFT_SKILL',
-    selfScore: 3.5,
-    othersScore: 4.3,
-    managerScore: 4.5,
-    peerScore: 4.2,
-    gap: -0.8,
-    benchmark: 4.0,
-  },
-  {
-    id: '5',
-    name: 'Resiliência',
-    category: 'Comportamental',
-    type: 'SOFT_SKILL',
-    selfScore: 4.5,
-    othersScore: 4.0,
-    managerScore: 4.0,
-    peerScore: 3.9,
-    gap: 0.5,
-    benchmark: 3.7,
-  },
-  {
-    id: '6',
-    name: 'Inovação',
-    category: 'Cognitivo',
-    type: 'HARD_SKILL',
-    selfScore: 3.2,
-    othersScore: 3.4,
-    managerScore: 3.3,
-    peerScore: 3.5,
-    gap: -0.2,
-    benchmark: 3.2,
-  },
-  {
-    id: '7',
-    name: 'Foco em Resultados',
-    category: 'Execução',
-    type: 'HARD_SKILL',
-    selfScore: 4.3,
-    othersScore: 4.4,
-    managerScore: 4.6,
-    peerScore: 4.3,
-    gap: -0.1,
-    benchmark: 4.1,
-  },
-  {
-    id: '8',
-    name: 'Bem-estar e Disciplina',
-    category: 'Vitalidade',
-    type: 'VITALITY',
-    selfScore: 3.9,
-    othersScore: 4.0,
-    managerScore: 4.0,
-    peerScore: 4.0,
-    gap: -0.1,
-    benchmark: 3.5,
-  },
-];
-
-const MOCK_RESULT: ParticipantResult = {
-  userId: 'u1',
-  fullName: 'Maria João Santos',
-  position: 'Coordenadora de Projectos',
-  department: 'Operações',
-  overallScore: 3.95,
-  weightedScore: 4.02,
-  selfScore: 3.93,
-  managerScore: 4.15,
-  peerScore: 3.88,
-  competencies: MOCK_COMPETENCIES,
-  strengths: [MOCK_COMPETENCIES[6], MOCK_COMPETENCIES[3], MOCK_COMPETENCIES[1]],
-  gaps: [MOCK_COMPETENCIES[5], MOCK_COMPETENCIES[0], MOCK_COMPETENCIES[4]],
-  isEligiblePromotion: true,
-  isEligibleBonus: true,
-};
-
-const MOCK_CYCLE: CycleInfo = {
-  id: 'c1',
-  name: 'Avaliação Semestral 2025 — S1',
-  model: 'DEG_360',
-  status: 'COMPLETED',
-  startDate: '2025-01-15',
-  endDate: '2025-03-31',
-  participantsCount: 84,
-  completedCount: 79,
-};
-
-const MOCK_NINE_BOX: NineBoxEntry[] = [
-  {
-    participantId: 'u1',
-    name: 'Maria João',
-    performance: 'HIGH',
-    potential: 'HIGH',
-    score: 4.02,
-  },
-  {
-    participantId: 'u2',
-    name: 'Carlos Silva',
-    performance: 'HIGH',
-    potential: 'MID',
-    score: 3.85,
-  },
-  {
-    participantId: 'u3',
-    name: 'Ana Pinto',
-    performance: 'MID',
-    potential: 'HIGH',
-    score: 3.6,
-  },
-  {
-    participantId: 'u4',
-    name: 'João Ferreira',
-    performance: 'MID',
-    potential: 'MID',
-    score: 3.4,
-  },
-  {
-    participantId: 'u5',
-    name: 'Sofia Lima',
-    performance: 'LOW',
-    potential: 'MID',
-    score: 2.9,
-  },
-  {
-    participantId: 'u6',
-    name: 'Rui Costa',
-    performance: 'HIGH',
-    potential: 'LOW',
-    score: 3.7,
-  },
-  {
-    participantId: 'u7',
-    name: 'Diana Martins',
-    performance: 'MID',
-    potential: 'LOW',
-    score: 3.1,
-  },
-  {
-    participantId: 'u8',
-    name: 'Pedro Alves',
-    performance: 'LOW',
-    potential: 'LOW',
-    score: 2.5,
-  },
-  {
-    participantId: 'u9',
-    name: 'Filipa Gomes',
-    performance: 'LOW',
-    potential: 'HIGH',
-    score: 3.2,
-  },
-];
-
-const MOCK_FEEDBACKS: ContinuousFeedback[] = [
-  {
-    id: 'f1',
-    fromName: 'Carlos Silva',
-    type: 'RECOGNITION',
-    message:
-      'Excelente apresentação ao cliente ontem. Demonstrou clareza e confiança nas respostas.',
-    competency: 'Comunicação',
-    createdAt: new Date(Date.now() - 86400000).toISOString(),
-  },
-  {
-    id: 'f2',
-    fromName: 'Gestora Ana Rodrigues',
-    type: 'DEVELOPMENT',
-    message:
-      'Sugiro que te foque mais em delegar tarefas operacionais para te libertares para o estratégico.',
-    competency: 'Liderança',
-    createdAt: new Date(Date.now() - 3 * 86400000).toISOString(),
-  },
-  {
-    id: 'f3',
-    fromName: 'Sofia Lima',
-    type: 'RECOGNITION',
-    message:
-      'Sempre disponível para apoiar a equipa. Uma referência em trabalho colaborativo!',
-    competency: 'Trabalho em Equipa',
-    createdAt: new Date(Date.now() - 7 * 86400000).toISOString(),
-  },
-];
+// ─── Types/dados ──────────────────────────────────────────────
+// EvaluatorRole/AlertType/TabId/CompetencyScore/ParticipantResult/CycleInfo/
+// NineBoxEntry/ContinuousFeedback/EvaluationQuestion vivem em
+// components/evaluation360/types.ts. Os dados (mock por agora, API real
+// mais tarde) vivem em hooks/useEvaluation360.ts — ver comentário lá para o
+// mapeamento de cada campo ao endpoint futuro.
 
 // ─── UTILITY ─────────────────────────────────────────────────
 const COLORS = {
@@ -1376,40 +1099,14 @@ function FeedbackTab({ feedbacks }: { feedbacks: ContinuousFeedback[] }) {
 }
 
 // ─── EVALUATION FORM ──────────────────────────────────────────
-function EvaluationFormTab() {
+function EvaluationFormTab({
+  questions,
+  participantName,
+}: {
+  questions: EvaluationQuestion[];
+  participantName: string;
+}) {
   const [answers, setAnswers] = useState<Record<string, number>>({});
-  const questions = [
-    {
-      id: 'q1',
-      text: 'Com que frequência demonstra iniciativa para resolver problemas sem esperar instruções?',
-      type: 'FREQUENCY',
-      competency: 'Proactividade',
-    },
-    {
-      id: 'q2',
-      text: 'Como avalia a capacidade de comunicação clara e assertiva deste colaborador?',
-      type: 'LIKERT',
-      competency: 'Comunicação',
-    },
-    {
-      id: 'q3',
-      text: 'Em que medida este colaborador colabora eficazmente com outros membros da equipa?',
-      type: 'LIKERT',
-      competency: 'Trabalho em Equipa',
-    },
-    {
-      id: 'q4',
-      text: 'Com que frequência entrega resultados dentro dos prazos definidos?',
-      type: 'FREQUENCY',
-      competency: 'Foco em Resultados',
-    },
-    {
-      id: 'q5',
-      text: 'Como avalia a capacidade de adaptação a mudanças e situações de pressão?',
-      type: 'LIKERT',
-      competency: 'Resiliência',
-    },
-  ];
   const freqLabels = [
     'Nunca',
     'Raramente',
@@ -1451,7 +1148,7 @@ function EvaluationFormTab() {
         </h2>
         <p style={{ margin: '4px 0 0', fontSize: 13, color: COLORS.muted }}>
           Avaliação de{' '}
-          <strong style={{ color: '#e2e8f0' }}>Maria João Santos</strong> ·
+          <strong style={{ color: '#e2e8f0' }}>{participantName}</strong> ·
           Role: Par
         </p>
       </div>
@@ -1688,11 +1385,20 @@ const TABS: { id: TabId; label: string; icon: string }[] = [
 
 export default function Evaluation360Page() {
   const [activeTab, setActiveTab] = useState<TabId>('overview');
+  const {
+    result,
+    cycle,
+    cycles,
+    competencies,
+    nineBox,
+    feedbacks,
+    formQuestions,
+  } = useEvaluation360();
 
   const renderTab = () => {
     switch (activeTab) {
       case 'overview':
-        return <OverviewTab result={MOCK_RESULT} cycle={MOCK_CYCLE} />;
+        return <OverviewTab result={result} cycle={cycle} />;
       case 'radar':
         return (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
@@ -1732,7 +1438,7 @@ export default function Evaluation360Page() {
                   justifyContent: 'center',
                 }}
               >
-                <RadarChart competencies={MOCK_COMPETENCIES} />
+                <RadarChart competencies={competencies} />
               </div>
               <div
                 style={{ display: 'flex', flexDirection: 'column', gap: 10 }}
@@ -1749,7 +1455,7 @@ export default function Evaluation360Page() {
                 >
                   Legenda de Gaps
                 </div>
-                {MOCK_COMPETENCIES.map((c) => (
+                {competencies.map((c) => (
                   <div
                     key={c.id}
                     style={{
@@ -1860,12 +1566,12 @@ export default function Evaluation360Page() {
                 overflow: 'hidden',
               }}
             >
-              <CompetencyHeatmap competencies={MOCK_COMPETENCIES} />
+              <CompetencyHeatmap competencies={competencies} />
             </div>
           </div>
         );
       case 'feedback':
-        return <FeedbackTab feedbacks={MOCK_FEEDBACKS} />;
+        return <FeedbackTab feedbacks={feedbacks} />;
       case 'ninebox':
         return (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
@@ -1883,7 +1589,7 @@ export default function Evaluation360Page() {
               <p
                 style={{ margin: '4px 0 0', fontSize: 13, color: COLORS.muted }}
               >
-                Performance vs Potencial · {MOCK_NINE_BOX.length} colaboradores
+                Performance vs Potencial · {nineBox.length} colaboradores
               </p>
             </div>
             <div
@@ -1894,7 +1600,7 @@ export default function Evaluation360Page() {
                 padding: 24,
               }}
             >
-              <NineBoxGrid entries={MOCK_NINE_BOX} />
+              <NineBoxGrid entries={nineBox} />
             </div>
           </div>
         );
@@ -1944,21 +1650,9 @@ export default function Evaluation360Page() {
                 + Novo Ciclo
               </button>
             </div>
-            {[
-              MOCK_CYCLE,
-              {
-                ...MOCK_CYCLE,
-                id: 'c2',
-                name: 'Avaliação Anual 2024',
-                status: 'COMPLETED',
-                startDate: '2024-01-01',
-                endDate: '2024-12-31',
-                participantsCount: 76,
-                completedCount: 72,
-              },
-            ].map((cycle) => (
+            {cycles.map((c) => (
               <div
-                key={cycle.id}
+                key={c.id}
                 style={{
                   background: COLORS.surface,
                   border: `1px solid ${COLORS.border}`,
@@ -1982,7 +1676,7 @@ export default function Evaluation360Page() {
                         color: COLORS.text,
                       }}
                     >
-                      {cycle.name}
+                      {c.name}
                     </div>
                     <div
                       style={{
@@ -1991,7 +1685,7 @@ export default function Evaluation360Page() {
                         marginTop: 2,
                       }}
                     >
-                      {cycle.model} · {cycle.startDate} → {cycle.endDate}
+                      {c.model} · {c.startDate} → {c.endDate}
                     </div>
                   </div>
                   <span
@@ -2001,12 +1695,11 @@ export default function Evaluation360Page() {
                       padding: '4px 12px',
                       borderRadius: 20,
                       background:
-                        cycle.status === 'COMPLETED' ? '#14532d' : '#1e1b4b',
-                      color:
-                        cycle.status === 'COMPLETED' ? '#4ade80' : '#818cf8',
+                        c.status === 'COMPLETED' ? '#14532d' : '#1e1b4b',
+                      color: c.status === 'COMPLETED' ? '#4ade80' : '#818cf8',
                     }}
                   >
-                    {cycle.status}
+                    {c.status}
                   </span>
                 </div>
                 <div
@@ -2019,7 +1712,7 @@ export default function Evaluation360Page() {
                 >
                   <div
                     style={{
-                      width: `${Math.round((cycle.completedCount / cycle.participantsCount) * 100)}%`,
+                      width: `${Math.round((c.completedCount / c.participantsCount) * 100)}%`,
                       height: '100%',
                       background: '#4f46e5',
                       borderRadius: 4,
@@ -2027,11 +1720,9 @@ export default function Evaluation360Page() {
                   />
                 </div>
                 <div style={{ fontSize: 12, color: COLORS.muted }}>
-                  {cycle.completedCount}/{cycle.participantsCount} participantes
+                  {c.completedCount}/{c.participantsCount} participantes
                   concluídos (
-                  {Math.round(
-                    (cycle.completedCount / cycle.participantsCount) * 100,
-                  )}
+                  {Math.round((c.completedCount / c.participantsCount) * 100)}
                   %)
                 </div>
               </div>
@@ -2039,7 +1730,12 @@ export default function Evaluation360Page() {
           </div>
         );
       case 'form':
-        return <EvaluationFormTab />;
+        return (
+          <EvaluationFormTab
+            questions={formQuestions}
+            participantName={result.fullName}
+          />
+        );
       default:
         return null;
     }
@@ -2110,7 +1806,7 @@ export default function Evaluation360Page() {
           </div>
         </div>
         <div style={{ marginLeft: 'auto', fontSize: 13, color: COLORS.muted }}>
-          Ciclo: <strong style={{ color: '#818cf8' }}>{MOCK_CYCLE.name}</strong>
+          Ciclo: <strong style={{ color: '#818cf8' }}>{cycle.name}</strong>
         </div>
       </div>
 
