@@ -150,15 +150,13 @@ const CONTRACT_DESCRIPTIONS: Record<ContractType, string> = {
 
 // ─── Utility Components ───────────────────────────────────────────────────────
 
-function Avatar({
-  src,
-  name,
-  size = 'md',
-}: {
+interface AvatarProps {
   src?: string;
   name: string;
   size?: 'sm' | 'md' | 'lg';
-}) {
+}
+
+function Avatar({ src, name, size = 'md' }: AvatarProps) {
   const sizes = {
     sm: 'w-8 h-8 text-xs',
     md: 'w-10 h-10 text-sm',
@@ -202,7 +200,11 @@ function Avatar({
   );
 }
 
-function StatusBadge({ status }: { status: EmployeeStatus }) {
+interface StatusBadgeProps {
+  status: EmployeeStatus;
+}
+
+function StatusBadge({ status }: StatusBadgeProps) {
   const cfg = STATUS_CONFIG[status] ?? STATUS_CONFIG.INACTIVE;
   return (
     <span
@@ -214,19 +216,21 @@ function StatusBadge({ status }: { status: EmployeeStatus }) {
   );
 }
 
+interface KpiCardProps {
+  label: string;
+  value: string | number;
+  icon: LucideIcon;
+  trend?: string;
+  color?: string;
+}
+
 function KpiCard({
   label,
   value,
   icon: Icon,
   trend,
   color = 'blue',
-}: {
-  label: string;
-  value: string | number;
-  icon: LucideIcon;
-  trend?: string;
-  color?: string;
-}) {
+}: KpiCardProps) {
   const colors: Record<string, string> = {
     blue: 'bg-blue-50 text-blue-600',
     emerald: 'bg-emerald-50 text-emerald-600',
@@ -271,15 +275,13 @@ function SkeletonCard() {
 
 // ─── Employee Card ─────────────────────────────────────────────────────────────
 
-function EmployeeCard({
-  employee,
-  onView,
-  onEdit,
-}: {
+interface EmployeeCardProps {
   employee: Employee;
   onView: (e: Employee) => void;
   onEdit: (e: Employee) => void;
-}) {
+}
+
+function EmployeeCard({ employee, onView, onEdit }: EmployeeCardProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const tenure = useMemo(() => {
     const joined = new Date(employee.joinedAt);
@@ -406,15 +408,13 @@ function EmployeeCard({
 
 // ─── Employee Row (List view) ──────────────────────────────────────────────────
 
-function EmployeeRow({
-  employee,
-  onView,
-  onEdit,
-}: {
+interface EmployeeRowProps {
   employee: Employee;
   onView: (e: Employee) => void;
   onEdit: (e: Employee) => void;
-}) {
+}
+
+function EmployeeRow({ employee, onView, onEdit }: EmployeeRowProps) {
   return (
     <tr
       className="hover:bg-blue-50/30 transition-colors group cursor-pointer"
@@ -485,15 +485,13 @@ function EmployeeRow({
 
 // ─── Filter Panel ─────────────────────────────────────────────────────────────
 
-function FilterPanel({
-  filters,
-  onChange,
-  onClose,
-}: {
+interface FilterPanelProps {
   filters: FilterState;
   onChange: (f: Partial<FilterState>) => void;
   onClose: () => void;
-}) {
+}
+
+function FilterPanel({ filters, onChange, onClose }: FilterPanelProps) {
   return (
     <div className="absolute right-0 top-full mt-2 w-80 bg-white rounded-2xl border border-gray-100 shadow-xl z-30 p-5">
       <div className="flex items-center justify-between mb-4">
@@ -612,13 +610,12 @@ function FilterPanel({
 
 // ─── Create Employee Modal ────────────────────────────────────────────────────
 
-function CreateEmployeeModal({
-  onClose,
-  onSuccess,
-}: {
+interface CreateEmployeeModalProps {
   onClose: () => void;
   onSuccess: () => void;
-}) {
+}
+
+function CreateEmployeeModal({ onClose, onSuccess }: CreateEmployeeModalProps) {
   const {
     values: form,
     setField,
@@ -841,15 +838,13 @@ function CreateEmployeeModal({
 
 // ─── Pagination ────────────────────────────────────────────────────────────────
 
-function Pagination({
-  page,
-  totalPages,
-  onPage,
-}: {
+interface PaginationProps {
   page: number;
   totalPages: number;
   onPage: (p: number) => void;
-}) {
+}
+
+function Pagination({ page, totalPages, onPage }: PaginationProps) {
   if (totalPages <= 1) return null;
 
   const pages = Array.from({ length: Math.min(5, totalPages) }, (_, i) => {

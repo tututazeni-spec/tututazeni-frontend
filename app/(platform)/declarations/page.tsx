@@ -216,13 +216,12 @@ const WORK_TYPE_LABELS: Record<WorkDeclType, string> = {
 
 // ─── Utility ──────────────────────────────────────────────────────────────────
 
-function StatusBadge({
-  status,
-  type = 'doc',
-}: {
+interface StatusBadgeProps {
   status: string;
   type?: 'doc' | 'work';
-}) {
+}
+
+function StatusBadge({ status, type = 'doc' }: StatusBadgeProps) {
   const cfg =
     type === 'doc'
       ? (DOC_STATUS[status as DocStatus] ?? DOC_STATUS.DRAFT)
@@ -241,19 +240,21 @@ function StatusBadge({
   );
 }
 
+interface KpiCardProps {
+  label: string;
+  value: string | number;
+  icon: LucideIcon;
+  color?: string;
+  sub?: string;
+}
+
 function KpiCard({
   label,
   value,
   icon: Icon,
   color = 'blue',
   sub,
-}: {
-  label: string;
-  value: string | number;
-  icon: LucideIcon;
-  color?: string;
-  sub?: string;
-}) {
+}: KpiCardProps) {
   const colors: Record<string, string> = {
     blue: 'bg-blue-50 text-blue-600',
     emerald: 'bg-emerald-50 text-emerald-600',
@@ -360,17 +361,19 @@ function wizardReducer(state: WizardState, action: WizardAction): WizardState {
   }
 }
 
+interface NewDocRequestModalProps {
+  templates: Template[];
+  purposes: Purpose[];
+  onClose: () => void;
+  onSuccess: () => void;
+}
+
 function NewDocRequestModal({
   templates,
   purposes,
   onClose,
   onSuccess,
-}: {
-  templates: Template[];
-  purposes: Purpose[];
-  onClose: () => void;
-  onSuccess: () => void;
-}) {
+}: NewDocRequestModalProps) {
   const [state, dispatch] = useReducer(wizardReducer, initialWizardState);
   const {
     step,
@@ -661,15 +664,17 @@ function NewDocRequestModal({
 
 // ─── Work Declaration Form Modal ──────────────────────────────────────────────
 
+interface WorkDeclFormModalProps {
+  form: WorkForm;
+  onClose: () => void;
+  onSuccess: () => void;
+}
+
 function WorkDeclFormModal({
   form,
   onClose,
   onSuccess,
-}: {
-  form: WorkForm;
-  onClose: () => void;
-  onSuccess: () => void;
-}) {
+}: WorkDeclFormModalProps) {
   const [answers, setAnswers] = useState<
     Record<string, string | number | boolean>
   >({});

@@ -38,17 +38,14 @@ interface Alerts {
   details: Record<string, number>;
 }
 
-function KpiCard({
-  label,
-  value,
-  sub,
-  color,
-}: {
+interface KpiCardProps {
   label: string;
   value: string | number;
   sub?: string;
   color?: string;
-}) {
+}
+
+function KpiCard({ label, value, sub, color }: KpiCardProps) {
   return (
     <div className="bg-white rounded-xl shadow p-5">
       <p className="text-xs text-gray-400 uppercase tracking-wide">{label}</p>
@@ -61,7 +58,11 @@ function KpiCard({
 }
 
 // Gráfico de barras simples (SVG/flex nativo — sem libraria externa)
-function MiniBarChart({ data }: { data: TrendPoint[] }) {
+interface MiniBarChartProps {
+  data: TrendPoint[];
+}
+
+function MiniBarChart({ data }: MiniBarChartProps) {
   const max = Math.max(...data.map((d) => d.users), 1);
   return (
     <div className="flex items-end gap-2 h-32">

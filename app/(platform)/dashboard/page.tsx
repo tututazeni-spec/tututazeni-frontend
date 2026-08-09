@@ -351,21 +351,16 @@ function Slideshow() {
 }
 
 // ─── Stat Card ────────────────────────────────────────────────────────────────
-function StatCard({
-  icon,
-  label,
-  value,
-  color,
-  bg,
-  sub,
-}: {
+interface StatCardProps {
   icon: string;
   label: string;
   value: string | number;
   color: string;
   bg: string;
   sub?: string;
-}) {
+}
+
+function StatCard({ icon, label, value, color, bg, sub }: StatCardProps) {
   return (
     <div
       style={{
@@ -427,15 +422,17 @@ type Tab = 'my' | 'manager' | 'org';
 
 const ALERTS_POLL_MS = 60_000; // polling inteligente: alertas refrescam a cada 60s
 
+interface ProgressBarProps {
+  value: number;
+  color?: string;
+  height?: string;
+}
+
 function ProgressBar({
   value,
   color = 'bg-indigo-500',
   height = 'h-1.5',
-}: {
-  value: number;
-  color?: string;
-  height?: string;
-}) {
+}: ProgressBarProps) {
   return (
     <div className={`w-full ${height} bg-slate-100 rounded-full`}>
       <div
@@ -446,15 +443,13 @@ function ProgressBar({
   );
 }
 
-function Avatar({
-  name,
-  url,
-  size = 8,
-}: {
+interface AvatarProps {
   name: string;
   url?: string;
   size?: number;
-}) {
+}
+
+function Avatar({ name, url, size = 8 }: AvatarProps) {
   const initials = getInitials(name);
   return url ? (
     <div
@@ -502,7 +497,11 @@ function KPICard({
   );
 }
 
-function Skeleton({ count = 4 }: { count?: number }) {
+interface SkeletonProps {
+  count?: number;
+}
+
+function Skeleton({ count = 4 }: SkeletonProps) {
   return (
     <SharedSkeleton
       rows={count}
@@ -514,7 +513,11 @@ function Skeleton({ count = 4 }: { count?: number }) {
 
 // ─── Alert Banner ─────────────────────────────────────────────────
 
-function AlertBanner({ alerts }: { alerts: Alert[] }) {
+interface AlertBannerProps {
+  alerts: Alert[];
+}
+
+function AlertBanner({ alerts }: AlertBannerProps) {
   if (!alerts.length) return null;
   const urgent = alerts.filter((a) => a.priority === 'URGENT');
   const others = alerts.filter((a) => a.priority !== 'URGENT');
@@ -1107,7 +1110,11 @@ function OrgDashboard() {
 
 // ─── Global Search ────────────────────────────────────────────────
 
-function GlobalSearch({ onClose }: { onClose: () => void }) {
+interface GlobalSearchProps {
+  onClose: () => void;
+}
+
+function GlobalSearch({ onClose }: GlobalSearchProps) {
   const [query, setQuery] = useState('');
   const debouncedQuery = useDebounce(query, 300);
   const enabled = debouncedQuery.length >= 2;
