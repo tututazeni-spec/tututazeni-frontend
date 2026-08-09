@@ -10,6 +10,8 @@ import { STALE_TIME } from '@/lib/queryClient';
 import Image from 'next/image';
 import { Skeleton as SharedSkeleton } from '@/components/ui/Skeleton';
 import { getInitials as initials } from '@/lib/format';
+import { StatusBadge } from '@/components/ui/StatusBadge';
+import type { StatusBadgeMap } from '@/lib/statusBadge';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -139,7 +141,7 @@ const SEVERITY_CFG: Record<Severity, { cls: string; dot: string }> = {
   CRITICAL: { cls: 'text-red-600', dot: 'bg-red-500' },
 };
 
-const STATUS_CFG: Record<Status, { label: string; cls: string }> = {
+const STATUS_CFG: StatusBadgeMap<Status> = {
   SUCCESS: { label: 'Sucesso', cls: 'bg-emerald-50 text-emerald-700' },
   FAILED: { label: 'Falhou', cls: 'bg-red-50 text-red-700' },
   DENIED: { label: 'Negado', cls: 'bg-amber-50 text-amber-700' },
@@ -192,7 +194,6 @@ function DiffViewer({
 function LogRow({ log }: { log: AuditLog }) {
   const [expanded, setExpanded] = useState(false);
   const sevCfg = SEVERITY_CFG[log.severity] ?? SEVERITY_CFG.LOW;
-  const statusCfg = STATUS_CFG[log.status] ?? STATUS_CFG.SUCCESS;
   const actionIcon = ACTION_ICONS[log.action] ?? '📋';
   const changes = log.changes ? JSON.parse(log.changes) : null;
 
@@ -232,11 +233,7 @@ function LogRow({ log }: { log: AuditLog }) {
           {log.entity} {log.entityId ? `#${log.entityId}` : ''}
         </td>
         <td className="px-3 py-2.5">
-          <span
-            className={`text-xs px-1.5 py-0.5 rounded font-medium ${statusCfg.cls}`}
-          >
-            {statusCfg.label}
-          </span>
+          <StatusBadge value={log.status} map={STATUS_CFG} />
         </td>
         <td className="px-3 py-2.5 text-xs text-gray-400 font-mono">
           {log.ip ?? '—'}

@@ -11,6 +11,8 @@ import {
   formatDate as fmtDate,
   getInitials as initials,
 } from '../../../lib/format';
+import { StatusBadge } from '../../../components/ui/StatusBadge';
+import type { StatusBadgeMap } from '../../../lib/statusBadge';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -200,7 +202,7 @@ function Avatar({
 
 // ─── Badges ───────────────────────────────────────────────────────────────────
 
-const LEVEL_CFG: Record<ProgramLevel, { label: string; cls: string }> = {
+const LEVEL_CFG: StatusBadgeMap<ProgramLevel> = {
   INITIAL: { label: 'Inicial', cls: 'bg-emerald-50 text-emerald-700' },
   INTERMEDIATE: { label: 'Intermédio', cls: 'bg-amber-50 text-amber-700' },
   ADVANCED: { label: 'Avançado', cls: 'bg-red-50 text-red-700' },
@@ -215,7 +217,7 @@ const HEALTH_CFG: Record<
   RED: { label: 'Crítico', dot: 'bg-red-500', cls: 'text-red-700' },
 };
 
-const CLASS_CFG: Record<string, { label: string; cls: string }> = {
+const CLASS_CFG: StatusBadgeMap<string> = {
   TOP_10: { label: '🏆 Top 10%', cls: 'bg-amber-100 text-amber-800' },
   ABOVE_AVERAGE: {
     label: '⬆ Acima da média',
@@ -348,12 +350,10 @@ function MyDashboardView() {
                   <div className="text-xs font-medium text-gray-900 truncate">
                     {p.program?.name}
                   </div>
-                  <span
-                    className={`text-xs px-2 py-0.5 rounded ${LEVEL_CFG[p.program?.level as ProgramLevel]?.cls ?? 'bg-gray-100 text-gray-500'}`}
-                  >
-                    {LEVEL_CFG[p.program?.level as ProgramLevel]?.label ??
-                      p.program?.level}
-                  </span>
+                  <StatusBadge
+                    value={p.program?.level as ProgramLevel}
+                    map={LEVEL_CFG}
+                  />
                 </div>
                 <ProgressBar
                   pct={p.progress}
@@ -711,11 +711,7 @@ function ProgramsView() {
                 <div className="text-sm font-semibold text-gray-900 mb-1">
                   {prog.name}
                 </div>
-                <span
-                  className={`text-xs px-2 py-0.5 rounded font-medium ${LEVEL_CFG[prog.level].cls}`}
-                >
-                  {LEVEL_CFG[prog.level].label}
-                </span>
+                <StatusBadge value={prog.level} map={LEVEL_CFG} />
               </div>
               {prog.mandatory && (
                 <span className="text-xs bg-red-50 text-red-700 px-2 py-0.5 rounded flex-shrink-0">
@@ -957,7 +953,6 @@ function RankingView() {
         <div className="text-xs text-gray-400">{data.length} líderes</div>
       </div>
       {data.map((entry, idx) => {
-        const classCfg = CLASS_CFG[entry.classification] ?? CLASS_CFG.AVERAGE;
         const scorePct = Math.round((entry.score / 1000) * 100);
         return (
           <div
@@ -1008,11 +1003,12 @@ function RankingView() {
                 />
               </div>
             </div>
-            <span
-              className={`text-xs px-2 py-0.5 rounded font-medium flex-shrink-0 ${classCfg.cls}`}
-            >
-              {classCfg.label}
-            </span>
+            <StatusBadge
+              value={entry.classification}
+              map={CLASS_CFG}
+              fallback={CLASS_CFG.AVERAGE}
+              className="flex-shrink-0"
+            />
           </div>
         );
       })}

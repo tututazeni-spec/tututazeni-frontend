@@ -32,6 +32,8 @@ import { apiClient } from '../../../lib/apiClient';
 import { queryKeys } from '../../../lib/queryKeys';
 import { STALE_TIME } from '../../../lib/queryClient';
 import type { LucideIcon } from 'lucide-react';
+import { StatusBadge } from '../../../components/ui/StatusBadge';
+import type { StatusBadgeMap } from '../../../lib/statusBadge';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -158,10 +160,10 @@ const READINESS_CONFIG: Record<
   },
 };
 
-const PRIORITY_CONFIG: Record<GapPriority, { label: string; color: string }> = {
-  HIGH: { label: 'Alta', color: 'bg-red-100 text-red-700' },
-  MEDIUM: { label: 'Média', color: 'bg-amber-100 text-amber-700' },
-  LOW: { label: 'Baixa', color: 'bg-gray-100 text-gray-600' },
+const PRIORITY_CONFIG: StatusBadgeMap<GapPriority> = {
+  HIGH: { label: 'Alta', cls: 'bg-red-100 text-red-700' },
+  MEDIUM: { label: 'Média', cls: 'bg-amber-100 text-amber-700' },
+  LOW: { label: 'Baixa', cls: 'bg-gray-100 text-gray-600' },
 };
 
 // ─── Self-Assessment Modal ─────────────────────────────────────────────────────
@@ -775,11 +777,11 @@ export default function CompetencyMapPage() {
                             {g.skillName}
                           </span>
                           <div className="flex items-center gap-2">
-                            <span
-                              className={`text-xs px-2 py-0.5 rounded-full ${PRIORITY_CONFIG[g.priority].color}`}
-                            >
-                              {PRIORITY_CONFIG[g.priority].label}
-                            </span>
+                            <StatusBadge
+                              value={g.priority}
+                              map={PRIORITY_CONFIG}
+                              variant="pill"
+                            />
                             <span className="text-xs text-gray-500">
                               {g.currentLevel}→{g.requiredLevel}
                             </span>

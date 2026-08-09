@@ -16,6 +16,8 @@ import {
   email as emailValidator,
   required as requiredRule,
 } from '@/lib/validation';
+import { StatusBadge } from '@/components/ui/StatusBadge';
+import type { StatusBadgeMap } from '@/lib/statusBadge';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -122,40 +124,21 @@ interface AdminDashboard {
 
 type View = 'list' | 'detail' | 'create' | 'dashboard' | 'directory';
 
-// ─── Badge components ─────────────────────────────────────────────────────────
+// ─── Badge config ─────────────────────────────────────────────────────────────
 
-function AccountBadge({ status }: { status: AccountStatus }) {
-  const cfg: Record<AccountStatus, { label: string; cls: string }> = {
-    ACTIVE: { label: 'Activo', cls: 'bg-emerald-50 text-emerald-700' },
-    INACTIVE: { label: 'Inactivo', cls: 'bg-gray-100 text-gray-500' },
-    SUSPENDED: { label: 'Suspenso', cls: 'bg-amber-50 text-amber-700' },
-    BLOCKED: { label: 'Bloqueado', cls: 'bg-red-50 text-red-700' },
-    PENDING: { label: 'Pendente', cls: 'bg-blue-50 text-blue-700' },
-  };
-  const { label, cls } = cfg[status];
-  return (
-    <span
-      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${cls}`}
-    >
-      <span className="w-1.5 h-1.5 rounded-full bg-current" />
-      {label}
-    </span>
-  );
-}
+const ACCOUNT_STATUS_MAP: StatusBadgeMap<AccountStatus> = {
+  ACTIVE: { label: 'Activo', cls: 'bg-emerald-50 text-emerald-700' },
+  INACTIVE: { label: 'Inactivo', cls: 'bg-gray-100 text-gray-500' },
+  SUSPENDED: { label: 'Suspenso', cls: 'bg-amber-50 text-amber-700' },
+  BLOCKED: { label: 'Bloqueado', cls: 'bg-red-50 text-red-700' },
+  PENDING: { label: 'Pendente', cls: 'bg-blue-50 text-blue-700' },
+};
 
-function HrBadge({ status }: { status: HrStatus }) {
-  const cfg: Record<HrStatus, { label: string; cls: string }> = {
-    ACTIVE: { label: 'Activo', cls: 'bg-emerald-50 text-emerald-700' },
-    ON_LEAVE: { label: 'Em licença', cls: 'bg-amber-50 text-amber-700' },
-    TERMINATED: { label: 'Desligado', cls: 'bg-red-50 text-red-600' },
-  };
-  const { label, cls } = cfg[status];
-  return (
-    <span className={`px-2 py-0.5 rounded text-xs font-medium ${cls}`}>
-      {label}
-    </span>
-  );
-}
+const HR_STATUS_MAP: StatusBadgeMap<HrStatus> = {
+  ACTIVE: { label: 'Activo', cls: 'bg-emerald-50 text-emerald-700' },
+  ON_LEAVE: { label: 'Em licença', cls: 'bg-amber-50 text-amber-700' },
+  TERMINATED: { label: 'Desligado', cls: 'bg-red-50 text-red-600' },
+};
 
 function Avatar({
   user,
@@ -430,10 +413,14 @@ function UserListView({
                 {user.department?.name ?? '—'}
               </div>
               <div>
-                <AccountBadge status={user.accountStatus} />
+                <StatusBadge
+                  value={user.accountStatus}
+                  map={ACCOUNT_STATUS_MAP}
+                  variant="dot"
+                />
               </div>
               <div>
-                <HrBadge status={user.hrStatus} />
+                <StatusBadge value={user.hrStatus} map={HR_STATUS_MAP} />
               </div>
               <div className="flex gap-1">
                 <button
@@ -564,8 +551,12 @@ function UserProfileView({
               <h2 className="text-xl font-semibold text-gray-900">
                 {user.fullName}
               </h2>
-              <AccountBadge status={user.accountStatus} />
-              <HrBadge status={user.hrStatus} />
+              <StatusBadge
+                value={user.accountStatus}
+                map={ACCOUNT_STATUS_MAP}
+                variant="dot"
+              />
+              <StatusBadge value={user.hrStatus} map={HR_STATUS_MAP} />
             </div>
             <div className="text-sm text-gray-500 mb-2">{user.email}</div>
             <div className="flex flex-wrap gap-4 text-xs text-gray-400">
@@ -887,7 +878,11 @@ function TeamView({ managerId }: { managerId: number }) {
             {member.learningStats.overdue}
           </div>
           <div>
-            <AccountBadge status={member.accountStatus} />
+            <StatusBadge
+              value={member.accountStatus}
+              map={ACCOUNT_STATUS_MAP}
+              variant="dot"
+            />
           </div>
         </div>
       ))}

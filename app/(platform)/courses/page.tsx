@@ -10,6 +10,8 @@ import { STALE_TIME } from '@/lib/queryClient';
 import Image from 'next/image';
 import { Skeleton as SharedSkeleton } from '@/components/ui/Skeleton';
 import { formatDate as fmtDate } from '@/lib/format';
+import { StatusBadge } from '@/components/ui/StatusBadge';
+import type { StatusBadgeMap } from '@/lib/statusBadge';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -156,36 +158,17 @@ function isOverdue(deadline: string | null): boolean {
 
 // ─── Badge components ─────────────────────────────────────────────────────────
 
-function LevelBadge({ level }: { level: CourseLevel }) {
-  const cfg: Record<CourseLevel, { label: string; cls: string }> = {
-    BEGINNER: { label: 'Iniciante', cls: 'bg-emerald-50 text-emerald-700' },
-    INTERMEDIATE: { label: 'Intermédio', cls: 'bg-amber-50 text-amber-700' },
-    ADVANCED: { label: 'Avançado', cls: 'bg-red-50 text-red-700' },
-  };
-  const { label, cls } = cfg[level];
-  return (
-    <span className={`px-2 py-0.5 rounded text-xs font-medium ${cls}`}>
-      {label}
-    </span>
-  );
-}
+const COURSE_LEVEL_MAP: StatusBadgeMap<CourseLevel> = {
+  BEGINNER: { label: 'Iniciante', cls: 'bg-emerald-50 text-emerald-700' },
+  INTERMEDIATE: { label: 'Intermédio', cls: 'bg-amber-50 text-amber-700' },
+  ADVANCED: { label: 'Avançado', cls: 'bg-red-50 text-red-700' },
+};
 
-function StatusBadge({ status }: { status: CourseStatus }) {
-  const cfg: Record<CourseStatus, { label: string; cls: string }> = {
-    DRAFT: { label: 'Rascunho', cls: 'bg-gray-100 text-gray-500' },
-    PUBLISHED: { label: 'Publicado', cls: 'bg-emerald-50 text-emerald-700' },
-    ARCHIVED: { label: 'Arquivado', cls: 'bg-gray-100 text-gray-400' },
-  };
-  const { label, cls } = cfg[status];
-  return (
-    <span
-      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${cls}`}
-    >
-      <span className="w-1.5 h-1.5 rounded-full bg-current" />
-      {label}
-    </span>
-  );
-}
+const COURSE_STATUS_MAP: StatusBadgeMap<CourseStatus> = {
+  DRAFT: { label: 'Rascunho', cls: 'bg-gray-100 text-gray-500' },
+  PUBLISHED: { label: 'Publicado', cls: 'bg-emerald-50 text-emerald-700' },
+  ARCHIVED: { label: 'Arquivado', cls: 'bg-gray-100 text-gray-400' },
+};
 
 function EnrollBadge({
   status,
@@ -338,7 +321,7 @@ function CourseCard({
           {course.workloadHours && (
             <span>⏱ {fmtDuration(course.workloadHours)}</span>
           )}
-          <LevelBadge level={course.level} />
+          <StatusBadge value={course.level} map={COURSE_LEVEL_MAP} />
           <span>👥 {course._count.enrollments}</span>
         </div>
 
@@ -755,8 +738,12 @@ function CourseDetail({
                   {course.category}
                 </span>
               )}
-              <LevelBadge level={course.level} />
-              <StatusBadge status={course.status} />
+              <StatusBadge value={course.level} map={COURSE_LEVEL_MAP} />
+              <StatusBadge
+                value={course.status}
+                map={COURSE_STATUS_MAP}
+                variant="dot"
+              />
               {course.mandatory && (
                 <span className="px-2 py-0.5 bg-red-50 text-red-700 text-xs font-medium rounded">
                   Obrigatório
@@ -1242,7 +1229,11 @@ function AdminDashboardView({ onSelect }: { onSelect: (id: number) => void }) {
               <div className="text-sm text-gray-500">
                 {c._count.enrollments} matrículas
               </div>
-              <StatusBadge status={c.status} />
+              <StatusBadge
+                value={c.status}
+                map={COURSE_STATUS_MAP}
+                variant="dot"
+              />
             </div>
           ))}
         </div>
