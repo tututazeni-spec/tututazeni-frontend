@@ -10,6 +10,8 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Skeleton as SharedSkeleton } from '@/components/ui/Skeleton';
 import { formatDate as fmtDate, getInitials as initials } from '@/lib/format';
+import { StatusBadge } from '@/components/ui/StatusBadge';
+import type { StatusBadgeMap } from '@/lib/statusBadge';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -144,28 +146,15 @@ const LEVEL_LABELS = [
   'Especialista',
 ];
 
-const CATEGORY_CFG: Record<CompetencyCategory, { label: string; cls: string }> =
-  {
-    HARD_SKILL: { label: 'Hard Skill', cls: 'bg-blue-50 text-blue-700' },
-    SOFT_SKILL: { label: 'Soft Skill', cls: 'bg-purple-50 text-purple-700' },
-    LANGUAGE: { label: 'Idioma', cls: 'bg-emerald-50 text-emerald-700' },
-    TOOL: { label: 'Ferramenta', cls: 'bg-amber-50 text-amber-700' },
-    LEADERSHIP: { label: 'Liderança', cls: 'bg-red-50 text-red-700' },
-  };
+const CATEGORY_CFG: StatusBadgeMap<CompetencyCategory> = {
+  HARD_SKILL: { label: 'Hard Skill', cls: 'bg-blue-50 text-blue-700' },
+  SOFT_SKILL: { label: 'Soft Skill', cls: 'bg-purple-50 text-purple-700' },
+  LANGUAGE: { label: 'Idioma', cls: 'bg-emerald-50 text-emerald-700' },
+  TOOL: { label: 'Ferramenta', cls: 'bg-amber-50 text-amber-700' },
+  LEADERSHIP: { label: 'Liderança', cls: 'bg-red-50 text-red-700' },
+};
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
-
-function CategoryBadge({ category }: { category: CompetencyCategory }) {
-  const { label, cls } = CATEGORY_CFG[category] ?? {
-    label: category,
-    cls: 'bg-gray-100 text-gray-600',
-  };
-  return (
-    <span className={`px-2 py-0.5 rounded text-xs font-medium ${cls}`}>
-      {label}
-    </span>
-  );
-}
 
 function LevelBar({
   current,
@@ -303,7 +292,7 @@ function CatalogView({ onSelect }: { onSelect: (id: number) => void }) {
                   <div className="text-sm font-semibold text-gray-900 mb-1">
                     {comp.name}
                   </div>
-                  <CategoryBadge category={comp.category} />
+                  <StatusBadge value={comp.category} map={CATEGORY_CFG} />
                 </div>
               </div>
               {comp.description && (
@@ -471,7 +460,10 @@ function MyProfileView() {
           {Object.entries(byCategory).map(([cat, items]) => (
             <div key={cat}>
               <div className="flex items-center gap-2 mb-3">
-                <CategoryBadge category={cat as CompetencyCategory} />
+                <StatusBadge
+                  value={cat as CompetencyCategory}
+                  map={CATEGORY_CFG}
+                />
                 <span className="text-xs text-gray-400">
                   {items.length} competências
                 </span>
@@ -642,7 +634,10 @@ function MyProfileView() {
                           <span className="text-sm font-medium text-gray-900">
                             {g.competency.name}
                           </span>
-                          <CategoryBadge category={g.competency.category} />
+                          <StatusBadge
+                            value={g.competency.category}
+                            map={CATEGORY_CFG}
+                          />
                           {g.priority === 'MANDATORY' && (
                             <span className="text-xs bg-red-50 text-red-700 px-1.5 rounded">
                               Obrigatório
@@ -936,7 +931,10 @@ function DashboardView() {
                   <div className="text-sm font-medium text-gray-900">
                     {c.name}
                   </div>
-                  <CategoryBadge category={c.category as CompetencyCategory} />
+                  <StatusBadge
+                    value={c.category as CompetencyCategory}
+                    map={CATEGORY_CFG}
+                  />
                 </div>
                 <div className="w-40">
                   <div className="flex justify-between text-xs text-gray-400 mb-1">
@@ -974,11 +972,12 @@ function DashboardView() {
                 <div className="text-sm font-medium text-gray-900">
                   {t.competency?.name ?? '—'}
                 </div>
-                <CategoryBadge
-                  category={
+                <StatusBadge
+                  value={
                     (t.competency?.category ??
                       'HARD_SKILL') as CompetencyCategory
                   }
+                  map={CATEGORY_CFG}
                 />
               </div>
               <div className="text-right">

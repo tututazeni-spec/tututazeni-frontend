@@ -8,6 +8,8 @@ import { STALE_TIME } from '@/lib/queryClient';
 import Image from 'next/image';
 import { Skeleton as SharedSkeleton } from '@/components/ui/Skeleton';
 import { formatDate as fmtDate, getInitials as initials } from '@/lib/format';
+import { StatusBadge } from '@/components/ui/StatusBadge';
+import type { StatusBadgeMap } from '@/lib/statusBadge';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -148,66 +150,35 @@ function isOverdue(d: string | null): boolean {
 
 // ─── Badges ───────────────────────────────────────────────────────────────────
 
-function StatusBadge({ status }: { status: ReviewStatus }) {
-  const cfg: Record<ReviewStatus, { label: string; cls: string }> = {
-    DRAFT: { label: 'Rascunho', cls: 'bg-gray-100 text-gray-500' },
-    PENDING_SELF: { label: 'Autoavaliação', cls: 'bg-amber-50 text-amber-700' },
-    PENDING_MANAGER: {
-      label: 'Gestor pendente',
-      cls: 'bg-blue-50 text-blue-700',
-    },
-    PENDING_360: {
-      label: '360° pendente',
-      cls: 'bg-purple-50 text-purple-700',
-    },
-    CALIBRATION: { label: 'Calibração', cls: 'bg-orange-50 text-orange-700' },
-    PUBLISHED: { label: 'Publicado', cls: 'bg-emerald-50 text-emerald-700' },
-    DISPUTE: { label: 'Disputa', cls: 'bg-red-50 text-red-700' },
-    FINALIZED: { label: 'Finalizado', cls: 'bg-gray-100 text-gray-600' },
-  };
-  const { label, cls } = cfg[status] ?? {
-    label: status,
-    cls: 'bg-gray-100 text-gray-500',
-  };
-  return (
-    <span
-      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${cls}`}
-    >
-      <span className="w-1.5 h-1.5 rounded-full bg-current" />
-      {label}
-    </span>
-  );
-}
+const REVIEW_STATUS_MAP: StatusBadgeMap<ReviewStatus> = {
+  DRAFT: { label: 'Rascunho', cls: 'bg-gray-100 text-gray-500' },
+  PENDING_SELF: { label: 'Autoavaliação', cls: 'bg-amber-50 text-amber-700' },
+  PENDING_MANAGER: {
+    label: 'Gestor pendente',
+    cls: 'bg-blue-50 text-blue-700',
+  },
+  PENDING_360: {
+    label: '360° pendente',
+    cls: 'bg-purple-50 text-purple-700',
+  },
+  CALIBRATION: { label: 'Calibração', cls: 'bg-orange-50 text-orange-700' },
+  PUBLISHED: { label: 'Publicado', cls: 'bg-emerald-50 text-emerald-700' },
+  DISPUTE: { label: 'Disputa', cls: 'bg-red-50 text-red-700' },
+  FINALIZED: { label: 'Finalizado', cls: 'bg-gray-100 text-gray-600' },
+};
 
-function CategoryBadge({ category }: { category: PerfCategory | null }) {
-  if (!category) return null;
-  const cfg: Record<PerfCategory, { label: string; cls: string }> = {
-    HIGH: { label: 'Alto desempenho', cls: 'bg-emerald-100 text-emerald-800' },
-    MEDIUM: { label: 'Médio', cls: 'bg-amber-100 text-amber-800' },
-    LOW: { label: 'Baixo', cls: 'bg-red-100 text-red-800' },
-  };
-  const { label, cls } = cfg[category];
-  return (
-    <span className={`px-2 py-0.5 rounded text-xs font-medium ${cls}`}>
-      {label}
-    </span>
-  );
-}
+const PERF_CATEGORY_MAP: StatusBadgeMap<PerfCategory> = {
+  HIGH: { label: 'Alto desempenho', cls: 'bg-emerald-100 text-emerald-800' },
+  MEDIUM: { label: 'Médio', cls: 'bg-amber-100 text-amber-800' },
+  LOW: { label: 'Baixo', cls: 'bg-red-100 text-red-800' },
+};
 
-function GoalStatusBadge({ status }: { status: GoalStatus }) {
-  const cfg: Record<GoalStatus, { label: string; cls: string }> = {
-    ON_TRACK: { label: 'No prazo', cls: 'bg-emerald-50 text-emerald-700' },
-    AT_RISK: { label: 'Em risco', cls: 'bg-amber-50 text-amber-700' },
-    OFF_TRACK: { label: 'Atrasado', cls: 'bg-red-50 text-red-700' },
-    COMPLETED: { label: 'Concluído', cls: 'bg-blue-50 text-blue-700' },
-  };
-  const { label, cls } = cfg[status];
-  return (
-    <span className={`px-2 py-0.5 rounded text-xs font-medium ${cls}`}>
-      {label}
-    </span>
-  );
-}
+const GOAL_STATUS_MAP: StatusBadgeMap<GoalStatus> = {
+  ON_TRACK: { label: 'No prazo', cls: 'bg-emerald-50 text-emerald-700' },
+  AT_RISK: { label: 'Em risco', cls: 'bg-amber-50 text-amber-700' },
+  OFF_TRACK: { label: 'Atrasado', cls: 'bg-red-50 text-red-700' },
+  COMPLETED: { label: 'Concluído', cls: 'bg-blue-50 text-blue-700' },
+};
 
 function Avatar({
   name,
@@ -431,7 +402,11 @@ function MyDashboard() {
                 <div className="text-sm font-medium text-amber-900">
                   {r.cycle.name}
                 </div>
-                <StatusBadge status={r.status} />
+                <StatusBadge
+                  value={r.status}
+                  map={REVIEW_STATUS_MAP}
+                  variant="dot"
+                />
               </div>
               <button className="px-3 py-1.5 bg-amber-600 text-white text-xs font-medium rounded-lg hover:bg-amber-700">
                 Completar
@@ -483,7 +458,7 @@ function MyDashboard() {
                     <div className="text-sm font-medium text-gray-900">
                       {g.title}
                     </div>
-                    <GoalStatusBadge status={g.status} />
+                    <StatusBadge value={g.status} map={GOAL_STATUS_MAP} />
                   </div>
                   <div className="text-xs text-gray-400">
                     {g.currentValue}/{g.targetValue} {g.unit}
@@ -699,14 +674,17 @@ function TeamView() {
                 ? member.latestReview.score
                 : '—'}
               {member.latestReview?.category && (
-                <CategoryBadge category={member.latestReview.category} />
+                <StatusBadge
+                  value={member.latestReview.category}
+                  map={PERF_CATEGORY_MAP}
+                />
               )}
             </div>
             <div>
               <StatusBadge
-                status={
-                  (member.latestReview?.status ?? 'DRAFT') as ReviewStatus
-                }
+                value={(member.latestReview?.status ?? 'DRAFT') as ReviewStatus}
+                map={REVIEW_STATUS_MAP}
+                variant="dot"
               />
             </div>
             <div>
@@ -996,7 +974,9 @@ function AnalyticsView() {
                 <div className="text-lg font-bold font-mono text-blue-700">
                   {r.score}
                 </div>
-                {r.category && <CategoryBadge category={r.category} />}
+                {r.category && (
+                  <StatusBadge value={r.category} map={PERF_CATEGORY_MAP} />
+                )}
               </div>
             </div>
           ))}

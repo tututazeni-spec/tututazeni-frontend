@@ -9,6 +9,8 @@ import { STALE_TIME } from '../../../lib/queryClient';
 import Image from 'next/image';
 import { Skeleton as SharedSkeleton } from '@/components/ui/Skeleton';
 import { formatDate as fmtDate, getInitials as initials } from '@/lib/format';
+import { StatusBadge } from '@/components/ui/StatusBadge';
+import type { StatusBadgeMap } from '@/lib/statusBadge';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -182,7 +184,7 @@ function Avatar({
 
 // ─── Config ───────────────────────────────────────────────────────────────────
 
-const STATUS_CFG: Record<PlanStatus, { label: string; cls: string }> = {
+const STATUS_CFG: StatusBadgeMap<PlanStatus> = {
   DRAFT: { label: 'Rascunho', cls: 'bg-gray-100 text-gray-500' },
   PENDING_APPROVAL: {
     label: 'Ag. aprovação',
@@ -245,7 +247,7 @@ const ACTION_STATUS: Record<
   CANCELLED: { icon: '✕', cls: 'text-red-400', label: 'Cancelada' },
 };
 
-const PRIORITY_CFG: Record<Priority, { label: string; cls: string }> = {
+const PRIORITY_CFG: StatusBadgeMap<Priority> = {
   LOW: { label: 'Baixa', cls: 'bg-gray-100 text-gray-500' },
   MEDIUM: { label: 'Média', cls: 'bg-blue-50 text-blue-600' },
   HIGH: { label: 'Alta', cls: 'bg-amber-50 text-amber-700' },
@@ -277,8 +279,6 @@ function ProgressBar({
 // ─── Plan Card ────────────────────────────────────────────────────────────────
 
 function PlanCard({ plan, onClick }: { plan: Plan; onClick: () => void }) {
-  const statusCfg = STATUS_CFG[plan.status];
-  const priorityCfg = PRIORITY_CFG[plan.priority];
   const pct = plan.actionProgress ?? plan.overallProgress;
   const hasOverdue = (plan.overdueActions ?? 0) > 0;
 
@@ -300,14 +300,8 @@ function PlanCard({ plan, onClick }: { plan: Plan; onClick: () => void }) {
       <div className="flex items-start justify-between gap-3 mb-3">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1 flex-wrap">
-            <span
-              className={`text-xs px-2 py-0.5 rounded font-medium ${statusCfg.cls}`}
-            >
-              {statusCfg.label}
-            </span>
-            <span className={`text-xs px-2 py-0.5 rounded ${priorityCfg.cls}`}>
-              {priorityCfg.label}
-            </span>
+            <StatusBadge value={plan.status} map={STATUS_CFG} />
+            <StatusBadge value={plan.priority} map={PRIORITY_CFG} />
             {plan.period && (
               <span className="text-xs text-gray-400">{plan.period}</span>
             )}
@@ -500,8 +494,6 @@ function DetailView({
 
   if (loading || !plan) return <Skeleton rows={5} />;
 
-  const statusCfg = STATUS_CFG[plan.status];
-  const priorityCfg = PRIORITY_CFG[plan.priority];
   const pct = plan.actionProgress ?? plan.overallProgress;
 
   return (
@@ -518,16 +510,8 @@ function DetailView({
         <div className="flex items-start justify-between gap-4 mb-4">
           <div className="flex-1">
             <div className="flex items-center gap-2 flex-wrap mb-2">
-              <span
-                className={`text-xs px-2 py-0.5 rounded font-medium ${statusCfg.cls}`}
-              >
-                {statusCfg.label}
-              </span>
-              <span
-                className={`text-xs px-2 py-0.5 rounded ${priorityCfg.cls}`}
-              >
-                {priorityCfg.label}
-              </span>
+              <StatusBadge value={plan.status} map={STATUS_CFG} />
+              <StatusBadge value={plan.priority} map={PRIORITY_CFG} />
               {plan.period && (
                 <span className="text-xs text-gray-400">{plan.period}</span>
               )}

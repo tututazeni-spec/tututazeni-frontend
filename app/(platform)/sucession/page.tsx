@@ -9,6 +9,8 @@ import { STALE_TIME } from '@/lib/queryClient';
 import Image from 'next/image';
 import { Skeleton as SharedSkeleton } from '@/components/ui/Skeleton';
 import { getInitials as initials } from '@/lib/format';
+import { StatusBadge } from '@/components/ui/StatusBadge';
+import type { StatusBadgeMap } from '@/lib/statusBadge';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -198,14 +200,14 @@ const READINESS_CFG: Record<
   },
 };
 
-const RISK_CFG: Record<RiskLevel, { label: string; cls: string }> = {
+const RISK_CFG: StatusBadgeMap<RiskLevel> = {
   LOW: { label: 'Baixo', cls: 'bg-emerald-50 text-emerald-700' },
   MEDIUM: { label: 'Médio', cls: 'bg-amber-50 text-amber-700' },
   HIGH: { label: 'Alto', cls: 'bg-orange-50 text-orange-700' },
   CRITICAL: { label: 'Crítico', cls: 'bg-red-100 text-red-800' },
 };
 
-const COVERAGE_CFG: Record<CoverageStatus, { label: string; cls: string }> = {
+const COVERAGE_CFG: StatusBadgeMap<CoverageStatus> = {
   COVERED: { label: 'Coberto', cls: 'bg-emerald-50 text-emerald-700' },
   AT_RISK: { label: 'Em risco', cls: 'bg-amber-50 text-amber-700' },
   CRITICAL: { label: 'Crítico', cls: 'bg-red-50 text-red-700' },
@@ -218,15 +220,6 @@ function ReadinessBadge({ level }: { level: ReadinessLevel }) {
       className={`inline-flex items-center gap-1.5 px-2 py-0.5 border rounded-full text-xs font-medium ${cls}`}
     >
       <span className={`w-1.5 h-1.5 rounded-full ${dot}`} />
-      {label}
-    </span>
-  );
-}
-
-function RiskBadge({ risk }: { risk: RiskLevel }) {
-  const { label, cls } = RISK_CFG[risk];
-  return (
-    <span className={`px-2 py-0.5 rounded text-xs font-medium ${cls}`}>
       {label}
     </span>
   );
@@ -422,7 +415,7 @@ function DashboardView() {
                   </div>
                 )}
               </div>
-              <RiskBadge risk={alert.exitRisk} />
+              <StatusBadge value={alert.exitRisk} map={RISK_CFG} />
               {alert.daysUntilExit !== null && alert.daysUntilExit <= 180 && (
                 <div
                   className={`text-xs font-mono ${alert.daysUntilExit <= 30 ? 'text-red-600 font-bold' : 'text-amber-600'}`}
@@ -487,12 +480,11 @@ function OrgChartView() {
                         🔑 Key Person
                       </span>
                     )}
-                    <RiskBadge risk={node.exitRisk} />
-                    <span
-                      className={`text-xs px-2 py-0.5 rounded ${COVERAGE_CFG[node.coverageStatus].cls}`}
-                    >
-                      {COVERAGE_CFG[node.coverageStatus].label}
-                    </span>
+                    <StatusBadge value={node.exitRisk} map={RISK_CFG} />
+                    <StatusBadge
+                      value={node.coverageStatus}
+                      map={COVERAGE_CFG}
+                    />
                   </div>
                   <div className="text-xs text-gray-400 mb-2">
                     {node.position.department?.name ?? '—'}
@@ -651,7 +643,7 @@ function PositionsView() {
               {cp.position.name}
             </div>
             <div className="flex items-center gap-1.5 mt-1">
-              <RiskBadge risk={cp.exitRisk} />
+              <StatusBadge value={cp.exitRisk} map={RISK_CFG} />
               <span
                 className={`text-xs ${COVERAGE_CFG[cp.coverageStatus].cls} px-1.5 rounded`}
               >
@@ -687,15 +679,14 @@ function PositionsView() {
                     {summary.criticalPosition.position.name}
                   </div>
                   <div className="flex items-center gap-2 mt-1">
-                    <RiskBadge risk={summary.criticalPosition.exitRisk} />
-                    <span
-                      className={`text-xs px-2 py-0.5 rounded ${COVERAGE_CFG[summary.coverageStatus as CoverageStatus].cls}`}
-                    >
-                      {
-                        COVERAGE_CFG[summary.coverageStatus as CoverageStatus]
-                          .label
-                      }
-                    </span>
+                    <StatusBadge
+                      value={summary.criticalPosition.exitRisk}
+                      map={RISK_CFG}
+                    />
+                    <StatusBadge
+                      value={summary.coverageStatus as CoverageStatus}
+                      map={COVERAGE_CFG}
+                    />
                     {summary.criticalPosition.keyPersonRisk && (
                       <span className="text-xs bg-purple-50 text-purple-700 px-1.5 py-0.5 rounded">
                         🔑 Key Person

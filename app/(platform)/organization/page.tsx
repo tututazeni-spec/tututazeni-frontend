@@ -14,6 +14,8 @@ import {
   formatKz as fmtKz,
   getInitials as initials,
 } from '../../../lib/format';
+import { StatusBadge } from '../../../components/ui/StatusBadge';
+import type { StatusBadgeMap } from '../../../lib/statusBadge';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -165,7 +167,7 @@ function Avatar({
 
 // ─── Badges ───────────────────────────────────────────────────────────────────
 
-const LEVEL_CFG: Record<PosLevel, { label: string; cls: string }> = {
+const LEVEL_CFG: StatusBadgeMap<PosLevel> = {
   INTERN: { label: 'Estagiário', cls: 'bg-gray-100 text-gray-600' },
   JUNIOR: { label: 'Júnior', cls: 'bg-emerald-50 text-emerald-700' },
   MID: { label: 'Pleno', cls: 'bg-blue-50 text-blue-700' },
@@ -732,11 +734,7 @@ function PositionsView() {
               )}
             </div>
             <div>
-              <span
-                className={`text-xs px-2 py-0.5 rounded font-medium ${LEVEL_CFG[pos.level]?.cls ?? 'bg-gray-100 text-gray-600'}`}
-              >
-                {LEVEL_CFG[pos.level]?.label ?? pos.level}
-              </span>
+              <StatusBadge value={pos.level} map={LEVEL_CFG} />
             </div>
             <div className="text-sm font-mono text-gray-900">
               {pos.headcountOccupied}

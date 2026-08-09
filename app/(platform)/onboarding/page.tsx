@@ -8,6 +8,8 @@ import { STALE_TIME } from '@/lib/queryClient';
 import Image from 'next/image';
 import { Skeleton as SharedSkeleton } from '@/components/ui/Skeleton';
 import { formatDate as fmtDate, getInitials as initials } from '@/lib/format';
+import { StatusBadge } from '@/components/ui/StatusBadge';
+import type { StatusBadgeMap } from '@/lib/statusBadge';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -200,7 +202,7 @@ function Avatar({
 
 // ─── Badges & Labels ──────────────────────────────────────────────────────────
 
-const STATUS_CFG: Record<OnboardingStatus, { label: string; cls: string }> = {
+const STATUS_CFG: StatusBadgeMap<OnboardingStatus> = {
   NOT_STARTED: { label: 'Não iniciado', cls: 'bg-gray-100 text-gray-500' },
   IN_PROGRESS: { label: 'Em progresso', cls: 'bg-blue-50 text-blue-700' },
   COMPLETED: { label: 'Concluído', cls: 'bg-emerald-50 text-emerald-700' },
@@ -851,11 +853,7 @@ function DashboardView() {
               <div className="text-sm font-mono font-medium text-gray-800">
                 {plan.progress}%
               </div>
-              <span
-                className={`text-xs px-2 py-0.5 rounded ${STATUS_CFG[plan.status].cls}`}
-              >
-                {STATUS_CFG[plan.status].label}
-              </span>
+              <StatusBadge value={plan.status} map={STATUS_CFG} />
             </div>
           </div>
         ))}
