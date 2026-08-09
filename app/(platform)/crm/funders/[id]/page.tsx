@@ -104,21 +104,26 @@ export default function FunderDetailPage() {
     outcome: '',
   });
 
-  const { data: f, isLoading: loading, error: queryError } =
-    useApiQuery<FunderDetail>(
-      queryKeys.funders.detail(id), `/crm/funders/${id}`,
-      { enabled: !!id, staleTime: STALE_TIME.DYNAMIC },
-    );
+  const {
+    data: f,
+    isLoading: loading,
+    error: queryError,
+  } = useApiQuery<FunderDetail>(
+    queryKeys.funders.detail(id),
+    `/crm/funders/${id}`,
+    { enabled: !!id, staleTime: STALE_TIME.DYNAMIC },
+  );
   const error = queryError?.message ?? '';
   const detailKey = queryKeys.funders.detail(id);
 
   const grantMut = useApiMutation(
-    () => apiClient.post(`/crm/funders/${id}/grants`, {
-      title: grantForm.title,
-      amount: Number(grantForm.amount),
-      startDate: grantForm.startDate,
-      ...(grantForm.endDate && { endDate: grantForm.endDate }),
-    }),
+    () =>
+      apiClient.post(`/crm/funders/${id}/grants`, {
+        title: grantForm.title,
+        amount: Number(grantForm.amount),
+        startDate: grantForm.startDate,
+        ...(grantForm.endDate && { endDate: grantForm.endDate }),
+      }),
     {
       invalidateKeys: [detailKey],
       onSuccess: () => {
@@ -130,17 +135,23 @@ export default function FunderDetailPage() {
   );
 
   const intMut = useApiMutation(
-    () => apiClient.post(`/crm/funders/${id}/interactions`, {
-      type: intForm.type,
-      subject: intForm.subject,
-      description: intForm.description,
-      ...(intForm.outcome && { outcome: intForm.outcome }),
-    }),
+    () =>
+      apiClient.post(`/crm/funders/${id}/interactions`, {
+        type: intForm.type,
+        subject: intForm.subject,
+        description: intForm.description,
+        ...(intForm.outcome && { outcome: intForm.outcome }),
+      }),
     {
       invalidateKeys: [detailKey],
       onSuccess: () => {
         setShowIntForm(false);
-        setIntForm({ type: 'MEETING', subject: '', description: '', outcome: '' });
+        setIntForm({
+          type: 'MEETING',
+          subject: '',
+          description: '',
+          outcome: '',
+        });
       },
       onError: (e) => alert(e.message || 'Erro inesperado'),
     },
@@ -152,7 +163,10 @@ export default function FunderDetailPage() {
         amount: vars.amount,
         receivedAt: new Date().toISOString().slice(0, 10),
       }),
-    { invalidateKeys: [detailKey], onError: (e) => alert(e.message || 'Erro inesperado') },
+    {
+      invalidateKeys: [detailKey],
+      onError: (e) => alert(e.message || 'Erro inesperado'),
+    },
   );
 
   const saving = grantMut.isPending || intMut.isPending;
@@ -226,10 +240,26 @@ export default function FunderDetailPage() {
 
       {/* Resumo financeiro */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <SummaryCard label="Comprometido" value={money(f.totalCommitted, f.currency)} color="text-gray-900" />
-        <SummaryCard label="Recebido" value={money(f.totalReceived, f.currency)} color="text-green-700" />
-        <SummaryCard label="Pendente" value={money(f.totalPending, f.currency)} color="text-orange-700" />
-        <SummaryCard label="Taxa de execução" value={`${executionRate.toFixed(1)}%`} color="text-blue-700" />
+        <SummaryCard
+          label="Comprometido"
+          value={money(f.totalCommitted, f.currency)}
+          color="text-gray-900"
+        />
+        <SummaryCard
+          label="Recebido"
+          value={money(f.totalReceived, f.currency)}
+          color="text-green-700"
+        />
+        <SummaryCard
+          label="Pendente"
+          value={money(f.totalPending, f.currency)}
+          color="text-orange-700"
+        />
+        <SummaryCard
+          label="Taxa de execução"
+          value={`${executionRate.toFixed(1)}%`}
+          color="text-blue-700"
+        />
       </div>
 
       {/* Dados gerais */}
@@ -504,15 +534,13 @@ export default function FunderDetailPage() {
   );
 }
 
-function SummaryCard({
-  label,
-  value,
-  color,
-}: {
+interface SummaryCardProps {
   label: string;
   value: string;
   color: string;
-}) {
+}
+
+function SummaryCard({ label, value, color }: SummaryCardProps) {
   return (
     <div className="bg-white rounded-lg shadow p-4">
       <p className="text-xs text-gray-400 uppercase">{label}</p>
@@ -521,13 +549,12 @@ function SummaryCard({
   );
 }
 
-function Info({
-  label,
-  value,
-}: {
+interface InfoProps {
   label: string;
   value: string | null | undefined;
-}) {
+}
+
+function Info({ label, value }: InfoProps) {
   return (
     <div>
       <p className="text-xs text-gray-400 uppercase">{label}</p>

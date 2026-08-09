@@ -91,27 +91,38 @@ export default function PartnerDetailPage() {
     satisfaction: '',
   });
 
-  const { data: p, isLoading: loading, error: queryError } =
-    useApiQuery<PartnerDetail>(
-      queryKeys.partners.detail(id), `/crm/partners/${id}`,
-      { enabled: !!id, staleTime: STALE_TIME.DYNAMIC },
-    );
+  const {
+    data: p,
+    isLoading: loading,
+    error: queryError,
+  } = useApiQuery<PartnerDetail>(
+    queryKeys.partners.detail(id),
+    `/crm/partners/${id}`,
+    { enabled: !!id, staleTime: STALE_TIME.DYNAMIC },
+  );
   const error = queryError?.message ?? '';
   const detailKey = queryKeys.partners.detail(id);
 
   const intMut = useApiMutation(
-    () => apiClient.post(`/crm/partners/${id}/interactions`, {
-      type: form.type,
-      subject: form.subject,
-      description: form.description,
-      ...(form.outcome && { outcome: form.outcome }),
-      ...(form.satisfaction && { satisfaction: Number(form.satisfaction) }),
-    }),
+    () =>
+      apiClient.post(`/crm/partners/${id}/interactions`, {
+        type: form.type,
+        subject: form.subject,
+        description: form.description,
+        ...(form.outcome && { outcome: form.outcome }),
+        ...(form.satisfaction && { satisfaction: Number(form.satisfaction) }),
+      }),
     {
       invalidateKeys: [detailKey],
       onSuccess: () => {
         setShowForm(false);
-        setForm({ type: 'MEETING', subject: '', description: '', outcome: '', satisfaction: '' });
+        setForm({
+          type: 'MEETING',
+          subject: '',
+          description: '',
+          outcome: '',
+          satisfaction: '',
+        });
       },
       onError: (e) => alert(e.message || 'Erro inesperado'),
     },
@@ -121,7 +132,10 @@ export default function PartnerDetailPage() {
   const completeMut = useApiMutation(
     (milestoneId: string) =>
       apiClient.put(`/crm/partners/milestones/${milestoneId}/complete`, {}),
-    { invalidateKeys: [detailKey], onError: (e) => alert(e.message || 'Erro inesperado') },
+    {
+      invalidateKeys: [detailKey],
+      onError: (e) => alert(e.message || 'Erro inesperado'),
+    },
   );
 
   function submitInteraction(e: React.FormEvent) {
@@ -399,13 +413,12 @@ export default function PartnerDetailPage() {
   );
 }
 
-function Info({
-  label,
-  value,
-}: {
+interface InfoProps {
   label: string;
   value: string | null | undefined;
-}) {
+}
+
+function Info({ label, value }: InfoProps) {
   return (
     <div>
       <p className="text-xs text-gray-400 uppercase">{label}</p>

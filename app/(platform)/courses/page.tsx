@@ -91,17 +91,19 @@ interface CertificateVerifyResult {
 
 // ─── Course Card ──────────────────────────────────────────────────────────────
 
+interface CourseCardProps {
+  course: Course;
+  onClick: () => void;
+  enrollmentStatus?: EnrollmentStatus;
+  progress?: number;
+}
+
 function CourseCard({
   course,
   onClick,
   enrollmentStatus,
   progress,
-}: {
-  course: Course;
-  onClick: () => void;
-  enrollmentStatus?: EnrollmentStatus;
-  progress?: number;
-}) {
+}: CourseCardProps) {
   return (
     <div
       className="bg-white border border-gray-200 rounded-xl overflow-hidden cursor-pointer hover:shadow-md hover:border-blue-300 transition-all"
@@ -202,7 +204,11 @@ const INITIAL_CATALOG_FILTERS: CatalogFilters = {
   page: 1,
 };
 
-function CatalogView({ onSelect }: { onSelect: (id: number) => void }) {
+interface CatalogViewProps {
+  onSelect: (id: number) => void;
+}
+
+function CatalogView({ onSelect }: CatalogViewProps) {
   const [filters, setFilters] = useState<CatalogFilters>(
     INITIAL_CATALOG_FILTERS,
   );
@@ -347,13 +353,12 @@ function CatalogView({ onSelect }: { onSelect: (id: number) => void }) {
 // auto-selecção da 1ª aula incompleta e as 3 mutações; a apresentação
 // (player/header/módulos/feedback) vive em
 // components/courses/CourseDetailView.tsx.
-function CourseDetail({
-  courseId,
-  onBack,
-}: {
+interface CourseDetailProps {
   courseId: number;
   onBack: () => void;
-}) {
+}
+
+function CourseDetail({ courseId, onBack }: CourseDetailProps) {
   const {
     course,
     loadingCourse,
@@ -400,7 +405,11 @@ function CourseDetail({
 
 // ─── View: My Enrollments ────────────────────────────────────────────────────
 
-function MyEnrollmentsView({ onSelect }: { onSelect: (id: number) => void }) {
+interface MyEnrollmentsViewProps {
+  onSelect: (id: number) => void;
+}
+
+function MyEnrollmentsView({ onSelect }: MyEnrollmentsViewProps) {
   const [filter, setFilter] = useState('');
 
   const {
@@ -620,7 +629,11 @@ function CertificatesView() {
 
 // ─── View: Admin Dashboard ───────────────────────────────────────────────────
 
-function AdminDashboardView({ onSelect }: { onSelect: (id: number) => void }) {
+interface AdminDashboardViewProps {
+  onSelect: (id: number) => void;
+}
+
+function AdminDashboardView({ onSelect }: AdminDashboardViewProps) {
   const { data, isLoading } = useApiQuery<AdminDashboard>(
     queryKeys.courses.adminDashboard(),
     '/courses/admin/dashboard',

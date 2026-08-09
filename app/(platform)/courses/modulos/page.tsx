@@ -102,15 +102,13 @@ const btnDanger: React.CSSProperties = {
 };
 
 // ─── Toast ────────────────────────────────────────────────────────────────────
-function Toast({
-  msg,
-  type,
-  onClose,
-}: {
+interface ToastProps {
   msg: string;
   type: 'success' | 'error';
   onClose: () => void;
-}) {
+}
+
+function Toast({ msg, type, onClose }: ToastProps) {
   useAutoDismiss(onClose, 4000);
   return (
     <div
@@ -146,17 +144,19 @@ function Toast({
 }
 
 // ─── Modal: Módulo ────────────────────────────────────────────────────────────
+interface ModuleModalProps {
+  courseId: number;
+  editing: CourseModule | null;
+  onClose: () => void;
+  onSaved: () => void;
+}
+
 function ModuleModal({
   courseId,
   editing,
   onClose,
   onSaved,
-}: {
-  courseId: number;
-  editing: CourseModule | null;
-  onClose: () => void;
-  onSaved: () => void;
-}) {
+}: ModuleModalProps) {
   const [form, setForm] = useState({
     title: editing?.title ?? '',
     seq: editing?.seq ?? 1,
@@ -283,17 +283,19 @@ function ModuleModal({
 }
 
 // ─── Modal: Lição ─────────────────────────────────────────────────────────────
+interface LessonModalProps {
+  moduleId: number;
+  editing: Lesson | null;
+  onClose: () => void;
+  onSaved: () => void;
+}
+
 function LessonModal({
   moduleId,
   editing,
   onClose,
   onSaved,
-}: {
-  moduleId: number;
-  editing: Lesson | null;
-  onClose: () => void;
-  onSaved: () => void;
-}) {
+}: LessonModalProps) {
   const [form, setForm] = useState({
     title: editing?.title ?? '',
     contentType: editing?.contentType ?? 'VIDEO',
@@ -487,13 +489,12 @@ function LessonModal({
 }
 
 // ─── Modal: Progresso ─────────────────────────────────────────────────────────
-function ProgressModal({
-  onClose,
-  onMarked,
-}: {
+interface ProgressModalProps {
   onClose: () => void;
   onMarked: () => void;
-}) {
+}
+
+function ProgressModal({ onClose, onMarked }: ProgressModalProps) {
   const [enrollmentId, setEnrollmentId] = useState('');
   const [lessonId, setLessonId] = useState('');
 
@@ -787,15 +788,13 @@ function ProgressModal({
 }
 
 // ─── Lesson Row ───────────────────────────────────────────────────────────────
-function LessonRow({
-  lesson,
-  onEdit,
-  onDelete,
-}: {
+interface LessonRowProps {
   lesson: Lesson;
   onEdit: () => void;
   onDelete: () => void;
-}) {
+}
+
+function LessonRow({ lesson, onEdit, onDelete }: LessonRowProps) {
   const ct = CONTENT_TYPE[lesson.contentType] ?? {
     icon: '📖',
     color: '#64748b',
@@ -894,6 +893,15 @@ function LessonRow({
 }
 
 // ─── Module Block ─────────────────────────────────────────────────────────────
+interface ModuleBlockProps {
+  mod: CourseModule;
+  onEditModule: () => void;
+  onDeleteModule: () => void;
+  onAddLesson: () => void;
+  onEditLesson: (l: Lesson) => void;
+  onDeleteLesson: (l: Lesson) => void;
+}
+
 function ModuleBlock({
   mod,
   onEditModule,
@@ -901,14 +909,7 @@ function ModuleBlock({
   onAddLesson,
   onEditLesson,
   onDeleteLesson,
-}: {
-  mod: CourseModule;
-  onEditModule: () => void;
-  onDeleteModule: () => void;
-  onAddLesson: () => void;
-  onEditLesson: (l: Lesson) => void;
-  onDeleteLesson: (l: Lesson) => void;
-}) {
+}: ModuleBlockProps) {
   const [open, setOpen] = useState(true);
   return (
     <div style={{ ...card, padding: 0, overflow: 'hidden' }}>
