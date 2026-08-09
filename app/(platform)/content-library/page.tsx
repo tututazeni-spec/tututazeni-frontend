@@ -163,15 +163,17 @@ const CATEGORY_ICON: Record<string, LucideIcon> = {
   LEADERSHIP: TrendingUp,
 };
 
+interface ProgressBarProps {
+  value: number;
+  color?: string;
+  height?: string;
+}
+
 function ProgressBar({
   value,
   color = 'bg-indigo-500',
   height = 'h-1',
-}: {
-  value: number;
-  color?: string;
-  height?: string;
-}) {
+}: ProgressBarProps) {
   return (
     <div
       className={`w-full ${height} bg-slate-200 rounded-full overflow-hidden`}
@@ -184,7 +186,11 @@ function ProgressBar({
   );
 }
 
-function Skeleton({ count = 4 }: { count?: number }) {
+interface SkeletonProps {
+  count?: number;
+}
+
+function Skeleton({ count = 4 }: SkeletonProps) {
   return (
     <SharedSkeleton
       rows={count}
@@ -196,15 +202,17 @@ function Skeleton({ count = 4 }: { count?: number }) {
 
 // ─── Content Card ─────────────────────────────────────────────────
 
+interface ContentCardProps {
+  content: Content;
+  onBookmark?: (id: number) => void;
+  compact?: boolean;
+}
+
 function ContentCard({
   content,
   onBookmark,
   compact = false,
-}: {
-  content: Content;
-  onBookmark?: (id: number) => void;
-  compact?: boolean;
-}) {
+}: ContentCardProps) {
   const Icon = FORMAT_ICON[content.type] ?? FORMAT_ICON.DEFAULT;
   const progress = content.progress?.progress ?? 0;
 
@@ -381,17 +389,19 @@ function ContentCard({
 
 // ─── Content Row ─────────────────────────────────────────────────
 
+interface ContentRowProps {
+  title: string;
+  items: Content[];
+  loading?: boolean;
+  icon?: LucideIcon;
+}
+
 function ContentRow({
   title,
   items,
   loading,
   icon: Icon = BookOpen,
-}: {
-  title: string;
-  items: Content[];
-  loading?: boolean;
-  icon?: LucideIcon;
-}) {
+}: ContentRowProps) {
   if (loading)
     return (
       <div>

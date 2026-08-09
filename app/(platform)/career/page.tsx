@@ -161,15 +161,13 @@ type View = 'dashboard' | 'paths' | 'vacancies' | 'plan' | 'succession';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function Avatar({
-  name,
-  url,
-  size = 'sm',
-}: {
+interface AvatarProps {
   name: string;
   url?: string | null;
   size?: 'sm' | 'md' | 'lg';
-}) {
+}
+
+function Avatar({ name, url, size = 'sm' }: AvatarProps) {
   const dim =
     size === 'sm'
       ? 'w-8 h-8 text-xs'
@@ -191,7 +189,11 @@ function Avatar({
   );
 }
 
-function Skeleton({ rows = 3 }: { rows?: number }) {
+interface SkeletonProps {
+  rows?: number;
+}
+
+function Skeleton({ rows = 3 }: SkeletonProps) {
   return (
     <SharedSkeleton
       rows={rows}
@@ -201,7 +203,12 @@ function Skeleton({ rows = 3 }: { rows?: number }) {
   );
 }
 
-function Badge({ label, cls }: { label: string; cls: string }) {
+interface BadgeProps {
+  label: string;
+  cls: string;
+}
+
+function Badge({ label, cls }: BadgeProps) {
   return (
     <span className={`text-xs px-2 py-0.5 rounded font-medium ${cls}`}>
       {label}

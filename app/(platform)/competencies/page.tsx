@@ -156,15 +156,13 @@ const CATEGORY_CFG: StatusBadgeMap<CompetencyCategory> = {
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
-function LevelBar({
-  current,
-  target,
-  max = 5,
-}: {
+interface LevelBarProps {
   current: number;
   target?: number | null;
   max?: number;
-}) {
+}
+
+function LevelBar({ current, target, max = 5 }: LevelBarProps) {
   return (
     <div className="flex items-center gap-2">
       <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden relative">
@@ -186,15 +184,13 @@ function LevelBar({
   );
 }
 
-function StarRating({
-  value,
-  max = 5,
-  onChange,
-}: {
+interface StarRatingProps {
   value: number;
   max?: number;
   onChange?: (v: number) => void;
-}) {
+}
+
+function StarRating({ value, max = 5, onChange }: StarRatingProps) {
   return (
     <div className="flex gap-1">
       {Array.from({ length: max }, (_, i) => i + 1).map((s) => (
@@ -210,7 +206,11 @@ function StarRating({
   );
 }
 
-function Skeleton({ rows = 4 }: { rows?: number }) {
+interface SkeletonProps {
+  rows?: number;
+}
+
+function Skeleton({ rows = 4 }: SkeletonProps) {
   return (
     <SharedSkeleton
       rows={rows}
@@ -222,7 +222,11 @@ function Skeleton({ rows = 4 }: { rows?: number }) {
 
 // ─── View: Catalog ────────────────────────────────────────────────────────────
 
-function CatalogView({ onSelect }: { onSelect: (id: number) => void }) {
+interface CatalogViewProps {
+  onSelect: (id: number) => void;
+}
+
+function CatalogView({ onSelect }: CatalogViewProps) {
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('');
   const [page, setPage] = useState(1);

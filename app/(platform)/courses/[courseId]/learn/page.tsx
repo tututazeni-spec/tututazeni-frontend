@@ -143,7 +143,12 @@ function moduleTypeLabel(type: ModuleType | null): string {
   );
 }
 
-function ProgressRing({ pct, size = 36 }: { pct: number; size?: number }) {
+interface ProgressRingProps {
+  pct: number;
+  size?: number;
+}
+
+function ProgressRing({ pct, size = 36 }: ProgressRingProps) {
   const r = (size - 4) / 2;
   const circ = 2 * Math.PI * r;
   const dash = (pct / 100) * circ;
@@ -171,7 +176,11 @@ function ProgressRing({ pct, size = 36 }: { pct: number; size?: number }) {
   );
 }
 
-function Skeleton({ rows = 4 }: { rows?: number }) {
+interface SkeletonProps {
+  rows?: number;
+}
+
+function Skeleton({ rows = 4 }: SkeletonProps) {
   return (
     <SharedSkeleton
       rows={rows}
@@ -183,15 +192,13 @@ function Skeleton({ rows = 4 }: { rows?: number }) {
 
 // ─── Module Status Icon ───────────────────────────────────────────────────────
 
-function ModuleStatusIcon({
-  locked,
-  completed,
-  pct,
-}: {
+interface ModuleStatusIconProps {
   locked: boolean;
   completed: boolean;
   pct: number;
-}) {
+}
+
+function ModuleStatusIcon({ locked, completed, pct }: ModuleStatusIconProps) {
   if (locked) return <span className="text-gray-300 text-base">🔒</span>;
   if (completed) return <span className="text-emerald-500 text-base">✅</span>;
   if (pct > 0) return <span className="text-blue-500 text-base">▶️</span>;
@@ -200,17 +207,14 @@ function ModuleStatusIcon({
 
 // ─── Lesson Row ───────────────────────────────────────────────────────────────
 
-function LessonRow({
-  lesson,
-  isActive,
-  isLocked,
-  onClick,
-}: {
+interface LessonRowProps {
   lesson: LessonProgress;
   isActive: boolean;
   isLocked: boolean;
   onClick: () => void;
-}) {
+}
+
+function LessonRow({ lesson, isActive, isLocked, onClick }: LessonRowProps) {
   return (
     <div
       onClick={!isLocked ? onClick : undefined}
@@ -270,17 +274,19 @@ function LessonRow({
 
 // ─── Module Accordion (sidebar) ───────────────────────────────────────────────
 
+interface ModuleAccordionProps {
+  module: ModuleProgress;
+  activeLesson: LessonProgress | null;
+  onSelectLesson: (lesson: LessonProgress) => void;
+  defaultOpen: boolean;
+}
+
 function ModuleAccordion({
   module: mod,
   activeLesson,
   onSelectLesson,
   defaultOpen,
-}: {
-  module: ModuleProgress;
-  activeLesson: LessonProgress | null;
-  onSelectLesson: (lesson: LessonProgress) => void;
-  defaultOpen: boolean;
-}) {
+}: ModuleAccordionProps) {
   const [open, setOpen] = useState(defaultOpen);
 
   return (
@@ -387,17 +393,19 @@ function ModuleAccordion({
 
 // ─── Content Player ───────────────────────────────────────────────────────────
 
+interface ContentPlayerProps {
+  lesson: LessonProgress;
+  onComplete: () => void;
+  completing: boolean;
+  currentModule: ModuleProgress | null;
+}
+
 function ContentPlayer({
   lesson,
   onComplete,
   completing,
   currentModule,
-}: {
-  lesson: LessonProgress;
-  onComplete: () => void;
-  completing: boolean;
-  currentModule: ModuleProgress | null;
-}) {
+}: ContentPlayerProps) {
   return (
     <div className="flex flex-col h-full">
       {/* Module breadcrumb */}
@@ -479,13 +487,15 @@ function ContentPlayer({
 
 // ─── Module Completion Celebration ───────────────────────────────────────────
 
+interface ModuleCompletedBannerProps {
+  module: ModuleProgress;
+  onContinue: () => void;
+}
+
 function ModuleCompletedBanner({
   module: mod,
   onContinue,
-}: {
-  module: ModuleProgress;
-  onContinue: () => void;
-}) {
+}: ModuleCompletedBannerProps) {
   return (
     <div className="flex-1 bg-gray-950 flex items-center justify-center">
       <div className="text-white text-center max-w-sm">
@@ -507,7 +517,11 @@ function ModuleCompletedBanner({
 
 // ─── Admin Module Builder ─────────────────────────────────────────────────────
 
-function ModuleBuilder({ courseId }: { courseId: number }) {
+interface ModuleBuilderProps {
+  courseId: number;
+}
+
+function ModuleBuilder({ courseId }: ModuleBuilderProps) {
   const qc = useQueryClient();
   const [editingModule, setEditingModule] = useState<number | null>(null);
   const [creatingModule, setCreatingModule] = useState(false);
@@ -1028,7 +1042,11 @@ export default function CourseLearnPage() {
 //
 // Exemplo de como renderizar dentro da tua página de aula:
 
-function LessonContent({ lesson }: { lesson: Lesson }) {
+interface LessonContentProps {
+  lesson: Lesson;
+}
+
+function LessonContent({ lesson }: LessonContentProps) {
   const isTextLesson = lesson.contentType === 'TEXT' && !!lesson.textContent;
 
   return (

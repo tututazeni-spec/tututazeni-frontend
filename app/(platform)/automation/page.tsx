@@ -118,7 +118,11 @@ const TRIGGER_LABEL: Record<string, string> = {
   manual: '▶️ Manual',
 };
 
-function Skeleton({ count = 3 }: { count?: number }) {
+interface SkeletonProps {
+  count?: number;
+}
+
+function Skeleton({ count = 3 }: SkeletonProps) {
   return (
     <SharedSkeleton
       rows={count}

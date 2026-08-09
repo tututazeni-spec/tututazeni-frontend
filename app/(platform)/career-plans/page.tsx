@@ -171,13 +171,12 @@ const GOAL_TYPE_ICONS: Record<GoalType, LucideIcon> = {
 
 // ─── Utility ──────────────────────────────────────────────────────────────────
 
-function ReadinessBar({
-  score,
-  level,
-}: {
+interface ReadinessBarProps {
   score: number;
   level: ReadinessLevel;
-}) {
+}
+
+function ReadinessBar({ score, level }: ReadinessBarProps) {
   const cfg = READINESS_CONFIG[level];
   return (
     <div className="space-y-1">
@@ -197,19 +196,21 @@ function ReadinessBar({
   );
 }
 
+interface KpiCardProps {
+  label: string;
+  value: string | number;
+  icon: LucideIcon;
+  color?: string;
+  sub?: string;
+}
+
 function KpiCard({
   label,
   value,
   icon: Icon,
   color = 'blue',
   sub,
-}: {
-  label: string;
-  value: string | number;
-  icon: LucideIcon;
-  color?: string;
-  sub?: string;
-}) {
+}: KpiCardProps) {
   const colors: Record<string, string> = {
     blue: 'bg-blue-50 text-blue-600',
     emerald: 'bg-emerald-50 text-emerald-600',
@@ -236,7 +237,11 @@ function KpiCard({
 
 // ─── Career Roadmap ───────────────────────────────────────────────────────────
 
-function CareerRoadmap({ plan }: { plan: CareerPlan }) {
+interface CareerRoadmapProps {
+  plan: CareerPlan;
+}
+
+function CareerRoadmap({ plan }: CareerRoadmapProps) {
   const steps = plan.careerPath?.steps ?? [];
   if (!steps.length) {
     return (
@@ -300,13 +305,12 @@ function CareerRoadmap({ plan }: { plan: CareerPlan }) {
 
 // ─── Skill Gaps ───────────────────────────────────────────────────────────────
 
-function SkillGapList({
-  gaps,
-  mandatory,
-}: {
+interface SkillGapListProps {
   gaps: SkillGap[];
   mandatory?: boolean;
-}) {
+}
+
+function SkillGapList({ gaps, mandatory }: SkillGapListProps) {
   if (!gaps.length) return null;
   return (
     <div className="space-y-2">
@@ -341,13 +345,12 @@ function SkillGapList({
 
 // ─── Goal Card ────────────────────────────────────────────────────────────────
 
-function GoalCard({
-  goal,
-  onUpdateProgress,
-}: {
+interface GoalCardProps {
   goal: CareerGoal;
   onUpdateProgress: (id: number, progress: number) => void;
-}) {
+}
+
+function GoalCard({ goal, onUpdateProgress }: GoalCardProps) {
   const Icon = GOAL_TYPE_ICONS[goal.type] ?? Target;
   const isOverdue =
     goal.dueDate &&
@@ -429,13 +432,12 @@ function GoalCard({
 
 // ─── Simulate Modal ───────────────────────────────────────────────────────────
 
-function SimulateModal({
-  roles,
-  onClose,
-}: {
+interface SimulateModalProps {
   roles: Role[];
   onClose: () => void;
-}) {
+}
+
+function SimulateModal({ roles, onClose }: SimulateModalProps) {
   const [targetRoleId, setTargetRoleId] = useState(0);
   const [error, setError] = useState('');
 
