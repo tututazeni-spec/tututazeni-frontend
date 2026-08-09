@@ -27,6 +27,13 @@ const eslintConfig = [
       "@typescript-eslint/no-unsafe-member-access": "off",
       "@typescript-eslint/no-unsafe-call": "off",
       "@typescript-eslint/no-unsafe-return": "off",
+      // Sub-projecto 5 do audit de type-safety: o código já usa quase
+      // exclusivamente `interface` para formas de objecto (confirmado —
+      // só havia 2 excepções em todo o repo, uma delas um falso positivo
+      // de union). Esta regra torna essa convenção obrigatória daqui em
+      // diante; `type` continua livre para uniões, tuplos, mapped types,
+      // etc. (a regra só actua sobre `type X = { ... }`).
+      "@typescript-eslint/consistent-type-definitions": ["error", "interface"],
     },
   },
 ];
