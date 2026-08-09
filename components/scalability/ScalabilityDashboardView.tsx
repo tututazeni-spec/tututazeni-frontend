@@ -33,7 +33,11 @@ function formatPercent(v: number, decimals = 1): string {
 
 // ─── SUB-COMPONENTS ────────────────────────────────────────
 
-function StatusDot({ status }: { status: IntegrationStatus }) {
+interface StatusDotProps {
+  status: IntegrationStatus;
+}
+
+function StatusDot({ status }: StatusDotProps) {
   const map: Record<IntegrationStatus, string> = {
     ACTIVE: '#22c55e',
     INACTIVE: '#6b7280',
@@ -54,7 +58,11 @@ function StatusDot({ status }: { status: IntegrationStatus }) {
   );
 }
 
-function SeverityBadge({ severity }: { severity: AlertSeverity }) {
+interface SeverityBadgeProps {
+  severity: AlertSeverity;
+}
+
+function SeverityBadge({ severity }: SeverityBadgeProps) {
   const map: Record<
     AlertSeverity,
     { bg: string; color: string; label: string }
@@ -82,19 +90,21 @@ function SeverityBadge({ severity }: { severity: AlertSeverity }) {
   );
 }
 
+interface GaugeBarProps {
+  value: number;
+  max: number;
+  color?: string;
+  danger?: number;
+  warn?: number;
+}
+
 function GaugeBar({
   value,
   max,
   color = '#6366f1',
   danger,
   warn,
-}: {
-  value: number;
-  max: number;
-  color?: string;
-  danger?: number;
-  warn?: number;
-}) {
+}: GaugeBarProps) {
   const pct = Math.min((value / max) * 100, 100);
   const isDanger = danger !== undefined && value >= danger;
   const isWarn = !isDanger && warn !== undefined && value >= warn;
@@ -122,6 +132,18 @@ function GaugeBar({
   );
 }
 
+interface MetricCardProps {
+  label: string;
+  value: string | number;
+  unit?: string;
+  sub?: string;
+  barValue?: number;
+  barMax?: number;
+  barDanger?: number;
+  barWarn?: number;
+  accent?: string;
+}
+
 function MetricCard({
   label,
   value,
@@ -132,17 +154,7 @@ function MetricCard({
   barDanger,
   barWarn,
   accent = '#6366f1',
-}: {
-  label: string;
-  value: string | number;
-  unit?: string;
-  sub?: string;
-  barValue?: number;
-  barMax?: number;
-  barDanger?: number;
-  barWarn?: number;
-  accent?: string;
-}) {
+}: MetricCardProps) {
   return (
     <div
       style={{
@@ -208,7 +220,11 @@ const TABS = [
 
 // ─── TAB PANELS ────────────────────────────────────────────
 
-function OverviewTab({ data }: { data: DashboardData }) {
+interface OverviewTabProps {
+  data: DashboardData;
+}
+
+function OverviewTab({ data }: OverviewTabProps) {
   const {
     tenantInfo: t,
     performanceSummary: p,
@@ -425,15 +441,13 @@ function OverviewTab({ data }: { data: DashboardData }) {
   );
 }
 
-function StatusCard({
-  title,
-  color,
-  rows,
-}: {
+interface StatusCardProps {
   title: string;
   color: string;
   rows: { label: string; value: string | number; accent?: string }[];
-}) {
+}
+
+function StatusCard({ title, color, rows }: StatusCardProps) {
   return (
     <div
       style={{
@@ -482,7 +496,11 @@ function StatusCard({
   );
 }
 
-function PerformanceTab({ data }: { data: DashboardData }) {
+interface PerformanceTabProps {
+  data: DashboardData;
+}
+
+function PerformanceTab({ data }: PerformanceTabProps) {
   const p = data.performanceSummary;
   const metrics = [
     {
@@ -678,7 +696,11 @@ function PerformanceTab({ data }: { data: DashboardData }) {
   );
 }
 
-function IntegrationsTab({ integrations }: { integrations: Integration[] }) {
+interface IntegrationsTabProps {
+  integrations: Integration[];
+}
+
+function IntegrationsTab({ integrations }: IntegrationsTabProps) {
   const typeLabels: Record<string, string> = {
     ERP_HR: 'ERP de RH',
     PAYROLL: 'Folha de Pagamento',
@@ -795,7 +817,11 @@ function IntegrationsTab({ integrations }: { integrations: Integration[] }) {
   );
 }
 
-function AutomationsTab({ rules }: { rules: AutomationRule[] }) {
+interface AutomationsTabProps {
+  rules: AutomationRule[];
+}
+
+function AutomationsTab({ rules }: AutomationsTabProps) {
   const triggerLabel: Record<string, string> = {
     USER_HIRED: 'Contratação',
     USER_PROMOTED: 'Promoção',
@@ -906,7 +932,11 @@ function AutomationsTab({ rules }: { rules: AutomationRule[] }) {
   );
 }
 
-function AlertsTab({ alerts }: { alerts: Alert[] }) {
+interface AlertsTabProps {
+  alerts: Alert[];
+}
+
+function AlertsTab({ alerts }: AlertsTabProps) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
       <div
@@ -998,7 +1028,11 @@ function AlertsTab({ alerts }: { alerts: Alert[] }) {
   );
 }
 
-function SlaTab({ data }: { data: DashboardData }) {
+interface SlaTabProps {
+  data: DashboardData;
+}
+
+function SlaTab({ data }: SlaTabProps) {
   const { slaCompliance: s } = data;
   const complianceScore = Math.min(
     100,
@@ -1148,7 +1182,11 @@ function SlaTab({ data }: { data: DashboardData }) {
   );
 }
 
-function UsersTab({ data }: { data: DashboardData }) {
+interface UsersTabProps {
+  data: DashboardData;
+}
+
+function UsersTab({ data }: UsersTabProps) {
   const { tenantInfo: t } = data;
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
@@ -1442,7 +1480,12 @@ function ContentTab() {
 
 // ─── SHARED MICRO-COMPONENTS ──────────────────────────────
 
-function SectionHeader({ title, sub }: { title: string; sub: string }) {
+interface SectionHeaderProps {
+  title: string;
+  sub: string;
+}
+
+function SectionHeader({ title, sub }: SectionHeaderProps) {
   return (
     <div>
       <h2
@@ -1461,13 +1504,12 @@ function SectionHeader({ title, sub }: { title: string; sub: string }) {
   );
 }
 
-function ActionButton({
-  label,
-  onClick,
-}: {
+interface ActionButtonProps {
   label: string;
   onClick: () => void;
-}) {
+}
+
+function ActionButton({ label, onClick }: ActionButtonProps) {
   return (
     <button
       onClick={onClick}
@@ -1491,15 +1533,17 @@ function ActionButton({
   );
 }
 
+interface SmallButtonProps {
+  label: string;
+  onClick: () => void;
+  variant?: 'primary' | 'ghost';
+}
+
 function SmallButton({
   label,
   onClick,
   variant = 'primary',
-}: {
-  label: string;
-  onClick: () => void;
-  variant?: 'primary' | 'ghost';
-}) {
+}: SmallButtonProps) {
   return (
     <button
       onClick={onClick}
@@ -1520,7 +1564,12 @@ function SmallButton({
   );
 }
 
-function FilterChip({ label, active }: { label: string; active?: boolean }) {
+interface FilterChipProps {
+  label: string;
+  active?: boolean;
+}
+
+function FilterChip({ label, active }: FilterChipProps) {
   return (
     <button
       style={{

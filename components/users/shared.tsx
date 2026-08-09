@@ -10,13 +10,12 @@ import { getInitials as initials } from '@/lib/format';
 import { Skeleton as SharedSkeleton } from '@/components/ui/Skeleton';
 import type { User } from './types';
 
-export function Avatar({
-  user,
-  size = 'sm',
-}: {
+export interface AvatarProps {
   user: Pick<User, 'fullName' | 'avatarUrl'>;
   size?: 'sm' | 'md' | 'lg';
-}) {
+}
+
+export function Avatar({ user, size = 'sm' }: AvatarProps) {
   const dim = {
     sm: 'w-8 h-8 text-xs',
     md: 'w-10 h-10 text-sm',
@@ -42,7 +41,11 @@ export function Avatar({
   );
 }
 
-export function Skeleton({ rows = 5 }: { rows?: number }) {
+export interface SkeletonProps {
+  rows?: number;
+}
+
+export function Skeleton({ rows = 5 }: SkeletonProps) {
   return (
     <SharedSkeleton
       rows={rows}
@@ -52,17 +55,14 @@ export function Skeleton({ rows = 5 }: { rows?: number }) {
   );
 }
 
-export function MetricCard({
-  label,
-  value,
-  sub,
-  color,
-}: {
+export interface MetricCardProps {
   label: string;
   value: number | string;
   sub?: string;
   color?: string;
-}) {
+}
+
+export function MetricCard({ label, value, sub, color }: MetricCardProps) {
   return (
     <div className="bg-gray-50 rounded-xl p-4">
       <div className="text-xs text-gray-400 mb-1">{label}</div>
