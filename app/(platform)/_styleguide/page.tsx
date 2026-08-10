@@ -29,6 +29,7 @@ import {
 } from '@/components/ui/DropdownMenu';
 import { Tooltip } from '@/components/ui/Tooltip';
 import { Table, TableHead, TableBody, TableRow, TableHeaderCell, TableCell } from '@/components/ui/Table';
+import { Avatar } from '@/components/ui/Avatar';
 import { useToast } from '@/providers/ToastProvider';
 
 export function StyleguideSection({
@@ -205,6 +206,11 @@ export default function StyleguidePage() {
             </TableRow>
           </TableBody>
         </Table>
+      </StyleguideSection>
+      <StyleguideSection title="Avatar">
+        <Avatar name="Ana Silva" size="sm" />
+        <Avatar name="João Pedro" size="md" />
+        <Avatar name="Marta Costa" size="lg" />
       </StyleguideSection>
       {/* Tasks seguintes acrescentam <StyleguideSection> aqui, por ordem */}
     </div>
