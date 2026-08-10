@@ -8,7 +8,7 @@
 'use client';
 
 import type { ReactNode } from 'react';
-import { Trash2 } from 'lucide-react';
+import { Trash2, MoreVertical } from 'lucide-react';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { ADMIN_ROLES, type Role } from '@/lib/roles';
 import { Button, IconButton } from '@/components/ui/Button';
@@ -20,6 +20,13 @@ import { FormField } from '@/components/ui/FormField';
 import { Select } from '@/components/ui/Select';
 import { Modal, ModalTrigger, ModalContent, ModalClose } from '@/components/ui/Modal';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/Tabs';
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+} from '@/components/ui/DropdownMenu';
 
 export function StyleguideSection({
   title,
@@ -140,6 +147,19 @@ export default function StyleguidePage() {
           <TabsContent value="overview">Conteúdo da visão geral.</TabsContent>
           <TabsContent value="details">Conteúdo dos detalhes.</TabsContent>
         </Tabs>
+      </StyleguideSection>
+      <StyleguideSection title="DropdownMenu">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <IconButton icon={MoreVertical} label="Mais opções" intent="ghost" />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuItem>Editar</DropdownMenuItem>
+            <DropdownMenuItem>Duplicar</DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem className="text-danger">Eliminar</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </StyleguideSection>
       {/* Tasks seguintes acrescentam <StyleguideSection> aqui, por ordem */}
     </div>
