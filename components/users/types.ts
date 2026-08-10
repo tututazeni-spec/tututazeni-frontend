@@ -92,3 +92,41 @@ export const HR_STATUS_MAP: StatusBadgeMap<HrStatus> = {
   ON_LEAVE: { label: 'Em licença', cls: 'bg-amber-50 text-amber-700' },
   TERMINATED: { label: 'Desligado', cls: 'bg-red-50 text-red-600' },
 };
+
+// ─── Tipos das restantes views (List/Create/Dashboard/Directory) ──────────────
+// Extraído de app/(platform)/users/page.tsx.
+
+export interface DirectoryUser {
+  id: number;
+  fullName: string;
+  avatarUrl: string | null;
+  email?: string;
+  position?: { name: string } | null;
+  department?: { name: string } | null;
+}
+
+export interface PaginatedUsers {
+  data: User[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+export interface AdminDashboard {
+  users: {
+    total: number;
+    active: number;
+    inactive: number;
+    pending: number;
+    suspended: number;
+  };
+  byDepartment: Array<{ id: number; name: string; count: number }>;
+}
+
+export type View = 'list' | 'detail' | 'create' | 'dashboard' | 'directory';
+
+// view e selectedId eram dois useState separados sempre definidos em conjunto
+// — um único estado torna "detail sem id" irrepresentável.
+export type Nav =
+  { view: Exclude<View, 'detail'> } | { view: 'detail'; selectedId: number };
