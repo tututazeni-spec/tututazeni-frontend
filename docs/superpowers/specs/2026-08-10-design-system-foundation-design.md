@@ -59,13 +59,23 @@ aos módulos) consome esta fundação sem a alterar.
 
 Definidos directamente no bloco `@theme` do Tailwind v4 — isto gera em
 simultâneo a variável CSS e as classes utilitárias (`bg-primary`,
-`text-ink-muted`, `rounded-md`, `shadow-sm`, …), substituindo o uso actual
+`text-ink-muted`, `rounded-card`, `shadow-hover`, …), substituindo o uso actual
 de paletas cruas (`gray-500`, `indigo-600`, …) por nomes semânticos:
+
+> **Colisão de namespace evitada de propósito:** o Tailwind v4 já define
+> `--radius-sm/md/lg/xl/2xl/3xl` e `--shadow-2xs/xs/sm/md/lg/xl/2xl` no seu
+> tema por omissão. Reutilizar esses nomes no `@theme` reescreveria
+> silenciosamente o raio/sombra de **todo** `rounded-md`/`shadow-sm` já
+> em uso nos 60+ módulos existentes — precisamente o que o critério de
+> sucesso 7 proíbe nesta fase. Por isso os tokens de forma abaixo usam
+> nomes próprios (`--radius-control`, `--shadow-resting`, …) que não
+> colidem com a escala nativa; a única sobreposição deliberada é
+> `--font-mono` (sem uso prévio no projecto, seguro trocar).
 
 ```css
 @theme {
   /* superfícies */
-  --color-bg: #F7F5EF;
+  --color-canvas: #F7F5EF;
   --color-surface: #FFFFFF;
   --color-surface-sunken: #F1EEE5;
   --color-border: #E7E2D4;
@@ -93,17 +103,17 @@ de paletas cruas (`gray-500`, `indigo-600`, …) por nomes semânticos:
   --color-danger:  #B3432E; --color-danger-subtle:  #FBE7E2; --color-danger-ink:  #8F3421;
   --color-info:    #3B6FA0; --color-info-subtle:    #E7EEF5; --color-info-ink:    #2C557E;
 
-  /* forma */
-  --radius-sm: 6px;   /* inputs, botões, badges não-pill */
-  --radius-md: 10px;  /* cards */
-  --radius-lg: 14px;  /* modais, painéis grandes */
-  --radius-pill: 999px; /* badges de estado, avatar, chips */
+  /* forma — nomes próprios, não colidem com a escala nativa do Tailwind */
+  --radius-control: 6px;  /* inputs, botões, badges não-pill */
+  --radius-card: 10px;    /* cards */
+  --radius-panel: 14px;   /* modais, painéis grandes */
+  --radius-pill: 999px;   /* badges de estado, avatar, chips */
 
   /* profundidade — subtil por omissão; cards assentam sobretudo no
      border, a sombra só cresce em hover/elevação real */
-  --shadow-xs: 0 1px 2px rgba(22,58,46,.06);  /* card em repouso */
-  --shadow-sm: 0 4px 12px rgba(22,58,46,.08); /* hover, menus */
-  --shadow-md: 0 12px 32px rgba(22,58,46,.14); /* modal, popover */
+  --shadow-resting: 0 1px 2px rgba(22,58,46,.06);  /* card em repouso */
+  --shadow-hover: 0 4px 12px rgba(22,58,46,.08);   /* hover, menus */
+  --shadow-elevated: 0 12px 32px rgba(22,58,46,.14); /* modal, popover */
 
   /* ritmo de espaçamento — a regra explícita que o pedido descreveu
      ("espaço entre secções maior que dentro de uma secção") */
@@ -166,7 +176,7 @@ tokens acima:
 | `Button` | custom + cva | variantes `primary/secondary/ghost/danger`, tamanhos `sm/md`, estado `loading` (spinner + `aria-busy`), `disabled` |
 | `IconButton` | custom + cva | mesmas variantes, alvo de toque ≥ 36px |
 | `Input`, `Textarea`, `Select` | Radix Select p/ `Select`; custom p/ resto | label, hint, estado de erro (`aria-invalid` + `aria-describedby`) integrados num só `FormField` wrapper |
-| `Card` | custom | `shadow-xs` em repouso, `shadow-sm` em hover quando interactivo |
+| `Card` | custom | `shadow-resting` em repouso, `shadow-hover` em hover quando interactivo |
 | `Badge` (`StatusBadge` existente, revisto) | custom | usa os 4 pares semânticos + neutro, pill |
 | `Modal` | Radix Dialog | `ConfirmDialog` passa a consumir este primitivo em vez de reimplementar foco/ESC |
 | `Tabs` | Radix Tabs | |
