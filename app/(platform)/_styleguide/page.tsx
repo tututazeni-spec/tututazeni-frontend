@@ -17,6 +17,7 @@ import { Card, CardHeader, CardBody, CardFooter } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
 import { FormField } from '@/components/ui/FormField';
+import { Select } from '@/components/ui/Select';
 
 export function StyleguideSection({
   title,
@@ -99,6 +100,17 @@ export default function StyleguidePage() {
         <FormField label="Notas" htmlFor="sg-notes">
           <Textarea id="sg-notes" rows={3} placeholder="Escreve aqui…" className="w-64" />
         </FormField>
+      </StyleguideSection>
+      <StyleguideSection title="Select">
+        <Select
+          className="w-56"
+          placeholder="Escolhe um departamento"
+          items={[
+            { value: 'rh', label: 'Recursos Humanos' },
+            { value: 'ti', label: 'Tecnologia' },
+            { value: 'fin', label: 'Financeiro' },
+          ]}
+        />
       </StyleguideSection>
       {/* Tasks seguintes acrescentam <StyleguideSection> aqui, por ordem */}
     </div>
