@@ -18,6 +18,7 @@ import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
 import { FormField } from '@/components/ui/FormField';
 import { Select } from '@/components/ui/Select';
+import { Modal, ModalTrigger, ModalContent, ModalClose } from '@/components/ui/Modal';
 
 export function StyleguideSection({
   title,
@@ -111,6 +112,23 @@ export default function StyleguidePage() {
             { value: 'fin', label: 'Financeiro' },
           ]}
         />
+      </StyleguideSection>
+      <StyleguideSection title="Modal">
+        <Modal>
+          <ModalTrigger asChild>
+            <Button intent="secondary">Abrir modal</Button>
+          </ModalTrigger>
+          <ModalContent title="Exemplo de modal" description="Descrição de apoio ao título.">
+            <div className="mt-6 flex justify-end gap-3">
+              <ModalClose asChild>
+                <Button intent="ghost">Cancelar</Button>
+              </ModalClose>
+              <ModalClose asChild>
+                <Button>Confirmar</Button>
+              </ModalClose>
+            </div>
+          </ModalContent>
+        </Modal>
       </StyleguideSection>
       {/* Tasks seguintes acrescentam <StyleguideSection> aqui, por ordem */}
     </div>
