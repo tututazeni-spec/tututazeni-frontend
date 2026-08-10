@@ -1,6 +1,6 @@
 'use client';
 import { useState } from 'react';
-import { api } from '@/lib/api';
+import { logout } from '@/lib/apiClient';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { NAV, TAB_STYLE, btnGhost } from '@/components/settings/styles';
 import { TabPerfil } from '@/components/settings/TabPerfil';
@@ -24,17 +24,6 @@ export default function SettingsPage() {
 
   function showToast(msg: string, type: 'success' | 'error') {
     setToast({ msg, type });
-  }
-
-  function logout() {
-    // Pede ao backend para limpar o cookie httpOnly antes de redireccionar
-    // (mesmo padrão de components/Sidebar.tsx) — antes só removia uma
-    // chave "token" do localStorage que nunca chegou a ser escrita (a
-    // sessão é sempre um cookie httpOnly, nunca localStorage), por isso o
-    // cookie de sessão nunca era invalidado no logout por este botão.
-    void api.post('/auth/logout', {}).finally(() => {
-      window.location.href = '/login';
-    });
   }
 
   if (loading)
