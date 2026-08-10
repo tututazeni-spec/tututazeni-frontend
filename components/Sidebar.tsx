@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { API_URL } from '@/lib/api';
+import { logout } from '@/lib/apiClient';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { ADMIN_ROLES, filterNavSections, type Role } from '@/lib/roles';
 import {
@@ -298,16 +298,6 @@ export default function Sidebar() {
 
   function toggle(label: string) {
     setCollapsed((c) => ({ ...c, [label]: !c[label] }));
-  }
-
-  function logout() {
-    // Pede ao backend para limpar o cookie httpOnly e redirecciona para /login.
-    void fetch(`${API_URL}/auth/logout`, {
-      method: 'POST',
-      credentials: 'include',
-    }).finally(() => {
-      window.location.href = '/login';
-    });
   }
 
   return (

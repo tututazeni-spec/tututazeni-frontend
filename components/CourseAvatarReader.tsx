@@ -39,15 +39,15 @@
 //    quota ao reler a mesma aula na mesma sessão
 //  • Para quota maior: plano Starter ($5/mês) = 30.000 chars
 //
+// Toda a lógica (fetch/cache/estado do player) vive em
+// hooks/useCourseAvatarReader.ts — este ficheiro é só apresentação.
+//
 // =============================================================================
 
 'use client';
 
-import { useState, useEffect, useRef, useCallback } from 'react';
 import Image from 'next/image';
-import { API_URL } from '@/lib/api';
-
-// ─── Props ────────────────────────────────────────────────────────────────────
+import { useCourseAvatarReader } from '@/hooks/useCourseAvatarReader';
 
 interface CourseAvatarReaderProps {
   lessonId: number;
@@ -57,196 +57,26 @@ interface CourseAvatarReaderProps {
   lang?: string;
 }
 
-type PlayerState = 'idle' | 'loading' | 'playing' | 'paused' | 'error';
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function sanitizeText(raw: string): string {
-  return raw
-    .replace(/<[^>]+>/g, ' ')
-    .replace(/#{1,6}\s/g, '')
-    .replace(/\*\*|__|\*|_/g, '')
-    .replace(/`{1,3}[^`]*`{1,3}/g, '')
-    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
-    .replace(/\s{2,}/g, ' ')
-    .trim();
-}
-
-// Chave de cache baseada num hash simples do texto
-function cacheKey(text: string): string {
-  let hash = 0;
-  for (let i = 0; i < Math.min(text.length, 200); i++) {
-    hash = ((hash << 5) - hash) + text.charCodeAt(i);
-    hash |= 0;
-  }
-  return `innova_audio_${Math.abs(hash)}`;
-}
-
-// Guardar blob de áudio em sessionStorage (base64)
-function saveAudioCache(key: string, blob: Blob): void {
-  try {
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      try {
-        sessionStorage.setItem(key, reader.result as string);
-      } catch { /* quota excedida — ignorar */ }
-    };
-    reader.readAsDataURL(blob);
-  } catch { /* ignorar */ }
-}
-
-// Recuperar áudio de cache
-function loadAudioCache(key: string): string | null {
-  try { return sessionStorage.getItem(key); } catch { return null; }
-}
-
-// ─── Chamada ao backend (proxy da ElevenLabs — a chave nunca chega ao browser) ─
-
-async function fetchLessonAudio(lessonId: number): Promise<Blob> {
-  const response = await fetch(`${API_URL}/lessons/${lessonId}/audio`, {
-    method: 'GET',
-    credentials: 'include', // cookie httpOnly, mesmo padrão do resto da app
-  });
-
-  if (!response.ok) {
-    const err = await response.json().catch(() => ({}));
-    throw new Error(err?.message ?? `Erro ${response.status} ao gerar áudio`);
-  }
-
-  return response.blob();
-}
-
-// ─── Componente principal ─────────────────────────────────────────────────────
-
 export function CourseAvatarReader({
   lessonId,
   text,
   avatarSrc,
   avatarName = 'Assistente INNOVA',
 }: CourseAvatarReaderProps) {
-  const [visible, setVisible]   = useState(false);
-  const [state, setState]       = useState<PlayerState>('idle');
-  const [errorMsg, setErrorMsg] = useState('');
-  const [progress, setProgress] = useState(0);
-  const [tooltip, setTooltip]   = useState(false);
-
-  const audioRef   = useRef<HTMLAudioElement | null>(null);
-  const audioUrlRef= useRef<string>('');
-
-  // Limpar URL de objeto ao desmontar
-  useEffect(() => {
-    return () => {
-      if (audioUrlRef.current) URL.revokeObjectURL(audioUrlRef.current);
-      audioRef.current?.pause();
-    };
-  }, []);
-
-  // Reset ao fechar
-  useEffect(() => {
-    if (!visible) {
-      audioRef.current?.pause();
-      setState('idle');
-      setProgress(0);
-    }
-  }, [visible]);
-
-  // ─── Carregar e tocar áudio ───────────────────────────────────────────────
-
-  const loadAndPlay = useCallback(async () => {
-    setState('loading');
-    setErrorMsg('');
-
-    const cleanText = sanitizeText(text);
-    const key       = cacheKey(cleanText);
-
-    try {
-      let audioSrc: string;
-
-      // 1. Verificar cache para não gastar quota
-      const cached = loadAudioCache(key);
-      if (cached) {
-        audioSrc = cached;
-      } else {
-        // 2. Gerar áudio via backend (proxy da ElevenLabs)
-        const blob = await fetchLessonAudio(lessonId);
-        saveAudioCache(key, blob);
-
-        // Liberar URL anterior
-        if (audioUrlRef.current) URL.revokeObjectURL(audioUrlRef.current);
-        audioUrlRef.current = URL.createObjectURL(blob);
-        audioSrc = audioUrlRef.current;
-      }
-
-      // 3. Criar elemento de áudio
-      const audio = new Audio(audioSrc);
-      audioRef.current = audio;
-
-      audio.ontimeupdate = () => {
-        if (audio.duration > 0) {
-          setProgress(Math.round((audio.currentTime / audio.duration) * 100));
-        }
-      };
-
-      audio.onended = () => {
-        setState('idle');
-        setProgress(100);
-      };
-
-      audio.onerror = () => {
-        setState('error');
-        setErrorMsg('Erro ao reproduzir áudio');
-      };
-
-      await audio.play();
-      setState('playing');
-
-    } catch (e) {
-      setState('error');
-      setErrorMsg(e instanceof Error ? e.message : 'Erro desconhecido');
-    }
-  }, [text, lessonId]);
-
-  const handlePlay = async () => {
-    if (state === 'paused' && audioRef.current) {
-      await audioRef.current.play();
-      setState('playing');
-    } else if (state === 'idle' || state === 'error') {
-      await loadAndPlay();
-    }
-  };
-
-  const handlePause = () => {
-    audioRef.current?.pause();
-    setState('paused');
-  };
-
-  const handleStop = () => {
-    audioRef.current?.pause();
-    if (audioRef.current) audioRef.current.currentTime = 0;
-    setState('idle');
-    setProgress(0);
-  };
-
-  const handleRestart = () => {
-    if (audioRef.current) {
-      audioRef.current.currentTime = 0;
-      audioRef.current.play();
-      setState('playing');
-      setProgress(0);
-    } else {
-      loadAndPlay();
-    }
-  };
-
-  const handleClose = () => {
-    audioRef.current?.pause();
-    if (audioRef.current) audioRef.current.currentTime = 0;
-    setState('idle');
-    setProgress(0);
-    setVisible(false);
-  };
-
-  // ─── UI ────────────────────────────────────────────────────────────────────
+  const {
+    visible,
+    setVisible,
+    state,
+    errorMsg,
+    progress,
+    tooltip,
+    setTooltip,
+    handlePlay,
+    handlePause,
+    handleStop,
+    handleRestart,
+    handleClose,
+  } = useCourseAvatarReader(lessonId, text);
 
   const isPlaying = state === 'playing';
   const isLoading = state === 'loading';
@@ -274,7 +104,12 @@ export function CourseAvatarReader({
           >
             {/* Avatar miniatura */}
             <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-blue-500 flex-shrink-0 relative">
-              <Image src={avatarSrc} alt={avatarName} fill className="object-cover" />
+              <Image
+                src={avatarSrc}
+                alt={avatarName}
+                fill
+                className="object-cover"
+              />
             </div>
             <span className="text-xs font-semibold text-gray-700 group-hover:text-blue-700 transition-colors">
               Ouvir aula
@@ -294,11 +129,17 @@ export function CourseAvatarReader({
         <div className="fixed bottom-6 right-6 z-40" style={{ width: 220 }}>
           <div
             className="bg-white rounded-2xl overflow-hidden border border-gray-200"
-            style={{ boxShadow: '0 8px 32px rgba(0,0,0,0.13), 0 2px 8px rgba(0,0,0,0.07)' }}
+            style={{
+              boxShadow:
+                '0 8px 32px rgba(0,0,0,0.13), 0 2px 8px rgba(0,0,0,0.07)',
+            }}
           >
             {/* Topo */}
             <div className="flex items-center justify-between px-3.5 pt-3">
-              <span className="text-xs font-bold text-gray-400 tracking-widest uppercase" style={{ fontSize: 9 }}>
+              <span
+                className="text-xs font-bold text-gray-400 tracking-widest uppercase"
+                style={{ fontSize: 9 }}
+              >
                 INNOVA · Leitura
               </span>
               <button
@@ -330,14 +171,19 @@ export function CourseAvatarReader({
                 {/* Foto */}
                 <div
                   className="w-20 h-20 rounded-full overflow-hidden relative z-10"
-                  style={{ border: '3px solid white', boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }}
+                  style={{
+                    border: '3px solid white',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                  }}
                 >
                   <img
                     src={avatarSrc}
                     alt={avatarName}
                     className="w-full h-full object-cover"
                     style={{
-                      filter:     isPlaying ? 'brightness(1.06) saturate(1.1)' : 'brightness(1)',
+                      filter: isPlaying
+                        ? 'brightness(1.06) saturate(1.1)'
+                        : 'brightness(1)',
                       transition: 'filter 0.4s ease',
                     }}
                   />
@@ -346,46 +192,67 @@ export function CourseAvatarReader({
                 {/* Status badge */}
                 <div
                   className={`absolute -bottom-1 left-1/2 -translate-x-1/2 z-20 px-2 py-0.5 rounded-full text-white font-semibold whitespace-nowrap transition-colors ${
-                    isLoading ? 'bg-amber-500' :
-                    isPlaying ? 'bg-blue-500'  :
-                    state === 'paused' ? 'bg-amber-500' :
-                    state === 'error'  ? 'bg-red-500'   :
-                    'bg-gray-400'
+                    isLoading
+                      ? 'bg-amber-500'
+                      : isPlaying
+                        ? 'bg-blue-500'
+                        : state === 'paused'
+                          ? 'bg-amber-500'
+                          : state === 'error'
+                            ? 'bg-red-500'
+                            : 'bg-gray-400'
                   }`}
                   style={{ fontSize: 9 }}
                 >
-                  {isLoading ? '⏳ A gerar…' :
-                   isPlaying ? '● A ler…'   :
-                   state === 'paused' ? '⏸ Pausado' :
-                   state === 'error'  ? '⚠ Erro'    :
-                   '● Pronto'}
+                  {isLoading
+                    ? '⏳ A gerar…'
+                    : isPlaying
+                      ? '● A ler…'
+                      : state === 'paused'
+                        ? '⏸ Pausado'
+                        : state === 'error'
+                          ? '⚠ Erro'
+                          : '● Pronto'}
                 </div>
               </div>
 
               {/* Nome do avatar */}
-              <div className="mt-4 text-xs font-bold text-gray-800 text-center leading-tight">{avatarName}</div>
-              <div className="text-xs text-gray-400 mt-0.5" style={{ fontSize: 9 }}>Voz IA · ElevenLabs</div>
+              <div className="mt-4 text-xs font-bold text-gray-800 text-center leading-tight">
+                {avatarName}
+              </div>
+              <div
+                className="text-xs text-gray-400 mt-0.5"
+                style={{ fontSize: 9 }}
+              >
+                Voz IA · ElevenLabs
+              </div>
 
               {/* Ondas de voz (só quando a tocar) */}
               {isPlaying ? (
-                <div className="flex items-end gap-0.5 mt-2" style={{ height: 22 }}>
+                <div
+                  className="flex items-end gap-0.5 mt-2"
+                  style={{ height: 22 }}
+                >
                   {Array.from({ length: 11 }, (_, i) => (
                     <div
                       key={i}
                       className="w-1 bg-blue-400 rounded-full"
                       style={{
-                        height:           '100%',
-                        animation:        `innova_wave ${0.45 + i * 0.06}s ease-in-out infinite alternate`,
-                        animationDelay:   `${i * 0.055}s`,
-                        transformOrigin:  'bottom',
-                        minHeight:        3,
+                        height: '100%',
+                        animation: `innova_wave ${0.45 + i * 0.06}s ease-in-out infinite alternate`,
+                        animationDelay: `${i * 0.055}s`,
+                        transformOrigin: 'bottom',
+                        minHeight: 3,
                       }}
                     />
                   ))}
                 </div>
               ) : isLoading ? (
-                <div className="flex items-center gap-1 mt-2" style={{ height: 22 }}>
-                  {[0, 1, 2].map(i => (
+                <div
+                  className="flex items-center gap-1 mt-2"
+                  style={{ height: 22 }}
+                >
+                  {[0, 1, 2].map((i) => (
                     <div
                       key={i}
                       className="w-1.5 h-1.5 bg-amber-400 rounded-full animate-bounce"
@@ -400,7 +267,10 @@ export function CourseAvatarReader({
 
             {/* Barra de progresso */}
             <div className="px-4 pb-1.5">
-              <div className="flex justify-between mb-1" style={{ fontSize: 9 }}>
+              <div
+                className="flex justify-between mb-1"
+                style={{ fontSize: 9 }}
+              >
                 <span className="text-gray-400">Progresso</span>
                 <span className="text-gray-500 font-mono">{progress}%</span>
               </div>
@@ -414,7 +284,10 @@ export function CourseAvatarReader({
 
             {/* Mensagem de erro */}
             {state === 'error' && (
-              <div className="mx-3 mb-2 px-2.5 py-2 bg-red-50 border border-red-200 rounded-lg text-red-600 text-center leading-tight" style={{ fontSize: 10 }}>
+              <div
+                className="mx-3 mb-2 px-2.5 py-2 bg-red-50 border border-red-200 rounded-lg text-red-600 text-center leading-tight"
+                style={{ fontSize: 10 }}
+              >
                 {errorMsg || 'Erro ao gerar áudio. Tenta novamente mais tarde.'}
               </div>
             )}
@@ -449,11 +322,28 @@ export function CourseAvatarReader({
                   title={state === 'paused' ? 'Retomar' : 'Ouvir aula'}
                 >
                   {isLoading ? (
-                    <svg className="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                    <svg
+                      className="animate-spin h-5 w-5 text-white"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      />
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8v8z"
+                      />
                     </svg>
-                  ) : '▶'}
+                  ) : (
+                    '▶'
+                  )}
                 </button>
               )}
 
@@ -483,8 +373,14 @@ export function CourseAvatarReader({
       {/* ── Animação CSS ──────────────────────────────────────────────────── */}
       <style jsx global>{`
         @keyframes innova_wave {
-          from { transform: scaleY(0.12); opacity: 0.45; }
-          to   { transform: scaleY(1);    opacity: 1; }
+          from {
+            transform: scaleY(0.12);
+            opacity: 0.45;
+          }
+          to {
+            transform: scaleY(1);
+            opacity: 1;
+          }
         }
       `}</style>
     </>
