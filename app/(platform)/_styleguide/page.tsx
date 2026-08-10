@@ -30,6 +30,8 @@ import {
 import { Tooltip } from '@/components/ui/Tooltip';
 import { Table, TableHead, TableBody, TableRow, TableHeaderCell, TableCell } from '@/components/ui/Table';
 import { Avatar } from '@/components/ui/Avatar';
+import { ProgressBar } from '@/components/ui/ProgressBar';
+import { PathProgress } from '@/components/ui/PathProgress';
 import { useToast } from '@/providers/ToastProvider';
 
 export function StyleguideSection({
@@ -211,6 +213,19 @@ export default function StyleguidePage() {
         <Avatar name="Ana Silva" size="sm" />
         <Avatar name="João Pedro" size="md" />
         <Avatar name="Marta Costa" size="lg" />
+      </StyleguideSection>
+      <StyleguideSection title="ProgressBar / PathProgress">
+        <ProgressBar value={64} className="w-64" />
+        <PathProgress
+          className="w-96"
+          steps={[
+            { label: 'Introdução', status: 'done' },
+            { label: 'Fundamentos', status: 'done' },
+            { label: 'Prática', status: 'current' },
+            { label: 'Avaliação', status: 'pending' },
+            { label: 'Certificado', status: 'pending' },
+          ]}
+        />
       </StyleguideSection>
       {/* Tasks seguintes acrescentam <StyleguideSection> aqui, por ordem */}
     </div>
