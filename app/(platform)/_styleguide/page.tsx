@@ -28,6 +28,7 @@ import {
   DropdownMenuSeparator,
 } from '@/components/ui/DropdownMenu';
 import { Tooltip } from '@/components/ui/Tooltip';
+import { Table, TableHead, TableBody, TableRow, TableHeaderCell, TableCell } from '@/components/ui/Table';
 import { useToast } from '@/providers/ToastProvider';
 
 export function StyleguideSection({
@@ -181,6 +182,29 @@ export default function StyleguidePage() {
         >
           Disparar toast de erro
         </Button>
+      </StyleguideSection>
+      <StyleguideSection title="Table">
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableHeaderCell>Nome</TableHeaderCell>
+              <TableHeaderCell>Departamento</TableHeaderCell>
+              <TableHeaderCell>Estado</TableHeaderCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            <TableRow>
+              <TableCell>Ana Silva</TableCell>
+              <TableCell>Recursos Humanos</TableCell>
+              <TableCell><Badge intent="success">Activo</Badge></TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>João Pedro</TableCell>
+              <TableCell>Tecnologia</TableCell>
+              <TableCell><Badge intent="neutral">Inactivo</Badge></TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
       </StyleguideSection>
       {/* Tasks seguintes acrescentam <StyleguideSection> aqui, por ordem */}
     </div>
