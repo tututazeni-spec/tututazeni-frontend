@@ -28,12 +28,24 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   }, []);
 
+  // Não remover do estado de imediato quando o Radix fecha o toast: isso
+  // desmontaria o <ToastItem> no mesmo commit em que `data-state` passa a
+  // "closed", sem dar tempo à transição CSS (duration-200 em Toast.tsx) de
+  // sequer renderizar um frame. Atrasa a remoção pelo mesmo tempo da
+  // transição para que o fade/slide de saída seja visível.
+  const scheduleRemove = useCallback(
+    (id: string) => {
+      setTimeout(() => remove(id), 200);
+    },
+    [remove],
+  );
+
   return (
     <ToastContext.Provider value={showToast}>
       <RadixToast.Provider swipeDirection="right">
         {children}
         {toasts.map((t) => (
-          <ToastItem key={t.id} {...t} onOpenChange={(open) => !open && remove(t.id)} />
+          <ToastItem key={t.id} {...t} onOpenChange={(open) => !open && scheduleRemove(t.id)} />
         ))}
         <ToastViewport />
       </RadixToast.Provider>
