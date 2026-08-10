@@ -33,6 +33,8 @@ import { Avatar } from '@/components/ui/Avatar';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { PathProgress } from '@/components/ui/PathProgress';
 import { KpiCard } from '@/components/ui/KpiCard';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { useToast } from '@/providers/ToastProvider';
 
 export function StyleguideSection({
@@ -231,6 +233,22 @@ export default function StyleguidePage() {
       <StyleguideSection title="KpiCard">
         <KpiCard icon={Target} label="Progresso" value="78%" intent="primary" trend={4} />
         <KpiCard icon={Target} label="eNPS" value="8.4" intent="accent" trend={-2} sub="vs. trimestre anterior" />
+      </StyleguideSection>
+      <StyleguideSection title="EmptyState">
+        <EmptyState
+          icon={Target}
+          title="Ainda não tens objectivos definidos"
+          description="Cria o teu primeiro objectivo de desenvolvimento para começares a acompanhar o teu percurso."
+          action={{ label: 'Criar objectivo', onClick: () => {} }}
+          className="w-80"
+        />
+      </StyleguideSection>
+      <StyleguideSection title="Skeleton (shimmer)">
+        <Skeleton
+          rows={3}
+          wrapperClassName="flex w-64 flex-col gap-2"
+          itemClassName="skeleton-shimmer h-4 rounded-control"
+        />
       </StyleguideSection>
       {/* Tasks seguintes acrescentam <StyleguideSection> aqui, por ordem */}
     </div>
