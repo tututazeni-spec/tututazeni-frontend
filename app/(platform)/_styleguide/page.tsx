@@ -28,6 +28,7 @@ import {
   DropdownMenuSeparator,
 } from '@/components/ui/DropdownMenu';
 import { Tooltip } from '@/components/ui/Tooltip';
+import { useToast } from '@/providers/ToastProvider';
 
 export function StyleguideSection({
   title,
@@ -46,6 +47,7 @@ export function StyleguideSection({
 
 export default function StyleguidePage() {
   const { data: user, isLoading } = useCurrentUser();
+  const toast = useToast();
 
   if (isLoading) return null;
 
@@ -166,6 +168,19 @@ export default function StyleguidePage() {
         <Tooltip content="Texto de apoio">
           <Button intent="secondary">Passa o rato aqui</Button>
         </Tooltip>
+      </StyleguideSection>
+      <StyleguideSection title="Toast">
+        <Button onClick={() => toast({ title: 'Guardado com sucesso', intent: 'success' })}>
+          Disparar toast de sucesso
+        </Button>
+        <Button
+          intent="danger"
+          onClick={() =>
+            toast({ title: 'Falha ao guardar', description: 'Tenta novamente.', intent: 'danger' })
+          }
+        >
+          Disparar toast de erro
+        </Button>
       </StyleguideSection>
       {/* Tasks seguintes acrescentam <StyleguideSection> aqui, por ordem */}
     </div>

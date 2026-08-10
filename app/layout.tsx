@@ -5,6 +5,7 @@ import ClientInit from "../components/ClientInit";
 import ReactQueryProvider from "../providers/ReactQueryProvider";
 import { ConfirmProvider } from "../providers/ConfirmProvider";
 import { TooltipProvider } from "../components/ui/Tooltip";
+import { ToastProvider } from "../providers/ToastProvider";
 
 const sora = Sora({
   subsets: ["latin"],
@@ -45,7 +46,9 @@ export default function RootLayout({
         <ClientInit />
         <ReactQueryProvider>
           <ConfirmProvider>
-            <TooltipProvider>{children}</TooltipProvider>
+            <TooltipProvider>
+              <ToastProvider>{children}</ToastProvider>
+            </TooltipProvider>
           </ConfirmProvider>
         </ReactQueryProvider>
       </body>
