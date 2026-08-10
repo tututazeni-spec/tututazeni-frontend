@@ -14,6 +14,9 @@ import { ADMIN_ROLES, type Role } from '@/lib/roles';
 import { Button, IconButton } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { Card, CardHeader, CardBody, CardFooter } from '@/components/ui/Card';
+import { Input } from '@/components/ui/Input';
+import { Textarea } from '@/components/ui/Textarea';
+import { FormField } from '@/components/ui/FormField';
 
 export function StyleguideSection({
   title,
@@ -85,6 +88,17 @@ export default function StyleguidePage() {
         <Card interactive className="w-64 p-4">
           <p className="text-sm text-ink-muted">Card interactivo (hover para ver a sombra crescer).</p>
         </Card>
+      </StyleguideSection>
+      <StyleguideSection title="Input / Textarea">
+        <FormField label="Email" htmlFor="sg-email" hint="Usa o teu email corporativo">
+          <Input id="sg-email" placeholder="nome@empresa.co.ao" className="w-64" />
+        </FormField>
+        <FormField label="NIF" htmlFor="sg-nif" error="NIF inválido — verifica o formato">
+          <Input id="sg-nif" defaultValue="00512345" invalid className="w-64" />
+        </FormField>
+        <FormField label="Notas" htmlFor="sg-notes">
+          <Textarea id="sg-notes" rows={3} placeholder="Escreve aqui…" className="w-64" />
+        </FormField>
       </StyleguideSection>
       {/* Tasks seguintes acrescentam <StyleguideSection> aqui, por ordem */}
     </div>
