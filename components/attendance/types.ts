@@ -1,7 +1,7 @@
 // components/attendance/types.ts
-// Tipos partilhados entre hooks/useClockInOut.ts e as várias vistas de
-// attendance/page.tsx (useMyAttendance, StatusBadge/STATUS_CONFIG,
-// AttendanceHistory) que continuam nesse ficheiro.
+// Tipos partilhados do módulo de presenças — entre hooks/useClockInOut.ts
+// e os componentes em components/attendance/ (StatusBadge/AttendanceHistory/
+// DashboardTab/LeaveModal etc., todos extraídos de attendance/page.tsx).
 // Ver memory project_innova_component_separation_audit, item 3.5.
 
 export type AttendanceStatus =
@@ -47,4 +47,46 @@ export interface MyAttendanceSummary {
 export interface MyAttendanceData {
   summary?: MyAttendanceSummary;
   records?: AttendanceRecord[];
+}
+
+export type LeaveType =
+  | 'VACATION'
+  | 'SICK_LEAVE'
+  | 'MATERNITY'
+  | 'PATERNITY'
+  | 'JUSTIFIED_ABSENCE'
+  | 'BEREAVEMENT'
+  | 'TRAINING'
+  | 'OTHER';
+
+export type LeaveStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'CANCELLED';
+
+export interface DashboardData {
+  date: string;
+  kpis: {
+    totalPresent: number;
+    totalAbsent: number;
+    totalLate: number;
+    checkedInNow: number;
+    pendingLeaves: number;
+    pendingJustifications: number;
+    pendingOvertime: number;
+    attendanceRate: number;
+  };
+  presentList: Array<{
+    id: number;
+    name: string;
+    department: string;
+    clockIn: string;
+    status: string;
+  }>;
+  absentList: Array<{ id: number; name: string; department: string }>;
+  lateList: Array<{ id: number; name: string; clockIn: string }>;
+}
+
+export interface LeaveBalance {
+  type: string;
+  entitled: number;
+  used: number;
+  remaining: number;
 }
