@@ -3,10 +3,19 @@
 // apresentacionais (props in, JSX out), sem qualquer acesso a dados.
 // Extraídos de app/(platform)/dashboard/page.tsx.
 //
-// `Slideshow` e `StatCard` (definidos no ficheiro original) nunca eram
-// renderizados em lado nenhum — confirmado por grep ao resto do repo, o
-// `StatCard` que existe em work-declaration/page.tsx é um componente local
-// homónimo, não uma reexportação deste. Código morto, não foram trazidos.
+// `StatCard` (definido no ficheiro original) nunca era renderizado em lado
+// nenhum — confirmado por grep ao resto do repo, o `StatCard` que existe em
+// work-declaration/page.tsx é um componente local homónimo, não uma
+// reexportação deste. Código morto, não foi trazido.
+//
+// `Slideshow` também não estava a ser renderizado nesta altura — mas ao
+// contrário do StatCard, tinha sido usado no passado: a chamada <Slideshow />
+// foi perdida sem intenção numa reescrita em massa do ficheiro original
+// (commit "ultima versao final"), ficando o componente órfão até este
+// ficheiro o remover como código morto (correcto para o estado do código
+// nessa altura, mas não para a intenção do produto). Restaurado como
+// components/dashboard/Slideshow.tsx e voltado a montar em
+// app/(platform)/dashboard/page.tsx.
 
 'use client';
 
