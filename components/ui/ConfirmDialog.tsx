@@ -1,6 +1,7 @@
 // components/ui/ConfirmDialog.tsx
 'use client';
 
+import { useRef } from 'react';
 import { Modal, ModalContent, ModalClose } from './Modal';
 import { Button } from './Button';
 import type { ConfirmOptions } from '../../providers/ConfirmProvider';
@@ -19,16 +20,27 @@ export function ConfirmDialog({
   onConfirm,
   onCancel,
 }: ConfirmDialogProps) {
+  const confirmBtnRef = useRef<HTMLButtonElement>(null);
+
   return (
     <Modal open onOpenChange={(open) => !open && onCancel()}>
-      <ModalContent title={title} description={message}>
+      <ModalContent
+        title={title}
+        description={message}
+        onOpenAutoFocus={(e) => {
+          e.preventDefault();
+          confirmBtnRef.current?.focus();
+        }}
+      >
         <div className="mt-6 flex justify-end gap-3">
           <ModalClose asChild>
-            <Button intent="ghost" onClick={onCancel}>
-              {cancelLabel}
-            </Button>
+            <Button intent="ghost">{cancelLabel}</Button>
           </ModalClose>
-          <Button intent={destructive ? 'danger' : 'primary'} onClick={onConfirm} autoFocus>
+          <Button
+            ref={confirmBtnRef}
+            intent={destructive ? 'danger' : 'primary'}
+            onClick={onConfirm}
+          >
             {confirmLabel}
           </Button>
         </div>

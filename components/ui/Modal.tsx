@@ -15,18 +15,35 @@ export interface ModalContentProps {
   description?: string;
   children?: ReactNode;
   className?: string;
+  /** Passthrough para `Dialog.Content` — permite ao consumidor controlar o foco inicial de forma determinística. */
+  onOpenAutoFocus?: (event: Event) => void;
 }
 
-export function ModalContent({ title, description, children, className }: ModalContentProps) {
+export function ModalContent({
+  title,
+  description,
+  children,
+  className,
+  onOpenAutoFocus,
+}: ModalContentProps) {
   return (
     <Dialog.Portal>
-      <Dialog.Overlay className={cn('fixed inset-0 z-50 bg-ink/40', 'transition-opacity duration-200')} />
+      <Dialog.Overlay
+        className={cn(
+          'fixed inset-0 z-50 bg-ink/40',
+          'opacity-0 transition-opacity duration-200',
+          'data-[state=open]:opacity-100 data-[state=closed]:opacity-0',
+        )}
+      />
       <Dialog.Content
+        onOpenAutoFocus={onOpenAutoFocus}
         className={cn(
           'fixed left-1/2 top-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2',
           'rounded-panel border border-border bg-surface p-6 shadow-elevated',
           'focus:outline-none',
-          'transition-[transform,opacity] duration-200',
+          'scale-95 opacity-0 transition-[transform,opacity] duration-200',
+          'data-[state=open]:scale-100 data-[state=open]:opacity-100',
+          'data-[state=closed]:scale-95 data-[state=closed]:opacity-0',
           className,
         )}
       >
