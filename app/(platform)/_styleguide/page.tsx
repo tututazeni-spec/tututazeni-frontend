@@ -12,6 +12,7 @@ import { Trash2 } from 'lucide-react';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { ADMIN_ROLES, type Role } from '@/lib/roles';
 import { Button, IconButton } from '@/components/ui/Button';
+import { Badge } from '@/components/ui/Badge';
 
 export function StyleguideSection({
   title,
@@ -60,6 +61,13 @@ export default function StyleguidePage() {
         <Button disabled>Desactivado</Button>
         <Button size="sm">Pequeno</Button>
         <IconButton icon={Trash2} label="Eliminar item" intent="ghost" />
+      </StyleguideSection>
+      <StyleguideSection title="Badge">
+        <Badge intent="success">Concluído</Badge>
+        <Badge intent="warning">Em progresso</Badge>
+        <Badge intent="danger">Em atraso</Badge>
+        <Badge intent="info">Novo</Badge>
+        <Badge intent="neutral">Arquivado</Badge>
       </StyleguideSection>
       {/* Tasks seguintes acrescentam <StyleguideSection> aqui, por ordem */}
     </div>
