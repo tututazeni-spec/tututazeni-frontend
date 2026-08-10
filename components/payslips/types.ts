@@ -53,3 +53,69 @@ export const PAYSLIP_STATUS_MAP: StatusBadgeMap<PayslipStatus> = {
   ACKNOWLEDGED: { label: 'Confirmado', cls: 'bg-blue-50 text-blue-700' },
   DISPUTED: { label: 'Disputa', cls: 'bg-red-50 text-red-700' },
 };
+
+// ─── Tipos das restantes views (List/Compare/Simulate/Annual) ─────────────────
+// Extraído de app/(platform)/payslips/page.tsx.
+
+export interface PaginatedPayslips {
+  data: Payslip[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+export interface AnnualSummary {
+  year: string;
+  months: number;
+  totalGross: number;
+  totalNet: number;
+  totalIRT: number;
+  totalINSSEmployee: number;
+  totalINSSEmployer: number;
+  totalMealAllowance: number;
+  totalVacationAllowance: number;
+  totalChristmasAllowance: number;
+  totalBonuses: number;
+  totalDeductions: number;
+  monthlySeries: {
+    period: string;
+    grossSalary: number;
+    netSalary: number;
+    incomeTax: number;
+    socialSecurity: number;
+  }[];
+}
+
+export interface CompareResult {
+  periodA: string;
+  periodB: string;
+  [key: string]:
+    { a: number; b: number; delta: number; pct: number | null } | string;
+}
+
+export interface SimulateResult {
+  grossSalary: number;
+  incomeTax: number;
+  socialSecurity: number;
+  employerInss: number;
+  totalDeductions: number;
+  netSalary: number;
+  irtDetails: {
+    bracket: {
+      min: number;
+      max: number | null;
+      rate: number;
+      deduction: number;
+    };
+    formula: string;
+    effectiveRate: number;
+  };
+}
+
+export type View = 'list' | 'detail' | 'compare' | 'simulate' | 'annual';
+
+// view e selectedId eram dois useState separados sempre definidos em conjunto
+// — um único estado torna "detail sem id" irrepresentável.
+export type Nav =
+  { view: Exclude<View, 'detail'> } | { view: 'detail'; selectedId: number };
