@@ -1,4 +1,4 @@
-// app/(platform)/_styleguide/page.tsx
+// app/(platform)/styleguide/page.tsx
 // Referência viva de todos os primitivos de components/ui/ — mesma
 // finalidade do companion visual usado no brainstorming, mas versionada
 // e sempre actualizada. Serve de base para a Fase B (migração dos módulos).
@@ -7,7 +7,6 @@
 
 'use client';
 
-import type { ReactNode } from 'react';
 import { Trash2, MoreVertical, Target } from 'lucide-react';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { ADMIN_ROLES, type Role } from '@/lib/roles';
@@ -36,21 +35,7 @@ import { KpiCard } from '@/components/ui/KpiCard';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useToast } from '@/providers/ToastProvider';
-
-export function StyleguideSection({
-  title,
-  children,
-}: {
-  title: string;
-  children: ReactNode;
-}) {
-  return (
-    <section className="flex flex-col gap-[var(--space-stack)]">
-      <h2 className="font-display text-lg font-semibold text-ink">{title}</h2>
-      <div className="flex flex-wrap items-start gap-4">{children}</div>
-    </section>
-  );
-}
+import { StyleguideSection } from './StyleguideSection';
 
 export default function StyleguidePage() {
   const { data: user, isLoading } = useCurrentUser();
