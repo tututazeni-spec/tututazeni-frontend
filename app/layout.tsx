@@ -4,6 +4,7 @@ import { Sora, Inter, IBM_Plex_Mono } from "next/font/google";
 import ClientInit from "../components/ClientInit";
 import ReactQueryProvider from "../providers/ReactQueryProvider";
 import { ConfirmProvider } from "../providers/ConfirmProvider";
+import { TooltipProvider } from "../components/ui/Tooltip";
 
 const sora = Sora({
   subsets: ["latin"],
@@ -43,7 +44,9 @@ export default function RootLayout({
       <body style={{ margin: 0, padding: 0 }}>
         <ClientInit />
         <ReactQueryProvider>
-          <ConfirmProvider>{children}</ConfirmProvider>
+          <ConfirmProvider>
+            <TooltipProvider>{children}</TooltipProvider>
+          </ConfirmProvider>
         </ReactQueryProvider>
       </body>
     </html>

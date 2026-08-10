@@ -27,6 +27,7 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
 } from '@/components/ui/DropdownMenu';
+import { Tooltip } from '@/components/ui/Tooltip';
 
 export function StyleguideSection({
   title,
@@ -160,6 +161,11 @@ export default function StyleguidePage() {
             <DropdownMenuItem className="text-danger">Eliminar</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+      </StyleguideSection>
+      <StyleguideSection title="Tooltip">
+        <Tooltip content="Texto de apoio">
+          <Button intent="secondary">Passa o rato aqui</Button>
+        </Tooltip>
       </StyleguideSection>
       {/* Tasks seguintes acrescentam <StyleguideSection> aqui, por ordem */}
     </div>
