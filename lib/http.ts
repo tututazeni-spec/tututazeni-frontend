@@ -4,8 +4,20 @@
 // `credentials: 'include'` é mantido para garantir que o cookie acompanha
 // todos os pedidos sem depender de cada página passar a opção individualmente.
 //
-// Também centraliza o "logout automático" em 401 (sessão expirada), cumprindo
-// o requisito do interceptor sem depender de cada página.
+// O logout automático em 401 (sessão expirada) delega em
+// lib/apiClient.ts#logout() em vez de redireccionar aqui directamente.
+// Isto corrigiu uma condição de corrida real: como este patch intercepta
+// TODOS os fetch (incluindo os do apiClient.ts), um 401 disparava aqui um
+// `window.location.href = '/login'` imediato, sem chamar POST /auth/logout
+// primeiro — a navegação podia abortar a chamada de limpeza do cookie que o
+// apiClient.ts tentava fazer a seguir, deixando o cookie httpOnly ainda
+// válido. É o mesmo bug do loop de redireccionamento já documentado e
+// corrigido nos outros clientes (o middleware só verifica a PRESENÇA do
+// cookie, não a validade do JWT). Delegar em logout() partilha a guarda
+// `loggingOut` com todos os outros pontos de entrada — só o primeiro 401
+// dispara o fluxo completo (limpar cookie → redirect).
+
+import { logout } from './apiClient';
 
 function resolveUrl(input: RequestInfo | URL): string {
   if (typeof input === 'string') return input;
@@ -58,14 +70,12 @@ export function installApiFetch(): void {
 
     const response = await originalFetch(input, init);
 
-    // Sessão expirada/inválida -> logout automático. Não redirecciona quando já
-    // estamos no login (evita ciclo e preserva a mensagem de credenciais).
-    if (
-      api &&
-      response.status === 401 &&
-      !window.location.pathname.startsWith('/login')
-    ) {
-      window.location.href = '/login';
+    // Sessão expirada/inválida -> logout automático (limpa o cookie httpOnly
+    // e só depois redirecciona — ver logout() em apiClient.ts). A própria
+    // função ignora chamadas repetidas e não faz nada se já estivermos
+    // em /login.
+    if (api && response.status === 401) {
+      logout();
     }
 
     return response;
