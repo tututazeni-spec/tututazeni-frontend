@@ -8,7 +8,7 @@
 'use client';
 
 import type { ReactNode } from 'react';
-import { Trash2, MoreVertical } from 'lucide-react';
+import { Trash2, MoreVertical, Target } from 'lucide-react';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { ADMIN_ROLES, type Role } from '@/lib/roles';
 import { Button, IconButton } from '@/components/ui/Button';
@@ -32,6 +32,7 @@ import { Table, TableHead, TableBody, TableRow, TableHeaderCell, TableCell } fro
 import { Avatar } from '@/components/ui/Avatar';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { PathProgress } from '@/components/ui/PathProgress';
+import { KpiCard } from '@/components/ui/KpiCard';
 import { useToast } from '@/providers/ToastProvider';
 
 export function StyleguideSection({
@@ -226,6 +227,10 @@ export default function StyleguidePage() {
             { label: 'Certificado', status: 'pending' },
           ]}
         />
+      </StyleguideSection>
+      <StyleguideSection title="KpiCard">
+        <KpiCard icon={Target} label="Progresso" value="78%" intent="primary" trend={4} />
+        <KpiCard icon={Target} label="eNPS" value="8.4" intent="accent" trend={-2} sub="vs. trimestre anterior" />
       </StyleguideSection>
       {/* Tasks seguintes acrescentam <StyleguideSection> aqui, por ordem */}
     </div>
