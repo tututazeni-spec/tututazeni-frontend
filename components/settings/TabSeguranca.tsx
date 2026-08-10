@@ -5,7 +5,7 @@
 'use client';
 
 import { useState } from 'react';
-import { api } from '@/lib/api';
+import { apiClient } from '@/lib/apiClient';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { btnPrimary, card, inputStyle, labelStyle } from './styles';
 
@@ -24,7 +24,7 @@ export function TabSeguranca({ onToast }: TabSegurancaProps) {
   // POST /auth/change-password — ChangePasswordDto: { currentPassword, newPassword }
   const changePassword = useApiMutation(
     (payload: { currentPassword: string; newPassword: string }) =>
-      api.post('/auth/change-password', payload),
+      apiClient.post('/auth/change-password', payload),
     {
       onSuccess: () => {
         onToast('Senha alterada com sucesso!', 'success');
