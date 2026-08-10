@@ -176,10 +176,11 @@ export function CourseAvatarReader({
                     boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
                   }}
                 >
-                  <img
+                  <Image
                     src={avatarSrc}
                     alt={avatarName}
-                    className="w-full h-full object-cover"
+                    fill
+                    className="object-cover"
                     style={{
                       filter: isPlaying
                         ? 'brightness(1.06) saturate(1.1)'
