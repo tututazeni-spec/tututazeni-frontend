@@ -30,6 +30,7 @@ import { ColaboradorDashboard } from '@/components/dashboard/ColaboradorDashboar
 import { ManagerDashboard } from '@/components/dashboard/ManagerDashboard';
 import { OrgDashboard } from '@/components/dashboard/OrgDashboard';
 import { GlobalSearch } from '@/components/dashboard/GlobalSearch';
+import { Slideshow } from '@/components/dashboard/Slideshow';
 import { ALERTS_POLL_MS, type Alert } from '@/components/dashboard/types';
 
 // roles por separador alinhados com @Roles(...ALL_ROLES)/@Roles(...MGMT_ROLES)/
@@ -120,6 +121,12 @@ export default function DashboardPage() {
             </button>
           </div>
         </div>
+      </div>
+
+      {/* Slideshow — mesma posição de sempre: acima das tabs, visível em
+          qualquer separador. */}
+      <div className="max-w-7xl mx-auto px-6 pt-6">
+        <Slideshow />
       </div>
 
       {/* Tabs */}
