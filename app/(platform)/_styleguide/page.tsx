@@ -13,6 +13,7 @@ import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { ADMIN_ROLES, type Role } from '@/lib/roles';
 import { Button, IconButton } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
+import { Card, CardHeader, CardBody, CardFooter } from '@/components/ui/Card';
 
 export function StyleguideSection({
   title,
@@ -68,6 +69,22 @@ export default function StyleguidePage() {
         <Badge intent="danger">Em atraso</Badge>
         <Badge intent="info">Novo</Badge>
         <Badge intent="neutral">Arquivado</Badge>
+      </StyleguideSection>
+      <StyleguideSection title="Card">
+        <Card className="w-64">
+          <CardHeader>
+            <h3 className="font-display text-sm font-bold text-ink">Título do card</h3>
+          </CardHeader>
+          <CardBody>
+            <p className="text-sm text-ink-muted">Conteúdo de exemplo do corpo do card.</p>
+          </CardBody>
+          <CardFooter>
+            <Button size="sm">Acção</Button>
+          </CardFooter>
+        </Card>
+        <Card interactive className="w-64 p-4">
+          <p className="text-sm text-ink-muted">Card interactivo (hover para ver a sombra crescer).</p>
+        </Card>
       </StyleguideSection>
       {/* Tasks seguintes acrescentam <StyleguideSection> aqui, por ordem */}
     </div>
