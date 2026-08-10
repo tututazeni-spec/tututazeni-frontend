@@ -90,3 +90,64 @@ export type CourseDetailData = Course & {
   modules?: CourseDetailModule[];
   feedbacks?: CourseFeedback[];
 };
+
+// ─── Tipos das restantes views (Catalog/MyEnrollments/Certificates/AdminDashboard) ──
+// Extraído de app/(platform)/courses/page.tsx.
+
+export interface Certificate {
+  id: number;
+  code: string;
+  issuedAt: string;
+  expiresAt: string | null;
+  course: {
+    id: number;
+    title: string;
+    thumbnailUrl: string | null;
+    category: string | null;
+  };
+}
+
+export interface PaginatedCourses {
+  data: Course[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+export interface AdminDashboard {
+  courses: { total: number; published: number };
+  enrollments: { total: number; completed: number; overdue: number };
+  completionRate: number;
+  topCourses: Course[];
+}
+
+export interface MyEnrollment {
+  id: number;
+  courseId: number;
+  status: EnrollmentStatus;
+  deadline: string | null;
+  mandatory?: boolean;
+  course: {
+    title: string;
+    thumbnailUrl: string | null;
+    category: string | null;
+    workloadHours: number | null;
+  };
+}
+
+export interface CertificateVerifyResult {
+  valid?: boolean;
+  error?: string;
+  user?: { fullName: string };
+  course?: { title: string };
+}
+
+export type View =
+  'catalog' | 'detail' | 'my-courses' | 'certificates' | 'dashboard';
+export type TopLevelView = Exclude<View, 'detail'>;
+
+// view e selectedId eram dois useState separados sempre definidos em conjunto
+// (handleSelect/handleBack) — um único estado torna "detail sem id" irrepresentável.
+export type Nav =
+  { view: TopLevelView } | { view: 'detail'; selectedId: number };
