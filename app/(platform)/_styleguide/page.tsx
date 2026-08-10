@@ -8,8 +8,10 @@
 'use client';
 
 import type { ReactNode } from 'react';
+import { Trash2 } from 'lucide-react';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { ADMIN_ROLES, type Role } from '@/lib/roles';
+import { Button, IconButton } from '@/components/ui/Button';
 
 export function StyleguideSection({
   title,
@@ -49,6 +51,16 @@ export default function StyleguidePage() {
           Referência viva dos componentes de <code>components/ui/</code>.
         </p>
       </div>
+      <StyleguideSection title="Button">
+        <Button>Primário</Button>
+        <Button intent="secondary">Secundário</Button>
+        <Button intent="ghost">Ghost</Button>
+        <Button intent="danger">Eliminar</Button>
+        <Button loading>A processar…</Button>
+        <Button disabled>Desactivado</Button>
+        <Button size="sm">Pequeno</Button>
+        <IconButton icon={Trash2} label="Eliminar item" intent="ghost" />
+      </StyleguideSection>
       {/* Tasks seguintes acrescentam <StyleguideSection> aqui, por ordem */}
     </div>
   );
