@@ -19,6 +19,7 @@ import { Textarea } from '@/components/ui/Textarea';
 import { FormField } from '@/components/ui/FormField';
 import { Select } from '@/components/ui/Select';
 import { Modal, ModalTrigger, ModalContent, ModalClose } from '@/components/ui/Modal';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/Tabs';
 
 export function StyleguideSection({
   title,
@@ -129,6 +130,16 @@ export default function StyleguidePage() {
             </div>
           </ModalContent>
         </Modal>
+      </StyleguideSection>
+      <StyleguideSection title="Tabs">
+        <Tabs defaultValue="overview" className="w-80">
+          <TabsList>
+            <TabsTrigger value="overview">Visão geral</TabsTrigger>
+            <TabsTrigger value="details">Detalhes</TabsTrigger>
+          </TabsList>
+          <TabsContent value="overview">Conteúdo da visão geral.</TabsContent>
+          <TabsContent value="details">Conteúdo dos detalhes.</TabsContent>
+        </Tabs>
       </StyleguideSection>
       {/* Tasks seguintes acrescentam <StyleguideSection> aqui, por ordem */}
     </div>
