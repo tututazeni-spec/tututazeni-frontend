@@ -93,9 +93,9 @@ export function AnalyticsTab() {
                   className={`flex items-center gap-1 font-body text-xs ${index.trend >= 0 ? 'text-success' : 'text-danger'}`}
                 >
                   {index.trend >= 0 ? (
-                    <TrendingUp size={12} strokeWidth={1.75} />
+                    <TrendingUp size={14} strokeWidth={1.75} />
                   ) : (
-                    <TrendingDown size={12} strokeWidth={1.75} />
+                    <TrendingDown size={14} strokeWidth={1.75} />
                   )}
                   {Math.abs(index.trend).toFixed(1)} pts vs. anterior
                 </span>
