@@ -84,9 +84,13 @@ export function SurveysTab() {
             <CardBody>
               <div className="mb-3 flex items-start justify-between">
                 <span className="text-2xl">{TYPE_ICON[s.type] ?? '📋'}</span>
-                <Badge intent={STATUS_INTENT[s.status] ?? 'neutral'}>{s.status}</Badge>
+                <Badge intent={STATUS_INTENT[s.status] ?? 'neutral'}>
+                  {s.status}
+                </Badge>
               </div>
-              <h4 className="mb-1 font-display text-sm font-semibold text-ink">{s.title}</h4>
+              <h4 className="mb-1 font-display text-sm font-semibold text-ink">
+                {s.title}
+              </h4>
               <p className="mb-3 line-clamp-2 font-body text-xs text-ink-faint">
                 {s.description}
               </p>
