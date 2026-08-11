@@ -1,7 +1,9 @@
 // components/engagement/constants.ts
 // Constantes de domínio partilhadas pelos componentes de apresentação do
-// módulo de engagement. Extraído verbatim de
-// app/(platform)/engagement/page.tsx.
+// módulo de engagement. Cores mapeadas para os tokens semânticos da
+// fundação de design (Fase A) — GRADE_COLOR passou de string combinada
+// para { text, border } (o OverviewTab deixa de precisar de fatiar a
+// string para extrair só a cor do texto).
 
 export const LEVEL_CONFIG: Record<
   string,
@@ -9,31 +11,31 @@ export const LEVEL_CONFIG: Record<
 > = {
   EXCELLENT: {
     label: 'Excelente',
-    color: 'text-emerald-700',
-    bg: 'bg-emerald-50 border-emerald-200',
+    color: 'text-success-ink',
+    bg: 'bg-success-subtle border-success',
   },
   GOOD: {
     label: 'Bom',
-    color: 'text-teal-700',
-    bg: 'bg-teal-50 border-teal-200',
+    color: 'text-info-ink',
+    bg: 'bg-info-subtle border-info',
   },
   FAIR: {
     label: 'Razoável',
-    color: 'text-amber-700',
-    bg: 'bg-amber-50 border-amber-200',
+    color: 'text-warning-ink',
+    bg: 'bg-warning-subtle border-warning',
   },
   AT_RISK: {
     label: 'Em Risco',
-    color: 'text-red-700',
-    bg: 'bg-red-50 border-red-200',
+    color: 'text-danger-ink',
+    bg: 'bg-danger-subtle border-danger',
   },
 };
 
-export const GRADE_COLOR: Record<string, string> = {
-  A: 'text-emerald-600 border-emerald-400',
-  B: 'text-teal-600 border-teal-400',
-  C: 'text-amber-600 border-amber-400',
-  D: 'text-red-600 border-red-400',
+export const GRADE_COLOR: Record<string, { text: string; border: string }> = {
+  A: { text: 'text-success-ink', border: 'border-success' },
+  B: { text: 'text-info-ink', border: 'border-info' },
+  C: { text: 'text-warning-ink', border: 'border-warning' },
+  D: { text: 'text-danger-ink', border: 'border-danger' },
 };
 
 export const MOOD_EMOJI: Record<number, string> = {
