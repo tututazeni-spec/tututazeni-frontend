@@ -14,7 +14,12 @@ import { AlertTriangle, Award, Smile, TrendingUp, Users } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { Avatar, KpiCard, ProgressBar, Skeleton } from './atoms';
+import { Avatar } from '@/components/ui/Avatar';
+import { Button } from '@/components/ui/Button';
+import { Card, CardBody } from '@/components/ui/Card';
+import { KpiCard } from '@/components/ui/KpiCard';
+import { ProgressBar } from '@/components/ui/ProgressBar';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { GRADE_COLOR, LEVEL_CONFIG } from './constants';
 import { MoodCheckin } from './MoodCheckin';
 import type { DashboardData, MySummary } from './types';
@@ -22,6 +27,12 @@ import type { DashboardData, MySummary } from './types';
 export interface OverviewTabProps {
   userId?: number;
 }
+
+const ENPS_ROWS = [
+  { key: 'promoter', label: 'Promotores', dotClass: 'bg-success' },
+  { key: 'passive', label: 'Passivos', dotClass: 'bg-warning' },
+  { key: 'detractor', label: 'Detractores', dotClass: 'bg-danger' },
+] as const;
 
 export function OverviewTab({ userId }: OverviewTabProps) {
   const dashQuery = useApiQuery<DashboardData>(
@@ -43,9 +54,25 @@ export function OverviewTab({ userId }: OverviewTabProps) {
     summaryQuery.refetch();
   };
 
-  if (dashQuery.isLoading || summaryQuery.isLoading) return <Skeleton />;
+  if (dashQuery.isLoading || summaryQuery.isLoading)
+    return (
+      <Skeleton
+        rows={4}
+        wrapperClassName="space-y-4"
+        itemClassName="skeleton-shimmer h-24 rounded-card"
+      />
+    );
 
   const level = LEVEL_CONFIG[dash?.kpis.engagementLevel ?? 'FAIR'];
+  const grade = GRADE_COLOR[summary?.hssGrade ?? 'C'];
+  const enpsPromoterPct = dash?.enpsBreakdown.promoterPct ?? 0;
+  const enpsDetractorPct = dash?.enpsBreakdown.detractorPct ?? 0;
+  const enpsPassivePct = 100 - enpsPromoterPct - enpsDetractorPct;
+  const enpsPctByKey: Record<(typeof ENPS_ROWS)[number]['key'], number> = {
+    promoter: enpsPromoterPct,
+    passive: enpsPassivePct,
+    detractor: enpsDetractorPct,
+  };
 
   return (
     <div className="space-y-6">
@@ -54,28 +81,25 @@ export function OverviewTab({ userId }: OverviewTabProps) {
 
       {/* Personal summary */}
       {summary && (
-        <div className={`rounded-xl border p-4 ${level.bg}`}>
+        <div className={`rounded-card border p-4 ${level.bg}`}>
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs text-slate-500 mb-1">
+              <p className="mb-1 font-body text-xs text-ink-muted">
                 Engagement Score da Organização
               </p>
-              <p className={`text-3xl font-black ${level.color}`}>
+              <p className={`font-display text-3xl font-black ${level.color}`}>
                 {dash?.kpis.engagementIndex ?? 0}%
               </p>
-              <span className={`text-xs font-medium ${level.color}`}>
+              <span className={`font-body text-xs font-medium ${level.color}`}>
                 {level.label}
               </span>
             </div>
             <div className="text-right">
-              <p className="text-xs text-slate-500">Human Success Score</p>
+              <p className="font-body text-xs text-ink-muted">Human Success Score</p>
               <div
-                className={`w-16 h-16 rounded-full border-4 ${GRADE_COLOR[summary.hssGrade]}
-                flex flex-col items-center justify-center`}
+                className={`flex h-16 w-16 flex-col items-center justify-center rounded-full border-4 ${grade.border}`}
               >
-                <span
-                  className={`text-2xl font-black ${GRADE_COLOR[summary.hssGrade].split(' ')[0]}`}
-                >
+                <span className={`font-display text-2xl font-black ${grade.text}`}>
                   {summary.hssGrade}
                 </span>
               </div>
@@ -85,131 +109,109 @@ export function OverviewTab({ userId }: OverviewTabProps) {
       )}
 
       {/* KPIs */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         <KpiCard
           icon={Smile}
           label="Engajamento"
           value={`${dash?.kpis.engagementIndex ?? 0}%`}
-          color="text-violet-600"
-          bg="bg-violet-50"
+          intent="primary"
           trend={dash?.kpis.engagementTrend}
         />
         <KpiCard
           icon={Users}
           label="Participação"
           value={`${dash?.kpis.participationRate ?? 0}%`}
-          color="text-indigo-600"
-          bg="bg-indigo-50"
+          intent="accent"
         />
         <KpiCard
           icon={TrendingUp}
           label="eNPS"
           value={dash?.kpis.enps ?? 0}
           sub={dash?.enpsBreakdown.label}
-          color={
-            (dash?.kpis.enps ?? 0) >= 0 ? 'text-emerald-600' : 'text-red-600'
-          }
-          bg={(dash?.kpis.enps ?? 0) >= 0 ? 'bg-emerald-50' : 'bg-red-50'}
+          intent={(dash?.kpis.enps ?? 0) >= 0 ? 'success' : 'danger'}
         />
         <KpiCard
           icon={Award}
           label="Reconhecimentos"
           value={dash?.kpis.totalRecognitions ?? 0}
-          color="text-amber-600"
-          bg="bg-amber-50"
+          intent="warning"
         />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* eNPS visual */}
-        <div className="bg-white rounded-xl border border-slate-100 p-5">
-          <h3 className="font-semibold text-slate-700 mb-4">eNPS Breakdown</h3>
-          {dash?.enpsBreakdown && (
-            <div className="space-y-3">
-              {[
-                {
-                  label: 'Promotores',
-                  pct: dash.enpsBreakdown.promoterPct,
-                  color: 'bg-emerald-500',
-                },
-                {
-                  label: 'Passivos',
-                  pct:
-                    100 -
-                    dash.enpsBreakdown.promoterPct -
-                    dash.enpsBreakdown.detractorPct,
-                  color: 'bg-amber-400',
-                },
-                {
-                  label: 'Detractores',
-                  pct: dash.enpsBreakdown.detractorPct,
-                  color: 'bg-red-400',
-                },
-              ].map((e) => (
-                <div key={e.label}>
-                  <div className="flex justify-between text-xs mb-1">
-                    <span className="text-slate-600">{e.label}</span>
-                    <span className="font-semibold">{e.pct.toFixed(1)}%</span>
+        <Card>
+          <CardBody>
+            <h3 className="mb-4 font-display font-semibold text-ink">eNPS Breakdown</h3>
+            {dash?.enpsBreakdown && (
+              <div className="space-y-3">
+                {ENPS_ROWS.map((row) => (
+                  <div key={row.key}>
+                    <div className="mb-1 flex justify-between text-xs">
+                      <span className="flex items-center gap-1.5 text-ink-muted">
+                        <span className={`h-1.5 w-1.5 rounded-full ${row.dotClass}`} />
+                        {row.label}
+                      </span>
+                      <span className="font-semibold text-ink">
+                        {enpsPctByKey[row.key].toFixed(1)}%
+                      </span>
+                    </div>
+                    <ProgressBar value={enpsPctByKey[row.key]} />
                   </div>
-                  <ProgressBar value={e.pct} color={e.color} height="h-2" />
-                </div>
-              ))}
-              <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
-                <span className="text-sm text-slate-500">Score eNPS</span>
-                <span
-                  className={`text-2xl font-bold ${(dash.enpsBreakdown.enps ?? 0) >= 0 ? 'text-emerald-600' : 'text-red-600'}`}
-                >
-                  {dash.enpsBreakdown.enps ?? 'N/A'}
-                </span>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Recent recognitions */}
-        <div className="bg-white rounded-xl border border-slate-100 p-5">
-          <h3 className="font-semibold text-slate-700 mb-4">
-            🏆 Reconhecimentos Recentes
-          </h3>
-          {(dash?.recentRecognitions.length ?? 0) === 0 ? (
-            <p className="text-sm text-slate-400 text-center py-8">
-              Sem reconhecimentos recentes
-            </p>
-          ) : (
-            <div className="space-y-3">
-              {dash?.recentRecognitions.map((r, i) => (
-                <div key={i} className="flex items-center gap-3">
-                  <Avatar
-                    name={r.from?.fullName ?? 'User'}
-                    url={r.from?.avatarUrl}
-                    size={8}
-                  />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs text-slate-600">
-                      <span className="font-medium">{r.from?.fullName}</span>
-                      {' → '}
-                      <span className="font-medium">{r.to?.fullName}</span>
-                    </p>
-                    <p className="text-[10px] text-slate-400 truncate">
-                      {r.message}
-                    </p>
-                  </div>
-                  <span className="text-sm">
-                    {r.type === 'KUDOS' ? '👏' : '🏅'}
+                ))}
+                <div className="mt-4 flex items-center justify-between border-t border-border pt-3">
+                  <span className="font-body text-sm text-ink-muted">Score eNPS</span>
+                  <span
+                    className={`font-display text-2xl font-bold ${(dash.enpsBreakdown.enps ?? 0) >= 0 ? 'text-success' : 'text-danger'}`}
+                  >
+                    {dash.enpsBreakdown.enps ?? 'N/A'}
                   </span>
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
+              </div>
+            )}
+          </CardBody>
+        </Card>
+
+        {/* Recent recognitions */}
+        <Card>
+          <CardBody>
+            <h3 className="mb-4 font-display font-semibold text-ink">
+              🏆 Reconhecimentos Recentes
+            </h3>
+            {(dash?.recentRecognitions.length ?? 0) === 0 ? (
+              <p className="py-8 text-center font-body text-sm text-ink-faint">
+                Sem reconhecimentos recentes
+              </p>
+            ) : (
+              <div className="space-y-3">
+                {dash?.recentRecognitions.map((r, i) => (
+                  <div key={i} className="flex items-center gap-3">
+                    <Avatar name={r.from?.fullName ?? 'User'} url={r.from?.avatarUrl} size="sm" />
+                    <div className="min-w-0 flex-1">
+                      <p className="font-body text-xs text-ink-muted">
+                        <span className="font-medium text-ink">{r.from?.fullName}</span>
+                        {' → '}
+                        <span className="font-medium text-ink">{r.to?.fullName}</span>
+                      </p>
+                      <p className="truncate font-body text-[10px] text-ink-faint">
+                        {r.message}
+                      </p>
+                    </div>
+                    <span className="text-sm">{r.type === 'KUDOS' ? '👏' : '🏅'}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardBody>
+        </Card>
       </div>
 
       {/* Pending surveys */}
       {(summary?.surveys.length ?? 0) > 0 && (
-        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
-          <div className="flex items-center gap-2 mb-3">
-            <AlertTriangle size={16} className="text-amber-600" />
-            <p className="text-sm font-semibold text-amber-700">
+        <div className="rounded-card border border-warning bg-warning-subtle p-4">
+          <div className="mb-3 flex items-center gap-2">
+            <AlertTriangle size={16} strokeWidth={1.75} className="text-warning-ink" />
+            <p className="font-body text-sm font-semibold text-warning-ink">
               {summary!.surveys.length} survey
               {summary!.surveys.length > 1 ? 's' : ''} pendente
               {summary!.surveys.length > 1 ? 's' : ''}
@@ -219,17 +221,13 @@ export function OverviewTab({ userId }: OverviewTabProps) {
             {summary!.surveys.map((s) => (
               <div
                 key={s.id}
-                className="flex items-center justify-between bg-white rounded-lg px-3 py-2"
+                className="flex items-center justify-between rounded-control bg-surface px-3 py-2"
               >
                 <div>
-                  <p className="text-sm font-medium text-slate-700">
-                    {s.title}
-                  </p>
-                  <p className="text-xs text-slate-400">{s.type}</p>
+                  <p className="font-body text-sm font-medium text-ink">{s.title}</p>
+                  <p className="font-body text-xs text-ink-faint">{s.type}</p>
                 </div>
-                <button className="text-xs px-3 py-1.5 bg-amber-600 text-white rounded-lg hover:bg-amber-700">
-                  Responder
-                </button>
+                <Button size="sm">Responder</Button>
               </div>
             ))}
           </div>
