@@ -166,7 +166,7 @@ export function RecognitionTab() {
                   </p>
                 </div>
                 <div className="flex items-center gap-1 font-body text-sm font-bold text-primary">
-                  <Zap size={12} strokeWidth={1.75} className="text-accent" />
+                  <Zap size={14} strokeWidth={1.75} className="text-accent" />
                   {u.points ?? u.count}
                 </div>
               </div>
