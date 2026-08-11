@@ -45,3 +45,95 @@ body {
   background: #cbd5e1;
   border-radius: 4px;
 }
+
+@theme {
+  /* TODO(phase-b): type scale from spec section 2 not yet encoded as tokens; components currently use ad-hoc Tailwind text sizes. */
+
+  /* superfícies */
+  --color-canvas: #F7F5EF;
+  --color-surface: #FFFFFF;
+  --color-surface-sunken: #F1EEE5;
+  --color-border: #E7E2D4;
+  --color-border-strong: #D8D1BE;
+
+  /* texto */
+  --color-ink: #20241F;
+  --color-ink-muted: #6E756B;
+  --color-ink-faint: #9AA097;
+
+  /* marca */
+  --color-primary: #163A2E;
+  --color-primary-hover: #1F4E3D;
+  --color-primary-active: #0E2820;
+  --color-primary-subtle: #E7EFEA;
+  --color-accent: #D6963A;
+  --color-accent-hover: #C2822A;
+  --color-accent-subtle: #F3E1BE;
+
+  /* semântica de estado */
+  --color-success: #2F9E63;
+  --color-success-subtle: #E4F5EC;
+  --color-success-ink: #1E7A4C;
+  --color-warning: #C97A1F;
+  --color-warning-subtle: #FBEEDC;
+  --color-warning-ink: #9C5F17;
+  --color-danger: #B3432E;
+  --color-danger-subtle: #FBE7E2;
+  --color-danger-ink: #8F3421;
+  --color-info: #3B6FA0;
+  --color-info-subtle: #E7EEF5;
+  --color-info-ink: #2C557E;
+
+  /* forma — nomes próprios, não colidem com a escala nativa do Tailwind */
+  --radius-control: 6px;
+  --radius-card: 10px;
+  --radius-panel: 14px;
+  --radius-pill: 999px;
+
+  /* profundidade */
+  --shadow-resting: 0 1px 2px rgba(22, 58, 46, .06);
+  --shadow-hover: 0 4px 12px rgba(22, 58, 46, .08);
+  --shadow-elevated: 0 12px 32px rgba(22, 58, 46, .14);
+
+  /* tipografia — variáveis vindas do next/font (Task 2)
+     nota: --font-data (não --font-mono) — o Tailwind já tem uma key
+     --font-mono nativa, e 123 ficheiros pré-existentes usam a utility
+     `font-mono` a contar com a stack default do Tailwind; usar o mesmo
+     nome aqui reskinava-os todos silenciosamente. */
+  --font-display: var(--font-sora);
+  --font-body: var(--font-inter);
+  --font-data: var(--font-plex-mono);
+}
+
+:root {
+  --space-stack: 12px;
+  --space-section: 40px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Skeleton com brilho a percorrer — variante opt-in, passada via
+   `itemClassName` ao componente `Skeleton` já existente. O componente em
+   si não é modificado: continua 100% compatível com os ~42 usos actuais
+   que já lhe passam a sua própria `itemClassName`. */
+.skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--color-surface-sunken) 0%,
+    var(--color-canvas) 50%,
+    var(--color-surface-sunken) 100%
+  );
+  background-size: 200px 100%;
+  animation: skeleton-shimmer-move 1.4s infinite;
+}
+@keyframes skeleton-shimmer-move {
+  0% { background-position: -200px 0; }
+  100% { background-position: 200px 0; }
+}
