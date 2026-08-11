@@ -47,6 +47,8 @@ body {
 }
 
 @theme {
+  /* TODO(phase-b): type scale from spec section 2 not yet encoded as tokens; components currently use ad-hoc Tailwind text sizes. */
+
   /* superfícies */
   --color-canvas: #F7F5EF;
   --color-surface: #FFFFFF;
@@ -93,10 +95,19 @@ body {
   --shadow-hover: 0 4px 12px rgba(22, 58, 46, .08);
   --shadow-elevated: 0 12px 32px rgba(22, 58, 46, .14);
 
-  /* tipografia — variáveis vindas do next/font (Task 2) */
+  /* tipografia — variáveis vindas do next/font (Task 2)
+     nota: --font-data (não --font-mono) — o Tailwind já tem uma key
+     --font-mono nativa, e 123 ficheiros pré-existentes usam a utility
+     `font-mono` a contar com a stack default do Tailwind; usar o mesmo
+     nome aqui reskinava-os todos silenciosamente. */
   --font-display: var(--font-sora);
   --font-body: var(--font-inter);
-  --font-mono: var(--font-plex-mono);
+  --font-data: var(--font-plex-mono);
+}
+
+:root {
+  --space-stack: 12px;
+  --space-section: 40px;
 }
 
 @media (prefers-reduced-motion: reduce) {
