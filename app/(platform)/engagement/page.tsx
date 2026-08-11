@@ -1,12 +1,12 @@
 'use client';
-// src/app/(dashboard)/engagement/page.tsx
+// app/(platform)/engagement/page.tsx
 //
-// Container: gere o separador activo; delega dados+apresentação de cada
-// separador aos componentes auto-contidos em components/engagement/ (mesmo
-// padrão que components/payslips/page.tsx usa para ListView/CompareView/
-// AnnualView). Ver memory project_innova_component_separation_audit.
+// Container: gere o separador activo (via Tabs do Radix); delega dados+
+// apresentação de cada separador aos componentes auto-contidos em
+// components/engagement/ (mesmo padrão que components/payslips/page.tsx
+// usa para ListView/CompareView/AnnualView). Ver memory
+// project_innova_component_separation_audit.
 
-import { useState } from 'react';
 import {
   Activity,
   Award,
@@ -16,88 +16,86 @@ import {
   RefreshCw,
   Smile,
 } from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
 import { AnalyticsTab } from '@/components/engagement/AnalyticsTab';
 import { FeedbackTab } from '@/components/engagement/FeedbackTab';
 import { OverviewTab } from '@/components/engagement/OverviewTab';
 import { RecognitionTab } from '@/components/engagement/RecognitionTab';
 import { SurveysTab } from '@/components/engagement/SurveysTab';
-import type { Tab } from '@/components/engagement/types';
+import { Button } from '@/components/ui/Button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
 
-const TABS: { id: Tab; label: string; icon: LucideIcon }[] = [
+const TABS = [
   { id: 'overview', label: 'Visão Geral', icon: Smile },
   { id: 'surveys', label: 'Surveys', icon: BarChart2 },
   { id: 'recognition', label: 'Reconhecimento', icon: Award },
   { id: 'feedback', label: 'Feedback', icon: MessageSquare },
   { id: 'analytics', label: 'Analytics', icon: Activity },
-];
+] as const;
 
 export default function EngagementPage() {
-  const [tab, setTab] = useState<Tab>('overview');
-
-  const TAB_COMPONENTS: Record<Tab, JSX.Element> = {
-    overview: <OverviewTab />,
-    surveys: <SurveysTab />,
-    recognition: <RecognitionTab />,
-    feedback: <FeedbackTab />,
-    analytics: <AnalyticsTab />,
-  };
-
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-canvas">
       {/* Header */}
-      <div className="bg-white border-b border-slate-200 px-6 py-5">
-        <div className="max-w-7xl mx-auto flex items-start justify-between">
+      <div className="border-b border-border bg-surface px-6 py-5">
+        <div className="mx-auto flex max-w-7xl items-start justify-between">
           <div>
-            <div className="flex items-center gap-2 mb-1">
-              <div className="p-1.5 bg-violet-100 rounded-lg">
-                <Smile size={18} className="text-violet-600" />
+            <div className="mb-1 flex items-center gap-2">
+              <div className="rounded-control bg-primary-subtle p-1.5">
+                <Smile size={18} strokeWidth={1.75} className="text-primary" />
               </div>
-              <h1 className="text-xl font-bold text-slate-800">Engagement</h1>
+              <h1 className="font-display text-xl font-bold text-ink">Engagement</h1>
             </div>
-            <p className="text-sm text-slate-400">
+            <p className="font-body text-sm text-ink-faint">
               Surveys · Reconhecimento · Feedback · Mood · Analytics
             </p>
           </div>
           <div className="flex gap-2">
-            <button className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 text-slate-600 text-sm rounded-lg hover:border-violet-300 transition-colors">
-              <RefreshCw size={14} />
+            <Button intent="secondary" size="sm">
+              <RefreshCw size={14} strokeWidth={1.75} />
               Actualizar
-            </button>
-            <button className="flex items-center gap-2 px-4 py-2 bg-violet-600 text-white text-sm rounded-lg hover:bg-violet-700 transition-colors">
-              <Plus size={14} />
+            </Button>
+            <Button size="sm">
+              <Plus size={14} strokeWidth={1.75} />
               Novo Survey
-            </button>
+            </Button>
           </div>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="bg-white border-b border-slate-200 px-6">
-        <div className="max-w-7xl mx-auto flex overflow-x-auto">
-          {TABS.map((t) => {
-            const Icon = t.icon;
-            return (
-              <button
-                key={t.id}
-                onClick={() => setTab(t.id)}
-                className={`flex items-center gap-2 px-5 py-4 text-sm font-medium whitespace-nowrap
-                  border-b-2 transition-colors ${
-                    tab === t.id
-                      ? 'border-violet-600 text-violet-600'
-                      : 'border-transparent text-slate-500 hover:text-slate-700'
-                  }`}
-              >
-                <Icon size={15} />
-                {t.label}
-              </button>
-            );
-          })}
+      <Tabs defaultValue="overview">
+        <div className="border-b border-border bg-surface px-6">
+          <TabsList className="mx-auto max-w-7xl overflow-x-auto">
+            {TABS.map((t) => {
+              const Icon = t.icon;
+              return (
+                <TabsTrigger key={t.id} value={t.id} className="gap-2 whitespace-nowrap">
+                  <Icon size={16} strokeWidth={1.75} />
+                  {t.label}
+                </TabsTrigger>
+              );
+            })}
+          </TabsList>
         </div>
-      </div>
 
-      {/* Content */}
-      <div className="max-w-7xl mx-auto px-6 py-6">{TAB_COMPONENTS[tab]}</div>
+        <div className="mx-auto max-w-7xl px-6 py-6">
+          <TabsContent value="overview">
+            <OverviewTab />
+          </TabsContent>
+          <TabsContent value="surveys">
+            <SurveysTab />
+          </TabsContent>
+          <TabsContent value="recognition">
+            <RecognitionTab />
+          </TabsContent>
+          <TabsContent value="feedback">
+            <FeedbackTab />
+          </TabsContent>
+          <TabsContent value="analytics">
+            <AnalyticsTab />
+          </TabsContent>
+        </div>
+      </Tabs>
     </div>
   );
 }
