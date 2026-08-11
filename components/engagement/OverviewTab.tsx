@@ -95,11 +95,15 @@ export function OverviewTab({ userId }: OverviewTabProps) {
               </span>
             </div>
             <div className="text-right">
-              <p className="font-body text-xs text-ink-muted">Human Success Score</p>
+              <p className="font-body text-xs text-ink-muted">
+                Human Success Score
+              </p>
               <div
                 className={`flex h-16 w-16 flex-col items-center justify-center rounded-full border-4 ${grade.border}`}
               >
-                <span className={`font-display text-2xl font-black ${grade.text}`}>
+                <span
+                  className={`font-display text-2xl font-black ${grade.text}`}
+                >
                   {summary.hssGrade}
                 </span>
               </div>
@@ -142,14 +146,18 @@ export function OverviewTab({ userId }: OverviewTabProps) {
         {/* eNPS visual */}
         <Card>
           <CardBody>
-            <h3 className="mb-4 font-display font-semibold text-ink">eNPS Breakdown</h3>
+            <h3 className="mb-4 font-display font-semibold text-ink">
+              eNPS Breakdown
+            </h3>
             {dash?.enpsBreakdown && (
               <div className="space-y-3">
                 {ENPS_ROWS.map((row) => (
                   <div key={row.key}>
                     <div className="mb-1 flex justify-between text-xs">
                       <span className="flex items-center gap-1.5 text-ink-muted">
-                        <span className={`h-1.5 w-1.5 rounded-full ${row.dotClass}`} />
+                        <span
+                          className={`h-1.5 w-1.5 rounded-full ${row.dotClass}`}
+                        />
                         {row.label}
                       </span>
                       <span className="font-semibold text-ink">
@@ -160,7 +168,9 @@ export function OverviewTab({ userId }: OverviewTabProps) {
                   </div>
                 ))}
                 <div className="mt-4 flex items-center justify-between border-t border-border pt-3">
-                  <span className="font-body text-sm text-ink-muted">Score eNPS</span>
+                  <span className="font-body text-sm text-ink-muted">
+                    Score eNPS
+                  </span>
                   <span
                     className={`font-display text-2xl font-bold ${(dash.enpsBreakdown.enps ?? 0) >= 0 ? 'text-success' : 'text-danger'}`}
                   >
@@ -186,18 +196,28 @@ export function OverviewTab({ userId }: OverviewTabProps) {
               <div className="space-y-3">
                 {dash?.recentRecognitions.map((r, i) => (
                   <div key={i} className="flex items-center gap-3">
-                    <Avatar name={r.from?.fullName ?? 'User'} url={r.from?.avatarUrl} size="sm" />
+                    <Avatar
+                      name={r.from?.fullName ?? 'User'}
+                      url={r.from?.avatarUrl}
+                      size="sm"
+                    />
                     <div className="min-w-0 flex-1">
                       <p className="font-body text-xs text-ink-muted">
-                        <span className="font-medium text-ink">{r.from?.fullName}</span>
+                        <span className="font-medium text-ink">
+                          {r.from?.fullName}
+                        </span>
                         {' → '}
-                        <span className="font-medium text-ink">{r.to?.fullName}</span>
+                        <span className="font-medium text-ink">
+                          {r.to?.fullName}
+                        </span>
                       </p>
                       <p className="truncate font-body text-[10px] text-ink-faint">
                         {r.message}
                       </p>
                     </div>
-                    <span className="text-sm">{r.type === 'KUDOS' ? '👏' : '🏅'}</span>
+                    <span className="text-sm">
+                      {r.type === 'KUDOS' ? '👏' : '🏅'}
+                    </span>
                   </div>
                 ))}
               </div>
@@ -210,7 +230,11 @@ export function OverviewTab({ userId }: OverviewTabProps) {
       {(summary?.surveys.length ?? 0) > 0 && (
         <div className="rounded-card border border-warning bg-warning-subtle p-4">
           <div className="mb-3 flex items-center gap-2">
-            <AlertTriangle size={16} strokeWidth={1.75} className="text-warning-ink" />
+            <AlertTriangle
+              size={16}
+              strokeWidth={1.75}
+              className="text-warning-ink"
+            />
             <p className="font-body text-sm font-semibold text-warning-ink">
               {summary!.surveys.length} survey
               {summary!.surveys.length > 1 ? 's' : ''} pendente
@@ -224,7 +248,9 @@ export function OverviewTab({ userId }: OverviewTabProps) {
                 className="flex items-center justify-between rounded-control bg-surface px-3 py-2"
               >
                 <div>
-                  <p className="font-body text-sm font-medium text-ink">{s.title}</p>
+                  <p className="font-body text-sm font-medium text-ink">
+                    {s.title}
+                  </p>
                   <p className="font-body text-xs text-ink-faint">{s.type}</p>
                 </div>
                 <Button size="sm">Responder</Button>

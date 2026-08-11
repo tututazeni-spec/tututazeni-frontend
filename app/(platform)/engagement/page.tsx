@@ -43,7 +43,9 @@ export default function EngagementPage() {
               <div className="rounded-control bg-primary-subtle p-1.5">
                 <Smile size={18} strokeWidth={1.75} className="text-primary" />
               </div>
-              <h1 className="font-display text-xl font-bold text-ink">Engagement</h1>
+              <h1 className="font-display text-xl font-bold text-ink">
+                Engagement
+              </h1>
             </div>
             <p className="font-body text-sm text-ink-faint">
               Surveys · Reconhecimento · Feedback · Mood · Analytics
@@ -69,7 +71,11 @@ export default function EngagementPage() {
             {TABS.map((t) => {
               const Icon = t.icon;
               return (
-                <TabsTrigger key={t.id} value={t.id} className="gap-2 whitespace-nowrap">
+                <TabsTrigger
+                  key={t.id}
+                  value={t.id}
+                  className="gap-2 whitespace-nowrap"
+                >
                   <Icon size={16} strokeWidth={1.75} />
                   {t.label}
                 </TabsTrigger>
