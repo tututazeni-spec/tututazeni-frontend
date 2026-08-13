@@ -54,6 +54,9 @@ export interface ByTypeSearchResponse {
   count: number;
 }
 
+// Cores mapeadas para os tokens semânticos da fundação de design (Fase A) —
+// 7 tipos de resultado, 7 tokens de intenção distintos (primary/accent/
+// success/warning/danger/info/neutral), mesma forma { color, bg } de antes.
 export const TYPE_CONFIG: Record<
   string,
   { label: string; icon: LucideIcon; color: string; bg: string; path: string }
@@ -61,50 +64,50 @@ export const TYPE_CONFIG: Record<
   user: {
     label: 'Colaboradores',
     icon: Users,
-    color: 'text-indigo-600',
-    bg: 'bg-indigo-50',
+    color: 'text-primary',
+    bg: 'bg-primary-subtle',
     path: 'users',
   },
   course: {
     label: 'Cursos',
     icon: BookOpen,
-    color: 'text-teal-600',
-    bg: 'bg-teal-50',
+    color: 'text-accent',
+    bg: 'bg-accent-subtle',
     path: 'courses',
   },
   content: {
     label: 'Conteúdos',
     icon: Zap,
-    color: 'text-blue-600',
-    bg: 'bg-blue-50',
+    color: 'text-info-ink',
+    bg: 'bg-info-subtle',
     path: 'content',
   },
   document: {
     label: 'Documentos',
     icon: FileText,
-    color: 'text-violet-600',
-    bg: 'bg-violet-50',
+    color: 'text-warning-ink',
+    bg: 'bg-warning-subtle',
     path: 'documents',
   },
   pdi: {
     label: 'PDIs',
     icon: Target,
-    color: 'text-amber-600',
-    bg: 'bg-amber-50',
+    color: 'text-success-ink',
+    bg: 'bg-success-subtle',
     path: 'pdi',
   },
   competency: {
     label: 'Competências',
     icon: Brain,
-    color: 'text-emerald-600',
-    bg: 'bg-emerald-50',
+    color: 'text-danger-ink',
+    bg: 'bg-danger-subtle',
     path: 'competencies',
   },
   scenario: {
     label: 'Simulações',
     icon: Award,
-    color: 'text-pink-600',
-    bg: 'bg-pink-50',
+    color: 'text-ink-muted',
+    bg: 'bg-surface-sunken',
     path: 'scenarios',
   },
 };
