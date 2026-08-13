@@ -6,16 +6,26 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { Send } from 'lucide-react';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
+import { Avatar } from '@/components/ui/Avatar';
+import { Button, IconButton } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
 import { QUICK_ACTIONS } from './constants';
-import { TypingDots } from './atoms';
 import { MessageBubble } from './MessageBubble';
 import type {
   Message,
   SendMessageResponse,
   StartSessionResponse,
 } from './types';
+
+const PERSONALITIES = [
+  { id: 'FRIENDLY', label: '😊 Amigável' },
+  { id: 'PROFESSIONAL', label: '💼 Profissional' },
+  { id: 'COACH', label: '🎯 Coach' },
+  { id: 'GAMIFIED', label: '🏆 Gamificado' },
+] as const;
 
 export function ChatView() {
   const [session, setSession] = useState<{
@@ -130,60 +140,46 @@ export function ChatView() {
   if (!session) {
     return (
       <div className="flex flex-col items-center justify-center h-[60vh]">
-        <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-3xl font-bold mb-5">
-          N
-        </div>
-        <h2 className="text-xl font-semibold text-gray-900 mb-2">
+        <Avatar name="NOVA" size="lg" className="mb-5" />
+        <h2 className="font-display text-xl font-semibold text-ink mb-2">
           NOVA — Tutor IA INNOVA
         </h2>
-        <p className="text-sm text-gray-500 mb-6 text-center max-w-sm">
+        <p className="font-body text-sm text-ink-faint mb-6 text-center max-w-sm">
           O teu assistente de aprendizagem inteligente. Disponível 24/7 para
           dúvidas, quizzes, resumos e muito mais.
         </p>
 
         <div className="flex gap-2 mb-5">
-          {[
-            { id: 'FRIENDLY', label: '😊 Amigável' },
-            { id: 'PROFESSIONAL', label: '💼 Profissional' },
-            { id: 'COACH', label: '🎯 Coach' },
-            { id: 'GAMIFIED', label: '🏆 Gamificado' },
-          ].map((p) => (
-            <button
+          {PERSONALITIES.map((p) => (
+            <Button
               key={p.id}
+              size="sm"
+              intent={personality === p.id ? 'primary' : 'secondary'}
               onClick={() => setPersonality(p.id)}
-              className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
-                personality === p.id
-                  ? 'bg-blue-700 text-white'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-              }`}
             >
               {p.label}
-            </button>
+            </Button>
           ))}
         </div>
 
-        <button
-          onClick={start}
-          disabled={starting}
-          className="px-8 py-3 bg-blue-700 text-white font-semibold rounded-xl hover:bg-blue-800 disabled:opacity-60 shadow-lg shadow-blue-200"
-        >
+        <Button onClick={start} loading={starting}>
           {starting ? 'A iniciar…' : '🚀 Iniciar conversa com NOVA'}
-        </button>
+        </Button>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col h-[75vh] bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm">
+    <div className="flex flex-col h-[75vh] bg-surface border border-border rounded-panel overflow-hidden shadow-resting">
       {/* Header */}
-      <div className="flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-blue-700 to-purple-700 text-white">
-        <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center text-lg font-bold">
-          N
-        </div>
+      <div className="flex items-center gap-3 px-4 py-3 bg-primary text-canvas">
+        <Avatar name="NOVA" size="md" />
         <div>
-          <div className="text-sm font-semibold">NOVA — Tutor IA</div>
-          <div className="text-xs text-blue-200 flex items-center gap-1">
-            <span className="w-1.5 h-1.5 bg-green-400 rounded-full" />
+          <div className="font-body text-sm font-semibold">
+            NOVA — Tutor IA
+          </div>
+          <div className="font-body text-xs text-canvas/80 flex items-center gap-1">
+            <span className="w-1.5 h-1.5 bg-success rounded-full" />
             Online · Sessão #{session.id}
           </div>
         </div>
@@ -192,24 +188,30 @@ export function ChatView() {
             setSession(null);
             setMessages([]);
           }}
-          className="ml-auto text-xs text-white/60 hover:text-white"
+          className="ml-auto font-body text-xs text-canvas/70 hover:text-canvas"
         >
           Nova sessão
         </button>
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-4 py-4 bg-gray-50">
+      <div className="flex-1 overflow-y-auto px-4 py-4 bg-surface-sunken">
         {messages.map((m) => (
           <MessageBubble key={m.id} msg={m} onRate={handleRate} />
         ))}
         {thinking && (
           <div className="flex justify-start mb-3">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-sm font-bold mr-2 flex-shrink-0">
-              N
-            </div>
-            <div className="bg-white border border-gray-200 rounded-2xl rounded-tl-sm shadow-sm">
-              <TypingDots />
+            <Avatar name="NOVA" size="sm" className="mr-2 flex-shrink-0" />
+            <div className="bg-surface border border-border rounded-card shadow-resting">
+              <div className="flex items-center gap-1 px-4 py-3">
+                {[0, 1, 2].map((i) => (
+                  <div
+                    key={i}
+                    className="w-2 h-2 bg-accent rounded-full animate-bounce"
+                    style={{ animationDelay: `${i * 0.15}s` }}
+                  />
+                ))}
+              </div>
             </div>
           </div>
         )}
@@ -217,36 +219,36 @@ export function ChatView() {
       </div>
 
       {/* Quick actions */}
-      <div className="px-3 py-2 bg-white border-t border-gray-100 flex gap-1.5 overflow-x-auto">
+      <div className="px-3 py-2 bg-surface border-t border-border flex gap-1.5 overflow-x-auto">
         {QUICK_ACTIONS.map((a) => (
-          <button
+          <Button
             key={a.label}
+            size="sm"
+            intent="secondary"
             onClick={() => send(a.value)}
-            className="flex-shrink-0 px-2.5 py-1 text-xs bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 whitespace-nowrap"
+            className="flex-shrink-0 whitespace-nowrap"
           >
             {a.label}
-          </button>
+          </Button>
         ))}
       </div>
 
       {/* Input */}
-      <div className="px-3 py-3 bg-white border-t border-gray-100 flex gap-2">
-        <input
-          type="text"
+      <div className="px-3 py-3 bg-surface border-t border-border flex gap-2">
+        <Input
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && send()}
           placeholder="Escreve a tua pergunta…"
           disabled={thinking}
-          className="flex-1 text-sm border border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+          className="flex-1"
         />
-        <button
+        <IconButton
+          icon={Send}
+          label="Enviar mensagem"
           onClick={() => send()}
           disabled={!input.trim() || thinking}
-          className="px-4 py-2.5 bg-blue-700 text-white rounded-xl hover:bg-blue-800 disabled:opacity-40 font-medium text-sm"
-        >
-          ➤
-        </button>
+        />
       </div>
     </div>
   );

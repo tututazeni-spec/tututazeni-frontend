@@ -5,12 +5,18 @@
 'use client';
 
 import { useState } from 'react';
+import { ArrowLeft, MessageCircle } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { formatDateTime as fmtDate } from '@/lib/format';
-import { Skeleton } from './atoms';
+import { Avatar } from '@/components/ui/Avatar';
+import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { Skeleton } from '@/components/ui/Skeleton';
 import type { Message, Session, SessionDetail } from './types';
 
 export function HistoryView() {
@@ -30,38 +36,48 @@ export function HistoryView() {
     setDetail({ messages: s.messages });
   };
 
-  if (loading) return <Skeleton rows={4} />;
+  if (loading)
+    return (
+      <Skeleton
+        rows={4}
+        wrapperClassName="space-y-3"
+        itemClassName="skeleton-shimmer h-16 rounded-card"
+      />
+    );
 
   if (selected && detail) {
     return (
       <div>
-        <button
+        <Button
+          intent="ghost"
+          size="sm"
           onClick={() => {
             setSelected(null);
             setDetail(null);
           }}
-          className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-800 mb-4"
+          className="mb-4"
         >
-          ← Voltar
-        </button>
-        <div className="bg-white border border-gray-200 rounded-xl p-4 space-y-3 max-h-[65vh] overflow-y-auto">
+          <ArrowLeft size={14} strokeWidth={1.75} />
+          Voltar
+        </Button>
+        <Card className="p-4 space-y-3 max-h-[65vh] overflow-y-auto">
           {detail.messages.map((m) => (
             <div
               key={m.id}
               className={`flex ${m.role === 'USER' ? 'justify-end' : 'justify-start'}`}
             >
               <div
-                className={`max-w-[70%] px-4 py-2.5 rounded-2xl text-sm ${
+                className={`max-w-[70%] px-4 py-2.5 rounded-card font-body text-sm ${
                   m.role === 'USER'
-                    ? 'bg-blue-700 text-white'
-                    : 'bg-gray-100 text-gray-800'
+                    ? 'bg-primary text-canvas'
+                    : 'bg-surface-sunken text-ink'
                 }`}
               >
                 {m.content}
               </div>
             </div>
           ))}
-        </div>
+        </Card>
       </div>
     );
   }
@@ -69,39 +85,38 @@ export function HistoryView() {
   return (
     <div className="space-y-2">
       {sessions.map((s) => (
-        <div
+        <Card
           key={s.id}
+          interactive
           onClick={() => loadDetail(s.id)}
-          className="flex items-center gap-4 bg-white border border-gray-200 rounded-xl p-4 cursor-pointer hover:shadow-sm"
+          className="flex items-center gap-4 p-4"
         >
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold flex-shrink-0">
-            N
-          </div>
+          <Avatar name="NOVA" size="md" className="flex-shrink-0" />
           <div className="flex-1 min-w-0">
-            <div className="text-sm font-medium text-gray-900">
+            <div className="font-body text-sm font-medium text-ink">
               Sessão #{s.id}
               {s.course ? ` · ${s.course.title}` : ''}
             </div>
-            <div className="text-xs text-gray-400">{fmtDate(s.startedAt)}</div>
+            <div className="font-body text-xs text-ink-faint">
+              {fmtDate(s.startedAt)}
+            </div>
           </div>
-          <div className="text-xs text-gray-400 flex-shrink-0">
+          <div className="font-body text-xs text-ink-faint flex-shrink-0">
             {s._count?.messages ?? 0} mensagens
           </div>
           {s.endedAt ? (
-            <span className="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded">
-              Encerrada
-            </span>
+            <Badge intent="neutral">Encerrada</Badge>
           ) : (
-            <span className="text-xs bg-green-50 text-green-700 px-2 py-0.5 rounded">
-              Activa
-            </span>
+            <Badge intent="success">Activa</Badge>
           )}
-        </div>
+        </Card>
       ))}
       {sessions.length === 0 && (
-        <div className="py-10 text-center text-sm text-gray-400 border border-dashed border-gray-200 rounded-xl">
-          Nenhuma sessão iniciada ainda
-        </div>
+        <EmptyState
+          icon={MessageCircle}
+          title="Nenhuma sessão iniciada ainda"
+          description="Inicia uma conversa com o NOVA no separador Chat para veres o histórico aqui."
+        />
       )}
     </div>
   );

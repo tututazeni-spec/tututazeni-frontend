@@ -8,6 +8,7 @@ import { GenerateView } from '@/components/ai-tutor/GenerateView';
 import { HistoryView } from '@/components/ai-tutor/HistoryView';
 import { RecommendationsView } from '@/components/ai-tutor/RecommendationsView';
 import type { View } from '@/components/ai-tutor/types';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
 
 export default function AiTutorPage() {
   const [view, setView] = useState<View>('chat');
@@ -16,35 +17,37 @@ export default function AiTutorPage() {
     <div className="max-w-4xl mx-auto px-4 py-8">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-xl font-semibold text-gray-900">
+          <h1 className="font-display text-xl font-semibold text-ink">
             {TITLES[view]}
           </h1>
-          <p className="text-sm text-gray-400 mt-0.5">
+          <p className="font-body text-sm text-ink-faint mt-0.5">
             INNOVA — Assistente de Aprendizagem Inteligente
           </p>
         </div>
       </div>
 
-      <div className="flex gap-1 mb-6 bg-gray-100 p-1 rounded-xl w-fit">
-        {NAV.map((n) => (
-          <button
-            key={n.id}
-            onClick={() => setView(n.id)}
-            className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-              view === n.id
-                ? 'bg-white text-gray-900 shadow-sm'
-                : 'text-gray-500 hover:text-gray-700'
-            }`}
-          >
-            {n.label}
-          </button>
-        ))}
-      </div>
+      <Tabs value={view} onValueChange={(v) => setView(v as View)}>
+        <TabsList className="mb-6 w-fit">
+          {NAV.map((n) => (
+            <TabsTrigger key={n.id} value={n.id}>
+              {n.label}
+            </TabsTrigger>
+          ))}
+        </TabsList>
 
-      {view === 'chat' && <ChatView />}
-      {view === 'generate' && <GenerateView />}
-      {view === 'recommendations' && <RecommendationsView />}
-      {view === 'history' && <HistoryView />}
+        <TabsContent value="chat">
+          <ChatView />
+        </TabsContent>
+        <TabsContent value="generate">
+          <GenerateView />
+        </TabsContent>
+        <TabsContent value="recommendations">
+          <RecommendationsView />
+        </TabsContent>
+        <TabsContent value="history">
+          <HistoryView />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

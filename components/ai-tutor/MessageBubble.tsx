@@ -6,8 +6,11 @@
 'use client';
 
 import { useState } from 'react';
+import { Star } from 'lucide-react';
 import { sanitizeHtml } from '@/lib/sanitize';
 import { formatDateTime as fmtDate } from '@/lib/format';
+import { Avatar } from '@/components/ui/Avatar';
+import { Card } from '@/components/ui/Card';
 import type { Message } from './types';
 
 interface MessageBubbleProps {
@@ -27,40 +30,50 @@ export function MessageBubble({ msg, onRate }: MessageBubbleProps) {
       .replace(/\n/g, '<br/>');
   };
 
+  const bubbleContent = (
+    <span
+      dangerouslySetInnerHTML={{
+        __html: sanitizeHtml(formatContent(msg.content)),
+      }}
+    />
+  );
+
   return (
     <div className={`flex ${isUser ? 'justify-end' : 'justify-start'} mb-3`}>
       {!isUser && (
-        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-sm font-bold mr-2 flex-shrink-0 mt-1">
-          N
-        </div>
+        <Avatar name="NOVA" size="sm" className="mr-2 mt-1 flex-shrink-0" />
       )}
       <div
         className={`max-w-[75%] ${isUser ? 'items-end' : 'items-start'} flex flex-col`}
       >
-        <div
-          onMouseEnter={() => setHover(true)}
-          onMouseLeave={() => setHover(false)}
-          className={`px-4 py-3 rounded-2xl text-sm leading-relaxed ${
-            isUser
-              ? 'bg-blue-700 text-white rounded-tr-sm'
-              : 'bg-white border border-gray-200 text-gray-800 rounded-tl-sm shadow-sm'
-          }`}
-        >
-          <span
-            dangerouslySetInnerHTML={{
-              __html: sanitizeHtml(formatContent(msg.content)),
-            }}
-          />
-        </div>
+        {isUser ? (
+          <div
+            onMouseEnter={() => setHover(true)}
+            onMouseLeave={() => setHover(false)}
+            className="rounded-card bg-primary px-4 py-3 font-body text-sm leading-relaxed text-canvas"
+          >
+            {bubbleContent}
+          </div>
+        ) : (
+          <Card
+            onMouseEnter={() => setHover(true)}
+            onMouseLeave={() => setHover(false)}
+            className="px-4 py-3 font-body text-sm leading-relaxed text-ink"
+          >
+            {bubbleContent}
+          </Card>
+        )}
 
         <div
           className={`flex items-center gap-2 mt-1 px-1 ${isUser ? 'flex-row-reverse' : 'flex-row'}`}
         >
-          <span className="text-xs text-gray-400">
+          <span className="font-body text-xs text-ink-faint">
             {fmtDate(msg.createdAt)}
           </span>
           {msg.latencyMs && (
-            <span className="text-xs text-gray-300">{msg.latencyMs}ms</span>
+            <span className="font-body text-xs text-ink-faint">
+              {msg.latencyMs}ms
+            </span>
           )}
 
           {/* Rating para mensagens do tutor */}
@@ -70,9 +83,9 @@ export function MessageBubble({ msg, onRate }: MessageBubbleProps) {
                 <button
                   key={r}
                   onClick={() => onRate(msg.id, r)}
-                  className="text-gray-300 hover:text-amber-400 text-xs"
+                  className="text-ink-faint hover:text-warning-ink"
                 >
-                  ★
+                  <Star size={14} strokeWidth={1.75} />
                 </button>
               ))}
             </div>
@@ -80,12 +93,16 @@ export function MessageBubble({ msg, onRate }: MessageBubbleProps) {
           {!isUser && msg.rating && (
             <div className="flex gap-0.5">
               {[1, 2, 3, 4, 5].map((r) => (
-                <span
+                <Star
                   key={r}
-                  className={`text-xs ${r <= msg.rating! ? 'text-amber-400' : 'text-gray-200'}`}
-                >
-                  ★
-                </span>
+                  size={14}
+                  strokeWidth={1.75}
+                  className={
+                    r <= msg.rating!
+                      ? 'fill-current text-warning-ink'
+                      : 'text-ink-faint'
+                  }
+                />
               ))}
             </div>
           )}
