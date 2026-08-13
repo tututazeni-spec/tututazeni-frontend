@@ -1,7 +1,13 @@
 // components/lms/LearningPathsView.tsx
 
+import { GraduationCap } from 'lucide-react';
+import { Badge } from '@/components/ui/Badge';
+import { Button, buttonVariants } from '@/components/ui/Button';
+import { Card, CardBody } from '@/components/ui/Card';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { Input } from '@/components/ui/Input';
 import { CardGridSkeleton, ErrorBanner } from './shared';
-import { LEVEL_COLORS } from './types';
+import { LEVEL_INTENT } from './types';
 import type { Path } from './types';
 
 interface LearningPathsViewProps {
@@ -35,105 +41,87 @@ export function LearningPathsView({
   if (error) return <ErrorBanner message={error} onRetry={onRetry} />;
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex justify-between items-center">
+    <div className="space-y-6 p-6">
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="font-display text-2xl font-bold text-ink">
             Percursos de Aprendizagem
           </h1>
-          <p className="text-gray-500">{total} percursos disponíveis</p>
+          <p className="font-body text-ink-muted">{total} percursos disponíveis</p>
         </div>
         <div className="flex gap-2">
-          <a
-            href="/lms/sessions"
-            className="px-4 py-2 border rounded-lg hover:bg-gray-50"
-          >
+          <a href="/lms/sessions" className={buttonVariants({ intent: 'secondary' })}>
             Sessões ao Vivo
           </a>
-          <a
-            href="/lms/my-paths"
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-          >
+          <a href="/lms/my-paths" className={buttonVariants({ intent: 'primary' })}>
             Os Meus Percursos
           </a>
         </div>
       </div>
 
-      <input
+      <Input
         type="text"
         placeholder="Pesquisar percursos..."
         value={search}
         onChange={(e) => onSearchChange(e.target.value)}
-        className="border rounded-lg px-4 py-2 w-full max-w-md"
+        className="w-full max-w-md"
       />
 
       {data.length === 0 ? (
-        <div className="text-center py-12 text-gray-400">
-          Nenhum percurso encontrado
-        </div>
+        <EmptyState
+          icon={GraduationCap}
+          title="Nenhum percurso encontrado"
+          description="Experimenta ajustar os termos da pesquisa."
+        />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           {data.map((p) => (
-            <div
-              key={p.id}
-              className="bg-white rounded-lg shadow hover:shadow-md transition overflow-hidden flex flex-col"
-            >
-              <div className="h-32 bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-3xl">
+            <Card key={p.id} className="flex flex-col overflow-hidden">
+              <div className="flex h-32 items-center justify-center bg-gradient-to-br from-primary to-accent text-3xl text-canvas">
                 🎓
               </div>
-              <div className="p-5 flex flex-col flex-1">
-                <div className="flex justify-between items-start mb-2">
-                  <span className="font-mono text-xs text-blue-600">
-                    {p.code}
-                  </span>
-                  <span
-                    className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                      LEVEL_COLORS[p.level] ?? 'bg-gray-100 text-gray-600'
-                    }`}
-                  >
-                    {p.level}
-                  </span>
+              <CardBody className="flex flex-1 flex-col">
+                <div className="mb-2 flex items-start justify-between">
+                  <span className="font-data text-xs text-primary">{p.code}</span>
+                  <Badge intent={LEVEL_INTENT[p.level] ?? 'neutral'}>{p.level}</Badge>
                 </div>
-                <h3 className="font-semibold text-gray-900 mb-2">{p.name}</h3>
-                <p className="text-sm text-gray-500 line-clamp-2 mb-3">
+                <h3 className="mb-2 font-display text-sm font-semibold text-ink">{p.name}</h3>
+                <p className="mb-3 line-clamp-2 font-body text-sm text-ink-muted">
                   {p.description || ''}
                 </p>
-                <div className="mt-auto flex justify-between items-center text-xs text-gray-400 mb-3">
+                <div className="mb-3 mt-auto flex items-center justify-between font-body text-xs text-ink-faint">
                   <span>{p.estimatedHours || '—'}h</span>
                   <span>{p._count?.enrollments || 0} inscritos</span>
                 </div>
-                <button
-                  onClick={() => enroll(p.id)}
-                  className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 text-sm"
-                >
+                <Button size="sm" className="w-full" onClick={() => enroll(p.id)}>
                   Inscrever-me
-                </button>
-              </div>
-            </div>
+                </Button>
+              </CardBody>
+            </Card>
           ))}
         </div>
       )}
 
       {totalPages > 1 && (
-        <div className="flex justify-between items-center">
-          <span className="text-gray-500">
+        <div className="flex items-center justify-between">
+          <span className="font-body text-ink-muted">
             Página {page} de {totalPages}
           </span>
           <div className="flex gap-2">
-            <button
+            <Button
+              intent="secondary"
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page === 1}
-              className="px-4 py-2 border rounded-lg disabled:opacity-50"
             >
               Anterior
-            </button>
-            <button
+            </Button>
+            <Button
+              intent="secondary"
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               disabled={page === totalPages}
-              className="px-4 py-2 border rounded-lg disabled:opacity-50"
             >
               Próxima
-            </button>
+            </Button>
           </div>
         </div>
       )}
