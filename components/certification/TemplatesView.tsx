@@ -2,6 +2,13 @@
 
 import { TEMPLATE_TYPES } from './types';
 import type { Template, TemplateForm } from './types';
+import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
+import { FormField } from '@/components/ui/FormField';
+import { Input } from '@/components/ui/Input';
+import { Select } from '@/components/ui/Select';
+import { Skeleton } from '@/components/ui/Skeleton';
+import { Textarea } from '@/components/ui/Textarea';
 
 interface TemplatesViewProps {
   data: Template[];
@@ -15,6 +22,8 @@ interface TemplatesViewProps {
   submit: (e: React.FormEvent) => void;
   saving: boolean;
 }
+
+const TEMPLATE_TYPE_ITEMS = TEMPLATE_TYPES.map((t) => ({ value: t, label: t }));
 
 export function TemplatesView({
   data,
@@ -30,182 +39,153 @@ export function TemplatesView({
 }: TemplatesViewProps) {
   if (loading)
     return (
-      <div className="p-6 space-y-4">
-        {[...Array(3)].map((_, i) => (
-          <div key={i} className="h-20 bg-gray-100 rounded-lg animate-pulse" />
-        ))}
+      <div className="p-6">
+        <Skeleton
+          rows={3}
+          wrapperClassName="space-y-4"
+          itemClassName="skeleton-shimmer h-20 rounded-card"
+        />
       </div>
     );
 
   if (error)
     return (
       <div className="p-6">
-        <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-lg">
+        <div className="rounded-card border border-danger bg-danger-subtle p-4 font-body text-sm text-danger-ink">
           {error}
-          <button onClick={onRetry} className="ml-4 underline">
+          <Button intent="ghost" size="sm" onClick={onRetry} className="ml-4">
             Tentar novamente
-          </button>
+          </Button>
         </div>
       </div>
     );
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex justify-between items-center">
+    <div className="space-y-6 p-6">
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="font-display text-2xl font-bold text-ink">
             Templates de Certificado
           </h1>
-          <p className="text-gray-500">{data.length} templates</p>
+          <p className="font-body text-sm text-ink-faint">{data.length} templates</p>
         </div>
-        <button
-          onClick={() => setShowForm((s) => !s)}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-        >
+        <Button onClick={() => setShowForm((s) => !s)}>
           {showForm ? 'Cancelar' : '+ Novo Template'}
-        </button>
+        </Button>
       </div>
 
       {showForm && (
         <form
           onSubmit={submit}
-          className="bg-white rounded-lg shadow p-6 grid grid-cols-1 md:grid-cols-2 gap-4"
+          className="grid grid-cols-1 gap-4 rounded-card border border-border bg-surface p-6 shadow-resting md:grid-cols-2"
         >
-          <label className="block">
-            <span className="text-xs text-gray-500 uppercase">Nome *</span>
-            <input
+          <FormField label="Nome *" htmlFor="template-name">
+            <Input
+              id="template-name"
               required
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
-              className="border rounded-lg px-3 py-2 w-full mt-1"
             />
-          </label>
-          <label className="block">
-            <span className="text-xs text-gray-500 uppercase">Tipo</span>
-            <select
+          </FormField>
+
+          <FormField label="Tipo" htmlFor="template-type">
+            <Select
+              items={TEMPLATE_TYPE_ITEMS}
               value={form.type}
-              onChange={(e) => setForm({ ...form, type: e.target.value })}
-              className="border rounded-lg px-3 py-2 w-full mt-1"
+              onValueChange={(v) => setForm({ ...form, type: v })}
+            />
+          </FormField>
+
+          <div className="md:col-span-2">
+            <FormField label="Descrição" htmlFor="template-description">
+              <Input
+                id="template-description"
+                value={form.description}
+                onChange={(e) => setForm({ ...form, description: e.target.value })}
+              />
+            </FormField>
+          </div>
+
+          <div className="md:col-span-2">
+            <FormField
+              label="HTML ({{recipientName}}, {{title}}, {{date}})"
+              htmlFor="template-html"
             >
-              {TEMPLATE_TYPES.map((t) => (
-                <option key={t} value={t}>
-                  {t}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="block md:col-span-2">
-            <span className="text-xs text-gray-500 uppercase">Descrição</span>
-            <input
-              value={form.description}
-              onChange={(e) =>
-                setForm({ ...form, description: e.target.value })
-              }
-              className="border rounded-lg px-3 py-2 w-full mt-1"
-            />
-          </label>
-          <label className="block md:col-span-2">
-            <span className="text-xs text-gray-500 uppercase">
-              HTML ({'{{recipientName}}'}, {'{{title}}'}, {'{{date}}'})
-            </span>
-            <textarea
-              required
-              value={form.html}
-              onChange={(e) => setForm({ ...form, html: e.target.value })}
-              className="border rounded-lg px-3 py-2 w-full mt-1 font-mono text-sm"
-              rows={4}
-            />
-          </label>
-          <label className="block">
-            <span className="text-xs text-gray-500 uppercase">Signatário</span>
-            <input
+              <Textarea
+                id="template-html"
+                required
+                value={form.html}
+                onChange={(e) => setForm({ ...form, html: e.target.value })}
+                className="font-data text-sm"
+                rows={4}
+              />
+            </FormField>
+          </div>
+
+          <FormField label="Signatário" htmlFor="template-signatory-name">
+            <Input
+              id="template-signatory-name"
               value={form.signatoryName}
-              onChange={(e) =>
-                setForm({ ...form, signatoryName: e.target.value })
-              }
-              className="border rounded-lg px-3 py-2 w-full mt-1"
+              onChange={(e) => setForm({ ...form, signatoryName: e.target.value })}
             />
-          </label>
-          <label className="block">
-            <span className="text-xs text-gray-500 uppercase">
-              Cargo do signatário
-            </span>
-            <input
+          </FormField>
+
+          <FormField label="Cargo do signatário" htmlFor="template-signatory-title">
+            <Input
+              id="template-signatory-title"
               value={form.signatoryTitle}
-              onChange={(e) =>
-                setForm({ ...form, signatoryTitle: e.target.value })
-              }
-              className="border rounded-lg px-3 py-2 w-full mt-1"
+              onChange={(e) => setForm({ ...form, signatoryTitle: e.target.value })}
             />
-          </label>
-          <label className="block">
-            <span className="text-xs text-gray-500 uppercase">
-              Validade (dias)
-            </span>
-            <input
+          </FormField>
+
+          <FormField label="Validade (dias)" htmlFor="template-validity-days">
+            <Input
+              id="template-validity-days"
               type="number"
               value={form.validityDays}
-              onChange={(e) =>
-                setForm({ ...form, validityDays: e.target.value })
-              }
-              className="border rounded-lg px-3 py-2 w-full mt-1"
+              onChange={(e) => setForm({ ...form, validityDays: e.target.value })}
             />
-          </label>
-          <label className="flex items-center gap-2 mt-6">
+          </FormField>
+
+          <label className="mt-6 flex items-center gap-2 font-body text-sm text-ink-muted">
             <input
               type="checkbox"
               checked={form.isDefault}
-              onChange={(e) =>
-                setForm({ ...form, isDefault: e.target.checked })
-              }
+              onChange={(e) => setForm({ ...form, isDefault: e.target.checked })}
+              className="rounded accent-primary"
             />
-            <span className="text-sm text-gray-600">
-              Template por omissão para este tipo
-            </span>
+            Template por omissão para este tipo
           </label>
+
           <div className="md:col-span-2">
-            <button
-              type="submit"
-              disabled={saving}
-              className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50"
-            >
+            <Button type="submit" disabled={saving} loading={saving}>
               {saving ? 'A guardar...' : 'Criar Template'}
-            </button>
+            </Button>
           </div>
         </form>
       )}
 
-      <div className="bg-white rounded-lg shadow divide-y divide-gray-100">
+      <div className="divide-y divide-border rounded-card border border-border bg-surface shadow-resting">
         {data.length === 0 ? (
-          <p className="p-4 text-gray-400">Sem templates criados</p>
+          <p className="p-4 font-body text-sm text-ink-faint">Sem templates criados</p>
         ) : (
           data.map((t) => (
-            <div key={t.id} className="p-4 flex justify-between items-center">
+            <div key={t.id} className="flex items-center justify-between p-4">
               <div>
-                <p className="font-medium">
+                <p className="flex items-center gap-2 font-body text-sm font-medium text-ink">
                   {t.name}
-                  {t.isDefault && (
-                    <span className="ml-2 text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">
-                      Padrão
-                    </span>
-                  )}
+                  {t.isDefault && <Badge intent="info">Padrão</Badge>}
                 </p>
-                <p className="text-xs text-gray-500">
+                <p className="font-body text-xs text-ink-faint">
                   {t.type}
-                  {t.validityDays
-                    ? ` · válido ${t.validityDays} dias`
-                    : ' · sem expiração'}
+                  {t.validityDays ? ` · válido ${t.validityDays} dias` : ' · sem expiração'}
                   {' · '}
                   {t._count?.certificates ?? 0} emitidos
                 </p>
               </div>
-              <span
-                className={`text-xs font-medium ${
-                  t.isActive ? 'text-green-600' : 'text-gray-400'
-                }`}
-              >
+              <Badge intent={t.isActive ? 'success' : 'neutral'}>
                 {t.isActive ? 'Activo' : 'Inactivo'}
-              </span>
+              </Badge>
             </div>
           ))
         )}
