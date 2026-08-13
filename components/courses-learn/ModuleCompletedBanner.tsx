@@ -4,6 +4,7 @@
 
 'use client';
 
+import { Button } from '@/components/ui/Button';
 import type { ModuleProgress } from './types';
 
 interface ModuleCompletedBannerProps {
@@ -16,19 +17,16 @@ export function ModuleCompletedBanner({
   onContinue,
 }: ModuleCompletedBannerProps) {
   return (
-    <div className="flex-1 bg-gray-950 flex items-center justify-center">
-      <div className="text-white text-center max-w-sm">
+    <div className="flex-1 bg-ink flex items-center justify-center">
+      <div className="text-canvas text-center max-w-sm">
         <div className="text-6xl mb-4">🎉</div>
-        <h2 className="text-2xl font-bold mb-2">Módulo concluído!</h2>
-        <p className="text-gray-300 mb-6">
+        <h2 className="font-display text-2xl font-bold mb-2">Módulo concluído!</h2>
+        <p className="font-body text-canvas/80 mb-6">
           Concluíste &quot;{mod.title}&quot; com sucesso.
         </p>
-        <button
-          onClick={onContinue}
-          className="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700"
-        >
+        <Button intent="secondary" onClick={onContinue}>
           Continuar para o próximo módulo →
-        </button>
+        </Button>
       </div>
     </div>
   );
