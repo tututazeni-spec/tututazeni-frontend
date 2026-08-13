@@ -2,6 +2,8 @@
 
 import { Search, X, Clock } from 'lucide-react';
 import type { RefObject } from 'react';
+import { IconButton } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
 import { ResultsView } from './ResultsView';
 import { SuggestionsPanel } from './SuggestionsPanel';
 import { TYPE_CONFIG } from './types';
@@ -35,19 +37,17 @@ export function SearchView({
   clear,
 }: SearchViewProps) {
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-canvas">
       {/* Search header */}
-      <div className="bg-white border-b border-slate-200 px-6 py-8">
-        <div className="max-w-3xl mx-auto">
-          <div className="flex items-center gap-2 mb-1">
-            <div className="p-1.5 bg-indigo-100 rounded-lg">
-              <Search size={18} className="text-indigo-600" />
+      <div className="border-b border-border bg-surface px-6 py-8">
+        <div className="mx-auto max-w-3xl">
+          <div className="mb-1 flex items-center gap-2">
+            <div className="rounded-control bg-primary-subtle p-1.5">
+              <Search size={18} strokeWidth={1.75} className="text-primary" />
             </div>
-            <h1 className="text-xl font-bold text-slate-800">
-              Pesquisa Universal
-            </h1>
+            <h1 className="font-display text-xl font-bold text-ink">Pesquisa Universal</h1>
           </div>
-          <p className="text-sm text-slate-400 mb-5">
+          <p className="mb-5 font-body text-sm text-ink-faint">
             Pesquisa colaboradores, cursos, conteúdos, PDIs e mais
           </p>
 
@@ -55,28 +55,30 @@ export function SearchView({
           <div className="relative">
             <Search
               size={18}
-              className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+              strokeWidth={1.75}
+              className="absolute left-4 top-1/2 -translate-y-1/2 text-ink-faint"
             />
-            <input
+            <Input
               ref={inputRef}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && doSearch(query)}
               placeholder="Pesquisar em toda a plataforma..."
-              className="w-full pl-12 pr-12 py-4 text-sm border border-slate-200 rounded-2xl shadow-sm focus:outline-none focus:border-indigo-400 focus:shadow-md transition-all"
+              className="w-full rounded-panel py-4 pl-12 pr-12 text-sm shadow-resting transition-shadow focus:shadow-hover"
             />
             {query && (
-              <button
+              <IconButton
+                icon={X}
+                label="Limpar pesquisa"
+                intent="ghost"
                 onClick={clear}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-              >
-                <X size={16} />
-              </button>
+                className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8"
+              />
             )}
 
             {/* Autocomplete dropdown */}
             {suggestions.length > 0 && !results && (
-              <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded-xl border border-slate-200 shadow-lg z-20">
+              <div className="absolute left-0 right-0 top-full z-20 mt-1 rounded-card border border-border bg-surface shadow-elevated">
                 {suggestions.map((s, i) => (
                   <button
                     key={i}
@@ -84,13 +86,11 @@ export function SearchView({
                       setQuery(s.text);
                       doSearch(s.text);
                     }}
-                    className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-slate-50 text-left"
+                    className="flex w-full items-center gap-3 px-4 py-2.5 text-left hover:bg-surface-sunken"
                   >
-                    <Clock size={12} className="text-slate-300 shrink-0" />
-                    <span className="text-sm text-slate-700">{s.text}</span>
-                    <span className="text-[10px] text-slate-400 ml-auto">
-                      {s.type}
-                    </span>
+                    <Clock size={14} strokeWidth={1.75} className="shrink-0 text-ink-faint" />
+                    <span className="font-body text-sm text-ink">{s.text}</span>
+                    <span className="ml-auto font-body text-[10px] text-ink-faint">{s.type}</span>
                   </button>
                 ))}
               </div>
@@ -98,16 +98,16 @@ export function SearchView({
           </div>
 
           {/* Quick type filters */}
-          <div className="flex flex-wrap gap-2 mt-4">
+          <div className="mt-4 flex flex-wrap gap-2">
             {Object.entries(TYPE_CONFIG).map(([key, conf]) => {
               const Icon = conf.icon;
               return (
                 <button
                   key={key}
                   onClick={() => searchByType(key, conf.path)}
-                  className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border ${conf.bg} ${conf.color} border-transparent hover:border-current`}
+                  className={`flex items-center gap-1.5 rounded-control border border-transparent px-3 py-1.5 font-body text-xs hover:border-current ${conf.bg} ${conf.color}`}
                 >
-                  <Icon size={12} />
+                  <Icon size={14} strokeWidth={1.75} />
                   {conf.label}
                 </button>
               );
@@ -117,10 +117,10 @@ export function SearchView({
       </div>
 
       {/* Content */}
-      <div className="max-w-5xl mx-auto px-6 py-8">
+      <div className="mx-auto max-w-5xl px-6 py-8">
         {loading && (
           <div className="flex items-center justify-center py-16">
-            <div className="w-8 h-8 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin" />
+            <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary-subtle border-t-primary" />
           </div>
         )}
 
@@ -134,11 +134,7 @@ export function SearchView({
         )}
 
         {!loading && results && (
-          <ResultsView
-            data={results}
-            activeType={activeType}
-            setActiveType={setActiveType}
-          />
+          <ResultsView data={results} activeType={activeType} setActiveType={setActiveType} />
         )}
       </div>
     </div>
