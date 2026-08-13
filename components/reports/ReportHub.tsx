@@ -10,7 +10,10 @@ import { Search } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { Skeleton } from './atoms';
+import { Card, CardBody } from '@/components/ui/Card';
+import { Input } from '@/components/ui/Input';
+import { Select } from '@/components/ui/Select';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { CAT_CONFIG } from './constants';
 import { TemplateCard } from './TemplateCard';
 import type { Template } from './types';
@@ -18,6 +21,13 @@ import type { Template } from './types';
 interface ReportHubProps {
   onRun: (t: Template) => void;
 }
+
+// Sentinel 'ALL' porque o Select da fundação (Radix) não aceita value=""
+// num Item — mesmo padrão usado em components/library/LibraryListView.tsx.
+const CATEGORY_ITEMS = [
+  { value: 'ALL', label: 'Todas as categorias' },
+  ...Object.entries(CAT_CONFIG).map(([k, v]) => ({ value: k, label: v.label })),
+];
 
 export function ReportHub({ onRun }: ReportHubProps) {
   const [search, setSearch] = useState('');
@@ -38,40 +48,41 @@ export function ReportHub({ onRun }: ReportHubProps) {
   return (
     <div className="space-y-6">
       {/* Search + filter */}
-      <div className="bg-white rounded-xl border border-slate-100 p-4 flex flex-wrap gap-3">
-        <div className="relative flex-1 min-w-[200px]">
-          <Search
-            size={14}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+      <Card>
+        <CardBody className="flex flex-wrap items-center gap-3">
+          <div className="relative min-w-[200px] flex-1">
+            <Search
+              size={14}
+              strokeWidth={1.75}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-faint"
+            />
+            <Input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Pesquisar templates..."
+              className="w-full pl-9"
+            />
+          </div>
+          <Select
+            items={CATEGORY_ITEMS}
+            value={category || 'ALL'}
+            onValueChange={(v) => setCategory(v === 'ALL' ? '' : v)}
+            className="w-56"
           />
-          <input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Pesquisar templates..."
-            className="w-full pl-9 pr-4 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:border-indigo-400"
-          />
-        </div>
-        <select
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          className="text-xs border border-slate-200 rounded-lg px-3 py-2 focus:outline-none"
-        >
-          <option value="">Todas as categorias</option>
-          {Object.entries(CAT_CONFIG).map(([k, v]) => (
-            <option key={k} value={k}>
-              {v.label}
-            </option>
-          ))}
-        </select>
-        <span className="text-xs text-slate-400 self-center">
-          {filtered.length} templates
-        </span>
-      </div>
+          <span className="self-center font-body text-xs text-ink-faint">
+            {filtered.length} templates
+          </span>
+        </CardBody>
+      </Card>
 
       {loading ? (
-        <Skeleton count={6} />
+        <Skeleton
+          rows={6}
+          wrapperClassName="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4"
+          itemClassName="skeleton-shimmer h-40 rounded-card"
+        />
       ) : (
-        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-4">
           {filtered.map((t) => (
             <TemplateCard key={t.id} tpl={t} onRun={onRun} />
           ))}
