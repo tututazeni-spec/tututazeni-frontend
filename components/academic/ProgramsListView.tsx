@@ -1,8 +1,23 @@
 // components/academic/ProgramsListView.tsx
 
+import Link from 'next/link';
+import { AlertCircle, BookOpen } from 'lucide-react';
+import { Badge } from '@/components/ui/Badge';
+import { Button, buttonVariants } from '@/components/ui/Button';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { Input } from '@/components/ui/Input';
+import { Select } from '@/components/ui/Select';
 import { CardGridSkeleton } from './shared';
-import { LEVEL_COLORS } from './types';
+import { LEVEL_INTENT } from './types';
 import type { Program } from './types';
+
+const LEVEL_ITEMS = [
+  { value: 'ALL', label: 'Todos os níveis' },
+  { value: 'BASIC', label: 'Básico' },
+  { value: 'INTERMEDIATE', label: 'Intermédio' },
+  { value: 'ADVANCED', label: 'Avançado' },
+  { value: 'EXPERT', label: 'Especialista' },
+];
 
 interface ProgramsListViewProps {
   data: Program[];
@@ -38,12 +53,12 @@ export function ProgramsListView({
   if (error)
     return (
       <div className="p-6">
-        <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-lg">
-          {error}
-          <button onClick={onRetry} className="ml-4 underline">
-            Tentar novamente
-          </button>
-        </div>
+        <EmptyState
+          icon={AlertCircle}
+          title="Erro ao carregar programas"
+          description={error}
+          action={{ label: 'Tentar novamente', onClick: onRetry }}
+        />
       </div>
     );
 
@@ -51,98 +66,88 @@ export function ProgramsListView({
     <div className="p-6 space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="font-display text-2xl font-bold text-ink">
             Programas Académicos
           </h1>
-          <p className="text-gray-500">{total} programas disponíveis</p>
+          <p className="font-body text-ink-muted">{total} programas disponíveis</p>
         </div>
-        <a
+        <Link
           href="/academic/transcript"
-          className="px-4 py-2 border rounded-lg hover:bg-gray-50"
+          className={buttonVariants({ intent: 'secondary', size: 'sm' })}
         >
           A minha transcrição
-        </a>
+        </Link>
       </div>
 
       <div className="flex gap-4 flex-wrap">
-        <input
+        <Input
           type="text"
           placeholder="Pesquisar por nome ou código..."
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
-          className="border rounded-lg px-4 py-2 flex-1 min-w-[200px]"
+          className="flex-1 min-w-[200px]"
         />
-        <select
-          value={levelFilter}
-          onChange={(e) => onLevelFilterChange(e.target.value)}
-          className="border rounded-lg px-4 py-2"
-        >
-          <option value="">Todos os níveis</option>
-          <option value="BASIC">Básico</option>
-          <option value="INTERMEDIATE">Intermédio</option>
-          <option value="ADVANCED">Avançado</option>
-          <option value="EXPERT">Especialista</option>
-        </select>
+        <Select
+          value={levelFilter || 'ALL'}
+          onValueChange={(value) => onLevelFilterChange(value === 'ALL' ? '' : value)}
+          items={LEVEL_ITEMS}
+        />
       </div>
 
       {data.length === 0 ? (
-        <div className="text-center py-12 text-gray-400">
-          Nenhum programa encontrado
-        </div>
+        <EmptyState
+          icon={BookOpen}
+          title="Nenhum programa encontrado"
+          description="Não há programas para os filtros seleccionados."
+        />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {data.map((p) => (
-            <a
+            <Link
               key={p.id}
               href={`/academic/programs/${p.id}`}
-              className="bg-white rounded-lg shadow hover:shadow-md transition p-5 flex flex-col"
+              className="flex flex-col rounded-card border border-border bg-surface p-5 shadow-resting transition-shadow duration-150 hover:shadow-hover"
             >
               <div className="flex justify-between items-start mb-2">
-                <span className="font-mono text-xs text-blue-600">
-                  {p.code}
-                </span>
-                <span
-                  className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                    LEVEL_COLORS[p.level] ?? 'bg-gray-100 text-gray-600'
-                  }`}
-                >
-                  {p.level}
-                </span>
+                <span className="font-data text-xs text-accent">{p.code}</span>
+                <Badge intent={LEVEL_INTENT[p.level] ?? 'neutral'}>{p.level}</Badge>
               </div>
-              <h3 className="font-semibold text-gray-900 mb-2">{p.name}</h3>
-              <p className="text-sm text-gray-500 line-clamp-2 mb-3">
+              <h3 className="font-body font-semibold text-ink mb-2">{p.name}</h3>
+              <p className="font-body text-sm text-ink-muted line-clamp-2 mb-3">
                 {p.description || 'Sem descrição'}
               </p>
-              <div className="mt-auto flex justify-between text-xs text-gray-400 pt-3 border-t">
+              <div className="mt-auto flex justify-between font-body text-xs text-ink-faint pt-3 border-t border-border">
                 <span>{p.durationHours}h</span>
                 <span>{p._count?.enrollments || 0} alunos</span>
                 <span>{p._count?.classes || 0} turmas</span>
               </div>
-            </a>
+            </Link>
           ))}
         </div>
       )}
 
       {totalPages > 1 && (
         <div className="flex justify-between items-center">
-          <span className="text-gray-500">
+          <span className="font-body text-ink-muted">
             Página {page} de {totalPages}
           </span>
           <div className="flex gap-2">
-            <button
+            <Button
+              intent="secondary"
+              size="sm"
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page === 1}
-              className="px-4 py-2 border rounded-lg disabled:opacity-50"
             >
               Anterior
-            </button>
-            <button
+            </Button>
+            <Button
+              intent="secondary"
+              size="sm"
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               disabled={page === totalPages}
-              className="px-4 py-2 border rounded-lg disabled:opacity-50"
             >
               Próxima
-            </button>
+            </Button>
           </div>
         </div>
       )}
