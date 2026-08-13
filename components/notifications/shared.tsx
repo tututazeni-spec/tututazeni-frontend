@@ -9,34 +9,34 @@ export const CATEGORY_CFG: Record<
   string,
   { icon: string; label: string; cls: string }
 > = {
-  LMS: { icon: '🎓', label: 'Aprendizagem', cls: 'bg-blue-50 text-blue-700' },
-  PDI: { icon: '🎯', label: 'PDI', cls: 'bg-purple-50 text-purple-700' },
+  LMS: { icon: '🎓', label: 'Aprendizagem', cls: 'bg-info-subtle text-info-ink' },
+  PDI: { icon: '🎯', label: 'PDI', cls: 'bg-primary-subtle text-primary' },
   PERFORMANCE: {
     icon: '📊',
     label: 'Performance',
-    cls: 'bg-amber-50 text-amber-700',
+    cls: 'bg-warning-subtle text-warning-ink',
   },
-  HR: { icon: '👤', label: 'RH', cls: 'bg-emerald-50 text-emerald-700' },
+  HR: { icon: '👤', label: 'RH', cls: 'bg-success-subtle text-success-ink' },
   ENGAGEMENT: {
     icon: '💬',
     label: 'Engagement',
-    cls: 'bg-pink-50 text-pink-700',
+    cls: 'bg-danger-subtle text-danger-ink',
   },
   GAMIFICATION: {
     icon: '🏆',
     label: 'Gamificação',
-    cls: 'bg-yellow-50 text-yellow-700',
+    cls: 'bg-accent-subtle text-accent',
   },
-  SYSTEM: { icon: '⚙️', label: 'Sistema', cls: 'bg-gray-100 text-gray-600' },
+  SYSTEM: { icon: '⚙️', label: 'Sistema', cls: 'bg-surface-sunken text-ink-muted' },
   ONBOARDING: {
     icon: '🚀',
     label: 'Onboarding',
-    cls: 'bg-teal-50 text-teal-700',
+    cls: 'bg-info-subtle text-info-ink',
   },
   KNOWLEDGE: {
     icon: '📚',
     label: 'Conhecimento',
-    cls: 'bg-indigo-50 text-indigo-700',
+    cls: 'bg-primary-subtle text-primary',
   },
 };
 
@@ -49,7 +49,7 @@ export function Skeleton({ rows = 4 }: SkeletonProps) {
     <SharedSkeleton
       rows={rows}
       wrapperClassName="space-y-2 animate-pulse"
-      itemClassName="h-16 bg-gray-100 rounded-xl"
+      itemClassName="h-16 bg-surface-sunken rounded-card"
     />
   );
 }
