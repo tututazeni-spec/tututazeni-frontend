@@ -119,13 +119,37 @@ trilhas, tratado à parte só depois dessa decisão ser tomada.
 - [ ] **Step 3:** Aguardar os 10 PRs com CI (`build`) verde; squash-merge cada um (auto-merge conforme preferência já registada).
 - [ ] **Step 4:** Antes de avançar para a Vaga 2, rever se algum destes 10 módulos revelou um gap de `components/ui/` não coberto pelo piloto (ex.: precisa de `Checkbox`, de uma variante de `Table` não usada em `engagement`) — se sim, é o ponto de decisão da constraint "3+ módulos independentes" acima.
 
+**Concluído 2026-08-13 (PRs #187-#196).** Achados que ajustam as vagas
+seguintes (ver `project_innova_design_system_rollout_wave1` na memória):
+(1) despachar 10 agentes em paralelo de uma vez contribuiu para bater num
+limite de sessão da conta a meio da vaga — reduzir a concorrência por lote
+nas vagas seguintes; (2) o ficheiro deste plano de rollout tem de estar
+**commitado** antes de despachar agentes com `isolation: "worktree"` — um
+worktree bifurca do HEAD do branch, não do working tree sujo do
+orquestrador, por isso um plano só escrito localmente fica invisível aos
+agentes (mitigado nessa vaga inline-ando a receita em cada prompt; a
+fazer bem desta vez é commitar primeiro); (3) o checkout principal do
+orquestrador precisa de `npm install` corrido depois de qualquer PR que
+mexa em dependências (`node_modules` desactualizado deu falsos positivos
+de erro de tsc na verificação final).
+
 ---
 
-### Task 3: Vaga 2 — Trilha 1, Tier M (25 módulos)
+### Task 3: Vaga 2 — Trilha 1, Tier M (25 módulos, 5 lotes de 5)
 
 **Files:** Um plano detalhado por módulo.
 
-**Módulos:** api-integrations, reports, courses-learn, ai-tutor, roles-permissions, micro-learning, executive-reports, audit, career-plans, competency-map, instructor, documents, development-plans, organization, departments, history, knowledge, trainings, events, leader, assessments, learning-paths, sucession, onboarding, leave.
+**Ajuste pós-Vaga 1:** em vez de 3 lotes de ~8-9 módulos em paralelo,
+reduzir para **5 lotes sequenciais de 5 módulos em paralelo cada**, com
+verificação (`tsc`/`build`/`test` no `main` sincronizado) entre lotes —
+concorrência mais baixa por lote para não repetir o limite de sessão que
+interrompeu a Vaga 1.
+
+- **Lote 1:** api-integrations, reports, courses-learn, ai-tutor, roles-permissions
+- **Lote 2:** micro-learning, executive-reports, audit, career-plans, competency-map
+- **Lote 3:** instructor, documents, development-plans, organization, departments
+- **Lote 4:** history, knowledge, trainings, events, leader
+- **Lote 5:** assessments, learning-paths, sucession, onboarding, leave
 
 - [ ] **Step 1:** Sub-dividir em 3 lotes de ~8-9 módulos para paralelismo controlado (não despachar os 25 de uma vez — mesmo tecto de concorrência usado nas séries `any-cleanup`/`view-split` deste repo, tipicamente 1 branch por agente de cada vez com revisão entre lotes).
 - [ ] **Step 2:** Para cada módulo, gerar o plano detalhado (Task 0 recipe) e executá-lo até PR aberto.
