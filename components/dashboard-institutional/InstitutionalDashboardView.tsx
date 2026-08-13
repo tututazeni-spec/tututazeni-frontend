@@ -1,6 +1,25 @@
 // components/dashboard-institutional/InstitutionalDashboardView.tsx
+//
+// Apresentação pura do dashboard institucional — dados vêm 100% de
+// useInstitutionalDashboard() via app/(platform)/dashboard/institutional/page.tsx.
+// MiniBarChart é um gráfico de barras bespoke sem equivalente em
+// components/ui/ — fica local (não exportado), só troca cores cruas por
+// tokens da fundação de design.
 
-import { KpiCard, MiniBarChart } from './atoms';
+import {
+  Award,
+  BookOpen,
+  GraduationCap,
+  Handshake,
+  HeartHandshake,
+  Library,
+  Users,
+  Wallet,
+} from 'lucide-react';
+import { Button } from '@/components/ui/Button';
+import { Card, CardBody } from '@/components/ui/Card';
+import { KpiCard } from '@/components/ui/KpiCard';
+import { Skeleton } from '@/components/ui/Skeleton';
 import type { Alerts, Summary, TrendPoint } from './types';
 
 interface InstitutionalDashboardViewProps {
@@ -10,6 +29,26 @@ interface InstitutionalDashboardViewProps {
   loading: boolean;
   error: string;
   onRetry: () => void;
+}
+
+function MiniBarChart({ data }: { data: TrendPoint[] }) {
+  const max = Math.max(...data.map((d) => d.users), 1);
+  return (
+    <div className="flex h-32 items-end gap-2">
+      {data.map((d, i) => (
+        <div key={i} className="flex flex-1 flex-col items-center gap-1">
+          <div
+            className="w-full rounded-t-control bg-primary"
+            style={{ height: `${(d.users / max) * 100}%`, minHeight: '4px' }}
+            title={`${d.month}: ${d.users}`}
+          />
+          <span className="font-body text-[10px] text-ink-faint">
+            {d.month.split(' ')[0]}
+          </span>
+        </div>
+      ))}
+    </div>
+  );
 }
 
 export function InstitutionalDashboardView({
@@ -22,28 +61,28 @@ export function InstitutionalDashboardView({
 }: InstitutionalDashboardViewProps) {
   if (loading)
     return (
-      <div className="p-6 grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {[...Array(8)].map((_, i) => (
-          <div key={i} className="h-28 bg-gray-100 rounded-xl animate-pulse" />
-        ))}
-      </div>
+      <Skeleton
+        rows={8}
+        wrapperClassName="grid grid-cols-2 gap-4 p-6 lg:grid-cols-4"
+        itemClassName="skeleton-shimmer h-28 rounded-card"
+      />
     );
 
   if (error)
     return (
       <div className="p-6">
-        <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-lg">
-          {error}
-          <button onClick={onRetry} className="ml-4 underline">
+        <div className="flex flex-wrap items-center gap-4 rounded-card border border-danger bg-danger-subtle p-4">
+          <p className="font-body text-sm text-danger-ink">{error}</p>
+          <Button size="sm" intent="secondary" onClick={onRetry}>
             Tentar novamente
-          </button>
+          </Button>
         </div>
       </div>
     );
 
   return (
-    <div className="p-6 space-y-6">
-      <h1 className="text-2xl font-bold text-gray-900">
+    <div className="space-y-6 p-6">
+      <h1 className="font-display text-2xl font-bold text-ink">
         Dashboard Institucional
       </h1>
 
@@ -52,24 +91,24 @@ export function InstitutionalDashboardView({
         (alerts.critical > 0 ||
           alerts.warnings > 0 ||
           alerts.reminders > 0) && (
-          <div className="flex gap-4 flex-wrap">
+          <div className="flex flex-wrap gap-4">
             {alerts.critical > 0 && (
-              <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-3 flex-1 min-w-[180px]">
-                <span className="text-red-700 font-semibold">
+              <div className="min-w-[180px] flex-1 rounded-card border border-danger bg-danger-subtle px-4 py-3">
+                <span className="font-body font-semibold text-danger-ink">
                   {alerts.critical} alertas críticos
                 </span>
               </div>
             )}
             {alerts.warnings > 0 && (
-              <div className="bg-yellow-50 border border-yellow-200 rounded-lg px-4 py-3 flex-1 min-w-[180px]">
-                <span className="text-yellow-700 font-semibold">
+              <div className="min-w-[180px] flex-1 rounded-card border border-warning bg-warning-subtle px-4 py-3">
+                <span className="font-body font-semibold text-warning-ink">
                   {alerts.warnings} avisos
                 </span>
               </div>
             )}
             {alerts.reminders > 0 && (
-              <div className="bg-blue-50 border border-blue-200 rounded-lg px-4 py-3 flex-1 min-w-[180px]">
-                <span className="text-blue-700 font-semibold">
+              <div className="min-w-[180px] flex-1 rounded-card border border-info bg-info-subtle px-4 py-3">
+                <span className="font-body font-semibold text-info-ink">
                   {alerts.reminders} lembretes
                 </span>
               </div>
@@ -79,32 +118,41 @@ export function InstitutionalDashboardView({
 
       {/* KPIs principais */}
       {summary && (
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
           <KpiCard
+            icon={Users}
             label="Funcionários"
             value={summary.people.total}
             sub={`+${summary.people.newThisMonth} este mês`}
-            color="text-blue-600"
+            intent="info"
           />
           <KpiCard
+            icon={GraduationCap}
             label="Inscrições Activas"
             value={summary.learning.activeEnrollments}
             sub={`${summary.learning.completionRate}% conclusão`}
-            color="text-green-600"
+            intent="success"
           />
-          <KpiCard label="Beneficiários" value={summary.crm.beneficiaries} />
           <KpiCard
+            icon={HeartHandshake}
+            label="Beneficiários"
+            value={summary.crm.beneficiaries}
+          />
+          <KpiCard
+            icon={Wallet}
             label="Financiamento"
             value={`AOA ${(summary.crm.totalFunding / 1_000_000).toFixed(1)}M`}
-            color="text-purple-600"
+            intent="accent"
           />
-          <KpiCard label="Cursos" value={summary.learning.courses} />
-          <KpiCard label="Parceiros" value={summary.crm.partners} />
+          <KpiCard icon={BookOpen} label="Cursos" value={summary.learning.courses} />
+          <KpiCard icon={Handshake} label="Parceiros" value={summary.crm.partners} />
           <KpiCard
+            icon={Award}
             label="Certificados"
             value={summary.knowledge.certificates}
           />
           <KpiCard
+            icon={Library}
             label="Biblioteca"
             value={summary.knowledge.libraryItems}
             sub="recursos"
@@ -113,16 +161,18 @@ export function InstitutionalDashboardView({
       )}
 
       {/* Tendência */}
-      <div className="bg-white rounded-xl shadow p-5">
-        <h2 className="font-semibold text-gray-900 mb-4">
-          Novos Funcionários (6 meses)
-        </h2>
-        {trend.length > 0 ? (
-          <MiniBarChart data={trend} />
-        ) : (
-          <p className="text-gray-400 text-sm">Sem dados de tendência</p>
-        )}
-      </div>
+      <Card>
+        <CardBody>
+          <h3 className="mb-4 font-display font-semibold text-ink">
+            Novos Funcionários (6 meses)
+          </h3>
+          {trend.length > 0 ? (
+            <MiniBarChart data={trend} />
+          ) : (
+            <p className="font-body text-sm text-ink-faint">Sem dados de tendência</p>
+          )}
+        </CardBody>
+      </Card>
     </div>
   );
 }
