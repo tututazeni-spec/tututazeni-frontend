@@ -7,13 +7,19 @@
 
 import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
+import { Layers, Pencil, Plus, Trash2, Upload } from 'lucide-react';
 import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
+import { Badge } from '@/components/ui/Badge';
+import { Button, IconButton } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { Input } from '@/components/ui/Input';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { fmtDuration, lessonIcon, moduleTypeLabel } from './utils';
-import { Skeleton } from './atoms';
 import type { CourseDetail, Module } from './types';
 
 interface ModuleBuilderProps {
@@ -88,54 +94,54 @@ export function ModuleBuilder({ courseId }: ModuleBuilderProps) {
     }
   };
 
-  if (loading) return <Skeleton rows={4} />;
+  if (loading)
+    return <Skeleton rows={4} itemClassName="skeleton-shimmer h-12 rounded-card" />;
 
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
-        <div className="text-xs font-medium text-gray-400 uppercase tracking-wide">
+        <div className="font-body text-xs font-medium text-ink-faint uppercase tracking-wide">
           {modules.length} módulos
         </div>
-        <button
-          onClick={() => setCreatingModule(true)}
-          className="px-3 py-1.5 bg-blue-700 text-white text-xs font-medium rounded-lg hover:bg-blue-800"
-        >
-          + Adicionar módulo
-        </button>
+        <Button size="sm" onClick={() => setCreatingModule(true)}>
+          <Plus size={14} strokeWidth={1.75} />
+          Adicionar módulo
+        </Button>
       </div>
 
       {/* Create module form */}
       {creatingModule && (
-        <div className="mb-4 p-4 bg-blue-50 border border-blue-100 rounded-xl">
-          <div className="text-xs font-medium text-blue-700 mb-2">
+        <div className="mb-4 p-4 rounded-card border border-primary bg-primary-subtle">
+          <div className="font-body text-xs font-medium text-primary mb-2">
             Novo módulo
           </div>
-          <input
+          <Input
             type="text"
             placeholder="Título do módulo"
             value={newModuleTitle}
             onChange={(e) => setNewModuleTitle(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleCreateModule()}
             autoFocus
-            className="w-full text-sm border border-blue-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white mb-2"
+            className="w-full mb-2 bg-surface"
           />
           <div className="flex gap-2">
-            <button
+            <Button
+              size="sm"
               onClick={handleCreateModule}
               disabled={!newModuleTitle.trim() || saving}
-              className="px-3 py-1.5 bg-blue-700 text-white text-xs font-medium rounded-lg disabled:opacity-50"
             >
               {saving ? 'A criar…' : 'Criar'}
-            </button>
-            <button
+            </Button>
+            <Button
+              size="sm"
+              intent="secondary"
               onClick={() => {
                 setCreatingModule(false);
                 setNewModuleTitle('');
               }}
-              className="px-3 py-1.5 text-xs text-gray-600 border border-gray-200 rounded-lg"
             >
               Cancelar
-            </button>
+            </Button>
           </div>
         </div>
       )}
@@ -143,20 +149,17 @@ export function ModuleBuilder({ courseId }: ModuleBuilderProps) {
       {/* Module list */}
       <div className="space-y-2">
         {modules.map((mod, idx) => (
-          <div
-            key={mod.id}
-            className="bg-white border border-gray-200 rounded-xl overflow-hidden"
-          >
+          <Card key={mod.id} className="overflow-hidden">
             {/* Module header */}
             <div className="flex items-center gap-3 px-4 py-3">
               {/* Drag handle */}
-              <span className="text-gray-300 cursor-grab text-sm">⠿</span>
-              <div className="w-5 h-5 rounded-full bg-gray-100 flex items-center justify-center text-xs text-gray-500 font-mono flex-shrink-0">
+              <span className="text-ink-faint cursor-grab text-sm">⠿</span>
+              <div className="w-5 h-5 rounded-full bg-surface-sunken flex items-center justify-center font-data text-xs text-ink-muted flex-shrink-0">
                 {idx + 1}
               </div>
               <div className="flex-1">
                 {editingModule === mod.id ? (
-                  <input
+                  <Input
                     type="text"
                     defaultValue={mod.title}
                     autoFocus
@@ -169,31 +172,25 @@ export function ModuleBuilder({ courseId }: ModuleBuilderProps) {
                       }
                       setEditingModule(null);
                     }}
-                    className="text-sm font-medium border border-blue-300 rounded px-2 py-0.5 w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    className="text-sm font-medium w-full"
                   />
                 ) : (
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium text-gray-900">
+                    <span className="font-body text-sm font-medium text-ink">
                       {mod.title}
                     </span>
                     {mod.type && (
-                      <span className="text-xs text-gray-400">
+                      <span className="font-body text-xs text-ink-faint">
                         {moduleTypeLabel(mod.type)}
                       </span>
                     )}
-                    <span
-                      className={`text-xs px-1.5 rounded ${mod.status === 'PUBLISHED' ? 'bg-emerald-50 text-emerald-700' : 'bg-gray-100 text-gray-500'}`}
-                    >
+                    <Badge intent={mod.status === 'PUBLISHED' ? 'success' : 'neutral'}>
                       {mod.status === 'PUBLISHED' ? 'Publicado' : 'Rascunho'}
-                    </span>
-                    {!mod.mandatory && (
-                      <span className="text-xs bg-blue-50 text-blue-600 px-1.5 rounded">
-                        Opcional
-                      </span>
-                    )}
+                    </Badge>
+                    {!mod.mandatory && <Badge intent="info">Opcional</Badge>}
                   </div>
                 )}
-                <div className="text-xs text-gray-400 mt-0.5">
+                <div className="font-body text-xs text-ink-faint mt-0.5">
                   {mod._count.lessons} aulas
                   {mod.dripDays ? ` · Drip: ${mod.dripDays} dias` : ''}
                   {mod.progressionType === 'SEQUENTIAL'
@@ -204,63 +201,64 @@ export function ModuleBuilder({ courseId }: ModuleBuilderProps) {
 
               {/* Actions */}
               <div className="flex gap-1">
-                <button
+                <IconButton
+                  icon={Pencil}
+                  label="Editar"
+                  intent="ghost"
                   onClick={() => setEditingModule(mod.id)}
-                  className="w-7 h-7 text-xs text-gray-400 hover:text-gray-700 border border-gray-200 rounded-lg flex items-center justify-center"
-                  title="Editar"
-                >
-                  ✏
-                </button>
+                />
                 {mod.status === 'DRAFT' && (
-                  <button
+                  <IconButton
+                    icon={Upload}
+                    label="Publicar"
+                    intent="ghost"
+                    className="hover:bg-success-subtle hover:text-success-ink"
                     onClick={() => handlePublish(mod.id)}
-                    className="w-7 h-7 text-xs text-emerald-600 hover:text-emerald-800 border border-emerald-200 rounded-lg flex items-center justify-center"
-                    title="Publicar"
-                  >
-                    ↑
-                  </button>
+                  />
                 )}
-                <button
+                <IconButton
+                  icon={Trash2}
+                  label="Eliminar"
+                  intent="ghost"
+                  className="hover:bg-danger-subtle hover:text-danger"
                   onClick={() => handleDelete(mod.id)}
-                  className="w-7 h-7 text-xs text-red-400 hover:text-red-600 border border-red-100 rounded-lg flex items-center justify-center"
-                  title="Eliminar"
-                >
-                  ✕
-                </button>
+                />
               </div>
             </div>
 
             {/* Lessons preview */}
             {mod.lessons.length > 0 && (
-              <div className="border-t border-gray-100 px-4 py-2">
+              <div className="border-t border-border px-4 py-2">
                 {mod.lessons.slice(0, 3).map((l) => (
                   <div
                     key={l.id}
-                    className="flex items-center gap-2 py-1 text-xs text-gray-500"
+                    className="flex items-center gap-2 py-1 font-body text-xs text-ink-muted"
                   >
                     <span>{lessonIcon(l.type)}</span>
                     <span className="truncate">{l.title}</span>
                     {l.durationMinutes && (
-                      <span className="text-gray-300">
+                      <span className="text-ink-faint">
                         {fmtDuration(l.durationMinutes)}
                       </span>
                     )}
                   </div>
                 ))}
                 {mod.lessons.length > 3 && (
-                  <div className="text-xs text-gray-400 mt-1">
+                  <div className="font-body text-xs text-ink-faint mt-1">
                     +{mod.lessons.length - 3} mais aulas
                   </div>
                 )}
               </div>
             )}
-          </div>
+          </Card>
         ))}
 
         {modules.length === 0 && (
-          <div className="py-12 text-center text-sm text-gray-400 border border-dashed border-gray-200 rounded-xl">
-            Sem módulos. Adicione o primeiro módulo acima.
-          </div>
+          <EmptyState
+            icon={Layers}
+            title="Sem módulos"
+            description="Adicione o primeiro módulo acima."
+          />
         )}
       </div>
     </div>
