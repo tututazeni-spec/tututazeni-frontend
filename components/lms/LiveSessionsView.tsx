@@ -1,6 +1,10 @@
 // components/lms/LiveSessionsView.tsx
 
+import { Video } from 'lucide-react';
 import { formatDateTime } from '@/lib/format';
+import { Button } from '@/components/ui/Button';
+import { Card, CardBody } from '@/components/ui/Card';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorBanner, ListSkeleton } from './shared';
 import { PLATFORM_ICONS } from './types';
 import type { Session } from './types';
@@ -32,89 +36,84 @@ export function LiveSessionsView({
   if (error) return <ErrorBanner message={error} onRetry={onRetry} />;
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex justify-between items-center">
+    <div className="space-y-6 p-6">
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Sessões ao Vivo</h1>
-          <p className="text-gray-500">{total} próximas sessões</p>
+          <h1 className="font-display text-2xl font-bold text-ink">Sessões ao Vivo</h1>
+          <p className="font-body text-ink-muted">{total} próximas sessões</p>
         </div>
-        <a href="/lms/paths" className="text-sm text-blue-600 hover:underline">
+        <a href="/lms/paths" className="font-body text-sm text-primary hover:underline">
           ← Percursos
         </a>
       </div>
 
       {data.length === 0 ? (
-        <p className="text-gray-400">Sem sessões agendadas.</p>
+        <EmptyState
+          icon={Video}
+          title="Sem sessões agendadas"
+          description="Não há sessões ao vivo agendadas de momento."
+        />
       ) : (
         <div className="space-y-4">
           {data.map((s) => (
-            <div
-              key={s.id}
-              className="bg-white rounded-lg shadow p-5 flex justify-between items-center"
-            >
-              <div className="flex gap-4 items-start">
-                <div className="text-3xl">
-                  {PLATFORM_ICONS[s.platform] || '🔗'}
+            <Card key={s.id}>
+              <CardBody className="flex items-center justify-between">
+                <div className="flex items-start gap-4">
+                  <div className="text-3xl">{PLATFORM_ICONS[s.platform] || '🔗'}</div>
+                  <div>
+                    <h3 className="font-display text-sm font-semibold text-ink">{s.title}</h3>
+                    <p className="font-data text-xs text-ink-faint">{s.code}</p>
+                    <p className="mt-1 font-body text-sm text-ink-muted">
+                      {formatDateTime(s.scheduledAt)} · {s.duration} min
+                      {s.instructor?.fullName ? ` · ${s.instructor.fullName}` : ''}
+                    </p>
+                    <p className="mt-1 font-body text-xs text-ink-faint">
+                      {s._count?.attendances ?? 0}
+                      {s.maxAttendees ? `/${s.maxAttendees}` : ''} inscritos · {s.status}
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-semibold text-gray-900">{s.title}</h3>
-                  <p className="text-xs text-gray-500 font-mono">{s.code}</p>
-                  <p className="text-sm text-gray-500 mt-1">
-                    {formatDateTime(s.scheduledAt)} · {s.duration} min
-                    {s.instructor?.fullName
-                      ? ` · ${s.instructor.fullName}`
-                      : ''}
-                  </p>
-                  <p className="text-xs text-gray-400 mt-1">
-                    {s._count?.attendances ?? 0}
-                    {s.maxAttendees ? `/${s.maxAttendees}` : ''} inscritos ·{' '}
-                    {s.status}
-                  </p>
+                <div className="flex flex-col items-end gap-2">
+                  <Button size="sm" onClick={() => register(s.id)}>
+                    Inscrever-me
+                  </Button>
+                  {s.meetingUrl && (
+                    <a
+                      href={s.meetingUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="font-body text-xs text-primary hover:underline"
+                    >
+                      Link da reunião
+                    </a>
+                  )}
                 </div>
-              </div>
-              <div className="flex flex-col gap-2 items-end">
-                <button
-                  onClick={() => register(s.id)}
-                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm"
-                >
-                  Inscrever-me
-                </button>
-                {s.meetingUrl && (
-                  <a
-                    href={s.meetingUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-xs text-blue-600 hover:underline"
-                  >
-                    Link da reunião
-                  </a>
-                )}
-              </div>
-            </div>
+              </CardBody>
+            </Card>
           ))}
         </div>
       )}
 
       {totalPages > 1 && (
-        <div className="flex justify-between items-center">
-          <span className="text-gray-500">
+        <div className="flex items-center justify-between">
+          <span className="font-body text-ink-muted">
             Página {page} de {totalPages}
           </span>
           <div className="flex gap-2">
-            <button
+            <Button
+              intent="secondary"
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page === 1}
-              className="px-4 py-2 border rounded-lg disabled:opacity-50"
             >
               Anterior
-            </button>
-            <button
+            </Button>
+            <Button
+              intent="secondary"
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               disabled={page === totalPages}
-              className="px-4 py-2 border rounded-lg disabled:opacity-50"
             >
               Próxima
-            </button>
+            </Button>
           </div>
         </div>
       )}
