@@ -1,9 +1,10 @@
-﻿// src/app/(dashboard)/notifications/page.tsx
+// app/(platform)/notifications/page.tsx
 'use client';
 
 import { useState, useEffect } from 'react';
 import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
+import { cn } from '@/lib/cn';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import {
@@ -14,6 +15,9 @@ import { useNotificationsAdmin } from '@/hooks/useNotificationsAdmin';
 import { InboxView as InboxDetailView } from '@/components/notifications/InboxView';
 import { AdminView as AdminDetailView } from '@/components/notifications/AdminView';
 import { CATEGORY_CFG, Skeleton } from '@/components/notifications/shared';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 // Priority/Category/Notification/NotifData/Stats/AdminForm vivem em
@@ -117,8 +121,8 @@ function PreferencesView() {
   return (
     <div className="max-w-xl space-y-5">
       {/* Canais */}
-      <div className="bg-white border border-gray-200 rounded-xl p-5">
-        <div className="text-sm font-semibold text-gray-900 mb-4">
+      <Card className="p-5">
+        <div className="mb-4 font-display text-sm font-semibold text-ink">
           Canais de notificação
         </div>
         {[
@@ -149,38 +153,44 @@ function PreferencesView() {
         ].map(({ key, label, sub, icon }) => (
           <div
             key={key}
-            className="flex items-center justify-between py-3 border-b border-gray-100 last:border-0"
+            className="flex items-center justify-between border-b border-border py-3 last:border-0"
           >
             <div className="flex items-center gap-3">
               <span className="text-xl">{icon}</span>
               <div>
-                <div className="text-sm font-medium text-gray-900">{label}</div>
-                <div className="text-xs text-gray-400">{sub}</div>
+                <div className="font-body text-sm font-medium text-ink">{label}</div>
+                <div className="font-body text-xs text-ink-faint">{sub}</div>
               </div>
             </div>
             <button
               onClick={() => toggle(key)}
-              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${prefs[key] ? 'bg-blue-600' : 'bg-gray-200'}`}
+              className={cn(
+                'relative inline-flex h-6 w-11 items-center rounded-pill transition-colors',
+                prefs[key] ? 'bg-primary' : 'bg-border-strong',
+              )}
             >
               <span
-                className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${prefs[key] ? 'translate-x-6' : 'translate-x-1'}`}
+                className={cn(
+                  'inline-block h-4 w-4 transform rounded-full bg-surface shadow-resting transition-transform',
+                  prefs[key] ? 'translate-x-6' : 'translate-x-1',
+                )}
               />
             </button>
           </div>
         ))}
-      </div>
+      </Card>
 
       {/* Horário silencioso */}
-      <div className="bg-white border border-gray-200 rounded-xl p-5">
-        <div className="text-sm font-semibold text-gray-900 mb-1">
+      <Card className="p-5">
+        <div className="mb-1 font-display text-sm font-semibold text-ink">
           🌙 Horário silencioso
         </div>
-        <div className="text-xs text-gray-400 mb-4">
+        <div className="mb-4 font-body text-xs text-ink-faint">
           Sem notificações push/SMS neste período
         </div>
         <div className="flex items-center gap-3">
           <div>
-            <div className="text-xs text-gray-400 mb-1">Das</div>
+            <div className="mb-1 font-body text-xs text-ink-faint">Das</div>
             <select
               value={prefs.quietHourStart}
               onChange={(e) =>
@@ -188,7 +198,7 @@ function PreferencesView() {
                   p ? { ...p, quietHourStart: parseInt(e.target.value) } : null,
                 )
               }
-              className="text-sm border border-gray-200 rounded-lg px-2 py-1.5"
+              className="rounded-control border-[1.5px] border-border-strong bg-surface px-2 py-1.5 font-body text-sm text-ink focus:border-accent focus:outline-none focus:ring-[3px] focus:ring-accent-subtle"
             >
               {Array.from({ length: 24 }, (_, h) => (
                 <option key={h} value={h}>
@@ -197,9 +207,9 @@ function PreferencesView() {
               ))}
             </select>
           </div>
-          <span className="text-gray-400 mt-5">às</span>
+          <span className="mt-5 font-body text-sm text-ink-faint">às</span>
           <div>
-            <div className="text-xs text-gray-400 mb-1">Às</div>
+            <div className="mb-1 font-body text-xs text-ink-faint">Às</div>
             <select
               value={prefs.quietHourEnd}
               onChange={(e) =>
@@ -207,7 +217,7 @@ function PreferencesView() {
                   p ? { ...p, quietHourEnd: parseInt(e.target.value) } : null,
                 )
               }
-              className="text-sm border border-gray-200 rounded-lg px-2 py-1.5"
+              className="rounded-control border-[1.5px] border-border-strong bg-surface px-2 py-1.5 font-body text-sm text-ink focus:border-accent focus:outline-none focus:ring-[3px] focus:ring-accent-subtle"
             >
               {Array.from({ length: 24 }, (_, h) => (
                 <option key={h} value={h}>
@@ -217,42 +227,39 @@ function PreferencesView() {
             </select>
           </div>
         </div>
-      </div>
+      </Card>
 
       {/* Digest */}
-      <div className="bg-white border border-gray-200 rounded-xl p-5">
-        <div className="text-sm font-semibold text-gray-900 mb-3">
+      <Card className="p-5">
+        <div className="mb-3 font-display text-sm font-semibold text-ink">
           📋 Resumo periódico (Digest)
         </div>
         <div className="flex gap-2">
           {(['NONE', 'DAILY', 'WEEKLY'] as const).map((freq) => (
-            <button
+            <Button
               key={freq}
+              size="sm"
+              intent={prefs.digestFrequency === freq ? 'primary' : 'ghost'}
               onClick={() =>
                 setPrefs((p) => (p ? { ...p, digestFrequency: freq } : null))
               }
-              className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
-                prefs.digestFrequency === freq
-                  ? 'bg-blue-700 text-white'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-              }`}
             >
               {
                 { NONE: 'Desactivado', DAILY: 'Diário', WEEKLY: 'Semanal' }[
                   freq
                 ]
               }
-            </button>
+            </Button>
           ))}
         </div>
-      </div>
+      </Card>
 
       {/* Categorias desactivadas */}
-      <div className="bg-white border border-gray-200 rounded-xl p-5">
-        <div className="text-sm font-semibold text-gray-900 mb-1">
+      <Card className="p-5">
+        <div className="mb-1 font-display text-sm font-semibold text-ink">
           🔕 Categorias silenciadas
         </div>
-        <div className="text-xs text-gray-400 mb-4">
+        <div className="mb-4 font-body text-xs text-ink-faint">
           Não receber notificações destas categorias
         </div>
         <div className="flex flex-wrap gap-2">
@@ -262,30 +269,27 @@ function PreferencesView() {
               <button
                 key={k}
                 onClick={() => toggleCategory(k)}
-                className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
+                className={cn(
+                  'rounded-pill px-3 py-1.5 font-body text-xs font-medium transition-all',
                   disabled
-                    ? 'bg-red-50 text-red-600 line-through'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
+                    ? 'bg-danger-subtle text-danger-ink line-through'
+                    : 'bg-surface-sunken text-ink-muted hover:bg-border',
+                )}
               >
                 {v.icon} {v.label}
               </button>
             );
           })}
         </div>
-      </div>
+      </Card>
 
-      <button
-        onClick={handleSave}
+      <Button
+        className={cn('w-full', saved && 'bg-success hover:bg-success active:bg-success')}
         disabled={saving}
-        className={`w-full py-2.5 text-sm font-semibold rounded-xl transition-colors ${
-          saved
-            ? 'bg-emerald-600 text-white'
-            : 'bg-blue-700 text-white hover:bg-blue-800 disabled:opacity-60'
-        }`}
+        onClick={handleSave}
       >
         {saving ? 'A guardar…' : saved ? '✓ Guardado!' : 'Guardar preferências'}
-      </button>
+      </Button>
     </div>
   );
 }
@@ -313,12 +317,6 @@ function AdminView() {
 
 // ─── Page principal ───────────────────────────────────────────────────────────
 
-const NAV: Array<{ id: View; label: string }> = [
-  { id: 'inbox', label: '🔔 Caixa de entrada' },
-  { id: 'preferences', label: '⚙️ Preferências' },
-  { id: 'admin', label: '📊 Admin' },
-];
-
 const TITLES: Record<View, string> = {
   inbox: 'Notificações',
   preferences: 'Preferências de notificação',
@@ -337,49 +335,49 @@ export default function NotificationsPage() {
   const unread = unreadData?.count ?? 0;
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
-      <div className="flex items-center justify-between mb-6">
+    <div className="mx-auto max-w-4xl px-4 py-8">
+      <div className="mb-6 flex items-center justify-between">
         <div>
           <div className="flex items-center gap-3">
-            <h1 className="text-xl font-semibold text-gray-900">
+            <h1 className="font-display text-xl font-semibold text-ink">
               {TITLES[view]}
             </h1>
             {view === 'inbox' && unread > 0 && (
-              <span className="bg-blue-600 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+              <span className="rounded-pill bg-primary px-2 py-0.5 font-body text-xs font-bold text-canvas">
                 {unread > 99 ? '99+' : unread}
               </span>
             )}
           </div>
-          <p className="text-sm text-gray-400 mt-0.5">
+          <p className="mt-0.5 font-body text-sm text-ink-faint">
             INNOVA — Centro de notificações
           </p>
         </div>
       </div>
 
-      <div className="flex gap-1 mb-6 bg-gray-100 p-1 rounded-xl w-fit">
-        {NAV.map((n) => (
-          <button
-            key={n.id}
-            onClick={() => setView(n.id)}
-            className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-              view === n.id
-                ? 'bg-white text-gray-900 shadow-sm'
-                : 'text-gray-500 hover:text-gray-700'
-            }`}
-          >
-            {n.label}
-            {n.id === 'inbox' && unread > 0 && (
-              <span className="ml-1.5 bg-blue-600 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
+      <Tabs value={view} onValueChange={(v) => setView(v as View)}>
+        <TabsList className="mb-6 w-fit">
+          <TabsTrigger value="inbox" className="gap-1.5">
+            🔔 Caixa de entrada
+            {unread > 0 && (
+              <span className="rounded-pill bg-primary px-1.5 py-0.5 font-body text-[10px] font-bold text-canvas">
                 {unread}
               </span>
             )}
-          </button>
-        ))}
-      </div>
+          </TabsTrigger>
+          <TabsTrigger value="preferences">⚙️ Preferências</TabsTrigger>
+          <TabsTrigger value="admin">📊 Admin</TabsTrigger>
+        </TabsList>
 
-      {view === 'inbox' && <InboxView />}
-      {view === 'preferences' && <PreferencesView />}
-      {view === 'admin' && <AdminView />}
+        <TabsContent value="inbox">
+          <InboxView />
+        </TabsContent>
+        <TabsContent value="preferences">
+          <PreferencesView />
+        </TabsContent>
+        <TabsContent value="admin">
+          <AdminView />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

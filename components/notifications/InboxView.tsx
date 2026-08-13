@@ -6,6 +6,10 @@
 
 'use client';
 
+import { Bell } from 'lucide-react';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { CATEGORY_CFG, Skeleton } from './shared';
 import type { NotifData, Notification, Priority } from './types';
 import type { ReadFilter } from '@/hooks/useNotificationsInbox';
@@ -25,11 +29,17 @@ const PRIORITY_CFG: Record<
   Priority,
   { icon: string; cls: string; border: string }
 > = {
-  LOW: { icon: '○', cls: 'text-gray-400', border: 'border-gray-100' },
-  MEDIUM: { icon: '●', cls: 'text-blue-500', border: 'border-blue-100' },
-  HIGH: { icon: '▲', cls: 'text-amber-500', border: 'border-amber-100' },
-  CRITICAL: { icon: '🔴', cls: 'text-red-600', border: 'border-red-200' },
+  LOW: { icon: '○', cls: 'text-ink-faint', border: 'border-border' },
+  MEDIUM: { icon: '●', cls: 'text-info', border: 'border-info-subtle' },
+  HIGH: { icon: '▲', cls: 'text-warning', border: 'border-warning-subtle' },
+  CRITICAL: { icon: '🔴', cls: 'text-danger', border: 'border-danger' },
 };
+
+const READ_FILTERS: Array<{ id: ReadFilter; label: string }> = [
+  { id: 'all', label: 'Todas' },
+  { id: 'unread', label: 'Não lidas' },
+  { id: 'read', label: 'Lidas' },
+];
 
 interface NotifItemProps {
   notif: Notification;
@@ -43,52 +53,52 @@ function NotifItem({ notif, onRead, onArchive }: NotifItemProps) {
 
   return (
     <div
-      className={`group flex items-start gap-3 px-4 py-3.5 border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors ${
-        !notif.read ? 'bg-blue-50/40' : ''
-      } ${notif.priority === 'CRITICAL' ? 'border-l-4 border-l-red-400' : ''}`}
+      className={`group flex items-start gap-3 border-b border-border px-4 py-3.5 transition-colors last:border-0 hover:bg-surface-sunken ${
+        !notif.read ? 'bg-primary-subtle/40' : ''
+      } ${notif.priority === 'CRITICAL' ? 'border-l-4 border-l-danger' : ''}`}
     >
       {/* Priority indicator */}
-      <div className={`mt-1 text-sm flex-shrink-0 ${priorityCfg.cls}`}>
+      <div className={`mt-1 flex-shrink-0 text-sm ${priorityCfg.cls}`}>
         {priorityCfg.icon}
       </div>
 
       {/* Content */}
-      <div className="flex-1 min-w-0">
+      <div className="min-w-0 flex-1">
         <div className="flex items-start justify-between gap-2">
           <div className="flex-1">
             {notif.title && (
               <div
-                className={`text-sm font-semibold mb-0.5 ${!notif.read ? 'text-gray-900' : 'text-gray-700'}`}
+                className={`mb-0.5 font-body text-sm font-semibold ${!notif.read ? 'text-ink' : 'text-ink-muted'}`}
               >
                 {notif.title}
               </div>
             )}
             <p
-              className={`text-sm leading-relaxed ${!notif.read ? 'text-gray-800' : 'text-gray-500'}`}
+              className={`font-body text-sm leading-relaxed ${!notif.read ? 'text-ink' : 'text-ink-faint'}`}
             >
               {notif.message}
             </p>
           </div>
 
           {!notif.read && (
-            <div className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0 mt-1.5" />
+            <div className="mt-1.5 h-2 w-2 flex-shrink-0 rounded-full bg-primary" />
           )}
         </div>
 
-        <div className="flex items-center gap-3 mt-1.5 flex-wrap">
+        <div className="mt-1.5 flex flex-wrap items-center gap-3">
           {catCfg && (
-            <span className={`text-xs px-1.5 py-0.5 rounded ${catCfg.cls}`}>
+            <span className={`rounded-pill px-1.5 py-0.5 font-body text-xs ${catCfg.cls}`}>
               {catCfg.icon} {catCfg.label}
             </span>
           )}
-          <span className="text-xs text-gray-400">
+          <span className="font-body text-xs text-ink-faint">
             {timeAgo(notif.createdAt)}
           </span>
 
           {notif.actionUrl && (
             <a
               href={notif.actionUrl}
-              className="text-xs text-blue-600 hover:underline font-medium"
+              className="font-body text-xs font-medium text-primary hover:underline"
               onClick={() => !notif.read && onRead(notif.id)}
             >
               {notif.actionLabel ?? 'Ver →'}
@@ -96,18 +106,18 @@ function NotifItem({ notif, onRead, onArchive }: NotifItemProps) {
           )}
 
           {/* Acções hover */}
-          <div className="ml-auto flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+          <div className="ml-auto flex items-center gap-2 opacity-0 transition-opacity group-hover:opacity-100">
             {!notif.read && (
               <button
                 onClick={() => onRead(notif.id)}
-                className="text-xs text-blue-600 hover:text-blue-800"
+                className="font-body text-xs text-primary hover:text-primary-hover"
               >
                 Marcar lida
               </button>
             )}
             <button
               onClick={() => onArchive(notif.id)}
-              className="text-xs text-gray-400 hover:text-gray-600"
+              className="font-body text-xs text-ink-faint hover:text-ink-muted"
             >
               Arquivar
             </button>
@@ -147,7 +157,7 @@ export function InboxView({
     if (!items.length) return null;
     return (
       <div key={label}>
-        <div className="px-4 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wide bg-gray-50 border-b border-gray-100">
+        <div className="border-b border-border bg-surface-sunken px-4 py-2 font-body text-xs font-semibold uppercase tracking-wide text-ink-faint">
           {label}
         </div>
         {items.map((n) => (
@@ -165,12 +175,12 @@ export function InboxView({
   return (
     <div>
       {/* Toolbar */}
-      <div className="flex items-center gap-3 mb-4 flex-wrap">
+      <div className="mb-4 flex flex-wrap items-center gap-3">
         {/* Category filter */}
         <select
           value={category}
           onChange={(e) => onCategoryChange(e.target.value)}
-          className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="rounded-control border-[1.5px] border-border-strong bg-surface px-3 py-[9px] font-body text-sm text-ink focus:border-accent focus:outline-none focus:ring-[3px] focus:ring-accent-subtle"
         >
           <option value="">Todas as categorias</option>
           {Object.entries(CATEGORY_CFG).map(([k, v]) => (
@@ -181,19 +191,16 @@ export function InboxView({
         </select>
 
         {/* Read filter */}
-        <div className="flex gap-1 bg-gray-100 p-1 rounded-lg">
-          {(['all', 'unread', 'read'] as const).map((f) => (
-            <button
-              key={f}
-              onClick={() => onReadFilterChange(f)}
-              className={`px-3 py-1 text-xs font-medium rounded transition-colors ${
-                readFilter === f
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-500 hover:text-gray-700'
-              }`}
+        <div className="flex gap-1 rounded-control bg-surface-sunken p-1">
+          {READ_FILTERS.map((f) => (
+            <Button
+              key={f.id}
+              size="sm"
+              intent={readFilter === f.id ? 'primary' : 'ghost'}
+              onClick={() => onReadFilterChange(f.id)}
             >
-              {{ all: 'Todas', unread: 'Não lidas', read: 'Lidas' }[f]}
-            </button>
+              {f.label}
+            </Button>
           ))}
         </div>
 
@@ -201,7 +208,7 @@ export function InboxView({
           <button
             onClick={onReadAll}
             disabled={marking}
-            className="ml-auto text-xs text-blue-600 hover:text-blue-800 font-medium disabled:opacity-50"
+            className="ml-auto font-body text-xs font-medium text-primary hover:text-primary-hover disabled:opacity-50"
           >
             {marking
               ? 'A marcar…'
@@ -213,14 +220,13 @@ export function InboxView({
       {loading ? (
         <Skeleton />
       ) : !data ? null : (
-        <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+        <Card className="overflow-hidden">
           {data.data.length === 0 ? (
-            <div className="py-16 text-center">
-              <div className="text-5xl mb-3">🔔</div>
-              <div className="text-sm text-gray-400">
-                Nenhuma notificação encontrada
-              </div>
-            </div>
+            <EmptyState
+              icon={Bell}
+              title="Nenhuma notificação encontrada"
+              description="Não há notificações para os filtros seleccionados."
+            />
           ) : (
             <>
               {renderGroup('Hoje', data.grouped.today)}
@@ -229,7 +235,7 @@ export function InboxView({
               {renderGroup('Antigas', data.grouped.older)}
             </>
           )}
-        </div>
+        </Card>
       )}
     </div>
   );
