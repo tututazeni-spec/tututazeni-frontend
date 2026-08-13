@@ -1,71 +1,73 @@
 'use client';
-// src/app/(dashboard)/automation/page.tsx
+// app/(platform)/automation/page.tsx
+//
+// Container: gere o separador activo (via Tabs do Radix); delega dados +
+// apresentação de cada separador aos componentes auto-contidos em
+// components/automation/ (mesmo padrão que components/engagement/page.tsx
+// usa). Ver memory project_innova_component_separation_audit.
 
-import { useState } from 'react';
-import { Zap, Activity, BookOpen, BarChart2 } from 'lucide-react';
+import { Activity, BarChart2, BookOpen, Zap } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { ExecutionsTab } from '@/components/automation/ExecutionsTab';
 import { RulesTab } from '@/components/automation/RulesTab';
 import { StatsTab } from '@/components/automation/StatsTab';
 import { TemplatesTab } from '@/components/automation/TemplatesTab';
-import type { Tab } from '@/components/automation/types';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
 
-const TABS: { id: Tab; label: string; icon: LucideIcon }[] = [
+const TABS: { id: string; label: string; icon: LucideIcon }[] = [
   { id: 'rules', label: 'Automações', icon: Zap },
   { id: 'executions', label: 'Execuções', icon: Activity },
   { id: 'templates', label: 'Templates', icon: BookOpen },
   { id: 'stats', label: 'Analytics', icon: BarChart2 },
 ];
 
-const PANELS: Record<Tab, JSX.Element> = {
-  rules: <RulesTab />,
-  executions: <ExecutionsTab />,
-  templates: <TemplatesTab />,
-  stats: <StatsTab />,
-};
-
 export default function AutomationPage() {
-  const [tab, setTab] = useState<Tab>('rules');
-
   return (
-    <div className="min-h-screen bg-slate-50">
-      <div className="bg-white border-b border-slate-200 px-6 py-5">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-center gap-2 mb-1">
-            <div className="p-1.5 bg-amber-100 rounded-lg">
-              <Zap size={18} className="text-amber-600" />
+    <div className="min-h-screen bg-canvas">
+      <div className="border-b border-border bg-surface px-6 py-5">
+        <div className="mx-auto max-w-7xl">
+          <div className="mb-1 flex items-center gap-2">
+            <div className="rounded-control bg-accent-subtle p-1.5">
+              <Zap size={18} strokeWidth={1.75} className="text-accent" />
             </div>
-            <h1 className="text-xl font-bold text-slate-800">Automation</h1>
+            <h1 className="font-display text-xl font-bold text-ink">Automation</h1>
           </div>
-          <p className="text-sm text-slate-400">
+          <p className="font-body text-sm text-ink-faint">
             Regras · Triggers · Execuções · Templates · Analytics
           </p>
         </div>
       </div>
 
-      <div className="bg-white border-b border-slate-200 px-6">
-        <div className="max-w-7xl mx-auto flex overflow-x-auto">
-          {TABS.map((t) => {
-            const Icon = t.icon;
-            return (
-              <button
-                key={t.id}
-                onClick={() => setTab(t.id)}
-                className={`flex items-center gap-2 px-5 py-4 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
-                  tab === t.id
-                    ? 'border-amber-600 text-amber-700'
-                    : 'border-transparent text-slate-500 hover:text-slate-700'
-                }`}
-              >
-                <Icon size={15} />
-                {t.label}
-              </button>
-            );
-          })}
+      <Tabs defaultValue="rules">
+        <div className="border-b border-border bg-surface px-6">
+          <TabsList className="mx-auto max-w-7xl overflow-x-auto">
+            {TABS.map((t) => {
+              const Icon = t.icon;
+              return (
+                <TabsTrigger key={t.id} value={t.id} className="gap-2 whitespace-nowrap">
+                  <Icon size={16} strokeWidth={1.75} />
+                  {t.label}
+                </TabsTrigger>
+              );
+            })}
+          </TabsList>
         </div>
-      </div>
 
-      <div className="max-w-7xl mx-auto px-6 py-6">{PANELS[tab]}</div>
+        <div className="mx-auto max-w-7xl px-6 py-6">
+          <TabsContent value="rules">
+            <RulesTab />
+          </TabsContent>
+          <TabsContent value="executions">
+            <ExecutionsTab />
+          </TabsContent>
+          <TabsContent value="templates">
+            <TemplatesTab />
+          </TabsContent>
+          <TabsContent value="stats">
+            <StatsTab />
+          </TabsContent>
+        </div>
+      </Tabs>
     </div>
   );
 }
