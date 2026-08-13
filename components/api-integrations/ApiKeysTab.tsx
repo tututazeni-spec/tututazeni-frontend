@@ -7,7 +7,10 @@ import { useConfirm } from '@/providers/ConfirmProvider';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { Skeleton } from './atoms';
+import { Button, IconButton } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { Skeleton } from '@/components/ui/Skeleton';
 import type { ApiKeyItem, CreateApiKeyResponse } from './types';
 
 export function ApiKeysTab() {
@@ -53,57 +56,67 @@ export function ApiKeysTab() {
     }
   };
 
-  if (loading) return <Skeleton />;
+  if (loading)
+    return (
+      <Skeleton
+        wrapperClassName="space-y-3 animate-pulse"
+        itemClassName="bg-surface-sunken rounded-card h-16"
+      />
+    );
 
   return (
     <div className="space-y-4">
       {/* New key alert */}
       {newKey && (
-        <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4">
-          <p className="text-sm font-bold text-emerald-700 mb-1">
+        <div className="rounded-card border border-success bg-success-subtle p-4">
+          <p className="mb-1 font-body text-sm font-bold text-success-ink">
             ⚠️ Copia esta chave — não será exibida novamente
           </p>
-          <div className="flex items-center gap-2 bg-white rounded-lg px-3 py-2 border border-emerald-300">
-            <code className="text-xs font-mono text-slate-800 flex-1 break-all">
+          <div className="flex items-center gap-2 rounded-control border border-success bg-surface px-3 py-2">
+            <code className="flex-1 break-all font-data text-xs text-ink">
               {newKey}
             </code>
-            <button
+            <IconButton
+              icon={Copy}
+              label="Copiar chave"
+              size="sm"
+              intent="ghost"
               onClick={() => navigator.clipboard.writeText(newKey)}
-              className="shrink-0"
-            >
-              <Copy size={14} className="text-slate-500" />
-            </button>
+            />
           </div>
-          <button
+          <Button
+            size="sm"
+            intent="ghost"
+            className="mt-2 px-0 text-success-ink underline hover:bg-transparent hover:text-success-ink"
             onClick={() => setNewKey(null)}
-            className="mt-2 text-xs text-emerald-700 underline"
           >
             Confirmar que guardei
-          </button>
+          </Button>
         </div>
       )}
 
-      <div className="flex justify-between items-center">
-        <span className="text-sm text-slate-500">{keys.length} API Key(s)</span>
-        <button
-          onClick={create}
-          className="flex items-center gap-1 text-xs px-3 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
-        >
-          <Plus size={13} />
+      <div className="flex items-center justify-between">
+        <span className="font-body text-sm text-ink-muted">
+          {keys.length} API Key(s)
+        </span>
+        <Button size="sm" onClick={create}>
+          <Plus size={14} strokeWidth={1.75} />
           Nova API Key
-        </button>
+        </Button>
       </div>
 
-      <div className="bg-white rounded-xl border border-slate-100">
-        <div className="divide-y divide-slate-50">
+      <Card>
+        <div className="divide-y divide-border">
           {keys.map((k, i) => (
             <div key={i} className="flex items-center gap-3 px-4 py-3">
               <div
-                className={`w-2 h-2 rounded-full shrink-0 ${k.active ? 'bg-emerald-500' : 'bg-slate-300'}`}
+                className={`h-2 w-2 shrink-0 rounded-full ${k.active ? 'bg-success' : 'bg-border-strong'}`}
               />
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-slate-700">{k.name}</p>
-                <p className="text-[10px] font-mono text-slate-400">
+              <div className="min-w-0 flex-1">
+                <p className="font-body text-sm font-medium text-ink">
+                  {k.name}
+                </p>
+                <p className="font-data text-[10px] text-ink-faint">
                   {k.preview}
                 </p>
               </div>
@@ -111,20 +124,26 @@ export function ApiKeysTab() {
                 {(k.scopes ?? []).map((s: string, j: number) => (
                   <span
                     key={j}
-                    className="text-[9px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded"
+                    className="rounded-control bg-surface-sunken px-1.5 py-0.5 font-body text-[9px] text-ink-muted"
                   >
                     {s}
                   </span>
                 ))}
               </div>
               {k.expiresAt && (
-                <span className="text-[10px] text-slate-400 shrink-0">
-                  <Clock size={10} className="inline" />{' '}
+                <span className="flex shrink-0 items-center gap-1 font-body text-[10px] text-ink-faint">
+                  <Clock size={14} strokeWidth={1.75} />
                   {new Date(k.expiresAt).toLocaleDateString('pt')}
                 </span>
               )}
-              <div className="flex gap-1 shrink-0">
-                <button
+              <div className="flex shrink-0 gap-1">
+                <IconButton
+                  icon={RotateCcw}
+                  label="Rotacionar"
+                  title="Rotacionar"
+                  size="sm"
+                  intent="ghost"
+                  className="hover:bg-warning-subtle hover:text-warning-ink"
                   onClick={async () => {
                     const r = await apiClient.post<CreateApiKeyResponse>(
                       `/api-integrations/api-keys/${k.id}/rotate`,
@@ -133,29 +152,29 @@ export function ApiKeysTab() {
                     if (r.key) setNewKey(r.key);
                     load();
                   }}
-                  className="p-1 rounded hover:bg-amber-50 text-slate-400 hover:text-amber-600"
-                  title="Rotacionar"
-                >
-                  <RotateCcw size={12} />
-                </button>
-                <button
-                  onClick={() => revoke(k.id)}
-                  className="p-1 rounded hover:bg-red-50 text-slate-400 hover:text-red-500"
+                />
+                <IconButton
+                  icon={Trash2}
+                  label="Revogar"
                   title="Revogar"
-                >
-                  <Trash2 size={12} />
-                </button>
+                  size="sm"
+                  intent="ghost"
+                  className="hover:bg-danger-subtle hover:text-danger-ink"
+                  onClick={() => revoke(k.id)}
+                />
               </div>
             </div>
           ))}
           {keys.length === 0 && (
-            <div className="py-12 text-center text-slate-400">
-              <Key size={32} className="mx-auto mb-2 opacity-30" />
-              <p className="text-sm">Sem API Keys criadas</p>
-            </div>
+            <EmptyState
+              icon={Key}
+              title="Sem API Keys criadas"
+              description="Cria uma API Key para começar a integrar sistemas externos."
+              className="rounded-none border-none"
+            />
           )}
         </div>
-      </div>
+      </Card>
     </div>
   );
 }
