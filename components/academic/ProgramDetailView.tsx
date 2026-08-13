@@ -1,8 +1,11 @@
 // components/academic/ProgramDetailView.tsx
 
 import { useRouter } from 'next/navigation';
+import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
+import { Card, CardBody } from '@/components/ui/Card';
 import { Info } from './shared';
-import { LEVEL_COLORS } from './types';
+import { LEVEL_INTENT } from './types';
 import type { ProgramDetail } from './types';
 
 interface ProgramDetailViewProps {
@@ -22,55 +25,49 @@ export function ProgramDetailView({
     <div className="p-6 space-y-6 max-w-4xl">
       <button
         onClick={() => router.push('/academic/programs')}
-        className="text-sm text-blue-600 hover:underline"
+        className="font-body text-sm text-primary hover:underline"
       >
         ← Voltar aos programas
       </button>
 
-      <div className="bg-white rounded-lg shadow p-6">
-        <div className="flex justify-between items-start">
-          <div>
-            <p className="font-mono text-xs text-blue-600">{p.code}</p>
-            <h1 className="text-2xl font-bold text-gray-900">{p.name}</h1>
+      <Card>
+        <CardBody>
+          <div className="flex justify-between items-start">
+            <div>
+              <p className="font-data text-xs text-accent">{p.code}</p>
+              <h1 className="font-display text-2xl font-bold text-ink">{p.name}</h1>
+            </div>
+            <Badge intent={LEVEL_INTENT[p.level] ?? 'neutral'}>{p.level}</Badge>
           </div>
-          <span
-            className={`px-3 py-1 rounded-full text-sm font-medium ${
-              LEVEL_COLORS[p.level] ?? 'bg-gray-100 text-gray-600'
-            }`}
-          >
-            {p.level}
-          </span>
-        </div>
-        {p.description && <p className="text-gray-600 mt-3">{p.description}</p>}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
-          <Info label="Carga horária" value={`${p.durationHours}h`} />
-          <Info label="Nota mínima" value={`${p.passingScore}%`} />
-          <Info label="Alunos" value={String(p._count.enrollments)} />
-          <Info label="Obrigatório" value={p.isMandatory ? 'Sim' : 'Não'} />
-        </div>
-        <button
-          onClick={() => enroll()}
-          disabled={enrolling}
-          className="mt-5 bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50"
-        >
-          {enrolling ? 'A submeter...' : 'Matricular-me'}
-        </button>
-      </div>
+          {p.description && (
+            <p className="font-body text-ink-muted mt-3">{p.description}</p>
+          )}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+            <Info label="Carga horária" value={`${p.durationHours}h`} />
+            <Info label="Nota mínima" value={`${p.passingScore}%`} />
+            <Info label="Alunos" value={String(p._count.enrollments)} />
+            <Info label="Obrigatório" value={p.isMandatory ? 'Sim' : 'Não'} />
+          </div>
+          <Button onClick={() => enroll()} disabled={enrolling} className="mt-5">
+            {enrolling ? 'A submeter...' : 'Matricular-me'}
+          </Button>
+        </CardBody>
+      </Card>
 
       {/* Turmas */}
       <section>
-        <h2 className="text-lg font-semibold text-gray-900 mb-3">
+        <h2 className="font-display text-lg font-semibold text-ink mb-3">
           Turmas ({p.classes.length})
         </h2>
-        <div className="bg-white rounded-lg shadow divide-y divide-gray-100">
+        <Card className="divide-y divide-border">
           {p.classes.length === 0 ? (
-            <p className="p-4 text-gray-400">Sem turmas disponíveis</p>
+            <p className="p-4 font-body text-ink-faint">Sem turmas disponíveis</p>
           ) : (
             p.classes.map((c) => (
               <div key={c.id} className="p-4 flex justify-between items-center">
                 <div>
-                  <p className="font-medium">{c.name}</p>
-                  <p className="text-xs text-gray-500">
+                  <p className="font-body font-medium text-ink">{c.name}</p>
+                  <p className="font-body text-xs text-ink-muted">
                     {c.modality} · {c.status}
                     {c.instructor?.fullName
                       ? ` · ${c.instructor.fullName}`
@@ -79,17 +76,18 @@ export function ProgramDetailView({
                     {c._count?.enrollments ?? 0} inscritos
                   </p>
                 </div>
-                <button
+                <Button
+                  size="sm"
+                  intent="ghost"
                   onClick={() => enroll(c.id)}
                   disabled={enrolling}
-                  className="text-sm text-blue-600 hover:underline disabled:opacity-50"
                 >
                   Inscrever
-                </button>
+                </Button>
               </div>
             ))
           )}
-        </div>
+        </Card>
       </section>
     </div>
   );

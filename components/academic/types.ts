@@ -1,5 +1,7 @@
 // components/academic/types.ts
 
+import type { BadgeProps } from '@/components/ui/Badge';
+
 export interface Program {
   id: string;
   code: string;
@@ -67,20 +69,20 @@ export interface Transcript {
   inProgressPrograms: number;
 }
 
-export const LEVEL_COLORS: Record<string, string> = {
-  BASIC: 'bg-green-100 text-green-800',
-  INTERMEDIATE: 'bg-blue-100 text-blue-800',
-  ADVANCED: 'bg-purple-100 text-purple-800',
-  EXPERT: 'bg-red-100 text-red-800',
+export const LEVEL_INTENT: Record<string, BadgeProps['intent']> = {
+  BASIC: 'success',
+  INTERMEDIATE: 'info',
+  ADVANCED: 'warning',
+  EXPERT: 'danger',
 };
 
-export const STATUS_COLORS: Record<string, string> = {
-  PENDING: 'bg-gray-100 text-gray-600',
-  APPROVED: 'bg-blue-100 text-blue-800',
-  IN_PROGRESS: 'bg-yellow-100 text-yellow-800',
-  COMPLETED: 'bg-green-100 text-green-800',
-  FAILED: 'bg-red-100 text-red-700',
-  DROPPED: 'bg-gray-100 text-gray-500',
-  REJECTED: 'bg-red-100 text-red-700',
-  SUSPENDED: 'bg-orange-100 text-orange-700',
+export const STATUS_INTENT: Record<string, BadgeProps['intent']> = {
+  PENDING: 'neutral',
+  APPROVED: 'info',
+  IN_PROGRESS: 'warning',
+  COMPLETED: 'success',
+  FAILED: 'danger',
+  DROPPED: 'neutral',
+  REJECTED: 'danger',
+  SUSPENDED: 'warning',
 };

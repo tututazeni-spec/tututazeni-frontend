@@ -1,8 +1,10 @@
 'use client';
 
+import { AlertCircle } from 'lucide-react';
 import { useAcademicTranscript } from '@/hooks/useAcademicTranscript';
 import { TranscriptView } from '@/components/academic/TranscriptView';
 import { DetailSkeleton } from '@/components/academic/shared';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export default function TranscriptPage() {
   const { transcript, enrollments, loading, error, onRetry } =
@@ -13,12 +15,12 @@ export default function TranscriptPage() {
   if (error)
     return (
       <div className="p-6">
-        <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-lg">
-          {error}
-          <button onClick={onRetry} className="ml-4 underline">
-            Tentar novamente
-          </button>
-        </div>
+        <EmptyState
+          icon={AlertCircle}
+          title="Erro ao carregar a transcrição"
+          description={error}
+          action={{ label: 'Tentar novamente', onClick: onRetry }}
+        />
       </div>
     );
 
