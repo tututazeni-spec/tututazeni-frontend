@@ -6,6 +6,7 @@ import { Clock, TrendingUp } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
+import { Button } from '@/components/ui/Button';
 import { ResultCard } from './ResultCard';
 import type { HistoryResponse, SuggestionsData } from './types';
 
@@ -31,19 +32,21 @@ export function SuggestionsPanel({ onSearch }: SuggestionsPanelProps) {
       {/* Recent searches */}
       {history.length > 0 && (
         <div>
-          <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3 flex items-center gap-2">
-            <Clock size={12} />
+          <h3 className="mb-3 flex items-center gap-2 font-body text-xs font-semibold uppercase tracking-wide text-ink-muted">
+            <Clock size={14} strokeWidth={1.75} />
             Pesquisas Recentes
           </h3>
           <div className="flex flex-wrap gap-2">
             {history.slice(0, 8).map((h, i) => (
-              <button
+              <Button
                 key={i}
+                intent="ghost"
+                size="sm"
                 onClick={() => onSearch(h.query)}
-                className="text-xs px-3 py-1.5 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200"
+                className="bg-surface-sunken"
               >
                 {h.query}
-              </button>
+              </Button>
             ))}
           </div>
         </div>
@@ -52,19 +55,15 @@ export function SuggestionsPanel({ onSearch }: SuggestionsPanelProps) {
       {/* Trending */}
       {(data?.trendingSearches ?? []).length > 0 && (
         <div>
-          <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3 flex items-center gap-2">
-            <TrendingUp size={12} />
+          <h3 className="mb-3 flex items-center gap-2 font-body text-xs font-semibold uppercase tracking-wide text-ink-muted">
+            <TrendingUp size={14} strokeWidth={1.75} />
             Em Alta
           </h3>
           <div className="flex flex-wrap gap-2">
             {(data?.trendingSearches ?? []).slice(0, 6).map((t, i) => (
-              <button
-                key={i}
-                onClick={() => onSearch(t)}
-                className="text-xs px-3 py-1.5 bg-indigo-50 text-indigo-700 rounded-lg hover:bg-indigo-100"
-              >
+              <Button key={i} intent="secondary" size="sm" onClick={() => onSearch(t)}>
                 {t}
-              </button>
+              </Button>
             ))}
           </div>
         </div>
@@ -73,7 +72,7 @@ export function SuggestionsPanel({ onSearch }: SuggestionsPanelProps) {
       {/* Recommended courses */}
       {(data?.recommendedCourses ?? []).length > 0 && (
         <div>
-          <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3">
+          <h3 className="mb-3 font-body text-xs font-semibold uppercase tracking-wide text-ink-muted">
             Cursos Recomendados
           </h3>
           <div className="space-y-1">
@@ -87,7 +86,7 @@ export function SuggestionsPanel({ onSearch }: SuggestionsPanelProps) {
       {/* Popular content */}
       {(data?.popularContent ?? []).length > 0 && (
         <div>
-          <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3">
+          <h3 className="mb-3 font-body text-xs font-semibold uppercase tracking-wide text-ink-muted">
             Conteúdo Popular
           </h3>
           <div className="space-y-1">
