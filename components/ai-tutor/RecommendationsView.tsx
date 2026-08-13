@@ -7,7 +7,10 @@
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { Skeleton } from './atoms';
+import { Avatar } from '@/components/ui/Avatar';
+import { Badge } from '@/components/ui/Badge';
+import { Card } from '@/components/ui/Card';
+import { Skeleton } from '@/components/ui/Skeleton';
 import type { Recommendation } from './types';
 
 export function RecommendationsView() {
@@ -17,71 +20,75 @@ export function RecommendationsView() {
     { staleTime: STALE_TIME.SEMI_STATIC },
   );
 
-  if (loading) return <Skeleton rows={4} />;
+  if (loading)
+    return (
+      <Skeleton
+        rows={4}
+        wrapperClassName="space-y-3"
+        itemClassName="skeleton-shimmer h-20 rounded-card"
+      />
+    );
   if (!data) return null;
 
   return (
     <div className="space-y-5">
       {/* AI Insight */}
-      <div className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-xl p-5">
+      <Card className="border-primary-subtle bg-gradient-to-r from-primary-subtle to-accent-subtle p-5">
         <div className="flex items-center gap-2 mb-3">
-          <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-xs font-bold">
-            N
-          </div>
-          <span className="text-xs font-semibold text-blue-700">
+          <Avatar name="NOVA" size="sm" />
+          <span className="font-body text-xs font-semibold text-primary">
             Insight do NOVA
           </span>
-          <span className="text-xs text-gray-400 ml-auto">{data.provider}</span>
+          <span className="font-body text-xs text-ink-faint ml-auto">
+            {data.provider}
+          </span>
         </div>
-        <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-line">
+        <p className="font-body text-sm text-ink leading-relaxed whitespace-pre-line">
           {data.aiInsight}
         </p>
-      </div>
+      </Card>
 
       {/* Gaps */}
       {data.competencyGaps.length > 0 && (
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">
+        <Card className="p-4">
+          <div className="font-body text-xs font-medium text-ink-faint uppercase tracking-wide mb-3">
             ⚡ Gaps de competência identificados
           </div>
           <div className="flex flex-wrap gap-2">
             {data.competencyGaps.map((g) => (
-              <span
-                key={g}
-                className="text-xs bg-amber-50 text-amber-700 px-2.5 py-1 rounded-lg border border-amber-200"
-              >
+              <Badge key={g} intent="warning">
                 {g}
-              </span>
+              </Badge>
             ))}
           </div>
-        </div>
+        </Card>
       )}
 
       {/* Cursos */}
-      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-        <div className="px-4 py-3 border-b border-gray-100 text-xs font-medium text-gray-400 uppercase tracking-wide">
+      <Card className="overflow-hidden">
+        <div className="px-4 py-3 border-b border-border font-body text-xs font-medium text-ink-faint uppercase tracking-wide">
           Cursos recomendados
         </div>
         {data.courses.map((c) => (
           <div
             key={c.id}
-            className="flex items-center gap-3 px-4 py-3 border-b border-gray-100 last:border-0"
+            className="flex items-center gap-3 px-4 py-3 border-b border-border last:border-0"
           >
-            <div className="w-9 h-9 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600 text-lg flex-shrink-0">
+            <div className="w-9 h-9 bg-primary-subtle rounded-control flex items-center justify-center text-primary text-lg flex-shrink-0">
               🎓
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-sm font-medium text-gray-900 truncate">
+              <div className="font-body text-sm font-medium text-ink truncate">
                 {c.title}
               </div>
-              <div className="text-xs text-gray-400">
+              <div className="font-body text-xs text-ink-faint">
                 {c.category}
                 {c.workloadHours ? ` · ${c.workloadHours}h` : ''}
               </div>
             </div>
           </div>
         ))}
-      </div>
+      </Card>
     </div>
   );
 }
