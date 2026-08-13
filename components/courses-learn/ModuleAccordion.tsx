@@ -23,10 +23,14 @@ interface ModuleAccordionProps {
 // por isso migrado directamente para aqui em vez de ficar num ficheiro
 // partilhado sem outros consumidores.
 function moduleStatusIcon(mod: ModuleProgress) {
-  if (mod.locked) return <Lock size={16} strokeWidth={1.75} className="text-ink-faint" />;
+  if (mod.locked)
+    return <Lock size={16} strokeWidth={1.75} className="text-ink-faint" />;
   if (mod.completed)
-    return <CheckCircle2 size={16} strokeWidth={1.75} className="text-success-ink" />;
-  if (mod.pct > 0) return <PlayCircle size={16} strokeWidth={1.75} className="text-accent" />;
+    return (
+      <CheckCircle2 size={16} strokeWidth={1.75} className="text-success-ink" />
+    );
+  if (mod.pct > 0)
+    return <PlayCircle size={16} strokeWidth={1.75} className="text-accent" />;
   return <Circle size={16} strokeWidth={1.75} className="text-ink-faint" />;
 }
 
@@ -74,7 +78,9 @@ export function ModuleAccordion({
             </div>
           )}
           {mod.locked && mod.lockedReason && (
-            <div className="font-body text-xs text-warning-ink">{mod.lockedReason}</div>
+            <div className="font-body text-xs text-warning-ink">
+              {mod.lockedReason}
+            </div>
           )}
         </div>
 

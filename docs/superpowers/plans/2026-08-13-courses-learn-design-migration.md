@@ -93,10 +93,13 @@
 
 - [ ] **Step 1:** `grep -rn "from './atoms'" components/courses-learn/` → 0.
 - [ ] **Step 2:**
+
 ```
 grep -rniE "(violet|indigo|slate|amber|emerald|red|teal|purple|blue|green|yellow|orange|gray|zinc|neutral|stone|cyan|sky|rose|pink|fuchsia|lime)-[0-9]{2,3}|text-white\b" components/courses-learn/ "app/(platform)/courses/[courseId]/learn"
 ```
+
 → 0 resultados.
+
 - [ ] **Step 3:** `npx tsc --noEmit` → sem erros.
 - [ ] **Step 4:** `npm run build` → sem erros, rota `/courses/[courseId]/learn` presente.
 - [ ] **Step 5:** `npm test` → 43/43 verde.

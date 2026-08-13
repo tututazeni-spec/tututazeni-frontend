@@ -20,7 +20,9 @@ export function ModuleCompletedBanner({
     <div className="flex-1 bg-ink flex items-center justify-center">
       <div className="text-canvas text-center max-w-sm">
         <div className="text-6xl mb-4">🎉</div>
-        <h2 className="font-display text-2xl font-bold mb-2">Módulo concluído!</h2>
+        <h2 className="font-display text-2xl font-bold mb-2">
+          Módulo concluído!
+        </h2>
         <p className="font-body text-canvas/80 mb-6">
           Concluíste &quot;{mod.title}&quot; com sucesso.
         </p>

@@ -95,7 +95,9 @@ export function ModuleBuilder({ courseId }: ModuleBuilderProps) {
   };
 
   if (loading)
-    return <Skeleton rows={4} itemClassName="skeleton-shimmer h-12 rounded-card" />;
+    return (
+      <Skeleton rows={4} itemClassName="skeleton-shimmer h-12 rounded-card" />
+    );
 
   return (
     <div>
@@ -184,7 +186,11 @@ export function ModuleBuilder({ courseId }: ModuleBuilderProps) {
                         {moduleTypeLabel(mod.type)}
                       </span>
                     )}
-                    <Badge intent={mod.status === 'PUBLISHED' ? 'success' : 'neutral'}>
+                    <Badge
+                      intent={
+                        mod.status === 'PUBLISHED' ? 'success' : 'neutral'
+                      }
+                    >
                       {mod.status === 'PUBLISHED' ? 'Publicado' : 'Rascunho'}
                     </Badge>
                     {!mod.mandatory && <Badge intent="info">Opcional</Badge>}

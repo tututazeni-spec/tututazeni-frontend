@@ -77,7 +77,9 @@ export function LessonRow({
         )}
       </div>
 
-      {isLocked && <Lock size={14} strokeWidth={1.75} className="text-ink-faint" />}
+      {isLocked && (
+        <Lock size={14} strokeWidth={1.75} className="text-ink-faint" />
+      )}
     </div>
   );
 }

@@ -38,7 +38,9 @@ export function ContentPlayer({
         {lesson.type === 'VIDEO' ? (
           <div className="text-canvas text-center">
             <div className="text-6xl mb-4">▶</div>
-            <div className="font-body text-base font-medium">{lesson.title}</div>
+            <div className="font-body text-base font-medium">
+              {lesson.title}
+            </div>
             <div className="font-body text-sm text-canvas/70 mt-2">
               Player de vídeo (YouTube / Vimeo / próprio)
             </div>
@@ -46,7 +48,9 @@ export function ContentPlayer({
         ) : lesson.type === 'PDF' ? (
           <div className="text-canvas text-center">
             <div className="text-6xl mb-4">📄</div>
-            <div className="font-body text-base font-medium">{lesson.title}</div>
+            <div className="font-body text-base font-medium">
+              {lesson.title}
+            </div>
             <a
               href="#"
               className="mt-3 inline-block font-body text-sm text-accent hover:text-accent-hover"
@@ -56,7 +60,9 @@ export function ContentPlayer({
           </div>
         ) : lesson.type === 'TEXT' ? (
           <div className="max-w-2xl mx-auto text-canvas p-8">
-            <h2 className="font-display text-xl font-semibold mb-4">{lesson.title}</h2>
+            <h2 className="font-display text-xl font-semibold mb-4">
+              {lesson.title}
+            </h2>
             <p className="font-body text-canvas/80 leading-relaxed">
               Conteúdo de texto da aula aqui…
             </p>
@@ -64,7 +70,9 @@ export function ContentPlayer({
         ) : (
           <div className="text-canvas text-center">
             <div className="text-6xl mb-4">{lessonIcon(lesson.type)}</div>
-            <div className="font-body text-base font-medium">{lesson.title}</div>
+            <div className="font-body text-base font-medium">
+              {lesson.title}
+            </div>
           </div>
         )}
       </div>
