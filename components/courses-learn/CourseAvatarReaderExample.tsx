@@ -38,7 +38,7 @@ export function LessonContent({ lesson }: LessonContentProps) {
   return (
     <div className="relative">
       {/* ─── Conteúdo da aula ─────────────────────────────────────────────── */}
-      <div className="prose prose-sm max-w-none text-gray-800 leading-relaxed">
+      <div className="prose prose-sm max-w-none text-ink leading-relaxed">
         {lesson.textContent && (
           <div
             dangerouslySetInnerHTML={{
