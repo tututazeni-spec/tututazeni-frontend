@@ -6,8 +6,29 @@ import { useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { Skeleton, HEALTH_CONFIG } from './atoms';
+import { Badge, type BadgeProps } from '@/components/ui/Badge';
+import { Button, IconButton } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { Skeleton } from '@/components/ui/Skeleton';
 import type { Integration, TestIntegrationResponse } from './types';
+
+const HEALTH_INTENT: Record<string, NonNullable<BadgeProps['intent']>> = {
+  OK: 'success',
+  ERROR: 'danger',
+  DEGRADED: 'warning',
+  STALE: 'neutral',
+  INACTIVE: 'neutral',
+  UNKNOWN: 'neutral',
+};
+
+const HEALTH_CHIP_CLASSES: Record<NonNullable<BadgeProps['intent']>, string> = {
+  success: 'bg-success-subtle text-success-ink',
+  warning: 'bg-warning-subtle text-warning-ink',
+  danger: 'bg-danger-subtle text-danger-ink',
+  info: 'bg-info-subtle text-info-ink',
+  neutral: 'bg-surface-sunken text-ink-muted',
+};
 
 export function IntegrationsTab() {
   const [testing, setTesting] = useState<number | null>(null);
@@ -40,85 +61,84 @@ export function IntegrationsTab() {
     load();
   };
 
-  if (loading) return <Skeleton />;
+  if (loading)
+    return (
+      <Skeleton
+        wrapperClassName="space-y-3 animate-pulse"
+        itemClassName="bg-surface-sunken rounded-card h-16"
+      />
+    );
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <span className="text-sm text-slate-500">
+      <div className="flex items-center justify-between">
+        <span className="font-body text-sm text-ink-muted">
           {list.length} integração(ões)
         </span>
-        <button className="flex items-center gap-1 text-xs px-3 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
-          <Plus size={13} />
+        <Button size="sm">
+          <Plus size={14} strokeWidth={1.75} />
           Nova Integração
-        </button>
+        </Button>
       </div>
 
       <div className="grid gap-3">
         {list.map((i) => {
-          const hc = HEALTH_CONFIG[i.health] ?? HEALTH_CONFIG.UNKNOWN;
+          const intent = HEALTH_INTENT[i.health] ?? 'neutral';
           return (
-            <div
-              key={i.id}
-              className="bg-white rounded-xl border border-slate-100 p-4 flex items-center gap-4"
-            >
-              <div className={`p-2.5 rounded-xl ${hc.bg}`}>
-                <Plug size={18} className={hc.color} />
+            <Card key={i.id} className="flex items-center gap-4 p-4">
+              <div
+                className={`rounded-control p-2.5 ${HEALTH_CHIP_CLASSES[intent]}`}
+              >
+                <Plug size={18} strokeWidth={1.75} />
               </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-0.5">
-                  <p className="text-sm font-semibold text-slate-800">
+              <div className="min-w-0 flex-1">
+                <div className="mb-0.5 flex items-center gap-2">
+                  <p className="font-body text-sm font-semibold text-ink">
                     {i.name}
                   </p>
-                  <span
-                    className={`text-[9px] px-1.5 py-0.5 rounded-full font-bold ${hc.bg} ${hc.color}`}
-                  >
-                    {i.health}
-                  </span>
-                  <span
-                    className={`text-[9px] px-1.5 py-0.5 rounded-full ${i.active ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'}`}
-                  >
+                  <Badge intent={intent}>{i.health}</Badge>
+                  <Badge intent={i.active ? 'success' : 'neutral'}>
                     {i.active ? 'ACTIVE' : 'INACTIVE'}
-                  </span>
+                  </Badge>
                 </div>
-                <p className="text-[10px] text-slate-400 font-mono truncate">
+                <p className="truncate font-data text-[10px] text-ink-faint">
                   {i.endpoint}
                 </p>
                 {i.lastTested && (
-                  <p className="text-[9px] text-slate-300 mt-0.5">
+                  <p className="mt-0.5 font-body text-[9px] text-ink-faint">
                     Testado: {new Date(i.lastTested).toLocaleString('pt')}
                   </p>
                 )}
               </div>
-              <div className="flex gap-1 shrink-0">
-                <button
-                  onClick={() => testIntegration(i.id)}
-                  disabled={testing === i.id}
-                  className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-500"
+              <div className="flex shrink-0 gap-1">
+                <IconButton
+                  icon={testing === i.id ? RefreshCw : Play}
+                  label="Testar"
                   title="Testar"
-                >
-                  {testing === i.id ? (
-                    <RefreshCw size={13} className="animate-spin" />
-                  ) : (
-                    <Play size={13} />
-                  )}
-                </button>
-                <button
-                  onClick={() => toggle(i.id)}
-                  className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-500"
+                  size="sm"
+                  intent="ghost"
+                  disabled={testing === i.id}
+                  className={testing === i.id ? '[&_svg]:animate-spin' : ''}
+                  onClick={() => testIntegration(i.id)}
+                />
+                <IconButton
+                  icon={i.active ? Pause : Play}
+                  label="Toggle"
                   title="Toggle"
-                >
-                  {i.active ? <Pause size={13} /> : <Play size={13} />}
-                </button>
+                  size="sm"
+                  intent="ghost"
+                  onClick={() => toggle(i.id)}
+                />
               </div>
-            </div>
+            </Card>
           );
         })}
         {list.length === 0 && (
-          <div className="py-16 text-center bg-white rounded-xl border border-slate-100 text-slate-400">
-            <Plug size={36} className="mx-auto mb-2 opacity-30" />
-            <p className="text-sm">Sem integrações configuradas</p>
-          </div>
+          <EmptyState
+            icon={Plug}
+            title="Sem integrações configuradas"
+            description="Adiciona uma integração para começar a ligar sistemas externos."
+          />
         )}
       </div>
     </div>
