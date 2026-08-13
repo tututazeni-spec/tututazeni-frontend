@@ -5,7 +5,11 @@ import { useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { Skeleton, CATEGORY_COLOR, TRIGGER_LABEL } from './atoms';
+import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
+import { Card, CardBody } from '@/components/ui/Card';
+import { Skeleton } from '@/components/ui/Skeleton';
+import { CATEGORY_INTENT, TRIGGER_LABEL } from './constants';
 import type { ApplyTemplateResponse, AutomationTemplate } from './types';
 
 export function TemplatesTab() {
@@ -25,43 +29,46 @@ export function TemplatesTab() {
     if (r) alert(r.message ?? 'Template aplicado!');
   };
 
-  if (loading) return <Skeleton />;
+  if (loading)
+    return (
+      <Skeleton
+        rows={4}
+        wrapperClassName="grid grid-cols-1 gap-4 md:grid-cols-2"
+        itemClassName="skeleton-shimmer h-32 rounded-card"
+      />
+    );
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
       {templates.map((t, i) => (
-        <div
-          key={i}
-          className="bg-white rounded-xl border border-slate-100 p-4"
-        >
-          <div className="flex items-start justify-between mb-2">
-            <div>
-              <p className="text-sm font-semibold text-slate-800">{t.name}</p>
-              {t.description && (
-                <p className="text-xs text-slate-400 mt-0.5">{t.description}</p>
+        <Card key={i}>
+          <CardBody>
+            <div className="mb-2 flex items-start justify-between">
+              <div>
+                <p className="font-body text-sm font-semibold text-ink">{t.name}</p>
+                {t.description && (
+                  <p className="mt-0.5 font-body text-xs text-ink-faint">{t.description}</p>
+                )}
+              </div>
+              {t.category && (
+                <Badge
+                  intent={CATEGORY_INTENT[t.category] ?? 'neutral'}
+                  className="ml-2 shrink-0"
+                >
+                  {t.category}
+                </Badge>
               )}
             </div>
-            {t.category && (
-              <span
-                className={`text-[9px] px-1.5 py-0.5 rounded-full font-medium shrink-0 ml-2 ${CATEGORY_COLOR[t.category] ?? CATEGORY_COLOR.CUSTOM}`}
-              >
-                {t.category}
-              </span>
-            )}
-          </div>
-          <div className="flex items-center gap-2 text-[10px] text-slate-400 mb-3">
-            <span>{TRIGGER_LABEL[t.trigger] ?? t.trigger}</span>
-            <span>→</span>
-            <span className="font-mono">{t.action}</span>
-          </div>
-          <button
-            onClick={() => apply(i)}
-            disabled={applying === i}
-            className="w-full text-xs py-1.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-60"
-          >
-            {applying === i ? 'A aplicar…' : 'Aplicar Template'}
-          </button>
-        </div>
+            <div className="mb-3 flex items-center gap-2 font-body text-[10px] text-ink-faint">
+              <span>{TRIGGER_LABEL[t.trigger] ?? t.trigger}</span>
+              <span>→</span>
+              <span className="font-data">{t.action}</span>
+            </div>
+            <Button size="sm" className="w-full" disabled={applying === i} onClick={() => apply(i)}>
+              {applying === i ? 'A aplicar…' : 'Aplicar Template'}
+            </Button>
+          </CardBody>
+        </Card>
       ))}
     </div>
   );
