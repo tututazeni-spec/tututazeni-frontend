@@ -1,4 +1,9 @@
 // components/monitoring/shared.tsx
+// Estados de carregamento/erro partilhados pelas views do módulo de
+// monitoria (OKRs, Avaliações, Indicadores).
+
+import { Button } from '@/components/ui/Button';
+import { Skeleton } from '@/components/ui/Skeleton';
 
 export function ErrorBanner({
   message,
@@ -9,11 +14,11 @@ export function ErrorBanner({
 }) {
   return (
     <div className="p-6">
-      <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-lg">
-        {message}
-        <button onClick={onRetry} className="ml-4 underline">
+      <div className="flex items-center gap-4 rounded-card border border-danger bg-danger-subtle p-4 font-body text-sm text-danger-ink">
+        <span className="flex-1">{message}</span>
+        <Button intent="ghost" size="sm" onClick={onRetry}>
           Tentar novamente
-        </button>
+        </Button>
       </div>
     </div>
   );
@@ -27,13 +32,10 @@ export function ListSkeleton({
   height?: string;
 }) {
   return (
-    <div className="p-6 space-y-4">
-      {[...Array(rows)].map((_, i) => (
-        <div
-          key={i}
-          className={`${height} bg-gray-100 rounded-lg animate-pulse`}
-        />
-      ))}
-    </div>
+    <Skeleton
+      rows={rows}
+      wrapperClassName="p-6 space-y-4"
+      itemClassName={`${height} animate-pulse rounded-card bg-surface-sunken`}
+    />
   );
 }
