@@ -33,9 +33,15 @@ export default function ReportsPage() {
           <div>
             <div className="mb-1 flex items-center gap-2">
               <div className="rounded-control bg-primary-subtle p-1.5">
-                <BarChart2 size={18} strokeWidth={1.75} className="text-primary" />
+                <BarChart2
+                  size={18}
+                  strokeWidth={1.75}
+                  className="text-primary"
+                />
               </div>
-              <h1 className="font-display text-xl font-bold text-ink">Reports</h1>
+              <h1 className="font-display text-xl font-bold text-ink">
+                Reports
+              </h1>
             </div>
             <p className="font-body text-sm text-ink-faint">
               Análises · Templates · Insights IA · Exportação

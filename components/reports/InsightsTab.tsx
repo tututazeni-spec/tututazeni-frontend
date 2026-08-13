@@ -17,7 +17,12 @@ import type { InsightsData } from './types';
 
 const SEV_CONFIG: Record<
   string,
-  { textClass: string; cardClass: string; intent: BadgeProps['intent']; icon: LucideIcon }
+  {
+    textClass: string;
+    cardClass: string;
+    intent: BadgeProps['intent'];
+    icon: LucideIcon;
+  }
 > = {
   HIGH: {
     textClass: 'text-danger-ink',
@@ -71,9 +76,17 @@ export function InsightsTab() {
 
       {(data?.insights ?? []).length === 0 && (
         <div className="rounded-card border border-success bg-success-subtle py-16 text-center">
-          <CheckCircle size={36} strokeWidth={1.75} className="mx-auto mb-2 text-success" />
-          <p className="font-body font-medium text-success-ink">Organização saudável!</p>
-          <p className="font-body text-sm text-success-ink">Sem alertas críticos identificados</p>
+          <CheckCircle
+            size={36}
+            strokeWidth={1.75}
+            className="mx-auto mb-2 text-success"
+          />
+          <p className="font-body font-medium text-success-ink">
+            Organização saudável!
+          </p>
+          <p className="font-body text-sm text-success-ink">
+            Sem alertas críticos identificados
+          </p>
         </div>
       )}
 
@@ -97,12 +110,15 @@ export function InsightsTab() {
                   </span>
                   <Badge intent={conf.intent}>{ins.severity}</Badge>
                 </div>
-                <p className={`mb-1 font-body text-sm font-medium ${conf.textClass}`}>
+                <p
+                  className={`mb-1 font-body text-sm font-medium ${conf.textClass}`}
+                >
                   {ins.message}
                 </p>
                 {ins.recommendation && (
                   <p className="rounded-control border border-border bg-surface px-3 py-1.5 font-body text-xs text-ink-muted">
-                    💡 <span className="font-medium">Recomendação:</span> {ins.recommendation}
+                    💡 <span className="font-medium">Recomendação:</span>{' '}
+                    {ins.recommendation}
                   </p>
                 )}
               </div>

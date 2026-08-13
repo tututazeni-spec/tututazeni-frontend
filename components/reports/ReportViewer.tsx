@@ -64,7 +64,9 @@ export function ReportViewer({ template, onBack }: ReportViewerProps) {
             <ArrowLeft size={14} strokeWidth={1.75} />
             Voltar
           </Button>
-          <h3 className="flex-1 font-display font-semibold text-ink">{template.name}</h3>
+          <h3 className="flex-1 font-display font-semibold text-ink">
+            {template.name}
+          </h3>
           {/* Filters */}
           <Input
             type="date"
@@ -103,7 +105,11 @@ export function ReportViewer({ template, onBack }: ReportViewerProps) {
         <ReportOutput data={data} reportKey={template.reportKey} />
       ) : (
         <div className="py-16 text-center text-ink-faint">
-          <BarChart2 size={40} strokeWidth={1.75} className="mx-auto mb-3 opacity-30" />
+          <BarChart2
+            size={40}
+            strokeWidth={1.75}
+            className="mx-auto mb-3 opacity-30"
+          />
           <p className="font-body">Sem dados para o período seleccionado</p>
         </div>
       )}

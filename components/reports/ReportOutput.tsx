@@ -45,7 +45,9 @@ export function ReportOutput({ data }: ReportOutputProps) {
           .slice(0, 8)
           .map(([k, v]) => {
             if (typeof v === 'object') return null;
-            const label = k.replace(/([A-Z])/g, ' $1').replace(/^./, (c) => c.toUpperCase());
+            const label = k
+              .replace(/([A-Z])/g, ' $1')
+              .replace(/^./, (c) => c.toUpperCase());
             const isRate =
               k.toLowerCase().includes('rate') ||
               k.toLowerCase().includes('pct') ||
@@ -56,7 +58,9 @@ export function ReportOutput({ data }: ReportOutputProps) {
                   <p className="font-display text-xl font-bold text-ink">
                     {typeof v === 'number' ? (isRate ? `${v}%` : v) : String(v)}
                   </p>
-                  <p className="mt-0.5 font-body text-[10px] text-ink-faint">{label}</p>
+                  <p className="mt-0.5 font-body text-[10px] text-ink-faint">
+                    {label}
+                  </p>
                 </CardBody>
               </Card>
             );
@@ -67,7 +71,9 @@ export function ReportOutput({ data }: ReportOutputProps) {
       {(data.byDepartment ?? []).length > 0 && (
         <Card>
           <CardBody>
-            <h4 className="mb-4 font-display font-semibold text-ink">Por Departamento</h4>
+            <h4 className="mb-4 font-display font-semibold text-ink">
+              Por Departamento
+            </h4>
             <div className="space-y-2">
               {(data.byDepartment ?? []).slice(0, 8).map((d, i) => {
                 const val = d.count ?? d.avgScore ?? d.completions ?? 0;
@@ -83,7 +89,11 @@ export function ReportOutput({ data }: ReportOutputProps) {
                         {d.department ?? d.name}
                       </span>
                       <span className="font-body font-semibold text-ink">
-                        {typeof val === 'number' ? (val > 10 ? val : val.toFixed(1)) : val}
+                        {typeof val === 'number'
+                          ? val > 10
+                            ? val
+                            : val.toFixed(1)
+                          : val}
                       </span>
                     </div>
                     <ProgressBar value={max > 0 ? (val / max) * 100 : 0} />
@@ -96,8 +106,13 @@ export function ReportOutput({ data }: ReportOutputProps) {
       )}
 
       {/* Top list */}
-      {(data.topPerformers ?? data.topCourses ?? data.skills ?? data.topContent ?? []).length >
-        0 && (
+      {(
+        data.topPerformers ??
+        data.topCourses ??
+        data.skills ??
+        data.topContent ??
+        []
+      ).length > 0 && (
         <Card>
           <CardBody>
             <h4 className="mb-4 font-display font-semibold text-ink">
@@ -150,11 +165,23 @@ export function ReportOutput({ data }: ReportOutputProps) {
                       #{i + 1}
                     </span>
                     <div className="min-w-0 flex-1">
-                      <p className="truncate font-body text-xs font-medium text-ink">{name}</p>
-                      {sub && <p className="font-body text-[10px] text-ink-faint">{sub}</p>}
+                      <p className="truncate font-body text-xs font-medium text-ink">
+                        {name}
+                      </p>
+                      {sub && (
+                        <p className="font-body text-[10px] text-ink-faint">
+                          {sub}
+                        </p>
+                      )}
                     </div>
-                    <span className={`shrink-0 font-body text-sm font-bold ${valueClass}`}>
-                      {typeof val === 'number' ? (val > 10 ? val : val.toFixed(1)) : val}
+                    <span
+                      className={`shrink-0 font-body text-sm font-bold ${valueClass}`}
+                    >
+                      {typeof val === 'number'
+                        ? val > 10
+                          ? val
+                          : val.toFixed(1)
+                        : val}
                       {isGap ? ' gap' : ''}
                     </span>
                   </div>
