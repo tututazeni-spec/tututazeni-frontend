@@ -9,7 +9,16 @@ import { CheckCircle } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { Skeleton } from './atoms';
+import { Button } from '@/components/ui/Button';
+import { Skeleton } from '@/components/ui/Skeleton';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeaderCell,
+  TableRow,
+} from '@/components/ui/Table';
 import type { MatrixData } from './types';
 
 export function MatrixTab() {
@@ -20,7 +29,13 @@ export function MatrixTab() {
     { staleTime: STALE_TIME.SEMI_STATIC },
   );
 
-  if (loading) return <Skeleton />;
+  if (loading)
+    return (
+      <Skeleton
+        wrapperClassName="space-y-3"
+        itemClassName="skeleton-shimmer h-16 rounded-card"
+      />
+    );
 
   const subjects = (data?.grouped ?? []).map((g) => g.subject);
   const filtered = subject
@@ -30,66 +45,65 @@ export function MatrixTab() {
   return (
     <div className="space-y-4">
       <div className="flex gap-2 flex-wrap">
-        <button
+        <Button
+          size="sm"
+          intent={!subject ? 'primary' : 'secondary'}
           onClick={() => setSubject('')}
-          className={`text-xs px-3 py-1.5 rounded-lg ${!subject ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-600'}`}
         >
           Todos
-        </button>
+        </Button>
         {subjects.map((s: string) => (
-          <button
+          <Button
             key={s}
+            size="sm"
+            intent={subject === s ? 'primary' : 'secondary'}
             onClick={() => setSubject(s)}
-            className={`text-xs px-3 py-1.5 rounded-lg ${subject === s ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-600'}`}
           >
             {s}
-          </button>
+          </Button>
         ))}
       </div>
 
-      <div className="bg-white rounded-xl border border-slate-100 overflow-x-auto">
-        <table className="min-w-full text-xs">
-          <thead className="bg-slate-50">
-            <tr>
-              <th className="px-3 py-2 text-left text-slate-500 font-medium">
-                Permissão
-              </th>
-              {(data?.roles ?? []).map((r) => (
-                <th
-                  key={r.id}
-                  className="px-2 py-2 text-center text-slate-500 font-medium whitespace-nowrap"
-                >
-                  {r.name}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-50">
-            {filtered.map((p, i) => (
-              <tr key={i} className="hover:bg-slate-50">
-                <td className="px-3 py-1.5">
-                  <p className="font-mono text-slate-700">{p.name}</p>
-                  <p className="text-[10px] text-slate-400">
-                    {p.subject} · {p.action}
-                  </p>
-                </td>
-                {(data?.roles ?? []).map((r) => (
-                  <td key={r.id} className="px-2 py-1.5 text-center">
-                    {data?.matrix?.[i]?.[r.name] ? (
-                      <CheckCircle
-                        size={14}
-                        className="text-emerald-500 mx-auto"
-                      />
-                    ) : (
-                      <span className="text-slate-200">—</span>
-                    )}
-                  </td>
-                ))}
-              </tr>
+      <Table>
+        <TableHead>
+          <TableRow>
+            <TableHeaderCell>Permissão</TableHeaderCell>
+            {(data?.roles ?? []).map((r) => (
+              <TableHeaderCell
+                key={r.id}
+                className="text-center whitespace-nowrap"
+              >
+                {r.name}
+              </TableHeaderCell>
             ))}
-          </tbody>
-        </table>
-      </div>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {filtered.map((p, i) => (
+            <TableRow key={i}>
+              <TableCell>
+                <p className="font-data text-ink">{p.name}</p>
+                <p className="text-[10px] text-ink-faint">
+                  {p.subject} · {p.action}
+                </p>
+              </TableCell>
+              {(data?.roles ?? []).map((r) => (
+                <TableCell key={r.id} className="text-center">
+                  {data?.matrix?.[i]?.[r.name] ? (
+                    <CheckCircle
+                      size={14}
+                      strokeWidth={1.75}
+                      className="text-success mx-auto"
+                    />
+                  ) : (
+                    <span className="text-ink-faint">—</span>
+                  )}
+                </TableCell>
+              ))}
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
     </div>
   );
 }
