@@ -1,6 +1,12 @@
 // components/library/LibraryCreateView.tsx
 
-import { Field } from './shared';
+import { ArrowLeft } from 'lucide-react';
+import { Button } from '@/components/ui/Button';
+import { Card, CardBody } from '@/components/ui/Card';
+import { FormField } from '@/components/ui/FormField';
+import { Input } from '@/components/ui/Input';
+import { Select } from '@/components/ui/Select';
+import { Textarea } from '@/components/ui/Textarea';
 import { TYPE_LABELS } from './types';
 
 interface LibraryCreateForm {
@@ -31,6 +37,11 @@ interface LibraryCreateViewProps {
   onCancel: () => void;
 }
 
+const TYPE_SELECT_ITEMS = Object.entries(TYPE_LABELS).map(([value, label]) => ({
+  value,
+  label,
+}));
+
 export function LibraryCreateView({
   form,
   setField,
@@ -40,170 +51,165 @@ export function LibraryCreateView({
   onCancel,
 }: LibraryCreateViewProps) {
   return (
-    <div className="p-6 max-w-3xl">
-      <button
-        onClick={onCancel}
-        className="text-sm text-blue-600 hover:underline mb-2"
-      >
-        ← Voltar à biblioteca
-      </button>
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">
-        Adicionar Recurso
-      </h1>
+    <div className="max-w-3xl p-6">
+      <Button intent="ghost" size="sm" className="mb-2" onClick={onCancel}>
+        <ArrowLeft size={14} strokeWidth={1.75} />
+        Voltar à biblioteca
+      </Button>
+      <h1 className="mb-6 font-display text-2xl font-bold text-ink">Adicionar Recurso</h1>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 p-3 rounded-lg mb-4">
+        <div className="mb-4 rounded-card border border-danger bg-danger-subtle p-3 font-body text-sm text-danger-ink">
           {error}
         </div>
       )}
 
-      <form
-        onSubmit={submit}
-        className="bg-white rounded-lg shadow p-6 grid grid-cols-1 md:grid-cols-2 gap-4"
-      >
-        <Field label="Tipo *">
-          <select
-            value={form.type}
-            onChange={(e) => setField('type', e.target.value)}
-            className="border rounded-lg px-3 py-2 w-full"
-          >
-            {Object.entries(TYPE_LABELS).map(([v, l]) => (
-              <option key={v} value={v}>
-                {l}
-              </option>
-            ))}
-          </select>
-        </Field>
+      <form onSubmit={submit}>
+        <Card>
+          <CardBody className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <FormField label="Tipo *" htmlFor="library-type">
+              <Select
+                items={TYPE_SELECT_ITEMS}
+                value={form.type}
+                onValueChange={(v) => setField('type', v)}
+              />
+            </FormField>
 
-        <Field label="Idioma">
-          <input
-            value={form.language}
-            onChange={(e) => setField('language', e.target.value)}
-            className="border rounded-lg px-3 py-2 w-full"
-          />
-        </Field>
+            <FormField label="Idioma" htmlFor="library-language">
+              <Input
+                id="library-language"
+                value={form.language}
+                onChange={(e) => setField('language', e.target.value)}
+                className="w-full"
+              />
+            </FormField>
 
-        <div className="md:col-span-2">
-          <Field label="Título *">
-            <input
-              required
-              value={form.title}
-              onChange={(e) => setField('title', e.target.value)}
-              className="border rounded-lg px-3 py-2 w-full"
-            />
-          </Field>
-        </div>
+            <div className="md:col-span-2">
+              <FormField label="Título *" htmlFor="library-title">
+                <Input
+                  id="library-title"
+                  required
+                  value={form.title}
+                  onChange={(e) => setField('title', e.target.value)}
+                  className="w-full"
+                />
+              </FormField>
+            </div>
 
-        <div className="md:col-span-2">
-          <Field label="Subtítulo">
-            <input
-              value={form.subtitle}
-              onChange={(e) => setField('subtitle', e.target.value)}
-              className="border rounded-lg px-3 py-2 w-full"
-            />
-          </Field>
-        </div>
+            <div className="md:col-span-2">
+              <FormField label="Subtítulo" htmlFor="library-subtitle">
+                <Input
+                  id="library-subtitle"
+                  value={form.subtitle}
+                  onChange={(e) => setField('subtitle', e.target.value)}
+                  className="w-full"
+                />
+              </FormField>
+            </div>
 
-        <div className="md:col-span-2">
-          <Field label="URL do ficheiro *">
-            <input
-              required
-              placeholder="https://storage.innova.ao/docs/ficheiro.pdf"
-              value={form.fileUrl}
-              onChange={(e) => setField('fileUrl', e.target.value)}
-              className="border rounded-lg px-3 py-2 w-full"
-            />
-          </Field>
-        </div>
+            <div className="md:col-span-2">
+              <FormField label="URL do ficheiro *" htmlFor="library-fileUrl">
+                <Input
+                  id="library-fileUrl"
+                  required
+                  placeholder="https://storage.innova.ao/docs/ficheiro.pdf"
+                  value={form.fileUrl}
+                  onChange={(e) => setField('fileUrl', e.target.value)}
+                  className="w-full"
+                />
+              </FormField>
+            </div>
 
-        <Field label="Autor">
-          <input
-            value={form.author}
-            onChange={(e) => setField('author', e.target.value)}
-            className="border rounded-lg px-3 py-2 w-full"
-          />
-        </Field>
+            <FormField label="Autor" htmlFor="library-author">
+              <Input
+                id="library-author"
+                value={form.author}
+                onChange={(e) => setField('author', e.target.value)}
+                className="w-full"
+              />
+            </FormField>
 
-        <Field label="Editora">
-          <input
-            value={form.publisher}
-            onChange={(e) => setField('publisher', e.target.value)}
-            className="border rounded-lg px-3 py-2 w-full"
-          />
-        </Field>
+            <FormField label="Editora" htmlFor="library-publisher">
+              <Input
+                id="library-publisher"
+                value={form.publisher}
+                onChange={(e) => setField('publisher', e.target.value)}
+                className="w-full"
+              />
+            </FormField>
 
-        <Field label="ISBN">
-          <input
-            value={form.isbn}
-            onChange={(e) => setField('isbn', e.target.value)}
-            className="border rounded-lg px-3 py-2 w-full"
-          />
-        </Field>
+            <FormField label="ISBN" htmlFor="library-isbn">
+              <Input
+                id="library-isbn"
+                value={form.isbn}
+                onChange={(e) => setField('isbn', e.target.value)}
+                className="w-full"
+              />
+            </FormField>
 
-        <Field label="Ano">
-          <input
-            type="number"
-            value={form.year}
-            onChange={(e) => setField('year', e.target.value)}
-            className="border rounded-lg px-3 py-2 w-full"
-          />
-        </Field>
+            <FormField label="Ano" htmlFor="library-year">
+              <Input
+                id="library-year"
+                type="number"
+                value={form.year}
+                onChange={(e) => setField('year', e.target.value)}
+                className="w-full"
+              />
+            </FormField>
 
-        <Field label="Páginas">
-          <input
-            type="number"
-            min={1}
-            value={form.pages}
-            onChange={(e) => setField('pages', e.target.value)}
-            className="border rounded-lg px-3 py-2 w-full"
-          />
-        </Field>
+            <FormField label="Páginas" htmlFor="library-pages">
+              <Input
+                id="library-pages"
+                type="number"
+                min={1}
+                value={form.pages}
+                onChange={(e) => setField('pages', e.target.value)}
+                className="w-full"
+              />
+            </FormField>
 
-        <Field label="Categorias (separadas por vírgula)">
-          <input
-            value={form.categoriesText}
-            onChange={(e) => setField('categoriesText', e.target.value)}
-            className="border rounded-lg px-3 py-2 w-full"
-          />
-        </Field>
+            <FormField label="Categorias (separadas por vírgula)" htmlFor="library-categories">
+              <Input
+                id="library-categories"
+                value={form.categoriesText}
+                onChange={(e) => setField('categoriesText', e.target.value)}
+                className="w-full"
+              />
+            </FormField>
 
-        <div className="md:col-span-2">
-          <Field label="Palavras-chave (separadas por vírgula)">
-            <input
-              value={form.keywordsText}
-              onChange={(e) => setField('keywordsText', e.target.value)}
-              className="border rounded-lg px-3 py-2 w-full"
-            />
-          </Field>
-        </div>
+            <div className="md:col-span-2">
+              <FormField label="Palavras-chave (separadas por vírgula)" htmlFor="library-keywords">
+                <Input
+                  id="library-keywords"
+                  value={form.keywordsText}
+                  onChange={(e) => setField('keywordsText', e.target.value)}
+                  className="w-full"
+                />
+              </FormField>
+            </div>
 
-        <div className="md:col-span-2">
-          <Field label="Descrição">
-            <textarea
-              value={form.description}
-              onChange={(e) => setField('description', e.target.value)}
-              className="border rounded-lg px-3 py-2 w-full"
-              rows={4}
-            />
-          </Field>
-        </div>
+            <div className="md:col-span-2">
+              <FormField label="Descrição" htmlFor="library-description">
+                <Textarea
+                  id="library-description"
+                  value={form.description}
+                  onChange={(e) => setField('description', e.target.value)}
+                  className="w-full"
+                  rows={4}
+                />
+              </FormField>
+            </div>
 
-        <div className="md:col-span-2 flex gap-3">
-          <button
-            type="submit"
-            disabled={saving}
-            className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50"
-          >
-            {saving ? 'A guardar...' : 'Adicionar Recurso'}
-          </button>
-          <button
-            type="button"
-            onClick={onCancel}
-            className="px-6 py-2 border rounded-lg"
-          >
-            Cancelar
-          </button>
-        </div>
+            <div className="flex gap-3 md:col-span-2">
+              <Button type="submit" disabled={saving}>
+                {saving ? 'A guardar...' : 'Adicionar Recurso'}
+              </Button>
+              <Button type="button" intent="secondary" onClick={onCancel}>
+                Cancelar
+              </Button>
+            </div>
+          </CardBody>
+        </Card>
       </form>
     </div>
   );

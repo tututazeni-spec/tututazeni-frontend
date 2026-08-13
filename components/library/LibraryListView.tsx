@@ -1,8 +1,14 @@
 // components/library/LibraryListView.tsx
 
 import Link from 'next/link';
+import { BookOpen, Plus } from 'lucide-react';
+import { Button, buttonVariants } from '@/components/ui/Button';
+import { Card, CardBody } from '@/components/ui/Card';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { Input } from '@/components/ui/Input';
+import { Select } from '@/components/ui/Select';
 import { GridSkeleton } from './shared';
-import { TYPE_ICONS } from './types';
+import { TYPE_ICONS, TYPE_LABELS } from './types';
 import type { Item } from './types';
 
 interface LibraryListViewProps {
@@ -19,6 +25,14 @@ interface LibraryListViewProps {
   error: string;
   onRetry: () => void;
 }
+
+const TYPE_FILTER_ITEMS = [
+  { value: 'ALL', label: 'Todos os tipos' },
+  ...(['PDF', 'EBOOK', 'VIDEO', 'AUDIO', 'PRESENTATION', 'DOCUMENT'] as const).map((v) => ({
+    value: v,
+    label: TYPE_LABELS[v],
+  })),
+];
 
 export function LibraryListView({
   data,
@@ -39,110 +53,101 @@ export function LibraryListView({
   if (error)
     return (
       <div className="p-6">
-        <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-lg flex justify-between">
-          <span>{error}</span>
-          <button onClick={onRetry} className="underline">
+        <div className="flex items-center justify-between rounded-card border border-danger bg-danger-subtle p-4">
+          <span className="font-body text-sm text-danger-ink">{error}</span>
+          <Button intent="secondary" size="sm" onClick={onRetry}>
             Tentar novamente
-          </button>
+          </Button>
         </div>
       </div>
     );
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="space-y-6 p-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">
-            Biblioteca Digital
-          </h1>
-          <p className="text-gray-500">{total} recursos disponíveis</p>
+          <h1 className="font-display text-2xl font-bold text-ink">Biblioteca Digital</h1>
+          <p className="font-body text-ink-muted">{total} recursos disponíveis</p>
         </div>
-        <Link
-          href="/library/novo"
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-        >
-          + Adicionar Recurso
+        <Link href="/library/novo" className={buttonVariants({ intent: 'primary', size: 'md' })}>
+          <Plus size={16} strokeWidth={1.75} />
+          Adicionar Recurso
         </Link>
       </div>
 
       {/* Filtros */}
-      <div className="flex gap-4 flex-wrap">
-        <input
+      <div className="flex flex-wrap gap-4">
+        <Input
           type="text"
           placeholder="Pesquisar por título, autor, palavra-chave..."
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
-          className="border rounded-lg px-4 py-2 flex-1 min-w-[200px]"
+          className="min-w-[200px] flex-1"
         />
-        <select
-          value={typeFilter}
-          onChange={(e) => onTypeFilterChange(e.target.value)}
-          className="border rounded-lg px-4 py-2"
-        >
-          <option value="">Todos os tipos</option>
-          <option value="PDF">PDF</option>
-          <option value="EBOOK">E-book</option>
-          <option value="VIDEO">Vídeo</option>
-          <option value="AUDIO">Áudio</option>
-          <option value="PRESENTATION">Apresentação</option>
-          <option value="DOCUMENT">Documento</option>
-        </select>
+        <Select
+          items={TYPE_FILTER_ITEMS}
+          value={typeFilter || 'ALL'}
+          onValueChange={(v) => onTypeFilterChange(v === 'ALL' ? '' : v)}
+          className="w-56"
+        />
       </div>
 
       {/* Grelha de cards */}
       {data.length === 0 ? (
-        <div className="text-center py-12 text-gray-400">
-          Nenhum recurso encontrado
-        </div>
+        <EmptyState
+          icon={BookOpen}
+          title="Nenhum recurso encontrado"
+          description="Não há recursos para a pesquisa ou filtro seleccionados."
+        />
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {data.map((item) => (
-            <a
-              key={item.id}
-              href={`/library/${item.id}`}
-              className="bg-white rounded-lg shadow hover:shadow-md transition p-4 flex flex-col"
-            >
-              <div className="text-4xl mb-3">
-                {TYPE_ICONS[item.type] || '📦'}
-              </div>
-              <h3 className="font-semibold text-gray-900 line-clamp-2 mb-1">
-                {item.title}
-              </h3>
-              {item.author && (
-                <p className="text-sm text-gray-500 mb-2">{item.author}</p>
-              )}
-              <div className="mt-auto flex justify-between items-center text-xs text-gray-400 pt-3">
-                <span>👁 {item.views}</span>
-                <span>⬇ {item.downloads}</span>
-                {item.rating > 0 && <span>⭐ {item.rating.toFixed(1)}</span>}
-              </div>
-            </a>
+            <Link key={item.id} href={`/library/${item.id}`} className="block h-full">
+              <Card className="h-full hover:shadow-hover">
+                <CardBody className="flex h-full flex-col">
+                  <div className="mb-3 text-4xl">{TYPE_ICONS[item.type] || '📦'}</div>
+                  <h3 className="mb-1 line-clamp-2 font-display font-semibold text-ink">
+                    {item.title}
+                  </h3>
+                  {item.author && (
+                    <p className="mb-2 font-body text-sm text-ink-muted">{item.author}</p>
+                  )}
+                  <div className="mt-auto flex items-center justify-between pt-3 font-body text-xs text-ink-faint">
+                    <span>👁 {item.views}</span>
+                    <span>⬇ {item.downloads}</span>
+                    {item.rating > 0 && <span>⭐ {item.rating.toFixed(1)}</span>}
+                  </div>
+                </CardBody>
+              </Card>
+            </Link>
           ))}
         </div>
       )}
 
       {/* Paginação */}
       {totalPages > 1 && (
-        <div className="flex justify-between items-center">
-          <span className="text-gray-500">
+        <div className="flex items-center justify-between">
+          <span className="font-body text-ink-muted">
             Página {page} de {totalPages}
           </span>
           <div className="flex gap-2">
-            <button
+            <Button
+              intent="secondary"
+              size="sm"
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page === 1}
-              className="px-4 py-2 border rounded-lg disabled:opacity-50"
             >
               Anterior
-            </button>
-            <button
+            </Button>
+            <Button
+              intent="secondary"
+              size="sm"
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               disabled={page === totalPages}
-              className="px-4 py-2 border rounded-lg disabled:opacity-50"
             >
               Próxima
-            </button>
+            </Button>
           </div>
         </div>
       )}
