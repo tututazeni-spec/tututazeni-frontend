@@ -5,8 +5,10 @@
 'use client';
 
 import { useState } from 'react';
+import { CheckCircle2, Circle, Lock, PlayCircle } from 'lucide-react';
+import { Badge } from '@/components/ui/Badge';
+import { ProgressBar } from '@/components/ui/ProgressBar';
 import { moduleTypeLabel } from './utils';
-import { ModuleStatusIcon } from './atoms';
 import { LessonRow } from './LessonRow';
 import type { LessonProgress, ModuleProgress } from './types';
 
@@ -15,6 +17,21 @@ interface ModuleAccordionProps {
   activeLesson: LessonProgress | null;
   onSelectLesson: (lesson: LessonProgress) => void;
   defaultOpen: boolean;
+}
+
+// Substitui o antigo `ModuleStatusIcon` de `./atoms` — único consumidor,
+// por isso migrado directamente para aqui em vez de ficar num ficheiro
+// partilhado sem outros consumidores.
+function moduleStatusIcon(mod: ModuleProgress) {
+  if (mod.locked)
+    return <Lock size={16} strokeWidth={1.75} className="text-ink-faint" />;
+  if (mod.completed)
+    return (
+      <CheckCircle2 size={16} strokeWidth={1.75} className="text-success-ink" />
+    );
+  if (mod.pct > 0)
+    return <PlayCircle size={16} strokeWidth={1.75} className="text-accent" />;
+  return <Circle size={16} strokeWidth={1.75} className="text-ink-faint" />;
 }
 
 export function ModuleAccordion({
@@ -27,59 +44,48 @@ export function ModuleAccordion({
 
   return (
     <div
-      className={`border-b border-gray-100 last:border-0 ${mod.locked ? 'opacity-60' : ''}`}
+      className={`border-b border-border last:border-0 ${mod.locked ? 'opacity-60' : ''}`}
     >
       {/* Module header */}
       <div
         className={`flex items-center gap-3 px-4 py-3 cursor-pointer select-none transition-colors ${
-          open ? 'bg-gray-50' : 'hover:bg-gray-50'
+          open ? 'bg-surface-sunken' : 'hover:bg-surface-sunken'
         }`}
         onClick={() => !mod.locked && setOpen((v) => !v)}
       >
-        <ModuleStatusIcon
-          locked={mod.locked}
-          completed={mod.completed}
-          pct={mod.pct}
-        />
+        {moduleStatusIcon(mod)}
 
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1.5 mb-0.5">
             <span
-              className={`text-xs font-semibold truncate ${mod.locked ? 'text-gray-400' : 'text-gray-800'}`}
+              className={`font-body text-xs font-semibold truncate ${mod.locked ? 'text-ink-faint' : 'text-ink'}`}
             >
               {mod.title}
             </span>
-            {!mod.mandatory && (
-              <span className="text-xs px-1.5 py-0 bg-blue-50 text-blue-600 rounded">
-                Opcional
-              </span>
-            )}
+            {!mod.mandatory && <Badge intent="info">Opcional</Badge>}
             {mod.type && (
-              <span className="text-xs text-gray-400">
+              <span className="font-body text-xs text-ink-faint">
                 {moduleTypeLabel(mod.type)}
               </span>
             )}
           </div>
           {!mod.locked && mod.totalCount > 0 && (
             <div className="flex items-center gap-2">
-              <div className="flex-1 h-1 bg-gray-200 rounded-full overflow-hidden">
-                <div
-                  className="h-1 bg-blue-500 rounded-full"
-                  style={{ width: `${mod.pct}%` }}
-                />
-              </div>
-              <span className="text-xs text-gray-400 flex-shrink-0">
+              <ProgressBar value={mod.pct} className="flex-1" />
+              <span className="font-body text-xs text-ink-faint flex-shrink-0">
                 {mod.completedCount}/{mod.totalCount}
               </span>
             </div>
           )}
           {mod.locked && mod.lockedReason && (
-            <div className="text-xs text-amber-600">{mod.lockedReason}</div>
+            <div className="font-body text-xs text-warning-ink">
+              {mod.lockedReason}
+            </div>
           )}
         </div>
 
         {!mod.locked && (
-          <span className="text-gray-400 text-xs flex-shrink-0">
+          <span className="font-body text-ink-faint text-xs flex-shrink-0">
             {open ? '▲' : '▼'}
           </span>
         )}
@@ -87,7 +93,7 @@ export function ModuleAccordion({
 
       {/* Lessons */}
       {open && !mod.locked && (
-        <div className="border-t border-gray-100">
+        <div className="border-t border-border">
           {mod.lessons.map((lesson) => (
             <LessonRow
               key={lesson.id}
@@ -100,8 +106,8 @@ export function ModuleAccordion({
 
           {/* Materiais complementares */}
           {mod.materials.length > 0 && (
-            <div className="px-4 py-2 bg-gray-50 border-t border-gray-100">
-              <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-1.5">
+            <div className="px-4 py-2 bg-surface-sunken border-t border-border">
+              <div className="font-body text-xs font-medium text-ink-faint uppercase tracking-wide mb-1.5">
                 Materiais
               </div>
               {mod.materials.map((mat) => (
@@ -110,12 +116,12 @@ export function ModuleAccordion({
                   href={mat.url}
                   target="_blank"
                   rel="noreferrer"
-                  className="flex items-center gap-2 py-1 text-xs text-blue-600 hover:text-blue-800"
+                  className="flex items-center gap-2 py-1 font-body text-xs text-primary hover:text-primary-hover"
                 >
                   <span>📎</span>
                   <span className="truncate">{mat.title}</span>
                   {mat.fileType && (
-                    <span className="text-gray-400">{mat.fileType}</span>
+                    <span className="text-ink-faint">{mat.fileType}</span>
                   )}
                 </a>
               ))}

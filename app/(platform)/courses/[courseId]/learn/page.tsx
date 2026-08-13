@@ -12,11 +12,15 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
+import { ArrowLeft, PanelLeft } from 'lucide-react';
 import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { ProgressRing, Skeleton } from '@/components/courses-learn/atoms';
+import { Button } from '@/components/ui/Button';
+import { ProgressBar } from '@/components/ui/ProgressBar';
+import { Skeleton } from '@/components/ui/Skeleton';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/Tabs';
 import { ModuleAccordion } from '@/components/courses-learn/ModuleAccordion';
 import { ContentPlayer } from '@/components/courses-learn/ContentPlayer';
 import { ModuleCompletedBanner } from '@/components/courses-learn/ModuleCompletedBanner';
@@ -134,18 +138,19 @@ export default function CourseLearnPage() {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-white">
+    <div className="flex flex-col h-screen bg-canvas">
       {/* Top bar */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-white flex-shrink-0">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-surface flex-shrink-0">
         <div className="flex items-center gap-4">
-          <button className="text-sm text-gray-500 hover:text-gray-800">
-            ← Voltar
-          </button>
+          <Button intent="ghost" size="sm">
+            <ArrowLeft size={16} strokeWidth={1.75} />
+            Voltar
+          </Button>
           <div>
-            <div className="text-sm font-semibold text-gray-900">
+            <div className="font-body text-sm font-semibold text-ink">
               Curso #{courseId}
             </div>
-            <div className="text-xs text-gray-400">
+            <div className="font-body text-xs text-ink-faint">
               {overallPct}% concluído ·{' '}
               {modules.reduce((s, m) => s + m.completedCount, 0)}/
               {modules.reduce((s, m) => s + m.totalCount, 0)} aulas
@@ -156,35 +161,28 @@ export default function CourseLearnPage() {
         <div className="flex items-center gap-3">
           {/* Overall progress */}
           <div className="flex items-center gap-2">
-            <ProgressRing pct={overallPct} size={32} />
-            <span className="text-xs font-mono text-gray-600">
+            <ProgressBar value={overallPct} className="w-20" />
+            <span className="font-data text-xs text-ink-muted">
               {overallPct}%
             </span>
           </div>
 
           {/* Mode toggle */}
-          <div className="flex bg-gray-100 rounded-lg p-1">
-            {(['learn', 'build'] as PageMode[]).map((m) => (
-              <button
-                key={m}
-                onClick={() => setMode(m)}
-                className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
-                  mode === m
-                    ? 'bg-white text-gray-900 shadow-sm'
-                    : 'text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                {{ learn: 'Aprender', build: 'Construtor' }[m]}
-              </button>
-            ))}
-          </div>
+          <Tabs value={mode} onValueChange={(v) => setMode(v as PageMode)}>
+            <TabsList>
+              <TabsTrigger value="learn">Aprender</TabsTrigger>
+              <TabsTrigger value="build">Construtor</TabsTrigger>
+            </TabsList>
+          </Tabs>
 
-          <button
+          <Button
+            intent="secondary"
+            size="sm"
             onClick={() => setSidebarOpen((v) => !v)}
-            className="text-xs text-gray-500 hover:text-gray-800 border border-gray-200 rounded-lg px-2 py-1"
           >
-            {sidebarOpen ? '⊟ Ocultar' : '⊞ Estrutura'}
-          </button>
+            <PanelLeft size={16} strokeWidth={1.75} />
+            {sidebarOpen ? 'Ocultar' : 'Estrutura'}
+          </Button>
         </div>
       </div>
 
@@ -193,25 +191,20 @@ export default function CourseLearnPage() {
         {/* Sidebar */}
         {sidebarOpen && (
           <div
-            className={`flex-shrink-0 overflow-y-auto border-r border-gray-200 bg-white ${
+            className={`flex-shrink-0 overflow-y-auto border-r border-border bg-surface ${
               mode === 'build' ? 'w-full' : 'w-72'
             }`}
           >
             {mode === 'learn' ? (
               <div>
                 {/* Sidebar header */}
-                <div className="px-4 py-3 border-b border-gray-100 bg-gray-50">
-                  <div className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">
+                <div className="px-4 py-3 border-b border-border bg-surface-sunken">
+                  <div className="font-body text-xs font-medium text-ink-muted uppercase tracking-wide mb-1">
                     Conteúdo do curso
                   </div>
                   <div className="flex items-center gap-2">
-                    <div className="flex-1 h-1.5 bg-gray-200 rounded-full overflow-hidden">
-                      <div
-                        className="h-1.5 bg-blue-600 rounded-full"
-                        style={{ width: `${overallPct}%` }}
-                      />
-                    </div>
-                    <span className="text-xs font-mono text-gray-500">
+                    <ProgressBar value={overallPct} className="flex-1" />
+                    <span className="font-data text-xs text-ink-muted">
                       {overallPct}%
                     </span>
                   </div>
@@ -219,7 +212,7 @@ export default function CourseLearnPage() {
 
                 {loading ? (
                   <div className="p-4">
-                    <Skeleton />
+                    <Skeleton itemClassName="skeleton-shimmer h-12 rounded-card" />
                   </div>
                 ) : (
                   modules.map((mod, idx) => (
@@ -262,13 +255,13 @@ export default function CourseLearnPage() {
                 currentModule={activeModule}
               />
             ) : (
-              <div className="flex-1 bg-gray-950 flex items-center justify-center text-white text-center">
+              <div className="flex-1 bg-ink flex items-center justify-center text-canvas text-center">
                 <div>
                   <div className="text-5xl mb-4">📚</div>
-                  <div className="text-lg font-medium mb-2">
+                  <div className="font-display text-lg font-medium mb-2">
                     Selecciona uma aula para começar
                   </div>
-                  <div className="text-sm text-gray-400">
+                  <div className="font-body text-sm text-canvas/70">
                     Navega pela estrutura do curso na barra lateral
                   </div>
                 </div>
