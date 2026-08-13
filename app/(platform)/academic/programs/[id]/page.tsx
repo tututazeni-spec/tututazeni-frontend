@@ -1,9 +1,11 @@
 'use client';
 
 import { useParams, useRouter } from 'next/navigation';
+import { AlertCircle } from 'lucide-react';
 import { useAcademicProgramDetail } from '@/hooks/useAcademicProgramDetail';
 import { ProgramDetailView } from '@/components/academic/ProgramDetailView';
 import { DetailSkeleton } from '@/components/academic/shared';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export default function ProgramDetailPage() {
   const params = useParams();
@@ -16,12 +18,12 @@ export default function ProgramDetailPage() {
   if (error || !program)
     return (
       <div className="p-6">
-        <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-lg">
-          {error || 'Programa não encontrado'}
-          <button onClick={() => router.back()} className="ml-4 underline">
-            Voltar
-          </button>
-        </div>
+        <EmptyState
+          icon={AlertCircle}
+          title="Erro ao carregar o programa"
+          description={error || 'Programa não encontrado'}
+          action={{ label: 'Voltar', onClick: () => router.back() }}
+        />
       </div>
     );
 
