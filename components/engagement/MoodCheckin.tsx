@@ -1,6 +1,10 @@
 // components/engagement/MoodCheckin.tsx
 // Widget de check-in rápido de humor. Extraído de
 // app/(platform)/engagement/page.tsx.
+//
+// O selector de humor (5 emojis) é um padrão bespoke sem equivalente na
+// fundação — mantém-se estruturalmente como está, só troca os tokens de
+// cor (violeta -> primary).
 
 'use client';
 
@@ -8,6 +12,8 @@ import { useState } from 'react';
 import { CheckCircle, Send } from 'lucide-react';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
+import { IconButton } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
 import { MOOD_EMOJI, MOOD_LABEL } from './constants';
 
 export interface MoodCheckinProps {
@@ -39,51 +45,51 @@ export function MoodCheckin({ onDone }: MoodCheckinProps) {
 
   if (done)
     return (
-      <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 flex items-center gap-3">
-        <CheckCircle size={20} className="text-emerald-500" />
-        <p className="text-sm text-emerald-700 font-medium">
+      <div className="flex items-center gap-3 rounded-card border border-success bg-success-subtle p-4">
+        <CheckCircle size={20} strokeWidth={1.75} className="text-success" />
+        <p className="font-body text-sm font-medium text-success-ink">
           Check-in registado! +5 XP 🎉
         </p>
       </div>
     );
 
   return (
-    <div className="bg-gradient-to-br from-violet-50 to-pink-50 border border-violet-100 rounded-xl p-5">
-      <p className="text-sm font-semibold text-slate-700 mb-3">
+    <div className="rounded-card border border-primary-subtle bg-gradient-to-br from-primary-subtle to-accent-subtle p-5">
+      <p className="mb-3 font-body text-sm font-semibold text-ink">
         💫 Como te sentes hoje?
       </p>
-      <div className="flex gap-3 mb-3">
+      <div className="mb-3 flex gap-3">
         {[5, 4, 3, 2, 1].map((m) => (
           <button
             key={m}
             onClick={() => setSelected(m)}
-            className={`flex flex-col items-center gap-1 p-2 rounded-xl border-2 transition-all ${
+            className={`flex flex-col items-center gap-1 rounded-card border-2 p-2 transition-all ${
               selected === m
-                ? 'border-violet-500 bg-white scale-110 shadow-md'
-                : 'border-transparent hover:border-violet-200'
+                ? 'scale-110 border-primary bg-surface shadow-hover'
+                : 'border-transparent hover:border-primary-subtle'
             }`}
           >
             <span className="text-2xl">{MOOD_EMOJI[m]}</span>
-            <span className="text-[10px] text-slate-500">{MOOD_LABEL[m]}</span>
+            <span className="font-body text-[10px] text-ink-muted">
+              {MOOD_LABEL[m]}
+            </span>
           </button>
         ))}
       </div>
       {selected && (
-        <div className="flex gap-2 mt-2">
-          <input
+        <div className="mt-2 flex gap-2">
+          <Input
             value={note}
             onChange={(e) => setNote(e.target.value)}
             placeholder="Nota opcional (não é obrigatório)..."
-            className="flex-1 text-sm border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:border-violet-400"
+            className="flex-1"
           />
-          <button
+          <IconButton
+            icon={Send}
+            label="Enviar"
             onClick={submit}
             disabled={submitting}
-            aria-label="Enviar"
-            className="px-4 py-2 bg-violet-600 text-white rounded-lg text-sm hover:bg-violet-700 transition-colors disabled:opacity-60"
-          >
-            <Send size={14} />
-          </button>
+          />
         </div>
       )}
     </div>

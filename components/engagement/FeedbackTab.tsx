@@ -6,6 +6,10 @@
 // `userId` nunca é passado pelo container (page.tsx renderiza
 // `<FeedbackTab />` sem prop) — mesmo padrão (não corrigido aqui) de
 // components/evaluation/OverviewTab.tsx.
+//
+// Checkbox "Enviar anonimamente" fica nativo (a Fase A não tem Checkbox
+// próprio) — só `accent-primary` para usar o token de cor em vez da cor
+// por omissão do browser.
 
 'use client';
 
@@ -15,16 +19,25 @@ import { useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { Avatar, Skeleton } from './atoms';
+import { Avatar } from '@/components/ui/Avatar';
+import { Badge, type BadgeProps } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
+import { Card, CardBody } from '@/components/ui/Card';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { Skeleton } from '@/components/ui/Skeleton';
+import { Textarea } from '@/components/ui/Textarea';
 import type { FeedbackItem } from './types';
 
-const TYPE_COLOR: Record<string, string> = {
-  OPEN: 'bg-blue-100 text-blue-700',
-  ANONYMOUS: 'bg-slate-100 text-slate-600',
-  PEER: 'bg-violet-100 text-violet-700',
-  MANAGER: 'bg-amber-100 text-amber-700',
-  RECOGNITION: 'bg-emerald-100 text-emerald-700',
+const TYPE_INTENT: Record<string, BadgeProps['intent']> = {
+  OPEN: 'info',
+  ANONYMOUS: 'neutral',
+  PEER: 'info',
+  MANAGER: 'warning',
+  RECOGNITION: 'success',
 };
+
+const TYPE_FILTERS = ['', 'OPEN', 'ANONYMOUS', 'PEER', 'MANAGER'] as const;
+const NEW_FEEDBACK_TYPES = ['OPEN', 'PEER', 'MANAGER'] as const;
 
 export interface FeedbackTabProps {
   userId?: number;
@@ -58,114 +71,115 @@ export function FeedbackTab({ userId }: FeedbackTabProps) {
     refetch();
   };
 
-  if (isLoading) return <Skeleton />;
+  if (isLoading)
+    return (
+      <Skeleton
+        rows={4}
+        wrapperClassName="space-y-4"
+        itemClassName="skeleton-shimmer h-20 rounded-card"
+      />
+    );
 
   return (
     <div className="space-y-4">
       {/* New feedback box */}
-      <div className="bg-white rounded-xl border border-slate-100 p-5">
-        <h3 className="font-semibold text-slate-700 mb-3">💬 Novo Feedback</h3>
-        <div className="flex gap-2 mb-3">
-          {['OPEN', 'PEER', 'MANAGER'].map((t) => (
-            <button
-              key={t}
-              onClick={() => setType(t)}
-              className={`px-3 py-1.5 text-xs rounded-lg border transition-colors ${
-                type === t
-                  ? 'border-indigo-500 bg-indigo-50 text-indigo-700'
-                  : 'border-slate-200 text-slate-500'
-              }`}
-            >
-              {t}
-            </button>
-          ))}
-        </div>
-        <textarea
-          value={msg}
-          onChange={(e) => setMsg(e.target.value)}
-          rows={3}
-          placeholder="Escreve o teu feedback..."
-          className="w-full text-sm border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:border-indigo-400 resize-none"
-        />
-        <div className="flex items-center justify-between mt-2">
-          <label className="flex items-center gap-2 text-xs text-slate-500 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={anon}
-              onChange={(e) => setAnon(e.target.checked)}
-              className="rounded"
-            />
-            Enviar anonimamente
-          </label>
-          <button
-            onClick={send}
-            className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm hover:bg-indigo-700"
-          >
-            Enviar
-          </button>
-        </div>
-      </div>
+      <Card>
+        <CardBody>
+          <h3 className="mb-3 font-display font-semibold text-ink">
+            💬 Novo Feedback
+          </h3>
+          <div className="mb-3 flex gap-2">
+            {NEW_FEEDBACK_TYPES.map((t) => (
+              <Button
+                key={t}
+                size="sm"
+                intent={type === t ? 'primary' : 'secondary'}
+                onClick={() => setType(t)}
+              >
+                {t}
+              </Button>
+            ))}
+          </div>
+          <Textarea
+            value={msg}
+            onChange={(e) => setMsg(e.target.value)}
+            rows={3}
+            placeholder="Escreve o teu feedback..."
+          />
+          <div className="mt-2 flex items-center justify-between">
+            <label className="flex cursor-pointer items-center gap-2 font-body text-xs text-ink-muted">
+              <input
+                type="checkbox"
+                checked={anon}
+                onChange={(e) => setAnon(e.target.checked)}
+                className="rounded accent-primary"
+              />
+              Enviar anonimamente
+            </label>
+            <Button size="sm" onClick={send}>
+              Enviar
+            </Button>
+          </div>
+        </CardBody>
+      </Card>
 
       {/* Filter */}
       <div className="flex gap-2">
-        {['', 'OPEN', 'ANONYMOUS', 'PEER', 'MANAGER'].map((t) => (
-          <button
+        {TYPE_FILTERS.map((t) => (
+          <Button
             key={t}
+            size="sm"
+            intent={type === t ? 'primary' : 'ghost'}
             onClick={() => setType(t)}
-            className={`px-3 py-1.5 text-xs rounded-lg transition-colors ${
-              type === t
-                ? 'bg-indigo-600 text-white'
-                : 'bg-white border border-slate-200 text-slate-600'
-            }`}
           >
             {t || 'Todos'}
-          </button>
+          </Button>
         ))}
       </div>
 
       {/* List */}
       <div className="space-y-3">
         {data.map((f, i) => (
-          <div
-            key={i}
-            className="bg-white rounded-xl border border-slate-100 p-4"
-          >
-            <div className="flex items-start justify-between mb-2">
-              <div className="flex items-center gap-2">
-                <Avatar
-                  name={f.from?.fullName ?? 'Anónimo'}
-                  url={f.from?.avatarUrl}
-                  size={8}
-                />
-                <div>
-                  <p className="text-sm font-medium text-slate-700">
-                    {f.from?.fullName ?? 'Anónimo'}
-                  </p>
-                  <p className="text-[10px] text-slate-400">
-                    {new Date(f.createdAt).toLocaleDateString('pt')}
-                  </p>
+          <Card key={i}>
+            <CardBody>
+              <div className="mb-2 flex items-start justify-between">
+                <div className="flex items-center gap-2">
+                  <Avatar
+                    name={f.from?.fullName ?? 'Anónimo'}
+                    url={f.from?.avatarUrl}
+                    size="sm"
+                  />
+                  <div>
+                    <p className="font-body text-sm font-medium text-ink">
+                      {f.from?.fullName ?? 'Anónimo'}
+                    </p>
+                    <p className="font-body text-[10px] text-ink-faint">
+                      {new Date(f.createdAt).toLocaleDateString('pt')}
+                    </p>
+                  </div>
                 </div>
+                <Badge intent={TYPE_INTENT[f.type] ?? 'neutral'}>
+                  {f.type}
+                </Badge>
               </div>
-              <span
-                className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${TYPE_COLOR[f.type] ?? ''}`}
-              >
-                {f.type}
-              </span>
-            </div>
-            <p className="text-sm text-slate-600 ml-10">{f.message}</p>
-            {f.reply && (
-              <div className="mt-2 ml-10 p-2 bg-slate-50 rounded-lg border-l-2 border-indigo-400">
-                <p className="text-xs text-slate-500">Resposta:</p>
-                <p className="text-xs text-slate-700">{f.reply}</p>
-              </div>
-            )}
-          </div>
+              <p className="ml-10 font-body text-sm text-ink-muted">
+                {f.message}
+              </p>
+              {f.reply && (
+                <div className="ml-10 mt-2 rounded-control border-l-2 border-primary bg-surface-sunken p-2">
+                  <p className="font-body text-xs text-ink-muted">Resposta:</p>
+                  <p className="font-body text-xs text-ink">{f.reply}</p>
+                </div>
+              )}
+            </CardBody>
+          </Card>
         ))}
         {data.length === 0 && (
-          <div className="py-12 text-center text-slate-400">
-            <MessageSquare size={36} className="mx-auto mb-2 opacity-30" />
-            <p className="text-sm">Nenhum feedback encontrado</p>
-          </div>
+          <EmptyState
+            icon={MessageSquare}
+            title="Nenhum feedback encontrado"
+            description="Não há feedback para o filtro seleccionado."
+          />
         )}
       </div>
     </div>
