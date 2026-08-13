@@ -7,6 +7,12 @@
 'use client';
 
 import type { Dispatch, SetStateAction } from 'react';
+import { BellRing, CheckCircle2, Percent, Send } from 'lucide-react';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { Input } from '@/components/ui/Input';
+import { KpiCard } from '@/components/ui/KpiCard';
+import { Textarea } from '@/components/ui/Textarea';
 import { CATEGORY_CFG, Skeleton } from './shared';
 import type { AdminForm, Stats } from './types';
 
@@ -33,35 +39,26 @@ export function AdminView({
     <div className="space-y-5">
       {/* Stats */}
       <div className="grid grid-cols-4 gap-3">
-        {[
-          { label: 'Total enviadas', value: stats.total },
-          { label: 'Lidas', value: stats.read, color: 'text-emerald-600' },
-          {
-            label: 'Não lidas',
-            value: stats.unread,
-            color: stats.unread > 100 ? 'text-red-600' : 'text-amber-600',
-          },
-          {
-            label: 'Taxa de abertura',
-            value: `${stats.openRate}%`,
-            color: 'text-blue-600',
-          },
-        ].map(({ label, value, color }) => (
-          <div key={label} className="bg-gray-50 rounded-xl p-4">
-            <div className="text-xs text-gray-400 mb-1">{label}</div>
-            <div
-              className={`text-2xl font-bold font-mono ${color ?? 'text-gray-900'}`}
-            >
-              {value}
-            </div>
-          </div>
-        ))}
+        <KpiCard icon={Send} label="Total enviadas" value={stats.total} intent="primary" />
+        <KpiCard icon={CheckCircle2} label="Lidas" value={stats.read} intent="success" />
+        <KpiCard
+          icon={BellRing}
+          label="Não lidas"
+          value={stats.unread}
+          intent={stats.unread > 100 ? 'danger' : 'warning'}
+        />
+        <KpiCard
+          icon={Percent}
+          label="Taxa de abertura"
+          value={`${stats.openRate}%`}
+          intent="info"
+        />
       </div>
 
       {/* Por categoria */}
       <div className="grid grid-cols-2 gap-4">
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">
+        <Card className="p-4">
+          <div className="mb-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
             Por categoria
           </div>
           {stats.byCategory.map((c) => {
@@ -69,53 +66,49 @@ export function AdminView({
             return (
               <div
                 key={c.category}
-                className="flex items-center gap-2 py-1.5 border-b border-gray-50 last:border-0"
+                className="flex items-center gap-2 border-b border-border py-1.5 last:border-0"
               >
                 <span className="text-sm">{cfg?.icon ?? '📌'}</span>
-                <span className="text-xs text-gray-700 flex-1">
+                <span className="flex-1 font-body text-xs text-ink-muted">
                   {cfg?.label ?? c.category ?? '—'}
                 </span>
-                <span className="text-xs font-mono font-bold text-gray-900">
+                <span className="font-data text-xs font-bold text-ink">
                   {c.count}
                 </span>
               </div>
             );
           })}
-        </div>
+        </Card>
 
         {/* Envio em massa */}
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">
+        <Card className="p-4">
+          <div className="mb-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
             Enviar a todos
           </div>
           <div className="space-y-3">
-            <input
+            <Input
               type="text"
               placeholder="Título (opcional)"
               value={form.title}
               onChange={(e) =>
                 setForm((p) => ({ ...p, title: e.target.value }))
               }
-              className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full"
             />
-            <textarea
+            <Textarea
               rows={3}
               placeholder="Mensagem…"
               value={form.message}
               onChange={(e) =>
                 setForm((p) => ({ ...p, message: e.target.value }))
               }
-              className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full resize-none"
             />
-            <button
-              onClick={handleSendAll}
-              disabled={sending}
-              className="w-full py-2 bg-blue-700 text-white text-sm font-medium rounded-lg hover:bg-blue-800 disabled:opacity-50"
-            >
+            <Button className="w-full" disabled={sending} onClick={handleSendAll}>
               {sending ? 'A enviar…' : '📣 Enviar a todos os colaboradores'}
-            </button>
+            </Button>
           </div>
-        </div>
+        </Card>
       </div>
     </div>
   );
