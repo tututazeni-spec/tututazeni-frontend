@@ -1,5 +1,14 @@
 // components/monitoring/IndicatorsView.tsx
 
+import { Button } from '@/components/ui/Button';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeaderCell,
+  TableRow,
+} from '@/components/ui/Table';
 import { ErrorBanner, ListSkeleton } from './shared';
 import type { Indicator } from './types';
 
@@ -31,90 +40,79 @@ export function IndicatorsView({
     <div className="p-6 space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="font-display text-2xl font-bold text-ink">
             Indicadores de Monitoria
           </h1>
-          <p className="text-gray-500">{total} indicadores activos</p>
+          <p className="font-body text-ink-muted">{total} indicadores activos</p>
         </div>
-        <a
-          href="/monitoring/okrs"
-          className="text-sm text-blue-600 hover:underline"
-        >
+        <a href="/monitoring/okrs" className="font-body text-sm text-primary hover:underline">
           ← OKRs
         </a>
       </div>
 
-      <div className="bg-white rounded-lg shadow overflow-hidden">
-        <table className="w-full text-sm">
-          <thead className="bg-gray-50 text-gray-600 uppercase text-xs">
-            <tr>
-              <th className="px-4 py-3 text-left">Código</th>
-              <th className="px-4 py-3 text-left">Indicador</th>
-              <th className="px-4 py-3 text-left">Categoria</th>
-              <th className="px-4 py-3 text-right">Baseline</th>
-              <th className="px-4 py-3 text-right">Meta</th>
-              <th className="px-4 py-3 text-left">Frequência</th>
-              <th className="px-4 py-3 text-center">Registos</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100">
-            {data.length === 0 ? (
-              <tr>
-                <td colSpan={7} className="px-4 py-8 text-center text-gray-400">
-                  Nenhum indicador encontrado
-                </td>
-              </tr>
-            ) : (
-              data.map((ind) => (
-                <tr key={ind.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-3 font-mono text-blue-600">
-                    {ind.code}
-                  </td>
-                  <td className="px-4 py-3 font-medium">{ind.name}</td>
-                  <td className="px-4 py-3 text-gray-600">
-                    {ind.category || '—'}
-                  </td>
-                  <td className="px-4 py-3 text-right text-gray-600">
-                    {ind.baseline != null
-                      ? `${ind.baseline}${ind.unit || ''}`
-                      : '—'}
-                  </td>
-                  <td className="px-4 py-3 text-right text-gray-700 font-medium">
-                    {ind.target != null
-                      ? `${ind.target}${ind.unit || ''}`
-                      : '—'}
-                  </td>
-                  <td className="px-4 py-3 text-gray-600">{ind.frequency}</td>
-                  <td className="px-4 py-3 text-center text-gray-600">
-                    {ind._count?.records ?? 0}
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+      <Table>
+        <TableHead>
+          <TableRow>
+            <TableHeaderCell>Código</TableHeaderCell>
+            <TableHeaderCell>Indicador</TableHeaderCell>
+            <TableHeaderCell>Categoria</TableHeaderCell>
+            <TableHeaderCell className="text-right">Baseline</TableHeaderCell>
+            <TableHeaderCell className="text-right">Meta</TableHeaderCell>
+            <TableHeaderCell>Frequência</TableHeaderCell>
+            <TableHeaderCell className="text-center">Registos</TableHeaderCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {data.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={7} className="py-8 text-center text-ink-faint">
+                Nenhum indicador encontrado
+              </TableCell>
+            </TableRow>
+          ) : (
+            data.map((ind) => (
+              <TableRow key={ind.id}>
+                <TableCell className="font-data text-primary">{ind.code}</TableCell>
+                <TableCell className="font-medium">{ind.name}</TableCell>
+                <TableCell className="text-ink-muted">{ind.category || '—'}</TableCell>
+                <TableCell className="text-right text-ink-muted">
+                  {ind.baseline != null ? `${ind.baseline}${ind.unit || ''}` : '—'}
+                </TableCell>
+                <TableCell className="text-right font-medium text-ink">
+                  {ind.target != null ? `${ind.target}${ind.unit || ''}` : '—'}
+                </TableCell>
+                <TableCell className="text-ink-muted">{ind.frequency}</TableCell>
+                <TableCell className="text-center text-ink-muted">
+                  {ind._count?.records ?? 0}
+                </TableCell>
+              </TableRow>
+            ))
+          )}
+        </TableBody>
+      </Table>
 
       {totalPages > 1 && (
         <div className="flex justify-between items-center">
-          <span className="text-gray-500">
+          <span className="font-body text-ink-muted">
             Página {page} de {totalPages}
           </span>
           <div className="flex gap-2">
-            <button
+            <Button
+              intent="secondary"
+              size="sm"
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page === 1}
-              className="px-4 py-2 border rounded-lg disabled:opacity-50"
             >
               Anterior
-            </button>
-            <button
+            </Button>
+            <Button
+              intent="secondary"
+              size="sm"
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               disabled={page === totalPages}
-              className="px-4 py-2 border rounded-lg disabled:opacity-50"
             >
               Próxima
-            </button>
+            </Button>
           </div>
         </div>
       )}

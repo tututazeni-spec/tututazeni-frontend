@@ -1,7 +1,14 @@
 // components/monitoring/OkrsView.tsx
 
+import { ClipboardList, Target } from 'lucide-react';
+import { Badge } from '@/components/ui/Badge';
+import { buttonVariants } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { ProgressBar } from '@/components/ui/ProgressBar';
+import { Select } from '@/components/ui/Select';
 import { ErrorBanner, ListSkeleton } from './shared';
-import { OKR_STATUS_COLORS } from './types';
+import { OKR_STATUS_INTENT } from './types';
 import type { Cycle, Objective } from './types';
 
 interface OkrsViewProps {
@@ -29,19 +36,19 @@ export function OkrsView({
   return (
     <div className="p-6 space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-900">
+        <h1 className="font-display text-2xl font-bold text-ink">
           OKRs — Objectivos e Resultados-Chave
         </h1>
         <div className="flex gap-2">
           <a
             href="/monitoring/indicators"
-            className="px-4 py-2 border rounded-lg hover:bg-gray-50"
+            className={buttonVariants({ intent: 'secondary', size: 'sm' })}
           >
             Indicadores
           </a>
           <a
             href="/monitoring/evaluations"
-            className="px-4 py-2 border rounded-lg hover:bg-gray-50"
+            className={buttonVariants({ intent: 'secondary', size: 'sm' })}
           >
             Avaliações
           </a>
@@ -49,81 +56,65 @@ export function OkrsView({
       </div>
 
       {cycles.length === 0 ? (
-        <div className="text-center py-12 text-gray-400">
-          Nenhum ciclo OKR criado
-        </div>
+        <EmptyState
+          icon={Target}
+          title="Nenhum ciclo OKR criado"
+          description="Cria um ciclo para começares a definir objectivos."
+        />
       ) : (
         <>
-          <select
+          <Select
+            items={cycles.map((c) => ({ value: c.id, label: c.name }))}
             value={selectedCycle}
-            onChange={(e) => setSelectedCycle(e.target.value)}
-            className="border rounded-lg px-4 py-2"
-          >
-            {cycles.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
-            ))}
-          </select>
+            onValueChange={setSelectedCycle}
+          />
 
           {objectives.length === 0 ? (
-            <div className="text-center py-12 text-gray-400">
-              Nenhum objectivo neste ciclo
-            </div>
+            <EmptyState
+              icon={ClipboardList}
+              title="Nenhum objectivo neste ciclo"
+              description="Ainda não há objectivos definidos para este ciclo."
+            />
           ) : (
             <div className="space-y-4">
               {objectives.map((obj) => (
-                <div key={obj.id} className="bg-white rounded-lg shadow p-5">
+                <Card key={obj.id} className="p-5">
                   <div className="flex justify-between items-start mb-3">
                     <div>
-                      <span className="text-xs text-gray-400 uppercase">
+                      <span className="font-body text-xs uppercase text-ink-faint">
                         {obj.type}
                       </span>
-                      <h3 className="font-semibold text-gray-900">
-                        {obj.title}
-                      </h3>
-                      <p className="text-sm text-gray-500">
-                        {obj.owner?.fullName}
-                      </p>
+                      <h3 className="font-display font-semibold text-ink">{obj.title}</h3>
+                      <p className="font-body text-sm text-ink-muted">{obj.owner?.fullName}</p>
                     </div>
                     <div className="text-right">
-                      <span className="text-2xl font-bold text-blue-600">
+                      <span className="font-display text-2xl font-bold text-primary">
                         {Math.round(obj.progress)}%
                       </span>
                     </div>
                   </div>
 
-                  <div className="w-full bg-gray-100 rounded-full h-2 mb-4">
-                    <div
-                      className="bg-blue-600 h-2 rounded-full"
-                      style={{ width: `${Math.min(100, obj.progress)}%` }}
-                    />
-                  </div>
+                  <ProgressBar value={obj.progress} className="mb-4 h-2" />
 
                   <div className="space-y-2">
                     {obj.keyResults?.map((kr) => (
                       <div
                         key={kr.id}
-                        className="flex justify-between items-center bg-gray-50 rounded-lg p-3"
+                        className="flex justify-between items-center rounded-control bg-surface-sunken p-3"
                       >
                         <div className="flex-1">
-                          <p className="text-sm font-medium">{kr.title}</p>
-                          <p className="text-xs text-gray-400">
+                          <p className="font-body text-sm font-medium text-ink">{kr.title}</p>
+                          <p className="font-body text-xs text-ink-faint">
                             {kr.currentValue} / {kr.targetValue} {kr.unit || ''}
                           </p>
                         </div>
-                        <span
-                          className={`px-2 py-1 rounded-full text-xs font-medium ${
-                            OKR_STATUS_COLORS[kr.status] ??
-                            'bg-gray-100 text-gray-600'
-                          }`}
-                        >
+                        <Badge intent={OKR_STATUS_INTENT[kr.status] ?? 'neutral'}>
                           {Math.round(kr.progress)}%
-                        </span>
+                        </Badge>
                       </div>
                     ))}
                   </div>
-                </div>
+                </Card>
               ))}
             </div>
           )}
