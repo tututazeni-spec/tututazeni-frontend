@@ -1,4 +1,13 @@
 // components/academic/shared.tsx
+//
+// Pequenos blocos de apresentação partilhados pelas views de academic
+// (lista de programas, detalhe de programa, transcrição). `Info` fica
+// local — sem equivalente em components/ui/. Os skeletons passam a
+// compor components/ui/Skeleton em vez de reimplementar o placeholder
+// pulsante à mão. `SummaryCard` foi eliminado — o único consumidor
+// (TranscriptView) passou a usar KpiCard directamente.
+
+import { Skeleton } from '@/components/ui/Skeleton';
 
 interface InfoProps {
   label: string;
@@ -8,44 +17,32 @@ interface InfoProps {
 export function Info({ label, value }: InfoProps) {
   return (
     <div>
-      <p className="text-xs text-gray-400 uppercase">{label}</p>
-      <p className="text-sm text-gray-800 font-medium">{value}</p>
-    </div>
-  );
-}
-
-interface SummaryCardProps {
-  label: string;
-  value: string;
-  color?: string;
-}
-
-export function SummaryCard({ label, value, color }: SummaryCardProps) {
-  return (
-    <div className="bg-white rounded-lg shadow p-4">
-      <p className="text-xs text-gray-400 uppercase">{label}</p>
-      <p className={`text-2xl font-bold ${color || 'text-gray-900'}`}>
-        {value}
-      </p>
+      <p className="font-body text-xs uppercase text-ink-faint">{label}</p>
+      <p className="font-body text-sm font-medium text-ink">{value}</p>
     </div>
   );
 }
 
 export function CardGridSkeleton() {
   return (
-    <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-      {[...Array(6)].map((_, i) => (
-        <div key={i} className="h-40 bg-gray-100 rounded-lg animate-pulse" />
-      ))}
+    <div className="p-6">
+      <Skeleton
+        rows={6}
+        wrapperClassName="grid grid-cols-1 gap-4 md:grid-cols-3"
+        itemClassName="skeleton-shimmer h-40 rounded-card"
+      />
     </div>
   );
 }
 
 export function DetailSkeleton() {
   return (
-    <div className="p-6 space-y-4">
-      <div className="h-32 bg-gray-100 rounded-lg animate-pulse" />
-      <div className="h-48 bg-gray-100 rounded-lg animate-pulse" />
+    <div className="p-6">
+      <Skeleton
+        rows={2}
+        wrapperClassName="space-y-4"
+        itemClassName="skeleton-shimmer h-40 rounded-card"
+      />
     </div>
   );
 }
