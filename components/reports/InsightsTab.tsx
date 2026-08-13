@@ -9,9 +9,35 @@ import type { LucideIcon } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { Skeleton } from './atoms';
+import { Badge, type BadgeProps } from '@/components/ui/Badge';
+import { Card, CardBody } from '@/components/ui/Card';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { defaultRange } from './utils';
 import type { InsightsData } from './types';
+
+const SEV_CONFIG: Record<
+  string,
+  { textClass: string; cardClass: string; intent: BadgeProps['intent']; icon: LucideIcon }
+> = {
+  HIGH: {
+    textClass: 'text-danger-ink',
+    cardClass: 'border-danger bg-danger-subtle',
+    intent: 'danger',
+    icon: AlertTriangle,
+  },
+  MEDIUM: {
+    textClass: 'text-warning-ink',
+    cardClass: 'border-warning bg-warning-subtle',
+    intent: 'warning',
+    icon: Clock,
+  },
+  LOW: {
+    textClass: 'text-success-ink',
+    cardClass: 'border-success bg-success-subtle',
+    intent: 'success',
+    icon: CheckCircle,
+  },
+};
 
 export function InsightsTab() {
   const range = defaultRange(1);
@@ -24,48 +50,30 @@ export function InsightsTab() {
     },
   );
 
-  const SEV_CONFIG: Record<
-    string,
-    { color: string; bg: string; icon: LucideIcon }
-  > = {
-    HIGH: {
-      color: 'text-red-700',
-      bg: 'bg-red-50 border-red-200',
-      icon: AlertTriangle,
-    },
-    MEDIUM: {
-      color: 'text-amber-700',
-      bg: 'bg-amber-50 border-amber-200',
-      icon: Clock,
-    },
-    LOW: {
-      color: 'text-teal-700',
-      bg: 'bg-teal-50 border-teal-100',
-      icon: CheckCircle,
-    },
-  };
-
-  if (loading) return <Skeleton count={4} />;
+  if (loading)
+    return (
+      <Skeleton
+        rows={4}
+        wrapperClassName="space-y-3"
+        itemClassName="skeleton-shimmer h-20 rounded-card"
+      />
+    );
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="font-semibold text-slate-700 flex items-center gap-2">
-          <Brain size={16} className="text-violet-500" />
+        <h3 className="flex items-center gap-2 font-display font-semibold text-ink">
+          <Brain size={16} strokeWidth={1.75} className="text-accent" />
           Insights Inteligentes
         </h3>
-        <span className="text-xs bg-violet-100 text-violet-700 px-3 py-1 rounded-full font-medium">
-          {data?.count ?? 0} insights identificados
-        </span>
+        <Badge intent="info">{data?.count ?? 0} insights identificados</Badge>
       </div>
 
       {(data?.insights ?? []).length === 0 && (
-        <div className="py-16 text-center bg-emerald-50 rounded-xl border border-emerald-100">
-          <CheckCircle size={36} className="mx-auto mb-2 text-emerald-500" />
-          <p className="font-medium text-emerald-700">Organização saudável!</p>
-          <p className="text-sm text-emerald-600">
-            Sem alertas críticos identificados
-          </p>
+        <div className="rounded-card border border-success bg-success-subtle py-16 text-center">
+          <CheckCircle size={36} strokeWidth={1.75} className="mx-auto mb-2 text-success" />
+          <p className="font-body font-medium text-success-ink">Organização saudável!</p>
+          <p className="font-body text-sm text-success-ink">Sem alertas críticos identificados</p>
         </div>
       )}
 
@@ -73,34 +81,33 @@ export function InsightsTab() {
         const conf = SEV_CONFIG[ins.severity] ?? SEV_CONFIG.LOW;
         const Icon = conf.icon;
         return (
-          <div key={i} className={`border rounded-xl p-4 ${conf.bg}`}>
-            <div className="flex items-start gap-3">
-              <Icon size={16} className={`${conf.color} shrink-0 mt-0.5`} />
+          <Card key={i} className={conf.cardClass}>
+            <CardBody className="flex items-start gap-3">
+              <Icon
+                size={16}
+                strokeWidth={1.75}
+                className={`mt-0.5 shrink-0 ${conf.textClass}`}
+              />
               <div className="flex-1">
-                <div className="flex items-center gap-2 mb-1">
+                <div className="mb-1 flex items-center gap-2">
                   <span
-                    className={`text-[10px] font-bold ${conf.color} uppercase tracking-wide`}
+                    className={`font-body text-[10px] font-bold uppercase tracking-wide ${conf.textClass}`}
                   >
                     {ins.type}
                   </span>
-                  <span
-                    className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${conf.color} ${conf.bg} border`}
-                  >
-                    {ins.severity}
-                  </span>
+                  <Badge intent={conf.intent}>{ins.severity}</Badge>
                 </div>
-                <p className={`text-sm font-medium ${conf.color} mb-1`}>
+                <p className={`mb-1 font-body text-sm font-medium ${conf.textClass}`}>
                   {ins.message}
                 </p>
                 {ins.recommendation && (
-                  <p className="text-xs text-slate-600 bg-white/60 rounded-lg px-3 py-1.5 border border-white">
-                    💡 <span className="font-medium">Recomendação:</span>{' '}
-                    {ins.recommendation}
+                  <p className="rounded-control border border-border bg-surface px-3 py-1.5 font-body text-xs text-ink-muted">
+                    💡 <span className="font-medium">Recomendação:</span> {ins.recommendation}
                   </p>
                 )}
               </div>
-            </div>
-          </div>
+            </CardBody>
+          </Card>
         );
       })}
     </div>
