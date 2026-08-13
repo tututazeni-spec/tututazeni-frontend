@@ -9,6 +9,10 @@ import { useState } from 'react';
 import { AlertTriangle, Brain, CheckCircle } from 'lucide-react';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
+import { Button } from '@/components/ui/Button';
+import { Card, CardBody } from '@/components/ui/Card';
+import { FormField } from '@/components/ui/FormField';
+import { Input } from '@/components/ui/Input';
 import type { SimulationResult } from './types';
 
 export function SimulatorTab() {
@@ -30,76 +34,87 @@ export function SimulatorTab() {
 
   return (
     <div className="space-y-5">
-      <div className="bg-white rounded-xl border border-slate-100 p-5">
-        <h4 className="font-semibold text-slate-700 mb-4 flex items-center gap-2">
-          <Brain size={16} className="text-violet-500" />
-          Simulador de Permissões
-        </h4>
-        <div className="grid grid-cols-3 gap-3 mb-4">
-          {[
-            {
-              label: 'User ID',
-              value: userId,
-              set: setUserId,
-              placeholder: 'Ex: 123',
-            },
-            {
-              label: 'Recurso',
-              value: resource,
-              set: setResource,
-              placeholder: 'Ex: reports',
-            },
-            {
-              label: 'Acção',
-              value: action,
-              set: setAction,
-              placeholder: 'Ex: export',
-            },
-          ].map((f) => (
-            <div key={f.label}>
-              <label className="text-xs text-slate-500 mb-1 block">
-                {f.label}
-              </label>
-              <input
-                value={f.value}
-                onChange={(e) => f.set(e.target.value)}
-                placeholder={f.placeholder}
-                className="w-full text-sm border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:border-indigo-400"
-              />
-            </div>
-          ))}
-        </div>
-        <button
-          onClick={run}
-          disabled={loading || !userId || !resource || !action}
-          className="px-5 py-2 bg-indigo-600 text-white rounded-lg text-sm hover:bg-indigo-700 disabled:opacity-60"
-        >
-          {loading ? 'A verificar…' : 'Verificar Permissão'}
-        </button>
-      </div>
+      <Card>
+        <CardBody>
+          <h4 className="font-semibold text-ink mb-4 flex items-center gap-2">
+            <Brain size={16} strokeWidth={1.75} className="text-accent" />
+            Simulador de Permissões
+          </h4>
+          <div className="grid grid-cols-3 gap-3 mb-4">
+            {[
+              {
+                id: 'sim-user-id',
+                label: 'User ID',
+                value: userId,
+                set: setUserId,
+                placeholder: 'Ex: 123',
+              },
+              {
+                id: 'sim-resource',
+                label: 'Recurso',
+                value: resource,
+                set: setResource,
+                placeholder: 'Ex: reports',
+              },
+              {
+                id: 'sim-action',
+                label: 'Acção',
+                value: action,
+                set: setAction,
+                placeholder: 'Ex: export',
+              },
+            ].map((f) => (
+              <FormField key={f.id} label={f.label} htmlFor={f.id}>
+                <Input
+                  id={f.id}
+                  value={f.value}
+                  onChange={(e) => f.set(e.target.value)}
+                  placeholder={f.placeholder}
+                  className="w-full"
+                />
+              </FormField>
+            ))}
+          </div>
+          <Button
+            onClick={run}
+            disabled={!userId || !resource || !action}
+            loading={loading}
+          >
+            {loading ? 'A verificar…' : 'Verificar Permissão'}
+          </Button>
+        </CardBody>
+      </Card>
 
       {result && (
         <div
-          className={`border rounded-xl p-5 ${result.allowed ? 'bg-emerald-50 border-emerald-200' : 'bg-red-50 border-red-200'}`}
+          className={`border rounded-card p-5 ${result.allowed ? 'bg-success-subtle border-success' : 'bg-danger-subtle border-danger'}`}
         >
           {/* Verdict */}
           <div className="flex items-center gap-3 mb-4">
             <div
-              className={`w-10 h-10 rounded-full flex items-center justify-center ${result.allowed ? 'bg-emerald-500' : 'bg-red-500'}`}
+              className={`w-10 h-10 rounded-full flex items-center justify-center ${result.allowed ? 'bg-success' : 'bg-danger'}`}
             >
               {result.allowed ? (
-                <CheckCircle size={20} className="text-white" />
+                <CheckCircle
+                  size={20}
+                  strokeWidth={1.75}
+                  className="text-canvas"
+                />
               ) : (
-                <AlertTriangle size={20} className="text-white" />
+                <AlertTriangle
+                  size={20}
+                  strokeWidth={1.75}
+                  className="text-canvas"
+                />
               )}
             </div>
             <div>
               <p
-                className={`font-bold text-lg ${result.allowed ? 'text-emerald-700' : 'text-red-700'}`}
+                className={`font-bold text-lg ${result.allowed ? 'text-success-ink' : 'text-danger-ink'}`}
               >
                 {result.allowed ? 'PERMITIDO' : 'NEGADO'}
               </p>
-              <p className="text-xs text-slate-600">{result.reason}</p>
+              <p className="text-xs text-ink-muted">{result.reason}</p>
             </div>
           </div>
 
@@ -111,35 +126,34 @@ export function SimulatorTab() {
               { label: 'Recurso', value: result.resource },
               { label: 'Acção', value: result.action },
             ].map((item) => (
-              <div key={item.label} className="bg-white/60 rounded-lg p-2.5">
-                <p className="text-[10px] text-slate-400">{item.label}</p>
-                <p className="text-xs font-semibold text-slate-700">
-                  {item.value}
-                </p>
+              <div
+                key={item.label}
+                className="bg-surface/70 rounded-control p-2.5"
+              >
+                <p className="text-[10px] text-ink-faint">{item.label}</p>
+                <p className="text-xs font-semibold text-ink">{item.value}</p>
               </div>
             ))}
           </div>
 
           {/* Decision chain */}
           <div>
-            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">
+            <p className="text-xs font-semibold text-ink-muted uppercase tracking-wide mb-2">
               Cadeia de Decisão
             </p>
             {(result.chain ?? []).map((s, i) => (
               <div key={i} className="flex items-center gap-3 mb-1.5">
                 <div
-                  className={`w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold ${s.result ? 'bg-emerald-500 text-white' : 'bg-red-400 text-white'}`}
+                  className={`w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold ${s.result ? 'bg-success text-canvas' : 'bg-danger text-canvas'}`}
                 >
                   {s.step}
                 </div>
                 <div className="flex-1">
-                  <p className="text-xs font-medium text-slate-700">
-                    {s.check}
-                  </p>
-                  <p className="text-[10px] text-slate-400">{s.detail}</p>
+                  <p className="text-xs font-medium text-ink">{s.check}</p>
+                  <p className="text-[10px] text-ink-faint">{s.detail}</p>
                 </div>
                 <span
-                  className={`text-[10px] font-bold ${s.result ? 'text-emerald-600' : 'text-red-500'}`}
+                  className={`text-[10px] font-bold ${s.result ? 'text-success' : 'text-danger'}`}
                 >
                   {s.result ? 'PASS' : 'FAIL'}
                 </span>
