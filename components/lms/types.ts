@@ -1,5 +1,7 @@
 // components/lms/types.ts
 
+import type { BadgeProps } from '@/components/ui/Badge';
+
 export interface Path {
   id: string;
   code: string;
@@ -48,18 +50,20 @@ export interface Session {
   _count?: { attendances: number };
 }
 
-export const LEVEL_COLORS: Record<string, string> = {
-  BASIC: 'bg-green-100 text-green-800',
-  INTERMEDIATE: 'bg-blue-100 text-blue-800',
-  ADVANCED: 'bg-purple-100 text-purple-800',
-  EXPERT: 'bg-red-100 text-red-800',
+// Escala de dificuldade crescente — mapeada para os 4 intents semânticos
+// disponíveis no Badge da fundação (não existe um 5º intent "purple").
+export const LEVEL_INTENT: Record<string, BadgeProps['intent']> = {
+  BASIC: 'success',
+  INTERMEDIATE: 'info',
+  ADVANCED: 'warning',
+  EXPERT: 'danger',
 };
 
-export const STATUS_COLORS: Record<string, string> = {
-  IN_PROGRESS: 'bg-yellow-100 text-yellow-800',
-  COMPLETED: 'bg-green-100 text-green-800',
-  PAUSED: 'bg-gray-100 text-gray-600',
-  DROPPED: 'bg-red-100 text-red-700',
+export const STATUS_INTENT: Record<string, BadgeProps['intent']> = {
+  IN_PROGRESS: 'warning',
+  COMPLETED: 'success',
+  PAUSED: 'neutral',
+  DROPPED: 'danger',
 };
 
 export const PLATFORM_ICONS: Record<string, string> = {
