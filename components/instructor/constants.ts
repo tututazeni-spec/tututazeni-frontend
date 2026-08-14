@@ -1,16 +1,17 @@
 // components/instructor/constants.ts
-// Mapas de badges/labels e navegação do módulo de instrutores.
+// Mapas de badges/labels e navegação do módulo de instrutores. Cores
+// mapeadas para os tokens semânticos da fundação de design (Fase A).
 // Extraído de app/(platform)/instructor/page.tsx.
 
 import type { StatusBadgeMap } from '@/lib/statusBadge';
 import type { View } from './types';
 
 export const STATUS_CFG: StatusBadgeMap<string> = {
-  DRAFT: { label: 'Rascunho', cls: 'bg-gray-100 text-gray-500' },
-  OPEN: { label: 'Aberta', cls: 'bg-blue-50 text-blue-700' },
-  ACTIVE: { label: 'Activa', cls: 'bg-emerald-50 text-emerald-700' },
-  CLOSED: { label: 'Encerrada', cls: 'bg-gray-100 text-gray-400' },
-  CANCELLED: { label: 'Cancelada', cls: 'bg-red-50 text-red-600' },
+  DRAFT: { label: 'Rascunho', cls: 'bg-surface-sunken text-ink-faint' },
+  OPEN: { label: 'Aberta', cls: 'bg-info-subtle text-info-ink' },
+  ACTIVE: { label: 'Activa', cls: 'bg-success-subtle text-success-ink' },
+  CLOSED: { label: 'Encerrada', cls: 'bg-surface-sunken text-ink-faint' },
+  CANCELLED: { label: 'Cancelada', cls: 'bg-danger-subtle text-danger-ink' },
 };
 
 export const MODALITY_CFG: Record<string, { icon: string; label: string }> = {
@@ -20,10 +21,10 @@ export const MODALITY_CFG: Record<string, { icon: string; label: string }> = {
 };
 
 export const STUDENT_STATUS: StatusBadgeMap<string> = {
-  ACTIVE: { cls: 'bg-emerald-50 text-emerald-700', label: 'Activo' },
-  COMPLETED: { cls: 'bg-blue-50 text-blue-700', label: 'Concluído' },
-  AT_RISK: { cls: 'bg-red-50 text-red-700', label: 'Em risco' },
-  DROPPED: { cls: 'bg-gray-100 text-gray-400', label: 'Desistiu' },
+  ACTIVE: { cls: 'bg-success-subtle text-success-ink', label: 'Activo' },
+  COMPLETED: { cls: 'bg-info-subtle text-info-ink', label: 'Concluído' },
+  AT_RISK: { cls: 'bg-danger-subtle text-danger-ink', label: 'Em risco' },
+  DROPPED: { cls: 'bg-surface-sunken text-ink-faint', label: 'Desistiu' },
 };
 
 export const NAV: Array<{ id: View; label: string }> = [
