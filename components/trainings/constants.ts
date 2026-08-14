@@ -1,6 +1,10 @@
 // components/trainings/constants.ts
 // Mapas de tipo/nível/participante, navegação e títulos do módulo.
 // Extraído de app/(platform)/trainings/page.tsx.
+//
+// TYPE_CFG/LEVEL_CFG/PARTICIPANT_CFG usam os tokens semânticos da
+// fundação de design (Fase A) — mesmo padrão de TOKEN usado em
+// components/reports/constants.ts e components/executive-reports/constants.ts.
 
 import type { StatusBadgeMap } from '@/lib/statusBadge';
 import type {
@@ -10,32 +14,42 @@ import type {
   View,
 } from './types';
 
+const TOKEN = {
+  primary: { color: 'text-primary', bg: 'bg-primary-subtle' },
+  success: { color: 'text-success-ink', bg: 'bg-success-subtle' },
+  warning: { color: 'text-warning-ink', bg: 'bg-warning-subtle' },
+  danger: { color: 'text-danger-ink', bg: 'bg-danger-subtle' },
+  info: { color: 'text-info-ink', bg: 'bg-info-subtle' },
+  neutral: { color: 'text-ink-muted', bg: 'bg-surface-sunken' },
+} as const;
+
+const cls = (t: (typeof TOKEN)[keyof typeof TOKEN]) => `${t.bg} ${t.color}`;
+
 export const TYPE_CFG: Record<
   TrainingType,
   { label: string; icon: string; cls: string }
 > = {
-  PRESENTIAL: {
-    label: 'Presencial',
-    icon: '🏫',
-    cls: 'bg-blue-50 text-blue-700',
-  },
-  ONLINE: { label: 'Online', icon: '💻', cls: 'bg-purple-50 text-purple-700' },
-  HYBRID: { label: 'Híbrido', icon: '🔀', cls: 'bg-amber-50 text-amber-700' },
+  PRESENTIAL: { label: 'Presencial', icon: '🏫', cls: cls(TOKEN.info) },
+  ONLINE: { label: 'Online', icon: '💻', cls: cls(TOKEN.primary) },
+  HYBRID: { label: 'Híbrido', icon: '🔀', cls: cls(TOKEN.warning) },
 };
 
 export const LEVEL_CFG: StatusBadgeMap<TrainingLevel> = {
-  BEGINNER: { label: 'Básico', cls: 'bg-emerald-50 text-emerald-700' },
-  INTERMEDIATE: { label: 'Intermédio', cls: 'bg-amber-50 text-amber-700' },
-  ADVANCED: { label: 'Avançado', cls: 'bg-red-50 text-red-700' },
+  BEGINNER: { label: 'Básico', cls: cls(TOKEN.success) },
+  INTERMEDIATE: { label: 'Intermédio', cls: cls(TOKEN.warning) },
+  ADVANCED: { label: 'Avançado', cls: cls(TOKEN.danger) },
 };
 
 export const PARTICIPANT_CFG: StatusBadgeMap<ParticipantStatus> = {
-  WAITLIST: { label: 'Lista espera', cls: 'bg-gray-100 text-gray-500' },
-  REGISTERED: { label: 'Inscrito', cls: 'bg-blue-50 text-blue-700' },
-  ATTENDED: { label: 'Presente', cls: 'bg-emerald-50 text-emerald-700' },
-  ABSENT: { label: 'Ausente', cls: 'bg-red-50 text-red-700' },
-  CANCELLED: { label: 'Cancelado', cls: 'bg-gray-100 text-gray-400' },
-  COMPLETED: { label: 'Concluído', cls: 'bg-emerald-100 text-emerald-800' },
+  WAITLIST: { label: 'Lista espera', cls: cls(TOKEN.neutral) },
+  REGISTERED: { label: 'Inscrito', cls: cls(TOKEN.info) },
+  ATTENDED: { label: 'Presente', cls: cls(TOKEN.success) },
+  ABSENT: { label: 'Ausente', cls: cls(TOKEN.danger) },
+  CANCELLED: {
+    label: 'Cancelado',
+    cls: 'bg-surface-sunken text-ink-faint',
+  },
+  COMPLETED: { label: 'Concluído', cls: cls(TOKEN.success) },
 };
 
 export const NAV = [
