@@ -1,15 +1,23 @@
 // components/competencies/DashboardView.tsx
 // Separador "Dashboard RH" — métricas globais, gaps críticos e top
 // competências. Dados próprios + apresentação. Extraído de
-// app/(platform)/competencies/page.tsx.
+// app/(platform)/competencies/page.tsx. Migrado para a fundação de
+// design: métricas passam a KpiCard, skeleton local passa a
+// components/ui/Skeleton. A ProgressBar da fundação é mono-cor
+// (bg-accent) — a barra de gap crítico deixa de recolorir-se a
+// vermelho e passa a comunicar a severidade pelo texto adjacente
+// (mesmo padrão de components/engagement/AnalyticsTab.tsx).
 
 'use client';
 
+import { AlertTriangle, UserCheck, Users, UserX } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
+import { ProgressBar } from '@/components/ui/ProgressBar';
+import { KpiCard } from '@/components/ui/KpiCard';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
-import { Skeleton } from './atoms';
 import { CATEGORY_CFG } from './constants';
 import type { CompetencyCategory, OrgDashboard, TopCompetency } from './types';
 
@@ -34,39 +42,31 @@ export function DashboardView() {
     <div className="space-y-6">
       {/* Métricas */}
       <div className="grid grid-cols-4 gap-3">
-        {[
-          { label: 'Total colaboradores', value: data.totalUsers },
-          {
-            label: 'Com competências',
-            value: data.usersWithCompetencies,
-            color: 'text-emerald-600',
-          },
-          {
-            label: 'Sem competências',
-            value: data.totalUsers - data.usersWithCompetencies,
-            color: 'text-amber-600',
-          },
-          {
-            label: 'Gaps identificados',
-            value: data.totalGaps,
-            color: data.totalGaps > 0 ? 'text-red-600' : undefined,
-          },
-        ].map(({ label, value, color }) => (
-          <div key={label} className="bg-gray-50 rounded-xl p-4">
-            <div className="text-xs text-gray-400 mb-1">{label}</div>
-            <div
-              className={`text-2xl font-semibold font-mono ${color ?? 'text-gray-900'}`}
-            >
-              {value}
-            </div>
-          </div>
-        ))}
+        <KpiCard icon={Users} label="Total colaboradores" value={data.totalUsers} intent="primary" />
+        <KpiCard
+          icon={UserCheck}
+          label="Com competências"
+          value={data.usersWithCompetencies}
+          intent="success"
+        />
+        <KpiCard
+          icon={UserX}
+          label="Sem competências"
+          value={data.totalUsers - data.usersWithCompetencies}
+          intent="warning"
+        />
+        <KpiCard
+          icon={AlertTriangle}
+          label="Gaps identificados"
+          value={data.totalGaps}
+          intent={data.totalGaps > 0 ? 'danger' : 'primary'}
+        />
       </div>
 
       {/* Gaps críticos */}
       {data.criticalGaps.length > 0 && (
-        <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-          <div className="px-4 py-3 border-b border-gray-100 text-xs font-medium text-gray-400 uppercase tracking-wide">
+        <div className="overflow-hidden rounded-card border border-border bg-surface">
+          <div className="border-b border-border px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
             Competências críticas — mais gaps
           </div>
           {data.criticalGaps.map((c) => {
@@ -77,10 +77,10 @@ export function DashboardView() {
             return (
               <div
                 key={c.id}
-                className="flex items-center gap-4 px-4 py-3 border-b border-gray-100 last:border-0"
+                className="flex items-center gap-4 border-b border-border px-4 py-3 last:border-0"
               >
                 <div className="flex-1">
-                  <div className="text-sm font-medium text-gray-900">
+                  <div className="font-body text-sm font-medium text-ink">
                     {c.name}
                   </div>
                   <StatusBadge
@@ -89,16 +89,11 @@ export function DashboardView() {
                   />
                 </div>
                 <div className="w-40">
-                  <div className="flex justify-between text-xs text-gray-400 mb-1">
+                  <div className="mb-1 flex justify-between font-body text-xs text-ink-faint">
                     <span>{c.usersWithGap} utilizadores</span>
-                    <span>{pct}%</span>
+                    <span className="font-semibold text-danger">{pct}%</span>
                   </div>
-                  <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                    <div
-                      className="h-1.5 bg-red-500 rounded-full"
-                      style={{ width: `${pct}%` }}
-                    />
-                  </div>
+                  <ProgressBar value={pct} />
                 </div>
               </div>
             );
@@ -108,20 +103,20 @@ export function DashboardView() {
 
       {/* Top competências */}
       {top.length > 0 && (
-        <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-          <div className="px-4 py-3 border-b border-gray-100 text-xs font-medium text-gray-400 uppercase tracking-wide">
+        <div className="overflow-hidden rounded-card border border-border bg-surface">
+          <div className="border-b border-border px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
             Competências mais comuns na organização
           </div>
           {top.map((t, idx) => (
             <div
               key={t.competencyId}
-              className="flex items-center gap-4 px-4 py-3 border-b border-gray-100 last:border-0"
+              className="flex items-center gap-4 border-b border-border px-4 py-3 last:border-0"
             >
-              <span className="text-lg font-bold font-mono text-gray-200 w-6 text-center">
+              <span className="w-6 text-center font-data text-lg font-bold text-ink-faint">
                 {idx + 1}
               </span>
               <div className="flex-1">
-                <div className="text-sm font-medium text-gray-900">
+                <div className="font-body text-sm font-medium text-ink">
                   {t.competency?.name ?? '—'}
                 </div>
                 <StatusBadge
@@ -133,10 +128,10 @@ export function DashboardView() {
                 />
               </div>
               <div className="text-right">
-                <div className="text-sm font-mono text-gray-700">
+                <div className="font-data text-sm text-ink-muted">
                   {t._count.competencyId} utilizadores
                 </div>
-                <div className="text-xs text-gray-400">
+                <div className="font-body text-xs text-ink-faint">
                   Nível médio: {t.avgLevel}
                 </div>
               </div>
