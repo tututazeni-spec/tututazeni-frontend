@@ -5,55 +5,58 @@
 import type { StatusBadgeMap } from '@/lib/statusBadge';
 import type { GapPriority, ReadinessLevel, SkillType } from './types';
 
+// 5 categorias de skill sem correspondência semântica directa (não são
+// estado/decoração) — usam os 6 tokens de intent disponíveis como paleta
+// categórica estável, um por tipo.
 export const TYPE_CONFIG: Record<
   SkillType,
   { label: string; color: string; bg: string }
 > = {
-  TECHNICAL: { label: 'Técnicas', color: 'text-blue-700', bg: 'bg-blue-50' },
+  TECHNICAL: { label: 'Técnicas', color: 'text-info-ink', bg: 'bg-info-subtle' },
   BEHAVIORAL: {
     label: 'Comportamentais',
-    color: 'text-purple-700',
-    bg: 'bg-purple-50',
+    color: 'text-primary',
+    bg: 'bg-primary-subtle',
   },
   LEADERSHIP: {
     label: 'Liderança',
-    color: 'text-amber-700',
-    bg: 'bg-amber-50',
+    color: 'text-warning-ink',
+    bg: 'bg-warning-subtle',
   },
-  LANGUAGE: { label: 'Idiomas', color: 'text-cyan-700', bg: 'bg-cyan-50' },
+  LANGUAGE: { label: 'Idiomas', color: 'text-accent', bg: 'bg-accent-subtle' },
   CERTIFICATION: {
     label: 'Certificações',
-    color: 'text-emerald-700',
-    bg: 'bg-emerald-50',
+    color: 'text-success-ink',
+    bg: 'bg-success-subtle',
   },
 };
+
+export type ReadinessIntent = 'success' | 'warning' | 'danger';
 
 export const READINESS_CONFIG: Record<
   ReadinessLevel,
-  { label: string; color: string; bar: string; emoji: string }
+  { label: string; intent: ReadinessIntent; emoji: string }
 > = {
-  READY: {
-    label: 'Pronto',
-    color: 'text-emerald-700',
-    bar: 'bg-emerald-500',
-    emoji: '🟢',
-  },
-  DEVELOPING: {
-    label: 'Em Desenvolvimento',
-    color: 'text-amber-700',
-    bar: 'bg-amber-500',
-    emoji: '🟡',
-  },
-  STARTING: {
-    label: 'Início',
-    color: 'text-red-700',
-    bar: 'bg-red-400',
-    emoji: '🔴',
-  },
+  READY: { label: 'Pronto', intent: 'success', emoji: '🟢' },
+  DEVELOPING: { label: 'Em Desenvolvimento', intent: 'warning', emoji: '🟡' },
+  STARTING: { label: 'Início', intent: 'danger', emoji: '🔴' },
+};
+
+// Classes derivadas do intent de READINESS_CONFIG — usadas pelo painel de
+// prontidão em GapTab/MySkillsTab (texto/emblema colorido comunica o
+// sentido; a barra de progresso em si fica mono via ProgressBar, ver
+// constraint "ProgressBar é mono-cor" do plano de rollout).
+export const READINESS_INTENT_CLASSES: Record<
+  ReadinessIntent,
+  { text: string; panel: string }
+> = {
+  success: { text: 'text-success-ink', panel: 'border-success bg-success-subtle' },
+  warning: { text: 'text-warning-ink', panel: 'border-warning bg-warning-subtle' },
+  danger: { text: 'text-danger-ink', panel: 'border-danger bg-danger-subtle' },
 };
 
 export const PRIORITY_CONFIG: StatusBadgeMap<GapPriority> = {
-  HIGH: { label: 'Alta', cls: 'bg-red-100 text-red-700' },
-  MEDIUM: { label: 'Média', cls: 'bg-amber-100 text-amber-700' },
-  LOW: { label: 'Baixa', cls: 'bg-gray-100 text-gray-600' },
+  HIGH: { label: 'Alta', cls: 'bg-danger-subtle text-danger-ink' },
+  MEDIUM: { label: 'Média', cls: 'bg-warning-subtle text-warning-ink' },
+  LOW: { label: 'Baixa', cls: 'bg-surface-sunken text-ink-muted' },
 };
