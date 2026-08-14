@@ -1,6 +1,13 @@
 // components/onboarding/constants.ts
 // Mapas de badges/labels, ordem de fases e navegação do módulo.
 // Extraído de app/(platform)/onboarding/page.tsx.
+//
+// STATUS_CFG/TASK_STATUS_CFG/CATEGORY_CFG migrados para os tokens
+// semânticos da fundação de design (Fase A) — mesmo padrão de TOKEN
+// usado em components/trainings/constants.ts e
+// components/reports/constants.ts. CATEGORY_CFG tem exactamente 7
+// categorias de domínio para os 6 tokens semânticos + neutral, por isso
+// cada uma recebe um token distinto (sem reaproveitamento).
 
 import type { StatusBadgeMap } from '@/lib/statusBadge';
 import type {
@@ -11,60 +18,48 @@ import type {
   View,
 } from './types';
 
+const TOKEN = {
+  primary: { color: 'text-primary', bg: 'bg-primary-subtle' },
+  accent: { color: 'text-accent', bg: 'bg-accent-subtle' },
+  success: { color: 'text-success-ink', bg: 'bg-success-subtle' },
+  warning: { color: 'text-warning-ink', bg: 'bg-warning-subtle' },
+  danger: { color: 'text-danger-ink', bg: 'bg-danger-subtle' },
+  info: { color: 'text-info-ink', bg: 'bg-info-subtle' },
+  neutral: { color: 'text-ink-muted', bg: 'bg-surface-sunken' },
+} as const;
+
+const cls = (t: (typeof TOKEN)[keyof typeof TOKEN]) => `${t.bg} ${t.color}`;
+
 export const STATUS_CFG: StatusBadgeMap<OnboardingStatus> = {
-  NOT_STARTED: { label: 'Não iniciado', cls: 'bg-gray-100 text-gray-500' },
-  IN_PROGRESS: { label: 'Em progresso', cls: 'bg-blue-50 text-blue-700' },
-  COMPLETED: { label: 'Concluído', cls: 'bg-emerald-50 text-emerald-700' },
-  ABANDONED: { label: 'Abandonado', cls: 'bg-red-50 text-red-700' },
-  ON_HOLD: { label: 'Em pausa', cls: 'bg-amber-50 text-amber-700' },
+  NOT_STARTED: { label: 'Não iniciado', cls: cls(TOKEN.neutral) },
+  IN_PROGRESS: { label: 'Em progresso', cls: cls(TOKEN.info) },
+  COMPLETED: { label: 'Concluído', cls: cls(TOKEN.success) },
+  ABANDONED: { label: 'Abandonado', cls: cls(TOKEN.danger) },
+  ON_HOLD: { label: 'Em pausa', cls: cls(TOKEN.warning) },
 };
 
 export const TASK_STATUS_CFG: Record<
   TaskStatus,
   { icon: string; cls: string }
 > = {
-  PENDING: { icon: '○', cls: 'text-gray-300' },
-  IN_PROGRESS: { icon: '▶', cls: 'text-blue-500' },
-  COMPLETED: { icon: '✓', cls: 'text-emerald-500' },
-  BLOCKED: { icon: '🔒', cls: 'text-gray-400' },
-  SKIPPED: { icon: '⤷', cls: 'text-gray-400' },
+  PENDING: { icon: '○', cls: 'text-ink-faint' },
+  IN_PROGRESS: { icon: '▶', cls: 'text-info' },
+  COMPLETED: { icon: '✓', cls: 'text-success' },
+  BLOCKED: { icon: '🔒', cls: 'text-ink-faint' },
+  SKIPPED: { icon: '⤷', cls: 'text-ink-faint' },
 };
 
 export const CATEGORY_CFG: Record<
   TaskCategory,
   { label: string; icon: string; cls: string }
 > = {
-  DOCUMENTS: {
-    label: 'Documentos',
-    icon: '📄',
-    cls: 'bg-amber-50 text-amber-700',
-  },
-  IT_ACCESS: {
-    label: 'TI & Acesso',
-    icon: '💻',
-    cls: 'bg-blue-50 text-blue-700',
-  },
-  TRAINING: {
-    label: 'Formação',
-    icon: '🎓',
-    cls: 'bg-purple-50 text-purple-700',
-  },
-  SOCIAL: {
-    label: 'Social',
-    icon: '👥',
-    cls: 'bg-emerald-50 text-emerald-700',
-  },
-  BENEFITS: {
-    label: 'Benefícios',
-    icon: '🎁',
-    cls: 'bg-pink-50 text-pink-700',
-  },
-  ADMIN: { label: 'Admin', icon: '📋', cls: 'bg-gray-100 text-gray-600' },
-  MEETING: {
-    label: 'Reunião',
-    icon: '📅',
-    cls: 'bg-orange-50 text-orange-700',
-  },
+  DOCUMENTS: { label: 'Documentos', icon: '📄', cls: cls(TOKEN.warning) },
+  IT_ACCESS: { label: 'TI & Acesso', icon: '💻', cls: cls(TOKEN.info) },
+  TRAINING: { label: 'Formação', icon: '🎓', cls: cls(TOKEN.accent) },
+  SOCIAL: { label: 'Social', icon: '👥', cls: cls(TOKEN.success) },
+  BENEFITS: { label: 'Benefícios', icon: '🎁', cls: cls(TOKEN.primary) },
+  ADMIN: { label: 'Admin', icon: '📋', cls: cls(TOKEN.neutral) },
+  MEETING: { label: 'Reunião', icon: '📅', cls: cls(TOKEN.danger) },
 };
 
 export const PHASE_LABELS: Record<TaskPhase, string> = {
