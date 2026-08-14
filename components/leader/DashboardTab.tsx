@@ -18,7 +18,9 @@ import {
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { KPICard, Skeleton } from './atoms';
+import { Card, CardBody } from '@/components/ui/Card';
+import { KpiCard } from '@/components/ui/KpiCard';
+import { Skeleton } from '@/components/ui/Skeleton';
 import type { LeaderDashboard, LeaderRecommendations } from './types';
 
 export function DashboardTab() {
@@ -36,7 +38,14 @@ export function DashboardTab() {
   const recs = recsQ.data ?? null;
   const loading = dashQ.isLoading;
 
-  if (loading) return <Skeleton />;
+  if (loading)
+    return (
+      <Skeleton
+        rows={4}
+        wrapperClassName="grid grid-cols-2 md:grid-cols-4 gap-4"
+        itemClassName="skeleton-shimmer h-24 rounded-card"
+      />
+    );
   const k = dash?.kpis ?? {};
 
   return (
@@ -47,16 +56,17 @@ export function DashboardTab() {
           {(dash?.alerts ?? []).map((a, i) => (
             <div
               key={i}
-              className={`border rounded-xl px-4 py-3 flex items-center gap-3 ${a.severity === 'HIGH' ? 'bg-red-50 border-red-200' : 'bg-amber-50 border-amber-200'}`}
+              className={`flex items-center gap-3 rounded-card border px-4 py-3 ${a.severity === 'HIGH' ? 'border-danger bg-danger-subtle' : 'border-warning bg-warning-subtle'}`}
             >
               <AlertTriangle
                 size={14}
+                strokeWidth={1.75}
                 className={
-                  a.severity === 'HIGH' ? 'text-red-500' : 'text-amber-500'
+                  a.severity === 'HIGH' ? 'text-danger-ink' : 'text-warning-ink'
                 }
               />
               <p
-                className={`text-sm ${a.severity === 'HIGH' ? 'text-red-700' : 'text-amber-700'}`}
+                className={`font-body text-sm ${a.severity === 'HIGH' ? 'text-danger-ink' : 'text-warning-ink'}`}
               >
                 {a.message}
               </p>
@@ -66,115 +76,110 @@ export function DashboardTab() {
       )}
 
       {/* KPIs */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <KPICard icon={Users} label="Equipa" value={k.teamSize ?? 0} />
-        <KPICard
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+        <KpiCard icon={Users} label="Equipa" value={k.teamSize ?? 0} intent="primary" />
+        <KpiCard
           icon={Star}
           label="Score Médio"
           value={k.avgPerfScore?.toFixed(1) ?? '–'}
-          status={k.perfStatus}
-          color="text-amber-600"
-          bg="bg-amber-50"
+          sub={k.perfStatus}
+          intent="warning"
         />
-        <KPICard
+        <KpiCard
           icon={Target}
           label="PDIs Activos"
           value={k.activePlans ?? 0}
-          color="text-indigo-600"
-          bg="bg-indigo-50"
+          intent="accent"
         />
-        <KPICard
+        <KpiCard
           icon={AlertTriangle}
           label="Em Risco"
           value={k.atRiskCount ?? 0}
-          color="text-red-500"
-          bg="bg-red-50"
+          intent="danger"
         />
-        <KPICard
+        <KpiCard
           icon={BookOpen}
           label="Em Formação"
           value={k.activeEnrollments ?? 0}
-          color="text-teal-600"
-          bg="bg-teal-50"
+          intent="info"
         />
-        <KPICard
+        <KpiCard
           icon={CheckCircle}
           label="Conclusões (mês)"
           value={k.completedThisMonth ?? 0}
-          color="text-emerald-600"
-          bg="bg-emerald-50"
+          intent="success"
         />
-        <KPICard
+        <KpiCard
           icon={MessageSquare}
           label="Respostas a Surveys"
           value={k.engagementResponses ?? 0}
-          color="text-violet-600"
-          bg="bg-violet-50"
+          intent="accent"
         />
-        <KPICard
+        <KpiCard
           icon={Clock}
           label="Aprovações Pendentes"
           value={k.pendingLeaves ?? 0}
-          color="text-orange-600"
-          bg="bg-orange-50"
+          intent="warning"
         />
       </div>
 
       {/* AI Recommendations */}
       {(recs?.recommendations ?? []).length > 0 && (
-        <div className="bg-white rounded-xl border border-slate-100 p-5">
-          <h3 className="font-semibold text-slate-700 mb-3 flex items-center gap-2">
-            <Brain size={16} className="text-violet-500" />
-            Recomendações IA
-          </h3>
-          <div className="space-y-2">
-            {(recs?.recommendations ?? []).map((r, i) => (
-              <div
-                key={i}
-                className="flex items-start gap-3 p-3 rounded-xl bg-violet-50 border border-violet-100"
-              >
+        <Card>
+          <CardBody>
+            <h3 className="mb-3 flex items-center gap-2 font-display font-semibold text-ink">
+              <Brain size={16} strokeWidth={1.75} className="text-accent" />
+              Recomendações IA
+            </h3>
+            <div className="space-y-2">
+              {(recs?.recommendations ?? []).map((r, i) => (
                 <div
-                  className={`w-2 h-2 rounded-full shrink-0 mt-1.5 ${r.urgency === 'HIGH' ? 'bg-red-500' : 'bg-amber-400'}`}
-                />
-                <div>
-                  <p className="text-sm font-medium text-slate-800">
-                    {r.message}
-                  </p>
-                  {r.action && (
-                    <p className="text-xs text-violet-700 mt-0.5">
-                      💡 {r.action}
-                    </p>
-                  )}
-                </div>
-                <span
-                  className={`text-[10px] px-2 py-0.5 rounded-full font-medium shrink-0 ${r.urgency === 'HIGH' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'}`}
+                  key={i}
+                  className="flex items-start gap-3 rounded-card border border-accent-subtle bg-accent-subtle p-3"
                 >
-                  {r.urgency}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
+                  <div
+                    className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${r.urgency === 'HIGH' ? 'bg-danger' : 'bg-warning'}`}
+                  />
+                  <div>
+                    <p className="font-body text-sm font-medium text-ink">
+                      {r.message}
+                    </p>
+                    {r.action && (
+                      <p className="mt-0.5 font-body text-xs text-primary">
+                        💡 {r.action}
+                      </p>
+                    )}
+                  </div>
+                  <span
+                    className={`shrink-0 rounded-pill px-2 py-0.5 font-body text-[10px] font-medium ${r.urgency === 'HIGH' ? 'bg-danger-subtle text-danger-ink' : 'bg-warning-subtle text-warning-ink'}`}
+                  >
+                    {r.urgency}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </CardBody>
+        </Card>
       )}
 
       {/* Recent badges */}
       {(dash?.recentBadges ?? []).length > 0 && (
-        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
-          <h4 className="font-semibold text-amber-700 mb-3">
+        <div className="rounded-card border border-warning bg-warning-subtle p-4">
+          <h4 className="mb-3 font-display font-semibold text-warning-ink">
             🏅 Badges Conquistados esta Semana
           </h4>
           <div className="flex flex-wrap gap-2">
             {(dash?.recentBadges ?? []).map((b, i) => (
               <div
                 key={i}
-                className="flex items-center gap-2 bg-white rounded-lg px-3 py-1.5 border border-amber-100"
+                className="flex items-center gap-2 rounded-control border border-warning-subtle bg-surface px-3 py-1.5"
               >
                 <span className="text-sm">🏅</span>
                 <div>
-                  <p className="text-xs font-medium text-slate-700">
+                  <p className="font-body text-xs font-medium text-ink">
                     {b.user?.fullName}
                   </p>
-                  <p className="text-[10px] text-amber-600">{b.badge?.name}</p>
+                  <p className="font-body text-[10px] text-warning-ink">{b.badge?.name}</p>
                 </div>
               </div>
             ))}

@@ -7,11 +7,15 @@
 import { useState } from 'react';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
+import { Button } from '@/components/ui/Button';
+import { Textarea } from '@/components/ui/Textarea';
 
 interface FeedbackFormProps {
   recipientId: number;
   onClose: () => void;
 }
+
+const FEEDBACK_TYPES = ['POSITIVE', 'CONSTRUCTIVE', 'SBI'] as const;
 
 export function FeedbackForm({ recipientId, onClose }: FeedbackFormProps) {
   const [type, setType] = useState('POSITIVE');
@@ -29,36 +33,35 @@ export function FeedbackForm({ recipientId, onClose }: FeedbackFormProps) {
   return (
     <div className="space-y-3">
       <div className="flex gap-2">
-        {['POSITIVE', 'CONSTRUCTIVE', 'SBI'].map((t) => (
-          <button
+        {FEEDBACK_TYPES.map((t) => (
+          <Button
             key={t}
+            size="sm"
+            intent={type === t ? 'primary' : 'ghost'}
             onClick={() => setType(t)}
-            className={`text-xs px-3 py-1.5 rounded-lg ${type === t ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-600'}`}
           >
             {t}
-          </button>
+          </Button>
         ))}
       </div>
-      <textarea
+      <Textarea
         value={content}
         onChange={(e) => setContent(e.target.value)}
         placeholder="Escreve o teu feedback..."
-        className="w-full text-sm border border-slate-200 rounded-xl px-4 py-3 focus:outline-none h-28 resize-none"
+        className="h-28 w-full resize-none"
       />
       <div className="flex gap-2">
-        <button
+        <Button
           onClick={send}
           disabled={sending || !content.trim()}
-          className="flex-1 py-2 bg-indigo-600 text-white rounded-xl text-sm hover:bg-indigo-700 disabled:opacity-60"
+          loading={sending}
+          className="flex-1"
         >
           {sending ? 'A enviar…' : 'Enviar Feedback'}
-        </button>
-        <button
-          onClick={onClose}
-          className="px-4 py-2 border border-slate-200 text-slate-600 text-sm rounded-xl"
-        >
+        </Button>
+        <Button intent="secondary" onClick={onClose}>
           Cancelar
-        </button>
+        </Button>
       </div>
     </div>
   );

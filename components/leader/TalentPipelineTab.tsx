@@ -9,7 +9,9 @@ import { Award } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { Avatar, Skeleton } from './atoms';
+import { Avatar } from '@/components/ui/Avatar';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { Skeleton } from '@/components/ui/Skeleton';
 import type { TalentPipeline } from './types';
 
 export function TalentPipelineTab() {
@@ -18,37 +20,39 @@ export function TalentPipelineTab() {
     '/leaders/my-talent-pipeline',
     { staleTime: STALE_TIME.DYNAMIC },
   );
-  if (loading) return <Skeleton />;
+  if (loading)
+    return (
+      <Skeleton
+        rows={4}
+        wrapperClassName="space-y-4"
+        itemClassName="skeleton-shimmer h-28 rounded-card"
+      />
+    );
 
   const sections: Array<{
     key: keyof TalentPipeline;
     label: string;
-    bg: string;
-    border: string;
+    className: string;
   }> = [
     {
       key: 'hipos',
       label: '🌟 High Potentials',
-      bg: 'bg-amber-50',
-      border: 'border-amber-200',
+      className: 'border-warning bg-warning-subtle',
     },
     {
       key: 'promotionReady',
       label: '🚀 Prontos para Promoção',
-      bg: 'bg-emerald-50',
-      border: 'border-emerald-200',
+      className: 'border-success bg-success-subtle',
     },
     {
       key: 'developing',
       label: '📈 Em Desenvolvimento',
-      bg: 'bg-blue-50',
-      border: 'border-blue-200',
+      className: 'border-info bg-info-subtle',
     },
     {
       key: 'atRisk',
       label: '⚠️ Em Risco',
-      bg: 'bg-red-50',
-      border: 'border-red-200',
+      className: 'border-danger bg-danger-subtle',
     },
   ];
 
@@ -58,33 +62,30 @@ export function TalentPipelineTab() {
         const items = data?.[s.key] ?? [];
         if (!items.length) return null;
         return (
-          <div
-            key={s.key}
-            className={`${s.bg} border ${s.border} rounded-xl p-4`}
-          >
-            <h4 className="font-semibold text-slate-700 mb-3">
+          <div key={s.key} className={`rounded-card border p-4 ${s.className}`}>
+            <h4 className="mb-3 font-display font-semibold text-ink">
               {s.label} ({items.length})
             </h4>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
               {items.map((u, i) => (
                 <div
                   key={i}
-                  className="flex items-center gap-2 bg-white rounded-lg px-3 py-2.5 border border-white"
+                  className="flex items-center gap-2 rounded-control border border-surface bg-surface px-3 py-2.5"
                 >
                   <Avatar name={u.user.fullName} url={u.user.avatarUrl} />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-slate-700 truncate">
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate font-body text-sm font-medium text-ink">
                       {u.user.fullName}
                     </p>
-                    <p className="text-[10px] text-slate-400">
+                    <p className="font-body text-[10px] text-ink-faint">
                       {u.user.position?.name}
                     </p>
                   </div>
-                  <div className="text-right text-xs">
-                    <p className="font-bold text-slate-700">
+                  <div className="text-right font-body text-xs">
+                    <p className="font-bold text-ink">
                       {u.score?.toFixed(1) ?? '–'}
                     </p>
-                    <p className="text-slate-400">score</p>
+                    <p className="text-ink-faint">score</p>
                   </div>
                 </div>
               ))}
@@ -97,10 +98,11 @@ export function TalentPipelineTab() {
         data?.promotionReady?.length ||
         data?.atRisk?.length
       ) && (
-        <div className="py-12 text-center text-slate-400 bg-white rounded-xl border border-slate-100">
-          <Award size={36} className="mx-auto mb-2 opacity-30" />
-          <p className="text-sm">Sem dados de talent pipeline disponíveis</p>
-        </div>
+        <EmptyState
+          icon={Award}
+          title="Sem dados de talent pipeline"
+          description="Ainda não há dados de talent pipeline disponíveis para a tua equipa."
+        />
       )}
     </div>
   );
