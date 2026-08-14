@@ -5,7 +5,8 @@
 'use client';
 
 import { useState } from 'react';
-import { Avatar } from './atoms';
+import { ChevronDown, ChevronRight } from 'lucide-react';
+import { Avatar } from '@/components/ui/Avatar';
 import type { DepartmentNode } from './types';
 
 interface OrgNodeProps {
@@ -21,10 +22,10 @@ export function OrgNode({ node, onSelect, level = 0 }: OrgNodeProps) {
   return (
     <div className="relative">
       <div
-        className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-colors mb-1 ${
+        className={`mb-1 flex cursor-pointer items-center gap-3 rounded-card border p-3 transition-colors ${
           !node.active
-            ? 'opacity-50 bg-gray-50 border-gray-100'
-            : 'bg-white border-gray-200 hover:border-blue-300 hover:bg-blue-50'
+            ? 'border-border bg-surface-sunken opacity-50'
+            : 'border-border bg-surface hover:border-primary hover:bg-primary-subtle'
         }`}
         style={{ marginLeft: level * 24 }}
         onClick={() => onSelect(node.id)}
@@ -32,35 +33,41 @@ export function OrgNode({ node, onSelect, level = 0 }: OrgNodeProps) {
         {/* Expand toggle */}
         {hasChildren && (
           <button
-            className="w-5 h-5 text-xs text-gray-400 hover:text-gray-700 flex-shrink-0"
+            className="flex h-5 w-5 flex-shrink-0 items-center justify-center text-ink-faint hover:text-ink"
             onClick={(e) => {
               e.stopPropagation();
               setExpanded((v) => !v);
             }}
           >
-            {expanded ? '▼' : '▶'}
+            {expanded ? (
+              <ChevronDown size={14} strokeWidth={1.75} />
+            ) : (
+              <ChevronRight size={14} strokeWidth={1.75} />
+            )}
           </button>
         )}
         {!hasChildren && <div className="w-5 flex-shrink-0" />}
 
         {/* Color dot */}
         <div
-          className="w-3 h-3 rounded-full flex-shrink-0"
-          style={{ background: node.color ?? '#94a3b8' }}
+          className="h-3 w-3 flex-shrink-0 rounded-full"
+          style={{ background: node.color ?? 'var(--color-ink-faint)' }}
         />
 
         {/* Info */}
-        <div className="flex-1 min-w-0">
+        <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <span className="text-sm font-medium text-gray-900 truncate">
+            <span className="truncate text-sm font-medium text-ink">
               {node.name}
             </span>
-            <span className="text-xs font-mono text-gray-400">{node.code}</span>
+            <span className="font-mono text-xs text-ink-faint">
+              {node.code}
+            </span>
             {!node.active && (
-              <span className="text-xs text-gray-400">(inactivo)</span>
+              <span className="text-xs text-ink-faint">(inactivo)</span>
             )}
           </div>
-          <div className="text-xs text-gray-400 mt-0.5 flex items-center gap-3">
+          <div className="mt-0.5 flex items-center gap-3 text-xs text-ink-faint">
             {node.head && (
               <span className="flex items-center gap-1">
                 <Avatar name={node.head.fullName} size="sm" />
