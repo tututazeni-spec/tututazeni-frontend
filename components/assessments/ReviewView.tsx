@@ -12,8 +12,15 @@ import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
+import { Badge, type BadgeProps } from '@/components/ui/Badge';
+import { Card } from '@/components/ui/Card';
 import { Skeleton } from './Skeleton';
 import type { AttemptDetail, MyAttemptSummary } from './types';
+
+const STATUS_INTENT: Record<string, BadgeProps['intent']> = {
+  PASSED: 'success',
+  FAILED: 'danger',
+};
 
 export function ReviewView() {
   const [selectedAttempt, setSelected] = useState<MyAttemptSummary | null>(
@@ -44,11 +51,11 @@ export function ReviewView() {
     <div className="grid grid-cols-[280px_1fr] gap-5">
       {/* Attempts list */}
       <div className="space-y-2">
-        <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-2">
+        <div className="text-xs font-medium text-ink-faint uppercase tracking-wide mb-2">
           Histórico
         </div>
         {attempts.length === 0 && (
-          <div className="text-sm text-gray-400 text-center py-6">
+          <div className="text-sm text-ink-faint text-center py-6">
             Sem tentativas concluídas
           </div>
         )}
@@ -56,32 +63,24 @@ export function ReviewView() {
           <div
             key={a.id}
             onClick={() => loadDetail(a)}
-            className={`p-3 border rounded-xl cursor-pointer transition-colors ${
+            className={`p-3 border rounded-card cursor-pointer transition-colors ${
               selectedAttempt?.id === a.id
-                ? 'border-blue-300 bg-blue-50'
-                : 'border-gray-200 hover:bg-gray-50'
+                ? 'border-primary bg-primary-subtle'
+                : 'border-border hover:bg-surface-sunken'
             }`}
           >
-            <div className="text-xs font-medium text-gray-800 truncate">
+            <div className="text-xs font-medium text-ink truncate">
               {a.assessment?.title}
             </div>
             <div className="flex items-center justify-between mt-1">
               <span
-                className={`text-sm font-bold font-mono ${(a.score ?? 0) >= (a.assessment?.passingScore ?? 70) ? 'text-emerald-600' : 'text-red-600'}`}
+                className={`text-sm font-bold font-data ${(a.score ?? 0) >= (a.assessment?.passingScore ?? 70) ? 'text-success' : 'text-danger'}`}
               >
                 {a.score ?? '—'}%
               </span>
-              <span
-                className={`text-xs px-1.5 rounded ${
-                  a.status === 'PASSED'
-                    ? 'bg-emerald-50 text-emerald-700'
-                    : a.status === 'FAILED'
-                      ? 'bg-red-50 text-red-600'
-                      : 'bg-amber-50 text-amber-700'
-                }`}
-              >
+              <Badge intent={STATUS_INTENT[a.status] ?? 'warning'}>
                 {a.status}
-              </span>
+              </Badge>
             </div>
           </div>
         ))}
@@ -90,15 +89,15 @@ export function ReviewView() {
       {/* Detail */}
       <div>
         {!selectedAttempt && (
-          <div className="flex items-center justify-center h-48 text-sm text-gray-400 border border-dashed border-gray-200 rounded-xl">
+          <div className="flex items-center justify-center h-48 text-sm text-ink-faint border border-dashed border-border rounded-card">
             Selecciona uma tentativa para rever
           </div>
         )}
         {loadingDetail && <Skeleton rows={3} />}
         {detail && !loadingDetail && (
           <div className="space-y-3">
-            <div className="bg-white border border-gray-200 rounded-xl p-4">
-              <div className="text-sm font-semibold text-gray-900 mb-2">
+            <Card className="p-4">
+              <div className="text-sm font-semibold text-ink mb-2">
                 {detail.assessment?.title}
               </div>
               <div className="grid grid-cols-3 gap-3">
@@ -114,42 +113,42 @@ export function ReviewView() {
                 ].map(({ label, value }) => (
                   <div
                     key={label}
-                    className="bg-gray-50 rounded-lg p-3 text-center"
+                    className="bg-surface-sunken rounded-control p-3 text-center"
                   >
-                    <div className="text-xs text-gray-400">{label}</div>
-                    <div className="text-sm font-semibold text-gray-900 mt-1">
+                    <div className="text-xs text-ink-faint">{label}</div>
+                    <div className="text-sm font-semibold text-ink mt-1">
                       {value}
                     </div>
                   </div>
                 ))}
               </div>
-            </div>
+            </Card>
             {detail.answers?.map((ans) => (
               <div
                 key={ans.id}
-                className={`border rounded-xl p-4 ${
+                className={`border rounded-card p-4 ${
                   ans.isCorrect === null
-                    ? 'border-amber-200 bg-amber-50'
+                    ? 'border-warning bg-warning-subtle'
                     : ans.isCorrect
-                      ? 'border-emerald-200 bg-emerald-50'
-                      : 'border-red-200 bg-red-50'
+                      ? 'border-success bg-success-subtle'
+                      : 'border-danger bg-danger-subtle'
                 }`}
               >
                 <div className="flex items-start gap-2 mb-1">
                   <span>
                     {ans.isCorrect === null ? '⏳' : ans.isCorrect ? '✓' : '✗'}
                   </span>
-                  <p className="text-xs font-medium text-gray-800">
+                  <p className="text-xs font-medium text-ink">
                     {ans.question?.questionText}
                   </p>
                 </div>
                 {ans.textAnswer && (
-                  <p className="text-xs text-gray-600 pl-5 mt-1">
+                  <p className="text-xs text-ink-muted pl-5 mt-1">
                     {ans.textAnswer}
                   </p>
                 )}
                 {ans.reviewComment && (
-                  <p className="text-xs text-blue-700 pl-5 mt-1">
+                  <p className="text-xs text-primary pl-5 mt-1">
                     💬 {ans.reviewComment}
                   </p>
                 )}
