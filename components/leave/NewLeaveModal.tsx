@@ -1,17 +1,30 @@
 // components/leave/NewLeaveModal.tsx
 // Wizard de 3 passos para solicitar uma nova licença — validação
 // (useFormValidation) + verificação de conflitos + mutação de criação.
-// Extraído de app/(platform)/leave/page.tsx.
+// Extraído de app/(platform)/leave/page.tsx. Migrado para a fundação de
+// design: backdrop+painel bespoke passam a Modal/ModalContent (Radix
+// Dialog, components/ui/Modal) — mesmo padrão de
+// components/work-declaration/CreateModal.tsx; campos passam a
+// FormField/Input/Textarea; botões passam a Button. Mesmos
+// endpoints/payload/validação — só apresentação. A cor de cada tipo de
+// licença (`leaveType.color`) continua dinâmica — é codificação de dados
+// por categoria (qual tipo escolhido), não decoração.
 
 'use client';
 
 import { useState } from 'react';
-import { AlertCircle, Calendar, Loader2, X } from 'lucide-react';
+import { AlertCircle, Calendar, Check } from 'lucide-react';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { useFormValidation } from '@/hooks/useFormValidation';
 import { required } from '@/lib/validation';
+import { cn } from '@/lib/cn';
+import { Button } from '@/components/ui/Button';
+import { FormField } from '@/components/ui/FormField';
+import { Input } from '@/components/ui/Input';
+import { Modal, ModalContent } from '@/components/ui/Modal';
+import { Textarea } from '@/components/ui/Textarea';
 import { CATEGORY_LABELS } from './constants';
 import type {
   ConflictCheck,
@@ -93,39 +106,29 @@ export function NewLeaveModal({
   });
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
-        {/* Header */}
-        <div className="p-6 border-b border-gray-100">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="font-bold text-gray-900">Solicitar Licença</h2>
-              <div className="flex items-center gap-2 mt-1">
-                {[1, 2, 3].map((s) => (
-                  <div
-                    key={s}
-                    className={`h-1.5 w-8 rounded-full transition-colors ${step >= s ? 'bg-blue-600' : 'bg-gray-200'}`}
-                  />
-                ))}
-                <span className="text-xs text-gray-400 ml-1">
-                  Passo {step} de 3
-                </span>
-              </div>
-            </div>
-            <button
-              onClick={onClose}
-              aria-label="Fechar"
-              className="p-2 rounded-xl hover:bg-gray-100 text-gray-500"
-            >
-              <X size={18} />
-            </button>
-          </div>
+    <Modal open onOpenChange={(open) => !open && onClose()}>
+      <ModalContent
+        title="Solicitar Licença"
+        description={`Passo ${step} de 3`}
+        className="max-w-lg max-h-[90vh] overflow-y-auto"
+      >
+        {/* Progress */}
+        <div className="mt-4 flex items-center gap-2">
+          {[1, 2, 3].map((s) => (
+            <div
+              key={s}
+              className={cn(
+                'h-1.5 w-8 rounded-pill transition-colors',
+                step >= s ? 'bg-primary' : 'bg-surface-sunken',
+              )}
+            />
+          ))}
         </div>
 
-        <div className="p-6 space-y-4">
+        <div className="mt-5 space-y-4">
           {error && (
-            <div className="flex items-center gap-2 p-3 bg-red-50 text-red-700 rounded-xl text-sm">
-              <AlertCircle size={16} />
+            <div className="flex items-center gap-2 p-3 bg-danger-subtle text-danger-ink rounded-card text-sm">
+              <AlertCircle size={16} strokeWidth={1.75} />
               {error}
             </div>
           )}
@@ -133,7 +136,7 @@ export function NewLeaveModal({
           {/* STEP 1: Tipo */}
           {step === 1 && (
             <div className="space-y-3">
-              <p className="text-sm font-medium text-gray-700">
+              <p className="text-sm font-medium text-ink-muted">
                 Seleccione o tipo de licença
               </p>
               <div className="grid grid-cols-1 gap-2 max-h-72 overflow-y-auto pr-1">
@@ -145,26 +148,27 @@ export function NewLeaveModal({
                       onClick={() =>
                         setForm((f) => ({ ...f, leaveTypeCode: lt.code }))
                       }
-                      className={`flex items-center gap-3 p-3 rounded-xl border-2 text-left transition-all ${
+                      className={cn(
+                        'flex items-center gap-3 p-3 rounded-card border-2 text-left transition-all',
                         form.leaveTypeCode === lt.code
-                          ? 'border-blue-500 bg-blue-50'
-                          : 'border-gray-100 hover:border-gray-200 hover:bg-gray-50'
-                      }`}
+                          ? 'border-primary bg-primary-subtle'
+                          : 'border-border hover:border-border-strong hover:bg-surface-sunken',
+                      )}
                     >
                       <div
-                        className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
+                        className="w-9 h-9 rounded-control flex items-center justify-center flex-shrink-0"
                         style={{
                           backgroundColor: lt.color + '20',
                           color: lt.color,
                         }}
                       >
-                        <Calendar size={16} />
+                        <Calendar size={16} strokeWidth={1.75} />
                       </div>
                       <div className="flex-1">
-                        <p className="text-sm font-semibold text-gray-900">
+                        <p className="text-sm font-semibold text-ink">
                           {lt.name}
                         </p>
-                        <p className="text-xs text-gray-400">
+                        <p className="text-xs text-ink-faint">
                           {CATEGORY_LABELS[lt.category]} ·{' '}
                           {lt.isPaid ? 'Remunerada' : 'Não remunerada'}
                         </p>
@@ -177,7 +181,7 @@ export function NewLeaveModal({
                           >
                             {bal.effectiveBalance}
                           </p>
-                          <p className="text-xs text-gray-400">dias</p>
+                          <p className="text-xs text-ink-faint">dias</p>
                         </div>
                       )}
                     </button>
@@ -192,10 +196,14 @@ export function NewLeaveModal({
             <div className="space-y-4">
               {selectedType && (
                 <div
-                  className="flex items-center gap-3 p-3 rounded-xl"
+                  className="flex items-center gap-3 p-3 rounded-card"
                   style={{ backgroundColor: selectedType.color + '15' }}
                 >
-                  <Calendar size={16} style={{ color: selectedType.color }} />
+                  <Calendar
+                    size={16}
+                    strokeWidth={1.75}
+                    style={{ color: selectedType.color }}
+                  />
                   <span
                     className="text-sm font-medium"
                     style={{ color: selectedType.color }}
@@ -214,25 +222,21 @@ export function NewLeaveModal({
               )}
 
               <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-1">
-                    Início <span className="text-red-500">*</span>
-                  </label>
-                  <input
+                <FormField label="Início *" htmlFor="nlm-start">
+                  <Input
+                    id="nlm-start"
                     type="date"
                     value={form.startDate}
                     onChange={(e) => {
                       setForm((f) => ({ ...f, startDate: e.target.value }));
                       setConflicts(null);
                     }}
-                    className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full"
                   />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-1">
-                    Fim <span className="text-red-500">*</span>
-                  </label>
-                  <input
+                </FormField>
+                <FormField label="Fim *" htmlFor="nlm-end">
+                  <Input
+                    id="nlm-end"
                     type="date"
                     value={form.endDate}
                     min={form.startDate}
@@ -240,16 +244,16 @@ export function NewLeaveModal({
                       setForm((f) => ({ ...f, endDate: e.target.value }));
                       setConflicts(null);
                     }}
-                    className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full"
                   />
-                </div>
+                </FormField>
               </div>
 
               {selectedType?.allowHalfDay && (
                 <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-1">
+                  <p className="block text-xs font-medium text-ink-muted mb-1">
                     Duração
-                  </label>
+                  </p>
                   <div className="grid grid-cols-3 gap-2">
                     {['FULL_DAY', 'HALF_AM', 'HALF_PM'].map((mode) => (
                       <button
@@ -260,7 +264,12 @@ export function NewLeaveModal({
                             durationMode: mode as DurationMode,
                           }))
                         }
-                        className={`py-2 text-xs rounded-xl border-2 font-medium transition-colors ${form.durationMode === mode ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-gray-200 text-gray-600 hover:bg-gray-50'}`}
+                        className={cn(
+                          'py-2 text-xs rounded-control border-2 font-medium transition-colors',
+                          form.durationMode === mode
+                            ? 'border-primary bg-primary-subtle text-primary'
+                            : 'border-border text-ink-muted hover:bg-surface-sunken',
+                        )}
                       >
                         {mode === 'FULL_DAY'
                           ? 'Dia inteiro'
@@ -274,17 +283,24 @@ export function NewLeaveModal({
               )}
 
               {form.startDate && form.endDate && !conflicts && (
-                <button
+                <Button
+                  intent="secondary"
+                  size="sm"
+                  className="w-full"
                   onClick={checkConflicts}
-                  className="w-full py-2 text-sm text-blue-600 border border-blue-200 rounded-xl hover:bg-blue-50 transition-colors"
                 >
                   Verificar conflitos
-                </button>
+                </Button>
               )}
 
               {conflicts && (
                 <div
-                  className={`p-3 rounded-xl text-sm ${conflicts.hasUserConflict || conflicts.isAtRisk ? 'bg-red-50 text-red-700' : 'bg-emerald-50 text-emerald-700'}`}
+                  className={cn(
+                    'p-3 rounded-card text-sm',
+                    conflicts.hasUserConflict || conflicts.isAtRisk
+                      ? 'bg-danger-subtle text-danger-ink'
+                      : 'bg-success-subtle text-success-ink',
+                  )}
                 >
                   {conflicts.hasUserConflict && (
                     <p className="font-medium">
@@ -303,35 +319,28 @@ export function NewLeaveModal({
                 </div>
               )}
 
-              <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">
-                  Motivo{' '}
-                  {selectedType?.requiresDocument ? (
-                    <span className="text-red-500">*</span>
-                  ) : (
-                    '(opcional)'
-                  )}
-                </label>
-                <textarea
+              <FormField
+                label={`Motivo ${selectedType?.requiresDocument ? '*' : '(opcional)'}`}
+                htmlFor="nlm-reason"
+              >
+                <Textarea
+                  id="nlm-reason"
                   value={form.reason}
                   onChange={(e) =>
                     setForm((f) => ({ ...f, reason: e.target.value }))
                   }
                   rows={3}
                   placeholder="Descreva o motivo da ausência..."
-                  className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                  className="w-full resize-none"
                 />
-              </div>
+              </FormField>
             </div>
           )}
 
           {/* STEP 3: Confirmação */}
           {step === 3 && (
             <div className="space-y-4">
-              <div className="bg-gray-50 rounded-2xl p-4 space-y-3">
-                <h3 className="font-semibold text-gray-900 text-sm">
-                  Resumo do Pedido
-                </h3>
+              <div className="divide-y divide-border rounded-card border border-border bg-surface-sunken px-4">
                 {[
                   { label: 'Tipo', value: selectedType?.name },
                   {
@@ -353,11 +362,12 @@ export function NewLeaveModal({
                     value: selectedType?.isPaid ? 'Sim' : 'Não',
                   },
                 ].map((row) => (
-                  <div key={row.label} className="flex justify-between text-sm">
-                    <span className="text-gray-500">{row.label}</span>
-                    <span className="font-medium text-gray-900">
-                      {row.value}
-                    </span>
+                  <div
+                    key={row.label}
+                    className="flex justify-between text-sm py-3"
+                  >
+                    <span className="text-ink-muted">{row.label}</span>
+                    <span className="font-medium text-ink">{row.value}</span>
                   </div>
                 ))}
               </div>
@@ -369,9 +379,9 @@ export function NewLeaveModal({
                   onChange={(e) =>
                     setForm((f) => ({ ...f, saveAsDraft: e.target.checked }))
                   }
-                  className="w-4 h-4 rounded border-gray-300 text-blue-600"
+                  className="w-4 h-4 rounded border-border-strong accent-primary"
                 />
-                <span className="text-sm text-gray-700">
+                <span className="text-sm text-ink-muted">
                   Guardar como rascunho (não enviar ainda)
                 </span>
               </label>
@@ -380,42 +390,34 @@ export function NewLeaveModal({
         </div>
 
         {/* Footer */}
-        <div className="p-6 border-t border-gray-100 flex gap-3">
+        <div className="mt-6 flex gap-3 border-t border-border pt-4">
           {step > 1 && (
-            <button
+            <Button
+              intent="ghost"
               onClick={() => setStep((s) => Math.max(1, s - 1) as 1 | 2 | 3)}
-              className="px-4 py-2.5 text-sm text-gray-600 border border-gray-200 rounded-xl hover:bg-gray-50"
             >
               ← Voltar
-            </button>
+            </Button>
           )}
-          <button
-            onClick={onClose}
-            className="px-4 py-2.5 text-sm text-gray-500 hover:text-gray-700"
-          >
+          <Button intent="ghost" onClick={onClose}>
             Cancelar
-          </button>
+          </Button>
           <div className="flex-1" />
           {step < 3 ? (
-            <button
+            <Button
               onClick={() => setStep((s) => Math.min(3, s + 1) as 1 | 2 | 3)}
               disabled={step === 1 && !form.leaveTypeCode}
-              className="px-5 py-2.5 text-sm text-white bg-blue-600 rounded-xl hover:bg-blue-700 disabled:opacity-40 transition-colors"
             >
               Continuar →
-            </button>
+            </Button>
           ) : (
-            <button
-              onClick={handleSubmit}
-              disabled={loading}
-              className="px-5 py-2.5 text-sm text-white bg-blue-600 rounded-xl hover:bg-blue-700 disabled:opacity-50 flex items-center gap-2"
-            >
-              {loading ? <Loader2 size={15} className="animate-spin" /> : null}
+            <Button onClick={handleSubmit} loading={loading}>
+              {!loading && <Check size={15} strokeWidth={1.75} />}
               {form.saveAsDraft ? 'Guardar Rascunho' : 'Enviar Pedido'}
-            </button>
+            </Button>
           )}
         </div>
-      </div>
-    </div>
+      </ModalContent>
+    </Modal>
   );
 }

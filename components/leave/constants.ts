@@ -1,52 +1,22 @@
 // components/leave/constants.ts
 // Constantes de domínio partilhadas pelos componentes de apresentação do
 // módulo de ausências. Extraído verbatim de app/(platform)/leave/page.tsx.
+// Migrado para a fundação de design: STATUS_CONFIG passa a StatusBadgeMap
+// (tokens semânticos, consumido por components/ui/StatusBadge) — o ícone
+// por estado é descartado, mesmo padrão já adoptado nos restantes módulos
+// migrados (ex.: development-plans, leader): o indicador "dot" do
+// StatusBadge substitui o ícone dedicado.
 
-import {
-  FileText,
-  Clock,
-  CheckCircle2,
-  XCircle,
-  X,
-  Timer,
-  type LucideIcon,
-} from 'lucide-react';
+import type { StatusBadgeMap } from '@/lib/statusBadge';
 import type { LeaveCategory, LeaveStatus } from './types';
 
-export const STATUS_CONFIG: Record<
-  LeaveStatus,
-  { label: string; color: string; icon: LucideIcon }
-> = {
-  DRAFT: {
-    label: 'Rascunho',
-    color: 'bg-gray-100 text-gray-600',
-    icon: FileText,
-  },
-  PENDING: {
-    label: 'Pendente',
-    color: 'bg-amber-100 text-amber-700',
-    icon: Clock,
-  },
-  APPROVED: {
-    label: 'Aprovado',
-    color: 'bg-emerald-100 text-emerald-700',
-    icon: CheckCircle2,
-  },
-  REJECTED: {
-    label: 'Rejeitado',
-    color: 'bg-red-100 text-red-700',
-    icon: XCircle,
-  },
-  CANCELLED: {
-    label: 'Cancelado',
-    color: 'bg-gray-100 text-gray-500',
-    icon: X,
-  },
-  EXPIRED: {
-    label: 'Expirado',
-    color: 'bg-gray-100 text-gray-400',
-    icon: Timer,
-  },
+export const STATUS_CFG: StatusBadgeMap<LeaveStatus> = {
+  DRAFT: { label: 'Rascunho', cls: 'bg-surface-sunken text-ink-muted' },
+  PENDING: { label: 'Pendente', cls: 'bg-warning-subtle text-warning-ink' },
+  APPROVED: { label: 'Aprovado', cls: 'bg-success-subtle text-success-ink' },
+  REJECTED: { label: 'Rejeitado', cls: 'bg-danger-subtle text-danger-ink' },
+  CANCELLED: { label: 'Cancelado', cls: 'bg-surface-sunken text-ink-muted' },
+  EXPIRED: { label: 'Expirado', cls: 'bg-surface-sunken text-ink-faint' },
 };
 
 export const CATEGORY_LABELS: Record<LeaveCategory, string> = {

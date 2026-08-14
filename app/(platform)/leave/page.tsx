@@ -11,6 +11,10 @@
 // (diferente do padrão usado em dashboard/employees, onde os separadores
 // eram totalmente independentes). Ver memory
 // project_innova_component_separation_audit.
+//
+// Migrado para a fundação de design: header/tab bar bespoke passam a
+// tokens + Button/IconButton; badge do separador passa a Badge — mesmos
+// hooks/mutações/queryKeys, só apresentação.
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { useState } from 'react';
@@ -25,6 +29,7 @@ import {
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
+import { cn } from '@/lib/cn';
 import {
   BarChart3,
   Calendar,
@@ -33,6 +38,7 @@ import {
   RefreshCcw,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
+import { Button, IconButton } from '@/components/ui/Button';
 import { ApprovalsTab } from '@/components/leave/ApprovalsTab';
 import { LeaveDashboardTab } from '@/components/leave/LeaveDashboardTab';
 import { MyLeaveTab } from '@/components/leave/MyLeaveTab';
@@ -141,58 +147,61 @@ export default function LeavePage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50/50">
+    <div className="min-h-screen bg-canvas">
       {/* Header */}
-      <div className="bg-white border-b border-gray-100 px-6 py-5 sticky top-0 z-10">
+      <div className="bg-surface border-b border-border px-6 py-5 sticky top-0 z-10">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-bold text-gray-900">
+            <h1 className="text-xl font-display font-bold text-ink">
               Gestão de Ausências
             </h1>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-ink-muted">
               Licenças, férias e afastamentos
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <button
+            <IconButton
+              icon={RefreshCcw}
+              label="Actualizar"
+              intent="secondary"
               onClick={() => {
                 mRefetch();
                 bRefetch();
                 dRefetch();
                 pRefetch();
               }}
-              className="p-2 text-gray-500 border border-gray-200 bg-white rounded-xl hover:bg-gray-50 transition-colors"
-            >
-              <RefreshCcw size={15} />
-            </button>
-            <button
-              onClick={() => setShowModal(true)}
-              className="flex items-center gap-1.5 px-4 py-2 text-sm text-white bg-blue-600 rounded-xl hover:bg-blue-700 transition-colors shadow-sm"
-            >
-              <Plus size={15} /> Solicitar Licença
-            </button>
+            />
+            <Button onClick={() => setShowModal(true)}>
+              <Plus size={15} strokeWidth={1.75} /> Solicitar Licença
+            </Button>
           </div>
         </div>
       </div>
 
       <div className="max-w-6xl mx-auto px-6 py-6 space-y-5">
         {/* Tab bar */}
-        <div className="flex bg-white rounded-2xl border border-gray-100 shadow-sm p-1.5 gap-1 w-fit">
+        <div className="flex bg-surface rounded-panel border border-border shadow-resting p-1.5 gap-1 w-fit">
           {tabs.map((t) => (
             <button
               key={t.key}
               onClick={() => setTab(t.key)}
-              className={`flex items-center gap-2 px-4 py-2 text-sm rounded-xl font-medium transition-colors relative ${
+              className={cn(
+                'flex items-center gap-2 px-4 py-2 text-sm rounded-control font-medium transition-colors relative',
                 tab === t.key
-                  ? 'bg-blue-600 text-white shadow-sm'
-                  : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
-              }`}
+                  ? 'bg-primary text-canvas shadow-resting'
+                  : 'text-ink-muted hover:text-ink hover:bg-surface-sunken',
+              )}
             >
-              <t.icon size={15} />
+              <t.icon size={15} strokeWidth={1.75} />
               {t.label}
               {t.badge != null && t.badge > 0 && (
                 <span
-                  className={`w-5 h-5 rounded-full text-xs flex items-center justify-center font-bold ${tab === t.key ? 'bg-white text-blue-600' : 'bg-blue-600 text-white'}`}
+                  className={cn(
+                    'w-5 h-5 rounded-full text-xs flex items-center justify-center font-bold',
+                    tab === t.key
+                      ? 'bg-canvas text-primary'
+                      : 'bg-primary text-canvas',
+                  )}
                 >
                   {t.badge}
                 </span>

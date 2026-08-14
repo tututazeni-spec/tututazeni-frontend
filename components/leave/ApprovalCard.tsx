@@ -1,11 +1,19 @@
 // components/leave/ApprovalCard.tsx
 // Cartão de pedido pendente de aprovação (aprovar/rejeitar). Extraído de
-// app/(platform)/leave/page.tsx.
+// app/(platform)/leave/page.tsx. Migrado para a fundação de design:
+// wrapper bespoke passa a Card, avatar-gradiente-por-iniciais local passa a
+// Avatar (components/ui), botões passam a Button com os intents
+// success/warning/danger (PR #208) directamente aplicáveis aqui. A cor do
+// ponto de tipo de licença fica dinâmica (`leaveType.color`, hex do
+// backend) — é codificação de dados, não decoração.
 
 'use client';
 
 import { useState } from 'react';
-import { Check, Loader2, X } from 'lucide-react';
+import { Check, X } from 'lucide-react';
+import { Avatar } from '@/components/ui/Avatar';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
 import type { LeaveRequest } from './types';
 
 export interface ApprovalCardProps {
@@ -25,17 +33,15 @@ export function ApprovalCard({ request, onDecide }: ApprovalCardProps) {
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 hover:border-blue-100 hover:shadow-md transition-all">
+    <Card className="p-5">
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-sm font-bold">
-            {(request.user?.name ?? 'U')[0]}
-          </div>
+          <Avatar name={request.user?.name ?? 'U'} size="md" />
           <div>
-            <p className="text-sm font-semibold text-gray-900">
+            <p className="text-sm font-semibold text-ink">
               {request.user?.name}
             </p>
-            <p className="text-xs text-gray-400">
+            <p className="text-xs text-ink-faint">
               {request.user?.employee?.department}
             </p>
           </div>
@@ -45,59 +51,55 @@ export function ApprovalCard({ request, onDecide }: ApprovalCardProps) {
             className="w-3 h-3 rounded-full inline-block"
             style={{ backgroundColor: request.leaveType?.color ?? '#3B82F6' }}
           />
-          <p className="text-xs text-gray-500 mt-0.5">
+          <p className="text-xs text-ink-muted mt-0.5">
             {request.leaveType?.name}
           </p>
         </div>
       </div>
 
       <div className="grid grid-cols-2 gap-2 mb-4 text-xs">
-        <div className="bg-gray-50 rounded-xl p-2.5">
-          <p className="text-gray-400">Início</p>
-          <p className="font-semibold text-gray-900 mt-0.5">
+        <div className="bg-surface-sunken rounded-control p-2.5">
+          <p className="text-ink-faint">Início</p>
+          <p className="font-semibold text-ink mt-0.5">
             {new Date(request.startDate).toLocaleDateString('pt-PT')}
           </p>
         </div>
-        <div className="bg-gray-50 rounded-xl p-2.5">
-          <p className="text-gray-400">Dias</p>
-          <p className="font-semibold text-gray-900 mt-0.5">
+        <div className="bg-surface-sunken rounded-control p-2.5">
+          <p className="text-ink-faint">Dias</p>
+          <p className="font-semibold text-ink mt-0.5">
             {request.workDays} dias úteis
           </p>
         </div>
       </div>
 
       {request.reason && (
-        <p className="text-xs text-gray-500 bg-gray-50 rounded-xl p-2.5 mb-4 line-clamp-2">
+        <p className="text-xs text-ink-muted bg-surface-sunken rounded-control p-2.5 mb-4 line-clamp-2">
           {request.reason}
         </p>
       )}
 
       <div className="flex gap-2">
-        <button
+        <Button
+          intent="danger"
+          size="sm"
+          loading={loading}
           onClick={() => handle('REJECT')}
-          disabled={loading}
-          className="flex-1 py-2 text-xs font-semibold text-red-600 border border-red-200 rounded-xl hover:bg-red-50 transition-colors disabled:opacity-40 flex items-center justify-center gap-1"
+          className="flex-1"
         >
-          {loading ? (
-            <Loader2 size={12} className="animate-spin" />
-          ) : (
-            <X size={12} />
-          )}{' '}
+          {!loading && <X size={12} strokeWidth={1.75} />}
           Rejeitar
-        </button>
-        <button
+        </Button>
+        <Button
+          intent="success"
+          size="sm"
+          loading={loading}
           onClick={() => handle('APPROVE')}
-          disabled={loading}
-          className="flex-1 py-2 text-xs font-semibold text-white bg-emerald-600 rounded-xl hover:bg-emerald-700 transition-colors disabled:opacity-40 flex items-center justify-center gap-1"
+          className="flex-1"
         >
-          {loading ? (
-            <Loader2 size={12} className="animate-spin" />
-          ) : (
-            <Check size={12} />
-          )}{' '}
+          {!loading && <Check size={12} strokeWidth={1.75} />}
           Aprovar
-        </button>
+        </Button>
       </div>
-    </div>
+    </Card>
   );
 }

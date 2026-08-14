@@ -1,7 +1,11 @@
 // components/leave/LeaveDashboardTab.tsx
 // Separador "Dashboard RH" — KPIs, distribuição por tipo e evolução
 // mensal. Puramente apresentacional. Extraído de
-// app/(platform)/leave/page.tsx.
+// app/(platform)/leave/page.tsx. Migrado para a fundação de design: o
+// KpiCard local (duplicado) passa a components/ui/KpiCard (color→intent);
+// wrapper "por tipo" passa a Card; skeleton/empty state bespoke passam a
+// Skeleton/EmptyState. A cor de cada tipo de licença (`leaveType.color`)
+// continua dinâmica — é codificação de dados por categoria, não decoração.
 
 import {
   BarChart3,
@@ -10,7 +14,10 @@ import {
   TrendingDown,
   Users,
 } from 'lucide-react';
-import { KpiCard } from './KpiCard';
+import { Card } from '@/components/ui/Card';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { KpiCard } from '@/components/ui/KpiCard';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { MonthlyChart } from './MonthlyChart';
 import type { DashboardData, LeaveType } from './types';
 
@@ -27,20 +34,21 @@ export function LeaveDashboardTab({
 }: LeaveDashboardTabProps) {
   if (loading) {
     return (
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 animate-pulse">
-        {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="h-24 bg-gray-100 rounded-2xl" />
-        ))}
-      </div>
+      <Skeleton
+        rows={4}
+        wrapperClassName="grid grid-cols-2 md:grid-cols-4 gap-4 animate-pulse"
+        itemClassName="h-24 bg-surface-sunken rounded-card"
+      />
     );
   }
 
   if (!dashboard) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 text-gray-400">
-        <BarChart3 size={48} className="mb-4 opacity-30" />
-        <p>Dashboard não disponível</p>
-      </div>
+      <EmptyState
+        icon={BarChart3}
+        title="Dashboard não disponível"
+        description="Ainda não há dados suficientes para gerar o dashboard."
+      />
     );
   }
 
@@ -51,33 +59,33 @@ export function LeaveDashboardTab({
           label="Pendentes"
           value={dashboard.kpis.pending}
           icon={Clock}
-          color="amber"
+          intent="warning"
         />
         <KpiCard
           label="Aprovados"
           value={dashboard.kpis.approved}
           icon={CheckCircle2}
-          color="emerald"
+          intent="success"
         />
         <KpiCard
           label="Ausentes Hoje"
           value={dashboard.kpis.activeNow}
           icon={Users}
-          color="blue"
+          intent="primary"
         />
         <KpiCard
           label="Dias Perdidos"
           value={dashboard.kpis.totalWorkDays}
           icon={TrendingDown}
-          color="violet"
+          intent="accent"
           sub="no ano"
         />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         {/* Por tipo */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
-          <h3 className="font-semibold text-gray-900 text-sm mb-4">
+        <Card className="p-5">
+          <h3 className="font-body text-sm font-semibold text-ink mb-4">
             Distribuição por Tipo
           </h3>
           <div className="space-y-3">
@@ -88,14 +96,14 @@ export function LeaveDashboardTab({
               return (
                 <div key={t.code}>
                   <div className="flex justify-between text-xs mb-1">
-                    <span className="font-medium text-gray-700">{t.name}</span>
-                    <span className="text-gray-400">
+                    <span className="font-medium text-ink-muted">{t.name}</span>
+                    <span className="text-ink-faint">
                       {t.days} dias ({t.count} pedidos)
                     </span>
                   </div>
-                  <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                  <div className="h-2 bg-surface-sunken rounded-pill overflow-hidden">
                     <div
-                      className="h-full rounded-full"
+                      className="h-full rounded-pill"
                       style={{
                         width: `${pct}%`,
                         backgroundColor: lt?.color ?? '#3B82F6',
@@ -106,7 +114,7 @@ export function LeaveDashboardTab({
               );
             })}
           </div>
-        </div>
+        </Card>
 
         <MonthlyChart data={dashboard.byMonth} />
       </div>
