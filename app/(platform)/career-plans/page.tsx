@@ -21,6 +21,8 @@ import type {
   Role,
   TabKey,
 } from '@/components/career-plans/types';
+import { Button } from '@/components/ui/Button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
 
 export default function CareerPlansPage() {
   const [tab, setTab] = useState<TabKey>('my');
@@ -68,65 +70,71 @@ export default function CareerPlansPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50/50">
+    <div className="min-h-screen bg-canvas">
       {/* Header */}
-      <div className="bg-white border-b border-gray-100 px-6 py-5 sticky top-0 z-10">
+      <div className="bg-surface border-b border-border px-6 py-5 sticky top-0 z-10">
         <div className="max-w-5xl mx-auto flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-bold text-gray-900">
+            <h1 className="font-display text-xl font-bold text-ink">
               Planos de Carreira
             </h1>
-            <p className="text-sm text-gray-500">
+            <p className="font-body text-sm text-ink-faint">
               Crescimento e mobilidade profissional
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <button
+            <Button
+              intent="secondary"
+              size="sm"
               onClick={() => setShowSimulate(true)}
-              className="flex items-center gap-1.5 px-3 py-2 text-sm text-gray-600 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors"
             >
-              <Compass size={15} /> Simular Carreira
-            </button>
+              <Compass size={15} strokeWidth={1.75} /> Simular Carreira
+            </Button>
             <button
               onClick={loadData}
               aria-label="Actualizar"
-              className="p-2 text-gray-500 border border-gray-200 bg-white rounded-xl hover:bg-gray-50"
+              className="p-2 rounded-control border border-border bg-surface text-ink-muted hover:bg-surface-sunken"
             >
-              <RefreshCcw size={15} className={loading ? 'animate-spin' : ''} />
+              <RefreshCcw
+                size={15}
+                strokeWidth={1.75}
+                className={loading ? 'animate-spin' : ''}
+              />
             </button>
           </div>
         </div>
       </div>
 
-      <div className="max-w-5xl mx-auto px-6 py-6 space-y-5">
-        {/* Tabs */}
-        <div className="flex bg-white rounded-2xl border border-gray-100 shadow-sm p-1.5 gap-1 w-fit">
-          {tabs.map((t) => (
-            <button
-              key={t.key}
-              onClick={() => setTab(t.key)}
-              className={`flex items-center gap-2 px-4 py-2 text-sm rounded-xl font-medium transition-colors ${tab === t.key ? 'bg-blue-600 text-white shadow-sm' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'}`}
-            >
-              <t.icon size={15} />
-              {t.label}
-            </button>
-          ))}
+      <Tabs value={tab} onValueChange={(v) => setTab(v as TabKey)}>
+        <div className="border-b border-border bg-surface px-6">
+          <TabsList className="max-w-5xl mx-auto">
+            {tabs.map((t) => (
+              <TabsTrigger key={t.key} value={t.key} className="gap-2">
+                <t.icon size={15} strokeWidth={1.75} />
+                {t.label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
         </div>
 
-        {tab === 'my' && (
-          <MyCareerTab
-            loading={loading}
-            myPlan={myPlan}
-            onGoalProgress={handleGoalProgress}
-          />
-        )}
+        <div className="max-w-5xl mx-auto px-6 py-6">
+          <TabsContent value="my">
+            <MyCareerTab
+              loading={loading}
+              myPlan={myPlan}
+              onGoalProgress={handleGoalProgress}
+            />
+          </TabsContent>
 
-        {tab === 'team' && <TeamTab />}
+          <TabsContent value="team">
+            <TeamTab />
+          </TabsContent>
 
-        {tab === 'analytics' && analytics && (
-          <AnalyticsTab analytics={analytics} />
-        )}
-      </div>
+          <TabsContent value="analytics">
+            {analytics && <AnalyticsTab analytics={analytics} />}
+          </TabsContent>
+        </div>
+      </Tabs>
 
       {showSimulate && (
         <SimulateModal roles={roles} onClose={() => setShowSimulate(false)} />
