@@ -80,17 +80,17 @@ export interface TeamResponse {
 }
 
 export const ACCOUNT_STATUS_MAP: StatusBadgeMap<AccountStatus> = {
-  ACTIVE: { label: 'Activo', cls: 'bg-emerald-50 text-emerald-700' },
-  INACTIVE: { label: 'Inactivo', cls: 'bg-gray-100 text-gray-500' },
-  SUSPENDED: { label: 'Suspenso', cls: 'bg-amber-50 text-amber-700' },
-  BLOCKED: { label: 'Bloqueado', cls: 'bg-red-50 text-red-700' },
-  PENDING: { label: 'Pendente', cls: 'bg-blue-50 text-blue-700' },
+  ACTIVE: { label: 'Activo', cls: 'bg-success-subtle text-success-ink' },
+  INACTIVE: { label: 'Inactivo', cls: 'bg-surface-sunken text-ink-muted' },
+  SUSPENDED: { label: 'Suspenso', cls: 'bg-warning-subtle text-warning-ink' },
+  BLOCKED: { label: 'Bloqueado', cls: 'bg-danger-subtle text-danger-ink' },
+  PENDING: { label: 'Pendente', cls: 'bg-info-subtle text-info-ink' },
 };
 
 export const HR_STATUS_MAP: StatusBadgeMap<HrStatus> = {
-  ACTIVE: { label: 'Activo', cls: 'bg-emerald-50 text-emerald-700' },
-  ON_LEAVE: { label: 'Em licença', cls: 'bg-amber-50 text-amber-700' },
-  TERMINATED: { label: 'Desligado', cls: 'bg-red-50 text-red-600' },
+  ACTIVE: { label: 'Activo', cls: 'bg-success-subtle text-success-ink' },
+  ON_LEAVE: { label: 'Em licença', cls: 'bg-warning-subtle text-warning-ink' },
+  TERMINATED: { label: 'Desligado', cls: 'bg-danger-subtle text-danger-ink' },
 };
 
 // ─── Tipos das restantes views (List/Create/Dashboard/Directory) ──────────────
