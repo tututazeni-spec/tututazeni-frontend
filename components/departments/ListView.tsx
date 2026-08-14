@@ -10,7 +10,19 @@ import { useApiQuery } from '@/hooks/useApiQuery';
 import { useDebounce } from '@/hooks/useDebounce';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { Avatar, Skeleton, StatusBadge } from './atoms';
+import { Avatar } from '@/components/ui/Avatar';
+import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
+import { Skeleton } from '@/components/ui/Skeleton';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeaderCell,
+  TableRow,
+} from '@/components/ui/Table';
 import type { PaginatedDepts } from './types';
 
 interface ListViewProps {
@@ -47,8 +59,8 @@ export function ListView({ onSelect }: ListViewProps) {
   return (
     <div>
       {/* Filtros */}
-      <div className="flex flex-wrap items-center gap-3 mb-5">
-        <input
+      <div className="mb-5 flex flex-wrap items-center gap-3">
+        <Input
           type="text"
           placeholder="Pesquisar por nome, código ou gestor…"
           value={search}
@@ -56,7 +68,7 @@ export function ListView({ onSelect }: ListViewProps) {
             setSearch(e.target.value);
             setPage(1);
           }}
-          className="flex-1 min-w-[220px] text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="min-w-[220px] flex-1"
         />
         <select
           value={activeFilter}
@@ -64,109 +76,131 @@ export function ListView({ onSelect }: ListViewProps) {
             setActiveFilter(e.target.value);
             setPage(1);
           }}
-          className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="rounded-control border-[1.5px] border-border-strong bg-surface px-3 py-[9px] font-body text-sm text-ink focus:border-accent focus:outline-none focus:ring-[3px] focus:ring-accent-subtle"
         >
           <option value="">Todos os estados</option>
           <option value="true">Activos</option>
           <option value="false">Inactivos</option>
         </select>
-        <span className="text-sm text-gray-400">
+        <span className="text-sm text-ink-faint">
           {data?.total ?? 0} departamentos
         </span>
       </div>
 
       {/* Tabela */}
-      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-        <div className="grid grid-cols-[2fr_90px_160px_80px_90px_70px] gap-3 px-4 py-2.5 border-b border-gray-100 text-xs font-medium text-gray-400 uppercase tracking-wide">
-          <div>Departamento</div>
-          <div>Código</div>
-          <div>Gestor</div>
-          <div>Membros</div>
-          <div>Estado</div>
-          <div>Sub-deptos</div>
+      {loading && (
+        <Skeleton
+          rows={5}
+          wrapperClassName="space-y-2 animate-pulse"
+          itemClassName="h-14 rounded-card bg-surface-sunken"
+        />
+      )}
+      {error && (
+        <div className="px-4 py-8 text-center text-sm text-danger">
+          {error}
         </div>
-
-        {loading && (
-          <div className="p-4">
-            <Skeleton />
-          </div>
-        )}
-        {error && (
-          <div className="px-4 py-8 text-center text-sm text-red-500">
-            {error}
-          </div>
-        )}
-        {!loading && data?.data.length === 0 && (
-          <div className="px-4 py-12 text-center text-sm text-gray-400">
-            Nenhum departamento encontrado
-          </div>
-        )}
-
-        {!loading &&
-          data?.data.map((d) => (
-            <div
-              key={d.id}
-              className="grid grid-cols-[2fr_90px_160px_80px_90px_70px] gap-3 items-center px-4 py-3.5 border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition-colors last:border-0"
-              onClick={() => onSelect(d.id)}
-            >
-              <div className="flex items-center gap-2">
-                <div
-                  className="w-2.5 h-2.5 rounded-full flex-shrink-0"
-                  style={{ background: d.color ?? '#cbd5e1' }}
-                />
-                <div>
-                  <div className="text-sm font-medium text-gray-900">
-                    {d.name}
-                  </div>
-                  {d.parent && (
-                    <div className="text-xs text-gray-400 mt-0.5">
-                      ↳ {d.parent.name}
-                    </div>
-                  )}
-                </div>
-              </div>
-              <div className="text-xs font-mono text-gray-500">{d.code}</div>
-              <div>
-                {d.head ? (
+      )}
+      {!loading && (
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableHeaderCell>Departamento</TableHeaderCell>
+              <TableHeaderCell>Código</TableHeaderCell>
+              <TableHeaderCell>Gestor</TableHeaderCell>
+              <TableHeaderCell>Membros</TableHeaderCell>
+              <TableHeaderCell>Estado</TableHeaderCell>
+              <TableHeaderCell>Sub-deptos</TableHeaderCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {data?.data.length === 0 && (
+              <TableRow>
+                <TableCell
+                  colSpan={6}
+                  className="py-12 text-center text-ink-faint"
+                >
+                  Nenhum departamento encontrado
+                </TableCell>
+              </TableRow>
+            )}
+            {data?.data.map((d) => (
+              <TableRow
+                key={d.id}
+                className="cursor-pointer"
+                onClick={() => onSelect(d.id)}
+              >
+                <TableCell>
                   <div className="flex items-center gap-2">
-                    <Avatar name={d.head.fullName} size="sm" />
-                    <span className="text-xs text-gray-700 truncate">
-                      {d.head.fullName}
-                    </span>
+                    <div
+                      className="h-2.5 w-2.5 flex-shrink-0 rounded-full"
+                      style={{ background: d.color ?? 'var(--color-ink-faint)' }}
+                    />
+                    <div>
+                      <div className="text-sm font-medium text-ink">
+                        {d.name}
+                      </div>
+                      {d.parent && (
+                        <div className="mt-0.5 text-xs text-ink-faint">
+                          ↳ {d.parent.name}
+                        </div>
+                      )}
+                    </div>
                   </div>
-                ) : (
-                  <span className="text-xs text-gray-400">—</span>
-                )}
-              </div>
-              <div className="text-sm text-gray-500">{d._count.users}</div>
-              <div>
-                <StatusBadge active={d.active} />
-              </div>
-              <div className="text-sm text-gray-400">{d._count.children}</div>
-            </div>
-          ))}
-      </div>
+                </TableCell>
+                <TableCell className="font-mono text-xs text-ink-muted">
+                  {d.code}
+                </TableCell>
+                <TableCell>
+                  {d.head ? (
+                    <div className="flex items-center gap-2">
+                      <Avatar name={d.head.fullName} size="sm" />
+                      <span className="truncate text-xs text-ink">
+                        {d.head.fullName}
+                      </span>
+                    </div>
+                  ) : (
+                    <span className="text-xs text-ink-faint">—</span>
+                  )}
+                </TableCell>
+                <TableCell className="text-sm text-ink-muted">
+                  {d._count.users}
+                </TableCell>
+                <TableCell>
+                  <Badge intent={d.active ? 'success' : 'neutral'}>
+                    {d.active ? 'Activo' : 'Inactivo'}
+                  </Badge>
+                </TableCell>
+                <TableCell className="text-sm text-ink-faint">
+                  {d._count.children}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      )}
 
       {data && data.totalPages > 1 && (
-        <div className="flex items-center justify-between mt-4">
-          <span className="text-xs text-gray-400">
+        <div className="mt-4 flex items-center justify-between">
+          <span className="text-xs text-ink-faint">
             Página {data.page} de {data.totalPages}
           </span>
           <div className="flex gap-2">
-            <button
+            <Button
+              intent="secondary"
+              size="sm"
               disabled={page === 1}
               onClick={() => setPage((p) => p - 1)}
-              className="px-3 py-1.5 text-xs border border-gray-200 rounded-lg disabled:opacity-40 hover:bg-gray-50"
             >
-              ← Anterior
-            </button>
-            <button
+              Anterior
+            </Button>
+            <Button
+              intent="secondary"
+              size="sm"
               disabled={page === data.totalPages}
               onClick={() => setPage((p) => p + 1)}
-              className="px-3 py-1.5 text-xs border border-gray-200 rounded-lg disabled:opacity-40 hover:bg-gray-50"
             >
-              Próxima →
-            </button>
+              Próxima
+            </Button>
           </div>
         </div>
       )}
