@@ -7,16 +7,50 @@
 'use client';
 
 import { useState } from 'react';
+import { ArrowLeft, ArrowLeftRight, UserCheck, UserX, Users } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { Avatar, Breadcrumb, MetricCard, Skeleton, StatusBadge } from './atoms';
+import { Avatar } from '@/components/ui/Avatar';
+import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
+import { Card, CardBody } from '@/components/ui/Card';
+import { Input } from '@/components/ui/Input';
+import { KpiCard } from '@/components/ui/KpiCard';
+import { Skeleton } from '@/components/ui/Skeleton';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeaderCell,
+  TableRow,
+} from '@/components/ui/Table';
 import type { Department, HeadHistoryEntry, Member, Metrics } from './types';
 
 interface DetailViewProps {
   deptId: number;
   onBack: () => void;
+}
+
+function Breadcrumb({
+  items,
+}: {
+  items: Array<{ id: number; name: string; code: string }>;
+}) {
+  return (
+    <div className="flex flex-wrap items-center gap-1 text-xs text-ink-faint">
+      {items.map((item, i) => (
+        <span key={item.id} className="flex items-center gap-1">
+          {i > 0 && <span>›</span>}
+          <span className={i === items.length - 1 ? 'font-medium text-ink' : ''}>
+            {item.name}
+          </span>
+        </span>
+      ))}
+    </div>
+  );
 }
 
 export function DetailView({ deptId, onBack }: DetailViewProps) {
@@ -87,7 +121,11 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
   if (loading || !dept)
     return (
       <div>
-        <Skeleton rows={6} />
+        <Skeleton
+          rows={6}
+          wrapperClassName="space-y-2 animate-pulse"
+          itemClassName="h-14 rounded-card bg-surface-sunken"
+        />
       </div>
     );
 
@@ -100,12 +138,10 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
 
   return (
     <div>
-      <button
-        onClick={onBack}
-        className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-800 mb-5"
-      >
-        ← Voltar
-      </button>
+      <Button intent="ghost" size="sm" className="mb-5" onClick={onBack}>
+        <ArrowLeft size={14} strokeWidth={1.75} />
+        Voltar
+      </Button>
 
       {/* Breadcrumb */}
       {metrics && (
@@ -115,47 +151,51 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
       )}
 
       {/* Header */}
-      <div className="bg-white border border-gray-200 rounded-xl p-5 mb-5">
+      <Card className="mb-5 p-5">
         <div className="flex items-start justify-between gap-4">
           <div className="flex items-start gap-4">
             <div
-              className="w-12 h-12 rounded-xl flex items-center justify-center text-xl flex-shrink-0"
-              style={{ background: dept.color ? `${dept.color}20` : '#e2e8f0' }}
+              className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-card text-xl"
+              style={{
+                background: dept.color
+                  ? `${dept.color}20`
+                  : 'var(--color-surface-sunken)',
+              }}
             >
               {dept.icon ?? '🏢'}
             </div>
             <div>
-              <div className="flex items-center gap-2 mb-1 flex-wrap">
-                <span className="font-mono text-sm text-gray-400">
+              <div className="mb-1 flex flex-wrap items-center gap-2">
+                <span className="font-mono text-sm text-ink-faint">
                   {dept.code}
                 </span>
-                <StatusBadge active={dept.active} />
+                <Badge intent={dept.active ? 'success' : 'neutral'}>
+                  {dept.active ? 'Activo' : 'Inactivo'}
+                </Badge>
               </div>
-              <h2 className="text-lg font-semibold text-gray-900">
-                {dept.name}
-              </h2>
+              <h2 className="text-lg font-semibold text-ink">{dept.name}</h2>
               {dept.description && (
-                <p className="text-sm text-gray-500 mt-1">{dept.description}</p>
+                <p className="mt-1 text-sm text-ink-muted">
+                  {dept.description}
+                </p>
               )}
-              <div className="flex flex-wrap gap-4 mt-2 text-xs text-gray-400">
+              <div className="mt-2 flex flex-wrap gap-4 text-xs text-ink-faint">
                 {dept.parent && (
                   <span>
                     Pertence a:{' '}
-                    <strong className="text-gray-700">
-                      {dept.parent.name}
-                    </strong>
+                    <strong className="text-ink">{dept.parent.name}</strong>
                   </span>
                 )}
                 {dept.costCenter && (
                   <span>
                     Centro de custo:{' '}
-                    <strong className="text-gray-700">{dept.costCenter}</strong>
+                    <strong className="text-ink">{dept.costCenter}</strong>
                   </span>
                 )}
                 {dept.trainingBudget && (
                   <span>
                     Budget formação:{' '}
-                    <strong className="text-gray-700">
+                    <strong className="text-ink">
                       {dept.trainingBudget.toLocaleString('pt-AO')} Kz
                     </strong>
                   </span>
@@ -165,55 +205,50 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
           </div>
 
           <div className="flex flex-col gap-2">
-            <button
-              onClick={handleToggleActive}
+            <Button
+              intent={dept.active ? 'danger' : 'success'}
+              size="sm"
               disabled={actionLoading}
-              className={`px-4 py-2 text-sm font-medium rounded-lg border transition-colors disabled:opacity-50 ${
-                dept.active
-                  ? 'border-red-200 text-red-600 hover:bg-red-50'
-                  : 'border-emerald-300 text-emerald-700 hover:bg-emerald-50'
-              }`}
+              loading={actionLoading}
+              onClick={handleToggleActive}
             >
               {dept.active ? 'Desactivar' : 'Reactivar'}
-            </button>
+            </Button>
           </div>
         </div>
 
         {/* Gestor */}
         {dept.head && (
-          <div className="mt-4 pt-4 border-t border-gray-100 flex items-center gap-3">
+          <div className="mt-4 flex items-center gap-3 border-t border-border pt-4">
             <Avatar name={dept.head.fullName} size="md" />
             <div>
-              <div className="text-sm font-medium text-gray-900">
+              <div className="text-sm font-medium text-ink">
                 {dept.head.fullName}
               </div>
-              <div className="text-xs text-gray-400">
+              <div className="text-xs text-ink-faint">
                 {dept.head.email} · Responsável
               </div>
             </div>
           </div>
         )}
         {!dept.head && (
-          <div className="mt-4 pt-4 border-t border-gray-100 text-xs text-amber-600 bg-amber-50 px-3 py-2 rounded-lg">
+          <div className="mt-4 rounded-control border-t border-border bg-warning-subtle px-3 py-2 pt-4 text-xs text-warning-ink">
             ⚠ Departamento sem gestor definido
           </div>
         )}
-      </div>
+      </Card>
 
       {/* Tabs */}
-      <div className="flex gap-1 mb-5 bg-gray-100 p-1 rounded-xl w-fit flex-wrap">
+      <div className="mb-5 flex w-fit flex-wrap gap-1 rounded-control bg-surface-sunken p-1">
         {tabs.map((t) => (
-          <button
+          <Button
             key={t.id}
+            size="sm"
+            intent={activeTab === t.id ? 'primary' : 'ghost'}
             onClick={() => setActiveTab(t.id)}
-            className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-              activeTab === t.id
-                ? 'bg-white text-gray-900 shadow-sm'
-                : 'text-gray-500 hover:text-gray-700'
-            }`}
           >
             {t.label}
-          </button>
+          </Button>
         ))}
       </div>
 
@@ -221,78 +256,83 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
       {activeTab === 'members' && (
         <div>
           {/* Transfer form */}
-          <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 mb-4">
-            <div className="text-xs font-medium text-blue-700 uppercase tracking-wide mb-3">
+          <Card className="mb-4 border-info bg-info-subtle p-4">
+            <div className="mb-3 text-xs font-medium uppercase tracking-wide text-info-ink">
               Transferir colaborador
             </div>
             <div className="flex flex-wrap gap-3">
-              <input
+              <Input
                 type="number"
                 placeholder="ID do colaborador"
                 value={transferUserId}
                 onChange={(e) => setTransferUserId(e.target.value)}
-                className="flex-1 min-w-[140px] text-sm border border-blue-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white"
+                className="min-w-[140px] flex-1"
               />
-              <input
+              <Input
                 type="number"
                 placeholder="ID do departamento destino"
                 value={transferTargetId}
                 onChange={(e) => setTransferTargetId(e.target.value)}
-                className="flex-1 min-w-[180px] text-sm border border-blue-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white"
+                className="min-w-[180px] flex-1"
               />
-              <input
+              <Input
                 type="text"
                 placeholder="Motivo (opcional)"
                 value={transferReason}
                 onChange={(e) => setTransferReason(e.target.value)}
-                className="flex-1 min-w-[160px] text-sm border border-blue-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white"
+                className="min-w-[160px] flex-1"
               />
-              <button
+              <Button
                 onClick={handleTransfer}
-                disabled={
-                  !transferUserId || !transferTargetId || transferLoading
-                }
-                className="px-4 py-2 bg-blue-700 text-white text-sm font-medium rounded-lg hover:bg-blue-800 disabled:opacity-50"
+                disabled={!transferUserId || !transferTargetId || transferLoading}
+                loading={transferLoading}
               >
-                {transferLoading ? 'A transferir…' : 'Transferir'}
-              </button>
+                Transferir
+              </Button>
             </div>
-          </div>
+          </Card>
 
           {/* Members list */}
-          <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-            <div className="grid grid-cols-[1fr_180px_80px] gap-3 px-4 py-2.5 border-b border-gray-100 text-xs font-medium text-gray-400 uppercase tracking-wide">
-              <div>Colaborador</div>
-              <div>Cargo</div>
-              <div>Estado</div>
-            </div>
-            {(dept.users as Member[]).length === 0 ? (
-              <div className="px-4 py-8 text-center text-sm text-gray-400">
-                Sem membros neste departamento
-              </div>
-            ) : (
-              (dept.users as Member[]).map((u) => (
-                <div
-                  key={u.id}
-                  className="grid grid-cols-[1fr_180px_80px] gap-3 items-center px-4 py-3 border-b border-gray-100 last:border-0"
-                >
-                  <div className="flex items-center gap-2">
-                    <Avatar name={u.fullName} size="sm" />
-                    <div>
-                      <div className="text-sm text-gray-900">{u.fullName}</div>
-                      <div className="text-xs text-gray-400">{u.email}</div>
-                    </div>
-                  </div>
-                  <div className="text-xs text-gray-500">
-                    {u.position?.name ?? '—'}
-                  </div>
-                  <div>
-                    <StatusBadge active={u.active} />
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableHeaderCell>Colaborador</TableHeaderCell>
+                <TableHeaderCell>Cargo</TableHeaderCell>
+                <TableHeaderCell>Estado</TableHeaderCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {(dept.users as Member[]).length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={3} className="py-8 text-center text-ink-faint">
+                    Sem membros neste departamento
+                  </TableCell>
+                </TableRow>
+              ) : (
+                (dept.users as Member[]).map((u) => (
+                  <TableRow key={u.id}>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <Avatar name={u.fullName} size="sm" />
+                        <div>
+                          <div className="text-sm text-ink">{u.fullName}</div>
+                          <div className="text-xs text-ink-faint">{u.email}</div>
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-xs text-ink-muted">
+                      {u.position?.name ?? '—'}
+                    </TableCell>
+                    <TableCell>
+                      <Badge intent={u.active ? 'success' : 'neutral'}>
+                        {u.active ? 'Activo' : 'Inactivo'}
+                      </Badge>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
         </div>
       )}
 
@@ -300,39 +340,40 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
       {activeTab === 'subdepts' && (
         <div className="space-y-2">
           {dept.children.length === 0 ? (
-            <div className="py-8 text-center text-sm text-gray-400 border border-dashed border-gray-200 rounded-xl">
+            <div className="rounded-card border border-dashed border-border-strong py-8 text-center text-sm text-ink-faint">
               Sem sub-departamentos
             </div>
           ) : (
             dept.children.map((child) => (
-              <div
-                key={child.id}
-                className="flex items-center gap-3 p-4 bg-white border border-gray-200 rounded-xl hover:bg-gray-50"
-              >
+              <Card key={child.id} className="flex items-center gap-3 p-4">
                 <div
-                  className="w-2.5 h-2.5 rounded-full"
-                  style={{ background: child.color ?? '#cbd5e1' }}
+                  className="h-2.5 w-2.5 rounded-full"
+                  style={{
+                    background: child.color ?? 'var(--color-ink-faint)',
+                  }}
                 />
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium text-gray-900">
+                    <span className="text-sm font-medium text-ink">
                       {child.name}
                     </span>
-                    <span className="text-xs font-mono text-gray-400">
+                    <span className="font-mono text-xs text-ink-faint">
                       {child.code}
                     </span>
-                    <StatusBadge active={child.active} />
+                    <Badge intent={child.active ? 'success' : 'neutral'}>
+                      {child.active ? 'Activo' : 'Inactivo'}
+                    </Badge>
                   </div>
                   {child.head && (
-                    <div className="text-xs text-gray-400 mt-0.5">
+                    <div className="mt-0.5 text-xs text-ink-faint">
                       {child.head.fullName}
                     </div>
                   )}
                 </div>
-                <div className="text-sm text-gray-400">
+                <div className="text-sm text-ink-faint">
                   {child._count.users} membros
                 </div>
-              </div>
+              </Card>
             ))
           )}
         </div>
@@ -342,66 +383,72 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
       {activeTab === 'metrics' && metrics && (
         <div className="space-y-4">
           <div className="grid grid-cols-4 gap-3">
-            <MetricCard label="Total membros" value={metrics.totalUsers} />
-            <MetricCard
+            <KpiCard icon={Users} label="Total membros" value={metrics.totalUsers} />
+            <KpiCard
+              icon={UserCheck}
               label="Activos"
               value={metrics.activeUsers}
-              color="text-emerald-600"
+              intent="success"
             />
-            <MetricCard label="Inactivos" value={metrics.inactiveUsers} />
-            <MetricCard
+            <KpiCard icon={UserX} label="Inactivos" value={metrics.inactiveUsers} />
+            <KpiCard
+              icon={ArrowLeftRight}
               label="Transferências ↑"
               value={metrics.transfers.in}
               sub={`↓ saídas: ${metrics.transfers.out}`}
+              intent="accent"
             />
           </div>
-          <div className="bg-white border border-gray-200 rounded-xl p-4">
-            <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">
+          <Card className="p-4">
+            <div className="mb-3 text-xs font-medium uppercase tracking-wide text-ink-faint">
               Hierarquia organizacional
             </div>
             <Breadcrumb items={metrics.breadcrumb} />
-          </div>
+          </Card>
         </div>
       )}
 
       {/* Head history tab */}
       {activeTab === 'history' && (
-        <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-          <div className="grid grid-cols-[1fr_160px_160px] gap-3 px-4 py-2.5 border-b border-gray-100 text-xs font-medium text-gray-400 uppercase tracking-wide">
-            <div>Gestor</div>
-            <div>Início</div>
-            <div>Fim</div>
-          </div>
-          {dept.headHistory.length === 0 ? (
-            <div className="px-4 py-8 text-center text-sm text-gray-400">
-              Sem histórico de gestores
-            </div>
-          ) : (
-            dept.headHistory.map((h) => (
-              <div
-                key={h.id}
-                className="grid grid-cols-[1fr_160px_160px] gap-3 items-center px-4 py-3 border-b border-gray-100 last:border-0"
-              >
-                <div className="flex items-center gap-2">
-                  <Avatar name={h.head.fullName} size="sm" />
-                  <span className="text-sm text-gray-800">
-                    {h.head.fullName}
-                  </span>
-                </div>
-                <div className="text-xs text-gray-500">
-                  {new Date(h.startedAt).toLocaleDateString('pt-AO')}
-                </div>
-                <div className="text-xs text-gray-500">
-                  {h.endedAt ? (
-                    new Date(h.endedAt).toLocaleDateString('pt-AO')
-                  ) : (
-                    <span className="text-emerald-600">Actual</span>
-                  )}
-                </div>
-              </div>
-            ))
-          )}
-        </div>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableHeaderCell>Gestor</TableHeaderCell>
+              <TableHeaderCell>Início</TableHeaderCell>
+              <TableHeaderCell>Fim</TableHeaderCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {dept.headHistory.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={3} className="py-8 text-center text-ink-faint">
+                  Sem histórico de gestores
+                </TableCell>
+              </TableRow>
+            ) : (
+              dept.headHistory.map((h) => (
+                <TableRow key={h.id}>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <Avatar name={h.head.fullName} size="sm" />
+                      <span className="text-sm text-ink">{h.head.fullName}</span>
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-xs text-ink-muted">
+                    {new Date(h.startedAt).toLocaleDateString('pt-AO')}
+                  </TableCell>
+                  <TableCell className="text-xs text-ink-muted">
+                    {h.endedAt ? (
+                      new Date(h.endedAt).toLocaleDateString('pt-AO')
+                    ) : (
+                      <span className="text-success">Actual</span>
+                    )}
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
       )}
     </div>
   );
