@@ -2,6 +2,17 @@
 // Vista "Player": reprodução/leitura do conteúdo, like/save, quiz e
 // marcação de conclusão. Extraído de
 // app/(platform)/micro-learning/page.tsx.
+//
+// Barra de progresso: o `ProgressBar` da fundação é mono-cor
+// (bg-accent) — a informação de "concluído vs. em curso" que a versão
+// original comunicava recolorindo a barra (azul/emerald) passa para a
+// cor da percentagem adjacente, mesmo padrão de
+// components/engagement/AnalyticsTab.tsx (scoreTextClass).
+//
+// Botão "Marcar como concluído": bg-success não é um intent suportado
+// por `Button` (só primary/secondary/ghost/danger) — mantém-se um
+// <button> nativo com as mesmas classes base (rounded-control, foco,
+// disabled) só trocando a cor.
 
 'use client';
 
@@ -9,6 +20,9 @@ import { useState } from 'react';
 import Image from 'next/image';
 import { apiClient } from '@/lib/apiClient';
 import { sanitizeHtml } from '@/lib/sanitize';
+import { Button } from '@/components/ui/Button';
+import { Card, CardBody } from '@/components/ui/Card';
+import { ProgressBar } from '@/components/ui/ProgressBar';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { LEVEL_CFG, TYPE_CFG } from './constants';
 import { fmtDuration } from './utils';
@@ -62,18 +76,18 @@ export function PlayerView({ item, onBack, onNext }: PlayerViewProps) {
   }
 
   return (
-    <div className="max-w-3xl mx-auto">
+    <div className="mx-auto max-w-3xl">
       <button
         onClick={onBack}
-        className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 mb-5"
+        className="mb-5 flex items-center gap-1.5 font-body text-sm text-ink-muted hover:text-ink"
       >
         ← Voltar ao feed
       </button>
 
       {/* Header */}
-      <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden mb-5">
+      <Card className="mb-5 overflow-hidden">
         {/* Thumbnail / Media */}
-        <div className="relative aspect-video bg-gray-900">
+        <div className="relative aspect-video bg-ink">
           {item.thumbnailUrl && (
             <Image
               src={item.thumbnailUrl}
@@ -89,11 +103,11 @@ export function PlayerView({ item, onBack, onNext }: PlayerViewProps) {
                 <video
                   src={item.mediaUrl}
                   controls
-                  className="w-full h-full object-contain"
+                  className="h-full w-full object-contain"
                 />
               ) : (
                 <div className="text-center">
-                  <div className="text-6xl mb-4">🎧</div>
+                  <div className="mb-4 text-6xl">🎧</div>
                   <audio
                     src={item.mediaUrl}
                     controls
@@ -110,47 +124,51 @@ export function PlayerView({ item, onBack, onNext }: PlayerViewProps) {
         </div>
 
         {/* Info */}
-        <div className="p-5">
-          <div className="flex items-start justify-between gap-4 mb-3">
+        <CardBody>
+          <div className="mb-3 flex items-start justify-between gap-4">
             <div className="flex-1">
-              <div className="flex items-center gap-2 mb-2">
+              <div className="mb-2 flex items-center gap-2">
                 <span
-                  className={`text-xs px-2 py-0.5 rounded font-medium ${typeCfg.cls}`}
+                  className={`rounded px-2 py-0.5 font-body text-xs font-medium ${typeCfg.cls}`}
                 >
                   {typeCfg.label}
                 </span>
                 <StatusBadge value={item.level} map={LEVEL_CFG} />
-                <span className="text-xs text-gray-400">
+                <span className="font-body text-xs text-ink-faint">
                   ⏱ {fmtDuration(item.durationSeconds)}
                 </span>
-                <span className="text-amber-500 text-xs font-medium">
+                <span className="font-body text-xs font-medium text-accent">
                   +{item.xpReward} XP
                 </span>
               </div>
-              <h1 className="text-lg font-bold text-gray-900">{item.title}</h1>
+              <h1 className="font-display text-lg font-bold text-ink">
+                {item.title}
+              </h1>
               {item.description && (
-                <p className="text-sm text-gray-500 mt-1">{item.description}</p>
+                <p className="mt-1 font-body text-sm text-ink-muted">
+                  {item.description}
+                </p>
               )}
             </div>
 
             {/* Acções */}
-            <div className="flex items-center gap-2 flex-shrink-0">
+            <div className="flex flex-shrink-0 items-center gap-2">
               <button
                 onClick={() => handleInteract('LIKE')}
-                className={`w-9 h-9 rounded-xl flex items-center justify-center text-sm transition-colors ${
+                className={`flex h-9 w-9 items-center justify-center rounded-control text-sm transition-colors ${
                   liked
-                    ? 'bg-red-50 text-red-500'
-                    : 'bg-gray-100 text-gray-400 hover:bg-red-50 hover:text-red-400'
+                    ? 'bg-danger-subtle text-danger-ink'
+                    : 'bg-surface-sunken text-ink-faint hover:bg-danger-subtle hover:text-danger-ink'
                 }`}
               >
                 ❤
               </button>
               <button
                 onClick={() => handleInteract('SAVE')}
-                className={`w-9 h-9 rounded-xl flex items-center justify-center text-sm transition-colors ${
+                className={`flex h-9 w-9 items-center justify-center rounded-control text-sm transition-colors ${
                   saved
-                    ? 'bg-blue-50 text-blue-600'
-                    : 'bg-gray-100 text-gray-400 hover:bg-blue-50 hover:text-blue-400'
+                    ? 'bg-info-subtle text-info-ink'
+                    : 'bg-surface-sunken text-ink-faint hover:bg-info-subtle hover:text-info-ink'
                 }`}
               >
                 🔖
@@ -160,16 +178,15 @@ export function PlayerView({ item, onBack, onNext }: PlayerViewProps) {
 
           {/* Barra de progresso */}
           <div className="mb-4">
-            <div className="flex justify-between text-xs text-gray-400 mb-1">
+            <div className="mb-1 flex justify-between font-body text-xs text-ink-faint">
               <span>Progresso</span>
-              <span>{Math.round(progress)}%</span>
+              <span
+                className={`font-data ${completed ? 'text-success' : 'text-info'}`}
+              >
+                {Math.round(progress)}%
+              </span>
             </div>
-            <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-              <div
-                className={`h-full rounded-full transition-all duration-500 ${completed ? 'bg-emerald-500' : 'bg-blue-500'}`}
-                style={{ width: `${progress}%` }}
-              />
-            </div>
+            <ProgressBar value={progress} />
           </div>
 
           {/* Tags */}
@@ -177,38 +194,40 @@ export function PlayerView({ item, onBack, onNext }: PlayerViewProps) {
             {item.tags.map((t) => (
               <span
                 key={t}
-                className="px-2 py-0.5 bg-gray-100 text-gray-500 text-xs rounded"
+                className="rounded-control bg-surface-sunken px-2 py-0.5 font-body text-xs text-ink-muted"
               >
                 #{t}
               </span>
             ))}
           </div>
-        </div>
-      </div>
+        </CardBody>
+      </Card>
 
       {/* Conteúdo de texto */}
       {item.contentType === 'TEXT' && item.textContent && (
-        <div className="bg-white border border-gray-200 rounded-2xl p-6 mb-5">
-          <div
-            className="prose prose-sm max-w-none text-gray-700 leading-relaxed"
-            dangerouslySetInnerHTML={{ __html: sanitizeHtml(item.textContent) }}
-          />
-        </div>
+        <Card className="mb-5">
+          <CardBody>
+            <div
+              className="prose prose-sm max-w-none leading-relaxed text-ink-muted"
+              dangerouslySetInnerHTML={{ __html: sanitizeHtml(item.textContent) }}
+            />
+          </CardBody>
+        </Card>
       )}
 
       {/* Takeaways */}
       {item.takeaways.length > 0 && (
-        <div className="bg-blue-50 border border-blue-200 rounded-2xl p-5 mb-5">
-          <div className="text-sm font-semibold text-blue-800 mb-3">
+        <div className="mb-5 rounded-card border border-info bg-info-subtle p-5">
+          <div className="mb-3 font-body text-sm font-semibold text-info-ink">
             💡 Pontos-chave
           </div>
           <ul className="space-y-2">
             {item.takeaways.map((t, i) => (
               <li
                 key={i}
-                className="flex items-start gap-2 text-sm text-blue-700"
+                className="flex items-start gap-2 font-body text-sm text-info-ink"
               >
-                <span className="flex-shrink-0 w-5 h-5 rounded-full bg-blue-200 text-blue-700 flex items-center justify-center text-xs font-bold">
+                <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-info text-xs font-bold text-canvas">
                   {i + 1}
                 </span>
                 {t}
@@ -220,66 +239,70 @@ export function PlayerView({ item, onBack, onNext }: PlayerViewProps) {
 
       {/* Quiz */}
       {item.contentType === 'QUIZ' && quizQs.length > 0 && !quiz.result && (
-        <div className="bg-white border border-gray-200 rounded-2xl p-5 mb-5">
-          <div className="text-sm font-semibold text-gray-900 mb-4">
-            ❓ Quiz — {quizQs.length} perguntas
-          </div>
-          {quizQs.map((q, idx) => (
-            <div
-              key={q.id}
-              className="mb-5 pb-5 border-b border-gray-100 last:border-0"
-            >
-              <div className="text-sm font-medium text-gray-800 mb-3">
-                {idx + 1}. {q.question}
-              </div>
-              <div className="space-y-2">
-                {q.options.map((opt, oi) => (
-                  <label
-                    key={oi}
-                    className={`flex items-center gap-3 p-3 border rounded-xl cursor-pointer transition-colors ${
-                      quiz.answers[idx] === oi
-                        ? 'border-blue-400 bg-blue-50'
-                        : 'border-gray-200 hover:border-gray-300'
-                    }`}
-                  >
-                    <input
-                      type="radio"
-                      name={`q-${idx}`}
-                      checked={quiz.answers[idx] === oi}
-                      onChange={() => quiz.setAnswer(idx, oi)}
-                      className="text-blue-600"
-                    />
-                    <span className="text-sm text-gray-700">{opt.text}</span>
-                  </label>
-                ))}
-              </div>
+        <Card className="mb-5">
+          <CardBody>
+            <div className="mb-4 font-display text-sm font-semibold text-ink">
+              ❓ Quiz — {quizQs.length} perguntas
             </div>
-          ))}
-          <button
-            onClick={quiz.submit}
-            disabled={quiz.answers.length < quizQs.length || quiz.submitting}
-            className="w-full py-2.5 bg-blue-700 text-white text-sm font-medium rounded-xl hover:bg-blue-800 disabled:opacity-50"
-          >
-            {quiz.submitting ? 'A corrigir…' : 'Submeter respostas'}
-          </button>
-        </div>
+            {quizQs.map((q, idx) => (
+              <div
+                key={q.id}
+                className="mb-5 border-b border-border pb-5 last:border-0"
+              >
+                <div className="mb-3 font-body text-sm font-medium text-ink">
+                  {idx + 1}. {q.question}
+                </div>
+                <div className="space-y-2">
+                  {q.options.map((opt, oi) => (
+                    <label
+                      key={oi}
+                      className={`flex items-center gap-3 rounded-control border p-3 transition-colors ${
+                        quiz.answers[idx] === oi
+                          ? 'border-info bg-info-subtle'
+                          : 'border-border hover:border-border-strong'
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name={`q-${idx}`}
+                        checked={quiz.answers[idx] === oi}
+                        onChange={() => quiz.setAnswer(idx, oi)}
+                        className="accent-primary"
+                      />
+                      <span className="font-body text-sm text-ink-muted">
+                        {opt.text}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            ))}
+            <Button
+              onClick={quiz.submit}
+              disabled={quiz.answers.length < quizQs.length || quiz.submitting}
+              className="w-full"
+            >
+              {quiz.submitting ? 'A corrigir…' : 'Submeter respostas'}
+            </Button>
+          </CardBody>
+        </Card>
       )}
 
       {/* Resultado quiz */}
       {quiz.result && (
         <div
-          className={`border rounded-2xl p-5 mb-5 ${quiz.result.score >= 60 ? 'bg-emerald-50 border-emerald-200' : 'bg-red-50 border-red-200'}`}
+          className={`mb-5 rounded-card border p-5 ${quiz.result.score >= 60 ? 'border-success bg-success-subtle' : 'border-danger bg-danger-subtle'}`}
         >
           <div
-            className={`text-center mb-4 ${quiz.result.score >= 60 ? 'text-emerald-700' : 'text-red-700'}`}
+            className={`mb-4 text-center ${quiz.result.score >= 60 ? 'text-success-ink' : 'text-danger-ink'}`}
           >
-            <div className="text-4xl font-bold font-mono">
+            <div className="font-data text-4xl font-bold">
               {quiz.result.score}%
             </div>
-            <div className="text-sm font-medium mt-1">
+            <div className="mt-1 font-body text-sm font-medium">
               {quiz.result.score >= 60 ? '🎉 Aprovado!' : '😔 Tenta novamente'}
             </div>
-            <div className="text-xs mt-0.5">
+            <div className="mt-0.5 font-body text-xs">
               {quiz.result.correct}/{quiz.result.total} correctas
             </div>
           </div>
@@ -290,14 +313,14 @@ export function PlayerView({ item, onBack, onNext }: PlayerViewProps) {
       {item.contentType !== 'QUIZ' && !completed && (
         <button
           onClick={markComplete}
-          className="w-full py-3 bg-emerald-600 text-white text-sm font-semibold rounded-2xl hover:bg-emerald-700 mb-5"
+          className="mb-5 w-full rounded-card bg-success py-3 font-body text-sm font-semibold text-canvas transition-colors hover:brightness-95"
         >
           ✅ Marcar como concluído
         </button>
       )}
 
       {completed && (
-        <div className="py-3 text-center text-emerald-700 font-semibold text-sm bg-emerald-50 rounded-2xl border border-emerald-200 mb-5">
+        <div className="mb-5 rounded-card border border-success bg-success-subtle py-3 text-center font-body text-sm font-semibold text-success-ink">
           ✓ Concluído · +{item.xpReward} XP ganho!
         </div>
       )}

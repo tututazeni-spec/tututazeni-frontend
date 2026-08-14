@@ -2,6 +2,7 @@
 'use client';
 
 import { useState } from 'react';
+import { Button } from '@/components/ui/Button';
 import { NAV, TITLES } from '@/components/micro-learning/constants';
 import { DashboardView } from '@/components/micro-learning/DashboardView';
 import { FeedView } from '@/components/micro-learning/FeedView';
@@ -17,14 +18,14 @@ export default function MicroLearningPage() {
   const handleBack = () => setNav({ view: 'feed' });
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-8">
+    <div className="mx-auto max-w-5xl px-4 py-8">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-semibold text-gray-900">
+          <h1 className="font-display text-xl font-semibold text-ink">
             {TITLES[nav.view]}
           </h1>
-          <p className="text-sm text-gray-400 mt-0.5">
+          <p className="mt-0.5 font-body text-sm text-ink-faint">
             INNOVA — Aprendizagem rápida
           </p>
         </div>
@@ -32,19 +33,16 @@ export default function MicroLearningPage() {
 
       {/* Tabs */}
       {nav.view !== 'player' && (
-        <div className="flex gap-1 mb-6 bg-gray-100 p-1 rounded-xl w-fit">
+        <div className="mb-6 flex w-fit gap-1 rounded-control bg-surface-sunken p-1">
           {NAV.map((n) => (
-            <button
+            <Button
               key={n.id}
+              size="sm"
+              intent={nav.view === n.id ? 'primary' : 'ghost'}
               onClick={() => setNav({ view: n.id })}
-              className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-                nav.view === n.id
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-500 hover:text-gray-700'
-              }`}
             >
               {n.label}
-            </button>
+            </Button>
           ))}
         </div>
       )}
