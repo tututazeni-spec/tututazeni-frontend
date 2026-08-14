@@ -8,7 +8,9 @@
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { Avatar, Skeleton } from './atoms';
+import { Avatar } from '@/components/ui/Avatar';
+import { ProgressBar } from '@/components/ui/ProgressBar';
+import { Skeleton } from '@/components/ui/Skeleton';
 import type { TeamProgress } from './types';
 
 export function TeamView() {
@@ -18,22 +20,29 @@ export function TeamView() {
     { staleTime: STALE_TIME.DYNAMIC },
   );
 
-  if (isLoading || !data) return <Skeleton rows={4} />;
+  if (isLoading || !data)
+    return (
+      <Skeleton
+        rows={4}
+        wrapperClassName="space-y-2 animate-pulse"
+        itemClassName="h-16 rounded-card bg-surface-sunken"
+      />
+    );
 
   if (data.team.length === 0)
     return (
-      <div className="py-12 text-center text-sm text-gray-400 border border-dashed border-gray-200 rounded-xl">
+      <div className="rounded-card border border-dashed border-border py-12 text-center text-sm text-ink-faint">
         Sem subordinados directos
       </div>
     );
 
   return (
     <div>
-      <div className="text-xs text-gray-400 mb-4">
+      <div className="mb-4 text-xs text-ink-faint">
         {data.total} membros na equipa
       </div>
-      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-        <div className="grid grid-cols-[1fr_80px_80px_80px_100px] gap-3 px-4 py-2.5 border-b border-gray-100 text-xs font-medium text-gray-400 uppercase tracking-wide">
+      <div className="overflow-hidden rounded-card border border-border">
+        <div className="grid grid-cols-[1fr_80px_80px_80px_100px] gap-3 border-b border-border px-4 py-2.5 text-xs font-medium uppercase tracking-wide text-ink-faint">
           <div>Colaborador</div>
           <div>Total</div>
           <div>Concluídos</div>
@@ -48,37 +57,34 @@ export function TeamView() {
           return (
             <div
               key={member.id}
-              className="grid grid-cols-[1fr_80px_80px_80px_100px] gap-3 items-center px-4 py-3 border-b border-gray-100 last:border-0"
+              className="grid grid-cols-[1fr_80px_80px_80px_100px] items-center gap-3 border-b border-border px-4 py-3 last:border-0"
             >
               <div className="flex items-center gap-3">
-                <Avatar user={member} />
+                <Avatar name={member.fullName} url={member.avatarUrl ?? undefined} size="sm" />
                 <div>
-                  <div className="text-sm font-medium text-gray-900">
+                  <div className="text-sm font-medium text-ink">
                     {member.fullName}
                   </div>
-                  <div className="text-xs text-gray-400">{member.email}</div>
+                  <div className="text-xs text-ink-faint">{member.email}</div>
                 </div>
               </div>
-              <div className="text-sm font-mono text-gray-500">
+              <div className="font-mono text-sm text-ink-muted">
                 {member.stats.total}
               </div>
-              <div className="text-sm font-mono text-emerald-600">
+              <div className="font-mono text-sm text-success-ink">
                 {member.stats.completed}
               </div>
               <div
-                className={`text-sm font-mono ${member.stats.overdue > 0 ? 'text-red-600 font-semibold' : 'text-gray-400'}`}
+                className={`font-mono text-sm ${member.stats.overdue > 0 ? 'font-semibold text-danger-ink' : 'text-ink-faint'}`}
               >
                 {member.stats.overdue}
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                    <div
-                      className={`h-1.5 rounded-full ${compliance >= 80 ? 'bg-emerald-500' : compliance >= 50 ? 'bg-amber-500' : 'bg-red-500'}`}
-                      style={{ width: `${compliance}%` }}
-                    />
+                  <div className="flex-1">
+                    <ProgressBar value={compliance} />
                   </div>
-                  <span className="text-xs font-mono text-gray-500 w-8">
+                  <span className="w-8 font-mono text-xs text-ink-muted">
                     {compliance}%
                   </span>
                 </div>
