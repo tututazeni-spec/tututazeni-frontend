@@ -1,26 +1,54 @@
 // components/learning-paths/LPDetailView.tsx
 // Separador "Detalhe da Trilha" — header, roadmap (stepper) e info.
 // Dados próprios (path + progress) + apresentação. Extraído de
-// app/(platform)/learning-paths/page.tsx.
+// app/(platform)/learning-paths/page.tsx. Migrado para a fundação de
+// design: header/CTA passam a Card + Button, badges a StatusBadge/Badge,
+// progresso a ProgressBar, tabs internas ao mesmo padrão pill do
+// container (bg-surface-sunken). StepStatusIcon (só usado aqui) deixa de
+// viver em atoms.tsx e passa a helper local — último consumidor do
+// ficheiro, eliminado nesta migração.
 
 'use client';
 
 import { useState } from 'react';
 import Image from 'next/image';
+import { CheckCircle2, Circle, Lock, PlayCircle } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { formatDate as fmtDate } from '@/lib/format';
+import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { ProgressBar } from '@/components/ui/ProgressBar';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
-import { Skeleton, StepStatusIcon, TypeBadge } from './atoms';
-import { LP_LEVEL_MAP, LP_STATUS_MAP } from './constants';
+import { LP_LEVEL_MAP, LP_STATUS_MAP, LP_TYPE_MAP } from './constants';
 import { fmtHours, isOverdue } from './utils';
-import type { LearningPath, LPProgress } from './types';
+import type { LearningPath, LPProgress, StepStatus } from './types';
 
 interface LPDetailViewProps {
   pathId: number;
   onBack: () => void;
+}
+
+function StepStatusIcon({
+  status,
+  locked,
+}: {
+  status: StepStatus;
+  locked: boolean;
+}) {
+  if (locked)
+    return <Lock size={18} strokeWidth={1.75} className="text-ink-faint" />;
+  if (status === 'COMPLETED')
+    return (
+      <CheckCircle2 size={18} strokeWidth={1.75} className="text-success" />
+    );
+  if (status === 'IN_PROGRESS')
+    return <PlayCircle size={18} strokeWidth={1.75} className="text-info" />;
+  return <Circle size={18} strokeWidth={1.75} className="text-ink-faint" />;
 }
 
 export function LPDetailView({ pathId, onBack }: LPDetailViewProps) {
@@ -56,9 +84,11 @@ export function LPDetailView({ pathId, onBack }: LPDetailViewProps) {
 
   if (loading || !path)
     return (
-      <div>
-        <Skeleton rows={5} />
-      </div>
+      <Skeleton
+        rows={5}
+        wrapperClassName="space-y-3"
+        itemClassName="skeleton-shimmer h-16 rounded-card"
+      />
     );
 
   const isEnrolled = !!progress?.enrollment;
@@ -71,16 +101,13 @@ export function LPDetailView({ pathId, onBack }: LPDetailViewProps) {
 
   return (
     <div>
-      <button
-        onClick={onBack}
-        className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-800 mb-5"
-      >
+      <Button intent="ghost" size="sm" onClick={onBack} className="mb-5">
         ← Voltar ao catálogo
-      </button>
+      </Button>
 
       {/* Header */}
-      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden mb-5">
-        <div className="h-36 bg-gradient-to-br from-blue-700 to-blue-900 relative">
+      <Card className="mb-5 overflow-hidden">
+        <div className="relative h-36 overflow-hidden bg-gradient-to-br from-primary to-primary-active">
           {path.thumbnailUrl && (
             <Image
               src={path.thumbnailUrl}
@@ -90,34 +117,30 @@ export function LPDetailView({ pathId, onBack }: LPDetailViewProps) {
             />
           )}
           <div className="absolute inset-0 flex items-end p-5">
-            <div className="flex items-center gap-2 flex-wrap">
-              <TypeBadge type={path.pathType} />
+            <div className="flex flex-wrap items-center gap-2">
+              <StatusBadge value={path.pathType} map={LP_TYPE_MAP} />
               <StatusBadge value={path.level} map={LP_LEVEL_MAP} />
               <StatusBadge
                 value={path.status}
                 map={LP_STATUS_MAP}
                 variant="dot"
               />
-              {path.mandatory && (
-                <span className="bg-red-600 text-white text-xs font-medium px-2 py-0.5 rounded">
-                  Obrigatório
-                </span>
-              )}
+              {path.mandatory && <Badge intent="danger">Obrigatório</Badge>}
             </div>
           </div>
         </div>
         <div className="p-5">
           <div className="flex items-start justify-between gap-4">
             <div className="flex-1">
-              <h1 className="text-xl font-semibold text-gray-900 mb-2">
+              <h1 className="mb-2 font-display text-xl font-semibold text-ink">
                 {path.title}
               </h1>
               {path.shortDescription && (
-                <p className="text-sm text-gray-500 mb-3">
+                <p className="mb-3 font-body text-sm text-ink-muted">
                   {path.shortDescription}
                 </p>
               )}
-              <div className="flex flex-wrap gap-4 text-xs text-gray-400">
+              <div className="flex flex-wrap gap-4 font-body text-xs text-ink-faint">
                 <span>📚 {path._count.courses} cursos</span>
                 {path.totalHours > 0 && (
                   <span>⏱ {fmtHours(path.totalHours)}</span>
@@ -125,18 +148,18 @@ export function LPDetailView({ pathId, onBack }: LPDetailViewProps) {
                 <span>👥 {path._count.enrollments} inscritos</span>
                 {path.deadline && (
                   <span
-                    className={`font-medium ${isOverdue(path.deadline) ? 'text-red-600' : ''}`}
+                    className={`font-medium ${isOverdue(path.deadline) ? 'text-danger' : ''}`}
                   >
                     Prazo: {fmtDate(path.deadline)}
                   </span>
                 )}
               </div>
               {path.tags.length > 0 && (
-                <div className="flex gap-1.5 mt-3 flex-wrap">
+                <div className="mt-3 flex flex-wrap gap-1.5">
                   {path.tags.map((t) => (
                     <span
                       key={t}
-                      className="px-2 py-0.5 bg-blue-50 text-blue-600 text-xs rounded"
+                      className="rounded bg-info-subtle px-2 py-0.5 font-body text-xs text-info-ink"
                     >
                       {t}
                     </span>
@@ -148,33 +171,24 @@ export function LPDetailView({ pathId, onBack }: LPDetailViewProps) {
             {/* CTA */}
             <div className="flex-shrink-0 text-center">
               {!isEnrolled && path.status === 'PUBLISHED' && (
-                <button
-                  onClick={handleEnroll}
-                  disabled={enrolling}
-                  className="px-5 py-2.5 bg-blue-700 text-white text-sm font-semibold rounded-lg hover:bg-blue-800 disabled:opacity-50"
-                >
+                <Button onClick={handleEnroll} loading={enrolling}>
                   {enrolling ? 'A inscrever…' : '🚀 Iniciar trilha'}
-                </button>
+                </Button>
               )}
               {isEnrolled && (
                 <div>
-                  <div className="text-2xl font-bold font-mono text-blue-700 mb-1">
+                  <div className="mb-1 font-display text-2xl font-bold text-primary">
                     {pct}%
                   </div>
-                  <div className="w-24 h-2 bg-gray-100 rounded-full overflow-hidden mx-auto">
-                    <div
-                      className="h-2 bg-blue-600 rounded-full"
-                      style={{ width: `${pct}%` }}
-                    />
-                  </div>
-                  <div className="text-xs text-gray-400 mt-1">
+                  <ProgressBar value={pct} className="mx-auto w-24" />
+                  <div className="mt-1 font-body text-xs text-ink-faint">
                     {progress?.completedRequired}/{progress?.totalRequired}{' '}
                     obrigatórios
                   </div>
                   {nextStep && (
                     <a
                       href={`/courses/${nextStep.courseId}`}
-                      className="mt-2 block text-xs text-blue-600 hover:underline"
+                      className="mt-2 block font-body text-xs text-primary hover:underline"
                     >
                       Continuar →
                     </a>
@@ -184,18 +198,18 @@ export function LPDetailView({ pathId, onBack }: LPDetailViewProps) {
             </div>
           </div>
         </div>
-      </div>
+      </Card>
 
       {/* Tabs */}
-      <div className="flex gap-1 mb-5 bg-gray-100 p-1 rounded-xl w-fit">
+      <div className="mb-5 flex w-fit gap-1 rounded-xl bg-surface-sunken p-1">
         {(['roadmap', 'info'] as const).map((t) => (
           <button
             key={t}
             onClick={() => setTab(t)}
-            className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+            className={`rounded-lg px-4 py-2 font-body text-sm font-medium transition-colors ${
               tab === t
-                ? 'bg-white text-gray-900 shadow-sm'
-                : 'text-gray-500 hover:text-gray-700'
+                ? 'bg-surface text-ink shadow-resting'
+                : 'text-ink-muted hover:text-ink'
             }`}
           >
             {{ roadmap: 'Roadmap da trilha', info: 'Detalhes' }[t]}
@@ -213,7 +227,7 @@ export function LPDetailView({ pathId, onBack }: LPDetailViewProps) {
               courseId: lpc.courseId,
               required: lpc.required,
               course: lpc.course,
-              status: 'NOT_ENROLLED',
+              status: 'NOT_ENROLLED' as StepStatus,
               locked: idx > 0,
               completedAt: null,
               progress: 0,
@@ -223,45 +237,43 @@ export function LPDetailView({ pathId, onBack }: LPDetailViewProps) {
           ).map((step, idx, arr) => (
             <div key={step.courseId} className="flex gap-4">
               {/* Connector line */}
-              <div className="flex flex-col items-center flex-shrink-0 pt-1">
+              <div className="flex flex-shrink-0 flex-col items-center pt-1">
                 <div
-                  className={`w-9 h-9 rounded-full flex items-center justify-center border-2 flex-shrink-0 ${
+                  className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full border-2 ${
                     step.status === 'COMPLETED'
-                      ? 'bg-emerald-100 border-emerald-400'
+                      ? 'border-success bg-success-subtle'
                       : step.status === 'IN_PROGRESS'
-                        ? 'bg-blue-100 border-blue-500'
+                        ? 'border-info bg-info-subtle'
                         : step.locked
-                          ? 'bg-gray-50 border-gray-200'
-                          : 'bg-white border-gray-300'
+                          ? 'border-border bg-surface-sunken'
+                          : 'border-border-strong bg-surface'
                   }`}
                 >
                   <StepStatusIcon status={step.status} locked={step.locked} />
                 </div>
                 {idx < arr.length - 1 && (
                   <div
-                    className={`w-0.5 flex-1 min-h-[24px] mt-1 ${
-                      step.status === 'COMPLETED'
-                        ? 'bg-emerald-300'
-                        : 'bg-gray-200'
+                    className={`mt-1 min-h-[24px] w-0.5 flex-1 ${
+                      step.status === 'COMPLETED' ? 'bg-success' : 'bg-border'
                     }`}
                   />
                 )}
               </div>
 
               {/* Step card */}
-              <div className={`flex-1 mb-3 ${step.locked ? 'opacity-50' : ''}`}>
-                <div
-                  className={`bg-white border rounded-xl overflow-hidden transition-all ${
+              <div className={`mb-3 flex-1 ${step.locked ? 'opacity-50' : ''}`}>
+                <Card
+                  className={`overflow-hidden transition-all ${
                     step.status === 'IN_PROGRESS'
-                      ? 'border-blue-300 shadow-sm'
+                      ? 'border-info shadow-resting'
                       : step.status === 'COMPLETED'
-                        ? 'border-emerald-200'
-                        : 'border-gray-200'
+                        ? 'border-success'
+                        : ''
                   }`}
                 >
                   <div className="flex items-center gap-4 p-4">
                     {/* Thumbnail */}
-                    <div className="w-16 h-12 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0 relative">
+                    <div className="relative h-12 w-16 flex-shrink-0 overflow-hidden rounded-control bg-surface-sunken">
                       {step.course?.thumbnailUrl ? (
                         <Image
                           src={step.course.thumbnailUrl}
@@ -270,32 +282,32 @@ export function LPDetailView({ pathId, onBack }: LPDetailViewProps) {
                           className="object-cover"
                         />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center text-xl text-gray-300">
+                        <div className="flex h-full w-full items-center justify-center text-xl text-ink-faint">
                           📚
                         </div>
                       )}
                     </div>
 
                     <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-0.5">
-                        <span className="text-xs text-gray-400 font-mono">
+                      <div className="mb-0.5 flex items-center gap-2">
+                        <span className="font-mono text-xs text-ink-faint">
                           Etapa {step.seq + 1}
                         </span>
                         {!step.required && (
-                          <span className="text-xs bg-blue-50 text-blue-600 px-1.5 rounded">
+                          <span className="rounded bg-info-subtle px-1.5 font-body text-xs text-info-ink">
                             Opcional
                           </span>
                         )}
                         {step.locked && (
-                          <span className="text-xs text-gray-400">
-                            🔒 Bloqueado
+                          <span className="flex items-center gap-1 font-body text-xs text-ink-faint">
+                            <Lock size={12} strokeWidth={1.75} /> Bloqueado
                           </span>
                         )}
                       </div>
-                      <div className="text-sm font-medium text-gray-900">
+                      <div className="font-body text-sm font-medium text-ink">
                         {step.course?.title}
                       </div>
-                      <div className="flex items-center gap-3 text-xs text-gray-400 mt-0.5">
+                      <div className="mt-0.5 flex items-center gap-3 font-body text-xs text-ink-faint">
                         {step.course?.category && (
                           <span>{step.course.category}</span>
                         )}
@@ -303,7 +315,7 @@ export function LPDetailView({ pathId, onBack }: LPDetailViewProps) {
                           <span>⏱ {fmtHours(step.course.workloadHours)}</span>
                         )}
                         {step.completedAt && (
-                          <span className="text-emerald-600">
+                          <span className="text-success">
                             ✓ {fmtDate(step.completedAt)}
                           </span>
                         )}
@@ -316,10 +328,10 @@ export function LPDetailView({ pathId, onBack }: LPDetailViewProps) {
                       isEnrolled && (
                         <a
                           href={`/courses/${step.courseId}`}
-                          className={`px-3 py-1.5 text-xs font-medium rounded-lg flex-shrink-0 ${
+                          className={`flex-shrink-0 rounded-lg px-3 py-1.5 font-body text-xs font-medium ${
                             step.status === 'IN_PROGRESS'
-                              ? 'bg-blue-600 text-white hover:bg-blue-700'
-                              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                              ? 'bg-primary text-canvas hover:bg-primary-hover'
+                              : 'bg-surface-sunken text-ink hover:bg-border'
                           }`}
                         >
                           {step.status === 'IN_PROGRESS'
@@ -328,7 +340,7 @@ export function LPDetailView({ pathId, onBack }: LPDetailViewProps) {
                         </a>
                       )}
                   </div>
-                </div>
+                </Card>
               </div>
             </div>
           ))}
@@ -338,25 +350,29 @@ export function LPDetailView({ pathId, onBack }: LPDetailViewProps) {
       {/* Info tab */}
       {tab === 'info' && (
         <div className="grid grid-cols-2 gap-5">
-          <div className="bg-white border border-gray-200 rounded-xl p-5">
-            <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">
+          <Card className="p-5">
+            <div className="mb-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
               Sobre a trilha
             </div>
             {path.objective && (
               <div className="mb-3">
-                <div className="text-xs text-gray-400 mb-1">Objectivo</div>
-                <p className="text-sm text-gray-700">{path.objective}</p>
+                <div className="mb-1 font-body text-xs text-ink-faint">
+                  Objectivo
+                </div>
+                <p className="font-body text-sm text-ink">{path.objective}</p>
               </div>
             )}
             {path.description && (
               <div>
-                <div className="text-xs text-gray-400 mb-1">Descrição</div>
-                <p className="text-sm text-gray-700">{path.description}</p>
+                <div className="mb-1 font-body text-xs text-ink-faint">
+                  Descrição
+                </div>
+                <p className="font-body text-sm text-ink">{path.description}</p>
               </div>
             )}
-          </div>
-          <div className="bg-white border border-gray-200 rounded-xl p-5">
-            <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">
+          </Card>
+          <Card className="p-5">
+            <div className="mb-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
               Detalhes
             </div>
             {[
@@ -370,13 +386,15 @@ export function LPDetailView({ pathId, onBack }: LPDetailViewProps) {
             ].map(([l, v]) => (
               <div
                 key={l}
-                className="flex justify-between py-1.5 border-b border-gray-100 last:border-0"
+                className="flex justify-between border-b border-border py-1.5 last:border-0"
               >
-                <span className="text-xs text-gray-500">{l}</span>
-                <span className="text-xs font-medium text-gray-900">{v}</span>
+                <span className="font-body text-xs text-ink-muted">{l}</span>
+                <span className="font-body text-xs font-medium text-ink">
+                  {v}
+                </span>
               </div>
             ))}
-          </div>
+          </Card>
         </div>
       )}
     </div>

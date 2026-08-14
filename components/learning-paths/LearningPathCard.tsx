@@ -1,13 +1,17 @@
 // components/learning-paths/LearningPathCard.tsx
 // Cartão de trilha no catálogo. Extraído de
-// app/(platform)/learning-paths/page.tsx.
+// app/(platform)/learning-paths/page.tsx. Migrado para a fundação de
+// design: wrapper clicável passa a Card (sem a prop `interactive` — bug
+// conhecido, mesmo padrão de components/trainings/TrainingCard.tsx);
+// TypeBadge/nível passam a StatusBadge; badge "Obrigatório" passa a Badge.
 
 'use client';
 
 import Image from 'next/image';
+import { Badge } from '@/components/ui/Badge';
+import { Card } from '@/components/ui/Card';
 import { StatusBadge } from '@/components/ui/StatusBadge';
-import { TypeBadge } from './atoms';
-import { LP_LEVEL_MAP } from './constants';
+import { LP_LEVEL_MAP, LP_TYPE_MAP } from './constants';
 import { fmtHours } from './utils';
 import type { LearningPath } from './types';
 
@@ -25,45 +29,45 @@ export function LearningPathCard({
   progress,
 }: LearningPathCardProps) {
   return (
-    <div
-      className="bg-white border border-gray-200 rounded-xl overflow-hidden cursor-pointer hover:shadow-md hover:border-blue-300 transition-all"
-      onClick={onClick}
+    <Card
       role="button"
       tabIndex={0}
+      onClick={onClick}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
           onClick();
         }
       }}
+      className="group cursor-pointer overflow-hidden transition-shadow hover:shadow-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
     >
       {/* Thumbnail */}
-      <div className="aspect-video bg-gradient-to-br from-blue-600 to-blue-900 relative overflow-hidden">
+      <div className="relative aspect-video overflow-hidden bg-gradient-to-br from-primary to-primary-active">
         {path.thumbnailUrl ? (
           <Image
             src={path.thumbnailUrl}
             alt={path.title}
             fill
-            className="object-cover opacity-80"
+            className="object-cover opacity-80 transition-transform group-hover:scale-105"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-5xl">
+          <div className="flex h-full w-full items-center justify-center text-5xl">
             🗺️
           </div>
         )}
-        <div className="absolute top-2 left-2 flex gap-1">
-          <TypeBadge type={path.pathType} />
+        <div className="absolute left-2 top-2 flex gap-1">
+          <StatusBadge value={path.pathType} map={LP_TYPE_MAP} />
         </div>
         {path.mandatory && (
-          <span className="absolute top-2 right-2 bg-red-600 text-white text-xs font-medium px-2 py-0.5 rounded">
+          <Badge intent="danger" className="absolute right-2 top-2">
             Obrigatório
-          </span>
+          </Badge>
         )}
         {progress !== undefined && progress > 0 && (
           <div className="absolute bottom-0 left-0 right-0">
-            <div className="h-1.5 bg-black/20">
+            <div className="h-1.5 bg-ink/20">
               <div
-                className="h-1.5 bg-white"
+                className="h-1.5 bg-surface"
                 style={{ width: `${progress}%` }}
               />
             </div>
@@ -73,36 +77,36 @@ export function LearningPathCard({
 
       <div className="p-4">
         {path.category && (
-          <div className="text-xs text-blue-600 font-medium mb-1">
+          <div className="mb-1 font-body text-xs font-medium text-primary">
             {path.category}
           </div>
         )}
-        <div className="text-sm font-semibold text-gray-900 mb-1 line-clamp-2">
+        <div className="mb-1 line-clamp-2 font-body text-sm font-semibold text-ink">
           {path.title}
         </div>
         {path.shortDescription && (
-          <div className="text-xs text-gray-500 mb-2 line-clamp-2">
+          <div className="mb-2 line-clamp-2 font-body text-xs text-ink-muted">
             {path.shortDescription}
           </div>
         )}
-        <div className="flex items-center gap-3 text-xs text-gray-400 mb-2">
+        <div className="mb-2 flex items-center gap-3 font-body text-xs text-ink-faint">
           <span>📚 {path._count.courses} cursos</span>
           {path.totalHours > 0 && <span>⏱ {fmtHours(path.totalHours)}</span>}
           <StatusBadge value={path.level} map={LP_LEVEL_MAP} />
         </div>
         <div className="flex items-center justify-between">
-          <span className="text-xs text-gray-400">
+          <span className="font-body text-xs text-ink-faint">
             👥 {path._count.enrollments} inscritos
           </span>
           {enrolled && progress !== undefined && (
             <span
-              className={`text-xs font-medium ${progress >= 100 ? 'text-emerald-600' : 'text-blue-600'}`}
+              className={`font-body text-xs font-medium ${progress >= 100 ? 'text-success' : 'text-info'}`}
             >
               {progress >= 100 ? '✓ Concluído' : `${progress}%`}
             </span>
           )}
         </div>
       </div>
-    </div>
+    </Card>
   );
 }
