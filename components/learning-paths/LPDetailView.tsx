@@ -40,9 +40,12 @@ function StepStatusIcon({
   status: StepStatus;
   locked: boolean;
 }) {
-  if (locked) return <Lock size={18} strokeWidth={1.75} className="text-ink-faint" />;
+  if (locked)
+    return <Lock size={18} strokeWidth={1.75} className="text-ink-faint" />;
   if (status === 'COMPLETED')
-    return <CheckCircle2 size={18} strokeWidth={1.75} className="text-success" />;
+    return (
+      <CheckCircle2 size={18} strokeWidth={1.75} className="text-success" />
+    );
   if (status === 'IN_PROGRESS')
     return <PlayCircle size={18} strokeWidth={1.75} className="text-info" />;
   return <Circle size={18} strokeWidth={1.75} className="text-ink-faint" />;
@@ -117,7 +120,11 @@ export function LPDetailView({ pathId, onBack }: LPDetailViewProps) {
             <div className="flex flex-wrap items-center gap-2">
               <StatusBadge value={path.pathType} map={LP_TYPE_MAP} />
               <StatusBadge value={path.level} map={LP_LEVEL_MAP} />
-              <StatusBadge value={path.status} map={LP_STATUS_MAP} variant="dot" />
+              <StatusBadge
+                value={path.status}
+                map={LP_STATUS_MAP}
+                variant="dot"
+              />
               {path.mandatory && <Badge intent="danger">Obrigatório</Badge>}
             </div>
           </div>
@@ -247,9 +254,7 @@ export function LPDetailView({ pathId, onBack }: LPDetailViewProps) {
                 {idx < arr.length - 1 && (
                   <div
                     className={`mt-1 min-h-[24px] w-0.5 flex-1 ${
-                      step.status === 'COMPLETED'
-                        ? 'bg-success'
-                        : 'bg-border'
+                      step.status === 'COMPLETED' ? 'bg-success' : 'bg-border'
                     }`}
                   />
                 )}
@@ -362,9 +367,7 @@ export function LPDetailView({ pathId, onBack }: LPDetailViewProps) {
                 <div className="mb-1 font-body text-xs text-ink-faint">
                   Descrição
                 </div>
-                <p className="font-body text-sm text-ink">
-                  {path.description}
-                </p>
+                <p className="font-body text-sm text-ink">{path.description}</p>
               </div>
             )}
           </Card>
