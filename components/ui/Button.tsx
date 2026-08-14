@@ -20,6 +20,8 @@ export const buttonVariants = cva(
           'border-[1.5px] border-primary bg-surface text-primary hover:bg-primary-subtle',
         ghost: 'bg-transparent text-ink-muted hover:bg-surface-sunken hover:text-ink',
         danger: 'bg-danger text-white hover:brightness-95 active:brightness-90',
+        success: 'bg-success text-white hover:brightness-95 active:brightness-90',
+        warning: 'bg-warning text-white hover:brightness-95 active:brightness-90',
       },
       size: {
         sm: 'rounded-control px-3 py-1.5 text-xs',

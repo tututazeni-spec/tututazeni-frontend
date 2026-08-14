@@ -123,20 +123,20 @@ export function DetailView({ reportId, onBack }: DetailViewProps) {
           <div className="flex flex-shrink-0 gap-2">
             {report.status === 'DRAFT' && (
               <Button
+                intent="warning"
                 size="sm"
                 onClick={() => handleWorkflow('submit')}
                 disabled={submitting}
-                className="bg-warning hover:brightness-95 active:brightness-90"
               >
                 Submeter para revisão →
               </Button>
             )}
             {report.status === 'APPROVED' && (
               <Button
+                intent="success"
                 size="sm"
                 onClick={() => handleWorkflow('publish')}
                 disabled={submitting}
-                className="bg-success hover:brightness-95 active:brightness-90"
               >
                 Publicar ✓
               </Button>
