@@ -9,8 +9,19 @@ import { useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { Avatar, ProgressBar, Skeleton } from './atoms';
+import { Avatar } from '@/components/ui/Avatar';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { ProgressBar } from '@/components/ui/ProgressBar';
+import { Skeleton } from '@/components/ui/Skeleton';
 import type { TeamPlanEntry } from './types';
+
+function progressTextClass(progress: number): string {
+  if (progress >= 75) return 'text-success';
+  if (progress >= 40) return 'text-warning';
+  return 'text-danger';
+}
 
 export function PlansTab() {
   const { data = [], isLoading: loading } = useApiQuery<TeamPlanEntry[]>(
@@ -19,58 +30,58 @@ export function PlansTab() {
     { staleTime: STALE_TIME.DYNAMIC },
   );
 
-  if (loading) return <Skeleton />;
+  if (loading)
+    return (
+      <Skeleton
+        rows={4}
+        wrapperClassName="space-y-3"
+        itemClassName="skeleton-shimmer h-20 rounded-card"
+      />
+    );
 
   return (
     <div className="space-y-3">
       {data.map((p, i) => (
-        <div
-          key={i}
-          className="bg-white rounded-xl border border-slate-100 p-4 flex items-center gap-4"
-        >
+        <Card key={i} className="flex items-center gap-4 p-4">
           <Avatar name={p.user?.fullName ?? '?'} url={p.user?.avatarUrl} />
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-0.5">
-              <p className="text-sm font-semibold text-slate-800 truncate">
+          <div className="min-w-0 flex-1">
+            <div className="mb-0.5 flex items-center gap-2">
+              <p className="truncate font-body text-sm font-semibold text-ink">
                 {p.user?.fullName}
               </p>
-              <span className="text-base shrink-0">{p.health}</span>
+              <span className="shrink-0 text-base">{p.health}</span>
             </div>
-            <p className="text-xs text-slate-500 truncate">{p.name}</p>
-            <div className="flex justify-between text-[10px] mt-1 mb-0.5">
-              <span className="text-slate-400">
+            <p className="truncate font-body text-xs text-ink-muted">{p.name}</p>
+            <div className="mb-0.5 mt-1 flex justify-between font-body text-[10px]">
+              <span className="text-ink-faint">
                 {p.actCompleted}/{p.totalActions} acções
               </span>
-              <span className="font-bold text-slate-600">{p.progress}%</span>
+              <span className={`font-bold ${progressTextClass(p.progress)}`}>
+                {p.progress}%
+              </span>
             </div>
-            <ProgressBar
-              value={p.progress}
-              color={
-                p.progress >= 75
-                  ? 'bg-emerald-500'
-                  : p.progress >= 40
-                    ? 'bg-amber-400'
-                    : 'bg-red-400'
-              }
-            />
+            <ProgressBar value={p.progress} />
           </div>
-          <button
+          <Button
+            size="sm"
+            intent="secondary"
+            className="shrink-0"
             onClick={() => {
               void apiClient
                 .patch(`/leaders/plans/${p.id}/approve`, {})
                 .catch(() => {});
             }}
-            className="shrink-0 text-xs px-3 py-1.5 border border-indigo-200 text-indigo-700 rounded-lg hover:bg-indigo-50"
           >
             Aprovar
-          </button>
-        </div>
+          </Button>
+        </Card>
       ))}
       {data.length === 0 && (
-        <div className="py-12 text-center text-slate-400 bg-white rounded-xl border border-slate-100">
-          <Target size={36} className="mx-auto mb-2 opacity-30" />
-          <p className="text-sm">Sem PDIs activos na equipa</p>
-        </div>
+        <EmptyState
+          icon={Target}
+          title="Sem PDIs activos"
+          description="A equipa não tem planos de desenvolvimento activos de momento."
+        />
       )}
     </div>
   );
