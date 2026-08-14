@@ -6,13 +6,19 @@
 'use client';
 
 import { useState } from 'react';
+import { ArrowLeft, Lock } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { formatDate as fmtDate } from '@/lib/format';
+import { cn } from '@/lib/cn';
+import { Avatar } from '@/components/ui/Avatar';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
-import { Avatar, Skeleton } from './atoms';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
 import { STATUS_CFG, TYPE_CFG } from './constants';
 import { KpiCard } from './KpiCard';
 import type { Report } from './types';
@@ -21,6 +27,12 @@ interface DetailViewProps {
   reportId: number;
   onBack: () => void;
 }
+
+const NARRATIVE_BLOCKS = [
+  { key: 'achievements', label: '🏆 Conquistas do período', cls: 'bg-success-subtle border-success/30' },
+  { key: 'risks', label: '⚠️ Riscos identificados', cls: 'bg-danger-subtle border-danger/30' },
+  { key: 'recommendations', label: '💡 Recomendações', cls: 'bg-info-subtle border-info/30' },
+] as const;
 
 export function DetailView({ reportId, onBack }: DetailViewProps) {
   const [activeTab, setActiveTab] = useState<'kpis' | 'narrative' | 'actions'>(
@@ -47,7 +59,14 @@ export function DetailView({ reportId, onBack }: DetailViewProps) {
   const submitting = workflowMutation.isPending;
   const handleWorkflow = (action: string) => workflowMutation.mutate(action);
 
-  if (loading || !report) return <Skeleton rows={6} />;
+  if (loading || !report)
+    return (
+      <Skeleton
+        rows={6}
+        wrapperClassName="space-y-3"
+        itemClassName="skeleton-shimmer h-16 rounded-card"
+      />
+    );
 
   const typeCfg = TYPE_CFG[report.type];
   const greenKpis = report.metrics.filter((m) => m.status === 'GREEN').length;
@@ -56,33 +75,39 @@ export function DetailView({ reportId, onBack }: DetailViewProps) {
 
   return (
     <div>
-      <button
-        onClick={onBack}
-        className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-800 mb-5"
-      >
-        ← Voltar
-      </button>
+      <Button intent="ghost" size="sm" onClick={onBack} className="mb-5">
+        <ArrowLeft size={14} strokeWidth={1.75} />
+        Voltar
+      </Button>
 
       {/* Header */}
-      <div className="bg-white border border-gray-200 rounded-xl p-6 mb-5">
-        <div className="flex items-start justify-between gap-4 mb-4">
+      <Card className="mb-5 p-6">
+        <div className="mb-4 flex items-start justify-between gap-4">
           <div className="flex-1">
-            <div className="flex items-center gap-2 flex-wrap mb-2">
+            <div className="mb-2 flex flex-wrap items-center gap-2">
               <span
-                className={`text-xs px-2 py-0.5 rounded font-medium ${typeCfg.cls}`}
+                className={cn(
+                  'rounded px-2 py-0.5 font-body text-xs font-medium',
+                  typeCfg.bg,
+                  typeCfg.color,
+                )}
               >
                 {typeCfg.icon} {typeCfg.label}
               </span>
               <StatusBadge value={report.status} map={STATUS_CFG} />
-              <span className="text-xs text-gray-400">
-                🔒 {report.confidentiality}
+              <span className="flex items-center gap-1 font-body text-xs text-ink-faint">
+                <Lock size={12} strokeWidth={1.75} /> {report.confidentiality}
               </span>
             </div>
-            <h1 className="text-xl font-bold text-gray-900">{report.title}</h1>
+            <h1 className="font-display text-xl font-bold text-ink">
+              {report.title}
+            </h1>
             {report.subtitle && (
-              <p className="text-sm text-gray-500 mt-0.5">{report.subtitle}</p>
+              <p className="mt-0.5 font-body text-sm text-ink-muted">
+                {report.subtitle}
+              </p>
             )}
-            <div className="flex items-center gap-4 text-xs text-gray-400 mt-2">
+            <div className="mt-2 flex items-center gap-4 font-body text-xs text-ink-faint">
               {report.period && <span>📅 {report.period}</span>}
               {report.publishedAt && (
                 <span>Publicado: {fmtDate(report.publishedAt)}</span>
@@ -95,165 +120,135 @@ export function DetailView({ reportId, onBack }: DetailViewProps) {
           </div>
 
           {/* Workflow buttons */}
-          <div className="flex gap-2 flex-shrink-0">
+          <div className="flex flex-shrink-0 gap-2">
             {report.status === 'DRAFT' && (
-              <button
+              <Button
+                size="sm"
                 onClick={() => handleWorkflow('submit')}
                 disabled={submitting}
-                className="px-3 py-2 bg-amber-600 text-white text-xs font-medium rounded-lg hover:bg-amber-700 disabled:opacity-50"
+                className="bg-warning hover:brightness-95 active:brightness-90"
               >
                 Submeter para revisão →
-              </button>
+              </Button>
             )}
             {report.status === 'APPROVED' && (
-              <button
+              <Button
+                size="sm"
                 onClick={() => handleWorkflow('publish')}
                 disabled={submitting}
-                className="px-3 py-2 bg-emerald-600 text-white text-xs font-medium rounded-lg hover:bg-emerald-700 disabled:opacity-50"
+                className="bg-success hover:brightness-95 active:brightness-90"
               >
                 Publicar ✓
-              </button>
+              </Button>
             )}
           </div>
         </div>
 
         {/* Semáforo overview */}
-        <div className="flex items-center gap-4 p-3 bg-gray-50 rounded-lg">
-          <div className="text-xs text-gray-500 font-medium">
+        <div className="flex items-center gap-4 rounded-control bg-surface-sunken p-3">
+          <div className="font-body text-xs font-medium text-ink-muted">
             Estado dos KPIs:
           </div>
-          <div className="flex gap-3 text-xs">
-            <span className="flex items-center gap-1 text-emerald-700">
+          <div className="flex gap-3 font-body text-xs">
+            <span className="flex items-center gap-1 text-success-ink">
               🟢 {greenKpis} no target
             </span>
-            <span className="flex items-center gap-1 text-amber-700">
+            <span className="flex items-center gap-1 text-warning-ink">
               🟡 {yellowKpis} atenção
             </span>
-            <span className="flex items-center gap-1 text-red-700">
+            <span className="flex items-center gap-1 text-danger-ink">
               🔴 {redKpis} crítico
             </span>
           </div>
         </div>
-      </div>
+      </Card>
 
       {/* Tabs */}
-      <div className="flex gap-1 mb-5 bg-gray-100 p-1 rounded-xl w-fit">
-        {(['kpis', 'narrative', 'actions'] as const).map((t) => (
-          <button
-            key={t}
-            onClick={() => setActiveTab(t)}
-            className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-              activeTab === t
-                ? 'bg-white text-gray-900 shadow-sm'
-                : 'text-gray-500 hover:text-gray-700'
-            }`}
-          >
-            {
-              {
-                kpis: '📊 KPIs',
-                narrative: '📝 Narrativa',
-                actions: '🎯 Plano de Acção',
-              }[t]
-            }
-          </button>
-        ))}
-      </div>
+      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as typeof activeTab)}>
+        <TabsList className="mb-5 w-fit">
+          <TabsTrigger value="kpis">📊 KPIs</TabsTrigger>
+          <TabsTrigger value="narrative">📝 Narrativa</TabsTrigger>
+          <TabsTrigger value="actions">🎯 Plano de Acção</TabsTrigger>
+        </TabsList>
 
-      {/* KPIs */}
-      {activeTab === 'kpis' && (
-        <div className="grid grid-cols-3 gap-3">
-          {report.metrics.map((m) => (
-            <KpiCard key={m.id} metric={m} />
-          ))}
-        </div>
-      )}
+        <TabsContent value="kpis">
+          <div className="grid grid-cols-3 gap-3">
+            {report.metrics.map((m) => (
+              <KpiCard key={m.id} metric={m} />
+            ))}
+          </div>
+        </TabsContent>
 
-      {/* Narrative */}
-      {activeTab === 'narrative' && (
-        <div className="space-y-4">
-          {report.narrative && (
-            <div className="bg-white border border-gray-200 rounded-xl p-5">
-              <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">
-                Narrativa Executiva
-              </div>
-              <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-line">
-                {report.narrative}
-              </p>
-            </div>
-          )}
-
-          {/* Conquistas, Riscos, Recomendações */}
-          {[
-            {
-              label: '🏆 Conquistas do período',
-              items: report.achievements,
-              cls: 'bg-emerald-50 border-emerald-200',
-            },
-            {
-              label: '⚠️ Riscos identificados',
-              items: report.risks,
-              cls: 'bg-red-50 border-red-200',
-            },
-            {
-              label: '💡 Recomendações',
-              items: report.recommendations,
-              cls: 'bg-blue-50 border-blue-200',
-            },
-          ].map(
-            ({ label, items, cls }) =>
-              items.length > 0 && (
-                <div key={label} className={`border rounded-xl p-5 ${cls}`}>
-                  <div className="text-xs font-semibold text-gray-700 mb-3">
-                    {label}
-                  </div>
-                  <ul className="space-y-1.5">
-                    {items.map((item, i) => (
-                      <li
-                        key={i}
-                        className="flex items-start gap-2 text-sm text-gray-700"
-                      >
-                        <span className="flex-shrink-0 mt-0.5 text-gray-400">
-                          {i + 1}.
-                        </span>
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
+        <TabsContent value="narrative">
+          <div className="space-y-4">
+            {report.narrative && (
+              <Card className="p-5">
+                <div className="mb-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+                  Narrativa Executiva
                 </div>
-              ),
-          )}
-        </div>
-      )}
+                <p className="whitespace-pre-line font-body text-sm leading-relaxed text-ink">
+                  {report.narrative}
+                </p>
+              </Card>
+            )}
 
-      {/* Actions */}
-      {activeTab === 'actions' && (
-        <div className="space-y-3">
-          {report.nextSteps.length > 0 ? (
-            <div className="bg-white border border-gray-200 rounded-xl p-5">
-              <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">
-                Próximos Passos
-              </div>
-              <div className="space-y-2">
-                {report.nextSteps.map((step, i) => (
-                  <div
-                    key={i}
-                    className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg"
-                  >
-                    <span className="w-6 h-6 bg-blue-700 text-white rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">
-                      {i + 1}
-                    </span>
-                    <p className="text-sm text-gray-700">{step}</p>
+            {NARRATIVE_BLOCKS.map(({ key, label, cls }) => {
+              const items = report[key];
+              return (
+                items.length > 0 && (
+                  <div key={key} className={cn('rounded-card border p-5', cls)}>
+                    <div className="mb-3 font-body text-xs font-semibold text-ink">
+                      {label}
+                    </div>
+                    <ul className="space-y-1.5">
+                      {items.map((item, i) => (
+                        <li
+                          key={i}
+                          className="flex items-start gap-2 font-body text-sm text-ink"
+                        >
+                          <span className="mt-0.5 flex-shrink-0 text-ink-faint">
+                            {i + 1}.
+                          </span>
+                          {item}
+                        </li>
+                      ))}
+                    </ul>
                   </div>
-                ))}
+                )
+              );
+            })}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="actions">
+          <div className="space-y-3">
+            {report.nextSteps.length > 0 ? (
+              <Card className="p-5">
+                <div className="mb-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+                  Próximos Passos
+                </div>
+                <div className="space-y-2">
+                  {report.nextSteps.map((step, i) => (
+                    <div
+                      key={i}
+                      className="flex items-start gap-3 rounded-control bg-surface-sunken p-3"
+                    >
+                      <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-primary font-body text-xs font-bold text-canvas">
+                        {i + 1}
+                      </span>
+                      <p className="font-body text-sm text-ink">{step}</p>
+                    </div>
+                  ))}
+                </div>
+              </Card>
+            ) : (
+              <div className="rounded-card border border-dashed border-border-strong py-8 text-center font-body text-sm text-ink-faint">
+                Sem próximos passos definidos
               </div>
-            </div>
-          ) : (
-            <div className="py-8 text-center text-sm text-gray-400 border border-dashed border-gray-200 rounded-xl">
-              Sem próximos passos definidos
-            </div>
-          )}
-        </div>
-      )}
+            )}
+          </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
