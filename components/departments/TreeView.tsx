@@ -8,7 +8,7 @@
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { Skeleton } from './atoms';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { OrgNode } from './OrgNode';
 import type { DepartmentNode } from './types';
 
@@ -30,24 +30,28 @@ export function TreeView({ onSelect }: TreeViewProps) {
   if (loading)
     return (
       <div>
-        <Skeleton rows={8} />
+        <Skeleton
+          rows={8}
+          wrapperClassName="space-y-2 animate-pulse"
+          itemClassName="h-14 rounded-card bg-surface-sunken"
+        />
       </div>
     );
   if (queryError)
-    return <div className="text-sm text-red-500">{queryError.message}</div>;
+    return <div className="text-sm text-danger">{queryError.message}</div>;
 
   return (
     <div>
-      <div className="flex items-center gap-2 mb-4 text-xs text-gray-400">
+      <div className="mb-4 flex items-center gap-2 text-xs text-ink-faint">
         <span>▼ expandir</span>
         <span>·</span>
         <span>▶ recolher</span>
         <span>·</span>
         <span>clique → ver detalhe</span>
       </div>
-      <div className="bg-white border border-gray-200 rounded-xl p-4">
+      <div className="rounded-card border border-border bg-surface p-4">
         {tree.length === 0 ? (
-          <div className="py-12 text-center text-sm text-gray-400">
+          <div className="py-12 text-center text-sm text-ink-faint">
             Sem departamentos na hierarquia
           </div>
         ) : (
