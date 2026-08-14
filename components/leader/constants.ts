@@ -4,13 +4,14 @@
 
 import { Award, Star, Target, TrendingUp, Users } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
+import type { BadgeProps } from '@/components/ui/Badge';
 import type { Tab } from './types';
 
-export const RISK_COLOR: Record<string, string> = {
-  HIGH: 'bg-red-100 text-red-700',
-  MEDIUM: 'bg-amber-100 text-amber-700',
-  LOW: 'bg-teal-100 text-teal-700',
-  NONE: 'bg-slate-100 text-slate-500',
+export const RISK_INTENT: Record<string, NonNullable<BadgeProps['intent']>> = {
+  HIGH: 'danger',
+  MEDIUM: 'warning',
+  LOW: 'success',
+  NONE: 'neutral',
 };
 
 export const TABS: { id: Tab; label: string; icon: LucideIcon }[] = [
