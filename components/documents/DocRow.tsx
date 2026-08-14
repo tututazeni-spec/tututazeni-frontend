@@ -1,10 +1,15 @@
 // components/documents/DocRow.tsx
 // Linha de documento na vista em lista. Extraído de
-// app/(platform)/documents/page.tsx.
+// app/(platform)/documents/page.tsx. Migrado para a fundação de design:
+// `<tr>`/`<td>` crus passam a TableRow/TableCell (components/ui/Table); pill
+// de categoria passa a Badge; classes Tailwind cruas passam a tokens.
 
 'use client';
 
 import { Download, Eye } from 'lucide-react';
+import { Badge } from '@/components/ui/Badge';
+import { IconButton } from '@/components/ui/Button';
+import { TableCell, TableRow } from '@/components/ui/Table';
 import { CATEGORY_CONFIG, getFileIcon } from './constants';
 import { formatBytes } from './utils';
 import type { Document } from './types';
@@ -24,81 +29,79 @@ export function DocRow({ doc, onView, onDownload }: DocRowProps) {
     new Date(doc.expiresAt) < new Date(Date.now() + 30 * 86400000);
 
   return (
-    <tr
-      className="hover:bg-gray-50/50 group cursor-pointer"
-      onClick={() => onView(doc)}
-    >
-      <td className="px-4 py-3">
+    <TableRow className="group cursor-pointer" onClick={() => onView(doc)}>
+      <TableCell>
         <div className="flex items-center gap-3">
           <Icon
             size={16}
-            className={isExpired ? 'text-red-400' : 'text-blue-500'}
+            strokeWidth={1.75}
+            className={isExpired ? 'text-danger' : 'text-primary'}
           />
           <div>
             <p
-              className={`text-sm font-medium group-hover:text-blue-600 transition-colors ${isExpired ? 'text-red-700' : 'text-gray-900'}`}
+              className={`text-sm font-medium group-hover:text-primary transition-colors ${isExpired ? 'text-danger-ink' : 'text-ink'}`}
             >
               {doc.title}
             </p>
             {doc.tags.length > 0 && (
-              <p className="text-xs text-gray-400">
+              <p className="text-xs text-ink-faint">
                 {doc.tags.slice(0, 3).join(' · ')}
               </p>
             )}
           </div>
         </div>
-      </td>
-      <td className="px-4 py-3">
-        <span
-          className={`text-xs px-2 py-0.5 rounded-full font-medium ${catCfg.color}`}
-        >
+      </TableCell>
+      <TableCell>
+        <Badge intent={catCfg.intent} className="py-0">
           {catCfg.label}
-        </span>
-      </td>
-      <td className="px-4 py-3 text-xs text-gray-500">
+        </Badge>
+      </TableCell>
+      <TableCell className="text-xs text-ink-muted">
         {doc.createdBy?.name ?? '—'}
-      </td>
-      <td className="px-4 py-3 text-xs text-gray-500">
+      </TableCell>
+      <TableCell className="text-xs text-ink-muted">
         {formatBytes(doc.fileSize)}
-      </td>
-      <td className="px-4 py-3 text-xs">
+      </TableCell>
+      <TableCell className="text-xs">
         {isExpired ? (
-          <span className="text-red-600 font-medium">Expirado</span>
+          <span className="text-danger font-medium">Expirado</span>
         ) : isExpiring ? (
-          <span className="text-amber-600 font-medium">
+          <span className="text-warning-ink font-medium">
             {new Date(doc.expiresAt!).toLocaleDateString('pt-PT')}
           </span>
         ) : (
-          <span className="text-gray-400">
+          <span className="text-ink-faint">
             {doc.expiresAt
               ? new Date(doc.expiresAt).toLocaleDateString('pt-PT')
               : '—'}
           </span>
         )}
-      </td>
-      <td className="px-4 py-3 text-xs text-gray-400">v{doc.version}</td>
-      <td className="px-4 py-3">
+      </TableCell>
+      <TableCell className="text-xs text-ink-faint">v{doc.version}</TableCell>
+      <TableCell>
         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-          <button
+          <IconButton
+            icon={Eye}
+            label="Ver detalhe"
+            intent="ghost"
+            className="h-7 w-7"
             onClick={(e) => {
               e.stopPropagation();
               onView(doc);
             }}
-            className="p-1.5 rounded-lg hover:bg-blue-100 text-blue-600"
-          >
-            <Eye size={13} />
-          </button>
-          <button
+          />
+          <IconButton
+            icon={Download}
+            label="Download"
+            intent="ghost"
+            className="h-7 w-7"
             onClick={(e) => {
               e.stopPropagation();
               onDownload(doc);
             }}
-            className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-600"
-          >
-            <Download size={13} />
-          </button>
+          />
         </div>
-      </td>
-    </tr>
+      </TableCell>
+    </TableRow>
   );
 }
