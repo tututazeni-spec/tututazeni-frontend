@@ -1,14 +1,23 @@
 // components/career-plans/SimulateModal.tsx
 // Simulador de carreira: escolhe um cargo alvo e mostra readiness,
 // gaps e estimativa. Extraído de app/(platform)/career-plans/page.tsx.
+//
+// Overlay mantém-se hand-rolled (não converteu para ui/Modal/Radix
+// Dialog) — o original não fecha ao clicar fora, e o Dialog do Radix
+// fecharia por omissão (Escape + outside click), o que seria uma
+// mudança de comportamento fora do escopo desta migração de
+// apresentação. Só as classes de cor/raio/sombra foram tokenizadas.
 
 'use client';
 
 import { useState } from 'react';
-import { AlertCircle, BookOpen, Compass, Loader2, X, Zap } from 'lucide-react';
+import { AlertCircle, BookOpen, Compass, X, Zap } from 'lucide-react';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
-import { ReadinessBar } from './atoms';
+import { Button } from '@/components/ui/Button';
+import { FormField } from '@/components/ui/FormField';
+import { ProgressBar } from '@/components/ui/ProgressBar';
+import { Select } from '@/components/ui/Select';
 import { READINESS_CONFIG } from './constants';
 import { SkillGapList } from './SkillGapList';
 import type { ReadinessLevel, Role, SimulationResult } from './types';
@@ -45,75 +54,69 @@ export function SimulateModal({ roles, onClose }: SimulateModalProps) {
     ? READINESS_CONFIG[result.readiness.readinessLevel as ReadinessLevel]
     : null;
 
+  const roleItems = roles.map((r) => ({
+    value: String(r.id),
+    label: `${r.name} — ${r.department} (Nível ${r.level})`,
+  }));
+
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
-        <div className="p-6 border-b border-gray-100 flex items-center justify-between">
+    <div className="fixed inset-0 bg-ink/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className="bg-surface rounded-panel shadow-elevated w-full max-w-lg max-h-[90vh] overflow-y-auto">
+        <div className="p-6 border-b border-border flex items-center justify-between">
           <div>
-            <h2 className="font-bold text-gray-900 flex items-center gap-2">
-              <Compass size={18} className="text-blue-600" /> Simulador de
-              Carreira
+            <h2 className="font-display font-bold text-ink flex items-center gap-2">
+              <Compass size={18} strokeWidth={1.75} className="text-primary" />{' '}
+              Simulador de Carreira
             </h2>
-            <p className="text-sm text-gray-500 mt-0.5">
+            <p className="font-body text-sm text-ink-muted mt-0.5">
               Veja o que é necessário para chegar ao próximo nível
             </p>
           </div>
           <button
             onClick={onClose}
             aria-label="Fechar"
-            className="p-2 rounded-xl hover:bg-gray-100 text-gray-500"
+            className="p-2 rounded-control hover:bg-surface-sunken text-ink-muted"
           >
-            <X size={18} />
+            <X size={18} strokeWidth={1.75} />
           </button>
         </div>
 
         <div className="p-6 space-y-4">
           {error && (
-            <div className="flex items-center gap-2 p-3 bg-red-50 text-red-700 rounded-xl text-sm">
-              <AlertCircle size={15} />
+            <div className="flex items-center gap-2 p-3 rounded-card border border-danger bg-danger-subtle text-danger-ink font-body text-sm">
+              <AlertCircle size={15} strokeWidth={1.75} />
               {error}
             </div>
           )}
 
-          <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">
-              Cargo Alvo
-            </label>
-            <select
-              value={targetRoleId}
-              onChange={(e) => {
-                setTargetRoleId(+e.target.value);
+          <FormField label="Cargo Alvo" htmlFor="simulate-target-role">
+            <Select
+              items={roleItems}
+              value={targetRoleId ? String(targetRoleId) : undefined}
+              onValueChange={(v) => {
+                setTargetRoleId(+v);
                 simulateMutation.reset();
               }}
-              className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-            >
-              <option value={0}>Seleccionar...</option>
-              {roles.map((r) => (
-                <option key={r.id} value={r.id}>
-                  {r.name} — {r.department} (Nível {r.level})
-                </option>
-              ))}
-            </select>
-          </div>
+              placeholder="Seleccionar..."
+              className="w-full"
+            />
+          </FormField>
 
-          <button
+          <Button
             onClick={simulate}
-            disabled={loading || !targetRoleId}
-            className="w-full py-3 text-sm text-white bg-blue-600 rounded-xl hover:bg-blue-700 disabled:opacity-50 flex items-center justify-center gap-2 font-medium"
+            disabled={!targetRoleId}
+            loading={loading}
+            className="w-full"
           >
-            {loading ? (
-              <Loader2 size={15} className="animate-spin" />
-            ) : (
-              <Zap size={15} />
-            )}{' '}
+            {!loading && <Zap size={15} strokeWidth={1.75} />}
             Simular
-          </button>
+          </Button>
 
           {result && readinessCfg && (
-            <div className="space-y-4 border-t border-gray-100 pt-4">
-              <div className={`p-4 rounded-2xl border ${readinessCfg.bg}`}>
+            <div className="space-y-4 border-t border-border pt-4">
+              <div className={`p-4 rounded-card border ${readinessCfg.bg}`}>
                 <div className="flex items-center justify-between mb-2">
-                  <p className="font-semibold text-gray-900">
+                  <p className="font-semibold text-ink">
                     {result.readiness.readinessEmoji} Prontidão para &quot;
                     {result.targetRole.name}&quot;
                   </p>
@@ -121,20 +124,29 @@ export function SimulateModal({ roles, onClose }: SimulateModalProps) {
                     {result.readiness.score}%
                   </span>
                 </div>
-                <ReadinessBar
-                  score={result.readiness.score}
-                  level={result.readiness.readinessLevel}
-                />
+                <div className="mt-1 space-y-1">
+                  <div className="flex items-center justify-between">
+                    <span
+                      className={`text-xs font-semibold ${readinessCfg.color}`}
+                    >
+                      {readinessCfg.label}
+                    </span>
+                    <span className="text-sm font-bold text-ink">
+                      {result.readiness.score}%
+                    </span>
+                  </div>
+                  <ProgressBar value={result.readiness.score} />
+                </div>
                 <div className="grid grid-cols-2 gap-3 mt-3 text-xs">
-                  <div className="bg-white/60 rounded-xl p-2.5">
-                    <p className="text-gray-400">Estimativa</p>
-                    <p className="font-bold text-gray-900 mt-0.5">
+                  <div className="bg-surface/60 rounded-control p-2.5">
+                    <p className="text-ink-faint">Estimativa</p>
+                    <p className="font-bold text-ink mt-0.5">
                       {result.estimatedMonths} meses
                     </p>
                   </div>
-                  <div className="bg-white/60 rounded-xl p-2.5">
-                    <p className="text-gray-400">Data prevista</p>
-                    <p className="font-bold text-gray-900 mt-0.5">
+                  <div className="bg-surface/60 rounded-control p-2.5">
+                    <p className="text-ink-faint">Data prevista</p>
+                    <p className="font-bold text-ink mt-0.5">
                       {new Date(result.estimatedDate).toLocaleDateString(
                         'pt-PT',
                         { month: 'short', year: 'numeric' },
@@ -146,19 +158,16 @@ export function SimulateModal({ roles, onClose }: SimulateModalProps) {
 
               {result.readiness.missingSkills.length > 0 && (
                 <div>
-                  <p className="text-xs font-bold text-red-600 mb-2">
+                  <p className="text-xs font-bold text-danger-ink mb-2">
                     Skills Obrigatórias em Falta
                   </p>
-                  <SkillGapList
-                    gaps={result.readiness.missingSkills}
-                    mandatory
-                  />
+                  <SkillGapList gaps={result.readiness.missingSkills} />
                 </div>
               )}
 
               {result.readiness.skillGaps.length > 0 && (
                 <div>
-                  <p className="text-xs font-bold text-amber-600 mb-2">
+                  <p className="text-xs font-bold text-warning-ink mb-2">
                     Gaps a Desenvolver
                   </p>
                   <SkillGapList gaps={result.readiness.skillGaps} />
@@ -167,16 +176,16 @@ export function SimulateModal({ roles, onClose }: SimulateModalProps) {
 
               {(result.recommendedActions?.length ?? 0) > 0 && (
                 <div>
-                  <p className="text-xs font-bold text-gray-600 mb-2">
+                  <p className="text-xs font-bold text-ink-muted mb-2">
                     Cursos Recomendados
                   </p>
                   <div className="space-y-1.5">
                     {result.recommendedActions?.map((c) => (
                       <div
                         key={c.id}
-                        className="flex items-center gap-2 text-sm text-blue-700 hover:underline cursor-pointer"
+                        className="flex items-center gap-2 text-sm text-primary hover:underline cursor-pointer"
                       >
-                        <BookOpen size={13} />
+                        <BookOpen size={13} strokeWidth={1.75} />
                         {c.title}
                       </div>
                     ))}

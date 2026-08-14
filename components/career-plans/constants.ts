@@ -13,27 +13,28 @@ import {
 } from 'lucide-react';
 import type { GoalType, ReadinessLevel } from './types';
 
+// Cor da barra de progresso deixou de existir aqui — o ProgressBar da
+// fundação é mono-cor (bg-accent); o sentido (pronto/em desenvolvimento/
+// início) é comunicado só por `label`/`color` no texto adjacente, mesmo
+// padrão usado em AnalyticsTab/OverviewTab do engagement.
 export const READINESS_CONFIG: Record<
   ReadinessLevel,
-  { label: string; color: string; bg: string; bar: string }
+  { label: string; color: string; bg: string }
 > = {
   READY: {
     label: 'Pronto',
-    color: 'text-emerald-700',
-    bg: 'bg-emerald-50 border-emerald-200',
-    bar: 'bg-emerald-500',
+    color: 'text-success-ink',
+    bg: 'bg-success-subtle border-success',
   },
   DEVELOPING: {
     label: 'Em Desenvolvimento',
-    color: 'text-amber-700',
-    bg: 'bg-amber-50 border-amber-200',
-    bar: 'bg-amber-500',
+    color: 'text-warning-ink',
+    bg: 'bg-warning-subtle border-warning',
   },
   STARTING: {
     label: 'Início',
-    color: 'text-red-700',
-    bg: 'bg-red-50 border-red-200',
-    bar: 'bg-red-400',
+    color: 'text-danger-ink',
+    bg: 'bg-danger-subtle border-danger',
   },
 };
 

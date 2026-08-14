@@ -15,8 +15,9 @@ export function CareerRoadmap({ plan }: CareerRoadmapProps) {
   const steps = plan.careerPath?.steps ?? [];
   if (!steps.length) {
     return (
-      <div className="flex items-center gap-2 text-gray-400 text-sm py-4">
-        <Compass size={16} /> Nenhuma trilha de carreira associada
+      <div className="flex items-center gap-2 py-4 font-body text-sm text-ink-faint">
+        <Compass size={16} strokeWidth={1.75} /> Nenhuma trilha de carreira
+        associada
       </div>
     );
   }
@@ -35,26 +36,30 @@ export function CareerRoadmap({ plan }: CareerRoadmapProps) {
           >
             <div className={`flex flex-col items-center`}>
               <div
-                className={`w-10 h-10 rounded-xl flex items-center justify-center text-xs font-bold border-2 transition-all ${
+                className={`w-10 h-10 rounded-control flex items-center justify-center text-xs font-bold border-2 transition-all ${
                   isCurrent
-                    ? 'bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-200'
+                    ? 'bg-primary text-canvas border-primary shadow-hover'
                     : isTarget
-                      ? 'bg-emerald-100 text-emerald-700 border-emerald-400 border-dashed'
+                      ? 'bg-success-subtle text-success-ink border-success border-dashed'
                       : isPast
-                        ? 'bg-gray-200 text-gray-500 border-gray-200'
-                        : 'bg-white text-gray-400 border-gray-200'
+                        ? 'bg-surface-sunken text-ink-muted border-border-strong'
+                        : 'bg-surface text-ink-faint border-border'
                 }`}
               >
-                {isPast ? <Check size={14} /> : <span>{step.role.level}</span>}
+                {isPast ? (
+                  <Check size={14} strokeWidth={1.75} />
+                ) : (
+                  <span>{step.role.level}</span>
+                )}
               </div>
               <p
-                className={`text-xs mt-1 font-medium text-center max-w-16 truncate ${isCurrent ? 'text-blue-600' : isTarget ? 'text-emerald-600' : 'text-gray-400'}`}
+                className={`mt-1 max-w-16 truncate text-center font-body text-xs font-medium ${isCurrent ? 'text-primary' : isTarget ? 'text-success' : 'text-ink-faint'}`}
               >
                 {step.role.name}
               </p>
               {(isCurrent || isTarget) && (
                 <span
-                  className={`text-xs px-1.5 py-0.5 rounded-full mt-0.5 ${isCurrent ? 'bg-blue-100 text-blue-600' : 'bg-emerald-100 text-emerald-600'}`}
+                  className={`mt-0.5 rounded-full px-1.5 py-0.5 font-body text-xs ${isCurrent ? 'bg-primary-subtle text-primary' : 'bg-success-subtle text-success-ink'}`}
                 >
                   {isCurrent ? 'Actual' : 'Alvo'}
                 </span>
@@ -63,7 +68,8 @@ export function CareerRoadmap({ plan }: CareerRoadmapProps) {
             {idx < steps.length - 1 && (
               <ChevronRight
                 size={16}
-                className="text-gray-300 flex-shrink-0 mt-[-12px]"
+                strokeWidth={1.75}
+                className="text-ink-faint flex-shrink-0 mt-[-12px]"
               />
             )}
           </div>

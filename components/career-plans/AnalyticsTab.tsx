@@ -5,7 +5,7 @@
 'use client';
 
 import { CheckCircle2, Clock, Target, TrendingUp } from 'lucide-react';
-import { KpiCard } from './atoms';
+import { KpiCard } from '@/components/ui/KpiCard';
 import type { CareerPlansAnalytics } from './types';
 
 interface AnalyticsTabProps {
@@ -20,25 +20,25 @@ export function AnalyticsTab({ analytics }: AnalyticsTabProps) {
           label="Planos Activos"
           value={analytics.plans.active}
           icon={Target}
-          color="blue"
+          intent="primary"
         />
         <KpiCard
           label="Concluídos"
           value={analytics.plans.completed}
           icon={CheckCircle2}
-          color="emerald"
+          intent="success"
         />
         <KpiCard
           label="Promoções Aprovadas"
           value={analytics.promotions.approved}
           icon={TrendingUp}
-          color="violet"
+          intent="accent"
         />
         <KpiCard
           label="Tempo Médio Promoção"
           value={`${analytics.avgPromotionDays}d`}
           icon={Clock}
-          color="amber"
+          intent="warning"
         />
       </div>
     </div>
