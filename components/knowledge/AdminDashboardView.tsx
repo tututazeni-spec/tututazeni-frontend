@@ -1,14 +1,16 @@
 // components/knowledge/AdminDashboardView.tsx
 // Separador "Admin" — KPIs, gaps de conhecimento e tops de artigos.
 // Dados próprios + apresentação. Extraído de
-// app/(platform)/knowledge/page.tsx.
+// app/(platform)/knowledge/page.tsx. Migrado para a fundação de design:
+// skeleton local passa a components/ui/Skeleton; cartões de KPI e listas
+// passam a tokens semânticos.
 
 'use client';
 
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { Skeleton } from './atoms';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { timeAgo } from './utils';
 import type { Dashboard } from './types';
 
@@ -30,19 +32,21 @@ export function AdminDashboardView() {
           {
             label: 'Publicados',
             value: data.articles.published,
-            color: 'text-emerald-600',
+            color: 'text-success-ink',
           },
           { label: 'Total visualizações', value: data.views },
           {
             label: 'Artigos desactualiz.',
             value: data.articles.stale,
-            color: data.articles.stale > 0 ? 'text-amber-600' : undefined,
+            color: data.articles.stale > 0 ? 'text-warning-ink' : undefined,
           },
         ].map(({ label, value, color }) => (
-          <div key={label} className="bg-gray-50 rounded-xl p-4">
-            <div className="text-xs text-gray-400 mb-1">{label}</div>
+          <div key={label} className="rounded-card bg-surface-sunken p-4">
+            <div className="mb-1 font-body text-xs text-ink-faint">
+              {label}
+            </div>
             <div
-              className={`text-2xl font-semibold font-mono ${color ?? 'text-gray-900'}`}
+              className={`font-data text-2xl font-semibold ${color ?? 'text-ink'}`}
             >
               {value}
             </div>
@@ -52,8 +56,8 @@ export function AdminDashboardView() {
 
       {/* Gaps de conhecimento */}
       {data.knowledgeGaps.length > 0 && (
-        <div className="bg-amber-50 border border-amber-200 rounded-xl p-5">
-          <div className="text-sm font-semibold text-amber-800 mb-3">
+        <div className="rounded-card border border-warning-subtle bg-warning-subtle p-5">
+          <div className="mb-3 font-body text-sm font-semibold text-warning-ink">
             🔍 Gaps de Conhecimento — Buscas sem resultado ({data.emptySearches}
             )
           </div>
@@ -61,12 +65,14 @@ export function AdminDashboardView() {
             {data.knowledgeGaps.map((gap) => (
               <div
                 key={gap.query}
-                className="flex justify-between text-xs py-1.5 border-b border-amber-100"
+                className="flex justify-between border-b border-warning-subtle py-1.5 font-body text-xs"
               >
-                <span className="text-amber-800 font-medium">
+                <span className="font-medium text-warning-ink">
                   &quot;{gap.query}&quot;
                 </span>
-                <span className="text-amber-600">{gap.searches}× buscado</span>
+                <span className="text-warning-ink/70">
+                  {gap.searches}× buscado
+                </span>
               </div>
             ))}
           </div>
@@ -75,47 +81,51 @@ export function AdminDashboardView() {
 
       {/* Top artigos */}
       <div className="grid grid-cols-2 gap-5">
-        <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-          <div className="px-4 py-3 border-b border-gray-100 text-xs font-medium text-gray-400 uppercase tracking-wide">
+        <div className="overflow-hidden rounded-card border border-border bg-surface">
+          <div className="border-b border-border px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
             Mais vistos
           </div>
           {data.topArticles.map((a, idx) => (
             <div
               key={a.id}
-              className="flex items-center gap-3 px-4 py-3 border-b border-gray-100 last:border-0"
+              className="flex items-center gap-3 border-b border-border px-4 py-3 last:border-0"
             >
-              <span className="text-lg font-bold font-mono text-gray-200 w-5 text-center">
+              <span className="w-5 text-center font-data text-lg font-bold text-border-strong">
                 {idx + 1}
               </span>
-              <div className="flex-1 min-w-0">
-                <div className="text-xs font-medium text-gray-900 truncate">
+              <div className="min-w-0 flex-1">
+                <div className="truncate font-body text-xs font-medium text-ink">
                   {a.title}
                 </div>
-                <div className="text-xs text-gray-400">{a.author.fullName}</div>
+                <div className="font-body text-xs text-ink-faint">
+                  {a.author.fullName}
+                </div>
               </div>
-              <span className="text-xs text-gray-400 flex-shrink-0">
+              <span className="flex-shrink-0 font-body text-xs text-ink-faint">
                 👁 {a.viewCount}
               </span>
             </div>
           ))}
         </div>
 
-        <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-          <div className="px-4 py-3 border-b border-gray-100 text-xs font-medium text-gray-400 uppercase tracking-wide">
+        <div className="overflow-hidden rounded-card border border-border bg-surface">
+          <div className="border-b border-border px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
             Actualizados recentemente
           </div>
           {data.recentlyUpdated.map((a) => (
             <div
               key={a.id}
-              className="flex items-center gap-3 px-4 py-3 border-b border-gray-100 last:border-0"
+              className="flex items-center gap-3 border-b border-border px-4 py-3 last:border-0"
             >
-              <div className="flex-1 min-w-0">
-                <div className="text-xs font-medium text-gray-900 truncate">
+              <div className="min-w-0 flex-1">
+                <div className="truncate font-body text-xs font-medium text-ink">
                   {a.title}
                 </div>
-                <div className="text-xs text-gray-400">{a.author.fullName}</div>
+                <div className="font-body text-xs text-ink-faint">
+                  {a.author.fullName}
+                </div>
               </div>
-              <span className="text-xs text-gray-400 flex-shrink-0">
+              <span className="flex-shrink-0 font-body text-xs text-ink-faint">
                 {timeAgo(a.updatedAt)}
               </span>
             </div>
