@@ -1,14 +1,23 @@
 // components/events/EventCard.tsx
 // Cartão de evento (catálogo/os meus eventos). Extraído de
-// app/(platform)/events/page.tsx.
+// app/(platform)/events/page.tsx. Migrado para a fundação de design:
+// Card + Avatar + StatusBadge/ProgressBar da fundação. A cor da barra
+// de ocupação (antes vermelho/âmbar/esmeralda por limiar) passa para um
+// ponto de estado junto ao número de inscritos — mesmo padrão de
+// `ENPS_ROWS` em components/engagement/OverviewTab.tsx — já que
+// ProgressBar da fundação é mono-cor (bg-accent).
 
 'use client';
 
 import { formatDateTime as fmtDateTime } from '@/lib/format';
+import { cn } from '@/lib/cn';
+import { Avatar } from '@/components/ui/Avatar';
+import { Card } from '@/components/ui/Card';
+import { ProgressBar } from '@/components/ui/ProgressBar';
 import { StatusBadge } from '@/components/ui/StatusBadge';
-import { Avatar } from './atoms';
 import {
   MODALITY_CFG,
+  occupancyDotCls,
   PARTICIPANT_STATUS,
   STATUS_CFG,
   TYPE_CFG,
@@ -26,7 +35,7 @@ export function EventCard({ event, onSelect, myStatus }: EventCardProps) {
   const modalityCfg = MODALITY_CFG[event.modalidade] ?? MODALITY_CFG.ONLINE;
 
   return (
-    <div
+    <Card
       onClick={onSelect}
       role="button"
       tabIndex={0}
@@ -36,21 +45,23 @@ export function EventCard({ event, onSelect, myStatus }: EventCardProps) {
           onSelect();
         }
       }}
-      className={`bg-white border rounded-xl overflow-hidden cursor-pointer hover:shadow-md transition-all ${
-        event.status === 'LIVE'
-          ? 'border-red-300'
-          : 'border-gray-200 hover:border-blue-200'
-      }`}
+      className={cn(
+        'cursor-pointer overflow-hidden transition-shadow duration-150 hover:shadow-hover',
+        event.status === 'LIVE' ? 'border-danger' : 'hover:border-primary',
+      )}
     >
       {/* Banner / Header */}
-      <div
-        className={`h-2 ${typeCfg.cls.includes('blue') ? 'bg-blue-500' : typeCfg.cls.includes('amber') ? 'bg-amber-500' : typeCfg.cls.includes('emerald') ? 'bg-emerald-500' : typeCfg.cls.includes('purple') ? 'bg-purple-500' : 'bg-gray-400'}`}
-      />
+      <div className={cn('h-2', typeCfg.barCls)} />
 
       <div className="p-4">
-        <div className="flex items-start justify-between gap-2 mb-2">
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className={`text-xs px-1.5 py-0.5 rounded ${typeCfg.cls}`}>
+        <div className="mb-2 flex items-start justify-between gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <span
+              className={cn(
+                'rounded px-1.5 py-0.5 font-body text-xs',
+                typeCfg.cls,
+              )}
+            >
               {typeCfg.icon} {typeCfg.label}
             </span>
             <StatusBadge
@@ -59,18 +70,18 @@ export function EventCard({ event, onSelect, myStatus }: EventCardProps) {
               fallback={STATUS_CFG.PUBLISHED}
             />
             {event.mandatory && (
-              <span className="text-xs text-red-600 font-medium">
+              <span className="font-body text-xs font-medium text-danger">
                 Obrigatório
               </span>
             )}
           </div>
         </div>
 
-        <div className="text-sm font-semibold text-gray-900 mb-1 line-clamp-2">
+        <div className="mb-1 line-clamp-2 font-body text-sm font-semibold text-ink">
           {event.title}
         </div>
 
-        <div className="flex items-center gap-3 text-xs text-gray-400 mb-3">
+        <div className="mb-3 flex items-center gap-3 font-body text-xs text-ink-faint">
           <span>
             {modalityCfg.icon} {modalityCfg.label}
           </span>
@@ -82,21 +93,32 @@ export function EventCard({ event, onSelect, myStatus }: EventCardProps) {
           <div className="flex items-center gap-2">
             <Avatar
               name={event.organizer.fullName}
-              avatarUrl={event.organizer.avatarUrl}
+              url={event.organizer.avatarUrl ?? undefined}
               size="sm"
             />
-            <span className="text-xs text-gray-500">
+            <span className="font-body text-xs text-ink-muted">
               {event.organizer.fullName}
             </span>
           </div>
           <div className="text-right">
-            <div className="flex items-center gap-1 text-xs">
+            <div className="flex items-center justify-end gap-1.5 font-body text-xs">
               <span
-                className={`font-medium ${event.isFull ? 'text-red-600' : 'text-gray-500'}`}
+                className={cn(
+                  'h-1.5 w-1.5 rounded-full',
+                  occupancyDotCls(event.occupancyRate),
+                )}
+              />
+              <span
+                className={cn(
+                  'font-medium',
+                  event.isFull ? 'text-danger' : 'text-ink-muted',
+                )}
               >
                 {event._count.participants}/{event.maxCapacity}
               </span>
-              {event.isFull && <span className="text-red-600">• Lotado</span>}
+              {event.isFull && (
+                <span className="text-danger">• Lotado</span>
+              )}
             </div>
             {myStatus && (
               <StatusBadge value={myStatus} map={PARTICIPANT_STATUS} />
@@ -106,14 +128,12 @@ export function EventCard({ event, onSelect, myStatus }: EventCardProps) {
 
         {/* Barra de ocupação */}
         {event.occupancyRate !== null && (
-          <div className="mt-2 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-            <div
-              className={`h-full rounded-full ${event.occupancyRate >= 90 ? 'bg-red-500' : event.occupancyRate >= 70 ? 'bg-amber-400' : 'bg-emerald-500'}`}
-              style={{ width: `${Math.min(event.occupancyRate, 100)}%` }}
-            />
-          </div>
+          <ProgressBar
+            value={Math.min(event.occupancyRate, 100)}
+            className="mt-2"
+          />
         )}
       </div>
-    </div>
+    </Card>
   );
 }
