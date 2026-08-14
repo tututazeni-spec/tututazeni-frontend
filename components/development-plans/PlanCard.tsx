@@ -4,11 +4,15 @@
 
 'use client';
 
+import { Calendar, ClipboardList, Target, TriangleAlert } from 'lucide-react';
+import { cn } from '@/lib/cn';
+import { Avatar } from '@/components/ui/Avatar';
+import { Card } from '@/components/ui/Card';
+import { ProgressBar } from '@/components/ui/ProgressBar';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { formatDate as fmtDate } from '@/lib/format';
-import { Avatar, ProgressBar } from './atoms';
 import { STATUS_CFG, PRIORITY_CFG } from './constants';
-import { isOverdue } from './utils';
+import { isOverdue, progressTextClass } from './utils';
 import type { Plan } from './types';
 
 interface PlanCardProps {
@@ -21,7 +25,7 @@ export function PlanCard({ plan, onClick }: PlanCardProps) {
   const hasOverdue = (plan.overdueActions ?? 0) > 0;
 
   return (
-    <div
+    <Card
       onClick={onClick}
       role="button"
       tabIndex={0}
@@ -31,66 +35,77 @@ export function PlanCard({ plan, onClick }: PlanCardProps) {
           onClick();
         }
       }}
-      className={`bg-white border rounded-xl p-5 cursor-pointer hover:shadow-md transition-all ${
-        hasOverdue ? 'border-red-200' : 'border-gray-200 hover:border-blue-200'
-      }`}
+      className={cn(
+        'cursor-pointer p-5 transition-shadow duration-150 hover:shadow-hover',
+        hasOverdue ? 'border-danger' : 'hover:border-primary',
+      )}
     >
-      <div className="flex items-start justify-between gap-3 mb-3">
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1 flex-wrap">
+      <div className="mb-3 flex items-start justify-between gap-3">
+        <div className="min-w-0 flex-1">
+          <div className="mb-1 flex flex-wrap items-center gap-2">
             <StatusBadge value={plan.status} map={STATUS_CFG} />
             <StatusBadge value={plan.priority} map={PRIORITY_CFG} />
             {plan.period && (
-              <span className="text-xs text-gray-400">{plan.period}</span>
+              <span className="font-body text-xs text-ink-faint">
+                {plan.period}
+              </span>
             )}
           </div>
-          <div className="text-sm font-semibold text-gray-900 truncate">
+          <div className="truncate font-body text-sm font-semibold text-ink">
             {plan.name}
           </div>
-          <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">
+          <p className="mt-0.5 line-clamp-2 font-body text-xs text-ink-muted">
             {plan.goal}
           </p>
         </div>
-        <Avatar
-          name={plan.user.fullName}
-          avatarUrl={plan.user.avatarUrl}
-          size="sm"
-        />
+        <Avatar name={plan.user.fullName} url={plan.user.avatarUrl ?? undefined} size="sm" />
       </div>
 
-      <ProgressBar
-        pct={pct}
-        color={
-          pct >= 100
-            ? 'bg-emerald-500'
-            : pct >= 50
-              ? 'bg-blue-500'
-              : 'bg-amber-400'
-        }
-      />
+      <div className="flex items-center gap-2">
+        <div className="flex-1">
+          <ProgressBar value={pct} />
+        </div>
+        <span
+          className={cn(
+            'w-9 shrink-0 text-right font-data text-xs font-semibold',
+            progressTextClass(pct),
+          )}
+        >
+          {pct}%
+        </span>
+      </div>
 
-      <div className="flex items-center justify-between mt-3 text-xs text-gray-400">
+      <div className="mt-3 flex items-center justify-between font-body text-xs text-ink-faint">
         <div className="flex items-center gap-3">
-          <span>📋 {plan._count.actions} acções</span>
-          <span>🎯 {plan._count.goals} metas</span>
+          <span className="flex items-center gap-1">
+            <ClipboardList size={14} strokeWidth={1.75} />
+            {plan._count.actions} acções
+          </span>
+          <span className="flex items-center gap-1">
+            <Target size={14} strokeWidth={1.75} />
+            {plan._count.goals} metas
+          </span>
         </div>
         <div className="flex items-center gap-2">
           {hasOverdue && (
-            <span className="text-red-600 font-medium">
-              ⚠ {plan.overdueActions} atrasada(s)
+            <span className="flex items-center gap-1 font-medium text-danger">
+              <TriangleAlert size={14} strokeWidth={1.75} />
+              {plan.overdueActions} atrasada(s)
             </span>
           )}
           {plan.endDate && (
             <span
-              className={
-                isOverdue(plan.endDate, plan.status) ? 'text-red-600' : ''
-              }
+              className={cn(
+                'flex items-center gap-1',
+                isOverdue(plan.endDate, plan.status) && 'text-danger',
+              )}
             >
-              📅 {fmtDate(plan.endDate)}
+              <Calendar size={14} strokeWidth={1.75} />
+              {fmtDate(plan.endDate)}
             </span>
           )}
         </div>
       </div>
-    </div>
+    </Card>
   );
 }

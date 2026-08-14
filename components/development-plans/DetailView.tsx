@@ -6,26 +6,49 @@
 'use client';
 
 import { useState } from 'react';
+import {
+  ArrowLeft,
+  ArrowRight,
+  Calendar,
+  CheckCircle2,
+  Clock,
+  FileText,
+  MessageCircle,
+  Paperclip,
+  Star,
+  TriangleAlert,
+} from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
+import { cn } from '@/lib/cn';
+import { Avatar } from '@/components/ui/Avatar';
+import { Button } from '@/components/ui/Button';
+import { Card, CardBody } from '@/components/ui/Card';
+import { ProgressBar } from '@/components/ui/ProgressBar';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { formatDate as fmtDate } from '@/lib/format';
-import { Avatar, ProgressBar, Skeleton } from './atoms';
 import {
   ACTION_CFG,
   ACTION_STATUS,
   PRIORITY_CFG,
   STATUS_CFG,
 } from './constants';
-import { isOverdue } from './utils';
+import { isOverdue, progressTextClass } from './utils';
 import type { Plan } from './types';
 
 interface DetailViewProps {
   planId: number;
   onBack: () => void;
 }
+
+const TABS = [
+  { id: 'actions', label: '✅ Acções' },
+  { id: 'goals', label: '🎯 Metas' },
+  { id: 'checkpoints', label: '📍 Checkpoints' },
+] as const;
 
 export function DetailView({ planId, onBack }: DetailViewProps) {
   const [updatingAction, setUpdatingAction] = useState<number | null>(null);
@@ -89,94 +112,86 @@ export function DetailView({ planId, onBack }: DetailViewProps) {
 
   return (
     <div>
-      <button
-        onClick={onBack}
-        className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-800 mb-5"
-      >
-        ← Voltar
-      </button>
+      <Button intent="ghost" size="sm" onClick={onBack} className="mb-5">
+        <ArrowLeft size={14} strokeWidth={1.75} />
+        Voltar
+      </Button>
 
       {/* Header */}
-      <div className="bg-white border border-gray-200 rounded-xl p-6 mb-5">
-        <div className="flex items-start justify-between gap-4 mb-4">
-          <div className="flex-1">
-            <div className="flex items-center gap-2 flex-wrap mb-2">
-              <StatusBadge value={plan.status} map={STATUS_CFG} />
-              <StatusBadge value={plan.priority} map={PRIORITY_CFG} />
-              {plan.period && (
-                <span className="text-xs text-gray-400">{plan.period}</span>
+      <Card className="mb-5">
+        <CardBody>
+          <div className="mb-4 flex items-start justify-between gap-4">
+            <div className="flex-1">
+              <div className="mb-2 flex flex-wrap items-center gap-2">
+                <StatusBadge value={plan.status} map={STATUS_CFG} />
+                <StatusBadge value={plan.priority} map={PRIORITY_CFG} />
+                {plan.period && (
+                  <span className="font-body text-xs text-ink-faint">
+                    {plan.period}
+                  </span>
+                )}
+              </div>
+              <h1 className="mb-1 font-display text-xl font-bold text-ink">
+                {plan.name}
+              </h1>
+              <p className="font-body text-sm text-ink-muted">{plan.goal}</p>
+            </div>
+            <div className="flex-shrink-0">
+              {plan.status === 'DRAFT' && (
+                <Button size="sm" onClick={handleSubmit}>
+                  Submeter para aprovação
+                  <ArrowRight size={14} strokeWidth={1.75} />
+                </Button>
               )}
             </div>
-            <h1 className="text-xl font-bold text-gray-900 mb-1">
-              {plan.name}
-            </h1>
-            <p className="text-sm text-gray-600">{plan.goal}</p>
           </div>
-          <div className="flex-shrink-0">
-            {plan.status === 'DRAFT' && (
-              <button
-                onClick={handleSubmit}
-                className="px-4 py-2 bg-blue-700 text-white text-sm font-medium rounded-lg hover:bg-blue-800"
+
+          {/* Progresso geral */}
+          <div className="mb-4">
+            <div className="mb-1 flex justify-between font-body text-xs text-ink-faint">
+              <span>Progresso geral</span>
+              <span
+                className={cn('font-data font-semibold', progressTextClass(pct))}
               >
-                Submeter para aprovação →
-              </button>
+                {pct}%
+              </span>
+            </div>
+            <ProgressBar value={pct} />
+          </div>
+
+          {/* Meta info */}
+          <div className="flex flex-wrap gap-4 font-body text-xs text-ink-faint">
+            <span className="flex items-center gap-1">
+              <Calendar size={14} strokeWidth={1.75} />
+              Início: {fmtDate(plan.startDate)}
+            </span>
+            <span className="flex items-center gap-1">
+              <Calendar size={14} strokeWidth={1.75} />
+              Fim: {fmtDate(plan.endDate)}
+            </span>
+            <span>📋 {plan._count.actions} acções</span>
+            <span>🎯 {plan._count.goals} metas</span>
+            {plan.manager && (
+              <span className="flex items-center gap-1">
+                <Avatar name={plan.manager.fullName} size="sm" />
+                Gestor: {plan.manager.fullName}
+              </span>
             )}
           </div>
-        </div>
-
-        {/* Progresso geral */}
-        <div className="mb-4">
-          <div className="flex justify-between text-xs text-gray-400 mb-1">
-            <span>Progresso geral</span>
-            <span className="font-mono">{pct}%</span>
-          </div>
-          <ProgressBar
-            pct={pct}
-            color={
-              pct >= 100
-                ? 'bg-emerald-500'
-                : pct >= 50
-                  ? 'bg-blue-500'
-                  : 'bg-amber-400'
-            }
-          />
-        </div>
-
-        {/* Meta info */}
-        <div className="flex flex-wrap gap-4 text-xs text-gray-400">
-          <span>📅 Início: {fmtDate(plan.startDate)}</span>
-          <span>📅 Fim: {fmtDate(plan.endDate)}</span>
-          <span>📋 {plan._count.actions} acções</span>
-          <span>🎯 {plan._count.goals} metas</span>
-          {plan.manager && (
-            <span className="flex items-center gap-1">
-              <Avatar name={plan.manager.fullName} size="sm" />
-              Gestor: {plan.manager.fullName}
-            </span>
-          )}
-        </div>
-      </div>
+        </CardBody>
+      </Card>
 
       {/* Tabs */}
-      <div className="flex gap-1 mb-5 bg-gray-100 p-1 rounded-xl w-fit">
-        {(['actions', 'goals', 'checkpoints'] as const).map((t) => (
-          <button
-            key={t}
-            onClick={() => setActiveTab(t)}
-            className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-              activeTab === t
-                ? 'bg-white text-gray-900 shadow-sm'
-                : 'text-gray-500 hover:text-gray-700'
-            }`}
+      <div className="mb-5 flex w-fit gap-1 rounded-card bg-surface-sunken p-1">
+        {TABS.map((t) => (
+          <Button
+            key={t.id}
+            size="sm"
+            intent={activeTab === t.id ? 'primary' : 'ghost'}
+            onClick={() => setActiveTab(t.id)}
           >
-            {
-              {
-                actions: '✅ Acções',
-                goals: '🎯 Metas',
-                checkpoints: '📍 Checkpoints',
-              }[t]
-            }
-          </button>
+            {t.label}
+          </Button>
         ))}
       </div>
 
@@ -188,82 +203,105 @@ export function DetailView({ planId, onBack }: DetailViewProps) {
             const statusCfg = ACTION_STATUS[action.status];
             const overdue = isOverdue(action.dueDate, action.status);
             return (
-              <div
+              <Card
                 key={action.id}
-                className={`bg-white border rounded-xl p-4 ${overdue ? 'border-red-200' : 'border-gray-200'}`}
+                className={overdue ? 'border-danger' : undefined}
               >
-                <div className="flex items-start gap-3">
-                  <div
-                    className={`w-9 h-9 rounded-xl flex items-center justify-center text-lg flex-shrink-0 ${typeCfg.cls}`}
-                  >
-                    {typeCfg.icon}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className={`text-lg ${statusCfg.cls}`}>
-                        {statusCfg.icon}
-                      </span>
-                      <span
-                        className={`text-sm font-medium ${action.status === 'COMPLETED' ? 'line-through text-gray-400' : 'text-gray-900'}`}
-                      >
-                        {action.title}
-                      </span>
-                      {action.mandatory && (
-                        <span className="text-xs text-red-600">
-                          Obrigatória
-                        </span>
+                <CardBody>
+                  <div className="flex items-start gap-3">
+                    <div
+                      className={cn(
+                        'flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-control text-lg',
+                        typeCfg.cls,
                       )}
+                    >
+                      {typeCfg.icon}
                     </div>
-                    {action.description && (
-                      <p className="text-xs text-gray-500 mb-2">
-                        {action.description}
-                      </p>
-                    )}
-                    <div className="flex items-center gap-3 text-xs text-gray-400">
-                      <span>{typeCfg.label}</span>
-                      {action.workloadHours && (
-                        <span>⏱ {action.workloadHours}h</span>
-                      )}
-                      {action.dueDate && (
+                    <div className="min-w-0 flex-1">
+                      <div className="mb-1 flex items-center gap-2">
+                        <span className={cn('text-lg', statusCfg.cls)}>
+                          {statusCfg.icon}
+                        </span>
                         <span
-                          className={overdue ? 'text-red-600 font-medium' : ''}
+                          className={cn(
+                            'font-body text-sm font-medium',
+                            action.status === 'COMPLETED'
+                              ? 'text-ink-faint line-through'
+                              : 'text-ink',
+                          )}
                         >
-                          {overdue ? '⚠ ' : ''}📅 {fmtDate(action.dueDate)}
+                          {action.title}
                         </span>
+                        {action.mandatory && (
+                          <span className="font-body text-xs text-danger">
+                            Obrigatória
+                          </span>
+                        )}
+                      </div>
+                      {action.description && (
+                        <p className="mb-2 font-body text-xs text-ink-muted">
+                          {action.description}
+                        </p>
                       )}
-                      <span className="text-amber-600">
-                        +{action.xpReward} XP
-                      </span>
-                      {action.evidence && action.evidence.length > 0 && (
-                        <span className="text-blue-600">
-                          📎 {action.evidence.length} evidência(s)
+                      <div className="flex flex-wrap items-center gap-3 font-body text-xs text-ink-faint">
+                        <span>{typeCfg.label}</span>
+                        {action.workloadHours && (
+                          <span className="flex items-center gap-1">
+                            <Clock size={14} strokeWidth={1.75} />
+                            {action.workloadHours}h
+                          </span>
+                        )}
+                        {action.dueDate && (
+                          <span
+                            className={cn(
+                              'flex items-center gap-1',
+                              overdue && 'font-medium text-danger',
+                            )}
+                          >
+                            {overdue && (
+                              <TriangleAlert size={14} strokeWidth={1.75} />
+                            )}
+                            <Calendar size={14} strokeWidth={1.75} />
+                            {fmtDate(action.dueDate)}
+                          </span>
+                        )}
+                        <span className="text-accent">
+                          +{action.xpReward} XP
                         </span>
+                        {action.evidence && action.evidence.length > 0 && (
+                          <span className="flex items-center gap-1 text-info">
+                            <Paperclip size={14} strokeWidth={1.75} />
+                            {action.evidence.length} evidência(s)
+                          </span>
+                        )}
+                      </div>
+                      {action.status !== 'COMPLETED' && (
+                        <div className="mt-2">
+                          <ProgressBar value={action.progress} />
+                        </div>
                       )}
                     </div>
-                    {action.status !== 'COMPLETED' && (
-                      <div className="mt-2">
-                        <ProgressBar pct={action.progress} />
-                      </div>
-                    )}
+                    {action.status !== 'COMPLETED' &&
+                      action.status !== 'CANCELLED' && (
+                        <Button
+                          size="sm"
+                          intent="success"
+                          loading={updatingAction === action.id}
+                          onClick={() =>
+                            handleCompleteAction(action.id, action.xpReward)
+                          }
+                          className="flex-shrink-0"
+                        >
+                          Concluir
+                        </Button>
+                      )}
                   </div>
-                  {action.status !== 'COMPLETED' &&
-                    action.status !== 'CANCELLED' && (
-                      <button
-                        onClick={() =>
-                          handleCompleteAction(action.id, action.xpReward)
-                        }
-                        disabled={updatingAction === action.id}
-                        className="flex-shrink-0 px-3 py-1.5 bg-emerald-600 text-white text-xs font-medium rounded-lg hover:bg-emerald-700 disabled:opacity-50"
-                      >
-                        {updatingAction === action.id ? '…' : 'Concluir'}
-                      </button>
-                    )}
-                </div>
-              </div>
+                </CardBody>
+              </Card>
             );
           })}
           {(!plan.actions || plan.actions.length === 0) && (
-            <div className="py-8 text-center text-sm text-gray-400 border border-dashed border-gray-200 rounded-xl">
+            <div className="rounded-card border border-dashed border-border-strong py-8 text-center font-body text-sm text-ink-faint">
               Sem acções adicionadas
             </div>
           )}
@@ -274,58 +312,61 @@ export function DetailView({ planId, onBack }: DetailViewProps) {
       {activeTab === 'goals' && (
         <div className="space-y-3">
           {plan.goals?.map((goal) => (
-            <div
-              key={goal.id}
-              className="bg-white border border-gray-200 rounded-xl p-4"
-            >
-              <div className="flex items-start justify-between gap-4 mb-3">
-                <div>
-                  <div className="text-sm font-semibold text-gray-900 mb-0.5">
-                    {goal.title}
-                  </div>
-                  {goal.successIndicator && (
-                    <div className="text-xs text-gray-500">
-                      📊 {goal.successIndicator}
+            <Card key={goal.id}>
+              <CardBody>
+                <div className="mb-3 flex items-start justify-between gap-4">
+                  <div>
+                    <div className="mb-0.5 font-body text-sm font-semibold text-ink">
+                      {goal.title}
                     </div>
-                  )}
-                  {goal.dueDate && (
-                    <div className="text-xs text-gray-400 mt-0.5">
-                      📅 {fmtDate(goal.dueDate)}
-                    </div>
-                  )}
-                </div>
-                <div className="text-right flex-shrink-0">
-                  <div className="text-2xl font-bold font-mono text-blue-700">
-                    {goal.progress}%
+                    {goal.successIndicator && (
+                      <div className="font-body text-xs text-ink-muted">
+                        📊 {goal.successIndicator}
+                      </div>
+                    )}
+                    {goal.dueDate && (
+                      <div className="mt-0.5 flex items-center gap-1 font-body text-xs text-ink-faint">
+                        <Calendar size={14} strokeWidth={1.75} />
+                        {fmtDate(goal.dueDate)}
+                      </div>
+                    )}
                   </div>
-                  {goal.completedAt && (
-                    <div className="text-xs text-emerald-600">✓ Concluída</div>
-                  )}
+                  <div className="flex-shrink-0 text-right">
+                    <div className="font-data text-2xl font-bold text-info-ink">
+                      {goal.progress}%
+                    </div>
+                    {goal.completedAt && (
+                      <div className="flex items-center gap-1 font-body text-xs text-success">
+                        <CheckCircle2 size={14} strokeWidth={1.75} />
+                        Concluída
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
-              <ProgressBar pct={goal.progress} />
-              {goal.progress < 100 && (
-                <div className="flex gap-2 mt-3">
-                  {[25, 50, 75, 100].map((v) => (
-                    <button
-                      key={v}
-                      onClick={() => handleGoalProgress(goal.id, v)}
-                      disabled={updatingGoal === goal.id || goal.progress >= v}
-                      className={`text-xs px-2 py-1 rounded-lg transition-colors ${
-                        goal.progress >= v
-                          ? 'bg-gray-100 text-gray-300'
-                          : 'bg-blue-50 text-blue-600 hover:bg-blue-100'
-                      } disabled:opacity-50`}
-                    >
-                      {v}%
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
+                <ProgressBar value={goal.progress} />
+                {goal.progress < 100 && (
+                  <div className="mt-3 flex gap-2">
+                    {[25, 50, 75, 100].map((v) => {
+                      const reached = goal.progress >= v;
+                      return (
+                        <Button
+                          key={v}
+                          size="sm"
+                          intent={reached ? 'ghost' : 'secondary'}
+                          disabled={reached || updatingGoal === goal.id}
+                          onClick={() => handleGoalProgress(goal.id, v)}
+                        >
+                          {v}%
+                        </Button>
+                      );
+                    })}
+                  </div>
+                )}
+              </CardBody>
+            </Card>
           ))}
           {(!plan.goals || plan.goals.length === 0) && (
-            <div className="py-8 text-center text-sm text-gray-400 border border-dashed border-gray-200 rounded-xl">
+            <div className="rounded-card border border-dashed border-border-strong py-8 text-center font-body text-sm text-ink-faint">
               Sem metas adicionadas
             </div>
           )}
@@ -336,49 +377,62 @@ export function DetailView({ planId, onBack }: DetailViewProps) {
       {activeTab === 'checkpoints' && (
         <div className="space-y-3">
           {plan.checkpoints?.map((cp) => (
-            <div
+            <Card
               key={cp.id}
-              className={`flex items-center gap-4 bg-white border rounded-xl p-4 ${
-                cp.status === 'COMPLETED'
-                  ? 'border-emerald-200'
-                  : 'border-gray-200'
-              }`}
+              className={cp.status === 'COMPLETED' ? 'border-success' : undefined}
             >
-              <div
-                className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0 ${
-                  cp.status === 'COMPLETED' ? 'bg-emerald-50' : 'bg-blue-50'
-                }`}
-              >
-                {cp.status === 'COMPLETED'
-                  ? '✅'
-                  : cp.type === 'STRUCTURED'
-                    ? '📋'
-                    : '💬'}
-              </div>
-              <div className="flex-1">
-                <div className="text-sm font-medium text-gray-900">
-                  {cp.title}
-                </div>
-                <div className="text-xs text-gray-400">
-                  📅 {fmtDate(cp.scheduledAt)}
-                  {cp.selfScore && (
-                    <span className="ml-2">⭐ {cp.selfScore}/5</span>
+              <CardBody className="flex items-center gap-4">
+                <div
+                  className={cn(
+                    'flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-control',
+                    cp.status === 'COMPLETED'
+                      ? 'bg-success-subtle text-success'
+                      : 'bg-info-subtle text-info',
+                  )}
+                >
+                  {cp.status === 'COMPLETED' ? (
+                    <CheckCircle2 size={20} strokeWidth={1.75} />
+                  ) : cp.type === 'STRUCTURED' ? (
+                    <FileText size={20} strokeWidth={1.75} />
+                  ) : (
+                    <MessageCircle size={20} strokeWidth={1.75} />
                   )}
                 </div>
-              </div>
-              <span
-                className={`text-xs px-2 py-0.5 rounded font-medium ${
-                  cp.status === 'COMPLETED'
-                    ? 'bg-emerald-50 text-emerald-700'
-                    : 'bg-gray-100 text-gray-500'
-                }`}
-              >
-                {cp.status === 'COMPLETED' ? 'Concluído' : 'Pendente'}
-              </span>
-            </div>
+                <div className="flex-1">
+                  <div className="font-body text-sm font-medium text-ink">
+                    {cp.title}
+                  </div>
+                  <div className="flex items-center gap-2 font-body text-xs text-ink-faint">
+                    <span className="flex items-center gap-1">
+                      <Calendar size={14} strokeWidth={1.75} />
+                      {fmtDate(cp.scheduledAt)}
+                    </span>
+                    {cp.selfScore && (
+                      <span className="flex items-center gap-1">
+                        <Star size={14} strokeWidth={1.75} />
+                        {cp.selfScore}/5
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <StatusBadge
+                  value={cp.status === 'COMPLETED' ? 'COMPLETED' : 'PENDING'}
+                  map={{
+                    COMPLETED: {
+                      label: 'Concluído',
+                      cls: 'bg-success-subtle text-success-ink',
+                    },
+                    PENDING: {
+                      label: 'Pendente',
+                      cls: 'bg-surface-sunken text-ink-muted',
+                    },
+                  }}
+                />
+              </CardBody>
+            </Card>
           ))}
           {(!plan.checkpoints || plan.checkpoints.length === 0) && (
-            <div className="py-8 text-center text-sm text-gray-400 border border-dashed border-gray-200 rounded-xl">
+            <div className="rounded-card border border-dashed border-border-strong py-8 text-center font-body text-sm text-ink-faint">
               Sem checkpoints agendados
             </div>
           )}
