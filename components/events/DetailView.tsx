@@ -209,7 +209,7 @@ export function DetailView({ eventId, onBack }: DetailViewProps) {
                     href={event.meetingUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="rounded-control bg-danger px-4 py-2 text-center font-body text-sm font-medium text-white hover:brightness-95"
+                    className="rounded-control bg-danger px-4 py-2 text-center font-body text-sm font-medium text-canvas hover:brightness-95"
                   >
                     🔴 Entrar no evento
                   </a>
