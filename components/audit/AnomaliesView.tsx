@@ -8,8 +8,14 @@
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { Skeleton } from './atoms';
+import { Card, CardBody } from '@/components/ui/Card';
+import { Skeleton } from '@/components/ui/Skeleton';
 import type { Anomalies, IntegrityCheck } from './types';
+
+const ANOMALY_TONE = {
+  danger: { text: 'text-danger-ink', count: 'text-danger-ink' },
+  warning: { text: 'text-warning-ink', count: 'text-warning-ink' },
+} as const;
 
 export function AnomaliesView() {
   const dataQ = useApiQuery<Anomalies>(
@@ -32,18 +38,18 @@ export function AnomaliesView() {
     <div className="space-y-5">
       {/* Resumo */}
       <div
-        className={`flex items-center gap-3 p-4 border rounded-xl ${data.totalAlerts > 0 ? 'bg-red-50 border-red-200' : 'bg-emerald-50 border-emerald-200'}`}
+        className={`flex items-center gap-3 rounded-card border p-4 ${data.totalAlerts > 0 ? 'border-danger bg-danger-subtle' : 'border-success bg-success-subtle'}`}
       >
         <span className="text-3xl">{data.totalAlerts > 0 ? '🚨' : '✅'}</span>
         <div>
           <div
-            className={`text-sm font-semibold ${data.totalAlerts > 0 ? 'text-red-700' : 'text-emerald-700'}`}
+            className={`font-body text-sm font-semibold ${data.totalAlerts > 0 ? 'text-danger-ink' : 'text-success-ink'}`}
           >
             {data.totalAlerts > 0
               ? `${data.totalAlerts} anomalia(s) detectada(s)`
               : 'Nenhuma anomalia detectada'}
           </div>
-          <div className="text-xs text-gray-500">
+          <div className="font-body text-xs text-ink-muted">
             Última verificação: agora mesmo
           </div>
         </div>
@@ -52,19 +58,19 @@ export function AnomaliesView() {
       {/* Integridade */}
       {integrity && (
         <div
-          className={`flex items-center gap-3 p-4 border rounded-xl ${integrity.valid ? 'bg-emerald-50 border-emerald-200' : 'bg-red-50 border-red-200'}`}
+          className={`flex items-center gap-3 rounded-card border p-4 ${integrity.valid ? 'border-success bg-success-subtle' : 'border-danger bg-danger-subtle'}`}
         >
           <span className="text-2xl">{integrity.valid ? '🔒' : '⚠️'}</span>
           <div>
             <div
-              className={`text-sm font-semibold ${integrity.valid ? 'text-emerald-700' : 'text-red-700'}`}
+              className={`font-body text-sm font-semibold ${integrity.valid ? 'text-success-ink' : 'text-danger-ink'}`}
             >
               {integrity.valid
                 ? `Hash chain íntegra (${integrity.checked} registos verificados)`
                 : `⚠️ ${integrity.broken.length} registo(s) com hash inválida`}
             </div>
             {!integrity.valid && (
-              <div className="text-xs text-red-600 mt-0.5">
+              <div className="mt-0.5 font-body text-xs text-danger-ink">
                 IDs afectados: {integrity.broken.join(', ')}
               </div>
             )}
@@ -77,46 +83,47 @@ export function AnomaliesView() {
         {
           label: '🔑 Logins suspeitos (>3 falhas/hora)',
           items: data.suspiciousLogins,
-          color: 'text-red-700',
+          tone: ANOMALY_TONE.danger,
         },
         {
           label: '📥 Exportações em massa (>3/hora)',
           items: data.massExports,
-          color: 'text-amber-700',
+          tone: ANOMALY_TONE.warning,
         },
         {
           label: '🗑️ Deleções em massa (>5/dia)',
           items: data.massDeletes,
-          color: 'text-red-700',
+          tone: ANOMALY_TONE.danger,
         },
-      ].map(({ label, items, color }) => (
-        <div
-          key={label}
-          className="bg-white border border-gray-200 rounded-xl p-4"
-        >
-          <div className={`text-sm font-semibold mb-3 ${color}`}>{label}</div>
-          {items.length === 0 ? (
-            <div className="text-xs text-gray-400">
-              Nenhuma anomalia deste tipo
+      ].map(({ label, items, tone }) => (
+        <Card key={label}>
+          <CardBody>
+            <div className={`mb-3 font-body text-sm font-semibold ${tone.text}`}>
+              {label}
             </div>
-          ) : (
-            <div className="space-y-2">
-              {items.map((item, i) => (
-                <div
-                  key={i}
-                  className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0"
-                >
-                  <span className="text-xs text-gray-700">
-                    User ID: {item.userId}
-                  </span>
-                  <span className={`text-xs font-bold font-mono ${color}`}>
-                    {item.count}×
-                  </span>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+            {items.length === 0 ? (
+              <div className="font-body text-xs text-ink-faint">
+                Nenhuma anomalia deste tipo
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {items.map((item, i) => (
+                  <div
+                    key={i}
+                    className="flex items-center justify-between border-b border-border py-2 last:border-0"
+                  >
+                    <span className="font-body text-xs text-ink-muted">
+                      User ID: {item.userId}
+                    </span>
+                    <span className={`font-data text-xs font-bold ${tone.count}`}>
+                      {item.count}×
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardBody>
+        </Card>
       ))}
     </div>
   );
