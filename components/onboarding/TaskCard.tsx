@@ -1,10 +1,13 @@
 // components/onboarding/TaskCard.tsx
 // Cartão de tarefa do plano de onboarding. Extraído de
-// app/(platform)/onboarding/page.tsx.
+// app/(platform)/onboarding/page.tsx. Migrado para a fundação de
+// design: Card + Button substituem os elementos bespoke.
 
 'use client';
 
 import { formatDate as fmtDate } from '@/lib/format';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
 import { CATEGORY_CFG, TASK_STATUS_CFG } from './constants';
 import { isOverdue } from './utils';
 import type { TaskInstance } from './types';
@@ -20,15 +23,15 @@ export function TaskCard({ task, onComplete }: TaskCardProps) {
   const overdue = isOverdue(task.dueDate) && task.status !== 'COMPLETED';
 
   return (
-    <div
-      className={`flex items-start gap-3 bg-white border rounded-xl p-4 transition-all ${
+    <Card
+      className={`flex items-start gap-3 p-4 ${
         task.status === 'COMPLETED'
-          ? 'border-emerald-200 opacity-70'
+          ? 'border-success opacity-70'
           : task.status === 'BLOCKED'
-            ? 'border-gray-200 opacity-50'
+            ? 'opacity-50'
             : overdue
-              ? 'border-red-200'
-              : 'border-gray-200 hover:shadow-sm'
+              ? 'border-danger'
+              : 'hover:shadow-hover'
       }`}
     >
       <div className={`text-xl flex-shrink-0 mt-0.5 ${statusCfg.cls}`}>
@@ -39,12 +42,12 @@ export function TaskCard({ task, onComplete }: TaskCardProps) {
         <div className="flex items-start justify-between gap-2">
           <div>
             <div
-              className={`text-sm font-medium ${task.status === 'COMPLETED' ? 'line-through text-gray-400' : 'text-gray-900'}`}
+              className={`text-sm font-medium ${task.status === 'COMPLETED' ? 'line-through text-ink-faint' : 'text-ink'}`}
             >
               {task.templateTask.title}
             </div>
             {task.templateTask.description && (
-              <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">
+              <p className="text-xs text-ink-muted mt-0.5 line-clamp-2">
                 {task.templateTask.description}
               </p>
             )}
@@ -56,22 +59,22 @@ export function TaskCard({ task, onComplete }: TaskCardProps) {
           </span>
         </div>
 
-        <div className="flex items-center gap-3 mt-2 text-xs text-gray-400">
+        <div className="flex items-center gap-3 mt-2 text-xs text-ink-faint">
           {task.dueDate && (
-            <span className={overdue ? 'text-red-600 font-medium' : ''}>
+            <span className={overdue ? 'text-danger font-medium' : ''}>
               {overdue ? '⚠ ' : ''}Prazo: {fmtDate(task.dueDate)}
             </span>
           )}
           {task.templateTask.xpReward > 0 && (
-            <span className="text-amber-600">
+            <span className="text-warning-ink">
               ⚡ {task.templateTask.xpReward} XP
             </span>
           )}
           {task.templateTask.requiresApproval && (
-            <span className="text-blue-500">✎ Requer aprovação</span>
+            <span className="text-info">✎ Requer aprovação</span>
           )}
           {task.completedAt && (
-            <span className="text-emerald-600">
+            <span className="text-success-ink">
               ✓ {fmtDate(task.completedAt)}
             </span>
           )}
@@ -79,14 +82,15 @@ export function TaskCard({ task, onComplete }: TaskCardProps) {
       </div>
 
       {task.status === 'PENDING' || task.status === 'IN_PROGRESS' ? (
-        <button
+        <Button
+          size="sm"
           onClick={() => onComplete(task.id)}
           disabled={(task.status as string) === 'BLOCKED'}
-          className="flex-shrink-0 px-3 py-1.5 bg-blue-700 text-white text-xs font-medium rounded-lg hover:bg-blue-800 disabled:opacity-30"
+          className="flex-shrink-0"
         >
           Executar
-        </button>
+        </Button>
       ) : null}
-    </div>
+    </Card>
   );
 }
