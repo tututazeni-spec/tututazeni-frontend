@@ -5,18 +5,33 @@
 'use client';
 
 import { useState } from 'react';
+import { ArrowLeft } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { formatDate as fmtDate } from '@/lib/format';
+import { cn } from '@/lib/cn';
+import { Avatar } from '@/components/ui/Avatar';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { ProgressBar } from '@/components/ui/ProgressBar';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
-import { Avatar, ProgressBar, Skeleton } from './atoms';
 import { MODALITY_CFG, STATUS_CFG, STUDENT_STATUS } from './constants';
 import type { CohortDetail } from './types';
 
 interface CohortDetailViewProps {
   cohortId: number;
   onBack: () => void;
+}
+
+// ProgressBar da fundação é mono-cor — o sentido (progresso baixo/médio/
+// alto) que a barra original comunicava por cor passa para a percentagem
+// adjacente, mesmo padrão de AnalyticsTab/OverviewTab do engagement.
+function progressTextClass(pct: number): string {
+  if (pct > 60) return 'text-success';
+  if (pct > 30) return 'text-info';
+  return 'text-danger';
 }
 
 export function CohortDetailView({ cohortId, onBack }: CohortDetailViewProps) {
@@ -28,133 +43,145 @@ export function CohortDetailView({ cohortId, onBack }: CohortDetailViewProps) {
     { staleTime: STALE_TIME.DYNAMIC },
   );
 
-  if (isLoading || !data) return <Skeleton rows={5} />;
+  if (isLoading || !data)
+    return (
+      <Skeleton rows={5} itemClassName="skeleton-shimmer h-16 rounded-card" />
+    );
 
   const atRiskSet = new Set(data.atRisk);
   const modalityCfg = MODALITY_CFG[data.modalidade] ?? MODALITY_CFG.ONLINE;
   const atRiskList = data.participants.filter((p) => atRiskSet.has(p.userId));
+  const visibleList = tab === 'students' ? data.participants : atRiskList;
 
   return (
     <div>
-      <button
-        onClick={onBack}
-        className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-800 mb-4"
-      >
-        ← Voltar
-      </button>
+      <Button intent="ghost" size="sm" onClick={onBack} className="mb-4">
+        <ArrowLeft size={14} strokeWidth={1.75} />
+        Voltar
+      </Button>
 
       {/* Header */}
-      <div className="bg-white border border-gray-200 rounded-xl p-5 mb-4">
+      <Card className="mb-4 p-5">
         <div className="flex items-start justify-between">
           <div>
-            <div className="flex items-center gap-2 mb-1">
+            <div className="mb-1 flex items-center gap-2">
               <StatusBadge value={data.status} map={STATUS_CFG} />
-              <span className="text-xs text-gray-400">
+              <span className="font-body text-xs text-ink-faint">
                 {modalityCfg.icon} {modalityCfg.label}
               </span>
             </div>
-            <h2 className="text-lg font-bold text-gray-900">{data.name}</h2>
-            <p className="text-sm text-gray-500">{data.course.title}</p>
+            <h2 className="font-display text-lg font-bold text-ink">
+              {data.name}
+            </h2>
+            <p className="font-body text-sm text-ink-muted">
+              {data.course.title}
+            </p>
           </div>
           <div className="text-right">
-            <div className="text-2xl font-bold text-gray-900">
+            <div className="font-display text-2xl font-bold text-ink">
               {data.participants.length}
             </div>
-            <div className="text-xs text-gray-400">
+            <div className="font-body text-xs text-ink-faint">
               / {data.maxParticipants} alunos
             </div>
             {data.atRiskCount > 0 && (
-              <div className="text-xs text-red-600 mt-1">
+              <div className="mt-1 font-body text-xs text-danger">
                 ⚠ {data.atRiskCount} em risco
               </div>
             )}
           </div>
         </div>
-        <div className="flex gap-4 text-xs text-gray-400 mt-3">
+        <div className="mt-3 flex gap-4 font-body text-xs text-ink-faint">
           <span>📅 Início: {fmtDate(data.startDate)}</span>
           {data.endDate && <span>📅 Fim: {fmtDate(data.endDate)}</span>}
           {data.course.workloadHours && (
             <span>⏱ {data.course.workloadHours}h</span>
           )}
         </div>
-      </div>
+      </Card>
 
       {/* Tabs */}
-      <div className="flex gap-1 bg-gray-100 p-1 rounded-xl w-fit mb-4">
+      <div className="mb-4 flex w-fit gap-1 rounded-card bg-surface-sunken p-1">
         {(
           [
             { id: 'students', label: `👥 Todos (${data.participants.length})` },
             { id: 'atrisk', label: `⚠ Em risco (${data.atRiskCount})` },
           ] as const
         ).map((t) => (
-          <button
+          <Button
             key={t.id}
+            size="sm"
+            intent={tab === t.id ? 'primary' : 'ghost'}
             onClick={() => setTab(t.id)}
-            className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${tab === t.id ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
           >
             {t.label}
-          </button>
+          </Button>
         ))}
       </div>
 
       {/* Participant list */}
-      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-        {(tab === 'students' ? data.participants : atRiskList).map((p) => {
+      <Card className="overflow-hidden">
+        {visibleList.map((p) => {
           const isAtRisk = atRiskSet.has(p.userId);
           return (
             <div
               key={p.userId}
-              className={`flex items-center gap-3 px-4 py-3 border-b border-gray-100 last:border-0 ${isAtRisk ? 'bg-red-50' : ''}`}
+              className={cn(
+                'flex items-center gap-3 border-b border-border px-4 py-3 last:border-0',
+                isAtRisk && 'bg-danger-subtle',
+              )}
             >
               <Avatar
                 name={p.user.fullName}
-                avatarUrl={p.user.avatarUrl}
+                url={p.user.avatarUrl ?? undefined}
                 size="sm"
               />
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-0.5">
-                  <span className="text-sm font-medium text-gray-900">
+              <div className="min-w-0 flex-1">
+                <div className="mb-0.5 flex items-center gap-2">
+                  <span className="font-body text-sm font-medium text-ink">
                     {p.user.fullName}
                   </span>
                   {isAtRisk && (
-                    <span className="text-xs text-red-600 font-medium">
+                    <span className="font-body text-xs font-medium text-danger">
                       ⚠ Em risco
                     </span>
                   )}
                 </div>
-                <div className="text-xs text-gray-400">
+                <div className="font-body text-xs text-ink-faint">
                   {p.user.position?.name ?? '—'}
                 </div>
-                <div className="mt-1 max-w-xs">
+                <div className="mt-1 flex max-w-xs items-center gap-2">
                   <ProgressBar
-                    pct={p.enrollmentProgress}
-                    color={
-                      p.enrollmentProgress > 60
-                        ? 'bg-emerald-500'
-                        : p.enrollmentProgress > 30
-                          ? 'bg-blue-500'
-                          : 'bg-red-400'
-                    }
+                    value={p.enrollmentProgress}
+                    className="flex-1"
                   />
+                  <span
+                    className={cn(
+                      'w-9 shrink-0 font-mono text-xs',
+                      progressTextClass(p.enrollmentProgress),
+                    )}
+                  >
+                    {p.enrollmentProgress}%
+                  </span>
                 </div>
               </div>
-              <div className="text-right flex-shrink-0">
+              <div className="flex-shrink-0 text-right">
                 <StatusBadge value={p.enrollmentStatus} map={STUDENT_STATUS} />
-                <div className="text-xs text-gray-400 mt-0.5">
+                <div className="mt-0.5 font-body text-xs text-ink-faint">
                   Inscrito: {fmtDate(p.enrolledAt)}
                 </div>
               </div>
             </div>
           );
         })}
-        {(tab === 'students' ? data.participants : atRiskList).length === 0 && (
-          <div className="px-4 py-8 text-center text-sm text-gray-400">
+        {visibleList.length === 0 && (
+          <div className="px-4 py-8 text-center font-body text-sm text-ink-faint">
             {tab === 'atrisk'
               ? '✅ Sem alunos em risco'
               : 'Sem participantes inscritos'}
           </div>
         )}
-      </div>
+      </Card>
     </div>
   );
 }
