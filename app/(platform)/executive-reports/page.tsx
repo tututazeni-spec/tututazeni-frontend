@@ -2,11 +2,13 @@
 'use client';
 
 import { useState } from 'react';
+import { ArrowLeft, Zap } from 'lucide-react';
 import { TITLES } from '@/components/executive-reports/constants';
 import { DetailView } from '@/components/executive-reports/DetailView';
 import { GenerateView } from '@/components/executive-reports/GenerateView';
 import { ListView } from '@/components/executive-reports/ListView';
 import type { Nav } from '@/components/executive-reports/types';
+import { Button } from '@/components/ui/Button';
 
 export default function ExecutiveReportsPage() {
   const [nav, setNav] = useState<Nav>({ view: 'list' });
@@ -18,33 +20,27 @@ export default function ExecutiveReportsPage() {
     setNav({ view: 'detail', selectedId: id });
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-8">
-      <div className="flex items-center justify-between mb-6">
+    <div className="mx-auto max-w-5xl px-4 py-8">
+      <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-semibold text-gray-900">
+          <h1 className="font-display text-xl font-semibold text-ink">
             {TITLES[nav.view]}
           </h1>
-          <p className="text-sm text-gray-400 mt-0.5">
+          <p className="mt-0.5 font-body text-sm text-ink-faint">
             INNOVA — Inteligência Executiva
           </p>
         </div>
         {nav.view === 'list' && (
-          <div className="flex gap-2">
-            <button
-              onClick={() => setNav({ view: 'generate' })}
-              className="px-4 py-2 bg-blue-700 text-white text-sm font-medium rounded-lg hover:bg-blue-800"
-            >
-              ⚡ Gerar automático
-            </button>
-          </div>
+          <Button size="sm" onClick={() => setNav({ view: 'generate' })}>
+            <Zap size={14} strokeWidth={1.75} />
+            Gerar automático
+          </Button>
         )}
         {nav.view !== 'list' && (
-          <button
-            onClick={handleBack}
-            className="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200"
-          >
-            ← Voltar
-          </button>
+          <Button intent="secondary" size="sm" onClick={handleBack}>
+            <ArrowLeft size={14} strokeWidth={1.75} />
+            Voltar
+          </Button>
         )}
       </div>
 
