@@ -8,7 +8,8 @@
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { Avatar, Skeleton } from './atoms';
+import { Avatar } from '@/components/ui/Avatar';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { BOX_LABELS } from './constants';
 import type { NineBoxGrid } from './types';
 
@@ -24,7 +25,7 @@ export function NineBoxView() {
 
   return (
     <div>
-      <div className="text-sm text-gray-500 mb-5">
+      <div className="text-sm text-ink-muted mb-5">
         Matriz de desempenho × potencial. Eixo X = Performance (1-3), Eixo Y =
         Potencial (1-3).
       </div>
@@ -35,7 +36,7 @@ export function NineBoxView() {
           {['Alto', 'Médio', 'Baixo'].map((l) => (
             <div
               key={l}
-              className="text-xs text-gray-400"
+              className="text-xs text-ink-faint"
               style={{
                 writingMode: 'vertical-rl',
                 transform: 'rotate(180deg)',
@@ -57,37 +58,37 @@ export function NineBoxView() {
                 return (
                   <div
                     key={key}
-                    className={`flex-1 min-h-[140px] border rounded-xl p-3 ${box?.cls ?? 'bg-gray-50 border-gray-200'}`}
+                    className={`flex-1 min-h-[140px] border rounded-card p-3 ${box?.cls ?? 'bg-surface-sunken border-border'}`}
                   >
-                    <div className="text-xs font-semibold text-gray-700 mb-1">
+                    <div className="text-xs font-semibold text-ink mb-1">
                       {box?.label}
                     </div>
-                    <div className="text-xs text-gray-400 mb-2">
+                    <div className="text-xs text-ink-faint mb-2">
                       {box?.desc}
                     </div>
                     <div className="space-y-1">
                       {items.map((item) => (
                         <div
                           key={item.user.id}
-                          className="flex items-center gap-1.5 bg-white rounded-lg px-2 py-1 shadow-sm"
+                          className="flex items-center gap-1.5 bg-surface rounded-control px-2 py-1 shadow-resting"
                         >
                           <Avatar
                             name={item.user.fullName}
-                            avatarUrl={item.user.avatarUrl}
+                            url={item.user.avatarUrl ?? undefined}
                             size="sm"
                           />
                           <div className="flex-1 min-w-0">
-                            <div className="text-xs font-medium text-gray-900 truncate">
+                            <div className="text-xs font-medium text-ink truncate">
                               {item.user.fullName}
                             </div>
-                            <div className="text-xs text-gray-400 truncate">
+                            <div className="text-xs text-ink-faint truncate">
                               {item.user.position?.name}
                             </div>
                           </div>
                         </div>
                       ))}
                     </div>
-                    <div className="text-xs text-gray-300 mt-2">
+                    <div className="text-xs text-ink-faint mt-2">
                       {items.length} pessoas
                     </div>
                   </div>
@@ -99,7 +100,10 @@ export function NineBoxView() {
           {/* Eixo X labels */}
           <div className="flex gap-2 mt-1">
             {['Baixo', 'Médio', 'Alto'].map((l) => (
-              <div key={l} className="flex-1 text-center text-xs text-gray-400">
+              <div
+                key={l}
+                className="flex-1 text-center text-xs text-ink-faint"
+              >
                 {l} Desempenho
               </div>
             ))}

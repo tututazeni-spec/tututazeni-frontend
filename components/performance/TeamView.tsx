@@ -8,8 +8,19 @@
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
+import { Avatar } from '@/components/ui/Avatar';
+import { Badge } from '@/components/ui/Badge';
+import { ProgressBar } from '@/components/ui/ProgressBar';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
-import { Avatar, ProgressBar, Skeleton } from './atoms';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeaderCell,
+  TableRow,
+} from '@/components/ui/Table';
 import { PERF_CATEGORY_MAP, REVIEW_STATUS_MAP } from './constants';
 import type { Cycle, ReviewStatus, TeamMember } from './types';
 
@@ -34,93 +45,89 @@ export function TeamView() {
   return (
     <div>
       <div className="flex items-center justify-between mb-5">
-        <div className="text-sm text-gray-500">
+        <div className="text-sm text-ink-muted">
           {data.total} membros na equipa
         </div>
         {cycle && (
-          <div className="text-xs text-gray-400">Ciclo: {cycle.name}</div>
+          <div className="text-xs text-ink-faint">Ciclo: {cycle.name}</div>
         )}
       </div>
 
-      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-        <div className="grid grid-cols-[1fr_120px_120px_100px_120px] gap-3 px-4 py-2.5 border-b border-gray-100 text-xs font-medium text-gray-400 uppercase tracking-wide">
-          <div>Colaborador</div>
-          <div>Goals (%)</div>
-          <div>Score</div>
-          <div>Estado</div>
-          <div>Pendências</div>
-        </div>
-
-        {data.team.map((member) => (
-          <div
-            key={member.user.id}
-            className="grid grid-cols-[1fr_120px_120px_100px_120px] gap-3 items-center px-4 py-3.5 border-b border-gray-100 last:border-0 hover:bg-gray-50"
-          >
-            <div className="flex items-center gap-3">
-              <Avatar
-                name={member.user.fullName}
-                avatarUrl={member.user.avatarUrl}
-                size="sm"
-              />
-              <div>
-                <div className="text-sm font-medium text-gray-900">
-                  {member.user.fullName}
+      <Table>
+        <TableHead>
+          <TableRow>
+            <TableHeaderCell>Colaborador</TableHeaderCell>
+            <TableHeaderCell>Goals (%)</TableHeaderCell>
+            <TableHeaderCell>Score</TableHeaderCell>
+            <TableHeaderCell>Estado</TableHeaderCell>
+            <TableHeaderCell>Pendências</TableHeaderCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {data.team.map((member) => (
+            <TableRow key={member.user.id}>
+              <TableCell>
+                <div className="flex items-center gap-3">
+                  <Avatar
+                    name={member.user.fullName}
+                    url={member.user.avatarUrl ?? undefined}
+                    size="sm"
+                  />
+                  <div>
+                    <div className="text-sm font-medium text-ink">
+                      {member.user.fullName}
+                    </div>
+                    <div className="text-xs text-ink-faint">
+                      {member.user.position?.name ?? '—'}
+                    </div>
+                  </div>
                 </div>
-                <div className="text-xs text-gray-400">
-                  {member.user.position?.name ?? '—'}
+              </TableCell>
+              <TableCell className="w-32">
+                <ProgressBar value={member.avgGoalProgress} />
+              </TableCell>
+              <TableCell>
+                <div className="flex items-center gap-2 font-data text-sm font-medium text-ink">
+                  {member.latestReview?.score !== null &&
+                  member.latestReview?.score !== undefined
+                    ? member.latestReview.score
+                    : '—'}
+                  {member.latestReview?.category && (
+                    <StatusBadge
+                      value={member.latestReview.category}
+                      map={PERF_CATEGORY_MAP}
+                    />
+                  )}
                 </div>
-              </div>
-            </div>
-            <div>
-              <ProgressBar
-                pct={member.avgGoalProgress}
-                color={
-                  member.avgGoalProgress >= 75
-                    ? 'bg-emerald-500'
-                    : member.avgGoalProgress >= 40
-                      ? 'bg-amber-500'
-                      : 'bg-red-500'
-                }
-              />
-            </div>
-            <div className="text-sm font-mono font-medium text-gray-900">
-              {member.latestReview?.score !== null &&
-              member.latestReview?.score !== undefined
-                ? member.latestReview.score
-                : '—'}
-              {member.latestReview?.category && (
+              </TableCell>
+              <TableCell>
                 <StatusBadge
-                  value={member.latestReview.category}
-                  map={PERF_CATEGORY_MAP}
+                  value={(member.latestReview?.status ?? 'DRAFT') as ReviewStatus}
+                  map={REVIEW_STATUS_MAP}
+                  variant="dot"
                 />
-              )}
-            </div>
-            <div>
-              <StatusBadge
-                value={(member.latestReview?.status ?? 'DRAFT') as ReviewStatus}
-                map={REVIEW_STATUS_MAP}
-                variant="dot"
-              />
-            </div>
-            <div>
-              {member.pendingSelfReview && (
-                <span className="text-xs bg-amber-50 text-amber-700 px-2 py-0.5 rounded">
-                  ⏳ Self pendente
-                </span>
-              )}
-              {!member.pendingSelfReview && member.status === 'NOT_STARTED' && (
-                <span className="text-xs text-gray-400">Não iniciado</span>
-              )}
-            </div>
-          </div>
-        ))}
+              </TableCell>
+              <TableCell>
+                {member.pendingSelfReview && (
+                  <Badge intent="warning">⏳ Self pendente</Badge>
+                )}
+                {!member.pendingSelfReview &&
+                  member.status === 'NOT_STARTED' && (
+                    <span className="text-xs text-ink-faint">
+                      Não iniciado
+                    </span>
+                  )}
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
 
-        {data.team.length === 0 && (
-          <div className="px-4 py-12 text-center text-sm text-gray-400">
-            Sem membros de equipa
-          </div>
-        )}
-      </div>
+      {data.team.length === 0 && (
+        <div className="px-4 py-12 text-center text-sm text-ink-faint">
+          Sem membros de equipa
+        </div>
+      )}
     </div>
   );
 }
