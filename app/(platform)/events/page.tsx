@@ -4,15 +4,18 @@
 // Container: gere a navegação (catálogo/os meus eventos/detalhe/
 // organizador); delega dados+apresentação de cada separador aos
 // componentes auto-contidos em components/events/. Ver memory
-// project_innova_component_separation_audit.
+// project_innova_component_separation_audit. Migrado para a fundação
+// de design: Button da fundação substitui os botões/tabs bespoke.
 
 import { useState } from 'react';
+import { CalendarDays, Plus } from 'lucide-react';
 import { NAV, TITLES } from '@/components/events/constants';
 import { CatalogView } from '@/components/events/CatalogView';
 import { DetailView } from '@/components/events/DetailView';
 import { MyEventsView } from '@/components/events/MyEventsView';
 import { OrganizerView } from '@/components/events/OrganizerView';
 import type { Nav } from '@/components/events/types';
+import { Button } from '@/components/ui/Button';
 
 export default function EventsPage() {
   const [nav, setNav] = useState<Nav>({ view: 'catalog' });
@@ -22,44 +25,52 @@ export default function EventsPage() {
   const handleBack = () => setNav({ view: 'catalog' });
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-8">
-      <div className="flex items-center justify-between mb-6">
+    <div className="mx-auto max-w-5xl px-4 py-8">
+      <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-semibold text-gray-900">
-            {TITLES[nav.view]}
-          </h1>
-          <p className="text-sm text-gray-400 mt-0.5">
+          <div className="mb-1 flex items-center gap-2">
+            <div className="rounded-control bg-primary-subtle p-1.5">
+              <CalendarDays
+                size={18}
+                strokeWidth={1.75}
+                className="text-primary"
+              />
+            </div>
+            <h1 className="font-display text-xl font-semibold text-ink">
+              {TITLES[nav.view]}
+            </h1>
+          </div>
+          <p className="mt-0.5 font-body text-sm text-ink-faint">
             INNOVA — Eventos Corporativos
           </p>
         </div>
         {nav.view !== 'detail' && (
-          <button
+          <Button
+            size="sm"
             onClick={() => alert('Abrir formulário de criação de evento')}
-            className="px-4 py-2 bg-blue-700 text-white text-sm font-medium rounded-lg hover:bg-blue-800"
           >
-            + Criar evento
-          </button>
+            <Plus size={14} strokeWidth={1.75} />
+            Criar evento
+          </Button>
         )}
         {nav.view === 'detail' && (
-          <button
-            onClick={handleBack}
-            className="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200"
-          >
+          <Button intent="ghost" size="sm" onClick={handleBack}>
             ← Voltar
-          </button>
+          </Button>
         )}
       </div>
 
       {nav.view !== 'detail' && (
-        <div className="flex gap-1 mb-6 bg-gray-100 p-1 rounded-xl w-fit">
+        <div className="mb-6 flex w-fit gap-1 rounded-card bg-surface-sunken p-1">
           {NAV.map((n) => (
-            <button
+            <Button
               key={n.id}
+              size="sm"
+              intent={nav.view === n.id ? 'primary' : 'ghost'}
               onClick={() => setNav({ view: n.id })}
-              className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${nav.view === n.id ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
             >
               {n.label}
-            </button>
+            </Button>
           ))}
         </div>
       )}

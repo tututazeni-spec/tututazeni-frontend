@@ -1,17 +1,27 @@
 // components/events/OrganizerView.tsx
 // Separador "Organizador" — KPIs e lista dos meus eventos com
 // ocupação. Dados próprios + apresentação. Extraído de
-// app/(platform)/events/page.tsx.
+// app/(platform)/events/page.tsx. Migrado para a fundação de design:
+// KpiCard da fundação substitui os cartões bespoke; ProgressBar
+// (mono-cor) substitui a barra recolorida por limiar — o tier passa
+// para um ponto de estado junto à % de ocupação, mesmo padrão do
+// EventCard.
 
 'use client';
 
+import { Calendar, TrendingUp, Trophy, Users } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { formatDate as fmtDate } from '@/lib/format';
+import { cn } from '@/lib/cn';
+import { Card } from '@/components/ui/Card';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { KpiCard } from '@/components/ui/KpiCard';
+import { ProgressBar } from '@/components/ui/ProgressBar';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
-import { Skeleton } from './atoms';
-import { STATUS_CFG } from './constants';
+import { occupancyDotCls, STATUS_CFG } from './constants';
 import type { EventStatus, OrganizerDashboard } from './types';
 
 export function OrganizerView() {
@@ -21,55 +31,60 @@ export function OrganizerView() {
     { staleTime: STALE_TIME.SEMI_STATIC },
   );
 
-  if (isLoading || !data) return <Skeleton rows={4} />;
+  if (isLoading || !data)
+    return (
+      <Skeleton
+        rows={4}
+        wrapperClassName="space-y-4"
+        itemClassName="skeleton-shimmer h-24 rounded-card"
+      />
+    );
 
   return (
     <div className="space-y-5">
       {/* KPIs */}
       <div className="grid grid-cols-4 gap-3">
-        {[
-          { label: 'Total de eventos', value: data.metrics.totalEvents },
-          {
-            label: 'Próximos',
-            value: data.metrics.upcomingEvents,
-            color: 'text-blue-600',
-          },
-          {
-            label: 'Total participantes',
-            value: data.metrics.totalParticipants,
-            color: 'text-emerald-600',
-          },
-          {
-            label: 'NPS médio',
-            value: data.metrics.avgNps ? `${data.metrics.avgNps}/10` : '—',
-            color: 'text-amber-600',
-          },
-        ].map(({ label, value, color }) => (
-          <div key={label} className="bg-gray-50 rounded-xl p-4">
-            <div className="text-xs text-gray-400 mb-1">{label}</div>
-            <div
-              className={`text-2xl font-bold font-mono ${color ?? 'text-gray-900'}`}
-            >
-              {value}
-            </div>
-          </div>
-        ))}
+        <KpiCard
+          icon={Calendar}
+          label="Total de eventos"
+          value={data.metrics.totalEvents}
+          intent="primary"
+        />
+        <KpiCard
+          icon={Calendar}
+          label="Próximos"
+          value={data.metrics.upcomingEvents}
+          intent="info"
+        />
+        <KpiCard
+          icon={Users}
+          label="Total participantes"
+          value={data.metrics.totalParticipants}
+          intent="success"
+        />
+        <KpiCard
+          icon={TrendingUp}
+          label="NPS médio"
+          value={data.metrics.avgNps ? `${data.metrics.avgNps}/10` : '—'}
+          intent="warning"
+        />
       </div>
 
       {/* Eventos */}
-      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-        <div className="px-4 py-3 border-b border-gray-100 text-xs font-medium text-gray-400 uppercase tracking-wide">
+      <Card className="overflow-hidden">
+        <div className="border-b border-border px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
           Os meus eventos
         </div>
         {data.events.map((e) => {
+          const occupancyRate = e.occupancyRate ?? 0;
           return (
             <div
               key={e.id}
-              className="flex items-center gap-4 px-4 py-3.5 border-b border-gray-100 last:border-0"
+              className="flex items-center gap-4 border-b border-border px-4 py-3.5 last:border-0"
             >
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-0.5">
-                  <span className="text-sm font-medium text-gray-900 truncate">
+              <div className="min-w-0 flex-1">
+                <div className="mb-0.5 flex items-center gap-2">
+                  <span className="truncate font-body text-sm font-medium text-ink">
                     {e.title}
                   </span>
                   <StatusBadge
@@ -78,29 +93,30 @@ export function OrganizerView() {
                     fallback={STATUS_CFG.PUBLISHED}
                   />
                 </div>
-                <div className="text-xs text-gray-400">
+                <div className="font-body text-xs text-ink-faint">
                   {fmtDate(e.startAt)}
                 </div>
                 {e.maxCapacity > 0 && (
-                  <div className="mt-1 w-40 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                    <div
-                      className={`h-full rounded-full ${(e.occupancyRate ?? 0) >= 90 ? 'bg-red-400' : 'bg-blue-400'}`}
-                      style={{
-                        width: `${Math.min(e.occupancyRate ?? 0, 100)}%`,
-                      }}
-                    />
+                  <div className="mt-1 w-40">
+                    <ProgressBar value={Math.min(occupancyRate, 100)} />
                   </div>
                 )}
               </div>
-              <div className="text-right flex-shrink-0">
-                <div className="text-sm font-bold text-gray-900">
+              <div className="flex-shrink-0 text-right">
+                <div className="font-body text-sm font-bold text-ink">
                   {e.participants}/{e.maxCapacity}
                 </div>
-                <div className="text-xs text-gray-400">
-                  {e.occupancyRate ?? 0}% ocupação
+                <div className="flex items-center justify-end gap-1.5 font-body text-xs text-ink-faint">
+                  <span
+                    className={cn(
+                      'h-1.5 w-1.5 rounded-full',
+                      occupancyDotCls(e.occupancyRate),
+                    )}
+                  />
+                  {occupancyRate}% ocupação
                 </div>
                 {e.avgNps && (
-                  <div className="text-xs text-amber-600">
+                  <div className="font-body text-xs text-warning-ink">
                     NPS {e.avgNps}/10
                   </div>
                 )}
@@ -109,11 +125,13 @@ export function OrganizerView() {
           );
         })}
         {data.events.length === 0 && (
-          <div className="px-4 py-8 text-center text-sm text-gray-400">
-            Sem eventos criados
-          </div>
+          <EmptyState
+            icon={Trophy}
+            title="Sem eventos criados"
+            description="Os eventos que organizares aparecem aqui com as suas métricas."
+          />
         )}
-      </div>
+      </Card>
     </div>
   );
 }

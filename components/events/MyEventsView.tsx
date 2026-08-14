@@ -1,14 +1,19 @@
 // components/events/MyEventsView.tsx
 // Separador "Os meus eventos" — próximos/passados. Dados próprios +
-// apresentação. Extraído de app/(platform)/events/page.tsx.
+// apresentação. Extraído de app/(platform)/events/page.tsx. Migrado
+// para a fundação de design: toggle de separador passa a grupo de
+// Button, Skeleton/EmptyState locais passam à fundação.
 
 'use client';
 
 import { useState } from 'react';
+import { CalendarClock } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { Skeleton } from './atoms';
+import { Button } from '@/components/ui/Button';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { EventCard } from './EventCard';
 import type { MyEvents } from './types';
 
@@ -25,19 +30,27 @@ export function MyEventsView({ onSelect }: MyEventsViewProps) {
     { staleTime: STALE_TIME.DYNAMIC },
   );
 
-  if (isLoading) return <Skeleton />;
+  if (isLoading)
+    return (
+      <Skeleton
+        rows={3}
+        wrapperClassName="grid grid-cols-2 gap-4"
+        itemClassName="skeleton-shimmer h-48 rounded-card"
+      />
+    );
 
   const items =
     tab === 'upcoming' ? (data?.upcoming ?? []) : (data?.past ?? []);
 
   return (
     <div>
-      <div className="flex gap-1 bg-gray-100 p-1 rounded-xl w-fit mb-5">
+      <div className="mb-5 flex w-fit gap-1 rounded-card bg-surface-sunken p-1">
         {(['upcoming', 'past'] as const).map((t) => (
-          <button
+          <Button
             key={t}
+            size="sm"
+            intent={tab === t ? 'primary' : 'ghost'}
             onClick={() => setTab(t)}
-            className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${tab === t ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
           >
             {
               {
@@ -45,16 +58,22 @@ export function MyEventsView({ onSelect }: MyEventsViewProps) {
                 past: `🕐 Passados (${data?.past.length ?? 0})`,
               }[t]
             }
-          </button>
+          </Button>
         ))}
       </div>
 
       {items.length === 0 ? (
-        <div className="py-10 text-center text-sm text-gray-400 border border-dashed border-gray-200 rounded-xl">
-          {tab === 'upcoming'
-            ? 'Sem eventos futuros. Inscreve-te no catálogo!'
-            : 'Sem eventos passados'}
-        </div>
+        <EmptyState
+          icon={CalendarClock}
+          title={
+            tab === 'upcoming' ? 'Sem eventos futuros' : 'Sem eventos passados'
+          }
+          description={
+            tab === 'upcoming'
+              ? 'Inscreve-te no catálogo para veres os teus próximos eventos aqui.'
+              : 'Os eventos que já terminaram aparecem aqui.'
+          }
+        />
       ) : (
         <div className="grid grid-cols-2 gap-4">
           {items.map((p) => (
