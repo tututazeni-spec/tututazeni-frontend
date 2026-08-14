@@ -8,7 +8,11 @@ import { useState } from 'react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { Avatar, ReadinessBadge, Skeleton } from './atoms';
+import { Avatar } from '@/components/ui/Avatar';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { Skeleton } from '@/components/ui/Skeleton';
+import { StatusBadge } from '@/components/ui/StatusBadge';
 import { READINESS_CFG } from './constants';
 import type { ReadinessLevel, TalentPoolEntry } from './types';
 
@@ -24,28 +28,25 @@ export function TalentPoolView() {
     ? pool.filter((p) => p.readinessLevel === filter)
     : pool;
 
-  if (loading) return <Skeleton />;
+  if (loading) return <Skeleton rows={4} />;
 
   return (
     <div>
       {/* Filter */}
-      <div className="flex items-center gap-2 mb-5">
+      <div className="mb-5 flex items-center gap-2">
         {(['', 'READY_NOW', 'READY_SOON', 'NEEDS_DEVELOPMENT'] as const).map(
           (r) => (
-            <button
+            <Button
               key={r}
+              size="sm"
+              intent={filter === r ? 'primary' : 'ghost'}
               onClick={() => setFilter(r)}
-              className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
-                filter === r
-                  ? 'bg-blue-700 text-white'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-              }`}
             >
               {r === '' ? 'Todos' : READINESS_CFG[r as ReadinessLevel].label}
-            </button>
+            </Button>
           ),
         )}
-        <span className="text-xs text-gray-400 ml-auto">
+        <span className="ml-auto font-body text-xs text-ink-faint">
           {filtered.length} talentos
         </span>
       </div>
@@ -54,63 +55,69 @@ export function TalentPoolView() {
         {filtered.map((entry) => {
           const latestReview = entry.user.performanceReviews?.[0];
           return (
-            <div
+            <Card
               key={entry.id}
-              className="bg-white border border-gray-200 rounded-xl p-5 hover:shadow-sm transition-all"
+              className="p-5 transition-all hover:shadow-hover"
             >
-              <div className="flex items-start gap-3 mb-3">
+              <div className="mb-3 flex items-start gap-3">
                 <Avatar
                   name={entry.user.fullName}
-                  avatarUrl={entry.user.avatarUrl}
+                  url={entry.user.avatarUrl ?? undefined}
                   size="md"
                 />
                 <div className="flex-1">
-                  <div className="text-sm font-semibold text-gray-900">
+                  <div className="font-body text-sm font-semibold text-ink">
                     {entry.user.fullName}
                   </div>
-                  <div className="text-xs text-gray-400">
+                  <div className="font-body text-xs text-ink-faint">
                     {entry.user.position?.name ?? '—'} ·{' '}
                     {entry.user.department?.name ?? '—'}
                   </div>
                   <div className="mt-1">
-                    <ReadinessBadge level={entry.readinessLevel} />
+                    <StatusBadge
+                      value={entry.readinessLevel}
+                      map={READINESS_CFG}
+                      variant="dot"
+                    />
                   </div>
                 </div>
                 {latestReview?.score !== null &&
                   latestReview?.score !== undefined && (
-                    <div className="text-right flex-shrink-0">
-                      <div className="text-lg font-bold font-mono text-blue-700">
+                    <div className="flex-shrink-0 text-right">
+                      <div className="font-mono text-lg font-bold text-info-ink">
                         {latestReview.score}
                       </div>
-                      <div className="text-xs text-gray-400">perf.</div>
+                      <div className="font-body text-xs text-ink-faint">
+                        perf.
+                      </div>
                     </div>
                   )}
               </div>
 
-              <div className="flex flex-wrap gap-2 text-xs text-gray-500">
+              <div className="flex flex-wrap gap-2 font-body text-xs text-ink-muted">
                 {entry.geographicMobility && (
-                  <span className="px-2 py-0.5 bg-emerald-50 text-emerald-700 rounded">
+                  <span className="rounded bg-success-subtle px-2 py-0.5 text-success-ink">
                     🌍 Mobilidade
                   </span>
                 )}
                 {entry.mentor && (
-                  <span className="px-2 py-0.5 bg-blue-50 text-blue-600 rounded">
+                  <span className="rounded bg-info-subtle px-2 py-0.5 text-info-ink">
                     👨‍🏫 Mentor: {entry.mentor.fullName.split(' ')[0]}
                   </span>
                 )}
               </div>
 
               {entry.notes && (
-                <p className="text-xs text-gray-500 mt-2 italic">
+                <p className="mt-2 font-body text-xs italic text-ink-muted">
                   &quot;{entry.notes}&quot;
                 </p>
               )}
-            </div>
+            </Card>
           );
         })}
 
         {filtered.length === 0 && (
-          <div className="col-span-2 py-12 text-center text-sm text-gray-400 border border-dashed border-gray-200 rounded-xl">
+          <div className="col-span-2 rounded-card border border-dashed border-border-strong py-12 text-center font-body text-sm text-ink-faint">
             Nenhum talento no pool com este filtro
           </div>
         )}

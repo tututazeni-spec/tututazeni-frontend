@@ -4,7 +4,10 @@
 
 'use client';
 
-import { Avatar, MatchScore, ReadinessBadge } from './atoms';
+import { Avatar } from '@/components/ui/Avatar';
+import { StatusBadge } from '@/components/ui/StatusBadge';
+import { READINESS_CFG } from './constants';
+import { MatchScore } from './MatchScore';
 import type { SuccessionPlan, SuccessorPriority } from './types';
 
 interface SuccessorCardProps {
@@ -20,25 +23,29 @@ export function SuccessorCard({ plan, rank }: SuccessorCardProps) {
   };
 
   return (
-    <div className="flex items-center gap-3 bg-white border border-gray-200 rounded-xl p-3">
-      <div className="w-7 h-7 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-bold flex-shrink-0">
+    <div className="flex items-center gap-3 rounded-card border border-border bg-surface p-3">
+      <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-control bg-primary-subtle text-xs font-bold text-primary">
         {priorityLabel[plan.priority]}
       </div>
       <Avatar
         name={plan.candidate.fullName}
-        avatarUrl={plan.candidate.avatarUrl}
+        url={plan.candidate.avatarUrl ?? undefined}
         size="sm"
       />
-      <div className="flex-1 min-w-0">
-        <div className="text-xs font-medium text-gray-900 truncate">
+      <div className="min-w-0 flex-1">
+        <div className="truncate font-body text-xs font-medium text-ink">
           {plan.candidate.fullName}
         </div>
-        <div className="text-xs text-gray-400 truncate">
+        <div className="truncate font-body text-xs text-ink-faint">
           {plan.candidate.position?.name ?? '—'}
         </div>
       </div>
       <div className="flex flex-col items-end gap-1">
-        <ReadinessBadge level={plan.readinessLevel} />
+        <StatusBadge
+          value={plan.readinessLevel}
+          map={READINESS_CFG}
+          variant="dot"
+        />
         <MatchScore score={plan.matchScore} />
       </div>
     </div>
