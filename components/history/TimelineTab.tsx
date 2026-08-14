@@ -11,7 +11,10 @@ import { keepPreviousData } from '@tanstack/react-query';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { Skeleton } from './atoms';
+import { Button } from '@/components/ui/Button';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { Input } from '@/components/ui/Input';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { CATEGORY_COLOR } from './constants';
 import { EventCard } from './EventCard';
 import { monthLabel } from './utils';
@@ -46,17 +49,18 @@ export function TimelineTab() {
   return (
     <div className="space-y-4">
       {/* Filters */}
-      <div className="bg-white rounded-xl border border-slate-100 p-4 flex flex-wrap gap-3">
+      <div className="bg-surface rounded-card border border-border p-4 flex flex-wrap gap-3">
         <div className="relative flex-1 min-w-[180px]">
           <Search
             size={14}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+            strokeWidth={1.75}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-faint"
           />
-          <input
+          <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Pesquisar eventos..."
-            className="w-full pl-9 pr-4 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:border-indigo-400"
+            className="w-full pl-9"
           />
         </div>
         <div className="flex gap-1 flex-wrap">
@@ -65,7 +69,7 @@ export function TimelineTab() {
               setCategory('');
               setPage(1);
             }}
-            className={`text-xs px-2.5 py-1.5 rounded-lg ${!category ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-600'}`}
+            className={`text-xs px-2.5 py-1.5 rounded-control font-medium transition-colors ${!category ? 'bg-primary text-canvas' : 'bg-surface-sunken text-ink-muted'}`}
           >
             Todos
           </button>
@@ -78,7 +82,7 @@ export function TimelineTab() {
                   setCategory(c);
                   setPage(1);
                 }}
-                className={`text-xs px-2.5 py-1.5 rounded-lg ${category === c ? 'bg-indigo-600 text-white' : `${conf.bg} ${conf.color}`}`}
+                className={`text-xs px-2.5 py-1.5 rounded-control font-medium transition-colors ${category === c ? 'bg-primary text-canvas' : `${conf.bg} ${conf.color}`}`}
               >
                 {c}
               </button>
@@ -89,18 +93,18 @@ export function TimelineTab() {
 
       {/* Milestones strip */}
       {(data?.milestones.length ?? 0) > 0 && (
-        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
-          <p className="text-xs font-semibold text-amber-700 mb-2">
+        <div className="bg-warning-subtle border border-warning rounded-card p-4">
+          <p className="text-xs font-semibold text-warning-ink mb-2">
             ⭐ Marcos Recentes
           </p>
           <div className="flex flex-wrap gap-2">
             {data!.milestones.slice(0, 5).map((m, i) => (
               <div
                 key={i}
-                className="flex items-center gap-2 bg-white rounded-lg px-3 py-1.5 border border-amber-100"
+                className="flex items-center gap-2 bg-surface rounded-control px-3 py-1.5 border border-border"
               >
                 <span className="text-sm">{m.icon}</span>
-                <p className="text-xs font-medium text-slate-700">{m.title}</p>
+                <p className="text-xs font-medium text-ink">{m.title}</p>
               </div>
             ))}
           </div>
@@ -109,18 +113,22 @@ export function TimelineTab() {
 
       {/* Grouped timeline */}
       {loading ? (
-        <Skeleton />
+        <Skeleton
+          rows={4}
+          wrapperClassName="space-y-4"
+          itemClassName="skeleton-shimmer h-16 rounded-card"
+        />
       ) : (
         <div className="space-y-6">
           {(data?.grouped ?? []).map((group) => (
             <div key={group.month}>
               <div className="flex items-center gap-3 mb-3">
-                <div className="w-2 h-2 rounded-full bg-indigo-500 shrink-0" />
-                <h3 className="text-sm font-semibold text-slate-600">
+                <div className="w-2 h-2 rounded-full bg-primary shrink-0" />
+                <h3 className="text-sm font-semibold text-ink-muted">
                   {monthLabel(group.month)}
                 </h3>
-                <div className="flex-1 h-px bg-slate-100" />
-                <span className="text-[10px] text-slate-400">
+                <div className="flex-1 h-px bg-border" />
+                <span className="text-[10px] text-ink-faint">
                   {group.items.length} eventos
                 </span>
               </div>
@@ -139,32 +147,35 @@ export function TimelineTab() {
           ))}
 
           {(data?.grouped ?? []).length === 0 && (
-            <div className="py-16 text-center text-slate-400">
-              <Clock size={36} className="mx-auto mb-2 opacity-30" />
-              <p className="text-sm">Nenhum evento encontrado</p>
-            </div>
+            <EmptyState
+              icon={Clock}
+              title="Nenhum evento encontrado"
+              description="Ajusta os filtros ou volta mais tarde"
+            />
           )}
 
           {/* Pagination */}
           {data && data.meta.totalPages > 1 && (
-            <div className="flex justify-center gap-2 pt-2">
-              <button
+            <div className="flex justify-center items-center gap-2 pt-2">
+              <Button
+                intent="secondary"
+                size="sm"
                 disabled={page === 1}
                 onClick={() => setPage((p) => p - 1)}
-                className="px-4 py-2 text-sm rounded-lg border border-slate-200 disabled:opacity-40"
               >
                 ← Anterior
-              </button>
-              <span className="px-4 py-2 text-sm text-slate-500">
+              </Button>
+              <span className="px-4 py-2 text-sm text-ink-muted">
                 {page} / {data.meta.totalPages}
               </span>
-              <button
+              <Button
+                intent="secondary"
+                size="sm"
                 disabled={page === data.meta.totalPages}
                 onClick={() => setPage((p) => p + 1)}
-                className="px-4 py-2 text-sm rounded-lg border border-slate-200 disabled:opacity-40"
               >
                 Próxima →
-              </button>
+              </Button>
             </div>
           )}
         </div>
