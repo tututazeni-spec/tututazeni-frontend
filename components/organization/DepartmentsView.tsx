@@ -6,13 +6,18 @@
 
 import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
+import { Building2 } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { useDebounce } from '@/hooks/useDebounce';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { formatKz as fmtKz } from '@/lib/format';
-import { Avatar, Skeleton } from './atoms';
+import { Avatar } from '@/components/ui/Avatar';
+import { Card } from '@/components/ui/Card';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { Input } from '@/components/ui/Input';
+import { Skeleton } from '@/components/ui/Skeleton';
 import type { Department, DepartmentDetail } from './types';
 
 export function DepartmentsView() {
@@ -48,12 +53,12 @@ export function DepartmentsView() {
       {/* List */}
       <div>
         <div className="mb-4">
-          <input
+          <Input
             type="text"
             placeholder="Pesquisar departamentos…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full max-w-sm"
+            className="w-full max-w-sm"
           />
         </div>
 
@@ -62,55 +67,59 @@ export function DepartmentsView() {
         ) : (
           <div className="space-y-2">
             {data?.data.map((dept) => (
-              <div
+              <Card
                 key={dept.id}
                 onClick={() => loadDetail(dept.id)}
-                className={`flex items-center gap-4 bg-white border rounded-xl p-4 cursor-pointer transition-all hover:shadow-sm ${
+                className={`flex cursor-pointer items-center gap-4 p-4 transition-shadow hover:shadow-hover ${
                   selected?.id === dept.id
-                    ? 'border-blue-300 bg-blue-50'
-                    : 'border-gray-200'
+                    ? 'border-primary bg-primary-subtle'
+                    : ''
                 }`}
               >
                 {dept.color ? (
                   <div
-                    className="w-10 h-10 rounded-xl flex-shrink-0"
+                    className="h-10 w-10 flex-shrink-0 rounded-card"
                     style={{ background: dept.color }}
                   />
                 ) : (
-                  <div className="w-10 h-10 rounded-xl bg-gray-100 flex-shrink-0 flex items-center justify-center text-sm font-bold text-gray-400">
+                  <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-card bg-surface-sunken font-body text-sm font-bold text-ink-faint">
                     {dept.code.slice(0, 2)}
                   </div>
                 )}
                 <div className="flex-1">
-                  <div className="text-sm font-semibold text-gray-900">
+                  <div className="font-body text-sm font-semibold text-ink">
                     {dept.name}
                   </div>
-                  <div className="text-xs text-gray-400 flex items-center gap-3">
+                  <div className="flex items-center gap-3 font-body text-xs text-ink-faint">
                     <span>Código: {dept.code}</span>
                     {dept.parent && <span>↑ {dept.parent.name}</span>}
                     {dept.unit && <span>📍 {dept.unit.name}</span>}
                   </div>
                 </div>
-                <div className="text-right flex-shrink-0">
-                  <div className="text-sm font-mono font-medium text-gray-900">
+                <div className="flex-shrink-0 text-right">
+                  <div className="font-mono font-body text-sm font-medium text-ink">
                     {dept._count.users}
                   </div>
-                  <div className="text-xs text-gray-400">pessoas</div>
+                  <div className="font-body text-xs text-ink-faint">
+                    pessoas
+                  </div>
                 </div>
                 {dept._count.children > 0 && (
-                  <div className="text-xs text-gray-400 flex-shrink-0">
+                  <div className="flex-shrink-0 font-body text-xs text-ink-faint">
                     📂 {dept._count.children}
                   </div>
                 )}
                 <div
-                  className={`w-2 h-2 rounded-full flex-shrink-0 ${dept.status === 'ACTIVE' ? 'bg-emerald-500' : 'bg-gray-300'}`}
+                  className={`h-2 w-2 flex-shrink-0 rounded-full ${dept.status === 'ACTIVE' ? 'bg-success' : 'bg-border-strong'}`}
                 />
-              </div>
+              </Card>
             ))}
             {data?.data.length === 0 && (
-              <div className="py-12 text-center text-sm text-gray-400 border border-dashed border-gray-200 rounded-xl">
-                Sem departamentos
-              </div>
+              <EmptyState
+                icon={Building2}
+                title="Sem departamentos"
+                description="Ainda não existem departamentos registados."
+              />
             )}
           </div>
         )}
@@ -119,33 +128,35 @@ export function DepartmentsView() {
       {/* Detail panel */}
       <div>
         {!selected && !loadingDetail && (
-          <div className="h-48 flex items-center justify-center text-sm text-gray-400 border border-dashed border-gray-200 rounded-xl">
+          <div className="flex h-48 items-center justify-center rounded-card border border-dashed border-border-strong font-body text-sm text-ink-faint">
             Seleccione um departamento
           </div>
         )}
         {loadingDetail && <Skeleton rows={4} />}
         {selected && !loadingDetail && (
-          <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-            <div className="p-4 border-b border-gray-100">
-              <div className="flex items-center gap-3 mb-3">
+          <Card className="overflow-hidden">
+            <div className="border-b border-border p-4">
+              <div className="mb-3 flex items-center gap-3">
                 {selected.color ? (
                   <div
-                    className="w-10 h-10 rounded-xl flex-shrink-0"
+                    className="h-10 w-10 flex-shrink-0 rounded-card"
                     style={{ background: selected.color }}
                   />
                 ) : (
-                  <div className="w-10 h-10 rounded-xl bg-gray-100 flex-shrink-0 flex items-center justify-center text-sm font-bold text-gray-400">
+                  <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-card bg-surface-sunken font-body text-sm font-bold text-ink-faint">
                     {selected.code.slice(0, 2)}
                   </div>
                 )}
                 <div>
-                  <div className="text-sm font-semibold text-gray-900">
+                  <div className="font-body text-sm font-semibold text-ink">
                     {selected.name}
                   </div>
-                  <div className="text-xs text-gray-400">{selected.code}</div>
+                  <div className="font-body text-xs text-ink-faint">
+                    {selected.code}
+                  </div>
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-2 text-xs">
+              <div className="grid grid-cols-2 gap-2 font-body text-xs">
                 {[
                   ['Colaboradores', selected._count.users],
                   ['Sub-depts', selected._count.children],
@@ -155,24 +166,29 @@ export function DepartmentsView() {
                     selected.annualBudget ? fmtKz(selected.annualBudget) : '—',
                   ],
                 ].map(([l, v]) => (
-                  <div key={String(l)} className="bg-gray-50 rounded-lg p-2">
-                    <div className="text-gray-400">{l}</div>
-                    <div className="font-medium text-gray-900">{v}</div>
+                  <div
+                    key={String(l)}
+                    className="rounded-control bg-surface-sunken p-2"
+                  >
+                    <div className="text-ink-faint">{l}</div>
+                    <div className="font-medium text-ink">{v}</div>
                   </div>
                 ))}
               </div>
             </div>
 
             {selected.head && (
-              <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-100">
+              <div className="flex items-center gap-3 border-b border-border px-4 py-3">
                 <Avatar
                   name={selected.head.fullName}
-                  avatarUrl={selected.head.avatarUrl}
+                  url={selected.head.avatarUrl ?? undefined}
                   size="sm"
                 />
                 <div>
-                  <div className="text-xs text-gray-400">Responsável</div>
-                  <div className="text-xs font-medium text-gray-900">
+                  <div className="font-body text-xs text-ink-faint">
+                    Responsável
+                  </div>
+                  <div className="font-body text-xs font-medium text-ink">
                     {selected.head.fullName}
                   </div>
                 </div>
@@ -183,21 +199,25 @@ export function DepartmentsView() {
               {selected.users?.map((u) => (
                 <div
                   key={u.id}
-                  className="flex items-center gap-2 px-4 py-2.5 border-b border-gray-100 last:border-0 hover:bg-gray-50"
+                  className="flex items-center gap-2 border-b border-border px-4 py-2.5 last:border-0 hover:bg-surface-sunken"
                 >
-                  <Avatar name={u.fullName} avatarUrl={u.avatarUrl} size="sm" />
-                  <div className="flex-1 min-w-0">
-                    <div className="text-xs font-medium text-gray-900 truncate">
+                  <Avatar
+                    name={u.fullName}
+                    url={u.avatarUrl ?? undefined}
+                    size="sm"
+                  />
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate font-body text-xs font-medium text-ink">
                       {u.fullName}
                     </div>
-                    <div className="text-xs text-gray-400 truncate">
+                    <div className="truncate font-body text-xs text-ink-faint">
                       {u.position?.name}
                     </div>
                   </div>
                 </div>
               ))}
             </div>
-          </div>
+          </Card>
         )}
       </div>
     </div>
