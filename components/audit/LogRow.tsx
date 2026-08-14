@@ -5,8 +5,8 @@
 'use client';
 
 import { useState } from 'react';
+import { Avatar } from '@/components/ui/Avatar';
 import { StatusBadge } from '@/components/ui/StatusBadge';
-import { Avatar } from './atoms';
 import { ACTION_ICONS, SEVERITY_CFG, STATUS_CFG } from './constants';
 import { fmtTs } from './utils';
 import { DiffViewer } from './DiffViewer';
@@ -26,75 +26,75 @@ export function LogRow({ log }: LogRowProps) {
     <>
       <tr
         onClick={() => setExpanded((e) => !e)}
-        className={`cursor-pointer hover:bg-gray-50 border-b border-gray-100 ${expanded ? 'bg-blue-50' : ''}`}
+        className={`cursor-pointer border-b border-border last:border-0 hover:bg-surface-sunken ${expanded ? 'bg-primary-subtle' : ''}`}
       >
         <td className="px-3 py-2.5">
           <div className="flex items-center gap-2">
             <div
-              className={`w-2 h-2 rounded-full flex-shrink-0 ${sevCfg.dot}`}
+              className={`h-2 w-2 flex-shrink-0 rounded-full ${sevCfg.dot}`}
             />
-            <span className="text-xs font-mono text-gray-400">{log.id}</span>
+            <span className="font-data text-xs text-ink-faint">{log.id}</span>
           </div>
         </td>
-        <td className="px-3 py-2.5 text-xs text-gray-500 whitespace-nowrap">
+        <td className="whitespace-nowrap px-3 py-2.5 font-body text-xs text-ink-muted">
           {fmtTs(log.timestamp)}
         </td>
         <td className="px-3 py-2.5">
           {log.user ? (
             <div className="flex items-center gap-1.5">
-              <Avatar name={log.user.fullName} avatarUrl={log.user.avatarUrl} />
-              <span className="text-xs text-gray-700">{log.user.fullName}</span>
+              <Avatar name={log.user.fullName} url={log.user.avatarUrl ?? undefined} size="sm" />
+              <span className="font-body text-xs text-ink">{log.user.fullName}</span>
             </div>
           ) : (
-            <span className="text-xs text-gray-300 italic">Sistema</span>
+            <span className="font-body text-xs italic text-ink-faint">Sistema</span>
           )}
         </td>
         <td className="px-3 py-2.5">
-          <span className="text-xs font-medium">
+          <span className="font-body text-xs font-medium text-ink">
             {actionIcon} {log.action}
           </span>
         </td>
-        <td className="px-3 py-2.5 text-xs text-gray-600">
+        <td className="px-3 py-2.5 font-body text-xs text-ink-muted">
           {log.entity} {log.entityId ? `#${log.entityId}` : ''}
         </td>
         <td className="px-3 py-2.5">
           <StatusBadge value={log.status} map={STATUS_CFG} />
         </td>
-        <td className="px-3 py-2.5 text-xs text-gray-400 font-mono">
+        <td className="px-3 py-2.5 font-data text-xs text-ink-faint">
           {log.ip ?? '—'}
         </td>
         <td className="px-3 py-2.5">
-          <span className={`text-xs font-medium ${sevCfg.cls}`}>
+          <span className={`font-body text-xs font-medium ${sevCfg.cls}`}>
             {log.severity}
           </span>
         </td>
       </tr>
 
       {expanded && (
-        <tr className="bg-blue-50">
+        <tr className="bg-primary-subtle">
           <td colSpan={8} className="px-4 py-3">
-            <div className="grid grid-cols-2 gap-4 text-xs">
+            <div className="grid grid-cols-2 gap-4 font-body text-xs">
               <div>
                 {log.reason && (
                   <div className="mb-2">
-                    <span className="font-medium text-gray-600">Motivo:</span>{' '}
+                    <span className="font-medium text-ink-muted">Motivo:</span>{' '}
                     {log.reason}
                   </div>
                 )}
                 {log.ip && (
                   <div className="mb-1">
-                    <span className="font-medium text-gray-600">IP:</span>{' '}
+                    <span className="font-medium text-ink-muted">IP:</span>{' '}
                     {log.ip}
                   </div>
                 )}
                 {log.userAgent && (
-                  <div className="mb-1 truncate text-gray-400">
-                    <span className="font-medium text-gray-600">UA:</span>{' '}
+                  <div className="mb-1 truncate text-ink-faint">
+                    <span className="font-medium text-ink-muted">UA:</span>{' '}
                     {log.userAgent}
                   </div>
                 )}
                 {log.hash && (
-                  <div className="mt-2 text-gray-300 font-mono text-xs truncate">
+                  <div className="mt-2 truncate font-data text-xs text-ink-faint">
                     Hash: {log.hash.slice(0, 32)}…
                   </div>
                 )}
@@ -102,7 +102,7 @@ export function LogRow({ log }: LogRowProps) {
               <div>
                 {changes && <DiffViewer changes={changes} />}
                 {!changes && log.after && (
-                  <pre className="text-xs bg-white rounded p-2 max-h-32 overflow-auto">
+                  <pre className="max-h-32 overflow-auto rounded bg-surface p-2 font-data text-xs">
                     {JSON.stringify(JSON.parse(log.after), null, 2)}
                   </pre>
                 )}
