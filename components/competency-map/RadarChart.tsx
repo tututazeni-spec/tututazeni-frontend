@@ -1,6 +1,12 @@
 // components/competency-map/RadarChart.tsx
 // Radar SVG actual × exigido por tipo de competência. Extraído de
 // app/(platform)/competency-map/page.tsx.
+//
+// Nota de design: azul/vermelho aqui são codificação de dados (série
+// "Actual" vs série "Exigido" de um radar), não decoração — mapeados para
+// os tokens primary/danger (mesma convenção usada em SkillBar/GapTab para
+// o par "nível actual" / "nível exigido") em vez de removidos, ver nota
+// "gráficos" do plano de rollout da Fase B.
 
 'use client';
 
@@ -48,7 +54,7 @@ export function RadarChart({ data }: RadarChartProps) {
             cy={center}
             r={(l / 5) * maxR}
             fill="none"
-            stroke="#e5e7eb"
+            className="stroke-border"
             strokeWidth="1"
           />
         ))}
@@ -60,23 +66,21 @@ export function RadarChart({ data }: RadarChartProps) {
             y1={center}
             x2={p.x}
             y2={p.y}
-            stroke="#e5e7eb"
+            className="stroke-border"
             strokeWidth="1"
           />
         ))}
         {/* Required area */}
         <path
           d={toPath(requiredPts)}
-          fill="rgba(239,68,68,0.1)"
-          stroke="#ef4444"
+          className="fill-danger/10 stroke-danger"
           strokeWidth="1.5"
           strokeDasharray="4,2"
         />
         {/* Current area */}
         <path
           d={toPath(currentPts)}
-          fill="rgba(59,130,246,0.2)"
-          stroke="#3b82f6"
+          className="fill-primary/20 stroke-primary"
           strokeWidth="2"
         />
         {/* Labels */}
@@ -90,7 +94,7 @@ export function RadarChart({ data }: RadarChartProps) {
               fontSize="8"
               textAnchor="middle"
               dominantBaseline="middle"
-              fill="#6b7280"
+              className="fill-ink-muted"
               fontWeight="600"
             >
               {TYPE_CONFIG[p.type as SkillType]?.label?.split(' ')[0]}
@@ -100,15 +104,15 @@ export function RadarChart({ data }: RadarChartProps) {
       </svg>
       <div className="flex items-center gap-4 text-xs mt-2">
         <div className="flex items-center gap-1">
-          <div className="w-3 h-0.5 bg-blue-500 rounded" />
-          <span className="text-gray-500">Actual</span>
+          <div className="w-3 h-0.5 bg-primary rounded" />
+          <span className="text-ink-muted">Actual</span>
         </div>
         <div className="flex items-center gap-1">
           <div
-            className="w-3 h-0.5 bg-red-400 rounded"
+            className="w-3 h-0.5 bg-danger rounded"
             style={{ borderStyle: 'dashed' }}
           />
-          <span className="text-gray-500">Exigido</span>
+          <span className="text-ink-muted">Exigido</span>
         </div>
       </div>
     </div>
