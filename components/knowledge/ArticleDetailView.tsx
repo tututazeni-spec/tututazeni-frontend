@@ -1,20 +1,28 @@
 // components/knowledge/ArticleDetailView.tsx
 // Separador "Artigo" — conteúdo, comentários, acções (bookmark/
 // confirmação/avaliação), estatísticas e Q&A. Dados próprios +
-// apresentação. Extraído de app/(platform)/knowledge/page.tsx.
+// apresentação. Extraído de app/(platform)/knowledge/page.tsx. Migrado
+// para a fundação de design: Avatar/Skeleton locais passam a
+// components/ui/; textarea/botões de comentário passam a Textarea/Button;
+// badge "Obrigatório" passa a Badge.
 
 'use client';
 
 import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
+import { ArrowLeft, Bookmark, Check } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { sanitizeHtml } from '@/lib/sanitize';
 import { formatDate as fmtDate } from '@/lib/format';
+import { Avatar } from '@/components/ui/Avatar';
+import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
-import { Avatar, Skeleton } from './atoms';
+import { Textarea } from '@/components/ui/Textarea';
 import { ARTICLE_STATUS_MAP } from './constants';
 import { timeAgo } from './utils';
 import type { Article } from './types';
@@ -101,33 +109,36 @@ export function ArticleDetailView({
       <div>
         <button
           onClick={onBack}
-          className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-800 mb-5"
+          className="mb-5 flex items-center gap-1 font-body text-sm text-ink-muted hover:text-ink"
         >
-          ← Voltar
+          <ArrowLeft size={14} strokeWidth={1.75} />
+          Voltar
         </button>
 
         {/* Header */}
-        <div className="bg-white border border-gray-200 rounded-xl p-6 mb-5">
+        <div className="mb-5 rounded-card border border-border bg-surface p-6">
           {article.category && (
-            <div className="flex items-center gap-1.5 mb-2">
+            <div className="mb-2 flex items-center gap-1.5">
               {article.category.icon && <span>{article.category.icon}</span>}
-              <span className="text-xs text-blue-600 font-medium">
+              <span className="font-body text-xs font-medium text-primary">
                 {article.category.name}
               </span>
             </div>
           )}
-          <h1 className="text-2xl font-bold text-gray-900 mb-3">
+          <h1 className="mb-3 font-display text-2xl font-bold text-ink">
             {article.title}
           </h1>
           {article.summary && (
-            <p className="text-sm text-gray-600 mb-4">{article.summary}</p>
+            <p className="mb-4 font-body text-sm text-ink-muted">
+              {article.summary}
+            </p>
           )}
 
-          <div className="flex flex-wrap items-center gap-4 text-xs text-gray-400 mb-4">
+          <div className="mb-4 flex flex-wrap items-center gap-4 font-body text-xs text-ink-faint">
             <div className="flex items-center gap-2">
               <Avatar
                 name={article.author.fullName}
-                avatarUrl={article.author.avatarUrl}
+                url={article.author.avatarUrl ?? undefined}
                 size="sm"
               />
               <span>{article.author.fullName}</span>
@@ -136,18 +147,14 @@ export function ArticleDetailView({
             <span>⏱ {article.readingMinutes} min de leitura</span>
             <span>👁 {article.viewCount} visualizações</span>
             <StatusBadge value={article.status} map={ARTICLE_STATUS_MAP} />
-            {article.mandatory && (
-              <span className="bg-red-50 text-red-700 px-2 py-0.5 rounded">
-                Obrigatório
-              </span>
-            )}
+            {article.mandatory && <Badge intent="danger">Obrigatório</Badge>}
           </div>
 
           <div className="flex flex-wrap gap-1.5">
             {article.tags.map((t) => (
               <span
                 key={t.id}
-                className="px-2 py-0.5 bg-blue-50 text-blue-600 text-xs rounded"
+                className="rounded bg-primary-subtle px-2 py-0.5 font-body text-xs text-primary"
               >
                 #{t.name}
               </span>
@@ -156,64 +163,67 @@ export function ArticleDetailView({
         </div>
 
         {/* Content */}
-        <div className="bg-white border border-gray-200 rounded-xl p-6 mb-5">
+        <div className="mb-5 rounded-card border border-border bg-surface p-6">
           <div
-            className="prose prose-sm max-w-none text-gray-700"
+            className="prose prose-sm max-w-none text-ink"
             dangerouslySetInnerHTML={{ __html: sanitizeHtml(article.content) }}
           />
         </div>
 
         {/* Comentários */}
-        <div className="bg-white border border-gray-200 rounded-xl p-5">
-          <div className="text-sm font-semibold text-gray-900 mb-4">
+        <div className="rounded-card border border-border bg-surface p-5">
+          <div className="mb-4 font-body text-sm font-semibold text-ink">
             💬 Comentários ({article._count.comments})
           </div>
-          <div className="flex gap-3 mb-4">
-            <textarea
+          <div className="mb-4 flex gap-3">
+            <Textarea
               value={comment}
               onChange={(e) => setComment(e.target.value)}
               rows={2}
               placeholder="Escreve um comentário…"
-              className="flex-1 text-sm border border-gray-200 rounded-xl px-4 py-2.5 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="flex-1 resize-none rounded-card"
             />
-            <button
+            <Button
+              size="sm"
               onClick={handleComment}
               disabled={!comment.trim() || posting}
-              className="px-4 py-2 bg-blue-700 text-white text-xs font-medium rounded-xl disabled:opacity-50 flex-shrink-0"
+              className="flex-shrink-0 self-end"
             >
               {posting ? '…' : 'Enviar'}
-            </button>
+            </Button>
           </div>
           <div className="space-y-4">
             {article.comments?.map((c) => (
               <div key={c.id} className="flex gap-3">
                 <Avatar
                   name={c.author.fullName}
-                  avatarUrl={c.author.avatarUrl}
+                  url={c.author.avatarUrl ?? undefined}
                   size="sm"
                 />
                 <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-xs font-medium text-gray-900">
+                  <div className="mb-1 flex items-center gap-2">
+                    <span className="font-body text-xs font-medium text-ink">
                       {c.author.fullName}
                     </span>
-                    <span className="text-xs text-gray-400">
+                    <span className="font-body text-xs text-ink-faint">
                       {timeAgo(c.createdAt)}
                     </span>
                   </div>
-                  <p className="text-sm text-gray-700">{c.content}</p>
+                  <p className="font-body text-sm text-ink-muted">
+                    {c.content}
+                  </p>
                   {c.replies?.map((r) => (
-                    <div key={r.id} className="flex gap-2 mt-2 ml-4">
+                    <div key={r.id} className="ml-4 mt-2 flex gap-2">
                       <Avatar
                         name={r.author.fullName}
-                        avatarUrl={r.author.avatarUrl}
+                        url={r.author.avatarUrl ?? undefined}
                         size="sm"
                       />
                       <div>
-                        <span className="text-xs font-medium text-gray-800">
+                        <span className="font-body text-xs font-medium text-ink">
                           {r.author.fullName}{' '}
                         </span>
-                        <span className="text-sm text-gray-700">
+                        <span className="font-body text-sm text-ink-muted">
                           {r.content}
                         </span>
                       </div>
@@ -229,38 +239,40 @@ export function ArticleDetailView({
       {/* Sidebar */}
       <div className="space-y-4">
         {/* Acções */}
-        <div className="bg-white border border-gray-200 rounded-xl p-4 space-y-3">
-          <button
+        <div className="space-y-3 rounded-card border border-border bg-surface p-4">
+          <Button
             onClick={handleBookmark}
-            className={`w-full py-2.5 text-sm font-medium rounded-lg transition-colors ${
-              article.userBookmarked
-                ? 'bg-blue-50 text-blue-700 border border-blue-200'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
+            intent={article.userBookmarked ? 'secondary' : 'ghost'}
+            className="w-full"
           >
-            {article.userBookmarked ? '🔖 Guardado' : '🔖 Guardar'}
-          </button>
+            <Bookmark size={16} strokeWidth={1.75} />
+            {article.userBookmarked ? 'Guardado' : 'Guardar'}
+          </Button>
 
           {article.mandatory && !article.userAcknowledged && (
-            <button
+            <Button
               onClick={handleAcknowledge}
               disabled={acknowledging}
-              className="w-full py-2.5 text-sm font-medium bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 disabled:opacity-50"
+              intent="success"
+              className="w-full"
             >
-              {acknowledging ? '…' : '✅ Li e estou ciente'}
-            </button>
+              <Check size={16} strokeWidth={1.75} />
+              {acknowledging ? '…' : 'Li e estou ciente'}
+            </Button>
           )}
           {article.userAcknowledged && (
-            <div className="py-2.5 text-center text-xs text-emerald-700 font-medium bg-emerald-50 rounded-lg">
+            <div className="rounded-control bg-success-subtle py-2.5 text-center font-body text-xs font-medium text-success-ink">
               ✓ Confirmado
             </div>
           )}
         </div>
 
         {/* Rating */}
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <div className="text-xs text-gray-400 mb-2">Avaliar artigo</div>
-          <div className="flex gap-1 mb-1">
+        <div className="rounded-card border border-border bg-surface p-4">
+          <div className="mb-2 font-body text-xs text-ink-faint">
+            Avaliar artigo
+          </div>
+          <div className="mb-1 flex gap-1">
             {[1, 2, 3, 4, 5].map((s) => (
               <button
                 key={s}
@@ -268,7 +280,7 @@ export function ArticleDetailView({
                 onMouseEnter={() => setHovRating(s)}
                 onMouseLeave={() => setHovRating(0)}
                 className={`text-2xl transition-colors hover:scale-110 ${
-                  s <= displayRating ? 'text-amber-400' : 'text-gray-200'
+                  s <= displayRating ? 'text-accent' : 'text-border-strong'
                 }`}
               >
                 ★
@@ -276,14 +288,14 @@ export function ArticleDetailView({
             ))}
           </div>
           {article.avgRating && (
-            <div className="text-xs text-gray-400">
+            <div className="font-body text-xs text-ink-faint">
               Média: {article.avgRating.toFixed(1)}/5
             </div>
           )}
         </div>
 
         {/* Stats */}
-        <div className="bg-gray-50 rounded-xl p-4 space-y-2 text-xs text-gray-500">
+        <div className="space-y-2 rounded-card bg-surface-sunken p-4 font-body text-xs text-ink-muted">
           {[
             ['Visualizações', article.viewCount],
             ['Comentários', article._count.comments],
@@ -297,31 +309,33 @@ export function ArticleDetailView({
           ].map(([l, v]) => (
             <div key={String(l)} className="flex justify-between">
               <span>{l}</span>
-              <span className="font-medium text-gray-800">{v}</span>
+              <span className="font-medium text-ink">{v}</span>
             </div>
           ))}
         </div>
 
         {/* Q&A */}
         {article.questions && article.questions.length > 0 && (
-          <div className="bg-white border border-gray-200 rounded-xl p-4">
-            <div className="text-xs font-medium text-gray-700 mb-3">
+          <div className="rounded-card border border-border bg-surface p-4">
+            <div className="mb-3 font-body text-xs font-medium text-ink-muted">
               ❓ Perguntas ({article._count.questions})
             </div>
             {article.questions.slice(0, 3).map((q) => (
               <div
                 key={q.id}
-                className="mb-3 pb-3 border-b border-gray-100 last:border-0"
+                className="mb-3 border-b border-border pb-3 last:border-0"
               >
-                <p className="text-xs font-medium text-gray-800 mb-1">
+                <p className="mb-1 font-body text-xs font-medium text-ink">
                   {q.question}
                 </p>
                 {q.answer ? (
-                  <p className="text-xs text-gray-600 pl-2 border-l-2 border-emerald-300">
+                  <p className="border-l-2 border-success-subtle pl-2 font-body text-xs text-ink-muted">
                     {q.answer}
                   </p>
                 ) : (
-                  <p className="text-xs text-gray-400 italic">Sem resposta</p>
+                  <p className="font-body text-xs italic text-ink-faint">
+                    Sem resposta
+                  </p>
                 )}
               </div>
             ))}
