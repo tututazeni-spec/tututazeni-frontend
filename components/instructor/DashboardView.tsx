@@ -4,17 +4,49 @@
 
 'use client';
 
+import { AlertTriangle, Star } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { formatDate as fmtDate } from '@/lib/format';
+import { cn } from '@/lib/cn';
+import { Avatar } from '@/components/ui/Avatar';
+import { Card } from '@/components/ui/Card';
+import { ProgressBar } from '@/components/ui/ProgressBar';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
-import { Avatar, ProgressBar, Skeleton, Stars } from './atoms';
 import { MODALITY_CFG, STATUS_CFG } from './constants';
 import type { DashboardData } from './types';
 
 interface DashboardViewProps {
   onSelectCohort: (id: number) => void;
+}
+
+// O ProgressBar da fundação é mono-cor (bg-accent) — o sentido (progresso
+// acima/abaixo de 60%) que a barra original comunicava por cor passa para
+// a percentagem adjacente, mesmo padrão de AnalyticsTab/OverviewTab do
+// engagement.
+function progressTextClass(pct: number): string {
+  return pct > 60 ? 'text-success' : 'text-info';
+}
+
+function Stars({ rating }: { rating: number }) {
+  return (
+    <div className="flex gap-0.5">
+      {[1, 2, 3, 4, 5].map((n) => (
+        <Star
+          key={n}
+          size={14}
+          strokeWidth={1.75}
+          className={
+            n <= Math.round(rating)
+              ? 'fill-accent text-accent'
+              : 'text-ink-faint'
+          }
+        />
+      ))}
+    </div>
+  );
 }
 
 export function DashboardView({ onSelectCohort }: DashboardViewProps) {
@@ -24,7 +56,10 @@ export function DashboardView({ onSelectCohort }: DashboardViewProps) {
     { staleTime: STALE_TIME.DYNAMIC },
   );
 
-  if (isLoading || !data) return <Skeleton rows={4} />;
+  if (isLoading || !data)
+    return (
+      <Skeleton rows={4} itemClassName="skeleton-shimmer h-16 rounded-card" />
+    );
 
   const { metrics, cohorts, recentReviews } = data;
 
@@ -32,13 +67,17 @@ export function DashboardView({ onSelectCohort }: DashboardViewProps) {
     <div className="space-y-5">
       {/* Alerta de risco */}
       {metrics.totalAtRisk > 0 && (
-        <div className="flex items-center gap-3 bg-red-50 border border-red-200 rounded-xl p-4">
-          <span className="text-2xl">⚠️</span>
+        <div className="flex items-center gap-3 rounded-card border border-danger bg-danger-subtle p-4">
+          <AlertTriangle
+            size={24}
+            strokeWidth={1.75}
+            className="shrink-0 text-danger"
+          />
           <div>
-            <div className="text-sm font-semibold text-red-700">
+            <div className="font-body text-sm font-semibold text-danger-ink">
               {metrics.totalAtRisk} aluno(s) em risco nas tuas turmas activas
             </div>
-            <div className="text-xs text-red-500">
+            <div className="font-body text-xs text-danger">
               Sem actividade há mais de 7 dias ou progresso abaixo de 20%
             </div>
           </div>
@@ -53,32 +92,38 @@ export function DashboardView({ onSelectCohort }: DashboardViewProps) {
           {
             label: 'Taxa de conclusão',
             value: `${metrics.avgCompletionRate}%`,
-            color: 'text-emerald-600',
+            color: 'text-success',
           },
           {
             label: 'Avaliação média',
             value: metrics.ratingAverage.toFixed(1),
-            color: 'text-amber-600',
+            color: 'text-accent',
           },
         ].map(({ label, value, color }) => (
-          <div key={label} className="bg-gray-50 rounded-xl p-4">
-            <div className="text-xs text-gray-400 mb-1">{label}</div>
+          <Card
+            key={label}
+            className="border-transparent bg-surface-sunken p-4 shadow-none"
+          >
+            <div className="mb-1 font-body text-xs text-ink-faint">{label}</div>
             <div
-              className={`text-2xl font-bold font-mono ${color ?? 'text-gray-900'}`}
+              className={cn(
+                'font-mono text-2xl font-bold',
+                color ?? 'text-ink',
+              )}
             >
               {value}
             </div>
-          </div>
+          </Card>
         ))}
       </div>
 
       {/* Turmas activas */}
-      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-        <div className="px-4 py-3 border-b border-gray-100 text-xs font-medium text-gray-400 uppercase tracking-wide">
+      <Card className="overflow-hidden">
+        <div className="border-b border-border px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
           Turmas activas
         </div>
         {cohorts.length === 0 ? (
-          <div className="px-4 py-8 text-center text-sm text-gray-400">
+          <div className="px-4 py-8 text-center font-body text-sm text-ink-faint">
             Sem turmas activas
           </div>
         ) : (
@@ -88,39 +133,52 @@ export function DashboardView({ onSelectCohort }: DashboardViewProps) {
             return (
               <div
                 key={c.id}
+                role="button"
+                tabIndex={0}
                 onClick={() => onSelectCohort(c.id)}
-                className="flex items-center gap-4 px-4 py-3.5 border-b border-gray-100 last:border-0 hover:bg-gray-50 cursor-pointer"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    onSelectCohort(c.id);
+                  }
+                }}
+                className="flex cursor-pointer items-center gap-4 border-b border-border px-4 py-3.5 last:border-0 hover:bg-surface-sunken focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
               >
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-0.5">
-                    <span className="text-sm font-medium text-gray-900">
+                <div className="min-w-0 flex-1">
+                  <div className="mb-0.5 flex items-center gap-2">
+                    <span className="font-body text-sm font-medium text-ink">
                       {c.name}
                     </span>
                     <StatusBadge value={c.status} map={STATUS_CFG} />
-                    <span className="text-xs text-gray-400">
+                    <span className="font-body text-xs text-ink-faint">
                       {modalityCfg.icon} {modalityCfg.label}
                     </span>
                   </div>
-                  <div className="text-xs text-gray-400">{c.course.title}</div>
-                  <div className="mt-1.5 max-w-xs">
-                    <ProgressBar
-                      pct={c.avgProgress}
-                      color={
-                        c.avgProgress > 60 ? 'bg-emerald-500' : 'bg-blue-500'
-                      }
-                    />
+                  <div className="font-body text-xs text-ink-faint">
+                    {c.course.title}
+                  </div>
+                  <div className="mt-1.5 flex max-w-xs items-center gap-2">
+                    <ProgressBar value={c.avgProgress} className="flex-1" />
+                    <span
+                      className={cn(
+                        'w-9 shrink-0 font-mono text-xs',
+                        progressTextClass(c.avgProgress),
+                      )}
+                    >
+                      {c.avgProgress}%
+                    </span>
                   </div>
                 </div>
-                <div className="text-right flex-shrink-0">
-                  <div className="text-sm font-bold text-gray-900">
+                <div className="flex-shrink-0 text-right">
+                  <div className="font-body text-sm font-bold text-ink">
                     {c.totalStudents} alunos
                   </div>
                   {c.atRisk > 0 && (
-                    <div className="text-xs text-red-600">
+                    <div className="font-body text-xs text-danger">
                       ⚠ {c.atRisk} em risco
                     </div>
                   )}
-                  <div className="text-xs text-gray-400">
+                  <div className="font-body text-xs text-ink-faint">
                     {fmtDate(c.startDate)}
                   </div>
                 </div>
@@ -128,12 +186,12 @@ export function DashboardView({ onSelectCohort }: DashboardViewProps) {
             );
           })
         )}
-      </div>
+      </Card>
 
       {/* Reviews recentes */}
       {recentReviews.length > 0 && (
-        <div className="bg-white border border-gray-200 rounded-xl p-5">
-          <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">
+        <Card className="p-5">
+          <div className="mb-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
             Avaliações recentes
           </div>
           <div className="space-y-3">
@@ -141,22 +199,24 @@ export function DashboardView({ onSelectCohort }: DashboardViewProps) {
               <div key={i} className="flex items-start gap-3">
                 <Avatar
                   name={r.user?.fullName ?? 'A'}
-                  avatarUrl={r.user?.avatarUrl}
+                  url={r.user?.avatarUrl ?? undefined}
                   size="sm"
                 />
                 <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-0.5">
-                    <span className="text-sm font-medium text-gray-900">
+                  <div className="mb-0.5 flex items-center gap-2">
+                    <span className="font-body text-sm font-medium text-ink">
                       {r.user?.fullName}
                     </span>
                     <Stars rating={r.rating} />
                   </div>
-                  <p className="text-xs text-gray-500">{r.comment}</p>
+                  <p className="font-body text-xs text-ink-muted">
+                    {r.comment}
+                  </p>
                 </div>
               </div>
             ))}
           </div>
-        </div>
+        </Card>
       )}
     </div>
   );

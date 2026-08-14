@@ -4,10 +4,15 @@
 
 'use client';
 
+import { AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { Avatar, ProgressBar, Skeleton } from './atoms';
+import { cn } from '@/lib/cn';
+import { Avatar } from '@/components/ui/Avatar';
+import { Card } from '@/components/ui/Card';
+import { ProgressBar } from '@/components/ui/ProgressBar';
+import { Skeleton } from '@/components/ui/Skeleton';
 import type { AtRiskStudent } from './types';
 
 export function AtRiskView() {
@@ -18,58 +23,90 @@ export function AtRiskView() {
     staleTime: STALE_TIME.DYNAMIC,
   });
 
-  if (isLoading || !data) return <Skeleton rows={3} />;
+  if (isLoading || !data)
+    return (
+      <Skeleton rows={3} itemClassName="skeleton-shimmer h-16 rounded-card" />
+    );
+
+  const hasAtRisk = data.count > 0;
 
   return (
     <div>
       <div
-        className={`flex items-center gap-3 mb-5 p-4 border rounded-xl ${data.count > 0 ? 'bg-red-50 border-red-200' : 'bg-emerald-50 border-emerald-200'}`}
+        className={cn(
+          'mb-5 flex items-center gap-3 rounded-card border p-4',
+          hasAtRisk
+            ? 'border-danger bg-danger-subtle'
+            : 'border-success bg-success-subtle',
+        )}
       >
-        <span className="text-3xl">{data.count > 0 ? '⚠️' : '✅'}</span>
+        {hasAtRisk ? (
+          <AlertTriangle
+            size={24}
+            strokeWidth={1.75}
+            className="shrink-0 text-danger"
+          />
+        ) : (
+          <CheckCircle2
+            size={24}
+            strokeWidth={1.75}
+            className="shrink-0 text-success"
+          />
+        )}
         <div>
           <div
-            className={`text-sm font-semibold ${data.count > 0 ? 'text-red-700' : 'text-emerald-700'}`}
+            className={cn(
+              'font-body text-sm font-semibold',
+              hasAtRisk ? 'text-danger-ink' : 'text-success-ink',
+            )}
           >
-            {data.count > 0
+            {hasAtRisk
               ? `${data.count} aluno(s) em risco`
               : 'Nenhum aluno em risco'}
           </div>
-          <div className="text-xs text-gray-500">
+          <div className="font-body text-xs text-ink-muted">
             Progresso abaixo de 20% após 7 dias de inscrição
           </div>
         </div>
       </div>
 
       {data.students.length > 0 && (
-        <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+        <Card className="overflow-hidden">
           {data.students.map((s, i) => (
             <div
               key={i}
-              className="flex items-center gap-3 px-4 py-3.5 border-b border-gray-100 last:border-0"
+              className="flex items-center gap-3 border-b border-border px-4 py-3.5 last:border-0"
             >
-              <Avatar name={s.fullName} avatarUrl={s.avatarUrl} size="sm" />
-              <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium text-gray-900">
+              <Avatar
+                name={s.fullName}
+                url={s.avatarUrl ?? undefined}
+                size="sm"
+              />
+              <div className="min-w-0 flex-1">
+                <div className="font-body text-sm font-medium text-ink">
                   {s.fullName}
                 </div>
-                <div className="text-xs text-gray-400">
+                <div className="font-body text-xs text-ink-faint">
                   {s.cohortName} · {s.course.title}
                 </div>
-                <div className="mt-1 max-w-xs">
-                  <ProgressBar pct={s.progress} color="bg-red-400" />
+                <div className="mt-1 flex max-w-xs items-center gap-2">
+                  <ProgressBar value={s.progress} className="flex-1" />
+                  <span className="w-9 shrink-0 font-mono text-xs text-danger">
+                    {s.progress}%
+                  </span>
                 </div>
               </div>
-              <div className="text-right flex-shrink-0">
-                <div className="text-xs text-red-600 font-medium">
+              <div className="flex-shrink-0 text-right">
+                <div className="font-body text-xs font-medium text-danger">
                   Inscrito há {s.daysSinceEnroll} dias
                 </div>
-                <div className="text-xs text-gray-400">
+                <div className="font-body text-xs text-ink-faint">
                   Progresso: {s.progress}%
                 </div>
               </div>
             </div>
           ))}
-        </div>
+        </Card>
       )}
     </div>
   );
