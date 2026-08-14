@@ -1,10 +1,14 @@
 // components/documents/Sidebar.tsx
 // Sidebar de filtros: novo documento, filtros rápidos, categorias e nuvem
-// de tags. Extraído de app/(platform)/documents/page.tsx.
+// de tags. Extraído de app/(platform)/documents/page.tsx. Migrado para a
+// fundação de design: classes Tailwind cruas passam a tokens; botão "Novo
+// Documento" e contador de "A Expirar" passam a Button/Badge reais.
 
 'use client';
 
 import { AlertCircle, Folder, Plus } from 'lucide-react';
+import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
 import { CATEGORY_CONFIG } from './constants';
 import type { DashboardData, DocFilters } from './types';
 
@@ -24,19 +28,16 @@ export function Sidebar({
   onNewDocument,
 }: SidebarProps) {
   return (
-    <div className="w-56 flex-shrink-0 bg-white border-r border-gray-100 p-4 space-y-6">
+    <div className="w-56 flex-shrink-0 bg-surface border-r border-border p-4 space-y-6">
       <div>
-        <button
-          onClick={onNewDocument}
-          className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-white bg-blue-600 rounded-xl hover:bg-blue-700 transition-colors font-medium shadow-sm"
-        >
-          <Plus size={15} /> Novo Documento
-        </button>
+        <Button onClick={onNewDocument} className="w-full">
+          <Plus size={15} strokeWidth={1.75} /> Novo Documento
+        </Button>
       </div>
 
       {/* Quick filters */}
       <div>
-        <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+        <p className="text-xs font-semibold text-ink-faint uppercase tracking-wider mb-2">
           Filtros
         </p>
         <div className="space-y-1">
@@ -57,14 +58,14 @@ export function Sidebar({
             <button
               key={item.label}
               onClick={item.action}
-              className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-600 rounded-xl hover:bg-gray-100 transition-colors text-left"
+              className="w-full flex items-center gap-2 px-3 py-2 text-sm text-ink-muted rounded-control hover:bg-surface-sunken transition-colors text-left"
             >
-              <item.icon size={15} className="text-gray-400" />
+              <item.icon size={15} strokeWidth={1.75} className="text-ink-faint" />
               <span className="flex-1">{item.label}</span>
               {item.badge != null && item.badge > 0 && (
-                <span className="text-xs bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full font-medium">
+                <Badge intent="warning" className="px-1.5 py-0 text-[10px]">
                   {item.badge}
-                </span>
+                </Badge>
               )}
             </button>
           ))}
@@ -73,7 +74,7 @@ export function Sidebar({
 
       {/* Categories */}
       <div>
-        <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+        <p className="text-xs font-semibold text-ink-faint uppercase tracking-wider mb-2">
           Categorias
         </p>
         <div className="space-y-1">
@@ -86,11 +87,9 @@ export function Sidebar({
                   expiringSoon: false,
                 })
               }
-              className={`w-full flex items-center gap-2 px-3 py-1.5 text-xs rounded-xl transition-colors text-left ${filters.category === k ? 'bg-blue-50 text-blue-700 font-semibold' : 'text-gray-600 hover:bg-gray-100'}`}
+              className={`w-full flex items-center gap-2 px-3 py-1.5 text-xs rounded-control transition-colors text-left ${filters.category === k ? 'bg-primary-subtle text-primary font-semibold' : 'text-ink-muted hover:bg-surface-sunken'}`}
             >
-              <span
-                className={`w-2 h-2 rounded-full ${v.color.split(' ')[0]}`}
-              />
+              <span className={`w-2 h-2 rounded-full ${v.dot}`} />
               {v.label}
             </button>
           ))}
@@ -100,7 +99,7 @@ export function Sidebar({
       {/* Tag cloud */}
       {allTags.length > 0 && (
         <div>
-          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+          <p className="text-xs font-semibold text-ink-faint uppercase tracking-wider mb-2">
             Tags
           </p>
           <div className="flex flex-wrap gap-1.5">
@@ -110,7 +109,7 @@ export function Sidebar({
                 onClick={() =>
                   updateFilters({ tag: filters.tag === t.tag ? '' : t.tag })
                 }
-                className={`text-xs px-2 py-0.5 rounded-full transition-colors ${filters.tag === t.tag ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
+                className={`text-xs px-2 py-0.5 rounded-pill transition-colors ${filters.tag === t.tag ? 'bg-primary text-canvas' : 'bg-surface-sunken text-ink-muted hover:bg-border-strong'}`}
               >
                 {t.tag}
               </button>
