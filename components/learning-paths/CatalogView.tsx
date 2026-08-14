@@ -1,19 +1,51 @@
 // components/learning-paths/CatalogView.tsx
 // Separador "Catálogo" — pesquisa/filtros paginados de trilhas
 // publicadas. Dados próprios + apresentação. Extraído de
-// app/(platform)/learning-paths/page.tsx.
+// app/(platform)/learning-paths/page.tsx. Migrado para a fundação de
+// design: input de pesquisa passa a Input, selects de filtro passam a
+// Select (Radix, sentinela 'ALL' para "todos"/"todas" — mesmo padrão
+// de components/events/CatalogView.tsx), skeleton local (atoms.tsx)
+// passa a Skeleton da fundação, estado vazio a EmptyState, paginação a
+// Button secondary/sm.
 
 'use client';
 
 import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
+import { RouteOff } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { useDebounce } from '@/hooks/useDebounce';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { Skeleton } from './atoms';
+import { Button } from '@/components/ui/Button';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { Input } from '@/components/ui/Input';
+import { Select } from '@/components/ui/Select';
+import { Skeleton } from '@/components/ui/Skeleton';
+import { LP_TYPE_MAP, PATH_TYPE_FILTER_KEYS } from './constants';
 import { LearningPathCard } from './LearningPathCard';
 import type { PaginatedLPs } from './types';
+
+const LEVEL_ITEMS = [
+  { value: 'ALL', label: 'Todos os níveis' },
+  { value: 'BEGINNER', label: 'Básico' },
+  { value: 'INTERMEDIATE', label: 'Intermédio' },
+  { value: 'ADVANCED', label: 'Avançado' },
+];
+
+const TYPE_ITEMS = [
+  { value: 'ALL', label: 'Todos os tipos' },
+  ...PATH_TYPE_FILTER_KEYS.map((k) => ({
+    value: k,
+    label: LP_TYPE_MAP[k].label,
+  })),
+];
+
+const MANDATORY_ITEMS = [
+  { value: 'ALL', label: 'Todas' },
+  { value: 'true', label: 'Apenas obrigatórias' },
+  { value: 'false', label: 'Apenas opcionais' },
+];
 
 interface CatalogViewProps {
   onSelect: (id: number) => void;
@@ -52,8 +84,8 @@ export function CatalogView({ onSelect }: CatalogViewProps) {
 
   return (
     <div>
-      <div className="flex flex-wrap items-center gap-3 mb-6">
-        <input
+      <div className="mb-6 flex flex-wrap items-center gap-3">
+        <Input
           type="text"
           placeholder="Pesquisar trilhas, tags, categorias…"
           value={search}
@@ -61,61 +93,53 @@ export function CatalogView({ onSelect }: CatalogViewProps) {
             setSearch(e.target.value);
             setPage(1);
           }}
-          className="flex-1 min-w-[200px] text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="min-w-[200px] flex-1"
         />
-        <select
-          value={level}
-          onChange={(e) => {
-            setLevel(e.target.value);
+        <Select
+          items={LEVEL_ITEMS}
+          value={level || 'ALL'}
+          onValueChange={(v) => {
+            setLevel(v === 'ALL' ? '' : v);
             setPage(1);
           }}
-          className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          <option value="">Todos os níveis</option>
-          <option value="BEGINNER">Básico</option>
-          <option value="INTERMEDIATE">Intermédio</option>
-          <option value="ADVANCED">Avançado</option>
-        </select>
-        <select
-          value={pathType}
-          onChange={(e) => {
-            setPathType(e.target.value);
+        />
+        <Select
+          items={TYPE_ITEMS}
+          value={pathType || 'ALL'}
+          onValueChange={(v) => {
+            setPathType(v === 'ALL' ? '' : v);
             setPage(1);
           }}
-          className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          <option value="">Todos os tipos</option>
-          <option value="ONBOARDING">Onboarding</option>
-          <option value="UPSKILLING">Upskilling</option>
-          <option value="COMPLIANCE">Compliance</option>
-          <option value="LEADERSHIP">Liderança</option>
-          <option value="CERTIFICATION">Certificação</option>
-        </select>
-        <select
-          value={mandatory}
-          onChange={(e) => {
-            setMandatory(e.target.value);
+        />
+        <Select
+          items={MANDATORY_ITEMS}
+          value={mandatory || 'ALL'}
+          onValueChange={(v) => {
+            setMandatory(v === 'ALL' ? '' : v);
             setPage(1);
           }}
-          className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          <option value="">Todas</option>
-          <option value="true">Apenas obrigatórias</option>
-          <option value="false">Apenas opcionais</option>
-        </select>
+        />
       </div>
 
       {error && (
-        <div className="text-sm text-red-500 mb-4">{error.message}</div>
+        <div className="mb-4 font-body text-sm text-danger">
+          {error.message}
+        </div>
       )}
-      {loading && <Skeleton />}
+      {loading && (
+        <Skeleton
+          rows={6}
+          wrapperClassName="grid grid-cols-3 gap-4"
+          itemClassName="skeleton-shimmer h-64 rounded-card"
+        />
+      )}
 
       {!loading && data && (
         <>
-          <div className="text-xs text-gray-400 mb-4">
+          <div className="mb-4 font-body text-xs text-ink-faint">
             {data.total} trilhas encontradas
           </div>
-          <div className="grid grid-cols-3 gap-4 mb-6">
+          <div className="mb-6 grid grid-cols-3 gap-4">
             {data.data.map((path) => (
               <LearningPathCard
                 key={path.id}
@@ -125,30 +149,34 @@ export function CatalogView({ onSelect }: CatalogViewProps) {
             ))}
           </div>
           {data.data.length === 0 && (
-            <div className="py-12 text-center text-sm text-gray-400 border border-dashed border-gray-200 rounded-xl">
-              Nenhuma trilha encontrada
-            </div>
+            <EmptyState
+              icon={RouteOff}
+              title="Nenhuma trilha encontrada"
+              description="Ajusta a pesquisa ou os filtros para encontrar o que procuras."
+            />
           )}
           {data.totalPages > 1 && (
             <div className="flex items-center justify-between">
-              <span className="text-xs text-gray-400">
+              <span className="font-body text-xs text-ink-faint">
                 Página {data.page} de {data.totalPages}
               </span>
               <div className="flex gap-2">
-                <button
+                <Button
+                  intent="secondary"
+                  size="sm"
                   disabled={page === 1}
                   onClick={() => setPage((p) => p - 1)}
-                  className="px-3 py-1.5 text-xs border border-gray-200 rounded-lg disabled:opacity-40 hover:bg-gray-50"
                 >
                   ← Anterior
-                </button>
-                <button
+                </Button>
+                <Button
+                  intent="secondary"
+                  size="sm"
                   disabled={page === data.totalPages}
                   onClick={() => setPage((p) => p + 1)}
-                  className="px-3 py-1.5 text-xs border border-gray-200 rounded-lg disabled:opacity-40 hover:bg-gray-50"
                 >
                   Próxima →
-                </button>
+                </Button>
               </div>
             </div>
           )}
