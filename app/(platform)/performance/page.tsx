@@ -13,6 +13,7 @@ import { MyDashboard } from '@/components/performance/MyDashboard';
 import { NineBoxView } from '@/components/performance/NineBoxView';
 import { TeamView } from '@/components/performance/TeamView';
 import type { View } from '@/components/performance/types';
+import { Button } from '@/components/ui/Button';
 
 export default function PerformancePage() {
   const [view, setView] = useState<View>('dashboard');
@@ -22,29 +23,26 @@ export default function PerformancePage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-xl font-semibold text-gray-900">
+          <h1 className="font-display text-xl font-semibold text-ink">
             {TITLES[view]}
           </h1>
-          <p className="text-sm text-gray-400 mt-0.5">
+          <p className="font-body text-sm text-ink-faint mt-0.5">
             INNOVA — Gestão de Performance
           </p>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 mb-6 bg-gray-100 p-1 rounded-xl w-fit">
+      <div className="flex gap-1 mb-6 bg-surface-sunken p-1 rounded-card w-fit">
         {NAV.map((n) => (
-          <button
+          <Button
             key={n.id}
+            size="sm"
+            intent={view === n.id ? 'primary' : 'ghost'}
             onClick={() => setView(n.id)}
-            className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-              view === n.id
-                ? 'bg-white text-gray-900 shadow-sm'
-                : 'text-gray-500 hover:text-gray-700'
-            }`}
           >
             {n.label}
-          </button>
+          </Button>
         ))}
       </div>
 
