@@ -1,15 +1,16 @@
 // components/knowledge/constants.ts
 // Badge de estado do artigo e navegação do módulo. Extraído de
-// app/(platform)/knowledge/page.tsx.
+// app/(platform)/knowledge/page.tsx. Cores mapeadas para os tokens
+// semânticos da fundação de design (Fase A).
 
 import type { StatusBadgeMap } from '@/lib/statusBadge';
 import type { ArticleStatus, View } from './types';
 
 export const ARTICLE_STATUS_MAP: StatusBadgeMap<ArticleStatus> = {
-  DRAFT: { label: 'Rascunho', cls: 'bg-gray-100 text-gray-500' },
-  IN_REVIEW: { label: 'Em revisão', cls: 'bg-amber-50 text-amber-700' },
-  PUBLISHED: { label: 'Publicado', cls: 'bg-emerald-50 text-emerald-700' },
-  ARCHIVED: { label: 'Arquivado', cls: 'bg-gray-100 text-gray-400' },
+  DRAFT: { label: 'Rascunho', cls: 'bg-surface-sunken text-ink-muted' },
+  IN_REVIEW: { label: 'Em revisão', cls: 'bg-warning-subtle text-warning-ink' },
+  PUBLISHED: { label: 'Publicado', cls: 'bg-success-subtle text-success-ink' },
+  ARCHIVED: { label: 'Arquivado', cls: 'bg-surface-sunken text-ink-faint' },
 };
 
 export const NAV: Array<{ id: Exclude<View, 'article'>; label: string }> = [
