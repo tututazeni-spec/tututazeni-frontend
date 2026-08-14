@@ -5,7 +5,12 @@
 //
 // Container: gere filtros/vista/modal/drawer; delega apresentação aos
 // componentes em components/documents/. Ver memory
-// project_innova_component_separation_audit.
+// project_innova_component_separation_audit. Migrado para a fundação de
+// design: classes Tailwind cruas passam a tokens; input de pesquisa passa a
+// Input; select de sensibilidade passa a Select (Radix); botão de refresh
+// passa a IconButton; skeletons de loading passam a Skeleton; estado vazio
+// passa a EmptyState; tabela crua passa a Table/TableHead/TableBody/
+// TableRow/TableHeaderCell (components/ui/).
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { useState } from 'react';
@@ -15,10 +20,21 @@ import {
   List,
   RefreshCcw,
   Search,
-  Upload,
   X,
 } from 'lucide-react';
 import { apiClient } from '@/lib/apiClient';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { IconButton } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
+import { Select } from '@/components/ui/Select';
+import { Skeleton } from '@/components/ui/Skeleton';
+import {
+  Table,
+  TableBody,
+  TableHead,
+  TableHeaderCell,
+  TableRow,
+} from '@/components/ui/Table';
 import {
   CATEGORY_CONFIG,
   SENSITIVITY_CONFIG,
@@ -40,6 +56,24 @@ import type {
   Document,
   ViewMode,
 } from '@/components/documents/types';
+
+const SENSITIVITY_ITEMS = [
+  { value: 'ALL', label: 'Todas as sensibilidades' },
+  ...Object.entries(SENSITIVITY_CONFIG).map(([k, v]) => ({
+    value: k,
+    label: v.label,
+  })),
+];
+
+const TABLE_HEADERS = [
+  'Documento',
+  'Categoria',
+  'Autor',
+  'Tamanho',
+  'Validade',
+  'Versão',
+  '',
+];
 
 export default function DocumentRepositoryPage() {
   const [view, setView] = useState<ViewMode>('grid');
@@ -67,7 +101,7 @@ export default function DocumentRepositoryPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50/50 flex">
+    <div className="min-h-screen bg-canvas flex">
       <Sidebar
         filters={filters}
         updateFilters={updateFilters}
@@ -79,103 +113,100 @@ export default function DocumentRepositoryPage() {
       {/* Main */}
       <div className="flex-1 min-w-0 flex flex-col">
         {/* Top bar */}
-        <div className="bg-white border-b border-gray-100 px-6 py-4 flex items-center gap-3">
+        <div className="bg-surface border-b border-border px-6 py-4 flex items-center gap-3">
           <div className="flex-1 relative">
             <Search
               size={16}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+              strokeWidth={1.75}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-faint"
             />
-            <input
+            <Input
               value={filters.search}
               onChange={(e) => updateFilters({ search: e.target.value })}
               placeholder="Pesquisar por nome, tag, OCR text..."
-              className="w-full pl-9 pr-4 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-colors"
+              className="w-full pl-9 pr-8"
             />
             {filters.search && (
               <button
                 onClick={() => updateFilters({ search: '' })}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-faint hover:text-ink-muted"
               >
-                <X size={14} />
+                <X size={14} strokeWidth={1.75} />
               </button>
             )}
           </div>
 
-          <select
-            value={filters.sensitivity}
-            onChange={(e) => updateFilters({ sensitivity: e.target.value })}
-            className="px-3 py-2.5 text-sm border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="">Todas as sensibilidades</option>
-            {Object.entries(SENSITIVITY_CONFIG).map(([k, v]) => (
-              <option key={k} value={k}>
-                {v.label}
-              </option>
-            ))}
-          </select>
+          <Select
+            items={SENSITIVITY_ITEMS}
+            value={filters.sensitivity || 'ALL'}
+            onValueChange={(v) =>
+              updateFilters({ sensitivity: v === 'ALL' ? '' : v })
+            }
+          />
 
           {/* View toggle */}
-          <div className="flex bg-gray-100 rounded-xl overflow-hidden">
+          <div className="flex bg-surface-sunken rounded-control overflow-hidden">
             <button
               onClick={() => setView('grid')}
-              className={`p-2.5 transition-colors ${view === 'grid' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+              className={`p-2.5 transition-colors ${view === 'grid' ? 'bg-surface text-primary shadow-resting' : 'text-ink-muted hover:text-ink'}`}
             >
-              <Grid size={15} />
+              <Grid size={15} strokeWidth={1.75} />
             </button>
             <button
               onClick={() => setView('list')}
-              className={`p-2.5 transition-colors ${view === 'list' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+              className={`p-2.5 transition-colors ${view === 'list' ? 'bg-surface text-primary shadow-resting' : 'text-ink-muted hover:text-ink'}`}
             >
-              <List size={15} />
+              <List size={15} strokeWidth={1.75} />
             </button>
           </div>
 
-          <button
+          <IconButton
+            icon={RefreshCcw}
+            label="Actualizar"
+            intent="ghost"
             onClick={() => refetch()}
-            className="p-2.5 text-gray-500 border border-gray-200 bg-white rounded-xl hover:bg-gray-50"
-          >
-            <RefreshCcw size={15} className={loading ? 'animate-spin' : ''} />
-          </button>
+            className={loading ? 'animate-spin' : ''}
+          />
         </div>
 
         {/* KPIs strip */}
         {dashboard && (
-          <div className="bg-white border-b border-gray-100 px-6 py-3 flex items-center gap-6 text-xs">
+          <div className="bg-surface border-b border-border px-6 py-3 flex items-center gap-6 text-xs">
             {[
               {
                 label: 'Total',
                 value: dashboard.kpis.total,
-                color: 'text-gray-900',
+                className: 'text-ink',
               },
               {
                 label: 'Activos',
                 value: dashboard.kpis.active,
-                color: 'text-emerald-700',
+                className: 'text-success-ink',
               },
               {
                 label: 'Expirados',
                 value: dashboard.kpis.expired,
-                color: 'text-red-600',
+                className: 'text-danger',
               },
               {
                 label: 'A Expirar',
                 value: dashboard.kpis.expiringSoon,
-                color: 'text-amber-700',
+                className: 'text-warning-ink',
               },
               {
                 label: 'Tamanho',
                 value: `${dashboard.kpis.totalSizeGB} GB`,
-                color: 'text-blue-700',
+                className: 'text-info-ink',
               },
               {
                 label: 'Downloads (30d)',
                 value: dashboard.kpis.recentDownloads,
-                color: 'text-violet-700',
+                className: 'text-primary',
               },
             ].map((k) => (
               <div key={k.label} className="flex items-center gap-1.5">
-                <span className="text-gray-400">{k.label}:</span>
-                <span className={`font-bold ${k.color}`}>{k.value}</span>
+                <span className="text-ink-faint">{k.label}:</span>
+                <span className={`font-bold ${k.className}`}>{k.value}</span>
               </div>
             ))}
           </div>
@@ -184,8 +215,8 @@ export default function DocumentRepositoryPage() {
         {/* Content */}
         <div className="flex-1 p-6 overflow-y-auto">
           <div className="flex items-center justify-between mb-4">
-            <p className="text-sm text-gray-500">
-              <span className="font-semibold text-gray-900">
+            <p className="text-sm text-ink-muted">
+              <span className="font-semibold text-ink">
                 {data?.meta?.total ?? 0}
               </span>{' '}
               documentos
@@ -198,32 +229,28 @@ export default function DocumentRepositoryPage() {
 
           {loading ? (
             view === 'grid' ? (
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 animate-pulse">
-                {Array.from({ length: 8 }).map((_, i) => (
-                  <div key={i} className="h-44 bg-gray-100 rounded-2xl" />
-                ))}
-              </div>
+              <Skeleton
+                rows={8}
+                wrapperClassName="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 animate-pulse"
+                itemClassName="h-44 rounded-panel bg-surface-sunken"
+              />
             ) : (
-              <div className="space-y-2">
-                {Array.from({ length: 6 }).map((_, i) => (
-                  <div
-                    key={i}
-                    className="h-12 bg-gray-100 rounded-xl animate-pulse"
-                  />
-                ))}
-              </div>
+              <Skeleton
+                rows={6}
+                wrapperClassName="space-y-2 animate-pulse"
+                itemClassName="h-12 rounded-card bg-surface-sunken"
+              />
             )
           ) : data?.data.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-20 text-gray-400">
-              <FolderOpen size={48} className="mb-4 opacity-30" />
-              <p className="text-sm font-medium">Nenhum documento encontrado</p>
-              <button
-                onClick={() => setShowUpload(true)}
-                className="mt-4 flex items-center gap-1.5 px-4 py-2 text-sm text-blue-600 border border-blue-200 rounded-xl hover:bg-blue-50"
-              >
-                <Upload size={14} /> Publicar primeiro documento
-              </button>
-            </div>
+            <EmptyState
+              icon={FolderOpen}
+              title="Nenhum documento encontrado"
+              description="Publique o primeiro documento do repositório."
+              action={{
+                label: 'Publicar primeiro documento',
+                onClick: () => setShowUpload(true),
+              }}
+            />
           ) : view === 'grid' ? (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {data?.data.map((d) => (
@@ -236,40 +263,27 @@ export default function DocumentRepositoryPage() {
               ))}
             </div>
           ) : (
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-              <table className="w-full">
-                <thead>
-                  <tr className="bg-gray-50/60 border-b border-gray-100">
-                    {[
-                      'Documento',
-                      'Categoria',
-                      'Autor',
-                      'Tamanho',
-                      'Validade',
-                      'Versão',
-                      '',
-                    ].map((h) => (
-                      <th
-                        key={h}
-                        className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide whitespace-nowrap"
-                      >
-                        {h}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-50">
-                  {data?.data.map((d) => (
-                    <DocRow
-                      key={d.id}
-                      doc={d}
-                      onView={setSelectedDoc}
-                      onDownload={handleDownload}
-                    />
+            <Table>
+              <TableHead>
+                <TableRow className="hover:bg-transparent">
+                  {TABLE_HEADERS.map((h) => (
+                    <TableHeaderCell key={h} className="whitespace-nowrap">
+                      {h}
+                    </TableHeaderCell>
                   ))}
-                </tbody>
-              </table>
-            </div>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {data?.data.map((d) => (
+                  <DocRow
+                    key={d.id}
+                    doc={d}
+                    onView={setSelectedDoc}
+                    onDownload={handleDownload}
+                  />
+                ))}
+              </TableBody>
+            </Table>
           )}
         </div>
       </div>
