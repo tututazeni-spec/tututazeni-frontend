@@ -6,15 +6,24 @@
 
 'use client';
 
+import { ClipboardList } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
+import { Button } from '@/components/ui/Button';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { Skeleton } from './Skeleton';
 import type { Assessment, AttemptStatus, MyAttemptSummary } from './types';
 
 export interface ListViewProps {
   onStart: (id: number) => void;
 }
+
+const TYPE_ICON_BG: Record<string, string> = {
+  QUIZ: 'bg-primary-subtle',
+  EXAM: 'bg-accent-subtle',
+  DIAGNOSTIC: 'bg-warning-subtle',
+};
 
 export function ListView({ onStart }: ListViewProps) {
   const dataQ = useApiQuery<Assessment[]>(
@@ -54,9 +63,11 @@ export function ListView({ onStart }: ListViewProps) {
   return (
     <div className="space-y-3">
       {data.length === 0 && (
-        <div className="py-12 text-center text-sm text-gray-400 border border-dashed border-gray-200 rounded-xl">
-          Sem avaliações disponíveis
-        </div>
+        <EmptyState
+          icon={ClipboardList}
+          title="Sem avaliações disponíveis"
+          description="Volta mais tarde para veres novas avaliações publicadas."
+        />
       )}
       {data.map((a) => {
         const bestScore = getMyBestScore(a.id);
@@ -64,17 +75,11 @@ export function ListView({ onStart }: ListViewProps) {
         return (
           <div
             key={a.id}
-            className="bg-white border border-gray-200 rounded-xl p-5 flex items-center gap-4 hover:shadow-sm transition-all"
+            className="bg-surface border border-border rounded-card p-5 flex items-center gap-4 hover:shadow-hover transition-shadow"
           >
             <div
-              className={`w-12 h-12 rounded-xl flex items-center justify-center text-xl flex-shrink-0 ${
-                a.type === 'QUIZ'
-                  ? 'bg-blue-50'
-                  : a.type === 'EXAM'
-                    ? 'bg-purple-50'
-                    : a.type === 'DIAGNOSTIC'
-                      ? 'bg-amber-50'
-                      : 'bg-gray-50'
+              className={`w-12 h-12 rounded-card flex items-center justify-center text-xl flex-shrink-0 ${
+                TYPE_ICON_BG[a.type] ?? 'bg-surface-sunken'
               }`}
             >
               {{
@@ -86,10 +91,10 @@ export function ListView({ onStart }: ListViewProps) {
               }[a.type] ?? '📝'}
             </div>
             <div className="flex-1">
-              <div className="text-sm font-semibold text-gray-900 mb-0.5">
+              <div className="text-sm font-semibold text-ink mb-0.5">
                 {a.title}
               </div>
-              <div className="flex flex-wrap items-center gap-3 text-xs text-gray-400">
+              <div className="flex flex-wrap items-center gap-3 text-xs text-ink-faint">
                 <span>{a._count.questions} perguntas</span>
                 {a.timeLimitMinutes > 0 && (
                   <span>⏱ {a.timeLimitMinutes}min</span>
@@ -104,29 +109,30 @@ export function ListView({ onStart }: ListViewProps) {
               {bestScore !== null && (
                 <div className="text-right">
                   <div
-                    className={`text-sm font-bold font-mono ${bestScore >= a.passingScore ? 'text-emerald-600' : 'text-red-600'}`}
+                    className={`text-sm font-bold font-data ${bestScore >= a.passingScore ? 'text-success' : 'text-danger'}`}
                   >
                     {bestScore}%
                   </div>
-                  <div className="text-xs text-gray-400">melhor score</div>
+                  <div className="text-xs text-ink-faint">melhor score</div>
                 </div>
               )}
-              <button
-                onClick={() => onStart(a.id)}
-                className={`px-4 py-2 text-sm font-medium rounded-lg ${
+              <Button
+                size="sm"
+                intent={
                   status === 'PASSED'
-                    ? 'border border-emerald-300 text-emerald-700 hover:bg-emerald-50'
+                    ? 'success'
                     : status === 'IN_PROGRESS'
-                      ? 'bg-amber-600 text-white hover:bg-amber-700'
-                      : 'bg-blue-700 text-white hover:bg-blue-800'
-                }`}
+                      ? 'warning'
+                      : 'primary'
+                }
+                onClick={() => onStart(a.id)}
               >
                 {status === 'PASSED'
                   ? '✓ Repetir'
                   : status === 'IN_PROGRESS'
                     ? '▶ Continuar'
                     : '▶ Iniciar'}
-              </button>
+              </Button>
             </div>
           </div>
         );
