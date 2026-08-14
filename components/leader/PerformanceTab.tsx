@@ -8,7 +8,9 @@ import { AlertTriangle, Star } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { KPICard, Skeleton } from './atoms';
+import { Card, CardBody } from '@/components/ui/Card';
+import { KpiCard } from '@/components/ui/KpiCard';
+import { Skeleton } from '@/components/ui/Skeleton';
 import type { LeaderDashboard } from './types';
 
 export function PerformanceTab() {
@@ -21,36 +23,40 @@ export function PerformanceTab() {
   return (
     <div className="space-y-4">
       {loading ? (
-        <Skeleton />
+        <Skeleton
+          rows={2}
+          wrapperClassName="grid grid-cols-2 md:grid-cols-4 gap-4"
+          itemClassName="skeleton-shimmer h-24 rounded-card"
+        />
       ) : (
         <>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <KPICard
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+            <KpiCard
               icon={Star}
               label="Score Médio"
               value={data?.kpis?.avgPerfScore?.toFixed(1) ?? '–'}
-              status={data?.kpis?.perfStatus}
-              color="text-amber-600"
-              bg="bg-amber-50"
+              sub={data?.kpis?.perfStatus}
+              intent="warning"
             />
-            <KPICard
+            <KpiCard
               icon={AlertTriangle}
               label="Em Risco"
               value={data?.kpis?.atRiskCount ?? 0}
-              color="text-red-500"
-              bg="bg-red-50"
+              intent="danger"
             />
           </div>
-          <div className="bg-white rounded-xl border border-slate-100 p-5">
-            <h4 className="font-semibold text-slate-700 mb-3">
-              Para ver análise detalhada de performance
-            </h4>
-            <p className="text-sm text-slate-500">
-              Usa o separador <strong>Equipa</strong> para ver cada membro
-              individualmente, ou os <strong>Reports</strong> para análise
-              avançada.
-            </p>
-          </div>
+          <Card>
+            <CardBody>
+              <h4 className="mb-3 font-display font-semibold text-ink">
+                Para ver análise detalhada de performance
+              </h4>
+              <p className="font-body text-sm text-ink-muted">
+                Usa o separador <strong>Equipa</strong> para ver cada membro
+                individualmente, ou os <strong>Reports</strong> para análise
+                avançada.
+              </p>
+            </CardBody>
+          </Card>
         </>
       )}
     </div>
