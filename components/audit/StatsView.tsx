@@ -5,10 +5,13 @@
 
 'use client';
 
+import { Activity, AlertTriangle, CalendarDays, ShieldAlert } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { Skeleton } from './atoms';
+import { Card, CardBody } from '@/components/ui/Card';
+import { KpiCard } from '@/components/ui/KpiCard';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { ACTION_ICONS } from './constants';
 import { fmtTs } from './utils';
 import type { AuditStats } from './types';
@@ -26,100 +29,109 @@ export function StatsView() {
     <div className="space-y-5">
       {/* KPIs */}
       <div className="grid grid-cols-4 gap-3">
-        {[
-          { label: 'Total de eventos', value: data.totals.total },
-          { label: 'Hoje', value: data.totals.today },
-          {
-            label: 'Críticos',
-            value: data.totals.critical,
-            color: data.totals.critical > 0 ? 'text-red-600' : 'text-gray-900',
-          },
-          {
-            label: 'Logins falhados hoje',
-            value: data.totals.failedLoginsToday,
-            color:
-              data.totals.failedLoginsToday > 0
-                ? 'text-amber-600'
-                : 'text-gray-900',
-          },
-        ].map(({ label, value, color }) => (
-          <div key={label} className="bg-gray-50 rounded-xl p-4">
-            <div className="text-xs text-gray-400 mb-1">{label}</div>
-            <div
-              className={`text-2xl font-bold font-mono ${color ?? 'text-gray-900'}`}
-            >
-              {value}
-            </div>
-          </div>
-        ))}
+        <KpiCard
+          icon={Activity}
+          label="Total de eventos"
+          value={data.totals.total}
+          intent="primary"
+        />
+        <KpiCard
+          icon={CalendarDays}
+          label="Hoje"
+          value={data.totals.today}
+          intent="accent"
+        />
+        <KpiCard
+          icon={AlertTriangle}
+          label="Críticos"
+          value={data.totals.critical}
+          intent={data.totals.critical > 0 ? 'danger' : 'primary'}
+        />
+        <KpiCard
+          icon={ShieldAlert}
+          label="Logins falhados hoje"
+          value={data.totals.failedLoginsToday}
+          intent={data.totals.failedLoginsToday > 0 ? 'warning' : 'primary'}
+        />
       </div>
 
       <div className="grid grid-cols-2 gap-4">
         {/* Por acção */}
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">
-            Por acção
-          </div>
-          {data.byAction.map((a) => (
-            <div
-              key={a.action}
-              className="flex items-center gap-2 py-1.5 border-b border-gray-50 last:border-0"
-            >
-              <span>{ACTION_ICONS[a.action] ?? '📋'}</span>
-              <span className="text-xs text-gray-700 flex-1">{a.action}</span>
-              <span className="text-xs font-mono font-bold text-gray-900">
-                {a.count}
-              </span>
+        <Card>
+          <CardBody>
+            <div className="mb-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+              Por acção
             </div>
-          ))}
-        </div>
+            {data.byAction.map((a) => (
+              <div
+                key={a.action}
+                className="flex items-center gap-2 border-b border-border py-1.5 last:border-0"
+              >
+                <span>{ACTION_ICONS[a.action] ?? '📋'}</span>
+                <span className="flex-1 font-body text-xs text-ink-muted">
+                  {a.action}
+                </span>
+                <span className="font-data text-xs font-bold text-ink">
+                  {a.count}
+                </span>
+              </div>
+            ))}
+          </CardBody>
+        </Card>
 
         {/* Por entidade */}
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">
-            Por entidade
-          </div>
-          {data.byEntity.map((e) => (
-            <div
-              key={e.entity}
-              className="flex items-center gap-2 py-1.5 border-b border-gray-50 last:border-0"
-            >
-              <span className="text-xs text-gray-700 flex-1">{e.entity}</span>
-              <span className="text-xs font-mono font-bold text-gray-900">
-                {e.count}
-              </span>
+        <Card>
+          <CardBody>
+            <div className="mb-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+              Por entidade
             </div>
-          ))}
-        </div>
+            {data.byEntity.map((e) => (
+              <div
+                key={e.entity}
+                className="flex items-center gap-2 border-b border-border py-1.5 last:border-0"
+              >
+                <span className="flex-1 font-body text-xs text-ink-muted">
+                  {e.entity}
+                </span>
+                <span className="font-data text-xs font-bold text-ink">
+                  {e.count}
+                </span>
+              </div>
+            ))}
+          </CardBody>
+        </Card>
       </div>
 
       {/* Eventos críticos recentes */}
       {data.recentCritical.length > 0 && (
-        <div className="bg-red-50 border border-red-200 rounded-xl overflow-hidden">
-          <div className="px-4 py-3 border-b border-red-100 text-xs font-semibold text-red-700">
+        <div className="overflow-hidden rounded-card border border-danger bg-danger-subtle">
+          <div className="border-b border-danger/30 px-4 py-3 font-body text-xs font-semibold text-danger-ink">
             🔴 Eventos críticos recentes
           </div>
           {data.recentCritical.slice(0, 5).map((log) => (
             <div
               key={log.id}
-              className="flex items-center gap-3 px-4 py-2.5 border-b border-red-100 last:border-0"
+              className="flex items-center gap-3 border-b border-danger/30 px-4 py-2.5 last:border-0"
             >
               <span className="text-sm">
                 {ACTION_ICONS[log.action] ?? '📋'}
               </span>
-              <div className="flex-1 min-w-0">
-                <span className="text-xs font-medium text-gray-800">
+              <div className="min-w-0 flex-1">
+                <span className="font-body text-xs font-medium text-ink">
                   {log.action}
                 </span>
-                <span className="text-xs text-gray-500"> em {log.entity}</span>
+                <span className="font-body text-xs text-ink-muted">
+                  {' '}
+                  em {log.entity}
+                </span>
                 {log.user && (
-                  <span className="text-xs text-gray-400">
+                  <span className="font-body text-xs text-ink-faint">
                     {' '}
                     por {log.user.fullName}
                   </span>
                 )}
               </div>
-              <span className="text-xs text-gray-400 flex-shrink-0">
+              <span className="flex-shrink-0 font-body text-xs text-ink-faint">
                 {fmtTs(log.timestamp)}
               </span>
             </div>
