@@ -5,6 +5,7 @@
 'use client';
 
 import { useId, useState } from 'react';
+import { ArrowLeft } from 'lucide-react';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -13,6 +14,10 @@ import {
   email as emailValidator,
   required as requiredRule,
 } from '@/lib/validation';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { FormField } from '@/components/ui/FormField';
+import { Input } from '@/components/ui/Input';
 
 interface CreateUserViewProps {
   onBack: () => void;
@@ -89,47 +94,38 @@ export function CreateUserView({ onBack, onCreated }: CreateUserViewProps) {
   }: FieldProps) => {
     const fieldId = useId();
     return (
-      <div>
-        <label
-          htmlFor={fieldId}
-          className="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-1.5"
-        >
-          {label}
-          {required && ' *'}
-        </label>
-        <input
+      <FormField label={required ? `${label} *` : label} htmlFor={fieldId}>
+        <Input
           id={fieldId}
           type={type}
           value={form[id]}
           onChange={handle(id)}
-          className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full"
         />
-      </div>
+      </FormField>
     );
   };
 
   return (
     <div>
-      <button
-        onClick={onBack}
-        className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-800 mb-5"
-      >
-        ← Cancelar
-      </button>
-      <div className="bg-white border border-gray-200 rounded-xl p-6">
-        <div className="text-base font-semibold text-gray-900 mb-5">
+      <Button intent="ghost" size="sm" className="mb-5" onClick={onBack}>
+        <ArrowLeft size={14} strokeWidth={1.75} />
+        Cancelar
+      </Button>
+      <Card className="p-6">
+        <div className="text-base font-semibold text-ink mb-5">
           Novo colaborador
         </div>
 
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 text-sm mb-4">
+          <div className="bg-danger-subtle border border-danger/30 text-danger-ink rounded-control p-3 text-sm mb-4">
             {error}
           </div>
         )}
 
         <div className="grid grid-cols-2 gap-5 mb-6">
           <div className="col-span-2">
-            <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3 pb-2 border-b border-gray-100">
+            <div className="text-xs font-medium text-ink-faint uppercase tracking-wide mb-3 pb-2 border-b border-border">
               Dados básicos
             </div>
           </div>
@@ -141,7 +137,7 @@ export function CreateUserView({ onBack, onCreated }: CreateUserViewProps) {
           <Field label="Data de admissão" id="hireDate" type="date" />
 
           <div className="col-span-2 mt-2">
-            <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3 pb-2 border-b border-gray-100">
+            <div className="text-xs font-medium text-ink-faint uppercase tracking-wide mb-3 pb-2 border-b border-border">
               Organização
             </div>
           </div>
@@ -149,13 +145,13 @@ export function CreateUserView({ onBack, onCreated }: CreateUserViewProps) {
           <Field label="ID Cargo / Posição" id="positionId" type="number" />
 
           <div>
-            <label className="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-1.5">
+            <label className="block text-xs font-medium text-ink uppercase tracking-wide mb-1.5">
               Estado inicial
             </label>
             <select
               value={form.accountStatus}
               onChange={handle('accountStatus')}
-              className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full rounded-control border-[1.5px] border-border-strong bg-surface px-3 py-[9px] font-body text-sm text-ink focus:border-accent focus:outline-none focus:ring-[3px] focus:ring-accent-subtle"
             >
               <option value="PENDING">Pendente (convite enviado)</option>
               <option value="ACTIVE">Activo</option>
@@ -164,21 +160,14 @@ export function CreateUserView({ onBack, onCreated }: CreateUserViewProps) {
         </div>
 
         <div className="flex gap-3">
-          <button
-            onClick={handleSubmit}
-            disabled={saving}
-            className="px-5 py-2.5 bg-blue-700 text-white text-sm font-medium rounded-lg hover:bg-blue-800 disabled:opacity-50"
-          >
+          <Button onClick={handleSubmit} disabled={saving} loading={saving}>
             {saving ? 'A criar…' : 'Criar colaborador'}
-          </button>
-          <button
-            onClick={onBack}
-            className="px-5 py-2.5 text-sm border border-gray-200 rounded-lg hover:bg-gray-50"
-          >
+          </Button>
+          <Button intent="secondary" onClick={onBack}>
             Cancelar
-          </button>
+          </Button>
         </div>
-      </div>
+      </Card>
     </div>
   );
 }
