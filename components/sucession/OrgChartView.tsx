@@ -9,9 +9,12 @@ import { useState } from 'react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
+import { Avatar } from '@/components/ui/Avatar';
+import { Card } from '@/components/ui/Card';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
-import { Avatar, MatchScore, ReadinessBadge, Skeleton } from './atoms';
 import { COVERAGE_CFG, READINESS_CFG, RISK_CFG } from './constants';
+import { MatchScore } from './MatchScore';
 import type { OrgChartNode, RiskLevel } from './types';
 
 export function OrgChartView() {
@@ -38,26 +41,26 @@ export function OrgChartView() {
         {[...nodes]
           .sort((a, b) => riskOrder[b.exitRisk] - riskOrder[a.exitRisk])
           .map((node) => (
-            <div
+            <Card
               key={node.id}
               onClick={() =>
                 setSelected(selected?.id === node.id ? null : node)
               }
-              className={`bg-white border rounded-xl p-4 cursor-pointer transition-all ${
+              className={`cursor-pointer p-4 transition-all ${
                 selected?.id === node.id
-                  ? 'border-blue-400 shadow-md'
-                  : 'border-gray-200 hover:shadow-sm'
+                  ? 'border-primary shadow-hover'
+                  : 'hover:shadow-hover'
               }`}
             >
               <div className="flex items-start gap-4">
                 {/* Cargo info */}
                 <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-sm font-semibold text-gray-900">
+                  <div className="mb-1 flex items-center gap-2">
+                    <span className="font-body text-sm font-semibold text-ink">
                       {node.position.name}
                     </span>
                     {node.keyPersonRisk && (
-                      <span className="text-xs bg-purple-50 text-purple-700 px-1.5 py-0.5 rounded">
+                      <span className="rounded bg-accent-subtle px-1.5 py-0.5 font-body text-xs text-accent">
                         🔑 Key Person
                       </span>
                     )}
@@ -67,25 +70,25 @@ export function OrgChartView() {
                       map={COVERAGE_CFG}
                     />
                   </div>
-                  <div className="text-xs text-gray-400 mb-2">
+                  <div className="mb-2 font-body text-xs text-ink-faint">
                     {node.position.department?.name ?? '—'}
                     {node.position.level ? ` · ${node.position.level}` : ''}
                   </div>
 
                   {/* Titular */}
                   {node.position.users[0] && (
-                    <div className="flex items-center gap-2 mb-2">
+                    <div className="mb-2 flex items-center gap-2">
                       <Avatar
                         name={node.position.users[0].fullName}
-                        avatarUrl={node.position.users[0].avatarUrl}
+                        url={node.position.users[0].avatarUrl ?? undefined}
                         size="sm"
                       />
-                      <span className="text-xs text-gray-600">
+                      <span className="font-body text-xs text-ink-muted">
                         {node.position.users[0].fullName}
                       </span>
                       {node.daysUntilExit !== null && (
                         <span
-                          className={`text-xs font-mono ml-auto ${node.daysUntilExit <= 90 ? 'text-red-600 font-bold' : 'text-gray-400'}`}
+                          className={`ml-auto font-mono text-xs ${node.daysUntilExit <= 90 ? 'font-bold text-danger-ink' : 'text-ink-faint'}`}
                         >
                           Saída: {node.daysUntilExit}d
                         </span>
@@ -98,19 +101,19 @@ export function OrgChartView() {
                     {node.successors.slice(0, 3).map((s) => (
                       <div
                         key={s.id}
-                        className="flex items-center gap-1 bg-gray-50 rounded-lg px-2 py-1"
+                        className="flex items-center gap-1 rounded-control bg-surface-sunken px-2 py-1"
                       >
                         <Avatar
                           name={s.fullName}
-                          avatarUrl={s.avatarUrl}
+                          url={s.avatarUrl ?? undefined}
                           size="sm"
                         />
                         <div>
-                          <div className="text-xs font-medium text-gray-800">
+                          <div className="font-body text-xs font-medium text-ink">
                             {s.fullName.split(' ')[0]}
                           </div>
                           <div
-                            className={`text-xs ${READINESS_CFG[s.readinessLevel].cls.split(' ')[1]}`}
+                            className={`font-body text-xs ${READINESS_CFG[s.readinessLevel].textCls}`}
                           >
                             {READINESS_CFG[s.readinessLevel].label}
                           </div>
@@ -118,7 +121,7 @@ export function OrgChartView() {
                       </div>
                     ))}
                     {node.successors.length === 0 && (
-                      <span className="text-xs text-red-500 font-medium">
+                      <span className="font-body text-xs font-medium text-danger">
                         ⚠ Sem sucessores
                       </span>
                     )}
@@ -127,45 +130,51 @@ export function OrgChartView() {
 
                 {/* Gauges */}
                 <div className="flex-shrink-0 text-center">
-                  <div className="text-2xl font-bold font-mono text-gray-700">
+                  <div className="font-mono text-2xl font-bold text-ink-muted">
                     {node.successors.length}
                   </div>
-                  <div className="text-xs text-gray-400">sucessores</div>
+                  <div className="font-body text-xs text-ink-faint">
+                    sucessores
+                  </div>
                 </div>
               </div>
 
               {/* Expanded detail */}
               {selected?.id === node.id && node.successors.length > 0 && (
-                <div className="mt-4 pt-4 border-t border-gray-100 space-y-2">
-                  <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-2">
+                <div className="mt-4 space-y-2 border-t border-border pt-4">
+                  <div className="mb-2 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
                     Pipeline de sucessão
                   </div>
                   {node.successors.map((s) => (
                     <div
                       key={s.id}
-                      className="flex items-center gap-3 py-1.5 border-b border-gray-50 last:border-0"
+                      className="flex items-center gap-3 border-b border-border py-1.5 last:border-0"
                     >
                       <Avatar
                         name={s.fullName}
-                        avatarUrl={s.avatarUrl}
+                        url={s.avatarUrl ?? undefined}
                         size="sm"
                       />
                       <div className="flex-1">
-                        <div className="text-xs font-medium text-gray-900">
+                        <div className="font-body text-xs font-medium text-ink">
                           {s.fullName}
                         </div>
                       </div>
-                      <ReadinessBadge level={s.readinessLevel} />
+                      <StatusBadge
+                        value={s.readinessLevel}
+                        map={READINESS_CFG}
+                        variant="dot"
+                      />
                       <MatchScore score={s.matchScore} />
                     </div>
                   ))}
                 </div>
               )}
-            </div>
+            </Card>
           ))}
 
         {nodes.length === 0 && (
-          <div className="py-12 text-center text-sm text-gray-400 border border-dashed border-gray-200 rounded-xl">
+          <div className="rounded-card border border-dashed border-border-strong py-12 text-center font-body text-sm text-ink-faint">
             Nenhum cargo crítico definido
           </div>
         )}

@@ -7,8 +7,10 @@
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
+import { Card } from '@/components/ui/Card';
+import { ProgressBar } from '@/components/ui/ProgressBar';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
-import { Skeleton } from './atoms';
 import { RISK_CFG } from './constants';
 import type { Dashboard } from './types';
 
@@ -29,56 +31,49 @@ export function DashboardView() {
       {/* KPIs */}
       <div className="grid grid-cols-3 gap-4">
         {/* Readiness Index */}
-        <div className="bg-white border border-gray-200 rounded-xl p-5">
-          <div className="text-xs text-gray-400 mb-2">Índice de Prontidão</div>
-          <div className="flex items-end gap-2 mb-2">
-            <div className="text-4xl font-bold font-mono text-blue-700">
+        <Card className="p-5">
+          <div className="mb-2 font-body text-xs text-ink-faint">
+            Índice de Prontidão
+          </div>
+          <div className="mb-2 flex items-end gap-2">
+            <div className="font-display text-4xl font-bold text-info-ink">
               {kpis.readinessIndex}%
             </div>
-            <div className="text-xs text-gray-400 mb-1">meta &gt;80%</div>
+            <div className="mb-1 font-body text-xs text-ink-faint">
+              meta &gt;80%
+            </div>
           </div>
-          <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-            <div
-              className="h-full bg-blue-500 rounded-full"
-              style={{ width: `${kpis.readinessIndex}%` }}
-            />
-          </div>
-        </div>
+          <ProgressBar value={kpis.readinessIndex} />
+        </Card>
 
         {/* Coverage */}
-        <div className="bg-white border border-gray-200 rounded-xl p-5">
-          <div className="text-xs text-gray-400 mb-2">
+        <Card className="p-5">
+          <div className="mb-2 font-body text-xs text-ink-faint">
             Cobertura de Sucessão
           </div>
-          <div className="flex items-end gap-2 mb-2">
+          <div className="mb-2 flex items-end gap-2">
             <div
-              className={`text-4xl font-bold font-mono ${kpis.coverageRate >= 80 ? 'text-emerald-600' : 'text-amber-600'}`}
+              className={`font-display text-4xl font-bold ${kpis.coverageRate >= 80 ? 'text-success-ink' : 'text-warning-ink'}`}
             >
               {kpis.coverageRate}%
             </div>
-            <div className="text-xs text-gray-400 mb-1">meta &gt;80%</div>
+            <div className="mb-1 font-body text-xs text-ink-faint">
+              meta &gt;80%
+            </div>
           </div>
-          <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-            <div
-              className={`h-full rounded-full ${kpis.coverageRate >= 80 ? 'bg-emerald-500' : 'bg-amber-500'}`}
-              style={{ width: `${kpis.coverageRate}%` }}
-            />
-          </div>
-        </div>
+          <ProgressBar value={kpis.coverageRate} />
+        </Card>
 
         {/* Match score médio */}
-        <div className="bg-white border border-gray-200 rounded-xl p-5">
-          <div className="text-xs text-gray-400 mb-2">Score de Match Médio</div>
-          <div className="text-4xl font-bold font-mono text-gray-900 mb-2">
+        <Card className="p-5">
+          <div className="mb-2 font-body text-xs text-ink-faint">
+            Score de Match Médio
+          </div>
+          <div className="mb-2 font-display text-4xl font-bold text-ink">
             {kpis.avgMatchScore}%
           </div>
-          <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-            <div
-              className="h-full bg-purple-500 rounded-full"
-              style={{ width: `${kpis.avgMatchScore}%` }}
-            />
-          </div>
-        </div>
+          <ProgressBar value={kpis.avgMatchScore} />
+        </Card>
       </div>
 
       {/* Métricas secundárias */}
@@ -88,19 +83,18 @@ export function DashboardView() {
           {
             label: 'Sem sucessores',
             value: kpis.withoutSuccessor,
-            color: kpis.withoutSuccessor > 0 ? 'text-red-600' : 'text-gray-900',
+            color: kpis.withoutSuccessor > 0 ? 'text-danger-ink' : 'text-ink',
           },
           {
             label: 'Risco alto/crítico',
             value: kpis.highRiskPositions,
-            color:
-              kpis.highRiskPositions > 0 ? 'text-amber-600' : 'text-gray-900',
+            color: kpis.highRiskPositions > 0 ? 'text-warning-ink' : 'text-ink',
           },
         ].map(({ label, value, color }) => (
-          <div key={label} className="bg-gray-50 rounded-xl p-4">
-            <div className="text-xs text-gray-400 mb-1">{label}</div>
+          <div key={label} className="rounded-card bg-surface-sunken p-4">
+            <div className="mb-1 font-body text-xs text-ink-faint">{label}</div>
             <div
-              className={`text-2xl font-semibold font-mono ${color ?? 'text-gray-900'}`}
+              className={`font-display text-2xl font-semibold ${color ?? 'text-ink'}`}
             >
               {value}
             </div>
@@ -110,30 +104,30 @@ export function DashboardView() {
 
       {/* Alertas críticos */}
       {criticalAlerts.length > 0 && (
-        <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-          <div className="px-4 py-3 border-b border-gray-100 text-xs font-medium text-gray-400 uppercase tracking-wide">
+        <Card>
+          <div className="border-b border-border px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-ink-muted">
             Alertas críticos
           </div>
           {criticalAlerts.map((alert) => (
             <div
               key={alert.id}
-              className="flex items-center gap-4 px-4 py-3.5 border-b border-gray-100 last:border-0"
+              className="flex items-center gap-4 border-b border-border px-4 py-3.5 last:border-0"
             >
-              <div
-                className={`w-2 h-2 rounded-full flex-shrink-0 ${
+              <span
+                className={`h-2 w-2 flex-shrink-0 rounded-full ${
                   alert.exitRisk === 'CRITICAL'
-                    ? 'bg-red-500'
+                    ? 'bg-danger'
                     : alert.exitRisk === 'HIGH'
-                      ? 'bg-orange-500'
-                      : 'bg-amber-400'
+                      ? 'bg-warning'
+                      : 'bg-warning/60'
                 }`}
               />
               <div className="flex-1">
-                <div className="text-sm font-medium text-gray-900">
+                <div className="font-body text-sm font-medium text-ink">
                   {alert.position}
                 </div>
                 {alert.alert && (
-                  <div className="text-xs text-gray-500 mt-0.5">
+                  <div className="mt-0.5 font-body text-xs text-ink-muted">
                     {alert.alert}
                   </div>
                 )}
@@ -141,14 +135,14 @@ export function DashboardView() {
               <StatusBadge value={alert.exitRisk} map={RISK_CFG} />
               {alert.daysUntilExit !== null && alert.daysUntilExit <= 180 && (
                 <div
-                  className={`text-xs font-mono ${alert.daysUntilExit <= 30 ? 'text-red-600 font-bold' : 'text-amber-600'}`}
+                  className={`font-mono text-xs ${alert.daysUntilExit <= 30 ? 'font-bold text-danger-ink' : 'text-warning-ink'}`}
                 >
                   {alert.daysUntilExit}d
                 </div>
               )}
             </div>
           ))}
-        </div>
+        </Card>
       )}
     </div>
   );

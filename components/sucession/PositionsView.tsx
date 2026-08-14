@@ -10,9 +10,11 @@ import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
+import { Avatar } from '@/components/ui/Avatar';
+import { Card } from '@/components/ui/Card';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
-import { Avatar, ReadinessBadge, Skeleton } from './atoms';
-import { COVERAGE_CFG, RISK_CFG } from './constants';
+import { COVERAGE_CFG, READINESS_CFG, RISK_CFG } from './constants';
 import { SuccessorCard } from './SuccessorCard';
 import type {
   CoverageStatus,
@@ -47,38 +49,38 @@ export function PositionsView() {
     summaryMutation.mutate(positionId);
   };
 
-  if (loading) return <Skeleton />;
+  if (loading) return <Skeleton rows={4} />;
 
   return (
     <div className="grid grid-cols-[280px_1fr] gap-5">
       {/* Position list */}
       <div className="space-y-2">
-        <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-2">
+        <div className="mb-2 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
           Cargos críticos
         </div>
         {positions?.data.map((cp) => (
           <div
             key={cp.id}
             onClick={() => loadSummary(cp.positionId)}
-            className={`p-3 border rounded-xl cursor-pointer transition-colors ${
+            className={`cursor-pointer rounded-card border p-3 transition-colors ${
               selected === cp.positionId
-                ? 'border-blue-300 bg-blue-50'
-                : 'border-gray-200 hover:bg-gray-50'
+                ? 'border-primary bg-primary-subtle'
+                : 'border-border hover:bg-surface-sunken'
             }`}
           >
-            <div className="text-xs font-medium text-gray-900 truncate">
+            <div className="truncate font-body text-xs font-medium text-ink">
               {cp.position.name}
             </div>
-            <div className="flex items-center gap-1.5 mt-1">
+            <div className="mt-1 flex items-center gap-1.5">
               <StatusBadge value={cp.exitRisk} map={RISK_CFG} />
               <span
-                className={`text-xs ${COVERAGE_CFG[cp.coverageStatus].cls} px-1.5 rounded`}
+                className={`rounded px-1.5 font-body text-xs ${COVERAGE_CFG[cp.coverageStatus].cls}`}
               >
                 {cp._count.successionPlans} suc.
               </span>
             </div>
             {cp.alert && (
-              <div className="text-xs text-red-600 mt-1 truncate">
+              <div className="mt-1 truncate font-body text-xs text-danger-ink">
                 {cp.alert}
               </div>
             )}
@@ -89,7 +91,7 @@ export function PositionsView() {
       {/* Chair view detail */}
       <div>
         {!selected && (
-          <div className="flex items-center justify-center h-48 text-sm text-gray-400 border border-dashed border-gray-200 rounded-xl">
+          <div className="flex h-48 items-center justify-center rounded-card border border-dashed border-border-strong font-body text-sm text-ink-faint">
             Seleccione um cargo para ver o pipeline de sucessão
           </div>
         )}
@@ -99,13 +101,13 @@ export function PositionsView() {
         {summary && !loadingSummary && (
           <div className="space-y-4">
             {/* Position header */}
-            <div className="bg-white border border-gray-200 rounded-xl p-5">
-              <div className="flex items-start justify-between mb-4">
+            <Card className="p-5">
+              <div className="mb-4 flex items-start justify-between">
                 <div>
-                  <div className="text-lg font-semibold text-gray-900">
+                  <div className="font-display text-lg font-semibold text-ink">
                     {summary.criticalPosition.position.name}
                   </div>
-                  <div className="flex items-center gap-2 mt-1">
+                  <div className="mt-1 flex items-center gap-2">
                     <StatusBadge
                       value={summary.criticalPosition.exitRisk}
                       map={RISK_CFG}
@@ -115,7 +117,7 @@ export function PositionsView() {
                       map={COVERAGE_CFG}
                     />
                     {summary.criticalPosition.keyPersonRisk && (
-                      <span className="text-xs bg-purple-50 text-purple-700 px-1.5 py-0.5 rounded">
+                      <span className="rounded bg-accent-subtle px-1.5 py-0.5 font-body text-xs text-accent">
                         🔑 Key Person
                       </span>
                     )}
@@ -123,32 +125,34 @@ export function PositionsView() {
                 </div>
                 {summary.daysUntilExit !== null && (
                   <div
-                    className={`text-center ${summary.daysUntilExit <= 90 ? 'text-red-600' : 'text-gray-500'}`}
+                    className={`text-center ${summary.daysUntilExit <= 90 ? 'text-danger-ink' : 'text-ink-muted'}`}
                   >
-                    <div className="text-2xl font-bold font-mono">
+                    <div className="font-mono text-2xl font-bold">
                       {summary.daysUntilExit}
                     </div>
-                    <div className="text-xs">dias até saída</div>
+                    <div className="font-body text-xs">dias até saída</div>
                   </div>
                 )}
               </div>
 
               {/* Titular */}
               {summary.criticalPosition.position.users[0] && (
-                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                <div className="flex items-center gap-3 rounded-control bg-surface-sunken p-3">
                   <Avatar
                     name={summary.criticalPosition.position.users[0].fullName}
                     size="md"
                   />
                   <div>
-                    <div className="text-sm font-medium text-gray-900">
+                    <div className="font-body text-sm font-medium text-ink">
                       {summary.criticalPosition.position.users[0].fullName}
                     </div>
-                    <div className="text-xs text-gray-400">Titular actual</div>
+                    <div className="font-body text-xs text-ink-faint">
+                      Titular actual
+                    </div>
                   </div>
                 </div>
               )}
-            </div>
+            </Card>
 
             {/* Pipeline por readiness */}
             {(
@@ -161,9 +165,13 @@ export function PositionsView() {
               const plans: SuccessionPlan[] = summary.byReadiness[level] ?? [];
               return (
                 <div key={level}>
-                  <div className="flex items-center gap-2 mb-2">
-                    <ReadinessBadge level={level} />
-                    <span className="text-xs text-gray-400">
+                  <div className="mb-2 flex items-center gap-2">
+                    <StatusBadge
+                      value={level}
+                      map={READINESS_CFG}
+                      variant="dot"
+                    />
+                    <span className="font-body text-xs text-ink-faint">
                       {plans.length} candidatos
                     </span>
                   </div>
@@ -179,7 +187,7 @@ export function PositionsView() {
                     </div>
                   ) : (
                     <div
-                      className={`text-xs py-2 px-3 rounded-lg ${level === 'READY_NOW' ? 'bg-red-50 text-red-600' : 'bg-gray-50 text-gray-400'}`}
+                      className={`rounded-control px-3 py-2 font-body text-xs ${level === 'READY_NOW' ? 'bg-danger-subtle text-danger-ink' : 'bg-surface-sunken text-ink-faint'}`}
                     >
                       {level === 'READY_NOW'
                         ? '⚠ Nenhum candidato pronto imediatamente'
