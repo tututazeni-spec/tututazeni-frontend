@@ -7,11 +7,15 @@
 
 import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
+import { GraduationCap } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { useDebounce } from '@/hooks/useDebounce';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { Skeleton } from './atoms';
+import { Button } from '@/components/ui/Button';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { Input } from '@/components/ui/Input';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { LEVEL_CFG, TYPE_CFG } from './constants';
 import { TrainingCard } from './TrainingCard';
 import type { Training, TrainingLevel, TrainingType } from './types';
@@ -40,8 +44,8 @@ export function CatalogView({ onSelect }: CatalogViewProps) {
   return (
     <div>
       {/* Filtros */}
-      <div className="flex flex-wrap items-center gap-3 mb-5">
-        <input
+      <div className="mb-5 flex flex-wrap items-center gap-3">
+        <Input
           type="text"
           placeholder="Pesquisar treinamentos…"
           value={search}
@@ -49,7 +53,7 @@ export function CatalogView({ onSelect }: CatalogViewProps) {
             setSearch(e.target.value);
             setPage(1);
           }}
-          className="flex-1 min-w-[200px] text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="min-w-[200px] flex-1"
         />
         <select
           value={type}
@@ -57,7 +61,7 @@ export function CatalogView({ onSelect }: CatalogViewProps) {
             setType(e.target.value as TrainingType | '');
             setPage(1);
           }}
-          className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="rounded-control border-[1.5px] border-border-strong bg-surface px-3 py-[9px] font-body text-sm text-ink focus:border-accent focus:outline-none focus:ring-[3px] focus:ring-accent-subtle"
         >
           <option value="">Todos os formatos</option>
           {Object.entries(TYPE_CFG).map(([k, v]) => (
@@ -72,7 +76,7 @@ export function CatalogView({ onSelect }: CatalogViewProps) {
             setLevel(e.target.value as TrainingLevel | '');
             setPage(1);
           }}
-          className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="rounded-control border-[1.5px] border-border-strong bg-surface px-3 py-[9px] font-body text-sm text-ink focus:border-accent focus:outline-none focus:ring-[3px] focus:ring-accent-subtle"
         >
           <option value="">Todos os níveis</option>
           {Object.entries(LEVEL_CFG).map(([k, v]) => (
@@ -81,16 +85,20 @@ export function CatalogView({ onSelect }: CatalogViewProps) {
             </option>
           ))}
         </select>
-        <span className="text-xs text-gray-400">
+        <span className="font-body text-xs text-ink-faint">
           {data?.total ?? 0} treinamentos
         </span>
       </div>
 
       {loading ? (
-        <Skeleton />
+        <Skeleton
+          rows={4}
+          wrapperClassName="space-y-3"
+          itemClassName="skeleton-shimmer h-16 rounded-card"
+        />
       ) : (
         <>
-          <div className="grid grid-cols-3 gap-4 mb-5">
+          <div className="mb-5 grid grid-cols-3 gap-4">
             {data?.data.map((t) => (
               <TrainingCard
                 key={t.id}
@@ -99,27 +107,33 @@ export function CatalogView({ onSelect }: CatalogViewProps) {
               />
             ))}
             {data?.data.length === 0 && (
-              <div className="col-span-3 py-12 text-center text-sm text-gray-400 border border-dashed border-gray-200 rounded-xl">
-                Sem treinamentos disponíveis
+              <div className="col-span-3">
+                <EmptyState
+                  icon={GraduationCap}
+                  title="Sem treinamentos disponíveis"
+                  description="Não há treinamentos que correspondam aos filtros seleccionados."
+                />
               </div>
             )}
           </div>
           {(data?.total ?? 0) > 12 && (
             <div className="flex justify-center gap-2">
-              <button
+              <Button
+                intent="secondary"
+                size="sm"
                 disabled={page === 1}
                 onClick={() => setPage((p) => p - 1)}
-                className="px-4 py-2 text-xs border border-gray-200 rounded-lg disabled:opacity-40 hover:bg-gray-50"
               >
                 ← Anterior
-              </button>
-              <button
+              </Button>
+              <Button
+                intent="secondary"
+                size="sm"
                 disabled={(data?.total ?? 0) <= page * 12}
                 onClick={() => setPage((p) => p + 1)}
-                className="px-4 py-2 text-xs border border-gray-200 rounded-lg disabled:opacity-40 hover:bg-gray-50"
               >
                 Próximos →
-              </button>
+              </Button>
             </div>
           )}
         </>
