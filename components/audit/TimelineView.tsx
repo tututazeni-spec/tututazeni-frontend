@@ -7,6 +7,8 @@
 import { useState } from 'react';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
 import { SEVERITY_CFG, ACTION_ICONS } from './constants';
 import { fmtTs } from './utils';
 import { DiffViewer } from './DiffViewer';
@@ -30,38 +32,34 @@ export function TimelineView() {
 
   return (
     <div>
-      <div className="flex gap-2 mb-5">
-        <input
+      <div className="mb-5 flex gap-2">
+        <Input
           type="text"
           placeholder="Entidade (ex: PDI, User, Course)"
           value={entity}
           onChange={(e) => setEntity(e.target.value)}
-          className="flex-1 text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="flex-1"
         />
-        <input
+        <Input
           type="number"
           placeholder="ID"
           value={entityId}
           onChange={(e) => setEntityId(e.target.value)}
-          className="w-24 text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-24"
         />
-        <button
-          onClick={load}
-          disabled={loading || !entity || !entityId}
-          className="px-4 py-2 bg-blue-700 text-white text-sm font-medium rounded-lg hover:bg-blue-800 disabled:opacity-50"
-        >
+        <Button onClick={load} disabled={loading || !entity || !entityId}>
           {loading ? '…' : 'Ver timeline'}
-        </button>
+        </Button>
       </div>
 
       {data && (
         <div>
-          <div className="text-sm font-semibold text-gray-900 mb-4">
+          <div className="mb-4 font-body text-sm font-semibold text-ink">
             Timeline: {data.entity} #{data.entityId} — {data.events.length}{' '}
             eventos
           </div>
           <div className="relative">
-            <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-gray-200" />
+            <div className="absolute bottom-0 left-4 top-0 w-0.5 bg-border" />
             <div className="space-y-3 pl-10">
               {data.events.map((e) => {
                 const sevCfg =
@@ -69,28 +67,28 @@ export function TimelineView() {
                 return (
                   <div key={e.id} className="relative">
                     <div
-                      className={`absolute -left-6 top-2 w-3 h-3 rounded-full border-2 border-white ${sevCfg.dot}`}
+                      className={`absolute -left-6 top-2 h-3 w-3 rounded-full border-2 border-surface ${sevCfg.dot}`}
                     />
                     <div
-                      className={`bg-white border rounded-xl p-3 ${e.severity === 'CRITICAL' || e.severity === 'HIGH' ? 'border-red-200' : 'border-gray-200'}`}
+                      className={`rounded-card border bg-surface p-3 ${e.severity === 'CRITICAL' || e.severity === 'HIGH' ? 'border-danger' : 'border-border'}`}
                     >
-                      <div className="flex items-center justify-between gap-2 mb-1">
+                      <div className="mb-1 flex items-center justify-between gap-2">
                         <div className="flex items-center gap-2">
                           <span className="text-sm">
                             {ACTION_ICONS[e.action] ?? '📋'}
                           </span>
-                          <span className="text-sm font-medium text-gray-900">
+                          <span className="font-body text-sm font-medium text-ink">
                             {e.action}
                           </span>
-                          <span className={`text-xs font-medium ${sevCfg.cls}`}>
+                          <span className={`font-body text-xs font-medium ${sevCfg.cls}`}>
                             {e.severity}
                           </span>
                         </div>
-                        <span className="text-xs text-gray-400">
+                        <span className="font-body text-xs text-ink-faint">
                           {fmtTs(e.timestamp)}
                         </span>
                       </div>
-                      <div className="flex items-center gap-2 text-xs text-gray-500">
+                      <div className="flex items-center gap-2 font-body text-xs text-ink-muted">
                         {e.user && <span>por {e.user.fullName}</span>}
                         {e.ip && <span>· IP: {e.ip}</span>}
                         {e.reason && <span>· &quot;{e.reason}&quot;</span>}
@@ -106,7 +104,7 @@ export function TimelineView() {
       )}
 
       {!data && !loading && (
-        <div className="py-12 text-center text-sm text-gray-400 border border-dashed border-gray-200 rounded-xl">
+        <div className="rounded-card border border-dashed border-border-strong py-12 text-center font-body text-sm text-ink-faint">
           Introduz uma entidade e ID para ver a timeline completa
         </div>
       )}
