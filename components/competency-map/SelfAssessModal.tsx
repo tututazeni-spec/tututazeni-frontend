@@ -5,9 +5,10 @@
 'use client';
 
 import { useState } from 'react';
-import { AlertCircle, CheckCircle2, Loader2, X } from 'lucide-react';
+import { AlertCircle, CheckCircle2, X } from 'lucide-react';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
+import { Button } from '@/components/ui/Button';
 import { TYPE_CONFIG } from './constants';
 import type { SkillType } from './types';
 
@@ -65,14 +66,14 @@ export function SelfAssessModal({
   }, {});
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-        <div className="p-6 border-b border-gray-100 flex items-center justify-between">
+    <div className="fixed inset-0 bg-ink/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className="bg-surface border border-border rounded-panel shadow-elevated w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <div className="p-6 border-b border-border flex items-center justify-between">
           <div>
-            <h2 className="font-bold text-gray-900">
+            <h2 className="font-display font-bold text-ink">
               Autoavaliação de Competências
             </h2>
-            <p className="text-sm text-gray-500 mt-0.5">
+            <p className="text-sm text-ink-muted mt-0.5">
               Avalie o seu nível actual em cada competência (1 = Iniciante · 5 =
               Expert)
             </p>
@@ -80,15 +81,15 @@ export function SelfAssessModal({
           <button
             onClick={onClose}
             aria-label="Fechar"
-            className="p-2 rounded-xl hover:bg-gray-100 text-gray-500"
+            className="p-2 rounded-control hover:bg-surface-sunken text-ink-muted"
           >
-            <X size={18} />
+            <X size={18} strokeWidth={1.75} />
           </button>
         </div>
 
         <div className="p-6 space-y-6">
           {error && (
-            <div className="flex items-center gap-2 p-3 bg-red-50 text-red-700 rounded-xl text-sm">
+            <div className="flex items-center gap-2 p-3 bg-danger-subtle text-danger-ink rounded-control text-sm">
               <AlertCircle size={15} />
               {error}
             </div>
@@ -107,10 +108,10 @@ export function SelfAssessModal({
                   {typeSkills.map((s) => (
                     <div key={s.id}>
                       <div className="flex items-center justify-between mb-1.5">
-                        <span className="text-sm font-medium text-gray-800">
+                        <span className="text-sm font-medium text-ink">
                           {s.name}
                         </span>
-                        <span className="text-sm font-bold text-blue-600">
+                        <span className="text-sm font-bold text-primary">
                           {levels[s.id] ?? 0}/{s.maxLevel}
                         </span>
                       </div>
@@ -124,10 +125,10 @@ export function SelfAssessModal({
                             onClick={() =>
                               setLevels((prev) => ({ ...prev, [s.id]: l }))
                             }
-                            className={`flex-1 h-8 rounded-xl text-sm font-semibold transition-all ${
+                            className={`flex-1 h-8 rounded-control text-sm font-semibold transition-all ${
                               (levels[s.id] ?? 0) >= l
-                                ? 'bg-blue-600 text-white shadow-sm'
-                                : 'bg-gray-100 text-gray-400 hover:bg-gray-200'
+                                ? 'bg-primary text-canvas shadow-resting'
+                                : 'bg-surface-sunken text-ink-faint hover:bg-border-strong'
                             }`}
                           >
                             {l}
@@ -142,26 +143,15 @@ export function SelfAssessModal({
           })}
         </div>
 
-        <div className="p-6 border-t border-gray-100 flex gap-3">
-          <button
-            onClick={onClose}
-            className="px-4 py-2.5 text-sm text-gray-600 border border-gray-200 rounded-xl hover:bg-gray-50"
-          >
+        <div className="p-6 border-t border-border flex gap-3">
+          <Button intent="ghost" onClick={onClose}>
             Cancelar
-          </button>
+          </Button>
           <div className="flex-1" />
-          <button
-            onClick={handleSubmit}
-            disabled={loading}
-            className="px-5 py-2.5 text-sm text-white bg-blue-600 rounded-xl hover:bg-blue-700 disabled:opacity-50 flex items-center gap-2"
-          >
-            {loading ? (
-              <Loader2 size={14} className="animate-spin" />
-            ) : (
-              <CheckCircle2 size={14} />
-            )}{' '}
+          <Button onClick={handleSubmit} disabled={loading} loading={loading}>
+            {!loading && <CheckCircle2 size={14} strokeWidth={1.75} />}
             Submeter Avaliação
-          </button>
+          </Button>
         </div>
       </div>
     </div>
