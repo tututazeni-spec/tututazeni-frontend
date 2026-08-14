@@ -1,6 +1,9 @@
 // components/development-plans/constants.ts
-// Mapas de badges/labels e navegação do módulo de PDI. Extraído de
-// app/(platform)/development-plans/page.tsx.
+// Mapas de badges/labels e navegação do módulo de PDI. Cores mapeadas
+// para os tokens semânticos da fundação de design (Fase A) — os tipos
+// de acção (COURSE/MENTORING/...) são categorias decorativas, não
+// estados, por isso repetem tokens onde não há uma correspondência 1:1.
+// Extraído de app/(platform)/development-plans/page.tsx.
 
 import type { StatusBadgeMap } from '@/lib/statusBadge';
 import type {
@@ -12,73 +15,85 @@ import type {
 } from './types';
 
 export const STATUS_CFG: StatusBadgeMap<PlanStatus> = {
-  DRAFT: { label: 'Rascunho', cls: 'bg-gray-100 text-gray-500' },
+  DRAFT: { label: 'Rascunho', cls: 'bg-surface-sunken text-ink-muted' },
   PENDING_APPROVAL: {
     label: 'Ag. aprovação',
-    cls: 'bg-amber-50 text-amber-700',
+    cls: 'bg-warning-subtle text-warning-ink',
   },
-  ACTIVE: { label: 'Activo', cls: 'bg-emerald-50 text-emerald-700' },
-  COMPLETED: { label: 'Concluído', cls: 'bg-blue-50 text-blue-700' },
-  CANCELLED: { label: 'Cancelado', cls: 'bg-red-50 text-red-500' },
-  OVERDUE: { label: 'Atrasado', cls: 'bg-red-100 text-red-700' },
+  ACTIVE: { label: 'Activo', cls: 'bg-success-subtle text-success-ink' },
+  COMPLETED: { label: 'Concluído', cls: 'bg-info-subtle text-info-ink' },
+  CANCELLED: { label: 'Cancelado', cls: 'bg-danger-subtle text-danger-ink' },
+  OVERDUE: { label: 'Atrasado', cls: 'bg-danger-subtle text-danger-ink' },
 };
 
 export const ACTION_CFG: Record<
   ActionType,
   { icon: string; label: string; cls: string }
 > = {
-  COURSE: { icon: '🎓', label: 'Curso', cls: 'bg-blue-50 text-blue-700' },
+  COURSE: { icon: '🎓', label: 'Curso', cls: 'bg-info-subtle text-info-ink' },
   MENTORING: {
     icon: '👥',
     label: 'Mentoria',
-    cls: 'bg-purple-50 text-purple-700',
+    cls: 'bg-primary-subtle text-primary',
   },
   COACHING: {
     icon: '🎯',
     label: 'Coaching',
-    cls: 'bg-amber-50 text-amber-700',
+    cls: 'bg-warning-subtle text-warning-ink',
   },
   READING: {
     icon: '📚',
     label: 'Leitura',
-    cls: 'bg-emerald-50 text-emerald-700',
+    cls: 'bg-success-subtle text-success-ink',
   },
-  PROJECT: { icon: '🚀', label: 'Projecto', cls: 'bg-red-50 text-red-700' },
+  PROJECT: {
+    icon: '🚀',
+    label: 'Projecto',
+    cls: 'bg-danger-subtle text-danger-ink',
+  },
   JOB_ROTATION: {
     icon: '🔄',
     label: 'Job Rotation',
-    cls: 'bg-orange-50 text-orange-700',
+    cls: 'bg-accent-subtle text-accent',
   },
   MICROLEARNING: {
     icon: '⚡',
     label: 'Micro-Learning',
-    cls: 'bg-pink-50 text-pink-700',
+    cls: 'bg-info-subtle text-info-ink',
   },
-  WORKSHOP: { icon: '🛠', label: 'Workshop', cls: 'bg-teal-50 text-teal-700' },
+  WORKSHOP: {
+    icon: '🛠',
+    label: 'Workshop',
+    cls: 'bg-success-subtle text-success-ink',
+  },
   CERTIFICATION: {
     icon: '🏆',
     label: 'Certificação',
-    cls: 'bg-gold-50 text-yellow-700',
+    cls: 'bg-accent-subtle text-accent',
   },
-  OTHER: { icon: '📌', label: 'Outro', cls: 'bg-gray-100 text-gray-600' },
+  OTHER: {
+    icon: '📌',
+    label: 'Outro',
+    cls: 'bg-surface-sunken text-ink-muted',
+  },
 };
 
 export const ACTION_STATUS: Record<
   ActionStatus,
   { icon: string; cls: string; label: string }
 > = {
-  TODO: { icon: '○', cls: 'text-gray-400', label: 'A fazer' },
-  IN_PROGRESS: { icon: '▶', cls: 'text-blue-500', label: 'Em progresso' },
-  COMPLETED: { icon: '✓', cls: 'text-emerald-500', label: 'Concluída' },
-  BLOCKED: { icon: '🔒', cls: 'text-gray-400', label: 'Bloqueada' },
-  CANCELLED: { icon: '✕', cls: 'text-red-400', label: 'Cancelada' },
+  TODO: { icon: '○', cls: 'text-ink-faint', label: 'A fazer' },
+  IN_PROGRESS: { icon: '▶', cls: 'text-info', label: 'Em progresso' },
+  COMPLETED: { icon: '✓', cls: 'text-success', label: 'Concluída' },
+  BLOCKED: { icon: '🔒', cls: 'text-ink-faint', label: 'Bloqueada' },
+  CANCELLED: { icon: '✕', cls: 'text-danger', label: 'Cancelada' },
 };
 
 export const PRIORITY_CFG: StatusBadgeMap<Priority> = {
-  LOW: { label: 'Baixa', cls: 'bg-gray-100 text-gray-500' },
-  MEDIUM: { label: 'Média', cls: 'bg-blue-50 text-blue-600' },
-  HIGH: { label: 'Alta', cls: 'bg-amber-50 text-amber-700' },
-  URGENT: { label: 'Urgente', cls: 'bg-red-100 text-red-700' },
+  LOW: { label: 'Baixa', cls: 'bg-surface-sunken text-ink-muted' },
+  MEDIUM: { label: 'Média', cls: 'bg-info-subtle text-info-ink' },
+  HIGH: { label: 'Alta', cls: 'bg-warning-subtle text-warning-ink' },
+  URGENT: { label: 'Urgente', cls: 'bg-danger-subtle text-danger-ink' },
 };
 
 export const NAV = [
