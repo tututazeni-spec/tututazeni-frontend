@@ -2,6 +2,14 @@
 // Separador "Skill Matrix" — matriz de níveis por utilizador/
 // competência, filtrável por departamento. Dados próprios +
 // apresentação. Extraído de app/(platform)/competencies/page.tsx.
+// Migrado para a fundação de design: input de filtro passa a Input,
+// avatar circular local passa a components/ui/Avatar, skeleton local
+// passa a components/ui/Skeleton. A legenda de níveis e as células da
+// matriz usam a mesma função levelColor (tokens semânticos) — antes a
+// legenda usava levelBarColor (6 tons distintos, eliminado com a
+// ProgressBar mono da fundação) enquanto as células usavam levelColor
+// (que já fundia os níveis 4 e 5 na mesma cor); agora ambas usam
+// levelColor, eliminando essa divergência.
 
 'use client';
 
@@ -11,10 +19,20 @@ import { useApiQuery } from '@/hooks/useApiQuery';
 import { useDebounce } from '@/hooks/useDebounce';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { getInitials as initials } from '@/lib/format';
-import { Skeleton } from './atoms';
+import { Avatar } from '@/components/ui/Avatar';
+import { Input } from '@/components/ui/Input';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { levelColor } from './utils';
 import type { SkillMatrix } from './types';
+
+const LEGEND = [
+  { level: 0, label: '0 — Sem registo' },
+  { level: 1, label: '1 — Básico' },
+  { level: 2, label: '2 — Elementar' },
+  { level: 3, label: '3 — Intermédio' },
+  { level: 4, label: '4 — Avançado' },
+  { level: 5, label: '5 — Especialista' },
+];
 
 export function SkillMatrixView() {
   const [deptId, setDeptId] = useState('');
@@ -35,26 +53,19 @@ export function SkillMatrixView() {
 
   return (
     <div>
-      <div className="flex items-center gap-3 mb-5">
-        <input
+      <div className="mb-5 flex items-center gap-3">
+        <Input
           type="number"
           placeholder="ID do departamento (opcional)"
           value={deptId}
           onChange={(e) => setDeptId(e.target.value)}
-          className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="max-w-xs"
         />
         {/* Legenda */}
-        <div className="flex gap-2 ml-auto text-xs text-gray-400">
-          {[
-            { color: 'bg-gray-200', label: '0 — Sem registo' },
-            { color: 'bg-red-400', label: '1 — Básico' },
-            { color: 'bg-amber-400', label: '2 — Elementar' },
-            { color: 'bg-blue-400', label: '3 — Intermédio' },
-            { color: 'bg-emerald-400', label: '4 — Avançado' },
-            { color: 'bg-emerald-600', label: '5 — Especialista' },
-          ].map(({ color, label }) => (
+        <div className="ml-auto flex gap-2 font-body text-xs text-ink-faint">
+          {LEGEND.map(({ level, label }) => (
             <div key={label} className="flex items-center gap-1">
-              <div className={`w-3 h-3 rounded-sm ${color}`} />
+              <div className={`h-3 w-3 rounded-sm ${levelColor(level).split(' ')[0]}`} />
               {label}
             </div>
           ))}
@@ -70,7 +81,7 @@ export function SkillMatrixView() {
             {matrix.competencies.map((comp) => (
               <div
                 key={comp.id}
-                className="w-16 flex-shrink-0 text-xs text-gray-500 text-center leading-tight px-1 pb-2"
+                className="w-16 flex-shrink-0 px-1 pb-2 text-center font-body text-xs leading-tight text-ink-muted"
                 style={{
                   writingMode: 'vertical-rl',
                   transform: 'rotate(180deg)',
@@ -86,17 +97,15 @@ export function SkillMatrixView() {
           {matrix.matrix.map((row) => (
             <div
               key={row.user.id}
-              className="flex items-center border-b border-gray-100 hover:bg-gray-50"
+              className="flex items-center border-b border-border hover:bg-surface-sunken"
             >
-              <div className="w-44 flex-shrink-0 flex items-center gap-2 pr-3 py-2">
-                <div className="w-7 h-7 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-semibold flex-shrink-0">
-                  {initials(row.user.fullName)}
-                </div>
+              <div className="flex w-44 flex-shrink-0 items-center gap-2 py-2 pr-3">
+                <Avatar name={row.user.fullName} size="sm" />
                 <div>
-                  <div className="text-xs font-medium text-gray-900 truncate">
+                  <div className="truncate font-body text-xs font-medium text-ink">
                     {row.user.fullName}
                   </div>
-                  <div className="text-xs text-gray-400 truncate">
+                  <div className="truncate font-body text-xs text-ink-faint">
                     {row.user.position?.name}
                   </div>
                 </div>
@@ -104,10 +113,10 @@ export function SkillMatrixView() {
               {row.levels.map((lv) => (
                 <div
                   key={lv.competencyId}
-                  className="w-16 flex-shrink-0 flex items-center justify-center py-2"
+                  className="flex w-16 flex-shrink-0 items-center justify-center py-2"
                 >
                   <div
-                    className={`w-9 h-9 rounded-lg flex items-center justify-center text-xs font-bold ${levelColor(lv.level)}`}
+                    className={`flex h-9 w-9 items-center justify-center rounded-control font-body text-xs font-bold ${levelColor(lv.level)}`}
                   >
                     {lv.level || '—'}
                   </div>
@@ -117,7 +126,7 @@ export function SkillMatrixView() {
           ))}
 
           {matrix.matrix.length === 0 && (
-            <div className="py-12 text-center text-sm text-gray-400">
+            <div className="py-12 text-center font-body text-sm text-ink-faint">
               Sem utilizadores encontrados
             </div>
           )}
