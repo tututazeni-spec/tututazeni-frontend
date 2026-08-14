@@ -5,14 +5,14 @@
 'use client';
 
 import { Users } from 'lucide-react';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export function TeamTab() {
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 text-center text-gray-400">
-      <Users size={40} className="mx-auto mb-3 opacity-30" />
-      <p className="text-sm font-medium">
-        Vista de equipa disponível com role Gestor
-      </p>
-    </div>
+    <EmptyState
+      icon={Users}
+      title="Vista de Equipa"
+      description="Disponível para utilizadores com role Gestor."
+    />
   );
 }
