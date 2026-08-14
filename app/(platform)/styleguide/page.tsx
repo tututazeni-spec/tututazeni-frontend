@@ -66,6 +66,8 @@ export default function StyleguidePage() {
         <Button intent="secondary">Secundário</Button>
         <Button intent="ghost">Ghost</Button>
         <Button intent="danger">Eliminar</Button>
+        <Button intent="success">Publicar</Button>
+        <Button intent="warning">Submeter</Button>
         <Button loading>A processar…</Button>
         <Button disabled>Desactivado</Button>
         <Button size="sm">Pequeno</Button>

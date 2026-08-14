@@ -8,11 +8,6 @@
 // original comunicava recolorindo a barra (azul/emerald) passa para a
 // cor da percentagem adjacente, mesmo padrão de
 // components/engagement/AnalyticsTab.tsx (scoreTextClass).
-//
-// Botão "Marcar como concluído": bg-success não é um intent suportado
-// por `Button` (só primary/secondary/ghost/danger) — mantém-se um
-// <button> nativo com as mesmas classes base (rounded-control, foco,
-// disabled) só trocando a cor.
 
 'use client';
 
@@ -311,12 +306,13 @@ export function PlayerView({ item, onBack, onNext }: PlayerViewProps) {
 
       {/* Botão concluir (para não-quiz) */}
       {item.contentType !== 'QUIZ' && !completed && (
-        <button
+        <Button
+          intent="success"
           onClick={markComplete}
-          className="mb-5 w-full rounded-card bg-success py-3 font-body text-sm font-semibold text-canvas transition-colors hover:brightness-95"
+          className="mb-5 w-full rounded-card py-3"
         >
           ✅ Marcar como concluído
-        </button>
+        </Button>
       )}
 
       {completed && (
