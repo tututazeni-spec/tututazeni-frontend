@@ -1,9 +1,16 @@
 // components/leave/RequestRow.tsx
 // Linha da tabela "Meus Pedidos". Extraído de
-// app/(platform)/leave/page.tsx.
+// app/(platform)/leave/page.tsx. Migrado para a fundação de design:
+// StatusBadge local (duplicado do padrão da fundação) passa a
+// components/ui/StatusBadge + STATUS_CFG (lib/statusBadge); botões de
+// acção passam a IconButton. O ponto de cor do tipo de licença fica
+// dinâmico (`leaveType.color`, hex do backend) — é codificação de dados.
 
 import { Eye, X } from 'lucide-react';
-import { StatusBadge } from './StatusBadge';
+import { IconButton } from '@/components/ui/Button';
+import { TableCell, TableRow } from '@/components/ui/Table';
+import { StatusBadge } from '@/components/ui/StatusBadge';
+import { STATUS_CFG } from './constants';
 import type { LeaveRequest } from './types';
 
 export interface RequestRowProps {
@@ -24,54 +31,53 @@ export function RequestRow({ request, onCancel, onView }: RequestRowProps) {
   });
 
   return (
-    <tr
-      className="hover:bg-gray-50/50 group cursor-pointer"
-      onClick={() => onView(request)}
-    >
-      <td className="px-4 py-3">
+    <TableRow className="group cursor-pointer" onClick={() => onView(request)}>
+      <TableCell>
         <div className="flex items-center gap-2">
           <div
             className="w-2.5 h-2.5 rounded-full flex-shrink-0"
             style={{ backgroundColor: request.leaveType?.color ?? '#3B82F6' }}
           />
-          <span className="text-sm font-medium text-gray-900">
+          <span className="text-sm font-medium text-ink">
             {request.leaveType?.name ?? request.leaveTypeCode}
           </span>
         </div>
-      </td>
-      <td className="px-4 py-3 text-sm text-gray-600">
+      </TableCell>
+      <TableCell className="text-sm text-ink-muted">
         {start} → {end}
-      </td>
-      <td className="px-4 py-3 text-sm text-gray-700 font-medium">
+      </TableCell>
+      <TableCell className="text-sm text-ink font-medium">
         {request.workDays}d
-      </td>
-      <td className="px-4 py-3">
-        <StatusBadge status={request.status} />
-      </td>
-      <td className="px-4 py-3">
+      </TableCell>
+      <TableCell>
+        <StatusBadge value={request.status} map={STATUS_CFG} variant="dot" />
+      </TableCell>
+      <TableCell>
         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-          <button
+          <IconButton
+            icon={Eye}
+            label="Ver pedido"
+            intent="ghost"
+            size="sm"
             onClick={(e) => {
               e.stopPropagation();
               onView(request);
             }}
-            className="p-1.5 rounded-lg hover:bg-blue-100 text-blue-600"
-          >
-            <Eye size={13} />
-          </button>
+          />
           {['PENDING', 'DRAFT'].includes(request.status) && (
-            <button
+            <IconButton
+              icon={X}
+              label="Cancelar pedido"
+              intent="ghost"
+              size="sm"
               onClick={(e) => {
                 e.stopPropagation();
                 onCancel(request.id);
               }}
-              className="p-1.5 rounded-lg hover:bg-red-100 text-red-600"
-            >
-              <X size={13} />
-            </button>
+            />
           )}
         </div>
-      </td>
-    </tr>
+      </TableCell>
+    </TableRow>
   );
 }
