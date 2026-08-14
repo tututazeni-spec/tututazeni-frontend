@@ -53,7 +53,9 @@ function StarPicker({
           <Star
             size={24}
             strokeWidth={1.75}
-            className={s <= rating ? 'fill-accent text-accent' : 'text-ink-faint'}
+            className={
+              s <= rating ? 'fill-accent text-accent' : 'text-ink-faint'
+            }
           />
         </button>
       ))}
@@ -276,7 +278,13 @@ export function DetailView({ trainingId, onBack }: DetailViewProps) {
                 </div>
                 <Button
                   size="sm"
-                  intent={isFull && !session.waitlistEnabled ? 'secondary' : isFull ? 'warning' : 'primary'}
+                  intent={
+                    isFull && !session.waitlistEnabled
+                      ? 'secondary'
+                      : isFull
+                        ? 'warning'
+                        : 'primary'
+                  }
                   onClick={() => handleEnroll(session.id)}
                   disabled={
                     (isFull && !session.waitlistEnabled) ||
