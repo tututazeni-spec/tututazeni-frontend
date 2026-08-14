@@ -4,10 +4,12 @@
 
 'use client';
 
+import { Bookmark } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { Skeleton } from './atoms';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { MicroCard } from './MicroCard';
 import type { MicroLearning } from './types';
 
@@ -26,11 +28,15 @@ export function SavedView({ onSelect }: SavedViewProps) {
 
   return (
     <div>
-      <div className="text-sm text-gray-400 mb-4">{data.length} guardados</div>
+      <div className="mb-4 font-body text-sm text-ink-faint">
+        {data.length} guardados
+      </div>
       {data.length === 0 ? (
-        <div className="py-12 text-center text-sm text-gray-400 border border-dashed border-gray-200 rounded-2xl">
-          🔖 Nenhum conteúdo guardado ainda
-        </div>
+        <EmptyState
+          icon={Bookmark}
+          title="Nenhum conteúdo guardado"
+          description="Guarda conteúdos no feed para os encontrares aqui."
+        />
       ) : (
         <div className="grid grid-cols-3 gap-4">
           {data.map((item) => (
