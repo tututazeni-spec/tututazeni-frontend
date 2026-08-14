@@ -5,10 +5,13 @@
 
 'use client';
 
+import { Building2, CheckCircle2, Users } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { MetricCard, Skeleton } from './atoms';
+import { KpiCard } from '@/components/ui/KpiCard';
+import { ProgressBar } from '@/components/ui/ProgressBar';
+import { Skeleton } from '@/components/ui/Skeleton';
 import type { ComparativeRow } from './types';
 
 interface DashboardViewProps {
@@ -26,9 +29,16 @@ export function DashboardView({ onSelect }: DashboardViewProps) {
     { staleTime: STALE_TIME.SEMI_STATIC },
   );
 
-  if (loading) return <Skeleton rows={5} />;
+  if (loading)
+    return (
+      <Skeleton
+        rows={5}
+        wrapperClassName="space-y-2 animate-pulse"
+        itemClassName="h-14 rounded-card bg-surface-sunken"
+      />
+    );
   if (queryError)
-    return <div className="text-sm text-red-500">{queryError.message}</div>;
+    return <div className="text-sm text-danger">{queryError.message}</div>;
 
   const maxMembers = Math.max(...rows.map((r) => r.totalMembers), 1);
   const totalMembers = rows.reduce((s, r) => s + r.totalMembers, 0);
@@ -38,18 +48,19 @@ export function DashboardView({ onSelect }: DashboardViewProps) {
     <div className="space-y-6">
       {/* Summary cards */}
       <div className="grid grid-cols-3 gap-4">
-        <MetricCard label="Total departamentos" value={rows.length} />
-        <MetricCard
+        <KpiCard icon={Building2} label="Total departamentos" value={rows.length} />
+        <KpiCard
+          icon={CheckCircle2}
           label="Activos"
           value={activeCount}
-          color="text-emerald-600"
+          intent="success"
         />
-        <MetricCard label="Total colaboradores" value={totalMembers} />
+        <KpiCard icon={Users} label="Total colaboradores" value={totalMembers} />
       </div>
 
       {/* Distribution chart */}
-      <div className="bg-white border border-gray-200 rounded-xl p-5">
-        <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-4">
+      <div className="rounded-card border border-border bg-surface p-5">
+        <div className="mb-4 text-xs font-medium uppercase tracking-wide text-ink-faint">
           Distribuição de colaboradores
         </div>
         <div className="space-y-3">
@@ -61,22 +72,17 @@ export function DashboardView({ onSelect }: DashboardViewProps) {
               return (
                 <div
                   key={r.id}
-                  className="flex items-center gap-3 cursor-pointer group"
+                  className="group flex cursor-pointer items-center gap-3"
                   onClick={() => onSelect(r.id)}
                 >
-                  <div className="w-32 text-xs text-gray-700 truncate group-hover:text-blue-700">
+                  <div className="w-32 truncate text-xs text-ink group-hover:text-primary">
                     {r.name}
                   </div>
-                  <div className="flex-1 h-6 bg-gray-100 rounded overflow-hidden">
-                    <div
-                      className="h-full bg-blue-500 rounded transition-all duration-500 group-hover:bg-blue-600"
-                      style={{ width: `${pct}%` }}
-                    />
-                  </div>
-                  <div className="w-20 text-right text-xs font-mono text-gray-600">
+                  <ProgressBar value={pct} className="h-6 flex-1 rounded-control" />
+                  <div className="w-20 text-right font-mono text-xs text-ink-muted">
                     {r.totalMembers} membros
                   </div>
-                  <div className="w-24 text-xs text-gray-400 truncate">
+                  <div className="w-24 truncate text-xs text-ink-faint">
                     {r.headName}
                   </div>
                 </div>
@@ -87,7 +93,7 @@ export function DashboardView({ onSelect }: DashboardViewProps) {
 
       {/* Depts without head warning */}
       {rows.filter((r) => r.active && r.headName === '—').length > 0 && (
-        <div className="bg-amber-50 border border-amber-100 rounded-xl px-4 py-3 text-sm text-amber-800">
+        <div className="rounded-card border border-warning bg-warning-subtle px-4 py-3 text-sm text-warning-ink">
           ⚠{' '}
           <strong>
             {rows.filter((r) => r.active && r.headName === '—').length}
