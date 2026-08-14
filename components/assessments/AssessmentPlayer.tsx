@@ -9,6 +9,9 @@
 
 import { useEffect, useReducer, useRef } from 'react';
 import { apiClient } from '@/lib/apiClient';
+import { useConfirm } from '@/providers/ConfirmProvider';
+import { Button } from '@/components/ui/Button';
+import { ProgressBar } from '@/components/ui/ProgressBar';
 import { CountdownTimer } from './CountdownTimer';
 import { QuestionPlayer } from './QuestionPlayer';
 import { ResultView } from './ResultView';
@@ -25,7 +28,8 @@ import type {
 // Estado do player como máquina de estados explícita: loading → playing →
 // submitting → result. Evita combinações impossíveis (ex: submitting=true e
 // result já preenchido em simultâneo) que os useState soltos anteriores
-// permitiam.
+// permitiam. A confirmação antes de submeter é responsabilidade do
+// ConfirmProvider partilhado (useConfirm) — não faz parte deste estado.
 type PlayerStatus = 'loading' | 'playing' | 'submitting' | 'result';
 
 interface PlayerState {
@@ -35,7 +39,6 @@ interface PlayerState {
   answers: Record<number, AttemptAnswer>;
   currentIdx: number;
   result: AttemptResult | null;
-  showConfirm: boolean;
 }
 
 type PlayerAction =
@@ -47,7 +50,6 @@ type PlayerAction =
     }
   | { type: 'ANSWER'; answer: AttemptAnswer }
   | { type: 'SET_IDX'; idx: number }
-  | { type: 'REQUEST_CONFIRM'; show: boolean }
   | { type: 'SUBMIT_START' }
   | { type: 'SUBMIT_DONE'; result: AttemptResult }
   | { type: 'SUBMIT_ERROR' }
@@ -60,7 +62,6 @@ const initialPlayerState: PlayerState = {
   answers: {},
   currentIdx: 0,
   result: null,
-  showConfirm: false,
 };
 
 function playerReducer(state: PlayerState, action: PlayerAction): PlayerState {
@@ -83,8 +84,6 @@ function playerReducer(state: PlayerState, action: PlayerAction): PlayerState {
       };
     case 'SET_IDX':
       return { ...state, currentIdx: action.idx };
-    case 'REQUEST_CONFIRM':
-      return { ...state, showConfirm: action.show };
     case 'SUBMIT_START':
       return { ...state, status: 'submitting' };
     case 'SUBMIT_DONE':
@@ -92,10 +91,9 @@ function playerReducer(state: PlayerState, action: PlayerAction): PlayerState {
         ...state,
         status: 'result',
         result: action.result,
-        showConfirm: false,
       };
     case 'SUBMIT_ERROR':
-      return { ...state, status: 'playing', showConfirm: false };
+      return { ...state, status: 'playing' };
     case 'RETRY':
       return {
         ...state,
@@ -118,16 +116,9 @@ export function AssessmentPlayer({
   assessmentId,
   onBack,
 }: AssessmentPlayerProps) {
+  const confirm = useConfirm();
   const [state, dispatch] = useReducer(playerReducer, initialPlayerState);
-  const {
-    status,
-    assessment,
-    attempt,
-    answers,
-    currentIdx,
-    result,
-    showConfirm,
-  } = state;
+  const { status, assessment, attempt, answers, currentIdx, result } = state;
 
   // Ref sincronizado com `answers`, lido dentro do setInterval de auto-save.
   // Antes, `answers` estava nas deps do useEffect do auto-save: cada resposta
@@ -222,6 +213,21 @@ export function AssessmentPlayer({
     }
   };
 
+  const handleRequestSubmit = async () => {
+    if (!assessment) return;
+    const answeredCount = Object.keys(answers).length;
+    const unanswered = assessment.questions.length - answeredCount;
+    const ok = await confirm({
+      title: 'Submeter avaliação?',
+      message:
+        `Respondeste ${answeredCount} de ${assessment.questions.length} perguntas.` +
+        (unanswered > 0 ? ` ${unanswered} perguntas sem resposta.` : ''),
+      confirmLabel: 'Confirmar',
+      cancelLabel: 'Continuar',
+    });
+    if (ok) handleSubmit();
+  };
+
   const handleAnswer = (a: AttemptAnswer) => {
     dispatch({ type: 'ANSWER', answer: a });
   };
@@ -260,10 +266,10 @@ export function AssessmentPlayer({
       {/* Header bar */}
       <div className="flex items-center justify-between mb-5 gap-4">
         <div>
-          <div className="text-base font-semibold text-gray-900">
+          <div className="text-base font-semibold text-ink">
             {assessment.title}
           </div>
-          <div className="text-xs text-gray-400">
+          <div className="text-xs text-ink-faint">
             {answeredCount}/{questions.length} respondidas
           </div>
         </div>
@@ -274,25 +280,21 @@ export function AssessmentPlayer({
               onExpire={handleTimerExpire}
             />
           )}
-          <button
-            onClick={() => dispatch({ type: 'REQUEST_CONFIRM', show: true })}
-            disabled={submitting}
-            className="px-4 py-2 bg-blue-700 text-white text-sm font-medium rounded-lg hover:bg-blue-800 disabled:opacity-50"
+          <Button
+            intent="primary"
+            size="sm"
+            loading={submitting}
+            onClick={handleRequestSubmit}
           >
             {submitting ? 'A submeter…' : 'Submeter'}
-          </button>
+          </Button>
         </div>
       </div>
 
       {/* Progress bar */}
       <div className="mb-5">
-        <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
-          <div
-            className="h-1.5 bg-blue-600 rounded-full transition-all"
-            style={{ width: `${((currentIdx + 1) / questions.length) * 100}%` }}
-          />
-        </div>
-        <div className="flex justify-between text-xs text-gray-400 mt-1">
+        <ProgressBar value={((currentIdx + 1) / questions.length) * 100} />
+        <div className="flex justify-between text-xs text-ink-faint mt-1">
           <span>Pergunta {currentIdx + 1}</span>
           <span>{questions.length} perguntas</span>
         </div>
@@ -311,15 +313,16 @@ export function AssessmentPlayer({
 
       {/* Navigation */}
       <div className="flex items-center justify-between mt-5">
-        <button
+        <Button
+          intent="secondary"
+          size="sm"
           onClick={() =>
             dispatch({ type: 'SET_IDX', idx: Math.max(0, currentIdx - 1) })
           }
           disabled={currentIdx === 0}
-          className="px-4 py-2 text-sm border border-gray-200 rounded-lg disabled:opacity-30 hover:bg-gray-50"
         >
           ← Anterior
-        </button>
+        </Button>
 
         {/* Question dots */}
         <div className="flex gap-1.5">
@@ -327,12 +330,12 @@ export function AssessmentPlayer({
             <button
               key={q.id}
               onClick={() => dispatch({ type: 'SET_IDX', idx })}
-              className={`w-6 h-6 rounded-full text-xs font-mono transition-all ${
+              className={`w-6 h-6 rounded-full text-xs font-data transition-all ${
                 idx === currentIdx
-                  ? 'bg-blue-600 text-white scale-110'
+                  ? 'bg-primary text-canvas scale-110'
                   : answers[q.id]
-                    ? 'bg-emerald-100 text-emerald-700'
-                    : 'bg-gray-100 text-gray-400'
+                    ? 'bg-success-subtle text-success-ink'
+                    : 'bg-surface-sunken text-ink-faint'
               }`}
             >
               {idx + 1}
@@ -340,64 +343,18 @@ export function AssessmentPlayer({
           ))}
         </div>
 
-        <button
+        <Button
+          intent="primary"
+          size="sm"
           onClick={() => {
             if (currentIdx < questions.length - 1)
               dispatch({ type: 'SET_IDX', idx: currentIdx + 1 });
-            else dispatch({ type: 'REQUEST_CONFIRM', show: true });
+            else handleRequestSubmit();
           }}
-          className="px-4 py-2 text-sm bg-blue-700 text-white rounded-lg hover:bg-blue-800"
         >
           {currentIdx < questions.length - 1 ? 'Próxima →' : 'Submeter'}
-        </button>
+        </Button>
       </div>
-
-      {/* Confirm modal */}
-      {showConfirm && (
-        <div
-          style={{
-            position: 'fixed',
-            inset: 0,
-            background: 'rgba(0,0,0,0.5)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 50,
-          }}
-        >
-          <div className="bg-white rounded-2xl p-6 max-w-sm w-full mx-4">
-            <div className="text-base font-semibold text-gray-900 mb-2">
-              Submeter avaliação?
-            </div>
-            <div className="text-sm text-gray-500 mb-5">
-              Respondeste {answeredCount} de {questions.length} perguntas.
-              {answeredCount < questions.length && (
-                <span className="text-amber-600">
-                  {' '}
-                  {questions.length - answeredCount} perguntas sem resposta.
-                </span>
-              )}
-            </div>
-            <div className="flex gap-3">
-              <button
-                onClick={() =>
-                  dispatch({ type: 'REQUEST_CONFIRM', show: false })
-                }
-                className="flex-1 py-2.5 border border-gray-200 text-sm rounded-lg hover:bg-gray-50"
-              >
-                Continuar
-              </button>
-              <button
-                onClick={handleSubmit}
-                disabled={submitting}
-                className="flex-1 py-2.5 bg-blue-700 text-white text-sm font-medium rounded-lg hover:bg-blue-800 disabled:opacity-50"
-              >
-                {submitting ? 'A submeter…' : 'Confirmar'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
