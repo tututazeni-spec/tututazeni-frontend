@@ -32,10 +32,10 @@ export function CountdownTimer({
 
   return (
     <div
-      className={`flex items-center gap-2 px-3 py-1.5 rounded-lg font-mono font-semibold text-sm ${
+      className={`flex items-center gap-2 px-3 py-1.5 rounded-control font-data font-semibold text-sm ${
         isUrgent
-          ? 'bg-red-50 text-red-700 animate-pulse'
-          : 'bg-gray-100 text-gray-700'
+          ? 'bg-danger-subtle text-danger-ink animate-pulse'
+          : 'bg-surface-sunken text-ink-muted'
       }`}
     >
       ⏱ {String(mins).padStart(2, '0')}:{String(secs).padStart(2, '0')}

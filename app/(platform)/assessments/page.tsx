@@ -8,10 +8,12 @@
 // project_innova_component_separation_audit.
 
 import { useState } from 'react';
+import { ArrowLeft } from 'lucide-react';
 import { AssessmentPlayer } from '@/components/assessments/AssessmentPlayer';
 import { ListView } from '@/components/assessments/ListView';
 import { ReviewView } from '@/components/assessments/ReviewView';
 import type { View } from '@/components/assessments/types';
+import { Button } from '@/components/ui/Button';
 
 const TITLES: Record<View, string> = {
   list: 'Avaliações disponíveis',
@@ -37,37 +39,32 @@ export default function AssessmentsPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-xl font-semibold text-gray-900">
+          <h1 className="text-xl font-semibold text-ink">
             {TITLES[nav.view]}
           </h1>
-          <p className="text-sm text-gray-400 mt-0.5">INNOVA — Avaliações</p>
+          <p className="text-sm text-ink-faint mt-0.5">INNOVA — Avaliações</p>
         </div>
       </div>
 
       {/* Tabs */}
       {nav.view === 'list' || nav.view === 'review' ? (
-        <div className="flex gap-1 mb-6 bg-gray-100 p-1 rounded-xl w-fit">
+        <div className="flex gap-1 mb-6 bg-surface-sunken p-1 rounded-card w-fit">
           {(['list', 'review'] as const).map((v) => (
-            <button
+            <Button
               key={v}
+              size="sm"
+              intent={nav.view === v ? 'primary' : 'ghost'}
               onClick={() => setNav({ view: v })}
-              className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-                nav.view === v
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-500 hover:text-gray-700'
-              }`}
             >
               {{ list: 'Disponíveis', review: 'Histórico' }[v]}
-            </button>
+            </Button>
           ))}
         </div>
       ) : (
-        <button
-          onClick={handleBack}
-          className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-800 mb-5"
-        >
-          ← Voltar
-        </button>
+        <Button intent="ghost" size="sm" onClick={handleBack} className="mb-5">
+          <ArrowLeft size={14} strokeWidth={1.75} />
+          Voltar
+        </Button>
       )}
 
       {nav.view === 'list' && <ListView onStart={handleStart} />}
