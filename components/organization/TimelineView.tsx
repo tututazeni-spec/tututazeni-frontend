@@ -5,11 +5,15 @@
 
 'use client';
 
+import { Clock } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { formatDate as fmtDate } from '@/lib/format';
-import { Avatar, Skeleton } from './atoms';
+import { Avatar } from '@/components/ui/Avatar';
+import { Card } from '@/components/ui/Card';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { CHANGE_CFG } from './constants';
 import type { OrgChange } from './types';
 
@@ -27,39 +31,36 @@ export function TimelineView() {
       {data.map((change) => {
         const cfg = CHANGE_CFG[change.changeType] ?? {
           label: change.changeType,
-          cls: 'bg-gray-100',
+          cls: 'bg-surface-sunken text-ink-muted',
           icon: '📝',
         };
         return (
-          <div
-            key={change.id}
-            className="flex items-start gap-4 bg-white border border-gray-200 rounded-xl p-4"
-          >
+          <Card key={change.id} className="flex items-start gap-4 p-4">
             <div
-              className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0 ${cfg.cls}`}
+              className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-card text-xl ${cfg.cls}`}
             >
               {cfg.icon}
             </div>
             <div className="flex-1">
-              <div className="flex items-center gap-2 mb-1">
+              <div className="mb-1 flex items-center gap-2">
                 <Avatar
                   name={change.user.fullName}
-                  avatarUrl={change.user.avatarUrl}
+                  url={change.user.avatarUrl ?? undefined}
                   size="sm"
                 />
-                <span className="text-sm font-medium text-gray-900">
+                <span className="font-body text-sm font-medium text-ink">
                   {change.user.fullName}
                 </span>
                 <span
-                  className={`text-xs px-2 py-0.5 rounded font-medium ${cfg.cls}`}
+                  className={`rounded-control px-2 py-0.5 font-body text-xs font-medium ${cfg.cls}`}
                 >
                   {cfg.label}
                 </span>
-                <span className="text-xs text-gray-400 ml-auto">
+                <span className="ml-auto font-body text-xs text-ink-faint">
                   {fmtDate(change.effectiveDate)}
                 </span>
               </div>
-              <div className="text-xs text-gray-500 flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-2 font-body text-xs text-ink-muted">
                 {change.fromDepartment && change.toDepartment && (
                   <span>
                     {change.fromDepartment.name} → {change.toDepartment.name}
@@ -75,13 +76,15 @@ export function TimelineView() {
                 )}
               </div>
             </div>
-          </div>
+          </Card>
         );
       })}
       {data.length === 0 && (
-        <div className="py-12 text-center text-sm text-gray-400 border border-dashed border-gray-200 rounded-xl">
-          Sem movimentações registadas
-        </div>
+        <EmptyState
+          icon={Clock}
+          title="Sem movimentações registadas"
+          description="Ainda não existem movimentações organizacionais registadas."
+        />
       )}
     </div>
   );
