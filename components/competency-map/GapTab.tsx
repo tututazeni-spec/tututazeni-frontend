@@ -15,8 +15,11 @@ import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { StatusBadge } from '@/components/ui/StatusBadge';
-import { PRIORITY_CONFIG, READINESS_INTENT_CLASSES } from './constants';
-import type { ReadinessIntent } from './constants';
+import {
+  PRIORITY_CONFIG,
+  READINESS_INTENT_CLASSES,
+  type ReadinessIntent,
+} from './constants';
 import type { GapAnalysis } from './types';
 
 interface ReadinessCfg {
