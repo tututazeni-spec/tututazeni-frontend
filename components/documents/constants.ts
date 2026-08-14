@@ -1,6 +1,12 @@
 // components/documents/constants.ts
 // Mapas de categoria/sensibilidade/mime-type + filtros iniciais.
-// Extraído de app/(platform)/documents/page.tsx.
+// Extraído de app/(platform)/documents/page.tsx. Migrado para a fundação de
+// design: CATEGORY_CONFIG passa de `{ label, color }` (classes Tailwind
+// cruas) para `{ label, intent, dot }` — `intent` é consumido directamente
+// pelo Badge da fundação (components/ui/Badge), `dot` é um swatch sólido de
+// token para o indicador de cor da Sidebar. SENSITIVITY_CONFIG mantém a
+// forma `{ label, icon, color }` (não é renderizado como Badge, é
+// ícone+texto inline) mas `color` passa a classe de texto de token.
 
 import {
   CheckCircle2,
@@ -13,33 +19,38 @@ import {
   Video,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
+import type { BadgeProps } from '@/components/ui/Badge';
 import type { DocCategory, DocFilters, DocSensitivity } from './types';
 
 export const CATEGORY_CONFIG: Record<
   DocCategory,
-  { label: string; color: string }
+  { label: string; intent: NonNullable<BadgeProps['intent']>; dot: string }
 > = {
-  PERSONAL: { label: 'Pessoal', color: 'bg-blue-100 text-blue-700' },
-  LABOUR: { label: 'Trabalhista', color: 'bg-amber-100 text-amber-700' },
-  LEARNING: { label: 'Aprendizagem', color: 'bg-purple-100 text-purple-700' },
-  CORPORATE: { label: 'Corporativo', color: 'bg-gray-100 text-gray-700' },
-  RECRUITMENT: { label: 'Recrutamento', color: 'bg-cyan-100 text-cyan-700' },
-  COMPLIANCE: { label: 'Compliance', color: 'bg-red-100 text-red-700' },
-  HEALTH: { label: 'Saúde', color: 'bg-green-100 text-green-700' },
-  PAYROLL: { label: 'Payroll', color: 'bg-emerald-100 text-emerald-700' },
-  LEAVE: { label: 'Licença', color: 'bg-orange-100 text-orange-700' },
-  OTHER: { label: 'Outro', color: 'bg-gray-100 text-gray-500' },
+  PERSONAL: { label: 'Pessoal', intent: 'info', dot: 'bg-info' },
+  LABOUR: { label: 'Trabalhista', intent: 'warning', dot: 'bg-warning' },
+  LEARNING: { label: 'Aprendizagem', intent: 'info', dot: 'bg-info' },
+  CORPORATE: { label: 'Corporativo', intent: 'neutral', dot: 'bg-ink-faint' },
+  RECRUITMENT: { label: 'Recrutamento', intent: 'info', dot: 'bg-info' },
+  COMPLIANCE: { label: 'Compliance', intent: 'danger', dot: 'bg-danger' },
+  HEALTH: { label: 'Saúde', intent: 'success', dot: 'bg-success' },
+  PAYROLL: { label: 'Payroll', intent: 'success', dot: 'bg-success' },
+  LEAVE: { label: 'Licença', intent: 'warning', dot: 'bg-warning' },
+  OTHER: { label: 'Outro', intent: 'neutral', dot: 'bg-ink-faint' },
 };
 
 export const SENSITIVITY_CONFIG: Record<
   DocSensitivity,
   { label: string; icon: LucideIcon; color: string }
 > = {
-  PUBLIC: { label: 'Público', icon: CheckCircle2, color: 'text-emerald-600' },
-  INTERNAL: { label: 'Interno', icon: FileText, color: 'text-blue-600' },
-  CONFIDENTIAL: { label: 'Confidencial', icon: Lock, color: 'text-amber-600' },
-  RESTRICTED: { label: 'Restrito', icon: Shield, color: 'text-orange-600' },
-  SECRET: { label: 'Secreto', icon: Shield, color: 'text-red-600' },
+  PUBLIC: { label: 'Público', icon: CheckCircle2, color: 'text-success-ink' },
+  INTERNAL: { label: 'Interno', icon: FileText, color: 'text-info-ink' },
+  CONFIDENTIAL: {
+    label: 'Confidencial',
+    icon: Lock,
+    color: 'text-warning-ink',
+  },
+  RESTRICTED: { label: 'Restrito', icon: Shield, color: 'text-danger-ink' },
+  SECRET: { label: 'Secreto', icon: Shield, color: 'text-danger' },
 };
 
 export const MIME_ICONS: Record<string, LucideIcon> = {
