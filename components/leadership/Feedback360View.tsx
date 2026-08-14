@@ -2,6 +2,10 @@
 // Separador "Feedback 360°" — resumo próprio + submissão anónima de
 // feedback a um líder. Dados próprios + apresentação. Extraído de
 // app/(platform)/leadership/page.tsx.
+//
+// O ProgressBar da fundação é mono-cor (bg-accent) — a cor que aqui
+// comunicava o nível da média por competência passa para o texto do
+// score (competencyScoreClass).
 
 'use client';
 
@@ -10,9 +14,20 @@ import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { Skeleton } from './atoms';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { Input } from '@/components/ui/Input';
+import { ProgressBar } from '@/components/ui/ProgressBar';
+import { Skeleton } from '@/components/ui/Skeleton';
+import { Textarea } from '@/components/ui/Textarea';
 import { COMP_LABELS } from './constants';
 import type { Competency, Feedback360Summary } from './types';
+
+function competencyScoreClass(avgScore: number): string {
+  if (avgScore >= 4) return 'text-success-ink';
+  if (avgScore >= 3) return 'text-info-ink';
+  return 'text-warning-ink';
+}
 
 export function Feedback360View() {
   const [feedbackForm, setFeedbackForm] = useState<Record<string, number>>({});
@@ -71,48 +86,44 @@ export function Feedback360View() {
     <div className="grid grid-cols-2 gap-5">
       {/* Meu resumo 360° */}
       <div>
-        <div className="text-sm font-semibold text-gray-900 mb-3">
+        <div className="mb-3 font-body text-sm font-semibold text-ink">
           O meu feedback 360°
         </div>
         {loading ? (
           <Skeleton rows={3} />
         ) : summary && summary.totalResponses > 0 ? (
           <div className="space-y-3">
-            <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 text-center">
-              <div className="text-3xl font-bold font-mono text-blue-700">
+            <div className="rounded-card border border-info bg-info-subtle p-4 text-center">
+              <div className="font-mono text-3xl font-bold text-info-ink">
                 {summary.avgScore}
               </div>
-              <div className="text-xs text-blue-500">
+              <div className="font-body text-xs text-info-ink">
                 média global · {summary.totalResponses} respostas
               </div>
             </div>
             {summary.byCompetency.map((c) => (
-              <div
-                key={c.competency}
-                className="bg-white border border-gray-200 rounded-xl p-3"
-              >
-                <div className="flex justify-between items-center mb-1">
-                  <span className="text-xs font-medium text-gray-800">
+              <Card key={c.competency} className="p-3">
+                <div className="mb-1 flex items-center justify-between">
+                  <span className="font-body text-xs font-medium text-ink">
                     {COMP_LABELS[c.competency as Competency] ?? c.competency}
                   </span>
-                  <span className="text-xs font-mono font-bold text-blue-700">
+                  <span
+                    className={`font-mono text-xs font-bold ${competencyScoreClass(c.avgScore)}`}
+                  >
                     {c.avgScore}/5
                   </span>
                 </div>
-                <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                  <div
-                    className={`h-full rounded-full ${c.avgScore >= 4 ? 'bg-emerald-500' : c.avgScore >= 3 ? 'bg-blue-500' : 'bg-amber-500'}`}
-                    style={{ width: `${(c.avgScore / 5) * 100}%` }}
-                  />
-                </div>
+                <ProgressBar value={(c.avgScore / 5) * 100} />
                 {c.insight && (
-                  <div className="text-xs text-amber-700 mt-1">{c.insight}</div>
+                  <div className="mt-1 font-body text-xs text-warning-ink">
+                    {c.insight}
+                  </div>
                 )}
-              </div>
+              </Card>
             ))}
           </div>
         ) : (
-          <div className="py-10 text-center text-sm text-gray-400 border border-dashed border-gray-200 rounded-xl">
+          <div className="rounded-card border border-dashed border-border-strong py-10 text-center font-body text-sm text-ink-faint">
             Ainda sem respostas de feedback 360°
           </div>
         )}
@@ -120,31 +131,33 @@ export function Feedback360View() {
 
       {/* Submeter feedback a líder */}
       <div>
-        <div className="text-sm font-semibold text-gray-900 mb-3">
+        <div className="mb-3 font-body text-sm font-semibold text-ink">
           Avaliar líder (anónimo)
         </div>
-        <div className="bg-white border border-gray-200 rounded-xl p-5 space-y-4">
+        <Card className="space-y-4 p-5">
           <div>
-            <div className="text-xs text-gray-500 mb-1">ID do líder</div>
-            <input
+            <div className="mb-1 font-body text-xs text-ink-muted">
+              ID do líder
+            </div>
+            <Input
               type="number"
               placeholder="ID do colaborador"
               value={targetLeader}
               onChange={(e) => setTargetLeader(e.target.value)}
-              className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full"
             />
           </div>
 
           <div>
-            <div className="text-xs text-gray-500 mb-2">
+            <div className="mb-2 font-body text-xs text-ink-muted">
               Avaliação por competência (1-5)
             </div>
             {competencies.map((comp) => (
               <div
                 key={comp}
-                className="flex items-center justify-between mb-2.5"
+                className="mb-2.5 flex items-center justify-between"
               >
-                <span className="text-xs text-gray-700">
+                <span className="font-body text-xs text-ink">
                   {COMP_LABELS[comp]}
                 </span>
                 <div className="flex gap-1">
@@ -154,10 +167,10 @@ export function Feedback360View() {
                       onClick={() =>
                         setFeedbackForm((prev) => ({ ...prev, [comp]: s }))
                       }
-                      className={`w-8 h-8 text-xs font-mono rounded-lg transition-colors ${
+                      className={`h-8 w-8 rounded-control font-mono text-xs transition-colors ${
                         feedbackForm[comp] === s
-                          ? 'bg-blue-700 text-white'
-                          : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                          ? 'bg-primary text-canvas'
+                          : 'bg-surface-sunken text-ink-muted hover:bg-border'
                       }`}
                     >
                       {s}
@@ -169,26 +182,27 @@ export function Feedback360View() {
           </div>
 
           <div>
-            <div className="text-xs text-gray-500 mb-1">
+            <div className="mb-1 font-body text-xs text-ink-muted">
               Comentário qualitativo (opcional)
             </div>
-            <textarea
+            <Textarea
               value={qualitative}
               onChange={(e) => setQualitative(e.target.value)}
               rows={3}
               placeholder="O que poderia melhorar? O que faz muito bem?"
-              className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full resize-none"
             />
           </div>
 
-          <button
+          <Button
             onClick={handleSubmit360}
             disabled={submitting}
-            className="w-full py-2.5 bg-blue-700 text-white text-sm font-medium rounded-lg hover:bg-blue-800 disabled:opacity-50"
+            loading={submitting}
+            className="w-full"
           >
             {submitting ? 'A submeter…' : '📤 Submeter (anónimo)'}
-          </button>
-        </div>
+          </Button>
+        </Card>
       </div>
     </div>
   );
