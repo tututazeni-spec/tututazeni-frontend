@@ -10,8 +10,11 @@ import { useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
+import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
-import { Skeleton } from './atoms';
 import { LEVEL_CFG } from './constants';
 import type { LeadershipProgram, ProgramLevel } from './types';
 
@@ -38,65 +41,56 @@ export function ProgramsView() {
 
   return (
     <div>
-      <div className="flex gap-2 mb-5">
+      <div className="mb-5 flex gap-2">
         {(['', 'INITIAL', 'INTERMEDIATE', 'ADVANCED'] as const).map((l) => (
-          <button
+          <Button
             key={l}
+            size="sm"
+            intent={filter === l ? 'primary' : 'ghost'}
             onClick={() => setFilter(l)}
-            className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
-              filter === l
-                ? 'bg-blue-700 text-white'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-            }`}
           >
             {l === '' ? 'Todos' : LEVEL_CFG[l as ProgramLevel].label}
-          </button>
+          </Button>
         ))}
       </div>
 
       <div className="grid grid-cols-3 gap-4">
         {data?.data.map((prog) => (
-          <div
-            key={prog.id}
-            className="bg-white border border-gray-200 rounded-xl p-5 hover:shadow-md transition-all"
-          >
-            <div className="flex items-start justify-between mb-3">
+          <Card key={prog.id} className="p-5 transition-all hover:shadow-hover">
+            <div className="mb-3 flex items-start justify-between">
               <div className="flex-1">
-                <div className="text-sm font-semibold text-gray-900 mb-1">
+                <div className="mb-1 font-body text-sm font-semibold text-ink">
                   {prog.name}
                 </div>
                 <StatusBadge value={prog.level} map={LEVEL_CFG} />
               </div>
               {prog.mandatory && (
-                <span className="text-xs bg-red-50 text-red-700 px-2 py-0.5 rounded flex-shrink-0">
+                <Badge intent="danger" className="flex-shrink-0">
                   Obrigatório
-                </span>
+                </Badge>
               )}
             </div>
 
             {prog.description && (
-              <p className="text-xs text-gray-500 mb-3 line-clamp-2">
+              <p className="mb-3 line-clamp-2 font-body text-xs text-ink-muted">
                 {prog.description}
               </p>
             )}
 
-            <div className="flex items-center justify-between text-xs text-gray-400 mb-4">
+            <div className="mb-4 flex items-center justify-between font-body text-xs text-ink-faint">
               <span>👥 {prog._count.participants} participantes</span>
               {prog.durationWeeks && (
                 <span>📅 {prog.durationWeeks} semanas</span>
               )}
             </div>
 
-            <button
-              onClick={() => handleEnroll(prog.id)}
-              className="w-full py-2 bg-blue-700 text-white text-xs font-medium rounded-lg hover:bg-blue-800"
-            >
+            <Button size="sm" className="w-full" onClick={() => handleEnroll(prog.id)}>
               Inscrever-me
-            </button>
-          </div>
+            </Button>
+          </Card>
         ))}
         {data?.data.length === 0 && (
-          <div className="col-span-3 py-12 text-center text-sm text-gray-400 border border-dashed border-gray-200 rounded-xl">
+          <div className="col-span-3 rounded-card border border-dashed border-border-strong py-12 text-center font-body text-sm text-ink-faint">
             Sem programas disponíveis
           </div>
         )}
