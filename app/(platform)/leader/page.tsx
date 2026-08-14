@@ -1,7 +1,11 @@
 'use client';
 // src/app/(dashboard)/leader/page.tsx
+//
+// Container: gere o separador activo (via Tabs do Radix); delega dados+
+// apresentação de cada separador aos componentes auto-contidos em
+// components/leader/ — mesmo padrão de app/(platform)/engagement/page.tsx
+// (piloto da fundação de design).
 
-import { useState } from 'react';
 import { RefreshCw, Users } from 'lucide-react';
 import { DashboardTab } from '@/components/leader/DashboardTab';
 import { PerformanceTab } from '@/components/leader/PerformanceTab';
@@ -9,67 +13,74 @@ import { PlansTab } from '@/components/leader/PlansTab';
 import { TABS } from '@/components/leader/constants';
 import { TalentPipelineTab } from '@/components/leader/TalentPipelineTab';
 import { TeamTab } from '@/components/leader/TeamTab';
-import type { Tab } from '@/components/leader/types';
-
-const PANELS: Record<Tab, JSX.Element> = {
-  dashboard: <DashboardTab />,
-  team: <TeamTab />,
-  performance: <PerformanceTab />,
-  pipeline: <TalentPipelineTab />,
-  plans: <PlansTab />,
-};
+import { IconButton } from '@/components/ui/Button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
 
 export default function LeaderPage() {
-  const [tab, setTab] = useState<Tab>('dashboard');
-
   return (
-    <div className="min-h-screen bg-slate-50">
-      <div className="bg-white border-b border-slate-200 px-6 py-5">
-        <div className="max-w-7xl mx-auto flex items-start justify-between">
+    <div className="min-h-screen bg-canvas">
+      <div className="border-b border-border bg-surface px-6 py-5">
+        <div className="mx-auto flex max-w-7xl items-start justify-between">
           <div>
-            <div className="flex items-center gap-2 mb-1">
-              <div className="p-1.5 bg-teal-100 rounded-lg">
-                <Users size={18} className="text-teal-700" />
+            <div className="mb-1 flex items-center gap-2">
+              <div className="rounded-control bg-primary-subtle p-1.5">
+                <Users size={18} strokeWidth={1.75} className="text-primary" />
               </div>
-              <h1 className="text-xl font-bold text-slate-800">Leader Hub</h1>
+              <h1 className="font-display text-xl font-bold text-ink">
+                Leader Hub
+              </h1>
             </div>
-            <p className="text-sm text-slate-400">
+            <p className="font-body text-sm text-ink-faint">
               Gestão de equipa · Performance · PDIs · Talent Pipeline ·
               Recomendações IA
             </p>
           </div>
-          <button
+          <IconButton
+            icon={RefreshCw}
+            label="Actualizar"
+            intent="secondary"
             onClick={() => window.location.reload()}
-            className="p-2 bg-white border border-slate-200 rounded-lg hover:border-slate-300"
-          >
-            <RefreshCw size={15} className="text-slate-500" />
-          </button>
+          />
         </div>
       </div>
 
-      <div className="bg-white border-b border-slate-200 px-6">
-        <div className="max-w-7xl mx-auto flex overflow-x-auto">
-          {TABS.map((t) => {
-            const Icon = t.icon;
-            return (
-              <button
-                key={t.id}
-                onClick={() => setTab(t.id)}
-                className={`flex items-center gap-2 px-5 py-4 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
-                  tab === t.id
-                    ? 'border-teal-600 text-teal-700'
-                    : 'border-transparent text-slate-500 hover:text-slate-700'
-                }`}
-              >
-                <Icon size={15} />
-                {t.label}
-              </button>
-            );
-          })}
+      <Tabs defaultValue="dashboard">
+        <div className="border-b border-border bg-surface px-6">
+          <TabsList className="mx-auto max-w-7xl overflow-x-auto">
+            {TABS.map((t) => {
+              const Icon = t.icon;
+              return (
+                <TabsTrigger
+                  key={t.id}
+                  value={t.id}
+                  className="gap-2 whitespace-nowrap"
+                >
+                  <Icon size={15} strokeWidth={1.75} />
+                  {t.label}
+                </TabsTrigger>
+              );
+            })}
+          </TabsList>
         </div>
-      </div>
 
-      <div className="max-w-7xl mx-auto px-6 py-6">{PANELS[tab]}</div>
+        <div className="mx-auto max-w-7xl px-6 py-6">
+          <TabsContent value="dashboard">
+            <DashboardTab />
+          </TabsContent>
+          <TabsContent value="team">
+            <TeamTab />
+          </TabsContent>
+          <TabsContent value="performance">
+            <PerformanceTab />
+          </TabsContent>
+          <TabsContent value="pipeline">
+            <TalentPipelineTab />
+          </TabsContent>
+          <TabsContent value="plans">
+            <PlansTab />
+          </TabsContent>
+        </div>
+      </Tabs>
     </div>
   );
 }
