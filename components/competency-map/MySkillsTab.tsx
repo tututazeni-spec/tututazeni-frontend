@@ -5,8 +5,16 @@
 
 'use client';
 
-import { Plus, Target } from 'lucide-react';
-import { TYPE_CONFIG } from './constants';
+import { Target } from 'lucide-react';
+import { Card } from '@/components/ui/Card';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { ProgressBar } from '@/components/ui/ProgressBar';
+import { Skeleton } from '@/components/ui/Skeleton';
+import {
+  READINESS_INTENT_CLASSES,
+  TYPE_CONFIG,
+  type ReadinessIntent,
+} from './constants';
 import { RadarChart } from './RadarChart';
 import { SkillBar } from './SkillBar';
 import type {
@@ -18,8 +26,7 @@ import type {
 
 interface ReadinessCfg {
   label: string;
-  color: string;
-  bar: string;
+  intent: ReadinessIntent;
   emoji: string;
 }
 
@@ -40,31 +47,26 @@ export function MySkillsTab({
   rcfg,
   onAssess,
 }: MySkillsTabProps) {
+  const intentCls = rcfg ? READINESS_INTENT_CLASSES[rcfg.intent] : null;
+
   if (loading) {
     return (
-      <div className="space-y-4">
-        {Array.from({ length: 3 }).map((_, i) => (
-          <div
-            key={i}
-            className="h-32 bg-white border border-gray-100 rounded-2xl animate-pulse"
-          />
-        ))}
-      </div>
+      <Skeleton
+        rows={3}
+        wrapperClassName="space-y-4 animate-pulse"
+        itemClassName="h-32 bg-surface border border-border rounded-card"
+      />
     );
   }
 
   if (!myMap) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 text-gray-400 bg-white rounded-2xl border border-gray-100">
-        <Target size={48} className="mb-4 opacity-30" />
-        <p className="text-sm font-medium">Sem skills avaliadas</p>
-        <button
-          onClick={onAssess}
-          className="mt-4 flex items-center gap-1.5 px-4 py-2 text-sm text-blue-600 border border-blue-200 rounded-xl hover:bg-blue-50"
-        >
-          <Plus size={14} /> Fazer primeira avaliação
-        </button>
-      </div>
+      <EmptyState
+        icon={Target}
+        title="Sem skills avaliadas"
+        description="Ainda não tens nenhuma competência avaliada."
+        action={{ label: 'Fazer primeira avaliação', onClick: onAssess }}
+      />
     );
   }
 
@@ -73,35 +75,30 @@ export function MySkillsTab({
       {/* Summary + Radar */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Score card */}
-        <div className="md:col-span-2 bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+        <Card className="md:col-span-2 p-5">
           <div className="flex items-start gap-6">
             <div className="flex-1">
-              <h3 className="text-sm font-semibold text-gray-900 mb-1">
+              <h3 className="text-sm font-semibold text-ink mb-1">
                 Perfil de Competências
               </h3>
-              <p className="text-xs text-gray-400 mb-4">
+              <p className="text-xs text-ink-faint mb-4">
                 {myMap.total} skills avaliadas · Score médio:{' '}
                 {myMap.avgScore.toFixed(1)}/5
               </p>
 
-              {rcfg && gap && (
+              {rcfg && intentCls && gap && (
                 <div className="mb-4">
                   <div className="flex justify-between text-xs mb-1">
-                    <span className={`font-semibold ${rcfg.color}`}>
+                    <span className={`font-semibold ${intentCls.text}`}>
                       {rcfg.emoji} {rcfg.label} para &quot;
                       {gap.targetRole}&quot;
                     </span>
-                    <span className="font-bold text-gray-900">
+                    <span className="font-bold text-ink">
                       {gap.readinessScore}%
                     </span>
                   </div>
-                  <div className="h-2.5 bg-gray-100 rounded-full overflow-hidden">
-                    <div
-                      className={`h-full rounded-full transition-all ${rcfg.bar}`}
-                      style={{ width: `${gap.readinessScore}%` }}
-                    />
-                  </div>
-                  <p className="text-xs text-gray-400 mt-1">
+                  <ProgressBar value={gap.readinessScore} />
+                  <p className="text-xs text-ink-faint mt-1">
                     {gap.metRequirements}/{gap.totalRequirements} requisitos
                     cumpridos
                   </p>
@@ -123,7 +120,7 @@ export function MySkillsTab({
                   return (
                     <div
                       key={type}
-                      className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border ${cfg.bg}`}
+                      className={`flex items-center gap-2 px-3 py-1.5 rounded-control border border-border ${cfg.bg}`}
                     >
                       <span className={`text-xs font-semibold ${cfg.color}`}>
                         {cfg.label}
@@ -137,16 +134,16 @@ export function MySkillsTab({
               </div>
             </div>
           </div>
-        </div>
+        </Card>
 
         {/* Radar */}
         {radar && radar.radarByType.length > 0 && (
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 flex flex-col items-center">
-            <h3 className="text-sm font-semibold text-gray-900 mb-3 self-start">
+          <Card className="p-5 flex flex-col items-center">
+            <h3 className="text-sm font-semibold text-ink mb-3 self-start">
               Radar
             </h3>
             <RadarChart data={radar} />
-          </div>
+          </Card>
         )}
       </div>
 
@@ -155,17 +152,14 @@ export function MySkillsTab({
         {Object.entries(myMap.byType ?? {}).map(([type, skills]) => {
           const cfg = TYPE_CONFIG[type as keyof typeof TYPE_CONFIG];
           return (
-            <div
-              key={type}
-              className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5"
-            >
+            <Card key={type} className="p-5">
               <div className="flex items-center justify-between mb-3">
                 <span
                   className={`text-xs font-semibold px-2.5 py-1 rounded-full ${cfg.bg} ${cfg.color}`}
                 >
                   {cfg.label}
                 </span>
-                <span className="text-xs text-gray-400">
+                <span className="text-xs text-ink-faint">
                   {skills.length} skills
                 </span>
               </div>
@@ -183,7 +177,7 @@ export function MySkillsTab({
                   );
                 })}
               </div>
-            </div>
+            </Card>
           );
         })}
       </div>

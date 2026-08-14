@@ -22,6 +22,8 @@ import type { LucideIcon } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
+import { Button } from '@/components/ui/Button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
 import { READINESS_CONFIG } from '@/components/competency-map/constants';
 import { SelfAssessModal } from '@/components/competency-map/SelfAssessModal';
 import { MySkillsTab } from '@/components/competency-map/MySkillsTab';
@@ -90,74 +92,78 @@ export default function CompetencyMapPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50/50">
+    <div className="min-h-screen bg-canvas">
       {/* Header */}
-      <div className="bg-white border-b border-gray-100 px-6 py-5 sticky top-0 z-10">
+      <div className="bg-surface border-b border-border px-6 py-5 sticky top-0 z-10">
         <div className="max-w-5xl mx-auto flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-bold text-gray-900">
+            <h1 className="font-display text-xl font-bold text-ink">
               Mapa de Competências
             </h1>
-            <p className="text-sm text-gray-500">
+            <p className="font-body text-sm text-ink-faint">
               Skills, gaps e desenvolvimento profissional
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <button
-              onClick={() => setShowAssess(true)}
-              className="flex items-center gap-1.5 px-4 py-2 text-sm text-white bg-blue-600 rounded-xl hover:bg-blue-700 transition-colors shadow-sm"
-            >
-              <Star size={15} /> Autoavaliar
-            </button>
-            <button
+            <Button size="sm" onClick={() => setShowAssess(true)}>
+              <Star size={14} strokeWidth={1.75} /> Autoavaliar
+            </Button>
+            <Button
+              intent="secondary"
+              size="sm"
               onClick={load}
               aria-label="Actualizar"
-              className="p-2 text-gray-500 border border-gray-200 bg-white rounded-xl hover:bg-gray-50"
             >
-              <RefreshCcw size={15} className={loading ? 'animate-spin' : ''} />
-            </button>
+              <RefreshCcw
+                size={14}
+                strokeWidth={1.75}
+                className={loading ? 'animate-spin' : ''}
+              />
+              Actualizar
+            </Button>
           </div>
         </div>
       </div>
 
-      <div className="max-w-5xl mx-auto px-6 py-6 space-y-5">
-        {/* Tabs */}
-        <div className="flex bg-white rounded-2xl border border-gray-100 shadow-sm p-1.5 gap-1 w-fit">
-          {tabs.map((t) => (
-            <button
-              key={t.key}
-              onClick={() => setTab(t.key)}
-              className={`flex items-center gap-2 px-4 py-2 text-sm rounded-xl font-medium transition-colors relative ${tab === t.key ? 'bg-blue-600 text-white shadow-sm' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'}`}
-            >
-              <t.icon size={15} />
-              {t.label}
-              {t.badge != null && t.badge > 0 && (
-                <span
-                  className={`w-5 h-5 rounded-full text-xs flex items-center justify-center font-bold ${tab === t.key ? 'bg-white text-blue-600' : 'bg-red-500 text-white'}`}
-                >
-                  {t.badge}
-                </span>
-              )}
-            </button>
-          ))}
-        </div>
+      <div className="max-w-5xl mx-auto px-6 py-6">
+        <Tabs value={tab} onValueChange={(v) => setTab(v as TabKey)}>
+          <TabsList className="mb-5 w-fit">
+            {tabs.map((t) => (
+              <TabsTrigger key={t.key} value={t.key} className="gap-2">
+                <t.icon size={16} strokeWidth={1.75} />
+                {t.label}
+                {t.badge != null && t.badge > 0 && (
+                  <span className="w-5 h-5 rounded-full text-xs flex items-center justify-center font-bold bg-danger text-canvas">
+                    {t.badge}
+                  </span>
+                )}
+              </TabsTrigger>
+            ))}
+          </TabsList>
 
-        {tab === 'my' && (
-          <MySkillsTab
-            loading={loading}
-            myMap={myMap}
-            radar={radar}
-            gap={gap}
-            rcfg={rcfg}
-            onAssess={() => setShowAssess(true)}
-          />
-        )}
+          <TabsContent value="my">
+            <MySkillsTab
+              loading={loading}
+              myMap={myMap}
+              radar={radar}
+              gap={gap}
+              rcfg={rcfg}
+              onAssess={() => setShowAssess(true)}
+            />
+          </TabsContent>
 
-        {tab === 'gap' && gap && <GapTab gap={gap} rcfg={rcfg} />}
+          <TabsContent value="gap">
+            {gap && <GapTab gap={gap} rcfg={rcfg} />}
+          </TabsContent>
 
-        {tab === 'team' && <TeamTab />}
+          <TabsContent value="team">
+            <TeamTab />
+          </TabsContent>
 
-        {tab === 'catalogue' && <CatalogueTab allSkills={allSkills} />}
+          <TabsContent value="catalogue">
+            <CatalogueTab allSkills={allSkills} />
+          </TabsContent>
+        </Tabs>
       </div>
 
       {showAssess && (
