@@ -4,10 +4,13 @@
 
 'use client';
 
+import { CheckCircle2, ClipboardList, PlayCircle, Target, Zap } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { Skeleton } from './atoms';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { KpiCard } from '@/components/ui/KpiCard';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { PlanCard } from './PlanCard';
 import type { MyStats, Plan } from './types';
 
@@ -30,49 +33,48 @@ export function MyPlansView({ onSelect }: MyPlansViewProps) {
   const plans = plansQuery.data ?? [];
   const stats = statsQuery.data ?? null;
 
-  if (plansQuery.isLoading || statsQuery.isLoading) return <Skeleton />;
+  if (plansQuery.isLoading || statsQuery.isLoading)
+    return <Skeleton rows={3} />;
 
   return (
     <div className="space-y-6">
       {/* Stats */}
       {stats && (
         <div className="grid grid-cols-4 gap-3">
-          {[
-            { label: 'Total PDIs', value: stats.plans.total },
-            {
-              label: 'Activos',
-              value: stats.plans.active,
-              color: 'text-emerald-600',
-            },
-            {
-              label: 'Concluídos',
-              value: stats.plans.completed,
-              color: 'text-blue-600',
-            },
-            {
-              label: 'XP ganho',
-              value: `${stats.totalXp}`,
-              color: 'text-amber-600',
-            },
-          ].map(({ label, value, color }) => (
-            <div key={label} className="bg-gray-50 rounded-xl p-4">
-              <div className="text-xs text-gray-400 mb-1">{label}</div>
-              <div
-                className={`text-2xl font-bold font-mono ${color ?? 'text-gray-900'}`}
-              >
-                {value}
-              </div>
-            </div>
-          ))}
+          <KpiCard
+            icon={ClipboardList}
+            label="Total PDIs"
+            value={stats.plans.total}
+            intent="primary"
+          />
+          <KpiCard
+            icon={PlayCircle}
+            label="Activos"
+            value={stats.plans.active}
+            intent="success"
+          />
+          <KpiCard
+            icon={CheckCircle2}
+            label="Concluídos"
+            value={stats.plans.completed}
+            intent="info"
+          />
+          <KpiCard
+            icon={Zap}
+            label="XP ganho"
+            value={stats.totalXp}
+            intent="warning"
+          />
         </div>
       )}
 
       {/* Plans */}
       {plans.length === 0 ? (
-        <div className="py-12 text-center border border-dashed border-gray-200 rounded-xl text-sm text-gray-400">
-          <div className="text-4xl mb-3">🎯</div>
-          Sem planos de desenvolvimento criados ainda
-        </div>
+        <EmptyState
+          icon={Target}
+          title="Sem planos de desenvolvimento"
+          description="Ainda não tens nenhum PDI criado."
+        />
       ) : (
         <div className="grid grid-cols-2 gap-4">
           {plans.map((p) => (
