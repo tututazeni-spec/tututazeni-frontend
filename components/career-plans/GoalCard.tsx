@@ -5,6 +5,8 @@
 'use client';
 
 import { CheckCircle2, Target } from 'lucide-react';
+import { cn } from '@/lib/cn';
+import { Card } from '@/components/ui/Card';
 import { GOAL_TYPE_ICONS, GOAL_TYPE_LABELS } from './constants';
 import type { CareerGoal } from './types';
 
@@ -13,6 +15,13 @@ interface GoalCardProps {
   onUpdateProgress: (id: number, progress: number) => void;
 }
 
+const STATUS_COLORS: Record<CareerGoal['status'], string> = {
+  PENDING: 'bg-surface-sunken text-ink-muted',
+  IN_PROGRESS: 'bg-primary-subtle text-primary',
+  COMPLETED: 'bg-success-subtle text-success-ink',
+  CANCELLED: 'bg-danger-subtle text-danger-ink',
+};
+
 export function GoalCard({ goal, onUpdateProgress }: GoalCardProps) {
   const Icon = GOAL_TYPE_ICONS[goal.type] ?? Target;
   const isOverdue =
@@ -20,34 +29,33 @@ export function GoalCard({ goal, onUpdateProgress }: GoalCardProps) {
     new Date(goal.dueDate) < new Date() &&
     goal.status !== 'COMPLETED';
 
-  const statusColors = {
-    PENDING: 'bg-gray-100 text-gray-600',
-    IN_PROGRESS: 'bg-blue-100 text-blue-700',
-    COMPLETED: 'bg-emerald-100 text-emerald-700',
-    CANCELLED: 'bg-red-100 text-red-500',
-  };
-
   return (
-    <div
-      className={`bg-white rounded-xl border p-4 hover:shadow-sm transition-shadow ${isOverdue ? 'border-red-100' : 'border-gray-100'}`}
-    >
+    <Card className={cn('p-4', isOverdue && 'border-danger/40')}>
       <div className="flex items-start gap-3">
         <div
-          className={`p-2 rounded-xl flex-shrink-0 ${goal.status === 'COMPLETED' ? 'bg-emerald-50 text-emerald-600' : 'bg-blue-50 text-blue-600'}`}
+          className={cn(
+            'flex-shrink-0 rounded-control p-2',
+            goal.status === 'COMPLETED'
+              ? 'bg-success-subtle text-success-ink'
+              : 'bg-primary-subtle text-primary',
+          )}
         >
           {goal.status === 'COMPLETED' ? (
-            <CheckCircle2 size={15} />
+            <CheckCircle2 size={15} strokeWidth={1.75} />
           ) : (
-            <Icon size={15} />
+            <Icon size={15} strokeWidth={1.75} />
           )}
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between">
-            <p className="text-sm font-medium text-gray-900 truncate">
+            <p className="truncate font-body text-sm font-medium text-ink">
               {goal.title}
             </p>
             <span
-              className={`ml-2 text-xs px-2 py-0.5 rounded-full flex-shrink-0 ${statusColors[goal.status]}`}
+              className={cn(
+                'ml-2 flex-shrink-0 rounded-full px-2 py-0.5 font-body text-xs',
+                STATUS_COLORS[goal.status],
+              )}
             >
               {goal.status === 'PENDING'
                 ? 'Pendente'
@@ -58,13 +66,16 @@ export function GoalCard({ goal, onUpdateProgress }: GoalCardProps) {
                     : 'Cancelado'}
             </span>
           </div>
-          <div className="flex items-center gap-2 mt-0.5">
-            <span className="text-xs text-gray-400">
+          <div className="mt-0.5 flex items-center gap-2">
+            <span className="font-body text-xs text-ink-faint">
               {GOAL_TYPE_LABELS[goal.type]}
             </span>
             {goal.dueDate && (
               <span
-                className={`text-xs ${isOverdue ? 'text-red-500 font-medium' : 'text-gray-400'}`}
+                className={cn(
+                  'font-body text-xs',
+                  isOverdue ? 'font-medium text-danger' : 'text-ink-faint',
+                )}
               >
                 · {new Date(goal.dueDate).toLocaleDateString('pt-PT')}
                 {isOverdue && ' ⚠️'}
@@ -73,7 +84,7 @@ export function GoalCard({ goal, onUpdateProgress }: GoalCardProps) {
           </div>
           {goal.status !== 'COMPLETED' && goal.status !== 'CANCELLED' && (
             <div className="mt-2">
-              <div className="flex justify-between text-xs text-gray-400 mb-1">
+              <div className="mb-1 flex justify-between font-body text-xs text-ink-faint">
                 <span>Progresso</span>
                 <span>{goal.progress}%</span>
               </div>
@@ -83,12 +94,12 @@ export function GoalCard({ goal, onUpdateProgress }: GoalCardProps) {
                 max="100"
                 value={goal.progress}
                 onChange={(e) => onUpdateProgress(goal.id, +e.target.value)}
-                className="w-full h-1.5 rounded-full accent-blue-600"
+                className="h-1.5 w-full rounded-full accent-primary"
               />
             </div>
           )}
         </div>
       </div>
-    </div>
+    </Card>
   );
 }
