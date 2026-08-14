@@ -1,19 +1,36 @@
 // components/learning-paths/MyPathsView.tsx
 // Separador "As minhas trilhas" — matrículas filtráveis por estado.
 // Dados próprios + apresentação. Extraído de
-// app/(platform)/learning-paths/page.tsx.
+// app/(platform)/learning-paths/page.tsx. Migrado para a fundação de
+// design: filtro de estado passa a grupo de Button ghost/primary (mesmo
+// padrão do toggle NAV do container), skeleton local (atoms.tsx) passa
+// a Skeleton da fundação, estado vazio a EmptyState, cartão de trilha a
+// Card.
 
 'use client';
 
 import { useState } from 'react';
 import Image from 'next/image';
+import { Route } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { formatDate as fmtDate } from '@/lib/format';
-import { Skeleton, TypeBadge } from './atoms';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { Skeleton } from '@/components/ui/Skeleton';
+import { StatusBadge } from '@/components/ui/StatusBadge';
+import { LP_TYPE_MAP } from './constants';
 import { isOverdue } from './utils';
 import type { MyLPEnrollment } from './types';
+
+const FILTERS = [
+  { value: '', label: 'Todas' },
+  { value: 'NOT_STARTED', label: 'Não iniciadas' },
+  { value: 'IN_PROGRESS', label: 'Em progresso' },
+  { value: 'COMPLETED', label: 'Concluídas' },
+];
 
 interface MyPathsViewProps {
   onSelect: (id: number) => void;
@@ -30,46 +47,53 @@ export function MyPathsView({ onSelect }: MyPathsViewProps) {
 
   const filtered = filter ? data.filter((e) => e.status === filter) : data;
 
-  if (isLoading) return <Skeleton />;
+  if (isLoading)
+    return (
+      <Skeleton
+        rows={4}
+        wrapperClassName="space-y-3"
+        itemClassName="skeleton-shimmer h-20 rounded-card"
+      />
+    );
 
   return (
     <div>
-      <div className="flex gap-2 mb-5">
-        {['', 'NOT_STARTED', 'IN_PROGRESS', 'COMPLETED'].map((s) => (
-          <button
-            key={s}
-            onClick={() => setFilter(s)}
-            className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
-              filter === s
-                ? 'bg-blue-700 text-white'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-            }`}
+      <div className="mb-5 flex gap-2">
+        {FILTERS.map((f) => (
+          <Button
+            key={f.value}
+            size="sm"
+            intent={filter === f.value ? 'primary' : 'ghost'}
+            onClick={() => setFilter(f.value)}
           >
-            {
-              {
-                '': 'Todas',
-                NOT_STARTED: 'Não iniciadas',
-                IN_PROGRESS: 'Em progresso',
-                COMPLETED: 'Concluídas',
-              }[s]
-            }
-          </button>
+            {f.label}
+          </Button>
         ))}
       </div>
 
       {filtered.length === 0 ? (
-        <div className="py-12 text-center text-sm text-gray-400 border border-dashed border-gray-200 rounded-xl">
-          Sem trilhas encontradas
-        </div>
+        <EmptyState
+          icon={Route}
+          title="Sem trilhas encontradas"
+          description="Ajusta o filtro ou explora o catálogo para começar uma trilha."
+        />
       ) : (
         <div className="space-y-3">
           {filtered.map((e) => (
-            <div
+            <Card
               key={e.id}
-              className="flex items-center gap-4 bg-white border border-gray-200 rounded-xl p-4 cursor-pointer hover:bg-gray-50"
+              role="button"
+              tabIndex={0}
               onClick={() => onSelect(e.learningPathId)}
+              onKeyDown={(ev) => {
+                if (ev.key === 'Enter' || ev.key === ' ') {
+                  ev.preventDefault();
+                  onSelect(e.learningPathId);
+                }
+              }}
+              className="flex cursor-pointer items-center gap-4 p-4 transition-shadow hover:shadow-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
             >
-              <div className="w-16 h-12 rounded-lg overflow-hidden flex-shrink-0 bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center relative">
+              <div className="relative flex h-12 w-16 flex-shrink-0 items-center justify-center overflow-hidden rounded-control bg-gradient-to-br from-primary to-primary-active">
                 {e.learningPath?.thumbnailUrl ? (
                   <Image
                     src={e.learningPath.thumbnailUrl}
@@ -81,25 +105,28 @@ export function MyPathsView({ onSelect }: MyPathsViewProps) {
                   <span className="text-2xl">🗺️</span>
                 )}
               </div>
-              <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium text-gray-900 mb-1">
+              <div className="min-w-0 flex-1">
+                <div className="mb-1 font-body text-sm font-medium text-ink">
                   {e.learningPath?.title}
                 </div>
-                <div className="flex items-center gap-3 text-xs text-gray-400">
+                <div className="flex items-center gap-3 font-body text-xs text-ink-faint">
                   {e.learningPath?.pathType && (
-                    <TypeBadge type={e.learningPath.pathType} />
+                    <StatusBadge
+                      value={e.learningPath.pathType}
+                      map={LP_TYPE_MAP}
+                    />
                   )}
                   <span>📚 {e.learningPath?._count?.courses ?? 0} cursos</span>
                 </div>
               </div>
-              <div className="text-right flex-shrink-0">
+              <div className="flex-shrink-0 text-right">
                 <div
-                  className={`text-sm font-medium ${
+                  className={`font-body text-sm font-medium ${
                     e.status === 'COMPLETED'
-                      ? 'text-emerald-600'
+                      ? 'text-success'
                       : e.status === 'IN_PROGRESS'
-                        ? 'text-blue-600'
-                        : 'text-gray-400'
+                        ? 'text-info'
+                        : 'text-ink-faint'
                   }`}
                 >
                   {e.status === 'COMPLETED'
@@ -110,7 +137,7 @@ export function MyPathsView({ onSelect }: MyPathsViewProps) {
                 </div>
                 {e.deadline && (
                   <div
-                    className={`text-xs ${isOverdue(e.deadline) ? 'text-red-600' : 'text-gray-400'}`}
+                    className={`font-body text-xs ${isOverdue(e.deadline) ? 'text-danger' : 'text-ink-faint'}`}
                   >
                     {isOverdue(e.deadline)
                       ? '⚠ Prazo expirado'
@@ -118,12 +145,12 @@ export function MyPathsView({ onSelect }: MyPathsViewProps) {
                   </div>
                 )}
                 {e.mandatory && (
-                  <div className="text-xs text-red-600 font-medium">
+                  <div className="font-body text-xs font-medium text-danger">
                     Obrigatório
                   </div>
                 )}
               </div>
-            </div>
+            </Card>
           ))}
         </div>
       )}
