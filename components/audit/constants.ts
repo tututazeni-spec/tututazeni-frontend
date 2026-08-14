@@ -1,21 +1,22 @@
 // components/audit/constants.ts
-// Mapas de badges/ícones e navegação do módulo de auditoria.
+// Mapas de badges/ícones e navegação do módulo de auditoria. Cores
+// mapeadas para os tokens semânticos da fundação de design (Fase A).
 // Extraído de app/(platform)/audit/page.tsx.
 
 import type { StatusBadgeMap } from '@/lib/statusBadge';
 import type { Severity, Status, View } from './types';
 
 export const SEVERITY_CFG: Record<Severity, { cls: string; dot: string }> = {
-  LOW: { cls: 'text-gray-400', dot: 'bg-gray-300' },
-  MEDIUM: { cls: 'text-blue-600', dot: 'bg-blue-400' },
-  HIGH: { cls: 'text-amber-600', dot: 'bg-amber-400' },
-  CRITICAL: { cls: 'text-red-600', dot: 'bg-red-500' },
+  LOW: { cls: 'text-ink-faint', dot: 'bg-ink-faint' },
+  MEDIUM: { cls: 'text-info-ink', dot: 'bg-info' },
+  HIGH: { cls: 'text-warning-ink', dot: 'bg-warning' },
+  CRITICAL: { cls: 'text-danger-ink', dot: 'bg-danger' },
 };
 
 export const STATUS_CFG: StatusBadgeMap<Status> = {
-  SUCCESS: { label: 'Sucesso', cls: 'bg-emerald-50 text-emerald-700' },
-  FAILED: { label: 'Falhou', cls: 'bg-red-50 text-red-700' },
-  DENIED: { label: 'Negado', cls: 'bg-amber-50 text-amber-700' },
+  SUCCESS: { label: 'Sucesso', cls: 'bg-success-subtle text-success-ink' },
+  FAILED: { label: 'Falhou', cls: 'bg-danger-subtle text-danger-ink' },
+  DENIED: { label: 'Negado', cls: 'bg-warning-subtle text-warning-ink' },
 };
 
 export const ACTION_ICONS: Record<string, string> = {

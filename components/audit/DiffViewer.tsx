@@ -11,16 +11,16 @@ interface DiffViewerProps {
 export function DiffViewer({ changes }: DiffViewerProps) {
   if (!changes || Object.keys(changes).length === 0) return null;
   return (
-    <div className="mt-2 border border-gray-200 rounded-lg overflow-hidden text-xs font-mono">
+    <div className="mt-2 overflow-hidden rounded-control border border-border font-data text-xs">
       {Object.entries(changes).map(([key, { from, to }]) => (
-        <div key={key} className="border-b border-gray-100 last:border-0">
-          <div className="px-3 py-1 bg-gray-50 text-gray-600 font-semibold">
+        <div key={key} className="border-b border-border last:border-0">
+          <div className="bg-surface-sunken px-3 py-1 font-semibold text-ink-muted">
             {key}
           </div>
-          <div className="px-3 py-1 bg-red-50 text-red-700">
+          <div className="bg-danger-subtle px-3 py-1 text-danger-ink">
             − {JSON.stringify(from)}
           </div>
-          <div className="px-3 py-1 bg-emerald-50 text-emerald-700">
+          <div className="bg-success-subtle px-3 py-1 text-success-ink">
             + {JSON.stringify(to)}
           </div>
         </div>
