@@ -5,10 +5,19 @@
 
 'use client';
 
+import {
+  AlertTriangle,
+  CheckCircle2,
+  GraduationCap,
+  TrendingUp,
+} from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { Skeleton, StarRating } from './atoms';
+import { Card } from '@/components/ui/Card';
+import { KpiCard } from '@/components/ui/KpiCard';
+import { Skeleton } from '@/components/ui/Skeleton';
+import { StarRating } from './StarRating';
 import { TYPE_CFG } from './constants';
 import type { Dashboard } from './types';
 
@@ -19,80 +28,88 @@ export function DashboardView() {
     { staleTime: STALE_TIME.SEMI_STATIC },
   );
 
-  if (isLoading || !data) return <Skeleton rows={3} />;
+  if (isLoading || !data)
+    return (
+      <Skeleton
+        rows={3}
+        wrapperClassName="space-y-3"
+        itemClassName="skeleton-shimmer h-24 rounded-card"
+      />
+    );
 
   return (
     <div className="space-y-6">
       {/* KPIs */}
       <div className="grid grid-cols-4 gap-3">
-        {[
-          { label: 'Total treinamentos', value: data.trainings.total },
-          {
-            label: 'Publicados',
-            value: data.trainings.published,
-            color: 'text-emerald-600',
-          },
-          {
-            label: 'Obrigatórios',
-            value: data.trainings.mandatory,
-            color: 'text-red-600',
-          },
-          {
-            label: 'Taxa de conclusão',
-            value: `${data.completionRate}%`,
-            color: 'text-blue-600',
-          },
-        ].map(({ label, value, color }) => (
-          <div key={label} className="bg-gray-50 rounded-xl p-4">
-            <div className="text-xs text-gray-400 mb-1">{label}</div>
-            <div
-              className={`text-2xl font-semibold font-mono ${color ?? 'text-gray-900'}`}
-            >
-              {value}
-            </div>
-          </div>
-        ))}
+        <KpiCard
+          icon={GraduationCap}
+          label="Total treinamentos"
+          value={data.trainings.total}
+          intent="primary"
+        />
+        <KpiCard
+          icon={CheckCircle2}
+          label="Publicados"
+          value={data.trainings.published}
+          intent="success"
+        />
+        <KpiCard
+          icon={AlertTriangle}
+          label="Obrigatórios"
+          value={data.trainings.mandatory}
+          intent="danger"
+        />
+        <KpiCard
+          icon={TrendingUp}
+          label="Taxa de conclusão"
+          value={`${data.completionRate}%`}
+          intent="info"
+        />
       </div>
 
       {/* Participantes */}
       <div className="grid grid-cols-2 gap-3">
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <div className="text-xs text-gray-400 mb-1">Total inscrições</div>
-          <div className="text-3xl font-bold font-mono text-gray-900">
+        <Card className="p-4">
+          <div className="mb-1 font-body text-xs text-ink-faint">
+            Total inscrições
+          </div>
+          <div className="font-mono text-3xl font-bold text-ink">
             {data.participants.total}
           </div>
-        </div>
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <div className="text-xs text-gray-400 mb-1">Rating médio</div>
+        </Card>
+        <Card className="p-4">
+          <div className="mb-1 font-body text-xs text-ink-faint">
+            Rating médio
+          </div>
           <div className="flex items-center gap-2">
-            <div className="text-3xl font-bold font-mono text-amber-600">
+            <div className="font-mono text-3xl font-bold text-accent">
               {data.avgRating.toFixed(1)}
             </div>
             <StarRating value={data.avgRating} />
           </div>
-        </div>
+        </Card>
       </div>
 
       {/* Top */}
       {data.topTrainings.length > 0 && (
-        <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-          <div className="px-4 py-3 border-b border-gray-100 text-xs font-medium text-gray-400 uppercase tracking-wide">
+        <Card className="overflow-hidden p-0">
+          <div className="border-b border-border px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
             Mais populares
           </div>
           {data.topTrainings.map((t, idx) => (
             <div
               key={t.id}
-              className="flex items-center gap-4 px-4 py-3 border-b border-gray-100 last:border-0"
+              className="flex items-center gap-4 border-b border-border px-4 py-3 last:border-0"
             >
-              <span className="text-lg font-bold font-mono text-gray-200 w-6 text-center">
+              <span className="w-6 text-center font-mono text-lg font-bold text-ink-faint">
                 {idx + 1}
               </span>
               <div className="flex-1">
-                <div className="text-sm font-medium text-gray-900">
+                <div className="font-body text-sm font-medium text-ink">
                   {t.title}
                 </div>
-                <div className="flex items-center gap-2 text-xs text-gray-400">
-                  <span className={`${TYPE_CFG[t.type].cls} px-1.5 rounded`}>
+                <div className="flex items-center gap-2 font-body text-xs text-ink-faint">
+                  <span className={`${TYPE_CFG[t.type].cls} rounded px-1.5`}>
                     {TYPE_CFG[t.type].icon}
                   </span>
                   <span>{t._count.participants} inscritos</span>
@@ -100,7 +117,7 @@ export function DashboardView() {
               </div>
             </div>
           ))}
-        </div>
+        </Card>
       )}
     </div>
   );

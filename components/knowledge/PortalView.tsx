@@ -1,16 +1,20 @@
 // components/knowledge/PortalView.tsx
 // Separador "Portal" — hero de pesquisa, categorias e trending. Dados
-// próprios + apresentação. Extraído de
-// app/(platform)/knowledge/page.tsx.
+// próprios + apresentação. Extraído de app/(platform)/knowledge/page.tsx.
+// Migrado para a fundação de design: input/botão de pesquisa passam a
+// Input/Button; skeleton local passa a components/ui/Skeleton.
 
 'use client';
 
 import { useState } from 'react';
+import { Search } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { Skeleton } from './atoms';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { ArticleCard } from './ArticleCard';
 import type { Article, Category, SearchResult } from './types';
 
@@ -52,48 +56,45 @@ export function PortalView({ onSelectArticle, onSearch }: PortalViewProps) {
   return (
     <div className="space-y-8">
       {/* Search hero */}
-      <div className="bg-gradient-to-br from-blue-700 to-blue-900 rounded-2xl p-8 text-center">
-        <div className="text-2xl font-bold text-white mb-2">
+      <div className="rounded-card bg-gradient-to-br from-primary to-primary-active p-8 text-center">
+        <div className="mb-2 font-display text-2xl font-bold text-canvas">
           Base de Conhecimento INNOVA
         </div>
-        <div className="text-blue-200 text-sm mb-5">
+        <div className="mb-5 font-body text-sm text-canvas/70">
           Encontra políticas, processos, guias e muito mais
         </div>
-        <div className="flex gap-2 max-w-xl mx-auto">
-          <input
+        <div className="mx-auto flex max-w-xl gap-2">
+          <Input
             type="text"
             placeholder="Pesquisar artigos, políticas, processos…"
             value={searchQ}
             onChange={(e) => setSearchQ(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-            className="flex-1 text-sm px-4 py-3 rounded-xl border-0 focus:outline-none focus:ring-2 focus:ring-white/50"
+            className="flex-1 border-0 focus:ring-2 focus:ring-canvas/50"
           />
-          <button
-            onClick={handleSearch}
-            disabled={searching}
-            className="px-5 py-3 bg-white text-blue-700 text-sm font-semibold rounded-xl hover:bg-blue-50 disabled:opacity-50"
-          >
-            {searching ? '…' : '🔍 Pesquisar'}
-          </button>
+          <Button onClick={handleSearch} disabled={searching}>
+            <Search size={16} strokeWidth={1.75} />
+            {searching ? '…' : 'Pesquisar'}
+          </Button>
         </div>
       </div>
 
       {/* Search results */}
       {searchResults !== null && (
         <div>
-          <div className="flex items-center justify-between mb-3">
-            <div className="text-sm font-semibold text-gray-900">
+          <div className="mb-3 flex items-center justify-between">
+            <div className="font-body text-sm font-semibold text-ink">
               {searchResults.length} resultados para &quot;{searchQ}&quot;
             </div>
             <button
               onClick={() => searchMutation.reset()}
-              className="text-xs text-gray-400 hover:text-gray-700"
+              className="font-body text-xs text-ink-faint hover:text-ink"
             >
               Limpar
             </button>
           </div>
           {searchResults.length === 0 ? (
-            <div className="py-8 text-center text-sm text-gray-400 border border-dashed border-gray-200 rounded-xl">
+            <div className="rounded-card border border-dashed border-border-strong py-8 text-center font-body text-sm text-ink-faint">
               🔍 Sem resultados. Esta pesquisa foi registada para análise de
               gaps de conhecimento.
             </div>
@@ -103,24 +104,26 @@ export function PortalView({ onSelectArticle, onSearch }: PortalViewProps) {
                 <div
                   key={r.id}
                   onClick={() => onSelectArticle(r.id)}
-                  className="flex items-center gap-3 bg-white border border-gray-200 rounded-xl px-4 py-3 cursor-pointer hover:shadow-sm"
+                  className="flex cursor-pointer items-center gap-3 rounded-card border border-border bg-surface px-4 py-3 hover:shadow-resting"
                 >
                   {r.category?.icon && (
-                    <span className="text-xl flex-shrink-0">
+                    <span className="flex-shrink-0 text-xl">
                       {r.category.icon}
                     </span>
                   )}
                   <div className="flex-1">
-                    <div className="text-sm font-medium text-gray-900">
+                    <div className="font-body text-sm font-medium text-ink">
                       {r.title}
                     </div>
                     {r.summary && (
-                      <p className="text-xs text-gray-500 truncate">
+                      <p className="truncate font-body text-xs text-ink-muted">
                         {r.summary}
                       </p>
                     )}
                   </div>
-                  <span className="text-xs text-gray-400">👁 {r.viewCount}</span>
+                  <span className="font-body text-xs text-ink-faint">
+                    👁 {r.viewCount}
+                  </span>
                 </div>
               ))}
             </div>
@@ -132,20 +135,20 @@ export function PortalView({ onSelectArticle, onSearch }: PortalViewProps) {
       {!searchResults && (
         <>
           <div>
-            <div className="text-sm font-semibold text-gray-900 mb-4">
+            <div className="mb-4 font-body text-sm font-semibold text-ink">
               Categorias
             </div>
             <div className="grid grid-cols-4 gap-3">
               {categories.map((cat) => (
                 <div
                   key={cat.id}
-                  className="bg-white border border-gray-200 rounded-xl p-4 cursor-pointer hover:shadow-sm hover:border-blue-200 transition-all text-center"
+                  className="cursor-pointer rounded-card border border-border bg-surface p-4 text-center transition-shadow hover:shadow-resting hover:border-primary-subtle"
                 >
-                  <div className="text-3xl mb-2">{cat.icon ?? '📄'}</div>
-                  <div className="text-xs font-medium text-gray-900">
+                  <div className="mb-2 text-3xl">{cat.icon ?? '📄'}</div>
+                  <div className="font-body text-xs font-medium text-ink">
                     {cat.name}
                   </div>
-                  <div className="text-xs text-gray-400 mt-0.5">
+                  <div className="mt-0.5 font-body text-xs text-ink-faint">
                     {cat._count.articles} artigos
                   </div>
                 </div>
@@ -155,7 +158,7 @@ export function PortalView({ onSelectArticle, onSearch }: PortalViewProps) {
 
           {/* Trending */}
           <div>
-            <div className="text-sm font-semibold text-gray-900 mb-4">
+            <div className="mb-4 font-body text-sm font-semibold text-ink">
               🔥 Em destaque
             </div>
             <div className="grid grid-cols-3 gap-4">

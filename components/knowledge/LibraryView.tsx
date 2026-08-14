@@ -1,19 +1,33 @@
 // components/knowledge/LibraryView.tsx
 // Separador "Biblioteca" — listagem filtrável/ordenável de artigos.
 // Dados próprios + apresentação. Extraído de
-// app/(platform)/knowledge/page.tsx.
+// app/(platform)/knowledge/page.tsx. Migrado para a fundação de design:
+// input de pesquisa passa a Input, select de ordenação passa a Select
+// (Radix), skeleton local passa a components/ui/Skeleton, estado vazio
+// passa a EmptyState.
 
 'use client';
 
 import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
+import { BookOpen } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { useDebounce } from '@/hooks/useDebounce';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { Skeleton } from './atoms';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { Input } from '@/components/ui/Input';
+import { Select } from '@/components/ui/Select';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { ArticleCard } from './ArticleCard';
 import type { Article } from './types';
+
+const SORT_ITEMS = [
+  { value: 'RECENT', label: 'Mais recentes' },
+  { value: 'POPULAR', label: 'Mais vistos' },
+  { value: 'RATING', label: 'Melhor avaliados' },
+  { value: 'UPDATED', label: 'Actualizados' },
+];
 
 interface LibraryViewProps {
   onSelectArticle: (id: number) => void;
@@ -44,8 +58,8 @@ export function LibraryView({ onSelectArticle }: LibraryViewProps) {
 
   return (
     <div>
-      <div className="flex flex-wrap items-center gap-3 mb-5">
-        <input
+      <div className="mb-5 flex flex-wrap items-center gap-3">
+        <Input
           type="text"
           placeholder="Pesquisar…"
           value={search}
@@ -53,19 +67,10 @@ export function LibraryView({ onSelectArticle }: LibraryViewProps) {
             setSearch(e.target.value);
             setPage(1);
           }}
-          className="flex-1 min-w-[200px] text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="min-w-[200px] flex-1"
         />
-        <select
-          value={sortBy}
-          onChange={(e) => setSortBy(e.target.value)}
-          className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          <option value="RECENT">Mais recentes</option>
-          <option value="POPULAR">Mais vistos</option>
-          <option value="RATING">Melhor avaliados</option>
-          <option value="UPDATED">Actualizados</option>
-        </select>
-        <span className="text-xs text-gray-400">
+        <Select items={SORT_ITEMS} value={sortBy} onValueChange={setSortBy} />
+        <span className="font-body text-xs text-ink-faint">
           {data?.total ?? 0} artigos
         </span>
       </div>
@@ -82,8 +87,12 @@ export function LibraryView({ onSelectArticle }: LibraryViewProps) {
             />
           ))}
           {data?.data.length === 0 && (
-            <div className="col-span-3 py-12 text-center text-sm text-gray-400 border border-dashed border-gray-200 rounded-xl">
-              Sem artigos encontrados
+            <div className="col-span-3">
+              <EmptyState
+                icon={BookOpen}
+                title="Sem artigos encontrados"
+                description="Ajusta a pesquisa ou os filtros para encontrar o que procuras."
+              />
             </div>
           )}
         </div>

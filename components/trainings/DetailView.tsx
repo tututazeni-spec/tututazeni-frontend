@@ -2,17 +2,28 @@
 // Separador "Detalhe" — header, sessões disponíveis, avaliação e
 // avaliações de outros. Dados próprios + apresentação. Extraído de
 // app/(platform)/trainings/page.tsx.
+//
+// Estrelas interactivas (widget "Avaliar") e a lista de estrelas por
+// avaliação ficam bespoke neste ficheiro (não exportadas) — StarRating
+// (components/trainings/StarRating.tsx) só cobre o caso de leitura com
+// fallback/label; mesmo padrão local de components/instructor/DashboardView.tsx.
 
 'use client';
 
 import { useState } from 'react';
 import Image from 'next/image';
+import { ArrowLeft, Clock, Globe, Star, Trophy, Users } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
+import { Avatar } from '@/components/ui/Avatar';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
-import { Avatar, Skeleton, StarRating } from './atoms';
+import { Textarea } from '@/components/ui/Textarea';
+import { StarRating } from './StarRating';
 import { LEVEL_CFG, TYPE_CFG } from './constants';
 import { fmtDate, fmtHours } from './utils';
 import type { Training, TrainingType } from './types';
@@ -20,6 +31,51 @@ import type { Training, TrainingType } from './types';
 interface DetailViewProps {
   trainingId: number;
   onBack: () => void;
+}
+
+function StarPicker({
+  rating,
+  onPick,
+}: {
+  rating: number;
+  onPick: (n: number) => void;
+}) {
+  return (
+    <div className="mb-3 flex gap-1">
+      {[1, 2, 3, 4, 5].map((s) => (
+        <button
+          key={s}
+          type="button"
+          aria-label={`${s} estrela${s > 1 ? 's' : ''}`}
+          onClick={() => onPick(s)}
+          className="transition-transform hover:scale-110"
+        >
+          <Star
+            size={24}
+            strokeWidth={1.75}
+            className={
+              s <= rating ? 'fill-accent text-accent' : 'text-ink-faint'
+            }
+          />
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function StarRow({ rating }: { rating: number }) {
+  return (
+    <div className="flex">
+      {Array.from({ length: 5 }, (_, i) => (
+        <Star
+          key={i}
+          size={12}
+          strokeWidth={1.75}
+          className={i < rating ? 'fill-accent text-accent' : 'text-ink-faint'}
+        />
+      ))}
+    </div>
+  );
 }
 
 export function DetailView({ trainingId, onBack }: DetailViewProps) {
@@ -67,22 +123,27 @@ export function DetailView({ trainingId, onBack }: DetailViewProps) {
     if (rating) rateMutation.mutate(undefined);
   };
 
-  if (loading || !training) return <Skeleton rows={6} />;
+  if (loading || !training)
+    return (
+      <Skeleton
+        rows={6}
+        wrapperClassName="space-y-3"
+        itemClassName="skeleton-shimmer h-16 rounded-card"
+      />
+    );
 
   const typeCfg = TYPE_CFG[training.type];
 
   return (
     <div>
-      <button
-        onClick={onBack}
-        className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-800 mb-5"
-      >
-        ← Voltar ao catálogo
-      </button>
+      <Button intent="ghost" size="sm" onClick={onBack} className="mb-5">
+        <ArrowLeft size={14} strokeWidth={1.75} />
+        Voltar ao catálogo
+      </Button>
 
       {/* Header */}
-      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden mb-5">
-        <div className="h-40 bg-gradient-to-br from-blue-700 to-blue-900 relative overflow-hidden">
+      <Card className="mb-5 overflow-hidden">
+        <div className="relative h-40 overflow-hidden bg-gradient-to-br from-primary to-primary-active">
           {training.thumbnailUrl && (
             <Image
               src={training.thumbnailUrl}
@@ -92,21 +153,21 @@ export function DetailView({ trainingId, onBack }: DetailViewProps) {
             />
           )}
           <div className="absolute inset-0 flex items-end p-5">
-            <div className="flex items-center gap-2 flex-wrap">
+            <div className="flex flex-wrap items-center gap-2">
               <span
-                className={`text-xs px-2 py-0.5 rounded font-medium ${typeCfg.cls}`}
+                className={`rounded px-2 py-0.5 font-body text-xs font-medium ${typeCfg.cls}`}
               >
                 {typeCfg.icon} {typeCfg.label}
               </span>
               <StatusBadge value={training.level} map={LEVEL_CFG} />
               {training.mandatory && (
-                <span className="bg-red-600 text-white text-xs px-2 py-0.5 rounded">
+                <span className="rounded bg-danger px-2 py-0.5 font-body text-xs text-canvas">
                   Obrigatório
                 </span>
               )}
               {training.issueCertificate && (
-                <span className="bg-amber-500 text-white text-xs px-2 py-0.5 rounded">
-                  🏆 Certificado
+                <span className="flex items-center gap-1 rounded bg-accent px-2 py-0.5 font-body text-xs text-canvas">
+                  <Trophy size={12} strokeWidth={1.75} /> Certificado
                 </span>
               )}
             </div>
@@ -114,46 +175,55 @@ export function DetailView({ trainingId, onBack }: DetailViewProps) {
         </div>
 
         <div className="p-5">
-          <h1 className="text-xl font-bold text-gray-900 mb-2">
+          <h1 className="mb-2 font-display text-xl font-bold text-ink">
             {training.title}
           </h1>
           {training.shortDescription && (
-            <p className="text-sm text-gray-600 mb-3">
+            <p className="mb-3 font-body text-sm text-ink-muted">
               {training.shortDescription}
             </p>
           )}
 
-          <div className="flex flex-wrap gap-4 text-xs text-gray-400 mb-4">
-            <span>⏱ {fmtHours(training.workloadHours)}</span>
-            <span>🌍 {training.language.toUpperCase()}</span>
-            <span>👥 {training._count.participants} inscritos</span>
+          <div className="mb-4 flex flex-wrap items-center gap-4 font-body text-xs text-ink-faint">
+            <span className="flex items-center gap-1">
+              <Clock size={14} strokeWidth={1.75} />
+              {fmtHours(training.workloadHours)}
+            </span>
+            <span className="flex items-center gap-1">
+              <Globe size={14} strokeWidth={1.75} />
+              {training.language.toUpperCase()}
+            </span>
+            <span className="flex items-center gap-1">
+              <Users size={14} strokeWidth={1.75} />
+              {training._count.participants} inscritos
+            </span>
             <StarRating value={training.avgRating ?? null} />
           </div>
 
           {training.instructor && (
-            <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+            <div className="flex items-center gap-3 rounded-control bg-surface-sunken p-3">
               <Avatar
                 name={training.instructor.fullName}
-                avatarUrl={training.instructor.avatarUrl}
+                url={training.instructor.avatarUrl ?? undefined}
                 size="md"
               />
               <div>
-                <div className="text-sm font-medium text-gray-900">
+                <div className="font-body text-sm font-medium text-ink">
                   {training.instructor.fullName}
                 </div>
-                <div className="text-xs text-gray-400">
+                <div className="font-body text-xs text-ink-faint">
                   {training.instructor.position?.name ?? 'Instrutor'}
                 </div>
               </div>
             </div>
           )}
         </div>
-      </div>
+      </Card>
 
       {/* Sessões */}
       {training.sessions && training.sessions.length > 0 && (
-        <div className="bg-white border border-gray-200 rounded-xl overflow-hidden mb-5">
-          <div className="px-4 py-3 border-b border-gray-100 text-xs font-medium text-gray-400 uppercase tracking-wide">
+        <Card className="mb-5 overflow-hidden">
+          <div className="border-b border-border px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
             Sessões disponíveis ({training.sessions.length})
           </div>
           {training.sessions.map((session) => {
@@ -165,13 +235,13 @@ export function DetailView({ trainingId, onBack }: DetailViewProps) {
             return (
               <div
                 key={session.id}
-                className="flex items-center gap-4 px-4 py-4 border-b border-gray-100 last:border-0"
+                className="flex items-center gap-4 border-b border-border px-4 py-4 last:border-0"
               >
                 <div className="flex-1">
-                  <div className="text-sm font-medium text-gray-900">
+                  <div className="font-body text-sm font-medium text-ink">
                     {fmtDate(session.sessionDate)}
                   </div>
-                  <div className="flex items-center gap-3 text-xs text-gray-400 mt-1">
+                  <div className="mt-1 flex items-center gap-3 font-body text-xs text-ink-faint">
                     <span>
                       {TYPE_CFG[session.modality as TrainingType]?.icon}{' '}
                       {TYPE_CFG[session.modality as TrainingType]?.label}
@@ -183,7 +253,7 @@ export function DetailView({ trainingId, onBack }: DetailViewProps) {
                         href={session.meetingUrl}
                         target="_blank"
                         rel="noreferrer"
-                        className="text-blue-600 hover:underline"
+                        className="text-primary hover:underline"
                         onClick={(e) => e.stopPropagation()}
                       >
                         🔗 Link
@@ -191,31 +261,36 @@ export function DetailView({ trainingId, onBack }: DetailViewProps) {
                     )}
                   </div>
                   {vacancies !== null && (
-                    <div className="mt-1 text-xs">
+                    <div className="mt-1 font-body text-xs">
                       {isFull ? (
-                        <span className="text-red-600">
+                        <span className="text-danger">
                           Vagas esgotadas{' '}
                           {session.waitlistEnabled &&
                             '(lista de espera disponível)'}
                         </span>
                       ) : (
-                        <span className="text-emerald-600">
+                        <span className="text-success-ink">
                           {vacancies} vagas disponíveis
                         </span>
                       )}
                     </div>
                   )}
                 </div>
-                <button
-                  onClick={() => handleEnroll(session.id)}
-                  disabled={enrolling === session.id}
-                  className={`flex-shrink-0 px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                <Button
+                  size="sm"
+                  intent={
                     isFull && !session.waitlistEnabled
-                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                      ? 'secondary'
                       : isFull
-                        ? 'bg-amber-600 text-white hover:bg-amber-700'
-                        : 'bg-blue-700 text-white hover:bg-blue-800'
-                  } disabled:opacity-50`}
+                        ? 'warning'
+                        : 'primary'
+                  }
+                  onClick={() => handleEnroll(session.id)}
+                  disabled={
+                    (isFull && !session.waitlistEnabled) ||
+                    enrolling === session.id
+                  }
+                  className="flex-shrink-0"
                 >
                   {enrolling === session.id
                     ? '…'
@@ -224,49 +299,39 @@ export function DetailView({ trainingId, onBack }: DetailViewProps) {
                       : isFull
                         ? 'Esgotado'
                         : 'Inscrever-me'}
-                </button>
+                </Button>
               </div>
             );
           })}
-        </div>
+        </Card>
       )}
 
       {/* Avaliar */}
-      <div className="bg-white border border-gray-200 rounded-xl p-5 mb-5">
-        <div className="text-sm font-semibold text-gray-900 mb-3">
+      <Card className="mb-5 p-5">
+        <div className="mb-3 font-body text-sm font-semibold text-ink">
           ⭐ Avaliar este treinamento
         </div>
-        <div className="flex gap-1 mb-3">
-          {[1, 2, 3, 4, 5].map((s) => (
-            <button
-              key={s}
-              onClick={() => setRating(s)}
-              className={`text-2xl transition-transform hover:scale-110 ${s <= rating ? 'text-amber-400' : 'text-gray-200'}`}
-            >
-              ★
-            </button>
-          ))}
-        </div>
-        <textarea
+        <StarPicker rating={rating} onPick={setRating} />
+        <Textarea
           value={comment}
           onChange={(e) => setComment(e.target.value)}
           rows={2}
           placeholder="Comentário (opcional)…"
-          className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 mb-3"
+          className="mb-3 w-full resize-none"
         />
-        <button
+        <Button
           onClick={handleRate}
           disabled={!rating || submittingRating}
-          className="px-4 py-2 bg-blue-700 text-white text-sm font-medium rounded-lg hover:bg-blue-800 disabled:opacity-50"
+          loading={submittingRating}
         >
           {submittingRating ? 'A enviar…' : 'Enviar avaliação'}
-        </button>
-      </div>
+        </Button>
+      </Card>
 
       {/* Avaliações dos outros */}
       {training.ratings && training.ratings.length > 0 && (
-        <div className="bg-white border border-gray-200 rounded-xl p-5">
-          <div className="text-sm font-semibold text-gray-900 mb-3">
+        <Card className="p-5">
+          <div className="mb-3 font-body text-sm font-semibold text-ink">
             Avaliações ({training._count.ratings})
           </div>
           <div className="space-y-3">
@@ -274,33 +339,26 @@ export function DetailView({ trainingId, onBack }: DetailViewProps) {
               <div key={r.id} className="flex gap-3">
                 <Avatar
                   name={r.user.fullName}
-                  avatarUrl={r.user.avatarUrl}
+                  url={r.user.avatarUrl ?? undefined}
                   size="sm"
                 />
                 <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-0.5">
-                    <span className="text-xs font-medium text-gray-800">
+                  <div className="mb-0.5 flex items-center gap-2">
+                    <span className="font-body text-xs font-medium text-ink">
                       {r.user.fullName}
                     </span>
-                    <div className="flex">
-                      {Array.from({ length: 5 }, (_, i) => (
-                        <span
-                          key={i}
-                          className={`text-xs ${i < r.rating ? 'text-amber-400' : 'text-gray-200'}`}
-                        >
-                          ★
-                        </span>
-                      ))}
-                    </div>
+                    <StarRow rating={r.rating} />
                   </div>
                   {r.comment && (
-                    <p className="text-xs text-gray-600">{r.comment}</p>
+                    <p className="font-body text-xs text-ink-muted">
+                      {r.comment}
+                    </p>
                   )}
                 </div>
               </div>
             ))}
           </div>
-        </div>
+        </Card>
       )}
     </div>
   );
