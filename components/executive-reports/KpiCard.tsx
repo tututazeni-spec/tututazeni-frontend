@@ -4,6 +4,7 @@
 
 'use client';
 
+import { cn } from '@/lib/cn';
 import { KPI_STATUS } from './constants';
 import type { Metric } from './types';
 
@@ -22,43 +23,54 @@ export function KpiCard({ metric }: KpiCardProps) {
 
   return (
     <div
-      className={`rounded-xl p-4 border ${statusCfg ? statusCfg.bg + ' border-transparent' : 'bg-gray-50 border-gray-200'}`}
+      className={cn(
+        'rounded-card border p-4',
+        statusCfg ? `${statusCfg.bg} border-transparent` : 'bg-surface-sunken border-border',
+      )}
     >
-      <div className="flex items-start justify-between gap-2 mb-1">
-        <div className="text-xs text-gray-500 leading-tight">
+      <div className="mb-1 flex items-start justify-between gap-2">
+        <div className="font-body text-xs leading-tight text-ink-muted">
           {metric.label}
         </div>
         {statusCfg && (
-          <span className="text-sm flex-shrink-0">{statusCfg.icon}</span>
+          <span className="flex-shrink-0 text-sm">{statusCfg.icon}</span>
         )}
       </div>
       <div
-        className={`text-2xl font-bold font-mono ${statusCfg?.color ?? 'text-gray-900'}`}
+        className={cn(
+          'font-mono text-2xl font-bold',
+          statusCfg?.color ?? 'text-ink',
+        )}
       >
         {metric.value.toLocaleString('pt-PT')}
         {metric.unit && (
-          <span className="text-base ml-1 font-normal text-gray-400">
+          <span className="ml-1 font-body text-base font-normal text-ink-faint">
             {metric.unit}
           </span>
         )}
       </div>
-      <div className="flex items-center justify-between mt-1">
+      <div className="mt-1 flex items-center justify-between">
         {variation !== null && (
           <span
-            className={`text-xs font-medium ${variation >= 0 ? 'text-emerald-600' : 'text-red-600'}`}
+            className={cn(
+              'font-body text-xs font-medium',
+              variation >= 0 ? 'text-success' : 'text-danger',
+            )}
           >
             {variation >= 0 ? '↑' : '↓'} {Math.abs(variation)}% vs anterior
           </span>
         )}
         {metric.target && (
-          <span className="text-xs text-gray-400">
+          <span className="font-body text-xs text-ink-faint">
             Target: {metric.target}
             {metric.unit}
           </span>
         )}
       </div>
       {metric.comment && (
-        <p className="text-xs text-gray-500 mt-1 italic">{metric.comment}</p>
+        <p className="mt-1 font-body text-xs italic text-ink-muted">
+          {metric.comment}
+        </p>
       )}
     </div>
   );
