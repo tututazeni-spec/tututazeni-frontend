@@ -1,10 +1,15 @@
 // components/knowledge/ArticleCard.tsx
 // Cartão de artigo (portal/biblioteca). Extraído de
-// app/(platform)/knowledge/page.tsx.
+// app/(platform)/knowledge/page.tsx. Migrado para a fundação de design:
+// Avatar local passa a components/ui/Avatar; wrapper clicável implementado
+// com div própria (role="button" + tabIndex + onKeyDown manual) em vez do
+// `Card` da fundação com a prop `interactive` — bug conhecido (ver plano
+// de rollout), mesmo padrão já usado em components/micro-learning/MicroCard.tsx.
 
 'use client';
 
-import { Avatar } from './atoms';
+import { Avatar } from '@/components/ui/Avatar';
+import { Badge } from '@/components/ui/Badge';
 import { timeAgo } from './utils';
 import type { Article } from './types';
 
@@ -25,55 +30,51 @@ export function ArticleCard({ article, onClick }: ArticleCardProps) {
           onClick();
         }
       }}
-      className="bg-white border border-gray-200 rounded-xl p-5 cursor-pointer hover:shadow-md hover:border-blue-200 transition-all group"
+      className="group cursor-pointer rounded-card border border-border bg-surface p-5 shadow-resting transition-shadow duration-150 hover:shadow-hover"
     >
-      <div className="flex items-start justify-between gap-3 mb-2">
+      <div className="mb-2 flex items-start justify-between gap-3">
         <div className="flex-1">
           {article.category && (
-            <div className="flex items-center gap-1.5 mb-1.5">
+            <div className="mb-1.5 flex items-center gap-1.5">
               {article.category.icon && (
                 <span className="text-sm">{article.category.icon}</span>
               )}
-              <span className="text-xs text-blue-600 font-medium">
+              <span className="font-body text-xs font-medium text-primary">
                 {article.category.name}
               </span>
             </div>
           )}
-          <div className="text-sm font-semibold text-gray-900 group-hover:text-blue-700 transition-colors leading-tight">
+          <div className="font-body text-sm font-semibold leading-tight text-ink transition-colors group-hover:text-primary">
             {article.title}
           </div>
         </div>
         {article.mandatory && (
-          <span className="text-xs bg-red-50 text-red-700 px-2 py-0.5 rounded flex-shrink-0">
+          <Badge intent="danger" className="flex-shrink-0">
             Obrigatório
-          </span>
+          </Badge>
         )}
       </div>
 
       {article.summary && (
-        <p className="text-xs text-gray-500 mb-3 line-clamp-2 leading-relaxed">
+        <p className="mb-3 line-clamp-2 font-body text-xs leading-relaxed text-ink-muted">
           {article.summary}
         </p>
       )}
 
-      <div className="flex flex-wrap gap-1.5 mb-3">
+      <div className="mb-3 flex flex-wrap gap-1.5">
         {article.tags.slice(0, 4).map((t) => (
           <span
             key={t.id}
-            className="px-1.5 py-0.5 bg-gray-100 text-gray-600 text-xs rounded"
+            className="rounded bg-surface-sunken px-1.5 py-0.5 font-body text-xs text-ink-muted"
           >
             #{t.name}
           </span>
         ))}
       </div>
 
-      <div className="flex items-center justify-between text-xs text-gray-400">
+      <div className="flex items-center justify-between font-body text-xs text-ink-faint">
         <div className="flex items-center gap-2">
-          <Avatar
-            name={article.author.fullName}
-            avatarUrl={article.author.avatarUrl}
-            size="sm"
-          />
+          <Avatar name={article.author.fullName} url={article.author.avatarUrl ?? undefined} size="sm" />
           <span>{article.author.fullName}</span>
         </div>
         <div className="flex items-center gap-3">
