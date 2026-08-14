@@ -7,10 +7,14 @@
 
 import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
+import { GitBranch } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { Skeleton } from './atoms';
+import { Button } from '@/components/ui/Button';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { Input } from '@/components/ui/Input';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { OrgChartNode } from './OrgChartNode';
 import type { OrgNode } from './types';
 
@@ -30,24 +34,28 @@ export function OrgChartView() {
 
   return (
     <div>
-      <div className="flex items-center gap-3 mb-5">
-        <input
+      <div className="mb-5 flex items-center gap-3">
+        <Input
           type="text"
           placeholder="Pesquisar colaborador…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 flex-1 max-w-sm"
+          className="max-w-sm flex-1"
         />
         <div className="flex items-center gap-2">
-          <span className="text-xs text-gray-400">Profundidade:</span>
+          <span className="font-body text-xs text-ink-faint">
+            Profundidade:
+          </span>
           {[2, 3, 4].map((d) => (
-            <button
+            <Button
               key={d}
+              size="sm"
+              intent={depth === d ? 'primary' : 'secondary'}
+              className="h-8 w-8 p-0 font-mono"
               onClick={() => setDepth(d)}
-              className={`w-8 h-8 text-xs font-mono rounded-lg ${depth === d ? 'bg-blue-700 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
             >
               {d}
-            </button>
+            </Button>
           ))}
         </div>
       </div>
@@ -56,13 +64,17 @@ export function OrgChartView() {
         <Skeleton rows={3} />
       ) : (
         <div className="overflow-x-auto">
-          <div className="flex gap-8 p-4 min-w-max">
+          <div className="flex min-w-max gap-8 p-4">
             {data.map((root) => (
               <OrgChartNode key={root.id} node={root} />
             ))}
             {data.length === 0 && (
-              <div className="text-sm text-gray-400 text-center py-12 w-full">
-                Sem dados para o organograma
+              <div className="w-full">
+                <EmptyState
+                  icon={GitBranch}
+                  title="Sem dados para o organograma"
+                  description="Ainda não há colaboradores estruturados na hierarquia."
+                />
               </div>
             )}
           </div>
