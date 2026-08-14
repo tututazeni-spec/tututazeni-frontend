@@ -6,6 +6,7 @@
 
 import { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
+import { cn } from '@/lib/cn';
 import { CATEGORY_COLOR } from './constants';
 import type { TimelineEvent } from './types';
 
@@ -23,15 +24,15 @@ export function EventCard({ event, compact = false }: EventCardProps) {
       <div className="flex items-center gap-3 py-2">
         <span className="text-base shrink-0">{event.icon}</span>
         <div className="flex-1 min-w-0">
-          <p className="text-xs font-medium text-slate-700 truncate">
+          <p className="text-xs font-medium text-ink truncate">
             {event.title}
           </p>
-          <p className="text-[10px] text-slate-400">
+          <p className="text-[10px] text-ink-faint">
             {new Date(event.timestamp).toLocaleDateString('pt')}
           </p>
         </div>
         {event.milestone && (
-          <span className="text-[9px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full font-medium shrink-0">
+          <span className="text-[9px] bg-warning-subtle text-warning-ink px-1.5 py-0.5 rounded-pill font-medium shrink-0">
             MARCO
           </span>
         )}
@@ -41,9 +42,12 @@ export function EventCard({ event, compact = false }: EventCardProps) {
   return (
     <div
       onClick={() => setExpanded(!expanded)}
-      className={`flex items-start gap-3 p-3 rounded-xl cursor-pointer transition-all
-        ${event.milestone ? 'bg-amber-50 border border-amber-200' : 'bg-white border border-slate-100'}
-        hover:shadow-sm`}
+      className={cn(
+        'flex items-start gap-3 p-3 rounded-card border shadow-resting transition-shadow duration-150 cursor-pointer hover:shadow-hover',
+        event.milestone
+          ? 'bg-warning-subtle border-warning'
+          : 'bg-surface border-border',
+      )}
     >
       {/* Icon circle */}
       <div
@@ -54,14 +58,14 @@ export function EventCard({ event, compact = false }: EventCardProps) {
 
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 flex-wrap mb-0.5">
-          <p className="text-sm font-semibold text-slate-800">{event.title}</p>
+          <p className="text-sm font-semibold text-ink">{event.title}</p>
           {event.milestone && (
-            <span className="text-[9px] bg-amber-200 text-amber-800 px-1.5 py-0.5 rounded-full font-bold">
+            <span className="text-[9px] bg-warning-subtle text-warning-ink px-1.5 py-0.5 rounded-pill font-bold">
               ⭐ MARCO
             </span>
           )}
         </div>
-        <div className="flex items-center gap-2 text-[10px] text-slate-400">
+        <div className="flex items-center gap-2 text-[10px] text-ink-faint">
           <span
             className={`px-1.5 py-0.5 rounded font-medium ${cat.color} ${cat.bg}`}
           >
@@ -86,8 +90,8 @@ export function EventCard({ event, compact = false }: EventCardProps) {
         </div>
 
         {expanded && (
-          <div className="mt-2 pt-2 border-t border-slate-100">
-            <div className="grid grid-cols-2 gap-2 text-xs text-slate-500">
+          <div className="mt-2 pt-2 border-t border-border">
+            <div className="grid grid-cols-2 gap-2 text-xs text-ink-muted">
               <div>
                 <span className="font-medium">Entidade:</span> {event.entity}
               </div>
@@ -112,17 +116,18 @@ export function EventCard({ event, compact = false }: EventCardProps) {
         <span
           className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
             event.impactScore >= 75
-              ? 'bg-emerald-100 text-emerald-700'
+              ? 'bg-success-subtle text-success-ink'
               : event.impactScore >= 50
-                ? 'bg-amber-100 text-amber-700'
-                : 'bg-slate-100 text-slate-500'
+                ? 'bg-warning-subtle text-warning-ink'
+                : 'bg-surface-sunken text-ink-faint'
           }`}
         >
           {event.impactScore}
         </span>
         <ChevronDown
-          size={13}
-          className={`text-slate-400 transition-transform ${expanded ? 'rotate-180' : ''}`}
+          size={14}
+          strokeWidth={1.75}
+          className={`text-ink-faint transition-transform ${expanded ? 'rotate-180' : ''}`}
         />
       </div>
     </div>
