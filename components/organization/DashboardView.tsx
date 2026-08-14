@@ -4,10 +4,22 @@
 
 'use client';
 
+import {
+  Briefcase,
+  Building2,
+  GitBranch,
+  Layers,
+  Network,
+  UserCog,
+  Users,
+} from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { Skeleton } from './atoms';
+import { Card } from '@/components/ui/Card';
+import { KpiCard } from '@/components/ui/KpiCard';
+import { ProgressBar } from '@/components/ui/ProgressBar';
+import { Skeleton } from '@/components/ui/Skeleton';
 import type { HeadcountRow, OrgStats } from './types';
 
 export function DashboardView() {
@@ -33,99 +45,97 @@ export function DashboardView() {
     <div className="space-y-6">
       {/* KPIs principais */}
       <div className="grid grid-cols-4 gap-3">
-        {[
-          { label: 'Total colaboradores', value: hc.total },
-          {
-            label: 'Vagas abertas',
-            value: hc.open,
-            color: hc.open > 0 ? 'text-amber-600' : 'text-gray-900',
-          },
-          { label: 'Departamentos', value: stats.departments },
-          { label: 'Unidades', value: stats.units },
-        ].map(({ label, value, color }) => (
-          <div key={label} className="bg-gray-50 rounded-xl p-4">
-            <div className="text-xs text-gray-400 mb-1">{label}</div>
-            <div
-              className={`text-2xl font-semibold font-mono ${color ?? 'text-gray-900'}`}
-            >
-              {value}
-            </div>
-          </div>
-        ))}
+        <KpiCard
+          icon={Users}
+          label="Total colaboradores"
+          value={hc.total}
+          intent="primary"
+        />
+        <KpiCard
+          icon={Briefcase}
+          label="Vagas abertas"
+          value={hc.open}
+          intent={hc.open > 0 ? 'warning' : 'primary'}
+        />
+        <KpiCard
+          icon={Building2}
+          label="Departamentos"
+          value={stats.departments}
+          intent="accent"
+        />
+        <KpiCard
+          icon={Network}
+          label="Unidades"
+          value={stats.units}
+          intent="info"
+        />
       </div>
 
       {/* KPIs org */}
       <div className="grid grid-cols-3 gap-3">
-        <div className="bg-white border border-gray-200 rounded-xl p-5">
-          <div className="text-xs text-gray-400 mb-2">
-            Span of Control médio
-          </div>
-          <div className="text-3xl font-bold font-mono text-blue-700">
-            {kpis.spanOfControl}
-          </div>
-          <div className="text-xs text-gray-400 mt-1">liderados por gestor</div>
-        </div>
-        <div className="bg-white border border-gray-200 rounded-xl p-5">
-          <div className="text-xs text-gray-400 mb-2">Gestores activos</div>
-          <div className="text-3xl font-bold font-mono text-gray-900">
-            {kpis.managerCount}
-          </div>
-        </div>
-        <div className="bg-white border border-gray-200 rounded-xl p-5">
-          <div className="text-xs text-gray-400 mb-2">
-            Profundidade hierárquica
-          </div>
-          <div className="text-3xl font-bold font-mono text-gray-900">
-            {kpis.maxHierarchyDepth}
-          </div>
-          <div className="text-xs text-gray-400 mt-1">níveis máximos</div>
-        </div>
+        <KpiCard
+          icon={GitBranch}
+          label="Span of Control médio"
+          value={kpis.spanOfControl}
+          sub="liderados por gestor"
+          intent="info"
+        />
+        <KpiCard
+          icon={UserCog}
+          label="Gestores activos"
+          value={kpis.managerCount}
+          intent="primary"
+        />
+        <KpiCard
+          icon={Layers}
+          label="Profundidade hierárquica"
+          value={kpis.maxHierarchyDepth}
+          sub="níveis máximos"
+          intent="primary"
+        />
       </div>
 
       {/* Headcount por departamento */}
-      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-        <div className="px-4 py-3 border-b border-gray-100 text-xs font-medium text-gray-400 uppercase tracking-wide">
+      <Card>
+        <div className="border-b border-border px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-ink-muted">
           Headcount por departamento
         </div>
         {headcount.slice(0, 10).map((dept) => {
           const pct = dept.occupancyPct ?? 0;
-          const color =
+          const pctColor =
             pct >= 90
-              ? 'bg-red-500'
+              ? 'text-danger'
               : pct >= 70
-                ? 'bg-emerald-500'
-                : 'bg-amber-500';
+                ? 'text-success'
+                : 'text-warning';
           return (
             <div
               key={dept.id}
-              className="flex items-center gap-4 px-4 py-3 border-b border-gray-100 last:border-0"
+              className="flex items-center gap-4 border-b border-border px-4 py-3 last:border-0"
             >
-              <div className="flex items-center gap-2 w-48">
+              <div className="flex w-48 items-center gap-2">
                 {dept.color && (
                   <div
-                    className="w-2 h-2 rounded-full flex-shrink-0"
+                    className="h-2 w-2 flex-shrink-0 rounded-full"
                     style={{ background: dept.color }}
                   />
                 )}
-                <div className="text-sm font-medium text-gray-900 truncate">
+                <div className="truncate font-body text-sm font-medium text-ink">
                   {dept.name}
                 </div>
               </div>
               <div className="flex-1">
-                <div className="flex justify-between text-xs text-gray-400 mb-1">
+                <div className="mb-1 flex justify-between font-body text-xs text-ink-muted">
                   <span>{dept.occupied} pessoas</span>
-                  <span>{dept.planned > 0 ? `${pct}%` : '—'}</span>
+                  <span className={pctColor}>
+                    {dept.planned > 0 ? `${pct}%` : '—'}
+                  </span>
                 </div>
-                <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-                  <div
-                    className={`h-full ${color} rounded-full`}
-                    style={{ width: `${Math.min(pct, 100)}%` }}
-                  />
-                </div>
+                <ProgressBar value={pct} />
               </div>
-              <div className="text-right w-20 flex-shrink-0">
+              <div className="w-20 flex-shrink-0 text-right">
                 {dept.open > 0 && (
-                  <span className="text-xs text-amber-600 font-medium">
+                  <span className="font-body text-xs font-medium text-warning">
                     {dept.open} vagas
                   </span>
                 )}
@@ -133,7 +143,7 @@ export function DashboardView() {
             </div>
           );
         })}
-      </div>
+      </Card>
     </div>
   );
 }

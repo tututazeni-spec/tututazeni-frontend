@@ -5,7 +5,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Avatar } from './atoms';
+import { Avatar } from '@/components/ui/Avatar';
 import type { OrgNode } from './types';
 
 interface OrgChartNodeProps {
@@ -23,18 +23,22 @@ export function OrgChartNode({ node, depth = 0 }: OrgChartNodeProps) {
     <div className="flex flex-col items-center">
       {/* Card */}
       <div
-        className={`relative bg-white border rounded-xl p-3 w-44 cursor-pointer hover:shadow-md transition-all ${
-          subCount > 0 ? 'border-blue-200' : 'border-gray-200'
+        className={`relative w-44 cursor-pointer rounded-card border bg-surface p-3 transition-shadow hover:shadow-hover ${
+          subCount > 0 ? 'border-info' : 'border-border'
         }`}
         onClick={() => hasChildren && setExpanded((e) => !e)}
       >
-        <div className="flex flex-col items-center text-center gap-1.5">
-          <Avatar name={node.fullName} avatarUrl={node.avatarUrl} size="md" />
+        <div className="flex flex-col items-center gap-1.5 text-center">
+          <Avatar
+            name={node.fullName}
+            url={node.avatarUrl ?? undefined}
+            size="md"
+          />
           <div>
-            <div className="text-xs font-semibold text-gray-900 leading-tight">
+            <div className="font-body text-xs font-semibold leading-tight text-ink">
               {node.fullName}
             </div>
-            <div className="text-xs text-gray-500 leading-tight mt-0.5">
+            <div className="mt-0.5 font-body text-xs leading-tight text-ink-muted">
               {node.position?.name ?? '—'}
             </div>
           </div>
@@ -42,17 +46,17 @@ export function OrgChartNode({ node, depth = 0 }: OrgChartNodeProps) {
             <div className="flex items-center gap-1">
               {node.department.color && (
                 <div
-                  className="w-1.5 h-1.5 rounded-full"
+                  className="h-1.5 w-1.5 rounded-full"
                   style={{ background: node.department.color }}
                 />
               )}
-              <span className="text-xs text-gray-400">
+              <span className="font-body text-xs text-ink-faint">
                 {node.department.name}
               </span>
             </div>
           )}
           {subCount > 0 && (
-            <div className="flex items-center gap-1 text-xs text-blue-600">
+            <div className="flex items-center gap-1 font-body text-xs text-info">
               <span>👥 {subCount}</span>
               <span>{expanded ? '▲' : '▼'}</span>
             </div>
@@ -62,17 +66,17 @@ export function OrgChartNode({ node, depth = 0 }: OrgChartNodeProps) {
 
       {/* Children */}
       {expanded && hasChildren && (
-        <div className="flex flex-col items-center mt-2">
+        <div className="mt-2 flex flex-col items-center">
           {/* Connector down */}
-          <div className="w-0.5 h-6 bg-gray-200" />
+          <div className="h-6 w-0.5 bg-border-strong" />
           <div className="flex items-start gap-4">
             {node.children.map((child, idx) => (
               <div key={child.id} className="flex flex-col items-center">
                 {/* Horizontal connector */}
                 {idx > 0 && (
-                  <div className="absolute w-4 h-0.5 bg-gray-200 -ml-4 mt-6" />
+                  <div className="absolute -ml-4 mt-6 h-0.5 w-4 bg-border-strong" />
                 )}
-                <div className="w-0.5 h-4 bg-gray-200 mb-1" />
+                <div className="mb-1 h-4 w-0.5 bg-border-strong" />
                 <OrgChartNode node={child} depth={depth + 1} />
               </div>
             ))}

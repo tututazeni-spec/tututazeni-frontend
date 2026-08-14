@@ -10,8 +10,17 @@ import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { formatKz as fmtKz } from '@/lib/format';
+import { Button } from '@/components/ui/Button';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
-import { Skeleton } from './atoms';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeaderCell,
+  TableRow,
+} from '@/components/ui/Table';
 import { LEVEL_CFG } from './constants';
 import type { Position, PosLevel } from './types';
 
@@ -44,73 +53,83 @@ export function PositionsView() {
 
   return (
     <div>
-      <div className="flex gap-2 mb-5 flex-wrap">
-        <button
+      <div className="mb-5 flex flex-wrap gap-2">
+        <Button
+          size="sm"
+          intent={!filter ? 'primary' : 'secondary'}
           onClick={() => setFilter('')}
-          className={`px-3 py-1.5 text-xs font-medium rounded-lg ${!filter ? 'bg-blue-700 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
         >
           Todos
-        </button>
+        </Button>
         {levels.map((l) => (
-          <button
+          <Button
             key={l}
+            size="sm"
+            intent={filter === l ? 'primary' : 'secondary'}
             onClick={() => setFilter(l)}
-            className={`px-3 py-1.5 text-xs font-medium rounded-lg ${filter === l ? 'bg-blue-700 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
           >
             {LEVEL_CFG[l].label}
-          </button>
+          </Button>
         ))}
       </div>
 
-      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-        <div className="grid grid-cols-[1fr_100px_100px_100px_150px] gap-3 px-4 py-2.5 border-b border-gray-100 text-xs font-medium text-gray-400 uppercase tracking-wide">
-          <div>Cargo</div>
-          <div>Nível</div>
-          <div>Activos</div>
-          <div>Vagas</div>
-          <div>Salário</div>
-        </div>
-        {data?.data.map((pos) => (
-          <div
-            key={pos.id}
-            className="grid grid-cols-[1fr_100px_100px_100px_150px] gap-3 items-center px-4 py-3.5 border-b border-gray-100 last:border-0 hover:bg-gray-50"
-          >
-            <div>
-              <div className="text-sm font-medium text-gray-900">
-                {pos.name}
-              </div>
-              {pos.code && (
-                <div className="text-xs text-gray-400">{pos.code}</div>
-              )}
-            </div>
-            <div>
-              <StatusBadge value={pos.level} map={LEVEL_CFG} />
-            </div>
-            <div className="text-sm font-mono text-gray-900">
-              {pos.headcountOccupied}
-            </div>
-            <div>
-              {pos.headcountOpen > 0 ? (
-                <span className="text-xs text-amber-600 font-medium">
-                  {pos.headcountOpen} abertas
-                </span>
-              ) : (
-                <span className="text-xs text-gray-300">—</span>
-              )}
-            </div>
-            <div className="text-xs text-gray-500">
-              {pos.salaryMin && pos.salaryMax
-                ? `${fmtKz(pos.salaryMin)} – ${fmtKz(pos.salaryMax)}`
-                : '—'}
-            </div>
-          </div>
-        ))}
-        {data?.data.length === 0 && (
-          <div className="px-4 py-12 text-center text-sm text-gray-400">
-            Sem cargos
-          </div>
-        )}
-      </div>
+      <Table>
+        <TableHead>
+          <TableRow>
+            <TableHeaderCell>Cargo</TableHeaderCell>
+            <TableHeaderCell>Nível</TableHeaderCell>
+            <TableHeaderCell>Activos</TableHeaderCell>
+            <TableHeaderCell>Vagas</TableHeaderCell>
+            <TableHeaderCell>Salário</TableHeaderCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {data?.data.map((pos) => (
+            <TableRow key={pos.id}>
+              <TableCell>
+                <div className="font-body text-sm font-medium text-ink">
+                  {pos.name}
+                </div>
+                {pos.code && (
+                  <div className="font-body text-xs text-ink-faint">
+                    {pos.code}
+                  </div>
+                )}
+              </TableCell>
+              <TableCell>
+                <StatusBadge value={pos.level} map={LEVEL_CFG} />
+              </TableCell>
+              <TableCell className="font-mono text-sm text-ink">
+                {pos.headcountOccupied}
+              </TableCell>
+              <TableCell>
+                {pos.headcountOpen > 0 ? (
+                  <span className="font-body text-xs font-medium text-warning">
+                    {pos.headcountOpen} abertas
+                  </span>
+                ) : (
+                  <span className="font-body text-xs text-ink-faint">—</span>
+                )}
+              </TableCell>
+              <TableCell className="font-body text-xs text-ink-muted">
+                {pos.salaryMin && pos.salaryMax
+                  ? `${fmtKz(pos.salaryMin)} – ${fmtKz(pos.salaryMax)}`
+                  : '—'}
+              </TableCell>
+            </TableRow>
+          ))}
+          {data?.data.length === 0 && (
+            <TableRow>
+              <td
+                colSpan={5}
+                className="px-4 py-12 text-center font-body text-sm text-ink-faint"
+              >
+                Sem cargos
+              </td>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
     </div>
   );
 }
