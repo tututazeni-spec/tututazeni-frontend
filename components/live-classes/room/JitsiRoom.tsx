@@ -130,80 +130,26 @@ export function JitsiRoom({ liveClass, onJoined, onLeft }: JitsiRoomProps) {
   }, [initJitsi]);
 
   return (
-    <div
-      style={{
-        position: 'relative',
-        width: '100%',
-        height: '100%',
-        background: '#0f172a',
-        borderRadius: 14,
-        overflow: 'hidden',
-      }}
-    >
+    <div className="relative w-full h-full bg-slate-900 rounded-[14px] overflow-hidden">
       {!loaded && (
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 16,
-            zIndex: 10,
-            background: '#0f172a',
-          }}
-        >
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 z-10 bg-slate-900">
           <div
+            className="w-9 h-9 rounded-full border-3 border-white/10"
             style={{
-              width: 36,
-              height: 36,
-              border: '3px solid rgba(255,255,255,0.1)',
-              borderTopColor: '#dc2626',
-              borderRadius: '50%',
+              borderTopColor: 'var(--color-danger)',
               animation: 'lc-spin 0.8s linear infinite',
             }}
           />
-          <p
-            style={{ color: 'rgba(255,255,255,0.6)', fontSize: 14, margin: 0 }}
-          >
+          <p className="text-white/60 text-sm m-0">
             A conectar à sala Jitsi...
           </p>
-          <p
-            style={{ color: 'rgba(255,255,255,0.3)', fontSize: 12, margin: 0 }}
-          >
-            Sala: {roomName}
-          </p>
+          <p className="text-white/30 text-xs m-0">Sala: {roomName}</p>
         </div>
       )}
-      <div ref={containerRef} style={{ width: '100%', height: '100%' }} />
+      <div ref={containerRef} className="w-full h-full" />
       {loaded && participants > 0 && (
-        <div
-          style={{
-            position: 'absolute',
-            top: 12,
-            right: 12,
-            background: 'rgba(0,0,0,0.6)',
-            borderRadius: 8,
-            padding: '4px 10px',
-            fontSize: 12,
-            color: '#fff',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 5,
-            pointerEvents: 'none',
-            zIndex: 20,
-          }}
-        >
-          <span
-            style={{
-              width: 8,
-              height: 8,
-              borderRadius: '50%',
-              background: '#22c55e',
-              display: 'inline-block',
-            }}
-          />
+        <div className="absolute top-3 right-3 bg-black/60 rounded-lg py-1 px-2.5 text-xs text-white flex items-center gap-1.25 pointer-events-none z-20">
+          <span className="w-2 h-2 rounded-full bg-success inline-block" />
           {participants} participante{participants !== 1 ? 's' : ''}
         </div>
       )}

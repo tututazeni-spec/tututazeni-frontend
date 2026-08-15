@@ -48,76 +48,30 @@ export function RecordingPanel({ liveClass, onUrlSaved }: RecordingPanelProps) {
   }
 
   return (
-    <div
-      style={{
-        background: '#0f172a',
-        borderRadius: 14,
-        padding: 20,
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 16,
-        color: '#fff',
-      }}
-    >
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-        }}
-      >
-        <h3
-          style={{ margin: 0, fontSize: 14, fontWeight: 700, color: '#f1f5f9' }}
-        >
-          🎬 Gravação
-        </h3>
+    <div className="bg-slate-900 rounded-[14px] p-5 flex flex-col gap-4 text-white">
+      <div className="flex items-center justify-between">
+        <h3 className="m-0 text-sm font-bold text-slate-100">🎬 Gravação</h3>
         <button
           onClick={() => setShowHelp((h) => !h)}
-          style={{
-            background: 'rgba(255,255,255,0.08)',
-            border: 'none',
-            borderRadius: 6,
-            padding: '3px 8px',
-            cursor: 'pointer',
-            color: '#94a3b8',
-            fontSize: 11,
-          }}
+          className="bg-white/8 border-none rounded py-0.75 px-2 cursor-pointer text-ink-faint text-xs"
         >
           {showHelp ? 'Ocultar ajuda' : 'Como funciona?'}
         </button>
       </div>
 
       {showHelp && (
-        <div
-          style={{
-            background: 'rgba(255,255,255,0.05)',
-            borderRadius: 10,
-            padding: 14,
-            fontSize: 12,
-            color: '#94a3b8',
-            lineHeight: 1.6,
-          }}
-        >
-          <p style={{ margin: '0 0 6px', color: '#f1f5f9', fontWeight: 600 }}>
+        <div className="bg-white/5 rounded-[10px] p-3.5 text-xs text-ink-faint">
+          <p className="m-0 mb-1.5 text-slate-100 font-semibold">
             Passos para gravar:
           </p>
-          <ol
-            style={{
-              margin: 0,
-              paddingLeft: 16,
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 4,
-            }}
-          >
+          <ol className="m-0 pl-4 flex flex-col gap-1">
             <li>
-              Clica em{' '}
-              <strong style={{ color: '#dc2626' }}>Iniciar Gravação</strong>
+              Clica em <strong className="text-danger">Iniciar Gravação</strong>
             </li>
             <li>Selecciona a janela/ecrã com a aula Jitsi</li>
             <li>
               Quando terminar, clica{' '}
-              <strong style={{ color: '#dc2626' }}>Parar</strong>
+              <strong className="text-danger">Parar</strong>
             </li>
             <li>Faz download do vídeo (.webm)</li>
             <li>
@@ -134,17 +88,7 @@ export function RecordingPanel({ liveClass, onUrlSaved }: RecordingPanelProps) {
       {/* Recording controls */}
       <div>
         {rec.error && (
-          <div
-            style={{
-              background: 'rgba(220,38,38,0.15)',
-              border: '1px solid rgba(220,38,38,0.3)',
-              borderRadius: 8,
-              padding: '8px 12px',
-              fontSize: 12,
-              color: '#fca5a5',
-              marginBottom: 10,
-            }}
-          >
+          <div className="bg-danger/15 border border-danger/30 rounded-lg py-2 px-3 text-xs text-red-300 mb-2.5">
             ⚠️ {rec.error}
           </div>
         )}
@@ -152,133 +96,47 @@ export function RecordingPanel({ liveClass, onUrlSaved }: RecordingPanelProps) {
         {rec.state === 'idle' && (
           <button
             onClick={rec.start}
-            style={{
-              width: '100%',
-              padding: '11px',
-              borderRadius: 10,
-              background: '#dc2626',
-              border: 'none',
-              color: '#fff',
-              fontSize: 13,
-              fontWeight: 700,
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 8,
-            }}
+            className="w-full py-2.75 rounded-[10px] bg-danger border-none text-white text-sm font-bold cursor-pointer flex items-center justify-center gap-2"
           >
-            <span
-              style={{
-                width: 10,
-                height: 10,
-                borderRadius: '50%',
-                background: '#fff',
-                display: 'inline-block',
-              }}
-            />
+            <span className="w-2.5 h-2.5 rounded-full bg-white inline-block" />
             Iniciar Gravação do Ecrã
           </button>
         )}
 
         {rec.state === 'recording' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 10,
-                padding: '10px 14px',
-                background: 'rgba(220,38,38,0.15)',
-                border: '1px solid rgba(220,38,38,0.3)',
-                borderRadius: 10,
-              }}
-            >
+          <div className="flex flex-col gap-2.5">
+            <div className="flex items-center gap-2.5 py-2.5 px-3.5 bg-danger/15 border border-danger/30 rounded-[10px]">
               <span
-                style={{
-                  width: 10,
-                  height: 10,
-                  borderRadius: '50%',
-                  background: '#dc2626',
-                  display: 'inline-block',
-                  animation: 'lc-ping 1.2s ease-in-out infinite',
-                }}
+                className="w-2.5 h-2.5 rounded-full bg-danger inline-block"
+                style={{ animation: 'lc-ping 1.2s ease-in-out infinite' }}
               />
-              <span
-                style={{
-                  flex: 1,
-                  fontSize: 13,
-                  fontWeight: 700,
-                  color: '#fca5a5',
-                }}
-              >
+              <span className="flex-1 text-sm font-bold text-red-300">
                 A gravar...
               </span>
-              <span
-                style={{
-                  fontSize: 16,
-                  fontWeight: 800,
-                  color: '#fff',
-                  fontFamily: 'monospace',
-                }}
-              >
+              <span className="text-base font-black text-white font-mono">
                 {fmtDuration(rec.elapsed)}
               </span>
             </div>
             <button
               onClick={rec.stop}
-              style={{
-                width: '100%',
-                padding: '10px',
-                borderRadius: 10,
-                background: 'rgba(255,255,255,0.1)',
-                border: '1px solid rgba(255,255,255,0.2)',
-                color: '#fff',
-                fontSize: 13,
-                fontWeight: 600,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: 8,
-              }}
+              className="w-full py-2.5 rounded-[10px] bg-white/10 border border-white/20 text-white text-sm font-semibold cursor-pointer flex items-center justify-center gap-2"
             >
-              <span
-                style={{
-                  width: 12,
-                  height: 12,
-                  background: '#fff',
-                  display: 'inline-block',
-                  borderRadius: 2,
-                }}
-              />
+              <span className="w-3 h-3 bg-white inline-block rounded-sm" />
               Parar Gravação
             </button>
           </div>
         )}
 
         {rec.state === 'stopped' && rec.data && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <div className="flex flex-col gap-2.5">
             {/* Preview */}
             <video
               src={rec.data.url}
               controls
-              style={{
-                width: '100%',
-                borderRadius: 10,
-                background: '#000',
-                maxHeight: 160,
-              }}
+              className="w-full rounded-[10px] bg-black max-h-40"
             />
 
-            <div
-              style={{
-                display: 'flex',
-                gap: 6,
-                fontSize: 11,
-                color: '#64748b',
-              }}
-            >
+            <div className="flex gap-1.5 text-xs text-ink-muted">
               <span>⏱️ {fmtDuration(rec.data.duration)}</span>
               <span>·</span>
               <span>💾 {fmtBytes(rec.data.size)}</span>
@@ -286,47 +144,22 @@ export function RecordingPanel({ liveClass, onUrlSaved }: RecordingPanelProps) {
               <span>WebM</span>
             </div>
 
-            <div style={{ display: 'flex', gap: 8 }}>
+            <div className="flex gap-2">
               <button
                 onClick={() => rec.download(filename)}
-                style={{
-                  flex: 1,
-                  padding: '9px',
-                  borderRadius: 9,
-                  background: '#16a34a',
-                  border: 'none',
-                  color: '#fff',
-                  fontSize: 12.5,
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                }}
+                className="flex-1 py-2.25 rounded-lg bg-success border-none text-white text-xs font-bold cursor-pointer"
               >
                 📥 Download (.webm)
               </button>
               <button
                 onClick={rec.reset}
-                style={{
-                  padding: '9px 14px',
-                  borderRadius: 9,
-                  background: 'rgba(255,255,255,0.08)',
-                  border: '1px solid rgba(255,255,255,0.15)',
-                  color: '#94a3b8',
-                  fontSize: 12,
-                  cursor: 'pointer',
-                }}
+                className="py-2.25 px-3.5 rounded-lg bg-white/8 border border-white/15 text-ink-faint text-xs cursor-pointer"
               >
                 🔄 Nova
               </button>
             </div>
 
-            <p
-              style={{
-                margin: 0,
-                fontSize: 11,
-                color: '#64748b',
-                lineHeight: 1.5,
-              }}
-            >
+            <p className="m-0 text-xs text-ink-faint">
               Após fazer download, carrega o vídeo para Google Drive, YouTube ou
               outro serviço e cola o link abaixo.
             </p>
@@ -335,56 +168,27 @@ export function RecordingPanel({ liveClass, onUrlSaved }: RecordingPanelProps) {
       </div>
 
       {/* Divider */}
-      <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }} />
+      <div className="border-t border-white/8" />
 
       {/* Save URL */}
       <div>
-        <p
-          style={{
-            margin: '0 0 8px',
-            fontSize: 11,
-            fontWeight: 700,
-            color: '#94a3b8',
-            textTransform: 'uppercase',
-            letterSpacing: 0.7,
-          }}
-        >
+        <p className="m-0 mb-2 text-xs font-bold text-ink-faint uppercase tracking-wide">
           URL da Gravação
         </p>
 
         {liveClass.recordingUrl && !urlSaved && (
-          <div
-            style={{
-              padding: '8px 12px',
-              background: 'rgba(22,163,74,0.12)',
-              border: '1px solid rgba(22,163,74,0.25)',
-              borderRadius: 8,
-              fontSize: 12,
-              color: '#4ade80',
-              marginBottom: 8,
-            }}
-          >
+          <div className="py-2 px-3 bg-success/12 border border-success/25 rounded-lg text-xs text-green-400 mb-2">
             ✓ Gravação anterior disponível
           </div>
         )}
 
         {urlSaved && (
-          <div
-            style={{
-              padding: '8px 12px',
-              background: 'rgba(22,163,74,0.12)',
-              border: '1px solid rgba(22,163,74,0.25)',
-              borderRadius: 8,
-              fontSize: 12,
-              color: '#4ade80',
-              marginBottom: 8,
-            }}
-          >
+          <div className="py-2 px-3 bg-success/12 border border-success/25 rounded-lg text-xs text-green-400 mb-2">
             ✓ URL guardada com sucesso!
           </div>
         )}
 
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div className="flex gap-2">
           <input
             value={customUrl}
             onChange={(e) => {
@@ -392,53 +196,21 @@ export function RecordingPanel({ liveClass, onUrlSaved }: RecordingPanelProps) {
               setUrlSaved(false);
             }}
             placeholder="https://drive.google.com/... ou https://youtu.be/..."
-            style={{
-              flex: 1,
-              padding: '8px 10px',
-              borderRadius: 9,
-              border: '1px solid rgba(255,255,255,0.12)',
-              background: 'rgba(255,255,255,0.06)',
-              color: '#f1f5f9',
-              fontSize: 12,
-              outline: 'none',
-            }}
+            className="flex-1 py-2 px-2.5 rounded-lg border border-white/12 bg-white/6 text-slate-100 text-xs outline-none"
           />
           <button
             onClick={() => saveUrl(customUrl)}
             disabled={!customUrl || savingUrl}
-            style={{
-              padding: '8px 14px',
-              borderRadius: 9,
-              background: '#7c3aed',
-              border: 'none',
-              color: '#fff',
-              fontSize: 12,
-              fontWeight: 700,
-              cursor: 'pointer',
-              whiteSpace: 'nowrap',
-              opacity: !customUrl ? 0.5 : 1,
-            }}
+            className={`py-2 px-3.5 rounded-lg bg-accent border-none text-white text-xs font-bold cursor-pointer whitespace-nowrap ${
+              !customUrl ? 'opacity-50' : ''
+            }`}
           >
             {savingUrl ? '...' : 'Guardar'}
           </button>
         </div>
 
-        <div
-          style={{
-            marginTop: 10,
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 4,
-          }}
-        >
-          <p
-            style={{
-              margin: 0,
-              fontSize: 10.5,
-              color: '#475569',
-              fontWeight: 600,
-            }}
-          >
+        <div className="mt-2.5 flex flex-col gap-1">
+          <p className="m-0 text-xs text-slate-600 font-semibold">
             Serviços gratuitos sugeridos:
           </p>
           {[
@@ -459,14 +231,7 @@ export function RecordingPanel({ liveClass, onUrlSaved }: RecordingPanelProps) {
               href={s.url}
               target="_blank"
               rel="noreferrer"
-              style={{
-                fontSize: 11,
-                color: '#64748b',
-                textDecoration: 'none',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 5,
-              }}
+              className="text-xs text-ink-muted no-underline flex items-center gap-1.25"
             >
               {s.icon} {s.name} ↗
             </a>

@@ -1,7 +1,6 @@
 // components/live-classes/RecordingModal.tsx
 // Overlay de reprodução de gravação (embed YouTube/Vimeo/Drive, vídeo
-// nativo, ou link externo como fallback). Extraído de
-// app/(platform)/live-classes/page.tsx.
+// nativo, ou link externo como fallback). Migrado para design tokens.
 
 import { fmtDate, getEmbedUrl, isVideoUrl } from './utils';
 import type { LiveClass } from './types';
@@ -19,89 +18,37 @@ export function RecordingModal({ lc, onClose }: RecordingModalProps) {
 
   return (
     <div
-      style={{
-        position: 'fixed',
-        inset: 0,
-        zIndex: 500,
-        background: 'rgba(0,0,0,0.85)',
-        backdropFilter: 'blur(8px)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: 16,
-      }}
+      className="fixed inset-0 z-50 bg-black/85 backdrop-blur flex items-center justify-center p-4"
       onClick={(e) => e.target === e.currentTarget && onClose()}
+      style={{ backdropFilter: 'blur(8px)' }}
     >
       <div
-        style={{
-          background: '#0f172a',
-          borderRadius: 20,
-          width: '100%',
-          maxWidth: 800,
-          boxShadow: '0 32px 80px rgba(0,0,0,0.5)',
-          overflow: 'hidden',
-          animation: 'lv-up 0.2s ease',
-        }}
+        className="bg-slate-900 rounded-2xl w-full max-w-3xl shadow-2xl overflow-hidden"
+        style={{ animation: 'lv-up 0.2s ease' }}
       >
         {/* Header */}
-        <div
-          style={{
-            padding: '16px 22px',
-            borderBottom: '1px solid rgba(255,255,255,0.08)',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 14,
-          }}
-        >
-          <div style={{ flex: 1 }}>
-            <p
-              style={{
-                margin: 0,
-                fontSize: 14.5,
-                fontWeight: 700,
-                color: '#f1f5f9',
-              }}
-            >
-              {lc.topic}
-            </p>
+        <div className="p-4 border-b border-white/8 flex items-center gap-3.5">
+          <div className="flex-1">
+            <p className="m-0 text-sm font-bold text-slate-100">{lc.topic}</p>
             {lc.course && (
-              <p style={{ margin: '2px 0 0', fontSize: 12, color: '#64748b' }}>
+              <p className="mt-0.5 text-xs text-ink-muted">
                 📚 {lc.course.title} · {fmtDate(lc.scheduledAt)}
               </p>
             )}
           </div>
-          <div style={{ display: 'flex', gap: 8 }}>
+          <div className="flex gap-2">
             <a
               href={lc.recordingUrl!}
               target="_blank"
               rel="noreferrer"
-              style={{
-                padding: '6px 12px',
-                background: 'rgba(255,255,255,0.08)',
-                border: '1px solid rgba(255,255,255,0.12)',
-                borderRadius: 8,
-                color: '#94a3b8',
-                fontSize: 12,
-                textDecoration: 'none',
-              }}
+              className="py-1.5 px-3 bg-white/8 border border-white/12 rounded-lg text-ink-faint text-xs no-underline"
             >
               Abrir ↗
             </a>
             <button
               onClick={onClose}
               aria-label="Fechar"
-              style={{
-                background: 'rgba(255,255,255,0.08)',
-                border: 'none',
-                borderRadius: 8,
-                width: 32,
-                height: 32,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: 'pointer',
-                color: '#94a3b8',
-              }}
+              className="w-8 h-8 bg-white/8 border-none rounded-lg flex items-center justify-center cursor-pointer text-ink-faint"
             >
               ×
             </button>
@@ -109,56 +56,27 @@ export function RecordingModal({ lc, onClose }: RecordingModalProps) {
         </div>
 
         {/* Player */}
-        <div
-          style={{
-            position: 'relative',
-            background: '#000',
-            aspectRatio: '16/9',
-          }}
-        >
+        <div className="relative bg-black aspect-video">
           {embedUrl ? (
             <iframe
               src={embedUrl}
-              style={{ width: '100%', height: '100%', border: 'none' }}
+              className="w-full h-full border-none"
               allowFullScreen
               allow="autoplay; fullscreen; picture-in-picture"
             />
           ) : isNative ? (
-            <video
-              src={lc.recordingUrl!}
-              controls
-              style={{ width: '100%', height: '100%' }}
-            />
+            <video src={lc.recordingUrl!} controls className="w-full h-full" />
           ) : (
-            <div
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                height: '100%',
-                gap: 14,
-                padding: 24,
-              }}
-            >
-              <p style={{ fontSize: 40, margin: 0 }}>🎬</p>
-              <p style={{ color: '#94a3b8', fontSize: 14, margin: 0 }}>
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3.5 p-6">
+              <p className="text-4xl m-0">🎬</p>
+              <p className="text-ink-faint text-sm m-0">
                 Este formato não suporta pré-visualização inline.
               </p>
               <a
                 href={lc.recordingUrl!}
                 target="_blank"
                 rel="noreferrer"
-                style={{
-                  padding: '9px 20px',
-                  background: '#dc2626',
-                  border: 'none',
-                  borderRadius: 9,
-                  color: '#fff',
-                  fontSize: 13,
-                  fontWeight: 700,
-                  textDecoration: 'none',
-                }}
+                className="py-2.25 px-5 bg-danger border-none rounded-lg text-white text-sm font-bold no-underline"
               >
                 Abrir Gravação ↗
               </a>
@@ -167,14 +85,7 @@ export function RecordingModal({ lc, onClose }: RecordingModalProps) {
         </div>
 
         {/* Info footer */}
-        <div
-          style={{
-            padding: '12px 22px',
-            display: 'flex',
-            gap: 20,
-            borderTop: '1px solid rgba(255,255,255,0.06)',
-          }}
-        >
+        <div className="p-3 flex gap-5 border-t border-white/6">
           {[
             { label: 'Duração planeada', value: `${lc.duration} min` },
             { label: 'Participantes', value: lc._count?.attendances ?? 0 },
@@ -186,25 +97,10 @@ export function RecordingModal({ lc, onClose }: RecordingModalProps) {
             },
           ].map((f) => (
             <div key={f.label}>
-              <p
-                style={{
-                  margin: 0,
-                  fontSize: 10,
-                  color: '#475569',
-                  textTransform: 'uppercase',
-                  letterSpacing: 0.6,
-                }}
-              >
+              <p className="m-0 text-xs text-ink-muted uppercase tracking-tight">
                 {f.label}
               </p>
-              <p
-                style={{
-                  margin: '2px 0 0',
-                  fontSize: 13,
-                  color: '#94a3b8',
-                  fontWeight: 600,
-                }}
-              >
+              <p className="mt-0.5 text-sm text-ink-faint font-semibold">
                 {f.value}
               </p>
             </div>

@@ -66,6 +66,37 @@ export function LiveClassesView({
   onViewRecording,
   onDelete,
 }: LiveClassesViewProps) {
+  const stats = [
+    {
+      icon: '🔴',
+      label: 'Ao Vivo',
+      value: liveNow,
+      textClass: 'text-danger',
+      bgClass: 'bg-danger-subtle',
+    },
+    {
+      icon: '📅',
+      label: 'Agendadas',
+      value: upcomingCount,
+      textClass: 'text-warning',
+      bgClass: 'bg-warning-subtle',
+    },
+    {
+      icon: '🎬',
+      label: 'Gravações',
+      value: recordings.length,
+      textClass: 'text-accent',
+      bgClass: 'bg-accent-subtle',
+    },
+    {
+      icon: '🎥',
+      label: 'Total Aulas',
+      value: total,
+      textClass: 'text-info',
+      bgClass: 'bg-info-subtle',
+    },
+  ];
+
   return (
     <>
       <style>{`
@@ -76,151 +107,49 @@ export function LiveClassesView({
 
       <div>
         {/* ── Header ── */}
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'flex-start',
-            marginBottom: 24,
-            flexWrap: 'wrap',
-            gap: 12,
-          }}
-        >
+        <div className="flex justify-between items-start mb-6 flex-wrap gap-3">
           <div>
-            <h1
-              style={{
-                margin: 0,
-                fontSize: 24,
-                fontWeight: 700,
-                color: '#1e293b',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 10,
-              }}
-            >
+            <h1 className="m-0 text-2xl font-bold text-slate-800 flex items-center gap-2.5">
               🔴 Aulas ao Vivo
               {liveNow > 0 && (
                 <span
-                  style={{
-                    padding: '3px 12px',
-                    borderRadius: 20,
-                    fontSize: 12,
-                    fontWeight: 800,
-                    background: '#fef2f2',
-                    color: '#dc2626',
-                    animation: 'lv-ping 1.5s ease-in-out infinite',
-                  }}
+                  className="px-3 py-0.75 rounded-full text-xs font-black bg-danger-subtle text-danger"
+                  style={{ animation: 'lv-ping 1.5s ease-in-out infinite' }}
                 >
                   {liveNow} AO VIVO
                 </span>
               )}
             </h1>
-            <p style={{ margin: '4px 0 0', fontSize: 14, color: '#64748b' }}>
+            <p className="mt-1 text-sm text-ink-muted">
               Aulas ao vivo com Jitsi Meet · {recordings.length} gravações
               disponíveis
             </p>
           </div>
           <button
             onClick={onCreateNew}
-            style={{
-              padding: '9px 20px',
-              background: '#dc2626',
-              color: '#fff',
-              border: 'none',
-              borderRadius: 9,
-              fontSize: 13,
-              fontWeight: 700,
-              cursor: 'pointer',
-            }}
+            className="py-2.25 px-5 bg-danger text-white border-none rounded-lg text-sm font-bold cursor-pointer"
           >
             🎥 Nova Aula
           </button>
         </div>
 
         {/* ── Stats ── */}
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))',
-            gap: 12,
-            marginBottom: 22,
-          }}
-        >
-          {[
-            {
-              icon: '🔴',
-              label: 'Ao Vivo',
-              value: liveNow,
-              color: '#dc2626',
-              bg: '#fef2f2',
-            },
-            {
-              icon: '📅',
-              label: 'Agendadas',
-              value: upcomingCount,
-              color: '#d97706',
-              bg: '#fffbeb',
-            },
-            {
-              icon: '🎬',
-              label: 'Gravações',
-              value: recordings.length,
-              color: '#7c3aed',
-              bg: '#f5f3ff',
-            },
-            {
-              icon: '🎥',
-              label: 'Total Aulas',
-              value: total,
-              color: '#0891b2',
-              bg: '#ecfeff',
-            },
-          ].map((s) => (
+        <div className="grid grid-cols-[repeat(auto-fill,minmax(160px,1fr))] gap-3 mb-5.5">
+          {stats.map((s) => (
             <div
               key={s.label}
-              style={{
-                ...CARD,
-                padding: '14px 16px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 12,
-              }}
+              className={`${CARD} py-3.5 px-4 flex items-center gap-3`}
             >
               <div
-                style={{
-                  width: 40,
-                  height: 40,
-                  borderRadius: 10,
-                  background: s.bg,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: 18,
-                }}
+                className={`w-10 h-10 rounded-[10px] ${s.bgClass} flex items-center justify-center text-lg flex-shrink-0`}
               >
                 {s.icon}
               </div>
               <div>
-                <p
-                  style={{
-                    margin: 0,
-                    fontSize: 10,
-                    fontWeight: 700,
-                    color: '#94a3b8',
-                    textTransform: 'uppercase',
-                    letterSpacing: 0.7,
-                  }}
-                >
+                <p className="m-0 text-xs font-bold text-ink-faint uppercase tracking-wide">
                   {s.label}
                 </p>
-                <p
-                  style={{
-                    margin: 0,
-                    fontSize: 22,
-                    fontWeight: 800,
-                    color: s.color,
-                  }}
-                >
+                <p className={`m-0 text-2xl font-black ${s.textClass}`}>
                   {s.value}
                 </p>
               </div>
@@ -232,46 +161,28 @@ export function LiveClassesView({
         <UpcomingStrip upcoming={upcoming} onOpen={onOpen} />
 
         {/* ── Tabs ── */}
-        <div
-          style={{
-            display: 'flex',
-            gap: 4,
-            background: '#f1f5f9',
-            borderRadius: 11,
-            padding: 4,
-            marginBottom: 20,
-            width: 'fit-content',
-          }}
-        >
+        <div className="flex gap-1 bg-slate-100 rounded-lg p-1 mb-5 w-fit">
           <button
             onClick={() => onTabChange('live')}
-            style={tabBtn(tab === 'live')}
+            className={tabBtn(tab === 'live')}
           >
             🎥 Todas as Aulas
           </button>
           <button
             onClick={() => onTabChange('recordings')}
-            style={tabBtn(tab === 'recordings')}
+            className={tabBtn(tab === 'recordings')}
           >
             🎬 Gravações ({recordings.length})
           </button>
         </div>
 
         {/* ── Search ── */}
-        <div
-          style={{
-            display: 'flex',
-            gap: 12,
-            marginBottom: 18,
-            flexWrap: 'wrap',
-            alignItems: 'center',
-          }}
-        >
+        <div className="flex gap-3 mb-4.5 flex-wrap items-center">
           <input
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
             placeholder="🔍 Pesquisar por tópico ou curso..."
-            style={{ ...INP, minWidth: 260 }}
+            className={`${INP} min-w-65`}
           />
           {tab === 'live' && (
             <input
@@ -279,7 +190,7 @@ export function LiveClassesView({
               onChange={(e) => onFiltersChange({ courseId: e.target.value })}
               placeholder="ID do Curso"
               type="number"
-              style={{ ...INP, width: 130 }}
+              className={`${INP} w-32`}
             />
           )}
           {(search || filters.courseId) && (
@@ -289,15 +200,7 @@ export function LiveClassesView({
                 onFiltersChange({ courseId: '' });
               }}
               aria-label="Limpar filtros"
-              style={{
-                padding: '9px 14px',
-                borderRadius: 9,
-                border: '1px solid #e2e8f0',
-                background: '#fff',
-                cursor: 'pointer',
-                fontSize: 12.5,
-                color: '#64748b',
-              }}
+              className="py-2.25 px-3.5 rounded-lg border border-border bg-white cursor-pointer text-xs text-ink-muted"
             >
               ✕
             </button>
@@ -311,31 +214,18 @@ export function LiveClassesView({
           (loading ? (
             <Spinner />
           ) : filtered.length === 0 ? (
-            <div style={{ ...CARD, padding: '52px 24px', textAlign: 'center' }}>
-              <p style={{ fontSize: 34, margin: '0 0 10px' }}>🎥</p>
-              <p
-                style={{
-                  fontSize: 14,
-                  fontWeight: 600,
-                  color: '#1e293b',
-                  margin: '0 0 6px',
-                }}
-              >
+            <div className={`${CARD} py-13 px-6 text-center`}>
+              <p className="text-4xl m-0 mb-2.5">🎥</p>
+              <p className="text-sm font-semibold text-slate-800 m-0 mb-1.5">
                 Sem aulas encontradas
               </p>
-              <p style={{ fontSize: 13, color: '#94a3b8' }}>
+              <p className="text-sm text-ink-faint">
                 Cria a primeira sessão de formação ao vivo.
               </p>
             </div>
           ) : (
             <>
-              <div
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-                  gap: 14,
-                }}
-              >
+              <div className="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-3.5">
                 {filtered.map((lc) => (
                   <ClassCard
                     key={lc.id}
@@ -349,50 +239,25 @@ export function LiveClassesView({
 
               {/* Pagination */}
               {totalPages > 1 && (
-                <div
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    gap: 8,
-                    marginTop: 24,
-                  }}
-                >
+                <div className="flex justify-center gap-2 mt-6">
                   <button
                     onClick={() => onGoToPage(-1)}
                     disabled={filters.page === 1}
-                    style={{
-                      padding: '8px 16px',
-                      borderRadius: 8,
-                      border: '1px solid #e2e8f0',
-                      background: '#fff',
-                      cursor: 'pointer',
-                      fontSize: 12.5,
-                      opacity: filters.page === 1 ? 0.4 : 1,
-                    }}
+                    className={`py-2 px-4 rounded-lg border border-border bg-white cursor-pointer text-xs ${
+                      filters.page === 1 ? 'opacity-40' : ''
+                    }`}
                   >
                     ← Anterior
                   </button>
-                  <span
-                    style={{
-                      padding: '8px 14px',
-                      fontSize: 13,
-                      color: '#64748b',
-                    }}
-                  >
+                  <span className="py-2 px-3.5 text-sm text-ink-muted">
                     {filters.page} / {totalPages}
                   </span>
                   <button
                     onClick={() => onGoToPage(1)}
                     disabled={filters.page === totalPages}
-                    style={{
-                      padding: '8px 16px',
-                      borderRadius: 8,
-                      border: '1px solid #e2e8f0',
-                      background: '#fff',
-                      cursor: 'pointer',
-                      fontSize: 12.5,
-                      opacity: filters.page === totalPages ? 0.4 : 1,
-                    }}
+                    className={`py-2 px-4 rounded-lg border border-border bg-white cursor-pointer text-xs ${
+                      filters.page === totalPages ? 'opacity-40' : ''
+                    }`}
                   >
                     Seguinte →
                   </button>
@@ -406,31 +271,18 @@ export function LiveClassesView({
         ══════════════════════════════════════ */}
         {tab === 'recordings' &&
           (filtered.length === 0 ? (
-            <div style={{ ...CARD, padding: '52px 24px', textAlign: 'center' }}>
-              <p style={{ fontSize: 34, margin: '0 0 10px' }}>🎬</p>
-              <p
-                style={{
-                  fontSize: 14,
-                  fontWeight: 600,
-                  color: '#1e293b',
-                  margin: '0 0 6px',
-                }}
-              >
+            <div className={`${CARD} py-13 px-6 text-center`}>
+              <p className="text-4xl m-0 mb-2.5">🎬</p>
+              <p className="text-sm font-semibold text-slate-800 m-0 mb-1.5">
                 Sem gravações disponíveis
               </p>
-              <p style={{ fontSize: 13, color: '#94a3b8' }}>
+              <p className="text-sm text-ink-faint">
                 As gravações aparecem aqui após as aulas terminarem e o URL ser
                 guardado.
               </p>
             </div>
           ) : (
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-                gap: 14,
-              }}
-            >
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-3.5">
               {filtered.map((lc) => (
                 <RecordingCard key={lc.id} lc={lc} onView={onViewRecording} />
               ))}

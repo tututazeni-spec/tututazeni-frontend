@@ -67,63 +67,29 @@ export default function LiveRoomPage() {
   // Loading
   if (loading) {
     return (
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          height: '100vh',
-          flexDirection: 'column',
-          gap: 16,
-          background: '#0f172a',
-        }}
-      >
+      <div className="flex items-center justify-center min-h-screen flex-col gap-4 bg-slate-900">
         <style>{`@keyframes lc-spin{to{transform:rotate(360deg)}}@keyframes lc-ping{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.5)}}`}</style>
         <div
+          className="w-9 h-9 rounded-full border-3 border-white/10"
           style={{
-            width: 36,
-            height: 36,
-            border: '3px solid rgba(255,255,255,0.1)',
-            borderTopColor: '#dc2626',
-            borderRadius: '50%',
+            borderTopColor: 'var(--color-danger)',
             animation: 'lc-spin 0.8s linear infinite',
           }}
         />
-        <p style={{ color: 'rgba(255,255,255,0.5)', margin: 0, fontSize: 14 }}>
-          A preparar a sala...
-        </p>
+        <p className="text-white/50 m-0 text-sm">A preparar a sala...</p>
       </div>
     );
   }
 
   if (isError || !liveClass) {
     return (
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          height: '100vh',
-          background: '#0f172a',
-          flexDirection: 'column',
-          gap: 12,
-        }}
-      >
-        <p style={{ color: '#fca5a5', fontSize: 16 }}>
+      <div className="flex items-center justify-center min-h-screen bg-slate-900 flex-col gap-3">
+        <p className="text-red-300 text-base">
           ❌ {queryError?.message || 'Aula não encontrada'}
         </p>
         <button
           onClick={() => router.push('/live')}
-          style={{
-            padding: '9px 20px',
-            background: '#dc2626',
-            border: 'none',
-            borderRadius: 9,
-            color: '#fff',
-            cursor: 'pointer',
-            fontSize: 13,
-            fontWeight: 700,
-          }}
+          className="py-2.25 px-5 bg-danger border-none rounded-[9px] text-white cursor-pointer text-sm font-bold"
         >
           ← Voltar
         </button>
@@ -143,102 +109,37 @@ export default function LiveRoomPage() {
         body { margin:0; padding:0; background:#0f172a; }
       `}</style>
 
-      <div
-        style={{
-          display: 'flex',
-          height: '100vh',
-          background: '#0f172a',
-          overflow: 'hidden',
-        }}
-      >
+      <div className="flex h-screen bg-slate-900 overflow-hidden">
         {/* ── Main area ── */}
-        <div
-          style={{
-            flex: 1,
-            display: 'flex',
-            flexDirection: 'column',
-            overflow: 'hidden',
-          }}
-        >
+        <div className="flex-1 flex flex-col overflow-hidden">
           {/* Top bar */}
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 14,
-              padding: '10px 18px',
-              background: 'rgba(255,255,255,0.03)',
-              borderBottom: '1px solid rgba(255,255,255,0.07)',
-              flexShrink: 0,
-            }}
-          >
+          <div className="flex items-center gap-3.5 py-2.5 px-4.5 bg-white/3 border-b border-white/7 flex-shrink-0">
             {/* Back */}
             <button
               onClick={() => router.push('/live')}
-              style={{
-                background: 'rgba(255,255,255,0.08)',
-                border: 'none',
-                borderRadius: 8,
-                padding: '6px 12px',
-                color: '#94a3b8',
-                fontSize: 12,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 6,
-              }}
+              className="bg-white/8 border-none rounded-lg py-1.5 px-3 text-slate-400 text-xs cursor-pointer flex items-center gap-1.5"
             >
               ← Sair
             </button>
 
             {/* Live indicator */}
             {isRunning && joined && (
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 6,
-                  padding: '4px 10px',
-                  background: 'rgba(220,38,38,0.15)',
-                  border: '1px solid rgba(220,38,38,0.3)',
-                  borderRadius: 20,
-                }}
-              >
+              <div className="flex items-center gap-1.5 py-1 px-2.5 bg-danger-subtle border border-danger-subtle rounded-full">
                 <span
-                  style={{
-                    width: 8,
-                    height: 8,
-                    borderRadius: '50%',
-                    background: '#dc2626',
-                    display: 'inline-block',
-                    animation: 'lc-ping 1.2s ease-in-out infinite',
-                  }}
+                  className="w-2 h-2 rounded-full bg-danger inline-block"
+                  style={{ animation: 'lc-ping 1.2s ease-in-out infinite' }}
                 />
-                <span
-                  style={{ fontSize: 11, fontWeight: 800, color: '#dc2626' }}
-                >
-                  AO VIVO
-                </span>
+                <span className="text-xs font-black text-danger">AO VIVO</span>
               </div>
             )}
 
             {/* Title */}
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <p
-                style={{
-                  margin: 0,
-                  fontSize: 14,
-                  fontWeight: 700,
-                  color: '#f1f5f9',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap',
-                }}
-              >
+            <div className="flex-1 min-w-0">
+              <p className="m-0 text-sm font-bold text-slate-100 overflow-hidden text-ellipsis whitespace-nowrap">
                 {liveClass.topic}
               </p>
               {liveClass.course && (
-                <p style={{ margin: 0, fontSize: 11.5, color: '#64748b' }}>
+                <p className="m-0 text-xs text-slate-500">
                   📚 {liveClass.course.title} · {fmtDate(liveClass.scheduledAt)}{' '}
                   {fmtTime(liveClass.scheduledAt)}
                 </p>
@@ -247,34 +148,11 @@ export default function LiveRoomPage() {
 
             {/* Session timer */}
             {joined && (
-              <div
-                style={{
-                  textAlign: 'center',
-                  background: 'rgba(255,255,255,0.06)',
-                  borderRadius: 9,
-                  padding: '6px 12px',
-                }}
-              >
-                <p
-                  style={{
-                    margin: 0,
-                    fontSize: 10,
-                    color: '#64748b',
-                    textTransform: 'uppercase',
-                    letterSpacing: 0.7,
-                  }}
-                >
+              <div className="text-center bg-white/6 rounded-[9px] py-1.5 px-3">
+                <p className="m-0 text-xs text-slate-500 uppercase tracking-wider">
                   Sessão
                 </p>
-                <p
-                  style={{
-                    margin: 0,
-                    fontSize: 15,
-                    fontWeight: 800,
-                    color: '#f1f5f9',
-                    fontFamily: 'monospace',
-                  }}
-                >
+                <p className="m-0 text-base font-black text-slate-100 font-mono">
                   {fmtDuration(sessionTime)}
                 </p>
               </div>
@@ -283,22 +161,14 @@ export default function LiveRoomPage() {
             {/* Toggle sidebar */}
             <button
               onClick={() => setShowSidebar((s) => !s)}
-              style={{
-                background: 'rgba(255,255,255,0.08)',
-                border: 'none',
-                borderRadius: 8,
-                padding: '7px 12px',
-                color: '#94a3b8',
-                fontSize: 12,
-                cursor: 'pointer',
-              }}
+              className="bg-white/8 border-none rounded-lg py-1.75 px-3 text-slate-400 text-xs cursor-pointer"
             >
               {showSidebar ? 'Ocultar ▶' : '◀ Painel'}
             </button>
           </div>
 
           {/* Jitsi room */}
-          <div style={{ flex: 1, padding: 14, overflow: 'hidden' }}>
+          <div className="flex-1 p-3.5 overflow-hidden">
             <JitsiRoom
               liveClass={liveClass}
               onJoined={handleJoined}
@@ -309,35 +179,10 @@ export default function LiveRoomPage() {
 
         {/* ── Sidebar ── */}
         {showSidebar && (
-          <div
-            style={{
-              width: 320,
-              borderLeft: '1px solid rgba(255,255,255,0.07)',
-              display: 'flex',
-              flexDirection: 'column',
-              overflowY: 'auto',
-              background: '#0f172a',
-              gap: 0,
-              flexShrink: 0,
-            }}
-          >
+          <div className="w-80 border-l border-white/7 flex flex-col overflow-y-auto bg-slate-900 gap-0 flex-shrink-0">
             {/* Class info */}
-            <div
-              style={{
-                padding: '16px 18px',
-                borderBottom: '1px solid rgba(255,255,255,0.07)',
-              }}
-            >
-              <p
-                style={{
-                  margin: '0 0 10px',
-                  fontSize: 11,
-                  fontWeight: 700,
-                  color: '#64748b',
-                  textTransform: 'uppercase',
-                  letterSpacing: 0.7,
-                }}
-              >
+            <div className="py-4 px-4.5 border-b border-white/7">
+              <p className="m-0 mb-2.5 text-xs font-bold text-slate-500 uppercase tracking-wider">
                 Informações da Aula
               </p>
               {[
@@ -348,23 +193,13 @@ export default function LiveRoomPage() {
               ].map((f) => (
                 <div
                   key={f.label}
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    padding: '5px 0',
-                    borderBottom: '1px solid rgba(255,255,255,0.04)',
-                  }}
+                  className="flex justify-between py-1.25 border-b border-white/4"
                 >
-                  <span style={{ fontSize: 11.5, color: '#475569' }}>
-                    {f.label}
-                  </span>
+                  <span className="text-xs text-slate-600">{f.label}</span>
                   <span
-                    style={{
-                      fontSize: f.label === 'Sala Jitsi' ? 10 : 11.5,
-                      color: '#94a3b8',
-                      fontFamily:
-                        f.label === 'Sala Jitsi' ? 'monospace' : undefined,
-                    }}
+                    className={`text-xs text-slate-400 ${
+                      f.label === 'Sala Jitsi' ? 'font-mono' : ''
+                    }`}
                   >
                     {f.value}
                   </span>
@@ -377,20 +212,7 @@ export default function LiveRoomPage() {
                   href={liveClass.recordingUrl}
                   target="_blank"
                   rel="noreferrer"
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 6,
-                    marginTop: 10,
-                    padding: '7px 12px',
-                    background: 'rgba(124,58,237,0.15)',
-                    border: '1px solid rgba(124,58,237,0.3)',
-                    borderRadius: 8,
-                    color: '#a78bfa',
-                    fontSize: 12,
-                    textDecoration: 'none',
-                    fontWeight: 600,
-                  }}
+                  className="flex items-center gap-1.5 mt-2.5 py-1.75 px-3 bg-accent-subtle border border-accent-subtle rounded-lg text-accent text-xs no-underline font-semibold"
                 >
                   🎬 Ver Gravação Anterior ↗
                 </a>
@@ -398,7 +220,7 @@ export default function LiveRoomPage() {
             </div>
 
             {/* Recording panel */}
-            <div style={{ padding: 16, flex: 1 }}>
+            <div className="p-4 flex-1">
               <RecordingPanel
                 liveClass={liveClass}
                 onUrlSaved={(url) =>

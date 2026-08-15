@@ -20,8 +20,7 @@ export function YoutubeThumbnail({ src, alt }: YoutubeThumbnailProps) {
       src={src}
       alt={alt}
       fill
-      className="object-cover"
-      style={{ opacity: 0.7 }}
+      className="object-cover opacity-70"
       onError={() => setThumbError(true)}
     />
   );
