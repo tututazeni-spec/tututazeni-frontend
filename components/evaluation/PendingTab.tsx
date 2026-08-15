@@ -53,7 +53,9 @@ export function PendingTab() {
           return (
             <Card
               key={r.id}
-              className={isOverdue ? 'border-danger bg-danger-subtle' : undefined}
+              className={
+                isOverdue ? 'border-danger bg-danger-subtle' : undefined
+              }
             >
               <CardBody>
                 <div className="flex items-center gap-4">
@@ -72,9 +74,7 @@ export function PendingTab() {
                         map={EVAL_TYPE_MAP}
                         variant="pill"
                       />
-                      {isOverdue && (
-                        <Badge intent="danger">ATRASADO</Badge>
-                      )}
+                      {isOverdue && <Badge intent="danger">ATRASADO</Badge>}
                     </div>
                     <p className="text-xs text-ink-faint">
                       {r.evaluated.position?.name} ·{' '}

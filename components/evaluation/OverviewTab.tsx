@@ -210,7 +210,8 @@ export function OverviewTab({ userId }: OverviewTabProps) {
                     </p>
                     <div className="flex items-center justify-between text-sm">
                       <span className="text-ink-muted">
-                        Auto: <b>{myResults.concordance.selfScore.toFixed(1)}</b>
+                        Auto:{' '}
+                        <b>{myResults.concordance.selfScore.toFixed(1)}</b>
                       </span>
                       <Badge
                         intent={

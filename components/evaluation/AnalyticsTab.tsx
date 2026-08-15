@@ -168,10 +168,14 @@ export function AnalyticsTab() {
                     </p>
                   </div>
                   <div className="text-right shrink-0">
-                    <p className={`text-sm font-bold ${SCORE_COLOR(p.avgScore)}`}>
+                    <p
+                      className={`text-sm font-bold ${SCORE_COLOR(p.avgScore)}`}
+                    >
                       {p.avgScore.toFixed(1)}
                     </p>
-                    <p className="text-[10px] text-ink-faint">P{p.percentile}</p>
+                    <p className="text-[10px] text-ink-faint">
+                      P{p.percentile}
+                    </p>
                   </div>
                 </div>
               ))}
