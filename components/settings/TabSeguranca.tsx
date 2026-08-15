@@ -1,19 +1,34 @@
 // components/settings/TabSeguranca.tsx
 // Tab "Segurança": alteração de senha com medidor de força e dicas.
-// Extraído de app/(platform)/settings/page.tsx.
+// Migrado para componentes UI + tokens de design.
 
 'use client';
 
 import { useState } from 'react';
+import { Eye, EyeOff } from 'lucide-react';
 import { apiClient } from '@/lib/apiClient';
 import { useApiMutation } from '@/hooks/useApiQuery';
-import { btnPrimary, card, inputStyle, labelStyle } from './styles';
+import { useToast } from '@/providers/ToastProvider';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
+import { FormField } from '@/components/ui/FormField';
+import { Card, CardBody } from '@/components/ui/Card';
+import { cn } from '@/lib/cn';
 
 interface TabSegurancaProps {
-  onToast: (msg: string, type: 'success' | 'error') => void;
+  onToast?: (msg: string, type: 'success' | 'error') => void;
 }
 
 export function TabSeguranca({ onToast }: TabSegurancaProps) {
+  const toast = useToast();
+  const toastFn = (msg: string, type: 'success' | 'error') => {
+    if (onToast) {
+      onToast(msg, type);
+    } else {
+      toast({ title: msg, intent: type === 'error' ? 'danger' : 'success' });
+    }
+  };
+
   const [form, setForm] = useState({
     currentPassword: '',
     newPassword: '',
@@ -27,10 +42,10 @@ export function TabSeguranca({ onToast }: TabSegurancaProps) {
       apiClient.post('/auth/change-password', payload),
     {
       onSuccess: () => {
-        onToast('Senha alterada com sucesso!', 'success');
+        toastFn('Senha alterada com sucesso!', 'success');
         setForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
       },
-      onError: (e) => onToast(e.message ?? 'Erro ao alterar senha', 'error'),
+      onError: (e) => toastFn(e.message ?? 'Erro ao alterar senha', 'error'),
     },
   );
   const saving = changePassword.isPending;
@@ -42,11 +57,11 @@ export function TabSeguranca({ onToast }: TabSegurancaProps) {
   function submit(e: React.FormEvent) {
     e.preventDefault();
     if (form.newPassword !== form.confirmPassword) {
-      onToast('As senhas não coincidem.', 'error');
+      toastFn('As senhas não coincidem.', 'error');
       return;
     }
     if (form.newPassword.length < 6) {
-      onToast('A nova senha deve ter pelo menos 6 caracteres.', 'error');
+      toastFn('A nova senha deve ter pelo menos 6 caracteres.', 'error');
       return;
     }
     changePassword.mutate({
@@ -68,217 +83,179 @@ export function TabSeguranca({ onToast }: TabSegurancaProps) {
   const pw = form.newPassword;
   const str = strength(pw);
   const strLabel = ['', 'Fraca', 'Razoável', 'Boa', 'Forte'];
-  const strColor = ['', '#dc2626', '#f59e0b', '#1e40af', '#16a34a'];
+  const strColorClass = [
+    '',
+    'text-danger',
+    'text-warning',
+    'text-primary',
+    'text-success',
+  ];
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+    <div className="grid grid-cols-2 gap-4">
       {/* Alterar senha */}
-      <div style={card}>
-        <h3
-          style={{
-            margin: '0 0 20px',
-            fontSize: 15,
-            fontWeight: 700,
-            color: '#1e293b',
-          }}
-        >
-          🔑 Alterar Senha
-        </h3>
-        <form onSubmit={submit}>
-          <div style={{ marginBottom: 16 }}>
-            <label style={labelStyle} htmlFor="current-password">
-              Senha Actual
-            </label>
-            <div style={{ position: 'relative' }}>
-              <input
-                type={showPass ? 'text' : 'password'}
-                id="current-password"
-                value={form.currentPassword}
-                onChange={(e) => set('currentPassword', e.target.value)}
-                style={{ ...inputStyle, paddingRight: 44 }}
+      <Card>
+        <CardBody>
+          <h3 className="mb-5 text-base font-bold text-ink">
+            🔑 Alterar Senha
+          </h3>
+          <form onSubmit={submit} className="space-y-4">
+            <div>
+              <div className="relative">
+                <FormField label="Senha Actual" htmlFor="current-password">
+                  <Input
+                    id="current-password"
+                    type={showPass ? 'text' : 'password'}
+                    value={form.currentPassword}
+                    onChange={(e) => set('currentPassword', e.target.value)}
+                    placeholder="••••••••"
+                    required
+                    className="pr-10"
+                  />
+                </FormField>
+                <button
+                  type="button"
+                  onClick={() => setShowPass(!showPass)}
+                  className="absolute right-3 top-9 text-ink-faint hover:text-ink"
+                  aria-label={showPass ? 'Ocultar' : 'Mostrar'}
+                >
+                  {showPass ? (
+                    <EyeOff strokeWidth={1.75} size={18} />
+                  ) : (
+                    <Eye strokeWidth={1.75} size={18} />
+                  )}
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <FormField label="Nova Senha" htmlFor="new-password">
+                <Input
+                  id="new-password"
+                  type="password"
+                  value={form.newPassword}
+                  onChange={(e) => set('newPassword', e.target.value)}
+                  placeholder="••••••••"
+                  required
+                  minLength={6}
+                />
+              </FormField>
+              {pw && (
+                <div className="mt-2">
+                  <div className="mb-1 flex gap-1">
+                    {[1, 2, 3, 4].map((i) => (
+                      <div
+                        key={i}
+                        className={cn(
+                          'flex-1 h-1 rounded-sm transition-colors',
+                          i <= str
+                            ? strColorClass[str] === 'text-danger'
+                              ? 'bg-danger'
+                              : strColorClass[str] === 'text-warning'
+                                ? 'bg-warning'
+                                : strColorClass[str] === 'text-primary'
+                                  ? 'bg-primary'
+                                  : 'bg-success'
+                            : 'bg-border',
+                        )}
+                      />
+                    ))}
+                  </div>
+                  <span className={cn('text-xs font-semibold', strColorClass[str])}>
+                    {strLabel[str]}
+                  </span>
+                </div>
+              )}
+            </div>
+
+            <FormField label="Confirmar Nova Senha" htmlFor="confirm-password">
+              <Input
+                id="confirm-password"
+                type="password"
+                value={form.confirmPassword}
+                onChange={(e) => set('confirmPassword', e.target.value)}
                 placeholder="••••••••"
                 required
-              />
-              <button
-                type="button"
-                onClick={() => setShowPass(!showPass)}
-                style={{
-                  position: 'absolute',
-                  right: 12,
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  background: 'none',
-                  border: 'none',
-                  cursor: 'pointer',
-                  color: '#94a3b8',
-                  fontSize: 16,
-                }}
-              >
-                {showPass ? '🙈' : '👁️'}
-              </button>
-            </div>
-          </div>
-
-          <div style={{ marginBottom: 16 }}>
-            <label style={labelStyle} htmlFor="new-password">
-              Nova Senha
-            </label>
-            <input
-              id="new-password"
-              type="password"
-              value={form.newPassword}
-              onChange={(e) => set('newPassword', e.target.value)}
-              style={inputStyle}
-              placeholder="••••••••"
-              required
-              minLength={6}
-            />
-            {pw && (
-              <div style={{ marginTop: 8 }}>
-                <div style={{ display: 'flex', gap: 4, marginBottom: 4 }}>
-                  {[1, 2, 3, 4].map((i) => (
-                    <div
-                      key={i}
-                      style={{
-                        flex: 1,
-                        height: 4,
-                        borderRadius: 2,
-                        background: i <= str ? strColor[str] : '#e2e8f0',
-                        transition: 'background 0.3s',
-                      }}
-                    />
-                  ))}
-                </div>
-                <span
-                  style={{
-                    fontSize: 11,
-                    color: strColor[str],
-                    fontWeight: 600,
-                  }}
-                >
-                  {strLabel[str]}
-                </span>
-              </div>
-            )}
-          </div>
-
-          <div style={{ marginBottom: 20 }}>
-            <label style={labelStyle} htmlFor="confirm-password">
-              Confirmar Nova Senha
-            </label>
-            <input
-              id="confirm-password"
-              type="password"
-              value={form.confirmPassword}
-              onChange={(e) => set('confirmPassword', e.target.value)}
-              style={{
-                ...inputStyle,
-                borderColor:
-                  form.confirmPassword &&
+                invalid={
+                  form.confirmPassword.length > 0 &&
                   form.confirmPassword !== form.newPassword
-                    ? '#dc2626'
-                    : '#e2e8f0',
-              }}
-              placeholder="••••••••"
-              required
-            />
-            {form.confirmPassword &&
-              form.confirmPassword !== form.newPassword && (
-                <p style={{ color: '#dc2626', fontSize: 12, marginTop: 4 }}>
-                  As senhas não coincidem
-                </p>
-              )}
-          </div>
+                }
+              />
+              {form.confirmPassword &&
+                form.confirmPassword !== form.newPassword && (
+                  <p className="text-danger text-xs mt-1">
+                    As senhas não coincidem
+                  </p>
+                )}
+            </FormField>
 
-          <button
-            type="submit"
-            disabled={saving || form.newPassword !== form.confirmPassword}
-            style={{ ...btnPrimary, width: '100%', opacity: saving ? 0.7 : 1 }}
-          >
-            {saving ? 'A alterar...' : 'Alterar Senha'}
-          </button>
-        </form>
-      </div>
+            <Button
+              type="submit"
+              intent="primary"
+              loading={saving}
+              disabled={saving || form.newPassword !== form.confirmPassword}
+              className="w-full"
+            >
+              {saving ? 'A alterar...' : 'Alterar Senha'}
+            </Button>
+          </form>
+        </CardBody>
+      </Card>
 
       {/* Dicas de segurança */}
-      <div style={card}>
-        <h3
-          style={{
-            margin: '0 0 16px',
-            fontSize: 15,
-            fontWeight: 700,
-            color: '#1e293b',
-          }}
-        >
-          🛡️ Dicas de Segurança
-        </h3>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          {[
-            {
-              icon: '✅',
-              text: 'Usa pelo menos 8 caracteres',
-              ok: pw.length >= 8,
-            },
-            {
-              icon: '✅',
-              text: 'Inclui letras maiúsculas',
-              ok: /[A-Z]/.test(pw),
-            },
-            { icon: '✅', text: 'Inclui números', ok: /[0-9]/.test(pw) },
-            {
-              icon: '✅',
-              text: 'Inclui caracteres especiais',
-              ok: /[^A-Za-z0-9]/.test(pw),
-            },
-          ].map((tip) => (
-            <div
-              key={tip.text}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 10,
-                padding: '8px 12px',
-                borderRadius: 8,
-                background: pw ? (tip.ok ? '#ecfdf5' : '#f8fafc') : '#f8fafc',
-                border: `1px solid ${pw ? (tip.ok ? '#bbf7d0' : '#e2e8f0') : '#e2e8f0'}`,
-                transition: 'all 0.2s',
-              }}
-            >
-              <span style={{ fontSize: 14 }}>{pw && tip.ok ? '✅' : '⬜'}</span>
-              <span
-                style={{
-                  fontSize: 13,
-                  color: pw && tip.ok ? '#16a34a' : '#64748b',
-                }}
+      <Card>
+        <CardBody>
+          <h3 className="mb-4 text-base font-bold text-ink">
+            🛡️ Dicas de Segurança
+          </h3>
+          <div className="space-y-3">
+            {[
+              {
+                text: 'Usa pelo menos 8 caracteres',
+                ok: pw.length >= 8,
+              },
+              {
+                text: 'Inclui letras maiúsculas',
+                ok: /[A-Z]/.test(pw),
+              },
+              { text: 'Inclui números', ok: /[0-9]/.test(pw) },
+              {
+                text: 'Inclui caracteres especiais',
+                ok: /[^A-Za-z0-9]/.test(pw),
+              },
+            ].map((tip) => (
+              <div
+                key={tip.text}
+                className={cn(
+                  'flex items-center gap-3 p-3 rounded-lg border transition-all',
+                  pw && tip.ok
+                    ? 'bg-success-subtle border-success'
+                    : 'bg-surface-sunken border-border',
+                )}
               >
-                {tip.text}
-              </span>
-            </div>
-          ))}
-        </div>
+                <span className="text-sm">
+                  {pw && tip.ok ? '✅' : '⬜'}
+                </span>
+                <span
+                  className={cn(
+                    'text-sm',
+                    pw && tip.ok ? 'text-success-ink' : 'text-ink-muted',
+                  )}
+                >
+                  {tip.text}
+                </span>
+              </div>
+            ))}
+          </div>
 
-        <div
-          style={{
-            marginTop: 20,
-            padding: '12px 16px',
-            background: '#fffbeb',
-            borderRadius: 10,
-            border: '1px solid #fde68a',
-          }}
-        >
-          <p
-            style={{
-              margin: 0,
-              fontSize: 12,
-              color: '#92400e',
-              fontWeight: 600,
-            }}
-          >
-            ⚠️ O token de acesso expira em 15 minutos. Serás redirecionado para
-            o login automaticamente.
-          </p>
-        </div>
-      </div>
+          <div className="mt-5 p-4 bg-warning-subtle border border-warning rounded-lg">
+            <p className="m-0 text-xs text-warning-ink font-semibold">
+              ⚠️ O token de acesso expira em 15 minutos. Serás redirecionado
+              para o login automaticamente.
+            </p>
+          </div>
+        </CardBody>
+      </Card>
     </div>
   );
 }

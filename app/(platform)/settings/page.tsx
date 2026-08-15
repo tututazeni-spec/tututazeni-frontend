@@ -1,20 +1,17 @@
 'use client';
-import { useState } from 'react';
 import { logout } from '@/lib/apiClient';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
-import { NAV, TAB_STYLE, btnGhost } from '@/components/settings/styles';
+import { useToast } from '@/providers/ToastProvider';
+import { NAV } from '@/components/settings/styles';
 import { TabPerfil } from '@/components/settings/TabPerfil';
 import { TabPermissoes } from '@/components/settings/TabPermissoes';
 import { TabSeguranca } from '@/components/settings/TabSeguranca';
-import { Toast } from '@/components/settings/Toast';
+import { Button } from '@/components/ui/Button';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/Tabs';
 import type { Tab } from '@/components/settings/types';
 
 export default function SettingsPage() {
-  const [tab, setTab] = useState<Tab>('perfil');
-  const [toast, setToast] = useState<{
-    msg: string;
-    type: 'success' | 'error';
-  } | null>(null);
+  const toast = useToast();
   const {
     data: user,
     isLoading: loading,
@@ -22,36 +19,16 @@ export default function SettingsPage() {
   } = useCurrentUser();
   const error = queryError?.message ?? '';
 
-  function showToast(msg: string, type: 'success' | 'error') {
-    setToast({ msg, type });
-  }
-
   if (loading)
     return (
-      <div
-        style={{
-          padding: 60,
-          textAlign: 'center',
-          color: '#94a3b8',
-          fontSize: 14,
-        }}
-      >
+      <div className="py-15 text-center text-ink-faint text-sm">
         A carregar perfil...
       </div>
     );
 
   if (error)
     return (
-      <div
-        style={{
-          background: '#fef2f2',
-          border: '1px solid #fecaca',
-          borderRadius: 12,
-          padding: 24,
-          color: '#dc2626',
-          fontSize: 13,
-        }}
-      >
+      <div className="bg-danger-subtle border border-danger rounded-lg p-6 text-danger-ink text-sm">
         {error === 'Unauthorized' || error.includes('401')
           ? 'Sessão expirada. Faz login novamente.'
           : error}
@@ -63,80 +40,47 @@ export default function SettingsPage() {
   return (
     <div>
       {/* ── Header ── */}
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'flex-start',
-          marginBottom: 24,
-        }}
-      >
+      <div className="flex justify-between items-start mb-6">
         <div>
-          <h1
-            style={{
-              fontSize: 24,
-              fontWeight: 700,
-              color: '#1e293b',
-              margin: 0,
-            }}
-          >
+          <h1 className="text-3xl font-bold text-ink m-0">
             ⚙️ Definições
           </h1>
-          <p style={{ color: '#64748b', fontSize: 14, marginTop: 4 }}>
+          <p className="text-ink-muted text-sm mt-1">
             Perfil, segurança e permissões da conta
           </p>
         </div>
-        <button
+        <Button
           onClick={logout}
-          style={{
-            ...btnGhost,
-            color: '#dc2626',
-            background: '#fef2f2',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 6,
-          }}
+          intent="ghost"
+          className="text-danger hover:bg-danger-subtle"
         >
           🚪 Terminar Sessão
-        </button>
+        </Button>
       </div>
 
       {/* ── Tabs ── */}
-      <div
-        style={{
-          display: 'flex',
-          gap: 4,
-          background: '#f1f5f9',
-          borderRadius: 10,
-          padding: 4,
-          marginBottom: 24,
-          width: 'fit-content',
-        }}
-      >
-        {NAV.map((t) => (
-          <button
-            key={t.key}
-            onClick={() => setTab(t.key)}
-            style={TAB_STYLE(tab === t.key)}
-          >
-            {t.label}
-          </button>
-        ))}
-      </div>
+      <Tabs defaultValue="perfil" className="mb-6">
+        <TabsList className="bg-surface-sunken">
+          {NAV.map((t) => (
+            <TabsTrigger key={t.key} value={t.key}>
+              {t.label}
+            </TabsTrigger>
+          ))}
+        </TabsList>
 
-      {/* ── Conteúdo ── */}
-      {tab === 'perfil' && <TabPerfil user={user} />}
-      {tab === 'seguranca' && <TabSeguranca onToast={showToast} />}
-      {tab === 'permissoes' && <TabPermissoes user={user} />}
+        {/* ── Conteúdo ── */}
+        <TabsContent value="perfil">
+          <TabPerfil user={user} />
+        </TabsContent>
 
-      {/* ── Toast ── */}
-      {toast && (
-        <Toast
-          msg={toast.msg}
-          type={toast.type}
-          onClose={() => setToast(null)}
-        />
-      )}
+        <TabsContent value="seguranca">
+          <TabSeguranca />
+        </TabsContent>
+
+        <TabsContent value="permissoes">
+          <TabPermissoes user={user} />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
