@@ -59,7 +59,7 @@ export function FundersListView({
         </div>
         <div className="flex gap-2">
           <Link href="/crm/funders/overdue-reports">
-            <Button variant="secondary">Relatórios em atraso</Button>
+            <Button intent="secondary">Relatórios em atraso</Button>
           </Link>
           <Link href="/crm/funders/novo">
             <Button>+ Novo Financiador</Button>
@@ -78,26 +78,27 @@ export function FundersListView({
         />
         <Select
           value={typeFilter}
-          onChange={(e) => onTypeFilterChange(e.target.value)}
-        >
-          <option value="">Todos os tipos</option>
-          {Object.entries(TYPE_LABELS).map(([v, l]) => (
-            <option key={v} value={v}>
-              {l}
-            </option>
-          ))}
-        </Select>
+          onValueChange={onTypeFilterChange}
+          items={[
+            { value: '', label: 'Todos os tipos' },
+            ...Object.entries(TYPE_LABELS).map(([v, l]) => ({
+              value: v,
+              label: l,
+            })),
+          ]}
+        />
         <Select
           value={statusFilter}
-          onChange={(e) => onStatusFilterChange(e.target.value)}
-        >
-          <option value="">Todos os estados</option>
-          <option value="ACTIVE">Activo</option>
-          <option value="PROSPECT">Prospecto</option>
-          <option value="SUSPENDED">Suspenso</option>
-          <option value="INACTIVE">Inactivo</option>
-          <option value="FORMER">Antigo</option>
-        </Select>
+          onValueChange={onStatusFilterChange}
+          items={[
+            { value: '', label: 'Todos os estados' },
+            { value: 'ACTIVE', label: 'Activo' },
+            { value: 'PROSPECT', label: 'Prospecto' },
+            { value: 'SUSPENDED', label: 'Suspenso' },
+            { value: 'INACTIVE', label: 'Inactivo' },
+            { value: 'FORMER', label: 'Antigo' },
+          ]}
+        />
       </div>
 
       {/* Tabela */}
@@ -182,14 +183,14 @@ export function FundersListView({
             <Button
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page === 1}
-              variant="secondary"
+              intent="secondary"
             >
               Anterior
             </Button>
             <Button
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               disabled={page === totalPages}
-              variant="secondary"
+              intent="secondary"
             >
               Próxima
             </Button>

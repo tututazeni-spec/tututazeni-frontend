@@ -70,25 +70,27 @@ export function PartnersListView({
         />
         <Select
           value={tierFilter}
-          onChange={(e) => onTierFilterChange(e.target.value)}
-        >
-          <option value="">Todos os níveis</option>
-          <option value="PLATINUM">Platinum</option>
-          <option value="GOLD">Gold</option>
-          <option value="SILVER">Silver</option>
-          <option value="STANDARD">Standard</option>
-        </Select>
+          onValueChange={onTierFilterChange}
+          items={[
+            { value: '', label: 'Todos os níveis' },
+            { value: 'PLATINUM', label: 'Platinum' },
+            { value: 'GOLD', label: 'Gold' },
+            { value: 'SILVER', label: 'Silver' },
+            { value: 'STANDARD', label: 'Standard' },
+          ]}
+        />
         <Select
           value={statusFilter}
-          onChange={(e) => onStatusFilterChange(e.target.value)}
-        >
-          <option value="">Todos os estados</option>
-          <option value="ACTIVE">Activo</option>
-          <option value="NEGOTIATION">Em negociação</option>
-          <option value="SUSPENDED">Suspenso</option>
-          <option value="INACTIVE">Inactivo</option>
-          <option value="FORMER">Ex-parceiro</option>
-        </Select>
+          onValueChange={onStatusFilterChange}
+          items={[
+            { value: '', label: 'Todos os estados' },
+            { value: 'ACTIVE', label: 'Activo' },
+            { value: 'NEGOTIATION', label: 'Em negociação' },
+            { value: 'SUSPENDED', label: 'Suspenso' },
+            { value: 'INACTIVE', label: 'Inactivo' },
+            { value: 'FORMER', label: 'Ex-parceiro' },
+          ]}
+        />
       </div>
 
       {/* Tabela */}
@@ -176,14 +178,14 @@ export function PartnersListView({
             <Button
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page === 1}
-              variant="secondary"
+              intent="secondary"
             >
               Anterior
             </Button>
             <Button
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               disabled={page === totalPages}
-              variant="secondary"
+              intent="secondary"
             >
               Próxima
             </Button>

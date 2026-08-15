@@ -159,7 +159,7 @@ export function BeneficiaryDetailView({
           </h2>
           <Button
             onClick={() => setShowForm((s) => !s)}
-            variant={showForm ? 'secondary' : 'primary'}
+            intent={showForm ? 'secondary' : 'primary'}
           >
             {showForm ? 'Cancelar' : '+ Nova Interacção'}
           </Button>
@@ -175,16 +175,17 @@ export function BeneficiaryDetailView({
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <Select
                     value={form.type}
-                    onChange={(e) => setForm({ ...form, type: e.target.value })}
-                  >
-                    <option value="CALL">Chamada</option>
-                    <option value="EMAIL">Email</option>
-                    <option value="MEETING">Reunião</option>
-                    <option value="VISIT">Visita</option>
-                    <option value="EVENT">Evento</option>
-                    <option value="NOTE">Nota</option>
-                    <option value="TASK">Tarefa</option>
-                  </Select>
+                    onValueChange={(value) => setForm({ ...form, type: value })}
+                    items={[
+                      { value: 'CALL', label: 'Chamada' },
+                      { value: 'EMAIL', label: 'Email' },
+                      { value: 'MEETING', label: 'Reunião' },
+                      { value: 'VISIT', label: 'Visita' },
+                      { value: 'EVENT', label: 'Evento' },
+                      { value: 'NOTE', label: 'Nota' },
+                      { value: 'TASK', label: 'Tarefa' },
+                    ]}
+                  />
                   <Input
                     type="number"
                     min={1}

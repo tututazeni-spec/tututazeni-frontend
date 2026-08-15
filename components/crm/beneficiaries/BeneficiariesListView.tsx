@@ -86,25 +86,27 @@ export function BeneficiariesListView({
         />
         <Select
           value={statusFilter}
-          onChange={(e) => onStatusFilterChange(e.target.value)}
-        >
-          <option value="">Todos os estados</option>
-          <option value="ACTIVE">Activo</option>
-          <option value="PROSPECT">Prospecto</option>
-          <option value="INACTIVE">Inactivo</option>
-          <option value="FORMER">Ex-beneficiário</option>
-        </Select>
+          onValueChange={onStatusFilterChange}
+          items={[
+            { value: '', label: 'Todos os estados' },
+            { value: 'ACTIVE', label: 'Activo' },
+            { value: 'PROSPECT', label: 'Prospecto' },
+            { value: 'INACTIVE', label: 'Inactivo' },
+            { value: 'FORMER', label: 'Ex-beneficiário' },
+          ]}
+        />
         <Select
           value={typeFilter}
-          onChange={(e) => onTypeFilterChange(e.target.value)}
-        >
-          <option value="">Todos os tipos</option>
-          <option value="INDIVIDUAL">Individual</option>
-          <option value="FAMILY">Família</option>
-          <option value="INSTITUTION">Instituição</option>
-          <option value="COMMUNITY">Comunidade</option>
-          <option value="GROUP">Grupo</option>
-        </Select>
+          onValueChange={onTypeFilterChange}
+          items={[
+            { value: '', label: 'Todos os tipos' },
+            { value: 'INDIVIDUAL', label: 'Individual' },
+            { value: 'FAMILY', label: 'Família' },
+            { value: 'INSTITUTION', label: 'Instituição' },
+            { value: 'COMMUNITY', label: 'Comunidade' },
+            { value: 'GROUP', label: 'Grupo' },
+          ]}
+        />
         {/* Indicador discreto de refetch em fundo (paginação/filtros). */}
         {isFetching && (
           <span className="font-body text-xs text-ink-faint animate-pulse">
@@ -189,14 +191,14 @@ export function BeneficiariesListView({
             <Button
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page === 1}
-              variant="secondary"
+              intent="secondary"
             >
               Anterior
             </Button>
             <Button
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               disabled={page === totalPages}
-              variant="secondary"
+              intent="secondary"
             >
               Próxima
             </Button>

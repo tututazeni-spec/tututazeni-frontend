@@ -75,14 +75,15 @@ export function BeneficiaryCreateView({
             <Field label="Tipo *">
               <Select
                 value={form.type}
-                onChange={(e) => setField('type', e.target.value)}
-              >
-                <option value="INDIVIDUAL">Individual</option>
-                <option value="FAMILY">Família</option>
-                <option value="INSTITUTION">Instituição</option>
-                <option value="COMMUNITY">Comunidade</option>
-                <option value="GROUP">Grupo</option>
-              </Select>
+                onValueChange={(value) => setField('type', value)}
+                items={[
+                  { value: 'INDIVIDUAL', label: 'Individual' },
+                  { value: 'FAMILY', label: 'Família' },
+                  { value: 'INSTITUTION', label: 'Instituição' },
+                  { value: 'COMMUNITY', label: 'Comunidade' },
+                  { value: 'GROUP', label: 'Grupo' },
+                ]}
+              />
             </Field>
 
             <Field label="Nome completo *">
@@ -103,14 +104,15 @@ export function BeneficiaryCreateView({
             <Field label="Género">
               <Select
                 value={form.gender}
-                onChange={(e) => setField('gender', e.target.value)}
-              >
-                <option value="">—</option>
-                <option value="MALE">Masculino</option>
-                <option value="FEMALE">Feminino</option>
-                <option value="NON_BINARY">Não-binário</option>
-                <option value="PREFER_NOT_TO_SAY">Prefere não dizer</option>
-              </Select>
+                onValueChange={(value) => setField('gender', value)}
+                items={[
+                  { value: '', label: '—' },
+                  { value: 'MALE', label: 'Masculino' },
+                  { value: 'FEMALE', label: 'Feminino' },
+                  { value: 'NON_BINARY', label: 'Não-binário' },
+                  { value: 'PREFER_NOT_TO_SAY', label: 'Prefere não dizer' },
+                ]}
+              />
             </Field>
 
             <Field label="Data de nascimento">
@@ -160,15 +162,15 @@ export function BeneficiaryCreateView({
             <Field label="Província">
               <Select
                 value={form.province}
-                onChange={(e) => setField('province', e.target.value)}
-              >
-                <option value="">—</option>
-                {PROVINCES.map((p) => (
-                  <option key={p} value={p}>
-                    {p.replace(/_/g, ' ')}
-                  </option>
-                ))}
-              </Select>
+                onValueChange={(value) => setField('province', value)}
+                items={[
+                  { value: '', label: '—' },
+                  ...PROVINCES.map((p) => ({
+                    value: p,
+                    label: p.replace(/_/g, ' '),
+                  })),
+                ]}
+              />
             </Field>
 
             <Field label="Cidade">
@@ -221,7 +223,7 @@ export function BeneficiaryCreateView({
               <Button type="submit" disabled={saving}>
                 {saving ? 'A guardar...' : 'Criar Beneficiário'}
               </Button>
-              <Button type="button" onClick={onCancel} variant="secondary">
+              <Button type="button" onClick={onCancel} intent="secondary">
                 Cancelar
               </Button>
             </div>

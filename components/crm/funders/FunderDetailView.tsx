@@ -131,7 +131,7 @@ export function FunderDetailView({
           </h2>
           <Button
             onClick={() => setShowGrantForm((s) => !s)}
-            variant={showGrantForm ? 'secondary' : 'primary'}
+            intent={showGrantForm ? 'secondary' : 'primary'}
           >
             {showGrantForm ? 'Cancelar' : '+ Novo Grant'}
           </Button>
@@ -290,7 +290,7 @@ export function FunderDetailView({
           </h2>
           <Button
             onClick={() => setShowIntForm((s) => !s)}
-            variant={showIntForm ? 'secondary' : 'primary'}
+            intent={showIntForm ? 'secondary' : 'primary'}
           >
             {showIntForm ? 'Cancelar' : '+ Nova Interacção'}
           </Button>
@@ -305,16 +305,17 @@ export function FunderDetailView({
               <CardBody className="space-y-3">
                 <Select
                   value={intForm.type}
-                  onChange={(e) => setIntForm({ ...intForm, type: e.target.value })}
-                >
-                  <option value="MEETING">Reunião</option>
-                  <option value="CALL">Chamada</option>
-                  <option value="EMAIL">Email</option>
-                  <option value="VISIT">Visita</option>
-                  <option value="EVENT">Evento</option>
-                  <option value="NOTE">Nota</option>
-                  <option value="REVIEW">Revisão</option>
-                </Select>
+                  onValueChange={(value) => setIntForm({ ...intForm, type: value })}
+                  items={[
+                    { value: 'MEETING', label: 'Reunião' },
+                    { value: 'CALL', label: 'Chamada' },
+                    { value: 'EMAIL', label: 'Email' },
+                    { value: 'VISIT', label: 'Visita' },
+                    { value: 'EVENT', label: 'Evento' },
+                    { value: 'NOTE', label: 'Nota' },
+                    { value: 'REVIEW', label: 'Revisão' },
+                  ]}
+                />
                 <Input
                   required
                   placeholder="Assunto"

@@ -55,7 +55,7 @@ export function OverdueReportsView({
           </p>
         </div>
         <Link href="/crm/funders">
-          <Button variant="secondary">← Financiadores</Button>
+          <Button intent="secondary">← Financiadores</Button>
         </Link>
       </div>
 
@@ -154,14 +154,14 @@ export function OverdueReportsView({
             <Button
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page === 1}
-              variant="secondary"
+              intent="secondary"
             >
               Anterior
             </Button>
             <Button
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               disabled={page === totalPages}
-              variant="secondary"
+              intent="secondary"
             >
               Próxima
             </Button>

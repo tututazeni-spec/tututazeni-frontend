@@ -73,14 +73,12 @@ export function FunderCreateView({
             <Field label="Tipo *">
               <Select
                 value={form.type}
-                onChange={(e) => setField('type', e.target.value)}
-              >
-                {Object.entries(TYPE_LABELS).map(([v, l]) => (
-                  <option key={v} value={v}>
-                    {l}
-                  </option>
-                ))}
-              </Select>
+                onValueChange={(value) => setField('type', value)}
+                items={Object.entries(TYPE_LABELS).map(([v, l]) => ({
+                  value: v,
+                  label: l,
+                }))}
+              />
             </Field>
 
             <Field label="Nome *">
@@ -215,7 +213,7 @@ export function FunderCreateView({
               <Button type="submit" disabled={saving}>
                 {saving ? 'A guardar...' : 'Criar Financiador'}
               </Button>
-              <Button type="button" onClick={onCancel} variant="secondary">
+              <Button type="button" onClick={onCancel} intent="secondary">
                 Cancelar
               </Button>
             </div>

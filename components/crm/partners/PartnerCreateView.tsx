@@ -80,14 +80,12 @@ export function PartnerCreateView({
             <Field label="Tipo *">
               <Select
                 value={form.type}
-                onChange={(e) => setField('type', e.target.value)}
-              >
-                {TYPES.map((t) => (
-                  <option key={t} value={t}>
-                    {t}
-                  </option>
-                ))}
-              </Select>
+                onValueChange={(value) => setField('type', value)}
+                items={TYPES.map((t) => ({
+                  value: t,
+                  label: t,
+                }))}
+              />
             </Field>
 
             <Field label="Nome *">
@@ -108,13 +106,14 @@ export function PartnerCreateView({
             <Field label="Nível">
               <Select
                 value={form.tier}
-                onChange={(e) => setField('tier', e.target.value)}
-              >
-                <option value="PLATINUM">Platinum</option>
-                <option value="GOLD">Gold</option>
-                <option value="SILVER">Silver</option>
-                <option value="STANDARD">Standard</option>
-              </Select>
+                onValueChange={(value) => setField('tier', value)}
+                items={[
+                  { value: 'PLATINUM', label: 'Platinum' },
+                  { value: 'GOLD', label: 'Gold' },
+                  { value: 'SILVER', label: 'Silver' },
+                  { value: 'STANDARD', label: 'Standard' },
+                ]}
+              />
             </Field>
 
             <Field label="Contacto">
@@ -245,7 +244,7 @@ export function PartnerCreateView({
               <Button type="submit" disabled={saving}>
                 {saving ? 'A guardar...' : 'Criar Parceiro'}
               </Button>
-              <Button type="button" onClick={onCancel} variant="secondary">
+              <Button type="button" onClick={onCancel} intent="secondary">
                 Cancelar
               </Button>
             </div>
