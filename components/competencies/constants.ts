@@ -1,6 +1,7 @@
 // components/competencies/constants.ts
 // Labels de nível, badge de categoria e navegação do módulo. Extraído
-// de app/(platform)/competencies/page.tsx.
+// de app/(platform)/competencies/page.tsx. Cores mapeadas para os
+// tokens semânticos da fundação de design (Fase A).
 
 import type { StatusBadgeMap } from '@/lib/statusBadge';
 import type { CompetencyCategory, View } from './types';
@@ -15,11 +16,11 @@ export const LEVEL_LABELS = [
 ];
 
 export const CATEGORY_CFG: StatusBadgeMap<CompetencyCategory> = {
-  HARD_SKILL: { label: 'Hard Skill', cls: 'bg-blue-50 text-blue-700' },
-  SOFT_SKILL: { label: 'Soft Skill', cls: 'bg-purple-50 text-purple-700' },
-  LANGUAGE: { label: 'Idioma', cls: 'bg-emerald-50 text-emerald-700' },
-  TOOL: { label: 'Ferramenta', cls: 'bg-amber-50 text-amber-700' },
-  LEADERSHIP: { label: 'Liderança', cls: 'bg-red-50 text-red-700' },
+  HARD_SKILL: { label: 'Hard Skill', cls: 'bg-info-subtle text-info-ink' },
+  SOFT_SKILL: { label: 'Soft Skill', cls: 'bg-primary-subtle text-primary' },
+  LANGUAGE: { label: 'Idioma', cls: 'bg-success-subtle text-success-ink' },
+  TOOL: { label: 'Ferramenta', cls: 'bg-warning-subtle text-warning-ink' },
+  LEADERSHIP: { label: 'Liderança', cls: 'bg-accent-subtle text-accent' },
 };
 
 export const NAV: Array<{ id: View; label: string }> = [
