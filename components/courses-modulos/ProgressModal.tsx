@@ -8,7 +8,10 @@ import { useState } from 'react';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { CONTENT_TYPE } from './constants';
-import { card, inputStyle, labelStyle, btnPrimary, btnGhost } from './styles';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
+import { FormField } from '@/components/ui/FormField';
+import { Card, CardBody } from '@/components/ui/Card';
 import type { LessonProgress } from './types';
 
 interface ProgressModalProps {
@@ -54,257 +57,151 @@ export function ProgressModal({ onClose, onMarked }: ProgressModalProps) {
 
   return (
     <div
-      style={{
-        position: 'fixed',
-        inset: 0,
-        zIndex: 500,
-        background: 'rgba(15,23,42,0.45)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: 16,
-      }}
+      className="fixed inset-0 z-500 bg-black/45 flex items-center justify-center p-4"
       onClick={onClose}
     >
-      <div
-        style={{
-          ...card,
-          width: '100%',
-          maxWidth: 540,
-          maxHeight: '90vh',
-          overflow: 'auto',
-          boxShadow: '0 24px 60px rgba(0,0,0,0.18)',
-        }}
+      <Card
+        className="w-full max-w-2xl max-h-[90vh] overflow-auto shadow-elevated"
         onClick={(e) => e.stopPropagation()}
       >
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: 20,
-          }}
-        >
-          <h2
-            style={{
-              margin: 0,
-              fontSize: 17,
-              fontWeight: 700,
-              color: '#1e293b',
-            }}
-          >
-            📊 Progresso de Matrícula
-          </h2>
-          <button
-            onClick={onClose}
-            aria-label="Fechar"
-            style={{
-              background: 'none',
-              border: 'none',
-              fontSize: 20,
-              cursor: 'pointer',
-              color: '#94a3b8',
-            }}
-          >
-            ×
-          </button>
-        </div>
-
-        {/* Marcar como concluída */}
-        <div
-          style={{
-            padding: '16px',
-            background: '#f8fafc',
-            borderRadius: 10,
-            marginBottom: 20,
-          }}
-        >
-          <h3
-            style={{
-              margin: '0 0 12px',
-              fontSize: 13,
-              fontWeight: 700,
-              color: '#1e293b',
-            }}
-          >
-            ✅ Marcar Lição como Concluída
-          </h3>
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: '1fr 1fr auto',
-              gap: 10,
-              alignItems: 'flex-end',
-            }}
-          >
-            <div>
-              <span style={labelStyle}>ID Matrícula</span>
-              <input
-                style={inputStyle}
-                type="number"
-                value={enrollmentId}
-                onChange={(e) => setEnrollmentId(e.target.value)}
-                placeholder="Ex: 1"
-              />
-            </div>
-            <div>
-              <span style={labelStyle}>ID Lição</span>
-              <input
-                style={inputStyle}
-                type="number"
-                value={lessonId}
-                onChange={(e) => setLessonId(e.target.value)}
-                placeholder="Ex: 3"
-              />
-            </div>
+        <CardBody className="flex flex-col gap-5">
+          <div className="flex justify-between items-center">
+            <h2 className="text-lg font-bold text-ink">
+              📊 Progresso de Matrícula
+            </h2>
             <button
-              onClick={markComplete}
-              disabled={marking || !enrollmentId || !lessonId}
-              style={{
-                ...btnPrimary,
-                opacity: marking ? 0.7 : 1,
-                whiteSpace: 'nowrap',
-              }}
+              onClick={onClose}
+              aria-label="Fechar"
+              className="text-2xl text-ink-faint hover:text-ink transition-colors"
             >
-              {marking ? '...' : '✅ Marcar'}
+              ×
             </button>
           </div>
-        </div>
 
-        {/* Ver progresso */}
-        <div style={{ marginBottom: 16 }}>
-          <div style={{ display: 'flex', gap: 10, alignItems: 'flex-end' }}>
-            <div style={{ flex: 1 }}>
-              <span style={labelStyle}>Ver Progresso (ID Matrícula)</span>
-              <input
-                style={inputStyle}
-                type="number"
-                value={enrollmentId}
-                onChange={(e) => setEnrollmentId(e.target.value)}
-                placeholder="Ex: 1"
-              />
-            </div>
-            <button
-              onClick={loadProgress}
-              disabled={loading || !enrollmentId}
-              style={{ ...btnGhost, opacity: !enrollmentId ? 0.5 : 1 }}
-            >
-              🔍 Ver
-            </button>
-          </div>
-        </div>
-
-        {progress.length > 0 && (
-          <div>
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 12,
-                padding: '12px 16px',
-                background: '#eff6ff',
-                borderRadius: 8,
-                marginBottom: 12,
-                border: '1px solid #bfdbfe',
-              }}
-            >
-              <p
-                style={{
-                  margin: 0,
-                  fontSize: 13,
-                  fontWeight: 700,
-                  color: '#1e40af',
-                }}
-              >
-                {completedCount} / {progress.length} lições concluídas
-              </p>
-              <div
-                style={{
-                  flex: 1,
-                  height: 6,
-                  background: '#bfdbfe',
-                  borderRadius: 3,
-                  overflow: 'hidden',
-                }}
-              >
-                <div
-                  style={{
-                    height: '100%',
-                    width: `${progress.length ? (completedCount / progress.length) * 100 : 0}%`,
-                    background: '#1e40af',
-                    borderRadius: 3,
-                  }}
+          {/* Marcar como concluída */}
+          <div className="p-4 bg-surface-sunken rounded-lg">
+            <h3 className="m-0 mb-3 text-sm font-bold text-ink">
+              ✅ Marcar Lição como Concluída
+            </h3>
+            <div className="grid grid-cols-3 gap-3 items-end">
+              <FormField label="ID Matrícula" htmlFor="prog-enrollment">
+                <Input
+                  id="prog-enrollment"
+                  type="number"
+                  value={enrollmentId}
+                  onChange={(e) => setEnrollmentId(e.target.value)}
+                  placeholder="Ex: 1"
                 />
+              </FormField>
+              <FormField label="ID Lição" htmlFor="prog-lesson">
+                <Input
+                  id="prog-lesson"
+                  type="number"
+                  value={lessonId}
+                  onChange={(e) => setLessonId(e.target.value)}
+                  placeholder="Ex: 3"
+                />
+              </FormField>
+              <Button
+                onClick={markComplete}
+                disabled={marking || !enrollmentId || !lessonId}
+                intent="primary"
+                loading={marking}
+                className="w-full"
+              >
+                ✅ Marcar
+              </Button>
+            </div>
+          </div>
+
+          {/* Ver progresso */}
+          <div>
+            <div className="flex gap-3 items-end">
+              <div className="flex-1">
+                <FormField
+                  label="Ver Progresso (ID Matrícula)"
+                  htmlFor="prog-view-enrollment"
+                >
+                  <Input
+                    id="prog-view-enrollment"
+                    type="number"
+                    value={enrollmentId}
+                    onChange={(e) => setEnrollmentId(e.target.value)}
+                    placeholder="Ex: 1"
+                  />
+                </FormField>
+              </div>
+              <Button
+                onClick={loadProgress}
+                disabled={loading || !enrollmentId}
+                intent="ghost"
+              >
+                🔍 Ver
+              </Button>
+            </div>
+          </div>
+
+          {progress.length > 0 && (
+            <div>
+              <div className="flex items-center gap-3 p-3 bg-info-subtle rounded-lg border border-info mb-3">
+                <p className="m-0 text-sm font-bold text-info-ink">
+                  {completedCount} / {progress.length} lições concluídas
+                </p>
+                <div className="flex-1 h-1.5 bg-info rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-primary rounded-full transition-all duration-300"
+                    style={{
+                      width: `${progress.length ? (completedCount / progress.length) * 100 : 0}%`,
+                    }}
+                  />
+                </div>
+              </div>
+              <div className="flex flex-col gap-2">
+                {progress.map((p) => {
+                  const ct = CONTENT_TYPE[p.lesson.contentType] ?? {
+                    icon: '📖',
+                    color: '#64748b',
+                    bg: '#f8fafc',
+                    label: p.lesson.contentType,
+                  };
+                  return (
+                    <div
+                      key={p.id}
+                      className={`flex items-center gap-3 p-3 rounded-lg border ${
+                        p.completed
+                          ? 'bg-success-subtle border-success'
+                          : 'bg-surface-sunken border-border'
+                      }`}
+                    >
+                      <span className="text-lg">{ct.icon}</span>
+                      <div className="flex-1">
+                        <p className="m-0 text-sm font-semibold text-ink">
+                          {p.lesson.title}
+                        </p>
+                        <p className="m-0 mt-0.5 text-xs text-ink-faint">
+                          ID: {p.lessonId} · {ct.label}
+                        </p>
+                      </div>
+                      {p.completed ? (
+                        <span className="text-xs font-bold text-success">
+                          ✅{' '}
+                          {p.completedAt
+                            ? new Date(p.completedAt).toLocaleDateString('pt-PT')
+                            : 'Concluída'}
+                        </span>
+                      ) : (
+                        <span className="text-xs text-ink-faint">
+                          Pendente
+                        </span>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {progress.map((p) => {
-                const ct = CONTENT_TYPE[p.lesson.contentType] ?? {
-                  icon: '📖',
-                  color: '#64748b',
-                  bg: '#f8fafc',
-                  label: p.lesson.contentType,
-                };
-                return (
-                  <div
-                    key={p.id}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 12,
-                      padding: '10px 14px',
-                      borderRadius: 8,
-                      background: p.completed ? '#ecfdf5' : '#f8fafc',
-                      border: `1px solid ${p.completed ? '#bbf7d0' : '#e2e8f0'}`,
-                    }}
-                  >
-                    <span style={{ fontSize: 18 }}>{ct.icon}</span>
-                    <div style={{ flex: 1 }}>
-                      <p
-                        style={{
-                          margin: 0,
-                          fontSize: 13,
-                          fontWeight: 600,
-                          color: '#1e293b',
-                        }}
-                      >
-                        {p.lesson.title}
-                      </p>
-                      <p
-                        style={{
-                          margin: '2px 0 0',
-                          fontSize: 11,
-                          color: '#94a3b8',
-                        }}
-                      >
-                        ID: {p.lessonId} · {ct.label}
-                      </p>
-                    </div>
-                    {p.completed ? (
-                      <span
-                        style={{
-                          fontSize: 12,
-                          fontWeight: 700,
-                          color: '#16a34a',
-                        }}
-                      >
-                        ✅{' '}
-                        {p.completedAt
-                          ? new Date(p.completedAt).toLocaleDateString('pt-PT')
-                          : 'Concluída'}
-                      </span>
-                    ) : (
-                      <span style={{ fontSize: 12, color: '#94a3b8' }}>
-                        Pendente
-                      </span>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
-      </div>
+          )}
+        </CardBody>
+      </Card>
     </div>
   );
 }

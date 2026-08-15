@@ -8,7 +8,11 @@ import { useState } from 'react';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { CONTENT_TYPE } from './constants';
-import { card, inputStyle, labelStyle, btnPrimary, btnGhost } from './styles';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
+import { FormField } from '@/components/ui/FormField';
+import { Card, CardBody } from '@/components/ui/Card';
+import { cn } from '@/lib/cn';
 import type { Lesson } from './types';
 
 interface LessonModalProps {
@@ -65,151 +69,126 @@ export function LessonModal({
 
   return (
     <div
-      style={{
-        position: 'fixed',
-        inset: 0,
-        zIndex: 600,
-        background: 'rgba(15,23,42,0.45)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: 16,
-      }}
+      className="fixed inset-0 z-600 bg-black/45 flex items-center justify-center p-4"
       onClick={onClose}
     >
-      <div
-        style={{
-          ...card,
-          width: '100%',
-          maxWidth: 480,
-          boxShadow: '0 24px 60px rgba(0,0,0,0.18)',
-        }}
+      <Card
+        className="w-full max-w-sm shadow-elevated"
         onClick={(e) => e.stopPropagation()}
       >
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: 20,
-          }}
-        >
-          <h2
-            style={{
-              margin: 0,
-              fontSize: 17,
-              fontWeight: 700,
-              color: '#1e293b',
-            }}
-          >
-            {editing ? '✏️ Editar Lição' : '📖 Nova Lição'}
-          </h2>
-          <button
-            onClick={onClose}
-            aria-label="Fechar"
-            style={{
-              background: 'none',
-              border: 'none',
-              fontSize: 20,
-              cursor: 'pointer',
-              color: '#94a3b8',
-            }}
-          >
-            ×
-          </button>
-        </div>
-        <form onSubmit={submit}>
-          <div style={{ marginBottom: 14 }}>
-            <span style={labelStyle}>Título *</span>
-            <input
-              style={inputStyle}
-              value={form.title}
-              onChange={(e) => set('title', e.target.value)}
-              required
-            />
-          </div>
-          <div style={{ marginBottom: 14 }}>
-            <span style={labelStyle}>Tipo de Conteúdo *</span>
-            <div style={{ display: 'flex', gap: 8 }}>
-              {Object.entries(CONTENT_TYPE).map(([k, v]) => (
-                <button
-                  key={k}
-                  type="button"
-                  onClick={() => set('contentType', k)}
-                  style={{
-                    flex: 1,
-                    padding: '8px 0',
-                    border: `2px solid ${form.contentType === k ? v.color : '#e2e8f0'}`,
-                    borderRadius: 8,
-                    background: form.contentType === k ? v.bg : '#fff',
-                    cursor: 'pointer',
-                    fontSize: 18,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    gap: 2,
-                  }}
-                >
-                  <span>{v.icon}</span>
-                  <span
-                    style={{
-                      fontSize: 9,
-                      fontWeight: 700,
-                      color: form.contentType === k ? v.color : '#94a3b8',
-                    }}
-                  >
-                    {v.label}
-                  </span>
-                </button>
-              ))}
-            </div>
-          </div>
-          {(form.contentType === 'VIDEO' || form.contentType === 'AVATAR') && (
-            <div style={{ marginBottom: 14 }}>
-              <span style={labelStyle}>URL do Vídeo</span>
-              <input
-                style={inputStyle}
-                value={form.videoUrl}
-                onChange={(e) => set('videoUrl', e.target.value)}
-                placeholder="https://..."
-              />
-            </div>
-          )}
-          {form.contentType === 'PDF' && (
-            <div style={{ marginBottom: 14 }}>
-              <span style={labelStyle}>URL do PDF</span>
-              <input
-                style={inputStyle}
-                value={form.pdfUrl}
-                onChange={(e) => set('pdfUrl', e.target.value)}
-                placeholder="https://..."
-              />
-            </div>
-          )}
-          <div style={{ marginBottom: 20 }}>
-            <span style={labelStyle}>Sequência</span>
-            <input
-              style={inputStyle}
-              type="number"
-              min={1}
-              value={form.seq}
-              onChange={(e) => set('seq', +e.target.value)}
-            />
-          </div>
-          <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
-            <button type="button" onClick={onClose} style={btnGhost}>
-              Cancelar
-            </button>
+        <CardBody className="flex flex-col gap-5">
+          <div className="flex justify-between items-center">
+            <h2 className="text-lg font-bold text-ink">
+              {editing ? '✏️ Editar Lição' : '📖 Nova Lição'}
+            </h2>
             <button
-              type="submit"
-              disabled={saving}
-              style={{ ...btnPrimary, opacity: saving ? 0.7 : 1 }}
+              onClick={onClose}
+              aria-label="Fechar"
+              className="text-2xl text-ink-faint hover:text-ink transition-colors"
             >
-              {saving ? 'A guardar...' : editing ? 'Guardar' : 'Criar'}
+              ×
             </button>
           </div>
-        </form>
-      </div>
+
+          <form onSubmit={submit} className="flex flex-col gap-4">
+            <FormField label="Título *" htmlFor="lesson-title">
+              <Input
+                id="lesson-title"
+                value={form.title}
+                onChange={(e) => set('title', e.target.value)}
+                required
+              />
+            </FormField>
+
+            <div>
+              <label className="text-xs font-bold uppercase tracking-wide text-ink-muted mb-2 block">
+                Tipo de Conteúdo *
+              </label>
+              <div className="flex gap-2">
+                {Object.entries(CONTENT_TYPE).map(([k, v]) => (
+                  <button
+                    key={k}
+                    type="button"
+                    onClick={() => set('contentType', k)}
+                    style={
+                      form.contentType === k
+                        ? {
+                            borderColor: v.color,
+                            backgroundColor: v.bg,
+                          }
+                        : undefined
+                    }
+                    className={cn(
+                      'flex-1 py-2 rounded-lg flex flex-col items-center gap-1 cursor-pointer transition-all border-2',
+                      form.contentType !== k && 'border-border bg-surface',
+                    )}
+                  >
+                    <span className="text-lg">{v.icon}</span>
+                    <span
+                      className={cn(
+                        'text-xs font-bold',
+                        form.contentType !== k && 'text-ink-faint',
+                      )}
+                      style={
+                        form.contentType === k ? { color: v.color } : undefined
+                      }
+                    >
+                      {v.label}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {(form.contentType === 'VIDEO' ||
+              form.contentType === 'AVATAR') && (
+              <FormField label="URL do Vídeo" htmlFor="lesson-video">
+                <Input
+                  id="lesson-video"
+                  value={form.videoUrl}
+                  onChange={(e) => set('videoUrl', e.target.value)}
+                  placeholder="https://..."
+                />
+              </FormField>
+            )}
+
+            {form.contentType === 'PDF' && (
+              <FormField label="URL do PDF" htmlFor="lesson-pdf">
+                <Input
+                  id="lesson-pdf"
+                  value={form.pdfUrl}
+                  onChange={(e) => set('pdfUrl', e.target.value)}
+                  placeholder="https://..."
+                />
+              </FormField>
+            )}
+
+            <FormField label="Sequência" htmlFor="lesson-seq">
+              <Input
+                id="lesson-seq"
+                type="number"
+                min={1}
+                value={form.seq}
+                onChange={(e) => set('seq', +e.target.value)}
+              />
+            </FormField>
+
+            <div className="flex gap-2 justify-end pt-2">
+              <Button type="button" onClick={onClose} intent="ghost">
+                Cancelar
+              </Button>
+              <Button
+                type="submit"
+                disabled={saving}
+                intent="primary"
+                loading={saving}
+              >
+                {saving ? 'A guardar...' : editing ? 'Guardar' : 'Criar'}
+              </Button>
+            </div>
+          </form>
+        </CardBody>
+      </Card>
     </div>
   );
 }

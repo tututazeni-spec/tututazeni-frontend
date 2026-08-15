@@ -1,6 +1,10 @@
 // components/courses-modulos/constants.ts
 // Mapa de tipos de conteúdo de lição. Extraído de
 // app/(platform)/courses/modulos/page.tsx.
+//
+// NOTA (migração de design): cores mantidas como hex pois são um data-encoding
+// (distinguir tipos de conteúdo), não um UI state; está fora de âmbito da
+// migração de tokens semânticos (ver task doc).
 
 export const CONTENT_TYPE: Record<
   string,

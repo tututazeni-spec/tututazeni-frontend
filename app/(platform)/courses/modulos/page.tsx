@@ -10,16 +10,13 @@ import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { useConfirm } from '@/providers/ConfirmProvider';
+import { useToast } from '@/providers/ToastProvider';
 import { CONTENT_TYPE } from '@/components/courses-modulos/constants';
 import { modalReducer } from '@/components/courses-modulos/modalReducer';
-import {
-  card,
-  inputStyle,
-  labelStyle,
-  btnPrimary,
-  btnGhost,
-} from '@/components/courses-modulos/styles';
-import { Toast } from '@/components/courses-modulos/Toast';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
+import { FormField } from '@/components/ui/FormField';
+import { Card, CardBody } from '@/components/ui/Card';
 import { ModuleModal } from '@/components/courses-modulos/ModuleModal';
 import { LessonModal } from '@/components/courses-modulos/LessonModal';
 import { ProgressModal } from '@/components/courses-modulos/ProgressModal';
@@ -32,14 +29,7 @@ export default function CourseModulesPage() {
     null,
   );
   const [modal, dispatchModal] = useReducer(modalReducer, { kind: 'none' });
-
-  const [toast, setToast] = useState<{
-    msg: string;
-    type: 'success' | 'error';
-  } | null>(null);
-  function showToast(msg: string, type: 'success' | 'error') {
-    setToast({ msg, type });
-  }
+  const toast = useToast();
 
   // ── Fetch curso ──────────────────────────────────────────────────────────
   function loadCourse() {
@@ -83,9 +73,12 @@ export default function CourseModulesPage() {
     try {
       await apiClient.delete(`/modules/${mod.id}`);
       await refetch();
-      showToast('Módulo removido', 'success');
+      toast({ title: 'Módulo removido', intent: 'success' });
     } catch (e) {
-      showToast(e instanceof Error ? e.message : String(e), 'error');
+      toast({
+        title: e instanceof Error ? e.message : String(e),
+        intent: 'danger',
+      });
     }
   }
 
@@ -102,9 +95,12 @@ export default function CourseModulesPage() {
     try {
       await apiClient.delete(`/lessons/${lesson.id}`);
       await refetch();
-      showToast('Lição removida', 'success');
+      toast({ title: 'Lição removida', intent: 'success' });
     } catch (e) {
-      showToast(e instanceof Error ? e.message : String(e), 'error');
+      toast({
+        title: e instanceof Error ? e.message : String(e),
+        intent: 'danger',
+      });
     }
   }
 
@@ -123,256 +119,161 @@ export default function CourseModulesPage() {
   return (
     <div>
       {/* ── Header ── */}
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'flex-start',
-          marginBottom: 24,
-          flexWrap: 'wrap',
-          gap: 12,
-        }}
-      >
+      <div className="flex justify-between items-start mb-6 flex-wrap gap-3">
         <div>
-          <h1
-            style={{
-              fontSize: 24,
-              fontWeight: 700,
-              color: '#1e293b',
-              margin: 0,
-            }}
-          >
+          <h1 className="text-2xl font-bold text-ink m-0">
             📦 Módulos & Lições
           </h1>
-          <p style={{ color: '#64748b', fontSize: 14, marginTop: 4 }}>
+          <p className="text-ink-muted text-sm mt-1">
             Estrutura de conteúdo dos cursos
           </p>
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
-          <button
+        <div className="flex gap-2">
+          <Button
             onClick={() => dispatchModal({ type: 'openProgress' })}
-            style={{ ...btnGhost, background: '#f5f3ff', color: '#7c3aed' }}
+            intent="ghost"
+            className="bg-violet-50"
           >
             📊 Progresso
-          </button>
+          </Button>
           {loaded && (
-            <button
+            <Button
               onClick={() => dispatchModal({ type: 'openNewModule' })}
-              style={btnPrimary}
+              intent="primary"
             >
               + Novo Módulo
-            </button>
+            </Button>
           )}
         </div>
       </div>
 
       {/* ── Selector de curso ── */}
-      <div style={{ ...card, marginBottom: 24 }}>
-        <h3
-          style={{
-            margin: '0 0 14px',
-            fontSize: 14,
-            fontWeight: 700,
-            color: '#1e293b',
-          }}
-        >
-          🔍 Seleccionar Curso
-        </h3>
-        <div
-          style={{
-            display: 'flex',
-            gap: 12,
-            alignItems: 'flex-end',
-            flexWrap: 'wrap',
-          }}
-        >
-          <div style={{ flex: 1, minWidth: 200 }}>
-            <span style={labelStyle}>ID do Curso</span>
-            <input
-              style={inputStyle}
-              type="number"
-              value={courseIdInput}
-              onChange={(e) => {
-                setCourseIdInput(e.target.value);
-                setSubmittedCourseId(null);
-              }}
-              placeholder="Ex: 1"
-              onKeyDown={(e) => e.key === 'Enter' && loadCourse()}
-            />
+      <Card className="mb-6">
+        <CardBody>
+          <h3 className="m-0 mb-3.5 text-sm font-bold text-ink">
+            🔍 Seleccionar Curso
+          </h3>
+          <div className="flex gap-3 items-end flex-wrap">
+            <div className="flex-1 min-w-[200px]">
+              <FormField label="ID do Curso" htmlFor="courseId">
+                <Input
+                  id="courseId"
+                  type="number"
+                  value={courseIdInput}
+                  onChange={(e) => {
+                    setCourseIdInput(e.target.value);
+                    setSubmittedCourseId(null);
+                  }}
+                  placeholder="Ex: 1"
+                  onKeyDown={(e) => e.key === 'Enter' && loadCourse()}
+                />
+              </FormField>
+            </div>
+            <Button
+              onClick={loadCourse}
+              disabled={loading || !courseIdInput}
+              intent="primary"
+              loading={loading}
+            >
+              {loading ? 'A carregar...' : 'Carregar Curso'}
+            </Button>
           </div>
-          <button
-            onClick={loadCourse}
-            disabled={loading || !courseIdInput}
-            style={{ ...btnPrimary, opacity: !courseIdInput ? 0.5 : 1 }}
-          >
-            {loading ? 'A carregar...' : 'Carregar Curso'}
-          </button>
-        </div>
-      </div>
+        </CardBody>
+      </Card>
 
       {/* ── Stats (quando carregado) ── */}
       {loaded && (
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))',
-            gap: 12,
-            marginBottom: 24,
-          }}
-        >
-          <div
-            style={{
-              ...card,
-              padding: 16,
-              display: 'flex',
-              alignItems: 'center',
-              gap: 12,
-            }}
-          >
-            <div
-              style={{
-                width: 40,
-                height: 40,
-                borderRadius: 10,
-                background: '#eff6ff',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: 18,
-              }}
-            >
-              📦
-            </div>
-            <div>
-              <p
-                style={{
-                  margin: 0,
-                  fontSize: 20,
-                  fontWeight: 800,
-                  color: '#1e40af',
-                }}
-              >
-                {modules.length}
-              </p>
-              <p style={{ margin: 0, fontSize: 11, color: '#64748b' }}>
-                Módulos
-              </p>
-            </div>
-          </div>
-          <div
-            style={{
-              ...card,
-              padding: 16,
-              display: 'flex',
-              alignItems: 'center',
-              gap: 12,
-            }}
-          >
-            <div
-              style={{
-                width: 40,
-                height: 40,
-                borderRadius: 10,
-                background: '#ecfdf5',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: 18,
-              }}
-            >
-              📖
-            </div>
-            <div>
-              <p
-                style={{
-                  margin: 0,
-                  fontSize: 20,
-                  fontWeight: 800,
-                  color: '#16a34a',
-                }}
-              >
-                {totalLessons}
-              </p>
-              <p style={{ margin: 0, fontSize: 11, color: '#64748b' }}>
-                Lições
-              </p>
-            </div>
-          </div>
-          {byType.map((t) => (
-            <div
-              key={t.key}
-              style={{
-                ...card,
-                padding: 16,
-                display: 'flex',
-                alignItems: 'center',
-                gap: 12,
-              }}
-            >
-              <div
-                style={{
-                  width: 40,
-                  height: 40,
-                  borderRadius: 10,
-                  background: t.bg,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: 18,
-                }}
-              >
-                {t.icon}
+        <div className="grid grid-cols-[repeat(auto-fill,minmax(140px,1fr))] gap-3 mb-6">
+          <Card>
+            <CardBody className="p-4 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-info-subtle flex items-center justify-center text-lg">
+                📦
               </div>
               <div>
-                <p
+                <p className="m-0 text-xl font-extrabold text-primary">
+                  {modules.length}
+                </p>
+                <p className="m-0 text-xs text-ink-muted">Módulos</p>
+              </div>
+            </CardBody>
+          </Card>
+          <Card>
+            <CardBody className="p-4 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-success-subtle flex items-center justify-center text-lg">
+                📖
+              </div>
+              <div>
+                <p className="m-0 text-xl font-extrabold text-success">
+                  {totalLessons}
+                </p>
+                <p className="m-0 text-xs text-ink-muted">Lições</p>
+              </div>
+            </CardBody>
+          </Card>
+          {byType.map((t) => (
+            <Card key={t.key}>
+              <CardBody className="p-4 flex items-center gap-3">
+                <div
+                  className="w-10 h-10 rounded-lg flex items-center justify-center text-lg"
                   style={{
-                    margin: 0,
-                    fontSize: 20,
-                    fontWeight: 800,
-                    color: t.color,
+                    background: t.bg,
                   }}
                 >
-                  {t.count}
-                </p>
-                <p style={{ margin: 0, fontSize: 11, color: '#64748b' }}>
-                  {t.label}
-                </p>
-              </div>
-            </div>
+                  {t.icon}
+                </div>
+                <div>
+                  <p
+                    className="m-0 text-xl font-extrabold"
+                    style={{
+                      color: t.color,
+                    }}
+                  >
+                    {t.count}
+                  </p>
+                  <p className="m-0 text-xs text-ink-muted">{t.label}</p>
+                </div>
+              </CardBody>
+            </Card>
           ))}
         </div>
       )}
 
       {/* ── Lista de módulos ── */}
       {status === 'error' ? (
-        <div style={{ ...card, textAlign: 'center', padding: 60 }}>
-          <p style={{ fontSize: 32, marginBottom: 12 }}>⚠️</p>
-          <p style={{ color: '#dc2626', fontSize: 14 }}>
-            {error?.message ?? 'Curso não encontrado'}
-          </p>
-        </div>
+        <Card>
+          <CardBody className="text-center py-12 px-4">
+            <p className="text-3xl mb-3">⚠️</p>
+            <p className="text-danger text-sm">
+              {error?.message ?? 'Curso não encontrado'}
+            </p>
+          </CardBody>
+        </Card>
       ) : status !== 'ready' ? (
-        <div style={{ ...card, textAlign: 'center', padding: 60 }}>
-          <p style={{ fontSize: 32, marginBottom: 12 }}>📦</p>
-          <p style={{ color: '#94a3b8', fontSize: 14 }}>
-            Insere o ID do curso para gerir os seus módulos e lições.
-          </p>
-        </div>
+        <Card>
+          <CardBody className="text-center py-12 px-4">
+            <p className="text-3xl mb-3">📦</p>
+            <p className="text-ink-faint text-sm">
+              Insere o ID do curso para gerir os seus módulos e lições.
+            </p>
+          </CardBody>
+        </Card>
       ) : modules.length === 0 ? (
-        <div style={{ ...card, textAlign: 'center', padding: 60 }}>
-          <p style={{ fontSize: 32, marginBottom: 12 }}>📦</p>
-          <p style={{ color: '#94a3b8', fontSize: 14, margin: '0 0 16px' }}>
-            Este curso não tem módulos ainda.
-          </p>
-          <button
-            onClick={() => dispatchModal({ type: 'openNewModule' })}
-            style={btnPrimary}
-          >
-            + Criar Primeiro Módulo
-          </button>
-        </div>
+        <Card>
+          <CardBody className="text-center py-12 px-4">
+            <p className="text-3xl mb-3">📦</p>
+            <p className="text-ink-faint text-sm mb-4">
+              Este curso não tem módulos ainda.
+            </p>
+            <Button
+              onClick={() => dispatchModal({ type: 'openNewModule' })}
+              intent="primary"
+            >
+              + Criar Primeiro Módulo
+            </Button>
+          </CardBody>
+        </Card>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div className="flex flex-col gap-3">
           {modules
             .sort((a, b) => a.seq - b.seq)
             .map((mod) => (
@@ -407,10 +308,10 @@ export default function CourseModulesPage() {
           onClose={() => dispatchModal({ type: 'close' })}
           onSaved={() => {
             refetch();
-            showToast(
-              modal.editing ? 'Módulo actualizado!' : 'Módulo criado!',
-              'success',
-            );
+            toast({
+              title: modal.editing ? 'Módulo actualizado!' : 'Módulo criado!',
+              intent: 'success',
+            });
           }}
         />
       )}
@@ -421,24 +322,22 @@ export default function CourseModulesPage() {
           onClose={() => dispatchModal({ type: 'close' })}
           onSaved={async () => {
             await refetch();
-            showToast(
-              modal.editing ? 'Lição actualizada!' : 'Lição criada!',
-              'success',
-            );
+            toast({
+              title: modal.editing ? 'Lição actualizada!' : 'Lição criada!',
+              intent: 'success',
+            });
           }}
         />
       )}
       {modal.kind === 'progress' && (
         <ProgressModal
           onClose={() => dispatchModal({ type: 'close' })}
-          onMarked={() => showToast('Lição marcada como concluída!', 'success')}
-        />
-      )}
-      {toast && (
-        <Toast
-          msg={toast.msg}
-          type={toast.type}
-          onClose={() => setToast(null)}
+          onMarked={() =>
+            toast({
+              title: 'Lição marcada como concluída!',
+              intent: 'success',
+            })
+          }
         />
       )}
     </div>

@@ -5,7 +5,7 @@
 'use client';
 
 import { CONTENT_TYPE } from './constants';
-import { btnGhost, btnDanger } from './styles';
+import { Button } from '@/components/ui/Button';
 import type { Lesson } from './types';
 
 interface LessonRowProps {
@@ -22,50 +22,19 @@ export function LessonRow({ lesson, onEdit, onDelete }: LessonRowProps) {
     label: lesson.contentType,
   };
   return (
-    <div
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: 12,
-        padding: '10px 14px',
-        borderRadius: 8,
-        background: '#f8fafc',
-        border: '1px solid #e2e8f0',
-      }}
-    >
-      <span
-        style={{
-          fontSize: 14,
-          color: '#94a3b8',
-          minWidth: 20,
-          textAlign: 'center',
-          fontWeight: 700,
-        }}
-      >
+    <div className="flex items-center gap-3 p-3 rounded-lg bg-surface-sunken border border-border">
+      <span className="text-sm text-ink-faint min-w-5 text-center font-bold">
         {lesson.seq}
       </span>
-      <span style={{ fontSize: 18 }}>{ct.icon}</span>
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <p
-          style={{
-            margin: 0,
-            fontSize: 13,
-            fontWeight: 600,
-            color: '#1e293b',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
-          }}
-        >
+      <span className="text-lg">{ct.icon}</span>
+      <div className="flex-1 min-w-0">
+        <p className="m-0 text-sm font-semibold text-ink overflow-hidden text-ellipsis whitespace-nowrap">
           {lesson.title}
         </p>
-        <div style={{ display: 'flex', gap: 8, marginTop: 2 }}>
+        <div className="flex gap-2 mt-1">
           <span
+            className="px-2 py-0.5 rounded-full text-xs font-bold"
             style={{
-              padding: '1px 7px',
-              borderRadius: 20,
-              fontSize: 10,
-              fontWeight: 700,
               background: ct.bg,
               color: ct.color,
             }}
@@ -77,7 +46,7 @@ export function LessonRow({ lesson, onEdit, onDelete }: LessonRowProps) {
               href={lesson.videoUrl}
               target="_blank"
               rel="noopener noreferrer"
-              style={{ fontSize: 10, color: '#1e40af' }}
+              className="text-xs text-primary hover:underline"
             >
               🔗 Vídeo
             </a>
@@ -87,26 +56,28 @@ export function LessonRow({ lesson, onEdit, onDelete }: LessonRowProps) {
               href={lesson.pdfUrl}
               target="_blank"
               rel="noopener noreferrer"
-              style={{ fontSize: 10, color: '#f59e0b' }}
+              className="text-xs text-warning hover:underline"
             >
               🔗 PDF
             </a>
           )}
         </div>
       </div>
-      <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
-        <button
+      <div className="flex gap-1 flex-shrink-0">
+        <Button
           onClick={onEdit}
-          style={{ ...btnGhost, padding: '5px 10px', fontSize: 12 }}
+          intent="ghost"
+          className="px-2 py-1 text-xs"
         >
           ✏️
-        </button>
-        <button
+        </Button>
+        <Button
           onClick={onDelete}
-          style={{ ...btnDanger, padding: '5px 10px' }}
+          intent="danger"
+          className="px-2 py-1 text-xs"
         >
           🗑️
-        </button>
+        </Button>
       </div>
     </div>
   );

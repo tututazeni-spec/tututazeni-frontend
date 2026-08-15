@@ -5,7 +5,8 @@
 'use client';
 
 import { useState } from 'react';
-import { card, btnPrimary, btnGhost, btnDanger } from './styles';
+import { Button } from '@/components/ui/Button';
+import { Card, CardBody } from '@/components/ui/Card';
 import type { CourseModule, Lesson } from './types';
 import { LessonRow } from './LessonRow';
 
@@ -28,80 +29,56 @@ export function ModuleBlock({
 }: ModuleBlockProps) {
   const [open, setOpen] = useState(true);
   return (
-    <div style={{ ...card, padding: 0, overflow: 'hidden' }}>
+    <Card className="overflow-hidden p-0">
       {/* Module header */}
       <div
+        className="flex items-center gap-3 p-4 bg-surface-sunken border-b border-border cursor-pointer hover:bg-surface-sunken/80 transition-colors"
         style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 12,
-          padding: '14px 18px',
-          background: '#f8fafc',
-          borderBottom: open ? '1px solid #e2e8f0' : 'none',
-          cursor: 'pointer',
+          borderBottom: open ? '1px solid var(--color-border)' : 'none',
         }}
         onClick={() => setOpen((o) => !o)}
       >
-        <span style={{ fontSize: 18 }}>{open ? '📂' : '📁'}</span>
-        <div style={{ flex: 1 }}>
-          <p
-            style={{
-              margin: 0,
-              fontSize: 14,
-              fontWeight: 700,
-              color: '#1e293b',
-            }}
-          >
+        <span className="text-lg">{open ? '📂' : '📁'}</span>
+        <div className="flex-1">
+          <p className="m-0 text-sm font-bold text-ink">
             {mod.title}
           </p>
-          <p style={{ margin: 0, fontSize: 11, color: '#94a3b8' }}>
+          <p className="m-0 text-xs text-ink-faint">
             Módulo {mod.seq} · {mod.lessons.length} lição(ões)
           </p>
         </div>
         <div
-          style={{ display: 'flex', gap: 6 }}
+          className="flex gap-1"
           onClick={(e) => e.stopPropagation()}
         >
-          <button
+          <Button
             onClick={onAddLesson}
-            style={{ ...btnPrimary, padding: '5px 10px', fontSize: 12 }}
+            intent="primary"
+            className="px-2 py-1 text-xs"
           >
             + Lição
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={onEditModule}
-            style={{ ...btnGhost, padding: '5px 10px', fontSize: 12 }}
+            intent="ghost"
+            className="px-2 py-1 text-xs"
           >
             ✏️
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={onDeleteModule}
-            style={{ ...btnDanger, padding: '5px 10px' }}
+            intent="danger"
+            className="px-2 py-1 text-xs"
           >
             🗑️
-          </button>
+          </Button>
         </div>
       </div>
       {/* Lessons */}
       {open && (
-        <div
-          style={{
-            padding: '14px 18px',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 8,
-          }}
-        >
+        <CardBody className="flex flex-col gap-2">
           {mod.lessons.length === 0 ? (
-            <p
-              style={{
-                color: '#94a3b8',
-                fontSize: 13,
-                textAlign: 'center',
-                padding: '12px 0',
-                margin: 0,
-              }}
-            >
+            <p className="text-ink-faint text-sm text-center py-3 m-0">
               Nenhuma lição. Clica em &quot;+ Lição&quot; para adicionar.
             </p>
           ) : (
@@ -114,8 +91,8 @@ export function ModuleBlock({
               />
             ))
           )}
-        </div>
+        </CardBody>
       )}
-    </div>
+    </Card>
   );
 }

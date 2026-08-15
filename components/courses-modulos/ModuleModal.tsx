@@ -7,7 +7,10 @@
 import { useState } from 'react';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
-import { card, inputStyle, labelStyle, btnPrimary, btnGhost } from './styles';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
+import { FormField } from '@/components/ui/FormField';
+import { Card, CardBody } from '@/components/ui/Card';
 import type { CourseModule } from './types';
 
 interface ModuleModalProps {
@@ -55,95 +58,65 @@ export function ModuleModal({
   }
   return (
     <div
-      style={{
-        position: 'fixed',
-        inset: 0,
-        zIndex: 500,
-        background: 'rgba(15,23,42,0.45)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: 16,
-      }}
+      className="fixed inset-0 z-500 bg-black/45 flex items-center justify-center p-4"
       onClick={onClose}
     >
-      <div
-        style={{
-          ...card,
-          width: '100%',
-          maxWidth: 420,
-          boxShadow: '0 24px 60px rgba(0,0,0,0.18)',
-        }}
+      <Card
+        className="w-full max-w-sm shadow-elevated"
         onClick={(e) => e.stopPropagation()}
       >
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: 20,
-          }}
-        >
-          <h2
-            style={{
-              margin: 0,
-              fontSize: 17,
-              fontWeight: 700,
-              color: '#1e293b',
-            }}
-          >
-            {editing ? '✏️ Editar Módulo' : '📦 Novo Módulo'}
-          </h2>
-          <button
-            onClick={onClose}
-            aria-label="Fechar"
-            style={{
-              background: 'none',
-              border: 'none',
-              fontSize: 20,
-              cursor: 'pointer',
-              color: '#94a3b8',
-            }}
-          >
-            ×
-          </button>
-        </div>
-        <form onSubmit={submit}>
-          <div style={{ marginBottom: 14 }}>
-            <span style={labelStyle}>Título *</span>
-            <input
-              style={inputStyle}
-              value={form.title}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, title: e.target.value }))
-              }
-              required
-            />
-          </div>
-          <div style={{ marginBottom: 20 }}>
-            <span style={labelStyle}>Sequência</span>
-            <input
-              style={inputStyle}
-              type="number"
-              min={1}
-              value={form.seq}
-              onChange={(e) => setForm((f) => ({ ...f, seq: +e.target.value }))}
-            />
-          </div>
-          <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
-            <button type="button" onClick={onClose} style={btnGhost}>
-              Cancelar
-            </button>
+        <CardBody className="flex flex-col gap-5">
+          <div className="flex justify-between items-center">
+            <h2 className="text-lg font-bold text-ink">
+              {editing ? '✏️ Editar Módulo' : '📦 Novo Módulo'}
+            </h2>
             <button
-              type="submit"
-              disabled={saving}
-              style={{ ...btnPrimary, opacity: saving ? 0.7 : 1 }}
+              onClick={onClose}
+              aria-label="Fechar"
+              className="text-2xl text-ink-faint hover:text-ink transition-colors"
             >
-              {saving ? 'A guardar...' : editing ? 'Guardar' : 'Criar'}
+              ×
             </button>
           </div>
-        </form>
-      </div>
+
+          <form onSubmit={submit} className="flex flex-col gap-4">
+            <FormField label="Título *" htmlFor="module-title">
+              <Input
+                id="module-title"
+                value={form.title}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, title: e.target.value }))
+                }
+                required
+              />
+            </FormField>
+
+            <FormField label="Sequência" htmlFor="module-seq">
+              <Input
+                id="module-seq"
+                type="number"
+                min={1}
+                value={form.seq}
+                onChange={(e) => setForm((f) => ({ ...f, seq: +e.target.value }))}
+              />
+            </FormField>
+
+            <div className="flex gap-2 justify-end pt-2">
+              <Button type="button" onClick={onClose} intent="ghost">
+                Cancelar
+              </Button>
+              <Button
+                type="submit"
+                disabled={saving}
+                intent="primary"
+                loading={saving}
+              >
+                {saving ? 'A guardar...' : editing ? 'Guardar' : 'Criar'}
+              </Button>
+            </div>
+          </form>
+        </CardBody>
+      </Card>
     </div>
   );
 }
