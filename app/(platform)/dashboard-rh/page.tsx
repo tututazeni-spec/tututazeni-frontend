@@ -1,12 +1,14 @@
 'use client';
 // src/app/(dashboard)/dashboard-rh/page.tsx
 //
-// Container: gere o painel activo; delega dados+apresentação de cada
-// painel aos componentes auto-contidos em components/dashboard-rh/ (mesmo
-// padrão que components/payslips/page.tsx usa para ListView/CompareView/
-// AnnualView). Ver memory project_innova_component_separation_audit.
+// Container: gere o painel activo (via Tabs do Radix); delega dados+
+// apresentação de cada painel aos componentes auto-contidos em
+// components/dashboard-rh/ (mesmo padrão que components/payslips/page.tsx
+// usa para ListView/CompareView/AnnualView). Ver memory
+// project_innova_component_separation_audit e
+// app/(platform)/dashboard/page.tsx (mesmo esqueleto header+Tabs, já
+// migrado).
 
-import { useState } from 'react';
 import {
   BarChart2,
   Brain,
@@ -17,6 +19,9 @@ import {
   Users,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
+import { Badge } from '@/components/ui/Badge';
+import { IconButton } from '@/components/ui/Button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
 import { CorrelationsPanel } from '@/components/dashboard-rh/CorrelationsPanel';
 import { HeadcountPanel } from '@/components/dashboard-rh/HeadcountPanel';
 import { OverviewPanel } from '@/components/dashboard-rh/OverviewPanel';
@@ -35,75 +40,76 @@ const PANELS: { id: Panel; label: string; icon: LucideIcon }[] = [
 ];
 
 export default function DashboardRhPage() {
-  const [panel, setPanel] = useState<Panel>('overview');
-
-  // 'turnover' e 'engagement' não têm entrada em PANELS (sem separador
-  // próprio no menu) mas continuam mapeados para OverviewPanel — mesmo
-  // comportamento do ficheiro original, preservado tal e qual.
-  const PANEL_CONTENT: Record<Panel, JSX.Element> = {
-    overview: <OverviewPanel />,
-    headcount: <HeadcountPanel />,
-    turnover: <OverviewPanel />,
-    performance: <PerformancePanel />,
-    training: <TrainingPanel />,
-    engagement: <OverviewPanel />,
-    talent: <TalentPanel />,
-    correlations: <CorrelationsPanel />,
-  };
-
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-canvas">
       {/* Header */}
-      <div className="bg-white border-b border-slate-200 px-6 py-5">
-        <div className="max-w-7xl mx-auto flex items-start justify-between">
+      <div className="border-b border-border bg-surface px-6 py-5">
+        <div className="mx-auto flex max-w-7xl items-start justify-between">
           <div>
-            <div className="flex items-center gap-2 mb-1">
-              <div className="p-1.5 bg-indigo-100 rounded-lg">
-                <Users size={18} className="text-indigo-600" />
+            <div className="mb-1 flex items-center gap-2">
+              <div className="rounded-control bg-primary-subtle p-1.5">
+                <Users size={18} strokeWidth={1.75} className="text-primary" />
               </div>
-              <h1 className="text-xl font-bold text-slate-800">Dashboard RH</h1>
-              <span className="text-xs bg-violet-100 text-violet-700 px-2 py-0.5 rounded-full font-medium">
-                People Analytics
-              </span>
+              <h1 className="font-display text-xl font-bold text-ink">
+                Dashboard RH
+              </h1>
+              <Badge intent="info">People Analytics</Badge>
             </div>
-            <p className="text-sm text-slate-400">
+            <p className="font-body text-sm text-ink-faint">
               Centro de comando · Headcount · Performance · Talento · Formação
             </p>
           </div>
-          <button
+          <IconButton
+            icon={RefreshCw}
+            label="Actualizar"
+            intent="secondary"
             onClick={() => window.location.reload()}
-            className="p-2 bg-white border border-slate-200 rounded-lg hover:border-slate-300"
-          >
-            <RefreshCw size={15} className="text-slate-500" />
-          </button>
+          />
         </div>
       </div>
 
-      {/* Tabs */}
-      <div className="bg-white border-b border-slate-200 px-6">
-        <div className="max-w-7xl mx-auto flex overflow-x-auto">
-          {PANELS.map((p) => {
-            const Icon = p.icon;
-            return (
-              <button
-                key={p.id}
-                onClick={() => setPanel(p.id)}
-                className={`flex items-center gap-2 px-5 py-4 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
-                  panel === p.id
-                    ? 'border-indigo-600 text-indigo-600'
-                    : 'border-transparent text-slate-500 hover:text-slate-700'
-                }`}
-              >
-                <Icon size={15} />
-                {p.label}
-              </button>
-            );
-          })}
+      <Tabs defaultValue="overview">
+        {/* Tabs */}
+        <div className="border-b border-border bg-surface px-6">
+          <TabsList className="mx-auto max-w-7xl overflow-x-auto">
+            {PANELS.map((p) => {
+              const Icon = p.icon;
+              return (
+                <TabsTrigger
+                  key={p.id}
+                  value={p.id}
+                  className="gap-2 whitespace-nowrap"
+                >
+                  <Icon size={14} strokeWidth={1.75} />
+                  {p.label}
+                </TabsTrigger>
+              );
+            })}
+          </TabsList>
         </div>
-      </div>
 
-      {/* Content */}
-      <div className="max-w-7xl mx-auto px-6 py-6">{PANEL_CONTENT[panel]}</div>
+        {/* Content */}
+        <div className="mx-auto max-w-7xl px-6 py-6">
+          <TabsContent value="overview">
+            <OverviewPanel />
+          </TabsContent>
+          <TabsContent value="headcount">
+            <HeadcountPanel />
+          </TabsContent>
+          <TabsContent value="performance">
+            <PerformancePanel />
+          </TabsContent>
+          <TabsContent value="training">
+            <TrainingPanel />
+          </TabsContent>
+          <TabsContent value="talent">
+            <TalentPanel />
+          </TabsContent>
+          <TabsContent value="correlations">
+            <CorrelationsPanel />
+          </TabsContent>
+        </div>
+      </Tabs>
     </div>
   );
 }
