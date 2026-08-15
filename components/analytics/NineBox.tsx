@@ -1,10 +1,22 @@
 // components/analytics/NineBox.tsx
 // Matriz 9-Box (desempenho × potencial) da equipa. Extraído de
-// app/(platform)/analytics/page.tsx.
+// app/(platform)/analytics/page.tsx. Migrado para a fundação de
+// design: as 9 células não são uma paleta categórica arbitrária —
+// codificam uma escala ordinal de risco/potencial (canto superior
+// direito = melhor talento, canto inferior esquerdo = maior risco de
+// saída), por isso mapeiam logicamente para os tokens semânticos em
+// vez de ficarem fora do escopo (ver nota "gráficos" do plano de
+// rollout): success = alto potencial, danger = alto risco,
+// warning = zonas de atenção, info = perfis sólidos mas não topo,
+// surface-sunken = núcleo neutro. Os dois níveis de intensidade que a
+// paleta anterior usava para diferenciar células dentro da mesma
+// categoria (ex. duas tonalidades de verde) colapsam num único tom
+// "subtle" por categoria — a fundação não tem variantes de
+// intensidade por tom.
 
 'use client';
 
-import { Avatar } from './atoms';
+import { Avatar } from '@/components/ui/Avatar';
 import type { ManagerDashboard } from './types';
 
 interface NineBoxProps {
@@ -24,20 +36,22 @@ export function NineBox({ data }: NineBoxProps) {
     '1-1': 'Alto Risco',
   };
   const colors: Record<string, string> = {
-    '3-3': 'bg-emerald-200',
-    '2-3': 'bg-emerald-100',
-    '1-3': 'bg-amber-100',
-    '3-2': 'bg-blue-100',
-    '2-2': 'bg-gray-100',
-    '1-2': 'bg-amber-50',
-    '3-1': 'bg-blue-50',
-    '2-1': 'bg-red-50',
-    '1-1': 'bg-red-100',
+    '3-3': 'bg-success-subtle',
+    '2-3': 'bg-success-subtle',
+    '1-3': 'bg-warning-subtle',
+    '3-2': 'bg-info-subtle',
+    '2-2': 'bg-surface-sunken',
+    '1-2': 'bg-warning-subtle',
+    '3-1': 'bg-info-subtle',
+    '2-1': 'bg-danger-subtle',
+    '1-1': 'bg-danger-subtle',
   };
 
   return (
     <div>
-      <div className="text-xs text-gray-400 text-center mb-1">Desempenho →</div>
+      <div className="text-xs text-ink-faint text-center mb-1">
+        Desempenho →
+      </div>
       <div className="grid grid-cols-3 gap-1">
         {[3, 2, 1].map((pot) =>
           [1, 2, 3].map((perf) => {
@@ -48,9 +62,9 @@ export function NineBox({ data }: NineBoxProps) {
             return (
               <div
                 key={key}
-                className={`${colors[key] ?? 'bg-gray-100'} rounded-lg p-2 min-h-[70px]`}
+                className={`${colors[key] ?? 'bg-surface-sunken'} rounded-control p-2 min-h-[70px]`}
               >
-                <div className="text-xs font-medium text-gray-600 mb-1 leading-tight">
+                <div className="text-xs font-medium text-ink-muted mb-1 leading-tight">
                   {labels[key]}
                 </div>
                 <div className="flex flex-wrap gap-1">
@@ -58,12 +72,12 @@ export function NineBox({ data }: NineBoxProps) {
                     <Avatar
                       key={u.userId}
                       name={u.fullName}
-                      avatarUrl={u.avatarUrl}
+                      url={u.avatarUrl ?? undefined}
                       size="sm"
                     />
                   ))}
                   {users.length === 0 && (
-                    <div className="text-xs text-gray-300">—</div>
+                    <div className="text-xs text-ink-faint">—</div>
                   )}
                 </div>
               </div>
@@ -71,7 +85,7 @@ export function NineBox({ data }: NineBoxProps) {
           }),
         )}
       </div>
-      <div className="text-xs text-gray-400 text-right mt-1">← Potencial</div>
+      <div className="text-xs text-ink-faint text-right mt-1">← Potencial</div>
     </div>
   );
 }
