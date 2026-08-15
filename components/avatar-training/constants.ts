@@ -1,7 +1,23 @@
 // components/avatar-training/constants.ts
 // Constantes de domínio (categoria/dificuldade/cor de score) partilhadas
-// pelos componentes de apresentação do módulo. Extraído verbatim de
-// app/(platform)/avatar-training/page.tsx.
+// pelos componentes de apresentação do módulo.
+//
+// Classificação de cor (rollout Fase B, Vaga 3 — ver nota "gráficos" da
+// Task 0 do plano de rollout):
+// - CATEGORY_CONFIG: codificação CATEGÓRICA (8 categorias de cenário sem
+//   ordem/severidade — SOFT_SKILLS, SALES, CUSTOMER_SERVICE, ONBOARDING,
+//   COMPLIANCE, LEADERSHIP, NEGOTIATION, SECURITY). A fundação só tem 6
+//   tokens semânticos (primary/accent/success/warning/danger/info);
+//   forçar 8 categorias nominais para 6 tokens de estado criaria
+//   colisões E significados falsos (ex.: COMPLIANCE a ficar `danger`
+//   sugere "está mal", quando é só uma categoria). Fica **fora** desta
+//   migração — mantém a paleta Tailwind crua tal como estava, tal como
+//   a nota do plano de rollout previu para este módulo.
+// - DIFF_COLOR e SCORE_COLOR: decorativo/estado — rampa ORDINAL de 4
+//   níveis (fácil→difícil / score baixo→alto), exactamente o mesmo
+//   padrão já usado em `components/engagement/constants.ts` (LEVEL_CONFIG)
+//   e `components/engagement/AnalyticsTab.tsx` (scoreTextClass): migradas
+//   para os tokens semânticos success/info/warning/danger.
 
 import {
   Brain,
@@ -13,7 +29,10 @@ import {
   MessageSquare,
   type LucideIcon,
 } from 'lucide-react';
+import type { BadgeProps } from '@/components/ui/Badge';
 
+// Codificação categórica — ver nota acima. Não migrado para os tokens
+// semânticos (fora do escopo desta migração).
 export const CATEGORY_CONFIG: Record<
   string,
   { label: string; icon: LucideIcon; color: string; bg: string }
@@ -68,18 +87,23 @@ export const CATEGORY_CONFIG: Record<
   },
 };
 
-export const DIFF_COLOR: Record<string, string> = {
-  BEGINNER: 'bg-emerald-100 text-emerald-700',
-  INTERMEDIATE: 'bg-amber-100 text-amber-700',
-  ADVANCED: 'bg-orange-100 text-orange-700',
-  EXPERT: 'bg-red-100 text-red-700',
+// Rampa ordinal fácil→difícil, mesma convenção de 4 níveis usada em
+// LEVEL_CONFIG (engagement): melhor/mais fácil = success, pior/mais
+// difícil = danger, com info/warning como degraus intermédios.
+export const DIFF_INTENT: Record<string, BadgeProps['intent']> = {
+  BEGINNER: 'success',
+  INTERMEDIATE: 'info',
+  ADVANCED: 'warning',
+  EXPERT: 'danger',
 };
 
+// Rampa ordinal score baixo→alto — mesma convenção de scoreTextClass em
+// components/engagement/AnalyticsTab.tsx.
 export const SCORE_COLOR = (s: number) =>
   s >= 90
-    ? 'text-emerald-600'
+    ? 'text-success'
     : s >= 75
-      ? 'text-teal-600'
+      ? 'text-info'
       : s >= 60
-        ? 'text-amber-600'
-        : 'text-red-500';
+        ? 'text-warning'
+        : 'text-danger';

@@ -1,16 +1,18 @@
 'use client';
 // src/app/(dashboard)/avatar-training/page.tsx
 //
-// Container: gere o separador activo, a sessão de chat activa e o modal de
-// resultado; delega dados+apresentação de cada separador aos componentes
-// auto-contidos em components/avatar-training/ (mesmo padrão que
-// components/payslips/page.tsx usa para ListView/CompareView/AnnualView).
-// Ver memory project_innova_component_separation_audit.
+// Container: gere o separador activo (via Tabs do Radix), a sessão de chat
+// activa e o modal de resultado; delega dados+apresentação de cada
+// separador aos componentes auto-contidos em components/avatar-training/
+// (mesmo padrão que components/payslips/page.tsx usa para
+// ListView/CompareView/AnnualView, e que app/(platform)/engagement/page.tsx
+// usa para os seus próprios separadores). Ver memory
+// project_innova_component_separation_audit.
 
 import { useState } from 'react';
 import { BarChart2, Bot, Clock, Play, Trophy } from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
 import { apiClient } from '@/lib/apiClient';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
 import { AnalyticsTab } from '@/components/avatar-training/AnalyticsTab';
 import { ChatSession } from '@/components/avatar-training/ChatSession';
 import { HistoryTab } from '@/components/avatar-training/HistoryTab';
@@ -23,19 +25,17 @@ import type {
   Scenario,
   SessionResult,
   StartSessionResponse,
-  Tab,
 } from '@/components/avatar-training/types';
 
-const TABS: { id: Tab; label: string; icon: LucideIcon }[] = [
+const TABS = [
   { id: 'home', label: 'Início', icon: Bot },
   { id: 'scenarios', label: 'Cenários', icon: Play },
   { id: 'history', label: 'Histórico', icon: Clock },
   { id: 'leaderboard', label: 'Ranking', icon: Trophy },
   { id: 'analytics', label: 'Analytics', icon: BarChart2 },
-];
+] as const;
 
 export default function AvatarTrainingPage() {
-  const [tab, setTab] = useState<Tab>('home');
   const [activeSession, setActiveSession] = useState<ActiveSession | null>(
     null,
   );
@@ -87,17 +87,8 @@ export default function AvatarTrainingPage() {
       await handleStart(sessionResult.nextScenario);
   };
 
-  const TAB_COMPONENTS: Record<Tab, JSX.Element> = {
-    home: <HomeTab onStartScenario={handleStart} />,
-    scenarios: <ScenariosTab onStart={handleStart} />,
-    history: <HistoryTab />,
-    leaderboard: <LeaderboardTab />,
-    analytics: <AnalyticsTab />,
-    session: <div />,
-  };
-
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-canvas">
       {/* Active Session overlay */}
       {activeSession && (
         <ChatSession
@@ -118,18 +109,18 @@ export default function AvatarTrainingPage() {
       )}
 
       {/* Header */}
-      <div className="bg-white border-b border-slate-200 px-6 py-5">
+      <div className="bg-surface border-b border-border px-6 py-5">
         <div className="max-w-7xl mx-auto flex items-start justify-between">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <div className="p-1.5 bg-indigo-100 rounded-lg">
-                <Bot size={18} className="text-indigo-600" />
+              <div className="p-1.5 bg-primary-subtle rounded-control">
+                <Bot size={18} strokeWidth={1.75} className="text-primary" />
               </div>
-              <h1 className="text-xl font-bold text-slate-800">
+              <h1 className="font-display text-xl font-bold text-ink">
                 Avatar Training
               </h1>
             </div>
-            <p className="text-sm text-slate-400">
+            <p className="font-body text-sm text-ink-faint">
               Simulações imersivas · Roleplay com IA · Feedback comportamental
             </p>
           </div>
@@ -137,31 +128,43 @@ export default function AvatarTrainingPage() {
       </div>
 
       {/* Tabs */}
-      <div className="bg-white border-b border-slate-200 px-6">
-        <div className="max-w-7xl mx-auto flex overflow-x-auto">
-          {TABS.map((t) => {
-            const Icon = t.icon;
-            return (
-              <button
-                key={t.id}
-                onClick={() => setTab(t.id)}
-                className={`flex items-center gap-2 px-5 py-4 text-sm font-medium whitespace-nowrap
-                  border-b-2 transition-colors ${
-                    tab === t.id
-                      ? 'border-indigo-600 text-indigo-600'
-                      : 'border-transparent text-slate-500 hover:text-slate-700'
-                  }`}
-              >
-                <Icon size={15} />
-                {t.label}
-              </button>
-            );
-          })}
+      <Tabs defaultValue="home">
+        <div className="bg-surface border-b border-border px-6">
+          <TabsList className="max-w-7xl mx-auto overflow-x-auto">
+            {TABS.map((t) => {
+              const Icon = t.icon;
+              return (
+                <TabsTrigger
+                  key={t.id}
+                  value={t.id}
+                  className="gap-2 whitespace-nowrap"
+                >
+                  <Icon size={16} strokeWidth={1.75} />
+                  {t.label}
+                </TabsTrigger>
+              );
+            })}
+          </TabsList>
         </div>
-      </div>
 
-      {/* Content */}
-      <div className="max-w-7xl mx-auto px-6 py-6">{TAB_COMPONENTS[tab]}</div>
+        <div className="max-w-7xl mx-auto px-6 py-6">
+          <TabsContent value="home">
+            <HomeTab onStartScenario={handleStart} />
+          </TabsContent>
+          <TabsContent value="scenarios">
+            <ScenariosTab onStart={handleStart} />
+          </TabsContent>
+          <TabsContent value="history">
+            <HistoryTab />
+          </TabsContent>
+          <TabsContent value="leaderboard">
+            <LeaderboardTab />
+          </TabsContent>
+          <TabsContent value="analytics">
+            <AnalyticsTab />
+          </TabsContent>
+        </div>
+      </Tabs>
     </div>
   );
 }

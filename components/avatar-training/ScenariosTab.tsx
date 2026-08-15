@@ -12,7 +12,12 @@ import { useApiQuery } from '@/hooks/useApiQuery';
 import { useDebounce } from '@/hooks/useDebounce';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { Skeleton } from './atoms';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { Input } from '@/components/ui/Input';
+import { Select } from '@/components/ui/Select';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { CATEGORY_CONFIG } from './constants';
 import { ScenarioCard } from './ScenarioCard';
 import type { Scenario } from './types';
@@ -20,6 +25,8 @@ import type { Scenario } from './types';
 export interface ScenariosTabProps {
   onStart: (s: Scenario) => void;
 }
+
+const DIFFS = ['BEGINNER', 'INTERMEDIATE', 'ADVANCED', 'EXPERT'];
 
 export function ScenariosTab({ onStart }: ScenariosTabProps) {
   const [category, setCategory] = useState('');
@@ -43,64 +50,66 @@ export function ScenariosTab({ onStart }: ScenariosTabProps) {
   });
   const loading = isLoading;
 
-  const DIFFS = ['BEGINNER', 'INTERMEDIATE', 'ADVANCED', 'EXPERT'];
-
   return (
     <div className="space-y-4">
       {/* Filters */}
-      <div className="bg-white rounded-xl border border-slate-100 p-4 flex flex-wrap gap-2">
-        <input
+      <Card className="p-4 flex flex-wrap gap-2">
+        <Input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Pesquisar cenários..."
-          className="flex-1 min-w-[180px] text-sm border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:border-indigo-400"
+          className="flex-1 min-w-[180px] text-sm"
         />
 
-        <select
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          className="text-xs border border-slate-200 rounded-lg px-2 py-2 focus:outline-none"
-        >
-          <option value="">Todas as categorias</option>
-          {Object.entries(CATEGORY_CONFIG).map(([k, v]) => (
-            <option key={k} value={k}>
-              {v.label}
-            </option>
-          ))}
-        </select>
+        <Select
+          items={[
+            { value: 'ALL', label: 'Todas as categorias' },
+            ...Object.entries(CATEGORY_CONFIG).map(([k, v]) => ({
+              value: k,
+              label: v.label,
+            })),
+          ]}
+          value={category || 'ALL'}
+          onValueChange={(v) => setCategory(v === 'ALL' ? '' : v)}
+          className="text-xs"
+        />
 
         <div className="flex gap-1">
           {['', ...DIFFS].map((d) => (
-            <button
+            <Button
               key={d}
+              size="sm"
+              intent={difficulty === d ? 'primary' : 'ghost'}
               onClick={() => setDifficulty(d)}
-              className={`px-2.5 py-1.5 text-xs rounded-lg transition-colors ${
-                difficulty === d
-                  ? 'bg-indigo-600 text-white'
-                  : 'bg-slate-100 text-slate-600'
-              }`}
             >
               {d || 'Todos'}
-            </button>
+            </Button>
           ))}
         </div>
 
-        <span className="text-xs text-slate-400 self-center ml-auto">
+        <span className="text-xs text-ink-faint self-center ml-auto">
           {data?.meta.total ?? 0} cenários
         </span>
-      </div>
+      </Card>
 
       {loading ? (
-        <Skeleton count={6} />
+        <Skeleton
+          rows={6}
+          wrapperClassName="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 animate-pulse"
+          itemClassName="bg-surface-sunken rounded-card h-52"
+        />
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
           {data?.data.map((s) => (
             <ScenarioCard key={s.id} scenario={s} onStart={onStart} />
           ))}
           {(data?.data.length ?? 0) === 0 && (
-            <div className="col-span-4 py-16 text-center text-slate-400">
-              <Bot size={40} className="mx-auto mb-3 opacity-30" />
-              <p>Nenhum cenário encontrado</p>
+            <div className="col-span-4">
+              <EmptyState
+                icon={Bot}
+                title="Nenhum cenário encontrado"
+                description="Ajusta a pesquisa ou os filtros para veres mais cenários."
+              />
             </div>
           )}
         </div>
