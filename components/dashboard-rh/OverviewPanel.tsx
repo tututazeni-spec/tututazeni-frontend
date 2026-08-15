@@ -2,7 +2,8 @@
 // Painel "Visão Geral" — KPIs agregados + distribuição por departamento.
 // Dados próprios (useApiQuery) + apresentação, mesmo padrão auto-contido
 // usado em components/payslips/page.tsx. Extraído de
-// app/(platform)/dashboard-rh/page.tsx.
+// app/(platform)/dashboard-rh/page.tsx. Migrado para a fundação de design
+// — mesmo padrão de components/dashboard/OrgDashboard.tsx.
 
 'use client';
 
@@ -19,8 +20,10 @@ import {
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
+import { KpiCard } from '@/components/ui/KpiCard';
+import { ProgressBar } from '@/components/ui/ProgressBar';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { AlertStrip } from './AlertStrip';
-import { KPICard, ProgressBar, Skeleton } from './atoms';
 import type { Alert, OverviewData } from './types';
 
 export function OverviewPanel() {
@@ -40,9 +43,11 @@ export function OverviewPanel() {
 
   if (loading)
     return (
-      <div className="space-y-4">
-        <Skeleton count={6} />
-      </div>
+      <Skeleton
+        rows={6}
+        wrapperClassName="grid grid-cols-2 md:grid-cols-4 gap-4 animate-pulse"
+        itemClassName="h-24 rounded-card bg-surface-sunken"
+      />
     );
   const k = data?.kpis ?? {};
 
@@ -51,71 +56,73 @@ export function OverviewPanel() {
       <AlertStrip alerts={alerts} />
 
       {/* Top KPIs */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <KPICard
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+        <KpiCard
           icon={Users}
           label="Colaboradores Activos"
           value={k.headcount?.total ?? 0}
-          status={k.headcount?.status}
+          sub={k.headcount?.status}
+          intent="primary"
+          className="w-full"
         />
-        <KPICard
+        <KpiCard
           icon={UserMinus}
           label="Turnover"
           value={`${k.turnover?.rate ?? 0}%`}
-          status={k.turnover?.status}
-          color="text-red-500"
-          bg="bg-red-50"
+          sub={k.turnover?.status}
+          intent="danger"
+          className="w-full"
         />
-        <KPICard
+        <KpiCard
           icon={UserPlus}
           label="Novas Admissões (mês)"
           value={k.newHires?.count ?? 0}
           trend={k.newHires?.trend}
-          color="text-emerald-600"
-          bg="bg-emerald-50"
+          intent="success"
+          className="w-full"
         />
-        <KPICard
+        <KpiCard
           icon={Star}
           label="Performance Média"
           value={k.performance?.avg?.toFixed(1) ?? '–'}
-          color="text-amber-600"
-          bg="bg-amber-50"
+          intent="warning"
+          className="w-full"
         />
-        <KPICard
+        <KpiCard
           icon={Target}
           label="Cobertura PDI"
           value={`${k.pdpCoverage?.pct ?? 0}%`}
-          status={k.pdpCoverage?.status}
-          color="text-indigo-600"
-          bg="bg-indigo-50"
+          sub={k.pdpCoverage?.status}
+          intent="primary"
+          className="w-full"
         />
-        <KPICard
+        <KpiCard
           icon={BookOpen}
           label="Conclusões (mês)"
           value={k.completions?.count ?? 0}
-          color="text-teal-600"
-          bg="bg-teal-50"
+          intent="info"
+          className="w-full"
         />
-        <KPICard
+        <KpiCard
           icon={Activity}
           label="Respostas a Surveys"
           value={k.engagement?.surveyResponses ?? 0}
-          color="text-violet-600"
-          bg="bg-violet-50"
+          intent="accent"
+          className="w-full"
         />
-        <KPICard
+        <KpiCard
           icon={Shield}
           label="Formações Obrigatórias"
           value={k.mandatoryCompliance ?? 0}
-          color="text-red-600"
-          bg="bg-red-50"
+          intent="danger"
+          className="w-full"
         />
       </div>
 
       {/* Dept distribution */}
       {(data?.distribution?.byDepartment?.length ?? 0) > 0 && (
-        <div className="bg-white rounded-xl border border-slate-100 p-5">
-          <h3 className="font-semibold text-slate-700 mb-4">
+        <div className="rounded-card border border-border bg-surface p-5">
+          <h3 className="mb-4 font-body font-semibold text-ink-muted">
             Distribuição por Departamento
           </h3>
           <div className="space-y-2">
@@ -129,11 +136,11 @@ export function OverviewPanel() {
                 );
                 return (
                   <div key={i}>
-                    <div className="flex justify-between text-xs mb-0.5">
-                      <span className="text-slate-600 truncate">
+                    <div className="mb-0.5 flex justify-between font-body text-xs">
+                      <span className="truncate text-ink-muted">
                         {d.name ?? `Dept ${d.id}`}
                       </span>
-                      <span className="font-semibold text-slate-700">
+                      <span className="font-semibold text-ink">
                         {d.count}
                       </span>
                     </div>

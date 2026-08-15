@@ -1,7 +1,9 @@
 // components/dashboard-rh/TalentPanel.tsx
 // Painel "Talento" — pipeline de sucessão, high potentials e posições em
 // risco. Dados próprios (useApiQuery) + apresentação. Extraído de
-// app/(platform)/dashboard-rh/page.tsx.
+// app/(platform)/dashboard-rh/page.tsx. Migrado para a fundação de design
+// — mesmo padrão de components/dashboard/OrgDashboard.tsx; badge de
+// prontidão via components/ui/Badge.
 
 'use client';
 
@@ -9,7 +11,10 @@ import { AlertTriangle, Star, Target, Users } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { Avatar, KPICard, Skeleton } from './atoms';
+import { Avatar } from '@/components/ui/Avatar';
+import { Badge } from '@/components/ui/Badge';
+import { KpiCard } from '@/components/ui/KpiCard';
+import { Skeleton } from '@/components/ui/Skeleton';
 import type { TalentData } from './types';
 
 export function TalentPanel() {
@@ -18,68 +23,73 @@ export function TalentPanel() {
     '/dashboard-rh/talent-pipeline',
     { staleTime: STALE_TIME.SEMI_STATIC },
   );
-  if (loading) return <Skeleton count={3} />;
+  if (loading)
+    return (
+      <Skeleton
+        rows={3}
+        wrapperClassName="grid grid-cols-2 md:grid-cols-4 gap-4 animate-pulse"
+        itemClassName="h-24 rounded-card bg-surface-sunken"
+      />
+    );
 
   return (
     <div className="space-y-5">
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <KPICard
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+        <KpiCard
           icon={Target}
           label="Posições Cobertas"
           value={`${data?.coverageRate ?? 0}%`}
-          color="text-indigo-600"
-          bg="bg-indigo-50"
+          intent="primary"
+          className="w-full"
         />
-        <KPICard
+        <KpiCard
           icon={Users}
           label="Planos de Sucessão"
           value={data?.successionPlans?.length ?? 0}
+          intent="primary"
+          className="w-full"
         />
-        <KPICard
+        <KpiCard
           icon={Star}
           label="High Potentials"
           value={data?.hiPoCount ?? 0}
-          color="text-amber-600"
-          bg="bg-amber-50"
+          intent="warning"
+          className="w-full"
         />
-        <KPICard
+        <KpiCard
           icon={AlertTriangle}
           label="Posições em Risco"
           value={data?.positionsAtRisk?.length ?? 0}
-          color="text-red-500"
-          bg="bg-red-50"
+          intent="danger"
+          className="w-full"
         />
       </div>
 
       {/* Succession plans */}
       {(data?.successionPlans ?? []).length > 0 && (
-        <div className="bg-white rounded-xl border border-slate-100 p-5">
-          <h4 className="font-semibold text-slate-700 mb-3">
+        <div className="rounded-card border border-border bg-surface p-5">
+          <h4 className="mb-3 font-body font-semibold text-ink-muted">
             Planos de Sucessão
           </h4>
           <div className="space-y-2">
             {(data?.successionPlans ?? []).slice(0, 8).map((p, i) => (
               <div
                 key={i}
-                className="flex items-center gap-3 py-2 border-b border-slate-50 last:border-0"
+                className="flex items-center gap-3 border-b border-border py-2 last:border-0"
               >
                 <Avatar
                   name={p.candidate?.fullName ?? '?'}
                   url={p.candidate?.avatarUrl}
                 />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-slate-700">
+                <div className="min-w-0 flex-1">
+                  <p className="font-body text-sm font-medium text-ink">
                     {p.candidate?.fullName}
                   </p>
-                  <p className="text-[10px] text-slate-400">
+                  <p className="font-body text-[10px] text-ink-faint">
                     → {p.position?.name}
                   </p>
                 </div>
-                {p.readiness && (
-                  <span className="text-xs px-2 py-0.5 bg-indigo-100 text-indigo-700 rounded-full font-medium">
-                    {p.readiness}
-                  </span>
-                )}
+                {p.readiness && <Badge intent="info">{p.readiness}</Badge>}
               </div>
             ))}
           </div>
@@ -88,13 +98,13 @@ export function TalentPanel() {
 
       {/* Positions at risk */}
       {(data?.positionsAtRisk ?? []).length > 0 && (
-        <div className="bg-red-50 border border-red-200 rounded-xl p-4">
-          <h4 className="font-semibold text-red-700 mb-2">
+        <div className="rounded-card border border-danger-subtle bg-danger-subtle p-4">
+          <h4 className="mb-2 font-body font-semibold text-danger-ink">
             ⚠️ Posições Sem Sucessor
           </h4>
           <div className="space-y-1">
             {(data?.positionsAtRisk ?? []).map((p, i) => (
-              <p key={i} className="text-xs text-red-700">
+              <p key={i} className="font-body text-xs text-danger-ink">
                 • {p.name} (Nível {p.level})
               </p>
             ))}
