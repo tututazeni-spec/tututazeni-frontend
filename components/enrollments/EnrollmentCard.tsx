@@ -5,7 +5,13 @@
 'use client';
 
 import Image from 'next/image';
-import { DeadlinePill, ProgressBar, StatusBadge } from './atoms';
+import { AlertTriangle, Award, CheckCircle2 } from 'lucide-react';
+import { Badge } from '@/components/ui/Badge';
+import { buttonVariants } from '@/components/ui/Button';
+import { ProgressBar } from '@/components/ui/ProgressBar';
+import { StatusBadge } from '@/components/ui/StatusBadge';
+import { CARD_BORDER_CFG, STATUS_CFG } from './constants';
+import { deadlineCountdown, deadlineIntent } from './utils';
 import type { Enrollment } from './types';
 
 interface EnrollmentCardProps {
@@ -25,21 +31,17 @@ export function EnrollmentCard({ enrollment, onCancel }: EnrollmentCardProps) {
     deadline,
   } = enrollment;
 
+  const borderCls = isOverdue
+    ? 'border-danger'
+    : (CARD_BORDER_CFG[status] ?? 'border-border');
+
   return (
     <div
-      className={`bg-white border rounded-xl overflow-hidden transition-all ${
-        isOverdue
-          ? 'border-red-200'
-          : status === 'COMPLETED'
-            ? 'border-emerald-200'
-            : status === 'IN_PROGRESS'
-              ? 'border-blue-200'
-              : 'border-gray-200'
-      }`}
+      className={`overflow-hidden rounded-card border bg-surface transition-all ${borderCls}`}
     >
       <div className="flex gap-4 p-4">
         {/* Thumbnail */}
-        <div className="w-20 h-14 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0 relative">
+        <div className="relative h-14 w-20 flex-shrink-0 overflow-hidden rounded-control bg-surface-sunken">
           {course.thumbnailUrl ? (
             <Image
               src={course.thumbnailUrl}
@@ -48,32 +50,32 @@ export function EnrollmentCard({ enrollment, onCancel }: EnrollmentCardProps) {
               className="object-cover"
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center text-2xl text-gray-300">
+            <div className="flex h-full w-full items-center justify-center text-2xl text-ink-faint">
               📚
             </div>
           )}
         </div>
 
-        <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between gap-2 mb-1">
+        <div className="min-w-0 flex-1">
+          <div className="mb-1 flex items-start justify-between gap-2">
             <div>
-              <div className="flex items-center gap-2 mb-0.5">
+              <div className="mb-0.5 flex items-center gap-2">
                 {mandatory && (
-                  <span className="text-xs bg-red-50 text-red-700 px-1.5 py-0 rounded font-medium">
+                  <Badge intent="danger" className="px-1.5 py-0">
                     Obrigatório
-                  </span>
+                  </Badge>
                 )}
                 {course.category && (
-                  <span className="text-xs text-gray-400">
+                  <span className="text-xs text-ink-faint">
                     {course.category}
                   </span>
                 )}
               </div>
-              <div className="text-sm font-medium text-gray-900 line-clamp-1">
+              <div className="line-clamp-1 text-sm font-medium text-ink">
                 {course.title}
               </div>
             </div>
-            <StatusBadge status={status} />
+            <StatusBadge value={status} map={STATUS_CFG} variant="dot" />
           </div>
 
           {/* Progress */}
@@ -81,8 +83,17 @@ export function EnrollmentCard({ enrollment, onCancel }: EnrollmentCardProps) {
             status !== 'CANCELLED' &&
             totalLessons > 0 && (
               <div className="mb-2">
-                <ProgressBar pct={progressPercent} overdue={isOverdue} />
-                <div className="text-xs text-gray-400 mt-0.5">
+                <div className="flex items-center gap-2">
+                  <div className="flex-1">
+                    <ProgressBar value={progressPercent} />
+                  </div>
+                  <span
+                    className={`w-8 text-right font-mono text-xs ${isOverdue ? 'text-danger' : 'text-ink-muted'}`}
+                  >
+                    {progressPercent}%
+                  </span>
+                </div>
+                <div className="mt-0.5 text-xs text-ink-faint">
                   {completedLessons}/{totalLessons} aulas
                 </div>
               </div>
@@ -90,10 +101,16 @@ export function EnrollmentCard({ enrollment, onCancel }: EnrollmentCardProps) {
 
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <DeadlinePill deadline={deadline} isOverdue={isOverdue} />
+              {deadline && (
+                <Badge intent={deadlineIntent(deadline, isOverdue)}>
+                  {isOverdue ? '⚠ ' : '⏳ '}
+                  {deadlineCountdown(deadline)}
+                </Badge>
+              )}
               {enrollment.certificate && (
-                <span className="text-xs bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded">
-                  🏆 Certificado
+                <span className="flex items-center gap-1 rounded px-2 py-0.5 text-xs bg-success-subtle text-success-ink">
+                  <Award size={14} strokeWidth={1.75} />
+                  Certificado
                 </span>
               )}
             </div>
@@ -103,7 +120,7 @@ export function EnrollmentCard({ enrollment, onCancel }: EnrollmentCardProps) {
               {status === 'NOT_STARTED' && (
                 <a
                   href={`/courses/${enrollment.courseId}`}
-                  className="px-3 py-1.5 bg-blue-700 text-white text-xs font-medium rounded-lg hover:bg-blue-800"
+                  className={buttonVariants({ intent: 'primary', size: 'sm' })}
                 >
                   Iniciar →
                 </a>
@@ -111,7 +128,7 @@ export function EnrollmentCard({ enrollment, onCancel }: EnrollmentCardProps) {
               {status === 'IN_PROGRESS' && (
                 <a
                   href={`/courses/${enrollment.courseId}`}
-                  className="px-3 py-1.5 bg-blue-700 text-white text-xs font-medium rounded-lg hover:bg-blue-800"
+                  className={buttonVariants({ intent: 'primary', size: 'sm' })}
                 >
                   Continuar →
                 </a>
@@ -119,14 +136,16 @@ export function EnrollmentCard({ enrollment, onCancel }: EnrollmentCardProps) {
               {status === 'OVERDUE' && (
                 <a
                   href={`/courses/${enrollment.courseId}`}
-                  className="px-3 py-1.5 bg-red-600 text-white text-xs font-medium rounded-lg hover:bg-red-700"
+                  className={buttonVariants({ intent: 'danger', size: 'sm' })}
                 >
-                  ⚠ Iniciar agora →
+                  <AlertTriangle size={14} strokeWidth={1.75} />
+                  Iniciar agora →
                 </a>
               )}
               {status === 'COMPLETED' && (
-                <span className="text-xs text-emerald-600 font-medium">
-                  ✓ Concluído
+                <span className="flex items-center gap-1 text-xs font-medium text-success-ink">
+                  <CheckCircle2 size={14} strokeWidth={1.75} />
+                  Concluído
                 </span>
               )}
               {!mandatory &&
@@ -135,7 +154,7 @@ export function EnrollmentCard({ enrollment, onCancel }: EnrollmentCardProps) {
                 onCancel && (
                   <button
                     onClick={() => onCancel(enrollment.id)}
-                    className="ml-2 text-xs text-gray-400 hover:text-red-500"
+                    className="ml-2 text-xs text-ink-faint hover:text-danger"
                   >
                     Cancelar
                   </button>

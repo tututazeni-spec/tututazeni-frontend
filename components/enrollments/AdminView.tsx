@@ -11,14 +11,15 @@ import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import {
-  Avatar,
-  DeadlinePill,
-  OriginBadge,
-  ProgressBar,
-  Skeleton,
-  StatusBadge,
-} from './atoms';
+import { Avatar } from '@/components/ui/Avatar';
+import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
+import { ProgressBar } from '@/components/ui/ProgressBar';
+import { Skeleton } from '@/components/ui/Skeleton';
+import { StatusBadge } from '@/components/ui/StatusBadge';
+import { ORIGIN_LABELS, STATUS_CFG } from './constants';
+import { deadlineCountdown, deadlineIntent } from './utils';
 import type { Enrollment } from './types';
 
 export function AdminView() {
@@ -93,11 +94,11 @@ export function AdminView() {
   return (
     <div>
       {/* Filtros */}
-      <div className="flex flex-wrap items-center gap-3 mb-5">
+      <div className="mb-5 flex flex-wrap items-center gap-3">
         <select
           value={filters.status}
           onChange={(e) => updateFilters({ status: e.target.value })}
-          className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="rounded-control border-[1.5px] border-border-strong bg-surface px-3 py-[9px] font-body text-sm text-ink focus:border-accent focus:outline-none focus:ring-[3px] focus:ring-accent-subtle"
         >
           <option value="">Todos os estados</option>
           <option value="NOT_STARTED">Não iniciado</option>
@@ -109,50 +110,50 @@ export function AdminView() {
         <select
           value={filters.mandatory}
           onChange={(e) => updateFilters({ mandatory: e.target.value })}
-          className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="rounded-control border-[1.5px] border-border-strong bg-surface px-3 py-[9px] font-body text-sm text-ink focus:border-accent focus:outline-none focus:ring-[3px] focus:ring-accent-subtle"
         >
           <option value="">Obrigatório e opcional</option>
           <option value="true">Apenas obrigatórios</option>
           <option value="false">Apenas opcionais</option>
         </select>
-        <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
+        <label className="flex cursor-pointer items-center gap-2 text-sm text-ink-muted">
           <input
             type="checkbox"
             checked={!!filters.overdue}
             onChange={(e) =>
               updateFilters({ overdue: e.target.checked ? 'true' : '' })
             }
-            className="w-4 h-4 rounded border-gray-300 text-red-600 focus:ring-red-500"
+            className="h-4 w-4 rounded border-border-strong accent-primary"
           />
           Apenas atrasados
         </label>
-        <span className="text-sm text-gray-400 ml-auto">
+        <span className="ml-auto text-sm text-ink-faint">
           {data?.total ?? 0} matrículas
         </span>
       </div>
 
       {/* Bulk deadline */}
       {selected.length > 0 && (
-        <div className="flex items-center gap-3 mb-4 px-4 py-2.5 bg-blue-50 border border-blue-100 rounded-xl">
-          <span className="text-sm font-medium text-blue-700">
+        <div className="mb-4 flex items-center gap-3 rounded-card border border-border bg-info-subtle px-4 py-2.5">
+          <span className="text-sm font-medium text-info-ink">
             {selected.length} seleccionados
           </span>
-          <input
+          <Input
             type="date"
             value={bulkDeadline}
             onChange={(e) => setBulkDeadline(e.target.value)}
-            className="text-sm border border-blue-200 rounded-lg px-2 py-1.5 bg-white focus:outline-none"
+            className="py-1.5 text-sm"
           />
-          <button
+          <Button
+            size="sm"
             onClick={handleBulkDeadline}
             disabled={!bulkDeadline || bulkLoading}
-            className="px-3 py-1.5 bg-blue-700 text-white text-xs font-medium rounded-lg disabled:opacity-50"
           >
             {bulkLoading ? 'A aplicar…' : 'Actualizar deadline'}
-          </button>
+          </Button>
           <button
             onClick={() => setSelected([])}
-            className="text-xs text-blue-600 ml-auto"
+            className="ml-auto text-xs text-info-ink"
           >
             Limpar
           </button>
@@ -160,8 +161,8 @@ export function AdminView() {
       )}
 
       {/* Tabela */}
-      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-        <div className="grid grid-cols-[32px_1fr_180px_120px_100px_120px_80px] gap-3 px-4 py-2.5 border-b border-gray-100 text-xs font-medium text-gray-400 uppercase tracking-wide">
+      <div className="overflow-hidden rounded-card border border-border bg-surface">
+        <div className="grid grid-cols-[32px_1fr_180px_120px_100px_120px_80px] gap-3 border-b border-border px-4 py-2.5 text-xs font-medium uppercase tracking-wide text-ink-faint">
           <div />
           <div>Colaborador / Curso</div>
           <div>Estado</div>
@@ -173,7 +174,11 @@ export function AdminView() {
 
         {loading && (
           <div className="p-4">
-            <Skeleton />
+            <Skeleton
+              rows={4}
+              wrapperClassName="space-y-2 animate-pulse"
+              itemClassName="h-12 rounded-card bg-surface-sunken"
+            />
           </div>
         )}
 
@@ -181,54 +186,56 @@ export function AdminView() {
           data?.data?.map((e) => (
             <div
               key={e.id}
-              className="grid grid-cols-[32px_1fr_180px_120px_100px_120px_80px] gap-3 items-center px-4 py-3 border-b border-gray-100 hover:bg-gray-50 last:border-0"
+              className="grid grid-cols-[32px_1fr_180px_120px_100px_120px_80px] items-center gap-3 border-b border-border px-4 py-3 last:border-0 hover:bg-surface-sunken"
             >
               <input
                 type="checkbox"
                 checked={selected.includes(e.id)}
                 onChange={() => toggleSelect(e.id)}
-                className="w-4 h-4 rounded border-gray-300 text-blue-600"
+                className="h-4 w-4 rounded border-border-strong accent-primary"
               />
               <div className="flex flex-col gap-1">
                 <div className="flex items-center gap-2">
-                  <Avatar user={e.user} />
+                  <Avatar name={e.user?.fullName ?? ''} url={e.user?.avatarUrl ?? undefined} size="sm" />
                   <div>
-                    <div className="text-xs font-medium text-gray-900">
+                    <div className="text-xs font-medium text-ink">
                       {e.user?.fullName}
                     </div>
-                    <div className="text-xs text-gray-400">{e.user?.email}</div>
+                    <div className="text-xs text-ink-faint">{e.user?.email}</div>
                   </div>
                 </div>
-                <div className="text-xs text-gray-600 pl-10 truncate">
+                <div className="truncate pl-10 text-xs text-ink-muted">
                   {e.course?.title}
                 </div>
               </div>
               <div>
-                <StatusBadge status={e.status} />
+                <StatusBadge value={e.status} map={STATUS_CFG} variant="dot" />
               </div>
               <div>
-                <ProgressBar
-                  pct={e.progressPercent ?? 0}
-                  overdue={e.isOverdue}
-                />
+                <ProgressBar value={e.progressPercent ?? 0} />
               </div>
               <div>
-                <OriginBadge origin={e.origin} />
+                <span className="text-xs text-ink-faint">
+                  {ORIGIN_LABELS[e.origin]}
+                </span>
               </div>
               <div className="text-xs">
                 {e.deadline ? (
-                  <DeadlinePill deadline={e.deadline} isOverdue={e.isOverdue} />
+                  <Badge intent={deadlineIntent(e.deadline, e.isOverdue)}>
+                    {e.isOverdue ? '⚠ ' : '⏳ '}
+                    {deadlineCountdown(e.deadline)}
+                  </Badge>
                 ) : (
-                  <span className="text-gray-300">—</span>
+                  <span className="text-ink-faint">—</span>
                 )}
               </div>
               <div>
                 {e.mandatory ? (
-                  <span className="text-xs text-red-600 font-medium">
+                  <span className="text-xs font-medium text-danger-ink">
                     Obrigatório
                   </span>
                 ) : (
-                  <span className="text-xs text-gray-400">Opcional</span>
+                  <span className="text-xs text-ink-faint">Opcional</span>
                 )}
               </div>
             </div>
@@ -237,25 +244,27 @@ export function AdminView() {
 
       {/* Paginação */}
       {data && data.totalPages > 1 && (
-        <div className="flex items-center justify-between mt-4">
-          <span className="text-xs text-gray-400">
+        <div className="mt-4 flex items-center justify-between">
+          <span className="text-xs text-ink-faint">
             Página {data.page} de {data.totalPages}
           </span>
           <div className="flex gap-2">
-            <button
+            <Button
+              intent="secondary"
+              size="sm"
               disabled={filters.page === 1}
               onClick={() => goToPage(-1)}
-              className="px-3 py-1.5 text-xs border border-gray-200 rounded-lg disabled:opacity-40 hover:bg-gray-50"
             >
               ← Anterior
-            </button>
-            <button
+            </Button>
+            <Button
+              intent="secondary"
+              size="sm"
               disabled={filters.page === data.totalPages}
               onClick={() => goToPage(1)}
-              className="px-3 py-1.5 text-xs border border-gray-200 rounded-lg disabled:opacity-40 hover:bg-gray-50"
             >
               Próxima →
-            </button>
+            </Button>
           </div>
         </div>
       )}

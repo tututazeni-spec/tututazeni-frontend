@@ -6,12 +6,15 @@
 'use client';
 
 import { useState } from 'react';
+import { AlertTriangle } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { Skeleton } from './atoms';
+import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { EnrollmentCard } from './EnrollmentCard';
 import type { MyEnrollmentsResponse } from './types';
 
@@ -47,7 +50,14 @@ export function MyEnrollmentsView() {
     cancel.mutate(id);
   };
 
-  if (isLoading || !data) return <Skeleton rows={4} />;
+  if (isLoading || !data)
+    return (
+      <Skeleton
+        rows={4}
+        wrapperClassName="space-y-2 animate-pulse"
+        itemClassName="h-16 rounded-card bg-surface-sunken"
+      />
+    );
 
   const tabs: Array<{ id: typeof tab; label: string; count: number }> = [
     { id: 'all', label: 'Todos', count: data.enrollments.length },
@@ -75,13 +85,17 @@ export function MyEnrollmentsView() {
     <div>
       {/* Alertas de overdue */}
       {data.groups.overdue.length > 0 && (
-        <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 mb-5 flex items-center gap-3">
-          <span className="text-red-600 text-lg">⚠</span>
+        <div className="mb-5 flex items-center gap-3 rounded-card border border-danger bg-danger-subtle px-4 py-3">
+          <AlertTriangle
+            size={20}
+            strokeWidth={1.75}
+            className="flex-shrink-0 text-danger"
+          />
           <div>
-            <div className="text-sm font-medium text-red-800">
+            <div className="text-sm font-medium text-danger-ink">
               {data.groups.overdue.length} curso(s) com prazo expirado
             </div>
-            <div className="text-xs text-red-600">
+            <div className="text-xs text-danger-ink">
               {data.groups.overdue.filter((e) => e.mandatory).length}{' '}
               obrigatório(s) — conclua o mais rapidamente possível
             </div>
@@ -90,36 +104,27 @@ export function MyEnrollmentsView() {
       )}
 
       {/* Tabs */}
-      <div className="flex gap-1 mb-5 bg-gray-100 p-1 rounded-xl w-fit flex-wrap">
+      <div className="mb-5 flex w-fit flex-wrap gap-1 rounded-card bg-surface-sunken p-1">
         {tabs.map((t) => (
-          <button
+          <Button
             key={t.id}
+            size="sm"
+            intent={tab === t.id ? 'primary' : 'ghost'}
             onClick={() => setTab(t.id)}
-            className={`flex items-center gap-1.5 px-3 py-2 text-xs font-medium rounded-lg transition-colors ${
-              tab === t.id
-                ? 'bg-white text-gray-900 shadow-sm'
-                : 'text-gray-500 hover:text-gray-700'
-            }`}
           >
             {t.label}
             {t.count > 0 && (
-              <span
-                className={`px-1.5 py-0 rounded-full text-xs ${
-                  t.id === 'overdue'
-                    ? 'bg-red-100 text-red-700'
-                    : 'bg-gray-200 text-gray-600'
-                }`}
-              >
+              <Badge intent={t.id === 'overdue' ? 'danger' : 'neutral'} className="px-1.5 py-0">
                 {t.count}
-              </span>
+              </Badge>
             )}
-          </button>
+          </Button>
         ))}
       </div>
 
       <div className="space-y-3">
         {displayed.length === 0 ? (
-          <div className="py-12 text-center text-sm text-gray-400 border border-dashed border-gray-200 rounded-xl">
+          <div className="rounded-card border border-dashed border-border py-12 text-center text-sm text-ink-faint">
             Sem matrículas nesta categoria
           </div>
         ) : (
