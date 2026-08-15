@@ -1,14 +1,39 @@
 // components/analytics/OverviewView.tsx
 // Separador "Visão geral" — KPIs organizacionais. Dados próprios +
 // apresentação. Extraído de app/(platform)/analytics/page.tsx.
+// Migrado para a fundação de design: os 4 KPIs principais passam a
+// components/ui/KpiCard (icon+intent); os pares agrupados (Cursos/
+// Matrículas/Gamificação) usam o padrão de "tile" plano já estabelecido
+// em components/micro-learning/DashboardView.tsx, mais leve do que
+// aninhar KpiCard dentro de Card.
 
 'use client';
 
+import { CheckCircle2, Target, TrendingUp, Users } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { KpiCard, Skeleton } from './atoms';
+import { Card, CardBody } from '@/components/ui/Card';
+import { KpiCard } from '@/components/ui/KpiCard';
+import { Skeleton } from '@/components/ui/Skeleton';
 import type { OrgOverview } from './types';
+
+function Tile({
+  label,
+  value,
+  color = 'text-ink',
+}: {
+  label: string;
+  value: string | number;
+  color?: string;
+}) {
+  return (
+    <div className="rounded-card bg-surface-sunken p-3">
+      <div className="mb-1 font-body text-xs text-ink-faint">{label}</div>
+      <div className={`font-data text-xl font-bold ${color}`}>{value}</div>
+    </div>
+  );
+}
 
 export function OverviewView() {
   const { data, isLoading } = useApiQuery<OrgOverview>(
@@ -24,83 +49,82 @@ export function OverviewView() {
       {/* KPIs principais */}
       <div className="grid grid-cols-4 gap-3">
         <KpiCard
+          icon={Users}
           label="Colaboradores activos"
           value={data.users.active}
-          bg="bg-blue-50"
-          color="text-blue-700"
+          intent="info"
+          className="w-full"
         />
         <KpiCard
+          icon={CheckCircle2}
           label="Taxa de conclusão"
           value={`${data.enrollments.completionRate}%`}
-          bg="bg-emerald-50"
-          color="text-emerald-700"
+          intent="success"
+          className="w-full"
         />
         <KpiCard
+          icon={Target}
           label="Adopção de PDI"
           value={`${data.pdi.adoptionRate}%`}
-          bg="bg-purple-50"
-          color="text-purple-700"
+          intent="accent"
+          className="w-full"
         />
         <KpiCard
+          icon={TrendingUp}
           label="Performance média"
           value={data.performance.avgScore}
-          bg="bg-amber-50"
-          color="text-amber-700"
+          intent="warning"
+          className="w-full"
         />
       </div>
 
       {/* Segunda linha */}
       <div className="grid grid-cols-3 gap-3">
-        <div className="bg-white border border-gray-200 rounded-xl p-5">
-          <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">
-            Cursos
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <KpiCard label="Total" value={data.courses.total} bg="bg-gray-50" />
-            <KpiCard
-              label="Publicados"
-              value={data.courses.published}
-              bg="bg-gray-50"
-            />
-          </div>
-        </div>
-        <div className="bg-white border border-gray-200 rounded-xl p-5">
-          <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">
-            Matrículas
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <KpiCard
-              label="Total"
-              value={data.enrollments.total}
-              bg="bg-gray-50"
-            />
-            <KpiCard
-              label="Concluídas"
-              value={data.enrollments.completed}
-              bg="bg-gray-50"
-              color="text-emerald-600"
-            />
-          </div>
-        </div>
-        <div className="bg-white border border-gray-200 rounded-xl p-5">
-          <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">
-            Gamificação
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <KpiCard
-              label="XP total"
-              value={data.engagement.totalXp}
-              bg="bg-gray-50"
-              color="text-amber-600"
-            />
-            <KpiCard
-              label="Badges"
-              value={data.engagement.totalBadges}
-              bg="bg-gray-50"
-              color="text-purple-600"
-            />
-          </div>
-        </div>
+        <Card>
+          <CardBody>
+            <div className="mb-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+              Cursos
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <Tile label="Total" value={data.courses.total} />
+              <Tile label="Publicados" value={data.courses.published} />
+            </div>
+          </CardBody>
+        </Card>
+        <Card>
+          <CardBody>
+            <div className="mb-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+              Matrículas
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <Tile label="Total" value={data.enrollments.total} />
+              <Tile
+                label="Concluídas"
+                value={data.enrollments.completed}
+                color="text-success"
+              />
+            </div>
+          </CardBody>
+        </Card>
+        <Card>
+          <CardBody>
+            <div className="mb-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+              Gamificação
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <Tile
+                label="XP total"
+                value={data.engagement.totalXp}
+                color="text-warning"
+              />
+              <Tile
+                label="Badges"
+                value={data.engagement.totalBadges}
+                color="text-accent"
+              />
+            </div>
+          </CardBody>
+        </Card>
       </div>
     </div>
   );
