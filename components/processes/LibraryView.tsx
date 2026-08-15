@@ -8,10 +8,15 @@
 
 import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
+import { FolderSearch } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { useDebounce } from '@/hooks/useDebounce';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
+import { Button } from '@/components/ui/Button';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { Input } from '@/components/ui/Input';
+import { Select } from '@/components/ui/Select';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { PROCESS_STATUS_MAP, RISK_LEVEL_MAP } from './constants';
 import { Skeleton } from './Skeleton';
@@ -20,6 +25,22 @@ import type { PaginatedProcesses } from './types';
 export interface LibraryViewProps {
   onSelect: (id: number) => void;
 }
+
+const STATUS_ITEMS = [
+  { value: 'ALL', label: 'Todos os estados' },
+  { value: 'DRAFT', label: 'Rascunho' },
+  { value: 'IN_REVIEW', label: 'Em revisão' },
+  { value: 'ACTIVE', label: 'Activo' },
+  { value: 'ARCHIVED', label: 'Arquivado' },
+];
+
+const RISK_ITEMS = [
+  { value: 'ALL', label: 'Todos os riscos' },
+  { value: 'LOW', label: 'Baixo' },
+  { value: 'MEDIUM', label: 'Médio' },
+  { value: 'HIGH', label: 'Alto' },
+  { value: 'CRITICAL', label: 'Crítico' },
+];
 
 export function LibraryView({ onSelect }: LibraryViewProps) {
   const [search, setSearch] = useState('');
@@ -52,8 +73,8 @@ export function LibraryView({ onSelect }: LibraryViewProps) {
   return (
     <div>
       {/* Filtros */}
-      <div className="flex flex-wrap items-center gap-3 mb-5">
-        <input
+      <div className="mb-5 flex flex-wrap items-center gap-3">
+        <Input
           type="text"
           placeholder="Pesquisar por nome, código, tag…"
           value={search}
@@ -61,44 +82,34 @@ export function LibraryView({ onSelect }: LibraryViewProps) {
             setSearch(e.target.value);
             setPage(1);
           }}
-          className="flex-1 min-w-[200px] text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="min-w-[200px] flex-1"
         />
-        <select
-          value={status}
-          onChange={(e) => {
-            setStatus(e.target.value);
+        <Select
+          items={STATUS_ITEMS}
+          value={status || 'ALL'}
+          onValueChange={(v) => {
+            setStatus(v === 'ALL' ? '' : v);
             setPage(1);
           }}
-          className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          <option value="">Todos os estados</option>
-          <option value="DRAFT">Rascunho</option>
-          <option value="IN_REVIEW">Em revisão</option>
-          <option value="ACTIVE">Activo</option>
-          <option value="ARCHIVED">Arquivado</option>
-        </select>
-        <select
-          value={risk}
-          onChange={(e) => {
-            setRisk(e.target.value);
+          className="w-44"
+        />
+        <Select
+          items={RISK_ITEMS}
+          value={risk || 'ALL'}
+          onValueChange={(v) => {
+            setRisk(v === 'ALL' ? '' : v);
             setPage(1);
           }}
-          className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          <option value="">Todos os riscos</option>
-          <option value="LOW">Baixo</option>
-          <option value="MEDIUM">Médio</option>
-          <option value="HIGH">Alto</option>
-          <option value="CRITICAL">Crítico</option>
-        </select>
-        <span className="text-sm text-gray-400">
+          className="w-40"
+        />
+        <span className="font-body text-sm text-ink-faint">
           {data?.total ?? 0} processos
         </span>
       </div>
 
       {/* Tabela */}
-      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-        <div className="grid grid-cols-[2fr_100px_120px_90px_100px_90px] gap-3 px-4 py-2.5 border-b border-gray-100 text-xs font-medium text-gray-400 uppercase tracking-wide">
+      <div className="overflow-hidden rounded-card border border-border bg-surface">
+        <div className="grid grid-cols-[2fr_100px_120px_90px_100px_90px] gap-3 border-b border-border px-4 py-2.5 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
           <div>Processo</div>
           <div>Versão</div>
           <div>Departamento</div>
@@ -113,46 +124,48 @@ export function LibraryView({ onSelect }: LibraryViewProps) {
           </div>
         )}
         {error && (
-          <div className="px-4 py-8 text-center text-sm text-red-500">
+          <div className="px-4 py-8 text-center font-body text-sm text-danger">
             {error.message}
           </div>
         )}
 
         {!loading && data?.data.length === 0 && (
-          <div className="px-4 py-12 text-center text-sm text-gray-400">
-            Nenhum processo encontrado
-          </div>
+          <EmptyState
+            icon={FolderSearch}
+            title="Sem processos"
+            description="Nenhum processo encontrado com estes filtros."
+          />
         )}
 
         {!loading &&
           data?.data.map((p) => (
             <div
               key={p.id}
-              className="grid grid-cols-[2fr_100px_120px_90px_100px_90px] gap-3 items-center px-4 py-3.5 border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition-colors last:border-0"
+              className="grid cursor-pointer grid-cols-[2fr_100px_120px_90px_100px_90px] items-center gap-3 border-b border-border px-4 py-3.5 transition-colors last:border-0 hover:bg-surface-sunken"
               onClick={() => onSelect(p.id)}
             >
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium text-gray-900">
+                  <span className="font-body text-sm font-medium text-ink">
                     {p.title}
                   </span>
                   {p.tags.slice(0, 2).map((t) => (
                     <span
                       key={t}
-                      className="px-1.5 py-0.5 bg-blue-50 text-blue-600 text-xs rounded"
+                      className="rounded-control bg-info-subtle px-1.5 py-0.5 font-body text-xs text-info-ink"
                     >
                       {t}
                     </span>
                   ))}
                 </div>
-                <div className="text-xs text-gray-400 mt-0.5 font-mono">
+                <div className="mt-0.5 font-mono text-xs text-ink-faint">
                   {p.code}
                 </div>
               </div>
-              <div className="text-xs font-mono text-gray-500">
+              <div className="font-mono text-xs text-ink-muted">
                 v{p.version}
               </div>
-              <div className="text-xs text-gray-500">
+              <div className="font-body text-xs text-ink-muted">
                 {p.department?.name ?? '—'}
               </div>
               <div>
@@ -165,32 +178,36 @@ export function LibraryView({ onSelect }: LibraryViewProps) {
                   variant="dot"
                 />
               </div>
-              <div className="text-sm text-gray-500">{p._count.instances}</div>
+              <div className="font-body text-sm text-ink-muted">
+                {p._count.instances}
+              </div>
             </div>
           ))}
       </div>
 
       {/* Paginação */}
       {data && data.totalPages > 1 && (
-        <div className="flex items-center justify-between mt-4">
-          <span className="text-xs text-gray-400">
+        <div className="mt-4 flex items-center justify-between">
+          <span className="font-body text-xs text-ink-faint">
             Página {data.page} de {data.totalPages}
           </span>
           <div className="flex gap-2">
-            <button
+            <Button
+              intent="secondary"
+              size="sm"
               disabled={page === 1}
               onClick={() => setPage((p) => p - 1)}
-              className="px-3 py-1.5 text-xs border border-gray-200 rounded-lg disabled:opacity-40 hover:bg-gray-50"
             >
               ← Anterior
-            </button>
-            <button
+            </Button>
+            <Button
+              intent="secondary"
+              size="sm"
               disabled={page === data.totalPages}
               onClick={() => setPage((p) => p + 1)}
-              className="px-3 py-1.5 text-xs border border-gray-200 rounded-lg disabled:opacity-40 hover:bg-gray-50"
             >
               Próxima →
-            </button>
+            </Button>
           </div>
         </div>
       )}
