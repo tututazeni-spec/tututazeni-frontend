@@ -10,8 +10,18 @@ import { Users, BookOpen, Target, TrendingUp, Brain } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { ProgressBar, KPICard, Skeleton } from './atoms';
+import { Button } from '@/components/ui/Button';
+import { KpiCard } from '@/components/ui/KpiCard';
+import { ProgressBar } from '@/components/ui/ProgressBar';
+import { Skeleton } from '@/components/ui/Skeleton';
 import type { OrgDashboardData } from './types';
+
+const PERIODS = [
+  { id: 'WEEK', label: 'Semana' },
+  { id: 'MONTH', label: 'Mês' },
+  { id: 'QUARTER', label: 'Trimestre' },
+  { id: 'YEAR', label: 'Ano' },
+];
 
 export function OrgDashboard() {
   const [period, setPeriod] = useState('MONTH');
@@ -24,7 +34,14 @@ export function OrgDashboard() {
     { params: { period }, staleTime: STALE_TIME.SEMI_STATIC },
   );
 
-  if (isLoading) return <Skeleton count={6} />;
+  if (isLoading)
+    return (
+      <Skeleton
+        rows={6}
+        wrapperClassName="grid grid-cols-2 md:grid-cols-4 gap-4 animate-pulse"
+        itemClassName="h-24 rounded-card bg-surface-sunken"
+      />
+    );
 
   const k = data?.kpis ?? {};
 
@@ -32,68 +49,57 @@ export function OrgDashboard() {
     <div className="space-y-6">
       {/* Period filter */}
       <div className="flex gap-2">
-        {['WEEK', 'MONTH', 'QUARTER', 'YEAR'].map((p) => (
-          <button
-            key={p}
-            onClick={() => setPeriod(p)}
-            className={`px-3 py-1.5 text-xs rounded-lg font-medium transition-colors ${
-              period === p
-                ? 'bg-indigo-600 text-white'
-                : 'bg-white border border-slate-200 text-slate-600'
-            }`}
+        {PERIODS.map((p) => (
+          <Button
+            key={p.id}
+            size="sm"
+            intent={period === p.id ? 'primary' : 'ghost'}
+            onClick={() => setPeriod(p.id)}
           >
-            {p === 'WEEK'
-              ? 'Semana'
-              : p === 'MONTH'
-                ? 'Mês'
-                : p === 'QUARTER'
-                  ? 'Trimestre'
-                  : 'Ano'}
-          </button>
+            {p.label}
+          </Button>
         ))}
-        <span className="ml-auto text-xs text-slate-400 self-center">
+        <span className="ml-auto self-center font-body text-xs text-ink-faint">
           {new Date().toLocaleDateString('pt')}
         </span>
       </div>
 
       {/* KPIs */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <KPICard
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+        <KpiCard
           icon={Users}
           label="Colaboradores Activos"
           value={k.headcount?.active ?? 0}
           sub={`+${k.headcount?.new ?? 0} no período`}
           trend={k.headcount?.newTrend}
         />
-        <KPICard
+        <KpiCard
           icon={BookOpen}
           label="Conclusões de Cursos"
           value={k.learning?.completions ?? 0}
           trend={k.learning?.completionsTrend}
-          color="text-teal-600"
-          bg="bg-teal-50"
+          intent="info"
         />
-        <KPICard
+        <KpiCard
           icon={Target}
           label="PDIs Activos"
           value={k.development?.activePlans ?? 0}
           sub={`Cobertura: ${k.development?.coverage ?? 0}%`}
-          color="text-indigo-600"
-          bg="bg-indigo-50"
         />
-        <KPICard
+        <KpiCard
           icon={TrendingUp}
           label="Score Médio Geral"
           value={k.performance?.avgScore?.toFixed(1) ?? '–'}
-          color="text-amber-600"
-          bg="bg-amber-50"
+          intent="warning"
         />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Talent metrics */}
-        <div className="bg-white rounded-xl border border-slate-100 p-5">
-          <h3 className="font-semibold text-slate-700 mb-4">Talentos</h3>
+        <div className="rounded-card border border-border bg-surface p-5">
+          <h3 className="mb-4 font-body font-semibold text-ink-muted">
+            Talentos
+          </h3>
           <div className="space-y-3">
             {[
               {
@@ -118,18 +124,20 @@ export function OrgDashboard() {
               },
             ].map((m) => (
               <div key={m.label} className="flex items-center justify-between">
-                <span className="text-sm text-slate-600 flex items-center gap-2">
+                <span className="flex items-center gap-2 font-body text-sm text-ink-muted">
                   {m.icon} {m.label}
                 </span>
-                <span className="font-bold text-slate-800">{m.value}</span>
+                <span className="font-body font-bold text-ink">{m.value}</span>
               </div>
             ))}
           </div>
         </div>
 
         {/* Departments */}
-        <div className="bg-white rounded-xl border border-slate-100 p-5">
-          <h3 className="font-semibold text-slate-700 mb-4">Departamentos</h3>
+        <div className="rounded-card border border-border bg-surface p-5">
+          <h3 className="mb-4 font-body font-semibold text-ink-muted">
+            Departamentos
+          </h3>
           <div className="space-y-2">
             {(data?.departments ?? []).slice(0, 6).map((d) => {
               const total = (data?.departments ?? []).reduce(
@@ -140,9 +148,9 @@ export function OrgDashboard() {
                 total > 0 ? Math.round((d.headcount / total) * 100) : 0;
               return (
                 <div key={d.id}>
-                  <div className="flex justify-between text-xs mb-0.5">
-                    <span className="text-slate-600 truncate">{d.name}</span>
-                    <span className="text-slate-700 font-semibold">
+                  <div className="mb-0.5 flex justify-between font-body text-xs">
+                    <span className="truncate text-ink-muted">{d.name}</span>
+                    <span className="font-semibold text-ink">
                       {d.headcount}
                     </span>
                   </div>
@@ -154,9 +162,9 @@ export function OrgDashboard() {
         </div>
 
         {/* AI Insights */}
-        <div className="bg-white rounded-xl border border-slate-100 p-5">
-          <h3 className="font-semibold text-slate-700 mb-4 flex items-center gap-2">
-            <Brain size={15} className="text-violet-500" />
+        <div className="rounded-card border border-border bg-surface p-5">
+          <h3 className="mb-4 flex items-center gap-2 font-body font-semibold text-ink-muted">
+            <Brain size={14} strokeWidth={1.75} className="text-accent" />
             Insights
           </h3>
           {(data?.insights ?? []).length > 0 ? (
@@ -164,14 +172,14 @@ export function OrgDashboard() {
               {(data?.insights ?? []).map((ins, i) => (
                 <p
                   key={i}
-                  className="text-xs text-slate-600 bg-violet-50 rounded-lg px-3 py-2"
+                  className="rounded-control bg-accent-subtle px-3 py-2 font-body text-xs text-ink-muted"
                 >
                   {ins}
                 </p>
               ))}
             </div>
           ) : (
-            <p className="text-sm text-slate-400 text-center py-6">
+            <p className="py-6 text-center font-body text-sm text-ink-faint">
               Sem insights gerados
             </p>
           )}
@@ -180,28 +188,28 @@ export function OrgDashboard() {
 
       {/* Top content */}
       {(data?.topContent?.length ?? 0) > 0 && (
-        <div className="bg-white rounded-xl border border-slate-100 p-5">
-          <h3 className="font-semibold text-slate-700 mb-3">
+        <div className="rounded-card border border-border bg-surface p-5">
+          <h3 className="mb-3 font-body font-semibold text-ink-muted">
             Conteúdos Mais Vistos
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+          <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
             {(data?.topContent ?? []).map((c, i) => (
               <div
                 key={i}
-                className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-50"
+                className="flex items-center gap-3 rounded-control p-2 hover:bg-surface-sunken"
               >
-                <span className="text-xs font-bold text-slate-300 w-4">
+                <span className="w-4 font-body text-xs font-bold text-ink-faint">
                   #{i + 1}
                 </span>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-slate-700 truncate">
+                <div className="min-w-0 flex-1">
+                  <p className="truncate font-body text-sm font-medium text-ink">
                     {c.content?.title}
                   </p>
-                  <p className="text-[10px] text-slate-400">
+                  <p className="font-body text-[10px] text-ink-faint">
                     {c.content?.type}
                   </p>
                 </div>
-                <span className="text-xs font-bold text-indigo-600 shrink-0">
+                <span className="shrink-0 font-body text-xs font-bold text-primary">
                   {c.views} views
                 </span>
               </div>
