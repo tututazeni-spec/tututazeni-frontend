@@ -1,6 +1,5 @@
 // components/live-classes/ClassCard.tsx
-// Cartão de aula no separador "Todas as Aulas". Extraído de
-// app/(platform)/live-classes/page.tsx.
+// Cartão de aula no separador "Todas as Aulas". Migrado para design tokens.
 
 import { CARD, fmtDate, getStatus } from './utils';
 import { formatTime as fmtTime } from '@/lib/format';
@@ -22,63 +21,33 @@ export function ClassCard({
   const status = getStatus(lc.scheduledAt, lc.duration);
   const isLive = status === 'live';
 
+  const statusBg = isLive
+    ? 'bg-danger-subtle'
+    : status === 'upcoming'
+      ? 'bg-warning-subtle'
+      : 'bg-surface';
+  const statusText = isLive
+    ? 'text-danger'
+    : status === 'upcoming'
+      ? 'text-warning'
+      : 'text-ink-muted';
+  const iconBg = isLive ? 'bg-danger-subtle' : 'bg-surface';
+
   return (
     <div
-      style={{
-        ...CARD,
-        padding: '18px 20px',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 12,
-        borderLeft: isLive ? '4px solid #dc2626' : undefined,
-      }}
+      className={`${CARD} p-4.5 flex flex-col gap-3 ${isLive ? 'border-l-4 border-l-danger' : ''}`}
     >
       {/* Status + Topic */}
-      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+      <div className="flex items-start gap-2.5">
         <div
-          style={{
-            width: 42,
-            height: 42,
-            borderRadius: 11,
-            background: isLive ? '#fef2f2' : '#f1f5f9',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: 20,
-            flexShrink: 0,
-          }}
+          className={`w-10.5 h-10.5 rounded-[11px] ${iconBg} flex items-center justify-center text-xl flex-shrink-0`}
         >
           {isLive ? '🔴' : status === 'upcoming' ? '🎥' : '📹'}
         </div>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div
-            style={{
-              display: 'flex',
-              gap: 6,
-              alignItems: 'center',
-              marginBottom: 3,
-              flexWrap: 'wrap',
-            }}
-          >
+        <div className="flex-1 min-w-0">
+          <div className="flex gap-1.5 items-center mb-0.75 flex-wrap">
             <span
-              style={{
-                fontSize: 9.5,
-                fontWeight: 800,
-                padding: '2px 7px',
-                borderRadius: 20,
-                background: isLive
-                  ? '#fef2f2'
-                  : status === 'upcoming'
-                    ? '#fffbeb'
-                    : '#f1f5f9',
-                color: isLive
-                  ? '#dc2626'
-                  : status === 'upcoming'
-                    ? '#d97706'
-                    : '#64748b',
-                textTransform: 'uppercase',
-                letterSpacing: 0.5,
-              }}
+              className={`text-xs font-black px-1.75 py-0.5 rounded-full ${statusBg} ${statusText} uppercase tracking-tight`}
             >
               {isLive
                 ? '● Ao Vivo'
@@ -87,35 +56,16 @@ export function ClassCard({
                   : 'Concluída'}
             </span>
             {lc.recordingUrl && (
-              <span
-                style={{
-                  fontSize: 9.5,
-                  fontWeight: 700,
-                  padding: '2px 7px',
-                  borderRadius: 20,
-                  background: '#f5f3ff',
-                  color: '#7c3aed',
-                }}
-              >
+              <span className="text-xs font-bold px-1.75 py-0.5 rounded-full bg-accent-subtle text-accent">
                 🎬 Gravação
               </span>
             )}
           </div>
-          <h3
-            style={{
-              margin: 0,
-              fontSize: 14,
-              fontWeight: 700,
-              color: '#1e293b',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
-            }}
-          >
+          <h3 className="m-0 text-sm font-bold text-ink overflow-hidden text-ellipsis whitespace-nowrap">
             {lc.topic}
           </h3>
           {lc.course && (
-            <p style={{ margin: '2px 0 0', fontSize: 11.5, color: '#64748b' }}>
+            <p className="mt-0.5 text-xs text-ink-muted">
               📚 {lc.course.title}
             </p>
           )}
@@ -123,73 +73,40 @@ export function ClassCard({
       </div>
 
       {/* Meta */}
-      <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+      <div className="flex gap-2.5 flex-wrap">
         {[
           { v: fmtDate(lc.scheduledAt), i: '📅' },
           { v: fmtTime(lc.scheduledAt), i: '⏰' },
           { v: `${lc.duration}min`, i: '⏱️' },
           { v: String(lc._count?.attendances ?? 0), i: '👥' },
         ].map((m) => (
-          <span key={m.i} style={{ fontSize: 11.5, color: '#64748b' }}>
+          <span key={m.i} className="text-xs text-ink-muted">
             {m.i} {m.v}
           </span>
         ))}
       </div>
 
       {/* Actions */}
-      <div
-        style={{
-          display: 'flex',
-          gap: 8,
-          paddingTop: 4,
-          borderTop: '1px solid #f1f5f9',
-        }}
-      >
+      <div className="flex gap-2 pt-1 border-t border-surface">
         <button
           onClick={() => onOpen(lc.id)}
-          style={{
-            flex: 2,
-            padding: '8px',
-            borderRadius: 8,
-            border: 'none',
-            background: isLive ? '#dc2626' : '#1e293b',
-            color: '#fff',
-            fontSize: 12.5,
-            fontWeight: 700,
-            cursor: 'pointer',
-          }}
+          className={`flex-[2] py-2 px-2 rounded-lg border-none text-white text-xs font-bold cursor-pointer ${
+            isLive ? 'bg-danger' : 'bg-ink'
+          }`}
         >
           {isLive ? '🔴 Entrar Agora' : 'Abrir Sala'}
         </button>
         {lc.recordingUrl && (
           <button
             onClick={() => onViewRecording(lc)}
-            style={{
-              flex: 1,
-              padding: '8px',
-              borderRadius: 8,
-              border: '1px solid #e9d5ff',
-              background: '#f5f3ff',
-              color: '#7c3aed',
-              fontSize: 12,
-              fontWeight: 600,
-              cursor: 'pointer',
-            }}
+            className="flex-1 py-2 px-2 rounded-lg border border-accent bg-accent-subtle text-accent text-xs font-semibold cursor-pointer"
           >
             🎬 Ver
           </button>
         )}
         <button
           onClick={() => onDelete(lc)}
-          style={{
-            padding: '8px 10px',
-            borderRadius: 8,
-            border: '1px solid #fecaca',
-            background: '#fef2f2',
-            fontSize: 12,
-            cursor: 'pointer',
-            color: '#dc2626',
-          }}
+          className="py-2 px-2.5 rounded-lg border border-danger-subtle bg-danger-subtle text-danger text-xs cursor-pointer"
         >
           🗑️
         </button>

@@ -41,33 +41,15 @@ export function getStatus(scheduledAt: string, duration: number): ClassStatus {
   return 'past';
 }
 
-// Estilos partilhados — o módulo usa style={{}} inline em vez de Tailwind
-// (excepção no código-base); mantido tal e qual.
-export const tabBtn = (active: boolean): CSSProperties => ({
-  padding: '9px 22px',
-  border: 'none',
-  cursor: 'pointer',
-  fontSize: 13,
-  fontWeight: active ? 700 : 500,
-  borderRadius: 9,
-  background: active ? '#dc2626' : 'transparent',
-  color: active ? '#fff' : '#64748b',
-  transition: 'all 0.15s',
-});
-
-export const INP: CSSProperties = {
-  padding: '9px 13px',
-  borderRadius: 9,
-  border: '1px solid #e2e8f0',
-  fontSize: 13.5,
-  color: '#1e293b',
-  background: '#fff',
-  outline: 'none',
-  boxSizing: 'border-box' as const,
+// Estilos partilhados — migrados para design tokens via Tailwind
+export const tabBtn = (active: boolean): string => {
+  const base = 'px-5.5 py-2.25 text-sm font-medium rounded-lg transition-all duration-150 cursor-pointer border-none';
+  const activeStyles = active
+    ? 'bg-danger text-white font-bold'
+    : 'bg-transparent text-ink-muted';
+  return `${base} ${activeStyles}`;
 };
 
-export const CARD: CSSProperties = {
-  background: '#fff',
-  borderRadius: 14,
-  border: '1px solid #e2e8f0',
-};
+export const INP = 'px-3.25 py-2.25 rounded-lg border border-border text-sm text-ink bg-white outline-none';
+
+export const CARD = 'bg-white rounded-xl border border-border';

@@ -1,6 +1,5 @@
 // components/live-classes/Toast.tsx
-// Notificação flutuante com auto-dismiss. Extraído de
-// app/(platform)/live-classes/page.tsx.
+// Notificação flutuante com auto-dismiss. Migrada para design tokens.
 
 import { useAutoDismiss } from '@/hooks/useAutoDismiss';
 
@@ -12,43 +11,28 @@ export interface ToastProps {
 
 export function Toast({ msg, type, onClose }: ToastProps) {
   useAutoDismiss(onClose, 3500);
-  const c = {
-    success: { bg: '#f0fdf4', bd: '#bbf7d0', cl: '#16a34a' },
-    error: { bg: '#fef2f2', bd: '#fecaca', cl: '#dc2626' },
-    info: { bg: '#eff6ff', bd: '#bfdbfe', cl: '#2563eb' },
+  const styles = {
+    success: {
+      bg: 'bg-success-subtle',
+      bd: 'border-success',
+      text: 'text-success',
+    },
+    error: {
+      bg: 'bg-danger-subtle',
+      bd: 'border-danger-subtle',
+      text: 'text-danger',
+    },
+    info: { bg: 'bg-info-subtle', bd: 'border-info', text: 'text-info' },
   }[type];
   return (
     <div
-      style={{
-        position: 'fixed',
-        bottom: 24,
-        right: 24,
-        zIndex: 9999,
-        background: c.bg,
-        border: `1px solid ${c.bd}`,
-        borderRadius: 12,
-        padding: '12px 18px',
-        boxShadow: '0 8px 24px rgba(0,0,0,0.1)',
-        display: 'flex',
-        alignItems: 'center',
-        gap: 10,
-        fontSize: 13,
-        color: c.cl,
-        fontWeight: 500,
-      }}
+      className={`fixed bottom-6 right-6 z-50 flex items-center gap-2.5 rounded-lg ${styles.bg} border ${styles.bd} px-4.5 py-3 text-sm font-medium ${styles.text} shadow-lg`}
     >
       {msg}
       <button
         onClick={onClose}
         aria-label="Fechar"
-        style={{
-          background: 'none',
-          border: 'none',
-          cursor: 'pointer',
-          color: c.cl,
-          fontSize: 16,
-          marginLeft: 8,
-        }}
+        className={`cursor-pointer bg-none border-none ml-2 text-base ${styles.text}`}
       >
         ×
       </button>

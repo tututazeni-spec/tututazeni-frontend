@@ -1,6 +1,6 @@
 // components/live-classes/UpcomingStrip.tsx
 // Faixa horizontal "Próximas Sessões" (ao vivo agora + agendadas).
-// Extraído de app/(platform)/live-classes/page.tsx.
+// Migrada para design tokens.
 
 import { fmtDate, getStatus } from './utils';
 import { formatTime as fmtTime } from '@/lib/format';
@@ -18,108 +18,49 @@ export function UpcomingStrip({ upcoming, onOpen }: UpcomingStripProps) {
   if (visible.length === 0) return null;
 
   return (
-    <div style={{ marginBottom: 22 }}>
-      <p
-        style={{
-          margin: '0 0 10px',
-          fontSize: 11,
-          fontWeight: 700,
-          color: '#64748b',
-          textTransform: 'uppercase',
-          letterSpacing: 0.8,
-        }}
-      >
+    <div className="mb-5.5">
+      <p className="m-0 mb-2.5 text-xs font-bold text-ink-muted uppercase tracking-widest">
         📅 Próximas Sessões
       </p>
-      <div
-        style={{
-          display: 'flex',
-          gap: 12,
-          overflowX: 'auto',
-          paddingBottom: 4,
-        }}
-      >
+      <div className="flex gap-3 overflow-x-auto pb-1">
         {visible.map((lc) => {
           const status = getStatus(lc.scheduledAt, lc.duration);
           return (
             <div
               key={lc.id}
               onClick={() => onOpen(lc.id)}
-              style={{
-                flexShrink: 0,
-                background: '#fff',
-                border: `1px solid ${status === 'live' ? '#fca5a5' : '#e2e8f0'}`,
-                borderRadius: 12,
-                padding: '12px 16px',
-                cursor: 'pointer',
-                minWidth: 200,
-                maxWidth: 240,
-                borderLeft: status === 'live' ? '4px solid #dc2626' : undefined,
-              }}
+              className={`flex-shrink-0 bg-white rounded-3 p-3 cursor-pointer min-w-50 max-w-60 border ${
+                status === 'live'
+                  ? 'border-danger-subtle border-l-4 border-l-danger'
+                  : 'border-border'
+              }`}
             >
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 6,
-                  marginBottom: 5,
-                }}
-              >
+              <div className="flex items-center gap-1.5 mb-1.25">
                 {status === 'live' && (
                   <span
-                    style={{
-                      width: 8,
-                      height: 8,
-                      borderRadius: '50%',
-                      background: '#dc2626',
-                      display: 'inline-block',
-                      animation: 'lv-ping 1.2s ease-in-out infinite',
-                    }}
+                    className="w-2 h-2 rounded-full bg-danger inline-block"
+                    style={{ animation: 'lv-ping 1.2s ease-in-out infinite' }}
                   />
                 )}
                 <span
-                  style={{
-                    fontSize: 10,
-                    fontWeight: 800,
-                    color: status === 'live' ? '#dc2626' : '#d97706',
-                    textTransform: 'uppercase',
-                  }}
+                  className={`text-xs font-black uppercase ${
+                    status === 'live' ? 'text-danger' : 'text-warning'
+                  }`}
                 >
                   {status === 'live' ? 'Ao Vivo Agora' : 'Agendada'}
                 </span>
               </div>
-              <p
-                style={{
-                  margin: 0,
-                  fontSize: 13,
-                  fontWeight: 700,
-                  color: '#1e293b',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap',
-                }}
-              >
+              <p className="m-0 text-sm font-bold text-ink overflow-hidden text-ellipsis whitespace-nowrap">
                 {lc.topic}
               </p>
-              <p
-                style={{
-                  margin: '3px 0 0',
-                  fontSize: 11,
-                  color: '#64748b',
-                }}
-              >
+              <p className="mt-0.75 text-xs text-ink-muted">
                 {fmtDate(lc.scheduledAt)} · {fmtTime(lc.scheduledAt)}
               </p>
-              <div style={{ marginTop: 8 }}>
+              <div className="mt-2">
                 <span
-                  style={{
-                    padding: '4px 10px',
-                    background: status === 'live' ? '#dc2626' : '#1e293b',
-                    color: '#fff',
-                    borderRadius: 7,
-                    fontSize: 11,
-                    fontWeight: 700,
-                  }}
+                  className={`inline-block px-2.5 py-1 rounded-lg text-white text-xs font-bold ${
+                    status === 'live' ? 'bg-danger' : 'bg-ink'
+                  }`}
                 >
                   {status === 'live' ? '▶ Entrar Agora' : 'Ver Sala'}
                 </span>
