@@ -1,6 +1,12 @@
 // components/content-library/constants.ts
 // Constantes de domínio partilhadas pelos componentes de apresentação do
 // módulo. Extraído verbatim de app/(platform)/content-library/page.tsx.
+//
+// Migrado para a fundação de design: as cores decorativas por formato/nível
+// passam a tokens semânticos (bg-*-subtle/text-*-ink). Sem correspondência
+// directa "1 cor decorativa = 1 formato" — cada valor recebe um token só
+// para manter a distinção visual entre formatos/níveis, mesmo padrão de
+// components/micro-learning/constants.ts (TYPE_CFG/LEVEL_CFG).
 
 import {
   BookOpen,
@@ -31,22 +37,23 @@ export const FORMAT_ICON: Record<string, LucideIcon> = {
   DEFAULT: BookOpen,
 };
 
-export const FORMAT_COLOR: Record<string, string> = {
-  VIDEO: 'bg-red-100 text-red-700',
-  ARTICLE: 'bg-blue-100 text-blue-700',
-  PODCAST: 'bg-purple-100 text-purple-700',
-  PDF: 'bg-orange-100 text-orange-700',
-  SCORM: 'bg-indigo-100 text-indigo-700',
-  MICROLEARNING: 'bg-amber-100 text-amber-700',
-  COURSE: 'bg-emerald-100 text-emerald-700',
-  QUIZ: 'bg-pink-100 text-pink-700',
+export const FORMAT_CLS: Record<string, string> = {
+  VIDEO: 'bg-danger-subtle text-danger-ink',
+  ARTICLE: 'bg-info-subtle text-info-ink',
+  PODCAST: 'bg-accent-subtle text-accent',
+  PDF: 'bg-warning-subtle text-warning-ink',
+  SCORM: 'bg-primary-subtle text-primary',
+  MICROLEARNING: 'bg-accent-subtle text-accent',
+  COURSE: 'bg-success-subtle text-success-ink',
+  QUIZ: 'bg-danger-subtle text-danger-ink',
 };
+export const FORMAT_CLS_FALLBACK = 'bg-surface-sunken text-ink-muted';
 
-export const LEVEL_COLOR: Record<string, string> = {
-  BEGINNER: 'text-emerald-600',
-  INTERMEDIATE: 'text-amber-600',
-  ADVANCED: 'text-orange-600',
-  EXPERT: 'text-red-600',
+export const LEVEL_CLS: Record<string, string> = {
+  BEGINNER: 'text-success',
+  INTERMEDIATE: 'text-warning',
+  ADVANCED: 'text-warning',
+  EXPERT: 'text-danger',
 };
 
 // Definido no ficheiro original mas nunca ligado a nenhum elemento (sem
