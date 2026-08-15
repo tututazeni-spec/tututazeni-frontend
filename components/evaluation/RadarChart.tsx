@@ -1,5 +1,14 @@
 // components/evaluation/RadarChart.tsx
 // Radar SVG genérico (label/value/max) usado em Overview e Resultados.
+//
+// Nota de design: ao contrário de components/competency-map/RadarChart.tsx
+// (que desenha duas séries — Actual vs Exigido — e por isso mapeia cada
+// série para um token distinto), este radar desenha uma única série (o
+// score por competência de uma pessoa). Não há codificação de dados por
+// cor aqui — é decoração de uma única forma — por isso a cor mapeia
+// directamente para o token de marca `primary`, sem preservar nenhuma
+// distinção de série. Ver nota "gráficos" do plano de rollout da Fase B.
+//
 // Extraído de app/(platform)/evaluation/page.tsx.
 
 export interface RadarChartProps {
@@ -47,7 +56,7 @@ export function RadarChart({ data, size = 200 }: RadarChartProps) {
             })
             .join(' ')}
           fill="none"
-          stroke="#e2e8f0"
+          className="stroke-border"
           strokeWidth="1"
         />
       ))}
@@ -59,20 +68,19 @@ export function RadarChart({ data, size = 200 }: RadarChartProps) {
           y1={cy}
           x2={p.x}
           y2={p.y}
-          stroke="#e2e8f0"
+          className="stroke-border"
           strokeWidth="1"
         />
       ))}
       {/* Data polygon */}
       <path
         d={toPath(pts)}
-        fill="rgba(99,102,241,0.15)"
-        stroke="#6366f1"
+        className="fill-primary/15 stroke-primary"
         strokeWidth="2"
       />
       {/* Dots */}
       {pts.map((p, i) => (
-        <circle key={i} cx={p.x} cy={p.y} r="4" fill="#6366f1" />
+        <circle key={i} cx={p.x} cy={p.y} r="4" className="fill-primary" />
       ))}
       {/* Labels */}
       {bgPts.map((p, i) => {
@@ -88,8 +96,7 @@ export function RadarChart({ data, size = 200 }: RadarChartProps) {
             y={ly}
             textAnchor="middle"
             dominantBaseline="middle"
-            className="text-[9px]"
-            fill="#64748b"
+            className="fill-ink-muted text-[9px]"
             fontSize="9"
           >
             {data[i].label.slice(0, 6)}
