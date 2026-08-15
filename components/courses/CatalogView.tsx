@@ -1,18 +1,40 @@
 // components/courses/CatalogView.tsx
 // Vista "Catálogo": listagem paginada e filtrável de cursos
-// publicados. Extraído de app/(platform)/courses/page.tsx.
+// publicados. Extraído de app/(platform)/courses/page.tsx. Migrado
+// para a fundação de design: input de pesquisa passa a Input, selects
+// de filtro passam a Select (Radix, sentinela 'ALL' para "todos"/
+// "todas" — mesmo padrão de components/learning-paths/CatalogView.tsx),
+// estado vazio a EmptyState, paginação a Button secondary/sm.
 
 'use client';
 
 import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
+import { SearchX } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { useDebounce } from '@/hooks/useDebounce';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
+import { Button } from '@/components/ui/Button';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { Input } from '@/components/ui/Input';
+import { Select } from '@/components/ui/Select';
 import { Skeleton } from './shared';
 import { CourseCard } from './CourseCard';
 import type { PaginatedCourses } from './types';
+
+const LEVEL_ITEMS = [
+  { value: 'ALL', label: 'Todos os níveis' },
+  { value: 'BEGINNER', label: 'Iniciante' },
+  { value: 'INTERMEDIATE', label: 'Intermédio' },
+  { value: 'ADVANCED', label: 'Avançado' },
+];
+
+const MANDATORY_ITEMS = [
+  { value: 'ALL', label: 'Obrigatório e opcional' },
+  { value: 'true', label: 'Apenas obrigatórios' },
+  { value: 'false', label: 'Apenas opcionais' },
+];
 
 // Um só objecto para os filtros + page: mudar qualquer filtro tem sempre de
 // repor a página a 1, e um setter partilhado torna isso automático em vez de
@@ -81,60 +103,48 @@ export function CatalogView({ onSelect }: CatalogViewProps) {
     staleTime: STALE_TIME.STATIC,
   });
   const categories = cats.map((c) => c.category).filter(Boolean) as string[];
+  const categoryItems = [
+    { value: 'ALL', label: 'Todas as categorias' },
+    ...categories.map((c) => ({ value: c, label: c })),
+  ];
 
   return (
     <div>
       {/* Filtros */}
       <div className="flex flex-wrap items-center gap-3 mb-6">
-        <input
+        <Input
           type="text"
           placeholder="Pesquisar cursos, competências, tópicos…"
           value={search}
           onChange={(e) => updateFilters({ search: e.target.value })}
-          className="flex-1 min-w-[200px] text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="flex-1 min-w-[200px]"
         />
-        <select
-          value={category}
-          onChange={(e) => updateFilters({ category: e.target.value })}
-          className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          <option value="">Todas as categorias</option>
-          {categories.map((c) => (
-            <option key={c} value={c}>
-              {c}
-            </option>
-          ))}
-        </select>
-        <select
-          value={level}
-          onChange={(e) => updateFilters({ level: e.target.value })}
-          className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          <option value="">Todos os níveis</option>
-          <option value="BEGINNER">Iniciante</option>
-          <option value="INTERMEDIATE">Intermédio</option>
-          <option value="ADVANCED">Avançado</option>
-        </select>
-        <select
-          value={mandatory}
-          onChange={(e) => updateFilters({ mandatory: e.target.value })}
-          className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          <option value="">Obrigatório e opcional</option>
-          <option value="true">Apenas obrigatórios</option>
-          <option value="false">Apenas opcionais</option>
-        </select>
+        <Select
+          items={categoryItems}
+          value={category || 'ALL'}
+          onValueChange={(v) => updateFilters({ category: v === 'ALL' ? '' : v })}
+        />
+        <Select
+          items={LEVEL_ITEMS}
+          value={level || 'ALL'}
+          onValueChange={(v) => updateFilters({ level: v === 'ALL' ? '' : v })}
+        />
+        <Select
+          items={MANDATORY_ITEMS}
+          value={mandatory || 'ALL'}
+          onValueChange={(v) => updateFilters({ mandatory: v === 'ALL' ? '' : v })}
+        />
       </div>
 
       {error && (
-        <div className="text-sm text-red-500 mb-4">{error.message}</div>
+        <div className="text-sm text-danger mb-4">{error.message}</div>
       )}
 
       {loading && <Skeleton rows={3} />}
 
       {!loading && data && (
         <>
-          <div className="text-xs text-gray-400 mb-4">
+          <div className="text-xs text-ink-faint mb-4">
             {data.total} cursos encontrados
           </div>
           <div className="grid grid-cols-3 gap-4 mb-6">
@@ -146,26 +156,35 @@ export function CatalogView({ onSelect }: CatalogViewProps) {
               />
             ))}
           </div>
+          {data.data.length === 0 && (
+            <EmptyState
+              icon={SearchX}
+              title="Nenhum curso encontrado"
+              description="Ajusta a pesquisa ou os filtros para encontrar o que procuras."
+            />
+          )}
           {data.totalPages > 1 && (
             <div className="flex items-center justify-between">
-              <span className="text-xs text-gray-400">
+              <span className="text-xs text-ink-faint">
                 Página {data.page} de {data.totalPages}
               </span>
               <div className="flex gap-2">
-                <button
+                <Button
+                  intent="secondary"
+                  size="sm"
                   disabled={page === 1}
                   onClick={() => goToPage(-1)}
-                  className="px-3 py-1.5 text-xs border border-gray-200 rounded-lg disabled:opacity-40 hover:bg-gray-50"
                 >
                   ← Anterior
-                </button>
-                <button
+                </Button>
+                <Button
+                  intent="secondary"
+                  size="sm"
                   disabled={page === data.totalPages}
                   onClick={() => goToPage(1)}
-                  className="px-3 py-1.5 text-xs border border-gray-200 rounded-lg disabled:opacity-40 hover:bg-gray-50"
                 >
                   Próxima →
-                </button>
+                </Button>
               </div>
             </div>
           )}
