@@ -48,10 +48,10 @@ export interface Payslip {
 }
 
 export const PAYSLIP_STATUS_MAP: StatusBadgeMap<PayslipStatus> = {
-  DRAFT: { label: 'Rascunho', cls: 'bg-gray-100 text-gray-600' },
-  ISSUED: { label: 'Emitido', cls: 'bg-emerald-50 text-emerald-700' },
-  ACKNOWLEDGED: { label: 'Confirmado', cls: 'bg-blue-50 text-blue-700' },
-  DISPUTED: { label: 'Disputa', cls: 'bg-red-50 text-red-700' },
+  DRAFT: { label: 'Rascunho', cls: 'bg-surface-sunken text-ink-muted' },
+  ISSUED: { label: 'Emitido', cls: 'bg-success-subtle text-success-ink' },
+  ACKNOWLEDGED: { label: 'Confirmado', cls: 'bg-info-subtle text-info-ink' },
+  DISPUTED: { label: 'Disputa', cls: 'bg-danger-subtle text-danger-ink' },
 };
 
 // ─── Tipos das restantes views (List/Compare/Simulate/Annual) ─────────────────

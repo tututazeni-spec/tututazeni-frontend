@@ -5,12 +5,37 @@
 'use client';
 
 import { useState } from 'react';
+import { TrendingDown, TrendingUp } from 'lucide-react';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { formatKz as fmtKz } from '@/lib/format';
-import { DeltaBadge } from './atoms';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
 import { fmtPeriod } from './format';
 import type { CompareResult } from './types';
+
+interface DeltaBadgeProps {
+  delta: number;
+  pct: number | null;
+}
+
+function DeltaBadge({ delta, pct }: DeltaBadgeProps) {
+  if (delta === 0)
+    return <span className="font-mono text-xs text-ink-faint">—</span>;
+  const up = delta > 0;
+  return (
+    <span
+      className={`flex items-center gap-1 font-mono text-xs font-medium ${up ? 'text-success' : 'text-danger'}`}
+    >
+      {up ? (
+        <TrendingUp size={14} strokeWidth={1.75} />
+      ) : (
+        <TrendingDown size={14} strokeWidth={1.75} />
+      )}
+      {pct !== null ? `${Math.abs(pct).toFixed(1)}%` : fmtKz(Math.abs(delta))}
+    </span>
+  );
+}
 
 export function CompareView() {
   const currentYear = new Date().getFullYear();
@@ -45,38 +70,36 @@ export function CompareView() {
   return (
     <div>
       <div className="flex items-center gap-3 mb-6">
-        <input
+        <Input
           type="month"
           value={periodA}
           onChange={(e) => setPeriodA(e.target.value)}
-          className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="text-sm"
         />
-        <span className="text-sm text-gray-400">vs</span>
-        <input
+        <span className="font-body text-sm text-ink-faint">vs</span>
+        <Input
           type="month"
           value={periodB}
           onChange={(e) => setPeriodB(e.target.value)}
-          className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="text-sm"
         />
-        <button
-          onClick={compare}
-          disabled={loading}
-          className="px-4 py-2 bg-blue-700 text-white text-sm font-medium rounded-lg hover:bg-blue-800 disabled:opacity-50 transition-colors"
-        >
+        <Button onClick={compare} disabled={loading}>
           {loading ? 'A comparar…' : 'Comparar'}
-        </button>
+        </Button>
       </div>
 
       {error && (
-        <div className="text-sm text-red-500 mb-4">{error.message}</div>
+        <div className="mb-4 font-body text-sm text-danger">
+          {error.message}
+        </div>
       )}
 
       {result && (
         <div>
-          <div className="grid grid-cols-[1fr_80px_1fr] gap-4 bg-white border border-gray-200 rounded-xl overflow-hidden">
+          <div className="grid grid-cols-[1fr_80px_1fr] gap-4 overflow-hidden rounded-card border border-border bg-surface">
             {/* Col A */}
             <div className="p-4">
-              <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">
+              <div className="mb-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
                 {fmtPeriod(result.periodA)}
               </div>
               {compareFields.map((f) => {
@@ -89,11 +112,13 @@ export function CompareView() {
                 return (
                   <div
                     key={f.key}
-                    className="flex justify-between py-2 border-b border-gray-100 last:border-0"
+                    className="flex justify-between border-b border-border py-2 last:border-0"
                   >
-                    <span className="text-xs text-gray-500">{f.label}</span>
+                    <span className="font-body text-xs text-ink-muted">
+                      {f.label}
+                    </span>
                     <span
-                      className={`text-xs font-mono font-medium ${f.key === 'netSalary' ? 'text-blue-700' : 'text-gray-900'}`}
+                      className={`font-mono text-xs font-medium ${f.key === 'netSalary' ? 'text-primary' : 'text-ink'}`}
                     >
                       {fmtKz(field.a)}
                     </span>
@@ -103,7 +128,7 @@ export function CompareView() {
             </div>
 
             {/* Delta col */}
-            <div className="bg-gray-50 flex flex-col pt-9">
+            <div className="flex flex-col bg-surface-sunken pt-9">
               {compareFields.map((f) => {
                 const field = result[f.key] as {
                   a: number;
@@ -114,7 +139,7 @@ export function CompareView() {
                 return (
                   <div
                     key={f.key}
-                    className="flex items-center justify-center py-2 border-b border-gray-100 last:border-0 h-[37px]"
+                    className="flex h-[37px] items-center justify-center border-b border-border py-2 last:border-0"
                   >
                     <DeltaBadge delta={field.delta} pct={field.pct} />
                   </div>
@@ -124,7 +149,7 @@ export function CompareView() {
 
             {/* Col B */}
             <div className="p-4">
-              <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">
+              <div className="mb-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
                 {fmtPeriod(result.periodB)}
               </div>
               {compareFields.map((f) => {
@@ -137,11 +162,13 @@ export function CompareView() {
                 return (
                   <div
                     key={f.key}
-                    className="flex justify-between py-2 border-b border-gray-100 last:border-0"
+                    className="flex justify-between border-b border-border py-2 last:border-0"
                   >
-                    <span className="text-xs text-gray-500">{f.label}</span>
+                    <span className="font-body text-xs text-ink-muted">
+                      {f.label}
+                    </span>
                     <span
-                      className={`text-xs font-mono font-medium ${f.key === 'netSalary' ? 'text-blue-700' : 'text-gray-900'}`}
+                      className={`font-mono text-xs font-medium ${f.key === 'netSalary' ? 'text-primary' : 'text-ink'}`}
                     >
                       {fmtKz(field.b)}
                     </span>
@@ -161,11 +188,15 @@ export function CompareView() {
             const up = net.delta > 0;
             return (
               <div
-                className={`mt-4 px-4 py-3 rounded-xl text-sm ${up ? 'bg-emerald-50 text-emerald-800' : 'bg-red-50 text-red-800'}`}
+                className={`mt-4 flex items-center gap-2 rounded-card px-4 py-3 font-body text-sm ${up ? 'bg-success-subtle text-success-ink' : 'bg-danger-subtle text-danger-ink'}`}
               >
+                {up ? (
+                  <TrendingUp size={16} strokeWidth={1.75} />
+                ) : (
+                  <TrendingDown size={16} strokeWidth={1.75} />
+                )}
                 <strong>
-                  {up ? '↑' : '↓'} Variação de {fmtKz(Math.abs(net.delta))} no
-                  salário líquido
+                  Variação de {fmtKz(Math.abs(net.delta))} no salário líquido
                 </strong>
                 {net.pct !== null && ` (${Math.abs(net.pct).toFixed(1)}%)`}
               </div>
