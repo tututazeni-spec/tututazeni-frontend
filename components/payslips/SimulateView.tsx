@@ -9,6 +9,17 @@ import { useEffect, useState } from 'react';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { formatKz as fmtKz } from '@/lib/format';
+import { cn } from '@/lib/cn';
+import { FormField } from '@/components/ui/FormField';
+import { Input } from '@/components/ui/Input';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeaderCell,
+  TableRow,
+} from '@/components/ui/Table';
 import type { SimulateResult } from './types';
 
 export function SimulateView() {
@@ -61,11 +72,9 @@ export function SimulateView() {
           { key: 'bonuses', label: 'Prémios / Comissões (Kz)' },
           { key: 'otherAllowances', label: 'Outros subsídios (Kz)' },
         ].map(({ key, label }) => (
-          <div key={key}>
-            <label className="block text-xs font-medium text-gray-500 mb-1.5 uppercase tracking-wide">
-              {label}
-            </label>
-            <input
+          <FormField key={key} label={label} htmlFor={`sim-${key}`}>
+            <Input
+              id={`sim-${key}`}
               type="number"
               min={0}
               value={form[key as keyof typeof form]}
@@ -75,50 +84,57 @@ export function SimulateView() {
                   [key]: parseFloat(e.target.value) || 0,
                 }))
               }
-              className="w-full text-sm font-mono border border-gray-200 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+              className="w-full font-mono"
             />
-          </div>
+          </FormField>
         ))}
 
         {/* Tabela IRT */}
-        <div className="bg-gray-50 rounded-xl p-4">
-          <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">
+        <div className="rounded-card bg-surface-sunken p-4">
+          <div className="mb-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
             Tabela IRT Angola 2026
           </div>
-          <table className="w-full text-xs">
-            <thead>
-              <tr className="text-gray-400">
-                <th className="text-left pb-1.5 font-medium">Escal.</th>
-                <th className="text-left pb-1.5 font-medium">Mínimo</th>
-                <th className="text-left pb-1.5 font-medium">Máximo</th>
-                <th className="text-right pb-1.5 font-medium">Taxa</th>
-              </tr>
-            </thead>
-            <tbody>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableHeaderCell className="py-1.5">Escal.</TableHeaderCell>
+                <TableHeaderCell className="py-1.5">Mínimo</TableHeaderCell>
+                <TableHeaderCell className="py-1.5">Máximo</TableHeaderCell>
+                <TableHeaderCell className="py-1.5 text-right">
+                  Taxa
+                </TableHeaderCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
               {IRT_BRACKETS.map((b, i) => (
-                <tr
+                <TableRow
                   key={i}
-                  className={`${i === activeIdx ? 'bg-blue-100 text-blue-800 font-medium' : 'text-gray-600'} rounded`}
+                  className={cn(
+                    i === activeIdx &&
+                      'bg-primary-subtle font-medium text-primary hover:bg-primary-subtle',
+                  )}
                 >
-                  <td className="py-1 pl-1 rounded-l">{b.label}</td>
-                  <td className="py-1 font-mono">
+                  <TableCell className="py-1.5 text-xs">{b.label}</TableCell>
+                  <TableCell className="py-1.5 font-mono text-xs">
                     {b.min.toLocaleString('pt-AO')}
-                  </td>
-                  <td className="py-1 font-mono">
+                  </TableCell>
+                  <TableCell className="py-1.5 font-mono text-xs">
                     {b.max === Infinity ? '—' : b.max.toLocaleString('pt-AO')}
-                  </td>
-                  <td className="py-1 text-right rounded-r">{b.rate}</td>
-                </tr>
+                  </TableCell>
+                  <TableCell className="py-1.5 text-right text-xs">
+                    {b.rate}
+                  </TableCell>
+                </TableRow>
               ))}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
         </div>
       </div>
 
       {/* Resultado */}
       <div>
-        <div className="bg-blue-50 rounded-xl p-5 space-y-3">
-          <div className="text-xs font-medium text-blue-700 uppercase tracking-wide">
+        <div className="space-y-3 rounded-card bg-primary-subtle p-5">
+          <div className="font-body text-xs font-medium uppercase tracking-wide text-primary">
             Resultado estimado
           </div>
 
@@ -142,11 +158,13 @@ export function SimulateView() {
           ].map(({ label, value, negative }) => (
             <div
               key={label}
-              className="flex justify-between items-baseline border-b border-blue-100 pb-2 last:border-0"
+              className="flex items-baseline justify-between border-b border-border pb-2 last:border-0"
             >
-              <span className="text-sm text-gray-600">{label}</span>
+              <span className="font-body text-sm text-ink-muted">
+                {label}
+              </span>
               <span
-                className={`text-sm font-mono font-medium ${negative ? 'text-red-600' : 'text-gray-900'}`}
+                className={`font-mono text-sm font-medium ${negative ? 'text-danger' : 'text-ink'}`}
               >
                 {loading
                   ? '…'
@@ -158,10 +176,10 @@ export function SimulateView() {
           ))}
 
           <div className="flex items-center justify-between pt-1">
-            <span className="text-sm font-semibold text-gray-900">
+            <span className="font-body text-sm font-semibold text-ink">
               Salário líquido
             </span>
-            <span className="text-2xl font-bold font-mono text-blue-700">
+            <span className="font-mono text-2xl font-bold text-primary">
               {loading ? '…' : result ? fmtKz(result.netSalary) : '—'}
             </span>
           </div>
@@ -169,16 +187,16 @@ export function SimulateView() {
 
         {result && (
           <>
-            <div className="mt-3 bg-amber-50 rounded-xl p-4 text-xs text-amber-800">
-              <div className="font-medium mb-1">Fórmula IRT aplicada</div>
+            <div className="mt-3 rounded-card bg-warning-subtle p-4 font-body text-xs text-warning-ink">
+              <div className="mb-1 font-medium">Fórmula IRT aplicada</div>
               <div className="font-mono">{result.irtDetails.formula}</div>
-              <div className="mt-1 text-amber-700">
+              <div className="mt-1">
                 Taxa efectiva: {result.irtDetails.effectiveRate.toFixed(1)}%
                 &nbsp;·&nbsp; INSS empregador: {fmtKz(result.employerInss)}
               </div>
             </div>
 
-            <div className="mt-3 p-3 bg-gray-50 rounded-xl text-xs text-gray-500">
+            <div className="mt-3 rounded-card bg-surface-sunken p-3 font-body text-xs text-ink-muted">
               Simulação meramente indicativa. Os valores finais podem variar com
               deduções adicionais aprovadas pelo RH.
             </div>
