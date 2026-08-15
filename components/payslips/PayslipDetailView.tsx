@@ -9,9 +9,23 @@
 'use client';
 
 import { useState } from 'react';
+import {
+  AlertTriangle,
+  ArrowLeft,
+  CheckCircle2,
+  Download,
+  Eye,
+  EyeOff,
+  Mail,
+  Printer,
+} from 'lucide-react';
 import { API_URL } from '@/lib/apiClient';
 import { formatDate as fmtDate, formatKz as fmtKz } from '@/lib/format';
+import { cn } from '@/lib/cn';
+import { Button, buttonVariants } from '@/components/ui/Button';
 import { StatusBadge } from '@/components/ui/StatusBadge';
+import { Textarea } from '@/components/ui/Textarea';
+import { Input } from '@/components/ui/Input';
 import type { DisputeAction, DisputeState } from '@/hooks/usePayslipDetail';
 import { fmtPeriod } from './format';
 import { PAYSLIP_STATUS_MAP, type Payslip } from './types';
@@ -53,20 +67,21 @@ export function PayslipDetailView({
   if (loading)
     return (
       <div className="space-y-3 animate-pulse">
-        <div className="h-24 bg-gray-100 rounded-xl" />
-        <div className="h-48 bg-gray-100 rounded-xl" />
+        <div className="h-24 rounded-card bg-surface-sunken" />
+        <div className="h-48 rounded-card bg-surface-sunken" />
       </div>
     );
 
   if (error || !data)
     return (
       <div className="py-12 text-center">
-        <p className="text-sm text-red-500 mb-4">
+        <p className="mb-4 font-body text-sm text-danger">
           {error ?? 'Recibo não encontrado'}
         </p>
-        <button onClick={onBack} className="text-sm text-blue-600 underline">
-          ← Voltar
-        </button>
+        <Button intent="ghost" size="sm" onClick={onBack}>
+          <ArrowLeft size={14} strokeWidth={1.75} />
+          Voltar
+        </Button>
       </div>
     );
 
@@ -83,13 +98,15 @@ export function PayslipDetailView({
     type = 'neutral',
     sub,
   }: SalaryRowProps) => (
-    <div className="flex justify-between items-baseline py-1.5 border-b border-gray-100 last:border-0">
+    <div className="flex items-baseline justify-between border-b border-border py-1.5 last:border-0">
       <div>
-        <span className="text-sm text-gray-600">{label}</span>
-        {sub && <span className="text-xs text-gray-400 ml-2">{sub}</span>}
+        <span className="font-body text-sm text-ink-muted">{label}</span>
+        {sub && (
+          <span className="ml-2 font-body text-xs text-ink-faint">{sub}</span>
+        )}
       </div>
       <span
-        className={`text-sm font-mono font-medium ${type === 'positive' ? 'text-emerald-600' : type === 'deduction' ? 'text-red-600' : 'text-gray-900'}`}
+        className={`font-mono text-sm font-medium ${type === 'positive' ? 'text-success' : type === 'deduction' ? 'text-danger' : 'text-ink'}`}
       >
         {type === 'deduction' ? '− ' : ''}
         {fmtKz(amount)}
@@ -99,20 +116,20 @@ export function PayslipDetailView({
 
   return (
     <div>
-      <button
-        onClick={onBack}
-        className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-800 mb-5 transition-colors"
-      >
-        ← Voltar aos recibos
-      </button>
+      <Button intent="ghost" size="sm" className="mb-5" onClick={onBack}>
+        <ArrowLeft size={14} strokeWidth={1.75} />
+        Voltar aos recibos
+      </Button>
 
-      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+      <div className="overflow-hidden rounded-card border border-border bg-surface">
         {/* Cabeçalho do documento */}
-        <div className="bg-blue-700 text-white px-6 py-5">
+        <div className="bg-primary px-6 py-5 text-canvas">
           <div className="flex items-start justify-between">
             <div>
-              <div className="text-base font-semibold">INNOVA Angola, Lda.</div>
-              <div className="text-xs text-blue-200 mt-1 flex flex-wrap gap-3">
+              <div className="font-display text-base font-semibold">
+                INNOVA Angola, Lda.
+              </div>
+              <div className="mt-1 flex flex-wrap gap-3 font-body text-xs text-canvas/70">
                 <span>NIF: 5000045678</span>
                 <span>Rua da Missão, 42, Luanda</span>
                 <span>Período: {fmtPeriod(data.period)}</span>
@@ -120,7 +137,7 @@ export function PayslipDetailView({
                   <span>Pagamento: {fmtDate(data.paymentDate)}</span>
                 )}
               </div>
-              <div className="text-xs text-blue-300 mt-2 font-mono">
+              <div className="mt-2 font-mono text-xs text-canvas/60">
                 {data.receiptCode}
               </div>
             </div>
@@ -132,11 +149,11 @@ export function PayslipDetailView({
           </div>
         </div>
 
-        <div className="px-6 py-5 space-y-6">
+        <div className="space-y-6 px-6 py-5">
           {/* Info colaborador + dados fiscais */}
           <div className="grid grid-cols-2 gap-6">
             <div>
-              <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">
+              <div className="mb-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
                 Colaborador
               </div>
               <div className="space-y-0">
@@ -149,10 +166,12 @@ export function PayslipDetailView({
                 ].map(([label, value]) => (
                   <div
                     key={label}
-                    className="flex justify-between py-1.5 border-b border-gray-100 last:border-0"
+                    className="flex justify-between border-b border-border py-1.5 last:border-0"
                   >
-                    <span className="text-xs text-gray-500">{label}</span>
-                    <span className="text-xs font-medium text-gray-900">
+                    <span className="font-body text-xs text-ink-muted">
+                      {label}
+                    </span>
+                    <span className="font-body text-xs font-medium text-ink">
                       {value}
                     </span>
                   </div>
@@ -160,15 +179,23 @@ export function PayslipDetailView({
               </div>
             </div>
             <div>
-              <div className="flex items-center gap-2 mb-3">
-                <div className="text-xs font-medium text-gray-400 uppercase tracking-wide">
+              <div className="mb-3 flex items-center gap-2">
+                <div className="font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
                   Dados fiscais
                 </div>
                 <button
                   onClick={() => setMaskedData((m) => !m)}
-                  className="text-xs text-blue-600 hover:underline"
+                  className="flex items-center gap-1 font-body text-xs text-primary hover:underline"
                 >
-                  {maskedData ? '👁 mostrar' : '🔒 ocultar'}
+                  {maskedData ? (
+                    <>
+                      <Eye size={12} strokeWidth={1.75} /> mostrar
+                    </>
+                  ) : (
+                    <>
+                      <EyeOff size={12} strokeWidth={1.75} /> ocultar
+                    </>
+                  )}
                 </button>
               </div>
               <div className="space-y-0">
@@ -196,11 +223,18 @@ export function PayslipDetailView({
                 ].map(([label, value]) => (
                   <div
                     key={label}
-                    className="flex justify-between py-1.5 border-b border-gray-100 last:border-0"
+                    className="flex justify-between border-b border-border py-1.5 last:border-0"
                   >
-                    <span className="text-xs text-gray-500">{label}</span>
+                    <span className="font-body text-xs text-ink-muted">
+                      {label}
+                    </span>
                     <span
-                      className={`text-xs font-medium ${maskedData && (label === 'NIF/BI' || label === 'NIB') ? 'text-gray-400 tracking-widest' : 'text-gray-900'}`}
+                      className={cn(
+                        'font-body text-xs font-medium',
+                        maskedData && (label === 'NIF/BI' || label === 'NIB')
+                          ? 'tracking-widest text-ink-faint'
+                          : 'text-ink',
+                      )}
                     >
                       {value}
                     </span>
@@ -208,7 +242,7 @@ export function PayslipDetailView({
                 ))}
               </div>
               {data.irtFormula && (
-                <div className="mt-2 p-2 bg-amber-50 rounded-lg text-xs text-amber-700 font-mono">
+                <div className="mt-2 rounded-control bg-warning-subtle p-2 font-mono text-xs text-warning-ink">
                   {data.irtFormula}
                 </div>
               )}
@@ -218,7 +252,7 @@ export function PayslipDetailView({
           {/* Remunerações + Deduções */}
           <div className="grid grid-cols-2 gap-6">
             <div>
-              <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">
+              <div className="mb-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
                 Remunerações
               </div>
               <SalaryRow label="Salário base" amount={data.baseSalary} />
@@ -264,17 +298,17 @@ export function PayslipDetailView({
                   type="positive"
                 />
               )}
-              <div className="flex justify-between items-baseline py-2 mt-1">
-                <span className="text-sm font-medium text-gray-900">
+              <div className="mt-1 flex items-baseline justify-between py-2">
+                <span className="font-body text-sm font-medium text-ink">
                   Total bruto
                 </span>
-                <span className="text-sm font-mono font-semibold text-gray-900">
+                <span className="font-mono text-sm font-semibold text-ink">
                   {fmtKz(data.grossSalary)}
                 </span>
               </div>
             </div>
             <div>
-              <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">
+              <div className="mb-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
                 Deduções
               </div>
               <SalaryRow
@@ -320,11 +354,11 @@ export function PayslipDetailView({
                   type="deduction"
                 />
               )}
-              <div className="flex justify-between items-baseline py-2 mt-1">
-                <span className="text-sm font-medium text-gray-900">
+              <div className="mt-1 flex items-baseline justify-between py-2">
+                <span className="font-body text-sm font-medium text-ink">
                   Total deduções
                 </span>
-                <span className="text-sm font-mono font-semibold text-red-600">
+                <span className="font-mono text-sm font-semibold text-danger">
                   − {fmtKz(data.totalDeductions)}
                 </span>
               </div>
@@ -332,18 +366,18 @@ export function PayslipDetailView({
           </div>
 
           {/* Resumo final */}
-          <div className="bg-blue-50 rounded-xl px-5 py-4 flex items-center justify-between">
+          <div className="flex items-center justify-between rounded-card bg-primary-subtle px-5 py-4">
             <div>
-              <div className="text-sm font-semibold text-gray-900">
+              <div className="font-body text-sm font-semibold text-ink">
                 Salário líquido
               </div>
-              <div className="text-xs text-gray-500 mt-0.5">
+              <div className="mt-0.5 font-body text-xs text-ink-muted">
                 INSS empregador (informativo): {fmtKz(data.employerInss)}
                 &nbsp;·&nbsp; Encargo total empresa:{' '}
                 {fmtKz(data.grossSalary + data.employerInss)}
               </div>
             </div>
-            <div className="text-2xl font-bold font-mono text-blue-700">
+            <div className="font-mono text-2xl font-bold text-primary">
               {fmtKz(data.netSalary)}
             </div>
           </div>
@@ -354,45 +388,53 @@ export function PayslipDetailView({
               href={`${API_URL}/payslips/my/${payslipId}/pdf`}
               target="_blank"
               rel="noreferrer"
-              className="flex items-center gap-2 px-4 py-2 bg-blue-700 text-white text-sm font-medium rounded-lg hover:bg-blue-800 transition-colors"
+              className={buttonVariants({ intent: 'primary', size: 'md' })}
             >
-              ⬇ Download PDF
+              <Download size={16} strokeWidth={1.75} />
+              Download PDF
             </a>
-            <button className="flex items-center gap-2 px-4 py-2 border border-gray-200 text-sm rounded-lg hover:bg-gray-50 transition-colors">
-              🖨 Imprimir
-            </button>
-            <button className="flex items-center gap-2 px-4 py-2 border border-gray-200 text-sm rounded-lg hover:bg-gray-50 transition-colors">
-              ✉ Enviar por email
-            </button>
+            <Button intent="secondary">
+              <Printer size={16} strokeWidth={1.75} />
+              Imprimir
+            </Button>
+            <Button intent="secondary">
+              <Mail size={16} strokeWidth={1.75} />
+              Enviar por email
+            </Button>
 
             {data.status === 'ISSUED' && (
-              <button
+              <Button
+                intent="success"
+                loading={acknowledging}
                 onClick={onAcknowledge}
-                disabled={acknowledging}
-                className="flex items-center gap-2 px-4 py-2 border border-emerald-300 text-emerald-700 text-sm font-medium rounded-lg hover:bg-emerald-50 transition-colors disabled:opacity-50 ml-auto"
+                className="ml-auto"
               >
-                {acknowledging ? 'A confirmar…' : '✓ Confirmar recepção'}
-              </button>
+                {!acknowledging && (
+                  <CheckCircle2 size={16} strokeWidth={1.75} />
+                )}
+                {acknowledging ? 'A confirmar…' : 'Confirmar recepção'}
+              </Button>
             )}
 
             {data.status !== 'DISPUTED' && (
-              <button
+              <Button
+                intent="danger"
                 onClick={() => dispatchDispute({ type: 'OPEN' })}
-                className="flex items-center gap-2 px-4 py-2 border border-red-200 text-red-600 text-sm rounded-lg hover:bg-red-50 transition-colors"
               >
-                ⚠ Abrir disputa
-              </button>
+                <AlertTriangle size={16} strokeWidth={1.75} />
+                Abrir disputa
+              </Button>
             )}
           </div>
 
           {/* Modal disputa (inline) */}
           {dispute.open && (
-            <div className="border border-red-100 bg-red-50 rounded-xl p-4 space-y-3">
-              <div className="text-sm font-medium text-red-800">
+            <div className="space-y-3 rounded-card border border-danger/30 bg-danger-subtle p-4">
+              <div className="font-body text-sm font-medium text-danger-ink">
                 Abrir disputa sobre este recibo
               </div>
-              <input
-                className="w-full text-sm border border-red-200 rounded-lg px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-red-400"
+              <Input
+                className="w-full"
                 placeholder="Motivo da disputa *"
                 value={dispute.reason}
                 onChange={(e) =>
@@ -402,8 +444,8 @@ export function PayslipDetailView({
                   })
                 }
               />
-              <textarea
-                className="w-full text-sm border border-red-200 rounded-lg px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-red-400 resize-none"
+              <Textarea
+                className="w-full resize-none"
                 placeholder="Detalhes adicionais (opcional)"
                 rows={3}
                 value={dispute.details}
@@ -415,19 +457,20 @@ export function PayslipDetailView({
                 }
               />
               <div className="flex gap-2">
-                <button
+                <Button
+                  intent="danger"
+                  loading={dispute.submitting}
+                  disabled={!dispute.reason.trim()}
                   onClick={onSubmitDispute}
-                  disabled={!dispute.reason.trim() || dispute.submitting}
-                  className="px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 disabled:opacity-50"
                 >
                   {dispute.submitting ? 'A enviar…' : 'Enviar disputa'}
-                </button>
-                <button
+                </Button>
+                <Button
+                  intent="secondary"
                   onClick={() => dispatchDispute({ type: 'CLOSE' })}
-                  className="px-4 py-2 text-sm border border-gray-200 rounded-lg hover:bg-gray-50"
                 >
                   Cancelar
-                </button>
+                </Button>
               </div>
             </div>
           )}
