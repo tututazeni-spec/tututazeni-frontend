@@ -4,7 +4,9 @@
 
 import Image from 'next/image';
 import { CheckCircle, Clock, Play, Star, Zap } from 'lucide-react';
-import { CATEGORY_CONFIG, DIFF_COLOR } from './constants';
+import { Badge } from '@/components/ui/Badge';
+import { Card } from '@/components/ui/Card';
+import { CATEGORY_CONFIG, DIFF_INTENT } from './constants';
 import type { Scenario } from './types';
 
 export interface ScenarioCardProps {
@@ -18,7 +20,7 @@ export function ScenarioCard({ scenario, onStart }: ScenarioCardProps) {
   const done = scenario.bestSession?.score ?? null;
 
   return (
-    <div className="bg-white rounded-xl border border-slate-100 overflow-hidden hover:shadow-lg transition-all group">
+    <Card className="group overflow-hidden p-0 hover:shadow-hover">
       {/* Thumbnail */}
       <div
         className={`h-32 ${cat.bg} flex items-center justify-center relative`}
@@ -31,20 +33,24 @@ export function ScenarioCard({ scenario, onStart }: ScenarioCardProps) {
             alt=""
           />
         ) : (
-          <Icon size={40} className={`${cat.color} opacity-40`} />
+          <Icon
+            size={24}
+            strokeWidth={1.75}
+            className={`${cat.color} opacity-40`}
+          />
         )}
         {done !== null && (
-          <div className="absolute top-2 right-2 flex items-center gap-1 bg-white/90 rounded-full px-2 py-0.5 text-xs font-bold text-emerald-700">
-            <CheckCircle size={10} />
+          <div className="absolute top-2 right-2 flex items-center gap-1 bg-surface/90 rounded-full px-2 py-0.5 text-xs font-bold text-success-ink">
+            <CheckCircle size={14} strokeWidth={1.75} />
             {done}%
           </div>
         )}
-        <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+        <div className="absolute inset-0 bg-ink/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
           <button
             onClick={() => onStart(scenario)}
-            className="flex items-center gap-2 px-5 py-2 bg-white text-slate-800 rounded-full font-semibold text-sm shadow-lg hover:shadow-xl"
+            className="flex items-center gap-2 px-5 py-2 bg-surface text-ink rounded-full font-semibold text-sm shadow-elevated hover:shadow-hover"
           >
-            <Play size={14} className="ml-0.5" />
+            <Play size={14} strokeWidth={1.75} className="ml-0.5" />
             Iniciar
           </button>
         </div>
@@ -53,45 +59,50 @@ export function ScenarioCard({ scenario, onStart }: ScenarioCardProps) {
       {/* Body */}
       <div className="p-3">
         <div className="flex items-center gap-2 mb-1.5">
-          <span
-            className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${DIFF_COLOR[scenario.difficulty]}`}
+          <Badge
+            intent={DIFF_INTENT[scenario.difficulty]}
+            className="px-1.5 py-0.5 text-[10px]"
           >
             {scenario.difficulty}
-          </span>
+          </Badge>
           <span className={`text-[10px] font-medium ${cat.color}`}>
             {cat.label}
           </span>
           {scenario.competency && (
-            <span className="text-[10px] text-slate-400 ml-auto truncate">
+            <span className="text-[10px] text-ink-faint ml-auto truncate">
               {scenario.competency.name}
             </span>
           )}
         </div>
 
-        <h4 className="text-sm font-semibold text-slate-800 line-clamp-2 mb-2">
+        <h4 className="text-sm font-semibold text-ink line-clamp-2 mb-2">
           {scenario.title}
         </h4>
 
-        <div className="flex items-center gap-3 text-[10px] text-slate-400">
+        <div className="flex items-center gap-3 text-[10px] text-ink-faint">
           {scenario.estimatedMinutes && (
             <span className="flex items-center gap-0.5">
-              <Clock size={10} />
+              <Clock size={14} strokeWidth={1.75} />
               {scenario.estimatedMinutes} min
             </span>
           )}
           {scenario.xpReward && (
-            <span className="flex items-center gap-0.5 text-amber-500 font-semibold">
-              <Zap size={10} />+{scenario.xpReward} XP
+            <span className="flex items-center gap-0.5 text-accent font-semibold">
+              <Zap size={14} strokeWidth={1.75} />+{scenario.xpReward} XP
             </span>
           )}
           {scenario.avgScore !== null && scenario.avgScore !== undefined && (
             <span className="flex items-center gap-0.5 ml-auto">
-              <Star size={10} className="text-amber-400 fill-amber-400" />
+              <Star
+                size={14}
+                strokeWidth={1.75}
+                className="fill-accent text-accent"
+              />
               {scenario.avgScore}
             </span>
           )}
         </div>
       </div>
-    </div>
+    </Card>
   );
 }

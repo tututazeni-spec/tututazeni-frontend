@@ -2,9 +2,22 @@
 // Overlay de resultado final da sessão (score, comportamental, pontos
 // fortes/a melhorar, repetir/próximo). Extraído de
 // app/(platform)/avatar-training/page.tsx.
+//
+// Backdrop+painel bespoke passam a Modal/ModalContent (Radix Dialog,
+// components/ui/Modal) — mesmo padrão de ChatSession.tsx /
+// components/documents/UploadModal.tsx.
+//
+// GRADE_CONFIG é uma rampa ordinal de 5 níveis (excepcional→a melhorar)
+// contra só 4 tokens de severidade (success/info/warning/danger) — AVERAGE
+// e BELOW_AVERAGE partilham `warning` (ambos "zona de atenção"), em vez de
+// inventar um 5º tom. O ProgressBar da fundação é mono-cor: a cor que
+// antes ia na barra (score comportamental) já está no texto acima dela
+// via SCORE_COLOR — mesmo padrão de components/engagement/AnalyticsTab.tsx.
 
 import { ArrowRight, Clock, RefreshCw, Zap } from 'lucide-react';
-import { ProgressBar } from './atoms';
+import { Button } from '@/components/ui/Button';
+import { Modal, ModalContent } from '@/components/ui/Modal';
+import { ProgressBar } from '@/components/ui/ProgressBar';
 import { SCORE_COLOR } from './constants';
 import type { SessionResult } from './types';
 
@@ -21,23 +34,23 @@ const GRADE_CONFIG: Record<
 > = {
   EXCEPTIONAL: {
     emoji: '🏆',
-    color: 'text-emerald-600',
+    color: 'text-success',
     label: 'Excepcional',
   },
   ABOVE_AVERAGE: {
     emoji: '⭐',
-    color: 'text-teal-600',
+    color: 'text-info',
     label: 'Acima Média',
   },
-  AVERAGE: { emoji: '👍', color: 'text-amber-600', label: 'Médio' },
+  AVERAGE: { emoji: '👍', color: 'text-warning', label: 'Médio' },
   BELOW_AVERAGE: {
     emoji: '📈',
-    color: 'text-orange-600',
+    color: 'text-warning',
     label: 'Abaixo Média',
   },
   NEEDS_IMPROVEMENT: {
     emoji: '🎯',
-    color: 'text-red-600',
+    color: 'text-danger',
     label: 'Melhorar',
   },
 };
@@ -53,20 +66,20 @@ export function ResultsModal({
   const g = GRADE_CONFIG[grade] ?? GRADE_CONFIG.AVERAGE;
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-900/60 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6">
+    <Modal open onOpenChange={(open) => !open && onClose()}>
+      <ModalContent title="Resultado da Sessão" className="w-full max-w-md">
         {/* Score */}
-        <div className="text-center mb-6">
+        <div className="text-center mt-4 mb-6">
           <div className="text-5xl mb-2">{g.emoji}</div>
           <p className={`text-5xl font-black ${g.color}`}>{score}</p>
-          <p className="text-lg font-semibold text-slate-700 mt-1">{g.label}</p>
+          <p className="text-lg font-semibold text-ink mt-1">{g.label}</p>
           <div className="mt-3 flex items-center justify-center gap-2">
-            <span className="flex items-center gap-1 text-amber-500 font-bold text-sm">
-              <Zap size={14} />+{result.xpEarned} XP
+            <span className="flex items-center gap-1 text-accent font-bold text-sm">
+              <Zap size={14} strokeWidth={1.75} />+{result.xpEarned} XP
             </span>
             {result.durationSeconds && (
-              <span className="flex items-center gap-1 text-slate-400 text-xs">
-                <Clock size={12} />
+              <span className="flex items-center gap-1 text-ink-faint text-xs">
+                <Clock size={14} strokeWidth={1.75} />
                 {Math.round(result.durationSeconds / 60)} min
               </span>
             )}
@@ -76,26 +89,17 @@ export function ResultsModal({
         {/* Behavioral scores */}
         {result.behavioral && Object.keys(result.behavioral).length > 0 && (
           <div className="mb-4 space-y-2">
-            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
+            <p className="text-xs font-semibold text-ink-muted uppercase tracking-wide">
               Comportamental
             </p>
             {Object.entries(result.behavioral as Record<string, number>).map(
               ([k, v]) => (
                 <div key={k}>
                   <div className="flex justify-between text-xs mb-0.5">
-                    <span className="text-slate-600 capitalize">{k}</span>
+                    <span className="text-ink-muted capitalize">{k}</span>
                     <span className={`font-bold ${SCORE_COLOR(+v)}`}>{+v}</span>
                   </div>
-                  <ProgressBar
-                    value={+v}
-                    color={
-                      +v >= 70
-                        ? 'bg-emerald-500'
-                        : +v >= 50
-                          ? 'bg-amber-400'
-                          : 'bg-red-400'
-                    }
-                  />
+                  <ProgressBar value={+v} />
                 </div>
               ),
             )}
@@ -107,24 +111,24 @@ export function ResultsModal({
           (result.improvements?.length ?? 0) > 0) && (
           <div className="grid grid-cols-2 gap-3 mb-4">
             {(result.strengths?.length ?? 0) > 0 && (
-              <div className="bg-emerald-50 rounded-xl p-3">
-                <p className="text-xs font-bold text-emerald-700 mb-1">
+              <div className="bg-success-subtle rounded-card p-3">
+                <p className="text-xs font-bold text-success-ink mb-1">
                   💪 Pontos Fortes
                 </p>
                 {result.strengths?.slice(0, 2).map((s, i) => (
-                  <p key={i} className="text-[10px] text-emerald-700">
+                  <p key={i} className="text-[10px] text-success-ink">
                     • {s}
                   </p>
                 ))}
               </div>
             )}
             {(result.improvements?.length ?? 0) > 0 && (
-              <div className="bg-amber-50 rounded-xl p-3">
-                <p className="text-xs font-bold text-amber-700 mb-1">
+              <div className="bg-warning-subtle rounded-card p-3">
+                <p className="text-xs font-bold text-warning-ink mb-1">
                   🎯 Melhorar
                 </p>
                 {result.improvements?.slice(0, 2).map((s, i) => (
-                  <p key={i} className="text-[10px] text-amber-700">
+                  <p key={i} className="text-[10px] text-warning-ink">
                     • {s}
                   </p>
                 ))}
@@ -135,30 +139,21 @@ export function ResultsModal({
 
         {/* Actions */}
         <div className="flex gap-2">
-          <button
-            onClick={onRetry}
-            className="flex-1 py-2.5 border border-slate-200 text-slate-600 text-sm rounded-xl hover:bg-slate-50"
-          >
-            <RefreshCw size={13} className="inline mr-1" />
+          <Button intent="secondary" onClick={onRetry} className="flex-1">
+            <RefreshCw size={14} strokeWidth={1.75} />
             Repetir
-          </button>
+          </Button>
           {result.nextScenario && (
-            <button
-              onClick={onNext}
-              className="flex-1 py-2.5 bg-indigo-600 text-white text-sm rounded-xl hover:bg-indigo-700"
-            >
+            <Button onClick={onNext} className="flex-1">
               Próximo
-              <ArrowRight size={13} className="inline ml-1" />
-            </button>
+              <ArrowRight size={14} strokeWidth={1.75} />
+            </Button>
           )}
-          <button
-            onClick={onClose}
-            className="px-4 py-2.5 border border-slate-200 text-slate-600 text-sm rounded-xl hover:bg-slate-50"
-          >
+          <Button intent="ghost" onClick={onClose}>
             Fechar
-          </button>
+          </Button>
         </div>
-      </div>
-    </div>
+      </ModalContent>
+    </Modal>
   );
 }
