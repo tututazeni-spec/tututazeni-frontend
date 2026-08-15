@@ -1,11 +1,14 @@
 'use client';
 // src/app/(dashboard)/dashboard/page.tsx
 //
-// Container: gere o separador activo, o modal de pesquisa global e o badge
-// de alertas urgentes no header; delega dados+apresentação de cada
-// separador aos componentes auto-contidos em components/dashboard/ (mesmo
-// padrão que components/payslips/page.tsx usa para ListView/CompareView/
-// AnnualView). Ver memory project_innova_component_separation_audit.
+// Container: gere o separador activo (via Tabs do Radix), o modal de
+// pesquisa global e o badge de alertas urgentes no header; delega
+// dados+apresentação de cada separador aos componentes auto-contidos em
+// components/dashboard/ (mesmo padrão que components/payslips/page.tsx
+// usa para ListView/CompareView/AnnualView). Ver memory
+// project_innova_component_separation_audit e
+// app/(platform)/leader/page.tsx (mesmo esqueleto header+Tabs, já
+// migrado).
 
 import { useState } from 'react';
 import {
@@ -26,6 +29,8 @@ import {
   MGMT_ROLES,
   type Role,
 } from '@/lib/roles';
+import { Button, IconButton } from '@/components/ui/Button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
 import { ColaboradorDashboard } from '@/components/dashboard/ColaboradorDashboard';
 import { ManagerDashboard } from '@/components/dashboard/ManagerDashboard';
 import { OrgDashboard } from '@/components/dashboard/OrgDashboard';
@@ -69,94 +74,98 @@ export default function DashboardPage() {
 
   const availableTabs = filterByRole(TABS, role);
 
-  const TAB_CONTENT: Record<string, JSX.Element> = {
-    personal: <ColaboradorDashboard />,
-    manager: <ManagerDashboard />,
-    org: <OrgDashboard />,
-  };
-
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-canvas">
       {showSearch && <GlobalSearch onClose={() => setShowSearch(false)} />}
 
       {/* Header */}
-      <div className="bg-white border-b border-slate-200 px-6 py-5">
-        <div className="max-w-7xl mx-auto flex items-start justify-between">
+      <div className="border-b border-border bg-surface px-6 py-5">
+        <div className="mx-auto flex max-w-7xl items-start justify-between">
           <div>
-            <div className="flex items-center gap-2 mb-1">
-              <div className="p-1.5 bg-indigo-100 rounded-lg">
-                <LayoutDashboard size={18} className="text-indigo-600" />
+            <div className="mb-1 flex items-center gap-2">
+              <div className="rounded-control bg-primary-subtle p-1.5">
+                <LayoutDashboard
+                  size={18}
+                  strokeWidth={1.75}
+                  className="text-primary"
+                />
               </div>
-              <h1 className="text-xl font-bold text-slate-800">Dashboard</h1>
+              <h1 className="font-display text-xl font-bold text-ink">
+                Dashboard
+              </h1>
             </div>
-            <p className="text-sm text-slate-400">
+            <p className="font-body text-sm text-ink-faint">
               Visão unificada · KPIs · Insights · Alertas
             </p>
           </div>
           <div className="flex gap-2">
-            <button
+            <Button
+              intent="secondary"
+              size="sm"
               onClick={() => setShowSearch(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 text-slate-600 text-sm rounded-lg hover:border-indigo-300 transition-colors"
             >
-              <Search size={14} />
+              <Search size={14} strokeWidth={1.75} />
               Pesquisar
-            </button>
-            <button
-              aria-label="Notificações"
-              className="relative flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 text-slate-600 text-sm rounded-lg hover:border-slate-300 transition-colors"
-            >
-              <Bell size={14} />
+            </Button>
+            <div className="relative">
+              <IconButton
+                icon={Bell}
+                label="Notificações"
+                intent="secondary"
+              />
               {alertCount > 0 && (
-                <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[9px] rounded-full flex items-center justify-center font-bold">
+                <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-danger font-body text-[9px] font-bold text-canvas">
                   {alertCount}
                 </span>
               )}
-            </button>
-            <button
+            </div>
+            <IconButton
+              icon={RefreshCw}
+              label="Actualizar"
+              intent="secondary"
               onClick={() => window.location.reload()}
-              aria-label="Actualizar"
-              className="p-2 bg-white border border-slate-200 rounded-lg hover:border-slate-300"
-            >
-              <RefreshCw size={15} className="text-slate-500" />
-            </button>
+            />
           </div>
         </div>
       </div>
 
       {/* Slideshow — mesma posição de sempre: acima das tabs, visível em
           qualquer separador. */}
-      <div className="max-w-7xl mx-auto px-6 pt-6">
+      <div className="mx-auto max-w-7xl px-6 pt-6">
         <Slideshow />
       </div>
 
-      {/* Tabs */}
-      <div className="bg-white border-b border-slate-200 px-6">
-        <div className="max-w-7xl mx-auto flex overflow-x-auto">
-          {availableTabs.map((t) => {
-            const Icon = t.icon;
-            return (
-              <button
-                key={t.id}
-                onClick={() => setTab(t.id)}
-                className={`flex items-center gap-2 px-5 py-4 text-sm font-medium whitespace-nowrap
-                  border-b-2 transition-colors ${
-                    tab === t.id
-                      ? 'border-indigo-600 text-indigo-600'
-                      : 'border-transparent text-slate-500 hover:text-slate-700'
-                  }`}
-              >
-                <Icon size={15} />
-                {t.label}
-              </button>
-            );
-          })}
+      <Tabs value={tab} onValueChange={setTab}>
+        <div className="border-b border-border bg-surface px-6">
+          <TabsList className="mx-auto max-w-7xl overflow-x-auto">
+            {availableTabs.map((t) => {
+              const Icon = t.icon;
+              return (
+                <TabsTrigger
+                  key={t.id}
+                  value={t.id}
+                  className="gap-2 whitespace-nowrap"
+                >
+                  <Icon size={14} strokeWidth={1.75} />
+                  {t.label}
+                </TabsTrigger>
+              );
+            })}
+          </TabsList>
         </div>
-      </div>
 
-      {/* Content */}
-      <div className="max-w-7xl mx-auto px-6 py-6">
-        {TAB_CONTENT[tab] ?? <ColaboradorDashboard />}
-      </div>
+        <div className="mx-auto max-w-7xl px-6 py-6">
+          <TabsContent value="personal">
+            <ColaboradorDashboard />
+          </TabsContent>
+          <TabsContent value="manager">
+            <ManagerDashboard />
+          </TabsContent>
+          <TabsContent value="org">
+            <OrgDashboard />
+          </TabsContent>
+        </div>
+      </Tabs>
     </div>
   );
 }
