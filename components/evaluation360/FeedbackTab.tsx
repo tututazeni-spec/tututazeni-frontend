@@ -1,11 +1,15 @@
 // components/evaluation360/FeedbackTab.tsx
 // Lista de feedback contínuo recebido fora dos ciclos formais. Extraído de
 // app/(platform)/evaluation360/page.tsx.
+//
+// NOTA: Os tipos de feedback (RECOGNITION, DEVELOPMENT, CHECK_IN) usam cores
+// categóricas para codificação de tipo, não ordinal. Estas são data-viz exceptions.
 
 'use client';
 
 import type { ContinuousFeedback } from './types';
 import { COLORS, timeAgo } from './colors';
+import { Button } from '@/components/ui/Button';
 
 export interface FeedbackTabProps {
   feedbacks: ContinuousFeedback[];
@@ -16,126 +20,69 @@ export function FeedbackTab({ feedbacks }: FeedbackTabProps) {
     string,
     { label: string; color: string; icon: string }
   > = {
-    RECOGNITION: { label: 'Reconhecimento', color: '#22c55e', icon: '★' },
-    DEVELOPMENT: { label: 'Desenvolvimento', color: '#818cf8', icon: '◎' },
-    CHECK_IN: { label: 'Check-in 1:1', color: '#60a5fa', icon: '◆' },
+    RECOGNITION: {
+      label: 'Reconhecimento',
+      color: 'rgb(34, 197, 94)',
+      icon: '★',
+    },
+    DEVELOPMENT: {
+      label: 'Desenvolvimento',
+      color: 'rgb(129, 140, 248)',
+      icon: '◎',
+    },
+    CHECK_IN: { label: 'Check-in 1:1', color: 'rgb(96, 165, 250)', icon: '◆' },
   };
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: 8,
-        }}
-      >
+    <div className="flex flex-col gap-3">
+      <div className="flex justify-between items-center mb-2">
         <div>
-          <h2
-            style={{
-              margin: 0,
-              fontSize: 18,
-              fontWeight: 800,
-              color: COLORS.text,
-            }}
-          >
+          <h2 className="m-0 text-lg font-bold text-slate-100">
             Feedback Contínuo
           </h2>
-          <p style={{ margin: '4px 0 0', fontSize: 13, color: COLORS.muted }}>
+          <p className="m-0 mt-1 text-sm text-slate-400">
             Feedbacks recebidos fora dos ciclos formais
           </p>
         </div>
-        <button
-          style={{
-            background: 'linear-gradient(135deg, #4f46e5, #7c3aed)',
-            border: 'none',
-            borderRadius: 8,
-            padding: '9px 18px',
-            fontSize: 13,
-            fontWeight: 700,
-            color: '#fff',
-            cursor: 'pointer',
-          }}
-        >
+        <Button intent="primary" size="sm">
           + Dar Feedback
-        </button>
+        </Button>
       </div>
       {feedbacks.map((fb) => {
         const cfg = typeConfig[fb.type];
         return (
           <div
             key={fb.id}
-            style={{
-              background: COLORS.surface,
-              borderLeft: `3px solid ${cfg.color}`,
-              border: `1px solid ${COLORS.border}`,
-              borderLeftColor: cfg.color,
-              borderRadius: '0 10px 10px 0',
-              padding: '16px 20px',
-            }}
+            className="rounded-r-lg border border-l-4 bg-slate-800 p-4"
+            style={{ borderLeftColor: cfg.color }}
           >
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'flex-start',
-                gap: 16,
-              }}
-            >
+            <div className="flex justify-between items-start gap-4">
               <div>
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 8,
-                    marginBottom: 8,
-                  }}
-                >
-                  <span style={{ color: cfg.color, fontSize: 14 }}>
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-sm" style={{ color: cfg.color }}>
                     {cfg.icon}
                   </span>
                   <span
-                    style={{
-                      fontSize: 12,
-                      fontWeight: 700,
-                      color: cfg.color,
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.06em',
-                    }}
+                    className="text-xs font-bold uppercase tracking-wider"
+                    style={{ color: cfg.color }}
                   >
                     {cfg.label}
                   </span>
                   {fb.competency && (
-                    <span
-                      style={{
-                        fontSize: 11,
-                        color: COLORS.muted,
-                        background: '#1e2a3a',
-                        padding: '2px 8px',
-                        borderRadius: 10,
-                      }}
-                    >
+                    <span className="text-xs text-slate-500 bg-slate-900 px-2 py-0.5 rounded-full">
                       {fb.competency}
                     </span>
                   )}
-                  <span style={{ fontSize: 11, color: '#374151' }}>
+                  <span className="text-xs text-slate-600">
                     · {timeAgo(fb.createdAt)}
                   </span>
                 </div>
-                <p
-                  style={{
-                    margin: 0,
-                    fontSize: 14,
-                    color: '#cbd5e1',
-                    lineHeight: 1.6,
-                  }}
-                >
+                <p className="m-0 text-sm text-slate-300 leading-relaxed">
                   {fb.message}
                 </p>
               </div>
             </div>
-            <div style={{ marginTop: 10, fontSize: 12, color: COLORS.muted }}>
-              por <strong style={{ color: '#94a3b8' }}>{fb.fromName}</strong>
+            <div className="mt-2.5 text-xs text-slate-500">
+              por <strong className="text-slate-400">{fb.fromName}</strong>
             </div>
           </div>
         );

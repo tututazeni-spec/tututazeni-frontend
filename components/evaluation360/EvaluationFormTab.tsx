@@ -7,6 +7,8 @@
 import { useState } from 'react';
 import type { EvaluationQuestion } from './types';
 import { COLORS } from './colors';
+import { Button } from '@/components/ui/Button';
+import { Textarea } from '@/components/ui/Textarea';
 
 export interface EvaluationFormTabProps {
   questions: EvaluationQuestion[];
@@ -38,61 +40,33 @@ export function EvaluationFormTab({
   );
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 24,
-        maxWidth: 720,
-      }}
-    >
+    <div className="flex flex-col gap-6 max-w-2xl">
       <div>
-        <h2
-          style={{
-            margin: 0,
-            fontSize: 18,
-            fontWeight: 800,
-            color: COLORS.text,
-          }}
-        >
+        <h2 className="m-0 text-lg font-bold text-slate-100">
           Formulário de Avaliação
         </h2>
-        <p style={{ margin: '4px 0 0', fontSize: 13, color: COLORS.muted }}>
+        <p className="m-0 mt-1 text-sm text-slate-400">
           Avaliação de{' '}
-          <strong style={{ color: '#e2e8f0' }}>{participantName}</strong> ·
-          Role: Par
+          <strong className="text-slate-200">{participantName}</strong> · Role:
+          Par
         </p>
       </div>
 
       {/* Progress */}
-      <div
-        style={{
-          background: COLORS.surface,
-          border: `1px solid ${COLORS.border}`,
-          borderRadius: 10,
-          padding: '14px 20px',
-        }}
-      >
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            marginBottom: 8,
-          }}
-        >
-          <span style={{ fontSize: 13, color: COLORS.muted }}>Progresso</span>
-          <span style={{ fontSize: 13, fontWeight: 700, color: '#818cf8' }}>
+      <div className="rounded-lg border border-slate-700 bg-slate-800 p-4">
+        <div className="flex justify-between mb-2">
+          <span className="text-sm text-slate-500">Progresso</span>
+          <span className="text-sm font-bold text-indigo-400">
             {Object.keys(answers).length}/{questions.length} respostas
           </span>
         </div>
-        <div style={{ background: '#1e2537', borderRadius: 4, height: 6 }}>
+        <div className="bg-slate-900 rounded h-1.5 overflow-hidden">
           <div
+            className="h-full rounded transition-all"
             style={{
               width: `${completion}%`,
-              height: '100%',
-              background: 'linear-gradient(90deg, #4f46e5, #7c3aed)',
-              borderRadius: 4,
-              transition: 'width 0.3s',
+              background:
+                'linear-gradient(90deg, rgb(99, 102, 241), rgb(124, 58, 237))',
             }}
           />
         </div>
@@ -105,54 +79,38 @@ export function EvaluationFormTab({
         return (
           <div
             key={q.id}
+            className="rounded-lg border bg-slate-800 p-5 transition-colors"
             style={{
-              background: COLORS.surface,
-              border: `1px solid ${val !== undefined ? '#4f46e555' : COLORS.border}`,
-              borderRadius: 10,
-              padding: '20px 24px',
+              borderColor:
+                val !== undefined
+                  ? 'rgba(79, 70, 229, 0.33)'
+                  : 'rgb(30, 42, 58)',
             }}
           >
-            <div style={{ display: 'flex', gap: 10, marginBottom: 16 }}>
+            <div className="flex gap-2.5 mb-4">
               <div
+                className="flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold text-white flex-shrink-0"
                 style={{
-                  minWidth: 24,
-                  height: 24,
-                  borderRadius: '50%',
-                  background: val !== undefined ? '#4f46e5' : '#1e2537',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: 11,
-                  fontWeight: 800,
-                  color: val !== undefined ? '#fff' : '#374151',
+                  background:
+                    val !== undefined ? 'rgb(79, 70, 229)' : 'rgb(30, 37, 55)',
+                  color:
+                    val !== undefined
+                      ? 'rgb(255, 255, 255)'
+                      : 'rgb(55, 65, 81)',
                 }}
               >
                 {qi + 1}
               </div>
-              <div>
-                <div
-                  style={{
-                    fontSize: 11,
-                    color: '#818cf8',
-                    fontWeight: 600,
-                    marginBottom: 6,
-                  }}
-                >
+              <div className="flex-1">
+                <div className="text-xs font-semibold text-indigo-400 mb-1.5">
                   {q.competency}
                 </div>
-                <p
-                  style={{
-                    margin: 0,
-                    fontSize: 14,
-                    color: '#e2e8f0',
-                    lineHeight: 1.6,
-                  }}
-                >
+                <p className="m-0 text-sm text-slate-200 leading-relaxed">
                   {q.text}
                 </p>
               </div>
             </div>
-            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            <div className="flex gap-2 flex-wrap">
               {labels.map((label, i) => {
                 const v = i + 1;
                 const isSelected = val === v;
@@ -162,36 +120,32 @@ export function EvaluationFormTab({
                     onClick={() =>
                       setAnswers((prev) => ({ ...prev, [q.id]: v }))
                     }
+                    className="flex-1 min-w-20 px-1.5 py-2.5 rounded-lg cursor-pointer flex flex-col items-center gap-1 transition-all border"
                     style={{
-                      flex: 1,
-                      minWidth: 80,
-                      padding: '10px 6px',
-                      background: isSelected ? '#4f46e5' : '#1e2537',
-                      border: `1px solid ${isSelected ? '#6366f1' : '#1e2a3a'}`,
-                      borderRadius: 8,
-                      cursor: 'pointer',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                      gap: 4,
-                      transition: 'all 0.15s',
+                      background: isSelected
+                        ? 'rgb(79, 70, 229)'
+                        : 'rgb(30, 37, 55)',
+                      borderColor: isSelected
+                        ? 'rgb(99, 102, 241)'
+                        : 'rgb(30, 42, 58)',
                     }}
                   >
                     <span
+                      className="text-base font-bold"
                       style={{
-                        fontSize: 16,
-                        fontWeight: 800,
-                        color: isSelected ? '#fff' : '#6b7280',
+                        color: isSelected
+                          ? 'rgb(255, 255, 255)'
+                          : 'rgb(107, 114, 128)',
                       }}
                     >
                       {v}
                     </span>
                     <span
+                      className="text-xs text-center leading-tight"
                       style={{
-                        fontSize: 10,
-                        color: isSelected ? '#c7d2fe' : '#475569',
-                        textAlign: 'center',
-                        lineHeight: 1.3,
+                        color: isSelected
+                          ? 'rgb(199, 210, 254)'
+                          : 'rgb(71, 85, 105)',
                       }}
                     >
                       {label}
@@ -205,79 +159,31 @@ export function EvaluationFormTab({
       })}
 
       {/* Open question */}
-      <div
-        style={{
-          background: COLORS.surface,
-          border: `1px solid ${COLORS.border}`,
-          borderRadius: 10,
-          padding: '20px 24px',
-        }}
-      >
-        <p
-          style={{
-            margin: '0 0 12px',
-            fontSize: 14,
-            color: '#e2e8f0',
-            lineHeight: 1.6,
-          }}
-        >
+      <div className="rounded-lg border border-slate-700 bg-slate-800 p-5">
+        <p className="m-0 mb-3 text-sm text-slate-200 leading-relaxed">
           Que feedback adicional gostaria de partilhar sobre este colaborador?
           (opcional)
         </p>
-        <textarea
-          style={{
-            width: '100%',
-            minHeight: 100,
-            background: '#0f172a',
-            border: '1px solid #1e2a3a',
-            borderRadius: 8,
-            padding: '12px',
-            fontSize: 13,
-            color: '#e2e8f0',
-            resize: 'vertical',
-            outline: 'none',
-            fontFamily: 'inherit',
-          }}
+        <Textarea
           placeholder="Partilhe exemplos concretos e construtivos..."
+          className="bg-slate-900 text-slate-200 border-slate-700"
         />
       </div>
 
       {/* Submit */}
-      <div style={{ display: 'flex', gap: 12 }}>
-        <button
-          style={{
-            background: '#1e2537',
-            border: `1px solid ${COLORS.border}`,
-            borderRadius: 8,
-            padding: '12px 24px',
-            fontSize: 14,
-            fontWeight: 600,
-            color: COLORS.muted,
-            cursor: 'pointer',
-          }}
-        >
+      <div className="flex gap-3">
+        <Button intent="ghost" size="md">
           Guardar Rascunho
-        </button>
-        <button
-          style={{
-            background:
-              completion === 100
-                ? 'linear-gradient(135deg, #4f46e5, #7c3aed)'
-                : '#1e2537',
-            border: `1px solid ${completion === 100 ? '#6366f1' : '#374151'}`,
-            borderRadius: 8,
-            padding: '12px 32px',
-            fontSize: 14,
-            fontWeight: 700,
-            color: completion === 100 ? '#fff' : '#4b5563',
-            cursor: completion === 100 ? 'pointer' : 'not-allowed',
-          }}
+        </Button>
+        <Button
+          intent={completion === 100 ? 'primary' : 'ghost'}
+          size="md"
           disabled={completion < 100}
         >
           {completion < 100
             ? `Responda todas as questões (${completion}%)`
             : 'Submeter Avaliação'}
-        </button>
+        </Button>
       </div>
     </div>
   );

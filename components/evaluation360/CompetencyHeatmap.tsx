@@ -13,41 +13,18 @@ export interface CompetencyHeatmapProps {
 
 export function CompetencyHeatmap({ competencies }: CompetencyHeatmapProps) {
   return (
-    <div style={{ overflowX: 'auto' }}>
-      <table
-        style={{ width: '100%', borderCollapse: 'collapse', minWidth: 600 }}
-      >
+    <div className="overflow-x-auto">
+      <table className="w-full border-collapse" style={{ minWidth: 600 }}>
         <thead>
           <tr>
-            <th
-              style={{
-                textAlign: 'left',
-                padding: '10px 12px',
-                fontSize: 11,
-                color: COLORS.muted,
-                fontWeight: 700,
-                letterSpacing: '0.06em',
-                textTransform: 'uppercase',
-                borderBottom: `1px solid ${COLORS.border}`,
-              }}
-            >
+            <th className="text-left px-3 py-2.5 text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-700">
               Competência
             </th>
             {['Auto', 'Gestor', 'Pares', 'Média', 'Gap', 'Benchmark'].map(
               (h) => (
                 <th
                   key={h}
-                  style={{
-                    textAlign: 'center',
-                    padding: '10px 12px',
-                    fontSize: 11,
-                    color: COLORS.muted,
-                    fontWeight: 700,
-                    letterSpacing: '0.06em',
-                    textTransform: 'uppercase',
-                    borderBottom: `1px solid ${COLORS.border}`,
-                    whiteSpace: 'nowrap',
-                  }}
+                  className="text-center px-3 py-2.5 text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-700 whitespace-nowrap"
                 >
                   {h}
                 </th>
@@ -58,62 +35,43 @@ export function CompetencyHeatmap({ competencies }: CompetencyHeatmapProps) {
         <tbody>
           {competencies.map((c, i) => {
             const gapColor =
-              c.gap > 0.5 ? '#f59e0b' : c.gap < -0.5 ? '#22c55e' : COLORS.muted;
+              c.gap > 0.5
+                ? 'rgb(245, 158, 11)'
+                : c.gap < -0.5
+                  ? 'rgb(34, 197, 94)'
+                  : COLORS.muted;
             return (
               <tr
                 key={c.id}
-                style={{ background: i % 2 === 0 ? '#0d1421' : 'transparent' }}
+                style={{
+                  background: i % 2 === 0 ? 'rgb(13, 20, 33)' : 'transparent',
+                }}
               >
-                <td
-                  style={{
-                    padding: '10px 12px',
-                    borderBottom: `1px solid #0f1c30`,
-                  }}
-                >
-                  <div
-                    style={{ display: 'flex', alignItems: 'center', gap: 8 }}
-                  >
+                <td className="px-3 py-2.5 border-b border-slate-800">
+                  <div className="flex items-center gap-2">
                     <span
+                      className="inline-block w-1.5 h-1.5 rounded-full"
                       style={{
-                        width: 6,
-                        height: 6,
-                        borderRadius: '50%',
-                        background: typeColor[c.type] ?? '#6366f1',
+                        background: typeColor[c.type] ?? 'rgb(99, 102, 241)',
                       }}
                     />
-                    <span
-                      style={{
-                        fontSize: 13,
-                        color: COLORS.text,
-                        fontWeight: 600,
-                      }}
-                    >
+                    <span className="text-sm font-semibold text-slate-100">
                       {c.name}
                     </span>
-                    <span style={{ fontSize: 10, color: COLORS.muted }}>
-                      {c.category}
-                    </span>
+                    <span className="text-xs text-slate-500">{c.category}</span>
                   </div>
                 </td>
                 {[c.selfScore, c.managerScore, c.peerScore, c.othersScore].map(
                   (v, j) => (
                     <td
                       key={j}
-                      style={{
-                        textAlign: 'center',
-                        padding: '10px 12px',
-                        borderBottom: `1px solid #0f1c30`,
-                      }}
+                      className="text-center px-3 py-2.5 border-b border-slate-800"
                     >
                       <span
+                        className="inline-block px-2.5 py-0.75 rounded text-sm font-bold"
                         style={{
-                          display: 'inline-block',
-                          padding: '3px 10px',
-                          borderRadius: 6,
                           background: `${scoreColor(v)}22`,
                           color: scoreColor(v),
-                          fontSize: 13,
-                          fontWeight: 700,
                         }}
                       >
                         {v.toFixed(1)}
@@ -121,28 +79,17 @@ export function CompetencyHeatmap({ competencies }: CompetencyHeatmapProps) {
                     </td>
                   ),
                 )}
-                <td
-                  style={{
-                    textAlign: 'center',
-                    padding: '10px 12px',
-                    borderBottom: `1px solid #0f1c30`,
-                  }}
-                >
+                <td className="text-center px-3 py-2.5 border-b border-slate-800">
                   <span
-                    style={{ color: gapColor, fontSize: 13, fontWeight: 700 }}
+                    className="text-sm font-bold"
+                    style={{ color: gapColor }}
                   >
                     {c.gap > 0 ? '+' : ''}
                     {c.gap.toFixed(1)}
                   </span>
                 </td>
-                <td
-                  style={{
-                    textAlign: 'center',
-                    padding: '10px 12px',
-                    borderBottom: `1px solid #0f1c30`,
-                  }}
-                >
-                  <span style={{ color: COLORS.muted, fontSize: 13 }}>
+                <td className="text-center px-3 py-2.5 border-b border-slate-800">
+                  <span className="text-sm text-slate-500">
                     {c.benchmark.toFixed(1)}
                   </span>
                 </td>

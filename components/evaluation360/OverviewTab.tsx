@@ -18,81 +18,36 @@ export function OverviewTab({ result, cycle }: OverviewTabProps) {
   );
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+    <div className="flex flex-col gap-6">
       {/* Participant header */}
-      <div
-        style={{
-          background: 'linear-gradient(135deg, #0f172a, #1a1048)',
-          border: '1px solid #312e81',
-          borderRadius: 12,
-          padding: '24px 28px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: 20,
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+      <div className="rounded-xl border border-indigo-800 bg-gradient-to-r from-slate-900 to-indigo-900 p-7 flex items-center justify-between gap-5">
+        <div className="flex items-center gap-4">
           <div
+            className="w-14 h-14 rounded-full flex items-center justify-center text-2xl font-bold text-white"
             style={{
-              width: 56,
-              height: 56,
-              borderRadius: '50%',
-              background: 'linear-gradient(135deg, #4f46e5, #7c3aed)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: 22,
-              fontWeight: 800,
-              color: '#fff',
+              background:
+                'linear-gradient(135deg, rgb(79, 70, 229), rgb(124, 58, 237))',
             }}
           >
             {result.fullName.charAt(0)}
           </div>
           <div>
-            <div
-              style={{
-                fontSize: 20,
-                fontWeight: 800,
-                color: COLORS.text,
-                letterSpacing: '-0.01em',
-              }}
-            >
+            <div className="text-xl font-bold text-slate-100 tracking-tight">
               {result.fullName}
             </div>
-            <div style={{ fontSize: 13, color: '#94a3b8', marginTop: 2 }}>
+            <div className="text-sm text-slate-400 mt-0.5">
               {result.position} · {result.department}
             </div>
           </div>
         </div>
-        <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
+        <div className="flex gap-4 items-center">
           {result.isEligiblePromotion && (
-            <div
-              style={{
-                background: '#14532d',
-                border: '1px solid #22c55e44',
-                borderRadius: 8,
-                padding: '6px 14px',
-                fontSize: 12,
-                fontWeight: 700,
-                color: '#4ade80',
-              }}
-            >
+            <div className="rounded-lg border border-green-600 bg-slate-900 px-3.5 py-1.5 text-xs font-bold text-green-400">
               ✓ Elegível Promoção
             </div>
           )}
           {result.isEligibleBonus && (
-            <div
-              style={{
-                background: '#1c1917',
-                border: '1px solid #f59e0b44',
-                borderRadius: 8,
-                padding: '6px 14px',
-                fontSize: 12,
-                fontWeight: 700,
-                color: '#fbbf24',
-              }}
-            >
+            <div className="rounded-lg border border-amber-600 bg-slate-900 px-3.5 py-1.5 text-xs font-bold text-amber-300">
               ✓ Elegível Bónus
             </div>
           )}
@@ -100,159 +55,86 @@ export function OverviewTab({ result, cycle }: OverviewTabProps) {
       </div>
 
       {/* Score cards */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(4, 1fr)',
-          gap: 12,
-        }}
-      >
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         {[
           {
             label: 'Score Ponderado',
             value: result.weightedScore,
-            color: '#818cf8',
+            color: 'rgb(129, 140, 248)',
           },
           {
             label: 'Autoavaliação',
             value: result.selfScore,
             color: COLORS.self,
           },
-          { label: 'Gestor', value: result.managerScore, color: '#34d399' },
+          {
+            label: 'Gestor',
+            value: result.managerScore,
+            color: 'rgb(52, 211, 153)',
+          },
           { label: 'Pares', value: result.peerScore, color: COLORS.peer },
         ].map((s) => (
           <div
             key={s.label}
-            style={{
-              background: COLORS.surface,
-              border: '1px solid #1e2a3a',
-              borderRadius: 10,
-              padding: '18px 20px',
-            }}
+            className="rounded-lg border border-slate-700 bg-slate-800 px-5 py-4.5"
           >
-            <div
-              style={{
-                fontSize: 11,
-                color: COLORS.muted,
-                fontWeight: 600,
-                textTransform: 'uppercase',
-                letterSpacing: '0.05em',
-                marginBottom: 8,
-              }}
-            >
+            <div className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">
               {s.label}
             </div>
             <div
-              style={{
-                fontSize: 32,
-                fontWeight: 800,
-                color: s.color,
-                letterSpacing: '-0.02em',
-                lineHeight: 1,
-              }}
+              className="text-3xl font-bold leading-tight tracking-tighter"
+              style={{ color: s.color }}
             >
               {s.value.toFixed(1)}
             </div>
-            <div style={{ fontSize: 11, color: COLORS.muted, marginTop: 6 }}>
-              / 5.0
-            </div>
+            <div className="text-xs text-slate-500 mt-1.5">/ 5.0</div>
           </div>
         ))}
       </div>
 
       {/* Strengths & Gaps */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-        <div
-          style={{
-            background: COLORS.surface,
-            border: '1px solid #166534',
-            borderRadius: 10,
-            padding: '18px 20px',
-          }}
-        >
-          <div
-            style={{
-              fontSize: 12,
-              color: '#4ade80',
-              fontWeight: 700,
-              letterSpacing: '0.06em',
-              textTransform: 'uppercase',
-              marginBottom: 14,
-            }}
-          >
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="rounded-lg border border-green-900 bg-slate-800 px-5 py-4.5">
+          <div className="text-xs font-bold text-green-400 uppercase tracking-wider mb-3.5">
             ◆ Pontos Fortes
           </div>
           {result.strengths.map((s) => (
             <div
               key={s.id}
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: 10,
-              }}
+              className="flex justify-between items-center mb-2.5"
             >
               <div>
-                <span
-                  style={{ fontSize: 13, color: COLORS.text, fontWeight: 600 }}
-                >
+                <span className="text-sm font-semibold text-slate-100">
                   {s.name}
                 </span>
-                <span
-                  style={{ fontSize: 11, color: COLORS.muted, marginLeft: 8 }}
-                >
+                <span className="text-xs text-slate-500 ml-2">
                   {s.category}
                 </span>
               </div>
-              <span style={{ fontSize: 14, fontWeight: 800, color: '#22c55e' }}>
+              <span className="text-sm font-bold text-green-400">
                 {s.othersScore.toFixed(1)}
               </span>
             </div>
           ))}
         </div>
-        <div
-          style={{
-            background: COLORS.surface,
-            border: '1px solid #7f1d1d',
-            borderRadius: 10,
-            padding: '18px 20px',
-          }}
-        >
-          <div
-            style={{
-              fontSize: 12,
-              color: '#f87171',
-              fontWeight: 700,
-              letterSpacing: '0.06em',
-              textTransform: 'uppercase',
-              marginBottom: 14,
-            }}
-          >
+        <div className="rounded-lg border border-red-900 bg-slate-800 px-5 py-4.5">
+          <div className="text-xs font-bold text-red-400 uppercase tracking-wider mb-3.5">
             ▲ Oportunidades de Desenvolvimento
           </div>
           {result.gaps.map((g) => (
             <div
               key={g.id}
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: 10,
-              }}
+              className="flex justify-between items-center mb-2.5"
             >
               <div>
-                <span
-                  style={{ fontSize: 13, color: COLORS.text, fontWeight: 600 }}
-                >
+                <span className="text-sm font-semibold text-slate-100">
                   {g.name}
                 </span>
-                <span
-                  style={{ fontSize: 11, color: COLORS.muted, marginLeft: 8 }}
-                >
+                <span className="text-xs text-slate-500 ml-2">
                   {g.category}
                 </span>
               </div>
-              <span style={{ fontSize: 14, fontWeight: 800, color: '#f87171' }}>
+              <span className="text-sm font-bold text-red-400">
                 {g.othersScore.toFixed(1)}
               </span>
             </div>
@@ -261,58 +143,29 @@ export function OverviewTab({ result, cycle }: OverviewTabProps) {
       </div>
 
       {/* Cycle progress */}
-      <div
-        style={{
-          background: COLORS.surface,
-          border: `1px solid ${COLORS.border}`,
-          borderRadius: 10,
-          padding: '18px 24px',
-        }}
-      >
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            marginBottom: 12,
-          }}
-        >
+      <div className="rounded-lg border border-slate-700 bg-slate-800 px-6 py-5">
+        <div className="flex justify-between mb-3">
           <div>
-            <div style={{ fontSize: 14, fontWeight: 700, color: COLORS.text }}>
-              {cycle.name}
-            </div>
-            <div style={{ fontSize: 12, color: COLORS.muted }}>
+            <div className="text-sm font-bold text-slate-100">{cycle.name}</div>
+            <div className="text-xs text-slate-500">
               {cycle.startDate} → {cycle.endDate}
             </div>
           </div>
-          <div style={{ fontSize: 13, color: COLORS.muted }}>
+          <div className="text-xs text-slate-500">
             {cycle.completedCount}/{cycle.participantsCount} concluídos
           </div>
         </div>
-        <div
-          style={{
-            background: '#1e2537',
-            borderRadius: 4,
-            height: 8,
-            overflow: 'hidden',
-          }}
-        >
+        <div className="bg-slate-900 rounded h-2 overflow-hidden mb-1.5">
           <div
+            className="h-full rounded transition-all"
             style={{
               width: `${completionPct}%`,
-              height: '100%',
-              background: 'linear-gradient(90deg, #4f46e5, #7c3aed)',
-              borderRadius: 4,
+              background:
+                'linear-gradient(90deg, rgb(99, 102, 241), rgb(124, 58, 237))',
             }}
           />
         </div>
-        <div
-          style={{
-            fontSize: 12,
-            color: '#818cf8',
-            marginTop: 6,
-            fontWeight: 600,
-          }}
-        >
+        <div className="text-xs font-semibold text-indigo-400">
           {completionPct}% de participação
         </div>
       </div>
