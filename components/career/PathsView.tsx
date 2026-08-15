@@ -6,10 +6,15 @@
 'use client';
 
 import { useState } from 'react';
+import { Map } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { Badge, Skeleton } from './atoms';
+import { cn } from '@/lib/cn';
+import { Badge } from '@/components/ui/Badge';
+import { Card } from '@/components/ui/Card';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { CAREER_PATH_TYPE } from './constants';
 import type { CareerPath } from './types';
 
@@ -28,54 +33,63 @@ export function PathsView() {
       {/* Lista */}
       <div className="space-y-2">
         {paths.map((path) => (
-          <div
+          <Card
             key={path.id}
             onClick={() => setSelected(path)}
-            className={`bg-white border rounded-xl p-4 cursor-pointer hover:shadow-sm transition-all ${selected?.id === path.id ? 'border-blue-300 bg-blue-50' : 'border-gray-200'}`}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                setSelected(path);
+              }
+            }}
+            className={cn(
+              'cursor-pointer p-4 transition-shadow duration-150 hover:shadow-hover',
+              selected?.id === path.id && 'border-primary bg-primary-subtle',
+            )}
           >
-            <div className="text-sm font-semibold text-gray-900">
+            <div className="font-body text-sm font-semibold text-ink">
               {path.name}
             </div>
-            <div className="flex items-center justify-between mt-1">
-              <span className="text-xs text-gray-400">
+            <div className="mt-1 flex items-center justify-between">
+              <span className="font-body text-xs text-ink-faint">
                 {CAREER_PATH_TYPE[path.type] ?? path.type}
               </span>
-              <span className="text-xs text-gray-400">
+              <span className="font-body text-xs text-ink-faint">
                 {path.steps?.length ?? 0} cargos
               </span>
             </div>
-          </div>
+          </Card>
         ))}
         {paths.length === 0 && (
-          <div className="py-10 text-center text-sm text-gray-400 border border-dashed border-gray-200 rounded-xl">
-            Sem trilhas de carreira
-          </div>
+          <EmptyState
+            icon={Map}
+            title="Sem trilhas de carreira"
+            description="Ainda não há trilhas de carreira configuradas."
+          />
         )}
       </div>
 
       {/* Detalhe */}
       <div>
         {!selected ? (
-          <div className="h-48 flex items-center justify-center text-sm text-gray-400 border border-dashed border-gray-200 rounded-xl">
+          <div className="flex h-48 items-center justify-center rounded-card border border-dashed border-border-strong font-body text-sm text-ink-faint">
             Selecciona uma trilha
           </div>
         ) : (
-          <div className="bg-white border border-gray-200 rounded-xl p-5">
-            <div className="text-lg font-bold text-gray-900 mb-1">
+          <Card className="p-5">
+            <div className="mb-1 font-display text-lg font-bold text-ink">
               {selected.name}
             </div>
-            <div className="flex gap-2 mb-4">
-              <Badge
-                label={CAREER_PATH_TYPE[selected.type] ?? selected.type}
-                cls="bg-blue-50 text-blue-700"
-              />
-              <Badge
-                label={`${selected.steps.length} passos`}
-                cls="bg-gray-100 text-gray-600"
-              />
+            <div className="mb-4 flex gap-2">
+              <Badge intent="info">
+                {CAREER_PATH_TYPE[selected.type] ?? selected.type}
+              </Badge>
+              <Badge intent="neutral">{selected.steps.length} passos</Badge>
             </div>
             {selected.description && (
-              <p className="text-sm text-gray-500 mb-4">
+              <p className="mb-4 font-body text-sm text-ink-muted">
                 {selected.description}
               </p>
             )}
@@ -85,18 +99,18 @@ export function PathsView() {
               {selected.steps.map((step, idx) => (
                 <div key={step.id} className="flex items-start gap-3">
                   <div className="flex flex-col items-center">
-                    <div className="w-8 h-8 rounded-full bg-blue-700 text-white flex items-center justify-center text-xs font-bold flex-shrink-0">
+                    <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-primary font-body text-xs font-bold text-canvas">
                       {step.order}
                     </div>
                     {idx < selected.steps.length - 1 && (
-                      <div className="w-0.5 h-6 bg-gray-200 mt-1" />
+                      <div className="mt-1 h-6 w-0.5 bg-border-strong" />
                     )}
                   </div>
-                  <div className="flex-1 bg-gray-50 rounded-xl p-3">
-                    <div className="text-sm font-semibold text-gray-900">
+                  <div className="flex-1 rounded-card bg-surface-sunken p-3">
+                    <div className="font-body text-sm font-semibold text-ink">
                       {step.position?.name}
                     </div>
-                    <div className="flex gap-3 text-xs text-gray-400 mt-1">
+                    <div className="mt-1 flex gap-3 font-body text-xs text-ink-faint">
                       {step.minMonthsRequired && (
                         <span>⏱ {step.minMonthsRequired}m mínimos</span>
                       )}
@@ -111,11 +125,11 @@ export function PathsView() {
                       )}
                     </div>
                     {(step.position?.competencies?.length ?? 0) > 0 && (
-                      <div className="flex flex-wrap gap-1 mt-2">
+                      <div className="mt-2 flex flex-wrap gap-1">
                         {step.position?.competencies?.slice(0, 4).map((pc) => (
                           <span
                             key={pc.competency.id}
-                            className="text-xs bg-blue-50 text-blue-700 px-1.5 py-0.5 rounded"
+                            className="rounded bg-info-subtle px-1.5 py-0.5 font-body text-xs text-info-ink"
                           >
                             {pc.competency.name}
                           </span>
@@ -126,7 +140,7 @@ export function PathsView() {
                 </div>
               ))}
             </div>
-          </div>
+          </Card>
         )}
       </div>
     </div>
