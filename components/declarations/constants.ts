@@ -1,70 +1,41 @@
 // components/declarations/constants.ts
 // Constantes de domínio partilhadas pelos componentes de apresentação do
 // módulo de declarações. Extraído verbatim de
-// app/(platform)/declarations/page.tsx.
+// app/(platform)/declarations/page.tsx. Migrado para a fundação de design:
+// DOC_STATUS/WORK_STATUS passam de { color, icon } (classes Tailwind cruas
+// + JSX) para { label, intent } — a forma consumida directamente pelo Badge
+// da fundação (components/ui/Badge). O ícone por-status do original foi
+// descartado — a cor semântica já comunica o estado via o ponto do Badge
+// (mesmo precedente do piloto work-declaration, ver
+// components/work-declaration/constants.ts).
 
-import {
-  FileText,
-  Clock,
-  Check,
-  XCircle,
-  FileCheck,
-  CheckCircle2,
-  Timer,
-  type LucideIcon,
-} from 'lucide-react';
+import type { BadgeProps } from '@/components/ui/Badge';
 import type { DocStatus, WorkDeclType, WorkStatus } from './types';
 
 export const DOC_STATUS: Record<
   DocStatus,
-  { label: string; color: string; icon: LucideIcon }
+  { label: string; intent: BadgeProps['intent'] }
 > = {
-  DRAFT: {
-    label: 'Rascunho',
-    color: 'bg-gray-100 text-gray-600',
-    icon: FileText,
-  },
-  PENDING: {
-    label: 'Pendente',
-    color: 'bg-amber-100 text-amber-700',
-    icon: Clock,
-  },
-  APPROVED: {
-    label: 'Aprovado',
-    color: 'bg-blue-100 text-blue-700',
-    icon: Check,
-  },
-  REJECTED: {
-    label: 'Rejeitado',
-    color: 'bg-red-100 text-red-700',
-    icon: XCircle,
-  },
-  GENERATED: {
-    label: 'Gerado',
-    color: 'bg-emerald-100 text-emerald-700',
-    icon: FileCheck,
-  },
-  ISSUED: {
-    label: 'Emitido',
-    color: 'bg-violet-100 text-violet-700',
-    icon: CheckCircle2,
-  },
-  EXPIRED: {
-    label: 'Expirado',
-    color: 'bg-gray-100 text-gray-400',
-    icon: Timer,
-  },
+  DRAFT: { label: 'Rascunho', intent: 'neutral' },
+  PENDING: { label: 'Pendente', intent: 'warning' },
+  APPROVED: { label: 'Aprovado', intent: 'info' },
+  REJECTED: { label: 'Rejeitado', intent: 'danger' },
+  GENERATED: { label: 'Gerado', intent: 'success' },
+  ISSUED: { label: 'Emitido', intent: 'success' },
+  EXPIRED: { label: 'Expirado', intent: 'warning' },
 };
 
-export const WORK_STATUS: Record<WorkStatus, { label: string; color: string }> =
-  {
-    DRAFT: { label: 'Rascunho', color: 'bg-gray-100 text-gray-600' },
-    PENDING: { label: 'Pendente', color: 'bg-amber-100 text-amber-700' },
-    SUBMITTED: { label: 'Submetida', color: 'bg-blue-100 text-blue-700' },
-    APPROVED: { label: 'Aprovada', color: 'bg-emerald-100 text-emerald-700' },
-    REJECTED: { label: 'Rejeitada', color: 'bg-red-100 text-red-700' },
-    EXPIRED: { label: 'Expirada', color: 'bg-gray-100 text-gray-400' },
-  };
+export const WORK_STATUS: Record<
+  WorkStatus,
+  { label: string; intent: BadgeProps['intent'] }
+> = {
+  DRAFT: { label: 'Rascunho', intent: 'neutral' },
+  PENDING: { label: 'Pendente', intent: 'warning' },
+  SUBMITTED: { label: 'Submetida', intent: 'info' },
+  APPROVED: { label: 'Aprovada', intent: 'success' },
+  REJECTED: { label: 'Rejeitada', intent: 'danger' },
+  EXPIRED: { label: 'Expirada', intent: 'warning' },
+};
 
 export const WORK_TYPE_LABELS: Record<WorkDeclType, string> = {
   ONBOARDING: 'Onboarding',
