@@ -12,7 +12,10 @@ import { Search, RotateCcw, Shield, Star, TrendingUp, Zap } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { Skeleton } from './atoms';
+import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { ContentCard } from './ContentCard';
 import { ContentRow } from './ContentRow';
 import type { Content } from './types';
@@ -64,30 +67,28 @@ export function HomeTab() {
   return (
     <div className="space-y-8">
       {/* Hero search */}
-      <div className="bg-gradient-to-br from-indigo-600 to-violet-700 rounded-2xl p-8 text-white">
-        <h2 className="text-2xl font-bold mb-1">O que queres aprender hoje?</h2>
-        <p className="text-indigo-200 text-sm mb-4">
+      <div className="rounded-panel bg-gradient-to-br from-primary to-primary-active p-8">
+        <h2 className="mb-1 font-display text-2xl font-bold text-canvas">
+          O que queres aprender hoje?
+        </h2>
+        <p className="mb-4 font-body text-sm text-canvas/70">
           Acede a cursos, vídeos, artigos e muito mais
         </p>
         <form onSubmit={handleSearch} className="flex gap-2">
-          <div className="flex-1 relative">
+          <div className="relative flex-1">
             <Search
               size={16}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+              strokeWidth={1.75}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-faint"
             />
-            <input
+            <Input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Buscar por título, skills, tags..."
-              className="w-full pl-10 pr-4 py-3 rounded-xl text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-white/50"
+              className="w-full pl-10"
             />
           </div>
-          <button
-            type="submit"
-            className="px-5 py-3 bg-white text-indigo-700 font-semibold rounded-xl hover:bg-indigo-50 transition-colors text-sm"
-          >
-            Pesquisar
-          </button>
+          <Button type="submit">Pesquisar</Button>
         </form>
       </div>
 
@@ -103,14 +104,14 @@ export function HomeTab() {
       {/* Mandatory */}
       {mandatory.length > 0 && (
         <div>
-          <div className="flex items-center gap-2 mb-3">
-            <Shield size={16} className="text-red-500" />
-            <h3 className="font-semibold text-slate-700">
+          <div className="mb-3 flex items-center gap-2">
+            <Shield size={16} strokeWidth={1.75} className="text-danger" />
+            <h3 className="font-body font-semibold text-ink">
               Conteúdos Obrigatórios
             </h3>
-            <span className="text-xs bg-red-100 text-red-600 px-2 py-0.5 rounded-full font-medium">
+            <Badge intent="danger">
               {mandatory.filter((c) => !c.completed).length} pendentes
-            </span>
+            </Badge>
           </div>
           <div className="grid grid-cols-1 gap-2">
             {mandatory.slice(0, 4).map((c) => (
@@ -121,7 +122,11 @@ export function HomeTab() {
       )}
 
       {loading ? (
-        <Skeleton count={8} />
+        <Skeleton
+          rows={8}
+          wrapperClassName="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 animate-pulse"
+          itemClassName="bg-surface-sunken rounded-card h-52"
+        />
       ) : (
         <>
           <ContentRow
