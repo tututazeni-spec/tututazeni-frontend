@@ -3,6 +3,12 @@
 // mutações (grants/interacções/desembolsos) vivem em useFunderDetail.
 
 import { useRouter } from 'next/navigation';
+import { cn } from '@/lib/cn';
+import { Button } from '@/components/ui/Button';
+import { Card, CardBody } from '@/components/ui/Card';
+import { Input } from '@/components/ui/Input';
+import { Select } from '@/components/ui/Select';
+import { Textarea } from '@/components/ui/Textarea';
 import {
   Info,
   SummaryCard,
@@ -54,18 +60,20 @@ export function FunderDetailView({
         <div>
           <button
             onClick={() => router.push('/crm/funders')}
-            className="text-sm text-blue-600 hover:underline mb-2"
+            className="font-body text-sm text-primary hover:underline mb-2"
           >
             ← Voltar à lista
           </button>
-          <h1 className="text-2xl font-bold text-gray-900">{f.name}</h1>
-          <p className="text-gray-500 font-mono">{f.code}</p>
+          <h1 className="font-display text-2xl font-bold text-ink">{f.name}</h1>
+          <p className="font-mono font-body text-ink-muted">{f.code}</p>
         </div>
         <span
-          className={`px-3 py-1 rounded-full text-sm font-medium ${
-            STATUS_COLORS[f.status] ?? 'bg-gray-100 text-gray-600'
-          }`}
+          className={cn(
+            'inline-flex items-center gap-1.5 rounded-pill px-2.5 py-0.5 font-body text-xs font-semibold',
+            STATUS_COLORS[f.status] ?? 'bg-surface-sunken text-ink-muted',
+          )}
         >
+          <span className="h-1.5 w-1.5 rounded-full bg-current" />
           {f.status}
         </span>
       </div>
@@ -75,292 +83,302 @@ export function FunderDetailView({
         <SummaryCard
           label="Comprometido"
           value={formatMoney(f.totalCommitted, f.currency)}
-          color="text-gray-900"
+          color="text-ink"
         />
         <SummaryCard
           label="Recebido"
           value={formatMoney(f.totalReceived, f.currency)}
-          color="text-green-700"
+          color="text-success-ink"
         />
         <SummaryCard
           label="Pendente"
           value={formatMoney(f.totalPending, f.currency)}
-          color="text-orange-700"
+          color="text-warning-ink"
         />
         <SummaryCard
           label="Taxa de execução"
           value={`${executionRate.toFixed(1)}%`}
-          color="text-blue-700"
+          color="text-primary"
         />
       </div>
 
       {/* Dados gerais */}
-      <div className="bg-white rounded-lg shadow p-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Info label="Tipo" value={f.type} />
-        <Info label="Nome legal" value={f.legalName} />
-        <Info label="País" value={f.country} />
-        <Info label="Região" value={f.region} />
-        <Info label="Contacto" value={f.contactName} />
-        <Info label="Cargo" value={f.contactTitle} />
-        <Info label="Email" value={f.email} />
-        <Info label="Telefone" value={f.phone} />
-        <Info label="Requisitos de reporte" value={f.reportingReqs} />
-        <Info label="Responsável" value={f.assignedTo?.fullName} />
-        <Info label="Criado por" value={f.createdBy?.fullName} />
-        <Info
-          label="Satisfação média"
-          value={f.satisfactionAvg ? f.satisfactionAvg.toFixed(1) : '—'}
-        />
-      </div>
+      <Card>
+        <CardBody className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Info label="Tipo" value={f.type} />
+          <Info label="Nome legal" value={f.legalName} />
+          <Info label="País" value={f.country} />
+          <Info label="Região" value={f.region} />
+          <Info label="Contacto" value={f.contactName} />
+          <Info label="Cargo" value={f.contactTitle} />
+          <Info label="Email" value={f.email} />
+          <Info label="Telefone" value={f.phone} />
+          <Info label="Requisitos de reporte" value={f.reportingReqs} />
+          <Info label="Responsável" value={f.assignedTo?.fullName} />
+          <Info label="Criado por" value={f.createdBy?.fullName} />
+          <Info
+            label="Satisfação média"
+            value={f.satisfactionAvg ? f.satisfactionAvg.toFixed(1) : '—'}
+          />
+        </CardBody>
+      </Card>
 
       {/* Grants */}
       <section>
         <div className="flex justify-between items-center mb-3">
-          <h2 className="text-lg font-semibold text-gray-900">
+          <h2 className="font-display text-lg font-semibold text-ink">
             Financiamentos / Grants ({f.grants.length})
           </h2>
-          <button
+          <Button
             onClick={() => setShowGrantForm((s) => !s)}
-            className="bg-blue-600 text-white px-3 py-1.5 rounded-lg text-sm hover:bg-blue-700"
+            intent={showGrantForm ? 'secondary' : 'primary'}
           >
             {showGrantForm ? 'Cancelar' : '+ Novo Grant'}
-          </button>
+          </Button>
         </div>
 
         {showGrantForm && (
           <form
             onSubmit={submitGrant}
-            className="bg-white rounded-lg shadow p-4 mb-4 grid grid-cols-1 md:grid-cols-2 gap-3"
+            className="mb-4"
           >
-            <input
-              required
-              placeholder="Título do grant"
-              value={grantForm.title}
-              onChange={(e) =>
-                setGrantForm({ ...grantForm, title: e.target.value })
-              }
-              className="border rounded-lg px-3 py-2 md:col-span-2"
-            />
-            <input
-              required
-              type="number"
-              min={0}
-              placeholder="Valor (AOA)"
-              value={grantForm.amount}
-              onChange={(e) =>
-                setGrantForm({ ...grantForm, amount: e.target.value })
-              }
-              className="border rounded-lg px-3 py-2"
-            />
-            <div />
-            <label className="text-xs text-gray-500">
-              Data de início
-              <input
-                required
-                type="date"
-                value={grantForm.startDate}
-                onChange={(e) =>
-                  setGrantForm({ ...grantForm, startDate: e.target.value })
-                }
-                className="border rounded-lg px-3 py-2 w-full mt-1"
-              />
-            </label>
-            <label className="text-xs text-gray-500">
-              Data de fim
-              <input
-                type="date"
-                value={grantForm.endDate}
-                onChange={(e) =>
-                  setGrantForm({ ...grantForm, endDate: e.target.value })
-                }
-                className="border rounded-lg px-3 py-2 w-full mt-1"
-              />
-            </label>
-            <div className="md:col-span-2">
-              <button
-                type="submit"
-                disabled={saving}
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50"
-              >
-                {saving ? 'A guardar...' : 'Criar Grant'}
-              </button>
-            </div>
+            <Card>
+              <CardBody className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <Input
+                  required
+                  placeholder="Título do grant"
+                  value={grantForm.title}
+                  onChange={(e) =>
+                    setGrantForm({ ...grantForm, title: e.target.value })
+                  }
+                  className="md:col-span-2"
+                />
+                <Input
+                  required
+                  type="number"
+                  min={0}
+                  placeholder="Valor (AOA)"
+                  value={grantForm.amount}
+                  onChange={(e) =>
+                    setGrantForm({ ...grantForm, amount: e.target.value })
+                  }
+                />
+                <div />
+                <div>
+                  <label className="font-body text-xs text-ink-muted block mb-1">
+                    Data de início
+                  </label>
+                  <Input
+                    required
+                    type="date"
+                    value={grantForm.startDate}
+                    onChange={(e) =>
+                      setGrantForm({ ...grantForm, startDate: e.target.value })
+                    }
+                  />
+                </div>
+                <div>
+                  <label className="font-body text-xs text-ink-muted block mb-1">
+                    Data de fim
+                  </label>
+                  <Input
+                    type="date"
+                    value={grantForm.endDate}
+                    onChange={(e) =>
+                      setGrantForm({ ...grantForm, endDate: e.target.value })
+                    }
+                  />
+                </div>
+                <div className="md:col-span-2">
+                  <Button type="submit" disabled={saving}>
+                    {saving ? 'A guardar...' : 'Criar Grant'}
+                  </Button>
+                </div>
+              </CardBody>
+            </Card>
           </form>
         )}
 
-        <div className="bg-white rounded-lg shadow divide-y divide-gray-100">
-          {f.grants.length === 0 ? (
-            <p className="p-4 text-gray-400">Sem grants registados</p>
-          ) : (
-            f.grants.map((g) => {
-              const pct = g.amount > 0 ? (g.disbursed / g.amount) * 100 : 0;
-              return (
-                <div key={g.id} className="p-4">
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <p className="font-medium">
-                        <span className="font-mono text-blue-600 mr-2">
-                          {g.code}
+        <Card>
+          <div className="divide-y divide-border">
+            {f.grants.length === 0 ? (
+              <p className="p-4 font-body text-ink-faint">Sem grants registados</p>
+            ) : (
+              f.grants.map((g) => {
+                const pct = g.amount > 0 ? (g.disbursed / g.amount) * 100 : 0;
+                return (
+                  <div key={g.id} className="p-4">
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <p className="font-body font-medium text-ink">
+                          <span className="font-mono text-primary mr-2">
+                            {g.code}
+                          </span>
+                          {g.title}
+                        </p>
+                        <p className="font-body text-xs text-ink-muted mt-0.5">
+                          {formatMoney(g.disbursed, g.currency)} de{' '}
+                          {formatMoney(g.amount, g.currency)} ({pct.toFixed(0)}%)
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className="inline-flex items-center rounded-pill px-2 py-1 font-body text-xs font-semibold bg-surface-sunken text-ink-muted">
+                          {g.status}
                         </span>
-                        {g.title}
-                      </p>
-                      <p className="text-xs text-gray-500 mt-0.5">
-                        {formatMoney(g.disbursed, g.currency)} de{' '}
-                        {formatMoney(g.amount, g.currency)} ({pct.toFixed(0)}%)
-                      </p>
+                        {g.status === 'ACTIVE' && (
+                          <button
+                            onClick={() => addDisbursement(g.id)}
+                            className="font-body text-xs text-success-ink hover:underline"
+                          >
+                            + Desembolso
+                          </button>
+                        )}
+                      </div>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <span className="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
-                        {g.status}
-                      </span>
-                      {g.status === 'ACTIVE' && (
-                        <button
-                          onClick={() => addDisbursement(g.id)}
-                          className="text-xs text-green-700 hover:underline"
-                        >
-                          + Desembolso
-                        </button>
-                      )}
+                    <div className="w-full h-2 bg-surface-sunken rounded-full mt-2 overflow-hidden">
+                      <div
+                        className="h-2 bg-success rounded-full"
+                        style={{ width: `${Math.min(100, pct)}%` }}
+                      />
                     </div>
                   </div>
-                  <div className="w-full h-2 bg-gray-100 rounded-full mt-2 overflow-hidden">
-                    <div
-                      className="h-2 bg-green-500 rounded-full"
-                      style={{ width: `${Math.min(100, pct)}%` }}
-                    />
-                  </div>
-                </div>
-              );
-            })
-          )}
-        </div>
+                );
+              })
+            )}
+          </div>
+        </Card>
       </section>
 
       {/* Relatórios */}
       <section>
-        <h2 className="text-lg font-semibold text-gray-900 mb-3">
+        <h2 className="font-display text-lg font-semibold text-ink mb-3">
           Relatórios ({f.reports.length})
         </h2>
-        <div className="bg-white rounded-lg shadow divide-y divide-gray-100">
-          {f.reports.length === 0 ? (
-            <p className="p-4 text-gray-400">Sem relatórios registados</p>
-          ) : (
-            f.reports.map((r) => (
-              <div key={r.id} className="p-4 flex justify-between items-center">
-                <div>
-                  <p className="font-medium">{r.title}</p>
-                  <p className="text-xs text-gray-500">
-                    {r.period} · Prazo {formatDate(r.dueDate)}
-                  </p>
+        <Card>
+          <div className="divide-y divide-border">
+            {f.reports.length === 0 ? (
+              <p className="p-4 font-body text-ink-faint">Sem relatórios registados</p>
+            ) : (
+              f.reports.map((r) => (
+                <div key={r.id} className="p-4 flex justify-between items-center">
+                  <div>
+                    <p className="font-body font-medium text-ink">{r.title}</p>
+                    <p className="font-body text-xs text-ink-muted">
+                      {r.period} · Prazo {formatDate(r.dueDate)}
+                    </p>
+                  </div>
+                  <span
+                    className={cn(
+                      'inline-flex items-center rounded-pill px-2 py-1 font-body text-xs font-semibold',
+                      REPORT_COLORS[r.status] ?? 'bg-surface-sunken text-ink-muted',
+                    )}
+                  >
+                    {r.status}
+                  </span>
                 </div>
-                <span
-                  className={`px-2 py-1 rounded-full text-xs font-medium ${
-                    REPORT_COLORS[r.status] ?? 'bg-gray-100'
-                  }`}
-                >
-                  {r.status}
-                </span>
-              </div>
-            ))
-          )}
-        </div>
+              ))
+            )}
+          </div>
+        </Card>
       </section>
 
       {/* Interacções */}
       <section>
         <div className="flex justify-between items-center mb-3">
-          <h2 className="text-lg font-semibold text-gray-900">
+          <h2 className="font-display text-lg font-semibold text-ink">
             Interacções ({f.interactions.length})
           </h2>
-          <button
+          <Button
             onClick={() => setShowIntForm((s) => !s)}
-            className="bg-blue-600 text-white px-3 py-1.5 rounded-lg text-sm hover:bg-blue-700"
+            intent={showIntForm ? 'secondary' : 'primary'}
           >
             {showIntForm ? 'Cancelar' : '+ Nova Interacção'}
-          </button>
+          </Button>
         </div>
 
         {showIntForm && (
           <form
             onSubmit={submitInteraction}
-            className="bg-white rounded-lg shadow p-4 mb-4 space-y-3"
+            className="mb-4"
           >
-            <select
-              value={intForm.type}
-              onChange={(e) => setIntForm({ ...intForm, type: e.target.value })}
-              className="border rounded-lg px-3 py-2"
-            >
-              <option value="MEETING">Reunião</option>
-              <option value="CALL">Chamada</option>
-              <option value="EMAIL">Email</option>
-              <option value="VISIT">Visita</option>
-              <option value="EVENT">Evento</option>
-              <option value="NOTE">Nota</option>
-              <option value="REVIEW">Revisão</option>
-            </select>
-            <input
-              required
-              placeholder="Assunto"
-              value={intForm.subject}
-              onChange={(e) =>
-                setIntForm({ ...intForm, subject: e.target.value })
-              }
-              className="border rounded-lg px-3 py-2 w-full"
-            />
-            <textarea
-              required
-              placeholder="Descrição"
-              value={intForm.description}
-              onChange={(e) =>
-                setIntForm({ ...intForm, description: e.target.value })
-              }
-              className="border rounded-lg px-3 py-2 w-full"
-              rows={3}
-            />
-            <input
-              placeholder="Resultado (opcional)"
-              value={intForm.outcome}
-              onChange={(e) =>
-                setIntForm({ ...intForm, outcome: e.target.value })
-              }
-              className="border rounded-lg px-3 py-2 w-full"
-            />
-            <button
-              type="submit"
-              disabled={saving}
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50"
-            >
-              {saving ? 'A guardar...' : 'Guardar Interacção'}
-            </button>
+            <Card>
+              <CardBody className="space-y-3">
+                <Select
+                  value={intForm.type}
+                  onValueChange={(value) => setIntForm({ ...intForm, type: value })}
+                  items={[
+                    { value: 'MEETING', label: 'Reunião' },
+                    { value: 'CALL', label: 'Chamada' },
+                    { value: 'EMAIL', label: 'Email' },
+                    { value: 'VISIT', label: 'Visita' },
+                    { value: 'EVENT', label: 'Evento' },
+                    { value: 'NOTE', label: 'Nota' },
+                    { value: 'REVIEW', label: 'Revisão' },
+                  ]}
+                />
+                <Input
+                  required
+                  placeholder="Assunto"
+                  value={intForm.subject}
+                  onChange={(e) =>
+                    setIntForm({ ...intForm, subject: e.target.value })
+                  }
+                />
+                <Textarea
+                  required
+                  placeholder="Descrição"
+                  value={intForm.description}
+                  onChange={(e) =>
+                    setIntForm({ ...intForm, description: e.target.value })
+                  }
+                  rows={3}
+                />
+                <Input
+                  placeholder="Resultado (opcional)"
+                  value={intForm.outcome}
+                  onChange={(e) =>
+                    setIntForm({ ...intForm, outcome: e.target.value })
+                  }
+                />
+                <Button
+                  type="submit"
+                  disabled={saving}
+                >
+                  {saving ? 'A guardar...' : 'Guardar Interacção'}
+                </Button>
+              </CardBody>
+            </Card>
           </form>
         )}
 
-        <div className="bg-white rounded-lg shadow divide-y divide-gray-100">
-          {f.interactions.length === 0 ? (
-            <p className="p-4 text-gray-400">Sem interacções registadas</p>
-          ) : (
-            f.interactions.map((it) => (
-              <div key={it.id} className="p-4">
-                <div className="flex justify-between items-center">
-                  <span className="font-medium">
-                    <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded mr-2">
-                      {it.type}
+        <Card>
+          <div className="divide-y divide-border">
+            {f.interactions.length === 0 ? (
+              <p className="p-4 font-body text-ink-faint">Sem interacções registadas</p>
+            ) : (
+              f.interactions.map((it) => (
+                <div key={it.id} className="p-4">
+                  <div className="flex justify-between items-center">
+                    <span className="font-body font-medium text-ink">
+                      <span className="font-body text-xs bg-surface-sunken text-ink-muted px-2 py-0.5 rounded mr-2">
+                        {it.type}
+                      </span>
+                      {it.subject}
                     </span>
-                    {it.subject}
-                  </span>
-                  <span className="text-xs text-gray-400">
-                    {formatDate(it.date)}
-                  </span>
+                    <span className="font-body text-xs text-ink-faint">
+                      {formatDate(it.date)}
+                    </span>
+                  </div>
+                  <p className="font-body text-sm text-ink-muted mt-1">{it.description}</p>
+                  <div className="flex gap-4 mt-1 font-body text-xs text-ink-faint">
+                    {it.user?.fullName && <span>Por: {it.user.fullName}</span>}
+                    {it.outcome && <span>Resultado: {it.outcome}</span>}
+                  </div>
                 </div>
-                <p className="text-sm text-gray-600 mt-1">{it.description}</p>
-                <div className="flex gap-4 mt-1 text-xs text-gray-400">
-                  {it.user?.fullName && <span>Por: {it.user.fullName}</span>}
-                  {it.outcome && <span>Resultado: {it.outcome}</span>}
-                </div>
-              </div>
-            ))
-          )}
-        </div>
+              ))
+            )}
+          </div>
+        </Card>
       </section>
     </div>
   );

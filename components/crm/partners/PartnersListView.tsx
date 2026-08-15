@@ -1,6 +1,11 @@
 // components/crm/partners/PartnersListView.tsx
 
 import Link from 'next/link';
+import { cn } from '@/lib/cn';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { Input } from '@/components/ui/Input';
+import { Select } from '@/components/ui/Select';
 import { ListSkeleton, ErrorBanner } from '@/components/crm/shared';
 import { STATUS_COLORS, TIER_COLORS } from './types';
 import type { Partner } from './types';
@@ -46,143 +51,144 @@ export function PartnersListView({
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Parceiros</h1>
-          <p className="text-gray-500">{total} parceiros registados</p>
+          <h1 className="font-display text-2xl font-bold text-ink">Parceiros</h1>
+          <p className="font-body text-ink-muted">{total} parceiros registados</p>
         </div>
-        <Link
-          href="/crm/partners/novo"
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-        >
-          + Novo Parceiro
+        <Link href="/crm/partners/novo">
+          <Button>+ Novo Parceiro</Button>
         </Link>
       </div>
 
       {/* Filtros */}
       <div className="flex gap-4 flex-wrap">
-        <input
+        <Input
           type="text"
           placeholder="Pesquisar por nome, código, NIF..."
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
-          className="border rounded-lg px-4 py-2 flex-1 min-w-[200px]"
+          className="flex-1 min-w-[200px]"
         />
-        <select
+        <Select
           value={tierFilter}
-          onChange={(e) => onTierFilterChange(e.target.value)}
-          className="border rounded-lg px-4 py-2"
-        >
-          <option value="">Todos os níveis</option>
-          <option value="PLATINUM">Platinum</option>
-          <option value="GOLD">Gold</option>
-          <option value="SILVER">Silver</option>
-          <option value="STANDARD">Standard</option>
-        </select>
-        <select
+          onValueChange={onTierFilterChange}
+          items={[
+            { value: '', label: 'Todos os níveis' },
+            { value: 'PLATINUM', label: 'Platinum' },
+            { value: 'GOLD', label: 'Gold' },
+            { value: 'SILVER', label: 'Silver' },
+            { value: 'STANDARD', label: 'Standard' },
+          ]}
+        />
+        <Select
           value={statusFilter}
-          onChange={(e) => onStatusFilterChange(e.target.value)}
-          className="border rounded-lg px-4 py-2"
-        >
-          <option value="">Todos os estados</option>
-          <option value="ACTIVE">Activo</option>
-          <option value="NEGOTIATION">Em negociação</option>
-          <option value="SUSPENDED">Suspenso</option>
-          <option value="INACTIVE">Inactivo</option>
-          <option value="FORMER">Ex-parceiro</option>
-        </select>
+          onValueChange={onStatusFilterChange}
+          items={[
+            { value: '', label: 'Todos os estados' },
+            { value: 'ACTIVE', label: 'Activo' },
+            { value: 'NEGOTIATION', label: 'Em negociação' },
+            { value: 'SUSPENDED', label: 'Suspenso' },
+            { value: 'INACTIVE', label: 'Inactivo' },
+            { value: 'FORMER', label: 'Ex-parceiro' },
+          ]}
+        />
       </div>
 
       {/* Tabela */}
-      <div className="bg-white rounded-lg shadow overflow-hidden">
-        <table className="w-full text-sm">
-          <thead className="bg-gray-50 text-gray-600 uppercase text-xs">
-            <tr>
-              <th className="px-4 py-3 text-left">Código</th>
-              <th className="px-4 py-3 text-left">Nome</th>
-              <th className="px-4 py-3 text-left">Tipo</th>
-              <th className="px-4 py-3 text-left">Nível</th>
-              <th className="px-4 py-3 text-left">Estado</th>
-              <th className="px-4 py-3 text-left">Valor Anual</th>
-              <th className="px-4 py-3 text-left">Responsável</th>
-              <th className="px-4 py-3 text-left">Acções</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100">
-            {data.length === 0 ? (
+      <Card>
+        <div className="overflow-hidden">
+          <table className="w-full font-body text-sm">
+            <thead className="bg-surface-sunken text-ink-muted uppercase">
               <tr>
-                <td colSpan={8} className="px-4 py-8 text-center text-gray-400">
-                  Nenhum parceiro encontrado
-                </td>
+                <th className="px-4 py-3 text-left font-medium text-xs">Código</th>
+                <th className="px-4 py-3 text-left font-medium text-xs">Nome</th>
+                <th className="px-4 py-3 text-left font-medium text-xs">Tipo</th>
+                <th className="px-4 py-3 text-left font-medium text-xs">Nível</th>
+                <th className="px-4 py-3 text-left font-medium text-xs">Estado</th>
+                <th className="px-4 py-3 text-left font-medium text-xs">Valor Anual</th>
+                <th className="px-4 py-3 text-left font-medium text-xs">Responsável</th>
+                <th className="px-4 py-3 text-left font-medium text-xs">Acções</th>
               </tr>
-            ) : (
-              data.map((p) => (
-                <tr key={p.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-3 font-mono text-blue-600">
-                    {p.code}
-                  </td>
-                  <td className="px-4 py-3 font-medium">{p.name}</td>
-                  <td className="px-4 py-3 text-gray-600">{p.type}</td>
-                  <td className="px-4 py-3">
-                    <span
-                      className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        TIER_COLORS[p.tier] ?? 'bg-gray-100 text-gray-600'
-                      }`}
-                    >
-                      {p.tier}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3">
-                    <span
-                      className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        STATUS_COLORS[p.status] ?? 'bg-gray-100 text-gray-600'
-                      }`}
-                    >
-                      {p.status}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-gray-700">
-                    {p.annualValue
-                      ? `AOA ${p.annualValue.toLocaleString('pt-AO')}`
-                      : '—'}
-                  </td>
-                  <td className="px-4 py-3 text-gray-600">
-                    {p.assignedTo?.fullName || '—'}
-                  </td>
-                  <td className="px-4 py-3">
-                    <a
-                      href={`/crm/partners/${p.id}`}
-                      className="text-blue-600 hover:underline"
-                    >
-                      Ver
-                    </a>
+            </thead>
+            <tbody className="divide-y divide-border">
+              {data.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className="px-4 py-8 text-center text-ink-faint">
+                    Nenhum parceiro encontrado
                   </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+              ) : (
+                data.map((p) => (
+                  <tr key={p.id} className="hover:bg-surface-sunken transition-colors">
+                    <td className="px-4 py-3 font-mono text-primary">
+                      {p.code}
+                    </td>
+                    <td className="px-4 py-3 font-medium text-ink">{p.name}</td>
+                    <td className="px-4 py-3 text-ink-muted">{p.type}</td>
+                    <td className="px-4 py-3">
+                      <span
+                        className={cn(
+                          'inline-flex items-center rounded-pill px-2 py-1 font-body text-xs font-semibold',
+                          TIER_COLORS[p.tier] ?? 'bg-surface-sunken text-ink-muted',
+                        )}
+                      >
+                        {p.tier}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <span
+                        className={cn(
+                          'inline-flex items-center rounded-pill px-2 py-1 font-body text-xs font-semibold',
+                          STATUS_COLORS[p.status] ?? 'bg-surface-sunken text-ink-muted',
+                        )}
+                      >
+                        {p.status}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-ink-muted">
+                      {p.annualValue
+                        ? `AOA ${p.annualValue.toLocaleString('pt-AO')}`
+                        : '—'}
+                    </td>
+                    <td className="px-4 py-3 text-ink-muted">
+                      {p.assignedTo?.fullName || '—'}
+                    </td>
+                    <td className="px-4 py-3">
+                      <Link
+                        href={`/crm/partners/${p.id}`}
+                        className="text-primary hover:underline font-body text-sm"
+                      >
+                        Ver
+                      </Link>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </Card>
 
       {/* Paginação */}
       {totalPages > 1 && (
         <div className="flex justify-between items-center">
-          <span className="text-gray-500">
+          <span className="font-body text-ink-muted">
             Página {page} de {totalPages}
           </span>
           <div className="flex gap-2">
-            <button
+            <Button
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page === 1}
-              className="px-4 py-2 border rounded-lg disabled:opacity-50"
+              intent="secondary"
             >
               Anterior
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               disabled={page === totalPages}
-              className="px-4 py-2 border rounded-lg disabled:opacity-50"
+              intent="secondary"
             >
               Próxima
-            </button>
+            </Button>
           </div>
         </div>
       )}

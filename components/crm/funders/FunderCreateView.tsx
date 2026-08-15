@@ -1,5 +1,10 @@
 // components/crm/funders/FunderCreateView.tsx
 
+import { Button } from '@/components/ui/Button';
+import { Card, CardBody } from '@/components/ui/Card';
+import { Input } from '@/components/ui/Input';
+import { Select } from '@/components/ui/Select';
+import { Textarea } from '@/components/ui/Textarea';
 import { Field } from '@/components/crm/shared';
 import { TYPE_LABELS } from './types';
 
@@ -45,200 +50,176 @@ export function FunderCreateView({
     <div className="p-6 max-w-3xl">
       <button
         onClick={onCancel}
-        className="text-sm text-blue-600 hover:underline mb-2"
+        className="font-body text-sm text-primary hover:underline mb-2"
       >
         ← Voltar à lista
       </button>
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">
+      <h1 className="font-display text-2xl font-bold text-ink mb-6">
         Novo Financiador
       </h1>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 p-3 rounded-lg mb-4">
+        <div className="rounded-card border border-danger bg-danger-subtle p-3 mb-4 text-danger-ink font-body">
           {error}
         </div>
       )}
 
-      <form
-        onSubmit={submit}
-        className="bg-white rounded-lg shadow p-6 grid grid-cols-1 md:grid-cols-2 gap-4"
-      >
-        <Field label="Tipo *">
-          <select
-            value={form.type}
-            onChange={(e) => setField('type', e.target.value)}
-            className="border rounded-lg px-3 py-2 w-full"
+      <Card>
+        <CardBody>
+          <form
+            onSubmit={submit}
+            className="grid grid-cols-1 md:grid-cols-2 gap-4"
           >
-            {Object.entries(TYPE_LABELS).map(([v, l]) => (
-              <option key={v} value={v}>
-                {l}
-              </option>
-            ))}
-          </select>
-        </Field>
+            <Field label="Tipo *">
+              <Select
+                value={form.type}
+                onValueChange={(value) => setField('type', value)}
+                items={Object.entries(TYPE_LABELS).map(([v, l]) => ({
+                  value: v,
+                  label: l,
+                }))}
+              />
+            </Field>
 
-        <Field label="Nome *">
-          <input
-            required
-            value={form.name}
-            onChange={(e) => setField('name', e.target.value)}
-            className="border rounded-lg px-3 py-2 w-full"
-          />
-        </Field>
+            <Field label="Nome *">
+              <Input
+                required
+                value={form.name}
+                onChange={(e) => setField('name', e.target.value)}
+              />
+            </Field>
 
-        <Field label="Nome legal">
-          <input
-            value={form.legalName}
-            onChange={(e) => setField('legalName', e.target.value)}
-            className="border rounded-lg px-3 py-2 w-full"
-          />
-        </Field>
+            <Field label="Nome legal">
+              <Input
+                value={form.legalName}
+                onChange={(e) => setField('legalName', e.target.value)}
+              />
+            </Field>
 
-        <Field label="Categoria">
-          <input
-            value={form.category}
-            onChange={(e) => setField('category', e.target.value)}
-            className="border rounded-lg px-3 py-2 w-full"
-          />
-        </Field>
+            <Field label="Categoria">
+              <Input
+                value={form.category}
+                onChange={(e) => setField('category', e.target.value)}
+              />
+            </Field>
 
-        <Field label="Contacto">
-          <input
-            value={form.contactName}
-            onChange={(e) => setField('contactName', e.target.value)}
-            className="border rounded-lg px-3 py-2 w-full"
-          />
-        </Field>
+            <Field label="Contacto">
+              <Input
+                value={form.contactName}
+                onChange={(e) => setField('contactName', e.target.value)}
+              />
+            </Field>
 
-        <Field label="Cargo do contacto">
-          <input
-            value={form.contactTitle}
-            onChange={(e) => setField('contactTitle', e.target.value)}
-            className="border rounded-lg px-3 py-2 w-full"
-          />
-        </Field>
+            <Field label="Cargo do contacto">
+              <Input
+                value={form.contactTitle}
+                onChange={(e) => setField('contactTitle', e.target.value)}
+              />
+            </Field>
 
-        <Field label="Email">
-          <input
-            type="email"
-            value={form.email}
-            onChange={(e) => setField('email', e.target.value)}
-            className="border rounded-lg px-3 py-2 w-full"
-          />
-        </Field>
+            <Field label="Email">
+              <Input
+                type="email"
+                value={form.email}
+                onChange={(e) => setField('email', e.target.value)}
+              />
+            </Field>
 
-        <Field label="Telefone">
-          <input
-            value={form.phone}
-            onChange={(e) => setField('phone', e.target.value)}
-            className="border rounded-lg px-3 py-2 w-full"
-          />
-        </Field>
+            <Field label="Telefone">
+              <Input
+                value={form.phone}
+                onChange={(e) => setField('phone', e.target.value)}
+              />
+            </Field>
 
-        <Field label="Telemóvel">
-          <input
-            value={form.mobile}
-            onChange={(e) => setField('mobile', e.target.value)}
-            className="border rounded-lg px-3 py-2 w-full"
-          />
-        </Field>
+            <Field label="Telemóvel">
+              <Input
+                value={form.mobile}
+                onChange={(e) => setField('mobile', e.target.value)}
+              />
+            </Field>
 
-        <Field label="Website">
-          <input
-            value={form.website}
-            onChange={(e) => setField('website', e.target.value)}
-            className="border rounded-lg px-3 py-2 w-full"
-          />
-        </Field>
+            <Field label="Website">
+              <Input
+                value={form.website}
+                onChange={(e) => setField('website', e.target.value)}
+              />
+            </Field>
 
-        <Field label="País">
-          <input
-            value={form.country}
-            onChange={(e) => setField('country', e.target.value)}
-            className="border rounded-lg px-3 py-2 w-full"
-          />
-        </Field>
+            <Field label="País">
+              <Input
+                value={form.country}
+                onChange={(e) => setField('country', e.target.value)}
+              />
+            </Field>
 
-        <Field label="Região">
-          <input
-            value={form.region}
-            onChange={(e) => setField('region', e.target.value)}
-            className="border rounded-lg px-3 py-2 w-full"
-          />
-        </Field>
+            <Field label="Região">
+              <Input
+                value={form.region}
+                onChange={(e) => setField('region', e.target.value)}
+              />
+            </Field>
 
-        <Field label="NIF">
-          <input
-            value={form.nif}
-            onChange={(e) => setField('nif', e.target.value)}
-            className="border rounded-lg px-3 py-2 w-full"
-          />
-        </Field>
+            <Field label="NIF">
+              <Input
+                value={form.nif}
+                onChange={(e) => setField('nif', e.target.value)}
+              />
+            </Field>
 
-        <Field label="Moeda">
-          <input
-            value={form.currency}
-            onChange={(e) => setField('currency', e.target.value)}
-            className="border rounded-lg px-3 py-2 w-full"
-          />
-        </Field>
+            <Field label="Moeda">
+              <Input
+                value={form.currency}
+                onChange={(e) => setField('currency', e.target.value)}
+              />
+            </Field>
 
-        <Field label="Início da relação">
-          <input
-            type="date"
-            value={form.relationshipStart}
-            onChange={(e) => setField('relationshipStart', e.target.value)}
-            className="border rounded-lg px-3 py-2 w-full"
-          />
-        </Field>
+            <Field label="Início da relação">
+              <Input
+                type="date"
+                value={form.relationshipStart}
+                onChange={(e) => setField('relationshipStart', e.target.value)}
+              />
+            </Field>
 
-        <Field label="Próximo relatório">
-          <input
-            type="date"
-            value={form.nextReportDue}
-            onChange={(e) => setField('nextReportDue', e.target.value)}
-            className="border rounded-lg px-3 py-2 w-full"
-          />
-        </Field>
+            <Field label="Próximo relatório">
+              <Input
+                type="date"
+                value={form.nextReportDue}
+                onChange={(e) => setField('nextReportDue', e.target.value)}
+              />
+            </Field>
 
-        <div className="md:col-span-2">
-          <Field label="Requisitos de reporte">
-            <input
-              value={form.reportingReqs}
-              onChange={(e) => setField('reportingReqs', e.target.value)}
-              className="border rounded-lg px-3 py-2 w-full"
-            />
-          </Field>
-        </div>
+            <div className="md:col-span-2">
+              <Field label="Requisitos de reporte">
+                <Input
+                  value={form.reportingReqs}
+                  onChange={(e) => setField('reportingReqs', e.target.value)}
+                />
+              </Field>
+            </div>
 
-        <div className="md:col-span-2">
-          <Field label="Notas">
-            <textarea
-              value={form.notes}
-              onChange={(e) => setField('notes', e.target.value)}
-              className="border rounded-lg px-3 py-2 w-full"
-              rows={3}
-            />
-          </Field>
-        </div>
+            <div className="md:col-span-2">
+              <Field label="Notas">
+                <Textarea
+                  value={form.notes}
+                  onChange={(e) => setField('notes', e.target.value)}
+                  rows={3}
+                />
+              </Field>
+            </div>
 
-        <div className="md:col-span-2 flex gap-3">
-          <button
-            type="submit"
-            disabled={saving}
-            className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50"
-          >
-            {saving ? 'A guardar...' : 'Criar Financiador'}
-          </button>
-          <button
-            type="button"
-            onClick={onCancel}
-            className="px-6 py-2 border rounded-lg"
-          >
-            Cancelar
-          </button>
-        </div>
-      </form>
+            <div className="md:col-span-2 flex gap-3">
+              <Button type="submit" disabled={saving}>
+                {saving ? 'A guardar...' : 'Criar Financiador'}
+              </Button>
+              <Button type="button" onClick={onCancel} intent="secondary">
+                Cancelar
+              </Button>
+            </div>
+          </form>
+        </CardBody>
+      </Card>
     </div>
   );
 }

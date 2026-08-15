@@ -1,6 +1,9 @@
 // components/crm/funders/OverdueReportsView.tsx
 
 import Link from 'next/link';
+import { cn } from '@/lib/cn';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
 import { formatDate, ListSkeleton, ErrorBanner } from '@/components/crm/shared';
 import { REPORT_COLORS } from './types';
 import type { OverdueReport } from './types';
@@ -43,124 +46,125 @@ export function OverdueReportsView({
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="font-display text-2xl font-bold text-ink">
             Relatórios em Atraso
           </h1>
-          <p className="text-gray-500">
+          <p className="font-body text-ink-muted">
             {total}{' '}
             {total === 1 ? 'relatório por entregar' : 'relatórios por entregar'}
           </p>
         </div>
-        <Link
-          href="/crm/funders"
-          className="px-4 py-2 border rounded-lg hover:bg-gray-50 text-gray-700"
-        >
-          ← Financiadores
+        <Link href="/crm/funders">
+          <Button intent="secondary">← Financiadores</Button>
         </Link>
       </div>
 
       {/* Tabela */}
-      <div className="bg-white rounded-lg shadow overflow-hidden">
-        <table className="w-full text-sm">
-          <thead className="bg-gray-50 text-gray-600 uppercase text-xs">
-            <tr>
-              <th className="px-4 py-3 text-left">Relatório</th>
-              <th className="px-4 py-3 text-left">Financiador</th>
-              <th className="px-4 py-3 text-left">Grant</th>
-              <th className="px-4 py-3 text-left">Período</th>
-              <th className="px-4 py-3 text-left">Prazo</th>
-              <th className="px-4 py-3 text-center">Atraso</th>
-              <th className="px-4 py-3 text-left">Estado</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100">
-            {data.length === 0 ? (
+      <Card>
+        <div className="overflow-hidden">
+          <table className="w-full font-body text-sm">
+            <thead className="bg-surface-sunken text-ink-muted uppercase">
               <tr>
-                <td colSpan={7} className="px-4 py-8 text-center text-gray-400">
-                  Nenhum relatório em atraso 🎉
-                </td>
+                <th className="px-4 py-3 text-left font-medium text-xs">Relatório</th>
+                <th className="px-4 py-3 text-left font-medium text-xs">Financiador</th>
+                <th className="px-4 py-3 text-left font-medium text-xs">Grant</th>
+                <th className="px-4 py-3 text-left font-medium text-xs">Período</th>
+                <th className="px-4 py-3 text-left font-medium text-xs">Prazo</th>
+                <th className="px-4 py-3 text-center font-medium text-xs">Atraso</th>
+                <th className="px-4 py-3 text-left font-medium text-xs">Estado</th>
               </tr>
-            ) : (
-              data.map((r) => {
-                const dias = daysOverdue(r.dueDate);
-                return (
-                  <tr key={r.id} className="hover:bg-gray-50">
-                    <td className="px-4 py-3 font-medium">{r.title}</td>
-                    <td className="px-4 py-3 text-gray-700">
-                      {r.funder ? (
-                        <>
-                          <span className="font-mono text-blue-600 mr-1">
-                            {r.funder.code}
-                          </span>
-                          {r.funder.name}
-                        </>
-                      ) : (
-                        '—'
-                      )}
-                    </td>
-                    <td className="px-4 py-3 text-gray-600">
-                      {r.grant ? (
-                        <>
-                          <span className="font-mono text-gray-500 mr-1">
-                            {r.grant.code}
-                          </span>
-                          {r.grant.title}
-                        </>
-                      ) : (
-                        '—'
-                      )}
-                    </td>
-                    <td className="px-4 py-3 text-gray-600">{r.period}</td>
-                    <td className="px-4 py-3 text-gray-600">
-                      {formatDate(r.dueDate)}
-                    </td>
-                    <td className="px-4 py-3 text-center">
-                      <span
-                        className={`font-medium ${
-                          dias > 30 ? 'text-red-600' : 'text-orange-600'
-                        }`}
-                      >
-                        {dias} {dias === 1 ? 'dia' : 'dias'}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <span
-                        className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          REPORT_COLORS[r.status] ?? 'bg-gray-100 text-gray-600'
-                        }`}
-                      >
-                        {r.status}
-                      </span>
-                    </td>
-                  </tr>
-                );
-              })
-            )}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody className="divide-y divide-border">
+              {data.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="px-4 py-8 text-center text-ink-faint">
+                    Nenhum relatório em atraso 🎉
+                  </td>
+                </tr>
+              ) : (
+                data.map((r) => {
+                  const dias = daysOverdue(r.dueDate);
+                  return (
+                    <tr key={r.id} className="hover:bg-surface-sunken transition-colors">
+                      <td className="px-4 py-3 font-medium text-ink">{r.title}</td>
+                      <td className="px-4 py-3 text-ink-muted">
+                        {r.funder ? (
+                          <>
+                            <span className="font-mono text-primary mr-1">
+                              {r.funder.code}
+                            </span>
+                            {r.funder.name}
+                          </>
+                        ) : (
+                          '—'
+                        )}
+                      </td>
+                      <td className="px-4 py-3 text-ink-muted">
+                        {r.grant ? (
+                          <>
+                            <span className="font-mono text-ink-muted mr-1">
+                              {r.grant.code}
+                            </span>
+                            {r.grant.title}
+                          </>
+                        ) : (
+                          '—'
+                        )}
+                      </td>
+                      <td className="px-4 py-3 text-ink-muted">{r.period}</td>
+                      <td className="px-4 py-3 text-ink-muted">
+                        {formatDate(r.dueDate)}
+                      </td>
+                      <td className="px-4 py-3 text-center">
+                        <span
+                          className={cn(
+                            'font-medium font-body',
+                            dias > 30 ? 'text-danger-ink' : 'text-warning-ink',
+                          )}
+                        >
+                          {dias} {dias === 1 ? 'dia' : 'dias'}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3">
+                        <span
+                          className={cn(
+                            'inline-flex items-center rounded-pill px-2 py-1 font-body text-xs font-semibold',
+                            REPORT_COLORS[r.status] ?? 'bg-surface-sunken text-ink-muted',
+                          )}
+                        >
+                          {r.status}
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
+      </Card>
 
       {/* Paginação */}
       {totalPages > 1 && (
         <div className="flex justify-between items-center">
-          <span className="text-gray-500">
+          <span className="font-body text-ink-muted">
             Página {page} de {totalPages}
           </span>
           <div className="flex gap-2">
-            <button
+            <Button
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page === 1}
-              className="px-4 py-2 border rounded-lg disabled:opacity-50"
+              intent="secondary"
             >
               Anterior
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               disabled={page === totalPages}
-              className="px-4 py-2 border rounded-lg disabled:opacity-50"
+              intent="secondary"
             >
               Próxima
-            </button>
+            </Button>
           </div>
         </div>
       )}

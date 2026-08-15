@@ -3,7 +3,12 @@
 // hook useFundersList, sem chamadas à API nem estado próprio.
 
 import Link from 'next/link';
+import { cn } from '@/lib/cn';
 import { formatKz } from '@/lib/format';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { Input } from '@/components/ui/Input';
+import { Select } from '@/components/ui/Select';
 import { ListSkeleton, ErrorBanner } from '@/components/crm/shared';
 import { STATUS_COLORS, TYPE_LABELS } from './types';
 import type { Funder } from './types';
@@ -49,150 +54,146 @@ export function FundersListView({
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Financiadores</h1>
-          <p className="text-gray-500">{total} financiadores registados</p>
+          <h1 className="font-display text-2xl font-bold text-ink">Financiadores</h1>
+          <p className="font-body text-ink-muted">{total} financiadores registados</p>
         </div>
         <div className="flex gap-2">
-          <Link
-            href="/crm/funders/overdue-reports"
-            className="px-4 py-2 border rounded-lg hover:bg-gray-50 text-gray-700"
-          >
-            Relatórios em atraso
+          <Link href="/crm/funders/overdue-reports">
+            <Button intent="secondary">Relatórios em atraso</Button>
           </Link>
-          <Link
-            href="/crm/funders/novo"
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-          >
-            + Novo Financiador
+          <Link href="/crm/funders/novo">
+            <Button>+ Novo Financiador</Button>
           </Link>
         </div>
       </div>
 
       {/* Filtros */}
       <div className="flex gap-4 flex-wrap">
-        <input
+        <Input
           type="text"
           placeholder="Pesquisar por nome, código, email..."
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
-          className="border rounded-lg px-4 py-2 flex-1 min-w-[200px]"
+          className="flex-1 min-w-[200px]"
         />
-        <select
+        <Select
           value={typeFilter}
-          onChange={(e) => onTypeFilterChange(e.target.value)}
-          className="border rounded-lg px-4 py-2"
-        >
-          <option value="">Todos os tipos</option>
-          {Object.entries(TYPE_LABELS).map(([v, l]) => (
-            <option key={v} value={v}>
-              {l}
-            </option>
-          ))}
-        </select>
-        <select
+          onValueChange={onTypeFilterChange}
+          items={[
+            { value: '', label: 'Todos os tipos' },
+            ...Object.entries(TYPE_LABELS).map(([v, l]) => ({
+              value: v,
+              label: l,
+            })),
+          ]}
+        />
+        <Select
           value={statusFilter}
-          onChange={(e) => onStatusFilterChange(e.target.value)}
-          className="border rounded-lg px-4 py-2"
-        >
-          <option value="">Todos os estados</option>
-          <option value="ACTIVE">Activo</option>
-          <option value="PROSPECT">Prospecto</option>
-          <option value="SUSPENDED">Suspenso</option>
-          <option value="INACTIVE">Inactivo</option>
-          <option value="FORMER">Antigo</option>
-        </select>
+          onValueChange={onStatusFilterChange}
+          items={[
+            { value: '', label: 'Todos os estados' },
+            { value: 'ACTIVE', label: 'Activo' },
+            { value: 'PROSPECT', label: 'Prospecto' },
+            { value: 'SUSPENDED', label: 'Suspenso' },
+            { value: 'INACTIVE', label: 'Inactivo' },
+            { value: 'FORMER', label: 'Antigo' },
+          ]}
+        />
       </div>
 
       {/* Tabela */}
-      <div className="bg-white rounded-lg shadow overflow-hidden">
-        <table className="w-full text-sm">
-          <thead className="bg-gray-50 text-gray-600 uppercase text-xs">
-            <tr>
-              <th className="px-4 py-3 text-left">Código</th>
-              <th className="px-4 py-3 text-left">Nome</th>
-              <th className="px-4 py-3 text-left">Tipo</th>
-              <th className="px-4 py-3 text-left">País</th>
-              <th className="px-4 py-3 text-left">Estado</th>
-              <th className="px-4 py-3 text-right">Comprometido</th>
-              <th className="px-4 py-3 text-right">Recebido</th>
-              <th className="px-4 py-3 text-center">Grants</th>
-              <th className="px-4 py-3 text-left">Acções</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100">
-            {data.length === 0 ? (
+      <Card>
+        <div className="overflow-hidden">
+          <table className="w-full font-body text-sm">
+            <thead className="bg-surface-sunken text-ink-muted uppercase">
               <tr>
-                <td colSpan={9} className="px-4 py-8 text-center text-gray-400">
-                  Nenhum financiador encontrado
-                </td>
+                <th className="px-4 py-3 text-left font-medium text-xs">Código</th>
+                <th className="px-4 py-3 text-left font-medium text-xs">Nome</th>
+                <th className="px-4 py-3 text-left font-medium text-xs">Tipo</th>
+                <th className="px-4 py-3 text-left font-medium text-xs">País</th>
+                <th className="px-4 py-3 text-left font-medium text-xs">Estado</th>
+                <th className="px-4 py-3 text-right font-medium text-xs">Comprometido</th>
+                <th className="px-4 py-3 text-right font-medium text-xs">Recebido</th>
+                <th className="px-4 py-3 text-center font-medium text-xs">Grants</th>
+                <th className="px-4 py-3 text-left font-medium text-xs">Acções</th>
               </tr>
-            ) : (
-              data.map((f) => (
-                <tr key={f.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-3 font-mono text-blue-600">
-                    {f.code}
-                  </td>
-                  <td className="px-4 py-3 font-medium">{f.name}</td>
-                  <td className="px-4 py-3 text-gray-600">
-                    {TYPE_LABELS[f.type] || f.type}
-                  </td>
-                  <td className="px-4 py-3 text-gray-600">
-                    {f.country || '—'}
-                  </td>
-                  <td className="px-4 py-3">
-                    <span
-                      className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        STATUS_COLORS[f.status] ?? 'bg-gray-100 text-gray-600'
-                      }`}
-                    >
-                      {f.status}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-right text-gray-700">
-                    {f.totalCommitted > 0 ? formatKz(f.totalCommitted) : '—'}
-                  </td>
-                  <td className="px-4 py-3 text-right text-green-700">
-                    {f.totalReceived > 0 ? formatKz(f.totalReceived) : '—'}
-                  </td>
-                  <td className="px-4 py-3 text-center text-gray-600">
-                    {f._count?.grants || 0}
-                  </td>
-                  <td className="px-4 py-3">
-                    <a
-                      href={`/crm/funders/${f.id}`}
-                      className="text-blue-600 hover:underline"
-                    >
-                      Ver
-                    </a>
+            </thead>
+            <tbody className="divide-y divide-border">
+              {data.length === 0 ? (
+                <tr>
+                  <td colSpan={9} className="px-4 py-8 text-center text-ink-faint">
+                    Nenhum financiador encontrado
                   </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+              ) : (
+                data.map((f) => (
+                  <tr key={f.id} className="hover:bg-surface-sunken transition-colors">
+                    <td className="px-4 py-3 font-mono text-primary">
+                      {f.code}
+                    </td>
+                    <td className="px-4 py-3 font-medium text-ink">{f.name}</td>
+                    <td className="px-4 py-3 text-ink-muted">
+                      {TYPE_LABELS[f.type] || f.type}
+                    </td>
+                    <td className="px-4 py-3 text-ink-muted">
+                      {f.country || '—'}
+                    </td>
+                    <td className="px-4 py-3">
+                      <span
+                        className={cn(
+                          'inline-flex items-center rounded-pill px-2 py-1 font-body text-xs font-semibold',
+                          STATUS_COLORS[f.status] ?? 'bg-surface-sunken text-ink-muted',
+                        )}
+                      >
+                        {f.status}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-right text-ink-muted">
+                      {f.totalCommitted > 0 ? formatKz(f.totalCommitted) : '—'}
+                    </td>
+                    <td className="px-4 py-3 text-right text-success-ink">
+                      {f.totalReceived > 0 ? formatKz(f.totalReceived) : '—'}
+                    </td>
+                    <td className="px-4 py-3 text-center text-ink-muted">
+                      {f._count?.grants || 0}
+                    </td>
+                    <td className="px-4 py-3">
+                      <Link
+                        href={`/crm/funders/${f.id}`}
+                        className="text-primary hover:underline font-body text-sm"
+                      >
+                        Ver
+                      </Link>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </Card>
 
       {/* Paginação */}
       {totalPages > 1 && (
         <div className="flex justify-between items-center">
-          <span className="text-gray-500">
+          <span className="font-body text-ink-muted">
             Página {page} de {totalPages}
           </span>
           <div className="flex gap-2">
-            <button
+            <Button
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page === 1}
-              className="px-4 py-2 border rounded-lg disabled:opacity-50"
+              intent="secondary"
             >
               Anterior
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               disabled={page === totalPages}
-              className="px-4 py-2 border rounded-lg disabled:opacity-50"
+              intent="secondary"
             >
               Próxima
-            </button>
+            </Button>
           </div>
         </div>
       )}
