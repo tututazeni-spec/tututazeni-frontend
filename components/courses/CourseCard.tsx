@@ -1,10 +1,15 @@
 // components/courses/CourseCard.tsx
 // Cartão de curso usado no catálogo. Extraído de
-// app/(platform)/courses/page.tsx.
+// app/(platform)/courses/page.tsx. Migrado para a fundação de design:
+// wrapper clicável passa a Card (sem a prop `interactive` — bug
+// conhecido, mesmo padrão de components/learning-paths/LearningPathCard.tsx),
+// badge "Obrigatório" passa a Badge.
 
 'use client';
 
 import Image from 'next/image';
+import { Badge } from '@/components/ui/Badge';
+import { Card } from '@/components/ui/Card';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { COURSE_LEVEL_MAP, EnrollBadge, fmtDuration } from './shared';
 import type { Course, EnrollmentStatus } from './types';
@@ -23,20 +28,20 @@ export function CourseCard({
   progress,
 }: CourseCardProps) {
   return (
-    <div
-      className="bg-white border border-gray-200 rounded-xl overflow-hidden cursor-pointer hover:shadow-md hover:border-blue-300 transition-all"
-      onClick={onClick}
+    <Card
       role="button"
       tabIndex={0}
+      onClick={onClick}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
           onClick();
         }
       }}
+      className="cursor-pointer overflow-hidden transition-shadow hover:shadow-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
     >
       {/* Thumbnail */}
-      <div className="aspect-video bg-gray-100 relative overflow-hidden">
+      <div className="aspect-video bg-surface-sunken relative overflow-hidden">
         {course.thumbnailUrl ? (
           <Image
             src={course.thumbnailUrl}
@@ -45,20 +50,20 @@ export function CourseCard({
             className="object-cover"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-4xl text-gray-300">
+          <div className="w-full h-full flex items-center justify-center text-4xl text-ink-faint">
             📚
           </div>
         )}
         {course.mandatory && (
-          <span className="absolute top-2 left-2 bg-red-600 text-white text-xs font-medium px-2 py-0.5 rounded">
+          <Badge intent="danger" className="absolute top-2 left-2">
             Obrigatório
-          </span>
+          </Badge>
         )}
         {progress !== undefined && progress > 0 && (
           <div className="absolute bottom-0 left-0 right-0">
-            <div className="h-1 bg-gray-200">
+            <div className="h-1 bg-ink/20">
               <div
-                className="h-1 bg-blue-600"
+                className="h-1 bg-surface"
                 style={{ width: `${progress}%` }}
               />
             </div>
@@ -69,23 +74,23 @@ export function CourseCard({
       <div className="p-4">
         {/* Category */}
         {course.category && (
-          <div className="text-xs text-blue-600 font-medium mb-1">
+          <div className="text-xs text-primary font-medium mb-1">
             {course.category}
           </div>
         )}
         {/* Title */}
-        <div className="text-sm font-semibold text-gray-900 mb-1 line-clamp-2">
+        <div className="text-sm font-semibold text-ink mb-1 line-clamp-2">
           {course.title}
         </div>
         {/* Short desc */}
         {course.shortDescription && (
-          <div className="text-xs text-gray-500 mb-2 line-clamp-2">
+          <div className="text-xs text-ink-muted mb-2 line-clamp-2">
             {course.shortDescription}
           </div>
         )}
 
         {/* Meta */}
-        <div className="flex items-center gap-3 text-xs text-gray-400 mb-2">
+        <div className="flex items-center gap-3 text-xs text-ink-faint mb-2">
           {course.workloadHours && (
             <span>⏱ {fmtDuration(course.workloadHours)}</span>
           )}
@@ -98,6 +103,6 @@ export function CourseCard({
           <EnrollBadge status={enrollmentStatus} deadline={null} />
         )}
       </div>
-    </div>
+    </Card>
   );
 }

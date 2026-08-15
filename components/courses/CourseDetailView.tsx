@@ -3,17 +3,28 @@
 // mutações (tudo isso vem do container, hooks/useCourseDetail.ts, usado em
 // CourseDetail dentro de app/(platform)/courses/page.tsx).
 // Ver memory project_innova_component_separation_audit, item 3.6.
+//
+// Migrado para a fundação de design: área do player passa a bg-ink/
+// text-canvas (mesmo padrão de components/courses-learn/ContentPlayer.tsx),
+// cartões passam a Card, botões a Button, badges a Badge, avaliação por
+// estrelas passa a ícone Star da lucide-react (mesmo padrão de
+// components/ai-tutor/MessageBubble.tsx).
 
 'use client';
 
 import Image from 'next/image';
+import { ArrowLeft, Check, Star } from 'lucide-react';
+import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { ProgressBar } from '@/components/ui/ProgressBar';
 import { StatusBadge } from '@/components/ui/StatusBadge';
+import { Textarea } from '@/components/ui/Textarea';
 import {
   COURSE_LEVEL_MAP,
   COURSE_STATUS_MAP,
   EnrollBadge,
   LessonIcon,
-  ProgressBar,
   Skeleton,
   fmtDuration,
 } from './shared';
@@ -71,9 +82,10 @@ export function CourseDetailView({
     <div>
       <button
         onClick={onBack}
-        className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-800 mb-5"
+        className="flex items-center gap-1 text-sm text-ink-muted hover:text-ink mb-5"
       >
-        ← Voltar ao catálogo
+        <ArrowLeft size={16} strokeWidth={1.75} />
+        Voltar ao catálogo
       </button>
 
       {/* Player Layout: sidebar + content */}
@@ -81,23 +93,23 @@ export function CourseDetailView({
         <div className="grid grid-cols-[1fr_300px] gap-5 mb-6">
           {/* Player principal */}
           <div>
-            <div className="bg-gray-900 rounded-xl overflow-hidden aspect-video flex items-center justify-center mb-3">
+            <div className="bg-ink rounded-card overflow-hidden aspect-video flex items-center justify-center mb-3">
               {activeLesson.type === 'VIDEO' ? (
-                <div className="text-white text-center">
+                <div className="text-canvas text-center">
                   <div className="text-5xl mb-3">▶</div>
-                  <div className="text-sm text-gray-300">
+                  <div className="text-sm text-canvas/80">
                     {activeLesson.title}
                   </div>
-                  <div className="text-xs text-gray-500 mt-1">
+                  <div className="text-xs text-canvas/60 mt-1">
                     Player de vídeo aqui (embed YouTube/Vimeo/próprio)
                   </div>
                 </div>
               ) : (
-                <div className="text-white text-center">
+                <div className="text-canvas text-center">
                   <div className="text-5xl mb-3">
                     <LessonIcon type={activeLesson.type} />
                   </div>
-                  <div className="text-sm text-gray-300">
+                  <div className="text-sm text-canvas/80">
                     {activeLesson.title}
                   </div>
                 </div>
@@ -105,62 +117,62 @@ export function CourseDetailView({
             </div>
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h3 className="text-base font-semibold text-gray-900">
+                <h3 className="text-base font-semibold text-ink">
                   {activeLesson.title}
                 </h3>
                 {activeLesson.durationMinutes && (
-                  <span className="text-xs text-gray-400">
+                  <span className="text-xs text-ink-faint">
                     {fmtDuration(null, activeLesson.durationMinutes)}
                   </span>
                 )}
               </div>
-              <button
+              <Button
                 onClick={onMarkComplete}
                 disabled={completing || activeLesson.completed}
-                className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors disabled:opacity-50 ${
-                  activeLesson.completed
-                    ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                    : 'bg-blue-700 text-white hover:bg-blue-800'
-                }`}
+                intent={activeLesson.completed ? 'secondary' : 'primary'}
               >
-                {activeLesson.completed
-                  ? '✓ Concluída'
-                  : completing
-                    ? 'A marcar…'
-                    : 'Marcar concluída'}
-              </button>
+                {activeLesson.completed ? (
+                  <>
+                    <Check size={16} strokeWidth={1.75} /> Concluída
+                  </>
+                ) : completing ? (
+                  'A marcar…'
+                ) : (
+                  'Marcar concluída'
+                )}
+              </Button>
             </div>
             {/* Progress */}
-            <div className="bg-gray-50 rounded-xl p-4">
+            <Card className="p-4">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-medium text-gray-600">
+                <span className="text-xs font-medium text-ink-muted">
                   Progresso geral
                 </span>
-                <span className="text-xs font-mono font-medium text-blue-700">
+                <span className="text-xs font-mono font-medium text-primary">
                   {progressPct}%
                 </span>
               </div>
-              <ProgressBar pct={progressPct} size="md" />
-              <div className="text-xs text-gray-400 mt-1">
+              <ProgressBar value={progressPct} className="h-2.5" />
+              <div className="text-xs text-ink-faint mt-1">
                 {progress?.courseProgress.completedLessons}/
                 {progress?.courseProgress.totalLessons} aulas concluídas
               </div>
-            </div>
+            </Card>
           </div>
 
           {/* Sidebar — lista de aulas */}
-          <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-            <div className="px-4 py-3 border-b border-gray-100 text-xs font-medium text-gray-400 uppercase tracking-wide">
+          <Card className="overflow-hidden">
+            <div className="px-4 py-3 border-b border-border text-xs font-medium text-ink-faint uppercase tracking-wide">
               Conteúdo do curso
             </div>
             <div className="overflow-y-auto max-h-[450px]">
               {progress?.modules.map((mod) => (
                 <div key={mod.id}>
-                  <div className="px-4 py-2 bg-gray-50 border-b border-gray-100">
-                    <div className="text-xs font-medium text-gray-700">
+                  <div className="px-4 py-2 bg-surface-sunken border-b border-border">
+                    <div className="text-xs font-medium text-ink-muted">
                       {mod.title}
                     </div>
-                    <div className="text-xs text-gray-400">
+                    <div className="text-xs text-ink-faint">
                       {mod.completedCount}/{mod.totalCount} aulas
                     </div>
                   </div>
@@ -168,17 +180,17 @@ export function CourseDetailView({
                     <div
                       key={lesson.id}
                       onClick={() => onSelectLesson(lesson)}
-                      className={`flex items-center gap-3 px-4 py-2.5 border-b border-gray-100 cursor-pointer transition-colors ${
+                      className={`flex items-center gap-3 px-4 py-2.5 border-b border-border cursor-pointer transition-colors ${
                         activeLesson?.id === lesson.id
-                          ? 'bg-blue-50'
-                          : 'hover:bg-gray-50'
+                          ? 'bg-primary-subtle'
+                          : 'hover:bg-surface-sunken'
                       }`}
                     >
                       <div
                         className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 text-xs ${
                           lesson.completed
-                            ? 'bg-emerald-100 text-emerald-700'
-                            : 'bg-gray-100 text-gray-400'
+                            ? 'bg-success-subtle text-success-ink'
+                            : 'bg-surface-sunken text-ink-faint'
                         }`}
                       >
                         {lesson.completed ? (
@@ -189,12 +201,12 @@ export function CourseDetailView({
                       </div>
                       <div className="flex-1 min-w-0">
                         <div
-                          className={`text-xs truncate ${activeLesson?.id === lesson.id ? 'text-blue-800 font-medium' : 'text-gray-700'}`}
+                          className={`text-xs truncate ${activeLesson?.id === lesson.id ? 'text-primary font-medium' : 'text-ink-muted'}`}
                         >
                           {lesson.title}
                         </div>
                         {lesson.durationMinutes && (
-                          <div className="text-xs text-gray-400">
+                          <div className="text-xs text-ink-faint">
                             {fmtDuration(null, lesson.durationMinutes)}
                           </div>
                         )}
@@ -204,7 +216,7 @@ export function CourseDetailView({
                 </div>
               ))}
             </div>
-          </div>
+          </Card>
         </div>
       ) : (
         /* Header do curso (não matriculado) */
@@ -212,7 +224,7 @@ export function CourseDetailView({
           <div>
             <div className="flex items-center gap-2 mb-2 flex-wrap">
               {course.category && (
-                <span className="text-xs text-blue-600 font-medium">
+                <span className="text-xs text-primary font-medium">
                   {course.category}
                 </span>
               )}
@@ -223,20 +235,18 @@ export function CourseDetailView({
                 variant="dot"
               />
               {course.mandatory && (
-                <span className="px-2 py-0.5 bg-red-50 text-red-700 text-xs font-medium rounded">
-                  Obrigatório
-                </span>
+                <Badge intent="danger">Obrigatório</Badge>
               )}
             </div>
-            <h1 className="text-2xl font-semibold text-gray-900 mb-2">
+            <h1 className="text-2xl font-semibold text-ink mb-2">
               {course.title}
             </h1>
             {course.shortDescription && (
-              <p className="text-sm text-gray-600 mb-4">
+              <p className="text-sm text-ink-muted mb-4">
                 {course.shortDescription}
               </p>
             )}
-            <div className="flex flex-wrap gap-4 text-sm text-gray-500 mb-4">
+            <div className="flex flex-wrap gap-4 text-sm text-ink-muted mb-4">
               {course.workloadHours && (
                 <span>⏱ {fmtDuration(course.workloadHours)}</span>
               )}
@@ -247,17 +257,17 @@ export function CourseDetailView({
               )}
             </div>
             {course.learningObjectives.length > 0 && (
-              <div className="bg-emerald-50 rounded-xl p-4 mb-4">
-                <div className="text-xs font-medium text-emerald-700 mb-2 uppercase tracking-wide">
+              <div className="bg-success-subtle rounded-card p-4 mb-4">
+                <div className="text-xs font-medium text-success-ink mb-2 uppercase tracking-wide">
                   Objectivos de aprendizagem
                 </div>
                 <ul className="space-y-1">
                   {course.learningObjectives.map((obj, i) => (
                     <li
                       key={i}
-                      className="flex items-start gap-2 text-xs text-emerald-800"
+                      className="flex items-start gap-2 text-xs text-success-ink"
                     >
-                      <span className="text-emerald-500 mt-0.5">✓</span>
+                      <span className="mt-0.5">✓</span>
                       {obj}
                     </li>
                   ))}
@@ -267,9 +277,9 @@ export function CourseDetailView({
           </div>
 
           {/* CTA card */}
-          <div className="bg-white border border-gray-200 rounded-xl p-5">
+          <Card className="p-5">
             {course.thumbnailUrl && (
-              <div className="aspect-video rounded-lg overflow-hidden mb-4 relative">
+              <div className="aspect-video rounded-control overflow-hidden mb-4 relative">
                 <Image
                   src={course.thumbnailUrl}
                   alt={course.title}
@@ -279,13 +289,13 @@ export function CourseDetailView({
               </div>
             )}
             {!isEnrolled && course.status === 'PUBLISHED' && (
-              <button
+              <Button
                 onClick={onEnroll}
                 disabled={enrolling}
-                className="w-full py-3 bg-blue-700 text-white text-sm font-semibold rounded-lg hover:bg-blue-800 disabled:opacity-50"
+                className="w-full"
               >
                 {enrolling ? 'A matricular…' : 'Inscrever-me gratuitamente'}
-              </button>
+              </Button>
             )}
             {isEnrolled && (
               <div className="space-y-2">
@@ -293,32 +303,32 @@ export function CourseDetailView({
                   status={progress!.enrollment.status}
                   deadline={progress!.enrollment.deadline}
                 />
-                <ProgressBar pct={progressPct} size="md" />
-                <div className="text-xs text-gray-400 text-center">
+                <ProgressBar value={progressPct} className="h-2.5" />
+                <div className="text-xs text-ink-faint text-center">
                   {progressPct}% concluído
                 </div>
               </div>
             )}
-          </div>
+          </Card>
         </div>
       )}
 
       {/* Módulos accordion */}
       {!isEnrolled && course.modules && (
-        <div className="bg-white border border-gray-200 rounded-xl overflow-hidden mb-6">
-          <div className="px-4 py-3 border-b border-gray-100 text-sm font-semibold text-gray-900">
+        <Card className="overflow-hidden mb-6">
+          <div className="px-4 py-3 border-b border-border text-sm font-semibold text-ink">
             Conteúdo do curso
           </div>
           {course.modules.map((mod) => (
             <details
               key={mod.id}
-              className="border-b border-gray-100 last:border-0"
+              className="border-b border-border last:border-0"
             >
-              <summary className="flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-gray-50">
-                <span className="text-sm font-medium text-gray-800">
+              <summary className="flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-surface-sunken">
+                <span className="text-sm font-medium text-ink">
                   {mod.title}
                 </span>
-                <span className="text-xs text-gray-400">
+                <span className="text-xs text-ink-faint">
                   {mod.lessons?.length ?? 0} aulas
                 </span>
               </summary>
@@ -326,17 +336,17 @@ export function CourseDetailView({
                 {mod.lessons?.map((l) => (
                   <div
                     key={l.id}
-                    className="flex items-center gap-2 py-1.5 text-xs text-gray-600 border-b border-gray-50 last:border-0"
+                    className="flex items-center gap-2 py-1.5 text-xs text-ink-muted border-b border-border last:border-0"
                   >
                     <LessonIcon type={l.type} />
                     <span className="flex-1">{l.title}</span>
                     {l.durationMinutes && (
-                      <span className="text-gray-400">
+                      <span className="text-ink-faint">
                         {fmtDuration(null, l.durationMinutes)}
                       </span>
                     )}
                     {l.isFree && (
-                      <span className="text-emerald-600 font-medium">
+                      <span className="text-success font-medium">
                         Grátis
                       </span>
                     )}
@@ -345,13 +355,13 @@ export function CourseDetailView({
               </div>
             </details>
           ))}
-        </div>
+        </Card>
       )}
 
       {/* Feedback section */}
       {isEnrolled && progress?.enrollment.status === 'COMPLETED' && (
-        <div className="bg-white border border-gray-200 rounded-xl p-5 mb-6">
-          <div className="text-sm font-semibold text-gray-900 mb-3">
+        <Card className="p-5 mb-6">
+          <div className="text-sm font-semibold text-ink mb-3">
             Avalie este curso
           </div>
           <div className="flex gap-1 mb-3">
@@ -359,52 +369,61 @@ export function CourseDetailView({
               <button
                 key={s}
                 onClick={() => onRatingChange(s)}
-                className={`text-2xl transition-transform hover:scale-110 ${s <= rating ? 'text-amber-400' : 'text-gray-200'}`}
+                className="transition-transform hover:scale-110"
               >
-                ★
+                <Star
+                  size={20}
+                  strokeWidth={1.75}
+                  className={s <= rating ? 'fill-current text-warning-ink' : 'text-ink-faint'}
+                />
               </button>
             ))}
           </div>
-          <textarea
+          <Textarea
             value={comment}
             onChange={(e) => onCommentChange(e.target.value)}
             rows={3}
             placeholder="Partilhe a sua experiência…"
-            className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none mb-3"
+            className="w-full resize-none mb-3"
           />
-          <button
-            onClick={onFeedback}
-            disabled={!rating || feedbackLoading}
-            className="px-4 py-2 bg-blue-700 text-white text-sm font-medium rounded-lg hover:bg-blue-800 disabled:opacity-50"
-          >
+          <Button onClick={onFeedback} disabled={!rating || feedbackLoading}>
             {feedbackLoading ? 'A enviar…' : 'Enviar avaliação'}
-          </button>
-        </div>
+          </Button>
+        </Card>
       )}
 
       {/* Feedbacks existentes */}
       {(course.feedbacks?.length ?? 0) > 0 && (
-        <div className="bg-white border border-gray-200 rounded-xl p-5">
-          <div className="text-sm font-semibold text-gray-900 mb-3">
+        <Card className="p-5">
+          <div className="text-sm font-semibold text-ink mb-3">
             Avaliações
           </div>
           <div className="space-y-3">
             {course.feedbacks?.map((f) => (
               <div
                 key={f.id}
-                className="border-b border-gray-100 pb-3 last:border-0"
+                className="border-b border-border pb-3 last:border-0"
               >
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="text-sm font-medium text-gray-800">
+                  <span className="text-sm font-medium text-ink">
                     {f.user.fullName}
                   </span>
-                  <span className="text-amber-400">{'★'.repeat(f.rating)}</span>
+                  <span className="flex items-center gap-0.5">
+                    {Array.from({ length: f.rating }).map((_, i) => (
+                      <Star
+                        key={i}
+                        size={14}
+                        strokeWidth={1.75}
+                        className="fill-current text-warning-ink"
+                      />
+                    ))}
+                  </span>
                 </div>
-                <p className="text-xs text-gray-600">{f.comment}</p>
+                <p className="text-xs text-ink-muted">{f.comment}</p>
               </div>
             ))}
           </div>
-        </div>
+        </Card>
       )}
     </div>
   );
