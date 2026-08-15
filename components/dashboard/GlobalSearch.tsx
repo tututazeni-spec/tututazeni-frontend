@@ -2,16 +2,21 @@
 // Modal de pesquisa global (colaboradores/cursos) — dados próprios
 // (useApiQuery com debounce) + apresentação. Extraído de
 // app/(platform)/dashboard/page.tsx.
+//
+// Overlay controlado pelo pai (`showSearch && <GlobalSearch .../>`, ver
+// app/(platform)/dashboard/page.tsx) — não é o `Modal`/Dialog.Root da
+// fundação (esse assume o próprio estado de open/close); mantém-se a
+// mesma estrutura, só a paleta migra para tokens.
 
 'use client';
 
 import { useState } from 'react';
-import { Search, BookOpen } from 'lucide-react';
+import { Search, BookOpen, X } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { useDebounce } from '@/hooks/useDebounce';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { Avatar } from './atoms';
+import { Avatar } from '@/components/ui/Avatar';
 import type { SearchResults } from './types';
 
 export interface GlobalSearchProps {
@@ -35,50 +40,50 @@ export function GlobalSearch({ onClose }: GlobalSearchProps) {
   );
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-900/50 flex items-start justify-center pt-20 px-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-xl overflow-hidden">
-        <div className="flex items-center gap-3 px-5 py-4 border-b border-slate-100">
-          <Search size={18} className="text-slate-400" />
+    <div className="fixed inset-0 z-50 flex items-start justify-center bg-ink/50 px-4 pt-20">
+      <div className="w-full max-w-xl overflow-hidden rounded-panel bg-surface shadow-elevated">
+        <div className="flex items-center gap-3 border-b border-border px-5 py-4">
+          <Search size={18} strokeWidth={1.75} className="text-ink-faint" />
           <input
             autoFocus
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Pesquisar colaboradores, cursos, competências..."
-            className="flex-1 text-sm focus:outline-none"
+            className="flex-1 font-body text-sm text-ink focus:outline-none"
           />
           <button
             onClick={onClose}
             aria-label="Fechar"
-            className="text-slate-400 hover:text-slate-600"
+            className="text-ink-faint hover:text-ink"
           >
-            ✕
+            <X size={18} strokeWidth={1.75} />
           </button>
         </div>
 
         {loading && (
-          <div className="px-5 py-4 text-sm text-slate-400 animate-pulse">
+          <div className="animate-pulse px-5 py-4 font-body text-sm text-ink-faint">
             A pesquisar…
           </div>
         )}
 
         {results && (
-          <div className="px-5 py-3 max-h-80 overflow-y-auto">
+          <div className="max-h-80 overflow-y-auto px-5 py-3">
             {(results.users?.length ?? 0) > 0 && (
               <div className="mb-3">
-                <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide mb-2">
+                <p className="mb-2 font-body text-[10px] font-semibold uppercase tracking-wide text-ink-faint">
                   Colaboradores
                 </p>
                 {results.users?.map((u) => (
                   <div
                     key={u.id}
-                    className="flex items-center gap-2 py-1.5 hover:bg-slate-50 rounded-lg px-2 cursor-pointer"
+                    className="flex cursor-pointer items-center gap-2 rounded-control px-2 py-1.5 hover:bg-surface-sunken"
                   >
-                    <Avatar name={u.fullName} url={u.avatarUrl} size={7} />
+                    <Avatar name={u.fullName} url={u.avatarUrl} size="sm" />
                     <div>
-                      <p className="text-sm font-medium text-slate-700">
+                      <p className="font-body text-sm font-medium text-ink">
                         {u.fullName}
                       </p>
-                      <p className="text-[10px] text-slate-400">
+                      <p className="font-body text-[10px] text-ink-faint">
                         {u.position?.name} · {u.department?.name}
                       </p>
                     </div>
@@ -88,22 +93,26 @@ export function GlobalSearch({ onClose }: GlobalSearchProps) {
             )}
             {(results.courses?.length ?? 0) > 0 && (
               <div className="mb-3">
-                <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide mb-2">
+                <p className="mb-2 font-body text-[10px] font-semibold uppercase tracking-wide text-ink-faint">
                   Cursos
                 </p>
                 {results.courses?.map((c) => (
                   <div
                     key={c.id}
-                    className="flex items-center gap-2 py-1.5 hover:bg-slate-50 rounded-lg px-2 cursor-pointer"
+                    className="flex cursor-pointer items-center gap-2 rounded-control px-2 py-1.5 hover:bg-surface-sunken"
                   >
-                    <BookOpen size={14} className="text-indigo-500 shrink-0" />
-                    <p className="text-sm text-slate-700">{c.title}</p>
+                    <BookOpen
+                      size={14}
+                      strokeWidth={1.75}
+                      className="shrink-0 text-primary"
+                    />
+                    <p className="font-body text-sm text-ink">{c.title}</p>
                   </div>
                 ))}
               </div>
             )}
             {!results.users?.length && !results.courses?.length && (
-              <p className="text-sm text-slate-400 text-center py-4">
+              <p className="py-4 text-center font-body text-sm text-ink-faint">
                 Sem resultados para &quot;{query}&quot;
               </p>
             )}

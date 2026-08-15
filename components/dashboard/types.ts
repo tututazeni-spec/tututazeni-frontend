@@ -4,18 +4,6 @@
 // apresentação em components/dashboard/ (atoms, ColaboradorDashboard,
 // ManagerDashboard, OrgDashboard, GlobalSearch).
 
-import type { LucideIcon } from 'lucide-react';
-
-export interface KPICardProps {
-  icon: LucideIcon;
-  label: string;
-  value: string | number;
-  sub?: string;
-  trend?: number;
-  color?: string;
-  bg?: string;
-}
-
 export interface Alert {
   type: string;
   message: string;
