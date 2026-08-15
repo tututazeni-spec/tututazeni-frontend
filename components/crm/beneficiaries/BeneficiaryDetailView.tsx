@@ -1,6 +1,12 @@
 // components/crm/beneficiaries/BeneficiaryDetailView.tsx
 
 import { useRouter } from 'next/navigation';
+import { cn } from '@/lib/cn';
+import { Button } from '@/components/ui/Button';
+import { Card, CardBody } from '@/components/ui/Card';
+import { Input } from '@/components/ui/Input';
+import { Select } from '@/components/ui/Select';
+import { Textarea } from '@/components/ui/Textarea';
 import { Info, formatDate } from '@/components/crm/shared';
 import { PRIORITY_COLORS } from './types';
 import type { BeneficiaryDetail, InteractionForm } from './types';
@@ -31,220 +37,225 @@ export function BeneficiaryDetailView({
         <div>
           <button
             onClick={() => router.push('/crm/beneficiaries')}
-            className="text-sm text-blue-600 hover:underline mb-2"
+            className="font-body text-sm text-primary hover:underline mb-2"
           >
             ← Voltar à lista
           </button>
-          <h1 className="text-2xl font-bold text-gray-900">{b.fullName}</h1>
-          <p className="text-gray-500 font-mono">{b.code}</p>
+          <h1 className="font-display text-2xl font-bold text-ink">{b.fullName}</h1>
+          <p className="font-mono font-body text-ink-muted">{b.code}</p>
         </div>
-        <span className="px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+        <span className="inline-flex items-center gap-1.5 rounded-pill px-2.5 py-0.5 font-body text-xs font-semibold bg-info-subtle text-info-ink">
+          <span className="h-1.5 w-1.5 rounded-full bg-current" />
           {b.status}
         </span>
       </div>
 
       {/* Dados gerais */}
-      <div className="bg-white rounded-lg shadow p-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Info label="Tipo" value={b.type} />
-        <Info label="Categoria" value={b.category} />
-        <Info label="NIF" value={b.nif} />
-        <Info label="Email" value={b.email} />
-        <Info label="Telefone" value={b.phone} />
-        <Info label="Telemóvel" value={b.mobile} />
-        <Info label="Província" value={b.province} />
-        <Info label="Cidade" value={b.city} />
-        <Info label="Morada" value={b.address} />
-        <Info
-          label="Satisfação média"
-          value={b.satisfactionAvg ? b.satisfactionAvg.toFixed(1) : '—'}
-        />
-        <Info
-          label="Último contacto"
-          value={b.lastContactAt ? formatDate(b.lastContactAt) : '—'}
-        />
-        <Info
-          label="Próximo follow-up"
-          value={b.nextFollowUpAt ? formatDate(b.nextFollowUpAt) : '—'}
-        />
-        <Info label="Responsável" value={b.assignedTo?.fullName} />
-        <Info label="Criado por" value={b.createdBy?.fullName} />
-      </div>
+      <Card>
+        <CardBody className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Info label="Tipo" value={b.type} />
+          <Info label="Categoria" value={b.category} />
+          <Info label="NIF" value={b.nif} />
+          <Info label="Email" value={b.email} />
+          <Info label="Telefone" value={b.phone} />
+          <Info label="Telemóvel" value={b.mobile} />
+          <Info label="Província" value={b.province} />
+          <Info label="Cidade" value={b.city} />
+          <Info label="Morada" value={b.address} />
+          <Info
+            label="Satisfação média"
+            value={b.satisfactionAvg ? b.satisfactionAvg.toFixed(1) : '—'}
+          />
+          <Info
+            label="Último contacto"
+            value={b.lastContactAt ? formatDate(b.lastContactAt) : '—'}
+          />
+          <Info
+            label="Próximo follow-up"
+            value={b.nextFollowUpAt ? formatDate(b.nextFollowUpAt) : '—'}
+          />
+          <Info label="Responsável" value={b.assignedTo?.fullName} />
+          <Info label="Criado por" value={b.createdBy?.fullName} />
+        </CardBody>
+      </Card>
 
       {/* Necessidades */}
       <section>
-        <h2 className="text-lg font-semibold text-gray-900 mb-3">
+        <h2 className="font-display text-lg font-semibold text-ink mb-3">
           Necessidades ({b.needs.length})
         </h2>
-        <div className="bg-white rounded-lg shadow divide-y divide-gray-100">
-          {b.needs.length === 0 ? (
-            <p className="p-4 text-gray-400">Sem necessidades registadas</p>
-          ) : (
-            b.needs.map((n) => (
-              <div key={n.id} className="p-4 flex justify-between items-center">
-                <div>
-                  <p className="font-medium">{n.category}</p>
-                  <p className="text-sm text-gray-500">{n.description}</p>
+        <Card>
+          <div className="divide-y divide-border">
+            {b.needs.length === 0 ? (
+              <p className="p-4 font-body text-ink-faint">Sem necessidades registadas</p>
+            ) : (
+              b.needs.map((n) => (
+                <div key={n.id} className="p-4 flex justify-between items-center">
+                  <div>
+                    <p className="font-medium font-body text-ink">{n.category}</p>
+                    <p className="font-body text-sm text-ink-muted">{n.description}</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={cn(
+                        'inline-flex items-center rounded-pill px-2 py-1 font-body text-xs font-semibold',
+                        PRIORITY_COLORS[n.priority] ?? 'bg-surface-sunken text-ink-muted',
+                      )}
+                    >
+                      {n.priority}
+                    </span>
+                    <span className="font-body text-xs text-ink-muted">{n.status}</span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span
-                    className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      PRIORITY_COLORS[n.priority] ?? 'bg-gray-100'
-                    }`}
-                  >
-                    {n.priority}
-                  </span>
-                  <span className="text-xs text-gray-500">{n.status}</span>
-                </div>
-              </div>
-            ))
-          )}
-        </div>
+              ))
+            )}
+          </div>
+        </Card>
       </section>
 
       {/* Documentos */}
       <section>
-        <h2 className="text-lg font-semibold text-gray-900 mb-3">
+        <h2 className="font-display text-lg font-semibold text-ink mb-3">
           Documentos ({b.documents.length})
         </h2>
-        <div className="bg-white rounded-lg shadow divide-y divide-gray-100">
-          {b.documents.length === 0 ? (
-            <p className="p-4 text-gray-400">Sem documentos</p>
-          ) : (
-            b.documents.map((d) => (
-              <div key={d.id} className="p-4 flex justify-between items-center">
-                <div>
-                  <a
-                    href={d.fileUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="font-medium text-blue-600 hover:underline"
+        <Card>
+          <div className="divide-y divide-border">
+            {b.documents.length === 0 ? (
+              <p className="p-4 font-body text-ink-faint">Sem documentos</p>
+            ) : (
+              b.documents.map((d) => (
+                <div key={d.id} className="p-4 flex justify-between items-center">
+                  <div>
+                    <a
+                      href={d.fileUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="font-medium font-body text-primary hover:underline"
+                    >
+                      {d.name}
+                    </a>
+                    <p className="font-body text-sm text-ink-muted">{d.type}</p>
+                  </div>
+                  <span
+                    className={cn(
+                      'font-body text-xs font-medium',
+                      d.isVerified ? 'text-success-ink' : 'text-ink-faint',
+                    )}
                   >
-                    {d.name}
-                  </a>
-                  <p className="text-sm text-gray-500">{d.type}</p>
+                    {d.isVerified ? '✓ Verificado' : 'Por verificar'}
+                  </span>
                 </div>
-                <span
-                  className={`text-xs font-medium ${
-                    d.isVerified ? 'text-green-600' : 'text-gray-400'
-                  }`}
-                >
-                  {d.isVerified ? '✓ Verificado' : 'Por verificar'}
-                </span>
-              </div>
-            ))
-          )}
-        </div>
+              ))
+            )}
+          </div>
+        </Card>
       </section>
 
       {/* Interacções */}
       <section>
         <div className="flex justify-between items-center mb-3">
-          <h2 className="text-lg font-semibold text-gray-900">
+          <h2 className="font-display text-lg font-semibold text-ink">
             Interacções ({b.interactions.length})
           </h2>
-          <button
+          <Button
             onClick={() => setShowForm((s) => !s)}
-            className="bg-blue-600 text-white px-3 py-1.5 rounded-lg text-sm hover:bg-blue-700"
+            variant={showForm ? 'secondary' : 'primary'}
           >
             {showForm ? 'Cancelar' : '+ Nova Interacção'}
-          </button>
+          </Button>
         </div>
 
         {showForm && (
           <form
             onSubmit={submitInteraction}
-            className="bg-white rounded-lg shadow p-4 mb-4 space-y-3"
+            className="mb-4 space-y-3"
           >
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <select
-                value={form.type}
-                onChange={(e) => setForm({ ...form, type: e.target.value })}
-                className="border rounded-lg px-3 py-2"
-              >
-                <option value="CALL">Chamada</option>
-                <option value="EMAIL">Email</option>
-                <option value="MEETING">Reunião</option>
-                <option value="VISIT">Visita</option>
-                <option value="EVENT">Evento</option>
-                <option value="NOTE">Nota</option>
-                <option value="TASK">Tarefa</option>
-              </select>
-              <input
-                type="number"
-                min={1}
-                max={5}
-                placeholder="Satisfação (1-5)"
-                value={form.satisfaction}
-                onChange={(e) =>
-                  setForm({ ...form, satisfaction: e.target.value })
-                }
-                className="border rounded-lg px-3 py-2"
-              />
-            </div>
-            <input
-              required
-              placeholder="Assunto"
-              value={form.subject}
-              onChange={(e) => setForm({ ...form, subject: e.target.value })}
-              className="border rounded-lg px-3 py-2 w-full"
-            />
-            <textarea
-              required
-              placeholder="Descrição"
-              value={form.description}
-              onChange={(e) =>
-                setForm({ ...form, description: e.target.value })
-              }
-              className="border rounded-lg px-3 py-2 w-full"
-              rows={3}
-            />
-            <input
-              placeholder="Resultado (opcional)"
-              value={form.outcome}
-              onChange={(e) => setForm({ ...form, outcome: e.target.value })}
-              className="border rounded-lg px-3 py-2 w-full"
-            />
-            <button
-              type="submit"
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-            >
-              Guardar Interacção
-            </button>
+            <Card>
+              <CardBody className="space-y-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <Select
+                    value={form.type}
+                    onChange={(e) => setForm({ ...form, type: e.target.value })}
+                  >
+                    <option value="CALL">Chamada</option>
+                    <option value="EMAIL">Email</option>
+                    <option value="MEETING">Reunião</option>
+                    <option value="VISIT">Visita</option>
+                    <option value="EVENT">Evento</option>
+                    <option value="NOTE">Nota</option>
+                    <option value="TASK">Tarefa</option>
+                  </Select>
+                  <Input
+                    type="number"
+                    min={1}
+                    max={5}
+                    placeholder="Satisfação (1-5)"
+                    value={form.satisfaction}
+                    onChange={(e) =>
+                      setForm({ ...form, satisfaction: e.target.value })
+                    }
+                  />
+                </div>
+                <Input
+                  required
+                  placeholder="Assunto"
+                  value={form.subject}
+                  onChange={(e) => setForm({ ...form, subject: e.target.value })}
+                />
+                <Textarea
+                  required
+                  placeholder="Descrição"
+                  value={form.description}
+                  onChange={(e) =>
+                    setForm({ ...form, description: e.target.value })
+                  }
+                  rows={3}
+                />
+                <Input
+                  placeholder="Resultado (opcional)"
+                  value={form.outcome}
+                  onChange={(e) => setForm({ ...form, outcome: e.target.value })}
+                />
+                <Button type="submit">Guardar Interacção</Button>
+              </CardBody>
+            </Card>
           </form>
         )}
 
-        <div className="bg-white rounded-lg shadow divide-y divide-gray-100">
-          {b.interactions.length === 0 ? (
-            <p className="p-4 text-gray-400">Sem interacções registadas</p>
-          ) : (
-            b.interactions.map((it) => (
-              <div
-                key={it.id}
-                className={`p-4 ${it._optimistic ? 'opacity-60' : ''}`}
-              >
-                <div className="flex justify-between items-center">
-                  <span className="font-medium">
-                    <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded mr-2">
-                      {it.type}
+        <Card>
+          <div className="divide-y divide-border">
+            {b.interactions.length === 0 ? (
+              <p className="p-4 font-body text-ink-faint">Sem interacções registadas</p>
+            ) : (
+              b.interactions.map((it) => (
+                <div
+                  key={it.id}
+                  className={cn('p-4', it._optimistic && 'opacity-60')}
+                >
+                  <div className="flex justify-between items-center">
+                    <span className="font-body font-medium">
+                      <span className="font-body text-xs bg-surface-sunken text-ink-muted px-2 py-0.5 rounded mr-2">
+                        {it.type}
+                      </span>
+                      {it.subject}
                     </span>
-                    {it.subject}
-                  </span>
-                  <span className="text-xs text-gray-400">
-                    {it._optimistic ? 'A guardar…' : formatDate(it.date)}
-                  </span>
+                    <span className="font-body text-xs text-ink-faint">
+                      {it._optimistic ? 'A guardar…' : formatDate(it.date)}
+                    </span>
+                  </div>
+                  <p className="font-body text-sm text-ink-muted mt-1">{it.description}</p>
+                  <div className="flex gap-4 mt-1 font-body text-xs text-ink-faint">
+                    {it.user?.fullName && <span>Por: {it.user.fullName}</span>}
+                    {it.outcome && <span>Resultado: {it.outcome}</span>}
+                    {it.satisfaction != null && (
+                      <span>Satisfação: {it.satisfaction}/5</span>
+                    )}
+                  </div>
                 </div>
-                <p className="text-sm text-gray-600 mt-1">{it.description}</p>
-                <div className="flex gap-4 mt-1 text-xs text-gray-400">
-                  {it.user?.fullName && <span>Por: {it.user.fullName}</span>}
-                  {it.outcome && <span>Resultado: {it.outcome}</span>}
-                  {it.satisfaction != null && (
-                    <span>Satisfação: {it.satisfaction}/5</span>
-                  )}
-                </div>
-              </div>
-            ))
-          )}
-        </div>
+              ))
+            )}
+          </div>
+        </Card>
       </section>
     </div>
   );

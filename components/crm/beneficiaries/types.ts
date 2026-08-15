@@ -92,18 +92,18 @@ export const EMPTY_INTERACTION_FORM: InteractionForm = {
 };
 
 export const STATUS_COLORS: Record<string, string> = {
-  ACTIVE: 'bg-green-100 text-green-800',
-  INACTIVE: 'bg-gray-100 text-gray-600',
-  PROSPECT: 'bg-blue-100 text-blue-800',
-  FORMER: 'bg-yellow-100 text-yellow-800',
-  BLOCKED: 'bg-red-100 text-red-800',
+  ACTIVE: 'bg-success-subtle text-success-ink',
+  INACTIVE: 'bg-surface-sunken text-ink-muted',
+  PROSPECT: 'bg-info-subtle text-info-ink',
+  FORMER: 'bg-warning-subtle text-warning-ink',
+  BLOCKED: 'bg-danger-subtle text-danger-ink',
 };
 
 export const PRIORITY_COLORS: Record<string, string> = {
-  LOW: 'bg-gray-100 text-gray-600',
-  MEDIUM: 'bg-blue-100 text-blue-800',
-  HIGH: 'bg-orange-100 text-orange-800',
-  URGENT: 'bg-red-100 text-red-800',
+  LOW: 'bg-surface-sunken text-ink-muted',
+  MEDIUM: 'bg-info-subtle text-info-ink',
+  HIGH: 'bg-warning-subtle text-warning-ink',
+  URGENT: 'bg-danger-subtle text-danger-ink',
 };
 
 export const PROVINCES = [

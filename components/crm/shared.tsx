@@ -6,6 +6,9 @@
 // project_innova_component_separation_audit.
 
 import type { ReactNode } from 'react';
+import { cn } from '@/lib/cn';
+import { Card, CardBody } from '@/components/ui/Card';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { formatDate as formatDateShared } from '@/lib/format';
 
 export function formatDate(iso: string | null | undefined): string {
@@ -30,8 +33,8 @@ interface InfoProps {
 export function Info({ label, value }: InfoProps) {
   return (
     <div>
-      <p className="text-xs text-gray-400 uppercase">{label}</p>
-      <p className="text-sm text-gray-800">{value || '—'}</p>
+      <p className="font-body text-xs font-medium text-ink-muted uppercase">{label}</p>
+      <p className="font-body text-sm text-ink">{value || '—'}</p>
     </div>
   );
 }
@@ -44,7 +47,7 @@ interface FieldProps {
 export function Field({ label, children }: FieldProps) {
   return (
     <label className="block">
-      <span className="text-xs text-gray-500 uppercase">{label}</span>
+      <span className="font-body text-xs font-medium text-ink-muted uppercase">{label}</span>
       <div className="mt-1">{children}</div>
     </label>
   );
@@ -58,10 +61,12 @@ interface SummaryCardProps {
 
 export function SummaryCard({ label, value, color }: SummaryCardProps) {
   return (
-    <div className="bg-white rounded-lg shadow p-4">
-      <p className="text-xs text-gray-400 uppercase">{label}</p>
-      <p className={`text-lg font-bold ${color}`}>{value}</p>
-    </div>
+    <Card>
+      <CardBody>
+        <p className="font-body text-xs font-medium text-ink-muted uppercase">{label}</p>
+        <p className={cn('font-display text-lg font-bold', color)}>{value}</p>
+      </CardBody>
+    </Card>
   );
 }
 
@@ -71,19 +76,24 @@ interface ListSkeletonProps {
 
 export function ListSkeleton({ rows = 5 }: ListSkeletonProps) {
   return (
-    <div className="p-6 space-y-4">
-      {[...Array(rows)].map((_, i) => (
-        <div key={i} className="h-16 bg-gray-100 rounded-lg animate-pulse" />
-      ))}
+    <div className="p-6">
+      <Skeleton
+        rows={rows}
+        wrapperClassName="space-y-4 animate-pulse"
+        itemClassName="h-16 bg-surface-sunken rounded-card"
+      />
     </div>
   );
 }
 
 export function DetailSkeleton() {
   return (
-    <div className="p-6 space-y-4">
-      <div className="h-24 bg-gray-100 rounded-lg animate-pulse" />
-      <div className="h-64 bg-gray-100 rounded-lg animate-pulse" />
+    <div className="p-6">
+      <Skeleton
+        rows={2}
+        wrapperClassName="space-y-4 animate-pulse"
+        itemClassName={cn('rounded-card bg-surface-sunken', 'first:h-24 last:h-64')}
+      />
     </div>
   );
 }
@@ -96,9 +106,9 @@ interface ErrorBannerProps {
 export function ErrorBanner({ message, onRetry }: ErrorBannerProps) {
   return (
     <div className="p-6">
-      <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-lg flex justify-between">
-        <span>{message}</span>
-        <button onClick={onRetry} className="underline">
+      <div className="rounded-card border border-danger bg-danger-subtle p-4 flex justify-between">
+        <span className="text-danger-ink">{message}</span>
+        <button onClick={onRetry} className="underline text-danger-ink">
           Tentar novamente
         </button>
       </div>

@@ -69,26 +69,26 @@ export interface PartnerDetail {
 }
 
 export const STATUS_COLORS: Record<string, string> = {
-  ACTIVE: 'bg-green-100 text-green-800',
-  INACTIVE: 'bg-gray-100 text-gray-600',
-  NEGOTIATION: 'bg-blue-100 text-blue-800',
-  SUSPENDED: 'bg-red-100 text-red-800',
-  FORMER: 'bg-orange-100 text-orange-700',
+  ACTIVE: 'bg-success-subtle text-success-ink',
+  INACTIVE: 'bg-surface-sunken text-ink-muted',
+  NEGOTIATION: 'bg-info-subtle text-info-ink',
+  SUSPENDED: 'bg-danger-subtle text-danger-ink',
+  FORMER: 'bg-warning-subtle text-warning-ink',
 };
 
 export const TIER_COLORS: Record<string, string> = {
-  PLATINUM: 'bg-purple-100 text-purple-800',
-  GOLD: 'bg-yellow-100 text-yellow-800',
-  SILVER: 'bg-gray-100 text-gray-700',
-  STANDARD: 'bg-blue-50 text-blue-700',
+  PLATINUM: 'bg-accent-subtle text-accent',
+  GOLD: 'bg-warning-subtle text-warning-ink',
+  SILVER: 'bg-surface-sunken text-ink-muted',
+  STANDARD: 'bg-info-subtle text-info-ink',
 };
 
 export const MILESTONE_COLORS: Record<string, string> = {
-  PENDING: 'bg-gray-100 text-gray-600',
-  IN_PROGRESS: 'bg-blue-100 text-blue-800',
-  COMPLETED: 'bg-green-100 text-green-800',
-  CANCELLED: 'bg-red-100 text-red-700',
-  OVERDUE: 'bg-orange-100 text-orange-800',
+  PENDING: 'bg-surface-sunken text-ink-muted',
+  IN_PROGRESS: 'bg-info-subtle text-info-ink',
+  COMPLETED: 'bg-success-subtle text-success-ink',
+  CANCELLED: 'bg-danger-subtle text-danger-ink',
+  OVERDUE: 'bg-warning-subtle text-warning-ink',
 };
 
 export const TYPES = [

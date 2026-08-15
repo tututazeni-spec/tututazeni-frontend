@@ -81,19 +81,19 @@ export interface OverdueReport {
 }
 
 export const STATUS_COLORS: Record<string, string> = {
-  ACTIVE: 'bg-green-100 text-green-800',
-  INACTIVE: 'bg-gray-100 text-gray-600',
-  PROSPECT: 'bg-blue-100 text-blue-800',
-  SUSPENDED: 'bg-red-100 text-red-800',
-  FORMER: 'bg-orange-100 text-orange-700',
+  ACTIVE: 'bg-success-subtle text-success-ink',
+  INACTIVE: 'bg-surface-sunken text-ink-muted',
+  PROSPECT: 'bg-info-subtle text-info-ink',
+  SUSPENDED: 'bg-danger-subtle text-danger-ink',
+  FORMER: 'bg-warning-subtle text-warning-ink',
 };
 
 export const REPORT_COLORS: Record<string, string> = {
-  PENDING: 'bg-gray-100 text-gray-600',
-  SUBMITTED: 'bg-blue-100 text-blue-800',
-  APPROVED: 'bg-green-100 text-green-800',
-  REJECTED: 'bg-red-100 text-red-700',
-  OVERDUE: 'bg-orange-100 text-orange-800',
+  PENDING: 'bg-surface-sunken text-ink-muted',
+  SUBMITTED: 'bg-info-subtle text-info-ink',
+  APPROVED: 'bg-success-subtle text-success-ink',
+  REJECTED: 'bg-danger-subtle text-danger-ink',
+  OVERDUE: 'bg-warning-subtle text-warning-ink',
 };
 
 export const TYPE_LABELS: Record<string, string> = {
