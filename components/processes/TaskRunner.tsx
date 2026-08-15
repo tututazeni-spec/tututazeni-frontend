@@ -8,12 +8,17 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { ArrowLeft, Check, CheckCircle2, Paperclip, X } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { formatDate as fmtDate } from '@/lib/format';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { ProgressBar } from '@/components/ui/ProgressBar';
 import { StatusBadge } from '@/components/ui/StatusBadge';
+import { Textarea } from '@/components/ui/Textarea';
 import {
   isOverdue,
   INSTANCE_STATUS_MAP,
@@ -96,12 +101,13 @@ export function TaskRunner({ instanceId, onBack }: TaskRunnerProps) {
   if (error || !instance)
     return (
       <div className="py-12 text-center">
-        <p className="text-sm text-red-500 mb-4">
+        <p className="mb-4 font-body text-sm text-danger">
           {error?.message ?? 'Instância não encontrada'}
         </p>
-        <button onClick={onBack} className="text-sm text-blue-600 underline">
-          ← Voltar
-        </button>
+        <Button intent="ghost" size="sm" onClick={onBack}>
+          <ArrowLeft size={14} strokeWidth={1.75} />
+          Voltar
+        </Button>
       </div>
     );
 
@@ -114,19 +120,17 @@ export function TaskRunner({ instanceId, onBack }: TaskRunnerProps) {
 
   return (
     <div>
-      <button
-        onClick={onBack}
-        className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-800 mb-5"
-      >
-        ← Voltar
-      </button>
+      <Button intent="ghost" size="sm" onClick={onBack} className="mb-5">
+        <ArrowLeft size={14} strokeWidth={1.75} />
+        Voltar
+      </Button>
 
       {/* Instance header */}
-      <div className="bg-white border border-gray-200 rounded-xl p-5 mb-5">
-        <div className="flex items-start justify-between mb-3">
+      <Card className="mb-5 p-5">
+        <div className="mb-3 flex items-start justify-between">
           <div>
-            <div className="flex items-center gap-2 mb-1">
-              <span className="font-mono text-sm text-gray-400">
+            <div className="mb-1 flex items-center gap-2">
+              <span className="font-mono text-sm text-ink-faint">
                 {instance.process.code}
               </span>
               <StatusBadge
@@ -139,19 +143,24 @@ export function TaskRunner({ instanceId, onBack }: TaskRunnerProps) {
                 map={RISK_LEVEL_MAP}
               />
             </div>
-            <div className="text-base font-semibold text-gray-900">
+            <div className="font-display text-base font-semibold text-ink">
               {instance.process.title}
             </div>
-            <div className="text-xs text-gray-400 mt-1">
-              Colaborador: <strong>{instance.targetUser.fullName}</strong>
+            <div className="mt-1 font-body text-xs text-ink-faint">
+              Colaborador:{' '}
+              <strong className="text-ink">
+                {instance.targetUser.fullName}
+              </strong>
               &nbsp;·&nbsp; Iniciado por:{' '}
-              <strong>{instance.initiatedBy.fullName}</strong>
+              <strong className="text-ink">
+                {instance.initiatedBy.fullName}
+              </strong>
               &nbsp;·&nbsp; {fmtDate(instance.startedAt)}
             </div>
           </div>
           {instance.slaDeadline && (
             <div
-              className={`text-xs px-3 py-1 rounded-lg font-medium ${isOverdue(instance.slaDeadline) ? 'bg-red-50 text-red-700' : 'bg-amber-50 text-amber-700'}`}
+              className={`rounded-control px-3 py-1 font-body text-xs font-medium ${isOverdue(instance.slaDeadline) ? 'bg-danger-subtle text-danger-ink' : 'bg-warning-subtle text-warning-ink'}`}
             >
               {isOverdue(instance.slaDeadline)
                 ? '⚠ SLA expirado'
@@ -161,25 +170,20 @@ export function TaskRunner({ instanceId, onBack }: TaskRunnerProps) {
         </div>
         {/* Progress bar */}
         <div className="flex items-center gap-3">
-          <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
-            <div
-              className="h-full bg-blue-600 rounded-full transition-all duration-500"
-              style={{ width: `${progressPct}%` }}
-            />
-          </div>
-          <span className="text-xs font-mono text-gray-500">
+          <ProgressBar value={progressPct} className="flex-1" />
+          <span className="font-mono text-xs text-ink-muted">
             {completedCount}/{totalCount} etapas
           </span>
-          <span className="text-xs font-medium text-gray-700">
+          <span className="font-body text-xs font-medium text-ink">
             {progressPct}%
           </span>
         </div>
-      </div>
+      </Card>
 
       <div className="grid grid-cols-[280px_1fr] gap-5">
         {/* Timeline */}
-        <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-          <div className="px-4 py-3 border-b border-gray-100 text-xs font-medium text-gray-400 uppercase tracking-wide">
+        <div className="overflow-hidden rounded-card border border-border bg-surface">
+          <div className="border-b border-border px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
             Etapas
           </div>
           {instance.stepProgress.map((sp, idx) => {
@@ -190,41 +194,49 @@ export function TaskRunner({ instanceId, onBack }: TaskRunnerProps) {
             return (
               <div
                 key={sp.id}
-                className={`flex items-center gap-3 px-4 py-3 border-b border-gray-100 last:border-0 cursor-pointer transition-colors ${
-                  isActive ? 'bg-blue-50' : 'hover:bg-gray-50'
+                className={`flex cursor-pointer items-center gap-3 border-b border-border px-4 py-3 transition-colors last:border-0 ${
+                  isActive ? 'bg-primary-subtle' : 'hover:bg-surface-sunken'
                 }`}
                 onClick={() => {
                   if (!isDone) setActiveStep(sp);
                 }}
               >
                 <div
-                  className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold flex-shrink-0 ${
+                  className={`flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full font-body text-xs font-semibold ${
                     isDone
-                      ? 'bg-emerald-100 text-emerald-700'
+                      ? 'bg-success-subtle text-success-ink'
                       : isRejected
-                        ? 'bg-red-100 text-red-700'
+                        ? 'bg-danger-subtle text-danger-ink'
                         : isActive
-                          ? 'bg-blue-600 text-white'
-                          : 'bg-gray-100 text-gray-400'
+                          ? 'bg-primary text-canvas'
+                          : 'bg-surface-sunken text-ink-faint'
                   }`}
                 >
-                  {isDone ? '✓' : isRejected ? '✗' : idx + 1}
+                  {isDone ? (
+                    <Check size={12} strokeWidth={1.75} />
+                  ) : isRejected ? (
+                    <X size={12} strokeWidth={1.75} />
+                  ) : (
+                    idx + 1
+                  )}
                 </div>
-                <div className="flex-1 min-w-0">
+                <div className="min-w-0 flex-1">
                   <div
-                    className={`text-xs font-medium truncate ${isActive ? 'text-blue-800' : 'text-gray-700'}`}
+                    className={`truncate font-body text-xs font-medium ${isActive ? 'text-primary' : 'text-ink-muted'}`}
                   >
                     {sp.step.title}
                   </div>
                   {sp.completedAt && (
-                    <div className="text-xs text-gray-400">
+                    <div className="font-body text-xs text-ink-faint">
                       {fmtDate(sp.completedAt)}
                     </div>
                   )}
                   {sp.slaDeadline &&
                     sp.status === 'PENDING' &&
                     isOverdue(sp.slaDeadline) && (
-                      <div className="text-xs text-red-500">⚠ SLA expirado</div>
+                      <div className="font-body text-xs text-danger">
+                        ⚠ SLA expirado
+                      </div>
                     )}
                 </div>
               </div>
@@ -235,15 +247,15 @@ export function TaskRunner({ instanceId, onBack }: TaskRunnerProps) {
         {/* Executar etapa activa */}
         <div>
           {activeStep && activeStep.status === 'PENDING' ? (
-            <div className="bg-white border border-gray-200 rounded-xl p-5">
-              <div className="flex items-center gap-2 mb-1">
+            <Card className="p-5">
+              <div className="mb-1 flex items-center gap-2">
                 <StatusBadge value={activeStep.step.type} map={STEP_TYPE_MAP} />
-                <span className="text-base font-semibold text-gray-900">
+                <span className="font-display text-base font-semibold text-ink">
                   {activeStep.step.title}
                 </span>
               </div>
               {activeStep.step.description && (
-                <p className="text-sm text-gray-500 mb-4">
+                <p className="mb-4 font-body text-sm text-ink-muted">
                   {activeStep.step.description}
                 </p>
               )}
@@ -251,7 +263,7 @@ export function TaskRunner({ instanceId, onBack }: TaskRunnerProps) {
               {/* SLA */}
               {activeStep.slaDeadline && (
                 <div
-                  className={`mb-4 px-3 py-2 rounded-lg text-xs ${isOverdue(activeStep.slaDeadline) ? 'bg-red-50 text-red-700' : 'bg-amber-50 text-amber-700'}`}
+                  className={`mb-4 rounded-control px-3 py-2 font-body text-xs ${isOverdue(activeStep.slaDeadline) ? 'bg-danger-subtle text-danger-ink' : 'bg-warning-subtle text-warning-ink'}`}
                 >
                   SLA: {fmtDate(activeStep.slaDeadline)}
                   {isOverdue(activeStep.slaDeadline) && ' — EXPIRADO'}
@@ -261,20 +273,20 @@ export function TaskRunner({ instanceId, onBack }: TaskRunnerProps) {
               {/* Checklist */}
               {activeStep.step.checklist.length > 0 && (
                 <div className="mb-4">
-                  <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-2">
+                  <div className="mb-2 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
                     Checklist
                   </div>
                   <div className="space-y-2">
                     {activeStep.step.checklist.map((item, i) => (
                       <label
                         key={i}
-                        className="flex items-start gap-2 cursor-pointer group"
+                        className="group flex cursor-pointer items-start gap-2"
                       >
                         <input
                           type="checkbox"
-                          className="mt-0.5 w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                          className="mt-0.5 h-4 w-4 rounded border-border-strong accent-primary"
                         />
-                        <span className="text-sm text-gray-600 group-has-[:checked]:line-through group-has-[:checked]:text-gray-400">
+                        <span className="font-body text-sm text-ink-muted group-has-[:checked]:text-ink-faint group-has-[:checked]:line-through">
                           {item}
                         </span>
                       </label>
@@ -285,65 +297,72 @@ export function TaskRunner({ instanceId, onBack }: TaskRunnerProps) {
 
               {/* Upload obrigatório */}
               {activeStep.step.requiresUpload && (
-                <div className="mb-4 border-2 border-dashed border-gray-200 rounded-xl p-6 text-center">
-                  <div className="text-2xl mb-2">📎</div>
-                  <div className="text-sm font-medium text-gray-700 mb-1">
+                <div className="mb-4 rounded-card border-2 border-dashed border-border-strong p-6 text-center">
+                  <Paperclip
+                    size={24}
+                    strokeWidth={1.75}
+                    className="mx-auto mb-2 text-ink-faint"
+                  />
+                  <div className="mb-1 font-body text-sm font-medium text-ink-muted">
                     Upload de evidência obrigatório
                   </div>
-                  <button className="text-xs text-blue-600 underline">
+                  <Button intent="ghost" size="sm">
                     Seleccionar ficheiro
-                  </button>
+                  </Button>
                 </div>
               )}
 
               {/* Notas */}
               <div className="mb-4">
-                <label className="block text-xs font-medium text-gray-400 uppercase tracking-wide mb-1.5">
+                <label className="mb-1.5 block font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
                   Notas / Observações
                 </label>
-                <textarea
+                <Textarea
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   rows={3}
-                  className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                  className="w-full resize-none"
                   placeholder="Adicione observações sobre a execução desta etapa…"
                 />
               </div>
 
               {/* Acções */}
               <div className="flex gap-3">
-                <button
+                <Button
                   onClick={completeStep}
-                  disabled={completing}
-                  className="flex-1 py-2.5 bg-blue-700 text-white text-sm font-medium rounded-lg hover:bg-blue-800 disabled:opacity-50"
+                  loading={completing}
+                  className="flex-1"
                 >
-                  {completing ? 'A concluir…' : '✓ Marcar como concluída'}
-                </button>
-                <button
-                  onClick={rejectStep}
-                  className="px-4 py-2.5 border border-red-200 text-red-600 text-sm rounded-lg hover:bg-red-50"
-                >
-                  ✗ Rejeitar
-                </button>
+                  <Check size={14} strokeWidth={1.75} />
+                  Marcar como concluída
+                </Button>
+                <Button intent="danger" onClick={rejectStep}>
+                  <X size={14} strokeWidth={1.75} />
+                  Rejeitar
+                </Button>
               </div>
-            </div>
+            </Card>
           ) : instance.status === 'COMPLETED' ? (
-            <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-8 text-center">
-              <div className="text-3xl mb-3">✅</div>
-              <div className="text-base font-semibold text-emerald-800">
+            <div className="rounded-card border border-success/30 bg-success-subtle p-8 text-center">
+              <CheckCircle2
+                size={32}
+                strokeWidth={1.75}
+                className="mx-auto mb-3 text-success"
+              />
+              <div className="font-display text-base font-semibold text-success-ink">
                 Processo concluído!
               </div>
-              <div className="text-sm text-emerald-600 mt-1">
+              <div className="mt-1 font-body text-sm text-success-ink">
                 Todas as etapas foram executadas com sucesso.
               </div>
               {instance.completedAt && (
-                <div className="text-xs text-emerald-500 mt-2">
+                <div className="mt-2 font-body text-xs text-success-ink">
                   Concluído em {fmtDate(instance.completedAt)}
                 </div>
               )}
             </div>
           ) : activeStep ? (
-            <div className="bg-gray-50 border border-gray-200 rounded-xl p-8 text-center text-sm text-gray-400">
+            <div className="rounded-card border border-border bg-surface-sunken p-8 text-center font-body text-sm text-ink-faint">
               Seleccione uma etapa pendente para executar
             </div>
           ) : null}

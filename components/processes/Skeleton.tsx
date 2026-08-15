@@ -13,7 +13,7 @@ export function Skeleton({ rows = 5 }: SkeletonProps) {
     <SharedSkeleton
       rows={rows}
       wrapperClassName="space-y-2 animate-pulse"
-      itemClassName="h-14 bg-gray-100 rounded-xl"
+      itemClassName="h-14 bg-surface-sunken rounded-card"
     />
   );
 }

@@ -5,10 +5,12 @@
 
 'use client';
 
+import { PartyPopper } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { formatDate as fmtDate } from '@/lib/format';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { isOverdue, STEP_TYPE_MAP } from './constants';
 import { Skeleton } from './Skeleton';
@@ -30,18 +32,21 @@ export function MyTasksView({ onOpenInstance }: MyTasksViewProps) {
   );
 
   if (isLoading) return <Skeleton rows={4} />;
-  if (error) return <div className="text-sm text-red-500">{error.message}</div>;
+  if (error)
+    return <div className="font-body text-sm text-danger">{error.message}</div>;
 
   if (tasks.length === 0)
     return (
-      <div className="py-12 text-center text-sm text-gray-400 border border-dashed border-gray-200 rounded-xl">
-        Sem tarefas pendentes 🎉
-      </div>
+      <EmptyState
+        icon={PartyPopper}
+        title="Sem tarefas pendentes"
+        description="Não há etapas atribuídas a si de momento."
+      />
     );
 
   return (
-    <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-      <div className="grid grid-cols-[1fr_160px_100px_120px] gap-3 px-4 py-2.5 border-b border-gray-100 text-xs font-medium text-gray-400 uppercase tracking-wide">
+    <div className="overflow-hidden rounded-card border border-border bg-surface">
+      <div className="grid grid-cols-[1fr_160px_100px_120px] gap-3 border-b border-border px-4 py-2.5 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
         <div>Tarefa / Processo</div>
         <div>Colaborador</div>
         <div>Tipo</div>
@@ -50,18 +55,18 @@ export function MyTasksView({ onOpenInstance }: MyTasksViewProps) {
       {tasks.map((t) => (
         <div
           key={t.id}
-          className="grid grid-cols-[1fr_160px_100px_120px] gap-3 items-center px-4 py-3.5 border-b border-gray-100 hover:bg-gray-50 cursor-pointer last:border-0"
+          className="grid cursor-pointer grid-cols-[1fr_160px_100px_120px] items-center gap-3 border-b border-border px-4 py-3.5 last:border-0 hover:bg-surface-sunken"
           onClick={() => onOpenInstance(t.instance.id)}
         >
           <div>
-            <div className="text-sm font-medium text-gray-900">
+            <div className="font-body text-sm font-medium text-ink">
               {t.step.title}
             </div>
-            <div className="text-xs text-gray-400 mt-0.5">
+            <div className="mt-0.5 font-body text-xs text-ink-faint">
               {t.instance.process.code} — {t.instance.process.title}
             </div>
           </div>
-          <div className="text-sm text-gray-600">
+          <div className="font-body text-sm text-ink-muted">
             {t.instance.targetUser.fullName}
           </div>
           <div>
@@ -70,14 +75,14 @@ export function MyTasksView({ onOpenInstance }: MyTasksViewProps) {
           <div>
             {t.slaDeadline ? (
               <span
-                className={`text-xs font-medium ${isOverdue(t.slaDeadline) ? 'text-red-600' : 'text-amber-700'}`}
+                className={`font-body text-xs font-medium ${isOverdue(t.slaDeadline) ? 'text-danger' : 'text-warning-ink'}`}
               >
                 {isOverdue(t.slaDeadline)
                   ? '⚠ Expirado'
                   : fmtDate(t.slaDeadline)}
               </span>
             ) : (
-              <span className="text-xs text-gray-400">—</span>
+              <span className="font-body text-xs text-ink-faint">—</span>
             )}
           </div>
         </div>

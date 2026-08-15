@@ -8,13 +8,17 @@
 'use client';
 
 import { useState } from 'react';
+import { ArrowLeft, Check, Paperclip, Play, Plus, Send, X } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { formatDate as fmtDate } from '@/lib/format';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
 import { StatusBadge } from '@/components/ui/StatusBadge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
 import {
   fmtDuration,
   PROCESS_STATUS_MAP,
@@ -126,33 +130,32 @@ export function ProcessViewer({
   if (error || !process)
     return (
       <div className="py-12 text-center">
-        <p className="text-sm text-red-500 mb-4">
+        <p className="mb-4 font-body text-sm text-danger">
           {error?.message ?? 'Processo não encontrado'}
         </p>
-        <button onClick={onBack} className="text-sm text-blue-600 underline">
-          ← Voltar
-        </button>
+        <Button intent="ghost" size="sm" onClick={onBack}>
+          <ArrowLeft size={14} strokeWidth={1.75} />
+          Voltar
+        </Button>
       </div>
     );
 
   return (
     <div>
-      <button
-        onClick={onBack}
-        className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-800 mb-5"
-      >
-        ← Voltar à biblioteca
-      </button>
+      <Button intent="ghost" size="sm" onClick={onBack} className="mb-5">
+        <ArrowLeft size={14} strokeWidth={1.75} />
+        Voltar à biblioteca
+      </Button>
 
       {/* Header */}
-      <div className="bg-white border border-gray-200 rounded-xl p-5 mb-5">
+      <Card className="mb-5 p-5">
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1">
-            <div className="flex items-center gap-3 flex-wrap mb-2">
-              <span className="font-mono text-sm text-gray-400">
+            <div className="mb-2 flex flex-wrap items-center gap-3">
+              <span className="font-mono text-sm text-ink-faint">
                 {process.code}
               </span>
-              <span className="text-xs font-mono bg-gray-100 text-gray-600 px-2 py-0.5 rounded">
+              <span className="rounded-control bg-surface-sunken px-2 py-0.5 font-mono text-xs text-ink-muted">
                 v{process.version}
               </span>
               <StatusBadge
@@ -162,25 +165,23 @@ export function ProcessViewer({
               />
               <StatusBadge value={process.riskLevel} map={RISK_LEVEL_MAP} />
             </div>
-            <h2 className="text-lg font-semibold text-gray-900">
+            <h2 className="font-display text-lg font-semibold text-ink">
               {process.title}
             </h2>
             {process.description && (
-              <p className="text-sm text-gray-500 mt-1">
+              <p className="mt-1 font-body text-sm text-ink-muted">
                 {process.description}
               </p>
             )}
-            <div className="flex flex-wrap gap-3 mt-3 text-xs text-gray-400">
+            <div className="mt-3 flex flex-wrap gap-3 font-body text-xs text-ink-faint">
               <span>
                 Responsável:{' '}
-                <strong className="text-gray-700">
-                  {process.owner.fullName}
-                </strong>
+                <strong className="text-ink">{process.owner.fullName}</strong>
               </span>
               {process.department && (
                 <span>
                   Depto:{' '}
-                  <strong className="text-gray-700">
+                  <strong className="text-ink">
                     {process.department.name}
                   </strong>
                 </span>
@@ -188,7 +189,7 @@ export function ProcessViewer({
               {process.estimatedMinutes && (
                 <span>
                   Duração est.:{' '}
-                  <strong className="text-gray-700">
+                  <strong className="text-ink">
                     {fmtDuration(process.estimatedMinutes)}
                   </strong>
                 </span>
@@ -196,24 +197,22 @@ export function ProcessViewer({
               {process.defaultSlaHours && (
                 <span>
                   SLA:{' '}
-                  <strong className="text-gray-700">
+                  <strong className="text-ink">
                     {process.defaultSlaHours}h
                   </strong>
                 </span>
               )}
               <span>
                 Instâncias:{' '}
-                <strong className="text-gray-700">
-                  {process._count.instances}
-                </strong>
+                <strong className="text-ink">{process._count.instances}</strong>
               </span>
             </div>
             {process.tags.length > 0 && (
-              <div className="flex gap-1.5 mt-3 flex-wrap">
+              <div className="mt-3 flex flex-wrap gap-1.5">
                 {process.tags.map((t) => (
                   <span
                     key={t}
-                    className="px-2 py-0.5 bg-blue-50 text-blue-600 text-xs rounded"
+                    className="rounded-control bg-info-subtle px-2 py-0.5 font-body text-xs text-info-ink"
                   >
                     {t}
                   </span>
@@ -223,240 +222,255 @@ export function ProcessViewer({
           </div>
 
           {/* Acções */}
-          <div className="flex flex-col gap-2 items-end flex-shrink-0">
+          <div className="flex flex-shrink-0 flex-col items-end gap-2">
             {process.status === 'ACTIVE' && (
-              <button
+              <Button
                 onClick={handleStartInstance}
                 disabled={actionLoading}
-                className="px-4 py-2 bg-blue-700 text-white text-sm font-medium rounded-lg hover:bg-blue-800 disabled:opacity-50"
+                size="sm"
               >
-                ▶ Iniciar instância
-              </button>
+                <Play size={14} strokeWidth={1.75} />
+                Iniciar instância
+              </Button>
             )}
             {process.status === 'DRAFT' && (
-              <button
+              <Button
+                intent="warning"
                 onClick={handleSubmitReview}
                 disabled={submitting}
-                className="px-4 py-2 bg-amber-600 text-white text-sm font-medium rounded-lg hover:bg-amber-700 disabled:opacity-50"
+                size="sm"
               >
-                {submitting ? 'A submeter…' : '→ Submeter para revisão'}
-              </button>
+                <Send size={14} strokeWidth={1.75} />
+                {submitting ? 'A submeter…' : 'Submeter para revisão'}
+              </Button>
             )}
             {process.status === 'IN_REVIEW' && (
               <div className="flex gap-2">
-                <button
+                <Button
+                  intent="success"
+                  size="sm"
                   onClick={() => handleApproval('approve')}
                   disabled={actionLoading}
-                  className="px-4 py-2 bg-emerald-600 text-white text-sm font-medium rounded-lg hover:bg-emerald-700 disabled:opacity-50"
                 >
-                  ✓ Aprovar
-                </button>
-                <button
+                  <Check size={14} strokeWidth={1.75} />
+                  Aprovar
+                </Button>
+                <Button
+                  intent="danger"
+                  size="sm"
                   onClick={() => handleApproval('reject')}
                   disabled={actionLoading}
-                  className="px-4 py-2 border border-red-300 text-red-600 text-sm rounded-lg hover:bg-red-50 disabled:opacity-50"
                 >
-                  ✗ Rejeitar
-                </button>
+                  <X size={14} strokeWidth={1.75} />
+                  Rejeitar
+                </Button>
               </div>
             )}
             {process.status === 'ACTIVE' && (
-              <button
+              <Button
+                intent="secondary"
+                size="sm"
                 onClick={handleNewVersion}
                 disabled={actionLoading}
-                className="px-3 py-1.5 text-xs border border-gray-200 rounded-lg hover:bg-gray-50"
               >
-                + Nova versão
-              </button>
+                <Plus size={14} strokeWidth={1.75} />
+                Nova versão
+              </Button>
             )}
           </div>
         </div>
-      </div>
+      </Card>
 
       {/* Tabs */}
-      <div className="flex gap-1 mb-5 bg-gray-100 p-1 rounded-xl w-fit">
-        {(['flow', 'info', 'history'] as const).map((tab) => (
-          <button
-            key={tab}
-            onClick={() => setActiveTab(tab)}
-            className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-              activeTab === tab
-                ? 'bg-white text-gray-900 shadow-sm'
-                : 'text-gray-500 hover:text-gray-700'
-            }`}
-          >
-            {{ flow: 'Fluxo', info: 'Detalhes', history: 'Versões' }[tab]}
-          </button>
-        ))}
-      </div>
+      <Tabs
+        value={activeTab}
+        onValueChange={(v) => setActiveTab(v as typeof activeTab)}
+      >
+        <TabsList className="mb-5 w-fit">
+          <TabsTrigger value="flow">Fluxo</TabsTrigger>
+          <TabsTrigger value="info">Detalhes</TabsTrigger>
+          <TabsTrigger value="history">Versões</TabsTrigger>
+        </TabsList>
 
-      {/* Flow tab */}
-      {activeTab === 'flow' && (
-        <div className="space-y-2">
-          {process.steps.length === 0 && (
-            <div className="py-12 text-center text-sm text-gray-400 border border-dashed border-gray-200 rounded-xl">
-              Sem etapas definidas. Edite o processo para adicionar etapas.
-            </div>
-          )}
-          {process.steps.map((step, idx) => (
-            <div key={step.id} className="flex gap-3 items-start">
-              {/* Connector */}
-              <div className="flex flex-col items-center flex-shrink-0 pt-1">
-                <div
-                  className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold border-2 ${
-                    step.type === 'START'
-                      ? 'bg-emerald-100 border-emerald-400 text-emerald-700'
-                      : step.type === 'END'
-                        ? 'bg-gray-100 border-gray-400 text-gray-600'
-                        : 'bg-blue-50 border-blue-300 text-blue-700'
-                  }`}
-                >
-                  {idx + 1}
-                </div>
-                {idx < process.steps.length - 1 && (
-                  <div className="w-0.5 h-4 bg-gray-200 mt-1" />
-                )}
+        {/* Flow tab */}
+        <TabsContent value="flow">
+          <div className="space-y-2">
+            {process.steps.length === 0 && (
+              <div className="rounded-card border border-dashed border-border-strong py-12 text-center font-body text-sm text-ink-faint">
+                Sem etapas definidas. Edite o processo para adicionar etapas.
               </div>
-
-              {/* Step card */}
-              <div className="flex-1 bg-white border border-gray-200 rounded-xl p-4 mb-2">
-                <div className="flex items-start justify-between gap-3 flex-wrap">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <StatusBadge value={step.type} map={STEP_TYPE_MAP} />
-                      <span className="text-sm font-medium text-gray-900">
-                        {step.title}
-                      </span>
-                    </div>
-                    {step.description && (
-                      <p className="text-xs text-gray-500 mb-2">
-                        {step.description}
-                      </p>
-                    )}
-                    <div className="flex flex-wrap gap-3 text-xs text-gray-400">
-                      {step.responsible && (
-                        <span>
-                          Responsável:{' '}
-                          <strong className="text-gray-700">
-                            {step.responsible.fullName}
-                          </strong>
-                        </span>
-                      )}
-                      {step.responsibleRole && (
-                        <span>
-                          Role:{' '}
-                          <strong className="text-gray-700">
-                            {step.responsibleRole}
-                          </strong>
-                        </span>
-                      )}
-                      {step.slaHours && (
-                        <span>
-                          SLA:{' '}
-                          <strong className="text-gray-700">
-                            {step.slaHours}h
-                          </strong>
-                        </span>
-                      )}
-                      {step.estimatedMinutes && (
-                        <span>
-                          Tempo est.:{' '}
-                          <strong className="text-gray-700">
-                            {fmtDuration(step.estimatedMinutes)}
-                          </strong>
-                        </span>
-                      )}
-                    </div>
-                    {step.checklist.length > 0 && (
-                      <div className="mt-2 space-y-1">
-                        {step.checklist.map((item, i) => (
-                          <div
-                            key={i}
-                            className="flex items-center gap-2 text-xs text-gray-500"
-                          >
-                            <div className="w-3.5 h-3.5 border border-gray-300 rounded flex-shrink-0" />
-                            {item}
-                          </div>
-                        ))}
-                      </div>
-                    )}
+            )}
+            {process.steps.map((step, idx) => (
+              <div key={step.id} className="flex items-start gap-3">
+                {/* Connector */}
+                <div className="flex flex-shrink-0 flex-col items-center pt-1">
+                  <div
+                    className={`flex h-7 w-7 items-center justify-center rounded-full border-2 font-body text-xs font-semibold ${
+                      step.type === 'START'
+                        ? 'border-success bg-success-subtle text-success-ink'
+                        : step.type === 'END'
+                          ? 'border-border-strong bg-surface-sunken text-ink-muted'
+                          : 'border-info bg-info-subtle text-info-ink'
+                    }`}
+                  >
+                    {idx + 1}
                   </div>
-                  {step.requiresUpload && (
-                    <span className="text-xs px-2 py-0.5 bg-amber-50 text-amber-700 rounded flex-shrink-0">
-                      📎 Upload obrigatório
-                    </span>
+                  {idx < process.steps.length - 1 && (
+                    <div className="mt-1 h-4 w-0.5 bg-border" />
                   )}
                 </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
 
-      {/* Info tab */}
-      {activeTab === 'info' && (
-        <div className="grid grid-cols-2 gap-5">
-          <div className="bg-white border border-gray-200 rounded-xl p-5">
-            <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">
-              Objetivo e âmbito
-            </div>
-            {process.objective && (
-              <div className="mb-3">
-                <div className="text-xs text-gray-400 mb-1">Objetivo</div>
-                <p className="text-sm text-gray-700">{process.objective}</p>
-              </div>
-            )}
-            {process.scope && (
-              <div>
-                <div className="text-xs text-gray-400 mb-1">Âmbito</div>
-                <p className="text-sm text-gray-700">{process.scope}</p>
-              </div>
-            )}
-          </div>
-          <div className="bg-white border border-gray-200 rounded-xl p-5">
-            <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">
-              Datas e SLA
-            </div>
-            {[
-              ['Criado em', fmtDate(process.createdAt)],
-              ['Actualizado', fmtDate(process.updatedAt)],
-              ['Publicado', fmtDate(process.publishedAt)],
-              ['Próxima revisão', fmtDate(process.nextReviewDate)],
-              [
-                'SLA padrão',
-                process.defaultSlaHours ? `${process.defaultSlaHours}h` : '—',
-              ],
-              ['Duração estimada', fmtDuration(process.estimatedMinutes)],
-            ].map(([label, value]) => (
-              <div
-                key={label}
-                className="flex justify-between py-1.5 border-b border-gray-100 last:border-0"
-              >
-                <span className="text-xs text-gray-500">{label}</span>
-                <span className="text-xs font-medium text-gray-900">
-                  {value}
-                </span>
+                {/* Step card */}
+                <div className="mb-2 flex-1 rounded-card border border-border bg-surface p-4">
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div className="flex-1">
+                      <div className="mb-1 flex items-center gap-2">
+                        <StatusBadge value={step.type} map={STEP_TYPE_MAP} />
+                        <span className="font-body text-sm font-medium text-ink">
+                          {step.title}
+                        </span>
+                      </div>
+                      {step.description && (
+                        <p className="mb-2 font-body text-xs text-ink-muted">
+                          {step.description}
+                        </p>
+                      )}
+                      <div className="flex flex-wrap gap-3 font-body text-xs text-ink-faint">
+                        {step.responsible && (
+                          <span>
+                            Responsável:{' '}
+                            <strong className="text-ink">
+                              {step.responsible.fullName}
+                            </strong>
+                          </span>
+                        )}
+                        {step.responsibleRole && (
+                          <span>
+                            Role:{' '}
+                            <strong className="text-ink">
+                              {step.responsibleRole}
+                            </strong>
+                          </span>
+                        )}
+                        {step.slaHours && (
+                          <span>
+                            SLA:{' '}
+                            <strong className="text-ink">
+                              {step.slaHours}h
+                            </strong>
+                          </span>
+                        )}
+                        {step.estimatedMinutes && (
+                          <span>
+                            Tempo est.:{' '}
+                            <strong className="text-ink">
+                              {fmtDuration(step.estimatedMinutes)}
+                            </strong>
+                          </span>
+                        )}
+                      </div>
+                      {step.checklist.length > 0 && (
+                        <div className="mt-2 space-y-1">
+                          {step.checklist.map((item, i) => (
+                            <div
+                              key={i}
+                              className="flex items-center gap-2 font-body text-xs text-ink-muted"
+                            >
+                              <div className="h-3.5 w-3.5 flex-shrink-0 rounded-control border border-border-strong" />
+                              {item}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    {step.requiresUpload && (
+                      <span className="flex flex-shrink-0 items-center gap-1 rounded-control bg-warning-subtle px-2 py-0.5 font-body text-xs text-warning-ink">
+                        <Paperclip size={12} strokeWidth={1.75} />
+                        Upload obrigatório
+                      </span>
+                    )}
+                  </div>
+                </div>
               </div>
             ))}
           </div>
-        </div>
-      )}
+        </TabsContent>
 
-      {/* History tab */}
-      {activeTab === 'history' && (
-        <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-          <div className="px-4 py-3 border-b border-gray-100 text-xs font-medium text-gray-400 uppercase tracking-wide">
-            Histórico de versões
+        {/* Info tab */}
+        <TabsContent value="info">
+          <div className="grid grid-cols-2 gap-5">
+            <Card className="p-5">
+              <div className="mb-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+                Objetivo e âmbito
+              </div>
+              {process.objective && (
+                <div className="mb-3">
+                  <div className="mb-1 font-body text-xs text-ink-faint">
+                    Objetivo
+                  </div>
+                  <p className="font-body text-sm text-ink">
+                    {process.objective}
+                  </p>
+                </div>
+              )}
+              {process.scope && (
+                <div>
+                  <div className="mb-1 font-body text-xs text-ink-faint">
+                    Âmbito
+                  </div>
+                  <p className="font-body text-sm text-ink">{process.scope}</p>
+                </div>
+              )}
+            </Card>
+            <Card className="p-5">
+              <div className="mb-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+                Datas e SLA
+              </div>
+              {[
+                ['Criado em', fmtDate(process.createdAt)],
+                ['Actualizado', fmtDate(process.updatedAt)],
+                ['Publicado', fmtDate(process.publishedAt)],
+                ['Próxima revisão', fmtDate(process.nextReviewDate)],
+                [
+                  'SLA padrão',
+                  process.defaultSlaHours ? `${process.defaultSlaHours}h` : '—',
+                ],
+                ['Duração estimada', fmtDuration(process.estimatedMinutes)],
+              ].map(([label, value]) => (
+                <div
+                  key={label}
+                  className="flex justify-between border-b border-border py-1.5 last:border-0"
+                >
+                  <span className="font-body text-xs text-ink-muted">
+                    {label}
+                  </span>
+                  <span className="font-body text-xs font-medium text-ink">
+                    {value}
+                  </span>
+                </div>
+              ))}
+            </Card>
           </div>
-          <div className="px-4 py-8 text-center text-sm text-gray-400">
-            Versão actual: <strong>v{process.version}</strong>
-            <br />
-            <span className="text-xs mt-1 block">
-              Versões anteriores guardadas no servidor. Use a API para comparar.
-            </span>
+        </TabsContent>
+
+        {/* History tab */}
+        <TabsContent value="history">
+          <div className="overflow-hidden rounded-card border border-border bg-surface">
+            <div className="border-b border-border px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+              Histórico de versões
+            </div>
+            <div className="px-4 py-8 text-center font-body text-sm text-ink-faint">
+              Versão actual:{' '}
+              <strong className="text-ink">v{process.version}</strong>
+              <br />
+              <span className="mt-1 block text-xs">
+                Versões anteriores guardadas no servidor. Use a API para
+                comparar.
+              </span>
+            </div>
           </div>
-        </div>
-      )}
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
