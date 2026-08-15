@@ -8,9 +8,17 @@
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { Avatar, Skeleton } from './atoms';
+import { Avatar } from '@/components/ui/Avatar';
+import { Card } from '@/components/ui/Card';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { HEALTH_CFG } from './constants';
 import type { TeamDashboard } from './types';
+
+const HEALTH_PANEL_CLS: Record<TeamDashboard['teamHealth']['healthStatus'], string> = {
+  GREEN: 'border-success bg-success-subtle',
+  YELLOW: 'border-warning bg-warning-subtle',
+  RED: 'border-danger bg-danger-subtle',
+};
 
 export function TeamView() {
   const { data, isLoading } = useApiQuery<TeamDashboard>(
@@ -28,31 +36,25 @@ export function TeamView() {
     <div className="space-y-5">
       {/* Team Health */}
       <div
-        className={`border rounded-xl p-5 ${
-          teamHealth.healthStatus === 'GREEN'
-            ? 'bg-emerald-50 border-emerald-200'
-            : teamHealth.healthStatus === 'YELLOW'
-              ? 'bg-amber-50 border-amber-200'
-              : 'bg-red-50 border-red-200'
-        }`}
+        className={`rounded-card border p-5 ${HEALTH_PANEL_CLS[teamHealth.healthStatus]}`}
       >
-        <div className="flex items-center justify-between mb-4">
+        <div className="mb-4 flex items-center justify-between">
           <div>
-            <div className="text-xs font-medium text-gray-500 mb-1">
+            <div className="mb-1 font-body text-xs font-medium text-ink-muted">
               Saúde da equipa
             </div>
             <div
-              className={`text-3xl font-bold font-mono ${HEALTH_CFG[teamHealth.healthStatus].cls}`}
+              className={`font-mono text-3xl font-bold ${HEALTH_CFG[teamHealth.healthStatus].cls}`}
             >
               {teamHealth.globalScore}
             </div>
           </div>
           <div className="flex items-center gap-2">
             <div
-              className={`w-4 h-4 rounded-full ${HEALTH_CFG[teamHealth.healthStatus].dot}`}
+              className={`h-4 w-4 rounded-full ${HEALTH_CFG[teamHealth.healthStatus].dot}`}
             />
             <span
-              className={`text-sm font-medium ${HEALTH_CFG[teamHealth.healthStatus].cls}`}
+              className={`font-body text-sm font-medium ${HEALTH_CFG[teamHealth.healthStatus].cls}`}
             >
               {HEALTH_CFG[teamHealth.healthStatus].label}
             </span>
@@ -87,17 +89,14 @@ export function TeamView() {
               value: teamHealth.metrics.evaluationsOnTimePct,
               suffix: '%',
             },
-          ].map(({ label, value, suffix, invert }) => (
-            <div
-              key={label}
-              className="bg-white/60 rounded-lg p-2.5 text-center"
-            >
-              <div className="text-lg font-bold font-mono text-gray-800">
+          ].map(({ label, value, suffix }) => (
+            <div key={label} className="rounded-control bg-surface/60 p-2.5 text-center">
+              <div className="font-mono text-lg font-bold text-ink">
                 {value !== null && value !== undefined
                   ? `${value}${suffix}`
                   : '—'}
               </div>
-              <div className="text-xs text-gray-500">{label}</div>
+              <div className="font-body text-xs text-ink-muted">{label}</div>
             </div>
           ))}
         </div>
@@ -105,29 +104,29 @@ export function TeamView() {
 
       {/* Alertas */}
       {data.alerts.length > 0 && (
-        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
-          <div className="text-sm font-semibold text-amber-800 mb-2">
+        <div className="rounded-card border border-warning bg-warning-subtle p-4">
+          <div className="mb-2 font-body text-sm font-semibold text-warning-ink">
             ⚠ Alertas ({data.alerts.length})
           </div>
           {data.alerts.map((a, idx) => (
             <div
               key={idx}
-              className="flex items-start gap-2 py-1.5 border-b border-amber-100 last:border-0"
+              className="flex items-start gap-2 border-b border-warning/30 py-1.5 last:border-0"
             >
               <span
-                className={`text-xs font-mono flex-shrink-0 ${a.type === 'PERFORMANCE_RISK' ? 'text-red-600' : 'text-amber-600'}`}
+                className={`flex-shrink-0 font-mono text-xs ${a.type === 'PERFORMANCE_RISK' ? 'text-danger-ink' : 'text-warning-ink'}`}
               >
                 {a.type === 'PERFORMANCE_RISK' ? '🔴' : '🟡'}
               </span>
-              <p className="text-xs text-amber-800">{a.message}</p>
+              <p className="font-body text-xs text-warning-ink">{a.message}</p>
             </div>
           ))}
         </div>
       )}
 
       {/* Team grid */}
-      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-        <div className="grid grid-cols-[1fr_120px_100px_80px] gap-3 px-4 py-2.5 border-b border-gray-100 text-xs font-medium text-gray-400 uppercase tracking-wide">
+      <Card className="overflow-hidden">
+        <div className="grid grid-cols-[1fr_120px_100px_80px] gap-3 border-b border-border px-4 py-2.5 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
           <div>Colaborador</div>
           <div>Performance</div>
           <div>Status</div>
@@ -136,24 +135,24 @@ export function TeamView() {
         {data.team.map((member) => (
           <div
             key={member.user.id}
-            className="grid grid-cols-[1fr_120px_100px_80px] gap-3 items-center px-4 py-3.5 border-b border-gray-100 last:border-0 hover:bg-gray-50"
+            className="grid grid-cols-[1fr_120px_100px_80px] items-center gap-3 border-b border-border px-4 py-3.5 last:border-0 hover:bg-surface-sunken"
           >
             <div className="flex items-center gap-3">
               <Avatar
                 name={member.user.fullName}
-                avatarUrl={member.user.avatarUrl}
+                url={member.user.avatarUrl ?? undefined}
                 size="sm"
               />
               <div>
-                <div className="text-sm font-medium text-gray-900">
+                <div className="font-body text-sm font-medium text-ink">
                   {member.user.fullName}
                 </div>
-                <div className="text-xs text-gray-400">
+                <div className="font-body text-xs text-ink-faint">
                   {member.user.position?.name ?? '—'}
                 </div>
               </div>
             </div>
-            <div className="text-sm font-mono font-medium text-gray-900">
+            <div className="font-mono text-sm font-medium text-ink">
               {member.latestReview?.score !== null &&
               member.latestReview?.score !== undefined
                 ? member.latestReview.score
@@ -161,29 +160,29 @@ export function TeamView() {
             </div>
             <div className="flex items-center gap-1.5">
               <div
-                className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${HEALTH_CFG[member.statusColor].dot}`}
+                className={`h-2.5 w-2.5 flex-shrink-0 rounded-full ${HEALTH_CFG[member.statusColor].dot}`}
               />
-              <span className={`text-xs ${HEALTH_CFG[member.statusColor].cls}`}>
+              <span className={`font-body text-xs ${HEALTH_CFG[member.statusColor].cls}`}>
                 {HEALTH_CFG[member.statusColor].label}
               </span>
             </div>
-            <div className="text-xs font-mono text-center">
+            <div className="text-center font-mono text-xs">
               {member.pendingApprovals > 0 ? (
-                <span className="text-amber-600 font-medium">
+                <span className="font-medium text-warning-ink">
                   {member.pendingApprovals}
                 </span>
               ) : (
-                <span className="text-gray-300">—</span>
+                <span className="text-ink-faint">—</span>
               )}
             </div>
           </div>
         ))}
         {data.team.length === 0 && (
-          <div className="px-4 py-12 text-center text-sm text-gray-400">
+          <div className="px-4 py-12 text-center font-body text-sm text-ink-faint">
             Sem liderados atribuídos
           </div>
         )}
-      </div>
+      </Card>
     </div>
   );
 }

@@ -2,6 +2,9 @@
 // Separador "O meu painel" — score, programas, 1:1s e kudos. Dados
 // próprios (useApiQuery/useApiMutation) + apresentação. Extraído de
 // app/(platform)/leadership/page.tsx.
+//
+// O ProgressBar da fundação é mono-cor (bg-accent) — a cor que aqui
+// comunicava "concluído" passa para o texto de estado (statusTextClass).
 
 'use client';
 
@@ -11,8 +14,14 @@ import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { formatDate as fmtDate } from '@/lib/format';
+import { Avatar } from '@/components/ui/Avatar';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { Input } from '@/components/ui/Input';
+import { ProgressBar } from '@/components/ui/ProgressBar';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
-import { Avatar, ProgressBar, Skeleton } from './atoms';
+import { Textarea } from '@/components/ui/Textarea';
 import { CLASS_CFG, LEVEL_CFG } from './constants';
 import type {
   KudosItem,
@@ -21,6 +30,10 @@ import type {
   OneOnOne,
   ProgramLevel,
 } from './types';
+
+function statusTextClass(status: string): string {
+  return status === 'COMPLETED' ? 'text-success-ink' : 'text-ink-faint';
+}
 
 export function MyDashboardView() {
   const [kudosMsg, setKudosMsg] = useState('');
@@ -65,21 +78,23 @@ export function MyDashboardView() {
     <div className="space-y-6">
       {/* Score card */}
       {score && (
-        <div className="bg-gradient-to-r from-blue-700 to-blue-900 text-white rounded-xl p-6 flex items-center justify-between">
+        <div className="flex items-center justify-between rounded-panel bg-gradient-to-r from-primary to-primary-active p-6 text-canvas shadow-resting">
           <div>
-            <div className="text-sm text-blue-200 mb-1">Leadership Score</div>
-            <div className="text-5xl font-bold font-mono">{score.score}</div>
-            <div className="text-sm text-blue-200 mt-1">de 1000 pontos</div>
+            <div className="mb-1 font-body text-sm text-canvas/70">
+              Leadership Score
+            </div>
+            <div className="font-mono text-5xl font-bold">{score.score}</div>
+            <div className="mt-1 font-body text-sm text-canvas/70">
+              de 1000 pontos
+            </div>
           </div>
           <div className="text-right">
             {classCfg && (
-              <span
-                className={`inline-block px-3 py-1.5 rounded-lg text-sm font-medium bg-white/20 text-white`}
-              >
+              <span className="inline-block rounded-control bg-canvas/20 px-3 py-1.5 font-body text-sm font-medium">
                 {classCfg.label}
               </span>
             )}
-            <div className="text-xs text-blue-300 mt-2">
+            <div className="mt-2 font-body text-xs text-canvas/70">
               Actualizado {fmtDate(score.calculatedAt)}
             </div>
           </div>
@@ -87,7 +102,7 @@ export function MyDashboardView() {
       )}
 
       {!score && (
-        <div className="bg-gray-50 border border-dashed border-gray-200 rounded-xl p-6 text-center text-sm text-gray-400">
+        <div className="rounded-card border border-dashed border-border-strong bg-surface-sunken p-6 text-center font-body text-sm text-ink-faint">
           Sem Leadership Score calculado ainda
         </div>
       )}
@@ -96,17 +111,14 @@ export function MyDashboardView() {
       <div className="grid grid-cols-2 gap-5">
         {/* Programas */}
         <div>
-          <div className="text-sm font-semibold text-gray-900 mb-3">
+          <div className="mb-3 font-body text-sm font-semibold text-ink">
             Os meus programas
           </div>
           <div className="space-y-2">
             {data.programs?.slice(0, 4).map((p) => (
-              <div
-                key={p.id}
-                className="bg-white border border-gray-200 rounded-xl p-4"
-              >
-                <div className="flex items-center justify-between mb-1">
-                  <div className="text-xs font-medium text-gray-900 truncate">
+              <Card key={p.id} className="p-4">
+                <div className="mb-1 flex items-center justify-between">
+                  <div className="truncate font-body text-xs font-medium text-ink">
                     {p.program?.name}
                   </div>
                   <StatusBadge
@@ -114,17 +126,16 @@ export function MyDashboardView() {
                     map={LEVEL_CFG}
                   />
                 </div>
-                <ProgressBar
-                  pct={p.progress}
-                  color={
-                    p.status === 'COMPLETED' ? 'bg-emerald-500' : 'bg-blue-500'
-                  }
-                />
-                <div className="text-xs text-gray-400 mt-1">{p.status}</div>
-              </div>
+                <ProgressBar value={p.progress} />
+                <div
+                  className={`mt-1 font-body text-xs font-medium ${statusTextClass(p.status)}`}
+                >
+                  {p.status}
+                </div>
+              </Card>
             ))}
             {(!data.programs || data.programs.length === 0) && (
-              <div className="text-xs text-gray-400 text-center py-4 border border-dashed border-gray-200 rounded-xl">
+              <div className="rounded-card border border-dashed border-border-strong py-4 text-center font-body text-xs text-ink-faint">
                 Sem programas inscritos
               </div>
             )}
@@ -133,25 +144,22 @@ export function MyDashboardView() {
 
         {/* 1:1s próximos */}
         <div>
-          <div className="text-sm font-semibold text-gray-900 mb-3">
+          <div className="mb-3 font-body text-sm font-semibold text-ink">
             Próximos 1:1s
           </div>
           <div className="space-y-2">
             {data.upcoming1on1s?.map((m: OneOnOne) => (
-              <div
-                key={m.id}
-                className="bg-white border border-gray-200 rounded-xl p-4 flex items-center gap-3"
-              >
+              <Card key={m.id} className="flex items-center gap-3 p-4">
                 <Avatar
                   name={m.subordinate.fullName}
-                  avatarUrl={m.subordinate.avatarUrl}
+                  url={m.subordinate.avatarUrl ?? undefined}
                   size="sm"
                 />
-                <div className="flex-1 min-w-0">
-                  <div className="text-xs font-medium text-gray-900 truncate">
+                <div className="min-w-0 flex-1">
+                  <div className="truncate font-body text-xs font-medium text-ink">
                     {m.subordinate.fullName}
                   </div>
-                  <div className="text-xs text-gray-400">
+                  <div className="font-body text-xs text-ink-faint">
                     {fmtDate(m.scheduledAt)} · {m.durationMinutes}min
                   </div>
                 </div>
@@ -160,15 +168,15 @@ export function MyDashboardView() {
                     href={m.meetingUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="text-xs text-blue-600 hover:underline flex-shrink-0"
+                    className="flex-shrink-0 font-body text-xs text-primary hover:underline"
                   >
                     Entrar
                   </a>
                 )}
-              </div>
+              </Card>
             ))}
             {(!data.upcoming1on1s || data.upcoming1on1s.length === 0) && (
-              <div className="text-xs text-gray-400 text-center py-4 border border-dashed border-gray-200 rounded-xl">
+              <div className="rounded-card border border-dashed border-border-strong py-4 text-center font-body text-xs text-ink-faint">
                 Sem 1:1s agendados
               </div>
             )}
@@ -178,61 +186,66 @@ export function MyDashboardView() {
 
       {/* Kudos recebidos + enviar */}
       <div>
-        <div className="text-sm font-semibold text-gray-900 mb-3">
+        <div className="mb-3 font-body text-sm font-semibold text-ink">
           Reconhecimentos recebidos
         </div>
         <div className="grid grid-cols-2 gap-3">
-          <div className="space-y-2 max-h-56 overflow-y-auto">
+          <div className="max-h-56 space-y-2 overflow-y-auto">
             {data.recentKudos?.slice(0, 5).map((k: KudosItem) => (
               <div
                 key={k.id}
-                className="bg-amber-50 border border-amber-200 rounded-xl p-3"
+                className="rounded-card border border-warning bg-warning-subtle p-3"
               >
-                <div className="flex items-center gap-2 mb-1">
+                <div className="mb-1 flex items-center gap-2">
                   <span className="text-lg">{k.badge ?? '⭐'}</span>
-                  <span className="text-xs font-medium text-amber-800">
+                  <span className="font-body text-xs font-medium text-warning-ink">
                     {k.sender.fullName}
                   </span>
-                  <span className="text-xs text-amber-500 ml-auto">
+                  <span className="ml-auto font-body text-xs text-warning-ink/70">
                     {fmtDate(k.createdAt)}
                   </span>
                 </div>
-                <p className="text-xs text-amber-700">{k.message}</p>
+                <p className="font-body text-xs text-warning-ink">
+                  {k.message}
+                </p>
               </div>
             ))}
             {(!data.recentKudos || data.recentKudos.length === 0) && (
-              <div className="text-xs text-gray-400 text-center py-4 border border-dashed border-gray-200 rounded-xl">
+              <div className="rounded-card border border-dashed border-border-strong py-4 text-center font-body text-xs text-ink-faint">
                 Sem kudos recebidos ainda
               </div>
             )}
           </div>
 
           {/* Enviar kudos */}
-          <div className="bg-white border border-dashed border-gray-200 rounded-xl p-4">
-            <div className="text-xs font-medium text-gray-700 mb-3">
+          <div className="rounded-card border border-dashed border-border-strong p-4">
+            <div className="mb-3 font-body text-xs font-medium text-ink-muted">
               ⭐ Dar kudos a colega
             </div>
-            <input
+            <Input
               type="number"
               placeholder="ID do colega"
               value={kudosTarget}
               onChange={(e) => setKudosTarget(e.target.value)}
-              className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 mb-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="mb-2 w-full"
             />
-            <textarea
+            <Textarea
               placeholder="Escreve uma mensagem de reconhecimento…"
               value={kudosMsg}
               onChange={(e) => setKudosMsg(e.target.value)}
               rows={3}
-              className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2"
+              className="mb-2 w-full resize-none"
             />
-            <button
+            <Button
               onClick={handleKudos}
               disabled={!kudosMsg || !kudosTarget || sendingKudos}
-              className="w-full py-2 bg-amber-500 text-white text-xs font-medium rounded-lg hover:bg-amber-600 disabled:opacity-50"
+              loading={sendingKudos}
+              intent="warning"
+              size="sm"
+              className="w-full"
             >
               {sendingKudos ? 'A enviar…' : '⭐ Enviar Kudos'}
-            </button>
+            </Button>
           </div>
         </div>
       </div>

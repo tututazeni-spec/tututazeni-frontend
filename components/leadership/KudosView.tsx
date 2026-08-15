@@ -8,7 +8,8 @@ import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { formatDate as fmtDate } from '@/lib/format';
-import { Avatar, Skeleton } from './atoms';
+import { Avatar } from '@/components/ui/Avatar';
+import { Skeleton } from '@/components/ui/Skeleton';
 import type { KudosItem } from './types';
 
 export function KudosView() {
@@ -22,43 +23,45 @@ export function KudosView() {
 
   return (
     <div>
-      <div className="text-sm text-gray-500 mb-5">
+      <div className="mb-5 font-body text-sm text-ink-muted">
         Mural de reconhecimentos públicos da organização
       </div>
       <div className="grid grid-cols-2 gap-4">
         {kudos.map((k) => (
           <div
             key={k.id}
-            className="bg-amber-50 border border-amber-200 rounded-xl p-4"
+            className="rounded-card border border-warning bg-warning-subtle p-4"
           >
             <div className="flex items-start gap-3">
-              <span className="text-2xl flex-shrink-0">{k.badge ?? '⭐'}</span>
+              <span className="flex-shrink-0 text-2xl">{k.badge ?? '⭐'}</span>
               <div className="flex-1">
-                <div className="flex items-center gap-2 mb-2">
+                <div className="mb-2 flex items-center gap-2">
                   <Avatar
                     name={k.receiver.fullName}
-                    avatarUrl={k.receiver.avatarUrl}
+                    url={k.receiver.avatarUrl ?? undefined}
                     size="sm"
                   />
                   <div>
-                    <div className="text-xs font-semibold text-amber-900">
+                    <div className="font-body text-xs font-semibold text-warning-ink">
                       {k.receiver.fullName}
                     </div>
-                    <div className="text-xs text-amber-600">
+                    <div className="font-body text-xs text-warning-ink/70">
                       de {k.sender.fullName}
                     </div>
                   </div>
-                  <span className="text-xs text-amber-400 ml-auto">
+                  <span className="ml-auto font-body text-xs text-warning-ink/60">
                     {fmtDate(k.createdAt)}
                   </span>
                 </div>
-                <p className="text-sm text-amber-800">{k.message}</p>
+                <p className="font-body text-sm text-warning-ink">
+                  {k.message}
+                </p>
               </div>
             </div>
           </div>
         ))}
         {kudos.length === 0 && (
-          <div className="col-span-2 py-12 text-center text-sm text-gray-400 border border-dashed border-gray-200 rounded-xl">
+          <div className="col-span-2 rounded-card border border-dashed border-border-strong py-12 text-center font-body text-sm text-ink-faint">
             Sem reconhecimentos ainda — sê o primeiro!
           </div>
         )}

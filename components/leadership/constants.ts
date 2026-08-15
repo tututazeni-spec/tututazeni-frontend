@@ -1,34 +1,46 @@
 // components/leadership/constants.ts
 // Mapas de badges e labels do módulo de liderança. Extraído de
 // app/(platform)/leadership/page.tsx.
+//
+// Cores mapeadas para os tokens semânticos da fundação de design (Fase
+// A) — mesmo padrão de components/sucession/constants.ts. CLASS_CFG usa
+// variantes sólidas (bg-warning/bg-danger + text-canvas) para os
+// extremos (TOP_10, CRITICAL) e subtle para os intermédios, preservando
+// a gradação de intensidade que a paleta crua original comunicava.
 
 import type { StatusBadgeMap } from '@/lib/statusBadge';
 import type { Competency, HealthStatus, ProgramLevel, View } from './types';
 
 export const LEVEL_CFG: StatusBadgeMap<ProgramLevel> = {
-  INITIAL: { label: 'Inicial', cls: 'bg-emerald-50 text-emerald-700' },
-  INTERMEDIATE: { label: 'Intermédio', cls: 'bg-amber-50 text-amber-700' },
-  ADVANCED: { label: 'Avançado', cls: 'bg-red-50 text-red-700' },
+  INITIAL: { label: 'Inicial', cls: 'bg-success-subtle text-success-ink' },
+  INTERMEDIATE: {
+    label: 'Intermédio',
+    cls: 'bg-warning-subtle text-warning-ink',
+  },
+  ADVANCED: { label: 'Avançado', cls: 'bg-danger-subtle text-danger-ink' },
 };
 
 export const HEALTH_CFG: Record<
   HealthStatus,
   { label: string; dot: string; cls: string }
 > = {
-  GREEN: { label: 'Bom', dot: 'bg-emerald-500', cls: 'text-emerald-700' },
-  YELLOW: { label: 'Atenção', dot: 'bg-amber-500', cls: 'text-amber-700' },
-  RED: { label: 'Crítico', dot: 'bg-red-500', cls: 'text-red-700' },
+  GREEN: { label: 'Bom', dot: 'bg-success', cls: 'text-success-ink' },
+  YELLOW: { label: 'Atenção', dot: 'bg-warning', cls: 'text-warning-ink' },
+  RED: { label: 'Crítico', dot: 'bg-danger', cls: 'text-danger-ink' },
 };
 
 export const CLASS_CFG: StatusBadgeMap<string> = {
-  TOP_10: { label: '🏆 Top 10%', cls: 'bg-amber-100 text-amber-800' },
+  TOP_10: { label: '🏆 Top 10%', cls: 'bg-warning text-canvas' },
   ABOVE_AVERAGE: {
     label: '⬆ Acima da média',
-    cls: 'bg-emerald-50 text-emerald-700',
+    cls: 'bg-success-subtle text-success-ink',
   },
-  AVERAGE: { label: '= Médio', cls: 'bg-gray-100 text-gray-600' },
-  BELOW_AVERAGE: { label: '⬇ Abaixo', cls: 'bg-orange-50 text-orange-700' },
-  CRITICAL: { label: '🔴 Crítico', cls: 'bg-red-100 text-red-800' },
+  AVERAGE: { label: '= Médio', cls: 'bg-surface-sunken text-ink-muted' },
+  BELOW_AVERAGE: {
+    label: '⬇ Abaixo',
+    cls: 'bg-warning-subtle text-warning-ink',
+  },
+  CRITICAL: { label: '🔴 Crítico', cls: 'bg-danger text-canvas' },
 };
 
 export const COMP_LABELS: Record<Competency, string> = {
