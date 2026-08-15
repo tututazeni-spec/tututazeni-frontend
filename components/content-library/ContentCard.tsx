@@ -7,8 +7,14 @@
 import Image from 'next/image';
 import { Bookmark, CheckCircle, Clock, Eye, Play, Star } from 'lucide-react';
 import { apiClient } from '@/lib/apiClient';
-import { ProgressBar } from './atoms';
-import { FORMAT_COLOR, FORMAT_ICON, LEVEL_COLOR } from './constants';
+import { Card, CardBody } from '@/components/ui/Card';
+import { ProgressBar } from '@/components/ui/ProgressBar';
+import {
+  FORMAT_CLS,
+  FORMAT_CLS_FALLBACK,
+  FORMAT_ICON,
+  LEVEL_CLS,
+} from './constants';
 import type { Content } from './types';
 
 export interface ContentCardProps {
@@ -40,6 +46,10 @@ export function ContentCard({
 
   if (compact)
     return (
+      // Wrapper clicável implementado com div própria (role="button" +
+      // tabIndex + onKeyDown manual) em vez do `Card` da fundação com a
+      // prop `interactive` — bug conhecido (ver plano de rollout), mesmo
+      // padrão já usado em components/micro-learning/MicroCard.tsx.
       <div
         onClick={handleView}
         role="button"
@@ -50,34 +60,40 @@ export function ContentCard({
             handleView();
           }
         }}
-        className="bg-white rounded-lg border border-slate-100 p-3 flex items-center gap-3 hover:shadow-sm transition-all cursor-pointer"
+        className="flex cursor-pointer items-center gap-3 rounded-card border border-border bg-surface p-3 shadow-resting transition-shadow duration-150 hover:shadow-hover"
       >
         <div
-          className={`p-2 rounded-lg shrink-0 ${FORMAT_COLOR[content.type] ?? 'bg-slate-100 text-slate-600'}`}
+          className={`shrink-0 rounded-control p-2 ${FORMAT_CLS[content.type] ?? FORMAT_CLS_FALLBACK}`}
         >
-          <Icon size={16} />
+          <Icon size={16} strokeWidth={1.75} />
         </div>
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium text-slate-700 truncate">
+        <div className="min-w-0 flex-1">
+          <p className="truncate font-body text-sm font-medium text-ink">
             {content.title}
           </p>
-          <p className="text-[10px] text-slate-400">
+          <p className="font-body text-[10px] text-ink-faint">
             {content.durationMin ? `${content.durationMin} min` : ''}{' '}
             {content.level ? `· ${content.level}` : ''}
           </p>
-          {progress > 0 && <ProgressBar value={progress} height="h-0.5" />}
+          {progress > 0 && (
+            <ProgressBar value={progress} className="mt-1 h-1" />
+          )}
         </div>
         {progress === 100 && (
-          <CheckCircle size={14} className="text-emerald-500 shrink-0" />
+          <CheckCircle
+            size={14}
+            strokeWidth={1.75}
+            className="shrink-0 text-success"
+          />
         )}
       </div>
     );
 
   return (
-    <div className="bg-white rounded-xl border border-slate-100 overflow-hidden hover:shadow-lg transition-all cursor-pointer group">
+    <Card className="group cursor-pointer overflow-hidden transition-shadow hover:shadow-hover">
       {/* Thumbnail */}
       <div
-        className="relative bg-gradient-to-br from-slate-100 to-slate-200 h-36 flex items-center justify-center"
+        className="relative flex h-36 items-center justify-center bg-surface-sunken"
         onClick={handleView}
         role="button"
         tabIndex={0}
@@ -96,28 +112,28 @@ export function ContentCard({
             className="object-cover"
           />
         ) : (
-          <Icon size={32} className="text-slate-400" />
+          <Icon size={24} strokeWidth={1.75} className="text-ink-faint" />
         )}
         {/* Overlay */}
-        <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-          <div className="w-12 h-12 bg-white/90 rounded-full flex items-center justify-center shadow-lg">
-            <Play size={18} className="text-slate-800 ml-0.5" />
+        <div className="absolute inset-0 flex items-center justify-center bg-ink/20 opacity-0 transition-opacity group-hover:opacity-100">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-surface/90 shadow-elevated">
+            <Play size={18} strokeWidth={1.75} className="ml-0.5 text-ink" />
           </div>
         </div>
         {/* Badges */}
-        <div className="absolute top-2 left-2 flex gap-1">
+        <div className="absolute left-2 top-2 flex gap-1">
           {content.mandatory && (
-            <span className="bg-red-500 text-white text-[9px] px-1.5 py-0.5 rounded font-bold">
+            <span className="rounded bg-danger px-1.5 py-0.5 font-body text-[9px] font-bold text-canvas">
               OBRIG.
             </span>
           )}
           {content.hasCertification && (
-            <span className="bg-amber-500 text-white text-[9px] px-1.5 py-0.5 rounded font-bold">
+            <span className="rounded bg-accent px-1.5 py-0.5 font-body text-[9px] font-bold text-canvas">
               CERT.
             </span>
           )}
           {content.isMicrolearning && (
-            <span className="bg-violet-500 text-white text-[9px] px-1.5 py-0.5 rounded font-bold">
+            <span className="rounded bg-info px-1.5 py-0.5 font-body text-[9px] font-bold text-canvas">
               MICRO
             </span>
           )}
@@ -127,71 +143,77 @@ export function ContentCard({
           aria-label={
             content.isBookmarked ? 'Remover dos guardados' : 'Guardar'
           }
-          className="absolute top-2 right-2 p-1.5 bg-white/80 rounded-full hover:bg-white transition-colors"
+          className="absolute right-2 top-2 rounded-full bg-surface/80 p-1.5 transition-colors hover:bg-surface"
         >
           <Bookmark
-            size={13}
+            size={14}
+            strokeWidth={1.75}
             className={
               content.isBookmarked
-                ? 'text-indigo-600 fill-indigo-600'
-                : 'text-slate-500'
+                ? 'fill-accent text-accent'
+                : 'text-ink-muted'
             }
           />
         </button>
-        {/* Progress bar on thumbnail bottom */}
+        {/* Progress bar on thumbnail bottom — cor mono da fundação; o
+            estado "concluído" que a cor original comunicava passa para o
+            ícone de confirmação adjacente. */}
         {progress > 0 && (
-          <div className="absolute bottom-0 left-0 right-0">
-            <ProgressBar
-              value={progress}
-              color={progress === 100 ? 'bg-emerald-500' : 'bg-indigo-500'}
-              height="h-1"
-            />
+          <div className="absolute bottom-0 left-0 right-0 flex items-center gap-1 bg-ink/10 px-1 py-0.5">
+            <ProgressBar value={progress} className="h-1" />
+            {progress === 100 && (
+              <CheckCircle
+                size={14}
+                strokeWidth={1.75}
+                className="shrink-0 text-success"
+              />
+            )}
           </div>
         )}
       </div>
 
       {/* Body */}
-      <div className="p-3">
-        <div className="flex items-center gap-2 mb-1.5">
+      <CardBody className="p-3">
+        <div className="mb-1.5 flex items-center gap-2">
           <span
-            className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${FORMAT_COLOR[content.type] ?? 'bg-slate-100 text-slate-600'}`}
+            className={`rounded px-1.5 py-0.5 font-body text-[10px] font-medium ${FORMAT_CLS[content.type] ?? FORMAT_CLS_FALLBACK}`}
           >
             {content.type}
           </span>
           {content.level && (
             <span
-              className={`text-[10px] font-medium ${LEVEL_COLOR[content.level] ?? 'text-slate-500'}`}
+              className={`font-body text-[10px] font-medium ${LEVEL_CLS[content.level] ?? 'text-ink-muted'}`}
             >
               {content.level}
             </span>
           )}
         </div>
 
-        <h4 className="text-sm font-semibold text-slate-800 leading-snug line-clamp-2 mb-1">
+        <h4 className="mb-1 line-clamp-2 font-body text-sm font-semibold leading-snug text-ink">
           {content.title}
         </h4>
 
-        <div className="flex items-center gap-3 text-[10px] text-slate-400">
+        <div className="flex items-center gap-3 font-body text-[10px] text-ink-faint">
           {content.durationMin && (
             <span className="flex items-center gap-0.5">
-              <Clock size={10} />
+              <Clock size={14} strokeWidth={1.75} />
               {content.durationMin} min
             </span>
           )}
           {content.avgRating && (
-            <span className="flex items-center gap-0.5 text-amber-500">
-              <Star size={10} className="fill-amber-400" />
+            <span className="flex items-center gap-0.5 text-accent">
+              <Star size={14} strokeWidth={1.75} className="fill-accent" />
               {content.avgRating}
             </span>
           )}
           {content.viewCount !== undefined && (
             <span className="flex items-center gap-0.5">
-              <Eye size={10} />
+              <Eye size={14} strokeWidth={1.75} />
               {content.viewCount}
             </span>
           )}
         </div>
-      </div>
-    </div>
+      </CardBody>
+    </Card>
   );
 }
