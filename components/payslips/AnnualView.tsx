@@ -5,10 +5,14 @@
 'use client';
 
 import { useState } from 'react';
+import { Download } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { formatKz as fmtKz } from '@/lib/format';
+import { Button } from '@/components/ui/Button';
+import { ProgressBar } from '@/components/ui/ProgressBar';
+import { Select } from '@/components/ui/Select';
 import { fmtPeriod } from './format';
 import type { AnnualSummary } from './types';
 
@@ -33,26 +37,23 @@ export function AnnualView() {
   return (
     <div>
       <div className="flex items-center gap-3 mb-5">
-        <select
+        <Select
+          items={years.map((y) => ({ value: y, label: y }))}
           value={year}
-          onChange={(e) => setYear(e.target.value)}
-          className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          {years.map((y) => (
-            <option key={y} value={y}>
-              {y}
-            </option>
-          ))}
-        </select>
-        <button className="px-3 py-2 text-sm border border-gray-200 rounded-lg hover:bg-gray-50">
-          ⬇ Exportar CSV
-        </button>
+          onValueChange={setYear}
+        />
+        <Button intent="secondary" size="sm">
+          <Download size={14} strokeWidth={1.75} />
+          Exportar CSV
+        </Button>
       </div>
 
       {loading && (
-        <div className="text-sm text-gray-400 animate-pulse">A carregar…</div>
+        <div className="animate-pulse font-body text-sm text-ink-faint">
+          A carregar…
+        </div>
       )}
-      {error && <div className="text-sm text-red-500">{error}</div>}
+      {error && <div className="font-body text-sm text-danger">{error}</div>}
 
       {data && (
         <>
@@ -64,9 +65,11 @@ export function AnnualView() {
               { label: 'Total IRT', value: data.totalIRT },
               { label: 'Total INSS', value: data.totalINSSEmployee },
             ].map(({ label, value }) => (
-              <div key={label} className="bg-gray-50 rounded-xl p-4">
-                <div className="text-xs text-gray-400 mb-1.5">{label}</div>
-                <div className="text-lg font-semibold font-mono text-gray-900">
+              <div key={label} className="rounded-card bg-surface-sunken p-4">
+                <div className="mb-1.5 font-body text-xs text-ink-faint">
+                  {label}
+                </div>
+                <div className="font-mono text-lg font-semibold text-ink">
                   {fmtKz(value)}
                 </div>
               </div>
@@ -95,9 +98,14 @@ export function AnnualView() {
                 },
                 { label: 'Prémios', value: data.totalBonuses },
               ].map(({ label, value }) => (
-                <div key={label} className="bg-emerald-50 rounded-xl p-4">
-                  <div className="text-xs text-emerald-600 mb-1.5">{label}</div>
-                  <div className="text-base font-semibold font-mono text-emerald-800">
+                <div
+                  key={label}
+                  className="rounded-card bg-success-subtle p-4"
+                >
+                  <div className="mb-1.5 font-body text-xs text-success-ink">
+                    {label}
+                  </div>
+                  <div className="font-mono text-base font-semibold text-success-ink">
                     {fmtKz(value)}
                   </div>
                 </div>
@@ -106,8 +114,8 @@ export function AnnualView() {
           )}
 
           {/* Evolução mensal simples */}
-          <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-            <div className="px-4 py-3 border-b border-gray-100 text-xs font-medium text-gray-400 uppercase tracking-wide">
+          <div className="overflow-hidden rounded-card border border-border bg-surface">
+            <div className="border-b border-border px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
               Evolução mensal {year}
             </div>
             {data.monthlySeries.map((m) => {
@@ -118,21 +126,16 @@ export function AnnualView() {
               return (
                 <div
                   key={m.period}
-                  className="flex items-center gap-4 px-4 py-2.5 border-b border-gray-100 last:border-0"
+                  className="flex items-center gap-4 border-b border-border px-4 py-2.5 last:border-0"
                 >
-                  <div className="w-20 text-xs text-gray-500 flex-shrink-0">
+                  <div className="w-20 flex-shrink-0 font-body text-xs text-ink-muted">
                     {fmtPeriod(m.period)}
                   </div>
-                  <div className="flex-1 h-5 bg-gray-100 rounded overflow-hidden">
-                    <div
-                      className="h-full bg-blue-600 rounded transition-all duration-500"
-                      style={{ width: `${pct.toFixed(1)}%` }}
-                    />
-                  </div>
-                  <div className="w-28 text-right text-xs font-mono font-medium text-gray-900">
+                  <ProgressBar value={pct} className="flex-1" />
+                  <div className="w-28 text-right font-mono text-xs font-medium text-ink">
                     {fmtKz(m.netSalary)}
                   </div>
-                  <div className="w-20 text-right text-xs font-mono text-red-500">
+                  <div className="w-20 text-right font-mono text-xs text-danger">
                     IRT {fmtKz(m.incomeTax)}
                   </div>
                 </div>
