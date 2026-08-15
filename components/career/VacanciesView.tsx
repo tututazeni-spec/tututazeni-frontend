@@ -5,13 +5,26 @@
 'use client';
 
 import { useState } from 'react';
+import { Search } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { Badge, Skeleton } from './atoms';
+import { cn } from '@/lib/cn';
+import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { ProgressBar } from '@/components/ui/ProgressBar';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { VACANCY_TYPE } from './constants';
 import type { InternalVacancy } from './types';
+
+function scoreClass(score: number): string {
+  if (score >= 80) return 'text-success';
+  if (score >= 60) return 'text-warning';
+  return 'text-ink-faint';
+}
 
 export function VacanciesView() {
   const [typeFilter, setTypeFilter] = useState('');
@@ -44,21 +57,23 @@ export function VacanciesView() {
   return (
     <div>
       {/* Filtros */}
-      <div className="flex gap-2 mb-5 flex-wrap">
-        <button
+      <div className="mb-5 flex flex-wrap gap-2">
+        <Button
+          size="sm"
+          intent={!typeFilter ? 'primary' : 'ghost'}
           onClick={() => setTypeFilter('')}
-          className={`px-3 py-1.5 text-xs font-medium rounded-lg ${!typeFilter ? 'bg-blue-700 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
         >
           Todas
-        </button>
+        </Button>
         {Object.entries(VACANCY_TYPE).map(([k, v]) => (
-          <button
+          <Button
             key={k}
+            size="sm"
+            intent={typeFilter === k ? 'primary' : 'ghost'}
             onClick={() => setTypeFilter(k)}
-            className={`px-3 py-1.5 text-xs font-medium rounded-lg ${typeFilter === k ? 'bg-blue-700 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
           >
             {v.icon} {v.label}
-          </button>
+          </Button>
         ))}
       </div>
 
@@ -70,73 +85,59 @@ export function VacanciesView() {
             const typeCfg = VACANCY_TYPE[v.type] ?? {
               label: v.type,
               icon: '📋',
-              cls: 'bg-gray-100 text-gray-600',
+              intent: 'neutral' as const,
             };
             return (
-              <div
-                key={v.id}
-                className="bg-white border border-gray-200 rounded-xl p-4 hover:shadow-sm transition-all"
-              >
-                <div className="flex items-start justify-between gap-2 mb-2">
-                  <Badge
-                    label={`${typeCfg.icon} ${typeCfg.label}`}
-                    cls={typeCfg.cls}
-                  />
+              <Card key={v.id} className="p-4 transition-shadow duration-150 hover:shadow-hover">
+                <div className="mb-2 flex items-start justify-between gap-2">
+                  <Badge intent={typeCfg.intent}>
+                    {typeCfg.icon} {typeCfg.label}
+                  </Badge>
                   {v.matchScore !== undefined && (
                     <span
-                      className={`text-sm font-bold ${v.matchScore >= 80 ? 'text-emerald-600' : v.matchScore >= 60 ? 'text-amber-600' : 'text-gray-400'}`}
+                      className={cn('font-body text-sm font-bold', scoreClass(v.matchScore))}
                     >
                       {v.matchScore}% match
                     </span>
                   )}
                 </div>
-                <div className="text-sm font-semibold text-gray-900 mb-1">
+                <div className="mb-1 font-body text-sm font-semibold text-ink">
                   {v.title}
                 </div>
-                <div className="text-xs text-gray-400 mb-3">
+                <div className="mb-3 font-body text-xs text-ink-faint">
                   {v.position?.name && <span>{v.position.name} · </span>}
                   {v.department?.name && <span>{v.department.name}</span>}
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-gray-400">
+                  <span className="font-body text-xs text-ink-faint">
                     {v._count.applications} candidatura
                     {v._count.applications !== 1 ? 's' : ''}
                     {v.closingDate &&
                       ` · Fecha ${new Date(v.closingDate).toLocaleDateString('pt-AO', { day: '2-digit', month: 'short' })}`}
                   </span>
                   {v.applied ? (
-                    <Badge
-                      label={v.applicationStatus ?? 'Candidatado'}
-                      cls={
-                        v.applicationStatus === 'ACCEPTED'
-                          ? 'bg-emerald-50 text-emerald-700'
-                          : 'bg-gray-100 text-gray-500'
-                      }
-                    />
+                    <Badge intent={v.applicationStatus === 'ACCEPTED' ? 'success' : 'neutral'}>
+                      {v.applicationStatus ?? 'Candidatado'}
+                    </Badge>
                   ) : (
-                    <button
-                      onClick={() => apply(v.id)}
-                      disabled={applying === v.id}
-                      className="px-3 py-1.5 bg-blue-700 text-white text-xs font-medium rounded-lg hover:bg-blue-800 disabled:opacity-60"
-                    >
-                      {applying === v.id ? '…' : 'Candidatar-me'}
-                    </button>
+                    <Button size="sm" onClick={() => apply(v.id)} loading={applying === v.id}>
+                      Candidatar-me
+                    </Button>
                   )}
                 </div>
                 {v.matchScore !== undefined && v.matchScore > 0 && (
-                  <div className="mt-2 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                    <div
-                      className={`h-full rounded-full ${v.matchScore >= 80 ? 'bg-emerald-500' : v.matchScore >= 60 ? 'bg-amber-400' : 'bg-red-400'}`}
-                      style={{ width: `${v.matchScore}%` }}
-                    />
-                  </div>
+                  <ProgressBar value={v.matchScore} className="mt-2" />
                 )}
-              </div>
+              </Card>
             );
           })}
           {vacancies.length === 0 && (
-            <div className="col-span-2 py-12 text-center text-sm text-gray-400 border border-dashed border-gray-200 rounded-xl">
-              Sem vagas internas abertas
+            <div className="col-span-2">
+              <EmptyState
+                icon={Search}
+                title="Sem vagas internas abertas"
+                description="Ainda não há vagas internas disponíveis para o filtro seleccionado."
+              />
             </div>
           )}
         </div>
