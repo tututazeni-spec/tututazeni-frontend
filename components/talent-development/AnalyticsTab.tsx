@@ -2,6 +2,12 @@
 // Separador "Analytics" — KPIs, Talent Health Score, planos por status e
 // top necessidades de formação. Dados próprios (useApiQuery) +
 // apresentação. Extraído de app/(platform)/talent-development/page.tsx.
+//
+// Talent Health Score (grau A–D) e as barras de métricas: cor decorativa
+// de estado (não série de dados) — mesmo tratamento do piloto engagement
+// (GRADE_COLOR, ver components/engagement/constants.ts). A cor da barra
+// de cada métrica cumpre a regra "ProgressBar é mono-cor" movendo o
+// significado para o número percentual adjacente.
 
 'use client';
 
@@ -9,9 +15,27 @@ import { AlertTriangle, CheckCircle, Target, Users } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { KpiCard, ProgressBar, Skeleton } from './atoms';
-import { STATUS_COLOR } from './constants';
+import { Card, CardBody } from '@/components/ui/Card';
+import { KpiCard } from '@/components/ui/KpiCard';
+import { ProgressBar } from '@/components/ui/ProgressBar';
+import { Skeleton } from '@/components/ui/Skeleton';
+import { StatusBadge } from '@/components/ui/StatusBadge';
+import { GRADE_COLOR, STATUS_CFG } from './constants';
 import type { DashboardData, HealthScore } from './types';
+
+const METRIC_LABELS: Record<string, string> = {
+  pdpCoverage: 'Cobertura PDI',
+  skillsAssessment: 'Skills Avaliadas',
+  reviewedRate: 'Avaliados',
+  mentoringRate: 'Mentoring',
+  hiPoRatio: 'HiPo Ratio',
+};
+
+function metricIntent(value: number): string {
+  if (value >= 70) return 'text-success-ink';
+  if (value >= 40) return 'text-warning-ink';
+  return 'text-danger-ink';
+}
 
 export function AnalyticsTab() {
   const dashQuery = useApiQuery<DashboardData>(
@@ -28,186 +52,183 @@ export function AnalyticsTab() {
   const dash = dashQuery.data ?? null;
   const health = healthQuery.data ?? null;
 
-  if (dashQuery.isLoading || healthQuery.isLoading) return <Skeleton />;
+  if (dashQuery.isLoading || healthQuery.isLoading)
+    return (
+      <Skeleton
+        rows={4}
+        wrapperClassName="space-y-4"
+        itemClassName="skeleton-shimmer h-24 rounded-card"
+      />
+    );
 
-  const GRADE_COLOR: Record<string, string> = {
-    A: 'text-emerald-600 border-emerald-500',
-    B: 'text-teal-600 border-teal-500',
-    C: 'text-amber-600 border-amber-500',
-    D: 'text-red-600 border-red-500',
-  };
+  const grade = GRADE_COLOR[health?.grade ?? 'C'];
 
   return (
     <div className="space-y-6">
       {/* Top KPIs */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         <KpiCard
           icon={Users}
           label="Colaboradores Activos"
           value={dash?.kpis.totalUsers ?? 0}
+          intent="primary"
         />
         <KpiCard
           icon={Target}
           label="Com PDI Activo"
           value={`${dash?.kpis.pdpCoverage ?? 0}%`}
           sub={`${dash?.kpis.usersWithActivePlan} colaboradores`}
-          color="text-indigo-600"
+          intent="accent"
         />
         <KpiCard
           icon={CheckCircle}
           label="Taxa Conclusão Acções"
           value={`${dash?.kpis.actionCompletion ?? 0}%`}
-          color="text-emerald-600"
+          intent="success"
         />
         <KpiCard
           icon={AlertTriangle}
           label="Acções em Atraso"
           value={dash?.kpis.overdueActions ?? 0}
-          color="text-red-500"
+          intent="danger"
         />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Talent Health Score */}
         {health && (
-          <div className="bg-white rounded-xl border border-slate-100 p-6 flex flex-col items-center">
-            <h3 className="font-semibold text-slate-700 mb-4 self-start">
-              Talent Health Score
-            </h3>
-            <div
-              className={`w-28 h-28 rounded-full border-4 ${GRADE_COLOR[health.grade]} flex flex-col
-              items-center justify-center mb-4`}
-            >
-              <span
-                className={`text-4xl font-black ${GRADE_COLOR[health.grade].split(' ')[0]}`}
+          <Card>
+            <CardBody className="flex flex-col items-center">
+              <h3 className="mb-4 self-start font-display font-semibold text-ink">
+                Talent Health Score
+              </h3>
+              <div
+                className={`mb-4 flex h-28 w-28 flex-col items-center justify-center rounded-full border-4 ${grade.border}`}
               >
-                {health.grade}
-              </span>
-              <span className="text-xs text-slate-500">
-                {health.healthScore}/100
-              </span>
-            </div>
-            <div className="w-full space-y-2">
-              {Object.entries(health.metrics).map(([k, v]) => {
-                const labels: Record<string, string> = {
-                  pdpCoverage: 'Cobertura PDI',
-                  skillsAssessment: 'Skills Avaliadas',
-                  reviewedRate: 'Avaliados',
-                  mentoringRate: 'Mentoring',
-                  hiPoRatio: 'HiPo Ratio',
-                };
+                <span className={`font-display text-4xl font-black ${grade.text}`}>
+                  {health.grade}
+                </span>
+                <span className="font-body text-xs text-ink-muted">
+                  {health.healthScore}/100
+                </span>
+              </div>
+              <div className="w-full space-y-2">
+                {Object.entries(health.metrics).map(([k, v]) => {
+                  const value = v as number;
+                  return (
+                    <div key={k}>
+                      <div className="mb-0.5 flex justify-between font-body text-xs">
+                        <span className="text-ink-muted">
+                          {METRIC_LABELS[k] ?? k}
+                        </span>
+                        <span
+                          className={`font-semibold ${metricIntent(value)}`}
+                        >
+                          {value}%
+                        </span>
+                      </div>
+                      <ProgressBar value={value} />
+                    </div>
+                  );
+                })}
+              </div>
+              <p className="mt-3 font-body text-xs text-ink-faint">
+                Base: {health.total} colaboradores
+              </p>
+            </CardBody>
+          </Card>
+        )}
+
+        {/* Plans by status */}
+        <Card>
+          <CardBody>
+            <h3 className="mb-4 font-display font-semibold text-ink">
+              Planos por Status
+            </h3>
+            <div className="space-y-3">
+              {dash?.plansByStatus.map((s) => {
+                const total = dash.plansByStatus.reduce(
+                  (sum, x) => sum + x.count,
+                  0,
+                );
+                const pct = total > 0 ? Math.round((s.count / total) * 100) : 0;
                 return (
-                  <div key={k}>
-                    <div className="flex justify-between text-xs mb-0.5">
-                      <span className="text-slate-500">{labels[k] ?? k}</span>
-                      <span className="font-semibold text-slate-700">
-                        {v as number}%
+                  <div key={s.status}>
+                    <div className="mb-1 flex justify-between font-body text-xs">
+                      <StatusBadge value={s.status} map={STATUS_CFG} />
+                      <span className="font-semibold text-ink">
+                        {s.count} ({pct}%)
                       </span>
                     </div>
-                    <ProgressBar
-                      value={v as number}
-                      color={
-                        (v as number) >= 70
-                          ? 'bg-emerald-400'
-                          : (v as number) >= 40
-                            ? 'bg-amber-400'
-                            : 'bg-red-400'
-                      }
-                    />
+                    <ProgressBar value={pct} />
                   </div>
                 );
               })}
             </div>
-            <p className="text-xs text-slate-400 mt-3">
-              Base: {health.total} colaboradores
-            </p>
-          </div>
-        )}
-
-        {/* Plans by status */}
-        <div className="bg-white rounded-xl border border-slate-100 p-6">
-          <h3 className="font-semibold text-slate-700 mb-4">
-            Planos por Status
-          </h3>
-          <div className="space-y-3">
-            {dash?.plansByStatus.map((s) => {
-              const total = dash.plansByStatus.reduce(
-                (sum, x) => sum + x.count,
-                0,
-              );
-              const pct = total > 0 ? Math.round((s.count / total) * 100) : 0;
-              return (
-                <div key={s.status}>
-                  <div className="flex justify-between text-xs mb-1">
-                    <span
-                      className={`px-2 py-0.5 rounded-full ${STATUS_COLOR[s.status]}`}
-                    >
-                      {s.status}
-                    </span>
-                    <span className="font-semibold text-slate-700">
-                      {s.count} ({pct}%)
-                    </span>
-                  </div>
-                  <ProgressBar value={pct} />
-                </div>
-              );
-            })}
-          </div>
-        </div>
+          </CardBody>
+        </Card>
 
         {/* Top training needs */}
-        <div className="bg-white rounded-xl border border-slate-100 p-6">
-          <h3 className="font-semibold text-slate-700 mb-4">
-            Top Necessidades de Formação
-          </h3>
-          <div className="space-y-3">
-            {dash?.topTrainingNeeds.map((n, i) => (
-              <div key={i} className="flex items-center gap-3">
-                <span className="text-xs font-bold text-slate-300 w-4">
-                  #{i + 1}
-                </span>
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs font-medium text-slate-700 truncate">
-                    {n.skill?.name}
-                  </p>
-                  <p className="text-[10px] text-slate-400">
-                    {n.count} pessoas
-                  </p>
+        <Card>
+          <CardBody>
+            <h3 className="mb-4 font-display font-semibold text-ink">
+              Top Necessidades de Formação
+            </h3>
+            <div className="space-y-3">
+              {dash?.topTrainingNeeds.map((n, i) => (
+                <div key={i} className="flex items-center gap-3">
+                  <span className="w-4 font-body text-xs font-bold text-ink-faint">
+                    #{i + 1}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate font-body text-xs font-medium text-ink">
+                      {n.skill?.name}
+                    </p>
+                    <p className="font-body text-[10px] text-ink-faint">
+                      {n.count} pessoas
+                    </p>
+                  </div>
+                  <span className="shrink-0 font-display text-sm font-bold text-danger-ink">
+                    -{n.avgGap}
+                  </span>
                 </div>
-                <span className="text-sm font-bold text-red-500 shrink-0">
-                  -{n.avgGap}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
+              ))}
+            </div>
+          </CardBody>
+        </Card>
       </div>
 
       {/* Recent completions */}
       {(dash?.recentCompletions.length ?? 0) > 0 && (
-        <div className="bg-white rounded-xl border border-slate-100 p-6">
-          <h3 className="font-semibold text-slate-700 mb-3">
-            Conclusões Recentes
-          </h3>
-          <div className="flex flex-wrap gap-2">
-            {dash?.recentCompletions.map((c, i) => (
-              <div
-                key={i}
-                className="flex items-center gap-2 bg-emerald-50 rounded-lg px-3 py-2"
-              >
-                <CheckCircle size={13} className="text-emerald-500 shrink-0" />
-                <div>
-                  <p className="text-xs font-medium text-slate-700">
-                    {c.user.fullName}
-                  </p>
-                  <p className="text-[10px] text-slate-400 truncate max-w-[160px]">
-                    {c.name}
-                  </p>
+        <Card>
+          <CardBody>
+            <h3 className="mb-3 font-display font-semibold text-ink">
+              Conclusões Recentes
+            </h3>
+            <div className="flex flex-wrap gap-2">
+              {dash?.recentCompletions.map((c, i) => (
+                <div
+                  key={i}
+                  className="flex items-center gap-2 rounded-control bg-success-subtle px-3 py-2"
+                >
+                  <CheckCircle
+                    size={13}
+                    strokeWidth={1.75}
+                    className="shrink-0 text-success"
+                  />
+                  <div>
+                    <p className="font-body text-xs font-medium text-ink">
+                      {c.user.fullName}
+                    </p>
+                    <p className="max-w-[160px] truncate font-body text-[10px] text-ink-faint">
+                      {c.name}
+                    </p>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        </div>
+              ))}
+            </div>
+          </CardBody>
+        </Card>
       )}
     </div>
   );

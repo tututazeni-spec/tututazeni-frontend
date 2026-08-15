@@ -1,13 +1,20 @@
 // components/talent-development/constants.ts
 // Constantes de domínio partilhadas pelos componentes de apresentação do
 // módulo. Extraído verbatim de app/(platform)/talent-development/page.tsx.
+//
+// Cores mapeadas para os tokens semânticos da fundação de design (Fase A).
+// TIER_CFG/STATUS_CFG passaram de mapas soltos de classe (usados em spans
+// à mão) para StatusBadgeMap consumidos por components/ui/StatusBadge —
+// mesmo padrão já usado em components/sucession/constants.ts
+// (RISK_CFG/READINESS_CFG/COVERAGE_CFG).
 
+import type { StatusBadgeMap } from '@/lib/statusBadge';
 import type { Tier } from './types';
 
-export const TIER_COLOR: Record<Tier, string> = {
-  HIGH: 'bg-emerald-100 text-emerald-700',
-  MEDIUM: 'bg-amber-100 text-amber-700',
-  DEVELOPING: 'bg-slate-100 text-slate-600',
+export const TIER_CFG: StatusBadgeMap<Tier> = {
+  HIGH: { label: 'HiPo', cls: 'bg-success-subtle text-success-ink' },
+  MEDIUM: { label: 'Médio', cls: 'bg-warning-subtle text-warning-ink' },
+  DEVELOPING: { label: 'Dev.', cls: 'bg-surface-sunken text-ink-muted' },
 };
 
 export const TIER_LABEL: Record<Tier, string> = {
@@ -16,17 +23,32 @@ export const TIER_LABEL: Record<Tier, string> = {
   DEVELOPING: 'Em Desenvolvimento',
 };
 
-export const STATUS_COLOR: Record<string, string> = {
-  DRAFT: 'bg-slate-100 text-slate-600',
-  ACTIVE: 'bg-blue-100 text-blue-700',
-  PAUSED: 'bg-amber-100 text-amber-700',
-  COMPLETED: 'bg-emerald-100 text-emerald-700',
-  CANCELLED: 'bg-red-100 text-red-600',
+export const TIER_DOT: Record<Tier, string> = {
+  HIGH: 'bg-success',
+  MEDIUM: 'bg-warning',
+  DEVELOPING: 'bg-ink-faint',
+};
+
+export const STATUS_CFG: StatusBadgeMap<string> = {
+  DRAFT: { label: 'DRAFT', cls: 'bg-surface-sunken text-ink-muted' },
+  ACTIVE: { label: 'ACTIVE', cls: 'bg-info-subtle text-info-ink' },
+  PAUSED: { label: 'PAUSED', cls: 'bg-warning-subtle text-warning-ink' },
+  COMPLETED: { label: 'COMPLETED', cls: 'bg-success-subtle text-success-ink' },
+  CANCELLED: { label: 'CANCELLED', cls: 'bg-danger-subtle text-danger-ink' },
 };
 
 export const PRIORITY_COLOR: Record<string, string> = {
-  LOW: 'text-slate-400',
-  MEDIUM: 'text-amber-500',
-  HIGH: 'text-orange-500',
-  CRITICAL: 'text-red-600',
+  LOW: 'text-ink-faint',
+  MEDIUM: 'text-warning-ink',
+  HIGH: 'text-danger-ink',
+  CRITICAL: 'text-danger',
+};
+
+// Grau do Talent Health Score (A–D) — mesmo padrão de
+// components/engagement/constants.ts#GRADE_COLOR (piloto).
+export const GRADE_COLOR: Record<string, { text: string; border: string }> = {
+  A: { text: 'text-success-ink', border: 'border-success' },
+  B: { text: 'text-info-ink', border: 'border-info' },
+  C: { text: 'text-warning-ink', border: 'border-warning' },
+  D: { text: 'text-danger-ink', border: 'border-danger' },
 };
