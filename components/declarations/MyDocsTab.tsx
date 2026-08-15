@@ -1,9 +1,15 @@
 // components/declarations/MyDocsTab.tsx
 // Separador "Minhas Declarações" — lista de pedidos de documento do
-// utilizador. Puramente apresentacional. Extraído de
+// utilizador. Puramente apresentacional. Migrado para a fundação de
+// design: card/lista bespoke passam a Card/CardHeader (components/ui/Card),
+// o estado vazio passa a EmptyState (components/ui/EmptyState), e o botão
+// de descarregar passa a IconButton (components/ui/Button). Extraído de
 // app/(platform)/declarations/page.tsx.
 
-import { Download, FileText, Plus } from 'lucide-react';
+import { Download, FileText } from 'lucide-react';
+import { IconButton } from '@/components/ui/Button';
+import { Card, CardHeader } from '@/components/ui/Card';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { StatusBadge } from './StatusBadge';
 import type { DocRequest } from './types';
 
@@ -14,69 +20,58 @@ export interface MyDocsTabProps {
 
 export function MyDocsTab({ myDocs, onRequestNew }: MyDocsTabProps) {
   return (
-    <div className="space-y-4">
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-        <div className="px-5 py-4 border-b border-gray-50 flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-gray-900">
-            Meus Pedidos de Declaração
-          </h2>
-          <span className="text-xs text-gray-400">
-            {myDocs?.data.length ?? 0} total
-          </span>
+    <Card>
+      <CardHeader className="flex items-center justify-between">
+        <h2 className="font-display text-sm font-semibold text-ink">
+          Meus Pedidos de Declaração
+        </h2>
+        <span className="font-body text-xs text-ink-faint">
+          {myDocs?.data.length ?? 0} total
+        </span>
+      </CardHeader>
+      {myDocs?.data.length === 0 ? (
+        <div className="p-5">
+          <EmptyState
+            icon={FileText}
+            title="Nenhum pedido ainda"
+            description="Solicite a sua primeira declaração para a ver aqui."
+            action={{ label: 'Solicitar primeira declaração', onClick: onRequestNew }}
+          />
         </div>
-        <div className="divide-y divide-gray-50">
-          {myDocs?.data.length === 0 ? (
-            <div className="flex flex-col items-center py-16 text-gray-400">
-              <FileText size={40} className="mb-3 opacity-30" />
-              <p className="text-sm">Nenhum pedido ainda</p>
-              <button
-                onClick={onRequestNew}
-                className="mt-3 flex items-center gap-1.5 px-3 py-2 text-sm text-blue-600 border border-blue-200 rounded-xl hover:bg-blue-50"
-              >
-                <Plus size={13} /> Solicitar primeira declaração
-              </button>
-            </div>
-          ) : (
-            myDocs?.data.map((d) => (
-              <div
-                key={d.id}
-                className="px-5 py-4 flex items-center justify-between hover:bg-gray-50/50 transition-colors group"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 bg-blue-50 rounded-xl flex items-center justify-center flex-shrink-0">
-                    <FileText size={16} className="text-blue-600" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-gray-900">
-                      {d.template?.name}
-                    </p>
-                    <p className="text-xs text-gray-400 mt-0.5">
-                      {d.purpose?.name && `${d.purpose.name} · `}
-                      {new Date(d.createdAt).toLocaleDateString('pt-PT')}
-                    </p>
-                  </div>
+      ) : (
+        <div className="divide-y divide-border">
+          {myDocs?.data.map((d) => (
+            <div key={d.id} className="group flex items-center justify-between px-5 py-4">
+              <div className="flex items-center gap-3">
+                <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-control bg-info-subtle">
+                  <FileText size={16} strokeWidth={1.75} className="text-info-ink" />
                 </div>
-                <div className="flex items-center gap-3">
-                  {d.referenceNumber && (
-                    <span className="text-xs font-mono text-gray-400">
-                      {d.referenceNumber}
-                    </span>
-                  )}
-                  <StatusBadge status={d.status} type="doc" />
-                  {(d.status === 'GENERATED' || d.status === 'ISSUED') && (
-                    <button
-                      aria-label="Descarregar"
-                      className="p-1.5 rounded-lg hover:bg-blue-100 text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity"
-                    >
-                      <Download size={14} />
-                    </button>
-                  )}
+                <div>
+                  <p className="font-body text-sm font-semibold text-ink">{d.template?.name}</p>
+                  <p className="mt-0.5 font-body text-xs text-ink-faint">
+                    {d.purpose?.name && `${d.purpose.name} · `}
+                    {new Date(d.createdAt).toLocaleDateString('pt-PT')}
+                  </p>
                 </div>
               </div>
-            ))
-          )}
+              <div className="flex items-center gap-3">
+                {d.referenceNumber && (
+                  <span className="font-data text-xs text-ink-faint">{d.referenceNumber}</span>
+                )}
+                <StatusBadge status={d.status} type="doc" />
+                {(d.status === 'GENERATED' || d.status === 'ISSUED') && (
+                  <IconButton
+                    icon={Download}
+                    label="Descarregar"
+                    intent="ghost"
+                    className="opacity-0 transition-opacity group-hover:opacity-100"
+                  />
+                )}
+              </div>
+            </div>
+          ))}
         </div>
-      </div>
-    </div>
+      )}
+    </Card>
   );
 }

@@ -6,8 +6,10 @@
 // Container: liga hooks/useDeclarations.ts (8 queries agrupadas) e as
 // acções administrativas (aprovar/gerar documento, rever submissão,
 // disparar lembretes — todas fazem `apiClient` + `refetchAll()`) à
-// apresentação, agora repartida em components/declarations/. Ver memory
-// project_innova_component_separation_audit.
+// apresentação, agora repartida em components/declarations/. Migrado para a
+// fundação de design: header/tabs bespoke passam a Button/IconButton
+// (components/ui/Button) e Tabs/TabsList/TabsTrigger/TabsContent
+// (components/ui/Tabs). Ver memory project_innova_component_separation_audit.
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { useState } from 'react';
@@ -22,6 +24,8 @@ import {
 import type { LucideIcon } from 'lucide-react';
 import { apiClient } from '@/lib/apiClient';
 import { useDeclarationsData } from '@/hooks/useDeclarations';
+import { Button, IconButton } from '@/components/ui/Button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
 import { DocsAdminTab } from '@/components/declarations/DocsAdminTab';
 import { MyDocsTab } from '@/components/declarations/MyDocsTab';
 import { NewDocRequestModal } from '@/components/declarations/NewDocRequestModal';
@@ -92,88 +96,77 @@ export default function DeclarationsPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50/50">
+    <div className="min-h-screen bg-canvas">
       {/* Header */}
-      <div className="bg-white border-b border-gray-100 px-6 py-5 sticky top-0 z-10">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
+      <div className="sticky top-0 z-10 border-b border-border bg-surface px-6 py-5">
+        <div className="mx-auto flex max-w-6xl items-center justify-between">
           <div>
-            <h1 className="text-xl font-bold text-gray-900">Declarações</h1>
-            <p className="text-sm text-gray-500">
+            <h1 className="font-display text-xl font-bold text-ink">Declarações</h1>
+            <p className="font-body text-sm text-ink-muted">
               Documentos formais e compliance
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <button
-              onClick={() => setShowDocModal(true)}
-              className="flex items-center gap-1.5 px-4 py-2 text-sm text-white bg-blue-600 rounded-xl hover:bg-blue-700 transition-colors shadow-sm"
-            >
-              <Plus size={15} /> Solicitar Declaração
-            </button>
-            <button
+            <Button onClick={() => setShowDocModal(true)}>
+              <Plus size={15} strokeWidth={1.75} /> Solicitar Declaração
+            </Button>
+            <IconButton
+              icon={RefreshCcw}
+              label="Actualizar"
+              intent="secondary"
               onClick={refetchAll}
-              aria-label="Actualizar"
-              className="p-2 text-gray-500 border border-gray-200 bg-white rounded-xl hover:bg-gray-50"
-            >
-              <RefreshCcw size={15} className={loading ? 'animate-spin' : ''} />
-            </button>
+              className={loading ? 'animate-spin' : ''}
+            />
           </div>
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-6 py-6 space-y-5">
-        {/* Tabs */}
-        <div className="flex bg-white rounded-2xl border border-gray-100 shadow-sm p-1.5 gap-1 w-fit">
-          {tabs.map((t) => (
-            <button
-              key={t.key}
-              onClick={() => setTab(t.key)}
-              className={`flex items-center gap-2 px-4 py-2 text-sm rounded-xl font-medium transition-colors relative ${tab === t.key ? 'bg-blue-600 text-white shadow-sm' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'}`}
-            >
-              <t.icon size={15} />
-              {t.label}
-              {t.badge != null && t.badge > 0 && (
-                <span
-                  className={`w-5 h-5 rounded-full text-xs flex items-center justify-center font-bold ${tab === t.key ? 'bg-white text-blue-600' : 'bg-blue-600 text-white'}`}
-                >
-                  {t.badge}
-                </span>
-              )}
-            </button>
-          ))}
-        </div>
+      <div className="mx-auto max-w-6xl space-y-5 px-6 py-6">
+        <Tabs value={tab} onValueChange={(v) => setTab(v as TabKey)}>
+          <TabsList>
+            {tabs.map((t) => (
+              <TabsTrigger key={t.key} value={t.key} className="flex items-center gap-2">
+                <t.icon size={15} strokeWidth={1.75} />
+                {t.label}
+                {t.badge != null && t.badge > 0 && (
+                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary-subtle font-body text-xs font-bold text-primary">
+                    {t.badge}
+                  </span>
+                )}
+              </TabsTrigger>
+            ))}
+          </TabsList>
 
-        {tab === 'docs-my' && (
-          <MyDocsTab
-            myDocs={myDocs}
-            onRequestNew={() => setShowDocModal(true)}
-          />
-        )}
+          <TabsContent value="docs-my">
+            <MyDocsTab myDocs={myDocs} onRequestNew={() => setShowDocModal(true)} />
+          </TabsContent>
 
-        {tab === 'work-my' && (
-          <WorkFormsTab
-            pendingWork={pendingWork}
-            workSubs={workSubs}
-            onOpenForm={setShowWorkModal}
-          />
-        )}
+          <TabsContent value="work-my">
+            <WorkFormsTab
+              pendingWork={pendingWork}
+              workSubs={workSubs}
+              onOpenForm={setShowWorkModal}
+            />
+          </TabsContent>
 
-        {tab === 'docs-admin' && (
-          <DocsAdminTab
-            docDash={docDash}
-            allDocs={allDocs}
-            onApprove={approveDoc}
-            onGenerate={generateDoc}
-          />
-        )}
+          <TabsContent value="docs-admin">
+            <DocsAdminTab
+              docDash={docDash}
+              allDocs={allDocs}
+              onApprove={approveDoc}
+              onGenerate={generateDoc}
+            />
+          </TabsContent>
 
-        {tab === 'work-admin' && (
-          <WorkAdminTab
-            workDash={workDash}
-            workSubs={workSubs}
-            onReview={reviewWorkSubmission}
-            onTriggerReminders={triggerPeriodicReminders}
-          />
-        )}
+          <TabsContent value="work-admin">
+            <WorkAdminTab
+              workDash={workDash}
+              workSubs={workSubs}
+              onReview={reviewWorkSubmission}
+              onTriggerReminders={triggerPeriodicReminders}
+            />
+          </TabsContent>
+        </Tabs>
       </div>
 
       {showDocModal && (

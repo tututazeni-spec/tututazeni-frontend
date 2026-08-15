@@ -1,14 +1,27 @@
 // components/declarations/WorkDeclFormModal.tsx
 // Formulário dinâmico de declaração de vínculo laboral (perguntas
-// condicionais por tipo de campo). Extraído de
-// app/(platform)/declarations/page.tsx.
+// condicionais por tipo de campo). Migrado para a fundação de design:
+// backdrop+painel bespoke passam a Modal/ModalContent (components/ui/Modal);
+// inputs/select/textarea passam a FormField+Input/Select/Textarea
+// (components/ui/*); botões passam a Button (components/ui/Button); o
+// pill de tipo passa a Badge neutro (components/ui/Badge). O campo BOOLEAN
+// (Sim/Não) fica como par de botões — sem equivalente directo em
+// components/ui/. Extraído de app/(platform)/declarations/page.tsx.
 
 'use client';
 
-import { useState } from 'react';
-import { AlertCircle, Loader2, Send, X } from 'lucide-react';
+import { useState, type ReactNode } from 'react';
+import { AlertCircle, Loader2, Send } from 'lucide-react';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
+import { cn } from '@/lib/cn';
+import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
+import { FormField } from '@/components/ui/FormField';
+import { Input } from '@/components/ui/Input';
+import { Modal, ModalContent } from '@/components/ui/Modal';
+import { Select } from '@/components/ui/Select';
+import { Textarea } from '@/components/ui/Textarea';
 import { WORK_TYPE_LABELS } from './constants';
 import type { WorkForm } from './types';
 
@@ -59,150 +72,131 @@ export function WorkDeclFormModal({
     submitForm.mutate(draft);
   };
 
+  function renderField(q: NonNullable<WorkForm['questions']>[number]): ReactNode {
+    if (q.fieldType === 'TEXTAREA') {
+      return (
+        <Textarea
+          id={`wq-${q.key}`}
+          value={String(answers[q.key] ?? '')}
+          onChange={(e) => setAnswers((a) => ({ ...a, [q.key]: e.target.value }))}
+          rows={3}
+          className="w-full resize-none"
+        />
+      );
+    }
+    if (q.fieldType === 'TEXT') {
+      return (
+        <Input
+          id={`wq-${q.key}`}
+          value={String(answers[q.key] ?? '')}
+          onChange={(e) => setAnswers((a) => ({ ...a, [q.key]: e.target.value }))}
+          className="w-full"
+        />
+      );
+    }
+    if (q.fieldType === 'BOOLEAN') {
+      return (
+        <div className="flex gap-3">
+          {['Sim', 'Não'].map((opt) => (
+            <button
+              key={opt}
+              onClick={() => setAnswers((a) => ({ ...a, [q.key]: opt === 'Sim' }))}
+              className={cn(
+                'flex-1 rounded-control border-2 py-2.5 font-body text-sm font-medium transition-colors',
+                answers[q.key] === (opt === 'Sim')
+                  ? 'border-primary bg-primary-subtle text-primary'
+                  : 'border-border text-ink-muted hover:bg-surface-sunken',
+              )}
+            >
+              {opt}
+            </button>
+          ))}
+        </div>
+      );
+    }
+    if (q.fieldType === 'SELECT' || q.fieldType === 'MULTI_SELECT') {
+      return (
+        <Select
+          items={q.options.map((o) => ({ value: o, label: o }))}
+          placeholder="Seleccionar..."
+          value={String(answers[q.key] ?? '') || undefined}
+          onValueChange={(v) => setAnswers((a) => ({ ...a, [q.key]: v }))}
+          className="w-full"
+        />
+      );
+    }
+    if (q.fieldType === 'DATE') {
+      return (
+        <Input
+          id={`wq-${q.key}`}
+          type="date"
+          value={String(answers[q.key] ?? '')}
+          onChange={(e) => setAnswers((a) => ({ ...a, [q.key]: e.target.value }))}
+          className="w-full"
+        />
+      );
+    }
+    if (q.fieldType === 'NUMBER') {
+      return (
+        <Input
+          id={`wq-${q.key}`}
+          type="number"
+          value={String(answers[q.key] ?? '')}
+          onChange={(e) => setAnswers((a) => ({ ...a, [q.key]: +e.target.value }))}
+          className="w-full"
+        />
+      );
+    }
+    return null;
+  }
+
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-xl max-h-[90vh] overflow-y-auto">
-        <div className="p-6 border-b border-gray-100 flex items-start justify-between">
-          <div>
-            <span className="text-xs font-medium text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">
-              {WORK_TYPE_LABELS[form.type]}
-            </span>
-            <h2 className="font-bold text-gray-900 mt-1.5">{form.title}</h2>
-            {form.description && (
-              <p className="text-sm text-gray-500 mt-0.5">{form.description}</p>
-            )}
-          </div>
-          <button
-            onClick={onClose}
-            aria-label="Fechar"
-            className="p-2 rounded-xl hover:bg-gray-100 text-gray-500 flex-shrink-0"
-          >
-            <X size={18} />
-          </button>
+    <Modal open onOpenChange={(open) => !open && onClose()}>
+      <ModalContent title={form.title} className="max-h-[90vh] max-w-xl overflow-y-auto">
+        <div className="mt-1.5">
+          <Badge intent="info">{WORK_TYPE_LABELS[form.type]}</Badge>
+          {form.description && (
+            <p className="mt-1.5 font-body text-sm text-ink-muted">{form.description}</p>
+          )}
         </div>
 
-        <div className="p-6 space-y-5">
+        <div className="mt-5 space-y-5">
           {error && (
-            <div className="flex items-center gap-2 p-3 bg-red-50 text-red-700 rounded-xl text-sm">
-              <AlertCircle size={15} />
+            <div className="flex items-center gap-2 rounded-card bg-danger-subtle p-3 font-body text-sm text-danger-ink">
+              <AlertCircle size={15} strokeWidth={1.75} />
               {error}
             </div>
           )}
 
           {questions.map((q) => (
-            <div key={q.key}>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                {q.label}
-                {q.required && <span className="text-red-500 ml-1">*</span>}
-              </label>
-
-              {['TEXT', 'TEXTAREA'].includes(q.fieldType) &&
-                (q.fieldType === 'TEXTAREA' ? (
-                  <textarea
-                    value={String(answers[q.key] ?? '')}
-                    onChange={(e) =>
-                      setAnswers((a) => ({ ...a, [q.key]: e.target.value }))
-                    }
-                    rows={3}
-                    className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-                  />
-                ) : (
-                  <input
-                    value={String(answers[q.key] ?? '')}
-                    onChange={(e) =>
-                      setAnswers((a) => ({ ...a, [q.key]: e.target.value }))
-                    }
-                    className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                ))}
-
-              {q.fieldType === 'BOOLEAN' && (
-                <div className="flex gap-3">
-                  {['Sim', 'Não'].map((opt) => (
-                    <button
-                      key={opt}
-                      onClick={() =>
-                        setAnswers((a) => ({ ...a, [q.key]: opt === 'Sim' }))
-                      }
-                      className={`flex-1 py-2.5 text-sm rounded-xl border-2 font-medium transition-colors ${answers[q.key] === (opt === 'Sim') ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-gray-200 text-gray-600 hover:bg-gray-50'}`}
-                    >
-                      {opt}
-                    </button>
-                  ))}
-                </div>
-              )}
-
-              {['SELECT', 'MULTI_SELECT'].includes(q.fieldType) && (
-                <select
-                  value={String(answers[q.key] ?? '')}
-                  onChange={(e) =>
-                    setAnswers((a) => ({ ...a, [q.key]: e.target.value }))
-                  }
-                  className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-                >
-                  <option value="">Seleccionar...</option>
-                  {q.options.map((o) => (
-                    <option key={o} value={o}>
-                      {o}
-                    </option>
-                  ))}
-                </select>
-              )}
-
-              {q.fieldType === 'DATE' && (
-                <input
-                  type="date"
-                  value={String(answers[q.key] ?? '')}
-                  onChange={(e) =>
-                    setAnswers((a) => ({ ...a, [q.key]: e.target.value }))
-                  }
-                  className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              )}
-
-              {q.fieldType === 'NUMBER' && (
-                <input
-                  type="number"
-                  value={String(answers[q.key] ?? '')}
-                  onChange={(e) =>
-                    setAnswers((a) => ({ ...a, [q.key]: +e.target.value }))
-                  }
-                  className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              )}
-            </div>
+            <FormField
+              key={q.key}
+              label={q.required ? `${q.label} *` : q.label}
+              htmlFor={`wq-${q.key}`}
+            >
+              {renderField(q)}
+            </FormField>
           ))}
         </div>
 
-        <div className="p-6 border-t border-gray-100 flex gap-3">
-          <button
-            onClick={() => handleSubmit(true)}
-            disabled={loading}
-            className="px-4 py-2.5 text-sm text-gray-600 border border-gray-200 rounded-xl hover:bg-gray-50"
-          >
+        <div className="mt-6 flex gap-3 border-t border-border pt-4">
+          <Button intent="secondary" disabled={loading} onClick={() => handleSubmit(true)}>
             Guardar Rascunho
-          </button>
+          </Button>
           <div className="flex-1" />
-          <button
-            onClick={onClose}
-            className="px-3 py-2.5 text-sm text-gray-500 hover:text-gray-700"
-          >
+          <Button intent="ghost" onClick={onClose}>
             Cancelar
-          </button>
-          <button
-            onClick={() => handleSubmit(false)}
-            disabled={loading}
-            className="px-5 py-2.5 text-sm text-white bg-blue-600 rounded-xl hover:bg-blue-700 disabled:opacity-50 flex items-center gap-2"
-          >
+          </Button>
+          <Button disabled={loading} onClick={() => handleSubmit(false)}>
             {loading ? (
-              <Loader2 size={14} className="animate-spin" />
+              <Loader2 size={14} strokeWidth={1.75} className="animate-spin" />
             ) : (
-              <Send size={14} />
-            )}{' '}
+              <Send size={14} strokeWidth={1.75} />
+            )}
             Submeter
-          </button>
+          </Button>
         </div>
-      </div>
-    </div>
+      </ModalContent>
+    </Modal>
   );
 }
