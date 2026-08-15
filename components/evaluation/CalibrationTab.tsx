@@ -9,7 +9,11 @@
 import { useState } from 'react';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
-import { Avatar, Skeleton } from './atoms';
+import { Avatar } from '@/components/ui/Avatar';
+import { Button } from '@/components/ui/Button';
+import { Card, CardBody } from '@/components/ui/Card';
+import { Input } from '@/components/ui/Input';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { SCORE_COLOR } from './constants';
 import type { CalibrationData } from './types';
 
@@ -28,35 +32,38 @@ export function CalibrationTab() {
 
   return (
     <div className="space-y-4">
-      <div className="bg-white rounded-xl border border-slate-100 p-4 flex gap-3">
-        <input
-          value={cycleId}
-          onChange={(e) => setCycleId(e.target.value)}
-          placeholder="ID do ciclo..."
-          className="w-48 text-sm border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:border-indigo-400"
-        />
-        <button
-          onClick={load}
-          className="px-4 py-2 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700"
-        >
-          Abrir Calibração
-        </button>
-      </div>
+      <Card>
+        <CardBody className="flex gap-3">
+          <Input
+            value={cycleId}
+            onChange={(e) => setCycleId(e.target.value)}
+            placeholder="ID do ciclo..."
+            className="w-48"
+          />
+          <Button onClick={load}>Abrir Calibração</Button>
+        </CardBody>
+      </Card>
 
-      {loading && <Skeleton />}
+      {loading && (
+        <Skeleton
+          rows={4}
+          wrapperClassName="space-y-3"
+          itemClassName="skeleton-shimmer h-16 rounded-card"
+        />
+      )}
 
       {!loading && data && (
         <div className="space-y-4">
           {/* Biased evaluators alert */}
           {(data.biasedEvaluators ?? []).length > 0 && (
-            <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
-              <p className="text-sm font-semibold text-amber-700 mb-2">
+            <div className="bg-warning-subtle border border-warning rounded-card p-4">
+              <p className="text-sm font-semibold text-warning-ink mb-2">
                 ⚠️ {data.biasedEvaluators?.length} avaliadores com viés
                 detectado
               </p>
               <div className="space-y-1">
                 {(data.biasedEvaluators ?? []).map((e, i) => (
-                  <p key={i} className="text-xs text-amber-700">
+                  <p key={i} className="text-xs text-warning-ink">
                     Avaliador #{e.evaluatorId}: média {e.avg.toFixed(1)} (desvio{' '}
                     {e.deviation > 0 ? '+' : ''}
                     {e.deviation.toFixed(2)})
@@ -70,19 +77,19 @@ export function CalibrationTab() {
           )}
 
           {/* Participants ranking */}
-          <div className="bg-white rounded-xl border border-slate-100">
-            <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
-              <h4 className="font-semibold text-slate-700">
+          <Card>
+            <div className="px-4 py-3 border-b border-border flex items-center justify-between">
+              <h4 className="font-display font-semibold text-ink">
                 Participantes para Calibração
               </h4>
-              <span className="text-xs text-slate-400">
+              <span className="text-xs text-ink-faint">
                 Média global: {data.globalAvg?.toFixed(2)}
               </span>
             </div>
-            <div className="divide-y divide-slate-50 max-h-[480px] overflow-y-auto">
+            <div className="divide-y divide-border max-h-[480px] overflow-y-auto">
               {(data.participants ?? []).map((p, i) => (
                 <div key={i} className="px-4 py-3 flex items-center gap-3">
-                  <span className="text-xs font-bold text-slate-300 w-5 text-right">
+                  <span className="text-xs font-bold text-ink-faint w-5 text-right">
                     #{i + 1}
                   </span>
                   <Avatar
@@ -90,10 +97,10 @@ export function CalibrationTab() {
                     url={p.evaluated?.avatarUrl}
                   />
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-slate-700">
+                    <p className="text-sm font-medium text-ink">
                       {p.evaluated?.fullName}
                     </p>
-                    <p className="text-xs text-slate-400">
+                    <p className="text-xs text-ink-faint">
                       {p.evaluated?.position?.name} ·{' '}
                       {p.evaluated?.department?.name}
                     </p>
@@ -104,22 +111,22 @@ export function CalibrationTab() {
                     >
                       {p.avgScore.toFixed(1)}
                     </p>
-                    <p className="text-[10px] text-slate-400">
+                    <p className="text-[10px] text-ink-faint">
                       P{p.percentile}
                     </p>
                   </div>
                   {(p.dispersion ?? 0) > 1 && (
-                    <span className="text-[10px] bg-red-100 text-red-600 px-1.5 py-0.5 rounded">
+                    <span className="text-[10px] bg-danger-subtle text-danger-ink px-1.5 py-0.5 rounded">
                       ±{p.dispersion?.toFixed(1)}
                     </span>
                   )}
-                  <input
+                  <Input
                     type="number"
-                    min="0"
-                    max="5"
-                    step="0.1"
+                    min={0}
+                    max={5}
+                    step={0.1}
                     defaultValue={p.avgScore}
-                    className="w-16 text-sm border border-slate-200 rounded px-2 py-1 text-center focus:outline-none"
+                    className="w-16 text-center"
                     onBlur={async (e) => {
                       const val = parseFloat(e.target.value);
                       if (val >= 0 && val <= 5 && val !== p.avgScore) {
@@ -133,7 +140,7 @@ export function CalibrationTab() {
                 </div>
               ))}
             </div>
-          </div>
+          </Card>
         </div>
       )}
     </div>
