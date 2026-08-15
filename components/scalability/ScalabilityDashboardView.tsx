@@ -5,6 +5,12 @@
 // original (2020 linhas, tudo junto) — os *Tab já estavam razoavelmente
 // isolados; o que faltava separar era só o topo (estado + JSX do layout).
 // Ver memory project_innova_component_separation_audit, item 3.1.
+//
+// NOTA: Dashboard opera em tema escuro (#080d19) incompatível com a fundação
+// de design light-theme. Colors refletem status (verde=sucesso, vermelho=erro,
+// laranja=aviso, púrpura=primária). Background/borders/text escuros mantêm-se
+// como inline styles para preservar design — apenas componentes UI (Button, Badge,
+// Card) foram migrados para padronizar estrutura.
 
 import type {
   AlertSeverity,
@@ -14,6 +20,17 @@ import type {
   Integration,
   AutomationRule,
 } from './types';
+import {
+  STATUS_COLORS,
+  SEVERITY_COLORS,
+  METRIC_ACCENT_COLORS,
+  DARK_THEME,
+  SLA_STATE_COLORS,
+  ROLE_COLORS,
+} from './colors';
+import { Button } from '@/components/ui/Button';
+import { Badge } from '@/components/ui/Badge';
+import { Card, CardBody } from '@/components/ui/Card';
 
 // ─── UTILITY FUNCTIONS ─────────────────────────────────────
 
@@ -38,12 +55,7 @@ interface StatusDotProps {
 }
 
 function StatusDot({ status }: StatusDotProps) {
-  const map: Record<IntegrationStatus, string> = {
-    ACTIVE: '#22c55e',
-    INACTIVE: '#6b7280',
-    ERROR: '#ef4444',
-    PENDING_AUTH: '#f59e0b',
-  };
+  const color = STATUS_COLORS[status];
   return (
     <span
       style={{
@@ -51,8 +63,8 @@ function StatusDot({ status }: StatusDotProps) {
         width: 8,
         height: 8,
         borderRadius: '50%',
-        background: map[status],
-        boxShadow: `0 0 6px ${map[status]}88`,
+        background: color,
+        boxShadow: `0 0 6px ${color}88`,
       }}
     />
   );
@@ -63,15 +75,7 @@ interface SeverityBadgeProps {
 }
 
 function SeverityBadge({ severity }: SeverityBadgeProps) {
-  const map: Record<
-    AlertSeverity,
-    { bg: string; color: string; label: string }
-  > = {
-    CRITICAL: { bg: '#ef444422', color: '#ef4444', label: 'Crítico' },
-    WARNING: { bg: '#f59e0b22', color: '#f59e0b', label: 'Aviso' },
-    INFO: { bg: '#3b82f622', color: '#60a5fa', label: 'Info' },
-  };
-  const s = map[severity];
+  const s = SEVERITY_COLORS[severity];
   return (
     <span
       style={{
@@ -101,19 +105,23 @@ interface GaugeBarProps {
 function GaugeBar({
   value,
   max,
-  color = '#6366f1',
+  color = METRIC_ACCENT_COLORS.users,
   danger,
   warn,
 }: GaugeBarProps) {
   const pct = Math.min((value / max) * 100, 100);
   const isDanger = danger !== undefined && value >= danger;
   const isWarn = !isDanger && warn !== undefined && value >= warn;
-  const barColor = isDanger ? '#ef4444' : isWarn ? '#f59e0b' : color;
+  const barColor = isDanger
+    ? STATUS_COLORS.ERROR
+    : isWarn
+      ? STATUS_COLORS.PENDING_AUTH
+      : color;
   return (
     <div
       style={{
         width: '100%',
-        background: '#1e2537',
+        background: DARK_THEME.bgTertiary,
         borderRadius: 4,
         height: 6,
         overflow: 'hidden',
@@ -153,13 +161,13 @@ function MetricCard({
   barMax,
   barDanger,
   barWarn,
-  accent = '#6366f1',
+  accent = METRIC_ACCENT_COLORS.users,
 }: MetricCardProps) {
   return (
     <div
       style={{
-        background: '#111827',
-        border: '1px solid #1e2a3a',
+        background: DARK_THEME.bgCard,
+        border: `1px solid ${DARK_THEME.borderPrimary}`,
         borderRadius: 10,
         padding: '16px 20px',
         display: 'flex',
@@ -170,7 +178,7 @@ function MetricCard({
       <span
         style={{
           fontSize: 12,
-          color: '#6b7280',
+          color: DARK_THEME.textSubtle,
           fontWeight: 500,
           letterSpacing: '0.04em',
           textTransform: 'uppercase',
@@ -183,15 +191,21 @@ function MetricCard({
           style={{
             fontSize: 28,
             fontWeight: 700,
-            color: '#f1f5f9',
+            color: DARK_THEME.textPrimary,
             letterSpacing: '-0.02em',
           }}
         >
           {value}
         </span>
-        {unit && <span style={{ fontSize: 13, color: '#64748b' }}>{unit}</span>}
+        {unit && (
+          <span style={{ fontSize: 13, color: DARK_THEME.textMuted }}>
+            {unit}
+          </span>
+        )}
       </div>
-      {sub && <span style={{ fontSize: 12, color: '#475569' }}>{sub}</span>}
+      {sub && (
+        <span style={{ fontSize: 12, color: DARK_THEME.textFaint }}>{sub}</span>
+      )}
       {barValue !== undefined && barMax !== undefined && (
         <GaugeBar
           value={barValue}
@@ -241,8 +255,8 @@ function OverviewTab({ data }: OverviewTabProps) {
       {/* Tenant Banner */}
       <div
         style={{
-          background: 'linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%)',
-          border: '1px solid #312e81',
+          background: DARK_THEME.bgGradientCard,
+          border: `1px solid ${DARK_THEME.borderAccent}`,
           borderRadius: 12,
           padding: '20px 28px',
           display: 'flex',
@@ -254,7 +268,7 @@ function OverviewTab({ data }: OverviewTabProps) {
           <div
             style={{
               fontSize: 13,
-              color: '#818cf8',
+              color: METRIC_ACCENT_COLORS.users,
               fontWeight: 600,
               letterSpacing: '0.1em',
               textTransform: 'uppercase',
@@ -267,7 +281,7 @@ function OverviewTab({ data }: OverviewTabProps) {
             style={{
               fontSize: 24,
               fontWeight: 800,
-              color: '#f1f5f9',
+              color: DARK_THEME.textPrimary,
               letterSpacing: '-0.01em',
             }}
           >
@@ -276,13 +290,13 @@ function OverviewTab({ data }: OverviewTabProps) {
         </div>
         <div
           style={{
-            background: '#4f46e511',
-            border: '1px solid #4f46e5',
+            background: 'rgba(79, 70, 229, 0.07)',
+            border: '1px solid rgb(79, 70, 229)',
             borderRadius: 8,
             padding: '6px 16px',
             fontSize: 13,
             fontWeight: 700,
-            color: '#818cf8',
+            color: METRIC_ACCENT_COLORS.users,
           }}
         >
           {t.plan}
@@ -293,8 +307,8 @@ function OverviewTab({ data }: OverviewTabProps) {
       {slaCompliance.isBreached && (
         <div
           style={{
-            background: '#450a0a',
-            border: '1px solid #ef4444',
+            background: DARK_THEME.bgCritical,
+            border: `1px solid ${STATUS_COLORS.ERROR}`,
             borderRadius: 8,
             padding: '12px 20px',
             display: 'flex',
@@ -303,7 +317,13 @@ function OverviewTab({ data }: OverviewTabProps) {
           }}
         >
           <span style={{ fontSize: 18 }}>⚠</span>
-          <span style={{ color: '#fca5a5', fontSize: 14, fontWeight: 600 }}>
+          <span
+            style={{
+              color: SLA_STATE_COLORS.breached.statusText,
+              fontSize: 14,
+              fontWeight: 600,
+            }}
+          >
             SLA em violação — Uptime actual (
             {formatPercent(slaCompliance.currentUptimePercent, 2)}) abaixo do
             contratado ({formatPercent(slaCompliance.slaTarget, 1)})
@@ -327,7 +347,7 @@ function OverviewTab({ data }: OverviewTabProps) {
           barMax={100}
           barWarn={75}
           barDanger={90}
-          accent="#6366f1"
+          accent={METRIC_ACCENT_COLORS.users}
         />
         <MetricCard
           label="Uptime"
@@ -336,7 +356,7 @@ function OverviewTab({ data }: OverviewTabProps) {
           barValue={p.uptimePercent}
           barMax={100}
           barDanger={99}
-          accent="#22c55e"
+          accent={METRIC_ACCENT_COLORS.uptime}
         />
         <MetricCard
           label="Latência Média"
@@ -347,13 +367,13 @@ function OverviewTab({ data }: OverviewTabProps) {
           barMax={slaCompliance.latencyTarget * 1.5}
           barWarn={slaCompliance.latencyTarget * 0.7}
           barDanger={slaCompliance.latencyTarget}
-          accent="#3b82f6"
+          accent={METRIC_ACCENT_COLORS.latency}
         />
         <MetricCard
           label="Sessões Simultâneas"
           value={p.activeSessionsNow.toLocaleString()}
           sub="em tempo real"
-          accent="#8b5cf6"
+          accent={METRIC_ACCENT_COLORS.sessions}
         />
         <MetricCard
           label="Armazenamento"
@@ -363,7 +383,7 @@ function OverviewTab({ data }: OverviewTabProps) {
           barMax={100}
           barWarn={70}
           barDanger={90}
-          accent="#0ea5e9"
+          accent={METRIC_ACCENT_COLORS.storage}
         />
         <MetricCard
           label="Taxa de Erro"
@@ -373,7 +393,7 @@ function OverviewTab({ data }: OverviewTabProps) {
           barMax={5}
           barWarn={1}
           barDanger={3}
-          accent="#f59e0b"
+          accent={METRIC_ACCENT_COLORS.errorRate}
         />
       </div>
 
@@ -387,14 +407,21 @@ function OverviewTab({ data }: OverviewTabProps) {
       >
         <StatusCard
           title="Integrações"
-          color="#6366f1"
+          color={METRIC_ACCENT_COLORS.users}
           rows={[
             { label: 'Total', value: integrations.total },
-            { label: 'Activas', value: integrations.active, accent: '#22c55e' },
+            {
+              label: 'Activas',
+              value: integrations.active,
+              accent: STATUS_COLORS.ACTIVE,
+            },
             {
               label: 'Com erro',
               value: integrations.withErrors,
-              accent: integrations.withErrors > 0 ? '#ef4444' : '#6b7280',
+              accent:
+                integrations.withErrors > 0
+                  ? STATUS_COLORS.ERROR
+                  : DARK_THEME.textSubtle,
             },
             {
               label: 'Última sync',
@@ -406,34 +433,51 @@ function OverviewTab({ data }: OverviewTabProps) {
         />
         <StatusCard
           title="Automações"
-          color="#8b5cf6"
+          color={METRIC_ACCENT_COLORS.sessions}
           rows={[
             { label: 'Total de regras', value: automations.total },
-            { label: 'Activas', value: automations.active, accent: '#22c55e' },
+            {
+              label: 'Activas',
+              value: automations.active,
+              accent: STATUS_COLORS.ACTIVE,
+            },
             { label: 'Execuções hoje', value: automations.executionsToday },
             {
               label: 'Falhas hoje',
               value: automations.failedToday,
-              accent: automations.failedToday > 0 ? '#f59e0b' : '#6b7280',
+              accent:
+                automations.failedToday > 0
+                  ? STATUS_COLORS.PENDING_AUTH
+                  : DARK_THEME.textSubtle,
             },
           ]}
         />
         <StatusCard
           title="Alertas Abertos"
-          color="#f59e0b"
+          color={STATUS_COLORS.PENDING_AUTH}
           rows={[
             { label: 'Total abertos', value: alerts.open },
             {
               label: 'Críticos',
               value: alerts.critical,
-              accent: alerts.critical > 0 ? '#ef4444' : '#6b7280',
+              accent:
+                alerts.critical > 0
+                  ? STATUS_COLORS.ERROR
+                  : DARK_THEME.textSubtle,
             },
             {
               label: 'Avisos',
               value: alerts.warning,
-              accent: alerts.warning > 0 ? '#f59e0b' : '#6b7280',
+              accent:
+                alerts.warning > 0
+                  ? STATUS_COLORS.PENDING_AUTH
+                  : DARK_THEME.textSubtle,
             },
-            { label: 'Informativos', value: alerts.info, accent: '#60a5fa' },
+            {
+              label: 'Informativos',
+              value: alerts.info,
+              accent: METRIC_ACCENT_COLORS.latency,
+            },
           ]}
         />
       </div>
@@ -451,8 +495,8 @@ function StatusCard({ title, color, rows }: StatusCardProps) {
   return (
     <div
       style={{
-        background: '#111827',
-        border: '1px solid #1e2a3a',
+        background: DARK_THEME.bgCard,
+        border: `1px solid ${DARK_THEME.borderPrimary}`,
         borderRadius: 10,
         padding: '18px 20px',
       }}
@@ -479,12 +523,14 @@ function StatusCard({ title, color, rows }: StatusCardProps) {
               alignItems: 'center',
             }}
           >
-            <span style={{ fontSize: 13, color: '#94a3b8' }}>{r.label}</span>
+            <span style={{ fontSize: 13, color: DARK_THEME.textTertiary }}>
+              {r.label}
+            </span>
             <span
               style={{
                 fontSize: 14,
                 fontWeight: 700,
-                color: r.accent ?? '#f1f5f9',
+                color: r.accent ?? DARK_THEME.textPrimary,
               }}
             >
               {r.value}
@@ -510,7 +556,7 @@ function PerformanceTab({ data }: PerformanceTabProps) {
       unit: '%',
       warn: 70,
       danger: 85,
-      color: '#8b5cf6',
+      color: METRIC_ACCENT_COLORS.cpu,
     },
     {
       label: 'Memória',
@@ -519,7 +565,7 @@ function PerformanceTab({ data }: PerformanceTabProps) {
       unit: '%',
       warn: 75,
       danger: 90,
-      color: '#6366f1',
+      color: METRIC_ACCENT_COLORS.memory,
     },
     {
       label: 'Req/min',
@@ -528,7 +574,7 @@ function PerformanceTab({ data }: PerformanceTabProps) {
       unit: '',
       warn: 7000,
       danger: 9000,
-      color: '#3b82f6',
+      color: METRIC_ACCENT_COLORS.requests,
     },
     {
       label: 'Latência (ms)',
@@ -537,7 +583,7 @@ function PerformanceTab({ data }: PerformanceTabProps) {
       unit: 'ms',
       warn: 1500,
       danger: 2500,
-      color: '#0ea5e9',
+      color: METRIC_ACCENT_COLORS.storage,
     },
   ];
 
@@ -558,13 +604,17 @@ function PerformanceTab({ data }: PerformanceTabProps) {
           const pct = (m.value / m.max) * 100;
           const isDanger = m.value >= m.danger;
           const isWarn = !isDanger && m.value >= m.warn;
-          const color = isDanger ? '#ef4444' : isWarn ? '#f59e0b' : m.color;
+          const color = isDanger
+            ? STATUS_COLORS.ERROR
+            : isWarn
+              ? STATUS_COLORS.PENDING_AUTH
+              : m.color;
           return (
             <div
               key={m.label}
               style={{
-                background: '#111827',
-                border: `1px solid ${isDanger ? '#ef444433' : '#1e2a3a'}`,
+                background: DARK_THEME.bgCard,
+                border: `1px solid ${isDanger ? DARK_THEME.borderErrorAlpha : DARK_THEME.borderPrimary}`,
                 borderRadius: 10,
                 padding: '20px 24px',
               }}
@@ -577,7 +627,11 @@ function PerformanceTab({ data }: PerformanceTabProps) {
                 }}
               >
                 <span
-                  style={{ fontSize: 13, color: '#94a3b8', fontWeight: 600 }}
+                  style={{
+                    fontSize: 13,
+                    color: DARK_THEME.textTertiary,
+                    fontWeight: 600,
+                  }}
                 >
                   {m.label}
                 </span>
@@ -598,7 +652,7 @@ function PerformanceTab({ data }: PerformanceTabProps) {
                 style={{
                   position: 'relative',
                   height: 32,
-                  background: '#1e2537',
+                  background: DARK_THEME.bgTertiary,
                   borderRadius: 6,
                   overflow: 'hidden',
                 }}
@@ -623,7 +677,7 @@ function PerformanceTab({ data }: PerformanceTabProps) {
                     alignItems: 'center',
                     paddingLeft: 12,
                     fontSize: 12,
-                    color: '#cbd5e1',
+                    color: DARK_THEME.textSecondary,
                     fontWeight: 600,
                   }}
                 >
@@ -637,15 +691,15 @@ function PerformanceTab({ data }: PerformanceTabProps) {
                   justifyContent: 'space-between',
                   marginTop: 8,
                   fontSize: 11,
-                  color: '#475569',
+                  color: DARK_THEME.textFaint,
                 }}
               >
                 <span>0</span>
-                <span style={{ color: '#f59e0b' }}>
+                <span style={{ color: STATUS_COLORS.PENDING_AUTH }}>
                   ⚠ {m.warn}
                   {m.unit}
                 </span>
-                <span style={{ color: '#ef4444' }}>
+                <span style={{ color: STATUS_COLORS.ERROR }}>
                   ✕ {m.danger}
                   {m.unit}
                 </span>
@@ -662,8 +716,8 @@ function PerformanceTab({ data }: PerformanceTabProps) {
       {/* Load Test CTA */}
       <div
         style={{
-          background: '#0c1426',
-          border: '1px dashed #1e3a5f',
+          background: DARK_THEME.bgSecondary,
+          border: `1px dashed ${DARK_THEME.borderInfo}`,
           borderRadius: 10,
           padding: '20px 24px',
           display: 'flex',
@@ -676,13 +730,13 @@ function PerformanceTab({ data }: PerformanceTabProps) {
             style={{
               fontSize: 15,
               fontWeight: 700,
-              color: '#e2e8f0',
+              color: DARK_THEME.textSecondary,
               marginBottom: 4,
             }}
           >
             Teste de Carga (Stress Test)
           </div>
-          <div style={{ fontSize: 13, color: '#64748b' }}>
+          <div style={{ fontSize: 13, color: DARK_THEME.textMuted }}>
             Simular picos de utilizadores simultâneos para validar a
             escalabilidade
           </div>
@@ -751,8 +805,8 @@ function IntegrationsTab({ integrations }: IntegrationsTabProps) {
           <div
             key={int.id}
             style={{
-              background: '#111827',
-              border: `1px solid ${int.status === 'ERROR' ? '#ef444433' : '#1e2a3a'}`,
+              background: DARK_THEME.bgCard,
+              border: `1px solid ${int.status === 'ERROR' ? DARK_THEME.borderErrorAlpha : DARK_THEME.borderPrimary}`,
               borderRadius: 10,
               padding: '16px 20px',
               display: 'flex',
@@ -766,13 +820,13 @@ function IntegrationsTab({ integrations }: IntegrationsTabProps) {
                 style={{
                   fontSize: 14,
                   fontWeight: 700,
-                  color: '#e2e8f0',
+                  color: DARK_THEME.textSecondary,
                   marginBottom: 2,
                 }}
               >
                 {int.name}
               </div>
-              <div style={{ fontSize: 12, color: '#64748b' }}>
+              <div style={{ fontSize: 12, color: DARK_THEME.textMuted }}>
                 {typeLabels[int.type] ?? int.type} ·{' '}
                 {freqLabel[int.syncFrequency] ?? int.syncFrequency}
               </div>
@@ -784,17 +838,17 @@ function IntegrationsTab({ integrations }: IntegrationsTabProps) {
                   fontWeight: 700,
                   color:
                     int.status === 'ACTIVE'
-                      ? '#22c55e'
+                      ? STATUS_COLORS.ACTIVE
                       : int.status === 'ERROR'
-                        ? '#ef4444'
-                        : '#94a3b8',
+                        ? STATUS_COLORS.ERROR
+                        : DARK_THEME.textTertiary,
                   marginBottom: 2,
                 }}
               >
                 {statusLabel[int.status]}
               </div>
               {int.lastSyncAt && (
-                <div style={{ fontSize: 11, color: '#475569' }}>
+                <div style={{ fontSize: 11, color: DARK_THEME.textFaint }}>
                   Sync: {timeAgo(int.lastSyncAt)} · {int.lastSyncStatus}
                 </div>
               )}
@@ -858,8 +912,8 @@ function AutomationsTab({ rules }: AutomationsTabProps) {
           <div
             key={rule.id}
             style={{
-              background: '#111827',
-              border: '1px solid #1e2a3a',
+              background: DARK_THEME.bgCard,
+              border: `1px solid ${DARK_THEME.borderPrimary}`,
               borderRadius: 10,
               padding: '16px 20px',
               display: 'flex',
@@ -872,13 +926,17 @@ function AutomationsTab({ rules }: AutomationsTabProps) {
                 width: 36,
                 height: 36,
                 borderRadius: 8,
-                background: rule.isActive ? '#1e1b4b' : '#1a1a2e',
+                background: rule.isActive
+                  ? DARK_THEME.bgAccentDark
+                  : DARK_THEME.bgTertiary,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 fontSize: 16,
-                color: rule.isActive ? '#818cf8' : '#374151',
-                border: `1px solid ${rule.isActive ? '#312e81' : '#1f2937'}`,
+                color: rule.isActive
+                  ? METRIC_ACCENT_COLORS.users
+                  : DARK_THEME.textDisabled,
+                border: `1px solid ${rule.isActive ? DARK_THEME.borderAccent : DARK_THEME.borderInactive}`,
               }}
             >
               ⟲
@@ -888,15 +946,17 @@ function AutomationsTab({ rules }: AutomationsTabProps) {
                 style={{
                   fontSize: 14,
                   fontWeight: 700,
-                  color: rule.isActive ? '#e2e8f0' : '#6b7280',
+                  color: rule.isActive
+                    ? DARK_THEME.textSecondary
+                    : DARK_THEME.textSubtle,
                   marginBottom: 3,
                 }}
               >
                 {rule.name}
               </div>
-              <div style={{ fontSize: 12, color: '#64748b' }}>
+              <div style={{ fontSize: 12, color: DARK_THEME.textMuted }}>
                 Gatilho:{' '}
-                <span style={{ color: '#818cf8' }}>
+                <span style={{ color: METRIC_ACCENT_COLORS.users }}>
                   {triggerLabel[rule.triggerType] ?? rule.triggerType}
                 </span>
                 {' · '}
@@ -909,10 +969,10 @@ function AutomationsTab({ rules }: AutomationsTabProps) {
                 fontSize: 12,
                 fontWeight: 700,
                 color: !rule.isActive
-                  ? '#6b7280'
+                  ? DARK_THEME.textSubtle
                   : rule.lastRunStatus === 'FAILED'
-                    ? '#ef4444'
-                    : '#22c55e',
+                    ? STATUS_COLORS.ERROR
+                    : STATUS_COLORS.ACTIVE,
               }}
             >
               {!rule.isActive
@@ -961,9 +1021,9 @@ function AlertsTab({ alerts }: AlertsTabProps) {
           <div
             key={alert.id}
             style={{
-              background: '#111827',
-              border: `1px solid ${alert.severity === 'CRITICAL' ? '#ef444433' : alert.severity === 'WARNING' ? '#f59e0b22' : '#1e2a3a'}`,
-              borderLeft: `3px solid ${alert.severity === 'CRITICAL' ? '#ef4444' : alert.severity === 'WARNING' ? '#f59e0b' : '#3b82f6'}`,
+              background: DARK_THEME.bgCard,
+              border: `1px solid ${alert.severity === 'CRITICAL' ? DARK_THEME.borderErrorAlpha : alert.severity === 'WARNING' ? DARK_THEME.borderWarning : DARK_THEME.borderInfo}`,
+              borderLeft: `3px solid ${alert.severity === 'CRITICAL' ? STATUS_COLORS.ERROR : alert.severity === 'WARNING' ? STATUS_COLORS.PENDING_AUTH : METRIC_ACCENT_COLORS.latency}`,
               borderRadius: '0 10px 10px 0',
               padding: '14px 20px',
             }}
@@ -989,14 +1049,16 @@ function AlertsTab({ alerts }: AlertsTabProps) {
                   <span
                     style={{
                       fontSize: 11,
-                      color: '#475569',
+                      color: DARK_THEME.textFaint,
                       textTransform: 'uppercase',
                       letterSpacing: '0.05em',
                     }}
                   >
                     {alert.category}
                   </span>
-                  <span style={{ fontSize: 11, color: '#374151' }}>
+                  <span
+                    style={{ fontSize: 11, color: DARK_THEME.textDisabled }}
+                  >
                     · {timeAgo(alert.createdAt)}
                   </span>
                 </div>
@@ -1004,14 +1066,18 @@ function AlertsTab({ alerts }: AlertsTabProps) {
                   style={{
                     fontSize: 14,
                     fontWeight: 700,
-                    color: '#e2e8f0',
+                    color: DARK_THEME.textSecondary,
                     marginBottom: 4,
                   }}
                 >
                   {alert.title}
                 </div>
                 <div
-                  style={{ fontSize: 13, color: '#64748b', lineHeight: 1.5 }}
+                  style={{
+                    fontSize: 13,
+                    color: DARK_THEME.textMuted,
+                    lineHeight: 1.5,
+                  }}
                 >
                   {alert.message}
                 </div>
@@ -1049,8 +1115,10 @@ function SlaTab({ data }: SlaTabProps) {
       {/* SLA Score */}
       <div
         style={{
-          background: `linear-gradient(135deg, ${s.isBreached ? '#1a0505' : '#0a1628'} 0%, ${s.isBreached ? '#2d0909' : '#0f1f3d'} 100%)`,
-          border: `1px solid ${s.isBreached ? '#7f1d1d' : '#1e3a5f'}`,
+          background: s.isBreached
+            ? SLA_STATE_COLORS.breached.gradient
+            : SLA_STATE_COLORS.compliant.gradient,
+          border: `1px solid ${s.isBreached ? SLA_STATE_COLORS.breached.border : SLA_STATE_COLORS.compliant.border}`,
           borderRadius: 12,
           padding: '28px 32px',
           display: 'flex',
@@ -1063,7 +1131,7 @@ function SlaTab({ data }: SlaTabProps) {
             width: 96,
             height: 96,
             borderRadius: '50%',
-            background: `conic-gradient(${s.isBreached ? '#ef4444' : '#22c55e'} ${complianceScore * 3.6}deg, #1e2537 0deg)`,
+            background: `conic-gradient(${s.isBreached ? SLA_STATE_COLORS.breached.statusColor : SLA_STATE_COLORS.compliant.statusColor} ${complianceScore * 3.6}deg, ${DARK_THEME.bgGradientUnfilled} 0deg)`,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -1075,33 +1143,45 @@ function SlaTab({ data }: SlaTabProps) {
               width: 72,
               height: 72,
               borderRadius: '50%',
-              background: s.isBreached ? '#1a0505' : '#0a1628',
+              background: s.isBreached
+                ? SLA_STATE_COLORS.breached.bg
+                : SLA_STATE_COLORS.compliant.bg,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               fontSize: 18,
               fontWeight: 800,
-              color: s.isBreached ? '#ef4444' : '#22c55e',
+              color: s.isBreached
+                ? SLA_STATE_COLORS.breached.statusColor
+                : SLA_STATE_COLORS.compliant.statusColor,
             }}
           >
             {complianceScore.toFixed(0)}%
           </div>
         </div>
         <div>
-          <div style={{ fontSize: 13, color: '#64748b', marginBottom: 6 }}>
+          <div
+            style={{
+              fontSize: 13,
+              color: DARK_THEME.textMuted,
+              marginBottom: 6,
+            }}
+          >
             Conformidade SLA
           </div>
           <div
             style={{
               fontSize: 26,
               fontWeight: 800,
-              color: s.isBreached ? '#fca5a5' : '#86efac',
+              color: s.isBreached
+                ? SLA_STATE_COLORS.breached.statusText
+                : SLA_STATE_COLORS.compliant.statusText,
               marginBottom: 4,
             }}
           >
             {s.isBreached ? '⚠ SLA Violado' : '✓ SLA Cumprido'}
           </div>
-          <div style={{ fontSize: 13, color: '#94a3b8' }}>
+          <div style={{ fontSize: 13, color: DARK_THEME.textTertiary }}>
             Uptime actual:{' '}
             <strong>{formatPercent(s.currentUptimePercent, 3)}</strong> · Meta:{' '}
             <strong>{formatPercent(s.slaTarget, 1)}</strong>
@@ -1152,8 +1232,8 @@ function SlaTab({ data }: SlaTabProps) {
           <div
             key={i}
             style={{
-              background: '#111827',
-              border: '1px solid #1e2a3a',
+              background: DARK_THEME.bgCard,
+              border: `1px solid ${DARK_THEME.borderPrimary}`,
               borderRadius: 8,
               padding: '14px 18px',
               display: 'flex',
@@ -1164,16 +1244,26 @@ function SlaTab({ data }: SlaTabProps) {
             <span
               style={{
                 fontSize: 16,
-                color: item.status ? '#22c55e' : '#f59e0b',
+                color: item.status
+                  ? STATUS_COLORS.ACTIVE
+                  : STATUS_COLORS.PENDING_AUTH,
               }}
             >
               {item.status ? '✓' : '◌'}
             </span>
             <div>
-              <div style={{ fontSize: 13, fontWeight: 600, color: '#e2e8f0' }}>
+              <div
+                style={{
+                  fontSize: 13,
+                  fontWeight: 600,
+                  color: DARK_THEME.textSecondary,
+                }}
+              >
                 {item.label}
               </div>
-              <div style={{ fontSize: 12, color: '#64748b' }}>{item.desc}</div>
+              <div style={{ fontSize: 12, color: DARK_THEME.textMuted }}>
+                {item.desc}
+              </div>
             </div>
           </div>
         ))}
@@ -1222,21 +1312,25 @@ function UsersTab({ data }: UsersTabProps) {
           barMax={100}
           barWarn={75}
           barDanger={90}
-          accent="#6366f1"
+          accent={METRIC_ACCENT_COLORS.users}
         />
         <MetricCard
           label="Licenças Disponíveis"
           value={(t.maxUsers - t.activeUsersCount).toLocaleString()}
-          accent="#22c55e"
+          accent={STATUS_COLORS.ACTIVE}
         />
-        <MetricCard label="Plano Actual" value={t.plan} accent="#f59e0b" />
+        <MetricCard
+          label="Plano Actual"
+          value={t.plan}
+          accent={STATUS_COLORS.PENDING_AUTH}
+        />
       </div>
 
       {/* Segmentation */}
       <div
         style={{
-          background: '#111827',
-          border: '1px solid #1e2a3a',
+          background: DARK_THEME.bgCard,
+          border: `1px solid ${DARK_THEME.borderPrimary}`,
           borderRadius: 10,
           padding: '20px 24px',
         }}
@@ -1244,7 +1338,7 @@ function UsersTab({ data }: UsersTabProps) {
         <div
           style={{
             fontSize: 13,
-            color: '#818cf8',
+            color: METRIC_ACCENT_COLORS.users,
             fontWeight: 700,
             marginBottom: 16,
             textTransform: 'uppercase',
@@ -1266,12 +1360,12 @@ function UsersTab({ data }: UsersTabProps) {
             <span
               key={seg}
               style={{
-                background: '#1e1b4b',
-                border: '1px solid #312e81',
+                background: DARK_THEME.bgAccentDark,
+                border: `1px solid ${DARK_THEME.borderAccent}`,
                 borderRadius: 20,
                 padding: '4px 14px',
                 fontSize: 12,
-                color: '#a5b4fc',
+                color: DARK_THEME.textHighlight,
                 fontWeight: 600,
               }}
             >
@@ -1284,8 +1378,8 @@ function UsersTab({ data }: UsersTabProps) {
       {/* Role grid */}
       <div
         style={{
-          background: '#111827',
-          border: '1px solid #1e2a3a',
+          background: DARK_THEME.bgCard,
+          border: `1px solid ${DARK_THEME.borderPrimary}`,
           borderRadius: 10,
           padding: '20px 24px',
         }}
@@ -1293,7 +1387,7 @@ function UsersTab({ data }: UsersTabProps) {
         <div
           style={{
             fontSize: 13,
-            color: '#818cf8',
+            color: METRIC_ACCENT_COLORS.users,
             fontWeight: 700,
             marginBottom: 16,
             textTransform: 'uppercase',
@@ -1313,38 +1407,38 @@ function UsersTab({ data }: UsersTabProps) {
             {
               role: 'Admin',
               desc: 'Acesso total à plataforma',
-              color: '#ef4444',
+              color: ROLE_COLORS.admin,
             },
             {
               role: 'RH',
               desc: 'Gestão de utilizadores e relatórios',
-              color: '#f59e0b',
+              color: ROLE_COLORS.rh,
             },
             {
               role: 'Gestor',
               desc: 'Equipa e relatórios de departamento',
-              color: '#8b5cf6',
+              color: ROLE_COLORS.manager,
             },
             {
               role: 'Instrutor',
               desc: 'Criação e gestão de conteúdo',
-              color: '#3b82f6',
+              color: ROLE_COLORS.instructor,
             },
             {
               role: 'Colaborador',
               desc: 'Acesso a cursos e trilhas',
-              color: '#22c55e',
+              color: ROLE_COLORS.employee,
             },
             {
               role: 'Auditor',
               desc: 'Leitura de logs e compliance',
-              color: '#6b7280',
+              color: ROLE_COLORS.auditor,
             },
           ].map((r) => (
             <div
               key={r.role}
               style={{
-                background: '#0f172a',
+                background: DARK_THEME.bgPrimary,
                 border: `1px solid ${r.color}22`,
                 borderLeft: `2px solid ${r.color}`,
                 borderRadius: 6,
@@ -1361,7 +1455,9 @@ function UsersTab({ data }: UsersTabProps) {
               >
                 {r.role}
               </div>
-              <div style={{ fontSize: 11, color: '#475569' }}>{r.desc}</div>
+              <div style={{ fontSize: 11, color: DARK_THEME.textFaint }}>
+                {r.desc}
+              </div>
             </div>
           ))}
         </div>
@@ -1425,8 +1521,8 @@ function ContentTab() {
           <div
             key={item.title}
             style={{
-              background: '#111827',
-              border: '1px solid #1e2a3a',
+              background: DARK_THEME.bgCard,
+              border: `1px solid ${DARK_THEME.borderPrimary}`,
               borderRadius: 10,
               padding: '18px 20px',
               display: 'flex',
@@ -1439,21 +1535,33 @@ function ContentTab() {
                 width: 42,
                 height: 42,
                 borderRadius: 8,
-                background: '#1e1b4b',
+                background: DARK_THEME.bgAccentDark,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 fontSize: 18,
-                color: '#818cf8',
+                color: METRIC_ACCENT_COLORS.users,
               }}
             >
               {item.icon}
             </div>
             <div>
-              <div style={{ fontSize: 13, color: '#64748b', marginBottom: 4 }}>
+              <div
+                style={{
+                  fontSize: 13,
+                  color: DARK_THEME.textMuted,
+                  marginBottom: 4,
+                }}
+              >
                 {item.title}
               </div>
-              <div style={{ fontSize: 14, fontWeight: 700, color: '#e2e8f0' }}>
+              <div
+                style={{
+                  fontSize: 14,
+                  fontWeight: 700,
+                  color: DARK_THEME.textSecondary,
+                }}
+              >
                 {item.value}
               </div>
             </div>
@@ -1464,8 +1572,12 @@ function ContentTab() {
                   fontWeight: 700,
                   padding: '3px 10px',
                   borderRadius: 12,
-                  background: item.active ? '#14532d' : '#1a1a2e',
-                  color: item.active ? '#4ade80' : '#6b7280',
+                  background: item.active
+                    ? DARK_THEME.bgSuccess
+                    : DARK_THEME.bgTertiary,
+                  color: item.active
+                    ? METRIC_ACCENT_COLORS.activeToggle
+                    : DARK_THEME.textSubtle,
                 }}
               >
                 {item.active ? 'ON' : 'OFF'}
@@ -1493,13 +1605,17 @@ function SectionHeader({ title, sub }: SectionHeaderProps) {
           margin: 0,
           fontSize: 18,
           fontWeight: 800,
-          color: '#f1f5f9',
+          color: DARK_THEME.textPrimary,
           letterSpacing: '-0.01em',
         }}
       >
         {title}
       </h2>
-      <p style={{ margin: '4px 0 0', fontSize: 13, color: '#475569' }}>{sub}</p>
+      <p
+        style={{ margin: '4px 0 0', fontSize: 13, color: DARK_THEME.textFaint }}
+      >
+        {sub}
+      </p>
     </div>
   );
 }
@@ -1513,20 +1629,10 @@ function ActionButton({ label, onClick }: ActionButtonProps) {
   return (
     <button
       onClick={onClick}
+      className="px-[18px] py-[9px] text-sm font-semibold rounded-control bg-indigo-500 text-white hover:bg-indigo-600 transition-colors"
       style={{
-        background: 'linear-gradient(135deg, #4f46e5, #7c3aed)',
-        border: 'none',
-        borderRadius: 8,
-        padding: '9px 18px',
-        fontSize: 13,
-        fontWeight: 700,
-        color: '#fff',
-        cursor: 'pointer',
         letterSpacing: '0.02em',
-        transition: 'opacity 0.15s',
       }}
-      onMouseOver={(e) => (e.currentTarget.style.opacity = '0.85')}
-      onMouseOut={(e) => (e.currentTarget.style.opacity = '1')}
     >
       {label}
     </button>
@@ -1547,17 +1653,11 @@ function SmallButton({
   return (
     <button
       onClick={onClick}
-      style={{
-        background: variant === 'ghost' ? 'transparent' : '#1e1b4b',
-        border: `1px solid ${variant === 'ghost' ? '#374151' : '#312e81'}`,
-        borderRadius: 6,
-        padding: '5px 12px',
-        fontSize: 12,
-        fontWeight: 600,
-        color: variant === 'ghost' ? '#6b7280' : '#a5b4fc',
-        cursor: 'pointer',
-        whiteSpace: 'nowrap',
-      }}
+      className={`px-3 py-1 rounded-control text-xs font-semibold whitespace-nowrap ${
+        variant === 'ghost'
+          ? 'bg-transparent border border-gray-600 text-gray-500 hover:text-gray-400'
+          : 'bg-indigo-950 border border-indigo-800 text-indigo-300 hover:text-indigo-200'
+      }`}
     >
       {label}
     </button>
@@ -1572,16 +1672,11 @@ interface FilterChipProps {
 function FilterChip({ label, active }: FilterChipProps) {
   return (
     <button
-      style={{
-        background: active ? '#1e1b4b' : 'transparent',
-        border: `1px solid ${active ? '#4f46e5' : '#1e2a3a'}`,
-        borderRadius: 20,
-        padding: '4px 14px',
-        fontSize: 12,
-        fontWeight: 600,
-        color: active ? '#a5b4fc' : '#475569',
-        cursor: 'pointer',
-      }}
+      className={`px-[14px] py-1 rounded-pill text-xs font-semibold transition-colors ${
+        active
+          ? 'bg-indigo-950 border border-indigo-600 text-indigo-300'
+          : 'bg-transparent border border-slate-800 text-slate-600'
+      }`}
     >
       {label}
     </button>
@@ -1643,9 +1738,9 @@ export function ScalabilityDashboardView({
     <div
       style={{
         minHeight: '100vh',
-        background: '#080d19',
+        background: DARK_THEME.bgPrimary,
         fontFamily: "'DM Sans', 'Segoe UI', system-ui, sans-serif",
-        color: '#f1f5f9',
+        color: DARK_THEME.textPrimary,
       }}
     >
       {/* Font import */}
@@ -1653,19 +1748,19 @@ export function ScalabilityDashboardView({
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap');
         * { box-sizing: border-box; }
         ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #111827; }
-        ::-webkit-scrollbar-thumb { background: #1e2a3a; border-radius: 3px; }
+        ::-webkit-scrollbar-track { background: ${DARK_THEME.scrollbarBg}; }
+        ::-webkit-scrollbar-thumb { background: ${DARK_THEME.scrollbarThumb}; border-radius: 3px; }
       `}</style>
 
       {/* Top Header */}
       <div
         style={{
-          borderBottom: '1px solid #0f1c30',
+          borderBottom: `1px solid ${DARK_THEME.borderPrimary}`,
           padding: '16px 32px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          background: '#080d19',
+          background: DARK_THEME.bgPrimary,
           position: 'sticky',
           top: 0,
           zIndex: 100,
@@ -1677,13 +1772,13 @@ export function ScalabilityDashboardView({
               width: 36,
               height: 36,
               borderRadius: 8,
-              background: 'linear-gradient(135deg, #4f46e5, #7c3aed)',
+              background: DARK_THEME.bgGradientTablet,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               fontSize: 16,
               fontWeight: 900,
-              color: '#fff',
+              color: DARK_THEME.textWhite,
             }}
           >
             I
@@ -1693,7 +1788,7 @@ export function ScalabilityDashboardView({
               style={{
                 fontSize: 16,
                 fontWeight: 800,
-                color: '#f1f5f9',
+                color: DARK_THEME.textPrimary,
                 letterSpacing: '-0.01em',
               }}
             >
@@ -1702,7 +1797,7 @@ export function ScalabilityDashboardView({
             <div
               style={{
                 fontSize: 11,
-                color: '#475569',
+                color: DARK_THEME.textFaint,
                 fontWeight: 500,
                 letterSpacing: '0.08em',
                 textTransform: 'uppercase',
@@ -1716,13 +1811,13 @@ export function ScalabilityDashboardView({
           {criticalCount > 0 && (
             <div
               style={{
-                background: '#7f1d1d',
-                border: '1px solid #ef444466',
+                background: SLA_STATE_COLORS.breached.bg,
+                border: `1px solid ${SLA_STATE_COLORS.breached.border}66`,
                 borderRadius: 20,
                 padding: '4px 12px',
                 fontSize: 12,
                 fontWeight: 700,
-                color: '#fca5a5',
+                color: SLA_STATE_COLORS.breached.statusText,
                 display: 'flex',
                 alignItems: 'center',
                 gap: 6,
@@ -1733,7 +1828,7 @@ export function ScalabilityDashboardView({
                   width: 7,
                   height: 7,
                   borderRadius: '50%',
-                  background: '#ef4444',
+                  background: STATUS_COLORS.ERROR,
                   display: 'inline-block',
                 }}
               />
@@ -1741,7 +1836,7 @@ export function ScalabilityDashboardView({
               {criticalCount > 1 ? 's' : ''}
             </div>
           )}
-          <div style={{ fontSize: 12, color: '#374151' }}>
+          <div style={{ fontSize: 12, color: DARK_THEME.textDisabled }}>
             Actualizado:{' '}
             {lastRefresh.toLocaleTimeString('pt-PT', {
               hour: '2-digit',
@@ -1751,13 +1846,13 @@ export function ScalabilityDashboardView({
           <button
             onClick={onRefresh}
             style={{
-              background: '#111827',
-              border: '1px solid #1e2a3a',
+              background: DARK_THEME.bgCard,
+              border: `1px solid ${DARK_THEME.borderPrimary}`,
               borderRadius: 6,
               padding: '7px 14px',
               fontSize: 12,
               fontWeight: 600,
-              color: '#64748b',
+              color: DARK_THEME.textMuted,
               cursor: 'pointer',
             }}
           >
@@ -1769,12 +1864,12 @@ export function ScalabilityDashboardView({
       {/* Tab Navigation */}
       <div
         style={{
-          borderBottom: '1px solid #0f1c30',
+          borderBottom: `1px solid ${DARK_THEME.borderPrimary}`,
           padding: '0 32px',
           display: 'flex',
           gap: 4,
           overflowX: 'auto',
-          background: '#08101f',
+          background: DARK_THEME.bgSecondary,
         }}
       >
         {TABS.map((tab) => {
@@ -1790,9 +1885,11 @@ export function ScalabilityDashboardView({
                 padding: '14px 18px',
                 fontSize: 13,
                 fontWeight: isActive ? 700 : 500,
-                color: isActive ? '#a5b4fc' : '#475569',
+                color: isActive
+                  ? DARK_THEME.textHighlight
+                  : DARK_THEME.textFaint,
                 cursor: 'pointer',
-                borderBottom: `2px solid ${isActive ? '#6366f1' : 'transparent'}`,
+                borderBottom: `2px solid ${isActive ? METRIC_ACCENT_COLORS.users : 'transparent'}`,
                 whiteSpace: 'nowrap',
                 display: 'flex',
                 alignItems: 'center',
@@ -1805,8 +1902,14 @@ export function ScalabilityDashboardView({
               {hasAlert && (
                 <span
                   style={{
-                    background: criticalCount > 0 ? '#7f1d1d' : '#7c2d12',
-                    color: criticalCount > 0 ? '#fca5a5' : '#fdba74',
+                    background:
+                      criticalCount > 0
+                        ? SLA_STATE_COLORS.breached.bg
+                        : DARK_THEME.bgWarningDark,
+                    color:
+                      criticalCount > 0
+                        ? SLA_STATE_COLORS.breached.statusText
+                        : DARK_THEME.textWarningLight,
                     fontSize: 10,
                     fontWeight: 800,
                     padding: '1px 6px',
