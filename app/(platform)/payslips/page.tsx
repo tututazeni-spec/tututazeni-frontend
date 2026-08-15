@@ -2,7 +2,9 @@
 'use client';
 
 import { useState } from 'react';
+import { Download } from 'lucide-react';
 import { API_URL as API_BASE } from '@/lib/apiClient';
+import { Button } from '@/components/ui/Button';
 import { AnnualView } from '@/components/payslips/AnnualView';
 import { CompareView } from '@/components/payslips/CompareView';
 import { NAV, TITLES } from '@/components/payslips/constants';
@@ -23,43 +25,42 @@ export default function PayslipsPage() {
       {/* Page header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-xl font-semibold text-gray-900">
+          <h1 className="font-display text-xl font-semibold text-ink">
             {TITLES[nav.view]}
           </h1>
-          <p className="text-sm text-gray-400 mt-0.5">
+          <p className="font-body text-sm text-ink-faint mt-0.5">
             INNOVA — Recursos Humanos
           </p>
         </div>
         {nav.view === 'list' && (
-          <button
+          <Button
+            intent="secondary"
+            size="sm"
             onClick={() =>
               window.open(
                 `${API_BASE}/payslips/my/annual-summary/export`,
                 '_blank',
               )
             }
-            className="flex items-center gap-2 px-4 py-2 text-sm border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
           >
-            ⬇ Exportar ano
-          </button>
+            <Download size={14} strokeWidth={1.75} />
+            Exportar ano
+          </Button>
         )}
       </div>
 
       {/* Tabs (não mostrar em detail) */}
       {nav.view !== 'detail' && (
-        <div className="flex gap-1 mb-6 bg-gray-100 p-1 rounded-xl w-fit">
+        <div className="flex gap-1 mb-6 bg-surface-sunken p-1 rounded-card w-fit">
           {NAV.map((n) => (
-            <button
+            <Button
               key={n.id}
+              size="sm"
+              intent={nav.view === n.id ? 'primary' : 'ghost'}
               onClick={() => setNav({ view: n.id })}
-              className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-                nav.view === n.id
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-500 hover:text-gray-700'
-              }`}
             >
               {n.label}
-            </button>
+            </Button>
           ))}
         </div>
       )}
