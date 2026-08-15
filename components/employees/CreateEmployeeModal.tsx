@@ -1,15 +1,25 @@
 // components/employees/CreateEmployeeModal.tsx
 // Modal de criação de colaborador — validação (useFormValidation) + mutação
-// (useApiMutation). Extraído de app/(platform)/employees/page.tsx.
+// (useApiMutation). Extraído de app/(platform)/employees/page.tsx. Backdrop
+// + painel bespoke passam a Modal/ModalContent (Radix Dialog,
+// components/ui/Modal) — já traz título, botão fechar e overlay/backdrop-
+// click de série. O page.tsx só monta <CreateEmployeeModal> quando
+// showCreate é true, por isso o Modal fica sempre `open`; onOpenChange
+// chama onClose (cobre tanto o X como o clique fora / Escape).
 
 'use client';
 
 import { useState } from 'react';
-import { AlertCircle, Loader2, X } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { useFormValidation } from '@/hooks/useFormValidation';
 import { email as emailValidator, required } from '@/lib/validation';
+import { Button } from '@/components/ui/Button';
+import { FormField } from '@/components/ui/FormField';
+import { Input } from '@/components/ui/Input';
+import { Modal, ModalContent } from '@/components/ui/Modal';
+import { Select } from '@/components/ui/Select';
 import {
   CONTRACT_LABELS,
   SENIORITY_LABELS,
@@ -20,6 +30,19 @@ export interface CreateEmployeeModalProps {
   onClose: () => void;
   onSuccess: () => void;
 }
+
+const SENIORITY_ITEMS = Object.entries(SENIORITY_LABELS).map(([k, v]) => ({
+  value: k,
+  label: v,
+}));
+const WORKMODE_ITEMS = Object.entries(WORKMODE_LABELS).map(([k, v]) => ({
+  value: k,
+  label: v,
+}));
+const CONTRACT_ITEMS = Object.entries(CONTRACT_LABELS).map(([k, v]) => ({
+  value: k,
+  label: v,
+}));
 
 export function CreateEmployeeModal({
   onClose,
@@ -70,177 +93,111 @@ export function CreateEmployeeModal({
   });
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
-        <div className="p-6 border-b border-gray-100">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-lg font-bold text-gray-900">
-                Novo Colaborador
-              </h2>
-              <p className="text-sm text-gray-500 mt-0.5">
-                Preencha os dados básicos
-              </p>
-            </div>
-            <button
-              onClick={onClose}
-              aria-label="Fechar"
-              className="p-2 rounded-xl hover:bg-gray-100 text-gray-500"
-            >
-              <X size={18} />
-            </button>
-          </div>
-        </div>
-
-        <div className="p-6 space-y-4">
+    <Modal open onOpenChange={(open) => !open && onClose()}>
+      <ModalContent
+        title="Novo Colaborador"
+        description="Preencha os dados básicos"
+        className="max-w-lg max-h-[90vh] overflow-y-auto"
+      >
+        <div className="mt-5 space-y-4">
           {error && (
-            <div className="flex items-center gap-2 p-3 bg-red-50 text-red-700 rounded-xl text-sm">
-              <AlertCircle size={16} />
+            <div className="flex items-center gap-2 p-3 bg-danger-subtle text-danger-ink rounded-card text-sm">
+              <AlertCircle size={16} strokeWidth={1.75} />
               {error}
             </div>
           )}
 
           <div className="grid grid-cols-1 gap-4">
-            <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">
-                Nome completo <span className="text-red-500">*</span>
-              </label>
-              <input
+            <FormField label="Nome completo *" htmlFor="ce-name">
+              <Input
+                id="ce-name"
                 value={form.name}
                 onChange={(e) => setField('name', e.target.value)}
-                className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full"
                 placeholder="Ex: Ana Ferreira"
               />
-            </div>
+            </FormField>
 
-            <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">
-                E-mail corporativo <span className="text-red-500">*</span>
-              </label>
-              <input
+            <FormField label="E-mail corporativo *" htmlFor="ce-email">
+              <Input
+                id="ce-email"
                 type="email"
                 value={form.email}
                 onChange={(e) => setField('email', e.target.value)}
-                className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full"
                 placeholder="ana@empresa.com"
               />
-            </div>
+            </FormField>
 
             <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">
-                  Cargo <span className="text-red-500">*</span>
-                </label>
-                <input
+              <FormField label="Cargo *" htmlFor="ce-role">
+                <Input
+                  id="ce-role"
                   value={form.role}
                   onChange={(e) => setField('role', e.target.value)}
-                  className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full"
                   placeholder="Ex: Desenvolvedor"
                 />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">
-                  Departamento
-                </label>
-                <input
+              </FormField>
+              <FormField label="Departamento" htmlFor="ce-department">
+                <Input
+                  id="ce-department"
                   value={form.department}
                   onChange={(e) => setField('department', e.target.value)}
-                  className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full"
                   placeholder="Ex: Tecnologia"
                 />
-              </div>
+              </FormField>
             </div>
 
-            <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">
-                Data de admissão <span className="text-red-500">*</span>
-              </label>
-              <input
+            <FormField label="Data de admissão *" htmlFor="ce-joinedAt">
+              <Input
+                id="ce-joinedAt"
                 type="date"
                 value={form.joinedAt}
                 onChange={(e) => setField('joinedAt', e.target.value)}
-                className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full"
               />
-            </div>
+            </FormField>
 
             <div className="grid grid-cols-3 gap-3">
-              <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">
-                  Senioridade
-                </label>
-                <select
-                  value={form.seniority}
-                  onChange={(e) => setField('seniority', e.target.value)}
-                  className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-                >
-                  <option value="">—</option>
-                  {Object.entries(SENIORITY_LABELS).map(([k, v]) => (
-                    <option key={k} value={k}>
-                      {v}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">
-                  Modalidade
-                </label>
-                <select
-                  value={form.workMode}
-                  onChange={(e) => setField('workMode', e.target.value)}
-                  className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-                >
-                  <option value="">—</option>
-                  {Object.entries(WORKMODE_LABELS).map(([k, v]) => (
-                    <option key={k} value={k}>
-                      {v}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">
-                  Contrato
-                </label>
-                <select
-                  value={form.contractType}
-                  onChange={(e) => setField('contractType', e.target.value)}
-                  className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-                >
-                  <option value="">—</option>
-                  {Object.entries(CONTRACT_LABELS).map(([k, v]) => (
-                    <option key={k} value={k}>
-                      {v}
-                    </option>
-                  ))}
-                </select>
-              </div>
+              <FormField label="Senioridade" htmlFor="ce-seniority">
+                <Select
+                  items={SENIORITY_ITEMS}
+                  value={form.seniority || undefined}
+                  onValueChange={(v) => setField('seniority', v)}
+                  className="w-full"
+                />
+              </FormField>
+              <FormField label="Modalidade" htmlFor="ce-workMode">
+                <Select
+                  items={WORKMODE_ITEMS}
+                  value={form.workMode || undefined}
+                  onValueChange={(v) => setField('workMode', v)}
+                  className="w-full"
+                />
+              </FormField>
+              <FormField label="Contrato" htmlFor="ce-contractType">
+                <Select
+                  items={CONTRACT_ITEMS}
+                  value={form.contractType || undefined}
+                  onValueChange={(v) => setField('contractType', v)}
+                  className="w-full"
+                />
+              </FormField>
             </div>
           </div>
         </div>
 
-        <div className="p-6 border-t border-gray-100 flex gap-3">
-          <button
-            onClick={onClose}
-            className="flex-1 py-2.5 text-sm text-gray-600 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors"
-          >
+        <div className="mt-6 flex gap-3 border-t border-border pt-4">
+          <Button intent="secondary" className="flex-1 justify-center" onClick={onClose}>
             Cancelar
-          </button>
-          <button
-            onClick={handleSubmit}
-            disabled={loading}
-            className="flex-1 py-2.5 text-sm text-white bg-blue-600 rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
-          >
-            {loading ? (
-              <>
-                <Loader2 size={16} className="animate-spin" /> Criando...
-              </>
-            ) : (
-              'Criar Colaborador'
-            )}
-          </button>
+          </Button>
+          <Button className="flex-1 justify-center" onClick={handleSubmit} loading={loading}>
+            {loading ? 'Criando...' : 'Criar Colaborador'}
+          </Button>
         </div>
-      </div>
-    </div>
+      </ModalContent>
+    </Modal>
   );
 }

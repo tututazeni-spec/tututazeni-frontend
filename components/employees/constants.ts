@@ -1,8 +1,11 @@
 // components/employees/constants.ts
 // Constantes de domínio (labels/cores por enum) partilhadas pelos
 // componentes de apresentação do módulo de colaboradores. Extraído
-// verbatim de app/(platform)/employees/page.tsx.
+// verbatim de app/(platform)/employees/page.tsx. Cores mapeadas para os
+// tokens semânticos da fundação de design (Fase A) — ver
+// components/ui/StatusBadge.tsx.
 
+import type { StatusBadgeMap } from '@/lib/statusBadge';
 import type {
   ContractType,
   EmployeeStatus,
@@ -10,35 +13,12 @@ import type {
   WorkMode,
 } from '@/hooks/useEmployees';
 
-export const STATUS_CONFIG: Record<
-  EmployeeStatus,
-  { label: string; color: string; dot: string }
-> = {
-  ACTIVE: {
-    label: 'Ativo',
-    color: 'bg-emerald-100 text-emerald-700',
-    dot: 'bg-emerald-500',
-  },
-  INACTIVE: {
-    label: 'Inativo',
-    color: 'bg-gray-100 text-gray-600',
-    dot: 'bg-gray-400',
-  },
-  ON_LEAVE: {
-    label: 'Afastado',
-    color: 'bg-amber-100 text-amber-700',
-    dot: 'bg-amber-500',
-  },
-  TERMINATED: {
-    label: 'Desligado',
-    color: 'bg-red-100 text-red-700',
-    dot: 'bg-red-500',
-  },
-  SUSPENDED: {
-    label: 'Suspenso',
-    color: 'bg-orange-100 text-orange-700',
-    dot: 'bg-orange-500',
-  },
+export const STATUS_MAP: StatusBadgeMap<EmployeeStatus> = {
+  ACTIVE: { label: 'Ativo', cls: 'bg-success-subtle text-success-ink' },
+  INACTIVE: { label: 'Inativo', cls: 'bg-surface-sunken text-ink-muted' },
+  ON_LEAVE: { label: 'Afastado', cls: 'bg-warning-subtle text-warning-ink' },
+  TERMINATED: { label: 'Desligado', cls: 'bg-danger-subtle text-danger-ink' },
+  SUSPENDED: { label: 'Suspenso', cls: 'bg-accent-subtle text-accent' },
 };
 
 export const SENIORITY_LABELS: Record<SeniorityLevel, string> = {
