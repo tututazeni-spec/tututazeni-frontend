@@ -2,7 +2,14 @@
 // Painel lateral de pré-visualização rápida do colaborador. Extraído do
 // JSX inline "Quick Preview Drawer" de app/(platform)/employees/page.tsx —
 // era o maior bloco de apresentação ainda dentro da página principal
-// (~156 linhas).
+// (~156 linhas). Migrado para a fundação de design: classes Tailwind
+// cruas passam a tokens; Avatar/StatusBadge locais passam aos
+// equivalentes de components/ui/; links de acção passam a Button. Mantém-
+// se bespoke (não Radix Dialog) — mesmo padrão de
+// components/documents/DetailDrawer.tsx (3º caso conhecido, não há
+// componente "Drawer" na fundação e não é para inventar um a meio deste
+// módulo); comportamento idêntico ao original (fecha por clique no
+// backdrop ou no X).
 
 import {
   Briefcase,
@@ -22,9 +29,10 @@ import type {
   Employee,
   SeniorityLevel,
 } from '@/hooks/useEmployees';
-import { Avatar } from './Avatar';
-import { StatusBadge } from './StatusBadge';
-import { CONTRACT_LABELS, SENIORITY_LABELS } from './constants';
+import { Avatar } from '@/components/ui/Avatar';
+import { buttonVariants, IconButton } from '@/components/ui/Button';
+import { StatusBadge } from '@/components/ui/StatusBadge';
+import { CONTRACT_LABELS, SENIORITY_LABELS, STATUS_MAP } from './constants';
 
 export interface EmployeeDrawerProps {
   employee: Employee;
@@ -34,42 +42,37 @@ export interface EmployeeDrawerProps {
 export function EmployeeDrawer({ employee, onClose }: EmployeeDrawerProps) {
   return (
     <div
-      className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 flex justify-end"
+      className="fixed inset-0 bg-ink/40 backdrop-blur-sm z-40 flex justify-end"
       onClick={onClose}
     >
       <div
-        className="bg-white w-full max-w-md h-full overflow-y-auto shadow-2xl"
+        className="bg-surface w-full max-w-md h-full overflow-y-auto shadow-elevated"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="p-6 border-b border-gray-100">
+        <div className="p-6 border-b border-border">
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-4">
-              <Avatar src={employee.avatarUrl} name={employee.name} size="lg" />
+              <Avatar url={employee.avatarUrl} name={employee.name} size="lg" />
               <div>
-                <h2 className="text-lg font-bold text-gray-900">
+                <h2 className="text-lg font-bold text-ink">
                   {employee.name}
                 </h2>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-ink-muted">
                   {employee.jobTitle ?? employee.role}
                 </p>
                 {employee.matricula && (
-                  <p className="text-xs font-mono text-gray-400 mt-0.5">
+                  <p className="text-xs font-mono text-ink-faint mt-0.5">
                     {employee.matricula}
                   </p>
                 )}
               </div>
             </div>
-            <button
-              onClick={onClose}
-              className="p-2 rounded-xl hover:bg-gray-100 text-gray-500"
-            >
-              <X size={18} />
-            </button>
+            <IconButton icon={X} label="Fechar" intent="ghost" onClick={onClose} />
           </div>
         </div>
 
         <div className="p-6 space-y-5">
-          <StatusBadge status={employee.status} />
+          <StatusBadge value={employee.status} map={STATUS_MAP} variant="dot" />
 
           <div className="space-y-3">
             {[
@@ -116,13 +119,13 @@ export function EmployeeDrawer({ employee, onClose }: EmployeeDrawerProps) {
               .map((row) => (
                 <div
                   key={row.label}
-                  className="flex items-center gap-3 py-2 border-b border-gray-50 last:border-0"
+                  className="flex items-center gap-3 py-2 border-b border-border last:border-0"
                 >
-                  <row.icon size={16} className="text-gray-400 flex-shrink-0" />
-                  <span className="text-xs text-gray-500 w-24 flex-shrink-0">
+                  <row.icon size={16} strokeWidth={1.75} className="text-ink-faint flex-shrink-0" />
+                  <span className="text-xs text-ink-muted w-24 flex-shrink-0">
                     {row.label}
                   </span>
-                  <span className="text-sm font-medium text-gray-900 flex-1">
+                  <span className="text-sm font-medium text-ink flex-1">
                     {row.value}
                   </span>
                 </div>
@@ -150,11 +153,11 @@ export function EmployeeDrawer({ employee, onClose }: EmployeeDrawerProps) {
               ].map((s) => (
                 <div
                   key={s.label}
-                  className="bg-gray-50 rounded-xl p-3 text-center"
+                  className="bg-surface-sunken rounded-card p-3 text-center"
                 >
-                  <s.icon size={16} className="text-gray-400 mx-auto mb-1" />
-                  <p className="text-xl font-bold text-gray-900">{s.value}</p>
-                  <p className="text-xs text-gray-500">{s.label}</p>
+                  <s.icon size={16} strokeWidth={1.75} className="text-ink-faint mx-auto mb-1" />
+                  <p className="text-xl font-bold text-ink">{s.value}</p>
+                  <p className="text-xs text-ink-muted">{s.label}</p>
                 </div>
               ))}
             </div>
@@ -163,15 +166,15 @@ export function EmployeeDrawer({ employee, onClose }: EmployeeDrawerProps) {
           <div className="flex flex-col gap-2 pt-2">
             <a
               href={`/employees/${employee.id}`}
-              className="flex items-center justify-center gap-2 py-2.5 text-sm font-medium text-blue-600 border border-blue-200 rounded-xl hover:bg-blue-50 transition-colors"
+              className={buttonVariants({ intent: 'secondary', size: 'md' })}
             >
-              <Eye size={15} /> Ver perfil completo
+              <Eye size={15} strokeWidth={1.75} /> Ver perfil completo
             </a>
             <a
               href={`/employees/${employee.id}/edit`}
-              className="flex items-center justify-center gap-2 py-2.5 text-sm font-medium text-gray-700 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors"
+              className={buttonVariants({ intent: 'secondary', size: 'md' })}
             >
-              <Edit2 size={15} /> Editar dados
+              <Edit2 size={15} strokeWidth={1.75} /> Editar dados
             </a>
           </div>
         </div>
