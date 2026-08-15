@@ -9,14 +9,35 @@
 
 'use client';
 
+import {
+  ArrowLeft,
+  Award,
+  BookOpen,
+  CheckCircle2,
+  Clock,
+  Trophy,
+} from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { formatDate as fmtDate } from '@/lib/format';
 import Image from 'next/image';
+import { Avatar } from '@/components/ui/Avatar';
+import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { KpiCard } from '@/components/ui/KpiCard';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeaderCell,
+  TableRow,
+} from '@/components/ui/Table';
 import type { ProfileTab, UserAction } from '@/hooks/useUserProfile';
-import { Avatar, MetricCard, Skeleton } from './shared';
 import {
   ACCOUNT_STATUS_MAP,
   HR_STATUS_MAP,
@@ -37,60 +58,70 @@ function TeamView({ managerId }: TeamViewProps) {
     { staleTime: STALE_TIME.DYNAMIC },
   );
 
-  if (loading) return <Skeleton rows={4} />;
+  if (loading)
+    return (
+      <Skeleton
+        rows={4}
+        wrapperClassName="space-y-2 animate-pulse"
+        itemClassName="h-14 rounded-card bg-surface-sunken"
+      />
+    );
   if (!data || data.team.length === 0)
     return (
-      <div className="py-8 text-center text-sm text-gray-400 border border-dashed border-gray-200 rounded-xl">
+      <div className="py-8 text-center text-sm text-ink-faint border border-dashed border-border-strong rounded-card">
         Sem subordinados directos
       </div>
     );
 
   return (
-    <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-      <div className="grid grid-cols-[1fr_100px_100px_100px_100px] gap-3 px-4 py-2.5 border-b border-gray-100 text-xs font-medium text-gray-400 uppercase tracking-wide">
-        <div>Colaborador</div>
-        <div>Concluídos</div>
-        <div>Em curso</div>
-        <div>Atrasos</div>
-        <div>Estado</div>
-      </div>
-      {data.team.map((member) => (
-        <div
-          key={member.id}
-          className="grid grid-cols-[1fr_100px_100px_100px_100px] gap-3 items-center px-4 py-3 border-b border-gray-100 last:border-0"
-        >
-          <div className="flex items-center gap-3">
-            <Avatar user={member} size="sm" />
-            <div>
-              <div className="text-sm font-medium text-gray-900">
-                {member.fullName}
+    <Table>
+      <TableHead>
+        <TableRow>
+          <TableHeaderCell>Colaborador</TableHeaderCell>
+          <TableHeaderCell>Concluídos</TableHeaderCell>
+          <TableHeaderCell>Em curso</TableHeaderCell>
+          <TableHeaderCell>Atrasos</TableHeaderCell>
+          <TableHeaderCell>Estado</TableHeaderCell>
+        </TableRow>
+      </TableHead>
+      <TableBody>
+        {data.team.map((member) => (
+          <TableRow key={member.id}>
+            <TableCell>
+              <div className="flex items-center gap-3">
+                <Avatar name={member.fullName} url={member.avatarUrl ?? undefined} size="sm" />
+                <div>
+                  <div className="text-sm font-medium text-ink">
+                    {member.fullName}
+                  </div>
+                  <div className="text-xs text-ink-faint">
+                    {member.position?.name ?? '—'}
+                  </div>
+                </div>
               </div>
-              <div className="text-xs text-gray-400">
-                {member.position?.name ?? '—'}
-              </div>
-            </div>
-          </div>
-          <div className="text-sm text-emerald-600 font-mono">
-            {member.learningStats.completed}
-          </div>
-          <div className="text-sm text-blue-600 font-mono">
-            {member.learningStats.inProgress}
-          </div>
-          <div
-            className={`text-sm font-mono ${member.learningStats.overdue > 0 ? 'text-red-600' : 'text-gray-400'}`}
-          >
-            {member.learningStats.overdue}
-          </div>
-          <div>
-            <StatusBadge
-              value={member.accountStatus}
-              map={ACCOUNT_STATUS_MAP}
-              variant="dot"
-            />
-          </div>
-        </div>
-      ))}
-    </div>
+            </TableCell>
+            <TableCell className="text-sm text-success font-mono">
+              {member.learningStats.completed}
+            </TableCell>
+            <TableCell className="text-sm text-info font-mono">
+              {member.learningStats.inProgress}
+            </TableCell>
+            <TableCell
+              className={`text-sm font-mono ${member.learningStats.overdue > 0 ? 'text-danger' : 'text-ink-faint'}`}
+            >
+              {member.learningStats.overdue}
+            </TableCell>
+            <TableCell>
+              <StatusBadge
+                value={member.accountStatus}
+                map={ACCOUNT_STATUS_MAP}
+                variant="dot"
+              />
+            </TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
   );
 }
 
@@ -122,7 +153,11 @@ export function UserProfileView({
   if (loadingUser || !user)
     return (
       <div>
-        <Skeleton rows={6} />
+        <Skeleton
+          rows={6}
+          wrapperClassName="space-y-2 animate-pulse"
+          itemClassName="h-14 rounded-card bg-surface-sunken"
+        />
       </div>
     );
 
@@ -135,20 +170,18 @@ export function UserProfileView({
 
   return (
     <div>
-      <button
-        onClick={onBack}
-        className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-800 mb-5"
-      >
-        ← Voltar
-      </button>
+      <Button intent="ghost" size="sm" className="mb-5" onClick={onBack}>
+        <ArrowLeft size={14} strokeWidth={1.75} />
+        Voltar
+      </Button>
 
       {/* Profile header */}
-      <div className="bg-white border border-gray-200 rounded-xl p-6 mb-5">
+      <Card className="p-6 mb-5">
         <div className="flex items-start gap-5">
-          <Avatar user={user} size="lg" />
+          <Avatar name={user.fullName} url={user.avatarUrl ?? undefined} size="lg" />
           <div className="flex-1">
             <div className="flex items-center gap-3 mb-1 flex-wrap">
-              <h2 className="text-xl font-semibold text-gray-900">
+              <h2 className="text-xl font-semibold text-ink">
                 {user.fullName}
               </h2>
               <StatusBadge
@@ -158,8 +191,8 @@ export function UserProfileView({
               />
               <StatusBadge value={user.hrStatus} map={HR_STATUS_MAP} />
             </div>
-            <div className="text-sm text-gray-500 mb-2">{user.email}</div>
-            <div className="flex flex-wrap gap-4 text-xs text-gray-400">
+            <div className="text-sm text-ink-muted mb-2">{user.email}</div>
+            <div className="flex flex-wrap gap-4 text-xs text-ink-faint">
               {user.employeeNumber && (
                 <span className="font-mono">{user.employeeNumber}</span>
               )}
@@ -174,8 +207,8 @@ export function UserProfileView({
             </div>
             {user.manager && (
               <div className="flex items-center gap-2 mt-2">
-                <Avatar user={user.manager} size="sm" />
-                <span className="text-xs text-gray-500">
+                <Avatar name={user.manager.fullName} url={user.manager.avatarUrl ?? undefined} size="sm" />
+                <span className="text-xs text-ink-muted">
                   Gestor: <strong>{user.manager.fullName}</strong>
                 </span>
               </div>
@@ -185,38 +218,41 @@ export function UserProfileView({
           {/* Acções */}
           <div className="flex flex-col gap-2">
             {user.accountStatus === 'ACTIVE' && (
-              <button
+              <Button
+                intent="secondary"
+                size="sm"
                 onClick={() => onAction('deactivate')}
                 disabled={actionLoading}
-                className="px-3 py-1.5 text-xs border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50"
               >
                 Desactivar
-              </button>
+              </Button>
             )}
             {user.accountStatus !== 'ACTIVE' && (
-              <button
+              <Button
+                intent="success"
+                size="sm"
                 onClick={() => onAction('activate')}
                 disabled={actionLoading}
-                className="px-3 py-1.5 text-xs border border-emerald-300 text-emerald-700 rounded-lg hover:bg-emerald-50 disabled:opacity-50"
               >
                 Activar
-              </button>
+              </Button>
             )}
             {user.accountStatus === 'ACTIVE' && (
-              <button
+              <Button
+                intent="warning"
+                size="sm"
                 onClick={() => onAction('suspend')}
                 disabled={actionLoading}
-                className="px-3 py-1.5 text-xs border border-amber-200 text-amber-700 rounded-lg hover:bg-amber-50 disabled:opacity-50"
               >
                 Suspender
-              </button>
+              </Button>
             )}
           </div>
         </div>
 
         {/* Bio */}
         {user.profile?.bio && (
-          <div className="mt-4 pt-4 border-t border-gray-100 text-sm text-gray-600">
+          <div className="mt-4 pt-4 border-t border-border text-sm text-ink-muted">
             {user.profile.bio}
           </div>
         )}
@@ -225,31 +261,25 @@ export function UserProfileView({
         {user.profile?.interests && user.profile.interests.length > 0 && (
           <div className="flex gap-1.5 mt-3 flex-wrap">
             {user.profile.interests.map((i, idx) => (
-              <span
-                key={idx}
-                className="px-2 py-0.5 bg-blue-50 text-blue-600 text-xs rounded"
-              >
+              <Badge key={idx} intent="info">
                 {i}
-              </span>
+              </Badge>
             ))}
           </div>
         )}
-      </div>
+      </Card>
 
       {/* Tabs */}
-      <div className="flex gap-1 mb-5 bg-gray-100 p-1 rounded-xl w-fit">
+      <div className="flex w-fit gap-1 mb-5 rounded-control bg-surface-sunken p-1">
         {tabs.map((t) => (
-          <button
+          <Button
             key={t.id}
+            size="sm"
+            intent={tab === t.id ? 'primary' : 'ghost'}
             onClick={() => onTabChange(t.id)}
-            className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-              tab === t.id
-                ? 'bg-white text-gray-900 shadow-sm'
-                : 'text-gray-500 hover:text-gray-700'
-            }`}
           >
             {t.label}
-          </button>
+          </Button>
         ))}
       </div>
 
@@ -257,25 +287,29 @@ export function UserProfileView({
       {tab === 'overview' && stats && (
         <div className="space-y-5">
           <div className="grid grid-cols-4 gap-3">
-            <MetricCard label="Matrículas" value={stats.enrollments.total} />
-            <MetricCard
+            <KpiCard icon={BookOpen} label="Matrículas" value={stats.enrollments.total} />
+            <KpiCard
+              icon={CheckCircle2}
               label="Concluídos"
               value={stats.enrollments.completed}
-              color="text-emerald-600"
+              intent="success"
             />
-            <MetricCard
+            <KpiCard
+              icon={Clock}
               label="Taxa conclusão"
               value={`${stats.completionRate}%`}
-              color="text-blue-600"
+              intent="info"
             />
-            <MetricCard
+            <KpiCard
+              icon={Trophy}
               label="Pontos"
               value={stats.gamification.points}
               sub={`${stats.gamification.badges} badges`}
+              intent="accent"
             />
           </div>
           {stats.enrollments.overdue > 0 && (
-            <div className="bg-red-50 border border-red-100 rounded-xl px-4 py-3 text-sm text-red-700">
+            <div className="bg-danger-subtle border border-danger/30 rounded-card px-4 py-3 text-sm text-danger-ink">
               ⚠ <strong>{stats.enrollments.overdue}</strong> curso(s) com
               deadline expirado
             </div>
@@ -283,8 +317,8 @@ export function UserProfileView({
 
           {/* Info pessoal e organizacional */}
           <div className="grid grid-cols-2 gap-5">
-            <div className="bg-white border border-gray-200 rounded-xl p-5">
-              <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">
+            <Card className="p-5">
+              <div className="text-xs font-medium text-ink-faint uppercase tracking-wide mb-3">
                 Dados pessoais
               </div>
               {[
@@ -296,15 +330,15 @@ export function UserProfileView({
               ].map(([l, v]) => (
                 <div
                   key={l}
-                  className="flex justify-between py-1.5 border-b border-gray-100 last:border-0"
+                  className="flex justify-between py-1.5 border-b border-border last:border-0"
                 >
-                  <span className="text-xs text-gray-500">{l}</span>
-                  <span className="text-xs font-medium text-gray-900">{v}</span>
+                  <span className="text-xs text-ink-muted">{l}</span>
+                  <span className="text-xs font-medium text-ink">{v}</span>
                 </div>
               ))}
-            </div>
-            <div className="bg-white border border-gray-200 rounded-xl p-5">
-              <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">
+            </Card>
+            <Card className="p-5">
+              <div className="text-xs font-medium text-ink-faint uppercase tracking-wide mb-3">
                 Organização
               </div>
               {[
@@ -316,13 +350,13 @@ export function UserProfileView({
               ].map(([l, v]) => (
                 <div
                   key={l}
-                  className="flex justify-between py-1.5 border-b border-gray-100 last:border-0"
+                  className="flex justify-between py-1.5 border-b border-border last:border-0"
                 >
-                  <span className="text-xs text-gray-500">{l}</span>
-                  <span className="text-xs font-medium text-gray-900">{v}</span>
+                  <span className="text-xs text-ink-muted">{l}</span>
+                  <span className="text-xs font-medium text-ink">{v}</span>
                 </div>
               ))}
-            </div>
+            </Card>
           </div>
         </div>
       )}
@@ -331,29 +365,31 @@ export function UserProfileView({
       {tab === 'learning' && stats && (
         <div className="space-y-4">
           <div className="grid grid-cols-3 gap-3">
-            <MetricCard
+            <KpiCard
+              icon={Clock}
               label="Em progresso"
               value={stats.enrollments.inProgress}
-              color="text-blue-600"
+              intent="info"
             />
-            <MetricCard
+            <KpiCard
+              icon={CheckCircle2}
               label="Concluídos"
               value={stats.enrollments.completed}
-              color="text-emerald-600"
+              intent="success"
             />
-            <MetricCard label="Badges" value={stats.gamification.badges} />
+            <KpiCard icon={Award} label="Badges" value={stats.gamification.badges} intent="accent" />
           </div>
           {stats.recentActivity.length > 0 && (
-            <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-              <div className="px-4 py-3 border-b border-gray-100 text-xs font-medium text-gray-400 uppercase tracking-wide">
+            <Card className="overflow-hidden">
+              <div className="px-4 py-3 border-b border-border text-xs font-medium text-ink-faint uppercase tracking-wide">
                 Actividade recente
               </div>
               {stats.recentActivity.map((e) => (
                 <div
                   key={e.id}
-                  className="flex items-center gap-4 px-4 py-3 border-b border-gray-100 last:border-0"
+                  className="flex items-center gap-4 px-4 py-3 border-b border-border last:border-0"
                 >
-                  <div className="w-10 h-10 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0 relative">
+                  <div className="w-10 h-10 bg-surface-sunken rounded-control overflow-hidden flex-shrink-0 relative">
                     {e.course?.thumbnailUrl ? (
                       <Image
                         src={e.course.thumbnailUrl}
@@ -368,14 +404,12 @@ export function UserProfileView({
                     )}
                   </div>
                   <div className="flex-1">
-                    <div className="text-sm text-gray-900">
-                      {e.course?.title}
-                    </div>
-                    <div className="text-xs text-gray-400">{e.status}</div>
+                    <div className="text-sm text-ink">{e.course?.title}</div>
+                    <div className="text-xs text-ink-faint">{e.status}</div>
                   </div>
                 </div>
               ))}
-            </div>
+            </Card>
           )}
         </div>
       )}
@@ -385,40 +419,43 @@ export function UserProfileView({
 
       {/* Audit tab */}
       {tab === 'audit' && (
-        <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-          <div className="grid grid-cols-[1fr_160px_200px] gap-3 px-4 py-2.5 border-b border-gray-100 text-xs font-medium text-gray-400 uppercase tracking-wide">
-            <div>Acção</div>
-            <div>Por</div>
-            <div>Data</div>
-          </div>
-          {auditLogs.length === 0 ? (
-            <div className="px-4 py-8 text-center text-sm text-gray-400">
-              Sem logs de auditoria
-            </div>
-          ) : (
-            auditLogs.map((log) => (
-              <div
-                key={log.id}
-                className="grid grid-cols-[1fr_160px_200px] gap-3 items-center px-4 py-3 border-b border-gray-100 last:border-0"
-              >
-                <div>
-                  <div className="text-xs font-medium font-mono text-gray-700">
-                    {log.action}
-                  </div>
-                  {log.meta && (
-                    <div className="text-xs text-gray-400">{log.meta}</div>
-                  )}
-                </div>
-                <div className="text-xs text-gray-500">
-                  {log.performedBy?.fullName ?? '—'}
-                </div>
-                <div className="text-xs text-gray-400">
-                  {fmtDate(log.createdAt)}
-                </div>
-              </div>
-            ))
-          )}
-        </div>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableHeaderCell>Acção</TableHeaderCell>
+              <TableHeaderCell>Por</TableHeaderCell>
+              <TableHeaderCell>Data</TableHeaderCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {auditLogs.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={3} className="py-8 text-center text-ink-faint">
+                  Sem logs de auditoria
+                </TableCell>
+              </TableRow>
+            ) : (
+              auditLogs.map((log) => (
+                <TableRow key={log.id}>
+                  <TableCell>
+                    <div className="text-xs font-medium font-mono text-ink">
+                      {log.action}
+                    </div>
+                    {log.meta && (
+                      <div className="text-xs text-ink-faint">{log.meta}</div>
+                    )}
+                  </TableCell>
+                  <TableCell className="text-xs text-ink-muted">
+                    {log.performedBy?.fullName ?? '—'}
+                  </TableCell>
+                  <TableCell className="text-xs text-ink-faint">
+                    {fmtDate(log.createdAt)}
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
       )}
     </div>
   );
