@@ -1,7 +1,12 @@
 'use client';
 // src/app/(dashboard)/roi-impact/page.tsx
+//
+// Container: gere o separador activo (via Tabs do Radix); delega dados+
+// apresentação de cada separador aos componentes auto-contidos em
+// components/roi-impact/ (mesmo padrão que components/content-library/
+// page.tsx usa para as suas tabs). Ver memory
+// project_innova_component_separation_audit.
 
-import { useState } from 'react';
 import {
   BarChart2,
   BookOpen,
@@ -18,6 +23,7 @@ import { ProgramsTab } from '@/components/roi-impact/ProgramsTab';
 import { RetentionTab } from '@/components/roi-impact/RetentionTab';
 import { SimulatorTab } from '@/components/roi-impact/SimulatorTab';
 import type { Tab } from '@/components/roi-impact/types';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
 
 const TABS: { id: Tab; label: string; icon: LucideIcon }[] = [
   { id: 'executive', label: 'Executivo', icon: DollarSign },
@@ -28,55 +34,61 @@ const TABS: { id: Tab; label: string; icon: LucideIcon }[] = [
   { id: 'programs', label: 'Programas', icon: BarChart2 },
 ];
 
-const PANELS: Record<Tab, JSX.Element> = {
-  executive: <ExecutiveTab />,
-  learning: <LearningTab />,
-  retention: <RetentionTab />,
-  performance: <PerformanceTab />,
-  simulator: <SimulatorTab />,
-  programs: <ProgramsTab />,
-};
-
 export default function RoiImpactPage() {
-  const [tab, setTab] = useState<Tab>('executive');
-
   return (
-    <div className="min-h-screen bg-slate-50">
-      <div className="bg-white border-b border-slate-200 px-6 py-5">
-        <div className="max-w-7xl mx-auto flex items-start justify-between">
+    <div className="min-h-screen bg-canvas">
+      <div className="border-b border-border bg-surface px-6 py-5">
+        <div className="mx-auto flex max-w-7xl items-start justify-between">
           <div>
-            <div className="flex items-center gap-2 mb-1">
-              <div className="p-1.5 bg-emerald-100 rounded-lg">
-                <DollarSign size={18} className="text-emerald-600" />
+            <div className="mb-1 flex items-center gap-2">
+              <div className="rounded-control bg-success-subtle p-1.5">
+                <DollarSign size={18} strokeWidth={1.75} className="text-success-ink" />
               </div>
-              <h1 className="text-xl font-bold text-slate-800">ROI & Impact</h1>
+              <h1 className="font-display text-xl font-bold text-ink">ROI & Impact</h1>
             </div>
-            <p className="text-sm text-slate-400">
+            <p className="font-body text-sm text-ink-faint">
               Impacto financeiro · Kirkpatrick L1-L5 · Simulações · Programas
             </p>
           </div>
         </div>
       </div>
 
-      <div className="bg-white border-b border-slate-200 px-6">
-        <div className="max-w-7xl mx-auto flex overflow-x-auto">
-          {TABS.map((t) => {
-            const Icon = t.icon;
-            return (
-              <button
-                key={t.id}
-                onClick={() => setTab(t.id)}
-                className={`flex items-center gap-2 px-5 py-4 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${tab === t.id ? 'border-emerald-600 text-emerald-600' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
-              >
-                <Icon size={15} />
-                {t.label}
-              </button>
-            );
-          })}
+      <Tabs defaultValue="executive">
+        <div className="border-b border-border bg-surface px-6">
+          <TabsList className="mx-auto max-w-7xl overflow-x-auto">
+            {TABS.map((t) => {
+              const Icon = t.icon;
+              return (
+                <TabsTrigger key={t.id} value={t.id} className="gap-2 whitespace-nowrap">
+                  <Icon size={15} strokeWidth={1.75} />
+                  {t.label}
+                </TabsTrigger>
+              );
+            })}
+          </TabsList>
         </div>
-      </div>
 
-      <div className="max-w-7xl mx-auto px-6 py-6">{PANELS[tab]}</div>
+        <div className="mx-auto max-w-7xl px-6 py-6">
+          <TabsContent value="executive">
+            <ExecutiveTab />
+          </TabsContent>
+          <TabsContent value="learning">
+            <LearningTab />
+          </TabsContent>
+          <TabsContent value="retention">
+            <RetentionTab />
+          </TabsContent>
+          <TabsContent value="performance">
+            <PerformanceTab />
+          </TabsContent>
+          <TabsContent value="simulator">
+            <SimulatorTab />
+          </TabsContent>
+          <TabsContent value="programs">
+            <ProgramsTab />
+          </TabsContent>
+        </div>
+      </Tabs>
     </div>
   );
 }

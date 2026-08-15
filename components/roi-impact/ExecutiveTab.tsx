@@ -5,12 +5,41 @@
 'use client';
 
 import { AlertTriangle, BookOpen, Brain, Star, Users } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { ConfidenceBadge, Skeleton } from './atoms';
-import { fmt$ } from './utils';
+import { cn } from '@/lib/cn';
+import { Badge } from '@/components/ui/Badge';
+import { Card, CardBody } from '@/components/ui/Card';
+import { Skeleton } from '@/components/ui/Skeleton';
+import { CONFIDENCE_INTENTS, CONFIDENCE_LABELS, fmt$ } from './utils';
 import type { ExecutiveData } from './types';
+
+const HERO_INTENT_CLASSES = {
+  success: 'bg-success',
+  warning: 'bg-warning',
+  danger: 'bg-danger',
+} as const;
+
+const DOMAIN_INTENT_CLASSES = {
+  info: 'bg-info-subtle text-info',
+  success: 'bg-success-subtle text-success-ink',
+  warning: 'bg-warning-subtle text-warning-ink',
+} as const;
+
+const ALERT_INTENT_CLASSES = {
+  danger: {
+    card: 'border-danger bg-danger-subtle',
+    icon: 'text-danger',
+    text: 'text-danger-ink',
+  },
+  warning: {
+    card: 'border-warning bg-warning-subtle',
+    icon: 'text-warning',
+    text: 'text-warning-ink',
+  },
+} as const;
 
 export function ExecutiveTab() {
   const { data, isLoading: loading } = useApiQuery<ExecutiveData>(
@@ -18,24 +47,61 @@ export function ExecutiveTab() {
     '/roi-impact/executive',
     { staleTime: STALE_TIME.SEMI_STATIC },
   );
-  if (loading) return <Skeleton />;
+  if (loading)
+    return (
+      <Skeleton
+        rows={4}
+        wrapperClassName="grid grid-cols-2 gap-4 md:grid-cols-4"
+        itemClassName="h-24 rounded-card bg-surface-sunken"
+      />
+    );
 
   const h = data?.headline ?? {};
   const d = data?.domains ?? {};
+  const heroIntent =
+    (h.overallRoi ?? 0) >= 100 ? 'success' : (h.overallRoi ?? 0) >= 0 ? 'warning' : 'danger';
+
+  const domains: {
+    label: string;
+    icon: LucideIcon;
+    value: string;
+    sub: string;
+    intent: keyof typeof DOMAIN_INTENT_CLASSES;
+  }[] = [
+    {
+      label: 'Aprendizagem',
+      icon: BookOpen,
+      value: `${d.learning?.roi ?? 0}%`,
+      sub: `${fmt$(d.learning?.cost ?? 0)} investido · ${d.learning?.completions ?? 0} conclusões`,
+      intent: 'info',
+    },
+    {
+      label: 'Retenção',
+      icon: Users,
+      value: fmt$(d.retention?.savedValue ?? 0),
+      sub: `Turnover: ${d.retention?.turnoverRate ?? 0}%`,
+      intent: 'success',
+    },
+    {
+      label: 'Performance',
+      icon: Star,
+      value: d.performance?.lift ? `+${d.performance.lift}pts` : '–',
+      sub: `Benefício produtivo: ${fmt$(d.performance?.benefit ?? 0)}`,
+      intent: 'warning',
+    },
+  ];
 
   return (
     <div className="space-y-6">
       {/* ROI Hero */}
-      <div
-        className={`rounded-2xl p-6 ${(h.overallRoi ?? 0) >= 100 ? 'bg-gradient-to-br from-emerald-600 to-teal-700' : (h.overallRoi ?? 0) >= 0 ? 'bg-gradient-to-br from-amber-500 to-orange-600' : 'bg-gradient-to-br from-red-600 to-rose-700'} text-white`}
-      >
-        <div className="flex items-start justify-between mb-4">
+      <div className={cn('rounded-panel p-6 text-canvas', HERO_INTENT_CLASSES[heroIntent])}>
+        <div className="mb-4 flex items-start justify-between">
           <div>
-            <p className="text-white/70 text-sm mb-1">
+            <p className="mb-1 font-body text-sm text-canvas/70">
               ROI Total do Investimento em Pessoas
             </p>
-            <p className="text-6xl font-black">{h.overallRoi ?? 0}%</p>
-            <p className="text-white/80 text-sm mt-1">
+            <p className="font-display text-6xl font-black">{h.overallRoi ?? 0}%</p>
+            <p className="mt-1 font-body text-sm text-canvas/80">
               BCR:{' '}
               {(h.totalCost ?? 0) > 0
                 ? ((h.totalBenefit ?? 0) / (h.totalCost ?? 1)).toFixed(2)
@@ -44,101 +110,71 @@ export function ExecutiveTab() {
             </p>
           </div>
           <div className="text-right">
-            <p className="text-white/70 text-xs mb-1">Benefício Total</p>
-            <p className="text-3xl font-bold">{fmt$(h.totalBenefit ?? 0)}</p>
-            <p className="text-white/70 text-xs mt-1">
+            <p className="mb-1 font-body text-xs text-canvas/70">Benefício Total</p>
+            <p className="font-display text-3xl font-bold">{fmt$(h.totalBenefit ?? 0)}</p>
+            <p className="mt-1 font-body text-xs text-canvas/70">
               Custo: {fmt$(h.totalCost ?? 0)}
             </p>
           </div>
         </div>
         {h.narrative && (
-          <p className="text-white/90 text-sm bg-white/10 rounded-xl px-4 py-3 leading-relaxed">
+          <p className="rounded-card bg-canvas/10 px-4 py-3 font-body text-sm leading-relaxed text-canvas/90">
             💡 {h.narrative}
           </p>
         )}
       </div>
 
       {/* Domain breakdown */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {[
-          {
-            label: 'Aprendizagem',
-            icon: BookOpen,
-            value: `${d.learning?.roi ?? 0}%`,
-            sub: `${fmt$(d.learning?.cost ?? 0)} investido · ${d.learning?.completions ?? 0} conclusões`,
-            color: 'text-blue-600',
-            bg: 'bg-blue-50',
-          },
-          {
-            label: 'Retenção',
-            icon: Users,
-            value: fmt$(d.retention?.savedValue ?? 0),
-            sub: `Turnover: ${d.retention?.turnoverRate ?? 0}%`,
-            color: 'text-emerald-600',
-            bg: 'bg-emerald-50',
-          },
-          {
-            label: 'Performance',
-            icon: Star,
-            value: d.performance?.lift ? `+${d.performance.lift}pts` : '–',
-            sub: `Benefício produtivo: ${fmt$(d.performance?.benefit ?? 0)}`,
-            color: 'text-amber-600',
-            bg: 'bg-amber-50',
-          },
-        ].map((item) => (
-          <div
-            key={item.label}
-            className="bg-white rounded-xl border border-slate-100 p-4"
-          >
-            <div className={`p-2 rounded-lg ${item.bg} w-fit mb-3`}>
-              <item.icon size={16} className={item.color} />
-            </div>
-            <p className="text-2xl font-bold text-slate-800">{item.value}</p>
-            <p className="text-xs text-slate-500 mb-1">{item.label}</p>
-            <p className="text-[10px] text-slate-400">{item.sub}</p>
-          </div>
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        {domains.map((item) => (
+          <Card key={item.label}>
+            <CardBody>
+              <div className={cn('mb-3 w-fit rounded-control p-2', DOMAIN_INTENT_CLASSES[item.intent])}>
+                <item.icon size={16} strokeWidth={1.75} />
+              </div>
+              <p className="font-display text-2xl font-bold text-ink">{item.value}</p>
+              <p className="mb-1 font-body text-xs text-ink-muted">{item.label}</p>
+              <p className="font-body text-[10px] text-ink-faint">{item.sub}</p>
+            </CardBody>
+          </Card>
         ))}
       </div>
 
       {/* Alerts */}
       {(data?.alerts ?? []).length > 0 && (
         <div className="space-y-2">
-          {(data?.alerts ?? []).map((a, i) => (
-            <div
-              key={i}
-              className={`border rounded-xl px-4 py-3 flex items-center gap-3 ${a.severity === 'HIGH' ? 'bg-red-50 border-red-200' : 'bg-amber-50 border-amber-200'}`}
-            >
-              <AlertTriangle
-                size={14}
-                className={
-                  a.severity === 'HIGH' ? 'text-red-600' : 'text-amber-600'
-                }
-              />
-              <p
-                className={`text-sm ${a.severity === 'HIGH' ? 'text-red-700' : 'text-amber-700'}`}
+          {(data?.alerts ?? []).map((a, i) => {
+            const cfg = a.severity === 'HIGH' ? ALERT_INTENT_CLASSES.danger : ALERT_INTENT_CLASSES.warning;
+            return (
+              <div
+                key={i}
+                className={cn('flex items-center gap-3 rounded-card border px-4 py-3', cfg.card)}
               >
-                {a.message}
-              </p>
-            </div>
-          ))}
+                <AlertTriangle size={14} strokeWidth={1.75} className={cfg.icon} />
+                <p className={cn('font-body text-sm', cfg.text)}>{a.message}</p>
+              </div>
+            );
+          })}
         </div>
       )}
 
       {/* Top insights */}
       {(data?.topInsights ?? []).length > 0 && (
-        <div className="bg-violet-50 border border-violet-100 rounded-xl p-5">
-          <h4 className="font-semibold text-violet-700 mb-3 flex items-center gap-2">
-            <Brain size={14} />
+        <div className="rounded-card border border-accent-subtle bg-accent-subtle p-5">
+          <h4 className="mb-3 flex items-center gap-2 font-display font-semibold text-accent">
+            <Brain size={14} strokeWidth={1.75} />
             Insights Automáticos
           </h4>
           {(data?.topInsights ?? []).slice(0, 4).map((ins, i) => (
-            <p key={i} className="text-xs text-violet-800 mb-1">
+            <p key={i} className="mb-1 font-body text-xs text-accent">
               {ins}
             </p>
           ))}
-          {data?.confidence && (
+          {data?.confidence && CONFIDENCE_LABELS[data.confidence] && (
             <div className="mt-2">
-              <ConfidenceBadge level={data.confidence} />
+              <Badge intent={CONFIDENCE_INTENTS[data.confidence]}>
+                {CONFIDENCE_LABELS[data.confidence]}
+              </Badge>
             </div>
           )}
         </div>
