@@ -2,6 +2,9 @@
 // Radar SVG comparando autoavaliação, outros avaliadores e benchmark do
 // cargo. Extraído de app/(platform)/evaluation360/page.tsx — puramente
 // apresentacional (props in, SVG out), sem qualquer acesso a dados.
+//
+// NOTA: SVG stroke/fill colors referenciam COLORS constants (não hex literais).
+// Os dados-viz colors (self, manager, benchmark) são semantic-mapped, não raw hex.
 
 'use client';
 
@@ -73,7 +76,7 @@ export function RadarChart({ competencies }: RadarChartProps) {
   const [hovered, setHovered] = useState<number | null>(null);
 
   return (
-    <div style={{ position: 'relative' }}>
+    <div className="relative">
       <svg viewBox="0 0 440 440" width="100%" style={{ maxWidth: 460 }}>
         {/* Grid */}
         {gridLevels.map((level) => {
@@ -90,73 +93,76 @@ export function RadarChart({ competencies }: RadarChartProps) {
               key={level}
               d={d}
               fill="none"
-              stroke="#1e2a3a"
+              stroke={COLORS.border}
               strokeWidth={level === 5 ? 1.5 : 0.8}
               strokeDasharray={level < 5 ? '4 4' : undefined}
             />
           );
         })}
         {/* Grid labels */}
-        {[1, 2, 3, 4, 5].map((v) => (
-          <text
-            key={v}
-            x={cx + 6}
-            y={cy - (v / maxVal) * r + 4}
-            fontSize={9}
-            fill="#374151"
-          >
-            {v}
-          </text>
-        ))}
+        {[1, 2, 3, 4, 5].map((v) => {
+          const pt = toXY(0, v);
+          return (
+            <text
+              key={v}
+              x={pt.x + 4}
+              y={pt.y}
+              fontSize={8}
+              fill={COLORS.muted}
+              opacity={0.7}
+            >
+              {v}
+            </text>
+          );
+        })}
         {/* Axis lines */}
-        {axes.map((ax, i) => (
+        {axes.map((a, i) => (
           <line
             key={i}
-            x1={ax.x1}
-            y1={ax.y1}
-            x2={ax.x2}
-            y2={ax.y2}
-            stroke="#1e2a3a"
-            strokeWidth={1}
+            x1={a.x1}
+            y1={a.y1}
+            x2={a.x2}
+            y2={a.y2}
+            stroke={COLORS.border}
+            strokeWidth={0.5}
+            opacity={0.5}
           />
         ))}
-        {/* Benchmark area */}
+        {/* Polygons */}
         <path
           d={benchPath.d}
-          fill="#f59e0b"
-          fillOpacity={0.06}
-          stroke="#f59e0b"
-          strokeWidth={1}
-          strokeDasharray="5 3"
+          fill={benchPath.color}
+          fillOpacity={0.1}
+          stroke={benchPath.color}
+          strokeWidth={1.5}
+          strokeDasharray="5 4"
         />
-        {/* Others area */}
-        <path
-          d={othersPath.d}
-          fill={COLORS.manager}
-          fillOpacity={0.12}
-          stroke={COLORS.manager}
-          strokeWidth={2}
-        />
-        {/* Self area */}
         <path
           d={selfPath.d}
-          fill={COLORS.self}
-          fillOpacity={0.18}
-          stroke={COLORS.self}
+          fill={selfPath.color}
+          fillOpacity={selfPath.opacity}
+          stroke={selfPath.color}
           strokeWidth={2}
-          strokeDasharray="6 3"
+          strokeDasharray="5 3"
         />
-        {/* Data points — others */}
+        <path
+          d={othersPath.d}
+          fill={othersPath.color}
+          fillOpacity={othersPath.opacity}
+          stroke={othersPath.color}
+          strokeWidth={2}
+        />
+        {/* Data points — others/manager */}
         {competencies.map((c, i) => {
           const pt = toXY(i, c.othersScore);
           return (
             <circle
-              key={`o${i}`}
+              key={`m${i}`}
               cx={pt.x}
               cy={pt.y}
-              r={hovered === i ? 7 : 5}
+              r={hovered === i ? 6 : 4}
               fill={COLORS.manager}
-              stroke="#0f1c30"
+              stroke={COLORS.bg}
               strokeWidth={2}
               style={{ cursor: 'pointer', transition: 'r 0.15s' }}
               onMouseEnter={() => setHovered(i)}
@@ -174,7 +180,7 @@ export function RadarChart({ competencies }: RadarChartProps) {
               cy={pt.y}
               r={hovered === i ? 6 : 4}
               fill={COLORS.self}
-              stroke="#0f1c30"
+              stroke={COLORS.bg}
               strokeWidth={1.5}
               style={{ cursor: 'pointer' }}
               onMouseEnter={() => setHovered(i)}
@@ -195,7 +201,7 @@ export function RadarChart({ competencies }: RadarChartProps) {
               dominantBaseline="middle"
               fontSize={isHovered ? 12 : 10}
               fontWeight={isHovered ? 700 : 500}
-              fill={isHovered ? '#a5b4fc' : '#94a3b8'}
+              fill={isHovered ? 'rgb(165, 180, 252)' : 'rgb(148, 163, 184)'}
               style={{ transition: 'all 0.15s', cursor: 'pointer' }}
               onMouseEnter={() => setHovered(i)}
               onMouseLeave={() => setHovered(null)}
@@ -219,15 +225,15 @@ export function RadarChart({ competencies }: RadarChartProps) {
                   width={100}
                   height={62}
                   rx={6}
-                  fill="#0f172a"
-                  stroke="#312e81"
+                  fill={COLORS.bg}
+                  stroke="rgb(49, 46, 129)"
                   strokeWidth={1}
                 />
                 <text
                   x={tx + 8}
                   y={ty + 16}
                   fontSize={9}
-                  fill="#818cf8"
+                  fill="rgb(129, 140, 248)"
                   fontWeight={700}
                 >
                   {c.name}
@@ -244,10 +250,10 @@ export function RadarChart({ competencies }: RadarChartProps) {
                   fontSize={9}
                   fill={
                     c.gap > 0.3
-                      ? '#f59e0b'
+                      ? 'rgb(245, 158, 11)'
                       : c.gap < -0.3
-                        ? '#22c55e'
-                        : '#64748b'
+                        ? 'rgb(34, 197, 94)'
+                        : COLORS.muted
                   }
                 >
                   Gap: {c.gap > 0 ? '+' : ''}
@@ -258,24 +264,17 @@ export function RadarChart({ competencies }: RadarChartProps) {
           })()}
       </svg>
       {/* Legend */}
-      <div
-        style={{
-          display: 'flex',
-          gap: 20,
-          justifyContent: 'center',
-          flexWrap: 'wrap',
-          marginTop: 8,
-        }}
-      >
+      <div className="flex gap-5 justify-center flex-wrap mt-2">
         {[
           { color: COLORS.self, label: 'Autoavaliação', dash: true },
           { color: COLORS.manager, label: 'Outros avaliadores', dash: false },
-          { color: '#f59e0b', label: 'Benchmark do cargo', dash: true },
+          {
+            color: 'rgb(245, 158, 11)',
+            label: 'Benchmark do cargo',
+            dash: true,
+          },
         ].map((l) => (
-          <div
-            key={l.label}
-            style={{ display: 'flex', alignItems: 'center', gap: 6 }}
-          >
+          <div key={l.label} className="flex items-center gap-1.5">
             <svg width={24} height={4}>
               {l.dash ? (
                 <line
@@ -298,7 +297,7 @@ export function RadarChart({ competencies }: RadarChartProps) {
                 />
               )}
             </svg>
-            <span style={{ fontSize: 11, color: '#94a3b8' }}>{l.label}</span>
+            <span className="text-xs text-slate-500">{l.label}</span>
           </div>
         ))}
       </div>

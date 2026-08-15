@@ -26,6 +26,7 @@ import { NineBoxGrid } from './NineBoxGrid';
 import { OverviewTab } from './OverviewTab';
 import { FeedbackTab } from './FeedbackTab';
 import { EvaluationFormTab } from './EvaluationFormTab';
+import { Button } from '@/components/ui/Button';
 
 const TABS: { id: TabId; label: string; icon: string }[] = [
   { id: 'overview', label: 'Visão Geral', icon: '◈' },
@@ -66,91 +67,40 @@ export function Evaluation360View({
         return <OverviewTab result={result} cycle={cycle} />;
       case 'radar':
         return (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+          <div className="flex flex-col gap-6">
             <div>
-              <h2
-                style={{
-                  margin: 0,
-                  fontSize: 18,
-                  fontWeight: 800,
-                  color: COLORS.text,
-                }}
-              >
+              <h2 className="m-0 text-lg font-bold text-slate-100">
                 Radar de Competências 360°
               </h2>
-              <p
-                style={{ margin: '4px 0 0', fontSize: 13, color: COLORS.muted }}
-              >
+              <p className="m-0 mt-1 text-sm text-slate-400">
                 Comparação entre autoavaliação, outros avaliadores e benchmark
                 do cargo
               </p>
             </div>
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: '1fr 320px',
-                gap: 24,
-                alignItems: 'start',
-              }}
-            >
-              <div
-                style={{
-                  background: COLORS.surface,
-                  border: `1px solid ${COLORS.border}`,
-                  borderRadius: 12,
-                  padding: '24px',
-                  display: 'flex',
-                  justifyContent: 'center',
-                }}
-              >
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_320px] lg:items-start">
+              <div className="rounded-xl border border-slate-700 bg-slate-800 p-6 flex justify-center">
                 <RadarChart competencies={competencies} />
               </div>
-              <div
-                style={{ display: 'flex', flexDirection: 'column', gap: 10 }}
-              >
-                <div
-                  style={{
-                    fontSize: 12,
-                    color: COLORS.muted,
-                    fontWeight: 700,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.06em',
-                    marginBottom: 4,
-                  }}
-                >
+              <div className="flex flex-col gap-2.5">
+                <div className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">
                   Legenda de Gaps
                 </div>
                 {competencies.map((c) => (
                   <div
                     key={c.id}
-                    style={{
-                      background: COLORS.surface,
-                      border: `1px solid ${COLORS.border}`,
-                      borderRadius: 8,
-                      padding: '10px 14px',
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                    }}
+                    className="rounded-lg border border-slate-700 bg-slate-800 px-3.5 py-2.5 flex justify-between items-center"
                   >
-                    <span
-                      style={{
-                        fontSize: 12,
-                        color: '#e2e8f0',
-                        fontWeight: 600,
-                      }}
-                    >
+                    <span className="text-sm font-semibold text-slate-200">
                       {c.name}
                     </span>
                     <span
+                      className="text-sm font-bold"
                       style={{
-                        fontSize: 12,
-                        fontWeight: 800,
                         color:
                           c.gap > 0.5
-                            ? '#f59e0b'
+                            ? 'rgb(245, 158, 11)'
                             : c.gap < -0.5
-                              ? '#22c55e'
+                              ? 'rgb(34, 197, 94)'
                               : COLORS.muted,
                       }}
                     >
@@ -160,19 +110,14 @@ export function Evaluation360View({
                     </span>
                   </div>
                 ))}
-                <div
-                  style={{
-                    fontSize: 11,
-                    color: COLORS.muted,
-                    marginTop: 8,
-                    lineHeight: 1.5,
-                  }}
-                >
-                  <span style={{ color: '#f59e0b' }}>▲ positivo</span> =
-                  overestima-se vs. outros
+                <div className="text-xs text-slate-500 mt-2 leading-relaxed">
+                  <span style={{ color: 'rgb(245, 158, 11)' }}>▲ positivo</span>{' '}
+                  = overestima-se vs. outros
                   <br />
-                  <span style={{ color: '#22c55e' }}>▼ negativo</span> =
-                  subestima-se (ponto forte!)
+                  <span style={{ color: 'rgb(34, 197, 94)' }}>
+                    ▼ negativo
+                  </span>{' '}
+                  = subestima-se (ponto forte!)
                 </div>
               </div>
             </div>
@@ -180,57 +125,30 @@ export function Evaluation360View({
         );
       case 'competencies':
         return (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+          <div className="flex flex-col gap-5">
             <div>
-              <h2
-                style={{
-                  margin: 0,
-                  fontSize: 18,
-                  fontWeight: 800,
-                  color: COLORS.text,
-                }}
-              >
+              <h2 className="m-0 text-lg font-bold text-slate-100">
                 Heatmap de Competências
               </h2>
-              <p
-                style={{ margin: '4px 0 0', fontSize: 13, color: COLORS.muted }}
-              >
+              <p className="m-0 mt-1 text-sm text-slate-400">
                 Score por fonte de avaliador, gap e benchmark do cargo
               </p>
             </div>
-            <div style={{ display: 'flex', gap: 8, marginBottom: 4 }}>
+            <div className="flex gap-2 mb-1">
               {Object.entries(typeColor).map(([type, color]) => (
                 <span
                   key={type}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 4,
-                    fontSize: 11,
-                    color: COLORS.muted,
-                  }}
+                  className="flex items-center gap-1 text-xs text-slate-500"
                 >
                   <span
-                    style={{
-                      width: 8,
-                      height: 8,
-                      borderRadius: '50%',
-                      background: color,
-                      display: 'inline-block',
-                    }}
+                    className="inline-block w-2 h-2 rounded-full"
+                    style={{ background: color }}
                   />
                   {type.replace('_', ' ')}
                 </span>
               ))}
             </div>
-            <div
-              style={{
-                background: COLORS.surface,
-                border: `1px solid ${COLORS.border}`,
-                borderRadius: 12,
-                overflow: 'hidden',
-              }}
-            >
+            <div className="rounded-xl border border-slate-700 bg-slate-800 overflow-hidden">
               <CompetencyHeatmap competencies={competencies} />
             </div>
           </div>
@@ -239,152 +157,77 @@ export function Evaluation360View({
         return <FeedbackTab feedbacks={feedbacks} />;
       case 'ninebox':
         return (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+          <div className="flex flex-col gap-5">
             <div>
-              <h2
-                style={{
-                  margin: 0,
-                  fontSize: 18,
-                  fontWeight: 800,
-                  color: COLORS.text,
-                }}
-              >
+              <h2 className="m-0 text-lg font-bold text-slate-100">
                 Matriz Nine Box
               </h2>
-              <p
-                style={{ margin: '4px 0 0', fontSize: 13, color: COLORS.muted }}
-              >
+              <p className="m-0 mt-1 text-sm text-slate-400">
                 Performance vs Potencial · {nineBox.length} colaboradores
               </p>
             </div>
-            <div
-              style={{
-                background: COLORS.surface,
-                border: `1px solid ${COLORS.border}`,
-                borderRadius: 12,
-                padding: 24,
-              }}
-            >
+            <div className="rounded-xl border border-slate-700 bg-slate-800 p-6">
               <NineBoxGrid entries={nineBox} />
             </div>
           </div>
         );
       case 'cycles':
         return (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-              }}
-            >
+          <div className="flex flex-col gap-5">
+            <div className="flex justify-between items-center">
               <div>
-                <h2
-                  style={{
-                    margin: 0,
-                    fontSize: 18,
-                    fontWeight: 800,
-                    color: COLORS.text,
-                  }}
-                >
+                <h2 className="m-0 text-lg font-bold text-slate-100">
                   Ciclos de Avaliação
                 </h2>
-                <p
-                  style={{
-                    margin: '4px 0 0',
-                    fontSize: 13,
-                    color: COLORS.muted,
-                  }}
-                >
+                <p className="m-0 mt-1 text-sm text-slate-400">
                   Gestão de campanhas de avaliação 360°
                 </p>
               </div>
-              <button
-                style={{
-                  background: 'linear-gradient(135deg, #4f46e5, #7c3aed)',
-                  border: 'none',
-                  borderRadius: 8,
-                  padding: '9px 18px',
-                  fontSize: 13,
-                  fontWeight: 700,
-                  color: '#fff',
-                  cursor: 'pointer',
-                }}
-              >
+              <Button intent="primary" size="sm">
                 + Novo Ciclo
-              </button>
+              </Button>
             </div>
             {cycles.map((c) => (
               <div
                 key={c.id}
-                style={{
-                  background: COLORS.surface,
-                  border: `1px solid ${COLORS.border}`,
-                  borderRadius: 10,
-                  padding: '18px 24px',
-                }}
+                className="rounded-lg border border-slate-700 bg-slate-800 p-5"
               >
-                <div
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    marginBottom: 12,
-                  }}
-                >
+                <div className="flex justify-between items-center mb-3">
                   <div>
-                    <div
-                      style={{
-                        fontSize: 15,
-                        fontWeight: 700,
-                        color: COLORS.text,
-                      }}
-                    >
+                    <div className="text-sm font-semibold text-slate-100">
                       {c.name}
                     </div>
-                    <div
-                      style={{
-                        fontSize: 12,
-                        color: COLORS.muted,
-                        marginTop: 2,
-                      }}
-                    >
+                    <div className="text-xs text-slate-500 mt-0.5">
                       {c.model} · {c.startDate} → {c.endDate}
                     </div>
                   </div>
                   <span
+                    className="text-xs font-bold px-3 py-1 rounded-full"
                     style={{
-                      fontSize: 12,
-                      fontWeight: 700,
-                      padding: '4px 12px',
-                      borderRadius: 20,
                       background:
-                        c.status === 'COMPLETED' ? '#14532d' : '#1e1b4b',
-                      color: c.status === 'COMPLETED' ? '#4ade80' : '#818cf8',
+                        c.status === 'COMPLETED'
+                          ? 'rgb(20, 83, 45)'
+                          : 'rgb(30, 27, 75)',
+                      color:
+                        c.status === 'COMPLETED'
+                          ? 'rgb(74, 222, 128)'
+                          : 'rgb(129, 140, 248)',
                     }}
                   >
                     {c.status}
                   </span>
                 </div>
-                <div
-                  style={{
-                    background: '#1e2537',
-                    borderRadius: 4,
-                    height: 6,
-                    marginBottom: 8,
-                  }}
-                >
+                <div className="bg-slate-900 rounded h-1.5 mb-2 overflow-hidden">
                   <div
+                    className="h-full rounded transition-all"
                     style={{
                       width: `${Math.round((c.completedCount / c.participantsCount) * 100)}%`,
-                      height: '100%',
-                      background: '#4f46e5',
-                      borderRadius: 4,
+                      background:
+                        'linear-gradient(90deg, rgb(99, 102, 241), rgb(124, 58, 237))',
                     }}
                   />
                 </div>
-                <div style={{ fontSize: 12, color: COLORS.muted }}>
+                <div className="text-xs text-slate-500">
                   {c.completedCount}/{c.participantsCount} participantes
                   concluídos (
                   {Math.round((c.completedCount / c.participantsCount) * 100)}
@@ -408,113 +251,56 @@ export function Evaluation360View({
 
   return (
     <div
-      style={{
-        minHeight: '100vh',
-        background: COLORS.bg,
-        fontFamily: "'DM Sans', 'Segoe UI', system-ui, sans-serif",
-        color: COLORS.text,
-      }}
+      style={{ backgroundColor: COLORS.bg }}
+      className="min-h-screen font-sans text-slate-100"
     >
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap'); * { box-sizing: border-box; } ::-webkit-scrollbar { width: 5px; } ::-webkit-scrollbar-track { background: #111827; } ::-webkit-scrollbar-thumb { background: #1e2a3a; border-radius: 3px; }`}</style>
+      <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap'); * { box-sizing: border-box; } ::-webkit-scrollbar { width: 5px; } ::-webkit-scrollbar-track { background: ${COLORS.surface}; } ::-webkit-scrollbar-thumb { background: ${COLORS.border}; border-radius: 3px; }`}</style>
 
       {/* Header */}
-      <div
-        style={{
-          borderBottom: '1px solid #0f1c30',
-          padding: '16px 32px',
-          display: 'flex',
-          alignItems: 'center',
-          gap: 16,
-          background: '#08101f',
-          position: 'sticky',
-          top: 0,
-          zIndex: 100,
-        }}
-      >
+      <div className="border-b border-slate-800 px-8 py-4 flex items-center gap-4 bg-slate-950 sticky top-0 z-100">
         <div
+          className="w-9 h-9 rounded-lg flex items-center justify-center text-base font-black text-white"
           style={{
-            width: 36,
-            height: 36,
-            borderRadius: 8,
-            background: 'linear-gradient(135deg, #4f46e5, #7c3aed)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: 16,
-            fontWeight: 900,
-            color: '#fff',
+            background:
+              'linear-gradient(135deg, rgb(79, 70, 229), rgb(124, 58, 237))',
           }}
         >
           I
         </div>
         <div>
-          <div
-            style={{
-              fontSize: 16,
-              fontWeight: 800,
-              color: COLORS.text,
-              letterSpacing: '-0.01em',
-            }}
-          >
+          <div className="text-base font-bold text-slate-100 tracking-tight">
             INNOVA
           </div>
-          <div
-            style={{
-              fontSize: 11,
-              color: '#475569',
-              fontWeight: 500,
-              letterSpacing: '0.08em',
-              textTransform: 'uppercase',
-            }}
-          >
+          <div className="text-xs text-slate-600 font-medium uppercase tracking-wider">
             Avaliação 360°
           </div>
         </div>
-        <div style={{ marginLeft: 'auto', fontSize: 13, color: COLORS.muted }}>
-          Ciclo: <strong style={{ color: '#818cf8' }}>{cycle.name}</strong>
+        <div className="ml-auto text-sm text-slate-500">
+          Ciclo:{' '}
+          <strong style={{ color: 'rgb(129, 140, 248)' }}>{cycle.name}</strong>
         </div>
       </div>
 
       {/* Tabs */}
-      <div
-        style={{
-          borderBottom: '1px solid #0f1c30',
-          padding: '0 32px',
-          display: 'flex',
-          gap: 4,
-          overflowX: 'auto',
-          background: '#08101f',
-        }}
-      >
+      <div className="border-b border-slate-800 px-8 flex gap-1 overflow-x-auto bg-slate-950">
         {TABS.map((tab) => (
           <button
             key={tab.id}
             onClick={() => onTabChange(tab.id)}
-            style={{
-              background: 'none',
-              border: 'none',
-              padding: '14px 18px',
-              fontSize: 13,
-              fontWeight: activeTab === tab.id ? 700 : 500,
-              color: activeTab === tab.id ? '#a5b4fc' : '#475569',
-              cursor: 'pointer',
-              borderBottom: `2px solid ${activeTab === tab.id ? '#6366f1' : 'transparent'}`,
-              whiteSpace: 'nowrap',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 6,
-            }}
+            className={`px-4.5 py-3.5 text-sm font-medium whitespace-nowrap flex items-center gap-1.5 border-b-2 transition-colors cursor-pointer ${
+              activeTab === tab.id
+                ? 'border-indigo-500 text-indigo-300 font-bold'
+                : 'border-transparent text-slate-600'
+            }`}
           >
-            <span style={{ fontSize: 12 }}>{tab.icon}</span>
+            <span className="text-sm">{tab.icon}</span>
             {tab.label}
           </button>
         ))}
       </div>
 
       {/* Content */}
-      <div style={{ padding: '32px', maxWidth: 1280, margin: '0 auto' }}>
-        {renderTab()}
-      </div>
+      <div className="px-8 py-8 max-w-6xl mx-auto">{renderTab()}</div>
     </div>
   );
 }
