@@ -22,7 +22,12 @@ import {
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { Avatar, KpiCard, ProgressBar, Skeleton } from './atoms';
+import { Avatar } from '@/components/ui/Avatar';
+import { Badge } from '@/components/ui/Badge';
+import { Card, CardBody } from '@/components/ui/Card';
+import { KpiCard } from '@/components/ui/KpiCard';
+import { ProgressBar } from '@/components/ui/ProgressBar';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { RadarChart } from './RadarChart';
 import { SCORE_BG, SCORE_COLOR, TYPE_LABEL } from './constants';
 import type { EvalRequest, EvalResults, MyProgress } from './types';
@@ -53,7 +58,14 @@ export function OverviewTab({ userId }: OverviewTabProps) {
     resultsQ.data && resultsQ.data.hasResults !== false ? resultsQ.data : null;
   const loading = progressQ.isLoading;
 
-  if (loading) return <Skeleton />;
+  if (loading)
+    return (
+      <Skeleton
+        rows={4}
+        wrapperClassName="grid grid-cols-2 md:grid-cols-4 gap-4"
+        itemClassName="skeleton-shimmer h-24 rounded-card"
+      />
+    );
 
   return (
     <div className="space-y-6">
@@ -63,39 +75,39 @@ export function OverviewTab({ userId }: OverviewTabProps) {
           icon={CheckCircle}
           label="Concluídas"
           value={progress?.completed ?? 0}
-          color="text-emerald-600"
-          bg="bg-emerald-50"
+          intent="success"
         />
         <KpiCard
           icon={Clock}
           label="Pendentes"
           value={progress?.pending ?? 0}
-          color="text-amber-600"
-          bg="bg-amber-50"
+          intent="warning"
         />
         <KpiCard
           icon={Activity}
           label="Taxa Conclusão"
           value={`${progress?.completionRate ?? 0}%`}
-          color="text-indigo-600"
-          bg="bg-indigo-50"
+          intent="primary"
         />
         <KpiCard
           icon={Star}
           label="Último Score"
           value={myResults ? myResults.finalScore.toFixed(1) : '–'}
           sub={myResults?.scoreLabel}
-          color="text-violet-600"
-          bg="bg-violet-50"
+          intent="accent"
         />
       </div>
 
       {/* Pending evaluations urgent banner */}
       {pending.length > 0 && (
-        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+        <div className="bg-warning-subtle border border-warning rounded-card p-4">
           <div className="flex items-center gap-2 mb-3">
-            <AlertTriangle size={16} className="text-amber-600" />
-            <p className="text-sm font-semibold text-amber-700">
+            <AlertTriangle
+              size={16}
+              strokeWidth={1.75}
+              className="text-warning-ink"
+            />
+            <p className="text-sm font-semibold text-warning-ink">
               {pending.length} avaliação{pending.length > 1 ? 'ões' : ''}{' '}
               pendente{pending.length > 1 ? 's' : ''}
             </p>
@@ -104,26 +116,30 @@ export function OverviewTab({ userId }: OverviewTabProps) {
             {pending.slice(0, 3).map((r) => (
               <div
                 key={r.id}
-                className="flex items-center gap-3 bg-white rounded-lg px-3 py-2.5 border border-amber-100"
+                className="flex items-center gap-3 bg-surface rounded-control px-3 py-2.5 border border-border"
               >
                 <Avatar
                   name={r.evaluated.fullName}
                   url={r.evaluated.avatarUrl}
                 />
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-slate-700">
+                  <p className="text-sm font-medium text-ink">
                     {r.evaluated.fullName}
                   </p>
-                  <p className="text-xs text-slate-400">
+                  <p className="text-xs text-ink-faint">
                     {TYPE_LABEL[r.type]} · {r.cycle?.name}
                   </p>
                 </div>
                 {r.dueDate && (
-                  <span className="text-xs text-amber-600 font-medium shrink-0">
+                  <span className="text-xs text-warning-ink font-medium shrink-0">
                     {new Date(r.dueDate).toLocaleDateString('pt')}
                   </span>
                 )}
-                <ChevronRight size={14} className="text-slate-400" />
+                <ChevronRight
+                  size={14}
+                  strokeWidth={1.75}
+                  className="text-ink-faint"
+                />
               </div>
             ))}
           </div>
@@ -132,97 +148,90 @@ export function OverviewTab({ userId }: OverviewTabProps) {
 
       {/* My results radar */}
       {myResults && (
-        <div className="bg-white rounded-xl border border-slate-100 p-5">
-          <h3 className="font-semibold text-slate-700 mb-4">
-            Os Meus Resultados
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Score breakdown */}
-            <div>
-              <div
-                className={`rounded-xl border p-4 mb-4 ${SCORE_BG(myResults.finalScore)}`}
-              >
-                <p className="text-xs text-slate-500 mb-0.5">Score Final</p>
-                <p
-                  className={`text-4xl font-black ${SCORE_COLOR(myResults.finalScore)}`}
+        <Card>
+          <CardBody>
+            <h3 className="font-display font-semibold text-ink mb-4">
+              Os Meus Resultados
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Score breakdown */}
+              <div>
+                <div
+                  className={`rounded-card border p-4 mb-4 ${SCORE_BG(myResults.finalScore)}`}
                 >
-                  {myResults.finalScore.toFixed(1)}
-                </p>
-                <p className="text-sm text-slate-600 font-medium">
-                  {myResults.scoreLabel}
-                </p>
+                  <p className="text-xs text-ink-faint mb-0.5">Score Final</p>
+                  <p
+                    className={`text-4xl font-black ${SCORE_COLOR(myResults.finalScore)}`}
+                  >
+                    {myResults.finalScore.toFixed(1)}
+                  </p>
+                  <p className="text-sm text-ink-muted font-medium">
+                    {myResults.scoreLabel}
+                  </p>
+                </div>
+
+                {/* By type */}
+                <div className="space-y-2">
+                  {Object.entries(myResults.byType).map(([type, score]) => (
+                    <div key={type}>
+                      <div className="flex justify-between text-xs mb-0.5">
+                        <span className="text-ink-muted">
+                          {TYPE_LABEL[type] ?? type}
+                        </span>
+                        <span className={`font-bold ${SCORE_COLOR(+score)}`}>
+                          {(+score).toFixed(1)}
+                        </span>
+                      </div>
+                      <ProgressBar value={(+score / 5) * 100} />
+                    </div>
+                  ))}
+                </div>
               </div>
 
-              {/* By type */}
-              <div className="space-y-2">
-                {Object.entries(myResults.byType).map(([type, score]) => (
-                  <div key={type}>
-                    <div className="flex justify-between text-xs mb-0.5">
-                      <span className="text-slate-500">
-                        {TYPE_LABEL[type] ?? type}
+              {/* Radar + Concordance */}
+              <div>
+                {Object.keys(myResults.competencies).length > 0 && (
+                  <RadarChart
+                    data={Object.entries(myResults.competencies).map(
+                      ([id, score]) => ({
+                        label: `Comp.${id}`,
+                        value: +score,
+                        max: 5,
+                      }),
+                    )}
+                    size={180}
+                  />
+                )}
+
+                {myResults.concordance && (
+                  <div className="mt-3 p-3 rounded-control bg-surface-sunken border border-border">
+                    <p className="text-xs font-semibold text-ink-muted mb-1">
+                      Concordância
+                    </p>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-ink-muted">
+                        Auto: <b>{myResults.concordance.selfScore.toFixed(1)}</b>
                       </span>
-                      <span className={`font-bold ${SCORE_COLOR(+score)}`}>
-                        {(+score).toFixed(1)}
+                      <Badge
+                        intent={
+                          myResults.concordance.label === 'Alinhado'
+                            ? 'success'
+                            : 'warning'
+                        }
+                      >
+                        {myResults.concordance.label}
+                      </Badge>
+                      <span className="text-ink-muted">
+                        Outros:{' '}
+                        <b>{myResults.concordance.othersScore.toFixed(1)}</b>
                       </span>
                     </div>
-                    <ProgressBar
-                      value={(+score / 5) * 100}
-                      color={
-                        +score >= 4
-                          ? 'bg-emerald-500'
-                          : +score >= 3
-                            ? 'bg-teal-400'
-                            : 'bg-amber-400'
-                      }
-                    />
                   </div>
-                ))}
+                )}
               </div>
             </div>
-
-            {/* Radar + Concordance */}
-            <div>
-              {Object.keys(myResults.competencies).length > 0 && (
-                <RadarChart
-                  data={Object.entries(myResults.competencies).map(
-                    ([id, score]) => ({
-                      label: `Comp.${id}`,
-                      value: +score,
-                      max: 5,
-                    }),
-                  )}
-                  size={180}
-                />
-              )}
-
-              {myResults.concordance && (
-                <div className="mt-3 p-3 rounded-lg bg-slate-50 border border-slate-200">
-                  <p className="text-xs font-semibold text-slate-600 mb-1">
-                    Concordância
-                  </p>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-slate-500">
-                      Auto: <b>{myResults.concordance.selfScore.toFixed(1)}</b>
-                    </span>
-                    <span
-                      className={`font-bold text-xs px-2 py-0.5 rounded-full ${
-                        myResults.concordance.label === 'Alinhado'
-                          ? 'bg-emerald-100 text-emerald-700'
-                          : 'bg-amber-100 text-amber-700'
-                      }`}
-                    >
-                      {myResults.concordance.label}
-                    </span>
-                    <span className="text-slate-500">
-                      Outros:{' '}
-                      <b>{myResults.concordance.othersScore.toFixed(1)}</b>
-                    </span>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
+          </CardBody>
+        </Card>
       )}
     </div>
   );
