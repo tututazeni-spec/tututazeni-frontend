@@ -8,6 +8,8 @@
 // project_innova_component_separation_audit.
 
 import { useState } from 'react';
+import { Compass } from 'lucide-react';
+import { Button } from '@/components/ui/Button';
 import { NAV, TITLES } from '@/components/career/constants';
 import { DashboardView } from '@/components/career/DashboardView';
 import { PathsView } from '@/components/career/PathsView';
@@ -19,31 +21,33 @@ export default function CareerPage() {
   const [view, setView] = useState<View>('dashboard');
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8">
-      <div className="flex items-center justify-between mb-6">
+    <div className="mx-auto max-w-6xl px-4 py-8">
+      <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-semibold text-gray-900">
-            {TITLES[view]}
-          </h1>
-          <p className="text-sm text-gray-400 mt-0.5">
+          <div className="mb-1 flex items-center gap-2">
+            <div className="rounded-control bg-primary-subtle p-1.5">
+              <Compass size={18} strokeWidth={1.75} className="text-primary" />
+            </div>
+            <h1 className="font-display text-xl font-semibold text-ink">
+              {TITLES[view]}
+            </h1>
+          </div>
+          <p className="mt-0.5 font-body text-sm text-ink-faint">
             INNOVA — Gestão de Carreira
           </p>
         </div>
       </div>
 
-      <div className="flex gap-1 mb-6 bg-gray-100 p-1 rounded-xl w-fit">
+      <div className="mb-6 flex w-fit gap-1 rounded-card bg-surface-sunken p-1">
         {NAV.map((n) => (
-          <button
+          <Button
             key={n.id}
+            size="sm"
+            intent={view === n.id ? 'primary' : 'ghost'}
             onClick={() => setView(n.id)}
-            className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-              view === n.id
-                ? 'bg-white text-gray-900 shadow-sm'
-                : 'text-gray-500 hover:text-gray-700'
-            }`}
           >
             {n.label}
-          </button>
+          </Button>
         ))}
       </div>
 

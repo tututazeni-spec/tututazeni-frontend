@@ -1,34 +1,22 @@
 // components/career/constants.ts
-// Mapas de badges e navegação do módulo de carreira. Extraído de
+// Mapas de badges e navegação do módulo de carreira. Cores mapeadas para
+// os tokens semânticos da fundação de design (Fase A) — os tipos de vaga
+// (PROMOTION/LATERAL/...) são categorias decorativas, não estados, por
+// isso repetem tokens onde não há uma correspondência 1:1. Extraído de
 // app/(platform)/career/page.tsx.
 
+import type { BadgeProps } from '@/components/ui/Badge';
 import type { View } from './types';
 
 export const VACANCY_TYPE: Record<
   string,
-  { label: string; icon: string; cls: string }
+  { label: string; icon: string; intent: NonNullable<BadgeProps['intent']> }
 > = {
-  PROMOTION: {
-    label: 'Promoção',
-    icon: '🚀',
-    cls: 'bg-emerald-50 text-emerald-700',
-  },
-  LATERAL: { label: 'Lateral', icon: '↔️', cls: 'bg-blue-50 text-blue-700' },
-  GIG_PROJECT: {
-    label: 'Gig Project',
-    icon: '⚡',
-    cls: 'bg-amber-50 text-amber-700',
-  },
-  JOB_ROTATION: {
-    label: 'Job Rotation',
-    icon: '🔄',
-    cls: 'bg-purple-50 text-purple-700',
-  },
-  SHADOWING: {
-    label: 'Shadowing',
-    icon: '👁',
-    cls: 'bg-gray-100 text-gray-600',
-  },
+  PROMOTION: { label: 'Promoção', icon: '🚀', intent: 'success' },
+  LATERAL: { label: 'Lateral', icon: '↔️', intent: 'info' },
+  GIG_PROJECT: { label: 'Gig Project', icon: '⚡', intent: 'warning' },
+  JOB_ROTATION: { label: 'Job Rotation', icon: '🔄', intent: 'neutral' },
+  SHADOWING: { label: 'Shadowing', icon: '👁', intent: 'neutral' },
 };
 
 export const CAREER_PATH_TYPE: Record<string, string> = {
@@ -39,11 +27,13 @@ export const CAREER_PATH_TYPE: Record<string, string> = {
   LATTICE: 'Lattice',
 };
 
-export const READINESS_CFG: Record<string, { label: string; cls: string }> = {
-  READY_NOW: { label: 'Pronto agora', cls: 'bg-emerald-50 text-emerald-700' },
-  READY_12M: { label: 'Pronto em 12m', cls: 'bg-amber-50 text-amber-700' },
-  READY_24M: { label: 'Pronto em 24m', cls: 'bg-orange-50 text-orange-700' },
-  NOT_READY: { label: 'Não pronto', cls: 'bg-red-50 text-red-600' },
+// 'cls' deixou de existir aqui — no ficheiro original só `.label` era
+// consumido (DashboardView), a cor nunca chegava a ser lida por ninguém.
+export const READINESS_CFG: Record<string, { label: string }> = {
+  READY_NOW: { label: 'Pronto agora' },
+  READY_12M: { label: 'Pronto em 12m' },
+  READY_24M: { label: 'Pronto em 24m' },
+  NOT_READY: { label: 'Não pronto' },
 };
 
 export const NAV = [

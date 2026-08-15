@@ -6,13 +6,26 @@
 'use client';
 
 import { useState } from 'react';
+import { History, Sparkles } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { Avatar, Skeleton } from './atoms';
+import { cn } from '@/lib/cn';
+import { Avatar } from '@/components/ui/Avatar';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { Input } from '@/components/ui/Input';
+import { ProgressBar } from '@/components/ui/ProgressBar';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { READINESS_CFG } from './constants';
 import type { CareerProfile, SimulationResult } from './types';
+
+function scoreClass(score: number): string {
+  if (score >= 80) return 'text-success';
+  if (score >= 60) return 'text-warning';
+  return 'text-ink-faint';
+}
 
 export function DashboardView() {
   const [simTarget, setSimTarget] = useState('');
@@ -42,93 +55,104 @@ export function DashboardView() {
   return (
     <div className="space-y-6">
       {/* Header do perfil */}
-      <div className="bg-white border border-gray-200 rounded-xl p-6">
+      <Card className="p-6">
         <div className="flex items-start gap-4">
-          <Avatar name={user.fullName} url={user.avatarUrl} size="lg" />
+          <Avatar name={user.fullName} url={user.avatarUrl ?? undefined} size="lg" />
           <div className="flex-1">
-            <h2 className="text-lg font-bold text-gray-900">{user.fullName}</h2>
-            <div className="text-sm text-gray-500">
+            <h2 className="font-display text-lg font-bold text-ink">
+              {user.fullName}
+            </h2>
+            <div className="font-body text-sm text-ink-muted">
               {user.position?.name ?? 'Sem cargo'} · {user.department?.name}
             </div>
-            <div className="flex gap-3 mt-2 text-xs text-gray-400">
+            <div className="mt-2 flex gap-3 font-body text-xs text-ink-faint">
               <span>🎓 {stats.certificates} certificados</span>
               <span>📚 {stats.enrollments} cursos</span>
               <span>💡 {stats.userCompetencies} competências</span>
               <span>🏆 {stats.badgeAwards} badges</span>
             </div>
             {user.points && (
-              <div className="mt-2 text-xs text-blue-700 font-semibold">
+              <div className="mt-2 font-body text-xs font-semibold text-primary">
                 {user.points.points} XP
               </div>
             )}
           </div>
           {promotionEligibility && (
             <div
-              className={`px-3 py-2 rounded-xl text-center text-xs font-medium ${
+              className={cn(
+                'rounded-card border px-3 py-2 text-center font-body text-xs font-medium',
                 promotionEligibility.eligible
-                  ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                  : 'bg-gray-50 text-gray-500 border border-gray-200'
-              }`}
+                  ? 'border-success bg-success-subtle text-success-ink'
+                  : 'border-border bg-surface-sunken text-ink-muted',
+              )}
             >
               {promotionEligibility.eligible
                 ? '✅ Elegível para promoção'
                 : '📋 Em desenvolvimento'}
-              <div className="text-xs font-normal mt-0.5 text-gray-400">
+              <div className="mt-0.5 font-body text-xs font-normal text-ink-faint">
                 {READINESS_CFG[promotionEligibility.recommendation]?.label}
               </div>
             </div>
           )}
         </div>
-      </div>
+      </Card>
 
       <div className="grid grid-cols-3 gap-5">
         {/* Gap de Competências */}
-        <div className="col-span-2 bg-white border border-gray-200 rounded-xl overflow-hidden">
-          <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
-            <span className="text-sm font-semibold text-gray-900">
+        <Card className="col-span-2 overflow-hidden p-0">
+          <div className="flex items-center justify-between border-b border-border px-4 py-3">
+            <span className="font-body text-sm font-semibold text-ink">
               Gap de Competências
             </span>
-            <span className="text-xs text-gray-400">
+            <span className="font-body text-xs text-ink-faint">
               {competencyGaps.filter((g) => g.status === 'MET').length}/
               {competencyGaps.length} cumpridas
             </span>
           </div>
           {competencyGaps.length === 0 ? (
-            <div className="px-4 py-8 text-center text-sm text-gray-400">
+            <div className="px-4 py-8 text-center font-body text-sm text-ink-faint">
               Sem cargo definido ou sem competências mapeadas
             </div>
           ) : (
-            <div className="divide-y divide-gray-100">
+            <div className="divide-y divide-border">
               {competencyGaps.slice(0, 6).map((g) => (
                 <div
                   key={g.competency.id}
                   className="flex items-center gap-3 px-4 py-2.5"
                 >
-                  <div className="flex-1 min-w-0">
-                    <div className="text-sm text-gray-900 truncate">
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate font-body text-sm text-ink">
                       {g.competency.name}
                     </div>
-                    <div className="text-xs text-gray-400">
+                    <div className="font-body text-xs text-ink-faint">
                       {g.competency.category}
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 flex-shrink-0">
+                  <div className="flex flex-shrink-0 items-center gap-2">
                     <div className="flex gap-0.5">
                       {[1, 2, 3, 4, 5].map((lvl) => (
                         <div
                           key={lvl}
-                          className={`w-4 h-4 rounded-sm ${lvl <= g.currentLevel ? 'bg-blue-500' : lvl <= g.requiredLevel ? 'bg-blue-100' : 'bg-gray-100'}`}
+                          className={cn(
+                            'h-4 w-4 rounded-sm',
+                            lvl <= g.currentLevel
+                              ? 'bg-primary'
+                              : lvl <= g.requiredLevel
+                                ? 'bg-primary-subtle'
+                                : 'bg-surface-sunken',
+                          )}
                         />
                       ))}
                     </div>
                     <span
-                      className={`text-xs px-1.5 py-0.5 rounded ${
+                      className={cn(
+                        'rounded px-1.5 py-0.5 font-body text-xs',
                         g.status === 'MET'
-                          ? 'bg-emerald-50 text-emerald-700'
+                          ? 'bg-success-subtle text-success-ink'
                           : g.status === 'PARTIAL'
-                            ? 'bg-amber-50 text-amber-700'
-                            : 'bg-red-50 text-red-600'
-                      }`}
+                            ? 'bg-warning-subtle text-warning-ink'
+                            : 'bg-danger-subtle text-danger-ink',
+                      )}
                     >
                       {g.status === 'MET' ? '✓' : `−${g.gap}`}
                     </span>
@@ -137,57 +161,60 @@ export function DashboardView() {
               ))}
             </div>
           )}
-        </div>
+        </Card>
 
         {/* Vagas compatíveis + Plano de Carreira */}
         <div className="space-y-4">
           {/* Vagas compatíveis */}
-          <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-            <div className="px-4 py-3 border-b border-gray-100 text-sm font-semibold text-gray-900">
+          <Card className="overflow-hidden p-0">
+            <div className="border-b border-border px-4 py-3 font-body text-sm font-semibold text-ink">
               🎯 Vagas compatíveis
             </div>
             {matchingVacancies.length === 0 ? (
-              <div className="px-4 py-4 text-xs text-gray-400 text-center">
+              <div className="px-4 py-4 text-center font-body text-xs text-ink-faint">
                 Sem vagas compatíveis
               </div>
             ) : (
               matchingVacancies.slice(0, 3).map((v) => (
                 <div
                   key={v.id}
-                  className="flex items-center gap-2 px-4 py-2.5 border-b border-gray-100 last:border-0"
+                  className="flex items-center gap-2 border-b border-border px-4 py-2.5 last:border-0"
                 >
-                  <div className="flex-1 min-w-0">
-                    <div className="text-xs font-medium text-gray-900 truncate">
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate font-body text-xs font-medium text-ink">
                       {v.title}
                     </div>
-                    <div className="text-xs text-gray-400">
+                    <div className="font-body text-xs text-ink-faint">
                       {v.department?.name}
                     </div>
                   </div>
                   <div
-                    className={`text-xs font-bold flex-shrink-0 ${(v.matchScore ?? 0) >= 80 ? 'text-emerald-600' : (v.matchScore ?? 0) >= 60 ? 'text-amber-600' : 'text-gray-400'}`}
+                    className={cn(
+                      'flex-shrink-0 font-body text-xs font-bold',
+                      scoreClass(v.matchScore ?? 0),
+                    )}
                   >
                     {v.matchScore}%
                   </div>
                 </div>
               ))
             )}
-          </div>
+          </Card>
 
           {/* Plano de Carreira */}
           {careerPlan && (
-            <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
-              <div className="text-xs text-blue-600 font-semibold mb-1">
+            <Card className="border-primary bg-primary-subtle p-4">
+              <div className="mb-1 font-body text-xs font-semibold text-primary">
                 📋 Plano activo
               </div>
-              <div className="text-sm font-medium text-gray-900 truncate">
+              <div className="truncate font-body text-sm font-medium text-ink">
                 {careerPlan.title}
               </div>
-              <div className="text-xs text-gray-500 mt-1">
+              <div className="mt-1 font-body text-xs text-ink-muted">
                 {careerPlan.goals?.length ?? 0} objetivos
               </div>
               {careerPlan.targetDate && (
-                <div className="text-xs text-blue-600 mt-1">
+                <div className="mt-1 font-body text-xs text-primary">
                   Alvo:{' '}
                   {new Date(careerPlan.targetDate).toLocaleDateString('pt-AO', {
                     month: 'short',
@@ -195,120 +222,131 @@ export function DashboardView() {
                   })}
                 </div>
               )}
-            </div>
+            </Card>
           )}
         </div>
       </div>
 
       {/* Critérios de Elegibilidade */}
       {promotionEligibility && (
-        <div className="bg-white border border-gray-200 rounded-xl p-5">
-          <div className="text-sm font-semibold text-gray-900 mb-4">
+        <Card className="p-5">
+          <div className="mb-4 font-body text-sm font-semibold text-ink">
             📈 Critérios de Promoção
           </div>
           <div className="grid grid-cols-3 gap-4">
             {Object.entries(promotionEligibility.criteria).map(([key, c]) => (
               <div
                 key={key}
-                className={`rounded-xl p-4 border ${c.met ? 'border-emerald-200 bg-emerald-50' : 'border-gray-200 bg-gray-50'}`}
+                className={cn(
+                  'rounded-card border p-4',
+                  c.met
+                    ? 'border-success bg-success-subtle'
+                    : 'border-border bg-surface-sunken',
+                )}
               >
-                <div className="text-xs text-gray-500 mb-2">{c.label}</div>
+                <div className="mb-2 font-body text-xs text-ink-muted">
+                  {c.label}
+                </div>
                 <div
-                  className={`text-2xl font-bold font-mono ${c.met ? 'text-emerald-700' : 'text-gray-700'}`}
+                  className={cn(
+                    'font-data text-2xl font-bold',
+                    c.met ? 'text-success-ink' : 'text-ink',
+                  )}
                 >
                   {typeof c.value === 'number' && c.value % 1 !== 0
                     ? c.value.toFixed(1)
                     : c.value}
-                  <span className="text-sm font-normal text-gray-400 ml-1">
+                  <span className="ml-1 font-body text-sm font-normal text-ink-faint">
                     / {c.required}
                   </span>
                 </div>
                 <div
-                  className={`text-xs mt-1 font-medium ${c.met ? 'text-emerald-600' : 'text-amber-600'}`}
+                  className={cn(
+                    'mt-1 font-body text-xs font-medium',
+                    c.met ? 'text-success' : 'text-warning',
+                  )}
                 >
                   {c.met ? '✓ Cumprido' : '⚠ Pendente'}
                 </div>
               </div>
             ))}
           </div>
-        </div>
+        </Card>
       )}
 
       {/* Simulador de Carreira */}
-      <div className="bg-white border border-gray-200 rounded-xl p-5">
-        <div className="text-sm font-semibold text-gray-900 mb-3">
-          🔭 Simulador de Carreira
+      <Card className="p-5">
+        <div className="mb-3 flex items-center gap-1.5 font-body text-sm font-semibold text-ink">
+          <Sparkles size={16} strokeWidth={1.75} className="text-accent" />
+          Simulador de Carreira
         </div>
-        <div className="flex gap-3 mb-4">
-          <input
+        <div className="mb-4 flex gap-3">
+          <Input
             type="number"
             placeholder="ID do cargo alvo (Position ID)…"
             value={simTarget}
             onChange={(e) => setSimTarget(e.target.value)}
-            className="flex-1 text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="flex-1"
           />
-          <button
-            onClick={runSimulation}
-            disabled={simLoading || !simTarget}
-            className="px-4 py-2 bg-blue-700 text-white text-sm font-medium rounded-lg hover:bg-blue-800 disabled:opacity-60"
-          >
-            {simLoading ? '…' : 'Simular'}
-          </button>
+          <Button onClick={runSimulation} disabled={!simTarget} loading={simLoading}>
+            Simular
+          </Button>
         </div>
 
         {simulation && (
-          <div className="bg-blue-50 rounded-xl p-4">
-            <div className="flex items-center justify-between mb-3">
+          <div className="rounded-card bg-primary-subtle p-4">
+            <div className="mb-3 flex items-center justify-between">
               <div>
-                <div className="text-sm font-bold text-gray-900">
+                <div className="font-body text-sm font-bold text-ink">
                   {simulation.targetPosition.name}
                 </div>
-                <div className="text-xs text-gray-500">Cargo alvo</div>
+                <div className="font-body text-xs text-ink-muted">Cargo alvo</div>
               </div>
               <div
-                className={`text-3xl font-bold font-mono ${simulation.readinessScore >= 80 ? 'text-emerald-600' : simulation.readinessScore >= 60 ? 'text-amber-600' : 'text-red-600'}`}
+                className={cn(
+                  'font-data text-3xl font-bold',
+                  scoreClass(simulation.readinessScore),
+                )}
               >
                 {simulation.readinessScore}%
               </div>
             </div>
-            <div className="w-full h-2 bg-white rounded-full overflow-hidden mb-3">
-              <div
-                className={`h-full rounded-full ${simulation.readinessScore >= 80 ? 'bg-emerald-500' : simulation.readinessScore >= 60 ? 'bg-amber-400' : 'bg-red-400'}`}
-                style={{ width: `${simulation.readinessScore}%` }}
-              />
-            </div>
-            <div className="grid grid-cols-3 gap-2 text-xs mb-3">
-              <div className="bg-white rounded-lg p-2">
-                <div className="text-gray-400">Requisitos</div>
-                <div className="font-bold text-gray-900">
+            <ProgressBar value={simulation.readinessScore} className="mb-3 bg-surface" />
+            <div className="mb-3 grid grid-cols-3 gap-2 font-body text-xs">
+              <div className="rounded-control bg-surface p-2">
+                <div className="text-ink-faint">Requisitos</div>
+                <div className="font-bold text-ink">
                   {simulation.summary.requirementsMet}/
                   {simulation.summary.totalRequirements}
                 </div>
               </div>
-              <div className="bg-white rounded-lg p-2">
-                <div className="text-gray-400">Pronto?</div>
+              <div className="rounded-control bg-surface p-2">
+                <div className="text-ink-faint">Pronto?</div>
                 <div
-                  className={`font-bold ${simulation.summary.ready ? 'text-emerald-600' : 'text-amber-600'}`}
+                  className={cn(
+                    'font-bold',
+                    simulation.summary.ready ? 'text-success' : 'text-warning',
+                  )}
                 >
                   {simulation.summary.ready
                     ? 'Sim'
                     : `~${simulation.summary.estimatedTimeMonths}m`}
                 </div>
               </div>
-              <div className="bg-white rounded-lg p-2">
-                <div className="text-gray-400">Cursos rec.</div>
-                <div className="font-bold text-gray-900">
+              <div className="rounded-control bg-surface p-2">
+                <div className="text-ink-faint">Cursos rec.</div>
+                <div className="font-bold text-ink">
                   {simulation.recommendedCourses.length}
                 </div>
               </div>
             </div>
             {simulation.recommendedCourses.length > 0 && (
               <div>
-                <div className="text-xs font-semibold text-gray-700 mb-1">
+                <div className="mb-1 font-body text-xs font-semibold text-ink">
                   Cursos recomendados para fechar gaps:
                 </div>
                 {simulation.recommendedCourses.slice(0, 3).map((c) => (
-                  <div key={c.id} className="text-xs text-blue-700 truncate">
+                  <div key={c.id} className="truncate font-body text-xs text-primary">
                     📚 {c.title}
                   </div>
                 ))}
@@ -316,25 +354,26 @@ export function DashboardView() {
             )}
           </div>
         )}
-      </div>
+      </Card>
 
       {/* Histórico de Carreira */}
       {careerHistory.length > 0 && (
-        <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-          <div className="px-4 py-3 border-b border-gray-100 text-sm font-semibold text-gray-900">
-            🕐 Histórico de Carreira
+        <Card className="overflow-hidden p-0">
+          <div className="flex items-center gap-1.5 border-b border-border px-4 py-3 font-body text-sm font-semibold text-ink">
+            <History size={16} strokeWidth={1.75} className="text-ink-muted" />
+            Histórico de Carreira
           </div>
           {careerHistory.map((c) => (
             <div
               key={c.id}
-              className="flex items-center gap-3 px-4 py-3 border-b border-gray-100 last:border-0"
+              className="flex items-center gap-3 border-b border-border px-4 py-3 last:border-0"
             >
-              <div className="w-2 h-2 rounded-full bg-blue-400 flex-shrink-0" />
+              <div className="h-2 w-2 flex-shrink-0 rounded-full bg-primary" />
               <div className="flex-1">
-                <div className="text-sm font-medium text-gray-900">
+                <div className="font-body text-sm font-medium text-ink">
                   {c.position?.name}
                 </div>
-                <div className="text-xs text-gray-400">
+                <div className="font-body text-xs text-ink-faint">
                   {new Date(c.startedAt).toLocaleDateString('pt-AO', {
                     month: 'short',
                     year: 'numeric',
@@ -345,7 +384,7 @@ export function DashboardView() {
               </div>
             </div>
           ))}
-        </div>
+        </Card>
       )}
     </div>
   );
