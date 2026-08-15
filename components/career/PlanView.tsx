@@ -6,11 +6,18 @@
 'use client';
 
 import { useState } from 'react';
+import { ClipboardList } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { Skeleton } from './atoms';
+import { cn } from '@/lib/cn';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { Input } from '@/components/ui/Input';
+import { ProgressBar } from '@/components/ui/ProgressBar';
+import { Skeleton } from '@/components/ui/Skeleton';
 import type { CareerPlan } from './types';
 
 export function PlanView() {
@@ -50,30 +57,25 @@ export function PlanView() {
 
   if (!plan) {
     return (
-      <div className="bg-white border border-gray-200 rounded-xl p-8 text-center">
-        <div className="text-5xl mb-4">📋</div>
-        <div className="text-base font-semibold text-gray-900 mb-2">
-          Sem plano de carreira activo
-        </div>
-        <p className="text-sm text-gray-500 mb-5">
-          Define os teus objetivos de carreira e acompanha o teu progresso
-        </p>
-        <div className="flex gap-2 justify-center">
-          <input
+      <Card className="p-8 text-center">
+        <EmptyState
+          icon={ClipboardList}
+          title="Sem plano de carreira activo"
+          description="Define os teus objetivos de carreira e acompanha o teu progresso"
+          className="border-none bg-transparent p-0"
+        />
+        <div className="mt-5 flex justify-center gap-2">
+          <Input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="Título do plano (ex: Tornar-me Tech Lead até 2027)"
-            className="text-sm border border-gray-200 rounded-lg px-3 py-2 w-80 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-80"
           />
-          <button
-            onClick={createPlan}
-            disabled={creating || !title.trim()}
-            className="px-4 py-2 bg-blue-700 text-white text-sm font-medium rounded-lg hover:bg-blue-800 disabled:opacity-60"
-          >
-            {creating ? '…' : 'Criar plano'}
-          </button>
+          <Button onClick={createPlan} disabled={!title.trim()} loading={creating}>
+            Criar plano
+          </Button>
         </div>
-      </div>
+      </Card>
     );
   }
 
@@ -83,16 +85,18 @@ export function PlanView() {
   return (
     <div className="space-y-5">
       {/* Header do plano */}
-      <div className="bg-white border border-gray-200 rounded-xl p-5">
+      <Card className="p-5">
         <div className="flex items-start justify-between">
           <div>
-            <div className="text-base font-bold text-gray-900">
+            <div className="font-display text-base font-bold text-ink">
               {plan.title}
             </div>
             {plan.description && (
-              <p className="text-sm text-gray-500 mt-0.5">{plan.description}</p>
+              <p className="mt-0.5 font-body text-sm text-ink-muted">
+                {plan.description}
+              </p>
             )}
-            <div className="flex gap-3 mt-2 text-xs text-gray-400">
+            <div className="mt-2 flex gap-3 font-body text-xs text-ink-faint">
               {plan.targetDate && (
                 <span>
                   🎯 Alvo:{' '}
@@ -106,74 +110,75 @@ export function PlanView() {
             </div>
           </div>
           <div className="text-right">
-            <div className="text-2xl font-bold font-mono text-blue-700">
+            <div className="font-data text-2xl font-bold text-primary">
               {completed}/{goals.length}
             </div>
-            <div className="text-xs text-gray-400">objetivos concluídos</div>
+            <div className="font-body text-xs text-ink-faint">
+              objetivos concluídos
+            </div>
           </div>
         </div>
         {goals.length > 0 && (
-          <div className="mt-3 h-2 bg-gray-100 rounded-full overflow-hidden">
-            <div
-              className="h-full bg-blue-500 rounded-full transition-all"
-              style={{
-                width: `${goals.length > 0 ? Math.round((completed / goals.length) * 100) : 0}%`,
-              }}
-            />
-          </div>
+          <ProgressBar
+            value={goals.length > 0 ? Math.round((completed / goals.length) * 100) : 0}
+            className="mt-3"
+          />
         )}
-      </div>
+      </Card>
 
       {/* Objetivos */}
-      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-        <div className="px-4 py-3 border-b border-gray-100 text-sm font-semibold text-gray-900">
+      <Card className="overflow-hidden p-0">
+        <div className="border-b border-border px-4 py-3 font-body text-sm font-semibold text-ink">
           Objetivos do Plano
         </div>
         {goals.length === 0 ? (
-          <div className="px-4 py-8 text-center text-sm text-gray-400">
+          <div className="px-4 py-8 text-center font-body text-sm text-ink-faint">
             Sem objetivos. Adiciona o primeiro objetivo ao plano.
           </div>
         ) : (
           goals.map((g) => (
             <div
               key={g.id}
-              className="flex items-center gap-4 px-4 py-3.5 border-b border-gray-100 last:border-0"
+              className="flex items-center gap-4 border-b border-border px-4 py-3.5 last:border-0"
             >
               <div
-                className={`w-4 h-4 rounded-full flex-shrink-0 border-2 ${
+                className={cn(
+                  'h-4 w-4 flex-shrink-0 rounded-full border-2',
                   g.status === 'COMPLETED'
-                    ? 'bg-emerald-500 border-emerald-500'
+                    ? 'border-success bg-success'
                     : g.status === 'IN_PROGRESS'
-                      ? 'border-blue-500'
-                      : 'border-gray-300'
-                }`}
+                      ? 'border-primary'
+                      : 'border-border-strong',
+                )}
               />
-              <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium text-gray-900 truncate">
+              <div className="min-w-0 flex-1">
+                <div className="truncate font-body text-sm font-medium text-ink">
                   {g.title}
                 </div>
                 {g.description && (
-                  <div className="text-xs text-gray-400 truncate">
+                  <div className="truncate font-body text-xs text-ink-faint">
                     {g.description}
                   </div>
                 )}
-                <div className="flex items-center gap-2 mt-1">
-                  <div className="w-32 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                    <div
-                      className={`h-full rounded-full ${g.progress >= 100 ? 'bg-emerald-500' : 'bg-blue-500'}`}
-                      style={{ width: `${g.progress}%` }}
-                    />
-                  </div>
-                  <span className="text-xs text-gray-400">{g.progress}%</span>
+                <div className="mt-1 flex items-center gap-2">
+                  <ProgressBar value={g.progress} className="w-32" />
+                  <span className="font-body text-xs text-ink-faint">
+                    {g.progress}%
+                  </span>
                 </div>
               </div>
-              <div className="flex items-center gap-1 flex-shrink-0">
+              <div className="flex flex-shrink-0 items-center gap-1">
                 {[0, 25, 50, 75, 100].map((pct) => (
                   <button
                     key={pct}
                     onClick={() => updateGoalProgress(g.id, pct)}
                     disabled={updatingGoal === g.id}
-                    className={`text-xs px-1.5 py-0.5 rounded font-mono ${g.progress === pct ? 'bg-blue-700 text-white' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}
+                    className={cn(
+                      'rounded px-1.5 py-0.5 font-data text-xs',
+                      g.progress === pct
+                        ? 'bg-primary text-canvas'
+                        : 'bg-surface-sunken text-ink-muted hover:bg-border-strong',
+                    )}
                   >
                     {pct}
                   </button>
@@ -182,7 +187,7 @@ export function PlanView() {
             </div>
           ))
         )}
-      </div>
+      </Card>
     </div>
   );
 }
