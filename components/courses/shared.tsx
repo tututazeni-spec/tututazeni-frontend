@@ -4,9 +4,16 @@
 // todos em app/(platform)/courses/page.tsx, excepto CourseDetailView que
 // vive em components/courses/CourseDetailView.tsx.
 // Ver memory project_innova_component_separation_audit, item 3.6.
+//
+// Migrado para a fundação de design: mapas de badge passam a tokens
+// semânticos (ver components/enrollments/constants.ts para o mesmo
+// padrão), EnrollBadge passa a compor StatusBadge da fundação, skeleton
+// local passa a usar as classes de token do Skeleton partilhado.
 
+import { AlertTriangle } from 'lucide-react';
 import type { StatusBadgeMap } from '@/lib/statusBadge';
 import { Skeleton as SharedSkeleton } from '@/components/ui/Skeleton';
+import { StatusBadge } from '@/components/ui/StatusBadge';
 import type {
   CourseLevel,
   CourseStatus,
@@ -28,15 +35,22 @@ export function isOverdue(deadline: string | null): boolean {
 }
 
 export const COURSE_LEVEL_MAP: StatusBadgeMap<CourseLevel> = {
-  BEGINNER: { label: 'Iniciante', cls: 'bg-emerald-50 text-emerald-700' },
-  INTERMEDIATE: { label: 'Intermédio', cls: 'bg-amber-50 text-amber-700' },
-  ADVANCED: { label: 'Avançado', cls: 'bg-red-50 text-red-700' },
+  BEGINNER: { label: 'Iniciante', cls: 'bg-success-subtle text-success-ink' },
+  INTERMEDIATE: { label: 'Intermédio', cls: 'bg-warning-subtle text-warning-ink' },
+  ADVANCED: { label: 'Avançado', cls: 'bg-danger-subtle text-danger-ink' },
 };
 
 export const COURSE_STATUS_MAP: StatusBadgeMap<CourseStatus> = {
-  DRAFT: { label: 'Rascunho', cls: 'bg-gray-100 text-gray-500' },
-  PUBLISHED: { label: 'Publicado', cls: 'bg-emerald-50 text-emerald-700' },
-  ARCHIVED: { label: 'Arquivado', cls: 'bg-gray-100 text-gray-400' },
+  DRAFT: { label: 'Rascunho', cls: 'bg-surface-sunken text-ink-muted' },
+  PUBLISHED: { label: 'Publicado', cls: 'bg-success-subtle text-success-ink' },
+  ARCHIVED: { label: 'Arquivado', cls: 'bg-surface-sunken text-ink-faint' },
+};
+
+const ENROLLMENT_STATUS_MAP: StatusBadgeMap<EnrollmentStatus> = {
+  NOT_STARTED: { label: 'Não iniciado', cls: 'bg-surface-sunken text-ink-muted' },
+  IN_PROGRESS: { label: 'Em progresso', cls: 'bg-info-subtle text-info-ink' },
+  COMPLETED: { label: 'Concluído', cls: 'bg-success-subtle text-success-ink' },
+  EXPIRED: { label: 'Expirado', cls: 'bg-danger-subtle text-danger-ink' },
 };
 
 export interface EnrollBadgeProps {
@@ -46,21 +60,13 @@ export interface EnrollBadgeProps {
 
 export function EnrollBadge({ status, deadline }: EnrollBadgeProps) {
   const overdue = isOverdue(deadline);
-  const cfg: Record<EnrollmentStatus, { label: string; cls: string }> = {
-    NOT_STARTED: { label: 'Não iniciado', cls: 'bg-gray-100 text-gray-500' },
-    IN_PROGRESS: { label: 'Em progresso', cls: 'bg-blue-50 text-blue-700' },
-    COMPLETED: { label: 'Concluído', cls: 'bg-emerald-50 text-emerald-700' },
-    EXPIRED: { label: 'Expirado', cls: 'bg-red-50 text-red-600' },
-  };
-  const { label, cls } = cfg[status];
   return (
     <div className="flex items-center gap-1.5">
-      <span className={`px-2 py-0.5 rounded text-xs font-medium ${cls}`}>
-        {label}
-      </span>
+      <StatusBadge value={status} map={ENROLLMENT_STATUS_MAP} variant="dot" />
       {overdue && status !== 'COMPLETED' && (
-        <span className="text-xs text-red-600 font-medium">
-          ⚠ Prazo expirado
+        <span className="flex items-center gap-1 text-xs font-medium text-danger">
+          <AlertTriangle size={12} strokeWidth={1.75} />
+          Prazo expirado
         </span>
       )}
     </div>
@@ -85,23 +91,6 @@ export function LessonIcon({ type }: LessonIconProps) {
   return <span className="text-sm">{icons[type] ?? '📄'}</span>;
 }
 
-export interface ProgressBarProps {
-  pct: number;
-  size?: 'sm' | 'md';
-}
-
-export function ProgressBar({ pct, size = 'sm' }: ProgressBarProps) {
-  const h = size === 'sm' ? 'h-1.5' : 'h-2.5';
-  return (
-    <div className={`w-full ${h} bg-gray-100 rounded-full overflow-hidden`}>
-      <div
-        className={`${h} bg-blue-600 rounded-full transition-all duration-500`}
-        style={{ width: `${Math.min(pct, 100)}%` }}
-      />
-    </div>
-  );
-}
-
 export interface SkeletonProps {
   rows?: number;
 }
@@ -111,7 +100,7 @@ export function Skeleton({ rows = 4 }: SkeletonProps) {
     <SharedSkeleton
       rows={rows}
       wrapperClassName="space-y-3 animate-pulse"
-      itemClassName="h-28 bg-gray-100 rounded-xl"
+      itemClassName="h-28 bg-surface-sunken rounded-card"
     />
   );
 }
