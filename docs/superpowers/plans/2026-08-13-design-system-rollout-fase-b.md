@@ -102,9 +102,9 @@ trilhas, tratado à parte só depois dessa decisão ser tomada.
 
 **Files:** Nenhum — só investigação, precede a Vaga 1.
 
-- [ ] **Step 1:** Confirmar manualmente (leitura directa, não só grep) que os 6 módulos da Trilha 2 realmente não têm nenhuma classe Tailwind de paleta crua escondida atrás de `cn()`/template strings dinâmicas que o grep estático não apanhe (o piloto já mostrou que isto é uma classe de bug recorrente — ver `project_innova_schema_code_drift` como precedente do mesmo género de "o grep simples não chega").
-- [ ] **Step 2:** Para `login` especificamente, confirmar se usa classes Tailwind arbitrárias (`bg-[#...]`) — se sim, entra na Trilha 1 com uma regra de grep adicional (`\[#[0-9a-fA-F]{3,6}\]`) em vez da Trilha 2 pura.
-- [ ] **Step 3:** Registar os achados como comentário na abertura do plano detalhado de cada um destes 6 módulos (não neste documento — este é o rollout, não o plano de execução).
+- [x] **Step 1:** Confirmar manualmente (leitura directa, não só grep) que os 6 módulos da Trilha 2 realmente não têm nenhuma classe Tailwind de paleta crua escondida atrás de `cn()`/template strings dinâmicas que o grep estático não apanhe (o piloto já mostrou que isto é uma classe de bug recorrente — ver `project_innova_schema_code_drift` como precedente do mesmo género de "o grep simples não chega").
+- [x] **Step 2:** Para `login` especificamente, confirmar se usa classes Tailwind arbitrárias (`bg-[#...]`) — se sim, entra na Trilha 1 com uma regra de grep adicional (`\[#[0-9a-fA-F]{3,6}\]`) em vez da Trilha 2 pura.
+- [x] **Step 3:** Registar os achados como comentário na abertura do plano detalhado de cada um destes 6 módulos (não neste documento — este é o rollout, não o plano de execução).
 
 ---
 
@@ -114,10 +114,10 @@ trilhas, tratado à parte só depois dessa decisão ser tomada.
 
 **Módulos:** certification, dashboard-institutional, library, search, lms, notifications, work-declaration, monitoring, academic, automation.
 
-- [ ] **Step 1:** Confirmar que este é o primeiro lote a correr com **múltiplos módulos em paralelo** (via `superpowers:dispatching-parallel-agents`, um worktree por módulo) — objectivo desta vaga não é só migrar 10 módulos pequenos, é validar que o processo do piloto (que correu sequencialmente, um único módulo) também funciona em paralelo sem colisão (cada módulo é auto-contido, sem ficheiros partilhados fora de `components/ui/` que ninguém aqui escreve).
-- [ ] **Step 2:** Para cada módulo, gerar o plano detalhado (Task 0 recipe) e executá-lo até PR aberto.
-- [ ] **Step 3:** Aguardar os 10 PRs com CI (`build`) verde; squash-merge cada um (auto-merge conforme preferência já registada).
-- [ ] **Step 4:** Antes de avançar para a Vaga 2, rever se algum destes 10 módulos revelou um gap de `components/ui/` não coberto pelo piloto (ex.: precisa de `Checkbox`, de uma variante de `Table` não usada em `engagement`) — se sim, é o ponto de decisão da constraint "3+ módulos independentes" acima.
+- [x] **Step 1:** Confirmar que este é o primeiro lote a correr com **múltiplos módulos em paralelo** (via `superpowers:dispatching-parallel-agents`, um worktree por módulo) — objectivo desta vaga não é só migrar 10 módulos pequenos, é validar que o processo do piloto (que correu sequencialmente, um único módulo) também funciona em paralelo sem colisão (cada módulo é auto-contido, sem ficheiros partilhados fora de `components/ui/` que ninguém aqui escreve).
+- [x] **Step 2:** Para cada módulo, gerar o plano detalhado (Task 0 recipe) e executá-lo até PR aberto.
+- [x] **Step 3:** Aguardar os 10 PRs com CI (`build`) verde; squash-merge cada um (auto-merge conforme preferência já registada).
+- [x] **Step 4:** Antes de avançar para a Vaga 2, rever se algum destes 10 módulos revelou um gap de `components/ui/` não coberto pelo piloto (ex.: precisa de `Checkbox`, de uma variante de `Table` não usada em `engagement`) — se sim, é o ponto de decisão da constraint "3+ módulos independentes" acima.
 
 **Concluído 2026-08-13 (PRs #187-#196).** Achados que ajustam as vagas
 seguintes (ver `project_innova_design_system_rollout_wave1` na memória):
@@ -151,9 +151,9 @@ interrompeu a Vaga 1.
 - **Lote 4:** history, knowledge, trainings, events, leader
 - **Lote 5:** assessments, learning-paths, sucession, onboarding, leave
 
-- [ ] **Step 1:** Sub-dividir em 3 lotes de ~8-9 módulos para paralelismo controlado (não despachar os 25 de uma vez — mesmo tecto de concorrência usado nas séries `any-cleanup`/`view-split` deste repo, tipicamente 1 branch por agente de cada vez com revisão entre lotes).
-- [ ] **Step 2:** Para cada módulo, gerar o plano detalhado (Task 0 recipe) e executá-lo até PR aberto.
-- [ ] **Step 3:** Aguardar CI verde por PR; squash-merge cada um.
+- [x] **Step 1:** Sub-dividir em 3 lotes de ~8-9 módulos para paralelismo controlado (não despachar os 25 de uma vez — mesmo tecto de concorrência usado nas séries `any-cleanup`/`view-split` deste repo, tipicamente 1 branch por agente de cada vez com revisão entre lotes).
+- [x] **Step 2:** Para cada módulo, gerar o plano detalhado (Task 0 recipe) e executá-lo até PR aberto.
+- [x] **Step 3:** Aguardar CI verde por PR; squash-merge cada um.
 
 ---
 
@@ -163,9 +163,9 @@ interrompeu a Vaga 1.
 
 **Módulos:** competencies, enrollments, performance, users, leadership, dashboard, content-library, payslips, employees, roi-impact, career, courses, dashboard-rh, declarations, analytics, talent-development, avatar-training.
 
-- [ ] **Step 1:** Mesma sub-divisão em lotes de ~6 módulos que a Vaga 2. `analytics`, `roi-impact`, `avatar-training` e `talent-development` têm visualização de dados — aplicar a nota "gráficos" da Task 0 recipe; sinalizar no plano detalhado desses 4 quais cores são decorativas vs. codificação de série antes de tocar em qualquer ficheiro.
-- [ ] **Step 2:** Para cada módulo, gerar o plano detalhado e executá-lo até PR aberto.
-- [ ] **Step 3:** Aguardar CI verde por PR; squash-merge cada um.
+- [x] **Step 1:** Mesma sub-divisão em lotes de ~6 módulos que a Vaga 2. `analytics`, `roi-impact`, `avatar-training` e `talent-development` têm visualização de dados — aplicar a nota "gráficos" da Task 0 recipe; sinalizar no plano detalhado desses 4 quais cores são decorativas vs. codificação de série antes de tocar em qualquer ficheiro.
+- [x] **Step 2:** Para cada módulo, gerar o plano detalhado e executá-lo até PR aberto.
+- [x] **Step 3:** Aguardar CI verde por PR; squash-merge cada um.
 
 ---
 
@@ -175,9 +175,9 @@ interrompeu a Vaga 1.
 
 **Módulos:** processes, evaluation, crm.
 
-- [ ] **Step 1:** Correr estes 3 **sequencialmente**, não em paralelo — são os módulos com mais ficheiros (`crm` tem 14, incluindo as 3 sub-rotas `beneficiaries`/`funders`/`partners`) e mais ocorrências de estilo (201 em `crm`); o risco de um plano detalhado ficar desactualizado a meio da execução por um ficheiro que mudou é maior aqui do que nos tiers menores.
-- [ ] **Step 2:** Para `crm`, confirmar antes de planear se `beneficiaries`/`funders`/`partners` partilham componentes suficientes para ser um único plano detalhado ou se compensa dividir em 3 PRs (`crm-beneficiaries`, `crm-funders`, `crm-partners`) — decisão a tomar com o código à frente, não aqui.
-- [ ] **Step 3:** Para cada módulo, gerar o plano detalhado e executá-lo até PR aberto; aguardar CI verde; squash-merge.
+- [x] **Step 1:** Correr estes 3 **sequencialmente**, não em paralelo — são os módulos com mais ficheiros (`crm` tem 14, incluindo as 3 sub-rotas `beneficiaries`/`funders`/`partners`) e mais ocorrências de estilo (201 em `crm`); o risco de um plano detalhado ficar desactualizado a meio da execução por um ficheiro que mudou é maior aqui do que nos tiers menores.
+- [x] **Step 2:** Para `crm`, confirmar antes de planear se `beneficiaries`/`funders`/`partners` partilham componentes suficientes para ser um único plano detalhado ou se compensa dividir em 3 PRs (`crm-beneficiaries`, `crm-funders`, `crm-partners`) — decisão a tomar com o código à frente, não aqui.
+- [x] **Step 3:** Para cada módulo, gerar o plano detalhado e executá-lo até PR aberto; aguardar CI verde; squash-merge.
 
 ---
 
@@ -185,10 +185,37 @@ interrompeu a Vaga 1.
 
 **Files:** Um plano detalhado por módulo, usando a "Recipe Trilha 2" da Task 0.
 
-- [ ] **Step 1:** Correr `settings` sozinho primeiro — é o piloto da Trilha 2 (menor soma hex+`style`, 6 ficheiros), tal como `engagement` foi o piloto da Trilha 1. Confirma se a técnica "mapear hex → token" funciona sem surpresas antes de escalar.
-- [ ] **Step 2:** Após `settings` mergeado e revisto, despachar os restantes 4 (`courses-modulos`, `live-classes`, `evaluation360`, `scalability`) — podem correr em paralelo entre si (módulos auto-contidos), pela ordem crescente de complexidade: courses-modulos, live-classes, evaluation360, scalability.
-- [ ] **Step 3:** Para cada módulo, gerar o plano detalhado (Recipe Trilha 2) e executá-lo até PR aberto; aguardar CI verde; squash-merge.
+- [x] **Step 1:** Correr `settings` sozinho primeiro — é o piloto da Trilha 2 (menor soma hex+`style`, 6 ficheiros), tal como `engagement` foi o piloto da Trilha 1. Confirma se a técnica "mapear hex → token" funciona sem surpresas antes de escalar.
+- [x] **Step 2:** Após `settings` mergeado e revisto, despachar os restantes 4 (`courses-modulos`, `live-classes`, `evaluation360`, `scalability`) — podem correr em paralelo entre si (módulos auto-contidos), pela ordem crescente de complexidade: courses-modulos, live-classes, evaluation360, scalability.
+- [x] **Step 3:** Para cada módulo, gerar o plano detalhado (Recipe Trilha 2) e executá-lo até PR aberto; aguardar CI verde; squash-merge.
 - [ ] **Step 4 (fora desta vaga, bloqueado em decisão humana):** `login` não entra em nenhuma execução automática — precisa de uma decisão explícita do utilizador sobre identidade visual (ver secção "Excepção — login" no inventário) antes de sequer se escrever um plano detalhado para ele.
+
+---
+
+### Task 6b: Vaga 6 — gap descoberto na verificação final (2 módulos, `acl` + `attendance`)
+
+**Achado 2026-08-16, ao retomar o rollout para a verificação final:** o
+inventário original da Task 0 (2026-08-13) contava 63 subdirectórios de
+`components/` menos `ui/`/`engagement/` = 61 módulos. Essa contagem estava
+errada — `components/acl/` e `components/attendance/` existiam já nessa
+data (PRs #166 e #98/#137, ambos anteriores a 13/08) e nunca entraram em
+nenhuma das duas tabelas de inventário (Trilha 1 nem Trilha 2). Não se
+sabe se foi um erro do comando de `grep` usado nessa altura ou um lapso
+manual — mas o efeito é que estes 2 módulos ficaram fora de todas as 6
+vagas seguintes e só apareceram ao correr a Task 7 (Passo 1: `atoms.tsx`
+não deu 0 resultados).
+
+Ambos seguem o padrão Trilha 1 (paleta Tailwind crua + `atoms.tsx` local
+que embrulha `components/ui/`):
+
+| Módulo | Ficheiros | Raw hits | `atoms.tsx` |
+|---|---|---|---|
+| acl | 7 | 81 | sim |
+| attendance | 10 | 111 | sim |
+
+- [ ] **Step 1:** Correr os dois em paralelo (auto-contidos, mesmo padrão da Vaga 1/2) — plano detalhado por módulo (Task 0 recipe), executar até PR aberto.
+- [ ] **Step 2:** Aguardar CI (`build`) verde por PR; squash-merge cada um.
+- [ ] **Step 3:** Só depois de ambos mergeados, avançar para a Task 7 (verificação final) — a Task 7 já tinha sido tentada uma vez e falhado o Passo 1 precisamente por causa deste gap.
 
 ---
 
