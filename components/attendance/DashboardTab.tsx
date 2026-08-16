@@ -16,8 +16,20 @@ import {
   UserX,
   Zap,
 } from 'lucide-react';
-import { Avatar, KpiTile, StatusBadge } from './atoms';
+import { StatusBadge } from '@/components/ui/StatusBadge';
+import { Avatar } from '@/components/ui/Avatar';
+import { KpiCard } from '@/components/ui/KpiCard';
+import { STATUS_CONFIG } from './constants';
 import type { AttendanceStatus, DashboardData } from './types';
+import type { StatusBadgeMap } from '@/lib/statusBadge';
+
+// Construir mapa para StatusBadge usando STATUS_CONFIG
+const STATUS_BADGE_MAP: StatusBadgeMap<AttendanceStatus> = Object.fromEntries(
+  Object.entries(STATUS_CONFIG).map(([key, cfg]) => [
+    key,
+    { label: cfg.label, cls: cfg.color },
+  ]),
+) as StatusBadgeMap<AttendanceStatus>;
 
 interface DashboardTabProps {
   data: DashboardData | null;
@@ -30,14 +42,14 @@ export function DashboardTab({ data, loading, refetch }: DashboardTabProps) {
     return (
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 animate-pulse">
         {Array.from({ length: 8 }).map((_, i) => (
-          <div key={i} className="h-28 bg-gray-100 rounded-2xl" />
+          <div key={i} className="h-28 bg-surface-sunken rounded-panel" />
         ))}
       </div>
     );
 
   if (!data)
     return (
-      <div className="flex flex-col items-center justify-center py-20 text-gray-400">
+      <div className="flex flex-col items-center justify-center py-20 text-ink-muted">
         <BarChart3 size={48} className="mb-4 opacity-30" />
         <p>Dashboard não disponível</p>
       </div>
@@ -46,76 +58,76 @@ export function DashboardTab({ data, loading, refetch }: DashboardTabProps) {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <KpiTile
+        <KpiCard
           label="Presentes Hoje"
           value={data.kpis.totalPresent}
           icon={UserCheck}
-          color="emerald"
-          trend="up"
+          intent="success"
+          trend={5}
         />
-        <KpiTile
+        <KpiCard
           label="Ausentes"
           value={data.kpis.totalAbsent}
           icon={UserX}
-          color="red"
-          trend="down"
+          intent="danger"
+          trend={-3}
         />
-        <KpiTile
+        <KpiCard
           label="Atrasos"
           value={data.kpis.totalLate}
           icon={Clock}
-          color="amber"
+          intent="warning"
         />
-        <KpiTile
+        <KpiCard
           label="Taxa de Presença"
           value={`${data.kpis.attendanceRate}%`}
           icon={TrendingUp}
-          color="blue"
+          intent="primary"
         />
-        <KpiTile
+        <KpiCard
           label="Activos Agora"
           value={data.kpis.checkedInNow}
           icon={Timer}
-          color="violet"
+          intent="accent"
         />
-        <KpiTile
+        <KpiCard
           label="Pedidos Licença"
           value={data.kpis.pendingLeaves}
           icon={Calendar}
-          color="amber"
+          intent="warning"
           sub="pendentes"
         />
-        <KpiTile
+        <KpiCard
           label="Justificativas"
           value={data.kpis.pendingJustifications}
           icon={FileText}
-          color="amber"
+          intent="warning"
           sub="pendentes"
         />
-        <KpiTile
+        <KpiCard
           label="Horas Extra"
           value={data.kpis.pendingOvertime}
           icon={Zap}
-          color="violet"
+          intent="accent"
           sub="pendentes"
         />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Presentes */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm">
-          <div className="px-5 py-4 border-b border-gray-50 flex items-center justify-between">
+        <div className="bg-surface rounded-panel border border-border shadow-sm">
+          <div className="px-5 py-4 border-b border-border flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
-              <h3 className="font-semibold text-gray-900 text-sm">Presentes</h3>
-              <span className="text-xs text-gray-400">
+              <div className="w-2.5 h-2.5 rounded-full bg-success" />
+              <h3 className="font-semibold text-ink text-sm">Presentes</h3>
+              <span className="text-xs text-ink-muted">
                 ({data.presentList.length})
               </span>
             </div>
           </div>
-          <div className="divide-y divide-gray-50 max-h-60 overflow-y-auto">
+          <div className="divide-y divide-border max-h-60 overflow-y-auto">
             {data.presentList.length === 0 && (
-              <p className="px-5 py-6 text-sm text-gray-400 text-center">
+              <p className="px-5 py-6 text-sm text-ink-muted text-center">
                 Nenhum registo
               </p>
             )}
@@ -127,15 +139,19 @@ export function DashboardTab({ data, loading, refetch }: DashboardTabProps) {
                 <div className="flex items-center gap-3">
                   <Avatar name={p.name} />
                   <div>
-                    <p className="text-sm font-medium text-gray-900">
+                    <p className="text-sm font-medium text-ink">
                       {p.name}
                     </p>
-                    <p className="text-xs text-gray-400">{p.department}</p>
+                    <p className="text-xs text-ink-muted">{p.department}</p>
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="text-xs font-mono text-gray-600">{p.clockIn}</p>
-                  <StatusBadge status={p.status as AttendanceStatus} />
+                  <p className="text-xs font-data text-ink-muted">{p.clockIn}</p>
+                  <StatusBadge
+                    value={p.status as AttendanceStatus}
+                    map={STATUS_BADGE_MAP}
+                    variant="dot"
+                  />
                 </div>
               </div>
             ))}
@@ -143,17 +159,17 @@ export function DashboardTab({ data, loading, refetch }: DashboardTabProps) {
         </div>
 
         {/* Ausentes */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm">
-          <div className="px-5 py-4 border-b border-gray-50 flex items-center gap-2">
-            <div className="w-2.5 h-2.5 rounded-full bg-red-500" />
-            <h3 className="font-semibold text-gray-900 text-sm">Ausentes</h3>
-            <span className="text-xs text-gray-400">
+        <div className="bg-surface rounded-panel border border-border shadow-sm">
+          <div className="px-5 py-4 border-b border-border flex items-center gap-2">
+            <div className="w-2.5 h-2.5 rounded-full bg-danger" />
+            <h3 className="font-semibold text-ink text-sm">Ausentes</h3>
+            <span className="text-xs text-ink-muted">
               ({data.absentList.length})
             </span>
           </div>
-          <div className="divide-y divide-gray-50 max-h-60 overflow-y-auto">
+          <div className="divide-y divide-border max-h-60 overflow-y-auto">
             {data.absentList.length === 0 && (
-              <p className="px-5 py-6 text-sm text-gray-400 text-center">
+              <p className="px-5 py-6 text-sm text-ink-muted text-center">
                 Nenhuma ausência hoje
               </p>
             )}
@@ -161,8 +177,8 @@ export function DashboardTab({ data, loading, refetch }: DashboardTabProps) {
               <div key={p.id} className="px-5 py-3 flex items-center gap-3">
                 <Avatar name={p.name} />
                 <div>
-                  <p className="text-sm font-medium text-gray-900">{p.name}</p>
-                  <p className="text-xs text-gray-400">{p.department}</p>
+                  <p className="text-sm font-medium text-ink">{p.name}</p>
+                  <p className="text-xs text-ink-muted">{p.department}</p>
                 </div>
               </div>
             ))}

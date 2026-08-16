@@ -21,12 +21,13 @@ import {
   XCircle,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
+import { Button, IconButton } from '@/components/ui/Button';
 import { ClockWidget } from '@/components/attendance/ClockWidget';
 import { AttendanceHistory } from '@/components/attendance/AttendanceHistory';
 import { DashboardTab } from '@/components/attendance/DashboardTab';
 import { LeaveBalanceCard } from '@/components/attendance/LeaveBalanceCard';
 import { LeaveModal } from '@/components/attendance/LeaveModal';
-import { KpiTile } from '@/components/attendance/atoms';
+import { KpiCard } from '@/components/ui/KpiCard';
 import {
   useDashboard,
   useLeaveBalance,
@@ -70,13 +71,13 @@ export default function AttendancePage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50/50">
+    <div className="min-h-screen bg-canvas">
       {/* Header */}
-      <div className="bg-white border-b border-gray-100 px-6 py-5 sticky top-0 z-10">
+      <div className="bg-surface border-b border-border px-6 py-5 sticky top-0 z-10">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-bold text-gray-900">Presenças</h1>
-            <p className="text-sm text-gray-500">
+            <h1 className="text-xl font-bold text-ink">Presenças</h1>
+            <p className="text-sm text-ink-muted">
               {new Date().toLocaleDateString('pt-PT', {
                 weekday: 'long',
                 day: 'numeric',
@@ -86,21 +87,20 @@ export default function AttendancePage() {
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <button
+            <Button
+              intent="secondary"
+              size="sm"
               onClick={() => setShowLeave(true)}
-              className="flex items-center gap-1.5 px-3 py-2 text-sm text-gray-600 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors"
             >
               <Plus size={15} /> Pedir Licença
-            </button>
-            <button
+            </Button>
+            <IconButton
+              icon={RefreshCcw}
+              label="Atualizar dados"
+              intent="secondary"
               onClick={() => dashRefetch()}
-              className="p-2 text-gray-500 hover:text-gray-700 border border-gray-200 bg-white rounded-xl hover:bg-gray-50 transition-colors"
-            >
-              <RefreshCcw
-                size={15}
-                className={dashLoading ? 'animate-spin' : ''}
-              />
-            </button>
+              className={dashLoading ? 'animate-spin' : ''}
+            />
           </div>
         </div>
       </div>
@@ -123,15 +123,15 @@ export default function AttendancePage() {
           {/* Right column — tabs */}
           <div className="flex-1 min-w-0 space-y-5">
             {/* Tab bar */}
-            <div className="flex bg-white rounded-2xl border border-gray-100 shadow-sm p-1.5 gap-1">
+            <div className="flex bg-surface rounded-panel border border-border shadow-sm p-1.5 gap-1">
               {tabs.map((t) => (
                 <button
                   key={t.key}
                   onClick={() => setTab(t.key)}
-                  className={`flex-1 flex items-center justify-center gap-2 py-2 text-sm rounded-xl font-medium transition-colors ${
+                  className={`flex-1 flex items-center justify-center gap-2 py-2 text-sm rounded-control font-medium transition-colors ${
                     tab === t.key
-                      ? 'bg-blue-600 text-white shadow-sm'
-                      : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                      ? 'bg-primary text-canvas shadow-sm'
+                      : 'text-ink-muted hover:text-ink hover:bg-surface-sunken'
                   }`}
                 >
                   <t.icon size={15} />
@@ -152,59 +152,59 @@ export default function AttendancePage() {
             {tab === 'my' && (
               <div className="space-y-4">
                 {/* Period selector */}
-                <div className="flex items-center gap-3 bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
-                  <span className="text-sm text-gray-500">Período:</span>
+                <div className="flex items-center gap-3 bg-surface rounded-panel border border-border shadow-sm p-4">
+                  <span className="text-sm text-ink-muted">Período:</span>
                   <input
                     type="date"
                     value={period.from}
                     onChange={(e) =>
                       setPeriod((p) => ({ ...p, from: e.target.value }))
                     }
-                    className="px-3 py-1.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="px-3 py-1.5 text-sm border border-border rounded-control focus:outline-none focus:ring-2 focus:ring-primary"
                   />
-                  <span className="text-gray-400">→</span>
+                  <span className="text-ink-muted">→</span>
                   <input
                     type="date"
                     value={period.to}
                     onChange={(e) =>
                       setPeriod((p) => ({ ...p, to: e.target.value }))
                     }
-                    className="px-3 py-1.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="px-3 py-1.5 text-sm border border-border rounded-control focus:outline-none focus:ring-2 focus:ring-primary"
                   />
                 </div>
 
                 {/* Summary cards */}
                 {myData?.summary && (
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                    <KpiTile
+                    <KpiCard
                       label="Dias Presentes"
                       value={myData.summary.presentDays}
                       icon={CheckCircle2}
-                      color="emerald"
+                      intent="success"
                     />
-                    <KpiTile
+                    <KpiCard
                       label="Ausências"
                       value={myData.summary.absentDays}
                       icon={XCircle}
-                      color="red"
+                      intent="danger"
                     />
-                    <KpiTile
+                    <KpiCard
                       label="Atrasos"
                       value={myData.summary.lateDays}
                       icon={Clock}
-                      color="amber"
+                      intent="warning"
                     />
-                    <KpiTile
+                    <KpiCard
                       label="Taxa de Presença"
                       value={`${myData.summary.attendanceRate}%`}
                       icon={TrendingUp}
-                      color="blue"
+                      intent="primary"
                     />
                   </div>
                 )}
 
                 {myLoading ? (
-                  <div className="h-48 bg-gray-100 rounded-2xl animate-pulse" />
+                  <div className="h-48 bg-surface-sunken rounded-panel animate-pulse" />
                 ) : (
                   <AttendanceHistory records={myData?.records ?? []} />
                 )}
@@ -213,7 +213,7 @@ export default function AttendancePage() {
 
             {tab === 'team' && (
               <div className="space-y-4">
-                <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 text-center text-gray-400">
+                <div className="bg-surface rounded-panel border border-border shadow-sm p-8 text-center text-ink-muted">
                   <Users size={40} className="mx-auto mb-3 opacity-30" />
                   <p className="text-sm font-medium">
                     Vista de equipa disponível com role Gestor+
@@ -228,17 +228,18 @@ export default function AttendancePage() {
             {tab === 'leaves' && (
               <div className="space-y-4">
                 <div className="flex justify-between items-center">
-                  <h3 className="font-semibold text-gray-900">
+                  <h3 className="font-semibold text-ink">
                     Meus Pedidos de Licença
                   </h3>
-                  <button
+                  <Button
+                    intent="secondary"
+                    size="sm"
                     onClick={() => setShowLeave(true)}
-                    className="flex items-center gap-1.5 px-3 py-2 text-sm text-blue-600 border border-blue-200 rounded-xl hover:bg-blue-50 transition-colors"
                   >
                     <Plus size={14} /> Novo Pedido
-                  </button>
+                  </Button>
                 </div>
-                <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 text-center text-gray-400">
+                <div className="bg-surface rounded-panel border border-border shadow-sm p-8 text-center text-ink-muted">
                   <Calendar size={40} className="mx-auto mb-3 opacity-30" />
                   <p className="text-sm">Nenhum pedido de licença</p>
                 </div>

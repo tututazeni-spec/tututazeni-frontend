@@ -6,6 +6,7 @@
 
 import { useState } from 'react';
 import { AlertCircle, Loader2, X } from 'lucide-react';
+import { Button, IconButton } from '@/components/ui/Button';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { useFormValidation } from '@/hooks/useFormValidation';
 import { apiClient } from '@/lib/apiClient';
@@ -61,39 +62,38 @@ export function LeaveModal({ onClose, onSuccess }: LeaveModalProps) {
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md">
-        <div className="p-6 border-b border-gray-100 flex items-center justify-between">
+      <div className="bg-surface rounded-panel shadow-elevated w-full max-w-md">
+        <div className="p-6 border-b border-border flex items-center justify-between">
           <div>
-            <h2 className="font-bold text-gray-900">Solicitar Licença</h2>
-            <p className="text-sm text-gray-500 mt-0.5">
+            <h2 className="font-bold text-ink">Solicitar Licença</h2>
+            <p className="text-sm text-ink-muted mt-0.5">
               Preencha os dados da solicitação
             </p>
           </div>
-          <button
+          <IconButton
+            icon={X}
+            label="Fechar"
+            intent="ghost"
             onClick={onClose}
-            aria-label="Fechar"
-            className="p-2 rounded-xl hover:bg-gray-100 text-gray-500"
-          >
-            <X size={18} />
-          </button>
+          />
         </div>
 
         <div className="p-6 space-y-4">
           {error && (
-            <div className="flex items-center gap-2 p-3 bg-red-50 text-red-700 rounded-xl text-sm">
+            <div className="flex items-center gap-2 p-3 bg-danger-subtle text-danger-ink rounded-control text-sm">
               <AlertCircle size={16} />
               {error}
             </div>
           )}
 
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">
+            <label className="block text-xs font-medium text-ink-muted mb-1">
               Tipo de Licença
             </label>
             <select
               value={form.type}
               onChange={(e) => setForm((f) => ({ ...f, type: e.target.value }))}
-              className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+              className="w-full px-3 py-2.5 text-sm border border-border rounded-control focus:outline-none focus:ring-2 focus:ring-primary bg-surface"
             >
               {Object.entries(LEAVE_LABELS).map(([k, v]) => (
                 <option key={k} value={k}>
@@ -105,8 +105,8 @@ export function LeaveModal({ onClose, onSuccess }: LeaveModalProps) {
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">
-                Início <span className="text-red-500">*</span>
+              <label className="block text-xs font-medium text-ink-muted mb-1">
+                Início <span className="text-danger">*</span>
               </label>
               <input
                 type="date"
@@ -114,12 +114,12 @@ export function LeaveModal({ onClose, onSuccess }: LeaveModalProps) {
                 onChange={(e) =>
                   setForm((f) => ({ ...f, startDate: e.target.value }))
                 }
-                className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2.5 text-sm border border-border rounded-control focus:outline-none focus:ring-2 focus:ring-primary"
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">
-                Fim <span className="text-red-500">*</span>
+              <label className="block text-xs font-medium text-ink-muted mb-1">
+                Fim <span className="text-danger">*</span>
               </label>
               <input
                 type="date"
@@ -127,14 +127,14 @@ export function LeaveModal({ onClose, onSuccess }: LeaveModalProps) {
                 onChange={(e) =>
                   setForm((f) => ({ ...f, endDate: e.target.value }))
                 }
-                className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2.5 text-sm border border-border rounded-control focus:outline-none focus:ring-2 focus:ring-primary"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">
-              Motivo <span className="text-red-500">*</span>
+            <label className="block text-xs font-medium text-ink-muted mb-1">
+              Motivo <span className="text-danger">*</span>
             </label>
             <textarea
               value={form.reason}
@@ -143,7 +143,7 @@ export function LeaveModal({ onClose, onSuccess }: LeaveModalProps) {
               }
               rows={3}
               placeholder="Descreva brevemente o motivo..."
-              className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+              className="w-full px-3 py-2.5 text-sm border border-border rounded-control focus:outline-none focus:ring-2 focus:ring-primary resize-none"
             />
           </div>
 
@@ -154,27 +154,29 @@ export function LeaveModal({ onClose, onSuccess }: LeaveModalProps) {
               onChange={(e) =>
                 setForm((f) => ({ ...f, halfDay: e.target.checked }))
               }
-              className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              className="w-4 h-4 rounded border-border text-primary focus:ring-primary"
             />
-            <span className="text-sm text-gray-700">Meio período</span>
+            <span className="text-sm text-ink">Meio período</span>
           </label>
         </div>
 
-        <div className="p-6 border-t border-gray-100 flex gap-3">
-          <button
+        <div className="p-6 border-t border-border flex gap-3">
+          <Button
+            intent="secondary"
             onClick={onClose}
-            className="flex-1 py-2.5 text-sm text-gray-600 border border-gray-200 rounded-xl hover:bg-gray-50"
+            className="flex-1"
           >
             Cancelar
-          </button>
-          <button
+          </Button>
+          <Button
+            intent="primary"
             onClick={handleSubmit}
             disabled={loading}
-            className="flex-1 py-2.5 text-sm text-white bg-blue-600 rounded-xl hover:bg-blue-700 disabled:opacity-50 flex items-center justify-center gap-2"
+            loading={loading}
+            className="flex-1"
           >
-            {loading ? <Loader2 size={15} className="animate-spin" /> : null}
             Enviar Pedido
-          </button>
+          </Button>
         </div>
       </div>
     </div>
