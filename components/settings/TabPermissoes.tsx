@@ -32,7 +32,7 @@ export function TabPermissoes({ user }: TabPermissoesProps) {
       <Card className="col-span-2">
         <CardBody>
           <div className="flex items-center gap-4">
-            <div className="w-13 h-13 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white font-bold text-xl flex-shrink-0">
+            <div className="w-13 h-13 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center text-canvas font-bold text-xl flex-shrink-0">
               {user.role?.name?.charAt(0) ?? '?'}
             </div>
             <div>
