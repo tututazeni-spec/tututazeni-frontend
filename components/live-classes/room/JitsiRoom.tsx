@@ -131,8 +131,10 @@ export function JitsiRoom({ liveClass, onJoined, onLeft }: JitsiRoomProps) {
 
   return (
     <div className="relative w-full h-full bg-slate-900 rounded-[14px] overflow-hidden">
+      {/* fundo escuro intencional: container da sala Jitsi */}
       {!loaded && (
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 z-10 bg-slate-900">
+          {/* fundo escuro intencional: overlay de carregamento */}
           <div
             className="w-9 h-9 rounded-full border-3 border-white/10"
             style={{
@@ -140,15 +142,15 @@ export function JitsiRoom({ liveClass, onJoined, onLeft }: JitsiRoomProps) {
               animation: 'lc-spin 0.8s linear infinite',
             }}
           />
-          <p className="text-white/60 text-sm m-0">
+          <p className="text-canvas text-sm m-0 opacity-60">
             A conectar à sala Jitsi...
           </p>
-          <p className="text-white/30 text-xs m-0">Sala: {roomName}</p>
+          <p className="text-canvas text-xs m-0 opacity-30">Sala: {roomName}</p>
         </div>
       )}
       <div ref={containerRef} className="w-full h-full" />
       {loaded && participants > 0 && (
-        <div className="absolute top-3 right-3 bg-black/60 rounded-lg py-1 px-2.5 text-xs text-white flex items-center gap-1.25 pointer-events-none z-20">
+        <div className="absolute top-3 right-3 bg-black/60 rounded-lg py-1 px-2.5 text-xs text-canvas flex items-center gap-1.25 pointer-events-none z-20">
           <span className="w-2 h-2 rounded-full bg-success inline-block" />
           {participants} participante{participants !== 1 ? 's' : ''}
         </div>

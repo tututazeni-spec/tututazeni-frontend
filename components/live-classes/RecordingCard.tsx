@@ -20,6 +20,7 @@ export function RecordingCard({ lc, onView }: RecordingCardProps) {
         onClick={() => onView(lc)}
         className="relative bg-slate-900 aspect-video cursor-pointer flex items-center justify-center"
       >
+        {/* fundo escuro intencional: thumbnail de vídeo */}
         {embedUrl?.includes('youtube') ? (
           <YoutubeThumbnail
             src={`https://img.youtube.com/vi/${embedUrl.split('/embed/')[1]?.split('?')[0]}/hqdefault.jpg`}
@@ -54,7 +55,7 @@ export function RecordingCard({ lc, onView }: RecordingCardProps) {
         <div className="flex gap-1.5 mt-auto">
           <button
             onClick={() => onView(lc)}
-            className="flex-1 py-2 px-2 rounded-lg border-none bg-slate-900 text-canvas text-xs font-bold cursor-pointer"
+            className="flex-1 py-2 px-2 rounded-lg border-none bg-surface-sunken text-ink text-xs font-bold cursor-pointer"
           >
             ▶ Ver Gravação
           </button>

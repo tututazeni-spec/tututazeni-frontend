@@ -48,9 +48,9 @@ export function RecordingPanel({ liveClass, onUrlSaved }: RecordingPanelProps) {
   }
 
   return (
-    <div className="bg-slate-900 rounded-[14px] p-5 flex flex-col gap-4 text-white">
+    <div className="bg-surface-sunken rounded-[14px] p-5 flex flex-col gap-4 text-ink">
       <div className="flex items-center justify-between">
-        <h3 className="m-0 text-sm font-bold text-slate-100">🎬 Gravação</h3>
+        <h3 className="m-0 text-sm font-bold text-ink">🎬 Gravação</h3>
         <button
           onClick={() => setShowHelp((h) => !h)}
           className="bg-white/8 border-none rounded py-0.75 px-2 cursor-pointer text-ink-faint text-xs"
@@ -60,8 +60,8 @@ export function RecordingPanel({ liveClass, onUrlSaved }: RecordingPanelProps) {
       </div>
 
       {showHelp && (
-        <div className="bg-white/5 rounded-[10px] p-3.5 text-xs text-ink-faint">
-          <p className="m-0 mb-1.5 text-slate-100 font-semibold">
+        <div className="bg-surface rounded-[10px] p-3.5 text-xs text-ink-faint">
+          <p className="m-0 mb-1.5 text-ink font-semibold">
             Passos para gravar:
           </p>
           <ol className="m-0 pl-4 flex flex-col gap-1">
@@ -88,7 +88,7 @@ export function RecordingPanel({ liveClass, onUrlSaved }: RecordingPanelProps) {
       {/* Recording controls */}
       <div>
         {rec.error && (
-          <div className="bg-danger/15 border border-danger/30 rounded-lg py-2 px-3 text-xs text-red-300 mb-2.5">
+          <div className="bg-danger-subtle border border-danger-subtle rounded-lg py-2 px-3 text-xs text-danger-ink mb-2.5">
             ⚠️ {rec.error}
           </div>
         )}
@@ -96,7 +96,7 @@ export function RecordingPanel({ liveClass, onUrlSaved }: RecordingPanelProps) {
         {rec.state === 'idle' && (
           <button
             onClick={rec.start}
-            className="w-full py-2.75 rounded-[10px] bg-danger border-none text-white text-sm font-bold cursor-pointer flex items-center justify-center gap-2"
+            className="w-full py-2.75 rounded-[10px] bg-danger border-none text-canvas text-sm font-bold cursor-pointer flex items-center justify-center gap-2"
           >
             <span className="w-2.5 h-2.5 rounded-full bg-white inline-block" />
             Iniciar Gravação do Ecrã
@@ -105,21 +105,21 @@ export function RecordingPanel({ liveClass, onUrlSaved }: RecordingPanelProps) {
 
         {rec.state === 'recording' && (
           <div className="flex flex-col gap-2.5">
-            <div className="flex items-center gap-2.5 py-2.5 px-3.5 bg-danger/15 border border-danger/30 rounded-[10px]">
+            <div className="flex items-center gap-2.5 py-2.5 px-3.5 bg-danger-subtle border border-danger-subtle rounded-[10px]">
               <span
                 className="w-2.5 h-2.5 rounded-full bg-danger inline-block"
                 style={{ animation: 'lc-ping 1.2s ease-in-out infinite' }}
               />
-              <span className="flex-1 text-sm font-bold text-red-300">
+              <span className="flex-1 text-sm font-bold text-danger-ink">
                 A gravar...
               </span>
-              <span className="text-base font-black text-white font-mono">
+              <span className="text-base font-black text-ink font-mono">
                 {fmtDuration(rec.elapsed)}
               </span>
             </div>
             <button
               onClick={rec.stop}
-              className="w-full py-2.5 rounded-[10px] bg-white/10 border border-white/20 text-white text-sm font-semibold cursor-pointer flex items-center justify-center gap-2"
+              className="w-full py-2.5 rounded-[10px] bg-white/10 border border-white/20 text-ink text-sm font-semibold cursor-pointer flex items-center justify-center gap-2"
             >
               <span className="w-3 h-3 bg-white inline-block rounded-sm" />
               Parar Gravação
@@ -135,6 +135,7 @@ export function RecordingPanel({ liveClass, onUrlSaved }: RecordingPanelProps) {
               controls
               className="w-full rounded-[10px] bg-black max-h-40"
             />
+            {/* fundo escuro intencional: player de vídeo */}
 
             <div className="flex gap-1.5 text-xs text-ink-muted">
               <span>⏱️ {fmtDuration(rec.data.duration)}</span>
@@ -147,7 +148,7 @@ export function RecordingPanel({ liveClass, onUrlSaved }: RecordingPanelProps) {
             <div className="flex gap-2">
               <button
                 onClick={() => rec.download(filename)}
-                className="flex-1 py-2.25 rounded-lg bg-success border-none text-white text-xs font-bold cursor-pointer"
+                className="flex-1 py-2.25 rounded-lg bg-success border-none text-canvas text-xs font-bold cursor-pointer"
               >
                 📥 Download (.webm)
               </button>
@@ -177,13 +178,13 @@ export function RecordingPanel({ liveClass, onUrlSaved }: RecordingPanelProps) {
         </p>
 
         {liveClass.recordingUrl && !urlSaved && (
-          <div className="py-2 px-3 bg-success/12 border border-success/25 rounded-lg text-xs text-green-400 mb-2">
+          <div className="py-2 px-3 bg-success-subtle border border-success-subtle rounded-lg text-xs text-success-ink mb-2">
             ✓ Gravação anterior disponível
           </div>
         )}
 
         {urlSaved && (
-          <div className="py-2 px-3 bg-success/12 border border-success/25 rounded-lg text-xs text-green-400 mb-2">
+          <div className="py-2 px-3 bg-success-subtle border border-success-subtle rounded-lg text-xs text-success-ink mb-2">
             ✓ URL guardada com sucesso!
           </div>
         )}
@@ -196,12 +197,12 @@ export function RecordingPanel({ liveClass, onUrlSaved }: RecordingPanelProps) {
               setUrlSaved(false);
             }}
             placeholder="https://drive.google.com/... ou https://youtu.be/..."
-            className="flex-1 py-2 px-2.5 rounded-lg border border-white/12 bg-white/6 text-slate-100 text-xs outline-none"
+            className="flex-1 py-2 px-2.5 rounded-lg border border-white/12 bg-white/6 text-ink text-xs outline-none"
           />
           <button
             onClick={() => saveUrl(customUrl)}
             disabled={!customUrl || savingUrl}
-            className={`py-2 px-3.5 rounded-lg bg-accent border-none text-white text-xs font-bold cursor-pointer whitespace-nowrap ${
+            className={`py-2 px-3.5 rounded-lg bg-accent border-none text-canvas text-xs font-bold cursor-pointer whitespace-nowrap ${
               !customUrl ? 'opacity-50' : ''
             }`}
           >
@@ -210,7 +211,7 @@ export function RecordingPanel({ liveClass, onUrlSaved }: RecordingPanelProps) {
         </div>
 
         <div className="mt-2.5 flex flex-col gap-1">
-          <p className="m-0 text-xs text-slate-600 font-semibold">
+          <p className="m-0 text-xs text-ink-muted font-semibold">
             Serviços gratuitos sugeridos:
           </p>
           {[
