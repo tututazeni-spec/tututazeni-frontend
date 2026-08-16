@@ -98,7 +98,7 @@ export function RecordingPanel({ liveClass, onUrlSaved }: RecordingPanelProps) {
             onClick={rec.start}
             className="w-full py-2.75 rounded-[10px] bg-danger border-none text-canvas text-sm font-bold cursor-pointer flex items-center justify-center gap-2"
           >
-            <span className="w-2.5 h-2.5 rounded-full bg-white inline-block" />
+            <span className="w-2.5 h-2.5 rounded-full bg-canvas inline-block" />
             Iniciar Gravação do Ecrã
           </button>
         )}
@@ -121,7 +121,7 @@ export function RecordingPanel({ liveClass, onUrlSaved }: RecordingPanelProps) {
               onClick={rec.stop}
               className="w-full py-2.5 rounded-[10px] bg-white/10 border border-white/20 text-ink text-sm font-semibold cursor-pointer flex items-center justify-center gap-2"
             >
-              <span className="w-3 h-3 bg-white inline-block rounded-sm" />
+              <span className="w-3 h-3 bg-canvas inline-block rounded-sm" />
               Parar Gravação
             </button>
           </div>
