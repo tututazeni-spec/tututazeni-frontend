@@ -5,7 +5,9 @@ import { Activity } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { Skeleton } from './atoms';
+import { Skeleton } from '@/components/ui/Skeleton';
+import { Card } from '@/components/ui/Card';
+import { Button } from '@/components/ui/Button';
 import type { AclAuditResponse } from './types';
 
 export function AuditTab() {
@@ -16,27 +18,28 @@ export function AuditTab() {
     { staleTime: STALE_TIME.DYNAMIC },
   );
 
-  if (loading) return <Skeleton />;
+  if (loading) return <Skeleton rows={3} itemClassName="h-16 bg-surface rounded-xl" />;
 
   return (
     <div className="space-y-4">
       <div className="flex gap-2">
         {(['all', 'denied'] as const).map((v) => (
-          <button
+          <Button
             key={v}
+            intent={view === v ? 'primary' : 'secondary'}
+            size="sm"
             onClick={() => setView(v)}
-            className={`text-xs px-4 py-2 rounded-lg font-medium ${view === v ? 'bg-indigo-600 text-white' : 'bg-white border border-slate-200 text-slate-600'}`}
           >
             {v === 'all' ? 'Todas as Alterações' : '🔴 Acessos Negados'}
-          </button>
+          </Button>
         ))}
-        <span className="ml-auto text-xs text-slate-400 self-center">
+        <span className="self-center ml-auto text-ink-faint text-xs">
           {data?.meta?.total ?? 0} registos
         </span>
       </div>
 
-      <div className="bg-white rounded-xl border border-slate-100">
-        <div className="divide-y divide-slate-50 max-h-[500px] overflow-y-auto">
+      <Card className="divide-y divide-border overflow-hidden">
+        <div className="max-h-[500px] divide-y divide-border overflow-y-auto">
           {(data?.data ?? []).map((log, i) => {
             const changes = log.changes
               ? (() => {
@@ -48,48 +51,48 @@ export function AuditTab() {
                 })()
               : null;
             return (
-              <div key={i} className="px-4 py-3 flex items-start gap-3">
+              <div key={i} className="flex items-start gap-3 px-4 py-3">
                 <div
-                  className={`w-2 h-2 rounded-full shrink-0 mt-1.5 ${log.action === 'ACCESS_DENIED' ? 'bg-red-500' : 'bg-indigo-400'}`}
+                  className={`h-2 w-2 shrink-0 rounded-full mt-1.5 ${log.action === 'ACCESS_DENIED' ? 'bg-danger' : 'bg-primary'}`}
                 />
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-xs font-medium text-slate-700">
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="font-medium text-ink text-xs">
                       {log.user?.fullName ?? `User ${log.userId}`}
                     </span>
-                    <span className="text-[10px] font-mono bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded">
+                    <span className="rounded bg-surface px-1.5 py-0.5 font-mono text-ink-muted text-[10px]">
                       {log.action}
                     </span>
                     {changes?.subject && (
-                      <span className="text-[10px] text-slate-400">
+                      <span className="text-ink-faint text-[10px]">
                         {changes.subject}
                       </span>
                     )}
                   </div>
                   {changes?.reason && (
-                    <p className="text-[10px] text-slate-400 mt-0.5">
+                    <p className="mt-0.5 text-ink-faint text-[10px]">
                       {changes.reason}
                     </p>
                   )}
                 </div>
-                <span className="text-[10px] text-slate-400 shrink-0">
+                <span className="shrink-0 text-ink-faint text-[10px]">
                   {new Date(log.timestamp).toLocaleString('pt')}
                 </span>
               </div>
             );
           })}
           {(data?.data?.length ?? 0) === 0 && (
-            <div className="py-12 text-center text-slate-400">
-              <Activity size={32} className="mx-auto mb-2 opacity-30" />
+            <div className="py-12 text-center text-ink-faint">
+              <Activity size={32} strokeWidth={1.75} className="mx-auto mb-2 opacity-30" />
               <p className="text-sm">Sem registos de auditoria</p>
             </div>
           )}
         </div>
-      </div>
+      </Card>
 
       {/* Pagination */}
       {(data?.meta?.totalPages ?? 0) > 1 && (
-        <p className="text-xs text-slate-400 text-center">
+        <p className="text-center text-ink-faint text-xs">
           Pág. 1 / {data?.meta?.totalPages} — {data?.meta?.total} registos
           totais
         </p>
