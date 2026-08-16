@@ -23,7 +23,7 @@ export function PdfDownloadButton({
       <button
         onClick={download}
         disabled={loading}
-        className={`inline-flex items-center gap-2 px-4 py-2 rounded-md bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition ${className}`}
+        className={`inline-flex items-center gap-2 px-4 py-2 rounded-md bg-primary text-canvas text-sm font-medium hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed transition ${className}`}
       >
         {loading ? (
           <>
@@ -49,7 +49,7 @@ export function PdfDownloadButton({
           </>
         )}
       </button>
-      {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
+      {error && <p className="mt-1 text-sm text-danger">{error}</p>}
     </div>
   );
 }
