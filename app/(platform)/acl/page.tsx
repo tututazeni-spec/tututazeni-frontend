@@ -1,7 +1,10 @@
 'use client';
-// src/app/(dashboard)/acl/page.tsx
+// app/(platform)/acl/page.tsx
+//
+// Container: gere o separador activo (via Tabs do Radix); delega dados+
+// apresentação de cada separador aos componentes auto-contidos em
+// components/acl/. Mesmo padrão que components/engagement/page.tsx.
 
-import { useState } from 'react';
 import {
   Shield,
   Key,
@@ -17,6 +20,8 @@ import { MatrixTab } from '@/components/acl/MatrixTab';
 import { OverviewTab } from '@/components/acl/OverviewTab';
 import { PoliciesTab } from '@/components/acl/PoliciesTab';
 import { RolesTab } from '@/components/acl/RolesTab';
+import { Button } from '@/components/ui/Button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
 import type { Tab } from '@/components/acl/types';
 
 const TABS: { id: Tab; label: string; icon: LucideIcon }[] = [
@@ -27,69 +32,72 @@ const TABS: { id: Tab; label: string; icon: LucideIcon }[] = [
   { id: 'audit', label: 'Auditoria', icon: Activity },
 ];
 
-const PANELS: Record<Tab, JSX.Element> = {
-  overview: <OverviewTab />,
-  roles: <RolesTab />,
-  matrix: <MatrixTab />,
-  policies: <PoliciesTab />,
-  audit: <AuditTab />,
-};
-
 export default function AclPage() {
-  const [tab, setTab] = useState<Tab>('overview');
-
   return (
-    <div className="min-h-screen bg-slate-50">
-      <div className="bg-white border-b border-slate-200 px-6 py-5">
-        <div className="max-w-7xl mx-auto flex items-start justify-between">
+    <div className="min-h-screen bg-canvas">
+      {/* Header */}
+      <div className="border-b border-border bg-surface px-6 py-5">
+        <div className="mx-auto flex max-w-7xl items-start justify-between">
           <div>
-            <div className="flex items-center gap-2 mb-1">
-              <div className="p-1.5 bg-red-100 rounded-lg">
-                <Shield size={18} className="text-red-600" />
+            <div className="mb-1 flex items-center gap-2">
+              <div className="rounded-control bg-danger-subtle p-1.5">
+                <Shield size={18} strokeWidth={1.75} className="text-danger" />
               </div>
-              <h1 className="text-xl font-bold text-slate-800">
+              <h1 className="font-display text-xl font-bold text-ink">
                 Access Control
               </h1>
             </div>
-            <p className="text-sm text-slate-400">
+            <p className="font-body text-sm text-ink-faint">
               RBAC · ABAC · Roles · Permissões · Políticas · Auditoria
             </p>
           </div>
-          <button
+          <Button
+            intent="secondary"
+            size="sm"
             onClick={() => {
               void apiClient.post('/acl/seed-permissions', {}).catch(() => {});
             }}
-            className="flex items-center gap-2 px-4 py-2 bg-slate-100 text-slate-600 text-xs rounded-lg hover:bg-slate-200"
           >
-            <RefreshCw size={13} />
+            <RefreshCw size={14} strokeWidth={1.75} />
             Seed Permissões
-          </button>
+          </Button>
         </div>
       </div>
 
-      <div className="bg-white border-b border-slate-200 px-6">
-        <div className="max-w-7xl mx-auto flex overflow-x-auto">
-          {TABS.map((t) => {
-            const Icon = t.icon;
-            return (
-              <button
-                key={t.id}
-                onClick={() => setTab(t.id)}
-                className={`flex items-center gap-2 px-5 py-4 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
-                  tab === t.id
-                    ? 'border-red-600 text-red-600'
-                    : 'border-transparent text-slate-500 hover:text-slate-700'
-                }`}
-              >
-                <Icon size={15} />
-                {t.label}
-              </button>
-            );
-          })}
+      {/* Tabs */}
+      <Tabs defaultValue="overview">
+        <div className="border-b border-border bg-surface px-6">
+          <TabsList className="mx-auto max-w-7xl">
+            {TABS.map((t) => {
+              const Icon = t.icon;
+              return (
+                <TabsTrigger key={t.id} value={t.id} className="gap-2 whitespace-nowrap">
+                  <Icon size={15} strokeWidth={1.75} />
+                  {t.label}
+                </TabsTrigger>
+              );
+            })}
+          </TabsList>
         </div>
-      </div>
 
-      <div className="max-w-7xl mx-auto px-6 py-6">{PANELS[tab]}</div>
+        <div className="mx-auto max-w-7xl px-6 py-6">
+          <TabsContent value="overview">
+            <OverviewTab />
+          </TabsContent>
+          <TabsContent value="roles">
+            <RolesTab />
+          </TabsContent>
+          <TabsContent value="matrix">
+            <MatrixTab />
+          </TabsContent>
+          <TabsContent value="policies">
+            <PoliciesTab />
+          </TabsContent>
+          <TabsContent value="audit">
+            <AuditTab />
+          </TabsContent>
+        </div>
+      </Tabs>
     </div>
   );
 }

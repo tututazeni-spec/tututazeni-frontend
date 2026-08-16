@@ -4,7 +4,9 @@ import { Lock } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { Skeleton } from './atoms';
+import { Skeleton } from '@/components/ui/Skeleton';
+import { Card } from '@/components/ui/Card';
+import { EmptyState } from '@/components/ui/EmptyState';
 import type { AclPolicy } from './types';
 
 export function PoliciesTab() {
@@ -14,63 +16,63 @@ export function PoliciesTab() {
     { staleTime: STALE_TIME.SEMI_STATIC },
   );
 
-  if (loading) return <Skeleton />;
+  if (loading) return <Skeleton rows={3} itemClassName="h-16 bg-surface rounded-xl" />;
 
   return (
     <div className="space-y-3">
-      {data.map((p, i) => (
-        <div
-          key={i}
-          className={`bg-white rounded-xl border p-4 ${p.effect === 'DENY' ? 'border-red-200' : 'border-emerald-200'}`}
-        >
-          <div className="flex items-start justify-between mb-2">
-            <h4 className="font-semibold text-slate-800">{p.name}</h4>
-            <span
-              className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${p.effect === 'DENY' ? 'bg-red-100 text-red-700' : 'bg-emerald-100 text-emerald-700'}`}
-            >
-              {p.effect}
-            </span>
-          </div>
-          {p.description && (
-            <p className="text-xs text-slate-500 mb-2">{p.description}</p>
-          )}
-          <div className="flex gap-2 flex-wrap text-[10px]">
-            {p.subject && (
-              <span className="bg-slate-100 text-slate-600 px-2 py-0.5 rounded">
-                Subject: {p.subject}
+      {data.map((p, i) => {
+        const isDeny = p.effect === 'DENY';
+        return (
+          <Card
+            key={i}
+            className={`border p-4 ${isDeny ? 'border-danger-subtle' : 'border-success-subtle'}`}
+          >
+            <div className="mb-2 flex items-start justify-between">
+              <h4 className="font-semibold text-ink">{p.name}</h4>
+              <span
+                className={`rounded-control px-2 py-0.5 font-bold text-[10px] ${isDeny ? 'bg-danger-subtle text-danger' : 'bg-success-subtle text-success-ink'}`}
+              >
+                {p.effect}
               </span>
+            </div>
+            {p.description && (
+              <p className="mb-2 text-ink-muted text-xs">{p.description}</p>
             )}
-            {p.action && (
-              <span className="bg-slate-100 text-slate-600 px-2 py-0.5 rounded">
-                Action: {p.action}
+            <div className="flex flex-wrap gap-2 text-[10px]">
+              {p.subject && (
+                <span className="rounded bg-surface px-2 py-0.5 text-ink-muted">
+                  Subject: {p.subject}
+                </span>
+              )}
+              {p.action && (
+                <span className="rounded bg-surface px-2 py-0.5 text-ink-muted">
+                  Action: {p.action}
+                </span>
+              )}
+              {p.requiresJustification && (
+                <span className="rounded bg-warning-subtle px-2 py-0.5 text-warning-ink">
+                  ⚠️ Requer Justificativa
+                </span>
+              )}
+              <span className="rounded bg-surface px-2 py-0.5 text-ink-muted">
+                Priority: {p.priority}
               </span>
+            </div>
+            {p.condition && (
+              <pre className="mt-2 overflow-x-auto rounded bg-surface p-2 text-ink-muted text-[10px]">
+                {JSON.stringify(JSON.parse(p.condition), null, 2)}
+              </pre>
             )}
-            {p.requiresJustification && (
-              <span className="bg-amber-100 text-amber-700 px-2 py-0.5 rounded">
-                ⚠️ Requer Justificativa
-              </span>
-            )}
-            <span className="bg-slate-100 text-slate-500 px-2 py-0.5 rounded">
-              Priority: {p.priority}
-            </span>
-          </div>
-          {p.condition && (
-            <pre className="text-[10px] bg-slate-50 rounded p-2 mt-2 text-slate-600 overflow-x-auto">
-              {JSON.stringify(JSON.parse(p.condition), null, 2)}
-            </pre>
-          )}
-        </div>
-      ))}
+          </Card>
+        );
+      })}
 
       {data.length === 0 && (
-        <div className="py-16 text-center bg-slate-50 rounded-xl text-slate-400">
-          <Lock size={36} className="mx-auto mb-2 opacity-30" />
-          <p className="text-sm">Sem políticas de acesso definidas</p>
-          <p className="text-xs mt-1">
-            As políticas ABAC/PBAC permitem controlo granular baseado em
-            contexto
-          </p>
-        </div>
+        <EmptyState
+          icon={Lock}
+          title="Sem políticas de acesso definidas"
+          description="As políticas ABAC/PBAC permitem controlo granular baseado em contexto"
+        />
       )}
     </div>
   );
