@@ -87,10 +87,10 @@ export function CourseAvatarReader({
       {!visible && (
         <div className="fixed bottom-6 right-6 z-40 flex flex-col items-end gap-2">
           {tooltip && (
-            <div className="relative bg-gray-900 text-white text-xs px-3 py-1.5 rounded-lg shadow-lg whitespace-nowrap mb-1">
+            <div className="relative bg-surface text-ink text-xs px-3 py-1.5 rounded-lg shadow-lg whitespace-nowrap mb-1">
               Ouvir esta aula
               <div
-                className="absolute w-2 h-2 bg-gray-900 rotate-45"
+                className="absolute w-2 h-2 bg-surface rotate-45"
                 style={{ bottom: -4, right: 20 }}
               />
             </div>
@@ -100,10 +100,10 @@ export function CourseAvatarReader({
             onClick={() => setVisible(true)}
             onMouseEnter={() => setTooltip(true)}
             onMouseLeave={() => setTooltip(false)}
-            className="group flex items-center gap-2.5 bg-white border border-gray-200 shadow-lg rounded-full pl-1 pr-4 py-1 hover:shadow-xl hover:border-blue-300 transition-all duration-200 relative"
+            className="group flex items-center gap-2.5 bg-surface border border-border shadow-lg rounded-full pl-1 pr-4 py-1 hover:shadow-xl hover:border-primary transition-all duration-200 relative"
           >
             {/* Avatar miniatura */}
-            <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-blue-500 flex-shrink-0 relative">
+            <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-primary flex-shrink-0 relative">
               <Image
                 src={avatarSrc}
                 alt={avatarName}
@@ -111,14 +111,14 @@ export function CourseAvatarReader({
                 className="object-cover"
               />
             </div>
-            <span className="text-xs font-semibold text-gray-700 group-hover:text-blue-700 transition-colors">
+            <span className="text-xs font-semibold text-ink group-hover:text-primary transition-colors">
               Ouvir aula
             </span>
 
             {/* Pulse badge */}
             <span className="absolute -top-1 -right-1 flex">
-              <span className="animate-ping absolute inline-flex h-3 w-3 rounded-full bg-blue-400 opacity-75" />
-              <span className="relative inline-flex rounded-full h-3 w-3 bg-blue-500" />
+              <span className="animate-ping absolute inline-flex h-3 w-3 rounded-full bg-info opacity-75" />
+              <span className="relative inline-flex rounded-full h-3 w-3 bg-info" />
             </span>
           </button>
         </div>
@@ -128,7 +128,7 @@ export function CourseAvatarReader({
       {visible && (
         <div className="fixed bottom-6 right-6 z-40" style={{ width: 220 }}>
           <div
-            className="bg-white rounded-2xl overflow-hidden border border-gray-200"
+            className="bg-surface rounded-2xl overflow-hidden border border-border"
             style={{
               boxShadow:
                 '0 8px 32px rgba(0,0,0,0.13), 0 2px 8px rgba(0,0,0,0.07)',
@@ -137,14 +137,14 @@ export function CourseAvatarReader({
             {/* Topo */}
             <div className="flex items-center justify-between px-3.5 pt-3">
               <span
-                className="text-xs font-bold text-gray-400 tracking-widest uppercase"
+                className="text-xs font-bold text-ink-faint tracking-widest uppercase"
                 style={{ fontSize: 9 }}
               >
                 INNOVA · Leitura
               </span>
               <button
                 onClick={handleClose}
-                className="w-5 h-5 rounded-full bg-gray-100 hover:bg-red-100 flex items-center justify-center text-gray-400 hover:text-red-500 transition-colors leading-none"
+                className="w-5 h-5 rounded-full bg-surface-sunken hover:bg-danger-subtle flex items-center justify-center text-ink-faint hover:text-danger-ink transition-colors leading-none"
                 style={{ fontSize: 10 }}
               >
                 ✕
@@ -158,11 +158,11 @@ export function CourseAvatarReader({
                 {isPlaying && (
                   <>
                     <div
-                      className="absolute -inset-3 rounded-full border-2 border-blue-400 opacity-50 animate-ping"
+                      className="absolute -inset-3 rounded-full border-2 border-info opacity-50 animate-ping"
                       style={{ animationDuration: '1.6s' }}
                     />
                     <div
-                      className="absolute -inset-5 rounded-full border border-blue-200 opacity-25 animate-ping"
+                      className="absolute -inset-5 rounded-full border border-info-subtle opacity-25 animate-ping"
                       style={{ animationDuration: '2.2s' }}
                     />
                   </>
@@ -192,16 +192,16 @@ export function CourseAvatarReader({
 
                 {/* Status badge */}
                 <div
-                  className={`absolute -bottom-1 left-1/2 -translate-x-1/2 z-20 px-2 py-0.5 rounded-full text-white font-semibold whitespace-nowrap transition-colors ${
+                  className={`absolute -bottom-1 left-1/2 -translate-x-1/2 z-20 px-2 py-0.5 rounded-full text-canvas font-semibold whitespace-nowrap transition-colors ${
                     isLoading
-                      ? 'bg-amber-500'
+                      ? 'bg-warning'
                       : isPlaying
-                        ? 'bg-blue-500'
+                        ? 'bg-info'
                         : state === 'paused'
-                          ? 'bg-amber-500'
+                          ? 'bg-warning'
                           : state === 'error'
-                            ? 'bg-red-500'
-                            : 'bg-gray-400'
+                            ? 'bg-danger'
+                            : 'bg-ink-muted'
                   }`}
                   style={{ fontSize: 9 }}
                 >
@@ -218,11 +218,11 @@ export function CourseAvatarReader({
               </div>
 
               {/* Nome do avatar */}
-              <div className="mt-4 text-xs font-bold text-gray-800 text-center leading-tight">
+              <div className="mt-4 text-xs font-bold text-ink text-center leading-tight">
                 {avatarName}
               </div>
               <div
-                className="text-xs text-gray-400 mt-0.5"
+                className="text-xs text-ink-faint mt-0.5"
                 style={{ fontSize: 9 }}
               >
                 Voz IA · ElevenLabs
@@ -237,7 +237,7 @@ export function CourseAvatarReader({
                   {Array.from({ length: 11 }, (_, i) => (
                     <div
                       key={i}
-                      className="w-1 bg-blue-400 rounded-full"
+                      className="w-1 bg-info rounded-full"
                       style={{
                         height: '100%',
                         animation: `innova_wave ${0.45 + i * 0.06}s ease-in-out infinite alternate`,
@@ -256,7 +256,7 @@ export function CourseAvatarReader({
                   {[0, 1, 2].map((i) => (
                     <div
                       key={i}
-                      className="w-1.5 h-1.5 bg-amber-400 rounded-full animate-bounce"
+                      className="w-1.5 h-1.5 bg-warning rounded-full animate-bounce"
                       style={{ animationDelay: `${i * 0.15}s` }}
                     />
                   ))}
@@ -272,12 +272,12 @@ export function CourseAvatarReader({
                 className="flex justify-between mb-1"
                 style={{ fontSize: 9 }}
               >
-                <span className="text-gray-400">Progresso</span>
-                <span className="text-gray-500 font-mono">{progress}%</span>
+                <span className="text-ink-faint">Progresso</span>
+                <span className="text-ink-muted font-mono">{progress}%</span>
               </div>
-              <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+              <div className="h-1.5 bg-surface-sunken rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-blue-500 rounded-full transition-all duration-300"
+                  className="h-full bg-info rounded-full transition-all duration-300"
                   style={{ width: `${progress}%` }}
                 />
               </div>
@@ -286,7 +286,7 @@ export function CourseAvatarReader({
             {/* Mensagem de erro */}
             {state === 'error' && (
               <div
-                className="mx-3 mb-2 px-2.5 py-2 bg-red-50 border border-red-200 rounded-lg text-red-600 text-center leading-tight"
+                className="mx-3 mb-2 px-2.5 py-2 bg-danger-subtle border border-danger rounded-lg text-danger-ink text-center leading-tight"
                 style={{ fontSize: 10 }}
               >
                 {errorMsg || 'Erro ao gerar áudio. Tenta novamente mais tarde.'}
@@ -299,7 +299,7 @@ export function CourseAvatarReader({
               <button
                 onClick={handleRestart}
                 disabled={isLoading || state === 'idle'}
-                className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-500 hover:text-gray-700 transition-colors disabled:opacity-30"
+                className="w-8 h-8 rounded-full bg-surface-sunken hover:bg-surface flex items-center justify-center text-ink-muted hover:text-ink transition-colors disabled:opacity-30"
                 style={{ fontSize: 12 }}
                 title="Reiniciar"
               >
@@ -310,7 +310,7 @@ export function CourseAvatarReader({
               {isPlaying ? (
                 <button
                   onClick={handlePause}
-                  className="w-12 h-12 rounded-full bg-blue-600 hover:bg-blue-700 flex items-center justify-center text-white shadow-md transition-all hover:scale-105 text-lg"
+                  className="w-12 h-12 rounded-full bg-info hover:bg-info-ink flex items-center justify-center text-canvas shadow-md transition-all hover:scale-105 text-lg"
                   title="Pausar"
                 >
                   ⏸
@@ -319,12 +319,12 @@ export function CourseAvatarReader({
                 <button
                   onClick={handlePlay}
                   disabled={isLoading}
-                  className="w-12 h-12 rounded-full bg-blue-600 hover:bg-blue-700 flex items-center justify-center text-white shadow-md transition-all hover:scale-105 text-lg disabled:opacity-60 disabled:cursor-wait"
+                  className="w-12 h-12 rounded-full bg-info hover:bg-info-ink flex items-center justify-center text-canvas shadow-md transition-all hover:scale-105 text-lg disabled:opacity-60 disabled:cursor-wait"
                   title={state === 'paused' ? 'Retomar' : 'Ouvir aula'}
                 >
                   {isLoading ? (
                     <svg
-                      className="animate-spin h-5 w-5 text-white"
+                      className="animate-spin h-5 w-5 text-canvas"
                       fill="none"
                       viewBox="0 0 24 24"
                     >
@@ -352,7 +352,7 @@ export function CourseAvatarReader({
               <button
                 onClick={handleStop}
                 disabled={isLoading || state === 'idle'}
-                className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-500 hover:text-gray-700 transition-colors disabled:opacity-30"
+                className="w-8 h-8 rounded-full bg-surface-sunken hover:bg-surface flex items-center justify-center text-ink-muted hover:text-ink transition-colors disabled:opacity-30"
                 style={{ fontSize: 12 }}
                 title="Parar"
               >
@@ -362,7 +362,7 @@ export function CourseAvatarReader({
 
             {/* Nota de quota */}
             <div
-              className="text-center text-gray-300 pb-2.5 px-3 leading-tight"
+              className="text-center text-ink-faint pb-2.5 px-3 leading-tight"
               style={{ fontSize: 8 }}
             >
               Áudio gerado por ElevenLabs · guardado em cache por sessão
