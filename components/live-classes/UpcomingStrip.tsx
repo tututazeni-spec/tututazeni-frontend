@@ -29,7 +29,7 @@ export function UpcomingStrip({ upcoming, onOpen }: UpcomingStripProps) {
             <div
               key={lc.id}
               onClick={() => onOpen(lc.id)}
-              className={`flex-shrink-0 bg-white rounded-3 p-3 cursor-pointer min-w-50 max-w-60 border ${
+              className={`flex-shrink-0 bg-surface rounded-3 p-3 cursor-pointer min-w-50 max-w-60 border ${
                 status === 'live'
                   ? 'border-danger-subtle border-l-4 border-l-danger'
                   : 'border-border'
@@ -58,7 +58,7 @@ export function UpcomingStrip({ upcoming, onOpen }: UpcomingStripProps) {
               </p>
               <div className="mt-2">
                 <span
-                  className={`inline-block px-2.5 py-1 rounded-lg text-white text-xs font-bold ${
+                  className={`inline-block px-2.5 py-1 rounded-lg text-canvas text-xs font-bold ${
                     status === 'live' ? 'bg-danger' : 'bg-ink'
                   }`}
                 >

@@ -297,7 +297,7 @@ export function RadarChart({ competencies }: RadarChartProps) {
                 />
               )}
             </svg>
-            <span className="text-xs text-slate-500">{l.label}</span>
+            <span className="text-xs text-ink-muted">{l.label}</span>
           </div>
         ))}
       </div>

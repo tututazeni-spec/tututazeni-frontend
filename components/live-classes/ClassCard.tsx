@@ -90,7 +90,7 @@ export function ClassCard({
       <div className="flex gap-2 pt-1 border-t border-surface">
         <button
           onClick={() => onOpen(lc.id)}
-          className={`flex-[2] py-2 px-2 rounded-lg border-none text-white text-xs font-bold cursor-pointer ${
+          className={`flex-[2] py-2 px-2 rounded-lg border-none text-canvas text-xs font-bold cursor-pointer ${
             isLive ? 'bg-danger' : 'bg-ink'
           }`}
         >

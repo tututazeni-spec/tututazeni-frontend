@@ -109,7 +109,7 @@ export function LiveClassesView({
         {/* ── Header ── */}
         <div className="flex justify-between items-start mb-6 flex-wrap gap-3">
           <div>
-            <h1 className="m-0 text-2xl font-bold text-slate-800 flex items-center gap-2.5">
+            <h1 className="m-0 text-2xl font-bold text-ink flex items-center gap-2.5">
               🔴 Aulas ao Vivo
               {liveNow > 0 && (
                 <span
@@ -127,7 +127,7 @@ export function LiveClassesView({
           </div>
           <button
             onClick={onCreateNew}
-            className="py-2.25 px-5 bg-danger text-white border-none rounded-lg text-sm font-bold cursor-pointer"
+            className="py-2.25 px-5 bg-danger text-canvas border-none rounded-lg text-sm font-bold cursor-pointer"
           >
             🎥 Nova Aula
           </button>
@@ -161,7 +161,7 @@ export function LiveClassesView({
         <UpcomingStrip upcoming={upcoming} onOpen={onOpen} />
 
         {/* ── Tabs ── */}
-        <div className="flex gap-1 bg-slate-100 rounded-lg p-1 mb-5 w-fit">
+        <div className="flex gap-1 bg-surface-sunken rounded-lg p-1 mb-5 w-fit">
           <button
             onClick={() => onTabChange('live')}
             className={tabBtn(tab === 'live')}
@@ -216,7 +216,7 @@ export function LiveClassesView({
           ) : filtered.length === 0 ? (
             <div className={`${CARD} py-13 px-6 text-center`}>
               <p className="text-4xl m-0 mb-2.5">🎥</p>
-              <p className="text-sm font-semibold text-slate-800 m-0 mb-1.5">
+              <p className="text-sm font-semibold text-ink m-0 mb-1.5">
                 Sem aulas encontradas
               </p>
               <p className="text-sm text-ink-faint">
@@ -273,7 +273,7 @@ export function LiveClassesView({
           (filtered.length === 0 ? (
             <div className={`${CARD} py-13 px-6 text-center`}>
               <p className="text-4xl m-0 mb-2.5">🎬</p>
-              <p className="text-sm font-semibold text-slate-800 m-0 mb-1.5">
+              <p className="text-sm font-semibold text-ink m-0 mb-1.5">
                 Sem gravações disponíveis
               </p>
               <p className="text-sm text-ink-faint">

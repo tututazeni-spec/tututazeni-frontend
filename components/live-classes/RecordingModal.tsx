@@ -29,7 +29,7 @@ export function RecordingModal({ lc, onClose }: RecordingModalProps) {
         {/* Header */}
         <div className="p-4 border-b border-white/8 flex items-center gap-3.5">
           <div className="flex-1">
-            <p className="m-0 text-sm font-bold text-slate-100">{lc.topic}</p>
+            <p className="m-0 text-sm font-bold text-canvas">{lc.topic}</p>
             {lc.course && (
               <p className="mt-0.5 text-xs text-ink-muted">
                 📚 {lc.course.title} · {fmtDate(lc.scheduledAt)}
@@ -76,7 +76,7 @@ export function RecordingModal({ lc, onClose }: RecordingModalProps) {
                 href={lc.recordingUrl!}
                 target="_blank"
                 rel="noreferrer"
-                className="py-2.25 px-5 bg-danger border-none rounded-lg text-white text-sm font-bold no-underline"
+                className="py-2.25 px-5 bg-danger border-none rounded-lg text-canvas text-sm font-bold no-underline"
               >
                 Abrir Gravação ↗
               </a>

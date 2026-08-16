@@ -73,7 +73,7 @@ export function NineBoxGrid({ entries }: NineBoxGridProps) {
   return (
     <div>
       <div className="flex gap-2 mb-3">
-        <div className="text-xs text-slate-500 flex items-center gap-1">
+        <div className="text-xs text-ink-muted flex items-center gap-1">
           ↑ <span>Potencial</span>
         </div>
       </div>
@@ -117,7 +117,7 @@ export function NineBoxGrid({ entries }: NineBoxGridProps) {
                     </div>
                   ))}
                   {boxEntries.length === 0 && (
-                    <span className="text-xs text-slate-700">—</span>
+                    <span className="text-xs text-ink-faint">—</span>
                   )}
                 </div>
               </div>
@@ -129,13 +129,13 @@ export function NineBoxGrid({ entries }: NineBoxGridProps) {
       <div className="flex justify-between mt-2 px-1">
         {['Baixa Performance', 'Performance Média', 'Alta Performance'].map(
           (l) => (
-            <span key={l} className="text-xs text-slate-500 text-center flex-1">
+            <span key={l} className="text-xs text-ink-muted text-center flex-1">
               {l}
             </span>
           ),
         )}
       </div>
-      <div className="text-center text-xs text-slate-500 mt-1">
+      <div className="text-center text-xs text-ink-muted mt-1">
         → Performance
       </div>
     </div>

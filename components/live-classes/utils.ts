@@ -45,11 +45,11 @@ export function getStatus(scheduledAt: string, duration: number): ClassStatus {
 export const tabBtn = (active: boolean): string => {
   const base = 'px-5.5 py-2.25 text-sm font-medium rounded-lg transition-all duration-150 cursor-pointer border-none';
   const activeStyles = active
-    ? 'bg-danger text-white font-bold'
+    ? 'bg-danger text-canvas font-bold'
     : 'bg-transparent text-ink-muted';
   return `${base} ${activeStyles}`;
 };
 
-export const INP = 'px-3.25 py-2.25 rounded-lg border border-border text-sm text-ink bg-white outline-none';
+export const INP = 'px-3.25 py-2.25 rounded-lg border border-border text-sm text-ink bg-surface outline-none';
 
-export const CARD = 'bg-white rounded-xl border border-border';
+export const CARD = 'bg-surface rounded-xl border border-border';
