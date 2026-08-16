@@ -37,10 +37,10 @@ function gapIntent(avgGap: number): string {
 
 function heatmapCellClass(level: number | null): string {
   if (level === null) return 'bg-surface-sunken';
-  if (level >= 4) return 'bg-emerald-100 text-emerald-700';
-  if (level >= 3) return 'bg-teal-100 text-teal-700';
-  if (level >= 2) return 'bg-amber-100 text-amber-700';
-  return 'bg-red-100 text-red-600';
+  if (level >= 4) return 'bg-success-subtle text-success-ink';
+  if (level >= 3) return 'bg-info-subtle text-info-ink';
+  if (level >= 2) return 'bg-warning-subtle text-warning-ink';
+  return 'bg-danger-subtle text-danger-ink';
 }
 
 export function SkillGapsTab() {
