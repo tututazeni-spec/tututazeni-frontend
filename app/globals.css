@@ -1,5 +1,5 @@
-@import "tailwindcss";
- 
+@import 'tailwindcss';
+
 :root {
   --sidebar-bg: #0f1623;
   --sidebar-hover: #1a2438;
@@ -20,21 +20,25 @@
   --warning: #f59e0b;
   --danger: #ef4444;
 }
- 
+
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
- 
+
 body {
   background: var(--content-bg);
   color: var(--text-primary);
-  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  font-family:
+    'Segoe UI',
+    system-ui,
+    -apple-system,
+    sans-serif;
   font-size: 14px;
   line-height: 1.5;
 }
- 
+
 ::-webkit-scrollbar {
   width: 4px;
 }
@@ -50,39 +54,39 @@ body {
   /* TODO(phase-b): type scale from spec section 2 not yet encoded as tokens; components currently use ad-hoc Tailwind text sizes. */
 
   /* superfícies */
-  --color-canvas: #F7F5EF;
-  --color-surface: #FFFFFF;
-  --color-surface-sunken: #F1EEE5;
-  --color-border: #E7E2D4;
-  --color-border-strong: #D8D1BE;
+  --color-canvas: #f7f5ef;
+  --color-surface: #ffffff;
+  --color-surface-sunken: #f1eee5;
+  --color-border: #e7e2d4;
+  --color-border-strong: #d8d1be;
 
   /* texto */
-  --color-ink: #20241F;
-  --color-ink-muted: #6E756B;
-  --color-ink-faint: #9AA097;
+  --color-ink: #20241f;
+  --color-ink-muted: #6e756b;
+  --color-ink-faint: #9aa097;
 
   /* marca */
-  --color-primary: #163A2E;
-  --color-primary-hover: #1F4E3D;
-  --color-primary-active: #0E2820;
-  --color-primary-subtle: #E7EFEA;
-  --color-accent: #D6963A;
-  --color-accent-hover: #C2822A;
-  --color-accent-subtle: #F3E1BE;
+  --color-primary: #163a2e;
+  --color-primary-hover: #1f4e3d;
+  --color-primary-active: #0e2820;
+  --color-primary-subtle: #e7efea;
+  --color-accent: #d6963a;
+  --color-accent-hover: #c2822a;
+  --color-accent-subtle: #f3e1be;
 
   /* semântica de estado */
-  --color-success: #2F9E63;
-  --color-success-subtle: #E4F5EC;
-  --color-success-ink: #1E7A4C;
-  --color-warning: #C97A1F;
-  --color-warning-subtle: #FBEEDC;
-  --color-warning-ink: #9C5F17;
-  --color-danger: #B3432E;
-  --color-danger-subtle: #FBE7E2;
-  --color-danger-ink: #8F3421;
-  --color-info: #3B6FA0;
-  --color-info-subtle: #E7EEF5;
-  --color-info-ink: #2C557E;
+  --color-success: #2f9e63;
+  --color-success-subtle: #e4f5ec;
+  --color-success-ink: #1e7a4c;
+  --color-warning: #c97a1f;
+  --color-warning-subtle: #fbeedc;
+  --color-warning-ink: #9c5f17;
+  --color-danger: #b3432e;
+  --color-danger-subtle: #fbe7e2;
+  --color-danger-ink: #8f3421;
+  --color-info: #3b6fa0;
+  --color-info-subtle: #e7eef5;
+  --color-info-ink: #2c557e;
 
   /* forma — nomes próprios, não colidem com a escala nativa do Tailwind */
   --radius-control: 6px;
@@ -91,9 +95,9 @@ body {
   --radius-pill: 999px;
 
   /* profundidade */
-  --shadow-resting: 0 1px 2px rgba(22, 58, 46, .06);
-  --shadow-hover: 0 4px 12px rgba(22, 58, 46, .08);
-  --shadow-elevated: 0 12px 32px rgba(22, 58, 46, .14);
+  --shadow-resting: 0 1px 2px rgba(22, 58, 46, 0.06);
+  --shadow-hover: 0 4px 12px rgba(22, 58, 46, 0.08);
+  --shadow-elevated: 0 12px 32px rgba(22, 58, 46, 0.14);
 
   /* tipografia — variáveis vindas do next/font (Task 2)
      nota: --font-data (não --font-mono) — o Tailwind já tem uma key
@@ -111,7 +115,9 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+  *,
+  *::before,
+  *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
@@ -134,6 +140,26 @@ body {
   animation: skeleton-shimmer-move 1.4s infinite;
 }
 @keyframes skeleton-shimmer-move {
-  0% { background-position: -200px 0; }
-  100% { background-position: 200px 0; }
+  0% {
+    background-position: -200px 0;
+  }
+  100% {
+    background-position: 200px 0;
+  }
+}
+
+/* Entrada do cartão de login — opt-in via className, respeita
+   prefers-reduced-motion através do bloco global acima (zera a duração). */
+.login-card-in {
+  animation: login-card-in 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes login-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(28px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
