@@ -69,28 +69,28 @@ export function Evaluation360View({
         return (
           <div className="flex flex-col gap-6">
             <div>
-              <h2 className="m-0 text-lg font-bold text-slate-100">
+              <h2 className="m-0 text-lg font-bold text-ink">
                 Radar de Competências 360°
               </h2>
-              <p className="m-0 mt-1 text-sm text-slate-400">
+              <p className="m-0 mt-1 text-sm text-ink-muted">
                 Comparação entre autoavaliação, outros avaliadores e benchmark
                 do cargo
               </p>
             </div>
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_320px] lg:items-start">
-              <div className="rounded-xl border border-slate-700 bg-slate-800 p-6 flex justify-center">
+              <div className="rounded-xl border border-border bg-surface p-6 flex justify-center">
                 <RadarChart competencies={competencies} />
               </div>
               <div className="flex flex-col gap-2.5">
-                <div className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">
+                <div className="text-xs font-bold uppercase tracking-wider text-ink-muted mb-1">
                   Legenda de Gaps
                 </div>
                 {competencies.map((c) => (
                   <div
                     key={c.id}
-                    className="rounded-lg border border-slate-700 bg-slate-800 px-3.5 py-2.5 flex justify-between items-center"
+                    className="rounded-lg border border-border bg-surface px-3.5 py-2.5 flex justify-between items-center"
                   >
-                    <span className="text-sm font-semibold text-slate-200">
+                    <span className="text-sm font-semibold text-ink">
                       {c.name}
                     </span>
                     <span
@@ -110,7 +110,7 @@ export function Evaluation360View({
                     </span>
                   </div>
                 ))}
-                <div className="text-xs text-slate-500 mt-2 leading-relaxed">
+                <div className="text-xs text-ink-muted mt-2 leading-relaxed">
                   <span style={{ color: 'rgb(245, 158, 11)' }}>▲ positivo</span>{' '}
                   = overestima-se vs. outros
                   <br />
@@ -127,10 +127,10 @@ export function Evaluation360View({
         return (
           <div className="flex flex-col gap-5">
             <div>
-              <h2 className="m-0 text-lg font-bold text-slate-100">
+              <h2 className="m-0 text-lg font-bold text-ink">
                 Heatmap de Competências
               </h2>
-              <p className="m-0 mt-1 text-sm text-slate-400">
+              <p className="m-0 mt-1 text-sm text-ink-muted">
                 Score por fonte de avaliador, gap e benchmark do cargo
               </p>
             </div>
@@ -138,7 +138,7 @@ export function Evaluation360View({
               {Object.entries(typeColor).map(([type, color]) => (
                 <span
                   key={type}
-                  className="flex items-center gap-1 text-xs text-slate-500"
+                  className="flex items-center gap-1 text-xs text-ink-muted"
                 >
                   <span
                     className="inline-block w-2 h-2 rounded-full"
@@ -148,7 +148,7 @@ export function Evaluation360View({
                 </span>
               ))}
             </div>
-            <div className="rounded-xl border border-slate-700 bg-slate-800 overflow-hidden">
+            <div className="rounded-xl border border-border bg-surface overflow-hidden">
               <CompetencyHeatmap competencies={competencies} />
             </div>
           </div>
@@ -159,14 +159,14 @@ export function Evaluation360View({
         return (
           <div className="flex flex-col gap-5">
             <div>
-              <h2 className="m-0 text-lg font-bold text-slate-100">
+              <h2 className="m-0 text-lg font-bold text-ink">
                 Matriz Nine Box
               </h2>
-              <p className="m-0 mt-1 text-sm text-slate-400">
+              <p className="m-0 mt-1 text-sm text-ink-muted">
                 Performance vs Potencial · {nineBox.length} colaboradores
               </p>
             </div>
-            <div className="rounded-xl border border-slate-700 bg-slate-800 p-6">
+            <div className="rounded-xl border border-border bg-surface p-6">
               <NineBoxGrid entries={nineBox} />
             </div>
           </div>
@@ -176,10 +176,10 @@ export function Evaluation360View({
           <div className="flex flex-col gap-5">
             <div className="flex justify-between items-center">
               <div>
-                <h2 className="m-0 text-lg font-bold text-slate-100">
+                <h2 className="m-0 text-lg font-bold text-ink">
                   Ciclos de Avaliação
                 </h2>
-                <p className="m-0 mt-1 text-sm text-slate-400">
+                <p className="m-0 mt-1 text-sm text-ink-muted">
                   Gestão de campanhas de avaliação 360°
                 </p>
               </div>
@@ -190,14 +190,14 @@ export function Evaluation360View({
             {cycles.map((c) => (
               <div
                 key={c.id}
-                className="rounded-lg border border-slate-700 bg-slate-800 p-5"
+                className="rounded-lg border border-border bg-surface p-5"
               >
                 <div className="flex justify-between items-center mb-3">
                   <div>
-                    <div className="text-sm font-semibold text-slate-100">
+                    <div className="text-sm font-semibold text-ink">
                       {c.name}
                     </div>
-                    <div className="text-xs text-slate-500 mt-0.5">
+                    <div className="text-xs text-ink-muted mt-0.5">
                       {c.model} · {c.startDate} → {c.endDate}
                     </div>
                   </div>
@@ -217,7 +217,7 @@ export function Evaluation360View({
                     {c.status}
                   </span>
                 </div>
-                <div className="bg-slate-900 rounded h-1.5 mb-2 overflow-hidden">
+                <div className="bg-surface-sunken rounded h-1.5 mb-2 overflow-hidden">
                   <div
                     className="h-full rounded transition-all"
                     style={{
@@ -227,7 +227,7 @@ export function Evaluation360View({
                     }}
                   />
                 </div>
-                <div className="text-xs text-slate-500">
+                <div className="text-xs text-ink-muted">
                   {c.completedCount}/{c.participantsCount} participantes
                   concluídos (
                   {Math.round((c.completedCount / c.participantsCount) * 100)}
@@ -252,14 +252,14 @@ export function Evaluation360View({
   return (
     <div
       style={{ backgroundColor: COLORS.bg }}
-      className="min-h-screen font-sans text-slate-100"
+      className="min-h-screen font-sans text-ink"
     >
       <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap'); * { box-sizing: border-box; } ::-webkit-scrollbar { width: 5px; } ::-webkit-scrollbar-track { background: ${COLORS.surface}; } ::-webkit-scrollbar-thumb { background: ${COLORS.border}; border-radius: 3px; }`}</style>
 
       {/* Header */}
-      <div className="border-b border-slate-800 px-8 py-4 flex items-center gap-4 bg-slate-950 sticky top-0 z-100">
+      <div className="border-b border-border px-8 py-4 flex items-center gap-4 bg-canvas sticky top-0 z-100">
         <div
-          className="w-9 h-9 rounded-lg flex items-center justify-center text-base font-black text-white"
+          className="w-9 h-9 rounded-lg flex items-center justify-center text-base font-black text-canvas"
           style={{
             background:
               'linear-gradient(135deg, rgb(79, 70, 229), rgb(124, 58, 237))',
@@ -268,29 +268,29 @@ export function Evaluation360View({
           I
         </div>
         <div>
-          <div className="text-base font-bold text-slate-100 tracking-tight">
+          <div className="text-base font-bold text-ink tracking-tight">
             INNOVA
           </div>
-          <div className="text-xs text-slate-600 font-medium uppercase tracking-wider">
+          <div className="text-xs text-ink-muted font-medium uppercase tracking-wider">
             Avaliação 360°
           </div>
         </div>
-        <div className="ml-auto text-sm text-slate-500">
+        <div className="ml-auto text-sm text-ink-muted">
           Ciclo:{' '}
           <strong style={{ color: 'rgb(129, 140, 248)' }}>{cycle.name}</strong>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="border-b border-slate-800 px-8 flex gap-1 overflow-x-auto bg-slate-950">
+      <div className="border-b border-border px-8 flex gap-1 overflow-x-auto bg-canvas">
         {TABS.map((tab) => (
           <button
             key={tab.id}
             onClick={() => onTabChange(tab.id)}
             className={`px-4.5 py-3.5 text-sm font-medium whitespace-nowrap flex items-center gap-1.5 border-b-2 transition-colors cursor-pointer ${
               activeTab === tab.id
-                ? 'border-indigo-500 text-indigo-300 font-bold'
-                : 'border-transparent text-slate-600'
+                ? 'border-primary text-primary-subtle font-bold'
+                : 'border-transparent text-ink-muted'
             }`}
           >
             <span className="text-sm">{tab.icon}</span>

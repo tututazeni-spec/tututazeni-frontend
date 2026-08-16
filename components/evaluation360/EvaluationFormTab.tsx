@@ -42,25 +42,25 @@ export function EvaluationFormTab({
   return (
     <div className="flex flex-col gap-6 max-w-2xl">
       <div>
-        <h2 className="m-0 text-lg font-bold text-slate-100">
+        <h2 className="m-0 text-lg font-bold text-ink">
           Formulário de Avaliação
         </h2>
-        <p className="m-0 mt-1 text-sm text-slate-400">
+        <p className="m-0 mt-1 text-sm text-ink-muted">
           Avaliação de{' '}
-          <strong className="text-slate-200">{participantName}</strong> · Role:
+          <strong className="text-ink">{participantName}</strong> · Role:
           Par
         </p>
       </div>
 
       {/* Progress */}
-      <div className="rounded-lg border border-slate-700 bg-slate-800 p-4">
+      <div className="rounded-lg border border-border bg-surface p-4">
         <div className="flex justify-between mb-2">
-          <span className="text-sm text-slate-500">Progresso</span>
-          <span className="text-sm font-bold text-indigo-400">
+          <span className="text-sm text-ink-muted">Progresso</span>
+          <span className="text-sm font-bold text-primary">
             {Object.keys(answers).length}/{questions.length} respostas
           </span>
         </div>
-        <div className="bg-slate-900 rounded h-1.5 overflow-hidden">
+        <div className="bg-surface-sunken rounded h-1.5 overflow-hidden">
           <div
             className="h-full rounded transition-all"
             style={{
@@ -79,7 +79,7 @@ export function EvaluationFormTab({
         return (
           <div
             key={q.id}
-            className="rounded-lg border bg-slate-800 p-5 transition-colors"
+            className="rounded-lg border bg-surface p-5 transition-colors"
             style={{
               borderColor:
                 val !== undefined
@@ -89,7 +89,7 @@ export function EvaluationFormTab({
           >
             <div className="flex gap-2.5 mb-4">
               <div
-                className="flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold text-white flex-shrink-0"
+                className="flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold text-canvas flex-shrink-0"
                 style={{
                   background:
                     val !== undefined ? 'rgb(79, 70, 229)' : 'rgb(30, 37, 55)',
@@ -102,10 +102,10 @@ export function EvaluationFormTab({
                 {qi + 1}
               </div>
               <div className="flex-1">
-                <div className="text-xs font-semibold text-indigo-400 mb-1.5">
+                <div className="text-xs font-semibold text-primary mb-1.5">
                   {q.competency}
                 </div>
-                <p className="m-0 text-sm text-slate-200 leading-relaxed">
+                <p className="m-0 text-sm text-ink leading-relaxed">
                   {q.text}
                 </p>
               </div>
@@ -159,14 +159,14 @@ export function EvaluationFormTab({
       })}
 
       {/* Open question */}
-      <div className="rounded-lg border border-slate-700 bg-slate-800 p-5">
-        <p className="m-0 mb-3 text-sm text-slate-200 leading-relaxed">
+      <div className="rounded-lg border border-border bg-surface p-5">
+        <p className="m-0 mb-3 text-sm text-ink leading-relaxed">
           Que feedback adicional gostaria de partilhar sobre este colaborador?
           (opcional)
         </p>
         <Textarea
           placeholder="Partilhe exemplos concretos e construtivos..."
-          className="bg-slate-900 text-slate-200 border-slate-700"
+          className="bg-surface-sunken text-ink border-border"
         />
       </div>
 

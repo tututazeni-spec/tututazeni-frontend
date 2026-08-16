@@ -36,10 +36,10 @@ export function FeedbackTab({ feedbacks }: FeedbackTabProps) {
     <div className="flex flex-col gap-3">
       <div className="flex justify-between items-center mb-2">
         <div>
-          <h2 className="m-0 text-lg font-bold text-slate-100">
+          <h2 className="m-0 text-lg font-bold text-ink">
             Feedback Contínuo
           </h2>
-          <p className="m-0 mt-1 text-sm text-slate-400">
+          <p className="m-0 mt-1 text-sm text-ink-muted">
             Feedbacks recebidos fora dos ciclos formais
           </p>
         </div>
@@ -52,7 +52,7 @@ export function FeedbackTab({ feedbacks }: FeedbackTabProps) {
         return (
           <div
             key={fb.id}
-            className="rounded-r-lg border border-l-4 bg-slate-800 p-4"
+            className="rounded-r-lg border border-l-4 bg-surface p-4"
             style={{ borderLeftColor: cfg.color }}
           >
             <div className="flex justify-between items-start gap-4">
@@ -68,21 +68,21 @@ export function FeedbackTab({ feedbacks }: FeedbackTabProps) {
                     {cfg.label}
                   </span>
                   {fb.competency && (
-                    <span className="text-xs text-slate-500 bg-slate-900 px-2 py-0.5 rounded-full">
+                    <span className="text-xs text-ink-muted bg-surface-sunken px-2 py-0.5 rounded-full">
                       {fb.competency}
                     </span>
                   )}
-                  <span className="text-xs text-slate-600">
+                  <span className="text-xs text-ink-muted">
                     · {timeAgo(fb.createdAt)}
                   </span>
                 </div>
-                <p className="m-0 text-sm text-slate-300 leading-relaxed">
+                <p className="m-0 text-sm text-ink leading-relaxed">
                   {fb.message}
                 </p>
               </div>
             </div>
-            <div className="mt-2.5 text-xs text-slate-500">
-              por <strong className="text-slate-400">{fb.fromName}</strong>
+            <div className="mt-2.5 text-xs text-ink-muted">
+              por <strong className="text-ink-muted">{fb.fromName}</strong>
             </div>
           </div>
         );
