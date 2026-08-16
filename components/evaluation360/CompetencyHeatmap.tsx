@@ -17,14 +17,14 @@ export function CompetencyHeatmap({ competencies }: CompetencyHeatmapProps) {
       <table className="w-full border-collapse" style={{ minWidth: 600 }}>
         <thead>
           <tr>
-            <th className="text-left px-3 py-2.5 text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-700">
+            <th className="text-left px-3 py-2.5 text-xs font-bold text-ink-muted uppercase tracking-wider border-b border-border">
               Competência
             </th>
             {['Auto', 'Gestor', 'Pares', 'Média', 'Gap', 'Benchmark'].map(
               (h) => (
                 <th
                   key={h}
-                  className="text-center px-3 py-2.5 text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-700 whitespace-nowrap"
+                  className="text-center px-3 py-2.5 text-xs font-bold text-ink-muted uppercase tracking-wider border-b border-border whitespace-nowrap"
                 >
                   {h}
                 </th>
@@ -47,7 +47,7 @@ export function CompetencyHeatmap({ competencies }: CompetencyHeatmapProps) {
                   background: i % 2 === 0 ? 'rgb(13, 20, 33)' : 'transparent',
                 }}
               >
-                <td className="px-3 py-2.5 border-b border-slate-800">
+                <td className="px-3 py-2.5 border-b border-border">
                   <div className="flex items-center gap-2">
                     <span
                       className="inline-block w-1.5 h-1.5 rounded-full"
@@ -55,17 +55,17 @@ export function CompetencyHeatmap({ competencies }: CompetencyHeatmapProps) {
                         background: typeColor[c.type] ?? 'rgb(99, 102, 241)',
                       }}
                     />
-                    <span className="text-sm font-semibold text-slate-100">
+                    <span className="text-sm font-semibold text-ink">
                       {c.name}
                     </span>
-                    <span className="text-xs text-slate-500">{c.category}</span>
+                    <span className="text-xs text-ink-muted">{c.category}</span>
                   </div>
                 </td>
                 {[c.selfScore, c.managerScore, c.peerScore, c.othersScore].map(
                   (v, j) => (
                     <td
                       key={j}
-                      className="text-center px-3 py-2.5 border-b border-slate-800"
+                      className="text-center px-3 py-2.5 border-b border-border"
                     >
                       <span
                         className="inline-block px-2.5 py-0.75 rounded text-sm font-bold"
@@ -79,7 +79,7 @@ export function CompetencyHeatmap({ competencies }: CompetencyHeatmapProps) {
                     </td>
                   ),
                 )}
-                <td className="text-center px-3 py-2.5 border-b border-slate-800">
+                <td className="text-center px-3 py-2.5 border-b border-border">
                   <span
                     className="text-sm font-bold"
                     style={{ color: gapColor }}
@@ -88,8 +88,8 @@ export function CompetencyHeatmap({ competencies }: CompetencyHeatmapProps) {
                     {c.gap.toFixed(1)}
                   </span>
                 </td>
-                <td className="text-center px-3 py-2.5 border-b border-slate-800">
-                  <span className="text-sm text-slate-500">
+                <td className="text-center px-3 py-2.5 border-b border-border">
+                  <span className="text-sm text-ink-muted">
                     {c.benchmark.toFixed(1)}
                   </span>
                 </td>

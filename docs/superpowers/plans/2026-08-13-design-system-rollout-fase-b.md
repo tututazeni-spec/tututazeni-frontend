@@ -213,9 +213,43 @@ que embrulha `components/ui/`):
 | acl | 7 | 81 | sim |
 | attendance | 10 | 111 | sim |
 
-- [ ] **Step 1:** Correr os dois em paralelo (auto-contidos, mesmo padrão da Vaga 1/2) — plano detalhado por módulo (Task 0 recipe), executar até PR aberto.
-- [ ] **Step 2:** Aguardar CI (`build`) verde por PR; squash-merge cada um.
-- [ ] **Step 3:** Só depois de ambos mergeados, avançar para a Task 7 (verificação final) — a Task 7 já tinha sido tentada uma vez e falhado o Passo 1 precisamente por causa deste gap.
+- [x] **Step 1:** Correr os dois em paralelo (auto-contidos, mesmo padrão da Vaga 1/2) — plano detalhado por módulo (Task 0 recipe), executar até PR aberto. `acl` → PR #250, `attendance` → PR #251.
+- [x] **Step 2:** Aguardar CI (`build`) verde por PR; squash-merge cada um. Ambos `MERGED`, check `build` = `SUCCESS`.
+- [x] **Step 3:** Só depois de ambos mergeados, avançar para a Task 7 (verificação final) — a Task 7 já tinha sido tentada uma vez e falhado o Passo 1 precisamente por causa deste gap. **Concluído 2026-08-16.**
+
+---
+
+### Task 6c: gap descoberto na verificação final — `evaluation360` fechado no checkbox mas incompleto (PR #248)
+
+**Achado 2026-08-16, ao ler ficheiro a ficheiro durante a Task 7 (Passo 2):** ao
+contrário do gap da Task 6b (módulo nunca entrou no inventário), aqui o
+módulo `evaluation360` **foi** inventariado, despachado e "fechado" na Task
+6 (Vaga 5, PR #248, mergido 2026-08-15) — mas a migração real ficou
+incompleta em vários dos 8 ficheiros, apesar do PR os ter todos tocado.
+
+Confirmado por leitura directa:
+- `OverviewTab.tsx` — **por migrar**: `border-indigo-800`, `bg-gradient-to-r
+  from-slate-900 to-indigo-900`, `text-white`, `text-slate-100/400/500`,
+  `bg-slate-800/900`, `border-green-600/900`, `text-green-400`,
+  `border-amber-600`, `text-amber-300`, `border-red-900`, `text-red-400`,
+  `text-indigo-400` — chrome genuíno (cards, bordas, badges, títulos), não
+  data-viz. Único uso legítimo de `style={{color}}` é o valor dos score
+  cards (ligado a `COLORS.self`/`COLORS.peer` — preservar).
+- `FeedbackTab.tsx`, `EvaluationFormTab.tsx`, `Evaluation360View.tsx` —
+  idem, por confirmar/corrigir com a mesma leitura ficheiro-a-ficheiro.
+- `CompetencyHeatmap.tsx`, `NineBoxGrid.tsx`, `RadarChart.tsx`, `colors.ts`
+  — **correctamente migrados**: chrome em tokens semânticos
+  (`text-ink-muted`, `border-border`, `text-ink`, `text-ink-faint`), cores
+  categóricas/data-encoding preservadas como excepção documentada (ver
+  cabeçalhos dos próprios ficheiros). Pequenos leaks residuais nestes 3
+  corrigidos inline (PR #253, ver Task 7).
+
+- [ ] **Step 1:** Ler e migrar `OverviewTab.tsx`, `FeedbackTab.tsx`,
+      `EvaluationFormTab.tsx`, `Evaluation360View.tsx` até 0 hits de
+      paleta crua fora das excepções data-viz documentadas.
+- [ ] **Step 2:** Verificação (`tsc`/`build`/`test`) + commit/PR/CI/merge.
+- [ ] **Step 3:** Só depois deste PR mergeado, o grep da Task 7 (Passo 2)
+      pode genuinamente devolver 0 resultados.
 
 ---
 

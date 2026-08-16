@@ -34,7 +34,7 @@ export function RecordingCard({ lc, onView }: RecordingCardProps) {
             ▶
           </div>
         </div>
-        <div className="absolute bottom-2 left-2.5 bg-black/70 rounded px-2 py-0.5 text-xs text-white font-semibold">
+        <div className="absolute bottom-2 left-2.5 bg-black/70 rounded px-2 py-0.5 text-xs text-canvas font-semibold">
           {lc.duration} min
         </div>
       </div>
@@ -54,7 +54,7 @@ export function RecordingCard({ lc, onView }: RecordingCardProps) {
         <div className="flex gap-1.5 mt-auto">
           <button
             onClick={() => onView(lc)}
-            className="flex-1 py-2 px-2 rounded-lg border-none bg-slate-900 text-white text-xs font-bold cursor-pointer"
+            className="flex-1 py-2 px-2 rounded-lg border-none bg-slate-900 text-canvas text-xs font-bold cursor-pointer"
           >
             ▶ Ver Gravação
           </button>

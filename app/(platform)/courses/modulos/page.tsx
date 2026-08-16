@@ -132,7 +132,7 @@ export default function CourseModulesPage() {
           <Button
             onClick={() => dispatchModal({ type: 'openProgress' })}
             intent="ghost"
-            className="bg-violet-50"
+            className="bg-primary-subtle"
           >
             📊 Progresso
           </Button>
