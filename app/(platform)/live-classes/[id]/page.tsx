@@ -68,6 +68,7 @@ export default function LiveRoomPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen flex-col gap-4 bg-slate-900">
+        {/* fundo escuro intencional: overlay de carregamento da sala Jitsi */}
         <style>{`@keyframes lc-spin{to{transform:rotate(360deg)}}@keyframes lc-ping{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.5)}}`}</style>
         <div
           className="w-9 h-9 rounded-full border-3 border-white/10"
@@ -76,7 +77,7 @@ export default function LiveRoomPage() {
             animation: 'lc-spin 0.8s linear infinite',
           }}
         />
-        <p className="text-white/50 m-0 text-sm">A preparar a sala...</p>
+        <p className="text-canvas m-0 text-sm opacity-50">A preparar a sala...</p>
       </div>
     );
   }
@@ -84,12 +85,13 @@ export default function LiveRoomPage() {
   if (isError || !liveClass) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-slate-900 flex-col gap-3">
-        <p className="text-red-300 text-base">
+        {/* fundo escuro intencional: overlay de carregamento da sala Jitsi */}
+        <p className="text-danger-ink text-base">
           ❌ {queryError?.message || 'Aula não encontrada'}
         </p>
         <button
           onClick={() => router.push('/live')}
-          className="py-2.25 px-5 bg-danger border-none rounded-[9px] text-white cursor-pointer text-sm font-bold"
+          className="py-2.25 px-5 bg-danger border-none rounded-[9px] text-canvas cursor-pointer text-sm font-bold"
         >
           ← Voltar
         </button>
@@ -110,6 +112,7 @@ export default function LiveRoomPage() {
       `}</style>
 
       <div className="flex h-screen bg-slate-900 overflow-hidden">
+        {/* fundo escuro intencional: container da sala Jitsi */}
         {/* ── Main area ── */}
         <div className="flex-1 flex flex-col overflow-hidden">
           {/* Top bar */}
@@ -117,7 +120,7 @@ export default function LiveRoomPage() {
             {/* Back */}
             <button
               onClick={() => router.push('/live')}
-              className="bg-white/8 border-none rounded-lg py-1.5 px-3 text-slate-400 text-xs cursor-pointer flex items-center gap-1.5"
+              className="bg-white/8 border-none rounded-lg py-1.5 px-3 text-ink-muted text-xs cursor-pointer flex items-center gap-1.5"
             >
               ← Sair
             </button>
@@ -135,11 +138,11 @@ export default function LiveRoomPage() {
 
             {/* Title */}
             <div className="flex-1 min-w-0">
-              <p className="m-0 text-sm font-bold text-slate-100 overflow-hidden text-ellipsis whitespace-nowrap">
+              <p className="m-0 text-sm font-bold text-ink overflow-hidden text-ellipsis whitespace-nowrap">
                 {liveClass.topic}
               </p>
               {liveClass.course && (
-                <p className="m-0 text-xs text-slate-500">
+                <p className="m-0 text-xs text-ink-muted">
                   📚 {liveClass.course.title} · {fmtDate(liveClass.scheduledAt)}{' '}
                   {fmtTime(liveClass.scheduledAt)}
                 </p>
@@ -149,10 +152,10 @@ export default function LiveRoomPage() {
             {/* Session timer */}
             {joined && (
               <div className="text-center bg-white/6 rounded-[9px] py-1.5 px-3">
-                <p className="m-0 text-xs text-slate-500 uppercase tracking-wider">
+                <p className="m-0 text-xs text-ink-muted uppercase tracking-wider">
                   Sessão
                 </p>
-                <p className="m-0 text-base font-black text-slate-100 font-mono">
+                <p className="m-0 text-base font-black text-ink font-mono">
                   {fmtDuration(sessionTime)}
                 </p>
               </div>
@@ -161,7 +164,7 @@ export default function LiveRoomPage() {
             {/* Toggle sidebar */}
             <button
               onClick={() => setShowSidebar((s) => !s)}
-              className="bg-white/8 border-none rounded-lg py-1.75 px-3 text-slate-400 text-xs cursor-pointer"
+              className="bg-white/8 border-none rounded-lg py-1.75 px-3 text-ink-muted text-xs cursor-pointer"
             >
               {showSidebar ? 'Ocultar ▶' : '◀ Painel'}
             </button>
@@ -179,10 +182,10 @@ export default function LiveRoomPage() {
 
         {/* ── Sidebar ── */}
         {showSidebar && (
-          <div className="w-80 border-l border-white/7 flex flex-col overflow-y-auto bg-slate-900 gap-0 flex-shrink-0">
+          <div className="w-80 border-l border-white/7 flex flex-col overflow-y-auto bg-surface-sunken gap-0 flex-shrink-0">
             {/* Class info */}
             <div className="py-4 px-4.5 border-b border-white/7">
-              <p className="m-0 mb-2.5 text-xs font-bold text-slate-500 uppercase tracking-wider">
+              <p className="m-0 mb-2.5 text-xs font-bold text-ink-muted uppercase tracking-wider">
                 Informações da Aula
               </p>
               {[
@@ -195,9 +198,9 @@ export default function LiveRoomPage() {
                   key={f.label}
                   className="flex justify-between py-1.25 border-b border-white/4"
                 >
-                  <span className="text-xs text-slate-600">{f.label}</span>
+                  <span className="text-xs text-ink-muted">{f.label}</span>
                   <span
-                    className={`text-xs text-slate-400 ${
+                    className={`text-xs text-ink-muted ${
                       f.label === 'Sala Jitsi' ? 'font-mono' : ''
                     }`}
                   >

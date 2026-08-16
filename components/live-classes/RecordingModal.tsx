@@ -23,7 +23,7 @@ export function RecordingModal({ lc, onClose }: RecordingModalProps) {
       style={{ backdropFilter: 'blur(8px)' }}
     >
       <div
-        className="bg-slate-900 rounded-2xl w-full max-w-3xl shadow-2xl overflow-hidden"
+        className="bg-surface-sunken rounded-2xl w-full max-w-3xl shadow-2xl overflow-hidden"
         style={{ animation: 'lv-up 0.2s ease' }}
       >
         {/* Header */}
