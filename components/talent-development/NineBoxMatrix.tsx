@@ -8,21 +8,22 @@
 // potencial) — a cor aqui é codificação de categoria de dados, não estado
 // decorativo, e forçar 9 categorias para os 6 tokens semânticos
 // (primary/accent/success/warning/danger/info) colidiria pares diferentes
-// na mesma cor, perdendo informação. Fica fora do escopo deste rollout.
+// na mesma cor, perdendo informação. Cores mantidas como valores hex inline,
+// não como classes Tailwind de paleta crua.
 
 import { Card, CardBody } from '@/components/ui/Card';
 import type { NineBoxCell } from './types';
 
-const BOX_COLORS: Record<string, string> = {
-  '3_3': 'bg-emerald-50 border-emerald-200',
-  '3_2': 'bg-teal-50 border-teal-200',
-  '3_1': 'bg-sky-50 border-sky-200',
-  '2_3': 'bg-violet-50 border-violet-200',
-  '2_2': 'bg-slate-50 border-slate-200',
-  '2_1': 'bg-amber-50 border-amber-200',
-  '1_3': 'bg-blue-50 border-blue-200',
-  '1_2': 'bg-orange-50 border-orange-200',
-  '1_1': 'bg-red-50 border-red-200',
+const BOX_COLORS: Record<string, { bg: string; border: string }> = {
+  '3_3': { bg: '#f0fdfa', border: '#a7f3d0' },
+  '3_2': { bg: '#f0fdf9', border: '#99f6e4' },
+  '3_1': { bg: '#f0f9ff', border: '#bae6fd' },
+  '2_3': { bg: '#faf5ff', border: '#ddd6fe' },
+  '2_2': { bg: '#f8fafc', border: '#e2e8f0' },
+  '2_1': { bg: '#fffbeb', border: '#fed7aa' },
+  '1_3': { bg: '#eff6ff', border: '#bfdbfe' },
+  '1_2': { bg: '#fff7ed', border: '#fed7aa' },
+  '1_1': { bg: '#fef2f2', border: '#fecaca' },
 };
 
 export interface NineBoxMatrixProps {
@@ -55,10 +56,15 @@ export function NineBoxMatrix({ matrix }: NineBoxMatrixProps) {
                   const key = `${y}_${x}`;
                   const cell = matrix.find((m) => m.box === key);
                   const labelShort = cell?.label.split(' — ')[0] ?? '';
+                  const colors = BOX_COLORS[key] ?? { bg: '#f8fafc', border: '#e2e8f0' };
                   return (
                     <div
                       key={key}
-                      className={`min-h-[80px] rounded-control border p-3 ${BOX_COLORS[key] ?? 'bg-slate-50'}`}
+                      className="min-h-[80px] rounded-control border p-3"
+                      style={{
+                        backgroundColor: colors.bg,
+                        borderColor: colors.border,
+                      }}
                     >
                       <p className="font-body text-[10px] font-semibold leading-tight text-ink-muted">
                         {labelShort}
