@@ -8,9 +8,11 @@
 //
 // NOTA: Dashboard opera em tema escuro (#080d19) incompatível com a fundação
 // de design light-theme. Colors refletem status (verde=sucesso, vermelho=erro,
-// laranja=aviso, púrpura=primária). Background/borders/text escuros mantêm-se
-// como inline styles para preservar design — apenas componentes UI (Button, Badge,
-// Card) foram migrados para padronizar estrutura.
+// laranja=aviso, púrpura=primária). Background/borders/text escuros ficam
+// todos como inline styles (constants em ./colors) para preservar o design —
+// incluindo os botões auxiliares (ActionButton/SmallButton/FilterChip), que
+// antes usavam classes Tailwind indigo/gray/slate soltas e foram convertidos
+// para os mesmos tokens DARK_THEME/METRIC_ACCENT_COLORS do resto do ficheiro.
 
 import type {
   AlertSeverity,
@@ -28,9 +30,6 @@ import {
   SLA_STATE_COLORS,
   ROLE_COLORS,
 } from './colors';
-import { Button } from '@/components/ui/Button';
-import { Badge } from '@/components/ui/Badge';
-import { Card, CardBody } from '@/components/ui/Card';
 
 // ─── UTILITY FUNCTIONS ─────────────────────────────────────
 
@@ -1629,8 +1628,10 @@ function ActionButton({ label, onClick }: ActionButtonProps) {
   return (
     <button
       onClick={onClick}
-      className="px-[18px] py-[9px] text-sm font-semibold rounded-control bg-indigo-500 text-white hover:bg-indigo-600 transition-colors"
+      className="px-[18px] py-[9px] text-sm font-semibold rounded-control"
       style={{
+        background: METRIC_ACCENT_COLORS.users,
+        color: DARK_THEME.textWhite,
         letterSpacing: '0.02em',
       }}
     >
@@ -1653,11 +1654,20 @@ function SmallButton({
   return (
     <button
       onClick={onClick}
-      className={`px-3 py-1 rounded-control text-xs font-semibold whitespace-nowrap ${
+      className="px-3 py-1 rounded-control text-xs font-semibold whitespace-nowrap border"
+      style={
         variant === 'ghost'
-          ? 'bg-transparent border border-gray-600 text-gray-500 hover:text-gray-400'
-          : 'bg-indigo-950 border border-indigo-800 text-indigo-300 hover:text-indigo-200'
-      }`}
+          ? {
+              background: 'transparent',
+              borderColor: DARK_THEME.borderPrimary,
+              color: DARK_THEME.textSubtle,
+            }
+          : {
+              background: DARK_THEME.bgAccentDark,
+              borderColor: DARK_THEME.borderAccent,
+              color: DARK_THEME.textHighlight,
+            }
+      }
     >
       {label}
     </button>
@@ -1672,11 +1682,20 @@ interface FilterChipProps {
 function FilterChip({ label, active }: FilterChipProps) {
   return (
     <button
-      className={`px-[14px] py-1 rounded-pill text-xs font-semibold transition-colors ${
+      className="px-[14px] py-1 rounded-pill text-xs font-semibold border"
+      style={
         active
-          ? 'bg-indigo-950 border border-indigo-600 text-indigo-300'
-          : 'bg-transparent border border-slate-800 text-slate-600'
-      }`}
+          ? {
+              background: DARK_THEME.bgAccentDark,
+              borderColor: DARK_THEME.borderAccent,
+              color: DARK_THEME.textHighlight,
+            }
+          : {
+              background: 'transparent',
+              borderColor: DARK_THEME.borderPrimary,
+              color: DARK_THEME.textFaint,
+            }
+      }
     >
       {label}
     </button>
