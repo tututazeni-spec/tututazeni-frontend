@@ -56,7 +56,8 @@ export default function DashboardRhPage() {
               <Badge intent="info">People Analytics</Badge>
             </div>
             <p className="font-body text-sm text-ink-faint">
-              Centro de comando · Headcount · Performance · Talento · Formação
+              Centro de comando · Número de Colaboradores · Performance ·
+              Talento · Formação
             </p>
           </div>
           <IconButton
