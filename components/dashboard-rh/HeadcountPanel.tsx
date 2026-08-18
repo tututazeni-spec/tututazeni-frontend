@@ -71,7 +71,7 @@ export function HeadcountPanel() {
         />
         <KpiCard
           icon={Clock}
-          label="Tenure Médio"
+          label="Tempo Médio de Serviço"
           value={`${data?.avgTenureMonths ?? 0}m`}
           sub={`≈ ${((data?.avgTenureMonths ?? 0) / 12).toFixed(1)} anos`}
           intent="primary"

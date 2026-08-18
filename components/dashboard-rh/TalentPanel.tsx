@@ -51,7 +51,7 @@ export function TalentPanel() {
         />
         <KpiCard
           icon={Star}
-          label="High Potentials"
+          label="Profissionais de Alto Potencial"
           value={data?.hiPoCount ?? 0}
           intent="warning"
           className="w-full"

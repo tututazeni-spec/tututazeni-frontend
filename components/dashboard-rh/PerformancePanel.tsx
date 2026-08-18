@@ -43,7 +43,7 @@ export function PerformancePanel() {
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         <KpiCard
           icon={Star}
-          label="Score Médio"
+          label="Pontuação Média"
           value={data?.avgScore?.toFixed(1) ?? '–'}
           sub={data?.status}
           intent="warning"
@@ -58,7 +58,7 @@ export function PerformancePanel() {
         />
         <KpiCard
           icon={Zap}
-          label="High Potentials"
+          label="Profissionais de Alto Potencial"
           value={data?.hiPos ?? 0}
           sub={`${data?.hiPoRatio ?? 0}% da equipa`}
           intent="success"
@@ -80,11 +80,11 @@ export function PerformancePanel() {
             Distribuição de Performance
           </h4>
           {[
-            { key: 'exceptional', label: '⭐ Excepcional' },
-            { key: 'above', label: '✅ Acima' },
-            { key: 'expected', label: '👍 Esperado' },
-            { key: 'below', label: '⚠️ Abaixo' },
-            { key: 'critical', label: '🔴 Crítico' },
+            { key: 'exceptional', label: ' Excepcional' },
+            { key: 'above', label: ' Acima' },
+            { key: 'expected', label: ' Esperado' },
+            { key: 'below', label: ' Abaixo' },
+            { key: 'critical', label: ' Crítico' },
           ].map((b) => {
             const val = dist[b.key] ?? 0;
             const pct = total > 0 ? Math.round((val / total) * 100) : 0;
@@ -105,7 +105,7 @@ export function PerformancePanel() {
         {/* By dept */}
         <div className="rounded-card border border-border bg-surface p-5">
           <h4 className="mb-4 font-body font-semibold text-ink-muted">
-            Score por Departamento
+            Pontuação por Departamento
           </h4>
           {(data?.byDepartment ?? []).slice(0, 6).map((d, i) => (
             <div key={i} className="mb-2">

@@ -37,7 +37,7 @@ export function CorrelationsPanel() {
       <div className="mb-2 flex items-center gap-2">
         <Brain size={18} strokeWidth={1.75} className="text-accent" />
         <h3 className="font-body font-semibold text-ink-muted">
-          People Analytics — Correlações
+          Análise de Recursos Humanos — Correlações
         </h3>
         <span className="font-body text-xs text-ink-faint">
           Base: {data?.sampleSize ?? 0} colaboradores
@@ -47,10 +47,10 @@ export function CorrelationsPanel() {
       {data?.trainingVsPerformance && (
         <div className="rounded-card border border-border bg-surface p-5">
           <h4 className="mb-1 font-body font-semibold text-ink-muted">
-            📚 Formação × Performance
+             Formação × Performance
           </h4>
           <p className="mb-4 rounded-control bg-accent-subtle px-3 py-2 font-body text-xs text-accent">
-            💡 {data.trainingVsPerformance.insight}
+             {data.trainingVsPerformance.insight}
           </p>
           <div className="grid grid-cols-2 gap-4">
             {[
@@ -95,19 +95,19 @@ export function CorrelationsPanel() {
       {data?.engagementVsPerformance && (
         <div className="rounded-card border border-border bg-surface p-5">
           <h4 className="mb-1 font-body font-semibold text-ink-muted">
-            💬 Engagement × Performance
+             Compromisso dos Colaboradores × Performance
           </h4>
           <p className="mb-4 rounded-control bg-accent-subtle px-3 py-2 font-body text-xs text-accent">
-            💡 {data.engagementVsPerformance.insight}
+             {data.engagementVsPerformance.insight}
           </p>
           <div className="grid grid-cols-2 gap-4">
             {[
               {
-                label: 'Alto engagement',
+                label: 'Alto Compromisso',
                 value: data.engagementVsPerformance.highEngAvgPerf,
               },
               {
-                label: 'Baixo engagement',
+                label: 'Baixo Compromisso',
                 value: data.engagementVsPerformance.lowEngAvgPerf,
               },
             ].map((item) => (

@@ -48,7 +48,7 @@ export function TrainingPanel() {
         />
         <KpiCard
           icon={Shield}
-          label="Formações Obrig."
+          label="Formações Obrigatórias"
           value={`${data?.mandatoryRate ?? 0}%`}
           sub={data?.mandatoryStatus}
           intent="danger"
