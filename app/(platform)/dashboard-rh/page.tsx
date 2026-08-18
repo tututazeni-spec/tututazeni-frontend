@@ -11,7 +11,6 @@
 
 import {
   BarChart2,
-  Brain,
   BookOpen,
   RefreshCw,
   Star,
@@ -29,13 +28,13 @@ import { TalentPanel } from '@/components/dashboard-rh/TalentPanel';
 import { TrainingPanel } from '@/components/dashboard-rh/TrainingPanel';
 import type { Panel } from '@/components/dashboard-rh/types';
 
-const PANELS: { id: Panel; label: string; icon: LucideIcon }[] = [
+const PANELS: { id: Panel; label: string; icon: LucideIcon | null }[] = [
   { id: 'overview', label: 'Visão Geral', icon: BarChart2 },
   { id: 'headcount', label: 'Número de Colaboradores', icon: Users },
   { id: 'performance', label: 'Performance', icon: Star },
   { id: 'training', label: 'Formação', icon: BookOpen },
   { id: 'talent', label: 'Talento', icon: Target },
-  { id: 'correlations', label: 'Análise de Pessoas', icon: Brain },
+  { id: 'correlations', label: 'Análise de Pessoas', icon: null },
 ];
 
 export default function DashboardRhPage() {
@@ -79,7 +78,7 @@ export default function DashboardRhPage() {
                       : 'gap-2 whitespace-nowrap'
                   }
                 >
-                  <Icon size={14} strokeWidth={1.75} />
+                  {Icon && <Icon size={14} strokeWidth={1.75} />}
                   {p.label}
                 </TabsTrigger>
               );
