@@ -7,7 +7,7 @@ import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { ListSkeleton, ErrorBanner } from '@/components/crm/shared';
-import { STATUS_COLORS, TIER_COLORS } from './types';
+import { STATUS_COLORS, TIER_COLORS, TYPE_LABELS } from './types';
 import type { Partner } from './types';
 
 interface PartnersListViewProps {
@@ -51,8 +51,12 @@ export function PartnersListView({
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="font-display text-2xl font-bold text-ink">Parceiros</h1>
-          <p className="font-body text-ink-muted">{total} parceiros registados</p>
+          <h1 className="font-display text-2xl font-bold text-ink">
+            Parceiros
+          </h1>
+          <p className="font-body text-ink-muted">
+            {total} parceiros registados
+          </p>
         </div>
         <Link href="/crm/partners/novo">
           <Button>+ Novo Parceiro</Button>
@@ -99,36 +103,61 @@ export function PartnersListView({
           <table className="w-full font-body text-sm">
             <thead className="bg-surface-sunken text-ink-muted uppercase">
               <tr>
-                <th className="px-4 py-3 text-left font-medium text-xs">Código</th>
-                <th className="px-4 py-3 text-left font-medium text-xs">Nome</th>
-                <th className="px-4 py-3 text-left font-medium text-xs">Tipo</th>
-                <th className="px-4 py-3 text-left font-medium text-xs">Nível</th>
-                <th className="px-4 py-3 text-left font-medium text-xs">Estado</th>
-                <th className="px-4 py-3 text-left font-medium text-xs">Valor Anual</th>
-                <th className="px-4 py-3 text-left font-medium text-xs">Responsável</th>
-                <th className="px-4 py-3 text-left font-medium text-xs">Acções</th>
+                <th className="px-4 py-3 text-left font-medium text-xs">
+                  Código
+                </th>
+                <th className="px-4 py-3 text-left font-medium text-xs">
+                  Nome
+                </th>
+                <th className="px-4 py-3 text-left font-medium text-xs">
+                  Tipo
+                </th>
+                <th className="px-4 py-3 text-left font-medium text-xs">
+                  Nível
+                </th>
+                <th className="px-4 py-3 text-left font-medium text-xs">
+                  Estado
+                </th>
+                <th className="px-4 py-3 text-left font-medium text-xs">
+                  Valor Anual
+                </th>
+                <th className="px-4 py-3 text-left font-medium text-xs">
+                  Responsável
+                </th>
+                <th className="px-4 py-3 text-left font-medium text-xs">
+                  Acções
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
               {data.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="px-4 py-8 text-center text-ink-faint">
+                  <td
+                    colSpan={8}
+                    className="px-4 py-8 text-center text-ink-faint"
+                  >
                     Nenhum parceiro encontrado
                   </td>
                 </tr>
               ) : (
                 data.map((p) => (
-                  <tr key={p.id} className="hover:bg-surface-sunken transition-colors">
+                  <tr
+                    key={p.id}
+                    className="hover:bg-surface-sunken transition-colors"
+                  >
                     <td className="px-4 py-3 font-mono text-primary">
                       {p.code}
                     </td>
                     <td className="px-4 py-3 font-medium text-ink">{p.name}</td>
-                    <td className="px-4 py-3 text-ink-muted">{p.type}</td>
+                    <td className="px-4 py-3 text-ink-muted">
+                      {TYPE_LABELS[p.type] || p.type}
+                    </td>
                     <td className="px-4 py-3">
                       <span
                         className={cn(
                           'inline-flex items-center rounded-pill px-2 py-1 font-body text-xs font-semibold',
-                          TIER_COLORS[p.tier] ?? 'bg-surface-sunken text-ink-muted',
+                          TIER_COLORS[p.tier] ??
+                            'bg-surface-sunken text-ink-muted',
                         )}
                       >
                         {p.tier}
@@ -138,7 +167,8 @@ export function PartnersListView({
                       <span
                         className={cn(
                           'inline-flex items-center rounded-pill px-2 py-1 font-body text-xs font-semibold',
-                          STATUS_COLORS[p.status] ?? 'bg-surface-sunken text-ink-muted',
+                          STATUS_COLORS[p.status] ??
+                            'bg-surface-sunken text-ink-muted',
                         )}
                       >
                         {p.status}

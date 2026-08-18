@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
 import { Info, formatDate } from '@/components/crm/shared';
-import { STATUS_COLORS, MILESTONE_COLORS } from './types';
+import { STATUS_COLORS, MILESTONE_COLORS, TYPE_LABELS } from './types';
 import type { PartnerDetail, InteractionForm } from './types';
 
 interface PartnerDetailViewProps {
@@ -62,7 +62,7 @@ export function PartnerDetailView({
       {/* Dados gerais */}
       <Card>
         <CardBody className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Info label="Tipo" value={p.type} />
+          <Info label="Tipo" value={TYPE_LABELS[p.type] || p.type} />
           <Info label="Nível" value={p.tier} />
           <Info label="Nome legal" value={p.legalName} />
           <Info label="Contacto" value={p.contactName} />
@@ -95,7 +95,9 @@ export function PartnerDetailView({
 
       {/* Contrato */}
       <section>
-        <h2 className="font-display text-lg font-semibold text-ink mb-3">Contrato</h2>
+        <h2 className="font-display text-lg font-semibold text-ink mb-3">
+          Contrato
+        </h2>
         <Card>
           <CardBody className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Info
@@ -121,7 +123,9 @@ export function PartnerDetailView({
                   Ver documento do contrato
                 </a>
               ) : (
-                <span className="font-body text-sm text-ink-faint">Sem documento</span>
+                <span className="font-body text-sm text-ink-faint">
+                  Sem documento
+                </span>
               )}
             </div>
           </CardBody>
@@ -136,14 +140,21 @@ export function PartnerDetailView({
         <Card>
           <div className="divide-y divide-border">
             {p.milestones.length === 0 ? (
-              <p className="p-4 font-body text-ink-faint">Sem milestones registados</p>
+              <p className="p-4 font-body text-ink-faint">
+                Sem milestones registados
+              </p>
             ) : (
               p.milestones.map((m) => (
-                <div key={m.id} className="p-4 flex justify-between items-center">
+                <div
+                  key={m.id}
+                  className="p-4 flex justify-between items-center"
+                >
                   <div>
                     <p className="font-body font-medium text-ink">{m.title}</p>
                     {m.description && (
-                      <p className="font-body text-sm text-ink-muted">{m.description}</p>
+                      <p className="font-body text-sm text-ink-muted">
+                        {m.description}
+                      </p>
                     )}
                     <p className="font-body text-xs text-ink-faint mt-1">
                       Prazo: {formatDate(m.dueDate)}
@@ -156,7 +167,8 @@ export function PartnerDetailView({
                     <span
                       className={cn(
                         'inline-flex items-center rounded-pill px-2 py-1 font-body text-xs font-semibold',
-                        MILESTONE_COLORS[m.status] ?? 'bg-surface-sunken text-ink-muted',
+                        MILESTONE_COLORS[m.status] ??
+                          'bg-surface-sunken text-ink-muted',
                       )}
                     >
                       {m.status}
@@ -192,10 +204,7 @@ export function PartnerDetailView({
         </div>
 
         {showForm && (
-          <form
-            onSubmit={submitInteraction}
-            className="mb-4"
-          >
+          <form onSubmit={submitInteraction} className="mb-4">
             <Card>
               <CardBody className="space-y-3">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -227,7 +236,9 @@ export function PartnerDetailView({
                   required
                   placeholder="Assunto"
                   value={form.subject}
-                  onChange={(e) => setForm({ ...form, subject: e.target.value })}
+                  onChange={(e) =>
+                    setForm({ ...form, subject: e.target.value })
+                  }
                 />
                 <Textarea
                   required
@@ -241,12 +252,11 @@ export function PartnerDetailView({
                 <Input
                   placeholder="Resultado (opcional)"
                   value={form.outcome}
-                  onChange={(e) => setForm({ ...form, outcome: e.target.value })}
+                  onChange={(e) =>
+                    setForm({ ...form, outcome: e.target.value })
+                  }
                 />
-                <Button
-                  type="submit"
-                  disabled={saving}
-                >
+                <Button type="submit" disabled={saving}>
                   {saving ? 'A guardar...' : 'Guardar Interacção'}
                 </Button>
               </CardBody>
@@ -257,7 +267,9 @@ export function PartnerDetailView({
         <Card>
           <div className="divide-y divide-border">
             {p.interactions.length === 0 ? (
-              <p className="p-4 font-body text-ink-faint">Sem interacções registadas</p>
+              <p className="p-4 font-body text-ink-faint">
+                Sem interacções registadas
+              </p>
             ) : (
               p.interactions.map((it) => (
                 <div key={it.id} className="p-4">
@@ -272,7 +284,9 @@ export function PartnerDetailView({
                       {formatDate(it.date)}
                     </span>
                   </div>
-                  <p className="font-body text-sm text-ink-muted mt-1">{it.description}</p>
+                  <p className="font-body text-sm text-ink-muted mt-1">
+                    {it.description}
+                  </p>
                   <div className="flex gap-4 mt-1 font-body text-xs text-ink-faint">
                     {it.user?.fullName && <span>Por: {it.user.fullName}</span>}
                     {it.outcome && <span>Resultado: {it.outcome}</span>}
