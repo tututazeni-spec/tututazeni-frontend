@@ -121,7 +121,7 @@ export function ReportOutput({ data }: ReportOutputProps) {
                 : data.topCourses
                   ? 'Top Cursos'
                   : data.skills
-                    ? 'Gaps Críticos'
+                    ? 'Lacunas Críticas'
                     : 'Top Conteúdos'}
             </h4>
             <div className="space-y-2">
