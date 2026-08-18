@@ -295,7 +295,7 @@ export function LoginView({
 
           <div className="login-divider" />
 
-          <p className="login-subtitle">Academia Digital — Aceda à sua conta</p>
+          <p className="login-subtitle">Academia Digital e Gestão de Recursos Humanos Aceda à sua conta</p>
 
           <form onSubmit={handleSubmit}>
             <div className="login-field">
@@ -397,7 +397,7 @@ export function LoginView({
           </form>
 
           <div className="login-footer">
-            © {new Date().getFullYear()} Innova — Todos os direitos reservados
+            © {new Date().getFullYear()} Innova — Propriedade da EVOS, LDA. Todos os direitos reservados.
           </div>
         </div>
       </div>
