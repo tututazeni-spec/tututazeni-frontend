@@ -32,13 +32,13 @@ export default function AnalyticsPage() {
             {TITLES[view]}
           </h1>
           <p className="font-body text-sm text-ink-faint mt-0.5">
-            INNOVA — Inteligência de dados de RH e Aprendizagem
+            Inteligência de dados de RH e Aprendizagem
           </p>
         </div>
       </div>
 
       <Tabs value={view} onValueChange={(v) => setView(v as View)}>
-        <TabsList className="mb-6 w-fit">
+        <TabsList className="mb-6 w-fit gap-12">
           {NAV.map((n) => (
             <TabsTrigger key={n.id} value={n.id}>
               {n.label}

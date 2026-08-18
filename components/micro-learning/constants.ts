@@ -35,12 +35,12 @@ export const LEVEL_CFG: StatusBadgeMap<ContentLevel> = {
 export const NAV: Array<{ id: TabKey; label: string }> = [
   { id: 'feed', label: '⚡ Feed' },
   { id: 'saved', label: '🔖 Guardados' },
-  { id: 'dashboard', label: '📊 O meu progresso' },
+  { id: 'dashboard', label: '📊 O Meu Progresso' },
 ];
 
 export const TITLES: Record<Nav['view'], string> = {
   feed: 'Micro-Learning',
   player: 'A aprender',
   saved: 'Guardados',
-  dashboard: 'O meu progresso',
+  dashboard: 'O Meu Progresso',
 };
