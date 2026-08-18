@@ -108,11 +108,7 @@ export default function DashboardPage() {
               Pesquisar
             </Button>
             <div className="relative">
-              <IconButton
-                icon={Bell}
-                label="Notificações"
-                intent="secondary"
-              />
+              <IconButton icon={Bell} label="Notificações" intent="secondary" />
               {alertCount > 0 && (
                 <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-danger font-body text-[9px] font-bold text-canvas">
                   {alertCount}
@@ -137,14 +133,18 @@ export default function DashboardPage() {
 
       <Tabs value={tab} onValueChange={setTab}>
         <div className="border-b border-border bg-surface px-6">
-          <TabsList className="mx-auto max-w-7xl overflow-x-auto">
-            {availableTabs.map((t) => {
+          <TabsList className="mx-auto max-w-7xl overflow-x-auto gap-0">
+            {availableTabs.map((t, i) => {
               const Icon = t.icon;
               return (
                 <TabsTrigger
                   key={t.id}
                   value={t.id}
-                  className="gap-2 whitespace-nowrap"
+                  className={
+                    i < availableTabs.length - 1
+                      ? 'gap-2 whitespace-nowrap mr-[1cm]!'
+                      : 'gap-2 whitespace-nowrap'
+                  }
                 >
                   <Icon size={14} strokeWidth={1.75} />
                   {t.label}
@@ -155,7 +155,7 @@ export default function DashboardPage() {
         </div>
 
         <div className="mx-auto max-w-7xl px-6 py-6">
-          <TabsContent value="personal">
+          <TabsContent value="personal" className="pt-[0,10cm]!">
             <ColaboradorDashboard />
           </TabsContent>
           <TabsContent value="manager">
