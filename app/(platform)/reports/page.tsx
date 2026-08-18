@@ -43,8 +43,8 @@ export default function ReportsPage() {
                 Relatórios
               </h1>
             </div>
-            <p className="font-body text-sm text-ink-faint">
-              Análises · Modelos · Análises de IA · Exportação
+            <p className="mt-[2cm] font-body text-sm text-ink-faint">
+              Análises · Modelos · Exportação
             </p>
           </div>
           <Button size="sm">
@@ -55,7 +55,7 @@ export default function ReportsPage() {
       </div>
 
       <div className="mt-[1cm] border-b border-border bg-surface px-6">
-        <div className="mx-auto flex max-w-7xl overflow-x-auto">
+        <div className="mx-auto flex max-w-7xl gap-[2cm] overflow-x-auto">
           {TABS.map((t) => {
             const Icon = t.icon;
             const active = tab === t.id && !activeTemplate;

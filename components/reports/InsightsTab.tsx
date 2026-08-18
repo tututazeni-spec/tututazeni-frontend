@@ -69,9 +69,9 @@ export function InsightsTab() {
       <div className="flex items-center justify-between">
         <h3 className="flex items-center gap-2 font-display font-semibold text-ink">
           <Brain size={16} strokeWidth={1.75} className="text-accent" />
-          Insights Inteligentes
+          Análises Inteligentes
         </h3>
-        <Badge intent="info">{data?.count ?? 0} insights identificados</Badge>
+        <Badge intent="info">{data?.count ?? 0} Principais Conclusões</Badge>
       </div>
 
       {(data?.insights ?? []).length === 0 && (

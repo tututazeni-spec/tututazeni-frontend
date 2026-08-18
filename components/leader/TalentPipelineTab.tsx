@@ -36,7 +36,7 @@ export function TalentPipelineTab() {
   }> = [
     {
       key: 'hipos',
-      label: '🌟 High Potentials',
+      label: 'Colaboradores de Alto Potencial',
       className: 'border-warning bg-warning-subtle',
     },
     {
