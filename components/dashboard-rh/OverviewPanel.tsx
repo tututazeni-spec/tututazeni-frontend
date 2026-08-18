@@ -121,7 +121,7 @@ export function OverviewPanel() {
 
       {/* Dept distribution */}
       {(data?.distribution?.byDepartment?.length ?? 0) > 0 && (
-        <div className="rounded-card border border-border bg-surface p-5">
+        <div className="mt-[1cm]! rounded-card border border-border bg-surface p-5">
           <h3 className="mb-4 font-body font-semibold text-ink-muted">
             Distribuição por Departamento
           </h3>
@@ -140,9 +140,7 @@ export function OverviewPanel() {
                       <span className="truncate text-ink-muted">
                         {d.name ?? `Dept ${d.id}`}
                       </span>
-                      <span className="font-semibold text-ink">
-                        {d.count}
-                      </span>
+                      <span className="font-semibold text-ink">{d.count}</span>
                     </div>
                     <ProgressBar value={(d.count / maxCount) * 100} />
                   </div>
