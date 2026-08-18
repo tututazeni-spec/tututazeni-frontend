@@ -41,7 +41,7 @@ export const CAT_CONFIG: Record<
   LEARNING: { label: 'Aprendizagem', icon: BookOpen, ...TOKEN.info },
   PERFORMANCE: { label: 'Performance', icon: Star, ...TOKEN.warning },
   TALENT: { label: 'Talento', icon: TrendingUp, ...TOKEN.success },
-  ENGAGEMENT: { label: 'Engagement', icon: Activity, ...TOKEN.accent },
+  ENGAGEMENT: { label: 'Envolvimento', icon: Activity, ...TOKEN.accent },
   COMPLIANCE: { label: 'Compliance', icon: Shield, ...TOKEN.danger },
   OPERATIONAL: { label: 'Operacional', icon: BarChart2, ...TOKEN.neutral },
   FINANCIAL: { label: 'Financeiro', icon: BarChart2, ...TOKEN.neutral },
@@ -60,6 +60,6 @@ export const REPORT_PATHS: Record<string, string> = {
 };
 
 export const TABS: { id: Tab; label: string; icon: LucideIcon }[] = [
-  { id: 'hub', label: 'Report Hub', icon: BarChart2 },
-  { id: 'insights', label: 'Insights IA', icon: Brain },
+  { id: 'hub', label: 'Central de Relatórios', icon: BarChart2 },
+  { id: 'insights', label: 'Análises de IA', icon: Brain },
 ];

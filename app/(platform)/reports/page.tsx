@@ -40,11 +40,11 @@ export default function ReportsPage() {
                 />
               </div>
               <h1 className="font-display text-xl font-bold text-ink">
-                Reports
+                Relatórios
               </h1>
             </div>
             <p className="font-body text-sm text-ink-faint">
-              Análises · Templates · Insights IA · Exportação
+              Análises · Modelos · Análises de IA · Exportação
             </p>
           </div>
           <Button size="sm">

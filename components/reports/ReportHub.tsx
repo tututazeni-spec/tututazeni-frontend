@@ -6,7 +6,6 @@
 'use client';
 
 import { useState } from 'react';
-import { Search } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -51,16 +50,11 @@ export function ReportHub({ onRun }: ReportHubProps) {
       <Card>
         <CardBody className="flex flex-wrap items-center gap-3">
           <div className="relative min-w-[200px] flex-1">
-            <Search
-              size={14}
-              strokeWidth={1.75}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-faint"
-            />
             <Input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Pesquisar templates..."
-              className="w-full pl-9"
+              placeholder="Pesquisar modelos..."
+              className="w-full"
             />
           </div>
           <Select
@@ -70,7 +64,7 @@ export function ReportHub({ onRun }: ReportHubProps) {
             className="w-56"
           />
           <span className="self-center font-body text-xs text-ink-faint">
-            {filtered.length} templates
+            {filtered.length} modelos
           </span>
         </CardBody>
       </Card>
