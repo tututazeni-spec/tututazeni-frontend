@@ -141,11 +141,19 @@ export function InstitutionalDashboardView({
           <KpiCard
             icon={Wallet}
             label="Financiamento"
-            value={`AOA ${(summary.crm.totalFunding / 1_000_000).toFixed(1)}M`}
+            value={`AOA ${(summary.crm.totalFunding / 1_000_000).toFixed(1)}`}
             intent="accent"
           />
-          <KpiCard icon={BookOpen} label="Cursos" value={summary.learning.courses} />
-          <KpiCard icon={Handshake} label="Parceiros" value={summary.crm.partners} />
+          <KpiCard
+            icon={BookOpen}
+            label="Cursos"
+            value={summary.learning.courses}
+          />
+          <KpiCard
+            icon={Handshake}
+            label="Parceiros"
+            value={summary.crm.partners}
+          />
           <KpiCard
             icon={Award}
             label="Certificados"
@@ -169,7 +177,9 @@ export function InstitutionalDashboardView({
           {trend.length > 0 ? (
             <MiniBarChart data={trend} />
           ) : (
-            <p className="font-body text-sm text-ink-faint">Sem dados de tendência</p>
+            <p className="font-body text-sm text-ink-faint">
+              Sem dados de tendência
+            </p>
           )}
         </CardBody>
       </Card>

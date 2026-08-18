@@ -60,7 +60,7 @@ export function ColaboradorDashboard() {
       <AlertBanner alerts={alerts} />
 
       {/* Hero: user + points */}
-      <div className="rounded-2xl bg-gradient-to-br from-primary to-primary-active p-5 text-canvas">
+      <div className="rounded-2xl bg-gradient-to-br from-primary to-primary-active p-5 text-canvas mb-[2cm]!">
         <div className="flex items-center gap-4">
           {data?.user && (
             <Avatar
@@ -165,11 +165,7 @@ export function ColaboradorDashboard() {
             <Clock size={14} strokeWidth={1.75} className="text-warning-ink" />
             Pendentes
           </h3>
-          {(data?.pendingItems ?? []).length === 0 ? (
-            <p className="py-4 text-center font-body text-sm text-ink-faint">
-              Tudo em dia! 🎉
-            </p>
-          ) : (
+          {(data?.pendingItems ?? []).length === 0 ? null : (
             <div className="space-y-2">
               {(data?.pendingItems ?? []).map((item, i) => (
                 <div

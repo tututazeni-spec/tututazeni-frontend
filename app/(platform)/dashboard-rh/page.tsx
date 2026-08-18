@@ -41,7 +41,7 @@ const PANELS: { id: Panel; label: string; icon: LucideIcon }[] = [
 
 export default function DashboardRhPage() {
   return (
-    <div className="min-h-screen bg-canvas">
+    <div className="min-h-screen bg-surface">
       {/* Header */}
       <div className="border-b border-border bg-surface px-6 py-5">
         <div className="mx-auto flex max-w-7xl items-start justify-between">
