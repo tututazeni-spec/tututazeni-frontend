@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
 import { Field } from '@/components/crm/shared';
+import { COUNTRIES } from '@/lib/countries';
 import { TYPE_LABELS } from './types';
 
 interface FunderForm {
@@ -147,9 +148,11 @@ export function FunderCreateView({
             </Field>
 
             <Field label="País">
-              <Input
+              <Select
                 value={form.country}
-                onChange={(e) => setField('country', e.target.value)}
+                onValueChange={(value) => setField('country', value)}
+                placeholder="Selecionar país…"
+                items={[{ value: '', label: '—' }, ...COUNTRIES]}
               />
             </Field>
 
