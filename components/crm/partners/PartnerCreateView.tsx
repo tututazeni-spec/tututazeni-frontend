@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
 import { Field } from '@/components/crm/shared';
-import { TYPES } from './types';
+import { TYPE_LABELS, PROVINCES } from './types';
 
 interface PartnerForm {
   type: string;
@@ -81,9 +81,9 @@ export function PartnerCreateView({
               <Select
                 value={form.type}
                 onValueChange={(value) => setField('type', value)}
-                items={TYPES.map((t) => ({
-                  value: t,
-                  label: t,
+                items={Object.entries(TYPE_LABELS).map(([v, l]) => ({
+                  value: v,
+                  label: l,
                 }))}
               />
             </Field>
@@ -181,9 +181,16 @@ export function PartnerCreateView({
             </Field>
 
             <Field label="Província">
-              <Input
+              <Select
                 value={form.province}
-                onChange={(e) => setField('province', e.target.value)}
+                onValueChange={(value) => setField('province', value)}
+                items={[
+                  { value: '', label: '—' },
+                  ...PROVINCES.map((p) => ({
+                    value: p,
+                    label: p.replace(/_/g, ' '),
+                  })),
+                ]}
               />
             </Field>
 

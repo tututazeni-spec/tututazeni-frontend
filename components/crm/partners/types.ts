@@ -91,17 +91,38 @@ export const MILESTONE_COLORS: Record<string, string> = {
   OVERDUE: 'bg-warning-subtle text-warning-ink',
 };
 
-export const TYPES = [
-  'TECHNOLOGY',
-  'CONTENT',
-  'TRAINING',
-  'FUNDING',
-  'INSTITUTIONAL',
-  'COMMERCIAL',
-  'MEDIA',
-  'GOVERNMENT',
-  'OTHER',
+export const PROVINCES = [
+  'BENGO',
+  'BENGUELA',
+  'BIE',
+  'CABINDA',
+  'CUANDO_CUBANGO',
+  'CUANZA_NORTE',
+  'CUANZA_SUL',
+  'CUNENE',
+  'HUAMBO',
+  'HUILA',
+  'LUANDA',
+  'LUNDA_NORTE',
+  'LUNDA_SUL',
+  'MALANJE',
+  'MOXICO',
+  'NAMIBE',
+  'UIGE',
+  'ZAIRE',
 ];
+
+export const TYPE_LABELS: Record<string, string> = {
+  TECHNOLOGY: 'Tecnologia',
+  CONTENT: 'Conteúdo',
+  TRAINING: 'Formação',
+  FUNDING: 'Financiamento',
+  INSTITUTIONAL: 'Institucional',
+  COMMERCIAL: 'Comercial',
+  MEDIA: 'Comunicação Social',
+  GOVERNMENT: 'Governo',
+  OTHER: 'Outro',
+};
 
 export interface InteractionForm {
   type: string;
