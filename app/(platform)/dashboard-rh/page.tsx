@@ -71,14 +71,18 @@ export default function DashboardRhPage() {
       <Tabs defaultValue="overview">
         {/* Tabs */}
         <div className="border-b border-border bg-surface px-6">
-          <TabsList className="mx-auto max-w-7xl overflow-x-auto">
-            {PANELS.map((p) => {
+          <TabsList className="mx-auto max-w-7xl overflow-x-auto gap-0">
+            {PANELS.map((p, i) => {
               const Icon = p.icon;
               return (
                 <TabsTrigger
                   key={p.id}
                   value={p.id}
-                  className="gap-2 whitespace-nowrap"
+                  className={
+                    i < PANELS.length - 1
+                      ? 'gap-2 whitespace-nowrap mr-[1cm]!'
+                      : 'gap-2 whitespace-nowrap'
+                  }
                 >
                   <Icon size={14} strokeWidth={1.75} />
                   {p.label}
