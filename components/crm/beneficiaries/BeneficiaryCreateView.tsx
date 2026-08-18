@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
 import { Field } from '@/components/crm/shared';
+import { COUNTRIES } from '@/lib/countries';
 import { PROVINCES } from './types';
 
 interface BeneficiaryForm {
@@ -124,9 +125,11 @@ export function BeneficiaryCreateView({
             </Field>
 
             <Field label="Nacionalidade">
-              <Input
+              <Select
                 value={form.nationality}
-                onChange={(e) => setField('nationality', e.target.value)}
+                onValueChange={(value) => setField('nationality', value)}
+                placeholder="Selecionar país…"
+                items={[{ value: '', label: '—' }, ...COUNTRIES]}
               />
             </Field>
 
