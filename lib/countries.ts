@@ -1,14 +1,10 @@
 // lib/countries.ts
-// Lista de países (nomes em português) para campos de nacionalidade/país.
-// Angola surge destacada no topo por ser o país de operação da organização;
-// as restantes seguem em ordem alfabética.
+// Lista completa de países (nomes em português) para uso em campos de
+// nacionalidade/país. Ordenada alfabeticamente, com Angola destacada em
+// primeiro lugar por ser o país de operação principal da plataforma.
 
-export interface CountryOption {
-  value: string;
-  label: string;
-}
-
-const REST_OF_WORLD: string[] = [
+export const COUNTRIES: string[] = [
+  'Angola',
   'Afeganistão',
   'África do Sul',
   'Albânia',
@@ -23,9 +19,9 @@ const REST_OF_WORLD: string[] = [
   'Áustria',
   'Azerbaijão',
   'Bahamas',
+  'Bahrein',
   'Bangladeche',
   'Barbados',
-  'Barém',
   'Bélgica',
   'Belize',
   'Benim',
@@ -51,7 +47,8 @@ const REST_OF_WORLD: string[] = [
   'Chipre',
   'Colômbia',
   'Comores',
-  'Congo-Brazzaville',
+  'Congo (Brazzaville)',
+  'Congo (Kinshasa) — RDC',
   'Coreia do Norte',
   'Coreia do Sul',
   'Costa do Marfim',
@@ -70,7 +67,7 @@ const REST_OF_WORLD: string[] = [
   'Espanha',
   'Estados Unidos da América',
   'Estónia',
-  'Essuatíni',
+  'Eswatini',
   'Etiópia',
   'Fiji',
   'Filipinas',
@@ -91,6 +88,8 @@ const REST_OF_WORLD: string[] = [
   'Honduras',
   'Hungria',
   'Iémen',
+  'Ilhas Marshall',
+  'Ilhas Salomão',
   'Índia',
   'Indonésia',
   'Irão',
@@ -101,7 +100,6 @@ const REST_OF_WORLD: string[] = [
   'Itália',
   'Jamaica',
   'Japão',
-  'Jibuti',
   'Jordânia',
   'Kiribati',
   'Kosovo',
@@ -118,7 +116,7 @@ const REST_OF_WORLD: string[] = [
   'Macedónia do Norte',
   'Madagáscar',
   'Malásia',
-  'Malawi',
+  'Malávi',
   'Maldivas',
   'Mali',
   'Malta',
@@ -152,30 +150,27 @@ const REST_OF_WORLD: string[] = [
   'Polónia',
   'Portugal',
   'Quénia',
-  'Quirguistão',
+  'Quirguizistão',
   'Reino Unido',
   'República Centro-Africana',
   'República Checa',
-  'República Democrática do Congo',
   'República Dominicana',
-  'Ruanda',
   'Roménia',
+  'Ruanda',
   'Rússia',
-  'Salomão',
   'Samoa',
+  'San Marino',
   'Santa Lúcia',
   'São Cristóvão e Neves',
-  'San Marino',
   'São Tomé e Príncipe',
   'São Vicente e Granadinas',
-  'Senegal',
-  'Serra Leoa',
   'Sérvia',
+  'Serra Leoa',
   'Seicheles',
   'Singapura',
   'Síria',
   'Somália',
-  'Sri Lanca',
+  'Sri Lanka',
   'Sudão',
   'Sudão do Sul',
   'Suécia',
@@ -190,7 +185,7 @@ const REST_OF_WORLD: string[] = [
   'Tonga',
   'Trindade e Tobago',
   'Tunísia',
-  'Turquemenistão',
+  'Turcomenistão',
   'Turquia',
   'Tuvalu',
   'Ucrânia',
@@ -203,9 +198,6 @@ const REST_OF_WORLD: string[] = [
   'Vietname',
   'Zâmbia',
   'Zimbabué',
-].sort((a, b) => a.localeCompare(b, 'pt'));
-
-export const COUNTRIES: CountryOption[] = [
-  { value: 'Angola', label: 'Angola' },
-  ...REST_OF_WORLD.map((name) => ({ value: name, label: name })),
 ];
+
+export const COUNTRY_OPTIONS = COUNTRIES.map((c) => ({ value: c, label: c }));
