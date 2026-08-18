@@ -121,7 +121,7 @@ export function OrgDashboard() {
             ].map((m) => (
               <div key={m.label} className="flex items-center justify-between">
                 <span className="flex items-center gap-2 font-body text-sm text-ink-muted">
-                  {m.icon} {m.label}
+                  {m.label}
                 </span>
                 <span className="font-body font-bold text-ink">{m.value}</span>
               </div>
