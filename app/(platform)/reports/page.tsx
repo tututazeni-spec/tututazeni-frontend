@@ -54,7 +54,7 @@ export default function ReportsPage() {
         </div>
       </div>
 
-      <div className="border-b border-border bg-surface px-6">
+      <div className="mt-[1cm] border-b border-border bg-surface px-6">
         <div className="mx-auto flex max-w-7xl overflow-x-auto">
           {TABS.map((t) => {
             const Icon = t.icon;
