@@ -54,6 +54,10 @@ export function AlertStrip({ alerts }: AlertStripProps) {
         const isParticipaçãoAlert =
           messageLC.includes('participação em surveys') &&
           messageLC.includes('30%');
+        const displayMessage = a.message.replace(
+          /taxa de participação em surveys/i,
+          'Taxa de Resposta',
+        );
         return (
           <div
             key={i}
@@ -62,7 +66,7 @@ export function AlertStrip({ alerts }: AlertStripProps) {
             } ${conf.classes}`}
           >
             <AlertIcon size={14} strokeWidth={1.75} className="shrink-0" />
-            <p className="flex-1 font-body text-sm">{a.message}</p>
+            <p className="flex-1 font-body text-sm">{displayMessage}</p>
           </div>
         );
       })}
