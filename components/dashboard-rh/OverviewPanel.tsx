@@ -67,7 +67,7 @@ export function OverviewPanel() {
         />
         <KpiCard
           icon={UserMinus}
-          label="Turnover"
+          label="Taxa de Rotatividade"
           value={`${k.turnover?.rate ?? 0}%`}
           sub={k.turnover?.status}
           intent="danger"
@@ -105,7 +105,7 @@ export function OverviewPanel() {
         />
         <KpiCard
           icon={Activity}
-          label="Respostas a Surveys"
+          label="Respostas às Pesquisas"
           value={k.engagement?.surveyResponses ?? 0}
           intent="accent"
           className="w-full"

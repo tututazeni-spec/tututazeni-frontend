@@ -64,7 +64,7 @@ export function HeadcountPanel() {
         />
         <KpiCard
           icon={UserMinus}
-          label="Turnover"
+          label="Taxa de Rotatividade"
           value={`${data?.turnoverRate ?? 0}%`}
           intent="danger"
           className="w-full"

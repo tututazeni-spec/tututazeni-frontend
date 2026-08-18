@@ -19,7 +19,6 @@ import {
   Users,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
-import { Badge } from '@/components/ui/Badge';
 import { IconButton } from '@/components/ui/Button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
 import { CorrelationsPanel } from '@/components/dashboard-rh/CorrelationsPanel';
@@ -32,11 +31,11 @@ import type { Panel } from '@/components/dashboard-rh/types';
 
 const PANELS: { id: Panel; label: string; icon: LucideIcon }[] = [
   { id: 'overview', label: 'Visão Geral', icon: BarChart2 },
-  { id: 'headcount', label: 'Headcount', icon: Users },
+  { id: 'headcount', label: 'Número de Colaboradores', icon: Users },
   { id: 'performance', label: 'Performance', icon: Star },
   { id: 'training', label: 'Formação', icon: BookOpen },
   { id: 'talent', label: 'Talento', icon: Target },
-  { id: 'correlations', label: 'People Analytics', icon: Brain },
+  { id: 'correlations', label: 'Análise de Pessoas', icon: Brain },
 ];
 
 export default function DashboardRhPage() {
@@ -53,12 +52,7 @@ export default function DashboardRhPage() {
               <h1 className="font-display text-xl font-bold text-ink">
                 Dashboard RH
               </h1>
-              <Badge intent="info">People Analytics</Badge>
             </div>
-            <p className="font-body text-sm text-ink-faint">
-              Centro de comando · Número de Colaboradores · Performance ·
-              Talento · Formação
-            </p>
           </div>
           <IconButton
             icon={RefreshCw}
