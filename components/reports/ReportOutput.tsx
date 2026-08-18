@@ -50,8 +50,8 @@ const SUMMARY_LABELS: Record<string, string> = {
   recognitions: 'Reconhecimentos',
   feedbackCount: 'Feedbacks',
   // talent
-  hiPos: 'High Potentials',
-  hiPoRatio: 'Rácio de High Potentials',
+  hiPos: 'Talentos de Alto Potencial',
+  hiPoRatio: 'Rácio de Talentos de Alto Potencial',
   activePlans: 'PDIs Activos',
   completedPlans: 'PDIs Concluídos',
   pdpCoverage: 'Cobertura de PDI',
@@ -85,7 +85,7 @@ export function ReportOutput({ data }: ReportOutputProps) {
         <div className="rounded-card border border-accent-subtle bg-accent-subtle p-4">
           <h4 className="mb-2 flex items-center gap-1 font-body text-xs font-semibold uppercase tracking-wide text-accent">
             <Brain size={12} strokeWidth={1.75} />
-            Insights
+            Análises
           </h4>
           {(data.insights ?? []).map((ins, i) => (
             <p key={i} className="mb-1 font-body text-xs text-accent">
@@ -103,7 +103,9 @@ export function ReportOutput({ data }: ReportOutputProps) {
             if (typeof v === 'object') return null;
             const label =
               SUMMARY_LABELS[k] ??
-              k.replace(/([A-Z])/g, ' $1').replace(/^./, (c) => c.toUpperCase());
+              k
+                .replace(/([A-Z])/g, ' $1')
+                .replace(/^./, (c) => c.toUpperCase());
             const isRate =
               k.toLowerCase().includes('rate') ||
               k.toLowerCase().includes('pct') ||
