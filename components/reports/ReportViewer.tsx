@@ -92,6 +92,13 @@ export function ReportViewer({ template, onBack }: ReportViewerProps) {
             <Download size={14} strokeWidth={1.75} />
             CSV
           </a>
+          <a
+            href={`/api/reports/export/${template.reportKey}-xlsx?from=${range.from}&to=${range.to}`}
+            className={buttonVariants({ intent: 'secondary', size: 'sm' })}
+          >
+            <Download size={14} strokeWidth={1.75} />
+            XLSX
+          </a>
         </CardBody>
       </Card>
 

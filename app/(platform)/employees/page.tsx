@@ -34,11 +34,18 @@ import {
 } from '@/hooks/useEmployees';
 import { apiClient } from '@/lib/apiClient';
 import { cn } from '@/lib/cn';
-import { Button } from '@/components/ui/Button';
+import { Button, buttonVariants } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { KpiCard } from '@/components/ui/KpiCard';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow } from '@/components/ui/Table';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeaderCell,
+  TableRow,
+} from '@/components/ui/Table';
 import { CreateEmployeeModal } from '@/components/employees/CreateEmployeeModal';
 import { EmployeeCard } from '@/components/employees/EmployeeCard';
 import { EmployeeDrawer } from '@/components/employees/EmployeeDrawer';
@@ -103,7 +110,8 @@ export default function EmployeesPage() {
     } catch {}
   };
 
-  const onLeaveCount = stats?.byStatus?.find((s) => s.status === 'ON_LEAVE')?._count ?? 0;
+  const onLeaveCount =
+    stats?.byStatus?.find((s) => s.status === 'ON_LEAVE')?._count ?? 0;
 
   return (
     <div className="min-h-screen bg-canvas">
@@ -121,8 +129,14 @@ export default function EmployeesPage() {
             </div>
             <div className="flex items-center gap-2">
               <Button intent="secondary" onClick={handleExport}>
-                <Download size={16} strokeWidth={1.75} /> Exportar
+                <Download size={16} strokeWidth={1.75} /> CSV
               </Button>
+              <a
+                href="/api/employees/export/xlsx"
+                className={buttonVariants({ intent: 'secondary' })}
+              >
+                <Download size={16} strokeWidth={1.75} /> XLSX
+              </a>
               <Button onClick={() => setShowCreate(true)}>
                 <UserPlus size={16} strokeWidth={1.75} /> Novo Colaborador
               </Button>
@@ -226,7 +240,9 @@ export default function EmployeesPage() {
               onClick={() => setView('grid')}
               className={cn(
                 'p-2.5 transition-colors',
-                view === 'grid' ? 'bg-primary text-canvas' : 'text-ink-muted hover:bg-surface-sunken',
+                view === 'grid'
+                  ? 'bg-primary text-canvas'
+                  : 'text-ink-muted hover:bg-surface-sunken',
               )}
             >
               <LayoutGrid size={16} strokeWidth={1.75} />
@@ -235,7 +251,9 @@ export default function EmployeesPage() {
               onClick={() => setView('list')}
               className={cn(
                 'p-2.5 transition-colors',
-                view === 'list' ? 'bg-primary text-canvas' : 'text-ink-muted hover:bg-surface-sunken',
+                view === 'list'
+                  ? 'bg-primary text-canvas'
+                  : 'text-ink-muted hover:bg-surface-sunken',
               )}
             >
               <List size={16} strokeWidth={1.75} />
@@ -246,7 +264,11 @@ export default function EmployeesPage() {
             onClick={() => refetch()}
             className="p-2.5 text-ink-muted hover:text-ink bg-surface border border-border rounded-control hover:bg-surface-sunken transition-colors shadow-resting"
           >
-            <RefreshCcw size={16} strokeWidth={1.75} className={loading ? 'animate-spin' : ''} />
+            <RefreshCcw
+              size={16}
+              strokeWidth={1.75}
+              className={loading ? 'animate-spin' : ''}
+            />
           </button>
         </div>
 
@@ -254,9 +276,7 @@ export default function EmployeesPage() {
         {data && !loading && (
           <div className="flex items-center justify-between">
             <p className="text-sm text-ink-muted">
-              <span className="font-semibold text-ink">
-                {data.meta.total}
-              </span>{' '}
+              <span className="font-semibold text-ink">{data.meta.total}</span>{' '}
               colaboradores encontrados
             </p>
             {data.meta.total > 0 && (
@@ -270,7 +290,11 @@ export default function EmployeesPage() {
         {/* ── Error */}
         {error && (
           <div className="flex items-center gap-3 p-4 bg-danger-subtle border border-danger/20 rounded-card text-sm text-danger-ink">
-            <AlertCircle size={18} strokeWidth={1.75} className="flex-shrink-0" />
+            <AlertCircle
+              size={18}
+              strokeWidth={1.75}
+              className="flex-shrink-0"
+            />
             <div>
               <p className="font-medium">Erro ao carregar colaboradores</p>
               <p className="text-xs mt-0.5 opacity-80">{error}</p>
@@ -305,7 +329,11 @@ export default function EmployeesPage() {
             )}
             {!loading && data?.data.length === 0 && (
               <div className="col-span-full flex flex-col items-center justify-center py-20 text-ink-faint">
-                <Users size={48} strokeWidth={1.75} className="mb-4 opacity-30" />
+                <Users
+                  size={48}
+                  strokeWidth={1.75}
+                  className="mb-4 opacity-30"
+                />
                 <p className="text-lg font-medium">
                   Nenhum colaborador encontrado
                 </p>
@@ -317,7 +345,8 @@ export default function EmployeesPage() {
                   className="mt-4"
                   onClick={() => setShowCreate(true)}
                 >
-                  <UserPlus size={16} strokeWidth={1.75} /> Adicionar Colaborador
+                  <UserPlus size={16} strokeWidth={1.75} /> Adicionar
+                  Colaborador
                 </Button>
               </div>
             )}
@@ -352,9 +381,16 @@ export default function EmployeesPage() {
                 ))
               ) : data?.data.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={LIST_COLUMNS.length} className="py-16 text-center">
+                  <TableCell
+                    colSpan={LIST_COLUMNS.length}
+                    className="py-16 text-center"
+                  >
                     <div className="flex flex-col items-center justify-center text-ink-faint">
-                      <Users size={40} strokeWidth={1.75} className="mb-3 opacity-30" />
+                      <Users
+                        size={40}
+                        strokeWidth={1.75}
+                        className="mb-3 opacity-30"
+                      />
                       <p className="text-sm font-medium">Nenhum resultado</p>
                     </div>
                   </TableCell>
