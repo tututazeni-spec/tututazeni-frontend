@@ -19,6 +19,62 @@ interface ReportOutputProps {
   reportKey: string;
 }
 
+// Tradução dos labels dos KPIs de summary. As chaves vêm em camelCase da
+// API (src/reports/reports.service.ts) — quem não tiver entrada aqui cai
+// no fallback automático (separa por maiúscula e capitaliza a 1ª letra).
+const SUMMARY_LABELS: Record<string, string> = {
+  // headcount
+  total: 'Total',
+  active: 'Activos',
+  inactive: 'Inactivos',
+  newHires: 'Novas Contratações',
+  newHiresTrend: 'Tendência de Contratações',
+  turnoverRate: 'Taxa de Rotatividade',
+  // turnover
+  newInPeriod: 'Admissões no Período',
+  leftInPeriod: 'Saídas no Período',
+  retentionRate: 'Taxa de Retenção',
+  // training
+  enrollments: 'Inscrições',
+  completed: 'Concluídos',
+  inProgress: 'Em Curso',
+  cancelled: 'Cancelados',
+  completionRate: 'Taxa de Conclusão',
+  abandonment: 'Taxa de Abandono',
+  uniqueLearners: 'Formandos Únicos',
+  // engagement
+  activeSurveys: 'Inquéritos Activos',
+  totalResponses: 'Respostas Totais',
+  participationRate: 'Taxa de Participação',
+  totalUsers: 'Total de Utilizadores',
+  recognitions: 'Reconhecimentos',
+  feedbackCount: 'Feedbacks',
+  // talent
+  hiPos: 'Talentos de Alto Potencial',
+  hiPoRatio: 'Rácio de Talentos de Alto Potencial',
+  activePlans: 'PDIs Activos',
+  completedPlans: 'PDIs Concluídos',
+  pdpCoverage: 'Cobertura de PDI',
+  succession: 'Planos de Sucessão',
+  avgCompetency: 'Competência Média',
+  avgPerformance: 'Performance Média',
+  // compliance
+  mandatoryTotal: 'Formações Obrigatórias',
+  mandatoryCompleted: 'Obrigatórias Concluídas',
+  mandatoryRate: 'Taxa de Conformidade',
+  auditEvents: 'Eventos de Auditoria',
+  certificationsIssued: 'Certificações Emitidas',
+  // platform usage
+  contentViews: 'Visualizações de Conteúdo',
+  avatarSessions: 'Sessões de Avatar',
+  surveySubmissions: 'Respostas a Inquéritos',
+  auditActions: 'Acções de Auditoria',
+  activeUsers: 'Utilizadores Activos',
+  // performance
+  totalReviews: 'Avaliações Totais',
+  avgScore: 'Score Médio',
+};
+
 export function ReportOutput({ data }: ReportOutputProps) {
   const summary = data.summary ?? {};
 
@@ -29,7 +85,7 @@ export function ReportOutput({ data }: ReportOutputProps) {
         <div className="rounded-card border border-accent-subtle bg-accent-subtle p-4">
           <h4 className="mb-2 flex items-center gap-1 font-body text-xs font-semibold uppercase tracking-wide text-accent">
             <Brain size={12} strokeWidth={1.75} />
-            Insights
+            Análises
           </h4>
           {(data.insights ?? []).map((ins, i) => (
             <p key={i} className="mb-1 font-body text-xs text-accent">
@@ -45,9 +101,11 @@ export function ReportOutput({ data }: ReportOutputProps) {
           .slice(0, 8)
           .map(([k, v]) => {
             if (typeof v === 'object') return null;
-            const label = k
-              .replace(/([A-Z])/g, ' $1')
-              .replace(/^./, (c) => c.toUpperCase());
+            const label =
+              SUMMARY_LABELS[k] ??
+              k
+                .replace(/([A-Z])/g, ' $1')
+                .replace(/^./, (c) => c.toUpperCase());
             const isRate =
               k.toLowerCase().includes('rate') ||
               k.toLowerCase().includes('pct') ||

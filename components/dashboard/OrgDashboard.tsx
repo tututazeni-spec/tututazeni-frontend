@@ -103,29 +103,25 @@ export function OrgDashboard() {
           <div className="space-y-3">
             {[
               {
-                label: 'High Potentials',
+                label: 'Colaboradores de Alto Potencial',
                 value: k.talent?.hiPos ?? 0,
-                icon: '🌟',
               },
               {
-                label: 'Sucessão coberta',
+                label: 'Sucessão Coberta',
                 value: `${k.talent?.successionCoverage ?? 0}%`,
-                icon: '🔄',
               },
               {
-                label: 'Horas de treino',
+                label: 'Horas de Treino',
                 value: k.learning?.trainingHours ?? 0,
-                icon: '⏱️',
               },
               {
-                label: 'Surveys activos',
+                label: 'Inquéritos Activos',
                 value: k.engagement?.activeSurveys ?? 0,
-                icon: '📊',
               },
             ].map((m) => (
               <div key={m.label} className="flex items-center justify-between">
                 <span className="flex items-center gap-2 font-body text-sm text-ink-muted">
-                  {m.icon} {m.label}
+                  {m.label}
                 </span>
                 <span className="font-body font-bold text-ink">{m.value}</span>
               </div>
@@ -165,7 +161,7 @@ export function OrgDashboard() {
         <div className="rounded-card border border-border bg-surface p-5">
           <h3 className="mb-4 flex items-center gap-2 font-body font-semibold text-ink-muted">
             <Brain size={14} strokeWidth={1.75} className="text-accent" />
-            Insights
+            Análises de IA
           </h3>
           {(data?.insights ?? []).length > 0 ? (
             <div className="space-y-2">

@@ -30,7 +30,11 @@ export function Select({
   className,
 }: SelectProps) {
   return (
-    <RadixSelect.Root value={value} onValueChange={onValueChange} disabled={disabled}>
+    <RadixSelect.Root
+      value={value}
+      onValueChange={onValueChange}
+      disabled={disabled}
+    >
       <RadixSelect.Trigger
         aria-invalid={invalid || undefined}
         className={cn(
@@ -38,13 +42,18 @@ export function Select({
           'bg-surface px-3 py-[9px] font-body text-sm text-ink',
           'focus:border-accent focus:outline-none focus:ring-[3px] focus:ring-accent-subtle',
           'disabled:cursor-not-allowed disabled:opacity-50',
-          invalid && 'border-danger focus:border-danger focus:ring-danger-subtle',
+          invalid &&
+            'border-danger focus:border-danger focus:ring-danger-subtle',
           className,
         )}
       >
         <RadixSelect.Value placeholder={placeholder} />
         <RadixSelect.Icon>
-          <ChevronDown size={16} strokeWidth={1.75} className="text-ink-muted" />
+          <ChevronDown
+            size={16}
+            strokeWidth={1.75}
+            className="text-ink-muted"
+          />
         </RadixSelect.Icon>
       </RadixSelect.Trigger>
       <RadixSelect.Portal>
@@ -53,7 +62,7 @@ export function Select({
           position="popper"
           sideOffset={4}
         >
-          <RadixSelect.Viewport className="p-1">
+          <RadixSelect.Viewport className="p-1 max-h-[var(--radix-select-content-available-height)] overflow-y-auto">
             {items.map((item) => (
               <RadixSelect.Item
                 key={item.value}
@@ -65,7 +74,11 @@ export function Select({
               >
                 <RadixSelect.ItemText>{item.label}</RadixSelect.ItemText>
                 <RadixSelect.ItemIndicator>
-                  <Check size={14} strokeWidth={1.75} className="text-primary" />
+                  <Check
+                    size={14}
+                    strokeWidth={1.75}
+                    className="text-primary"
+                  />
                 </RadixSelect.ItemIndicator>
               </RadixSelect.Item>
             ))}

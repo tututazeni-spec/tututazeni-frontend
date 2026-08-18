@@ -127,7 +127,7 @@ export function FunderDetailView({
       <section>
         <div className="flex justify-between items-center mb-3">
           <h2 className="font-display text-lg font-semibold text-ink">
-            Financiamentos / Grants ({f.grants.length})
+            Financiamentos / Subsídios ({f.grants.length})
           </h2>
           <Button
             onClick={() => setShowGrantForm((s) => !s)}
