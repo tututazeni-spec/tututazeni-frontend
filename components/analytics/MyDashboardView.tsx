@@ -26,15 +26,15 @@ const STAT_TILES: Array<{
   color: string;
   suffix?: string;
 }> = [
-  { key: 'completed', label: 'Cursos concluídos', color: 'text-success' },
-  { key: 'inProgress', label: 'Em progresso', color: 'text-info' },
+  { key: 'completed', label: 'Cursos Concluídos', color: 'text-success' },
+  { key: 'inProgress', label: 'Em Progresso', color: 'text-info' },
   {
     key: 'totalHours',
-    label: 'Horas de aprendizagem',
+    label: 'Horas De Aprendizagem',
     color: 'text-accent',
     suffix: 'h',
   },
-  { key: 'totalXp', label: 'XP ganho', color: 'text-warning' },
+  { key: 'totalXp', label: 'Pontos de Experiência', color: 'text-warning' },
 ];
 
 export function MyDashboardView() {
@@ -72,18 +72,18 @@ export function MyDashboardView() {
       <div className="grid grid-cols-2 gap-4">
         <div className="rounded-card bg-gradient-to-r from-accent to-accent-hover p-5 text-canvas">
           <div className="font-body text-sm text-canvas/80 mb-1">
-            Streak de aprendizagem
+            Sequência de Aprendizagem
           </div>
           <div className="font-display text-4xl font-bold">
             {data.streak.current}
           </div>
           <div className="font-body text-sm text-canvas/80 mt-1">
-            dias consecutivos 🔥 (recorde: {data.streak.longest})
+            Dias Consecutivos (Recorde: {data.streak.longest})
           </div>
         </div>
         <Card>
           <CardBody>
-            <div className="text-xs text-ink-faint mb-3">Competências top</div>
+            <div className="text-xs text-ink-faint mb-3">Competências Top</div>
             <div className="space-y-2">
               {data.competencies.slice(0, 4).map((c) => {
                 const behind =

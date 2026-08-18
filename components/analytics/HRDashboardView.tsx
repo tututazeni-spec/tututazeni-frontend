@@ -50,7 +50,7 @@ export function HRDashboardView() {
       <Card>
         <CardBody>
           <div className="mb-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
-            People Analytics
+            Análise de Dados de Pessoas
           </div>
           <div className="grid grid-cols-4 gap-3">
             <Tile label="Activos" value={data.people.total} />
@@ -65,7 +65,7 @@ export function HRDashboardView() {
               color="text-danger"
             />
             <Tile
-              label="Turnover"
+              label="Taxa de Rotatividade"
               value={`${data.people.turnoverRate}%`}
               color={data.people.turnoverRate > 10 ? 'text-danger' : 'text-ink'}
             />
@@ -77,7 +77,7 @@ export function HRDashboardView() {
       <Card>
         <CardBody>
           <div className="mb-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
-            Learning Analytics
+            Análise da Aprendizagem
           </div>
           <div className="grid grid-cols-4 gap-3">
             <Tile label="Matrículas" value={data.learning.enrollments} />
@@ -106,7 +106,7 @@ export function HRDashboardView() {
       <Card>
         <CardBody>
           <div className="mb-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
-            PDI Analytics
+            Análise dos Planos de Desenvolvimento Individual
           </div>
           <div className="grid grid-cols-4 gap-3">
             <Tile
@@ -120,7 +120,7 @@ export function HRDashboardView() {
               color="text-accent"
             />
             <Tile
-              label="Ag. aprovação"
+              label="Aguardando Aprovação"
               value={data.pdi.pendingApproval}
               color={data.pdi.pendingApproval > 0 ? 'text-warning' : 'text-ink'}
             />
@@ -137,7 +137,7 @@ export function HRDashboardView() {
       {(data.headcountByDept?.length ?? 0) > 0 && (
         <Card className="overflow-hidden">
           <div className="px-4 py-3 border-b border-border text-xs font-medium text-ink-faint uppercase tracking-wide">
-            Headcount por departamento
+            Colaboradores por Departamento
           </div>
           {(data.headcountByDept ?? []).map((d) => (
             <div

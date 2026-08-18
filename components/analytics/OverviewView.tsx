@@ -45,9 +45,9 @@ export function OverviewView() {
   if (isLoading || !data) return <Skeleton rows={4} />;
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-8">
       {/* KPIs principais */}
-      <div className="grid grid-cols-4 gap-3">
+      <div className="mt-6 grid grid-cols-4 gap-3">
         <KpiCard
           icon={Users}
           label="Colaboradores activos"

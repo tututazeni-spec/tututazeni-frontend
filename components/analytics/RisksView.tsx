@@ -58,10 +58,10 @@ export function RisksView() {
       </div>
 
       <Tabs value={tab} onValueChange={(v) => setTab(v as typeof tab)}>
-        <TabsList className="w-fit">
-          <TabsTrigger value="inactive">😴 Inactivos</TabsTrigger>
-          <TabsTrigger value="pdis">📋 PDIs</TabsTrigger>
-          <TabsTrigger value="actions">⚠ Acções</TabsTrigger>
+        <TabsList className="mb-6 w-fit gap-10">
+          <TabsTrigger value="inactive">Inactivos</TabsTrigger>
+          <TabsTrigger value="pdis">PDIs</TabsTrigger>
+          <TabsTrigger value="actions">Acções</TabsTrigger>
         </TabsList>
 
         <TabsContent value="inactive">

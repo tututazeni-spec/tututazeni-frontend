@@ -79,7 +79,7 @@ export function ManagerView() {
         />
         <KpiCard
           icon={TrendingUp}
-          label="Perf. média"
+          label="Desempenho Médio"
           value={metrics.avgPerformance}
           intent="warning"
           className="w-full"
@@ -93,10 +93,14 @@ export function ManagerView() {
 
       {/* Tabs */}
       <Tabs value={tab} onValueChange={(v) => setTab(v as typeof tab)}>
-        <TabsList className="w-fit">
-          <TabsTrigger value="overview">👥 Equipa</TabsTrigger>
-          <TabsTrigger value="ninebox">🗃 9-Box</TabsTrigger>
-          <TabsTrigger value="gaps">📊 Gaps</TabsTrigger>
+        <TabsList className="mb-6 w-fit gap-10">
+          <TabsTrigger value="overview">Equipa</TabsTrigger>
+          <TabsTrigger value="ninebox">
+            Matriz de Desempenho e Potencial (9-Box)
+          </TabsTrigger>
+          <TabsTrigger value="Lacunas de Competências">
+            Lacunas de Competências(Gaps)
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview">
@@ -140,11 +144,11 @@ export function ManagerView() {
           </Card>
         </TabsContent>
 
-        <TabsContent value="gaps">
+        <TabsContent value="Lacunas de Competências">
           <Card>
             <CardBody>
               <div className="text-xs font-medium text-ink-faint uppercase tracking-wide mb-4">
-                Top Gaps de Competências
+                Top De Lacunas de Competências
               </div>
               <div className="space-y-3">
                 {competencyGaps.map((g) => (
@@ -165,7 +169,7 @@ export function ManagerView() {
                 ))}
                 {competencyGaps.length === 0 && (
                   <div className="text-center text-sm text-ink-faint py-4">
-                    Sem gaps identificados
+                    Sem Lacunas identificadas
                   </div>
                 )}
               </div>

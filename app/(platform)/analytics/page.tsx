@@ -32,7 +32,7 @@ export default function AnalyticsPage() {
             {TITLES[view]}
           </h1>
           <p className="font-body text-sm text-ink-faint mt-0.5">
-            Inteligência de dados de RH e Aprendizagem
+            Inteligência De Dados De RH e Aprendizagem
           </p>
         </div>
       </div>
