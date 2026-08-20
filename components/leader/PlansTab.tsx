@@ -7,8 +7,10 @@
 import { Target } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
+import { reportError } from '@/lib/errorReporting';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
+import { useToast } from '@/providers/ToastProvider';
 import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -24,11 +26,29 @@ function progressTextClass(progress: number): string {
 }
 
 export function PlansTab() {
-  const { data = [], isLoading: loading } = useApiQuery<TeamPlanEntry[]>(
+  const notify = useToast();
+  const {
+    data = [],
+    isLoading: loading,
+    refetch,
+  } = useApiQuery<TeamPlanEntry[]>(
     queryKeys.leader.plans(),
     '/leaders/my-team-plans',
     { staleTime: STALE_TIME.DYNAMIC },
   );
+
+  const approve = async (id: number) => {
+    try {
+      await apiClient.patch(`/leaders/plans/${id}/approve`, {});
+      void refetch();
+    } catch (e) {
+      reportError(e, { source: 'PlansTab.approve' });
+      notify({
+        title: 'Não foi possível aprovar o PDI',
+        intent: 'danger',
+      });
+    }
+  };
 
   if (loading)
     return (
@@ -51,7 +71,9 @@ export function PlansTab() {
               </p>
               <span className="shrink-0 text-base">{p.health}</span>
             </div>
-            <p className="truncate font-body text-xs text-ink-muted">{p.name}</p>
+            <p className="truncate font-body text-xs text-ink-muted">
+              {p.name}
+            </p>
             <div className="mb-0.5 mt-1 flex justify-between font-body text-[10px]">
               <span className="text-ink-faint">
                 {p.actCompleted}/{p.totalActions} acções
@@ -66,11 +88,7 @@ export function PlansTab() {
             size="sm"
             intent="secondary"
             className="shrink-0"
-            onClick={() => {
-              void apiClient
-                .patch(`/leaders/plans/${p.id}/approve`, {})
-                .catch(() => {});
-            }}
+            onClick={() => approve(p.id)}
           >
             Aprovar
           </Button>

@@ -6,6 +6,7 @@ import { useToast } from '@/providers/ToastProvider';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { apiClient } from '@/lib/apiClient';
+import { reportError } from '@/lib/errorReporting';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Badge } from '@/components/ui/Badge';
@@ -34,11 +35,21 @@ export function RulesTab() {
   };
 
   const toggle = async (id: number) => {
-    await apiClient.patch(`/automation/rules/${id}/toggle`, {});
+    try {
+      await apiClient.patch(`/automation/rules/${id}/toggle`, {});
+    } catch (e) {
+      reportError(e, { source: 'RulesTab.toggle' });
+      notify({ title: 'Não foi possível alterar a regra', intent: 'danger' });
+    }
     load();
   };
   const clone = async (id: number) => {
-    await apiClient.post(`/automation/rules/${id}/clone`, {});
+    try {
+      await apiClient.post(`/automation/rules/${id}/clone`, {});
+    } catch (e) {
+      reportError(e, { source: 'RulesTab.clone' });
+      notify({ title: 'Não foi possível clonar a regra', intent: 'danger' });
+    }
     load();
   };
   const confirm = useConfirm();
@@ -50,18 +61,32 @@ export function RulesTab() {
         destructive: true,
       })
     ) {
-      await apiClient.delete(`/automation/rules/${id}`);
+      try {
+        await apiClient.delete(`/automation/rules/${id}`);
+      } catch (e) {
+        reportError(e, { source: 'RulesTab.remove' });
+        notify({ title: 'Não foi possível remover a regra', intent: 'danger' });
+      }
       load();
     }
   };
   const runAll = async () => {
     setRunning(true);
-    const r = await apiClient.post<RunAllResponse>('/automation/run', {});
-    setRunning(false);
-    notify({
-      title: `Executadas: ${r.executed} regras`,
-      intent: 'success',
-    });
+    try {
+      const r = await apiClient.post<RunAllResponse>('/automation/run', {});
+      notify({
+        title: `Executadas: ${r.executed} regras`,
+        intent: 'success',
+      });
+    } catch (e) {
+      reportError(e, { source: 'RulesTab.runAll' });
+      notify({
+        title: 'Não foi possível executar as regras',
+        intent: 'danger',
+      });
+    } finally {
+      setRunning(false);
+    }
   };
 
   if (loading)

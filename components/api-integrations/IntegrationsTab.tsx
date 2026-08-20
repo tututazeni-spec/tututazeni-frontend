@@ -5,6 +5,7 @@ import { Plug, Play, Pause, RefreshCw, Plus } from 'lucide-react';
 import { useToast } from '@/providers/ToastProvider';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
+import { reportError } from '@/lib/errorReporting';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Badge, type BadgeProps } from '@/components/ui/Badge';
@@ -52,18 +53,34 @@ export function IntegrationsTab() {
     setTesting(id);
     const r = await apiClient
       .post<TestIntegrationResponse>(`/api-integrations/${id}/test`, {})
-      .catch(() => null);
+      .catch((e) => {
+        reportError(e, { source: 'IntegrationsTab.testIntegration' });
+        return null;
+      });
     setTesting(null);
     if (r)
       notify({
         title: r.message,
         intent: r.success ? 'success' : 'danger',
       });
+    else
+      notify({
+        title: 'Não foi possível testar a integração',
+        intent: 'danger',
+      });
     load();
   };
 
   const toggle = async (id: number) => {
-    await apiClient.patch(`/api-integrations/${id}/toggle`, {});
+    try {
+      await apiClient.patch(`/api-integrations/${id}/toggle`, {});
+    } catch (e) {
+      reportError(e, { source: 'IntegrationsTab.toggle' });
+      notify({
+        title: 'Não foi possível alterar a integração',
+        intent: 'danger',
+      });
+    }
     load();
   };
 

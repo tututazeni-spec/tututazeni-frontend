@@ -7,6 +7,7 @@ import { useState, useEffect } from 'react';
 import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
 import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
+import { reportError } from '@/lib/errorReporting';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import type { ItemDetail } from '@/components/library/types';
@@ -31,7 +32,9 @@ export function useLibraryItem(id: string) {
   // Regista visualização (best-effort) uma vez por id.
   useEffect(() => {
     if (id)
-      void apiClient.post(`/library/items/${id}/view`, {}).catch(() => {});
+      void apiClient
+        .post(`/library/items/${id}/view`, {})
+        .catch((e) => reportError(e, { source: 'useLibraryItem.trackView' }));
   }, [id]);
 
   const downloadMut = useApiMutation(

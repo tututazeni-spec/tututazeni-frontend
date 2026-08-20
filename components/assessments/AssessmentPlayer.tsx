@@ -9,6 +9,7 @@
 
 import { useEffect, useReducer, useRef } from 'react';
 import { apiClient } from '@/lib/apiClient';
+import { reportError } from '@/lib/errorReporting';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
 import { Button } from '@/components/ui/Button';
@@ -195,7 +196,7 @@ export function AssessmentPlayer({
           attemptId: attempt.id,
           answers: answersList,
         })
-        .catch(() => {});
+        .catch((e) => reportError(e, { source: 'AssessmentPlayer.autosave' }));
     }, 30000);
     return () => clearInterval(interval);
   }, [attempt, assessment]);

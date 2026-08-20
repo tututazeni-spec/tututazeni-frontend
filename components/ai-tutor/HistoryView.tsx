@@ -8,6 +8,8 @@ import { useState } from 'react';
 import { ArrowLeft, MessageCircle } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
+import { reportError } from '@/lib/errorReporting';
+import { useToast } from '@/providers/ToastProvider';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { formatDateTime as fmtDate } from '@/lib/format';
@@ -20,6 +22,7 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import type { Message, Session, SessionDetail } from './types';
 
 export function HistoryView() {
+  const notify = useToast();
   const [selected, setSelected] = useState<number | null>(null);
   const [detail, setDetail] = useState<{ messages: Message[] } | null>(null);
 
@@ -32,8 +35,14 @@ export function HistoryView() {
 
   const loadDetail = async (id: number) => {
     setSelected(id);
-    const s = await apiClient.get<SessionDetail>(`/ai-tutor/sessions/${id}`);
-    setDetail({ messages: s.messages });
+    try {
+      const s = await apiClient.get<SessionDetail>(`/ai-tutor/sessions/${id}`);
+      setDetail({ messages: s.messages });
+    } catch (e) {
+      reportError(e, { source: 'HistoryView.loadDetail' });
+      notify({ title: 'Não foi possível carregar a sessão', intent: 'danger' });
+      setSelected(null);
+    }
   };
 
   if (loading)

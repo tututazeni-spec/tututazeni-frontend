@@ -9,6 +9,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Send } from 'lucide-react';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
+import { reportError } from '@/lib/errorReporting';
 import { Avatar } from '@/components/ui/Avatar';
 import { Button, IconButton } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -131,12 +132,21 @@ export function ChatView() {
   };
 
   const handleRate = async (msgId: number, rating: number) => {
-    await apiClient
-      .patch('/ai-tutor/messages/rate', { messageId: msgId, rating })
-      .catch(() => {});
-    setMessages((prev) =>
-      prev.map((m) => (m.id === msgId ? { ...m, rating } : m)),
-    );
+    try {
+      await apiClient.patch('/ai-tutor/messages/rate', {
+        messageId: msgId,
+        rating,
+      });
+      setMessages((prev) =>
+        prev.map((m) => (m.id === msgId ? { ...m, rating } : m)),
+      );
+    } catch (e) {
+      reportError(e, { source: 'ChatView.handleRate' });
+      notify({
+        title: 'Não foi possível avaliar a mensagem',
+        intent: 'danger',
+      });
+    }
   };
 
   if (!session) {

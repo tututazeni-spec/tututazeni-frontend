@@ -15,6 +15,8 @@ import {
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { apiClient } from '@/lib/apiClient';
+import { reportError } from '@/lib/errorReporting';
+import { useToast } from '@/providers/ToastProvider';
 import { AuditTab } from '@/components/acl/AuditTab';
 import { MatrixTab } from '@/components/acl/MatrixTab';
 import { OverviewTab } from '@/components/acl/OverviewTab';
@@ -33,6 +35,21 @@ const TABS: { id: Tab; label: string; icon: LucideIcon }[] = [
 ];
 
 export default function AclPage() {
+  const notify = useToast();
+
+  const seedPermissions = async () => {
+    try {
+      await apiClient.post('/acl/seed-permissions', {});
+      notify({ title: 'Permissões semeadas com sucesso', intent: 'success' });
+    } catch (e) {
+      reportError(e, { source: 'AclPage.seedPermissions' });
+      notify({
+        title: 'Não foi possível semear as permissões',
+        intent: 'danger',
+      });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-canvas">
       {/* Header */}
@@ -54,9 +71,7 @@ export default function AclPage() {
           <Button
             intent="secondary"
             size="sm"
-            onClick={() => {
-              void apiClient.post('/acl/seed-permissions', {}).catch(() => {});
-            }}
+            onClick={() => seedPermissions()}
           >
             <RefreshCw size={14} strokeWidth={1.75} />
             Seed Permissões
@@ -71,7 +86,11 @@ export default function AclPage() {
             {TABS.map((t) => {
               const Icon = t.icon;
               return (
-                <TabsTrigger key={t.id} value={t.id} className="gap-2 whitespace-nowrap">
+                <TabsTrigger
+                  key={t.id}
+                  value={t.id}
+                  className="gap-2 whitespace-nowrap"
+                >
                   <Icon size={15} strokeWidth={1.75} />
                   {t.label}
                 </TabsTrigger>
