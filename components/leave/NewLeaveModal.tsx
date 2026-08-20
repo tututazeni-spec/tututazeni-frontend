@@ -21,6 +21,7 @@ import { queryKeys } from '@/lib/queryKeys';
 import { useFormValidation } from '@/hooks/useFormValidation';
 import { required } from '@/lib/validation';
 import { cn } from '@/lib/cn';
+import { useToast } from '@/providers/ToastProvider';
 import { Button } from '@/components/ui/Button';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
@@ -48,6 +49,7 @@ export function NewLeaveModal({
   onSuccess,
 }: NewLeaveModalProps) {
   const [step, setStep] = useState<1 | 2 | 3>(1);
+  const notify = useToast();
   const {
     values: form,
     setValues: setForm,
@@ -90,6 +92,10 @@ export function NewLeaveModal({
       setConflicts(r);
     } catch (e) {
       reportError(e, { source: 'NewLeaveModal.checkConflicts' });
+      notify({
+        title: 'Não foi possível verificar conflitos',
+        intent: 'danger',
+      });
     }
   };
 

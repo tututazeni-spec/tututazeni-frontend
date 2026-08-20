@@ -12,6 +12,7 @@ import { apiClient } from '@/lib/apiClient';
 import { reportError } from '@/lib/errorReporting';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
+import { useToast } from '@/providers/ToastProvider';
 import { AnalyticsTab } from '@/components/career-plans/AnalyticsTab';
 import { MyCareerTab } from '@/components/career-plans/MyCareerTab';
 import { SimulateModal } from '@/components/career-plans/SimulateModal';
@@ -28,6 +29,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
 export default function CareerPlansPage() {
   const [tab, setTab] = useState<TabKey>('my');
   const [showSimulate, setShowSimulate] = useState(false);
+  const notify = useToast();
 
   const planQuery = useApiQuery<CareerPlan | null>(
     queryKeys.careerPlans.my(),
@@ -63,6 +65,10 @@ export default function CareerPlansPage() {
       loadData();
     } catch (e) {
       reportError(e, { source: 'CareerPlansPage.handleGoalProgress' });
+      notify({
+        title: 'Não foi possível actualizar o progresso',
+        intent: 'danger',
+      });
     }
   };
 

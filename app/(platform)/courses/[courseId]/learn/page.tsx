@@ -16,6 +16,7 @@ import { ArrowLeft, PanelLeft } from 'lucide-react';
 import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
 import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
+import { reportError } from '@/lib/errorReporting';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Button } from '@/components/ui/Button';
@@ -99,6 +100,12 @@ export default function CourseLearnPage() {
     if (!activeLesson || !activeModule) return;
     try {
       await completeMut.mutateAsync(activeLesson.id);
+    } catch {
+      /* erro já tratado no onError da mutação */
+      return;
+    }
+
+    try {
       // Recarrega o progresso fresco e actualiza a cache.
       const updated = await apiClient.get<ModuleProgress[]>(
         `/courses/${courseId}/progress`,
@@ -119,8 +126,16 @@ export default function CourseLearnPage() {
           setActiveLesson(nextLesson);
         }
       }
-    } catch {
-      /* erro já tratado no onError */
+    } catch (e) {
+      // A lição já foi marcada como concluída (mutateAsync acima teve
+      // sucesso) — só este refresh de progresso falhou. Sem isto o
+      // utilizador ficava sem saber que o ecrã não reflecte o estado real.
+      reportError(e, { source: 'LearnPage.handleMarkComplete.refresh' });
+      notify({
+        title: 'Progresso actualizado, mas a lista pode estar desactualizada',
+        description: 'Actualiza a página para veres o estado mais recente.',
+        intent: 'danger',
+      });
     }
   };
 
