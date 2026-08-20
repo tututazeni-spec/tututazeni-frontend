@@ -44,6 +44,21 @@ const SEV_CONFIG: Record<
   },
 };
 
+// Rótulos apenas para exibição — as chaves (ins.severity, ins.type) devem
+// permanecer em inglês, pois são usadas como chave de lookup em SEV_CONFIG.
+const SEV_LABEL: Record<string, string> = {
+  HIGH: 'Alto',
+  MEDIUM: 'Médio',
+  LOW: 'Baixo',
+};
+
+const TYPE_LABEL: Record<string, string> = {
+  LEARNING: 'Aprendizado',
+  PERFORMANCE: 'Performance',
+  TALENT: 'Talento',
+  ENGAGEMENT: 'Envolvimento',
+};
+
 export function InsightsTab() {
   const range = defaultRange(1);
   const { data, isLoading: loading } = useApiQuery<InsightsData>(
@@ -106,9 +121,11 @@ export function InsightsTab() {
                   <span
                     className={`font-body text-[10px] font-bold uppercase tracking-wide ${conf.textClass}`}
                   >
-                    {ins.type}
+                    {TYPE_LABEL[ins.type] ?? ins.type}
                   </span>
-                  <Badge intent={conf.intent}>{ins.severity}</Badge>
+                  <Badge intent={conf.intent}>
+                    {SEV_LABEL[ins.severity] ?? ins.severity}
+                  </Badge>
                 </div>
                 <p
                   className={`mb-1 font-body text-sm font-medium ${conf.textClass}`}
