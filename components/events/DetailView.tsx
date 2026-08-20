@@ -15,6 +15,7 @@ import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
+import { reportError } from '@/lib/errorReporting';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { formatDateTime as fmtDateTime } from '@/lib/format';
@@ -91,6 +92,7 @@ export function DetailView({ eventId, onBack }: DetailViewProps) {
       await apiClient.post(`/events/${eventId}/leave`, {});
       await refetch();
     } catch (e) {
+      reportError(e, { source: 'EventDetailView.handleLeave' });
       notify({
         title: e instanceof Error ? e.message : String(e),
         intent: 'danger',

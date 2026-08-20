@@ -12,6 +12,7 @@ import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
+import { reportError } from '@/lib/errorReporting';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Badge } from '@/components/ui/Badge';
@@ -73,6 +74,7 @@ export function ModuleBuilder({ courseId }: ModuleBuilderProps) {
       await apiClient.patch(`/modules/${moduleId}/publish`, {});
       await reload();
     } catch (e) {
+      reportError(e, { source: 'ModuleBuilder.handlePublish' });
       notify({
         title: e instanceof Error ? e.message : String(e),
         intent: 'danger',
@@ -95,6 +97,7 @@ export function ModuleBuilder({ courseId }: ModuleBuilderProps) {
       await apiClient.delete(`/modules/${moduleId}`);
       await reload();
     } catch (e) {
+      reportError(e, { source: 'ModuleBuilder.handleDelete' });
       notify({
         title: e instanceof Error ? e.message : String(e),
         intent: 'danger',

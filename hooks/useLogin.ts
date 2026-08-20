@@ -6,6 +6,7 @@
 
 import { useState } from 'react';
 import { apiClient } from '@/lib/apiClient';
+import { reportError } from '@/lib/errorReporting';
 
 export function useLogin() {
   const [email, setEmail] = useState('');
@@ -24,6 +25,7 @@ export function useLogin() {
       // Navegação forçada para garantir que o middleware revê o cookie.
       window.location.href = '/dashboard';
     } catch (err) {
+      reportError(err, { source: 'useLogin.handleSubmit' });
       setError(err instanceof Error ? err.message : 'Erro ao entrar');
     } finally {
       setLoading(false);

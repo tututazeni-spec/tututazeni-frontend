@@ -8,6 +8,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { API_URL } from '@/lib/api';
+import { reportError } from '@/lib/errorReporting';
 import {
   sanitizeText,
   cacheKey,
@@ -107,6 +108,7 @@ export function useCourseAvatarReader(lessonId: number, text: string) {
       await audio.play();
       setState('playing');
     } catch (e) {
+      reportError(e, { source: 'useCourseAvatarReader.play' });
       setState('error');
       setErrorMsg(e instanceof Error ? e.message : 'Erro desconhecido');
     }

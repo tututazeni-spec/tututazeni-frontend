@@ -18,6 +18,7 @@
 
 import { useReducer } from 'react';
 import { AlertCircle, Clock, Eye, FileText, Loader2 } from 'lucide-react';
+import { reportError } from '@/lib/errorReporting';
 import { apiClient } from '@/lib/apiClient';
 import { cn } from '@/lib/cn';
 import { Button } from '@/components/ui/Button';
@@ -136,7 +137,8 @@ export function NewDocRequestModal({
         `/declarations/documents/templates/${form.templateId}/preview`,
       );
       dispatch({ type: 'PREVIEW_SUCCESS', preview: p });
-    } catch {
+    } catch (e) {
+      reportError(e, { source: 'NewDocRequestModal.loadPreview' });
       dispatch({ type: 'PREVIEW_ERROR' });
     }
   };
@@ -151,6 +153,7 @@ export function NewDocRequestModal({
       onSuccess();
       onClose();
     } catch (e) {
+      reportError(e, { source: 'NewDocRequestModal.handleSubmit' });
       dispatch({
         type: 'SUBMIT_ERROR',
         error: e instanceof Error ? e.message : String(e),
@@ -174,7 +177,9 @@ export function NewDocRequestModal({
               )}
             />
           ))}
-          <span className="ml-1 font-body text-xs text-ink-faint">Passo {step}/3</span>
+          <span className="ml-1 font-body text-xs text-ink-faint">
+            Passo {step}/3
+          </span>
         </div>
 
         <div className="mt-5 space-y-4">
@@ -219,7 +224,9 @@ export function NewDocRequestModal({
                       <FileText size={16} strokeWidth={1.75} />
                     </div>
                     <div>
-                      <p className="font-body text-sm font-semibold text-ink">{t.name}</p>
+                      <p className="font-body text-sm font-semibold text-ink">
+                        {t.name}
+                      </p>
                       <p className="mt-0.5 font-body text-xs text-ink-faint">
                         {t.purpose?.name} · v{t.version} · {t.language}
                       </p>
@@ -240,16 +247,26 @@ export function NewDocRequestModal({
             <div className="space-y-4">
               <FormField label="Finalidade" htmlFor="doc-purpose">
                 <Select
-                  items={purposes.map((p) => ({ value: String(p.id), label: p.name }))}
+                  items={purposes.map((p) => ({
+                    value: String(p.id),
+                    label: p.name,
+                  }))}
                   placeholder="Seleccionar finalidade..."
                   value={form.purposeId ? String(form.purposeId) : undefined}
                   onValueChange={(v) =>
-                    dispatch({ type: 'SET_FIELD', field: 'purposeId', value: Number(v) })
+                    dispatch({
+                      type: 'SET_FIELD',
+                      field: 'purposeId',
+                      value: Number(v),
+                    })
                   }
                   className="w-full"
                 />
               </FormField>
-              <FormField label="Dirigida a (opcional)" htmlFor="doc-addressed-to">
+              <FormField
+                label="Dirigida a (opcional)"
+                htmlFor="doc-addressed-to"
+              >
                 <Input
                   id="doc-addressed-to"
                   value={form.addressedTo}
@@ -284,9 +301,18 @@ export function NewDocRequestModal({
 
           {step === 3 && (
             <div className="space-y-4">
-              <Button intent="secondary" size="sm" className="w-full" onClick={loadPreview}>
+              <Button
+                intent="secondary"
+                size="sm"
+                className="w-full"
+                onClick={loadPreview}
+              >
                 {previewLoading ? (
-                  <Loader2 size={14} strokeWidth={1.75} className="animate-spin" />
+                  <Loader2
+                    size={14}
+                    strokeWidth={1.75}
+                    className="animate-spin"
+                  />
                 ) : (
                   <Eye size={14} strokeWidth={1.75} />
                 )}
@@ -307,13 +333,19 @@ export function NewDocRequestModal({
                 {form.addressedTo && (
                   <div className="flex justify-between">
                     <span className="text-ink-muted">Dirigida a</span>
-                    <span className="font-medium text-ink">{form.addressedTo}</span>
+                    <span className="font-medium text-ink">
+                      {form.addressedTo}
+                    </span>
                   </div>
                 )}
                 <div className="flex justify-between">
                   <span className="text-ink-muted">Aprovação</span>
                   <span
-                    className={selected?.requiresApproval ? 'text-warning-ink' : 'text-success-ink'}
+                    className={
+                      selected?.requiresApproval
+                        ? 'text-warning-ink'
+                        : 'text-success-ink'
+                    }
                   >
                     {selected?.requiresApproval ? 'Necessária' : 'Automática'}
                   </span>
@@ -332,7 +364,9 @@ export function NewDocRequestModal({
                   }
                   className="h-4 w-4 rounded border-border-strong accent-primary"
                 />
-                <span className="font-body text-sm text-ink">Guardar como rascunho</span>
+                <span className="font-body text-sm text-ink">
+                  Guardar como rascunho
+                </span>
               </label>
             </div>
           )}
@@ -340,7 +374,10 @@ export function NewDocRequestModal({
 
         <div className="mt-6 flex gap-3 border-t border-border pt-4">
           {step > 1 && (
-            <Button intent="secondary" onClick={() => dispatch({ type: 'PREV_STEP' })}>
+            <Button
+              intent="secondary"
+              onClick={() => dispatch({ type: 'PREV_STEP' })}
+            >
               ← Voltar
             </Button>
           )}

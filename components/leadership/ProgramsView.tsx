@@ -9,6 +9,7 @@ import { useState } from 'react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
+import { reportError } from '@/lib/errorReporting';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Badge } from '@/components/ui/Badge';
@@ -35,6 +36,7 @@ export function ProgramsView() {
       await apiClient.post(`/leadership/programs/${programId}/self-enroll`, {});
       notify({ title: 'Inscrito com sucesso!', intent: 'success' });
     } catch (e) {
+      reportError(e, { source: 'ProgramsView.handleEnroll' });
       notify({
         title: e instanceof Error ? e.message : String(e),
         intent: 'danger',
