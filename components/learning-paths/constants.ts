@@ -24,9 +24,9 @@ export const LP_LEVEL_MAP: StatusBadgeMap<LPLevel> = {
 };
 
 export const LP_TYPE_MAP: StatusBadgeMap<LPType> = {
-  ONBOARDING: { label: 'Onboarding', cls: 'bg-info-subtle text-info-ink' },
-  UPSKILLING: { label: 'Upskilling', cls: 'bg-info-subtle text-info-ink' },
-  RESKILLING: { label: 'Reskilling', cls: 'bg-info-subtle text-info-ink' },
+  ONBOARDING: { label: 'Integração de Colaboradores', cls: 'bg-info-subtle text-info-ink' },
+  UPSKILLING: { label: 'Desenvolvimento de Competências', cls: 'bg-info-subtle text-info-ink' },
+  RESKILLING: { label: 'Requalificação Profissional', cls: 'bg-info-subtle text-info-ink' },
   COMPLIANCE: { label: 'Compliance', cls: 'bg-info-subtle text-info-ink' },
   LEADERSHIP: { label: 'Liderança', cls: 'bg-info-subtle text-info-ink' },
   CERTIFICATION: {

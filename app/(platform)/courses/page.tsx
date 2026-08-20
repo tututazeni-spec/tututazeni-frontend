@@ -26,7 +26,6 @@ export default function CoursesPage() {
         <div>
           <h1 className="text-xl font-semibold text-ink">{TITLES[nav.view]}</h1>
           <p className="text-sm text-ink-faint mt-0.5">
-            INNOVA — Academia Corporativa
           </p>
         </div>
         {nav.view === 'catalog' && (

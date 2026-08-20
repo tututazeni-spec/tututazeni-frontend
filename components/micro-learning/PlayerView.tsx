@@ -237,7 +237,7 @@ export function PlayerView({ item, onBack, onNext }: PlayerViewProps) {
         <Card className="mb-5">
           <CardBody>
             <div className="mb-4 font-display text-sm font-semibold text-ink">
-              ❓ Quiz — {quizQs.length} perguntas
+              ❓ Questionário — {quizQs.length} perguntas
             </div>
             {quizQs.map((q, idx) => (
               <div
@@ -295,7 +295,7 @@ export function PlayerView({ item, onBack, onNext }: PlayerViewProps) {
               {quiz.result.score}%
             </div>
             <div className="mt-1 font-body text-sm font-medium">
-              {quiz.result.score >= 60 ? '🎉 Aprovado!' : '😔 Tenta novamente'}
+              {quiz.result.score >= 60 ? ' Aprovado!' : ' Tenta novamente'}
             </div>
             <div className="mt-0.5 font-body text-xs">
               {quiz.result.correct}/{quiz.result.total} correctas

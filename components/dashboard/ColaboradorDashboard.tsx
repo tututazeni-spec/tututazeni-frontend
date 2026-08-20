@@ -116,7 +116,7 @@ export function ColaboradorDashboard() {
         />
         <KpiCard
           icon={Award}
-          label="Badges Conquistados"
+          label="Distintivos Conquistados"
           value={data?.gamification?.recentBadges?.length ?? 0}
           intent="warning"
         />

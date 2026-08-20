@@ -92,7 +92,7 @@ export function RecordingModal({ lc, onClose }: RecordingModalProps) {
             {
               label: 'Avaliação',
               value: lc.postEvaluation
-                ? `⭐ ${lc.postEvaluation.averageScore.toFixed(1)}/5`
+                ? ` ${lc.postEvaluation.averageScore.toFixed(1)}/5`
                 : 'Sem avaliação',
             },
           ].map((f) => (

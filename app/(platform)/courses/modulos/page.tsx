@@ -122,10 +122,9 @@ export default function CourseModulesPage() {
       <div className="flex justify-between items-start mb-6 flex-wrap gap-3">
         <div>
           <h1 className="text-2xl font-bold text-ink m-0">
-            📦 Módulos & Lições
+            Módulos & Lições
           </h1>
           <p className="text-ink-muted text-sm mt-1">
-            Estrutura de conteúdo dos cursos
           </p>
         </div>
         <div className="flex gap-2">
@@ -134,7 +133,7 @@ export default function CourseModulesPage() {
             intent="ghost"
             className="bg-primary-subtle"
           >
-            📊 Progresso
+            Progresso
           </Button>
           {loaded && (
             <Button
@@ -187,7 +186,6 @@ export default function CourseModulesPage() {
           <Card>
             <CardBody className="p-4 flex items-center gap-3">
               <div className="w-10 h-10 rounded-lg bg-info-subtle flex items-center justify-center text-lg">
-                📦
               </div>
               <div>
                 <p className="m-0 text-xl font-extrabold text-primary">
@@ -251,7 +249,7 @@ export default function CourseModulesPage() {
       ) : status !== 'ready' ? (
         <Card>
           <CardBody className="text-center py-12 px-4">
-            <p className="text-3xl mb-3">📦</p>
+            <p className="text-3xl mb-3"></p>
             <p className="text-ink-faint text-sm">
               Insere o ID do curso para gerir os seus módulos e lições.
             </p>

@@ -26,7 +26,6 @@ export default function MicroLearningPage() {
             {TITLES[nav.view]}
           </h1>
           <p className="mt-0.5 font-body text-sm text-ink-faint">
-            INNOVA — Aprendizagem rápida
           </p>
         </div>
       </div>
