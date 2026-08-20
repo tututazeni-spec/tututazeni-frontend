@@ -15,8 +15,10 @@ import { ComplianceView } from '@/components/enrollments/ComplianceView';
 import { MyEnrollmentsView } from '@/components/enrollments/MyEnrollmentsView';
 import { TeamView } from '@/components/enrollments/TeamView';
 import type { View } from '@/components/enrollments/types';
+import { useToast } from '@/providers/ToastProvider';
 
 export default function EnrollmentsPage() {
+  const notify = useToast();
   const [view, setView] = useState<View>('my');
 
   return (
@@ -33,13 +35,26 @@ export default function EnrollmentsPage() {
         </div>
         {view === 'admin' && (
           <div className="flex gap-2">
-            <Button size="sm" onClick={() => alert('Abrir formulário de matrícula')}>
+            <Button
+              size="sm"
+              onClick={() =>
+                notify({
+                  title: 'Abrir formulário de matrícula',
+                  intent: 'info',
+                })
+              }
+            >
               + Matricular
             </Button>
             <Button
               size="sm"
               intent="secondary"
-              onClick={() => alert('Abrir modal de matrículas em massa')}
+              onClick={() =>
+                notify({
+                  title: 'Abrir modal de matrículas em massa',
+                  intent: 'info',
+                })
+              }
             >
               <Zap size={14} strokeWidth={1.75} />
               Em massa

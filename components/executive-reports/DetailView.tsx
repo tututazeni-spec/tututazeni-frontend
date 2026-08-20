@@ -8,6 +8,7 @@
 import { useState } from 'react';
 import { ArrowLeft, Lock } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
+import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -29,12 +30,25 @@ interface DetailViewProps {
 }
 
 const NARRATIVE_BLOCKS = [
-  { key: 'achievements', label: '🏆 Conquistas do período', cls: 'bg-success-subtle border-success/30' },
-  { key: 'risks', label: '⚠️ Riscos identificados', cls: 'bg-danger-subtle border-danger/30' },
-  { key: 'recommendations', label: '💡 Recomendações', cls: 'bg-info-subtle border-info/30' },
+  {
+    key: 'achievements',
+    label: '🏆 Conquistas do período',
+    cls: 'bg-success-subtle border-success/30',
+  },
+  {
+    key: 'risks',
+    label: '⚠️ Riscos identificados',
+    cls: 'bg-danger-subtle border-danger/30',
+  },
+  {
+    key: 'recommendations',
+    label: '💡 Recomendações',
+    cls: 'bg-info-subtle border-info/30',
+  },
 ] as const;
 
 export function DetailView({ reportId, onBack }: DetailViewProps) {
+  const notify = useToast();
   const [activeTab, setActiveTab] = useState<'kpis' | 'narrative' | 'actions'>(
     'kpis',
   );
@@ -53,7 +67,7 @@ export function DetailView({ reportId, onBack }: DetailViewProps) {
     },
     {
       invalidateKeys: [queryKeys.executiveReports.detail(reportId)],
-      onError: (e) => alert(e.message),
+      onError: (e) => notify({ title: e.message, intent: 'danger' }),
     },
   );
   const submitting = workflowMutation.isPending;
@@ -164,7 +178,10 @@ export function DetailView({ reportId, onBack }: DetailViewProps) {
       </Card>
 
       {/* Tabs */}
-      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as typeof activeTab)}>
+      <Tabs
+        value={activeTab}
+        onValueChange={(v) => setActiveTab(v as typeof activeTab)}
+      >
         <TabsList className="mb-5 w-fit">
           <TabsTrigger value="kpis">📊 KPIs</TabsTrigger>
           <TabsTrigger value="narrative">📝 Narrativa</TabsTrigger>

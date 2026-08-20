@@ -14,6 +14,7 @@ import { useState } from 'react';
 import Image from 'next/image';
 import { CheckCircle2, Circle, Lock, PlayCircle } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
+import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -52,6 +53,7 @@ function StepStatusIcon({
 }
 
 export function LPDetailView({ pathId, onBack }: LPDetailViewProps) {
+  const notify = useToast();
   const [tab, setTab] = useState<'roadmap' | 'info'>('roadmap');
 
   const pathQuery = useApiQuery<LearningPath>(
@@ -76,7 +78,7 @@ export function LPDetailView({ pathId, onBack }: LPDetailViewProps) {
         queryKeys.learningPaths.detail(pathId),
         queryKeys.learningPaths.progress(pathId),
       ],
-      onError: (e) => alert(e.message),
+      onError: (e) => notify({ title: e.message, intent: 'danger' }),
     },
   );
   const enrolling = enrollMutation.isPending;

@@ -10,6 +10,7 @@
 
 import { useEffect, useState } from 'react';
 import { useApiMutation, useApiQuery } from './useApiQuery';
+import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -23,6 +24,7 @@ export function useCourseDetail(courseId: number) {
   const [activeLesson, setActiveLesson] = useState<Lesson | null>(null);
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState('');
+  const notify = useToast();
 
   // course e progress em paralelo. O progress dá 4xx quando não inscrito → o RQ
   // não repete 4xx; tratamos a ausência como "não inscrito" (progress = null).
@@ -58,7 +60,7 @@ export function useCourseDetail(courseId: number) {
         queryKeys.courses.progress(courseId),
         queryKeys.courses.myEnrollments(),
       ],
-      onError: (e) => alert(e.message),
+      onError: (e) => notify({ title: e.message, intent: 'danger' }),
     },
   );
 
@@ -70,7 +72,7 @@ export function useCourseDetail(courseId: number) {
         queryKeys.courses.progress(courseId),
         queryKeys.courses.detail(courseId),
       ],
-      onError: (e) => alert(e.message),
+      onError: (e) => notify({ title: e.message, intent: 'danger' }),
     },
   );
 
@@ -79,11 +81,11 @@ export function useCourseDetail(courseId: number) {
     {
       invalidateKeys: [queryKeys.courses.detail(courseId)],
       onSuccess: () => {
-        alert('Obrigado pelo feedback!');
+        notify({ title: 'Obrigado pelo feedback!', intent: 'success' });
         setRating(0);
         setComment('');
       },
-      onError: (e) => alert(e.message),
+      onError: (e) => notify({ title: e.message, intent: 'danger' }),
     },
   );
 

@@ -10,6 +10,7 @@
 // padrão de app/(platform)/sucession/page.tsx).
 
 import { useState } from 'react';
+import { useToast } from '@/providers/ToastProvider';
 import { NAV, TITLES } from '@/components/competencies/constants';
 import { CatalogView } from '@/components/competencies/CatalogView';
 import { DashboardView } from '@/components/competencies/DashboardView';
@@ -19,6 +20,7 @@ import type { View } from '@/components/competencies/types';
 import { Button } from '@/components/ui/Button';
 
 export default function CompetenciesPage() {
+  const notify = useToast();
   const [view, setView] = useState<View>('catalog');
 
   return (
@@ -34,7 +36,14 @@ export default function CompetenciesPage() {
           </p>
         </div>
         {view === 'catalog' && (
-          <Button onClick={() => alert('Abrir formulário de criação de competência')}>
+          <Button
+            onClick={() =>
+              notify({
+                title: 'Abrir formulário de criação de competência',
+                intent: 'info',
+              })
+            }
+          >
             + Nova competência
           </Button>
         )}

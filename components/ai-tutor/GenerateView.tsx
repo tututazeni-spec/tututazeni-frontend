@@ -11,6 +11,7 @@ import { apiClient } from '@/lib/apiClient';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
+import { useToast } from '@/providers/ToastProvider';
 import type { Flashcard, GeneratedContent, QuizQuestion } from './types';
 
 const CONTENT_TYPES = [
@@ -21,6 +22,7 @@ const CONTENT_TYPES = [
 ] as const;
 
 export function GenerateView() {
+  const notify = useToast();
   const [type, setType] = useState<
     'QUIZ' | 'FLASHCARDS' | 'SUMMARY' | 'STUDY_PLAN'
   >('QUIZ');
@@ -29,14 +31,14 @@ export function GenerateView() {
   const generateMutation = useApiMutation(
     (payload: { type: typeof type; topic: string; count: number }) =>
       apiClient.post<GeneratedContent>('/ai-tutor/generate', payload),
-    { onError: (e) => alert(e.message) },
+    { onError: (e) => notify({ title: e.message, intent: 'danger' }) },
   );
   const result = generateMutation.data ?? null;
   const loading = generateMutation.isPending;
 
   const generate = () => {
     if (!topic.trim()) {
-      alert('Introduz um tema');
+      notify({ title: 'Introduz um tema', intent: 'danger' });
       return;
     }
     generateMutation.mutate({ type, topic, count });
@@ -90,9 +92,7 @@ export function GenerateView() {
                 {c.front}
               </div>
               <div className="h-px bg-border mb-3" />
-              <div className="font-body text-xs text-ink-faint mb-1">
-                VERSO
-              </div>
+              <div className="font-body text-xs text-ink-faint mb-1">VERSO</div>
               <div className="font-body text-sm text-ink">{c.back}</div>
             </Card>
           ))}

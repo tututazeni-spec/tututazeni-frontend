@@ -10,6 +10,7 @@
 import { useEffect, useReducer, useRef } from 'react';
 import { apiClient } from '@/lib/apiClient';
 import { useConfirm } from '@/providers/ConfirmProvider';
+import { useToast } from '@/providers/ToastProvider';
 import { Button } from '@/components/ui/Button';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { CountdownTimer } from './CountdownTimer';
@@ -117,6 +118,7 @@ export function AssessmentPlayer({
   onBack,
 }: AssessmentPlayerProps) {
   const confirm = useConfirm();
+  const notify = useToast();
   const [state, dispatch] = useReducer(playerReducer, initialPlayerState);
   const { status, assessment, attempt, answers, currentIdx, result } = state;
 
@@ -173,11 +175,14 @@ export function AssessmentPlayer({
           answers: restored,
         });
       } catch (e) {
-        alert(e instanceof Error ? e.message : String(e));
+        notify({
+          title: e instanceof Error ? e.message : String(e),
+          intent: 'danger',
+        });
       }
     };
     init();
-  }, [assessmentId]);
+  }, [assessmentId, notify]);
 
   // Auto-save a cada 30s
   useEffect(() => {
@@ -208,7 +213,10 @@ export function AssessmentPlayer({
       );
       dispatch({ type: 'SUBMIT_DONE', result: res });
     } catch (e) {
-      alert(e instanceof Error ? e.message : String(e));
+      notify({
+        title: e instanceof Error ? e.message : String(e),
+        intent: 'danger',
+      });
       dispatch({ type: 'SUBMIT_ERROR' });
     }
   };
@@ -233,7 +241,10 @@ export function AssessmentPlayer({
   };
 
   const handleTimerExpire = () => {
-    alert('Tempo esgotado! A submeter automaticamente.');
+    notify({
+      title: 'Tempo esgotado! A submeter automaticamente.',
+      intent: 'info',
+    });
     handleSubmit();
   };
 

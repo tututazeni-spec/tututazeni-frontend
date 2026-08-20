@@ -5,6 +5,7 @@
 
 import { useState } from 'react';
 import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
+import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -18,6 +19,7 @@ import {
 export function useCertificateTemplates() {
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState<TemplateForm>(EMPTY_TEMPLATE_FORM);
+  const notify = useToast();
 
   const {
     data = [],
@@ -51,7 +53,8 @@ export function useCertificateTemplates() {
         setShowForm(false);
         setForm(EMPTY_TEMPLATE_FORM);
       },
-      onError: (e) => alert(e.message || 'Erro inesperado'),
+      onError: (e) =>
+        notify({ title: e.message || 'Erro inesperado', intent: 'danger' }),
     },
   );
   const saving = createMut.isPending;

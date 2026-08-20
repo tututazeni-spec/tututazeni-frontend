@@ -6,6 +6,7 @@
 
 import { useState } from 'react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
+import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -20,6 +21,7 @@ interface GenerateViewProps {
 }
 
 export function GenerateView({ onSuccess }: GenerateViewProps) {
+  const notify = useToast();
   const [type, setType] = useState<ReportType>('MONTHLY');
 
   const { data: templates = [] } = useApiQuery<ReportTemplate[]>(
@@ -37,7 +39,7 @@ export function GenerateView({ onSuccess }: GenerateViewProps) {
       ),
     {
       onSuccess: (report) => onSuccess(report.id),
-      onError: (e) => alert(e.message),
+      onError: (e) => notify({ title: e.message, intent: 'danger' }),
     },
   );
   const generating = generateMutation.isPending;

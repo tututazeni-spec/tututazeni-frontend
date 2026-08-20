@@ -9,6 +9,7 @@
 // app/(platform)/events/page.tsx.
 
 import { useState } from 'react';
+import { useToast } from '@/providers/ToastProvider';
 import { NAV, TITLES } from '@/components/onboarding/constants';
 import { DashboardView } from '@/components/onboarding/DashboardView';
 import { MyPlanView } from '@/components/onboarding/MyPlanView';
@@ -17,6 +18,7 @@ import type { View } from '@/components/onboarding/types';
 import { Button } from '@/components/ui/Button';
 
 export default function OnboardingPage() {
+  const notify = useToast();
   const [view, setView] = useState<View>('my-plan');
 
   return (
@@ -31,7 +33,12 @@ export default function OnboardingPage() {
         {view === 'templates' && (
           <Button
             size="sm"
-            onClick={() => alert('Abrir formulário de criação de template')}
+            onClick={() =>
+              notify({
+                title: 'Abrir formulário de criação de template',
+                intent: 'info',
+              })
+            }
           >
             + Novo template
           </Button>

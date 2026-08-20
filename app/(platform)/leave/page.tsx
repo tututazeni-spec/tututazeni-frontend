@@ -27,6 +27,7 @@ import {
   usePendingApprovals,
 } from '@/hooks/useLeave';
 import { useConfirm } from '@/providers/ConfirmProvider';
+import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { cn } from '@/lib/cn';
@@ -49,6 +50,7 @@ type TabKey = 'my' | 'approvals' | 'dashboard';
 export default function LeavePage() {
   const [tab, setTab] = useState<TabKey>('my');
   const [showModal, setShowModal] = useState(false);
+  const notify = useToast();
 
   const leaveTypes = useLeaveTypes();
   const { balances, loading: bLoading, refetch: bRefetch } = useMyBalance();
@@ -76,7 +78,7 @@ export default function LeavePage() {
         queryKeys.leave.pendingApprovals(),
         queryKeys.leave.dashboard(),
       ],
-      onError: (e) => alert(e.message),
+      onError: (e) => notify({ title: e.message, intent: 'danger' }),
     },
   );
 
@@ -87,7 +89,7 @@ export default function LeavePage() {
         queryKeys.leave.myRequests(),
         queryKeys.leave.myBalance(),
       ],
-      onError: (e) => alert(e.message),
+      onError: (e) => notify({ title: e.message, intent: 'danger' }),
     },
   );
 
@@ -102,7 +104,7 @@ export default function LeavePage() {
         queryKeys.leave.pendingApprovals(),
         queryKeys.leave.dashboard(),
       ],
-      onError: (e) => alert(e.message),
+      onError: (e) => notify({ title: e.message, intent: 'danger' }),
     },
   );
 

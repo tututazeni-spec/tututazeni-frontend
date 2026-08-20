@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { FormField } from '@/components/ui/FormField';
 import { Card, CardBody } from '@/components/ui/Card';
+import { useToast } from '@/providers/ToastProvider';
 import type { LessonProgress } from './types';
 
 interface ProgressModalProps {
@@ -20,13 +21,14 @@ interface ProgressModalProps {
 }
 
 export function ProgressModal({ onClose, onMarked }: ProgressModalProps) {
+  const notify = useToast();
   const [enrollmentId, setEnrollmentId] = useState('');
   const [lessonId, setLessonId] = useState('');
 
   const progressQuery = useApiMutation(
     (enrId: string) =>
       apiClient.get<LessonProgress[]>(`/lessons/progress/${enrId}`),
-    { onError: (e) => alert(e.message) },
+    { onError: (e) => notify({ title: e.message, intent: 'danger' }) },
   );
   const progress = progressQuery.data ?? [];
   const loading = progressQuery.isPending;
@@ -45,7 +47,7 @@ export function ProgressModal({ onClose, onMarked }: ProgressModalProps) {
         onMarked();
         loadProgress();
       },
-      onError: (e) => alert(e.message),
+      onError: (e) => notify({ title: e.message, intent: 'danger' }),
     },
   );
   const marking = markCompleteMutation.isPending;
@@ -186,13 +188,13 @@ export function ProgressModal({ onClose, onMarked }: ProgressModalProps) {
                         <span className="text-xs font-bold text-success">
                           ✅{' '}
                           {p.completedAt
-                            ? new Date(p.completedAt).toLocaleDateString('pt-PT')
+                            ? new Date(p.completedAt).toLocaleDateString(
+                                'pt-PT',
+                              )
                             : 'Concluída'}
                         </span>
                       ) : (
-                        <span className="text-xs text-ink-faint">
-                          Pendente
-                        </span>
+                        <span className="text-xs text-ink-faint">Pendente</span>
                       )}
                     </div>
                   );

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Plus, Upload } from 'lucide-react';
+import { useToast } from '@/providers/ToastProvider';
 import { Button } from '@/components/ui/Button';
 import { NAV, TITLES } from '@/components/users/constants';
 import { CreateUserView } from '@/components/users/CreateUserView';
@@ -12,6 +13,7 @@ import { UserProfile } from '@/components/users/UserProfile';
 import type { Nav } from '@/components/users/types';
 
 export default function UsersPage() {
+  const notify = useToast();
   const [nav, setNav] = useState<Nav>({ view: 'list' });
 
   const handleSelect = (id: number) =>
@@ -25,9 +27,7 @@ export default function UsersPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-xl font-semibold text-ink">
-            {TITLES[nav.view]}
-          </h1>
+          <h1 className="text-xl font-semibold text-ink">{TITLES[nav.view]}</h1>
           <p className="text-sm text-ink-faint mt-0.5">
             INNOVA — Recursos Humanos
           </p>
@@ -40,7 +40,12 @@ export default function UsersPage() {
             </Button>
             <Button
               intent="secondary"
-              onClick={() => alert('Abrir modal de importação CSV/Excel')}
+              onClick={() =>
+                notify({
+                  title: 'Abrir modal de importação CSV/Excel',
+                  intent: 'info',
+                })
+              }
             >
               <Upload size={16} strokeWidth={1.75} />
               Importar

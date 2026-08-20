@@ -8,6 +8,7 @@
 
 import { useState } from 'react';
 import { Plus } from 'lucide-react';
+import { useToast } from '@/providers/ToastProvider';
 import { Button } from '@/components/ui/Button';
 import { NAV, TITLES } from '@/components/departments/constants';
 import { DashboardView } from '@/components/departments/DashboardView';
@@ -17,6 +18,7 @@ import { TreeView } from '@/components/departments/TreeView';
 import type { Nav } from '@/components/departments/types';
 
 export default function DepartmentsPage() {
+  const notify = useToast();
   const [nav, setNav] = useState<Nav>({ view: 'list' });
 
   const handleSelect = (id: number) =>
@@ -28,16 +30,19 @@ export default function DepartmentsPage() {
       {/* Header */}
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-semibold text-ink">
-            {TITLES[nav.view]}
-          </h1>
+          <h1 className="text-xl font-semibold text-ink">{TITLES[nav.view]}</h1>
           <p className="mt-0.5 text-sm text-ink-faint">
             INNOVA — Estrutura Organizacional
           </p>
         </div>
         {nav.view === 'list' && (
           <Button
-            onClick={() => alert('Abrir formulário de criação de departamento')}
+            onClick={() =>
+              notify({
+                title: 'Abrir formulário de criação de departamento',
+                intent: 'info',
+              })
+            }
           >
             <Plus size={16} strokeWidth={1.75} />
             Novo departamento

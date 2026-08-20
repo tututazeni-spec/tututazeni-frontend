@@ -11,6 +11,7 @@
 
 import { useState } from 'react';
 import { Plus } from 'lucide-react';
+import { useToast } from '@/providers/ToastProvider';
 import { Button } from '@/components/ui/Button';
 import { DashboardView } from '@/components/processes/DashboardView';
 import { LibraryView } from '@/components/processes/LibraryView';
@@ -34,6 +35,7 @@ const NAV: Array<{ id: TabKey; label: string }> = [
 ];
 
 export default function ProcessStandardPage() {
+  const notify = useToast();
   const [nav, setNav] = useState<Nav>({ view: 'library' });
 
   const handleSelectProcess = (id: number) => {
@@ -82,7 +84,12 @@ export default function ProcessStandardPage() {
         </div>
         {nav.view === 'library' && (
           <Button
-            onClick={() => alert('Abrir formulário de criação de processo')}
+            onClick={() =>
+              notify({
+                title: 'Abrir formulário de criação de processo',
+                intent: 'info',
+              })
+            }
           >
             <Plus size={16} strokeWidth={1.75} />
             Novo processo

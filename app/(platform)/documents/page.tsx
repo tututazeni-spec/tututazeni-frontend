@@ -14,14 +14,8 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { useState } from 'react';
-import {
-  FolderOpen,
-  Grid,
-  List,
-  RefreshCcw,
-  Search,
-  X,
-} from 'lucide-react';
+import { FolderOpen, Grid, List, RefreshCcw, Search, X } from 'lucide-react';
+import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { IconButton } from '@/components/ui/Button';
@@ -76,6 +70,7 @@ const TABLE_HEADERS = [
 ];
 
 export default function DocumentRepositoryPage() {
+  const notify = useToast();
   const [view, setView] = useState<ViewMode>('grid');
   const [filters, setFilters] = useState<DocFilters>(INITIAL_DOC_FILTERS);
   const [showUpload, setShowUpload] = useState(false);
@@ -96,7 +91,10 @@ export default function DocumentRepositoryPage() {
       );
       window.open(result.fileUrl, '_blank');
     } catch (e) {
-      alert(e instanceof Error ? e.message : String(e));
+      notify({
+        title: e instanceof Error ? e.message : String(e),
+        intent: 'danger',
+      });
     }
   };
 

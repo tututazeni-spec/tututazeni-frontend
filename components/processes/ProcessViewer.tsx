@@ -9,6 +9,7 @@
 
 import { useState } from 'react';
 import { ArrowLeft, Check, Paperclip, Play, Plus, Send, X } from 'lucide-react';
+import { useToast } from '@/providers/ToastProvider';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { apiClient } from '@/lib/apiClient';
@@ -39,6 +40,7 @@ export function ProcessViewer({
   onBack,
   onStartInstance,
 }: ProcessViewerProps) {
+  const notify = useToast();
   const [activeTab, setActiveTab] = useState<'flow' | 'info' | 'history'>(
     'flow',
   );
@@ -61,7 +63,7 @@ export function ProcessViewer({
     () => apiClient.patch(`/processes/${processId}/submit-review`, {}),
     {
       invalidateKeys: [queryKeys.processes.detail(processId)],
-      onError: (e) => alert(e.message),
+      onError: (e) => notify({ title: e.message, intent: 'danger' }),
     },
   );
   const submitting = submitReview.isPending;
@@ -72,7 +74,7 @@ export function ProcessViewer({
       apiClient.patch(`/processes/${processId}/approval`, vars),
     {
       invalidateKeys: [queryKeys.processes.detail(processId)],
-      onError: (e) => alert(e.message),
+      onError: (e) => notify({ title: e.message, intent: 'danger' }),
     },
   );
   const handleApproval = (action: 'approve' | 'reject') => {
@@ -89,7 +91,7 @@ export function ProcessViewer({
       }),
     {
       onSuccess: (inst) => onStartInstance(inst.id),
-      onError: (e) => alert(e.message),
+      onError: (e) => notify({ title: e.message, intent: 'danger' }),
     },
   );
   const handleStartInstance = () => {
@@ -103,7 +105,7 @@ export function ProcessViewer({
     () => apiClient.post(`/processes/${processId}/new-version`, {}),
     {
       invalidateKeys: [queryKeys.processes.detail(processId)],
-      onError: (e) => alert(e.message),
+      onError: (e) => notify({ title: e.message, intent: 'danger' }),
     },
   );
   const handleNewVersion = async () => {

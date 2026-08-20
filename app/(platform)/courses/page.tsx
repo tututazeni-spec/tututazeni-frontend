@@ -9,8 +9,10 @@ import { CourseDetail } from '@/components/courses/CourseDetail';
 import { MyEnrollmentsView } from '@/components/courses/MyEnrollmentsView';
 import type { Nav } from '@/components/courses/types';
 import { Button } from '@/components/ui/Button';
+import { useToast } from '@/providers/ToastProvider';
 
 export default function CoursesPage() {
+  const notify = useToast();
   const [nav, setNav] = useState<Nav>({ view: 'catalog' });
 
   const handleSelect = (id: number) =>
@@ -22,15 +24,20 @@ export default function CoursesPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-xl font-semibold text-ink">
-            {TITLES[nav.view]}
-          </h1>
+          <h1 className="text-xl font-semibold text-ink">{TITLES[nav.view]}</h1>
           <p className="text-sm text-ink-faint mt-0.5">
             INNOVA — Academia Corporativa
           </p>
         </div>
         {nav.view === 'catalog' && (
-          <Button onClick={() => alert('Abrir formulário de criação de curso')}>
+          <Button
+            onClick={() =>
+              notify({
+                title: 'Abrir formulário de criação de curso',
+                intent: 'info',
+              })
+            }
+          >
             + Criar curso
           </Button>
         )}

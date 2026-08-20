@@ -7,6 +7,7 @@
 import { useState } from 'react';
 import { Search } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
+import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -27,6 +28,7 @@ function scoreClass(score: number): string {
 }
 
 export function VacanciesView() {
+  const notify = useToast();
   const [typeFilter, setTypeFilter] = useState('');
   const [applying, setApplying] = useState<number | null>(null);
 
@@ -46,9 +48,15 @@ export function VacanciesView() {
     try {
       await apiClient.post(`/career/vacancies/${vacancyId}/apply`, {});
       await refetch();
-      alert('✅ Candidatura enviada com sucesso!');
+      notify({
+        title: 'Candidatura enviada com sucesso!',
+        intent: 'success',
+      });
     } catch (e) {
-      alert(e instanceof Error ? e.message : String(e));
+      notify({
+        title: e instanceof Error ? e.message : String(e),
+        intent: 'danger',
+      });
     } finally {
       setApplying(null);
     }
@@ -88,14 +96,20 @@ export function VacanciesView() {
               intent: 'neutral' as const,
             };
             return (
-              <Card key={v.id} className="p-4 transition-shadow duration-150 hover:shadow-hover">
+              <Card
+                key={v.id}
+                className="p-4 transition-shadow duration-150 hover:shadow-hover"
+              >
                 <div className="mb-2 flex items-start justify-between gap-2">
                   <Badge intent={typeCfg.intent}>
                     {typeCfg.icon} {typeCfg.label}
                   </Badge>
                   {v.matchScore !== undefined && (
                     <span
-                      className={cn('font-body text-sm font-bold', scoreClass(v.matchScore))}
+                      className={cn(
+                        'font-body text-sm font-bold',
+                        scoreClass(v.matchScore),
+                      )}
                     >
                       {v.matchScore}% match
                     </span>
@@ -116,11 +130,21 @@ export function VacanciesView() {
                       ` · Fecha ${new Date(v.closingDate).toLocaleDateString('pt-AO', { day: '2-digit', month: 'short' })}`}
                   </span>
                   {v.applied ? (
-                    <Badge intent={v.applicationStatus === 'ACCEPTED' ? 'success' : 'neutral'}>
+                    <Badge
+                      intent={
+                        v.applicationStatus === 'ACCEPTED'
+                          ? 'success'
+                          : 'neutral'
+                      }
+                    >
                       {v.applicationStatus ?? 'Candidatado'}
                     </Badge>
                   ) : (
-                    <Button size="sm" onClick={() => apply(v.id)} loading={applying === v.id}>
+                    <Button
+                      size="sm"
+                      onClick={() => apply(v.id)}
+                      loading={applying === v.id}
+                    >
                       Candidatar-me
                     </Button>
                   )}

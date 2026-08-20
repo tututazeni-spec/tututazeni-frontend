@@ -23,6 +23,7 @@ import { Button } from '@/components/ui/Button';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { Textarea } from '@/components/ui/Textarea';
+import { useToast } from '@/providers/ToastProvider';
 import { ARTICLE_STATUS_MAP } from './constants';
 import { timeAgo } from './utils';
 import type { Article } from './types';
@@ -37,6 +38,7 @@ export function ArticleDetailView({
   onBack,
 }: ArticleDetailViewProps) {
   const qc = useQueryClient();
+  const notify = useToast();
   const [comment, setComment] = useState('');
   const [rating, setRating] = useState(0);
   const [hovRating, setHovRating] = useState(0);
@@ -59,7 +61,10 @@ export function ArticleDetailView({
         prev ? { ...prev, userBookmarked: res.active } : prev,
       );
     } catch (e) {
-      alert(e instanceof Error ? e.message : String(e));
+      notify({
+        title: e instanceof Error ? e.message : String(e),
+        intent: 'danger',
+      });
     }
   };
 
@@ -68,7 +73,10 @@ export function ArticleDetailView({
       await apiClient.post('/knowledge/rate', { articleId, score });
       setRating(score);
     } catch (e) {
-      alert(e instanceof Error ? e.message : String(e));
+      notify({
+        title: e instanceof Error ? e.message : String(e),
+        intent: 'danger',
+      });
     }
   };
 
@@ -78,7 +86,7 @@ export function ArticleDetailView({
     {
       invalidateKeys: [articleKey],
       onSuccess: () => setComment(''),
-      onError: (e) => alert(e.message),
+      onError: (e) => notify({ title: e.message, intent: 'danger' }),
     },
   );
   const posting = commentMutation.isPending;
@@ -93,7 +101,7 @@ export function ArticleDetailView({
         qc.setQueryData<Article>(articleKey, (prev) =>
           prev ? { ...prev, userAcknowledged: true } : prev,
         ),
-      onError: (e) => alert(e.message),
+      onError: (e) => notify({ title: e.message, intent: 'danger' }),
     },
   );
   const acknowledging = acknowledgeMutation.isPending;

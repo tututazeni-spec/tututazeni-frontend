@@ -10,6 +10,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Layers, Pencil, Plus, Trash2, Upload } from 'lucide-react';
 import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
 import { useConfirm } from '@/providers/ConfirmProvider';
+import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -28,6 +29,7 @@ interface ModuleBuilderProps {
 
 export function ModuleBuilder({ courseId }: ModuleBuilderProps) {
   const qc = useQueryClient();
+  const notify = useToast();
   const [editingModule, setEditingModule] = useState<number | null>(null);
   const [creatingModule, setCreatingModule] = useState(false);
   const [newModuleTitle, setNewModuleTitle] = useState('');
@@ -56,7 +58,7 @@ export function ModuleBuilder({ courseId }: ModuleBuilderProps) {
         setNewModuleTitle('');
         setCreatingModule(false);
       },
-      onError: (e) => alert(e.message),
+      onError: (e) => notify({ title: e.message, intent: 'danger' }),
     },
   );
   const saving = createModule.isPending;
@@ -71,7 +73,10 @@ export function ModuleBuilder({ courseId }: ModuleBuilderProps) {
       await apiClient.patch(`/modules/${moduleId}/publish`, {});
       await reload();
     } catch (e) {
-      alert(e instanceof Error ? e.message : String(e));
+      notify({
+        title: e instanceof Error ? e.message : String(e),
+        intent: 'danger',
+      });
     }
   };
 
@@ -90,7 +95,10 @@ export function ModuleBuilder({ courseId }: ModuleBuilderProps) {
       await apiClient.delete(`/modules/${moduleId}`);
       await reload();
     } catch (e) {
-      alert(e instanceof Error ? e.message : String(e));
+      notify({
+        title: e instanceof Error ? e.message : String(e),
+        intent: 'danger',
+      });
     }
   };
 

@@ -18,11 +18,13 @@ import { Input } from '@/components/ui/Input';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
+import { useToast } from '@/providers/ToastProvider';
 import { ORIGIN_LABELS, STATUS_CFG } from './constants';
 import { deadlineCountdown, deadlineIntent } from './utils';
 import type { Enrollment } from './types';
 
 export function AdminView() {
+  const notify = useToast();
   // Um só objecto para os filtros + page: mudar qualquer filtro repõe a
   // página a 1 automaticamente (o checkbox "overdue" não fazia isto antes).
   const [filters, setFilters] = useState({
@@ -76,7 +78,7 @@ export function AdminView() {
         setSelected([]);
         setBulkDeadline('');
       },
-      onError: (e) => alert(e.message),
+      onError: (e) => notify({ title: e.message, intent: 'danger' }),
     },
   );
   const bulkLoading = bulkDeadlineMut.isPending;
@@ -196,12 +198,18 @@ export function AdminView() {
               />
               <div className="flex flex-col gap-1">
                 <div className="flex items-center gap-2">
-                  <Avatar name={e.user?.fullName ?? ''} url={e.user?.avatarUrl ?? undefined} size="sm" />
+                  <Avatar
+                    name={e.user?.fullName ?? ''}
+                    url={e.user?.avatarUrl ?? undefined}
+                    size="sm"
+                  />
                   <div>
                     <div className="text-xs font-medium text-ink">
                       {e.user?.fullName}
                     </div>
-                    <div className="text-xs text-ink-faint">{e.user?.email}</div>
+                    <div className="text-xs text-ink-faint">
+                      {e.user?.email}
+                    </div>
                   </div>
                 </div>
                 <div className="truncate pl-10 text-xs text-ink-muted">

@@ -3,6 +3,7 @@
 
 import { useState, useEffect } from 'react';
 import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
+import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
 import { cn } from '@/lib/cn';
 import { queryKeys } from '@/lib/queryKeys';
@@ -72,6 +73,7 @@ function InboxView() {
 // ─── View: Preferences ────────────────────────────────────────────────────────
 
 function PreferencesView() {
+  const notify = useToast();
   // Cache das preferências + cópia local editável (sincroniza quando chega).
   const { data, isLoading } = useApiQuery<Preferences>(
     queryKeys.notifications.preferences(),
@@ -93,7 +95,7 @@ function PreferencesView() {
         setSaved(true);
         setTimeout(() => setSaved(false), 2000);
       },
-      onError: (e) => alert(e.message),
+      onError: (e) => notify({ title: e.message, intent: 'danger' }),
     },
   );
   const saving = save.isPending;
@@ -158,7 +160,9 @@ function PreferencesView() {
             <div className="flex items-center gap-3">
               <span className="text-xl">{icon}</span>
               <div>
-                <div className="font-body text-sm font-medium text-ink">{label}</div>
+                <div className="font-body text-sm font-medium text-ink">
+                  {label}
+                </div>
                 <div className="font-body text-xs text-ink-faint">{sub}</div>
               </div>
             </div>
@@ -284,7 +288,10 @@ function PreferencesView() {
       </Card>
 
       <Button
-        className={cn('w-full', saved && 'bg-success hover:bg-success active:bg-success')}
+        className={cn(
+          'w-full',
+          saved && 'bg-success hover:bg-success active:bg-success',
+        )}
         disabled={saving}
         onClick={handleSave}
       >

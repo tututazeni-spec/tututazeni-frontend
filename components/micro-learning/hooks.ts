@@ -3,6 +3,7 @@
 // app/(platform)/micro-learning/page.tsx.
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useToast } from '@/providers/ToastProvider';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import type { MicroLearning, QuizResult } from './types';
@@ -76,6 +77,7 @@ export function useQuizAttempt(
   item: MicroLearning,
   onPassed: () => Promise<void> | void,
 ) {
+  const notify = useToast();
   const [answers, setAnswers] = useState<number[]>([]);
 
   const setAnswer = (idx: number, optionIdx: number) => {
@@ -96,7 +98,7 @@ export function useQuizAttempt(
       onSuccess: async (res) => {
         if (res.score >= 60) await onPassed();
       },
-      onError: (e) => alert(e.message),
+      onError: (e) => notify({ title: e.message, intent: 'danger' }),
     },
   );
 

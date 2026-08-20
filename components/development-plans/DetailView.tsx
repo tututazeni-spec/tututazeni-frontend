@@ -6,6 +6,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useToast } from '@/providers/ToastProvider';
 import {
   ArrowLeft,
   ArrowRight,
@@ -51,6 +52,7 @@ const TABS = [
 ] as const;
 
 export function DetailView({ planId, onBack }: DetailViewProps) {
+  const notify = useToast();
   const [updatingAction, setUpdatingAction] = useState<number | null>(null);
   const [updatingGoal, setUpdatingGoal] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState<
@@ -76,7 +78,10 @@ export function DetailView({ planId, onBack }: DetailViewProps) {
       });
       await refetch();
     } catch (e) {
-      alert(e instanceof Error ? e.message : String(e));
+      notify({
+        title: e instanceof Error ? e.message : String(e),
+        intent: 'danger',
+      });
     } finally {
       setUpdatingAction(null);
     }
@@ -91,7 +96,10 @@ export function DetailView({ planId, onBack }: DetailViewProps) {
       });
       await refetch();
     } catch (e) {
-      alert(e instanceof Error ? e.message : String(e));
+      notify({
+        title: e instanceof Error ? e.message : String(e),
+        intent: 'danger',
+      });
     } finally {
       setUpdatingGoal(null);
     }
@@ -102,7 +110,10 @@ export function DetailView({ planId, onBack }: DetailViewProps) {
       await apiClient.patch(`/development-plans/${planId}/submit`, {});
       await refetch();
     } catch (e) {
-      alert(e instanceof Error ? e.message : String(e));
+      notify({
+        title: e instanceof Error ? e.message : String(e),
+        intent: 'danger',
+      });
     }
   };
 
@@ -151,7 +162,10 @@ export function DetailView({ planId, onBack }: DetailViewProps) {
             <div className="mb-1 flex justify-between font-body text-xs text-ink-faint">
               <span>Progresso geral</span>
               <span
-                className={cn('font-data font-semibold', progressTextClass(pct))}
+                className={cn(
+                  'font-data font-semibold',
+                  progressTextClass(pct),
+                )}
               >
                 {pct}%
               </span>
@@ -379,7 +393,9 @@ export function DetailView({ planId, onBack }: DetailViewProps) {
           {plan.checkpoints?.map((cp) => (
             <Card
               key={cp.id}
-              className={cp.status === 'COMPLETED' ? 'border-success' : undefined}
+              className={
+                cp.status === 'COMPLETED' ? 'border-success' : undefined
+              }
             >
               <CardBody className="flex items-center gap-4">
                 <div

@@ -9,6 +9,7 @@ import { useState } from 'react';
 import { ArrowRight } from 'lucide-react';
 import { keepPreviousData } from '@tanstack/react-query';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
+import { useToast } from '@/providers/ToastProvider';
 import { useDebounce } from '@/hooks/useDebounce';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -35,6 +36,7 @@ interface UserListViewProps {
 }
 
 export function UserListView({ onSelect }: UserListViewProps) {
+  const notify = useToast();
   // Um só objecto para os filtros + page: mudar qualquer filtro repõe a
   // página a 1 automaticamente, em vez de cada handler repetir setPage(1).
   const [filters, setFilters] = useState({
@@ -85,7 +87,7 @@ export function UserListView({ onSelect }: UserListViewProps) {
         setSelected([]);
         setBulkAction('');
       },
-      onError: (e) => alert(e.message),
+      onError: (e) => notify({ title: e.message, intent: 'danger' }),
     },
   );
 
@@ -199,7 +201,10 @@ export function UserListView({ onSelect }: UserListViewProps) {
           <TableBody>
             {data?.data.length === 0 && (
               <TableRow>
-                <TableCell colSpan={7} className="py-12 text-center text-ink-faint">
+                <TableCell
+                  colSpan={7}
+                  className="py-12 text-center text-ink-faint"
+                >
                   Nenhum utilizador encontrado
                 </TableCell>
               </TableRow>
@@ -219,7 +224,11 @@ export function UserListView({ onSelect }: UserListViewProps) {
                     className="flex items-center gap-3 cursor-pointer"
                     onClick={() => onSelect(user.id)}
                   >
-                    <Avatar name={user.fullName} url={user.avatarUrl ?? undefined} size="sm" />
+                    <Avatar
+                      name={user.fullName}
+                      url={user.avatarUrl ?? undefined}
+                      size="sm"
+                    />
                     <div>
                       <div className="text-sm font-medium text-ink">
                         {user.fullName}

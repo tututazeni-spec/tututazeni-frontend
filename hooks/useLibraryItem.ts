@@ -5,12 +5,14 @@
 
 import { useState, useEffect } from 'react';
 import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
+import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import type { ItemDetail } from '@/components/library/types';
 
 export function useLibraryItem(id: string) {
+  const notify = useToast();
   const [score, setScore] = useState(0);
   const [comment, setComment] = useState('');
   const [newComment, setNewComment] = useState('');
@@ -39,7 +41,8 @@ export function useLibraryItem(id: string) {
       onSuccess: (json) => {
         if (json.fileUrl) window.open(json.fileUrl, '_blank');
       },
-      onError: (e) => alert(e.message || 'Erro inesperado'),
+      onError: (e) =>
+        notify({ title: e.message || 'Erro inesperado', intent: 'danger' }),
     },
   );
   const download = () => downloadMut.mutate(undefined);
@@ -56,7 +59,8 @@ export function useLibraryItem(id: string) {
         setScore(0);
         setComment('');
       },
-      onError: (e) => alert(e.message || 'Erro inesperado'),
+      onError: (e) =>
+        notify({ title: e.message || 'Erro inesperado', intent: 'danger' }),
     },
   );
 
@@ -66,7 +70,8 @@ export function useLibraryItem(id: string) {
     {
       invalidateKeys: [queryKeys.library.item(id)],
       onSuccess: () => setNewComment(''),
-      onError: (e) => alert(e.message || 'Erro inesperado'),
+      onError: (e) =>
+        notify({ title: e.message || 'Erro inesperado', intent: 'danger' }),
     },
   );
   const saving = rateMut.isPending || commentMut.isPending;
@@ -74,7 +79,7 @@ export function useLibraryItem(id: string) {
   function submitRating(e: React.FormEvent) {
     e.preventDefault();
     if (!score) {
-      alert('Selecciona uma pontuação');
+      notify({ title: 'Selecciona uma pontuação', intent: 'danger' });
       return;
     }
     rateMut.mutate(undefined);

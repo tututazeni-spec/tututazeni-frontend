@@ -8,6 +8,7 @@
 import { useState } from 'react';
 import { History, Sparkles } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
+import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -28,6 +29,7 @@ function scoreClass(score: number): string {
 }
 
 export function DashboardView() {
+  const notify = useToast();
   const [simTarget, setSimTarget] = useState('');
 
   const { data: profile, isLoading: loading } = useApiQuery<CareerProfile>(
@@ -39,7 +41,7 @@ export function DashboardView() {
   const simulateMutation = useApiMutation(
     (target: string) =>
       apiClient.get<SimulationResult>(`/career/me/simulate/${target}`),
-    { onError: (e) => alert(e.message) },
+    { onError: (e) => notify({ title: e.message, intent: 'danger' }) },
   );
   const simulation = simulateMutation.data ?? null;
   const simLoading = simulateMutation.isPending;
@@ -57,7 +59,11 @@ export function DashboardView() {
       {/* Header do perfil */}
       <Card className="p-6">
         <div className="flex items-start gap-4">
-          <Avatar name={user.fullName} url={user.avatarUrl ?? undefined} size="lg" />
+          <Avatar
+            name={user.fullName}
+            url={user.avatarUrl ?? undefined}
+            size="lg"
+          />
           <div className="flex-1">
             <h2 className="font-display text-lg font-bold text-ink">
               {user.fullName}
@@ -288,7 +294,11 @@ export function DashboardView() {
             onChange={(e) => setSimTarget(e.target.value)}
             className="flex-1"
           />
-          <Button onClick={runSimulation} disabled={!simTarget} loading={simLoading}>
+          <Button
+            onClick={runSimulation}
+            disabled={!simTarget}
+            loading={simLoading}
+          >
             Simular
           </Button>
         </div>
@@ -300,7 +310,9 @@ export function DashboardView() {
                 <div className="font-body text-sm font-bold text-ink">
                   {simulation.targetPosition.name}
                 </div>
-                <div className="font-body text-xs text-ink-muted">Cargo alvo</div>
+                <div className="font-body text-xs text-ink-muted">
+                  Cargo alvo
+                </div>
               </div>
               <div
                 className={cn(
@@ -311,7 +323,10 @@ export function DashboardView() {
                 {simulation.readinessScore}%
               </div>
             </div>
-            <ProgressBar value={simulation.readinessScore} className="mb-3 bg-surface" />
+            <ProgressBar
+              value={simulation.readinessScore}
+              className="mb-3 bg-surface"
+            />
             <div className="mb-3 grid grid-cols-3 gap-2 font-body text-xs">
               <div className="rounded-control bg-surface p-2">
                 <div className="text-ink-faint">Requisitos</div>
@@ -346,7 +361,10 @@ export function DashboardView() {
                   Cursos recomendados para fechar gaps:
                 </div>
                 {simulation.recommendedCourses.slice(0, 3).map((c) => (
-                  <div key={c.id} className="truncate font-body text-xs text-primary">
+                  <div
+                    key={c.id}
+                    className="truncate font-body text-xs text-primary"
+                  >
                     📚 {c.title}
                   </div>
                 ))}

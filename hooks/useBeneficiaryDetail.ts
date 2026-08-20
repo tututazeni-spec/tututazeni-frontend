@@ -7,6 +7,7 @@
 
 import { useState } from 'react';
 import { useApiQuery, useOptimisticMutation } from '@/hooks/useApiQuery';
+import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -20,6 +21,7 @@ import {
 export function useBeneficiaryDetail(id: string) {
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState<InteractionForm>(EMPTY_INTERACTION_FORM);
+  const notify = useToast();
 
   // GET com cache + cancelamento automático ao desmontar/mudar id.
   const {
@@ -69,7 +71,10 @@ export function useBeneficiaryDetail(id: string) {
       return { ...prev, interactions: [optimistic, ...prev.interactions] };
     },
     onError: (err) => {
-      alert(err.message || 'Erro ao guardar interacção');
+      notify({
+        title: err.message || 'Erro ao guardar interacção',
+        intent: 'danger',
+      });
     },
   });
 

@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { FormField } from '@/components/ui/FormField';
 import { Card, CardBody } from '@/components/ui/Card';
+import { useToast } from '@/providers/ToastProvider';
 import type { CourseModule } from './types';
 
 interface ModuleModalProps {
@@ -26,6 +27,7 @@ export function ModuleModal({
   onClose,
   onSaved,
 }: ModuleModalProps) {
+  const notify = useToast();
   const [form, setForm] = useState({
     title: editing?.title ?? '',
     seq: editing?.seq ?? 1,
@@ -48,7 +50,7 @@ export function ModuleModal({
         onSaved();
         onClose();
       },
-      onError: (e) => alert(e.message),
+      onError: (e) => notify({ title: e.message, intent: 'danger' }),
     },
   );
   const saving = saveModule.isPending;
@@ -97,7 +99,9 @@ export function ModuleModal({
                 type="number"
                 min={1}
                 value={form.seq}
-                onChange={(e) => setForm((f) => ({ ...f, seq: +e.target.value }))}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, seq: +e.target.value }))
+                }
               />
             </FormField>
 

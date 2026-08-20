@@ -6,6 +6,7 @@
 
 import { useState } from 'react';
 import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
+import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -30,6 +31,7 @@ const EMPTY_INTERACTION_FORM: InteractionForm = {
 };
 
 export function useFunderDetail(id: string) {
+  const notify = useToast();
   const [showGrantForm, setShowGrantForm] = useState(false);
   const [grantForm, setGrantForm] = useState<GrantForm>(EMPTY_GRANT_FORM);
 
@@ -64,7 +66,8 @@ export function useFunderDetail(id: string) {
         setShowGrantForm(false);
         setGrantForm(EMPTY_GRANT_FORM);
       },
-      onError: (e) => alert(e.message || 'Erro inesperado'),
+      onError: (e) =>
+        notify({ title: e.message || 'Erro inesperado', intent: 'danger' }),
     },
   );
 
@@ -82,7 +85,8 @@ export function useFunderDetail(id: string) {
         setShowIntForm(false);
         setIntForm(EMPTY_INTERACTION_FORM);
       },
-      onError: (e) => alert(e.message || 'Erro inesperado'),
+      onError: (e) =>
+        notify({ title: e.message || 'Erro inesperado', intent: 'danger' }),
     },
   );
 
@@ -94,7 +98,8 @@ export function useFunderDetail(id: string) {
       }),
     {
       invalidateKeys: [detailKey],
-      onError: (e) => alert(e.message || 'Erro inesperado'),
+      onError: (e) =>
+        notify({ title: e.message || 'Erro inesperado', intent: 'danger' }),
     },
   );
 
@@ -115,7 +120,7 @@ export function useFunderDetail(id: string) {
     if (!amountStr) return;
     const amount = Number(amountStr);
     if (!amount || amount <= 0) {
-      alert('Valor inválido');
+      notify({ title: 'Valor inválido', intent: 'danger' });
       return;
     }
     disbMut.mutate({ grantId, amount });

@@ -17,8 +17,10 @@ import { LPDetailView } from '@/components/learning-paths/LPDetailView';
 import { MyPathsView } from '@/components/learning-paths/MyPathsView';
 import type { Nav } from '@/components/learning-paths/types';
 import { Button } from '@/components/ui/Button';
+import { useToast } from '@/providers/ToastProvider';
 
 export default function LearningPathsPage() {
+  const notify = useToast();
   const [nav, setNav] = useState<Nav>({ view: 'catalog' });
 
   const handleSelect = (id: number) =>
@@ -40,7 +42,12 @@ export default function LearningPathsPage() {
         {nav.view === 'catalog' && (
           <Button
             size="sm"
-            onClick={() => alert('Abrir formulário de criação de trilha')}
+            onClick={() =>
+              notify({
+                title: 'Abrir formulário de criação de trilha',
+                intent: 'info',
+              })
+            }
           >
             <Plus size={14} strokeWidth={1.75} />
             Criar trilha

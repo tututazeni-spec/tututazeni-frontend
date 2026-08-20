@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Plug, Play, Pause, RefreshCw, Plus } from 'lucide-react';
+import { useToast } from '@/providers/ToastProvider';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -31,6 +32,7 @@ const HEALTH_CHIP_CLASSES: Record<NonNullable<BadgeProps['intent']>, string> = {
 };
 
 export function IntegrationsTab() {
+  const notify = useToast();
   const [testing, setTesting] = useState<number | null>(null);
 
   const {
@@ -52,7 +54,11 @@ export function IntegrationsTab() {
       .post<TestIntegrationResponse>(`/api-integrations/${id}/test`, {})
       .catch(() => null);
     setTesting(null);
-    if (r) alert(r.success ? `✅ ${r.message}` : `❌ ${r.message}`);
+    if (r)
+      notify({
+        title: r.message,
+        intent: r.success ? 'success' : 'danger',
+      });
     load();
   };
 

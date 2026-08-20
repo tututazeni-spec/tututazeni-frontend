@@ -11,6 +11,7 @@
 
 import { useReducer } from 'react';
 import { useApiMutation, useApiQuery } from './useApiQuery';
+import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -53,6 +54,7 @@ function disputeReducer(
 }
 
 export function usePayslipDetail(payslipId: number) {
+  const notify = useToast();
   const {
     data: payslip,
     isLoading: loading,
@@ -68,7 +70,7 @@ export function usePayslipDetail(payslipId: number) {
     () => apiClient.patch(`/payslips/my/${payslipId}/acknowledge`, {}),
     {
       invalidateKeys: [queryKeys.payslips.detail(payslipId)],
-      onError: (e) => alert(e.message),
+      onError: (e) => notify({ title: e.message, intent: 'danger' }),
     },
   );
   const acknowledging = acknowledgeMutation.isPending;
@@ -90,9 +92,15 @@ export function usePayslipDetail(payslipId: number) {
         details: dispute.details,
       });
       dispatchDispute({ type: 'CLOSE' });
-      alert('Disputa registada com sucesso. O RH será notificado.');
+      notify({
+        title: 'Disputa registada com sucesso. O RH será notificado.',
+        intent: 'success',
+      });
     } catch (e) {
-      alert(e instanceof Error ? e.message : String(e));
+      notify({
+        title: e instanceof Error ? e.message : String(e),
+        intent: 'danger',
+      });
       dispatchDispute({ type: 'SUBMIT_END' });
     }
   };

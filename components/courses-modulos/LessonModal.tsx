@@ -5,6 +5,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useToast } from '@/providers/ToastProvider';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { CONTENT_TYPE } from './constants';
@@ -28,6 +29,7 @@ export function LessonModal({
   onClose,
   onSaved,
 }: LessonModalProps) {
+  const notify = useToast();
   const [form, setForm] = useState({
     title: editing?.title ?? '',
     contentType: editing?.contentType ?? 'VIDEO',
@@ -58,7 +60,7 @@ export function LessonModal({
         onSaved();
         onClose();
       },
-      onError: (e) => alert(e.message),
+      onError: (e) => notify({ title: e.message, intent: 'danger' }),
     },
   );
   const saving = saveLesson.isPending;

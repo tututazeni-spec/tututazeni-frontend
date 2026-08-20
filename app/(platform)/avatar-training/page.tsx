@@ -12,6 +12,7 @@
 import { useState } from 'react';
 import { BarChart2, Bot, Clock, Play, Trophy } from 'lucide-react';
 import { apiClient } from '@/lib/apiClient';
+import { useToast } from '@/providers/ToastProvider';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
 import { AnalyticsTab } from '@/components/avatar-training/AnalyticsTab';
 import { ChatSession } from '@/components/avatar-training/ChatSession';
@@ -36,6 +37,7 @@ const TABS = [
 ] as const;
 
 export default function AvatarTrainingPage() {
+  const notify = useToast();
   const [activeSession, setActiveSession] = useState<ActiveSession | null>(
     null,
   );
@@ -67,7 +69,10 @@ export default function AvatarTrainingPage() {
         avatar: r.avatar,
       });
     } catch (e) {
-      alert('Erro ao iniciar sessão. Tenta novamente.');
+      notify({
+        title: 'Erro ao iniciar sessão. Tenta novamente.',
+        intent: 'danger',
+      });
     }
   };
 

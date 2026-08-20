@@ -9,6 +9,7 @@ import { useState } from 'react';
 import { AlertTriangle } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { useConfirm } from '@/providers/ConfirmProvider';
+import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -19,6 +20,7 @@ import { EnrollmentCard } from './EnrollmentCard';
 import type { MyEnrollmentsResponse } from './types';
 
 export function MyEnrollmentsView() {
+  const notify = useToast();
   const [tab, setTab] = useState<
     'all' | 'overdue' | 'inProgress' | 'notStarted' | 'completed'
   >('all');
@@ -33,7 +35,7 @@ export function MyEnrollmentsView() {
     (id: number) => apiClient.patch(`/enrollments/my/${id}/cancel`, {}),
     {
       invalidateKeys: [queryKeys.enrollments.my()],
-      onError: (e) => alert(e.message),
+      onError: (e) => notify({ title: e.message, intent: 'danger' }),
     },
   );
 
@@ -114,7 +116,10 @@ export function MyEnrollmentsView() {
           >
             {t.label}
             {t.count > 0 && (
-              <Badge intent={t.id === 'overdue' ? 'danger' : 'neutral'} className="px-1.5 py-0">
+              <Badge
+                intent={t.id === 'overdue' ? 'danger' : 'neutral'}
+                className="px-1.5 py-0"
+              >
                 {t.count}
               </Badge>
             )}

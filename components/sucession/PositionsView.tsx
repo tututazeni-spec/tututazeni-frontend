@@ -7,6 +7,7 @@
 
 import { useState } from 'react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
+import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -25,6 +26,7 @@ import type {
 } from './types';
 
 export function PositionsView() {
+  const notify = useToast();
   const [selected, setSelected] = useState<number | null>(null);
 
   const { data: positions, isLoading: loading } = useApiQuery<{
@@ -40,7 +42,7 @@ export function PositionsView() {
       apiClient.get<PositionSummary>(
         `/succession/position/${positionId}/summary`,
       ),
-    { onError: (e) => alert(e.message) },
+    { onError: (e) => notify({ title: e.message, intent: 'danger' }) },
   );
   const summary = summaryMutation.data ?? null;
   const loadingSummary = summaryMutation.isPending;
