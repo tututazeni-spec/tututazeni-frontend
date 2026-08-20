@@ -9,8 +9,27 @@
 // - Deduplicação automática: pedidos iguais simultâneos partilham a mesma
 //   resposta (resolve os waterfalls/duplicados, ex: /dashboard/alerts pedido 3×).
 
-import { QueryClient, type DefaultOptions } from '@tanstack/react-query';
+import {
+  QueryCache,
+  QueryClient,
+  MutationCache,
+  type DefaultOptions,
+} from '@tanstack/react-query';
 import { ApiError } from './apiClient';
+import { reportError, friendlyMessage } from './errorReporting';
+import { notify } from './errorToastBridge';
+
+/**
+ * Convenção `meta: { silent: true }` — opt-out do toast/relatório global de
+ * erro para uma query/mutação específica. Usar quando a chamada já tem a sua
+ * própria UI de erro inline (ex: CertificatesView.verifyMut) e um toast
+ * global seria redundante. `meta` é tipado como `Record<string, unknown>`
+ * pelo TanStack Query, por isso o acesso passa por este helper em vez de um
+ * cast solto em cada callsite.
+ */
+function isSilent(meta: Record<string, unknown> | undefined): boolean {
+  return meta?.silent === true;
+}
 
 /** Camadas de frescura (staleTime) em milissegundos. */
 export const STALE_TIME = {
@@ -54,5 +73,38 @@ const defaultOptions: DefaultOptions = {
 };
 
 export function makeQueryClient(): QueryClient {
-  return new QueryClient({ defaultOptions });
+  return new QueryClient({
+    defaultOptions,
+    // Handlers globais: sem isto, uma query/mutação sem onError próprio
+    // falha em silêncio — sem log estruturado e sem feedback ao utilizador.
+    // Continuam a correr mesmo quando a query/mutação também tem um
+    // onError local (o TanStack Query chama ambos), por isso não duplicam
+    // trabalho de reporting — apenas garantem que nada fica sem cobertura.
+    queryCache: new QueryCache({
+      onError: (error, query) => {
+        if (isSilent(query.meta)) return;
+        reportError(error, {
+          source: `query:${String(query.queryKey[0] ?? '?')}`,
+        });
+        notify({
+          title: 'Erro ao carregar dados',
+          description: friendlyMessage(error),
+          intent: 'danger',
+        });
+      },
+    }),
+    mutationCache: new MutationCache({
+      onError: (error, _vars, _ctx, mutation) => {
+        if (isSilent(mutation.meta)) return;
+        reportError(error, {
+          source: `mutation:${mutation.options.mutationKey ? String(mutation.options.mutationKey[0]) : '?'}`,
+        });
+        notify({
+          title: 'Erro ao guardar',
+          description: friendlyMessage(error),
+          intent: 'danger',
+        });
+      },
+    }),
+  });
 }

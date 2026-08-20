@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import { reportError } from '@/lib/errorReporting';
 
 // Captura erros que ocorrem no próprio root layout. Substitui o <html>/<body>
 // porque corre acima de todos os layouts.
@@ -12,7 +13,7 @@ export default function GlobalError({
   reset: () => void;
 }) {
   useEffect(() => {
-    console.error(error);
+    reportError(error, { source: 'app/global-error.tsx' });
   }, [error]);
 
   return (

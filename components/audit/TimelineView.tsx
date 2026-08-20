@@ -9,6 +9,7 @@ import { useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { QueryError } from '@/components/ui/QueryError';
 import { SEVERITY_CFG, ACTION_ICONS } from './constants';
 import { fmtTs } from './utils';
 import { DiffViewer } from './DiffViewer';
@@ -80,7 +81,9 @@ export function TimelineView() {
                           <span className="font-body text-sm font-medium text-ink">
                             {e.action}
                           </span>
-                          <span className={`font-body text-xs font-medium ${sevCfg.cls}`}>
+                          <span
+                            className={`font-body text-xs font-medium ${sevCfg.cls}`}
+                          >
                             {e.severity}
                           </span>
                         </div>
@@ -103,7 +106,11 @@ export function TimelineView() {
         </div>
       )}
 
-      {!data && !loading && (
+      {loadTimeline.isError && (
+        <QueryError error={loadTimeline.error} onRetry={load} />
+      )}
+
+      {!data && !loading && !loadTimeline.isError && (
         <div className="rounded-card border border-dashed border-border-strong py-12 text-center font-body text-sm text-ink-faint">
           Introduz uma entidade e ID para ver a timeline completa
         </div>

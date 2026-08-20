@@ -9,11 +9,14 @@
 import { useState } from 'react';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
+import { useToast } from '@/providers/ToastProvider';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
+import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { Input } from '@/components/ui/Input';
 import { ProgressBar } from '@/components/ui/ProgressBar';
+import { QueryError } from '@/components/ui/QueryError';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { RadarChart } from './RadarChart';
 import { SCORE_BG, SCORE_COLOR, TYPE_LABEL } from './constants';
@@ -21,6 +24,7 @@ import type { EvalResults } from './types';
 
 export function ResultsTab() {
   const [userId, setUserId] = useState('');
+  const notify = useToast();
 
   const loadResults = useApiMutation((uid: string) =>
     Promise.all([
@@ -34,6 +38,21 @@ export function ResultsTab() {
   const load = () => {
     if (userId) loadResults.mutate(userId);
   };
+
+  const triggerPdi = useApiMutation(
+    () => apiClient.post(`/evaluations/results/${userId}/trigger-pdi`, {}),
+    {
+      onSuccess: () =>
+        notify({
+          title: 'Sugestão de PDI gerada',
+          description:
+            'Já pode ser encontrada no plano de desenvolvimento do colaborador.',
+          intent: 'success',
+        }),
+      // Erro já fica visível via toast global (QueryCache/MutationCache) —
+      // aqui só precisamos do estado de loading no botão.
+    },
+  );
 
   return (
     <div className="space-y-4">
@@ -168,16 +187,18 @@ export function ResultsTab() {
                 <h4 className="font-display font-semibold text-ink mb-4">
                   Mapa de Competências
                 </h4>
-                <RadarChart
-                  data={Object.entries(result.competencies).map(
-                    ([id, score]) => ({
-                      label: `C${id}`,
-                      value: +score,
-                      max: 5,
-                    }),
-                  )}
-                  size={220}
-                />
+                <ErrorBoundary source="evaluation.ResultsTab.RadarChart">
+                  <RadarChart
+                    data={Object.entries(result.competencies).map(
+                      ([id, score]) => ({
+                        label: `C${id}`,
+                        value: +score,
+                        max: 5,
+                      }),
+                    )}
+                    size={220}
+                  />
+                </ErrorBoundary>
               </CardBody>
             </Card>
           )}
@@ -221,15 +242,19 @@ export function ResultsTab() {
           <Button
             size="md"
             className="w-full"
-            onClick={() => {
-              void apiClient
-                .post(`/evaluations/results/${userId}/trigger-pdi`, {})
-                .catch(() => {});
-            }}
+            disabled={triggerPdi.isPending}
+            onClick={() => triggerPdi.mutate(undefined)}
           >
-            🎯 Gerar Sugestão de PDI com base nestes resultados
+            🎯{' '}
+            {triggerPdi.isPending
+              ? 'A gerar sugestão de PDI...'
+              : 'Gerar Sugestão de PDI com base nestes resultados'}
           </Button>
         </div>
+      )}
+
+      {!loading && loadResults.isError && (
+        <QueryError error={loadResults.error} onRetry={load} />
       )}
     </div>
   );
