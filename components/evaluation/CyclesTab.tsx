@@ -8,6 +8,8 @@
 import { Layers } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
+import { reportError } from '@/lib/errorReporting';
+import { useToast } from '@/providers/ToastProvider';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { cn } from '@/lib/cn';
@@ -21,6 +23,7 @@ import { MODEL_LABEL, STATUS_MAP } from './constants';
 import type { Cycle } from './types';
 
 export function CyclesTab() {
+  const notify = useToast();
   const { data, isLoading: loading } = useApiQuery<{
     data: Cycle[];
     meta: { total: number };
@@ -105,6 +108,13 @@ export function CyclesTab() {
                     apiClient
                       .post(`/evaluations/cycles/${cycle.id}/publish`, {})
                       .then(() => window.location.reload())
+                      .catch((e) => {
+                        reportError(e, { source: 'CyclesTab.publish' });
+                        notify({
+                          title: e instanceof Error ? e.message : String(e),
+                          intent: 'danger',
+                        });
+                      })
                   }
                 >
                   Publicar
@@ -118,6 +128,13 @@ export function CyclesTab() {
                     apiClient
                       .post(`/evaluations/cycles/${cycle.id}/activate`, {})
                       .then(() => window.location.reload())
+                      .catch((e) => {
+                        reportError(e, { source: 'CyclesTab.activate' });
+                        notify({
+                          title: e instanceof Error ? e.message : String(e),
+                          intent: 'danger',
+                        });
+                      })
                   }
                 >
                   Activar
