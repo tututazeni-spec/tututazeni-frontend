@@ -12,6 +12,7 @@
 import { useState } from 'react';
 import { BarChart2, Bot, Clock, Play, Trophy } from 'lucide-react';
 import { apiClient } from '@/lib/apiClient';
+import { reportError } from '@/lib/errorReporting';
 import { useToast } from '@/providers/ToastProvider';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
 import { AnalyticsTab } from '@/components/avatar-training/AnalyticsTab';
@@ -69,6 +70,7 @@ export default function AvatarTrainingPage() {
         avatar: r.avatar,
       });
     } catch (e) {
+      reportError(e, { source: 'AvatarTrainingPage.startSession' });
       notify({
         title: 'Erro ao iniciar sessão. Tenta novamente.',
         intent: 'danger',

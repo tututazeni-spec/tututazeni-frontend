@@ -15,6 +15,7 @@ import Image from 'next/image';
 import { Bot, CheckCircle, Send } from 'lucide-react';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
+import { reportError } from '@/lib/errorReporting';
 import { Button, IconButton } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Modal, ModalContent } from '@/components/ui/Modal';
@@ -81,6 +82,7 @@ export function ChatSession({
       setRunningScore(r.runningScore);
       setIsLastTurn(r.isLastTurn);
     } catch (e) {
+      reportError(e, { source: 'ChatSession.sendMessage' });
       setMessages((prev) => [
         ...prev,
         {

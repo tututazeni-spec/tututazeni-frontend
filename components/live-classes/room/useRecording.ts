@@ -5,6 +5,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { reportError } from '@/lib/errorReporting';
 import { useStopwatch } from '@/hooks/useStopwatch';
 import type { RecordingData, RecordingState } from './types';
 
@@ -82,8 +83,11 @@ export function useRecording() {
       setState('recording');
     } catch (e) {
       if (e instanceof DOMException && e.name === 'NotAllowedError') {
+        // Utilizador recusou o pedido de partilha de ecrã — acção normal,
+        // não um erro da aplicação, por isso não é reportado.
         setError('Permissão de partilha de ecrã negada.');
       } else {
+        reportError(e, { source: 'useRecording.start' });
         setError(e instanceof Error ? e.message : 'Erro ao iniciar gravação.');
       }
     }

@@ -17,6 +17,7 @@ import { useState } from 'react';
 import { FolderOpen, Grid, List, RefreshCcw, Search, X } from 'lucide-react';
 import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
+import { reportError } from '@/lib/errorReporting';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { IconButton } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -91,6 +92,7 @@ export default function DocumentRepositoryPage() {
       );
       window.open(result.fileUrl, '_blank');
     } catch (e) {
+      reportError(e, { source: 'DocumentsPage.handleDownload' });
       notify({
         title: e instanceof Error ? e.message : String(e),
         intent: 'danger',

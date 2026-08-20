@@ -11,6 +11,7 @@ import { keepPreviousData } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
+import { reportError } from '@/lib/errorReporting';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { useConfirm } from '@/providers/ConfirmProvider';
@@ -99,6 +100,7 @@ export default function LivePage() {
       await deleteMutation.mutateAsync(lc.id);
       showToast('Aula eliminada.', 'info');
     } catch (e) {
+      reportError(e, { source: 'LiveClassesPage.deleteLiveClass' });
       showToast(e instanceof Error ? e.message : String(e), 'error');
     }
   }

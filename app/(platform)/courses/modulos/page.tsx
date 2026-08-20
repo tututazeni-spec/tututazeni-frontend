@@ -7,6 +7,7 @@
 import { useReducer, useState } from 'react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
+import { reportError } from '@/lib/errorReporting';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { useConfirm } from '@/providers/ConfirmProvider';
@@ -75,6 +76,7 @@ export default function CourseModulesPage() {
       await refetch();
       toast({ title: 'Módulo removido', intent: 'success' });
     } catch (e) {
+      reportError(e, { source: 'CourseModulesPage.deleteModule' });
       toast({
         title: e instanceof Error ? e.message : String(e),
         intent: 'danger',
@@ -97,6 +99,7 @@ export default function CourseModulesPage() {
       await refetch();
       toast({ title: 'Lição removida', intent: 'success' });
     } catch (e) {
+      reportError(e, { source: 'CourseModulesPage.deleteLesson' });
       toast({
         title: e instanceof Error ? e.message : String(e),
         intent: 'danger',

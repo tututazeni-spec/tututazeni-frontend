@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
+import { reportError } from '@/lib/errorReporting';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { cn } from '@/lib/cn';
@@ -78,6 +79,9 @@ export function DetailView({ planId, onBack }: DetailViewProps) {
       });
       await refetch();
     } catch (e) {
+      reportError(e, {
+        source: 'DevelopmentPlanDetailView.handleCompleteAction',
+      });
       notify({
         title: e instanceof Error ? e.message : String(e),
         intent: 'danger',
@@ -96,6 +100,9 @@ export function DetailView({ planId, onBack }: DetailViewProps) {
       });
       await refetch();
     } catch (e) {
+      reportError(e, {
+        source: 'DevelopmentPlanDetailView.handleGoalProgress',
+      });
       notify({
         title: e instanceof Error ? e.message : String(e),
         intent: 'danger',
@@ -110,6 +117,7 @@ export function DetailView({ planId, onBack }: DetailViewProps) {
       await apiClient.patch(`/development-plans/${planId}/submit`, {});
       await refetch();
     } catch (e) {
+      reportError(e, { source: 'DevelopmentPlanDetailView.handleSubmit' });
       notify({
         title: e instanceof Error ? e.message : String(e),
         intent: 'danger',

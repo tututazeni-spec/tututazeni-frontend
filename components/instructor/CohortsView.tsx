@@ -8,6 +8,7 @@ import { useState } from 'react';
 import { Plus, Users, X } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
+import { reportError } from '@/lib/errorReporting';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { formatDate as fmtDate } from '@/lib/format';
@@ -89,6 +90,7 @@ export function CohortsView({ onSelectCohort }: CohortsViewProps) {
       });
       refetch();
     } catch (e) {
+      reportError(e, { source: 'CohortsView.handleCreate' });
       setSubmitError(e instanceof Error ? e.message : String(e));
     }
   });

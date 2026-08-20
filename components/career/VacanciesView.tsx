@@ -9,6 +9,7 @@ import { Search } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
+import { reportError } from '@/lib/errorReporting';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { cn } from '@/lib/cn';
@@ -53,6 +54,7 @@ export function VacanciesView() {
         intent: 'success',
       });
     } catch (e) {
+      reportError(e, { source: 'VacanciesView.apply' });
       notify({
         title: e instanceof Error ? e.message : String(e),
         intent: 'danger',

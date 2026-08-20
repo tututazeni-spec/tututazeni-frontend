@@ -16,6 +16,7 @@ import { FileText, PartyPopper } from 'lucide-react';
 import { useToast } from '@/providers/ToastProvider';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
+import { reportError } from '@/lib/errorReporting';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { formatDate as fmtDate } from '@/lib/format';
@@ -75,6 +76,7 @@ export function MyPlanView() {
       });
       await refetch();
     } catch (e) {
+      reportError(e, { source: 'MyPlanView.handleComplete' });
       notify({
         title: e instanceof Error ? e.message : String(e),
         intent: 'danger',

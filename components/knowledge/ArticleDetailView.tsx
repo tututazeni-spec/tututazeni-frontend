@@ -13,6 +13,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, Bookmark, Check } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
+import { reportError } from '@/lib/errorReporting';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { sanitizeHtml } from '@/lib/sanitize';
@@ -61,6 +62,7 @@ export function ArticleDetailView({
         prev ? { ...prev, userBookmarked: res.active } : prev,
       );
     } catch (e) {
+      reportError(e, { source: 'ArticleDetailView.handleBookmark' });
       notify({
         title: e instanceof Error ? e.message : String(e),
         intent: 'danger',
@@ -73,6 +75,7 @@ export function ArticleDetailView({
       await apiClient.post('/knowledge/rate', { articleId, score });
       setRating(score);
     } catch (e) {
+      reportError(e, { source: 'ArticleDetailView.handleRate' });
       notify({
         title: e instanceof Error ? e.message : String(e),
         intent: 'danger',
