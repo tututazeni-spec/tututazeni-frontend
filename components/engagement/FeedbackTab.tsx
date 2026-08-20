@@ -17,6 +17,8 @@ import { useState } from 'react';
 import { MessageSquare } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
+import { reportError } from '@/lib/errorReporting';
+import { useToast } from '@/providers/ToastProvider';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Avatar } from '@/components/ui/Avatar';
@@ -44,6 +46,7 @@ export interface FeedbackTabProps {
 }
 
 export function FeedbackTab({ userId }: FeedbackTabProps) {
+  const notify = useToast();
   const [type, setType] = useState('');
   const [msg, setMsg] = useState('');
   const [anon, setAnon] = useState(false);
@@ -62,13 +65,18 @@ export function FeedbackTab({ userId }: FeedbackTabProps) {
 
   const send = async () => {
     if (!msg.trim()) return;
-    await apiClient.post('/engagement/feedback', {
-      type: type || 'OPEN',
-      message: msg,
-      anonymous: anon,
-    });
-    setMsg('');
-    refetch();
+    try {
+      await apiClient.post('/engagement/feedback', {
+        type: type || 'OPEN',
+        message: msg,
+        anonymous: anon,
+      });
+      setMsg('');
+      refetch();
+    } catch (e) {
+      reportError(e, { source: 'FeedbackTab.send' });
+      notify({ title: 'Não foi possível enviar o feedback', intent: 'danger' });
+    }
   };
 
   if (isLoading)
