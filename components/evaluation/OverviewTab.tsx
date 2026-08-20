@@ -25,6 +25,7 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
 import { Card, CardBody } from '@/components/ui/Card';
+import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { KpiCard } from '@/components/ui/KpiCard';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
@@ -191,16 +192,18 @@ export function OverviewTab({ userId }: OverviewTabProps) {
               {/* Radar + Concordance */}
               <div>
                 {Object.keys(myResults.competencies).length > 0 && (
-                  <RadarChart
-                    data={Object.entries(myResults.competencies).map(
-                      ([id, score]) => ({
-                        label: `Comp.${id}`,
-                        value: +score,
-                        max: 5,
-                      }),
-                    )}
-                    size={180}
-                  />
+                  <ErrorBoundary source="evaluation.OverviewTab.RadarChart">
+                    <RadarChart
+                      data={Object.entries(myResults.competencies).map(
+                        ([id, score]) => ({
+                          label: `Comp.${id}`,
+                          value: +score,
+                          max: 5,
+                        }),
+                      )}
+                      size={180}
+                    />
+                  </ErrorBoundary>
                 )}
 
                 {myResults.concordance && (

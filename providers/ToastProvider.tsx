@@ -1,7 +1,14 @@
 'use client';
-import { createContext, useCallback, useContext, useState } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 import { Toast as RadixToast } from 'radix-ui';
 import { ToastItem, ToastViewport } from '../components/ui/Toast';
+import { registerToastHandler } from '../lib/errorToastBridge';
 
 export interface ToastOptions {
   title: string;
@@ -40,12 +47,26 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
     [remove],
   );
 
+  // Regista este showToast na ponte (lib/errorToastBridge.ts) para que
+  // código fora da árvore de componentes (handlers globais do QueryClient,
+  // ErrorBoundary) consiga disparar toasts. ReactQueryProvider fica acima
+  // de ToastProvider em app/layout.tsx, por isso o QueryClient não pode
+  // chamar useToast() directamente.
+  useEffect(() => {
+    registerToastHandler(showToast);
+    return () => registerToastHandler(null);
+  }, [showToast]);
+
   return (
     <ToastContext.Provider value={showToast}>
       <RadixToast.Provider swipeDirection="right">
         {children}
         {toasts.map((t) => (
-          <ToastItem key={t.id} {...t} onOpenChange={(open) => !open && scheduleRemove(t.id)} />
+          <ToastItem
+            key={t.id}
+            {...t}
+            onOpenChange={(open) => !open && scheduleRemove(t.id)}
+          />
         ))}
         <ToastViewport />
       </RadixToast.Provider>
@@ -55,6 +76,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
 
 export function useToast(): ToastFn {
   const ctx = useContext(ToastContext);
-  if (!ctx) throw new Error('useToast deve ser usado dentro de <ToastProvider>');
+  if (!ctx)
+    throw new Error('useToast deve ser usado dentro de <ToastProvider>');
   return ctx;
 }

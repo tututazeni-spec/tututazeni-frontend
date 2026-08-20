@@ -22,6 +22,7 @@ import { Input } from '@/components/ui/Input';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
+import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { NineBoxMatrix } from './NineBoxMatrix';
 import { TIER_CFG, TIER_DOT, TIER_LABEL } from './constants';
 import type { NineBoxResponse, PoolMeta, TalentUser, Tier } from './types';
@@ -122,7 +123,11 @@ export function PoolTab() {
                 key={t.user.id}
                 className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-surface-sunken"
               >
-                <Avatar name={t.user.fullName} url={t.user.avatarUrl} size="sm" />
+                <Avatar
+                  name={t.user.fullName}
+                  url={t.user.avatarUrl}
+                  size="sm"
+                />
                 <div className="min-w-0 flex-1">
                   <p className="truncate font-body text-sm font-medium text-ink">
                     {t.user.fullName}
@@ -143,15 +148,13 @@ export function PoolTab() {
                   )}
                 </div>
                 <div className="shrink-0 text-right">
-                  <span className={`font-display text-sm font-bold ${scoreIntent(t.scores.talent)}`}>
+                  <span
+                    className={`font-display text-sm font-bold ${scoreIntent(t.scores.talent)}`}
+                  >
                     {t.scores.talent.toFixed(1)}
                   </span>
                   <div className="mt-1">
-                    <StatusBadge
-                      value={t.tier}
-                      map={TIER_CFG}
-                      variant="pill"
-                    />
+                    <StatusBadge value={t.tier} map={TIER_CFG} variant="pill" />
                   </div>
                 </div>
               </div>
@@ -160,7 +163,11 @@ export function PoolTab() {
         </Card>
 
         {/* 9-Box */}
-        {matrix && <NineBoxMatrix matrix={matrix.matrix} />}
+        {matrix && (
+          <ErrorBoundary source="talent-development.NineBoxMatrix">
+            <NineBoxMatrix matrix={matrix.matrix} />
+          </ErrorBoundary>
+        )}
       </div>
     </div>
   );

@@ -22,6 +22,7 @@ import { KpiCard } from '@/components/ui/KpiCard';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
+import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { NineBox } from './NineBox';
 import type { ManagerDashboard } from './types';
 
@@ -134,7 +135,9 @@ export function ManagerView() {
               <div className="text-xs font-medium text-ink-faint uppercase tracking-wide mb-4">
                 Matriz 9-Box
               </div>
-              <NineBox data={nineBox} />
+              <ErrorBoundary source="analytics.NineBox">
+                <NineBox data={nineBox} />
+              </ErrorBoundary>
               {nineBox.length === 0 && (
                 <div className="text-center text-sm text-ink-faint py-6">
                   Sem dados de 9-box para a equipa

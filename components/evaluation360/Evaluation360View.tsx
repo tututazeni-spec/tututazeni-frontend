@@ -27,6 +27,7 @@ import { OverviewTab } from './OverviewTab';
 import { FeedbackTab } from './FeedbackTab';
 import { EvaluationFormTab } from './EvaluationFormTab';
 import { Button } from '@/components/ui/Button';
+import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 
 const TABS: { id: TabId; label: string; icon: string }[] = [
   { id: 'overview', label: 'Visão Geral', icon: '◈' },
@@ -79,7 +80,9 @@ export function Evaluation360View({
             </div>
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_320px] lg:items-start">
               <div className="rounded-xl border border-border bg-surface p-6 flex justify-center">
-                <RadarChart competencies={competencies} />
+                <ErrorBoundary source="evaluation360.RadarChart">
+                  <RadarChart competencies={competencies} />
+                </ErrorBoundary>
               </div>
               <div className="flex flex-col gap-2.5">
                 <div className="text-xs font-bold uppercase tracking-wider text-ink-muted mb-1">
@@ -149,7 +152,9 @@ export function Evaluation360View({
               ))}
             </div>
             <div className="rounded-xl border border-border bg-surface overflow-hidden">
-              <CompetencyHeatmap competencies={competencies} />
+              <ErrorBoundary source="evaluation360.CompetencyHeatmap">
+                <CompetencyHeatmap competencies={competencies} />
+              </ErrorBoundary>
             </div>
           </div>
         );
@@ -167,7 +172,9 @@ export function Evaluation360View({
               </p>
             </div>
             <div className="rounded-xl border border-border bg-surface p-6">
-              <NineBoxGrid entries={nineBox} />
+              <ErrorBoundary source="evaluation360.NineBoxGrid">
+                <NineBoxGrid entries={nineBox} />
+              </ErrorBoundary>
             </div>
           </div>
         );

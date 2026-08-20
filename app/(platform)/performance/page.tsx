@@ -14,6 +14,7 @@ import { NineBoxView } from '@/components/performance/NineBoxView';
 import { TeamView } from '@/components/performance/TeamView';
 import type { View } from '@/components/performance/types';
 import { Button } from '@/components/ui/Button';
+import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 
 export default function PerformancePage() {
   const [view, setView] = useState<View>('dashboard');
@@ -48,7 +49,11 @@ export default function PerformancePage() {
 
       {view === 'dashboard' && <MyDashboard />}
       {view === 'team' && <TeamView />}
-      {view === 'matrix9box' && <NineBoxView />}
+      {view === 'matrix9box' && (
+        <ErrorBoundary source="performance.NineBoxView">
+          <NineBoxView />
+        </ErrorBoundary>
+      )}
       {view === 'analytics' && <AnalyticsView />}
     </div>
   );

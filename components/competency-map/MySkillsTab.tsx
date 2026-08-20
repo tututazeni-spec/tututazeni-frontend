@@ -8,6 +8,7 @@
 import { Target } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
 import {
@@ -142,7 +143,9 @@ export function MySkillsTab({
             <h3 className="text-sm font-semibold text-ink mb-3 self-start">
               Radar
             </h3>
-            <RadarChart data={radar} />
+            <ErrorBoundary source="competency-map.RadarChart">
+              <RadarChart data={radar} />
+            </ErrorBoundary>
           </Card>
         )}
       </div>

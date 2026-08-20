@@ -9,6 +9,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { useDebounce } from '@/hooks/useDebounce';
 import { apiClient } from '@/lib/apiClient';
+import { reportError } from '@/lib/errorReporting';
 import type {
   AutocompleteResponse,
   AutocompleteSuggestion,
@@ -39,7 +40,11 @@ export function useSearch() {
         params: { q: debouncedQuery, limit: 6 },
       })
       .then((d) => setSuggestions(d.suggestions ?? []))
-      .catch(() => {});
+      .catch((e) => {
+        // Autocomplete é acessório — falhar não deve incomodar o
+        // utilizador com um toast, mas o erro fica registado.
+        reportError(e, { source: 'useSearch.autocomplete' });
+      });
   }, [debouncedQuery]);
 
   // Pesquisa geral (todos os tipos) e pesquisa filtrada por um único tipo

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import { reportError } from '@/lib/errorReporting';
 
 // Error Boundary global das rotas. Sem isto, um erro num componente mostra um
 // ecrã branco a todos os utilizadores.
@@ -12,8 +13,7 @@ export default function Error({
   reset: () => void;
 }) {
   useEffect(() => {
-    // Em produção, enviar para um serviço de observabilidade (Sentry, etc.).
-    console.error(error);
+    reportError(error, { source: 'app/error.tsx' });
   }, [error]);
 
   return (

@@ -9,6 +9,7 @@ import { PositionsView } from '@/components/organization/PositionsView';
 import { TimelineView } from '@/components/organization/TimelineView';
 import type { View } from '@/components/organization/types';
 import { Button } from '@/components/ui/Button';
+import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 
 export default function OrganizationPage() {
   const [view, setView] = useState<View>('dashboard');
@@ -48,7 +49,11 @@ export default function OrganizationPage() {
       </div>
 
       {view === 'dashboard' && <DashboardView />}
-      {view === 'chart' && <OrgChartView />}
+      {view === 'chart' && (
+        <ErrorBoundary source="organization.OrgChartView">
+          <OrgChartView />
+        </ErrorBoundary>
+      )}
       {view === 'departments' && <DepartmentsView />}
       {view === 'positions' && <PositionsView />}
       {view === 'timeline' && <TimelineView />}

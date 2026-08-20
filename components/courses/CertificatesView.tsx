@@ -42,6 +42,8 @@ export function CertificatesView() {
     {
       onSuccess: (r) => setVerifyResult(r),
       onError: (e) => setVerifyResult({ error: e.message }),
+      // Já mostra o erro inline (verifyResult.error) — evita duplicar num toast global.
+      meta: { silent: true },
     },
   );
   const verify = () => {
@@ -117,11 +119,7 @@ export function CertificatesView() {
                     </span>
                   )}
                 </div>
-                <Button
-                  intent="secondary"
-                  size="sm"
-                  className="mt-2 w-full"
-                >
+                <Button intent="secondary" size="sm" className="mt-2 w-full">
                   <Download size={14} strokeWidth={1.75} />
                   Download PDF
                 </Button>

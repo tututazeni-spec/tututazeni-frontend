@@ -9,6 +9,7 @@ import { PositionsView } from '@/components/sucession/PositionsView';
 import { TalentPoolView } from '@/components/sucession/TalentPoolView';
 import type { View } from '@/components/sucession/types';
 import { Button } from '@/components/ui/Button';
+import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 
 export default function SuccessionPage() {
   const [view, setView] = useState<View>('dashboard');
@@ -40,7 +41,11 @@ export default function SuccessionPage() {
       </div>
 
       {view === 'dashboard' && <DashboardView />}
-      {view === 'org-chart' && <OrgChartView />}
+      {view === 'org-chart' && (
+        <ErrorBoundary source="sucession.OrgChartView">
+          <OrgChartView />
+        </ErrorBoundary>
+      )}
       {view === 'positions' && <PositionsView />}
       {view === 'talent-pool' && <TalentPoolView />}
     </div>

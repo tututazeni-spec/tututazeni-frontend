@@ -5,6 +5,8 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { reportError } from '@/lib/errorReporting';
+import { Button } from '@/components/ui/Button';
 import type { JitsiAPI, LiveClass } from './types';
 
 interface JitsiRoomProps {
@@ -18,6 +20,8 @@ export function JitsiRoom({ liveClass, onJoined, onLeft }: JitsiRoomProps) {
   const apiRef = useRef<JitsiAPI | null>(null);
   const [loaded, setLoaded] = useState(false);
   const [participants, setParticipants] = useState(0);
+  const [loadError, setLoadError] = useState(false);
+  const [retryToken, setRetryToken] = useState(0);
 
   const roomName = `innova-live-${liveClass.id}-${liveClass.topic
     .toLowerCase()
@@ -109,30 +113,58 @@ export function JitsiRoom({ liveClass, onJoined, onLeft }: JitsiRoomProps) {
   }, [roomName, liveClass.topic, onJoined, onLeft]);
 
   useEffect(() => {
+    setLoadError(false);
+
     // Load Jitsi External API script dynamically
     const existing = document.getElementById('jitsi-api-script');
-    if (existing) {
+    if (existing && window.JitsiMeetExternalAPI) {
       initJitsi();
       return;
     }
+    // Um retry remove o <script> anterior (falhado) antes de tentar de novo.
+    existing?.remove();
+
     const script = document.createElement('script');
     script.id = 'jitsi-api-script';
     script.src = 'https://meet.jit.si/external_api.js';
     script.async = true;
     script.onload = initJitsi;
-    script.onerror = () =>
-      console.error('Falha ao carregar Jitsi External API');
+    script.onerror = () => {
+      script.remove();
+      setLoadError(true);
+      reportError(new Error('Falha ao carregar Jitsi External API'), {
+        source: 'JitsiRoom.script.onerror',
+      });
+    };
     document.head.appendChild(script);
 
     return () => {
       apiRef.current?.dispose();
     };
-  }, [initJitsi]);
+  }, [initJitsi, retryToken]);
+
+  const retry = useCallback(() => {
+    setRetryToken((t) => t + 1);
+  }, []);
 
   return (
     <div className="relative w-full h-full bg-slate-900 rounded-[14px] overflow-hidden">
       {/* fundo escuro intencional: container da sala Jitsi */}
-      {!loaded && (
+      {!loaded && loadError && (
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 z-10 bg-slate-900 px-6 text-center">
+          {/* fundo escuro intencional: overlay de erro */}
+          <p className="text-canvas text-sm m-0">
+            Não foi possível carregar a sala de videoconferência.
+          </p>
+          <p className="text-canvas text-xs m-0 opacity-50">
+            Verifique a sua ligação à internet e tente novamente.
+          </p>
+          <Button size="sm" onClick={retry}>
+            Tentar novamente
+          </Button>
+        </div>
+      )}
+      {!loaded && !loadError && (
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 z-10 bg-slate-900">
           {/* fundo escuro intencional: overlay de carregamento */}
           <div
