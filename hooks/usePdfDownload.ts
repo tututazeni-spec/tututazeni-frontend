@@ -6,6 +6,7 @@
 
 import { useState } from 'react';
 import { API_URL } from '@/lib/api';
+import { reportError } from '@/lib/errorReporting';
 
 export type PdfType = 'declaration' | 'certificate' | 'payslip' | 'report';
 
@@ -36,7 +37,8 @@ export function usePdfDownload(type: PdfType, id: string) {
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
-    } catch {
+    } catch (e) {
+      reportError(e, { source: 'usePdfDownload.download' });
       setError('Não foi possível gerar o PDF. Tente novamente.');
     } finally {
       setLoading(false);

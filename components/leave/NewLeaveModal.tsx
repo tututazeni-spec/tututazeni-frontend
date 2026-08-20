@@ -16,6 +16,7 @@ import { useState } from 'react';
 import { AlertCircle, Calendar, Check } from 'lucide-react';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
+import { reportError } from '@/lib/errorReporting';
 import { queryKeys } from '@/lib/queryKeys';
 import { useFormValidation } from '@/hooks/useFormValidation';
 import { required } from '@/lib/validation';
@@ -87,7 +88,9 @@ export function NewLeaveModal({
         },
       });
       setConflicts(r);
-    } catch {}
+    } catch (e) {
+      reportError(e, { source: 'NewLeaveModal.checkConflicts' });
+    }
   };
 
   const create = useApiMutation(() => apiClient.post('/leave', form), {
