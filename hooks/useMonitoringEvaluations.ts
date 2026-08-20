@@ -4,12 +4,14 @@
 'use client';
 
 import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
+import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import type { MyEvaluation, ToComplete } from '@/components/monitoring/types';
 
 export function useMonitoringEvaluations() {
+  const notify = useToast();
   // Duas queries independentes → em paralelo (sem waterfall).
   const mineQ = useApiQuery<MyEvaluation[]>(
     queryKeys.monitoring.myEvaluations(),
@@ -33,7 +35,8 @@ export function useMonitoringEvaluations() {
         queryKeys.monitoring.myEvaluations(),
         queryKeys.monitoring.evaluationsToComplete(),
       ],
-      onError: (e) => alert(e.message || 'Erro inesperado'),
+      onError: (e) =>
+        notify({ title: e.message || 'Erro inesperado', intent: 'danger' }),
     },
   );
   const submittingId = submitMut.isPending
@@ -45,7 +48,7 @@ export function useMonitoringEvaluations() {
     if (!scoreStr) return;
     const score = Number(scoreStr);
     if (isNaN(score) || score < 0 || score > 100) {
-      alert('Pontuação inválida');
+      notify({ title: 'Pontuação inválida', intent: 'danger' });
       return;
     }
     const feedback = window.prompt('Feedback (opcional):') || undefined;

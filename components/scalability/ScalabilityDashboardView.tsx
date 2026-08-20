@@ -14,6 +14,7 @@
 // antes usavam classes Tailwind indigo/gray/slate soltas e foram convertidos
 // para os mesmos tokens DARK_THEME/METRIC_ACCENT_COLORS do resto do ficheiro.
 
+import { useToast } from '@/providers/ToastProvider';
 import type {
   AlertSeverity,
   IntegrationStatus,
@@ -546,6 +547,7 @@ interface PerformanceTabProps {
 }
 
 function PerformanceTab({ data }: PerformanceTabProps) {
+  const notify = useToast();
   const p = data.performanceSummary;
   const metrics = [
     {
@@ -742,7 +744,12 @@ function PerformanceTab({ data }: PerformanceTabProps) {
         </div>
         <ActionButton
           label="Configurar Teste"
-          onClick={() => alert('Modal de configuração de teste de carga')}
+          onClick={() =>
+            notify({
+              title: 'Modal de configuração de teste de carga',
+              intent: 'info',
+            })
+          }
         />
       </div>
     </div>
@@ -754,6 +761,7 @@ interface IntegrationsTabProps {
 }
 
 function IntegrationsTab({ integrations }: IntegrationsTabProps) {
+  const notify = useToast();
   const typeLabels: Record<string, string> = {
     ERP_HR: 'ERP de RH',
     PAYROLL: 'Folha de Pagamento',
@@ -796,7 +804,9 @@ function IntegrationsTab({ integrations }: IntegrationsTabProps) {
         />
         <ActionButton
           label="+ Nova Integração"
-          onClick={() => alert('Modal de nova integração')}
+          onClick={() =>
+            notify({ title: 'Modal de nova integração', intent: 'info' })
+          }
         />
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -855,12 +865,19 @@ function IntegrationsTab({ integrations }: IntegrationsTabProps) {
             <div style={{ display: 'flex', gap: 8 }}>
               <SmallButton
                 label="Sync"
-                onClick={() => alert(`Sincronizando ${int.name}...`)}
+                onClick={() =>
+                  notify({
+                    title: `Sincronizando ${int.name}...`,
+                    intent: 'info',
+                  })
+                }
               />
               <SmallButton
                 label="Config"
                 variant="ghost"
-                onClick={() => alert(`Configurar ${int.name}`)}
+                onClick={() =>
+                  notify({ title: `Configurar ${int.name}`, intent: 'info' })
+                }
               />
             </div>
           </div>
@@ -875,6 +892,7 @@ interface AutomationsTabProps {
 }
 
 function AutomationsTab({ rules }: AutomationsTabProps) {
+  const notify = useToast();
   const triggerLabel: Record<string, string> = {
     USER_HIRED: 'Contratação',
     USER_PROMOTED: 'Promoção',
@@ -903,7 +921,9 @@ function AutomationsTab({ rules }: AutomationsTabProps) {
         />
         <ActionButton
           label="+ Nova Regra"
-          onClick={() => alert('Modal de nova regra')}
+          onClick={() =>
+            notify({ title: 'Modal de nova regra', intent: 'info' })
+          }
         />
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -982,7 +1002,9 @@ function AutomationsTab({ rules }: AutomationsTabProps) {
             </div>
             <SmallButton
               label="Executar"
-              onClick={() => alert(`Executar: ${rule.name}`)}
+              onClick={() =>
+                notify({ title: `Executar: ${rule.name}`, intent: 'info' })
+              }
             />
           </div>
         ))}
@@ -996,6 +1018,7 @@ interface AlertsTabProps {
 }
 
 function AlertsTab({ alerts }: AlertsTabProps) {
+  const notify = useToast();
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
       <div
@@ -1083,7 +1106,9 @@ function AlertsTab({ alerts }: AlertsTabProps) {
               </div>
               <SmallButton
                 label="Resolver"
-                onClick={() => window.alert('Resolver alerta...')}
+                onClick={() =>
+                  notify({ title: 'Resolver alerta...', intent: 'info' })
+                }
               />
             </div>
           </div>
@@ -1276,6 +1301,7 @@ interface UsersTabProps {
 }
 
 function UsersTab({ data }: UsersTabProps) {
+  const notify = useToast();
   const { tenantInfo: t } = data;
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
@@ -1292,7 +1318,9 @@ function UsersTab({ data }: UsersTabProps) {
         />
         <ActionButton
           label="Importar CSV"
-          onClick={() => alert('Modal de importação')}
+          onClick={() =>
+            notify({ title: 'Modal de importação', intent: 'info' })
+          }
         />
       </div>
 

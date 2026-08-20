@@ -12,6 +12,7 @@ import { apiClient } from '@/lib/apiClient';
 import { Avatar } from '@/components/ui/Avatar';
 import { Button, IconButton } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { useToast } from '@/providers/ToastProvider';
 import { QUICK_ACTIONS } from './constants';
 import { MessageBubble } from './MessageBubble';
 import type {
@@ -28,6 +29,7 @@ const PERSONALITIES = [
 ] as const;
 
 export function ChatView() {
+  const notify = useToast();
   const [session, setSession] = useState<{
     id: number;
     greeting: string;
@@ -63,7 +65,7 @@ export function ChatView() {
           },
         ]);
       },
-      onError: (e) => alert(e.message),
+      onError: (e) => notify({ title: e.message, intent: 'danger' }),
     },
   );
   const starting = startSession.isPending;
@@ -175,9 +177,7 @@ export function ChatView() {
       <div className="flex items-center gap-3 px-4 py-3 bg-primary text-canvas">
         <Avatar name="NOVA" size="md" />
         <div>
-          <div className="font-body text-sm font-semibold">
-            NOVA — Tutor IA
-          </div>
+          <div className="font-body text-sm font-semibold">NOVA — Tutor IA</div>
           <div className="font-body text-xs text-canvas/80 flex items-center gap-1">
             <span className="w-1.5 h-1.5 bg-success rounded-full" />
             Online · Sessão #{session.id}

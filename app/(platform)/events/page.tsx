@@ -9,6 +9,7 @@
 
 import { useState } from 'react';
 import { CalendarDays, Plus } from 'lucide-react';
+import { useToast } from '@/providers/ToastProvider';
 import { NAV, TITLES } from '@/components/events/constants';
 import { CatalogView } from '@/components/events/CatalogView';
 import { DetailView } from '@/components/events/DetailView';
@@ -18,6 +19,7 @@ import type { Nav } from '@/components/events/types';
 import { Button } from '@/components/ui/Button';
 
 export default function EventsPage() {
+  const notify = useToast();
   const [nav, setNav] = useState<Nav>({ view: 'catalog' });
 
   const handleSelect = (id: number) =>
@@ -47,7 +49,12 @@ export default function EventsPage() {
         {nav.view !== 'detail' && (
           <Button
             size="sm"
-            onClick={() => alert('Abrir formulário de criação de evento')}
+            onClick={() =>
+              notify({
+                title: 'Abrir formulário de criação de evento',
+                intent: 'info',
+              })
+            }
           >
             <Plus size={14} strokeWidth={1.75} />
             Criar evento

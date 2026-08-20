@@ -13,6 +13,7 @@
 
 import { useApiMutation, useApiQuery } from './useApiQuery';
 import { useConfirm } from '@/providers/ConfirmProvider';
+import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -22,6 +23,7 @@ export type ProfileTab = 'overview' | 'learning' | 'team' | 'audit';
 export type UserAction = 'activate' | 'deactivate' | 'suspend';
 
 export function useUserProfile(userId: number, tab: ProfileTab) {
+  const notify = useToast();
   // user e stats correm em paralelo (sem waterfall).
   const { data: user, isLoading: loadingUser } = useApiQuery<User>(
     queryKeys.users.detail(userId),
@@ -46,7 +48,7 @@ export function useUserProfile(userId: number, tab: ProfileTab) {
     (act: UserAction) => apiClient.patch(`/users/${userId}/${act}`, {}),
     {
       invalidateKeys: [queryKeys.users.detail(userId), queryKeys.users.lists()],
-      onError: (e) => alert(e.message),
+      onError: (e) => notify({ title: e.message, intent: 'danger' }),
     },
   );
   const actionLoading = action.isPending;

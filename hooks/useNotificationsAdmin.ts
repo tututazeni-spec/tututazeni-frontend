@@ -9,6 +9,7 @@
 
 import { useApiMutation, useApiQuery } from './useApiQuery';
 import { useFormValidation } from './useFormValidation';
+import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -16,6 +17,7 @@ import { required } from '@/lib/validation';
 import type { Stats } from '@/components/notifications/types';
 
 export function useNotificationsAdmin() {
+  const notify = useToast();
   const {
     values: form,
     setValues: setForm,
@@ -41,17 +43,20 @@ export function useNotificationsAdmin() {
       // Um envio em massa altera stats e as caixas de entrada → invalida tudo.
       invalidateKeys: [queryKeys.notifications.all],
       onSuccess: (res) => {
-        alert(`✓ Enviado a ${res.sent} colaboradores`);
+        notify({
+          title: `✓ Enviado a ${res.sent} colaboradores`,
+          intent: 'success',
+        });
         setForm({ type: 'ANNOUNCEMENT', message: '', title: '' });
       },
-      onError: (e) => alert(e.message),
+      onError: (e) => notify({ title: e.message, intent: 'danger' }),
     },
   );
   const sending = sendAll.isPending;
 
   const handleSendAll = () => {
     if (!validateAll()) {
-      alert('Mensagem obrigatória');
+      notify({ title: 'Mensagem obrigatória', intent: 'danger' });
       return;
     }
     sendAll.mutate(undefined);

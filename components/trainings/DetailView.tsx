@@ -11,6 +11,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useToast } from '@/providers/ToastProvider';
 import Image from 'next/image';
 import { ArrowLeft, Clock, Globe, Star, Trophy, Users } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
@@ -79,6 +80,7 @@ function StarRow({ rating }: { rating: number }) {
 }
 
 export function DetailView({ trainingId, onBack }: DetailViewProps) {
+  const notify = useToast();
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState('');
 
@@ -93,8 +95,9 @@ export function DetailView({ trainingId, onBack }: DetailViewProps) {
       apiClient.post(`/trainings/sessions/${sessionId}/self-register`, {}),
     {
       invalidateKeys: [queryKeys.trainings.detail(trainingId)],
-      onSuccess: () => alert('Inscrição realizada!'),
-      onError: (e) => alert(e.message),
+      onSuccess: () =>
+        notify({ title: 'Inscrição realizada!', intent: 'success' }),
+      onError: (e) => notify({ title: e.message, intent: 'danger' }),
     },
   );
   const enrolling = enrollMutation.isPending
@@ -111,11 +114,11 @@ export function DetailView({ trainingId, onBack }: DetailViewProps) {
       }),
     {
       onSuccess: () => {
-        alert('Avaliação enviada!');
+        notify({ title: 'Avaliação enviada!', intent: 'success' });
         setRating(0);
         setComment('');
       },
-      onError: (e) => alert(e.message),
+      onError: (e) => notify({ title: e.message, intent: 'danger' }),
     },
   );
   const submittingRating = rateMutation.isPending;

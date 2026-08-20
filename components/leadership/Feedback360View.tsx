@@ -11,6 +11,7 @@
 
 import { useState } from 'react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
+import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -30,6 +31,7 @@ function competencyScoreClass(avgScore: number): string {
 }
 
 export function Feedback360View() {
+  const notify = useToast();
   const [feedbackForm, setFeedbackForm] = useState<Record<string, number>>({});
   const [targetLeader, setTargetLeader] = useState('');
   const [qualitative, setQualitative] = useState('');
@@ -67,16 +69,19 @@ export function Feedback360View() {
         setFeedbackForm({});
         setTargetLeader('');
         setQualitative('');
-        alert('Feedback 360° submetido anonimamente!');
+        notify({
+          title: 'Feedback 360° submetido anonimamente!',
+          intent: 'success',
+        });
       },
-      onError: (e) => alert(e.message),
+      onError: (e) => notify({ title: e.message, intent: 'danger' }),
     },
   );
   const submitting = submit360.isPending;
 
   const handleSubmit360 = () => {
     if (!targetLeader || Object.keys(feedbackForm).length < 3) {
-      alert('Preencha pelo menos 3 competências');
+      notify({ title: 'Preencha pelo menos 3 competências', intent: 'danger' });
       return;
     }
     submit360.mutate(undefined);

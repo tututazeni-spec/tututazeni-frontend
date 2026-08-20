@@ -6,6 +6,7 @@
 
 import { useState } from 'react';
 import { useApiMutation } from '@/hooks/useApiQuery';
+import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
 import { fmtBytes, fmtDuration } from './utils';
 import { useRecording } from './useRecording';
@@ -17,6 +18,7 @@ interface RecordingPanelProps {
 }
 
 export function RecordingPanel({ liveClass, onUrlSaved }: RecordingPanelProps) {
+  const notify = useToast();
   const rec = useRecording();
   const [customUrl, setCustomUrl] = useState(liveClass.recordingUrl ?? '');
   const [urlSaved, setUrlSaved] = useState(false);
@@ -38,7 +40,7 @@ export function RecordingPanel({ liveClass, onUrlSaved }: RecordingPanelProps) {
         setUrlSaved(true);
         onUrlSaved(url);
       },
-      onError: (e) => alert(e.message),
+      onError: (e) => notify({ title: e.message, intent: 'danger' }),
     },
   );
   const savingUrl = saveUrlMutation.isPending;

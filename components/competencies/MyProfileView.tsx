@@ -18,6 +18,7 @@
 import { useState } from 'react';
 import { AlertTriangle, Gauge, Layers, TrendingUp } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
+import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -65,7 +66,9 @@ function LevelBar({ current, target, max = 5 }: LevelBarProps) {
           />
         )}
       </div>
-      <span className={`flex-shrink-0 font-data text-xs ${levelTextClass(current)}`}>
+      <span
+        className={`flex-shrink-0 font-data text-xs ${levelTextClass(current)}`}
+      >
         {current}/{max}
       </span>
     </div>
@@ -95,6 +98,7 @@ function StarRating({ value, max = 5, onChange }: StarRatingProps) {
 }
 
 export function MyProfileView() {
+  const notify = useToast();
   const [tab, setTab] = useState<'profile' | 'gap' | 'evolution'>('profile');
   const [positionId, setPositionId] = useState('');
   const [selfAssessing, setSelfAssessing] = useState<number | null>(null);
@@ -117,7 +121,7 @@ export function MyProfileView() {
   const gapMutation = useApiMutation(
     (posId: string) =>
       apiClient.get<GapAnalysis>(`/competencies/my/gap/${posId}`),
-    { onError: (e) => alert(e.message) },
+    { onError: (e) => notify({ title: e.message, intent: 'danger' }) },
   );
   const gap = gapMutation.data ?? null;
   const loadingGap = gapMutation.isPending;
@@ -136,7 +140,7 @@ export function MyProfileView() {
         profileQ.refetch();
         setSelfAssessing(null);
       },
-      onError: (e) => alert(e.message),
+      onError: (e) => notify({ title: e.message, intent: 'danger' }),
     },
   );
   const savingAssess = selfAssessMutation.isPending;
@@ -169,7 +173,12 @@ export function MyProfileView() {
         <div className="space-y-5">
           {/* Summary cards */}
           <div className="grid grid-cols-4 gap-3">
-            <KpiCard icon={Layers} label="Competências" value={competencies.length} intent="primary" />
+            <KpiCard
+              icon={Layers}
+              label="Competências"
+              value={competencies.length}
+              intent="primary"
+            />
             <KpiCard
               icon={AlertTriangle}
               label="Com gap"
@@ -179,7 +188,9 @@ export function MyProfileView() {
             <KpiCard
               icon={Gauge}
               label="Divergências"
-              value={competencies.filter((c) => (c.divergence ?? 0) >= 2).length}
+              value={
+                competencies.filter((c) => (c.divergence ?? 0) >= 2).length
+              }
               intent="danger"
             />
             <KpiCard
@@ -201,14 +212,20 @@ export function MyProfileView() {
           {Object.entries(byCategory).map(([cat, items]) => (
             <div key={cat}>
               <div className="mb-3 flex items-center gap-2">
-                <StatusBadge value={cat as CompetencyCategory} map={CATEGORY_CFG} />
+                <StatusBadge
+                  value={cat as CompetencyCategory}
+                  map={CATEGORY_CFG}
+                />
                 <span className="font-body text-xs text-ink-faint">
                   {items.length} competências
                 </span>
               </div>
               <div className="space-y-2">
                 {items.map((uc) => (
-                  <div key={uc.id} className="rounded-card border border-border bg-surface p-4">
+                  <div
+                    key={uc.id}
+                    className="rounded-card border border-border bg-surface p-4"
+                  >
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1">
                         <div className="mb-2 flex items-center gap-2">
@@ -217,12 +234,18 @@ export function MyProfileView() {
                           </span>
                           {(uc.divergence ?? 0) >= 2 && (
                             <Badge intent="danger">
-                              ⚠ Divergência ({uc.selfLevel} vs {uc.managerLevel})
+                              ⚠ Divergência ({uc.selfLevel} vs {uc.managerLevel}
+                              )
                             </Badge>
                           )}
-                          {(uc.gap ?? 0) > 0 && <Badge intent="warning">Gap: {uc.gap}</Badge>}
+                          {(uc.gap ?? 0) > 0 && (
+                            <Badge intent="warning">Gap: {uc.gap}</Badge>
+                          )}
                         </div>
-                        <LevelBar current={uc.currentLevel} target={uc.targetLevel} />
+                        <LevelBar
+                          current={uc.currentLevel}
+                          target={uc.targetLevel}
+                        />
                         <div className="mt-1.5 flex items-center gap-4 font-body text-xs text-ink-faint">
                           <span>
                             Actual:{' '}
@@ -238,8 +261,12 @@ export function MyProfileView() {
                               </strong>
                             </span>
                           )}
-                          {uc.selfLevel !== null && <span>Auto: {uc.selfLevel}</span>}
-                          {uc.managerLevel !== null && <span>Gestor: {uc.managerLevel}</span>}
+                          {uc.selfLevel !== null && (
+                            <span>Auto: {uc.selfLevel}</span>
+                          )}
+                          {uc.managerLevel !== null && (
+                            <span>Gestor: {uc.managerLevel}</span>
+                          )}
                           <span>{fmtDate(uc.evaluatedAt)}</span>
                         </div>
                       </div>
@@ -247,16 +274,25 @@ export function MyProfileView() {
                       <div className="flex-shrink-0">
                         {selfAssessing === uc.competencyId ? (
                           <div className="flex flex-col items-end gap-2">
-                            <StarRating value={selfLevel} onChange={setSelfLevel} />
+                            <StarRating
+                              value={selfLevel}
+                              onChange={setSelfLevel}
+                            />
                             <div className="flex gap-1">
                               <Button
                                 size="sm"
-                                onClick={() => handleSelfAssess(uc.competencyId)}
+                                onClick={() =>
+                                  handleSelfAssess(uc.competencyId)
+                                }
                                 loading={savingAssess}
                               >
                                 Guardar
                               </Button>
-                              <Button size="sm" intent="ghost" onClick={() => setSelfAssessing(null)}>
+                              <Button
+                                size="sm"
+                                intent="ghost"
+                                onClick={() => setSelfAssessing(null)}
+                              >
                                 Cancelar
                               </Button>
                             </div>
@@ -299,7 +335,11 @@ export function MyProfileView() {
               onChange={(e) => setPositionId(e.target.value)}
               className="max-w-xs"
             />
-            <Button onClick={loadGap} disabled={!positionId} loading={loadingGap}>
+            <Button
+              onClick={loadGap}
+              disabled={!positionId}
+              loading={loadingGap}
+            >
               Analisar gap
             </Button>
           </div>
@@ -312,15 +352,25 @@ export function MyProfileView() {
                   <div className="text-3xl font-bold text-success-ink">
                     {gap.readinessPercent}%
                   </div>
-                  <div className="mt-1 font-body text-xs text-success-ink">Preparação</div>
+                  <div className="mt-1 font-body text-xs text-success-ink">
+                    Preparação
+                  </div>
                 </div>
                 <div className="rounded-card bg-danger-subtle p-4 text-center">
-                  <div className="text-3xl font-bold text-danger-ink">{gap.mandatoryGaps}</div>
-                  <div className="mt-1 font-body text-xs text-danger-ink">Gaps obrigatórios</div>
+                  <div className="text-3xl font-bold text-danger-ink">
+                    {gap.mandatoryGaps}
+                  </div>
+                  <div className="mt-1 font-body text-xs text-danger-ink">
+                    Gaps obrigatórios
+                  </div>
                 </div>
                 <div className="rounded-card bg-warning-subtle p-4 text-center">
-                  <div className="text-3xl font-bold text-warning-ink">{gap.totalGap}</div>
-                  <div className="mt-1 font-body text-xs text-warning-ink">Gap total</div>
+                  <div className="text-3xl font-bold text-warning-ink">
+                    {gap.totalGap}
+                  </div>
+                  <div className="mt-1 font-body text-xs text-warning-ink">
+                    Gap total
+                  </div>
                 </div>
               </div>
 
@@ -337,8 +387,13 @@ export function MyProfileView() {
                           <span className="font-body text-sm font-medium text-ink">
                             {g.competency.name}
                           </span>
-                          <StatusBadge value={g.competency.category} map={CATEGORY_CFG} />
-                          {g.priority === 'MANDATORY' && <Badge intent="danger">Obrigatório</Badge>}
+                          <StatusBadge
+                            value={g.competency.category}
+                            map={CATEGORY_CFG}
+                          />
+                          {g.priority === 'MANDATORY' && (
+                            <Badge intent="danger">Obrigatório</Badge>
+                          )}
                           {g.met && (
                             <span className="font-body text-xs font-medium text-success">
                               ✓ Cumprido
@@ -347,20 +402,28 @@ export function MyProfileView() {
                         </div>
                         <div className="flex items-center gap-4">
                           <div>
-                            <div className="mb-1 font-body text-xs text-ink-faint">Actual</div>
+                            <div className="mb-1 font-body text-xs text-ink-faint">
+                              Actual
+                            </div>
                             <LevelBar current={g.currentLevel} />
                           </div>
                           <div className="text-ink-faint">→</div>
                           <div>
-                            <div className="mb-1 font-body text-xs text-ink-faint">Requerido</div>
+                            <div className="mb-1 font-body text-xs text-ink-faint">
+                              Requerido
+                            </div>
                             <LevelBar current={g.requiredLevel} />
                           </div>
                         </div>
                       </div>
                       {!g.met && g.gap > 0 && (
                         <div className="flex-shrink-0 text-center">
-                          <div className="text-xl font-bold text-warning">{g.gap}</div>
-                          <div className="font-body text-xs text-ink-faint">níveis</div>
+                          <div className="text-xl font-bold text-warning">
+                            {g.gap}
+                          </div>
+                          <div className="font-body text-xs text-ink-faint">
+                            níveis
+                          </div>
                         </div>
                       )}
                     </div>
@@ -407,7 +470,10 @@ export function MyProfileView() {
           <TableBody>
             {evolution.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="text-center font-body text-sm text-ink-faint">
+                <TableCell
+                  colSpan={5}
+                  className="text-center font-body text-sm text-ink-faint"
+                >
                   Sem histórico de evolução
                 </TableCell>
               </TableRow>
@@ -417,7 +483,9 @@ export function MyProfileView() {
                   <TableCell className="font-body text-sm text-ink">
                     {e.competency?.name}
                   </TableCell>
-                  <TableCell className="font-body text-xs text-ink-muted">{e.source}</TableCell>
+                  <TableCell className="font-body text-xs text-ink-muted">
+                    {e.source}
+                  </TableCell>
                   <TableCell className="font-data text-xs text-ink-faint">
                     {e.previousLevel} →
                   </TableCell>

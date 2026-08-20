@@ -7,6 +7,7 @@
 
 import { useState } from 'react';
 import { useApiQuery } from '@/hooks/useApiQuery';
+import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -19,6 +20,7 @@ import { LEVEL_CFG } from './constants';
 import type { LeadershipProgram, ProgramLevel } from './types';
 
 export function ProgramsView() {
+  const notify = useToast();
   const [filter, setFilter] = useState<ProgramLevel | ''>('');
 
   const params = { status: 'ACTIVE', ...(filter ? { level: filter } : {}) };
@@ -31,9 +33,12 @@ export function ProgramsView() {
   const handleEnroll = async (programId: number) => {
     try {
       await apiClient.post(`/leadership/programs/${programId}/self-enroll`, {});
-      alert('Inscrito com sucesso!');
+      notify({ title: 'Inscrito com sucesso!', intent: 'success' });
     } catch (e) {
-      alert(e instanceof Error ? e.message : String(e));
+      notify({
+        title: e instanceof Error ? e.message : String(e),
+        intent: 'danger',
+      });
     }
   };
 
@@ -84,7 +89,11 @@ export function ProgramsView() {
               )}
             </div>
 
-            <Button size="sm" className="w-full" onClick={() => handleEnroll(prog.id)}>
+            <Button
+              size="sm"
+              className="w-full"
+              onClick={() => handleEnroll(prog.id)}
+            >
               Inscrever-me
             </Button>
           </Card>

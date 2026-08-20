@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Copy, Pause, Play, Plus, RefreshCw, Trash2, Zap } from 'lucide-react';
+import { useToast } from '@/providers/ToastProvider';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { apiClient } from '@/lib/apiClient';
@@ -16,6 +17,7 @@ import { CATEGORY_INTENT, TRIGGER_LABEL } from './constants';
 import type { AutomationRule, RunAllResponse } from './types';
 
 export function RulesTab() {
+  const notify = useToast();
   const [running, setRunning] = useState(false);
 
   const {
@@ -56,7 +58,10 @@ export function RulesTab() {
     setRunning(true);
     const r = await apiClient.post<RunAllResponse>('/automation/run', {});
     setRunning(false);
-    alert(`Executadas: ${r.executed} regras`);
+    notify({
+      title: `Executadas: ${r.executed} regras`,
+      intent: 'success',
+    });
   };
 
   if (loading)
@@ -76,9 +81,18 @@ export function RulesTab() {
           activas
         </span>
         <div className="flex gap-2">
-          <Button size="sm" intent="secondary" onClick={runAll} disabled={running}>
+          <Button
+            size="sm"
+            intent="secondary"
+            onClick={runAll}
+            disabled={running}
+          >
             {running ? (
-              <RefreshCw size={14} strokeWidth={1.75} className="animate-spin" />
+              <RefreshCw
+                size={14}
+                strokeWidth={1.75}
+                className="animate-spin"
+              />
             ) : (
               <Play size={14} strokeWidth={1.75} />
             )}
@@ -100,7 +114,9 @@ export function RulesTab() {
               />
               <div className="min-w-0 flex-1">
                 <div className="mb-1 flex flex-wrap items-center gap-2">
-                  <p className="font-body text-sm font-semibold text-ink">{r.name}</p>
+                  <p className="font-body text-sm font-semibold text-ink">
+                    {r.name}
+                  </p>
                   {r.category && (
                     <Badge intent={CATEGORY_INTENT[r.category] ?? 'neutral'}>
                       {r.category}
@@ -114,7 +130,9 @@ export function RulesTab() {
                 </div>
                 {r.stats && (
                   <div className="mt-1 flex gap-3 font-body text-[10px]">
-                    <span className="text-ink-faint">{r.stats.total} execuções</span>
+                    <span className="text-ink-faint">
+                      {r.stats.total} execuções
+                    </span>
                     <span className="text-success">{r.stats.success} ✅</span>
                     {r.stats.failed > 0 && (
                       <span className="text-danger">{r.stats.failed} ❌</span>

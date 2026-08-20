@@ -10,8 +10,10 @@ import { TimelineView } from '@/components/organization/TimelineView';
 import type { View } from '@/components/organization/types';
 import { Button } from '@/components/ui/Button';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
+import { useToast } from '@/providers/ToastProvider';
 
 export default function OrganizationPage() {
+  const notify = useToast();
   const [view, setView] = useState<View>('dashboard');
 
   return (
@@ -28,7 +30,12 @@ export default function OrganizationPage() {
         {view === 'departments' && (
           <Button
             size="sm"
-            onClick={() => alert('Abrir formulário de criação de departamento')}
+            onClick={() =>
+              notify({
+                title: 'Abrir formulário de criação de departamento',
+                intent: 'info',
+              })
+            }
           >
             + Departamento
           </Button>

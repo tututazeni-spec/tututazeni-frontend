@@ -6,12 +6,14 @@
 import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
 import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
+import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import type { Session } from '@/components/lms/types';
 
 export function useLiveSessionsLms() {
+  const notify = useToast();
   const [page, setPage] = useState(1);
   const params = { page, limit: 20 };
 
@@ -35,8 +37,10 @@ export function useLiveSessionsLms() {
       apiClient.post(`/lms/sessions/${sessionId}/register`, {}),
     {
       invalidateKeys: [queryKeys.lms.all],
-      onSuccess: () => alert('Inscrição na sessão realizada!'),
-      onError: (e) => alert(e.message || 'Erro ao inscrever'),
+      onSuccess: () =>
+        notify({ title: 'Inscrição na sessão realizada!', intent: 'success' }),
+      onError: (e) =>
+        notify({ title: e.message || 'Erro ao inscrever', intent: 'danger' }),
     },
   );
 

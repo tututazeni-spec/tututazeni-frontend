@@ -5,6 +5,7 @@
 
 import { useState } from 'react';
 import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
+import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -22,6 +23,7 @@ const EMPTY_FORM: InteractionForm = {
 };
 
 export function usePartnerDetail(id: string) {
+  const notify = useToast();
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState<InteractionForm>(EMPTY_FORM);
 
@@ -52,7 +54,8 @@ export function usePartnerDetail(id: string) {
         setShowForm(false);
         setForm(EMPTY_FORM);
       },
-      onError: (e) => alert(e.message || 'Erro inesperado'),
+      onError: (e) =>
+        notify({ title: e.message || 'Erro inesperado', intent: 'danger' }),
     },
   );
   const saving = intMut.isPending;
@@ -62,7 +65,8 @@ export function usePartnerDetail(id: string) {
       apiClient.put(`/crm/partners/milestones/${milestoneId}/complete`, {}),
     {
       invalidateKeys: [detailKey],
-      onError: (e) => alert(e.message || 'Erro inesperado'),
+      onError: (e) =>
+        notify({ title: e.message || 'Erro inesperado', intent: 'danger' }),
     },
   );
 

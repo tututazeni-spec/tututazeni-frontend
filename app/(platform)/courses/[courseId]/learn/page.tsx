@@ -14,6 +14,7 @@ import { useParams } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, PanelLeft } from 'lucide-react';
 import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
+import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -32,6 +33,7 @@ import type {
 } from '@/components/courses-learn/types';
 
 export default function CourseLearnPage() {
+  const notify = useToast();
   const params = useParams();
   const courseId = parseInt((params?.courseId as string) ?? '0');
 
@@ -83,7 +85,7 @@ export default function CourseLearnPage() {
 
   const completeMut = useApiMutation<unknown, number>(
     (lessonId) => apiClient.post('/lessons/progress', { lessonId }),
-    { onError: (e) => alert(e.message) },
+    { onError: (e) => notify({ title: e.message, intent: 'danger' }) },
   );
   const completing = completeMut.isPending;
 

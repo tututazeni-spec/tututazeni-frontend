@@ -6,6 +6,7 @@
 import { useRouter } from 'next/navigation';
 import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
+import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -13,6 +14,7 @@ import type { ProgramDetail } from '@/components/academic/types';
 
 export function useAcademicProgramDetail(id: string) {
   const router = useRouter();
+  const notify = useToast();
 
   const {
     data: program,
@@ -45,10 +47,14 @@ export function useAcademicProgramDetail(id: string) {
         queryKeys.academic.transcript(),
       ],
       onSuccess: () => {
-        alert('Matrícula submetida com sucesso!');
+        notify({
+          title: 'Matrícula submetida com sucesso!',
+          intent: 'success',
+        });
         router.push('/academic/transcript');
       },
-      onError: (e) => alert(e.message || 'Erro inesperado'),
+      onError: (e) =>
+        notify({ title: e.message || 'Erro inesperado', intent: 'danger' }),
     },
   );
   const enrolling = enrollMut.isPending;

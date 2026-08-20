@@ -3,6 +3,7 @@
 
 import { useState } from 'react';
 import { Plus, Target } from 'lucide-react';
+import { useToast } from '@/providers/ToastProvider';
 import { NAV, TITLES } from '@/components/development-plans/constants';
 import { DetailView } from '@/components/development-plans/DetailView';
 import { MyPlansView } from '@/components/development-plans/MyPlansView';
@@ -11,6 +12,7 @@ import type { Nav } from '@/components/development-plans/types';
 import { Button } from '@/components/ui/Button';
 
 export default function DevelopmentPlansPage() {
+  const notify = useToast();
   const [nav, setNav] = useState<Nav>({ view: 'my-plans' });
 
   const handleSelect = (id: number) =>
@@ -34,7 +36,15 @@ export default function DevelopmentPlansPage() {
           </p>
         </div>
         {nav.view !== 'detail' && (
-          <Button size="sm" onClick={() => alert('Abrir formulário de criação de PDI')}>
+          <Button
+            size="sm"
+            onClick={() =>
+              notify({
+                title: 'Abrir formulário de criação de PDI',
+                intent: 'info',
+              })
+            }
+          >
             <Plus size={14} strokeWidth={1.75} />
             Novo PDI
           </Button>

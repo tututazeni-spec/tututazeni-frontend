@@ -8,6 +8,7 @@
 import { useState } from 'react';
 import { ClipboardList } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
+import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -21,6 +22,7 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import type { CareerPlan } from './types';
 
 export function PlanView() {
+  const notify = useToast();
   const [title, setTitle] = useState('');
 
   const { data: plan, isLoading: loading } = useApiQuery<CareerPlan>(
@@ -34,7 +36,7 @@ export function PlanView() {
     {
       invalidateKeys: [queryKeys.career.plan()],
       onSuccess: () => setTitle(''),
-      onError: (e) => alert(e.message),
+      onError: (e) => notify({ title: e.message, intent: 'danger' }),
     },
   );
   const creating = createPlanMutation.isPending;
@@ -71,7 +73,11 @@ export function PlanView() {
             placeholder="Título do plano (ex: Tornar-me Tech Lead até 2027)"
             className="w-80"
           />
-          <Button onClick={createPlan} disabled={!title.trim()} loading={creating}>
+          <Button
+            onClick={createPlan}
+            disabled={!title.trim()}
+            loading={creating}
+          >
             Criar plano
           </Button>
         </div>
@@ -120,7 +126,11 @@ export function PlanView() {
         </div>
         {goals.length > 0 && (
           <ProgressBar
-            value={goals.length > 0 ? Math.round((completed / goals.length) * 100) : 0}
+            value={
+              goals.length > 0
+                ? Math.round((completed / goals.length) * 100)
+                : 0
+            }
             className="mt-3"
           />
         )}

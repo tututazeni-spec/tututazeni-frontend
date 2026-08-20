@@ -9,6 +9,7 @@
 
 import { useEffect, useState } from 'react';
 import { ArrowLeft, Check, CheckCircle2, Paperclip, X } from 'lucide-react';
+import { useToast } from '@/providers/ToastProvider';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -34,6 +35,7 @@ export interface TaskRunnerProps {
 }
 
 export function TaskRunner({ instanceId, onBack }: TaskRunnerProps) {
+  const notify = useToast();
   const [activeStep, setActiveStep] = useState<StepProgress | null>(null);
   const [notes, setNotes] = useState('');
 
@@ -66,7 +68,7 @@ export function TaskRunner({ instanceId, onBack }: TaskRunnerProps) {
     {
       invalidateKeys: [queryKeys.processes.instance(instanceId)],
       onSuccess: () => setNotes(''),
-      onError: (e) => alert(e.message),
+      onError: (e) => notify({ title: e.message, intent: 'danger' }),
     },
   );
   const completing = completeStepMutation.isPending;
@@ -82,7 +84,7 @@ export function TaskRunner({ instanceId, onBack }: TaskRunnerProps) {
       ),
     {
       invalidateKeys: [queryKeys.processes.instance(instanceId)],
-      onError: (e) => alert(e.message),
+      onError: (e) => notify({ title: e.message, intent: 'danger' }),
     },
   );
   const rejectStep = () => {

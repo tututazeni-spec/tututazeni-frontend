@@ -13,6 +13,7 @@
 
 import { useState } from 'react';
 import { FileText, PartyPopper } from 'lucide-react';
+import { useToast } from '@/providers/ToastProvider';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -51,11 +52,11 @@ function paceLabel(pct: number): string {
 }
 
 export function MyPlanView() {
+  const notify = useToast();
   const [surveyScore, setSurveyScore] = useState(0);
   const [surveyComment, setSurveyComment] = useState('');
-  const [activeTab, setActiveTab] = useState<
-    (typeof SUB_TABS)[number]['id']
-  >('tasks');
+  const [activeTab, setActiveTab] =
+    useState<(typeof SUB_TABS)[number]['id']>('tasks');
 
   const {
     data: plans = [],
@@ -74,7 +75,10 @@ export function MyPlanView() {
       });
       await refetch();
     } catch (e) {
-      alert(e instanceof Error ? e.message : String(e));
+      notify({
+        title: e instanceof Error ? e.message : String(e),
+        intent: 'danger',
+      });
     }
   };
 
@@ -91,15 +95,18 @@ export function MyPlanView() {
         await refetch();
         setSurveyScore(0);
         setSurveyComment('');
-        alert('Pesquisa submetida! Obrigado pelo feedback.');
+        notify({
+          title: 'Pesquisa submetida! Obrigado pelo feedback.',
+          intent: 'success',
+        });
       },
-      onError: (e) => alert(e.message),
+      onError: (e) => notify({ title: e.message, intent: 'danger' }),
     },
   );
   const submittingSurvey = surveyMutation.isPending;
   const handleSurvey = (planId: number) => {
     if (!surveyScore) {
-      alert('Seleccione uma nota');
+      notify({ title: 'Seleccione uma nota', intent: 'danger' });
       return;
     }
     surveyMutation.mutate(planId);
@@ -171,8 +178,8 @@ export function MyPlanView() {
                 {plan.template.name}
               </div>
               <div className="text-xs text-ink-muted mt-1">
-                Início: {fmtDate(plan.startDate)} ·{' '}
-                {plan.template.durationDays} dias
+                Início: {fmtDate(plan.startDate)} · {plan.template.durationDays}{' '}
+                dias
               </div>
             </div>
             <div className="text-right">
@@ -199,7 +206,9 @@ export function MyPlanView() {
       {/* Tabs */}
       <Tabs
         value={activeTab}
-        onValueChange={(v) => setActiveTab(v as (typeof SUB_TABS)[number]['id'])}
+        onValueChange={(v) =>
+          setActiveTab(v as (typeof SUB_TABS)[number]['id'])
+        }
       >
         <TabsList>
           {SUB_TABS.map((t) => (

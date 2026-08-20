@@ -13,6 +13,7 @@ import { useState } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { useConfirm } from '@/providers/ConfirmProvider';
+import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -49,6 +50,7 @@ const TABS = [
 ] as const;
 
 export function DetailView({ eventId, onBack }: DetailViewProps) {
+  const notify = useToast();
   const [showFeedback, setShowFeedback] = useState(false);
   const [feedback, setFeedback] = useState({ nps: 8, rating: 4, comment: '' });
   const [tab, setTab] = useState<'info' | 'participants'>('info');
@@ -68,7 +70,10 @@ export function DetailView({ eventId, onBack }: DetailViewProps) {
   // useState booleanos + try/catch/finally manuais que existiam antes.
   const joinMutation = useApiMutation(
     () => apiClient.post(`/events/${eventId}/join`, {}),
-    { onSuccess: () => refetch(), onError: (e) => alert(e.message) },
+    {
+      onSuccess: () => refetch(),
+      onError: (e) => notify({ title: e.message, intent: 'danger' }),
+    },
   );
   const handleJoin = () => joinMutation.mutate(undefined);
 
@@ -86,7 +91,10 @@ export function DetailView({ eventId, onBack }: DetailViewProps) {
       await apiClient.post(`/events/${eventId}/leave`, {});
       await refetch();
     } catch (e) {
-      alert(e instanceof Error ? e.message : String(e));
+      notify({
+        title: e instanceof Error ? e.message : String(e),
+        intent: 'danger',
+      });
     }
   };
 
@@ -95,9 +103,9 @@ export function DetailView({ eventId, onBack }: DetailViewProps) {
     {
       onSuccess: async () => {
         await refetch();
-        alert('✅ Check-in realizado! +20 XP');
+        notify({ title: 'Check-in realizado! +20 XP', intent: 'success' });
       },
-      onError: (e) => alert(e.message),
+      onError: (e) => notify({ title: e.message, intent: 'danger' }),
     },
   );
   const handleCheckIn = () => checkInMutation.mutate(undefined);
@@ -108,9 +116,12 @@ export function DetailView({ eventId, onBack }: DetailViewProps) {
     {
       onSuccess: () => {
         setShowFeedback(false);
-        alert('✅ Feedback enviado! Obrigado pela tua avaliação.');
+        notify({
+          title: 'Feedback enviado! Obrigado pela tua avaliação.',
+          intent: 'success',
+        });
       },
-      onError: (e) => alert(e.message),
+      onError: (e) => notify({ title: e.message, intent: 'danger' }),
     },
   );
   const handleFeedback = () => feedbackMutation.mutate(feedback);

@@ -6,6 +6,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useToast } from '@/providers/ToastProvider';
 import {
   AlertTriangle,
   ClipboardCheck,
@@ -43,6 +44,7 @@ import type {
 // componente). Cada hook expõe os seus campos + `submit`/`submitting` via
 // useApiMutation, eliminando o setLoading/try/catch/finally manual.
 function useGoalForm(cycle: Cycle | null, onCreated: () => void) {
+  const notify = useToast();
   const [title, setTitle] = useState('');
   const [target, setTarget] = useState('');
 
@@ -60,7 +62,7 @@ function useGoalForm(cycle: Cycle | null, onCreated: () => void) {
         setTarget('');
         onCreated();
       },
-      onError: (e) => alert(e.message),
+      onError: (e) => notify({ title: e.message, intent: 'danger' }),
     },
   );
 
@@ -81,6 +83,7 @@ function useGoalForm(cycle: Cycle | null, onCreated: () => void) {
 
 // Formulário "enviar feedback" — sub-domínio independente do de goals acima.
 function useFeedbackForm(cycleId: number | undefined, onSent: () => void) {
+  const notify = useToast();
   const [message, setMessage] = useState('');
   const [targetUserId, setTargetUserId] = useState('');
 
@@ -97,9 +100,9 @@ function useFeedbackForm(cycleId: number | undefined, onSent: () => void) {
         setMessage('');
         setTargetUserId('');
         onSent();
-        alert('Feedback enviado!');
+        notify({ title: 'Feedback enviado!', intent: 'success' });
       },
-      onError: (e) => alert(e.message),
+      onError: (e) => notify({ title: e.message, intent: 'danger' }),
     },
   );
 
@@ -119,6 +122,7 @@ function useFeedbackForm(cycleId: number | undefined, onSent: () => void) {
 }
 
 export function MyDashboard() {
+  const notify = useToast();
   const historyQ = useApiQuery<MyPerformanceHistory>(
     queryKeys.performance.my(),
     '/performance/my',
@@ -143,7 +147,7 @@ export function MyDashboard() {
       }),
     {
       onSuccess: () => historyQ.refetch(),
-      onError: (e) => alert(e.message),
+      onError: (e) => notify({ title: e.message, intent: 'danger' }),
     },
   );
   const handleUpdateProgress = (goalId: number, currentValue: number) =>
@@ -248,9 +252,7 @@ export function MyDashboard() {
         {/* Goals */}
         <div>
           <div className="flex items-center justify-between mb-3">
-            <div className="text-sm font-semibold text-ink">
-              Os meus Goals
-            </div>
+            <div className="text-sm font-semibold text-ink">Os meus Goals</div>
           </div>
           <div className="space-y-2">
             {history.goals.map((g: Goal) => (

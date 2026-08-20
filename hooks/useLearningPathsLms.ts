@@ -9,12 +9,14 @@ import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
 import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
 import { useDebounce } from '@/hooks/useDebounce';
+import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import type { Path } from '@/components/lms/types';
 
 export function useLearningPathsLms() {
+  const notify = useToast();
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
   const debouncedSearch = useDebounce(search);
@@ -39,8 +41,13 @@ export function useLearningPathsLms() {
     (pathId: string) => apiClient.post(`/lms/paths/${pathId}/enroll`, {}),
     {
       invalidateKeys: [queryKeys.lms.all],
-      onSuccess: () => alert('Inscrição realizada com sucesso!'),
-      onError: (e) => alert(e.message || 'Erro ao inscrever'),
+      onSuccess: () =>
+        notify({
+          title: 'Inscrição realizada com sucesso!',
+          intent: 'success',
+        }),
+      onError: (e) =>
+        notify({ title: e.message || 'Erro ao inscrever', intent: 'danger' }),
     },
   );
 

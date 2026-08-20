@@ -10,6 +10,7 @@
 
 import { useState } from 'react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
+import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -36,6 +37,7 @@ function statusTextClass(status: string): string {
 }
 
 export function MyDashboardView() {
+  const notify = useToast();
   const [kudosMsg, setKudosMsg] = useState('');
   const [kudosTarget, setKudosTarget] = useState('');
 
@@ -56,9 +58,9 @@ export function MyDashboardView() {
       onSuccess: () => {
         setKudosMsg('');
         setKudosTarget('');
-        alert('Kudos enviados! 🎉');
+        notify({ title: 'Kudos enviados!', intent: 'success' });
       },
-      onError: (e) => alert(e.message),
+      onError: (e) => notify({ title: e.message, intent: 'danger' }),
     },
   );
   const sendingKudos = kudosMutation.isPending;

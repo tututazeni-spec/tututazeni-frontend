@@ -7,7 +7,14 @@
 'use client';
 
 import { useState } from 'react';
-import { ArrowLeft, ArrowLeftRight, UserCheck, UserX, Users } from 'lucide-react';
+import { useToast } from '@/providers/ToastProvider';
+import {
+  ArrowLeft,
+  ArrowLeftRight,
+  UserCheck,
+  UserX,
+  Users,
+} from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -44,7 +51,9 @@ function Breadcrumb({
       {items.map((item, i) => (
         <span key={item.id} className="flex items-center gap-1">
           {i > 0 && <span>›</span>}
-          <span className={i === items.length - 1 ? 'font-medium text-ink' : ''}>
+          <span
+            className={i === items.length - 1 ? 'font-medium text-ink' : ''}
+          >
             {item.name}
           </span>
         </span>
@@ -54,6 +63,7 @@ function Breadcrumb({
 }
 
 export function DetailView({ deptId, onBack }: DetailViewProps) {
+  const notify = useToast();
   const [activeTab, setActiveTab] = useState<
     'members' | 'subdepts' | 'history' | 'metrics'
   >('members');
@@ -87,7 +97,10 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
         `/departments/${deptId}/${dept!.active ? 'deactivate' : 'activate'}`,
         {},
       ),
-    { invalidateKeys: reloadKeys, onError: (e) => alert(e.message) },
+    {
+      invalidateKeys: reloadKeys,
+      onError: (e) => notify({ title: e.message, intent: 'danger' }),
+    },
   );
   const actionLoading = toggleActive.isPending;
   const handleToggleActive = () => {
@@ -104,12 +117,15 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
     {
       invalidateKeys: reloadKeys,
       onSuccess: () => {
-        alert('Transferência realizada com sucesso');
+        notify({
+          title: 'Transferência realizada com sucesso',
+          intent: 'success',
+        });
         setTransferUserId('');
         setTransferTargetId('');
         setTransferReason('');
       },
-      onError: (e) => alert(e.message),
+      onError: (e) => notify({ title: e.message, intent: 'danger' }),
     },
   );
   const transferLoading = transferMutation.isPending;
@@ -284,7 +300,9 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
               />
               <Button
                 onClick={handleTransfer}
-                disabled={!transferUserId || !transferTargetId || transferLoading}
+                disabled={
+                  !transferUserId || !transferTargetId || transferLoading
+                }
                 loading={transferLoading}
               >
                 Transferir
@@ -304,7 +322,10 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
             <TableBody>
               {(dept.users as Member[]).length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={3} className="py-8 text-center text-ink-faint">
+                  <TableCell
+                    colSpan={3}
+                    className="py-8 text-center text-ink-faint"
+                  >
                     Sem membros neste departamento
                   </TableCell>
                 </TableRow>
@@ -316,7 +337,9 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
                         <Avatar name={u.fullName} size="sm" />
                         <div>
                           <div className="text-sm text-ink">{u.fullName}</div>
-                          <div className="text-xs text-ink-faint">{u.email}</div>
+                          <div className="text-xs text-ink-faint">
+                            {u.email}
+                          </div>
                         </div>
                       </div>
                     </TableCell>
@@ -383,14 +406,22 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
       {activeTab === 'metrics' && metrics && (
         <div className="space-y-4">
           <div className="grid grid-cols-4 gap-3">
-            <KpiCard icon={Users} label="Total membros" value={metrics.totalUsers} />
+            <KpiCard
+              icon={Users}
+              label="Total membros"
+              value={metrics.totalUsers}
+            />
             <KpiCard
               icon={UserCheck}
               label="Activos"
               value={metrics.activeUsers}
               intent="success"
             />
-            <KpiCard icon={UserX} label="Inactivos" value={metrics.inactiveUsers} />
+            <KpiCard
+              icon={UserX}
+              label="Inactivos"
+              value={metrics.inactiveUsers}
+            />
             <KpiCard
               icon={ArrowLeftRight}
               label="Transferências ↑"
@@ -421,7 +452,10 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
           <TableBody>
             {dept.headHistory.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={3} className="py-8 text-center text-ink-faint">
+                <TableCell
+                  colSpan={3}
+                  className="py-8 text-center text-ink-faint"
+                >
                   Sem histórico de gestores
                 </TableCell>
               </TableRow>
@@ -431,7 +465,9 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
                   <TableCell>
                     <div className="flex items-center gap-2">
                       <Avatar name={h.head.fullName} size="sm" />
-                      <span className="text-sm text-ink">{h.head.fullName}</span>
+                      <span className="text-sm text-ink">
+                        {h.head.fullName}
+                      </span>
                     </div>
                   </TableCell>
                   <TableCell className="text-xs text-ink-muted">

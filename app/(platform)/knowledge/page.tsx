@@ -17,8 +17,10 @@ import { LibraryView } from '@/components/knowledge/LibraryView';
 import { PortalView } from '@/components/knowledge/PortalView';
 import type { Nav } from '@/components/knowledge/types';
 import { Button } from '@/components/ui/Button';
+import { useToast } from '@/providers/ToastProvider';
 
 export default function KnowledgePage() {
+  const notify = useToast();
   const [nav, setNav] = useState<Nav>({ view: 'portal' });
 
   const handleSelectArticle = (id: number) =>
@@ -37,7 +39,11 @@ export default function KnowledgePage() {
             INNOVA — Gestão do Conhecimento
           </p>
         </div>
-        <Button onClick={() => alert('Abrir editor de artigo')}>
+        <Button
+          onClick={() =>
+            notify({ title: 'Abrir editor de artigo', intent: 'info' })
+          }
+        >
           <Plus size={16} strokeWidth={1.75} />
           Novo artigo
         </Button>
