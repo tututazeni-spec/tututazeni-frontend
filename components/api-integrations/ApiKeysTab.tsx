@@ -4,7 +4,9 @@ import { useState } from 'react';
 import { Copy, Plus, RotateCcw, Trash2, Clock, Key } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { useConfirm } from '@/providers/ConfirmProvider';
+import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
+import { reportError } from '@/lib/errorReporting';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Button, IconButton } from '@/components/ui/Button';
@@ -14,6 +16,7 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import type { ApiKeyItem, CreateApiKeyResponse } from './types';
 
 export function ApiKeysTab() {
+  const notify = useToast();
   const [newKey, setNewKey] = useState<string | null>(null);
 
   const {
@@ -32,13 +35,18 @@ export function ApiKeysTab() {
   const create = async () => {
     const name = prompt('Nome da API Key:');
     if (!name) return;
-    const r = await apiClient.post<CreateApiKeyResponse>(
-      '/api-integrations/api-keys',
-      { name, scopes: ['read'] },
-    );
-    if (r.key) {
-      setNewKey(r.key);
-      load();
+    try {
+      const r = await apiClient.post<CreateApiKeyResponse>(
+        '/api-integrations/api-keys',
+        { name, scopes: ['read'] },
+      );
+      if (r.key) {
+        setNewKey(r.key);
+        load();
+      }
+    } catch (e) {
+      reportError(e, { source: 'ApiKeysTab.create' });
+      notify({ title: 'Não foi possível criar a API Key', intent: 'danger' });
     }
   };
 
@@ -51,7 +59,15 @@ export function ApiKeysTab() {
         destructive: true,
       })
     ) {
-      await apiClient.post(`/api-integrations/api-keys/${id}/revoke`, {});
+      try {
+        await apiClient.post(`/api-integrations/api-keys/${id}/revoke`, {});
+      } catch (e) {
+        reportError(e, { source: 'ApiKeysTab.revoke' });
+        notify({
+          title: 'Não foi possível revogar a API Key',
+          intent: 'danger',
+        });
+      }
       load();
     }
   };
@@ -145,12 +161,20 @@ export function ApiKeysTab() {
                   intent="ghost"
                   className="hover:bg-warning-subtle hover:text-warning-ink"
                   onClick={async () => {
-                    const r = await apiClient.post<CreateApiKeyResponse>(
-                      `/api-integrations/api-keys/${k.id}/rotate`,
-                      {},
-                    );
-                    if (r.key) setNewKey(r.key);
-                    load();
+                    try {
+                      const r = await apiClient.post<CreateApiKeyResponse>(
+                        `/api-integrations/api-keys/${k.id}/rotate`,
+                        {},
+                      );
+                      if (r.key) setNewKey(r.key);
+                      load();
+                    } catch (e) {
+                      reportError(e, { source: 'ApiKeysTab.rotate' });
+                      notify({
+                        title: 'Não foi possível rotacionar a API Key',
+                        intent: 'danger',
+                      });
+                    }
                   }}
                 />
                 <IconButton

@@ -23,6 +23,8 @@ import {
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { apiClient } from '@/lib/apiClient';
+import { reportError } from '@/lib/errorReporting';
+import { useToast } from '@/providers/ToastProvider';
 import { useDeclarationsData } from '@/hooks/useDeclarations';
 import { Button, IconButton } from '@/components/ui/Button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
@@ -37,6 +39,7 @@ import type { WorkForm } from '@/components/declarations/types';
 type TabKey = 'docs-my' | 'docs-admin' | 'work-my' | 'work-admin';
 
 export default function DeclarationsPage() {
+  const notify = useToast();
   const [tab, setTab] = useState<TabKey>('docs-my');
   const [showDocModal, setShowDocModal] = useState(false);
   const [showWorkModal, setShowWorkModal] = useState<WorkForm | null>(null);
@@ -55,26 +58,52 @@ export default function DeclarationsPage() {
   } = useDeclarationsData();
 
   const approveDoc = async (id: number) => {
-    await apiClient.patch(`/declarations/documents/${id}/approve`, {
-      approved: true,
-    });
+    try {
+      await apiClient.patch(`/declarations/documents/${id}/approve`, {
+        approved: true,
+      });
+    } catch (e) {
+      reportError(e, { source: 'DeclarationsPage.approveDoc' });
+      notify({
+        title: 'Não foi possível aprovar a declaração',
+        intent: 'danger',
+      });
+    }
     refetchAll();
   };
 
   const generateDoc = async (id: number) => {
-    await apiClient.patch(`/declarations/documents/${id}/generate`, {});
+    try {
+      await apiClient.patch(`/declarations/documents/${id}/generate`, {});
+    } catch (e) {
+      reportError(e, { source: 'DeclarationsPage.generateDoc' });
+      notify({ title: 'Não foi possível gerar o documento', intent: 'danger' });
+    }
     refetchAll();
   };
 
   const reviewWorkSubmission = async (id: number, approved: boolean) => {
-    await apiClient.patch(`/declarations/work/submissions/${id}/review`, {
-      approved,
-    });
+    try {
+      await apiClient.patch(`/declarations/work/submissions/${id}/review`, {
+        approved,
+      });
+    } catch (e) {
+      reportError(e, { source: 'DeclarationsPage.reviewWorkSubmission' });
+      notify({ title: 'Não foi possível rever a submissão', intent: 'danger' });
+    }
     refetchAll();
   };
 
   const triggerPeriodicReminders = async () => {
-    await apiClient.post('/declarations/work/trigger/periodic', {});
+    try {
+      await apiClient.post('/declarations/work/trigger/periodic', {});
+    } catch (e) {
+      reportError(e, { source: 'DeclarationsPage.triggerPeriodicReminders' });
+      notify({
+        title: 'Não foi possível disparar os lembretes',
+        intent: 'danger',
+      });
+    }
     refetchAll();
   };
 
@@ -101,7 +130,9 @@ export default function DeclarationsPage() {
       <div className="sticky top-0 z-10 border-b border-border bg-surface px-6 py-5">
         <div className="mx-auto flex max-w-6xl items-center justify-between">
           <div>
-            <h1 className="font-display text-xl font-bold text-ink">Declarações</h1>
+            <h1 className="font-display text-xl font-bold text-ink">
+              Declarações
+            </h1>
             <p className="font-body text-sm text-ink-muted">
               Documentos formais e compliance
             </p>
@@ -125,7 +156,11 @@ export default function DeclarationsPage() {
         <Tabs value={tab} onValueChange={(v) => setTab(v as TabKey)}>
           <TabsList>
             {tabs.map((t) => (
-              <TabsTrigger key={t.key} value={t.key} className="flex items-center gap-2">
+              <TabsTrigger
+                key={t.key}
+                value={t.key}
+                className="flex items-center gap-2"
+              >
                 <t.icon size={15} strokeWidth={1.75} />
                 {t.label}
                 {t.badge != null && t.badge > 0 && (
@@ -138,7 +173,10 @@ export default function DeclarationsPage() {
           </TabsList>
 
           <TabsContent value="docs-my">
-            <MyDocsTab myDocs={myDocs} onRequestNew={() => setShowDocModal(true)} />
+            <MyDocsTab
+              myDocs={myDocs}
+              onRequestNew={() => setShowDocModal(true)}
+            />
           </TabsContent>
 
           <TabsContent value="work-my">

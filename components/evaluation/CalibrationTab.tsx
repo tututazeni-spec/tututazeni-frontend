@@ -9,6 +9,8 @@
 import { useState } from 'react';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
+import { reportError } from '@/lib/errorReporting';
+import { useToast } from '@/providers/ToastProvider';
 import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
@@ -18,6 +20,7 @@ import { SCORE_COLOR } from './constants';
 import type { CalibrationData } from './types';
 
 export function CalibrationTab() {
+  const notify = useToast();
   const [cycleId, setCycleId] = useState('');
 
   const loadCalibration = useApiMutation((id: string) =>
@@ -130,10 +133,23 @@ export function CalibrationTab() {
                     onBlur={async (e) => {
                       const val = parseFloat(e.target.value);
                       if (val >= 0 && val <= 5 && val !== p.avgScore) {
-                        await apiClient.post(
-                          `/evaluations/calibration/${cycleId}/calibrate`,
-                          { evaluatedId: p.evaluated.id, calibratedScore: val },
-                        );
+                        try {
+                          await apiClient.post(
+                            `/evaluations/calibration/${cycleId}/calibrate`,
+                            {
+                              evaluatedId: p.evaluated.id,
+                              calibratedScore: val,
+                            },
+                          );
+                        } catch (err) {
+                          reportError(err, {
+                            source: 'CalibrationTab.calibrate',
+                          });
+                          notify({
+                            title: 'Não foi possível calibrar o score',
+                            intent: 'danger',
+                          });
+                        }
                       }
                     }}
                   />
