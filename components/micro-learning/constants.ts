@@ -20,7 +20,7 @@ export const TYPE_CFG: Record<
     icon: '📊',
     cls: 'bg-warning-subtle text-warning-ink',
   },
-  QUIZ: { label: 'Quiz', icon: '❓', cls: 'bg-success-subtle text-success-ink' },
+  QUIZ: { label: 'Questionário', icon: '❓', cls: 'bg-success-subtle text-success-ink' },
 };
 
 export const LEVEL_CFG: StatusBadgeMap<ContentLevel> = {
@@ -33,13 +33,13 @@ export const LEVEL_CFG: StatusBadgeMap<ContentLevel> = {
 };
 
 export const NAV: Array<{ id: TabKey; label: string }> = [
-  { id: 'feed', label: '⚡ Feed' },
-  { id: 'saved', label: '🔖 Guardados' },
-  { id: 'dashboard', label: '📊 O Meu Progresso' },
+  { id: 'feed', label: ' Feed' },
+  { id: 'saved', label: ' Guardados' },
+  { id: 'dashboard', label: ' O Meu Progresso' },
 ];
 
 export const TITLES: Record<Nav['view'], string> = {
-  feed: 'Micro-Learning',
+  feed: 'Micro-Aprendizagem',
   player: 'A aprender',
   saved: 'Guardados',
   dashboard: 'O Meu Progresso',

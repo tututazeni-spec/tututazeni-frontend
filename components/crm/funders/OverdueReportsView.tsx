@@ -78,7 +78,7 @@ export function OverdueReportsView({
               {data.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="px-4 py-8 text-center text-ink-faint">
-                    Nenhum relatório em atraso 🎉
+                    Nenhum relatório em atraso 
                   </td>
                 </tr>
               ) : (

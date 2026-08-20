@@ -59,7 +59,7 @@ export function ManagerDashboard() {
         />
         <KpiCard
           icon={Star}
-          label="Score Médio"
+          label="Pontuação Média"
           value={kpis.avgScore?.toFixed(1) ?? '–'}
           trend={kpis.scoreTrend}
           intent="warning"

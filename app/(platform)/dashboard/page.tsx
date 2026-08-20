@@ -82,20 +82,7 @@ export default function DashboardPage() {
       <div className="border-b border-border bg-surface px-6 py-5">
         <div className="mx-auto flex max-w-7xl items-start justify-between">
           <div>
-            <div className="mb-1 flex items-center gap-2">
-              <div className="rounded-control bg-primary-subtle p-1.5">
-                <LayoutDashboard
-                  size={18}
-                  strokeWidth={1.75}
-                  className="text-primary"
-                />
-              </div>
-              <h1 className="font-display text-xl font-bold text-ink">
-                Dashboard
-              </h1>
-            </div>
             <p className="font-body text-sm text-ink-faint">
-              Visão unificada · KPIs · Insights · Alertas
             </p>
           </div>
           <div className="flex gap-2">

@@ -44,14 +44,9 @@ export default function DashboardRhPage() {
       <div className="border-b border-border bg-surface px-6 py-5">
         <div className="mx-auto flex max-w-7xl items-start justify-between">
           <div>
-            <div className="mb-1 flex items-center gap-2">
-              <div className="rounded-control bg-primary-subtle p-1.5">
-                <Users size={18} strokeWidth={1.75} className="text-primary" />
-              </div>
-              <h1 className="font-display text-xl font-bold text-ink">
-                Dashboard RH
-              </h1>
-            </div>
+            <h1 className="font-display text-xl font-bold text-ink">
+              Dashboard RH
+            </h1>
           </div>
           <IconButton
             icon={RefreshCw}

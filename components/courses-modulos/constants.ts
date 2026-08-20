@@ -13,5 +13,5 @@ export const CONTENT_TYPE: Record<
   VIDEO: { icon: '🎬', color: '#dc2626', bg: '#fef2f2', label: 'Vídeo' },
   AVATAR: { icon: '🤖', color: '#7c3aed', bg: '#f5f3ff', label: 'Avatar' },
   PDF: { icon: '📄', color: '#f59e0b', bg: '#fffbeb', label: 'PDF' },
-  QUIZ: { icon: '❓', color: '#0ea5e9', bg: '#f0f9ff', label: 'Quiz' },
+  QUIZ: { icon: '❓', color: '#0ea5e9', bg: '#f0f9ff', label: 'Questionário' },
 };

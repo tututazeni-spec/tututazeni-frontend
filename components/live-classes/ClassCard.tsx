@@ -66,7 +66,7 @@ export function ClassCard({
           </h3>
           {lc.course && (
             <p className="mt-0.5 text-xs text-ink-muted">
-              📚 {lc.course.title}
+               {lc.course.title}
             </p>
           )}
         </div>

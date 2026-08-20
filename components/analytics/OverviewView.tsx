@@ -113,12 +113,12 @@ export function OverviewView() {
             </div>
             <div className="grid grid-cols-2 gap-3">
               <Tile
-                label="XP total"
+                label="Pontos de Experiência total"
                 value={data.engagement.totalXp}
                 color="text-warning"
               />
               <Tile
-                label="Badges"
+                label="Distintivos"
                 value={data.engagement.totalBadges}
                 color="text-accent"
               />
