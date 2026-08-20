@@ -34,6 +34,7 @@ import {
 } from '@/hooks/useEmployees';
 import { apiClient } from '@/lib/apiClient';
 import { cn } from '@/lib/cn';
+import { reportError } from '@/lib/errorReporting';
 import { Button, buttonVariants } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { KpiCard } from '@/components/ui/KpiCard';
@@ -107,7 +108,9 @@ export default function EmployeesPage() {
       a.download = `colaboradores-${Date.now()}.csv`;
       a.click();
       URL.revokeObjectURL(url);
-    } catch {}
+    } catch (e) {
+      reportError(e, { source: 'EmployeesPage.handleExport' });
+    }
   };
 
   const onLeaveCount =

@@ -176,6 +176,7 @@ export function AssessmentPlayer({
           answers: restored,
         });
       } catch (e) {
+        reportError(e, { source: 'AssessmentPlayer.init' });
         notify({
           title: e instanceof Error ? e.message : String(e),
           intent: 'danger',
@@ -214,6 +215,7 @@ export function AssessmentPlayer({
       );
       dispatch({ type: 'SUBMIT_DONE', result: res });
     } catch (e) {
+      reportError(e, { source: 'AssessmentPlayer.handleSubmit' });
       notify({
         title: e instanceof Error ? e.message : String(e),
         intent: 'danger',

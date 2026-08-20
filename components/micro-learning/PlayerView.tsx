@@ -14,6 +14,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { apiClient } from '@/lib/apiClient';
+import { reportError } from '@/lib/errorReporting';
 import { sanitizeHtml } from '@/lib/sanitize';
 import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
@@ -52,8 +53,8 @@ export function PlayerView({ item, onBack, onNext }: PlayerViewProps) {
       );
       if (action === 'LIKE') setLiked(res.active);
       if (action === 'SAVE') setSaved(res.active);
-    } catch {
-      /* ignorar */
+    } catch (e) {
+      reportError(e, { source: 'PlayerView.handleInteract' });
     }
   };
 
@@ -204,7 +205,9 @@ export function PlayerView({ item, onBack, onNext }: PlayerViewProps) {
           <CardBody>
             <div
               className="prose prose-sm max-w-none leading-relaxed text-ink-muted"
-              dangerouslySetInnerHTML={{ __html: sanitizeHtml(item.textContent) }}
+              dangerouslySetInnerHTML={{
+                __html: sanitizeHtml(item.textContent),
+              }}
             />
           </CardBody>
         </Card>

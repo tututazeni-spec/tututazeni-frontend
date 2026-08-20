@@ -6,6 +6,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useToast } from '@/providers/ToastProvider';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
+import { reportError } from '@/lib/errorReporting';
 import type { MicroLearning, QuizResult } from './types';
 
 // Progresso de leitura/audição, incluindo o auto-progress (setInterval) para
@@ -35,8 +36,8 @@ export function useMicroLearningProgress(item: MicroLearning) {
           microLearningId: item.id,
           progress: Math.round(pct),
         });
-      } catch {
-        /* ignorar */
+      } catch (e) {
+        reportError(e, { source: 'useMicroLearningProgress.saveProgress' });
       }
     },
     [item.id],

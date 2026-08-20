@@ -9,6 +9,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { useStopwatch } from '@/hooks/useStopwatch';
 import { apiClient } from '@/lib/apiClient';
+import { reportError } from '@/lib/errorReporting';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { formatDate as fmtDate, formatTime as fmtTime } from '@/lib/format';
@@ -48,8 +49,8 @@ export default function LiveRoomPage() {
     setJoined(true);
     try {
       await apiClient.post(`/live-classes/${classId}/join`, {});
-    } catch {
-      /* silent */
+    } catch (e) {
+      reportError(e, { source: 'LiveRoomPage.handleJoined' });
     }
     startSessionTimer();
   }, [classId, startSessionTimer]);
@@ -58,8 +59,8 @@ export default function LiveRoomPage() {
     stopSessionTimer();
     try {
       await apiClient.post(`/live-classes/${classId}/leave`, {});
-    } catch {
-      /* silent */
+    } catch (e) {
+      reportError(e, { source: 'LiveRoomPage.handleLeft' });
     }
     router.push('/live');
   }, [classId, stopSessionTimer, router]);
@@ -77,7 +78,9 @@ export default function LiveRoomPage() {
             animation: 'lc-spin 0.8s linear infinite',
           }}
         />
-        <p className="text-canvas m-0 text-sm opacity-50">A preparar a sala...</p>
+        <p className="text-canvas m-0 text-sm opacity-50">
+          A preparar a sala...
+        </p>
       </div>
     );
   }

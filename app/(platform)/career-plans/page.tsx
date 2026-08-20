@@ -9,6 +9,7 @@ import { BarChart3, Compass, RefreshCcw, Target, Users } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
+import { reportError } from '@/lib/errorReporting';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { AnalyticsTab } from '@/components/career-plans/AnalyticsTab';
@@ -60,7 +61,9 @@ export default function CareerPlansPage() {
         progress,
       });
       loadData();
-    } catch {}
+    } catch (e) {
+      reportError(e, { source: 'CareerPlansPage.handleGoalProgress' });
+    }
   };
 
   const tabs: Array<{ key: TabKey; label: string; icon: LucideIcon }> = [

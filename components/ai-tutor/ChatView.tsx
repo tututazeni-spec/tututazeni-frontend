@@ -112,6 +112,7 @@ export function ChatView() {
         },
       ]);
     } catch (e) {
+      reportError(e, { source: 'ChatView.sendMessage' });
       const errMsg = e instanceof Error ? e.message : String(e);
       setMessages((prev) => [
         ...prev,
