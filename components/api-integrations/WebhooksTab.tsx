@@ -3,7 +3,9 @@
 import { Zap, Trash2, Plus } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { useConfirm } from '@/providers/ConfirmProvider';
+import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
+import { reportError } from '@/lib/errorReporting';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Badge } from '@/components/ui/Badge';
@@ -14,6 +16,7 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import type { Webhook } from './types';
 
 export function WebhooksTab() {
+  const notify = useToast();
   const {
     data: list = [],
     isLoading: loading,
@@ -36,7 +39,15 @@ export function WebhooksTab() {
         destructive: true,
       })
     ) {
-      await apiClient.delete(`/api-integrations/webhooks/${id}`);
+      try {
+        await apiClient.delete(`/api-integrations/webhooks/${id}`);
+      } catch (e) {
+        reportError(e, { source: 'WebhooksTab.remove' });
+        notify({
+          title: 'Não foi possível remover o webhook',
+          intent: 'danger',
+        });
+      }
       load();
     }
   };

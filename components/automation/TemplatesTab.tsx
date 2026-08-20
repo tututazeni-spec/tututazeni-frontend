@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useToast } from '@/providers/ToastProvider';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
+import { reportError } from '@/lib/errorReporting';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Badge } from '@/components/ui/Badge';
@@ -26,12 +27,20 @@ export function TemplatesTab() {
     setApplying(index);
     const r = await apiClient
       .post<ApplyTemplateResponse>(`/automation/templates/${index}/apply`, {})
-      .catch(() => null);
+      .catch((e) => {
+        reportError(e, { source: 'TemplatesTab.apply' });
+        return null;
+      });
     setApplying(null);
     if (r)
       notify({
         title: r.message ?? 'Template aplicado!',
         intent: 'success',
+      });
+    else
+      notify({
+        title: 'Não foi possível aplicar o template',
+        intent: 'danger',
       });
   };
 

@@ -7,6 +7,8 @@
 import Image from 'next/image';
 import { Bookmark, CheckCircle, Clock, Eye, Play, Star } from 'lucide-react';
 import { apiClient } from '@/lib/apiClient';
+import { reportError } from '@/lib/errorReporting';
+import { useToast } from '@/providers/ToastProvider';
 import { Card, CardBody } from '@/components/ui/Card';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import {
@@ -30,17 +32,23 @@ export function ContentCard({
 }: ContentCardProps) {
   const Icon = FORMAT_ICON[content.type] ?? FORMAT_ICON.DEFAULT;
   const progress = content.progress?.progress ?? 0;
+  const notify = useToast();
 
   const handleBookmark = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    await apiClient.patch(`/content-library/${content.id}/bookmark`, {});
-    onBookmark?.(content.id);
+    try {
+      await apiClient.patch(`/content-library/${content.id}/bookmark`, {});
+      onBookmark?.(content.id);
+    } catch (err) {
+      reportError(err, { source: 'ContentCard.handleBookmark' });
+      notify({ title: 'Não foi possível guardar', intent: 'danger' });
+    }
   };
 
   const handleView = async () => {
     await apiClient
       .patch(`/content-library/${content.id}/view`, {})
-      .catch(() => {});
+      .catch((err) => reportError(err, { source: 'ContentCard.handleView' }));
     window.open(content.url, '_blank');
   };
 

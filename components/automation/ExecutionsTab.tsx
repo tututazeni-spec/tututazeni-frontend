@@ -4,8 +4,10 @@ import { useState } from 'react';
 import { Activity, RotateCcw } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
+import { reportError } from '@/lib/errorReporting';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
+import { useToast } from '@/providers/ToastProvider';
 import { Badge, type BadgeProps } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -29,12 +31,30 @@ const DOT_CLASS: Record<string, string> = {
 const STATUS_FILTERS = ['', 'SUCCESS', 'FAILED', 'PENDING'] as const;
 
 export function ExecutionsTab() {
+  const notify = useToast();
   const [status, setStatus] = useState('');
-  const { data, isLoading: loading } = useApiQuery<ExecutionsResponse>(
+  const {
+    data,
+    isLoading: loading,
+    refetch,
+  } = useApiQuery<ExecutionsResponse>(
     queryKeys.automation.executions(status),
     '/automation/executions',
     { params: { status: status || undefined }, staleTime: STALE_TIME.DYNAMIC },
   );
+
+  const retry = async (id: number) => {
+    try {
+      await apiClient.post(`/automation/executions/${id}/rerun`, {});
+      void refetch();
+    } catch (e) {
+      reportError(e, { source: 'ExecutionsTab.retry' });
+      notify({
+        title: 'Não foi possível repetir a execução',
+        intent: 'danger',
+      });
+    }
+  };
 
   if (loading)
     return (
@@ -76,12 +96,18 @@ export function ExecutionsTab() {
                 className={`h-2 w-2 shrink-0 rounded-full ${DOT_CLASS[e.status] ?? 'bg-warning'}`}
               />
               <div className="min-w-0 flex-1">
-                <p className="font-body text-xs font-medium text-ink">Rule #{e.ruleId}</p>
+                <p className="font-body text-xs font-medium text-ink">
+                  Rule #{e.ruleId}
+                </p>
                 {e.error && (
-                  <p className="truncate font-body text-[10px] text-danger">{e.error}</p>
+                  <p className="truncate font-body text-[10px] text-danger">
+                    {e.error}
+                  </p>
                 )}
               </div>
-              <Badge intent={STATUS_INTENT[e.status] ?? 'warning'}>{e.status}</Badge>
+              <Badge intent={STATUS_INTENT[e.status] ?? 'warning'}>
+                {e.status}
+              </Badge>
               <span className="shrink-0 font-body text-[10px] text-ink-faint">
                 {e.startedAt ? new Date(e.startedAt).toLocaleString('pt') : '–'}
               </span>
@@ -90,11 +116,7 @@ export function ExecutionsTab() {
                   size="sm"
                   intent="secondary"
                   className="shrink-0"
-                  onClick={() => {
-                    void apiClient
-                      .post(`/automation/executions/${e.id}/rerun`, {})
-                      .catch(() => {});
-                  }}
+                  onClick={() => retry(e.id)}
                 >
                   <RotateCcw size={14} strokeWidth={1.75} />
                   Retry
