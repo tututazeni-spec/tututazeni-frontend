@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { KpiCard } from '@/components/ui/KpiCard';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { MonthlyChart } from './MonthlyChart';
@@ -116,7 +117,9 @@ export function LeaveDashboardTab({
           </div>
         </Card>
 
-        <MonthlyChart data={dashboard.byMonth} />
+        <ErrorBoundary source="leave.MonthlyChart">
+          <MonthlyChart data={dashboard.byMonth} />
+        </ErrorBoundary>
       </div>
     </div>
   );

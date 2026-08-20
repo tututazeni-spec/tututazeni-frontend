@@ -9,7 +9,9 @@ import { useState } from 'react';
 import { ChevronRight, Copy, Search, Shield, Trash2 } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { useConfirm } from '@/providers/ConfirmProvider';
+import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
+import { reportError } from '@/lib/errorReporting';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Avatar } from '@/components/ui/Avatar';
@@ -38,6 +40,7 @@ export function RolesTab() {
     void refetch();
   };
   const confirm = useConfirm();
+  const notify = useToast();
 
   const filtered = roles.filter(
     (r) => !search || r.name.toLowerCase().includes(search.toLowerCase()),
@@ -131,7 +134,14 @@ export function RolesTab() {
                           .post(`/roles-permissions/${selected.id}/clone`, {
                             newName: n,
                           })
-                          .then(load);
+                          .then(load)
+                          .catch((e) => {
+                            reportError(e, { source: 'RolesTab.clone' });
+                            notify({
+                              title: e instanceof Error ? e.message : String(e),
+                              intent: 'danger',
+                            });
+                          });
                     }}
                   >
                     <Copy size={14} strokeWidth={1.75} />
@@ -154,6 +164,14 @@ export function RolesTab() {
                             .then(() => {
                               setSel(null);
                               load();
+                            })
+                            .catch((e) => {
+                              reportError(e, { source: 'RolesTab.remove' });
+                              notify({
+                                title:
+                                  e instanceof Error ? e.message : String(e),
+                                intent: 'danger',
+                              });
                             });
                       }}
                     >
