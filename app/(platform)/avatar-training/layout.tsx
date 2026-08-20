@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 
-export const metadata: Metadata = { title: 'Treino de Avatar' };
+export const metadata: Metadata = { title: 'Formação com Avatar' };
 
 export default function AvatarTrainingLayout({
   children,

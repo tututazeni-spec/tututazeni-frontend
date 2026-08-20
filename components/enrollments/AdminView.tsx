@@ -149,7 +149,7 @@ export function AdminView() {
             onClick={handleBulkDeadline}
             disabled={!bulkDeadline || bulkLoading}
           >
-            {bulkLoading ? 'A aplicar…' : 'Actualizar deadline'}
+            {bulkLoading ? 'A aplicar…' : ''}
           </Button>
           <button
             onClick={() => setSelected([])}

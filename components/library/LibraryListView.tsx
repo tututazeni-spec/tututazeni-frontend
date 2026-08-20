@@ -67,8 +67,7 @@ export function LibraryListView({
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-display text-2xl font-bold text-ink">Biblioteca Digital</h1>
-          <p className="font-body text-ink-muted">{total} recursos disponíveis</p>
+          <h1 className="font-display text-2xl font-bold text-ink">Biblioteca Institucional</h1>
         </div>
         <Link href="/library/novo" className={buttonVariants({ intent: 'primary', size: 'md' })}>
           <Plus size={16} strokeWidth={1.75} />
@@ -106,7 +105,7 @@ export function LibraryListView({
             <Link key={item.id} href={`/library/${item.id}`} className="block h-full">
               <Card className="h-full hover:shadow-hover">
                 <CardBody className="flex h-full flex-col">
-                  <div className="mb-3 text-4xl">{TYPE_ICONS[item.type] || '📦'}</div>
+                  <div className="mb-3 text-4xl">{TYPE_ICONS[item.type] || ''}</div>
                   <h3 className="mb-1 line-clamp-2 font-display font-semibold text-ink">
                     {item.title}
                   </h3>
@@ -116,7 +115,7 @@ export function LibraryListView({
                   <div className="mt-auto flex items-center justify-between pt-3 font-body text-xs text-ink-faint">
                     <span>👁 {item.views}</span>
                     <span>⬇ {item.downloads}</span>
-                    {item.rating > 0 && <span>⭐ {item.rating.toFixed(1)}</span>}
+                    {item.rating > 0 && <span> {item.rating.toFixed(1)}</span>}
                   </div>
                 </CardBody>
               </Card>

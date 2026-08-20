@@ -68,7 +68,7 @@ export function ModuleModal({
         <CardBody className="flex flex-col gap-5">
           <div className="flex justify-between items-center">
             <h2 className="text-lg font-bold text-ink">
-              {editing ? '✏️ Editar Módulo' : '📦 Novo Módulo'}
+              {editing ? '✏️ Editar Módulo' : 'Novo Módulo'}
             </h2>
             <button
               onClick={onClose}

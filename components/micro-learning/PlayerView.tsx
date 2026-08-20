@@ -156,7 +156,7 @@ export function PlayerView({ item, onBack, onNext }: PlayerViewProps) {
                     : 'bg-surface-sunken text-ink-faint hover:bg-danger-subtle hover:text-danger-ink'
                 }`}
               >
-                ❤
+                
               </button>
               <button
                 onClick={() => handleInteract('SAVE')}
@@ -166,7 +166,7 @@ export function PlayerView({ item, onBack, onNext }: PlayerViewProps) {
                     : 'bg-surface-sunken text-ink-faint hover:bg-info-subtle hover:text-info-ink'
                 }`}
               >
-                🔖
+                
               </button>
             </div>
           </div>
@@ -214,7 +214,7 @@ export function PlayerView({ item, onBack, onNext }: PlayerViewProps) {
       {item.takeaways.length > 0 && (
         <div className="mb-5 rounded-card border border-info bg-info-subtle p-5">
           <div className="mb-3 font-body text-sm font-semibold text-info-ink">
-            💡 Pontos-chave
+             Pontos-chave
           </div>
           <ul className="space-y-2">
             {item.takeaways.map((t, i) => (
@@ -295,7 +295,7 @@ export function PlayerView({ item, onBack, onNext }: PlayerViewProps) {
               {quiz.result.score}%
             </div>
             <div className="mt-1 font-body text-sm font-medium">
-              {quiz.result.score >= 60 ? '🎉 Aprovado!' : '😔 Tenta novamente'}
+              {quiz.result.score >= 60 ? ' Aprovado!' : ' Tenta novamente'}
             </div>
             <div className="mt-0.5 font-body text-xs">
               {quiz.result.correct}/{quiz.result.total} correctas

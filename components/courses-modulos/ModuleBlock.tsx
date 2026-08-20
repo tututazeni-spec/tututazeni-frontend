@@ -56,7 +56,7 @@ export function ModuleBlock({
             intent="primary"
             className="px-2 py-1 text-xs"
           >
-            + Lição
+            + Licção
           </Button>
           <Button
             onClick={onEditModule}

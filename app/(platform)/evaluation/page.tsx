@@ -30,7 +30,7 @@ const TABS = [
   { id: 'cycles', label: 'Ciclos', icon: Layers },
   { id: 'pending', label: 'Pendentes', icon: Clock },
   { id: 'results', label: 'Resultados', icon: BarChart2 },
-  { id: 'analytics', label: 'Analytics', icon: TrendingUp },
+  { id: 'analytics', label: 'Análises', icon: TrendingUp },
   { id: 'calibration', label: 'Calibração', icon: Shield },
 ] as const;
 
@@ -43,14 +43,12 @@ export default function EvaluationsPage() {
           <div>
             <div className="mb-1 flex items-center gap-2">
               <div className="rounded-control bg-primary-subtle p-1.5">
-                <Star size={18} strokeWidth={1.75} className="text-primary" />
               </div>
               <h1 className="font-display text-xl font-bold text-ink">
-                Avaliação 360°
+                Avaliações
               </h1>
             </div>
             <p className="font-body text-sm text-ink-faint">
-              Ciclos · Formulários · Resultados · Calibração · Analytics
             </p>
           </div>
           <Button size="sm">

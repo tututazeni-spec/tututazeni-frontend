@@ -30,7 +30,7 @@ const TABS: { id: Tab; label: string; icon: LucideIcon }[] = [
   { id: 'catalogue', label: 'Catálogo', icon: Search },
   { id: 'paths', label: 'Trilhas', icon: Layers },
   { id: 'my-progress', label: 'O Meu Percurso', icon: TrendingUp },
-  { id: 'analytics', label: 'Analytics', icon: BarChart2 },
+  { id: 'analytics', label: 'Análises', icon: BarChart2 },
 ];
 
 export default function ContentLibraryPage() {
@@ -42,14 +42,12 @@ export default function ContentLibraryPage() {
           <div>
             <div className="mb-1 flex items-center gap-2">
               <div className="rounded-control bg-primary-subtle p-1.5">
-                <BookOpen size={18} strokeWidth={1.75} className="text-primary" />
               </div>
               <h1 className="font-display text-xl font-bold text-ink">
-                Content Library
+                Biblioteca de Conteúdos
               </h1>
             </div>
             <p className="font-body text-sm text-ink-faint">
-              Cursos · Vídeos · Artigos · Podcasts · Learning Paths
             </p>
           </div>
           <div className="flex gap-2">

@@ -24,15 +24,15 @@ import type { Content } from './types';
 
 const FORMATS = [
   'VIDEO',
-  'ARTICLE',
+  'ARTIGOS',
   'PODCAST',
   'PDF',
   'SCORM',
-  'COURSE',
-  'MICROLEARNING',
-  'QUIZ',
+  'CURSO',
+  'MICRO-APRENDIIZAGEM',
+  'QUESTIONÁRIO',
 ];
-const LEVELS = ['BEGINNER', 'INTERMEDIATE', 'ADVANCED', 'EXPERT'];
+const LEVELS = ['INICIANTE', 'INTERMÉDIO', 'AVANÇADO', 'ESPECIALISTA'];
 
 const FORMAT_ITEMS = [
   { value: 'ALL', label: 'Todos os formatos' },
@@ -139,8 +139,6 @@ export function CatalogueTab() {
             />
 
             {[
-              { label: '⚡ Micro', value: micro, key: 'micro' as const },
-              { label: '🎓 Certif.', value: cert, key: 'cert' as const },
             ].map((t) => (
               <button
                 key={t.label}

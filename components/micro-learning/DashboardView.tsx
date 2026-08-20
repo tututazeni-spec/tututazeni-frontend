@@ -20,8 +20,8 @@ const STAT_TILES: Array<{
 }> = [
   { key: 'completed', label: 'Concluídos', color: 'text-success' },
   { key: 'totalMinutes', label: 'Minutos', color: 'text-info' },
-  { key: 'totalXp', label: 'XP ganho', color: 'text-accent' },
-  { key: 'avgQuizScore', label: 'Quiz médio', suffix: '%' },
+  { key: 'totalXp', label: 'Pontos de Experiência Obtidos', color: 'text-accent' },
+  { key: 'avgQuizScore', label: 'Pontuação Média nos Questionários', suffix: '%' },
 ];
 
 export function DashboardView() {
@@ -41,13 +41,13 @@ export function DashboardView() {
       <div className="flex items-center justify-between rounded-card bg-gradient-to-r from-accent to-accent-hover p-6 text-canvas">
         <div>
           <div className="mb-1 font-body text-sm text-canvas/80">
-            Streak actual
+            Sequência Actual
           </div>
           <div className="font-display text-5xl font-bold">
             {streak.current}
           </div>
           <div className="mt-1 font-body text-sm text-canvas/80">
-            dias consecutivos 🔥
+            Dias Consecutivos 
           </div>
         </div>
         <div className="text-right">
@@ -55,7 +55,7 @@ export function DashboardView() {
           <div className="font-display text-3xl font-bold">
             {streak.longest}
           </div>
-          <div className="mt-1 font-body text-sm text-canvas/80">dias</div>
+          <div className="mt-1 font-body text-sm text-canvas/80">Dias</div>
         </div>
       </div>
 

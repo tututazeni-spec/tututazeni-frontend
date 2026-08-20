@@ -143,9 +143,9 @@ export function ArticleDetailView({
               />
               <span>{article.author.fullName}</span>
             </div>
-            <span>📅 {fmtDate(article.updatedAt)}</span>
-            <span>⏱ {article.readingMinutes} min de leitura</span>
-            <span>👁 {article.viewCount} visualizações</span>
+            <span> {fmtDate(article.updatedAt)}</span>
+            <span> {article.readingMinutes} min de leitura</span>
+            <span> {article.viewCount} visualizações</span>
             <StatusBadge value={article.status} map={ARTICLE_STATUS_MAP} />
             {article.mandatory && <Badge intent="danger">Obrigatório</Badge>}
           </div>
@@ -173,7 +173,7 @@ export function ArticleDetailView({
         {/* Comentários */}
         <div className="rounded-card border border-border bg-surface p-5">
           <div className="mb-4 font-body text-sm font-semibold text-ink">
-            💬 Comentários ({article._count.comments})
+             Comentários ({article._count.comments})
           </div>
           <div className="mb-4 flex gap-3">
             <Textarea

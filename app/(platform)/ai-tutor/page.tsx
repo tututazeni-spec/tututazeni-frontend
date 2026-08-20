@@ -21,7 +21,6 @@ export default function AiTutorPage() {
             {TITLES[view]}
           </h1>
           <p className="font-body text-sm text-ink-faint mt-0.5">
-            INNOVA — Assistente de Aprendizagem Inteligente
           </p>
         </div>
       </div>

@@ -41,7 +41,7 @@ export function MessageBubble({ msg, onRate }: MessageBubbleProps) {
   return (
     <div className={`flex ${isUser ? 'justify-end' : 'justify-start'} mb-3`}>
       {!isUser && (
-        <Avatar name="NOVA" size="sm" className="mr-2 mt-1 flex-shrink-0" />
+        <Avatar name="Íris" size="sm" className="mr-2 mt-1 flex-shrink-0" />
       )}
       <div
         className={`max-w-[75%] ${isUser ? 'items-end' : 'items-start'} flex flex-col`}

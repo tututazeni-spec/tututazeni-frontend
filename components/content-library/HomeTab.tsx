@@ -135,7 +135,7 @@ export function HomeTab() {
             icon={Star}
           />
           <ContentRow
-            title="Em Trending esta semana"
+            title="Em Tendências esta semana"
             items={trending}
             icon={TrendingUp}
           />

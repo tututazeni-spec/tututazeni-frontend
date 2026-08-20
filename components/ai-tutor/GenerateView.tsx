@@ -14,10 +14,10 @@ import { Input } from '@/components/ui/Input';
 import type { Flashcard, GeneratedContent, QuizQuestion } from './types';
 
 const CONTENT_TYPES = [
-  { id: 'QUIZ', label: '📊 Quiz' },
-  { id: 'FLASHCARDS', label: '🃏 Flashcards' },
-  { id: 'SUMMARY', label: '📝 Resumo' },
-  { id: 'STUDY_PLAN', label: '📅 Plano de estudo' },
+  { id: 'QUIZ', label: ' Questionários' },
+  { id: 'FLASHCARDS', label: 'Cartões de Estudo' },
+  { id: 'SUMMARY', label: 'Resumo' },
+  { id: 'STUDY_PLAN', label: 'Plano de estudo' },
 ] as const;
 
 export function GenerateView() {
@@ -164,8 +164,8 @@ export function GenerateView() {
           className="w-full"
         >
           {loading
-            ? 'A gerar com IA…'
-            : `⚡ Gerar ${type === 'QUIZ' ? 'Quiz' : type === 'FLASHCARDS' ? 'Flashcards' : type === 'SUMMARY' ? 'Resumo' : 'Plano de estudo'}`}
+            ? 'A Gerar Com IA…'
+            : ` Gerar ${type === 'QUIZ' ? 'Questionário' : type === 'FLASHCARDS' ? 'Cartões de Estudo' : type === 'SUMMARY' ? 'Resumo' : 'Plano de estudo'}`}
         </Button>
       </Card>
 

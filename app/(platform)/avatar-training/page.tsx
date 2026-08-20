@@ -31,8 +31,8 @@ const TABS = [
   { id: 'home', label: 'Início', icon: Bot },
   { id: 'scenarios', label: 'Cenários', icon: Play },
   { id: 'history', label: 'Histórico', icon: Clock },
-  { id: 'leaderboard', label: 'Ranking', icon: Trophy },
-  { id: 'analytics', label: 'Analytics', icon: BarChart2 },
+  { id: 'leaderboard', label: 'Classificação', icon: Trophy },
+  { id: 'analytics', label: 'Análises', icon: BarChart2 },
 ] as const;
 
 export default function AvatarTrainingPage() {
@@ -117,11 +117,10 @@ export default function AvatarTrainingPage() {
                 <Bot size={18} strokeWidth={1.75} className="text-primary" />
               </div>
               <h1 className="font-display text-xl font-bold text-ink">
-                Avatar Training
+                Formação Com Avatar
               </h1>
             </div>
             <p className="font-body text-sm text-ink-faint">
-              Simulações imersivas · Roleplay com IA · Feedback comportamental
             </p>
           </div>
         </div>

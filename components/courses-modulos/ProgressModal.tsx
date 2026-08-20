@@ -67,7 +67,7 @@ export function ProgressModal({ onClose, onMarked }: ProgressModalProps) {
         <CardBody className="flex flex-col gap-5">
           <div className="flex justify-between items-center">
             <h2 className="text-lg font-bold text-ink">
-              📊 Progresso de Matrícula
+              Progresso de Matrícula
             </h2>
             <button
               onClick={onClose}
@@ -109,7 +109,7 @@ export function ProgressModal({ onClose, onMarked }: ProgressModalProps) {
                 loading={marking}
                 className="w-full"
               >
-                ✅ Marcar
+                Marcar
               </Button>
             </div>
           </div>

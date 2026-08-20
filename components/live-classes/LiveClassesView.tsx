@@ -69,28 +69,28 @@ export function LiveClassesView({
   const stats = [
     {
       icon: '🔴',
-      label: 'Ao Vivo',
+      label: 'Aulas ao Vivo',
       value: liveNow,
       textClass: 'text-danger',
       bgClass: 'bg-danger-subtle',
     },
     {
       icon: '📅',
-      label: 'Agendadas',
+      label: 'Aulas Agendadas',
       value: upcomingCount,
       textClass: 'text-warning',
       bgClass: 'bg-warning-subtle',
     },
     {
       icon: '🎬',
-      label: 'Gravações',
+      label: 'Aulas Gravadas',
       value: recordings.length,
       textClass: 'text-accent',
       bgClass: 'bg-accent-subtle',
     },
     {
       icon: '🎥',
-      label: 'Total Aulas',
+      label: 'Total de Aulas',
       value: total,
       textClass: 'text-info',
       bgClass: 'bg-info-subtle',
@@ -110,7 +110,7 @@ export function LiveClassesView({
         <div className="flex justify-between items-start mb-6 flex-wrap gap-3">
           <div>
             <h1 className="m-0 text-2xl font-bold text-ink flex items-center gap-2.5">
-              🔴 Aulas ao Vivo
+              Aulas ao Vivo
               {liveNow > 0 && (
                 <span
                   className="px-3 py-0.75 rounded-full text-xs font-black bg-danger-subtle text-danger"
@@ -121,15 +121,13 @@ export function LiveClassesView({
               )}
             </h1>
             <p className="mt-1 text-sm text-ink-muted">
-              Aulas ao vivo com Jitsi Meet · {recordings.length} gravações
-              disponíveis
             </p>
           </div>
           <button
             onClick={onCreateNew}
             className="py-2.25 px-5 bg-danger text-canvas border-none rounded-lg text-sm font-bold cursor-pointer"
           >
-            🎥 Nova Aula
+            + Nova Aula
           </button>
         </div>
 
@@ -166,7 +164,7 @@ export function LiveClassesView({
             onClick={() => onTabChange('live')}
             className={tabBtn(tab === 'live')}
           >
-            🎥 Todas as Aulas
+            Todas as Aulas
           </button>
           <button
             onClick={() => onTabChange('recordings')}
@@ -215,7 +213,6 @@ export function LiveClassesView({
             <Spinner />
           ) : filtered.length === 0 ? (
             <div className={`${CARD} py-13 px-6 text-center`}>
-              <p className="text-4xl m-0 mb-2.5">🎥</p>
               <p className="text-sm font-semibold text-ink m-0 mb-1.5">
                 Sem aulas encontradas
               </p>
@@ -272,7 +269,6 @@ export function LiveClassesView({
         {tab === 'recordings' &&
           (filtered.length === 0 ? (
             <div className={`${CARD} py-13 px-6 text-center`}>
-              <p className="text-4xl m-0 mb-2.5">🎬</p>
               <p className="text-sm font-semibold text-ink m-0 mb-1.5">
                 Sem gravações disponíveis
               </p>

@@ -91,7 +91,7 @@ export function HistoryView() {
           onClick={() => loadDetail(s.id)}
           className="flex items-center gap-4 p-4"
         >
-          <Avatar name="NOVA" size="md" className="flex-shrink-0" />
+          <Avatar name="Íris" size="md" className="flex-shrink-0" />
           <div className="flex-1 min-w-0">
             <div className="font-body text-sm font-medium text-ink">
               Sessão #{s.id}
@@ -115,7 +115,7 @@ export function HistoryView() {
         <EmptyState
           icon={MessageCircle}
           title="Nenhuma sessão iniciada ainda"
-          description="Inicia uma conversa com o NOVA no separador Chat para veres o histórico aqui."
+          description="Inicia uma conversa com a Íris no separador Chat para veres o histórico aqui."
         />
       )}
     </div>

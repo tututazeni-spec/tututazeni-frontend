@@ -132,7 +132,7 @@ const NAV: Array<{ label: string; items: NavItem[] }> = [
         icon: GraduationCap,
         label: 'Gestão Académica',
       },
-      { href: '/courses/modulos', icon: Layers, label: 'Módulos & Lições' },
+      { href: '/courses/modulos', icon: Layers, label: 'Módulos & Licções' },
       {
         href: '/learning-paths',
         icon: GitBranch,
@@ -143,11 +143,11 @@ const NAV: Array<{ label: string; items: NavItem[] }> = [
       { href: '/evaluation', icon: Star, label: 'Avaliações' },
       { href: '/micro-learning', icon: Zap, label: 'Micro-aprendizagem' },
       { href: '/live-classes', icon: Play, label: 'Aulas ao Vivo' },
-      { href: '/content-library', icon: Library, label: 'Biblioteca' },
-      { href: '/library', icon: BookMarked, label: 'Biblioteca Digital' },
+      { href: '/content-library', icon: Library, label: 'Biblioteca de Conteúdos' },
+      { href: '/library', icon: BookMarked, label: 'Biblioteca Institucional' },
       { href: '/knowledge', icon: BookMarked, label: 'Conhecimento' },
       { href: '/ai-tutor', icon: Bot, label: 'Tutor de IA' },
-      { href: '/avatar-training', icon: Cpu, label: 'Treino de Avatar' },
+      { href: '/avatar-training', icon: Cpu, label: 'Formação Com Avatar' },
     ],
   },
   {

@@ -294,7 +294,7 @@ export function CourseDetailView({
                 disabled={enrolling}
                 className="w-full"
               >
-                {enrolling ? 'A matricular…' : 'Inscrever-me gratuitamente'}
+                {enrolling ? 'A matricular…' : 'Inscrever-me'}
               </Button>
             )}
             {isEnrolled && (
