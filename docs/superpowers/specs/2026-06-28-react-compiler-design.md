@@ -14,6 +14,7 @@ monolíticas (employees 1033 linhas, courses 907…). Além disso: **46 `<img>` 
 0 `dynamic()`.
 
 Decisões do utilizador (brainstorming):
+
 - Memoização via **React Compiler** (não manual).
 - Incluir ganhos estruturais: **`next/image`** e **virtualização**.
 - **Sem** code-split manual — o Next já divide por rota e não há libs pesadas
@@ -52,11 +53,23 @@ independentes**.
 
 ### Fase 3 — Virtualização
 
-- Instalar `@tanstack/react-virtual`.
+> **RESOLVIDA POR PAGINAÇÃO (2026-08-20), sem `@tanstack/react-virtual`.** Entre a
+> escrita deste spec e a sua execução, `useEmployees`/`UserListView` passaram a
+> paginar no servidor (`limit: 20`, ver `hooks/useEmployees.ts` e o `useApiQuery`
+> inline em `components/users/UserListView.tsx`) em vez de carregar as ~6000
+> linhas de uma vez. Isto elimina
+> o problema que a virtualização resolveria — o DOM nunca chega a ter mais que
+> uma página de linhas montadas — pelo que instalar `@tanstack/react-virtual` e
+> reintroduzir scroll infinito seria trabalho não-necessário (YAGNI) só para
+> reconstruir manualmente o que a paginação já dá de graça. Ver auditoria de
+> performance de 2026-08-20 (React Compiler bailout visibility) para a decisão.
+
+- ~~Instalar `@tanstack/react-virtual`.~~
 - Alvo: as **2-3 listas genuinamente grandes** — `users` (~6000) e `employees`
-  primeiro. (As services não paginam → renderizam tudo.)
-- Refactor por lista: container com altura fixa + virtualizer que só renderiza as
-  linhas visíveis.
+  primeiro. (As services não paginam → renderizam tudo.) — **já não aplicável:
+  ambas as listas são paginadas no servidor.**
+- ~~Refactor por lista: container com altura fixa + virtualizer que só renderiza as
+  linhas visíveis.~~
 - NÃO virtualizar as 85 páginas — só as de listas enormes (YAGNI).
 
 ### Verificação (sem testes automatizados no projeto)
@@ -70,7 +83,8 @@ regras). Fase 2: sem layout-shift visível. Fase 3: scroll fluido, dados correto
 1. `reactCompiler: true` ativo, `babel-plugin-react-compiler` instalado, build/dev
    ok, comportamento inalterado.
 2. Os 46 `<img>` convertidos para `next/image` (exceto SVG/data-URI), com `alt`.
-3. `users` e `employees` (e outra lista enorme, se houver) virtualizadas.
+3. ~~`users` e `employees` (e outra lista enorme, se houver) virtualizadas.~~
+   Resolvido por paginação no servidor em vez de virtualização (ver Fase 3).
 4. `tsc --noEmit` limpo em todas as fases.
 
 ## Fora de âmbito

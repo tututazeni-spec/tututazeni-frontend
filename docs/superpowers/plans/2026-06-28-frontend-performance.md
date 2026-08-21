@@ -2,9 +2,9 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Reduzir re-renders e custo de carregamento via React Compiler (auto-memoização), `next/image` (46 imagens) e virtualização das listas grandes, sem alterar comportamento.
+**Goal:** Reduzir re-renders e custo de carregamento via React Compiler (auto-memoização), `next/image` (46 imagens) e virtualização das listas grandes (`users`/`employees` — na prática resolvida por paginação no servidor, ver Tasks 3/4), sem alterar comportamento.
 
-**Architecture:** 3 fases independentes. Fase 1 liga o React Compiler no build (memoiza tudo). Fase 2 troca `<img>` por `next/image`. Fase 3 virtualiza `users` e `employees` com `@tanstack/react-virtual`.
+**Architecture:** 3 fases independentes. Fase 1 liga o React Compiler no build (memoiza tudo). Fase 2 troca `<img>` por `next/image`. Fase 3 virtualiza `users` e `employees` com `@tanstack/react-virtual` — **resolvida por paginação no servidor em vez disso, ver Tasks 3/4.**
 
 **Tech Stack:** Next.js 15.3, React 19.2, TypeScript 5, ESLint 9 (flat config), Tailwind 4.
 
@@ -13,7 +13,7 @@
 - Sem testes automatizados no projeto → verificação por `npm run build` (`next build`), `npx tsc --noEmit`, `npm run dev` (smoke) e `npm run lint`. `next build` é pesado na máquina sob carga — paciência; `tsc --noEmit` é o gate rápido.
 - React Compiler: `babel-plugin-react-compiler` + `experimental: { reactCompiler: true }` no `next.config.ts`, preservando `images`/`rewrites`.
 - `next/image`: `alt` SEMPRE; SVG/data-URI inline ficam como `<img>`; preservar as classes Tailwind; mapear o tamanho (Tailwind `w-6 h-6` = 24px) para `width`/`height`, ou usar `fill` + container dimensionado.
-- Virtualização: `@tanstack/react-virtual`; SÓ `users` e `employees`.
+- ~~Virtualização: `@tanstack/react-virtual`; SÓ `users` e `employees`.~~ Obsoleto — resolvido por paginação no servidor (ver Tasks 3/4).
 - Regras INNOVA: `fullName` (nunca `name`) no User; datas dd/MM/yyyy; moeda AOA; frontend porta 3000 / backend 4000 (rewrites já configurados).
 - Shell PowerShell; `npm`/`npx` sem pipe (ou `cmd /c "... > log 2>&1"`). Comandos git/npm no frontend correm com a CWD no repo do frontend (`C:\Users\Placido Costa\innova-frontend`).
 - Commits `--no-verify`, terminam com: `Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>`
@@ -23,11 +23,13 @@
 ### Task 1: Fase 1 — Ligar o React Compiler
 
 **Files:**
+
 - Modify: `next.config.ts`
 - Modify: `eslint.config.mjs` (regra do compiler — best-effort)
 - Modify: `package.json` / `package-lock.json` (nova devDependency)
 
 **Interfaces:**
+
 - Produces: build com auto-memoização ativa.
 
 - [ ] **Step 1: Instalar o babel plugin do compiler**
@@ -38,6 +40,7 @@ Expected: adiciona `babel-plugin-react-compiler` a devDependencies.
 - [ ] **Step 2: Ativar no `next.config.ts`**
 
 Substituir o objeto `nextConfig` por (preservando `images` e `rewrites` existentes):
+
 ```ts
 const nextConfig: NextConfig = {
   experimental: {
@@ -45,15 +48,15 @@ const nextConfig: NextConfig = {
   },
   images: {
     remotePatterns: [
-      { protocol: "https", hostname: "**" },
-      { protocol: "http", hostname: "**" },
+      { protocol: 'https', hostname: '**' },
+      { protocol: 'http', hostname: '**' },
     ],
   },
   async rewrites() {
     return [
       {
-        source: "/api/:path*",
-        destination: "http://localhost:4000/:path*",
+        source: '/api/:path*',
+        destination: 'http://localhost:4000/:path*',
       },
     ];
   },
@@ -65,6 +68,7 @@ const nextConfig: NextConfig = {
 Tentar instalar e ativar a regra de visibilidade dos bailouts:
 Run: `npm install --save-dev eslint-plugin-react-hooks@latest --no-audit --no-fund`
 Depois, em `eslint.config.mjs`, acrescentar um bloco de regras:
+
 ```js
   {
     rules: {
@@ -72,6 +76,7 @@ Depois, em `eslint.config.mjs`, acrescentar um bloco de regras:
     },
   },
 ```
+
 Se a regra não existir nesta versão ou o flat-config der erro, **REVERTER este passo** (remover o bloco e o pacote se não usado) e seguir — não é bloqueante. O build do compiler já reporta os componentes saltados. Documenta no relatório se foi mantido ou revertido.
 
 - [ ] **Step 4: Verificar typecheck**
@@ -104,9 +109,11 @@ Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
 ### Task 2: Fase 2 — Converter `<img>` para `next/image`
 
 **Files:**
+
 - Modify: todos os `.tsx` com `<img ...>` raw (exceto SVG/data-URI). São ~46 ocorrências.
 
 **Interfaces:**
+
 - Consumes: nada (independente da Fase 1).
 
 - [ ] **Step 1: Listar todas as ocorrências de `<img`**
@@ -116,6 +123,7 @@ Run (PowerShell): localizar todas — `Get-ChildItem -Recurse -Filter *.tsx | Se
 - [ ] **Step 2: Converter cada `<img>` (regras)**
 
 Para cada ficheiro, no topo: `import Image from 'next/image';` (uma vez). Converter cada `<img ... />`:
+
 - **Avatar/thumbnail com tamanho Tailwind fixo** (`w-6 h-6`, `w-10 h-10`, …): usar `width`/`height` em px equivalentes (`w-6 h-6`→24, `w-8`→32, `w-10`→40, `w-12`→48, `w-16`→64, `w-20`→80, `w-24`→96), mantendo `className`.
   - Antes: `<img src={avatarUrl} alt={name} className="w-6 h-6 rounded-full object-cover flex-shrink-0" />`
   - Depois: `<Image src={avatarUrl} alt={name} width={24} height={24} className="w-6 h-6 rounded-full object-cover flex-shrink-0" />`
@@ -124,7 +132,12 @@ Para cada ficheiro, no topo: `import Image from 'next/image';` (uma vez). Conver
   - Depois:
     ```tsx
     <div className="relative w-full h-48">
-      <Image src={question.mediaUrl} alt="Media" fill className="object-contain" />
+      <Image
+        src={question.mediaUrl}
+        alt="Media"
+        fill
+        className="object-contain"
+      />
     </div>
     ```
 - **`alt` obrigatório** — se faltar, acrescentar um `alt` descritivo (ou `alt=""` se decorativa).
@@ -152,112 +165,34 @@ Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
 
 ---
 
-### Task 3: Fase 3a — Virtualizar a lista de `users`
+### Task 3 e Task 4: Fase 3a/3b — Virtualizar `users`/`employees` — **RESOLVIDO POR PAGINAÇÃO (2026-08-20)**
 
-**Files:**
-- Modify: `app/(platform)/users/page.tsx`
-- Modify: `package.json`/`package-lock.json` (`@tanstack/react-virtual`)
+> Estas duas tasks ficaram por executar enquanto o resto do plano avançava, e
+> entretanto `UserListView` (`components/users/UserListView.tsx`) e
+> `useEmployees` (`hooks/useEmployees.ts`) passaram a paginar no servidor
+> (`limit: 20` por página, via `useApiQuery`/React Query com `keepPreviousData`)
+> em vez de carregar as ~6000 linhas de uma vez para o cliente. O DOM nunca
+> chega a ter mais do que uma página de linhas montadas, que é exactamente o
+> problema que `@tanstack/react-virtual` resolveria — instalá-lo e aplicar o
+> template abaixo seria reconstruir manualmente, com scroll infinito, o que a
+> paginação já resolve de graça (YAGNI). Nota: `app/(platform)/users/page.tsx`
+> também já não é onde a lista é renderizada — foi extraída para
+> `components/users/UserListView.tsx` — pelo que os caminhos de ficheiro
+> originais abaixo estão desactualizados de qualquer forma. Sem acção
+> necessária; secção mantida só como registo histórico da decisão.
+>
+> Ver auditoria de performance de 2026-08-20 (React Compiler bailout
+> visibility) para o contexto completo desta decisão.
 
-**Interfaces:**
-- Consumes: nada (independente).
+<details>
+<summary>Plano original (não executado, obsoleto)</summary>
 
-- [ ] **Step 1: Instalar o virtualizer**
+- Task 3 instalaria `@tanstack/react-virtual` e virtualizaria a lista em
+  `app/(platform)/users/page.tsx` com um `useVirtualizer` (container com scroll
+  fixo + linhas absolutamente posicionadas via `getVirtualItems()`).
+- Task 4 aplicaria o mesmo template a `app/(platform)/employees/page.tsx`.
 
-Run: `npm install @tanstack/react-virtual --no-audit --no-fund`
-
-- [ ] **Step 2: Ler a página e localizar a lista**
-
-Ler `app/(platform)/users/page.tsx`. Localizar onde a lista de utilizadores é renderizada (`users.map(...)` ou similar). Identificar: é `<table>` ou `<div>`s? qual o array de dados? qual a altura aproximada de cada linha?
-
-- [ ] **Step 3: Aplicar o virtualizer (template)**
-
-Adicionar o import e, no componente, virtualizar a lista. Template base (adaptar ao markup existente da linha):
-```tsx
-import { useVirtualizer } from '@tanstack/react-virtual';
-import { useRef } from 'react';
-// ...dentro do componente, com `users` = array a renderizar:
-const parentRef = useRef<HTMLDivElement>(null);
-const rowVirtualizer = useVirtualizer({
-  count: users.length,
-  getScrollElement: () => parentRef.current,
-  estimateSize: () => 56, // ajustar à altura real da linha em px
-  overscan: 10,
-});
-```
-Render — substituir o `{users.map(...)}` por um container com scroll + linhas posicionadas:
-```tsx
-<div ref={parentRef} style={{ height: 600, overflow: 'auto' }}>
-  <div style={{ height: rowVirtualizer.getTotalSize(), position: 'relative', width: '100%' }}>
-    {rowVirtualizer.getVirtualItems().map((vi) => {
-      const user = users[vi.index];
-      return (
-        <div
-          key={user.id}
-          style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: vi.size, transform: `translateY(${vi.start}px)` }}
-        >
-          {/* markup existente da linha, usando `user` (lembrar: user.fullName, nunca user.name) */}
-        </div>
-      );
-    })}
-  </div>
-</div>
-```
-- Se a lista for `<table>`: ou aplicar o mesmo absoluto às linhas do `<tbody>`, ou converter as linhas para `<div>`s com grid Tailwind a imitar as colunas. Escolher o que for menos disruptivo para o markup atual.
-- Manter filtros/ordenação que já existam — virtualizar o array **já filtrado**.
-
-- [ ] **Step 4: Typecheck**
-
-Run: `npx tsc --noEmit`
-Expected: sem erros.
-
-- [ ] **Step 5: Build + smoke**
-
-Run: `npm run build` (completa) e `npm run dev` → abrir `/users`, confirmar scroll fluido e dados corretos (incl. `fullName`).
-
-- [ ] **Step 6: Commit**
-
-```
-git add app/(platform)/users/page.tsx package.json package-lock.json
-git commit --no-verify -m "perf(users): virtualizar lista grande com react-virtual
-
-Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
-```
-
----
-
-### Task 4: Fase 3b — Virtualizar a lista de `employees`
-
-**Files:**
-- Modify: `app/(platform)/employees/page.tsx`
-
-**Interfaces:**
-- Consumes: `@tanstack/react-virtual` (instalado na Task 3).
-
-- [ ] **Step 1: Ler a página e localizar a lista**
-
-Ler `app/(platform)/employees/page.tsx`. Localizar a renderização da lista (`employees.map(...)`), tipo de markup (table/div) e altura de linha.
-
-- [ ] **Step 2: Aplicar o virtualizer**
-
-Mesmo template da Task 3 Step 3, com `employees` no lugar de `users` e a chave/markup da linha do employee. Virtualizar o array já filtrado/ordenado. `fullName` nunca `name`.
-
-- [ ] **Step 3: Typecheck**
-
-Run: `npx tsc --noEmit`
-Expected: sem erros.
-
-- [ ] **Step 4: Build + smoke**
-
-Run: `npm run build` e `npm run dev` → `/employees`, scroll fluido, dados corretos.
-
-- [ ] **Step 5: Commit**
-
-```
-git add "app/(platform)/employees/page.tsx"
-git commit --no-verify -m "perf(employees): virtualizar lista grande com react-virtual
-
-Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
-```
+</details>
 
 ---
 
