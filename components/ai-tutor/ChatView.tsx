@@ -6,7 +6,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { Send } from 'lucide-react';
+import { Send, Volume2, VolumeX } from 'lucide-react';
 import Image from 'next/image';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
@@ -41,9 +41,9 @@ function IsisAvatar({
   className?: string;
 }) {
   const dimensions = {
-    sm: 32,
-    md: 44,
-    lg: 96,
+    sm: 64,
+    md: 88,
+    lg: 192,
   }[size];
 
   const Wrapper = onClick ? 'button' : 'div';
@@ -79,11 +79,26 @@ export function ChatView() {
   const [input, setInput] = useState('');
   const [thinking, setThinking] = useState(false);
   const [personality, setPersonality] = useState('FRIENDLY');
+  const [voiceEnabled, setVoiceEnabled] = useState(true);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, thinking]);
+
+  // Faz a Ísis "falar" um texto em voz alta, usando a voz
+  // já incorporada no navegador (não precisa de nenhum serviço externo).
+  const speak = (text: string) => {
+    if (!voiceEnabled) return;
+    if (typeof window === 'undefined' || !window.speechSynthesis) return;
+
+    window.speechSynthesis.cancel(); // evita sobrepor falas anteriores
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'pt-PT';
+    utterance.rate = 1;
+    utterance.pitch = 1;
+    window.speechSynthesis.speak(utterance);
+  };
 
   const startSession = useApiMutation(
     (p: string) =>
@@ -105,6 +120,7 @@ export function ChatView() {
             agentAction: null,
           },
         ]);
+        speak(res.greeting);
       },
       onError: (e) => notify({ title: e.message, intent: 'danger' }),
     },
@@ -151,6 +167,7 @@ export function ChatView() {
           agentAction: res.message.agentAction,
         },
       ]);
+      speak(res.message.content);
     } catch (e) {
       reportError(e, { source: 'ChatView.sendMessage' });
       const errMsg = e instanceof Error ? e.message : String(e);
@@ -232,11 +249,18 @@ export function ChatView() {
           </div>
         </div>
         <button
+          onClick={() => setVoiceEnabled((v) => !v)}
+          className="ml-auto text-canvas/80 hover:text-canvas"
+          title={voiceEnabled ? 'Desligar voz' : 'Ligar voz'}
+        >
+          {voiceEnabled ? <Volume2 size={18} /> : <VolumeX size={18} />}
+        </button>
+        <button
           onClick={() => {
             setSession(null);
             setMessages([]);
           }}
-          className="ml-auto font-body text-xs text-canvas/70 hover:text-canvas"
+          className="font-body text-xs text-canvas/70 hover:text-canvas"
         >
           Nova sessão
         </button>
