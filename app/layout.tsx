@@ -6,6 +6,7 @@ import ReactQueryProvider from "../providers/ReactQueryProvider";
 import { ConfirmProvider } from "../providers/ConfirmProvider";
 import { TooltipProvider } from "../components/ui/Tooltip";
 import { ToastProvider } from "../providers/ToastProvider";
+import SplashScreen from "../components/SplashScreen";
 
 const sora = Sora({
   subsets: ["latin"],
@@ -47,7 +48,9 @@ export default function RootLayout({
         <ReactQueryProvider>
           <ConfirmProvider>
             <TooltipProvider>
-              <ToastProvider>{children}</ToastProvider>
+              <ToastProvider>
+                <SplashScreen>{children}</SplashScreen>
+              </ToastProvider>
             </TooltipProvider>
           </ConfirmProvider>
         </ReactQueryProvider>
