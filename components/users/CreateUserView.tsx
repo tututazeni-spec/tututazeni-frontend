@@ -4,7 +4,7 @@
 
 'use client';
 
-import { useId, useState } from 'react';
+import { useState } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
@@ -22,6 +22,53 @@ import { Input } from '@/components/ui/Input';
 interface CreateUserViewProps {
   onBack: () => void;
   onCreated: () => void;
+}
+
+interface UserFormValues {
+  fullName: string;
+  email: string;
+  password: string;
+  employeeNumber: string;
+  phone: string;
+  departmentId: string;
+  positionId: string;
+  hireDate: string;
+  accountStatus: string;
+}
+
+interface FieldProps {
+  label: string;
+  id: keyof UserFormValues;
+  type?: string;
+  required?: boolean;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+}
+
+// Hoisted fora de CreateUserView: definir um componente dentro doutro
+// componente cria uma nova identidade de tipo a cada render — React
+// desmonta e remonta toda a subárvore (todos os <Field>) a cada keystroke
+// em qualquer campo do formulário. Também é por isto que o React Compiler
+// saltava a optimização deste ficheiro (violação das Regras do React).
+function Field({
+  label,
+  id,
+  type = 'text',
+  required = false,
+  value,
+  onChange,
+}: FieldProps) {
+  return (
+    <FormField label={required ? `${label} *` : label} htmlFor={id}>
+      <Input
+        id={id}
+        type={type}
+        value={value}
+        onChange={onChange}
+        className="w-full"
+      />
+    </FormField>
+  );
 }
 
 export function CreateUserView({ onBack, onCreated }: CreateUserViewProps) {
@@ -79,33 +126,6 @@ export function CreateUserView({ onBack, onCreated }: CreateUserViewProps) {
     create.mutate(undefined);
   });
 
-  interface FieldProps {
-    label: string;
-    id: keyof typeof form;
-    type?: string;
-    required?: boolean;
-  }
-
-  const Field = ({
-    label,
-    id,
-    type = 'text',
-    required = false,
-  }: FieldProps) => {
-    const fieldId = useId();
-    return (
-      <FormField label={required ? `${label} *` : label} htmlFor={fieldId}>
-        <Input
-          id={fieldId}
-          type={type}
-          value={form[id]}
-          onChange={handle(id)}
-          className="w-full"
-        />
-      </FormField>
-    );
-  };
-
   return (
     <div>
       <Button intent="ghost" size="sm" className="mb-5" onClick={onBack}>
@@ -129,20 +149,68 @@ export function CreateUserView({ onBack, onCreated }: CreateUserViewProps) {
               Dados básicos
             </div>
           </div>
-          <Field label="Nome completo" id="fullName" required />
-          <Field label="Email" id="email" type="email" required />
-          <Field label="Password provisória" id="password" type="password" />
-          <Field label="Nº funcionário" id="employeeNumber" />
-          <Field label="Telefone" id="phone" type="tel" />
-          <Field label="Data de admissão" id="hireDate" type="date" />
+          <Field
+            label="Nome completo"
+            id="fullName"
+            required
+            value={form.fullName}
+            onChange={handle('fullName')}
+          />
+          <Field
+            label="Email"
+            id="email"
+            type="email"
+            required
+            value={form.email}
+            onChange={handle('email')}
+          />
+          <Field
+            label="Password provisória"
+            id="password"
+            type="password"
+            value={form.password}
+            onChange={handle('password')}
+          />
+          <Field
+            label="Nº funcionário"
+            id="employeeNumber"
+            value={form.employeeNumber}
+            onChange={handle('employeeNumber')}
+          />
+          <Field
+            label="Telefone"
+            id="phone"
+            type="tel"
+            value={form.phone}
+            onChange={handle('phone')}
+          />
+          <Field
+            label="Data de admissão"
+            id="hireDate"
+            type="date"
+            value={form.hireDate}
+            onChange={handle('hireDate')}
+          />
 
           <div className="col-span-2 mt-2">
             <div className="text-xs font-medium text-ink-faint uppercase tracking-wide mb-3 pb-2 border-b border-border">
               Organização
             </div>
           </div>
-          <Field label="ID Departamento" id="departmentId" type="number" />
-          <Field label="ID Cargo / Posição" id="positionId" type="number" />
+          <Field
+            label="ID Departamento"
+            id="departmentId"
+            type="number"
+            value={form.departmentId}
+            onChange={handle('departmentId')}
+          />
+          <Field
+            label="ID Cargo / Posição"
+            id="positionId"
+            type="number"
+            value={form.positionId}
+            onChange={handle('positionId')}
+          />
 
           <div>
             <label className="block text-xs font-medium text-ink uppercase tracking-wide mb-1.5">

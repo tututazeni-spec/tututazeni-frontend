@@ -85,7 +85,7 @@ export function useSearch() {
     if (!q.trim()) return;
     setSuggestions([]);
     searchAction.mutate({ kind: 'full', q });
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- `mutate` do useMutation é estável entre renders (React Query), por isso omitir `searchAction` das deps não cria closure stale.
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- `mutate` do useMutation é estável entre renders (React Query), por isso omitir `searchAction` das deps não cria closure stale. Consequência: o React Compiler salta este hook por não conseguir verificar a omissão à volta de uma regra desligada.
   }, []);
 
   const searchByType = (key: string, path: string) => {

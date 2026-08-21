@@ -42,7 +42,7 @@ export function SimulateView() {
   useEffect(() => {
     const t = setTimeout(() => simulateMutation.mutate(form), 400);
     return () => clearTimeout(t);
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- `mutate` do useMutation é estável entre renders; só `form` deve disparar o debounce.
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- `mutate` do useMutation é estável entre renders; só `form` deve disparar o debounce. Consequência: o React Compiler salta este componente por não conseguir verificar a omissão à volta de uma regra desligada.
   }, [form]);
 
   const IRT_BRACKETS = [
@@ -160,9 +160,7 @@ export function SimulateView() {
               key={label}
               className="flex items-baseline justify-between border-b border-border pb-2 last:border-0"
             >
-              <span className="font-body text-sm text-ink-muted">
-                {label}
-              </span>
+              <span className="font-body text-sm text-ink-muted">{label}</span>
               <span
                 className={`font-mono text-sm font-medium ${negative ? 'text-danger' : 'text-ink'}`}
               >
