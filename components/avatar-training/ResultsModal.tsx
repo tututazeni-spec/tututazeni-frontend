@@ -28,10 +28,7 @@ export interface ResultsModalProps {
   onNext?: () => void;
 }
 
-const GRADE_CONFIG: Record<
-  string,
-  { emoji: string; color: string; label: string }
-> = {
+const GRADE_CONFIG: Record<string, { color: string; label: string }> = {
   EXCEPTIONAL: {
     color: 'text-success',
     label: 'Excepcional',
@@ -66,7 +63,6 @@ export function ResultsModal({
       <ModalContent title="Resultado da Sessão" className="w-full max-w-md">
         {/* Score */}
         <div className="text-center mt-4 mb-6">
-          <div className="text-5xl mb-2">{g.emoji}</div>
           <p className={`text-5xl font-black ${g.color}`}>{score}</p>
           <p className="text-lg font-semibold text-ink mt-1">{g.label}</p>
           <div className="mt-3 flex items-center justify-center gap-2">
