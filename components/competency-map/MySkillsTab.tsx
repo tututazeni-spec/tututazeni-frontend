@@ -64,7 +64,7 @@ export function MySkillsTab({
     return (
       <EmptyState
         icon={Target}
-        title="Sem skills avaliadas"
+        title="Sem habilidades avaliadas"
         description="Ainda não tens nenhuma competência avaliada."
         action={{ label: 'Fazer primeira avaliação', onClick: onAssess }}
       />
@@ -83,7 +83,7 @@ export function MySkillsTab({
                 Perfil de Competências
               </h3>
               <p className="text-xs text-ink-faint mb-4">
-                {myMap.total} skills avaliadas · Score médio:{' '}
+                {myMap.total} Habilidades avaliadas · Pontuação Média:{' '}
                 {myMap.avgScore.toFixed(1)}/5
               </p>
 

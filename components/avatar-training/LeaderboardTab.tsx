@@ -83,8 +83,8 @@ export function LeaderboardTab() {
           <CardBody>
             <EmptyState
               icon={Trophy}
-              title="Sem dados de ranking ainda"
-              description="Completa cenários para apareceres no ranking global."
+              title="Sem dados de classificação ainda"
+              description="Completa cenários para apareceres na classificação global."
             />
           </CardBody>
         )}

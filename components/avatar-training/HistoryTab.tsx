@@ -46,8 +46,8 @@ export function HistoryTab() {
           {[
             { label: 'Total', value: data.stats.total },
             { label: 'Concluídas', value: data.stats.completed },
-            { label: 'Score Médio', value: data.stats.avgScore ?? '–' },
-            { label: 'XP Total', value: data.stats.totalXP },
+            { label: 'Pontuação Média', value: data.stats.avgScore ?? '–' },
+            { label: 'Pontos de Experiência Total', value: data.stats.totalXP },
           ].map((s) => (
             <Card key={s.label} className="p-3 text-center">
               <p className="text-2xl font-bold text-ink">{s.value}</p>

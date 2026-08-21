@@ -236,7 +236,7 @@ export function MyDashboard() {
         />
         <KpiCard
           icon={TrendingUp}
-          label="Score médio"
+          label="Pontuação Média"
           value={history.avgScore}
           intent="info"
         />

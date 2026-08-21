@@ -26,7 +26,16 @@ export interface ScenariosTabProps {
   onStart: (s: Scenario) => void;
 }
 
+// Valores == enum Difficulty do backend (ver schema.prisma) — usados tal
+// e qual como filtro (?difficulty=) e como scenario.difficulty renderizado
+// em ScenarioCard/DIFF_INTENT. DIFF_LABELS só traduz a apresentação.
 const DIFFS = ['BEGINNER', 'INTERMEDIATE', 'ADVANCED', 'EXPERT'];
+const DIFF_LABELS: Record<string, string> = {
+  BEGINNER: 'Iniciante',
+  INTERMEDIATE: 'Intermédio',
+  ADVANCED: 'Avançado',
+  EXPERT: 'Especialista',
+};
 
 export function ScenariosTab({ onStart }: ScenariosTabProps) {
   const [category, setCategory] = useState('');
@@ -82,7 +91,7 @@ export function ScenariosTab({ onStart }: ScenariosTabProps) {
               intent={difficulty === d ? 'primary' : 'ghost'}
               onClick={() => setDifficulty(d)}
             >
-              {d || 'Todos'}
+              {d ? DIFF_LABELS[d] : 'Todos'}
             </Button>
           ))}
         </div>

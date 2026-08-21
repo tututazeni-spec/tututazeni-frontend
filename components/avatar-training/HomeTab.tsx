@@ -61,14 +61,14 @@ export function HomeTab({ onStartScenario }: HomeTabProps) {
           />
           <KpiCard
             icon={Star}
-            label="Score Médio"
+            label="Pontuação Média"
             value={history.stats.avgScore ?? '–'}
             intent="warning"
           />
           <KpiCard
             icon={Flame}
-            label="Streak"
-            value={`${history.stats.streak}🔥`}
+            label="Sequência"
+            value={`${history.stats.streak}`}
             intent="accent"
           />
         </div>
@@ -82,27 +82,25 @@ export function HomeTab({ onStartScenario }: HomeTabProps) {
           </div>
           <div>
             <h2 className="text-xl font-bold font-display">Treina com IA</h2>
-            <p className="text-canvas/70 text-sm">
-              Cenários imersivos com avatares inteligentes
-            </p>
+            <p className="text-canvas/70 text-sm"></p>
           </div>
         </div>
         <p className="text-canvas/80 text-sm mb-4">
-          Pratica soft skills, vendas, liderança e compliance com feedback
-          comportamental em tempo real.
+          Pratica Competências Comportamentais, vendas, liderança e compliance
+          com feedback comportamental em tempo real.
         </p>
         <div className="flex gap-2 flex-wrap">
           <span className="text-[10px] bg-canvas/20 px-2 py-1 rounded-full">
-            🎭 Roleplay
+            Simulação
           </span>
           <span className="text-[10px] bg-canvas/20 px-2 py-1 rounded-full">
-            🧠 Avaliação IA
+            Avaliação IA
           </span>
           <span className="text-[10px] bg-canvas/20 px-2 py-1 rounded-full">
-            ⚡ XP + Badges
+            Pontos de Experiência + Distintivos
           </span>
           <span className="text-[10px] bg-canvas/20 px-2 py-1 rounded-full">
-            📊 Analytics
+            Análises
           </span>
         </div>
       </div>

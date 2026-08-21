@@ -28,28 +28,21 @@ export interface ResultsModalProps {
   onNext?: () => void;
 }
 
-const GRADE_CONFIG: Record<
-  string,
-  { emoji: string; color: string; label: string }
-> = {
+const GRADE_CONFIG: Record<string, { color: string; label: string }> = {
   EXCEPTIONAL: {
-    emoji: '🏆',
     color: 'text-success',
     label: 'Excepcional',
   },
   ABOVE_AVERAGE: {
-    emoji: '⭐',
     color: 'text-info',
-    label: 'Acima Média',
+    label: 'Acima da Média',
   },
-  AVERAGE: { emoji: '👍', color: 'text-warning', label: 'Médio' },
+  AVERAGE: { color: 'text-warning', label: 'Médio' },
   BELOW_AVERAGE: {
-    emoji: '📈',
     color: 'text-warning',
-    label: 'Abaixo Média',
+    label: 'Abaixo da Média',
   },
   NEEDS_IMPROVEMENT: {
-    emoji: '🎯',
     color: 'text-danger',
     label: 'Melhorar',
   },
@@ -70,7 +63,6 @@ export function ResultsModal({
       <ModalContent title="Resultado da Sessão" className="w-full max-w-md">
         {/* Score */}
         <div className="text-center mt-4 mb-6">
-          <div className="text-5xl mb-2">{g.emoji}</div>
           <p className={`text-5xl font-black ${g.color}`}>{score}</p>
           <p className="text-lg font-semibold text-ink mt-1">{g.label}</p>
           <div className="mt-3 flex items-center justify-center gap-2">
@@ -113,7 +105,7 @@ export function ResultsModal({
             {(result.strengths?.length ?? 0) > 0 && (
               <div className="bg-success-subtle rounded-card p-3">
                 <p className="text-xs font-bold text-success-ink mb-1">
-                  💪 Pontos Fortes
+                  Pontos Fortes
                 </p>
                 {result.strengths?.slice(0, 2).map((s, i) => (
                   <p key={i} className="text-[10px] text-success-ink">
@@ -125,7 +117,7 @@ export function ResultsModal({
             {(result.improvements?.length ?? 0) > 0 && (
               <div className="bg-warning-subtle rounded-card p-3">
                 <p className="text-xs font-bold text-warning-ink mb-1">
-                  🎯 Melhorar
+                  Melhorar
                 </p>
                 {result.improvements?.slice(0, 2).map((s, i) => (
                   <p key={i} className="text-[10px] text-warning-ink">
