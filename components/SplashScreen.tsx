@@ -43,7 +43,7 @@ export default function SplashScreen({
       {showSplash && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-white">
           <Image
-            src="/images/logo.png"
+            src="/images/logo-innova.png"
             alt="INNOVA"
             width={280}
             height={90}
