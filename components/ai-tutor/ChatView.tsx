@@ -1,5 +1,5 @@
 // components/ai-tutor/ChatView.tsx
-// Vista "Chat": conversa em tempo real com o tutor IA (NOVA),
+// Vista "Chat": conversa em tempo real com o tutor IA (Ísis),
 // incluindo início de sessão, envio de mensagens, rating e acções
 // rápidas. Extraído de app/(platform)/ai-tutor/page.tsx.
 
@@ -7,10 +7,10 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { Send } from 'lucide-react';
+import Image from 'next/image';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { reportError } from '@/lib/errorReporting';
-import { Avatar } from '@/components/ui/Avatar';
 import { Button, IconButton } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { useToast } from '@/providers/ToastProvider';
@@ -28,6 +28,46 @@ const PERSONALITIES = [
   { id: 'COACH', label: 'Coach' },
   { id: 'GAMIFIED', label: 'Gamificado' },
 ] as const;
+
+// Avatar da Ísis — substitui o antigo círculo com a letra "N".
+// A imagem fica em: public/images/isis-avatar.png
+function IsisAvatar({
+  size = 'md',
+  onClick,
+  className = '',
+}: {
+  size?: 'sm' | 'md' | 'lg';
+  onClick?: () => void;
+  className?: string;
+}) {
+  const dimensions = {
+    sm: 32,
+    md: 44,
+    lg: 96,
+  }[size];
+
+  const Wrapper = onClick ? 'button' : 'div';
+
+  return (
+    <Wrapper
+      onClick={onClick}
+      className={`rounded-full overflow-hidden border-2 border-[#D4A017] flex-shrink-0 ${
+        onClick
+          ? 'hover:scale-105 transition-transform duration-300 cursor-pointer'
+          : ''
+      } ${className}`}
+      style={{ width: dimensions, height: dimensions }}
+    >
+      <Image
+        src="/images/isis-avatar.png"
+        alt="Ísis - Tutor IA"
+        width={dimensions}
+        height={dimensions}
+        className="object-cover w-full h-full"
+      />
+    </Wrapper>
+  );
+}
 
 export function ChatView() {
   const notify = useToast();
@@ -153,7 +193,7 @@ export function ChatView() {
   if (!session) {
     return (
       <div className="flex flex-col items-center justify-center h-[60vh]">
-        <Avatar name="NOVA" size="lg" className="mb-5" />
+        <IsisAvatar size="lg" onClick={start} className="mb-5" />
         <p className="font-body text-sm text-ink-faint mb-6 text-center max-w-sm">
           O teu assistente de aprendizagem inteligente. Disponível 24/7 para
           dúvidas, quizzes, resumos e muito mais.
@@ -183,7 +223,7 @@ export function ChatView() {
     <div className="flex flex-col h-[75vh] bg-surface border border-border rounded-panel overflow-hidden shadow-resting">
       {/* Header */}
       <div className="flex items-center gap-3 px-4 py-3 bg-primary text-canvas">
-        <Avatar name="NOVA" size="md" />
+        <IsisAvatar size="md" />
         <div>
           <div className="font-body text-sm font-semibold">Ísis — Tutor IA</div>
           <div className="font-body text-xs text-canvas/80 flex items-center gap-1">
@@ -209,7 +249,7 @@ export function ChatView() {
         ))}
         {thinking && (
           <div className="flex justify-start mb-3">
-            <Avatar name="NOVA" size="sm" className="mr-2 flex-shrink-0" />
+            <IsisAvatar size="sm" className="mr-2" />
             <div className="bg-surface border border-border rounded-card shadow-resting">
               <div className="flex items-center gap-1 px-4 py-3">
                 {[0, 1, 2].map((i) => (
