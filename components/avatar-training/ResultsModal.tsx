@@ -33,19 +33,23 @@ const GRADE_CONFIG: Record<
   { emoji: string; color: string; label: string }
 > = {
   EXCEPTIONAL: {
+    emoji: '🏆',
     color: 'text-success',
     label: 'Excepcional',
   },
   ABOVE_AVERAGE: {
+    emoji: '⭐',
     color: 'text-info',
     label: 'Acima da Média',
   },
-  AVERAGE: { color: 'text-warning', label: 'Médio' },
+  AVERAGE: { emoji: '👍', color: 'text-warning', label: 'Médio' },
   BELOW_AVERAGE: {
+    emoji: '📈',
     color: 'text-warning',
     label: 'Abaixo da Média',
   },
   NEEDS_IMPROVEMENT: {
+    emoji: '🎯',
     color: 'text-danger',
     label: 'Melhorar',
   },
