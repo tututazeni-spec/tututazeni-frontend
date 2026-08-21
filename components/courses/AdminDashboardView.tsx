@@ -61,7 +61,7 @@ export function AdminDashboardView({ onSelect }: AdminDashboardViewProps) {
           icon={AlertTriangle}
           label="Atrasos"
           value={data.enrollments.overdue}
-          sub="deadlines vencidos"
+          sub="Prazos Ultrapassados"
           intent={data.enrollments.overdue > 0 ? 'danger' : 'primary'}
           className="w-full"
         />

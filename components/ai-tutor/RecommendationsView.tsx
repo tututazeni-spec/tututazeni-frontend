@@ -35,9 +35,9 @@ export function RecommendationsView() {
       {/* AI Insight */}
       <Card className="border-primary-subtle bg-gradient-to-r from-primary-subtle to-accent-subtle p-5">
         <div className="flex items-center gap-2 mb-3">
-          <Avatar name="NOVA" size="sm" />
+          <Avatar name="Ísis" size="sm" />
           <span className="font-body text-xs font-semibold text-primary">
-            Insight do NOVA
+            Análises da Ísis
           </span>
           <span className="font-body text-xs text-ink-faint ml-auto">
             {data.provider}
@@ -52,7 +52,7 @@ export function RecommendationsView() {
       {data.competencyGaps.length > 0 && (
         <Card className="p-4">
           <div className="font-body text-xs font-medium text-ink-faint uppercase tracking-wide mb-3">
-            ⚡ Gaps de competência identificados
+            Lacunas de competência identificados
           </div>
           <div className="flex flex-wrap gap-2">
             {data.competencyGaps.map((g) => (

@@ -35,9 +35,6 @@ export default function KnowledgePage() {
           <h1 className="font-display text-xl font-semibold text-ink">
             {TITLES[nav.view]}
           </h1>
-          <p className="mt-0.5 font-body text-sm text-ink-faint">
-            INNOVA — Gestão do Conhecimento
-          </p>
         </div>
         <Button
           onClick={() =>

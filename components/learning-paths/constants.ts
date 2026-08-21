@@ -56,5 +56,5 @@ export const TITLES: Record<View, string> = {
   catalog: 'Trilhas de Aprendizagem',
   detail: 'Detalhe da Trilha',
   'my-paths': 'As minhas trilhas',
-  dashboard: 'Dashboard de Learning Paths',
+  dashboard: 'Dashboard de Trilhas de Aprendizagem',
 };

@@ -57,9 +57,6 @@ export function PortalView({ onSelectArticle, onSearch }: PortalViewProps) {
     <div className="space-y-8">
       {/* Search hero */}
       <div className="rounded-card bg-gradient-to-br from-primary to-primary-active p-8 text-center">
-        <div className="mb-2 font-display text-2xl font-bold text-canvas">
-          Base de Conhecimento INNOVA
-        </div>
         <div className="mb-5 font-body text-sm text-canvas/70">
           Encontra políticas, processos, guias e muito mais
         </div>
@@ -159,7 +156,7 @@ export function PortalView({ onSelectArticle, onSearch }: PortalViewProps) {
           {/* Trending */}
           <div>
             <div className="mb-4 font-body text-sm font-semibold text-ink">
-              🔥 Em destaque
+              Em destaque
             </div>
             <div className="grid grid-cols-3 gap-4">
               {trending.map((art) => (

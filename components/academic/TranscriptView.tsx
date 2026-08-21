@@ -28,7 +28,7 @@ export function TranscriptView({
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <KpiCard
           icon={GraduationCap}
-          label="GPA"
+          label="Média de Classificações"
           value={transcript ? transcript.gpa.toFixed(1) : '—'}
           intent="primary"
           className="w-full"

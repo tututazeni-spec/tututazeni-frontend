@@ -1,5 +1,5 @@
 // components/ai-tutor/GenerateView.tsx
-// Vista "Gerar conteúdo": criação de quizzes, flashcards, resumos e
+// Vista "Gerar conteúdo": criação de questionários, flashcards, resumos e
 // planos de estudo via IA. Extraído de
 // app/(platform)/ai-tutor/page.tsx.
 
@@ -15,10 +15,10 @@ import { useToast } from '@/providers/ToastProvider';
 import type { Flashcard, GeneratedContent, QuizQuestion } from './types';
 
 const CONTENT_TYPES = [
-  { id: 'QUIZ', label: '📊 Quiz' },
-  { id: 'FLASHCARDS', label: '🃏 Flashcards' },
-  { id: 'SUMMARY', label: '📝 Resumo' },
-  { id: 'STUDY_PLAN', label: '📅 Plano de estudo' },
+  { id: 'QUIZ', label: 'Questionário' },
+  { id: 'FLASHCARDS', label: 'Flashcards' },
+  { id: 'SUMMARY', label: 'Resumo' },
+  { id: 'STUDY_PLAN', label: 'Plano de estudo' },
 ] as const;
 
 export function GenerateView() {
@@ -165,7 +165,7 @@ export function GenerateView() {
         >
           {loading
             ? 'A gerar com IA…'
-            : `⚡ Gerar ${type === 'QUIZ' ? 'Quiz' : type === 'FLASHCARDS' ? 'Flashcards' : type === 'SUMMARY' ? 'Resumo' : 'Plano de estudo'}`}
+            : `Gerar ${type === 'QUIZ' ? 'Questionário' : type === 'FLASHCARDS' ? 'Flashcards' : type === 'SUMMARY' ? 'Resumo' : 'Plano de estudo'}`}
         </Button>
       </Card>
 

@@ -84,7 +84,7 @@ export function HomeTab() {
             <Input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Buscar por título, skills, tags..."
+              placeholder="Buscar por título, habilidades, tags..."
               className="w-full pl-10"
             />
           </div>

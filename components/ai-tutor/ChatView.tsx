@@ -23,10 +23,10 @@ import type {
 } from './types';
 
 const PERSONALITIES = [
-  { id: 'FRIENDLY', label: '😊 Amigável' },
-  { id: 'PROFESSIONAL', label: '💼 Profissional' },
-  { id: 'COACH', label: '🎯 Coach' },
-  { id: 'GAMIFIED', label: '🏆 Gamificado' },
+  { id: 'FRIENDLY', label: 'Amigável' },
+  { id: 'PROFESSIONAL', label: 'Profissional' },
+  { id: 'COACH', label: 'Coach' },
+  { id: 'GAMIFIED', label: 'Gamificado' },
 ] as const;
 
 export function ChatView() {
@@ -154,9 +154,6 @@ export function ChatView() {
     return (
       <div className="flex flex-col items-center justify-center h-[60vh]">
         <Avatar name="NOVA" size="lg" className="mb-5" />
-        <h2 className="font-display text-xl font-semibold text-ink mb-2">
-          NOVA — Tutor IA INNOVA
-        </h2>
         <p className="font-body text-sm text-ink-faint mb-6 text-center max-w-sm">
           O teu assistente de aprendizagem inteligente. Disponível 24/7 para
           dúvidas, quizzes, resumos e muito mais.
@@ -176,7 +173,7 @@ export function ChatView() {
         </div>
 
         <Button onClick={start} loading={starting}>
-          {starting ? 'A iniciar…' : '🚀 Iniciar conversa com NOVA'}
+          {starting ? 'A iniciar…' : 'Iniciar conversa com Ísis'}
         </Button>
       </div>
     );
@@ -188,7 +185,7 @@ export function ChatView() {
       <div className="flex items-center gap-3 px-4 py-3 bg-primary text-canvas">
         <Avatar name="NOVA" size="md" />
         <div>
-          <div className="font-body text-sm font-semibold">NOVA — Tutor IA</div>
+          <div className="font-body text-sm font-semibold">Ísis — Tutor IA</div>
           <div className="font-body text-xs text-canvas/80 flex items-center gap-1">
             <span className="w-1.5 h-1.5 bg-success rounded-full" />
             Online · Sessão #{session.id}
