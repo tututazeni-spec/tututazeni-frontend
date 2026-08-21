@@ -100,7 +100,7 @@ export function HistoryView() {
           onClick={() => loadDetail(s.id)}
           className="flex items-center gap-4 p-4"
         >
-          <Avatar name="NOVA" size="md" className="flex-shrink-0" />
+          <Avatar name="Ísis" size="md" className="flex-shrink-0" />
           <div className="flex-1 min-w-0">
             <div className="font-body text-sm font-medium text-ink">
               Sessão #{s.id}
