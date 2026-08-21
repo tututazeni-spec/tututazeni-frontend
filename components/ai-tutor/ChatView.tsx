@@ -213,7 +213,7 @@ export function ChatView() {
         <IsisAvatar size="lg" onClick={start} className="mb-5" />
         <p className="font-body text-sm text-ink-faint mb-6 text-center max-w-sm">
           O teu assistente de aprendizagem inteligente. Disponível 24/7 para
-          dúvidas, quizzes, resumos e muito mais.
+          dúvidas, questionários, resumos e muito mais.
         </p>
 
         <div className="flex gap-2 mb-5">
