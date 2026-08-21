@@ -33,7 +33,7 @@ export function PathsTab() {
     return (
       <EmptyState
         icon={Layers}
-        title="Nenhuma learning path disponível"
+        title="Nenhuma trilha de aprendizagem disponível"
         description="Ainda não existem trilhas de aprendizagem publicadas."
       />
     );

@@ -22,25 +22,32 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { ContentCard } from './ContentCard';
 import type { Content } from './types';
 
+// value = ContentFormat/ContentAssetLevel (Prisma enum, validado por
+// @IsEnum no backend) — nunca traduzir. label = texto apresentado.
 const FORMATS = [
-  'VIDEO',
-  'ARTICLE',
-  'PODCAST',
-  'PDF',
-  'SCORM',
-  'COURSE',
-  'MICROLEARNING',
-  'QUIZ',
+  { value: 'VIDEO', label: 'Vídeo' },
+  { value: 'ARTICLE', label: 'Artigos' },
+  { value: 'PODCAST', label: 'Podcast' },
+  { value: 'PDF', label: 'PDF' },
+  { value: 'SCORM', label: 'SCORM' },
+  { value: 'COURSE', label: 'Cursos' },
+  { value: 'MICROLEARNING', label: 'Micro-aprendizagem' },
+  { value: 'QUIZ', label: 'Questionário' },
 ];
-const LEVELS = ['BEGINNER', 'INTERMEDIATE', 'ADVANCED', 'EXPERT'];
+const LEVELS = [
+  { value: 'BEGINNER', label: 'Iniciante' },
+  { value: 'INTERMEDIATE', label: 'Intermédio' },
+  { value: 'ADVANCED', label: 'Avançado' },
+  { value: 'EXPERT', label: 'Perito' },
+];
 
 const FORMAT_ITEMS = [
   { value: 'ALL', label: 'Todos os formatos' },
-  ...FORMATS.map((f) => ({ value: f, label: f })),
+  ...FORMATS,
 ];
 const LEVEL_ITEMS = [
   { value: 'ALL', label: 'Todos os níveis' },
-  ...LEVELS.map((l) => ({ value: l, label: l })),
+  ...LEVELS,
 ];
 const SORT_ITEMS = [
   { value: 'newest', label: 'Mais recente' },
@@ -139,8 +146,8 @@ export function CatalogueTab() {
             />
 
             {[
-              { label: '⚡ Micro', value: micro, key: 'micro' as const },
-              { label: '🎓 Certif.', value: cert, key: 'cert' as const },
+              { label: 'Micro-aprendizagem', value: micro, key: 'micro' as const },
+              { label: 'Certificação', value: cert, key: 'cert' as const },
             ].map((t) => (
               <button
                 key={t.label}

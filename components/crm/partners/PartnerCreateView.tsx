@@ -108,10 +108,10 @@ export function PartnerCreateView({
                 value={form.tier}
                 onValueChange={(value) => setField('tier', value)}
                 items={[
-                  { value: 'PLATINUM', label: 'Platinum' },
-                  { value: 'GOLD', label: 'Gold' },
-                  { value: 'SILVER', label: 'Silver' },
-                  { value: 'STANDARD', label: 'Standard' },
+                  { value: 'PLATINUM', label: 'Platina' },
+                  { value: 'GOLD', label: 'Ouro' },
+                  { value: 'SILVER', label: 'Prata' },
+                  { value: 'STANDARD', label: 'Padrão' },
                 ]}
               />
             </Field>

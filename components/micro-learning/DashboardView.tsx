@@ -21,7 +21,7 @@ const STAT_TILES: Array<{
   { key: 'completed', label: 'Concluídos', color: 'text-success' },
   { key: 'totalMinutes', label: 'Minutos', color: 'text-info' },
   { key: 'totalXp', label: 'Pontos de Experiência ganho', color: 'text-accent' },
-  { key: 'avgQuizScore', label: 'Quiz médio', suffix: '%' },
+  { key: 'avgQuizScore', label: 'Questionário médio', suffix: '%' },
 ];
 
 export function DashboardView() {

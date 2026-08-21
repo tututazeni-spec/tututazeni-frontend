@@ -92,7 +92,7 @@ export function OverviewTab({ userId }: OverviewTabProps) {
         />
         <KpiCard
           icon={Star}
-          label="Último Score"
+          label="Pontuação Mais Recente"
           value={myResults ? myResults.finalScore.toFixed(1) : '–'}
           sub={myResults?.scoreLabel}
           intent="accent"

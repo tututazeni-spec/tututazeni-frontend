@@ -124,7 +124,7 @@ export function HistoryView() {
         <EmptyState
           icon={MessageCircle}
           title="Nenhuma sessão iniciada ainda"
-          description="Inicia uma conversa com o NOVA no separador Chat para veres o histórico aqui."
+          description="Inicia uma conversa com a Ísis no separador Chat para veres o histórico aqui."
         />
       )}
     </div>
