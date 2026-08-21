@@ -67,16 +67,18 @@ export function TeamTab() {
                 data.summary.atRisk > 0 ? 'text-danger' : 'text-success',
             },
             {
-              label: 'Score Médio',
+              label: 'Pontuação Média',
               value: data.summary.avgScore?.toFixed(1) ?? '–',
             },
             {
-              label: 'Tenure Médio',
+              label: 'Antiguidade Média',
               value: `${data.summary.avgTenureMonths}m`,
             },
           ].map((s) => (
             <Card key={s.label} className="p-3 text-center">
-              <p className={`font-display text-xl font-bold ${s.className ?? 'text-ink'}`}>
+              <p
+                className={`font-display text-xl font-bold ${s.className ?? 'text-ink'}`}
+              >
                 {s.value}
               </p>
               <p className="font-body text-[10px] text-ink-faint">{s.label}</p>
@@ -114,7 +116,9 @@ export function TeamTab() {
               {/* PDI progress */}
               {u.activePlan && (
                 <div className="hidden w-20 md:block">
-                  <p className="mb-0.5 font-body text-[9px] text-ink-faint">PDI</p>
+                  <p className="mb-0.5 font-body text-[9px] text-ink-faint">
+                    PDI
+                  </p>
                   <ProgressBar value={u.planProgress ?? 0} />
                   <p className="text-right font-body text-[9px] text-ink-faint">
                     {u.planProgress}%
@@ -143,7 +147,9 @@ export function TeamTab() {
                   label="Dar feedback"
                   intent="ghost"
                   size="sm"
-                  onClick={() => setFeedback({ userId: u.id, name: u.fullName })}
+                  onClick={() =>
+                    setFeedback({ userId: u.id, name: u.fullName })
+                  }
                 />
               </div>
             </div>

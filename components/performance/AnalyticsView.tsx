@@ -71,7 +71,7 @@ export function AnalyticsView() {
         />
         <KpiCard
           icon={TrendingUp}
-          label="Score médio"
+          label="Pontuação média"
           value={data.avgScore}
           intent="info"
         />
@@ -172,7 +172,9 @@ export function AnalyticsView() {
         <div className="rounded-card border border-warning bg-warning-subtle p-4">
           <div className="flex items-center gap-2 text-sm font-semibold text-warning-ink mb-3">
             <AlertTriangle size={16} strokeWidth={1.75} />
-            Divergências self vs gestor ≥ 1 ponto ({data.highDivergences.length}{' '}
+            Divergências self vs gestor ≥ 1 ponto ({
+              data.highDivergences.length
+            }{' '}
             casos)
           </div>
           {data.highDivergences.map((d) => (

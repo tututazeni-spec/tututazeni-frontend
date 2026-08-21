@@ -77,10 +77,15 @@ export function DashboardTab() {
 
       {/* KPIs */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-        <KpiCard icon={Users} label="Equipa" value={k.teamSize ?? 0} intent="primary" />
+        <KpiCard
+          icon={Users}
+          label="Equipa"
+          value={k.teamSize ?? 0}
+          intent="primary"
+        />
         <KpiCard
           icon={Star}
-          label="Score Médio"
+          label="Pontuação Média"
           value={k.avgPerfScore?.toFixed(1) ?? '–'}
           sub={k.perfStatus}
           intent="warning"
@@ -111,7 +116,7 @@ export function DashboardTab() {
         />
         <KpiCard
           icon={MessageSquare}
-          label="Respostas a Surveys"
+          label="Respostas a Questionários"
           value={k.engagementResponses ?? 0}
           intent="accent"
         />
@@ -179,7 +184,9 @@ export function DashboardTab() {
                   <p className="font-body text-xs font-medium text-ink">
                     {b.user?.fullName}
                   </p>
-                  <p className="font-body text-[10px] text-warning-ink">{b.badge?.name}</p>
+                  <p className="font-body text-[10px] text-warning-ink">
+                    {b.badge?.name}
+                  </p>
                 </div>
               </div>
             ))}

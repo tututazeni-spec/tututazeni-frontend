@@ -72,7 +72,7 @@ const SUMMARY_LABELS: Record<string, string> = {
   activeUsers: 'Utilizadores Activos',
   // performance
   totalReviews: 'Avaliações Totais',
-  avgScore: 'Score Médio',
+  avgScore: 'Pontuação Média',
 };
 
 export function ReportOutput({ data }: ReportOutputProps) {

@@ -38,7 +38,7 @@ export const CATEGORY_CONFIG: Record<
   { label: string; icon: LucideIcon; color: string; bg: string }
 > = {
   SOFT_SKILLS: {
-    label: 'Soft Skills',
+    label: 'Competências Comportamentais',
     icon: Brain,
     color: 'text-violet-600',
     bg: 'bg-violet-50',
@@ -56,7 +56,7 @@ export const CATEGORY_CONFIG: Record<
     bg: 'bg-blue-50',
   },
   ONBOARDING: {
-    label: 'Onboarding',
+    label: 'Integração de Colaboradores',
     icon: Users,
     color: 'text-teal-600',
     bg: 'bg-teal-50',

@@ -88,7 +88,7 @@ export function OrgDashboard() {
         />
         <KpiCard
           icon={TrendingUp}
-          label="Score Médio Geral"
+          label="Pontuação Média Geral"
           value={k.performance?.avgScore?.toFixed(1) ?? '–'}
           intent="warning"
         />

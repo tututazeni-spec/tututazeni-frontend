@@ -1,5 +1,6 @@
 'use client';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { logout } from '@/lib/apiClient';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
@@ -324,16 +325,20 @@ export default function Sidebar() {
               width: 36,
               height: 36,
               borderRadius: 10,
-              background: 'linear-gradient(135deg, #3b82f6, #6366f1)',
+              overflow: 'hidden',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontWeight: 800,
-              color: '#fff',
-              fontSize: 16,
+              flexShrink: 0,
             }}
           >
-            I
+            <Image
+              src="/images/innova-logo.png"
+              alt="INNOVA"
+              width={36}
+              height={36}
+              style={{ objectFit: 'contain', width: '100%', height: '100%' }}
+            />
           </div>
           <span
             style={{

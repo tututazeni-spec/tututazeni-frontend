@@ -55,7 +55,7 @@ export function AnalyticsTab() {
         />
         <KpiCard
           icon={Star}
-          label="Score Médio"
+          label="Pontuação Média"
           value={data?.kpis.avgScore ?? '–'}
           intent="warning"
         />

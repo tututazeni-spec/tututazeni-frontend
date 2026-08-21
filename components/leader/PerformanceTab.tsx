@@ -33,7 +33,7 @@ export function PerformanceTab() {
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
             <KpiCard
               icon={Star}
-              label="Score Médio"
+              label="Pontuação Média"
               value={data?.kpis?.avgPerfScore?.toFixed(1) ?? '–'}
               sub={data?.kpis?.perfStatus}
               intent="warning"
