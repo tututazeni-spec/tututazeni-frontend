@@ -1,6 +1,8 @@
 # Otimização de Performance do Frontend — Plano de Implementação
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
+
+**Estado: CONCLUÍDO (2026-08-21, PR #287, backend/frontend repo separado).** React Compiler ligado e verificado sem bailouts novos (3 esperados/documentados); 0 `<img>` cru remanescente no código (`next/image` em todo o lado); `users`/`employees` resolvidos por paginação no servidor em vez de virtualização (YAGNI, ver Tasks 3/4). `tsc --noEmit` limpo, CI (`build`) verde no merge. Checkboxes abaixo marcadas com base em verificação directa do código, não apenas no histórico de commits.
 
 **Goal:** Reduzir re-renders e custo de carregamento via React Compiler (auto-memoização), `next/image` (46 imagens) e virtualização das listas grandes (`users`/`employees` — na prática resolvida por paginação no servidor, ver Tasks 3/4), sem alterar comportamento.
 
@@ -32,12 +34,12 @@
 
 - Produces: build com auto-memoização ativa.
 
-- [ ] **Step 1: Instalar o babel plugin do compiler**
+- [x] **Step 1: Instalar o babel plugin do compiler**
 
 Run: `npm install --save-dev babel-plugin-react-compiler@latest --no-audit --no-fund`
 Expected: adiciona `babel-plugin-react-compiler` a devDependencies.
 
-- [ ] **Step 2: Ativar no `next.config.ts`**
+- [x] **Step 2: Ativar no `next.config.ts`**
 
 Substituir o objeto `nextConfig` por (preservando `images` e `rewrites` existentes):
 
@@ -63,7 +65,7 @@ const nextConfig: NextConfig = {
 };
 ```
 
-- [ ] **Step 3: (Best-effort) regra ESLint do compiler em `eslint.config.mjs`**
+- [x] **Step 3: (Best-effort) regra ESLint do compiler em `eslint.config.mjs`**
 
 Tentar instalar e ativar a regra de visibilidade dos bailouts:
 Run: `npm install --save-dev eslint-plugin-react-hooks@latest --no-audit --no-fund`
@@ -79,23 +81,23 @@ Depois, em `eslint.config.mjs`, acrescentar um bloco de regras:
 
 Se a regra não existir nesta versão ou o flat-config der erro, **REVERTER este passo** (remover o bloco e o pacote se não usado) e seguir — não é bloqueante. O build do compiler já reporta os componentes saltados. Documenta no relatório se foi mantido ou revertido.
 
-- [ ] **Step 4: Verificar typecheck**
+- [x] **Step 4: Verificar typecheck**
 
 Run: `npx tsc --noEmit`
 Expected: sem erros.
 
-- [ ] **Step 5: Verificar build (gate principal do compiler)**
+- [x] **Step 5: Verificar build (gate principal do compiler)**
 
 Run: `npm run build`
 Expected: `next build` completa sem erros. Nos logs, o React Compiler indica os componentes compilados/saltados.
 (Se demasiado lento na máquina, deixar correr em background e aguardar; não cancelar.)
 
-- [ ] **Step 6: Smoke em dev**
+- [x] **Step 6: Smoke em dev**
 
 Run: `npm run dev` (arrancar; abrir/observar que compila sem erros de runtime). Parar a seguir.
 Expected: arranca sem erros; uma página pesada (ex.: `/employees`) renderiza.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```
 git add next.config.ts eslint.config.mjs package.json package-lock.json
@@ -116,11 +118,11 @@ Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
 
 - Consumes: nada (independente da Fase 1).
 
-- [ ] **Step 1: Listar todas as ocorrências de `<img`**
+- [x] **Step 1: Listar todas as ocorrências de `<img`**
 
 Run (PowerShell): localizar todas — `Get-ChildItem -Recurse -Filter *.tsx | Select-String '<img\s'`. Anota a lista no relatório.
 
-- [ ] **Step 2: Converter cada `<img>` (regras)**
+- [x] **Step 2: Converter cada `<img>` (regras)**
 
 Para cada ficheiro, no topo: `import Image from 'next/image';` (uma vez). Converter cada `<img ... />`:
 
@@ -144,17 +146,17 @@ Para cada ficheiro, no topo: `import Image from 'next/image';` (uma vez). Conver
 - **Tamanho dinâmico via classe variável** (`${dim}`/`${s}`): se não der para mapear a px de forma fiável, usar `fill` + container dimensionado pela mesma classe.
 - **EXCEÇÃO:** se o `src` for um `.svg` literal ou `data:` URI, **NÃO converter** — deixar `<img>` (e adicionar um comentário `{/* eslint-disable-next-line @next/next/no-img-element */}` se o lint reclamar).
 
-- [ ] **Step 3: Typecheck**
+- [x] **Step 3: Typecheck**
 
 Run: `npx tsc --noEmit`
 Expected: sem erros.
 
-- [ ] **Step 4: Build**
+- [x] **Step 4: Build**
 
 Run: `npm run build`
 Expected: completa sem erros; sem warnings `@next/next/no-img-element` (exceto os SVG/data-URI deixados de propósito).
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```
 git add -A
