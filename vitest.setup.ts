@@ -5,7 +5,8 @@ import '@testing-library/jest-dom/vitest';
 import { cleanup } from '@testing-library/react';
 import { afterEach } from 'vitest';
 
-// Limpa o DOM após cada teste para evitar poluição entre testes
+// Necessário porque test.globals não está activo em vitest.config.ts: o auto-cleanup
+// do @testing-library/react não se regista sozinho sem um afterEach global declarado aqui.
 afterEach(() => {
   cleanup();
 });
