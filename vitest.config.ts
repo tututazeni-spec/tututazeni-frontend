@@ -10,11 +10,15 @@
 // disso, dando a falsa impressão de um baseline diferente do que a CI
 // reporta (a CI corre sempre a partir de um checkout limpo, sem
 // `.claude/`, por isso nunca teve este problema).
-import { defineConfig } from 'vitest/config';
-import { configDefaults } from 'vitest/config';
+import { defineConfig, configDefaults } from 'vitest/config';
+import react from '@vitejs/plugin-react';
+import tsconfigPaths from 'vite-tsconfig-paths';
 
 export default defineConfig({
+  plugins: [react(), tsconfigPaths()],
   test: {
+    environment: 'jsdom',
+    setupFiles: ['./vitest.setup.ts'],
     exclude: [...configDefaults.exclude, '.claude/**'],
   },
 });

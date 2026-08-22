@@ -1,20 +1,21 @@
-// components/employees/Pagination.tsx
-// Paginação numérica com janela deslizante de 5 páginas. Extraído de
-// app/(platform)/employees/page.tsx. Migrado para a fundação de design:
-// classes Tailwind cruas passam a tokens. Não há um componente de
-// paginação na fundação (components/ui/) — outras páginas do repo
-// implementam a paginação inline em vez de um componente dedicado; este
-// módulo é o único caso com um componente próprio, mantido local.
+// Paginação numérica com janela deslizante de 5 páginas. Promovido de
+// components/employees/Pagination.tsx para a fundação de design
+// (components/ui/) como o primitivo de paginação partilhado — ver
+// docs/superpowers/specs/2026-08-22-shared-pagination-component-design.md.
 
 import { cn } from '@/lib/cn';
 
 export interface PaginationProps {
   page: number;
   totalPages: number;
-  onPage: (p: number) => void;
+  onPageChange: (page: number) => void;
 }
 
-export function Pagination({ page, totalPages, onPage }: PaginationProps) {
+export function Pagination({
+  page,
+  totalPages,
+  onPageChange,
+}: PaginationProps) {
   if (totalPages <= 1) return null;
 
   const pages = Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
@@ -27,7 +28,7 @@ export function Pagination({ page, totalPages, onPage }: PaginationProps) {
   return (
     <div className="flex items-center justify-center gap-1 mt-6">
       <button
-        onClick={() => onPage(page - 1)}
+        onClick={() => onPageChange(page - 1)}
         disabled={page === 1}
         className="px-3 py-1.5 text-sm rounded-control border border-border hover:bg-surface-sunken disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
       >
@@ -36,7 +37,7 @@ export function Pagination({ page, totalPages, onPage }: PaginationProps) {
       {pages.map((p) => (
         <button
           key={p}
-          onClick={() => onPage(p)}
+          onClick={() => onPageChange(p)}
           className={cn(
             'w-9 h-9 text-sm rounded-control transition-colors font-medium',
             p === page
@@ -48,7 +49,7 @@ export function Pagination({ page, totalPages, onPage }: PaginationProps) {
         </button>
       ))}
       <button
-        onClick={() => onPage(page + 1)}
+        onClick={() => onPageChange(page + 1)}
         disabled={page === totalPages}
         className="px-3 py-1.5 text-sm rounded-control border border-border hover:bg-surface-sunken disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
       >

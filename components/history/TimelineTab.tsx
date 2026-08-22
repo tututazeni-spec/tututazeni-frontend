@@ -11,9 +11,9 @@ import { keepPreviousData } from '@tanstack/react-query';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Input } from '@/components/ui/Input';
+import { Pagination } from '@/components/ui/Pagination';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { CATEGORY_COLOR } from './constants';
 import { EventCard } from './EventCard';
@@ -155,28 +155,12 @@ export function TimelineTab() {
           )}
 
           {/* Pagination */}
-          {data && data.meta.totalPages > 1 && (
-            <div className="flex justify-center items-center gap-2 pt-2">
-              <Button
-                intent="secondary"
-                size="sm"
-                disabled={page === 1}
-                onClick={() => setPage((p) => p - 1)}
-              >
-                ← Anterior
-              </Button>
-              <span className="px-4 py-2 text-sm text-ink-muted">
-                {page} / {data.meta.totalPages}
-              </span>
-              <Button
-                intent="secondary"
-                size="sm"
-                disabled={page === data.meta.totalPages}
-                onClick={() => setPage((p) => p + 1)}
-              >
-                Próxima →
-              </Button>
-            </div>
+          {data && (
+            <Pagination
+              page={page}
+              totalPages={data.meta.totalPages}
+              onPageChange={setPage}
+            />
           )}
         </div>
       )}
