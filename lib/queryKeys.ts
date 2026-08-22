@@ -297,7 +297,8 @@ export const queryKeys = {
     myPermissions: () => [...queryKeys.acl.all, 'my-permissions'] as const,
     roles: () => [...queryKeys.acl.all, 'roles'] as const,
     matrix: () => [...queryKeys.acl.all, 'matrix'] as const,
-    audit: (view: string) => [...queryKeys.acl.all, 'audit', view] as const,
+    audit: (view: string, page: number) =>
+      [...queryKeys.acl.all, 'audit', view, page] as const,
     policies: () => [...queryKeys.acl.all, 'policies'] as const,
   },
 

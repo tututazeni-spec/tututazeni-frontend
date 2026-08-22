@@ -8,14 +8,16 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
+import { Pagination } from '@/components/ui/Pagination';
 import type { AclAuditResponse } from './types';
 
 export function AuditTab() {
   const [view, setView] = useState<'all' | 'denied'>('all');
+  const [page, setPage] = useState(1);
   const { data, isLoading: loading } = useApiQuery<AclAuditResponse>(
-    queryKeys.acl.audit(view),
+    queryKeys.acl.audit(view, page),
     view === 'denied' ? '/acl/audit/denied' : '/acl/audit',
-    { staleTime: STALE_TIME.DYNAMIC },
+    { params: { page }, staleTime: STALE_TIME.DYNAMIC },
   );
 
   if (loading) return <Skeleton rows={3} itemClassName="h-16 bg-surface rounded-xl" />;
@@ -28,7 +30,10 @@ export function AuditTab() {
             key={v}
             intent={view === v ? 'primary' : 'secondary'}
             size="sm"
-            onClick={() => setView(v)}
+            onClick={() => {
+              setView(v);
+              setPage(1);
+            }}
           >
             {v === 'all' ? 'Todas as Alterações' : '🔴 Acessos Negados'}
           </Button>
@@ -90,13 +95,11 @@ export function AuditTab() {
         </div>
       </Card>
 
-      {/* Pagination */}
-      {(data?.meta?.totalPages ?? 0) > 1 && (
-        <p className="text-center text-ink-faint text-xs">
-          Pág. 1 / {data?.meta?.totalPages} — {data?.meta?.total} registos
-          totais
-        </p>
-      )}
+      <Pagination
+        page={page}
+        totalPages={data?.meta?.totalPages ?? 1}
+        onPageChange={setPage}
+      />
     </div>
   );
 }
