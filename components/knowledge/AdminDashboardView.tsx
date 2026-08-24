@@ -58,7 +58,7 @@ export function AdminDashboardView() {
       {data.knowledgeGaps.length > 0 && (
         <div className="rounded-card border border-warning-subtle bg-warning-subtle p-5">
           <div className="mb-3 font-body text-sm font-semibold text-warning-ink">
-            🔍 Gaps de Conhecimento — Buscas sem resultado ({data.emptySearches}
+            🔍 Lacunas de Conhecimento — Buscas sem resultado ({data.emptySearches}
             )
           </div>
           <div className="grid grid-cols-2 gap-2">

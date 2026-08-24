@@ -12,11 +12,11 @@ export const VACANCY_TYPE: Record<
   string,
   { label: string; icon: string; intent: NonNullable<BadgeProps['intent']> }
 > = {
-  PROMOTION: { label: 'Promoção', icon: '🚀', intent: 'success' },
-  LATERAL: { label: 'Lateral', icon: '↔️', intent: 'info' },
-  GIG_PROJECT: { label: 'Gig Project', icon: '⚡', intent: 'warning' },
-  JOB_ROTATION: { label: 'Job Rotation', icon: '🔄', intent: 'neutral' },
-  SHADOWING: { label: 'Shadowing', icon: '👁', intent: 'neutral' },
+  PROMOTION: { label: 'Promoção', intent: 'success' },
+  LATERAL: { label: 'Lateral', intent: 'info' },
+  GIG_PROJECT: { label: 'Projecto Temporário', intent: 'warning' },
+  JOB_ROTATION: { label: 'Rotação de Funções', intent: 'neutral' },
+  SHADOWING: { label: 'Acompanhamento Profissional', intent: 'neutral' },
 };
 
 export const CAREER_PATH_TYPE: Record<string, string> = {
@@ -38,13 +38,13 @@ export const READINESS_CFG: Record<string, { label: string }> = {
 
 export const NAV = [
   { id: 'dashboard', label: '🗺️ Minha Carreira' },
-  { id: 'paths', label: '📍 Trilhas' },
-  { id: 'vacancies', label: '🔍 Vagas Internas' },
-  { id: 'plan', label: '📋 Meu Plano' },
+  { id: 'paths', label: ' Trilhas' },
+  { id: 'vacancies', label: ' Vagas Internas' },
+  { id: 'plan', label: ' Meu Plano' },
 ] as const;
 
 export const TITLES: Record<View, string> = {
-  dashboard: 'Dashboard de Carreira',
+  dashboard: 'Gestão de Carreira',
   paths: 'Trilhas de Carreira',
   vacancies: 'Vagas Internas',
   plan: 'Plano de Carreira',

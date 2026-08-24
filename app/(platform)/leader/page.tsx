@@ -24,15 +24,12 @@ export default function LeaderPage() {
           <div>
             <div className="mb-1 flex items-center gap-2">
               <div className="rounded-control bg-primary-subtle p-1.5">
-                <Users size={18} strokeWidth={1.75} className="text-primary" />
               </div>
               <h1 className="font-display text-xl font-bold text-ink">
-                Leader Hub
+                Centro de Liderança
               </h1>
             </div>
             <p className="font-body text-sm text-ink-faint">
-              Gestão de equipa · Performance · PDIs · Talent Pipeline ·
-              Recomendações IA
             </p>
           </div>
           <IconButton

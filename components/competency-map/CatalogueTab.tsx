@@ -18,7 +18,7 @@ export function CatalogueTab({ allSkills }: CatalogueTabProps) {
     <Card className="overflow-hidden">
       <div className="px-5 py-4 border-b border-border flex items-center justify-between">
         <h2 className="text-sm font-semibold text-ink">
-          Catálogo de Skills ({allSkills.length})
+          Catálogo de Habilidades ({allSkills.length})
         </h2>
       </div>
       <div className="divide-y divide-border">

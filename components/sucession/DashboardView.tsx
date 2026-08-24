@@ -67,7 +67,7 @@ export function DashboardView() {
         {/* Match score médio */}
         <Card className="p-5">
           <div className="mb-2 font-body text-xs text-ink-faint">
-            Score de Match Médio
+            Pontuação Média de Compatibilidade
           </div>
           <div className="mb-2 font-display text-4xl font-bold text-ink">
             {kpis.avgMatchScore}%

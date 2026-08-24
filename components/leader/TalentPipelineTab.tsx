@@ -41,12 +41,12 @@ export function TalentPipelineTab() {
     },
     {
       key: 'promotionReady',
-      label: '🚀 Prontos para Promoção',
+      label: ' Prontos para Promoção',
       className: 'border-success bg-success-subtle',
     },
     {
       key: 'developing',
-      label: '📈 Em Desenvolvimento',
+      label: ' Em Desenvolvimento',
       className: 'border-info bg-info-subtle',
     },
     {
@@ -100,8 +100,8 @@ export function TalentPipelineTab() {
       ) && (
         <EmptyState
           icon={Award}
-          title="Sem dados de talent pipeline"
-          description="Ainda não há dados de talent pipeline disponíveis para a tua equipa."
+          title="Sem dados de pipeline de talentos"
+          description="Ainda não há dados de pipeline de talentos disponíveis para a tua equipa."
         />
       )}
     </div>

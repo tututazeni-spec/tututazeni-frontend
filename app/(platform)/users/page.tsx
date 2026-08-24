@@ -29,7 +29,6 @@ export default function UsersPage() {
         <div>
           <h1 className="text-xl font-semibold text-ink">{TITLES[nav.view]}</h1>
           <p className="text-sm text-ink-faint mt-0.5">
-            INNOVA — Recursos Humanos
           </p>
         </div>
         {nav.view === 'list' && (

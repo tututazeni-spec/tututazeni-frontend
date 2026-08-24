@@ -115,11 +115,11 @@ export function PathsView() {
                         <span>⏱ {step.minMonthsRequired}m mínimos</span>
                       )}
                       {step.minPerformanceScore && (
-                        <span>⭐ Score ≥{step.minPerformanceScore}</span>
+                        <span> Score ≥{step.minPerformanceScore}</span>
                       )}
                       {(step.requiredCourseIds?.length ?? 0) > 0 && (
                         <span>
-                          📚 {step.requiredCourseIds?.length} cursos
+                           {step.requiredCourseIds?.length} cursos
                           obrigatórios
                         </span>
                       )}

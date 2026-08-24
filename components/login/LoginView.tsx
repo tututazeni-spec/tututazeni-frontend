@@ -1,4 +1,7 @@
 // components/login/LoginView.tsx
+"use client";
+
+import Image from "next/image";
 
 interface LoginViewProps {
   email: string;
@@ -264,32 +267,14 @@ export function LoginView({
 
         <div className="login-card">
           <div className="login-logo">
-            {/* Para usar o teu logo: <img src="/images/logo.png" alt="Innova" width={52} height={52} /> */}
-            <svg
+            <Image
               className="login-logo-icon"
-              viewBox="0 0 52 52"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <circle
-                cx="26"
-                cy="26"
-                r="24"
-                stroke="#0a2560"
-                strokeWidth="3.5"
-              />
-              <path
-                d="M16 32 C18 24, 24 20, 30 22 L27 18 L36 24 L28 28 L30 24 C25 22, 20 26, 18 32Z"
-                fill="#22c55e"
-              />
-              <path
-                d="M26 14 L30 10 L34 14"
-                stroke="#0a2560"
-                strokeWidth="2"
-                strokeLinecap="round"
-                fill="none"
-              />
-            </svg>
+              src="/images/innova-logo.png"
+              alt="Innova"
+              width={52}
+              height={52}
+              style={{ objectFit: "contain" }}
+            />
             <span className="login-logo-text">Innova</span>
           </div>
 

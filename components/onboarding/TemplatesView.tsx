@@ -39,7 +39,7 @@ export function TemplatesView() {
       <EmptyState
         icon={ClipboardList}
         title="Sem templates"
-        description="Sem templates de onboarding configurados"
+        description="Sem templates de integração configurados"
       />
     );
   }

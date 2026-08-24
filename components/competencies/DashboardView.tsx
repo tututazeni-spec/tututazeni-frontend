@@ -57,7 +57,7 @@ export function DashboardView() {
         />
         <KpiCard
           icon={AlertTriangle}
-          label="Gaps identificados"
+          label="Lacunas identificados"
           value={data.totalGaps}
           intent={data.totalGaps > 0 ? 'danger' : 'primary'}
         />
@@ -67,7 +67,7 @@ export function DashboardView() {
       {data.criticalGaps.length > 0 && (
         <div className="overflow-hidden rounded-card border border-border bg-surface">
           <div className="border-b border-border px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
-            Competências críticas — mais gaps
+            Competências críticas — mais lacunas
           </div>
           {data.criticalGaps.map((c) => {
             const pct =

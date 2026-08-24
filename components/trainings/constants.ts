@@ -29,9 +29,9 @@ export const TYPE_CFG: Record<
   TrainingType,
   { label: string; icon: string; cls: string }
 > = {
-  PRESENTIAL: { label: 'Presencial', icon: '🏫', cls: cls(TOKEN.info) },
-  ONLINE: { label: 'Online', icon: '💻', cls: cls(TOKEN.primary) },
-  HYBRID: { label: 'Híbrido', icon: '🔀', cls: cls(TOKEN.warning) },
+  PRESENTIAL: { label: 'Presencial', cls: cls(TOKEN.info) },
+  ONLINE: { label: 'Online', cls: cls(TOKEN.primary) },
+  HYBRID: { label: 'Híbrido', cls: cls(TOKEN.warning) },
 };
 
 export const LEVEL_CFG: StatusBadgeMap<TrainingLevel> = {

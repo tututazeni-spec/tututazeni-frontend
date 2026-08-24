@@ -156,7 +156,7 @@ export function GapTab({ gap, rcfg }: GapTabProps) {
         <EmptyState
           icon={CheckCircle2}
           title="Todos os requisitos cumpridos!"
-          description="Não há gaps de competência para o cargo-alvo."
+          description="Não há lacunas de competência para o cargo-alvo."
           className="border-success/40"
         />
       )}

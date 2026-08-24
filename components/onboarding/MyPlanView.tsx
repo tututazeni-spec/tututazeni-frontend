@@ -127,7 +127,7 @@ export function MyPlanView() {
       <EmptyState
         icon={PartyPopper}
         title="Sem plano de onboarding"
-        description="Ainda não tens nenhum plano de onboarding atribuído"
+        description="Ainda não tens nenhum plano de integração atribuído"
       />
     );
   }
@@ -193,7 +193,7 @@ export function MyPlanView() {
               </div>
               {plan.xpEarned > 0 && (
                 <div className="text-xs text-warning-ink font-medium mt-1">
-                  ⚡ {plan.xpEarned} XP ganho
+                   {plan.xpEarned} Ponto de Experiência ganho
                 </div>
               )}
             </div>

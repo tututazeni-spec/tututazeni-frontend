@@ -118,7 +118,7 @@ export function TalentPoolView() {
 
         {filtered.length === 0 && (
           <div className="col-span-2 rounded-card border border-dashed border-border-strong py-12 text-center font-body text-sm text-ink-faint">
-            Nenhum talento no pool com este filtro
+            Nenhum talento no Banco com este filtro
           </div>
         )}
       </div>

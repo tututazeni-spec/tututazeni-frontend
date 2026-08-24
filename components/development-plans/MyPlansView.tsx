@@ -61,7 +61,7 @@ export function MyPlansView({ onSelect }: MyPlansViewProps) {
           />
           <KpiCard
             icon={Zap}
-            label="XP ganho"
+            label="Pontos de experiência ganho"
             value={stats.totalXp}
             intent="warning"
           />

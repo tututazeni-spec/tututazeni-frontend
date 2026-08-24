@@ -80,10 +80,10 @@ export default function CompetencyMapPage() {
     icon: LucideIcon;
     badge?: number;
   }> = [
-    { key: 'my', label: 'Minhas Skills', icon: Target },
+    { key: 'my', label: 'Minhas Habilidades', icon: Target },
     {
       key: 'gap',
-      label: 'Gap Analysis',
+      label: 'Análise de Lacunas',
       icon: AlertCircle,
       badge: gap?.gaps.mandatory.length,
     },
@@ -101,7 +101,6 @@ export default function CompetencyMapPage() {
               Mapa de Competências
             </h1>
             <p className="font-body text-sm text-ink-faint">
-              Skills, gaps e desenvolvimento profissional
             </p>
           </div>
           <div className="flex items-center gap-2">

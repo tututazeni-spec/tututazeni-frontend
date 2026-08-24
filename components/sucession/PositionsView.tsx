@@ -94,7 +94,7 @@ export function PositionsView() {
       <div>
         {!selected && (
           <div className="flex h-48 items-center justify-center rounded-card border border-dashed border-border-strong font-body text-sm text-ink-faint">
-            Seleccione um cargo para ver o pipeline de sucessão
+            Seleccione um cargo para ver o plano de sucessão
           </div>
         )}
 

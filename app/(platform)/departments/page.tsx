@@ -29,11 +29,9 @@ export default function DepartmentsPage() {
     <div className="mx-auto max-w-5xl px-4 py-8">
       {/* Header */}
       <div className="mb-6 flex items-center justify-between">
-        <div>
+                <div>
           <h1 className="text-xl font-semibold text-ink">{TITLES[nav.view]}</h1>
-          <p className="mt-0.5 text-sm text-ink-faint">
-            INNOVA — Estrutura Organizacional
-          </p>
+          <p className="mt-0.5 text-sm text-ink-faint"></p>
         </div>
         {nav.view === 'list' && (
           <Button

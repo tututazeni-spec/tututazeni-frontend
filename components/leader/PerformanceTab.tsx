@@ -52,7 +52,7 @@ export function PerformanceTab() {
               </h4>
               <p className="font-body text-sm text-ink-muted">
                 Usa o separador <strong>Equipa</strong> para ver cada membro
-                individualmente, ou os <strong>Reports</strong> para análise
+                individualmente, ou os <strong>Relatórios</strong> para análise
                 avançada.
               </p>
             </CardBody>

@@ -32,7 +32,6 @@ export default function DevelopmentPlansPage() {
             </h1>
           </div>
           <p className="mt-0.5 font-body text-sm text-ink-faint">
-            INNOVA — Planos de Desenvolvimento Individual
           </p>
         </div>
         {nav.view !== 'detail' && (

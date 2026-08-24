@@ -56,7 +56,7 @@ export function IndicatorsView({
             <TableHeaderCell>Código</TableHeaderCell>
             <TableHeaderCell>Indicador</TableHeaderCell>
             <TableHeaderCell>Categoria</TableHeaderCell>
-            <TableHeaderCell className="text-right">Baseline</TableHeaderCell>
+            <TableHeaderCell className="text-right">Referência Inicial</TableHeaderCell>
             <TableHeaderCell className="text-right">Meta</TableHeaderCell>
             <TableHeaderCell>Frequência</TableHeaderCell>
             <TableHeaderCell className="text-center">Registos</TableHeaderCell>

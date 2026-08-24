@@ -42,7 +42,7 @@ export function GovernanceTab() {
     intent: KpiCardProps['intent'];
   }> = [
     {
-      label: 'Roles',
+      label: 'Funções',
       value: data?.totalRoles ?? 0,
       icon: Shield,
       intent: 'primary',
@@ -54,7 +54,7 @@ export function GovernanceTab() {
       intent: 'info',
     },
     {
-      label: 'Sem Role',
+      label: 'Sem Função',
       value: data?.usersWithoutRole ?? 0,
       icon: Users,
       intent: (data?.usersWithoutRole ?? 0) > 0 ? 'danger' : 'success',
@@ -109,7 +109,7 @@ export function GovernanceTab() {
         <Card>
           <CardBody>
             <h4 className="font-semibold text-ink mb-4">
-              Utilizadores por Role
+              Utilizadores por Função
             </h4>
             {(data?.usersPerRole ?? []).map((r, i) => {
               const max = (data?.usersPerRole ?? [])[0].count;

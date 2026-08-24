@@ -88,7 +88,6 @@ export default function CareerPlansPage() {
               Planos de Carreira
             </h1>
             <p className="font-body text-sm text-ink-faint">
-              Crescimento e mobilidade profissional
             </p>
           </div>
           <div className="flex items-center gap-2">

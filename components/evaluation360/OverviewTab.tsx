@@ -58,7 +58,7 @@ export function OverviewTab({ result, cycle }: OverviewTabProps) {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         {[
           {
-            label: 'Score Ponderado',
+            label: 'Pontuação Ponderada',
             value: result.weightedScore,
             color: 'rgb(129, 140, 248)',
           },

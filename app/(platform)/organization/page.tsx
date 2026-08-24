@@ -24,7 +24,6 @@ export default function OrganizationPage() {
             {TITLES[view]}
           </h1>
           <p className="mt-0.5 font-body text-sm text-ink-faint">
-            INNOVA — Estrutura Organizacional
           </p>
         </div>
         {view === 'departments' && (
