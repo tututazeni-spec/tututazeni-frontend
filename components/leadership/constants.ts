@@ -30,7 +30,7 @@ export const HEALTH_CFG: Record<
 };
 
 export const CLASS_CFG: StatusBadgeMap<string> = {
-  TOP_10: { label: '🏆 Top 10%', cls: 'bg-warning text-canvas' },
+  TOP_10: { label: ' Top 10%', cls: 'bg-warning text-canvas' },
   ABOVE_AVERAGE: {
     label: '⬆ Acima da média',
     cls: 'bg-success-subtle text-success-ink',
@@ -59,15 +59,15 @@ export const NAV: Array<{ id: View; label: string }> = [
   { id: 'team', label: 'A minha equipa' },
   { id: 'programs', label: 'Programas' },
   { id: 'feedback360', label: 'Feedback 360°' },
-  { id: 'ranking', label: 'Ranking' },
-  { id: 'kudos', label: 'Kudos' },
+  { id: 'ranking', label: 'Classificação' },
+  { id: 'kudos', label: 'Reconhecimento' },
 ];
 
 export const TITLES: Record<View, string> = {
-  'my-dashboard': 'Dashboard do Líder',
+  'my-dashboard': 'Desenvolvimento de Liderança',
   team: 'A minha Equipa',
   programs: 'Programas de Liderança',
   feedback360: 'Feedback 360° de Liderança',
-  ranking: 'Leadership Scorecard',
+  ranking: 'Quadro de Indicadores de Liderança',
   kudos: 'Mural de Reconhecimento',
 };

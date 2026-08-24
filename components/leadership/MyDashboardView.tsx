@@ -105,7 +105,7 @@ export function MyDashboardView() {
 
       {!score && (
         <div className="rounded-card border border-dashed border-border-strong bg-surface-sunken p-6 text-center font-body text-sm text-ink-faint">
-          Sem Leadership Score calculado ainda
+          Sem Pontuação de Liderança calculado ainda
         </div>
       )}
 
@@ -214,7 +214,7 @@ export function MyDashboardView() {
             ))}
             {(!data.recentKudos || data.recentKudos.length === 0) && (
               <div className="rounded-card border border-dashed border-border-strong py-4 text-center font-body text-xs text-ink-faint">
-                Sem kudos recebidos ainda
+                Sem Reconhecimentos recebidos ainda
               </div>
             )}
           </div>
@@ -222,7 +222,7 @@ export function MyDashboardView() {
           {/* Enviar kudos */}
           <div className="rounded-card border border-dashed border-border-strong p-4">
             <div className="mb-3 font-body text-xs font-medium text-ink-muted">
-              ⭐ Dar kudos a colega
+              ⭐ Dar reconhecimento a colega
             </div>
             <Input
               type="number"
@@ -246,7 +246,7 @@ export function MyDashboardView() {
               size="sm"
               className="w-full"
             >
-              {sendingKudos ? 'A enviar…' : '⭐ Enviar Kudos'}
+              {sendingKudos ? 'A enviar…' : ' Enviar Reconhecimento'}
             </Button>
           </div>
         </div>
