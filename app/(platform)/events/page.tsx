@@ -42,9 +42,6 @@ export default function EventsPage() {
               {TITLES[nav.view]}
             </h1>
           </div>
-          <p className="mt-0.5 font-body text-sm text-ink-faint">
-            INNOVA — Eventos Corporativos
-          </p>
         </div>
         {nav.view !== 'detail' && (
           <Button

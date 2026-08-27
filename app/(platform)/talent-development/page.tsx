@@ -36,9 +36,6 @@ export default function TalentDevelopmentPage() {
                 Desenvolvimento de Talentos
               </h1>
             </div>
-            <p className="font-body text-sm text-ink-faint">
-              Pool de talento · PDI · Skill Gaps · Mentoria · Analytics
-            </p>
           </div>
 
           <div className="flex items-center gap-2">

@@ -5,11 +5,11 @@
 import type { View } from './types';
 
 export const NAV: Array<{ id: View; label: string }> = [
-  { id: 'overview', label: '🏢 Visão geral' },
-  { id: 'my', label: '👤 O Meu Progresso' },
-  { id: 'manager', label: '👥 Equipa' },
-  { id: 'hr', label: '📊 RH' },
-  { id: 'risks', label: '⚠ Riscos' },
+  { id: 'overview', label: 'Visão geral' },
+  { id: 'my', label: 'O Meu Progresso' },
+  { id: 'manager', label: 'Equipa' },
+  { id: 'hr', label: 'RH' },
+  { id: 'risks', label: 'Riscos' },
 ];
 
 export const TITLES: Record<View, string> = {

@@ -143,7 +143,7 @@ function AnniversariesWidget() {
   return (
     <div className="rounded-card border border-warning-subtle bg-warning-subtle p-4">
       <h4 className="mb-3 flex items-center gap-2 font-body font-semibold text-warning-ink">
-        🎉 Aniversários de Empresa este Mês
+        Aniversários de Empresa este Mês
       </h4>
       <div className="grid grid-cols-2 gap-2 md:grid-cols-3">
         {data.slice(0, 6).map((u, i) => (
