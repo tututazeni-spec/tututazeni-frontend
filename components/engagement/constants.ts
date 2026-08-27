@@ -38,14 +38,6 @@ export const GRADE_COLOR: Record<string, { text: string; border: string }> = {
   D: { text: 'text-danger-ink', border: 'border-danger' },
 };
 
-export const MOOD_EMOJI: Record<number, string> = {
-  5: '😄',
-  4: '🙂',
-  3: '😐',
-  2: '😔',
-  1: '😞',
-};
-
 export const MOOD_LABEL: Record<number, string> = {
   5: 'Óptimo',
   4: 'Bem',

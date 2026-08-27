@@ -28,9 +28,9 @@ export const STATUS_CFG: StatusBadgeMap<PlanStatus> = {
 
 export const ACTION_CFG: Record<
   ActionType,
-  { icon: string; label: string; cls: string }
+  { label: string; cls: string }
 > = {
-  COURSE: { icon: '🎓', label: 'Curso', cls: 'bg-info-subtle text-info-ink' },
+  COURSE: { label: 'Curso', cls: 'bg-info-subtle text-info-ink' },
   MENTORING: {
     label: 'Mentoria',
     cls: 'bg-primary-subtle text-primary',
@@ -88,8 +88,8 @@ export const PRIORITY_CFG: StatusBadgeMap<Priority> = {
 };
 
 export const NAV = [
-  { id: 'my-plans', label: ' Os meus PDIs' },
-  { id: 'team', label: '👥 Equipa' },
+  { id: 'my-plans', label: 'Os meus PDIs' },
+  { id: 'team', label: 'Equipa' },
 ] as const;
 
 export const TITLES: Record<View, string> = {

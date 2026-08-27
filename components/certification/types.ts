@@ -18,7 +18,19 @@ export const TEMPLATE_TYPES = [
   'ATTENDANCE',
   'PARTICIPATION',
   'ACHIEVEMENT',
-];
+] as const;
+
+export const TEMPLATE_TYPE_LABEL: Record<
+  (typeof TEMPLATE_TYPES)[number],
+  string
+> = {
+  COURSE: 'Curso',
+  PROGRAM: 'Programa',
+  COMPETENCY: 'Competências',
+  ATTENDANCE: 'Presenças',
+  PARTICIPATION: 'Participação',
+  ACHIEVEMENT: 'Reconhecimento',
+};
 
 export interface CreateTemplatePayload {
   name: string;

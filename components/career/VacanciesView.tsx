@@ -82,7 +82,7 @@ export function VacanciesView() {
             intent={typeFilter === k ? 'primary' : 'ghost'}
             onClick={() => setTypeFilter(k)}
           >
-            {v.icon} {v.label}
+            {v.label}
           </Button>
         ))}
       </div>
@@ -94,7 +94,6 @@ export function VacanciesView() {
           {vacancies.map((v) => {
             const typeCfg = VACANCY_TYPE[v.type] ?? {
               label: v.type,
-              icon: '📋',
               intent: 'neutral' as const,
             };
             return (
@@ -103,9 +102,7 @@ export function VacanciesView() {
                 className="p-4 transition-shadow duration-150 hover:shadow-hover"
               >
                 <div className="mb-2 flex items-start justify-between gap-2">
-                  <Badge intent={typeCfg.intent}>
-                    {typeCfg.icon} {typeCfg.label}
-                  </Badge>
+                  <Badge intent={typeCfg.intent}>{typeCfg.label}</Badge>
                   {v.matchScore !== undefined && (
                     <span
                       className={cn(

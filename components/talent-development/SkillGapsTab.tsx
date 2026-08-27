@@ -84,7 +84,7 @@ export function SkillGapsTab() {
             intent={view === v ? 'primary' : 'secondary'}
             onClick={() => setView(v)}
           >
-            {v === 'needs' ? 'Necessidades de Formação' : 'Heatmap de Skills'}
+            {v === 'needs' ? 'Necessidades de Formação' : 'Mapa de Calor de Competências'}
           </Button>
         ))}
       </div>
@@ -93,10 +93,10 @@ export function SkillGapsTab() {
         <Card>
           <CardHeader>
             <h3 className="font-display font-semibold text-ink">
-              Top Skills com Maior Gap
+              Top Habilidades Com Maior Lacunas
             </h3>
             <p className="mt-0.5 font-body text-xs text-ink-faint">
-              Ordenado por gap médio — colaboradores vs nível alvo
+              Ordenado por Média de Lacunas— colaboradores vs nível alvo
             </p>
           </CardHeader>
           <div className="divide-y divide-border">
@@ -131,8 +131,8 @@ export function SkillGapsTab() {
             {needs.length === 0 && (
               <EmptyState
                 icon={Brain}
-                title="Sem gaps de skills registados"
-                description="Ainda não há avaliações de skills suficientes para calcular gaps."
+                title="Sem lacunas de habilidades registadas"
+                description="Ainda não há avaliações de habilidades suficientes para calcular lacunas."
                 className="border-none"
               />
             )}
@@ -144,7 +144,7 @@ export function SkillGapsTab() {
         <Card className="overflow-x-auto">
           <CardHeader>
             <h3 className="font-display font-semibold text-ink">
-              Heatmap de Skills por Departamento
+              Mapa de calor de habilidades por Departamento
             </h3>
           </CardHeader>
           <table className="min-w-full font-body text-xs">
@@ -189,7 +189,7 @@ export function SkillGapsTab() {
           </table>
           {heatmap.length === 0 && (
             <p className="py-12 text-center font-body text-sm text-ink-faint">
-              Sem dados de skills avaliadas
+              Sem dados de habilidades avaliadas
             </p>
           )}
         </Card>

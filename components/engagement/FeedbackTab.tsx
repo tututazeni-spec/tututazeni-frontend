@@ -38,6 +38,13 @@ const TYPE_INTENT: Record<string, BadgeProps['intent']> = {
   RECOGNITION: 'success',
 };
 
+const TYPE_LABEL: Record<string, string> = {
+  OPEN: 'Aberto',
+  ANONYMOUS: 'Anónimo',
+  PEER: 'Entre Pares',
+  MANAGER: 'Do Gestor',
+};
+
 const TYPE_FILTERS = ['', 'OPEN', 'ANONYMOUS', 'PEER', 'MANAGER'] as const;
 const NEW_FEEDBACK_TYPES = ['OPEN', 'PEER', 'MANAGER'] as const;
 
@@ -94,7 +101,7 @@ export function FeedbackTab({ userId }: FeedbackTabProps) {
       <Card>
         <CardBody>
           <h3 className="mb-3 font-display font-semibold text-ink">
-            💬 Novo Feedback
+            Novo Feedback
           </h3>
           <div className="mb-3 flex gap-2">
             {NEW_FEEDBACK_TYPES.map((t) => (
@@ -104,7 +111,7 @@ export function FeedbackTab({ userId }: FeedbackTabProps) {
                 intent={type === t ? 'primary' : 'secondary'}
                 onClick={() => setType(t)}
               >
-                {t}
+                {TYPE_LABEL[t]}
               </Button>
             ))}
           </div>
@@ -140,7 +147,7 @@ export function FeedbackTab({ userId }: FeedbackTabProps) {
             intent={type === t ? 'primary' : 'ghost'}
             onClick={() => setType(t)}
           >
-            {t || 'Todos'}
+            {t ? TYPE_LABEL[t] : 'Todos'}
           </Button>
         ))}
       </div>

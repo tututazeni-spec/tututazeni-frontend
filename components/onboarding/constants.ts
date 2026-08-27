@@ -81,9 +81,9 @@ export const PHASE_ORDER: TaskPhase[] = [
 ];
 
 export const NAV: Array<{ id: View; label: string }> = [
-  { id: 'my-plan', label: ' O Meu plano de Integração' },
-  { id: 'dashboard', label: ' Dashboard' },
-  { id: 'templates', label: ' Templates' },
+  { id: 'my-plan', label: 'O Meu plano de Integração' },
+  { id: 'dashboard', label: 'Dashboard' },
+  { id: 'templates', label: 'Templates' },
 ];
 
 export const TITLES: Record<View, string> = {

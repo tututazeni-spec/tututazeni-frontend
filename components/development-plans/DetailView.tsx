@@ -231,14 +231,6 @@ export function DetailView({ planId, onBack }: DetailViewProps) {
               >
                 <CardBody>
                   <div className="flex items-start gap-3">
-                    <div
-                      className={cn(
-                        'flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-control text-lg',
-                        typeCfg.cls,
-                      )}
-                    >
-                      {typeCfg.icon}
-                    </div>
                     <div className="min-w-0 flex-1">
                       <div className="mb-1 flex items-center gap-2">
                         <span className={cn('text-lg', statusCfg.cls)}>

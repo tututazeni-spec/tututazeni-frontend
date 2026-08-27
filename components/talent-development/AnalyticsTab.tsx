@@ -25,10 +25,10 @@ import type { DashboardData, HealthScore } from './types';
 
 const METRIC_LABELS: Record<string, string> = {
   pdpCoverage: 'Cobertura PDI',
-  skillsAssessment: 'Skills Avaliadas',
+  skillsAssessment: 'Habilidades Avaliadas',
   reviewedRate: 'Avaliados',
-  mentoringRate: 'Mentoring',
-  hiPoRatio: 'HiPo Ratio',
+  mentoringRate: 'Mentoria',
+  hiPoRatio: 'Proporção de Altos Potenciais',
 };
 
 function metricIntent(value: number): string {
@@ -100,7 +100,7 @@ export function AnalyticsTab() {
           <Card>
             <CardBody className="flex flex-col items-center">
               <h3 className="mb-4 self-start font-display font-semibold text-ink">
-                Talent Health Score
+                Pontuação de Saúde do Talento
               </h3>
               <div
                 className={`mb-4 flex h-28 w-28 flex-col items-center justify-center rounded-full border-4 ${grade.border}`}

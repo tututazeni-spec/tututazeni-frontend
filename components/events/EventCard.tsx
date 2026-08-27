@@ -83,10 +83,10 @@ export function EventCard({ event, onSelect, myStatus }: EventCardProps) {
 
         <div className="mb-3 flex items-center gap-3 font-body text-xs text-ink-faint">
           <span>
-            {modalityCfg.icon} {modalityCfg.label}
+            {modalityCfg.label}
           </span>
-          <span>📅 {fmtDateTime(event.startAt)}</span>
-          {event.location && <span>📍 {event.location}</span>}
+          <span>{fmtDateTime(event.startAt)}</span>
+          {event.location && <span>{event.location}</span>}
         </div>
 
         <div className="flex items-center justify-between">

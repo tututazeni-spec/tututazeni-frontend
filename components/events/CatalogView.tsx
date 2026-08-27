@@ -70,7 +70,7 @@ export function CatalogView({ onSelect }: CatalogViewProps) {
               intent={modalityFilter === k ? 'primary' : 'ghost'}
               onClick={() => setModalityFilter(modalityFilter === k ? '' : k)}
             >
-              {v.icon} {v.label}
+              {v.label}
             </Button>
           ))}
         </div>

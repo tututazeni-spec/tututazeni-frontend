@@ -14,7 +14,7 @@ import { useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { IconButton } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import { MOOD_EMOJI, MOOD_LABEL } from './constants';
+import { MOOD_LABEL } from './constants';
 
 export interface MoodCheckinProps {
   onDone: () => void;
@@ -48,7 +48,7 @@ export function MoodCheckin({ onDone }: MoodCheckinProps) {
       <div className="flex items-center gap-3 rounded-card border border-success bg-success-subtle p-4">
         <CheckCircle size={20} strokeWidth={1.75} className="text-success" />
         <p className="font-body text-sm font-medium text-success-ink">
-          Check-in registado! +5 XP 🎉
+          Check-in registado! +5 Pontos de Experiência
         </p>
       </div>
     );
@@ -56,7 +56,7 @@ export function MoodCheckin({ onDone }: MoodCheckinProps) {
   return (
     <div className="rounded-card border border-primary-subtle bg-gradient-to-br from-primary-subtle to-accent-subtle p-5">
       <p className="mb-3 font-body text-sm font-semibold text-ink">
-        💫 Como te sentes hoje?
+        Como te sentes hoje?
       </p>
       <div className="mb-3 flex gap-3">
         {[5, 4, 3, 2, 1].map((m) => (
@@ -69,7 +69,6 @@ export function MoodCheckin({ onDone }: MoodCheckinProps) {
                 : 'border-transparent hover:border-primary-subtle'
             }`}
           >
-            <span className="text-2xl">{MOOD_EMOJI[m]}</span>
             <span className="font-body text-[10px] text-ink-muted">
               {MOOD_LABEL[m]}
             </span>

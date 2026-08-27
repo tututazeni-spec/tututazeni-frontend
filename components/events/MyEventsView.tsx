@@ -54,8 +54,8 @@ export function MyEventsView({ onSelect }: MyEventsViewProps) {
           >
             {
               {
-                upcoming: `📅 Próximos (${data?.upcoming.length ?? 0})`,
-                past: `🕐 Passados (${data?.past.length ?? 0})`,
+                upcoming: `Próximos (${data?.upcoming.length ?? 0})`,
+                past: `Passados (${data?.past.length ?? 0})`,
               }[t]
             }
           </Button>

@@ -38,6 +38,12 @@ const STATUS_INTENT: Record<string, BadgeProps['intent']> = {
 
 const STATUS_FILTERS = ['ACTIVE', 'DRAFT', 'COMPLETED', ''] as const;
 
+const STATUS_LABEL: Record<string, string> = {
+  ACTIVE: 'Activo',
+  DRAFT: 'Rascunho',
+  COMPLETED: 'Completo',
+};
+
 export function SurveysTab() {
   const [status, setStatus] = useState('ACTIVE');
 
@@ -70,11 +76,11 @@ export function SurveysTab() {
             intent={status === s ? 'primary' : 'ghost'}
             onClick={() => setStatus(s)}
           >
-            {s || 'Todos'}
+            {s ? STATUS_LABEL[s] : 'Todos'}
           </Button>
         ))}
         <span className="ml-auto font-body text-xs text-ink-faint">
-          {data?.meta.total ?? 0} surveys
+          {data?.meta.total ?? 0} Inquéritos
         </span>
       </div>
 
@@ -125,8 +131,8 @@ export function SurveysTab() {
           <div className="col-span-full">
             <EmptyState
               icon={BarChart2}
-              title="Nenhum survey encontrado"
-              description="Não há surveys para o filtro seleccionado."
+              title="Nenhum Inquérito encontrado"
+              description="Não há inquéritos para o filtro seleccionado."
             />
           </div>
         )}

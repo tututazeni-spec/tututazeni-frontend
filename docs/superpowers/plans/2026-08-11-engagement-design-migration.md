@@ -654,8 +654,8 @@ export function SurveysTab() {
           <div className="col-span-full">
             <EmptyState
               icon={BarChart2}
-              title="Nenhum survey encontrado"
-              description="Não há surveys para o filtro seleccionado."
+              title="Nenhum Inquérito encontrado"
+              description="Não há Inquérito para o filtro seleccionado."
             />
           </div>
         )}
@@ -1050,7 +1050,6 @@ export function FeedbackTab({ userId }: FeedbackTabProps) {
           <EmptyState
             icon={MessageSquare}
             title="Nenhum feedback encontrado"
-            description="Não há feedback para o filtro seleccionado."
           />
         )}
       </div>

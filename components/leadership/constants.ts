@@ -30,17 +30,17 @@ export const HEALTH_CFG: Record<
 };
 
 export const CLASS_CFG: StatusBadgeMap<string> = {
-  TOP_10: { label: ' Top 10%', cls: 'bg-warning text-canvas' },
+  TOP_10: { label: 'Top 10%', cls: 'bg-warning text-canvas' },
   ABOVE_AVERAGE: {
-    label: '⬆ Acima da média',
+    label: 'Acima da média',
     cls: 'bg-success-subtle text-success-ink',
   },
   AVERAGE: { label: '= Médio', cls: 'bg-surface-sunken text-ink-muted' },
   BELOW_AVERAGE: {
-    label: '⬇ Abaixo',
+    label: 'Abaixo',
     cls: 'bg-warning-subtle text-warning-ink',
   },
-  CRITICAL: { label: '🔴 Crítico', cls: 'bg-danger text-canvas' },
+  CRITICAL: { label: 'Crítico', cls: 'bg-danger text-canvas' },
 };
 
 export const COMP_LABELS: Record<Competency, string> = {

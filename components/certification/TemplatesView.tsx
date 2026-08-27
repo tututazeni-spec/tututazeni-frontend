@@ -1,6 +1,6 @@
 // components/certification/TemplatesView.tsx
 
-import { TEMPLATE_TYPES } from './types';
+import { TEMPLATE_TYPES, TEMPLATE_TYPE_LABEL } from './types';
 import type { Template, TemplateForm } from './types';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
@@ -23,7 +23,10 @@ interface TemplatesViewProps {
   saving: boolean;
 }
 
-const TEMPLATE_TYPE_ITEMS = TEMPLATE_TYPES.map((t) => ({ value: t, label: t }));
+const TEMPLATE_TYPE_ITEMS = TEMPLATE_TYPES.map((t) => ({
+  value: t,
+  label: TEMPLATE_TYPE_LABEL[t],
+}));
 
 export function TemplatesView({
   data,
@@ -177,7 +180,8 @@ export function TemplatesView({
                   {t.isDefault && <Badge intent="info">Padrão</Badge>}
                 </p>
                 <p className="font-body text-xs text-ink-faint">
-                  {t.type}
+                  {TEMPLATE_TYPE_LABEL[t.type as (typeof TEMPLATE_TYPES)[number]] ??
+                    t.type}
                   {t.validityDays ? ` · válido ${t.validityDays} dias` : ' · sem expiração'}
                   {' · '}
                   {t._count?.certificates ?? 0} emitidos
