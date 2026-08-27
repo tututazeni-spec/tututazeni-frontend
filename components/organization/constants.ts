@@ -66,7 +66,7 @@ export const NAV: Array<{ id: View; label: string }> = [
   { id: 'chart', label: 'Organograma' },
   { id: 'departments', label: 'Departamentos' },
   { id: 'positions', label: 'Cargos' },
-  { id: 'timeline', label: 'Timeline' },
+  { id: 'timeline', label: 'Linha Cronológica' },
 ];
 
 export const TITLES: Record<View, string> = {
@@ -74,5 +74,5 @@ export const TITLES: Record<View, string> = {
   chart: 'Organograma',
   departments: 'Departamentos',
   positions: 'Cargos e Posições',
-  timeline: 'Timeline Organizacional',
+  timeline: 'Linha Cronológia Organizacional',
 };

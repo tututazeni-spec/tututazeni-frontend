@@ -29,7 +29,6 @@ export default function PayslipsPage() {
             {TITLES[nav.view]}
           </h1>
           <p className="font-body text-sm text-ink-faint mt-0.5">
-            INNOVA — Recursos Humanos
           </p>
         </div>
         {nav.view === 'list' && (

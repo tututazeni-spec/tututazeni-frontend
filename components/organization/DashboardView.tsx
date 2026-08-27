@@ -75,7 +75,7 @@ export function DashboardView() {
       <div className="grid grid-cols-3 gap-3">
         <KpiCard
           icon={GitBranch}
-          label="Span of Control médio"
+          label="Média de Subordinados por Gestor"
           value={kpis.spanOfControl}
           sub="liderados por gestor"
           intent="info"
@@ -98,7 +98,7 @@ export function DashboardView() {
       {/* Headcount por departamento */}
       <Card>
         <div className="border-b border-border px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-ink-muted">
-          Headcount por departamento
+          Colaboradores por departamento
         </div>
         {headcount.slice(0, 10).map((dept) => {
           const pct = dept.occupancyPct ?? 0;

@@ -60,7 +60,7 @@ export function RolesTab() {
             <Input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Pesquisar roles..."
+              placeholder="Pesquisar funções..."
               className="w-full pl-8"
             />
           </div>
@@ -109,8 +109,8 @@ export function RolesTab() {
           {!selected ? (
             <EmptyState
               icon={Shield}
-              title="Nenhum role seleccionado"
-              description="Selecciona um role para ver e editar permissões"
+              title="Nenhuma função seleccionada"
+              description="Selecciona uma função para ver e editar permissões"
             />
           ) : (
             <div>
@@ -154,7 +154,7 @@ export function RolesTab() {
                       onClick={async () => {
                         if (
                           await confirm({
-                            title: 'Remover role?',
+                            title: 'Remover função?',
                             confirmLabel: 'Remover',
                             destructive: true,
                           })

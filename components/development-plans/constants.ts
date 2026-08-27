@@ -32,47 +32,38 @@ export const ACTION_CFG: Record<
 > = {
   COURSE: { icon: '🎓', label: 'Curso', cls: 'bg-info-subtle text-info-ink' },
   MENTORING: {
-    icon: '👥',
     label: 'Mentoria',
     cls: 'bg-primary-subtle text-primary',
   },
   COACHING: {
-    icon: '🎯',
     label: 'Coaching',
     cls: 'bg-warning-subtle text-warning-ink',
   },
   READING: {
-    icon: '📚',
     label: 'Leitura',
     cls: 'bg-success-subtle text-success-ink',
   },
   PROJECT: {
-    icon: '🚀',
     label: 'Projecto',
     cls: 'bg-danger-subtle text-danger-ink',
   },
   JOB_ROTATION: {
-    icon: '🔄',
-    label: 'Job Rotation',
+    label: 'Rotação de Funções',
     cls: 'bg-accent-subtle text-accent',
   },
   MICROLEARNING: {
-    icon: '⚡',
-    label: 'Micro-Learning',
+    label: 'Micro-aprendizagem',
     cls: 'bg-info-subtle text-info-ink',
   },
   WORKSHOP: {
-    icon: '🛠',
     label: 'Workshop',
     cls: 'bg-success-subtle text-success-ink',
   },
   CERTIFICATION: {
-    icon: '🏆',
     label: 'Certificação',
     cls: 'bg-accent-subtle text-accent',
   },
   OTHER: {
-    icon: '📌',
     label: 'Outro',
     cls: 'bg-surface-sunken text-ink-muted',
   },
@@ -97,12 +88,12 @@ export const PRIORITY_CFG: StatusBadgeMap<Priority> = {
 };
 
 export const NAV = [
-  { id: 'my-plans', label: '🎯 Os meus PDIs' },
+  { id: 'my-plans', label: ' Os meus PDIs' },
   { id: 'team', label: '👥 Equipa' },
 ] as const;
 
 export const TITLES: Record<View, string> = {
-  'my-plans': 'Planos de Desenvolvimento',
+  'my-plans': 'Planos de Desenvolvimento Individual',
   detail: 'Detalhe do PDI',
   team: 'PDIs da Equipa',
   create: 'Novo PDI',

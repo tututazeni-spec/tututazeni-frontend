@@ -41,7 +41,7 @@ export function TabPerfil({ user }: TabPerfilProps) {
                 Pontos
               </p>
               <p className="mt-1 text-3xl font-bold text-accent">
-                ⭐ {user.points?.points?.toLocaleString('pt-PT') ?? 0}
+                 {user.points?.points?.toLocaleString('pt-PT') ?? 0}
               </p>
             </div>
           </div>
@@ -96,11 +96,11 @@ export function TabPerfil({ user }: TabPerfilProps) {
       <Card>
         <CardBody>
           <h3 className="mb-4 text-sm font-bold text-ink">
-            🏅 Badges Recentes
+             Distintivos Recentes
           </h3>
           {!user.badgeAwards?.length ? (
             <p className="text-ink-faint text-sm text-center py-5">
-              Nenhum badge conquistado ainda.
+              Nenhum Distintivo conquistado ainda.
             </p>
           ) : (
             <div className="space-y-2">
@@ -109,7 +109,7 @@ export function TabPerfil({ user }: TabPerfilProps) {
                   key={i}
                   className="flex items-center gap-3 p-3 bg-accent-subtle rounded-lg border border-accent"
                 >
-                  <span className="text-xl">🏅</span>
+                  <span className="text-xl"></span>
                   <div className="flex-1">
                     <p className="m-0 text-sm font-bold text-ink">
                       {b.badge.name}

@@ -86,7 +86,7 @@ export function Evaluation360View({
               </div>
               <div className="flex flex-col gap-2.5">
                 <div className="text-xs font-bold uppercase tracking-wider text-ink-muted mb-1">
-                  Legenda de Gaps
+                  Legenda de Lacunas
                 </div>
                 {competencies.map((c) => (
                   <div
@@ -115,7 +115,7 @@ export function Evaluation360View({
                 ))}
                 <div className="text-xs text-ink-muted mt-2 leading-relaxed">
                   <span style={{ color: 'rgb(245, 158, 11)' }}>▲ positivo</span>{' '}
-                  = overestima-se vs. outros
+                  = sobreestima-se vs. outros
                   <br />
                   <span style={{ color: 'rgb(34, 197, 94)' }}>
                     ▼ negativo
@@ -131,10 +131,10 @@ export function Evaluation360View({
           <div className="flex flex-col gap-5">
             <div>
               <h2 className="m-0 text-lg font-bold text-ink">
-                Heatmap de Competências
+                Mapa de Competências
               </h2>
               <p className="m-0 mt-1 text-sm text-ink-muted">
-                Score por fonte de avaliador, gap e benchmark do cargo
+                Pontuação por fonte de avaliador, Lacuna e Referência Comparativa do Cargo
               </p>
             </div>
             <div className="flex gap-2 mb-1">
@@ -276,9 +276,6 @@ export function Evaluation360View({
         </div>
         <div>
           <div className="text-base font-bold text-ink tracking-tight">
-            INNOVA
-          </div>
-          <div className="text-xs text-ink-muted font-medium uppercase tracking-wider">
             Avaliação 360°
           </div>
         </div>

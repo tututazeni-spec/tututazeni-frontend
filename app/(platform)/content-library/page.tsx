@@ -41,9 +41,6 @@ export default function ContentLibraryPage() {
         <div className="mx-auto flex max-w-7xl items-start justify-between">
           <div>
             <div className="mb-1 flex items-center gap-2">
-              <div className="rounded-control bg-primary-subtle p-1.5">
-                <BookOpen size={18} strokeWidth={1.75} className="text-primary" />
-              </div>
               <h1 className="font-display text-xl font-bold text-ink">
                 Biblioteca
               </h1>

@@ -164,7 +164,7 @@ export function MyProfileView() {
     <Tabs value={tab} onValueChange={(v) => setTab(v as typeof tab)}>
       <TabsList>
         <TabsTrigger value="profile">O meu perfil</TabsTrigger>
-        <TabsTrigger value="gap">Análise de gaps</TabsTrigger>
+        <TabsTrigger value="gap">Análise de lacunas</TabsTrigger>
         <TabsTrigger value="evolution">Evolução</TabsTrigger>
       </TabsList>
 
@@ -181,7 +181,7 @@ export function MyProfileView() {
             />
             <KpiCard
               icon={AlertTriangle}
-              label="Com gap"
+              label="Com lacunas"
               value={competencies.filter((c) => (c.gap ?? 0) > 0).length}
               intent="warning"
             />
@@ -340,7 +340,7 @@ export function MyProfileView() {
               disabled={!positionId}
               loading={loadingGap}
             >
-              Analisar gap
+              Analisar lacuna
             </Button>
           </div>
 
@@ -361,7 +361,7 @@ export function MyProfileView() {
                     {gap.mandatoryGaps}
                   </div>
                   <div className="mt-1 font-body text-xs text-danger-ink">
-                    Gaps obrigatórios
+                    Lacunas obrigatórios
                   </div>
                 </div>
                 <div className="rounded-card bg-warning-subtle p-4 text-center">
@@ -369,7 +369,7 @@ export function MyProfileView() {
                     {gap.totalGap}
                   </div>
                   <div className="mt-1 font-body text-xs text-warning-ink">
-                    Gap total
+                    Lacunas totais
                   </div>
                 </div>
               </div>
@@ -432,7 +432,7 @@ export function MyProfileView() {
                     {!g.met && g.recommendedCourses.length > 0 && (
                       <div className="mt-3 border-t border-border pt-3">
                         <div className="mb-1.5 font-body text-xs text-ink-faint">
-                          📚 Cursos recomendados para colmatar este gap:
+                          Cursos recomendados para colmatar esta lacuna:
                         </div>
                         <div className="flex flex-wrap gap-2">
                           {g.recommendedCourses.slice(0, 3).map((c) => (

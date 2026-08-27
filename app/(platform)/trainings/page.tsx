@@ -29,7 +29,6 @@ export default function TrainingsPage() {
             {TITLES[nav.view]}
           </h1>
           <p className="mt-0.5 font-body text-sm text-ink-faint">
-            INNOVA — Gestão de Treinamentos
           </p>
         </div>
       </div>

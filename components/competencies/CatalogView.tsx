@@ -125,9 +125,9 @@ export function CatalogView({ onSelect }: CatalogViewProps) {
                 ))}
               </div>
               <div className="flex items-center gap-3 font-body text-xs text-ink-faint">
-                <span>👥 {comp._count.userCompetencies}</span>
-                <span>📚 {comp._count.courses} cursos</span>
-                <span>🎯 {comp._count.positions} cargos</span>
+                <span> {comp._count.userCompetencies}</span>
+                <span> {comp._count.courses} cursos</span>
+                <span> {comp._count.positions} cargos</span>
               </div>
             </div>
           ))}

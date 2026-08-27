@@ -25,15 +25,11 @@ export default function CareerPage() {
       <div className="mb-6 flex items-center justify-between">
         <div>
           <div className="mb-1 flex items-center gap-2">
-            <div className="rounded-control bg-primary-subtle p-1.5">
-              <Compass size={18} strokeWidth={1.75} className="text-primary" />
-            </div>
             <h1 className="font-display text-xl font-semibold text-ink">
               {TITLES[view]}
             </h1>
           </div>
           <p className="mt-0.5 font-body text-sm text-ink-faint">
-            INNOVA — Gestão de Carreira
           </p>
         </div>
       </div>

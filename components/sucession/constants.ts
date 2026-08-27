@@ -49,12 +49,12 @@ export const NAV: Array<{ id: View; label: string }> = [
   { id: 'dashboard', label: 'Dashboard' },
   { id: 'org-chart', label: 'Mapa de Sucessão' },
   { id: 'positions', label: 'Cargos Críticos' },
-  { id: 'talent-pool', label: 'Talent Pool' },
+  { id: 'talent-pool', label: 'Banco de Talentos' },
 ];
 
 export const TITLES: Record<View, string> = {
   dashboard: 'Dashboard de Sucessão',
   'org-chart': 'Mapa de Sucessão',
-  positions: 'Cargos Críticos e Pipeline',
-  'talent-pool': 'Talent Pool',
+  positions: 'Cargos Críticos e Planos',
+  'talent-pool': 'Banco de Talentos',
 };

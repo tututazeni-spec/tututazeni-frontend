@@ -12,7 +12,7 @@ export const NAV: Array<{ id: Exclude<View, 'detail'>; label: string }> = [
 ];
 
 export const TITLES: Record<View, string> = {
-  list: 'Os meus recibos',
+  list: 'Os meus recibos de salário',
   detail: 'Detalhe do recibo',
   compare: 'Comparar meses',
   simulate: 'Simulador IRT Angola 2026',

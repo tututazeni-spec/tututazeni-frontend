@@ -82,7 +82,7 @@ export function DashboardView() {
       {/* Colaboradores activos */}
       <div className="bg-surface border border-border rounded-card overflow-hidden">
         <div className="px-4 py-3 border-b border-border text-xs font-medium text-ink-faint uppercase tracking-wide">
-          Onboardings activos
+          Processos de Integração activos
         </div>
         {active.map((plan) => (
           <div

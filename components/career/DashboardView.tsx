@@ -72,10 +72,10 @@ export function DashboardView() {
               {user.position?.name ?? 'Sem cargo'} · {user.department?.name}
             </div>
             <div className="mt-2 flex gap-3 font-body text-xs text-ink-faint">
-              <span>🎓 {stats.certificates} certificados</span>
-              <span>📚 {stats.enrollments} cursos</span>
-              <span>💡 {stats.userCompetencies} competências</span>
-              <span>🏆 {stats.badgeAwards} badges</span>
+              <span> {stats.certificates} certificados</span>
+              <span> {stats.enrollments} cursos</span>
+              <span> {stats.userCompetencies} competências</span>
+              <span> {stats.badgeAwards} badges</span>
             </div>
             {user.points && (
               <div className="mt-2 font-body text-xs font-semibold text-primary">
@@ -108,7 +108,7 @@ export function DashboardView() {
         <Card className="col-span-2 overflow-hidden p-0">
           <div className="flex items-center justify-between border-b border-border px-4 py-3">
             <span className="font-body text-sm font-semibold text-ink">
-              Gap de Competências
+              Lacunas de Competências
             </span>
             <span className="font-body text-xs text-ink-faint">
               {competencyGaps.filter((g) => g.status === 'MET').length}/
@@ -174,7 +174,7 @@ export function DashboardView() {
           {/* Vagas compatíveis */}
           <Card className="overflow-hidden p-0">
             <div className="border-b border-border px-4 py-3 font-body text-sm font-semibold text-ink">
-              🎯 Vagas compatíveis
+               Vagas compatíveis
             </div>
             {matchingVacancies.length === 0 ? (
               <div className="px-4 py-4 text-center font-body text-xs text-ink-faint">
@@ -365,7 +365,7 @@ export function DashboardView() {
                     key={c.id}
                     className="truncate font-body text-xs text-primary"
                   >
-                    📚 {c.title}
+                     {c.title}
                   </div>
                 ))}
               </div>

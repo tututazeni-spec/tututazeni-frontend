@@ -12,7 +12,7 @@ export function TeamTab() {
     <EmptyState
       icon={Users}
       title="Vista de Equipa"
-      description="Disponível para utilizadores com role Gestor."
+      description="Disponível para utilizadores com Função Gestor."
     />
   );
 }

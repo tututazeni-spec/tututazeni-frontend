@@ -15,15 +15,11 @@ export default function RolesPermissionsPage() {
       <div className="bg-surface border-b border-border px-6 py-5">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center gap-2 mb-1">
-            <div className="p-1.5 bg-accent-subtle rounded-control">
-              <Shield size={18} strokeWidth={1.75} className="text-accent" />
-            </div>
             <h1 className="text-xl font-display font-bold text-ink">
-              Roles & Permissions
+              Funções e Permissões
             </h1>
           </div>
           <p className="text-sm font-body text-ink-faint">
-            Gestão de Roles · Matriz · Simulador · Templates · Governança
           </p>
         </div>
       </div>

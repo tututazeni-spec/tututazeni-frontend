@@ -192,7 +192,7 @@ const NAV: Array<{ label: string; items: NavItem[] }> = [
       },
       { href: '/payslips', icon: FileText, label: 'Recibos Salariais' },
       { href: '/organization', icon: Share2, label: 'Organograma' },
-      { href: '/trainings', icon: GraduationCap, label: 'Formações' },
+      { href: '/trainings', icon: GraduationCap, label: 'Treinamentos' },
     ],
   },
   {

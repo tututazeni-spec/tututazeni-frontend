@@ -79,7 +79,7 @@ export function DashboardView() {
         </Card>
         <Card className="p-4">
           <div className="mb-1 font-body text-xs text-ink-faint">
-            Rating médio
+            Classificação Média
           </div>
           <div className="flex items-center gap-2">
             <div className="font-mono text-3xl font-bold text-accent">

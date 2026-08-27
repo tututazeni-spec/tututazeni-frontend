@@ -270,7 +270,7 @@ export function RadarChart({ competencies }: RadarChartProps) {
           { color: COLORS.manager, label: 'Outros avaliadores', dash: false },
           {
             color: 'rgb(245, 158, 11)',
-            label: 'Benchmark do cargo',
+            label: 'Referência Comparativa do Cargo',
             dash: true,
           },
         ].map((l) => (

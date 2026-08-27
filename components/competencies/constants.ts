@@ -16,8 +16,8 @@ export const LEVEL_LABELS = [
 ];
 
 export const CATEGORY_CFG: StatusBadgeMap<CompetencyCategory> = {
-  HARD_SKILL: { label: 'Hard Skill', cls: 'bg-info-subtle text-info-ink' },
-  SOFT_SKILL: { label: 'Soft Skill', cls: 'bg-primary-subtle text-primary' },
+  HARD_SKILL: { label: 'Competências Técnicas', cls: 'bg-info-subtle text-info-ink' },
+  SOFT_SKILL: { label: 'Competências Comportamentais', cls: 'bg-primary-subtle text-primary' },
   LANGUAGE: { label: 'Idioma', cls: 'bg-success-subtle text-success-ink' },
   TOOL: { label: 'Ferramenta', cls: 'bg-warning-subtle text-warning-ink' },
   LEADERSHIP: { label: 'Liderança', cls: 'bg-accent-subtle text-accent' },
@@ -26,13 +26,13 @@ export const CATEGORY_CFG: StatusBadgeMap<CompetencyCategory> = {
 export const NAV: Array<{ id: View; label: string }> = [
   { id: 'catalog', label: 'Catálogo' },
   { id: 'my-profile', label: 'O meu perfil' },
-  { id: 'matrix', label: 'Skill Matrix' },
+  { id: 'matrix', label: 'Matriz de Competências' },
   { id: 'dashboard', label: 'Dashboard RH' },
 ];
 
 export const TITLES: Record<View, string> = {
   catalog: 'Catálogo de Competências',
   'my-profile': 'O meu Perfil de Competências',
-  matrix: 'Skill Matrix',
+  matrix: 'Matriz de Competências',
   dashboard: 'Dashboard de Competências',
 };

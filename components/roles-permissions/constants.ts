@@ -7,7 +7,7 @@ import type { LucideIcon } from 'lucide-react';
 import type { Tab } from './types';
 
 export const TABS: { id: Tab; label: string; icon: LucideIcon }[] = [
-  { id: 'roles', label: 'Roles', icon: Shield },
+  { id: 'roles', label: 'Funções', icon: Shield },
   { id: 'matrix', label: 'Matriz', icon: Key },
   { id: 'simulator', label: 'Simulador', icon: Brain },
   { id: 'governance', label: 'Governança', icon: Activity },

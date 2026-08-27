@@ -171,7 +171,7 @@ export function DashboardTab() {
       {(dash?.recentBadges ?? []).length > 0 && (
         <div className="rounded-card border border-warning bg-warning-subtle p-4">
           <h4 className="mb-3 font-display font-semibold text-warning-ink">
-            🏅 Badges Conquistados esta Semana
+            Distintivos Conquistados esta Semana
           </h4>
           <div className="flex flex-wrap gap-2">
             {(dash?.recentBadges ?? []).map((b, i) => (

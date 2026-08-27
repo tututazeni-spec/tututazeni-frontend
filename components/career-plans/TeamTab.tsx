@@ -11,8 +11,8 @@ export function TeamTab() {
   return (
     <EmptyState
       icon={Users}
-      title="Vista de equipa disponível com role Gestor+"
-      description="Planos, readiness e pedidos de promoção da equipa"
+      title="Vista de equipa disponível com perfil Gestor+"
+      description="Planos, prontidão e pedidos de promoção da equipa"
     />
   );
 }
