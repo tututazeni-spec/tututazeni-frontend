@@ -6,7 +6,6 @@
 
 import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
-import { Inbox } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { useDebounce } from '@/hooks/useDebounce';
 import { queryKeys } from '@/lib/queryKeys';
@@ -100,7 +99,6 @@ export function FeedView({ onSelect }: FeedViewProps) {
             {data?.data.length === 0 && (
               <div className="col-span-3">
                 <EmptyState
-                  icon={Inbox}
                   title="Sem conteúdos disponíveis"
                   description="Não há conteúdos para os filtros seleccionados."
                 />
