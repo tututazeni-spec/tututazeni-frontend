@@ -31,18 +31,25 @@ export default function AnalyticsPage() {
           <h1 className="font-display text-xl font-semibold text-ink">
             {TITLES[view]}
           </h1>
-          <p className="font-body text-sm text-ink-faint mt-0.5">
-          </p>
+          <p className="font-body text-sm text-ink-faint mt-0.5"></p>
         </div>
       </div>
 
       <Tabs value={view} onValueChange={(v) => setView(v as View)}>
         <TabsList className="mb-6 w-fit gap-12">
-          {NAV.map((n) => (
-            <TabsTrigger key={n.id} value={n.id}>
-              {n.label}
-            </TabsTrigger>
-          ))}
+          {NAV.map((n) => {
+            const Icon = n.icon;
+            return (
+              <TabsTrigger
+                key={n.id}
+                value={n.id}
+                className="gap-2 whitespace-nowrap"
+              >
+                <Icon size={14} strokeWidth={1.75} />
+                {n.label}
+              </TabsTrigger>
+            );
+          })}
         </TabsList>
 
         <TabsContent value="overview">
