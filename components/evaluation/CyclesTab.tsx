@@ -5,7 +5,6 @@
 
 'use client';
 
-import { Layers } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { reportError } from '@/lib/errorReporting';
@@ -146,7 +145,6 @@ export function CyclesTab() {
 
         {(data?.data.length ?? 0) === 0 && (
           <EmptyState
-            icon={Layers}
             title="Nenhum ciclo criado ainda"
             description="Cria o primeiro ciclo de avaliação para começar."
             className="col-span-1 md:col-span-2 xl:col-span-3"
