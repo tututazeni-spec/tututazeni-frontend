@@ -7,7 +7,6 @@
 
 import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
-import { Bot } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { useDebounce } from '@/hooks/useDebounce';
 import { queryKeys } from '@/lib/queryKeys';
@@ -115,7 +114,6 @@ export function ScenariosTab({ onStart }: ScenariosTabProps) {
           {(data?.data.length ?? 0) === 0 && (
             <div className="col-span-4">
               <EmptyState
-                icon={Bot}
                 title="Nenhum cenário encontrado"
                 description="Ajusta a pesquisa ou os filtros para veres mais cenários."
               />

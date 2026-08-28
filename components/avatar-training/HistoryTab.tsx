@@ -5,7 +5,6 @@
 
 'use client';
 
-import { Play } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -98,7 +97,6 @@ export function HistoryTab() {
           {(data?.sessions?.length ?? 0) === 0 && (
             <CardBody>
               <EmptyState
-                icon={Play}
                 title="Sem sessões ainda"
                 description="Começa um cenário para veres o teu histórico aqui."
               />
