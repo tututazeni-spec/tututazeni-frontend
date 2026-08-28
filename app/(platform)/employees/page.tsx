@@ -52,7 +52,7 @@ import { EmployeeCard } from '@/components/employees/EmployeeCard';
 import { EmployeeDrawer } from '@/components/employees/EmployeeDrawer';
 import { EmployeeRow } from '@/components/employees/EmployeeRow';
 import { FilterPanel } from '@/components/employees/FilterPanel';
-import { Pagination } from '@/components/employees/Pagination';
+import { Pagination } from '@/components/ui/Pagination';
 
 const LIST_COLUMNS = [
   'Colaborador',
@@ -417,7 +417,7 @@ export default function EmployeesPage() {
           <Pagination
             page={data.meta.page}
             totalPages={data.meta.totalPages}
-            onPage={setPage}
+            onPageChange={setPage}
           />
         )}
       </div>

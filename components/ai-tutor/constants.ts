@@ -20,7 +20,8 @@ export const QUICK_ACTIONS = [
   },
   {
     label: 'Questionário rápido',
-    value: 'Cria um quiz de 5 perguntas sobre o que acabámos de discutir',
+    value:
+      'Cria um questionário de 5 perguntas sobre o que acabámos de discutir',
   },
 ];
 
