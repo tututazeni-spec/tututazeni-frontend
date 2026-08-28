@@ -1,6 +1,5 @@
 // components/lms/LearningPathsView.tsx
 
-import { GraduationCap } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
 import { Button, buttonVariants } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
@@ -69,7 +68,6 @@ export function LearningPathsView({
 
       {data.length === 0 ? (
         <EmptyState
-          icon={GraduationCap}
           title="Nenhum percurso encontrado"
           description="Experimenta ajustar os termos da pesquisa."
         />
