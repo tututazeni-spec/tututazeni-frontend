@@ -9,7 +9,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Award, Download } from 'lucide-react';
+import { Download } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -85,7 +85,6 @@ export function CertificatesView() {
       {/* Meus certificados */}
       {data.length === 0 ? (
         <EmptyState
-          icon={Award}
           title="Sem certificados ainda"
           description="Conclua um curso para obter o seu primeiro certificado."
         />
