@@ -111,7 +111,8 @@ export function PendingTab() {
         {pending.length === 0 && (
           <EmptyState
             icon={CheckCircle}
-            description="Sem avaliações pendentes."
+            title="Sem avaliações pendentes"
+            description="Não tens avaliações à espera de resposta."
           />
         )}
       </div>

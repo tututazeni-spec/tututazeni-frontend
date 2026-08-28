@@ -26,10 +26,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
 
 const TABS = [
   { id: 'overview', label: 'Visão Geral', icon: Smile },
-  { id: 'surveys', label: 'Surveys', icon: BarChart2 },
+  { id: 'surveys', label: 'Inquéritos', icon: BarChart2 },
   { id: 'recognition', label: 'Reconhecimento', icon: Award },
   { id: 'feedback', label: 'Feedback', icon: MessageSquare },
-  { id: 'analytics', label: 'Analytics', icon: Activity },
+  { id: 'analytics', label: 'Análises', icon: Activity },
 ] as const;
 
 export default function EngagementPage() {
@@ -40,15 +40,12 @@ export default function EngagementPage() {
         <div className="mx-auto flex max-w-7xl items-start justify-between">
           <div>
             <div className="mb-1 flex items-center gap-2">
-              <div className="rounded-control bg-primary-subtle p-1.5">
-                <Smile size={18} strokeWidth={1.75} className="text-primary" />
-              </div>
               <h1 className="font-display text-xl font-bold text-ink">
-                Engagement
+                Participação
               </h1>
             </div>
             <p className="font-body text-sm text-ink-faint">
-              Surveys · Reconhecimento · Feedback · Mood · Analytics
+              Inquéritos · Reconhecimento · Feedback · Humor · Analytics
             </p>
           </div>
           <div className="flex gap-2">
@@ -58,7 +55,7 @@ export default function EngagementPage() {
             </Button>
             <Button size="sm">
               <Plus size={14} strokeWidth={1.75} />
-              Novo Survey
+              Novo Inquérito
             </Button>
           </div>
         </div>

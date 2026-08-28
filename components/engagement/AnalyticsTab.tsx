@@ -23,7 +23,7 @@ import { LEVEL_CONFIG } from './constants';
 import type { EngagementIndex, HeatmapRow } from './types';
 
 const METRICS = [
-  { id: 'score', label: 'Score' },
+  { id: 'score', label: 'Pontuação' },
   { id: 'participation', label: 'Participação' },
   { id: 'mood', label: 'Humor' },
 ] as const;
@@ -119,7 +119,7 @@ export function AnalyticsTab() {
         <Card>
           <CardBody>
             <h3 className="mb-4 font-display font-semibold text-ink">
-              Histórico de Surveys
+              Histórico de Inquéritos
             </h3>
             <div className="space-y-3">
               {index!.history.map((h, i) => (
@@ -155,7 +155,7 @@ export function AnalyticsTab() {
         <CardBody>
           <div className="mb-4 flex items-center justify-between">
             <h3 className="font-display font-semibold text-ink">
-              Heatmap por Departamento
+              Mapa de Calor por Departamento
             </h3>
             <div className="flex gap-1">
               {METRICS.map((m) => (

@@ -59,7 +59,7 @@ export function RecognitionTab() {
         <Card>
           <CardBody>
             <h3 className="mb-3 font-display font-semibold text-ink">
-              👏 Dar Kudos
+              Dar Reconhecimento
             </h3>
             <div className="flex gap-2">
               <Input
@@ -74,7 +74,7 @@ export function RecognitionTab() {
                 placeholder="Escreve uma mensagem de reconhecimento..."
                 className="flex-1"
               />
-              <Button>Enviar 🏆</Button>
+              <Button>Enviar</Button>
             </div>
           </CardBody>
         </Card>
@@ -103,9 +103,9 @@ export function RecognitionTab() {
                       </span>
                       <Badge intent="info">
                         {r.type === 'KUDOS'
-                          ? '👏 Kudos'
+                          ? 'Reconhecimento'
                           : r.type === 'ACHIEVEMENT'
-                            ? '🏆 Achievement'
+                            ? 'Conquistas'
                             : r.type}
                       </Badge>
                     </div>
@@ -136,7 +136,7 @@ export function RecognitionTab() {
       <Card className="h-fit">
         <CardBody>
           <h3 className="mb-4 font-display font-semibold text-ink">
-            🏅 Leaderboard
+            Tabela de Classificação
           </h3>
           <div className="space-y-3">
             {board.map((u, i) => (

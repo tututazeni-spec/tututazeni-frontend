@@ -43,9 +43,6 @@ export default function ReportsPage() {
                 Relatórios
               </h1>
             </div>
-            <p className="font-body text-sm text-ink-faint">
-              Análises · Modelos · Exportação
-            </p>
           </div>
           <Button size="sm">
             <Plus size={14} strokeWidth={1.75} />

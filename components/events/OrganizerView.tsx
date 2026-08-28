@@ -64,7 +64,7 @@ export function OrganizerView() {
         />
         <KpiCard
           icon={TrendingUp}
-          label="NPS médio"
+          label="Indice Médio de Recomendação do Evento"
           value={data.metrics.avgNps ? `${data.metrics.avgNps}/10` : '—'}
           intent="warning"
         />

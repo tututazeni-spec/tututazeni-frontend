@@ -85,7 +85,7 @@ export function OverviewTab({ userId }: OverviewTabProps) {
           <div className="flex items-center justify-between">
             <div>
               <p className="mb-1 font-body text-xs text-ink-muted">
-                Engagement Score da Organização
+                Pontuação de Engajamento da Organização
               </p>
               <p className={`font-display text-3xl font-black ${level.color}`}>
                 {dash?.kpis.engagementIndex ?? 0}%
@@ -96,7 +96,7 @@ export function OverviewTab({ userId }: OverviewTabProps) {
             </div>
             <div className="text-right">
               <p className="font-body text-xs text-ink-muted">
-                Human Success Score
+                Índice de Sucesso das Pessoas
               </p>
               <div
                 className={`flex h-16 w-16 flex-col items-center justify-center rounded-full border-4 ${grade.border}`}
@@ -129,7 +129,7 @@ export function OverviewTab({ userId }: OverviewTabProps) {
         />
         <KpiCard
           icon={TrendingUp}
-          label="eNPS"
+          label="Índice de Recomendação dos Colaboradores"
           value={dash?.kpis.enps ?? 0}
           sub={dash?.enpsBreakdown.label}
           intent={(dash?.kpis.enps ?? 0) >= 0 ? 'success' : 'danger'}
@@ -147,7 +147,7 @@ export function OverviewTab({ userId }: OverviewTabProps) {
         <Card>
           <CardBody>
             <h3 className="mb-4 font-display font-semibold text-ink">
-              eNPS Breakdown
+              Detalhamento do Índice de Recomendação dos Colaboradores
             </h3>
             {dash?.enpsBreakdown && (
               <div className="space-y-3">
@@ -169,7 +169,7 @@ export function OverviewTab({ userId }: OverviewTabProps) {
                 ))}
                 <div className="mt-4 flex items-center justify-between border-t border-border pt-3">
                   <span className="font-body text-sm text-ink-muted">
-                    Score eNPS
+                    Pontuação do Índice de Recomendação dos Colaboradores
                   </span>
                   <span
                     className={`font-display text-2xl font-bold ${(dash.enpsBreakdown.enps ?? 0) >= 0 ? 'text-success' : 'text-danger'}`}
@@ -186,7 +186,7 @@ export function OverviewTab({ userId }: OverviewTabProps) {
         <Card>
           <CardBody>
             <h3 className="mb-4 font-display font-semibold text-ink">
-              🏆 Reconhecimentos Recentes
+              Reconhecimentos Recentes
             </h3>
             {(dash?.recentRecognitions.length ?? 0) === 0 ? (
               <p className="py-8 text-center font-body text-sm text-ink-faint">
@@ -215,9 +215,6 @@ export function OverviewTab({ userId }: OverviewTabProps) {
                         {r.message}
                       </p>
                     </div>
-                    <span className="text-sm">
-                      {r.type === 'KUDOS' ? '👏' : '🏅'}
-                    </span>
                   </div>
                 ))}
               </div>
@@ -236,7 +233,7 @@ export function OverviewTab({ userId }: OverviewTabProps) {
               className="text-warning-ink"
             />
             <p className="font-body text-sm font-semibold text-warning-ink">
-              {summary!.surveys.length} survey
+              {summary!.surveys.length} inquérito
               {summary!.surveys.length > 1 ? 's' : ''} pendente
               {summary!.surveys.length > 1 ? 's' : ''}
             </p>

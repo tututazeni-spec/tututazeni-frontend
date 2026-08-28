@@ -27,7 +27,7 @@ const cls = (t: (typeof TOKEN)[keyof typeof TOKEN]) => `${t.bg} ${t.color}`;
 
 export const TYPE_CFG: Record<
   TrainingType,
-  { label: string; icon: string; cls: string }
+  { label: string; icon?: string; cls: string }
 > = {
   PRESENTIAL: { label: 'Presencial', cls: cls(TOKEN.info) },
   ONLINE: { label: 'Online', cls: cls(TOKEN.primary) },

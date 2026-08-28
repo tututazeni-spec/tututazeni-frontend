@@ -205,7 +205,7 @@ export function Feedback360View() {
             loading={submitting}
             className="w-full"
           >
-            {submitting ? 'A submeter…' : '📤 Submeter (anónimo)'}
+            {submitting ? 'A submeter…' : ' Submeter (anónimo)'}
           </Button>
         </Card>
       </div>

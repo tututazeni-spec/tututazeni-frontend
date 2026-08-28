@@ -10,7 +10,7 @@ import type { View } from './types';
 
 export const VACANCY_TYPE: Record<
   string,
-  { label: string; icon: string; intent: NonNullable<BadgeProps['intent']> }
+  { label: string; intent: NonNullable<BadgeProps['intent']> }
 > = {
   PROMOTION: { label: 'Promoção', intent: 'success' },
   LATERAL: { label: 'Lateral', intent: 'info' },
@@ -37,10 +37,10 @@ export const READINESS_CFG: Record<string, { label: string }> = {
 };
 
 export const NAV = [
-  { id: 'dashboard', label: '🗺️ Minha Carreira' },
-  { id: 'paths', label: ' Trilhas' },
-  { id: 'vacancies', label: ' Vagas Internas' },
-  { id: 'plan', label: ' Meu Plano' },
+  { id: 'dashboard', label: 'Minha Carreira' },
+  { id: 'paths', label: 'Trilhas' },
+  { id: 'vacancies', label: 'Vagas Internas' },
+  { id: 'plan', label: 'Meu Plano' },
 ] as const;
 
 export const TITLES: Record<View, string> = {

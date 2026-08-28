@@ -13,13 +13,9 @@ interface TemplateCardProps {
 
 export function TemplateCard({ tpl, onRun }: TemplateCardProps) {
   const cat = CAT_CONFIG[tpl.category] ?? CAT_CONFIG.HR;
-  const Icon = cat.icon;
   return (
     <Card interactive onClick={() => onRun(tpl)}>
       <CardBody>
-        <div className={`mb-3 w-fit rounded-control p-2 ${cat.bg}`}>
-          <Icon size={16} strokeWidth={1.75} className={cat.color} />
-        </div>
         <h4 className="mb-1 font-display text-sm font-semibold text-ink">
           {tpl.name}
         </h4>

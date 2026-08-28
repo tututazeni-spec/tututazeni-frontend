@@ -46,8 +46,8 @@ interface DetailViewProps {
 }
 
 const TABS = [
-  { id: 'info', label: 'ℹ️ Informações' },
-  { id: 'participants', label: '👥 Participantes' },
+  { id: 'info', label: 'Informações' },
+  { id: 'participants', label: 'Participantes' },
 ] as const;
 
 export function DetailView({ eventId, onBack }: DetailViewProps) {
@@ -171,7 +171,7 @@ export function DetailView({ eventId, onBack }: DetailViewProps) {
                   fallback={STATUS_CFG.PUBLISHED}
                 />
                 <span className="font-body text-xs text-ink-faint">
-                  {modalityCfg.icon} {modalityCfg.label}
+                  {modalityCfg.label}
                 </span>
                 {event.mandatory && (
                   <span className="font-body text-xs font-semibold text-danger">
@@ -224,7 +224,7 @@ export function DetailView({ eventId, onBack }: DetailViewProps) {
                     rel="noopener noreferrer"
                     className="rounded-control bg-danger px-4 py-2 text-center font-body text-sm font-medium text-canvas hover:brightness-95"
                   >
-                    🔴 Entrar no evento
+                    Entrar no evento
                   </a>
                 )}
               <Button
@@ -241,7 +241,7 @@ export function DetailView({ eventId, onBack }: DetailViewProps) {
                   size="sm"
                   onClick={() => setShowFeedback((s) => !s)}
                 >
-                  ⭐ Avaliar evento
+                  Avaliar evento
                 </Button>
               )}
             </div>
@@ -250,14 +250,14 @@ export function DetailView({ eventId, onBack }: DetailViewProps) {
           {/* Infos */}
           <div className="mt-4 flex flex-wrap gap-4 font-body text-xs text-ink-faint">
             <span>
-              📅 {fmtDateTime(event.startAt)} → {fmtDateTime(event.endAt)}
+              {fmtDateTime(event.startAt)} → {fmtDateTime(event.endAt)}
             </span>
-            {event.location && <span>📍 {event.location}</span>}
+            {event.location && <span>{event.location}</span>}
             <span>
-              👥 {event._count.participants}/{event.maxCapacity} inscritos
+              {event._count.participants}/{event.maxCapacity} inscritos
             </span>
             {event.avgNps && <span>NPS: {event.avgNps}/10</span>}
-            {event.avgRating && <span>⭐ {event.avgRating}/5</span>}
+            {event.avgRating && <span>{event.avgRating}/5</span>}
           </div>
 
           {event.tags?.length > 0 && (
@@ -284,7 +284,7 @@ export function DetailView({ eventId, onBack }: DetailViewProps) {
           <div className="space-y-4">
             <div>
               <div className="mb-1 font-body text-xs text-ink-muted">
-                NPS — Recomendarias este evento a um colega? (1-10)
+                Índice de recomendação — Recomendarias este evento a um colega? (1-10)
               </div>
               <div className="flex gap-1">
                 {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (

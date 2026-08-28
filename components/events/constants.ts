@@ -34,7 +34,7 @@ export const TYPE_CFG: Record<
   },
   WEBINAR: {
     icon: '💻',
-    label: 'Webinar',
+    label: 'Seminário Online',
     cls: 'bg-accent-subtle text-accent',
     barCls: 'bg-accent',
   },
@@ -46,7 +46,7 @@ export const TYPE_CFG: Record<
   },
   HACKATHON: {
     icon: '⚡',
-    label: 'Hackathon',
+    label: 'Maratona de Inovação',
     cls: 'bg-danger-subtle text-danger-ink',
     barCls: 'bg-danger',
   },
@@ -64,7 +64,7 @@ export const TYPE_CFG: Record<
   },
   ONBOARDING: {
     icon: '🚀',
-    label: 'Onboarding',
+    label: 'Integração e Acolhimento',
     cls: 'bg-info-subtle text-info-ink',
     barCls: 'bg-info',
   },
@@ -82,7 +82,7 @@ export const TYPE_CFG: Record<
   },
   TALK: {
     icon: '🎤',
-    label: 'Talk',
+    label: 'Palestra',
     cls: 'bg-accent-subtle text-accent',
     barCls: 'bg-accent',
   },
@@ -90,11 +90,11 @@ export const TYPE_CFG: Record<
 
 export const MODALITY_CFG: Record<
   EventModalidade,
-  { icon: string; label: string }
+  { label: string }
 > = {
-  ONLINE: { icon: '💻', label: 'Online' },
-  PRESENCIAL: { icon: '🏢', label: 'Presencial' },
-  HYBRID: { icon: '🔀', label: 'Híbrido' },
+  ONLINE: { label: 'Online' },
+  PRESENCIAL: { label: 'Presencial' },
+  HYBRID: { label: 'Híbrido' },
 };
 
 export const STATUS_CFG: StatusBadgeMap<EventStatus> = {
@@ -119,9 +119,9 @@ export const PARTICIPANT_STATUS: StatusBadgeMap<ParticipantStatus> = {
 };
 
 export const NAV = [
-  { id: 'catalog', label: '📅 Catálogo' },
-  { id: 'my-events', label: '🎫 Os meus eventos' },
-  { id: 'organizer', label: '📊 Organizador' },
+  { id: 'catalog', label: ' Catálogo' },
+  { id: 'my-events', label: ' Os meus eventos' },
+  { id: 'organizer', label: ' Organizador' },
 ] as const;
 
 export const TITLES: Record<View, string> = {
