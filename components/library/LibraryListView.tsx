@@ -1,7 +1,7 @@
 // components/library/LibraryListView.tsx
 
 import Link from 'next/link';
-import { BookOpen, Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { Button, buttonVariants } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -96,7 +96,6 @@ export function LibraryListView({
       {/* Grelha de cards */}
       {data.length === 0 ? (
         <EmptyState
-          icon={BookOpen}
           title="Nenhum recurso encontrado"
           description="Não há recursos para a pesquisa ou filtro seleccionados."
         />
