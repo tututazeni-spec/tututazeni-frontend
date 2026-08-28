@@ -1,7 +1,7 @@
 // components/academic/ProgramsListView.tsx
 
 import Link from 'next/link';
-import { AlertCircle, BookOpen } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
 import { Button, buttonVariants } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -96,7 +96,6 @@ export function ProgramsListView({
 
       {data.length === 0 ? (
         <EmptyState
-          icon={BookOpen}
           title="Nenhum programa encontrado"
           description="Não há programas para os filtros seleccionados."
         />
