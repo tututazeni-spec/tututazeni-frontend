@@ -7,13 +7,7 @@
 // Skeleton/EmptyState. A cor de cada tipo de licença (`leaveType.color`)
 // continua dinâmica — é codificação de dados por categoria, não decoração.
 
-import {
-  BarChart3,
-  CheckCircle2,
-  Clock,
-  TrendingDown,
-  Users,
-} from 'lucide-react';
+import { CheckCircle2, Clock, TrendingDown, Users } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
@@ -46,7 +40,6 @@ export function LeaveDashboardTab({
   if (!dashboard) {
     return (
       <EmptyState
-        icon={BarChart3}
         title="Dashboard não disponível"
         description="Ainda não há dados suficientes para gerar o dashboard."
       />

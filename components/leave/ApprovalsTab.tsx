@@ -5,7 +5,7 @@
 // estado vazio passa a EmptyState, botão de aprovação em massa passa a
 // Button (intent="success").
 
-import { Check, CheckCircle2 } from 'lucide-react';
+import { Check } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Skeleton } from '@/components/ui/Skeleton';
@@ -54,7 +54,6 @@ export function ApprovalsTab({
         />
       ) : pending.length === 0 ? (
         <EmptyState
-          icon={CheckCircle2}
           title="Sem pedidos pendentes"
           description="Todos os pedidos foram processados."
         />
