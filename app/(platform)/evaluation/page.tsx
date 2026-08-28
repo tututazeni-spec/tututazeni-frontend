@@ -55,14 +55,18 @@ export default function EvaluationsPage() {
       {/* Tabs */}
       <Tabs defaultValue="overview">
         <div className="border-b border-border bg-surface px-6">
-          <TabsList className="mx-auto max-w-7xl overflow-x-auto">
-            {TABS.map((t) => {
+          <TabsList className="mx-auto max-w-7xl overflow-x-auto gap-0">
+            {TABS.map((t, i) => {
               const Icon = t.icon;
               return (
                 <TabsTrigger
                   key={t.id}
                   value={t.id}
-                  className="gap-2 whitespace-nowrap"
+                  className={
+                    i < TABS.length - 1
+                      ? 'gap-2 whitespace-nowrap mr-[1cm]!'
+                      : 'gap-2 whitespace-nowrap'
+                  }
                 >
                   <Icon size={16} strokeWidth={1.75} />
                   {t.label}
