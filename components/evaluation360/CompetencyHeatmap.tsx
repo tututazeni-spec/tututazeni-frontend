@@ -20,7 +20,7 @@ export function CompetencyHeatmap({ competencies }: CompetencyHeatmapProps) {
             <th className="text-left px-3 py-2.5 text-xs font-bold text-ink-muted uppercase tracking-wider border-b border-border">
               Competência
             </th>
-            {['Auto', 'Gestor', 'Pares', 'Média', 'Gap', 'Benchmark'].map(
+            {['Auto', 'Gestor', 'Pares', 'Média', 'Lacunas', 'Referencial'].map(
               (h) => (
                 <th
                   key={h}
