@@ -36,7 +36,7 @@ export function KpiCard({
 }: KpiCardProps) {
   return (
     <Card className={cn('w-48 p-4', className)}>
-      <div className="mb-3 flex items-start justify-between">
+      <div className="mb-3 flex min-h-6 items-start justify-between">
         {Icon ? (
           <div className={cn('rounded-control p-2', INTENT_CLASSES[intent])}>
             <Icon size={18} strokeWidth={1.75} />
