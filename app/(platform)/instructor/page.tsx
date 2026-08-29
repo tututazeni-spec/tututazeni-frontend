@@ -2,7 +2,7 @@
 'use client';
 
 import { useState } from 'react';
-import { ArrowLeft, GraduationCap } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { AtRiskView } from '@/components/instructor/AtRiskView';
 import { CohortDetailView } from '@/components/instructor/CohortDetailView';
 import { CohortsView } from '@/components/instructor/CohortsView';
@@ -74,7 +74,6 @@ export default function InstructorPage() {
         <Skeleton rows={4} itemClassName="skeleton-shimmer h-16 rounded-card" />
       ) : notAnInstructor ? (
         <EmptyState
-          icon={GraduationCap}
           title="Não estás registado como instrutor"
           description="Esta área é reservada a instrutores com turmas atribuídas. Fala com os Recursos Humanos se achas que devias ter acesso."
         />

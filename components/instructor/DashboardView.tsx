@@ -168,7 +168,7 @@ export function DashboardView({ onSelectCohort }: DashboardViewProps) {
                   </div>
                   {c.atRisk > 0 && (
                     <div className="font-body text-xs text-danger">
-                      ⚠ {c.atRisk} em risco
+                      {c.atRisk} em risco
                     </div>
                   )}
                   <div className="font-body text-xs text-ink-faint">

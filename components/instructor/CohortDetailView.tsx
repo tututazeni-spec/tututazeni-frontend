@@ -86,16 +86,16 @@ export function CohortDetailView({ cohortId, onBack }: CohortDetailViewProps) {
             </div>
             {data.atRiskCount > 0 && (
               <div className="mt-1 font-body text-xs text-danger">
-                ⚠ {data.atRiskCount} em risco
+                {data.atRiskCount} em risco
               </div>
             )}
           </div>
         </div>
         <div className="mt-3 flex gap-4 font-body text-xs text-ink-faint">
-          <span>📅 Início: {fmtDate(data.startDate)}</span>
-          {data.endDate && <span>📅 Fim: {fmtDate(data.endDate)}</span>}
+          <span>Início: {fmtDate(data.startDate)}</span>
+          {data.endDate && <span>Fim: {fmtDate(data.endDate)}</span>}
           {data.course.workloadHours && (
-            <span>⏱ {data.course.workloadHours}h</span>
+            <span>Carga horária: {data.course.workloadHours}h</span>
           )}
         </div>
       </Card>
@@ -104,8 +104,8 @@ export function CohortDetailView({ cohortId, onBack }: CohortDetailViewProps) {
       <div className="mb-4 flex w-fit gap-1 rounded-card bg-surface-sunken p-1">
         {(
           [
-            { id: 'students', label: `👥 Todos (${data.participants.length})` },
-            { id: 'atrisk', label: `⚠ Em risco (${data.atRiskCount})` },
+            { id: 'students', label: `Todos (${data.participants.length})` },
+            { id: 'atrisk', label: `Em risco (${data.atRiskCount})` },
           ] as const
         ).map((t) => (
           <Button
@@ -143,7 +143,7 @@ export function CohortDetailView({ cohortId, onBack }: CohortDetailViewProps) {
                   </span>
                   {isAtRisk && (
                     <span className="font-body text-xs font-medium text-danger">
-                      ⚠ Em risco
+                      Em risco
                     </span>
                   )}
                 </div>
@@ -177,7 +177,7 @@ export function CohortDetailView({ cohortId, onBack }: CohortDetailViewProps) {
         {visibleList.length === 0 && (
           <div className="px-4 py-8 text-center font-body text-sm text-ink-faint">
             {tab === 'atrisk'
-              ? '✅ Sem alunos em risco'
+              ? 'Sem alunos em risco'
               : 'Sem participantes inscritos'}
           </div>
         )}
