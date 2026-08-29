@@ -68,26 +68,22 @@ export function AnalyticsTab() {
       {/* Top KPIs */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         <KpiCard
-          icon={Users}
           label="Colaboradores Activos"
           value={dash?.kpis.totalUsers ?? 0}
           intent="primary"
         />
         <KpiCard
-          icon={Target}
           label="Com PDI Activo"
           value={`${dash?.kpis.pdpCoverage ?? 0}%`}
           sub={`${dash?.kpis.usersWithActivePlan} colaboradores`}
           intent="accent"
         />
         <KpiCard
-          icon={CheckCircle}
           label="Taxa Conclusão Acções"
           value={`${dash?.kpis.actionCompletion ?? 0}%`}
           intent="success"
         />
         <KpiCard
-          icon={AlertTriangle}
           label="Acções em Atraso"
           value={dash?.kpis.overdueActions ?? 0}
           intent="danger"

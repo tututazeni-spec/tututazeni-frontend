@@ -84,7 +84,9 @@ export function SkillGapsTab() {
             intent={view === v ? 'primary' : 'secondary'}
             onClick={() => setView(v)}
           >
-            {v === 'needs' ? 'Necessidades de Formação' : 'Mapa de Calor de Competências'}
+            {v === 'needs'
+              ? 'Necessidades de Formação'
+              : 'Mapa de Calor de Competências'}
           </Button>
         ))}
       </div>
@@ -130,7 +132,6 @@ export function SkillGapsTab() {
             ))}
             {needs.length === 0 && (
               <EmptyState
-                icon={Brain}
                 title="Sem lacunas de habilidades registadas"
                 description="Ainda não há avaliações de habilidades suficientes para calcular lacunas."
                 className="border-none"
@@ -151,7 +152,7 @@ export function SkillGapsTab() {
             <thead className="bg-surface-sunken">
               <tr>
                 <th className="px-4 py-2 text-left font-medium text-ink-muted">
-                  Skill
+                  Habilidade
                 </th>
                 {depts.map((dept) => (
                   <th

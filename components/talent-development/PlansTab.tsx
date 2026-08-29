@@ -21,7 +21,7 @@ import { StatusBadge } from '@/components/ui/StatusBadge';
 import {
   PRIORITY_COLOR,
   PRIORITY_LABEL,
-  STATUS_CFG,
+  STATUS_CFG_PLAIN,
   STATUS_LABEL,
 } from './constants';
 import type { ListMeta, Plan } from './types';
@@ -99,10 +99,8 @@ export function PlansTab() {
           const count = data?.data.filter((p) => p.status === s).length ?? 0;
           return (
             <Card key={s} className="p-3 text-center">
-              <p className="font-display text-xl font-bold text-ink">
-                {count}
-              </p>
-              <StatusBadge value={s} map={STATUS_CFG} />
+              <p className="font-display text-xl font-bold text-ink">{count}</p>
+              <StatusBadge value={s} map={STATUS_CFG_PLAIN} />
             </Card>
           );
         })}
@@ -114,7 +112,11 @@ export function PlansTab() {
           <Card key={plan.id} className="p-4">
             <div className="mb-3 flex items-start justify-between">
               <div className="flex min-w-0 items-center gap-2">
-                <Avatar name={plan.user.fullName} url={plan.user.avatarUrl} size="sm" />
+                <Avatar
+                  name={plan.user.fullName}
+                  url={plan.user.avatarUrl}
+                  size="sm"
+                />
                 <div className="min-w-0">
                   <p className="truncate font-body text-xs font-medium text-ink">
                     {plan.user.fullName}
@@ -125,7 +127,7 @@ export function PlansTab() {
                 </div>
               </div>
               <div className="flex shrink-0 flex-col items-end gap-1">
-                <StatusBadge value={plan.status} map={STATUS_CFG} />
+                <StatusBadge value={plan.status} map={STATUS_CFG_PLAIN} />
                 <span
                   className={`font-body text-[10px] font-semibold ${PRIORITY_COLOR[plan.priority]}`}
                 >
@@ -154,7 +156,11 @@ export function PlansTab() {
             {/* Stats */}
             <div className="flex items-center gap-4 font-body text-xs text-ink-muted">
               <span className="flex items-center gap-1">
-                <CheckCircle size={11} strokeWidth={1.75} className="text-success" />
+                <CheckCircle
+                  size={11}
+                  strokeWidth={1.75}
+                  className="text-success"
+                />
                 {plan.stats.completed}/{plan.stats.total} acções
               </span>
               {plan.stats.overdue > 0 && (

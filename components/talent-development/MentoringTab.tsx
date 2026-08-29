@@ -21,7 +21,7 @@ import { Card, CardBody } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
-import { STATUS_CFG } from './constants';
+import { STATUS_CFG, STATUS_LABEL } from './constants';
 import type { ListMeta, MentoringPair } from './types';
 
 const STATUS_FILTERS = ['ACTIVE', 'COMPLETED', 'PAUSED'] as const;
@@ -58,7 +58,7 @@ export function MentoringTab() {
             intent={status === s ? 'primary' : 'secondary'}
             onClick={() => setStatus(s)}
           >
-            {s}
+            {STATUS_LABEL[s] ?? s}
           </Button>
         ))}
         <span className="ml-auto font-body text-xs text-ink-faint">
@@ -78,16 +78,28 @@ export function MentoringTab() {
               {/* Pair */}
               <div className="mb-3 flex items-center gap-2">
                 <div className="flex flex-col items-center gap-1">
-                  <Avatar name={m.mentor.fullName} url={m.mentor.avatarUrl} size="md" />
+                  <Avatar
+                    name={m.mentor.fullName}
+                    url={m.mentor.avatarUrl}
+                    size="md"
+                  />
                   <span className="font-body text-[9px] font-semibold text-primary">
                     MENTOR
                   </span>
                 </div>
                 <div className="flex flex-1 flex-col items-center">
-                  <ChevronRight size={16} strokeWidth={1.75} className="text-ink-faint" />
+                  <ChevronRight
+                    size={16}
+                    strokeWidth={1.75}
+                    className="text-ink-faint"
+                  />
                 </div>
                 <div className="flex flex-col items-center gap-1">
-                  <Avatar name={m.mentee.fullName} url={m.mentee.avatarUrl} size="md" />
+                  <Avatar
+                    name={m.mentee.fullName}
+                    url={m.mentee.avatarUrl}
+                    size="md"
+                  />
                   <span className="font-body text-[9px] font-semibold text-accent">
                     MENTEE
                   </span>
@@ -126,9 +138,10 @@ export function MentoringTab() {
         {(data?.data.length ?? 0) === 0 && (
           <div className="col-span-full">
             <EmptyState
-              icon={UserCheck}
               title="Nenhuma mentoria"
-              description={`Não há mentorias no estado ${status.toLowerCase()}.`}
+              description={`Não há mentorias no estado ${(
+                STATUS_LABEL[status] ?? status
+              ).toLowerCase()}.`}
             />
           </div>
         )}
