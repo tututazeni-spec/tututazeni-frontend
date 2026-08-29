@@ -1,6 +1,5 @@
 // components/api-integrations/MonitoringTab.tsx
 
-import { Plug, Activity, AlertTriangle, TrendingUp } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -40,28 +39,24 @@ export function MonitoringTab() {
       {/* KPIs */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         <KpiCard
-          icon={Plug}
           label="Integrações Activas"
           value={s.activeIntegrations ?? 0}
           intent="primary"
           className="w-full"
         />
         <KpiCard
-          icon={Activity}
           label="Chamadas (24h)"
           value={s.totalLogs24h ?? 0}
           intent="accent"
           className="w-full"
         />
         <KpiCard
-          icon={AlertTriangle}
           label="Taxa de Erro"
           value={`${s.errorRate24h ?? 0}%`}
           intent={errorRateHigh ? 'danger' : 'success'}
           className="w-full"
         />
         <KpiCard
-          icon={TrendingUp}
           label="Latência Média"
           value={s.avgLatencyMs ? `${s.avgLatencyMs}ms` : '–'}
           intent="warning"

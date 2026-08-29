@@ -158,7 +158,6 @@ export function IntegrationsTab() {
         })}
         {list.length === 0 && (
           <EmptyState
-            icon={Plug}
             title="Sem integrações configuradas"
             description="Adiciona uma integração para começar a ligar sistemas externos."
           />
