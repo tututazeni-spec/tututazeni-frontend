@@ -19,7 +19,7 @@ import type {
   ParticipantResult,
   TabId,
 } from './types';
-import { typeColor } from './colors';
+import { typeColor, typeLabel } from './colors';
 import { RadarChart } from './RadarChart';
 import { CompetencyHeatmap } from './CompetencyHeatmap';
 import { NineBoxGrid } from './NineBoxGrid';
@@ -159,7 +159,7 @@ export function Evaluation360View({
                     className="inline-block w-2 h-2 rounded-full"
                     style={{ background: color }}
                   />
-                  {type.replace('_', ' ')}
+                  {typeLabel[type] ?? type}
                 </span>
               ))}
             </div>
