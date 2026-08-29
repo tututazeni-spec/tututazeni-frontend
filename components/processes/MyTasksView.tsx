@@ -5,7 +5,6 @@
 
 'use client';
 
-import { PartyPopper } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -38,7 +37,6 @@ export function MyTasksView({ onOpenInstance }: MyTasksViewProps) {
   if (tasks.length === 0)
     return (
       <EmptyState
-        icon={PartyPopper}
         title="Sem tarefas pendentes"
         description="Não há etapas atribuídas a si de momento."
       />

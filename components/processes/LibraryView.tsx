@@ -8,7 +8,6 @@
 
 import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
-import { FolderSearch } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { useDebounce } from '@/hooks/useDebounce';
 import { queryKeys } from '@/lib/queryKeys';
@@ -131,7 +130,6 @@ export function LibraryView({ onSelect }: LibraryViewProps) {
 
         {!loading && data?.data.length === 0 && (
           <EmptyState
-            icon={FolderSearch}
             title="Sem processos"
             description="Nenhum processo encontrado com estes filtros."
           />

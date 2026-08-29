@@ -5,14 +5,6 @@
 
 'use client';
 
-import {
-  Activity,
-  AlertTriangle,
-  CheckCircle2,
-  Eye,
-  FileEdit,
-  Layers,
-} from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -48,21 +40,18 @@ export function DashboardView({ onOpenInstance }: DashboardViewProps) {
         </div>
         <div className="grid grid-cols-3 gap-3">
           <KpiCard
-            icon={Layers}
             label="Activos"
             value={data.processes.active}
             sub="Em uso"
             intent="success"
           />
           <KpiCard
-            icon={Eye}
             label="Em revisão"
             value={data.processes.inReview}
             sub="Aguardam aprovação"
             intent="warning"
           />
           <KpiCard
-            icon={FileEdit}
             label="Rascunhos"
             value={data.processes.draft}
             sub="Em construção"
@@ -78,19 +67,16 @@ export function DashboardView({ onOpenInstance }: DashboardViewProps) {
         </div>
         <div className="grid grid-cols-3 gap-3">
           <KpiCard
-            icon={Activity}
             label="Em progresso"
             value={data.instances.inProgress}
             intent="info"
           />
           <KpiCard
-            icon={CheckCircle2}
             label="Concluídas"
             value={data.instances.completed}
             intent="success"
           />
           <KpiCard
-            icon={AlertTriangle}
             label="SLA expirados"
             value={data.compliance.overdueSteps}
             intent={data.compliance.overdueSteps > 0 ? 'danger' : 'primary'}
