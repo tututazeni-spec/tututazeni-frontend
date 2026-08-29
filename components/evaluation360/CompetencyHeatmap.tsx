@@ -5,7 +5,7 @@
 'use client';
 
 import type { CompetencyScore } from './types';
-import { COLORS, typeColor, scoreColor } from './colors';
+import { typeColor, scoreColor } from './colors';
 
 export interface CompetencyHeatmapProps {
   competencies: CompetencyScore[];
@@ -39,12 +39,13 @@ export function CompetencyHeatmap({ competencies }: CompetencyHeatmapProps) {
                 ? 'rgb(245, 158, 11)'
                 : c.gap < -0.5
                   ? 'rgb(34, 197, 94)'
-                  : COLORS.muted;
+                  : 'var(--color-ink-muted)';
             return (
               <tr
                 key={c.id}
                 style={{
-                  background: i % 2 === 0 ? 'rgb(13, 20, 33)' : 'transparent',
+                  background:
+                    i % 2 === 0 ? 'var(--color-surface-sunken)' : 'transparent',
                 }}
               >
                 <td className="px-3 py-2.5 border-b border-border">

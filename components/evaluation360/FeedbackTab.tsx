@@ -8,7 +8,7 @@
 'use client';
 
 import type { ContinuousFeedback } from './types';
-import { COLORS, timeAgo } from './colors';
+import { timeAgo } from './colors';
 import { Button } from '@/components/ui/Button';
 
 export interface FeedbackTabProps {
@@ -16,29 +16,16 @@ export interface FeedbackTabProps {
 }
 
 export function FeedbackTab({ feedbacks }: FeedbackTabProps) {
-  const typeConfig: Record<
-    string,
-    { label: string; color: string; icon: string }
-  > = {
-    RECOGNITION: {
-      label: 'Reconhecimento',
-      color: 'rgb(34, 197, 94)',
-      icon: '★',
-    },
-    DEVELOPMENT: {
-      label: 'Desenvolvimento',
-      color: 'rgb(129, 140, 248)',
-      icon: '◎',
-    },
-    CHECK_IN: { label: 'Check-in 1:1', color: 'rgb(96, 165, 250)', icon: '◆' },
+  const typeConfig: Record<string, { label: string; color: string }> = {
+    RECOGNITION: { label: 'Reconhecimento', color: 'rgb(34, 197, 94)' },
+    DEVELOPMENT: { label: 'Desenvolvimento', color: 'rgb(129, 140, 248)' },
+    CHECK_IN: { label: 'Check-in 1:1', color: 'rgb(96, 165, 250)' },
   };
   return (
     <div className="flex flex-col gap-3">
       <div className="flex justify-between items-center mb-2">
         <div>
-          <h2 className="m-0 text-lg font-bold text-ink">
-            Feedback Contínuo
-          </h2>
+          <h2 className="m-0 text-lg font-bold text-ink">Feedback Contínuo</h2>
           <p className="m-0 mt-1 text-sm text-ink-muted">
             Feedbacks recebidos fora dos ciclos formais
           </p>
@@ -58,9 +45,6 @@ export function FeedbackTab({ feedbacks }: FeedbackTabProps) {
             <div className="flex justify-between items-start gap-4">
               <div>
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="text-sm" style={{ color: cfg.color }}>
-                    {cfg.icon}
-                  </span>
                   <span
                     className="text-xs font-bold uppercase tracking-wider"
                     style={{ color: cfg.color }}

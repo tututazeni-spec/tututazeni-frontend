@@ -96,7 +96,7 @@ export function OverviewTab({ result, cycle }: OverviewTabProps) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="rounded-lg border border-border bg-surface px-5 py-4.5">
           <div className="text-xs font-bold text-success-ink uppercase tracking-wider mb-3.5">
-            ◆ Pontos Fortes
+            Pontos Fortes
           </div>
           {result.strengths.map((s) => (
             <div
@@ -104,9 +104,7 @@ export function OverviewTab({ result, cycle }: OverviewTabProps) {
               className="flex justify-between items-center mb-2.5"
             >
               <div>
-                <span className="text-sm font-semibold text-ink">
-                  {s.name}
-                </span>
+                <span className="text-sm font-semibold text-ink">{s.name}</span>
                 <span className="text-xs text-ink-muted ml-2">
                   {s.category}
                 </span>
@@ -119,7 +117,7 @@ export function OverviewTab({ result, cycle }: OverviewTabProps) {
         </div>
         <div className="rounded-lg border border-border bg-surface px-5 py-4.5">
           <div className="text-xs font-bold text-danger-ink uppercase tracking-wider mb-3.5">
-            ▲ Oportunidades de Desenvolvimento
+            Oportunidades de Desenvolvimento
           </div>
           {result.gaps.map((g) => (
             <div
@@ -127,9 +125,7 @@ export function OverviewTab({ result, cycle }: OverviewTabProps) {
               className="flex justify-between items-center mb-2.5"
             >
               <div>
-                <span className="text-sm font-semibold text-ink">
-                  {g.name}
-                </span>
+                <span className="text-sm font-semibold text-ink">{g.name}</span>
                 <span className="text-xs text-ink-muted ml-2">
                   {g.category}
                 </span>
