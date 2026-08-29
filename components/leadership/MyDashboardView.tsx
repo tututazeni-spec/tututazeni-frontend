@@ -221,7 +221,7 @@ export function MyDashboardView() {
           {/* Enviar kudos */}
           <div className="rounded-card border border-dashed border-border-strong p-4">
             <div className="mb-3 font-body text-xs font-medium text-ink-muted">
-               Dar reconhecimento a colega
+              Dar reconhecimento a colega
             </div>
             <Input
               type="number"

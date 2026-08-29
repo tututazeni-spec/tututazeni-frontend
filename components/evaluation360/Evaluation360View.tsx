@@ -143,6 +143,8 @@ export function Evaluation360View({
                 Mapa de Competências
               </h2>
               <p className="m-0 mt-1 text-sm text-ink-muted">
+                Pontuação por fonte de avaliador, Lacuna e Referência
+                Comparativa do Cargo
               </p>
             </div>
             <div className="flex gap-2 mb-1">
