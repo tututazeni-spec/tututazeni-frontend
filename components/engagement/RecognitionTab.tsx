@@ -6,7 +6,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Heart, Zap } from 'lucide-react';
+import { Zap } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -124,7 +124,6 @@ export function RecognitionTab() {
 
           {feed.length === 0 && (
             <EmptyState
-              icon={Heart}
               title="Nenhum reconhecimento ainda"
               description="Sê o primeiro a reconhecer um colega!"
             />
