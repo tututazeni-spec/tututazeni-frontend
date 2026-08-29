@@ -1,7 +1,7 @@
 // components/api-integrations/ApiKeysTab.tsx
 
 import { useState } from 'react';
-import { Copy, Plus, RotateCcw, Trash2, Clock, Key } from 'lucide-react';
+import { Copy, Plus, RotateCcw, Trash2, Clock } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
@@ -191,7 +191,6 @@ export function ApiKeysTab() {
           ))}
           {keys.length === 0 && (
             <EmptyState
-              icon={Key}
               title="Sem API Keys criadas"
               description="Cria uma API Key para começar a integrar sistemas externos."
               className="rounded-none border-none"

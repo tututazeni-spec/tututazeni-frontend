@@ -1,6 +1,6 @@
 // components/api-integrations/WebhooksTab.tsx
 
-import { Zap, Trash2, Plus } from 'lucide-react';
+import { Trash2, Plus } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
@@ -128,7 +128,6 @@ export function WebhooksTab() {
         ))}
         {list.length === 0 && (
           <EmptyState
-            icon={Zap}
             title="Sem webhooks configurados"
             description="Cria um webhook para receber eventos em tempo real."
           />
