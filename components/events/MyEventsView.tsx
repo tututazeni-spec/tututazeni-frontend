@@ -7,7 +7,6 @@
 'use client';
 
 import { useState } from 'react';
-import { CalendarClock } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -64,7 +63,6 @@ export function MyEventsView({ onSelect }: MyEventsViewProps) {
 
       {items.length === 0 ? (
         <EmptyState
-          icon={CalendarClock}
           title={
             tab === 'upcoming' ? 'Sem eventos futuros' : 'Sem eventos passados'
           }

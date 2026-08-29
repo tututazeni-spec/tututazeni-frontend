@@ -11,7 +11,6 @@
 
 import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
-import { CalendarX } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -31,7 +30,7 @@ const TYPE_ITEMS = [
   { value: 'ALL', label: 'Todos os tipos' },
   ...Object.entries(TYPE_CFG).map(([k, v]) => ({
     value: k,
-    label: `${v.icon} ${v.label}`,
+    label: v.label,
   })),
 ];
 
@@ -93,7 +92,6 @@ export function CatalogView({ onSelect }: CatalogViewProps) {
           {(data?.data ?? []).length === 0 && (
             <div className="col-span-2">
               <EmptyState
-                icon={CalendarX}
                 title="Sem eventos encontrados"
                 description="Ajusta os filtros ou volta mais tarde."
               />
