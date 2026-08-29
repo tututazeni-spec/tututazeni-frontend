@@ -87,29 +87,16 @@ export function NineBoxGrid({ entries }: NineBoxGridProps) {
             return (
               <div
                 key={key}
-                className="rounded-lg p-3 min-h-28 relative border"
-                style={{
-                  background: cfg.bg,
-                  borderColor: `${cfg.color}55`,
-                }}
+                className="rounded-lg p-3 min-h-28 relative border border-black bg-white"
               >
-                <div
-                  className="text-xs font-bold uppercase tracking-wider mb-2"
-                  style={{ color: cfg.color }}
-                >
+                <div className="text-xs font-bold uppercase tracking-wider mb-2 text-black">
                   {cfg.label}
                 </div>
                 <div className="flex flex-wrap gap-1">
                   {boxEntries.map((e) => (
                     <div
                       key={e.participantId}
-                      className="rounded px-2 py-0.5 text-xs font-semibold whitespace-nowrap"
-                      style={{
-                        background: `${cfg.color}22`,
-                        borderColor: `${cfg.color}44`,
-                        color: cfg.color,
-                        border: '1px solid',
-                      }}
+                      className="rounded border border-black bg-white px-2 py-0.5 text-xs font-semibold whitespace-nowrap text-black"
                       title={`Score: ${e.score.toFixed(2)}`}
                     >
                       {e.name.split(' ')[0]}

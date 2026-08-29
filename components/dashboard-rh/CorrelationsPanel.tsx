@@ -47,10 +47,10 @@ export function CorrelationsPanel() {
       {data?.trainingVsPerformance && (
         <div className="rounded-card border border-border bg-surface p-5">
           <h4 className="mb-1 font-body font-semibold text-ink-muted">
-             Formação × Performance
+            Formação × Performance
           </h4>
-          <p className="mb-4 rounded-control bg-accent-subtle px-3 py-2 font-body text-xs text-accent">
-             {data.trainingVsPerformance.insight}
+          <p className="mb-4 rounded-control border border-black bg-white px-3 py-2 font-body text-xs text-black">
+            {data.trainingVsPerformance.insight}
           </p>
           <div className="grid grid-cols-2 gap-4">
             {[
@@ -69,9 +69,7 @@ export function CorrelationsPanel() {
                 >
                   {item.value?.toFixed(1) ?? '–'}
                 </p>
-                <p className="font-body text-xs text-ink-muted">
-                  {item.label}
-                </p>
+                <p className="font-body text-xs text-ink-muted">{item.label}</p>
                 <ProgressBar
                   value={((item.value ?? 0) / 5) * 100}
                   className="h-2"
@@ -95,10 +93,10 @@ export function CorrelationsPanel() {
       {data?.engagementVsPerformance && (
         <div className="rounded-card border border-border bg-surface p-5">
           <h4 className="mb-1 font-body font-semibold text-ink-muted">
-             Compromisso dos Colaboradores × Performance
+            Compromisso dos Colaboradores × Performance
           </h4>
-          <p className="mb-4 rounded-control bg-accent-subtle px-3 py-2 font-body text-xs text-accent">
-             {data.engagementVsPerformance.insight}
+          <p className="mb-4 rounded-control border border-black bg-white px-3 py-2 font-body text-xs text-black">
+            {data.engagementVsPerformance.insight}
           </p>
           <div className="grid grid-cols-2 gap-4">
             {[
@@ -117,9 +115,7 @@ export function CorrelationsPanel() {
                 >
                   {item.value?.toFixed(1) ?? '–'}
                 </p>
-                <p className="font-body text-xs text-ink-muted">
-                  {item.label}
-                </p>
+                <p className="font-body text-xs text-ink-muted">{item.label}</p>
                 <ProgressBar
                   value={((item.value ?? 0) / 5) * 100}
                   className="h-2"

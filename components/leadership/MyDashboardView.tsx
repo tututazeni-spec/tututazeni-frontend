@@ -195,20 +195,18 @@ export function MyDashboardView() {
             {data.recentKudos?.slice(0, 5).map((k: KudosItem) => (
               <div
                 key={k.id}
-                className="rounded-card border border-warning bg-warning-subtle p-3"
+                className="rounded-card border border-black bg-white p-3"
               >
                 <div className="mb-1 flex items-center gap-2">
                   <span className="text-lg">{k.badge ?? '⭐'}</span>
-                  <span className="font-body text-xs font-medium text-warning-ink">
+                  <span className="font-body text-xs font-medium text-black">
                     {k.sender.fullName}
                   </span>
-                  <span className="ml-auto font-body text-xs text-warning-ink/70">
+                  <span className="ml-auto font-body text-xs text-black">
                     {fmtDate(k.createdAt)}
                   </span>
                 </div>
-                <p className="font-body text-xs text-warning-ink">
-                  {k.message}
-                </p>
+                <p className="font-body text-xs text-black">{k.message}</p>
               </div>
             ))}
             {(!data.recentKudos || data.recentKudos.length === 0) && (
@@ -241,7 +239,7 @@ export function MyDashboardView() {
               onClick={handleKudos}
               disabled={!kudosMsg || !kudosTarget || sendingKudos}
               loading={sendingKudos}
-              intent="warning"
+              intent="secondary"
               size="sm"
               className="w-full"
             >

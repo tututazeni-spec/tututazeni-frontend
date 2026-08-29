@@ -70,14 +70,14 @@ export function MyDashboardView() {
 
       {/* Streak + Badges */}
       <div className="grid grid-cols-2 gap-4">
-        <div className="rounded-card bg-gradient-to-r from-accent to-accent-hover p-5 text-canvas">
-          <div className="font-body text-sm text-canvas/80 mb-1">
+        <div className="rounded-card border border-black bg-white p-5 text-black">
+          <div className="font-body text-sm text-black mb-1">
             Sequência de Aprendizagem
           </div>
           <div className="font-display text-4xl font-bold">
             {data.streak.current}
           </div>
-          <div className="font-body text-sm text-canvas/80 mt-1">
+          <div className="font-body text-sm text-black mt-1">
             Dias Consecutivos (Recorde: {data.streak.longest})
           </div>
         </div>

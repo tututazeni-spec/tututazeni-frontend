@@ -10,11 +10,7 @@ import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { StatusBadge } from '@/components/ui/StatusBadge';
-import {
-  PRIORITY_CONFIG,
-  READINESS_INTENT_CLASSES,
-  type ReadinessIntent,
-} from './constants';
+import { PRIORITY_CONFIG, type ReadinessIntent } from './constants';
 import type { GapAnalysis } from './types';
 
 interface ReadinessCfg {
@@ -29,18 +25,16 @@ interface GapTabProps {
 }
 
 export function GapTab({ gap, rcfg }: GapTabProps) {
-  const intentCls = rcfg ? READINESS_INTENT_CLASSES[rcfg.intent] : null;
-
   return (
     <div className="space-y-4">
       {/* Readiness summary */}
-      {rcfg && intentCls && (
-        <div className={`rounded-card border p-5 ${intentCls.panel}`}>
+      {rcfg && (
+        <div className="rounded-card border border-black bg-white p-5">
           <div className="flex items-center justify-between mb-2">
-            <p className="font-semibold text-ink">
+            <p className="font-semibold text-black">
               {rcfg.emoji} Prontidão: &quot;{gap.targetRole}&quot;
             </p>
-            <span className={`text-2xl font-bold ${intentCls.text}`}>
+            <span className="text-2xl font-bold text-black">
               {gap.readinessScore}%
             </span>
           </div>

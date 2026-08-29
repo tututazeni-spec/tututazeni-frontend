@@ -80,22 +80,15 @@ export function DashboardView() {
       <div className="grid grid-cols-3 gap-3">
         {[
           { label: 'Cargos críticos', value: kpis.totalCriticalPositions },
-          {
-            label: 'Sem sucessores',
-            value: kpis.withoutSuccessor,
-            color: kpis.withoutSuccessor > 0 ? 'text-danger-ink' : 'text-ink',
-          },
-          {
-            label: 'Risco alto/crítico',
-            value: kpis.highRiskPositions,
-            color: kpis.highRiskPositions > 0 ? 'text-warning-ink' : 'text-ink',
-          },
-        ].map(({ label, value, color }) => (
-          <div key={label} className="rounded-card bg-surface-sunken p-4">
-            <div className="mb-1 font-body text-xs text-ink-faint">{label}</div>
-            <div
-              className={`font-display text-2xl font-semibold ${color ?? 'text-ink'}`}
-            >
+          { label: 'Sem sucessores', value: kpis.withoutSuccessor },
+          { label: 'Risco alto/crítico', value: kpis.highRiskPositions },
+        ].map(({ label, value }) => (
+          <div
+            key={label}
+            className="rounded-card border border-black bg-white p-4"
+          >
+            <div className="mb-1 font-body text-xs text-black">{label}</div>
+            <div className="font-display text-2xl font-semibold text-black">
               {value}
             </div>
           </div>

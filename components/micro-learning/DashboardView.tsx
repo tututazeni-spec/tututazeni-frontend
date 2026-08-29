@@ -20,7 +20,11 @@ const STAT_TILES: Array<{
 }> = [
   { key: 'completed', label: 'Concluídos', color: 'text-success' },
   { key: 'totalMinutes', label: 'Minutos', color: 'text-info' },
-  { key: 'totalXp', label: 'Pontos de Experiência ganho', color: 'text-accent' },
+  {
+    key: 'totalXp',
+    label: 'Pontos de Experiência ganho',
+    color: 'text-accent',
+  },
   { key: 'avgQuizScore', label: 'Questionário médio', suffix: '%' },
 ];
 
@@ -38,24 +42,24 @@ export function DashboardView() {
   return (
     <div className="space-y-6">
       {/* Streak */}
-      <div className="flex items-center justify-between rounded-card bg-gradient-to-r from-accent to-accent-hover p-6 text-canvas">
+      <div className="flex items-center justify-between rounded-card border border-black bg-white p-6 text-black">
         <div>
-          <div className="mb-1 font-body text-sm text-canvas/80">
+          <div className="mb-1 font-body text-sm text-black">
             Sequência actual
           </div>
           <div className="font-display text-5xl font-bold">
             {streak.current}
           </div>
-          <div className="mt-1 font-body text-sm text-canvas/80">
-            Dias consecutivos 
+          <div className="mt-1 font-body text-sm text-black">
+            Dias consecutivos
           </div>
         </div>
         <div className="text-right">
-          <div className="font-body text-sm text-canvas/80">Recorde</div>
+          <div className="font-body text-sm text-black">Recorde</div>
           <div className="font-display text-3xl font-bold">
             {streak.longest}
           </div>
-          <div className="mt-1 font-body text-sm text-canvas/80">dias</div>
+          <div className="mt-1 font-body text-sm text-black">dias</div>
         </div>
       </div>
 
@@ -63,9 +67,7 @@ export function DashboardView() {
       <div className="grid grid-cols-4 gap-3">
         {STAT_TILES.map(({ key, label, color, suffix }) => (
           <div key={key} className="rounded-card bg-surface-sunken p-4">
-            <div className="mb-1 font-body text-xs text-ink-faint">
-              {label}
-            </div>
+            <div className="mb-1 font-body text-xs text-ink-faint">{label}</div>
             <div
               className={`font-data text-2xl font-bold ${color ?? 'text-ink'}`}
             >

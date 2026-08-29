@@ -56,20 +56,14 @@ export function DashboardTab() {
           {(dash?.alerts ?? []).map((a, i) => (
             <div
               key={i}
-              className={`flex items-center gap-3 rounded-card border px-4 py-3 ${a.severity === 'HIGH' ? 'border-danger bg-danger-subtle' : 'border-warning bg-warning-subtle'}`}
+              className="flex items-center gap-3 rounded-card border border-black bg-white px-4 py-3"
             >
               <AlertTriangle
                 size={14}
                 strokeWidth={1.75}
-                className={
-                  a.severity === 'HIGH' ? 'text-danger-ink' : 'text-warning-ink'
-                }
+                className="text-black"
               />
-              <p
-                className={`font-body text-sm ${a.severity === 'HIGH' ? 'text-danger-ink' : 'text-warning-ink'}`}
-              >
-                {a.message}
-              </p>
+              <p className="font-body text-sm text-black">{a.message}</p>
             </div>
           ))}
         </div>
@@ -77,11 +71,7 @@ export function DashboardTab() {
 
       {/* KPIs */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-        <KpiCard
-          label="Equipa"
-          value={k.teamSize ?? 0}
-          intent="primary"
-        />
+        <KpiCard label="Equipa" value={k.teamSize ?? 0} intent="primary" />
         <KpiCard
           label="Pontuação Média"
           value={k.avgPerfScore?.toFixed(1) ?? '–'}
@@ -92,11 +82,7 @@ export function DashboardTab() {
           value={k.activePlans ?? 0}
           intent="accent"
         />
-        <KpiCard
-          label="Em Risco"
-          value={k.atRiskCount ?? 0}
-          intent="danger"
-        />
+        <KpiCard label="Em Risco" value={k.atRiskCount ?? 0} intent="danger" />
         <KpiCard
           label="Em Formação"
           value={k.activeEnrollments ?? 0}
@@ -142,7 +128,7 @@ export function DashboardTab() {
                     </p>
                     {r.action && (
                       <p className="mt-0.5 font-body text-xs text-primary">
-                         {r.action}
+                        {r.action}
                       </p>
                     )}
                   </div>
