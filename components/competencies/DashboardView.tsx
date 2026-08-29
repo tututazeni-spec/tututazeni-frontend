@@ -10,7 +10,6 @@
 
 'use client';
 
-import { AlertTriangle, UserCheck, Users, UserX } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -42,21 +41,22 @@ export function DashboardView() {
     <div className="space-y-6">
       {/* Métricas */}
       <div className="grid grid-cols-4 gap-3">
-        <KpiCard icon={Users} label="Total colaboradores" value={data.totalUsers} intent="primary" />
         <KpiCard
-          icon={UserCheck}
+          label="Total colaboradores"
+          value={data.totalUsers}
+          intent="primary"
+        />
+        <KpiCard
           label="Com competências"
           value={data.usersWithCompetencies}
           intent="success"
         />
         <KpiCard
-          icon={UserX}
           label="Sem competências"
           value={data.totalUsers - data.usersWithCompetencies}
           intent="warning"
         />
         <KpiCard
-          icon={AlertTriangle}
           label="Lacunas identificados"
           value={data.totalGaps}
           intent={data.totalGaps > 0 ? 'danger' : 'primary'}

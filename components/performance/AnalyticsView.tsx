@@ -64,26 +64,18 @@ export function AnalyticsView() {
       {/* KPIs */}
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         <KpiCard
-          icon={BarChart3}
-          label="Total de reviews"
+          label="Total de avaliações"
           value={data.totalReviews}
           intent="primary"
         />
+        <KpiCard label="Pontuação média" value={data.avgScore} intent="info" />
         <KpiCard
-          icon={TrendingUp}
-          label="Pontuação média"
-          value={data.avgScore}
-          intent="info"
-        />
-        <KpiCard
-          icon={TrendingDown}
-          label="Score mínimo"
+          label="Pontuação mínima"
           value={data.minScore ?? '—'}
           intent="danger"
         />
         <KpiCard
-          icon={Star}
-          label="Score máximo"
+          label="Pontuação máxima"
           value={data.maxScore ?? '—'}
           intent="success"
         />

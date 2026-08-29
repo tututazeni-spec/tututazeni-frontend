@@ -36,25 +36,21 @@ export function AnalyticsTab() {
       {/* KPIs */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <KpiCard
-          icon={Bot}
           label="Cenários"
           value={data?.kpis.totalScenarios ?? 0}
           intent="primary"
         />
         <KpiCard
-          icon={Play}
           label="Em Progresso"
           value={data?.kpis.activeSessions ?? 0}
           intent="info"
         />
         <KpiCard
-          icon={CheckCircle}
           label="Concluídas"
           value={data?.kpis.completedSessions ?? 0}
           intent="success"
         />
         <KpiCard
-          icon={Star}
           label="Pontuação Média"
           value={data?.kpis.avgScore ?? '–'}
           intent="warning"

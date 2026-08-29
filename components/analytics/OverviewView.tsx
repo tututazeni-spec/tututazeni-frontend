@@ -49,28 +49,24 @@ export function OverviewView() {
       {/* KPIs principais */}
       <div className="mt-6 grid grid-cols-4 gap-3">
         <KpiCard
-          icon={Users}
           label="Colaboradores activos"
           value={data.users.active}
           intent="info"
           className="w-full"
         />
         <KpiCard
-          icon={CheckCircle2}
           label="Taxa de conclusão"
           value={`${data.enrollments.completionRate}%`}
           intent="success"
           className="w-full"
         />
         <KpiCard
-          icon={Target}
           label="Adopção de PDI"
           value={`${data.pdi.adoptionRate}%`}
           intent="accent"
           className="w-full"
         />
         <KpiCard
-          icon={TrendingUp}
           label="Performance média"
           value={data.performance.avgScore}
           intent="warning"

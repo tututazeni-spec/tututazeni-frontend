@@ -1,6 +1,13 @@
 // components/lms/MyPathsView.tsx
 
-import { Award, BookOpen, Clock, Flame, GraduationCap, Video } from 'lucide-react';
+import {
+  Award,
+  BookOpen,
+  Clock,
+  Flame,
+  GraduationCap,
+  Video,
+} from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
 import { Card, CardBody } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -31,8 +38,13 @@ export function MyPathsView({
   return (
     <div className="space-y-6 p-6">
       <div className="flex items-center justify-between">
-        <h1 className="font-display text-2xl font-bold text-ink">Os Meus Percursos</h1>
-        <a href="/lms/paths" className="font-body text-sm text-primary hover:underline">
+        <h1 className="font-display text-2xl font-bold text-ink">
+          Os Meus Percursos
+        </h1>
+        <a
+          href="/lms/paths"
+          className="font-body text-sm text-primary hover:underline"
+        >
           Explorar percursos →
         </a>
       </div>
@@ -40,33 +52,37 @@ export function MyPathsView({
       {/* Analytics */}
       {analytics && (
         <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
-          <KpiCard icon={Clock} label="Horas" value={`${analytics.totalHours}h`} intent="primary" />
           <KpiCard
-            icon={BookOpen}
+            label="Horas"
+            value={`${analytics.totalHours}h`}
+            intent="primary"
+          />
+          <KpiCard
             label="Cursos concluídos"
             value={analytics.coursesCompleted}
             intent="accent"
           />
           <KpiCard
-            icon={Award}
             label="Percursos concluídos"
             value={analytics.pathsCompleted}
             intent="success"
           />
           <KpiCard
-            icon={Video}
             label="Sessões assistidas"
             value={analytics.sessionsAttended}
             intent="info"
           />
-          <KpiCard icon={Flame} label="Dias seguidos" value={analytics.streakDays} intent="warning" />
+          <KpiCard
+            label="Dias seguidos"
+            value={analytics.streakDays}
+            intent="warning"
+          />
         </div>
       )}
 
       {/* Percursos */}
       {paths.length === 0 ? (
         <EmptyState
-          icon={GraduationCap}
           title="Ainda sem percursos"
           description="Ainda não estás inscrito em nenhum percurso."
         />
@@ -81,14 +97,19 @@ export function MyPathsView({
                       {mp.path.name}
                     </h3>
                     <p className="font-data text-xs text-ink-faint">
-                      {mp.path.code} · {mp.path.level} · {mp.path.estimatedHours || '—'}h
+                      {mp.path.code} · {mp.path.level} ·{' '}
+                      {mp.path.estimatedHours || '—'}h
                     </p>
                   </div>
-                  <Badge intent={STATUS_INTENT[mp.status] ?? 'neutral'}>{mp.status}</Badge>
+                  <Badge intent={STATUS_INTENT[mp.status] ?? 'neutral'}>
+                    {mp.status}
+                  </Badge>
                 </div>
                 <div className="mt-3">
                   <div className="mb-1 flex justify-between font-body text-xs text-ink-muted">
-                    <span>{mp.completedCourseIds.length} cursos concluídos</span>
+                    <span>
+                      {mp.completedCourseIds.length} cursos concluídos
+                    </span>
                     <span>{Math.round(mp.progress)}%</span>
                   </div>
                   <ProgressBar value={mp.progress} />

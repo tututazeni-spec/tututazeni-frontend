@@ -16,7 +16,6 @@
 'use client';
 
 import { useState } from 'react';
-import { AlertTriangle, Gauge, Layers, TrendingUp } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
@@ -174,19 +173,16 @@ export function MyProfileView() {
           {/* Summary cards */}
           <div className="grid grid-cols-4 gap-3">
             <KpiCard
-              icon={Layers}
               label="Competências"
               value={competencies.length}
               intent="primary"
             />
             <KpiCard
-              icon={AlertTriangle}
               label="Com lacunas"
               value={competencies.filter((c) => (c.gap ?? 0) > 0).length}
               intent="warning"
             />
             <KpiCard
-              icon={Gauge}
               label="Divergências"
               value={
                 competencies.filter((c) => (c.divergence ?? 0) >= 2).length
@@ -194,7 +190,6 @@ export function MyProfileView() {
               intent="danger"
             />
             <KpiCard
-              icon={TrendingUp}
               label="Nível médio"
               value={
                 competencies.length > 0

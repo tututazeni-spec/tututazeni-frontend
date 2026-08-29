@@ -48,25 +48,21 @@ export function HomeTab({ onStartScenario }: HomeTabProps) {
       {history && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           <KpiCard
-            icon={Play}
             label="Sessões"
             value={history.stats.total}
             intent="primary"
           />
           <KpiCard
-            icon={CheckCircle}
             label="Concluídas"
             value={history.stats.completed}
             intent="success"
           />
           <KpiCard
-            icon={Star}
             label="Pontuação Média"
             value={history.stats.avgScore ?? '–'}
             intent="warning"
           />
           <KpiCard
-            icon={Flame}
             label="Sequência"
             value={`${history.stats.streak}`}
             intent="accent"

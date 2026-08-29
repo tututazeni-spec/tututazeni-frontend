@@ -26,10 +26,7 @@ export const STATUS_CFG: StatusBadgeMap<PlanStatus> = {
   OVERDUE: { label: 'Atrasado', cls: 'bg-danger-subtle text-danger-ink' },
 };
 
-export const ACTION_CFG: Record<
-  ActionType,
-  { label: string; cls: string }
-> = {
+export const ACTION_CFG: Record<ActionType, { label: string; cls: string }> = {
   COURSE: { label: 'Curso', cls: 'bg-info-subtle text-info-ink' },
   MENTORING: {
     label: 'Mentoria',

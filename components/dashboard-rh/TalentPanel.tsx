@@ -36,28 +36,24 @@ export function TalentPanel() {
     <div className="space-y-5">
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         <KpiCard
-          icon={Target}
           label="Posições Cobertas"
           value={`${data?.coverageRate ?? 0}%`}
           intent="primary"
           className="w-full"
         />
         <KpiCard
-          icon={Users}
           label="Planos de Sucessão"
           value={data?.successionPlans?.length ?? 0}
           intent="primary"
           className="w-full"
         />
         <KpiCard
-          icon={Star}
           label="Profissionais de Alto Potencial"
           value={data?.hiPoCount ?? 0}
           intent="warning"
           className="w-full"
         />
         <KpiCard
-          icon={AlertTriangle}
           label="Posições em Risco"
           value={data?.positionsAtRisk?.length ?? 0}
           intent="danger"

@@ -13,7 +13,6 @@
 
 import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
-import { LayoutGrid } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { useDebounce } from '@/hooks/useDebounce';
 import { queryKeys } from '@/lib/queryKeys';
@@ -28,7 +27,10 @@ import type { Competency } from './types';
 
 const CATEGORY_ITEMS = [
   { value: 'ALL', label: 'Todas as categorias' },
-  ...Object.entries(CATEGORY_CFG).map(([k, v]) => ({ value: k, label: v.label })),
+  ...Object.entries(CATEGORY_CFG).map(([k, v]) => ({
+    value: k,
+    label: v.label,
+  })),
 ];
 
 interface CatalogViewProps {
@@ -134,7 +136,6 @@ export function CatalogView({ onSelect }: CatalogViewProps) {
           {data?.data.length === 0 && (
             <div className="col-span-3">
               <EmptyState
-                icon={LayoutGrid}
                 title="Nenhuma competência encontrada"
                 description="Ajusta a pesquisa ou a categoria seleccionada."
               />

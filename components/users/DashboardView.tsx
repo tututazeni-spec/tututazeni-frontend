@@ -33,22 +33,11 @@ export function DashboardView() {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-5 gap-3">
-        <KpiCard icon={Users} label="Total colaboradores" value={data.users.total} />
+        <KpiCard label="Total colaboradores" value={data.users.total} />
+        <KpiCard label="Activos" value={data.users.active} intent="success" />
+        <KpiCard label="Inactivos" value={data.users.inactive} />
+        <KpiCard label="Pendentes" value={data.users.pending} intent="info" />
         <KpiCard
-          icon={UserCheck}
-          label="Activos"
-          value={data.users.active}
-          intent="success"
-        />
-        <KpiCard icon={UserX} label="Inactivos" value={data.users.inactive} />
-        <KpiCard
-          icon={Clock}
-          label="Pendentes"
-          value={data.users.pending}
-          intent="info"
-        />
-        <KpiCard
-          icon={AlertTriangle}
           label="Suspensos"
           value={data.users.suspended}
           intent={data.users.suspended > 0 ? 'warning' : 'primary'}
@@ -68,7 +57,10 @@ export function DashboardView() {
                 <div className="w-36 text-xs text-ink truncate">
                   {dept.name}
                 </div>
-                <ProgressBar value={pct} className="h-5 flex-1 rounded-control" />
+                <ProgressBar
+                  value={pct}
+                  className="h-5 flex-1 rounded-control"
+                />
                 <div className="w-12 text-right text-xs font-mono text-ink-muted">
                   {dept.count}
                 </div>

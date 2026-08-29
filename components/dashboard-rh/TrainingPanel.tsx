@@ -33,21 +33,18 @@ export function TrainingPanel() {
     <div className="space-y-5">
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         <KpiCard
-          icon={BookOpen}
           label="Conclusões (mês)"
           value={data?.completed ?? 0}
           intent="info"
           className="w-full"
         />
         <KpiCard
-          icon={Activity}
           label="Taxa de Conclusão"
           value={`${data?.completionRate ?? 0}%`}
           intent="primary"
           className="w-full"
         />
         <KpiCard
-          icon={Shield}
           label="Formações Obrigatórias"
           value={`${data?.mandatoryRate ?? 0}%`}
           sub={data?.mandatoryStatus}
@@ -55,7 +52,6 @@ export function TrainingPanel() {
           className="w-full"
         />
         <KpiCard
-          icon={Clock}
           label="Horas Estimadas"
           value={`${data?.estimatedHours ?? 0}h`}
           intent="accent"

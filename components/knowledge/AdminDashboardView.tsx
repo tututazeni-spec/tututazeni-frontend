@@ -42,9 +42,7 @@ export function AdminDashboardView() {
           },
         ].map(({ label, value, color }) => (
           <div key={label} className="rounded-card bg-surface-sunken p-4">
-            <div className="mb-1 font-body text-xs text-ink-faint">
-              {label}
-            </div>
+            <div className="mb-1 font-body text-xs text-ink-faint">{label}</div>
             <div
               className={`font-data text-2xl font-semibold ${color ?? 'text-ink'}`}
             >
@@ -58,7 +56,7 @@ export function AdminDashboardView() {
       {data.knowledgeGaps.length > 0 && (
         <div className="rounded-card border border-warning-subtle bg-warning-subtle p-5">
           <div className="mb-3 font-body text-sm font-semibold text-warning-ink">
-            🔍 Lacunas de Conhecimento — Buscas sem resultado ({data.emptySearches}
+            Lacunas de Conhecimento — Buscas sem resultado ({data.emptySearches}
             )
           </div>
           <div className="grid grid-cols-2 gap-2">

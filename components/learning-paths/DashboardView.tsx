@@ -44,25 +44,21 @@ export function DashboardView({ onSelect }: DashboardViewProps) {
       {/* Métricas */}
       <div className="grid grid-cols-4 gap-3">
         <KpiCard
-          icon={Route}
           label="Total de trilhas"
           value={data.paths.total}
           intent="primary"
         />
         <KpiCard
-          icon={CheckCircle2}
           label="Publicadas"
           value={data.paths.published}
           intent="success"
         />
         <KpiCard
-          icon={Users}
           label="Matrículas"
           value={data.enrollments.total}
           intent="accent"
         />
         <KpiCard
-          icon={TrendingUp}
           label="Taxa conclusão"
           value={`${data.completionRate}%`}
           intent="info"

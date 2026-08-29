@@ -35,21 +35,18 @@ export function RisksView() {
       {/* Summary */}
       <div className="grid grid-cols-3 gap-3">
         <KpiCard
-          icon={Clock}
           label="Inactivos (+60 dias)"
           value={summary.inactiveCount}
           intent={summary.inactiveCount > 0 ? 'warning' : 'primary'}
           className="w-full"
         />
         <KpiCard
-          icon={AlertTriangle}
           label="PDIs atrasados"
           value={summary.overduePDICount}
           intent={summary.overduePDICount > 0 ? 'danger' : 'primary'}
           className="w-full"
         />
         <KpiCard
-          icon={AlertOctagon}
           label="Acções críticas"
           value={summary.criticalActionCount}
           intent={summary.criticalActionCount > 0 ? 'danger' : 'primary'}

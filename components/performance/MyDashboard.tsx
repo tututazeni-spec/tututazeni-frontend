@@ -226,25 +226,21 @@ export function MyDashboard() {
       {/* Métricas */}
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         <KpiCard
-          icon={ClipboardCheck}
           label="Avaliações"
           value={history.reviews.length}
           intent="primary"
         />
         <KpiCard
-          icon={Target}
           label="Goals activos"
           value={history.goals.length}
           intent="accent"
         />
         <KpiCard
-          icon={TrendingUp}
           label="Pontuação Média"
           value={history.avgScore}
           intent="info"
         />
         <KpiCard
-          icon={MessageSquare}
           label="Feedbacks recebidos"
           value={history.feedback.length}
           intent="success"
@@ -356,8 +352,8 @@ export function MyDashboard() {
                           intent={f.type === 'PRAISE' ? 'success' : 'warning'}
                         >
                           {f.type === 'PRAISE'
-                            ? '👏 Reconhecimento'
-                            : '💡 Melhoria'}
+                            ? ' Reconhecimento'
+                            : ' Melhoria'}
                         </Badge>
                       </div>
                       <p className="text-xs text-ink-muted">{f.message}</p>

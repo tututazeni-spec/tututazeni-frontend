@@ -10,7 +10,7 @@
 
 'use client';
 
-import { BookOpen, CheckCircle, Award, Target, Clock, Zap } from 'lucide-react';
+import { Target, Clock, Zap } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -103,25 +103,21 @@ export function ColaboradorDashboard() {
       {/* KPIs */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         <KpiCard
-          icon={BookOpen}
           label="Cursos em Progresso"
           value={data?.learning?.inProgress ?? 0}
           intent="info"
         />
         <KpiCard
-          icon={CheckCircle}
           label="Cursos Concluídos"
           value={data?.learning?.completed ?? 0}
           intent="success"
         />
         <KpiCard
-          icon={Award}
           label="Distintivos Conquistados"
           value={data?.gamification?.recentBadges?.length ?? 0}
           intent="warning"
         />
         <KpiCard
-          icon={Target}
           label="Avaliações Pendentes"
           value={data?.engagement?.pendingSurveys ?? 0}
           intent="accent"

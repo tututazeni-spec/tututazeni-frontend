@@ -155,7 +155,6 @@ export default function EmployeesPage() {
             <KpiCard
               label="Total Ativos"
               value={stats.total}
-              icon={Users}
               intent="primary"
               sub={`+${stats.recentHires} este mês`}
               className="w-full"
@@ -164,7 +163,6 @@ export default function EmployeesPage() {
               <KpiCard
                 label="Afastados"
                 value={onLeaveCount}
-                icon={AlertCircle}
                 intent="warning"
                 className="w-full"
               />
@@ -172,14 +170,12 @@ export default function EmployeesPage() {
             <KpiCard
               label="Departamentos"
               value={stats.byDepartment?.length ?? '—'}
-              icon={Building2}
               intent="accent"
               className="w-full"
             />
             <KpiCard
               label="Admissões Recentes"
               value={stats.recentHires ?? 0}
-              icon={UserPlus}
               intent="success"
               sub="últimos 30 dias"
               className="w-full"

@@ -58,7 +58,6 @@ export function OverviewPanel() {
       {/* Top KPIs */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         <KpiCard
-          icon={Users}
           label="Colaboradores Activos"
           value={k.headcount?.total ?? 0}
           sub={k.headcount?.status}
@@ -66,7 +65,6 @@ export function OverviewPanel() {
           className="w-full"
         />
         <KpiCard
-          icon={UserMinus}
           label="Taxa de Rotatividade"
           value={`${k.turnover?.rate ?? 0}%`}
           sub={k.turnover?.status}
@@ -74,7 +72,6 @@ export function OverviewPanel() {
           className="w-full"
         />
         <KpiCard
-          icon={UserPlus}
           label="Novas Admissões (mês)"
           value={k.newHires?.count ?? 0}
           trend={k.newHires?.trend}
@@ -82,14 +79,12 @@ export function OverviewPanel() {
           className="w-full"
         />
         <KpiCard
-          icon={Star}
           label="Performance Média"
           value={k.performance?.avg?.toFixed(1) ?? '–'}
           intent="warning"
           className="w-full"
         />
         <KpiCard
-          icon={Target}
           label="Cobertura PDI"
           value={`${k.pdpCoverage?.pct ?? 0}%`}
           sub={k.pdpCoverage?.status}
@@ -97,21 +92,18 @@ export function OverviewPanel() {
           className="w-full"
         />
         <KpiCard
-          icon={BookOpen}
           label="Conclusões (mês)"
           value={k.completions?.count ?? 0}
           intent="info"
           className="w-full"
         />
         <KpiCard
-          icon={Activity}
           label="Respostas às Pesquisas"
           value={k.engagement?.surveyResponses ?? 0}
           intent="accent"
           className="w-full"
         />
         <KpiCard
-          icon={Shield}
           label="Formações Obrigatórias"
           value={k.mandatoryCompliance ?? 0}
           intent="danger"

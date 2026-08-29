@@ -74,20 +74,17 @@ export function OrgDashboard() {
           trend={k.headcount?.newTrend}
         />
         <KpiCard
-          icon={BookOpen}
           label="Conclusões de Cursos"
           value={k.learning?.completions ?? 0}
           trend={k.learning?.completionsTrend}
           intent="info"
         />
         <KpiCard
-          icon={Target}
           label="PDIs Activos"
           value={k.development?.activePlans ?? 0}
           sub={`Cobertura: ${k.development?.coverage ?? 0}%`}
         />
         <KpiCard
-          icon={TrendingUp}
           label="Pontuação Média Geral"
           value={k.performance?.avgScore?.toFixed(1) ?? '–'}
           intent="warning"

@@ -30,28 +30,24 @@ export function AnalyticsTab() {
       {/* KPIs */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         <KpiCard
-          icon={BookOpen}
           label="Total de Conteúdos"
           value={data?.kpis.totalContent ?? 0}
           intent="primary"
           className="w-full"
         />
         <KpiCard
-          icon={CheckCircle}
           label="Activos"
           value={data?.kpis.activeContent ?? 0}
           intent="success"
           className="w-full"
         />
         <KpiCard
-          icon={Eye}
           label="Visualizações"
           value={data?.kpis.totalViews ?? 0}
           intent="info"
           className="w-full"
         />
         <KpiCard
-          icon={Award}
           label="Conclusões"
           value={data?.kpis.totalCompletions ?? 0}
           intent="accent"

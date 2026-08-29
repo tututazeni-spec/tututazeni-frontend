@@ -100,8 +100,7 @@ export default function CompetencyMapPage() {
             <h1 className="font-display text-xl font-bold text-ink">
               Mapa de Competências
             </h1>
-            <p className="font-body text-sm text-ink-faint">
-            </p>
+            <p className="font-body text-sm text-ink-faint"></p>
           </div>
           <div className="flex items-center gap-2">
             <Button size="sm" onClick={() => setShowAssess(true)}>
@@ -126,9 +125,17 @@ export default function CompetencyMapPage() {
 
       <div className="max-w-5xl mx-auto px-6 py-6">
         <Tabs value={tab} onValueChange={(v) => setTab(v as TabKey)}>
-          <TabsList className="mb-5 w-fit">
-            {tabs.map((t) => (
-              <TabsTrigger key={t.key} value={t.key} className="gap-2">
+          <TabsList className="mb-5 w-fit gap-0">
+            {tabs.map((t, i) => (
+              <TabsTrigger
+                key={t.key}
+                value={t.key}
+                className={
+                  i < tabs.length - 1
+                    ? 'gap-2 whitespace-nowrap mr-[1cm]!'
+                    : 'gap-2 whitespace-nowrap'
+                }
+              >
                 <t.icon size={16} strokeWidth={1.75} />
                 {t.label}
                 {t.badge != null && t.badge > 0 && (
