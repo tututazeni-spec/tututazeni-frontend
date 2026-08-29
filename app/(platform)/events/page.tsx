@@ -8,7 +8,7 @@
 // de design: Button da fundação substitui os botões/tabs bespoke.
 
 import { useState } from 'react';
-import { CalendarDays, Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { useToast } from '@/providers/ToastProvider';
 import { NAV, TITLES } from '@/components/events/constants';
 import { CatalogView } from '@/components/events/CatalogView';
@@ -30,14 +30,7 @@ export default function EventsPage() {
     <div className="mx-auto max-w-5xl px-4 py-8">
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <div className="mb-1 flex items-center gap-2">
-            <div className="rounded-control bg-primary-subtle p-1.5">
-              <CalendarDays
-                size={18}
-                strokeWidth={1.75}
-                className="text-primary"
-              />
-            </div>
+          <div className="mb-1">
             <h1 className="font-display text-xl font-semibold text-ink">
               {TITLES[nav.view]}
             </h1>

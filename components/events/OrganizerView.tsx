@@ -9,7 +9,6 @@
 
 'use client';
 
-import { Calendar, TrendingUp, Trophy, Users } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -45,25 +44,21 @@ export function OrganizerView() {
       {/* KPIs */}
       <div className="grid grid-cols-4 gap-3">
         <KpiCard
-          icon={Calendar}
           label="Total de eventos"
           value={data.metrics.totalEvents}
           intent="primary"
         />
         <KpiCard
-          icon={Calendar}
           label="Próximos"
           value={data.metrics.upcomingEvents}
           intent="info"
         />
         <KpiCard
-          icon={Users}
           label="Total participantes"
           value={data.metrics.totalParticipants}
           intent="success"
         />
         <KpiCard
-          icon={TrendingUp}
           label="Indice Médio de Recomendação do Evento"
           value={data.metrics.avgNps ? `${data.metrics.avgNps}/10` : '—'}
           intent="warning"
@@ -126,7 +121,6 @@ export function OrganizerView() {
         })}
         {data.events.length === 0 && (
           <EmptyState
-            icon={Trophy}
             title="Sem eventos criados"
             description="Os eventos que organizares aparecem aqui com as suas métricas."
           />
