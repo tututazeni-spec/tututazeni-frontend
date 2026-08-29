@@ -27,7 +27,7 @@ import type { CohortSummary } from './types';
 const STATUS_FILTERS = ['', 'OPEN', 'ACTIVE', 'CLOSED'];
 const MODALITY_ITEMS = Object.entries(MODALITY_CFG).map(([value, cfg]) => ({
   value,
-  label: `${cfg.icon} ${cfg.label}`,
+  label: cfg.label,
 }));
 
 interface CohortsViewProps {
@@ -207,7 +207,7 @@ export function CohortsView({ onSelectCohort }: CohortsViewProps) {
                     <div className="mb-1 flex items-center gap-2">
                       <StatusBadge value={c.status} map={STATUS_CFG} />
                       <span className="font-body text-xs text-ink-faint">
-                        {modalityCfg.icon}
+                        {modalityCfg.label}
                       </span>
                     </div>
                     <div className="font-body text-sm font-semibold text-ink">

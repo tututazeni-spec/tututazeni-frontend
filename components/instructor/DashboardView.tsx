@@ -144,7 +144,7 @@ export function DashboardView({ onSelectCohort }: DashboardViewProps) {
                     </span>
                     <StatusBadge value={c.status} map={STATUS_CFG} />
                     <span className="font-body text-xs text-ink-faint">
-                      {modalityCfg.icon} {modalityCfg.label}
+                      {modalityCfg.label}
                     </span>
                   </div>
                   <div className="font-body text-xs text-ink-faint">

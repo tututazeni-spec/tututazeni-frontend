@@ -14,10 +14,10 @@ export const STATUS_CFG: StatusBadgeMap<string> = {
   CANCELLED: { label: 'Cancelada', cls: 'bg-danger-subtle text-danger-ink' },
 };
 
-export const MODALITY_CFG: Record<string, { icon: string; label: string }> = {
-  ONLINE: { icon: '💻', label: 'Online' },
-  PRESENCIAL: { icon: '🏢', label: 'Presencial' },
-  HYBRID: { icon: '🔀', label: 'Híbrido' },
+export const MODALITY_CFG: Record<string, { label: string }> = {
+  ONLINE: { label: 'Online' },
+  PRESENCIAL: { label: 'Presencial' },
+  HYBRID: { label: 'Híbrido' },
 };
 
 export const STUDENT_STATUS: StatusBadgeMap<string> = {
