@@ -10,14 +10,13 @@
 
 'use client';
 
-import { Activity, BookOpen, Flame, Zap } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Card, CardBody } from '@/components/ui/Card';
 import { KpiCard } from '@/components/ui/KpiCard';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { CATEGORY_COLOR } from './constants';
+import { CATEGORY_COLOR, CATEGORY_LABEL } from './constants';
 import type { HistoryStats } from './types';
 
 const HEATMAP_LEGEND = [
@@ -56,26 +55,22 @@ export function StatsTab() {
       {/* KPIs */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <KpiCard
-          icon={Flame}
-          label="Streak"
+          label="Sequência"
           value={`${data?.streak ?? 0} dias`}
           intent="warning"
         />
         <KpiCard
-          icon={Activity}
           label="Dias Activos"
           value={data?.activeDays ?? 0}
           intent="primary"
         />
         <KpiCard
-          icon={BookOpen}
           label="Conclusões"
           value={data?.completions ?? 0}
           intent="success"
         />
         <KpiCard
-          icon={Zap}
-          label="XP Total"
+          label="Pontos de Experiência Total"
           value={data?.xpPoints ?? 0}
           intent="accent"
         />
@@ -140,7 +135,7 @@ export function StatsTab() {
                     <div key={cat}>
                       <div className="flex justify-between text-xs mb-0.5">
                         <span className={`${conf.color} font-medium`}>
-                          {cat}
+                          {CATEGORY_LABEL[cat] ?? cat}
                         </span>
                         <span className="text-ink font-semibold">
                           {count} ({pct}%)

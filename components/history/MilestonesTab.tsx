@@ -4,7 +4,6 @@
 
 'use client';
 
-import { Award } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -31,7 +30,6 @@ export function MilestonesTab() {
   if (data.length === 0)
     return (
       <EmptyState
-        icon={Award}
         title="Sem marcos de carreira registados ainda"
         description="Os teus marcos aparecem aqui à medida que os vais alcançando"
       />

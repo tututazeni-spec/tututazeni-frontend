@@ -5,13 +5,14 @@
 
 'use client';
 
-import { Activity, BarChart2, Shield, Users } from 'lucide-react';
+import { Shield } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Card, CardBody } from '@/components/ui/Card';
 import { KpiCard } from '@/components/ui/KpiCard';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { formatAuditAction } from './constants';
 import type { AuditStats, UpcomingData } from './types';
 
 export function AuditTab() {
@@ -43,19 +44,16 @@ export function AuditTab() {
       {/* Audit stats */}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
         <KpiCard
-          icon={Activity}
           label="Total de Eventos"
           value={data?.total ?? 0}
           intent="primary"
         />
         <KpiCard
-          icon={BarChart2}
           label="Top Acção"
-          value={data?.byAction?.[0]?.action ?? '–'}
+          value={formatAuditAction(data?.byAction?.[0]?.action ?? '')}
           intent="primary"
         />
         <KpiCard
-          icon={Users}
           label="Utilizadores"
           value={data?.topUsers?.length ?? 0}
           intent="primary"
@@ -78,7 +76,7 @@ export function AuditTab() {
                       #{i + 1}
                     </span>
                     <span className="text-xs font-data font-medium text-ink w-40 truncate">
-                      {a.action}
+                      {formatAuditAction(a.action)}
                     </span>
                     <div className="flex-1 h-1.5 bg-surface-sunken rounded-pill">
                       <div
@@ -101,7 +99,7 @@ export function AuditTab() {
       {(upcoming?.anniversaries?.length ?? 0) > 0 && (
         <div className="bg-warning-subtle border border-warning rounded-card p-5">
           <h4 className="font-display font-semibold text-warning-ink mb-3">
-            🎉 Aniversários de Empresa este Mês
+            Aniversários de Empresa este Mês
           </h4>
           <div className="grid grid-cols-2 gap-2">
             {(upcoming?.anniversaries ?? []).slice(0, 6).map((u, i) => (

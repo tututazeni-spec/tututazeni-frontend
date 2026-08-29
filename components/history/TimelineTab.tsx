@@ -6,7 +6,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Clock, Search } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { keepPreviousData } from '@tanstack/react-query';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
@@ -15,7 +15,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { Input } from '@/components/ui/Input';
 import { Pagination } from '@/components/ui/Pagination';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { CATEGORY_COLOR } from './constants';
+import { CATEGORY_LABEL } from './constants';
 import { EventCard } from './EventCard';
 import { monthLabel } from './utils';
 import type { GroupedEvents, Milestone } from './types';
@@ -73,21 +73,18 @@ export function TimelineTab() {
           >
             Todos
           </button>
-          {CATS.map((c) => {
-            const conf = CATEGORY_COLOR[c] ?? CATEGORY_COLOR.SYSTEM;
-            return (
-              <button
-                key={c}
-                onClick={() => {
-                  setCategory(c);
-                  setPage(1);
-                }}
-                className={`text-xs px-2.5 py-1.5 rounded-control font-medium transition-colors ${category === c ? 'bg-primary text-canvas' : `${conf.bg} ${conf.color}`}`}
-              >
-                {c}
-              </button>
-            );
-          })}
+          {CATS.map((c) => (
+            <button
+              key={c}
+              onClick={() => {
+                setCategory(c);
+                setPage(1);
+              }}
+              className={`text-xs px-2.5 py-1.5 rounded-control font-medium transition-colors ${category === c ? 'bg-primary text-canvas' : 'bg-surface text-ink border border-border'}`}
+            >
+              {CATEGORY_LABEL[c] ?? c}
+            </button>
+          ))}
         </div>
       </div>
 
@@ -148,7 +145,6 @@ export function TimelineTab() {
 
           {(data?.grouped ?? []).length === 0 && (
             <EmptyState
-              icon={Clock}
               title="Nenhum evento encontrado"
               description="Ajusta os filtros ou volta mais tarde"
             />
