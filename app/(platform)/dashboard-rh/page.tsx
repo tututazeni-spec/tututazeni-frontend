@@ -18,6 +18,7 @@ import {
   Users,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
+import { UsersRound } from 'lucide-react';
 import { IconButton } from '@/components/ui/Button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
 import { CorrelationsPanel } from '@/components/dashboard-rh/CorrelationsPanel';
@@ -34,7 +35,7 @@ const PANELS: { id: Panel; label: string; icon: LucideIcon | null }[] = [
   { id: 'performance', label: 'Performance', icon: Star },
   { id: 'training', label: 'Formação', icon: BookOpen },
   { id: 'talent', label: 'Talento', icon: Target },
-  { id: 'correlations', label: 'Análise de Pessoas', icon: null },
+  { id: 'correlations', label: 'Análise de Pessoas', icon: UsersRound },
 ];
 
 export default function DashboardRhPage() {

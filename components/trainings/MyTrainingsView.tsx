@@ -99,8 +99,8 @@ export function MyTrainingsView({ onSelect }: MyTrainingsViewProps) {
                 </div>
                 <div className="mt-0.5 flex items-center gap-2 font-body text-xs text-ink-faint">
                   <span>{TYPE_CFG[training.type as TrainingType]?.label}</span>
-                  <span>⏱ {fmtHours(training.workloadHours)}</span>
-                  <span>📅 {fmtDate(entry.session?.sessionDate ?? null)}</span>
+                  <span> {fmtHours(training.workloadHours)}</span>
+                  <span> {fmtDate(entry.session?.sessionDate ?? null)}</span>
                 </div>
               </div>
               <div className="flex flex-shrink-0 items-center gap-3">
@@ -119,7 +119,6 @@ export function MyTrainingsView({ onSelect }: MyTrainingsViewProps) {
         })}
         {filtered.length === 0 && (
           <EmptyState
-            icon={CalendarClock}
             title="Sem treinamentos neste estado"
             description="Não há inscrições que correspondam ao filtro seleccionado."
           />

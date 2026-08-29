@@ -11,7 +11,6 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import { Route } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -73,7 +72,6 @@ export function MyPathsView({ onSelect }: MyPathsViewProps) {
 
       {filtered.length === 0 ? (
         <EmptyState
-          icon={Route}
           title="Sem trilhas encontradas"
           description="Ajusta o filtro ou explora o catálogo para começar uma trilha."
         />

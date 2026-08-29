@@ -43,7 +43,7 @@ export const GOAL_TYPE_LABELS: Record<GoalType, string> = {
   PROJECT: 'Projecto',
   MENTORING: 'Mentoria',
   CERTIFICATION: 'Certificação',
-  SKILL: 'Skill',
+  SKILL: 'Habilidades',
   OTHER: 'Outro',
 };
 

@@ -51,7 +51,7 @@ export function TalentPipelineTab() {
     },
     {
       key: 'atRisk',
-      label: '⚠️ Em Risco',
+      label: 'Em Risco',
       className: 'border-danger bg-danger-subtle',
     },
   ];
@@ -99,9 +99,8 @@ export function TalentPipelineTab() {
         data?.atRisk?.length
       ) && (
         <EmptyState
-          icon={Award}
-          title="Sem dados de pipeline de talentos"
-          description="Ainda não há dados de pipeline de talentos disponíveis para a tua equipa."
+          title="Sem dados de banco de talentos"
+          description="Ainda não há dados de banco de talentos disponíveis para a tua equipa."
         />
       )}
     </div>

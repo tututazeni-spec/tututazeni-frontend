@@ -27,9 +27,7 @@ export default function PerformancePage() {
           <h1 className="font-display text-xl font-semibold text-ink">
             {TITLES[view]}
           </h1>
-          <p className="font-body text-sm text-ink-faint mt-0.5">
-            INNOVA — Gestão de Performance
-          </p>
+          <p className="font-body text-sm text-ink-faint mt-0.5"></p>
         </div>
       </div>
 

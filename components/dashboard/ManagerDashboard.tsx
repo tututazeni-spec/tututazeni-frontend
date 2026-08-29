@@ -52,20 +52,17 @@ export function ManagerDashboard() {
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         <KpiCard icon={Users} label="Equipa" value={data?.teamSize ?? 0} />
         <KpiCard
-          icon={Target}
           label="PDIs Activos"
           value={kpis.activePlans ?? 0}
           sub={`Cobertura: ${kpis.pdpCoverage ?? 0}%`}
         />
         <KpiCard
-          icon={Star}
           label="Pontuação Média"
           value={kpis.avgScore?.toFixed(1) ?? '–'}
           trend={kpis.scoreTrend}
           intent="warning"
         />
         <KpiCard
-          icon={Shield}
           label="Formação Obrigatória"
           value={`${kpis.mandatoryRate ?? 0}%`}
           intent={mandatoryOk ? 'success' : 'danger'}

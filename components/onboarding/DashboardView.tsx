@@ -44,21 +44,18 @@ export function DashboardView() {
     <div className="space-y-6">
       {/* KPIs */}
       <div className="grid grid-cols-4 gap-3">
-        <KpiCard icon={Users} label="Total planos" value={summary.total} />
+        <KpiCard label="Total planos" value={summary.total} />
         <KpiCard
-          icon={ClipboardCheck}
           label="Em progresso"
           value={summary.byStatus['IN_PROGRESS'] ?? 0}
           intent="info"
         />
         <KpiCard
-          icon={AlertTriangle}
           label="Tarefas atrasadas"
           value={summary.overdueTasks}
           intent={summary.overdueTasks > 0 ? 'danger' : 'primary'}
         />
         <KpiCard
-          icon={Smile}
           label="Satisfação média"
           value={
             summary.avgSurveyScore > 0 ? `${summary.avgSurveyScore}/5` : '—'
@@ -118,7 +115,6 @@ export function DashboardView() {
         ))}
         {active.length === 0 && (
           <EmptyState
-            icon={Users}
             title="Sem onboardings activos"
             description="Não há colaboradores em processo de integração no momento"
             className="border-0 rounded-none"

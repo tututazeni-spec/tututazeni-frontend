@@ -18,7 +18,12 @@ import { Input } from '@/components/ui/Input';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
-import { PRIORITY_COLOR, STATUS_CFG } from './constants';
+import {
+  PRIORITY_COLOR,
+  PRIORITY_LABEL,
+  STATUS_CFG,
+  STATUS_LABEL,
+} from './constants';
 import type { ListMeta, Plan } from './types';
 
 const STATUSES = ['DRAFT', 'ACTIVE', 'PAUSED', 'COMPLETED', 'CANCELLED'];
@@ -79,7 +84,7 @@ export function PlansTab() {
               intent={status === s ? 'primary' : 'secondary'}
               onClick={() => setStatus(s)}
             >
-              {s || 'Todos'}
+              {s ? (STATUS_LABEL[s] ?? s) : 'Todos'}
             </Button>
           ))}
         </div>
@@ -124,7 +129,7 @@ export function PlansTab() {
                 <span
                   className={`font-body text-[10px] font-semibold ${PRIORITY_COLOR[plan.priority]}`}
                 >
-                  {plan.priority}
+                  {PRIORITY_LABEL[plan.priority] ?? plan.priority}
                 </span>
               </div>
             </div>
@@ -170,7 +175,6 @@ export function PlansTab() {
         {filtered.length === 0 && (
           <div className="col-span-full">
             <EmptyState
-              icon={Target}
               title="Nenhum plano encontrado"
               description="Ajusta a pesquisa ou o filtro de estado para ver mais planos."
             />

@@ -20,7 +20,7 @@ export function UpcomingStrip({ upcoming, onOpen }: UpcomingStripProps) {
   return (
     <div className="mb-5.5">
       <p className="m-0 mb-2.5 text-xs font-bold text-ink-muted uppercase tracking-widest">
-        📅 Próximas Sessões
+        Próximas Sessões
       </p>
       <div className="flex gap-3 overflow-x-auto pb-1">
         {visible.map((lc) => {

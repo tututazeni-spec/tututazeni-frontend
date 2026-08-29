@@ -259,7 +259,7 @@ export function DetailView({ trainingId, onBack }: DetailViewProps) {
                         className="text-primary hover:underline"
                         onClick={(e) => e.stopPropagation()}
                       >
-                        🔗 Link
+                         Link
                       </a>
                     )}
                   </div>
@@ -312,7 +312,7 @@ export function DetailView({ trainingId, onBack }: DetailViewProps) {
       {/* Avaliar */}
       <Card className="mb-5 p-5">
         <div className="mb-3 font-body text-sm font-semibold text-ink">
-          ⭐ Avaliar este treinamento
+          Avaliar este treinamento
         </div>
         <StarPicker rating={rating} onPick={setRating} />
         <Textarea

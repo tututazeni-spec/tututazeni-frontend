@@ -57,8 +57,8 @@ export function TeamView() {
         <TableHead>
           <TableRow>
             <TableHeaderCell>Colaborador</TableHeaderCell>
-            <TableHeaderCell>Goals (%)</TableHeaderCell>
-            <TableHeaderCell>Score</TableHeaderCell>
+            <TableHeaderCell>Objectivos (%)</TableHeaderCell>
+            <TableHeaderCell>Pontuações</TableHeaderCell>
             <TableHeaderCell>Estado</TableHeaderCell>
             <TableHeaderCell>Pendências</TableHeaderCell>
           </TableRow>
@@ -102,7 +102,9 @@ export function TeamView() {
               </TableCell>
               <TableCell>
                 <StatusBadge
-                  value={(member.latestReview?.status ?? 'DRAFT') as ReviewStatus}
+                  value={
+                    (member.latestReview?.status ?? 'DRAFT') as ReviewStatus
+                  }
                   map={REVIEW_STATUS_MAP}
                   variant="dot"
                 />
@@ -113,9 +115,7 @@ export function TeamView() {
                 )}
                 {!member.pendingSelfReview &&
                   member.status === 'NOT_STARTED' && (
-                    <span className="text-xs text-ink-faint">
-                      Não iniciado
-                    </span>
+                    <span className="text-xs text-ink-faint">Não iniciado</span>
                   )}
               </TableCell>
             </TableRow>

@@ -21,6 +21,15 @@ export const typeColor: Record<string, string> = {
   VITALITY: 'rgb(34, 197, 94)', // green-500
 };
 
+// Rótulos PT das categorias de competência (alinhados com
+// components/competencies/constants.ts → CATEGORY_CFG)
+export const typeLabel: Record<string, string> = {
+  HARD_SKILL: 'Competências Técnicas',
+  SOFT_SKILL: 'Competências Comportamentais',
+  LEADERSHIP: 'Liderança',
+  VITALITY: 'Vitalidade',
+};
+
 export function timeAgo(iso: string): string {
   const d = Math.floor((Date.now() - new Date(iso).getTime()) / 86400000);
   return d === 0 ? 'hoje' : d === 1 ? 'ontem' : `há ${d} dias`;

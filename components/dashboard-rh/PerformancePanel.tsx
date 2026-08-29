@@ -42,7 +42,6 @@ export function PerformancePanel() {
     <div className="space-y-5">
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         <KpiCard
-          icon={Star}
           label="Pontuação Média"
           value={data?.avgScore?.toFixed(1) ?? '–'}
           sub={data?.status}
@@ -50,14 +49,12 @@ export function PerformancePanel() {
           className="w-full"
         />
         <KpiCard
-          icon={Users}
           label="Avaliados"
           value={data?.total ?? 0}
           intent="primary"
           className="w-full"
         />
         <KpiCard
-          icon={Zap}
           label="Profissionais de Alto Potencial"
           value={data?.hiPos ?? 0}
           sub={`${data?.hiPoRatio ?? 0}% da equipa`}
@@ -65,7 +62,6 @@ export function PerformancePanel() {
           className="w-full"
         />
         <KpiCard
-          icon={AlertTriangle}
           label="Em Risco"
           value={data?.atRisk ?? 0}
           intent="danger"
@@ -110,9 +106,7 @@ export function PerformancePanel() {
           {(data?.byDepartment ?? []).slice(0, 6).map((d, i) => (
             <div key={i} className="mb-2">
               <div className="mb-0.5 flex justify-between font-body text-xs">
-                <span className="truncate text-ink-muted">
-                  {d.department}
-                </span>
+                <span className="truncate text-ink-muted">{d.department}</span>
                 <span
                   className={`text-xs font-bold ${
                     d.avgScore >= 4

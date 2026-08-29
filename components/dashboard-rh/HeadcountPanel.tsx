@@ -49,28 +49,24 @@ export function HeadcountPanel() {
       {/* KPIs */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         <KpiCard
-          icon={Users}
           label="Total"
           value={data?.total ?? 0}
           intent="primary"
           className="w-full"
         />
         <KpiCard
-          icon={CheckCircle}
           label="Activos"
           value={data?.active ?? 0}
           intent="success"
           className="w-full"
         />
         <KpiCard
-          icon={UserMinus}
           label="Taxa de Rotatividade"
           value={`${data?.turnoverRate ?? 0}%`}
           intent="danger"
           className="w-full"
         />
         <KpiCard
-          icon={Clock}
           label="Tempo Médio de Serviço"
           value={`${data?.avgTenureMonths ?? 0}m`}
           sub={`≈ ${((data?.avgTenureMonths ?? 0) / 12).toFixed(1)} anos`}

@@ -168,7 +168,7 @@ export function SimulateModal({ roles, onClose }: SimulateModalProps) {
               {result.readiness.skillGaps.length > 0 && (
                 <div>
                   <p className="text-xs font-bold text-warning-ink mb-2">
-                    Gaps a Desenvolver
+                    Lacunas a Desenvolver
                   </p>
                   <SkillGapList gaps={result.readiness.skillGaps} />
                 </div>

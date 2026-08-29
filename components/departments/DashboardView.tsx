@@ -5,7 +5,6 @@
 
 'use client';
 
-import { Building2, CheckCircle2, Users } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -48,14 +47,9 @@ export function DashboardView({ onSelect }: DashboardViewProps) {
     <div className="space-y-6">
       {/* Summary cards */}
       <div className="grid grid-cols-3 gap-4">
-        <KpiCard icon={Building2} label="Total departamentos" value={rows.length} />
-        <KpiCard
-          icon={CheckCircle2}
-          label="Activos"
-          value={activeCount}
-          intent="success"
-        />
-        <KpiCard icon={Users} label="Total colaboradores" value={totalMembers} />
+        <KpiCard label="Total departamentos" value={rows.length} />
+        <KpiCard label="Activos" value={activeCount} intent="success" />
+        <KpiCard label="Total colaboradores" value={totalMembers} />
       </div>
 
       {/* Distribution chart */}
@@ -78,7 +72,10 @@ export function DashboardView({ onSelect }: DashboardViewProps) {
                   <div className="w-32 truncate text-xs text-ink group-hover:text-primary">
                     {r.name}
                   </div>
-                  <ProgressBar value={pct} className="h-6 flex-1 rounded-control" />
+                  <ProgressBar
+                    value={pct}
+                    className="h-6 flex-1 rounded-control"
+                  />
                   <div className="w-20 text-right font-mono text-xs text-ink-muted">
                     {r.totalMembers} membros
                   </div>

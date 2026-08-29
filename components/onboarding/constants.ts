@@ -89,5 +89,5 @@ export const NAV: Array<{ id: View; label: string }> = [
 export const TITLES: Record<View, string> = {
   'my-plan': 'O Meu Plano de Integração',
   dashboard: 'Dashboard de Integração',
-  templates: 'Templates de Integração',
+  templates: 'Modelos de Integração',
 };

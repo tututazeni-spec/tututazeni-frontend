@@ -35,7 +35,6 @@ export function AdminDashboardView({ onSelect }: AdminDashboardViewProps) {
       {/* Métricas */}
       <div className="grid grid-cols-4 gap-3">
         <KpiCard
-          icon={BookOpen}
           label="Total de cursos"
           value={data.courses.total}
           sub={`${data.courses.published} publicados`}
@@ -43,14 +42,12 @@ export function AdminDashboardView({ onSelect }: AdminDashboardViewProps) {
           className="w-full"
         />
         <KpiCard
-          icon={Users}
           label="Total matrículas"
           value={data.enrollments.total}
           intent="primary"
           className="w-full"
         />
         <KpiCard
-          icon={CheckCircle2}
           label="Taxa de conclusão"
           value={`${data.completionRate}%`}
           sub={`${data.enrollments.completed} concluídas`}
@@ -58,7 +55,6 @@ export function AdminDashboardView({ onSelect }: AdminDashboardViewProps) {
           className="w-full"
         />
         <KpiCard
-          icon={AlertTriangle}
           label="Atrasos"
           value={data.enrollments.overdue}
           sub="Prazos Ultrapassados"
@@ -83,9 +79,7 @@ export function AdminDashboardView({ onSelect }: AdminDashboardViewProps) {
                 {idx + 1}
               </span>
               <div className="flex-1">
-                <div className="text-sm font-medium text-ink">
-                  {c.title}
-                </div>
+                <div className="text-sm font-medium text-ink">{c.title}</div>
                 <div className="text-xs text-ink-faint">
                   {c.category ?? '—'} · {c.level}
                 </div>

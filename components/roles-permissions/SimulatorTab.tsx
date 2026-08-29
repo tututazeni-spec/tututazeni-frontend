@@ -6,7 +6,7 @@
 'use client';
 
 import { useState } from 'react';
-import { AlertTriangle, Brain, CheckCircle } from 'lucide-react';
+import { AlertTriangle, CheckCircle } from 'lucide-react';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { Button } from '@/components/ui/Button';
@@ -36,8 +36,7 @@ export function SimulatorTab() {
     <div className="space-y-5">
       <Card>
         <CardBody>
-          <h4 className="font-semibold text-ink mb-4 flex items-center gap-2">
-            <Brain size={16} strokeWidth={1.75} className="text-accent" />
+          <h4 className="font-semibold text-ink mb-4">
             Simulador de Permissões
           </h4>
           <div className="grid grid-cols-3 gap-3 mb-4">

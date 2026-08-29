@@ -120,47 +120,30 @@ export function InstitutionalDashboardView({
       {summary && (
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
           <KpiCard
-            icon={Users}
             label="Funcionários"
             value={summary.people.total}
             sub={`+${summary.people.newThisMonth} este mês`}
             intent="info"
           />
           <KpiCard
-            icon={GraduationCap}
             label="Inscrições Activas"
             value={summary.learning.activeEnrollments}
             sub={`${summary.learning.completionRate}% conclusão`}
             intent="success"
           />
+          <KpiCard label="Beneficiários" value={summary.crm.beneficiaries} />
           <KpiCard
-            icon={HeartHandshake}
-            label="Beneficiários"
-            value={summary.crm.beneficiaries}
-          />
-          <KpiCard
-            icon={Wallet}
             label="Financiamento"
             value={`AOA ${(summary.crm.totalFunding / 1_000_000).toFixed(1)}`}
             intent="accent"
           />
+          <KpiCard label="Cursos" value={summary.learning.courses} />
+          <KpiCard label="Parceiros" value={summary.crm.partners} />
           <KpiCard
-            icon={BookOpen}
-            label="Cursos"
-            value={summary.learning.courses}
-          />
-          <KpiCard
-            icon={Handshake}
-            label="Parceiros"
-            value={summary.crm.partners}
-          />
-          <KpiCard
-            icon={Award}
             label="Certificados"
             value={summary.knowledge.certificates}
           />
           <KpiCard
-            icon={Library}
             label="Biblioteca"
             value={summary.knowledge.libraryItems}
             sub="recursos"

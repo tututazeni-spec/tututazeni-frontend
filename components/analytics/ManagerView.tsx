@@ -57,14 +57,12 @@ export function ManagerView() {
       {/* KPIs */}
       <div className="grid grid-cols-4 gap-3">
         <KpiCard
-          icon={Users}
           label="Equipa"
           value={metrics.headcount}
           intent="primary"
           className="w-full"
         />
         <KpiCard
-          icon={Target}
           label="PDIs activos"
           value={`${metrics.pdiAdoptionRate}%`}
           sub="adopção"
@@ -72,14 +70,12 @@ export function ManagerView() {
           className="w-full"
         />
         <KpiCard
-          icon={CheckCircle2}
           label="Conclusão cursos"
           value={`${metrics.completionRate}%`}
           intent="success"
           className="w-full"
         />
         <KpiCard
-          icon={TrendingUp}
           label="Desempenho Médio"
           value={metrics.avgPerformance}
           intent="warning"
@@ -88,7 +84,7 @@ export function ManagerView() {
       </div>
       {metrics.overdueActions > 0 && (
         <div className="rounded-control border border-danger/30 bg-danger-subtle px-4 py-2.5 text-sm text-danger-ink">
-          🔴 {metrics.overdueActions} acções de PDI atrasadas na equipa
+          {metrics.overdueActions} acções de PDI atrasadas na equipa
         </div>
       )}
 

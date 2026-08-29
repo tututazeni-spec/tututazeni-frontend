@@ -37,7 +37,6 @@ export function TemplatesView() {
   if (data.length === 0) {
     return (
       <EmptyState
-        icon={ClipboardList}
         title="Sem templates"
         description="Sem templates de integração configurados"
       />
@@ -63,11 +62,11 @@ export function TemplatesView() {
           </div>
 
           <div className="flex flex-wrap gap-2 text-xs text-ink-faint mb-4">
-            <span>📅 {t.durationDays} dias</span>
-            <span>📋 {t._count?.tasks ?? 0} tarefas</span>
-            <span>👥 {t._count?.plans ?? 0} planos</span>
-            {t.position && <span>💼 {t.position.name}</span>}
-            {t.department && <span>🏢 {t.department.name}</span>}
+            <span> {t.durationDays} dias</span>
+            <span> {t._count?.tasks ?? 0} tarefas</span>
+            <span> {t._count?.plans ?? 0} planos</span>
+            {t.position && <span> {t.position.name}</span>}
+            {t.department && <span> {t.department.name}</span>}
           </div>
 
           {t.tasks && t.tasks.length > 0 && (

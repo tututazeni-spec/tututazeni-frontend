@@ -5,7 +5,6 @@
 
 'use client';
 
-import { Trophy } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -42,7 +41,6 @@ export function LeaderboardTab() {
     <Card>
       <CardHeader>
         <h3 className="font-display font-semibold text-ink flex items-center gap-2">
-          <Trophy size={16} strokeWidth={1.75} className="text-accent" />
           Ranking Global
         </h3>
       </CardHeader>
@@ -82,7 +80,6 @@ export function LeaderboardTab() {
         {data.length === 0 && (
           <CardBody>
             <EmptyState
-              icon={Trophy}
               title="Sem dados de classificação ainda"
               description="Completa cenários para apareceres na classificação global."
             />

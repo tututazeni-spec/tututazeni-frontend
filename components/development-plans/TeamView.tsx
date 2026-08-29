@@ -4,7 +4,7 @@
 
 'use client';
 
-import { TriangleAlert, Users } from 'lucide-react';
+import { TriangleAlert } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -37,7 +37,6 @@ export function TeamView({ onSelect }: TeamViewProps) {
       </div>
       {plans.length === 0 ? (
         <EmptyState
-          icon={Users}
           title="Sem PDIs activos na equipa"
           description="Ainda não há planos de desenvolvimento activos para os teus colaboradores."
         />

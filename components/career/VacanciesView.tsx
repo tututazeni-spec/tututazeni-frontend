@@ -157,7 +157,6 @@ export function VacanciesView() {
           {vacancies.length === 0 && (
             <div className="col-span-2">
               <EmptyState
-                icon={Search}
                 title="Sem vagas internas abertas"
                 description="Ainda não há vagas internas disponíveis para o filtro seleccionado."
               />

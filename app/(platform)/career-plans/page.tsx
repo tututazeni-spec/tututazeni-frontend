@@ -87,8 +87,7 @@ export default function CareerPlansPage() {
             <h1 className="font-display text-xl font-bold text-ink">
               Planos de Carreira
             </h1>
-            <p className="font-body text-sm text-ink-faint">
-            </p>
+            <p className="font-body text-sm text-ink-faint"></p>
           </div>
           <div className="flex items-center gap-2">
             <Button
@@ -116,8 +115,16 @@ export default function CareerPlansPage() {
       <Tabs value={tab} onValueChange={(v) => setTab(v as TabKey)}>
         <div className="border-b border-border bg-surface px-6">
           <TabsList className="max-w-5xl mx-auto">
-            {tabs.map((t) => (
-              <TabsTrigger key={t.key} value={t.key} className="gap-2">
+            {tabs.map((t, i) => (
+              <TabsTrigger
+                key={t.key}
+                value={t.key}
+                className={
+                  i < tabs.length - 1
+                    ? 'gap-2 whitespace-nowrap mr-[1cm]!'
+                    : 'gap-2 whitespace-nowrap'
+                }
+              >
                 <t.icon size={15} strokeWidth={1.75} />
                 {t.label}
               </TabsTrigger>

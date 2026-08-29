@@ -5,7 +5,7 @@
 
 'use client';
 
-import { Activity, BarChart2, CheckCircle, Star, Users } from 'lucide-react';
+import { Activity, CheckCircle, Star, Users } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -63,7 +63,6 @@ export function AnalyticsTab() {
   if (!data?.hasData)
     return (
       <EmptyState
-        icon={BarChart2}
         title="Sem dados disponíveis"
         description={
           data?.message ??

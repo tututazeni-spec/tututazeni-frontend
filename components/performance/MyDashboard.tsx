@@ -49,10 +49,10 @@ function useGoalForm(cycle: Cycle | null, onCreated: () => void) {
   const [target, setTarget] = useState('');
 
   const createGoal = useApiMutation(
-    () =>
+    (cycleId: number) =>
       apiClient.post('/performance/goals', {
         userId: 0,
-        cycleId: cycle!.id,
+        cycleId,
         title,
         targetValue: parseFloat(target),
       }),
@@ -67,8 +67,11 @@ function useGoalForm(cycle: Cycle | null, onCreated: () => void) {
   );
 
   const submit = () => {
+    // `cycle` pode ser null (sem ciclo activo) — o id é capturado aqui, já
+    // depois do guard, e passado como variável da mutação. Nunca
+    // desreferenciar `cycle` dentro do mutationFn (closure obsoleta).
     if (!title || !target || !cycle) return;
-    createGoal.mutate(undefined);
+    createGoal.mutate(cycle.id);
   };
 
   return {
@@ -223,25 +226,21 @@ export function MyDashboard() {
       {/* Métricas */}
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         <KpiCard
-          icon={ClipboardCheck}
           label="Avaliações"
           value={history.reviews.length}
           intent="primary"
         />
         <KpiCard
-          icon={Target}
           label="Goals activos"
           value={history.goals.length}
           intent="accent"
         />
         <KpiCard
-          icon={TrendingUp}
           label="Pontuação Média"
           value={history.avgScore}
           intent="info"
         />
         <KpiCard
-          icon={MessageSquare}
           label="Feedbacks recebidos"
           value={history.feedback.length}
           intent="success"
@@ -353,8 +352,8 @@ export function MyDashboard() {
                           intent={f.type === 'PRAISE' ? 'success' : 'warning'}
                         >
                           {f.type === 'PRAISE'
-                            ? '👏 Reconhecimento'
-                            : '💡 Melhoria'}
+                            ? ' Reconhecimento'
+                            : ' Melhoria'}
                         </Badge>
                       </div>
                       <p className="text-xs text-ink-muted">{f.message}</p>
@@ -396,7 +395,7 @@ export function MyDashboard() {
                     feedbackForm.submitting
                   }
                 >
-                  {feedbackForm.submitting ? 'A enviar…' : '📤 Enviar feedback'}
+                  {feedbackForm.submitting ? 'A enviar…' : 'Enviar feedback'}
                 </Button>
               </CardBody>
             </Card>

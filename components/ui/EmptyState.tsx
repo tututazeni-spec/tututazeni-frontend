@@ -3,7 +3,7 @@ import { cn } from '@/lib/cn';
 import { Button } from './Button';
 
 export interface EmptyStateProps {
-  icon: LucideIcon;
+  icon?: LucideIcon;
   title: string;
   description: string;
   action?: { label: string; onClick: () => void };
@@ -18,9 +18,11 @@ export function EmptyState({ icon: Icon, title, description, action, className }
         className,
       )}
     >
-      <div className="flex h-11 w-11 items-center justify-center rounded-full bg-accent-subtle">
-        <Icon size={20} strokeWidth={1.75} className="text-accent" />
-      </div>
+      {Icon && (
+        <div className="flex h-11 w-11 items-center justify-center rounded-full bg-accent-subtle">
+          <Icon size={20} strokeWidth={1.75} className="text-accent" />
+        </div>
+      )}
       <div>
         <h3 className="font-display text-sm font-bold text-ink">{title}</h3>
         <p className="mt-1 max-w-xs font-body text-xs text-ink-muted">{description}</p>

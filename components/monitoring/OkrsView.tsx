@@ -1,6 +1,6 @@
 // components/monitoring/OkrsView.tsx
 
-import { ClipboardList, Target } from 'lucide-react';
+import { ClipboardList } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
 import { buttonVariants } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -57,7 +57,6 @@ export function OkrsView({
 
       {cycles.length === 0 ? (
         <EmptyState
-          icon={Target}
           title="Nenhum ciclo OKR criado"
           description="Cria um ciclo para começares a definir objectivos."
         />
@@ -84,8 +83,12 @@ export function OkrsView({
                       <span className="font-body text-xs uppercase text-ink-faint">
                         {obj.type}
                       </span>
-                      <h3 className="font-display font-semibold text-ink">{obj.title}</h3>
-                      <p className="font-body text-sm text-ink-muted">{obj.owner?.fullName}</p>
+                      <h3 className="font-display font-semibold text-ink">
+                        {obj.title}
+                      </h3>
+                      <p className="font-body text-sm text-ink-muted">
+                        {obj.owner?.fullName}
+                      </p>
                     </div>
                     <div className="text-right">
                       <span className="font-display text-2xl font-bold text-primary">
@@ -103,12 +106,16 @@ export function OkrsView({
                         className="flex justify-between items-center rounded-control bg-surface-sunken p-3"
                       >
                         <div className="flex-1">
-                          <p className="font-body text-sm font-medium text-ink">{kr.title}</p>
+                          <p className="font-body text-sm font-medium text-ink">
+                            {kr.title}
+                          </p>
                           <p className="font-body text-xs text-ink-faint">
                             {kr.currentValue} / {kr.targetValue} {kr.unit || ''}
                           </p>
                         </div>
-                        <Badge intent={OKR_STATUS_INTENT[kr.status] ?? 'neutral'}>
+                        <Badge
+                          intent={OKR_STATUS_INTENT[kr.status] ?? 'neutral'}
+                        >
                           {Math.round(kr.progress)}%
                         </Badge>
                       </div>

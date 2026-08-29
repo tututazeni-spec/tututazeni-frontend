@@ -10,7 +10,6 @@
 
 import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
-import { BookOpen } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { useDebounce } from '@/hooks/useDebounce';
 import { queryKeys } from '@/lib/queryKeys';
@@ -89,7 +88,6 @@ export function LibraryView({ onSelectArticle }: LibraryViewProps) {
           {data?.data.length === 0 && (
             <div className="col-span-3">
               <EmptyState
-                icon={BookOpen}
                 title="Sem artigos encontrados"
                 description="Ajusta a pesquisa ou os filtros para encontrar o que procuras."
               />

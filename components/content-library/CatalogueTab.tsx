@@ -7,7 +7,7 @@
 
 import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
-import { BookOpen, Search } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { useDebounce } from '@/hooks/useDebounce';
 import { queryKeys } from '@/lib/queryKeys';
@@ -181,7 +181,6 @@ export function CatalogueTab() {
         />
       ) : (data?.data.length ?? 0) === 0 ? (
         <EmptyState
-          icon={BookOpen}
           title="Nenhum conteúdo encontrado"
           description="Ajusta os filtros ou a pesquisa para veres mais resultados."
         />

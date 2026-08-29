@@ -4,7 +4,6 @@
 
 'use client';
 
-import { Bookmark } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -33,7 +32,6 @@ export function SavedView({ onSelect }: SavedViewProps) {
       </div>
       {data.length === 0 ? (
         <EmptyState
-          icon={Bookmark}
           title="Nenhum conteúdo guardado"
           description="Guarda conteúdos no feed para os encontrares aqui."
         />

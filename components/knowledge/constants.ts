@@ -14,9 +14,9 @@ export const ARTICLE_STATUS_MAP: StatusBadgeMap<ArticleStatus> = {
 };
 
 export const NAV: Array<{ id: Exclude<View, 'article'>; label: string }> = [
-  { id: 'portal', label: '🏠 Portal' },
-  { id: 'library', label: '📚 Biblioteca' },
-  { id: 'dashboard', label: '📊 Admin' },
+  { id: 'portal', label: 'Portal' },
+  { id: 'library', label: 'Biblioteca' },
+  { id: 'dashboard', label: 'Admin' },
 ];
 
 export const TITLES: Record<View, string> = {

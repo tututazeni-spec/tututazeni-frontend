@@ -19,7 +19,7 @@ import type {
   ParticipantResult,
   TabId,
 } from './types';
-import { typeColor } from './colors';
+import { typeColor, typeLabel } from './colors';
 import { RadarChart } from './RadarChart';
 import { CompetencyHeatmap } from './CompetencyHeatmap';
 import { NineBoxGrid } from './NineBoxGrid';
@@ -45,7 +45,7 @@ const TABS: { id: TabId; label: string; icon: LucideIcon }[] = [
   { id: 'radar', label: 'Radar 360°', icon: Radar },
   { id: 'competencies', label: 'Competências', icon: Grid3x3 },
   { id: 'feedback', label: 'Feedback', icon: MessageSquare },
-  { id: 'ninebox', label: 'Nine Box', icon: LayoutGrid },
+  { id: 'ninebox', label: 'Matriz 9 Box', icon: LayoutGrid },
   { id: 'cycles', label: 'Ciclos', icon: Layers },
   { id: 'form', label: 'Avaliar', icon: ClipboardCheck },
 ];
@@ -85,8 +85,6 @@ export function Evaluation360View({
                 Radar de Competências 360°
               </h2>
               <p className="m-0 mt-1 text-sm text-ink-muted">
-                Comparação entre autoavaliação, outros avaliadores e benchmark
-                do cargo
               </p>
             </div>
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_320px] lg:items-start">
@@ -159,7 +157,7 @@ export function Evaluation360View({
                     className="inline-block w-2 h-2 rounded-full"
                     style={{ background: color }}
                   />
-                  {type.replace('_', ' ')}
+                  {typeLabel[type] ?? type}
                 </span>
               ))}
             </div>
@@ -199,7 +197,6 @@ export function Evaluation360View({
                   Ciclos de Avaliação
                 </h2>
                 <p className="m-0 mt-1 text-sm text-ink-muted">
-                  Gestão de campanhas de avaliação 360°
                 </p>
               </div>
               <Button intent="primary" size="sm">

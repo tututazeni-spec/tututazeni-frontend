@@ -5,12 +5,7 @@
 
 'use client';
 
-import {
-  AlertCircle,
-  ArrowUpRight,
-  BookOpen,
-  CheckCircle2,
-} from 'lucide-react';
+import { AlertCircle, ArrowUpRight, BookOpen } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ProgressBar } from '@/components/ui/ProgressBar';
@@ -154,7 +149,6 @@ export function GapTab({ gap, rcfg }: GapTabProps) {
 
       {gap.gaps.mandatory.length === 0 && gap.gaps.optional.length === 0 && (
         <EmptyState
-          icon={CheckCircle2}
           title="Todos os requisitos cumpridos!"
           description="Não há lacunas de competência para o cargo-alvo."
           className="border-success/40"

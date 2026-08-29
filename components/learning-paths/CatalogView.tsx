@@ -12,7 +12,6 @@
 
 import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
-import { RouteOff } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { useDebounce } from '@/hooks/useDebounce';
 import { queryKeys } from '@/lib/queryKeys';
@@ -150,7 +149,6 @@ export function CatalogView({ onSelect }: CatalogViewProps) {
           </div>
           {data.data.length === 0 && (
             <EmptyState
-              icon={RouteOff}
               title="Nenhuma trilha encontrada"
               description="Ajusta a pesquisa ou os filtros para encontrar o que procuras."
             />

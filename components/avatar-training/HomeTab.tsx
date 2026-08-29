@@ -6,7 +6,7 @@
 
 'use client';
 
-import { Bot, CheckCircle, Flame, Play, Star, Target } from 'lucide-react';
+import { CheckCircle, Flame, Play, Star, Target } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -48,25 +48,21 @@ export function HomeTab({ onStartScenario }: HomeTabProps) {
       {history && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           <KpiCard
-            icon={Play}
             label="Sessões"
             value={history.stats.total}
             intent="primary"
           />
           <KpiCard
-            icon={CheckCircle}
             label="Concluídas"
             value={history.stats.completed}
             intent="success"
           />
           <KpiCard
-            icon={Star}
             label="Pontuação Média"
             value={history.stats.avgScore ?? '–'}
             intent="warning"
           />
           <KpiCard
-            icon={Flame}
             label="Sequência"
             value={`${history.stats.streak}`}
             intent="accent"
@@ -77,9 +73,6 @@ export function HomeTab({ onStartScenario }: HomeTabProps) {
       {/* Hero */}
       <div className="bg-gradient-to-br from-primary to-primary-active rounded-panel p-6 text-canvas">
         <div className="flex items-center gap-3 mb-3">
-          <div className="w-12 h-12 rounded-full bg-canvas/20 flex items-center justify-center">
-            <Bot size={24} strokeWidth={1.75} className="text-canvas" />
-          </div>
           <div>
             <h2 className="text-xl font-bold font-display">Treina com IA</h2>
             <p className="text-canvas/70 text-sm"></p>

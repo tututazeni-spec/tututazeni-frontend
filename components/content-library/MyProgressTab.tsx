@@ -57,28 +57,24 @@ export function MyProgressTab() {
       {stats && (
         <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
           <KpiCard
-            icon={Eye}
             label="Visualizações"
             value={stats.viewCount}
             intent="info"
             className="w-full"
           />
           <KpiCard
-            icon={CheckCircle}
             label="Concluídos"
             value={stats.completions}
             intent="success"
             className="w-full"
           />
           <KpiCard
-            icon={BookMarked}
             label="Guardados"
             value={stats.bookmarkCount}
             intent="warning"
             className="w-full"
           />
           <KpiCard
-            icon={Clock}
             label="Horas de aprendizagem"
             value={`${stats.totalHours}h`}
             intent="accent"
@@ -93,7 +89,11 @@ export function MyProgressTab() {
         <Card>
           <CardBody>
             <h3 className="mb-3 flex items-center gap-2 font-body font-semibold text-ink">
-              <RotateCcw size={16} strokeWidth={1.75} className="text-primary" />
+              <RotateCcw
+                size={16}
+                strokeWidth={1.75}
+                className="text-primary"
+              />
               Em Progresso
             </h3>
             <div className="space-y-2">
@@ -125,7 +125,11 @@ export function MyProgressTab() {
         <Card>
           <CardBody>
             <h3 className="mb-3 flex items-center gap-2 font-body font-semibold text-ink">
-              <CheckCircle size={16} strokeWidth={1.75} className="text-success" />
+              <CheckCircle
+                size={16}
+                strokeWidth={1.75}
+                className="text-success"
+              />
               Concluídos ({progress?.stats.completed})
             </h3>
             <div className="grid grid-cols-1 gap-2">
@@ -154,7 +158,10 @@ export function MyProgressTab() {
             </h3>
             <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-4">
               {bookmarks.map((c) => (
-                <ContentCard key={c.id} content={{ ...c, isBookmarked: true }} />
+                <ContentCard
+                  key={c.id}
+                  content={{ ...c, isBookmarked: true }}
+                />
               ))}
             </div>
           </CardBody>

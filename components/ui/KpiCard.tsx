@@ -15,7 +15,7 @@ const INTENT_CLASSES = {
 } as const;
 
 export interface KpiCardProps {
-  icon: LucideIcon;
+  icon?: LucideIcon;
   label: string;
   value: string | number;
   sub?: string;
@@ -37,9 +37,14 @@ export function KpiCard({
   return (
     <Card className={cn('w-48 p-4', className)}>
       <div className="mb-3 flex items-start justify-between">
-        <div className={cn('rounded-control p-2', INTENT_CLASSES[intent])}>
-          <Icon size={18} strokeWidth={1.75} />
-        </div>
+        {Icon ? (
+          <div className={cn('rounded-control p-2', INTENT_CLASSES[intent])}>
+            <Icon size={18} strokeWidth={1.75} />
+          </div>
+        ) : (
+          <div />
+        )}
+
         {trend !== undefined && (
           <span
             className={cn(
@@ -47,14 +52,20 @@ export function KpiCard({
               trend >= 0 ? 'text-success' : 'text-danger',
             )}
           >
-            {trend >= 0 ? <TrendingUp size={12} strokeWidth={1.75} /> : <TrendingDown size={12} strokeWidth={1.75} />}
+            {trend >= 0 ? (
+              <TrendingUp size={12} strokeWidth={1.75} />
+            ) : (
+              <TrendingDown size={12} strokeWidth={1.75} />
+            )}
             {Math.abs(trend)}%
           </span>
         )}
       </div>
       <p className="font-display text-2xl font-bold text-ink">{value}</p>
       <p className="mt-0.5 font-body text-xs text-ink-muted">{label}</p>
-      {sub && <p className="mt-0.5 font-body text-[10px] text-ink-faint">{sub}</p>}
+      {sub && (
+        <p className="mt-0.5 font-body text-[10px] text-ink-faint">{sub}</p>
+      )}
     </Card>
   );
 }

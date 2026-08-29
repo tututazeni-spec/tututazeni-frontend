@@ -34,10 +34,10 @@ import { TaskCard } from './TaskCard';
 import type { DocStatus, OnboardingPlan, TaskInstance } from './types';
 
 const SUB_TABS = [
-  { id: 'tasks', label: '✅ Tarefas' },
-  { id: 'docs', label: '📄 Documentos' },
-  { id: 'team', label: '👥 Equipa' },
-  { id: 'survey', label: '💬 Feedback' },
+  { id: 'tasks', label: ' Tarefas' },
+  { id: 'docs', label: ' Documentos' },
+  { id: 'team', label: ' Equipa' },
+  { id: 'survey', label: ' Feedback' },
 ] as const;
 
 const DOC_STATUS_LABEL: Record<DocStatus, string> = {
@@ -125,7 +125,6 @@ export function MyPlanView() {
   if (plans.length === 0) {
     return (
       <EmptyState
-        icon={PartyPopper}
         title="Sem plano de onboarding"
         description="Ainda não tens nenhum plano de integração atribuído"
       />
@@ -276,7 +275,7 @@ export function MyPlanView() {
                       : 'border-border bg-surface'
                 }`}
               >
-                <div className="text-2xl">📄</div>
+                <div className="text-2xl"></div>
                 <div className="flex-1">
                   <div className="text-sm font-medium text-ink">
                     {doc.documentType}
@@ -302,7 +301,6 @@ export function MyPlanView() {
             ))}
             {plan.documents.length === 0 && (
               <EmptyState
-                icon={FileText}
                 title="Sem documentos"
                 description="Sem documentos submetidos ainda"
               />
@@ -315,7 +313,7 @@ export function MyPlanView() {
           <div className="grid grid-cols-3 gap-4">
             {[
               { label: 'Gestor directo', person: plan.manager },
-              { label: 'Buddy / Mentor', person: plan.buddy },
+              { label: 'Amigável / Mentor', person: plan.buddy },
               { label: 'RH Responsável', person: plan.hrResponsible },
             ].map(({ label, person }) => (
               <Card key={label} className="p-5 text-center">
@@ -336,7 +334,7 @@ export function MyPlanView() {
                       </div>
                     )}
                     <button className="text-xs text-primary hover:underline mt-1">
-                      💬 Enviar mensagem
+                       Enviar mensagem
                     </button>
                   </div>
                 ) : (
@@ -370,7 +368,6 @@ export function MyPlanView() {
                           key={i}
                           className={`text-sm ${i < s.score ? 'text-accent' : 'text-border-strong'}`}
                         >
-                          ★
                         </span>
                       ))}
                     </div>
@@ -397,7 +394,7 @@ export function MyPlanView() {
                       onClick={() => setSurveyScore(s)}
                       className={`text-3xl transition-transform hover:scale-110 ${s <= surveyScore ? 'text-accent' : 'text-border-strong'}`}
                     >
-                      ★
+                      
                     </button>
                   ))}
                 </div>

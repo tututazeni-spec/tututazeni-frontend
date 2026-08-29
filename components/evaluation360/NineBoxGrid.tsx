@@ -20,12 +20,12 @@ export function NineBoxGrid({ entries }: NineBoxGridProps) {
     { label: string; color: string; bg: string }
   > = {
     HIGH_HIGH: {
-      label: 'Star / Alto Potencial',
+      label: 'Alto Potencial',
       color: 'rgb(34, 197, 94)',
       bg: 'rgba(34, 197, 94, 0.13)',
     },
     HIGH_MID: {
-      label: 'Alto Performer',
+      label: 'Colaborador de Alto Desempenho',
       color: 'rgb(96, 165, 250)',
       bg: 'rgba(96, 165, 250, 0.13)',
     },
@@ -40,7 +40,7 @@ export function NineBoxGrid({ entries }: NineBoxGridProps) {
       bg: 'rgba(52, 211, 153, 0.13)',
     },
     MID_MID: {
-      label: 'Core Contributor',
+      label: 'Contribuidor Essencial',
       color: 'rgb(148, 163, 184)',
       bg: 'rgba(148, 163, 184, 0.13)',
     },

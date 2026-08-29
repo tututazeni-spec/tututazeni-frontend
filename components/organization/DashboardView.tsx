@@ -46,25 +46,21 @@ export function DashboardView() {
       {/* KPIs principais */}
       <div className="grid grid-cols-4 gap-3">
         <KpiCard
-          icon={Users}
           label="Total colaboradores"
           value={hc.total}
           intent="primary"
         />
         <KpiCard
-          icon={Briefcase}
           label="Vagas abertas"
           value={hc.open}
           intent={hc.open > 0 ? 'warning' : 'primary'}
         />
         <KpiCard
-          icon={Building2}
           label="Departamentos"
           value={stats.departments}
           intent="accent"
         />
         <KpiCard
-          icon={Network}
           label="Unidades"
           value={stats.units}
           intent="info"
@@ -74,20 +70,17 @@ export function DashboardView() {
       {/* KPIs org */}
       <div className="grid grid-cols-3 gap-3">
         <KpiCard
-          icon={GitBranch}
           label="Média de Subordinados por Gestor"
           value={kpis.spanOfControl}
           sub="liderados por gestor"
           intent="info"
         />
         <KpiCard
-          icon={UserCog}
           label="Gestores activos"
           value={kpis.managerCount}
           intent="primary"
         />
         <KpiCard
-          icon={Layers}
           label="Profundidade hierárquica"
           value={kpis.maxHierarchyDepth}
           sub="níveis máximos"

@@ -73,25 +73,21 @@ export function OverviewTab({ userId }: OverviewTabProps) {
       {/* My completion progress */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <KpiCard
-          icon={CheckCircle}
           label="Concluídas"
           value={progress?.completed ?? 0}
           intent="success"
         />
         <KpiCard
-          icon={Clock}
           label="Pendentes"
           value={progress?.pending ?? 0}
           intent="warning"
         />
         <KpiCard
-          icon={Activity}
           label="Taxa Conclusão"
           value={`${progress?.completionRate ?? 0}%`}
           intent="primary"
         />
         <KpiCard
-          icon={Star}
           label="Pontuação Mais Recente"
           value={myResults ? myResults.finalScore.toFixed(1) : '–'}
           sub={myResults?.scoreLabel}

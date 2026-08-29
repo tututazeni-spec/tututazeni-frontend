@@ -93,8 +93,8 @@ export function DashboardView() {
               )}
             >
               {promotionEligibility.eligible
-                ? '✅ Elegível para promoção'
-                : '📋 Em desenvolvimento'}
+                ? ' Elegível para promoção'
+                : ' Em desenvolvimento'}
               <div className="mt-0.5 font-body text-xs font-normal text-ink-faint">
                 {READINESS_CFG[promotionEligibility.recommendation]?.label}
               </div>
@@ -211,7 +211,7 @@ export function DashboardView() {
           {careerPlan && (
             <Card className="border-primary bg-primary-subtle p-4">
               <div className="mb-1 font-body text-xs font-semibold text-primary">
-                📋 Plano activo
+                 Plano activo
               </div>
               <div className="truncate font-body text-sm font-medium text-ink">
                 {careerPlan.title}
@@ -237,7 +237,7 @@ export function DashboardView() {
       {promotionEligibility && (
         <Card className="p-5">
           <div className="mb-4 font-body text-sm font-semibold text-ink">
-            📈 Critérios de Promoção
+             Critérios de Promoção
           </div>
           <div className="grid grid-cols-3 gap-4">
             {Object.entries(promotionEligibility.criteria).map(([key, c]) => (

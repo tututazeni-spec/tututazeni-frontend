@@ -61,7 +61,7 @@ export function OrgChartView() {
                     </span>
                     {node.keyPersonRisk && (
                       <span className="rounded bg-accent-subtle px-1.5 py-0.5 font-body text-xs text-accent">
-                        🔑 Key Person
+                         Pessoa Chave
                       </span>
                     )}
                     <StatusBadge value={node.exitRisk} map={RISK_CFG} />
@@ -122,7 +122,7 @@ export function OrgChartView() {
                     ))}
                     {node.successors.length === 0 && (
                       <span className="font-body text-xs font-medium text-danger">
-                        ⚠ Sem sucessores
+                        Sem sucessores
                       </span>
                     )}
                   </div>
@@ -143,7 +143,7 @@ export function OrgChartView() {
               {selected?.id === node.id && node.successors.length > 0 && (
                 <div className="mt-4 space-y-2 border-t border-border pt-4">
                   <div className="mb-2 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
-                    Pipeline de sucessão
+                    Plano de sucessão
                   </div>
                   {node.successors.map((s) => (
                     <div

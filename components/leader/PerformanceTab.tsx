@@ -4,7 +4,6 @@
 
 'use client';
 
-import { AlertTriangle, Star } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -32,14 +31,11 @@ export function PerformanceTab() {
         <>
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
             <KpiCard
-              icon={Star}
               label="Pontuação Média"
               value={data?.kpis?.avgPerfScore?.toFixed(1) ?? '–'}
-              sub={data?.kpis?.perfStatus}
               intent="warning"
             />
             <KpiCard
-              icon={AlertTriangle}
               label="Em Risco"
               value={data?.kpis?.atRiskCount ?? 0}
               intent="danger"

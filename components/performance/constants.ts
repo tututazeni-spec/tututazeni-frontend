@@ -93,13 +93,13 @@ export const BOX_LABELS: Record<
 export const NAV: Array<{ id: View; label: string }> = [
   { id: 'dashboard', label: 'O meu desempenho' },
   { id: 'team', label: 'A minha equipa' },
-  { id: 'matrix9box', label: '9-Box Matrix' },
-  { id: 'analytics', label: 'Analytics' },
+  { id: 'matrix9box', label: 'Matriz 9-Box ' },
+  { id: 'analytics', label: 'Análises' },
 ];
 
 export const TITLES: Record<View, string> = {
   dashboard: 'O meu Desempenho',
   team: 'Performance da Equipa',
   matrix9box: 'Matriz 9-Box',
-  analytics: 'Analytics de Performance',
+  analytics: 'Análises de Performance',
 };

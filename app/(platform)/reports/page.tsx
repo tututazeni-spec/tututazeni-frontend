@@ -9,7 +9,7 @@
 // original) — um padrão que TabsContent por valor não modela bem.
 
 import { useState } from 'react';
-import { BarChart2, Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { InsightsTab } from '@/components/reports/InsightsTab';
 import { ReportHub } from '@/components/reports/ReportHub';
 import { ReportViewer } from '@/components/reports/ReportViewer';
@@ -31,18 +31,9 @@ export default function ReportsPage() {
       <div className="border-b border-border bg-surface px-6 py-5">
         <div className="mx-auto flex max-w-7xl items-start justify-between">
           <div>
-            <div className="mb-1 flex items-center gap-2">
-              <div className="rounded-control bg-primary-subtle p-1.5">
-                <BarChart2
-                  size={18}
-                  strokeWidth={1.75}
-                  className="text-primary"
-                />
-              </div>
-              <h1 className="font-display text-xl font-bold text-ink">
-                Relatórios
-              </h1>
-            </div>
+            <h1 className="mb-1 font-display text-xl font-bold text-ink">
+              Relatórios
+            </h1>
           </div>
           <Button size="sm">
             <Plus size={14} strokeWidth={1.75} />
