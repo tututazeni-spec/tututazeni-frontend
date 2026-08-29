@@ -92,25 +92,18 @@ export function DashboardView({ onSelectCohort }: DashboardViewProps) {
           {
             label: 'Taxa de conclusão',
             value: `${metrics.avgCompletionRate}%`,
-            color: 'text-success',
           },
           {
             label: 'Avaliação média',
             value: metrics.ratingAverage.toFixed(1),
-            color: 'text-accent',
           },
-        ].map(({ label, value, color }) => (
+        ].map(({ label, value }) => (
           <Card
             key={label}
             className="border-transparent bg-surface-sunken p-4 shadow-none"
           >
-            <div className="mb-1 font-body text-xs text-ink-faint">{label}</div>
-            <div
-              className={cn(
-                'font-mono text-2xl font-bold',
-                color ?? 'text-ink',
-              )}
-            >
+            <div className="mb-1 font-body text-xs text-black">{label}</div>
+            <div className="font-mono text-2xl font-bold text-black">
               {value}
             </div>
           </Card>

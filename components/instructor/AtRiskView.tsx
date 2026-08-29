@@ -37,7 +37,7 @@ export function AtRiskView() {
           'mb-5 flex items-center gap-3 rounded-card border p-4',
           hasAtRisk
             ? 'border-danger bg-danger-subtle'
-            : 'border-success bg-success-subtle',
+            : 'border-black bg-white',
         )}
       >
         {hasAtRisk ? (
@@ -50,21 +50,26 @@ export function AtRiskView() {
           <CheckCircle2
             size={24}
             strokeWidth={1.75}
-            className="shrink-0 text-success"
+            className="shrink-0 text-black"
           />
         )}
         <div>
           <div
             className={cn(
               'font-body text-sm font-semibold',
-              hasAtRisk ? 'text-danger-ink' : 'text-success-ink',
+              hasAtRisk ? 'text-danger-ink' : 'text-black',
             )}
           >
             {hasAtRisk
               ? `${data.count} aluno(s) em risco`
               : 'Nenhum aluno em risco'}
           </div>
-          <div className="font-body text-xs text-ink-muted">
+          <div
+            className={cn(
+              'font-body text-xs',
+              hasAtRisk ? 'text-ink-muted' : 'text-black',
+            )}
+          >
             Progresso abaixo de 20% após 7 dias de inscrição
           </div>
         </div>

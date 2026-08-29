@@ -125,7 +125,7 @@ export function CohortsView({ onSelectCohort }: CohortsViewProps) {
 
       {/* Formulário de criação */}
       {creating && (
-        <Card className="mb-4 border-primary bg-primary-subtle p-5">
+        <Card className="mb-4 border-border bg-surface p-5">
           <div className="mb-3 font-body text-sm font-semibold text-ink">
             Nova turma
           </div>
