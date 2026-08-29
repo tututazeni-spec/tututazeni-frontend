@@ -54,8 +54,63 @@ export const CATEGORY_COLOR: Record<
   },
 };
 
+// Rótulos PT das categorias de domínio (as chaves permanecem em inglês
+// porque são o valor enviado ao backend como filtro).
+export const CATEGORY_LABEL: Record<string, string> = {
+  LEARNING: 'Aprendizagem',
+  PERFORMANCE: 'Desempenho',
+  CAREER: 'Carreira',
+  ENGAGEMENT: 'Envolvimento',
+  SYSTEM: 'Sistema',
+  COMPLIANCE: 'Conformidade',
+  ATTENDANCE: 'Assiduidade',
+  FINANCIAL: 'Financeiro',
+};
+
+// Rótulos PT das acções de auditoria mais comuns. As acções vêm cruas da
+// tabela AuditLog (groupBy), por isso `formatAuditAction` cai num
+// formatador genérico para qualquer valor não mapeado.
+export const AUDIT_ACTION_LABEL: Record<string, string> = {
+  ENROLLMENT: 'Inscrição em curso',
+  CONTENT_VIEW: 'Conteúdo visualizado',
+  CONTENT_BOOKMARK: 'Conteúdo guardado',
+  COURSE_COMPLETED: 'Curso concluído',
+  CERTIFICATE_ISSUED: 'Certificado emitido',
+  BADGE_AWARDED: 'Badge atribuído',
+  RECOGNITION: 'Reconhecimento recebido',
+  EVALUATION_SUBMITTED: 'Avaliação submetida',
+  PERFORMANCE_REVIEW: 'Avaliação de desempenho',
+  CALIBRATION: 'Score calibrado',
+  PROMOTION_APPROVED: 'Promoção aprovada',
+  PDI_CREATED: 'PDI criado',
+  PAYSLIP_PROCESSED: 'Recibo processado',
+  LEAVE_APPROVED: 'Ausência aprovada',
+  LEAVE_REQUESTED: 'Ausência solicitada',
+  AVATAR_SESSION: 'Sessão de treino com avatar',
+  AVATAR_SESSION_COMPLETED: 'Sessão de treino concluída',
+  CONFIG_UPDATED: 'Configuração actualizada',
+  PERMISSION_CHANGED: 'Permissão alterada',
+  USER_CREATED: 'Utilizador criado',
+  USER_UPDATED: 'Utilizador actualizado',
+  USER_DELETED: 'Utilizador eliminado',
+  ADMIN_ACTION: 'Acção administrativa',
+  BULK_OPERATION: 'Operação em massa',
+  REPORT_SAVED: 'Relatório guardado',
+  LOGIN: 'Início de sessão',
+  LOGOUT: 'Fim de sessão',
+};
+
+/** Rótulo PT de uma acção de auditoria, com fallback genérico legível. */
+export function formatAuditAction(action: string): string {
+  if (!action) return '–';
+  const key = action.toUpperCase();
+  if (AUDIT_ACTION_LABEL[key]) return AUDIT_ACTION_LABEL[key];
+  const pretty = key.replace(/_/g, ' ').toLowerCase();
+  return pretty.charAt(0).toUpperCase() + pretty.slice(1);
+}
+
 export const TABS: { id: Tab; label: string; icon: LucideIcon }[] = [
-  { id: 'timeline', label: 'Timeline', icon: Clock },
+  { id: 'timeline', label: 'Linha de Tempo', icon: Clock },
   { id: 'milestones', label: 'Marcos', icon: Award },
   { id: 'stats', label: 'Actividade', icon: Activity },
   { id: 'audit', label: 'Auditoria', icon: Shield },
