@@ -6,7 +6,6 @@
 
 import { useState } from 'react';
 import type { EvaluationQuestion } from './types';
-import { COLORS } from './colors';
 import { Button } from '@/components/ui/Button';
 import { Textarea } from '@/components/ui/Textarea';
 
@@ -46,9 +45,8 @@ export function EvaluationFormTab({
           Formulário de Avaliação
         </h2>
         <p className="m-0 mt-1 text-sm text-ink-muted">
-          Avaliação de{' '}
-          <strong className="text-ink">{participantName}</strong> · Role:
-          Par
+          Avaliação de <strong className="text-ink">{participantName}</strong> ·
+          Role: Par
         </p>
       </div>
 
@@ -105,9 +103,7 @@ export function EvaluationFormTab({
                 <div className="text-xs font-semibold text-primary mb-1.5">
                   {q.competency}
                 </div>
-                <p className="m-0 text-sm text-ink leading-relaxed">
-                  {q.text}
-                </p>
+                <p className="m-0 text-sm text-ink leading-relaxed">{q.text}</p>
               </div>
             </div>
             <div className="flex gap-2 flex-wrap">

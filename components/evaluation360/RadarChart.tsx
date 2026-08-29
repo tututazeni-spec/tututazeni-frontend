@@ -93,7 +93,7 @@ export function RadarChart({ competencies }: RadarChartProps) {
               key={level}
               d={d}
               fill="none"
-              stroke={COLORS.border}
+              stroke="var(--color-border)"
               strokeWidth={level === 5 ? 1.5 : 0.8}
               strokeDasharray={level < 5 ? '4 4' : undefined}
             />
@@ -108,7 +108,7 @@ export function RadarChart({ competencies }: RadarChartProps) {
               x={pt.x + 4}
               y={pt.y}
               fontSize={8}
-              fill={COLORS.muted}
+              fill="var(--color-ink-muted)"
               opacity={0.7}
             >
               {v}
@@ -123,7 +123,7 @@ export function RadarChart({ competencies }: RadarChartProps) {
             y1={a.y1}
             x2={a.x2}
             y2={a.y2}
-            stroke={COLORS.border}
+            stroke="var(--color-border)"
             strokeWidth={0.5}
             opacity={0.5}
           />
@@ -162,7 +162,7 @@ export function RadarChart({ competencies }: RadarChartProps) {
               cy={pt.y}
               r={hovered === i ? 6 : 4}
               fill={COLORS.manager}
-              stroke={COLORS.bg}
+              stroke="var(--color-surface)"
               strokeWidth={2}
               style={{ cursor: 'pointer', transition: 'r 0.15s' }}
               onMouseEnter={() => setHovered(i)}
@@ -180,7 +180,7 @@ export function RadarChart({ competencies }: RadarChartProps) {
               cy={pt.y}
               r={hovered === i ? 6 : 4}
               fill={COLORS.self}
-              stroke={COLORS.bg}
+              stroke="var(--color-surface)"
               strokeWidth={1.5}
               style={{ cursor: 'pointer' }}
               onMouseEnter={() => setHovered(i)}
@@ -201,7 +201,7 @@ export function RadarChart({ competencies }: RadarChartProps) {
               dominantBaseline="middle"
               fontSize={isHovered ? 12 : 10}
               fontWeight={isHovered ? 700 : 500}
-              fill={isHovered ? 'rgb(165, 180, 252)' : 'rgb(148, 163, 184)'}
+              fill={isHovered ? 'var(--color-ink)' : 'var(--color-ink-muted)'}
               style={{ transition: 'all 0.15s', cursor: 'pointer' }}
               onMouseEnter={() => setHovered(i)}
               onMouseLeave={() => setHovered(null)}
@@ -225,15 +225,15 @@ export function RadarChart({ competencies }: RadarChartProps) {
                   width={100}
                   height={62}
                   rx={6}
-                  fill={COLORS.bg}
-                  stroke="rgb(49, 46, 129)"
+                  fill="var(--color-surface)"
+                  stroke="var(--color-border)"
                   strokeWidth={1}
                 />
                 <text
                   x={tx + 8}
                   y={ty + 16}
                   fontSize={9}
-                  fill="rgb(129, 140, 248)"
+                  fill="var(--color-ink)"
                   fontWeight={700}
                 >
                   {c.name}
@@ -253,7 +253,7 @@ export function RadarChart({ competencies }: RadarChartProps) {
                       ? 'rgb(245, 158, 11)'
                       : c.gap < -0.3
                         ? 'rgb(34, 197, 94)'
-                        : COLORS.muted
+                        : 'var(--color-ink-muted)'
                   }
                 >
                   Gap: {c.gap > 0 ? '+' : ''}

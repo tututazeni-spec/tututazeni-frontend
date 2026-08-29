@@ -19,7 +19,7 @@ import type {
   ParticipantResult,
   TabId,
 } from './types';
-import { COLORS, typeColor } from './colors';
+import { typeColor } from './colors';
 import { RadarChart } from './RadarChart';
 import { CompetencyHeatmap } from './CompetencyHeatmap';
 import { NineBoxGrid } from './NineBoxGrid';
@@ -28,15 +28,26 @@ import { FeedbackTab } from './FeedbackTab';
 import { EvaluationFormTab } from './EvaluationFormTab';
 import { Button } from '@/components/ui/Button';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/Tabs';
+import {
+  ClipboardCheck,
+  Grid3x3,
+  Layers,
+  LayoutDashboard,
+  LayoutGrid,
+  MessageSquare,
+  Radar,
+} from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 
-const TABS: { id: TabId; label: string; icon: string }[] = [
-  { id: 'overview', label: 'Visão Geral', icon: '◈' },
-  { id: 'radar', label: 'Radar 360°', icon: '◎' },
-  { id: 'competencies', label: 'Competências', icon: '▣' },
-  { id: 'feedback', label: 'Feedback', icon: '◆' },
-  { id: 'ninebox', label: 'Nine Box', icon: '⊞' },
-  { id: 'cycles', label: 'Ciclos', icon: '⟲' },
-  { id: 'form', label: 'Avaliar', icon: '✦' },
+const TABS: { id: TabId; label: string; icon: LucideIcon }[] = [
+  { id: 'overview', label: 'Visão Geral', icon: LayoutDashboard },
+  { id: 'radar', label: 'Radar 360°', icon: Radar },
+  { id: 'competencies', label: 'Competências', icon: Grid3x3 },
+  { id: 'feedback', label: 'Feedback', icon: MessageSquare },
+  { id: 'ninebox', label: 'Nine Box', icon: LayoutGrid },
+  { id: 'cycles', label: 'Ciclos', icon: Layers },
+  { id: 'form', label: 'Avaliar', icon: ClipboardCheck },
 ];
 
 export interface Evaluation360ViewProps {
@@ -104,7 +115,7 @@ export function Evaluation360View({
                             ? 'rgb(245, 158, 11)'
                             : c.gap < -0.5
                               ? 'rgb(34, 197, 94)'
-                              : COLORS.muted,
+                              : 'var(--color-ink-muted)',
                       }}
                     >
                       {c.gap > 0
@@ -134,7 +145,8 @@ export function Evaluation360View({
                 Mapa de Competências
               </h2>
               <p className="m-0 mt-1 text-sm text-ink-muted">
-                Pontuação por fonte de avaliador, Lacuna e Referência Comparativa do Cargo
+                Pontuação por fonte de avaliador, Lacuna e Referência
+                Comparativa do Cargo
               </p>
             </div>
             <div className="flex gap-2 mb-1">
@@ -257,54 +269,46 @@ export function Evaluation360View({
   };
 
   return (
-    <div
-      style={{ backgroundColor: COLORS.bg }}
-      className="min-h-screen font-sans text-ink"
-    >
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap'); * { box-sizing: border-box; } ::-webkit-scrollbar { width: 5px; } ::-webkit-scrollbar-track { background: ${COLORS.surface}; } ::-webkit-scrollbar-thumb { background: ${COLORS.border}; border-radius: 3px; }`}</style>
-
+    <div className="min-h-screen bg-surface font-body text-ink">
       {/* Header */}
-      <div className="border-b border-border px-8 py-4 flex items-center gap-4 bg-canvas sticky top-0 z-100">
-        <div
-          className="w-9 h-9 rounded-lg flex items-center justify-center text-base font-black text-canvas"
-          style={{
-            background:
-              'linear-gradient(135deg, rgb(79, 70, 229), rgb(124, 58, 237))',
-          }}
-        >
-          I
-        </div>
-        <div>
-          <div className="text-base font-bold text-ink tracking-tight">
+      <div className="border-b border-border bg-surface px-6 py-5">
+        <div className="mx-auto flex max-w-7xl items-start justify-between gap-4">
+          <h1 className="font-display text-xl font-bold text-ink">
             Avaliação 360°
-          </div>
-        </div>
-        <div className="ml-auto text-sm text-ink-muted">
-          Ciclo:{' '}
-          <strong style={{ color: 'rgb(129, 140, 248)' }}>{cycle.name}</strong>
+          </h1>
+          <p className="mt-0.5 shrink-0 text-sm text-ink-muted">
+            Ciclo: <strong className="text-ink">{cycle.name}</strong>
+          </p>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="border-b border-border px-8 flex gap-1 overflow-x-auto bg-canvas">
-        {TABS.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => onTabChange(tab.id)}
-            className={`px-4.5 py-3.5 text-sm font-medium whitespace-nowrap flex items-center gap-1.5 border-b-2 transition-colors cursor-pointer ${
-              activeTab === tab.id
-                ? 'border-primary text-primary-subtle font-bold'
-                : 'border-transparent text-ink-muted'
-            }`}
-          >
-            <span className="text-sm">{tab.icon}</span>
-            {tab.label}
-          </button>
-        ))}
-      </div>
+      <Tabs value={activeTab} onValueChange={(v) => onTabChange(v as TabId)}>
+        <div className="border-b border-border bg-surface px-6">
+          <TabsList className="mx-auto max-w-7xl gap-0 overflow-x-auto">
+            {TABS.map((tab, i) => {
+              const Icon = tab.icon;
+              return (
+                <TabsTrigger
+                  key={tab.id}
+                  value={tab.id}
+                  className={
+                    i < TABS.length - 1
+                      ? 'gap-2 whitespace-nowrap mr-[1cm]!'
+                      : 'gap-2 whitespace-nowrap'
+                  }
+                >
+                  <Icon size={16} strokeWidth={1.75} />
+                  {tab.label}
+                </TabsTrigger>
+              );
+            })}
+          </TabsList>
+        </div>
 
-      {/* Content */}
-      <div className="px-8 py-8 max-w-6xl mx-auto">{renderTab()}</div>
+        {/* Content */}
+        <div className="mx-auto max-w-7xl px-6 py-6">{renderTab()}</div>
+      </Tabs>
     </div>
   );
 }

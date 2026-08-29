@@ -9,7 +9,6 @@
 'use client';
 
 import type { NineBoxEntry } from './types';
-import { COLORS } from './colors';
 
 export interface NineBoxGridProps {
   entries: NineBoxEntry[];
