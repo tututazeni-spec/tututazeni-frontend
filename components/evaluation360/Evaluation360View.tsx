@@ -85,7 +85,7 @@ export function Evaluation360View({
                 Radar de Competências 360°
               </h2>
               <p className="m-0 mt-1 text-sm text-ink-muted">
-                Comparação entre autoavaliação, outros avaliadores e benchmark
+                Comparação entre autoavaliação, outros avaliadores e referencial
                 do cargo
               </p>
             </div>
