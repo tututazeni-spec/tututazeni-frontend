@@ -4,7 +4,6 @@
 
 'use client';
 
-import { CheckCircle2, ClipboardList, PlayCircle, Target, Zap } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -42,25 +41,21 @@ export function MyPlansView({ onSelect }: MyPlansViewProps) {
       {stats && (
         <div className="grid grid-cols-4 gap-3">
           <KpiCard
-            icon={ClipboardList}
             label="Total PDIs"
             value={stats.plans.total}
             intent="primary"
           />
           <KpiCard
-            icon={PlayCircle}
             label="Activos"
             value={stats.plans.active}
             intent="success"
           />
           <KpiCard
-            icon={CheckCircle2}
             label="Concluídos"
             value={stats.plans.completed}
             intent="info"
           />
           <KpiCard
-            icon={Zap}
             label="Pontos de experiência ganho"
             value={stats.totalXp}
             intent="warning"
@@ -71,7 +66,6 @@ export function MyPlansView({ onSelect }: MyPlansViewProps) {
       {/* Plans */}
       {plans.length === 0 ? (
         <EmptyState
-          icon={Target}
           title="Sem planos de desenvolvimento"
           description="Ainda não tens nenhum PDI criado."
         />

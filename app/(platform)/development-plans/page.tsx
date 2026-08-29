@@ -2,7 +2,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Plus, Target } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { useToast } from '@/providers/ToastProvider';
 import { NAV, TITLES } from '@/components/development-plans/constants';
 import { DetailView } from '@/components/development-plans/DetailView';
@@ -23,16 +23,10 @@ export default function DevelopmentPlansPage() {
     <div className="mx-auto max-w-5xl px-4 py-8">
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <div className="mb-1 flex items-center gap-2">
-            <div className="rounded-control bg-primary-subtle p-1.5">
-              <Target size={18} strokeWidth={1.75} className="text-primary" />
-            </div>
-            <h1 className="font-display text-xl font-semibold text-ink">
-              {TITLES[nav.view]}
-            </h1>
-          </div>
-          <p className="mt-0.5 font-body text-sm text-ink-faint">
-          </p>
+          <h1 className="mb-1 font-display text-xl font-semibold text-ink">
+            {TITLES[nav.view]}
+          </h1>
+          <p className="mt-0.5 font-body text-sm text-ink-faint"></p>
         </div>
         {nav.view !== 'detail' && (
           <Button
