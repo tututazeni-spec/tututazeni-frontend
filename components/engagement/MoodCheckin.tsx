@@ -54,8 +54,8 @@ export function MoodCheckin({ onDone }: MoodCheckinProps) {
     );
 
   return (
-    <div className="rounded-card border border-primary-subtle bg-primary-subtle p-5">
-      <p className="mb-3 font-body text-sm font-semibold text-ink">
+    <div className="rounded-card border border-black bg-white p-5">
+      <p className="mb-3 font-body text-sm font-semibold text-black">
         Como te sentes hoje?
       </p>
       <div className="mb-3 flex gap-3">
@@ -69,7 +69,7 @@ export function MoodCheckin({ onDone }: MoodCheckinProps) {
                 : 'border-transparent hover:border-primary-subtle'
             }`}
           >
-            <span className="font-body text-[10px] text-ink-muted">
+            <span className="font-body text-[10px] text-black">
               {MOOD_LABEL[m]}
             </span>
           </button>
