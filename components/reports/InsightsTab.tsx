@@ -25,20 +25,20 @@ const SEV_CONFIG: Record<
   }
 > = {
   HIGH: {
-    textClass: 'text-danger-ink',
-    cardClass: 'border-danger bg-danger-subtle',
+    textClass: 'text-black',
+    cardClass: 'border-black bg-white',
     intent: 'danger',
     icon: AlertTriangle,
   },
   MEDIUM: {
-    textClass: 'text-warning-ink',
-    cardClass: 'border-warning bg-warning-subtle',
+    textClass: 'text-black',
+    cardClass: 'border-black bg-white',
     intent: 'warning',
     icon: Clock,
   },
   LOW: {
-    textClass: 'text-success-ink',
-    cardClass: 'border-success bg-success-subtle',
+    textClass: 'text-black',
+    cardClass: 'border-black bg-white',
     intent: 'success',
     icon: CheckCircle,
   },

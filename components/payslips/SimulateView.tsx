@@ -90,8 +90,8 @@ export function SimulateView() {
         ))}
 
         {/* Tabela IRT */}
-        <div className="rounded-card bg-surface-sunken p-4">
-          <div className="mb-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+        <div className="rounded-card border border-black bg-white p-4">
+          <div className="mb-3 font-body text-xs font-medium uppercase tracking-wide text-black">
             Tabela IRT Angola 2026
           </div>
           <Table>
@@ -111,7 +111,7 @@ export function SimulateView() {
                   key={i}
                   className={cn(
                     i === activeIdx &&
-                      'bg-primary-subtle font-medium text-primary hover:bg-primary-subtle',
+                      'bg-surface-sunken font-semibold text-ink hover:bg-surface-sunken',
                   )}
                 >
                   <TableCell className="py-1.5 text-xs">{b.label}</TableCell>
@@ -133,8 +133,8 @@ export function SimulateView() {
 
       {/* Resultado */}
       <div>
-        <div className="space-y-3 rounded-card bg-primary-subtle p-5">
-          <div className="font-body text-xs font-medium uppercase tracking-wide text-primary">
+        <div className="space-y-3 rounded-card border border-black bg-white p-5">
+          <div className="font-body text-xs font-medium uppercase tracking-wide text-black">
             Resultado estimado
           </div>
 
@@ -160,10 +160,8 @@ export function SimulateView() {
               key={label}
               className="flex items-baseline justify-between border-b border-border pb-2 last:border-0"
             >
-              <span className="font-body text-sm text-ink-muted">{label}</span>
-              <span
-                className={`font-mono text-sm font-medium ${negative ? 'text-danger' : 'text-ink'}`}
-              >
+              <span className="font-body text-sm text-black">{label}</span>
+              <span className="font-mono text-sm font-medium text-black">
                 {loading
                   ? '…'
                   : value !== undefined
@@ -174,10 +172,10 @@ export function SimulateView() {
           ))}
 
           <div className="flex items-center justify-between pt-1">
-            <span className="font-body text-sm font-semibold text-ink">
+            <span className="font-body text-sm font-semibold text-black">
               Salário líquido
             </span>
-            <span className="font-mono text-2xl font-bold text-primary">
+            <span className="font-mono text-2xl font-bold text-black">
               {loading ? '…' : result ? fmtKz(result.netSalary) : '—'}
             </span>
           </div>
@@ -185,7 +183,7 @@ export function SimulateView() {
 
         {result && (
           <>
-            <div className="mt-3 rounded-card bg-warning-subtle p-4 font-body text-xs text-warning-ink">
+            <div className="mt-3 rounded-card border border-black bg-white p-4 font-body text-xs text-black">
               <div className="mb-1 font-medium">Fórmula IRT aplicada</div>
               <div className="font-mono">{result.irtDetails.formula}</div>
               <div className="mt-1">
@@ -194,7 +192,7 @@ export function SimulateView() {
               </div>
             </div>
 
-            <div className="mt-3 rounded-card bg-surface-sunken p-3 font-body text-xs text-ink-muted">
+            <div className="mt-3 rounded-card border border-black bg-white p-3 font-body text-xs text-black">
               Simulação meramente indicativa. Os valores finais podem variar com
               deduções adicionais aprovadas pelo RH.
             </div>

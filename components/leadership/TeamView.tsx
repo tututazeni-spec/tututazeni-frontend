@@ -14,12 +14,6 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { HEALTH_CFG } from './constants';
 import type { TeamDashboard } from './types';
 
-const HEALTH_PANEL_CLS: Record<TeamDashboard['teamHealth']['healthStatus'], string> = {
-  GREEN: 'border-success bg-success-subtle',
-  YELLOW: 'border-warning bg-warning-subtle',
-  RED: 'border-danger bg-danger-subtle',
-};
-
 export function TeamView() {
   const { data, isLoading } = useApiQuery<TeamDashboard>(
     queryKeys.leadership.teamDashboard(),
@@ -35,17 +29,13 @@ export function TeamView() {
   return (
     <div className="space-y-5">
       {/* Team Health */}
-      <div
-        className={`rounded-card border p-5 ${HEALTH_PANEL_CLS[teamHealth.healthStatus]}`}
-      >
+      <div className="rounded-card border border-black bg-white p-5">
         <div className="mb-4 flex items-center justify-between">
           <div>
-            <div className="mb-1 font-body text-xs font-medium text-ink-muted">
+            <div className="mb-1 font-body text-xs font-medium text-black">
               Saúde da equipa
             </div>
-            <div
-              className={`font-mono text-3xl font-bold ${HEALTH_CFG[teamHealth.healthStatus].cls}`}
-            >
+            <div className="font-mono text-3xl font-bold text-black">
               {teamHealth.globalScore}
             </div>
           </div>
@@ -53,9 +43,7 @@ export function TeamView() {
             <div
               className={`h-4 w-4 rounded-full ${HEALTH_CFG[teamHealth.healthStatus].dot}`}
             />
-            <span
-              className={`font-body text-sm font-medium ${HEALTH_CFG[teamHealth.healthStatus].cls}`}
-            >
+            <span className="font-body text-sm font-medium text-black">
               {HEALTH_CFG[teamHealth.healthStatus].label}
             </span>
           </div>
@@ -90,7 +78,10 @@ export function TeamView() {
               suffix: '%',
             },
           ].map(({ label, value, suffix }) => (
-            <div key={label} className="rounded-control bg-surface/60 p-2.5 text-center">
+            <div
+              key={label}
+              className="rounded-control bg-surface/60 p-2.5 text-center"
+            >
               <div className="font-mono text-lg font-bold text-ink">
                 {value !== null && value !== undefined
                   ? `${value}${suffix}`
@@ -162,7 +153,9 @@ export function TeamView() {
               <div
                 className={`h-2.5 w-2.5 flex-shrink-0 rounded-full ${HEALTH_CFG[member.statusColor].dot}`}
               />
-              <span className={`font-body text-xs ${HEALTH_CFG[member.statusColor].cls}`}>
+              <span
+                className={`font-body text-xs ${HEALTH_CFG[member.statusColor].cls}`}
+              >
                 {HEALTH_CFG[member.statusColor].label}
               </span>
             </div>

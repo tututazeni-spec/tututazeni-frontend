@@ -248,7 +248,7 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
           </div>
         )}
         {!dept.head && (
-          <div className="mt-4 rounded-control border-t border-border bg-warning-subtle px-3 py-2 pt-4 text-xs text-warning-ink">
+          <div className="mt-4 rounded-control border border-black bg-white px-3 py-2 text-xs text-black">
             ⚠ Departamento sem gestor definido
           </div>
         )}

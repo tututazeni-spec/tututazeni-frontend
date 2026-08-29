@@ -30,12 +30,14 @@ const TOKEN = {
 
 const cls = (t: (typeof TOKEN)[keyof typeof TOKEN]) => `${t.bg} ${t.color}`;
 
+const NEUTRAL_BADGE = 'border border-black bg-white text-black';
+
 export const STATUS_CFG: StatusBadgeMap<OnboardingStatus> = {
-  NOT_STARTED: { label: 'Não iniciado', cls: cls(TOKEN.neutral) },
-  IN_PROGRESS: { label: 'Em progresso', cls: cls(TOKEN.info) },
-  COMPLETED: { label: 'Concluído', cls: cls(TOKEN.success) },
-  ABANDONED: { label: 'Abandonado', cls: cls(TOKEN.danger) },
-  ON_HOLD: { label: 'Em pausa', cls: cls(TOKEN.warning) },
+  NOT_STARTED: { label: 'Não iniciado', cls: NEUTRAL_BADGE },
+  IN_PROGRESS: { label: 'Em progresso', cls: NEUTRAL_BADGE },
+  COMPLETED: { label: 'Concluído', cls: NEUTRAL_BADGE },
+  ABANDONED: { label: 'Abandonado', cls: NEUTRAL_BADGE },
+  ON_HOLD: { label: 'Em pausa', cls: NEUTRAL_BADGE },
 };
 
 export const TASK_STATUS_CFG: Record<

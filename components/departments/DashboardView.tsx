@@ -90,7 +90,7 @@ export function DashboardView({ onSelect }: DashboardViewProps) {
 
       {/* Depts without head warning */}
       {rows.filter((r) => r.active && r.headName === '—').length > 0 && (
-        <div className="rounded-card border border-warning bg-warning-subtle px-4 py-3 text-sm text-warning-ink">
+        <div className="rounded-card border border-black bg-white px-4 py-3 text-sm text-black">
           ⚠{' '}
           <strong>
             {rows.filter((r) => r.active && r.headName === '—').length}

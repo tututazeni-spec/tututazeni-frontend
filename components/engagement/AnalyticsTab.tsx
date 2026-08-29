@@ -19,7 +19,6 @@ import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { LEVEL_CONFIG } from './constants';
 import type { EngagementIndex, HeatmapRow } from './types';
 
 const METRICS = [
@@ -75,23 +74,17 @@ export function AnalyticsTab() {
     <div className="space-y-6">
       {/* Engagement index card */}
       {index && (
-        <div
-          className={`rounded-card border p-5 ${LEVEL_CONFIG[index.level]?.bg ?? 'bg-surface-sunken'}`}
-        >
+        <div className="rounded-card border border-black bg-white p-5">
           <div className="flex items-start justify-between">
             <div>
-              <p className="mb-1 font-body text-xs text-ink-muted">
+              <p className="mb-1 font-body text-xs text-black">
                 Índice de Engajamento
               </p>
-              <p
-                className={`font-display text-4xl font-black ${LEVEL_CONFIG[index.level]?.color ?? 'text-ink'}`}
-              >
+              <p className="font-display text-4xl font-black text-black">
                 {index.currentIndex}%
               </p>
               <div className="mt-1 flex items-center gap-2">
-                <span
-                  className={`flex items-center gap-1 font-body text-xs ${index.trend >= 0 ? 'text-success' : 'text-danger'}`}
-                >
+                <span className="flex items-center gap-1 font-body text-xs text-black">
                   {index.trend >= 0 ? (
                     <TrendingUp size={14} strokeWidth={1.75} />
                   ) : (
