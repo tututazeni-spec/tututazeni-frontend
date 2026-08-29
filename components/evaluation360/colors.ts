@@ -1,19 +1,16 @@
 // components/evaluation360/colors.ts
-// Paleta e helpers visuais partilhados por todos os componentes de
-// apresentação de avaliação 360º. Migrado para CSS variables e semantic tokens.
+// Paleta e helpers visuais partilhados pelos componentes de apresentação de
+// avaliação 360º. O chrome (fundo, superfície, bordas, texto) usa os tokens
+// semânticos do design system directamente nas classes/CSS vars — aqui ficam
+// só as cores de série de data-viz (codificação categórica/ordinal), que são
+// uma excepção documentada (ver memory project_innova_design_system_rollout_vaga3).
 
-// CSS variables referencing do módulo (dark theme para 360)
+// Cores de série para os avaliadores (data-viz — categorical encoding)
 export const COLORS = {
   self: 'rgb(129, 140, 248)', // indigo-400
   manager: 'rgb(52, 211, 153)', // emerald-400
   peer: 'rgb(96, 165, 250)', // blue-400
   benchmark: 'rgba(245, 158, 11, 0.27)',
-  bg: 'rgb(8, 13, 25)', // slate-950
-  surface: 'rgb(17, 24, 39)', // slate-900
-  border: 'rgb(30, 42, 58)', // slate-800
-  text: 'rgb(241, 245, 249)', // slate-100
-  muted: 'rgb(100, 116, 139)', // slate-500
-  accent: 'rgb(99, 102, 241)', // indigo-500
 };
 
 // Cores para categorias de competência (data-viz exception — categorical encoding)
