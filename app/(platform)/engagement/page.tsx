@@ -11,10 +11,10 @@ import {
   Activity,
   Award,
   BarChart2,
+  ClipboardList,
   MessageSquare,
   Plus,
   RefreshCw,
-  Smile,
 } from 'lucide-react';
 import { AnalyticsTab } from '@/components/engagement/AnalyticsTab';
 import { FeedbackTab } from '@/components/engagement/FeedbackTab';
@@ -25,8 +25,8 @@ import { Button } from '@/components/ui/Button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
 
 const TABS = [
-  { id: 'overview', label: 'Visão Geral', icon: Smile },
-  { id: 'surveys', label: 'Inquéritos', icon: BarChart2 },
+  { id: 'overview', label: 'Visão Geral', icon: BarChart2 },
+  { id: 'surveys', label: 'Inquéritos', icon: ClipboardList },
   { id: 'recognition', label: 'Reconhecimento', icon: Award },
   { id: 'feedback', label: 'Feedback', icon: MessageSquare },
   { id: 'analytics', label: 'Análises', icon: Activity },
@@ -64,14 +64,18 @@ export default function EngagementPage() {
       {/* Tabs */}
       <Tabs defaultValue="overview">
         <div className="border-b border-border bg-surface px-6">
-          <TabsList className="mx-auto max-w-7xl overflow-x-auto">
-            {TABS.map((t) => {
+          <TabsList className="mx-auto max-w-7xl overflow-x-auto gap-0">
+            {TABS.map((t, i) => {
               const Icon = t.icon;
               return (
                 <TabsTrigger
                   key={t.id}
                   value={t.id}
-                  className="gap-2 whitespace-nowrap"
+                  className={
+                    i < TABS.length - 1
+                      ? 'gap-2 whitespace-nowrap mr-[1cm]!'
+                      : 'gap-2 whitespace-nowrap'
+                  }
                 >
                   <Icon size={16} strokeWidth={1.75} />
                   {t.label}

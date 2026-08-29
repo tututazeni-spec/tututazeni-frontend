@@ -14,7 +14,6 @@
 'use client';
 
 import { useState } from 'react';
-import { MessageSquare } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { reportError } from '@/lib/errorReporting';
@@ -191,7 +190,6 @@ export function FeedbackTab({ userId }: FeedbackTabProps) {
         ))}
         {data.length === 0 && (
           <EmptyState
-            icon={MessageSquare}
             title="Nenhum feedback encontrado"
             description="Não há feedback para o filtro seleccionado."
           />

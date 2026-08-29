@@ -10,7 +10,7 @@
 
 'use client';
 
-import { AlertTriangle, Award, Smile, TrendingUp, Users } from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -115,27 +115,23 @@ export function OverviewTab({ userId }: OverviewTabProps) {
       {/* KPIs */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         <KpiCard
-          icon={Smile}
           label="Engajamento"
           value={`${dash?.kpis.engagementIndex ?? 0}%`}
           intent="primary"
           trend={dash?.kpis.engagementTrend}
         />
         <KpiCard
-          icon={Users}
           label="Participação"
           value={`${dash?.kpis.participationRate ?? 0}%`}
           intent="accent"
         />
         <KpiCard
-          icon={TrendingUp}
           label="Índice de Recomendação dos Colaboradores"
           value={dash?.kpis.enps ?? 0}
           sub={dash?.enpsBreakdown.label}
           intent={(dash?.kpis.enps ?? 0) >= 0 ? 'success' : 'danger'}
         />
         <KpiCard
-          icon={Award}
           label="Reconhecimentos"
           value={dash?.kpis.totalRecognitions ?? 0}
           intent="warning"

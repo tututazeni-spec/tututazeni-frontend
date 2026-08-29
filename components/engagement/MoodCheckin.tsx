@@ -54,7 +54,7 @@ export function MoodCheckin({ onDone }: MoodCheckinProps) {
     );
 
   return (
-    <div className="rounded-card border border-primary-subtle bg-gradient-to-br from-primary-subtle to-accent-subtle p-5">
+    <div className="rounded-card border border-primary-subtle bg-primary-subtle p-5">
       <p className="mb-3 font-body text-sm font-semibold text-ink">
         Como te sentes hoje?
       </p>

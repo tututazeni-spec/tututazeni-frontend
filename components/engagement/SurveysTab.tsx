@@ -6,7 +6,6 @@
 'use client';
 
 import { useState } from 'react';
-import { BarChart2 } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -130,7 +129,6 @@ export function SurveysTab() {
         {(data?.data.length ?? 0) === 0 && (
           <div className="col-span-full">
             <EmptyState
-              icon={BarChart2}
               title="Nenhum Inquérito encontrado"
               description="Não há inquéritos para o filtro seleccionado."
             />
