@@ -39,7 +39,6 @@ export function MyCareerTab({
   if (!myPlan) {
     return (
       <EmptyState
-        icon={Target}
         title="Sem plano de carreira activo"
         description="O teu gestor ou RH irá criar um plano para ti"
       />

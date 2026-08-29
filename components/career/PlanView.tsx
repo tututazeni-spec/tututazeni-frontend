@@ -61,7 +61,6 @@ export function PlanView() {
     return (
       <Card className="p-8 text-center">
         <EmptyState
-          icon={ClipboardList}
           title="Sem plano de carreira activo"
           description="Define os teus objetivos de carreira e acompanha o teu progresso"
           className="border-none bg-transparent p-0"
@@ -105,7 +104,7 @@ export function PlanView() {
             <div className="mt-2 flex gap-3 font-body text-xs text-ink-faint">
               {plan.targetDate && (
                 <span>
-                  🎯 Alvo:{' '}
+                   Alvo:{' '}
                   {new Date(plan.targetDate).toLocaleDateString('pt-AO', {
                     month: 'long',
                     year: 'numeric',

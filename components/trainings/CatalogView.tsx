@@ -109,7 +109,6 @@ export function CatalogView({ onSelect }: CatalogViewProps) {
             {data?.data.length === 0 && (
               <div className="col-span-3">
                 <EmptyState
-                  icon={GraduationCap}
                   title="Sem treinamentos disponíveis"
                   description="Não há treinamentos que correspondam aos filtros seleccionados."
                 />

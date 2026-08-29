@@ -395,7 +395,7 @@ export function MyDashboard() {
                     feedbackForm.submitting
                   }
                 >
-                  {feedbackForm.submitting ? 'A enviar…' : '📤 Enviar feedback'}
+                  {feedbackForm.submitting ? 'A enviar…' : 'Enviar feedback'}
                 </Button>
               </CardBody>
             </Card>

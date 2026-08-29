@@ -45,7 +45,7 @@ const TABS: { id: TabId; label: string; icon: LucideIcon }[] = [
   { id: 'radar', label: 'Radar 360°', icon: Radar },
   { id: 'competencies', label: 'Competências', icon: Grid3x3 },
   { id: 'feedback', label: 'Feedback', icon: MessageSquare },
-  { id: 'ninebox', label: 'Nine Box', icon: LayoutGrid },
+  { id: 'ninebox', label: 'Matriz 9 Box', icon: LayoutGrid },
   { id: 'cycles', label: 'Ciclos', icon: Layers },
   { id: 'form', label: 'Avaliar', icon: ClipboardCheck },
 ];
@@ -85,8 +85,6 @@ export function Evaluation360View({
                 Radar de Competências 360°
               </h2>
               <p className="m-0 mt-1 text-sm text-ink-muted">
-                Comparação entre autoavaliação, outros avaliadores e referencial
-                do cargo
               </p>
             </div>
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_320px] lg:items-start">
@@ -145,8 +143,6 @@ export function Evaluation360View({
                 Mapa de Competências
               </h2>
               <p className="m-0 mt-1 text-sm text-ink-muted">
-                Pontuação por fonte de avaliador, Lacuna e Referência
-                Comparativa do Cargo
               </p>
             </div>
             <div className="flex gap-2 mb-1">
@@ -199,7 +195,6 @@ export function Evaluation360View({
                   Ciclos de Avaliação
                 </h2>
                 <p className="m-0 mt-1 text-sm text-ink-muted">
-                  Gestão de campanhas de avaliação 360°
                 </p>
               </div>
               <Button intent="primary" size="sm">

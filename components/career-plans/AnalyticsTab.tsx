@@ -19,25 +19,21 @@ export function AnalyticsTab({ analytics }: AnalyticsTabProps) {
         <KpiCard
           label="Planos Activos"
           value={analytics.plans.active}
-          icon={Target}
           intent="primary"
         />
         <KpiCard
           label="Concluídos"
           value={analytics.plans.completed}
-          icon={CheckCircle2}
           intent="success"
         />
         <KpiCard
           label="Promoções Aprovadas"
           value={analytics.promotions.approved}
-          icon={TrendingUp}
           intent="accent"
         />
         <KpiCard
           label="Tempo Médio Promoção"
           value={`${analytics.avgPromotionDays}d`}
-          icon={Clock}
           intent="warning"
         />
       </div>

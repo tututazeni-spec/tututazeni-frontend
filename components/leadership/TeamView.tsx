@@ -68,7 +68,7 @@ export function TeamView() {
               suffix: '%',
             },
             {
-              label: 'Turnover',
+              label: 'Rotatividade',
               value: teamHealth.metrics.turnoverRate,
               suffix: '%',
               invert: true,

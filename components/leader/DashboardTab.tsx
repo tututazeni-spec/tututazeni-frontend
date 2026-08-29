@@ -78,50 +78,41 @@ export function DashboardTab() {
       {/* KPIs */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         <KpiCard
-          icon={Users}
           label="Equipa"
           value={k.teamSize ?? 0}
           intent="primary"
         />
         <KpiCard
-          icon={Star}
           label="Pontuação Média"
           value={k.avgPerfScore?.toFixed(1) ?? '–'}
-          sub={k.perfStatus}
           intent="warning"
         />
         <KpiCard
-          icon={Target}
           label="PDIs Activos"
           value={k.activePlans ?? 0}
           intent="accent"
         />
         <KpiCard
-          icon={AlertTriangle}
           label="Em Risco"
           value={k.atRiskCount ?? 0}
           intent="danger"
         />
         <KpiCard
-          icon={BookOpen}
           label="Em Formação"
           value={k.activeEnrollments ?? 0}
           intent="info"
         />
         <KpiCard
-          icon={CheckCircle}
           label="Conclusões (mês)"
           value={k.completedThisMonth ?? 0}
           intent="success"
         />
         <KpiCard
-          icon={MessageSquare}
           label="Respostas a Questionários"
           value={k.engagementResponses ?? 0}
           intent="accent"
         />
         <KpiCard
-          icon={Clock}
           label="Aprovações Pendentes"
           value={k.pendingLeaves ?? 0}
           intent="warning"
@@ -151,7 +142,7 @@ export function DashboardTab() {
                     </p>
                     {r.action && (
                       <p className="mt-0.5 font-body text-xs text-primary">
-                        💡 {r.action}
+                         {r.action}
                       </p>
                     )}
                   </div>
@@ -179,7 +170,7 @@ export function DashboardTab() {
                 key={i}
                 className="flex items-center gap-2 rounded-control border border-warning-subtle bg-surface px-3 py-1.5"
               >
-                <span className="text-sm">🏅</span>
+                <span className="text-sm"></span>
                 <div>
                   <p className="font-body text-xs font-medium text-ink">
                     {b.user?.fullName}

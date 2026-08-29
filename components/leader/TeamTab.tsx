@@ -156,7 +156,6 @@ export function TeamTab() {
           ))}
           {filtered.length === 0 && (
             <EmptyState
-              icon={Users}
               title="Sem membros na equipa"
               description="Nenhum membro corresponde à pesquisa actual."
             />

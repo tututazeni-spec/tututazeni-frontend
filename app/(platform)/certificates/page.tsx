@@ -57,7 +57,6 @@ export default function MyCertificatesPage() {
       <h1 className="text-2xl font-bold text-ink">Os Meus Certificados</h1>
       {data.length === 0 ? (
         <EmptyState
-          icon={Award}
           title="Sem certificados"
           description="Ainda não tens certificados emitidos."
         />

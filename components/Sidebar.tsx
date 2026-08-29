@@ -216,7 +216,7 @@ const NAV: Array<{ label: string; items: NavItem[] }> = [
       {
         href: '/certification/templates',
         icon: Award,
-        label: 'Templates Certificado',
+        label: 'Modelos de Certificado',
       },
       {
         href: '/talent-development',

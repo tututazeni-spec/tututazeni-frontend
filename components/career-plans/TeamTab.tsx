@@ -10,7 +10,6 @@ import { EmptyState } from '@/components/ui/EmptyState';
 export function TeamTab() {
   return (
     <EmptyState
-      icon={Users}
       title="Vista de equipa disponível com perfil Gestor+"
       description="Planos, prontidão e pedidos de promoção da equipa"
     />

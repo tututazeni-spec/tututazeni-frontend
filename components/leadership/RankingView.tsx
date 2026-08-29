@@ -94,7 +94,7 @@ export function RankingView() {
       })}
       {data.length === 0 && (
         <div className="px-4 py-12 text-center font-body text-sm text-ink-faint">
-          Sem dados de ranking disponíveis
+          Sem dados de classificação disponíveis
         </div>
       )}
     </Card>

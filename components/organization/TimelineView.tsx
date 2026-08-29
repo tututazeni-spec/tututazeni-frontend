@@ -81,7 +81,6 @@ export function TimelineView() {
       })}
       {data.length === 0 && (
         <EmptyState
-          icon={Clock}
           title="Sem movimentações registadas"
           description="Ainda não existem movimentações organizacionais registadas."
         />

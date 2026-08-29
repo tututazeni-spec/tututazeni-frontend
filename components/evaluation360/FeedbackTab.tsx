@@ -27,7 +27,6 @@ export function FeedbackTab({ feedbacks }: FeedbackTabProps) {
         <div>
           <h2 className="m-0 text-lg font-bold text-ink">Feedback Contínuo</h2>
           <p className="m-0 mt-1 text-sm text-ink-muted">
-            Feedbacks recebidos fora dos ciclos formais
           </p>
         </div>
         <Button intent="primary" size="sm">

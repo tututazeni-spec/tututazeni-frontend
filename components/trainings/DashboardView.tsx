@@ -42,25 +42,21 @@ export function DashboardView() {
       {/* KPIs */}
       <div className="grid grid-cols-4 gap-3">
         <KpiCard
-          icon={GraduationCap}
           label="Total treinamentos"
           value={data.trainings.total}
           intent="primary"
         />
         <KpiCard
-          icon={CheckCircle2}
           label="Publicados"
           value={data.trainings.published}
           intent="success"
         />
         <KpiCard
-          icon={AlertTriangle}
           label="Obrigatórios"
           value={data.trainings.mandatory}
           intent="danger"
         />
         <KpiCard
-          icon={TrendingUp}
           label="Taxa de conclusão"
           value={`${data.completionRate}%`}
           intent="info"

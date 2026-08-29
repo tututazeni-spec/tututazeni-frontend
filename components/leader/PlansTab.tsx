@@ -96,7 +96,6 @@ export function PlansTab() {
       ))}
       {data.length === 0 && (
         <EmptyState
-          icon={Target}
           title="Sem PDIs activos"
           description="A equipa não tem planos de desenvolvimento activos de momento."
         />

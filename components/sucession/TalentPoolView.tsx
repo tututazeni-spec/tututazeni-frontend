@@ -97,12 +97,12 @@ export function TalentPoolView() {
               <div className="flex flex-wrap gap-2 font-body text-xs text-ink-muted">
                 {entry.geographicMobility && (
                   <span className="rounded bg-success-subtle px-2 py-0.5 text-success-ink">
-                    🌍 Mobilidade
+                     Mobilidade
                   </span>
                 )}
                 {entry.mentor && (
                   <span className="rounded bg-info-subtle px-2 py-0.5 text-info-ink">
-                    👨‍🏫 Mentor: {entry.mentor.fullName.split(' ')[0]}
+                     Mentor: {entry.mentor.fullName.split(' ')[0]}
                   </span>
                 )}
               </div>

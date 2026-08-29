@@ -71,7 +71,7 @@ export function TaskCard({ task, onComplete }: TaskCardProps) {
             </span>
           )}
           {task.templateTask.requiresApproval && (
-            <span className="text-info">✎ Requer aprovação</span>
+            <span className="text-info"> Requer aprovação</span>
           )}
           {task.completedAt && (
             <span className="text-success-ink">

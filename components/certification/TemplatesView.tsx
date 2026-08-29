@@ -68,7 +68,7 @@ export function TemplatesView({
       <div className="flex items-center justify-between">
         <div>
           <h1 className="font-display text-2xl font-bold text-ink">
-            Templates de Certificado
+            Modelos de Certificado
           </h1>
           <p className="font-body text-sm text-ink-faint">{data.length} templates</p>
         </div>

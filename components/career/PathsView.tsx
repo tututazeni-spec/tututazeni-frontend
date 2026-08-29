@@ -64,7 +64,6 @@ export function PathsView() {
         ))}
         {paths.length === 0 && (
           <EmptyState
-            icon={Map}
             title="Sem trilhas de carreira"
             description="Ainda não há trilhas de carreira configuradas."
           />

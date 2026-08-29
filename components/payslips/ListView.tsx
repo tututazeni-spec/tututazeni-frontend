@@ -95,7 +95,6 @@ export function ListView({ onSelect }: ListViewProps) {
 
         {!loading && !error && data?.data.length === 0 && (
           <EmptyState
-            icon={Receipt}
             title="Sem recibos"
             description={`Não há recibos disponíveis para ${year}.`}
           />

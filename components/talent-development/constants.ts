@@ -30,11 +30,21 @@ export const TIER_DOT: Record<Tier, string> = {
 };
 
 export const STATUS_CFG: StatusBadgeMap<string> = {
-  DRAFT: { label: 'DRAFT', cls: 'bg-surface-sunken text-ink-muted' },
-  ACTIVE: { label: 'ACTIVE', cls: 'bg-info-subtle text-info-ink' },
-  PAUSED: { label: 'PAUSED', cls: 'bg-warning-subtle text-warning-ink' },
-  COMPLETED: { label: 'COMPLETED', cls: 'bg-success-subtle text-success-ink' },
-  CANCELLED: { label: 'CANCELLED', cls: 'bg-danger-subtle text-danger-ink' },
+  DRAFT: { label: 'Rascunho', cls: 'bg-surface-sunken text-ink-muted' },
+  ACTIVE: { label: 'Activo', cls: 'bg-info-subtle text-info-ink' },
+  PAUSED: { label: 'Em Pausa', cls: 'bg-warning-subtle text-warning-ink' },
+  COMPLETED: { label: 'Concluído', cls: 'bg-success-subtle text-success-ink' },
+  CANCELLED: { label: 'Cancelado', cls: 'bg-danger-subtle text-danger-ink' },
+};
+
+// Etiqueta curta de estado para botões de filtro (o valor bruto continua a
+// ser a chave enviada para o backend).
+export const STATUS_LABEL: Record<string, string> = {
+  DRAFT: 'Rascunho',
+  ACTIVE: 'Activo',
+  PAUSED: 'Em Pausa',
+  COMPLETED: 'Concluído',
+  CANCELLED: 'Cancelado',
 };
 
 export const PRIORITY_COLOR: Record<string, string> = {
@@ -42,6 +52,13 @@ export const PRIORITY_COLOR: Record<string, string> = {
   MEDIUM: 'text-warning-ink',
   HIGH: 'text-danger-ink',
   CRITICAL: 'text-danger',
+};
+
+export const PRIORITY_LABEL: Record<string, string> = {
+  LOW: 'Baixa',
+  MEDIUM: 'Média',
+  HIGH: 'Alta',
+  CRITICAL: 'Crítica',
 };
 
 // Grau do Talent Health Score (A–D) — mesmo padrão de

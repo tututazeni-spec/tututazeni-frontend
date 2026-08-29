@@ -120,7 +120,7 @@ export function PositionsView() {
                     />
                     {summary.criticalPosition.keyPersonRisk && (
                       <span className="rounded bg-accent-subtle px-1.5 py-0.5 font-body text-xs text-accent">
-                        🔑 Key Person
+                        Pessoa Chave
                       </span>
                     )}
                   </div>
@@ -192,7 +192,7 @@ export function PositionsView() {
                       className={`rounded-control px-3 py-2 font-body text-xs ${level === 'READY_NOW' ? 'bg-danger-subtle text-danger-ink' : 'bg-surface-sunken text-ink-faint'}`}
                     >
                       {level === 'READY_NOW'
-                        ? '⚠ Nenhum candidato pronto imediatamente'
+                        ? 'Nenhum candidato pronto imediatamente'
                         : 'Sem candidatos nesta fase'}
                     </div>
                   )}
