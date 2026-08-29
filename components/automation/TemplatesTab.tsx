@@ -91,7 +91,7 @@ export function TemplatesTab() {
               disabled={applying === i}
               onClick={() => apply(i)}
             >
-              {applying === i ? 'A aplicar…' : 'Aplicar Modelo'}
+              {applying === i ? 'A aplicar…' : 'Aplicar Modelos'}
             </Button>
           </CardBody>
         </Card>
