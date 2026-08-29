@@ -28,9 +28,9 @@ export const STUDENT_STATUS: StatusBadgeMap<string> = {
 };
 
 export const NAV: Array<{ id: View; label: string }> = [
-  { id: 'dashboard', label: '🏠 Dashboard' },
-  { id: 'cohorts', label: '👥 Turmas' },
-  { id: 'at-risk', label: '⚠ Em risco' },
+  { id: 'dashboard', label: 'Dashboard' },
+  { id: 'cohorts', label: 'Turmas' },
+  { id: 'at-risk', label: 'Em risco' },
 ];
 
 export const TITLES: Record<View, string> = {

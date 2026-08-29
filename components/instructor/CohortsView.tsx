@@ -230,7 +230,7 @@ export function CohortsView({ onSelectCohort }: CohortsViewProps) {
                     alunos
                   </span>
                   {c.atRisk > 0 && (
-                    <span className="text-danger">⚠ {c.atRisk} em risco</span>
+                    <span className="text-danger">{c.atRisk} em risco</span>
                   )}
                   <span>{fmtDate(c.startDate)}</span>
                 </div>

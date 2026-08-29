@@ -59,7 +59,7 @@ export function ReportCard({ report, onClick }: ReportCardProps) {
           </div>
           {report.period && (
             <div className="mt-0.5 font-body text-xs text-ink-faint">
-              📅 {report.period}
+              {report.period}
             </div>
           )}
         </div>
@@ -67,12 +67,12 @@ export function ReportCard({ report, onClick }: ReportCardProps) {
 
       {/* Mini KPI overview */}
       <div className="mb-3 flex items-center gap-3 font-body text-xs text-ink-faint">
-        <span>📊 {report.metrics.length} KPIs</span>
+        <span>{report.metrics.length} KPIs</span>
         {redCount > 0 && (
-          <span className="font-medium text-danger">🔴 {redCount} em risco</span>
+          <span className="font-medium text-danger">{redCount} em risco</span>
         )}
-        {report.risks.length > 0 && <span>⚠ {report.risks.length} risco(s)</span>}
-        {report._count && <span>👁 {report._count.accessLogs} acessos</span>}
+        {report.risks.length > 0 && <span>{report.risks.length} risco(s)</span>}
+        {report._count && <span>{report._count.accessLogs} acessos</span>}
       </div>
 
       <div className="flex items-center justify-between font-body text-xs text-ink-faint">
