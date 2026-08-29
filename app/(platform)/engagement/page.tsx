@@ -44,9 +44,7 @@ export default function EngagementPage() {
                 Participação
               </h1>
             </div>
-            <p className="font-body text-sm text-ink-faint">
-              Inquéritos · Reconhecimento · Feedback · Humor · Analytics
-            </p>
+            <p className="font-body text-sm text-ink-faint"></p>
           </div>
           <div className="flex gap-2">
             <Button intent="secondary" size="sm">
