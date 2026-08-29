@@ -7,7 +7,16 @@
 // page.tsx usa para ListView/CompareView/AnnualView). Ver memory
 // project_innova_component_separation_audit.
 
-import { Filter, Plus } from 'lucide-react';
+import {
+  AlertTriangle,
+  BarChart3,
+  ClipboardList,
+  Filter,
+  GraduationCap,
+  Plus,
+  Users,
+} from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { AnalyticsTab } from '@/components/talent-development/AnalyticsTab';
 import { MentoringTab } from '@/components/talent-development/MentoringTab';
 import { PlansTab } from '@/components/talent-development/PlansTab';
@@ -16,13 +25,17 @@ import { SkillGapsTab } from '@/components/talent-development/SkillGapsTab';
 import { Button } from '@/components/ui/Button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
 
-const TABS = [
-  { id: 'pool', label: 'Banco de Talentos' },
-  { id: 'plans', label: 'Planos de Desenvolvimento (PDI)' },
-  { id: 'skill-gaps', label: 'Lacunas de Competências' },
-  { id: 'mentoring', label: 'Mentoria' },
-  { id: 'analytics', label: 'Análises' },
-] as const;
+const TABS: ReadonlyArray<{ id: string; label: string; icon: LucideIcon }> = [
+  { id: 'pool', label: 'Banco de Talentos', icon: Users },
+  {
+    id: 'plans',
+    label: 'Planos de Desenvolvimento (PDI)',
+    icon: ClipboardList,
+  },
+  { id: 'skill-gaps', label: 'Lacunas de Competências', icon: AlertTriangle },
+  { id: 'mentoring', label: 'Mentoria', icon: GraduationCap },
+  { id: 'analytics', label: 'Análises', icon: BarChart3 },
+];
 
 export default function TalentDevelopmentPage() {
   return (
@@ -55,15 +68,19 @@ export default function TalentDevelopmentPage() {
       <Tabs defaultValue="pool">
         <div className="border-b border-border bg-surface px-6">
           <TabsList className="mx-auto max-w-7xl overflow-x-auto">
-           {TABS.map((t) => (
-           <TabsTrigger
-           key={t.id}
-           value={t.id}
-            className="whitespace-nowrap"
-            >
-            {t.label}
-             </TabsTrigger>
-             ))}
+            {TABS.map((t) => {
+              const Icon = t.icon;
+              return (
+                <TabsTrigger
+                  key={t.id}
+                  value={t.id}
+                  className="gap-2 whitespace-nowrap"
+                >
+                  <Icon size={16} strokeWidth={1.75} />
+                  {t.label}
+                </TabsTrigger>
+              );
+            })}
           </TabsList>
         </div>
 
