@@ -1,7 +1,7 @@
 // components/automation/RulesTab.tsx
 
 import { useState } from 'react';
-import { Copy, Pause, Play, Plus, RefreshCw, Trash2, Zap } from 'lucide-react';
+import { Copy, Pause, Play, Plus, RefreshCw, Trash2 } from 'lucide-react';
 import { useToast } from '@/providers/ToastProvider';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { useConfirm } from '@/providers/ConfirmProvider';
@@ -194,7 +194,6 @@ export function RulesTab() {
         ))}
         {rules.length === 0 && (
           <EmptyState
-            icon={Zap}
             title="Sem automações"
             description="Usa os templates para começar."
           />

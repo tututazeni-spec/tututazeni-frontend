@@ -17,8 +17,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
 const TABS: { id: string; label: string; icon: LucideIcon }[] = [
   { id: 'rules', label: 'Automações', icon: Zap },
   { id: 'executions', label: 'Execuções', icon: Activity },
-  { id: 'templates', label: 'Templates', icon: BookOpen },
-  { id: 'stats', label: 'Analytics', icon: BarChart2 },
+  { id: 'templates', label: 'Modelos', icon: BookOpen },
+  { id: 'stats', label: 'Análises', icon: BarChart2 },
 ];
 
 export default function AutomationPage() {
@@ -27,24 +27,29 @@ export default function AutomationPage() {
       <div className="border-b border-border bg-surface px-6 py-5">
         <div className="mx-auto max-w-7xl">
           <div className="mb-1 flex items-center gap-2">
-            <div className="rounded-control bg-accent-subtle p-1.5">
-              <Zap size={18} strokeWidth={1.75} className="text-accent" />
-            </div>
-            <h1 className="font-display text-xl font-bold text-ink">Automation</h1>
+            <h1 className="font-display text-xl font-bold text-ink">
+              Automação
+            </h1>
           </div>
-          <p className="font-body text-sm text-ink-faint">
-            Regras · Triggers · Execuções · Templates · Analytics
-          </p>
+          <p className="font-body text-sm text-ink-faint"></p>
         </div>
       </div>
 
       <Tabs defaultValue="rules">
         <div className="border-b border-border bg-surface px-6">
-          <TabsList className="mx-auto max-w-7xl overflow-x-auto">
-            {TABS.map((t) => {
+          <TabsList className="mx-auto max-w-7xl overflow-x-auto gap-0">
+            {TABS.map((t, i) => {
               const Icon = t.icon;
               return (
-                <TabsTrigger key={t.id} value={t.id} className="gap-2 whitespace-nowrap">
+                <TabsTrigger
+                  key={t.id}
+                  value={t.id}
+                  className={
+                    i < TABS.length - 1
+                      ? 'gap-2 whitespace-nowrap mr-[1cm]!'
+                      : 'gap-2 whitespace-nowrap'
+                  }
+                >
                   <Icon size={16} strokeWidth={1.75} />
                   {t.label}
                 </TabsTrigger>
