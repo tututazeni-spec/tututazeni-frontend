@@ -37,6 +37,17 @@ export const STATUS_CFG: StatusBadgeMap<string> = {
   CANCELLED: { label: 'Cancelado', cls: 'bg-danger-subtle text-danger-ink' },
 };
 
+// Variante sem cor de STATUS_CFG — usada só na grelha de Planos (PDI), onde
+// o estado já é redundante com o filtro activo e a contagem por coluna. Mantém
+// as etiquetas e neutraliza o fundo (sem verde/amarelo/vermelho por cima das
+// palavras Rascunho/Activo/Em Pausa/Concluído/Cancelado).
+export const STATUS_CFG_PLAIN: StatusBadgeMap<string> = Object.fromEntries(
+  Object.entries(STATUS_CFG).map(([key, { label }]) => [
+    key,
+    { label, cls: 'bg-surface-sunken text-ink-muted' },
+  ]),
+) as StatusBadgeMap<string>;
+
 // Etiqueta curta de estado para botões de filtro (o valor bruto continua a
 // ser a chave enviada para o backend).
 export const STATUS_LABEL: Record<string, string> = {
