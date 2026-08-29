@@ -67,7 +67,7 @@ export function CohortDetailView({ cohortId, onBack }: CohortDetailViewProps) {
             <div className="mb-1 flex items-center gap-2">
               <StatusBadge value={data.status} map={STATUS_CFG} />
               <span className="font-body text-xs text-ink-faint">
-                {modalityCfg.icon} {modalityCfg.label}
+                {modalityCfg.label}
               </span>
             </div>
             <h2 className="font-display text-lg font-bold text-ink">
