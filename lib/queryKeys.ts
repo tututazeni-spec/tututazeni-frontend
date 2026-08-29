@@ -473,6 +473,7 @@ export const queryKeys = {
 
   instructor: {
     all: ['instructor'] as const,
+    profile: () => [...queryKeys.instructor.all, 'profile'] as const,
     dashboard: () => [...queryKeys.instructor.all, 'dashboard'] as const,
     cohorts: (status: string) =>
       [...queryKeys.instructor.all, 'cohorts', status] as const,
