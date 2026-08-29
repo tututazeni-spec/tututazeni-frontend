@@ -49,10 +49,10 @@ function useGoalForm(cycle: Cycle | null, onCreated: () => void) {
   const [target, setTarget] = useState('');
 
   const createGoal = useApiMutation(
-    () =>
+    (cycleId: number) =>
       apiClient.post('/performance/goals', {
         userId: 0,
-        cycleId: cycle!.id,
+        cycleId,
         title,
         targetValue: parseFloat(target),
       }),
@@ -67,8 +67,11 @@ function useGoalForm(cycle: Cycle | null, onCreated: () => void) {
   );
 
   const submit = () => {
+    // `cycle` pode ser null (sem ciclo activo) — o id é capturado aqui, já
+    // depois do guard, e passado como variável da mutação. Nunca
+    // desreferenciar `cycle` dentro do mutationFn (closure obsoleta).
     if (!title || !target || !cycle) return;
-    createGoal.mutate(undefined);
+    createGoal.mutate(cycle.id);
   };
 
   return {

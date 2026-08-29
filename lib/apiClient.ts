@@ -139,9 +139,15 @@ async function request<T>(
       throw new ApiError(res.status, message, errBody);
     }
 
-    // 204 No Content → devolve undefined sem tentar parsear.
-    if (res.status === 204) return undefined as T;
-    return (await res.json()) as T;
+    // 204 No Content, ou um corpo vazio num 2xx — o NestJS responde 200 sem
+    // corpo quando o handler resolve para null/undefined (ex: GET
+    // /performance/cycles/current sem ciclo activo). Nesses casos não há JSON
+    // para parsear (`res.json()` sobre "" atira "Unexpected end of JSON
+    // input") e devolvemos `null` — nunca `undefined`, que o React Query
+    // rejeita como valor de query ("Query data cannot be undefined").
+    if (res.status === 204) return null as T;
+    const text = await res.text();
+    return (text ? JSON.parse(text) : null) as T;
   } catch (e) {
     // AbortError não é falha real — propaga sem poluir métricas como erro 5xx.
     if (e instanceof DOMException && e.name === 'AbortError') {
