@@ -11,7 +11,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { CATEGORY_INTENT, TRIGGER_LABEL } from './constants';
+import { CATEGORY_INTENT, CATEGORY_LABEL, TRIGGER_LABEL } from './constants';
 import type { ApplyTemplateResponse, AutomationTemplate } from './types';
 
 export function TemplatesTab() {
@@ -34,12 +34,12 @@ export function TemplatesTab() {
     setApplying(null);
     if (r)
       notify({
-        title: r.message ?? 'Template aplicado!',
+        title: r.message ?? 'Modelo aplicado!',
         intent: 'success',
       });
     else
       notify({
-        title: 'Não foi possível aplicar o template',
+        title: 'Não foi possível aplicar o modelo',
         intent: 'danger',
       });
   };
@@ -71,10 +71,12 @@ export function TemplatesTab() {
               </div>
               {t.category && (
                 <Badge
-                  intent={CATEGORY_INTENT[t.category] ?? 'neutral'}
+                  intent={
+                    CATEGORY_INTENT[t.category.toUpperCase()] ?? 'neutral'
+                  }
                   className="ml-2 shrink-0"
                 >
-                  {t.category}
+                  {CATEGORY_LABEL[t.category.toUpperCase()] ?? t.category}
                 </Badge>
               )}
             </div>
@@ -89,7 +91,7 @@ export function TemplatesTab() {
               disabled={applying === i}
               onClick={() => apply(i)}
             >
-              {applying === i ? 'A aplicar…' : 'Aplicar Template'}
+              {applying === i ? 'A aplicar…' : 'Aplicar Modelo'}
             </Button>
           </CardBody>
         </Card>

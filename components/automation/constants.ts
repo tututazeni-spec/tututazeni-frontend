@@ -16,6 +16,18 @@ export const CATEGORY_INTENT: Record<string, BadgeProps['intent']> = {
   CUSTOM: 'neutral',
 };
 
+// Rótulos em português para as categorias devolvidas pela API (em inglês).
+export const CATEGORY_LABEL: Record<string, string> = {
+  HR: 'RH',
+  LMS: 'LMS',
+  PERFORMANCE: 'Desempenho',
+  ENGAGEMENT: 'Envolvimento',
+  GAMIFICATION: 'Gamificação',
+  OPERATIONAL: 'Operacional',
+  AUTOMATION: 'Automação',
+  CUSTOM: 'Personalizado',
+};
+
 export const TRIGGER_LABEL: Record<string, string> = {
   'employee.created': '👤 Novo Colaborador',
   'employee.deactivated': ' Colaborador Desactivado',
