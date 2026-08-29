@@ -23,14 +23,12 @@ export default function LeaderPage() {
         <div className="mx-auto flex max-w-7xl items-start justify-between">
           <div>
             <div className="mb-1 flex items-center gap-2">
-              <div className="rounded-control bg-primary-subtle p-1.5">
-              </div>
+              <div className="rounded-control bg-primary-subtle p-1.5"></div>
               <h1 className="font-display text-xl font-bold text-ink">
                 Centro de Liderança
               </h1>
             </div>
-            <p className="font-body text-sm text-ink-faint">
-            </p>
+            <p className="font-body text-sm text-ink-faint"></p>
           </div>
           <IconButton
             icon={RefreshCw}
@@ -43,14 +41,18 @@ export default function LeaderPage() {
 
       <Tabs defaultValue="dashboard">
         <div className="border-b border-border bg-surface px-6">
-          <TabsList className="mx-auto max-w-7xl overflow-x-auto">
-            {TABS.map((t) => {
+          <TabsList className="mx-auto max-w-7xl overflow-x-auto gap-0">
+            {TABS.map((t, i) => {
               const Icon = t.icon;
               return (
                 <TabsTrigger
                   key={t.id}
                   value={t.id}
-                  className="gap-2 whitespace-nowrap"
+                  className={
+                    i < TABS.length - 1
+                      ? 'gap-2 whitespace-nowrap mr-[1cm]!'
+                      : 'gap-2 whitespace-nowrap'
+                  }
                 >
                   <Icon size={15} strokeWidth={1.75} />
                   {t.label}
