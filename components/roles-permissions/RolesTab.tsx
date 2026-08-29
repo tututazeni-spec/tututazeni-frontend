@@ -6,7 +6,7 @@
 'use client';
 
 import { useState } from 'react';
-import { ChevronRight, Copy, Search, Shield, Trash2 } from 'lucide-react';
+import { ChevronRight, Copy, Search, Trash2 } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
@@ -108,7 +108,6 @@ export function RolesTab() {
         <CardBody>
           {!selected ? (
             <EmptyState
-              icon={Shield}
               title="Nenhuma função seleccionada"
               description="Selecciona uma função para ver e editar permissões"
             />

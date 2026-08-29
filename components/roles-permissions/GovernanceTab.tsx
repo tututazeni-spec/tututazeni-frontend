@@ -5,7 +5,7 @@
 
 'use client';
 
-import { AlertTriangle, Key, Shield, Users } from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -38,31 +38,26 @@ export function GovernanceTab() {
   const kpis: Array<{
     label: string;
     value: number;
-    icon: typeof Shield;
     intent: KpiCardProps['intent'];
   }> = [
     {
       label: 'Funções',
       value: data?.totalRoles ?? 0,
-      icon: Shield,
       intent: 'primary',
     },
     {
       label: 'Permissões',
       value: data?.totalPermissions ?? 0,
-      icon: Key,
       intent: 'info',
     },
     {
       label: 'Sem Função',
       value: data?.usersWithoutRole ?? 0,
-      icon: Users,
       intent: (data?.usersWithoutRole ?? 0) > 0 ? 'danger' : 'success',
     },
     {
       label: 'Acessos Negados',
       value: data?.deniedAccesses ?? 0,
-      icon: AlertTriangle,
       intent: (data?.deniedAccesses ?? 0) > 50 ? 'danger' : 'info',
     },
   ];
@@ -73,7 +68,6 @@ export function GovernanceTab() {
         {kpis.map((k) => (
           <KpiCard
             key={k.label}
-            icon={k.icon}
             label={k.label}
             value={k.value}
             intent={k.intent}
