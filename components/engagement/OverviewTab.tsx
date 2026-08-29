@@ -81,7 +81,7 @@ export function OverviewTab({ userId }: OverviewTabProps) {
 
       {/* Personal summary */}
       {summary && (
-        <div className={`rounded-card border p-4 ${level.bg}`}>
+        <div className="rounded-card border border-border bg-surface p-4">
           <div className="flex items-center justify-between">
             <div>
               <p className="mb-1 font-body text-xs text-ink-muted">
