@@ -1,7 +1,7 @@
 // components/automation/ExecutionsTab.tsx
 
 import { useState } from 'react';
-import { Activity, RotateCcw } from 'lucide-react';
+import { RotateCcw } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { reportError } from '@/lib/errorReporting';
@@ -26,6 +26,15 @@ const STATUS_INTENT: Record<string, BadgeProps['intent']> = {
 const DOT_CLASS: Record<string, string> = {
   SUCCESS: 'bg-success',
   FAILED: 'bg-danger',
+};
+
+// Rótulos em português para os estados devolvidos pela API (em inglês).
+const STATUS_LABEL: Record<string, string> = {
+  SUCCESS: 'Sucesso',
+  FAILED: 'Falha',
+  RUNNING: 'Em execução',
+  PENDING: 'Pendente',
+  SKIPPED: 'Ignorada',
 };
 
 const STATUS_FILTERS = ['', 'SUCCESS', 'FAILED', 'PENDING'] as const;
@@ -77,7 +86,7 @@ export function ExecutionsTab() {
             intent={status === s ? 'primary' : 'secondary'}
             onClick={() => setStatus(s)}
           >
-            {s || 'Todas'}
+            {s ? (STATUS_LABEL[s] ?? s) : 'Todas'}
           </Button>
         ))}
         <span className="ml-auto self-center font-body text-xs text-ink-faint">
@@ -106,7 +115,7 @@ export function ExecutionsTab() {
                 )}
               </div>
               <Badge intent={STATUS_INTENT[e.status] ?? 'warning'}>
-                {e.status}
+                {STATUS_LABEL[e.status] ?? e.status}
               </Badge>
               <span className="shrink-0 font-body text-[10px] text-ink-faint">
                 {e.startedAt ? new Date(e.startedAt).toLocaleString('pt') : '–'}
@@ -126,7 +135,6 @@ export function ExecutionsTab() {
           ))}
           {executions.length === 0 && (
             <EmptyState
-              icon={Activity}
               title="Sem execuções registadas"
               description="As execuções das regras de automação aparecem aqui."
             />

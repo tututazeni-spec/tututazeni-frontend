@@ -1,6 +1,6 @@
 // components/automation/StatsTab.tsx
 
-import { Activity, AlertTriangle, CheckCircle2, Zap } from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -37,16 +37,18 @@ export function StatsTab() {
   return (
     <div className="space-y-5">
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-        <KpiCard icon={Zap} label="Regras Activas" value={r.active ?? 0} intent="primary" />
-        <KpiCard icon={Activity} label="Total Execuções" value={e.total ?? 0} intent="info" />
         <KpiCard
-          icon={CheckCircle2}
+          label="Regras Activas"
+          value={r.active ?? 0}
+          intent="primary"
+        />
+        <KpiCard label="Total Execuções" value={e.total ?? 0} intent="info" />
+        <KpiCard
           label="Taxa de Sucesso"
           value={`${e.successRate ?? 0}%`}
           intent={(e.successRate ?? 0) >= 90 ? 'success' : 'warning'}
         />
         <KpiCard
-          icon={AlertTriangle}
           label="Falhas"
           value={e.failed ?? 0}
           intent={(e.failed ?? 0) > 0 ? 'danger' : 'success'}
@@ -56,12 +58,18 @@ export function StatsTab() {
       {byCategory.length > 0 && (
         <Card>
           <CardBody>
-            <h4 className="mb-4 font-display font-semibold text-ink">Por Categoria</h4>
+            <h4 className="mb-4 font-display font-semibold text-ink">
+              Por Categoria
+            </h4>
             {byCategory.map((c, i) => (
               <div key={i} className="mb-3 last:mb-0">
                 <div className="mb-1 flex items-center justify-between text-xs">
-                  <Badge intent={CATEGORY_INTENT[c.category] ?? 'neutral'}>{c.category}</Badge>
-                  <span className="font-body font-bold text-ink">{c.count}</span>
+                  <Badge intent={CATEGORY_INTENT[c.category] ?? 'neutral'}>
+                    {c.category}
+                  </Badge>
+                  <span className="font-body font-bold text-ink">
+                    {c.count}
+                  </span>
                 </div>
                 <ProgressBar value={(c.count / maxCount) * 100} />
               </div>
