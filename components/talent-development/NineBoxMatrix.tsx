@@ -60,13 +60,16 @@ export function NineBoxMatrix({ matrix }: NineBoxMatrixProps) {
                   return (
                     <div
                       key={key}
-                      className="min-h-[80px] rounded-control border p-3"
+                      className="flex min-h-[80px] min-w-0 flex-col overflow-hidden rounded-control border p-3"
                       style={{
                         backgroundColor: colors.bg,
                         borderColor: colors.border,
                       }}
                     >
-                      <p className="font-body text-[10px] font-semibold leading-tight text-ink-muted">
+                      <p
+                        lang="pt"
+                        className="hyphens-auto break-words font-body text-[10px] font-semibold leading-tight text-ink-muted"
+                      >
                         {labelShort}
                       </p>
                       <p className="mt-1 font-display text-2xl font-bold text-ink">
