@@ -78,9 +78,6 @@ export default function ProcessStandardPage() {
           <h1 className="font-display text-xl font-semibold text-ink">
             {titles[nav.view]}
           </h1>
-          <p className="mt-0.5 font-body text-sm text-ink-faint">
-            INNOVA — Process Standard (BPM/SOP)
-          </p>
         </div>
         {nav.view === 'library' && (
           <Button
