@@ -50,7 +50,7 @@ export function NineBoxMatrix({ matrix }: NineBoxMatrixProps) {
           </div>
 
           <div className="flex-1">
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid auto-rows-fr grid-cols-3 gap-2">
               {['3', '2', '1'].flatMap((y) =>
                 ['1', '2', '3'].map((x) => {
                   const key = `${y}_${x}`;
@@ -72,7 +72,7 @@ export function NineBoxMatrix({ matrix }: NineBoxMatrixProps) {
                       >
                         {labelShort}
                       </p>
-                      <p className="mt-1 font-display text-2xl font-bold text-ink">
+                      <p className="mt-auto pt-1 font-display text-2xl font-bold leading-none text-ink">
                         {cell?.count ?? 0}
                       </p>
                     </div>
