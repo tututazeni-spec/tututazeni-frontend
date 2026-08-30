@@ -42,19 +42,14 @@ export default function SettingsPage() {
       {/* ── Header ── */}
       <div className="flex justify-between items-start mb-6">
         <div>
-          <h1 className="text-3xl font-bold text-ink m-0">
-            ⚙️ Definições
-          </h1>
-          <p className="text-ink-muted text-sm mt-1">
-            Perfil, segurança e permissões da conta
-          </p>
+          <h1 className="text-3xl font-bold text-ink m-0">Definições</h1>
         </div>
         <Button
           onClick={logout}
           intent="ghost"
           className="text-danger hover:bg-danger-subtle"
         >
-          🚪 Terminar Sessão
+          Terminar Sessão
         </Button>
       </div>
 

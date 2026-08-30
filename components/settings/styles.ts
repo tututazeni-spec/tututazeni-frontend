@@ -5,7 +5,7 @@
 import type { Tab } from './types';
 
 export const NAV: Array<{ key: Tab; label: string }> = [
-  { key: 'perfil', label: '👤 Perfil' },
-  { key: 'seguranca', label: '🔑 Segurança' },
-  { key: 'permissoes', label: '🔐 Permissões' },
+  { key: 'perfil', label: 'Perfil' },
+  { key: 'seguranca', label: 'Segurança' },
+  { key: 'permissoes', label: 'Permissões' },
 ];
