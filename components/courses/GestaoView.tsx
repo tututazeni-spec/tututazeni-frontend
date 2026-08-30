@@ -21,7 +21,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { FileEdit, Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -143,7 +143,6 @@ export function GestaoView({ onSelect }: GestaoViewProps) {
         </h2>
         {draftList.length === 0 ? (
           <EmptyState
-            icon={FileEdit}
             title="Sem rascunhos"
             description="Os cursos que crias aparecem aqui até serem publicados."
           />
@@ -241,7 +240,6 @@ export function GestaoView({ onSelect }: GestaoViewProps) {
         </h2>
         {archivedList.length === 0 ? (
           <EmptyState
-            icon={FileEdit}
             title="Sem cursos arquivados"
             description="Podes repor um curso arquivado como rascunho a qualquer momento."
           />
