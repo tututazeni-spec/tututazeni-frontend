@@ -9,7 +9,6 @@
 
 'use client';
 
-import { Brain } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -35,7 +34,6 @@ export function CorrelationsPanel() {
   return (
     <div className="space-y-5">
       <div className="mb-2 flex items-center gap-2">
-        <Brain size={18} strokeWidth={1.75} className="text-accent" />
         <h3 className="font-body font-semibold text-ink-muted">
           Análise de Recursos Humanos — Correlações
         </h3>

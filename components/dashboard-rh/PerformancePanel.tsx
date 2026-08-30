@@ -129,8 +129,8 @@ export function PerformancePanel() {
       {(data?.insights?.length ?? 0) > 0 && (
         <div className="rounded-card border border-accent-subtle bg-accent-subtle p-4">
           {data?.insights?.map((ins, i) => (
-            <p key={i} className="font-body text-xs text-accent">
-              {ins}
+            <p key={i} className="font-body text-xs text-black">
+              {ins.replace(/^⚠️\s*/, '')}
             </p>
           ))}
         </div>
