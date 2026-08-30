@@ -132,39 +132,32 @@ function PreferencesView() {
             key: 'inApp' as const,
             label: 'In-app',
             sub: 'Centro de notificações da plataforma',
-            icon: '🔔',
           },
           {
             key: 'email' as const,
             label: 'E-mail',
             sub: 'Receber notificações por e-mail',
-            icon: '📧',
           },
           {
             key: 'push' as const,
             label: 'Push',
             sub: 'Notificações do browser/mobile',
-            icon: '📱',
           },
           {
             key: 'slack' as const,
             label: 'Slack',
             sub: 'Integração com Slack',
-            icon: '💬',
           },
-        ].map(({ key, label, sub, icon }) => (
+        ].map(({ key, label, sub }) => (
           <div
             key={key}
             className="flex items-center justify-between border-b border-border py-3 last:border-0"
           >
-            <div className="flex items-center gap-3">
-              <span className="text-xl">{icon}</span>
-              <div>
-                <div className="font-body text-sm font-medium text-ink">
-                  {label}
-                </div>
-                <div className="font-body text-xs text-ink-faint">{sub}</div>
+            <div>
+              <div className="font-body text-sm font-medium text-ink">
+                {label}
               </div>
+              <div className="font-body text-xs text-ink-faint">{sub}</div>
             </div>
             <button
               onClick={() => toggle(key)}
@@ -187,7 +180,7 @@ function PreferencesView() {
       {/* Horário silencioso */}
       <Card className="p-5">
         <div className="mb-1 font-display text-sm font-semibold text-ink">
-          🌙 Horário silencioso
+          Horário silencioso
         </div>
         <div className="mb-4 font-body text-xs text-ink-faint">
           Sem notificações push/SMS neste período
@@ -236,7 +229,7 @@ function PreferencesView() {
       {/* Digest */}
       <Card className="p-5">
         <div className="mb-3 font-display text-sm font-semibold text-ink">
-          📋 Resumo periódico (Digest)
+          Resumo periódico
         </div>
         <div className="flex gap-2">
           {(['NONE', 'DAILY', 'WEEKLY'] as const).map((freq) => (
@@ -261,7 +254,7 @@ function PreferencesView() {
       {/* Categorias desactivadas */}
       <Card className="p-5">
         <div className="mb-1 font-display text-sm font-semibold text-ink">
-          🔕 Categorias silenciadas
+          Categorias silenciadas
         </div>
         <div className="mb-4 font-body text-xs text-ink-faint">
           Não receber notificações destas categorias
@@ -280,7 +273,7 @@ function PreferencesView() {
                     : 'bg-surface-sunken text-ink-muted hover:bg-border',
                 )}
               >
-                {v.icon} {v.label}
+                {v.label}
               </button>
             );
           })}
@@ -355,24 +348,21 @@ export default function NotificationsPage() {
               </span>
             )}
           </div>
-          <p className="mt-0.5 font-body text-sm text-ink-faint">
-            INNOVA — Centro de notificações
-          </p>
         </div>
       </div>
 
       <Tabs value={view} onValueChange={(v) => setView(v as View)}>
         <TabsList className="mb-6 w-fit">
           <TabsTrigger value="inbox" className="gap-1.5">
-            🔔 Caixa de entrada
+            Caixa de entrada
             {unread > 0 && (
               <span className="rounded-pill bg-primary px-1.5 py-0.5 font-body text-[10px] font-bold text-canvas">
                 {unread}
               </span>
             )}
           </TabsTrigger>
-          <TabsTrigger value="preferences">⚙️ Preferências</TabsTrigger>
-          <TabsTrigger value="admin">📊 Admin</TabsTrigger>
+          <TabsTrigger value="preferences">Preferências</TabsTrigger>
+          <TabsTrigger value="admin">Admin</TabsTrigger>
         </TabsList>
 
         <TabsContent value="inbox">

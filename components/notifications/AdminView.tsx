@@ -7,7 +7,6 @@
 'use client';
 
 import type { Dispatch, SetStateAction } from 'react';
-import { BellRing, CheckCircle2, Percent, Send } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
@@ -39,16 +38,14 @@ export function AdminView({
     <div className="space-y-5">
       {/* Stats */}
       <div className="grid grid-cols-4 gap-3">
-        <KpiCard icon={Send} label="Total enviadas" value={stats.total} intent="primary" />
-        <KpiCard icon={CheckCircle2} label="Lidas" value={stats.read} intent="success" />
+        <KpiCard label="Total enviadas" value={stats.total} intent="primary" />
+        <KpiCard label="Lidas" value={stats.read} intent="success" />
         <KpiCard
-          icon={BellRing}
           label="Não lidas"
           value={stats.unread}
           intent={stats.unread > 100 ? 'danger' : 'warning'}
         />
         <KpiCard
-          icon={Percent}
           label="Taxa de abertura"
           value={`${stats.openRate}%`}
           intent="info"
@@ -68,7 +65,6 @@ export function AdminView({
                 key={c.category}
                 className="flex items-center gap-2 border-b border-border py-1.5 last:border-0"
               >
-                <span className="text-sm">{cfg?.icon ?? '📌'}</span>
                 <span className="flex-1 font-body text-xs text-ink-muted">
                   {cfg?.label ?? c.category ?? '—'}
                 </span>
@@ -104,8 +100,12 @@ export function AdminView({
               }
               className="w-full resize-none"
             />
-            <Button className="w-full" disabled={sending} onClick={handleSendAll}>
-              {sending ? 'A enviar…' : '📣 Enviar a todos os colaboradores'}
+            <Button
+              className="w-full"
+              disabled={sending}
+              onClick={handleSendAll}
+            >
+              {sending ? 'A enviar…' : 'Enviar a todos os colaboradores'}
             </Button>
           </div>
         </Card>

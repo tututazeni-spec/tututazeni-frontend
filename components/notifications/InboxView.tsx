@@ -6,7 +6,6 @@
 
 'use client';
 
-import { Bell } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -87,8 +86,10 @@ function NotifItem({ notif, onRead, onArchive }: NotifItemProps) {
 
         <div className="mt-1.5 flex flex-wrap items-center gap-3">
           {catCfg && (
-            <span className={`rounded-pill px-1.5 py-0.5 font-body text-xs ${catCfg.cls}`}>
-              {catCfg.icon} {catCfg.label}
+            <span
+              className={`rounded-pill px-1.5 py-0.5 font-body text-xs ${catCfg.cls}`}
+            >
+              {catCfg.label}
             </span>
           )}
           <span className="font-body text-xs text-ink-faint">
@@ -185,7 +186,7 @@ export function InboxView({
           <option value="">Todas as categorias</option>
           {Object.entries(CATEGORY_CFG).map(([k, v]) => (
             <option key={k} value={k}>
-              {v.icon} {v.label}
+              {v.label}
             </option>
           ))}
         </select>
@@ -223,7 +224,6 @@ export function InboxView({
         <Card className="overflow-hidden">
           {data.data.length === 0 ? (
             <EmptyState
-              icon={Bell}
               title="Nenhuma notificação encontrada"
               description="Não há notificações para os filtros seleccionados."
             />
