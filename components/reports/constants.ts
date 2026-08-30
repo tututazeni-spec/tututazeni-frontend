@@ -15,6 +15,7 @@ import {
   BarChart2,
   Brain,
   BookOpen,
+  Save,
   Shield,
   Star,
   TrendingUp,
@@ -61,5 +62,54 @@ export const REPORT_PATHS: Record<string, string> = {
 
 export const TABS: { id: Tab; label: string; icon: LucideIcon }[] = [
   { id: 'hub', label: 'Central de Relatórios', icon: BarChart2 },
+  { id: 'saved', label: 'Meus Relatórios', icon: Save },
   { id: 'insights', label: 'Análises de IA', icon: Brain },
+];
+
+// Templates base para o formulário "Criar Relatório" — espelha os 9
+// templates built-in do backend (reports.service.ts#getBuiltInTemplates).
+// Cada um traz o `reportKey` (rota em REPORT_PATHS) e a `category`
+// (ReportCategory) para o POST /reports/saved.
+export const REPORT_TEMPLATES: {
+  reportKey: string;
+  name: string;
+  category: string;
+}[] = [
+  {
+    reportKey: 'headcount',
+    name: 'Relatório de Colaboradores',
+    category: 'HR',
+  },
+  { reportKey: 'turnover', name: 'Análise da Rotatividade', category: 'HR' },
+  {
+    reportKey: 'training',
+    name: 'Relatório de Formação',
+    category: 'LEARNING',
+  },
+  {
+    reportKey: 'skill-gap',
+    name: 'Lacunas de Competências',
+    category: 'LEARNING',
+  },
+  {
+    reportKey: 'performance',
+    name: 'Relatório de Desempenho',
+    category: 'PERFORMANCE',
+  },
+  { reportKey: 'talent', name: 'Inteligência de Talentos', category: 'TALENT' },
+  {
+    reportKey: 'engagement',
+    name: 'Envolvimento dos Colaboradores',
+    category: 'ENGAGEMENT',
+  },
+  {
+    reportKey: 'compliance',
+    name: 'Relatório de Compliance',
+    category: 'COMPLIANCE',
+  },
+  {
+    reportKey: 'usage',
+    name: 'Utilização da Plataforma',
+    category: 'OPERATIONAL',
+  },
 ];
