@@ -37,7 +37,7 @@ export function TabPermissoes({ user }: TabPermissoesProps) {
             </div>
             <div>
               <p className="m-0 text-base font-bold text-ink">
-                Role: {user.role?.name ?? 'Sem role'}
+                Função: {user.role?.name ?? 'Sem função'}
               </p>
               <p className="mt-1 text-sm text-ink-muted">
                 {permissions.length} permissões activas
@@ -52,7 +52,7 @@ export function TabPermissoes({ user }: TabPermissoesProps) {
         <Card className="col-span-2">
           <CardBody>
             <p className="text-ink-faint text-sm text-center py-10">
-              Nenhuma permissão específica atribuída ao teu role.
+              Nenhuma permissão específica atribuída à tua função.
             </p>
           </CardBody>
         </Card>
@@ -60,12 +60,12 @@ export function TabPermissoes({ user }: TabPermissoesProps) {
         Object.entries(grouped).map(([group, perms]) => (
           <Card key={group}>
             <CardBody>
-              <h4 className="mb-3 text-xs font-bold text-info-ink uppercase tracking-wider">
+              <h4 className="mb-3 text-xs font-bold text-ink uppercase tracking-wider">
                 {group}
               </h4>
               <div className="flex flex-wrap gap-2">
                 {perms.map((p) => (
-                  <Badge key={p} intent="info">
+                  <Badge key={p} intent="info" className="text-ink">
                     {p}
                   </Badge>
                 ))}
