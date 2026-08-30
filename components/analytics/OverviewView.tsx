@@ -21,7 +21,7 @@ import type { OrgOverview } from './types';
 function Tile({
   label,
   value,
-  color = 'text-ink',
+  color = 'text-black',
 }: {
   label: string;
   value: string | number;
@@ -29,7 +29,7 @@ function Tile({
 }) {
   return (
     <div className="rounded-card bg-surface-sunken p-3">
-      <div className="mb-1 font-body text-xs text-ink-faint">{label}</div>
+      <div className="mb-1 font-body text-xs text-black">{label}</div>
       <div className={`font-data text-xl font-bold ${color}`}>{value}</div>
     </div>
   );
@@ -52,25 +52,25 @@ export function OverviewView() {
           label="Colaboradores activos"
           value={data.users.active}
           intent="info"
-          className="w-full"
+          className="w-full [&_p]:text-black"
         />
         <KpiCard
           label="Taxa de conclusão"
           value={`${data.enrollments.completionRate}%`}
           intent="success"
-          className="w-full"
+          className="w-full [&_p]:text-black"
         />
         <KpiCard
           label="Adopção de PDI"
           value={`${data.pdi.adoptionRate}%`}
           intent="accent"
-          className="w-full"
+          className="w-full [&_p]:text-black"
         />
         <KpiCard
           label="Performance média"
           value={data.performance.avgScore}
           intent="warning"
-          className="w-full"
+          className="w-full [&_p]:text-black"
         />
       </div>
 
@@ -78,7 +78,7 @@ export function OverviewView() {
       <div className="grid grid-cols-3 gap-3">
         <Card>
           <CardBody>
-            <div className="mb-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+            <div className="mb-3 font-body text-xs font-medium uppercase tracking-wide text-black">
               Cursos
             </div>
             <div className="grid grid-cols-2 gap-3">
@@ -89,35 +89,26 @@ export function OverviewView() {
         </Card>
         <Card>
           <CardBody>
-            <div className="mb-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+            <div className="mb-3 font-body text-xs font-medium uppercase tracking-wide text-black">
               Matrículas
             </div>
             <div className="grid grid-cols-2 gap-3">
               <Tile label="Total" value={data.enrollments.total} />
-              <Tile
-                label="Concluídas"
-                value={data.enrollments.completed}
-                color="text-success"
-              />
+              <Tile label="Concluídas" value={data.enrollments.completed} />
             </div>
           </CardBody>
         </Card>
         <Card>
           <CardBody>
-            <div className="mb-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+            <div className="mb-3 font-body text-xs font-medium uppercase tracking-wide text-black">
               Gamificação
             </div>
             <div className="grid grid-cols-2 gap-3">
               <Tile
                 label="Pontos de Experiência total"
                 value={data.engagement.totalXp}
-                color="text-warning"
               />
-              <Tile
-                label="Distintivos"
-                value={data.engagement.totalBadges}
-                color="text-accent"
-              />
+              <Tile label="Distintivos" value={data.engagement.totalBadges} />
             </div>
           </CardBody>
         </Card>

@@ -26,15 +26,15 @@ const STAT_TILES: Array<{
   color: string;
   suffix?: string;
 }> = [
-  { key: 'completed', label: 'Cursos Concluídos', color: 'text-success' },
-  { key: 'inProgress', label: 'Em Progresso', color: 'text-info' },
+  { key: 'completed', label: 'Cursos Concluídos', color: 'text-black' },
+  { key: 'inProgress', label: 'Em Progresso', color: 'text-black' },
   {
     key: 'totalHours',
     label: 'Horas De Aprendizagem',
-    color: 'text-accent',
+    color: 'text-black',
     suffix: 'h',
   },
-  { key: 'totalXp', label: 'Pontos de Experiência', color: 'text-warning' },
+  { key: 'totalXp', label: 'Pontos de Experiência', color: 'text-black' },
 ];
 
 export function MyDashboardView() {
@@ -59,7 +59,7 @@ export function MyDashboardView() {
       <div className="grid grid-cols-4 gap-3">
         {STAT_TILES.map(({ key, label, color, suffix }) => (
           <div key={key} className="rounded-card bg-surface-sunken p-4">
-            <div className="mb-1 font-body text-xs text-ink-faint">{label}</div>
+            <div className="mb-1 font-body text-xs text-black">{label}</div>
             <div className={`font-data text-2xl font-bold ${color}`}>
               {stats[key]}
               {suffix ?? ''}
