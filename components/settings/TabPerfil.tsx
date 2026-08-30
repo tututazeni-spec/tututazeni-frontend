@@ -35,10 +35,10 @@ export function TabPerfil({ user }: TabPerfilProps) {
               </div>
             </div>
             <div className="text-right">
-              <p className="m-0 text-xs text-ink-faint font-bold uppercase tracking-wider">
+              <p className="m-0 text-xs text-ink font-bold uppercase tracking-wider">
                 Pontos
               </p>
-              <p className="mt-1 text-3xl font-bold text-accent">
+              <p className="mt-1 text-3xl font-bold text-ink">
                 {user.points?.points?.toLocaleString('pt-PT') ?? 0}
               </p>
             </div>

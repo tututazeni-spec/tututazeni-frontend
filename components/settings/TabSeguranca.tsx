@@ -233,20 +233,13 @@ export function TabSeguranca({ onToast }: TabSegurancaProps) {
                     : 'bg-surface-sunken border-border',
                 )}
               >
-                <span
-                  className={cn(
-                    'text-sm',
-                    pw && tip.ok ? 'text-success-ink' : 'text-ink-muted',
-                  )}
-                >
-                  {tip.text}
-                </span>
+                <span className="text-sm text-ink">{tip.text}</span>
               </div>
             ))}
           </div>
 
-          <div className="mt-5 p-4 bg-warning-subtle border border-warning rounded-lg">
-            <p className="m-0 text-xs text-warning-ink font-semibold">
+          <div className="mt-5 p-4 bg-surface border border-ink rounded-lg">
+            <p className="m-0 text-xs text-ink font-semibold">
               O token de acesso expira em 15 minutos. Serás redirecionado para o
               login automaticamente.
             </p>

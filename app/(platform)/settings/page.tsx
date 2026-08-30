@@ -44,11 +44,7 @@ export default function SettingsPage() {
         <div>
           <h1 className="text-3xl font-bold text-ink m-0">Definições</h1>
         </div>
-        <Button
-          onClick={logout}
-          intent="ghost"
-          className="text-danger hover:bg-danger-subtle"
-        >
+        <Button onClick={logout} intent="ghost" className="text-ink">
           Terminar Sessão
         </Button>
       </div>
