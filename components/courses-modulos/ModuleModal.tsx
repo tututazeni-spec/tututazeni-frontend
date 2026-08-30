@@ -7,6 +7,7 @@
 import { useState } from 'react';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
+import { queryKeys } from '@/lib/queryKeys';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { FormField } from '@/components/ui/FormField';
@@ -46,6 +47,11 @@ export function ModuleModal({
             seq: +form.seq,
           }),
     {
+      // Invalida também a árvore 'courses' (['courses', ...]) para que a
+      // contagem _count.modules na aba Gestão de cursos e no catálogo
+      // reflicta o módulo acabado de criar — sem isto o botão "Publicar"
+      // ficava preso em desativado até o staleTime expirar.
+      invalidateKeys: [queryKeys.courses.all],
       onSuccess: () => {
         onSaved();
         onClose();

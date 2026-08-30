@@ -9,11 +9,19 @@ import { GestaoView } from './GestaoView';
 
 const patch = vi.fn().mockResolvedValue({});
 const put = vi.fn().mockResolvedValue({});
+const del = vi.fn().mockResolvedValue({});
 vi.mock('@/lib/apiClient', () => ({
   apiClient: {
     patch: (...args: unknown[]) => patch(...args),
     put: (...args: unknown[]) => put(...args),
+    delete: (...args: unknown[]) => del(...args),
   },
+}));
+
+vi.mock('@/components/courses-modulos/ModuleModal', () => ({
+  ModuleModal: ({ courseId }: { courseId: number }) => (
+    <div data-testid="module-modal">module-modal for {courseId}</div>
+  ),
 }));
 
 const confirmFn = vi.fn().mockResolvedValue(true);
@@ -83,6 +91,7 @@ const archivedCourse = {
 beforeEach(() => {
   patch.mockClear();
   put.mockClear();
+  del.mockClear();
   confirmFn.mockClear();
 });
 
@@ -142,5 +151,30 @@ describe('GestaoView', () => {
     setData([], [archivedCourse]);
     render(<GestaoView onSelect={vi.fn()} />);
     expect(screen.getByText('Sem rascunhos')).toBeInTheDocument();
+  });
+
+  test('"+ Módulo" abre o modal de módulo para o curso da linha', () => {
+    setData([draftNoModules], []);
+    render(<GestaoView onSelect={vi.fn()} />);
+    expect(screen.queryByTestId('module-modal')).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: /Módulo/ }));
+    expect(screen.getByTestId('module-modal')).toHaveTextContent(
+      'module-modal for 1',
+    );
+  });
+
+  test('Eliminar um rascunho confirma e chama DELETE /courses/:id', async () => {
+    setData([draftNoModules], []);
+    render(<GestaoView onSelect={vi.fn()} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Eliminar' }));
+    await waitFor(() => expect(confirmFn).toHaveBeenCalled());
+    await waitFor(() => expect(del).toHaveBeenCalledWith('/courses/1'));
+  });
+
+  test('Eliminar também está disponível para arquivados', async () => {
+    setData([], [archivedCourse]);
+    render(<GestaoView onSelect={vi.fn()} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Eliminar' }));
+    await waitFor(() => expect(del).toHaveBeenCalledWith('/courses/9'));
   });
 });

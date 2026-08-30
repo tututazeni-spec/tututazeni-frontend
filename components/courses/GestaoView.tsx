@@ -7,21 +7,28 @@
 // Dashboard, que também não o listava.
 //
 // Endpoints (courses.controller.ts, todos @Roles(ADMIN, RH)):
-//   GET   /courses?status=DRAFT|ARCHIVED   → catálogo filtrado + paginado
-//   PATCH /courses/:id/publish             → 400 se _count.modules === 0
-//   PATCH /courses/:id/archive
-//   PUT   /courses/:id  { status: 'DRAFT' } → repor um curso arquivado
+//   GET    /courses?status=DRAFT|ARCHIVED  → catálogo filtrado + paginado
+//   PATCH  /courses/:id/publish            → 400 se _count.modules === 0
+//   PATCH  /courses/:id/archive
+//   PUT    /courses/:id  { status: 'DRAFT' } → repor um curso arquivado
+//   DELETE /courses/:id                     → 403 só se PUBLISHED com matrículas
+//
+// "+ Módulo" abre o ModuleModal partilhado (POST /modules); esse modal
+// invalida a árvore ['courses'], por isso a contagem _count.modules e o
+// botão "Publicar" actualizam sozinhos ao guardar.
 
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
-import { FileEdit, Layers } from 'lucide-react';
+import { FileEdit, Plus } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
+import { ModuleModal } from '@/components/courses-modulos/ModuleModal';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -43,6 +50,7 @@ function plural(n: number, singular: string, plural: string): string {
 export function GestaoView({ onSelect }: GestaoViewProps) {
   const confirm = useConfirm();
   const toast = useToast();
+  const [addModuleFor, setAddModuleFor] = useState<number | null>(null);
 
   const drafts = useApiQuery<PaginatedCourses>(
     queryKeys.courses.list(DRAFT_PARAMS),
@@ -88,11 +96,20 @@ export function GestaoView({ onSelect }: GestaoViewProps) {
       onError: toastError,
     },
   );
+  const remove = useApiMutation(
+    (id: number) => apiClient.delete(`/courses/${id}`),
+    {
+      invalidateKeys,
+      onSuccess: () => toast({ title: 'Curso eliminado.', intent: 'success' }),
+      onError: toastError,
+    },
+  );
 
   const rowBusy = (id: number) =>
     (publish.isPending && publish.variables === id) ||
     (archive.isPending && archive.variables === id) ||
-    (restore.isPending && restore.variables === id);
+    (restore.isPending && restore.variables === id) ||
+    (remove.isPending && remove.variables === id);
 
   async function onArchive(c: Course) {
     const ok = await confirm({
@@ -101,6 +118,15 @@ export function GestaoView({ onSelect }: GestaoViewProps) {
       destructive: true,
     });
     if (ok) archive.mutate(c.id);
+  }
+
+  async function onDelete(c: Course) {
+    const ok = await confirm({
+      title: `Eliminar "${c.title}"?`,
+      confirmLabel: 'Eliminar',
+      destructive: true,
+    });
+    if (ok) remove.mutate(c.id);
   }
 
   if (drafts.isLoading || archived.isLoading) return <Skeleton rows={3} />;
@@ -126,7 +152,10 @@ export function GestaoView({ onSelect }: GestaoViewProps) {
             {draftList.map((c) => {
               const noModules = c._count.modules === 0;
               return (
-                <div key={c.id} className="flex items-center gap-3 px-4 py-3">
+                <div
+                  key={c.id}
+                  className="flex flex-wrap items-center gap-3 px-4 py-3"
+                >
                   <button
                     type="button"
                     className="flex-1 min-w-0 text-left"
@@ -146,35 +175,54 @@ export function GestaoView({ onSelect }: GestaoViewProps) {
                     variant="dot"
                     className="flex-shrink-0"
                   />
-                  <Link
-                    href={`/courses/modulos?courseId=${c.id}`}
-                    className="inline-flex flex-shrink-0 items-center gap-1.5 rounded-control border-[1.5px] border-primary px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary-subtle"
-                  >
-                    <Layers size={14} strokeWidth={1.75} />
-                    Gerir módulos
-                  </Link>
-                  <Button
-                    intent="ghost"
-                    size="sm"
-                    onClick={() => onArchive(c)}
-                    disabled={rowBusy(c.id)}
-                  >
-                    Arquivar
-                  </Button>
-                  <Button
-                    intent="success"
-                    size="sm"
-                    onClick={() => publish.mutate(c.id)}
-                    disabled={noModules || rowBusy(c.id)}
-                    loading={publish.isPending && publish.variables === c.id}
-                    title={
-                      noModules
-                        ? 'Adiciona pelo menos um módulo primeiro'
-                        : undefined
-                    }
-                  >
-                    Publicar
-                  </Button>
+                  <div className="flex flex-shrink-0 items-center gap-2">
+                    <Button
+                      intent="secondary"
+                      size="sm"
+                      onClick={() => setAddModuleFor(c.id)}
+                      disabled={rowBusy(c.id)}
+                    >
+                      <Plus size={14} strokeWidth={1.75} />
+                      Módulo
+                    </Button>
+                    <Link
+                      href={`/courses/modulos?courseId=${c.id}`}
+                      className="px-1 text-xs font-semibold text-primary hover:underline"
+                    >
+                      Gerir módulos
+                    </Link>
+                    <Button
+                      intent="ghost"
+                      size="sm"
+                      onClick={() => onArchive(c)}
+                      disabled={rowBusy(c.id)}
+                    >
+                      Arquivar
+                    </Button>
+                    <Button
+                      intent="danger"
+                      size="sm"
+                      onClick={() => onDelete(c)}
+                      disabled={rowBusy(c.id)}
+                      loading={remove.isPending && remove.variables === c.id}
+                    >
+                      Eliminar
+                    </Button>
+                    <Button
+                      intent="success"
+                      size="sm"
+                      onClick={() => publish.mutate(c.id)}
+                      disabled={noModules || rowBusy(c.id)}
+                      loading={publish.isPending && publish.variables === c.id}
+                      title={
+                        noModules
+                          ? 'Adiciona pelo menos um módulo primeiro'
+                          : undefined
+                      }
+                    >
+                      Publicar
+                    </Button>
+                  </div>
                 </div>
               );
             })}
@@ -200,7 +248,10 @@ export function GestaoView({ onSelect }: GestaoViewProps) {
         ) : (
           <Card className="divide-y divide-border">
             {archivedList.map((c) => (
-              <div key={c.id} className="flex items-center gap-3 px-4 py-3">
+              <div
+                key={c.id}
+                className="flex flex-wrap items-center gap-3 px-4 py-3"
+              >
                 <button
                   type="button"
                   className="flex-1 min-w-0 text-left"
@@ -219,20 +270,45 @@ export function GestaoView({ onSelect }: GestaoViewProps) {
                   variant="dot"
                   className="flex-shrink-0"
                 />
-                <Button
-                  intent="secondary"
-                  size="sm"
-                  onClick={() => restore.mutate(c.id)}
-                  loading={restore.isPending && restore.variables === c.id}
-                  disabled={rowBusy(c.id)}
-                >
-                  Repor como rascunho
-                </Button>
+                <div className="flex flex-shrink-0 items-center gap-2">
+                  <Button
+                    intent="secondary"
+                    size="sm"
+                    onClick={() => restore.mutate(c.id)}
+                    loading={restore.isPending && restore.variables === c.id}
+                    disabled={rowBusy(c.id)}
+                  >
+                    Repor como rascunho
+                  </Button>
+                  <Button
+                    intent="danger"
+                    size="sm"
+                    onClick={() => onDelete(c)}
+                    disabled={rowBusy(c.id)}
+                    loading={remove.isPending && remove.variables === c.id}
+                  >
+                    Eliminar
+                  </Button>
+                </div>
               </div>
             ))}
           </Card>
         )}
       </section>
+
+      {addModuleFor !== null && (
+        <ModuleModal
+          courseId={addModuleFor}
+          editing={null}
+          onClose={() => setAddModuleFor(null)}
+          onSaved={() =>
+            toast({
+              title: 'Módulo adicionado. Já podes publicar o curso.',
+              intent: 'success',
+            })
+          }
+        />
+      )}
     </div>
   );
 }
