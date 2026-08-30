@@ -13,7 +13,7 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { cn } from '@/lib/cn';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
-import { TYPE_CFG } from './constants';
+import { SECTION_LABEL, TYPE_CFG } from './constants';
 import type { Report, ReportTemplate, ReportType } from './types';
 
 interface GenerateViewProps {
@@ -98,7 +98,7 @@ export function GenerateView({ onSuccess }: GenerateViewProps) {
                     key={s}
                     className="rounded bg-surface px-2 py-0.5 font-body text-xs text-info-ink"
                   >
-                    {s.replace('_', ' ')}
+                    {SECTION_LABEL[s] ?? s.replace('_', ' ')}
                   </span>
                 ))}
             </div>
