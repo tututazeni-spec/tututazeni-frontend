@@ -4,7 +4,6 @@
 
 'use client';
 
-import { BookOpen, DollarSign, Target, Zap } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -12,7 +11,7 @@ import { cn } from '@/lib/cn';
 import { Card, CardBody } from '@/components/ui/Card';
 import { KpiCard } from '@/components/ui/KpiCard';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { fmt$ } from './utils';
+import { fmt$, ptInsight } from './utils';
 import type { LearningData } from './types';
 
 export function LearningTab() {
@@ -45,27 +44,23 @@ export function LearningTab() {
     <div className="space-y-5">
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         <KpiCard
-          icon={BookOpen}
           label="Conclusões"
           value={v.completed ?? 0}
           intent="success"
           className="w-full"
         />
         <KpiCard
-          icon={Target}
           label="Taxa de Conclusão"
           value={`${v.completionRate ?? 0}%`}
           className="w-full"
         />
         <KpiCard
-          icon={DollarSign}
           label="ROI Estimado"
           value={`${f.roi ?? 0}%`}
           intent={roiPositive ? 'success' : 'danger'}
           className="w-full"
         />
         <KpiCard
-          icon={Zap}
           label="Horas de Formação"
           value={`${f.hoursEstimated ?? 0}h`}
           intent="accent"
@@ -121,8 +116,8 @@ export function LearningTab() {
       {(data?.insights ?? []).length > 0 && (
         <div className="rounded-card border border-accent-subtle bg-accent-subtle p-4">
           {(data?.insights ?? []).map((ins, i) => (
-            <p key={i} className="font-body text-xs text-accent">
-              {ins}
+            <p key={i} className="font-body text-xs text-ink">
+              {ptInsight(ins)}
             </p>
           ))}
         </div>

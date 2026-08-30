@@ -4,8 +4,7 @@
 
 'use client';
 
-import { AlertTriangle, BookOpen, Brain, Star, Users } from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -13,19 +12,13 @@ import { cn } from '@/lib/cn';
 import { Badge } from '@/components/ui/Badge';
 import { Card, CardBody } from '@/components/ui/Card';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { CONFIDENCE_INTENTS, CONFIDENCE_LABELS, fmt$ } from './utils';
+import { CONFIDENCE_INTENTS, CONFIDENCE_LABELS, fmt$, ptInsight } from './utils';
 import type { ExecutiveData } from './types';
 
 const HERO_INTENT_CLASSES = {
   success: 'bg-success',
   warning: 'bg-warning',
   danger: 'bg-danger',
-} as const;
-
-const DOMAIN_INTENT_CLASSES = {
-  info: 'bg-info-subtle text-info',
-  success: 'bg-success-subtle text-success-ink',
-  warning: 'bg-warning-subtle text-warning-ink',
 } as const;
 
 const ALERT_INTENT_CLASSES = {
@@ -63,31 +56,23 @@ export function ExecutiveTab() {
 
   const domains: {
     label: string;
-    icon: LucideIcon;
     value: string;
     sub: string;
-    intent: keyof typeof DOMAIN_INTENT_CLASSES;
   }[] = [
     {
       label: 'Aprendizagem',
-      icon: BookOpen,
       value: `${d.learning?.roi ?? 0}%`,
       sub: `${fmt$(d.learning?.cost ?? 0)} investido · ${d.learning?.completions ?? 0} conclusões`,
-      intent: 'info',
     },
     {
       label: 'Retenção',
-      icon: Users,
       value: fmt$(d.retention?.savedValue ?? 0),
-      sub: `Turnover: ${d.retention?.turnoverRate ?? 0}%`,
-      intent: 'success',
+      sub: `Taxa de Rotatividade: ${d.retention?.turnoverRate ?? 0}%`,
     },
     {
       label: 'Performance',
-      icon: Star,
       value: d.performance?.lift ? `+${d.performance.lift}pts` : '–',
       sub: `Benefício produtivo: ${fmt$(d.performance?.benefit ?? 0)}`,
-      intent: 'warning',
     },
   ];
 
@@ -119,7 +104,7 @@ export function ExecutiveTab() {
         </div>
         {h.narrative && (
           <p className="rounded-card bg-canvas/10 px-4 py-3 font-body text-sm leading-relaxed text-canvas/90">
-            💡 {h.narrative}
+            {ptInsight(h.narrative)}
           </p>
         )}
       </div>
@@ -129,9 +114,6 @@ export function ExecutiveTab() {
         {domains.map((item) => (
           <Card key={item.label}>
             <CardBody>
-              <div className={cn('mb-3 w-fit rounded-control p-2', DOMAIN_INTENT_CLASSES[item.intent])}>
-                <item.icon size={16} strokeWidth={1.75} />
-              </div>
               <p className="font-display text-2xl font-bold text-ink">{item.value}</p>
               <p className="mb-1 font-body text-xs text-ink-muted">{item.label}</p>
               <p className="font-body text-[10px] text-ink-faint">{item.sub}</p>
@@ -151,7 +133,7 @@ export function ExecutiveTab() {
                 className={cn('flex items-center gap-3 rounded-card border px-4 py-3', cfg.card)}
               >
                 <AlertTriangle size={14} strokeWidth={1.75} className={cfg.icon} />
-                <p className={cn('font-body text-sm', cfg.text)}>{a.message}</p>
+                <p className={cn('font-body text-sm', cfg.text)}>{ptInsight(a.message)}</p>
               </div>
             );
           })}
@@ -161,13 +143,12 @@ export function ExecutiveTab() {
       {/* Top insights */}
       {(data?.topInsights ?? []).length > 0 && (
         <div className="rounded-card border border-accent-subtle bg-accent-subtle p-5">
-          <h4 className="mb-3 flex items-center gap-2 font-display font-semibold text-accent">
-            <Brain size={14} strokeWidth={1.75} />
-            Insights Automáticos
+          <h4 className="mb-3 font-display font-semibold text-ink">
+            Principais conclusões autómaticos
           </h4>
           {(data?.topInsights ?? []).slice(0, 4).map((ins, i) => (
-            <p key={i} className="mb-1 font-body text-xs text-accent">
-              {ins}
+            <p key={i} className="mb-1 font-body text-xs text-ink">
+              {ptInsight(ins)}
             </p>
           ))}
           {data?.confidence && CONFIDENCE_LABELS[data.confidence] && (
