@@ -144,7 +144,7 @@ export interface CertificateVerifyResult {
 }
 
 export type View =
-  'catalog' | 'detail' | 'my-courses' | 'certificates' | 'dashboard';
+  'catalog' | 'detail' | 'my-courses' | 'certificates' | 'dashboard' | 'gestao';
 export type TopLevelView = Exclude<View, 'detail'>;
 
 // view e selectedId eram dois useState separados sempre definidos em conjunto
