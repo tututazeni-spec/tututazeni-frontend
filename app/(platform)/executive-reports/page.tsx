@@ -2,7 +2,7 @@
 'use client';
 
 import { useState } from 'react';
-import { ArrowLeft, Zap } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { TITLES } from '@/components/executive-reports/constants';
 import { DetailView } from '@/components/executive-reports/DetailView';
 import { GenerateView } from '@/components/executive-reports/GenerateView';
@@ -26,13 +26,9 @@ export default function ExecutiveReportsPage() {
           <h1 className="font-display text-xl font-semibold text-ink">
             {TITLES[nav.view]}
           </h1>
-          <p className="mt-0.5 font-body text-sm text-ink-faint">
-            Inteligência Executiva
-          </p>
         </div>
         {nav.view === 'list' && (
           <Button size="sm" onClick={() => setNav({ view: 'generate' })}>
-            <Zap size={14} strokeWidth={1.75} />
             Gerar automático
           </Button>
         )}

@@ -73,9 +73,6 @@ export function GenerateView({ onSuccess }: GenerateViewProps) {
                     : 'border-border hover:border-border-strong',
                 )}
               >
-                <div className="mb-1 text-lg">
-                  {TYPE_CFG[t.type as ReportType]?.icon}
-                </div>
                 <div className="font-body text-xs font-semibold text-ink">
                   {t.name}
                 </div>
@@ -116,7 +113,7 @@ export function GenerateView({ onSuccess }: GenerateViewProps) {
         >
           {generating
             ? 'A gerar relatório…'
-            : `⚡ Gerar ${TYPE_CFG[type]?.label} automaticamente`}
+            : `Gerar ${TYPE_CFG[type]?.label} automaticamente`}
         </Button>
 
         <p className="mt-3 text-center font-body text-xs text-ink-faint">

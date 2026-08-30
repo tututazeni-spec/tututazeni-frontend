@@ -5,12 +5,10 @@
 'use client';
 
 import { useState } from 'react';
-import { BarChart2 } from 'lucide-react';
 import { keepPreviousData } from '@tanstack/react-query';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { cn } from '@/lib/cn';
 import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Select } from '@/components/ui/Select';
@@ -30,7 +28,7 @@ const TYPE_ITEMS = [
   { value: 'ALL', label: 'Todos os tipos' },
   ...Object.entries(TYPE_CFG).map(([k, v]) => ({
     value: k,
-    label: `${v.icon} ${v.label}`,
+    label: v.label,
   })),
 ];
 const STATUS_ITEMS = [
@@ -70,20 +68,19 @@ export function ListView({ onSelect, onGenerate }: ListViewProps) {
             {
               label: 'Publicados',
               value: stats.byStatus['PUBLISHED'] ?? 0,
-              color: 'text-success',
             },
             {
               label: 'Em revisão',
               value: stats.byStatus['IN_REVIEW'] ?? 0,
-              color: 'text-warning',
             },
             { label: 'Rascunhos', value: stats.byStatus['DRAFT'] ?? 0 },
-          ].map(({ label, value, color }) => (
-            <Card key={label} className="border-transparent bg-surface-sunken p-4 shadow-none">
+          ].map(({ label, value }) => (
+            <Card
+              key={label}
+              className="border-transparent bg-surface-sunken p-4 shadow-none"
+            >
               <div className="font-body text-xs text-ink-faint">{label}</div>
-              <div
-                className={cn('font-mono text-2xl font-bold', color ?? 'text-ink')}
-              >
+              <div className="font-mono text-2xl font-bold text-ink">
                 {value}
               </div>
             </Card>
@@ -124,10 +121,12 @@ export function ListView({ onSelect, onGenerate }: ListViewProps) {
           ))}
           {data?.data.length === 0 && (
             <EmptyState
-              icon={BarChart2}
               title="Sem relatórios criados ainda"
               description="Gera automaticamente o primeiro relatório executivo com os KPIs actuais da plataforma."
-              action={{ label: 'Gerar primeiro relatório', onClick: onGenerate }}
+              action={{
+                label: 'Gerar primeiro relatório',
+                onClick: onGenerate,
+              }}
               className="col-span-2"
             />
           )}
