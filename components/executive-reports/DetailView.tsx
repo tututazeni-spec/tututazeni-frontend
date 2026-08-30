@@ -6,8 +6,9 @@
 'use client';
 
 import { useState } from 'react';
-import { ArrowLeft, Lock } from 'lucide-react';
+import { ArrowLeft, Lock, Trash2 } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
+import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -27,6 +28,7 @@ import type { Report } from './types';
 interface DetailViewProps {
   reportId: number;
   onBack: () => void;
+  onDeleted: () => void;
 }
 
 const NARRATIVE_BLOCKS = [
@@ -47,8 +49,9 @@ const NARRATIVE_BLOCKS = [
   },
 ] as const;
 
-export function DetailView({ reportId, onBack }: DetailViewProps) {
+export function DetailView({ reportId, onBack, onDeleted }: DetailViewProps) {
   const notify = useToast();
+  const confirm = useConfirm();
   const [activeTab, setActiveTab] = useState<'kpis' | 'narrative' | 'actions'>(
     'kpis',
   );
@@ -72,6 +75,29 @@ export function DetailView({ reportId, onBack }: DetailViewProps) {
   );
   const submitting = workflowMutation.isPending;
   const handleWorkflow = (action: string) => workflowMutation.mutate(action);
+
+  const deleteMutation = useApiMutation(
+    () => apiClient.delete(`/executive-reports/${reportId}`),
+    {
+      invalidateKeys: [queryKeys.executiveReports.all],
+      onSuccess: () => {
+        notify({ title: 'Rascunho eliminado', intent: 'success' });
+        onDeleted();
+      },
+      onError: (e) => notify({ title: e.message, intent: 'danger' }),
+    },
+  );
+  const deleting = deleteMutation.isPending;
+  const handleDelete = async () => {
+    const ok = await confirm({
+      title: 'Eliminar este rascunho e recomeçar?',
+      message:
+        'O relatório e todos os seus KPIs serão apagados definitivamente. Esta acção não pode ser revertida.',
+      confirmLabel: 'Eliminar e recomeçar',
+      destructive: true,
+    });
+    if (ok) deleteMutation.mutate(undefined);
+  };
 
   if (loading || !report)
     return (
@@ -136,14 +162,26 @@ export function DetailView({ reportId, onBack }: DetailViewProps) {
           {/* Workflow buttons */}
           <div className="flex flex-shrink-0 gap-2">
             {report.status === 'DRAFT' && (
-              <Button
-                intent="warning"
-                size="sm"
-                onClick={() => handleWorkflow('submit')}
-                disabled={submitting}
-              >
-                Submeter para revisão →
-              </Button>
+              <>
+                <Button
+                  intent="ghost"
+                  size="sm"
+                  onClick={handleDelete}
+                  disabled={submitting || deleting}
+                  className="text-danger-ink hover:bg-danger-subtle hover:text-danger-ink"
+                >
+                  <Trash2 size={14} strokeWidth={1.75} />
+                  Eliminar e recomeçar
+                </Button>
+                <Button
+                  intent="warning"
+                  size="sm"
+                  onClick={() => handleWorkflow('submit')}
+                  disabled={submitting || deleting}
+                >
+                  Submeter para revisão →
+                </Button>
+              </>
             )}
             {report.status === 'APPROVED' && (
               <Button
