@@ -5,36 +5,28 @@
 
 import { Skeleton as SharedSkeleton } from '@/components/ui/Skeleton';
 
-export const CATEGORY_CFG: Record<
-  string,
-  { icon: string; label: string; cls: string }
-> = {
-  LMS: { icon: '🎓', label: 'Aprendizagem', cls: 'bg-info-subtle text-info-ink' },
-  PDI: { icon: '🎯', label: 'PDI', cls: 'bg-primary-subtle text-primary' },
+export const CATEGORY_CFG: Record<string, { label: string; cls: string }> = {
+  LMS: { label: 'Aprendizagem', cls: 'bg-info-subtle text-info-ink' },
+  PDI: { label: 'PDI', cls: 'bg-primary-subtle text-primary' },
   PERFORMANCE: {
-    icon: '📊',
     label: 'Performance',
     cls: 'bg-warning-subtle text-warning-ink',
   },
-  HR: { icon: '👤', label: 'RH', cls: 'bg-success-subtle text-success-ink' },
+  HR: { label: 'RH', cls: 'bg-success-subtle text-success-ink' },
   ENGAGEMENT: {
-    icon: '💬',
-    label: 'Engagement',
+    label: 'Engajamento',
     cls: 'bg-danger-subtle text-danger-ink',
   },
   GAMIFICATION: {
-    icon: '🏆',
     label: 'Gamificação',
     cls: 'bg-accent-subtle text-accent',
   },
-  SYSTEM: { icon: '⚙️', label: 'Sistema', cls: 'bg-surface-sunken text-ink-muted' },
+  SYSTEM: { label: 'Sistema', cls: 'bg-surface-sunken text-ink-muted' },
   ONBOARDING: {
-    icon: '🚀',
-    label: 'Onboarding',
+    label: 'Integração',
     cls: 'bg-info-subtle text-info-ink',
   },
   KNOWLEDGE: {
-    icon: '📚',
     label: 'Conhecimento',
     cls: 'bg-primary-subtle text-primary',
   },
