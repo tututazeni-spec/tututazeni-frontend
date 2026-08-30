@@ -60,12 +60,12 @@ export function TabPermissoes({ user }: TabPermissoesProps) {
         Object.entries(grouped).map(([group, perms]) => (
           <Card key={group}>
             <CardBody>
-              <h4 className="mb-3 text-xs font-bold text-info-ink uppercase tracking-wider">
+              <h4 className="mb-3 text-xs font-bold text-ink uppercase tracking-wider">
                 {group}
               </h4>
               <div className="flex flex-wrap gap-2">
                 {perms.map((p) => (
-                  <Badge key={p} intent="info">
+                  <Badge key={p} intent="info" className="text-ink">
                     {p}
                   </Badge>
                 ))}
