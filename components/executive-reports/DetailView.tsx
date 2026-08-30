@@ -90,10 +90,10 @@ export function DetailView({ reportId, onBack, onDeleted }: DetailViewProps) {
   const deleting = deleteMutation.isPending;
   const handleDelete = async () => {
     const ok = await confirm({
-      title: 'Eliminar este rascunho e recomeçar?',
+      title: 'Eliminar este rascunho?',
       message:
-        'O relatório e todos os seus KPIs serão apagados definitivamente. Esta acção não pode ser revertida.',
-      confirmLabel: 'Eliminar e recomeçar',
+        'Este relatório e todos os seus KPIs serão apagados definitivamente. Esta acção não pode ser revertida.',
+      confirmLabel: 'Eliminar',
       destructive: true,
     });
     if (ok) deleteMutation.mutate(undefined);
@@ -168,10 +168,10 @@ export function DetailView({ reportId, onBack, onDeleted }: DetailViewProps) {
                   size="sm"
                   onClick={handleDelete}
                   disabled={submitting || deleting}
-                  className="text-danger-ink hover:bg-danger-subtle hover:text-danger-ink"
+                  className="text-ink"
                 >
                   <Trash2 size={14} strokeWidth={1.75} />
-                  Eliminar e recomeçar
+                  Eliminar
                 </Button>
                 <Button
                   intent="warning"

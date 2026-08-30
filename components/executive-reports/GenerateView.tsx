@@ -38,6 +38,7 @@ export function GenerateView({ onSuccess }: GenerateViewProps) {
         { params: { type: t } },
       ),
     {
+      invalidateKeys: [queryKeys.executiveReports.all],
       onSuccess: (report) => onSuccess(report.id),
       onError: (e) => notify({ title: e.message, intent: 'danger' }),
     },

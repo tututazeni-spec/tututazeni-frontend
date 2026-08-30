@@ -27,11 +27,6 @@ export default function ExecutiveReportsPage() {
             {TITLES[nav.view]}
           </h1>
         </div>
-        {nav.view === 'list' && (
-          <Button size="sm" onClick={() => setNav({ view: 'generate' })}>
-            Gerar automático
-          </Button>
-        )}
         {nav.view !== 'list' && (
           <Button intent="secondary" size="sm" onClick={handleBack}>
             <ArrowLeft size={14} strokeWidth={1.75} />
