@@ -12,9 +12,11 @@ const INTENT_CLASSES = {
 
 export interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
   intent?: keyof typeof INTENT_CLASSES;
+  /** Ponto colorido antes do texto. `false` para um badge só com texto. */
+  dot?: boolean;
 }
 
-export function Badge({ intent = 'neutral', className, children, ...props }: BadgeProps) {
+export function Badge({ intent = 'neutral', dot = true, className, children, ...props }: BadgeProps) {
   return (
     <span
       className={cn(
@@ -24,7 +26,7 @@ export function Badge({ intent = 'neutral', className, children, ...props }: Bad
       )}
       {...props}
     >
-      <span className="h-1.5 w-1.5 rounded-full bg-current" />
+      {dot && <span className="h-1.5 w-1.5 rounded-full bg-current" />}
       {children}
     </span>
   );

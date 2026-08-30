@@ -153,7 +153,7 @@ export function ExecutiveTab() {
           ))}
           {data?.confidence && CONFIDENCE_LABELS[data.confidence] && (
             <div className="mt-2">
-              <Badge intent={CONFIDENCE_INTENTS[data.confidence]}>
+              <Badge intent={CONFIDENCE_INTENTS[data.confidence]} dot={false}>
                 {CONFIDENCE_LABELS[data.confidence]}
               </Badge>
             </div>
