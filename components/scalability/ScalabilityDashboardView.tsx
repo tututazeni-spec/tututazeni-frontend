@@ -6,9 +6,9 @@
 // Migrado para a fundação de design light-theme (tokens canvas/surface/ink,
 // componentes partilhados em components/ui/). Antes era um dashboard em tema
 // escuro auto-contido (#080d19, header próprio, ícones glífo, cores neon) —
-// documentado como exceção; essa exceção foi agora fechada. Sem ícones
-// decorativos, cor reduzida ao mínimo semântico (estado danger/warning/
-// success), números a preto.
+// documentado como exceção; essa exceção foi agora fechada. Cor reduzida ao
+// mínimo semântico (estado danger/warning/success), números a preto. Os
+// separadores levam um ícone lucide (padrão de components/evaluation360).
 
 'use client';
 
@@ -16,6 +16,17 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
 import { Card, CardBody } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
+import {
+  Bell,
+  Gauge,
+  Globe,
+  LayoutDashboard,
+  Plug,
+  ShieldCheck,
+  Users,
+  Workflow,
+} from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { useToast } from '@/providers/ToastProvider';
 import type {
@@ -356,7 +367,7 @@ function OverviewTab({ data }: OverviewTabProps) {
               intent: integrations.withErrors > 0 ? 'danger' : undefined,
             },
             {
-              label: 'Última sync',
+              label: 'Última sincronização',
               value: integrations.lastSyncAt
                 ? timeAgo(integrations.lastSyncAt)
                 : '—',
@@ -1048,16 +1059,16 @@ function ContentTab() {
 
 // ─── TABS CONFIG ──────────────────────────────────────────
 
-const TABS = [
-  { id: 'overview', label: 'Visão Geral' },
-  { id: 'performance', label: 'Performance' },
-  { id: 'integrations', label: 'Integrações' },
-  { id: 'automations', label: 'Automações' },
-  { id: 'alerts', label: 'Alertas' },
-  { id: 'sla', label: 'SLA & Compliance' },
-  { id: 'users', label: 'Utilizadores' },
-  { id: 'content', label: 'Conteúdo & CDN' },
-] as const;
+const TABS: { id: string; label: string; icon: LucideIcon }[] = [
+  { id: 'overview', label: 'Visão Geral', icon: LayoutDashboard },
+  { id: 'performance', label: 'Performance', icon: Gauge },
+  { id: 'integrations', label: 'Integrações', icon: Plug },
+  { id: 'automations', label: 'Automações', icon: Workflow },
+  { id: 'alerts', label: 'Alertas', icon: Bell },
+  { id: 'sla', label: 'SLA & Compliance', icon: ShieldCheck },
+  { id: 'users', label: 'Utilizadores', icon: Users },
+  { id: 'content', label: 'Conteúdo & CDN', icon: Globe },
+];
 
 // ─── DASHBOARD VIEW (apresentacional — sem estado, sem fetch) ──────────────
 
@@ -1122,24 +1133,28 @@ export function ScalabilityDashboardView({
       <Tabs value={activeTab} onValueChange={onTabChange}>
         <div className="border-b border-border bg-surface px-6">
           <TabsList className="mx-auto max-w-7xl gap-4 overflow-x-auto border-b-0">
-            {TABS.map((tab) => (
-              <TabsTrigger
-                key={tab.id}
-                value={tab.id}
-                className="whitespace-nowrap"
-              >
-                {tab.label}
-                {tab.id === 'alerts' && openAlertCount > 0 && (
-                  <Badge
-                    intent={criticalCount > 0 ? 'danger' : 'warning'}
-                    dot={false}
-                    className="ml-1.5 px-1.5 py-0"
-                  >
-                    {openAlertCount}
-                  </Badge>
-                )}
-              </TabsTrigger>
-            ))}
+            {TABS.map((tab) => {
+              const Icon = tab.icon;
+              return (
+                <TabsTrigger
+                  key={tab.id}
+                  value={tab.id}
+                  className="gap-2 whitespace-nowrap"
+                >
+                  <Icon size={16} strokeWidth={1.75} />
+                  {tab.label}
+                  {tab.id === 'alerts' && openAlertCount > 0 && (
+                    <Badge
+                      intent={criticalCount > 0 ? 'danger' : 'warning'}
+                      dot={false}
+                      className="ml-1.5 px-1.5 py-0"
+                    >
+                      {openAlertCount}
+                    </Badge>
+                  )}
+                </TabsTrigger>
+              );
+            })}
           </TabsList>
         </div>
 
