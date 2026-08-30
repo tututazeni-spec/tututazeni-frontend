@@ -67,14 +67,14 @@ const INTENT_TEXT: Record<StateIntent, string> = {
 
 interface SectionHeaderProps {
   title: string;
-  sub: string;
+  sub?: string;
 }
 
 function SectionHeader({ title, sub }: SectionHeaderProps) {
   return (
     <div>
       <h2 className="font-display text-lg font-bold text-ink">{title}</h2>
-      <p className="mt-1 font-body text-sm text-ink-muted">{sub}</p>
+      {sub && <p className="mt-1 font-body text-sm text-ink-muted">{sub}</p>}
     </div>
   );
 }
@@ -654,10 +654,7 @@ function AutomationsTab({ rules }: AutomationsTabProps) {
   return (
     <div className="flex flex-col gap-5">
       <div className="flex items-center justify-between">
-        <SectionHeader
-          title="Regras de Automação"
-          sub="Atribuição automática, onboarding, recertificação e notificações"
-        />
+        <SectionHeader title="Regras de Automação" />
         <Button
           intent="secondary"
           size="sm"
