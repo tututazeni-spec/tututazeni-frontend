@@ -4,7 +4,7 @@
 // components/courses-modulos/. Ver memory
 // project_innova_component_separation_audit.
 
-import { useReducer, useState } from 'react';
+import { useEffect, useReducer, useState } from 'react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { reportError } from '@/lib/errorReporting';
@@ -31,6 +31,18 @@ export default function CourseModulesPage() {
   );
   const [modal, dispatchModal] = useReducer(modalReducer, { kind: 'none' });
   const toast = useToast();
+
+  // Deep-link vindo da aba Gestão de cursos (/courses/modulos?courseId=N):
+  // pré-preenche e carrega o curso automaticamente. Lido de
+  // window.location em vez de useSearchParams() para não obrigar a
+  // envolver esta página num <Suspense> (requisito do Next 15).
+  useEffect(() => {
+    const raw = new URLSearchParams(window.location.search).get('courseId');
+    if (raw && /^\d+$/.test(raw)) {
+      setCourseIdInput(raw);
+      setSubmittedCourseId(Number(raw));
+    }
+  }, []);
 
   // ── Fetch curso ──────────────────────────────────────────────────────────
   function loadCourse() {
@@ -124,11 +136,8 @@ export default function CourseModulesPage() {
       {/* ── Header ── */}
       <div className="flex justify-between items-start mb-6 flex-wrap gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-ink m-0">
-            Módulos & Lições
-          </h1>
-          <p className="text-ink-muted text-sm mt-1">
-          </p>
+          <h1 className="text-2xl font-bold text-ink m-0">Módulos & Lições</h1>
+          <p className="text-ink-muted text-sm mt-1"></p>
         </div>
         <div className="flex gap-2">
           <Button
@@ -188,8 +197,7 @@ export default function CourseModulesPage() {
         <div className="grid grid-cols-[repeat(auto-fill,minmax(140px,1fr))] gap-3 mb-6">
           <Card>
             <CardBody className="p-4 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-info-subtle flex items-center justify-center text-lg">
-              </div>
+              <div className="w-10 h-10 rounded-lg bg-info-subtle flex items-center justify-center text-lg"></div>
               <div>
                 <p className="m-0 text-xl font-extrabold text-primary">
                   {modules.length}
