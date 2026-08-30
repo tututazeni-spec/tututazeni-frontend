@@ -7,7 +7,7 @@
 import { useState } from 'react';
 import { Avatar } from '@/components/ui/Avatar';
 import { StatusBadge } from '@/components/ui/StatusBadge';
-import { ACTION_ICONS, SEVERITY_CFG, STATUS_CFG } from './constants';
+import { ACTION_LABELS, SEVERITY_CFG, STATUS_CFG } from './constants';
 import { fmtTs } from './utils';
 import { DiffViewer } from './DiffViewer';
 import type { AuditLog } from './types';
@@ -19,7 +19,6 @@ interface LogRowProps {
 export function LogRow({ log }: LogRowProps) {
   const [expanded, setExpanded] = useState(false);
   const sevCfg = SEVERITY_CFG[log.severity] ?? SEVERITY_CFG.LOW;
-  const actionIcon = ACTION_ICONS[log.action] ?? '📋';
   const changes = log.changes ? JSON.parse(log.changes) : null;
 
   return (
@@ -42,16 +41,24 @@ export function LogRow({ log }: LogRowProps) {
         <td className="px-3 py-2.5">
           {log.user ? (
             <div className="flex items-center gap-1.5">
-              <Avatar name={log.user.fullName} url={log.user.avatarUrl ?? undefined} size="sm" />
-              <span className="font-body text-xs text-ink">{log.user.fullName}</span>
+              <Avatar
+                name={log.user.fullName}
+                url={log.user.avatarUrl ?? undefined}
+                size="sm"
+              />
+              <span className="font-body text-xs text-ink">
+                {log.user.fullName}
+              </span>
             </div>
           ) : (
-            <span className="font-body text-xs italic text-ink-faint">Sistema</span>
+            <span className="font-body text-xs italic text-ink-faint">
+              Sistema
+            </span>
           )}
         </td>
         <td className="px-3 py-2.5">
           <span className="font-body text-xs font-medium text-ink">
-            {actionIcon} {log.action}
+            {ACTION_LABELS[log.action] ?? log.action}
           </span>
         </td>
         <td className="px-3 py-2.5 font-body text-xs text-ink-muted">
@@ -65,7 +72,7 @@ export function LogRow({ log }: LogRowProps) {
         </td>
         <td className="px-3 py-2.5">
           <span className={`font-body text-xs font-medium ${sevCfg.cls}`}>
-            {log.severity}
+            {sevCfg.label}
           </span>
         </td>
       </tr>

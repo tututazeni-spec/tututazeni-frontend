@@ -5,14 +5,13 @@
 
 'use client';
 
-import { Activity, AlertTriangle, CalendarDays, ShieldAlert } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Card, CardBody } from '@/components/ui/Card';
 import { KpiCard } from '@/components/ui/KpiCard';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { ACTION_ICONS } from './constants';
+import { ACTION_LABELS, entityLabel } from './constants';
 import { fmtTs } from './utils';
 import type { AuditStats } from './types';
 
@@ -30,25 +29,17 @@ export function StatsView() {
       {/* KPIs */}
       <div className="grid grid-cols-4 gap-3">
         <KpiCard
-          icon={Activity}
           label="Total de eventos"
           value={data.totals.total}
           intent="primary"
         />
+        <KpiCard label="Hoje" value={data.totals.today} intent="accent" />
         <KpiCard
-          icon={CalendarDays}
-          label="Hoje"
-          value={data.totals.today}
-          intent="accent"
-        />
-        <KpiCard
-          icon={AlertTriangle}
           label="Críticos"
           value={data.totals.critical}
           intent={data.totals.critical > 0 ? 'danger' : 'primary'}
         />
         <KpiCard
-          icon={ShieldAlert}
           label="Logins falhados hoje"
           value={data.totals.failedLoginsToday}
           intent={data.totals.failedLoginsToday > 0 ? 'warning' : 'primary'}
@@ -67,9 +58,8 @@ export function StatsView() {
                 key={a.action}
                 className="flex items-center gap-2 border-b border-border py-1.5 last:border-0"
               >
-                <span>{ACTION_ICONS[a.action] ?? '📋'}</span>
                 <span className="flex-1 font-body text-xs text-ink-muted">
-                  {a.action}
+                  {ACTION_LABELS[a.action] ?? a.action}
                 </span>
                 <span className="font-data text-xs font-bold text-ink">
                   {a.count}
@@ -91,7 +81,7 @@ export function StatsView() {
                 className="flex items-center gap-2 border-b border-border py-1.5 last:border-0"
               >
                 <span className="flex-1 font-body text-xs text-ink-muted">
-                  {e.entity}
+                  {entityLabel(e.entity)}
                 </span>
                 <span className="font-data text-xs font-bold text-ink">
                   {e.count}
@@ -106,23 +96,20 @@ export function StatsView() {
       {data.recentCritical.length > 0 && (
         <div className="overflow-hidden rounded-card border border-danger bg-danger-subtle">
           <div className="border-b border-danger/30 px-4 py-3 font-body text-xs font-semibold text-danger-ink">
-            🔴 Eventos críticos recentes
+            Eventos críticos recentes
           </div>
           {data.recentCritical.slice(0, 5).map((log) => (
             <div
               key={log.id}
               className="flex items-center gap-3 border-b border-danger/30 px-4 py-2.5 last:border-0"
             >
-              <span className="text-sm">
-                {ACTION_ICONS[log.action] ?? '📋'}
-              </span>
               <div className="min-w-0 flex-1">
                 <span className="font-body text-xs font-medium text-ink">
-                  {log.action}
+                  {ACTION_LABELS[log.action] ?? log.action}
                 </span>
                 <span className="font-body text-xs text-ink-muted">
                   {' '}
-                  em {log.entity}
+                  em {entityLabel(log.entity)}
                 </span>
                 {log.user && (
                   <span className="font-body text-xs text-ink-faint">
