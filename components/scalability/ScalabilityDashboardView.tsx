@@ -1,19 +1,22 @@
 // components/scalability/ScalabilityDashboardView.tsx
 // Vista apresentacional do módulo de Escalabilidade — sem estado próprio,
 // sem fetch, sem efeitos. Recebe todos os dados e callbacks via props do
-// container (app/(platform)/scalability/page.tsx). Extraído do ficheiro
-// original (2020 linhas, tudo junto) — os *Tab já estavam razoavelmente
-// isolados; o que faltava separar era só o topo (estado + JSX do layout).
-// Ver memory project_innova_component_separation_audit, item 3.1.
+// container (app/(platform)/scalability/page.tsx).
 //
-// NOTA: Dashboard opera em tema escuro (#080d19) incompatível com a fundação
-// de design light-theme. Colors refletem status (verde=sucesso, vermelho=erro,
-// laranja=aviso, púrpura=primária). Background/borders/text escuros ficam
-// todos como inline styles (constants em ./colors) para preservar o design —
-// incluindo os botões auxiliares (ActionButton/SmallButton/FilterChip), que
-// antes usavam classes Tailwind indigo/gray/slate soltas e foram convertidos
-// para os mesmos tokens DARK_THEME/METRIC_ACCENT_COLORS do resto do ficheiro.
+// Migrado para a fundação de design light-theme (tokens canvas/surface/ink,
+// componentes partilhados em components/ui/). Antes era um dashboard em tema
+// escuro auto-contido (#080d19, header próprio, ícones glífo, cores neon) —
+// documentado como exceção; essa exceção foi agora fechada. Sem ícones
+// decorativos, cor reduzida ao mínimo semântico (estado danger/warning/
+// success), números a preto.
 
+'use client';
+
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
+import { Card, CardBody } from '@/components/ui/Card';
+import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
+import { cn } from '@/lib/cn';
 import { useToast } from '@/providers/ToastProvider';
 import type {
   AlertSeverity,
@@ -23,14 +26,6 @@ import type {
   Integration,
   AutomationRule,
 } from './types';
-import {
-  STATUS_COLORS,
-  SEVERITY_COLORS,
-  METRIC_ACCENT_COLORS,
-  DARK_THEME,
-  SLA_STATE_COLORS,
-  ROLE_COLORS,
-} from './colors';
 
 // ─── UTILITY FUNCTIONS ─────────────────────────────────────
 
@@ -48,189 +43,204 @@ function formatPercent(v: number, decimals = 1): string {
   return v.toFixed(decimals) + '%';
 }
 
-// ─── SUB-COMPONENTS ────────────────────────────────────────
+type StateIntent = 'danger' | 'warning' | 'success' | 'info';
 
-interface StatusDotProps {
-  status: IntegrationStatus;
+const INTENT_TEXT: Record<StateIntent, string> = {
+  danger: 'text-danger',
+  warning: 'text-warning',
+  success: 'text-success',
+  info: 'text-info',
+};
+
+// ─── SHARED MICRO-COMPONENTS ──────────────────────────────
+
+interface SectionHeaderProps {
+  title: string;
+  sub: string;
 }
 
-function StatusDot({ status }: StatusDotProps) {
-  const color = STATUS_COLORS[status];
+function SectionHeader({ title, sub }: SectionHeaderProps) {
   return (
-    <span
-      style={{
-        display: 'inline-block',
-        width: 8,
-        height: 8,
-        borderRadius: '50%',
-        background: color,
-        boxShadow: `0 0 6px ${color}88`,
-      }}
-    />
+    <div>
+      <h2 className="font-display text-lg font-bold text-ink">{title}</h2>
+      <p className="mt-1 font-body text-sm text-ink-muted">{sub}</p>
+    </div>
   );
 }
 
-interface SeverityBadgeProps {
-  severity: AlertSeverity;
+interface ThresholdBarProps {
+  /** 0–100 */
+  pct: number;
+  state?: StateIntent;
+  className?: string;
 }
 
-function SeverityBadge({ severity }: SeverityBadgeProps) {
-  const s = SEVERITY_COLORS[severity];
-  return (
-    <span
-      style={{
-        padding: '2px 8px',
-        borderRadius: 4,
-        fontSize: 11,
-        fontWeight: 700,
-        background: s.bg,
-        color: s.color,
-        letterSpacing: '0.05em',
-        textTransform: 'uppercase',
-      }}
-    >
-      {s.label}
-    </span>
-  );
-}
-
-interface GaugeBarProps {
-  value: number;
-  max: number;
-  color?: string;
-  danger?: number;
-  warn?: number;
-}
-
-function GaugeBar({
-  value,
-  max,
-  color = METRIC_ACCENT_COLORS.users,
-  danger,
-  warn,
-}: GaugeBarProps) {
-  const pct = Math.min((value / max) * 100, 100);
-  const isDanger = danger !== undefined && value >= danger;
-  const isWarn = !isDanger && warn !== undefined && value >= warn;
-  const barColor = isDanger
-    ? STATUS_COLORS.ERROR
-    : isWarn
-      ? STATUS_COLORS.PENDING_AUTH
-      : color;
+function ThresholdBar({ pct, state, className }: ThresholdBarProps) {
+  const fill =
+    state === 'danger'
+      ? 'bg-danger'
+      : state === 'warning'
+        ? 'bg-warning'
+        : 'bg-primary';
   return (
     <div
-      style={{
-        width: '100%',
-        background: DARK_THEME.bgTertiary,
-        borderRadius: 4,
-        height: 6,
-        overflow: 'hidden',
-      }}
+      className={cn(
+        'h-1.5 w-full overflow-hidden rounded-pill bg-surface-sunken',
+        className,
+      )}
     >
       <div
-        style={{
-          width: `${pct}%`,
-          height: '100%',
-          background: barColor,
-          borderRadius: 4,
-          transition: 'width 0.5s ease',
-        }}
+        className={cn(
+          'h-full rounded-pill transition-[width] duration-300',
+          fill,
+        )}
+        style={{ width: `${Math.min(Math.max(pct, 0), 100)}%` }}
       />
     </div>
   );
 }
 
-interface MetricCardProps {
+interface MetricTileProps {
   label: string;
   value: string | number;
   unit?: string;
   sub?: string;
   barValue?: number;
   barMax?: number;
-  barDanger?: number;
   barWarn?: number;
-  accent?: string;
+  barDanger?: number;
 }
 
-function MetricCard({
+function MetricTile({
   label,
   value,
-  unit = '',
+  unit,
   sub,
   barValue,
   barMax,
-  barDanger,
   barWarn,
-  accent = METRIC_ACCENT_COLORS.users,
-}: MetricCardProps) {
+  barDanger,
+}: MetricTileProps) {
+  const hasBar = barValue !== undefined && barMax !== undefined;
+  const pct = hasBar ? (barValue! / barMax!) * 100 : 0;
+  const isDanger =
+    barValue !== undefined && barDanger !== undefined && barValue >= barDanger;
+  const isWarn =
+    !isDanger &&
+    barValue !== undefined &&
+    barWarn !== undefined &&
+    barValue >= barWarn;
+
   return (
-    <div
-      style={{
-        background: DARK_THEME.bgCard,
-        border: `1px solid ${DARK_THEME.borderPrimary}`,
-        borderRadius: 10,
-        padding: '16px 20px',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 8,
-      }}
-    >
-      <span
-        style={{
-          fontSize: 12,
-          color: DARK_THEME.textSubtle,
-          fontWeight: 500,
-          letterSpacing: '0.04em',
-          textTransform: 'uppercase',
-        }}
-      >
-        {label}
-      </span>
-      <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
-        <span
-          style={{
-            fontSize: 28,
-            fontWeight: 700,
-            color: DARK_THEME.textPrimary,
-            letterSpacing: '-0.02em',
-          }}
-        >
+    <Card>
+      <CardBody>
+        <p className="font-body text-xs font-medium uppercase tracking-wide text-ink-muted">
+          {label}
+        </p>
+        <p className="mt-1 font-display text-2xl font-bold text-ink">
           {value}
-        </span>
-        {unit && (
-          <span style={{ fontSize: 13, color: DARK_THEME.textMuted }}>
-            {unit}
-          </span>
+          {unit && (
+            <span className="ml-1 font-body text-sm font-normal text-ink-muted">
+              {unit}
+            </span>
+          )}
+        </p>
+        {sub && (
+          <p className="mt-0.5 font-body text-xs text-ink-faint">{sub}</p>
         )}
-      </div>
-      {sub && (
-        <span style={{ fontSize: 12, color: DARK_THEME.textFaint }}>{sub}</span>
-      )}
-      {barValue !== undefined && barMax !== undefined && (
-        <GaugeBar
-          value={barValue}
-          max={barMax}
-          color={accent}
-          danger={barDanger}
-          warn={barWarn}
-        />
-      )}
-    </div>
+        {hasBar && (
+          <ThresholdBar
+            pct={pct}
+            state={isDanger ? 'danger' : isWarn ? 'warning' : undefined}
+            className="mt-3"
+          />
+        )}
+      </CardBody>
+    </Card>
   );
 }
 
-// ─── TABS ─────────────────────────────────────────────────
+interface StatusRow {
+  label: string;
+  value: string | number;
+  intent?: StateIntent;
+}
 
-const TABS = [
-  { id: 'overview', label: 'Visão Geral', icon: '◈' },
-  { id: 'performance', label: 'Performance', icon: '⚡' },
-  { id: 'integrations', label: 'Integrações', icon: '⬡' },
-  { id: 'automations', label: 'Automações', icon: '⟲' },
-  { id: 'alerts', label: 'Alertas', icon: '◉' },
-  { id: 'sla', label: 'SLA & Compliance', icon: '✦' },
-  { id: 'users', label: 'Utilizadores', icon: '⊕' },
-  { id: 'content', label: 'Conteúdo & CDN', icon: '▣' },
-];
+interface StatusCardProps {
+  title: string;
+  rows: StatusRow[];
+}
+
+function StatusCard({ title, rows }: StatusCardProps) {
+  return (
+    <Card>
+      <CardBody>
+        <p className="mb-4 font-body text-xs font-semibold uppercase tracking-wide text-ink-muted">
+          {title}
+        </p>
+        <div className="flex flex-col gap-2.5">
+          {rows.map((r, i) => (
+            <div key={i} className="flex items-center justify-between">
+              <span className="font-body text-sm text-ink-muted">
+                {r.label}
+              </span>
+              <span
+                className={cn(
+                  'font-body text-sm font-semibold',
+                  r.intent ? INTENT_TEXT[r.intent] : 'text-ink',
+                )}
+              >
+                {r.value}
+              </span>
+            </div>
+          ))}
+        </div>
+      </CardBody>
+    </Card>
+  );
+}
+
+interface FilterChipProps {
+  label: string;
+  active?: boolean;
+}
+
+function FilterChip({ label, active }: FilterChipProps) {
+  return (
+    <button
+      type="button"
+      className={cn(
+        'rounded-pill border px-3 py-1 font-body text-xs font-medium transition-colors',
+        active
+          ? 'border-primary bg-primary-subtle text-primary'
+          : 'border-border text-ink-muted hover:text-ink',
+      )}
+    >
+      {label}
+    </button>
+  );
+}
+
+// ─── STATUS MAPPINGS ───────────────────────────────────────
+
+const INTEGRATION_STATUS: Record<
+  IntegrationStatus,
+  { label: string; intent: 'success' | 'warning' | 'danger' | 'neutral' }
+> = {
+  ACTIVE: { label: 'Activo', intent: 'success' },
+  INACTIVE: { label: 'Inactivo', intent: 'neutral' },
+  ERROR: { label: 'Erro', intent: 'danger' },
+  PENDING_AUTH: { label: 'Aguarda Auth', intent: 'warning' },
+};
+
+const SEVERITY: Record<
+  AlertSeverity,
+  { label: string; intent: 'danger' | 'warning' | 'info'; border: string }
+> = {
+  CRITICAL: { label: 'Crítico', intent: 'danger', border: 'border-l-danger' },
+  WARNING: { label: 'Aviso', intent: 'warning', border: 'border-l-warning' },
+  INFO: { label: 'Info', intent: 'info', border: 'border-l-info' },
+};
 
 // ─── TAB PANELS ────────────────────────────────────────────
 
@@ -251,95 +261,34 @@ function OverviewTab({ data }: OverviewTabProps) {
   const storagePct = (t.storageUsedGb / t.maxStorageGb) * 100;
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-      {/* Tenant Banner */}
-      <div
-        style={{
-          background: DARK_THEME.bgGradientCard,
-          border: `1px solid ${DARK_THEME.borderAccent}`,
-          borderRadius: 12,
-          padding: '20px 28px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-        }}
-      >
+    <div className="flex flex-col gap-6">
+      {/* Tenant banner */}
+      <div className="flex items-center justify-between rounded-panel border border-border bg-surface p-6">
         <div>
-          <div
-            style={{
-              fontSize: 13,
-              color: METRIC_ACCENT_COLORS.users,
-              fontWeight: 600,
-              letterSpacing: '0.1em',
-              textTransform: 'uppercase',
-              marginBottom: 6,
-            }}
-          >
+          <p className="mb-1 font-body text-xs font-semibold uppercase tracking-wide text-ink-muted">
             Tenant Activo
-          </div>
-          <div
-            style={{
-              fontSize: 24,
-              fontWeight: 800,
-              color: DARK_THEME.textPrimary,
-              letterSpacing: '-0.01em',
-            }}
-          >
+          </p>
+          <p className="font-display text-2xl font-bold text-ink">
             {t.tenantName}
-          </div>
+          </p>
         </div>
-        <div
-          style={{
-            background: 'rgba(79, 70, 229, 0.07)',
-            border: '1px solid rgb(79, 70, 229)',
-            borderRadius: 8,
-            padding: '6px 16px',
-            fontSize: 13,
-            fontWeight: 700,
-            color: METRIC_ACCENT_COLORS.users,
-          }}
-        >
+        <Badge intent="neutral" dot={false}>
           {t.plan}
-        </div>
+        </Badge>
       </div>
 
-      {/* SLA Status Bar */}
+      {/* SLA breach */}
       {slaCompliance.isBreached && (
-        <div
-          style={{
-            background: DARK_THEME.bgCritical,
-            border: `1px solid ${STATUS_COLORS.ERROR}`,
-            borderRadius: 8,
-            padding: '12px 20px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 12,
-          }}
-        >
-          <span style={{ fontSize: 18 }}>⚠</span>
-          <span
-            style={{
-              color: SLA_STATE_COLORS.breached.statusText,
-              fontSize: 14,
-              fontWeight: 600,
-            }}
-          >
-            SLA em violação — Uptime actual (
-            {formatPercent(slaCompliance.currentUptimePercent, 2)}) abaixo do
-            contratado ({formatPercent(slaCompliance.slaTarget, 1)})
-          </span>
+        <div className="rounded-card border border-danger bg-danger-subtle px-4 py-3 font-body text-sm text-ink">
+          SLA em violação — Uptime actual (
+          {formatPercent(slaCompliance.currentUptimePercent, 2)}) abaixo do
+          contratado ({formatPercent(slaCompliance.slaTarget, 1)})
         </div>
       )}
 
-      {/* Primary Metrics */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
-          gap: 12,
-        }}
-      >
-        <MetricCard
+      {/* Primary metrics */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <MetricTile
           label="Utilizadores Activos"
           value={t.activeUsersCount.toLocaleString()}
           sub={`de ${t.maxUsers.toLocaleString()} licenças`}
@@ -347,18 +296,15 @@ function OverviewTab({ data }: OverviewTabProps) {
           barMax={100}
           barWarn={75}
           barDanger={90}
-          accent={METRIC_ACCENT_COLORS.users}
         />
-        <MetricCard
+        <MetricTile
           label="Uptime"
           value={formatPercent(p.uptimePercent, 2)}
           sub={`SLA: ≥${formatPercent(slaCompliance.slaTarget, 1)}`}
           barValue={p.uptimePercent}
           barMax={100}
-          barDanger={99}
-          accent={METRIC_ACCENT_COLORS.uptime}
         />
-        <MetricCard
+        <MetricTile
           label="Latência Média"
           value={p.avgLatencyMs}
           unit="ms"
@@ -367,15 +313,13 @@ function OverviewTab({ data }: OverviewTabProps) {
           barMax={slaCompliance.latencyTarget * 1.5}
           barWarn={slaCompliance.latencyTarget * 0.7}
           barDanger={slaCompliance.latencyTarget}
-          accent={METRIC_ACCENT_COLORS.latency}
         />
-        <MetricCard
+        <MetricTile
           label="Sessões Simultâneas"
           value={p.activeSessionsNow.toLocaleString()}
           sub="em tempo real"
-          accent={METRIC_ACCENT_COLORS.sessions}
         />
-        <MetricCard
+        <MetricTile
           label="Armazenamento"
           value={`${t.storageUsedGb}GB`}
           sub={`de ${t.maxStorageGb}GB`}
@@ -383,9 +327,8 @@ function OverviewTab({ data }: OverviewTabProps) {
           barMax={100}
           barWarn={70}
           barDanger={90}
-          accent={METRIC_ACCENT_COLORS.storage}
         />
-        <MetricCard
+        <MetricTile
           label="Taxa de Erro"
           value={formatPercent(p.errorRate, 2)}
           sub="últimos 60 min"
@@ -393,35 +336,24 @@ function OverviewTab({ data }: OverviewTabProps) {
           barMax={5}
           barWarn={1}
           barDanger={3}
-          accent={METRIC_ACCENT_COLORS.errorRate}
         />
       </div>
 
-      {/* Status Cards Row */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(3, 1fr)',
-          gap: 12,
-        }}
-      >
+      {/* Status cards */}
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <StatusCard
           title="Integrações"
-          color={METRIC_ACCENT_COLORS.users}
           rows={[
             { label: 'Total', value: integrations.total },
             {
               label: 'Activas',
               value: integrations.active,
-              accent: STATUS_COLORS.ACTIVE,
+              intent: 'success',
             },
             {
               label: 'Com erro',
               value: integrations.withErrors,
-              accent:
-                integrations.withErrors > 0
-                  ? STATUS_COLORS.ERROR
-                  : DARK_THEME.textSubtle,
+              intent: integrations.withErrors > 0 ? 'danger' : undefined,
             },
             {
               label: 'Última sync',
@@ -433,110 +365,34 @@ function OverviewTab({ data }: OverviewTabProps) {
         />
         <StatusCard
           title="Automações"
-          color={METRIC_ACCENT_COLORS.sessions}
           rows={[
             { label: 'Total de regras', value: automations.total },
-            {
-              label: 'Activas',
-              value: automations.active,
-              accent: STATUS_COLORS.ACTIVE,
-            },
+            { label: 'Activas', value: automations.active, intent: 'success' },
             { label: 'Execuções hoje', value: automations.executionsToday },
             {
               label: 'Falhas hoje',
               value: automations.failedToday,
-              accent:
-                automations.failedToday > 0
-                  ? STATUS_COLORS.PENDING_AUTH
-                  : DARK_THEME.textSubtle,
+              intent: automations.failedToday > 0 ? 'warning' : undefined,
             },
           ]}
         />
         <StatusCard
           title="Alertas Abertos"
-          color={STATUS_COLORS.PENDING_AUTH}
           rows={[
             { label: 'Total abertos', value: alerts.open },
             {
               label: 'Críticos',
               value: alerts.critical,
-              accent:
-                alerts.critical > 0
-                  ? STATUS_COLORS.ERROR
-                  : DARK_THEME.textSubtle,
+              intent: alerts.critical > 0 ? 'danger' : undefined,
             },
             {
               label: 'Avisos',
               value: alerts.warning,
-              accent:
-                alerts.warning > 0
-                  ? STATUS_COLORS.PENDING_AUTH
-                  : DARK_THEME.textSubtle,
+              intent: alerts.warning > 0 ? 'warning' : undefined,
             },
-            {
-              label: 'Informativos',
-              value: alerts.info,
-              accent: METRIC_ACCENT_COLORS.latency,
-            },
+            { label: 'Informativos', value: alerts.info },
           ]}
         />
-      </div>
-    </div>
-  );
-}
-
-interface StatusCardProps {
-  title: string;
-  color: string;
-  rows: { label: string; value: string | number; accent?: string }[];
-}
-
-function StatusCard({ title, color, rows }: StatusCardProps) {
-  return (
-    <div
-      style={{
-        background: DARK_THEME.bgCard,
-        border: `1px solid ${DARK_THEME.borderPrimary}`,
-        borderRadius: 10,
-        padding: '18px 20px',
-      }}
-    >
-      <div
-        style={{
-          fontSize: 12,
-          fontWeight: 700,
-          color,
-          letterSpacing: '0.08em',
-          textTransform: 'uppercase',
-          marginBottom: 16,
-        }}
-      >
-        {title}
-      </div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-        {rows.map((r, i) => (
-          <div
-            key={i}
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-            }}
-          >
-            <span style={{ fontSize: 13, color: DARK_THEME.textTertiary }}>
-              {r.label}
-            </span>
-            <span
-              style={{
-                fontSize: 14,
-                fontWeight: 700,
-                color: r.accent ?? DARK_THEME.textPrimary,
-              }}
-            >
-              {r.value}
-            </span>
-          </div>
-        ))}
       </div>
     </div>
   );
@@ -557,7 +413,6 @@ function PerformanceTab({ data }: PerformanceTabProps) {
       unit: '%',
       warn: 70,
       danger: 85,
-      color: METRIC_ACCENT_COLORS.cpu,
     },
     {
       label: 'Memória',
@@ -566,7 +421,6 @@ function PerformanceTab({ data }: PerformanceTabProps) {
       unit: '%',
       warn: 75,
       danger: 90,
-      color: METRIC_ACCENT_COLORS.memory,
     },
     {
       label: 'Req/min',
@@ -575,7 +429,6 @@ function PerformanceTab({ data }: PerformanceTabProps) {
       unit: '',
       warn: 7000,
       danger: 9000,
-      color: METRIC_ACCENT_COLORS.requests,
     },
     {
       label: 'Latência (ms)',
@@ -584,173 +437,81 @@ function PerformanceTab({ data }: PerformanceTabProps) {
       unit: 'ms',
       warn: 1500,
       danger: 2500,
-      color: METRIC_ACCENT_COLORS.storage,
     },
   ];
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+    <div className="flex flex-col gap-6">
       <SectionHeader
         title="Performance em Tempo Real"
         sub="Últimos dados capturados pelo sistema de monitorização"
       />
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(2, 1fr)',
-          gap: 12,
-        }}
-      >
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         {metrics.map((m) => {
           const pct = (m.value / m.max) * 100;
           const isDanger = m.value >= m.danger;
           const isWarn = !isDanger && m.value >= m.warn;
-          const color = isDanger
-            ? STATUS_COLORS.ERROR
+          const state: StateIntent | undefined = isDanger
+            ? 'danger'
             : isWarn
-              ? STATUS_COLORS.PENDING_AUTH
-              : m.color;
+              ? 'warning'
+              : undefined;
           return (
-            <div
-              key={m.label}
-              style={{
-                background: DARK_THEME.bgCard,
-                border: `1px solid ${isDanger ? DARK_THEME.borderErrorAlpha : DARK_THEME.borderPrimary}`,
-                borderRadius: 10,
-                padding: '20px 24px',
-              }}
-            >
-              <div
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  marginBottom: 16,
-                }}
-              >
-                <span
-                  style={{
-                    fontSize: 13,
-                    color: DARK_THEME.textTertiary,
-                    fontWeight: 600,
-                  }}
-                >
-                  {m.label}
-                </span>
-                <span
-                  style={{
-                    fontSize: 22,
-                    fontWeight: 800,
-                    color,
-                    fontVariantNumeric: 'tabular-nums',
-                  }}
-                >
-                  {m.value}
-                  {m.unit}
-                </span>
-              </div>
-              {/* Visual bar */}
-              <div
-                style={{
-                  position: 'relative',
-                  height: 32,
-                  background: DARK_THEME.bgTertiary,
-                  borderRadius: 6,
-                  overflow: 'hidden',
-                }}
-              >
-                <div
-                  style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    height: '100%',
-                    width: `${Math.min(pct, 100)}%`,
-                    background: `linear-gradient(90deg, ${color}66, ${color})`,
-                    borderRadius: 6,
-                    transition: 'width 0.8s cubic-bezier(0.25, 1, 0.5, 1)',
-                  }}
-                />
-                <div
-                  style={{
-                    position: 'absolute',
-                    inset: 0,
-                    display: 'flex',
-                    alignItems: 'center',
-                    paddingLeft: 12,
-                    fontSize: 12,
-                    color: DARK_THEME.textSecondary,
-                    fontWeight: 600,
-                  }}
-                >
-                  {pct.toFixed(1)}% da capacidade
+            <Card key={m.label}>
+              <CardBody>
+                <div className="mb-3 flex items-center justify-between">
+                  <span className="font-body text-sm font-semibold text-ink-muted">
+                    {m.label}
+                  </span>
+                  <span
+                    className={cn(
+                      'font-display text-xl font-bold tabular-nums',
+                      state ? INTENT_TEXT[state] : 'text-ink',
+                    )}
+                  >
+                    {m.value}
+                    {m.unit}
+                  </span>
                 </div>
-              </div>
-              {/* Threshold markers */}
-              <div
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  marginTop: 8,
-                  fontSize: 11,
-                  color: DARK_THEME.textFaint,
-                }}
-              >
-                <span>0</span>
-                <span style={{ color: STATUS_COLORS.PENDING_AUTH }}>
-                  ⚠ {m.warn}
-                  {m.unit}
-                </span>
-                <span style={{ color: STATUS_COLORS.ERROR }}>
-                  ✕ {m.danger}
-                  {m.unit}
-                </span>
-                <span>
-                  {m.max}
-                  {m.unit}
-                </span>
-              </div>
-            </div>
+                <ThresholdBar pct={pct} state={state} />
+                <div className="mt-2 flex justify-between font-body text-[11px] text-ink-faint">
+                  <span>0</span>
+                  <span>{pct.toFixed(1)}% da capacidade</span>
+                  <span>
+                    Aviso {m.warn}
+                    {m.unit} · Limite {m.danger}
+                    {m.unit}
+                  </span>
+                </div>
+              </CardBody>
+            </Card>
           );
         })}
       </div>
 
-      {/* Load Test CTA */}
-      <div
-        style={{
-          background: DARK_THEME.bgSecondary,
-          border: `1px dashed ${DARK_THEME.borderInfo}`,
-          borderRadius: 10,
-          padding: '20px 24px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-        }}
-      >
+      {/* Load test CTA */}
+      <div className="flex items-center justify-between rounded-card border border-dashed border-border-strong bg-surface-sunken p-5">
         <div>
-          <div
-            style={{
-              fontSize: 15,
-              fontWeight: 700,
-              color: DARK_THEME.textSecondary,
-              marginBottom: 4,
-            }}
-          >
+          <p className="font-body text-sm font-semibold text-ink">
             Teste de Carga (Stress Test)
-          </div>
-          <div style={{ fontSize: 13, color: DARK_THEME.textMuted }}>
+          </p>
+          <p className="mt-0.5 font-body text-xs text-ink-muted">
             Simular picos de utilizadores simultâneos para validar a
             escalabilidade
-          </div>
+          </p>
         </div>
-        <ActionButton
-          label="Configurar Teste"
+        <Button
+          intent="secondary"
+          size="sm"
           onClick={() =>
             notify({
               title: 'Modal de configuração de teste de carga',
               intent: 'info',
             })
           }
-        />
+        >
+          Configurar Teste
+        </Button>
       </div>
     </div>
   );
@@ -775,12 +536,6 @@ function IntegrationsTab({ integrations }: IntegrationsTabProps) {
     BI_TOOL: 'Ferramenta BI',
     CUSTOM_WEBHOOK: 'Webhook Custom',
   };
-  const statusLabel: Record<IntegrationStatus, string> = {
-    ACTIVE: 'Activo',
-    INACTIVE: 'Inactivo',
-    ERROR: 'Erro',
-    PENDING_AUTH: 'Aguarda Auth',
-  };
   const freqLabel: Record<string, string> = {
     REALTIME: 'Tempo Real',
     HOURLY: 'A cada hora',
@@ -790,98 +545,77 @@ function IntegrationsTab({ integrations }: IntegrationsTabProps) {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-        }}
-      >
+    <div className="flex flex-col gap-5">
+      <div className="flex items-center justify-between">
         <SectionHeader
           title="Integrações Configuradas"
           sub="ERP, SSO, LMS padrões e comunicação"
         />
-        <ActionButton
-          label="+ Nova Integração"
+        <Button
+          intent="secondary"
+          size="sm"
           onClick={() =>
             notify({ title: 'Modal de nova integração', intent: 'info' })
           }
-        />
+        >
+          Nova Integração
+        </Button>
       </div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-        {integrations.map((int) => (
-          <div
-            key={int.id}
-            style={{
-              background: DARK_THEME.bgCard,
-              border: `1px solid ${int.status === 'ERROR' ? DARK_THEME.borderErrorAlpha : DARK_THEME.borderPrimary}`,
-              borderRadius: 10,
-              padding: '16px 20px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 16,
-            }}
-          >
-            <StatusDot status={int.status} />
-            <div style={{ flex: 1 }}>
-              <div
-                style={{
-                  fontSize: 14,
-                  fontWeight: 700,
-                  color: DARK_THEME.textSecondary,
-                  marginBottom: 2,
-                }}
-              >
-                {int.name}
-              </div>
-              <div style={{ fontSize: 12, color: DARK_THEME.textMuted }}>
-                {typeLabels[int.type] ?? int.type} ·{' '}
-                {freqLabel[int.syncFrequency] ?? int.syncFrequency}
-              </div>
-            </div>
-            <div style={{ textAlign: 'right' }}>
-              <div
-                style={{
-                  fontSize: 12,
-                  fontWeight: 700,
-                  color:
-                    int.status === 'ACTIVE'
-                      ? STATUS_COLORS.ACTIVE
-                      : int.status === 'ERROR'
-                        ? STATUS_COLORS.ERROR
-                        : DARK_THEME.textTertiary,
-                  marginBottom: 2,
-                }}
-              >
-                {statusLabel[int.status]}
-              </div>
-              {int.lastSyncAt && (
-                <div style={{ fontSize: 11, color: DARK_THEME.textFaint }}>
-                  Sync: {timeAgo(int.lastSyncAt)} · {int.lastSyncStatus}
+      <div className="flex flex-col gap-3">
+        {integrations.map((int) => {
+          const s = INTEGRATION_STATUS[int.status];
+          return (
+            <Card key={int.id}>
+              <CardBody className="flex items-center gap-4">
+                <div className="min-w-0 flex-1">
+                  <p className="truncate font-body text-sm font-semibold text-ink">
+                    {int.name}
+                  </p>
+                  <p className="font-body text-xs text-ink-muted">
+                    {typeLabels[int.type] ?? int.type} ·{' '}
+                    {freqLabel[int.syncFrequency] ?? int.syncFrequency}
+                  </p>
                 </div>
-              )}
-            </div>
-            <div style={{ display: 'flex', gap: 8 }}>
-              <SmallButton
-                label="Sync"
-                onClick={() =>
-                  notify({
-                    title: `Sincronizando ${int.name}...`,
-                    intent: 'info',
-                  })
-                }
-              />
-              <SmallButton
-                label="Config"
-                variant="ghost"
-                onClick={() =>
-                  notify({ title: `Configurar ${int.name}`, intent: 'info' })
-                }
-              />
-            </div>
-          </div>
-        ))}
+                <div className="hidden text-right sm:block">
+                  <Badge intent={s.intent} dot={s.intent !== 'neutral'}>
+                    {s.label}
+                  </Badge>
+                  {int.lastSyncAt && (
+                    <p className="mt-1 font-body text-[11px] text-ink-faint">
+                      Sync: {timeAgo(int.lastSyncAt)} · {int.lastSyncStatus}
+                    </p>
+                  )}
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    intent="secondary"
+                    size="sm"
+                    onClick={() =>
+                      notify({
+                        title: `Sincronizando ${int.name}...`,
+                        intent: 'info',
+                      })
+                    }
+                  >
+                    Sync
+                  </Button>
+                  <Button
+                    intent="ghost"
+                    size="sm"
+                    onClick={() =>
+                      notify({
+                        title: `Configurar ${int.name}`,
+                        intent: 'info',
+                      })
+                    }
+                  >
+                    Config
+                  </Button>
+                </div>
+              </CardBody>
+            </Card>
+          );
+        })}
       </div>
     </div>
   );
@@ -907,107 +641,67 @@ function AutomationsTab({ rules }: AutomationsTabProps) {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-        }}
-      >
+    <div className="flex flex-col gap-5">
+      <div className="flex items-center justify-between">
         <SectionHeader
           title="Regras de Automação"
           sub="Atribuição automática, onboarding, recertificação e notificações"
         />
-        <ActionButton
-          label="+ Nova Regra"
+        <Button
+          intent="secondary"
+          size="sm"
           onClick={() =>
             notify({ title: 'Modal de nova regra', intent: 'info' })
           }
-        />
+        >
+          Nova Regra
+        </Button>
       </div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-        {rules.map((rule) => (
-          <div
-            key={rule.id}
-            style={{
-              background: DARK_THEME.bgCard,
-              border: `1px solid ${DARK_THEME.borderPrimary}`,
-              borderRadius: 10,
-              padding: '16px 20px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 16,
-            }}
-          >
-            <div
-              style={{
-                width: 36,
-                height: 36,
-                borderRadius: 8,
-                background: rule.isActive
-                  ? DARK_THEME.bgAccentDark
-                  : DARK_THEME.bgTertiary,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: 16,
-                color: rule.isActive
-                  ? METRIC_ACCENT_COLORS.users
-                  : DARK_THEME.textDisabled,
-                border: `1px solid ${rule.isActive ? DARK_THEME.borderAccent : DARK_THEME.borderInactive}`,
-              }}
-            >
-              ⟲
-            </div>
-            <div style={{ flex: 1 }}>
-              <div
-                style={{
-                  fontSize: 14,
-                  fontWeight: 700,
-                  color: rule.isActive
-                    ? DARK_THEME.textSecondary
-                    : DARK_THEME.textSubtle,
-                  marginBottom: 3,
-                }}
-              >
-                {rule.name}
-              </div>
-              <div style={{ fontSize: 12, color: DARK_THEME.textMuted }}>
-                Gatilho:{' '}
-                <span style={{ color: METRIC_ACCENT_COLORS.users }}>
-                  {triggerLabel[rule.triggerType] ?? rule.triggerType}
+      <div className="flex flex-col gap-3">
+        {rules.map((rule) => {
+          const status = !rule.isActive
+            ? { label: 'Inactiva', cls: 'text-ink-faint' }
+            : rule.lastRunStatus === 'FAILED'
+              ? { label: 'Última falhou', cls: 'text-danger' }
+              : { label: 'OK', cls: 'text-success' };
+          return (
+            <Card key={rule.id}>
+              <CardBody className="flex items-center gap-4">
+                <div className="min-w-0 flex-1">
+                  <p
+                    className={cn(
+                      'font-body text-sm font-semibold',
+                      rule.isActive ? 'text-ink' : 'text-ink-muted',
+                    )}
+                  >
+                    {rule.name}
+                  </p>
+                  <p className="font-body text-xs text-ink-muted">
+                    Gatilho:{' '}
+                    {triggerLabel[rule.triggerType] ?? rule.triggerType}
+                    {' · '}
+                    {rule.runCount.toLocaleString()} execuções
+                    {rule.lastRunAt && ` · ${timeAgo(rule.lastRunAt)}`}
+                  </p>
+                </div>
+                <span
+                  className={cn('font-body text-xs font-semibold', status.cls)}
+                >
+                  {status.label}
                 </span>
-                {' · '}
-                {rule.runCount.toLocaleString()} execuções
-                {rule.lastRunAt && ` · ${timeAgo(rule.lastRunAt)}`}
-              </div>
-            </div>
-            <div
-              style={{
-                fontSize: 12,
-                fontWeight: 700,
-                color: !rule.isActive
-                  ? DARK_THEME.textSubtle
-                  : rule.lastRunStatus === 'FAILED'
-                    ? STATUS_COLORS.ERROR
-                    : STATUS_COLORS.ACTIVE,
-              }}
-            >
-              {!rule.isActive
-                ? 'Inactiva'
-                : rule.lastRunStatus === 'FAILED'
-                  ? 'Última falhou'
-                  : 'OK'}
-            </div>
-            <SmallButton
-              label="Executar"
-              onClick={() =>
-                notify({ title: `Executar: ${rule.name}`, intent: 'info' })
-              }
-            />
-          </div>
-        ))}
+                <Button
+                  intent="ghost"
+                  size="sm"
+                  onClick={() =>
+                    notify({ title: `Executar: ${rule.name}`, intent: 'info' })
+                  }
+                >
+                  Executar
+                </Button>
+              </CardBody>
+            </Card>
+          );
+        })}
       </div>
     </div>
   );
@@ -1020,99 +714,56 @@ interface AlertsTabProps {
 function AlertsTab({ alerts }: AlertsTabProps) {
   const notify = useToast();
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-        }}
-      >
+    <div className="flex flex-col gap-5">
+      <div className="flex items-center justify-between">
         <SectionHeader
           title="Alertas de Sistema"
           sub="Monitorização automática de performance, integrações e compliance"
         />
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div className="flex gap-2">
           <FilterChip label="Todos" active />
           <FilterChip label="Críticos" />
           <FilterChip label="Avisos" />
         </div>
       </div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-        {alerts.map((alert) => (
-          <div
-            key={alert.id}
-            style={{
-              background: DARK_THEME.bgCard,
-              border: `1px solid ${alert.severity === 'CRITICAL' ? DARK_THEME.borderErrorAlpha : alert.severity === 'WARNING' ? DARK_THEME.borderWarning : DARK_THEME.borderInfo}`,
-              borderLeft: `3px solid ${alert.severity === 'CRITICAL' ? STATUS_COLORS.ERROR : alert.severity === 'WARNING' ? STATUS_COLORS.PENDING_AUTH : METRIC_ACCENT_COLORS.latency}`,
-              borderRadius: '0 10px 10px 0',
-              padding: '14px 20px',
-            }}
-          >
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'flex-start',
-                justifyContent: 'space-between',
-                gap: 16,
-              }}
-            >
-              <div style={{ flex: 1 }}>
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 10,
-                    marginBottom: 6,
-                  }}
-                >
-                  <SeverityBadge severity={alert.severity} />
-                  <span
-                    style={{
-                      fontSize: 11,
-                      color: DARK_THEME.textFaint,
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.05em',
-                    }}
-                  >
-                    {alert.category}
-                  </span>
-                  <span
-                    style={{ fontSize: 11, color: DARK_THEME.textDisabled }}
-                  >
-                    · {timeAgo(alert.createdAt)}
-                  </span>
+      <div className="flex flex-col gap-3">
+        {alerts.map((alert) => {
+          const sev = SEVERITY[alert.severity];
+          return (
+            <Card key={alert.id} className={cn('border-l-2', sev.border)}>
+              <CardBody className="flex items-start justify-between gap-4">
+                <div className="flex-1">
+                  <div className="mb-1.5 flex items-center gap-2">
+                    <Badge intent={sev.intent} dot={false}>
+                      {sev.label}
+                    </Badge>
+                    <span className="font-body text-[11px] uppercase tracking-wide text-ink-faint">
+                      {alert.category}
+                    </span>
+                    <span className="font-body text-[11px] text-ink-faint">
+                      · {timeAgo(alert.createdAt)}
+                    </span>
+                  </div>
+                  <p className="font-body text-sm font-semibold text-ink">
+                    {alert.title}
+                  </p>
+                  <p className="mt-1 font-body text-sm leading-relaxed text-ink-muted">
+                    {alert.message}
+                  </p>
                 </div>
-                <div
-                  style={{
-                    fontSize: 14,
-                    fontWeight: 700,
-                    color: DARK_THEME.textSecondary,
-                    marginBottom: 4,
-                  }}
+                <Button
+                  intent="ghost"
+                  size="sm"
+                  onClick={() =>
+                    notify({ title: 'Resolver alerta...', intent: 'info' })
+                  }
                 >
-                  {alert.title}
-                </div>
-                <div
-                  style={{
-                    fontSize: 13,
-                    color: DARK_THEME.textMuted,
-                    lineHeight: 1.5,
-                  }}
-                >
-                  {alert.message}
-                </div>
-              </div>
-              <SmallButton
-                label="Resolver"
-                onClick={() =>
-                  notify({ title: 'Resolver alerta...', intent: 'info' })
-                }
-              />
-            </div>
-          </div>
-        ))}
+                  Resolver
+                </Button>
+              </CardBody>
+            </Card>
+          );
+        })}
       </div>
     </div>
   );
@@ -1128,99 +779,56 @@ function SlaTab({ data }: SlaTabProps) {
     100,
     (s.currentUptimePercent / s.slaTarget) * 100,
   );
+  const ringColor = s.isBreached
+    ? 'var(--color-danger)'
+    : 'var(--color-success)';
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+    <div className="flex flex-col gap-6">
       <SectionHeader
         title="SLA & Compliance"
         sub="Monitorização de acordos de nível de serviço e conformidade regulatória"
       />
 
-      {/* SLA Score */}
-      <div
-        style={{
-          background: s.isBreached
-            ? SLA_STATE_COLORS.breached.gradient
-            : SLA_STATE_COLORS.compliant.gradient,
-          border: `1px solid ${s.isBreached ? SLA_STATE_COLORS.breached.border : SLA_STATE_COLORS.compliant.border}`,
-          borderRadius: 12,
-          padding: '28px 32px',
-          display: 'flex',
-          alignItems: 'center',
-          gap: 32,
-        }}
-      >
+      {/* SLA score */}
+      <div className="flex items-center gap-8 rounded-panel border border-border bg-surface p-6">
         <div
+          className="flex h-24 w-24 shrink-0 items-center justify-center rounded-full"
           style={{
-            width: 96,
-            height: 96,
-            borderRadius: '50%',
-            background: `conic-gradient(${s.isBreached ? SLA_STATE_COLORS.breached.statusColor : SLA_STATE_COLORS.compliant.statusColor} ${complianceScore * 3.6}deg, ${DARK_THEME.bgGradientUnfilled} 0deg)`,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            position: 'relative',
+            background: `conic-gradient(${ringColor} ${complianceScore * 3.6}deg, var(--color-surface-sunken) 0deg)`,
           }}
         >
-          <div
-            style={{
-              width: 72,
-              height: 72,
-              borderRadius: '50%',
-              background: s.isBreached
-                ? SLA_STATE_COLORS.breached.bg
-                : SLA_STATE_COLORS.compliant.bg,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: 18,
-              fontWeight: 800,
-              color: s.isBreached
-                ? SLA_STATE_COLORS.breached.statusColor
-                : SLA_STATE_COLORS.compliant.statusColor,
-            }}
-          >
+          <div className="flex h-[72px] w-[72px] items-center justify-center rounded-full bg-surface font-display text-lg font-bold text-ink">
             {complianceScore.toFixed(0)}%
           </div>
         </div>
         <div>
-          <div
-            style={{
-              fontSize: 13,
-              color: DARK_THEME.textMuted,
-              marginBottom: 6,
-            }}
-          >
+          <p className="mb-1 font-body text-sm text-ink-muted">
             Conformidade SLA
-          </div>
-          <div
-            style={{
-              fontSize: 26,
-              fontWeight: 800,
-              color: s.isBreached
-                ? SLA_STATE_COLORS.breached.statusText
-                : SLA_STATE_COLORS.compliant.statusText,
-              marginBottom: 4,
-            }}
+          </p>
+          <p
+            className={cn(
+              'font-display text-2xl font-bold',
+              s.isBreached ? 'text-danger' : 'text-success',
+            )}
           >
-            {s.isBreached ? '⚠ SLA Violado' : '✓ SLA Cumprido'}
-          </div>
-          <div style={{ fontSize: 13, color: DARK_THEME.textTertiary }}>
+            {s.isBreached ? 'SLA Violado' : 'SLA Cumprido'}
+          </p>
+          <p className="mt-1 font-body text-sm text-ink-muted">
             Uptime actual:{' '}
-            <strong>{formatPercent(s.currentUptimePercent, 3)}</strong> · Meta:{' '}
-            <strong>{formatPercent(s.slaTarget, 1)}</strong>
-          </div>
+            <strong className="text-ink">
+              {formatPercent(s.currentUptimePercent, 3)}
+            </strong>{' '}
+            · Meta:{' '}
+            <strong className="text-ink">
+              {formatPercent(s.slaTarget, 1)}
+            </strong>
+          </p>
         </div>
       </div>
 
-      {/* Compliance Checklist */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(2, 1fr)',
-          gap: 12,
-        }}
-      >
+      {/* Compliance checklist */}
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         {[
           {
             label: 'LGPD (Lei Geral de Protecção de Dados)',
@@ -1253,43 +861,23 @@ function SlaTab({ data }: SlaTabProps) {
             desc: 'RPO: 60min · RTO: 4h',
           },
         ].map((item, i) => (
-          <div
-            key={i}
-            style={{
-              background: DARK_THEME.bgCard,
-              border: `1px solid ${DARK_THEME.borderPrimary}`,
-              borderRadius: 8,
-              padding: '14px 18px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 12,
-            }}
-          >
-            <span
-              style={{
-                fontSize: 16,
-                color: item.status
-                  ? STATUS_COLORS.ACTIVE
-                  : STATUS_COLORS.PENDING_AUTH,
-              }}
-            >
-              {item.status ? '✓' : '◌'}
-            </span>
-            <div>
-              <div
-                style={{
-                  fontSize: 13,
-                  fontWeight: 600,
-                  color: DARK_THEME.textSecondary,
-                }}
+          <Card key={i}>
+            <CardBody className="flex items-center justify-between gap-3">
+              <div>
+                <p className="font-body text-sm font-semibold text-ink">
+                  {item.label}
+                </p>
+                <p className="font-body text-xs text-ink-muted">{item.desc}</p>
+              </div>
+              <Badge
+                intent={item.status ? 'success' : 'warning'}
+                dot={false}
+                className="shrink-0"
               >
-                {item.label}
-              </div>
-              <div style={{ fontSize: 12, color: DARK_THEME.textMuted }}>
-                {item.desc}
-              </div>
-            </div>
-          </div>
+                {item.status ? 'Conforme' : 'Em curso'}
+              </Badge>
+            </CardBody>
+          </Card>
         ))}
       </div>
     </div>
@@ -1304,34 +892,25 @@ function UsersTab({ data }: UsersTabProps) {
   const notify = useToast();
   const { tenantInfo: t } = data;
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-        }}
-      >
+    <div className="flex flex-col gap-6">
+      <div className="flex items-center justify-between">
         <SectionHeader
           title="Gestão Massiva de Utilizadores"
           sub="Importação, segmentação e gestão de licenças em escala"
         />
-        <ActionButton
-          label="Importar CSV"
+        <Button
+          intent="secondary"
+          size="sm"
           onClick={() =>
             notify({ title: 'Modal de importação', intent: 'info' })
           }
-        />
+        >
+          Importar CSV
+        </Button>
       </div>
 
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(3, 1fr)',
-          gap: 12,
-        }}
-      >
-        <MetricCard
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <MetricTile
           label="Utilizadores Activos"
           value={t.activeUsersCount.toLocaleString()}
           sub={`de ${t.maxUsers.toLocaleString()} licenças`}
@@ -1339,396 +918,146 @@ function UsersTab({ data }: UsersTabProps) {
           barMax={100}
           barWarn={75}
           barDanger={90}
-          accent={METRIC_ACCENT_COLORS.users}
         />
-        <MetricCard
+        <MetricTile
           label="Licenças Disponíveis"
           value={(t.maxUsers - t.activeUsersCount).toLocaleString()}
-          accent={STATUS_COLORS.ACTIVE}
         />
-        <MetricCard
-          label="Plano Actual"
-          value={t.plan}
-          accent={STATUS_COLORS.PENDING_AUTH}
-        />
+        <MetricTile label="Plano Actual" value={t.plan} />
       </div>
 
       {/* Segmentation */}
-      <div
-        style={{
-          background: DARK_THEME.bgCard,
-          border: `1px solid ${DARK_THEME.borderPrimary}`,
-          borderRadius: 10,
-          padding: '20px 24px',
-        }}
-      >
-        <div
-          style={{
-            fontSize: 13,
-            color: METRIC_ACCENT_COLORS.users,
-            fontWeight: 700,
-            marginBottom: 16,
-            textTransform: 'uppercase',
-            letterSpacing: '0.06em',
-          }}
-        >
-          Segmentação Disponível
-        </div>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-          {[
-            'Departamento',
-            'Cargo',
-            'Localização',
-            'Senioridade',
-            'Unidade/Região',
-            'País',
-            'Gestor',
-          ].map((seg) => (
-            <span
-              key={seg}
-              style={{
-                background: DARK_THEME.bgAccentDark,
-                border: `1px solid ${DARK_THEME.borderAccent}`,
-                borderRadius: 20,
-                padding: '4px 14px',
-                fontSize: 12,
-                color: DARK_THEME.textHighlight,
-                fontWeight: 600,
-              }}
-            >
-              {seg}
-            </span>
-          ))}
-        </div>
-      </div>
+      <Card>
+        <CardBody>
+          <p className="mb-4 font-body text-xs font-semibold uppercase tracking-wide text-ink-muted">
+            Segmentação Disponível
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {[
+              'Departamento',
+              'Cargo',
+              'Localização',
+              'Senioridade',
+              'Unidade/Região',
+              'País',
+              'Gestor',
+            ].map((seg) => (
+              <span
+                key={seg}
+                className="rounded-pill bg-surface-sunken px-3 py-1 font-body text-xs font-medium text-ink-muted"
+              >
+                {seg}
+              </span>
+            ))}
+          </div>
+        </CardBody>
+      </Card>
 
       {/* Role grid */}
-      <div
-        style={{
-          background: DARK_THEME.bgCard,
-          border: `1px solid ${DARK_THEME.borderPrimary}`,
-          borderRadius: 10,
-          padding: '20px 24px',
-        }}
-      >
-        <div
-          style={{
-            fontSize: 13,
-            color: METRIC_ACCENT_COLORS.users,
-            fontWeight: 700,
-            marginBottom: 16,
-            textTransform: 'uppercase',
-            letterSpacing: '0.06em',
-          }}
-        >
-          Perfis de Acesso (RBAC)
-        </div>
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(3, 1fr)',
-            gap: 8,
-          }}
-        >
-          {[
-            {
-              role: 'Admin',
-              desc: 'Acesso total à plataforma',
-              color: ROLE_COLORS.admin,
-            },
-            {
-              role: 'RH',
-              desc: 'Gestão de utilizadores e relatórios',
-              color: ROLE_COLORS.rh,
-            },
-            {
-              role: 'Gestor',
-              desc: 'Equipa e relatórios de departamento',
-              color: ROLE_COLORS.manager,
-            },
-            {
-              role: 'Instrutor',
-              desc: 'Criação e gestão de conteúdo',
-              color: ROLE_COLORS.instructor,
-            },
-            {
-              role: 'Colaborador',
-              desc: 'Acesso a cursos e trilhas',
-              color: ROLE_COLORS.employee,
-            },
-            {
-              role: 'Auditor',
-              desc: 'Leitura de logs e compliance',
-              color: ROLE_COLORS.auditor,
-            },
-          ].map((r) => (
-            <div
-              key={r.role}
-              style={{
-                background: DARK_THEME.bgPrimary,
-                border: `1px solid ${r.color}22`,
-                borderLeft: `2px solid ${r.color}`,
-                borderRadius: 6,
-                padding: '10px 14px',
-              }}
-            >
+      <Card>
+        <CardBody>
+          <p className="mb-4 font-body text-xs font-semibold uppercase tracking-wide text-ink-muted">
+            Perfis de Acesso (RBAC)
+          </p>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {[
+              { role: 'Admin', desc: 'Acesso total à plataforma' },
+              { role: 'RH', desc: 'Gestão de utilizadores e relatórios' },
+              { role: 'Gestor', desc: 'Equipa e relatórios de departamento' },
+              { role: 'Instrutor', desc: 'Criação e gestão de conteúdo' },
+              { role: 'Colaborador', desc: 'Acesso a cursos e trilhas' },
+              { role: 'Auditor', desc: 'Leitura de logs e compliance' },
+            ].map((r) => (
               <div
-                style={{
-                  fontSize: 13,
-                  fontWeight: 700,
-                  color: r.color,
-                  marginBottom: 3,
-                }}
+                key={r.role}
+                className="rounded-card border border-border border-l-2 border-l-border-strong bg-surface p-3"
               >
-                {r.role}
+                <p className="font-body text-sm font-semibold text-ink">
+                  {r.role}
+                </p>
+                <p className="mt-0.5 font-body text-xs text-ink-faint">
+                  {r.desc}
+                </p>
               </div>
-              <div style={{ fontSize: 11, color: DARK_THEME.textFaint }}>
-                {r.desc}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+            ))}
+          </div>
+        </CardBody>
+      </Card>
     </div>
   );
 }
 
 function ContentTab() {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+    <div className="flex flex-col gap-6">
       <SectionHeader
         title="Conteúdo & CDN"
         sub="Distribuição global de vídeos, SCORM e PDFs com bitrate adaptativo"
       />
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(2, 1fr)',
-          gap: 16,
-        }}
-      >
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         {[
-          {
-            title: 'CDN Activo',
-            value: 'Cloudfront (AWS)',
-            icon: '▣',
-            active: true,
-          },
+          { title: 'CDN Activo', value: 'Cloudfront (AWS)', active: true },
           {
             title: 'Bitrate Adaptativo',
             value: '360p / 480p / 720p / 1080p',
-            icon: '⚡',
             active: true,
           },
           {
             title: 'Modo Offline',
             value: 'Mobile app — 30 dias de cache',
-            icon: '⬡',
             active: true,
           },
           {
             title: 'Compressão',
             value: 'Activada — GZIP/Brotli',
-            icon: '◈',
             active: true,
           },
           {
             title: 'Formatos Suportados',
             value: 'MP4, PDF, SCORM, xAPI',
-            icon: '◉',
             active: true,
           },
           {
             title: 'Tamanho Máx. Vídeo',
             value: '500 MB por ficheiro',
-            icon: '✦',
             active: false,
           },
         ].map((item) => (
-          <div
-            key={item.title}
-            style={{
-              background: DARK_THEME.bgCard,
-              border: `1px solid ${DARK_THEME.borderPrimary}`,
-              borderRadius: 10,
-              padding: '18px 20px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 16,
-            }}
-          >
-            <div
-              style={{
-                width: 42,
-                height: 42,
-                borderRadius: 8,
-                background: DARK_THEME.bgAccentDark,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: 18,
-                color: METRIC_ACCENT_COLORS.users,
-              }}
-            >
-              {item.icon}
-            </div>
-            <div>
-              <div
-                style={{
-                  fontSize: 13,
-                  color: DARK_THEME.textMuted,
-                  marginBottom: 4,
-                }}
-              >
-                {item.title}
+          <Card key={item.title}>
+            <CardBody className="flex items-center justify-between gap-3">
+              <div>
+                <p className="font-body text-xs text-ink-muted">{item.title}</p>
+                <p className="mt-0.5 font-body text-sm font-semibold text-ink">
+                  {item.value}
+                </p>
               </div>
-              <div
-                style={{
-                  fontSize: 14,
-                  fontWeight: 700,
-                  color: DARK_THEME.textSecondary,
-                }}
+              <Badge
+                intent={item.active ? 'success' : 'neutral'}
+                dot={false}
+                className="shrink-0"
               >
-                {item.value}
-              </div>
-            </div>
-            <div style={{ marginLeft: 'auto' }}>
-              <span
-                style={{
-                  fontSize: 11,
-                  fontWeight: 700,
-                  padding: '3px 10px',
-                  borderRadius: 12,
-                  background: item.active
-                    ? DARK_THEME.bgSuccess
-                    : DARK_THEME.bgTertiary,
-                  color: item.active
-                    ? METRIC_ACCENT_COLORS.activeToggle
-                    : DARK_THEME.textSubtle,
-                }}
-              >
-                {item.active ? 'ON' : 'OFF'}
-              </span>
-            </div>
-          </div>
+                {item.active ? 'Activo' : 'Inactivo'}
+              </Badge>
+            </CardBody>
+          </Card>
         ))}
       </div>
     </div>
   );
 }
 
-// ─── SHARED MICRO-COMPONENTS ──────────────────────────────
+// ─── TABS CONFIG ──────────────────────────────────────────
 
-interface SectionHeaderProps {
-  title: string;
-  sub: string;
-}
-
-function SectionHeader({ title, sub }: SectionHeaderProps) {
-  return (
-    <div>
-      <h2
-        style={{
-          margin: 0,
-          fontSize: 18,
-          fontWeight: 800,
-          color: DARK_THEME.textPrimary,
-          letterSpacing: '-0.01em',
-        }}
-      >
-        {title}
-      </h2>
-      <p
-        style={{ margin: '4px 0 0', fontSize: 13, color: DARK_THEME.textFaint }}
-      >
-        {sub}
-      </p>
-    </div>
-  );
-}
-
-interface ActionButtonProps {
-  label: string;
-  onClick: () => void;
-}
-
-function ActionButton({ label, onClick }: ActionButtonProps) {
-  return (
-    <button
-      onClick={onClick}
-      className="px-[18px] py-[9px] text-sm font-semibold rounded-control"
-      style={{
-        background: METRIC_ACCENT_COLORS.users,
-        color: DARK_THEME.textWhite,
-        letterSpacing: '0.02em',
-      }}
-    >
-      {label}
-    </button>
-  );
-}
-
-interface SmallButtonProps {
-  label: string;
-  onClick: () => void;
-  variant?: 'primary' | 'ghost';
-}
-
-function SmallButton({
-  label,
-  onClick,
-  variant = 'primary',
-}: SmallButtonProps) {
-  return (
-    <button
-      onClick={onClick}
-      className="px-3 py-1 rounded-control text-xs font-semibold whitespace-nowrap border"
-      style={
-        variant === 'ghost'
-          ? {
-              background: 'transparent',
-              borderColor: DARK_THEME.borderPrimary,
-              color: DARK_THEME.textSubtle,
-            }
-          : {
-              background: DARK_THEME.bgAccentDark,
-              borderColor: DARK_THEME.borderAccent,
-              color: DARK_THEME.textHighlight,
-            }
-      }
-    >
-      {label}
-    </button>
-  );
-}
-
-interface FilterChipProps {
-  label: string;
-  active?: boolean;
-}
-
-function FilterChip({ label, active }: FilterChipProps) {
-  return (
-    <button
-      className="px-[14px] py-1 rounded-pill text-xs font-semibold border"
-      style={
-        active
-          ? {
-              background: DARK_THEME.bgAccentDark,
-              borderColor: DARK_THEME.borderAccent,
-              color: DARK_THEME.textHighlight,
-            }
-          : {
-              background: 'transparent',
-              borderColor: DARK_THEME.borderPrimary,
-              color: DARK_THEME.textFaint,
-            }
-      }
-    >
-      {label}
-    </button>
-  );
-}
+const TABS = [
+  { id: 'overview', label: 'Visão Geral' },
+  { id: 'performance', label: 'Performance' },
+  { id: 'integrations', label: 'Integrações' },
+  { id: 'automations', label: 'Automações' },
+  { id: 'alerts', label: 'Alertas' },
+  { id: 'sla', label: 'SLA & Compliance' },
+  { id: 'users', label: 'Utilizadores' },
+  { id: 'content', label: 'Conteúdo & CDN' },
+] as const;
 
 // ─── DASHBOARD VIEW (apresentacional — sem estado, sem fetch) ──────────────
 
@@ -1753,228 +1082,94 @@ export function ScalabilityDashboardView({
   lastRefresh,
   onRefresh,
 }: ScalabilityDashboardViewProps) {
-  const renderTab = () => {
-    switch (activeTab) {
-      case 'overview':
-        return <OverviewTab data={dashboard} />;
-      case 'performance':
-        return <PerformanceTab data={dashboard} />;
-      case 'integrations':
-        return <IntegrationsTab integrations={integrations} />;
-      case 'automations':
-        return <AutomationsTab rules={automations} />;
-      case 'alerts':
-        return <AlertsTab alerts={alerts} />;
-      case 'sla':
-        return <SlaTab data={dashboard} />;
-      case 'users':
-        return <UsersTab data={dashboard} />;
-      case 'content':
-        return <ContentTab />;
-      default:
-        return null;
-    }
-  };
-
   const openAlertCount = alerts.filter((a) => !a.isResolved).length;
   const criticalCount = alerts.filter(
     (a) => !a.isResolved && a.severity === 'CRITICAL',
   ).length;
 
   return (
-    <div
-      style={{
-        minHeight: '100vh',
-        background: DARK_THEME.bgPrimary,
-        fontFamily: "'DM Sans', 'Segoe UI', system-ui, sans-serif",
-        color: DARK_THEME.textPrimary,
-      }}
-    >
-      {/* Font import */}
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap');
-        * { box-sizing: border-box; }
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: ${DARK_THEME.scrollbarBg}; }
-        ::-webkit-scrollbar-thumb { background: ${DARK_THEME.scrollbarThumb}; border-radius: 3px; }
-      `}</style>
-
-      {/* Top Header */}
-      <div
-        style={{
-          borderBottom: `1px solid ${DARK_THEME.borderPrimary}`,
-          padding: '16px 32px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          background: DARK_THEME.bgPrimary,
-          position: 'sticky',
-          top: 0,
-          zIndex: 100,
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-          <div
-            style={{
-              width: 36,
-              height: 36,
-              borderRadius: 8,
-              background: DARK_THEME.bgGradientTablet,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: 16,
-              fontWeight: 900,
-              color: DARK_THEME.textWhite,
-            }}
-          >
-            I
+    <div className="min-h-screen bg-canvas">
+      {/* Header */}
+      <div className="border-b border-border bg-surface px-6 py-5">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <h1 className="font-display text-xl font-bold text-ink">
+              Escalabilidade
+            </h1>
+            {criticalCount > 0 && (
+              <Badge intent="danger">
+                {criticalCount} Alerta{criticalCount > 1 ? 's' : ''} Crítico
+                {criticalCount > 1 ? 's' : ''}
+              </Badge>
+            )}
           </div>
-          <div>
-            <div
-              style={{
-                fontSize: 16,
-                fontWeight: 800,
-                color: DARK_THEME.textPrimary,
-                letterSpacing: '-0.01em',
-              }}
-            >
-              INNOVA
-            </div>
-            <div
-              style={{
-                fontSize: 11,
-                color: DARK_THEME.textFaint,
-                fontWeight: 500,
-                letterSpacing: '0.08em',
-                textTransform: 'uppercase',
-              }}
-            >
-              Módulo de Escalabilidade
-            </div>
+          <div className="flex items-center gap-3">
+            <span className="font-body text-xs text-ink-faint">
+              Actualizado:{' '}
+              {lastRefresh.toLocaleTimeString('pt-PT', {
+                hour: '2-digit',
+                minute: '2-digit',
+              })}
+            </span>
+            <Button intent="secondary" size="sm" onClick={onRefresh}>
+              Actualizar
+            </Button>
           </div>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-          {criticalCount > 0 && (
-            <div
-              style={{
-                background: SLA_STATE_COLORS.breached.bg,
-                border: `1px solid ${SLA_STATE_COLORS.breached.border}66`,
-                borderRadius: 20,
-                padding: '4px 12px',
-                fontSize: 12,
-                fontWeight: 700,
-                color: SLA_STATE_COLORS.breached.statusText,
-                display: 'flex',
-                alignItems: 'center',
-                gap: 6,
-              }}
-            >
-              <span
-                style={{
-                  width: 7,
-                  height: 7,
-                  borderRadius: '50%',
-                  background: STATUS_COLORS.ERROR,
-                  display: 'inline-block',
-                }}
-              />
-              {criticalCount} Alerta{criticalCount > 1 ? 's' : ''} Crítico
-              {criticalCount > 1 ? 's' : ''}
-            </div>
-          )}
-          <div style={{ fontSize: 12, color: DARK_THEME.textDisabled }}>
-            Actualizado:{' '}
-            {lastRefresh.toLocaleTimeString('pt-PT', {
-              hour: '2-digit',
-              minute: '2-digit',
-            })}
-          </div>
-          <button
-            onClick={onRefresh}
-            style={{
-              background: DARK_THEME.bgCard,
-              border: `1px solid ${DARK_THEME.borderPrimary}`,
-              borderRadius: 6,
-              padding: '7px 14px',
-              fontSize: 12,
-              fontWeight: 600,
-              color: DARK_THEME.textMuted,
-              cursor: 'pointer',
-            }}
-          >
-            ⟳ Actualizar
-          </button>
+      </div>
+
+      {/* Tabs */}
+      <Tabs value={activeTab} onValueChange={onTabChange}>
+        <div className="border-b border-border bg-surface px-6">
+          <TabsList className="mx-auto max-w-7xl gap-4 overflow-x-auto border-b-0">
+            {TABS.map((tab) => (
+              <TabsTrigger
+                key={tab.id}
+                value={tab.id}
+                className="whitespace-nowrap"
+              >
+                {tab.label}
+                {tab.id === 'alerts' && openAlertCount > 0 && (
+                  <Badge
+                    intent={criticalCount > 0 ? 'danger' : 'warning'}
+                    dot={false}
+                    className="ml-1.5 px-1.5 py-0"
+                  >
+                    {openAlertCount}
+                  </Badge>
+                )}
+              </TabsTrigger>
+            ))}
+          </TabsList>
         </div>
-      </div>
 
-      {/* Tab Navigation */}
-      <div
-        style={{
-          borderBottom: `1px solid ${DARK_THEME.borderPrimary}`,
-          padding: '0 32px',
-          display: 'flex',
-          gap: 4,
-          overflowX: 'auto',
-          background: DARK_THEME.bgSecondary,
-        }}
-      >
-        {TABS.map((tab) => {
-          const isActive = activeTab === tab.id;
-          const hasAlert = tab.id === 'alerts' && openAlertCount > 0;
-          return (
-            <button
-              key={tab.id}
-              onClick={() => onTabChange(tab.id)}
-              style={{
-                background: 'none',
-                border: 'none',
-                padding: '14px 18px',
-                fontSize: 13,
-                fontWeight: isActive ? 700 : 500,
-                color: isActive
-                  ? DARK_THEME.textHighlight
-                  : DARK_THEME.textFaint,
-                cursor: 'pointer',
-                borderBottom: `2px solid ${isActive ? METRIC_ACCENT_COLORS.users : 'transparent'}`,
-                whiteSpace: 'nowrap',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 6,
-                transition: 'color 0.15s',
-              }}
-            >
-              <span style={{ fontSize: 12 }}>{tab.icon}</span>
-              {tab.label}
-              {hasAlert && (
-                <span
-                  style={{
-                    background:
-                      criticalCount > 0
-                        ? SLA_STATE_COLORS.breached.bg
-                        : DARK_THEME.bgWarningDark,
-                    color:
-                      criticalCount > 0
-                        ? SLA_STATE_COLORS.breached.statusText
-                        : DARK_THEME.textWarningLight,
-                    fontSize: 10,
-                    fontWeight: 800,
-                    padding: '1px 6px',
-                    borderRadius: 10,
-                  }}
-                >
-                  {openAlertCount}
-                </span>
-              )}
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Page Content */}
-      <div style={{ padding: '32px', maxWidth: 1280, margin: '0 auto' }}>
-        {renderTab()}
-      </div>
+        <div className="mx-auto max-w-7xl px-6 py-6">
+          <TabsContent value="overview">
+            <OverviewTab data={dashboard} />
+          </TabsContent>
+          <TabsContent value="performance">
+            <PerformanceTab data={dashboard} />
+          </TabsContent>
+          <TabsContent value="integrations">
+            <IntegrationsTab integrations={integrations} />
+          </TabsContent>
+          <TabsContent value="automations">
+            <AutomationsTab rules={automations} />
+          </TabsContent>
+          <TabsContent value="alerts">
+            <AlertsTab alerts={alerts} />
+          </TabsContent>
+          <TabsContent value="sla">
+            <SlaTab data={dashboard} />
+          </TabsContent>
+          <TabsContent value="users">
+            <UsersTab data={dashboard} />
+          </TabsContent>
+          <TabsContent value="content">
+            <ContentTab />
+          </TabsContent>
+        </div>
+      </Tabs>
     </div>
   );
 }
