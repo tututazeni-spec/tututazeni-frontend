@@ -1,6 +1,6 @@
 // components/audit/TimelineView.tsx
-// Vista "Timeline": histórico de eventos de um recurso específico
-// (entidade + ID). Extraído de app/(platform)/audit/page.tsx.
+// Vista "Linha de Tempo": histórico de eventos de um recurso
+// específico (entidade + ID). Extraído de app/(platform)/audit/page.tsx.
 
 'use client';
 
@@ -10,7 +10,7 @@ import { apiClient } from '@/lib/apiClient';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { QueryError } from '@/components/ui/QueryError';
-import { SEVERITY_CFG, ACTION_ICONS } from './constants';
+import { SEVERITY_CFG, ACTION_LABELS } from './constants';
 import { fmtTs } from './utils';
 import { DiffViewer } from './DiffViewer';
 import type { Severity, Timeline } from './types';
@@ -49,15 +49,15 @@ export function TimelineView() {
           className="w-24"
         />
         <Button onClick={load} disabled={loading || !entity || !entityId}>
-          {loading ? '…' : 'Ver timeline'}
+          {loading ? '…' : 'Ver linha de tempo'}
         </Button>
       </div>
 
       {data && (
         <div>
           <div className="mb-4 font-body text-sm font-semibold text-ink">
-            Timeline: {data.entity} #{data.entityId} — {data.events.length}{' '}
-            eventos
+            Linha de tempo: {data.entity} #{data.entityId} —{' '}
+            {data.events.length} eventos
           </div>
           <div className="relative">
             <div className="absolute bottom-0 left-4 top-0 w-0.5 bg-border" />
@@ -75,16 +75,13 @@ export function TimelineView() {
                     >
                       <div className="mb-1 flex items-center justify-between gap-2">
                         <div className="flex items-center gap-2">
-                          <span className="text-sm">
-                            {ACTION_ICONS[e.action] ?? '📋'}
-                          </span>
                           <span className="font-body text-sm font-medium text-ink">
-                            {e.action}
+                            {ACTION_LABELS[e.action] ?? e.action}
                           </span>
                           <span
                             className={`font-body text-xs font-medium ${sevCfg.cls}`}
                           >
-                            {e.severity}
+                            {sevCfg.label}
                           </span>
                         </div>
                         <span className="font-body text-xs text-ink-faint">
@@ -112,7 +109,7 @@ export function TimelineView() {
 
       {!data && !loading && !loadTimeline.isError && (
         <div className="rounded-card border border-dashed border-border-strong py-12 text-center font-body text-sm text-ink-faint">
-          Introduz uma entidade e ID para ver a timeline completa
+          Introduz uma entidade e ID para ver a linha de tempo completa
         </div>
       )}
     </div>

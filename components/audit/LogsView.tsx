@@ -20,7 +20,7 @@ import {
   TableHeaderCell,
   TableRow,
 } from '@/components/ui/Table';
-import { ACTION_ICONS } from './constants';
+import { ACTION_LABELS, SEVERITY_CFG, STATUS_CFG } from './constants';
 import { LogRow } from './LogRow';
 import type { AuditLog } from './types';
 
@@ -38,14 +38,14 @@ const ACTION_ITEMS = [
       'REJECT',
       'DENIED',
     ] as const
-  ).map((a) => ({ value: a, label: `${ACTION_ICONS[a]} ${a}` })),
+  ).map((a) => ({ value: a, label: ACTION_LABELS[a] ?? a })),
 ];
 
 const SEVERITY_ITEMS = [
   { value: 'ALL', label: 'Severidade' },
   ...(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'] as const).map((s) => ({
     value: s,
-    label: s,
+    label: SEVERITY_CFG[s].label,
   })),
 ];
 
@@ -53,7 +53,7 @@ const STATUS_ITEMS = [
   { value: 'ALL', label: 'Estado' },
   ...(['SUCCESS', 'FAILED', 'DENIED'] as const).map((s) => ({
     value: s,
-    label: s,
+    label: STATUS_CFG[s].label,
   })),
 ];
 

@@ -20,9 +20,6 @@ export default function AuditPage() {
           <h1 className="font-display text-xl font-semibold text-ink">
             {TITLES[view]}
           </h1>
-          <p className="mt-0.5 font-body text-sm text-ink-faint">
-            INNOVA — Rastreabilidade e Compliance
-          </p>
         </div>
       </div>
 
