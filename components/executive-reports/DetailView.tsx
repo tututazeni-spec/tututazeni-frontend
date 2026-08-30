@@ -34,20 +34,29 @@ interface DetailViewProps {
 const NARRATIVE_BLOCKS = [
   {
     key: 'achievements',
-    label: '🏆 Conquistas do período',
-    cls: 'bg-success-subtle border-success/30',
+    label: 'Conquistas do período',
+    cls: 'bg-surface border-ink',
   },
   {
     key: 'risks',
-    label: '⚠️ Riscos identificados',
-    cls: 'bg-danger-subtle border-danger/30',
+    label: 'Riscos identificados',
+    cls: 'bg-surface border-ink',
   },
   {
     key: 'recommendations',
-    label: '💡 Recomendações',
-    cls: 'bg-info-subtle border-info/30',
+    label: 'Recomendações',
+    cls: 'bg-surface border-ink',
   },
 ] as const;
+
+// Rótulos PT-PT do nível de confidencialidade (enum ReportConfidentiality
+// devolvido em inglês pelo backend). Traduz-se só na apresentação.
+const CONFIDENTIALITY_LABEL: Record<string, string> = {
+  PUBLIC: 'PÚBLICO',
+  INTERNAL: 'INTERNO',
+  CONFIDENTIAL: 'CONFIDENCIAL',
+  RESTRICTED: 'RESTRITO',
+};
 
 export function DetailView({ reportId, onBack, onDeleted }: DetailViewProps) {
   const notify = useToast();
@@ -136,7 +145,9 @@ export function DetailView({ reportId, onBack, onDeleted }: DetailViewProps) {
               </span>
               <StatusBadge value={report.status} map={STATUS_CFG} />
               <span className="flex items-center gap-1 font-body text-xs text-ink-faint">
-                <Lock size={12} strokeWidth={1.75} /> {report.confidentiality}
+                <Lock size={12} strokeWidth={1.75} />{' '}
+                {CONFIDENTIALITY_LABEL[report.confidentiality] ??
+                  report.confidentiality}
               </span>
             </div>
             <h1 className="font-display text-xl font-bold text-ink">
@@ -201,16 +212,10 @@ export function DetailView({ reportId, onBack, onDeleted }: DetailViewProps) {
           <div className="font-body text-xs font-medium text-ink-muted">
             Estado dos KPIs:
           </div>
-          <div className="flex gap-3 font-body text-xs">
-            <span className="flex items-center gap-1 text-success-ink">
-              🟢 {greenKpis} no target
-            </span>
-            <span className="flex items-center gap-1 text-warning-ink">
-              🟡 {yellowKpis} atenção
-            </span>
-            <span className="flex items-center gap-1 text-danger-ink">
-              🔴 {redKpis} crítico
-            </span>
+          <div className="flex gap-3 font-body text-xs text-ink">
+            <span>{greenKpis} no target</span>
+            <span>{yellowKpis} atenção</span>
+            <span>{redKpis} crítico</span>
           </div>
         </div>
       </Card>
@@ -221,9 +226,9 @@ export function DetailView({ reportId, onBack, onDeleted }: DetailViewProps) {
         onValueChange={(v) => setActiveTab(v as typeof activeTab)}
       >
         <TabsList className="mb-5 w-fit">
-          <TabsTrigger value="kpis">📊 KPIs</TabsTrigger>
-          <TabsTrigger value="narrative">📝 Narrativa</TabsTrigger>
-          <TabsTrigger value="actions">🎯 Plano de Acção</TabsTrigger>
+          <TabsTrigger value="kpis">KPIs</TabsTrigger>
+          <TabsTrigger value="narrative">Narrativa</TabsTrigger>
+          <TabsTrigger value="actions">Plano de Acção</TabsTrigger>
         </TabsList>
 
         <TabsContent value="kpis">
