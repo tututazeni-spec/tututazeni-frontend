@@ -96,9 +96,7 @@ export function TabSeguranca({ onToast }: TabSegurancaProps) {
       {/* Alterar senha */}
       <Card>
         <CardBody>
-          <h3 className="mb-5 text-base font-bold text-ink">
-            🔑 Alterar Senha
-          </h3>
+          <h3 className="mb-5 text-base font-bold text-ink">Alterar Senha</h3>
           <form onSubmit={submit} className="space-y-4">
             <div>
               <div className="relative">
@@ -161,7 +159,9 @@ export function TabSeguranca({ onToast }: TabSegurancaProps) {
                       />
                     ))}
                   </div>
-                  <span className={cn('text-xs font-semibold', strColorClass[str])}>
+                  <span
+                    className={cn('text-xs font-semibold', strColorClass[str])}
+                  >
                     {strLabel[str]}
                   </span>
                 </div>
@@ -206,7 +206,7 @@ export function TabSeguranca({ onToast }: TabSegurancaProps) {
       <Card>
         <CardBody>
           <h3 className="mb-4 text-base font-bold text-ink">
-            🛡️ Dicas de Segurança
+            Dicas de Segurança
           </h3>
           <div className="space-y-3">
             {[
@@ -233,9 +233,6 @@ export function TabSeguranca({ onToast }: TabSegurancaProps) {
                     : 'bg-surface-sunken border-border',
                 )}
               >
-                <span className="text-sm">
-                  {pw && tip.ok ? '✅' : '⬜'}
-                </span>
                 <span
                   className={cn(
                     'text-sm',
@@ -250,8 +247,8 @@ export function TabSeguranca({ onToast }: TabSegurancaProps) {
 
           <div className="mt-5 p-4 bg-warning-subtle border border-warning rounded-lg">
             <p className="m-0 text-xs text-warning-ink font-semibold">
-              ⚠️ O token de acesso expira em 15 minutos. Serás redirecionado
-              para o login automaticamente.
+              O token de acesso expira em 15 minutos. Serás redirecionado para o
+              login automaticamente.
             </p>
           </div>
         </CardBody>

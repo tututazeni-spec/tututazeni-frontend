@@ -28,11 +28,9 @@ export function TabPerfil({ user }: TabPerfilProps) {
               </h2>
               <p className="mt-1 text-sm text-ink-muted">{user.email}</p>
               <div className="flex gap-2 mt-3 flex-wrap">
-                {user.role && (
-                  <Badge intent="info">{user.role.name}</Badge>
-                )}
+                {user.role && <Badge intent="info">{user.role.name}</Badge>}
                 <Badge intent={user.active ? 'success' : 'danger'}>
-                  {user.active ? '● Activo' : '● Inactivo'}
+                  {user.active ? 'Activo' : 'Inactivo'}
                 </Badge>
               </div>
             </div>
@@ -41,7 +39,7 @@ export function TabPerfil({ user }: TabPerfilProps) {
                 Pontos
               </p>
               <p className="mt-1 text-3xl font-bold text-accent">
-                 {user.points?.points?.toLocaleString('pt-PT') ?? 0}
+                {user.points?.points?.toLocaleString('pt-PT') ?? 0}
               </p>
             </div>
           </div>
@@ -60,7 +58,7 @@ export function TabPerfil({ user }: TabPerfilProps) {
       <Card>
         <CardBody>
           <h3 className="mb-4 text-sm font-bold text-ink">
-            📋 Informação Organizacional
+            Informação Organizacional
           </h3>
           <div className="space-y-3">
             {[
@@ -96,7 +94,7 @@ export function TabPerfil({ user }: TabPerfilProps) {
       <Card>
         <CardBody>
           <h3 className="mb-4 text-sm font-bold text-ink">
-             Distintivos Recentes
+            Distintivos Recentes
           </h3>
           {!user.badgeAwards?.length ? (
             <p className="text-ink-faint text-sm text-center py-5">
