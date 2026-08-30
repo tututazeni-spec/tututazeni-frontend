@@ -6,6 +6,7 @@ import { CatalogView } from '@/components/courses/CatalogView';
 import { CertificatesView } from '@/components/courses/CertificatesView';
 import { NAV, TITLES } from '@/components/courses/constants';
 import { CourseDetail } from '@/components/courses/CourseDetail';
+import { CreateCourseModal } from '@/components/courses/CreateCourseModal';
 import { MyEnrollmentsView } from '@/components/courses/MyEnrollmentsView';
 import type { Nav } from '@/components/courses/types';
 import { Button } from '@/components/ui/Button';
@@ -14,6 +15,7 @@ import { useToast } from '@/providers/ToastProvider';
 export default function CoursesPage() {
   const notify = useToast();
   const [nav, setNav] = useState<Nav>({ view: 'catalog' });
+  const [showCreate, setShowCreate] = useState(false);
 
   const handleSelect = (id: number) =>
     setNav({ view: 'detail', selectedId: id });
@@ -25,20 +27,10 @@ export default function CoursesPage() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-xl font-semibold text-ink">{TITLES[nav.view]}</h1>
-          <p className="text-sm text-ink-faint mt-0.5">
-          </p>
+          <p className="text-sm text-ink-faint mt-0.5"></p>
         </div>
         {nav.view === 'catalog' && (
-          <Button
-            onClick={() =>
-              notify({
-                title: 'Abrir formulário de criação de curso',
-                intent: 'info',
-              })
-            }
-          >
-            + Criar curso
-          </Button>
+          <Button onClick={() => setShowCreate(true)}>+ Criar curso</Button>
         )}
       </div>
 
@@ -71,6 +63,18 @@ export default function CoursesPage() {
       {nav.view === 'certificates' && <CertificatesView />}
       {nav.view === 'dashboard' && (
         <AdminDashboardView onSelect={handleSelect} />
+      )}
+
+      {showCreate && (
+        <CreateCourseModal
+          onClose={() => setShowCreate(false)}
+          onSuccess={() =>
+            notify({
+              title: 'Curso criado como rascunho. Vê-o na aba Dashboard.',
+              intent: 'success',
+            })
+          }
+        />
       )}
     </div>
   );
