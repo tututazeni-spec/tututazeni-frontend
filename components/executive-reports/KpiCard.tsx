@@ -4,8 +4,6 @@
 
 'use client';
 
-import { cn } from '@/lib/cn';
-import { KPI_STATUS } from './constants';
 import type { Metric } from './types';
 
 interface KpiCardProps {
@@ -13,7 +11,6 @@ interface KpiCardProps {
 }
 
 export function KpiCard({ metric }: KpiCardProps) {
-  const statusCfg = metric.status ? KPI_STATUS[metric.status] : null;
   const variation =
     metric.previousValue && metric.previousValue !== 0
       ? Math.round(
@@ -22,26 +19,13 @@ export function KpiCard({ metric }: KpiCardProps) {
       : null;
 
   return (
-    <div
-      className={cn(
-        'rounded-card border p-4',
-        statusCfg ? `${statusCfg.bg} border-transparent` : 'bg-surface-sunken border-border',
-      )}
-    >
+    <div className="rounded-card border border-border bg-surface p-4">
       <div className="mb-1 flex items-start justify-between gap-2">
-        <div className="font-body text-xs leading-tight text-ink-muted">
+        <div className="font-body text-xs leading-tight text-ink">
           {metric.label}
         </div>
-        {statusCfg && (
-          <span className="flex-shrink-0 text-sm">{statusCfg.icon}</span>
-        )}
       </div>
-      <div
-        className={cn(
-          'font-mono text-2xl font-bold',
-          statusCfg?.color ?? 'text-ink',
-        )}
-      >
+      <div className="font-mono text-2xl font-bold text-ink">
         {metric.value.toLocaleString('pt-PT')}
         {metric.unit && (
           <span className="ml-1 font-body text-base font-normal text-ink-faint">
@@ -51,12 +35,7 @@ export function KpiCard({ metric }: KpiCardProps) {
       </div>
       <div className="mt-1 flex items-center justify-between">
         {variation !== null && (
-          <span
-            className={cn(
-              'font-body text-xs font-medium',
-              variation >= 0 ? 'text-success' : 'text-danger',
-            )}
-          >
+          <span className="font-body text-xs font-medium text-ink">
             {variation >= 0 ? '↑' : '↓'} {Math.abs(variation)}% vs anterior
           </span>
         )}
