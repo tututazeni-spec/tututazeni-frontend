@@ -9,6 +9,7 @@ import { keepPreviousData } from '@tanstack/react-query';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
+import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Select } from '@/components/ui/Select';
@@ -105,6 +106,9 @@ export function ListView({ onSelect, onGenerate }: ListViewProps) {
         <span className="ml-auto font-body text-xs text-ink-faint">
           {data?.total ?? 0} relatórios
         </span>
+        <Button size="sm" onClick={onGenerate}>
+          Gerar relatório
+        </Button>
       </div>
 
       {/* Grid */}
