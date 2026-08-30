@@ -4,20 +4,13 @@
 
 'use client';
 
-import { BarChart2 } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { cn } from '@/lib/cn';
 import { Card, CardBody } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Skeleton } from '@/components/ui/Skeleton';
 import type { ProgramsData } from './types';
-
-function roiColor(roi: number | undefined) {
-  const v = roi ?? 0;
-  return v >= 100 ? 'text-success-ink' : v >= 0 ? 'text-warning-ink' : 'text-danger-ink';
-}
 
 export function ProgramsTab() {
   const { data, isLoading: loading } = useApiQuery<ProgramsData>(
@@ -45,15 +38,13 @@ export function ProgramsTab() {
         </Card>
         <Card>
           <CardBody className="text-center">
-            <p className={cn('font-display text-2xl font-bold', roiColor(data?.avgRoi))}>
-              {data?.avgRoi ?? 0}%
-            </p>
+            <p className="font-display text-2xl font-bold text-ink">{data?.avgRoi ?? 0}%</p>
             <p className="font-body text-xs text-ink-faint">ROI Médio</p>
           </CardBody>
         </Card>
         <Card>
           <CardBody className="text-center">
-            <p className="font-display text-2xl font-bold text-accent">{data?.topByRoi?.length ?? 0}</p>
+            <p className="font-display text-2xl font-bold text-ink">{data?.topByRoi?.length ?? 0}</p>
             <p className="font-body text-xs text-ink-faint">Acima de 100% ROI</p>
           </CardBody>
         </Card>
@@ -76,14 +67,13 @@ export function ProgramsTab() {
                 </p>
               </div>
               <div className="shrink-0 text-right">
-                <p className={cn('font-body text-sm font-bold', roiColor(p.roi))}>{p.roi}%</p>
-                <p className="font-body text-[10px] text-ink-faint">BCR: {p.bcr}</p>
+                <p className="font-body text-sm font-bold text-ink">{p.roi}%</p>
+                <p className="font-body text-[10px] text-ink-faint">Rácio Benefício-Custo: {p.bcr}</p>
               </div>
             </div>
           ))}
           {(data?.programs?.length ?? 0) === 0 && (
             <EmptyState
-              icon={BarChart2}
               title="Sem dados de programas"
               description="Não há dados de programas disponíveis para o período seleccionado."
               className="border-none"

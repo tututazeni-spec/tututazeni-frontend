@@ -43,7 +43,7 @@ export function SimulatorTab() {
               onChange={(e) => setTargetRate(+e.target.value)}
               className="flex-1 accent-primary"
             />
-            <span className="w-14 text-right font-display text-xl font-bold text-accent">
+            <span className="w-14 text-right font-display text-xl font-bold text-ink">
               {targetRate}%
             </span>
           </div>

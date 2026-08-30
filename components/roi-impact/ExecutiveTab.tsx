@@ -4,7 +4,6 @@
 
 'use client';
 
-import { AlertTriangle } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -15,22 +14,14 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { CONFIDENCE_INTENTS, CONFIDENCE_LABELS, fmt$, ptInsight } from './utils';
 import type { ExecutiveData } from './types';
 
-const HERO_INTENT_CLASSES = {
-  success: 'bg-success',
-  warning: 'bg-warning',
-  danger: 'bg-danger',
-} as const;
-
 const ALERT_INTENT_CLASSES = {
   danger: {
     card: 'border-danger bg-danger-subtle',
-    icon: 'text-danger',
-    text: 'text-danger-ink',
+    text: 'text-ink',
   },
   warning: {
     card: 'border-warning bg-warning-subtle',
-    icon: 'text-warning',
-    text: 'text-warning-ink',
+    text: 'text-ink',
   },
 } as const;
 
@@ -51,8 +42,6 @@ export function ExecutiveTab() {
 
   const h = data?.headline ?? {};
   const d = data?.domains ?? {};
-  const heroIntent =
-    (h.overallRoi ?? 0) >= 100 ? 'success' : (h.overallRoi ?? 0) >= 0 ? 'warning' : 'danger';
 
   const domains: {
     label: string;
@@ -79,15 +68,15 @@ export function ExecutiveTab() {
   return (
     <div className="space-y-6">
       {/* ROI Hero */}
-      <div className={cn('rounded-panel p-6 text-canvas', HERO_INTENT_CLASSES[heroIntent])}>
+      <div className="rounded-panel border border-border bg-surface p-6 text-ink">
         <div className="mb-4 flex items-start justify-between">
           <div>
-            <p className="mb-1 font-body text-sm text-canvas/70">
+            <p className="mb-1 font-body text-sm text-ink-muted">
               ROI Total do Investimento em Pessoas
             </p>
             <p className="font-display text-6xl font-black">{h.overallRoi ?? 0}%</p>
-            <p className="mt-1 font-body text-sm text-canvas/80">
-              BCR:{' '}
+            <p className="mt-1 font-body text-sm text-ink-muted">
+              Rácio Benefício-Custo:{' '}
               {(h.totalCost ?? 0) > 0
                 ? ((h.totalBenefit ?? 0) / (h.totalCost ?? 1)).toFixed(2)
                 : '–'}{' '}
@@ -95,15 +84,15 @@ export function ExecutiveTab() {
             </p>
           </div>
           <div className="text-right">
-            <p className="mb-1 font-body text-xs text-canvas/70">Benefício Total</p>
+            <p className="mb-1 font-body text-xs text-ink-muted">Benefício Total</p>
             <p className="font-display text-3xl font-bold">{fmt$(h.totalBenefit ?? 0)}</p>
-            <p className="mt-1 font-body text-xs text-canvas/70">
+            <p className="mt-1 font-body text-xs text-ink-muted">
               Custo: {fmt$(h.totalCost ?? 0)}
             </p>
           </div>
         </div>
         {h.narrative && (
-          <p className="rounded-card bg-canvas/10 px-4 py-3 font-body text-sm leading-relaxed text-canvas/90">
+          <p className="rounded-card bg-ink/5 px-4 py-3 font-body text-sm leading-relaxed text-ink">
             {ptInsight(h.narrative)}
           </p>
         )}
@@ -130,9 +119,8 @@ export function ExecutiveTab() {
             return (
               <div
                 key={i}
-                className={cn('flex items-center gap-3 rounded-card border px-4 py-3', cfg.card)}
+                className={cn('rounded-card border px-4 py-3', cfg.card)}
               >
-                <AlertTriangle size={14} strokeWidth={1.75} className={cfg.icon} />
                 <p className={cn('font-body text-sm', cfg.text)}>{ptInsight(a.message)}</p>
               </div>
             );
@@ -142,7 +130,7 @@ export function ExecutiveTab() {
 
       {/* Top insights */}
       {(data?.topInsights ?? []).length > 0 && (
-        <div className="rounded-card border border-accent-subtle bg-accent-subtle p-5">
+        <div className="rounded-card border border-border bg-surface p-5">
           <h4 className="mb-3 font-display font-semibold text-ink">
             Principais conclusões autómaticos
           </h4>

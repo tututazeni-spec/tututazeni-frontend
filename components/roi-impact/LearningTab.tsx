@@ -7,7 +7,6 @@
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { cn } from '@/lib/cn';
 import { Card, CardBody } from '@/components/ui/Card';
 import { KpiCard } from '@/components/ui/KpiCard';
 import { Skeleton } from '@/components/ui/Skeleton';
@@ -36,8 +35,8 @@ export function LearningTab() {
 
   const financials: { label: string; value: string; positive: boolean }[] = [
     { label: 'Custo Total', value: fmt$(f.costEstimated ?? 0), positive: false },
-    { label: 'Benefício Est.', value: fmt$(f.benefitEstimated ?? 0), positive: true },
-    { label: 'Benefício Líq.', value: fmt$(netBenefit), positive: netBenefit >= 0 },
+    { label: 'Benefício Estimado.', value: fmt$(f.benefitEstimated ?? 0), positive: true },
+    { label: 'Benefício Líquido.', value: fmt$(netBenefit), positive: netBenefit >= 0 },
   ];
 
   return (
@@ -75,14 +74,7 @@ export function LearningTab() {
           <div className="grid grid-cols-3 gap-4">
             {financials.map((item) => (
               <div key={item.label} className="rounded-card bg-surface-sunken p-3 text-center">
-                <p
-                  className={cn(
-                    'font-display text-2xl font-bold',
-                    item.positive ? 'text-success-ink' : 'text-danger-ink',
-                  )}
-                >
-                  {item.value}
-                </p>
+                <p className="font-display text-2xl font-bold text-ink">{item.value}</p>
                 <p className="mt-0.5 font-body text-xs text-ink-muted">{item.label}</p>
               </div>
             ))}
@@ -103,7 +95,7 @@ export function LearningTab() {
                     <p className="truncate font-body text-xs font-medium text-ink">{c.course?.title}</p>
                     <p className="font-body text-[10px] text-ink-faint">{c.course?.category}</p>
                   </div>
-                  <span className="font-body text-xs font-bold text-success-ink">
+                  <span className="font-body text-xs font-bold text-ink">
                     {c.completions} conclusões
                   </span>
                 </div>
