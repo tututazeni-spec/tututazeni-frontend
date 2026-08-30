@@ -47,7 +47,11 @@ export default function ExecutiveReportsPage() {
         />
       )}
       {nav.view === 'detail' && (
-        <DetailView reportId={nav.selectedId} onBack={handleBack} />
+        <DetailView
+          reportId={nav.selectedId}
+          onBack={handleBack}
+          onDeleted={() => setNav({ view: 'generate' })}
+        />
       )}
       {nav.view === 'generate' && <GenerateView onSuccess={handleGenerated} />}
     </div>
