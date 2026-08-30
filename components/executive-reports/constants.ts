@@ -48,6 +48,25 @@ export const KPI_STATUS: Record<
   RED: { ...TOKEN.danger, icon: '🔴' },
 };
 
+// Rótulos PT-PT das secções de template devolvidas pelo backend em inglês
+// (executive-reports.service.ts#getTemplates). Mantém-se a chave inglesa
+// como fonte e traduz-se só na apresentação — mesmo padrão de SEV_LABEL/
+// TYPE_LABEL usado nos insights de reports.
+export const SECTION_LABEL: Record<string, string> = {
+  headcount: 'Efectivos',
+  learning_week: 'Semana de formação',
+  alerts: 'Alertas',
+  people: 'Pessoas',
+  learning: 'Formação',
+  pdi: 'PDI',
+  performance: 'Desempenho',
+  executive_summary: 'Sumário executivo',
+  roi: 'ROI',
+  succession: 'Sucessão',
+  diversity: 'Diversidade',
+  benchmark: 'Benchmark',
+};
+
 export const TITLES: Record<View, string> = {
   list: 'Relatórios Executivos',
   detail: 'Detalhe do Relatório',
