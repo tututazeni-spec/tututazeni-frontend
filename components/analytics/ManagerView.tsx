@@ -60,30 +60,30 @@ export function ManagerView() {
           label="Equipa"
           value={metrics.headcount}
           intent="primary"
-          className="w-full"
+          className="w-full [&_p]:text-black"
         />
         <KpiCard
           label="PDIs activos"
           value={`${metrics.pdiAdoptionRate}%`}
           sub="adopção"
           intent="info"
-          className="w-full"
+          className="w-full [&_p]:text-black"
         />
         <KpiCard
           label="Conclusão cursos"
           value={`${metrics.completionRate}%`}
           intent="success"
-          className="w-full"
+          className="w-full [&_p]:text-black"
         />
         <KpiCard
           label="Desempenho Médio"
           value={metrics.avgPerformance}
           intent="warning"
-          className="w-full"
+          className="w-full [&_p]:text-black"
         />
       </div>
       {metrics.overdueActions > 0 && (
-        <div className="rounded-control border border-danger/30 bg-danger-subtle px-4 py-2.5 text-sm text-danger-ink">
+        <div className="rounded-control border border-danger/30 bg-danger-subtle px-4 py-2.5 text-sm text-black">
           {metrics.overdueActions} acções de PDI atrasadas na equipa
         </div>
       )}
@@ -158,10 +158,10 @@ export function ManagerView() {
                     <div className="flex-1">
                       <ProgressBar value={Math.min(g.avgGap * 20, 100)} />
                     </div>
-                    <div className="text-xs font-data text-danger flex-shrink-0 w-12 text-right">
+                    <div className="text-xs font-data text-black flex-shrink-0 w-12 text-right">
                       Gap: {g.avgGap}
                     </div>
-                    <div className="text-xs text-ink-faint flex-shrink-0">
+                    <div className="text-xs text-black flex-shrink-0">
                       {g.count} pessoas
                     </div>
                   </div>
