@@ -10,7 +10,6 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import { GraduationCap } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -68,7 +67,6 @@ export function MyEnrollmentsView({ onSelect }: MyEnrollmentsViewProps) {
 
       {filtered.length === 0 ? (
         <EmptyState
-          icon={GraduationCap}
           title="Sem matrículas encontradas"
           description="Inscreve-te num curso do catálogo para começares a aprender."
         />
