@@ -141,7 +141,7 @@ export function DetailView({ reportId, onBack, onDeleted }: DetailViewProps) {
                   typeCfg.color,
                 )}
               >
-                {typeCfg.icon} {typeCfg.label}
+                {typeCfg.label}
               </span>
               <StatusBadge value={report.status} map={STATUS_CFG} />
               <span className="flex items-center gap-1 font-body text-xs text-ink-faint">

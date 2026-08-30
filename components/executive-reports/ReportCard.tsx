@@ -45,7 +45,7 @@ export function ReportCard({ report, onClick }: ReportCardProps) {
                 typeCfg.color,
               )}
             >
-              {typeCfg.icon} {typeCfg.label}
+              {typeCfg.label}
             </span>
             <StatusBadge value={report.status} map={STATUS_CFG} />
             {report.confidentiality === 'CONFIDENTIAL' && (

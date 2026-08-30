@@ -21,14 +21,14 @@ const TOKEN = {
 
 export const TYPE_CFG: Record<
   ReportType,
-  { label: string; icon: string; color: string; bg: string }
+  { label: string; color: string; bg: string }
 > = {
-  FLASH: { label: 'Flash (Semanal)', icon: '⚡', ...TOKEN.warning },
-  MONTHLY: { label: 'Mensal', icon: '📅', ...TOKEN.info },
-  QUARTERLY: { label: 'Trimestral', icon: '📊', ...TOKEN.primary },
-  ANNUAL: { label: 'Anual', icon: '📈', ...TOKEN.success },
-  CUSTOM: { label: 'Personalizado', icon: '✏️', ...TOKEN.neutral },
-  AUDIT: { label: 'Auditoria', icon: '🔍', ...TOKEN.danger },
+  FLASH: { label: 'Flash (Semanal)', ...TOKEN.warning },
+  MONTHLY: { label: 'Mensal', ...TOKEN.info },
+  QUARTERLY: { label: 'Trimestral', ...TOKEN.primary },
+  ANNUAL: { label: 'Anual', ...TOKEN.success },
+  CUSTOM: { label: 'Personalizado', ...TOKEN.neutral },
+  AUDIT: { label: 'Auditoria', ...TOKEN.danger },
 };
 
 export const STATUS_CFG: StatusBadgeMap<ReportStatus> = {
