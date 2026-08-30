@@ -13,13 +13,18 @@ import { Plus } from 'lucide-react';
 import { InsightsTab } from '@/components/reports/InsightsTab';
 import { ReportHub } from '@/components/reports/ReportHub';
 import { ReportViewer } from '@/components/reports/ReportViewer';
+import { SaveReportModal } from '@/components/reports/SaveReportModal';
+import { SavedReportsTab } from '@/components/reports/SavedReportsTab';
 import { TABS } from '@/components/reports/constants';
 import { Button } from '@/components/ui/Button';
+import { useToast } from '@/providers/ToastProvider';
 import type { Tab, Template } from '@/components/reports/types';
 
 export default function ReportsPage() {
+  const notify = useToast();
   const [tab, setTab] = useState<Tab>('hub');
   const [activeTemplate, setActiveTemplate] = useState<Template | null>(null);
+  const [showSave, setShowSave] = useState(false);
 
   const handleRun = (t: Template) => {
     setActiveTemplate(t);
@@ -35,7 +40,7 @@ export default function ReportsPage() {
               Relatórios
             </h1>
           </div>
-          <Button size="sm">
+          <Button size="sm" onClick={() => setShowSave(true)}>
             <Plus size={14} strokeWidth={1.75} />
             Criar Relatório
           </Button>
@@ -73,10 +78,25 @@ export default function ReportsPage() {
           <ReportViewer template={activeTemplate} onBack={handleBack} />
         ) : tab === 'hub' ? (
           <ReportHub onRun={handleRun} />
+        ) : tab === 'saved' ? (
+          <SavedReportsTab
+            onOpen={handleRun}
+            onCreate={() => setShowSave(true)}
+          />
         ) : (
           <InsightsTab />
         )}
       </div>
+
+      {showSave && (
+        <SaveReportModal
+          onClose={() => setShowSave(false)}
+          onSuccess={() => {
+            notify({ title: 'Relatório guardado.', intent: 'success' });
+            setTab('saved');
+          }}
+        />
+      )}
     </div>
   );
 }

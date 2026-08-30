@@ -13,7 +13,24 @@ export type Tab =
   | 'talent'
   | 'engagement'
   | 'compliance'
-  | 'insights';
+  | 'insights'
+  | 'saved';
+
+// Relatório personalizado guardado pelo utilizador (POST/GET /reports/saved).
+// Espelha o modelo SavedReport do Prisma; `params` é um JSON string dos
+// filtros guardados (ex: '{"from":"2026-01-01","to":"2026-01-31"}').
+export interface SavedReport {
+  id: number;
+  name: string;
+  description?: string | null;
+  category: string;
+  reportKey: string;
+  params: string;
+  isTemplate: boolean;
+  favourite: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
 
 export interface Template {
   id: string;

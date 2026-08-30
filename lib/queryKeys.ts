@@ -129,7 +129,8 @@ export const queryKeys = {
     list: (params: Record<string, unknown>) =>
       [...queryKeys.departments.all, 'list', params] as const,
     tree: () => [...queryKeys.departments.all, 'tree'] as const,
-    detail: (id: number) => [...queryKeys.departments.all, 'detail', id] as const,
+    detail: (id: number) =>
+      [...queryKeys.departments.all, 'detail', id] as const,
     metrics: (id: number) =>
       [...queryKeys.departments.all, 'metrics', id] as const,
     comparative: () => [...queryKeys.departments.all, 'comparative'] as const,
@@ -162,8 +163,10 @@ export const queryKeys = {
     overview: () => [...queryKeys.dashboardRh.all, 'overview'] as const,
     alerts: () => [...queryKeys.dashboardRh.all, 'alerts'] as const,
     headcount: () => [...queryKeys.dashboardRh.all, 'headcount'] as const,
-    headcountTrend: () => [...queryKeys.dashboardRh.all, 'headcount-trend'] as const,
-    anniversaries: () => [...queryKeys.dashboardRh.all, 'anniversaries'] as const,
+    headcountTrend: () =>
+      [...queryKeys.dashboardRh.all, 'headcount-trend'] as const,
+    anniversaries: () =>
+      [...queryKeys.dashboardRh.all, 'anniversaries'] as const,
     performance: () => [...queryKeys.dashboardRh.all, 'performance'] as const,
     training: () => [...queryKeys.dashboardRh.all, 'training'] as const,
     correlations: () => [...queryKeys.dashboardRh.all, 'correlations'] as const,
@@ -192,7 +195,8 @@ export const queryKeys = {
   performance: {
     all: ['performance'] as const,
     my: () => [...queryKeys.performance.all, 'my'] as const,
-    currentCycle: () => [...queryKeys.performance.all, 'current-cycle'] as const,
+    currentCycle: () =>
+      [...queryKeys.performance.all, 'current-cycle'] as const,
     team: () => [...queryKeys.performance.all, 'team'] as const,
     nineBox: () => [...queryKeys.performance.all, '9box'] as const,
     analytics: () => [...queryKeys.performance.all, 'analytics'] as const,
@@ -201,7 +205,8 @@ export const queryKeys = {
   leader: {
     all: ['leader'] as const,
     dashboard: () => [...queryKeys.leader.all, 'dashboard'] as const,
-    recommendations: () => [...queryKeys.leader.all, 'recommendations'] as const,
+    recommendations: () =>
+      [...queryKeys.leader.all, 'recommendations'] as const,
     team: () => [...queryKeys.leader.all, 'team'] as const,
     pipeline: () => [...queryKeys.leader.all, 'pipeline'] as const,
     plans: () => [...queryKeys.leader.all, 'plans'] as const,
@@ -220,7 +225,8 @@ export const queryKeys = {
     all: ['roles-permissions'] as const,
     roles: () => [...queryKeys.rolesPermissions.all, 'roles'] as const,
     matrix: () => [...queryKeys.rolesPermissions.all, 'matrix'] as const,
-    governance: () => [...queryKeys.rolesPermissions.all, 'governance'] as const,
+    governance: () =>
+      [...queryKeys.rolesPermissions.all, 'governance'] as const,
   },
 
   apiIntegrations: {
@@ -240,6 +246,7 @@ export const queryKeys = {
   reports: {
     all: ['reports'] as const,
     templates: () => [...queryKeys.reports.all, 'templates'] as const,
+    saved: () => [...queryKeys.reports.all, 'saved'] as const,
     insights: (params: Record<string, unknown>) =>
       [...queryKeys.reports.all, 'insights', params] as const,
     view: (reportKey: string, params: Record<string, unknown>) =>
@@ -327,7 +334,8 @@ export const queryKeys = {
     trending: () => [...queryKeys.knowledge.all, 'trending'] as const,
     list: (params: Record<string, unknown>) =>
       [...queryKeys.knowledge.all, 'list', params] as const,
-    article: (id: number) => [...queryKeys.knowledge.all, 'article', id] as const,
+    article: (id: number) =>
+      [...queryKeys.knowledge.all, 'article', id] as const,
     adminDashboard: () =>
       [...queryKeys.knowledge.all, 'admin-dashboard'] as const,
   },
@@ -352,7 +360,8 @@ export const queryKeys = {
 
   monitoring: {
     all: ['monitoring'] as const,
-    myEvaluations: () => [...queryKeys.monitoring.all, 'my-evaluations'] as const,
+    myEvaluations: () =>
+      [...queryKeys.monitoring.all, 'my-evaluations'] as const,
     evaluationsToComplete: () =>
       [...queryKeys.monitoring.all, 'evaluations-to-complete'] as const,
     indicators: (params: Record<string, unknown>) =>
@@ -395,7 +404,8 @@ export const queryKeys = {
     all: ['notifications'] as const,
     my: (params: Record<string, unknown>) =>
       [...queryKeys.notifications.all, 'my', params] as const,
-    unreadCount: () => [...queryKeys.notifications.all, 'unread-count'] as const,
+    unreadCount: () =>
+      [...queryKeys.notifications.all, 'unread-count'] as const,
     preferences: () => [...queryKeys.notifications.all, 'preferences'] as const,
     stats: () => [...queryKeys.notifications.all, 'stats'] as const,
   },
@@ -404,8 +414,7 @@ export const queryKeys = {
     all: ['processes'] as const,
     library: (params: Record<string, unknown>) =>
       [...queryKeys.processes.all, 'library', params] as const,
-    detail: (id: number) =>
-      [...queryKeys.processes.all, 'detail', id] as const,
+    detail: (id: number) => [...queryKeys.processes.all, 'detail', id] as const,
     instance: (id: number) =>
       [...queryKeys.processes.all, 'instance', id] as const,
     myTasks: () => [...queryKeys.processes.all, 'my-tasks'] as const,
@@ -429,7 +438,8 @@ export const queryKeys = {
   leadership: {
     all: ['leadership'] as const,
     myDashboard: () => [...queryKeys.leadership.all, 'my-dashboard'] as const,
-    teamDashboard: () => [...queryKeys.leadership.all, 'team-dashboard'] as const,
+    teamDashboard: () =>
+      [...queryKeys.leadership.all, 'team-dashboard'] as const,
     programs: (filter: string) =>
       [...queryKeys.leadership.all, 'programs', filter] as const,
     feedback360Summary: () =>
@@ -510,7 +520,8 @@ export const queryKeys = {
     workPending: () => [...queryKeys.declarations.all, 'work-pending'] as const,
     workSubmissions: () =>
       [...queryKeys.declarations.all, 'work-submissions'] as const,
-    docDashboard: () => [...queryKeys.declarations.all, 'doc-dashboard'] as const,
+    docDashboard: () =>
+      [...queryKeys.declarations.all, 'doc-dashboard'] as const,
     workDashboard: () =>
       [...queryKeys.declarations.all, 'work-dashboard'] as const,
   },
@@ -549,7 +560,8 @@ export const queryKeys = {
 
   contentLibrary: {
     all: ['content-library'] as const,
-    recommended: () => [...queryKeys.contentLibrary.all, 'recommended'] as const,
+    recommended: () =>
+      [...queryKeys.contentLibrary.all, 'recommended'] as const,
     trending: () => [...queryKeys.contentLibrary.all, 'trending'] as const,
     new: () => [...queryKeys.contentLibrary.all, 'new'] as const,
     continueWatching: () =>
@@ -574,8 +586,7 @@ export const queryKeys = {
       [...queryKeys.avatarTraining.all, 'scenarios', params] as const,
     leaderboard: () =>
       [...queryKeys.avatarTraining.all, 'leaderboard'] as const,
-    analytics: () =>
-      [...queryKeys.avatarTraining.all, 'analytics'] as const,
+    analytics: () => [...queryKeys.avatarTraining.all, 'analytics'] as const,
   },
 
   engagement: {
@@ -614,7 +625,9 @@ export const queryKeys = {
       [...queryKeys.courses.all, 'progress', id] as const,
     categories: () => [...queryKeys.courses.all, 'categories'] as const,
     myEnrollments: () => [...queryKeys.courses.all, 'my-enrollments'] as const,
-    myCertificates: () => [...queryKeys.courses.all, 'my-certificates'] as const,
-    adminDashboard: () => [...queryKeys.courses.all, 'admin-dashboard'] as const,
+    myCertificates: () =>
+      [...queryKeys.courses.all, 'my-certificates'] as const,
+    adminDashboard: () =>
+      [...queryKeys.courses.all, 'admin-dashboard'] as const,
   },
 } as const;
