@@ -233,7 +233,6 @@ export function TabSeguranca({ onToast }: TabSegurancaProps) {
                     : 'bg-surface-sunken border-border',
                 )}
               >
-                <span className="text-sm">{pw && tip.ok ? '✅' : '⬜'}</span>
                 <span
                   className={cn(
                     'text-sm',

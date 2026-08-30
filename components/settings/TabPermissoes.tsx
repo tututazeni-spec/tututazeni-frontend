@@ -66,7 +66,7 @@ export function TabPermissoes({ user }: TabPermissoesProps) {
               <div className="flex flex-wrap gap-2">
                 {perms.map((p) => (
                   <Badge key={p} intent="info">
-                    ✓ {p}
+                    {p}
                   </Badge>
                 ))}
               </div>

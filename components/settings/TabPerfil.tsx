@@ -30,7 +30,7 @@ export function TabPerfil({ user }: TabPerfilProps) {
               <div className="flex gap-2 mt-3 flex-wrap">
                 {user.role && <Badge intent="info">{user.role.name}</Badge>}
                 <Badge intent={user.active ? 'success' : 'danger'}>
-                  {user.active ? '● Activo' : '● Inactivo'}
+                  {user.active ? 'Activo' : 'Inactivo'}
                 </Badge>
               </div>
             </div>
