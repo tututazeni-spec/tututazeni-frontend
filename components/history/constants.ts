@@ -98,12 +98,17 @@ export const AUDIT_ACTION_LABEL: Record<string, string> = {
   REPORT_SAVED: 'Relatório guardado',
   LOGIN: 'Início de sessão',
   LOGOUT: 'Fim de sessão',
+  CREATE: 'Criar',
+  PUBLISH: 'Publicar',
+  CALIBRATE: 'Calibrar',
+  SUBMIT: 'Submeter',
+  SAVE_DRAFT: 'Guardar rascunho',
 };
 
 /** Rótulo PT de uma acção de auditoria, com fallback genérico legível. */
 export function formatAuditAction(action: string): string {
   if (!action) return '–';
-  const key = action.toUpperCase();
+  const key = action.toUpperCase().replace(/[\s-]+/g, '_');
   if (AUDIT_ACTION_LABEL[key]) return AUDIT_ACTION_LABEL[key];
   const pretty = key.replace(/_/g, ' ').toLowerCase();
   return pretty.charAt(0).toUpperCase() + pretty.slice(1);
