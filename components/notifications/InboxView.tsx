@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { CATEGORY_CFG, Skeleton } from './shared';
-import type { NotifData, Notification, Priority } from './types';
+import type { NotifData, Notification } from './types';
 import type { ReadFilter } from '@/hooks/useNotificationsInbox';
 
 function timeAgo(d: string): string {
@@ -23,16 +23,6 @@ function timeAgo(d: string): string {
   const days = Math.floor(h / 24);
   return `há ${days} dias`;
 }
-
-const PRIORITY_CFG: Record<
-  Priority,
-  { icon: string; cls: string; border: string }
-> = {
-  LOW: { icon: '○', cls: 'text-ink-faint', border: 'border-border' },
-  MEDIUM: { icon: '●', cls: 'text-info', border: 'border-info-subtle' },
-  HIGH: { icon: '▲', cls: 'text-warning', border: 'border-warning-subtle' },
-  CRITICAL: { icon: '🔴', cls: 'text-danger', border: 'border-danger' },
-};
 
 const READ_FILTERS: Array<{ id: ReadFilter; label: string }> = [
   { id: 'all', label: 'Todas' },
@@ -47,20 +37,14 @@ interface NotifItemProps {
 }
 
 function NotifItem({ notif, onRead, onArchive }: NotifItemProps) {
-  const priorityCfg = PRIORITY_CFG[notif.priority] ?? PRIORITY_CFG.MEDIUM;
   const catCfg = notif.category ? CATEGORY_CFG[notif.category] : null;
 
   return (
     <div
       className={`group flex items-start gap-3 border-b border-border px-4 py-3.5 transition-colors last:border-0 hover:bg-surface-sunken ${
         !notif.read ? 'bg-primary-subtle/40' : ''
-      } ${notif.priority === 'CRITICAL' ? 'border-l-4 border-l-danger' : ''}`}
+      }`}
     >
-      {/* Priority indicator */}
-      <div className={`mt-1 flex-shrink-0 text-sm ${priorityCfg.cls}`}>
-        {priorityCfg.icon}
-      </div>
-
       {/* Content */}
       <div className="min-w-0 flex-1">
         <div className="flex items-start justify-between gap-2">
