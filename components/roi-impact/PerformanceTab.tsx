@@ -14,7 +14,7 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { Badge } from '@/components/ui/Badge';
 import { KpiCard } from '@/components/ui/KpiCard';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { CONFIDENCE_INTENTS, CONFIDENCE_LABELS, fmt$, ptInsight } from './utils';
+import { CONFIDENCE_LABELS, fmt$, ptInsight } from './utils';
 import type { PerformanceData } from './types';
 
 export function PerformanceTab() {
@@ -50,7 +50,7 @@ export function PerformanceTab() {
           className="w-full"
         />
         <KpiCard
-          label="Benefício Est."
+          label="Benefício Estimado."
           value={fmt$(data?.monetised?.productivityBenefit ?? 0)}
           intent="success"
           className="w-full"
@@ -81,7 +81,7 @@ export function PerformanceTab() {
       )}
       {data?.confidence && CONFIDENCE_LABELS[data.confidence] && (
         <div className="text-center">
-          <Badge intent={CONFIDENCE_INTENTS[data.confidence]} className="text-ink">
+          <Badge intent="neutral" dot={false} className="text-ink">
             {CONFIDENCE_LABELS[data.confidence]}
           </Badge>
         </div>

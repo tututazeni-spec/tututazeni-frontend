@@ -4,11 +4,9 @@
 
 'use client';
 
-import { CheckCircle, DollarSign, TrendingDown, Users } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { cn } from '@/lib/cn';
 import { Card, CardBody } from '@/components/ui/Card';
 import { KpiCard } from '@/components/ui/KpiCard';
 import { Skeleton } from '@/components/ui/Skeleton';
@@ -30,15 +28,11 @@ export function RetentionTab() {
       />
     );
 
-  const turnoverColor = (val: number) =>
-    val <= 10 ? 'text-success-ink' : val <= 15 ? 'text-warning-ink' : 'text-danger-ink';
-
   return (
     <div className="space-y-5">
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-        <KpiCard icon={Users} label="Activos" value={data?.headcount?.active ?? 0} className="w-full" />
+        <KpiCard label="Activos" value={data?.headcount?.active ?? 0} className="w-full" />
         <KpiCard
-          icon={TrendingDown}
           label="Rotatividade"
           value={`${data?.turnoverRate ?? 0}%`}
           trend={data?.turnoverTrend}
@@ -46,14 +40,12 @@ export function RetentionTab() {
           className="w-full"
         />
         <KpiCard
-          icon={CheckCircle}
           label="Retenção"
           value={`${data?.retentionRate ?? 0}%`}
           intent="success"
           className="w-full"
         />
         <KpiCard
-          icon={DollarSign}
           label="Economia Gerada"
           value={fmt$(data?.savedValue ?? 0)}
           sub={`${data?.saved ?? 0} saídas evitadas`}
@@ -72,21 +64,14 @@ export function RetentionTab() {
               { label: 'Período Actual', value: data?.turnoverRate ?? 0 },
             ].map((item) => (
               <div key={item.label} className="rounded-card bg-surface-sunken p-4 text-center">
-                <p className={cn('font-display text-3xl font-bold', turnoverColor(item.value))}>
-                  {item.value}%
-                </p>
+                <p className="font-display text-3xl font-bold text-ink">{item.value}%</p>
                 <p className="mt-0.5 font-body text-xs text-ink-muted">{item.label}</p>
               </div>
             ))}
           </div>
           {data?.turnoverTrend !== undefined && (
             <div className="mt-3 text-center">
-              <span
-                className={cn(
-                  'font-body text-sm font-bold',
-                  data.turnoverTrend < 0 ? 'text-success-ink' : 'text-danger-ink',
-                )}
-              >
+              <span className="font-body text-sm font-bold text-ink">
                 {data.turnoverTrend < 0 ? '↓' : '↑'} {Math.abs(data.turnoverTrend).toFixed(1)}pts
               </span>
               <span className="ml-2 font-body text-xs text-ink-faint">vs. período anterior</span>

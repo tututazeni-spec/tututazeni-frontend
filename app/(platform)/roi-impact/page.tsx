@@ -7,7 +7,7 @@
 // page.tsx usa para as suas tabs). Ver memory
 // project_innova_component_separation_audit.
 
-import { BookOpen, Briefcase, GraduationCap, Star, Users } from 'lucide-react';
+import { BookOpen, Briefcase, Calculator, GraduationCap, Star, Users } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { ExecutiveTab } from '@/components/roi-impact/ExecutiveTab';
 import { LearningTab } from '@/components/roi-impact/LearningTab';
@@ -23,7 +23,7 @@ const TABS: { id: Tab; label: string; icon: LucideIcon | null }[] = [
   { id: 'learning', label: 'Aprendizagem', icon: BookOpen },
   { id: 'retention', label: 'Retenção', icon: Users },
   { id: 'performance', label: 'Performance', icon: Star },
-  { id: 'simulator', label: 'Simulador', icon: null },
+  { id: 'simulator', label: 'Simulador', icon: Calculator },
   { id: 'programs', label: 'Programas', icon: GraduationCap },
 ];
 
