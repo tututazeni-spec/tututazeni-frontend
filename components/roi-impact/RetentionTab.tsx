@@ -1,6 +1,6 @@
 // components/roi-impact/RetentionTab.tsx
-// Tab "Retenção": headcount, turnover, economia gerada e evolução do
-// turnover. Extraído de app/(platform)/roi-impact/page.tsx.
+// Tab "Retenção": headcount, rotatividade, economia gerada e evolução da
+// rotatividade. Extraído de app/(platform)/roi-impact/page.tsx.
 
 'use client';
 
@@ -12,7 +12,7 @@ import { cn } from '@/lib/cn';
 import { Card, CardBody } from '@/components/ui/Card';
 import { KpiCard } from '@/components/ui/KpiCard';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { fmt$ } from './utils';
+import { fmt$, ptInsight } from './utils';
 import type { RetentionData } from './types';
 
 export function RetentionTab() {
@@ -39,7 +39,7 @@ export function RetentionTab() {
         <KpiCard icon={Users} label="Activos" value={data?.headcount?.active ?? 0} className="w-full" />
         <KpiCard
           icon={TrendingDown}
-          label="Turnover"
+          label="Rotatividade"
           value={`${data?.turnoverRate ?? 0}%`}
           trend={data?.turnoverTrend}
           intent="danger"
@@ -65,7 +65,7 @@ export function RetentionTab() {
       {/* Turnover comparison */}
       <Card>
         <CardBody className="p-5">
-          <h4 className="mb-4 font-display font-semibold text-ink">Evolução do Turnover</h4>
+          <h4 className="mb-4 font-display font-semibold text-ink">Evolução da Rotatividade</h4>
           <div className="grid grid-cols-2 gap-4">
             {[
               { label: 'Período Anterior', value: data?.prevTurnoverRate ?? 0 },
@@ -98,8 +98,8 @@ export function RetentionTab() {
       {(data?.insights ?? []).length > 0 && (
         <div className="rounded-card border border-accent-subtle bg-accent-subtle p-4">
           {(data?.insights ?? []).map((ins, i) => (
-            <p key={i} className="font-body text-xs text-accent">
-              {ins}
+            <p key={i} className="font-body text-xs text-ink">
+              {ptInsight(ins)}
             </p>
           ))}
         </div>

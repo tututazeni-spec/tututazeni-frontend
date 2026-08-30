@@ -5,13 +5,12 @@
 'use client';
 
 import { useState } from 'react';
-import { Brain } from 'lucide-react';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { cn } from '@/lib/cn';
 import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
-import { fmt$ } from './utils';
+import { fmt$, ptInsight } from './utils';
 import type { SimulateResult } from './types';
 
 export function SimulatorTab() {
@@ -31,9 +30,8 @@ export function SimulatorTab() {
     <div className="space-y-5">
       <Card>
         <CardBody className="p-5">
-          <h4 className="mb-4 flex items-center gap-2 font-display font-semibold text-ink">
-            <Brain size={16} strokeWidth={1.75} className="text-accent" />
-            Simulador What-If — Impacto de Taxa de Conclusão
+          <h4 className="mb-4 font-display font-semibold text-ink">
+            Simulador de Cenários — Impacto de Taxa de Conclusão
           </h4>
           <div className="mb-4 flex items-center gap-4">
             <label className="shrink-0 font-body text-sm text-ink-muted">Meta de Conclusão:</label>
@@ -59,7 +57,7 @@ export function SimulatorTab() {
         <div className="space-y-4">
           {/* Narrative */}
           <div className="rounded-card border border-accent-subtle bg-accent-subtle p-5">
-            <p className="font-body text-sm leading-relaxed text-accent">💡 {result.narrative}</p>
+            <p className="font-body text-sm leading-relaxed text-ink">{ptInsight(result.narrative)}</p>
           </div>
 
           {/* Comparison */}
