@@ -43,7 +43,7 @@ export function useCourseDetail(courseId: number) {
   // Auto-selecciona a 1ª aula incompleta quando o progresso chega.
   useEffect(() => {
     if (!progress || activeLesson) return;
-    for (const mod of progress.modules) {
+    for (const mod of progress.modules ?? []) {
       const pending = mod.lessons.find((l: Lesson) => !l.completed);
       if (pending) {
         setActiveLesson(pending);
@@ -98,7 +98,7 @@ export function useCourseDetail(courseId: number) {
   };
 
   const isEnrolled = !!progress?.enrollment;
-  const progressPct = progress?.courseProgress.pct ?? 0;
+  const progressPct = progress?.courseProgress?.pct ?? 0;
 
   return {
     course,
