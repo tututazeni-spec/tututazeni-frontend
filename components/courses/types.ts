@@ -57,14 +57,20 @@ export interface CourseModule {
 // Usados só por CourseDetail (hooks/useCourseDetail.ts +
 // components/courses/CourseDetailView.tsx).
 
+// `courseProgress` e `modules` são opcionais de propósito: o endpoint
+// GET /courses/:id/progress já foi visto a devolver um objecto parcial
+// (só `enrollment`), e um `progress?.courseProgress.pct` — em que o `?.`
+// só cobre `progress` nulo — rebentava com "reading 'pct' of undefined".
+// Todos os consumidores têm de tratar a ausência (ver useCourseDetail /
+// CourseDetailView).
 export interface CourseProgress {
   enrollment: { id: number; status: EnrollmentStatus; deadline: string | null };
-  courseProgress: {
+  courseProgress?: {
     totalLessons: number;
     completedLessons: number;
     pct: number;
   };
-  modules: CourseModule[];
+  modules?: CourseModule[];
 }
 
 export interface CourseDetailModule {

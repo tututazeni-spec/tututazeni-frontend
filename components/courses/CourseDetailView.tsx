@@ -154,8 +154,8 @@ export function CourseDetailView({
               </div>
               <ProgressBar value={progressPct} className="h-2.5" />
               <div className="text-xs text-ink-faint mt-1">
-                {progress?.courseProgress.completedLessons}/
-                {progress?.courseProgress.totalLessons} aulas concluídas
+                {progress?.courseProgress?.completedLessons ?? 0}/
+                {progress?.courseProgress?.totalLessons ?? 0} aulas concluídas
               </div>
             </Card>
           </div>
@@ -166,7 +166,7 @@ export function CourseDetailView({
               Conteúdo do curso
             </div>
             <div className="overflow-y-auto max-h-[450px]">
-              {progress?.modules.map((mod) => (
+              {(progress?.modules ?? []).map((mod) => (
                 <div key={mod.id}>
                   <div className="px-4 py-2 bg-surface-sunken border-b border-border">
                     <div className="text-xs font-medium text-ink-muted">
