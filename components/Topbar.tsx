@@ -1,7 +1,10 @@
 'use client';
-import { useState } from 'react';
+import { useState, type FormEvent } from 'react';
+import { useRouter } from 'next/navigation';
 import { Bell, Search } from 'lucide-react';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
+import { useApiQuery } from '@/hooks/useApiQuery';
+import { queryKeys } from '@/lib/queryKeys';
 import { Avatar } from '@/components/ui/Avatar';
 import { Modal, ModalContent } from '@/components/ui/Modal';
 import { AvatarUploader } from '@/components/ui/AvatarUploader';
@@ -11,8 +14,25 @@ interface TopbarProps {
 }
 
 export default function Topbar({ title }: TopbarProps) {
+  const router = useRouter();
   const { data: user } = useCurrentUser();
   const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState('');
+
+  // Contador de não lidas — mesma key/endpoint que a página de notificações,
+  // por isso partilha cache e refresca ao marcar como lida por lá.
+  const { data: unread } = useApiQuery<{ count: number }>(
+    queryKeys.notifications.unreadCount(),
+    '/notifications/my/unread-count',
+    { refetchInterval: 60_000 },
+  );
+  const hasUnread = (unread?.count ?? 0) > 0;
+
+  const submitSearch = (e: FormEvent) => {
+    e.preventDefault();
+    const q = query.trim();
+    if (q) router.push(`/search?q=${encodeURIComponent(q)}`);
+  };
 
   return (
     <header
@@ -45,7 +65,9 @@ export default function Topbar({ title }: TopbarProps) {
             {title}
           </span>
         )}
-        <div
+        <form
+          role="search"
+          onSubmit={submitSearch}
           style={{
             display: 'flex',
             alignItems: 'center',
@@ -56,8 +78,23 @@ export default function Topbar({ title }: TopbarProps) {
             width: 280,
           }}
         >
-          <Search size={14} color="#94a3b8" />
+          <button
+            type="submit"
+            aria-label="Pesquisar"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              background: 'none',
+              border: 'none',
+              padding: 0,
+              cursor: 'pointer',
+            }}
+          >
+            <Search size={14} color="#94a3b8" />
+          </button>
           <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
             placeholder="Pesquisar..."
             style={{
               border: 'none',
@@ -68,32 +105,39 @@ export default function Topbar({ title }: TopbarProps) {
               width: '100%',
             }}
           />
-        </div>
+        </form>
       </div>
 
       {/* Right */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
         <button
+          type="button"
+          onClick={() => router.push('/notifications')}
           aria-label="Notificações"
           style={{
             position: 'relative',
+            display: 'flex',
+            alignItems: 'center',
             background: 'none',
             border: 'none',
             cursor: 'pointer',
           }}
         >
           <Bell size={18} color="#64748b" />
-          <span
-            style={{
-              position: 'absolute',
-              top: -4,
-              right: -4,
-              width: 8,
-              height: 8,
-              borderRadius: '50%',
-              background: '#ef4444',
-            }}
-          />
+          {hasUnread && (
+            <span
+              data-testid="unread-indicator"
+              style={{
+                position: 'absolute',
+                top: -4,
+                right: -4,
+                width: 8,
+                height: 8,
+                borderRadius: '50%',
+                background: '#ef4444',
+              }}
+            />
+          )}
         </button>
 
         <button
