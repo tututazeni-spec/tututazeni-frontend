@@ -80,5 +80,11 @@ export function useDirectoryUsers(
       enabled,
     },
   );
-  return { users: query.data ?? [], loading: query.isLoading };
+  // O diretório é tipado como DirectoryUser[], mas blindamos contra entradas
+  // null/sem id numa resposta malformada — senão o `.map` com `key={u.id}` nas
+  // modais rebenta com "Cannot read properties of null (reading 'id')".
+  const users = (query.data ?? []).filter(
+    (u): u is DirectoryUser => u != null && u.id != null,
+  );
+  return { users, loading: query.isLoading };
 }

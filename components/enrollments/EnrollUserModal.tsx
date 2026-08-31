@@ -49,13 +49,12 @@ export function EnrollUserModal({ onClose }: EnrollUserModalProps) {
   );
 
   const enroll = useApiMutation(
-    () =>
-      apiClient.post('/enrollments', {
-        userId: selectedUser!.id,
-        courseId: Number(courseId),
-        ...(deadline ? { deadline } : {}),
-        ...(mandatory ? { mandatory: true } : {}),
-      }),
+    (vars: {
+      userId: number;
+      courseId: number;
+      deadline?: string;
+      mandatory?: boolean;
+    }) => apiClient.post('/enrollments', vars),
     {
       invalidateKeys: [queryKeys.enrollments.lists()],
       onSuccess: () => {
@@ -76,9 +75,14 @@ export function EnrollUserModal({ onClose }: EnrollUserModalProps) {
   const canSubmit = Boolean(courseId && selectedUser) && !loading;
 
   const handleSubmit = () => {
-    if (!canSubmit) return;
+    if (!selectedUser || !courseId || loading) return;
     setSubmitError('');
-    enroll.mutate(undefined);
+    enroll.mutate({
+      userId: selectedUser.id,
+      courseId: Number(courseId),
+      ...(deadline ? { deadline } : {}),
+      ...(mandatory ? { mandatory: true } : {}),
+    });
   };
 
   return (
