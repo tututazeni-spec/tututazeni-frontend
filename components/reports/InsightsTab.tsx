@@ -4,7 +4,7 @@
 
 'use client';
 
-import { AlertTriangle, Brain, CheckCircle, Clock } from 'lucide-react';
+import { AlertTriangle, CheckCircle, Clock } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
@@ -82,8 +82,7 @@ export function InsightsTab() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="flex items-center gap-2 font-display font-semibold text-ink">
-          <Brain size={16} strokeWidth={1.75} className="text-accent" />
+        <h3 className="font-display font-semibold text-ink">
           Análises Inteligentes
         </h3>
         <Badge intent="info">{data?.count ?? 0} Principais Conclusões</Badge>

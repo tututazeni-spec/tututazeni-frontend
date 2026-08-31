@@ -1,6 +1,5 @@
 // components/search/ResultsView.tsx
 
-import { Search } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -68,7 +67,6 @@ export function ResultsView({ data, activeType, setActiveType }: ResultsViewProp
 
         {displayResults.length === 0 ? (
           <EmptyState
-            icon={Search}
             title={`Sem resultados para "${data.query}"`}
             description="Tenta um termo diferente."
           />
