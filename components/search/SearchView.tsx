@@ -103,14 +103,12 @@ export function SearchView({
       {/* Quick type filters */}
       <div className="mt-4 flex flex-wrap gap-2">
         {Object.entries(TYPE_CONFIG).map(([key, conf]) => {
-          const Icon = conf.icon;
           return (
             <button
               key={key}
               onClick={() => searchByType(key, conf.path)}
-              className={`flex items-center gap-1.5 rounded-control border border-transparent px-3 py-1.5 font-body text-xs hover:border-current ${conf.bg} ${conf.color}`}
+              className={`flex items-center rounded-control border border-transparent px-3 py-1.5 font-body text-xs hover:border-current ${conf.bg} ${conf.color}`}
             >
-              <Icon size={14} strokeWidth={1.75} />
               {conf.label}
             </button>
           );

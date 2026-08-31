@@ -40,7 +40,6 @@ export function ResultsView({ data, activeType, setActiveType }: ResultsViewProp
             {types.map((t) => {
               const conf = TYPE_CONFIG[t];
               if (!conf) return null;
-              const Icon = conf.icon;
               const active = activeType === t;
               return (
                 <Button
@@ -50,10 +49,7 @@ export function ResultsView({ data, activeType, setActiveType }: ResultsViewProp
                   onClick={() => setActiveType(t)}
                   className="mb-0.5 w-full justify-between"
                 >
-                  <span className="flex items-center gap-2">
-                    <Icon size={14} strokeWidth={1.75} className={active ? undefined : conf.color} />
-                    {conf.label}
-                  </span>
+                  <span>{conf.label}</span>
                   <span className="text-[10px]">{data.counts[t] ?? data.grouped[t]?.length ?? 0}</span>
                 </Button>
               );
