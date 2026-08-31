@@ -68,10 +68,10 @@ export interface Module {
   availableFrom: string | null;
   lessons: LessonSummary[];
   materials: ModuleMaterial[];
-  _count: { lessons: number };
 }
 
 export interface CourseDetail {
+  title?: string;
   modules?: Module[];
 }
 
