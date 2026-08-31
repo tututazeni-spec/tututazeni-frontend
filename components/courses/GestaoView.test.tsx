@@ -24,6 +24,12 @@ vi.mock('@/components/courses-modulos/ModuleModal', () => ({
   ),
 }));
 
+vi.mock('./EditCourseModal', () => ({
+  EditCourseModal: ({ courseId }: { courseId: number }) => (
+    <div data-testid="edit-course-modal">edit-course-modal for {courseId}</div>
+  ),
+}));
+
 const confirmFn = vi.fn().mockResolvedValue(true);
 vi.mock('@/providers/ConfirmProvider', () => ({
   useConfirm: () => confirmFn,
@@ -160,6 +166,16 @@ describe('GestaoView', () => {
     fireEvent.click(screen.getByRole('button', { name: /Módulo/ }));
     expect(screen.getByTestId('module-modal')).toHaveTextContent(
       'module-modal for 1',
+    );
+  });
+
+  test('"Editar" abre o modal de edição para o curso da linha', () => {
+    setData([draftReady], [archivedCourse]);
+    render(<GestaoView onSelect={vi.fn()} />);
+    expect(screen.queryByTestId('edit-course-modal')).not.toBeInTheDocument();
+    fireEvent.click(screen.getAllByRole('button', { name: 'Editar' })[0]);
+    expect(screen.getByTestId('edit-course-modal')).toHaveTextContent(
+      'edit-course-modal for 2',
     );
   });
 

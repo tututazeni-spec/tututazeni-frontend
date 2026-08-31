@@ -12,7 +12,6 @@
 
 'use client';
 
-import Image from 'next/image';
 import { ArrowLeft, Check, Star } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
@@ -28,6 +27,7 @@ import {
   Skeleton,
   fmtDuration,
 } from './shared';
+import { CourseThumbnail } from './CourseThumbnail';
 import type { CourseDetailData, CourseProgress, Lesson } from './types';
 
 export interface CourseDetailViewProps {
@@ -234,9 +234,7 @@ export function CourseDetailView({
                 map={COURSE_STATUS_MAP}
                 variant="dot"
               />
-              {course.mandatory && (
-                <Badge intent="danger">Obrigatório</Badge>
-              )}
+              {course.mandatory && <Badge intent="danger">Obrigatório</Badge>}
             </div>
             <h1 className="text-2xl font-semibold text-ink mb-2">
               {course.title}
@@ -280,12 +278,7 @@ export function CourseDetailView({
           <Card className="p-5">
             {course.thumbnailUrl && (
               <div className="aspect-video rounded-control overflow-hidden mb-4 relative">
-                <Image
-                  src={course.thumbnailUrl}
-                  alt={course.title}
-                  fill
-                  className="object-cover"
-                />
+                <CourseThumbnail src={course.thumbnailUrl} alt={course.title} />
               </div>
             )}
             {!isEnrolled && course.status === 'PUBLISHED' && (
@@ -346,9 +339,7 @@ export function CourseDetailView({
                       </span>
                     )}
                     {l.isFree && (
-                      <span className="text-success font-medium">
-                        Grátis
-                      </span>
+                      <span className="text-success font-medium">Grátis</span>
                     )}
                   </div>
                 ))}
@@ -374,7 +365,11 @@ export function CourseDetailView({
                 <Star
                   size={20}
                   strokeWidth={1.75}
-                  className={s <= rating ? 'fill-current text-warning-ink' : 'text-ink-faint'}
+                  className={
+                    s <= rating
+                      ? 'fill-current text-warning-ink'
+                      : 'text-ink-faint'
+                  }
                 />
               </button>
             ))}
@@ -395,9 +390,7 @@ export function CourseDetailView({
       {/* Feedbacks existentes */}
       {(course.feedbacks?.length ?? 0) > 0 && (
         <Card className="p-5">
-          <div className="text-sm font-semibold text-ink mb-3">
-            Avaliações
-          </div>
+          <div className="text-sm font-semibold text-ink mb-3">Avaliações</div>
           <div className="space-y-3">
             {course.feedbacks?.map((f) => (
               <div
