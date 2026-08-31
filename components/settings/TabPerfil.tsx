@@ -5,7 +5,7 @@
 'use client';
 
 import type { CurrentUser as Me } from '@/hooks/useCurrentUser';
-import { Avatar } from '@/components/ui/Avatar';
+import { AvatarUploader } from '@/components/ui/AvatarUploader';
 import { Badge } from '@/components/ui/Badge';
 import { Card, CardBody } from '@/components/ui/Card';
 
@@ -21,7 +21,11 @@ export function TabPerfil({ user }: TabPerfilProps) {
         <CardBody>
           <div className="flex items-center gap-5">
             {/* Avatar */}
-            <Avatar name={user.fullName} size="lg" />
+            <AvatarUploader
+              name={user.fullName}
+              url={user.avatarUrl ?? undefined}
+              size="lg"
+            />
             <div className="flex-1">
               <h2 className="m-0 text-2xl font-bold text-ink">
                 {user.fullName}
