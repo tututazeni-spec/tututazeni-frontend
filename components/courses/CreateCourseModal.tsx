@@ -25,6 +25,7 @@ import { Input } from '@/components/ui/Input';
 import { Modal, ModalContent } from '@/components/ui/Modal';
 import { Select } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
+import { CourseImageField } from './CourseImageField';
 
 export interface CreateCourseModalProps {
   onClose: () => void;
@@ -55,6 +56,7 @@ export function CreateCourseModal({
       category: '',
       level: '',
       workloadHours: '',
+      thumbnailUrl: '',
     },
     {
       title: [required()],
@@ -78,6 +80,7 @@ export function CreateCourseModal({
       if (form.workloadHours !== '' && Number.isFinite(hours) && hours >= 0) {
         payload.workloadHours = Math.trunc(hours);
       }
+      if (form.thumbnailUrl) payload.thumbnailUrl = form.thumbnailUrl;
       return apiClient.post('/courses', payload);
     },
     {
@@ -173,6 +176,13 @@ export function CreateCourseModal({
                 onValueChange={(v) => setField('level', v)}
                 className="w-full"
                 placeholder="Selecionar nível"
+              />
+            </FormField>
+
+            <FormField label="Imagem do curso" htmlFor="cc-thumbnail">
+              <CourseImageField
+                value={form.thumbnailUrl || null}
+                onChange={(v) => setField('thumbnailUrl', v ?? '')}
               />
             </FormField>
           </div>

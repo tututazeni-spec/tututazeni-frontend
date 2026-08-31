@@ -29,6 +29,7 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
 import { ModuleModal } from '@/components/courses-modulos/ModuleModal';
+import { EditCourseModal } from './EditCourseModal';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -51,6 +52,7 @@ export function GestaoView({ onSelect }: GestaoViewProps) {
   const confirm = useConfirm();
   const toast = useToast();
   const [addModuleFor, setAddModuleFor] = useState<number | null>(null);
+  const [editCourseId, setEditCourseId] = useState<number | null>(null);
 
   const drafts = useApiQuery<PaginatedCourses>(
     queryKeys.courses.list(DRAFT_PARAMS),
@@ -176,6 +178,14 @@ export function GestaoView({ onSelect }: GestaoViewProps) {
                   />
                   <div className="flex flex-shrink-0 items-center gap-2">
                     <Button
+                      intent="ghost"
+                      size="sm"
+                      onClick={() => setEditCourseId(c.id)}
+                      disabled={rowBusy(c.id)}
+                    >
+                      Editar
+                    </Button>
+                    <Button
                       intent="secondary"
                       size="sm"
                       onClick={() => setAddModuleFor(c.id)}
@@ -270,6 +280,14 @@ export function GestaoView({ onSelect }: GestaoViewProps) {
                 />
                 <div className="flex flex-shrink-0 items-center gap-2">
                   <Button
+                    intent="ghost"
+                    size="sm"
+                    onClick={() => setEditCourseId(c.id)}
+                    disabled={rowBusy(c.id)}
+                  >
+                    Editar
+                  </Button>
+                  <Button
                     intent="secondary"
                     size="sm"
                     onClick={() => restore.mutate(c.id)}
@@ -304,6 +322,16 @@ export function GestaoView({ onSelect }: GestaoViewProps) {
               title: 'Módulo adicionado. Já podes publicar o curso.',
               intent: 'success',
             })
+          }
+        />
+      )}
+
+      {editCourseId !== null && (
+        <EditCourseModal
+          courseId={editCourseId}
+          onClose={() => setEditCourseId(null)}
+          onSuccess={() =>
+            toast({ title: 'Curso actualizado.', intent: 'success' })
           }
         />
       )}

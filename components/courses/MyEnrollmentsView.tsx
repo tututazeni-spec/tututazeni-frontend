@@ -9,7 +9,6 @@
 'use client';
 
 import { useState } from 'react';
-import Image from 'next/image';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -18,6 +17,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { CourseThumbnail } from './CourseThumbnail';
 import { EnrollBadge, Skeleton, fmtDuration, isOverdue } from './shared';
 import type { MyEnrollment } from './types';
 
@@ -87,18 +87,11 @@ export function MyEnrollmentsView({ onSelect }: MyEnrollmentsViewProps) {
               className="flex items-center gap-4 p-4 cursor-pointer transition-shadow hover:shadow-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
             >
               <div className="w-16 h-16 bg-surface-sunken rounded-control overflow-hidden flex-shrink-0 relative">
-                {e.course.thumbnailUrl ? (
-                  <Image
-                    src={e.course.thumbnailUrl}
-                    alt=""
-                    fill
-                    className="object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-2xl text-ink-faint">
-                    📚
-                  </div>
-                )}
+                <CourseThumbnail
+                  src={e.course.thumbnailUrl}
+                  alt={e.course.title}
+                  fallbackClassName="text-2xl"
+                />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="text-sm font-medium text-ink mb-1">

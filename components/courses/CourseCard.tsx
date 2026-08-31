@@ -7,10 +7,10 @@
 
 'use client';
 
-import Image from 'next/image';
 import { Badge } from '@/components/ui/Badge';
 import { Card } from '@/components/ui/Card';
 import { StatusBadge } from '@/components/ui/StatusBadge';
+import { CourseThumbnail } from './CourseThumbnail';
 import { COURSE_LEVEL_MAP, EnrollBadge, fmtDuration } from './shared';
 import type { Course, EnrollmentStatus } from './types';
 
@@ -42,18 +42,7 @@ export function CourseCard({
     >
       {/* Thumbnail */}
       <div className="aspect-video bg-surface-sunken relative overflow-hidden">
-        {course.thumbnailUrl ? (
-          <Image
-            src={course.thumbnailUrl}
-            alt={course.title}
-            fill
-            className="object-cover"
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center text-4xl text-ink-faint">
-            📚
-          </div>
-        )}
+        <CourseThumbnail src={course.thumbnailUrl} alt={course.title} />
         {course.mandatory && (
           <Badge intent="danger" className="absolute top-2 left-2">
             Obrigatório
