@@ -30,12 +30,14 @@ function dataUrlToBlob(dataUrl: string): Blob {
 }
 
 /**
- * Fonte utilizável no <iframe> para o PDF da lição. Um data URL grande em
- * `src` é bloqueado/truncado por alguns browsers, por isso convertemo-lo
- * num object URL (revogado ao desmontar). URLs http(s) passam directas.
+ * Fonte utilizável no <iframe>/link para o ficheiro da lição (PDF ou PPTX).
+ * Um data URL grande em `src`/`href` é bloqueado/truncado por alguns
+ * browsers, por isso convertemo-lo num object URL (revogado ao desmontar).
+ * URLs http(s) passam directas.
  */
-function usePdfSrc(lesson: LessonProgress): string | null {
-  const contentUrl = lesson.type === 'PDF' ? lesson.contentUrl : null;
+function useFileSrc(lesson: LessonProgress): string | null {
+  const contentUrl =
+    lesson.type === 'PDF' || lesson.type === 'SLIDE' ? lesson.contentUrl : null;
   const [src, setSrc] = useState<string | null>(null);
 
   useEffect(() => {
@@ -61,7 +63,7 @@ export function ContentPlayer({
   completing,
   currentModule,
 }: ContentPlayerProps) {
-  const pdfSrc = usePdfSrc(lesson);
+  const fileSrc = useFileSrc(lesson);
 
   return (
     <div className="flex flex-col h-full">
@@ -87,9 +89,9 @@ export function ContentPlayer({
             </div>
           </div>
         ) : lesson.type === 'PDF' ? (
-          pdfSrc ? (
+          fileSrc ? (
             <iframe
-              src={pdfSrc}
+              src={fileSrc}
               title={lesson.title}
               className="w-full h-full border-0 bg-canvas"
             />
@@ -104,6 +106,32 @@ export function ContentPlayer({
               </p>
             </div>
           )
+        ) : lesson.type === 'SLIDE' ? (
+          <div className="text-canvas text-center px-8">
+            <div className="text-6xl mb-4">📊</div>
+            <div className="font-body text-base font-medium">
+              {lesson.title}
+            </div>
+            {fileSrc ? (
+              <>
+                <p className="font-body text-sm text-canvas/70 mt-2">
+                  Apresentação PowerPoint — descarrega para veres nos teus
+                  slides.
+                </p>
+                <a
+                  href={fileSrc}
+                  download={`${lesson.title}.pptx`}
+                  className="inline-block mt-4 rounded-lg bg-canvas px-4 py-2 font-body text-sm font-semibold text-ink hover:bg-canvas/90"
+                >
+                  Descarregar apresentação
+                </a>
+              </>
+            ) : (
+              <p className="font-body text-sm text-canvas/70 mt-2">
+                Esta aula ainda não tem ficheiro PPTX carregado.
+              </p>
+            )}
+          </div>
         ) : lesson.type === 'TEXT' ? (
           <div className="max-w-2xl mx-auto text-canvas p-8">
             <h2 className="font-display text-xl font-semibold mb-4">

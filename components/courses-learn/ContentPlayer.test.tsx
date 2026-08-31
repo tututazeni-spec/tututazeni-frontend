@@ -58,3 +58,49 @@ describe('ContentPlayer — lição PDF', () => {
     expect(screen.getByText(/ainda não tem ficheiro/i)).toBeInTheDocument();
   });
 });
+
+describe('ContentPlayer — lição PPTX', () => {
+  beforeEach(() => {
+    (URL as unknown as { createObjectURL: unknown }).createObjectURL = vi.fn(
+      () => 'blob:mock',
+    );
+    (URL as unknown as { revokeObjectURL: unknown }).revokeObjectURL = vi.fn();
+  });
+
+  test('oferece descarregar a apresentação quando tem ficheiro', () => {
+    render(
+      <ContentPlayer
+        lesson={{
+          ...baseLesson,
+          title: 'Slides da aula',
+          type: 'SLIDE',
+          contentUrl: 'data:application/vnd.ms-powerpoint;base64,UEsDBBQ',
+        }}
+        onComplete={noop}
+        completing={false}
+        currentModule={null}
+      />,
+    );
+    const link = screen.getByRole('link', {
+      name: /descarregar apresentação/i,
+    });
+    expect(link).toHaveAttribute('download', 'Slides da aula.pptx');
+  });
+
+  test('mostra aviso quando a lição PPTX não tem ficheiro', () => {
+    render(
+      <ContentPlayer
+        lesson={{ ...baseLesson, type: 'SLIDE' }}
+        onComplete={noop}
+        completing={false}
+        currentModule={null}
+      />,
+    );
+    expect(
+      screen.queryByRole('link', { name: /descarregar apresentação/i }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByText(/ainda não tem ficheiro pptx/i),
+    ).toBeInTheDocument();
+  });
+});

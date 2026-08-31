@@ -9,6 +9,7 @@ import { useToast } from '@/providers/ToastProvider';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { fileToPdfDataUrl, pdfErrorMessage } from '@/lib/lessonPdf';
+import { fileToSlideDataUrl, slideErrorMessage } from '@/lib/lessonSlide';
 import { CONTENT_TYPE } from './constants';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -41,26 +42,34 @@ export function LessonModal({
     setForm((f) => ({ ...f, [k]: v }));
   }
 
-  // Estado do selector de PDF (só para contentType === 'PDF').
-  const [pdfName, setPdfName] = useState<string | null>(null);
-  const [pdfError, setPdfError] = useState<string | null>(null);
-  const [pdfBusy, setPdfBusy] = useState(false);
+  // Estado do selector de ficheiro (contentType === 'PDF' ou 'SLIDE').
+  const [fileName, setFileName] = useState<string | null>(null);
+  const [fileError, setFileError] = useState<string | null>(null);
+  const [fileBusy, setFileBusy] = useState(false);
+  const isFileType = form.contentType === 'PDF' || form.contentType === 'SLIDE';
 
-  async function handlePdfPick(e: React.ChangeEvent<HTMLInputElement>) {
+  async function handleFilePick(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
-    setPdfError(null);
-    setPdfBusy(true);
+    setFileError(null);
+    setFileBusy(true);
     try {
-      const dataUrl = await fileToPdfDataUrl(file);
+      const dataUrl =
+        form.contentType === 'SLIDE'
+          ? await fileToSlideDataUrl(file)
+          : await fileToPdfDataUrl(file);
       set('contentUrl', dataUrl);
-      setPdfName(file.name);
+      setFileName(file.name);
     } catch (err) {
-      setPdfError(pdfErrorMessage(err));
+      setFileError(
+        form.contentType === 'SLIDE'
+          ? slideErrorMessage(err)
+          : pdfErrorMessage(err),
+      );
       set('contentUrl', '');
-      setPdfName(null);
+      setFileName(null);
     } finally {
-      setPdfBusy(false);
+      setFileBusy(false);
     }
   }
 
@@ -86,10 +95,10 @@ export function LessonModal({
     },
   );
   const saving = saveLesson.isPending;
-  const pdfMissing = form.contentType === 'PDF' && !form.contentUrl;
+  const fileMissing = isFileType && !form.contentUrl;
   function submit(e: React.FormEvent) {
     e.preventDefault();
-    if (pdfBusy || pdfMissing) return;
+    if (fileBusy || fileMissing) return;
     saveLesson.mutate(undefined);
   }
 
@@ -178,26 +187,37 @@ export function LessonModal({
               </FormField>
             )}
 
-            {form.contentType === 'PDF' && (
-              <FormField label="Ficheiro PDF" htmlFor="lesson-pdf">
+            {isFileType && (
+              <FormField
+                label={
+                  form.contentType === 'SLIDE'
+                    ? 'Ficheiro PPTX'
+                    : 'Ficheiro PDF'
+                }
+                htmlFor="lesson-file"
+              >
                 <input
-                  id="lesson-pdf"
+                  id="lesson-file"
                   type="file"
-                  accept="application/pdf"
-                  onChange={handlePdfPick}
+                  accept={
+                    form.contentType === 'SLIDE'
+                      ? '.ppt,.pptx,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/vnd.ms-powerpoint'
+                      : 'application/pdf'
+                  }
+                  onChange={handleFilePick}
                   className="block w-full text-sm text-ink-muted file:mr-3 file:rounded-lg file:border-0 file:bg-primary-subtle file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-primary"
                 />
-                {pdfBusy && (
+                {fileBusy && (
                   <p className="text-xs text-ink-faint mt-1">A processar…</p>
                 )}
-                {pdfError && (
-                  <p className="text-xs text-danger mt-1">{pdfError}</p>
+                {fileError && (
+                  <p className="text-xs text-danger mt-1">{fileError}</p>
                 )}
-                {!pdfBusy && !pdfError && form.contentUrl && (
+                {!fileBusy && !fileError && form.contentUrl && (
                   <p className="text-xs text-success mt-1 break-all">
-                    {pdfName ??
+                    {fileName ??
                       (form.contentUrl.startsWith('data:')
-                        ? 'PDF já carregado — escolhe um ficheiro para substituir'
+                        ? 'Ficheiro já carregado — escolhe outro para substituir'
                         : form.contentUrl)}
                   </p>
                 )}
@@ -220,7 +240,7 @@ export function LessonModal({
               </Button>
               <Button
                 type="submit"
-                disabled={saving || pdfBusy || pdfMissing}
+                disabled={saving || fileBusy || fileMissing}
                 intent="primary"
                 loading={saving}
               >
