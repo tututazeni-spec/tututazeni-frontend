@@ -66,6 +66,20 @@ export function LessonRow({ lesson, onEdit, onDelete }: LessonRowProps) {
                 🔗 PDF
               </a>
             ))}
+          {lesson.type === 'SLIDE' &&
+            lesson.contentUrl &&
+            (isDataUrl ? (
+              <span className="text-xs text-warning">📊 PPTX carregado</span>
+            ) : (
+              <a
+                href={lesson.contentUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs text-warning hover:underline"
+              >
+                🔗 PPTX
+              </a>
+            ))}
         </div>
       </div>
       <div className="flex gap-1 flex-shrink-0">
