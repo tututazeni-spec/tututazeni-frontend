@@ -54,9 +54,9 @@ export interface ByTypeSearchResponse {
   count: number;
 }
 
-// Cores mapeadas para os tokens semânticos da fundação de design (Fase A) —
-// 7 tipos de resultado, 7 tokens de intenção distintos (primary/accent/
-// success/warning/danger/info/neutral), mesma forma { color, bg } de antes.
+// Todos os tipos de resultado partilham agora a mesma aparência: fundo igual
+// ao do rectângulo "Colaboradores" (bg-primary-subtle) e rótulo/ícone a preto
+// (text-ink). Mantém-se a forma { color, bg } para não mexer nos consumidores.
 export const TYPE_CONFIG: Record<
   string,
   { label: string; icon: LucideIcon; color: string; bg: string; path: string }
@@ -64,50 +64,50 @@ export const TYPE_CONFIG: Record<
   user: {
     label: 'Colaboradores',
     icon: Users,
-    color: 'text-primary',
+    color: 'text-ink',
     bg: 'bg-primary-subtle',
     path: 'users',
   },
   course: {
     label: 'Cursos',
     icon: BookOpen,
-    color: 'text-accent',
-    bg: 'bg-accent-subtle',
+    color: 'text-ink',
+    bg: 'bg-primary-subtle',
     path: 'courses',
   },
   content: {
     label: 'Conteúdos',
     icon: Zap,
-    color: 'text-info-ink',
-    bg: 'bg-info-subtle',
+    color: 'text-ink',
+    bg: 'bg-primary-subtle',
     path: 'content',
   },
   document: {
     label: 'Documentos',
     icon: FileText,
-    color: 'text-warning-ink',
-    bg: 'bg-warning-subtle',
+    color: 'text-ink',
+    bg: 'bg-primary-subtle',
     path: 'documents',
   },
   pdi: {
     label: 'PDIs',
     icon: Target,
-    color: 'text-success-ink',
-    bg: 'bg-success-subtle',
+    color: 'text-ink',
+    bg: 'bg-primary-subtle',
     path: 'pdi',
   },
   competency: {
     label: 'Competências',
     icon: Brain,
-    color: 'text-danger-ink',
-    bg: 'bg-danger-subtle',
+    color: 'text-ink',
+    bg: 'bg-primary-subtle',
     path: 'competencies',
   },
   scenario: {
     label: 'Simulações',
     icon: Award,
-    color: 'text-ink-muted',
-    bg: 'bg-surface-sunken',
+    color: 'text-ink',
+    bg: 'bg-primary-subtle',
     path: 'scenarios',
   },
 };
