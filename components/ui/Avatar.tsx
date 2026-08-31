@@ -37,9 +37,20 @@ export interface AvatarProps {
 
 export function Avatar({ name, url, size = 'md', className }: AvatarProps) {
   if (url) {
+    const isData = url.startsWith('data:');
     return (
       <div className={cn('relative overflow-hidden rounded-full', SIZE_CLASSES[size], className)}>
-        <Image src={url} alt={name} fill className="object-cover" />
+        {isData ? (
+          // next/image não processa data URIs; <img> nativo evita-o.
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={url}
+            alt={name}
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+        ) : (
+          <Image src={url} alt={name} fill className="object-cover" />
+        )}
       </div>
     );
   }
