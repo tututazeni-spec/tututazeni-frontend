@@ -86,7 +86,8 @@ export default function LearningPathsPage() {
           onClose={() => setShowCreate(false)}
           onSuccess={() =>
             notify({
-              title: 'Trilha criada como rascunho. Vê-a no Dashboard (Admin).',
+              title:
+                'Trilha criada como rascunho. Vê-a na secção Rascunhos do Dashboard (Admin).',
               intent: 'success',
             })
           }
