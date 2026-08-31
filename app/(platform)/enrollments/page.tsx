@@ -11,15 +11,16 @@ import { Zap } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { NAV, TITLES } from '@/components/enrollments/constants';
 import { AdminView } from '@/components/enrollments/AdminView';
+import { BulkEnrollModal } from '@/components/enrollments/BulkEnrollModal';
 import { ComplianceView } from '@/components/enrollments/ComplianceView';
+import { EnrollUserModal } from '@/components/enrollments/EnrollUserModal';
 import { MyEnrollmentsView } from '@/components/enrollments/MyEnrollmentsView';
 import { TeamView } from '@/components/enrollments/TeamView';
 import type { View } from '@/components/enrollments/types';
-import { useToast } from '@/providers/ToastProvider';
 
 export default function EnrollmentsPage() {
-  const notify = useToast();
   const [view, setView] = useState<View>('my');
+  const [modal, setModal] = useState<'single' | 'bulk' | null>(null);
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-8">
@@ -29,31 +30,17 @@ export default function EnrollmentsPage() {
           <h1 className="font-display text-xl font-semibold text-ink">
             {TITLES[view]}
           </h1>
-          <p className="mt-0.5 font-body text-sm text-ink-faint">
-          </p>
+          <p className="mt-0.5 font-body text-sm text-ink-faint"></p>
         </div>
         {view === 'admin' && (
           <div className="flex gap-2">
-            <Button
-              size="sm"
-              onClick={() =>
-                notify({
-                  title: 'Abrir formulário de matrícula',
-                  intent: 'info',
-                })
-              }
-            >
+            <Button size="sm" onClick={() => setModal('single')}>
               + Matricular
             </Button>
             <Button
               size="sm"
               intent="secondary"
-              onClick={() =>
-                notify({
-                  title: 'Abrir modal de matrículas em massa',
-                  intent: 'info',
-                })
-              }
+              onClick={() => setModal('bulk')}
             >
               <Zap size={14} strokeWidth={1.75} />
               Em massa
@@ -80,6 +67,9 @@ export default function EnrollmentsPage() {
       {view === 'admin' && <AdminView />}
       {view === 'compliance' && <ComplianceView />}
       {view === 'team' && <TeamView />}
+
+      {modal === 'single' && <EnrollUserModal onClose={() => setModal(null)} />}
+      {modal === 'bulk' && <BulkEnrollModal onClose={() => setModal(null)} />}
     </div>
   );
 }
