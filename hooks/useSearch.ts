@@ -102,6 +102,21 @@ export function useSearch() {
     inputRef.current?.focus();
   }, []);
 
+  // Seed a partir de ?q= no URL (ex.: pesquisa iniciada na Topbar) — corre a
+  // pesquisa uma vez à chegada. `window.location` em vez de useSearchParams
+  // para não exigir uma <Suspense> boundary no prerender da página.
+  useEffect(() => {
+    const seeded =
+      typeof window !== 'undefined'
+        ? new URLSearchParams(window.location.search).get('q')?.trim()
+        : undefined;
+    if (seeded) {
+      setQuery(seeded);
+      doSearch(seeded);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- só no mount; `doSearch` é estável (useCallback [] + mutate estável do React Query).
+  }, []);
+
   return {
     query,
     setQuery,
