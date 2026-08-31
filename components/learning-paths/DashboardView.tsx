@@ -17,17 +17,30 @@ import { KpiCard } from '@/components/ui/KpiCard';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { LP_STATUS_MAP, LP_TYPE_MAP } from './constants';
-import type { AdminDashboard } from './types';
+import type { AdminDashboard, PaginatedLPs } from './types';
 
 interface DashboardViewProps {
   onSelect: (id: number) => void;
 }
+
+// O endpoint /learning-paths/admin/dashboard só devolve topPaths com
+// status PUBLISHED (ordenadas por matrículas) — uma trilha recém-criada
+// fica em DRAFT e nunca aparecia aqui, só incrementava o KPI "Total de
+// trilhas". Esta query lista os rascunhos via catálogo (aceita ?status)
+// para lhes dar um ponto de entrada no Dashboard (Admin).
+const DRAFTS_PARAMS = { status: 'DRAFT', limit: 10 } as const;
 
 export function DashboardView({ onSelect }: DashboardViewProps) {
   const { data, isLoading } = useApiQuery<AdminDashboard>(
     queryKeys.learningPaths.adminDashboard(),
     '/learning-paths/admin/dashboard',
     { staleTime: STALE_TIME.SEMI_STATIC },
+  );
+
+  const { data: drafts } = useApiQuery<PaginatedLPs>(
+    queryKeys.learningPaths.catalog(DRAFTS_PARAMS),
+    '/learning-paths',
+    { params: DRAFTS_PARAMS, staleTime: STALE_TIME.SEMI_STATIC },
   );
 
   if (isLoading || !data)
@@ -90,6 +103,35 @@ export function DashboardView({ onSelect }: DashboardViewProps) {
               </div>
               <div className="font-body text-sm text-ink-muted">
                 {p._count.enrollments} matrículas
+              </div>
+              <StatusBadge value={p.status} map={LP_STATUS_MAP} variant="dot" />
+            </div>
+          ))}
+        </Card>
+      )}
+
+      {/* Rascunhos — trilhas ainda não publicadas (não entram em topPaths) */}
+      {drafts && drafts.data.length > 0 && (
+        <Card className="overflow-hidden p-0">
+          <div className="border-b border-border px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+            Rascunhos
+          </div>
+          {drafts.data.map((p) => (
+            <div
+              key={p.id}
+              className="flex cursor-pointer items-center gap-4 border-b border-border px-4 py-3 last:border-0 hover:bg-surface-sunken"
+              onClick={() => onSelect(p.id)}
+            >
+              <div className="flex-1">
+                <div className="font-body text-sm font-medium text-ink">
+                  {p.title}
+                </div>
+                <div className="font-body text-xs text-ink-faint">
+                  <StatusBadge value={p.pathType} map={LP_TYPE_MAP} />
+                </div>
+              </div>
+              <div className="font-body text-sm text-ink-muted">
+                {p._count.courses} {p._count.courses === 1 ? 'curso' : 'cursos'}
               </div>
               <StatusBadge value={p.status} map={LP_STATUS_MAP} variant="dot" />
             </div>
