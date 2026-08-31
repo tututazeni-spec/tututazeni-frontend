@@ -18,6 +18,11 @@ export interface LessonProgress {
   completed: boolean;
   completedAt: string | null;
   resumePosition: number;
+  // Conteúdo da lição (ex.: PDF inline em data URL). Vem `null` do backend
+  // quando o utilizador não está inscrito no curso — ver
+  // course-modules.service.getLessonProgress.
+  contentUrl: string | null;
+  allowDownload: boolean;
 }
 
 export interface ModuleMaterial {

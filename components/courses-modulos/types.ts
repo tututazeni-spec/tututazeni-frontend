@@ -6,9 +6,11 @@ export interface Lesson {
   id: number;
   moduleId: number;
   title: string;
-  contentType: string;
-  videoUrl?: string;
-  pdfUrl?: string;
+  // Campos tal como chegam de GET /courses/:id (registo Lesson cru): `type`
+  // é o enum LessonType (VIDEO|PDF|TEXT|AUDIO|SLIDE|LINK) e o conteúdo
+  // (URL de vídeo ou PDF, este último em data URL) vive em `contentUrl`.
+  type: string;
+  contentUrl?: string | null;
   seq: number;
 }
 

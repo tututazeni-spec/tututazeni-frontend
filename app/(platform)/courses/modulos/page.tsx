@@ -125,9 +125,8 @@ export default function CourseModulesPage() {
     .map((k) => ({
       key: k,
       ...CONTENT_TYPE[k],
-      count: modules
-        .flatMap((m) => m.lessons)
-        .filter((l) => l.contentType === k).length,
+      count: modules.flatMap((m) => m.lessons).filter((l) => l.type === k)
+        .length,
     }))
     .filter((t) => t.count > 0);
 

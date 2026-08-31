@@ -15,12 +15,13 @@ interface LessonRowProps {
 }
 
 export function LessonRow({ lesson, onEdit, onDelete }: LessonRowProps) {
-  const ct = CONTENT_TYPE[lesson.contentType] ?? {
+  const ct = CONTENT_TYPE[lesson.type] ?? {
     icon: '📖',
     color: '#64748b',
     bg: '#f8fafc',
-    label: lesson.contentType,
+    label: lesson.type,
   };
+  const isDataUrl = lesson.contentUrl?.startsWith('data:') ?? false;
   return (
     <div className="flex items-center gap-3 p-3 rounded-lg bg-surface-sunken border border-border">
       <span className="text-sm text-ink-faint min-w-5 text-center font-bold">
@@ -41,9 +42,9 @@ export function LessonRow({ lesson, onEdit, onDelete }: LessonRowProps) {
           >
             {ct.label}
           </span>
-          {lesson.videoUrl && (
+          {lesson.type === 'VIDEO' && lesson.contentUrl && (
             <a
-              href={lesson.videoUrl}
+              href={lesson.contentUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="text-xs text-primary hover:underline"
@@ -51,24 +52,24 @@ export function LessonRow({ lesson, onEdit, onDelete }: LessonRowProps) {
               🔗 Vídeo
             </a>
           )}
-          {lesson.pdfUrl && (
-            <a
-              href={lesson.pdfUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-xs text-warning hover:underline"
-            >
-              🔗 PDF
-            </a>
-          )}
+          {lesson.type === 'PDF' &&
+            lesson.contentUrl &&
+            (isDataUrl ? (
+              <span className="text-xs text-warning">📄 PDF carregado</span>
+            ) : (
+              <a
+                href={lesson.contentUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs text-warning hover:underline"
+              >
+                🔗 PDF
+              </a>
+            ))}
         </div>
       </div>
       <div className="flex gap-1 flex-shrink-0">
-        <Button
-          onClick={onEdit}
-          intent="ghost"
-          className="px-2 py-1 text-xs"
-        >
+        <Button onClick={onEdit} intent="ghost" className="px-2 py-1 text-xs">
           ✏️
         </Button>
         <Button

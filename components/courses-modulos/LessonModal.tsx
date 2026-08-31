@@ -8,6 +8,7 @@ import { useState } from 'react';
 import { useToast } from '@/providers/ToastProvider';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
+import { fileToPdfDataUrl, pdfErrorMessage } from '@/lib/lessonPdf';
 import { CONTENT_TYPE } from './constants';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -32,13 +33,35 @@ export function LessonModal({
   const notify = useToast();
   const [form, setForm] = useState({
     title: editing?.title ?? '',
-    contentType: editing?.contentType ?? 'VIDEO',
-    videoUrl: editing?.videoUrl ?? '',
-    pdfUrl: editing?.pdfUrl ?? '',
+    contentType: editing?.type ?? 'VIDEO',
+    contentUrl: editing?.contentUrl ?? '',
     seq: editing?.seq ?? 1,
   });
   function set(k: string, v: string | number) {
     setForm((f) => ({ ...f, [k]: v }));
+  }
+
+  // Estado do selector de PDF (só para contentType === 'PDF').
+  const [pdfName, setPdfName] = useState<string | null>(null);
+  const [pdfError, setPdfError] = useState<string | null>(null);
+  const [pdfBusy, setPdfBusy] = useState(false);
+
+  async function handlePdfPick(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setPdfError(null);
+    setPdfBusy(true);
+    try {
+      const dataUrl = await fileToPdfDataUrl(file);
+      set('contentUrl', dataUrl);
+      setPdfName(file.name);
+    } catch (err) {
+      setPdfError(pdfErrorMessage(err));
+      set('contentUrl', '');
+      setPdfName(null);
+    } finally {
+      setPdfBusy(false);
+    }
   }
 
   const saveLesson = useApiMutation(
@@ -48,8 +71,7 @@ export function LessonModal({
         title: form.title,
         contentType: form.contentType,
         seq: +form.seq,
-        videoUrl: form.videoUrl || undefined,
-        pdfUrl: form.pdfUrl || undefined,
+        contentUrl: form.contentUrl || undefined,
       };
       return editing
         ? apiClient.put(`/lessons/${editing.id}`, payload)
@@ -64,8 +86,10 @@ export function LessonModal({
     },
   );
   const saving = saveLesson.isPending;
+  const pdfMissing = form.contentType === 'PDF' && !form.contentUrl;
   function submit(e: React.FormEvent) {
     e.preventDefault();
+    if (pdfBusy || pdfMissing) return;
     saveLesson.mutate(undefined);
   }
 
@@ -147,21 +171,36 @@ export function LessonModal({
               <FormField label="URL do Vídeo" htmlFor="lesson-video">
                 <Input
                   id="lesson-video"
-                  value={form.videoUrl}
-                  onChange={(e) => set('videoUrl', e.target.value)}
+                  value={form.contentUrl}
+                  onChange={(e) => set('contentUrl', e.target.value)}
                   placeholder="https://..."
                 />
               </FormField>
             )}
 
             {form.contentType === 'PDF' && (
-              <FormField label="URL do PDF" htmlFor="lesson-pdf">
-                <Input
+              <FormField label="Ficheiro PDF" htmlFor="lesson-pdf">
+                <input
                   id="lesson-pdf"
-                  value={form.pdfUrl}
-                  onChange={(e) => set('pdfUrl', e.target.value)}
-                  placeholder="https://..."
+                  type="file"
+                  accept="application/pdf"
+                  onChange={handlePdfPick}
+                  className="block w-full text-sm text-ink-muted file:mr-3 file:rounded-lg file:border-0 file:bg-primary-subtle file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-primary"
                 />
+                {pdfBusy && (
+                  <p className="text-xs text-ink-faint mt-1">A processar…</p>
+                )}
+                {pdfError && (
+                  <p className="text-xs text-danger mt-1">{pdfError}</p>
+                )}
+                {!pdfBusy && !pdfError && form.contentUrl && (
+                  <p className="text-xs text-success mt-1 break-all">
+                    {pdfName ??
+                      (form.contentUrl.startsWith('data:')
+                        ? 'PDF já carregado — escolhe um ficheiro para substituir'
+                        : form.contentUrl)}
+                  </p>
+                )}
               </FormField>
             )}
 
@@ -181,7 +220,7 @@ export function LessonModal({
               </Button>
               <Button
                 type="submit"
-                disabled={saving}
+                disabled={saving || pdfBusy || pdfMissing}
                 intent="primary"
                 loading={saving}
               >

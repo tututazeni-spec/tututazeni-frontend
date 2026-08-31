@@ -4,6 +4,7 @@
 
 'use client';
 
+import { useEffect, useState } from 'react';
 import { Check } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { lessonIcon, fmtDuration } from './utils';
@@ -16,12 +17,52 @@ interface ContentPlayerProps {
   currentModule: ModuleProgress | null;
 }
 
+/** Descodifica um data URL base64 num Blob (sem depender de fetch()). */
+function dataUrlToBlob(dataUrl: string): Blob {
+  const comma = dataUrl.indexOf(',');
+  const meta = dataUrl.slice(0, comma);
+  const b64 = dataUrl.slice(comma + 1);
+  const mime = /:(.*?);/.exec(meta)?.[1] ?? 'application/pdf';
+  const bin = atob(b64);
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return new Blob([bytes], { type: mime });
+}
+
+/**
+ * Fonte utilizável no <iframe> para o PDF da lição. Um data URL grande em
+ * `src` é bloqueado/truncado por alguns browsers, por isso convertemo-lo
+ * num object URL (revogado ao desmontar). URLs http(s) passam directas.
+ */
+function usePdfSrc(lesson: LessonProgress): string | null {
+  const contentUrl = lesson.type === 'PDF' ? lesson.contentUrl : null;
+  const [src, setSrc] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!contentUrl) {
+      setSrc(null);
+      return;
+    }
+    if (!contentUrl.startsWith('data:')) {
+      setSrc(contentUrl);
+      return;
+    }
+    const objectUrl = URL.createObjectURL(dataUrlToBlob(contentUrl));
+    setSrc(objectUrl);
+    return () => URL.revokeObjectURL(objectUrl);
+  }, [contentUrl]);
+
+  return src;
+}
+
 export function ContentPlayer({
   lesson,
   onComplete,
   completing,
   currentModule,
 }: ContentPlayerProps) {
+  const pdfSrc = usePdfSrc(lesson);
+
   return (
     <div className="flex flex-col h-full">
       {/* Module breadcrumb */}
@@ -46,18 +87,23 @@ export function ContentPlayer({
             </div>
           </div>
         ) : lesson.type === 'PDF' ? (
-          <div className="text-canvas text-center">
-            <div className="text-6xl mb-4">📄</div>
-            <div className="font-body text-base font-medium">
-              {lesson.title}
+          pdfSrc ? (
+            <iframe
+              src={pdfSrc}
+              title={lesson.title}
+              className="w-full h-full border-0 bg-canvas"
+            />
+          ) : (
+            <div className="text-canvas text-center px-8">
+              <div className="text-6xl mb-4">📄</div>
+              <div className="font-body text-base font-medium">
+                {lesson.title}
+              </div>
+              <p className="font-body text-sm text-canvas/70 mt-2">
+                Esta aula ainda não tem ficheiro PDF carregado.
+              </p>
             </div>
-            <a
-              href="#"
-              className="mt-3 inline-block font-body text-sm text-accent hover:text-accent-hover"
-            >
-              Abrir PDF →
-            </a>
-          </div>
+          )
         ) : lesson.type === 'TEXT' ? (
           <div className="max-w-2xl mx-auto text-canvas p-8">
             <h2 className="font-display text-xl font-semibold mb-4">
@@ -88,6 +134,17 @@ export function ContentPlayer({
               {fmtDuration(lesson.durationMinutes)}
             </div>
           )}
+          {lesson.type === 'PDF' &&
+            lesson.allowDownload &&
+            lesson.contentUrl && (
+              <a
+                href={lesson.contentUrl}
+                download
+                className="font-body text-xs text-accent hover:text-accent-hover"
+              >
+                Descarregar PDF
+              </a>
+            )}
         </div>
         <Button
           onClick={onComplete}
