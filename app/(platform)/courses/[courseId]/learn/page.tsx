@@ -28,6 +28,7 @@ import { ContentPlayer } from '@/components/courses-learn/ContentPlayer';
 import { ModuleCompletedBanner } from '@/components/courses-learn/ModuleCompletedBanner';
 import { ModuleBuilder } from '@/components/courses-learn/ModuleBuilder';
 import type {
+  CourseDetail,
   LessonProgress,
   ModuleProgress,
   PageMode,
@@ -86,6 +87,15 @@ export default function CourseLearnPage() {
       }
     }
   }, [modules, activeLesson]);
+
+  // Nome do curso para o cabeçalho. Mesma query key que o ModuleBuilder usa,
+  // por isso o React Query partilha a cache — sem pedido extra no modo
+  // construtor e um único pedido no modo aprender.
+  const { data: course } = useApiQuery<CourseDetail>(
+    queryKeys.courses.detail(courseId),
+    `/courses/${courseId}`,
+    { enabled: !!courseId, staleTime: STALE_TIME.DYNAMIC },
+  );
 
   const completeMut = useApiMutation<unknown, number>(
     (lessonId) => apiClient.post('/lessons/progress', { lessonId }),
@@ -168,7 +178,7 @@ export default function CourseLearnPage() {
           </Button>
           <div>
             <div className="font-body text-sm font-semibold text-ink">
-              Curso #{courseId}
+              {course?.title ?? `Curso #${courseId}`}
             </div>
             <div className="font-body text-xs text-ink-faint">
               {overallPct}% concluído ·{' '}

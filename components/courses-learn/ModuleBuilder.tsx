@@ -208,7 +208,7 @@ export function ModuleBuilder({ courseId }: ModuleBuilderProps) {
                   </div>
                 )}
                 <div className="font-body text-xs text-ink-faint mt-0.5">
-                  {mod._count.lessons} aulas
+                  {mod.lessons.length} aulas
                   {mod.dripDays ? ` · Drip: ${mod.dripDays} dias` : ''}
                   {mod.progressionType === 'SEQUENTIAL'
                     ? ' · Sequencial'
