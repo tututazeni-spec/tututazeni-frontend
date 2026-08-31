@@ -46,9 +46,12 @@ export default function CourseLearnPage() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
   const progressKey = queryKeys.courses.progress(courseId);
+  // GET /courses/:id/progress devolve { enrollment, courseProgress, modules }
+  // (resumo). Esta sala precisa do array por módulo com drip/sequencial,
+  // materiais e pct — isso é o /module-progress (course-modules.controller).
   const { data: modules = [], isLoading: loading } = useApiQuery<
     ModuleProgress[]
-  >(progressKey, `/courses/${courseId}/progress`, {
+  >(progressKey, `/courses/${courseId}/module-progress`, {
     enabled: !!courseId,
     staleTime: STALE_TIME.DYNAMIC,
   });
@@ -108,7 +111,7 @@ export default function CourseLearnPage() {
     try {
       // Recarrega o progresso fresco e actualiza a cache.
       const updated = await apiClient.get<ModuleProgress[]>(
-        `/courses/${courseId}/progress`,
+        `/courses/${courseId}/module-progress`,
       );
       qc.setQueryData(progressKey, updated);
 
