@@ -65,7 +65,7 @@ export function ResultsView({ data, activeType, setActiveType }: ResultsViewProp
       {/* Results */}
       <div className="md:col-span-3">
         <div className="mb-3 flex items-center justify-between">
-          <p className="font-body text-sm text-ink-muted">
+          <p className="font-body text-sm text-ink">
             {displayResults.length} resultado(s) para <strong>&quot;{data.query}&quot;</strong>
           </p>
         </div>
