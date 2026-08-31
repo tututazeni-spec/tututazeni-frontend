@@ -16,6 +16,7 @@ export interface CurrentUser {
   id: number;
   fullName: string;
   email: string;
+  avatarUrl?: string | null;
   active: boolean;
   createdAt: string;
   role?: { name: string; code: string | null; permissions: { name: string }[] };
