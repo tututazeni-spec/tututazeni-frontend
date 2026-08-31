@@ -433,7 +433,7 @@ export function MyProfileView() {
                           {g.recommendedCourses.slice(0, 3).map((c) => (
                             <a
                               key={c.id}
-                              href={`/courses/${c.id}`}
+                              href={`/courses/${c.id}/learn`}
                               className="rounded-control bg-info-subtle px-2 py-1 font-body text-xs text-info-ink hover:brightness-95"
                             >
                               {c.title}
