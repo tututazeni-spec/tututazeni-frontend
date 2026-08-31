@@ -10,7 +10,7 @@
 
 'use client';
 
-import { Save, Trash2 } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -90,7 +90,6 @@ export function SavedReportsTab({ onOpen, onCreate }: SavedReportsTabProps) {
   if (!reports.length) {
     return (
       <EmptyState
-        icon={Save}
         title="Sem relatórios guardados"
         description="Cria um relatório personalizado com um template base e um intervalo de datas."
         action={{ label: 'Criar Relatório', onClick: onCreate }}

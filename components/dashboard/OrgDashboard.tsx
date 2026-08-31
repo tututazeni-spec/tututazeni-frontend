@@ -6,7 +6,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Users, BookOpen, Target, TrendingUp, Brain } from 'lucide-react';
+import { BookOpen, Target, TrendingUp, Brain } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -67,7 +67,6 @@ export function OrgDashboard() {
       {/* KPIs */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         <KpiCard
-          icon={Users}
           label="Colaboradores Activos"
           value={k.headcount?.active ?? 0}
           sub={`+${k.headcount?.new ?? 0} no período`}

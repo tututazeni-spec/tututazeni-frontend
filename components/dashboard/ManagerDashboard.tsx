@@ -8,7 +8,7 @@
 
 'use client';
 
-import { Users, Target, Star, Shield } from 'lucide-react';
+import { Target, Star, Shield } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -50,7 +50,7 @@ export function ManagerDashboard() {
 
       {/* KPIs */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-        <KpiCard icon={Users} label="Equipa" value={data?.teamSize ?? 0} />
+        <KpiCard label="Equipa" value={data?.teamSize ?? 0} />
         <KpiCard
           label="PDIs Activos"
           value={kpis.activePlans ?? 0}

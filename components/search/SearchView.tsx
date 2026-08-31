@@ -44,7 +44,6 @@ export function SearchView({
           Pesquisa Universal
         </h1>
         <p className="mt-0.5 font-body text-sm text-ink-faint">
-          Pesquisa colaboradores, cursos, conteúdos, PDIs e mais
         </p>
       </div>
 
