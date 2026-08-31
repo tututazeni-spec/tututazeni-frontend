@@ -6,11 +6,19 @@
 'use client';
 
 import { useState } from 'react';
-import { useApiQuery, useOptimisticMutation } from '@/hooks/useApiQuery';
+import { useRouter } from 'next/navigation';
+import {
+  useApiQuery,
+  useApiMutation,
+  useOptimisticMutation,
+} from '@/hooks/useApiQuery';
 import { useToast } from '@/providers/ToastProvider';
+import { useConfirm } from '@/providers/ConfirmProvider';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
+import { ADMIN_ROLES, type Role } from '@/lib/roles';
 import {
   EMPTY_INTERACTION_FORM,
   type BeneficiaryDetail,
@@ -22,6 +30,9 @@ export function useBeneficiaryDetail(id: string) {
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState<InteractionForm>(EMPTY_INTERACTION_FORM);
   const notify = useToast();
+  const router = useRouter();
+  const confirm = useConfirm();
+  const { data: me } = useCurrentUser();
 
   // GET com cache + cancelamento automático ao desmontar/mudar id.
   const {
@@ -86,6 +97,36 @@ export function useBeneficiaryDetail(id: string) {
     setForm(EMPTY_INTERACTION_FORM);
   }
 
+  // Eliminar beneficiário — só ADMIN/RH (espelha @Roles(ADMIN, RH) do
+  // DELETE /crm/beneficiaries/:id, que faz soft delete). O backend é a
+  // barreira real; esconder o botão é só defesa em profundidade.
+  const role = me?.role?.name as Role | undefined;
+  const canDelete = !!role && ADMIN_ROLES.includes(role);
+
+  const deleteMut = useApiMutation(
+    () => apiClient.delete(`/crm/beneficiaries/${id}`),
+    {
+      invalidateKeys: [queryKeys.beneficiaries.all],
+      onSuccess: () => {
+        notify({ title: 'Beneficiário eliminado.', intent: 'success' });
+        router.push('/crm/beneficiaries');
+      },
+      onError: (e) =>
+        notify({ title: e.message || 'Erro ao eliminar', intent: 'danger' }),
+    },
+  );
+
+  async function onDelete() {
+    const ok = await confirm({
+      title: `Eliminar "${beneficiary?.fullName ?? 'beneficiário'}"?`,
+      message:
+        'O beneficiário deixa de aparecer nas listagens. Esta acção não pode ser desfeita pela interface.',
+      confirmLabel: 'Eliminar',
+      destructive: true,
+    });
+    if (ok) deleteMut.mutate(undefined);
+  }
+
   return {
     beneficiary,
     isLoading,
@@ -96,5 +137,8 @@ export function useBeneficiaryDetail(id: string) {
     form,
     setForm,
     submitInteraction,
+    canDelete,
+    onDelete,
+    isDeleting: deleteMut.isPending,
   };
 }

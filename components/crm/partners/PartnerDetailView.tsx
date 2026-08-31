@@ -20,6 +20,9 @@ interface PartnerDetailViewProps {
   submitInteraction: (e: React.FormEvent) => void;
   completeMilestone: (milestoneId: string) => void;
   saving: boolean;
+  canDelete: boolean;
+  onDelete: () => void;
+  isDeleting: boolean;
 }
 
 export function PartnerDetailView({
@@ -31,6 +34,9 @@ export function PartnerDetailView({
   submitInteraction,
   completeMilestone,
   saving,
+  canDelete,
+  onDelete,
+  isDeleting,
 }: PartnerDetailViewProps) {
   const router = useRouter();
 
@@ -48,15 +54,27 @@ export function PartnerDetailView({
           <h1 className="font-display text-2xl font-bold text-ink">{p.name}</h1>
           <p className="font-mono font-body text-ink-muted">{p.code}</p>
         </div>
-        <span
-          className={cn(
-            'inline-flex items-center gap-1.5 rounded-pill px-2.5 py-0.5 font-body text-xs font-semibold',
-            STATUS_COLORS[p.status] ?? 'bg-surface-sunken text-ink-muted',
+        <div className="flex items-center gap-3">
+          <span
+            className={cn(
+              'inline-flex items-center gap-1.5 rounded-pill px-2.5 py-0.5 font-body text-xs font-semibold',
+              STATUS_COLORS[p.status] ?? 'bg-surface-sunken text-ink-muted',
+            )}
+          >
+            <span className="h-1.5 w-1.5 rounded-full bg-current" />
+            {p.status}
+          </span>
+          {canDelete && (
+            <Button
+              intent="danger"
+              size="sm"
+              onClick={onDelete}
+              loading={isDeleting}
+            >
+              Eliminar
+            </Button>
           )}
-        >
-          <span className="h-1.5 w-1.5 rounded-full bg-current" />
-          {p.status}
-        </span>
+        </div>
       </div>
 
       {/* Dados gerais */}

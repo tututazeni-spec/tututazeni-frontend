@@ -32,6 +32,9 @@ interface FunderDetailViewProps {
   submitInteraction: (e: React.FormEvent) => void;
   addDisbursement: (grantId: string) => void;
   saving: boolean;
+  canDelete: boolean;
+  onDelete: () => void;
+  isDeleting: boolean;
 }
 
 export function FunderDetailView({
@@ -48,6 +51,9 @@ export function FunderDetailView({
   submitInteraction,
   addDisbursement,
   saving,
+  canDelete,
+  onDelete,
+  isDeleting,
 }: FunderDetailViewProps) {
   const router = useRouter();
   const executionRate =
@@ -67,15 +73,27 @@ export function FunderDetailView({
           <h1 className="font-display text-2xl font-bold text-ink">{f.name}</h1>
           <p className="font-mono font-body text-ink-muted">{f.code}</p>
         </div>
-        <span
-          className={cn(
-            'inline-flex items-center gap-1.5 rounded-pill px-2.5 py-0.5 font-body text-xs font-semibold',
-            STATUS_COLORS[f.status] ?? 'bg-surface-sunken text-ink-muted',
+        <div className="flex items-center gap-3">
+          <span
+            className={cn(
+              'inline-flex items-center gap-1.5 rounded-pill px-2.5 py-0.5 font-body text-xs font-semibold',
+              STATUS_COLORS[f.status] ?? 'bg-surface-sunken text-ink-muted',
+            )}
+          >
+            <span className="h-1.5 w-1.5 rounded-full bg-current" />
+            {f.status}
+          </span>
+          {canDelete && (
+            <Button
+              intent="danger"
+              size="sm"
+              onClick={onDelete}
+              loading={isDeleting}
+            >
+              Eliminar
+            </Button>
           )}
-        >
-          <span className="h-1.5 w-1.5 rounded-full bg-current" />
-          {f.status}
-        </span>
+        </div>
       </div>
 
       {/* Resumo financeiro */}

@@ -18,6 +18,9 @@ interface BeneficiaryDetailViewProps {
   form: InteractionForm;
   setForm: (form: InteractionForm) => void;
   submitInteraction: (e: React.FormEvent) => void;
+  canDelete: boolean;
+  onDelete: () => void;
+  isDeleting: boolean;
 }
 
 export function BeneficiaryDetailView({
@@ -27,6 +30,9 @@ export function BeneficiaryDetailView({
   form,
   setForm,
   submitInteraction,
+  canDelete,
+  onDelete,
+  isDeleting,
 }: BeneficiaryDetailViewProps) {
   const router = useRouter();
 
@@ -44,10 +50,22 @@ export function BeneficiaryDetailView({
           <h1 className="font-display text-2xl font-bold text-ink">{b.fullName}</h1>
           <p className="font-mono font-body text-ink-muted">{b.code}</p>
         </div>
-        <span className="inline-flex items-center gap-1.5 rounded-pill px-2.5 py-0.5 font-body text-xs font-semibold bg-info-subtle text-info-ink">
-          <span className="h-1.5 w-1.5 rounded-full bg-current" />
-          {b.status}
-        </span>
+        <div className="flex items-center gap-3">
+          <span className="inline-flex items-center gap-1.5 rounded-pill px-2.5 py-0.5 font-body text-xs font-semibold bg-info-subtle text-info-ink">
+            <span className="h-1.5 w-1.5 rounded-full bg-current" />
+            {b.status}
+          </span>
+          {canDelete && (
+            <Button
+              intent="danger"
+              size="sm"
+              onClick={onDelete}
+              loading={isDeleting}
+            >
+              Eliminar
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Dados gerais */}
