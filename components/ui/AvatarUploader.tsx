@@ -19,7 +19,11 @@ interface AvatarUploaderProps {
   size?: 'sm' | 'md' | 'lg';
 }
 
-export function AvatarUploader({ name, url, size = 'lg' }: AvatarUploaderProps) {
+export function AvatarUploader({
+  name,
+  url,
+  size = 'lg',
+}: AvatarUploaderProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const notify = useToast();
   const { setAvatar, removeAvatar, saving } = useUpdateAvatar();
@@ -32,7 +36,10 @@ export function AvatarUploader({ name, url, size = 'lg' }: AvatarUploaderProps) 
     if (!file) return;
 
     if (file.size > MAX_UPLOAD_BYTES) {
-      notify({ title: 'Imagem demasiado grande (máx. 8 MB)', intent: 'danger' });
+      notify({
+        title: 'Imagem demasiado grande (máx. 8 MB)',
+        intent: 'danger',
+      });
       return;
     }
 
@@ -41,7 +48,8 @@ export function AvatarUploader({ name, url, size = 'lg' }: AvatarUploaderProps) 
       const dataUrl = await resizeImageToDataUrl(file);
       setAvatar(dataUrl);
     } catch (err) {
-      const tooLarge = err instanceof Error && err.message === 'IMAGE_TOO_LARGE';
+      const tooLarge =
+        err instanceof Error && err.message === 'IMAGE_TOO_LARGE';
       notify({
         title: tooLarge
           ? 'Não foi possível comprimir a imagem o suficiente — tenta outra'

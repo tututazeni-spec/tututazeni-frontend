@@ -25,7 +25,10 @@ export interface CurrentUser {
   position?: { name: string; level?: string };
   profile?: { bio: string };
   points?: { points: number };
-  badgeAwards?: { badge: { name: string; description?: string }; awardedAt: string }[];
+  badgeAwards?: {
+    badge: { name: string; description?: string };
+    awardedAt: string;
+  }[];
 }
 
 export function useCurrentUser() {

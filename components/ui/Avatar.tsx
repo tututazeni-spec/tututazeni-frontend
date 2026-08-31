@@ -22,11 +22,16 @@ function getInitials(name: string): string {
 
 function gradientFor(name: string): (typeof GRADIENTS)[number] {
   let hash = 0;
-  for (let i = 0; i < name.length; i++) hash = (hash * 31 + name.charCodeAt(i)) >>> 0;
+  for (let i = 0; i < name.length; i++)
+    hash = (hash * 31 + name.charCodeAt(i)) >>> 0;
   return GRADIENTS[hash % GRADIENTS.length];
 }
 
-const SIZE_CLASSES = { sm: 'h-7 w-7 text-[10px]', md: 'h-9 w-9 text-xs', lg: 'h-12 w-12 text-sm' } as const;
+const SIZE_CLASSES = {
+  sm: 'h-7 w-7 text-[10px]',
+  md: 'h-9 w-9 text-xs',
+  lg: 'h-12 w-12 text-sm',
+} as const;
 
 export interface AvatarProps {
   name: string;
@@ -39,7 +44,13 @@ export function Avatar({ name, url, size = 'md', className }: AvatarProps) {
   if (url) {
     const isData = url.startsWith('data:');
     return (
-      <div className={cn('relative overflow-hidden rounded-full', SIZE_CLASSES[size], className)}>
+      <div
+        className={cn(
+          'relative overflow-hidden rounded-full',
+          SIZE_CLASSES[size],
+          className,
+        )}
+      >
         {isData ? (
           // next/image não processa data URIs; <img> nativo evita-o.
           // eslint-disable-next-line @next/next/no-img-element

@@ -20,7 +20,10 @@ export function useUpdateAvatar() {
       onSuccess: () =>
         notify({ title: 'Foto de perfil actualizada', intent: 'success' }),
       onError: (e) =>
-        notify({ title: e.message || 'Erro ao guardar a foto', intent: 'danger' }),
+        notify({
+          title: e.message || 'Erro ao guardar a foto',
+          intent: 'danger',
+        }),
     },
   );
 
@@ -31,7 +34,10 @@ export function useUpdateAvatar() {
       onSuccess: () =>
         notify({ title: 'Foto de perfil removida', intent: 'success' }),
       onError: (e) =>
-        notify({ title: e.message || 'Erro ao remover a foto', intent: 'danger' }),
+        notify({
+          title: e.message || 'Erro ao remover a foto',
+          intent: 'danger',
+        }),
     },
   );
 

@@ -44,7 +44,10 @@ function drawSquare(
   size: number,
   quality: number,
 ): string {
-  const { sx, sy, side } = computeSquareCrop(img.naturalWidth, img.naturalHeight);
+  const { sx, sy, side } = computeSquareCrop(
+    img.naturalWidth,
+    img.naturalHeight,
+  );
   const canvas = document.createElement('canvas');
   canvas.width = size;
   canvas.height = size;

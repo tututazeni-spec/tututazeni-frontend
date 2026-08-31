@@ -116,7 +116,14 @@ export default function Topbar({ title }: TopbarProps) {
             size="sm"
           />
           <div style={{ textAlign: 'left' }}>
-            <p style={{ fontSize: 13, fontWeight: 600, color: '#1e293b', margin: 0 }}>
+            <p
+              style={{
+                fontSize: 13,
+                fontWeight: 600,
+                color: '#1e293b',
+                margin: 0,
+              }}
+            >
               {user?.fullName ?? 'Utilizador'}
             </p>
             <p style={{ fontSize: 11, color: '#94a3b8', margin: 0 }}>
