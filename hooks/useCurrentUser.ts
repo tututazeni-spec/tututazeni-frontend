@@ -16,6 +16,7 @@ export interface CurrentUser {
   id: number;
   fullName: string;
   email: string;
+  avatarUrl?: string | null;
   active: boolean;
   createdAt: string;
   role?: { name: string; code: string | null; permissions: { name: string }[] };
@@ -24,7 +25,10 @@ export interface CurrentUser {
   position?: { name: string; level?: string };
   profile?: { bio: string };
   points?: { points: number };
-  badgeAwards?: { badge: { name: string; description?: string }; awardedAt: string }[];
+  badgeAwards?: {
+    badge: { name: string; description?: string };
+    awardedAt: string;
+  }[];
 }
 
 export function useCurrentUser() {

@@ -1,6 +1,10 @@
 'use client';
-import { Bell, Search, User } from 'lucide-react';
+import { useState } from 'react';
+import { Bell, Search } from 'lucide-react';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
+import { Avatar } from '@/components/ui/Avatar';
+import { Modal, ModalContent } from '@/components/ui/Modal';
+import { AvatarUploader } from '@/components/ui/AvatarUploader';
 
 interface TopbarProps {
   title?: string;
@@ -8,6 +12,7 @@ interface TopbarProps {
 
 export default function Topbar({ title }: TopbarProps) {
   const { data: user } = useCurrentUser();
+  const [open, setOpen] = useState(false);
 
   return (
     <header
@@ -91,21 +96,26 @@ export default function Topbar({ title }: TopbarProps) {
           />
         </button>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <div
-            style={{
-              width: 32,
-              height: 32,
-              borderRadius: '50%',
-              background: 'linear-gradient(135deg, #3b82f6, #6366f1)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <User size={16} color="#fff" />
-          </div>
-          <div>
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          aria-label="Abrir foto de perfil"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+            background: 'none',
+            border: 'none',
+            padding: 0,
+            cursor: 'pointer',
+          }}
+        >
+          <Avatar
+            name={user?.fullName ?? 'Utilizador'}
+            url={user?.avatarUrl ?? undefined}
+            size="sm"
+          />
+          <div style={{ textAlign: 'left' }}>
             <p
               style={{
                 fontSize: 13,
@@ -120,7 +130,19 @@ export default function Topbar({ title }: TopbarProps) {
               {user?.email ?? ''}
             </p>
           </div>
-        </div>
+        </button>
+
+        <Modal open={open} onOpenChange={setOpen}>
+          <ModalContent title="Foto de perfil">
+            <div className="mt-4">
+              <AvatarUploader
+                name={user?.fullName ?? 'Utilizador'}
+                url={user?.avatarUrl ?? undefined}
+                size="lg"
+              />
+            </div>
+          </ModalContent>
+        </Modal>
       </div>
     </header>
   );
