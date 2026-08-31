@@ -160,11 +160,11 @@ export function ProgressModal({ onClose, onMarked }: ProgressModalProps) {
               </div>
               <div className="flex flex-col gap-2">
                 {progress.map((p) => {
-                  const ct = CONTENT_TYPE[p.lesson.contentType] ?? {
+                  const ct = CONTENT_TYPE[p.lesson.type] ?? {
                     icon: '📖',
                     color: '#64748b',
                     bg: '#f8fafc',
-                    label: p.lesson.contentType,
+                    label: p.lesson.type,
                   };
                   return (
                     <div
