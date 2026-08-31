@@ -189,7 +189,7 @@ export function LPDetailView({ pathId, onBack }: LPDetailViewProps) {
                   </div>
                   {nextStep && (
                     <a
-                      href={`/courses/${nextStep.courseId}`}
+                      href={`/courses/${nextStep.courseId}/learn`}
                       className="mt-2 block font-body text-xs text-primary hover:underline"
                     >
                       Continuar →
@@ -329,7 +329,7 @@ export function LPDetailView({ pathId, onBack }: LPDetailViewProps) {
                       step.status !== 'COMPLETED' &&
                       isEnrolled && (
                         <a
-                          href={`/courses/${step.courseId}`}
+                          href={`/courses/${step.courseId}/learn`}
                           className={`flex-shrink-0 rounded-lg px-3 py-1.5 font-body text-xs font-medium ${
                             step.status === 'IN_PROGRESS'
                               ? 'bg-primary text-canvas hover:bg-primary-hover'

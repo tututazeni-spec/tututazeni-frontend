@@ -119,7 +119,7 @@ export function EnrollmentCard({ enrollment, onCancel }: EnrollmentCardProps) {
             <div>
               {status === 'NOT_STARTED' && (
                 <a
-                  href={`/courses/${enrollment.courseId}`}
+                  href={`/courses/${enrollment.courseId}/learn`}
                   className={buttonVariants({ intent: 'primary', size: 'sm' })}
                 >
                   Iniciar →
@@ -127,7 +127,7 @@ export function EnrollmentCard({ enrollment, onCancel }: EnrollmentCardProps) {
               )}
               {status === 'IN_PROGRESS' && (
                 <a
-                  href={`/courses/${enrollment.courseId}`}
+                  href={`/courses/${enrollment.courseId}/learn`}
                   className={buttonVariants({ intent: 'primary', size: 'sm' })}
                 >
                   Continuar →
@@ -135,7 +135,7 @@ export function EnrollmentCard({ enrollment, onCancel }: EnrollmentCardProps) {
               )}
               {status === 'OVERDUE' && (
                 <a
-                  href={`/courses/${enrollment.courseId}`}
+                  href={`/courses/${enrollment.courseId}/learn`}
                   className={buttonVariants({ intent: 'danger', size: 'sm' })}
                 >
                   <AlertTriangle size={14} strokeWidth={1.75} />
