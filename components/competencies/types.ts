@@ -27,6 +27,29 @@ export interface Competency {
   proficiencyLevels?: ProficiencyLevel[];
 }
 
+// Forma devolvida por GET /competencies/:id (competencies.service.ts#findOne).
+export interface CompetencyDetail {
+  id: number;
+  name: string;
+  description: string | null;
+  category: CompetencyCategory;
+  tags: string[];
+  status: CompetencyStatus;
+  proficiencyLevels: ProficiencyLevel[];
+  courses: Array<{
+    id: number;
+    levelGained: number;
+    course: { id: number; title: string; status: string };
+  }>;
+  positions: Array<{
+    id: number;
+    requiredLevel: number;
+    priority: string;
+    position: { id: number; name: string; level: string | null } | null;
+  }>;
+  _count: { userCompetencies: number; endorsements: number };
+}
+
 export interface UserCompetency {
   id: number;
   competencyId: number;

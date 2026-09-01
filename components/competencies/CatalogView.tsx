@@ -33,19 +33,31 @@ const CATEGORY_ITEMS = [
   })),
 ];
 
+// Só ADMIN/RH pode ver competências fora do estado ACTIVE — para os
+// restantes o catálogo mostra sempre e só as activas.
+const STATUS_ITEMS = [
+  { value: 'ACTIVE', label: 'Activas' },
+  { value: 'INACTIVE', label: 'Arquivadas' },
+  { value: 'ALL', label: 'Todas' },
+];
+
 interface CatalogViewProps {
   onSelect: (id: number) => void;
+  /** ADMIN/RH: mostra o filtro de estado e a etiqueta "Arquivada" nos cartões. */
+  canManage?: boolean;
 }
 
-export function CatalogView({ onSelect }: CatalogViewProps) {
+export function CatalogView({ onSelect, canManage = false }: CatalogViewProps) {
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('ALL');
+  const [statusFilter, setStatusFilter] = useState('ACTIVE');
   const [page, setPage] = useState(1);
   const debouncedSearch = useDebounce(search);
+  const effectiveStatus = canManage ? statusFilter : 'ACTIVE';
   const params = {
     page,
     limit: 24,
-    status: 'ACTIVE',
+    status: effectiveStatus === 'ALL' ? '' : effectiveStatus,
     search: debouncedSearch,
     category: category === 'ALL' ? '' : category,
   };
@@ -80,6 +92,16 @@ export function CatalogView({ onSelect }: CatalogViewProps) {
             setPage(1);
           }}
         />
+        {canManage && (
+          <Select
+            items={STATUS_ITEMS}
+            value={statusFilter}
+            onValueChange={(v) => {
+              setStatusFilter(v);
+              setPage(1);
+            }}
+          />
+        )}
         <span className="font-body text-sm text-ink-faint">
           {data?.total ?? 0} competências
         </span>
@@ -108,7 +130,14 @@ export function CatalogView({ onSelect }: CatalogViewProps) {
                   <div className="mb-1 font-body text-sm font-semibold text-ink">
                     {comp.name}
                   </div>
-                  <StatusBadge value={comp.category} map={CATEGORY_CFG} />
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    <StatusBadge value={comp.category} map={CATEGORY_CFG} />
+                    {canManage && comp.status === 'INACTIVE' && (
+                      <span className="rounded bg-surface-sunken px-1.5 py-0.5 font-body text-xs text-ink-muted">
+                        Arquivada
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
               {comp.description && (
