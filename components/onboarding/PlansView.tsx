@@ -39,9 +39,14 @@ const STATUS_ITEMS = [
 export interface PlansViewProps {
   /** ADMIN/RH: passa para o detalhe a acção "Remover plano". */
   canDelete?: boolean;
+  /** ADMIN/RH/GESTOR: passa para o detalhe aprovar / rejeitar / saltar tarefas. */
+  canManageTasks?: boolean;
 }
 
-export function PlansView({ canDelete = false }: PlansViewProps) {
+export function PlansView({
+  canDelete = false,
+  canManageTasks = false,
+}: PlansViewProps) {
   const [filters, setFilters] = useState({
     status: 'ALL',
     templateId: 'ALL',
@@ -160,6 +165,7 @@ export function PlansView({ canDelete = false }: PlansViewProps) {
         <PlanDetailModal
           planId={detailId}
           canDelete={canDelete}
+          canManageTasks={canManageTasks}
           onClose={() => setDetailId(null)}
         />
       )}

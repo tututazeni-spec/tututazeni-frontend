@@ -26,9 +26,14 @@ import type { Dashboard } from './types';
 export interface DashboardViewProps {
   /** ADMIN/RH: passa para o detalhe do plano a acção "Remover plano". */
   canDelete?: boolean;
+  /** ADMIN/RH/GESTOR: aprovar / rejeitar / saltar tarefas no detalhe. */
+  canManageTasks?: boolean;
 }
 
-export function DashboardView({ canDelete = false }: DashboardViewProps) {
+export function DashboardView({
+  canDelete = false,
+  canManageTasks = false,
+}: DashboardViewProps) {
   const [detailId, setDetailId] = useState<number | null>(null);
   const { data, isLoading } = useApiQuery<Dashboard>(
     queryKeys.onboarding.dashboard(),
@@ -138,6 +143,7 @@ export function DashboardView({ canDelete = false }: DashboardViewProps) {
         <PlanDetailModal
           planId={detailId}
           canDelete={canDelete}
+          canManageTasks={canManageTasks}
           onClose={() => setDetailId(null)}
         />
       )}

@@ -190,6 +190,7 @@ export interface OnboardingPlanListItem {
 // GET /onboarding/:id — plano + progresso + tarefas agrupadas por fase.
 export interface PlanTaskInstance extends TaskInstance {
   approvedBy: { id: number; fullName: string } | null;
+  approvalNote: string | null;
 }
 
 export interface OnboardingPlanDetail {

@@ -76,8 +76,12 @@ export default function OnboardingPage() {
       </div>
 
       {view === 'my-plan' && <MyPlanView />}
-      {view === 'plans' && <PlansView canDelete={canManage} />}
-      {view === 'dashboard' && <DashboardView canDelete={canManage} />}
+      {view === 'plans' && (
+        <PlansView canDelete={canManage} canManageTasks={isMgmt} />
+      )}
+      {view === 'dashboard' && (
+        <DashboardView canDelete={canManage} canManageTasks={isMgmt} />
+      )}
       {view === 'templates' && <TemplatesView canManage={canManage} />}
 
       {showCreate && (
