@@ -52,9 +52,12 @@ vi.mock('@/components/ui/Modal', () => ({
   ),
 }));
 
-// Stub — o formulário de tarefa tem cobertura própria.
+// Stubs — os formulários têm cobertura própria.
 vi.mock('./TemplateTaskFormModal', () => ({
   TemplateTaskFormModal: () => <div>stub-task-form</div>,
+}));
+vi.mock('./TemplateFormModal', () => ({
+  TemplateFormModal: () => <div>stub-template-form</div>,
 }));
 
 import { TemplateDetailModal } from './TemplateDetailModal';
@@ -160,5 +163,49 @@ describe('TemplateDetailModal', () => {
     expect(
       screen.getByText('Não foi possível carregar o template.'),
     ).toBeInTheDocument();
+  });
+});
+
+describe('TemplateDetailModal — editar / apagar template', () => {
+  test('sem canManage não mostra "Editar" nem "Apagar template"', () => {
+    renderModal({ canManage: false });
+    expect(
+      screen.queryByRole('button', { name: 'Editar' }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Apagar template' }),
+    ).not.toBeInTheDocument();
+  });
+
+  test('"Editar" abre o formulário do template', () => {
+    renderModal();
+    fireEvent.click(screen.getByRole('button', { name: 'Editar' }));
+    expect(screen.getByText('stub-template-form')).toBeInTheDocument();
+  });
+
+  test('"Apagar template" confirma e envia DELETE /onboarding/templates/:id', async () => {
+    const onClose = vi.fn();
+    renderModal({ onClose });
+    fireEvent.click(screen.getByRole('button', { name: 'Apagar template' }));
+
+    await waitFor(() => expect(del).toHaveBeenCalledTimes(1));
+    expect(del).toHaveBeenCalledWith('/onboarding/templates/3');
+    await waitFor(() => expect(onClose).toHaveBeenCalledTimes(1));
+    expect(toast).toHaveBeenCalledWith(
+      expect.objectContaining({ intent: 'success' }),
+    );
+  });
+
+  test('com planos associados "Apagar template" fica desactivado e mostra aviso', () => {
+    detailResult = {
+      data: { ...baseDetail, _count: { plans: 4 } },
+      isLoading: false,
+      error: null,
+    };
+    renderModal();
+    expect(
+      screen.getByRole('button', { name: 'Apagar template' }),
+    ).toBeDisabled();
+    expect(screen.getByText(/4 planos associados/)).toBeInTheDocument();
   });
 });

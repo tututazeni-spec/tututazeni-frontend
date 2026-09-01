@@ -1,16 +1,18 @@
-// components/onboarding/CreateTemplateModal.tsx
-// Modal "+ Novo template" do cabeçalho do separador "Templates" do
-// onboarding. Segue o padrão de components/knowledge/CreateArticleModal — a
-// page só monta o componente quando está aberto, por isso o Modal fica
-// sempre `open` e `onOpenChange` delega em `onClose` (X, clique fora, Escape).
+// components/onboarding/TemplateFormModal.tsx
+// Modal único de criação e edição de um template de onboarding. Aberto do
+// cabeçalho do separador "Templates" ("+ Novo template") e do
+// TemplateDetailModal ("Editar"). Segue o padrão de
+// components/competencies/CompetencyFormModal — a page/modal só monta o
+// componente quando está aberto (Modal sempre `open`, onOpenChange delega
+// em onClose).
 //
-// Submete em POST /onboarding/templates (@Roles(ADMIN, RH) no backend,
-// onboarding.controller.ts). O botão que abre esta modal já está escondido
-// para quem não é ADMIN/RH — aqui só tratamos o formulário. DTO:
-// CreateOnboardingTemplateDto — name e durationDays obrigatórios;
-// description, welcomeVideoUrl e active opcionais (active default true no
-// backend, por isso só enviamos quando o utilizador o desliga). As tarefas
-// do template adicionam-se depois, no detalhe do template.
+// Criar → POST /onboarding/templates; editar → PUT /onboarding/templates/:id
+// (@Roles(ADMIN, RH), onboarding.controller.ts). DTO: name e durationDays
+// obrigatórios; description, welcomeVideoUrl e active opcionais. `active`
+// default true no backend — na criação só é enviado quando desligado; na
+// edição é sempre enviado (é a única forma de "arquivar" um template, não
+// há endpoint dedicado). positionId/departmentId/learningPathId ficam fora
+// deste formulário enxuto (v1) e não são tocados no update.
 
 'use client';
 
@@ -27,53 +29,70 @@ import { Select } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
 import { cn } from '@/lib/cn';
 import { useToast } from '@/providers/ToastProvider';
+import type { OnboardingTemplateDetail } from './types';
 
-export interface CreateTemplateModalProps {
+export interface TemplateFormModalProps {
+  /** Ausente/null → criar; template → editar esse template. */
+  template?: OnboardingTemplateDetail | null;
   onClose: () => void;
 }
 
 // Durações típicas de um plano de integração. O DTO aceita qualquer inteiro
-// >= 1, mas estas cobrem os casos reais e evitam entrada livre.
-const DURATION_ITEMS = [
-  { value: '7', label: '7 dias' },
-  { value: '15', label: '15 dias' },
-  { value: '30', label: '30 dias' },
-  { value: '60', label: '60 dias' },
-  { value: '90', label: '90 dias' },
-];
+// >= 1, mas estas cobrem os casos reais e evitam entrada livre. Uma duração
+// existente fora da lista é acrescentada dinamicamente.
+const BASE_DURATIONS = ['7', '15', '30', '60', '90'];
 
-export function CreateTemplateModal({ onClose }: CreateTemplateModalProps) {
+export function TemplateFormModal({
+  template,
+  onClose,
+}: TemplateFormModalProps) {
   const notify = useToast();
+  const editing = template != null;
 
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
-  const [durationDays, setDurationDays] = useState('30');
-  const [welcomeVideoUrl, setWelcomeVideoUrl] = useState('');
-  const [active, setActive] = useState(true);
+  const [name, setName] = useState(template?.name ?? '');
+  const [description, setDescription] = useState(template?.description ?? '');
+  const [durationDays, setDurationDays] = useState(
+    String(template?.durationDays ?? 30),
+  );
+  const [welcomeVideoUrl, setWelcomeVideoUrl] = useState(
+    template?.welcomeVideoUrl ?? '',
+  );
+  const [active, setActive] = useState(template?.active ?? true);
   const [submitError, setSubmitError] = useState('');
+
+  const durationItems = Array.from(new Set([...BASE_DURATIONS, durationDays]))
+    .map(Number)
+    .sort((a, b) => a - b)
+    .map((d) => ({ value: String(d), label: `${d} dias` }));
 
   const canSubmit = name.trim().length > 0;
 
-  const createTemplate = useApiMutation(
+  const save = useApiMutation(
     (body: Record<string, unknown>) =>
-      apiClient.post('/onboarding/templates', body),
+      editing
+        ? apiClient.put(`/onboarding/templates/${template.id}`, body)
+        : apiClient.post('/onboarding/templates', body),
     {
-      invalidateKeys: [queryKeys.onboarding.all],
+      invalidateKeys: editing
+        ? [queryKeys.onboarding.all, queryKeys.onboarding.template(template.id)]
+        : [queryKeys.onboarding.all],
       onSuccess: () => {
         notify({
-          title: 'Template criado',
-          description: 'Adicione as tarefas no detalhe do template.',
+          title: editing ? 'Template actualizado' : 'Template criado',
+          description: editing
+            ? undefined
+            : 'Adicione as tarefas no detalhe do template.',
           intent: 'success',
         });
         onClose();
       },
       onError: (e) =>
         setSubmitError(
-          e.message || 'Erro ao criar o template. Tente novamente.',
+          e.message || 'Erro ao guardar o template. Tente novamente.',
         ),
     },
   );
-  const loading = createTemplate.isPending;
+  const loading = save.isPending;
 
   const handleSubmit = () => {
     if (!canSubmit || loading) return;
@@ -83,17 +102,25 @@ export function CreateTemplateModal({ onClose }: CreateTemplateModalProps) {
       durationDays: Number(durationDays),
     };
     if (description.trim()) payload.description = description.trim();
+    else if (editing) payload.description = null;
     if (welcomeVideoUrl.trim())
       payload.welcomeVideoUrl = welcomeVideoUrl.trim();
-    if (!active) payload.active = false;
-    createTemplate.mutate(payload);
+    else if (editing) payload.welcomeVideoUrl = null;
+    // Criar: backend usa default true, só enviamos quando desligado.
+    // Editar: enviamos sempre (é o mecanismo de "arquivar").
+    if (editing || !active) payload.active = active;
+    save.mutate(payload);
   };
 
   return (
     <Modal open onOpenChange={(open) => !open && onClose()}>
       <ModalContent
-        title="Novo template"
-        description="Cria um modelo de integração. As tarefas de cada fase adicionam-se depois, no detalhe do template."
+        title={editing ? 'Editar template' : 'Novo template'}
+        description={
+          editing
+            ? 'Actualiza os dados do modelo de integração. Desligar "Template activo" arquiva-o.'
+            : 'Cria um modelo de integração. As tarefas de cada fase adicionam-se depois, no detalhe do template.'
+        }
         className="max-w-lg max-h-[90vh] overflow-y-auto"
       >
         <div className="mt-5 space-y-4">
@@ -128,7 +155,7 @@ export function CreateTemplateModal({ onClose }: CreateTemplateModalProps) {
 
           <FormField label="Duração *" htmlFor="ot-duration">
             <Select
-              items={DURATION_ITEMS}
+              items={durationItems}
               value={durationDays}
               onValueChange={setDurationDays}
               className="w-full"
@@ -169,7 +196,7 @@ export function CreateTemplateModal({ onClose }: CreateTemplateModalProps) {
             disabled={!canSubmit}
             loading={loading}
           >
-            Criar template
+            {editing ? 'Guardar' : 'Criar template'}
           </Button>
         </div>
       </ModalContent>

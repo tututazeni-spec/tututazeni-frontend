@@ -6,9 +6,15 @@
 // POST/PUT/DELETE /onboarding/templates/tasks em onboarding.controller.ts.
 //
 // As tarefas vêm ordenadas por `seq`; aqui agrupam-se por fase (PHASE_ORDER)
-// para dar a leitura de "o que acontece em cada momento do onboarding". O
-// formulário de tarefa (TemplateTaskFormModal) abre por cima deste modal,
-// mesmo padrão de CompetencyDetailModal → CompetencyFormModal.
+// para dar a leitura de "o que acontece em cada momento do onboarding". Os
+// formulários (TemplateTaskFormModal para tarefas, TemplateFormModal para os
+// metadados) abrem por cima deste modal, mesmo padrão de
+// CompetencyDetailModal → CompetencyFormModal.
+//
+// Rodapé (canManage): "Editar" → PUT /onboarding/templates/:id;
+// "Apagar template" → DELETE /onboarding/templates/:id (@Roles(ADMIN, RH)).
+// O backend recusa (403) apagar um template com planos associados — o
+// botão já aparece desactivado nesse caso, com o toast a servir de rede.
 
 'use client';
 
@@ -31,6 +37,7 @@ import {
   RESPONSIBLE_LABELS,
   TASK_TYPE_LABELS,
 } from './constants';
+import { TemplateFormModal } from './TemplateFormModal';
 import { TemplateTaskFormModal } from './TemplateTaskFormModal';
 import type {
   OnboardingTemplateDetail,
@@ -55,6 +62,7 @@ export function TemplateDetailModal({
   const confirm = useConfirm();
   const toast = useToast();
   const [form, setForm] = useState<FormState>(null);
+  const [showEdit, setShowEdit] = useState(false);
 
   const { data, isLoading, error } = useApiQuery<OnboardingTemplateDetail>(
     queryKeys.onboarding.template(templateId),
@@ -75,8 +83,24 @@ export function TemplateDetailModal({
     },
   );
 
+  const deleteTemplate = useApiMutation(
+    () => apiClient.delete(`/onboarding/templates/${templateId}`),
+    {
+      invalidateKeys: [
+        queryKeys.onboarding.all,
+        queryKeys.onboarding.template(templateId),
+      ],
+      onSuccess: () => {
+        toast({ title: 'Template eliminado.', intent: 'success' });
+        onClose();
+      },
+      onError: (e) => toast({ title: e.message, intent: 'danger' }),
+    },
+  );
+
   const tasks = data?.tasks ?? [];
   const nextSeq = tasks.length ? Math.max(...tasks.map((t) => t.seq)) + 1 : 0;
+  const planCount = data?._count?.plans ?? 0;
 
   async function onDelete(task: TemplateTask) {
     const ok = await confirm({
@@ -87,6 +111,17 @@ export function TemplateDetailModal({
       destructive: true,
     });
     if (ok) remove.mutate(task.id);
+  }
+
+  async function onDeleteTemplate() {
+    const ok = await confirm({
+      title: `Eliminar o template "${data?.name ?? ''}"?`,
+      message:
+        'O template e todas as suas tarefas são eliminados de forma permanente. Para o retirar de circulação sem perder o registo, desligue "Template activo" em Editar.',
+      confirmLabel: 'Eliminar',
+      destructive: true,
+    });
+    if (ok) deleteTemplate.mutate(undefined);
   }
 
   return (
@@ -224,10 +259,41 @@ export function TemplateDetailModal({
             </div>
           )}
 
-          <div className="mt-6 flex justify-end border-t border-border pt-4">
-            <Button intent="ghost" onClick={onClose}>
-              Fechar
-            </Button>
+          <div className="mt-6 flex items-start justify-between gap-3 border-t border-border pt-4">
+            <div>
+              {canManage && data && (
+                <>
+                  <Button
+                    intent="danger"
+                    onClick={onDeleteTemplate}
+                    loading={deleteTemplate.isPending}
+                    disabled={planCount > 0 || deleteTemplate.isPending}
+                  >
+                    Apagar template
+                  </Button>
+                  {planCount > 0 && (
+                    <p className="mt-1.5 max-w-[18rem] font-body text-xs text-ink-faint">
+                      Tem {planCount}{' '}
+                      {planCount === 1
+                        ? 'plano associado'
+                        : 'planos associados'}{' '}
+                      — arquive-o em Editar (desligar Template activo) em vez de
+                      apagar.
+                    </p>
+                  )}
+                </>
+              )}
+            </div>
+            <div className="flex shrink-0 gap-3">
+              {canManage && data && (
+                <Button intent="secondary" onClick={() => setShowEdit(true)}>
+                  Editar
+                </Button>
+              )}
+              <Button intent="ghost" onClick={onClose}>
+                Fechar
+              </Button>
+            </div>
           </div>
         </ModalContent>
       </Modal>
@@ -246,6 +312,10 @@ export function TemplateDetailModal({
             })
           }
         />
+      )}
+
+      {showEdit && data && (
+        <TemplateFormModal template={data} onClose={() => setShowEdit(false)} />
       )}
     </>
   );

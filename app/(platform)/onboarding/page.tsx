@@ -18,7 +18,7 @@ import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { ADMIN_ROLES, type Role } from '@/lib/roles';
 import { NAV, TITLES } from '@/components/onboarding/constants';
 import { AssignPlanModal } from '@/components/onboarding/AssignPlanModal';
-import { CreateTemplateModal } from '@/components/onboarding/CreateTemplateModal';
+import { TemplateFormModal } from '@/components/onboarding/TemplateFormModal';
 import { DashboardView } from '@/components/onboarding/DashboardView';
 import { MyPlanView } from '@/components/onboarding/MyPlanView';
 import { PlansView } from '@/components/onboarding/PlansView';
@@ -84,9 +84,7 @@ export default function OnboardingPage() {
       )}
       {view === 'templates' && <TemplatesView canManage={canManage} />}
 
-      {showCreate && (
-        <CreateTemplateModal onClose={() => setShowCreate(false)} />
-      )}
+      {showCreate && <TemplateFormModal onClose={() => setShowCreate(false)} />}
       {showAssign && <AssignPlanModal onClose={() => setShowAssign(false)} />}
     </div>
   );
