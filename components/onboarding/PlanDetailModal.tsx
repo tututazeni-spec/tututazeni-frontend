@@ -2,15 +2,22 @@
 // Detalhe de um plano de integração de um colaborador, aberto a partir da
 // lista do separador "Planos" e das linhas do Dashboard. Leitura para
 // ADMIN/RH/GESTOR (GET /onboarding/:id faz assertCanAccess com esses
-// papéis + o dono do plano). O rodapé "Remover plano" só aparece com
-// `canDelete` (ADMIN/RH), espelhando @Roles(ADMIN, RH) no DELETE
-// /onboarding/:id.
+// papéis + o dono do plano).
 //
-// Aprovar / saltar tarefas fica para o bloco C — aqui o detalhe é de
-// leitura, com a excepção da remoção do plano.
+// Acções:
+//  - "Remover plano" (rodapé) — `canDelete` (ADMIN/RH), DELETE /onboarding/:id.
+//  - Por tarefa, com `canManageTasks` (ADMIN/RH/GESTOR):
+//      · "Aprovar" / "Rejeitar" — só quando a tarefa exige aprovação e o
+//        colaborador já a marcou como feita (requiresApproval + status
+//        IN_PROGRESS, que é o estado em que completeTask a deixa).
+//        POST /onboarding/tasks/approve { decision }.
+//      · "Saltar" — qualquer tarefa por concluir. POST /onboarding/tasks/skip
+//        { reason } (motivo obrigatório).
+//    Rejeitar/Saltar abrem um painel inline com textarea; Aprovar é directo.
 
 'use client';
 
+import { useState } from 'react';
 import { AlertCircle } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
@@ -25,6 +32,7 @@ import { Modal, ModalContent } from '@/components/ui/Modal';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
+import { Textarea } from '@/components/ui/Textarea';
 import {
   CATEGORY_CFG,
   PHASE_LABELS,
@@ -32,22 +40,32 @@ import {
   STATUS_CFG,
   TASK_STATUS_CFG,
 } from './constants';
-import type { OnboardingPlanDetail } from './types';
+import type { OnboardingPlanDetail, PlanTaskInstance } from './types';
 
 export interface PlanDetailModalProps {
   planId: number;
   /** ADMIN/RH: mostra a acção "Remover plano". */
   canDelete: boolean;
+  /** ADMIN/RH/GESTOR: mostra aprovar / rejeitar / saltar por tarefa. */
+  canManageTasks?: boolean;
   onClose: () => void;
 }
+
+// Estados em que ainda faz sentido saltar uma tarefa.
+const SKIPPABLE = new Set(['PENDING', 'IN_PROGRESS', 'BLOCKED']);
+
+type PendingAction = { taskId: number; kind: 'skip' | 'reject' } | null;
 
 export function PlanDetailModal({
   planId,
   canDelete,
+  canManageTasks = false,
   onClose,
 }: PlanDetailModalProps) {
   const confirm = useConfirm();
   const toast = useToast();
+  const [pending, setPending] = useState<PendingAction>(null);
+  const [reason, setReason] = useState('');
 
   const { data, isLoading, error } = useApiQuery<OnboardingPlanDetail>(
     queryKeys.onboarding.plan(planId),
@@ -55,20 +73,73 @@ export function PlanDetailModal({
     { staleTime: STALE_TIME.DYNAMIC },
   );
 
+  const invalidateKeys = [
+    queryKeys.onboarding.all,
+    queryKeys.onboarding.plan(planId),
+  ];
+  const onTaskError = (e: Error) =>
+    toast({ title: e.message, intent: 'danger' });
+  const afterTaskAction = (title: string) => {
+    toast({ title, intent: 'success' });
+    setPending(null);
+    setReason('');
+  };
+
   const remove = useApiMutation(
     () => apiClient.delete(`/onboarding/${planId}`),
     {
-      invalidateKeys: [
-        queryKeys.onboarding.all,
-        queryKeys.onboarding.plan(planId),
-      ],
+      invalidateKeys,
       onSuccess: () => {
         toast({ title: 'Plano removido.', intent: 'success' });
         onClose();
       },
-      onError: (e) => toast({ title: e.message, intent: 'danger' }),
+      onError: onTaskError,
     },
   );
+
+  const approve = useApiMutation(
+    (taskInstanceId: number) =>
+      apiClient.post('/onboarding/tasks/approve', {
+        taskInstanceId,
+        decision: 'approve',
+      }),
+    {
+      invalidateKeys,
+      onSuccess: () => afterTaskAction('Tarefa aprovada.'),
+      onError: onTaskError,
+    },
+  );
+
+  const reject = useApiMutation(
+    (v: { taskInstanceId: number; comment: string }) =>
+      apiClient.post('/onboarding/tasks/approve', {
+        taskInstanceId: v.taskInstanceId,
+        decision: 'reject',
+        ...(v.comment.trim() ? { comment: v.comment.trim() } : {}),
+      }),
+    {
+      invalidateKeys,
+      onSuccess: () =>
+        afterTaskAction('Tarefa rejeitada — volta ao colaborador.'),
+      onError: onTaskError,
+    },
+  );
+
+  const skip = useApiMutation(
+    (v: { taskInstanceId: number; reason: string }) =>
+      apiClient.post('/onboarding/tasks/skip', {
+        taskInstanceId: v.taskInstanceId,
+        reason: v.reason.trim(),
+      }),
+    {
+      invalidateKeys,
+      onSuccess: () => afterTaskAction('Tarefa saltada.'),
+      onError: onTaskError,
+    },
+  );
+
+  const busy =
+    remove.isPending || approve.isPending || reject.isPending || skip.isPending;
 
   async function onDelete() {
     const ok = await confirm({
@@ -79,6 +150,16 @@ export function PlanDetailModal({
       destructive: true,
     });
     if (ok) remove.mutate(undefined);
+  }
+
+  function confirmPanel(task: PlanTaskInstance) {
+    if (!pending || pending.taskId !== task.id) return;
+    if (pending.kind === 'skip') {
+      if (!reason.trim()) return;
+      skip.mutate({ taskInstanceId: task.id, reason });
+    } else {
+      reject.mutate({ taskInstanceId: task.id, comment: reason });
+    }
   }
 
   const team = data
@@ -190,53 +271,161 @@ export function PlanDetailModal({
                     {phaseTasks.map((task) => {
                       const stCfg = TASK_STATUS_CFG[task.status];
                       const catCfg = CATEGORY_CFG[task.templateTask.category];
+                      const awaitingApproval =
+                        task.templateTask.requiresApproval &&
+                        task.status === 'IN_PROGRESS';
+                      const canSkip = SKIPPABLE.has(task.status);
+                      const showActions =
+                        canManageTasks && (awaitingApproval || canSkip);
+                      const panelOpen = pending?.taskId === task.id;
                       return (
                         <li
                           key={task.id}
-                          className="flex items-start gap-3 rounded-card border border-border bg-surface p-3"
+                          className="rounded-card border border-border bg-surface p-3"
                         >
-                          <span
-                            className={`mt-0.5 text-sm ${stCfg?.cls ?? ''}`}
-                          >
-                            {stCfg?.icon ?? '•'}
-                          </span>
-                          <div className="min-w-0 flex-1">
-                            <div className="flex flex-wrap items-center gap-2">
-                              <span className="font-body text-sm font-medium text-ink">
-                                {task.templateTask.title}
-                              </span>
-                              {catCfg && (
-                                <span
-                                  className={`rounded px-1.5 py-0.5 font-body text-xs ${catCfg.cls}`}
-                                >
-                                  {catCfg.label}
+                          <div className="flex items-start gap-3">
+                            <span
+                              className={`mt-0.5 text-sm ${stCfg?.cls ?? ''}`}
+                            >
+                              {stCfg?.icon ?? '•'}
+                            </span>
+                            <div className="min-w-0 flex-1">
+                              <div className="flex flex-wrap items-center gap-2">
+                                <span className="font-body text-sm font-medium text-ink">
+                                  {task.templateTask.title}
                                 </span>
-                              )}
-                            </div>
-                            <div className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 font-body text-xs text-ink-faint">
-                              {task.dueDate && (
-                                <span>Prazo {fmtDate(task.dueDate)}</span>
-                              )}
-                              {task.completedAt && (
-                                <span className="text-success-ink">
-                                  Concluída {fmtDate(task.completedAt)}
-                                </span>
-                              )}
-                              {task.templateTask.requiresApproval &&
-                                (task.approvedBy ? (
+                                {catCfg && (
+                                  <span
+                                    className={`rounded px-1.5 py-0.5 font-body text-xs ${catCfg.cls}`}
+                                  >
+                                    {catCfg.label}
+                                  </span>
+                                )}
+                              </div>
+                              <div className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 font-body text-xs text-ink-faint">
+                                {task.dueDate && (
+                                  <span>Prazo {fmtDate(task.dueDate)}</span>
+                                )}
+                                {task.completedAt && (
                                   <span className="text-success-ink">
-                                    Aprovada por {task.approvedBy.fullName}
+                                    Concluída {fmtDate(task.completedAt)}
                                   </span>
-                                ) : (
-                                  <span className="text-warning-ink">
-                                    Aguarda aprovação
-                                  </span>
-                                ))}
-                              {task.skipReason && (
-                                <span>Saltada: {task.skipReason}</span>
-                              )}
+                                )}
+                                {task.templateTask.requiresApproval &&
+                                  (task.approvedBy ? (
+                                    <span className="text-success-ink">
+                                      Aprovada por {task.approvedBy.fullName}
+                                    </span>
+                                  ) : awaitingApproval ? (
+                                    <span className="text-warning-ink">
+                                      Aguarda aprovação
+                                    </span>
+                                  ) : (
+                                    <span>Requer aprovação</span>
+                                  ))}
+                                {task.approvalNote && (
+                                  <span>Nota: {task.approvalNote}</span>
+                                )}
+                                {task.skipReason && (
+                                  <span>Saltada: {task.skipReason}</span>
+                                )}
+                              </div>
                             </div>
+                            {showActions && !panelOpen && (
+                              <div className="flex shrink-0 flex-wrap justify-end gap-1">
+                                {awaitingApproval && (
+                                  <>
+                                    <Button
+                                      size="sm"
+                                      intent="secondary"
+                                      disabled={busy}
+                                      loading={approve.isPending}
+                                      onClick={() => approve.mutate(task.id)}
+                                    >
+                                      Aprovar
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      intent="ghost"
+                                      disabled={busy}
+                                      onClick={() => {
+                                        setReason('');
+                                        setPending({
+                                          taskId: task.id,
+                                          kind: 'reject',
+                                        });
+                                      }}
+                                    >
+                                      Rejeitar
+                                    </Button>
+                                  </>
+                                )}
+                                {canSkip && (
+                                  <Button
+                                    size="sm"
+                                    intent="ghost"
+                                    disabled={busy}
+                                    onClick={() => {
+                                      setReason('');
+                                      setPending({
+                                        taskId: task.id,
+                                        kind: 'skip',
+                                      });
+                                    }}
+                                  >
+                                    Saltar
+                                  </Button>
+                                )}
+                              </div>
+                            )}
                           </div>
+
+                          {panelOpen && (
+                            <div className="mt-3 border-t border-border pt-3">
+                              <Textarea
+                                value={reason}
+                                onChange={(e) => setReason(e.target.value)}
+                                rows={2}
+                                className="w-full"
+                                placeholder={
+                                  pending?.kind === 'skip'
+                                    ? 'Motivo para saltar a tarefa (obrigatório)…'
+                                    : 'Comentário para o colaborador (opcional)…'
+                                }
+                              />
+                              <div className="mt-2 flex justify-end gap-2">
+                                <Button
+                                  size="sm"
+                                  intent="ghost"
+                                  disabled={busy}
+                                  onClick={() => {
+                                    setPending(null);
+                                    setReason('');
+                                  }}
+                                >
+                                  Cancelar
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  intent={
+                                    pending?.kind === 'skip'
+                                      ? 'primary'
+                                      : 'danger'
+                                  }
+                                  loading={skip.isPending || reject.isPending}
+                                  disabled={
+                                    busy ||
+                                    (pending?.kind === 'skip' && !reason.trim())
+                                  }
+                                  onClick={() => confirmPanel(task)}
+                                >
+                                  {pending?.kind === 'skip'
+                                    ? 'Saltar tarefa'
+                                    : 'Rejeitar tarefa'}
+                                </Button>
+                              </div>
+                            </div>
+                          )}
                         </li>
                       );
                     })}
@@ -254,6 +443,7 @@ export function PlanDetailModal({
                 intent="danger"
                 onClick={onDelete}
                 loading={remove.isPending}
+                disabled={busy}
               >
                 Remover plano
               </Button>

@@ -2,8 +2,12 @@ import { describe, expect, test, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 
 const del = vi.fn().mockResolvedValue({ message: 'ok' });
+const post = vi.fn().mockResolvedValue({ ok: true });
 vi.mock('@/lib/apiClient', () => ({
-  apiClient: { delete: (...a: unknown[]) => del(...a) },
+  apiClient: {
+    delete: (...a: unknown[]) => del(...a),
+    post: (...a: unknown[]) => post(...a),
+  },
 }));
 
 let detailResult: { data: unknown; isLoading: boolean; error: unknown } = {
@@ -56,6 +60,40 @@ vi.mock('@/components/ui/Modal', () => ({
 
 import { PlanDetailModal } from './PlanDetailModal';
 
+function templateTask(over: Record<string, unknown> = {}) {
+  return {
+    id: 1,
+    templateId: 3,
+    title: 'Tarefa',
+    description: null,
+    category: 'DOCUMENTS',
+    type: 'TASK',
+    phase: 'DAY_1',
+    responsible: 'HR',
+    dueDayOffset: 1,
+    xpReward: 10,
+    requiresApproval: false,
+    requiresEvidence: false,
+    seq: 0,
+    ...over,
+  };
+}
+function instance(over: Record<string, unknown> = {}) {
+  return {
+    id: 11,
+    status: 'COMPLETED',
+    dueDate: '2026-08-02T00:00:00.000Z',
+    completedAt: '2026-08-02T00:00:00.000Z',
+    evidenceComment: null,
+    evidenceUrl: null,
+    skipReason: null,
+    approvedBy: null,
+    approvalNote: null,
+    templateTask: templateTask(),
+    ...over,
+  };
+}
+
 const baseDetail = {
   id: 7,
   status: 'IN_PROGRESS',
@@ -87,31 +125,20 @@ const baseDetail = {
   surveys: [],
   byPhase: {
     DAY_1: [
-      {
+      instance({
         id: 11,
-        status: 'COMPLETED',
-        dueDate: '2026-08-02T00:00:00.000Z',
-        completedAt: '2026-08-02T00:00:00.000Z',
-        evidenceComment: null,
-        evidenceUrl: null,
-        skipReason: null,
-        approvedBy: null,
-        templateTask: {
-          id: 1,
-          templateId: 3,
-          title: 'Entregar documentos',
-          description: null,
-          category: 'DOCUMENTS',
-          type: 'TASK',
-          phase: 'DAY_1',
-          responsible: 'HR',
-          dueDayOffset: 1,
-          xpReward: 10,
-          requiresApproval: false,
-          requiresEvidence: false,
-          seq: 0,
-        },
-      },
+        templateTask: templateTask({ title: 'Entregar documentos' }),
+      }),
+      instance({
+        id: 21,
+        status: 'IN_PROGRESS',
+        completedAt: null,
+        templateTask: templateTask({
+          id: 2,
+          title: 'Ler código de conduta',
+          requiresApproval: true,
+        }),
+      }),
     ],
   },
 };
@@ -120,18 +147,25 @@ function renderModal(
   props: Partial<React.ComponentProps<typeof PlanDetailModal>> = {},
 ) {
   return render(
-    <PlanDetailModal planId={7} canDelete onClose={vi.fn()} {...props} />,
+    <PlanDetailModal
+      planId={7}
+      canDelete
+      canManageTasks
+      onClose={vi.fn()}
+      {...props}
+    />,
   );
 }
 
 beforeEach(() => {
   del.mockClear().mockResolvedValue({ message: 'ok' });
+  post.mockClear().mockResolvedValue({ ok: true });
   toast.mockClear();
   confirmFn.mockReset().mockResolvedValue(true);
   detailResult = { data: baseDetail, isLoading: false, error: null };
 });
 
-describe('PlanDetailModal', () => {
+describe('PlanDetailModal — leitura e remoção', () => {
   test('mostra colaborador, template e tarefa por fase', () => {
     renderModal();
     expect(screen.getAllByText('Ana Silva').length).toBeGreaterThan(0);
@@ -172,5 +206,61 @@ describe('PlanDetailModal', () => {
     expect(
       screen.getByText('Não foi possível carregar o plano.'),
     ).toBeInTheDocument();
+  });
+});
+
+describe('PlanDetailModal — aprovar / rejeitar / saltar', () => {
+  test('sem canManageTasks não mostra acções por tarefa', () => {
+    renderModal({ canManageTasks: false });
+    expect(
+      screen.queryByRole('button', { name: 'Aprovar' }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Saltar' }),
+    ).not.toBeInTheDocument();
+  });
+
+  test('"Aprovar" envia POST /onboarding/tasks/approve decision=approve', async () => {
+    renderModal();
+    fireEvent.click(screen.getByRole('button', { name: 'Aprovar' }));
+
+    await waitFor(() => expect(post).toHaveBeenCalledTimes(1));
+    expect(post).toHaveBeenCalledWith('/onboarding/tasks/approve', {
+      taskInstanceId: 21,
+      decision: 'approve',
+    });
+  });
+
+  test('"Saltar" exige motivo e envia POST /onboarding/tasks/skip', async () => {
+    renderModal();
+    fireEvent.click(screen.getByRole('button', { name: 'Saltar' }));
+
+    const confirmBtn = screen.getByRole('button', { name: 'Saltar tarefa' });
+    expect(confirmBtn).toBeDisabled();
+
+    fireEvent.change(
+      screen.getByPlaceholderText(/Motivo para saltar a tarefa/),
+      { target: { value: '  Não aplicável ao cargo  ' } },
+    );
+    expect(confirmBtn).toBeEnabled();
+    fireEvent.click(confirmBtn);
+
+    await waitFor(() => expect(post).toHaveBeenCalledTimes(1));
+    expect(post).toHaveBeenCalledWith('/onboarding/tasks/skip', {
+      taskInstanceId: 21,
+      reason: 'Não aplicável ao cargo',
+    });
+  });
+
+  test('"Rejeitar" envia decision=reject (comentário opcional)', async () => {
+    renderModal();
+    fireEvent.click(screen.getByRole('button', { name: 'Rejeitar' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Rejeitar tarefa' }));
+
+    await waitFor(() => expect(post).toHaveBeenCalledTimes(1));
+    expect(post).toHaveBeenCalledWith('/onboarding/tasks/approve', {
+      taskInstanceId: 21,
+      decision: 'reject',
+    });
   });
 });
