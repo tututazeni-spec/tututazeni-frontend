@@ -12,6 +12,7 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { Card, CardBody } from '@/components/ui/Card';
 import { KpiCard, type KpiCardProps } from '@/components/ui/KpiCard';
 import { ProgressBar } from '@/components/ui/ProgressBar';
+import { QueryError } from '@/components/ui/QueryError';
 import { Skeleton } from '@/components/ui/Skeleton';
 import type { GovernanceData } from './types';
 
@@ -22,7 +23,13 @@ const ALERT_STYLES: Record<string, { box: string; icon: string }> = {
 };
 
 export function GovernanceTab() {
-  const { data, isLoading: loading } = useApiQuery<GovernanceData>(
+  const {
+    data,
+    isLoading: loading,
+    isError,
+    error,
+    refetch,
+  } = useApiQuery<GovernanceData>(
     queryKeys.rolesPermissions.governance(),
     '/roles-permissions/governance-stats',
     { staleTime: STALE_TIME.DYNAMIC },
@@ -34,6 +41,11 @@ export function GovernanceTab() {
         itemClassName="skeleton-shimmer h-24 rounded-card"
       />
     );
+
+  // Sem este ramo, uma falha do GET /governance-stats mostrava todos os KPIs
+  // a zero — parecia dados reais ("0 acessos negados"), não uma falha.
+  if (isError)
+    return <QueryError error={error} onRetry={() => void refetch()} />;
 
   const kpis: Array<{
     label: string;

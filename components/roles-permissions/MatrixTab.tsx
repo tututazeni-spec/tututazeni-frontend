@@ -10,6 +10,7 @@ import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Button } from '@/components/ui/Button';
+import { QueryError } from '@/components/ui/QueryError';
 import { Skeleton } from '@/components/ui/Skeleton';
 import {
   Table,
@@ -79,7 +80,13 @@ const translatePermName = (p: MatrixPermission): string =>
 
 export function MatrixTab() {
   const [subject, setSubject] = useState('');
-  const { data, isLoading: loading } = useApiQuery<MatrixData>(
+  const {
+    data,
+    isLoading: loading,
+    isError,
+    error,
+    refetch,
+  } = useApiQuery<MatrixData>(
     queryKeys.rolesPermissions.matrix(),
     '/roles-permissions/matrix',
     { staleTime: STALE_TIME.SEMI_STATIC },
@@ -92,6 +99,11 @@ export function MatrixTab() {
         itemClassName="skeleton-shimmer h-16 rounded-card"
       />
     );
+
+  // Sem este ramo, uma falha do GET /matrix deixava só o cabeçalho da tabela
+  // e nenhuma linha — indistinguível de "matriz vazia".
+  if (isError)
+    return <QueryError error={error} onRetry={() => void refetch()} />;
 
   const subjects = (data?.grouped ?? []).map((g) => g.subject);
   const filtered = subject
