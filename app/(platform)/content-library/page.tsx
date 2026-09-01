@@ -7,6 +7,7 @@
 // usa para ListView/CompareView/AnnualView). Ver memory
 // project_innova_component_separation_audit.
 
+import { useState } from 'react';
 import {
   BarChart2,
   BookOpen,
@@ -16,14 +17,22 @@ import {
   TrendingUp,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
+import { AddContentModal } from '@/components/content-library/AddContentModal';
 import { AnalyticsTab } from '@/components/content-library/AnalyticsTab';
 import { CatalogueTab } from '@/components/content-library/CatalogueTab';
 import { HomeTab } from '@/components/content-library/HomeTab';
 import { MyProgressTab } from '@/components/content-library/MyProgressTab';
 import { PathsTab } from '@/components/content-library/PathsTab';
 import type { Tab } from '@/components/content-library/types';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { Button } from '@/components/ui/Button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
+import type { Role } from '@/lib/roles';
+
+// Espelha AUTHOR_ROLES em src/content-library/content-library.controller.ts
+// (@Roles no POST /content-library). Não usar ADMIN_ROLES de lib/roles.ts —
+// esse não inclui INSTRUCTOR, que o backend autoriza a criar conteúdo.
+const AUTHOR_ROLES: readonly Role[] = ['ADMIN', 'RH', 'INSTRUCTOR'];
 
 const TABS: { id: Tab; label: string; icon: LucideIcon }[] = [
   { id: 'home', label: 'Início', icon: BookOpen },
@@ -34,6 +43,11 @@ const TABS: { id: Tab; label: string; icon: LucideIcon }[] = [
 ];
 
 export default function ContentLibraryPage() {
+  const { data: currentUser } = useCurrentUser();
+  const role = currentUser?.role?.name as Role | undefined;
+  const canAddContent = !!role && AUTHOR_ROLES.includes(role);
+  const [showAdd, setShowAdd] = useState(false);
+
   return (
     <div className="min-h-screen bg-canvas">
       {/* Header */}
@@ -46,14 +60,18 @@ export default function ContentLibraryPage() {
               </h1>
             </div>
           </div>
-          <div className="flex gap-2">
-            <Button size="sm">
-              <Plus size={14} strokeWidth={1.75} />
-              Adicionar Conteúdo
-            </Button>
-          </div>
+          {canAddContent && (
+            <div className="flex gap-2">
+              <Button size="sm" onClick={() => setShowAdd(true)}>
+                <Plus size={14} strokeWidth={1.75} />
+                Adicionar Conteúdo
+              </Button>
+            </div>
+          )}
         </div>
       </div>
+
+      {showAdd && <AddContentModal onClose={() => setShowAdd(false)} />}
 
       {/* Tabs */}
       <Tabs defaultValue="home">
