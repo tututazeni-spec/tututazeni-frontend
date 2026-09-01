@@ -145,6 +145,8 @@ export const queryKeys = {
     all: ['competencies'] as const,
     catalog: (params: Record<string, unknown>) =>
       [...queryKeys.competencies.all, 'catalog', params] as const,
+    detail: (id: number) =>
+      [...queryKeys.competencies.all, 'detail', id] as const,
     myProfile: () => [...queryKeys.competencies.all, 'my-profile'] as const,
     myEvolution: () => [...queryKeys.competencies.all, 'my-evolution'] as const,
     skillMatrix: (deptId: string) =>

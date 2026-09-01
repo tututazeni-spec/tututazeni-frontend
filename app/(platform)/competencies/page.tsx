@@ -1,18 +1,26 @@
 // src/app/(dashboard)/competencies/page.tsx
 'use client';
 
-// Container: gere o separador activo; delega dados+apresentação de cada
-// separador aos componentes auto-contidos em components/competencies/
-// (mesmo padrão que components/payslips/page.tsx usa para ListView/
-// CompareView/AnnualView). Ver memory
-// project_innova_component_separation_audit. Migrado para a fundação
-// de design: nav em pílula e botão de acção passam a Button (mesmo
-// padrão de app/(platform)/sucession/page.tsx).
+// Container: gere o separador activo e os modais de CRUD do catálogo;
+// delega dados+apresentação de cada separador aos componentes
+// auto-contidos em components/competencies/ (mesmo padrão que
+// components/payslips/page.tsx usa para ListView/CompareView/AnnualView).
+// Ver memory project_innova_component_separation_audit. Migrado para a
+// fundação de design: nav em pílula e botão de acção passam a Button
+// (mesmo padrão de app/(platform)/sucession/page.tsx).
+//
+// "+ Nova competência", "Editar" e "Arquivar" só aparecem a ADMIN/RH,
+// espelhando @Roles(ADMIN, RH) em competencies.controller.ts. O clique
+// num cartão do catálogo abre o detalhe (leitura aberta a todos).
 
 import { useState } from 'react';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
+import { ADMIN_ROLES, type Role } from '@/lib/roles';
 import { useToast } from '@/providers/ToastProvider';
 import { NAV, TITLES } from '@/components/competencies/constants';
 import { CatalogView } from '@/components/competencies/CatalogView';
+import { CompetencyDetailModal } from '@/components/competencies/CompetencyDetailModal';
+import { CompetencyFormModal } from '@/components/competencies/CompetencyFormModal';
 import { DashboardView } from '@/components/competencies/DashboardView';
 import { MyProfileView } from '@/components/competencies/MyProfileView';
 import { SkillMatrixView } from '@/components/competencies/SkillMatrixView';
@@ -21,7 +29,16 @@ import { Button } from '@/components/ui/Button';
 
 export default function CompetenciesPage() {
   const notify = useToast();
+  const { data: currentUser } = useCurrentUser();
+  const role = currentUser?.role?.name as Role | undefined;
+  const canManage = !!role && ADMIN_ROLES.includes(role);
+
   const [view, setView] = useState<View>('catalog');
+  const [detailId, setDetailId] = useState<number | null>(null);
+  // null → fechado; { competencyId: null } → criar; { competencyId: n } → editar.
+  const [form, setForm] = useState<{ competencyId: number | null } | null>(
+    null,
+  );
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
@@ -31,18 +48,10 @@ export default function CompetenciesPage() {
           <h1 className="font-display text-xl font-semibold text-ink">
             {TITLES[view]}
           </h1>
-          <p className="mt-0.5 font-body text-sm text-ink-faint">
-          </p>
+          <p className="mt-0.5 font-body text-sm text-ink-faint"></p>
         </div>
-        {view === 'catalog' && (
-          <Button
-            onClick={() =>
-              notify({
-                title: 'Abrir formulário de criação de competência',
-                intent: 'info',
-              })
-            }
-          >
+        {view === 'catalog' && canManage && (
+          <Button onClick={() => setForm({ competencyId: null })}>
             + Nova competência
           </Button>
         )}
@@ -62,12 +71,39 @@ export default function CompetenciesPage() {
         ))}
       </div>
 
-      {/* Sem vista de detalhe ligada ainda — o CatalogView exige onSelect mas
-          nada consome o id seleccionado neste momento. */}
-      {view === 'catalog' && <CatalogView onSelect={() => {}} />}
+      {view === 'catalog' && (
+        <CatalogView onSelect={setDetailId} canManage={canManage} />
+      )}
       {view === 'my-profile' && <MyProfileView />}
       {view === 'matrix' && <SkillMatrixView />}
       {view === 'dashboard' && <DashboardView />}
+
+      {detailId !== null && (
+        <CompetencyDetailModal
+          competencyId={detailId}
+          canManage={canManage}
+          onEdit={() => {
+            setForm({ competencyId: detailId });
+            setDetailId(null);
+          }}
+          onClose={() => setDetailId(null)}
+        />
+      )}
+
+      {form !== null && (
+        <CompetencyFormModal
+          competencyId={form.competencyId}
+          onClose={() => setForm(null)}
+          onSuccess={() =>
+            notify({
+              title: form.competencyId
+                ? 'Competência actualizada.'
+                : 'Competência criada.',
+              intent: 'success',
+            })
+          }
+        />
+      )}
     </div>
   );
 }
