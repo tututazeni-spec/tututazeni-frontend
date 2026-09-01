@@ -62,7 +62,7 @@ export default function LiveRoomPage() {
     } catch (e) {
       reportError(e, { source: 'LiveRoomPage.handleLeft' });
     }
-    router.push('/live');
+    router.push('/live-classes');
   }, [classId, stopSessionTimer, router]);
 
   // Loading
@@ -93,7 +93,7 @@ export default function LiveRoomPage() {
           ❌ {queryError?.message || 'Aula não encontrada'}
         </p>
         <button
-          onClick={() => router.push('/live')}
+          onClick={() => router.push('/live-classes')}
           className="py-2.25 px-5 bg-danger border-none rounded-[9px] text-canvas cursor-pointer text-sm font-bold"
         >
           ← Voltar
@@ -122,7 +122,7 @@ export default function LiveRoomPage() {
           <div className="flex items-center gap-3.5 py-2.5 px-4.5 bg-white/3 border-b border-white/7 flex-shrink-0">
             {/* Back */}
             <button
-              onClick={() => router.push('/live')}
+              onClick={() => router.push('/live-classes')}
               className="bg-white/8 border-none rounded-lg py-1.5 px-3 text-ink-muted text-xs cursor-pointer flex items-center gap-1.5"
             >
               ← Sair
