@@ -297,6 +297,9 @@ export const queryKeys = {
     templates: () => [...queryKeys.onboarding.all, 'templates'] as const,
     template: (id: number) =>
       [...queryKeys.onboarding.all, 'templates', id] as const,
+    plans: (params: Record<string, unknown>) =>
+      [...queryKeys.onboarding.all, 'plans', params] as const,
+    plan: (id: number) => [...queryKeys.onboarding.all, 'plans', id] as const,
   },
 
   trainings: {
