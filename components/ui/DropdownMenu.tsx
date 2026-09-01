@@ -18,7 +18,7 @@ export function DropdownMenuContent({
       <RadixDropdown.Content
         sideOffset={sideOffset}
         className={cn(
-          'z-50 min-w-[180px] rounded-card border border-border bg-surface p-1 shadow-elevated',
+          'z-[60] min-w-[180px] rounded-card border border-border bg-surface p-1 shadow-elevated',
           className,
         )}
         {...props}
