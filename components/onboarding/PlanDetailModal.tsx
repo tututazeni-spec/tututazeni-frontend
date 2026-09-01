@@ -5,7 +5,8 @@
 // papéis + o dono do plano).
 //
 // Acções:
-//  - "Remover plano" (rodapé) — `canDelete` (ADMIN/RH), DELETE /onboarding/:id.
+//  - "Remover plano" (rodapé) e validar documentos — `canManagePlan`
+//    (ADMIN/RH). DELETE /onboarding/:id e PATCH /onboarding/documents/validate.
 //  - Por tarefa, com `canManageTasks` (ADMIN/RH/GESTOR):
 //      · "Aprovar" / "Rejeitar" — só quando a tarefa exige aprovação e o
 //        colaborador já a marcou como feita (requiresApproval + status
@@ -13,7 +14,8 @@
 //        POST /onboarding/tasks/approve { decision }.
 //      · "Saltar" — qualquer tarefa por concluir. POST /onboarding/tasks/skip
 //        { reason } (motivo obrigatório).
-//    Rejeitar/Saltar abrem um painel inline com textarea; Aprovar é directo.
+//    Rejeitar (tarefa/documento) e Saltar abrem um painel inline com
+//    textarea; Aprovar é directo.
 
 'use client';
 
@@ -27,6 +29,7 @@ import { formatDate as fmtDate } from '@/lib/format';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
 import { Avatar } from '@/components/ui/Avatar';
+import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Modal, ModalContent } from '@/components/ui/Modal';
 import { ProgressBar } from '@/components/ui/ProgressBar';
@@ -40,12 +43,16 @@ import {
   STATUS_CFG,
   TASK_STATUS_CFG,
 } from './constants';
-import type { OnboardingPlanDetail, PlanTaskInstance } from './types';
+import type {
+  DocStatus,
+  OnboardingPlanDetail,
+  PlanTaskInstance,
+} from './types';
 
 export interface PlanDetailModalProps {
   planId: number;
   /** ADMIN/RH: mostra a acção "Remover plano". */
-  canDelete: boolean;
+  canManagePlan: boolean;
   /** ADMIN/RH/GESTOR: mostra aprovar / rejeitar / saltar por tarefa. */
   canManageTasks?: boolean;
   onClose: () => void;
@@ -54,11 +61,22 @@ export interface PlanDetailModalProps {
 // Estados em que ainda faz sentido saltar uma tarefa.
 const SKIPPABLE = new Set(['PENDING', 'IN_PROGRESS', 'BLOCKED']);
 
+const DOC_LABEL: Record<DocStatus, string> = {
+  PENDING: 'Pendente',
+  APPROVED: 'Aprovado',
+  REJECTED: 'Rejeitado',
+};
+const DOC_BADGE: Record<DocStatus, 'warning' | 'success' | 'danger'> = {
+  PENDING: 'warning',
+  APPROVED: 'success',
+  REJECTED: 'danger',
+};
+
 type PendingAction = { taskId: number; kind: 'skip' | 'reject' } | null;
 
 export function PlanDetailModal({
   planId,
-  canDelete,
+  canManagePlan,
   canManageTasks = false,
   onClose,
 }: PlanDetailModalProps) {
@@ -66,6 +84,9 @@ export function PlanDetailModal({
   const toast = useToast();
   const [pending, setPending] = useState<PendingAction>(null);
   const [reason, setReason] = useState('');
+  // Painel de rejeição de documento (id do documento) + motivo.
+  const [docReject, setDocReject] = useState<number | null>(null);
+  const [docReason, setDocReason] = useState('');
 
   const { data, isLoading, error } = useApiQuery<OnboardingPlanDetail>(
     queryKeys.onboarding.plan(planId),
@@ -138,8 +159,38 @@ export function PlanDetailModal({
     },
   );
 
+  const validateDoc = useApiMutation(
+    (v: { documentId: number; status: DocStatus; rejectionReason?: string }) =>
+      apiClient.patch('/onboarding/documents/validate', {
+        documentId: v.documentId,
+        status: v.status,
+        ...(v.rejectionReason?.trim()
+          ? { rejectionReason: v.rejectionReason.trim() }
+          : {}),
+      }),
+    {
+      invalidateKeys,
+      onSuccess: (_d, v) => {
+        toast({
+          title:
+            (v as { status: DocStatus }).status === 'APPROVED'
+              ? 'Documento aprovado.'
+              : 'Documento rejeitado.',
+          intent: 'success',
+        });
+        setDocReject(null);
+        setDocReason('');
+      },
+      onError: onTaskError,
+    },
+  );
+
   const busy =
-    remove.isPending || approve.isPending || reject.isPending || skip.isPending;
+    remove.isPending ||
+    approve.isPending ||
+    reject.isPending ||
+    skip.isPending ||
+    validateDoc.isPending;
 
   async function onDelete() {
     const ok = await confirm({
@@ -433,12 +484,136 @@ export function PlanDetailModal({
                 </section>
               );
             })}
+
+            {/* Documentos */}
+            {data.documents.length > 0 && (
+              <section>
+                <h3 className="mb-2 font-body text-xs font-semibold uppercase tracking-wide text-ink-faint">
+                  Documentos
+                  <span className="ml-1.5 text-ink-faint">
+                    ({data.documents.length})
+                  </span>
+                </h3>
+                <ul className="space-y-2">
+                  {data.documents.map((doc) => {
+                    const rejectOpen = docReject === doc.id;
+                    return (
+                      <li
+                        key={doc.id}
+                        className="rounded-card border border-border bg-surface p-3"
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0 flex-1">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <span className="font-body text-sm font-medium text-ink">
+                                {doc.documentType}
+                              </span>
+                              <Badge dot={false} intent={DOC_BADGE[doc.status]}>
+                                {DOC_LABEL[doc.status]}
+                              </Badge>
+                            </div>
+                            <div className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 font-body text-xs text-ink-faint">
+                              <a
+                                href={doc.fileUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="text-primary hover:underline"
+                              >
+                                Abrir documento
+                              </a>
+                              <span>Enviado {fmtDate(doc.createdAt)}</span>
+                              {doc.notes && <span>Nota: {doc.notes}</span>}
+                              {doc.rejectionReason && (
+                                <span className="text-danger-ink">
+                                  Motivo: {doc.rejectionReason}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          {canManagePlan &&
+                            doc.status === 'PENDING' &&
+                            !rejectOpen && (
+                              <div className="flex shrink-0 gap-1">
+                                <Button
+                                  size="sm"
+                                  intent="secondary"
+                                  disabled={busy}
+                                  loading={validateDoc.isPending}
+                                  onClick={() =>
+                                    validateDoc.mutate({
+                                      documentId: doc.id,
+                                      status: 'APPROVED',
+                                    })
+                                  }
+                                >
+                                  Aprovar documento
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  intent="ghost"
+                                  disabled={busy}
+                                  onClick={() => {
+                                    setDocReason('');
+                                    setDocReject(doc.id);
+                                  }}
+                                >
+                                  Rejeitar documento
+                                </Button>
+                              </div>
+                            )}
+                        </div>
+
+                        {rejectOpen && (
+                          <div className="mt-3 border-t border-border pt-3">
+                            <Textarea
+                              value={docReason}
+                              onChange={(e) => setDocReason(e.target.value)}
+                              rows={2}
+                              className="w-full"
+                              placeholder="Motivo da rejeição (opcional)…"
+                            />
+                            <div className="mt-2 flex justify-end gap-2">
+                              <Button
+                                size="sm"
+                                intent="ghost"
+                                disabled={busy}
+                                onClick={() => {
+                                  setDocReject(null);
+                                  setDocReason('');
+                                }}
+                              >
+                                Cancelar
+                              </Button>
+                              <Button
+                                size="sm"
+                                intent="danger"
+                                loading={validateDoc.isPending}
+                                disabled={busy}
+                                onClick={() =>
+                                  validateDoc.mutate({
+                                    documentId: doc.id,
+                                    status: 'REJECTED',
+                                    rejectionReason: docReason,
+                                  })
+                                }
+                              >
+                                Confirmar rejeição
+                              </Button>
+                            </div>
+                          </div>
+                        )}
+                      </li>
+                    );
+                  })}
+                </ul>
+              </section>
+            )}
           </div>
         )}
 
         <div className="mt-6 flex items-center justify-between border-t border-border pt-4">
           <div>
-            {canDelete && data && (
+            {canManagePlan && data && (
               <Button
                 intent="danger"
                 onClick={onDelete}

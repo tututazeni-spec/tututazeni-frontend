@@ -25,13 +25,13 @@ import type { Dashboard } from './types';
 
 export interface DashboardViewProps {
   /** ADMIN/RH: passa para o detalhe do plano a acção "Remover plano". */
-  canDelete?: boolean;
+  canManagePlan?: boolean;
   /** ADMIN/RH/GESTOR: aprovar / rejeitar / saltar tarefas no detalhe. */
   canManageTasks?: boolean;
 }
 
 export function DashboardView({
-  canDelete = false,
+  canManagePlan = false,
   canManageTasks = false,
 }: DashboardViewProps) {
   const [detailId, setDetailId] = useState<number | null>(null);
@@ -142,7 +142,7 @@ export function DashboardView({
       {detailId !== null && (
         <PlanDetailModal
           planId={detailId}
-          canDelete={canDelete}
+          canManagePlan={canManagePlan}
           canManageTasks={canManageTasks}
           onClose={() => setDetailId(null)}
         />

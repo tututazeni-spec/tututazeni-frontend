@@ -2,7 +2,7 @@
 // Separador "Planos" — lista filtrável e paginada de todos os planos de
 // integração. ADMIN/RH/GESTOR (GET /onboarding é @Roles(ADMIN, RH, GESTOR)).
 // A linha abre o PlanDetailModal; a remoção do plano vive lá dentro e só
-// para ADMIN/RH (prop `canDelete`, resolvida no page.tsx).
+// para ADMIN/RH (prop `canManagePlan`, resolvida no page.tsx).
 
 'use client';
 
@@ -38,13 +38,13 @@ const STATUS_ITEMS = [
 
 export interface PlansViewProps {
   /** ADMIN/RH: passa para o detalhe a acção "Remover plano". */
-  canDelete?: boolean;
+  canManagePlan?: boolean;
   /** ADMIN/RH/GESTOR: passa para o detalhe aprovar / rejeitar / saltar tarefas. */
   canManageTasks?: boolean;
 }
 
 export function PlansView({
-  canDelete = false,
+  canManagePlan = false,
   canManageTasks = false,
 }: PlansViewProps) {
   const [filters, setFilters] = useState({
@@ -164,7 +164,7 @@ export function PlansView({
       {detailId !== null && (
         <PlanDetailModal
           planId={detailId}
-          canDelete={canDelete}
+          canManagePlan={canManagePlan}
           canManageTasks={canManageTasks}
           onClose={() => setDetailId(null)}
         />

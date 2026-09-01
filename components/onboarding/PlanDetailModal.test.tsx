@@ -3,10 +3,12 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 
 const del = vi.fn().mockResolvedValue({ message: 'ok' });
 const post = vi.fn().mockResolvedValue({ ok: true });
+const patch = vi.fn().mockResolvedValue({ ok: true });
 vi.mock('@/lib/apiClient', () => ({
   apiClient: {
     delete: (...a: unknown[]) => del(...a),
     post: (...a: unknown[]) => post(...a),
+    patch: (...a: unknown[]) => patch(...a),
   },
 }));
 
@@ -121,7 +123,17 @@ const baseDetail = {
   buddy: null,
   manager: null,
   hrResponsible: null,
-  documents: [],
+  documents: [
+    {
+      id: 5,
+      documentType: 'Cópia do BI',
+      fileUrl: 'https://drive.example/bi',
+      status: 'PENDING',
+      notes: null,
+      rejectionReason: null,
+      createdAt: '2026-08-03T00:00:00.000Z',
+    },
+  ],
   surveys: [],
   byPhase: {
     DAY_1: [
@@ -149,7 +161,7 @@ function renderModal(
   return render(
     <PlanDetailModal
       planId={7}
-      canDelete
+      canManagePlan
       canManageTasks
       onClose={vi.fn()}
       {...props}
@@ -160,6 +172,7 @@ function renderModal(
 beforeEach(() => {
   del.mockClear().mockResolvedValue({ message: 'ok' });
   post.mockClear().mockResolvedValue({ ok: true });
+  patch.mockClear().mockResolvedValue({ ok: true });
   toast.mockClear();
   confirmFn.mockReset().mockResolvedValue(true);
   detailResult = { data: baseDetail, isLoading: false, error: null };
@@ -174,8 +187,8 @@ describe('PlanDetailModal — leitura e remoção', () => {
     expect(screen.getByText('Entregar documentos')).toBeInTheDocument();
   });
 
-  test('sem canDelete não mostra "Remover plano"', () => {
-    renderModal({ canDelete: false });
+  test('sem canManagePlan não mostra "Remover plano"', () => {
+    renderModal({ canManagePlan: false });
     expect(
       screen.queryByRole('button', { name: 'Remover plano' }),
     ).not.toBeInTheDocument();
@@ -261,6 +274,50 @@ describe('PlanDetailModal — aprovar / rejeitar / saltar', () => {
     expect(post).toHaveBeenCalledWith('/onboarding/tasks/approve', {
       taskInstanceId: 21,
       decision: 'reject',
+    });
+  });
+});
+
+describe('PlanDetailModal — validação de documentos', () => {
+  test('mostra o documento com link e estado', () => {
+    renderModal();
+    expect(screen.getByText('Cópia do BI')).toBeInTheDocument();
+    expect(
+      screen.getByRole('link', { name: 'Abrir documento' }),
+    ).toHaveAttribute('href', 'https://drive.example/bi');
+  });
+
+  test('sem canManagePlan não mostra acções de documento', () => {
+    renderModal({ canManagePlan: false });
+    expect(
+      screen.queryByRole('button', { name: 'Aprovar documento' }),
+    ).not.toBeInTheDocument();
+  });
+
+  test('"Aprovar documento" envia PATCH status=APPROVED', async () => {
+    renderModal();
+    fireEvent.click(screen.getByRole('button', { name: 'Aprovar documento' }));
+
+    await waitFor(() => expect(patch).toHaveBeenCalledTimes(1));
+    expect(patch).toHaveBeenCalledWith('/onboarding/documents/validate', {
+      documentId: 5,
+      status: 'APPROVED',
+    });
+  });
+
+  test('"Rejeitar documento" abre painel e envia PATCH status=REJECTED', async () => {
+    renderModal();
+    fireEvent.click(screen.getByRole('button', { name: 'Rejeitar documento' }));
+    fireEvent.change(screen.getByPlaceholderText(/Motivo da rejeição/), {
+      target: { value: '  Ilegível  ' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Confirmar rejeição' }));
+
+    await waitFor(() => expect(patch).toHaveBeenCalledTimes(1));
+    expect(patch).toHaveBeenCalledWith('/onboarding/documents/validate', {
+      documentId: 5,
+      status: 'REJECTED',
+      rejectionReason: 'Ilegível',
     });
   });
 });
