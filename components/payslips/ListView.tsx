@@ -64,6 +64,20 @@ export function ListView({ onSelect }: ListViewProps) {
         <span className="font-body text-sm text-ink-faint">
           {data?.total ?? 0} recibos
         </span>
+        <Button
+          intent="secondary"
+          size="sm"
+          className="ml-auto"
+          onClick={() =>
+            window.open(
+              `${API_BASE}/payslips/my/annual-summary/export?year=${year}&format=pdf`,
+              '_blank',
+            )
+          }
+        >
+          <Download size={14} strokeWidth={1.75} />
+          Exportar ano
+        </Button>
       </div>
 
       {/* Tabela */}
