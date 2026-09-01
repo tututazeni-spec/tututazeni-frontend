@@ -13,6 +13,7 @@ import { useToast } from '@/providers/ToastProvider';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { Input } from '@/components/ui/Input';
 import { ProgressBar } from '@/components/ui/ProgressBar';
@@ -32,11 +33,32 @@ export function ResultsTab() {
       apiClient.get<unknown>(`/evaluations/evolution/${uid}`),
     ]),
   );
-  const result = loadResults.data?.[0] ?? null;
+  const raw = loadResults.data?.[0] ?? null;
   const loading = loadResults.isPending;
 
+  // O backend responde 200 com { evaluated, hasResults: false } quando o
+  // colaborador ainda não tem nenhuma avaliação de desempenho registada
+  // (evaluation.service.ts). Nesse caso não vêm finalScore/byType/
+  // competencies/qualitative — e o bloco de resultados abaixo rebentava em
+  // runtime logo no primeiro campo (`result.finalScore.toFixed(1)` →
+  // "Cannot read properties of undefined"). Separamos os dois casos: `result`
+  // só é verdadeiro quando há de facto um resultado completo para desenhar.
+  const noResults =
+    !!raw && (raw.hasResults === false || raw.finalScore == null);
+  const result = raw && !noResults ? raw : null;
+
   const load = () => {
-    if (userId) loadResults.mutate(userId);
+    const id = userId.trim();
+    if (!id) return;
+    if (!/^\d+$/.test(id)) {
+      notify({
+        title: 'ID inválido',
+        description: 'O ID do colaborador é numérico (ex.: 42).',
+        intent: 'danger',
+      });
+      return;
+    }
+    loadResults.mutate(id);
   };
 
   const triggerPdi = useApiMutation(
@@ -74,6 +96,17 @@ export function ResultsTab() {
           rows={3}
           wrapperClassName="space-y-3"
           itemClassName="skeleton-shimmer h-32 rounded-card"
+        />
+      )}
+
+      {!loading && noResults && (
+        <EmptyState
+          title="Sem avaliações registadas"
+          description={
+            raw?.evaluated?.fullName
+              ? `${raw.evaluated.fullName} ainda não tem avaliações de desempenho concluídas.`
+              : 'Este colaborador ainda não tem avaliações de desempenho concluídas.'
+          }
         />
       )}
 
