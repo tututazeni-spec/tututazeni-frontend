@@ -20,6 +20,7 @@ import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Input } from '@/components/ui/Input';
+import { QueryError } from '@/components/ui/QueryError';
 import { Skeleton } from '@/components/ui/Skeleton';
 import type { Role } from './types';
 
@@ -30,6 +31,8 @@ export function RolesTab() {
   const {
     data: roles = [],
     isLoading: loading,
+    isError,
+    error,
     refetch,
   } = useApiQuery<Role[]>(
     queryKeys.rolesPermissions.roles(),
@@ -39,6 +42,19 @@ export function RolesTab() {
   const load = () => {
     void refetch();
   };
+
+  // Detalhe do role seleccionado. A lista (GET /roles-permissions) só devolve
+  // `_count.users`, nunca o array `users` — sem este pedido a secção
+  // "Utilizadores" do painel de detalhe nunca renderizava (era código morto).
+  const { data: detail } = useApiQuery<Role>(
+    queryKeys.rolesPermissions.role(selected?.id ?? 0),
+    `/roles-permissions/${selected?.id ?? 0}`,
+    { enabled: selected != null, staleTime: STALE_TIME.SEMI_STATIC },
+  );
+  // Só o detalhe traz `users`; tudo o resto (nome, código, contagem,
+  // permissões) já vem fiável da lista, por isso mantém-se `selected`.
+  const users = detail?.id === selected?.id ? (detail?.users ?? []) : [];
+
   const confirm = useConfirm();
   const notify = useToast();
 
@@ -70,6 +86,10 @@ export function RolesTab() {
             wrapperClassName="space-y-3 p-3"
             itemClassName="skeleton-shimmer h-16 rounded-card"
           />
+        ) : isError ? (
+          <div className="p-3">
+            <QueryError error={error} onRetry={load} />
+          </div>
         ) : (
           <div className="divide-y divide-border max-h-[560px] overflow-y-auto">
             {filtered.map((r) => (
@@ -196,13 +216,13 @@ export function RolesTab() {
               </div>
 
               {/* Users in role */}
-              {(selected.users ?? []).length > 0 && (
+              {users.length > 0 && (
                 <div>
                   <p className="text-xs font-semibold text-ink-muted uppercase tracking-wide mb-2">
                     Utilizadores
                   </p>
                   <div className="flex flex-wrap gap-2">
-                    {(selected.users ?? []).slice(0, 10).map((u, i) => (
+                    {users.slice(0, 10).map((u, i) => (
                       <div
                         key={i}
                         className="flex items-center gap-1.5 bg-surface-sunken rounded-control px-2.5 py-1.5"

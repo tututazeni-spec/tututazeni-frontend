@@ -229,6 +229,8 @@ export const queryKeys = {
   rolesPermissions: {
     all: ['roles-permissions'] as const,
     roles: () => [...queryKeys.rolesPermissions.all, 'roles'] as const,
+    role: (id: number) =>
+      [...queryKeys.rolesPermissions.all, 'role', id] as const,
     matrix: () => [...queryKeys.rolesPermissions.all, 'matrix'] as const,
     governance: () =>
       [...queryKeys.rolesPermissions.all, 'governance'] as const,
