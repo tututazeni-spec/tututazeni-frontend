@@ -2,13 +2,15 @@ import { describe, expect, test, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 
 const post = vi.fn().mockResolvedValue({ id: 1 });
+const put = vi.fn().mockResolvedValue({ id: 9 });
 
 vi.mock('@/lib/apiClient', () => ({
-  apiClient: { post: (...a: unknown[]) => post(...a) },
+  apiClient: {
+    post: (...a: unknown[]) => post(...a),
+    put: (...a: unknown[]) => put(...a),
+  },
 }));
 
-// useApiMutation: executa `fn` e encaminha para onSuccess/onError, como o
-// mock de CreateLiveClassModal.test.tsx.
 vi.mock('@/hooks/useApiQuery', () => ({
   useApiMutation: (
     fn: (v: unknown) => Promise<unknown>,
@@ -18,7 +20,7 @@ vi.mock('@/hooks/useApiQuery', () => ({
     },
   ) => ({
     mutate: (v: unknown) =>
-      fn(v).then(
+      Promise.resolve(fn(v)).then(
         (d) => opts?.onSuccess?.(d, v),
         (e) => opts?.onError?.(e as Error),
       ),
@@ -42,7 +44,7 @@ vi.mock('@/components/ui/Modal', () => ({
   ),
 }));
 
-// Select stub: expõe um botão por opção para o teste escolher a duração.
+// Select stub: um botão por opção para o teste escolher a duração.
 vi.mock('@/components/ui/Select', () => ({
   Select: ({
     items,
@@ -67,13 +69,29 @@ vi.mock('@/components/ui/Select', () => ({
 
 vi.mock('@/providers/ToastProvider', () => ({ useToast: () => vi.fn() }));
 
-import { CreateTemplateModal } from './CreateTemplateModal';
+import { TemplateFormModal } from './TemplateFormModal';
 
-beforeEach(() => post.mockReset().mockResolvedValue({ id: 1 }));
+const template = {
+  id: 9,
+  name: 'Onboarding TI',
+  description: 'Plano TI',
+  active: true,
+  durationDays: 30,
+  welcomeVideoUrl: null,
+  positionId: null,
+  departmentId: null,
+  tasks: [],
+  _count: { plans: 0 },
+};
 
-describe('CreateTemplateModal', () => {
+beforeEach(() => {
+  post.mockReset().mockResolvedValue({ id: 1 });
+  put.mockReset().mockResolvedValue({ id: 9 });
+});
+
+describe('TemplateFormModal — criar', () => {
   test('payload mínimo — nome trim + durationDays por defeito (30)', async () => {
-    render(<CreateTemplateModal onClose={vi.fn()} />);
+    render(<TemplateFormModal onClose={vi.fn()} />);
     fireEvent.change(screen.getByLabelText('Nome *'), {
       target: { value: '  Onboarding Colaborador TI  ' },
     });
@@ -84,10 +102,11 @@ describe('CreateTemplateModal', () => {
       name: 'Onboarding Colaborador TI',
       durationDays: 30,
     });
+    expect(put).not.toHaveBeenCalled();
   });
 
   test('campos opcionais — descrição, vídeo e active=false', async () => {
-    render(<CreateTemplateModal onClose={vi.fn()} />);
+    render(<TemplateFormModal onClose={vi.fn()} />);
     fireEvent.change(screen.getByLabelText('Nome *'), {
       target: { value: 'Onboarding Comercial' },
     });
@@ -112,7 +131,7 @@ describe('CreateTemplateModal', () => {
   });
 
   test('sem nome — botão desactivado, não submete', () => {
-    render(<CreateTemplateModal onClose={vi.fn()} />);
+    render(<TemplateFormModal onClose={vi.fn()} />);
     fireEvent.click(screen.getByRole('button', { name: 'Criar template' }));
     expect(post).not.toHaveBeenCalled();
     expect(
@@ -122,7 +141,7 @@ describe('CreateTemplateModal', () => {
 
   test('erro da API — mostra mensagem', async () => {
     post.mockRejectedValueOnce(new Error('Boom'));
-    render(<CreateTemplateModal onClose={vi.fn()} />);
+    render(<TemplateFormModal onClose={vi.fn()} />);
     fireEvent.change(screen.getByLabelText('Nome *'), {
       target: { value: 'Onboarding X' },
     });
@@ -133,12 +152,48 @@ describe('CreateTemplateModal', () => {
 
   test('sucesso — chama onClose', async () => {
     const onClose = vi.fn();
-    render(<CreateTemplateModal onClose={onClose} />);
+    render(<TemplateFormModal onClose={onClose} />);
     fireEvent.change(screen.getByLabelText('Nome *'), {
       target: { value: 'Onboarding X' },
     });
     fireEvent.click(screen.getByRole('button', { name: 'Criar template' }));
 
     await waitFor(() => expect(onClose).toHaveBeenCalledTimes(1));
+  });
+});
+
+describe('TemplateFormModal — editar', () => {
+  test('pré-preenche os campos e mostra "Editar template" / "Guardar"', () => {
+    render(<TemplateFormModal template={template} onClose={vi.fn()} />);
+    expect(screen.getByText('Editar template')).toBeInTheDocument();
+    expect(screen.getByLabelText('Nome *')).toHaveValue('Onboarding TI');
+    expect(screen.getByRole('button', { name: 'Guardar' })).toBeInTheDocument();
+  });
+
+  test('Guardar envia PUT /onboarding/templates/:id com o corpo completo', async () => {
+    render(<TemplateFormModal template={template} onClose={vi.fn()} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Guardar' }));
+
+    await waitFor(() => expect(put).toHaveBeenCalledTimes(1));
+    expect(put).toHaveBeenCalledWith('/onboarding/templates/9', {
+      name: 'Onboarding TI',
+      durationDays: 30,
+      description: 'Plano TI',
+      welcomeVideoUrl: null,
+      active: true,
+    });
+    expect(post).not.toHaveBeenCalled();
+  });
+
+  test('desligar "Template activo" arquiva (active:false)', async () => {
+    render(<TemplateFormModal template={template} onClose={vi.fn()} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Template activo' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Guardar' }));
+
+    await waitFor(() => expect(put).toHaveBeenCalledTimes(1));
+    expect(put).toHaveBeenCalledWith(
+      '/onboarding/templates/9',
+      expect.objectContaining({ active: false }),
+    );
   });
 });
