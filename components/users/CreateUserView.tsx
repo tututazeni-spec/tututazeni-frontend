@@ -112,6 +112,11 @@ export function CreateUserView({ onBack, onCreated }: CreateUserViewProps) {
         positionId: form.positionId ? parseInt(form.positionId) : undefined,
         hireDate: form.hireDate || undefined,
         password: form.password || undefined,
+        // Campos opcionais em branco vão como undefined, nunca "". Um "" em
+        // employeeNumber (String? @unique no backend) colide no 2.º colaborador
+        // criado sem nº de funcionário.
+        employeeNumber: form.employeeNumber || undefined,
+        phone: form.phone || undefined,
       }),
     {
       invalidateKeys: [queryKeys.users.lists()],
