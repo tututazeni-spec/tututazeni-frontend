@@ -10,8 +10,10 @@
 // (mesmo padrão de app/(platform)/sucession/page.tsx).
 //
 // "+ Nova competência", "Editar" e "Arquivar" só aparecem a ADMIN/RH,
-// espelhando @Roles(ADMIN, RH) em competencies.controller.ts. O clique
-// num cartão do catálogo abre o detalhe (leitura aberta a todos).
+// espelhando @Roles(ADMIN, RH) em competencies.controller.ts. "Apagar" é
+// mais restrito — só ADMIN, espelhando @Roles(ADMIN) no DELETE
+// /competencies/:id. O clique num cartão do catálogo abre o detalhe
+// (leitura aberta a todos).
 
 import { useState } from 'react';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
@@ -32,6 +34,7 @@ export default function CompetenciesPage() {
   const { data: currentUser } = useCurrentUser();
   const role = currentUser?.role?.name as Role | undefined;
   const canManage = !!role && ADMIN_ROLES.includes(role);
+  const canDelete = role === 'ADMIN';
 
   const [view, setView] = useState<View>('catalog');
   const [detailId, setDetailId] = useState<number | null>(null);
@@ -82,6 +85,7 @@ export default function CompetenciesPage() {
         <CompetencyDetailModal
           competencyId={detailId}
           canManage={canManage}
+          canDelete={canDelete}
           onEdit={() => {
             setForm({ competencyId: detailId });
             setDetailId(null);

@@ -3,12 +3,17 @@
 // utilizador autenticado — GET /competencies/:id não tem @Roles. As acções
 // de gestão no rodapé (Editar / Arquivar / Reactivar) só aparecem quando
 // `canManage` (ADMIN/RH), espelhando @Roles(ADMIN, RH) em
-// competencies.controller.ts.
+// competencies.controller.ts. "Apagar" é mais restrito — só aparece com
+// `canDelete` (ADMIN), espelhando @Roles(ADMIN) no DELETE /competencies/:id.
 //
 // Arquivar → PATCH /competencies/:id/archive (status = INACTIVE).
 // Reactivar → PUT /competencies/:id { status: 'ACTIVE' } (não há endpoint
-// dedicado; o update parcial serve). Ambos invalidam ['competencies'] para
-// o catálogo e o dashboard refrescarem.
+// dedicado; o update parcial serve).
+// Apagar → DELETE /competencies/:id. É permanente e irreversível (ao
+// contrário de arquivar). O backend recusa (400) se houver utilizadores
+// associados; o botão já aparece desativado nesse caso, com o toast de erro
+// a servir de rede de segurança. Todos invalidam ['competencies'] para o
+// catálogo e o dashboard refrescarem.
 
 'use client';
 
@@ -29,6 +34,8 @@ import type { CompetencyDetail } from './types';
 export interface CompetencyDetailModalProps {
   competencyId: number;
   canManage: boolean;
+  /** ADMIN: mostra a acção "Apagar" (DELETE /competencies/:id é @Roles(ADMIN)). */
+  canDelete: boolean;
   onEdit: () => void;
   onClose: () => void;
 }
@@ -36,6 +43,7 @@ export interface CompetencyDetailModalProps {
 export function CompetencyDetailModal({
   competencyId,
   canManage,
+  canDelete,
   onEdit,
   onClose,
 }: CompetencyDetailModalProps) {
@@ -77,7 +85,18 @@ export function CompetencyDetailModal({
       onError: toastError,
     },
   );
-  const busy = archive.isPending || reactivate.isPending;
+  const remove = useApiMutation(
+    () => apiClient.delete(`/competencies/${competencyId}`),
+    {
+      invalidateKeys,
+      onSuccess: () => {
+        toast({ title: 'Competência eliminada.', intent: 'success' });
+        onClose();
+      },
+      onError: toastError,
+    },
+  );
+  const busy = archive.isPending || reactivate.isPending || remove.isPending;
 
   async function onArchive() {
     const ok = await confirm({
@@ -90,7 +109,19 @@ export function CompetencyDetailModal({
     if (ok) archive.mutate(undefined);
   }
 
+  async function onDelete() {
+    const ok = await confirm({
+      title: `Eliminar "${data?.name}"?`,
+      message:
+        'A competência é apagada de forma permanente e irreversível. Para a remover do catálogo sem perder o registo, arquive-a em vez de eliminar.',
+      confirmLabel: 'Eliminar',
+      destructive: true,
+    });
+    if (ok) remove.mutate(undefined);
+  }
+
   const archived = data?.status === 'INACTIVE';
+  const usersAttached = (data?._count.userCompetencies ?? 0) > 0;
 
   return (
     <Modal open onOpenChange={(open) => !open && onClose()}>
@@ -206,29 +237,51 @@ export function CompetencyDetailModal({
             </div>
 
             {canManage && (
-              <div className="mt-6 flex justify-end gap-3 border-t border-border pt-4">
-                <Button intent="ghost" onClick={onEdit} disabled={busy}>
-                  Editar
-                </Button>
-                {archived ? (
-                  <Button
-                    intent="secondary"
-                    onClick={() => reactivate.mutate(undefined)}
-                    loading={reactivate.isPending}
-                    disabled={busy}
-                  >
-                    Reactivar
+              <div className="mt-6 flex items-start justify-between gap-3 border-t border-border pt-4">
+                <div>
+                  {canDelete && (
+                    <>
+                      <Button
+                        intent="danger"
+                        onClick={onDelete}
+                        loading={remove.isPending}
+                        disabled={busy || usersAttached}
+                      >
+                        Apagar
+                      </Button>
+                      {usersAttached && (
+                        <p className="mt-1.5 max-w-[16rem] font-body text-xs text-ink-faint">
+                          Tem {data._count.userCompetencies} utilizadores
+                          associados — arquive em vez de eliminar.
+                        </p>
+                      )}
+                    </>
+                  )}
+                </div>
+                <div className="flex gap-3">
+                  <Button intent="ghost" onClick={onEdit} disabled={busy}>
+                    Editar
                   </Button>
-                ) : (
-                  <Button
-                    intent="danger"
-                    onClick={onArchive}
-                    loading={archive.isPending}
-                    disabled={busy}
-                  >
-                    Arquivar
-                  </Button>
-                )}
+                  {archived ? (
+                    <Button
+                      intent="secondary"
+                      onClick={() => reactivate.mutate(undefined)}
+                      loading={reactivate.isPending}
+                      disabled={busy}
+                    >
+                      Reactivar
+                    </Button>
+                  ) : (
+                    <Button
+                      intent="danger"
+                      onClick={onArchive}
+                      loading={archive.isPending}
+                      disabled={busy}
+                    >
+                      Arquivar
+                    </Button>
+                  )}
+                </div>
               </div>
             )}
           </>
