@@ -6,7 +6,7 @@
 'use client';
 
 import { useState } from 'react';
-import { AlertTriangle, CheckCircle } from 'lucide-react';
+import { AlertTriangle, CheckCircle, XCircle } from 'lucide-react';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { Button } from '@/components/ui/Button';
@@ -26,6 +26,17 @@ export function SimulatorTab() {
   );
   const result = simulateMutation.data ?? null;
   const loading = simulateMutation.isPending;
+  // Sem esta ramificação, uma simulação falhada (User ID inexistente -> 404
+  // "Utilizador não encontrado", ID não numérico -> 400) não produzia NADA no
+  // painel: `mutation.data` ficava `undefined` e o único sinal era um toast
+  // global genérico ("Erro ao guardar"), que passa despercebido. Resultado
+  // reportado: "ao clicar em Verificar Permissão não abre nada".
+  const errorMessage = simulateMutation.isError
+    ? (simulateMutation.error?.message ?? 'Falha ao verificar a permissão.')
+    : null;
+  const invalidUserId =
+    simulateMutation.isError &&
+    /utilizador|user|inteiro|int|number/i.test(errorMessage ?? '');
 
   const run = () => {
     if (!userId || !resource || !action) return;
@@ -47,6 +58,8 @@ export function SimulatorTab() {
                 value: userId,
                 set: setUserId,
                 placeholder: 'Ex: 123',
+                hint: 'ID numérico do utilizador (nº na ficha do colaborador)',
+                invalid: invalidUserId,
               },
               {
                 id: 'sim-resource',
@@ -54,6 +67,8 @@ export function SimulatorTab() {
                 value: resource,
                 set: setResource,
                 placeholder: 'Ex: reports',
+                hint: undefined,
+                invalid: false,
               },
               {
                 id: 'sim-action',
@@ -61,14 +76,22 @@ export function SimulatorTab() {
                 value: action,
                 set: setAction,
                 placeholder: 'Ex: export',
+                hint: undefined,
+                invalid: false,
               },
             ].map((f) => (
-              <FormField key={f.id} label={f.label} htmlFor={f.id}>
+              <FormField
+                key={f.id}
+                label={f.label}
+                htmlFor={f.id}
+                hint={f.hint}
+              >
                 <Input
                   id={f.id}
                   value={f.value}
                   onChange={(e) => f.set(e.target.value)}
                   placeholder={f.placeholder}
+                  invalid={f.invalid}
                   className="w-full"
                 />
               </FormField>
@@ -84,7 +107,23 @@ export function SimulatorTab() {
         </CardBody>
       </Card>
 
-      {result && (
+      {errorMessage && (
+        <div className="border border-danger bg-danger-subtle rounded-card p-5">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-danger flex items-center justify-center shrink-0">
+              <XCircle size={20} strokeWidth={1.75} className="text-canvas" />
+            </div>
+            <div>
+              <p className="font-bold text-lg text-danger-ink">
+                Não foi possível verificar
+              </p>
+              <p className="text-xs text-ink-muted">{errorMessage}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {result && !simulateMutation.isError && (
         <div
           className={`border rounded-card p-5 ${result.allowed ? 'bg-success-subtle border-success' : 'bg-danger-subtle border-danger'}`}
         >
