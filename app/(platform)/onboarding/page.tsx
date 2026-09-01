@@ -9,8 +9,10 @@
 // app/(platform)/events/page.tsx.
 
 import { useState } from 'react';
-import { useToast } from '@/providers/ToastProvider';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
+import { ADMIN_ROLES, type Role } from '@/lib/roles';
 import { NAV, TITLES } from '@/components/onboarding/constants';
+import { CreateTemplateModal } from '@/components/onboarding/CreateTemplateModal';
 import { DashboardView } from '@/components/onboarding/DashboardView';
 import { MyPlanView } from '@/components/onboarding/MyPlanView';
 import { TemplatesView } from '@/components/onboarding/TemplatesView';
@@ -18,27 +20,23 @@ import type { View } from '@/components/onboarding/types';
 import { Button } from '@/components/ui/Button';
 
 export default function OnboardingPage() {
-  const notify = useToast();
   const [view, setView] = useState<View>('my-plan');
+  const [showCreate, setShowCreate] = useState(false);
+
+  const { data: currentUser } = useCurrentUser();
+  const role = currentUser?.role?.name as Role | undefined;
+  // POST /onboarding/templates é @Roles(ADMIN, RH) no backend.
+  const canCreateTemplate = !!role && ADMIN_ROLES.includes(role);
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-xl font-semibold text-ink">{TITLES[view]}</h1>
-          <p className="text-sm text-ink-faint mt-0.5">
-          </p>
+          <p className="text-sm text-ink-faint mt-0.5"></p>
         </div>
-        {view === 'templates' && (
-          <Button
-            size="sm"
-            onClick={() =>
-              notify({
-                title: 'Abrir formulário de criação de template',
-                intent: 'info',
-              })
-            }
-          >
+        {view === 'templates' && canCreateTemplate && (
+          <Button size="sm" onClick={() => setShowCreate(true)}>
             + Novo template
           </Button>
         )}
@@ -60,6 +58,10 @@ export default function OnboardingPage() {
       {view === 'my-plan' && <MyPlanView />}
       {view === 'dashboard' && <DashboardView />}
       {view === 'templates' && <TemplatesView />}
+
+      {showCreate && (
+        <CreateTemplateModal onClose={() => setShowCreate(false)} />
+      )}
     </div>
   );
 }
