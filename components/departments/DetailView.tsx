@@ -11,6 +11,7 @@ import { useToast } from '@/providers/ToastProvider';
 import {
   ArrowLeft,
   ArrowLeftRight,
+  Plus,
   UserCheck,
   UserX,
   Users,
@@ -26,6 +27,7 @@ import { Card, CardBody } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { KpiCard } from '@/components/ui/KpiCard';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { CreateDepartmentModal } from './CreateDepartmentModal';
 import {
   Table,
   TableBody,
@@ -70,6 +72,9 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
   const [transferUserId, setTransferUserId] = useState('');
   const [transferTargetId, setTransferTargetId] = useState('');
   const [transferReason, setTransferReason] = useState('');
+  const [addUserId, setAddUserId] = useState('');
+  const [addReason, setAddReason] = useState('');
+  const [createSubOpen, setCreateSubOpen] = useState(false);
 
   const deptQ = useApiQuery<
     Department & { users: Member[]; headHistory: HeadHistoryEntry[] }
@@ -129,6 +134,35 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
   const handleTransfer = () => {
     if (!transferUserId || !transferTargetId) return;
     transferMutation.mutate(undefined);
+  };
+
+  // "Adicionar colaborador" reutiliza o endpoint de transferência com o
+  // destino fixo neste departamento — o backend não tem rota dedicada e
+  // transferir para cá é exactamente o que "adicionar" significa.
+  const addMemberMutation = useApiMutation(
+    () =>
+      apiClient.post('/departments/members/transfer', {
+        userId: parseInt(addUserId),
+        targetDepartmentId: deptId,
+        reason: addReason || undefined,
+      }),
+    {
+      invalidateKeys: reloadKeys,
+      onSuccess: () => {
+        notify({
+          title: 'Colaborador adicionado ao departamento',
+          intent: 'success',
+        });
+        setAddUserId('');
+        setAddReason('');
+      },
+      onError: (e) => notify({ title: e.message, intent: 'danger' }),
+    },
+  );
+  const addMemberLoading = addMemberMutation.isPending;
+  const handleAddMember = () => {
+    if (!addUserId) return;
+    addMemberMutation.mutate(undefined);
   };
 
   if (deptQ.isError)
@@ -293,6 +327,36 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
       {/* Members tab */}
       {activeTab === 'members' && (
         <div>
+          {/* Add member form */}
+          <Card className="mb-4 border-success bg-success-subtle p-4">
+            <div className="mb-3 text-xs font-medium uppercase tracking-wide text-success-ink">
+              Adicionar colaborador ao departamento
+            </div>
+            <div className="flex flex-wrap gap-3">
+              <Input
+                type="number"
+                placeholder="ID do colaborador"
+                value={addUserId}
+                onChange={(e) => setAddUserId(e.target.value)}
+                className="min-w-[140px] flex-1"
+              />
+              <Input
+                type="text"
+                placeholder="Motivo (opcional)"
+                value={addReason}
+                onChange={(e) => setAddReason(e.target.value)}
+                className="min-w-[160px] flex-1"
+              />
+              <Button
+                onClick={handleAddMember}
+                disabled={!addUserId || addMemberLoading}
+                loading={addMemberLoading}
+              >
+                Adicionar
+              </Button>
+            </div>
+          </Card>
+
           {/* Transfer form */}
           <Card className="mb-4 border-info bg-info-subtle p-4">
             <div className="mb-3 text-xs font-medium uppercase tracking-wide text-info-ink">
@@ -384,6 +448,24 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
       {/* Sub-departments tab */}
       {activeTab === 'subdepts' && (
         <div className="space-y-2">
+          <div className="mb-3 flex justify-end">
+            <Button size="sm" onClick={() => setCreateSubOpen(true)}>
+              <Plus size={14} strokeWidth={1.75} />
+              Criar sub-departamento
+            </Button>
+          </div>
+          {createSubOpen && (
+            <CreateDepartmentModal
+              endpoint="/departments"
+              defaultParentId={deptId}
+              invalidateKeys={[
+                ...reloadKeys,
+                queryKeys.departments.tree(),
+                queryKeys.departments.all,
+              ]}
+              onClose={() => setCreateSubOpen(false)}
+            />
+          )}
           {dept.children.length === 0 ? (
             <div className="rounded-card border border-dashed border-border-strong py-8 text-center text-sm text-ink-faint">
               Sem sub-departamentos
