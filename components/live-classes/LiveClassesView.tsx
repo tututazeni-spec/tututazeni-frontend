@@ -39,6 +39,7 @@ export interface LiveClassesViewProps {
   upcoming: LiveClass[];
   liveNow: number;
   upcomingCount: number;
+  canCreate: boolean;
   onOpen: (id: number) => void;
   onCreateNew: () => void;
   onViewRecording: (lc: LiveClass) => void;
@@ -61,6 +62,7 @@ export function LiveClassesView({
   upcoming,
   liveNow,
   upcomingCount,
+  canCreate,
   onOpen,
   onCreateNew,
   onViewRecording,
@@ -121,16 +123,17 @@ export function LiveClassesView({
               )}
             </h1>
             <p className="mt-1 text-sm text-ink-muted">
-              {recordings.length} gravações
-              disponíveis
+              {recordings.length} gravações disponíveis
             </p>
           </div>
-          <button
-            onClick={onCreateNew}
-            className="py-2.25 px-5 bg-danger text-canvas border-none rounded-lg text-sm font-bold cursor-pointer"
-          >
-            + Nova Aula
-          </button>
+          {canCreate && (
+            <button
+              onClick={onCreateNew}
+              className="py-2.25 px-5 bg-danger text-canvas border-none rounded-lg text-sm font-bold cursor-pointer"
+            >
+              + Nova Aula
+            </button>
+          )}
         </div>
 
         {/* ── Stats ── */}
