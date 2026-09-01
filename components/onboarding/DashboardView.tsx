@@ -9,7 +9,7 @@
 
 'use client';
 
-import { AlertTriangle, ClipboardCheck, Smile, Users } from 'lucide-react';
+import { useState } from 'react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -20,9 +20,16 @@ import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { STATUS_CFG } from './constants';
+import { PlanDetailModal } from './PlanDetailModal';
 import type { Dashboard } from './types';
 
-export function DashboardView() {
+export interface DashboardViewProps {
+  /** ADMIN/RH: passa para o detalhe do plano a acção "Remover plano". */
+  canDelete?: boolean;
+}
+
+export function DashboardView({ canDelete = false }: DashboardViewProps) {
+  const [detailId, setDetailId] = useState<number | null>(null);
   const { data, isLoading } = useApiQuery<Dashboard>(
     queryKeys.onboarding.dashboard(),
     '/onboarding/dashboard',
@@ -67,7 +74,10 @@ export function DashboardView() {
       {/* Status breakdown */}
       <div className="grid grid-cols-5 gap-2">
         {Object.entries(STATUS_CFG).map(([status, cfg]) => (
-          <div key={status} className={`rounded-card px-3 py-2 text-center ${cfg.cls}`}>
+          <div
+            key={status}
+            className={`rounded-card px-3 py-2 text-center ${cfg.cls}`}
+          >
             <div className="text-lg font-bold font-mono">
               {summary.byStatus[status] ?? 0}
             </div>
@@ -82,9 +92,11 @@ export function DashboardView() {
           Processos de Integração activos
         </div>
         {active.map((plan) => (
-          <div
+          <button
             key={plan.id}
-            className="flex items-center gap-4 px-4 py-4 border-b border-border last:border-0 hover:bg-surface-sunken"
+            type="button"
+            onClick={() => setDetailId(plan.id)}
+            className="flex w-full items-center gap-4 px-4 py-4 border-b border-border last:border-0 text-left hover:bg-surface-sunken"
           >
             <Avatar
               name={plan.user.fullName}
@@ -111,7 +123,7 @@ export function DashboardView() {
               </div>
               <StatusBadge value={plan.status} map={STATUS_CFG} />
             </div>
-          </div>
+          </button>
         ))}
         {active.length === 0 && (
           <EmptyState
@@ -121,6 +133,14 @@ export function DashboardView() {
           />
         )}
       </div>
+
+      {detailId !== null && (
+        <PlanDetailModal
+          planId={detailId}
+          canDelete={canDelete}
+          onClose={() => setDetailId(null)}
+        />
+      )}
     </div>
   );
 }

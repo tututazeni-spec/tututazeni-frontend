@@ -104,14 +104,19 @@ export const PHASE_ORDER: TaskPhase[] = [
   'DAY_90',
 ];
 
-export const NAV: Array<{ id: View; label: string }> = [
+// `mgmtOnly` — só entra na navegação renderida para ADMIN/RH/GESTOR
+// (espelha @Roles(ADMIN, RH, GESTOR) em onboarding.controller.ts para
+// GET /onboarding/dashboard e GET /onboarding).
+export const NAV: Array<{ id: View; label: string; mgmtOnly?: boolean }> = [
   { id: 'my-plan', label: 'O Meu plano de Integração' },
-  { id: 'dashboard', label: 'Dashboard' },
+  { id: 'plans', label: 'Planos', mgmtOnly: true },
+  { id: 'dashboard', label: 'Dashboard', mgmtOnly: true },
   { id: 'templates', label: 'Templates' },
 ];
 
 export const TITLES: Record<View, string> = {
   'my-plan': 'O Meu Plano de Integração',
+  plans: 'Planos de Integração',
   dashboard: 'Dashboard de Integração',
   templates: 'Modelos de Integração',
 };

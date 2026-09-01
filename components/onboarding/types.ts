@@ -164,4 +164,73 @@ export interface OnboardingTemplateDetail {
   _count?: { plans: number };
 }
 
-export type View = 'my-plan' | 'dashboard' | 'templates';
+// ─── Planos (gestão RH) ──────────────────────────────────────────────────────
+
+// GET /onboarding — item da lista paginada. `findAll` NÃO calcula progresso
+// (só o `_count`); o progresso vem do detalhe.
+export interface OnboardingPlanListItem {
+  id: number;
+  status: OnboardingStatus;
+  startDate: string;
+  expectedEndDate: string | null;
+  xpEarned: number;
+  user: {
+    id: number;
+    fullName: string;
+    email: string;
+    avatarUrl: string | null;
+    position: { name: string } | null;
+  };
+  template: { id: number; name: string; durationDays: number };
+  buddy: { id: number; fullName: string; avatarUrl: string | null } | null;
+  hrResponsible: { id: number; fullName: string } | null;
+  _count: { taskInstances: number; documents: number };
+}
+
+// GET /onboarding/:id — plano + progresso + tarefas agrupadas por fase.
+export interface PlanTaskInstance extends TaskInstance {
+  approvedBy: { id: number; fullName: string } | null;
+}
+
+export interface OnboardingPlanDetail {
+  id: number;
+  status: OnboardingStatus;
+  startDate: string;
+  expectedEndDate: string | null;
+  completedAt: string | null;
+  xpEarned: number;
+  progress: number;
+  completedTasks: number;
+  totalTasks: number;
+  byPhase: Partial<Record<TaskPhase, PlanTaskInstance[]>>;
+  user: {
+    id: number;
+    fullName: string;
+    email: string;
+    avatarUrl: string | null;
+    department: { name: string } | null;
+    position: { name: string } | null;
+  };
+  template: {
+    id: number;
+    name: string;
+    durationDays: number;
+    welcomeVideoUrl: string | null;
+  };
+  buddy: {
+    id: number;
+    fullName: string;
+    avatarUrl: string | null;
+    position: { name: string } | null;
+  } | null;
+  manager: { id: number; fullName: string; avatarUrl: string | null } | null;
+  hrResponsible: {
+    id: number;
+    fullName: string;
+    avatarUrl: string | null;
+  } | null;
+  documents: OnboardingDoc[];
+  surveys: Survey[];
+}
+
+export type View = 'my-plan' | 'plans' | 'dashboard' | 'templates';

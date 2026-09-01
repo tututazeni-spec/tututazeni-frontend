@@ -1,0 +1,176 @@
+import { describe, expect, test, vi, beforeEach } from 'vitest';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+
+const del = vi.fn().mockResolvedValue({ message: 'ok' });
+vi.mock('@/lib/apiClient', () => ({
+  apiClient: { delete: (...a: unknown[]) => del(...a) },
+}));
+
+let detailResult: { data: unknown; isLoading: boolean; error: unknown } = {
+  data: undefined,
+  isLoading: false,
+  error: null,
+};
+
+vi.mock('@/hooks/useApiQuery', () => ({
+  useApiQuery: () => detailResult,
+  useApiMutation: (
+    fn: (v: unknown) => Promise<unknown>,
+    opts: {
+      onSuccess?: (d: unknown, v: unknown) => void;
+      onError?: (e: Error) => void;
+    },
+  ) => ({
+    mutate: (v: unknown) =>
+      Promise.resolve(fn(v)).then(
+        (d) => opts?.onSuccess?.(d, v),
+        (e) => opts?.onError?.(e as Error),
+      ),
+    isPending: false,
+  }),
+}));
+
+const confirmFn = vi.fn();
+vi.mock('@/providers/ConfirmProvider', () => ({ useConfirm: () => confirmFn }));
+const toast = vi.fn();
+vi.mock('@/providers/ToastProvider', () => ({ useToast: () => toast }));
+
+vi.mock('@/components/ui/Modal', () => ({
+  Modal: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  ModalContent: ({
+    title,
+    description,
+    children,
+  }: {
+    title: string;
+    description?: string;
+    children: React.ReactNode;
+  }) => (
+    <div>
+      <h2>{title}</h2>
+      {description && <p>{description}</p>}
+      {children}
+    </div>
+  ),
+}));
+
+import { PlanDetailModal } from './PlanDetailModal';
+
+const baseDetail = {
+  id: 7,
+  status: 'IN_PROGRESS',
+  startDate: '2026-08-01T00:00:00.000Z',
+  expectedEndDate: '2026-08-31T00:00:00.000Z',
+  completedAt: null,
+  xpEarned: 30,
+  progress: 40,
+  completedTasks: 2,
+  totalTasks: 5,
+  user: {
+    id: 1,
+    fullName: 'Ana Silva',
+    email: 'ana@innova.com',
+    avatarUrl: null,
+    department: { name: 'TI' },
+    position: { name: 'Programadora' },
+  },
+  template: {
+    id: 3,
+    name: 'Onboarding TI',
+    durationDays: 30,
+    welcomeVideoUrl: null,
+  },
+  buddy: null,
+  manager: null,
+  hrResponsible: null,
+  documents: [],
+  surveys: [],
+  byPhase: {
+    DAY_1: [
+      {
+        id: 11,
+        status: 'COMPLETED',
+        dueDate: '2026-08-02T00:00:00.000Z',
+        completedAt: '2026-08-02T00:00:00.000Z',
+        evidenceComment: null,
+        evidenceUrl: null,
+        skipReason: null,
+        approvedBy: null,
+        templateTask: {
+          id: 1,
+          templateId: 3,
+          title: 'Entregar documentos',
+          description: null,
+          category: 'DOCUMENTS',
+          type: 'TASK',
+          phase: 'DAY_1',
+          responsible: 'HR',
+          dueDayOffset: 1,
+          xpReward: 10,
+          requiresApproval: false,
+          requiresEvidence: false,
+          seq: 0,
+        },
+      },
+    ],
+  },
+};
+
+function renderModal(
+  props: Partial<React.ComponentProps<typeof PlanDetailModal>> = {},
+) {
+  return render(
+    <PlanDetailModal planId={7} canDelete onClose={vi.fn()} {...props} />,
+  );
+}
+
+beforeEach(() => {
+  del.mockClear().mockResolvedValue({ message: 'ok' });
+  toast.mockClear();
+  confirmFn.mockReset().mockResolvedValue(true);
+  detailResult = { data: baseDetail, isLoading: false, error: null };
+});
+
+describe('PlanDetailModal', () => {
+  test('mostra colaborador, template e tarefa por fase', () => {
+    renderModal();
+    expect(screen.getAllByText('Ana Silva').length).toBeGreaterThan(0);
+    expect(screen.getByText('Onboarding TI')).toBeInTheDocument();
+    expect(screen.getByText('Dia 1')).toBeInTheDocument();
+    expect(screen.getByText('Entregar documentos')).toBeInTheDocument();
+  });
+
+  test('sem canDelete não mostra "Remover plano"', () => {
+    renderModal({ canDelete: false });
+    expect(
+      screen.queryByRole('button', { name: 'Remover plano' }),
+    ).not.toBeInTheDocument();
+  });
+
+  test('remover confirma e envia DELETE /onboarding/:id', async () => {
+    renderModal();
+    fireEvent.click(screen.getByRole('button', { name: 'Remover plano' }));
+
+    await waitFor(() => expect(del).toHaveBeenCalledTimes(1));
+    expect(del).toHaveBeenCalledWith('/onboarding/7');
+    expect(toast).toHaveBeenCalledWith(
+      expect.objectContaining({ intent: 'success' }),
+    );
+  });
+
+  test('cancelar a confirmação não envia DELETE', async () => {
+    confirmFn.mockResolvedValue(false);
+    renderModal();
+    fireEvent.click(screen.getByRole('button', { name: 'Remover plano' }));
+    await Promise.resolve();
+    expect(del).not.toHaveBeenCalled();
+  });
+
+  test('erro ao carregar mostra mensagem', () => {
+    detailResult = { data: undefined, isLoading: false, error: new Error('x') };
+    renderModal();
+    expect(
+      screen.getByText('Não foi possível carregar o plano.'),
+    ).toBeInTheDocument();
+  });
+});
