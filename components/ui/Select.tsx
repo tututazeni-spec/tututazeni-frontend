@@ -58,7 +58,7 @@ export function Select({
       </RadixSelect.Trigger>
       <RadixSelect.Portal>
         <RadixSelect.Content
-          className="z-50 overflow-hidden rounded-card border border-border bg-surface shadow-elevated"
+          className="z-[60] overflow-hidden rounded-card border border-border bg-surface shadow-elevated"
           position="popper"
           sideOffset={4}
         >
