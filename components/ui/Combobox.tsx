@@ -99,7 +99,7 @@ export function Combobox({
         <Popover.Content
           align="start"
           sideOffset={4}
-          className="z-50 w-[--radix-popover-trigger-width] overflow-hidden rounded-card border border-border bg-surface shadow-elevated"
+          className="z-[60] w-[--radix-popover-trigger-width] overflow-hidden rounded-card border border-border bg-surface shadow-elevated"
         >
           <div className="flex items-center gap-2 border-b border-border px-3 py-2">
             <Search
