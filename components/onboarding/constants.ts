@@ -12,9 +12,11 @@
 import type { StatusBadgeMap } from '@/lib/statusBadge';
 import type {
   OnboardingStatus,
+  ResponsibleRole,
   TaskCategory,
   TaskPhase,
   TaskStatus,
+  TaskType,
   View,
 } from './types';
 
@@ -62,6 +64,26 @@ export const CATEGORY_CFG: Record<
   BENEFITS: { label: 'Benefícios', icon: '🎁', cls: cls(TOKEN.primary) },
   ADMIN: { label: 'Admin', icon: '📋', cls: cls(TOKEN.neutral) },
   MEETING: { label: 'Reunião', icon: '📅', cls: cls(TOKEN.danger) },
+};
+
+// Rótulos PT-PT dos enums Prisma. value = enum, validado por @IsEnum no
+// backend (onboarding.dto.ts) — nunca traduzir o value, só o label.
+export const TASK_TYPE_LABELS: Record<TaskType, string> = {
+  TASK: 'Tarefa',
+  COURSE: 'Curso',
+  LEARNING_PATH: 'Percurso de aprendizagem',
+  PROCESS: 'Processo',
+  DOCUMENT: 'Documento',
+  MEETING: 'Reunião',
+};
+
+export const RESPONSIBLE_LABELS: Record<ResponsibleRole, string> = {
+  SELF: 'Colaborador',
+  HR: 'RH',
+  MANAGER: 'Gestor',
+  IT: 'TI',
+  BUDDY: 'Buddy / Mentor',
+  EXTERNAL: 'Externo',
 };
 
 export const PHASE_LABELS: Record<TaskPhase, string> = {

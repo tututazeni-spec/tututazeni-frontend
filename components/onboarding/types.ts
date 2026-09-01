@@ -17,16 +17,22 @@ export type TaskCategory =
   | 'MEETING';
 export type TaskPhase =
   'PRE_BOARDING' | 'DAY_1' | 'WEEK_1' | 'DAY_30' | 'DAY_60' | 'DAY_90';
+// Espelham os enums Prisma TaskType / ResponsibleRole (schema.prisma).
+export type TaskType =
+  'TASK' | 'COURSE' | 'LEARNING_PATH' | 'PROCESS' | 'DOCUMENT' | 'MEETING';
+export type ResponsibleRole =
+  'SELF' | 'HR' | 'MANAGER' | 'IT' | 'BUDDY' | 'EXTERNAL';
 export type DocStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
 
 export interface TemplateTask {
   id: number;
+  templateId: number;
   title: string;
   description: string | null;
   category: TaskCategory;
-  type: string;
+  type: TaskType;
   phase: TaskPhase;
-  responsible: string;
+  responsible: ResponsibleRole;
   dueDayOffset: number | null;
   xpReward: number;
   requiresApproval: boolean;
@@ -141,6 +147,21 @@ export interface OnboardingTemplate {
   department?: { name: string } | null;
   _count?: { tasks: number; plans: number };
   tasks?: TemplateTaskSummary[];
+}
+
+// GET /onboarding/templates/:id — devolve as tarefas completas (ordenadas
+// por seq) e a contagem de planos que usam o template.
+export interface OnboardingTemplateDetail {
+  id: number;
+  name: string;
+  description: string | null;
+  active: boolean;
+  durationDays: number;
+  welcomeVideoUrl: string | null;
+  positionId: number | null;
+  departmentId: number | null;
+  tasks: TemplateTask[];
+  _count?: { plans: number };
 }
 
 export type View = 'my-plan' | 'dashboard' | 'templates';

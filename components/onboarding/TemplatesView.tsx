@@ -4,10 +4,14 @@
 // app/(platform)/onboarding/page.tsx. Migrado para a fundação de
 // design: Card/Badge/EmptyState/Skeleton substituem os elementos
 // bespoke.
+//
+// O clique num cartão abre o TemplateDetailModal (leitura aberta a todos);
+// é lá que ADMIN/RH gere as tarefas de cada fase — daí a prop `canManage`,
+// que vem já resolvida do page.tsx (ADMIN_ROLES).
 
 'use client';
 
-import { ClipboardList } from 'lucide-react';
+import { useState } from 'react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -16,9 +20,16 @@ import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { CATEGORY_CFG } from './constants';
+import { TemplateDetailModal } from './TemplateDetailModal';
 import type { OnboardingTemplate } from './types';
 
-export function TemplatesView() {
+export interface TemplatesViewProps {
+  /** ADMIN/RH: activa a gestão de tarefas no detalhe do template. */
+  canManage?: boolean;
+}
+
+export function TemplatesView({ canManage = false }: TemplatesViewProps) {
+  const [detailId, setDetailId] = useState<number | null>(null);
   const { data = [], isLoading: loading } = useApiQuery<OnboardingTemplate[]>(
     queryKeys.onboarding.templates(),
     '/onboarding/templates',
@@ -46,7 +57,12 @@ export function TemplatesView() {
   return (
     <div className="grid grid-cols-3 gap-4">
       {data.map((t) => (
-        <Card key={t.id} className="p-5 hover:shadow-hover transition-shadow">
+        <Card
+          key={t.id}
+          interactive
+          onClick={() => setDetailId(t.id)}
+          className="p-5"
+        >
           <div className="flex items-start justify-between mb-3">
             <div>
               <div className="text-sm font-semibold text-ink">{t.name}</div>
@@ -95,6 +111,14 @@ export function TemplatesView() {
           )}
         </Card>
       ))}
+
+      {detailId !== null && (
+        <TemplateDetailModal
+          templateId={detailId}
+          canManage={canManage}
+          onClose={() => setDetailId(null)}
+        />
+      )}
     </div>
   );
 }

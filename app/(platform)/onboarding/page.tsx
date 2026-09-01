@@ -25,8 +25,9 @@ export default function OnboardingPage() {
 
   const { data: currentUser } = useCurrentUser();
   const role = currentUser?.role?.name as Role | undefined;
-  // POST /onboarding/templates é @Roles(ADMIN, RH) no backend.
-  const canCreateTemplate = !!role && ADMIN_ROLES.includes(role);
+  // POST /onboarding/templates e a gestão de tarefas do template são
+  // @Roles(ADMIN, RH) no backend.
+  const canManageTemplates = !!role && ADMIN_ROLES.includes(role);
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
@@ -35,7 +36,7 @@ export default function OnboardingPage() {
           <h1 className="text-xl font-semibold text-ink">{TITLES[view]}</h1>
           <p className="text-sm text-ink-faint mt-0.5"></p>
         </div>
-        {view === 'templates' && canCreateTemplate && (
+        {view === 'templates' && canManageTemplates && (
           <Button size="sm" onClick={() => setShowCreate(true)}>
             + Novo template
           </Button>
@@ -57,7 +58,7 @@ export default function OnboardingPage() {
 
       {view === 'my-plan' && <MyPlanView />}
       {view === 'dashboard' && <DashboardView />}
-      {view === 'templates' && <TemplatesView />}
+      {view === 'templates' && <TemplatesView canManage={canManageTemplates} />}
 
       {showCreate && (
         <CreateTemplateModal onClose={() => setShowCreate(false)} />
