@@ -8,9 +8,10 @@
 
 import { useState } from 'react';
 import { Plus } from 'lucide-react';
-import { useToast } from '@/providers/ToastProvider';
+import { queryKeys } from '@/lib/queryKeys';
 import { Button } from '@/components/ui/Button';
 import { NAV, TITLES } from '@/components/departments/constants';
+import { CreateDepartmentModal } from '@/components/departments/CreateDepartmentModal';
 import { DashboardView } from '@/components/departments/DashboardView';
 import { DetailView } from '@/components/departments/DetailView';
 import { ListView } from '@/components/departments/ListView';
@@ -18,8 +19,8 @@ import { TreeView } from '@/components/departments/TreeView';
 import type { Nav } from '@/components/departments/types';
 
 export default function DepartmentsPage() {
-  const notify = useToast();
   const [nav, setNav] = useState<Nav>({ view: 'list' });
+  const [createOpen, setCreateOpen] = useState(false);
 
   const handleSelect = (id: number) =>
     setNav({ view: 'detail', selectedId: id });
@@ -29,24 +30,25 @@ export default function DepartmentsPage() {
     <div className="mx-auto max-w-5xl px-4 py-8">
       {/* Header */}
       <div className="mb-6 flex items-center justify-between">
-                <div>
+        <div>
           <h1 className="text-xl font-semibold text-ink">{TITLES[nav.view]}</h1>
           <p className="mt-0.5 text-sm text-ink-faint"></p>
         </div>
         {nav.view === 'list' && (
-          <Button
-            onClick={() =>
-              notify({
-                title: 'Abrir formulário de criação de departamento',
-                intent: 'info',
-              })
-            }
-          >
+          <Button onClick={() => setCreateOpen(true)}>
             <Plus size={16} strokeWidth={1.75} />
             Novo departamento
           </Button>
         )}
       </div>
+
+      {createOpen && (
+        <CreateDepartmentModal
+          endpoint="/departments"
+          invalidateKeys={[queryKeys.departments.all]}
+          onClose={() => setCreateOpen(false)}
+        />
+      )}
 
       {/* Tabs */}
       {nav.view !== 'detail' && (
