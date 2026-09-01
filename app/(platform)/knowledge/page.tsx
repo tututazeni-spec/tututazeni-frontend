@@ -13,15 +13,15 @@ import { Plus } from 'lucide-react';
 import { NAV, TITLES } from '@/components/knowledge/constants';
 import { AdminDashboardView } from '@/components/knowledge/AdminDashboardView';
 import { ArticleDetailView } from '@/components/knowledge/ArticleDetailView';
+import { CreateArticleModal } from '@/components/knowledge/CreateArticleModal';
 import { LibraryView } from '@/components/knowledge/LibraryView';
 import { PortalView } from '@/components/knowledge/PortalView';
 import type { Nav } from '@/components/knowledge/types';
 import { Button } from '@/components/ui/Button';
-import { useToast } from '@/providers/ToastProvider';
 
 export default function KnowledgePage() {
-  const notify = useToast();
   const [nav, setNav] = useState<Nav>({ view: 'portal' });
+  const [creating, setCreating] = useState(false);
 
   const handleSelectArticle = (id: number) =>
     setNav({ view: 'article', selectedId: id });
@@ -36,15 +36,13 @@ export default function KnowledgePage() {
             {TITLES[nav.view]}
           </h1>
         </div>
-        <Button
-          onClick={() =>
-            notify({ title: 'Abrir editor de artigo', intent: 'info' })
-          }
-        >
+        <Button onClick={() => setCreating(true)}>
           <Plus size={16} strokeWidth={1.75} />
           Novo artigo
         </Button>
       </div>
+
+      {creating && <CreateArticleModal onClose={() => setCreating(false)} />}
 
       {/* Tabs */}
       {nav.view !== 'article' && (
