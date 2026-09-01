@@ -27,7 +27,6 @@ import { Card, CardBody } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { KpiCard } from '@/components/ui/KpiCard';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { CreateDepartmentModal } from './CreateDepartmentModal';
 import {
   Table,
   TableBody,
@@ -36,6 +35,7 @@ import {
   TableHeaderCell,
   TableRow,
 } from '@/components/ui/Table';
+import { CreateDepartmentModal } from './CreateDepartmentModal';
 import type { Department, HeadHistoryEntry, Member, Metrics } from './types';
 
 interface DetailViewProps {
