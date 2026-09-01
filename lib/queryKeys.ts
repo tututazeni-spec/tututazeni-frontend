@@ -295,6 +295,8 @@ export const queryKeys = {
     my: () => [...queryKeys.onboarding.all, 'my'] as const,
     dashboard: () => [...queryKeys.onboarding.all, 'dashboard'] as const,
     templates: () => [...queryKeys.onboarding.all, 'templates'] as const,
+    template: (id: number) =>
+      [...queryKeys.onboarding.all, 'templates', id] as const,
   },
 
   trainings: {
