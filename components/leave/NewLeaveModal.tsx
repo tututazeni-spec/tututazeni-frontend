@@ -15,6 +15,7 @@
 import { useState } from 'react';
 import { AlertCircle, Calendar, Check } from 'lucide-react';
 import { useApiMutation } from '@/hooks/useApiQuery';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { apiClient } from '@/lib/apiClient';
 import { reportError } from '@/lib/errorReporting';
 import { queryKeys } from '@/lib/queryKeys';
@@ -50,6 +51,7 @@ export function NewLeaveModal({
 }: NewLeaveModalProps) {
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const notify = useToast();
+  const { data: currentUser } = useCurrentUser();
   const {
     values: form,
     setValues: setForm,
@@ -80,11 +82,11 @@ export function NewLeaveModal({
   );
 
   const checkConflicts = async () => {
-    if (!form.startDate || !form.endDate) return;
+    if (!form.startDate || !form.endDate || !currentUser) return;
     try {
       const r = await apiClient.get<ConflictCheck>('/leave/conflict-check', {
         params: {
-          userId: 'me',
+          userId: currentUser.id,
           startDate: form.startDate,
           endDate: form.endDate,
         },
