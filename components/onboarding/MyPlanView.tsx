@@ -30,6 +30,7 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
 import { Textarea } from '@/components/ui/Textarea';
 import { PHASE_LABELS, PHASE_ORDER } from './constants';
+import { OnboardingDocUploadForm } from './OnboardingDocUploadForm';
 import { TaskCard } from './TaskCard';
 import type { DocStatus, OnboardingPlan, TaskInstance } from './types';
 
@@ -192,7 +193,7 @@ export function MyPlanView() {
               </div>
               {plan.xpEarned > 0 && (
                 <div className="text-xs text-warning-ink font-medium mt-1">
-                   {plan.xpEarned} Ponto de Experiência ganho
+                  {plan.xpEarned} Ponto de Experiência ganho
                 </div>
               )}
             </div>
@@ -264,6 +265,8 @@ export function MyPlanView() {
         {/* Documentos */}
         <TabsContent value="docs">
           <div className="space-y-3">
+            <OnboardingDocUploadForm planId={plan.id} onUploaded={refetch} />
+
             {plan.documents.map((doc) => (
               <div
                 key={doc.id}
@@ -275,11 +278,18 @@ export function MyPlanView() {
                       : 'border-border bg-surface'
                 }`}
               >
-                <div className="text-2xl"></div>
                 <div className="flex-1">
                   <div className="text-sm font-medium text-ink">
                     {doc.documentType}
                   </div>
+                  <a
+                    href={doc.fileUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-xs text-primary hover:underline"
+                  >
+                    Abrir documento
+                  </a>
                   {doc.rejectionReason && (
                     <div className="text-xs text-danger-ink mt-0.5">
                       Motivo: {doc.rejectionReason}
@@ -300,10 +310,9 @@ export function MyPlanView() {
               </div>
             ))}
             {plan.documents.length === 0 && (
-              <EmptyState
-                title="Sem documentos"
-                description="Sem documentos submetidos ainda"
-              />
+              <p className="px-1 py-2 text-xs text-ink-faint">
+                Ainda não submeteu documentos.
+              </p>
             )}
           </div>
         </TabsContent>
@@ -334,7 +343,7 @@ export function MyPlanView() {
                       </div>
                     )}
                     <button className="text-xs text-primary hover:underline mt-1">
-                       Enviar mensagem
+                      Enviar mensagem
                     </button>
                   </div>
                 ) : (
@@ -367,8 +376,7 @@ export function MyPlanView() {
                         <span
                           key={i}
                           className={`text-sm ${i < s.score ? 'text-accent' : 'text-border-strong'}`}
-                        >
-                        </span>
+                        ></span>
                       ))}
                     </div>
                     {s.comment && (
@@ -393,9 +401,7 @@ export function MyPlanView() {
                       key={s}
                       onClick={() => setSurveyScore(s)}
                       className={`text-3xl transition-transform hover:scale-110 ${s <= surveyScore ? 'text-accent' : 'text-border-strong'}`}
-                    >
-                      
-                    </button>
+                    ></button>
                   ))}
                 </div>
                 <Textarea
