@@ -227,13 +227,20 @@ export interface OnboardingPlanDetail {
   buddy: {
     id: number;
     fullName: string;
+    email?: string | null;
     avatarUrl: string | null;
     position: { name: string } | null;
   } | null;
-  manager: { id: number; fullName: string; avatarUrl: string | null } | null;
+  manager: {
+    id: number;
+    fullName: string;
+    email?: string | null;
+    avatarUrl: string | null;
+  } | null;
   hrResponsible: {
     id: number;
     fullName: string;
+    email?: string | null;
     avatarUrl: string | null;
   } | null;
   documents: OnboardingDoc[];

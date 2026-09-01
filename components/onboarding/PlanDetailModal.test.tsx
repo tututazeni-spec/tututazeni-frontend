@@ -220,6 +220,43 @@ describe('PlanDetailModal — leitura e remoção', () => {
       screen.getByText('Não foi possível carregar o plano.'),
     ).toBeInTheDocument();
   });
+
+  test('membro da equipa com email → link mailto', () => {
+    detailResult = {
+      data: {
+        ...baseDetail,
+        manager: {
+          id: 9,
+          fullName: 'Rui Costa',
+          email: 'rui@innova.com',
+          avatarUrl: null,
+        },
+      },
+      isLoading: false,
+      error: null,
+    };
+    renderModal();
+    const link = screen.getByRole('link', { name: 'Enviar mensagem' });
+    expect(link).toHaveAttribute(
+      'href',
+      'mailto:rui@innova.com?subject=Onboarding%20%E2%80%94%20Ana%20Silva',
+    );
+  });
+
+  test('membro da equipa sem email → sem link', () => {
+    detailResult = {
+      data: {
+        ...baseDetail,
+        manager: { id: 9, fullName: 'Rui Costa', avatarUrl: null },
+      },
+      isLoading: false,
+      error: null,
+    };
+    renderModal();
+    expect(
+      screen.queryByRole('link', { name: 'Enviar mensagem' }),
+    ).not.toBeInTheDocument();
+  });
 });
 
 describe('PlanDetailModal — aprovar / rejeitar / saltar', () => {
