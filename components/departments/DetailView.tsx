@@ -7,16 +7,19 @@
 'use client';
 
 import { useState } from 'react';
+import type { QueryKey } from '@tanstack/react-query';
 import { useToast } from '@/providers/ToastProvider';
 import {
   ArrowLeft,
   ArrowLeftRight,
+  Check,
   Plus,
   UserCheck,
   UserX,
   Users,
 } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
+import { useDebounce } from '@/hooks/useDebounce';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -64,6 +67,61 @@ function Breadcrumb({
   );
 }
 
+type LookupStatus = 'idle' | 'loading' | 'found' | 'notfound';
+
+// Resolve um ID escrito à mão para uma entidade real, para que o nome seja
+// mostrado antes de qualquer acção. Debounced para não pedir por tecla; sem
+// retry para que um 404 apareça já como "não encontrado".
+function useEntityLookup<T>(
+  rawId: string,
+  buildPath: (id: number) => string,
+  buildKey: (id: number) => QueryKey,
+  getLabel: (data: T) => string,
+): { status: LookupStatus; label: string | null } {
+  const parsed = Number.parseInt(rawId, 10);
+  const valid = rawId.trim() !== '' && Number.isInteger(parsed) && parsed > 0;
+  const debouncedId = useDebounce(valid ? parsed : 0, 400);
+  const q = useApiQuery<T>(
+    buildKey(debouncedId || 0),
+    buildPath(debouncedId || 0),
+    { enabled: debouncedId > 0, retry: false, staleTime: STALE_TIME.DYNAMIC },
+  );
+
+  if (!valid) return { status: 'idle', label: null };
+  if (debouncedId !== parsed || q.isLoading || q.isFetching)
+    return { status: 'loading', label: null };
+  if (q.isError || !q.data) return { status: 'notfound', label: null };
+  return { status: 'found', label: getLabel(q.data) };
+}
+
+function LookupHint({
+  status,
+  label,
+  foundPrefix,
+}: {
+  status: LookupStatus;
+  label: string | null;
+  foundPrefix: string;
+}) {
+  if (status === 'idle') return null;
+  if (status === 'loading')
+    return <p className="mt-2 text-xs text-ink-faint">A procurar…</p>;
+  if (status === 'notfound')
+    return (
+      <p className="mt-2 text-xs text-danger">
+        Não encontrado — verifica o ID.
+      </p>
+    );
+  return (
+    <p className="mt-2 flex items-center gap-1.5 text-xs text-success-ink">
+      <Check size={13} strokeWidth={2} />
+      <span>
+        {foundPrefix} <strong className="font-medium">{label}</strong>
+      </span>
+    </p>
+  );
+}
+
 export function DetailView({ deptId, onBack }: DetailViewProps) {
   const notify = useToast();
   const [activeTab, setActiveTab] = useState<
@@ -75,6 +133,27 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
   const [addUserId, setAddUserId] = useState('');
   const [addReason, setAddReason] = useState('');
   const [createSubOpen, setCreateSubOpen] = useState(false);
+
+  // Confirmação do nome antes de qualquer acção: só é possível adicionar /
+  // transferir depois de o colaborador (e o departamento destino) resolverem.
+  const addUserLookup = useEntityLookup<Member>(
+    addUserId,
+    (id) => `/users/${id}`,
+    (id) => queryKeys.users.detail(id),
+    (u) => `${u.fullName} · ${u.email}`,
+  );
+  const transferUserLookup = useEntityLookup<Member>(
+    transferUserId,
+    (id) => `/users/${id}`,
+    (id) => queryKeys.users.detail(id),
+    (u) => `${u.fullName} · ${u.email}`,
+  );
+  const transferTargetLookup = useEntityLookup<Department>(
+    transferTargetId,
+    (id) => `/departments/${id}`,
+    (id) => queryKeys.departments.detail(id),
+    (d) => `${d.name} · ${d.code}`,
+  );
 
   const deptQ = useApiQuery<
     Department & { users: Member[]; headHistory: HeadHistoryEntry[] }
@@ -131,8 +210,11 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
     },
   );
   const transferLoading = transferMutation.isPending;
+  const canTransfer =
+    transferUserLookup.status === 'found' &&
+    transferTargetLookup.status === 'found';
   const handleTransfer = () => {
-    if (!transferUserId || !transferTargetId) return;
+    if (!canTransfer) return;
     transferMutation.mutate(undefined);
   };
 
@@ -160,8 +242,9 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
     },
   );
   const addMemberLoading = addMemberMutation.isPending;
+  const canAddMember = addUserLookup.status === 'found';
   const handleAddMember = () => {
-    if (!addUserId) return;
+    if (!canAddMember) return;
     addMemberMutation.mutate(undefined);
   };
 
@@ -349,12 +432,17 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
               />
               <Button
                 onClick={handleAddMember}
-                disabled={!addUserId || addMemberLoading}
+                disabled={!canAddMember || addMemberLoading}
                 loading={addMemberLoading}
               >
                 Adicionar
               </Button>
             </div>
+            <LookupHint
+              status={addUserLookup.status}
+              label={addUserLookup.label}
+              foundPrefix="Colaborador:"
+            />
           </Card>
 
           {/* Transfer form */}
@@ -386,14 +474,22 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
               />
               <Button
                 onClick={handleTransfer}
-                disabled={
-                  !transferUserId || !transferTargetId || transferLoading
-                }
+                disabled={!canTransfer || transferLoading}
                 loading={transferLoading}
               >
                 Transferir
               </Button>
             </div>
+            <LookupHint
+              status={transferUserLookup.status}
+              label={transferUserLookup.label}
+              foundPrefix="Colaborador:"
+            />
+            <LookupHint
+              status={transferTargetLookup.status}
+              label={transferTargetLookup.label}
+              foundPrefix="Departamento destino:"
+            />
           </Card>
 
           {/* Members list */}
