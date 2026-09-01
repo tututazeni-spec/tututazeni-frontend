@@ -39,6 +39,12 @@ export interface CreateDepartmentModalProps {
   endpoint: '/departments' | '/organization/departments';
   /** Keys a invalidar após criar (lista/árvore de cada módulo). */
   invalidateKeys: QueryKey[];
+  /**
+   * Quando definido, o novo departamento fica preso a este pai (usado a
+   * partir do detalhe para "Criar sub-departamento"): o campo pai é
+   * pré-seleccionado e bloqueado.
+   */
+  defaultParentId?: number;
 }
 
 const NO_PARENT = 'NONE';
@@ -58,13 +64,18 @@ export function CreateDepartmentModal({
   onClose,
   endpoint,
   invalidateKeys,
+  defaultParentId,
 }: CreateDepartmentModalProps) {
   const notify = useToast();
+
+  const parentLocked = defaultParentId != null;
 
   const [name, setName] = useState('');
   const [code, setCode] = useState('');
   const [description, setDescription] = useState('');
-  const [parentId, setParentId] = useState(NO_PARENT);
+  const [parentId, setParentId] = useState(
+    parentLocked ? String(defaultParentId) : NO_PARENT,
+  );
   const [color, setColor] = useState(DEFAULT_COLOR);
   const [submitError, setSubmitError] = useState('');
 
@@ -157,11 +168,20 @@ export function CreateDepartmentModal({
             />
           </FormField>
 
-          <FormField label="Departamento pai" htmlFor="cd-parent">
+          <FormField
+            label="Departamento pai"
+            htmlFor="cd-parent"
+            hint={
+              parentLocked
+                ? 'Fixo — o novo departamento é criado como sub-departamento deste.'
+                : undefined
+            }
+          >
             <Select
               items={parentItems}
               value={parentId}
               onValueChange={setParentId}
+              disabled={parentLocked}
               className="w-full"
             />
           </FormField>
