@@ -296,6 +296,16 @@ export function PlanDetailModal({
                       <div className="font-body text-xs font-medium text-ink">
                         {person.fullName}
                       </div>
+                      {person.email && (
+                        <a
+                          href={`mailto:${person.email}?subject=${encodeURIComponent(
+                            `Onboarding — ${data.user.fullName}`,
+                          )}`}
+                          className="font-body text-xs text-primary hover:underline"
+                        >
+                          Enviar mensagem
+                        </a>
+                      )}
                     </div>
                   ) : (
                     <div className="font-body text-xs text-ink-faint">
