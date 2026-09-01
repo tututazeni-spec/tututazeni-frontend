@@ -381,9 +381,16 @@ export function MyPlanView() {
                         {person.position.name}
                       </div>
                     )}
-                    <button className="text-xs text-primary hover:underline mt-1">
-                      Enviar mensagem
-                    </button>
+                    {person.email && (
+                      <a
+                        href={`mailto:${person.email}?subject=${encodeURIComponent(
+                          `Onboarding — ${plan.template.name}`,
+                        )}`}
+                        className="text-xs text-primary hover:underline mt-1"
+                      >
+                        Enviar mensagem
+                      </a>
+                    )}
                   </div>
                 ) : (
                   <div className="text-xs text-ink-faint mt-4">
