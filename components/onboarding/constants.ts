@@ -13,6 +13,7 @@ import type { StatusBadgeMap } from '@/lib/statusBadge';
 import type {
   OnboardingStatus,
   ResponsibleRole,
+  SurveyMilestone,
   TaskCategory,
   TaskPhase,
   TaskStatus,
@@ -94,6 +95,26 @@ export const PHASE_LABELS: Record<TaskPhase, string> = {
   DAY_60: 'Dia 60',
   DAY_90: 'Dia 90',
 };
+
+// Pesquisas de satisfação por marco. `day` = dias desde o início do plano a
+// partir dos quais o marco fica disponível para resposta. Ordenados do mais
+// cedo para o mais tarde.
+export const SURVEY_MILESTONES: Array<{
+  id: SurveyMilestone;
+  day: number;
+  label: string;
+}> = [
+  { id: 'DAY_1', day: 1, label: 'Dia 1' },
+  { id: 'DAY_7', day: 7, label: 'Dia 7' },
+  { id: 'DAY_30', day: 30, label: 'Dia 30' },
+  { id: 'DAY_90', day: 90, label: 'Dia 90' },
+];
+
+export const SURVEY_MILESTONE_LABELS: Record<SurveyMilestone, string> =
+  Object.fromEntries(SURVEY_MILESTONES.map((m) => [m.id, m.label])) as Record<
+    SurveyMilestone,
+    string
+  >;
 
 export const PHASE_ORDER: TaskPhase[] = [
   'PRE_BOARDING',

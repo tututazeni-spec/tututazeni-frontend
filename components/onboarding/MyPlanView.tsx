@@ -26,13 +26,29 @@ import { Button, buttonVariants } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ProgressBar } from '@/components/ui/ProgressBar';
+import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
 import { Textarea } from '@/components/ui/Textarea';
-import { PHASE_LABELS, PHASE_ORDER } from './constants';
+import {
+  PHASE_LABELS,
+  PHASE_ORDER,
+  SURVEY_MILESTONES,
+  SURVEY_MILESTONE_LABELS,
+} from './constants';
 import { OnboardingDocUploadForm } from './OnboardingDocUploadForm';
 import { TaskCard } from './TaskCard';
-import type { DocStatus, OnboardingPlan, TaskInstance } from './types';
+import {
+  availableSurveyMilestones,
+  nextLockedSurveyMilestone,
+  resolveActiveMilestone,
+} from './utils';
+import type {
+  DocStatus,
+  OnboardingPlan,
+  SurveyMilestone,
+  TaskInstance,
+} from './types';
 
 const SUB_TABS = [
   { id: 'tasks', label: ' Tarefas' },
@@ -57,6 +73,10 @@ export function MyPlanView() {
   const notify = useToast();
   const [surveyScore, setSurveyScore] = useState(0);
   const [surveyComment, setSurveyComment] = useState('');
+  // Marco escolhido no Select; '' = usar o mais recente disponível.
+  const [milestoneChoice, setMilestoneChoice] = useState<SurveyMilestone | ''>(
+    '',
+  );
   const [activeTab, setActiveTab] =
     useState<(typeof SUB_TABS)[number]['id']>('tasks');
 
@@ -86,10 +106,10 @@ export function MyPlanView() {
   };
 
   const surveyMutation = useApiMutation(
-    (planId: number) =>
+    (vars: { planId: number; milestone: SurveyMilestone }) =>
       apiClient.post('/onboarding/surveys', {
-        planId,
-        milestone: 'DAY_1',
+        planId: vars.planId,
+        milestone: vars.milestone,
         score: surveyScore,
         comment: surveyComment,
       }),
@@ -98,6 +118,7 @@ export function MyPlanView() {
         await refetch();
         setSurveyScore(0);
         setSurveyComment('');
+        setMilestoneChoice('');
         notify({
           title: 'Pesquisa submetida! Obrigado pelo feedback.',
           intent: 'success',
@@ -107,12 +128,13 @@ export function MyPlanView() {
     },
   );
   const submittingSurvey = surveyMutation.isPending;
-  const handleSurvey = (planId: number) => {
+  const handleSurvey = (planId: number, milestone: SurveyMilestone | '') => {
+    if (!milestone) return;
     if (!surveyScore) {
       notify({ title: 'Seleccione uma nota', intent: 'danger' });
       return;
     }
-    surveyMutation.mutate(planId);
+    surveyMutation.mutate({ planId, milestone });
   };
 
   if (loading)
@@ -142,6 +164,23 @@ export function MyPlanView() {
     if (!tasksByPhase[phase]) tasksByPhase[phase] = [];
     tasksByPhase[phase].push(t);
   }
+
+  // Pesquisa de feedback: qual o marco a responder. Ver utils —
+  // availableSurveyMilestones / nextLockedSurveyMilestone.
+  const answered = plan.surveys.map((s) => s.milestone);
+  const answeredCount = new Set(answered).size;
+  const availableMilestones = availableSurveyMilestones(
+    plan.startDate,
+    answered,
+  );
+  const activeMilestone = resolveActiveMilestone(
+    availableMilestones,
+    milestoneChoice,
+  );
+  const nextLockedMilestone = nextLockedSurveyMilestone(
+    plan.startDate,
+    answered,
+  );
 
   return (
     <div className="space-y-5">
@@ -370,7 +409,9 @@ export function MyPlanView() {
                     key={s.id}
                     className="flex items-center gap-3 py-2 border-b border-border last:border-0"
                   >
-                    <Badge intent="info">{s.milestone}</Badge>
+                    <Badge intent="info">
+                      {SURVEY_MILESTONE_LABELS[s.milestone] ?? s.milestone}
+                    </Badge>
                     <div className="flex gap-0.5">
                       {Array.from({ length: 5 }, (_, i) => (
                         <span
@@ -390,37 +431,71 @@ export function MyPlanView() {
             )}
 
             {/* Nova pesquisa */}
-            <Card>
-              <CardBody>
-                <div className="text-sm font-semibold text-ink mb-4">
-                  Como está a ser a tua experiência?
-                </div>
-                <div className="flex gap-2 mb-4">
-                  {[1, 2, 3, 4, 5].map((s) => (
-                    <button
-                      key={s}
-                      onClick={() => setSurveyScore(s)}
-                      className={`text-3xl transition-transform hover:scale-110 ${s <= surveyScore ? 'text-accent' : 'text-border-strong'}`}
-                    ></button>
-                  ))}
-                </div>
-                <Textarea
-                  value={surveyComment}
-                  onChange={(e) => setSurveyComment(e.target.value)}
-                  rows={3}
-                  placeholder="Comentário opcional…"
-                  className="w-full resize-none mb-3"
-                />
-                <Button
-                  onClick={() => handleSurvey(plan.id)}
-                  disabled={!surveyScore || submittingSurvey}
-                  loading={submittingSurvey}
-                  className="w-full"
-                >
-                  {submittingSurvey ? 'A submeter…' : 'Enviar feedback'}
-                </Button>
-              </CardBody>
-            </Card>
+            {availableMilestones.length > 0 ? (
+              <Card>
+                <CardBody>
+                  <div className="text-sm font-semibold text-ink mb-4">
+                    Como está a ser a tua experiência?
+                  </div>
+
+                  {availableMilestones.length > 1 && (
+                    <div className="mb-4">
+                      <div className="text-xs text-ink-faint mb-1">Marco</div>
+                      <Select
+                        items={availableMilestones.map((m) => ({
+                          value: m.id,
+                          label: m.label,
+                        }))}
+                        value={activeMilestone || undefined}
+                        onValueChange={(v) =>
+                          setMilestoneChoice(v as SurveyMilestone)
+                        }
+                        className="w-full"
+                      />
+                    </div>
+                  )}
+
+                  <div className="flex gap-2 mb-4">
+                    {[1, 2, 3, 4, 5].map((s) => (
+                      <button
+                        key={s}
+                        onClick={() => setSurveyScore(s)}
+                        className={`text-3xl transition-transform hover:scale-110 ${s <= surveyScore ? 'text-accent' : 'text-border-strong'}`}
+                      ></button>
+                    ))}
+                  </div>
+                  <Textarea
+                    value={surveyComment}
+                    onChange={(e) => setSurveyComment(e.target.value)}
+                    rows={3}
+                    placeholder="Comentário opcional…"
+                    className="w-full resize-none mb-3"
+                  />
+                  <Button
+                    onClick={() => handleSurvey(plan.id, activeMilestone)}
+                    disabled={
+                      !surveyScore || !activeMilestone || submittingSurvey
+                    }
+                    loading={submittingSurvey}
+                    className="w-full"
+                  >
+                    {submittingSurvey ? 'A submeter…' : 'Enviar feedback'}
+                  </Button>
+                </CardBody>
+              </Card>
+            ) : (
+              <Card>
+                <CardBody>
+                  <p className="text-sm text-ink-muted">
+                    {answeredCount >= SURVEY_MILESTONES.length
+                      ? 'Já respondeste a todas as pesquisas de satisfação.'
+                      : nextLockedMilestone
+                        ? `A próxima pesquisa (${nextLockedMilestone.label}) abre ao fim de ${nextLockedMilestone.day} dias de plano.`
+                        : 'Sem pesquisas pendentes de momento.'}
+                  </p>
+                </CardBody>
+              </Card>
+            )}
           </div>
         </TabsContent>
       </Tabs>

@@ -111,9 +111,12 @@ export interface OnboardingDoc {
   createdAt: string;
 }
 
+// Espelha o enum Prisma SurveyMilestone (schema.prisma).
+export type SurveyMilestone = 'DAY_1' | 'DAY_7' | 'DAY_30' | 'DAY_90';
+
 export interface Survey {
   id: number;
-  milestone: string;
+  milestone: SurveyMilestone;
   score: number;
   enps: number | null;
   comment: string | null;
