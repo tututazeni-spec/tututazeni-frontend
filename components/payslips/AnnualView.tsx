@@ -7,10 +7,12 @@
 import { useState } from 'react';
 import { Download } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
+import { API_URL as API_BASE } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { formatKz as fmtKz } from '@/lib/format';
 import { Button } from '@/components/ui/Button';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Select } from '@/components/ui/Select';
 import { fmtPeriod } from './format';
@@ -42,7 +44,16 @@ export function AnnualView() {
           value={year}
           onValueChange={setYear}
         />
-        <Button intent="secondary" size="sm">
+        <Button
+          intent="secondary"
+          size="sm"
+          onClick={() =>
+            window.open(
+              `${API_BASE}/payslips/my/annual-summary/export?year=${year}&format=csv`,
+              '_blank',
+            )
+          }
+        >
           <Download size={14} strokeWidth={1.75} />
           Exportar CSV
         </Button>
@@ -55,7 +66,14 @@ export function AnnualView() {
       )}
       {error && <div className="font-body text-sm text-danger">{error}</div>}
 
-      {data && (
+      {data && data.months === 0 && (
+        <EmptyState
+          title="Sem recibos"
+          description={`Ainda não há recibos emitidos em ${year}.`}
+        />
+      )}
+
+      {data && data.months > 0 && (
         <>
           {/* Métricas */}
           <div className="grid grid-cols-4 gap-3 mb-6">
@@ -98,10 +116,7 @@ export function AnnualView() {
                 },
                 { label: 'Prémios', value: data.totalBonuses },
               ].map(({ label, value }) => (
-                <div
-                  key={label}
-                  className="rounded-card bg-success-subtle p-4"
-                >
+                <div key={label} className="rounded-card bg-success-subtle p-4">
                   <div className="mb-1.5 font-body text-xs text-success-ink">
                     {label}
                   </div>

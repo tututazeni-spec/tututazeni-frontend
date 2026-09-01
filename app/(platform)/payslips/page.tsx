@@ -2,8 +2,6 @@
 'use client';
 
 import { useState } from 'react';
-import { Download } from 'lucide-react';
-import { API_URL as API_BASE } from '@/lib/apiClient';
 import { Button } from '@/components/ui/Button';
 import { AnnualView } from '@/components/payslips/AnnualView';
 import { CompareView } from '@/components/payslips/CompareView';
@@ -28,24 +26,8 @@ export default function PayslipsPage() {
           <h1 className="font-display text-xl font-semibold text-ink">
             {TITLES[nav.view]}
           </h1>
-          <p className="font-body text-sm text-ink-faint mt-0.5">
-          </p>
+          <p className="font-body text-sm text-ink-faint mt-0.5"></p>
         </div>
-        {nav.view === 'list' && (
-          <Button
-            intent="secondary"
-            size="sm"
-            onClick={() =>
-              window.open(
-                `${API_BASE}/payslips/my/annual-summary/export`,
-                '_blank',
-              )
-            }
-          >
-            <Download size={14} strokeWidth={1.75} />
-            Exportar ano
-          </Button>
-        )}
       </div>
 
       {/* Tabs (não mostrar em detail) */}
