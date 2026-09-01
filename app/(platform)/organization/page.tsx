@@ -1,7 +1,9 @@
 'use client';
 
 import { useState } from 'react';
+import { queryKeys } from '@/lib/queryKeys';
 import { NAV, TITLES } from '@/components/organization/constants';
+import { CreateDepartmentModal } from '@/components/departments/CreateDepartmentModal';
 import { DashboardView } from '@/components/organization/DashboardView';
 import { DepartmentsView } from '@/components/organization/DepartmentsView';
 import { OrgChartView } from '@/components/organization/OrgChartView';
@@ -10,11 +12,10 @@ import { TimelineView } from '@/components/organization/TimelineView';
 import type { View } from '@/components/organization/types';
 import { Button } from '@/components/ui/Button';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
-import { useToast } from '@/providers/ToastProvider';
 
 export default function OrganizationPage() {
-  const notify = useToast();
   const [view, setView] = useState<View>('dashboard');
+  const [createOpen, setCreateOpen] = useState(false);
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
@@ -23,23 +24,25 @@ export default function OrganizationPage() {
           <h1 className="font-display text-xl font-semibold text-ink">
             {TITLES[view]}
           </h1>
-          <p className="mt-0.5 font-body text-sm text-ink-faint">
-          </p>
+          <p className="mt-0.5 font-body text-sm text-ink-faint"></p>
         </div>
         {view === 'departments' && (
-          <Button
-            size="sm"
-            onClick={() =>
-              notify({
-                title: 'Abrir formulário de criação de departamento',
-                intent: 'info',
-              })
-            }
-          >
+          <Button size="sm" onClick={() => setCreateOpen(true)}>
             + Departamento
           </Button>
         )}
       </div>
+
+      {createOpen && (
+        <CreateDepartmentModal
+          endpoint="/organization/departments"
+          invalidateKeys={[
+            queryKeys.organization.all,
+            queryKeys.departments.all,
+          ]}
+          onClose={() => setCreateOpen(false)}
+        />
+      )}
 
       <div className="mb-6 flex w-fit gap-1 rounded-card bg-surface-sunken p-1">
         {NAV.map((n) => (

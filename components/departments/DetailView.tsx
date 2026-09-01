@@ -92,11 +92,8 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
   ];
 
   const toggleActive = useApiMutation(
-    () =>
-      apiClient.patch(
-        `/departments/${deptId}/${dept!.active ? 'deactivate' : 'activate'}`,
-        {},
-      ),
+    (action: 'activate' | 'deactivate') =>
+      apiClient.patch(`/departments/${deptId}/${action}`, {}),
     {
       invalidateKeys: reloadKeys,
       onError: (e) => notify({ title: e.message, intent: 'danger' }),
@@ -104,7 +101,7 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
   );
   const actionLoading = toggleActive.isPending;
   const handleToggleActive = () => {
-    if (dept) toggleActive.mutate(undefined);
+    if (dept) toggleActive.mutate(dept.active ? 'deactivate' : 'activate');
   };
 
   const transferMutation = useApiMutation(
@@ -133,6 +130,31 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
     if (!transferUserId || !transferTargetId) return;
     transferMutation.mutate(undefined);
   };
+
+  if (deptQ.isError)
+    return (
+      <div>
+        <Button intent="ghost" size="sm" className="mb-5" onClick={onBack}>
+          <ArrowLeft size={14} strokeWidth={1.75} />
+          Voltar
+        </Button>
+        <Card className="p-6 text-center">
+          <p className="text-sm text-danger">
+            {deptQ.error?.message ||
+              'Não foi possível carregar o departamento.'}
+          </p>
+          <Button
+            intent="secondary"
+            size="sm"
+            className="mt-4"
+            disabled={deptQ.isFetching}
+            onClick={() => deptQ.refetch()}
+          >
+            Tentar de novo
+          </Button>
+        </Card>
+      </div>
+    );
 
   if (loading || !dept)
     return (
