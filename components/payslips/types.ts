@@ -122,13 +122,35 @@ export interface MyCompensation {
   effectiveFrom: string;
 }
 
+export type ComponentType = 'EARNING' | 'DEDUCTION';
+export type ComponentCalcType = 'FIXED' | 'PERCENT' | 'FORMULA' | 'TABLE';
+
+export interface SalaryComponent {
+  code: string;
+  name: string;
+  description: string | null;
+  type: ComponentType;
+  calcType: ComponentCalcType;
+  fixedValue: number | null;
+  rate: number | null;
+  formula: string | null;
+  isTaxable: boolean;
+  isMandatory: boolean;
+  order: number;
+  active: boolean;
+  countryCode: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export type View =
   | 'list'
   | 'detail'
   | 'compare'
   | 'simulate'
   | 'annual'
-  | 'compensation';
+  | 'compensation'
+  | 'components';
 
 // view e selectedId eram dois useState separados sempre definidos em conjunto
 // — um único estado torna "detail sem id" irrepresentável.
