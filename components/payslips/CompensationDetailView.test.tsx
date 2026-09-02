@@ -5,7 +5,11 @@ let queryResult: any = { data: undefined, isLoading: false };
 vi.mock('@/hooks/useApiQuery', () => ({ useApiQuery: () => queryResult }));
 vi.mock('./CompensationFormModal', () => ({
   CompensationFormModal: ({ mode, userId, record }: any) => (
-    <div data-testid="form-modal">{`${mode}:${userId ?? record?.id ?? 'none'}`}</div>
+    <div data-testid="form-modal">
+      {`${mode}:${userId ?? record?.id ?? 'none'}:${
+        record ? 'with-record' : 'no-record'
+      }`}
+    </div>
   ),
 }));
 vi.mock('./CompensationComponentsEditor', () => ({
@@ -96,26 +100,34 @@ describe('CompensationDetailView', () => {
     expect(screen.getByTestId('components-editor')).toHaveTextContent('20');
   });
 
-  test('"Nova versão" opens create with the fixed userId', () => {
+  test('"Nova versão" opens create with the fixed userId AND carries the current record', () => {
     render(<CompensationDetailView userId={7} onBack={vi.fn()} />);
     fireEvent.click(screen.getByRole('button', { name: /Nova versão/ }));
-    expect(screen.getByTestId('form-modal')).toHaveTextContent('create:7');
+    expect(screen.getByTestId('form-modal')).toHaveTextContent(
+      'create:7:with-record',
+    );
   });
 
-  test('no active record → warning + "Criar compensação" CTA', () => {
+  test('no active record → warning + "Criar compensação" CTA opens a blank form (no record)', () => {
     queryResult = { data: [history[1]], isLoading: false };
     render(<CompensationDetailView userId={7} onBack={vi.fn()} />);
     expect(
       screen.getByText(/sem registo de compensação activo/i),
     ).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: /Criar compensação/ }));
-    expect(screen.getByTestId('form-modal')).toHaveTextContent('create:7');
+    expect(screen.getByTestId('form-modal')).toHaveTextContent(
+      'create:7:no-record',
+    );
   });
 
-  test('empty history → EmptyState, header falls back to #id', () => {
+  test('empty history → EmptyState, header falls back to #id, CTA opens a blank form', () => {
     queryResult = { data: [], isLoading: false };
     render(<CompensationDetailView userId={7} onBack={vi.fn()} />);
     expect(screen.getByText('#7')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: /Criar compensação/ }));
+    expect(screen.getByTestId('form-modal')).toHaveTextContent(
+      'create:7:no-record',
+    );
   });
 
   test('expanding a timeline row reveals its components', () => {

@@ -13,7 +13,6 @@ vi.mock('@/lib/apiClient', () => ({
   },
 }));
 vi.mock('@/providers/ToastProvider', () => ({ useToast: () => notify }));
-vi.mock('@/hooks/useDebounce', () => ({ useDebounce: (v: unknown) => v }));
 vi.mock('@/hooks/useApiQuery', () => ({
   useApiMutation: (fn: (v: unknown) => Promise<unknown>, opts: any) => ({
     mutate: (v: unknown) =>
@@ -123,6 +122,53 @@ describe('CompensationFormModal', () => {
     expect(url).toBe('/payroll/compensation/5');
     expect(body).not.toHaveProperty('userId');
     expect(body).toMatchObject({ baseSalary: 125000 });
+  });
+
+  test('F2: create + record ("Nova versão") prefills bank details but leaves base salary blank', () => {
+    render(
+      <CompensationFormModal
+        mode="create"
+        userId={7}
+        record={record}
+        onClose={vi.fn()}
+      />,
+    );
+    // bank details carried forward from the current record
+    expect(screen.getByLabelText('Banco')).toHaveValue('BAI');
+    expect(screen.getByLabelText('IBAN')).toHaveValue('AO0600');
+    expect(screen.getByLabelText('Nº de conta')).toHaveValue('123');
+    // base salary intentionally blank — a new version means a new figure
+    expect(screen.getByLabelText(/Salário base/i)).toHaveValue(null);
+    // still create, not edit: no in-place warning
+    expect(
+      screen.queryByText(/corrige este registo no lugar/i),
+    ).not.toBeInTheDocument();
+  });
+
+  test('F2: create + record still POSTs (no userId collision, create path)', async () => {
+    render(
+      <CompensationFormModal
+        mode="create"
+        userId={7}
+        record={record}
+        onClose={vi.fn()}
+      />,
+    );
+    fireEvent.change(screen.getByLabelText(/Salário base/i), {
+      target: { value: '140000' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: /Criar/ }));
+    await waitFor(() => expect(post).toHaveBeenCalledTimes(1));
+    expect(post).toHaveBeenCalledWith(
+      '/payroll/compensation',
+      expect.objectContaining({
+        userId: 7,
+        baseSalary: 140000,
+        bankName: 'BAI',
+        iban: 'AO0600',
+      }),
+    );
+    expect(put).not.toHaveBeenCalled();
   });
 
   test('picking a searched employee enables create submit', async () => {

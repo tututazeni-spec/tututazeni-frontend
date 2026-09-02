@@ -119,8 +119,9 @@ describe('CompensationComponentsEditor', () => {
     expect(post).not.toHaveBeenCalled();
   });
 
-  test('save POSTs the full items array to :id/components', async () => {
-    render(<CompensationComponentsEditor record={record} onClose={vi.fn()} />);
+  test('save POSTs the full items array to :id/components + wires success (toast + onClose)', async () => {
+    const onClose = vi.fn();
+    render(<CompensationComponentsEditor record={record} onClose={onClose} />);
     fireEvent.click(screen.getByRole('button', { name: /Adicionar linha/ }));
     const selects = screen.getAllByTestId('code-select');
     fireEvent.change(selects[1], { target: { value: 'MEAL' } });
@@ -133,6 +134,59 @@ describe('CompensationComponentsEditor', () => {
         { componentCode: 'TRANSPORT', value: 15000, override: false },
         { componentCode: 'MEAL', value: 8000, override: false },
       ],
+    });
+    await waitFor(() => expect(onClose).toHaveBeenCalled());
+    expect(notify).toHaveBeenCalled();
+  });
+
+  test('F1: a referenced-but-inactive code (absent from options) still renders + POSTs', async () => {
+    const recWithInactive = {
+      ...record,
+      components: [
+        {
+          id: 9,
+          compensationId: 5,
+          componentCode: 'BONUS_2024',
+          value: 30000,
+          override: true,
+        },
+      ],
+    };
+    render(
+      <CompensationComponentsEditor
+        record={recWithInactive}
+        onClose={vi.fn()}
+      />,
+    );
+    // the option is surfaced labelled "(inactivo)" so the admin can see the row
+    expect(screen.getByText(/BONUS_2024 — \(inactivo\)/i)).toBeInTheDocument();
+    // and Guardar still round-trips that code untouched
+    fireEvent.click(screen.getByRole('button', { name: /Guardar/ }));
+    await waitFor(() => expect(post).toHaveBeenCalledTimes(1));
+    expect(post).toHaveBeenCalledWith('/payroll/compensation/5/components', {
+      items: [{ componentCode: 'BONUS_2024', value: 30000, override: true }],
+    });
+  });
+
+  test('F3: blocks save when a row has a value but no component selected', () => {
+    render(<CompensationComponentsEditor record={record} onClose={vi.fn()} />);
+    fireEvent.click(screen.getByRole('button', { name: /Adicionar linha/ }));
+    const values = screen.getAllByLabelText('Valor');
+    fireEvent.change(values[1], { target: { value: '5000' } });
+    // component left unpicked on the new row
+    fireEvent.click(screen.getByRole('button', { name: /Guardar/ }));
+    expect(post).not.toHaveBeenCalled();
+    expect(screen.getByText(/componente seleccionado/i)).toBeInTheDocument();
+  });
+
+  test('F3: a fully blank row is still dropped silently (clear-line path)', async () => {
+    render(<CompensationComponentsEditor record={record} onClose={vi.fn()} />);
+    fireEvent.click(screen.getByRole('button', { name: /Adicionar linha/ }));
+    // new row left entirely blank — no code, no value
+    fireEvent.click(screen.getByRole('button', { name: /Guardar/ }));
+    await waitFor(() => expect(post).toHaveBeenCalledTimes(1));
+    expect(post).toHaveBeenCalledWith('/payroll/compensation/5/components', {
+      items: [{ componentCode: 'TRANSPORT', value: 15000, override: false }],
     });
   });
 });
