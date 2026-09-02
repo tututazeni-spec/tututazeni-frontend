@@ -122,6 +122,10 @@ export const queryKeys = {
     compensation: () => [...queryKeys.payslips.all, 'compensation'] as const,
     salaryComponents: (filter: Record<string, unknown>) =>
       [...queryKeys.payslips.all, 'salary-components', filter] as const,
+    compensationList: (filter: Record<string, unknown>) =>
+      [...queryKeys.payslips.all, 'compensation-list', filter] as const,
+    compensationHistory: (userId: number) =>
+      [...queryKeys.payslips.all, 'compensation-history', userId] as const,
   },
 
   assessments: {

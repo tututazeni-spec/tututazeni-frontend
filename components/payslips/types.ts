@@ -150,9 +150,64 @@ export type View =
   | 'simulate'
   | 'annual'
   | 'compensation'
-  | 'components';
+  | 'components'
+  | 'compensations'
+  | 'comp-detail';
 
 // view e selectedId eram dois useState separados sempre definidos em conjunto
 // — um único estado torna "detail sem id" irrepresentável.
 export type Nav =
-  { view: Exclude<View, 'detail'> } | { view: 'detail'; selectedId: number };
+  | { view: Exclude<View, 'detail' | 'comp-detail'> }
+  | { view: 'detail'; selectedId: number }
+  | { view: 'comp-detail'; userId: number };
+
+// ─── Aba "Compensações" (admin) — B-3 ────────────────────────────────────────
+
+export interface CompUserRef {
+  id: number;
+  fullName: string;
+  employeeNumber: string | null;
+  department: { id: number; name: string } | null;
+}
+
+export interface EmployeeCompensationComponent {
+  id: number;
+  compensationId: number;
+  componentCode: string;
+  value: number;
+  override: boolean;
+}
+
+export interface EmployeeCompensation {
+  id: number;
+  userId: number;
+  baseSalary: number;
+  countryCode: string | null;
+  bankName: string | null;
+  iban: string | null;
+  accountNumber: string | null;
+  effectiveFrom: string;
+  effectiveTo: string | null;
+  foodAllowance: number | null;
+  transportAllowance: number | null;
+  components: EmployeeCompensationComponent[];
+  user?: CompUserRef;
+}
+
+export interface CompensationListRow {
+  id: number;
+  userId: number;
+  baseSalary: number;
+  countryCode: string | null;
+  foodAllowance: number | null;
+  transportAllowance: number | null;
+  effectiveFrom: string;
+  effectiveTo: string | null;
+  user: CompUserRef;
+  _count: { components: number };
+}
+
+export interface Paginated<T> {
+  data: T[];
+  meta: { total: number; page: number; limit: number; totalPages: number };
+}
