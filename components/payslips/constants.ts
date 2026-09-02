@@ -5,7 +5,7 @@
 import type { View } from './types';
 
 export const NAV: Array<{
-  id: Exclude<View, 'detail'>;
+  id: Exclude<View, 'detail' | 'comp-detail'>;
   label: string;
   adminOnly?: boolean;
 }> = [
@@ -15,6 +15,7 @@ export const NAV: Array<{
   { id: 'annual', label: 'Resumo anual' },
   { id: 'compensation', label: 'A minha compensação' },
   { id: 'components', label: 'Componentes', adminOnly: true },
+  { id: 'compensations', label: 'Compensações', adminOnly: true },
 ];
 
 export const TITLES: Record<View, string> = {
@@ -25,4 +26,6 @@ export const TITLES: Record<View, string> = {
   annual: 'Resumo anual',
   compensation: 'A minha compensação actual',
   components: 'Componentes salariais',
+  compensations: 'Compensações dos colaboradores',
+  'comp-detail': 'Compensação do colaborador',
 };
