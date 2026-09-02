@@ -5,6 +5,8 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { AnnualView } from '@/components/payslips/AnnualView';
 import { CompareView } from '@/components/payslips/CompareView';
+import { CompensationDetailView } from '@/components/payslips/CompensationDetailView';
+import { CompensationsView } from '@/components/payslips/CompensationsView';
 import { CompensationView } from '@/components/payslips/CompensationView';
 import { ComponentsView } from '@/components/payslips/ComponentsView';
 import { NAV, TITLES } from '@/components/payslips/constants';
@@ -41,8 +43,8 @@ export default function PayslipsPage() {
         </div>
       </div>
 
-      {/* Tabs (não mostrar em detail) */}
-      {nav.view !== 'detail' && (
+      {/* Tabs (não mostrar em detail / comp-detail) */}
+      {nav.view !== 'detail' && nav.view !== 'comp-detail' && (
         <div className="flex gap-1 mb-6 bg-surface-sunken p-1 rounded-card w-fit">
           {visibleNav.map((n) => (
             <Button
@@ -67,6 +69,17 @@ export default function PayslipsPage() {
       {nav.view === 'annual' && <AnnualView />}
       {nav.view === 'compensation' && <CompensationView />}
       {nav.view === 'components' && isAdmin && <ComponentsView />}
+      {nav.view === 'compensations' && isAdmin && (
+        <CompensationsView
+          onOpenDetail={(uid) => setNav({ view: 'comp-detail', userId: uid })}
+        />
+      )}
+      {nav.view === 'comp-detail' && isAdmin && (
+        <CompensationDetailView
+          userId={nav.userId}
+          onBack={() => setNav({ view: 'compensations' })}
+        />
+      )}
     </div>
   );
 }
