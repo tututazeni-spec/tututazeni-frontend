@@ -64,6 +64,27 @@ export function CompensationComponentsEditor({
   );
   const [formError, setFormError] = useState('');
 
+  // O backend faz SOFT-DELETE de um componente (active=false) exactamente quando
+  // ele passa a estar referenciado por uma compensação — por isso um código que
+  // aparece legitimamente em record.components pode não vir em `options`. Sem
+  // isto o Select desse row mostrava só o placeholder (valor preservado em
+  // estado, mas o admin não via o que a linha era). Une-se aqui os códigos
+  // referenciados-mas-inactivos, rotulados "(inactivo)".
+  const missingCodes = Array.from(
+    new Set(
+      record.components
+        .map((c) => c.componentCode)
+        .filter((code) => code && !options.some((o) => o.value === code)),
+    ),
+  );
+  const allOptions = [
+    ...options,
+    ...missingCodes.map((code) => ({
+      value: code,
+      label: `${code} — (inactivo)`,
+    })),
+  ];
+
   const patch = (key: string, p: Partial<Row>) =>
     setRows((rs) => rs.map((r) => (r.key === key ? { ...r, ...p } : r)));
 
@@ -86,6 +107,13 @@ export function CompensationComponentsEditor({
   const handleSave = () => {
     if (loading) return;
     setFormError('');
+    // Uma linha com valor preenchido mas sem componente escolhido não pode ser
+    // descartada em silêncio num endpoint de substituição integral. Linhas
+    // totalmente em branco continuam a ser removidas (path "limpar linha").
+    if (rows.some((r) => r.componentCode === '' && r.value.trim() !== '')) {
+      setFormError('Cada linha precisa de um componente seleccionado.');
+      return;
+    }
     const filled = rows.filter((r) => r.componentCode !== '');
     const codes = filled.map((r) => r.componentCode);
     if (new Set(codes).size !== codes.length) {
@@ -128,7 +156,7 @@ export function CompensationComponentsEditor({
             <div key={r.key} className="flex items-center gap-2">
               <div className="flex-1">
                 <Select
-                  items={options}
+                  items={allOptions}
                   value={r.componentCode || undefined}
                   onValueChange={(v) => patch(r.key, { componentCode: v })}
                   placeholder={optionsLoading ? 'A carregar…' : 'Componente'}
