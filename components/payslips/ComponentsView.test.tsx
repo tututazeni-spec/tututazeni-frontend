@@ -145,10 +145,13 @@ describe('ComponentsView', () => {
     await vi.waitFor(() =>
       expect(del).toHaveBeenCalledWith('/payroll/components/BASE'),
     );
+    // del resolves { active: false } → toast title reflects that, and the
+    // payslips cache is invalidated (queryKeys.payslips.all).
     await vi.waitFor(() =>
       expect(notify).toHaveBeenCalledWith(
-        expect.objectContaining({ intent: expect.any(String) }),
+        expect.objectContaining({ title: 'Componente desactivado' }),
       ),
     );
+    expect(invalidateQueries).toHaveBeenCalled();
   });
 });
