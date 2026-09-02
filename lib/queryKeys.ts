@@ -119,6 +119,8 @@ export const queryKeys = {
     detail: (id: number) => [...queryKeys.payslips.all, 'detail', id] as const,
     annual: (year: string) =>
       [...queryKeys.payslips.all, 'annual', year] as const,
+    compensation: () =>
+      [...queryKeys.payslips.all, 'compensation'] as const,
   },
 
   assessments: {

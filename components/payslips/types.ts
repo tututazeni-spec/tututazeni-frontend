@@ -113,7 +113,22 @@ export interface SimulateResult {
   };
 }
 
-export type View = 'list' | 'detail' | 'compare' | 'simulate' | 'annual';
+export interface MyCompensation {
+  baseSalary: number;
+  foodAllowance: number | null;
+  transportAllowance: number | null;
+  bankName: string | null;
+  ibanMasked: string | null;
+  effectiveFrom: string;
+}
+
+export type View =
+  | 'list'
+  | 'detail'
+  | 'compare'
+  | 'simulate'
+  | 'annual'
+  | 'compensation';
 
 // view e selectedId eram dois useState separados sempre definidos em conjunto
 // — um único estado torna "detail sem id" irrepresentável.

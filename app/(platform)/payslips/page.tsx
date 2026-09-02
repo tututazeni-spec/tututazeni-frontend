@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { AnnualView } from '@/components/payslips/AnnualView';
 import { CompareView } from '@/components/payslips/CompareView';
+import { CompensationView } from '@/components/payslips/CompensationView';
 import { NAV, TITLES } from '@/components/payslips/constants';
 import { DetailView } from '@/components/payslips/DetailView';
 import { ListView } from '@/components/payslips/ListView';
@@ -54,6 +55,7 @@ export default function PayslipsPage() {
       {nav.view === 'compare' && <CompareView />}
       {nav.view === 'simulate' && <SimulateView />}
       {nav.view === 'annual' && <AnnualView />}
+      {nav.view === 'compensation' && <CompensationView />}
     </div>
   );
 }
