@@ -32,7 +32,7 @@ type ModalState =
   | { kind: 'none' }
   | { kind: 'edit'; record: EmployeeCompensation }
   | { kind: 'components'; record: EmployeeCompensation }
-  | { kind: 'create' };
+  | { kind: 'create'; from?: EmployeeCompensation };
 
 function Row({ label, value }: { label: string; value: string }) {
   return (
@@ -157,7 +157,10 @@ export function CompensationDetailView({
                 >
                   Gerir componentes
                 </Button>
-                <Button size="sm" onClick={() => setModal({ kind: 'create' })}>
+                <Button
+                  size="sm"
+                  onClick={() => setModal({ kind: 'create', from: current })}
+                >
                   Nova versão
                 </Button>
               </div>
@@ -265,6 +268,7 @@ export function CompensationDetailView({
         <CompensationFormModal
           mode="create"
           userId={userId}
+          record={modal.from ?? null}
           onClose={() => setModal({ kind: 'none' })}
         />
       )}

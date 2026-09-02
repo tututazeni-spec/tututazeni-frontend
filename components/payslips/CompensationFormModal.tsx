@@ -48,8 +48,13 @@ export function CompensationFormModal({
     !editing && userId == null && !picked && rawSearch.trim().length > 0,
   );
 
+  // create-com-record ("Nova versão"): os dados bancários / subsídios são
+  // herdados do registo actual (senão o POST escreve-os null e degrada o
+  // pagamento), mas o salário base fica em branco de propósito — uma nova
+  // versão implica uma cifra nova e deliberada. `editing` continua a ser
+  // mode === 'edit'; isto NÃO é edição.
   const [baseSalary, setBaseSalary] = useState(
-    record?.baseSalary != null ? String(record.baseSalary) : '',
+    editing && record?.baseSalary != null ? String(record.baseSalary) : '',
   );
   const [foodAllowance, setFoodAllowance] = useState(
     record?.foodAllowance != null ? String(record.foodAllowance) : '',
