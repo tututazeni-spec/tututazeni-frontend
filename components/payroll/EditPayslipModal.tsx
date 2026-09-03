@@ -49,6 +49,7 @@ export function EditPayslipModal({ payslip, onClose }: EditPayslipModalProps) {
       invalidateKeys: [
         queryKeys.payslips.adminDetail(payslip.id),
         [...queryKeys.payslips.all, 'admin-list'],
+        [...queryKeys.payslips.all, 'dashboard'],
       ],
       onSuccess: () => {
         notify({ title: 'Recibo actualizado (voltou a Rascunho)', intent: 'success' });
@@ -62,20 +63,27 @@ export function EditPayslipModal({ payslip, onClose }: EditPayslipModalProps) {
               : e.message,
           intent: 'danger',
         }),
+      meta: { silent: true },
     },
   );
 
+  const valid =
+    paymentDate.trim() !== '' &&
+    nums.baseSalary.trim() !== '' &&
+    Number.isFinite(Number(nums.baseSalary)) &&
+    Number(nums.baseSalary) >= 0;
+
   const handleSubmit = () => {
-    if (save.isPending) return;
+    if (save.isPending || !valid) return;
     const body: Record<string, unknown> = { paymentDate };
     for (const [k] of NUM_FIELDS) body[k] = Number(nums[k] || 0);
-    if (notes.trim()) body.notes = notes.trim();
+    body.notes = notes.trim();
     save.mutate(body);
   };
 
   return (
     <Modal open onOpenChange={(o) => !o && onClose()}>
-      <ModalContent title={`Editar recibo ${payslip.receiptCode ?? payslip.id}`} className="max-w-lg">
+      <ModalContent title={`Editar recibo ${payslip.receiptCode ?? payslip.id}`} className="max-w-lg max-h-[90vh] overflow-y-auto">
         <div className="mt-4 rounded-control bg-warning-subtle p-3 font-body text-xs text-warning-ink">
           Guardar devolve o recibo a Rascunho e recalcula IRT, INSS e líquido a partir dos valores introduzidos.
         </div>
@@ -104,7 +112,7 @@ export function EditPayslipModal({ payslip, onClose }: EditPayslipModalProps) {
 
         <div className="mt-6 flex justify-end gap-3">
           <Button intent="ghost" onClick={onClose} disabled={save.isPending}>Cancelar</Button>
-          <Button onClick={handleSubmit} loading={save.isPending}>Guardar</Button>
+          <Button onClick={handleSubmit} disabled={!valid} loading={save.isPending}>Guardar</Button>
         </div>
       </ModalContent>
     </Modal>

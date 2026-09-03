@@ -76,6 +76,7 @@ export function CreatePayslipModal({ onClose, onCreated }: CreatePayslipModalPro
               : e.message || 'Erro ao criar recibo. Tente novamente.',
           intent: 'danger',
         }),
+      meta: { silent: true },
     },
   );
 

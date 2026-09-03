@@ -83,6 +83,7 @@ export function PayslipListView({ onSelect, onCreate }: PayslipListViewProps) {
       ],
       onSuccess: () => notify({ title: 'Recibo emitido', intent: 'success' }),
       onError: (e: Error) => notify({ title: e.message, intent: 'danger' }),
+      meta: { silent: true },
     },
   );
 

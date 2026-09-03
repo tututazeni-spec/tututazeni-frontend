@@ -40,6 +40,7 @@ export function ResolveDisputeModal({ disputeId, payslipId, onClose }: ResolveDi
             (e as { status?: number }).status === 409 ? 'Disputa já resolvida' : e.message,
           intent: 'danger',
         }),
+      meta: { silent: true },
     },
   );
 
