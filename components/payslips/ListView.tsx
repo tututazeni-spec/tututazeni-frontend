@@ -62,7 +62,7 @@ export function ListView({ onSelect }: ListViewProps) {
           }}
         />
         <span className="font-body text-sm text-ink-faint">
-          {data?.total ?? 0} recibos
+          {data?.meta.total ?? 0} recibos
         </span>
         <Button
           intent="secondary"
@@ -165,10 +165,10 @@ export function ListView({ onSelect }: ListViewProps) {
       </div>
 
       {/* Paginação */}
-      {data && data.totalPages > 1 && (
+      {data && data.meta.totalPages > 1 && (
         <div className="mt-4 flex items-center justify-between">
           <span className="font-body text-xs text-ink-faint">
-            Página {data.page} de {data.totalPages}
+            Página {data.meta.page} de {data.meta.totalPages}
           </span>
           <div className="flex gap-2">
             <Button
@@ -182,7 +182,7 @@ export function ListView({ onSelect }: ListViewProps) {
             <Button
               intent="secondary"
               size="sm"
-              disabled={page === data.totalPages}
+              disabled={page === data.meta.totalPages}
               onClick={() => setPage((p) => p + 1)}
             >
               Próxima →
