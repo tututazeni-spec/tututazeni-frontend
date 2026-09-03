@@ -7,6 +7,7 @@
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
+import { FileText } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { TYPE_CFG } from './constants';
@@ -90,10 +91,14 @@ export function DashboardView() {
               className="flex items-center gap-3 border-b border-border px-4 py-3 last:border-0"
             >
               <div
-                className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-control text-lg ${TYPE_CFG[a.microLearning?.contentType as ContentType]?.cls ?? 'bg-surface-sunken text-ink-muted'}`}
+                className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-control ${TYPE_CFG[a.microLearning?.contentType as ContentType]?.cls ?? 'bg-surface-sunken text-ink-muted'}`}
               >
-                {TYPE_CFG[a.microLearning?.contentType as ContentType]?.icon ??
-                  '📄'}
+                {(() => {
+                  const DIcon =
+                    TYPE_CFG[a.microLearning?.contentType as ContentType]
+                      ?.icon ?? FileText;
+                  return <DIcon size={16} strokeWidth={1.75} />;
+                })()}
               </div>
               <div className="min-w-0 flex-1">
                 <div className="truncate font-body text-sm font-medium text-ink">

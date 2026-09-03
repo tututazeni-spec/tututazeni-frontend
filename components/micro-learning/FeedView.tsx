@@ -71,11 +71,7 @@ export function FeedView({ onSelect }: FeedViewProps) {
                 setPage(1);
               }}
             >
-              {t === ''
-                ? 'Todos'
-                : TYPE_CFG[t as ContentType].icon +
-                  ' ' +
-                  TYPE_CFG[t as ContentType].label}
+              {t === '' ? 'Todos' : TYPE_CFG[t as ContentType].label}
             </Button>
           ))}
         </div>

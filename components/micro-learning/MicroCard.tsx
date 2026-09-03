@@ -10,6 +10,7 @@
 'use client';
 
 import Image from 'next/image';
+import { Check, Heart } from 'lucide-react';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { LEVEL_CFG, TYPE_CFG } from './constants';
 import { fmtDuration } from './utils';
@@ -22,6 +23,7 @@ interface MicroCardProps {
 
 export function MicroCard({ item, onClick }: MicroCardProps) {
   const typeCfg = TYPE_CFG[item.contentType];
+  const TypeIcon = typeCfg.icon;
   const pct = item.userProgress?.progress ?? 0;
 
   return (
@@ -47,8 +49,8 @@ export function MicroCard({ item, onClick }: MicroCardProps) {
             className="object-cover opacity-80 transition-transform duration-300 group-hover:scale-105"
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center text-5xl opacity-40">
-            {typeCfg.icon}
+          <div className="flex h-full w-full items-center justify-center text-canvas opacity-40">
+            <TypeIcon size={48} strokeWidth={1.5} />
           </div>
         )}
         {/* Duration badge */}
@@ -57,15 +59,15 @@ export function MicroCard({ item, onClick }: MicroCardProps) {
         </div>
         {/* Type badge */}
         <div
-          className={`absolute left-2 top-2 rounded px-2 py-0.5 font-body text-xs font-medium ${typeCfg.cls}`}
+          className={`absolute left-2 top-2 inline-flex items-center gap-1 rounded px-2 py-0.5 font-body text-xs font-medium ${typeCfg.cls}`}
         >
-          {typeCfg.icon} {typeCfg.label}
+          <TypeIcon size={12} strokeWidth={1.75} /> {typeCfg.label}
         </div>
         {/* Completed overlay */}
         {item.isCompleted && (
           <div className="absolute inset-0 flex items-center justify-center bg-success/40">
-            <div className="rounded-full bg-success px-3 py-1 font-body text-xs font-medium text-canvas">
-              ✓ Concluído
+            <div className="inline-flex items-center gap-1 rounded-full bg-success px-3 py-1 font-body text-xs font-medium text-canvas">
+              <Check size={12} strokeWidth={2} /> Concluído
             </div>
           </div>
         )}
@@ -92,7 +94,9 @@ export function MicroCard({ item, onClick }: MicroCardProps) {
             ))}
           </div>
           <div className="flex items-center gap-2 font-body text-xs text-ink-faint">
-            <span>❤ {item._count.likes}</span>
+            <span className="inline-flex items-center gap-1">
+              <Heart size={12} strokeWidth={1.75} /> {item._count.likes}
+            </span>
             <span className="font-medium text-accent">+{item.xpReward}xp</span>
           </div>
         </div>
