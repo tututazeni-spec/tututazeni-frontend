@@ -15,11 +15,13 @@ import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { CATEGORY_INTENT, TRIGGER_LABEL } from './constants';
+import { CreateRuleModal } from './CreateRuleModal';
 import type { AutomationRule, RunAllResponse } from './types';
 
 export function RulesTab() {
   const notify = useToast();
   const [running, setRunning] = useState(false);
+  const [showCreate, setShowCreate] = useState(false);
 
   const {
     data: rules = [],
@@ -123,7 +125,7 @@ export function RulesTab() {
             )}
             Executar Todas
           </Button>
-          <Button size="sm">
+          <Button size="sm" onClick={() => setShowCreate(true)}>
             <Plus size={14} strokeWidth={1.75} />
             Nova Regra
           </Button>
@@ -195,10 +197,12 @@ export function RulesTab() {
         {rules.length === 0 && (
           <EmptyState
             title="Sem automações"
-            description="Usa os templates para começar."
+            description="Cria uma regra ou usa os templates para começar."
           />
         )}
       </div>
+
+      {showCreate && <CreateRuleModal onClose={() => setShowCreate(false)} />}
     </div>
   );
 }
