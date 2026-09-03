@@ -71,8 +71,12 @@ describe('RunPayslipsTable', () => {
 
   test('row actions are hidden when run is not SIMULATED', () => {
     render(<RunPayslipsTable runId={9} runStatus="PENDING_APPROVAL" />);
-    expect(screen.queryByRole('button', { name: 'Recalcular' })).not.toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'Excluir' })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Recalcular' }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Excluir' }),
+    ).not.toBeInTheDocument();
   });
 
   test('"Recalcular" opens RecalcPayslipModal for that row when run is SIMULATED', () => {
@@ -97,7 +101,15 @@ describe('RunPayslipsTable', () => {
   });
 
   test('the row matching highlightPayslipId gets the highlight class', () => {
-    render(<RunPayslipsTable runId={9} runStatus="SIMULATED" highlightPayslipId={5} />);
-    expect(screen.getByTestId('run-payslip-row-5')).toHaveClass('bg-warning-subtle');
+    render(
+      <RunPayslipsTable
+        runId={9}
+        runStatus="SIMULATED"
+        highlightPayslipId={5}
+      />,
+    );
+    expect(screen.getByTestId('run-payslip-row-5')).toHaveClass(
+      'bg-warning-subtle',
+    );
   });
 });

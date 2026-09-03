@@ -39,7 +39,12 @@ const payslip: RunPayslip = {
   netSalary: 120000,
   status: 'DRAFT',
   hasExceptions: false,
-  calcInputs: { absenceDays: 2, overtimeHours: 0, bonusAmount: null, advanceDeduction: null },
+  calcInputs: {
+    absenceDays: 2,
+    overtimeHours: 0,
+    bonusAmount: null,
+    advanceDeduction: null,
+  },
   user: { id: 7, fullName: 'Ana Silva', employeeNumber: 'E-7' },
   items: [],
 };
@@ -51,7 +56,9 @@ beforeEach(() => {
 
 describe('RecalcPayslipModal', () => {
   test('prefills inputs from payslip.calcInputs', () => {
-    render(<RecalcPayslipModal runId={9} payslip={payslip} onClose={vi.fn()} />);
+    render(
+      <RecalcPayslipModal runId={9} payslip={payslip} onClose={vi.fn()} />,
+    );
     expect(screen.getByLabelText(/Dias de falta/i)).toHaveValue(2);
     expect(screen.getByLabelText(/Horas extra/i)).toHaveValue(0);
     expect(screen.getByLabelText(/Bónus/i)).toHaveValue(null);
@@ -71,13 +78,21 @@ describe('RecalcPayslipModal', () => {
 
   test('submits only the filled fields as numbers to the right endpoint', async () => {
     const onClose = vi.fn();
-    render(<RecalcPayslipModal runId={9} payslip={payslip} onClose={onClose} />);
-    fireEvent.change(screen.getByLabelText(/Bónus/i), { target: { value: '10000' } });
+    render(
+      <RecalcPayslipModal runId={9} payslip={payslip} onClose={onClose} />,
+    );
+    fireEvent.change(screen.getByLabelText(/Bónus/i), {
+      target: { value: '10000' },
+    });
     fireEvent.click(screen.getByRole('button', { name: 'Recalcular' }));
     await waitFor(() => expect(patch).toHaveBeenCalledTimes(1));
     const [url, body] = patch.mock.calls[0];
     expect(url).toBe('/payroll/runs/9/payslips/5/recalc');
-    expect(body).toEqual({ absenceDays: 2, overtimeHours: 0, bonusAmount: 10000 });
+    expect(body).toEqual({
+      absenceDays: 2,
+      overtimeHours: 0,
+      bonusAmount: 10000,
+    });
     expect(onClose).toHaveBeenCalled();
   });
 });

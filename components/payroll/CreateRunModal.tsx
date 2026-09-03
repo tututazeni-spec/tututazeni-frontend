@@ -29,7 +29,8 @@ export function CreateRunModal({ onClose, onCreated }: CreateRunModalProps) {
   const [notes, setNotes] = useState('');
 
   const create = useApiMutation(
-    (body: Record<string, unknown>) => apiClient.post<PayrollRun>('/payroll/runs', body),
+    (body: Record<string, unknown>) =>
+      apiClient.post<PayrollRun>('/payroll/runs', body),
     {
       invalidateKeys: [queryKeys.payroll.all],
       onSuccess: (run) => {
@@ -55,7 +56,11 @@ export function CreateRunModal({ onClose, onCreated }: CreateRunModalProps) {
     <Modal open onOpenChange={(open) => !open && onClose()}>
       <ModalContent title="Novo run" className="max-w-md">
         <div className="mt-5 space-y-4">
-          <FormField label="Período *" htmlFor="crm-period" hint="Formato AAAA-MM">
+          <FormField
+            label="Período *"
+            htmlFor="crm-period"
+            hint="Formato AAAA-MM"
+          >
             <Input
               id="crm-period"
               value={period}
@@ -96,7 +101,11 @@ export function CreateRunModal({ onClose, onCreated }: CreateRunModalProps) {
           <Button intent="ghost" onClick={onClose} disabled={create.isPending}>
             Cancelar
           </Button>
-          <Button onClick={handleSubmit} disabled={!valid} loading={create.isPending}>
+          <Button
+            onClick={handleSubmit}
+            disabled={!valid}
+            loading={create.isPending}
+          >
             Criar
           </Button>
         </div>

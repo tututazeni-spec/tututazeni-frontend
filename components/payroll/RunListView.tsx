@@ -36,7 +36,8 @@ const STATUS_ITEMS = [
   { value: 'CANCELLED', label: RUN_STATUS_MAP.CANCELLED.label },
 ];
 
-const COLS = 'grid grid-cols-[110px_1fr_70px_120px_1fr_130px_110px_110px] gap-3';
+const COLS =
+  'grid grid-cols-[110px_1fr_70px_120px_1fr_130px_110px_110px] gap-3';
 
 export function RunListView({ onSelect }: RunListViewProps) {
   const [status, setStatus] = useState('all');
@@ -53,7 +54,11 @@ export function RunListView({ onSelect }: RunListViewProps) {
   const { data, isLoading, error } = useApiQuery<Paginated<PayrollRun>>(
     queryKeys.payroll.runList(params),
     '/payroll/runs',
-    { params, staleTime: STALE_TIME.DYNAMIC, placeholderData: keepPreviousData },
+    {
+      params,
+      staleTime: STALE_TIME.DYNAMIC,
+      placeholderData: keepPreviousData,
+    },
   );
 
   const rows = data?.data ?? [];
@@ -95,7 +100,9 @@ export function RunListView({ onSelect }: RunListViewProps) {
       </div>
 
       {isLoading && <Skeleton rows={8} />}
-      {error && <div className="font-body text-sm text-danger">{error.message}</div>}
+      {error && (
+        <div className="font-body text-sm text-danger">{error.message}</div>
+      )}
 
       {!isLoading && !error && rows.length === 0 && (
         <EmptyState
@@ -125,25 +132,39 @@ export function RunListView({ onSelect }: RunListViewProps) {
                 className={`${COLS} cursor-pointer items-center border-b border-border px-4 py-3.5 last:border-0 hover:bg-surface-sunken`}
                 onClick={() => onSelect(r.id)}
               >
-                <div className="font-mono text-sm font-medium text-ink">{r.period}</div>
+                <div className="font-mono text-sm font-medium text-ink">
+                  {r.period}
+                </div>
                 <div className="truncate font-body text-sm text-ink-muted">
                   {r.payGroup ?? '—'}
                 </div>
-                <div className="font-body text-sm text-ink-muted">{r.countryCode}</div>
-                <div>
-                  <StatusBadge value={r.status} map={RUN_STATUS_MAP} variant="dot" />
+                <div className="font-body text-sm text-ink-muted">
+                  {r.countryCode}
                 </div>
-                <div className="font-mono text-sm text-ink">{r.employeeCount ?? '—'}</div>
+                <div>
+                  <StatusBadge
+                    value={r.status}
+                    map={RUN_STATUS_MAP}
+                    variant="dot"
+                  />
+                </div>
+                <div className="font-mono text-sm text-ink">
+                  {r.employeeCount ?? '—'}
+                </div>
                 <div className="font-mono text-sm font-semibold text-ink">
                   {fmtKz(r.totalNet)}
                 </div>
                 <div className="font-body text-sm text-ink-muted">
                   {r.exceptionsCount ?? 0}
                   {(r.errorCount ?? 0) > 0 && (
-                    <span className="ml-1 text-danger">({r.errorCount} erro)</span>
+                    <span className="ml-1 text-danger">
+                      ({r.errorCount} erro)
+                    </span>
                   )}
                 </div>
-                <div className="font-body text-sm text-ink-muted">{fmtDate(r.createdAt)}</div>
+                <div className="font-body text-sm text-ink-muted">
+                  {fmtDate(r.createdAt)}
+                </div>
               </div>
             ))}
           </div>

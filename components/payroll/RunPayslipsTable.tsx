@@ -27,7 +27,11 @@ export interface RunPayslipsTableProps {
 
 const COLS = 'grid grid-cols-[1.4fr_130px_130px_110px_120px_220px] gap-3';
 
-export function RunPayslipsTable({ runId, runStatus, highlightPayslipId }: RunPayslipsTableProps) {
+export function RunPayslipsTable({
+  runId,
+  runStatus,
+  highlightPayslipId,
+}: RunPayslipsTableProps) {
   const confirm = useConfirm();
   const notify = useToast();
   const [page, setPage] = useState(1);
@@ -37,18 +41,24 @@ export function RunPayslipsTable({ runId, runStatus, highlightPayslipId }: RunPa
   const { data, isLoading, error } = useApiQuery<Paginated<RunPayslip>>(
     queryKeys.payroll.runPayslips(runId, params),
     `/payroll/runs/${runId}/payslips`,
-    { params, staleTime: STALE_TIME.DYNAMIC, placeholderData: keepPreviousData },
+    {
+      params,
+      staleTime: STALE_TIME.DYNAMIC,
+      placeholderData: keepPreviousData,
+    },
   );
 
   const exclude = useApiMutation(
-    (payslipId: number) => apiClient.patch(`/payroll/runs/${runId}/payslips/${payslipId}/exclude`),
+    (payslipId: number) =>
+      apiClient.patch(`/payroll/runs/${runId}/payslips/${payslipId}/exclude`),
     {
       invalidateKeys: [
         queryKeys.payroll.runDetail(runId),
         queryKeys.payroll.runPayslipsAll(runId),
         queryKeys.payroll.runExceptions(runId),
       ],
-      onSuccess: () => notify({ title: 'Recibo excluído do run', intent: 'success' }),
+      onSuccess: () =>
+        notify({ title: 'Recibo excluído do run', intent: 'success' }),
     },
   );
 
@@ -74,10 +84,15 @@ export function RunPayslipsTable({ runId, runStatus, highlightPayslipId }: RunPa
       </h3>
 
       {isLoading && <Skeleton rows={6} />}
-      {error && <div className="font-body text-sm text-danger">{error.message}</div>}
+      {error && (
+        <div className="font-body text-sm text-danger">{error.message}</div>
+      )}
 
       {!isLoading && !error && rows.length === 0 && (
-        <EmptyState title="Sem recibos" description="Este run ainda não tem recibos gerados." />
+        <EmptyState
+          title="Sem recibos"
+          description="Este run ainda não tem recibos gerados."
+        />
       )}
 
       {!isLoading && rows.length > 0 && (
@@ -109,12 +124,18 @@ export function RunPayslipsTable({ runId, runStatus, highlightPayslipId }: RunPa
                     {p.user.employeeNumber ?? '—'}
                   </div>
                 </div>
-                <div className="font-mono text-sm text-ink-muted">{fmtKz(p.grossSalary)}</div>
+                <div className="font-mono text-sm text-ink-muted">
+                  {fmtKz(p.grossSalary)}
+                </div>
                 <div className="font-mono text-sm font-semibold text-ink">
                   {fmtKz(p.netSalary)}
                 </div>
                 <div>
-                  <StatusBadge value={p.status} map={PAYSLIP_STATUS_MAP} variant="plain" />
+                  <StatusBadge
+                    value={p.status}
+                    map={PAYSLIP_STATUS_MAP}
+                    variant="plain"
+                  />
                 </div>
                 <div>
                   {p.hasExceptions && (
@@ -125,10 +146,18 @@ export function RunPayslipsTable({ runId, runStatus, highlightPayslipId }: RunPa
                 </div>
                 {editable && (
                   <div className="flex gap-2">
-                    <Button size="sm" intent="secondary" onClick={() => setRecalcTarget(p)}>
+                    <Button
+                      size="sm"
+                      intent="secondary"
+                      onClick={() => setRecalcTarget(p)}
+                    >
                       Recalcular
                     </Button>
-                    <Button size="sm" intent="danger" onClick={() => handleExclude(p)}>
+                    <Button
+                      size="sm"
+                      intent="danger"
+                      onClick={() => handleExclude(p)}
+                    >
                       Excluir
                     </Button>
                   </div>

@@ -17,22 +17,34 @@ export interface RecalcPayslipModalProps {
   onClose: () => void;
 }
 
-const toInputValue = (n: number | null | undefined) => (n == null ? '' : String(n));
+const toInputValue = (n: number | null | undefined) =>
+  n == null ? '' : String(n);
 
-export function RecalcPayslipModal({ runId, payslip, onClose }: RecalcPayslipModalProps) {
+export function RecalcPayslipModal({
+  runId,
+  payslip,
+  onClose,
+}: RecalcPayslipModalProps) {
   const notify = useToast();
-  const [absenceDays, setAbsenceDays] = useState(toInputValue(payslip.calcInputs?.absenceDays));
+  const [absenceDays, setAbsenceDays] = useState(
+    toInputValue(payslip.calcInputs?.absenceDays),
+  );
   const [overtimeHours, setOvertimeHours] = useState(
     toInputValue(payslip.calcInputs?.overtimeHours),
   );
-  const [bonusAmount, setBonusAmount] = useState(toInputValue(payslip.calcInputs?.bonusAmount));
+  const [bonusAmount, setBonusAmount] = useState(
+    toInputValue(payslip.calcInputs?.bonusAmount),
+  );
   const [advanceDeduction, setAdvanceDeduction] = useState(
     toInputValue(payslip.calcInputs?.advanceDeduction),
   );
 
   const recalc = useApiMutation(
     (body: Record<string, number>) =>
-      apiClient.patch(`/payroll/runs/${runId}/payslips/${payslip.id}/recalc`, body),
+      apiClient.patch(
+        `/payroll/runs/${runId}/payslips/${payslip.id}/recalc`,
+        body,
+      ),
     {
       invalidateKeys: [
         queryKeys.payroll.runDetail(runId),
@@ -51,7 +63,8 @@ export function RecalcPayslipModal({ runId, payslip, onClose }: RecalcPayslipMod
     if (absenceDays.trim() !== '') body.absenceDays = Number(absenceDays);
     if (overtimeHours.trim() !== '') body.overtimeHours = Number(overtimeHours);
     if (bonusAmount.trim() !== '') body.bonusAmount = Number(bonusAmount);
-    if (advanceDeduction.trim() !== '') body.advanceDeduction = Number(advanceDeduction);
+    if (advanceDeduction.trim() !== '')
+      body.advanceDeduction = Number(advanceDeduction);
     recalc.mutate(body);
   };
 

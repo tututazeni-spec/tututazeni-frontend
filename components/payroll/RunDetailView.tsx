@@ -84,7 +84,6 @@ export function RunDetailView({ runId, onBack }: RunDetailViewProps) {
       invalidateKeys: [queryKeys.payroll.all],
       onSuccess: () =>
         notify({ title: 'Estado do run actualizado', intent: 'success' }),
-      onError: (e: Error) => notify({ title: e.message, intent: 'danger' }),
     },
   );
 
@@ -216,7 +215,10 @@ export function RunDetailView({ runId, onBack }: RunDetailViewProps) {
               size="sm"
               intent="danger"
               disabled={busy}
-              onClick={() => setPanel({ kind: 'cancel' })}
+              onClick={() => {
+                setPanel({ kind: 'cancel' });
+                setReason('');
+              }}
             >
               Cancelar
             </Button>
@@ -242,7 +244,10 @@ export function RunDetailView({ runId, onBack }: RunDetailViewProps) {
               size="sm"
               intent="danger"
               disabled={busy}
-              onClick={() => setPanel({ kind: 'reject' })}
+              onClick={() => {
+                setPanel({ kind: 'reject' });
+                setReason('');
+              }}
             >
               Rejeitar
             </Button>
@@ -250,7 +255,10 @@ export function RunDetailView({ runId, onBack }: RunDetailViewProps) {
               size="sm"
               intent="ghost"
               disabled={busy}
-              onClick={() => setPanel({ kind: 'cancel' })}
+              onClick={() => {
+                setPanel({ kind: 'cancel' });
+                setReason('');
+              }}
             >
               Cancelar
             </Button>
@@ -276,7 +284,10 @@ export function RunDetailView({ runId, onBack }: RunDetailViewProps) {
               size="sm"
               intent="ghost"
               disabled={busy}
-              onClick={() => setPanel({ kind: 'cancel' })}
+              onClick={() => {
+                setPanel({ kind: 'cancel' });
+                setReason('');
+              }}
             >
               Cancelar
             </Button>
