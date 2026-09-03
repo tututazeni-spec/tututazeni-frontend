@@ -6,21 +6,35 @@
 // componentes auto-contidos em components/events/. Ver memory
 // project_innova_component_separation_audit. Migrado para a fundação
 // de design: Button da fundação substitui os botões/tabs bespoke.
+//
+// O botão "Criar evento" abria só um toast placeholder — ver memory
+// project_innova_frontend_placeholder_toast_buttons. Agora monta o
+// CreateEventModal (POST /events), visível apenas para ADMIN/RH/GESTOR
+// (espelha @Roles em src/events/events.controller.ts#create).
 
 import { useState } from 'react';
 import { Plus } from 'lucide-react';
-import { useToast } from '@/providers/ToastProvider';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
+import type { Role } from '@/lib/roles';
 import { NAV, TITLES } from '@/components/events/constants';
 import { CatalogView } from '@/components/events/CatalogView';
+import { CreateEventModal } from '@/components/events/CreateEventModal';
 import { DetailView } from '@/components/events/DetailView';
 import { MyEventsView } from '@/components/events/MyEventsView';
 import { OrganizerView } from '@/components/events/OrganizerView';
 import type { Nav } from '@/components/events/types';
 import { Button } from '@/components/ui/Button';
 
+// Espelha @Roles(ADMIN, RH, GESTOR) em src/events/events.controller.ts#create.
+const CAN_CREATE_ROLES: readonly Role[] = ['ADMIN', 'RH', 'GESTOR'];
+
 export default function EventsPage() {
-  const notify = useToast();
+  const { data: currentUser } = useCurrentUser();
+  const role = currentUser?.role?.name as Role | undefined;
+  const canCreate = !!role && CAN_CREATE_ROLES.includes(role);
+
   const [nav, setNav] = useState<Nav>({ view: 'catalog' });
+  const [showCreate, setShowCreate] = useState(false);
 
   const handleSelect = (id: number) =>
     setNav({ view: 'detail', selectedId: id });
@@ -36,16 +50,8 @@ export default function EventsPage() {
             </h1>
           </div>
         </div>
-        {nav.view !== 'detail' && (
-          <Button
-            size="sm"
-            onClick={() =>
-              notify({
-                title: 'Abrir formulário de criação de evento',
-                intent: 'info',
-              })
-            }
-          >
+        {nav.view !== 'detail' && canCreate && (
+          <Button size="sm" onClick={() => setShowCreate(true)}>
             <Plus size={14} strokeWidth={1.75} />
             Criar evento
           </Button>
@@ -78,6 +84,8 @@ export default function EventsPage() {
       {nav.view === 'detail' && (
         <DetailView eventId={nav.selectedId} onBack={handleBack} />
       )}
+
+      {showCreate && <CreateEventModal onClose={() => setShowCreate(false)} />}
     </div>
   );
 }
