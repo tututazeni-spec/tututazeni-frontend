@@ -13,6 +13,7 @@
 import { useState } from 'react';
 import { AlertCircle, BookOpen, Compass, X, Zap } from 'lucide-react';
 import { useApiMutation } from '@/hooks/useApiQuery';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { apiClient } from '@/lib/apiClient';
 import { Button } from '@/components/ui/Button';
 import { FormField } from '@/components/ui/FormField';
@@ -30,13 +31,20 @@ interface SimulateModalProps {
 export function SimulateModal({ roles, onClose }: SimulateModalProps) {
   const [targetRoleId, setTargetRoleId] = useState(0);
   const [error, setError] = useState('');
+  const { data: me } = useCurrentUser();
 
   const simulateMutation = useApiMutation(
     (roleId: number) =>
       apiClient.post<SimulationResult>('/career-plans/simulate', {
+        // POST /career-plans/simulate exige userId no corpo (SimulateCareerDto);
+        // sem ele o ValidationPipe global responde 400. Simula-se sempre a
+        // carreira do próprio utilizador — assertCanAccess valida isso no backend.
+        userId: me?.id,
         targetRoleId: roleId,
       }),
-    { onError: (e) => setError(e.message) },
+    // O modal tem banner de erro inline próprio; silenciar o toast global
+    // "Erro ao guardar" para não duplicar a mensagem.
+    { meta: { silent: true }, onError: (e) => setError(e.message) },
   );
   const result = simulateMutation.data ?? null;
   const loading = simulateMutation.isPending;
@@ -44,6 +52,12 @@ export function SimulateModal({ roles, onClose }: SimulateModalProps) {
   const simulate = () => {
     if (!targetRoleId) {
       setError('Seleccione um cargo alvo');
+      return;
+    }
+    if (!me?.id) {
+      setError(
+        'Não foi possível identificar o utilizador. Recarregue a página.',
+      );
       return;
     }
     setError('');
