@@ -5,7 +5,12 @@
 
 'use client';
 
-import { AlertCircle, ArrowUpRight, BookOpen } from 'lucide-react';
+import {
+  AlertCircle,
+  ArrowUpRight,
+  BookOpen,
+  type LucideIcon,
+} from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ProgressBar } from '@/components/ui/ProgressBar';
@@ -16,7 +21,8 @@ import type { GapAnalysis } from './types';
 interface ReadinessCfg {
   label: string;
   intent: ReadinessIntent;
-  emoji: string;
+  icon: LucideIcon;
+  dot: string;
 }
 
 interface GapTabProps {
@@ -31,8 +37,9 @@ export function GapTab({ gap, rcfg }: GapTabProps) {
       {rcfg && (
         <div className="rounded-card border border-black bg-white p-5">
           <div className="flex items-center justify-between mb-2">
-            <p className="font-semibold text-black">
-              {rcfg.emoji} Prontidão: &quot;{gap.targetRole}&quot;
+            <p className="inline-flex items-center gap-1 font-semibold text-black">
+              <rcfg.icon size={12} strokeWidth={1.75} className={rcfg.dot} />{' '}
+              Prontidão: &quot;{gap.targetRole}&quot;
             </p>
             <span className="text-2xl font-bold text-black">
               {gap.readinessScore}%

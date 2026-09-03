@@ -5,7 +5,7 @@
 
 'use client';
 
-import { Target } from 'lucide-react';
+import { Target, type LucideIcon } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
@@ -28,7 +28,8 @@ import type {
 interface ReadinessCfg {
   label: string;
   intent: ReadinessIntent;
-  emoji: string;
+  icon: LucideIcon;
+  dot: string;
 }
 
 interface MySkillsTabProps {
@@ -90,9 +91,15 @@ export function MySkillsTab({
               {rcfg && intentCls && gap && (
                 <div className="mb-4">
                   <div className="flex justify-between text-xs mb-1">
-                    <span className={`font-semibold ${intentCls.text}`}>
-                      {rcfg.emoji} {rcfg.label} para &quot;
-                      {gap.targetRole}&quot;
+                    <span
+                      className={`inline-flex items-center gap-1 font-semibold ${intentCls.text}`}
+                    >
+                      <rcfg.icon
+                        size={11}
+                        strokeWidth={1.75}
+                        className={rcfg.dot}
+                      />{' '}
+                      {rcfg.label} para &quot;{gap.targetRole}&quot;
                     </span>
                     <span className="font-bold text-ink">
                       {gap.readinessScore}%

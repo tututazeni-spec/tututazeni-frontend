@@ -14,7 +14,7 @@ import { Avatar } from '@/components/ui/Avatar';
 import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { CHANGE_CFG } from './constants';
+import { CHANGE_CFG, CHANGE_FALLBACK_ICON } from './constants';
 import type { OrgChange } from './types';
 
 export function TimelineView() {
@@ -32,14 +32,15 @@ export function TimelineView() {
         const cfg = CHANGE_CFG[change.changeType] ?? {
           label: change.changeType,
           cls: 'bg-surface-sunken text-ink-muted',
-          icon: '📝',
+          icon: CHANGE_FALLBACK_ICON,
         };
+        const ChangeIcon = cfg.icon;
         return (
           <Card key={change.id} className="flex items-start gap-4 p-4">
             <div
-              className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-card text-xl ${cfg.cls}`}
+              className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-card ${cfg.cls}`}
             >
-              {cfg.icon}
+              <ChangeIcon size={18} strokeWidth={1.75} />
             </div>
             <div className="flex-1">
               <div className="mb-1 flex items-center gap-2">

@@ -5,6 +5,7 @@
 // estados, por isso repetem tokens onde não há uma correspondência 1:1.
 // Extraído de app/(platform)/development-plans/page.tsx.
 
+import { Circle, Play, Check, Lock, X, type LucideIcon } from 'lucide-react';
 import type { StatusBadgeMap } from '@/lib/statusBadge';
 import type {
   ActionStatus,
@@ -26,10 +27,7 @@ export const STATUS_CFG: StatusBadgeMap<PlanStatus> = {
   OVERDUE: { label: 'Atrasado', cls: 'bg-danger-subtle text-danger-ink' },
 };
 
-export const ACTION_CFG: Record<
-  ActionType,
-  { label: string; cls: string }
-> = {
+export const ACTION_CFG: Record<ActionType, { label: string; cls: string }> = {
   COURSE: { label: 'Curso', cls: 'bg-info-subtle text-info-ink' },
   MENTORING: {
     label: 'Mentoria',
@@ -71,13 +69,13 @@ export const ACTION_CFG: Record<
 
 export const ACTION_STATUS: Record<
   ActionStatus,
-  { icon: string; cls: string; label: string }
+  { icon: LucideIcon; cls: string; label: string }
 > = {
-  TODO: { icon: '○', cls: 'text-ink-faint', label: 'A fazer' },
-  IN_PROGRESS: { icon: '▶', cls: 'text-info', label: 'Em progresso' },
-  COMPLETED: { icon: '✓', cls: 'text-success', label: 'Concluída' },
-  BLOCKED: { icon: '🔒', cls: 'text-ink-faint', label: 'Bloqueada' },
-  CANCELLED: { icon: '✕', cls: 'text-danger', label: 'Cancelada' },
+  TODO: { icon: Circle, cls: 'text-ink-faint', label: 'A fazer' },
+  IN_PROGRESS: { icon: Play, cls: 'text-info', label: 'Em progresso' },
+  COMPLETED: { icon: Check, cls: 'text-success', label: 'Concluída' },
+  BLOCKED: { icon: Lock, cls: 'text-ink-faint', label: 'Bloqueada' },
+  CANCELLED: { icon: X, cls: 'text-danger', label: 'Cancelada' },
 };
 
 export const PRIORITY_CFG: StatusBadgeMap<Priority> = {

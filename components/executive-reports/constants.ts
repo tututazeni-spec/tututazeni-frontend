@@ -7,6 +7,7 @@
 // primary/accent/success/warning/danger/info + neutral, mesmo padrão de
 // TOKEN usado em components/reports/constants.ts.
 
+import { Circle, type LucideIcon } from 'lucide-react';
 import type { StatusBadgeMap } from '@/lib/statusBadge';
 import type { KpiStatus, ReportStatus, ReportType, View } from './types';
 
@@ -32,20 +33,29 @@ export const TYPE_CFG: Record<
 };
 
 export const STATUS_CFG: StatusBadgeMap<ReportStatus> = {
-  DRAFT: { label: 'Rascunho', cls: `${TOKEN.neutral.bg} ${TOKEN.neutral.color}` },
-  IN_REVIEW: { label: 'Em revisão', cls: `${TOKEN.warning.bg} ${TOKEN.warning.color}` },
+  DRAFT: {
+    label: 'Rascunho',
+    cls: `${TOKEN.neutral.bg} ${TOKEN.neutral.color}`,
+  },
+  IN_REVIEW: {
+    label: 'Em revisão',
+    cls: `${TOKEN.warning.bg} ${TOKEN.warning.color}`,
+  },
   APPROVED: { label: 'Aprovado', cls: `${TOKEN.info.bg} ${TOKEN.info.color}` },
-  PUBLISHED: { label: 'Publicado', cls: `${TOKEN.success.bg} ${TOKEN.success.color}` },
+  PUBLISHED: {
+    label: 'Publicado',
+    cls: `${TOKEN.success.bg} ${TOKEN.success.color}`,
+  },
   ARCHIVED: { label: 'Arquivado', cls: 'bg-surface-sunken text-ink-faint' },
 };
 
 export const KPI_STATUS: Record<
   KpiStatus,
-  { color: string; bg: string; icon: string }
+  { color: string; bg: string; icon: LucideIcon; dot: string }
 > = {
-  GREEN: { ...TOKEN.success, icon: '🟢' },
-  YELLOW: { ...TOKEN.warning, icon: '🟡' },
-  RED: { ...TOKEN.danger, icon: '🔴' },
+  GREEN: { ...TOKEN.success, icon: Circle, dot: 'fill-success text-success' },
+  YELLOW: { ...TOKEN.warning, icon: Circle, dot: 'fill-warning text-warning' },
+  RED: { ...TOKEN.danger, icon: Circle, dot: 'fill-danger text-danger' },
 };
 
 // Rótulos PT-PT das secções de template devolvidas pelo backend em inglês

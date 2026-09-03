@@ -10,13 +10,17 @@ import { useToast } from '@/providers/ToastProvider';
 import {
   ArrowLeft,
   ArrowRight,
+  BarChart3,
   Calendar,
   CheckCircle2,
+  ClipboardList,
   Clock,
   FileText,
+  MapPin,
   MessageCircle,
   Paperclip,
   Star,
+  Target,
   TriangleAlert,
 } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
@@ -47,9 +51,9 @@ interface DetailViewProps {
 }
 
 const TABS = [
-  { id: 'actions', label: '✅ Acções' },
-  { id: 'goals', label: '🎯 Metas' },
-  { id: 'checkpoints', label: '📍 Checkpoints' },
+  { id: 'actions', label: 'Acções', Icon: CheckCircle2 },
+  { id: 'goals', label: 'Metas', Icon: Target },
+  { id: 'checkpoints', label: 'Checkpoints', Icon: MapPin },
 ] as const;
 
 export function DetailView({ planId, onBack }: DetailViewProps) {
@@ -191,8 +195,14 @@ export function DetailView({ planId, onBack }: DetailViewProps) {
               <Calendar size={14} strokeWidth={1.75} />
               Fim: {fmtDate(plan.endDate)}
             </span>
-            <span>📋 {plan._count.actions} acções</span>
-            <span>🎯 {plan._count.goals} metas</span>
+            <span className="flex items-center gap-1">
+              <ClipboardList size={14} strokeWidth={1.75} />
+              {plan._count.actions} acções
+            </span>
+            <span className="flex items-center gap-1">
+              <Target size={14} strokeWidth={1.75} />
+              {plan._count.goals} metas
+            </span>
             {plan.manager && (
               <span className="flex items-center gap-1">
                 <Avatar name={plan.manager.fullName} size="sm" />
@@ -211,7 +221,9 @@ export function DetailView({ planId, onBack }: DetailViewProps) {
             size="sm"
             intent={activeTab === t.id ? 'primary' : 'ghost'}
             onClick={() => setActiveTab(t.id)}
+            className="inline-flex items-center gap-1.5"
           >
+            <t.Icon size={14} strokeWidth={1.75} />
             {t.label}
           </Button>
         ))}
@@ -233,8 +245,10 @@ export function DetailView({ planId, onBack }: DetailViewProps) {
                   <div className="flex items-start gap-3">
                     <div className="min-w-0 flex-1">
                       <div className="mb-1 flex items-center gap-2">
-                        <span className={cn('text-lg', statusCfg.cls)}>
-                          {statusCfg.icon}
+                        <span
+                          className={cn('flex items-center', statusCfg.cls)}
+                        >
+                          <statusCfg.icon size={16} strokeWidth={1.75} />
                         </span>
                         <span
                           className={cn(
@@ -334,8 +348,9 @@ export function DetailView({ planId, onBack }: DetailViewProps) {
                       {goal.title}
                     </div>
                     {goal.successIndicator && (
-                      <div className="font-body text-xs text-ink-muted">
-                        📊 {goal.successIndicator}
+                      <div className="flex items-center gap-1 font-body text-xs text-ink-muted">
+                        <BarChart3 size={13} strokeWidth={1.75} />
+                        {goal.successIndicator}
                       </div>
                     )}
                     {goal.dueDate && (
