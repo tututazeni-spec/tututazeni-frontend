@@ -28,12 +28,21 @@ vi.mock('@/components/ui/Modal', () => ({
     </div>
   ),
 }));
+const depOptions = [
+  { value: 3, label: 'Engenharia' },
+  { value: 7, label: 'Financeiro' },
+];
+const useDepartmentOptions = vi.fn(() => ({ options: depOptions, loading: false }));
+vi.mock('./runData', () => ({
+  useDepartmentOptions: () => useDepartmentOptions(),
+}));
 
 import { CreateRunModal } from './CreateRunModal';
 
 beforeEach(() => {
   post.mockClear();
   notify.mockClear();
+  useDepartmentOptions.mockReturnValue({ options: depOptions, loading: false });
 });
 
 describe('CreateRunModal', () => {
@@ -70,6 +79,27 @@ describe('CreateRunModal', () => {
       }),
     );
     expect(onCreated).toHaveBeenCalledWith(42);
+  });
+
+  test('sends departmentIds only for the checked departments', async () => {
+    render(<CreateRunModal onClose={vi.fn()} onCreated={vi.fn()} />);
+    fireEvent.change(screen.getByLabelText(/Período/i), {
+      target: { value: '2026-09' },
+    });
+    fireEvent.click(screen.getByLabelText('Financeiro'));
+    fireEvent.click(screen.getByRole('button', { name: 'Criar' }));
+    await waitFor(() => expect(post).toHaveBeenCalledTimes(1));
+    expect(post.mock.calls[0][1]).toMatchObject({ departmentIds: [7] });
+  });
+
+  test('omits departmentIds when no department is checked', async () => {
+    render(<CreateRunModal onClose={vi.fn()} onCreated={vi.fn()} />);
+    fireEvent.change(screen.getByLabelText(/Período/i), {
+      target: { value: '2026-09' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Criar' }));
+    await waitFor(() => expect(post).toHaveBeenCalledTimes(1));
+    expect(post.mock.calls[0][1].departmentIds).toBeUndefined();
   });
 
   test('Cancelar calls onClose without posting', () => {
