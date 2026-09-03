@@ -24,11 +24,11 @@ export const STATUS_MAP: StatusBadgeMap<string> = {
 };
 
 export const TYPE_LABEL: Record<string, string> = {
-  SELF: '🟢 Autoavaliação',
-  MANAGER: '🟣 Gestor',
-  PEER: '🔵 Par',
-  SUBORDINATE: '🟡 Subordinado',
-  CLIENT: '🟠 Cliente',
+  SELF: 'Autoavaliação',
+  MANAGER: 'Gestor',
+  PEER: 'Par',
+  SUBORDINATE: 'Subordinado',
+  CLIENT: 'Cliente',
 };
 
 // Badge de tipo de avaliador (PendingTab) — mapeia as 5 categorias para os
