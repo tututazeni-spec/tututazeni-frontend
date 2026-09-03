@@ -12,6 +12,7 @@
 
 'use client';
 
+import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
 import { Card, CardBody } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
@@ -21,6 +22,7 @@ import {
   Gauge,
   Globe,
   LayoutDashboard,
+  Pencil,
   Plug,
   ShieldCheck,
   Users,
@@ -29,6 +31,9 @@ import {
 import type { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { useToast } from '@/providers/ToastProvider';
+import { ImportUsersModal } from './ImportUsersModal';
+import { LoadTestModal } from './LoadTestModal';
+import { RenameTenantModal } from './RenameTenantModal';
 import type {
   AlertSeverity,
   IntegrationStatus,
@@ -214,12 +219,15 @@ function StatusCard({ title, rows }: StatusCardProps) {
 interface FilterChipProps {
   label: string;
   active?: boolean;
+  onClick?: () => void;
 }
 
-function FilterChip({ label, active }: FilterChipProps) {
+function FilterChip({ label, active, onClick }: FilterChipProps) {
   return (
     <button
       type="button"
+      onClick={onClick}
+      aria-pressed={active}
       className={cn(
         'rounded-pill border px-3 py-1 font-body text-xs font-medium transition-colors',
         active
@@ -257,9 +265,10 @@ const SEVERITY: Record<
 
 interface OverviewTabProps {
   data: DashboardData;
+  onPatchTenantInfo: (patch: Partial<DashboardData['tenantInfo']>) => void;
 }
 
-function OverviewTab({ data }: OverviewTabProps) {
+function OverviewTab({ data, onPatchTenantInfo }: OverviewTabProps) {
   const {
     tenantInfo: t,
     performanceSummary: p,
@@ -270,6 +279,7 @@ function OverviewTab({ data }: OverviewTabProps) {
   } = data;
   const userPct = (t.activeUsersCount / t.maxUsers) * 100;
   const storagePct = (t.storageUsedGb / t.maxStorageGb) * 100;
+  const [renaming, setRenaming] = useState(false);
 
   return (
     <div className="flex flex-col gap-6">
@@ -279,14 +289,32 @@ function OverviewTab({ data }: OverviewTabProps) {
           <p className="mb-1 font-body text-xs font-semibold uppercase tracking-wide text-ink-muted">
             Tenant Activo
           </p>
-          <p className="font-display text-2xl font-bold text-ink">
-            {t.tenantName}
-          </p>
+          <div className="flex items-center gap-2">
+            <p className="font-display text-2xl font-bold text-ink">
+              {t.tenantName}
+            </p>
+            <button
+              type="button"
+              onClick={() => setRenaming(true)}
+              aria-label="Editar nome da empresa"
+              className="rounded-control p-1 text-ink-muted transition-colors hover:bg-surface-sunken hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            >
+              <Pencil size={16} strokeWidth={1.75} />
+            </button>
+          </div>
         </div>
         <Badge intent="neutral" dot={false}>
           {t.plan}
         </Badge>
       </div>
+
+      {renaming && (
+        <RenameTenantModal
+          currentName={t.tenantName}
+          onRename={(tenantName) => onPatchTenantInfo({ tenantName })}
+          onClose={() => setRenaming(false)}
+        />
+      )}
 
       {/* SLA breach */}
       {slaCompliance.isBreached && (
@@ -414,8 +442,8 @@ interface PerformanceTabProps {
 }
 
 function PerformanceTab({ data }: PerformanceTabProps) {
-  const notify = useToast();
   const p = data.performanceSummary;
+  const [configuring, setConfiguring] = useState(false);
   const metrics = [
     {
       label: 'CPU',
@@ -514,16 +542,15 @@ function PerformanceTab({ data }: PerformanceTabProps) {
         <Button
           intent="secondary"
           size="sm"
-          onClick={() =>
-            notify({
-              title: 'Modal de configuração de teste de carga',
-              intent: 'info',
-            })
-          }
+          onClick={() => setConfiguring(true)}
         >
           Configurar Teste
         </Button>
       </div>
+
+      {configuring && (
+        <LoadTestModal onClose={() => setConfiguring(false)} />
+      )}
     </div>
   );
 }
@@ -719,8 +746,16 @@ interface AlertsTabProps {
   alerts: Alert[];
 }
 
+type AlertFilter = 'ALL' | 'CRITICAL' | 'WARNING';
+
 function AlertsTab({ alerts }: AlertsTabProps) {
   const notify = useToast();
+  const [filter, setFilter] = useState<AlertFilter>('ALL');
+  const shown =
+    filter === 'ALL'
+      ? alerts
+      : alerts.filter((a) => a.severity === filter);
+
   return (
     <div className="flex flex-col gap-5">
       <div className="flex items-center justify-between">
@@ -729,13 +764,34 @@ function AlertsTab({ alerts }: AlertsTabProps) {
           sub="Monitorização automática de performance, integrações e compliance"
         />
         <div className="flex gap-2">
-          <FilterChip label="Todos" active />
-          <FilterChip label="Críticos" />
-          <FilterChip label="Avisos" />
+          <FilterChip
+            label="Todos"
+            active={filter === 'ALL'}
+            onClick={() => setFilter('ALL')}
+          />
+          <FilterChip
+            label="Críticos"
+            active={filter === 'CRITICAL'}
+            onClick={() => setFilter('CRITICAL')}
+          />
+          <FilterChip
+            label="Avisos"
+            active={filter === 'WARNING'}
+            onClick={() => setFilter('WARNING')}
+          />
         </div>
       </div>
+      {shown.length === 0 && (
+        <Card>
+          <CardBody>
+            <p className="font-body text-sm text-ink-muted">
+              Sem alertas nesta categoria.
+            </p>
+          </CardBody>
+        </Card>
+      )}
       <div className="flex flex-col gap-3">
-        {alerts.map((alert) => {
+        {shown.map((alert) => {
           const sev = SEVERITY[alert.severity];
           return (
             <Card key={alert.id} className={cn('border-l-2', sev.border)}>
@@ -894,11 +950,12 @@ function SlaTab({ data }: SlaTabProps) {
 
 interface UsersTabProps {
   data: DashboardData;
+  onPatchTenantInfo: (patch: Partial<DashboardData['tenantInfo']>) => void;
 }
 
-function UsersTab({ data }: UsersTabProps) {
-  const notify = useToast();
+function UsersTab({ data, onPatchTenantInfo }: UsersTabProps) {
   const { tenantInfo: t } = data;
+  const [importing, setImporting] = useState(false);
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
@@ -909,13 +966,22 @@ function UsersTab({ data }: UsersTabProps) {
         <Button
           intent="secondary"
           size="sm"
-          onClick={() =>
-            notify({ title: 'Modal de importação', intent: 'info' })
-          }
+          onClick={() => setImporting(true)}
         >
           Importar CSV
         </Button>
       </div>
+
+      {importing && (
+        <ImportUsersModal
+          activeUsersCount={t.activeUsersCount}
+          maxUsers={t.maxUsers}
+          onImported={(activeUsersCount) =>
+            onPatchTenantInfo({ activeUsersCount })
+          }
+          onClose={() => setImporting(false)}
+        />
+      )}
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <MetricTile
@@ -1078,6 +1144,7 @@ export interface ScalabilityDashboardViewProps {
   automations: AutomationRule[];
   lastRefresh: Date;
   onRefresh: () => void;
+  onPatchTenantInfo: (patch: Partial<DashboardData['tenantInfo']>) => void;
 }
 
 export function ScalabilityDashboardView({
@@ -1089,6 +1156,7 @@ export function ScalabilityDashboardView({
   automations,
   lastRefresh,
   onRefresh,
+  onPatchTenantInfo,
 }: ScalabilityDashboardViewProps) {
   const openAlertCount = alerts.filter((a) => !a.isResolved).length;
   const criticalCount = alerts.filter(
@@ -1157,7 +1225,10 @@ export function ScalabilityDashboardView({
 
         <div className="mx-auto max-w-7xl px-6 py-6">
           <TabsContent value="overview">
-            <OverviewTab data={dashboard} />
+            <OverviewTab
+              data={dashboard}
+              onPatchTenantInfo={onPatchTenantInfo}
+            />
           </TabsContent>
           <TabsContent value="performance">
             <PerformanceTab data={dashboard} />
@@ -1175,7 +1246,10 @@ export function ScalabilityDashboardView({
             <SlaTab data={dashboard} />
           </TabsContent>
           <TabsContent value="users">
-            <UsersTab data={dashboard} />
+            <UsersTab
+              data={dashboard}
+              onPatchTenantInfo={onPatchTenantInfo}
+            />
           </TabsContent>
           <TabsContent value="content">
             <ContentTab />
