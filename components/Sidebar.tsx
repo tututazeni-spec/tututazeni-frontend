@@ -51,6 +51,7 @@ import {
   LogOut,
   Share2,
   Brain,
+  Wallet,
 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -191,6 +192,12 @@ const NAV: Array<{ label: string; items: NavItem[] }> = [
         roles: ['ADMIN', 'RH', 'GESTOR'],
       },
       { href: '/payslips', icon: FileText, label: 'Recibos Salariais' },
+      {
+        href: '/payroll',
+        icon: Wallet,
+        label: 'Folha de Pagamento',
+        roles: ADMIN_ROLES,
+      },
       { href: '/organization', icon: Share2, label: 'Organograma' },
       { href: '/trainings', icon: GraduationCap, label: 'Treinamentos' },
     ],

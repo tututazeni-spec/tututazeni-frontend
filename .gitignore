@@ -63,3 +63,5 @@ OS files
 
 .DS_Store
 Thumbs.db
+# Scratch workspace for subagent-driven-development plan execution
+.superpowers/
