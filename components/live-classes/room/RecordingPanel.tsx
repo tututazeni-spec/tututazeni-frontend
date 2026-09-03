@@ -5,6 +5,17 @@
 'use client';
 
 import { useState } from 'react';
+import {
+  Clapperboard,
+  AlertTriangle,
+  Timer,
+  HardDrive,
+  Download,
+  RefreshCw,
+  Folder,
+  Play,
+  type LucideIcon,
+} from 'lucide-react';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
@@ -52,7 +63,9 @@ export function RecordingPanel({ liveClass, onUrlSaved }: RecordingPanelProps) {
   return (
     <div className="bg-surface-sunken rounded-[14px] p-5 flex flex-col gap-4 text-ink">
       <div className="flex items-center justify-between">
-        <h3 className="m-0 text-sm font-bold text-ink">🎬 Gravação</h3>
+        <h3 className="m-0 inline-flex items-center gap-1.5 text-sm font-bold text-ink">
+          <Clapperboard size={16} strokeWidth={1.75} /> Gravação
+        </h3>
         <button
           onClick={() => setShowHelp((h) => !h)}
           className="bg-white/8 border-none rounded py-0.75 px-2 cursor-pointer text-ink-faint text-xs"
@@ -90,8 +103,8 @@ export function RecordingPanel({ liveClass, onUrlSaved }: RecordingPanelProps) {
       {/* Recording controls */}
       <div>
         {rec.error && (
-          <div className="bg-danger-subtle border border-danger-subtle rounded-lg py-2 px-3 text-xs text-danger-ink mb-2.5">
-            ⚠️ {rec.error}
+          <div className="inline-flex items-center gap-1.5 bg-danger-subtle border border-danger-subtle rounded-lg py-2 px-3 text-xs text-danger-ink mb-2.5">
+            <AlertTriangle size={13} strokeWidth={1.75} /> {rec.error}
           </div>
         )}
 
@@ -139,10 +152,16 @@ export function RecordingPanel({ liveClass, onUrlSaved }: RecordingPanelProps) {
             />
             {/* fundo escuro intencional: player de vídeo */}
 
-            <div className="flex gap-1.5 text-xs text-ink-muted">
-              <span>⏱️ {fmtDuration(rec.data.duration)}</span>
+            <div className="flex items-center gap-1.5 text-xs text-ink-muted">
+              <span className="inline-flex items-center gap-1">
+                <Timer size={12} strokeWidth={1.75} />{' '}
+                {fmtDuration(rec.data.duration)}
+              </span>
               <span>·</span>
-              <span>💾 {fmtBytes(rec.data.size)}</span>
+              <span className="inline-flex items-center gap-1">
+                <HardDrive size={12} strokeWidth={1.75} />{' '}
+                {fmtBytes(rec.data.size)}
+              </span>
               <span>·</span>
               <span>WebM</span>
             </div>
@@ -150,15 +169,15 @@ export function RecordingPanel({ liveClass, onUrlSaved }: RecordingPanelProps) {
             <div className="flex gap-2">
               <button
                 onClick={() => rec.download(filename)}
-                className="flex-1 py-2.25 rounded-lg bg-success border-none text-canvas text-xs font-bold cursor-pointer"
+                className="flex-1 inline-flex items-center justify-center gap-1.5 py-2.25 rounded-lg bg-success border-none text-canvas text-xs font-bold cursor-pointer"
               >
-                📥 Download (.webm)
+                <Download size={13} strokeWidth={1.75} /> Download (.webm)
               </button>
               <button
                 onClick={rec.reset}
-                className="py-2.25 px-3.5 rounded-lg bg-white/8 border border-white/15 text-ink-faint text-xs cursor-pointer"
+                className="inline-flex items-center gap-1 py-2.25 px-3.5 rounded-lg bg-white/8 border border-white/15 text-ink-faint text-xs cursor-pointer"
               >
-                🔄 Nova
+                <RefreshCw size={12} strokeWidth={1.75} /> Nova
               </button>
             </div>
 
@@ -220,15 +239,19 @@ export function RecordingPanel({ liveClass, onUrlSaved }: RecordingPanelProps) {
             {
               name: 'Google Drive',
               url: 'https://drive.google.com',
-              icon: '📁',
+              icon: Folder,
             },
             {
               name: 'YouTube (não listado)',
               url: 'https://studio.youtube.com',
-              icon: '▶',
+              icon: Play,
             },
-            { name: 'Vimeo (free)', url: 'https://vimeo.com', icon: '🎬' },
-          ].map((s) => (
+            {
+              name: 'Vimeo (free)',
+              url: 'https://vimeo.com',
+              icon: Clapperboard,
+            },
+          ].map((s: { name: string; url: string; icon: LucideIcon }) => (
             <a
               key={s.name}
               href={s.url}
@@ -236,7 +259,7 @@ export function RecordingPanel({ liveClass, onUrlSaved }: RecordingPanelProps) {
               rel="noreferrer"
               className="text-xs text-ink-muted no-underline flex items-center gap-1.25"
             >
-              {s.icon} {s.name} ↗
+              <s.icon size={12} strokeWidth={1.75} /> {s.name} ↗
             </a>
           ))}
         </div>

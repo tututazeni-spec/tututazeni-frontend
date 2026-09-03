@@ -2,6 +2,7 @@
 // Overlay de reprodução de gravação (embed YouTube/Vimeo/Drive, vídeo
 // nativo, ou link externo como fallback). Migrado para design tokens.
 
+import { BookOpen, Clapperboard } from 'lucide-react';
 import { fmtDate, getEmbedUrl, isVideoUrl } from './utils';
 import type { LiveClass } from './types';
 
@@ -31,8 +32,9 @@ export function RecordingModal({ lc, onClose }: RecordingModalProps) {
           <div className="flex-1">
             <p className="m-0 text-sm font-bold text-canvas">{lc.topic}</p>
             {lc.course && (
-              <p className="mt-0.5 text-xs text-ink-muted">
-                📚 {lc.course.title} · {fmtDate(lc.scheduledAt)}
+              <p className="mt-0.5 inline-flex items-center gap-1 text-xs text-ink-muted">
+                <BookOpen size={12} strokeWidth={1.75} /> {lc.course.title} ·{' '}
+                {fmtDate(lc.scheduledAt)}
               </p>
             )}
           </div>
@@ -68,7 +70,11 @@ export function RecordingModal({ lc, onClose }: RecordingModalProps) {
             <video src={lc.recordingUrl!} controls className="w-full h-full" />
           ) : (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-3.5 p-6">
-              <p className="text-4xl m-0">🎬</p>
+              <Clapperboard
+                size={40}
+                strokeWidth={1.5}
+                className="text-ink-faint"
+              />
               <p className="text-ink-faint text-sm m-0">
                 Este formato não suporta pré-visualização inline.
               </p>

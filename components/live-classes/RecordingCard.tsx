@@ -1,6 +1,7 @@
 // components/live-classes/RecordingCard.tsx
 // Cartão de gravação no separador "Gravações". Migrado para design tokens.
 
+import { BookOpen, Calendar } from 'lucide-react';
 import { CARD, fmtDate, getEmbedUrl } from './utils';
 import { YoutubeThumbnail } from './YoutubeThumbnail';
 import type { LiveClass } from './types';
@@ -46,10 +47,12 @@ export function RecordingCard({ lc, onView }: RecordingCardProps) {
           {lc.topic}
         </h3>
         {lc.course && (
-          <p className="m-0 text-xs text-ink-muted">📚 {lc.course.title}</p>
+          <p className="m-0 inline-flex items-center gap-1 text-xs text-ink-muted">
+            <BookOpen size={12} strokeWidth={1.75} /> {lc.course.title}
+          </p>
         )}
-        <p className="m-0 text-xs text-ink-faint">
-          📅 {fmtDate(lc.scheduledAt)}
+        <p className="m-0 inline-flex items-center gap-1 text-xs text-ink-faint">
+          <Calendar size={12} strokeWidth={1.75} /> {fmtDate(lc.scheduledAt)}
         </p>
 
         <div className="flex gap-1.5 mt-auto">

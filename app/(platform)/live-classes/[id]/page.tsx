@@ -4,6 +4,7 @@
 // project_innova_component_separation_audit.
 
 import { useCallback, useState } from 'react';
+import { XCircle, BookOpen, Clapperboard } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import { useApiQuery } from '@/hooks/useApiQuery';
@@ -89,8 +90,9 @@ export default function LiveRoomPage() {
     return (
       <div className="flex items-center justify-center min-h-screen bg-slate-900 flex-col gap-3">
         {/* fundo escuro intencional: overlay de carregamento da sala Jitsi */}
-        <p className="text-danger-ink text-base">
-          ❌ {queryError?.message || 'Aula não encontrada'}
+        <p className="inline-flex items-center gap-1.5 text-danger-ink text-base">
+          <XCircle size={18} strokeWidth={1.75} />{' '}
+          {queryError?.message || 'Aula não encontrada'}
         </p>
         <button
           onClick={() => router.push('/live-classes')}
@@ -145,8 +147,9 @@ export default function LiveRoomPage() {
                 {liveClass.topic}
               </p>
               {liveClass.course && (
-                <p className="m-0 text-xs text-ink-muted">
-                  📚 {liveClass.course.title} · {fmtDate(liveClass.scheduledAt)}{' '}
+                <p className="m-0 inline-flex items-center gap-1 text-xs text-ink-muted">
+                  <BookOpen size={12} strokeWidth={1.75} />{' '}
+                  {liveClass.course.title} · {fmtDate(liveClass.scheduledAt)}{' '}
                   {fmtTime(liveClass.scheduledAt)}
                 </p>
               )}
@@ -220,7 +223,8 @@ export default function LiveRoomPage() {
                   rel="noreferrer"
                   className="flex items-center gap-1.5 mt-2.5 py-1.75 px-3 bg-accent-subtle border border-accent-subtle rounded-lg text-accent text-xs no-underline font-semibold"
                 >
-                  🎬 Ver Gravação Anterior ↗
+                  <Clapperboard size={13} strokeWidth={1.75} /> Ver Gravação
+                  Anterior ↗
                 </a>
               )}
             </div>

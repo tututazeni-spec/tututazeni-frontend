@@ -9,6 +9,7 @@
 // Extraído de page.tsx porque a página inteira (1364 linhas) estava toda
 // numa única função — ver memory project_innova_component_separation_audit.
 
+import { Circle, Calendar, Clapperboard, Video } from 'lucide-react';
 import { ClassCard } from './ClassCard';
 import { RecordingCard } from './RecordingCard';
 import { Spinner } from './Spinner';
@@ -70,28 +71,28 @@ export function LiveClassesView({
 }: LiveClassesViewProps) {
   const stats = [
     {
-      icon: '🔴',
+      icon: Circle,
       label: 'Ao Vivo',
       value: liveNow,
       textClass: 'text-danger',
       bgClass: 'bg-danger-subtle',
     },
     {
-      icon: '📅',
+      icon: Calendar,
       label: 'Agendadas',
       value: upcomingCount,
       textClass: 'text-warning',
       bgClass: 'bg-warning-subtle',
     },
     {
-      icon: '🎬',
+      icon: Clapperboard,
       label: 'Gravações',
       value: recordings.length,
       textClass: 'text-accent',
       bgClass: 'bg-accent-subtle',
     },
     {
-      icon: '🎥',
+      icon: Video,
       label: 'Total Aulas',
       value: total,
       textClass: 'text-info',
@@ -144,9 +145,9 @@ export function LiveClassesView({
               className={`${CARD} py-3.5 px-4 flex items-center gap-3`}
             >
               <div
-                className={`w-10 h-10 rounded-[10px] ${s.bgClass} flex items-center justify-center text-lg flex-shrink-0`}
+                className={`w-10 h-10 rounded-[10px] ${s.bgClass} ${s.textClass} flex items-center justify-center flex-shrink-0`}
               >
-                {s.icon}
+                <s.icon size={18} strokeWidth={1.75} />
               </div>
               <div>
                 <p className="m-0 text-xs font-bold text-ink-faint uppercase tracking-wide">
@@ -184,7 +185,7 @@ export function LiveClassesView({
           <input
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="🔍 Pesquisar por tópico ou curso..."
+            placeholder="Pesquisar por tópico ou curso..."
             className={`${INP} min-w-65`}
           />
           {tab === 'live' && (
