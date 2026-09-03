@@ -194,6 +194,26 @@ describe('RunDetailView — action visibility per status', () => {
     ).not.toBeInTheDocument();
   });
 
+  test('PROCESSING shows no action buttons', () => {
+    queryResult = { data: makeRun({ status: 'PROCESSING' }), isLoading: false };
+    render(<RunDetailView runId={9} onBack={vi.fn()} />);
+    expect(
+      screen.queryByRole('button', {
+        name: /Processar|Reprocessar|Submeter|Aprovar|Rejeitar|Publicar|Cancelar/,
+      }),
+    ).not.toBeInTheDocument();
+  });
+
+  test('CALCULATED shows no action buttons', () => {
+    queryResult = { data: makeRun({ status: 'CALCULATED' }), isLoading: false };
+    render(<RunDetailView runId={9} onBack={vi.fn()} />);
+    expect(
+      screen.queryByRole('button', {
+        name: /Processar|Reprocessar|Submeter|Aprovar|Rejeitar|Publicar|Cancelar/,
+      }),
+    ).not.toBeInTheDocument();
+  });
+
   test('renders the timeline with dates and actor names', () => {
     queryResult = { data: makeRun({ status: 'DRAFT' }), isLoading: false };
     render(<RunDetailView runId={9} onBack={vi.fn()} />);
