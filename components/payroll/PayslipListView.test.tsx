@@ -19,6 +19,8 @@ vi.mock('@/hooks/useApiQuery', () => ({
   }),
 }));
 vi.mock('@tanstack/react-query', () => ({ keepPreviousData: Symbol('kpd') }));
+// identidade — o debounce real (setTimeout 350ms) não acrescenta nada ao teste
+vi.mock('@/hooks/useDebounce', () => ({ useDebounce: (v: unknown) => v }));
 vi.mock('@/lib/apiClient', () => ({ apiClient: { patch: (...a: unknown[]) => patch(...a) }, API_URL: '/api' }));
 vi.mock('@/providers/ConfirmProvider', () => ({ useConfirm: () => confirm }));
 vi.mock('@/providers/ToastProvider', () => ({ useToast: () => notify }));
@@ -92,6 +94,26 @@ describe('PayslipListView', () => {
     fireEvent.change(screen.getByTestId('status-select'), { target: { value: 'ISSUED' } });
     const lastCall = useApiQuery.mock.calls.at(-1)!;
     expect(lastCall[2].params).toMatchObject({ status: 'ISSUED' });
+  });
+
+  test('typing in the search box refetches with a trimmed search param and resets to page 1', () => {
+    useApiQuery.mockReturnValue({ data: page, isLoading: false, error: null });
+    render(<PayslipListView onSelect={vi.fn()} onCreate={vi.fn()} />);
+    fireEvent.change(screen.getByPlaceholderText('Nome ou nº de colaborador'), {
+      target: { value: '  Ana  ' },
+    });
+    const params = useApiQuery.mock.calls.at(-1)![2].params;
+    expect(params).toMatchObject({ search: 'Ana', page: 1 });
+  });
+
+  test('blank search adds no search param', () => {
+    useApiQuery.mockReturnValue({ data: page, isLoading: false, error: null });
+    render(<PayslipListView onSelect={vi.fn()} onCreate={vi.fn()} />);
+    fireEvent.change(screen.getByPlaceholderText('Nome ou nº de colaborador'), {
+      target: { value: '   ' },
+    });
+    const params = useApiQuery.mock.calls.at(-1)![2].params;
+    expect(params.search).toBeUndefined();
   });
 
   test('"Emitir" appears only on DRAFT rows and runs confirm + mutation', async () => {

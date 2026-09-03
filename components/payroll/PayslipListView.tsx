@@ -9,6 +9,7 @@
 import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
 import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
+import { useDebounce } from '@/hooks/useDebounce';
 import { apiClient, API_URL } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -61,12 +62,15 @@ export function PayslipListView({ onSelect, onCreate }: PayslipListViewProps) {
   const [status, setStatus] = useState('all');
   const [period, setPeriod] = useState('');
   const [year, setYear] = useState('');
+  const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
+  const debouncedSearch = useDebounce(search);
 
   const params: Record<string, string | number> = { page, limit: 20 };
   if (status !== 'all') params.status = status;
   if (period.trim()) params.period = period.trim();
   if (year.trim() && !period.trim()) params.year = year.trim();
+  if (debouncedSearch.trim()) params.search = debouncedSearch.trim();
 
   const { data, isLoading, error } = useApiQuery<Paginated<AdminPayslipRow>>(
     queryKeys.payslips.adminList(params),
@@ -103,6 +107,15 @@ export function PayslipListView({ onSelect, onCreate }: PayslipListViewProps) {
   return (
     <div>
       <div className="mb-5 flex flex-wrap items-center gap-3">
+        <Input
+          value={search}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            setPage(1);
+          }}
+          placeholder="Nome ou nº de colaborador"
+          className="w-60"
+        />
         <Select
           items={STATUS_ITEMS}
           value={status}
