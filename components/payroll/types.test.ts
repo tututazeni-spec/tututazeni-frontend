@@ -3,7 +3,9 @@ import {
   RUN_STATUS_MAP,
   EXCEPTION_SEVERITY_MAP,
   EXCEPTION_CODE_LABEL,
+  DISPUTE_STATUS_MAP,
 } from './types';
+import { queryKeys } from '@/lib/queryKeys';
 
 // Mirrors prisma/schema.prisma enum PayrollRunStatus exactly (innova repo) —
 // including CALCULATED, which no service sets but the type must still cover.
@@ -47,5 +49,22 @@ describe('payroll status maps', () => {
     for (const c of ALL_EXCEPTION_CODES) {
       expect(EXCEPTION_CODE_LABEL[c]).toBeDefined();
     }
+  });
+});
+
+describe('payslip admin management', () => {
+  test('DISPUTE_STATUS_MAP covers both statuses', () => {
+    expect(DISPUTE_STATUS_MAP.OPEN.label).toBe('Aberta');
+    expect(DISPUTE_STATUS_MAP.RESOLVED.label).toBe('Resolvida');
+  });
+
+  test('payslips admin query keys are prefixed and distinct', () => {
+    expect(queryKeys.payslips.adminList({ page: 1 })).toEqual([
+      'payslips', 'admin-list', { page: 1 },
+    ]);
+    expect(queryKeys.payslips.adminDetail(7)).toEqual(['payslips', 'admin-detail', 7]);
+    expect(queryKeys.payslips.disputes({ status: 'OPEN' })).toEqual([
+      'payslips', 'disputes', { status: 'OPEN' },
+    ]);
   });
 });

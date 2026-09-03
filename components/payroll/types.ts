@@ -6,7 +6,7 @@
 // docs/superpowers/specs/2026-09-03-payroll-runs-frontend-design.md.
 
 import type { StatusBadgeMap } from '@/lib/statusBadge';
-import type { PayslipStatus } from '@/components/payslips/types';
+import type { PayslipStatus, Payslip } from '@/components/payslips/types';
 
 export type RunStatus =
   | 'DRAFT'
@@ -129,4 +129,67 @@ export const EXCEPTION_CODE_LABEL: Record<string, string> = {
   MISSING_BANK_DETAILS: 'Dados bancários em falta',
   HIGH_VARIANCE_VS_PREV_MONTH: 'Variação alta face ao mês anterior',
   USING_FALLBACK_TAX_CONFIG: 'A usar configuração fiscal por omissão',
+};
+
+export type DisputeStatus = 'OPEN' | 'RESOLVED';
+
+export interface PayslipDispute {
+  id: number;
+  payslipId: number;
+  userId: number;
+  reason: string;
+  details: string | null;
+  status: DisputeStatus;
+  createdAt: string;
+  resolvedAt: string | null;
+  resolution: string | null;
+  user?: { id: number; fullName: string; employeeNumber: string | null };
+  payslip?: {
+    id: number;
+    receiptCode: string | null;
+    period: string;
+    userId: number;
+    status: PayslipStatus;
+  };
+}
+
+export interface PayslipAccessLog {
+  id: number;
+  payslipId: number;
+  userId: number;
+  action: 'VIEW' | 'ADMIN_VIEW' | 'DOWNLOAD';
+  ipAddress: string | null;
+  accessedAt: string;
+  user?: { id: number; fullName: string };
+}
+
+export type AdminPayslip = Payslip & {
+  disputes: PayslipDispute[];
+  run?: { id: number; status: string } | null;
+};
+
+export interface HrDashboard {
+  period: string;
+  counts: {
+    total: number;
+    issued: number;
+    acknowledged: number;
+    disputed: number;
+    notViewed: number;
+    draft: number;
+  };
+  financials: {
+    totalGross: number;
+    totalNet: number;
+    totalIRT: number;
+    totalINSSEmployee: number;
+    totalINSSEmployer: number;
+    avgNet: number;
+  };
+  compliance: { viewRate: string; pendingAcknowledgement: number };
+}
+
+export const DISPUTE_STATUS_MAP: StatusBadgeMap<DisputeStatus> = {
+  OPEN: { label: 'Aberta', cls: 'bg-warning-subtle text-warning-ink' },
+  RESOLVED: { label: 'Resolvida', cls: 'bg-success-subtle text-success-ink' },
 };

@@ -126,6 +126,16 @@ export const queryKeys = {
       [...queryKeys.payslips.all, 'compensation-list', filter] as const,
     compensationHistory: (userId: number) =>
       [...queryKeys.payslips.all, 'compensation-history', userId] as const,
+    adminList: (params: Record<string, unknown>) =>
+      [...queryKeys.payslips.all, 'admin-list', params] as const,
+    adminDetail: (id: number) =>
+      [...queryKeys.payslips.all, 'admin-detail', id] as const,
+    accessLogs: (id: number) =>
+      [...queryKeys.payslips.all, 'access-logs', id] as const,
+    dashboard: (period: string) =>
+      [...queryKeys.payslips.all, 'dashboard', period] as const,
+    disputes: (params: Record<string, unknown>) =>
+      [...queryKeys.payslips.all, 'disputes', params] as const,
   },
 
   payroll: {
