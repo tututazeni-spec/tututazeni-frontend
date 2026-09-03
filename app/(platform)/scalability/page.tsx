@@ -219,6 +219,21 @@ export default function ScalabilityPage() {
     setLastRefresh(new Date());
   }, []);
 
+  // Enquanto o módulo corre sobre mock (ver nota no topo), as edições do
+  // banner "Tenant Activo" — renomear a empresa, importação de CSV a somar à
+  // contagem de activos — actualizam só este estado local. Os endpoints reais
+  // (PATCH /scalability/tenants/:id, POST /scalability/users/bulk-import)
+  // dependem de um tenantId que a sessão actual não expõe.
+  const patchTenantInfo = useCallback(
+    (patch: Partial<DashboardData['tenantInfo']>) => {
+      setDashboard((d) => ({
+        ...d,
+        tenantInfo: { ...d.tenantInfo, ...patch },
+      }));
+    },
+    [],
+  );
+
   // Auto-refresh a cada 60s
   useEffect(() => {
     const interval = setInterval(refresh, 60000);
@@ -235,6 +250,7 @@ export default function ScalabilityPage() {
       automations={automations}
       lastRefresh={lastRefresh}
       onRefresh={refresh}
+      onPatchTenantInfo={patchTenantInfo}
     />
   );
 }
