@@ -1,5 +1,6 @@
 // components/lms/LearningPathsView.tsx
 
+import { GraduationCap } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
 import { Button, buttonVariants } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
@@ -46,13 +47,21 @@ export function LearningPathsView({
           <h1 className="font-display text-2xl font-bold text-ink">
             Percursos de Aprendizagem
           </h1>
-          <p className="font-body text-ink-muted">{total} percursos disponíveis</p>
+          <p className="font-body text-ink-muted">
+            {total} percursos disponíveis
+          </p>
         </div>
         <div className="flex gap-2">
-          <a href="/lms/sessions" className={buttonVariants({ intent: 'secondary' })}>
+          <a
+            href="/lms/sessions"
+            className={buttonVariants({ intent: 'secondary' })}
+          >
             Sessões ao Vivo
           </a>
-          <a href="/lms/my-paths" className={buttonVariants({ intent: 'primary' })}>
+          <a
+            href="/lms/my-paths"
+            className={buttonVariants({ intent: 'primary' })}
+          >
             Os Meus Percursos
           </a>
         </div>
@@ -75,15 +84,21 @@ export function LearningPathsView({
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           {data.map((p) => (
             <Card key={p.id} className="flex flex-col overflow-hidden">
-              <div className="flex h-32 items-center justify-center bg-gradient-to-br from-primary to-accent text-3xl text-canvas">
-                🎓
+              <div className="flex h-32 items-center justify-center bg-gradient-to-br from-primary to-accent text-canvas">
+                <GraduationCap size={32} strokeWidth={1.5} />
               </div>
               <CardBody className="flex flex-1 flex-col">
                 <div className="mb-2 flex items-start justify-between">
-                  <span className="font-data text-xs text-primary">{p.code}</span>
-                  <Badge intent={LEVEL_INTENT[p.level] ?? 'neutral'}>{p.level}</Badge>
+                  <span className="font-data text-xs text-primary">
+                    {p.code}
+                  </span>
+                  <Badge intent={LEVEL_INTENT[p.level] ?? 'neutral'}>
+                    {p.level}
+                  </Badge>
                 </div>
-                <h3 className="mb-2 font-display text-sm font-semibold text-ink">{p.name}</h3>
+                <h3 className="mb-2 font-display text-sm font-semibold text-ink">
+                  {p.name}
+                </h3>
                 <p className="mb-3 line-clamp-2 font-body text-sm text-ink-muted">
                   {p.description || ''}
                 </p>
@@ -91,7 +106,11 @@ export function LearningPathsView({
                   <span>{p.estimatedHours || '—'}h</span>
                   <span>{p._count?.enrollments || 0} inscritos</span>
                 </div>
-                <Button size="sm" className="w-full" onClick={() => enroll(p.id)}>
+                <Button
+                  size="sm"
+                  className="w-full"
+                  onClick={() => enroll(p.id)}
+                >
                   Inscrever-me
                 </Button>
               </CardBody>

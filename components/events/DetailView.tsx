@@ -10,7 +10,7 @@
 'use client';
 
 import { useState } from 'react';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, GraduationCap, KeyRound } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
@@ -131,6 +131,7 @@ export function DetailView({ eventId, onBack }: DetailViewProps) {
   if (loading || !event) return <Skeleton rows={6} />;
 
   const typeCfg = TYPE_CFG[event.type as EventType] ?? TYPE_CFG.TRAINING;
+  const TypeIcon = typeCfg.icon;
   const modalityCfg =
     MODALITY_CFG[event.modalidade as EventModalidade] ?? MODALITY_CFG.ONLINE;
   const isLive = event.status === 'LIVE';
@@ -159,11 +160,11 @@ export function DetailView({ eventId, onBack }: DetailViewProps) {
               <div className="mb-2 flex flex-wrap items-center gap-2">
                 <span
                   className={cn(
-                    'rounded px-2 py-0.5 font-body text-xs',
+                    'inline-flex items-center gap-1 rounded px-2 py-0.5 font-body text-xs',
                     typeCfg.cls,
                   )}
                 >
-                  {typeCfg.icon} {typeCfg.label}
+                  <TypeIcon size={12} strokeWidth={1.75} /> {typeCfg.label}
                 </span>
                 <StatusBadge
                   value={event.status as EventStatus}
@@ -179,8 +180,8 @@ export function DetailView({ eventId, onBack }: DetailViewProps) {
                   </span>
                 )}
                 {event.certificateEnabled && (
-                  <span className="font-body text-xs text-success-ink">
-                    🎓 Certificado
+                  <span className="inline-flex items-center gap-1 font-body text-xs text-success-ink">
+                    <GraduationCap size={12} strokeWidth={1.75} /> Certificado
                   </span>
                 )}
               </div>
@@ -284,7 +285,8 @@ export function DetailView({ eventId, onBack }: DetailViewProps) {
           <div className="space-y-4">
             <div>
               <div className="mb-1 font-body text-xs text-ink-muted">
-                Índice de recomendação — Recomendarias este evento a um colega? (1-10)
+                Índice de recomendação — Recomendarias este evento a um colega?
+                (1-10)
               </div>
               <div className="flex gap-1">
                 {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
@@ -380,8 +382,8 @@ export function DetailView({ eventId, onBack }: DetailViewProps) {
               </div>
             </div>
             {event.meetingPassword && (
-              <div className="rounded-control bg-info-subtle px-3 py-2 font-body text-xs text-info-ink">
-                🔑 Senha do meeting:{' '}
+              <div className="inline-flex items-center gap-1 rounded-control bg-info-subtle px-3 py-2 font-body text-xs text-info-ink">
+                <KeyRound size={12} strokeWidth={1.75} /> Senha do meeting:{' '}
                 <span className="font-data font-bold">
                   {event.meetingPassword}
                 </span>
