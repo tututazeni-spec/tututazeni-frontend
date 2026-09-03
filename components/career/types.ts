@@ -122,6 +122,12 @@ export interface InternalVacancy {
   closingDate?: string;
 }
 
+export interface Position {
+  id: number;
+  name: string;
+  level: string | null;
+}
+
 export interface SimulationResult {
   targetPosition: { name: string };
   readinessScore: number;
