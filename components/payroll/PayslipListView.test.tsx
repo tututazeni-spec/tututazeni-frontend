@@ -19,7 +19,7 @@ vi.mock('@/hooks/useApiQuery', () => ({
   }),
 }));
 vi.mock('@tanstack/react-query', () => ({ keepPreviousData: Symbol('kpd') }));
-vi.mock('@/lib/apiClient', () => ({ apiClient: { patch: (...a: unknown[]) => patch(...a) } }));
+vi.mock('@/lib/apiClient', () => ({ apiClient: { patch: (...a: unknown[]) => patch(...a) }, API_URL: '/api' }));
 vi.mock('@/providers/ConfirmProvider', () => ({ useConfirm: () => confirm }));
 vi.mock('@/providers/ToastProvider', () => ({ useToast: () => notify }));
 // components/ui/Select é um listbox Radix custom (não um <select> nativo):
@@ -109,5 +109,14 @@ describe('PayslipListView', () => {
     });
     render(<PayslipListView onSelect={vi.fn()} onCreate={vi.fn()} />);
     expect(screen.queryByRole('button', { name: 'Emitir' })).not.toBeInTheDocument();
+  });
+
+  test('each row has a PDF download link to the admin PDF route', () => {
+    useApiQuery.mockReturnValue({ data: page, isLoading: false, error: null });
+    render(<PayslipListView onSelect={vi.fn()} onCreate={vi.fn()} />);
+    expect(screen.getByRole('link', { name: /Descarregar PDF/i })).toHaveAttribute(
+      'href',
+      '/api/payslips/1/pdf',
+    );
   });
 });

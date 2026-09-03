@@ -9,20 +9,21 @@
 import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
 import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
-import { apiClient } from '@/lib/apiClient';
+import { apiClient, API_URL } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
+import { cn } from '@/lib/cn';
 import { formatKz as fmtKz, formatDate as fmtDate } from '@/lib/format';
 import { fmtPeriod } from '@/components/payslips/format';
 import { PAYSLIP_STATUS_MAP, type PayslipStatus } from '@/components/payslips/types';
-import { Button, IconButton } from '@/components/ui/Button';
+import { Button, IconButton, buttonVariants } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Pagination } from '@/components/ui/Pagination';
 import { StatusBadge } from '@/components/ui/StatusBadge';
-import { Eye } from 'lucide-react';
+import { Download, Eye } from 'lucide-react';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
 import type { Paginated } from './types';
@@ -210,6 +211,19 @@ export function PayslipListView({ onSelect, onCreate }: PayslipListViewProps) {
                     size="sm"
                     onClick={() => onSelect(r.id)}
                   />
+                  <a
+                    href={`${API_URL}/payslips/${r.id}/pdf`}
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label="Descarregar PDF"
+                    title="Descarregar PDF"
+                    className={cn(
+                      buttonVariants({ intent: 'ghost', size: 'sm' }),
+                      'aspect-square h-9 w-9 p-0',
+                    )}
+                  >
+                    <Download size={16} strokeWidth={1.75} />
+                  </a>
                   {r.status === 'DRAFT' && (
                     <Button
                       size="sm"

@@ -6,7 +6,7 @@ vi.mock('@/hooks/useApiQuery', () => ({
   useApiQuery: (...a: unknown[]) => useApiQuery(...a),
   useApiMutation: (fn: any, opts: any) => ({ mutate: (v: unknown) => Promise.resolve(fn(v)).then((d: unknown) => opts?.onSuccess?.(d, v)), isPending: false }),
 }));
-vi.mock('@/lib/apiClient', () => ({ apiClient: { patch: vi.fn().mockResolvedValue({}) } }));
+vi.mock('@/lib/apiClient', () => ({ apiClient: { patch: vi.fn().mockResolvedValue({}) }, API_URL: '/api' }));
 vi.mock('@/providers/ConfirmProvider', () => ({ useConfirm: () => vi.fn().mockResolvedValue(true) }));
 vi.mock('@/providers/ToastProvider', () => ({ useToast: () => vi.fn() }));
 vi.mock('./AccessLogsPanel', () => ({ AccessLogsPanel: () => <div>access-logs</div> }));
@@ -79,5 +79,14 @@ describe('AdminPayslipDetailView', () => {
     useApiQuery.mockReturnValue({ data: undefined, isLoading: false, error: new Error('kaboom') });
     render(<AdminPayslipDetailView payslipId={3} onBack={vi.fn()} />);
     expect(screen.getByText('kaboom')).toBeInTheDocument();
+  });
+
+  test('has a "Descarregar PDF" link to the admin PDF route', () => {
+    useApiQuery.mockReturnValue(make({ status: 'ISSUED' }));
+    render(<AdminPayslipDetailView payslipId={3} onBack={vi.fn()} />);
+    expect(screen.getByRole('link', { name: /Descarregar PDF/i })).toHaveAttribute(
+      'href',
+      '/api/payslips/3/pdf',
+    );
   });
 });
