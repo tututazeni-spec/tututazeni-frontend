@@ -128,6 +128,23 @@ export const queryKeys = {
       [...queryKeys.payslips.all, 'compensation-history', userId] as const,
   },
 
+  payroll: {
+    all: ['payroll'] as const,
+    runList: (params: Record<string, unknown>) =>
+      [...queryKeys.payroll.all, 'run-list', params] as const,
+    runDetail: (id: number) =>
+      [...queryKeys.payroll.all, 'run-detail', id] as const,
+    // Prefixo sem `params` — usado para invalidar TODAS as páginas/filtros
+    // de recibos de um run de uma vez (React Query invalida por prefixo de
+    // queryKey, exact:false por omissão).
+    runPayslipsAll: (id: number) =>
+      [...queryKeys.payroll.all, 'run-payslips', id] as const,
+    runPayslips: (id: number, params: Record<string, unknown>) =>
+      [...queryKeys.payroll.runPayslipsAll(id), params] as const,
+    runExceptions: (id: number) =>
+      [...queryKeys.payroll.all, 'run-exceptions', id] as const,
+  },
+
   assessments: {
     all: ['assessments'] as const,
     list: () => [...queryKeys.assessments.all, 'list'] as const,
