@@ -248,7 +248,8 @@ export const queryKeys = {
     dashboard: () => [...queryKeys.leader.all, 'dashboard'] as const,
     recommendations: () =>
       [...queryKeys.leader.all, 'recommendations'] as const,
-    team: () => [...queryKeys.leader.all, 'team'] as const,
+    team: (params?: Record<string, unknown>) =>
+      [...queryKeys.leader.all, 'team', params ?? {}] as const,
     pipeline: () => [...queryKeys.leader.all, 'pipeline'] as const,
     plans: () => [...queryKeys.leader.all, 'plans'] as const,
   },

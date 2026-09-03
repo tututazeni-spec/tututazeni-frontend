@@ -6,7 +6,9 @@
 
 import { useState } from 'react';
 import { MessageSquare, Search, Users } from 'lucide-react';
+import { keepPreviousData } from '@tanstack/react-query';
 import { useApiQuery } from '@/hooks/useApiQuery';
+import { useDebounce } from '@/hooks/useDebounce';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Avatar } from '@/components/ui/Avatar';
@@ -34,10 +36,19 @@ export function TeamTab() {
     userId: number;
     name: string;
   } | null>(null);
+  const debouncedSearch = useDebounce(search);
+  // A pesquisa é feita no servidor (o endpoint filtra por nome/email); o
+  // limite alto garante que uma equipa grande cabe numa página só — este
+  // ecrã não tem paginação.
+  const params = { search: debouncedSearch || undefined, limit: 100 };
   const { data, isLoading: loading } = useApiQuery<TeamData>(
-    queryKeys.leader.team(),
+    queryKeys.leader.team(params),
     '/leaders/my-team',
-    { staleTime: STALE_TIME.DYNAMIC },
+    {
+      params,
+      staleTime: STALE_TIME.DYNAMIC,
+      placeholderData: keepPreviousData,
+    },
   );
 
   if (loading)
@@ -49,9 +60,7 @@ export function TeamTab() {
       />
     );
 
-  const filtered = (data?.data ?? []).filter(
-    (u) => !search || u.fullName.toLowerCase().includes(search.toLowerCase()),
-  );
+  const members = data?.data ?? [];
 
   return (
     <div className="space-y-4">
@@ -105,7 +114,7 @@ export function TeamTab() {
       {/* Team list */}
       <Card>
         <div className="divide-y divide-border">
-          {filtered.map((u, i) => (
+          {members.map((u, i) => (
             <div
               key={i}
               className="flex items-center gap-3 px-4 py-3 hover:bg-surface-sunken"
@@ -161,10 +170,16 @@ export function TeamTab() {
               </div>
             </div>
           ))}
-          {filtered.length === 0 && (
+          {members.length === 0 && (
             <EmptyState
-              title="Sem membros na equipa"
-              description="Nenhum membro corresponde à pesquisa actual."
+              title={
+                debouncedSearch ? 'Sem resultados' : 'Sem membros na equipa'
+              }
+              description={
+                debouncedSearch
+                  ? 'Nenhum membro corresponde à pesquisa.'
+                  : 'Ainda não há membros atribuídos a esta equipa.'
+              }
             />
           )}
         </div>
