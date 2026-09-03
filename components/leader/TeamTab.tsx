@@ -5,7 +5,7 @@
 'use client';
 
 import { useState } from 'react';
-import { MessageSquare, Users } from 'lucide-react';
+import { MessageSquare, Search, Users } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -88,12 +88,19 @@ export function TeamTab() {
       )}
 
       {/* Search */}
-      <Input
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        placeholder="Pesquisar membro..."
-        className="w-full"
-      />
+      <div className="relative">
+        <Search
+          size={14}
+          strokeWidth={1.75}
+          className="absolute left-2.5 top-1/2 -translate-y-1/2 text-ink-faint"
+        />
+        <Input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Pesquisar membro..."
+          className="w-full pl-8"
+        />
+      </div>
 
       {/* Team list */}
       <Card>
