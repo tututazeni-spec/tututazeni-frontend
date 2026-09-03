@@ -11,8 +11,10 @@
 
 import { useState } from 'react';
 import { Plus } from 'lucide-react';
-import { useToast } from '@/providers/ToastProvider';
 import { Button } from '@/components/ui/Button';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
+import { ADMIN_ROLES, type Role } from '@/lib/roles';
+import { CreateProcessModal } from '@/components/processes/CreateProcessModal';
 import { DashboardView } from '@/components/processes/DashboardView';
 import { LibraryView } from '@/components/processes/LibraryView';
 import { MyTasksView } from '@/components/processes/MyTasksView';
@@ -35,8 +37,12 @@ const NAV: Array<{ id: TabKey; label: string }> = [
 ];
 
 export default function ProcessStandardPage() {
-  const notify = useToast();
+  const { data: currentUser } = useCurrentUser();
+  const role = currentUser?.role?.name as Role | undefined;
+  const canCreate = !!role && ADMIN_ROLES.includes(role);
+
   const [nav, setNav] = useState<Nav>({ view: 'library' });
+  const [showCreate, setShowCreate] = useState(false);
 
   const handleSelectProcess = (id: number) => {
     setNav({ view: 'viewer', processId: id });
@@ -79,15 +85,8 @@ export default function ProcessStandardPage() {
             {titles[nav.view]}
           </h1>
         </div>
-        {nav.view === 'library' && (
-          <Button
-            onClick={() =>
-              notify({
-                title: 'Abrir formulário de criação de processo',
-                intent: 'info',
-              })
-            }
-          >
+        {nav.view === 'library' && canCreate && (
+          <Button onClick={() => setShowCreate(true)}>
             <Plus size={16} strokeWidth={1.75} />
             Novo processo
           </Button>
@@ -127,6 +126,10 @@ export default function ProcessStandardPage() {
       )}
       {nav.view === 'dashboard' && (
         <DashboardView onOpenInstance={handleOpenInstance} />
+      )}
+
+      {showCreate && (
+        <CreateProcessModal onClose={() => setShowCreate(false)} />
       )}
     </div>
   );
