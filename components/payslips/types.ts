@@ -57,13 +57,11 @@ export const PAYSLIP_STATUS_MAP: StatusBadgeMap<PayslipStatus> = {
 // ─── Tipos das restantes views (List/Compare/Simulate/Annual) ─────────────────
 // Extraído de app/(platform)/payslips/page.tsx.
 
-export interface PaginatedPayslips {
-  data: Payslip[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
-}
+// `GET /payslips/my` devolve o envelope padrão `{ data, meta }` do backend
+// (buildPaginatedResponse). Antes tipado como flat `{ data, total, page, … }`,
+// o que fazia `data.total`/`data.totalPages` serem sempre `undefined` — a
+// contagem mostrava "0 recibos" e o paginador nunca aparecia.
+export type PaginatedPayslips = Paginated<Payslip>;
 
 export interface AnnualSummary {
   year: string;
