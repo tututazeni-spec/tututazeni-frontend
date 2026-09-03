@@ -6,7 +6,7 @@
 
 import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
-import { Building2 } from 'lucide-react';
+import { Building2, MapPin, FolderTree } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { useDebounce } from '@/hooks/useDebounce';
 import { apiClient } from '@/lib/apiClient';
@@ -93,7 +93,11 @@ export function DepartmentsView() {
                   <div className="flex items-center gap-3 font-body text-xs text-ink-faint">
                     <span>Código: {dept.code}</span>
                     {dept.parent && <span>↑ {dept.parent.name}</span>}
-                    {dept.unit && <span>📍 {dept.unit.name}</span>}
+                    {dept.unit && (
+                      <span className="inline-flex items-center gap-1">
+                        <MapPin size={12} strokeWidth={1.75} /> {dept.unit.name}
+                      </span>
+                    )}
                   </div>
                 </div>
                 <div className="flex-shrink-0 text-right">
@@ -106,7 +110,12 @@ export function DepartmentsView() {
                 </div>
                 {dept._count.children > 0 && (
                   <div className="flex-shrink-0 font-body text-xs text-ink-faint">
-                    📂 {dept._count.children}
+                    <FolderTree
+                      size={12}
+                      strokeWidth={1.75}
+                      className="inline align-[-2px]"
+                    />{' '}
+                    {dept._count.children}
                   </div>
                 )}
                 <div

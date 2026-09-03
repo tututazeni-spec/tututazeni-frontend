@@ -10,7 +10,16 @@
 
 import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Bookmark, Check } from 'lucide-react';
+import {
+  ArrowLeft,
+  Bookmark,
+  Check,
+  Calendar,
+  Clock,
+  Eye,
+  MessageSquare,
+  HelpCircle,
+} from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { reportError } from '@/lib/errorReporting';
@@ -154,9 +163,18 @@ export function ArticleDetailView({
               />
               <span>{article.author.fullName}</span>
             </div>
-            <span>📅 {fmtDate(article.updatedAt)}</span>
-            <span>⏱ {article.readingMinutes} min de leitura</span>
-            <span>👁 {article.viewCount} visualizações</span>
+            <span className="inline-flex items-center gap-1">
+              <Calendar size={12} strokeWidth={1.75} />{' '}
+              {fmtDate(article.updatedAt)}
+            </span>
+            <span className="inline-flex items-center gap-1">
+              <Clock size={12} strokeWidth={1.75} /> {article.readingMinutes}{' '}
+              min de leitura
+            </span>
+            <span className="inline-flex items-center gap-1">
+              <Eye size={12} strokeWidth={1.75} /> {article.viewCount}{' '}
+              visualizações
+            </span>
             <StatusBadge value={article.status} map={ARTICLE_STATUS_MAP} />
             {article.mandatory && <Badge intent="danger">Obrigatório</Badge>}
           </div>
@@ -184,7 +202,12 @@ export function ArticleDetailView({
         {/* Comentários */}
         <div className="rounded-card border border-border bg-surface p-5">
           <div className="mb-4 font-body text-sm font-semibold text-ink">
-            💬 Comentários ({article._count.comments})
+            <MessageSquare
+              size={16}
+              strokeWidth={1.75}
+              className="inline align-[-3px]"
+            />{' '}
+            Comentários ({article._count.comments})
           </div>
           <div className="mb-4 flex gap-3">
             <Textarea
@@ -329,7 +352,12 @@ export function ArticleDetailView({
         {article.questions && article.questions.length > 0 && (
           <div className="rounded-card border border-border bg-surface p-4">
             <div className="mb-3 font-body text-xs font-medium text-ink-muted">
-              ❓ Perguntas ({article._count.questions})
+              <HelpCircle
+                size={16}
+                strokeWidth={1.75}
+                className="inline align-[-3px]"
+              />{' '}
+              Perguntas ({article._count.questions})
             </div>
             {article.questions.slice(0, 3).map((q) => (
               <div

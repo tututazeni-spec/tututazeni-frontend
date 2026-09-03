@@ -5,6 +5,7 @@
 
 'use client';
 
+import { AlertTriangle, Circle } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -97,7 +98,12 @@ export function TeamView() {
       {data.alerts.length > 0 && (
         <div className="rounded-card border border-warning bg-warning-subtle p-4">
           <div className="mb-2 font-body text-sm font-semibold text-warning-ink">
-            ⚠ Alertas ({data.alerts.length})
+            <AlertTriangle
+              size={14}
+              strokeWidth={1.75}
+              className="inline align-[-2px]"
+            />{' '}
+            Alertas ({data.alerts.length})
           </div>
           {data.alerts.map((a, idx) => (
             <div
@@ -107,7 +113,15 @@ export function TeamView() {
               <span
                 className={`flex-shrink-0 font-mono text-xs ${a.type === 'PERFORMANCE_RISK' ? 'text-danger-ink' : 'text-warning-ink'}`}
               >
-                {a.type === 'PERFORMANCE_RISK' ? '🔴' : '🟡'}
+                <Circle
+                  size={11}
+                  strokeWidth={1.75}
+                  className={
+                    a.type === 'PERFORMANCE_RISK'
+                      ? 'fill-danger text-danger'
+                      : 'fill-warning text-warning'
+                  }
+                />
               </span>
               <p className="font-body text-xs text-warning-ink">{a.message}</p>
             </div>

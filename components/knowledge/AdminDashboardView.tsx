@@ -7,6 +7,7 @@
 
 'use client';
 
+import { Eye } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -98,7 +99,12 @@ export function AdminDashboardView() {
                 </div>
               </div>
               <span className="flex-shrink-0 font-body text-xs text-ink-faint">
-                👁 {a.viewCount}
+                <Eye
+                  size={12}
+                  strokeWidth={1.75}
+                  className="inline align-[-2px]"
+                />{' '}
+                {a.viewCount}
               </span>
             </div>
           ))}

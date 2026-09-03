@@ -7,6 +7,7 @@
 
 'use client';
 
+import { Clock, Users } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
 import { Card } from '@/components/ui/Card';
 import { StatusBadge } from '@/components/ui/StatusBadge';
@@ -81,10 +82,15 @@ export function CourseCard({
         {/* Meta */}
         <div className="flex items-center gap-3 text-xs text-ink-faint mb-2">
           {course.workloadHours && (
-            <span>⏱ {fmtDuration(course.workloadHours)}</span>
+            <span className="inline-flex items-center gap-1">
+              <Clock size={12} strokeWidth={1.75} />{' '}
+              {fmtDuration(course.workloadHours)}
+            </span>
           )}
           <StatusBadge value={course.level} map={COURSE_LEVEL_MAP} />
-          <span>👥 {course._count.enrollments}</span>
+          <span className="inline-flex items-center gap-1">
+            <Users size={12} strokeWidth={1.75} /> {course._count.enrollments}
+          </span>
         </div>
 
         {/* Enrollment status */}

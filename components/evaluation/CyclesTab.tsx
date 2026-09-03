@@ -5,6 +5,7 @@
 
 'use client';
 
+import { Calendar } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { reportError } from '@/lib/errorReporting';
@@ -91,7 +92,12 @@ export function CyclesTab() {
 
               <div className="flex items-center gap-3 text-xs text-ink-faint">
                 <span>
-                  📅 {new Date(cycle.startDate).toLocaleDateString('pt')}
+                  <Calendar
+                    size={12}
+                    strokeWidth={1.75}
+                    className="inline align-[-2px]"
+                  />{' '}
+                  {new Date(cycle.startDate).toLocaleDateString('pt')}
                 </span>
                 <span>→</span>
                 <span>{new Date(cycle.endDate).toLocaleDateString('pt')}</span>

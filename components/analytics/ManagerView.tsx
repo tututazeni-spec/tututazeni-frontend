@@ -12,7 +12,13 @@
 'use client';
 
 import { useState } from 'react';
-import { CheckCircle2, Target, TrendingUp, Users } from 'lucide-react';
+import {
+  CheckCircle2,
+  Target,
+  TrendingUp,
+  Users,
+  AlertTriangle,
+} from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -44,7 +50,12 @@ export function ManagerView() {
       {alerts.length > 0 && (
         <div className="rounded-card border border-warning/30 bg-warning-subtle p-4">
           <div className="text-sm font-semibold text-warning-ink mb-2">
-            ⚠ Alertas da equipa
+            <AlertTriangle
+              size={14}
+              strokeWidth={1.75}
+              className="inline align-[-2px]"
+            />{' '}
+            Alertas da equipa
           </div>
           {alerts.map((a, i) => (
             <div key={i} className="text-xs text-warning-ink">

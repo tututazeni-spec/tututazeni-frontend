@@ -5,6 +5,7 @@
 
 'use client';
 
+import { Lightbulb } from 'lucide-react';
 import { useState } from 'react';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
@@ -71,7 +72,12 @@ export function GenerateView() {
               </div>
               {q.explanation && (
                 <div className="mt-3 font-body text-xs text-info-ink bg-info-subtle rounded-control px-3 py-2">
-                  💡 {q.explanation}
+                  <Lightbulb
+                    size={14}
+                    strokeWidth={1.75}
+                    className="inline align-[-2px]"
+                  />{' '}
+                  {q.explanation}
                 </div>
               )}
             </Card>

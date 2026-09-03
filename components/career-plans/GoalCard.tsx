@@ -4,7 +4,7 @@
 
 'use client';
 
-import { CheckCircle2, Target } from 'lucide-react';
+import { CheckCircle2, Target, AlertTriangle } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { Card } from '@/components/ui/Card';
 import { GOAL_TYPE_ICONS, GOAL_TYPE_LABELS } from './constants';
@@ -78,7 +78,16 @@ export function GoalCard({ goal, onUpdateProgress }: GoalCardProps) {
                 )}
               >
                 · {new Date(goal.dueDate).toLocaleDateString('pt-PT')}
-                {isOverdue && ' ⚠️'}
+                {isOverdue && (
+                  <>
+                    {' '}
+                    <AlertTriangle
+                      size={12}
+                      strokeWidth={1.75}
+                      className="inline align-[-2px]"
+                    />
+                  </>
+                )}
               </span>
             )}
           </div>

@@ -4,6 +4,7 @@
 
 'use client';
 
+import { GraduationCap } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -74,8 +75,8 @@ export function RecommendationsView() {
             key={c.id}
             className="flex items-center gap-3 px-4 py-3 border-b border-border last:border-0"
           >
-            <div className="w-9 h-9 bg-primary-subtle rounded-control flex items-center justify-center text-primary text-lg flex-shrink-0">
-              🎓
+            <div className="w-9 h-9 bg-primary-subtle rounded-control flex items-center justify-center text-primary flex-shrink-0">
+              <GraduationCap size={18} strokeWidth={1.75} />
             </div>
             <div className="flex-1 min-w-0">
               <div className="font-body text-sm font-medium text-ink truncate">

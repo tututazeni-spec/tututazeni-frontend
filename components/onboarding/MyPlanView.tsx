@@ -60,7 +60,7 @@ const SUB_TABS = [
 const DOC_STATUS_LABEL: Record<DocStatus, string> = {
   APPROVED: '✓ Aprovado',
   REJECTED: '✗ Rejeitado',
-  PENDING: '⏳ Pendente',
+  PENDING: 'Pendente',
 };
 
 function paceLabel(pct: number): string {

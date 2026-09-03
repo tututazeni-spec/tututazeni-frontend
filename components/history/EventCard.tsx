@@ -5,7 +5,7 @@
 'use client';
 
 import { useState } from 'react';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, Star } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { CATEGORY_COLOR } from './constants';
 import type { TimelineEvent } from './types';
@@ -24,9 +24,7 @@ export function EventCard({ event, compact = false }: EventCardProps) {
       <div className="flex items-center gap-3 py-2">
         <span className="text-base shrink-0">{event.icon}</span>
         <div className="flex-1 min-w-0">
-          <p className="text-xs font-medium text-ink truncate">
-            {event.title}
-          </p>
+          <p className="text-xs font-medium text-ink truncate">{event.title}</p>
           <p className="text-[10px] text-ink-faint">
             {new Date(event.timestamp).toLocaleDateString('pt')}
           </p>
@@ -61,7 +59,12 @@ export function EventCard({ event, compact = false }: EventCardProps) {
           <p className="text-sm font-semibold text-ink">{event.title}</p>
           {event.milestone && (
             <span className="text-[9px] bg-warning-subtle text-warning-ink px-1.5 py-0.5 rounded-pill font-bold">
-              ⭐ MARCO
+              <Star
+                size={12}
+                strokeWidth={1.75}
+                className="inline align-[-2px]"
+              />{' '}
+              MARCO
             </span>
           )}
         </div>

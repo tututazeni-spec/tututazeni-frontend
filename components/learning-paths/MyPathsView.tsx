@@ -138,7 +138,7 @@ export function MyPathsView({ onSelect }: MyPathsViewProps) {
                     className={`font-body text-xs ${isOverdue(e.deadline) ? 'text-danger' : 'text-ink-faint'}`}
                   >
                     {isOverdue(e.deadline)
-                      ? '⚠ Prazo expirado'
+                      ? 'Prazo expirado'
                       : `Prazo: ${fmtDate(e.deadline)}`}
                   </div>
                 )}

@@ -6,7 +6,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Search } from 'lucide-react';
+import { Search, Star } from 'lucide-react';
 import { keepPreviousData } from '@tanstack/react-query';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
@@ -92,7 +92,12 @@ export function TimelineTab() {
       {(data?.milestones.length ?? 0) > 0 && (
         <div className="bg-warning-subtle border border-warning rounded-card p-4">
           <p className="text-xs font-semibold text-warning-ink mb-2">
-            ⭐ Marcos Recentes
+            <Star
+              size={16}
+              strokeWidth={1.75}
+              className="inline align-[-2px]"
+            />{' '}
+            Marcos Recentes
           </p>
           <div className="flex flex-wrap gap-2">
             {data!.milestones.slice(0, 5).map((m, i) => (

@@ -89,7 +89,11 @@ function TeamView({ managerId }: TeamViewProps) {
           <TableRow key={member.id}>
             <TableCell>
               <div className="flex items-center gap-3">
-                <Avatar name={member.fullName} url={member.avatarUrl ?? undefined} size="sm" />
+                <Avatar
+                  name={member.fullName}
+                  url={member.avatarUrl ?? undefined}
+                  size="sm"
+                />
                 <div>
                   <div className="text-sm font-medium text-ink">
                     {member.fullName}
@@ -178,7 +182,11 @@ export function UserProfileView({
       {/* Profile header */}
       <Card className="p-6 mb-5">
         <div className="flex items-start gap-5">
-          <Avatar name={user.fullName} url={user.avatarUrl ?? undefined} size="lg" />
+          <Avatar
+            name={user.fullName}
+            url={user.avatarUrl ?? undefined}
+            size="lg"
+          />
           <div className="flex-1">
             <div className="flex items-center gap-3 mb-1 flex-wrap">
               <h2 className="text-xl font-semibold text-ink">
@@ -207,7 +215,11 @@ export function UserProfileView({
             </div>
             {user.manager && (
               <div className="flex items-center gap-2 mt-2">
-                <Avatar name={user.manager.fullName} url={user.manager.avatarUrl ?? undefined} size="sm" />
+                <Avatar
+                  name={user.manager.fullName}
+                  url={user.manager.avatarUrl ?? undefined}
+                  size="sm"
+                />
                 <span className="text-xs text-ink-muted">
                   Gestor: <strong>{user.manager.fullName}</strong>
                 </span>
@@ -287,7 +299,11 @@ export function UserProfileView({
       {tab === 'overview' && stats && (
         <div className="space-y-5">
           <div className="grid grid-cols-4 gap-3">
-            <KpiCard icon={BookOpen} label="Matrículas" value={stats.enrollments.total} />
+            <KpiCard
+              icon={BookOpen}
+              label="Matrículas"
+              value={stats.enrollments.total}
+            />
             <KpiCard
               icon={CheckCircle2}
               label="Concluídos"
@@ -377,7 +393,12 @@ export function UserProfileView({
               value={stats.enrollments.completed}
               intent="success"
             />
-            <KpiCard icon={Award} label="Badges" value={stats.gamification.badges} intent="accent" />
+            <KpiCard
+              icon={Award}
+              label="Badges"
+              value={stats.gamification.badges}
+              intent="accent"
+            />
           </div>
           {stats.recentActivity.length > 0 && (
             <Card className="overflow-hidden">
@@ -398,8 +419,8 @@ export function UserProfileView({
                         className="object-cover"
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center text-lg">
-                        📚
+                      <div className="w-full h-full flex items-center justify-center text-ink-faint">
+                        <BookOpen size={18} strokeWidth={1.75} />
                       </div>
                     )}
                   </div>
@@ -430,7 +451,10 @@ export function UserProfileView({
           <TableBody>
             {auditLogs.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={3} className="py-8 text-center text-ink-faint">
+                <TableCell
+                  colSpan={3}
+                  className="py-8 text-center text-ink-faint"
+                >
                   Sem logs de auditoria
                 </TableCell>
               </TableRow>

@@ -5,6 +5,7 @@
 
 'use client';
 
+import { Users, Calendar } from 'lucide-react';
 import { useState } from 'react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { useToast } from '@/providers/ToastProvider';
@@ -85,9 +86,15 @@ export function ProgramsView() {
             )}
 
             <div className="mb-4 flex items-center justify-between font-body text-xs text-ink-faint">
-              <span>👥 {prog._count.participants} participantes</span>
+              <span className="inline-flex items-center gap-1">
+                <Users size={12} strokeWidth={1.75} />{' '}
+                {prog._count.participants} participantes
+              </span>
               {prog.durationWeeks && (
-                <span>📅 {prog.durationWeeks} semanas</span>
+                <span className="inline-flex items-center gap-1">
+                  <Calendar size={12} strokeWidth={1.75} /> {prog.durationWeeks}{' '}
+                  semanas
+                </span>
               )}
             </div>
 

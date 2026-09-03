@@ -1,6 +1,6 @@
 // components/acl/OverviewTab.tsx
 
-import { Users, Shield, Key, AlertTriangle } from 'lucide-react';
+import { Users, Shield, Key, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -22,7 +22,8 @@ export function OverviewTab() {
   const myPerms = permsQ.data ?? null;
   const loading = statsQ.isLoading;
 
-  if (loading) return <Skeleton rows={3} itemClassName="h-16 bg-surface rounded-xl" />;
+  if (loading)
+    return <Skeleton rows={3} itemClassName="h-16 bg-surface rounded-xl" />;
 
   return (
     <div className="space-y-5">
@@ -57,9 +58,7 @@ export function OverviewTab() {
       {/* Role distribution */}
       {stats && stats.roleBreakdown.length > 0 && (
         <Card className="p-5">
-          <h4 className="mb-4 font-semibold text-ink">
-            Distribuição de Roles
-          </h4>
+          <h4 className="mb-4 font-semibold text-ink">Distribuição de Roles</h4>
           <div className="space-y-2">
             {stats.roleBreakdown.map((r, i) => {
               const max = stats.roleBreakdown[0].count;
@@ -94,7 +93,12 @@ export function OverviewTab() {
           <div className="flex flex-wrap gap-1.5">
             {myPerms.permissions.includes('*') ? (
               <span className="rounded-control bg-success-subtle px-2 py-1 font-bold text-success-ink text-xs">
-                ✅ ADMIN — Acesso Total (*)
+                <CheckCircle2
+                  size={14}
+                  strokeWidth={1.75}
+                  className="inline align-[-2px]"
+                />{' '}
+                ADMIN — Acesso Total (*)
               </span>
             ) : (
               myPerms.permissions.slice(0, 20).map((p, i) => (

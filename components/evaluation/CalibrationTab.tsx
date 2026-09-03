@@ -6,6 +6,7 @@
 
 'use client';
 
+import { AlertTriangle } from 'lucide-react';
 import { useState } from 'react';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
@@ -61,8 +62,12 @@ export function CalibrationTab() {
           {(data.biasedEvaluators ?? []).length > 0 && (
             <div className="bg-warning-subtle border border-warning rounded-card p-4">
               <p className="text-sm font-semibold text-warning-ink mb-2">
-                ⚠️ {data.biasedEvaluators?.length} avaliadores com viés
-                detectado
+                <AlertTriangle
+                  size={14}
+                  strokeWidth={1.75}
+                  className="inline align-[-2px]"
+                />{' '}
+                {data.biasedEvaluators?.length} avaliadores com viés detectado
               </p>
               <div className="space-y-1">
                 {(data.biasedEvaluators ?? []).map((e, i) => (

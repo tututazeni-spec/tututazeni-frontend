@@ -1,6 +1,6 @@
 // components/api-integrations/WebhooksTab.tsx
 
-import { Trash2, Plus } from 'lucide-react';
+import { Trash2, Plus, CheckCircle2, XCircle } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
@@ -116,10 +116,20 @@ export function WebhooksTab() {
               {h.stats && (
                 <div className="flex gap-3 font-body text-[10px] text-ink-faint">
                   <span className="font-medium text-success">
-                    ✅ {h.stats.delivered} entregues
+                    <CheckCircle2
+                      size={12}
+                      strokeWidth={1.75}
+                      className="inline align-[-2px]"
+                    />{' '}
+                    {h.stats.delivered} entregues
                   </span>
                   <span className="font-medium text-danger">
-                    ❌ {h.stats.failed} falhas
+                    <XCircle
+                      size={12}
+                      strokeWidth={1.75}
+                      className="inline align-[-2px]"
+                    />{' '}
+                    {h.stats.failed} falhas
                   </span>
                 </div>
               )}

@@ -96,7 +96,12 @@ export function TalentPanel() {
       {(data?.positionsAtRisk ?? []).length > 0 && (
         <div className="rounded-card border border-danger-subtle bg-danger-subtle p-4">
           <h4 className="mb-2 font-body font-semibold text-danger-ink">
-            ⚠️ Posições Sem Sucessor
+            <AlertTriangle
+              size={14}
+              strokeWidth={1.75}
+              className="inline align-[-2px]"
+            />{' '}
+            Posições Sem Sucessor
           </h4>
           <div className="space-y-1">
             {(data?.positionsAtRisk ?? []).map((p, i) => (

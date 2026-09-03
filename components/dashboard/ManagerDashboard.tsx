@@ -8,7 +8,7 @@
 
 'use client';
 
-import { Target, Star, Shield } from 'lucide-react';
+import { Target, Star, Shield, AlertTriangle } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -133,7 +133,12 @@ export function ManagerDashboard() {
       {(data?.alerts ?? []).length > 0 && (
         <div className="rounded-card border border-border bg-surface p-5">
           <h3 className="mb-3 font-body font-semibold text-ink-muted">
-            ⚠️ Alertas da Equipa
+            <AlertTriangle
+              size={14}
+              strokeWidth={1.75}
+              className="inline align-[-2px]"
+            />{' '}
+            Alertas da Equipa
           </h3>
           <div className="space-y-2">
             {(data?.alerts ?? []).map((a, i) => (

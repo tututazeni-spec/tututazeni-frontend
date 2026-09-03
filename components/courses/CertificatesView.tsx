@@ -74,10 +74,10 @@ export function CertificatesView() {
             className={`mt-3 p-3 rounded-control text-sm ${verifyResult.error ? 'bg-danger-subtle text-danger-ink' : verifyResult.valid ? 'bg-success-subtle text-success-ink' : 'bg-warning-subtle text-warning-ink'}`}
           >
             {verifyResult.error
-              ? `❌ ${verifyResult.error}`
+              ? `${verifyResult.error}`
               : verifyResult.valid
-                ? `✅ Certificado válido — ${verifyResult.user?.fullName} — ${verifyResult.course?.title}`
-                : `⚠ Certificado expirado`}
+                ? `Certificado válido — ${verifyResult.user?.fullName} — ${verifyResult.course?.title}`
+                : `Certificado expirado`}
           </div>
         )}
       </Card>

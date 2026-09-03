@@ -4,7 +4,7 @@
 
 'use client';
 
-import { AlertTriangle, CheckCircle, Clock } from 'lucide-react';
+import { AlertTriangle, CheckCircle, Clock, Lightbulb } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
@@ -133,7 +133,12 @@ export function InsightsTab() {
                 </p>
                 {ins.recommendation && (
                   <p className="rounded-control border border-border bg-surface px-3 py-1.5 font-body text-xs text-ink-muted">
-                    💡 <span className="font-medium">Recomendação:</span>{' '}
+                    <Lightbulb
+                      size={14}
+                      strokeWidth={1.75}
+                      className="inline align-[-2px]"
+                    />{' '}
+                    <span className="font-medium">Recomendação:</span>{' '}
                     {ins.recommendation}
                   </p>
                 )}

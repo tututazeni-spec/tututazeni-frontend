@@ -1,14 +1,15 @@
 // components/courses/CourseThumbnail.tsx
 // Imagem do curso nas listas/detalhe. Uma só implementação para os 3 sítios
-// que antes duplicavam o bloco `thumbnailUrl ? <Image> : 📚`
+// que antes duplicavam o bloco `thumbnailUrl ? <Image> : ícone`
 // (CourseCard, MyEnrollmentsView, CourseDetailView):
 //   - data: URI  → <img> nativo (next/image não processa data URIs — mesma
 //                  razão do ramo em components/ui/Avatar.tsx)
 //   - URL normal → next/image
-//   - nada       → emoji 📚 (fallback, a imagem é sempre opcional)
+//   - nada       → ícone BookOpen (fallback, a imagem é sempre opcional)
 // Preenche o wrapper do consumidor (que mantém `relative` + o rácio).
 
 import Image from 'next/image';
+import { BookOpen } from 'lucide-react';
 import { cn } from '@/lib/cn';
 
 interface CourseThumbnailProps {
@@ -55,7 +56,7 @@ export function CourseThumbnail({
         fallbackClassName,
       )}
     >
-      📚
+      <BookOpen size={40} strokeWidth={1.5} />
     </div>
   );
 }

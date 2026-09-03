@@ -6,7 +6,7 @@
 'use client';
 
 import { useState } from 'react';
-import { ClipboardList } from 'lucide-react';
+import { ClipboardList, Users } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
@@ -104,14 +104,19 @@ export function PlanView() {
             <div className="mt-2 flex gap-3 font-body text-xs text-ink-faint">
               {plan.targetDate && (
                 <span>
-                   Alvo:{' '}
+                  Alvo:{' '}
                   {new Date(plan.targetDate).toLocaleDateString('pt-AO', {
                     month: 'long',
                     year: 'numeric',
                   })}
                 </span>
               )}
-              {plan.mentor && <span>👥 Mentor: {plan.mentor.fullName}</span>}
+              {plan.mentor && (
+                <span className="inline-flex items-center gap-1">
+                  <Users size={12} strokeWidth={1.75} /> Mentor:{' '}
+                  {plan.mentor.fullName}
+                </span>
+              )}
             </div>
           </div>
           <div className="text-right">

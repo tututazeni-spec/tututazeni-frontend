@@ -75,9 +75,7 @@ export function MyTasksView({ onOpenInstance }: MyTasksViewProps) {
               <span
                 className={`font-body text-xs font-medium ${isOverdue(t.slaDeadline) ? 'text-danger' : 'text-warning-ink'}`}
               >
-                {isOverdue(t.slaDeadline)
-                  ? '⚠ Expirado'
-                  : fmtDate(t.slaDeadline)}
+                {isOverdue(t.slaDeadline) ? 'Expirado' : fmtDate(t.slaDeadline)}
               </span>
             ) : (
               <span className="font-body text-xs text-ink-faint">—</span>
