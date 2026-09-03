@@ -79,4 +79,31 @@ describe('CreateRunModal', () => {
     expect(onClose).toHaveBeenCalled();
     expect(post).not.toHaveBeenCalled();
   });
+
+  test('omits blank optional fields (payGroup, countryCode, notes) from POST body', async () => {
+    const onCreated = vi.fn();
+    render(<CreateRunModal onClose={vi.fn()} onCreated={onCreated} />);
+
+    // Fill only the required field
+    fireEvent.change(screen.getByLabelText(/Período/i), {
+      target: { value: '2026-09' },
+    });
+
+    // Clear countryCode (it starts as 'AO', we need to make it blank for this test)
+    fireEvent.change(screen.getByLabelText(/País/i), {
+      target: { value: '' },
+    });
+
+    // payGroup and notes stay blank (initial state '', unchanged)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Criar' }));
+    await waitFor(() => expect(post).toHaveBeenCalledTimes(1));
+
+    const [, body] = post.mock.calls[0];
+    // Blank optional fields are sent as undefined, so JSON.stringify drops them from wire payload
+    expect(body).toMatchObject({ period: '2026-09' });
+    expect(body.payGroup).toBeUndefined();
+    expect(body.countryCode).toBeUndefined();
+    expect(body.notes).toBeUndefined();
+  });
 });
