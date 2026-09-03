@@ -16,6 +16,7 @@ import {
   CheckCircle2,
   Clock,
   Trophy,
+  AlertTriangle,
 } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
@@ -326,8 +327,13 @@ export function UserProfileView({
           </div>
           {stats.enrollments.overdue > 0 && (
             <div className="bg-danger-subtle border border-danger/30 rounded-card px-4 py-3 text-sm text-danger-ink">
-              ⚠ <strong>{stats.enrollments.overdue}</strong> curso(s) com
-              deadline expirado
+              <AlertTriangle
+                size={13}
+                strokeWidth={1.75}
+                className="inline align-[-2px]"
+              />{' '}
+              <strong>{stats.enrollments.overdue}</strong> curso(s) com deadline
+              expirado
             </div>
           )}
 

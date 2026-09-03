@@ -7,6 +7,7 @@
 
 'use client';
 
+import { Map, BookOpen, Clock, Users } from 'lucide-react';
 import Image from 'next/image';
 import { Badge } from '@/components/ui/Badge';
 import { Card } from '@/components/ui/Card';
@@ -51,8 +52,8 @@ export function LearningPathCard({
             className="object-cover opacity-80 transition-transform group-hover:scale-105"
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center text-5xl">
-            🗺️
+          <div className="flex h-full w-full items-center justify-center">
+            <Map size={44} strokeWidth={1.5} />
           </div>
         )}
         <div className="absolute left-2 top-2 flex gap-1">
@@ -90,13 +91,25 @@ export function LearningPathCard({
           </div>
         )}
         <div className="mb-2 flex items-center gap-3 font-body text-xs text-ink-faint">
-          <span>📚 {path._count.courses} cursos</span>
-          {path.totalHours > 0 && <span>⏱ {fmtHours(path.totalHours)}</span>}
+          <span className="inline-flex items-center gap-1">
+            <BookOpen size={12} strokeWidth={1.75} /> {path._count.courses}{' '}
+            cursos
+          </span>
+          {path.totalHours > 0 && (
+            <span className="inline-flex items-center gap-1">
+              <Clock size={12} strokeWidth={1.75} /> {fmtHours(path.totalHours)}
+            </span>
+          )}
           <StatusBadge value={path.level} map={LP_LEVEL_MAP} />
         </div>
         <div className="flex items-center justify-between">
           <span className="font-body text-xs text-ink-faint">
-            👥 {path._count.enrollments} inscritos
+            <Users
+              size={12}
+              strokeWidth={1.75}
+              className="inline align-[-2px]"
+            />{' '}
+            {path._count.enrollments} inscritos
           </span>
           {enrolled && progress !== undefined && (
             <span

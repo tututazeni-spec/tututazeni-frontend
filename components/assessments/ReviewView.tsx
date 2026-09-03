@@ -7,6 +7,7 @@
 
 'use client';
 
+import { Hourglass, MessageSquare } from 'lucide-react';
 import { useState } from 'react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
@@ -136,7 +137,17 @@ export function ReviewView() {
               >
                 <div className="flex items-start gap-2 mb-1">
                   <span>
-                    {ans.isCorrect === null ? '⏳' : ans.isCorrect ? '✓' : '✗'}
+                    {ans.isCorrect === null ? (
+                      <Hourglass
+                        size={13}
+                        strokeWidth={1.75}
+                        className="inline"
+                      />
+                    ) : ans.isCorrect ? (
+                      '✓'
+                    ) : (
+                      '✗'
+                    )}
                   </span>
                   <p className="text-xs font-medium text-ink">
                     {ans.question?.questionText}
@@ -149,7 +160,12 @@ export function ReviewView() {
                 )}
                 {ans.reviewComment && (
                   <p className="text-xs text-primary pl-5 mt-1">
-                    💬 {ans.reviewComment}
+                    <MessageSquare
+                      size={13}
+                      strokeWidth={1.75}
+                      className="inline align-[-2px]"
+                    />{' '}
+                    {ans.reviewComment}
                   </p>
                 )}
               </div>

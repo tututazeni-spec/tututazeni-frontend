@@ -13,7 +13,7 @@
 'use client';
 
 import { useState } from 'react';
-import { AlertCircle, Calendar, Check } from 'lucide-react';
+import { AlertCircle, Calendar, Check, AlertTriangle } from 'lucide-react';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { apiClient } from '@/lib/apiClient';
@@ -315,12 +315,22 @@ export function NewLeaveModal({
                 >
                   {conflicts.hasUserConflict && (
                     <p className="font-medium">
-                      ⚠️ Já tem uma ausência neste período
+                      <AlertTriangle
+                        size={13}
+                        strokeWidth={1.75}
+                        className="inline align-[-2px]"
+                      />{' '}
+                      Já tem uma ausência neste período
                     </p>
                   )}
                   {!conflicts.hasUserConflict && conflicts.isAtRisk && (
                     <p>
-                      ⚠️ {conflicts.teamConflictCount} colega(s) ausente(s) no
+                      <AlertTriangle
+                        size={13}
+                        strokeWidth={1.75}
+                        className="inline align-[-2px]"
+                      />{' '}
+                      {conflicts.teamConflictCount} colega(s) ausente(s) no
                       mesmo período
                     </p>
                   )}

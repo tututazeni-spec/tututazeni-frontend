@@ -5,6 +5,7 @@
 
 'use client';
 
+import { AlertTriangle, Hourglass } from 'lucide-react';
 import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
@@ -230,7 +231,19 @@ export function AdminView() {
               <div className="text-xs">
                 {e.deadline ? (
                   <Badge intent={deadlineIntent(e.deadline, e.isOverdue)}>
-                    {e.isOverdue ? '⚠ ' : '⏳ '}
+                    {e.isOverdue ? (
+                      <AlertTriangle
+                        size={12}
+                        strokeWidth={1.75}
+                        className="inline mr-1"
+                      />
+                    ) : (
+                      <Hourglass
+                        size={12}
+                        strokeWidth={1.75}
+                        className="inline mr-1"
+                      />
+                    )}
                     {deadlineCountdown(e.deadline)}
                   </Badge>
                 ) : (

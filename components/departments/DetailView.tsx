@@ -17,6 +17,8 @@ import {
   UserCheck,
   UserX,
   Users,
+  Building2,
+  AlertTriangle,
 } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { useDebounce } from '@/hooks/useDebounce';
@@ -317,7 +319,7 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
                   : 'var(--color-surface-sunken)',
               }}
             >
-              {dept.icon ?? '🏢'}
+              {dept.icon ?? <Building2 size={20} strokeWidth={1.75} />}
             </div>
             <div>
               <div className="mb-1 flex flex-wrap items-center gap-2">
@@ -388,7 +390,12 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
         )}
         {!dept.head && (
           <div className="mt-4 rounded-control border border-black bg-white px-3 py-2 text-xs text-black">
-            ⚠ Departamento sem gestor definido
+            <AlertTriangle
+              size={13}
+              strokeWidth={1.75}
+              className="inline align-[-2px]"
+            />{' '}
+            Departamento sem gestor definido
           </div>
         )}
       </Card>

@@ -7,7 +7,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Search } from 'lucide-react';
+import { Search, Eye, FileText } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -92,8 +92,13 @@ export function PortalView({ onSelectArticle, onSearch }: PortalViewProps) {
           </div>
           {searchResults.length === 0 ? (
             <div className="rounded-card border border-dashed border-border-strong py-8 text-center font-body text-sm text-ink-faint">
-              🔍 Sem resultados. Esta pesquisa foi registada para análise de
-              gaps de conhecimento.
+              <Search
+                size={13}
+                strokeWidth={1.75}
+                className="inline align-[-2px]"
+              />{' '}
+              Sem resultados. Esta pesquisa foi registada para análise de gaps
+              de conhecimento.
             </div>
           ) : (
             <div className="space-y-2">
@@ -119,7 +124,12 @@ export function PortalView({ onSelectArticle, onSearch }: PortalViewProps) {
                     )}
                   </div>
                   <span className="font-body text-xs text-ink-faint">
-                    👁 {r.viewCount}
+                    <Eye
+                      size={12}
+                      strokeWidth={1.75}
+                      className="inline align-[-2px]"
+                    />{' '}
+                    {r.viewCount}
                   </span>
                 </div>
               ))}
@@ -141,7 +151,9 @@ export function PortalView({ onSelectArticle, onSearch }: PortalViewProps) {
                   key={cat.id}
                   className="cursor-pointer rounded-card border border-border bg-surface p-4 text-center transition-shadow hover:shadow-resting hover:border-primary-subtle"
                 >
-                  <div className="mb-2 text-3xl">{cat.icon ?? '📄'}</div>
+                  <div className="mb-2 text-ink-muted">
+                    {cat.icon ?? <FileText size={24} strokeWidth={1.5} />}
+                  </div>
                   <div className="font-body text-xs font-medium text-ink">
                     {cat.name}
                   </div>

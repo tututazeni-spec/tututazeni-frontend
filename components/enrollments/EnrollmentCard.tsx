@@ -5,7 +5,13 @@
 'use client';
 
 import Image from 'next/image';
-import { AlertTriangle, Award, CheckCircle2 } from 'lucide-react';
+import {
+  AlertTriangle,
+  Award,
+  CheckCircle2,
+  BookOpen,
+  Hourglass,
+} from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
 import { buttonVariants } from '@/components/ui/Button';
 import { ProgressBar } from '@/components/ui/ProgressBar';
@@ -50,8 +56,8 @@ export function EnrollmentCard({ enrollment, onCancel }: EnrollmentCardProps) {
               className="object-cover"
             />
           ) : (
-            <div className="flex h-full w-full items-center justify-center text-2xl text-ink-faint">
-              📚
+            <div className="flex h-full w-full items-center justify-center text-ink-faint">
+              <BookOpen size={22} strokeWidth={1.75} />
             </div>
           )}
         </div>
@@ -103,7 +109,19 @@ export function EnrollmentCard({ enrollment, onCancel }: EnrollmentCardProps) {
             <div className="flex items-center gap-2">
               {deadline && (
                 <Badge intent={deadlineIntent(deadline, isOverdue)}>
-                  {isOverdue ? '⚠ ' : '⏳ '}
+                  {isOverdue ? (
+                    <AlertTriangle
+                      size={12}
+                      strokeWidth={1.75}
+                      className="inline mr-1"
+                    />
+                  ) : (
+                    <Hourglass
+                      size={12}
+                      strokeWidth={1.75}
+                      className="inline mr-1"
+                    />
+                  )}
                   {deadlineCountdown(deadline)}
                 </Badge>
               )}
