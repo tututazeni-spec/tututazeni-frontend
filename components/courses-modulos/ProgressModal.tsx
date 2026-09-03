@@ -5,6 +5,7 @@
 'use client';
 
 import { useState } from 'react';
+import { CheckCircle2, Search, BookMarked } from 'lucide-react';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { CONTENT_TYPE } from './constants';
@@ -82,8 +83,9 @@ export function ProgressModal({ onClose, onMarked }: ProgressModalProps) {
 
           {/* Marcar como concluída */}
           <div className="p-4 bg-surface-sunken rounded-lg">
-            <h3 className="m-0 mb-3 text-sm font-bold text-ink">
-              ✅ Marcar Lição como Concluída
+            <h3 className="m-0 mb-3 flex items-center gap-1.5 text-sm font-bold text-ink">
+              <CheckCircle2 size={16} strokeWidth={1.75} /> Marcar Lição como
+              Concluída
             </h3>
             <div className="grid grid-cols-3 gap-3 items-end">
               <FormField label="ID Matrícula" htmlFor="prog-enrollment">
@@ -109,9 +111,9 @@ export function ProgressModal({ onClose, onMarked }: ProgressModalProps) {
                 disabled={marking || !enrollmentId || !lessonId}
                 intent="primary"
                 loading={marking}
-                className="w-full"
+                className="w-full inline-flex items-center justify-center gap-1.5"
               >
-                ✅ Marcar
+                <CheckCircle2 size={15} strokeWidth={1.75} /> Marcar
               </Button>
             </div>
           </div>
@@ -137,8 +139,9 @@ export function ProgressModal({ onClose, onMarked }: ProgressModalProps) {
                 onClick={loadProgress}
                 disabled={loading || !enrollmentId}
                 intent="ghost"
+                className="inline-flex items-center gap-1.5"
               >
-                🔍 Ver
+                <Search size={15} strokeWidth={1.75} /> Ver
               </Button>
             </div>
           </div>
@@ -161,11 +164,12 @@ export function ProgressModal({ onClose, onMarked }: ProgressModalProps) {
               <div className="flex flex-col gap-2">
                 {progress.map((p) => {
                   const ct = CONTENT_TYPE[p.lesson.type] ?? {
-                    icon: '📖',
+                    icon: BookMarked,
                     color: '#64748b',
                     bg: '#f8fafc',
                     label: p.lesson.type,
                   };
+                  const CtIcon = ct.icon;
                   return (
                     <div
                       key={p.id}
@@ -175,7 +179,12 @@ export function ProgressModal({ onClose, onMarked }: ProgressModalProps) {
                           : 'bg-surface-sunken border-border'
                       }`}
                     >
-                      <span className="text-lg">{ct.icon}</span>
+                      <span
+                        className="text-ink-muted"
+                        style={{ color: ct.color }}
+                      >
+                        <CtIcon size={18} strokeWidth={1.75} />
+                      </span>
                       <div className="flex-1">
                         <p className="m-0 text-sm font-semibold text-ink">
                           {p.lesson.title}
@@ -185,8 +194,8 @@ export function ProgressModal({ onClose, onMarked }: ProgressModalProps) {
                         </p>
                       </div>
                       {p.completed ? (
-                        <span className="text-xs font-bold text-success">
-                          ✅{' '}
+                        <span className="inline-flex items-center gap-1 text-xs font-bold text-success">
+                          <CheckCircle2 size={13} strokeWidth={1.75} />{' '}
                           {p.completedAt
                             ? new Date(p.completedAt).toLocaleDateString(
                                 'pt-PT',

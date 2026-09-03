@@ -5,7 +5,13 @@
 'use client';
 
 import { useState } from 'react';
-import { CheckCircle2, Circle, Lock, PlayCircle } from 'lucide-react';
+import {
+  CheckCircle2,
+  Circle,
+  Lock,
+  Paperclip,
+  PlayCircle,
+} from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { moduleTypeLabel } from './utils';
@@ -118,7 +124,7 @@ export function ModuleAccordion({
                   rel="noreferrer"
                   className="flex items-center gap-2 py-1 font-body text-xs text-primary hover:text-primary-hover"
                 >
-                  <span>📎</span>
+                  <Paperclip size={13} strokeWidth={1.75} />
                   <span className="truncate">{mat.title}</span>
                   {mat.fileType && (
                     <span className="text-ink-faint">{mat.fileType}</span>

@@ -246,20 +246,23 @@ export function ModuleBuilder({ courseId }: ModuleBuilderProps) {
             {/* Lessons preview */}
             {mod.lessons.length > 0 && (
               <div className="border-t border-border px-4 py-2">
-                {mod.lessons.slice(0, 3).map((l) => (
-                  <div
-                    key={l.id}
-                    className="flex items-center gap-2 py-1 font-body text-xs text-ink-muted"
-                  >
-                    <span>{lessonIcon(l.type)}</span>
-                    <span className="truncate">{l.title}</span>
-                    {l.durationMinutes && (
-                      <span className="text-ink-faint">
-                        {fmtDuration(l.durationMinutes)}
-                      </span>
-                    )}
-                  </div>
-                ))}
+                {mod.lessons.slice(0, 3).map((l) => {
+                  const LIcon = lessonIcon(l.type);
+                  return (
+                    <div
+                      key={l.id}
+                      className="flex items-center gap-2 py-1 font-body text-xs text-ink-muted"
+                    >
+                      <LIcon size={13} strokeWidth={1.75} />
+                      <span className="truncate">{l.title}</span>
+                      {l.durationMinutes && (
+                        <span className="text-ink-faint">
+                          {fmtDuration(l.durationMinutes)}
+                        </span>
+                      )}
+                    </div>
+                  );
+                })}
                 {mod.lessons.length > 3 && (
                   <div className="font-body text-xs text-ink-faint mt-1">
                     +{mod.lessons.length - 3} mais aulas

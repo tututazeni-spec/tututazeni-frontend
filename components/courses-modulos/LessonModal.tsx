@@ -5,6 +5,7 @@
 'use client';
 
 import { useState } from 'react';
+import { Pencil, BookMarked } from 'lucide-react';
 import { useToast } from '@/providers/ToastProvider';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
@@ -113,8 +114,16 @@ export function LessonModal({
       >
         <CardBody className="flex flex-col gap-5">
           <div className="flex justify-between items-center">
-            <h2 className="text-lg font-bold text-ink">
-              {editing ? '✏️ Editar Lição' : '📖 Nova Lição'}
+            <h2 className="flex items-center gap-2 text-lg font-bold text-ink">
+              {editing ? (
+                <>
+                  <Pencil size={18} strokeWidth={1.75} /> Editar Lição
+                </>
+              ) : (
+                <>
+                  <BookMarked size={18} strokeWidth={1.75} /> Nova Lição
+                </>
+              )}
             </h2>
             <button
               onClick={onClose}
@@ -140,38 +149,45 @@ export function LessonModal({
                 Tipo de Conteúdo *
               </label>
               <div className="flex gap-2">
-                {Object.entries(CONTENT_TYPE).map(([k, v]) => (
-                  <button
-                    key={k}
-                    type="button"
-                    onClick={() => set('contentType', k)}
-                    style={
-                      form.contentType === k
-                        ? {
-                            borderColor: v.color,
-                            backgroundColor: v.bg,
-                          }
-                        : undefined
-                    }
-                    className={cn(
-                      'flex-1 py-2 rounded-lg flex flex-col items-center gap-1 cursor-pointer transition-all border-2',
-                      form.contentType !== k && 'border-border bg-surface',
-                    )}
-                  >
-                    <span className="text-lg">{v.icon}</span>
-                    <span
-                      className={cn(
-                        'text-xs font-bold',
-                        form.contentType !== k && 'text-ink-faint',
-                      )}
+                {Object.entries(CONTENT_TYPE).map(([k, v]) => {
+                  const VIcon = v.icon;
+                  return (
+                    <button
+                      key={k}
+                      type="button"
+                      onClick={() => set('contentType', k)}
                       style={
-                        form.contentType === k ? { color: v.color } : undefined
+                        form.contentType === k
+                          ? {
+                              borderColor: v.color,
+                              backgroundColor: v.bg,
+                            }
+                          : undefined
                       }
+                      className={cn(
+                        'flex-1 py-2 rounded-lg flex flex-col items-center gap-1 cursor-pointer transition-all border-2',
+                        form.contentType !== k && 'border-border bg-surface',
+                      )}
                     >
-                      {v.label}
-                    </span>
-                  </button>
-                ))}
+                      <span style={{ color: v.color }}>
+                        <VIcon size={18} strokeWidth={1.75} />
+                      </span>
+                      <span
+                        className={cn(
+                          'text-xs font-bold',
+                          form.contentType !== k && 'text-ink-faint',
+                        )}
+                        style={
+                          form.contentType === k
+                            ? { color: v.color }
+                            : undefined
+                        }
+                      >
+                        {v.label}
+                      </span>
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
