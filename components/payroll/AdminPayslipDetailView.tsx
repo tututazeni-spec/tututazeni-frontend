@@ -1,16 +1,17 @@
 'use client';
 
 import { useState } from 'react';
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft, Download } from 'lucide-react';
 import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
-import { apiClient } from '@/lib/apiClient';
+import { apiClient, API_URL } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
+import { cn } from '@/lib/cn';
 import { formatDate as fmtDate } from '@/lib/format';
 import { fmtPeriod } from '@/components/payslips/format';
 import { PAYSLIP_STATUS_MAP } from '@/components/payslips/types';
 import { PayslipAmountBreakdown } from '@/components/payslips/PayslipAmountBreakdown';
-import { Button } from '@/components/ui/Button';
+import { Button, buttonVariants } from '@/components/ui/Button';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { useConfirm } from '@/providers/ConfirmProvider';
@@ -95,6 +96,15 @@ export function AdminPayslipDetailView({ payslipId, onBack }: AdminPayslipDetail
       </div>
 
       <div className="mb-6 flex flex-wrap items-center gap-2">
+        <a
+          href={`${API_URL}/payslips/${payslipId}/pdf`}
+          target="_blank"
+          rel="noreferrer"
+          className={cn(buttonVariants({ intent: 'secondary', size: 'sm' }))}
+        >
+          <Download size={15} strokeWidth={1.75} />
+          Descarregar PDF
+        </a>
         {editable ? (
           <>
             <Button size="sm" intent="secondary" onClick={() => setEditing(true)}>Editar</Button>
