@@ -16,11 +16,11 @@ import { cn } from '@/lib/cn';
 import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
-import { Input } from '@/components/ui/Input';
+import { Combobox } from '@/components/ui/Combobox';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { READINESS_CFG } from './constants';
-import type { CareerProfile, SimulationResult } from './types';
+import type { CareerProfile, Position, SimulationResult } from './types';
 
 function scoreClass(score: number): string {
   if (score >= 80) return 'text-success';
@@ -38,10 +38,26 @@ export function DashboardView() {
     { staleTime: STALE_TIME.DYNAMIC },
   );
 
+  const { data: positions, isLoading: posLoading } = useApiQuery<Position[]>(
+    queryKeys.career.positions(),
+    '/career/positions',
+    { staleTime: STALE_TIME.STATIC },
+  );
+  const positionOptions = (positions ?? []).map((p) => ({
+    value: String(p.id),
+    label: p.level ? `${p.name} · ${p.level}` : p.name,
+  }));
+
   const simulateMutation = useApiMutation(
     (target: string) =>
       apiClient.get<SimulationResult>(`/career/me/simulate/${target}`),
-    { onError: (e) => notify({ title: e.message, intent: 'danger' }) },
+    {
+      // O seletor só oferece cargos válidos; um 404 aqui é a corrida rara de
+      // um cargo apagado entre o carregamento e a simulação. Silenciar o
+      // handler global ("Erro ao guardar") e deixar só a mensagem específica.
+      meta: { silent: true },
+      onError: (e) => notify({ title: e.message, intent: 'danger' }),
+    },
   );
   const simulation = simulateMutation.data ?? null;
   const simLoading = simulateMutation.isPending;
@@ -174,7 +190,7 @@ export function DashboardView() {
           {/* Vagas compatíveis */}
           <Card className="overflow-hidden p-0">
             <div className="border-b border-border px-4 py-3 font-body text-sm font-semibold text-ink">
-               Vagas compatíveis
+              Vagas compatíveis
             </div>
             {matchingVacancies.length === 0 ? (
               <div className="px-4 py-4 text-center font-body text-xs text-ink-faint">
@@ -211,7 +227,7 @@ export function DashboardView() {
           {careerPlan && (
             <Card className="border-primary bg-primary-subtle p-4">
               <div className="mb-1 font-body text-xs font-semibold text-primary">
-                 Plano activo
+                Plano activo
               </div>
               <div className="truncate font-body text-sm font-medium text-ink">
                 {careerPlan.title}
@@ -237,7 +253,7 @@ export function DashboardView() {
       {promotionEligibility && (
         <Card className="p-5">
           <div className="mb-4 font-body text-sm font-semibold text-ink">
-             Critérios de Promoção
+            Critérios de Promoção
           </div>
           <div className="grid grid-cols-3 gap-4">
             {Object.entries(promotionEligibility.criteria).map(([key, c]) => (
@@ -286,22 +302,32 @@ export function DashboardView() {
           <Sparkles size={16} strokeWidth={1.75} className="text-accent" />
           Simulador de Carreira
         </div>
-        <div className="mb-4 flex gap-3">
-          <Input
-            type="number"
-            placeholder="ID do cargo alvo (Position ID)…"
-            value={simTarget}
-            onChange={(e) => setSimTarget(e.target.value)}
-            className="flex-1"
-          />
-          <Button
-            onClick={runSimulation}
-            disabled={!simTarget}
-            loading={simLoading}
-          >
-            Simular
-          </Button>
-        </div>
+        {!posLoading && positionOptions.length === 0 ? (
+          <p className="mb-4 font-body text-sm text-ink-faint">
+            Sem cargos definidos — o RH pode criá-los em Organização.
+          </p>
+        ) : (
+          <div className="mb-4 flex gap-3">
+            <Combobox
+              items={positionOptions}
+              value={simTarget}
+              onValueChange={setSimTarget}
+              placeholder={
+                posLoading ? 'A carregar cargos…' : 'Escolha o cargo alvo…'
+              }
+              searchPlaceholder="Escreva para filtrar cargos…"
+              disabled={posLoading}
+              className="flex-1"
+            />
+            <Button
+              onClick={runSimulation}
+              disabled={!simTarget}
+              loading={simLoading}
+            >
+              Simular
+            </Button>
+          </div>
+        )}
 
         {simulation && (
           <div className="rounded-card bg-primary-subtle p-4">
@@ -365,7 +391,7 @@ export function DashboardView() {
                     key={c.id}
                     className="truncate font-body text-xs text-primary"
                   >
-                     {c.title}
+                    {c.title}
                   </div>
                 ))}
               </div>

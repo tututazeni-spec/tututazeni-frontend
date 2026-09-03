@@ -309,6 +309,7 @@ export const queryKeys = {
     all: ['career'] as const,
     me: () => [...queryKeys.career.all, 'me'] as const,
     paths: () => [...queryKeys.career.all, 'paths'] as const,
+    positions: () => [...queryKeys.career.all, 'positions'] as const,
     vacancies: (type: string) =>
       [...queryKeys.career.all, 'vacancies', type] as const,
     plan: () => [...queryKeys.career.all, 'plan'] as const,
