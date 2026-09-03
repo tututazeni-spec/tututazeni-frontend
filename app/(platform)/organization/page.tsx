@@ -1,9 +1,12 @@
 'use client';
 
 import { useState } from 'react';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
+import { ADMIN_ROLES, isRoleAllowed, type Role } from '@/lib/roles';
 import { queryKeys } from '@/lib/queryKeys';
 import { NAV, TITLES } from '@/components/organization/constants';
 import { CreateDepartmentModal } from '@/components/departments/CreateDepartmentModal';
+import { CreatePositionModal } from '@/components/organization/CreatePositionModal';
 import { DashboardView } from '@/components/organization/DashboardView';
 import { DepartmentsView } from '@/components/organization/DepartmentsView';
 import { OrgChartView } from '@/components/organization/OrgChartView';
@@ -16,6 +19,18 @@ import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 export default function OrganizationPage() {
   const [view, setView] = useState<View>('dashboard');
   const [createOpen, setCreateOpen] = useState(false);
+
+  const { data: currentUser } = useCurrentUser();
+  const role = currentUser?.role?.name as Role | undefined;
+  // POST /organization/positions exige @Roles(ADMIN, RH) — esconder o botão a
+  // quem não pode criar (o backend continua a ser a autoridade).
+  const canManagePositions = isRoleAllowed(ADMIN_ROLES, role);
+
+  const closeCreate = () => setCreateOpen(false);
+  const changeView = (next: View) => {
+    setView(next);
+    setCreateOpen(false); // não arrastar o modal de criação entre separadores
+  };
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
@@ -31,17 +46,26 @@ export default function OrganizationPage() {
             + Departamento
           </Button>
         )}
+        {view === 'positions' && canManagePositions && (
+          <Button size="sm" onClick={() => setCreateOpen(true)}>
+            + Cargo
+          </Button>
+        )}
       </div>
 
-      {createOpen && (
+      {createOpen && view === 'departments' && (
         <CreateDepartmentModal
           endpoint="/organization/departments"
           invalidateKeys={[
             queryKeys.organization.all,
             queryKeys.departments.all,
           ]}
-          onClose={() => setCreateOpen(false)}
+          onClose={closeCreate}
         />
+      )}
+
+      {createOpen && view === 'positions' && (
+        <CreatePositionModal onClose={closeCreate} />
       )}
 
       <div className="mb-6 flex w-fit gap-1 rounded-card bg-surface-sunken p-1">
@@ -50,7 +74,7 @@ export default function OrganizationPage() {
             key={n.id}
             size="sm"
             intent={view === n.id ? 'primary' : 'ghost'}
-            onClick={() => setView(n.id)}
+            onClick={() => changeView(n.id)}
           >
             {n.label}
           </Button>
