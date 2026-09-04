@@ -1,13 +1,5 @@
 // components/lms/MyPathsView.tsx
 
-import {
-  Award,
-  BookOpen,
-  Clock,
-  Flame,
-  GraduationCap,
-  Video,
-} from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
 import { Card, CardBody } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';

@@ -8,7 +8,6 @@ import { TabPermissoes } from '@/components/settings/TabPermissoes';
 import { TabSeguranca } from '@/components/settings/TabSeguranca';
 import { Button } from '@/components/ui/Button';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/Tabs';
-import type { Tab } from '@/components/settings/types';
 
 export default function SettingsPage() {
   const toast = useToast();

@@ -12,7 +12,7 @@
 'use client';
 
 import { useState } from 'react';
-import { FileText, PartyPopper, Clapperboard } from 'lucide-react';
+import { Clapperboard } from 'lucide-react';
 import { useToast } from '@/providers/ToastProvider';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';

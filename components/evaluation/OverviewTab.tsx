@@ -11,14 +11,7 @@
 
 'use client';
 
-import {
-  AlertTriangle,
-  Activity,
-  CheckCircle,
-  ChevronRight,
-  Clock,
-  Star,
-} from 'lucide-react';
+import { AlertTriangle, ChevronRight } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';

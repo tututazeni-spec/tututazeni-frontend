@@ -3,7 +3,6 @@
 // componentes de apresentação do módulo. Extraído verbatim de
 // app/(platform)/live-classes/page.tsx.
 
-import type { CSSProperties } from 'react';
 import { formatDate } from '@/lib/format';
 import type { ClassStatus } from './types';
 

@@ -6,7 +6,6 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { Button, buttonVariants } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
-import { Award } from 'lucide-react';
 
 interface Certificate {
   id: string;

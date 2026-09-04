@@ -4,15 +4,6 @@
 
 'use client';
 
-import {
-  Briefcase,
-  Building2,
-  GitBranch,
-  Layers,
-  Network,
-  UserCog,
-  Users,
-} from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';

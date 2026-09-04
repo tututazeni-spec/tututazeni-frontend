@@ -4,18 +4,7 @@
 
 'use client';
 
-import {
-  BarChart3,
-  Calendar,
-  CheckCircle2,
-  Clock,
-  FileText,
-  Timer,
-  TrendingUp,
-  UserCheck,
-  UserX,
-  Zap,
-} from 'lucide-react';
+import { BarChart3, Calendar, Clock, FileText, Timer, TrendingUp, UserCheck, UserX, Zap } from 'lucide-react';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { Avatar } from '@/components/ui/Avatar';
 import { KpiCard } from '@/components/ui/KpiCard';

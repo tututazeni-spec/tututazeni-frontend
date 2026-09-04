@@ -6,7 +6,7 @@
 'use client';
 
 import { useState } from 'react';
-import { ClipboardList, Users } from 'lucide-react';
+import { Users } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';

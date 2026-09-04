@@ -5,7 +5,7 @@
 
 'use client';
 
-import { Bot, CheckCircle, Play, Star } from 'lucide-react';
+import { CheckCircle } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';

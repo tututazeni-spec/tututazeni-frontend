@@ -6,16 +6,6 @@
 // components/ui/ — fica local (não exportado), só troca cores cruas por
 // tokens da fundação de design.
 
-import {
-  Award,
-  BookOpen,
-  GraduationCap,
-  Handshake,
-  HeartHandshake,
-  Library,
-  Users,
-  Wallet,
-} from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
 import { KpiCard } from '@/components/ui/KpiCard';

@@ -4,17 +4,7 @@
 
 'use client';
 
-import {
-  AlertTriangle,
-  BookOpen,
-  Brain,
-  CheckCircle,
-  Clock,
-  MessageSquare,
-  Star,
-  Target,
-  Users,
-} from 'lucide-react';
+import { AlertTriangle, Brain } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';

@@ -6,7 +6,7 @@
 
 import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
-import { Download, Eye, Receipt } from 'lucide-react';
+import { Download, Eye } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { API_URL as API_BASE } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
