@@ -17,15 +17,14 @@ import { DashboardView } from '@/components/learning-paths/DashboardView';
 import { LPDetailView } from '@/components/learning-paths/LPDetailView';
 import { MyPathsView } from '@/components/learning-paths/MyPathsView';
 import type { Nav } from '@/components/learning-paths/types';
-import { useCurrentUser } from '@/hooks/useCurrentUser';
-import { ADMIN_ROLES, type Role } from '@/lib/roles';
+import { useCurrentRole } from '@/hooks/useCurrentRole';
+import { ADMIN_ROLES } from '@/lib/roles';
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/providers/ToastProvider';
 
 export default function LearningPathsPage() {
   const notify = useToast();
-  const { data: me } = useCurrentUser();
-  const role = me?.role?.name as Role | undefined;
+  const role = useCurrentRole();
   // Criar trilha bate em POST /learning-paths (@Roles ADMIN, RH) — só
   // mostrar o botão a quem o endpoint aceita. Enquanto a role não chegou
   // (arranque pós-login/reload) tratamos como não-admin.

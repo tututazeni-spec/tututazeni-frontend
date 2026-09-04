@@ -14,7 +14,7 @@
 
 import { useState } from 'react';
 import { Plus } from 'lucide-react';
-import { useCurrentUser } from '@/hooks/useCurrentUser';
+import { useCurrentRole } from '@/hooks/useCurrentRole';
 import type { Role } from '@/lib/roles';
 import { NAV, TITLES } from '@/components/events/constants';
 import { CatalogView } from '@/components/events/CatalogView';
@@ -29,8 +29,7 @@ import { Button } from '@/components/ui/Button';
 const CAN_CREATE_ROLES: readonly Role[] = ['ADMIN', 'RH', 'GESTOR'];
 
 export default function EventsPage() {
-  const { data: currentUser } = useCurrentUser();
-  const role = currentUser?.role?.name as Role | undefined;
+  const role = useCurrentRole();
   const canCreate = !!role && CAN_CREATE_ROLES.includes(role);
 
   const [nav, setNav] = useState<Nav>({ view: 'catalog' });

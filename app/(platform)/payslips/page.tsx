@@ -14,12 +14,11 @@ import { DetailView } from '@/components/payslips/DetailView';
 import { ListView } from '@/components/payslips/ListView';
 import { SimulateView } from '@/components/payslips/SimulateView';
 import type { Nav } from '@/components/payslips/types';
-import { useCurrentUser } from '@/hooks/useCurrentUser';
-import { ADMIN_ROLES, type Role } from '@/lib/roles';
+import { useCurrentRole } from '@/hooks/useCurrentRole';
+import { ADMIN_ROLES } from '@/lib/roles';
 
 export default function PayslipsPage() {
-  const { data: me } = useCurrentUser();
-  const role = me?.role?.name as Role | undefined;
+  const role = useCurrentRole();
   // Enquanto a role ainda não chegou (arranque pós-login/reload) tratamos
   // como não-admin — a aba adminOnly aparece assim que /auth/me resolve.
   const isAdmin = !!role && ADMIN_ROLES.includes(role);

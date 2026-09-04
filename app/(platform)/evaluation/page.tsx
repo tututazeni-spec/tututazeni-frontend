@@ -24,8 +24,8 @@ import { CyclesTab } from '@/components/evaluation/CyclesTab';
 import { OverviewTab } from '@/components/evaluation/OverviewTab';
 import { PendingTab } from '@/components/evaluation/PendingTab';
 import { ResultsTab } from '@/components/evaluation/ResultsTab';
-import { useCurrentUser } from '@/hooks/useCurrentUser';
-import { ADMIN_ROLES, type Role } from '@/lib/roles';
+import { useCurrentRole } from '@/hooks/useCurrentRole';
+import { ADMIN_ROLES } from '@/lib/roles';
 import { Button } from '@/components/ui/Button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
 
@@ -39,8 +39,7 @@ const TABS = [
 ] as const;
 
 export default function EvaluationsPage() {
-  const { data: me } = useCurrentUser();
-  const role = me?.role?.name as Role | undefined;
+  const role = useCurrentRole();
   // Enquanto a role ainda não chegou (arranque pós-login/reload) tratamos
   // como não-admin — o botão aparece assim que /auth/me resolve. Espelha o
   // @Roles(ADMIN, RH) de POST /evaluations/cycles.

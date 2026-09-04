@@ -10,15 +10,14 @@ import { CreateCourseModal } from '@/components/courses/CreateCourseModal';
 import { GestaoView } from '@/components/courses/GestaoView';
 import { MyEnrollmentsView } from '@/components/courses/MyEnrollmentsView';
 import type { Nav } from '@/components/courses/types';
-import { useCurrentUser } from '@/hooks/useCurrentUser';
-import { ADMIN_ROLES, type Role } from '@/lib/roles';
+import { useCurrentRole } from '@/hooks/useCurrentRole';
+import { ADMIN_ROLES } from '@/lib/roles';
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/providers/ToastProvider';
 
 export default function CoursesPage() {
   const notify = useToast();
-  const { data: me } = useCurrentUser();
-  const role = me?.role?.name as Role | undefined;
+  const role = useCurrentRole();
   // Enquanto a role ainda não chegou (arranque pós-login/reload) tratamos
   // como não-admin — as abas adminOnly aparecem assim que /auth/me resolve.
   const isAdmin = !!role && ADMIN_ROLES.includes(role);

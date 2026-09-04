@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { useCurrentUser } from '@/hooks/useCurrentUser';
-import { ADMIN_ROLES, isRoleAllowed, type Role } from '@/lib/roles';
+import { useCurrentRole } from '@/hooks/useCurrentRole';
+import { ADMIN_ROLES, isRoleAllowed } from '@/lib/roles';
 import { queryKeys } from '@/lib/queryKeys';
 import { NAV, TITLES } from '@/components/organization/constants';
 import { CreateDepartmentModal } from '@/components/departments/CreateDepartmentModal';
@@ -20,8 +20,7 @@ export default function OrganizationPage() {
   const [view, setView] = useState<View>('dashboard');
   const [createOpen, setCreateOpen] = useState(false);
 
-  const { data: currentUser } = useCurrentUser();
-  const role = currentUser?.role?.name as Role | undefined;
+  const role = useCurrentRole();
   // POST /organization/positions exige @Roles(ADMIN, RH) — esconder o botão a
   // quem não pode criar (o backend continua a ser a autoridade).
   const canManagePositions = isRoleAllowed(ADMIN_ROLES, role);

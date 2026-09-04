@@ -3,7 +3,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { logout } from '@/lib/apiClient';
-import { useCurrentUser } from '@/hooks/useCurrentUser';
+import { useCurrentRole } from '@/hooks/useCurrentRole';
 import { ADMIN_ROLES, filterNavSections, type Role } from '@/lib/roles';
 import {
   LayoutDashboard,
@@ -296,8 +296,7 @@ const NAV: Array<{ label: string; items: NavItem[] }> = [
 export default function Sidebar() {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
-  const { data: currentUser } = useCurrentUser();
-  const role = currentUser?.role?.name as Role | undefined;
+  const role = useCurrentRole();
 
   // Filtro por role centralizado em lib/roles.ts (fonte única, testada em
   // lib/roles.test.ts) — inclui a regra de "mostra tudo enquanto a role ainda

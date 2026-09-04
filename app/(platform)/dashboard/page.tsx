@@ -20,14 +20,13 @@ import {
   RefreshCw,
 } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
-import { useCurrentUser } from '@/hooks/useCurrentUser';
+import { useCurrentRole } from '@/hooks/useCurrentRole';
 import { queryKeys } from '@/lib/queryKeys';
 import {
   ADMIN_ROLES,
   AUTHENTICATED_ROLES,
   filterByRole,
   MGMT_ROLES,
-  type Role,
 } from '@/lib/roles';
 import { Button, IconButton } from '@/components/ui/Button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
@@ -61,8 +60,7 @@ const TABS = [
 export default function DashboardPage() {
   const [tab, setTab] = useState('personal');
   const [showSearch, setShowSearch] = useState(false);
-  const { data: currentUser } = useCurrentUser();
-  const role = (currentUser?.role?.name ?? 'COLABORADOR') as Role;
+  const role = useCurrentRole() ?? 'COLABORADOR';
 
   // Partilha a mesma key /dashboard/alerts dos sub-dashboards → 0 pedidos extra.
   const { data: alerts = [] } = useApiQuery<Alert[]>(

@@ -16,8 +16,8 @@
 // (leitura aberta a todos).
 
 import { useState } from 'react';
-import { useCurrentUser } from '@/hooks/useCurrentUser';
-import { ADMIN_ROLES, type Role } from '@/lib/roles';
+import { useCurrentRole } from '@/hooks/useCurrentRole';
+import { ADMIN_ROLES } from '@/lib/roles';
 import { useToast } from '@/providers/ToastProvider';
 import { NAV, TITLES } from '@/components/competencies/constants';
 import { CatalogView } from '@/components/competencies/CatalogView';
@@ -31,8 +31,7 @@ import { Button } from '@/components/ui/Button';
 
 export default function CompetenciesPage() {
   const notify = useToast();
-  const { data: currentUser } = useCurrentUser();
-  const role = currentUser?.role?.name as Role | undefined;
+  const role = useCurrentRole();
   const canManage = !!role && ADMIN_ROLES.includes(role);
   const canDelete = role === 'ADMIN';
 
