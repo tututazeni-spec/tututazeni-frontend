@@ -10,6 +10,7 @@
 
 'use client';
 
+import { useState } from 'react';
 import type {
   CompetencyScore,
   ContinuousFeedback,
@@ -19,13 +20,14 @@ import type {
   ParticipantResult,
   TabId,
 } from './types';
-import { typeColor, typeLabel } from './colors';
+import { cycleStatusText, typeColor, typeLabel } from './colors';
 import { RadarChart } from './RadarChart';
 import { CompetencyHeatmap } from './CompetencyHeatmap';
 import { NineBoxGrid } from './NineBoxGrid';
 import { OverviewTab } from './OverviewTab';
 import { FeedbackTab } from './FeedbackTab';
 import { EvaluationFormTab } from './EvaluationFormTab';
+import { CreateCycleModal } from './CreateCycleModal';
 import { Button } from '@/components/ui/Button';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/Tabs';
@@ -73,6 +75,10 @@ export function Evaluation360View({
   feedbacks,
   formQuestions,
 }: Evaluation360ViewProps) {
+  const [cycleModalOpen, setCycleModalOpen] = useState(false);
+  const [addedCycles, setAddedCycles] = useState<CycleInfo[]>([]);
+  const allCycles = [...addedCycles, ...cycles];
+
   const renderTab = () => {
     switch (activeTab) {
       case 'overview':
@@ -199,58 +205,72 @@ export function Evaluation360View({
                 <p className="m-0 mt-1 text-sm text-ink-muted">
                 </p>
               </div>
-              <Button intent="primary" size="sm">
+              <Button
+                intent="primary"
+                size="sm"
+                onClick={() => setCycleModalOpen(true)}
+              >
                 + Novo Ciclo
               </Button>
             </div>
-            {cycles.map((c) => (
-              <div
-                key={c.id}
-                className="rounded-lg border border-border bg-surface p-5"
-              >
-                <div className="flex justify-between items-center mb-3">
-                  <div>
-                    <div className="text-sm font-semibold text-ink">
-                      {c.name}
+            {allCycles.map((c) => {
+              const pct =
+                c.participantsCount > 0
+                  ? Math.round((c.completedCount / c.participantsCount) * 100)
+                  : 0;
+              return (
+                <div
+                  key={c.id}
+                  className="rounded-lg border border-border bg-surface p-5"
+                >
+                  <div className="flex justify-between items-center mb-3">
+                    <div>
+                      <div className="text-sm font-semibold text-ink">
+                        {c.name}
+                      </div>
+                      <div className="text-xs text-ink-muted mt-0.5">
+                        {c.model} · {c.startDate} → {c.endDate}
+                      </div>
                     </div>
-                    <div className="text-xs text-ink-muted mt-0.5">
-                      {c.model} · {c.startDate} → {c.endDate}
-                    </div>
+                    <span
+                      className="text-xs font-bold px-3 py-1 rounded-full"
+                      style={{
+                        background:
+                          c.status === 'COMPLETED'
+                            ? 'rgb(20, 83, 45)'
+                            : 'rgb(30, 27, 75)',
+                        color:
+                          c.status === 'COMPLETED'
+                            ? 'rgb(74, 222, 128)'
+                            : 'rgb(129, 140, 248)',
+                      }}
+                    >
+                      {cycleStatusText(c.status)}
+                    </span>
                   </div>
-                  <span
-                    className="text-xs font-bold px-3 py-1 rounded-full"
-                    style={{
-                      background:
-                        c.status === 'COMPLETED'
-                          ? 'rgb(20, 83, 45)'
-                          : 'rgb(30, 27, 75)',
-                      color:
-                        c.status === 'COMPLETED'
-                          ? 'rgb(74, 222, 128)'
-                          : 'rgb(129, 140, 248)',
-                    }}
-                  >
-                    {c.status}
-                  </span>
+                  <div className="bg-surface-sunken rounded h-1.5 mb-2 overflow-hidden">
+                    <div
+                      className="h-full rounded transition-all"
+                      style={{
+                        width: `${pct}%`,
+                        background:
+                          'linear-gradient(90deg, rgb(99, 102, 241), rgb(124, 58, 237))',
+                      }}
+                    />
+                  </div>
+                  <div className="text-xs text-ink-muted">
+                    {c.completedCount}/{c.participantsCount} participantes
+                    concluídos ({pct}%)
+                  </div>
                 </div>
-                <div className="bg-surface-sunken rounded h-1.5 mb-2 overflow-hidden">
-                  <div
-                    className="h-full rounded transition-all"
-                    style={{
-                      width: `${Math.round((c.completedCount / c.participantsCount) * 100)}%`,
-                      background:
-                        'linear-gradient(90deg, rgb(99, 102, 241), rgb(124, 58, 237))',
-                    }}
-                  />
-                </div>
-                <div className="text-xs text-ink-muted">
-                  {c.completedCount}/{c.participantsCount} participantes
-                  concluídos (
-                  {Math.round((c.completedCount / c.participantsCount) * 100)}
-                  %)
-                </div>
-              </div>
-            ))}
+              );
+            })}
+            {cycleModalOpen && (
+              <CreateCycleModal
+                onClose={() => setCycleModalOpen(false)}
+                onCreate={(c) => setAddedCycles((prev) => [c, ...prev])}
+              />
+            )}
           </div>
         );
       case 'form':
