@@ -6,7 +6,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Zap } from 'lucide-react';
+import { Zap, Medal } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -143,13 +143,27 @@ export function RecognitionTab() {
                 <span
                   className={`w-6 text-center text-sm font-bold ${RANK_COLOR[i] ?? 'text-ink-faint'}`}
                 >
-                  {i === 0
-                    ? '🥇'
-                    : i === 1
-                      ? '🥈'
-                      : i === 2
-                        ? '🥉'
-                        : `#${i + 1}`}
+                  {i === 0 ? (
+                    <Medal
+                      size={15}
+                      strokeWidth={1.75}
+                      className="inline text-warning"
+                    />
+                  ) : i === 1 ? (
+                    <Medal
+                      size={15}
+                      strokeWidth={1.75}
+                      className="inline text-ink-muted"
+                    />
+                  ) : i === 2 ? (
+                    <Medal
+                      size={15}
+                      strokeWidth={1.75}
+                      className="inline text-[#b45309]"
+                    />
+                  ) : (
+                    `#${i + 1}`
+                  )}
                 </span>
                 <Avatar
                   name={u.user?.fullName ?? 'User'}

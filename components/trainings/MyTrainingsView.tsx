@@ -7,7 +7,7 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import { CalendarClock } from 'lucide-react';
+import { CalendarClock, BookOpen } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -88,8 +88,10 @@ export function MyTrainingsView({ onSelect }: MyTrainingsViewProps) {
                     className="object-cover opacity-80"
                   />
                 ) : (
-                  <div className="flex h-full w-full items-center justify-center text-2xl">
-                    {TYPE_CFG[training.type as TrainingType]?.icon ?? '📚'}
+                  <div className="flex h-full w-full items-center justify-center text-ink-faint">
+                    {TYPE_CFG[training.type as TrainingType]?.icon ?? (
+                      <BookOpen size={22} strokeWidth={1.75} />
+                    )}
                   </div>
                 )}
               </div>

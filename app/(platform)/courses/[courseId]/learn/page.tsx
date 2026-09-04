@@ -12,7 +12,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, PanelLeft } from 'lucide-react';
+import { ArrowLeft, PanelLeft, BookOpen } from 'lucide-react';
 import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
 import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
@@ -287,7 +287,11 @@ export default function CourseLearnPage() {
             ) : (
               <div className="flex-1 bg-ink flex items-center justify-center text-canvas text-center">
                 <div>
-                  <div className="text-5xl mb-4">📚</div>
+                  <BookOpen
+                    size={48}
+                    strokeWidth={1.5}
+                    className="mx-auto mb-4"
+                  />
                   <div className="font-display text-lg font-medium mb-2">
                     Selecciona uma aula para começar
                   </div>
