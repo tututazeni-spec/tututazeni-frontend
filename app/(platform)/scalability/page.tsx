@@ -207,11 +207,10 @@ const MOCK_AUTOMATIONS: AutomationRule[] = [
 export default function ScalabilityPage() {
   const [activeTab, setActiveTab] = useState('overview');
   const [dashboard, setDashboard] = useState<DashboardData>(MOCK_DASHBOARD);
-  const [alerts, setAlerts] = useState<Alert[]>(MOCK_ALERTS);
-  const [integrations, setIntegrations] =
-    useState<Integration[]>(MOCK_INTEGRATIONS);
-  const [automations, setAutomations] =
-    useState<AutomationRule[]>(MOCK_AUTOMATIONS);
+  // Dados mock estáticos — não há interacção que os altere (ver nota no topo).
+  const alerts: Alert[] = MOCK_ALERTS;
+  const integrations: Integration[] = MOCK_INTEGRATIONS;
+  const automations: AutomationRule[] = MOCK_AUTOMATIONS;
   const [lastRefresh, setLastRefresh] = useState(new Date());
 
   const refresh = useCallback(() => {
