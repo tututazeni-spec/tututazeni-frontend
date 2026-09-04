@@ -11,7 +11,7 @@
 
 'use client';
 
-import { AlertTriangle, CheckCircle, Target, Users } from 'lucide-react';
+import { CheckCircle } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';

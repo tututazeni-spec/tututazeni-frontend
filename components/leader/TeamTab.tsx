@@ -5,7 +5,7 @@
 'use client';
 
 import { useState } from 'react';
-import { MessageSquare, Search, Users } from 'lucide-react';
+import { MessageSquare, Search } from 'lucide-react';
 import { keepPreviousData } from '@tanstack/react-query';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { useDebounce } from '@/hooks/useDebounce';

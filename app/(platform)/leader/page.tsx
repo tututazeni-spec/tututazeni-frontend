@@ -6,7 +6,7 @@
 // components/leader/ — mesmo padrão de app/(platform)/engagement/page.tsx
 // (piloto da fundação de design).
 
-import { RefreshCw, Users } from 'lucide-react';
+import { RefreshCw } from 'lucide-react';
 import { DashboardTab } from '@/components/leader/DashboardTab';
 import { PerformanceTab } from '@/components/leader/PerformanceTab';
 import { PlansTab } from '@/components/leader/PlansTab';

@@ -5,7 +5,7 @@
 
 'use client';
 
-import { ArrowUpRight, BookOpen, ChevronRight, Target } from 'lucide-react';
+import { ArrowUpRight, BookOpen, ChevronRight } from 'lucide-react';
 import { Card, CardBody } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ProgressBar } from '@/components/ui/ProgressBar';

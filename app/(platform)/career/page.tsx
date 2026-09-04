@@ -8,7 +8,6 @@
 // project_innova_component_separation_audit.
 
 import { useState } from 'react';
-import { Compass } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { NAV, TITLES } from '@/components/career/constants';
 import { DashboardView } from '@/components/career/DashboardView';

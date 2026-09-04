@@ -6,7 +6,7 @@
 'use client';
 
 import { useState } from 'react';
-import { BookOpen, Target, TrendingUp, Brain } from 'lucide-react';
+import { Brain } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';

@@ -10,7 +10,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Activity, ChevronRight, Clock, UserCheck } from 'lucide-react';
+import { Activity, ChevronRight, Clock } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';

@@ -7,13 +7,7 @@
 'use client';
 
 import { useState } from 'react';
-import {
-  AlertOctagon,
-  AlertTriangle,
-  Clock,
-  CheckCircle2,
-  Circle,
-} from 'lucide-react';
+import { AlertTriangle, CheckCircle2, Circle } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';

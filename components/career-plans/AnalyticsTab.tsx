@@ -4,7 +4,6 @@
 
 'use client';
 
-import { CheckCircle2, Clock, Target, TrendingUp } from 'lucide-react';
 import { KpiCard } from '@/components/ui/KpiCard';
 import type { CareerPlansAnalytics } from './types';
 

@@ -9,7 +9,6 @@
 
 'use client';
 
-import { AlertTriangle, Star, Users, Zap } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';

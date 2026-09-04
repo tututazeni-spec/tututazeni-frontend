@@ -1,6 +1,6 @@
 // components/lms/LiveSessionsView.tsx
 
-import { Video, Link2 } from 'lucide-react';
+import { Link2 } from 'lucide-react';
 import { formatDateTime } from '@/lib/format';
 import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';

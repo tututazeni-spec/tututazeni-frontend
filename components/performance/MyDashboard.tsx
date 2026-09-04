@@ -7,13 +7,7 @@
 
 import { useState } from 'react';
 import { useToast } from '@/providers/ToastProvider';
-import {
-  AlertTriangle,
-  ClipboardCheck,
-  MessageSquare,
-  Target,
-  TrendingUp,
-} from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';

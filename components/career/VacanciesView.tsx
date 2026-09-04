@@ -5,7 +5,6 @@
 'use client';
 
 import { useState } from 'react';
-import { Search } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';

@@ -5,7 +5,7 @@
 'use client';
 
 import { useState } from 'react';
-import { AlertCircle, Loader2, X } from 'lucide-react';
+import { AlertCircle, X } from 'lucide-react';
 import { Button, IconButton } from '@/components/ui/Button';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { useFormValidation } from '@/hooks/useFormValidation';

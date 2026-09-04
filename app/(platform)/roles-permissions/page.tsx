@@ -1,7 +1,6 @@
 'use client';
 // src/app/(dashboard)/roles-permissions/page.tsx
 
-import { Shield } from 'lucide-react';
 import { TABS } from '@/components/roles-permissions/constants';
 import { GovernanceTab } from '@/components/roles-permissions/GovernanceTab';
 import { MatrixTab } from '@/components/roles-permissions/MatrixTab';
