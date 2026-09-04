@@ -81,15 +81,3 @@ export interface CourseDetail {
 }
 
 export type PageMode = 'learn' | 'build';
-
-// ─── Tipo do conteúdo da lição usado no exemplo de integração do avatar ──
-// (ver CourseAvatarReaderExample.tsx)
-
-export interface Lesson {
-  id: number;
-  title: string;
-  contentType: 'TEXT' | 'VIDEO' | 'PDF' | 'AUDIO' | 'SLIDE' | 'LINK';
-  textContent: string | null;
-  contentUrl: string | null;
-  durationMinutes: number | null;
-}
