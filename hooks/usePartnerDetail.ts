@@ -4,15 +4,12 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
+import { useResourceDelete } from '@/hooks/useResourceDelete';
 import { useToast } from '@/providers/ToastProvider';
-import { useConfirm } from '@/providers/ConfirmProvider';
-import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { ADMIN_ROLES, type Role } from '@/lib/roles';
 import type {
   PartnerDetail,
   InteractionForm,
@@ -28,9 +25,6 @@ const EMPTY_FORM: InteractionForm = {
 
 export function usePartnerDetail(id: string) {
   const notify = useToast();
-  const router = useRouter();
-  const confirm = useConfirm();
-  const { data: me } = useCurrentUser();
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState<InteractionForm>(EMPTY_FORM);
 
@@ -87,34 +81,17 @@ export function usePartnerDetail(id: string) {
   }
 
   // Eliminar parceiro — só ADMIN/RH (espelha @Roles(ADMIN, RH) do
-  // DELETE /crm/partners/:id, que faz soft delete). O backend é a
-  // barreira real; esconder o botão é só defesa em profundidade.
-  const role = me?.role?.name as Role | undefined;
-  const canDelete = !!role && ADMIN_ROLES.includes(role);
-
-  const deleteMut = useApiMutation(
-    () => apiClient.delete(`/crm/partners/${id}`),
-    {
-      invalidateKeys: [queryKeys.partners.all],
-      onSuccess: () => {
-        notify({ title: 'Parceiro eliminado.', intent: 'success' });
-        router.push('/crm/partners');
-      },
-      onError: (e) =>
-        notify({ title: e.message || 'Erro ao eliminar', intent: 'danger' }),
-    },
-  );
-
-  async function onDelete() {
-    const ok = await confirm({
-      title: `Eliminar "${partner?.name ?? 'parceiro'}"?`,
-      message:
-        'O parceiro deixa de aparecer nas listagens. Esta acção não pode ser desfeita pela interface.',
-      confirmLabel: 'Eliminar',
-      destructive: true,
-    });
-    if (ok) deleteMut.mutate(undefined);
-  }
+  // DELETE /crm/partners/:id, que faz soft delete). Ver useResourceDelete.
+  const { canDelete, onDelete, isDeleting } = useResourceDelete({
+    basePath: '/crm/partners',
+    id,
+    invalidateKey: queryKeys.partners.all,
+    confirmTitle: `Eliminar "${partner?.name ?? 'parceiro'}"?`,
+    confirmMessage:
+      'O parceiro deixa de aparecer nas listagens. Esta acção não pode ser desfeita pela interface.',
+    successMessage: 'Parceiro eliminado.',
+    redirectTo: '/crm/partners',
+  });
 
   return {
     partner,
@@ -129,6 +106,6 @@ export function usePartnerDetail(id: string) {
     saving,
     canDelete,
     onDelete,
-    isDeleting: deleteMut.isPending,
+    isDeleting,
   };
 }

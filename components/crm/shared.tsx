@@ -25,6 +25,31 @@ export function formatMoney(value: number, currency = 'AOA'): string {
   return `${currency} ${(value || 0).toLocaleString('pt-AO')}`;
 }
 
+// ─── Tipos partilhados pelos 3 sub-módulos ──────────────────────────────────
+// `Interaction` e `InteractionForm` estavam declarados de forma idêntica em
+// partners/types.ts e beneficiaries/types.ts (beneficiaries só acrescenta o
+// marcador local `_optimistic`). funders tem uma variante mais estreita — sem
+// `satisfaction` — e mantém a sua própria declaração.
+
+export interface CrmInteraction {
+  id: string;
+  type: string;
+  subject: string;
+  description: string;
+  date: string;
+  outcome: string | null;
+  satisfaction: number | null;
+  user?: { fullName: string } | null;
+}
+
+export interface CrmInteractionForm {
+  type: string;
+  subject: string;
+  description: string;
+  outcome: string;
+  satisfaction: string;
+}
+
 interface InfoProps {
   label: string;
   value: string | null | undefined;
