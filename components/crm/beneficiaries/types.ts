@@ -1,5 +1,7 @@
 // components/crm/beneficiaries/types.ts
 
+import type { CrmInteraction, CrmInteractionForm } from '../shared';
+
 export interface Beneficiary {
   id: string;
   code: string;
@@ -20,15 +22,8 @@ export interface BeneficiaryList {
   totalPages: number;
 }
 
-export interface Interaction {
-  id: string;
-  type: string;
-  subject: string;
-  description: string;
-  date: string;
-  outcome: string | null;
-  satisfaction: number | null;
-  user?: { fullName: string } | null;
+// Base partilhada com partners — ver components/crm/shared.tsx.
+export interface Interaction extends CrmInteraction {
   /** Marcador local enquanto a API não confirma (optimistic UI). */
   _optimistic?: boolean;
 }
@@ -75,13 +70,8 @@ export interface BeneficiaryDetail {
   needs: Need[];
 }
 
-export interface InteractionForm {
-  type: string;
-  subject: string;
-  description: string;
-  outcome: string;
-  satisfaction: string;
-}
+// Partilhado com partners — ver components/crm/shared.tsx.
+export type InteractionForm = CrmInteractionForm;
 
 export const EMPTY_INTERACTION_FORM: InteractionForm = {
   type: 'CALL',
@@ -106,26 +96,6 @@ export const PRIORITY_COLORS: Record<string, string> = {
   URGENT: 'bg-danger-subtle text-danger-ink',
 };
 
-export const PROVINCES = [
-  'BENGO',
-  'BENGUELA',
-  'BIE',
-  'CABINDA',
-  'CUANDO',
-  'CUANZA_NORTE',
-  'CUANZA_SUL',
-  'CUBANGO',
-  'CUNENE',
-  'HUAMBO',
-  'HUILA',
-  'ICOLO_E_BENGO',
-  'LUANDA',
-  'LUNDA_NORTE',
-  'LUNDA_SUL',
-  'MALANJE',
-  'MOXICO',
-  'MOXICO_LESTE',
-  'NAMIBE',
-  'UIGE',
-  'ZAIRE',
-];
+// Lista partilhada — ver lib/provinces.ts (antes duplicada aqui e em
+// components/crm/partners/types.ts).
+export { ANGOLA_PROVINCES as PROVINCES } from '@/lib/provinces';

@@ -5,15 +5,12 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
+import { useResourceDelete } from '@/hooks/useResourceDelete';
 import { useToast } from '@/providers/ToastProvider';
-import { useConfirm } from '@/providers/ConfirmProvider';
-import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { ADMIN_ROLES, type Role } from '@/lib/roles';
 import type {
   FunderDetail,
   GrantForm,
@@ -36,9 +33,6 @@ const EMPTY_INTERACTION_FORM: InteractionForm = {
 
 export function useFunderDetail(id: string) {
   const notify = useToast();
-  const router = useRouter();
-  const confirm = useConfirm();
-  const { data: me } = useCurrentUser();
   const [showGrantForm, setShowGrantForm] = useState(false);
   const [grantForm, setGrantForm] = useState<GrantForm>(EMPTY_GRANT_FORM);
 
@@ -134,34 +128,17 @@ export function useFunderDetail(id: string) {
   }
 
   // Eliminar financiador — só ADMIN/RH (espelha @Roles(ADMIN, RH) do
-  // DELETE /crm/funders/:id, que faz soft delete). O backend é a
-  // barreira real; esconder o botão é só defesa em profundidade.
-  const role = me?.role?.name as Role | undefined;
-  const canDelete = !!role && ADMIN_ROLES.includes(role);
-
-  const deleteMut = useApiMutation(
-    () => apiClient.delete(`/crm/funders/${id}`),
-    {
-      invalidateKeys: [queryKeys.funders.all],
-      onSuccess: () => {
-        notify({ title: 'Financiador eliminado.', intent: 'success' });
-        router.push('/crm/funders');
-      },
-      onError: (e) =>
-        notify({ title: e.message || 'Erro ao eliminar', intent: 'danger' }),
-    },
-  );
-
-  async function onDelete() {
-    const ok = await confirm({
-      title: `Eliminar "${funder?.name ?? 'financiador'}"?`,
-      message:
-        'O financiador deixa de aparecer nas listagens. Esta acção não pode ser desfeita pela interface.',
-      confirmLabel: 'Eliminar',
-      destructive: true,
-    });
-    if (ok) deleteMut.mutate(undefined);
-  }
+  // DELETE /crm/funders/:id, que faz soft delete). Ver useResourceDelete.
+  const { canDelete, onDelete, isDeleting } = useResourceDelete({
+    basePath: '/crm/funders',
+    id,
+    invalidateKey: queryKeys.funders.all,
+    confirmTitle: `Eliminar "${funder?.name ?? 'financiador'}"?`,
+    confirmMessage:
+      'O financiador deixa de aparecer nas listagens. Esta acção não pode ser desfeita pela interface.',
+    successMessage: 'Financiador eliminado.',
+    redirectTo: '/crm/funders',
+  });
 
   return {
     funder,
@@ -181,6 +158,6 @@ export function useFunderDetail(id: string) {
     saving,
     canDelete,
     onDelete,
-    isDeleting: deleteMut.isPending,
+    isDeleting,
   };
 }

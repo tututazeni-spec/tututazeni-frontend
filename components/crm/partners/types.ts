@@ -1,5 +1,7 @@
 // components/crm/partners/types.ts
 
+import type { CrmInteraction, CrmInteractionForm } from '../shared';
+
 export interface Partner {
   id: string;
   code: string;
@@ -12,16 +14,8 @@ export interface Partner {
   _count: { interactions: number; milestones: number };
 }
 
-export interface Interaction {
-  id: string;
-  type: string;
-  subject: string;
-  description: string;
-  date: string;
-  outcome: string | null;
-  satisfaction: number | null;
-  user?: { fullName: string } | null;
-}
+// Partilhado com beneficiaries — ver components/crm/shared.tsx.
+export type Interaction = CrmInteraction;
 
 export interface Milestone {
   id: string;
@@ -91,29 +85,9 @@ export const MILESTONE_COLORS: Record<string, string> = {
   OVERDUE: 'bg-warning-subtle text-warning-ink',
 };
 
-export const PROVINCES = [
-  'BENGO',
-  'BENGUELA',
-  'BIE',
-  'CABINDA',
-  'CUANDO',
-  'CUANZA_NORTE',
-  'CUANZA_SUL',
-  'CUBANGO',
-  'CUNENE',
-  'HUAMBO',
-  'HUILA',
-  'ICOLO_E_BENGO',
-  'LUANDA',
-  'LUNDA_NORTE',
-  'LUNDA_SUL',
-  'MALANJE',
-  'MOXICO',
-  'MOXICO_LESTE',
-  'NAMIBE',
-  'UIGE',
-  'ZAIRE',
-];
+// Lista partilhada — ver lib/provinces.ts (antes duplicada aqui e em
+// components/crm/beneficiaries/types.ts).
+export { ANGOLA_PROVINCES as PROVINCES } from '@/lib/provinces';
 
 export const TYPE_LABELS: Record<string, string> = {
   TECHNOLOGY: 'Tecnologia',
@@ -127,10 +101,5 @@ export const TYPE_LABELS: Record<string, string> = {
   OTHER: 'Outro',
 };
 
-export interface InteractionForm {
-  type: string;
-  subject: string;
-  description: string;
-  outcome: string;
-  satisfaction: string;
-}
+// Partilhado com beneficiaries — ver components/crm/shared.tsx.
+export type InteractionForm = CrmInteractionForm;
