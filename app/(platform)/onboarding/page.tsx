@@ -14,7 +14,7 @@
 // "+ Novo template" e "+ Atribuir plano" são mais restritos (ADMIN/RH).
 
 import { useState } from 'react';
-import { useCurrentUser } from '@/hooks/useCurrentUser';
+import { useCurrentRole } from '@/hooks/useCurrentRole';
 import { ADMIN_ROLES, type Role } from '@/lib/roles';
 import { NAV, TITLES } from '@/components/onboarding/constants';
 import { AssignPlanModal } from '@/components/onboarding/AssignPlanModal';
@@ -35,8 +35,7 @@ export default function OnboardingPage() {
   const [showCreate, setShowCreate] = useState(false);
   const [showAssign, setShowAssign] = useState(false);
 
-  const { data: currentUser } = useCurrentUser();
-  const role = currentUser?.role?.name as Role | undefined;
+  const role = useCurrentRole();
   // POST /onboarding/templates, gestão de tarefas do template, POST
   // /onboarding e DELETE /onboarding/:id são @Roles(ADMIN, RH).
   const canManage = !!role && ADMIN_ROLES.includes(role);

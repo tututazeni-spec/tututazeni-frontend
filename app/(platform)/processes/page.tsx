@@ -12,8 +12,8 @@
 import { useState } from 'react';
 import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
-import { useCurrentUser } from '@/hooks/useCurrentUser';
-import { ADMIN_ROLES, type Role } from '@/lib/roles';
+import { useCurrentRole } from '@/hooks/useCurrentRole';
+import { ADMIN_ROLES } from '@/lib/roles';
 import { CreateProcessModal } from '@/components/processes/CreateProcessModal';
 import { DashboardView } from '@/components/processes/DashboardView';
 import { LibraryView } from '@/components/processes/LibraryView';
@@ -37,8 +37,7 @@ const NAV: Array<{ id: TabKey; label: string }> = [
 ];
 
 export default function ProcessStandardPage() {
-  const { data: currentUser } = useCurrentUser();
-  const role = currentUser?.role?.name as Role | undefined;
+  const role = useCurrentRole();
   const canCreate = !!role && ADMIN_ROLES.includes(role);
 
   const [nav, setNav] = useState<Nav>({ view: 'library' });

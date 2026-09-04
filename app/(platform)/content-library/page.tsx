@@ -24,7 +24,7 @@ import { HomeTab } from '@/components/content-library/HomeTab';
 import { MyProgressTab } from '@/components/content-library/MyProgressTab';
 import { PathsTab } from '@/components/content-library/PathsTab';
 import type { Tab } from '@/components/content-library/types';
-import { useCurrentUser } from '@/hooks/useCurrentUser';
+import { useCurrentRole } from '@/hooks/useCurrentRole';
 import { Button } from '@/components/ui/Button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
 import type { Role } from '@/lib/roles';
@@ -43,8 +43,7 @@ const TABS: { id: Tab; label: string; icon: LucideIcon }[] = [
 ];
 
 export default function ContentLibraryPage() {
-  const { data: currentUser } = useCurrentUser();
-  const role = currentUser?.role?.name as Role | undefined;
+  const role = useCurrentRole();
   const canAddContent = !!role && AUTHOR_ROLES.includes(role);
   const [showAdd, setShowAdd] = useState(false);
 

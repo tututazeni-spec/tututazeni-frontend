@@ -10,12 +10,12 @@ import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
-import { useCurrentUser } from '@/hooks/useCurrentUser';
+import { useCurrentRole } from '@/hooks/useCurrentRole';
 import { apiClient } from '@/lib/apiClient';
 import { reportError } from '@/lib/errorReporting';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { ADMIN_ROLES, type Role } from '@/lib/roles';
+import { ADMIN_ROLES } from '@/lib/roles';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { CreateLiveClassModal } from '@/components/live-classes/CreateLiveClassModal';
 import { LiveClassesView } from '@/components/live-classes/LiveClassesView';
@@ -35,8 +35,7 @@ const INITIAL_FILTERS: Filters = { page: 1, courseId: '' };
 
 export default function LivePage() {
   const router = useRouter();
-  const { data: currentUser } = useCurrentUser();
-  const role = currentUser?.role?.name as Role | undefined;
+  const role = useCurrentRole();
   const canCreate = !!role && ADMIN_ROLES.includes(role);
 
   const [tab, setTab] = useState<MainTab>('live');
