@@ -3,6 +3,18 @@ import { render, screen } from '@testing-library/react';
 import { ContentPlayer } from './ContentPlayer';
 import type { LessonProgress } from './types';
 
+// LessonAudioBar (só usado no ramo TEXT) chama useLessonAudio → fetch.
+vi.mock('@/hooks/useLessonAudio', () => ({
+  useLessonAudio: () => ({
+    state: 'idle',
+    progress: 0,
+    error: '',
+    play: vi.fn(),
+    pause: vi.fn(),
+    stop: vi.fn(),
+  }),
+}));
+
 const baseLesson: LessonProgress = {
   id: 1,
   title: 'Manual em PDF',
@@ -102,5 +114,35 @@ describe('ContentPlayer — lição PPTX', () => {
     expect(
       screen.getByText(/ainda não tem ficheiro pptx/i),
     ).toBeInTheDocument();
+  });
+});
+
+describe('ContentPlayer — controlo "Ouvir aula"', () => {
+  test('lição TEXT mostra o botão "Ouvir aula"', () => {
+    render(
+      <ContentPlayer
+        lesson={{ ...baseLesson, type: 'TEXT', title: 'Introdução' }}
+        onComplete={noop}
+        completing={false}
+        currentModule={null}
+      />,
+    );
+    expect(
+      screen.getByRole('button', { name: /ouvir aula/i }),
+    ).toBeInTheDocument();
+  });
+
+  test('lição não-TEXT não mostra o botão "Ouvir aula"', () => {
+    render(
+      <ContentPlayer
+        lesson={{ ...baseLesson, type: 'VIDEO', title: 'Aula em vídeo' }}
+        onComplete={noop}
+        completing={false}
+        currentModule={null}
+      />,
+    );
+    expect(
+      screen.queryByRole('button', { name: /ouvir aula/i }),
+    ).not.toBeInTheDocument();
   });
 });

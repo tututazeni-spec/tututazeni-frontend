@@ -7,6 +7,7 @@
 import { useEffect, useState } from 'react';
 import { Check, Play, FileText, BarChart3 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
+import { LessonAudioBar } from './LessonAudioBar';
 import { lessonIcon, fmtDuration } from './utils';
 import type { LessonProgress, ModuleProgress } from './types';
 
@@ -140,6 +141,7 @@ export function ContentPlayer({
             <p className="font-body text-canvas/80 leading-relaxed">
               Conteúdo de texto da aula aqui…
             </p>
+            <LessonAudioBar lessonId={lesson.id} />
           </div>
         ) : (
           <div className="text-canvas text-center">
