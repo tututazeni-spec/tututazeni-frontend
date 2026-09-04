@@ -1,5 +1,20 @@
 // components/library/types.ts
 
+import {
+  FileText,
+  BookOpen,
+  Clapperboard,
+  Music,
+  BarChart3,
+  TrendingUp,
+  PenLine,
+  Image as ImageIcon,
+  Link2,
+  GraduationCap,
+  Package,
+  type LucideIcon,
+} from 'lucide-react';
+
 export interface Item {
   id: string;
   code: string;
@@ -53,18 +68,18 @@ export interface ItemDetail {
   _count: { comments: number; ratings: number };
 }
 
-export const TYPE_ICONS: Record<string, string> = {
-  PDF: '📄',
-  EBOOK: '📚',
-  VIDEO: '🎬',
-  AUDIO: '🎵',
-  PRESENTATION: '📊',
-  SPREADSHEET: '📈',
-  DOCUMENT: '📝',
-  IMAGE: '🖼️',
-  LINK: '🔗',
-  SCORM: '🎓',
-  OTHER: '📦',
+export const TYPE_ICONS: Record<string, LucideIcon> = {
+  PDF: FileText,
+  EBOOK: BookOpen,
+  VIDEO: Clapperboard,
+  AUDIO: Music,
+  PRESENTATION: BarChart3,
+  SPREADSHEET: TrendingUp,
+  DOCUMENT: PenLine,
+  IMAGE: ImageIcon,
+  LINK: Link2,
+  SCORM: GraduationCap,
+  OTHER: Package,
 };
 
 export const TYPE_LABELS: Record<string, string> = {

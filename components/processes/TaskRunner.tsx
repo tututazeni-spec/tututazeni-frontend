@@ -165,7 +165,7 @@ export function TaskRunner({ instanceId, onBack }: TaskRunnerProps) {
               className={`rounded-control px-3 py-1 font-body text-xs font-medium ${isOverdue(instance.slaDeadline) ? 'bg-danger-subtle text-danger-ink' : 'bg-warning-subtle text-warning-ink'}`}
             >
               {isOverdue(instance.slaDeadline)
-                ? '⚠ SLA expirado'
+                ? 'SLA expirado'
                 : `SLA: ${fmtDate(instance.slaDeadline)}`}
             </div>
           )}
@@ -237,7 +237,7 @@ export function TaskRunner({ instanceId, onBack }: TaskRunnerProps) {
                     sp.status === 'PENDING' &&
                     isOverdue(sp.slaDeadline) && (
                       <div className="font-body text-xs text-danger">
-                        ⚠ SLA expirado
+                        SLA expirado
                       </div>
                     )}
                 </div>

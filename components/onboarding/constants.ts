@@ -9,6 +9,21 @@
 // categorias de domínio para os 6 tokens semânticos + neutral, por isso
 // cada uma recebe um token distinto (sem reaproveitamento).
 
+import {
+  Circle,
+  Play,
+  Check,
+  Lock,
+  CornerDownRight,
+  FileText,
+  Laptop,
+  GraduationCap,
+  Users,
+  Gift,
+  ClipboardList,
+  Calendar,
+  type LucideIcon,
+} from 'lucide-react';
 import type { StatusBadgeMap } from '@/lib/statusBadge';
 import type {
   OnboardingStatus,
@@ -45,26 +60,26 @@ export const STATUS_CFG: StatusBadgeMap<OnboardingStatus> = {
 
 export const TASK_STATUS_CFG: Record<
   TaskStatus,
-  { icon: string; cls: string }
+  { icon: LucideIcon; cls: string }
 > = {
-  PENDING: { icon: '○', cls: 'text-ink-faint' },
-  IN_PROGRESS: { icon: '▶', cls: 'text-info' },
-  COMPLETED: { icon: '✓', cls: 'text-success' },
-  BLOCKED: { icon: '🔒', cls: 'text-ink-faint' },
-  SKIPPED: { icon: '⤷', cls: 'text-ink-faint' },
+  PENDING: { icon: Circle, cls: 'text-ink-faint' },
+  IN_PROGRESS: { icon: Play, cls: 'text-info' },
+  COMPLETED: { icon: Check, cls: 'text-success' },
+  BLOCKED: { icon: Lock, cls: 'text-ink-faint' },
+  SKIPPED: { icon: CornerDownRight, cls: 'text-ink-faint' },
 };
 
 export const CATEGORY_CFG: Record<
   TaskCategory,
-  { label: string; icon: string; cls: string }
+  { label: string; icon: LucideIcon; cls: string }
 > = {
-  DOCUMENTS: { label: 'Documentos', icon: '📄', cls: cls(TOKEN.warning) },
-  IT_ACCESS: { label: 'TI & Acesso', icon: '💻', cls: cls(TOKEN.info) },
-  TRAINING: { label: 'Formação', icon: '🎓', cls: cls(TOKEN.accent) },
-  SOCIAL: { label: 'Social', icon: '👥', cls: cls(TOKEN.success) },
-  BENEFITS: { label: 'Benefícios', icon: '🎁', cls: cls(TOKEN.primary) },
-  ADMIN: { label: 'Admin', icon: '📋', cls: cls(TOKEN.neutral) },
-  MEETING: { label: 'Reunião', icon: '📅', cls: cls(TOKEN.danger) },
+  DOCUMENTS: { label: 'Documentos', icon: FileText, cls: cls(TOKEN.warning) },
+  IT_ACCESS: { label: 'TI & Acesso', icon: Laptop, cls: cls(TOKEN.info) },
+  TRAINING: { label: 'Formação', icon: GraduationCap, cls: cls(TOKEN.accent) },
+  SOCIAL: { label: 'Social', icon: Users, cls: cls(TOKEN.success) },
+  BENEFITS: { label: 'Benefícios', icon: Gift, cls: cls(TOKEN.primary) },
+  ADMIN: { label: 'Admin', icon: ClipboardList, cls: cls(TOKEN.neutral) },
+  MEETING: { label: 'Reunião', icon: Calendar, cls: cls(TOKEN.danger) },
 };
 
 // Rótulos PT-PT dos enums Prisma. value = enum, validado por @IsEnum no

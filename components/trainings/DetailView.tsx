@@ -13,7 +13,15 @@
 import { useState } from 'react';
 import { useToast } from '@/providers/ToastProvider';
 import Image from 'next/image';
-import { ArrowLeft, Clock, Globe, Star, Trophy, Users } from 'lucide-react';
+import {
+  ArrowLeft,
+  Clock,
+  Globe,
+  Star,
+  Trophy,
+  Users,
+  MapPin,
+} from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -249,8 +257,16 @@ export function DetailView({ trainingId, onBack }: DetailViewProps) {
                       {TYPE_CFG[session.modality as TrainingType]?.icon}{' '}
                       {TYPE_CFG[session.modality as TrainingType]?.label}
                     </span>
-                    <span>⏱ {session.durationMinutes}min</span>
-                    {session.location && <span>📍 {session.location}</span>}
+                    <span className="inline-flex items-center gap-1">
+                      <Clock size={12} strokeWidth={1.75} />{' '}
+                      {session.durationMinutes}min
+                    </span>
+                    {session.location && (
+                      <span className="inline-flex items-center gap-1">
+                        <MapPin size={12} strokeWidth={1.75} />{' '}
+                        {session.location}
+                      </span>
+                    )}
                     {session.meetingUrl && (
                       <a
                         href={session.meetingUrl}
@@ -259,7 +275,7 @@ export function DetailView({ trainingId, onBack }: DetailViewProps) {
                         className="text-primary hover:underline"
                         onClick={(e) => e.stopPropagation()}
                       >
-                         Link
+                        Link
                       </a>
                     )}
                   </div>

@@ -5,6 +5,7 @@
 
 'use client';
 
+import { AlertTriangle } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -91,7 +92,11 @@ export function DashboardView({ onSelect }: DashboardViewProps) {
       {/* Depts without head warning */}
       {rows.filter((r) => r.active && r.headName === '—').length > 0 && (
         <div className="rounded-card border border-black bg-white px-4 py-3 text-sm text-black">
-          ⚠{' '}
+          <AlertTriangle
+            size={12}
+            strokeWidth={1.75}
+            className="inline align-[-2px]"
+          />{' '}
           <strong>
             {rows.filter((r) => r.active && r.headName === '—').length}
           </strong>{' '}

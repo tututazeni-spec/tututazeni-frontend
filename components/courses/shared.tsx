@@ -10,7 +10,18 @@
 // padrão), EnrollBadge passa a compor StatusBadge da fundação, skeleton
 // local passa a usar as classes de token do Skeleton partilhado.
 
-import { AlertTriangle } from 'lucide-react';
+import {
+  AlertTriangle,
+  Play,
+  FileText,
+  PenLine,
+  Music,
+  BarChart3,
+  Link2,
+  Package,
+  HelpCircle,
+  type LucideIcon,
+} from 'lucide-react';
 import type { StatusBadgeMap } from '@/lib/statusBadge';
 import { Skeleton as SharedSkeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
@@ -36,7 +47,10 @@ export function isOverdue(deadline: string | null): boolean {
 
 export const COURSE_LEVEL_MAP: StatusBadgeMap<CourseLevel> = {
   BEGINNER: { label: 'Iniciante', cls: 'bg-success-subtle text-success-ink' },
-  INTERMEDIATE: { label: 'Intermédio', cls: 'bg-warning-subtle text-warning-ink' },
+  INTERMEDIATE: {
+    label: 'Intermédio',
+    cls: 'bg-warning-subtle text-warning-ink',
+  },
   ADVANCED: { label: 'Avançado', cls: 'bg-danger-subtle text-danger-ink' },
 };
 
@@ -47,7 +61,10 @@ export const COURSE_STATUS_MAP: StatusBadgeMap<CourseStatus> = {
 };
 
 const ENROLLMENT_STATUS_MAP: StatusBadgeMap<EnrollmentStatus> = {
-  NOT_STARTED: { label: 'Não iniciado', cls: 'bg-surface-sunken text-ink-muted' },
+  NOT_STARTED: {
+    label: 'Não iniciado',
+    cls: 'bg-surface-sunken text-ink-muted',
+  },
   IN_PROGRESS: { label: 'Em progresso', cls: 'bg-info-subtle text-info-ink' },
   COMPLETED: { label: 'Concluído', cls: 'bg-success-subtle text-success-ink' },
   EXPIRED: { label: 'Expirado', cls: 'bg-danger-subtle text-danger-ink' },
@@ -78,17 +95,18 @@ export interface LessonIconProps {
 }
 
 export function LessonIcon({ type }: LessonIconProps) {
-  const icons: Record<LessonType, string> = {
-    VIDEO: '▶',
-    PDF: '📄',
-    TEXT: '📝',
-    AUDIO: '🎵',
-    SLIDE: '📊',
-    LINK: '🔗',
-    SCORM: '📦',
-    QUIZ: '❓',
+  const icons: Record<LessonType, LucideIcon> = {
+    VIDEO: Play,
+    PDF: FileText,
+    TEXT: PenLine,
+    AUDIO: Music,
+    SLIDE: BarChart3,
+    LINK: Link2,
+    SCORM: Package,
+    QUIZ: HelpCircle,
   };
-  return <span className="text-sm">{icons[type] ?? '📄'}</span>;
+  const Icon = icons[type] ?? FileText;
+  return <Icon size={14} strokeWidth={1.75} className="inline" />;
 }
 
 export interface SkeletonProps {

@@ -2,6 +2,13 @@
 // Ecrã de resultado da avaliação (score, aprovação/reprovação, revisão por
 // pergunta). Extraído de app/(platform)/assessments/page.tsx.
 
+import {
+  Hourglass,
+  PartyPopper,
+  Frown,
+  Lightbulb,
+  RefreshCw,
+} from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { ProgressBar } from '@/components/ui/ProgressBar';
@@ -37,7 +44,13 @@ export function ResultView({
         }`}
       >
         <div className="text-5xl mb-3">
-          {needsManualReview ? '⏳' : isPass ? '🎉' : '😔'}
+          {needsManualReview ? (
+            <Hourglass size={44} strokeWidth={1.5} />
+          ) : isPass ? (
+            <PartyPopper size={44} strokeWidth={1.5} />
+          ) : (
+            <Frown size={44} strokeWidth={1.5} />
+          )}
         </div>
         <div
           className={`text-4xl font-bold font-data mb-2 ${
@@ -123,7 +136,17 @@ export function ResultView({
                         : 'text-danger-ink'
                   }`}
                 >
-                  {r.isCorrect === null ? '⏳' : r.isCorrect ? '✓' : '✗'}
+                  {r.isCorrect === null ? (
+                    <Hourglass
+                      size={13}
+                      strokeWidth={1.75}
+                      className="inline"
+                    />
+                  ) : r.isCorrect ? (
+                    '✓'
+                  ) : (
+                    '✗'
+                  )}
                 </span>
                 <span className="text-sm font-medium text-ink">
                   {r.questionText}
@@ -131,7 +154,12 @@ export function ResultView({
               </div>
               {r.explanation && (
                 <div className="text-xs text-ink-muted mt-2 pl-5">
-                  💡 {r.explanation}
+                  <Lightbulb
+                    size={13}
+                    strokeWidth={1.75}
+                    className="inline align-[-2px]"
+                  />{' '}
+                  {r.explanation}
                 </div>
               )}
             </div>
@@ -146,7 +174,12 @@ export function ResultView({
         </Button>
         {!isPass && assessment.maxAttempts === 0 && (
           <Button intent="primary" className="flex-1" onClick={onRetry}>
-            🔄 Repetir avaliação
+            <RefreshCw
+              size={14}
+              strokeWidth={1.75}
+              className="inline align-[-2px]"
+            />{' '}
+            Repetir avaliação
           </Button>
         )}
       </div>

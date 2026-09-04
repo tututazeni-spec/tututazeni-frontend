@@ -1,6 +1,6 @@
 // components/library/LibraryItemView.tsx
 
-import { ArrowLeft, Download, Star } from 'lucide-react';
+import { ArrowLeft, Download, Star, Eye, Package } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { formatDate } from '@/lib/format';
 import { Badge } from '@/components/ui/Badge';
@@ -50,22 +50,43 @@ export function LibraryItemView({
       {/* Cabeçalho */}
       <Card>
         <CardBody className="flex gap-6">
-          <div className="text-6xl">{TYPE_ICONS[item.type] || '📦'}</div>
+          {(() => {
+            const TypeIcon = TYPE_ICONS[item.type] || Package;
+            return (
+              <TypeIcon
+                size={56}
+                strokeWidth={1.5}
+                className="shrink-0 text-ink-muted"
+              />
+            );
+          })()}
           <div className="flex-1">
             <div className="flex items-start justify-between">
               <div>
-                <h1 className="font-display text-2xl font-bold text-ink">{item.title}</h1>
-                {item.subtitle && <p className="font-body text-ink-muted">{item.subtitle}</p>}
-                <p className="mt-1 font-data text-xs text-primary">{item.code}</p>
+                <h1 className="font-display text-2xl font-bold text-ink">
+                  {item.title}
+                </h1>
+                {item.subtitle && (
+                  <p className="font-body text-ink-muted">{item.subtitle}</p>
+                )}
+                <p className="mt-1 font-data text-xs text-primary">
+                  {item.code}
+                </p>
               </div>
               {!item.isApproved && <Badge intent="warning">Por aprovar</Badge>}
             </div>
             <div className="mt-3 flex gap-4 font-body text-sm text-ink-muted">
-              <span>👁 {item.views} visualizações</span>
-              <span>⬇ {item.downloads} downloads</span>
+              <span className="inline-flex items-center gap-1">
+                <Eye size={14} strokeWidth={1.75} /> {item.views} visualizações
+              </span>
+              <span className="inline-flex items-center gap-1">
+                <Download size={14} strokeWidth={1.75} /> {item.downloads}{' '}
+                downloads
+              </span>
               {item.rating > 0 && (
-                <span>
-                  ⭐ {item.rating.toFixed(1)} ({item.ratingCount})
+                <span className="inline-flex items-center gap-1">
+                  <Star size={14} strokeWidth={1.75} /> {item.rating.toFixed(1)}{' '}
+                  ({item.ratingCount})
                 </span>
               )}
             </div>
@@ -84,7 +105,10 @@ export function LibraryItemView({
           <Info label="Editora" value={item.publisher} />
           <Info label="Ano" value={item.year ? String(item.year) : null} />
           <Info label="Idioma" value={item.language} />
-          <Info label="Páginas" value={item.pages ? String(item.pages) : null} />
+          <Info
+            label="Páginas"
+            value={item.pages ? String(item.pages) : null}
+          />
           <Info label="ISBN" value={item.isbn} />
           <Info label="Colecção" value={item.collection?.name} />
           <Info label="Carregado por" value={item.uploadedBy?.fullName} />
@@ -101,14 +125,18 @@ export function LibraryItemView({
             <h2 className="mb-2 font-body text-xs font-semibold uppercase text-ink-muted">
               Descrição
             </h2>
-            <p className="whitespace-pre-line font-body text-sm text-ink">{item.description}</p>
+            <p className="whitespace-pre-line font-body text-sm text-ink">
+              {item.description}
+            </p>
           </CardBody>
         </Card>
       )}
 
       {/* Avaliar */}
       <section>
-        <h2 className="mb-3 font-display text-lg font-semibold text-ink">Avaliar</h2>
+        <h2 className="mb-3 font-display text-lg font-semibold text-ink">
+          Avaliar
+        </h2>
         <Card>
           <CardBody>
             <form onSubmit={submitRating} className="space-y-3">
@@ -161,7 +189,9 @@ export function LibraryItemView({
         </form>
         <Card className="divide-y divide-border">
           {item.comments.length === 0 ? (
-            <p className="p-4 font-body text-ink-faint">Ainda sem comentários</p>
+            <p className="p-4 font-body text-ink-faint">
+              Ainda sem comentários
+            </p>
           ) : (
             item.comments.map((c) => (
               <div key={c.id} className="p-4">
@@ -173,7 +203,9 @@ export function LibraryItemView({
                     {formatDate(c.createdAt)}
                   </span>
                 </div>
-                <p className="mt-1 font-body text-sm text-ink-muted">{c.content}</p>
+                <p className="mt-1 font-body text-sm text-ink-muted">
+                  {c.content}
+                </p>
               </div>
             ))
           )}

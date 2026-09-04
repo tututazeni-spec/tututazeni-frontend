@@ -1,4 +1,5 @@
 'use client';
+import { CheckCircle2, XCircle } from 'lucide-react';
 import { useParams } from 'next/navigation';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
@@ -22,11 +23,17 @@ export default function VerifyCertificatePage() {
   const code = params?.code as string;
 
   // Página pública: verifica o certificado por código. Erro → resultado inválido.
-  const { data, isLoading: loading, error } = useApiQuery<VerificationResult>(
-    queryKeys.certification.verify(code), `/certification/verify/${code}`,
+  const {
+    data,
+    isLoading: loading,
+    error,
+  } = useApiQuery<VerificationResult>(
+    queryKeys.certification.verify(code),
+    `/certification/verify/${code}`,
     { enabled: !!code, staleTime: STALE_TIME.STATIC, retry: false },
   );
-  const result = data ?? (error ? { valid: false, reason: 'Erro ao verificar' } : null);
+  const result =
+    data ?? (error ? { valid: false, reason: 'Erro ao verificar' } : null);
 
   if (loading)
     return (
@@ -40,7 +47,11 @@ export default function VerifyCertificatePage() {
       <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-8 text-center">
         {result?.valid && result.certificate ? (
           <>
-            <div className="text-6xl mb-4">✅</div>
+            <CheckCircle2
+              size={56}
+              strokeWidth={1.5}
+              className="mx-auto mb-4 text-green-600"
+            />
             <h1 className="text-2xl font-bold text-green-700 mb-2">
               Certificado Válido
             </h1>
@@ -86,7 +97,11 @@ export default function VerifyCertificatePage() {
           </>
         ) : (
           <>
-            <div className="text-6xl mb-4">❌</div>
+            <XCircle
+              size={56}
+              strokeWidth={1.5}
+              className="mx-auto mb-4 text-red-700"
+            />
             <h1 className="text-2xl font-bold text-red-700 mb-2">
               Certificado Inválido
             </h1>

@@ -5,7 +5,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Check } from 'lucide-react';
+import { Check, Play, FileText, BarChart3 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { lessonIcon, fmtDuration } from './utils';
 import type { LessonProgress, ModuleProgress } from './types';
@@ -80,7 +80,7 @@ export function ContentPlayer({
       <div className="flex-1 bg-ink flex items-center justify-center">
         {lesson.type === 'VIDEO' ? (
           <div className="text-canvas text-center">
-            <div className="text-6xl mb-4">▶</div>
+            <Play size={56} strokeWidth={1.5} className="mx-auto mb-4" />
             <div className="font-body text-base font-medium">
               {lesson.title}
             </div>
@@ -97,7 +97,7 @@ export function ContentPlayer({
             />
           ) : (
             <div className="text-canvas text-center px-8">
-              <div className="text-6xl mb-4">📄</div>
+              <FileText size={56} strokeWidth={1.5} className="mx-auto mb-4" />
               <div className="font-body text-base font-medium">
                 {lesson.title}
               </div>
@@ -108,7 +108,7 @@ export function ContentPlayer({
           )
         ) : lesson.type === 'SLIDE' ? (
           <div className="text-canvas text-center px-8">
-            <div className="text-6xl mb-4">📊</div>
+            <BarChart3 size={56} strokeWidth={1.5} className="mx-auto mb-4" />
             <div className="font-body text-base font-medium">
               {lesson.title}
             </div>
@@ -143,7 +143,16 @@ export function ContentPlayer({
           </div>
         ) : (
           <div className="text-canvas text-center">
-            <div className="text-6xl mb-4">{lessonIcon(lesson.type)}</div>
+            {(() => {
+              const FallbackIcon = lessonIcon(lesson.type);
+              return (
+                <FallbackIcon
+                  size={56}
+                  strokeWidth={1.5}
+                  className="mx-auto mb-4"
+                />
+              );
+            })()}
             <div className="font-body text-base font-medium">
               {lesson.title}
             </div>

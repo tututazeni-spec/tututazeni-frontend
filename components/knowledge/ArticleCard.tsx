@@ -8,6 +8,7 @@
 
 'use client';
 
+import { Eye, Clock } from 'lucide-react';
 import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
 import { timeAgo } from './utils';
@@ -74,12 +75,20 @@ export function ArticleCard({ article, onClick }: ArticleCardProps) {
 
       <div className="flex items-center justify-between font-body text-xs text-ink-faint">
         <div className="flex items-center gap-2">
-          <Avatar name={article.author.fullName} url={article.author.avatarUrl ?? undefined} size="sm" />
+          <Avatar
+            name={article.author.fullName}
+            url={article.author.avatarUrl ?? undefined}
+            size="sm"
+          />
           <span>{article.author.fullName}</span>
         </div>
         <div className="flex items-center gap-3">
-          <span>👁 {article.viewCount}</span>
-          <span>⏱ {article.readingMinutes}min</span>
+          <span className="inline-flex items-center gap-1">
+            <Eye size={12} strokeWidth={1.75} /> {article.viewCount}
+          </span>
+          <span className="inline-flex items-center gap-1">
+            <Clock size={12} strokeWidth={1.75} /> {article.readingMinutes}min
+          </span>
           {article.avgRating && <span>★ {article.avgRating.toFixed(1)}</span>}
           <span>{timeAgo(article.updatedAt)}</span>
         </div>

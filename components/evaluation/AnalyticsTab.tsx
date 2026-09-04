@@ -5,7 +5,7 @@
 
 'use client';
 
-import { Activity, CheckCircle, Star, Users } from 'lucide-react';
+import { Activity, CheckCircle, Star, Users, Trophy } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -145,7 +145,12 @@ export function AnalyticsTab() {
         <Card>
           <CardBody>
             <h3 className="font-display font-semibold text-ink mb-4">
-              🏆 Top Performers
+              <Trophy
+                size={16}
+                strokeWidth={1.75}
+                className="inline align-[-2px]"
+              />{' '}
+              Top Performers
             </h3>
             <div className="space-y-2">
               {(data.topPerformers ?? []).slice(0, 8).map((p, i) => (

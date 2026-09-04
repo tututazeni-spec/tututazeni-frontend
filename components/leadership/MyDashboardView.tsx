@@ -9,6 +9,7 @@
 'use client';
 
 import { useState } from 'react';
+import { Star } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
@@ -198,7 +199,15 @@ export function MyDashboardView() {
                 className="rounded-card border border-black bg-white p-3"
               >
                 <div className="mb-1 flex items-center gap-2">
-                  <span className="text-lg">{k.badge ?? '⭐'}</span>
+                  <span>
+                    {k.badge ?? (
+                      <Star
+                        size={16}
+                        strokeWidth={1.75}
+                        className="text-warning"
+                      />
+                    )}
+                  </span>
                   <span className="font-body text-xs font-medium text-black">
                     {k.sender.fullName}
                   </span>

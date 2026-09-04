@@ -6,6 +6,7 @@
 
 'use client';
 
+import { Flame, Target } from 'lucide-react';
 import { useState } from 'react';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
@@ -243,7 +244,12 @@ export function ResultsTab() {
               {result.qualitative.strengths.length > 0 && (
                 <div className="bg-success-subtle border border-success rounded-card p-4">
                   <h4 className="font-semibold text-success-ink mb-2">
-                    💪 Pontos Fortes
+                    <Flame
+                      size={16}
+                      strokeWidth={1.75}
+                      className="inline align-[-2px]"
+                    />{' '}
+                    Pontos Fortes
                   </h4>
                   <div className="space-y-1">
                     {result.qualitative.strengths.slice(0, 5).map((s, i) => (
@@ -257,7 +263,12 @@ export function ResultsTab() {
               {result.qualitative.improvements.length > 0 && (
                 <div className="bg-warning-subtle border border-warning rounded-card p-4">
                   <h4 className="font-semibold text-warning-ink mb-2">
-                    🎯 Áreas de Melhoria
+                    <Target
+                      size={16}
+                      strokeWidth={1.75}
+                      className="inline align-[-2px]"
+                    />{' '}
+                    Áreas de Melhoria
                   </h4>
                   <div className="space-y-1">
                     {result.qualitative.improvements.slice(0, 5).map((s, i) => (
@@ -278,7 +289,11 @@ export function ResultsTab() {
             disabled={triggerPdi.isPending}
             onClick={() => triggerPdi.mutate(undefined)}
           >
-            🎯{' '}
+            <Target
+              size={14}
+              strokeWidth={1.75}
+              className="inline align-[-2px]"
+            />{' '}
             {triggerPdi.isPending
               ? 'A gerar sugestão de PDI...'
               : 'Gerar Sugestão de PDI com base nestes resultados'}

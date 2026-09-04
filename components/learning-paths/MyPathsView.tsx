@@ -9,6 +9,7 @@
 
 'use client';
 
+import { Map, BookOpen } from 'lucide-react';
 import { useState } from 'react';
 import Image from 'next/image';
 import { useApiQuery } from '@/hooks/useApiQuery';
@@ -100,7 +101,7 @@ export function MyPathsView({ onSelect }: MyPathsViewProps) {
                     className="object-cover opacity-80"
                   />
                 ) : (
-                  <span className="text-2xl">🗺️</span>
+                  <Map size={22} strokeWidth={1.5} />
                 )}
               </div>
               <div className="min-w-0 flex-1">
@@ -114,7 +115,10 @@ export function MyPathsView({ onSelect }: MyPathsViewProps) {
                       map={LP_TYPE_MAP}
                     />
                   )}
-                  <span>📚 {e.learningPath?._count?.courses ?? 0} cursos</span>
+                  <span className="inline-flex items-center gap-1">
+                    <BookOpen size={12} strokeWidth={1.75} />{' '}
+                    {e.learningPath?._count?.courses ?? 0} cursos
+                  </span>
                 </div>
               </div>
               <div className="flex-shrink-0 text-right">
@@ -138,7 +142,7 @@ export function MyPathsView({ onSelect }: MyPathsViewProps) {
                     className={`font-body text-xs ${isOverdue(e.deadline) ? 'text-danger' : 'text-ink-faint'}`}
                   >
                     {isOverdue(e.deadline)
-                      ? '⚠ Prazo expirado'
+                      ? 'Prazo expirado'
                       : `Prazo: ${fmtDate(e.deadline)}`}
                   </div>
                 )}

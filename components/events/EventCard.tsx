@@ -32,6 +32,7 @@ interface EventCardProps {
 
 export function EventCard({ event, onSelect, myStatus }: EventCardProps) {
   const typeCfg = TYPE_CFG[event.type] ?? TYPE_CFG.TRAINING;
+  const TypeIcon = typeCfg.icon;
   const modalityCfg = MODALITY_CFG[event.modalidade] ?? MODALITY_CFG.ONLINE;
 
   return (
@@ -58,11 +59,11 @@ export function EventCard({ event, onSelect, myStatus }: EventCardProps) {
           <div className="flex flex-wrap items-center gap-2">
             <span
               className={cn(
-                'rounded px-1.5 py-0.5 font-body text-xs',
+                'inline-flex items-center gap-1 rounded px-1.5 py-0.5 font-body text-xs',
                 typeCfg.cls,
               )}
             >
-              {typeCfg.icon} {typeCfg.label}
+              <TypeIcon size={12} strokeWidth={1.75} /> {typeCfg.label}
             </span>
             <StatusBadge
               value={event.status}
@@ -82,9 +83,7 @@ export function EventCard({ event, onSelect, myStatus }: EventCardProps) {
         </div>
 
         <div className="mb-3 flex items-center gap-3 font-body text-xs text-ink-faint">
-          <span>
-            {modalityCfg.label}
-          </span>
+          <span>{modalityCfg.label}</span>
           <span>{fmtDateTime(event.startAt)}</span>
           {event.location && <span>{event.location}</span>}
         </div>
@@ -116,9 +115,7 @@ export function EventCard({ event, onSelect, myStatus }: EventCardProps) {
               >
                 {event._count.participants}/{event.maxCapacity}
               </span>
-              {event.isFull && (
-                <span className="text-danger">• Lotado</span>
-              )}
+              {event.isFull && <span className="text-danger">• Lotado</span>}
             </div>
             {myStatus && (
               <StatusBadge value={myStatus} map={PARTICIPANT_STATUS} />

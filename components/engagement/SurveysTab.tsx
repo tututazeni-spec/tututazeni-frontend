@@ -6,6 +6,20 @@
 'use client';
 
 import { useState } from 'react';
+import {
+  Thermometer,
+  HeartPulse,
+  BarChart3,
+  Hand,
+  DoorOpen,
+  Leaf,
+  Settings,
+  ClipboardList,
+  PenLine,
+  Users,
+  Hourglass,
+  type LucideIcon,
+} from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -17,14 +31,14 @@ import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
 import type { SurveyItem } from './types';
 
-const TYPE_ICON: Record<string, string> = {
-  CLIMATE: '🌡️',
-  PULSE: '💓',
-  ENPS: '📊',
-  ONBOARDING: '👋',
-  OFFBOARDING: '🚪',
-  WELLBEING: '🌿',
-  CUSTOM: '⚙️',
+const TYPE_ICON: Record<string, LucideIcon> = {
+  CLIMATE: Thermometer,
+  PULSE: HeartPulse,
+  ENPS: BarChart3,
+  ONBOARDING: Hand,
+  OFFBOARDING: DoorOpen,
+  WELLBEING: Leaf,
+  CUSTOM: Settings,
 };
 
 const STATUS_INTENT: Record<string, BadgeProps['intent']> = {
@@ -88,7 +102,12 @@ export function SurveysTab() {
           <Card key={s.id}>
             <CardBody>
               <div className="mb-3 flex items-start justify-between">
-                <span className="text-2xl">{TYPE_ICON[s.type] ?? '📋'}</span>
+                <span className="text-ink-muted">
+                  {(() => {
+                    const TypeIcon = TYPE_ICON[s.type] ?? ClipboardList;
+                    return <TypeIcon size={22} strokeWidth={1.75} />;
+                  })()}
+                </span>
                 <Badge intent={STATUS_INTENT[s.status] ?? 'neutral'}>
                   {s.status}
                 </Badge>
@@ -101,8 +120,14 @@ export function SurveysTab() {
               </p>
 
               <div className="mb-3 flex items-center gap-3 font-body text-xs text-ink-muted">
-                <span>📝 {s._count?.questions ?? 0} perguntas</span>
-                <span>👥 {s._count?.responses ?? 0} respostas</span>
+                <span className="inline-flex items-center gap-1">
+                  <PenLine size={12} strokeWidth={1.75} />{' '}
+                  {s._count?.questions ?? 0} perguntas
+                </span>
+                <span className="inline-flex items-center gap-1">
+                  <Users size={12} strokeWidth={1.75} />{' '}
+                  {s._count?.responses ?? 0} respostas
+                </span>
               </div>
 
               {s.status === 'ACTIVE' && (
@@ -118,8 +143,9 @@ export function SurveysTab() {
               )}
 
               {s.endDate && (
-                <p className="mt-2 font-body text-[10px] text-ink-faint">
-                  ⏳ Termina: {new Date(s.endDate).toLocaleDateString('pt')}
+                <p className="mt-2 inline-flex items-center gap-1 font-body text-[10px] text-ink-faint">
+                  <Hourglass size={11} strokeWidth={1.75} /> Termina:{' '}
+                  {new Date(s.endDate).toLocaleDateString('pt')}
                 </p>
               )}
             </CardBody>

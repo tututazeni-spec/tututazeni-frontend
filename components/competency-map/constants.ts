@@ -2,6 +2,7 @@
 // Mapas de tipo/prontidão/prioridade do mapa de competências. Extraído
 // de app/(platform)/competency-map/page.tsx.
 
+import { Circle, type LucideIcon } from 'lucide-react';
 import type { StatusBadgeMap } from '@/lib/statusBadge';
 import type { GapPriority, ReadinessLevel, SkillType } from './types';
 
@@ -12,7 +13,11 @@ export const TYPE_CONFIG: Record<
   SkillType,
   { label: string; color: string; bg: string }
 > = {
-  TECHNICAL: { label: 'Técnicas', color: 'text-info-ink', bg: 'bg-info-subtle' },
+  TECHNICAL: {
+    label: 'Técnicas',
+    color: 'text-info-ink',
+    bg: 'bg-info-subtle',
+  },
   BEHAVIORAL: {
     label: 'Comportamentais',
     color: 'text-primary',
@@ -35,11 +40,26 @@ export type ReadinessIntent = 'success' | 'warning' | 'danger';
 
 export const READINESS_CONFIG: Record<
   ReadinessLevel,
-  { label: string; intent: ReadinessIntent; emoji: string }
+  { label: string; intent: ReadinessIntent; icon: LucideIcon; dot: string }
 > = {
-  READY: { label: 'Pronto', intent: 'success', emoji: '🟢' },
-  DEVELOPING: { label: 'Em Desenvolvimento', intent: 'warning', emoji: '🟡' },
-  STARTING: { label: 'Início', intent: 'danger', emoji: '🔴' },
+  READY: {
+    label: 'Pronto',
+    intent: 'success',
+    icon: Circle,
+    dot: 'fill-success text-success',
+  },
+  DEVELOPING: {
+    label: 'Em Desenvolvimento',
+    intent: 'warning',
+    icon: Circle,
+    dot: 'fill-warning text-warning',
+  },
+  STARTING: {
+    label: 'Início',
+    intent: 'danger',
+    icon: Circle,
+    dot: 'fill-danger text-danger',
+  },
 };
 
 // Classes derivadas do intent de READINESS_CONFIG — usadas pelo painel de
@@ -50,8 +70,14 @@ export const READINESS_INTENT_CLASSES: Record<
   ReadinessIntent,
   { text: string; panel: string }
 > = {
-  success: { text: 'text-success-ink', panel: 'border-success bg-success-subtle' },
-  warning: { text: 'text-warning-ink', panel: 'border-warning bg-warning-subtle' },
+  success: {
+    text: 'text-success-ink',
+    panel: 'border-success bg-success-subtle',
+  },
+  warning: {
+    text: 'text-warning-ink',
+    panel: 'border-warning bg-warning-subtle',
+  },
   danger: { text: 'text-danger-ink', panel: 'border-danger bg-danger-subtle' },
 };
 

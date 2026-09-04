@@ -1,6 +1,16 @@
 // components/live-classes/ClassCard.tsx
 // Cartão de aula no separador "Todas as Aulas". Migrado para design tokens.
 
+import {
+  Circle,
+  Video,
+  Clapperboard,
+  Calendar,
+  AlarmClock,
+  Timer,
+  Users,
+  Trash2,
+} from 'lucide-react';
 import { CARD, fmtDate, getStatus } from './utils';
 import { formatTime as fmtTime } from '@/lib/format';
 import type { LiveClass } from './types';
@@ -40,9 +50,13 @@ export function ClassCard({
       {/* Status + Topic */}
       <div className="flex items-start gap-2.5">
         <div
-          className={`w-10.5 h-10.5 rounded-[11px] ${iconBg} flex items-center justify-center text-xl flex-shrink-0`}
+          className={`w-10.5 h-10.5 rounded-[11px] ${iconBg} ${statusText} flex items-center justify-center flex-shrink-0`}
         >
-          {isLive ? '🔴' : status === 'upcoming' ? '🎥' : '📹'}
+          {isLive ? (
+            <Circle size={20} strokeWidth={1.75} className="fill-current" />
+          ) : (
+            <Video size={20} strokeWidth={1.75} />
+          )}
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex gap-1.5 items-center mb-0.75 flex-wrap">
@@ -56,8 +70,8 @@ export function ClassCard({
                   : 'Concluída'}
             </span>
             {lc.recordingUrl && (
-              <span className="text-xs font-bold px-1.75 py-0.5 rounded-full bg-accent-subtle text-accent">
-                🎬 Gravação
+              <span className="inline-flex items-center gap-1 text-xs font-bold px-1.75 py-0.5 rounded-full bg-accent-subtle text-accent">
+                <Clapperboard size={11} strokeWidth={1.75} /> Gravação
               </span>
             )}
           </div>
@@ -65,9 +79,7 @@ export function ClassCard({
             {lc.topic}
           </h3>
           {lc.course && (
-            <p className="mt-0.5 text-xs text-ink-muted">
-               {lc.course.title}
-            </p>
+            <p className="mt-0.5 text-xs text-ink-muted">{lc.course.title}</p>
           )}
         </div>
       </div>
@@ -75,13 +87,16 @@ export function ClassCard({
       {/* Meta */}
       <div className="flex gap-2.5 flex-wrap">
         {[
-          { v: fmtDate(lc.scheduledAt), i: '📅' },
-          { v: fmtTime(lc.scheduledAt), i: '⏰' },
-          { v: `${lc.duration}min`, i: '⏱️' },
-          { v: String(lc._count?.attendances ?? 0), i: '👥' },
+          { v: fmtDate(lc.scheduledAt), Icon: Calendar, k: 'date' },
+          { v: fmtTime(lc.scheduledAt), Icon: AlarmClock, k: 'time' },
+          { v: `${lc.duration}min`, Icon: Timer, k: 'dur' },
+          { v: String(lc._count?.attendances ?? 0), Icon: Users, k: 'att' },
         ].map((m) => (
-          <span key={m.i} className="text-xs text-ink-muted">
-            {m.i} {m.v}
+          <span
+            key={m.k}
+            className="inline-flex items-center gap-1 text-xs text-ink-muted"
+          >
+            <m.Icon size={12} strokeWidth={1.75} /> {m.v}
           </span>
         ))}
       </div>
@@ -94,21 +109,28 @@ export function ClassCard({
             isLive ? 'bg-danger' : 'bg-ink'
           }`}
         >
-          {isLive ? '🔴 Entrar Agora' : 'Abrir Sala'}
+          {isLive ? (
+            <span className="inline-flex items-center justify-center gap-1.5">
+              <Circle size={12} strokeWidth={1.75} className="fill-current" />{' '}
+              Entrar Agora
+            </span>
+          ) : (
+            'Abrir Sala'
+          )}
         </button>
         {lc.recordingUrl && (
           <button
             onClick={() => onViewRecording(lc)}
-            className="flex-1 py-2 px-2 rounded-lg border border-accent bg-accent-subtle text-accent text-xs font-semibold cursor-pointer"
+            className="flex-1 inline-flex items-center justify-center gap-1 py-2 px-2 rounded-lg border border-accent bg-accent-subtle text-accent text-xs font-semibold cursor-pointer"
           >
-            🎬 Ver
+            <Clapperboard size={12} strokeWidth={1.75} /> Ver
           </button>
         )}
         <button
           onClick={() => onDelete(lc)}
           className="py-2 px-2.5 rounded-lg border border-danger-subtle bg-danger-subtle text-danger text-xs cursor-pointer"
         >
-          🗑️
+          <Trash2 size={13} strokeWidth={1.75} />
         </button>
       </div>
     </div>

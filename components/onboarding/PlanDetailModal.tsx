@@ -331,6 +331,7 @@ export function PlanDetailModal({
                   <ul className="space-y-2">
                     {phaseTasks.map((task) => {
                       const stCfg = TASK_STATUS_CFG[task.status];
+                      const StIcon = stCfg?.icon;
                       const catCfg = CATEGORY_CFG[task.templateTask.category];
                       const awaitingApproval =
                         task.templateTask.requiresApproval &&
@@ -345,10 +346,12 @@ export function PlanDetailModal({
                           className="rounded-card border border-border bg-surface p-3"
                         >
                           <div className="flex items-start gap-3">
-                            <span
-                              className={`mt-0.5 text-sm ${stCfg?.cls ?? ''}`}
-                            >
-                              {stCfg?.icon ?? '•'}
+                            <span className={`mt-0.5 ${stCfg?.cls ?? ''}`}>
+                              {StIcon ? (
+                                <StIcon size={14} strokeWidth={1.75} />
+                              ) : (
+                                '•'
+                              )}
                             </span>
                             <div className="min-w-0 flex-1">
                               <div className="flex flex-wrap items-center gap-2">

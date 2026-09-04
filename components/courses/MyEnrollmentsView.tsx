@@ -8,6 +8,7 @@
 
 'use client';
 
+import { Clock } from 'lucide-react';
 import { useState } from 'react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
@@ -100,7 +101,10 @@ export function MyEnrollmentsView({ onSelect }: MyEnrollmentsViewProps) {
                 <div className="flex items-center gap-3 text-xs text-ink-faint mb-2">
                   {e.course.category && <span>{e.course.category}</span>}
                   {e.course.workloadHours && (
-                    <span>⏱ {fmtDuration(e.course.workloadHours)}</span>
+                    <span className="inline-flex items-center gap-1">
+                      <Clock size={12} strokeWidth={1.75} />{' '}
+                      {fmtDuration(e.course.workloadHours)}
+                    </span>
                   )}
                 </div>
                 <EnrollBadge status={e.status} deadline={e.deadline} />
@@ -115,7 +119,7 @@ export function MyEnrollmentsView({ onSelect }: MyEnrollmentsViewProps) {
                   className={`text-xs flex-shrink-0 ${isOverdue(e.deadline) ? 'text-danger' : 'text-ink-faint'}`}
                 >
                   {isOverdue(e.deadline)
-                    ? '⚠ Atrasado'
+                    ? 'Atrasado'
                     : `Prazo: ${fmtDate(e.deadline)}`}
                 </div>
               )}

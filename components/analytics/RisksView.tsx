@@ -7,7 +7,13 @@
 'use client';
 
 import { useState } from 'react';
-import { AlertOctagon, AlertTriangle, Clock } from 'lucide-react';
+import {
+  AlertOctagon,
+  AlertTriangle,
+  Clock,
+  CheckCircle2,
+  Circle,
+} from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -81,7 +87,12 @@ export function RisksView() {
             ))}
             {data.inactiveCollaborators.length === 0 && (
               <div className="px-4 py-8 text-center text-sm text-ink-faint">
-                ✅ Sem colaboradores inactivos
+                <CheckCircle2
+                  size={13}
+                  strokeWidth={1.75}
+                  className="inline align-[-2px]"
+                />{' '}
+                Sem colaboradores inactivos
               </div>
             )}
           </Card>
@@ -108,13 +119,23 @@ export function RisksView() {
                   </div>
                 </div>
                 <span className="text-xs text-danger font-medium flex-shrink-0">
-                  ⚠ {p.daysOverdue} dias em atraso
+                  <AlertTriangle
+                    size={13}
+                    strokeWidth={1.75}
+                    className="inline align-[-2px]"
+                  />{' '}
+                  {p.daysOverdue} dias em atraso
                 </span>
               </div>
             ))}
             {data.overduePDIs.length === 0 && (
               <div className="px-4 py-8 text-center text-sm text-ink-faint">
-                ✅ Sem PDIs atrasados
+                <CheckCircle2
+                  size={13}
+                  strokeWidth={1.75}
+                  className="inline align-[-2px]"
+                />{' '}
+                Sem PDIs atrasados
               </div>
             )}
           </Card>
@@ -141,13 +162,23 @@ export function RisksView() {
                   </div>
                 </div>
                 <span className="text-xs text-danger font-medium flex-shrink-0">
-                  🔴 {a.daysOverdue} dias
+                  <Circle
+                    size={11}
+                    strokeWidth={1.75}
+                    className="inline align-[-1px] fill-danger text-danger"
+                  />{' '}
+                  {a.daysOverdue} dias
                 </span>
               </div>
             ))}
             {data.criticalActions.length === 0 && (
               <div className="px-4 py-8 text-center text-sm text-ink-faint">
-                ✅ Sem acções críticas
+                <CheckCircle2
+                  size={13}
+                  strokeWidth={1.75}
+                  className="inline align-[-2px]"
+                />{' '}
+                Sem acções críticas
               </div>
             )}
           </Card>

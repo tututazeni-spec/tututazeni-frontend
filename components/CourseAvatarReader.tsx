@@ -206,13 +206,13 @@ export function CourseAvatarReader({
                   style={{ fontSize: 9 }}
                 >
                   {isLoading
-                    ? '⏳ A gerar…'
+                    ? 'A gerar…'
                     : isPlaying
                       ? '● A ler…'
                       : state === 'paused'
                         ? '⏸ Pausado'
                         : state === 'error'
-                          ? '⚠ Erro'
+                          ? 'Erro'
                           : '● Pronto'}
                 </div>
               </div>

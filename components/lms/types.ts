@@ -1,5 +1,6 @@
 // components/lms/types.ts
 
+import { Video, Link2, type LucideIcon } from 'lucide-react';
 import type { BadgeProps } from '@/components/ui/Badge';
 
 export interface Path {
@@ -66,10 +67,10 @@ export const STATUS_INTENT: Record<string, BadgeProps['intent']> = {
   DROPPED: 'danger',
 };
 
-export const PLATFORM_ICONS: Record<string, string> = {
-  ZOOM: '🟦',
-  TEAMS: '🟪',
-  MEET: '🟩',
-  WEBEX: '🟧',
-  OTHER: '🔗',
+export const PLATFORM_ICONS: Record<string, LucideIcon> = {
+  ZOOM: Video,
+  TEAMS: Video,
+  MEET: Video,
+  WEBEX: Video,
+  OTHER: Link2,
 };

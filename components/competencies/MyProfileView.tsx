@@ -16,6 +16,7 @@
 'use client';
 
 import { useState } from 'react';
+import { AlertTriangle } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
@@ -229,8 +230,8 @@ export function MyProfileView() {
                           </span>
                           {(uc.divergence ?? 0) >= 2 && (
                             <Badge intent="danger">
-                              ⚠ Divergência ({uc.selfLevel} vs {uc.managerLevel}
-                              )
+                              <AlertTriangle size={11} strokeWidth={1.75} />{' '}
+                              Divergência ({uc.selfLevel} vs {uc.managerLevel})
                             </Badge>
                           )}
                           {(uc.gap ?? 0) > 0 && (

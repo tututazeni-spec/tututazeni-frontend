@@ -1,7 +1,14 @@
 // components/api-integrations/ApiKeysTab.tsx
 
 import { useState } from 'react';
-import { Copy, Plus, RotateCcw, Trash2, Clock } from 'lucide-react';
+import {
+  Copy,
+  Plus,
+  RotateCcw,
+  Trash2,
+  Clock,
+  AlertTriangle,
+} from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
@@ -86,7 +93,12 @@ export function ApiKeysTab() {
       {newKey && (
         <div className="rounded-card border border-success bg-success-subtle p-4">
           <p className="mb-1 font-body text-sm font-bold text-success-ink">
-            ⚠️ Copia esta chave — não será exibida novamente
+            <AlertTriangle
+              size={14}
+              strokeWidth={1.75}
+              className="inline align-[-2px]"
+            />{' '}
+            Copia esta chave — não será exibida novamente
           </p>
           <div className="flex items-center gap-2 rounded-control border border-success bg-surface px-3 py-2">
             <code className="flex-1 break-all font-data text-xs text-ink">

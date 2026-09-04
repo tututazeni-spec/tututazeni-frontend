@@ -6,7 +6,17 @@
 
 'use client';
 
-import { ClipboardList } from 'lucide-react';
+import {
+  ClipboardList,
+  HelpCircle,
+  Search,
+  Wrench,
+  BarChart3,
+  PenLine,
+  Timer,
+  Check,
+  Play,
+} from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -78,17 +88,21 @@ export function ListView({ onStart }: ListViewProps) {
             className="bg-surface border border-border rounded-card p-5 flex items-center gap-4 hover:shadow-hover transition-shadow"
           >
             <div
-              className={`w-12 h-12 rounded-card flex items-center justify-center text-xl flex-shrink-0 ${
+              className={`w-12 h-12 rounded-card flex items-center justify-center flex-shrink-0 ${
                 TYPE_ICON_BG[a.type] ?? 'bg-surface-sunken'
               }`}
             >
-              {{
-                QUIZ: '❓',
-                EXAM: '📋',
-                DIAGNOSTIC: '🔍',
-                PRACTICAL: '🛠️',
-                SURVEY: '📊',
-              }[a.type] ?? '📝'}
+              {(() => {
+                const AIcon =
+                  {
+                    QUIZ: HelpCircle,
+                    EXAM: ClipboardList,
+                    DIAGNOSTIC: Search,
+                    PRACTICAL: Wrench,
+                    SURVEY: BarChart3,
+                  }[a.type] ?? PenLine;
+                return <AIcon size={20} strokeWidth={1.75} />;
+              })()}
             </div>
             <div className="flex-1">
               <div className="text-sm font-semibold text-ink mb-0.5">
@@ -97,7 +111,10 @@ export function ListView({ onStart }: ListViewProps) {
               <div className="flex flex-wrap items-center gap-3 text-xs text-ink-faint">
                 <span>{a._count.questions} perguntas</span>
                 {a.timeLimitMinutes > 0 && (
-                  <span>⏱ {a.timeLimitMinutes}min</span>
+                  <span className="inline-flex items-center gap-1">
+                    <Timer size={12} strokeWidth={1.75} /> {a.timeLimitMinutes}
+                    min
+                  </span>
                 )}
                 <span>Aprovação: {a.passingScore}%</span>
                 {a.maxAttempts > 0 && (
@@ -126,12 +143,21 @@ export function ListView({ onStart }: ListViewProps) {
                       : 'primary'
                 }
                 onClick={() => onStart(a.id)}
+                className="inline-flex items-center gap-1.5"
               >
-                {status === 'PASSED'
-                  ? '✓ Repetir'
-                  : status === 'IN_PROGRESS'
-                    ? '▶ Continuar'
-                    : '▶ Iniciar'}
+                {status === 'PASSED' ? (
+                  <>
+                    <Check size={14} strokeWidth={2} /> Repetir
+                  </>
+                ) : status === 'IN_PROGRESS' ? (
+                  <>
+                    <Play size={14} strokeWidth={1.75} /> Continuar
+                  </>
+                ) : (
+                  <>
+                    <Play size={14} strokeWidth={1.75} /> Iniciar
+                  </>
+                )}
               </Button>
             </div>
           </div>

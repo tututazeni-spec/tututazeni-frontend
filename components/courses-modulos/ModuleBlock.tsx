@@ -5,6 +5,7 @@
 'use client';
 
 import { useState } from 'react';
+import { FolderOpen, Folder, Pencil, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
 import type { CourseModule, Lesson } from './types';
@@ -38,19 +39,20 @@ export function ModuleBlock({
         }}
         onClick={() => setOpen((o) => !o)}
       >
-        <span className="text-lg">{open ? '📂' : '📁'}</span>
+        <span className="text-ink-muted">
+          {open ? (
+            <FolderOpen size={18} strokeWidth={1.75} />
+          ) : (
+            <Folder size={18} strokeWidth={1.75} />
+          )}
+        </span>
         <div className="flex-1">
-          <p className="m-0 text-sm font-bold text-ink">
-            {mod.title}
-          </p>
+          <p className="m-0 text-sm font-bold text-ink">{mod.title}</p>
           <p className="m-0 text-xs text-ink-faint">
             Módulo {mod.seq} · {mod.lessons.length} lição(ões)
           </p>
         </div>
-        <div
-          className="flex gap-1"
-          onClick={(e) => e.stopPropagation()}
-        >
+        <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
           <Button
             onClick={onAddLesson}
             intent="primary"
@@ -63,14 +65,14 @@ export function ModuleBlock({
             intent="ghost"
             className="px-2 py-1 text-xs"
           >
-            ✏️
+            <Pencil size={14} strokeWidth={1.75} />
           </Button>
           <Button
             onClick={onDeleteModule}
             intent="danger"
             className="px-2 py-1 text-xs"
           >
-            🗑️
+            <Trash2 size={14} strokeWidth={1.75} />
           </Button>
         </div>
       </div>

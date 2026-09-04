@@ -4,6 +4,7 @@
 
 'use client';
 
+import { Star } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -33,7 +34,11 @@ export function KudosView() {
             className="rounded-card border border-warning bg-warning-subtle p-4"
           >
             <div className="flex items-start gap-3">
-              <span className="flex-shrink-0 text-2xl">{k.badge ?? '⭐'}</span>
+              <span className="flex-shrink-0">
+                {k.badge ?? (
+                  <Star size={22} strokeWidth={1.75} className="text-warning" />
+                )}
+              </span>
               <div className="flex-1">
                 <div className="mb-2 flex items-center gap-2">
                   <Avatar

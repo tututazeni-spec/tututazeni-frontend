@@ -54,7 +54,10 @@ export function LessonRow({
         {lesson.completed ? (
           <Check size={14} strokeWidth={1.75} />
         ) : (
-          lessonIcon(lesson.type)
+          (() => {
+            const LIcon = lessonIcon(lesson.type);
+            return <LIcon size={12} strokeWidth={1.75} />;
+          })()
         )}
       </div>
 

@@ -87,10 +87,10 @@ describe('CreateCycleModal', () => {
     render(<CreateCycleModal onClose={vi.fn()} onSuccess={vi.fn()} />);
     fillValid();
     // Zera CLIENT (5) e passa PEER 30 -> 35 para a soma continuar 100.
-    fireEvent.change(screen.getByLabelText('🟠 Cliente'), {
+    fireEvent.change(screen.getByLabelText('Cliente'), {
       target: { value: '0' },
     });
-    fireEvent.change(screen.getByLabelText('🔵 Par'), {
+    fireEvent.change(screen.getByLabelText('Par'), {
       target: { value: '35' },
     });
     fireEvent.click(screen.getByRole('button', { name: 'Criar Ciclo' }));
@@ -108,7 +108,7 @@ describe('CreateCycleModal', () => {
   test('não submete quando os pesos não somam 100', () => {
     render(<CreateCycleModal onClose={vi.fn()} onSuccess={vi.fn()} />);
     fillValid();
-    fireEvent.change(screen.getByLabelText('🟢 Autoavaliação'), {
+    fireEvent.change(screen.getByLabelText('Autoavaliação'), {
       target: { value: '50' },
     });
     fireEvent.click(screen.getByRole('button', { name: 'Criar Ciclo' }));

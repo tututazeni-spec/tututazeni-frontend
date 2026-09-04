@@ -4,6 +4,7 @@
 
 'use client';
 
+import { AlertTriangle } from 'lucide-react';
 import type { EmployeeSkill } from './types';
 
 interface SkillBarProps {
@@ -43,7 +44,11 @@ export function SkillBar({ skill, requiredLevel }: SkillBarProps) {
         </div>
       </div>
       {!skill.managerValidated && skill.skill.type === 'TECHNICAL' && (
-        <span className="text-xs text-warning flex-shrink-0">⚠</span>
+        <AlertTriangle
+          size={13}
+          strokeWidth={1.75}
+          className="flex-shrink-0 text-warning"
+        />
       )}
     </div>
   );

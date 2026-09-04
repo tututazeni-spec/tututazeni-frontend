@@ -12,9 +12,9 @@ vi.mock('next/image', () => ({
 }));
 
 describe('CourseThumbnail', () => {
-  test('sem src — mostra o fallback 📚', () => {
-    render(<CourseThumbnail src={null} alt="Curso X" />);
-    expect(screen.getByText('📚')).toBeInTheDocument();
+  test('sem src — mostra o ícone de fallback', () => {
+    const { container } = render(<CourseThumbnail src={null} alt="Curso X" />);
+    expect(container.querySelector('svg')).toBeInTheDocument();
     expect(screen.queryByRole('img')).not.toBeInTheDocument();
   });
 
@@ -32,8 +32,10 @@ describe('CourseThumbnail', () => {
     expect(img).toHaveAttribute('src', 'https://cdn.innova.ao/x.jpg');
   });
 
-  test('fallbackClassName controla o tamanho do emoji', () => {
-    render(<CourseThumbnail src={null} alt="x" fallbackClassName="text-2xl" />);
-    expect(screen.getByText('📚')).toHaveClass('text-2xl');
+  test('fallbackClassName aplica-se ao contentor do fallback', () => {
+    const { container } = render(
+      <CourseThumbnail src={null} alt="x" fallbackClassName="text-2xl" />,
+    );
+    expect(container.firstChild).toHaveClass('text-2xl');
   });
 });

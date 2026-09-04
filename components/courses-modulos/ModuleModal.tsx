@@ -5,6 +5,7 @@
 'use client';
 
 import { useState } from 'react';
+import { Pencil, Package } from 'lucide-react';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -75,8 +76,16 @@ export function ModuleModal({
       >
         <CardBody className="flex flex-col gap-5">
           <div className="flex justify-between items-center">
-            <h2 className="text-lg font-bold text-ink">
-              {editing ? '✏️ Editar Módulo' : '📦 Novo Módulo'}
+            <h2 className="flex items-center gap-2 text-lg font-bold text-ink">
+              {editing ? (
+                <>
+                  <Pencil size={18} strokeWidth={1.75} /> Editar Módulo
+                </>
+              ) : (
+                <>
+                  <Package size={18} strokeWidth={1.75} /> Novo Módulo
+                </>
+              )}
             </h2>
             <button
               onClick={onClose}

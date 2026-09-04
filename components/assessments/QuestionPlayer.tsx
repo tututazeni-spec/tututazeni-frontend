@@ -3,6 +3,7 @@
 // aberto, upload de ficheiro, media). Extraído de
 // app/(platform)/assessments/page.tsx.
 
+import { Paperclip } from 'lucide-react';
 import Image from 'next/image';
 import { Card } from '@/components/ui/Card';
 import { parseOptions } from './utils';
@@ -174,7 +175,11 @@ export function QuestionPlayer({
 
       {question.type === 'FILE_UPLOAD' && (
         <div className="border-2 border-dashed border-border-strong rounded-card p-8 text-center">
-          <div className="text-3xl mb-3">📎</div>
+          <Paperclip
+            size={28}
+            strokeWidth={1.5}
+            className="mx-auto mb-3 text-ink-faint"
+          />
           <div className="text-sm font-medium text-ink mb-1">
             Upload de ficheiro
           </div>

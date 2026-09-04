@@ -5,22 +5,46 @@
 // cada ContentType recebe um token distinto (danger/info/primary/warning/
 // success) só para manter a distinção visual entre os 5 tipos.
 
+import {
+  Play,
+  FileText,
+  Headphones,
+  BarChart3,
+  HelpCircle,
+  type LucideIcon,
+} from 'lucide-react';
 import type { StatusBadgeMap } from '@/lib/statusBadge';
 import type { ContentLevel, ContentType, Nav, TabKey } from './types';
 
 export const TYPE_CFG: Record<
   ContentType,
-  { label: string; icon: string; cls: string }
+  { label: string; icon: LucideIcon; cls: string }
 > = {
-  VIDEO: { label: 'Vídeo', icon: '▶️', cls: 'bg-danger-subtle text-danger-ink' },
-  TEXT: { label: 'Leitura', icon: '📄', cls: 'bg-info-subtle text-info-ink' },
-  AUDIO: { label: 'Áudio', icon: '🎧', cls: 'bg-primary-subtle text-primary' },
+  VIDEO: {
+    label: 'Vídeo',
+    icon: Play,
+    cls: 'bg-danger-subtle text-danger-ink',
+  },
+  TEXT: {
+    label: 'Leitura',
+    icon: FileText,
+    cls: 'bg-info-subtle text-info-ink',
+  },
+  AUDIO: {
+    label: 'Áudio',
+    icon: Headphones,
+    cls: 'bg-primary-subtle text-primary',
+  },
   INFOGRAPHIC: {
     label: 'Infográfico',
-    icon: '📊',
+    icon: BarChart3,
     cls: 'bg-warning-subtle text-warning-ink',
   },
-  QUIZ: { label: 'Questionário', icon: '❓', cls: 'bg-success-subtle text-success-ink' },
+  QUIZ: {
+    label: 'Questionário',
+    icon: HelpCircle,
+    cls: 'bg-success-subtle text-success-ink',
+  },
 };
 
 export const LEVEL_CFG: StatusBadgeMap<ContentLevel> = {

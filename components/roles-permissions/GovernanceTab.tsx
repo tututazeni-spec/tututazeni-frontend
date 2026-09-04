@@ -139,7 +139,12 @@ export function GovernanceTab() {
       {(data?.unusedRoles ?? []).length > 0 && (
         <div className="bg-warning-subtle border border-warning rounded-card p-4">
           <h4 className="font-semibold text-warning-ink mb-2">
-            ⚠️ Roles sem Utilizadores
+            <AlertTriangle
+              size={14}
+              strokeWidth={1.75}
+              className="inline align-[-2px]"
+            />{' '}
+            Roles sem Utilizadores
           </h4>
           <div className="flex flex-wrap gap-2">
             {(data?.unusedRoles ?? []).map((r, i) => (

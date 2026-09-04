@@ -6,7 +6,7 @@
 'use client';
 
 import { useState } from 'react';
-import { ArrowLeft, Lock, Trash2 } from 'lucide-react';
+import { ArrowLeft, Lock, Trash2, Calendar } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
@@ -159,7 +159,11 @@ export function DetailView({ reportId, onBack, onDeleted }: DetailViewProps) {
               </p>
             )}
             <div className="mt-2 flex items-center gap-4 font-body text-xs text-ink-faint">
-              {report.period && <span>📅 {report.period}</span>}
+              {report.period && (
+                <span className="inline-flex items-center gap-1">
+                  <Calendar size={12} strokeWidth={1.75} /> {report.period}
+                </span>
+              )}
               {report.publishedAt && (
                 <span>Publicado: {fmtDate(report.publishedAt)}</span>
               )}

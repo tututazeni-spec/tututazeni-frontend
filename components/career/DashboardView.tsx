@@ -288,7 +288,7 @@ export function DashboardView() {
                     c.met ? 'text-success' : 'text-warning',
                   )}
                 >
-                  {c.met ? '✓ Cumprido' : '⚠ Pendente'}
+                  {c.met ? '✓ Cumprido' : 'Pendente'}
                 </div>
               </div>
             ))}

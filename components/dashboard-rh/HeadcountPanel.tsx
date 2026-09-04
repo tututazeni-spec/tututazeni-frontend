@@ -6,7 +6,7 @@
 
 'use client';
 
-import { CheckCircle, Clock, UserMinus, Users } from 'lucide-react';
+import { CheckCircle, Clock, UserMinus, Users, Trophy } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -153,7 +153,12 @@ function AnniversariesWidget() {
                 {u.fullName}
               </p>
               <p className="font-body text-[10px] font-semibold text-warning-ink">
-                {u.years} {u.years === 1 ? 'ano' : 'anos'} 🏆
+                {u.years} {u.years === 1 ? 'ano' : 'anos'}{' '}
+                <Trophy
+                  size={12}
+                  strokeWidth={1.75}
+                  className="inline align-[-2px]"
+                />
               </p>
             </div>
           </div>

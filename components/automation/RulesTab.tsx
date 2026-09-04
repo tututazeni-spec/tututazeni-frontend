@@ -1,7 +1,16 @@
 // components/automation/RulesTab.tsx
 
 import { useState } from 'react';
-import { Copy, Pause, Play, Plus, RefreshCw, Trash2 } from 'lucide-react';
+import {
+  Copy,
+  Pause,
+  Play,
+  Plus,
+  RefreshCw,
+  Trash2,
+  CheckCircle2,
+  XCircle,
+} from 'lucide-react';
 import { useToast } from '@/providers/ToastProvider';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { useConfirm } from '@/providers/ConfirmProvider';
@@ -160,9 +169,23 @@ export function RulesTab() {
                     <span className="text-ink-faint">
                       {r.stats.total} execuções
                     </span>
-                    <span className="text-success">{r.stats.success} ✅</span>
+                    <span className="text-success">
+                      {r.stats.success}{' '}
+                      <CheckCircle2
+                        size={12}
+                        strokeWidth={1.75}
+                        className="inline align-[-2px]"
+                      />
+                    </span>
                     {r.stats.failed > 0 && (
-                      <span className="text-danger">{r.stats.failed} ❌</span>
+                      <span className="text-danger">
+                        {r.stats.failed}{' '}
+                        <XCircle
+                          size={12}
+                          strokeWidth={1.75}
+                          className="inline align-[-2px]"
+                        />
+                      </span>
                     )}
                     <span className="font-semibold text-primary">
                       {r.stats.successRate}% ok

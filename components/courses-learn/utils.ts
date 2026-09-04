@@ -2,6 +2,17 @@
 // Formatação/labels do domínio de aprendizagem. Extraído de
 // app/(platform)/courses/[courseId]/learn/page.tsx.
 
+import {
+  Play,
+  FileText,
+  PenLine,
+  Music,
+  BarChart3,
+  Link2,
+  Package,
+  HelpCircle,
+  type LucideIcon,
+} from 'lucide-react';
 import type { LessonType, ModuleType } from './types';
 
 export function fmtDuration(min: number | null): string {
@@ -9,18 +20,18 @@ export function fmtDuration(min: number | null): string {
   return min < 60 ? `${min}min` : `${Math.floor(min / 60)}h ${min % 60}min`;
 }
 
-export function lessonIcon(type: LessonType): string {
+export function lessonIcon(type: LessonType): LucideIcon {
   return (
     {
-      VIDEO: '▶',
-      PDF: '📄',
-      TEXT: '📝',
-      AUDIO: '🎵',
-      SLIDE: '📊',
-      LINK: '🔗',
-      SCORM: '📦',
-      QUIZ: '❓',
-    }[type] ?? '📄'
+      VIDEO: Play,
+      PDF: FileText,
+      TEXT: PenLine,
+      AUDIO: Music,
+      SLIDE: BarChart3,
+      LINK: Link2,
+      SCORM: Package,
+      QUIZ: HelpCircle,
+    }[type] ?? FileText
   );
 }
 

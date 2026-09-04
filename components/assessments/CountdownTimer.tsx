@@ -4,6 +4,7 @@
 
 'use client';
 
+import { Timer } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 export interface CountdownTimerProps {
@@ -38,7 +39,8 @@ export function CountdownTimer({
           : 'bg-surface-sunken text-ink-muted'
       }`}
     >
-      ⏱ {String(mins).padStart(2, '0')}:{String(secs).padStart(2, '0')}
+      <Timer size={13} strokeWidth={1.75} className="inline align-[-2px]" />{' '}
+      {String(mins).padStart(2, '0')}:{String(secs).padStart(2, '0')}
     </div>
   );
 }

@@ -12,7 +12,16 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import { CheckCircle2, Circle, Lock, PlayCircle } from 'lucide-react';
+import {
+  CheckCircle2,
+  Circle,
+  Lock,
+  PlayCircle,
+  BookOpen,
+  Clock,
+  Users,
+  Rocket,
+} from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
@@ -143,11 +152,20 @@ export function LPDetailView({ pathId, onBack }: LPDetailViewProps) {
                 </p>
               )}
               <div className="flex flex-wrap gap-4 font-body text-xs text-ink-faint">
-                <span>📚 {path._count.courses} cursos</span>
+                <span className="inline-flex items-center gap-1">
+                  <BookOpen size={12} strokeWidth={1.75} />{' '}
+                  {path._count.courses} cursos
+                </span>
                 {path.totalHours > 0 && (
-                  <span>⏱ {fmtHours(path.totalHours)}</span>
+                  <span className="inline-flex items-center gap-1">
+                    <Clock size={12} strokeWidth={1.75} />{' '}
+                    {fmtHours(path.totalHours)}
+                  </span>
                 )}
-                <span>👥 {path._count.enrollments} inscritos</span>
+                <span className="inline-flex items-center gap-1">
+                  <Users size={12} strokeWidth={1.75} />{' '}
+                  {path._count.enrollments} inscritos
+                </span>
                 {path.deadline && (
                   <span
                     className={`font-medium ${isOverdue(path.deadline) ? 'text-danger' : ''}`}
@@ -174,7 +192,13 @@ export function LPDetailView({ pathId, onBack }: LPDetailViewProps) {
             <div className="flex-shrink-0 text-center">
               {!isEnrolled && path.status === 'PUBLISHED' && (
                 <Button onClick={handleEnroll} loading={enrolling}>
-                  {enrolling ? 'A inscrever…' : '🚀 Iniciar trilha'}
+                  {enrolling ? (
+                    'A inscrever…'
+                  ) : (
+                    <span className="inline-flex items-center gap-1.5">
+                      <Rocket size={14} strokeWidth={1.75} /> Iniciar trilha
+                    </span>
+                  )}
                 </Button>
               )}
               {isEnrolled && (
@@ -284,8 +308,8 @@ export function LPDetailView({ pathId, onBack }: LPDetailViewProps) {
                           className="object-cover"
                         />
                       ) : (
-                        <div className="flex h-full w-full items-center justify-center text-xl text-ink-faint">
-                          📚
+                        <div className="flex h-full w-full items-center justify-center text-ink-faint">
+                          <BookOpen size={20} strokeWidth={1.75} />
                         </div>
                       )}
                     </div>
@@ -314,7 +338,10 @@ export function LPDetailView({ pathId, onBack }: LPDetailViewProps) {
                           <span>{step.course.category}</span>
                         )}
                         {step.course?.workloadHours && (
-                          <span>⏱ {fmtHours(step.course.workloadHours)}</span>
+                          <span className="inline-flex items-center gap-1">
+                            <Clock size={12} strokeWidth={1.75} />{' '}
+                            {fmtHours(step.course.workloadHours)}
+                          </span>
                         )}
                         {step.completedAt && (
                           <span className="text-success">

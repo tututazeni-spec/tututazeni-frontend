@@ -4,6 +4,14 @@
 
 'use client';
 
+import {
+  BookMarked,
+  Link2,
+  FileText,
+  BarChart3,
+  Pencil,
+  Trash2,
+} from 'lucide-react';
 import { CONTENT_TYPE } from './constants';
 import { Button } from '@/components/ui/Button';
 import type { Lesson } from './types';
@@ -16,18 +24,21 @@ interface LessonRowProps {
 
 export function LessonRow({ lesson, onEdit, onDelete }: LessonRowProps) {
   const ct = CONTENT_TYPE[lesson.type] ?? {
-    icon: '📖',
+    icon: BookMarked,
     color: '#64748b',
     bg: '#f8fafc',
     label: lesson.type,
   };
+  const CtIcon = ct.icon;
   const isDataUrl = lesson.contentUrl?.startsWith('data:') ?? false;
   return (
     <div className="flex items-center gap-3 p-3 rounded-lg bg-surface-sunken border border-border">
       <span className="text-sm text-ink-faint min-w-5 text-center font-bold">
         {lesson.seq}
       </span>
-      <span className="text-lg">{ct.icon}</span>
+      <span className="text-ink-muted" style={{ color: ct.color }}>
+        <CtIcon size={18} strokeWidth={1.75} />
+      </span>
       <div className="flex-1 min-w-0">
         <p className="m-0 text-sm font-semibold text-ink overflow-hidden text-ellipsis whitespace-nowrap">
           {lesson.title}
@@ -47,51 +58,55 @@ export function LessonRow({ lesson, onEdit, onDelete }: LessonRowProps) {
               href={lesson.contentUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-xs text-primary hover:underline"
+              className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
             >
-              🔗 Vídeo
+              <Link2 size={12} strokeWidth={1.75} /> Vídeo
             </a>
           )}
           {lesson.type === 'PDF' &&
             lesson.contentUrl &&
             (isDataUrl ? (
-              <span className="text-xs text-warning">📄 PDF carregado</span>
+              <span className="inline-flex items-center gap-1 text-xs text-warning">
+                <FileText size={12} strokeWidth={1.75} /> PDF carregado
+              </span>
             ) : (
               <a
                 href={lesson.contentUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-xs text-warning hover:underline"
+                className="inline-flex items-center gap-1 text-xs text-warning hover:underline"
               >
-                🔗 PDF
+                <Link2 size={12} strokeWidth={1.75} /> PDF
               </a>
             ))}
           {lesson.type === 'SLIDE' &&
             lesson.contentUrl &&
             (isDataUrl ? (
-              <span className="text-xs text-warning">📊 PPTX carregado</span>
+              <span className="inline-flex items-center gap-1 text-xs text-warning">
+                <BarChart3 size={12} strokeWidth={1.75} /> PPTX carregado
+              </span>
             ) : (
               <a
                 href={lesson.contentUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-xs text-warning hover:underline"
+                className="inline-flex items-center gap-1 text-xs text-warning hover:underline"
               >
-                🔗 PPTX
+                <Link2 size={12} strokeWidth={1.75} /> PPTX
               </a>
             ))}
         </div>
       </div>
       <div className="flex gap-1 flex-shrink-0">
         <Button onClick={onEdit} intent="ghost" className="px-2 py-1 text-xs">
-          ✏️
+          <Pencil size={14} strokeWidth={1.75} />
         </Button>
         <Button
           onClick={onDelete}
           intent="danger"
           className="px-2 py-1 text-xs"
         >
-          🗑️
+          <Trash2 size={14} strokeWidth={1.75} />
         </Button>
       </div>
     </div>

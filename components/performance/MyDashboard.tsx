@@ -186,7 +186,7 @@ export function MyDashboard() {
               className={`mt-3 text-xs px-3 py-1.5 rounded-control inline-block ${isOverdue(cycle.selfEvalDeadline) ? 'bg-danger' : 'bg-primary-hover'}`}
             >
               {isOverdue(cycle.selfEvalDeadline)
-                ? '⚠ Autoavaliação em atraso'
+                ? 'Autoavaliação em atraso'
                 : `Autoavaliação: ${fmtDate(cycle.selfEvalDeadline)}`}
             </div>
           )}
@@ -274,7 +274,7 @@ export function MyDashboard() {
                       className={`text-xs mt-1 ${isOverdue(g.dueDate) ? 'text-danger' : 'text-ink-faint'}`}
                     >
                       {isOverdue(g.dueDate)
-                        ? '⚠ Prazo expirado'
+                        ? 'Prazo expirado'
                         : `Prazo: ${fmtDate(g.dueDate)}`}
                     </div>
                   )}

@@ -11,6 +11,16 @@
 // de intent (positivo=success/accent, neutro=info/primary, negativo=danger,
 // atenção=warning).
 
+import {
+  ArrowUp,
+  ArrowLeftRight,
+  RefreshCw,
+  Sparkles,
+  Circle,
+  UserCog,
+  PenLine,
+  type LucideIcon,
+} from 'lucide-react';
 import type { StatusBadgeMap } from '@/lib/statusBadge';
 import type { ChangeType, PosLevel, View } from './types';
 
@@ -27,39 +37,41 @@ export const LEVEL_CFG: StatusBadgeMap<PosLevel> = {
 
 export const CHANGE_CFG: Record<
   ChangeType,
-  { label: string; cls: string; icon: string }
+  { label: string; cls: string; icon: LucideIcon }
 > = {
   PROMOTION: {
     label: 'Promoção',
     cls: 'bg-success-subtle text-success-ink',
-    icon: '⬆️',
+    icon: ArrowUp,
   },
   TRANSFER: {
     label: 'Transferência',
     cls: 'bg-info-subtle text-info-ink',
-    icon: '↔️',
+    icon: ArrowLeftRight,
   },
   RESTRUCTURE: {
     label: 'Reestruturação',
     cls: 'bg-primary-subtle text-primary',
-    icon: '🔄',
+    icon: RefreshCw,
   },
   HIRE: {
     label: 'Admissão',
     cls: 'bg-accent-subtle text-accent',
-    icon: '🆕',
+    icon: Sparkles,
   },
   TERMINATION: {
     label: 'Desligamento',
     cls: 'bg-danger-subtle text-danger-ink',
-    icon: '🔴',
+    icon: Circle,
   },
   MANAGER_CHANGE: {
     label: 'Mudança gestor',
     cls: 'bg-warning-subtle text-warning-ink',
-    icon: '👤',
+    icon: UserCog,
   },
 };
+
+export const CHANGE_FALLBACK_ICON: LucideIcon = PenLine;
 
 export const NAV: Array<{ id: View; label: string }> = [
   { id: 'dashboard', label: 'Dashboard' },

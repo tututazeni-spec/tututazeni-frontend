@@ -1,6 +1,6 @@
 // components/acl/PoliciesTab.tsx
 
-import { Lock } from 'lucide-react';
+import { Lock, AlertTriangle } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -16,7 +16,8 @@ export function PoliciesTab() {
     { staleTime: STALE_TIME.SEMI_STATIC },
   );
 
-  if (loading) return <Skeleton rows={3} itemClassName="h-16 bg-surface rounded-xl" />;
+  if (loading)
+    return <Skeleton rows={3} itemClassName="h-16 bg-surface rounded-xl" />;
 
   return (
     <div className="space-y-3">
@@ -51,7 +52,12 @@ export function PoliciesTab() {
               )}
               {p.requiresJustification && (
                 <span className="rounded bg-warning-subtle px-2 py-0.5 text-warning-ink">
-                  ⚠️ Requer Justificativa
+                  <AlertTriangle
+                    size={14}
+                    strokeWidth={1.75}
+                    className="inline align-[-2px]"
+                  />{' '}
+                  Requer Justificativa
                 </span>
               )}
               <span className="rounded bg-surface px-2 py-0.5 text-ink-muted">

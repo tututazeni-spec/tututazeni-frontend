@@ -12,7 +12,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
-import { Bot, CheckCircle, Send } from 'lucide-react';
+import { Bot, CheckCircle, Send, Target } from 'lucide-react';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { reportError } from '@/lib/errorReporting';
@@ -87,7 +87,7 @@ export function ChatSession({
         ...prev,
         {
           role: 'SYSTEM',
-          content: '⚠️ Erro na comunicação',
+          content: 'Erro na comunicação',
           timestamp: new Date().toISOString(),
         },
       ]);
@@ -130,7 +130,12 @@ export function ChatSession({
         {session.scenario.objective && (
           <div className="-mx-6 mt-4 bg-primary-subtle border-y border-primary-subtle px-6 py-2">
             <p className="text-xs text-primary">
-              🎯 <span className="font-medium">Objectivo:</span>{' '}
+              <Target
+                size={14}
+                strokeWidth={1.75}
+                className="inline align-[-2px]"
+              />{' '}
+              <span className="font-medium">Objectivo:</span>{' '}
               {session.scenario.objective}
             </p>
           </div>

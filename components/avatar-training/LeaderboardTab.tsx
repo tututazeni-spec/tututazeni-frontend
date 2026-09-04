@@ -5,6 +5,7 @@
 
 'use client';
 
+import { Medal } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -50,13 +51,27 @@ export function LeaderboardTab() {
             <span
               className={`w-8 text-center font-bold text-sm ${rankColor(u.rank)}`}
             >
-              {u.rank === 1
-                ? '🥇'
-                : u.rank === 2
-                  ? '🥈'
-                  : u.rank === 3
-                    ? '🥉'
-                    : `#${u.rank}`}
+              {u.rank === 1 ? (
+                <Medal
+                  size={16}
+                  strokeWidth={1.75}
+                  className="inline text-warning"
+                />
+              ) : u.rank === 2 ? (
+                <Medal
+                  size={16}
+                  strokeWidth={1.75}
+                  className="inline text-ink-muted"
+                />
+              ) : u.rank === 3 ? (
+                <Medal
+                  size={16}
+                  strokeWidth={1.75}
+                  className="inline text-[#b45309]"
+                />
+              ) : (
+                `#${u.rank}`
+              )}
             </span>
             <Avatar name={u.user?.fullName ?? '?'} size="sm" />
             <div className="flex-1 min-w-0">

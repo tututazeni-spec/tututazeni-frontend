@@ -1,6 +1,6 @@
 // components/lms/LiveSessionsView.tsx
 
-import { Video } from 'lucide-react';
+import { Video, Link2 } from 'lucide-react';
 import { formatDateTime } from '@/lib/format';
 import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
@@ -63,8 +63,11 @@ export function LiveSessionsView({
             <Card key={s.id}>
               <CardBody className="flex items-center justify-between">
                 <div className="flex items-start gap-4">
-                  <div className="text-3xl">
-                    {PLATFORM_ICONS[s.platform] || '🔗'}
+                  <div className="text-ink-muted">
+                    {(() => {
+                      const PIcon = PLATFORM_ICONS[s.platform] || Link2;
+                      return <PIcon size={28} strokeWidth={1.5} />;
+                    })()}
                   </div>
                   <div>
                     <h3 className="font-display text-sm font-semibold text-ink">

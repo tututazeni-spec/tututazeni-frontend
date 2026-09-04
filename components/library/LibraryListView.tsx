@@ -1,7 +1,7 @@
 // components/library/LibraryListView.tsx
 
 import Link from 'next/link';
-import { Plus } from 'lucide-react';
+import { Plus, Eye, Download, Star, Package } from 'lucide-react';
 import { Button, buttonVariants } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -28,7 +28,9 @@ interface LibraryListViewProps {
 
 const TYPE_FILTER_ITEMS = [
   { value: 'ALL', label: 'Todos os tipos' },
-  ...(['PDF', 'EBOOK', 'VIDEO', 'AUDIO', 'PRESENTATION', 'DOCUMENT'] as const).map((v) => ({
+  ...(
+    ['PDF', 'EBOOK', 'VIDEO', 'AUDIO', 'PRESENTATION', 'DOCUMENT'] as const
+  ).map((v) => ({
     value: v,
     label: TYPE_LABELS[v],
   })),
@@ -67,10 +69,17 @@ export function LibraryListView({
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-display text-2xl font-bold text-ink">Biblioteca Digital</h1>
-          <p className="font-body text-ink-muted">{total} recursos disponíveis</p>
+          <h1 className="font-display text-2xl font-bold text-ink">
+            Biblioteca Digital
+          </h1>
+          <p className="font-body text-ink-muted">
+            {total} recursos disponíveis
+          </p>
         </div>
-        <Link href="/library/novo" className={buttonVariants({ intent: 'primary', size: 'md' })}>
+        <Link
+          href="/library/novo"
+          className={buttonVariants({ intent: 'primary', size: 'md' })}
+        >
           <Plus size={16} strokeWidth={1.75} />
           Adicionar Recurso
         </Link>
@@ -102,20 +111,44 @@ export function LibraryListView({
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {data.map((item) => (
-            <Link key={item.id} href={`/library/${item.id}`} className="block h-full">
+            <Link
+              key={item.id}
+              href={`/library/${item.id}`}
+              className="block h-full"
+            >
               <Card className="h-full hover:shadow-hover">
                 <CardBody className="flex h-full flex-col">
-                  <div className="mb-3 text-4xl">{TYPE_ICONS[item.type] || '📦'}</div>
+                  {(() => {
+                    const TypeIcon = TYPE_ICONS[item.type] || Package;
+                    return (
+                      <TypeIcon
+                        size={32}
+                        strokeWidth={1.5}
+                        className="mb-3 text-ink-muted"
+                      />
+                    );
+                  })()}
                   <h3 className="mb-1 line-clamp-2 font-display font-semibold text-ink">
                     {item.title}
                   </h3>
                   {item.author && (
-                    <p className="mb-2 font-body text-sm text-ink-muted">{item.author}</p>
+                    <p className="mb-2 font-body text-sm text-ink-muted">
+                      {item.author}
+                    </p>
                   )}
                   <div className="mt-auto flex items-center justify-between pt-3 font-body text-xs text-ink-faint">
-                    <span>👁 {item.views}</span>
-                    <span>⬇ {item.downloads}</span>
-                    {item.rating > 0 && <span>⭐ {item.rating.toFixed(1)}</span>}
+                    <span className="inline-flex items-center gap-1">
+                      <Eye size={12} strokeWidth={1.75} /> {item.views}
+                    </span>
+                    <span className="inline-flex items-center gap-1">
+                      <Download size={12} strokeWidth={1.75} /> {item.downloads}
+                    </span>
+                    {item.rating > 0 && (
+                      <span className="inline-flex items-center gap-1">
+                        <Star size={12} strokeWidth={1.75} />{' '}
+                        {item.rating.toFixed(1)}
+                      </span>
+                    )}
                   </div>
                 </CardBody>
               </Card>

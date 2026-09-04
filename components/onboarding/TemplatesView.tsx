@@ -89,12 +89,15 @@ export function TemplatesView({ canManage = false }: TemplatesViewProps) {
             <div className="space-y-1">
               {t.tasks.slice(0, 3).map((task) => {
                 const catCfg = CATEGORY_CFG[task.category];
+                const CatIcon = catCfg?.icon;
                 return (
                   <div
                     key={task.id}
                     className="flex items-center gap-2 text-xs text-ink-muted"
                   >
-                    <span>{catCfg?.icon ?? '•'}</span>
+                    <span>
+                      {CatIcon ? <CatIcon size={13} strokeWidth={1.75} /> : '•'}
+                    </span>
                     <span className="truncate">{task.title}</span>
                     <span className="ml-auto text-warning-ink">
                       +{task.xpReward}xp

@@ -6,7 +6,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Map } from 'lucide-react';
+import { Map, Clock } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -111,15 +111,17 @@ export function PathsView() {
                     </div>
                     <div className="mt-1 flex gap-3 font-body text-xs text-ink-faint">
                       {step.minMonthsRequired && (
-                        <span>⏱ {step.minMonthsRequired}m mínimos</span>
+                        <span className="inline-flex items-center gap-1">
+                          <Clock size={12} strokeWidth={1.75} />{' '}
+                          {step.minMonthsRequired}m mínimos
+                        </span>
                       )}
                       {step.minPerformanceScore && (
                         <span> Score ≥{step.minPerformanceScore}</span>
                       )}
                       {(step.requiredCourseIds?.length ?? 0) > 0 && (
                         <span>
-                           {step.requiredCourseIds?.length} cursos
-                          obrigatórios
+                          {step.requiredCourseIds?.length} cursos obrigatórios
                         </span>
                       )}
                     </div>

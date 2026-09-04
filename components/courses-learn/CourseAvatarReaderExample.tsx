@@ -115,7 +115,7 @@ export function LessonContent({ lesson }: LessonContentProps) {
 //
 //  • Usa a Web Speech API nativa do browser (SpeechSynthesis)
 //    — sem custos, sem API keys, funciona offline
-//    — suporte: Chrome ✅  Edge ✅  Firefox ✅  Safari ✅  (excl. alguns browsers antigos)
+//    — suporte: Chrome / Edge / Firefox / Safari (excl. alguns browsers antigos)
 //
 //  • Se o browser não suportar SpeechSynthesis, o componente não renderiza
 //    (sem erros, sem interface quebrada)

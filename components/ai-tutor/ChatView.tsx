@@ -176,7 +176,7 @@ export function ChatView() {
         {
           id: Date.now(),
           role: 'ASSISTANT',
-          content: `⚠️ Erro: ${errMsg}`,
+          content: `Erro: ${errMsg}`,
           createdAt: new Date().toISOString(),
           latencyMs: null,
           rating: null,

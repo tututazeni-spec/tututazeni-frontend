@@ -5,7 +5,7 @@
 'use client';
 
 import Image from 'next/image';
-import { Trophy } from 'lucide-react';
+import { Trophy, Clock } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { Avatar } from '@/components/ui/Avatar';
 import { Card } from '@/components/ui/Card';
@@ -86,7 +86,12 @@ export function TrainingCard({ training, onClick }: TrainingCardProps) {
         <div className="mb-2 flex flex-wrap items-center gap-2">
           <StatusBadge value={training.level} map={LEVEL_CFG} />
           <span className="font-body text-xs text-ink-faint">
-            ⏱ {fmtHours(training.workloadHours)}
+            <Clock
+              size={13}
+              strokeWidth={1.75}
+              className="inline align-[-2px]"
+            />{' '}
+            {fmtHours(training.workloadHours)}
           </span>
           {training.issueCertificate && (
             <span className="flex items-center gap-1 font-body text-xs text-accent">

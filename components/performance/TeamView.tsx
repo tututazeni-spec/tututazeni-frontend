@@ -111,7 +111,7 @@ export function TeamView() {
               </TableCell>
               <TableCell>
                 {member.pendingSelfReview && (
-                  <Badge intent="warning">⏳ Self pendente</Badge>
+                  <Badge intent="warning">Self pendente</Badge>
                 )}
                 {!member.pendingSelfReview &&
                   member.status === 'NOT_STARTED' && (

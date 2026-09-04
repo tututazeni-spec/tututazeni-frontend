@@ -12,7 +12,14 @@
 
 'use client';
 
-import { ArrowLeft, Check, Star } from 'lucide-react';
+import {
+  ArrowLeft,
+  Check,
+  Star,
+  Clock,
+  Users,
+  ClipboardList,
+} from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -246,10 +253,19 @@ export function CourseDetailView({
             )}
             <div className="flex flex-wrap gap-4 text-sm text-ink-muted mb-4">
               {course.workloadHours && (
-                <span>⏱ {fmtDuration(course.workloadHours)}</span>
+                <span className="inline-flex items-center gap-1">
+                  <Clock size={12} strokeWidth={1.75} />{' '}
+                  {fmtDuration(course.workloadHours)}
+                </span>
               )}
-              <span>👥 {course._count.enrollments} matriculados</span>
-              <span>📋 {course._count.modules} módulos</span>
+              <span className="inline-flex items-center gap-1">
+                <Users size={12} strokeWidth={1.75} />{' '}
+                {course._count.enrollments} matriculados
+              </span>
+              <span className="inline-flex items-center gap-1">
+                <ClipboardList size={12} strokeWidth={1.75} />{' '}
+                {course._count.modules} módulos
+              </span>
               {course.internalCode && (
                 <span className="font-mono text-xs">{course.internalCode}</span>
               )}

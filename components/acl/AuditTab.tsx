@@ -1,7 +1,7 @@
 // components/acl/AuditTab.tsx
 
 import { useState } from 'react';
-import { Activity } from 'lucide-react';
+import { Activity, Circle } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -20,7 +20,8 @@ export function AuditTab() {
     { params: { page }, staleTime: STALE_TIME.DYNAMIC },
   );
 
-  if (loading) return <Skeleton rows={3} itemClassName="h-16 bg-surface rounded-xl" />;
+  if (loading)
+    return <Skeleton rows={3} itemClassName="h-16 bg-surface rounded-xl" />;
 
   return (
     <div className="space-y-4">
@@ -35,7 +36,18 @@ export function AuditTab() {
               setPage(1);
             }}
           >
-            {v === 'all' ? 'Todas as Alterações' : '🔴 Acessos Negados'}
+            {v === 'all' ? (
+              'Todas as Alterações'
+            ) : (
+              <span className="inline-flex items-center gap-1">
+                <Circle
+                  size={11}
+                  strokeWidth={1.75}
+                  className="fill-danger text-danger"
+                />{' '}
+                Acessos Negados
+              </span>
+            )}
           </Button>
         ))}
         <span className="self-center ml-auto text-ink-faint text-xs">
@@ -88,7 +100,11 @@ export function AuditTab() {
           })}
           {(data?.data?.length ?? 0) === 0 && (
             <div className="py-12 text-center text-ink-faint">
-              <Activity size={32} strokeWidth={1.75} className="mx-auto mb-2 opacity-30" />
+              <Activity
+                size={32}
+                strokeWidth={1.75}
+                className="mx-auto mb-2 opacity-30"
+              />
               <p className="text-sm">Sem registos de auditoria</p>
             </div>
           )}

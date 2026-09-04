@@ -12,7 +12,7 @@
 'use client';
 
 import { useState } from 'react';
-import { FileText, PartyPopper } from 'lucide-react';
+import { FileText, PartyPopper, Clapperboard } from 'lucide-react';
 import { useToast } from '@/providers/ToastProvider';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
@@ -60,7 +60,7 @@ const SUB_TABS = [
 const DOC_STATUS_LABEL: Record<DocStatus, string> = {
   APPROVED: '✓ Aprovado',
   REJECTED: '✗ Rejeitado',
-  PENDING: '⏳ Pendente',
+  PENDING: 'Pendente',
 };
 
 function paceLabel(pct: number): string {
@@ -187,7 +187,7 @@ export function MyPlanView() {
       {/* Welcome */}
       {plan.template.welcomeVideoUrl && (
         <div className="bg-primary text-canvas rounded-card p-5 flex items-center gap-4">
-          <div className="text-4xl">🎬</div>
+          <Clapperboard size={36} strokeWidth={1.5} className="shrink-0" />
           <div className="flex-1">
             <div className="text-sm font-semibold mb-1">
               Vídeo de boas-vindas

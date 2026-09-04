@@ -4,6 +4,7 @@
 
 'use client';
 
+import { PartyPopper } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import type { ModuleProgress } from './types';
 
@@ -19,7 +20,7 @@ export function ModuleCompletedBanner({
   return (
     <div className="flex-1 bg-ink flex items-center justify-center">
       <div className="text-canvas text-center max-w-sm">
-        <div className="text-6xl mb-4">🎉</div>
+        <PartyPopper size={56} strokeWidth={1.5} className="mx-auto mb-4" />
         <h2 className="font-display text-2xl font-bold mb-2">
           Módulo concluído!
         </h2>

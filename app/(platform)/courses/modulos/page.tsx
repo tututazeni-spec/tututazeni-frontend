@@ -12,6 +12,7 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
+import { Search, BookMarked, AlertTriangle, Package } from 'lucide-react';
 import { CONTENT_TYPE } from '@/components/courses-modulos/constants';
 import { modalReducer } from '@/components/courses-modulos/modalReducer';
 import { Button } from '@/components/ui/Button';
@@ -160,8 +161,8 @@ export default function CourseModulesPage() {
       {/* ── Selector de curso ── */}
       <Card className="mb-6">
         <CardBody>
-          <h3 className="m-0 mb-3.5 text-sm font-bold text-ink">
-            🔍 Seleccionar Curso
+          <h3 className="m-0 mb-3.5 flex items-center gap-1.5 text-sm font-bold text-ink">
+            <Search size={16} strokeWidth={1.75} /> Seleccionar Curso
           </h3>
           <div className="flex gap-3 items-end flex-wrap">
             <div className="flex-1 min-w-[200px]">
@@ -207,8 +208,8 @@ export default function CourseModulesPage() {
           </Card>
           <Card>
             <CardBody className="p-4 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-success-subtle flex items-center justify-center text-lg">
-                📖
+              <div className="w-10 h-10 rounded-lg bg-success-subtle flex items-center justify-center text-success">
+                <BookMarked size={18} strokeWidth={1.75} />
               </div>
               <div>
                 <p className="m-0 text-xl font-extrabold text-success">
@@ -218,31 +219,35 @@ export default function CourseModulesPage() {
               </div>
             </CardBody>
           </Card>
-          {byType.map((t) => (
-            <Card key={t.key}>
-              <CardBody className="p-4 flex items-center gap-3">
-                <div
-                  className="w-10 h-10 rounded-lg flex items-center justify-center text-lg"
-                  style={{
-                    background: t.bg,
-                  }}
-                >
-                  {t.icon}
-                </div>
-                <div>
-                  <p
-                    className="m-0 text-xl font-extrabold"
+          {byType.map((t) => {
+            const TypeIcon = t.icon;
+            return (
+              <Card key={t.key}>
+                <CardBody className="p-4 flex items-center gap-3">
+                  <div
+                    className="w-10 h-10 rounded-lg flex items-center justify-center"
                     style={{
+                      background: t.bg,
                       color: t.color,
                     }}
                   >
-                    {t.count}
-                  </p>
-                  <p className="m-0 text-xs text-ink-muted">{t.label}</p>
-                </div>
-              </CardBody>
-            </Card>
-          ))}
+                    <TypeIcon size={18} strokeWidth={1.75} />
+                  </div>
+                  <div>
+                    <p
+                      className="m-0 text-xl font-extrabold"
+                      style={{
+                        color: t.color,
+                      }}
+                    >
+                      {t.count}
+                    </p>
+                    <p className="m-0 text-xs text-ink-muted">{t.label}</p>
+                  </div>
+                </CardBody>
+              </Card>
+            );
+          })}
         </div>
       )}
 
@@ -250,7 +255,11 @@ export default function CourseModulesPage() {
       {status === 'error' ? (
         <Card>
           <CardBody className="text-center py-12 px-4">
-            <p className="text-3xl mb-3">⚠️</p>
+            <AlertTriangle
+              size={40}
+              strokeWidth={1.5}
+              className="mx-auto mb-3 text-danger"
+            />
             <p className="text-danger text-sm">
               {error?.message ?? 'Curso não encontrado'}
             </p>
@@ -268,7 +277,11 @@ export default function CourseModulesPage() {
       ) : modules.length === 0 ? (
         <Card>
           <CardBody className="text-center py-12 px-4">
-            <p className="text-3xl mb-3">📦</p>
+            <Package
+              size={40}
+              strokeWidth={1.5}
+              className="mx-auto mb-3 text-ink-faint"
+            />
             <p className="text-ink-faint text-sm mb-4">
               Este curso não tem módulos ainda.
             </p>

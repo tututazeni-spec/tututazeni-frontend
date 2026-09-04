@@ -4,6 +4,7 @@
 
 'use client';
 
+import { Users } from 'lucide-react';
 import { useState } from 'react';
 import { Avatar } from '@/components/ui/Avatar';
 import type { OrgNode } from './types';
@@ -57,7 +58,9 @@ export function OrgChartNode({ node, depth = 0 }: OrgChartNodeProps) {
           )}
           {subCount > 0 && (
             <div className="flex items-center gap-1 font-body text-xs text-info">
-              <span>👥 {subCount}</span>
+              <span className="inline-flex items-center gap-1">
+                <Users size={12} strokeWidth={1.75} /> {subCount}
+              </span>
               <span>{expanded ? '▲' : '▼'}</span>
             </div>
           )}

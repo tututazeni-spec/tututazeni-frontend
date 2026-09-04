@@ -13,6 +13,15 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
+import {
+  Headphones,
+  Heart,
+  Bookmark,
+  Lightbulb,
+  HelpCircle,
+  Timer,
+  CheckCircle2,
+} from 'lucide-react';
 import { apiClient } from '@/lib/apiClient';
 import { reportError } from '@/lib/errorReporting';
 import { sanitizeHtml } from '@/lib/sanitize';
@@ -59,6 +68,7 @@ export function PlayerView({ item, onBack, onNext }: PlayerViewProps) {
   };
 
   const typeCfg = TYPE_CFG[item.contentType];
+  const TypeIcon = typeCfg.icon;
 
   let quizQs: ParsedQuizQuestion[] = [];
   try {
@@ -103,7 +113,11 @@ export function PlayerView({ item, onBack, onNext }: PlayerViewProps) {
                 />
               ) : (
                 <div className="text-center">
-                  <div className="mb-4 text-6xl">🎧</div>
+                  <Headphones
+                    size={56}
+                    strokeWidth={1.5}
+                    className="mx-auto mb-4"
+                  />
                   <audio
                     src={item.mediaUrl}
                     controls
@@ -113,8 +127,8 @@ export function PlayerView({ item, onBack, onNext }: PlayerViewProps) {
               )}
             </div>
           ) : (
-            <div className="absolute inset-0 flex items-center justify-center text-6xl opacity-30">
-              {typeCfg.icon}
+            <div className="absolute inset-0 flex items-center justify-center opacity-30">
+              <TypeIcon size={56} strokeWidth={1.5} />
             </div>
           )}
         </div>
@@ -130,8 +144,9 @@ export function PlayerView({ item, onBack, onNext }: PlayerViewProps) {
                   {typeCfg.label}
                 </span>
                 <StatusBadge value={item.level} map={LEVEL_CFG} />
-                <span className="font-body text-xs text-ink-faint">
-                  ⏱ {fmtDuration(item.durationSeconds)}
+                <span className="inline-flex items-center gap-1 font-body text-xs text-ink-faint">
+                  <Timer size={12} strokeWidth={1.75} />{' '}
+                  {fmtDuration(item.durationSeconds)}
                 </span>
                 <span className="font-body text-xs font-medium text-accent">
                   +{item.xpReward} XP
@@ -157,7 +172,7 @@ export function PlayerView({ item, onBack, onNext }: PlayerViewProps) {
                     : 'bg-surface-sunken text-ink-faint hover:bg-danger-subtle hover:text-danger-ink'
                 }`}
               >
-                ❤
+                <Heart size={16} strokeWidth={1.75} />
               </button>
               <button
                 onClick={() => handleInteract('SAVE')}
@@ -167,7 +182,7 @@ export function PlayerView({ item, onBack, onNext }: PlayerViewProps) {
                     : 'bg-surface-sunken text-ink-faint hover:bg-info-subtle hover:text-info-ink'
                 }`}
               >
-                🔖
+                <Bookmark size={16} strokeWidth={1.75} />
               </button>
             </div>
           </div>
@@ -216,8 +231,8 @@ export function PlayerView({ item, onBack, onNext }: PlayerViewProps) {
       {/* Takeaways */}
       {item.takeaways.length > 0 && (
         <div className="mb-5 rounded-card border border-info bg-info-subtle p-5">
-          <div className="mb-3 font-body text-sm font-semibold text-info-ink">
-            💡 Pontos-chave
+          <div className="mb-3 flex items-center gap-1.5 font-body text-sm font-semibold text-info-ink">
+            <Lightbulb size={16} strokeWidth={1.75} /> Pontos-chave
           </div>
           <ul className="space-y-2">
             {item.takeaways.map((t, i) => (
@@ -239,8 +254,9 @@ export function PlayerView({ item, onBack, onNext }: PlayerViewProps) {
       {item.contentType === 'QUIZ' && quizQs.length > 0 && !quiz.result && (
         <Card className="mb-5">
           <CardBody>
-            <div className="mb-4 font-display text-sm font-semibold text-ink">
-              ❓ Questionário — {quizQs.length} perguntas
+            <div className="mb-4 flex items-center gap-1.5 font-display text-sm font-semibold text-ink">
+              <HelpCircle size={16} strokeWidth={1.75} /> Questionário —{' '}
+              {quizQs.length} perguntas
             </div>
             {quizQs.map((q, idx) => (
               <div
@@ -312,9 +328,9 @@ export function PlayerView({ item, onBack, onNext }: PlayerViewProps) {
         <Button
           intent="success"
           onClick={markComplete}
-          className="mb-5 w-full rounded-card py-3"
+          className="mb-5 flex w-full items-center justify-center gap-1.5 rounded-card py-3"
         >
-          ✅ Marcar como concluído
+          <CheckCircle2 size={16} strokeWidth={1.75} /> Marcar como concluído
         </Button>
       )}
 

@@ -5,6 +5,7 @@
 
 'use client';
 
+import { Zap, AlertTriangle } from 'lucide-react';
 import { formatDate as fmtDate } from '@/lib/format';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -19,7 +20,9 @@ interface TaskCardProps {
 
 export function TaskCard({ task, onComplete }: TaskCardProps) {
   const statusCfg = TASK_STATUS_CFG[task.status];
+  const StatusIcon = statusCfg.icon;
   const catCfg = CATEGORY_CFG[task.templateTask.category];
+  const CatIcon = catCfg.icon;
   const overdue = isOverdue(task.dueDate) && task.status !== 'COMPLETED';
 
   return (
@@ -34,8 +37,8 @@ export function TaskCard({ task, onComplete }: TaskCardProps) {
               : 'hover:shadow-hover'
       }`}
     >
-      <div className={`text-xl flex-shrink-0 mt-0.5 ${statusCfg.cls}`}>
-        {statusCfg.icon}
+      <div className={`flex-shrink-0 mt-0.5 ${statusCfg.cls}`}>
+        <StatusIcon size={18} strokeWidth={1.75} />
       </div>
 
       <div className="flex-1 min-w-0">
@@ -53,21 +56,29 @@ export function TaskCard({ task, onComplete }: TaskCardProps) {
             )}
           </div>
           <span
-            className={`text-xs px-2 py-0.5 rounded flex-shrink-0 font-medium ${catCfg.cls}`}
+            className={`inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded flex-shrink-0 font-medium ${catCfg.cls}`}
           >
-            {catCfg.icon} {catCfg.label}
+            <CatIcon size={12} strokeWidth={1.75} /> {catCfg.label}
           </span>
         </div>
 
         <div className="flex items-center gap-3 mt-2 text-xs text-ink-faint">
           {task.dueDate && (
-            <span className={overdue ? 'text-danger font-medium' : ''}>
-              {overdue ? '⚠ ' : ''}Prazo: {fmtDate(task.dueDate)}
+            <span
+              className={
+                overdue
+                  ? 'inline-flex items-center gap-1 text-danger font-medium'
+                  : ''
+              }
+            >
+              {overdue && <AlertTriangle size={12} strokeWidth={1.75} />}
+              Prazo: {fmtDate(task.dueDate)}
             </span>
           )}
           {task.templateTask.xpReward > 0 && (
-            <span className="text-warning-ink">
-              ⚡ {task.templateTask.xpReward} XP
+            <span className="inline-flex items-center gap-1 text-warning-ink">
+              <Zap size={12} strokeWidth={1.75} /> {task.templateTask.xpReward}{' '}
+              XP
             </span>
           )}
           {task.templateTask.requiresApproval && (

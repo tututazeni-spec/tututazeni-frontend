@@ -5,6 +5,7 @@
 
 'use client';
 
+import { ClipboardList, AlertTriangle, AlarmClock } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -81,7 +82,12 @@ export function PendingTab() {
                     </p>
                     {r.cycle && (
                       <p className="text-xs text-ink-faint">
-                        📋 {r.cycle.name}
+                        <ClipboardList
+                          size={13}
+                          strokeWidth={1.75}
+                          className="inline align-[-2px]"
+                        />{' '}
+                        {r.cycle.name}
                       </p>
                     )}
                   </div>
@@ -93,7 +99,19 @@ export function PendingTab() {
                           isOverdue ? 'text-danger-ink' : 'text-ink-muted',
                         )}
                       >
-                        {isOverdue ? '⚠️' : '⏰'}{' '}
+                        {isOverdue ? (
+                          <AlertTriangle
+                            size={13}
+                            strokeWidth={1.75}
+                            className="inline"
+                          />
+                        ) : (
+                          <AlarmClock
+                            size={13}
+                            strokeWidth={1.75}
+                            className="inline"
+                          />
+                        )}{' '}
                         {new Date(r.dueDate).toLocaleDateString('pt')}
                       </p>
                     )}

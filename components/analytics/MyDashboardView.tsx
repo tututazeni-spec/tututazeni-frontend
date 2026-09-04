@@ -12,6 +12,7 @@
 
 'use client';
 
+import { AlertTriangle } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -139,7 +140,12 @@ export function MyDashboardView() {
                     </div>
                     {p.overdueActions > 0 && (
                       <div className="text-xs text-danger">
-                        ⚠ {p.overdueActions} atrasadas
+                        <AlertTriangle
+                          size={12}
+                          strokeWidth={1.75}
+                          className="inline align-[-2px]"
+                        />{' '}
+                        {p.overdueActions} atrasadas
                       </div>
                     )}
                   </div>
