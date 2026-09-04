@@ -30,6 +30,23 @@ export const typeLabel: Record<string, string> = {
   VITALITY: 'Vitalidade',
 };
 
+// Rótulos PT dos estados de um ciclo de avaliação. CycleInfo.status é uma
+// string livre (vem do backend em maiúsculas/inglês) — a UI mostra sempre o
+// rótulo traduzido, com fallback para o valor cru se aparecer um estado novo.
+export const cycleStatusLabel: Record<string, string> = {
+  DRAFT: 'Rascunho',
+  SCHEDULED: 'Agendado',
+  IN_PROGRESS: 'Em Curso',
+  ACTIVE: 'Em Curso',
+  COMPLETED: 'Completo',
+  ARCHIVED: 'Arquivado',
+  CANCELLED: 'Cancelado',
+};
+
+export function cycleStatusText(status: string): string {
+  return cycleStatusLabel[status] ?? status;
+}
+
 export function timeAgo(iso: string): string {
   const d = Math.floor((Date.now() - new Date(iso).getTime()) / 86400000);
   return d === 0 ? 'hoje' : d === 1 ? 'ontem' : `há ${d} dias`;

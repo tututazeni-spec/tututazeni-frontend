@@ -128,21 +128,13 @@ export function EvaluationFormTab({
                   >
                     <span
                       className="text-base font-bold"
-                      style={{
-                        color: isSelected
-                          ? 'rgb(255, 255, 255)'
-                          : 'rgb(107, 114, 128)',
-                      }}
+                      style={{ color: 'rgb(255, 255, 255)' }}
                     >
                       {v}
                     </span>
                     <span
                       className="text-xs text-center leading-tight"
-                      style={{
-                        color: isSelected
-                          ? 'rgb(199, 210, 254)'
-                          : 'rgb(71, 85, 105)',
-                      }}
+                      style={{ color: 'rgb(255, 255, 255)' }}
                     >
                       {label}
                     </span>

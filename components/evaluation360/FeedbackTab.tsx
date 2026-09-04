@@ -7,8 +7,10 @@
 
 'use client';
 
+import { useState } from 'react';
 import type { ContinuousFeedback } from './types';
 import { timeAgo } from './colors';
+import { GiveFeedbackModal } from './GiveFeedbackModal';
 import { Button } from '@/components/ui/Button';
 
 export interface FeedbackTabProps {
@@ -16,6 +18,10 @@ export interface FeedbackTabProps {
 }
 
 export function FeedbackTab({ feedbacks }: FeedbackTabProps) {
+  const [modalOpen, setModalOpen] = useState(false);
+  const [added, setAdded] = useState<ContinuousFeedback[]>([]);
+  const allFeedbacks = [...added, ...feedbacks];
+
   const typeConfig: Record<string, { label: string; color: string }> = {
     RECOGNITION: { label: 'Reconhecimento', color: 'rgb(34, 197, 94)' },
     DEVELOPMENT: { label: 'Desenvolvimento', color: 'rgb(129, 140, 248)' },
@@ -29,11 +35,11 @@ export function FeedbackTab({ feedbacks }: FeedbackTabProps) {
           <p className="m-0 mt-1 text-sm text-ink-muted">
           </p>
         </div>
-        <Button intent="primary" size="sm">
+        <Button intent="primary" size="sm" onClick={() => setModalOpen(true)}>
           + Dar Feedback
         </Button>
       </div>
-      {feedbacks.map((fb) => {
+      {allFeedbacks.map((fb) => {
         const cfg = typeConfig[fb.type];
         return (
           <div
@@ -70,6 +76,12 @@ export function FeedbackTab({ feedbacks }: FeedbackTabProps) {
           </div>
         );
       })}
+      {modalOpen && (
+        <GiveFeedbackModal
+          onClose={() => setModalOpen(false)}
+          onCreate={(fb) => setAdded((prev) => [fb, ...prev])}
+        />
+      )}
     </div>
   );
 }
