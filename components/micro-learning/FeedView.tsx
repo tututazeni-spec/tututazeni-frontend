@@ -16,7 +16,7 @@ import { Input } from '@/components/ui/Input';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { TYPE_CFG } from './constants';
 import { MicroCard } from './MicroCard';
-import type { ContentLevel, ContentType, MicroLearning } from './types';
+import type { ContentType, MicroLearning } from './types';
 
 interface FeedViewProps {
   onSelect: (item: MicroLearning) => void;
@@ -24,7 +24,6 @@ interface FeedViewProps {
 
 export function FeedView({ onSelect }: FeedViewProps) {
   const [type, setType] = useState<ContentType | ''>('');
-  const [level, setLevel] = useState<ContentLevel | ''>('');
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const debouncedSearch = useDebounce(search);
@@ -32,7 +31,6 @@ export function FeedView({ onSelect }: FeedViewProps) {
     page,
     limit: 12,
     contentType: type,
-    level,
     search: debouncedSearch,
   };
 
