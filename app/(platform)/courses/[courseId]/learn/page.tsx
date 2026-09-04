@@ -3,11 +3,6 @@
 // conclusão de lições; delega apresentação aos componentes em
 // components/courses-learn/. Ver memory
 // project_innova_component_separation_audit.
-//
-// Nota: o exemplo de integração do CourseAvatarReader (LessonContent) foi
-// movido para components/courses-learn/CourseAvatarReaderExample.tsx —
-// documentação/exemplo de referência, não usado por esta página real, tal
-// como no ficheiro original.
 
 import { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'next/navigation';
