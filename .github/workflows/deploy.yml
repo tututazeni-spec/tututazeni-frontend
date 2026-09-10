@@ -1,0 +1,62 @@
+name: Frontend Deploy
+
+# Espelha o deploy.yml do backend. Em push a main: build + push da imagem para
+# o GHCR e disparo de repository_dispatch no repo do backend (que faz o rollout
+# health-gated). Em PR: só valida o build da imagem (sem push).
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    paths:
+      - "Dockerfile"
+      - ".dockerignore"
+      - "next.config.ts"
+      - ".github/workflows/deploy.yml"
+  workflow_dispatch:
+
+env:
+  IMAGE: ghcr.io/${{ github.repository }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Login no GHCR
+        if: ${{ github.event_name != 'pull_request' }}
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build (push fora de PRs)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: |
+            ${{ env.IMAGE }}:sha-${{ github.sha }}
+            ${{ env.IMAGE }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  notify-backend:
+    runs-on: ubuntu-latest
+    needs: build
+    if: ${{ github.event_name == 'push' }}
+    steps:
+      - name: Disparar rollout no repo do backend
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.BACKEND_DISPATCH_TOKEN }}
+          repository: tututazeni-spec/tututazeni-backend
+          event-type: frontend-updated
+          client-payload: '{"tag": "sha-${{ github.sha }}"}'
