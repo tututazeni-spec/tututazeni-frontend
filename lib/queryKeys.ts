@@ -496,6 +496,24 @@ export const queryKeys = {
       [...queryKeys.leadership.all, 'feedback-360-summary'] as const,
     ranking: () => [...queryKeys.leadership.all, 'ranking'] as const,
     kudos: () => [...queryKeys.leadership.all, 'kudos'] as const,
+    // Workspace de gestão do programa (Task 7). Uma key por recurso — invalidar
+    // só a afectada por cada mutação.
+    programDetail: (id: number) =>
+      [...queryKeys.leadership.all, 'program', id] as const,
+    candidates: (id: number) =>
+      [...queryKeys.leadership.all, 'program', id, 'candidates'] as const,
+    participant: (programId: number, userId: number) =>
+      [
+        ...queryKeys.leadership.all,
+        'program',
+        programId,
+        'participant',
+        userId,
+      ] as const,
+    outcomes: (id: number) =>
+      [...queryKeys.leadership.all, 'program', id, 'outcomes'] as const,
+    costs: (id: number) =>
+      [...queryKeys.leadership.all, 'program', id, 'costs'] as const,
   },
 
   organization: {
