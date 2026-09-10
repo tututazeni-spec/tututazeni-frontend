@@ -8,22 +8,34 @@
 import { Users, Calendar } from 'lucide-react';
 import { useState } from 'react';
 import { useApiQuery } from '@/hooks/useApiQuery';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
 import { reportError } from '@/lib/errorReporting';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
+import { isRoleAllowed, type Role } from '@/lib/roles';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
-import { LEVEL_CFG } from './constants';
+import { LEVEL_CFG, PROGRAM_MANAGER_ROLES } from './constants';
+import { ProgramWizard } from './ProgramWizard';
 import type { LeadershipProgram, ProgramLevel } from './types';
 
-export function ProgramsView() {
+export interface ProgramsViewProps {
+  /** Quando definido, cada cartão ganha "Gerir" que abre o workspace do programa. */
+  onOpenWorkspace?: (programId: number) => void;
+}
+
+export function ProgramsView({ onOpenWorkspace }: ProgramsViewProps) {
   const notify = useToast();
+  const { data: me } = useCurrentUser();
   const [filter, setFilter] = useState<ProgramLevel | ''>('');
+  const [showWizard, setShowWizard] = useState(false);
+
+  const isManager = isRoleAllowed(PROGRAM_MANAGER_ROLES, me?.role?.name as Role | undefined);
 
   const params = { status: 'ACTIVE', ...(filter ? { level: filter } : {}) };
   const { data, isLoading } = useApiQuery<{ data: LeadershipProgram[] }>(
@@ -49,7 +61,7 @@ export function ProgramsView() {
 
   return (
     <div>
-      <div className="mb-5 flex gap-2">
+      <div className="mb-5 flex items-center gap-2">
         {(['', 'INITIAL', 'INTERMEDIATE', 'ADVANCED'] as const).map((l) => (
           <Button
             key={l}
@@ -60,7 +72,25 @@ export function ProgramsView() {
             {l === '' ? 'Todos' : LEVEL_CFG[l as ProgramLevel].label}
           </Button>
         ))}
+        {isManager && (
+          <Button
+            size="sm"
+            className="ml-auto"
+            onClick={() => setShowWizard(true)}
+          >
+            Criar programa
+          </Button>
+        )}
       </div>
+
+      {showWizard && (
+        <ProgramWizard
+          onClose={() => setShowWizard(false)}
+          onSuccess={() =>
+            notify({ title: 'Programa criado', intent: 'success' })
+          }
+        />
+      )}
 
       <div className="grid grid-cols-3 gap-4">
         {data?.data.map((prog) => (
@@ -98,13 +128,24 @@ export function ProgramsView() {
               )}
             </div>
 
-            <Button
-              size="sm"
-              className="w-full"
-              onClick={() => handleEnroll(prog.id)}
-            >
-              Inscrever-me
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                className="flex-1"
+                onClick={() => handleEnroll(prog.id)}
+              >
+                Inscrever-me
+              </Button>
+              {isManager && onOpenWorkspace && (
+                <Button
+                  size="sm"
+                  intent="secondary"
+                  onClick={() => onOpenWorkspace(prog.id)}
+                >
+                  Gerir
+                </Button>
+              )}
+            </div>
           </Card>
         ))}
         {data?.data.length === 0 && (
