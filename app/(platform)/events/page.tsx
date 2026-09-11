@@ -31,6 +31,9 @@ const CAN_CREATE_ROLES: readonly Role[] = ['ADMIN', 'RH', 'GESTOR'];
 export default function EventsPage() {
   const role = useCurrentRole();
   const canCreate = !!role && CAN_CREATE_ROLES.includes(role);
+  const visibleNav = NAV.filter(
+    (n) => !(n.id === 'organizer' && role === 'COLABORADOR'),
+  );
 
   const [nav, setNav] = useState<Nav>({ view: 'catalog' });
   const [showCreate, setShowCreate] = useState(false);
@@ -64,7 +67,7 @@ export default function EventsPage() {
 
       {nav.view !== 'detail' && (
         <div className="mb-6 flex w-fit gap-1 rounded-card bg-surface-sunken p-1">
-          {NAV.map((n) => (
+          {visibleNav.map((n) => (
             <Button
               key={n.id}
               size="sm"
