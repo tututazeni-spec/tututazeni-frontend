@@ -4,7 +4,12 @@ import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { logout } from '@/lib/apiClient';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
-import { ADMIN_ROLES, filterNavSections, type Role } from '@/lib/roles';
+import {
+  ADMIN_ROLES,
+  NON_COLABORADOR_ROLES,
+  filterNavSections,
+  type Role,
+} from '@/lib/roles';
 import { LayoutDashboard, BookOpen, Users, ClipboardList, Star, Award, TrendingUp, Briefcase, BarChart2, FileText, Bell, Shield, Bot, GraduationCap, Calendar, UserCheck, GitBranch, Zap, Settings, ChevronDown, ChevronRight, BookMarked, Crown, UserPlus, Layers, Play, Cpu, Database, Globe, Target, PieChart, Clock, MessageSquare, Scroll, Library, DollarSign, Activity, Download, Building2, LogOut, Share2, Brain, Wallet } from 'lucide-react';
 import { useState } from 'react';
 
@@ -201,7 +206,16 @@ const NAV: Array<{ label: string; items: NavItem[] }> = [
         label: 'Participação',
         roles: ['ADMIN', 'RH', 'LIDER', 'GESTOR'],
       },
-      { href: '/instructor', icon: GraduationCap, label: 'Instrutores' },
+      {
+        href: '/instructor',
+        icon: GraduationCap,
+        label: 'Instrutores',
+        // Só esconde do sidebar por pedido — o backend continua a permitir
+        // que um COLABORADOR se candidate a instrutor via POST
+        // /instructors/profile (ver test/integration/instructor). Não
+        // reflecte nenhuma restrição real do controller.
+        roles: NON_COLABORADOR_ROLES,
+      },
     ],
   },
   {
