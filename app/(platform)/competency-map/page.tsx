@@ -20,8 +20,10 @@ import {
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
+import { useCurrentRole } from '@/hooks/useCurrentRole';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
+import { filterByRole, NON_COLABORADOR_ROLES, type Role } from '@/lib/roles';
 import { Button } from '@/components/ui/Button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
 import { READINESS_CONFIG } from '@/components/competency-map/constants';
@@ -41,6 +43,7 @@ type TabKey = 'my' | 'gap' | 'team' | 'catalogue';
 export default function CompetencyMapPage() {
   const [tab, setTab] = useState<TabKey>('my');
   const [showAssess, setShowAssess] = useState(false);
+  const role = useCurrentRole();
 
   const skillsParams = { limit: 100 };
   const mapQuery = useApiQuery<CompetencyMap>(
@@ -79,6 +82,7 @@ export default function CompetencyMapPage() {
     label: string;
     icon: LucideIcon;
     badge?: number;
+    roles?: readonly Role[];
   }> = [
     { key: 'my', label: 'Minhas Habilidades', icon: Target },
     {
@@ -87,9 +91,11 @@ export default function CompetencyMapPage() {
       icon: AlertCircle,
       badge: gap?.gaps.mandatory.length,
     },
-    { key: 'team', label: 'Equipa', icon: Users },
+    // Pedido do utilizador: colaborador não vê o separador Equipa.
+    { key: 'team', label: 'Equipa', icon: Users, roles: NON_COLABORADOR_ROLES },
     { key: 'catalogue', label: 'Catálogo', icon: BarChart3 },
   ];
+  const visibleTabs = filterByRole(tabs, role);
 
   return (
     <div className="min-h-screen bg-canvas">
@@ -126,12 +132,12 @@ export default function CompetencyMapPage() {
       <div className="max-w-5xl mx-auto px-6 py-6">
         <Tabs value={tab} onValueChange={(v) => setTab(v as TabKey)}>
           <TabsList className="mb-5 w-fit gap-0">
-            {tabs.map((t, i) => (
+            {visibleTabs.map((t, i) => (
               <TabsTrigger
                 key={t.key}
                 value={t.key}
                 className={
-                  i < tabs.length - 1
+                  i < visibleTabs.length - 1
                     ? 'gap-2 whitespace-nowrap mr-[1cm]!'
                     : 'gap-2 whitespace-nowrap'
                 }

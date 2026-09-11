@@ -39,6 +39,18 @@ export const MGMT_ROLES: readonly Role[] = ['ADMIN', 'RH', 'LIDER', 'GESTOR'];
 /** Espelha ADMIN_ROLES em src/dashboard/dashboard.controller.ts. */
 export const ADMIN_ROLES: readonly Role[] = ['ADMIN', 'RH'];
 
+/**
+ * Todos os papéis autenticados excepto COLABORADOR. Para separadores/links
+ * que um pedido do utilizador pede para esconder só de COLABORADOR, mesmo
+ * quando o endpoint por trás tem uma @Roles() mais restrita no backend (ex.:
+ * dashboard de competências é ADMIN/RH no backend, mas o pedido foi só
+ * esconder de COLABORADOR) — não presumir que esta lista espelha um guard
+ * exacto do backend antes de a reutilizar.
+ */
+export const NON_COLABORADOR_ROLES: readonly Role[] = AUTHENTICATED_ROLES.filter(
+  (r) => r !== 'COLABORADOR',
+);
+
 export interface RoleRestricted {
   /** Omitido/vazio = sem @Roles() no endpoint principal → visível a todos. */
   roles?: readonly Role[];

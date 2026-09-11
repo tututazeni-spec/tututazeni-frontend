@@ -17,11 +17,19 @@ import { CreateArticleModal } from '@/components/knowledge/CreateArticleModal';
 import { LibraryView } from '@/components/knowledge/LibraryView';
 import { PortalView } from '@/components/knowledge/PortalView';
 import type { Nav } from '@/components/knowledge/types';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
+import { filterByRole, type Role } from '@/lib/roles';
 import { Button } from '@/components/ui/Button';
 
 export default function KnowledgePage() {
   const [nav, setNav] = useState<Nav>({ view: 'portal' });
   const [creating, setCreating] = useState(false);
+  const { data: me } = useCurrentUser();
+  const role = me?.role?.name as Role | undefined;
+  const visibleNav = filterByRole(NAV, role);
+  // Pedido do utilizador: colaborador não cria artigos pela UI (o endpoint
+  // POST /knowledge em si não tem @Roles no backend).
+  const canCreate = role !== 'COLABORADOR';
 
   const handleSelectArticle = (id: number) =>
     setNav({ view: 'article', selectedId: id });
@@ -36,10 +44,12 @@ export default function KnowledgePage() {
             {TITLES[nav.view]}
           </h1>
         </div>
-        <Button onClick={() => setCreating(true)}>
-          <Plus size={16} strokeWidth={1.75} />
-          Novo artigo
-        </Button>
+        {canCreate && (
+          <Button onClick={() => setCreating(true)}>
+            <Plus size={16} strokeWidth={1.75} />
+            Novo artigo
+          </Button>
+        )}
       </div>
 
       {creating && <CreateArticleModal onClose={() => setCreating(false)} />}
@@ -47,7 +57,7 @@ export default function KnowledgePage() {
       {/* Tabs */}
       {nav.view !== 'article' && (
         <div className="mb-6 flex w-fit gap-1 rounded-card bg-surface-sunken p-1">
-          {NAV.map((n) => (
+          {visibleNav.map((n) => (
             <Button
               key={n.id}
               size="sm"

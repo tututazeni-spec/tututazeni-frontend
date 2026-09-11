@@ -22,17 +22,18 @@ import { RankingView } from '@/components/leadership/RankingView';
 import { TeamView } from '@/components/leadership/TeamView';
 import type { View } from '@/components/leadership/types';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
-import { isRoleAllowed, type Role } from '@/lib/roles';
+import { filterByRole, isRoleAllowed, type Role } from '@/lib/roles';
 import { Button } from '@/components/ui/Button';
 
 export default function LeadershipPage() {
   const [view, setView] = useState<View>('my-dashboard');
   const [workspaceProgramId, setWorkspaceProgramId] = useState<number | null>(null);
   const { data: me } = useCurrentUser();
-  const canManage = isRoleAllowed(
-    PROGRAM_MANAGER_ROLES,
-    me?.role?.name as Role | undefined,
-  );
+  const role = me?.role?.name as Role | undefined;
+  const canManage = isRoleAllowed(PROGRAM_MANAGER_ROLES, role);
+  // Pedido do utilizador: colaborador não vê "A minha equipa" nem
+  // "Classificação".
+  const visibleNav = filterByRole(NAV, role);
 
   if (workspaceProgramId != null) {
     return (
@@ -59,7 +60,7 @@ export default function LeadershipPage() {
       </div>
 
       <div className="mb-6 flex w-fit flex-wrap gap-1 rounded-card bg-surface-sunken p-1">
-        {NAV.map((n) => (
+        {visibleNav.map((n) => (
           <Button
             key={n.id}
             size="sm"

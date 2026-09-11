@@ -13,10 +13,14 @@ import { MyDashboard } from '@/components/performance/MyDashboard';
 import { NineBoxView } from '@/components/performance/NineBoxView';
 import { TeamView } from '@/components/performance/TeamView';
 import type { View } from '@/components/performance/types';
+import { useCurrentRole } from '@/hooks/useCurrentRole';
+import { filterByRole } from '@/lib/roles';
 import { Button } from '@/components/ui/Button';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 
 export default function PerformancePage() {
+  const role = useCurrentRole();
+  const visibleNav = filterByRole(NAV, role);
   const [view, setView] = useState<View>('dashboard');
 
   return (
@@ -33,7 +37,7 @@ export default function PerformancePage() {
 
       {/* Tabs */}
       <div className="flex gap-1 mb-6 bg-surface-sunken p-1 rounded-card w-fit">
-        {NAV.map((n) => (
+        {visibleNav.map((n) => (
           <Button
             key={n.id}
             size="sm"
@@ -46,13 +50,20 @@ export default function PerformancePage() {
       </div>
 
       {view === 'dashboard' && <MyDashboard />}
-      {view === 'team' && <TeamView />}
-      {view === 'matrix9box' && (
+      {/* Team/9-Box/Analytics: nem montados para quem não tem
+          @Roles(ADMIN, RH, GESTOR) no backend — não só escondidos da lista
+          de separadores acima. */}
+      {view === 'team' && visibleNav.some((n) => n.id === 'team') && (
+        <TeamView />
+      )}
+      {view === 'matrix9box' && visibleNav.some((n) => n.id === 'matrix9box') && (
         <ErrorBoundary source="performance.NineBoxView">
           <NineBoxView />
         </ErrorBoundary>
       )}
-      {view === 'analytics' && <AnalyticsView />}
+      {view === 'analytics' && visibleNav.some((n) => n.id === 'analytics') && (
+        <AnalyticsView />
+      )}
     </div>
   );
 }

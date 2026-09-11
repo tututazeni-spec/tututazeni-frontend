@@ -3,6 +3,7 @@
 // app/(platform)/performance/page.tsx. Cores mapeadas para os tokens
 // semânticos da fundação de design (Fase A).
 
+import { NON_COLABORADOR_ROLES, type Role } from '@/lib/roles';
 import type { StatusBadgeMap } from '@/lib/statusBadge';
 import type { GoalStatus, PerfCategory, ReviewStatus, View } from './types';
 
@@ -90,11 +91,16 @@ export const BOX_LABELS: Record<
   },
 };
 
-export const NAV: Array<{ id: View; label: string }> = [
+// "A minha equipa", "Matriz 9-Box" e "Análises" ficam escondidas de
+// COLABORADOR a pedido do utilizador — o que aqui também espelha o backend:
+// GET /performance/team, /performance/9box e /performance/analytics têm
+// todos @Roles(ADMIN, RH, GESTOR) (analytics é mesmo ADMIN/RH) em
+// performance.controller.ts, nenhum inclui COLABORADOR.
+export const NAV: Array<{ id: View; label: string; roles?: readonly Role[] }> = [
   { id: 'dashboard', label: 'O meu desempenho' },
-  { id: 'team', label: 'A minha equipa' },
-  { id: 'matrix9box', label: 'Matriz 9-Box ' },
-  { id: 'analytics', label: 'Análises' },
+  { id: 'team', label: 'A minha equipa', roles: NON_COLABORADOR_ROLES },
+  { id: 'matrix9box', label: 'Matriz 9-Box ', roles: NON_COLABORADOR_ROLES },
+  { id: 'analytics', label: 'Análises', roles: NON_COLABORADOR_ROLES },
 ];
 
 export const TITLES: Record<View, string> = {

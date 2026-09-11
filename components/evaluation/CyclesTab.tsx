@@ -7,11 +7,13 @@
 
 import { Calendar } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
+import { useCurrentRole } from '@/hooks/useCurrentRole';
 import { apiClient } from '@/lib/apiClient';
 import { reportError } from '@/lib/errorReporting';
 import { useToast } from '@/providers/ToastProvider';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
+import { ADMIN_ROLES } from '@/lib/roles';
 import { cn } from '@/lib/cn';
 import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
@@ -24,6 +26,13 @@ import type { Cycle } from './types';
 
 export function CyclesTab() {
   const notify = useToast();
+  const role = useCurrentRole();
+  // Publicar/Activar espelham @Roles(ADMIN, RH) de POST
+  // /evaluations/cycles/:id/publish e /activate (evaluation.controller.ts) —
+  // um COLABORADOR pode ver este separador (participa nas suas avaliações),
+  // mas não gere o ciclo. Sem isto os botões apareciam para todos e
+  // rebentavam com 403 ao clicar.
+  const canManageCycle = !!role && ADMIN_ROLES.includes(role);
   const { data, isLoading: loading } = useApiQuery<{
     data: Cycle[];
     meta: { total: number };
@@ -104,7 +113,7 @@ export function CyclesTab() {
               </div>
 
               {/* Actions */}
-              {cycle.status === 'DRAFT' && (
+              {canManageCycle && cycle.status === 'DRAFT' && (
                 <Button
                   size="sm"
                   intent="secondary"
@@ -125,7 +134,7 @@ export function CyclesTab() {
                   Publicar
                 </Button>
               )}
-              {cycle.status === 'PUBLISHED' && (
+              {canManageCycle && cycle.status === 'PUBLISHED' && (
                 <Button
                   size="sm"
                   className="mt-3 w-full"

@@ -31,6 +31,8 @@ import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { cn } from '@/lib/cn';
+import { useCurrentRole } from '@/hooks/useCurrentRole';
+import { filterByRole, type Role } from '@/lib/roles';
 import {
   BarChart3,
   Calendar,
@@ -47,10 +49,24 @@ import { NewLeaveModal } from '@/components/leave/NewLeaveModal';
 
 type TabKey = 'my' | 'approvals' | 'dashboard';
 
+// GET /leave/dashboard e GET /leave/pending-approvals exigem ambos
+// @Roles(ADMIN, RH, GESTOR) em leave-management.controller.ts — um
+// COLABORADOR não tem acesso a nenhum dos dois. Partilhado entre o filtro
+// de tabs e o `enabled` das duas queries: sem o segundo, os pedidos
+// disparavam sempre no mount independentemente do separador activo (os 4
+// hooks de dados correm incondicionalmente, não só quando a tab é aberta) e
+// rebentavam com 403 em "query:leave".
+const LEAVE_APPROVER_ROLES: Role[] = ['ADMIN', 'RH', 'GESTOR'];
+
 export default function LeavePage() {
   const [tab, setTab] = useState<TabKey>('my');
   const [showModal, setShowModal] = useState(false);
   const notify = useToast();
+  const role = useCurrentRole();
+  // `!!role &&` (não "deixar passar enquanto undefined"): isto controla
+  // pedidos de rede reais, não só visibilidade de UI — ver isRoleAllowed em
+  // lib/roles.ts para a distinção.
+  const isApprover = !!role && LEAVE_APPROVER_ROLES.includes(role);
 
   const leaveTypes = useLeaveTypes();
   const { balances, loading: bLoading, refetch: bRefetch } = useMyBalance();
@@ -63,12 +79,12 @@ export default function LeavePage() {
     data: dashboard,
     loading: dLoading,
     refetch: dRefetch,
-  } = useLeaveDashboard();
+  } = useLeaveDashboard(isApprover);
   const {
     data: pending,
     loading: pLoading,
     refetch: pRefetch,
-  } = usePendingApprovals();
+  } = usePendingApprovals(isApprover);
 
   const approve = useApiMutation(
     ({ id, action }: { id: number; action: string }) =>
@@ -132,11 +148,14 @@ export default function LeavePage() {
     cancel.mutate(requestId);
   };
 
-  const tabs: Array<{
+  // Dashboard RH: só quem está em LEAVE_APPROVER_ROLES (ver nota acima)
+  // vê o separador.
+  const allTabs: Array<{
     key: TabKey;
     label: string;
     icon: LucideIcon;
     badge?: number;
+    roles?: Role[];
   }> = [
     { key: 'my', label: 'Minhas Ausências', icon: Calendar },
     {
@@ -145,8 +164,14 @@ export default function LeavePage() {
       icon: CheckCircle2,
       badge: pending.length,
     },
-    { key: 'dashboard', label: 'Dashboard RH', icon: BarChart3 },
+    {
+      key: 'dashboard',
+      label: 'Dashboard RH',
+      icon: BarChart3,
+      roles: LEAVE_APPROVER_ROLES,
+    },
   ];
+  const tabs = filterByRole(allTabs, role);
 
   return (
     <div className="min-h-screen bg-canvas">
@@ -232,7 +257,9 @@ export default function LeavePage() {
           />
         )}
 
-        {tab === 'dashboard' && (
+        {/* Não montado para quem não tem @Roles(ADMIN, RH, GESTOR) no
+            backend — não só escondido da tab bar — ver nota acima. */}
+        {tab === 'dashboard' && tabs.some((t) => t.key === 'dashboard') && (
           <LeaveDashboardTab
             dashboard={dashboard}
             loading={dLoading}

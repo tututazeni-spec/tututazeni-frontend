@@ -14,6 +14,8 @@ import { BarChart2, Bot, Clock, Play, Trophy } from 'lucide-react';
 import { apiClient } from '@/lib/apiClient';
 import { reportError } from '@/lib/errorReporting';
 import { useToast } from '@/providers/ToastProvider';
+import { useCurrentRole } from '@/hooks/useCurrentRole';
+import { MGMT_ROLES, filterByRole } from '@/lib/roles';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
 import { AnalyticsTab } from '@/components/avatar-training/AnalyticsTab';
 import { ChatSession } from '@/components/avatar-training/ChatSession';
@@ -29,16 +31,22 @@ import type {
   StartSessionResponse,
 } from '@/components/avatar-training/types';
 
+// Análises espelha exactamente @Roles(...MGMT_ROLES) de
+// GET /avatar-training/analytics/dashboard (avatar-training.controller.ts) —
+// um COLABORADOR não tem acesso, só ADMIN/RH/LIDER/GESTOR. Sem esta
+// restrição o separador ficava visível e o pedido rebentava com 403.
 const TABS = [
   { id: 'home', label: 'Início', icon: Bot },
   { id: 'scenarios', label: 'Cenários', icon: Play },
   { id: 'history', label: 'Histórico', icon: Clock },
   { id: 'leaderboard', label: 'Classificação', icon: Trophy },
-  { id: 'analytics', label: 'Análises', icon: BarChart2 },
-] as const;
+  { id: 'analytics', label: 'Análises', icon: BarChart2, roles: MGMT_ROLES },
+];
 
 export default function AvatarTrainingPage() {
   const notify = useToast();
+  const role = useCurrentRole();
+  const visibleTabs = filterByRole(TABS, role);
   const [activeSession, setActiveSession] = useState<ActiveSession | null>(
     null,
   );
@@ -133,14 +141,14 @@ export default function AvatarTrainingPage() {
       <Tabs defaultValue="home">
         <div className="bg-surface border-b border-border px-6">
           <TabsList className="max-w-7xl mx-auto overflow-x-auto gap-0">
-            {TABS.map((t, i) => {
+            {visibleTabs.map((t, i) => {
               const Icon = t.icon;
               return (
                 <TabsTrigger
                   key={t.id}
                   value={t.id}
                   className={
-                    i < TABS.length - 1
+                    i < visibleTabs.length - 1
                       ? 'gap-2 whitespace-nowrap mr-[1cm]!'
                       : 'gap-2 whitespace-nowrap'
                   }
@@ -166,9 +174,13 @@ export default function AvatarTrainingPage() {
           <TabsContent value="leaderboard">
             <LeaderboardTab />
           </TabsContent>
-          <TabsContent value="analytics">
-            <AnalyticsTab />
-          </TabsContent>
+          {/* Não montada para quem não tem @Roles(...MGMT_ROLES) no backend
+              — não só escondida da TabsList — ver nota acima. */}
+          {visibleTabs.some((t) => t.id === 'analytics') && (
+            <TabsContent value="analytics">
+              <AnalyticsTab />
+            </TabsContent>
+          )}
         </div>
       </Tabs>
     </div>
