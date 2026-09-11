@@ -54,15 +54,15 @@ export const PARTICIPANT_CFG: StatusBadgeMap<ParticipantStatus> = {
 
 export const NAV = [
   { id: 'catalog', label: 'Catálogo' },
-  { id: 'my-trainings', label: 'Os meus treinamentos' },
+  { id: 'my-trainings', label: 'As minhas formações' },
   { id: 'dashboard', label: 'Dashboard (Admin)' },
 ] as const;
 
 export type NavId = (typeof NAV)[number]['id'];
 
 export const TITLES: Record<View, string> = {
-  catalog: 'Treinamentos',
+  catalog: 'Formações',
   detail: 'Detalhe',
-  'my-trainings': 'Os meus treinamentos',
+  'my-trainings': 'As minhas formações',
   dashboard: 'Dashboard',
 };
