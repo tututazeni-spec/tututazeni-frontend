@@ -237,6 +237,29 @@ export const queryKeys = {
     analytics: () => [...queryKeys.evaluation.all, 'analytics'] as const,
   },
 
+  // Módulo real de Avaliação 360º (src/evaluation360/, backend `/evaluation360`)
+  // — distinto de `evaluation` acima, que é `/evaluations` (review de
+  // performance geral). Ver frontend/hooks/useEvaluation360.ts.
+  evaluation360: {
+    all: ['evaluation360'] as const,
+    competencies: () => [...queryKeys.evaluation360.all, 'competencies'] as const,
+    cycles: () => [...queryKeys.evaluation360.all, 'cycles'] as const,
+    cycleDetail: (cycleId: string) =>
+      [...queryKeys.evaluation360.all, 'cycle', cycleId] as const,
+    result: (cycleId: string, participantId: string) =>
+      [...queryKeys.evaluation360.all, 'result', cycleId, participantId] as const,
+    nineBox: (cycleId: string) =>
+      [...queryKeys.evaluation360.all, 'nine-box', cycleId] as const,
+    feedbacks: (userId: string) =>
+      [...queryKeys.evaluation360.all, 'feedbacks', userId] as const,
+    form: (cycleId: string, evaluateeId: string) =>
+      [...queryKeys.evaluation360.all, 'form', cycleId, evaluateeId] as const,
+    progress: (cycleId: string, userId: string) =>
+      [...queryKeys.evaluation360.all, 'progress', cycleId, userId] as const,
+    myAssignments: (cycleId: string) =>
+      [...queryKeys.evaluation360.all, 'my-assignments', cycleId] as const,
+  },
+
   analyticsPage: {
     all: ['analytics-page'] as const,
     overview: () => [...queryKeys.analyticsPage.all, 'overview'] as const,
