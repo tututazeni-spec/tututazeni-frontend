@@ -11,6 +11,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Search, BookOpen, X } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { useDebounce } from '@/hooks/useDebounce';
@@ -24,9 +25,17 @@ export interface GlobalSearchProps {
 }
 
 export function GlobalSearch({ onClose }: GlobalSearchProps) {
+  const router = useRouter();
   const [query, setQuery] = useState('');
   const debouncedQuery = useDebounce(query, 300);
   const enabled = debouncedQuery.length >= 2;
+
+  // Fecha o overlay antes de navegar — o pai desmonta o GlobalSearch quando
+  // `showSearch` passa a false (ver app/(platform)/dashboard/page.tsx).
+  const goTo = (path: string) => {
+    onClose();
+    router.push(path);
+  };
 
   // enabled controla quando dispara; pedidos obsoletos são cancelados (signal).
   const { data: results, isFetching: loading } = useApiQuery<SearchResults>(
@@ -74,9 +83,11 @@ export function GlobalSearch({ onClose }: GlobalSearchProps) {
                   Colaboradores
                 </p>
                 {results.users?.map((u) => (
-                  <div
+                  <button
+                    type="button"
                     key={u.id}
-                    className="flex cursor-pointer items-center gap-2 rounded-control px-2 py-1.5 hover:bg-surface-sunken"
+                    onClick={() => goTo(`/users?userId=${u.id}`)}
+                    className="flex w-full items-center gap-2 rounded-control px-2 py-1.5 text-left hover:bg-surface-sunken"
                   >
                     <Avatar name={u.fullName} url={u.avatarUrl} size="sm" />
                     <div>
@@ -87,7 +98,7 @@ export function GlobalSearch({ onClose }: GlobalSearchProps) {
                         {u.position?.name} · {u.department?.name}
                       </p>
                     </div>
-                  </div>
+                  </button>
                 ))}
               </div>
             )}
@@ -97,9 +108,11 @@ export function GlobalSearch({ onClose }: GlobalSearchProps) {
                   Cursos
                 </p>
                 {results.courses?.map((c) => (
-                  <div
+                  <button
+                    type="button"
                     key={c.id}
-                    className="flex cursor-pointer items-center gap-2 rounded-control px-2 py-1.5 hover:bg-surface-sunken"
+                    onClick={() => goTo(`/courses?courseId=${c.id}`)}
+                    className="flex w-full items-center gap-2 rounded-control px-2 py-1.5 text-left hover:bg-surface-sunken"
                   >
                     <BookOpen
                       size={14}
@@ -107,7 +120,7 @@ export function GlobalSearch({ onClose }: GlobalSearchProps) {
                       className="shrink-0 text-primary"
                     />
                     <p className="font-body text-sm text-ink">{c.title}</p>
-                  </div>
+                  </button>
                 ))}
               </div>
             )}

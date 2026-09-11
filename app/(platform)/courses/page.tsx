@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { AdminDashboardView } from '@/components/courses/AdminDashboardView';
 import { CatalogView } from '@/components/courses/CatalogView';
 import { CertificatesView } from '@/components/courses/CertificatesView';
@@ -25,6 +25,17 @@ export default function CoursesPage() {
 
   const [nav, setNav] = useState<Nav>({ view: 'catalog' });
   const [showCreate, setShowCreate] = useState(false);
+
+  // Deep-link vindo da pesquisa global do dashboard (/courses?courseId=N):
+  // abre directamente o detalhe do curso. Lido de window.location em vez de
+  // useSearchParams() para não obrigar a <Suspense> (Next 15) — mesma
+  // convenção que /courses/modulos?courseId=N.
+  useEffect(() => {
+    const raw = new URLSearchParams(window.location.search).get('courseId');
+    if (raw && /^\d+$/.test(raw)) {
+      setNav({ view: 'detail', selectedId: Number(raw) });
+    }
+  }, []);
 
   const handleSelect = (id: number) =>
     setNav({ view: 'detail', selectedId: id });

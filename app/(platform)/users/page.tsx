@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Plus, Upload } from 'lucide-react';
 import { useToast } from '@/providers/ToastProvider';
 import { Button } from '@/components/ui/Button';
@@ -15,6 +15,17 @@ import type { Nav } from '@/components/users/types';
 export default function UsersPage() {
   const notify = useToast();
   const [nav, setNav] = useState<Nav>({ view: 'list' });
+
+  // Deep-link vindo da pesquisa global do dashboard (/users?userId=N):
+  // abre directamente o perfil do colaborador. Lido de window.location em
+  // vez de useSearchParams() para não obrigar a <Suspense> (Next 15) —
+  // mesma convenção que /courses/modulos?courseId=N.
+  useEffect(() => {
+    const raw = new URLSearchParams(window.location.search).get('userId');
+    if (raw && /^\d+$/.test(raw)) {
+      setNav({ view: 'detail', selectedId: Number(raw) });
+    }
+  }, []);
 
   const handleSelect = (id: number) =>
     setNav({ view: 'detail', selectedId: id });
