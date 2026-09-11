@@ -54,6 +54,7 @@ export const REPORT_PATHS: Record<string, string> = {
   training: `/reports/learning/training`,
   'skill-gap': `/reports/learning/skill-gap`,
   performance: `/reports/performance`,
+  evaluations: `/reports/evaluations`,
   talent: `/reports/talent`,
   engagement: `/reports/engagement`,
   compliance: `/reports/compliance`,
@@ -66,7 +67,7 @@ export const TABS: { id: Tab; label: string; icon: LucideIcon }[] = [
   { id: 'insights', label: 'Análises de IA', icon: Brain },
 ];
 
-// Templates base para o formulário "Criar Relatório" — espelha os 9
+// Templates base para o formulário "Criar Relatório" — espelha os 10
 // templates built-in do backend (reports.service.ts#getBuiltInTemplates).
 // Cada um traz o `reportKey` (rota em REPORT_PATHS) e a `category`
 // (ReportCategory) para o POST /reports/saved.
@@ -94,6 +95,11 @@ export const REPORT_TEMPLATES: {
   {
     reportKey: 'performance',
     name: 'Relatório de Desempenho',
+    category: 'PERFORMANCE',
+  },
+  {
+    reportKey: 'evaluations',
+    name: 'Relatório de Avaliações',
     category: 'PERFORMANCE',
   },
   { reportKey: 'talent', name: 'Inteligência de Talentos', category: 'TALENT' },

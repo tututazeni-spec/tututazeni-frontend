@@ -10,6 +10,7 @@
 import { useState } from 'react';
 import {
   BarChart2,
+  ClipboardList,
   Clock,
   Layers,
   Plus,
@@ -21,6 +22,7 @@ import { AnalyticsTab } from '@/components/evaluation/AnalyticsTab';
 import { CalibrationTab } from '@/components/evaluation/CalibrationTab';
 import { CreateCycleModal } from '@/components/evaluation/CreateCycleModal';
 import { CyclesTab } from '@/components/evaluation/CyclesTab';
+import { FormalEvaluationsTab } from '@/components/evaluation/FormalEvaluationsTab';
 import { OverviewTab } from '@/components/evaluation/OverviewTab';
 import { PendingTab } from '@/components/evaluation/PendingTab';
 import { ResultsTab } from '@/components/evaluation/ResultsTab';
@@ -34,9 +36,17 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
 // (evaluation.controller.ts) — nem GESTOR/LIDER têm acesso a estes dois,
 // só a Ciclos/Pendentes/Resultados. Sem esta restrição um COLABORADOR via
 // o separador e o pedido rebentava sempre com 403.
+//
+// "Avaliações Formais" (quizzes/exames com múltipla escolha ou resposta
+// aberta, por departamento ou gerais — backend src/assessments, type=EXAM)
+// não tem @Roles() próprio no container: fica visível a todos os 8 papéis e
+// o próprio FormalEvaluationsTab ramifica internamente entre gestão
+// (EVAL_CREATOR_ROLES) e participação (COLABORADOR/AUDITOR), tal como o
+// ResultsTab já faz para COLABORADOR.
 const TABS = [
   { id: 'overview', label: 'Visão Geral', icon: Star },
   { id: 'cycles', label: 'Ciclos', icon: Layers },
+  { id: 'formal', label: 'Avaliações Formais', icon: ClipboardList },
   { id: 'pending', label: 'Pendentes', icon: Clock },
   { id: 'results', label: 'Resultados', icon: BarChart2 },
   { id: 'analytics', label: 'Análises', icon: TrendingUp, roles: ADMIN_ROLES },
@@ -108,6 +118,9 @@ export default function EvaluationsPage() {
           </TabsContent>
           <TabsContent value="cycles">
             <CyclesTab />
+          </TabsContent>
+          <TabsContent value="formal">
+            <FormalEvaluationsTab />
           </TabsContent>
           <TabsContent value="pending">
             <PendingTab />

@@ -163,6 +163,19 @@ export const queryKeys = {
       [...queryKeys.assessments.all, 'detail', id] as const,
   },
 
+  // Bucket separado de `assessments` (mesmo backend /assessments/*) para as
+  // "Avaliações Formais" do módulo evaluation — evita invalidar por engano a
+  // cache do catálogo LMS genérico ao gerir/participar numa avaliação formal.
+  formalEvaluations: {
+    all: ['formal-evaluations'] as const,
+    list: () => [...queryKeys.formalEvaluations.all, 'list'] as const,
+    available: () => [...queryKeys.formalEvaluations.all, 'available'] as const,
+    results: (id: number) =>
+      [...queryKeys.formalEvaluations.all, 'results', id] as const,
+    attemptReview: (id: number) =>
+      [...queryKeys.formalEvaluations.all, 'attempt-review', id] as const,
+  },
+
   departments: {
     all: ['departments'] as const,
     list: (params: Record<string, unknown>) =>
