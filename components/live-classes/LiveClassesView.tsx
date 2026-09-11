@@ -9,7 +9,7 @@
 // Extraído de page.tsx porque a página inteira (1364 linhas) estava toda
 // numa única função — ver memory project_innova_component_separation_audit.
 
-import { Circle, Calendar, Clapperboard, Search, Video } from 'lucide-react';
+import { Circle, Calendar, Clapperboard, Plus, Search, Video } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { ClassCard } from './ClassCard';
 import { RecordingCard } from './RecordingCard';
@@ -125,12 +125,10 @@ export function LiveClassesView({
             </p>
           </div>
           {canCreate && (
-            <button
-              onClick={onCreateNew}
-              className="py-2.25 px-5 bg-danger text-canvas border-none rounded-lg text-sm font-bold cursor-pointer"
-            >
-              + Nova Aula
-            </button>
+            <Button onClick={onCreateNew}>
+              <Plus size={16} strokeWidth={1.75} />
+              Nova Aula
+            </Button>
           )}
         </div>
 
