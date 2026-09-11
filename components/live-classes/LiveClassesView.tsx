@@ -9,7 +9,7 @@
 // Extraído de page.tsx porque a página inteira (1364 linhas) estava toda
 // numa única função — ver memory project_innova_component_separation_audit.
 
-import { Circle, Calendar, Clapperboard, Video } from 'lucide-react';
+import { Circle, Calendar, Clapperboard, Search, Video } from 'lucide-react';
 import { ClassCard } from './ClassCard';
 import { RecordingCard } from './RecordingCard';
 import { Spinner } from './Spinner';
@@ -181,7 +181,10 @@ export function LiveClassesView({
         </div>
 
         {/* ── Search ── */}
-        <div className="flex gap-3 mb-4.5 flex-wrap items-center">
+        <form
+          onSubmit={(e) => e.preventDefault()}
+          className="flex gap-3 mb-4.5 flex-wrap items-center"
+        >
           <input
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
@@ -197,8 +200,16 @@ export function LiveClassesView({
               className={`${INP} w-32`}
             />
           )}
+          <button
+            type="submit"
+            aria-label="Procurar"
+            className="py-2.25 px-3.5 rounded-lg border border-border bg-white cursor-pointer text-ink-muted flex items-center justify-center"
+          >
+            <Search size={16} strokeWidth={1.75} />
+          </button>
           {(search || filters.courseId) && (
             <button
+              type="button"
               onClick={() => {
                 onSearchChange('');
                 onFiltersChange({ courseId: '' });
@@ -209,7 +220,7 @@ export function LiveClassesView({
               ✕
             </button>
           )}
-        </div>
+        </form>
 
         {/* ══════════════════════════════════════
             TAB: TODAS AS AULAS
