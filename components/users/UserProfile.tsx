@@ -17,8 +17,17 @@ interface UserProfileProps {
 
 export function UserProfile({ userId, onBack }: UserProfileProps) {
   const [tab, setTab] = useState<ProfileTab>('overview');
-  const { user, loadingUser, stats, auditLogs, actionLoading, handleAction } =
-    useUserProfile(userId, tab);
+  const {
+    user,
+    loadingUser,
+    stats,
+    auditLogs,
+    actionLoading,
+    handleAction,
+    canSeeStats,
+    canSeeAudit,
+    canManageAccount,
+  } = useUserProfile(userId, tab);
 
   return (
     <UserProfileView
@@ -32,6 +41,9 @@ export function UserProfile({ userId, onBack }: UserProfileProps) {
       auditLogs={auditLogs}
       actionLoading={actionLoading}
       onAction={handleAction}
+      canSeeStats={canSeeStats}
+      canSeeAudit={canSeeAudit}
+      canManageAccount={canManageAccount}
     />
   );
 }

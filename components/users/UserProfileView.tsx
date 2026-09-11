@@ -141,6 +141,12 @@ export interface UserProfileViewProps {
   auditLogs: AuditLogEntry[];
   actionLoading: boolean;
   onAction: (action: UserAction) => void;
+  /** false quando o backend recusaria /:id/stats e /:id/team ao viewer actual (role ≠ ADMIN/RH/GESTOR). */
+  canSeeStats: boolean;
+  /** false quando o backend recusaria /:id/audit-logs (role ≠ ADMIN/RH). */
+  canSeeAudit: boolean;
+  /** false quando activate/deactivate/suspend seriam recusados (role ≠ ADMIN/RH). */
+  canManageAccount: boolean;
 }
 
 export function UserProfileView({
@@ -154,6 +160,9 @@ export function UserProfileView({
   auditLogs,
   actionLoading,
   onAction,
+  canSeeStats,
+  canSeeAudit,
+  canManageAccount,
 }: UserProfileViewProps) {
   if (loadingUser || !user)
     return (
@@ -166,11 +175,17 @@ export function UserProfileView({
       </div>
     );
 
+  // Perfil aberto por um colega sem role de gestão (ex.: pesquisa global do
+  // dashboard) — só mostra separadores cujo endpoint o backend não recusaria.
   const tabs: Array<{ id: ProfileTab; label: string }> = [
-    { id: 'overview', label: 'Visão geral' },
-    { id: 'learning', label: 'Formação' },
-    { id: 'team', label: 'Equipa' },
-    { id: 'audit', label: 'Auditoria' },
+    ...(canSeeStats
+      ? [
+          { id: 'overview' as const, label: 'Visão geral' },
+          { id: 'learning' as const, label: 'Formação' },
+          { id: 'team' as const, label: 'Equipa' },
+        ]
+      : []),
+    ...(canSeeAudit ? [{ id: 'audit' as const, label: 'Auditoria' }] : []),
   ];
 
   return (
@@ -228,39 +243,41 @@ export function UserProfileView({
             )}
           </div>
 
-          {/* Acções */}
-          <div className="flex flex-col gap-2">
-            {user.accountStatus === 'ACTIVE' && (
-              <Button
-                intent="secondary"
-                size="sm"
-                onClick={() => onAction('deactivate')}
-                disabled={actionLoading}
-              >
-                Desactivar
-              </Button>
-            )}
-            {user.accountStatus !== 'ACTIVE' && (
-              <Button
-                intent="success"
-                size="sm"
-                onClick={() => onAction('activate')}
-                disabled={actionLoading}
-              >
-                Activar
-              </Button>
-            )}
-            {user.accountStatus === 'ACTIVE' && (
-              <Button
-                intent="warning"
-                size="sm"
-                onClick={() => onAction('suspend')}
-                disabled={actionLoading}
-              >
-                Suspender
-              </Button>
-            )}
-          </div>
+          {/* Acções — activate/deactivate/suspend são @Roles(ADMIN, RH) no backend */}
+          {canManageAccount && (
+            <div className="flex flex-col gap-2">
+              {user.accountStatus === 'ACTIVE' && (
+                <Button
+                  intent="secondary"
+                  size="sm"
+                  onClick={() => onAction('deactivate')}
+                  disabled={actionLoading}
+                >
+                  Desactivar
+                </Button>
+              )}
+              {user.accountStatus !== 'ACTIVE' && (
+                <Button
+                  intent="success"
+                  size="sm"
+                  onClick={() => onAction('activate')}
+                  disabled={actionLoading}
+                >
+                  Activar
+                </Button>
+              )}
+              {user.accountStatus === 'ACTIVE' && (
+                <Button
+                  intent="warning"
+                  size="sm"
+                  onClick={() => onAction('suspend')}
+                  disabled={actionLoading}
+                >
+                  Suspender
+                </Button>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Bio */}
@@ -283,18 +300,20 @@ export function UserProfileView({
       </Card>
 
       {/* Tabs */}
-      <div className="flex w-fit gap-1 mb-5 rounded-control bg-surface-sunken p-1">
-        {tabs.map((t) => (
-          <Button
-            key={t.id}
-            size="sm"
-            intent={tab === t.id ? 'primary' : 'ghost'}
-            onClick={() => onTabChange(t.id)}
-          >
-            {t.label}
-          </Button>
-        ))}
-      </div>
+      {tabs.length > 0 && (
+        <div className="flex w-fit gap-1 mb-5 rounded-control bg-surface-sunken p-1">
+          {tabs.map((t) => (
+            <Button
+              key={t.id}
+              size="sm"
+              intent={tab === t.id ? 'primary' : 'ghost'}
+              onClick={() => onTabChange(t.id)}
+            >
+              {t.label}
+            </Button>
+          ))}
+        </div>
+      )}
 
       {/* Overview tab */}
       {tab === 'overview' && stats && (

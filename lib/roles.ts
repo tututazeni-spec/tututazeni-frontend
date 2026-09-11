@@ -39,6 +39,15 @@ export const MGMT_ROLES: readonly Role[] = ['ADMIN', 'RH', 'LIDER', 'GESTOR'];
 /** Espelha ADMIN_ROLES em src/dashboard/dashboard.controller.ts. */
 export const ADMIN_ROLES: readonly Role[] = ['ADMIN', 'RH'];
 
+/**
+ * Espelha os roles de GET /users/:id/stats e /users/:id/team
+ * (src/users/users.controller.ts) — não é o mesmo conjunto que MGMT_ROLES
+ * (esses endpoints não incluem LIDER). Usado para esconder dados/separadores
+ * que o backend recusa a outros roles em vez de deixar a query rebentar com
+ * 403 (ex.: perfil de colega aberto a partir da pesquisa global).
+ */
+export const USER_PROFILE_MGMT_ROLES: readonly Role[] = ['ADMIN', 'RH', 'GESTOR'];
+
 export interface RoleRestricted {
   /** Omitido/vazio = sem @Roles() no endpoint principal → visível a todos. */
   roles?: readonly Role[];
