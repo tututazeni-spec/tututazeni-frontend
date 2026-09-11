@@ -67,6 +67,7 @@ export function ColaboradorDashboard() {
               name={data.user.fullName ?? 'U'}
               url={data.user.avatarUrl}
               size="lg"
+              className="-my-2 h-16 w-16 text-base ring-2 ring-canvas/30"
             />
           )}
           <div className="min-w-0 flex-1">
