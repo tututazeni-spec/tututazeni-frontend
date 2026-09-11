@@ -10,7 +10,13 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import type { Indicator } from '@/components/monitoring/types';
 
-export function useIndicators() {
+/**
+ * @param enabled - GET /monitoring/indicators não tem @Roles no backend
+ * (visível a qualquer autenticado), mas app/(platform)/monitoring/indicators
+ * /page.tsx bloqueia a rota para COLABORADOR a pedido do utilizador — passa
+ * `false` daí para não disparar o pedido antes do gate decidir.
+ */
+export function useIndicators(enabled = true) {
   const [page, setPage] = useState(1);
   const params = { page, limit: 20 };
 
@@ -26,6 +32,7 @@ export function useIndicators() {
       params,
       staleTime: STALE_TIME.DYNAMIC,
       placeholderData: keepPreviousData,
+      enabled,
     },
   );
 
