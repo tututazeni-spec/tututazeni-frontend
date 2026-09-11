@@ -19,6 +19,7 @@ interface OkrsViewProps {
   loading: boolean;
   error: string;
   onRetry: () => void;
+  showIndicators: boolean;
 }
 
 export function OkrsView({
@@ -29,6 +30,7 @@ export function OkrsView({
   loading,
   error,
   onRetry,
+  showIndicators,
 }: OkrsViewProps) {
   if (loading) return <ListSkeleton />;
   if (error) return <ErrorBanner message={error} onRetry={onRetry} />;
@@ -40,12 +42,14 @@ export function OkrsView({
           OKRs — Objectivos e Resultados-Chave
         </h1>
         <div className="flex gap-2">
-          <a
-            href="/monitoring/indicators"
-            className={buttonVariants({ intent: 'secondary', size: 'sm' })}
-          >
-            Indicadores
-          </a>
+          {showIndicators && (
+            <a
+              href="/monitoring/indicators"
+              className={buttonVariants({ intent: 'secondary', size: 'sm' })}
+            >
+              Indicadores
+            </a>
+          )}
           <a
             href="/monitoring/evaluations"
             className={buttonVariants({ intent: 'secondary', size: 'sm' })}

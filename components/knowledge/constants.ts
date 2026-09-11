@@ -3,7 +3,7 @@
 // app/(platform)/knowledge/page.tsx. Cores mapeadas para os tokens
 // semânticos da fundação de design (Fase A).
 
-import { AUTHENTICATED_ROLES, type Role } from '@/lib/roles';
+import { NON_COLABORADOR_ROLES, type Role } from '@/lib/roles';
 import type { StatusBadgeMap } from '@/lib/statusBadge';
 import type { ArticleStatus, View } from './types';
 
@@ -17,9 +17,7 @@ export const ARTICLE_STATUS_MAP: StatusBadgeMap<ArticleStatus> = {
 // Separador "Admin" chama GET /knowledge/admin/dashboard, que tem
 // @Roles(ADMIN, RH) no backend — mas o pedido aqui foi só esconder de
 // COLABORADOR, por isso mantém-se visível a todos os outros papéis.
-export const NON_COLABORADOR_ROLES: readonly Role[] = AUTHENTICATED_ROLES.filter(
-  (r) => r !== 'COLABORADOR',
-);
+// Ver NON_COLABORADOR_ROLES em lib/roles.ts.
 
 export const NAV: Array<{
   id: Exclude<View, 'article'>;

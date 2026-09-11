@@ -17,7 +17,7 @@
 
 import { useState } from 'react';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
-import { ADMIN_ROLES } from '@/lib/roles';
+import { ADMIN_ROLES, filterByRole } from '@/lib/roles';
 import { useToast } from '@/providers/ToastProvider';
 import { NAV, TITLES } from '@/components/competencies/constants';
 import { CatalogView } from '@/components/competencies/CatalogView';
@@ -34,6 +34,7 @@ export default function CompetenciesPage() {
   const role = useCurrentRole();
   const canManage = !!role && ADMIN_ROLES.includes(role);
   const canDelete = role === 'ADMIN';
+  const visibleNav = filterByRole(NAV, role);
 
   const [view, setView] = useState<View>('catalog');
   const [detailId, setDetailId] = useState<number | null>(null);
@@ -61,7 +62,7 @@ export default function CompetenciesPage() {
 
       {/* Tabs */}
       <div className="mb-6 flex w-fit gap-1 rounded-card bg-surface-sunken p-1">
-        {NAV.map((n) => (
+        {visibleNav.map((n) => (
           <Button
             key={n.id}
             size="sm"
@@ -77,8 +78,15 @@ export default function CompetenciesPage() {
         <CatalogView onSelect={setDetailId} canManage={canManage} />
       )}
       {view === 'my-profile' && <MyProfileView />}
-      {view === 'matrix' && <SkillMatrixView />}
-      {view === 'dashboard' && <DashboardView />}
+      {/* Matrix/Dashboard: nem montados para quem não tem @Roles(ADMIN, RH,
+          GESTOR)/(ADMIN, RH) no backend — não só escondidos da lista de
+          separadores acima. */}
+      {view === 'matrix' && visibleNav.some((n) => n.id === 'matrix') && (
+        <SkillMatrixView />
+      )}
+      {view === 'dashboard' && visibleNav.some((n) => n.id === 'dashboard') && (
+        <DashboardView />
+      )}
 
       {detailId !== null && (
         <CompetencyDetailModal
