@@ -29,6 +29,11 @@ export default function LearningPathsPage() {
   // mostrar o botão a quem o endpoint aceita. Enquanto a role não chegou
   // (arranque pós-login/reload) tratamos como não-admin.
   const isAdmin = !!role && ADMIN_ROLES.includes(role);
+  // Dashboard (Admin) bate em GET /learning-paths/admin/dashboard
+  // (@Roles ADMIN, RH) — colaborador nunca deve ver nem conseguir abrir
+  // este separador.
+  const visibleNav =
+    role === 'COLABORADOR' ? NAV.filter((n) => n.id !== 'dashboard') : NAV;
   const [nav, setNav] = useState<Nav>({ view: 'catalog' });
   const [showCreate, setShowCreate] = useState(false);
 
@@ -57,7 +62,7 @@ export default function LearningPathsPage() {
       {/* Tabs */}
       {nav.view !== 'detail' && (
         <div className="mb-6 flex w-fit gap-1 rounded-xl bg-surface-sunken p-1">
-          {NAV.map((n) => (
+          {visibleNav.map((n) => (
             <button
               key={n.id}
               onClick={() => setNav({ view: n.id })}
@@ -78,7 +83,9 @@ export default function LearningPathsPage() {
         <LPDetailView pathId={nav.selectedId} onBack={handleBack} />
       )}
       {nav.view === 'my-paths' && <MyPathsView onSelect={handleSelect} />}
-      {nav.view === 'dashboard' && <DashboardView onSelect={handleSelect} />}
+      {nav.view === 'dashboard' && role !== 'COLABORADOR' && (
+        <DashboardView onSelect={handleSelect} />
+      )}
 
       {showCreate && (
         <CreateLearningPathModal

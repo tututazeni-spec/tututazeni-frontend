@@ -17,8 +17,22 @@ import { EnrollUserModal } from '@/components/enrollments/EnrollUserModal';
 import { MyEnrollmentsView } from '@/components/enrollments/MyEnrollmentsView';
 import { TeamView } from '@/components/enrollments/TeamView';
 import type { View } from '@/components/enrollments/types';
+import { useCurrentRole } from '@/hooks/useCurrentRole';
+
+// Separadores de gestão/equipa — colaborador não deve ver nem conseguir
+// abrir nenhum destes.
+const COLABORADOR_HIDDEN_VIEWS: readonly View[] = [
+  'admin',
+  'compliance',
+  'team',
+];
 
 export default function EnrollmentsPage() {
+  const role = useCurrentRole();
+  const visibleNav =
+    role === 'COLABORADOR'
+      ? NAV.filter((n) => !COLABORADOR_HIDDEN_VIEWS.includes(n.id))
+      : NAV;
   const [view, setView] = useState<View>('my');
   const [modal, setModal] = useState<'single' | 'bulk' | null>(null);
 
@@ -51,7 +65,7 @@ export default function EnrollmentsPage() {
 
       {/* Tabs */}
       <div className="mb-6 flex w-fit flex-wrap gap-1 rounded-card bg-surface-sunken p-1">
-        {NAV.map((n) => (
+        {visibleNav.map((n) => (
           <Button
             key={n.id}
             size="sm"
@@ -64,9 +78,9 @@ export default function EnrollmentsPage() {
       </div>
 
       {view === 'my' && <MyEnrollmentsView />}
-      {view === 'admin' && <AdminView />}
-      {view === 'compliance' && <ComplianceView />}
-      {view === 'team' && <TeamView />}
+      {view === 'admin' && role !== 'COLABORADOR' && <AdminView />}
+      {view === 'compliance' && role !== 'COLABORADOR' && <ComplianceView />}
+      {view === 'team' && role !== 'COLABORADOR' && <TeamView />}
 
       {modal === 'single' && <EnrollUserModal onClose={() => setModal(null)} />}
       {modal === 'bulk' && <BulkEnrollModal onClose={() => setModal(null)} />}

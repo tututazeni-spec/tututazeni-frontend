@@ -24,6 +24,7 @@ import { LessonModal } from '@/components/courses-modulos/LessonModal';
 import { ProgressModal } from '@/components/courses-modulos/ProgressModal';
 import { ModuleBlock } from '@/components/courses-modulos/ModuleBlock';
 import type { CourseModule, Lesson } from '@/components/courses-modulos/types';
+import { useCurrentRole } from '@/hooks/useCurrentRole';
 
 export default function CourseModulesPage() {
   const [courseIdInput, setCourseIdInput] = useState('');
@@ -32,6 +33,10 @@ export default function CourseModulesPage() {
   );
   const [modal, dispatchModal] = useReducer(modalReducer, { kind: 'none' });
   const toast = useToast();
+  const role = useCurrentRole();
+  // Colaborador não gere módulos/lições — não deve poder carregar um
+  // curso nesta página de gestão.
+  const canLoadCourse = role !== 'COLABORADOR';
 
   // Deep-link vindo da aba Gestão de cursos (/courses/modulos?courseId=N):
   // pré-preenche e carrega o curso automaticamente. Lido de
@@ -47,7 +52,7 @@ export default function CourseModulesPage() {
 
   // ── Fetch curso ──────────────────────────────────────────────────────────
   function loadCourse() {
-    if (!courseIdInput) return;
+    if (!courseIdInput || !canLoadCourse) return;
     setSubmittedCourseId(+courseIdInput);
   }
 
@@ -159,38 +164,40 @@ export default function CourseModulesPage() {
       </div>
 
       {/* ── Selector de curso ── */}
-      <Card className="mb-6">
-        <CardBody>
-          <h3 className="m-0 mb-3.5 flex items-center gap-1.5 text-sm font-bold text-ink">
-            <Search size={16} strokeWidth={1.75} /> Seleccionar Curso
-          </h3>
-          <div className="flex gap-3 items-end flex-wrap">
-            <div className="flex-1 min-w-[200px]">
-              <FormField label="ID do Curso" htmlFor="courseId">
-                <Input
-                  id="courseId"
-                  type="number"
-                  value={courseIdInput}
-                  onChange={(e) => {
-                    setCourseIdInput(e.target.value);
-                    setSubmittedCourseId(null);
-                  }}
-                  placeholder="Ex: 1"
-                  onKeyDown={(e) => e.key === 'Enter' && loadCourse()}
-                />
-              </FormField>
+      {canLoadCourse && (
+        <Card className="mb-6">
+          <CardBody>
+            <h3 className="m-0 mb-3.5 flex items-center gap-1.5 text-sm font-bold text-ink">
+              <Search size={16} strokeWidth={1.75} /> Seleccionar Curso
+            </h3>
+            <div className="flex gap-3 items-end flex-wrap">
+              <div className="flex-1 min-w-[200px]">
+                <FormField label="ID do Curso" htmlFor="courseId">
+                  <Input
+                    id="courseId"
+                    type="number"
+                    value={courseIdInput}
+                    onChange={(e) => {
+                      setCourseIdInput(e.target.value);
+                      setSubmittedCourseId(null);
+                    }}
+                    placeholder="Ex: 1"
+                    onKeyDown={(e) => e.key === 'Enter' && loadCourse()}
+                  />
+                </FormField>
+              </div>
+              <Button
+                onClick={loadCourse}
+                disabled={loading || !courseIdInput}
+                intent="primary"
+                loading={loading}
+              >
+                {loading ? 'A carregar...' : 'Carregar Curso'}
+              </Button>
             </div>
-            <Button
-              onClick={loadCourse}
-              disabled={loading || !courseIdInput}
-              intent="primary"
-              loading={loading}
-            >
-              {loading ? 'A carregar...' : 'Carregar Curso'}
-            </Button>
-          </div>
-        </CardBody>
-      </Card>
+          </CardBody>
+        </Card>
+      )}
 
       {/* ── Stats (quando carregado) ── */}
       {loaded && (

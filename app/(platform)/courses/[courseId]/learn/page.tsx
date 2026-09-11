@@ -28,11 +28,16 @@ import type {
   ModuleProgress,
   PageMode,
 } from '@/components/courses-learn/types';
+import { useCurrentRole } from '@/hooks/useCurrentRole';
 
 export default function CourseLearnPage() {
   const notify = useToast();
   const params = useParams();
   const courseId = parseInt((params?.courseId as string) ?? '0');
+  const role = useCurrentRole();
+  // Colaborador só consome o curso — não deve ver nem conseguir abrir o
+  // modo Construtor (edição de módulos/lições).
+  const canBuild = role !== 'COLABORADOR';
 
   const qc = useQueryClient();
   const [mode, setMode] = useState<PageMode>('learn');
@@ -196,7 +201,7 @@ export default function CourseLearnPage() {
           <Tabs value={mode} onValueChange={(v) => setMode(v as PageMode)}>
             <TabsList>
               <TabsTrigger value="learn">Aprender</TabsTrigger>
-              <TabsTrigger value="build">Construtor</TabsTrigger>
+              {canBuild && <TabsTrigger value="build">Construtor</TabsTrigger>}
             </TabsList>
           </Tabs>
 
@@ -217,10 +222,10 @@ export default function CourseLearnPage() {
         {sidebarOpen && (
           <div
             className={`flex-shrink-0 overflow-y-auto border-r border-border bg-surface ${
-              mode === 'build' ? 'w-full' : 'w-72'
+              mode === 'build' && canBuild ? 'w-full' : 'w-72'
             }`}
           >
-            {mode === 'learn' ? (
+            {mode === 'learn' || !canBuild ? (
               <div>
                 {/* Sidebar header */}
                 <div className="px-4 py-3 border-b border-border bg-surface-sunken">
@@ -265,7 +270,7 @@ export default function CourseLearnPage() {
         )}
 
         {/* Player area */}
-        {mode === 'learn' && (
+        {(mode === 'learn' || !canBuild) && (
           <div className="flex-1 flex flex-col overflow-hidden">
             {justCompletedModule ? (
               <ModuleCompletedBanner
@@ -300,7 +305,7 @@ export default function CourseLearnPage() {
         )}
 
         {/* Builder full area when sidebar is hidden */}
-        {mode === 'build' && !sidebarOpen && (
+        {mode === 'build' && canBuild && !sidebarOpen && (
           <div className="flex-1 p-6 overflow-y-auto">
             <ModuleBuilder courseId={courseId} />
           </div>
