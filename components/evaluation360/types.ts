@@ -31,6 +31,20 @@ export interface CompetencyScore {
   benchmark: number; // média do cargo/nível
 }
 
+// Cabeçalho "de quem é este ecrã" — sempre disponível (é o próprio
+// utilizador autenticado; regra: ninguém vê o resultado de outro, ver
+// evaluation360.service.ts#getParticipantResult), mesmo antes de existir
+// ParticipantResult calculado. Separado de ParticipantResult para o cartão
+// de identidade (nome, departamento, foto) não depender de já haver
+// resultado — só as pontuações é que dependem disso.
+export interface ParticipantProfile {
+  userId: string;
+  fullName: string;
+  position: string;
+  department: string;
+  avatarUrl?: string | null;
+}
+
 export interface ParticipantResult {
   userId: string;
   fullName: string;

@@ -17,6 +17,7 @@ import type {
   CycleInfo,
   EvaluationQuestion,
   NineBoxEntry,
+  ParticipantProfile,
   ParticipantResult,
   TabId,
 } from './types';
@@ -46,11 +47,6 @@ import {
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
-// Espelha canSeeFull em evaluation360.service.ts#getParticipantResult — só
-// estes papéis conseguem ver o resultado de outro colaborador; para os
-// restantes, escolher alguém no seletor da Visão Geral daria sempre 403.
-const RESULT_VIEWER_ROLES = ['ADMIN', 'RH'];
-
 const TABS: { id: TabId; label: string; icon: LucideIcon }[] = [
   { id: 'overview', label: 'Visão Geral', icon: LayoutDashboard },
   { id: 'radar', label: 'Radar 360°', icon: Radar },
@@ -66,6 +62,7 @@ export interface Evaluation360ViewProps {
   activeTab: TabId;
   onTabChange: (tab: TabId) => void;
   result: ParticipantResult | null;
+  participant?: ParticipantProfile;
   cycle: CycleInfo | null;
   cycles: CycleInfo[];
   competencies: CompetencyScore[];
@@ -74,14 +71,13 @@ export interface Evaluation360ViewProps {
   selfFormQuestions: EvaluationQuestion[];
   myId?: string;
   cycleId?: string;
-  isOwnResult: boolean;
-  onSelectParticipant: (id: string | undefined) => void;
 }
 
 export function Evaluation360View({
   activeTab,
   onTabChange,
   result,
+  participant,
   cycle,
   cycles,
   competencies,
@@ -90,8 +86,6 @@ export function Evaluation360View({
   selfFormQuestions,
   myId,
   cycleId,
-  isOwnResult,
-  onSelectParticipant,
 }: Evaluation360ViewProps) {
   const [cycleModalOpen, setCycleModalOpen] = useState(false);
   const role = useCurrentRole();
@@ -100,21 +94,12 @@ export function Evaluation360View({
   // criar/distribuir questionários; a leitura (separador Ciclos) fica aberta
   // a todos, só a criação é restrita.
   const canCreateCycle = !!role && EVAL_CREATOR_ROLES.includes(role);
-  const canPickParticipant = !!role && RESULT_VIEWER_ROLES.includes(role);
   const feedbackTargetId = result?.userId ?? myId;
 
   const renderTab = () => {
     switch (activeTab) {
       case 'overview':
-        return (
-          <OverviewTab
-            result={result}
-            cycle={cycle}
-            canPickParticipant={canPickParticipant}
-            isOwnResult={isOwnResult}
-            onSelectParticipant={onSelectParticipant}
-          />
-        );
+        return <OverviewTab result={result} participant={participant} cycle={cycle} />;
       case 'radar':
         return (
           <div className="flex flex-col gap-6">
@@ -125,7 +110,7 @@ export function Evaluation360View({
             </div>
             {competencies.length === 0 ? (
               <div className="rounded-xl border border-border bg-surface p-6 text-sm text-ink-muted">
-                Ainda sem competências pontuadas para {isOwnResult ? 'ti' : 'este colaborador'}.
+                Ainda sem competências pontuadas para ti.
               </div>
             ) : (
               <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_320px] lg:items-start">
