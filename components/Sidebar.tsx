@@ -121,7 +121,12 @@ const NAV: Array<{ label: string; items: NavItem[] }> = [
         roles: ['ADMIN', 'RH', 'LIDER'],
       },
       { href: '/leave', icon: Calendar, label: 'Férias e Licenças' },
-      { href: '/departments', icon: Building2, label: 'Departamentos' },
+      {
+        href: '/departments',
+        icon: Building2,
+        label: 'Departamentos',
+        roles: ['ADMIN', 'RH', 'GESTOR', 'LIDER', 'INSTRUCTOR', 'DIRECTOR', 'AUDITOR'],
+      },
       {
         href: '/roles-permissions',
         icon: Briefcase,
