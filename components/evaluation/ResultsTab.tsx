@@ -3,12 +3,20 @@
 // concordância, radar de competências e sugestão de PDI. Dados próprios
 // (useApiMutation, pesquisa manual por ID) + apresentação. Extraído de
 // app/(platform)/evaluation/page.tsx.
+//
+// COLABORADOR só pode ver os seus próprios resultados (GET
+// /evaluations/results/:userId aplica assertCanAccess — ver
+// evaluation.controller.ts) — por isso não tem a pesquisa livre por ID;
+// em vez disso escolhe mês/ano (ou "Ver Total") e o ID usado é sempre o
+// seu próprio, vindo de useCurrentUser().
 
 'use client';
 
 import { Flame, Target } from 'lucide-react';
 import { useState } from 'react';
 import { useApiMutation } from '@/hooks/useApiQuery';
+import { useCurrentRole } from '@/hooks/useCurrentRole';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { apiClient } from '@/lib/apiClient';
 import { useToast } from '@/providers/ToastProvider';
 import { Badge } from '@/components/ui/Badge';
@@ -19,18 +27,45 @@ import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { Input } from '@/components/ui/Input';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { QueryError } from '@/components/ui/QueryError';
+import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { RadarChart } from './RadarChart';
-import { SCORE_BG, SCORE_COLOR, TYPE_LABEL } from './constants';
+import { MONTH_OPTIONS, SCORE_BG, SCORE_COLOR, TYPE_LABEL } from './constants';
 import type { EvalResults } from './types';
 
+const MONTH_ITEMS = [{ value: 'ALL', label: 'Todos os meses' }, ...MONTH_OPTIONS];
+const YEAR_ITEMS = [
+  { value: 'ALL', label: 'Todos os anos' },
+  ...Array.from({ length: 5 }, (_, i) => {
+    const year = String(new Date().getFullYear() - i);
+    return { value: year, label: year };
+  }),
+];
+
+interface LoadParams {
+  uid: string;
+  period?: string;
+}
+
 export function ResultsTab() {
+  const role = useCurrentRole();
+  const { data: me } = useCurrentUser();
+  // Enquanto o role ainda não chegou (arranque pós-login/reload) tratamos
+  // como não-colaborador — mesmo critério de canCreateCycle em
+  // app/(platform)/evaluation/page.tsx — para não esconder e voltar a
+  // mostrar a pesquisa por ID no primeiro render.
+  const isColaborador = role === 'COLABORADOR';
+
   const [userId, setUserId] = useState('');
+  const [month, setMonth] = useState('ALL');
+  const [year, setYear] = useState('ALL');
   const notify = useToast();
 
-  const loadResults = useApiMutation((uid: string) =>
+  const loadResults = useApiMutation(({ uid, period }: LoadParams) =>
     Promise.all([
-      apiClient.get<EvalResults>(`/evaluations/results/${uid}`),
+      apiClient.get<EvalResults>(
+        `/evaluations/results/${uid}${period ? `?period=${period}` : ''}`,
+      ),
       apiClient.get<unknown>(`/evaluations/evolution/${uid}`),
     ]),
   );
@@ -59,11 +94,32 @@ export function ResultsTab() {
       });
       return;
     }
-    loadResults.mutate(id);
+    loadResults.mutate({ uid: id });
+  };
+
+  const periodFromFilters = () => {
+    if (year === 'ALL') return undefined;
+    return month === 'ALL' ? year : `${year}-${month}`;
+  };
+
+  const loadOwn = () => {
+    if (!me) return;
+    loadResults.mutate({ uid: String(me.id), period: periodFromFilters() });
+  };
+
+  const loadOwnTotal = () => {
+    if (!me) return;
+    setMonth('ALL');
+    setYear('ALL');
+    loadResults.mutate({ uid: String(me.id) });
   };
 
   const triggerPdi = useApiMutation(
-    () => apiClient.post(`/evaluations/results/${userId}/trigger-pdi`, {}),
+    () =>
+      apiClient.post(
+        `/evaluations/results/${isColaborador ? me?.id : userId}/trigger-pdi`,
+        {},
+      ),
     {
       onSuccess: () =>
         notify({
@@ -79,17 +135,50 @@ export function ResultsTab() {
 
   return (
     <div className="space-y-4">
-      {/* Search */}
+      {/* Search / filtros */}
       <Card>
-        <CardBody className="flex gap-3">
-          <Input
-            value={userId}
-            onChange={(e) => setUserId(e.target.value)}
-            placeholder="ID do colaborador..."
-            className="flex-1"
-          />
-          <Button onClick={load}>Ver Resultados</Button>
-        </CardBody>
+        {isColaborador ? (
+          <CardBody className="flex flex-wrap items-end gap-3">
+            <div>
+              <label className="mb-1 block text-xs font-medium text-ink-muted">
+                Mês
+              </label>
+              <Select
+                items={MONTH_ITEMS}
+                value={month}
+                onValueChange={setMonth}
+                className="w-40"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-medium text-ink-muted">
+                Ano
+              </label>
+              <Select
+                items={YEAR_ITEMS}
+                value={year}
+                onValueChange={setYear}
+                className="w-32"
+              />
+            </div>
+            <Button onClick={loadOwn} disabled={!me}>
+              Ver Resultados
+            </Button>
+            <Button intent="secondary" onClick={loadOwnTotal} disabled={!me}>
+              Ver Total
+            </Button>
+          </CardBody>
+        ) : (
+          <CardBody className="flex gap-3">
+            <Input
+              value={userId}
+              onChange={(e) => setUserId(e.target.value)}
+              placeholder="ID do colaborador..."
+              className="flex-1"
+            />
+            <Button onClick={load}>Ver Resultados</Button>
+          </CardBody>
+        )}
       </Card>
 
       {loading && (
@@ -282,27 +371,31 @@ export function ResultsTab() {
             </div>
           )}
 
-          {/* PDI trigger */}
-          <Button
-            size="md"
-            className="w-full"
-            disabled={triggerPdi.isPending}
-            onClick={() => triggerPdi.mutate(undefined)}
-          >
-            <Target
-              size={14}
-              strokeWidth={1.75}
-              className="inline align-[-2px]"
-            />{' '}
-            {triggerPdi.isPending
-              ? 'A gerar sugestão de PDI...'
-              : 'Gerar Sugestão de PDI com base nestes resultados'}
-          </Button>
+          {/* PDI trigger — só quem gere avaliações (não-colaborador) desenha
+              PDIs a partir dos resultados de outros; um colaborador a ver os
+              seus próprios resultados não tem esta acção. */}
+          {!isColaborador && (
+            <Button
+              size="md"
+              className="w-full"
+              disabled={triggerPdi.isPending}
+              onClick={() => triggerPdi.mutate(undefined)}
+            >
+              <Target
+                size={14}
+                strokeWidth={1.75}
+                className="inline align-[-2px]"
+              />{' '}
+              {triggerPdi.isPending
+                ? 'A gerar sugestão de PDI...'
+                : 'Gerar Sugestão de PDI com base nestes resultados'}
+            </Button>
+          )}
         </div>
       )}
 
       {!loading && loadResults.isError && (
-        <QueryError error={loadResults.error} onRetry={load} />
+        <QueryError error={loadResults.error} onRetry={isColaborador ? loadOwn : load} />
       )}
     </div>
   );

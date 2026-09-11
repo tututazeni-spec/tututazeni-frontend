@@ -25,18 +25,23 @@ import { OverviewTab } from '@/components/evaluation/OverviewTab';
 import { PendingTab } from '@/components/evaluation/PendingTab';
 import { ResultsTab } from '@/components/evaluation/ResultsTab';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
-import { ADMIN_ROLES } from '@/lib/roles';
+import { ADMIN_ROLES, filterByRole } from '@/lib/roles';
 import { Button } from '@/components/ui/Button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
 
+// Análises e Calibração espelham exactamente @Roles(ADMIN, RH) de
+// GET /evaluations/analytics/dashboard e GET /evaluations/calibration/:cycleId
+// (evaluation.controller.ts) — nem GESTOR/LIDER têm acesso a estes dois,
+// só a Ciclos/Pendentes/Resultados. Sem esta restrição um COLABORADOR via
+// o separador e o pedido rebentava sempre com 403.
 const TABS = [
   { id: 'overview', label: 'Visão Geral', icon: Star },
   { id: 'cycles', label: 'Ciclos', icon: Layers },
   { id: 'pending', label: 'Pendentes', icon: Clock },
   { id: 'results', label: 'Resultados', icon: BarChart2 },
-  { id: 'analytics', label: 'Análises', icon: TrendingUp },
-  { id: 'calibration', label: 'Calibração', icon: Shield },
-] as const;
+  { id: 'analytics', label: 'Análises', icon: TrendingUp, roles: ADMIN_ROLES },
+  { id: 'calibration', label: 'Calibração', icon: Shield, roles: ADMIN_ROLES },
+];
 
 export default function EvaluationsPage() {
   const role = useCurrentRole();
@@ -44,6 +49,7 @@ export default function EvaluationsPage() {
   // como não-admin — o botão aparece assim que /auth/me resolve. Espelha o
   // @Roles(ADMIN, RH) de POST /evaluations/cycles.
   const canCreateCycle = !!role && ADMIN_ROLES.includes(role);
+  const visibleTabs = filterByRole(TABS, role);
   const [showCreate, setShowCreate] = useState(false);
 
   return (
@@ -76,14 +82,14 @@ export default function EvaluationsPage() {
       <Tabs defaultValue="overview">
         <div className="border-b border-border bg-surface px-6">
           <TabsList className="mx-auto max-w-7xl overflow-x-auto gap-0">
-            {TABS.map((t, i) => {
+            {visibleTabs.map((t, i) => {
               const Icon = t.icon;
               return (
                 <TabsTrigger
                   key={t.id}
                   value={t.id}
                   className={
-                    i < TABS.length - 1
+                    i < visibleTabs.length - 1
                       ? 'gap-2 whitespace-nowrap mr-[1cm]!'
                       : 'gap-2 whitespace-nowrap'
                   }
@@ -109,12 +115,18 @@ export default function EvaluationsPage() {
           <TabsContent value="results">
             <ResultsTab />
           </TabsContent>
-          <TabsContent value="analytics">
-            <AnalyticsTab />
-          </TabsContent>
-          <TabsContent value="calibration">
-            <CalibrationTab />
-          </TabsContent>
+          {/* Análises/Calibração: nem montadas para quem não tem @Roles(ADMIN, RH)
+              no backend — não só escondidas da TabsList — ver nota acima. */}
+          {visibleTabs.some((t) => t.id === 'analytics') && (
+            <TabsContent value="analytics">
+              <AnalyticsTab />
+            </TabsContent>
+          )}
+          {visibleTabs.some((t) => t.id === 'calibration') && (
+            <TabsContent value="calibration">
+              <CalibrationTab />
+            </TabsContent>
+          )}
         </div>
       </Tabs>
     </div>
