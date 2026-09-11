@@ -1,0 +1,4 @@
+./app/verify/[code]/page.tsx:53:              className="mx-auto mb-4 text-green-600"
+./app/verify/[code]/page.tsx:55:            <h1 className="text-2xl font-bold text-green-700 mb-2">
+./app/verify/[code]/page.tsx:103:              className="mx-auto mb-4 text-red-700"
+./app/verify/[code]/page.tsx:105:            <h1 className="text-2xl font-bold text-red-700 mb-2">

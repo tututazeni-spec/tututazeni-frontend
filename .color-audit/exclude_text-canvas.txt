@@ -1,0 +1,135 @@
+./app/(platform)/attendance/page.tsx:133:                      ? 'bg-primary text-canvas shadow-sm'
+./app/(platform)/competency-map/page.tsx:148:                  <span className="w-5 h-5 rounded-full text-xs flex items-center justify-center font-bold bg-danger text-canvas">
+./app/(platform)/courses/[courseId]/learn/page.tsx:283:              <div className="flex-1 bg-ink flex items-center justify-center text-canvas text-center">
+./app/(platform)/courses/[courseId]/learn/page.tsx:293:                  <div className="font-body text-sm text-canvas/70">
+./app/(platform)/employees/page.tsx:211:                <span className="bg-primary text-canvas text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold">
+./app/(platform)/employees/page.tsx:231:                  ? 'bg-primary text-canvas'
+./app/(platform)/employees/page.tsx:242:                  ? 'bg-primary text-canvas'
+./app/(platform)/leave/page.tsx:218:                  ? 'bg-primary text-canvas shadow-resting'
+./app/(platform)/leave/page.tsx:230:                      : 'bg-primary text-canvas',
+./app/(platform)/live-classes/[id]/page.tsx:82:        <p className="text-canvas m-0 text-sm opacity-50">
+./app/(platform)/live-classes/[id]/page.tsx:99:          className="py-2.25 px-5 bg-danger border-none rounded-[9px] text-canvas cursor-pointer text-sm font-bold"
+./app/(platform)/notifications/page.tsx:352:              <span className="rounded-pill bg-primary px-2 py-0.5 font-body text-xs font-bold text-canvas">
+./app/(platform)/notifications/page.tsx:365:              <span className="rounded-pill bg-primary px-1.5 py-0.5 font-body text-[10px] font-bold text-canvas">
+./components/ai-tutor/ChatView.tsx:242:      <div className="flex items-center gap-3 px-4 py-3 bg-primary text-canvas">
+./components/ai-tutor/ChatView.tsx:246:          <div className="font-body text-xs text-canvas/80 flex items-center gap-1">
+./components/ai-tutor/ChatView.tsx:253:          className="ml-auto text-canvas/80 hover:text-canvas"
+./components/ai-tutor/ChatView.tsx:263:          className="font-body text-xs text-canvas/70 hover:text-canvas"
+./components/ai-tutor/HistoryView.tsx:81:                    ? 'bg-primary text-canvas'
+./components/ai-tutor/MessageBubble.tsx:53:            className="rounded-card bg-primary px-4 py-3 font-body text-sm leading-relaxed text-canvas"
+./components/analytics/MyDashboardView.tsx:6:// (from-accent to-accent-hover + text-canvas) já estabelecido em
+./components/assessments/AssessmentPlayer.tsx:349:                  ? 'bg-primary text-canvas scale-110'
+./components/attendance/ClockWidgetView.tsx:56:    <div className="bg-primary rounded-panel p-6 text-canvas shadow-elevated">
+./components/attendance/ClockWidgetView.tsx:71:            className="w-full px-3 py-2 text-sm bg-primary-subtle border border-primary-ink/20 rounded-control text-canvas placeholder-primary-ink/60 focus:outline-none focus:ring-2 focus:ring-primary-ink/30 resize-none"
+./components/attendance/ClockWidgetView.tsx:108:          <p className="text-sm text-canvas">Dia registado com sucesso</p>
+./components/avatar-training/ChatSession.tsx:161:                    <Bot size={14} strokeWidth={1.75} className="text-canvas" />
+./components/avatar-training/ChatSession.tsx:171:                      ? 'bg-primary text-canvas rounded-br-sm'
+./components/avatar-training/ChatSession.tsx:205:                <Bot size={14} strokeWidth={1.75} className="text-canvas" />
+./components/avatar-training/HomeTab.tsx:74:      <div className="bg-gradient-to-br from-primary to-primary-active rounded-panel p-6 text-canvas">
+./components/avatar-training/HomeTab.tsx:78:            <p className="text-canvas/70 text-sm"></p>
+./components/avatar-training/HomeTab.tsx:81:        <p className="text-canvas/80 text-sm mb-4">
+./components/career/PathsView.tsx:101:                    <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-primary font-body text-xs font-bold text-canvas">
+./components/career/PlanView.tsx:193:                        ? 'bg-primary text-canvas'
+./components/career-plans/CareerRoadmap.tsx:41:                    ? 'bg-primary text-canvas border-primary shadow-hover'
+./components/career-plans/MyCareerTab.tsx:51:      <div className="bg-primary rounded-panel p-6 text-canvas shadow-resting">
+./components/career-plans/MyCareerTab.tsx:54:            <p className="text-canvas/70 text-xs font-medium uppercase tracking-widest">
+./components/career-plans/MyCareerTab.tsx:60:            <div className="flex items-center gap-3 mt-1 text-canvas/70 text-sm">
+./components/career-plans/MyCareerTab.tsx:65:                  <span className="text-canvas font-medium">
+./components/career-plans/MyCareerTab.tsx:75:              <p className="text-canvas/70 text-xs mt-0.5">
+./components/career-plans/MyCareerTab.tsx:84:            <div className="flex justify-between text-xs text-canvas/70 mb-1">
+./components/competency-map/SelfAssessModal.tsx:130:                                ? 'bg-primary text-canvas shadow-resting'
+./components/content-library/ContentCard.tsx:134:            <span className="rounded bg-danger px-1.5 py-0.5 font-body text-[9px] font-bold text-canvas">
+./components/content-library/ContentCard.tsx:139:            <span className="rounded bg-accent px-1.5 py-0.5 font-body text-[9px] font-bold text-canvas">
+./components/content-library/ContentCard.tsx:144:            <span className="rounded bg-info px-1.5 py-0.5 font-body text-[9px] font-bold text-canvas">
+./components/content-library/HomeTab.tsx:71:        <h2 className="mb-1 font-display text-2xl font-bold text-canvas">
+./components/content-library/HomeTab.tsx:74:        <p className="mb-4 font-body text-sm text-canvas/70">
+./components/content-library/PathsTab.tsx:62:                  className="text-canvas/60"
+./components/content-library/PathsTab.tsx:66:                <div className="absolute right-2 top-2 flex items-center gap-1 rounded-pill bg-accent px-2 py-0.5 font-body text-[10px] font-bold text-canvas">
+./components/courses/CertificatesView.tsx:95:              <div className="bg-gradient-to-r from-primary to-primary-active p-5 text-canvas">
+./components/courses/CertificatesView.tsx:96:                <div className="text-xs text-canvas/70 mb-1">
+./components/courses/CertificatesView.tsx:102:                <div className="text-xs text-canvas/70 mt-1 font-mono">
+./components/courses/CourseDetailView.tsx:8:// text-canvas (mesmo padrão de components/courses-learn/ContentPlayer.tsx),
+./components/courses/CourseDetailView.tsx:105:                <div className="text-canvas text-center">
+./components/courses/CourseDetailView.tsx:107:                  <div className="text-sm text-canvas/80">
+./components/courses/CourseDetailView.tsx:110:                  <div className="text-xs text-canvas/60 mt-1">
+./components/courses/CourseDetailView.tsx:115:                <div className="text-canvas text-center">
+./components/courses/CourseDetailView.tsx:119:                  <div className="text-sm text-canvas/80">
+./components/courses-learn/ContentPlayer.tsx:83:          <div className="text-canvas text-center">
+./components/courses-learn/ContentPlayer.tsx:88:            <div className="font-body text-sm text-canvas/70 mt-2">
+./components/courses-learn/ContentPlayer.tsx:100:            <div className="text-canvas text-center px-8">
+./components/courses-learn/ContentPlayer.tsx:105:              <p className="font-body text-sm text-canvas/70 mt-2">
+./components/courses-learn/ContentPlayer.tsx:111:          <div className="text-canvas text-center px-8">
+./components/courses-learn/ContentPlayer.tsx:118:                <p className="font-body text-sm text-canvas/70 mt-2">
+./components/courses-learn/ContentPlayer.tsx:131:              <p className="font-body text-sm text-canvas/70 mt-2">
+./components/courses-learn/ContentPlayer.tsx:137:          <div className="max-w-2xl mx-auto text-canvas p-8">
+./components/courses-learn/ContentPlayer.tsx:141:            <p className="font-body text-canvas/80 leading-relaxed">
+./components/courses-learn/ContentPlayer.tsx:147:          <div className="text-canvas text-center">
+./components/courses-learn/LessonRow.tsx:50:              ? 'bg-primary text-canvas'
+./components/courses-learn/ModuleCompletedBanner.tsx:22:      <div className="text-canvas text-center max-w-sm">
+./components/courses-learn/ModuleCompletedBanner.tsx:27:        <p className="font-body text-canvas/80 mb-6">
+./components/dashboard/AlertBanner.tsx:38:              className="rounded-control bg-danger px-3 py-1 font-body text-xs text-canvas hover:brightness-95"
+./components/dashboard/AlertBanner.tsx:61:              className="shrink-0 rounded-control bg-warning px-3 py-1 font-body text-xs text-canvas hover:brightness-95"
+./components/dashboard/ColaboradorDashboard.tsx:63:      <div className="rounded-2xl bg-gradient-to-br from-primary to-primary-active p-5 text-canvas mb-[2cm]!">
+./components/dashboard/ColaboradorDashboard.tsx:77:            <p className="font-body text-sm text-canvas/80">
+./components/dashboard/ColaboradorDashboard.tsx:86:            <p className="font-body text-xs text-canvas/80">
+./components/dashboard/ColaboradorDashboard.tsx:93:            <div className="mb-1 flex justify-between font-body text-xs text-canvas/80">
+./components/declarations/NewDocRequestModal.tsx:220:                          ? 'bg-primary text-canvas'
+./components/documents/Sidebar.tsx:112:                className={`text-xs px-2 py-0.5 rounded-pill transition-colors ${filters.tag === t.tag ? 'bg-primary text-canvas' : 'bg-surface-sunken text-ink-muted hover:bg-border-strong'}`}
+./components/engagement/AnalyticsTab.tsx:189:                        className={`flex h-5 items-center rounded-control px-2 font-body text-[10px] text-canvas ${heatmapCellClass(pct)}`}
+./components/evaluation/AnalyticsTab.tsx:126:                    <span className="text-canvas font-bold text-sm">
+./components/evaluation360/EvaluationFormTab.tsx:90:                className="flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold text-canvas flex-shrink-0"
+./components/evaluation360/OverviewTab.tsx:26:            className="w-14 h-14 rounded-full flex items-center justify-center text-2xl font-bold text-canvas"
+./components/events/DetailView.tsx:226:                    className="rounded-control bg-danger px-4 py-2 text-center font-body text-sm font-medium text-canvas hover:brightness-95"
+./components/events/DetailView.tsx:299:                        ? 'bg-primary text-canvas'
+./components/executive-reports/DetailView.tsx:300:                      <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-primary font-body text-xs font-bold text-canvas">
+./components/history/TimelineTab.tsx:72:            className={`text-xs px-2.5 py-1.5 rounded-control font-medium transition-colors ${!category ? 'bg-primary text-canvas' : 'bg-surface-sunken text-ink-muted'}`}
+./components/history/TimelineTab.tsx:83:              className={`text-xs px-2.5 py-1.5 rounded-control font-medium transition-colors ${category === c ? 'bg-primary text-canvas' : 'bg-surface text-ink border border-border'}`}
+./components/knowledge/PortalView.tsx:60:        <div className="mb-5 font-body text-sm text-canvas/70">
+./components/leadership/Feedback360View.tsx:177:                          ? 'bg-primary text-canvas'
+./components/leadership/MyDashboardView.tsx:83:        <div className="flex items-center justify-between rounded-panel bg-gradient-to-r from-primary to-primary-active p-6 text-canvas shadow-resting">
+./components/leadership/MyDashboardView.tsx:85:            <div className="mb-1 font-body text-sm text-canvas/70">
+./components/leadership/MyDashboardView.tsx:89:            <div className="mt-1 font-body text-sm text-canvas/70">
+./components/leadership/MyDashboardView.tsx:99:            <div className="mt-2 font-body text-xs text-canvas/70">
+./components/leadership/ProgramWizard.tsx:391:              ? 'bg-primary text-canvas ring-2 ring-primary/40'
+./components/leadership/ProgramWizard.tsx:395:                  ? 'bg-success text-canvas'
+./components/leadership/RankingView.tsx:28:  'bg-warning text-canvas',
+./components/learning-paths/LPDetailView.tsx:362:                              ? 'bg-primary text-canvas hover:bg-primary-hover'
+./components/live-classes/ClassCard.tsx:108:          className={`flex-[2] py-2 px-2 rounded-lg border-none text-canvas text-xs font-bold cursor-pointer ${
+./components/live-classes/LiveClassesView.tsx:133:              className="py-2.25 px-5 bg-danger text-canvas border-none rounded-lg text-sm font-bold cursor-pointer"
+./components/live-classes/RecordingCard.tsx:39:        <div className="absolute bottom-2 left-2.5 bg-black/70 rounded px-2 py-0.5 text-xs text-canvas font-semibold">
+./components/live-classes/RecordingModal.tsx:33:            <p className="m-0 text-sm font-bold text-canvas">{lc.topic}</p>
+./components/live-classes/RecordingModal.tsx:85:                className="py-2.25 px-5 bg-danger border-none rounded-lg text-canvas text-sm font-bold no-underline"
+./components/live-classes/room/JitsiRoom.tsx:156:          <p className="text-canvas text-sm m-0">
+./components/live-classes/room/JitsiRoom.tsx:159:          <p className="text-canvas text-xs m-0 opacity-50">
+./components/live-classes/room/JitsiRoom.tsx:177:          <p className="text-canvas text-sm m-0 opacity-60">
+./components/live-classes/room/JitsiRoom.tsx:180:          <p className="text-canvas text-xs m-0 opacity-30">Sala: {roomName}</p>
+./components/live-classes/room/JitsiRoom.tsx:185:        <div className="absolute top-3 right-3 bg-black/60 rounded-lg py-1 px-2.5 text-xs text-canvas flex items-center gap-1.25 pointer-events-none z-20">
+./components/live-classes/room/RecordingPanel.tsx:114:            className="w-full py-2.75 rounded-[10px] bg-danger border-none text-canvas text-sm font-bold cursor-pointer flex items-center justify-center gap-2"
+./components/live-classes/room/RecordingPanel.tsx:172:                className="flex-1 inline-flex items-center justify-center gap-1.5 py-2.25 rounded-lg bg-success border-none text-canvas text-xs font-bold cursor-pointer"
+./components/live-classes/room/RecordingPanel.tsx:226:            className={`py-2 px-3.5 rounded-lg bg-accent border-none text-canvas text-xs font-bold cursor-pointer whitespace-nowrap ${
+./components/live-classes/UpcomingStrip.tsx:61:                  className={`inline-block px-2.5 py-1 rounded-lg text-canvas text-xs font-bold ${
+./components/lms/LearningPathsView.tsx:87:              <div className="flex h-32 items-center justify-center bg-gradient-to-br from-primary to-accent text-canvas">
+./components/micro-learning/MicroCard.tsx:52:          <div className="flex h-full w-full items-center justify-center text-canvas opacity-40">
+./components/micro-learning/MicroCard.tsx:57:        <div className="absolute bottom-2 right-2 rounded bg-ink/70 px-2 py-0.5 font-data text-xs text-canvas">
+./components/micro-learning/MicroCard.tsx:69:            <div className="inline-flex items-center gap-1 rounded-full bg-success px-3 py-1 font-body text-xs font-medium text-canvas">
+./components/micro-learning/PlayerView.tsx:243:                <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-info text-xs font-bold text-canvas">
+./components/onboarding/MyPlanView.tsx:189:        <div className="bg-primary text-canvas rounded-card p-5 flex items-center gap-4">
+./components/payslips/PayslipDetailView.tsx:98:        <div className="bg-primary px-6 py-5 text-canvas">
+./components/payslips/PayslipDetailView.tsx:104:              <div className="mt-1 flex flex-wrap gap-3 font-body text-xs text-canvas/70">
+./components/payslips/PayslipDetailView.tsx:112:              <div className="mt-2 font-mono text-xs text-canvas/60">
+./components/performance/AnalyticsView.tsx:100:                      <span className="text-xs text-canvas font-medium">
+./components/performance/MyDashboard.tsx:164:        <div className="bg-primary text-canvas rounded-card p-5">
+./components/processes/TaskRunner.tsx:213:                          ? 'bg-primary text-canvas'
+./components/roles-permissions/SimulatorTab.tsx:114:              <XCircle size={20} strokeWidth={1.75} className="text-canvas" />
+./components/roles-permissions/SimulatorTab.tsx:139:                  className="text-canvas"
+./components/roles-permissions/SimulatorTab.tsx:145:                  className="text-canvas"
+./components/roles-permissions/SimulatorTab.tsx:185:                  className={`w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold ${s.result ? 'bg-success text-canvas' : 'bg-danger text-canvas'}`}
+./components/settings/TabPermissoes.tsx:35:            <div className="w-13 h-13 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center text-canvas font-bold text-xl flex-shrink-0">
+./components/trainings/DetailView.tsx:175:                <span className="rounded bg-danger px-2 py-0.5 font-body text-xs text-canvas">
+./components/trainings/DetailView.tsx:180:                <span className="flex items-center gap-1 rounded bg-accent px-2 py-0.5 font-body text-xs text-canvas">
+./components/trainings/TrainingCard.tsx:64:          <span className="absolute right-2 top-2 rounded bg-danger px-2 py-0.5 font-body text-xs text-canvas">
+./components/ui/Avatar.tsx:71:        'flex items-center justify-center rounded-full bg-gradient-to-br font-body font-semibold text-canvas',
+./components/ui/Button.tsx:18:        primary: 'bg-primary text-canvas hover:bg-primary-hover active:bg-primary-active',
+./components/ui/Pagination.tsx:44:              ? 'bg-primary text-canvas shadow-resting'
+./components/ui/PdfDownloadButton.tsx:26:        className={`inline-flex items-center gap-2 px-4 py-2 rounded-md bg-primary text-canvas text-sm font-medium hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed transition ${className}`}
+./components/ui/Tooltip.tsx:23:          className="z-[60] rounded-control bg-ink px-2.5 py-1.5 font-body text-xs text-canvas shadow-hover"

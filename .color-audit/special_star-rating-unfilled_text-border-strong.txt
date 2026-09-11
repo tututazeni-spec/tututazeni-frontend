@@ -1,0 +1,6 @@
+./components/competencies/MyProfileView.tsx:91:          className={`text-xl transition-transform hover:scale-110 ${s <= value ? 'text-accent' : 'text-border-strong'} ${onChange ? 'cursor-pointer' : 'cursor-default'}`}
+./components/events/DetailView.tsx:321:                        : 'text-border-strong hover:text-accent-hover',
+./components/knowledge/AdminDashboardView.tsx:90:              <span className="w-5 text-center font-data text-lg font-bold text-border-strong">
+./components/knowledge/ArticleDetailView.tsx:317:                  s <= displayRating ? 'text-accent' : 'text-border-strong'
+./components/onboarding/MyPlanView.tsx:426:                          className={`text-sm ${i < s.score ? 'text-accent' : 'text-border-strong'}`}
+./components/onboarding/MyPlanView.tsx:470:                        className={`text-3xl transition-transform hover:scale-110 ${s <= surveyScore ? 'text-accent' : 'text-border-strong'}`}

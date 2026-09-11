@@ -1,0 +1,167 @@
+./app/(platform)/courses/modulos/page.tsx:202:                <p className="m-0 text-xl font-extrabold text-primary">
+./app/(platform)/declarations/page.tsx:167:                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary-subtle font-body text-xs font-bold text-primary">
+./app/(platform)/documents/page.tsx:151:              className={`p-2.5 transition-colors ${view === 'grid' ? 'bg-surface text-primary shadow-resting' : 'text-ink-muted hover:text-ink'}`}
+./app/(platform)/documents/page.tsx:157:              className={`p-2.5 transition-colors ${view === 'list' ? 'bg-surface text-primary shadow-resting' : 'text-ink-muted hover:text-ink'}`}
+./app/(platform)/documents/page.tsx:204:                className: 'text-primary',
+./app/(platform)/employees/page.tsx:204:                  ? 'border-primary bg-primary-subtle text-primary'
+./app/(platform)/leave/page.tsx:229:                      ? 'bg-canvas text-primary'
+./app/(platform)/reports/page.tsx:64:                    ? 'border-primary text-primary'
+./app/(platform)/work-declaration/page.tsx:101:                <Stamp size={18} strokeWidth={1.75} className="text-primary" />
+./app/(platform)/work-declaration/page.tsx:103:              <span className="font-body text-xs font-medium uppercase tracking-widest text-primary">
+./components/academic/ProgramDetailView.tsx:28:        className="font-body text-sm text-primary hover:underline"
+./components/acl/OverviewTab.tsx:90:            <Key size={14} strokeWidth={1.75} className="text-primary" />
+./components/acl/RolesTab.tsx:39:              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary-subtle font-bold text-primary text-xs">
+./components/ai-tutor/RecommendationsView.tsx:40:          <span className="font-body text-xs font-semibold text-primary">
+./components/ai-tutor/RecommendationsView.tsx:78:            <div className="w-9 h-9 bg-primary-subtle rounded-control flex items-center justify-center text-primary flex-shrink-0">
+./components/api-integrations/WebhooksTab.tsx:108:                    className="rounded-control bg-primary-subtle px-1.5 py-0.5 font-data text-[9px] text-primary"
+./components/assessments/QuestionPlayer.tsx:118:                    className="w-4 h-4 text-primary focus:ring-accent"
+./components/assessments/QuestionPlayer.tsx:121:                    className={`text-sm ${selected ? 'font-medium text-primary' : 'text-ink-muted'}`}
+./components/assessments/QuestionPlayer.tsx:151:                  className="w-4 h-4 text-primary rounded accent-primary focus:ring-accent"
+./components/assessments/QuestionPlayer.tsx:154:                  className={`text-sm ${selected ? 'font-medium text-primary' : 'text-ink-muted'}`}
+./components/assessments/QuestionPlayer.tsx:186:          <button className="text-xs text-primary underline">
+./components/assessments/ReviewView.tsx:162:                  <p className="text-xs text-primary pl-5 mt-1">
+./components/attendance/ClockWidgetView.tsx:58:        <p className="text-primary-ink text-sm capitalize opacity-75">{dateStr}</p>
+./components/attendance/ClockWidgetView.tsx:89:            <p className="text-primary-ink/75 text-xs">Entrada registada</p>
+./components/attendance/ClockWidgetView.tsx:109:          <p className="text-xs text-primary-ink/75 mt-0.5">Entrada: {clockInTime}</p>
+./components/attendance/LeaveModal.tsx:157:              className="w-4 h-4 rounded border-border text-primary focus:ring-primary"
+./components/automation/RulesTab.tsx:190:                    <span className="font-semibold text-primary">
+./components/avatar-training/ChatSession.tsx:132:            <p className="text-xs text-primary">
+./components/avatar-training/HomeTab.tsx:104:          <Target size={16} strokeWidth={1.75} className="text-primary" />
+./components/career/DashboardView.tsx:97:              <div className="mt-2 font-body text-xs font-semibold text-primary">
+./components/career/DashboardView.tsx:229:              <div className="mb-1 font-body text-xs font-semibold text-primary">
+./components/career/DashboardView.tsx:239:                <div className="mt-1 font-body text-xs text-primary">
+./components/career/DashboardView.tsx:392:                    className="truncate font-body text-xs text-primary"
+./components/career/PlanView.tsx:123:            <div className="font-data text-2xl font-bold text-primary">
+./components/career-plans/CareerRoadmap.tsx:56:                className={`mt-1 max-w-16 truncate text-center font-body text-xs font-medium ${isCurrent ? 'text-primary' : isTarget ? 'text-success' : 'text-ink-faint'}`}
+./components/career-plans/CareerRoadmap.tsx:62:                  className={`mt-0.5 rounded-full px-1.5 py-0.5 font-body text-xs ${isCurrent ? 'bg-primary-subtle text-primary' : 'bg-success-subtle text-success-ink'}`}
+./components/career-plans/GoalCard.tsx:20:  IN_PROGRESS: 'bg-primary-subtle text-primary',
+./components/career-plans/GoalCard.tsx:40:              : 'bg-primary-subtle text-primary',
+./components/career-plans/MyCareerTab.tsx:159:                      className="text-primary flex-shrink-0"
+./components/career-plans/MyCareerTab.tsx:161:                    <span className="text-sm text-primary font-medium">
+./components/career-plans/MyCareerTab.tsx:167:                      className="text-primary ml-auto"
+./components/career-plans/SimulateModal.tsx:82:              <Compass size={18} strokeWidth={1.75} className="text-primary" />{' '}
+./components/career-plans/SimulateModal.tsx:200:                        className="flex items-center gap-2 text-sm text-primary hover:underline cursor-pointer"
+./components/competencies/MyProfileView.tsx:302:                            className="font-body text-xs text-primary hover:underline"
+./components/competency-map/GapTab.tsx:132:            <BookOpen size={15} className="text-primary" /> Cursos Recomendados
+./components/competency-map/GapTab.tsx:140:                <BookOpen size={13} className="text-primary flex-shrink-0" />
+./components/competency-map/GapTab.tsx:141:                <span className="text-sm text-primary font-medium">
+./components/competency-map/GapTab.tsx:144:                <ArrowUpRight size={12} className="text-primary ml-auto" />
+./components/competency-map/SelfAssessModal.tsx:114:                        <span className="text-sm font-bold text-primary">
+./components/content-library/AddContentModal.tsx:253:                    ? 'border-primary bg-primary-subtle text-primary'
+./components/content-library/AnalyticsTab.tsx:111:                  <span className="shrink-0 font-body text-xs font-bold text-primary">
+./components/content-library/CatalogueTab.tsx:160:                    ? 'border-primary bg-primary-subtle text-primary'
+./components/content-library/ContentRow.tsx:40:        <Icon size={16} strokeWidth={1.75} className="text-primary" />
+./components/content-library/MyProgressTab.tsx:88:                className="text-primary"
+./components/content-library/PathsTab.tsx:88:                        completed ? 'text-success' : 'text-primary',
+./components/courses/CourseCard.tsx:67:          <div className="text-xs text-primary font-medium mb-1">
+./components/courses/CourseDetailView.tsx:158:                <span className="text-xs font-mono font-medium text-primary">
+./components/courses/CourseDetailView.tsx:211:                          className={`text-xs truncate ${activeLesson?.id === lesson.id ? 'text-primary font-medium' : 'text-ink-muted'}`}
+./components/courses/CourseDetailView.tsx:234:                <span className="text-xs text-primary font-medium">
+./components/courses/GestaoView.tsx:199:                      className="px-1 text-xs font-semibold text-primary hover:underline"
+./components/courses-learn/LessonRow.tsx:68:              ? 'text-primary'
+./components/courses-learn/ModuleAccordion.tsx:125:                  className="flex items-center gap-2 py-1 font-body text-xs text-primary hover:text-primary-hover"
+./components/courses-learn/ModuleBuilder.tsx:128:          <div className="font-body text-xs font-medium text-primary mb-2">
+./components/courses-modulos/LessonModal.tsx:224:                  className="block w-full text-sm text-ink-muted file:mr-3 file:rounded-lg file:border-0 file:bg-primary-subtle file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-primary"
+./components/courses-modulos/LessonRow.tsx:61:              className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
+./components/crm/beneficiaries/BeneficiariesListView.tsx:144:                    <td className="px-4 py-3 font-mono text-primary">
+./components/crm/beneficiaries/BeneficiariesListView.tsx:171:                        className="text-primary hover:underline font-body text-sm"
+./components/crm/beneficiaries/BeneficiaryCreateView.tsx:57:        className="font-body text-sm text-primary hover:underline mb-2"
+./components/crm/beneficiaries/BeneficiaryDetailView.tsx:46:            className="font-body text-sm text-primary hover:underline mb-2"
+./components/crm/beneficiaries/BeneficiaryDetailView.tsx:151:                      className="font-medium font-body text-primary hover:underline"
+./components/crm/funders/FunderCreateView.tsx:55:        className="font-body text-sm text-primary hover:underline mb-2"
+./components/crm/funders/FunderDetailView.tsx:69:            className="font-body text-sm text-primary hover:underline mb-2"
+./components/crm/funders/FunderDetailView.tsx:119:          color="text-primary"
+./components/crm/funders/FunderDetailView.tsx:232:                          <span className="font-mono text-primary mr-2">
+./components/crm/funders/FundersListView.tsx:131:                    <td className="px-4 py-3 font-mono text-primary">
+./components/crm/funders/FundersListView.tsx:163:                        className="text-primary hover:underline font-body text-sm"
+./components/crm/funders/OverdueReportsView.tsx:93:                            <span className="font-mono text-primary mr-1">
+./components/crm/partners/PartnerCreateView.tsx:60:        className="font-body text-sm text-primary hover:underline mb-2"
+./components/crm/partners/PartnerDetailView.tsx:50:            className="font-body text-sm text-primary hover:underline mb-2"
+./components/crm/partners/PartnerDetailView.tsx:139:                  className="text-primary hover:underline font-body text-sm"
+./components/crm/partners/PartnersListView.tsx:148:                    <td className="px-4 py-3 font-mono text-primary">
+./components/crm/partners/PartnersListView.tsx:188:                        className="text-primary hover:underline font-body text-sm"
+./components/dashboard/ColaboradorDashboard.tsx:134:                <Target size={14} strokeWidth={1.75} className="text-primary" />
+./components/dashboard/ColaboradorDashboard.tsx:147:                className={`font-bold ${plan.progress >= 80 ? 'text-success' : 'text-primary'}`}
+./components/dashboard/GlobalSearch.tsx:107:                      className="shrink-0 text-primary"
+./components/dashboard/OrgDashboard.tsx:204:                <span className="shrink-0 font-body text-xs font-bold text-primary">
+./components/dashboard-rh/TrainingPanel.tsx:81:                <span className="font-body text-xs font-bold text-primary">
+./components/declarations/WorkDeclFormModal.tsx:107:                  ? 'border-primary bg-primary-subtle text-primary'
+./components/departments/DashboardView.tsx:73:                  <div className="w-32 truncate text-xs text-ink group-hover:text-primary">
+./components/documents/DocCard.tsx:55:            className={isExpired ? 'text-danger' : 'text-primary'}
+./components/documents/DocCard.tsx:88:      <p className="text-sm font-semibold text-ink truncate group-hover:text-primary transition-colors">
+./components/documents/DocRow.tsx:38:            className={isExpired ? 'text-danger' : 'text-primary'}
+./components/documents/DocRow.tsx:42:              className={`text-sm font-medium group-hover:text-primary transition-colors ${isExpired ? 'text-danger-ink' : 'text-ink'}`}
+./components/documents/Sidebar.tsx:90:              className={`w-full flex items-center gap-2 px-3 py-1.5 text-xs rounded-control transition-colors text-left ${filters.category === k ? 'bg-primary-subtle text-primary font-semibold' : 'text-ink-muted hover:bg-surface-sunken'}`}
+./components/employees/EmployeeCard.tsx:46:            <h3 className="font-semibold text-ink text-sm leading-tight group-hover:text-primary transition-colors">
+./components/employees/EmployeeRow.tsx:26:            <p className="text-sm font-semibold text-ink group-hover:text-primary transition-colors">
+./components/engagement/RecognitionTab.tsx:101:                      <span className="font-body text-sm font-semibold text-primary">
+./components/engagement/RecognitionTab.tsx:181:                <div className="flex items-center gap-1 font-body text-sm font-bold text-primary">
+./components/engagement/SurveysTab.tsx:137:                    <span className="font-semibold text-primary">
+./components/evaluation/CyclesTab.tsx:89:                        : 'text-primary',
+./components/evaluation/ResultsTab.tsx:272:                      <p className="text-3xl font-bold text-primary">
+./components/evaluation360/EvaluationFormTab.tsx:57:          <span className="text-sm font-bold text-primary">
+./components/evaluation360/EvaluationFormTab.tsx:103:                <div className="text-xs font-semibold text-primary mb-1.5">
+./components/evaluation360/OverviewTab.tsx:164:        <div className="text-xs font-semibold text-primary">
+./components/knowledge/ArticleCard.tsx:43:              <span className="font-body text-xs font-medium text-primary">
+./components/knowledge/ArticleCard.tsx:48:          <div className="font-body text-sm font-semibold leading-tight text-ink transition-colors group-hover:text-primary">
+./components/knowledge/ArticleDetailView.tsx:143:              <span className="font-body text-xs font-medium text-primary">
+./components/knowledge/ArticleDetailView.tsx:186:                className="rounded bg-primary-subtle px-2 py-0.5 font-body text-xs text-primary"
+./components/knowledge/CreateArticleModal.tsx:205:                ? 'border-primary bg-primary-subtle text-primary'
+./components/leader/DashboardTab.tsx:120:                      <p className="mt-0.5 font-body text-xs text-primary">
+./components/leadership/MyDashboardView.tsx:173:                    className="flex-shrink-0 font-body text-xs text-primary hover:underline"
+./components/learning-paths/LearningPathCard.tsx:81:          <div className="mb-1 font-body text-xs font-medium text-primary">
+./components/learning-paths/LPDetailView.tsx:206:                  <div className="mb-1 font-display text-2xl font-bold text-primary">
+./components/learning-paths/LPDetailView.tsx:217:                      className="mt-2 block font-body text-xs text-primary hover:underline"
+./components/leave/NewLeaveModal.tsx:281:                            ? 'border-primary bg-primary-subtle text-primary'
+./components/library/LibraryItemView.tsx:72:                <p className="mt-1 font-data text-xs text-primary">
+./components/lms/LearningPathsView.tsx:92:                  <span className="font-data text-xs text-primary">
+./components/lms/LiveSessionsView.tsx:49:          className="font-body text-sm text-primary hover:underline"
+./components/lms/LiveSessionsView.tsx:99:                      className="font-body text-xs text-primary hover:underline"
+./components/lms/MyPathsView.tsx:38:          className="font-body text-sm text-primary hover:underline"
+./components/micro-learning/MicroCard.tsx:84:        <div className="mb-2 line-clamp-2 font-body text-sm font-semibold leading-tight text-ink transition-colors group-hover:text-primary">
+./components/monitoring/EvaluationsView.tsx:37:        <a href="/monitoring/okrs" className="font-body text-sm text-primary hover:underline">
+./components/monitoring/IndicatorsView.tsx:48:        <a href="/monitoring/okrs" className="font-body text-sm text-primary hover:underline">
+./components/monitoring/IndicatorsView.tsx:75:                <TableCell className="font-data text-primary">{ind.code}</TableCell>
+./components/monitoring/OkrsView.tsx:98:                      <span className="font-display text-2xl font-bold text-primary">
+./components/notifications/InboxView.tsx:86:              className="font-body text-xs font-medium text-primary hover:underline"
+./components/notifications/InboxView.tsx:98:                className="font-body text-xs text-primary hover:text-primary-hover"
+./components/notifications/InboxView.tsx:196:            className="ml-auto font-body text-xs font-medium text-primary hover:text-primary-hover disabled:opacity-50"
+./components/notifications/shared.tsx:10:  PDI: { label: 'PDI', cls: 'bg-primary-subtle text-primary' },
+./components/notifications/shared.tsx:31:    cls: 'bg-primary-subtle text-primary',
+./components/onboarding/AssignPlanModal.tsx:206:                ? 'border-primary bg-primary-subtle text-primary'
+./components/onboarding/MyPlanView.tsx:227:              <div className="text-3xl font-bold font-mono text-primary">
+./components/onboarding/MyPlanView.tsx:328:                    className="text-xs text-primary hover:underline"
+./components/onboarding/MyPlanView.tsx:389:                        className="text-xs text-primary hover:underline mt-1"
+./components/onboarding/PlanDetailModal.tsx:304:                          className="font-body text-xs text-primary hover:underline"
+./components/onboarding/PlanDetailModal.tsx:533:                                className="text-primary hover:underline"
+./components/onboarding/TemplateFormModal.tsx:182:                ? 'border-primary bg-primary-subtle text-primary'
+./components/onboarding/TemplateTaskFormModal.tsx:269:                  ? 'border-primary bg-primary-subtle text-primary'
+./components/onboarding/TemplateTaskFormModal.tsx:282:                  ? 'border-primary bg-primary-subtle text-primary'
+./components/payroll/CreatePayslipModal.tsx:116:                  className="font-body text-xs text-primary hover:underline"
+./components/payroll/CreatePayslipModal.tsx:199:            className="font-body text-sm text-primary hover:underline"
+./components/payroll/DisputesView.tsx:104:                  className="min-w-0 truncate text-left font-mono text-xs text-primary hover:underline"
+./components/payslips/CompareView.tsx:121:                      className={`font-mono text-xs font-medium ${f.key === 'netSalary' ? 'text-primary' : 'text-ink'}`}
+./components/payslips/CompareView.tsx:171:                      className={`font-mono text-xs font-medium ${f.key === 'netSalary' ? 'text-primary' : 'text-ink'}`}
+./components/payslips/PayslipAmountBreakdown.tsx:125:        <div className="font-mono text-2xl font-bold text-primary">{fmtKz(data.netSalary)}</div>
+./components/payslips/PayslipDetailView.tsx:160:                  className="flex items-center gap-1 font-body text-xs text-primary hover:underline"
+./components/performance/AnalyticsView.tsx:143:                  <div className="text-lg font-bold font-data text-primary">
+./components/processes/TaskRunner.tsx:227:                    className={`truncate font-body text-xs font-medium ${isActive ? 'text-primary' : 'text-ink-muted'}`}
+./components/reports/TemplateCard.tsx:29:          <span className="font-body text-[10px] font-semibold text-primary hover:underline">
+./components/scalability/ScalabilityDashboardView.tsx:234:          ? 'border-primary bg-primary-subtle text-primary'
+./components/settings/TabSeguranca.tsx:90:    'text-primary',
+./components/settings/TabSeguranca.tsx:154:                                : strColorClass[str] === 'text-primary'
+./components/sucession/SuccessorCard.tsx:27:      <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-control bg-primary-subtle text-xs font-bold text-primary">
+./components/talent-development/MentoringTab.tsx:86:                  <span className="font-body text-[9px] font-semibold text-primary">
+./components/talent-development/PlansTab.tsx:149:                <span className="font-body text-xs font-bold text-primary">
+./components/trainings/DetailView.tsx:275:                        className="text-primary hover:underline"
+./components/trainings/MyTrainingsView.tsx:111:                    <div className="font-mono text-sm font-bold text-primary">
+./components/trainings/TrainingCard.tsx:73:          <div className="mb-1 font-body text-xs font-medium text-primary">
+./components/trainings/TrainingCard.tsx:77:        <div className="mb-1 line-clamp-2 font-body text-sm font-semibold text-ink transition-colors group-hover:text-primary">
+./components/ui/Button.tsx:20:          'border-[1.5px] border-primary bg-surface text-primary hover:bg-primary-subtle',
+./components/ui/Combobox.tsx:151:                    className="text-primary"
+./components/ui/KpiCard.tsx:9:  primary: 'bg-primary-subtle text-primary',
+./components/ui/Select.tsx:80:                    className="text-primary"
+./components/ui/Tabs.tsx:25:        'data-[state=active]:border-primary data-[state=active]:text-primary',
+./components/users/DirectoryView.tsx:72:                  <div className="text-xs text-primary truncate">
+./components/work-declaration/CreateModal.tsx:88:                        ? 'border-primary bg-primary-subtle text-primary'
+./components/work-declaration/CreateModal.tsx:132:                            ? 'border-primary bg-primary-subtle text-primary'

@@ -1,0 +1,661 @@
+./app/(platform)/acl/page.tsx:61:                <Shield size={18} strokeWidth={1.75} className="text-danger" />
+./app/(platform)/certificates/page.tsx:45:        <div className="bg-danger-subtle border border-danger text-danger-ink p-4 rounded-lg">
+./app/(platform)/certificates/page.tsx:72:                    <span className="text-danger ml-2">• Revogado</span>
+./app/(platform)/courses/modulos/page.tsx:211:              <div className="w-10 h-10 rounded-lg bg-success-subtle flex items-center justify-center text-success">
+./app/(platform)/courses/modulos/page.tsx:215:                <p className="m-0 text-xl font-extrabold text-success">
+./app/(platform)/courses/modulos/page.tsx:261:              className="mx-auto mb-3 text-danger"
+./app/(platform)/courses/modulos/page.tsx:263:            <p className="text-danger text-sm">
+./app/(platform)/crm/beneficiaries/[id]/page.tsx:20:        <div className="bg-danger-subtle border border-danger text-danger-ink p-4 rounded-lg">
+./app/(platform)/crm/funders/[id]/page.tsx:19:        <div className="bg-danger-subtle border border-danger text-danger-ink p-4 rounded-lg">
+./app/(platform)/crm/partners/[id]/page.tsx:19:        <div className="bg-danger-subtle border border-danger text-danger-ink p-4 rounded-lg">
+./app/(platform)/documents/page.tsx:184:                className: 'text-success-ink',
+./app/(platform)/documents/page.tsx:189:                className: 'text-danger',
+./app/(platform)/documents/page.tsx:194:                className: 'text-warning-ink',
+./app/(platform)/documents/page.tsx:199:                className: 'text-info-ink',
+./app/(platform)/employees/page.tsx:279:          <div className="flex items-center gap-3 p-4 bg-danger-subtle border border-danger/20 rounded-card text-sm text-danger-ink">
+./app/(platform)/library/[id]/page.tsx:20:        <div className="flex items-center justify-between rounded-card border border-danger bg-danger-subtle p-4 font-body text-sm text-danger-ink">
+./app/(platform)/live-classes/[id]/page.tsx:93:        <p className="inline-flex items-center gap-1.5 text-danger-ink text-base">
+./app/(platform)/live-classes/[id]/page.tsx:140:                <span className="text-xs font-black text-danger">AO VIVO</span>
+./app/(platform)/notifications/page.tsx:273:                    ? 'bg-danger-subtle text-danger-ink line-through'
+./app/(platform)/settings/page.tsx:30:      <div className="bg-danger-subtle border border-danger rounded-lg p-6 text-danger-ink text-sm">
+./app/(platform)/styleguide/page.tsx:157:            <DropdownMenuItem className="text-danger">Eliminar</DropdownMenuItem>
+./app/(platform)/work-declaration/page.tsx:234:            <Shield size={18} strokeWidth={1.75} className="text-info" />
+./app/(platform)/work-declaration/page.tsx:247:            className="inline-flex shrink-0 items-center gap-1.5 rounded-control border border-info bg-surface px-4 py-2 font-body text-sm font-medium text-info transition-colors hover:bg-info-subtle"
+./components/acl/AuditTab.tsx:46:                  className="fill-danger text-danger"
+./components/acl/MatrixTab.tsx:88:                        className="mx-auto text-success"
+./components/acl/OverviewTab.tsx:95:              <span className="rounded-control bg-success-subtle px-2 py-1 font-bold text-success-ink text-xs">
+./components/acl/OverviewTab.tsx:125:          <h4 className="mb-3 flex items-center gap-2 font-semibold text-danger">
+./components/acl/OverviewTab.tsx:132:                <span className="font-medium text-danger">
+./components/acl/PoliciesTab.tsx:34:                className={`rounded-control px-2 py-0.5 font-bold text-[10px] ${isDeny ? 'bg-danger-subtle text-danger' : 'bg-success-subtle text-success-ink'}`}
+./components/acl/PoliciesTab.tsx:54:                <span className="rounded bg-warning-subtle px-2 py-0.5 text-warning-ink">
+./components/ai-tutor/GenerateView.tsx:65:                        ? 'bg-success-subtle text-success-ink font-medium'
+./components/ai-tutor/GenerateView.tsx:74:                <div className="mt-3 font-body text-xs text-info-ink bg-info-subtle rounded-control px-3 py-2">
+./components/ai-tutor/MessageBubble.tsx:86:                  className="text-ink-faint hover:text-warning-ink"
+./components/ai-tutor/MessageBubble.tsx:102:                      ? 'fill-current text-warning-ink'
+./components/analytics/ManagerView.tsx:46:          <div className="text-sm font-semibold text-warning-ink mb-2">
+./components/analytics/ManagerView.tsx:55:            <div key={i} className="text-xs text-warning-ink">
+./components/analytics/MyDashboardView.tsx:103:                      className={`text-xs font-data flex-shrink-0 ${behind ? 'text-warning' : 'text-success'}`}
+./components/analytics/MyDashboardView.tsx:138:                    <div className="text-xs font-data font-bold text-info">
+./components/analytics/MyDashboardView.tsx:142:                      <div className="text-xs text-danger">
+./components/analytics/RisksView.tsx:115:                <span className="text-xs text-danger font-medium flex-shrink-0">
+./components/analytics/RisksView.tsx:158:                <span className="text-xs text-danger font-medium flex-shrink-0">
+./components/analytics/RisksView.tsx:162:                    className="inline align-[-1px] fill-danger text-danger"
+./components/api-integrations/ApiKeysTab.tsx:95:          <p className="mb-1 font-body text-sm font-bold text-success-ink">
+./components/api-integrations/ApiKeysTab.tsx:118:            className="mt-2 px-0 text-success-ink underline hover:bg-transparent hover:text-success-ink"
+./components/api-integrations/ApiKeysTab.tsx:174:                  className="hover:bg-warning-subtle hover:text-warning-ink"
+./components/api-integrations/ApiKeysTab.tsx:198:                  className="hover:bg-danger-subtle hover:text-danger-ink"
+./components/api-integrations/IntegrationsTab.tsx:28:  success: 'bg-success-subtle text-success-ink',
+./components/api-integrations/IntegrationsTab.tsx:29:  warning: 'bg-warning-subtle text-warning-ink',
+./components/api-integrations/IntegrationsTab.tsx:30:  danger: 'bg-danger-subtle text-danger-ink',
+./components/api-integrations/IntegrationsTab.tsx:31:  info: 'bg-info-subtle text-info-ink',
+./components/api-integrations/MonitoringTab.tsx:86:                      className={`font-body text-xs font-bold ${i.errorRate > 5 ? 'text-danger' : 'text-success'}`}
+./components/api-integrations/WebhooksTab.tsx:98:                  className="hover:bg-danger-subtle hover:text-danger-ink"
+./components/api-integrations/WebhooksTab.tsx:118:                  <span className="font-medium text-success">
+./components/api-integrations/WebhooksTab.tsx:126:                  <span className="font-medium text-danger">
+./components/assessments/AssessmentPlayer.tsx:351:                    ? 'bg-success-subtle text-success-ink'
+./components/assessments/CountdownTimer.tsx:38:          ? 'bg-danger-subtle text-danger-ink animate-pulse'
+./components/assessments/ListView.tsx:129:                    className={`text-sm font-bold font-data ${bestScore >= a.passingScore ? 'text-success' : 'text-danger'}`}
+./components/assessments/QuestionPlayer.tsx:54:                    ? 'bg-danger-subtle text-danger-ink'
+./components/assessments/QuestionPlayer.tsx:56:                      ? 'bg-warning-subtle text-warning-ink'
+./components/assessments/QuestionPlayer.tsx:57:                      : 'bg-info-subtle text-info-ink'
+./components/assessments/QuestionPlayer.tsx:69:          <span className="text-xs bg-info-subtle text-info-ink px-2 py-0.5 rounded-control flex-shrink-0">
+./components/assessments/QuestionPlayer.tsx:190:            <div className="mt-2 text-xs text-success">
+./components/assessments/ResultView.tsx:58:              ? 'text-warning-ink'
+./components/assessments/ResultView.tsx:60:                ? 'text-success-ink'
+./components/assessments/ResultView.tsx:61:                : 'text-danger-ink'
+./components/assessments/ResultView.tsx:69:              ? 'text-warning-ink'
+./components/assessments/ResultView.tsx:71:                ? 'text-success-ink'
+./components/assessments/ResultView.tsx:72:                : 'text-danger-ink'
+./components/assessments/ResultView.tsx:84:              ? 'text-warning-ink'
+./components/assessments/ResultView.tsx:86:                ? 'text-success-ink'
+./components/assessments/ResultView.tsx:87:                : 'text-danger-ink'
+./components/assessments/ResultView.tsx:133:                      ? 'text-warning-ink'
+./components/assessments/ResultView.tsx:135:                        ? 'text-success-ink'
+./components/assessments/ResultView.tsx:136:                        : 'text-danger-ink'
+./components/assessments/ReviewView.tsx:78:                className={`text-sm font-bold font-data ${(a.score ?? 0) >= (a.assessment?.passingScore ?? 70) ? 'text-success' : 'text-danger'}`}
+./components/attendance/AttendanceHistory.tsx:85:                    <span className="text-warning font-medium">
+./components/attendance/ClockWidgetView.tsx:107:          <CheckCircle2 size={28} className="mx-auto mb-2 text-success" />
+./components/attendance/ClockWidgetView.tsx:114:        <div className="mt-3 p-2.5 bg-danger-subtle border border-danger-ink/30 rounded-control text-xs text-danger-ink text-center">
+./components/attendance/LeaveModal.tsx:83:            <div className="flex items-center gap-2 p-3 bg-danger-subtle text-danger-ink rounded-control text-sm">
+./components/attendance/LeaveModal.tsx:109:                Início <span className="text-danger">*</span>
+./components/attendance/LeaveModal.tsx:122:                Fim <span className="text-danger">*</span>
+./components/attendance/LeaveModal.tsx:137:              Motivo <span className="text-danger">*</span>
+./components/audit/DiffViewer.tsx:20:          <div className="bg-danger-subtle px-3 py-1 text-danger-ink">
+./components/audit/DiffViewer.tsx:23:          <div className="bg-success-subtle px-3 py-1 text-success-ink">
+./components/audit/StatsView.tsx:98:          <div className="border-b border-danger/30 px-4 py-3 font-body text-xs font-semibold text-danger-ink">
+./components/automation/CreateRuleModal.tsx:143:            <div className="flex items-center gap-2 rounded-card bg-danger-subtle p-3 text-sm text-danger-ink">
+./components/automation/ExecutionsTab.tsx:112:                  <p className="truncate font-body text-[10px] text-danger">
+./components/automation/RulesTab.tsx:172:                    <span className="text-success">
+./components/automation/RulesTab.tsx:181:                      <span className="text-danger">
+./components/automation/RulesTab.tsx:213:                  className="hover:bg-danger-subtle hover:text-danger"
+./components/automation/StatsTab.tsx:83:          <h4 className="mb-2 flex items-center gap-2 font-body font-semibold text-danger-ink">
+./components/automation/StatsTab.tsx:90:              className="border-b border-danger/20 py-1 font-body text-xs text-danger-ink last:border-0"
+./components/avatar-training/AnalyticsTab.tsx:140:                    className="text-success"
+./components/avatar-training/LeaderboardTab.tsx:21:  if (rank === 3) return 'text-warning-ink';
+./components/avatar-training/LeaderboardTab.tsx:58:                  className="inline text-warning"
+./components/avatar-training/ResultsModal.tsx:33:    color: 'text-success',
+./components/avatar-training/ResultsModal.tsx:37:    color: 'text-info',
+./components/avatar-training/ResultsModal.tsx:40:  AVERAGE: { color: 'text-warning', label: 'Médio' },
+./components/avatar-training/ResultsModal.tsx:42:    color: 'text-warning',
+./components/avatar-training/ResultsModal.tsx:46:    color: 'text-danger',
+./components/avatar-training/ResultsModal.tsx:107:                <p className="text-xs font-bold text-success-ink mb-1">
+./components/avatar-training/ResultsModal.tsx:111:                  <p key={i} className="text-[10px] text-success-ink">
+./components/avatar-training/ResultsModal.tsx:119:                <p className="text-xs font-bold text-warning-ink mb-1">
+./components/avatar-training/ResultsModal.tsx:123:                  <p key={i} className="text-[10px] text-warning-ink">
+./components/avatar-training/ScenarioCard.tsx:43:          <div className="absolute top-2 right-2 flex items-center gap-1 bg-surface/90 rounded-full px-2 py-0.5 text-xs font-bold text-success-ink">
+./components/career/DashboardView.tsx:26:  if (score >= 80) return 'text-success';
+./components/career/DashboardView.tsx:27:  if (score >= 60) return 'text-warning';
+./components/career/DashboardView.tsx:107:                  ? 'border-success bg-success-subtle text-success-ink'
+./components/career/DashboardView.tsx:173:                          ? 'bg-success-subtle text-success-ink'
+./components/career/DashboardView.tsx:175:                            ? 'bg-warning-subtle text-warning-ink'
+./components/career/DashboardView.tsx:176:                            : 'bg-danger-subtle text-danger-ink',
+./components/career/DashboardView.tsx:275:                    c.met ? 'text-success-ink' : 'text-ink',
+./components/career/DashboardView.tsx:288:                    c.met ? 'text-success' : 'text-warning',
+./components/career/DashboardView.tsx:369:                    simulation.summary.ready ? 'text-success' : 'text-warning',
+./components/career/PathsView.tsx:133:                            className="rounded bg-info-subtle px-1.5 py-0.5 font-body text-xs text-info-ink"
+./components/career/VacanciesView.tsx:25:  if (score >= 80) return 'text-success';
+./components/career/VacanciesView.tsx:26:  if (score >= 60) return 'text-warning';
+./components/career-plans/CareerRoadmap.tsx:43:                      ? 'bg-success-subtle text-success-ink border-success border-dashed'
+./components/career-plans/CareerRoadmap.tsx:56:                className={`mt-1 max-w-16 truncate text-center font-body text-xs font-medium ${isCurrent ? 'text-primary' : isTarget ? 'text-success' : 'text-ink-faint'}`}
+./components/career-plans/CareerRoadmap.tsx:62:                  className={`mt-0.5 rounded-full px-1.5 py-0.5 font-body text-xs ${isCurrent ? 'bg-primary-subtle text-primary' : 'bg-success-subtle text-success-ink'}`}
+./components/career-plans/GoalCard.tsx:21:  COMPLETED: 'bg-success-subtle text-success-ink',
+./components/career-plans/GoalCard.tsx:22:  CANCELLED: 'bg-danger-subtle text-danger-ink',
+./components/career-plans/GoalCard.tsx:39:              ? 'bg-success-subtle text-success-ink'
+./components/career-plans/GoalCard.tsx:77:                  isOverdue ? 'font-medium text-danger' : 'text-ink-faint',
+./components/career-plans/MyCareerTab.tsx:123:                    <p className="text-xs text-danger-ink font-semibold mb-2">
+./components/career-plans/MyCareerTab.tsx:131:                    <p className="text-xs text-warning-ink font-semibold mb-2">
+./components/career-plans/SimulateModal.tsx:100:            <div className="flex items-center gap-2 p-3 rounded-card border border-danger bg-danger-subtle text-danger-ink font-body text-sm">
+./components/career-plans/SimulateModal.tsx:175:                  <p className="text-xs font-bold text-danger-ink mb-2">
+./components/career-plans/SimulateModal.tsx:184:                  <p className="text-xs font-bold text-warning-ink mb-2">
+./components/certification/TemplatesView.tsx:57:        <div className="rounded-card border border-danger bg-danger-subtle p-4 font-body text-sm text-danger-ink">
+./components/competencies/CompetencyDetailModal.tsx:137:          <div className="mt-5 flex items-center gap-2 rounded-card bg-danger-subtle p-3 text-sm text-danger-ink">
+./components/competencies/CompetencyFormModal.tsx:76:          <div className="mt-5 flex items-center gap-2 rounded-card bg-danger-subtle p-3 text-sm text-danger-ink">
+./components/competencies/CompetencyFormModal.tsx:159:          <div className="flex items-center gap-2 rounded-card bg-danger-subtle p-3 text-sm text-danger-ink">
+./components/competencies/DashboardView.tsx:94:                    <span className="font-semibold text-danger">{pct}%</span>
+./components/competencies/MyProfileView.tsx:348:                  <div className="text-3xl font-bold text-success-ink">
+./components/competencies/MyProfileView.tsx:351:                  <div className="mt-1 font-body text-xs text-success-ink">
+./components/competencies/MyProfileView.tsx:356:                  <div className="text-3xl font-bold text-danger-ink">
+./components/competencies/MyProfileView.tsx:359:                  <div className="mt-1 font-body text-xs text-danger-ink">
+./components/competencies/MyProfileView.tsx:364:                  <div className="text-3xl font-bold text-warning-ink">
+./components/competencies/MyProfileView.tsx:367:                  <div className="mt-1 font-body text-xs text-warning-ink">
+./components/competencies/MyProfileView.tsx:394:                            <span className="font-body text-xs font-medium text-success">
+./components/competencies/MyProfileView.tsx:417:                          <div className="text-xl font-bold text-warning">
+./components/competencies/MyProfileView.tsx:438:                              className="rounded-control bg-info-subtle px-2 py-1 font-body text-xs text-info-ink hover:brightness-95"
+./components/competencies/MyProfileView.tsx:489:                    className={`font-data text-xs font-semibold ${e.newLevel > e.previousLevel ? 'text-success' : 'text-danger'}`}
+./components/competency-map/GapTab.tsx:55:          <h3 className="text-sm font-semibold text-danger-ink mb-3 flex items-center gap-2">
+./components/competency-map/GapTab.tsx:98:          <h3 className="text-sm font-semibold text-warning-ink mb-3">
+./components/competency-map/SelfAssessModal.tsx:92:            <div className="flex items-center gap-2 p-3 bg-danger-subtle text-danger-ink rounded-control text-sm">
+./components/competency-map/SkillBar.tsx:50:          className="flex-shrink-0 text-warning"
+./components/content-library/AddContentModal.tsx:156:            <div className="flex items-center gap-2 rounded-card bg-danger-subtle p-3 text-sm text-danger-ink">
+./components/content-library/ContentCard.tsx:94:            className="shrink-0 text-success"
+./components/content-library/ContentCard.tsx:176:                className="shrink-0 text-success"
+./components/content-library/HomeTab.tsx:108:            <Shield size={16} strokeWidth={1.75} className="text-danger" />
+./components/content-library/MyProgressTab.tsx:124:                className="text-success"
+./components/content-library/PathsTab.tsx:88:                        completed ? 'text-success' : 'text-primary',
+./components/courses/CatalogView.tsx:140:        <div className="text-sm text-danger mb-4">{error.message}</div>
+./components/courses/CertificatesView.tsx:74:            className={`mt-3 p-3 rounded-control text-sm ${verifyResult.error ? 'bg-danger-subtle text-danger-ink' : verifyResult.valid ? 'bg-success-subtle text-success-ink' : 'bg-warning-subtle text-warning-ink'}`}
+./components/courses/CertificatesView.tsx:113:                          ? 'text-danger'
+./components/courses/CourseDetailView.tsx:199:                            ? 'bg-success-subtle text-success-ink'
+./components/courses/CourseDetailView.tsx:275:                <div className="text-xs font-medium text-success-ink mb-2 uppercase tracking-wide">
+./components/courses/CourseDetailView.tsx:282:                      className="flex items-start gap-2 text-xs text-success-ink"
+./components/courses/CourseDetailView.tsx:358:                      <span className="text-success font-medium">Grátis</span>
+./components/courses/CourseDetailView.tsx:386:                      ? 'fill-current text-warning-ink'
+./components/courses/CourseDetailView.tsx:426:                        className="fill-current text-warning-ink"
+./components/courses/CreateCourseModal.tsx:111:            <div className="flex items-center gap-2 p-3 bg-danger-subtle text-danger-ink rounded-card text-sm">
+./components/courses/EditCourseModal.tsx:68:          <div className="mt-5 flex items-center gap-2 rounded-card bg-danger-subtle p-3 text-sm text-danger-ink">
+./components/courses/EditCourseModal.tsx:153:          <div className="flex items-center gap-2 rounded-card bg-danger-subtle p-3 text-sm text-danger-ink">
+./components/courses/MyEnrollmentsView.tsx:52:  if (error) return <div className="text-sm text-danger">{error.message}</div>;
+./components/courses/MyEnrollmentsView.tsx:119:                  className={`text-xs flex-shrink-0 ${isOverdue(e.deadline) ? 'text-danger' : 'text-ink-faint'}`}
+./components/courses/shared.tsx:49:  BEGINNER: { label: 'Iniciante', cls: 'bg-success-subtle text-success-ink' },
+./components/courses/shared.tsx:52:    cls: 'bg-warning-subtle text-warning-ink',
+./components/courses/shared.tsx:54:  ADVANCED: { label: 'Avançado', cls: 'bg-danger-subtle text-danger-ink' },
+./components/courses/shared.tsx:59:  PUBLISHED: { label: 'Publicado', cls: 'bg-success-subtle text-success-ink' },
+./components/courses/shared.tsx:68:  IN_PROGRESS: { label: 'Em progresso', cls: 'bg-info-subtle text-info-ink' },
+./components/courses/shared.tsx:69:  COMPLETED: { label: 'Concluído', cls: 'bg-success-subtle text-success-ink' },
+./components/courses/shared.tsx:70:  EXPIRED: { label: 'Expirado', cls: 'bg-danger-subtle text-danger-ink' },
+./components/courses/shared.tsx:84:        <span className="flex items-center gap-1 text-xs font-medium text-danger">
+./components/courses-learn/LessonRow.tsx:48:            ? 'bg-success-subtle text-success-ink'
+./components/courses-learn/ModuleAccordion.tsx:36:      <CheckCircle2 size={16} strokeWidth={1.75} className="text-success-ink" />
+./components/courses-learn/ModuleAccordion.tsx:87:            <div className="font-body text-xs text-warning-ink">
+./components/courses-learn/ModuleBuilder.tsx:232:                    className="hover:bg-success-subtle hover:text-success-ink"
+./components/courses-learn/ModuleBuilder.tsx:240:                  className="hover:bg-danger-subtle hover:text-danger"
+./components/courses-modulos/LessonModal.tsx:230:                  <p className="text-xs text-danger mt-1">{fileError}</p>
+./components/courses-modulos/LessonModal.tsx:233:                  <p className="text-xs text-success mt-1 break-all">
+./components/courses-modulos/LessonRow.tsx:69:              <span className="inline-flex items-center gap-1 text-xs text-warning">
+./components/courses-modulos/LessonRow.tsx:77:                className="inline-flex items-center gap-1 text-xs text-warning hover:underline"
+./components/courses-modulos/LessonRow.tsx:85:              <span className="inline-flex items-center gap-1 text-xs text-warning">
+./components/courses-modulos/LessonRow.tsx:93:                className="inline-flex items-center gap-1 text-xs text-warning hover:underline"
+./components/courses-modulos/ProgressModal.tsx:152:                <p className="m-0 text-sm font-bold text-info-ink">
+./components/courses-modulos/ProgressModal.tsx:197:                        <span className="inline-flex items-center gap-1 text-xs font-bold text-success">
+./components/crm/beneficiaries/BeneficiariesListView.tsx:57:          <span className="text-danger-ink">{errorMessage}</span>
+./components/crm/beneficiaries/BeneficiariesListView.tsx:58:          <button onClick={onRetry} className="underline text-danger-ink">
+./components/crm/beneficiaries/BeneficiaryCreateView.tsx:66:        <div className="rounded-card border border-danger bg-danger-subtle p-3 mb-4 text-danger-ink font-body">
+./components/crm/beneficiaries/BeneficiaryDetailView.tsx:54:          <span className="inline-flex items-center gap-1.5 rounded-pill px-2.5 py-0.5 font-body text-xs font-semibold bg-info-subtle text-info-ink">
+./components/crm/beneficiaries/BeneficiaryDetailView.tsx:160:                      d.isVerified ? 'text-success-ink' : 'text-ink-faint',
+./components/crm/funders/FunderCreateView.tsx:64:        <div className="rounded-card border border-danger bg-danger-subtle p-3 mb-4 text-danger-ink font-body">
+./components/crm/funders/FunderDetailView.tsx:109:          color="text-success-ink"
+./components/crm/funders/FunderDetailView.tsx:114:          color="text-warning-ink"
+./components/crm/funders/FunderDetailView.tsx:249:                            className="font-body text-xs text-success-ink hover:underline"
+./components/crm/funders/FundersListView.tsx:154:                    <td className="px-4 py-3 text-right text-success-ink">
+./components/crm/funders/OverdueReportsView.tsx:122:                            dias > 30 ? 'text-danger-ink' : 'text-warning-ink',
+./components/crm/partners/PartnerCreateView.tsx:69:        <div className="rounded-card border border-danger bg-danger-subtle p-3 mb-4 text-danger-ink font-body">
+./components/crm/partners/PartnerDetailView.tsx:197:                        className="font-body text-xs text-success-ink hover:underline"
+./components/crm/shared.tsx:135:        <span className="text-danger-ink">{message}</span>
+./components/crm/shared.tsx:136:        <button onClick={onRetry} className="underline text-danger-ink">
+./components/dashboard/AlertBanner.tsx:30:            className="shrink-0 text-danger-ink"
+./components/dashboard/AlertBanner.tsx:32:          <p className="flex-1 font-body text-sm text-danger-ink">
+./components/dashboard/AlertBanner.tsx:53:            className="shrink-0 text-warning-ink"
+./components/dashboard/AlertBanner.tsx:55:          <p className="flex-1 font-body text-sm text-warning-ink">
+./components/dashboard/ColaboradorDashboard.tsx:137:              <span className="rounded-pill bg-info-subtle px-2 py-0.5 font-body text-xs text-info-ink">
+./components/dashboard/ColaboradorDashboard.tsx:147:                className={`font-bold ${plan.progress >= 80 ? 'text-success' : 'text-primary'}`}
+./components/dashboard/ColaboradorDashboard.tsx:162:            <Clock size={14} strokeWidth={1.75} className="text-warning-ink" />
+./components/dashboard/ColaboradorDashboard.tsx:195:                    className={`font-semibold ${s.current >= (s.target ?? 5) ? 'text-success' : 'text-ink'}`}
+./components/dashboard/ManagerDashboard.tsx:107:                      ? 'text-success'
+./components/dashboard/ManagerDashboard.tsx:109:                        ? 'text-warning-ink'
+./components/dashboard/ManagerDashboard.tsx:110:                        : 'text-danger'
+./components/dashboard-institutional/InstitutionalDashboardView.tsx:65:          <p className="font-body text-sm text-danger-ink">{error}</p>
+./components/dashboard-institutional/InstitutionalDashboardView.tsx:87:                <span className="font-body font-semibold text-danger-ink">
+./components/dashboard-institutional/InstitutionalDashboardView.tsx:94:                <span className="font-body font-semibold text-warning-ink">
+./components/dashboard-institutional/InstitutionalDashboardView.tsx:101:                <span className="font-body font-semibold text-info-ink">
+./components/dashboard-rh/AlertStrip.tsx:21:    classes: 'border-danger-subtle bg-danger-subtle text-danger-ink',
+./components/dashboard-rh/AlertStrip.tsx:25:    classes: 'border-warning-subtle bg-warning-subtle text-warning-ink',
+./components/dashboard-rh/AlertStrip.tsx:29:    classes: 'border-info-subtle bg-info-subtle text-info-ink',
+./components/dashboard-rh/AlertStrip.tsx:40:          className="text-success-ink"
+./components/dashboard-rh/AlertStrip.tsx:42:        <p className="font-body text-sm font-medium text-success-ink">
+./components/dashboard-rh/CorrelationsPanel.tsx:66:                  className={`font-display text-3xl font-black ${(item.value ?? 0) >= 3.5 ? 'text-success' : 'text-danger'}`}
+./components/dashboard-rh/CorrelationsPanel.tsx:80:              <span className="font-body text-sm font-bold text-success">
+./components/dashboard-rh/CorrelationsPanel.tsx:112:                  className={`font-display text-3xl font-black ${(item.value ?? 0) >= 3.5 ? 'text-success' : 'text-danger'}`}
+./components/dashboard-rh/HeadcountPanel.tsx:141:      <h4 className="mb-3 flex items-center gap-2 font-body font-semibold text-warning-ink">
+./components/dashboard-rh/HeadcountPanel.tsx:155:              <p className="font-body text-[10px] font-semibold text-warning-ink">
+./components/dashboard-rh/PerformancePanel.tsx:112:                      ? 'text-success'
+./components/dashboard-rh/PerformancePanel.tsx:114:                        ? 'text-warning'
+./components/dashboard-rh/PerformancePanel.tsx:115:                        : 'text-danger'
+./components/dashboard-rh/TalentPanel.tsx:98:          <h4 className="mb-2 font-body font-semibold text-danger-ink">
+./components/dashboard-rh/TalentPanel.tsx:108:              <p key={i} className="font-body text-xs text-danger-ink">
+./components/declarations/MyDocsTab.tsx:47:                  <FileText size={16} strokeWidth={1.75} className="text-info-ink" />
+./components/declarations/NewDocRequestModal.tsx:187:            <div className="flex items-center gap-2 rounded-card bg-danger-subtle p-3 font-body text-sm text-danger-ink">
+./components/declarations/NewDocRequestModal.tsx:234:                        <span className="mt-0.5 flex items-center gap-1 font-body text-xs text-warning-ink">
+./components/declarations/NewDocRequestModal.tsx:346:                        ? 'text-warning-ink'
+./components/declarations/NewDocRequestModal.tsx:347:                        : 'text-success-ink'
+./components/declarations/WorkDeclFormModal.tsx:165:            <div className="flex items-center gap-2 rounded-card bg-danger-subtle p-3 font-body text-sm text-danger-ink">
+./components/declarations/WorkFormsTab.tsx:29:          <AlertCircle size={18} strokeWidth={1.75} className="mt-0.5 flex-shrink-0 text-warning-ink" />
+./components/declarations/WorkFormsTab.tsx:31:            <p className="font-body text-sm font-semibold text-warning-ink">
+./components/declarations/WorkFormsTab.tsx:34:            <p className="mt-0.5 font-body text-xs text-warning-ink">
+./components/declarations/WorkFormsTab.tsx:46:                <Clipboard size={18} strokeWidth={1.75} className="text-info-ink" />
+./components/declarations/WorkFormsTab.tsx:54:                  <span className="font-body text-xs font-medium text-danger">Obrigatória</span>
+./components/departments/CreateDepartmentModal.tsx:132:            <div className="flex items-center gap-2 rounded-card bg-danger-subtle p-3 text-sm text-danger-ink">
+./components/departments/DashboardView.tsx:41:    return <div className="text-sm text-danger">{queryError.message}</div>;
+./components/departments/DetailView.tsx:113:      <p className="mt-2 text-xs text-danger">
+./components/departments/DetailView.tsx:118:    <p className="mt-2 flex items-center gap-1.5 text-xs text-success-ink">
+./components/departments/DetailView.tsx:261:          <p className="text-sm text-danger">
+./components/departments/DetailView.tsx:422:            <div className="mb-3 text-xs font-medium uppercase tracking-wide text-success-ink">
+./components/departments/DetailView.tsx:457:            <div className="mb-3 text-xs font-medium uppercase tracking-wide text-info-ink">
+./components/departments/DetailView.tsx:687:                      <span className="text-success">Actual</span>
+./components/departments/ListView.tsx:99:        <div className="px-4 py-8 text-center text-sm text-danger">
+./components/departments/TreeView.tsx:41:    return <div className="text-sm text-danger">{queryError.message}</div>;
+./components/development-plans/DetailView.tsx:264:                          <span className="font-body text-xs text-danger">
+./components/development-plans/DetailView.tsx:286:                              overdue && 'font-medium text-danger',
+./components/development-plans/DetailView.tsx:300:                          <span className="flex items-center gap-1 text-info">
+./components/development-plans/DetailView.tsx:364:                    <div className="font-data text-2xl font-bold text-info-ink">
+./components/development-plans/DetailView.tsx:368:                      <div className="flex items-center gap-1 font-body text-xs text-success">
+./components/development-plans/DetailView.tsx:420:                      ? 'bg-success-subtle text-success'
+./components/development-plans/DetailView.tsx:421:                      : 'bg-info-subtle text-info',
+./components/development-plans/DetailView.tsx:454:                      cls: 'bg-success-subtle text-success-ink',
+./components/development-plans/PlanCard.tsx:91:            <span className="flex items-center gap-1 font-medium text-danger">
+./components/development-plans/PlanCard.tsx:100:                isOverdue(plan.endDate, plan.status) && 'text-danger',
+./components/development-plans/TeamView.tsx:85:                  <div className="flex items-center gap-1 font-body text-xs text-danger">
+./components/development-plans/TeamView.tsx:91:                  <div className="font-body text-xs font-medium text-warning-ink">
+./components/documents/DocCard.tsx:55:            className={isExpired ? 'text-danger' : 'text-primary'}
+./components/documents/DocCard.tsx:115:          className={`mt-2 flex items-center gap-1.5 text-xs font-medium ${isExpired ? 'text-danger' : 'text-warning-ink'}`}
+./components/documents/DocRow.tsx:38:            className={isExpired ? 'text-danger' : 'text-primary'}
+./components/documents/DocRow.tsx:42:              className={`text-sm font-medium group-hover:text-primary transition-colors ${isExpired ? 'text-danger-ink' : 'text-ink'}`}
+./components/documents/DocRow.tsx:67:          <span className="text-danger font-medium">Expirado</span>
+./components/documents/DocRow.tsx:69:          <span className="text-warning-ink font-medium">
+./components/documents/UploadModal.tsx:96:            <div className="flex items-center gap-2 p-3 bg-danger-subtle text-danger-ink rounded-card text-sm">
+./components/employees/CreateEmployeeModal.tsx:104:            <div className="flex items-center gap-2 p-3 bg-danger-subtle text-danger-ink rounded-card text-sm">
+./components/engagement/AnalyticsTab.tsx:31:  if (avgScore >= 4) return 'text-success';
+./components/engagement/AnalyticsTab.tsx:32:  if (avgScore >= 3) return 'text-info';
+./components/engagement/AnalyticsTab.tsx:33:  if (avgScore >= 2) return 'text-warning';
+./components/engagement/AnalyticsTab.tsx:34:  return 'text-danger';
+./components/engagement/MoodCheckin.tsx:49:        <CheckCircle size={20} strokeWidth={1.75} className="text-success" />
+./components/engagement/MoodCheckin.tsx:50:        <p className="font-body text-sm font-medium text-success-ink">
+./components/engagement/OverviewTab.tsx:171:                    className={`font-display text-2xl font-bold ${(dash.enpsBreakdown.enps ?? 0) >= 0 ? 'text-success' : 'text-danger'}`}
+./components/engagement/OverviewTab.tsx:229:              className="text-warning-ink"
+./components/engagement/OverviewTab.tsx:231:            <p className="font-body text-sm font-semibold text-warning-ink">
+./components/engagement/RecognitionTab.tsx:150:                      className="inline text-warning"
+./components/enrollments/AdminView.tsx:141:          <span className="text-sm font-medium text-info-ink">
+./components/enrollments/AdminView.tsx:159:            className="ml-auto text-xs text-info-ink"
+./components/enrollments/AdminView.tsx:255:                  <span className="text-xs font-medium text-danger-ink">
+./components/enrollments/BulkEnrollModal.tsx:116:              <p className="font-medium text-success-ink">
+./components/enrollments/BulkEnrollModal.tsx:126:              <div className="max-h-40 overflow-y-auto rounded-card border border-danger-subtle bg-danger-subtle p-3 text-xs text-danger-ink">
+./components/enrollments/BulkEnrollModal.tsx:142:                <div className="flex items-center gap-2 rounded-card bg-danger-subtle p-3 text-sm text-danger-ink">
+./components/enrollments/BulkEnrollModal.tsx:187:                    <span className="text-xs font-medium text-info-ink">
+./components/enrollments/BulkEnrollModal.tsx:194:                      className="text-xs text-info-ink hover:underline"
+./components/enrollments/ComplianceView.tsx:39:      ? 'text-success-ink'
+./components/enrollments/ComplianceView.tsx:41:        ? 'text-warning-ink'
+./components/enrollments/ComplianceView.tsx:42:        : 'text-danger-ink';
+./components/enrollments/ComplianceView.tsx:53:            cls: 'text-success-ink',
+./components/enrollments/ComplianceView.tsx:58:            cls: 'text-info-ink',
+./components/enrollments/ComplianceView.tsx:63:            cls: dashboard.enrollments.overdue > 0 ? 'text-danger-ink' : undefined,
+./components/enrollments/ComplianceView.tsx:98:              cls: 'text-success-ink',
+./components/enrollments/ComplianceView.tsx:108:              cls: 'text-danger-ink',
+./components/enrollments/ComplianceView.tsx:134:              <span className="font-mono text-sm text-danger-ink">
+./components/enrollments/EnrollmentCard.tsx:97:                    className={`w-8 text-right font-mono text-xs ${isOverdue ? 'text-danger' : 'text-ink-muted'}`}
+./components/enrollments/EnrollmentCard.tsx:129:                <span className="flex items-center gap-1 rounded px-2 py-0.5 text-xs bg-success-subtle text-success-ink">
+./components/enrollments/EnrollmentCard.tsx:164:                <span className="flex items-center gap-1 text-xs font-medium text-success-ink">
+./components/enrollments/EnrollmentCard.tsx:175:                    className="ml-2 text-xs text-ink-faint hover:text-danger"
+./components/enrollments/EnrollUserModal.tsx:97:            <div className="flex items-center gap-2 rounded-card bg-danger-subtle p-3 text-sm text-danger-ink">
+./components/enrollments/MyEnrollmentsView.tsx:94:            className="flex-shrink-0 text-danger"
+./components/enrollments/MyEnrollmentsView.tsx:97:            <div className="text-sm font-medium text-danger-ink">
+./components/enrollments/MyEnrollmentsView.tsx:100:            <div className="text-xs text-danger-ink">
+./components/enrollments/TeamView.tsx:74:              <div className="font-mono text-sm text-success-ink">
+./components/enrollments/TeamView.tsx:78:                className={`font-mono text-sm ${member.stats.overdue > 0 ? 'font-semibold text-danger-ink' : 'text-ink-faint'}`}
+./components/evaluation/AnalyticsTab.tsx:26:    textColor: 'text-success-ink',
+./components/evaluation/AnalyticsTab.tsx:32:    textColor: 'text-info-ink',
+./components/evaluation/AnalyticsTab.tsx:38:    textColor: 'text-warning-ink',
+./components/evaluation/AnalyticsTab.tsx:44:    textColor: 'text-danger-ink',
+./components/evaluation/CalibrationTab.tsx:64:              <p className="text-sm font-semibold text-warning-ink mb-2">
+./components/evaluation/CalibrationTab.tsx:74:                  <p key={i} className="text-xs text-warning-ink">
+./components/evaluation/CalibrationTab.tsx:127:                    <span className="text-[10px] bg-danger-subtle text-danger-ink px-1.5 py-0.5 rounded">
+./components/evaluation/CreateCycleModal.tsx:163:            <div className="flex items-center gap-2 p-3 bg-danger-subtle text-danger-ink rounded-card text-sm">
+./components/evaluation/CreateCycleModal.tsx:229:                    ? 'font-body text-xs text-success-ink'
+./components/evaluation/CreateCycleModal.tsx:230:                    : 'font-body text-xs text-danger-ink'
+./components/evaluation/CyclesTab.tsx:88:                        ? 'text-success-ink'
+./components/evaluation/OverviewTab.tsx:98:              className="text-warning-ink"
+./components/evaluation/OverviewTab.tsx:100:            <p className="text-sm font-semibold text-warning-ink">
+./components/evaluation/OverviewTab.tsx:124:                  <span className="text-xs text-warning-ink font-medium shrink-0">
+./components/evaluation/PendingTab.tsx:99:                          isOverdue ? 'text-danger-ink' : 'text-ink-muted',
+./components/evaluation/ResultsTab.tsx:335:                  <h4 className="font-semibold text-success-ink mb-2">
+./components/evaluation/ResultsTab.tsx:345:                      <p key={i} className="text-xs text-success-ink">
+./components/evaluation/ResultsTab.tsx:354:                  <h4 className="font-semibold text-warning-ink mb-2">
+./components/evaluation/ResultsTab.tsx:364:                      <p key={i} className="text-xs text-warning-ink">
+./components/evaluation360/OverviewTab.tsx:45:            <div className="rounded-lg border border-border bg-surface-sunken px-3.5 py-1.5 text-xs font-bold text-success-ink">
+./components/evaluation360/OverviewTab.tsx:50:            <div className="rounded-lg border border-border bg-surface-sunken px-3.5 py-1.5 text-xs font-bold text-warning-ink">
+./components/evaluation360/OverviewTab.tsx:98:          <div className="text-xs font-bold text-success-ink uppercase tracking-wider mb-3.5">
+./components/evaluation360/OverviewTab.tsx:112:              <span className="text-sm font-bold text-success-ink">
+./components/evaluation360/OverviewTab.tsx:119:          <div className="text-xs font-bold text-danger-ink uppercase tracking-wider mb-3.5">
+./components/evaluation360/OverviewTab.tsx:133:              <span className="text-sm font-bold text-danger-ink">
+./components/events/CreateEventModal.tsx:123:            <div className="flex items-center gap-2 rounded-card bg-danger-subtle p-3 text-sm text-danger-ink">
+./components/events/DetailView.tsx:150:            <div className="mb-3 flex items-center gap-2 text-danger">
+./components/events/DetailView.tsx:178:                  <span className="font-body text-xs font-semibold text-danger">
+./components/events/DetailView.tsx:183:                  <span className="inline-flex items-center gap-1 font-body text-xs text-success-ink">
+./components/events/DetailView.tsx:385:              <div className="inline-flex items-center gap-1 rounded-control bg-info-subtle px-3 py-2 font-body text-xs text-info-ink">
+./components/events/EventCard.tsx:74:              <span className="font-body text-xs font-medium text-danger">
+./components/events/EventCard.tsx:113:                  event.isFull ? 'text-danger' : 'text-ink-muted',
+./components/events/EventCard.tsx:118:              {event.isFull && <span className="text-danger">• Lotado</span>}
+./components/events/OrganizerView.tsx:114:                  <div className="font-body text-xs text-warning-ink">
+./components/executive-reports/GenerateView.tsx:91:            <div className="mb-2 font-body text-xs font-medium text-info-ink">
+./components/executive-reports/GenerateView.tsx:100:                    className="rounded bg-surface px-2 py-0.5 font-body text-xs text-info-ink"
+./components/executive-reports/ReportCard.tsx:72:          <span className="font-medium text-danger">{redCount} em risco</span>
+./components/history/AuditTab.tsx:101:          <h4 className="font-display font-semibold text-warning-ink mb-3">
+./components/history/AuditTab.tsx:110:                <div className="w-7 h-7 rounded-full bg-warning-subtle flex items-center justify-center text-xs font-bold text-warning-ink shrink-0">
+./components/history/AuditTab.tsx:117:                  <p className="text-[10px] text-warning-ink font-semibold">
+./components/history/AuditTab.tsx:132:              <Shield size={14} strokeWidth={1.75} className="text-danger" />
+./components/history/AuditTab.tsx:141:                  <span className="font-data text-danger shrink-0">
+./components/history/EventCard.tsx:33:          <span className="text-[9px] bg-warning-subtle text-warning-ink px-1.5 py-0.5 rounded-pill font-medium shrink-0">
+./components/history/EventCard.tsx:61:            <span className="text-[9px] bg-warning-subtle text-warning-ink px-1.5 py-0.5 rounded-pill font-bold">
+./components/history/EventCard.tsx:122:              ? 'bg-success-subtle text-success-ink'
+./components/history/EventCard.tsx:124:                ? 'bg-warning-subtle text-warning-ink'
+./components/history/MilestonesTab.tsx:62:                  ? 'bg-success-subtle text-success-ink'
+./components/history/MilestonesTab.tsx:63:                  : 'bg-warning-subtle text-warning-ink'
+./components/history/TimelineTab.tsx:94:          <p className="text-xs font-semibold text-warning-ink mb-2">
+./components/instructor/AtRiskView.tsx:47:            className="shrink-0 text-danger"
+./components/instructor/AtRiskView.tsx:60:              hasAtRisk ? 'text-danger-ink' : 'text-black',
+./components/instructor/AtRiskView.tsx:99:                  <span className="w-9 shrink-0 font-mono text-xs text-danger">
+./components/instructor/AtRiskView.tsx:105:                <div className="font-body text-xs font-medium text-danger">
+./components/instructor/CohortDetailView.tsx:32:  if (pct > 60) return 'text-success';
+./components/instructor/CohortDetailView.tsx:33:  if (pct > 30) return 'text-info';
+./components/instructor/CohortDetailView.tsx:34:  return 'text-danger';
+./components/instructor/CohortDetailView.tsx:88:              <div className="mt-1 font-body text-xs text-danger">
+./components/instructor/CohortDetailView.tsx:145:                    <span className="font-body text-xs font-medium text-danger">
+./components/instructor/CohortsView.tsx:133:            <div className="mb-3 rounded-control border border-danger bg-danger-subtle p-3 font-body text-sm text-danger-ink">
+./components/instructor/CohortsView.tsx:233:                    <span className="text-danger">{c.atRisk} em risco</span>
+./components/instructor/DashboardView.tsx:30:  return pct > 60 ? 'text-success' : 'text-info';
+./components/instructor/DashboardView.tsx:74:            className="shrink-0 text-danger"
+./components/instructor/DashboardView.tsx:77:            <div className="font-body text-sm font-semibold text-danger-ink">
+./components/instructor/DashboardView.tsx:80:            <div className="font-body text-xs text-danger">
+./components/instructor/DashboardView.tsx:170:                    <div className="font-body text-xs text-danger">
+./components/knowledge/AdminDashboardView.tsx:36:            color: 'text-success-ink',
+./components/knowledge/AdminDashboardView.tsx:42:            color: data.articles.stale > 0 ? 'text-warning-ink' : undefined,
+./components/knowledge/ArticleDetailView.tsx:298:            <div className="rounded-control bg-success-subtle py-2.5 text-center font-body text-xs font-medium text-success-ink">
+./components/knowledge/CreateArticleModal.tsx:122:            <div className="flex items-center gap-2 rounded-card bg-danger-subtle p-3 text-sm text-danger-ink">
+./components/leader/DashboardTab.tsx:126:                    className={`shrink-0 rounded-pill px-2 py-0.5 font-body text-[10px] font-medium ${r.urgency === 'HIGH' ? 'bg-danger-subtle text-danger-ink' : 'bg-warning-subtle text-warning-ink'}`}
+./components/leader/DashboardTab.tsx:140:          <h4 className="mb-3 font-display font-semibold text-warning-ink">
+./components/leader/DashboardTab.tsx:154:                  <p className="font-body text-[10px] text-warning-ink">
+./components/leader/PlansTab.tsx:22:  if (progress >= 75) return 'text-success';
+./components/leader/PlansTab.tsx:23:  if (progress >= 40) return 'text-warning';
+./components/leader/PlansTab.tsx:24:  return 'text-danger';
+./components/leader/TeamTab.tsx:28:  if (score >= 4) return 'text-success';
+./components/leader/TeamTab.tsx:29:  if (score >= 3) return 'text-warning';
+./components/leader/TeamTab.tsx:30:  return 'text-danger';
+./components/leader/TeamTab.tsx:76:                data.summary.atRisk > 0 ? 'text-danger' : 'text-success',
+./components/leadership/Feedback360View.tsx:28:  if (avgScore >= 4) return 'text-success-ink';
+./components/leadership/Feedback360View.tsx:29:  if (avgScore >= 3) return 'text-info-ink';
+./components/leadership/Feedback360View.tsx:30:  return 'text-warning-ink';
+./components/leadership/Feedback360View.tsx:102:              <div className="font-mono text-3xl font-bold text-info-ink">
+./components/leadership/Feedback360View.tsx:105:              <div className="font-body text-xs text-info-ink">
+./components/leadership/Feedback360View.tsx:123:                  <div className="mt-1 font-body text-xs text-warning-ink">
+./components/leadership/KudosView.tsx:39:                  <Star size={22} strokeWidth={1.75} className="text-warning" />
+./components/leadership/KudosView.tsx:50:                    <div className="font-body text-xs font-semibold text-warning-ink">
+./components/leadership/KudosView.tsx:53:                    <div className="font-body text-xs text-warning-ink/70">
+./components/leadership/KudosView.tsx:57:                  <span className="ml-auto font-body text-xs text-warning-ink/60">
+./components/leadership/KudosView.tsx:61:                <p className="font-body text-sm text-warning-ink">
+./components/leadership/MyDashboardView.tsx:37:  return status === 'COMPLETED' ? 'text-success-ink' : 'text-ink-faint';
+./components/leadership/MyDashboardView.tsx:207:                        className="text-warning"
+./components/leadership/ProgramFormSteps.tsx:549:            className="rounded-control p-1.5 text-ink-faint hover:bg-danger-subtle hover:text-danger-ink"
+./components/leadership/ProgramWizard.tsx:393:                ? 'bg-danger-subtle text-danger-ink'
+./components/leadership/ProgramWizard.tsx:430:          <div className="mb-4 flex items-center gap-2 rounded-card bg-danger-subtle p-3 font-body text-sm text-danger-ink">
+./components/leadership/ProgramWizard.tsx:449:                <p className="mb-1 font-body text-sm font-semibold text-danger-ink">
+./components/leadership/ProgramWizard.tsx:454:                    <li key={s.id} className="font-body text-sm text-danger-ink">
+./components/leadership/ProgramWizard.tsx:490:              <p className="font-body text-sm text-success-ink">
+./components/leadership/RankingView.tsx:22:  if (pct >= 80) return 'text-success-ink';
+./components/leadership/RankingView.tsx:23:  if (pct >= 50) return 'text-info-ink';
+./components/leadership/RankingView.tsx:24:  return 'text-warning-ink';
+./components/leadership/TeamView.tsx:100:          <div className="mb-2 font-body text-sm font-semibold text-warning-ink">
+./components/leadership/TeamView.tsx:114:                className={`flex-shrink-0 font-mono text-xs ${a.type === 'PERFORMANCE_RISK' ? 'text-danger-ink' : 'text-warning-ink'}`}
+./components/leadership/TeamView.tsx:121:                      ? 'fill-danger text-danger'
+./components/leadership/TeamView.tsx:122:                      : 'fill-warning text-warning'
+./components/leadership/TeamView.tsx:126:              <p className="font-body text-xs text-warning-ink">{a.message}</p>
+./components/leadership/TeamView.tsx:178:                <span className="font-medium text-warning-ink">
+./components/learning-paths/CatalogView.tsx:124:        <div className="mb-4 font-body text-sm text-danger">
+./components/learning-paths/CreateLearningPathModal.tsx:125:            <div className="flex items-center gap-2 p-3 bg-danger-subtle text-danger-ink rounded-card text-sm">
+./components/learning-paths/LearningPathCard.tsx:116:              className={`font-body text-xs font-medium ${progress >= 100 ? 'text-success' : 'text-info'}`}
+./components/learning-paths/LPDetailView.tsx:57:      <CheckCircle2 size={18} strokeWidth={1.75} className="text-success" />
+./components/learning-paths/LPDetailView.tsx:60:    return <PlayCircle size={18} strokeWidth={1.75} className="text-info" />;
+./components/learning-paths/LPDetailView.tsx:171:                    className={`font-medium ${isOverdue(path.deadline) ? 'text-danger' : ''}`}
+./components/learning-paths/LPDetailView.tsx:182:                      className="rounded bg-info-subtle px-2 py-0.5 font-body text-xs text-info-ink"
+./components/learning-paths/LPDetailView.tsx:323:                          <span className="rounded bg-info-subtle px-1.5 font-body text-xs text-info-ink">
+./components/learning-paths/LPDetailView.tsx:347:                          <span className="text-success">
+./components/learning-paths/MyPathsView.tsx:128:                      ? 'text-success'
+./components/learning-paths/MyPathsView.tsx:130:                        ? 'text-info'
+./components/learning-paths/MyPathsView.tsx:142:                    className={`font-body text-xs ${isOverdue(e.deadline) ? 'text-danger' : 'text-ink-faint'}`}
+./components/learning-paths/MyPathsView.tsx:150:                  <div className="font-body text-xs font-medium text-danger">
+./components/leave/NewLeaveModal.tsx:141:            <div className="flex items-center gap-2 p-3 bg-danger-subtle text-danger-ink rounded-card text-sm">
+./components/leave/NewLeaveModal.tsx:312:                      ? 'bg-danger-subtle text-danger-ink'
+./components/leave/NewLeaveModal.tsx:313:                      : 'bg-success-subtle text-success-ink',
+./components/library/LibraryCreateView.tsx:62:        <div className="mb-4 rounded-card border border-danger bg-danger-subtle p-3 font-body text-sm text-danger-ink">
+./components/library/LibraryItemView.tsx:150:                    className={n <= score ? 'text-warning' : 'text-ink-faint'}
+./components/library/LibraryListView.tsx:59:          <span className="font-body text-sm text-danger-ink">{error}</span>
+./components/live-classes/ClassCard.tsx:40:    ? 'text-danger'
+./components/live-classes/ClassCard.tsx:42:      ? 'text-warning'
+./components/live-classes/ClassCard.tsx:131:          className="py-2 px-2.5 rounded-lg border border-danger-subtle bg-danger-subtle text-danger text-xs cursor-pointer"
+./components/live-classes/CreateLiveClassModal.tsx:108:            <div className="flex items-center gap-2 rounded-card bg-danger-subtle p-3 text-sm text-danger-ink">
+./components/live-classes/LiveClassesView.tsx:77:      textClass: 'text-danger',
+./components/live-classes/LiveClassesView.tsx:84:      textClass: 'text-warning',
+./components/live-classes/LiveClassesView.tsx:98:      textClass: 'text-info',
+./components/live-classes/LiveClassesView.tsx:119:                  className="px-3 py-0.75 rounded-full text-xs font-black bg-danger-subtle text-danger"
+./components/live-classes/room/RecordingPanel.tsx:84:              Clica em <strong className="text-danger">Iniciar Gravação</strong>
+./components/live-classes/room/RecordingPanel.tsx:89:              <strong className="text-danger">Parar</strong>
+./components/live-classes/room/RecordingPanel.tsx:106:          <div className="inline-flex items-center gap-1.5 bg-danger-subtle border border-danger-subtle rounded-lg py-2 px-3 text-xs text-danger-ink mb-2.5">
+./components/live-classes/room/RecordingPanel.tsx:128:              <span className="flex-1 text-sm font-bold text-danger-ink">
+./components/live-classes/room/RecordingPanel.tsx:202:          <div className="py-2 px-3 bg-success-subtle border border-success-subtle rounded-lg text-xs text-success-ink mb-2">
+./components/live-classes/room/RecordingPanel.tsx:208:          <div className="py-2 px-3 bg-success-subtle border border-success-subtle rounded-lg text-xs text-success-ink mb-2">
+./components/live-classes/Toast.tsx:18:      text: 'text-success',
+./components/live-classes/Toast.tsx:23:      text: 'text-danger',
+./components/live-classes/Toast.tsx:25:    info: { bg: 'bg-info-subtle', bd: 'border-info', text: 'text-info' },
+./components/live-classes/UpcomingStrip.tsx:47:                    status === 'live' ? 'text-danger' : 'text-warning'
+./components/lms/shared.tsx:17:        <AlertTriangle size={18} strokeWidth={1.75} className="shrink-0 text-danger-ink" />
+./components/lms/shared.tsx:18:        <p className="flex-1 font-body text-sm text-danger-ink">{message}</p>
+./components/micro-learning/DashboardView.tsx:22:  { key: 'completed', label: 'Concluídos', color: 'text-success' },
+./components/micro-learning/DashboardView.tsx:23:  { key: 'totalMinutes', label: 'Minutos', color: 'text-info' },
+./components/micro-learning/DashboardView.tsx:109:                <div className="font-data text-xs font-bold text-info">
+./components/micro-learning/DashboardView.tsx:113:                  <div className="font-body text-xs text-success">
+./components/micro-learning/PlayerView.tsx:171:                    ? 'bg-danger-subtle text-danger-ink'
+./components/micro-learning/PlayerView.tsx:172:                    : 'bg-surface-sunken text-ink-faint hover:bg-danger-subtle hover:text-danger-ink'
+./components/micro-learning/PlayerView.tsx:181:                    ? 'bg-info-subtle text-info-ink'
+./components/micro-learning/PlayerView.tsx:182:                    : 'bg-surface-sunken text-ink-faint hover:bg-info-subtle hover:text-info-ink'
+./components/micro-learning/PlayerView.tsx:195:                className={`font-data ${completed ? 'text-success' : 'text-info'}`}
+./components/micro-learning/PlayerView.tsx:234:          <div className="mb-3 flex items-center gap-1.5 font-body text-sm font-semibold text-info-ink">
+./components/micro-learning/PlayerView.tsx:241:                className="flex items-start gap-2 font-body text-sm text-info-ink"
+./components/micro-learning/PlayerView.tsx:311:            className={`mb-4 text-center ${quiz.result.score >= 60 ? 'text-success-ink' : 'text-danger-ink'}`}
+./components/micro-learning/PlayerView.tsx:338:        <div className="mb-5 rounded-card border border-success bg-success-subtle py-3 text-center font-body text-sm font-semibold text-success-ink">
+./components/monitoring/shared.tsx:17:      <div className="flex items-center gap-4 rounded-card border border-danger bg-danger-subtle p-4 font-body text-sm text-danger-ink">
+./components/notifications/shared.tsx:9:  LMS: { label: 'Aprendizagem', cls: 'bg-info-subtle text-info-ink' },
+./components/notifications/shared.tsx:13:    cls: 'bg-warning-subtle text-warning-ink',
+./components/notifications/shared.tsx:15:  HR: { label: 'RH', cls: 'bg-success-subtle text-success-ink' },
+./components/notifications/shared.tsx:18:    cls: 'bg-danger-subtle text-danger-ink',
+./components/notifications/shared.tsx:27:    cls: 'bg-info-subtle text-info-ink',
+./components/onboarding/AssignPlanModal.tsx:113:            <div className="flex items-center gap-2 rounded-card bg-danger-subtle p-3 text-sm text-danger-ink">
+./components/onboarding/MyPlanView.tsx:234:                <div className="text-xs text-warning-ink font-medium mt-1">
+./components/onboarding/MyPlanView.tsx:333:                    <div className="text-xs text-danger-ink mt-0.5">
+./components/onboarding/OnboardingDocUploadForm.tsx:84:          <div className="mb-3 flex items-center gap-2 rounded-card bg-danger-subtle p-3 text-sm text-danger-ink">
+./components/onboarding/PlanDetailModal.tsx:236:          <div className="mt-5 flex items-center gap-2 rounded-card bg-danger-subtle p-3 text-sm text-danger-ink">
+./components/onboarding/PlanDetailModal.tsx:374:                                  <span className="text-success-ink">
+./components/onboarding/PlanDetailModal.tsx:380:                                    <span className="text-success-ink">
+./components/onboarding/PlanDetailModal.tsx:384:                                    <span className="text-warning-ink">
+./components/onboarding/PlanDetailModal.tsx:540:                                <span className="text-danger-ink">
+./components/onboarding/TaskCard.tsx:70:                  ? 'inline-flex items-center gap-1 text-danger font-medium'
+./components/onboarding/TaskCard.tsx:79:            <span className="inline-flex items-center gap-1 text-warning-ink">
+./components/onboarding/TaskCard.tsx:85:            <span className="text-info"> Requer aprovação</span>
+./components/onboarding/TaskCard.tsx:88:            <span className="text-success-ink">
+./components/onboarding/TemplateDetailModal.tsx:146:            <div className="mt-5 flex items-center gap-2 rounded-card bg-danger-subtle p-3 text-sm text-danger-ink">
+./components/onboarding/TemplateFormModal.tsx:128:            <div className="flex items-center gap-2 rounded-card bg-danger-subtle p-3 text-sm text-danger-ink">
+./components/onboarding/TemplatesView.tsx:102:                    <span className="ml-auto text-warning-ink">
+./components/onboarding/TemplateTaskFormModal.tsx:167:            <div className="flex items-center gap-2 rounded-card bg-danger-subtle p-3 text-sm text-danger-ink">
+./components/organization/CreatePositionModal.tsx:138:            <div className="flex items-center gap-2 rounded-card bg-danger-subtle p-3 text-sm text-danger-ink">
+./components/organization/DashboardView.tsx:91:              ? 'text-danger'
+./components/organization/DashboardView.tsx:93:                ? 'text-success'
+./components/organization/DashboardView.tsx:94:                : 'text-warning';
+./components/organization/DashboardView.tsx:122:                  <span className="font-body text-xs font-medium text-warning">
+./components/organization/OrgChartNode.tsx:60:            <div className="flex items-center gap-1 font-body text-xs text-info">
+./components/organization/PositionsView.tsx:107:                  <span className="font-body text-xs font-medium text-warning">
+./components/payroll/AccessLogsPanel.tsx:33:      {error && <div className="font-body text-sm text-danger">{error.message}</div>}
+./components/payroll/AdminPayslipDetailView.tsx:71:  if (error) return <div className="font-body text-sm text-danger">{error.message}</div>;
+./components/payroll/AdminPayslipDetailView.tsx:141:                  <p className="mt-1 font-body text-xs text-success-ink">
+./components/payroll/DisputesView.tsx:70:        <div className="font-body text-sm text-danger">{error.message}</div>
+./components/payroll/EditPayslipModal.tsx:87:        <div className="mt-4 rounded-control bg-warning-subtle p-3 font-body text-xs text-warning-ink">
+./components/payroll/ExceptionsPanel.tsx:85:        <div className="font-body text-sm text-danger">{error.message}</div>
+./components/payroll/HrDashboardView.tsx:36:      {error && <div className="font-body text-sm text-danger">{error.message}</div>}
+./components/payroll/PayslipListView.tsx:159:        <div className="font-body text-sm text-danger">{error.message}</div>
+./components/payroll/RunDetailView.tsx:128:    return <div className="font-body text-sm text-danger">{error.message}</div>;
+./components/payroll/RunDetailView.tsx:299:        <p className="mb-4 font-body text-sm text-danger">
+./components/payroll/RunDetailView.tsx:356:            <span className={t.at ? 'text-success' : 'text-ink-faint'}>●</span>
+./components/payroll/RunListView.tsx:104:        <div className="font-body text-sm text-danger">{error.message}</div>
+./components/payroll/RunListView.tsx:160:                    <span className="ml-1 text-danger">
+./components/payroll/RunPayslipsTable.tsx:88:        <div className="font-body text-sm text-danger">{error.message}</div>
+./components/payroll/RunPayslipsTable.tsx:142:                    <span className="flex items-center gap-1 text-warning-ink">
+./components/payslips/AnnualView.tsx:67:      {error && <div className="font-body text-sm text-danger">{error}</div>}
+./components/payslips/AnnualView.tsx:120:                  <div className="mb-1.5 font-body text-xs text-success-ink">
+./components/payslips/AnnualView.tsx:123:                  <div className="font-mono text-base font-semibold text-success-ink">
+./components/payslips/AnnualView.tsx:153:                  <div className="w-20 text-right font-mono text-xs text-danger">
+./components/payslips/CompareView.tsx:28:      className={`flex items-center gap-1 font-mono text-xs font-medium ${up ? 'text-success' : 'text-danger'}`}
+./components/payslips/CompareView.tsx:92:        <div className="mb-4 font-body text-sm text-danger">
+./components/payslips/CompareView.tsx:191:                className={`mt-4 flex items-center gap-2 rounded-card px-4 py-3 font-body text-sm ${up ? 'bg-success-subtle text-success-ink' : 'bg-danger-subtle text-danger-ink'}`}
+./components/payslips/CompensationComponentsEditor.tsx:149:            <div className="flex items-center gap-2 rounded-card bg-danger-subtle p-3 text-sm text-danger-ink">
+./components/payslips/CompensationDetailView.tsx:95:        <div className="font-body text-sm text-danger">{error.message}</div>
+./components/payslips/CompensationDetailView.tsx:120:                <span className="rounded-full bg-success-subtle px-2 py-0.5 font-body text-xs font-medium text-success-ink">
+./components/payslips/CompensationDetailView.tsx:169:            <div className="mb-6 flex items-start gap-2 rounded-card bg-warning-subtle p-3 text-sm text-warning-ink">
+./components/payslips/CompensationDetailView.tsx:221:                      <span className="rounded-full bg-success-subtle px-2 py-0.5 font-body text-xs font-medium text-success-ink">
+./components/payslips/CompensationFormModal.tsx:132:            <div className="flex items-start gap-2 rounded-card bg-warning-subtle p-3 text-sm text-warning-ink">
+./components/payslips/CompensationFormModal.tsx:142:            <div className="flex items-center gap-2 rounded-card bg-danger-subtle p-3 text-sm text-danger-ink">
+./components/payslips/CompensationsView.tsx:69:        <div className="font-body text-sm text-danger">{error.message}</div>
+./components/payslips/CompensationView.tsx:40:    return <div className="font-body text-sm text-danger">{error}</div>;
+./components/payslips/ComponentFormModal.tsx:164:            <div className="flex items-center gap-2 rounded-card bg-danger-subtle p-3 text-sm text-danger-ink">
+./components/payslips/ComponentFormModal.tsx:270:            <div className="flex items-center gap-2 rounded-card bg-danger-subtle p-3 text-sm text-danger-ink">
+./components/payslips/ComponentsView.tsx:122:        <div className="font-body text-sm text-danger">{error.message}</div>
+./components/payslips/ComponentsView.tsx:170:                      ? 'bg-success-subtle text-success-ink'
+./components/payslips/ComponentsView.tsx:171:                      : 'bg-danger-subtle text-danger-ink'
+./components/payslips/ListView.tsx:105:          <div className="px-4 py-8 text-center font-body text-sm text-danger">
+./components/payslips/PayslipAmountBreakdown.tsx:38:            ? 'text-success'
+./components/payslips/PayslipAmountBreakdown.tsx:40:              ? 'text-danger'
+./components/payslips/PayslipAmountBreakdown.tsx:110:            <span className="font-mono text-sm font-semibold text-danger">
+./components/payslips/PayslipDetailView.tsx:79:        <p className="mb-4 font-body text-sm text-danger">
+./components/payslips/PayslipDetailView.tsx:217:                <div className="mt-2 rounded-control bg-warning-subtle p-2 font-mono text-xs text-warning-ink">
+./components/payslips/PayslipDetailView.tsx:275:              <div className="font-body text-sm font-medium text-danger-ink">
+./components/performance/AnalyticsView.tsx:159:          <div className="flex items-center gap-2 text-sm font-semibold text-warning-ink mb-3">
+./components/performance/AnalyticsView.tsx:171:              <span className="text-warning-ink">User #{d.userId}</span>
+./components/performance/AnalyticsView.tsx:172:              <span className="font-data font-bold text-warning-ink">
+./components/performance/MyDashboard.tsx:193:          <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-warning-ink">
+./components/performance/MyDashboard.tsx:268:                      className={`text-xs mt-1 ${isOverdue(g.dueDate) ? 'text-danger' : 'text-ink-faint'}`}
+./components/processes/CreateProcessModal.tsx:166:            <div className="flex items-center gap-2 rounded-card bg-danger-subtle p-3 text-sm text-danger-ink">
+./components/processes/DashboardView.tsx:31:    return <div className="font-body text-sm text-danger">{error.message}</div>;
+./components/processes/LibraryView.tsx:144:          <div className="px-4 py-8 text-center font-body text-sm text-danger">
+./components/processes/LibraryView.tsx:171:                      className="rounded-control bg-info-subtle px-1.5 py-0.5 font-body text-xs text-info-ink"
+./components/processes/MyTasksView.tsx:35:    return <div className="font-body text-sm text-danger">{error.message}</div>;
+./components/processes/MyTasksView.tsx:76:                className={`font-body text-xs font-medium ${isOverdue(t.slaDeadline) ? 'text-danger' : 'text-warning-ink'}`}
+./components/processes/ProcessViewer.tsx:135:        <p className="mb-4 font-body text-sm text-danger">
+./components/processes/ProcessViewer.tsx:217:                    className="rounded-control bg-info-subtle px-2 py-0.5 font-body text-xs text-info-ink"
+./components/processes/ProcessViewer.tsx:312:                        ? 'border-success bg-success-subtle text-success-ink'
+./components/processes/ProcessViewer.tsx:315:                          : 'border-info bg-info-subtle text-info-ink'
+./components/processes/ProcessViewer.tsx:389:                      <span className="flex flex-shrink-0 items-center gap-1 rounded-control bg-warning-subtle px-2 py-0.5 font-body text-xs text-warning-ink">
+./components/processes/TaskRunner.tsx:106:        <p className="mb-4 font-body text-sm text-danger">
+./components/processes/TaskRunner.tsx:165:              className={`rounded-control px-3 py-1 font-body text-xs font-medium ${isOverdue(instance.slaDeadline) ? 'bg-danger-subtle text-danger-ink' : 'bg-warning-subtle text-warning-ink'}`}
+./components/processes/TaskRunner.tsx:209:                      ? 'bg-success-subtle text-success-ink'
+./components/processes/TaskRunner.tsx:211:                        ? 'bg-danger-subtle text-danger-ink'
+./components/processes/TaskRunner.tsx:239:                      <div className="font-body text-xs text-danger">
+./components/processes/TaskRunner.tsx:268:                  className={`mb-4 rounded-control px-3 py-2 font-body text-xs ${isOverdue(activeStep.slaDeadline) ? 'bg-danger-subtle text-danger-ink' : 'bg-warning-subtle text-warning-ink'}`}
+./components/processes/TaskRunner.tsx:352:                className="mx-auto mb-3 text-success"
+./components/processes/TaskRunner.tsx:354:              <div className="font-display text-base font-semibold text-success-ink">
+./components/processes/TaskRunner.tsx:357:              <div className="mt-1 font-body text-sm text-success-ink">
+./components/processes/TaskRunner.tsx:361:                <div className="mt-2 font-body text-xs text-success-ink">
+./components/reports/InsightsTab.tsx:96:            className="mx-auto mb-2 text-success"
+./components/reports/InsightsTab.tsx:98:          <p className="font-body font-medium text-success-ink">
+./components/reports/InsightsTab.tsx:101:          <p className="font-body text-sm text-success-ink">
+./components/reports/ReportOutput.tsx:215:                    ? 'text-danger'
+./components/reports/ReportOutput.tsx:216:                    : 'text-warning'
+./components/reports/ReportOutput.tsx:218:                    ? 'text-success'
+./components/reports/SaveReportModal.tsx:99:            <div className="flex items-center gap-2 rounded-card bg-danger-subtle p-3 text-sm text-danger-ink">
+./components/roi-impact/SimulatorTab.tsx:99:                    color: result.delta.roiLift >= 0 ? 'text-success-ink' : 'text-danger-ink',
+./components/roi-impact/SimulatorTab.tsx:104:                    color: result.delta.benefitDelta >= 0 ? 'text-success-ink' : 'text-danger-ink',
+./components/roles-permissions/GovernanceTab.tsx:20:  ALERT: { box: 'bg-danger-subtle border-danger', icon: 'text-danger' },
+./components/roles-permissions/GovernanceTab.tsx:21:  WARNING: { box: 'bg-warning-subtle border-warning', icon: 'text-warning' },
+./components/roles-permissions/GovernanceTab.tsx:22:  INFO: { box: 'bg-info-subtle border-info', icon: 'text-info' },
+./components/roles-permissions/GovernanceTab.tsx:141:          <h4 className="font-semibold text-warning-ink mb-2">
+./components/roles-permissions/GovernanceTab.tsx:153:                className="text-xs font-data bg-warning-subtle text-warning-ink px-2 py-0.5 rounded-control border border-warning"
+./components/roles-permissions/MatrixTab.tsx:164:                      className="text-success mx-auto"
+./components/roles-permissions/SimulatorTab.tsx:117:              <p className="font-bold text-lg text-danger-ink">
+./components/roles-permissions/SimulatorTab.tsx:151:                className={`font-bold text-lg ${result.allowed ? 'text-success-ink' : 'text-danger-ink'}`}
+./components/roles-permissions/SimulatorTab.tsx:194:                  className={`text-[10px] font-bold ${s.result ? 'text-success' : 'text-danger'}`}
+./components/scalability/ImportUsersModal.tsx:104:            <div className="flex items-center gap-2 rounded-card bg-danger-subtle p-3 font-body text-sm text-danger-ink">
+./components/scalability/ImportUsersModal.tsx:111:            <div className="flex items-center gap-2 rounded-card bg-danger-subtle p-3 font-body text-sm text-danger-ink">
+./components/scalability/ScalabilityDashboardView.tsx:65:  danger: 'text-danger',
+./components/scalability/ScalabilityDashboardView.tsx:66:  warning: 'text-warning',
+./components/scalability/ScalabilityDashboardView.tsx:67:  success: 'text-success',
+./components/scalability/ScalabilityDashboardView.tsx:68:  info: 'text-info',
+./components/scalability/ScalabilityDashboardView.tsx:700:              ? { label: 'Última falhou', cls: 'text-danger' }
+./components/scalability/ScalabilityDashboardView.tsx:701:              : { label: 'OK', cls: 'text-success' };
+./components/scalability/ScalabilityDashboardView.tsx:876:              s.isBreached ? 'text-danger' : 'text-success',
+./components/settings/TabSeguranca.tsx:88:    'text-danger',
+./components/settings/TabSeguranca.tsx:89:    'text-warning',
+./components/settings/TabSeguranca.tsx:91:    'text-success',
+./components/settings/TabSeguranca.tsx:150:                            ? strColorClass[str] === 'text-danger'
+./components/settings/TabSeguranca.tsx:152:                              : strColorClass[str] === 'text-warning'
+./components/settings/TabSeguranca.tsx:186:                  <p className="text-danger text-xs mt-1">
+./components/sucession/DashboardView.tsx:39:            <div className="font-display text-4xl font-bold text-info-ink">
+./components/sucession/DashboardView.tsx:56:              className={`font-display text-4xl font-bold ${kpis.coverageRate >= 80 ? 'text-success-ink' : 'text-warning-ink'}`}
+./components/sucession/DashboardView.tsx:131:                  className={`font-mono text-xs ${alert.daysUntilExit <= 30 ? 'font-bold text-danger-ink' : 'text-warning-ink'}`}
+./components/sucession/MatchScore.tsx:23:      ? 'text-success-ink'
+./components/sucession/MatchScore.tsx:25:        ? 'text-warning-ink'
+./components/sucession/MatchScore.tsx:26:        : 'text-danger-ink';
+./components/sucession/OrgChartView.tsx:91:                          className={`ml-auto font-mono text-xs ${node.daysUntilExit <= 90 ? 'font-bold text-danger-ink' : 'text-ink-faint'}`}
+./components/sucession/OrgChartView.tsx:124:                      <span className="font-body text-xs font-medium text-danger">
+./components/sucession/PositionsView.tsx:85:              <div className="mt-1 truncate font-body text-xs text-danger-ink">
+./components/sucession/PositionsView.tsx:130:                    className={`text-center ${summary.daysUntilExit <= 90 ? 'text-danger-ink' : 'text-ink-muted'}`}
+./components/sucession/PositionsView.tsx:192:                      className={`rounded-control px-3 py-2 font-body text-xs ${level === 'READY_NOW' ? 'bg-danger-subtle text-danger-ink' : 'bg-surface-sunken text-ink-faint'}`}
+./components/sucession/TalentPoolView.tsx:87:                      <div className="font-mono text-lg font-bold text-info-ink">
+./components/sucession/TalentPoolView.tsx:99:                  <span className="rounded bg-success-subtle px-2 py-0.5 text-success-ink">
+./components/sucession/TalentPoolView.tsx:104:                  <span className="rounded bg-info-subtle px-2 py-0.5 text-info-ink">
+./components/talent-development/AnalyticsTab.tsx:35:  if (value >= 70) return 'text-success-ink';
+./components/talent-development/AnalyticsTab.tsx:36:  if (value >= 40) return 'text-warning-ink';
+./components/talent-development/AnalyticsTab.tsx:37:  return 'text-danger-ink';
+./components/talent-development/AnalyticsTab.tsx:187:                  <span className="shrink-0 font-display text-sm font-bold text-danger-ink">
+./components/talent-development/AnalyticsTab.tsx:213:                    className="shrink-0 text-success"
+./components/talent-development/PlansTab.tsx:162:                  className="text-success"
+./components/talent-development/PlansTab.tsx:167:                <span className="flex items-center gap-1 text-danger-ink">
+./components/talent-development/PoolTab.tsx:37:  if (score >= 4) return 'text-success-ink';
+./components/talent-development/PoolTab.tsx:38:  if (score >= 2.5) return 'text-warning-ink';
+./components/talent-development/SkillGapsTab.tsx:32:  if (avgGap >= 3) return 'text-danger-ink';
+./components/talent-development/SkillGapsTab.tsx:33:  if (avgGap >= 2) return 'text-warning-ink';
+./components/talent-development/SkillGapsTab.tsx:34:  return 'text-success-ink';
+./components/talent-development/SkillGapsTab.tsx:39:  if (level >= 4) return 'bg-success-subtle text-success-ink';
+./components/talent-development/SkillGapsTab.tsx:40:  if (level >= 3) return 'bg-info-subtle text-info-ink';
+./components/talent-development/SkillGapsTab.tsx:41:  if (level >= 2) return 'bg-warning-subtle text-warning-ink';
+./components/talent-development/SkillGapsTab.tsx:42:  return 'bg-danger-subtle text-danger-ink';
+./components/trainings/DetailView.tsx:285:                        <span className="text-danger">
+./components/trainings/DetailView.tsx:291:                        <span className="text-success-ink">
+./components/ui/Badge.tsx:6:  success: 'bg-success-subtle text-success-ink',
+./components/ui/Badge.tsx:7:  warning: 'bg-warning-subtle text-warning-ink',
+./components/ui/Badge.tsx:8:  danger: 'bg-danger-subtle text-danger-ink',
+./components/ui/Badge.tsx:9:  info: 'bg-info-subtle text-info-ink',
+./components/ui/ErrorBoundary.tsx:57:          <AlertTriangle size={20} strokeWidth={1.75} className="text-danger" />
+./components/ui/FormField.tsx:38:        <span id={errorId} className="font-body text-xs text-danger">
+./components/ui/KpiCard.tsx:11:  success: 'bg-success-subtle text-success-ink',
+./components/ui/KpiCard.tsx:12:  warning: 'bg-warning-subtle text-warning-ink',
+./components/ui/KpiCard.tsx:13:  danger: 'bg-danger-subtle text-danger-ink',
+./components/ui/KpiCard.tsx:14:  info: 'bg-info-subtle text-info-ink',
+./components/ui/KpiCard.tsx:52:              trend >= 0 ? 'text-success' : 'text-danger',
+./components/ui/PdfDownloadButton.tsx:52:      {error && <p className="mt-1 text-sm text-danger">{error}</p>}
+./components/ui/Toast.tsx:11:  success: 'text-success',
+./components/ui/Toast.tsx:12:  danger: 'text-danger',
+./components/ui/Toast.tsx:13:  info: 'text-info',
+./components/users/CreateUserView.tsx:146:          <div className="bg-danger-subtle border border-danger/30 text-danger-ink rounded-control p-3 text-sm mb-4">
+./components/users/UserListView.tsx:145:          <span className="text-sm font-medium text-info-ink">
+./components/users/UserListView.tsx:168:            className="text-xs text-info-ink ml-auto hover:underline"
+./components/users/UserListView.tsx:184:        <div className="px-4 py-8 text-center text-sm text-danger">
+./components/users/UserProfileView.tsx:108:            <TableCell className="text-sm text-success font-mono">
+./components/users/UserProfileView.tsx:111:            <TableCell className="text-sm text-info font-mono">
+./components/users/UserProfileView.tsx:115:              className={`text-sm font-mono ${member.learningStats.overdue > 0 ? 'text-danger' : 'text-ink-faint'}`}
+./components/users/UserProfileView.tsx:329:            <div className="bg-danger-subtle border border-danger/30 rounded-card px-4 py-3 text-sm text-danger-ink">
+./components/work-declaration/DeclarationRow.tsx:73:            <span className={dec.status === 'expired' ? 'text-warning-ink' : 'text-ink-faint'}>
+./components/work-declaration/DeclarationRow.tsx:123:                  className="text-success"
+./components/work-declaration/DeclarationRow.tsx:133:                  className="text-danger"

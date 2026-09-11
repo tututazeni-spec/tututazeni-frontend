@@ -1,0 +1,5 @@
+./app/(platform)/feedback/page.tsx:5:      <p style={{ color: '#64748b' }}>Módulo em desenvolvimento.</p>
+./app/error.tsx:33:      <h2 style={{ fontSize: 20, fontWeight: 600, color: '#0f172a' }}>
+./app/error.tsx:36:      <p style={{ fontSize: 14, color: '#64748b', maxWidth: 420 }}>
+./app/global-error.tsx:34:        <h2 style={{ fontSize: 20, fontWeight: 600, color: '#0f172a' }}>
+./components/Topbar.tsx:173:            <p style={{ fontSize: 11, color: '#94a3b8', margin: 0 }}>

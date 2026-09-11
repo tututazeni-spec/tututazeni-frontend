@@ -1,0 +1,48 @@
+./app/(platform)/live-classes/[id]/page.tsx:224:                  className="flex items-center gap-1.5 mt-2.5 py-1.75 px-3 bg-accent-subtle border border-accent-subtle rounded-lg text-accent text-xs no-underline font-semibold"
+./components/academic/ProgramDetailView.tsx:37:              <p className="font-data text-xs text-accent">{p.code}</p>
+./components/academic/ProgramsListView.tsx:124:                <span className="font-data text-xs text-accent">{p.code}</span>
+./components/avatar-training/LeaderboardTab.tsx:20:  if (rank === 1) return 'text-accent';
+./components/avatar-training/ResultsModal.tsx:69:            <span className="flex items-center gap-1 text-accent font-bold text-sm">
+./components/avatar-training/ScenarioCard.tsx:90:            <span className="flex items-center gap-0.5 text-accent font-semibold">
+./components/avatar-training/ScenarioCard.tsx:99:                className="fill-accent text-accent"
+./components/career/DashboardView.tsx:302:          <Sparkles size={16} strokeWidth={1.75} className="text-accent" />
+./components/competencies/MyProfileView.tsx:91:          className={`text-xl transition-transform hover:scale-110 ${s <= value ? 'text-accent' : 'text-border-strong'} ${onChange ? 'cursor-pointer' : 'cursor-default'}`}
+./components/content-library/ContentCard.tsx:161:                ? 'fill-accent text-accent'
+./components/content-library/ContentCard.tsx:212:            <span className="flex items-center gap-0.5 text-accent">
+./components/content-library/MyProgressTab.tsx:149:              <Bookmark size={16} strokeWidth={1.75} className="text-accent" />
+./components/content-library/PathsTab.tsx:101:                  <span className="flex items-center gap-1 font-semibold text-accent">
+./components/courses-learn/ContentPlayer.tsx:182:                className="font-body text-xs text-accent hover:text-accent-hover"
+./components/courses-learn/ModuleAccordion.tsx:39:    return <PlayCircle size={16} strokeWidth={1.75} className="text-accent" />;
+./components/dashboard/ColaboradorDashboard.tsx:82:            <div className="flex items-center gap-1.5 font-display text-xl font-bold text-accent">
+./components/dashboard/OrgDashboard.tsx:159:            <Brain size={14} strokeWidth={1.75} className="text-accent" />
+./components/development-plans/DetailView.tsx:296:                        <span className="text-accent">
+./components/engagement/RecognitionTab.tsx:22:const RANK_COLOR = ['text-accent', 'text-ink-muted', 'text-ink-faint'] as const;
+./components/engagement/RecognitionTab.tsx:182:                  <Zap size={14} strokeWidth={1.75} className="text-accent" />
+./components/events/DetailView.tsx:320:                        ? 'text-accent'
+./components/events/DetailView.tsx:321:                        : 'text-border-strong hover:text-accent-hover',
+./components/instructor/DashboardView.tsx:43:              ? 'fill-accent text-accent'
+./components/knowledge/ArticleDetailView.tsx:317:                  s <= displayRating ? 'text-accent' : 'text-border-strong'
+./components/leader/DashboardTab.tsx:103:              <Brain size={16} strokeWidth={1.75} className="text-accent" />
+./components/leadership/RankingView.tsx:30:  'bg-accent-subtle text-accent',
+./components/live-classes/ClassCard.tsx:73:              <span className="inline-flex items-center gap-1 text-xs font-bold px-1.75 py-0.5 rounded-full bg-accent-subtle text-accent">
+./components/live-classes/ClassCard.tsx:124:            className="flex-1 inline-flex items-center justify-center gap-1 py-2 px-2 rounded-lg border border-accent bg-accent-subtle text-accent text-xs font-semibold cursor-pointer"
+./components/live-classes/LiveClassesView.tsx:91:      textClass: 'text-accent',
+./components/micro-learning/DashboardView.tsx:27:    color: 'text-accent',
+./components/micro-learning/MicroCard.tsx:100:            <span className="font-medium text-accent">+{item.xpReward}xp</span>
+./components/micro-learning/PlayerView.tsx:151:                <span className="font-body text-xs font-medium text-accent">
+./components/notifications/shared.tsx:22:    cls: 'bg-accent-subtle text-accent',
+./components/onboarding/MyPlanView.tsx:426:                          className={`text-sm ${i < s.score ? 'text-accent' : 'text-border-strong'}`}
+./components/onboarding/MyPlanView.tsx:470:                        className={`text-3xl transition-transform hover:scale-110 ${s <= surveyScore ? 'text-accent' : 'text-border-strong'}`}
+./components/reports/ReportOutput.tsx:86:          <h4 className="mb-2 flex items-center gap-1 font-body text-xs font-semibold uppercase tracking-wide text-accent">
+./components/reports/ReportOutput.tsx:91:            <p key={i} className="mb-1 font-body text-xs text-accent">
+./components/sucession/OrgChartView.tsx:63:                      <span className="rounded bg-accent-subtle px-1.5 py-0.5 font-body text-xs text-accent">
+./components/sucession/PositionsView.tsx:122:                      <span className="rounded bg-accent-subtle px-1.5 py-0.5 font-body text-xs text-accent">
+./components/talent-development/MentoringTab.tsx:103:                  <span className="font-body text-[9px] font-semibold text-accent">
+./components/trainings/DashboardView.tsx:75:            <div className="font-mono text-3xl font-bold text-accent">
+./components/trainings/DetailView.tsx:66:              s <= rating ? 'fill-accent text-accent' : 'text-ink-faint'
+./components/trainings/DetailView.tsx:83:          className={i < rating ? 'fill-accent text-accent' : 'text-ink-faint'}
+./components/trainings/StarRating.tsx:5:// text-accent` / `text-ink-faint`, tokens em vez de amber/gray cru).
+./components/trainings/StarRating.tsx:26:            i < Math.round(value) ? 'fill-accent text-accent' : 'text-ink-faint'
+./components/trainings/TrainingCard.tsx:97:            <span className="flex items-center gap-1 font-body text-xs text-accent">
+./components/ui/EmptyState.tsx:23:          <Icon size={20} strokeWidth={1.75} className="text-accent" />
+./components/ui/KpiCard.tsx:10:  accent: 'bg-accent-subtle text-accent',

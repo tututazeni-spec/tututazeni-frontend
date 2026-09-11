@@ -1,0 +1,3 @@
+./components/attendance/ClockWidgetView.tsx:58:        <p className="text-primary-ink text-sm capitalize opacity-75">{dateStr}</p>
+./components/attendance/ClockWidgetView.tsx:89:            <p className="text-primary-ink/75 text-xs">Entrada registada</p>
+./components/attendance/ClockWidgetView.tsx:109:          <p className="text-xs text-primary-ink/75 mt-0.5">Entrada: {clockInTime}</p>

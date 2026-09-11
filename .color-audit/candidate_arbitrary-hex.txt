@@ -1,0 +1,2 @@
+./components/avatar-training/LeaderboardTab.tsx:70:                  className="inline text-[#b45309]"
+./components/engagement/RecognitionTab.tsx:162:                      className="inline text-[#b45309]"
