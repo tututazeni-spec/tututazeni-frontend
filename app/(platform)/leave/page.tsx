@@ -31,6 +31,8 @@ import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { cn } from '@/lib/cn';
+import { useCurrentRole } from '@/hooks/useCurrentRole';
+import { filterByRole, type Role } from '@/lib/roles';
 import {
   BarChart3,
   Calendar,
@@ -51,6 +53,7 @@ export default function LeavePage() {
   const [tab, setTab] = useState<TabKey>('my');
   const [showModal, setShowModal] = useState(false);
   const notify = useToast();
+  const role = useCurrentRole();
 
   const leaveTypes = useLeaveTypes();
   const { balances, loading: bLoading, refetch: bRefetch } = useMyBalance();
@@ -132,11 +135,16 @@ export default function LeavePage() {
     cancel.mutate(requestId);
   };
 
-  const tabs: Array<{
+  // Dashboard RH espelha exactamente @Roles(ADMIN, RH, GESTOR) de
+  // GET /leave/dashboard (leave-management.controller.ts) — um COLABORADOR
+  // não tem acesso. Sem esta restrição o separador ficava visível e o
+  // pedido rebentava com 403.
+  const allTabs: Array<{
     key: TabKey;
     label: string;
     icon: LucideIcon;
     badge?: number;
+    roles?: Role[];
   }> = [
     { key: 'my', label: 'Minhas Ausências', icon: Calendar },
     {
@@ -145,8 +153,14 @@ export default function LeavePage() {
       icon: CheckCircle2,
       badge: pending.length,
     },
-    { key: 'dashboard', label: 'Dashboard RH', icon: BarChart3 },
+    {
+      key: 'dashboard',
+      label: 'Dashboard RH',
+      icon: BarChart3,
+      roles: ['ADMIN', 'RH', 'GESTOR'],
+    },
   ];
+  const tabs = filterByRole(allTabs, role);
 
   return (
     <div className="min-h-screen bg-canvas">
@@ -232,7 +246,9 @@ export default function LeavePage() {
           />
         )}
 
-        {tab === 'dashboard' && (
+        {/* Não montado para quem não tem @Roles(ADMIN, RH, GESTOR) no
+            backend — não só escondido da tab bar — ver nota acima. */}
+        {tab === 'dashboard' && tabs.some((t) => t.key === 'dashboard') && (
           <LeaveDashboardTab
             dashboard={dashboard}
             loading={dLoading}
