@@ -10,11 +10,12 @@
 // numa única função — ver memory project_innova_component_separation_audit.
 
 import { Circle, Calendar, Clapperboard, Search, Video } from 'lucide-react';
+import { Button } from '@/components/ui/Button';
 import { ClassCard } from './ClassCard';
 import { RecordingCard } from './RecordingCard';
 import { Spinner } from './Spinner';
 import { UpcomingStrip } from './UpcomingStrip';
-import { CARD, INP, tabBtn } from './utils';
+import { CARD, INP } from './utils';
 import type { LiveClass } from './types';
 
 // Os 4 separadores da página — cada um corresponde a um dos cartões de
@@ -166,16 +167,17 @@ export function LiveClassesView({
         {/* ── Upcoming strip ── */}
         <UpcomingStrip upcoming={upcoming} onOpen={onOpen} />
 
-        {/* ── Tabs ── */}
-        <div className="flex gap-1 bg-surface-sunken rounded-lg p-1 mb-5 w-fit flex-wrap">
+        {/* ── Tabs (mesmo padrão do feed de micro-learning: Button primary/ghost) ── */}
+        <div className="flex gap-1 bg-surface-sunken rounded-control p-1 mb-5 w-fit flex-wrap">
           {(Object.keys(TAB_LABELS) as MainTab[]).map((key) => (
-            <button
+            <Button
               key={key}
+              size="sm"
+              intent={tab === key ? 'primary' : 'ghost'}
               onClick={() => onTabChange(key)}
-              className={tabBtn(tab === key)}
             >
               {TAB_LABELS[key]}
-            </button>
+            </Button>
           ))}
         </div>
 
