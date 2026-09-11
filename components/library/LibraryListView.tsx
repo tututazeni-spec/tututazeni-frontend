@@ -1,7 +1,7 @@
 // components/library/LibraryListView.tsx
 
 import Link from 'next/link';
-import { Plus, Eye, Download, Star, Package } from 'lucide-react';
+import { Plus, Eye, Download, Star, Package, Search } from 'lucide-react';
 import { Button, buttonVariants } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -19,6 +19,7 @@ interface LibraryListViewProps {
   setPage: (updater: (p: number) => number) => void;
   search: string;
   onSearchChange: (value: string) => void;
+  onSearchSubmit: () => void;
   typeFilter: string;
   onTypeFilterChange: (value: string) => void;
   loading: boolean;
@@ -44,6 +45,7 @@ export function LibraryListView({
   setPage,
   search,
   onSearchChange,
+  onSearchSubmit,
   typeFilter,
   onTypeFilterChange,
   loading,
@@ -87,13 +89,26 @@ export function LibraryListView({
 
       {/* Filtros */}
       <div className="flex flex-wrap gap-4">
-        <Input
-          type="text"
-          placeholder="Pesquisar por título, autor, palavra-chave..."
-          value={search}
-          onChange={(e) => onSearchChange(e.target.value)}
-          className="min-w-[200px] flex-1"
-        />
+        <div className="relative min-w-[200px] flex-1">
+          <Input
+            type="text"
+            placeholder="Pesquisar por título, autor, palavra-chave..."
+            value={search}
+            onChange={(e) => onSearchChange(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') onSearchSubmit();
+            }}
+            className="w-full pr-9"
+          />
+          <button
+            type="button"
+            onClick={onSearchSubmit}
+            aria-label="Pesquisar"
+            className="absolute right-2 top-1/2 -translate-y-1/2 text-ink-faint hover:text-ink"
+          >
+            <Search size={16} strokeWidth={1.75} />
+          </button>
+        </div>
         <Select
           items={TYPE_FILTER_ITEMS}
           value={typeFilter || 'ALL'}
