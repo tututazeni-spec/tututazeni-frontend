@@ -25,6 +25,7 @@ export interface MyDashboardData {
       progress: number;
       completedActions: number;
       goals: number;
+      overdueActions?: number;
     };
   };
   gamification?: {
