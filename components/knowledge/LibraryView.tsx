@@ -10,6 +10,7 @@
 
 import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
+import { Search } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { useDebounce } from '@/hooks/useDebounce';
 import { queryKeys } from '@/lib/queryKeys';
@@ -58,16 +59,23 @@ export function LibraryView({ onSelectArticle }: LibraryViewProps) {
   return (
     <div>
       <div className="mb-5 flex flex-wrap items-center gap-3">
-        <Input
-          type="text"
-          placeholder="Pesquisar…"
-          value={search}
-          onChange={(e) => {
-            setSearch(e.target.value);
-            setPage(1);
-          }}
-          className="min-w-[200px] flex-1"
-        />
+        <div className="relative min-w-[200px] flex-1">
+          <Search
+            size={16}
+            strokeWidth={1.75}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-faint"
+          />
+          <Input
+            type="text"
+            placeholder="Pesquisar…"
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPage(1);
+            }}
+            className="w-full pl-9"
+          />
+        </div>
         <Select items={SORT_ITEMS} value={sortBy} onValueChange={setSortBy} />
         <span className="font-body text-xs text-ink-faint">
           {data?.total ?? 0} artigos
