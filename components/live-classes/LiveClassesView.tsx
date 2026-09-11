@@ -237,6 +237,7 @@ export function LiveClassesView({
                     onOpen={onOpen}
                     onViewRecording={onViewRecording}
                     onDelete={onDelete}
+                    canDelete={canCreate}
                   />
                 ))}
               </div>

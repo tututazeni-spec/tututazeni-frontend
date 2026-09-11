@@ -20,6 +20,8 @@ export interface ClassCardProps {
   onOpen: (id: number) => void;
   onViewRecording: (lc: LiveClass) => void;
   onDelete: (lc: LiveClass) => void;
+  /** ADMIN/RH apenas — colaborador só encontra e entra em aulas já agendadas. */
+  canDelete: boolean;
 }
 
 export function ClassCard({
@@ -27,6 +29,7 @@ export function ClassCard({
   onOpen,
   onViewRecording,
   onDelete,
+  canDelete,
 }: ClassCardProps) {
   const status = getStatus(lc.scheduledAt, lc.duration);
   const isLive = status === 'live';
@@ -126,12 +129,14 @@ export function ClassCard({
             <Clapperboard size={12} strokeWidth={1.75} /> Ver
           </button>
         )}
-        <button
-          onClick={() => onDelete(lc)}
-          className="py-2 px-2.5 rounded-lg border border-danger-subtle bg-danger-subtle text-danger text-xs cursor-pointer"
-        >
-          <Trash2 size={13} strokeWidth={1.75} />
-        </button>
+        {canDelete && (
+          <button
+            onClick={() => onDelete(lc)}
+            className="py-2 px-2.5 rounded-lg border border-danger-subtle bg-danger-subtle text-danger text-xs cursor-pointer"
+          >
+            <Trash2 size={13} strokeWidth={1.75} />
+          </button>
+        )}
       </div>
     </div>
   );
