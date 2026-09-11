@@ -1,8 +1,8 @@
 // components/live-classes/LiveClassesView.tsx
-// Vista apresentacional da página de aulas ao vivo: cabeçalho, stats,
-// faixa de próximas sessões, separadores (Todas as Aulas/Gravações),
-// pesquisa e paginação. Todos os dados/estado de UI chegam por props —
-// quem os obtém/gere é o container em
+// Vista apresentacional da página de aulas ao vivo: cabeçalho, stats
+// clicáveis, faixa de próximas sessões, separadores (Ao Vivo/Agendadas/
+// Gravações/Total Aulas), pesquisa e paginação. Todos os dados/estado de
+// UI chegam por props — quem os obtém/gere é o container em
 // app/(platform)/live-classes/page.tsx (mesmo padrão usado em
 // components/evaluation360/Evaluation360View.tsx).
 //
@@ -17,7 +17,10 @@ import { UpcomingStrip } from './UpcomingStrip';
 import { CARD, INP, tabBtn } from './utils';
 import type { LiveClass } from './types';
 
-export type MainTab = 'live' | 'recordings';
+// Os 4 separadores da página — cada um corresponde a um dos cartões de
+// estatística no topo (clicar num cartão muda para o separador
+// respectivo, ver `stats` abaixo).
+export type MainTab = 'liveNow' | 'scheduled' | 'recordings' | 'all';
 
 export interface Filters {
   page: number;
@@ -69,36 +72,29 @@ export function LiveClassesView({
   onViewRecording,
   onDelete,
 }: LiveClassesViewProps) {
-  const stats = [
+  const stats: Array<{
+    key: MainTab;
+    icon: typeof Circle;
+    label: string;
+    value: number;
+  }> = [
+    { key: 'liveNow', icon: Circle, label: 'Ao Vivo', value: liveNow },
+    { key: 'scheduled', icon: Calendar, label: 'Agendadas', value: upcomingCount },
     {
-      icon: Circle,
-      label: 'Ao Vivo',
-      value: liveNow,
-      textClass: 'text-danger',
-      bgClass: 'bg-danger-subtle',
-    },
-    {
-      icon: Calendar,
-      label: 'Agendadas',
-      value: upcomingCount,
-      textClass: 'text-warning',
-      bgClass: 'bg-warning-subtle',
-    },
-    {
+      key: 'recordings',
       icon: Clapperboard,
       label: 'Gravações',
       value: recordings.length,
-      textClass: 'text-accent',
-      bgClass: 'bg-accent-subtle',
     },
-    {
-      icon: Video,
-      label: 'Total Aulas',
-      value: total,
-      textClass: 'text-info',
-      bgClass: 'bg-info-subtle',
-    },
+    { key: 'all', icon: Video, label: 'Total Aulas', value: total },
   ];
+
+  const TAB_LABELS: Record<MainTab, string> = {
+    liveNow: `Ao Vivo (${liveNow})`,
+    scheduled: `Agendadas (${upcomingCount})`,
+    recordings: `Gravações (${recordings.length})`,
+    all: 'Total Aulas',
+  };
 
   return (
     <>
@@ -137,47 +133,50 @@ export function LiveClassesView({
           )}
         </div>
 
-        {/* ── Stats ── */}
+        {/* ── Stats (clicáveis — cada cartão abre o separador correspondente) ── */}
         <div className="grid grid-cols-[repeat(auto-fill,minmax(160px,1fr))] gap-3 mb-5.5">
-          {stats.map((s) => (
-            <div
-              key={s.label}
-              className={`${CARD} py-3.5 px-4 flex items-center gap-3`}
-            >
-              <div
-                className={`w-10 h-10 rounded-[10px] ${s.bgClass} ${s.textClass} flex items-center justify-center flex-shrink-0`}
+          {stats.map((s) => {
+            const active = tab === s.key;
+            return (
+              <button
+                key={s.key}
+                type="button"
+                onClick={() => onTabChange(s.key)}
+                aria-pressed={active}
+                className={`${CARD} w-full py-3.5 px-4 flex items-center gap-3 text-left cursor-pointer transition-shadow hover:shadow-resting ${
+                  active ? 'border-primary' : 'hover:border-primary-subtle'
+                }`}
               >
-                <s.icon size={18} strokeWidth={1.75} />
-              </div>
-              <div>
-                <p className="m-0 text-xs font-bold text-ink-faint uppercase tracking-wide">
-                  {s.label}
-                </p>
-                <p className={`m-0 text-2xl font-black ${s.textClass}`}>
-                  {s.value}
-                </p>
-              </div>
-            </div>
-          ))}
+                <div className="w-10 h-10 rounded-[10px] bg-surface-sunken text-ink flex items-center justify-center flex-shrink-0">
+                  <s.icon size={18} strokeWidth={1.75} />
+                </div>
+                <div>
+                  <p className="m-0 text-xs font-bold text-ink-faint uppercase tracking-wide">
+                    {s.label}
+                  </p>
+                  <p className="m-0 text-2xl font-black text-ink">
+                    {s.value}
+                  </p>
+                </div>
+              </button>
+            );
+          })}
         </div>
 
         {/* ── Upcoming strip ── */}
         <UpcomingStrip upcoming={upcoming} onOpen={onOpen} />
 
         {/* ── Tabs ── */}
-        <div className="flex gap-1 bg-surface-sunken rounded-lg p-1 mb-5 w-fit">
-          <button
-            onClick={() => onTabChange('live')}
-            className={tabBtn(tab === 'live')}
-          >
-            Todas as Aulas
-          </button>
-          <button
-            onClick={() => onTabChange('recordings')}
-            className={tabBtn(tab === 'recordings')}
-          >
-            Gravações ({recordings.length})
-          </button>
+        <div className="flex gap-1 bg-surface-sunken rounded-lg p-1 mb-5 w-fit flex-wrap">
+          {(Object.keys(TAB_LABELS) as MainTab[]).map((key) => (
+            <button
+              key={key}
+              onClick={() => onTabChange(key)}
+              className={tabBtn(tab === key)}
+            >
+              {TAB_LABELS[key]}
+            </button>
+          ))}
         </div>
 
         {/* ── Search ── */}
@@ -191,7 +190,7 @@ export function LiveClassesView({
             placeholder="Pesquisar por tópico ou curso..."
             className={`${INP} min-w-65`}
           />
-          {tab === 'live' && (
+          {tab === 'all' && (
             <input
               value={filters.courseId}
               onChange={(e) => onFiltersChange({ courseId: e.target.value })}
@@ -223,9 +222,88 @@ export function LiveClassesView({
         </form>
 
         {/* ══════════════════════════════════════
-            TAB: TODAS AS AULAS
+            TAB: GRAVAÇÕES
         ══════════════════════════════════════ */}
-        {tab === 'live' &&
+        {tab === 'recordings' &&
+          (filtered.length === 0 ? (
+            <div className={`${CARD} py-13 px-6 text-center`}>
+              <p className="text-4xl m-0 mb-2.5"></p>
+              <p className="text-sm font-semibold text-ink m-0 mb-1.5">
+                Sem gravações disponíveis
+              </p>
+              <p className="text-sm text-ink-faint">
+                As gravações aparecem aqui após as aulas terminarem e o URL ser
+                guardado.
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-3.5">
+              {filtered.map((lc) => (
+                <RecordingCard key={lc.id} lc={lc} onView={onViewRecording} />
+              ))}
+            </div>
+          ))}
+
+        {/* ══════════════════════════════════════
+            TAB: AO VIVO
+        ══════════════════════════════════════ */}
+        {tab === 'liveNow' &&
+          (filtered.length === 0 ? (
+            <div className={`${CARD} py-13 px-6 text-center`}>
+              <p className="text-4xl m-0 mb-2.5"></p>
+              <p className="text-sm font-semibold text-ink m-0 mb-1.5">
+                Sem aulas ao vivo neste momento
+              </p>
+              <p className="text-sm text-ink-faint">
+                Quando uma aula estiver a decorrer, aparece aqui.
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-3.5">
+              {filtered.map((lc) => (
+                <ClassCard
+                  key={lc.id}
+                  lc={lc}
+                  onOpen={onOpen}
+                  onViewRecording={onViewRecording}
+                  onDelete={onDelete}
+                />
+              ))}
+            </div>
+          ))}
+
+        {/* ══════════════════════════════════════
+            TAB: AGENDADAS
+        ══════════════════════════════════════ */}
+        {tab === 'scheduled' &&
+          (filtered.length === 0 ? (
+            <div className={`${CARD} py-13 px-6 text-center`}>
+              <p className="text-4xl m-0 mb-2.5"></p>
+              <p className="text-sm font-semibold text-ink m-0 mb-1.5">
+                Sem aulas agendadas
+              </p>
+              <p className="text-sm text-ink-faint">
+                As próximas sessões marcadas aparecem aqui com data e hora.
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-3.5">
+              {filtered.map((lc) => (
+                <ClassCard
+                  key={lc.id}
+                  lc={lc}
+                  onOpen={onOpen}
+                  onViewRecording={onViewRecording}
+                  onDelete={onDelete}
+                />
+              ))}
+            </div>
+          ))}
+
+        {/* ══════════════════════════════════════
+            TAB: TOTAL AULAS
+        ══════════════════════════════════════ */}
+        {tab === 'all' &&
           (loading ? (
             <Spinner />
           ) : filtered.length === 0 ? (
@@ -279,29 +357,6 @@ export function LiveClassesView({
                 </div>
               )}
             </>
-          ))}
-
-        {/* ══════════════════════════════════════
-            TAB: GRAVAÇÕES
-        ══════════════════════════════════════ */}
-        {tab === 'recordings' &&
-          (filtered.length === 0 ? (
-            <div className={`${CARD} py-13 px-6 text-center`}>
-              <p className="text-4xl m-0 mb-2.5"></p>
-              <p className="text-sm font-semibold text-ink m-0 mb-1.5">
-                Sem gravações disponíveis
-              </p>
-              <p className="text-sm text-ink-faint">
-                As gravações aparecem aqui após as aulas terminarem e o URL ser
-                guardado.
-              </p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-3.5">
-              {filtered.map((lc) => (
-                <RecordingCard key={lc.id} lc={lc} onView={onViewRecording} />
-              ))}
-            </div>
           ))}
       </div>
     </>

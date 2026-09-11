@@ -38,7 +38,7 @@ export default function LivePage() {
   const role = useCurrentRole();
   const canCreate = !!role && ADMIN_ROLES.includes(role);
 
-  const [tab, setTab] = useState<MainTab>('live');
+  const [tab, setTab] = useState<MainTab>('all');
   const [filters, setFilters] = useState<Filters>(INITIAL_FILTERS);
   const [search, setSearch] = useState('');
   const [showCreate, setShowCreate] = useState(false);
@@ -114,27 +114,29 @@ export default function LivePage() {
 
   // ── Filters ────────────────────────────────────────────────────────────────
 
+  const matchesSearch = (lc: LiveClass) =>
+    !search ||
+    lc.topic.toLowerCase().includes(search.toLowerCase()) ||
+    lc.course?.title?.toLowerCase().includes(search.toLowerCase());
+
+  const liveNowClasses = upcoming.filter(
+    (lc) => getStatus(lc.scheduledAt, lc.duration) === 'live',
+  );
+  const scheduledClasses = upcoming.filter(
+    (lc) => getStatus(lc.scheduledAt, lc.duration) === 'upcoming',
+  );
+
   const filtered =
     tab === 'recordings'
-      ? recordings.filter(
-          (lc) =>
-            !search ||
-            lc.topic.toLowerCase().includes(search.toLowerCase()) ||
-            lc.course?.title?.toLowerCase().includes(search.toLowerCase()),
-        )
-      : classes.filter(
-          (lc) =>
-            !search ||
-            lc.topic.toLowerCase().includes(search.toLowerCase()) ||
-            lc.course?.title?.toLowerCase().includes(search.toLowerCase()),
-        );
+      ? recordings.filter(matchesSearch)
+      : tab === 'liveNow'
+        ? liveNowClasses.filter(matchesSearch)
+        : tab === 'scheduled'
+          ? scheduledClasses.filter(matchesSearch)
+          : classes.filter(matchesSearch);
 
-  const liveNow = upcoming.filter(
-    (lc) => getStatus(lc.scheduledAt, lc.duration) === 'live',
-  ).length;
-  const upcomingCount = upcoming.filter(
-    (lc) => getStatus(lc.scheduledAt, lc.duration) === 'upcoming',
-  ).length;
+  const liveNow = liveNowClasses.length;
+  const upcomingCount = scheduledClasses.length;
 
   return (
     <>
