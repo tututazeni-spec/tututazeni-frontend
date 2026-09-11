@@ -16,8 +16,6 @@ import {
   Building2,
   BookOpen,
   Calendar,
-  Edit2,
-  Eye,
   MapPin,
   Star,
   TrendingUp,
@@ -30,7 +28,7 @@ import type {
   SeniorityLevel,
 } from '@/hooks/useEmployees';
 import { Avatar } from '@/components/ui/Avatar';
-import { buttonVariants, IconButton } from '@/components/ui/Button';
+import { IconButton } from '@/components/ui/Button';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { CONTRACT_LABELS, SENIORITY_LABELS, STATUS_MAP } from './constants';
 
@@ -162,21 +160,6 @@ export function EmployeeDrawer({ employee, onClose }: EmployeeDrawerProps) {
               ))}
             </div>
           )}
-
-          <div className="flex flex-col gap-2 pt-2">
-            <a
-              href={`/employees/${employee.id}`}
-              className={buttonVariants({ intent: 'secondary', size: 'md' })}
-            >
-              <Eye size={15} strokeWidth={1.75} /> Ver perfil completo
-            </a>
-            <a
-              href={`/employees/${employee.id}/edit`}
-              className={buttonVariants({ intent: 'secondary', size: 'md' })}
-            >
-              <Edit2 size={15} strokeWidth={1.75} /> Editar dados
-            </a>
-          </div>
         </div>
       </div>
     </div>
