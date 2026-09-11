@@ -28,6 +28,8 @@ import { OverviewTab } from './OverviewTab';
 import { FeedbackTab } from './FeedbackTab';
 import { EvaluationFormTab } from './EvaluationFormTab';
 import { CreateCycleModal } from './CreateCycleModal';
+import { useCurrentRole } from '@/hooks/useCurrentRole';
+import { ADMIN_ROLES } from '@/lib/roles';
 import { Button } from '@/components/ui/Button';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/Tabs';
@@ -76,8 +78,11 @@ export function Evaluation360View({
   formQuestions,
 }: Evaluation360ViewProps) {
   const [cycleModalOpen, setCycleModalOpen] = useState(false);
-  const [addedCycles, setAddedCycles] = useState<CycleInfo[]>([]);
-  const allCycles = [...addedCycles, ...cycles];
+  const role = useCurrentRole();
+  // Espelha @Roles(ADMIN, RH) de POST /evaluations/cycles
+  // (evaluation.controller.ts) — a leitura (separador Ciclos) fica aberta a
+  // todos, só a criação é restrita.
+  const canCreateCycle = !!role && ADMIN_ROLES.includes(role);
 
   const renderTab = () => {
     switch (activeTab) {
@@ -205,15 +210,17 @@ export function Evaluation360View({
                 <p className="m-0 mt-1 text-sm text-ink-muted">
                 </p>
               </div>
-              <Button
-                intent="primary"
-                size="sm"
-                onClick={() => setCycleModalOpen(true)}
-              >
-                + Novo Ciclo
-              </Button>
+              {canCreateCycle && (
+                <Button
+                  intent="primary"
+                  size="sm"
+                  onClick={() => setCycleModalOpen(true)}
+                >
+                  + Novo Ciclo
+                </Button>
+              )}
             </div>
-            {allCycles.map((c) => {
+            {cycles.map((c) => {
               const pct =
                 c.participantsCount > 0
                   ? Math.round((c.completedCount / c.participantsCount) * 100)
@@ -265,10 +272,10 @@ export function Evaluation360View({
                 </div>
               );
             })}
-            {cycleModalOpen && (
+            {cycleModalOpen && canCreateCycle && (
               <CreateCycleModal
                 onClose={() => setCycleModalOpen(false)}
-                onCreate={(c) => setAddedCycles((prev) => [c, ...prev])}
+                onSuccess={() => setCycleModalOpen(false)}
               />
             )}
           </div>

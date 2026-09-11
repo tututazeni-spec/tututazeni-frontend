@@ -14,7 +14,9 @@
 // de retorno):
 //   result        → GET /evaluation360/participants/:userId/result
 //   cycle         → GET /evaluation360/cycles/current
-//   cycles        → GET /evaluation360/cycles
+//   cycles        → JÁ LIGADO — GET /evaluations/cycles (módulo real de
+//                   avaliações; a criação de ciclos foi centralizada no
+//                   separador Ciclos daqui, ver CreateCycleModal.tsx)
 //   competencies  → já incluído em result.competencies acima
 //   nineBox       → GET /evaluation360/nine-box?cycleId=...
 //   feedbacks     → GET /evaluation360/feedback/continuous?userId=...
@@ -30,6 +32,10 @@ import type {
   NineBoxEntry,
   ParticipantResult,
 } from '@/components/evaluation360/types';
+import type { Cycle } from '@/components/evaluation/types';
+import { useApiQuery } from '@/hooks/useApiQuery';
+import { queryKeys } from '@/lib/queryKeys';
+import { STALE_TIME } from '@/lib/queryClient';
 
 // ─── MOCK DATA ────────────────────────────────────────────────
 
@@ -159,22 +165,6 @@ const MOCK_CYCLE: CycleInfo = {
   participantsCount: 84,
   completedCount: 79,
 };
-
-// Antes construído inline na tab "Ciclos" (page.tsx); movido para aqui
-// porque é dado do domínio, não JSX.
-const MOCK_CYCLES: CycleInfo[] = [
-  MOCK_CYCLE,
-  {
-    ...MOCK_CYCLE,
-    id: 'c2',
-    name: 'Avaliação Anual 2024',
-    status: 'COMPLETED',
-    startDate: '2024-01-01',
-    endDate: '2024-12-31',
-    participantsCount: 76,
-    completedCount: 72,
-  },
-];
 
 const MOCK_NINE_BOX: NineBoxEntry[] = [
   {
@@ -307,17 +297,40 @@ const MOCK_FORM_QUESTIONS: EvaluationQuestion[] = [
   },
 ];
 
+// Mapeia o Cycle real (evaluation.controller.ts) para o CycleInfo que os
+// componentes de apresentação de evaluation360 já esperavam do mock —
+// nenhum deles precisou de mudar.
+function toCycleInfo(c: Cycle): CycleInfo {
+  return {
+    id: String(c.id),
+    name: c.name,
+    model: c.model,
+    status: c.status,
+    startDate: c.startDate,
+    endDate: c.endDate,
+    participantsCount: c.participation.total,
+    completedCount: c.participation.completed,
+  };
+}
+
 // ─── Hook ─────────────────────────────────────────────────────
 
 export function useEvaluation360() {
+  const { data: cyclesData, isLoading: cyclesLoading } = useApiQuery<{
+    data: Cycle[];
+    meta: { total: number };
+  }>(queryKeys.evaluation.cycles(), '/evaluations/cycles', {
+    staleTime: STALE_TIME.SEMI_STATIC,
+  });
+
   return {
     result: MOCK_RESULT,
     cycle: MOCK_CYCLE,
-    cycles: MOCK_CYCLES,
+    cycles: cyclesData?.data.map(toCycleInfo) ?? [],
     competencies: MOCK_COMPETENCIES,
     nineBox: MOCK_NINE_BOX,
     feedbacks: MOCK_FEEDBACKS,
     formQuestions: MOCK_FORM_QUESTIONS,
-    loading: false,
+    loading: cyclesLoading,
   };
 }

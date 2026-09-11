@@ -1,89 +1,178 @@
 // components/evaluation360/CreateCycleModal.tsx
 // Modal "Novo Ciclo" do separador "Ciclos" da Avaliação 360º.
 //
-// NOTA: o módulo evaluation360 corre 100% sobre dados mock (ver
-// hooks/useEvaluation360.ts) — não há endpoint POST /evaluation360/cycles.
-// Este modal valida os campos e devolve um CycleInfo via `onCreate`, que a
-// vista acrescenta à lista localmente (mesmo padrão local-state-only usado em
-// components/scalability/LoadTestModal.tsx). Ligar ao backend real fica para
-// quando o módulo deixar o mock.
+// Antes era 100% mock (devolvia um CycleInfo local via onCreate, sem
+// endpoint). A criação de ciclos foi centralizada aqui — o botão equivalente
+// em app/(platform)/evaluation/page.tsx foi removido a pedido — por isso
+// este modal passou a submeter directamente a POST /evaluations/cycles
+// (@Roles(ADMIN, RH) no backend, evaluation.controller.ts), igual ao que
+// era components/evaluation/CreateCycleModal.tsx. O backend cria sempre o
+// ciclo em estado DRAFT; publica-se/activa-se depois no separador "Ciclos"
+// do módulo evaluation (CyclesTab), que lê da mesma queryKeys.evaluation.cycles().
+//
+// O CreateCycleDto (evaluation.dto.ts) exige `weights`: um peso 0–100 por
+// tipo de avaliador. A UI mostra os 5 tipos com um total ao vivo e só deixa
+// submeter quando a soma dá 100 (linhas a 0 são omitidas do payload).
+// MODEL_LABEL/TYPE_LABEL importados de components/evaluation/constants —
+// mesmo domínio (enums EvalModel/EvalType do backend), não duplicados aqui.
 
 'use client';
 
-import { useState } from 'react';
-import type { CycleInfo } from './types';
+import { useMemo, useState } from 'react';
+import { AlertCircle } from 'lucide-react';
+import { useApiMutation } from '@/hooks/useApiQuery';
+import { apiClient } from '@/lib/apiClient';
+import { queryKeys } from '@/lib/queryKeys';
+import { useFormValidation } from '@/hooks/useFormValidation';
+import { required } from '@/lib/validation';
+import { useToast } from '@/providers/ToastProvider';
+import { MODEL_LABEL, TYPE_LABEL } from '@/components/evaluation/constants';
 import { Button } from '@/components/ui/Button';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { Modal, ModalContent } from '@/components/ui/Modal';
 import { Select } from '@/components/ui/Select';
-import { useToast } from '@/providers/ToastProvider';
+import { Textarea } from '@/components/ui/Textarea';
 
 export interface CreateCycleModalProps {
   onClose: () => void;
-  onCreate: (cycle: CycleInfo) => void;
+  onSuccess: () => void;
 }
 
-const MODEL_ITEMS = [
-  { value: 'DEG_360', label: '360° — todas as fontes' },
-  { value: 'DEG_180', label: '180° — gestor + auto' },
-  { value: 'DEG_90', label: '90° — só gestor' },
-  { value: 'CONTINUOUS', label: 'Contínuo' },
-];
+// Espelha o enum EvalModel do backend (evaluation.dto.ts), ordem do mais
+// simples para o mais completo.
+const MODEL_ITEMS = ['90', '180', '270', '360', 'CONTINUOUS', 'PROJECT'].map(
+  (value) => ({ value, label: MODEL_LABEL[value] ?? value }),
+);
 
-export function CreateCycleModal({ onClose, onCreate }: CreateCycleModalProps) {
+// Espelha o enum EvalType do backend. Pesos-semente de um 360 típico (somam
+// 100) — o utilizador ajusta.
+const WEIGHT_TYPES = [
+  'SELF',
+  'MANAGER',
+  'PEER',
+  'SUBORDINATE',
+  'CLIENT',
+] as const;
+type WeightType = (typeof WEIGHT_TYPES)[number];
+const DEFAULT_WEIGHTS: Record<WeightType, string> = {
+  SELF: '10',
+  MANAGER: '40',
+  PEER: '30',
+  SUBORDINATE: '15',
+  CLIENT: '5',
+};
+
+export function CreateCycleModal({
+  onClose,
+  onSuccess,
+}: CreateCycleModalProps) {
   const notify = useToast();
-  const [name, setName] = useState('');
-  const [model, setModel] = useState('DEG_360');
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
-  const [participants, setParticipants] = useState('');
+  const {
+    values: form,
+    setField,
+    errorMessage: validationError,
+    handleSubmit: withValidation,
+  } = useFormValidation(
+    {
+      name: '',
+      model: '360',
+      description: '',
+      startDate: '',
+      endDate: '',
+    },
+    { name: [required()] },
+  );
 
-  const participantsValid =
-    participants.trim() === '' || /^\d+$/.test(participants.trim());
-  const datesValid = !startDate || !endDate || endDate >= startDate;
+  const [selfInScore, setSelfInScore] = useState(true);
+  const [weights, setWeights] =
+    useState<Record<WeightType, string>>(DEFAULT_WEIGHTS);
+  const [submitError, setSubmitError] = useState('');
 
-  const canSubmit =
-    name.trim().length > 0 &&
-    startDate !== '' &&
-    endDate !== '' &&
-    datesValid &&
-    participantsValid;
+  const parsedWeights = useMemo(
+    () =>
+      WEIGHT_TYPES.map((type) => ({
+        type,
+        weight: Number(weights[type]),
+      })).filter((w) => Number.isFinite(w.weight) && w.weight > 0),
+    [weights],
+  );
+  const weightTotal = parsedWeights.reduce((s, w) => s + w.weight, 0);
 
-  const handleSubmit = () => {
-    if (!canSubmit) return;
-    const cycle: CycleInfo = {
-      id: `local-${Date.now()}`,
-      name: name.trim(),
-      model,
-      status: 'DRAFT',
-      startDate,
-      endDate,
-      participantsCount:
-        participants.trim() === '' ? 0 : Number(participants.trim()),
-      completedCount: 0,
-    };
-    onCreate(cycle);
-    notify({
-      title: `Ciclo "${cycle.name}" criado como rascunho.`,
-      intent: 'success',
-    });
-    onClose();
-  };
+  const createCycle = useApiMutation(
+    () =>
+      apiClient.post('/evaluations/cycles', {
+        name: form.name.trim(),
+        model: form.model,
+        startDate: form.startDate,
+        endDate: form.endDate,
+        selfEvalIncludedInScore: selfInScore,
+        weights: parsedWeights,
+        ...(form.description.trim()
+          ? { description: form.description.trim() }
+          : {}),
+      }),
+    {
+      invalidateKeys: [queryKeys.evaluation.all],
+      onSuccess: () => {
+        notify({
+          title: 'Ciclo criado',
+          description:
+            'O ciclo foi criado como rascunho. Publica-o no separador "Ciclos" de Avaliações.',
+          intent: 'success',
+        });
+        onSuccess();
+        onClose();
+      },
+      onError: () =>
+        setSubmitError(
+          'Erro ao criar o ciclo. Verifica os dados e tenta de novo.',
+        ),
+    },
+  );
+  const loading = createCycle.isPending;
+
+  const localError = (() => {
+    if (!form.startDate || !form.endDate)
+      return 'Indica as datas de início e fim.';
+    if (form.endDate < form.startDate)
+      return 'A data de fim não pode ser anterior à de início.';
+    if (parsedWeights.some((w) => w.weight < 0 || w.weight > 100))
+      return 'Cada peso tem de estar entre 0 e 100.';
+    if (weightTotal !== 100)
+      return `Os pesos dos avaliadores têm de somar 100 (soma actual: ${weightTotal}).`;
+    return '';
+  })();
+
+  const error = validationError || submitError || localError;
+
+  const handleSubmit = withValidation(() => {
+    setSubmitError('');
+    if (localError) return;
+    createCycle.mutate(undefined);
+  });
 
   return (
     <Modal open onOpenChange={(open) => !open && onClose()}>
       <ModalContent
         title="Novo Ciclo de Avaliação"
-        description="O ciclo é criado como rascunho. As datas e o número de participantes podem ser ajustados depois."
-        className="max-w-lg"
+        description="O ciclo é criado como rascunho. Publica-o e activa-o depois no separador Ciclos."
+        className="max-w-lg max-h-[90vh] overflow-y-auto"
       >
         <div className="mt-5 space-y-4">
+          {error && (
+            <div className="flex items-center gap-2 p-3 bg-danger-subtle text-danger-ink rounded-card text-sm">
+              <AlertCircle size={16} strokeWidth={1.75} />
+              {error}
+            </div>
+          )}
+
           <FormField label="Nome *" htmlFor="cyc-name">
             <Input
               id="cyc-name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              value={form.name}
+              onChange={(e) => setField('name', e.target.value)}
+              className="w-full"
               placeholder="Ex.: Avaliação Semestral 2026 — S1"
             />
           </FormField>
@@ -91,61 +180,114 @@ export function CreateCycleModal({ onClose, onCreate }: CreateCycleModalProps) {
           <FormField label="Modelo *" htmlFor="cyc-model">
             <Select
               items={MODEL_ITEMS}
-              value={model}
-              onValueChange={setModel}
+              value={form.model || undefined}
+              onValueChange={(v) => setField('model', v)}
               className="w-full"
+              placeholder="Selecionar modelo"
             />
           </FormField>
 
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div className="grid grid-cols-2 gap-3">
             <FormField label="Início *" htmlFor="cyc-start">
               <Input
                 id="cyc-start"
                 type="date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
+                value={form.startDate}
+                onChange={(e) => setField('startDate', e.target.value)}
+                className="w-full"
               />
             </FormField>
-            <FormField
-              label="Fim *"
-              htmlFor="cyc-end"
-              error={
-                !datesValid
-                  ? 'A data de fim não pode ser anterior à de início.'
-                  : undefined
-              }
-            >
+            <FormField label="Fim *" htmlFor="cyc-end">
               <Input
                 id="cyc-end"
                 type="date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
+                value={form.endDate}
+                onChange={(e) => setField('endDate', e.target.value)}
+                className="w-full"
               />
             </FormField>
           </div>
 
-          <FormField
-            label="Participantes"
-            htmlFor="cyc-participants"
-            hint="Opcional — número de colaboradores no ciclo."
-            error={!participantsValid ? 'Indica um número inteiro.' : undefined}
-          >
-            <Input
-              id="cyc-participants"
-              inputMode="numeric"
-              value={participants}
-              onChange={(e) => setParticipants(e.target.value)}
-              placeholder="0"
+          <FormField label="Descrição" htmlFor="cyc-description">
+            <Textarea
+              id="cyc-description"
+              value={form.description}
+              onChange={(e) => setField('description', e.target.value)}
+              className="w-full"
+              rows={2}
+              placeholder="Âmbito, objectivos, notas para os participantes…"
             />
           </FormField>
+
+          <div>
+            <div className="flex items-baseline justify-between">
+              <span className="font-body text-sm font-medium text-ink">
+                Pesos por tipo de avaliador
+              </span>
+              <span
+                className={
+                  weightTotal === 100
+                    ? 'font-body text-xs text-success-ink'
+                    : 'font-body text-xs text-danger-ink'
+                }
+              >
+                Total: {weightTotal} / 100
+              </span>
+            </div>
+            <p className="mt-1 mb-2 font-body text-xs text-ink-muted">
+              Coloca 0 num tipo que não se aplica a este ciclo. A soma tem de
+              dar 100.
+            </p>
+            <div className="space-y-2">
+              {WEIGHT_TYPES.map((type) => (
+                <div key={type} className="flex items-center gap-3">
+                  <label
+                    htmlFor={`cyc-w-${type}`}
+                    className="flex-1 font-body text-sm text-ink-muted"
+                  >
+                    {TYPE_LABEL[type] ?? type}
+                  </label>
+                  <Input
+                    id={`cyc-w-${type}`}
+                    type="number"
+                    min={0}
+                    max={100}
+                    value={weights[type]}
+                    onChange={(e) =>
+                      setWeights((w) => ({ ...w, [type]: e.target.value }))
+                    }
+                    className="w-24"
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <label className="flex items-center gap-2 font-body text-sm text-ink">
+            <input
+              type="checkbox"
+              checked={selfInScore}
+              onChange={(e) => setSelfInScore(e.target.checked)}
+              className="h-4 w-4 rounded border-border-strong"
+            />
+            Incluir a autoavaliação no cálculo do score final
+          </label>
         </div>
 
-        <div className="mt-6 flex justify-end gap-3">
-          <Button intent="ghost" onClick={onClose}>
+        <div className="mt-6 flex gap-3 border-t border-border pt-4">
+          <Button
+            intent="secondary"
+            className="flex-1 justify-center"
+            onClick={onClose}
+          >
             Cancelar
           </Button>
-          <Button onClick={handleSubmit} disabled={!canSubmit}>
-            Criar Ciclo
+          <Button
+            className="flex-1 justify-center"
+            onClick={handleSubmit}
+            loading={loading}
+          >
+            {loading ? 'A criar...' : 'Criar Ciclo'}
           </Button>
         </div>
       </ModalContent>
