@@ -8,6 +8,8 @@
 
 import { useState } from 'react';
 import { Plus } from 'lucide-react';
+import { useCurrentRole } from '@/hooks/useCurrentRole';
+import { ADMIN_ROLES, DEPARTMENT_MGMT_ROLES } from '@/lib/roles';
 import { queryKeys } from '@/lib/queryKeys';
 import { Button } from '@/components/ui/Button';
 import { NAV, TITLES } from '@/components/departments/constants';
@@ -19,6 +21,14 @@ import { TreeView } from '@/components/departments/TreeView';
 import type { Nav } from '@/components/departments/types';
 
 export default function DepartmentsPage() {
+  const role = useCurrentRole();
+  // POST /departments é @Roles(ADMIN, RH); GET /departments/dashboard/comparative
+  // é @Roles(ADMIN, RH, GESTOR) — ver lib/roles.ts. Enquanto a role ainda não
+  // chegou tratamos como sem acesso (evita mostrar acções que 403iam).
+  const canCreateDept = !!role && ADMIN_ROLES.includes(role);
+  const canSeeDashboard = !!role && DEPARTMENT_MGMT_ROLES.includes(role);
+  const visibleNav = NAV.filter((n) => !n.mgmtOnly || canSeeDashboard);
+
   const [nav, setNav] = useState<Nav>({ view: 'list' });
   const [createOpen, setCreateOpen] = useState(false);
 
@@ -34,7 +44,7 @@ export default function DepartmentsPage() {
           <h1 className="text-xl font-semibold text-ink">{TITLES[nav.view]}</h1>
           <p className="mt-0.5 text-sm text-ink-faint"></p>
         </div>
-        {nav.view === 'list' && (
+        {nav.view === 'list' && canCreateDept && (
           <Button onClick={() => setCreateOpen(true)}>
             <Plus size={16} strokeWidth={1.75} />
             Novo departamento
@@ -53,7 +63,7 @@ export default function DepartmentsPage() {
       {/* Tabs */}
       {nav.view !== 'detail' && (
         <div className="mb-6 flex w-fit gap-1 rounded-control bg-surface-sunken p-1">
-          {NAV.map((n) => (
+          {visibleNav.map((n) => (
             <Button
               key={n.id}
               size="sm"
@@ -72,7 +82,9 @@ export default function DepartmentsPage() {
       {nav.view === 'detail' && (
         <DetailView deptId={nav.selectedId} onBack={handleBack} />
       )}
-      {nav.view === 'dashboard' && <DashboardView onSelect={handleSelect} />}
+      {nav.view === 'dashboard' && canSeeDashboard && (
+        <DashboardView onSelect={handleSelect} />
+      )}
     </div>
   );
 }

@@ -48,6 +48,15 @@ export const ADMIN_ROLES: readonly Role[] = ['ADMIN', 'RH'];
  */
 export const USER_PROFILE_MGMT_ROLES: readonly Role[] = ['ADMIN', 'RH', 'GESTOR'];
 
+/**
+ * Espelha os roles de POST /departments/members/transfer e
+ * GET /departments/dashboard/comparative (src/departments/departments.controller.ts).
+ * Mesmo valor que USER_PROFILE_MGMT_ROLES por coincidência — mantidos
+ * como constantes separadas porque espelham controllers distintos que
+ * podem divergir de roles no futuro sem aviso.
+ */
+export const DEPARTMENT_MGMT_ROLES: readonly Role[] = ['ADMIN', 'RH', 'GESTOR'];
+
 export interface RoleRestricted {
   /** Omitido/vazio = sem @Roles() no endpoint principal → visível a todos. */
   roles?: readonly Role[];

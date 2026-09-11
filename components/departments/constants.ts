@@ -6,10 +6,19 @@
 
 import type { View } from './types';
 
-export const NAV: Array<{ id: Exclude<View, 'detail'>; label: string }> = [
+// `mgmtOnly` — só entra na navegação renderida para papéis ADMIN/RH/GESTOR
+// (ver app/(platform)/departments/page.tsx). Espelha o
+// @Roles(ADMIN, RH, GESTOR) de GET /departments/dashboard/comparative em
+// departments.controller.ts — mesmo padrão de `adminOnly` em
+// components/courses/constants.ts.
+export const NAV: Array<{
+  id: Exclude<View, 'detail'>;
+  label: string;
+  mgmtOnly?: boolean;
+}> = [
   { id: 'list', label: 'Lista' },
   { id: 'tree', label: 'Organograma' },
-  { id: 'dashboard', label: 'Dashboard' },
+  { id: 'dashboard', label: 'Dashboard', mgmtOnly: true },
 ];
 
 export const TITLES: Record<View, string> = {

@@ -21,10 +21,12 @@ import {
   AlertTriangle,
 } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
+import { useCurrentRole } from '@/hooks/useCurrentRole';
 import { useDebounce } from '@/hooks/useDebounce';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
+import { ADMIN_ROLES, DEPARTMENT_MGMT_ROLES } from '@/lib/roles';
 import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
@@ -126,6 +128,13 @@ function LookupHint({
 
 export function DetailView({ deptId, onBack }: DetailViewProps) {
   const notify = useToast();
+  const role = useCurrentRole();
+  // PATCH /:id/activate|deactivate e POST /departments (sub-depto) são
+  // @Roles(ADMIN, RH); /members/transfer é @Roles(ADMIN, RH, GESTOR) — ver
+  // lib/roles.ts. Escondemos as acções que o backend recusaria em vez de
+  // deixar o clique rebentar em 403 + toast.
+  const canAdminister = !!role && ADMIN_ROLES.includes(role);
+  const canManageMembers = !!role && DEPARTMENT_MGMT_ROLES.includes(role);
   const [activeTab, setActiveTab] = useState<
     'members' | 'subdepts' | 'history' | 'metrics'
   >('members');
@@ -361,17 +370,19 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
             </div>
           </div>
 
-          <div className="flex flex-col gap-2">
-            <Button
-              intent={dept.active ? 'danger' : 'success'}
-              size="sm"
-              disabled={actionLoading}
-              loading={actionLoading}
-              onClick={handleToggleActive}
-            >
-              {dept.active ? 'Desactivar' : 'Reactivar'}
-            </Button>
-          </div>
+          {canAdminister && (
+            <div className="flex flex-col gap-2">
+              <Button
+                intent={dept.active ? 'danger' : 'success'}
+                size="sm"
+                disabled={actionLoading}
+                loading={actionLoading}
+                onClick={handleToggleActive}
+              >
+                {dept.active ? 'Desactivar' : 'Reactivar'}
+              </Button>
+            </div>
+          )}
         </div>
 
         {/* Gestor */}
@@ -417,87 +428,92 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
       {/* Members tab */}
       {activeTab === 'members' && (
         <div>
-          {/* Add member form */}
-          <Card className="mb-4 border-success bg-success-subtle p-4">
-            <div className="mb-3 text-xs font-medium uppercase tracking-wide text-success-ink">
-              Adicionar colaborador ao departamento
-            </div>
-            <div className="flex flex-wrap gap-3">
-              <Input
-                type="number"
-                placeholder="ID do colaborador"
-                value={addUserId}
-                onChange={(e) => setAddUserId(e.target.value)}
-                className="min-w-[140px] flex-1"
-              />
-              <Input
-                type="text"
-                placeholder="Motivo (opcional)"
-                value={addReason}
-                onChange={(e) => setAddReason(e.target.value)}
-                className="min-w-[160px] flex-1"
-              />
-              <Button
-                onClick={handleAddMember}
-                disabled={!canAddMember || addMemberLoading}
-                loading={addMemberLoading}
-              >
-                Adicionar
-              </Button>
-            </div>
-            <LookupHint
-              status={addUserLookup.status}
-              label={addUserLookup.label}
-              foundPrefix="Colaborador:"
-            />
-          </Card>
+          {/* Add/transfer member — POST /departments/members/transfer é
+              @Roles(ADMIN, RH, GESTOR) */}
+          {canManageMembers && (
+            <>
+              <Card className="mb-4 border-success bg-success-subtle p-4">
+                <div className="mb-3 text-xs font-medium uppercase tracking-wide text-success-ink">
+                  Adicionar colaborador ao departamento
+                </div>
+                <div className="flex flex-wrap gap-3">
+                  <Input
+                    type="number"
+                    placeholder="ID do colaborador"
+                    value={addUserId}
+                    onChange={(e) => setAddUserId(e.target.value)}
+                    className="min-w-[140px] flex-1"
+                  />
+                  <Input
+                    type="text"
+                    placeholder="Motivo (opcional)"
+                    value={addReason}
+                    onChange={(e) => setAddReason(e.target.value)}
+                    className="min-w-[160px] flex-1"
+                  />
+                  <Button
+                    onClick={handleAddMember}
+                    disabled={!canAddMember || addMemberLoading}
+                    loading={addMemberLoading}
+                  >
+                    Adicionar
+                  </Button>
+                </div>
+                <LookupHint
+                  status={addUserLookup.status}
+                  label={addUserLookup.label}
+                  foundPrefix="Colaborador:"
+                />
+              </Card>
 
-          {/* Transfer form */}
-          <Card className="mb-4 border-info bg-info-subtle p-4">
-            <div className="mb-3 text-xs font-medium uppercase tracking-wide text-info-ink">
-              Transferir colaborador
-            </div>
-            <div className="flex flex-wrap gap-3">
-              <Input
-                type="number"
-                placeholder="ID do colaborador"
-                value={transferUserId}
-                onChange={(e) => setTransferUserId(e.target.value)}
-                className="min-w-[140px] flex-1"
-              />
-              <Input
-                type="number"
-                placeholder="ID do departamento destino"
-                value={transferTargetId}
-                onChange={(e) => setTransferTargetId(e.target.value)}
-                className="min-w-[180px] flex-1"
-              />
-              <Input
-                type="text"
-                placeholder="Motivo (opcional)"
-                value={transferReason}
-                onChange={(e) => setTransferReason(e.target.value)}
-                className="min-w-[160px] flex-1"
-              />
-              <Button
-                onClick={handleTransfer}
-                disabled={!canTransfer || transferLoading}
-                loading={transferLoading}
-              >
-                Transferir
-              </Button>
-            </div>
-            <LookupHint
-              status={transferUserLookup.status}
-              label={transferUserLookup.label}
-              foundPrefix="Colaborador:"
-            />
-            <LookupHint
-              status={transferTargetLookup.status}
-              label={transferTargetLookup.label}
-              foundPrefix="Departamento destino:"
-            />
-          </Card>
+              {/* Transfer form */}
+              <Card className="mb-4 border-info bg-info-subtle p-4">
+                <div className="mb-3 text-xs font-medium uppercase tracking-wide text-info-ink">
+                  Transferir colaborador
+                </div>
+                <div className="flex flex-wrap gap-3">
+                  <Input
+                    type="number"
+                    placeholder="ID do colaborador"
+                    value={transferUserId}
+                    onChange={(e) => setTransferUserId(e.target.value)}
+                    className="min-w-[140px] flex-1"
+                  />
+                  <Input
+                    type="number"
+                    placeholder="ID do departamento destino"
+                    value={transferTargetId}
+                    onChange={(e) => setTransferTargetId(e.target.value)}
+                    className="min-w-[180px] flex-1"
+                  />
+                  <Input
+                    type="text"
+                    placeholder="Motivo (opcional)"
+                    value={transferReason}
+                    onChange={(e) => setTransferReason(e.target.value)}
+                    className="min-w-[160px] flex-1"
+                  />
+                  <Button
+                    onClick={handleTransfer}
+                    disabled={!canTransfer || transferLoading}
+                    loading={transferLoading}
+                  >
+                    Transferir
+                  </Button>
+                </div>
+                <LookupHint
+                  status={transferUserLookup.status}
+                  label={transferUserLookup.label}
+                  foundPrefix="Colaborador:"
+                />
+                <LookupHint
+                  status={transferTargetLookup.status}
+                  label={transferTargetLookup.label}
+                  foundPrefix="Departamento destino:"
+                />
+              </Card>
+            </>
+          )}
 
           {/* Members list */}
           <Table>
@@ -551,12 +567,15 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
       {/* Sub-departments tab */}
       {activeTab === 'subdepts' && (
         <div className="space-y-2">
-          <div className="mb-3 flex justify-end">
-            <Button size="sm" onClick={() => setCreateSubOpen(true)}>
-              <Plus size={14} strokeWidth={1.75} />
-              Criar sub-departamento
-            </Button>
-          </div>
+          {/* POST /departments é @Roles(ADMIN, RH) */}
+          {canAdminister && (
+            <div className="mb-3 flex justify-end">
+              <Button size="sm" onClick={() => setCreateSubOpen(true)}>
+                <Plus size={14} strokeWidth={1.75} />
+                Criar sub-departamento
+              </Button>
+            </div>
+          )}
           {createSubOpen && (
             <CreateDepartmentModal
               endpoint="/departments"
