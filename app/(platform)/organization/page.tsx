@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
-import { ADMIN_ROLES, isRoleAllowed } from '@/lib/roles';
+import { ADMIN_ROLES, filterByRole, isRoleAllowed } from '@/lib/roles';
 import { queryKeys } from '@/lib/queryKeys';
 import { NAV, TITLES } from '@/components/organization/constants';
 import { CreateDepartmentModal } from '@/components/departments/CreateDepartmentModal';
@@ -24,6 +24,18 @@ export default function OrganizationPage() {
   // POST /organization/positions exige @Roles(ADMIN, RH) — esconder o botão a
   // quem não pode criar (o backend continua a ser a autoridade).
   const canManagePositions = isRoleAllowed(ADMIN_ROLES, role);
+  // Pedido do utilizador: colaborador não vê Dashboard nem Linha Cronológica.
+  const visibleNav = filterByRole(NAV, role);
+
+  // O estado inicial de `view` assume 'dashboard', que fica escondido de
+  // colaborador — sem isto o separador activo ficaria ausente da nav
+  // visível assim que a role resolvesse.
+  useEffect(() => {
+    if (role && !visibleNav.some((n) => n.id === view)) {
+      setView(visibleNav[0]?.id ?? 'departments');
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [role]);
 
   const closeCreate = () => setCreateOpen(false);
   const changeView = (next: View) => {
@@ -68,7 +80,7 @@ export default function OrganizationPage() {
       )}
 
       <div className="mb-6 flex w-fit gap-1 rounded-card bg-surface-sunken p-1">
-        {NAV.map((n) => (
+        {visibleNav.map((n) => (
           <Button
             key={n.id}
             size="sm"

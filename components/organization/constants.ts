@@ -22,6 +22,7 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import type { StatusBadgeMap } from '@/lib/statusBadge';
+import { NON_COLABORADOR_ROLES, type Role } from '@/lib/roles';
 import type { ChangeType, PosLevel, View } from './types';
 
 export const LEVEL_CFG: StatusBadgeMap<PosLevel> = {
@@ -73,12 +74,14 @@ export const CHANGE_CFG: Record<
 
 export const CHANGE_FALLBACK_ICON: LucideIcon = PenLine;
 
-export const NAV: Array<{ id: View; label: string }> = [
-  { id: 'dashboard', label: 'Dashboard' },
+// Pedido do utilizador: colaborador não vê Dashboard nem Linha
+// Cronológica no módulo de estrutura organizacional.
+export const NAV: Array<{ id: View; label: string; roles?: readonly Role[] }> = [
+  { id: 'dashboard', label: 'Dashboard', roles: NON_COLABORADOR_ROLES },
   { id: 'chart', label: 'Organograma' },
   { id: 'departments', label: 'Departamentos' },
   { id: 'positions', label: 'Cargos' },
-  { id: 'timeline', label: 'Linha Cronológica' },
+  { id: 'timeline', label: 'Linha Cronológica', roles: NON_COLABORADOR_ROLES },
 ];
 
 export const TITLES: Record<View, string> = {

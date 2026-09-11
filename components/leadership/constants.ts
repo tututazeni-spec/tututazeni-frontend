@@ -9,7 +9,7 @@
 // a gradação de intensidade que a paleta crua original comunicava.
 
 import type { StatusBadgeMap } from '@/lib/statusBadge';
-import type { Role } from '@/lib/roles';
+import { NON_COLABORADOR_ROLES, type Role } from '@/lib/roles';
 import type { Competency, HealthStatus, ProgramLevel, ReadinessLevel, View } from './types';
 
 export const LEVEL_CFG: StatusBadgeMap<ProgramLevel> = {
@@ -55,12 +55,14 @@ export const COMP_LABELS: Record<Competency, string> = {
   RESILIENCE: 'Resiliência',
 };
 
-export const NAV: Array<{ id: View; label: string }> = [
+// Pedido do utilizador: colaborador não vê "A minha equipa" nem
+// "Classificação" no módulo de liderança.
+export const NAV: Array<{ id: View; label: string; roles?: readonly Role[] }> = [
   { id: 'my-dashboard', label: 'O meu painel' },
-  { id: 'team', label: 'A minha equipa' },
+  { id: 'team', label: 'A minha equipa', roles: NON_COLABORADOR_ROLES },
   { id: 'programs', label: 'Programas' },
   { id: 'feedback360', label: 'Feedback 360°' },
-  { id: 'ranking', label: 'Classificação' },
+  { id: 'ranking', label: 'Classificação', roles: NON_COLABORADOR_ROLES },
   { id: 'kudos', label: 'Reconhecimento' },
 ];
 
