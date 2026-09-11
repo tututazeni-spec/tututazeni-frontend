@@ -24,6 +24,7 @@ interface LibraryListViewProps {
   loading: boolean;
   error: string;
   onRetry: () => void;
+  canAdd: boolean;
 }
 
 const TYPE_FILTER_ITEMS = [
@@ -49,6 +50,7 @@ export function LibraryListView({
   loading,
   error,
   onRetry,
+  canAdd,
 }: LibraryListViewProps) {
   if (loading) return <GridSkeleton />;
 
@@ -76,13 +78,15 @@ export function LibraryListView({
             {total} recursos disponíveis
           </p>
         </div>
-        <Link
-          href="/library/novo"
-          className={buttonVariants({ intent: 'primary', size: 'md' })}
-        >
-          <Plus size={16} strokeWidth={1.75} />
-          Adicionar Recurso
-        </Link>
+        {canAdd && (
+          <Link
+            href="/library/novo"
+            className={buttonVariants({ intent: 'primary', size: 'md' })}
+          >
+            <Plus size={16} strokeWidth={1.75} />
+            Adicionar Recurso
+          </Link>
+        )}
       </div>
 
       {/* Filtros */}

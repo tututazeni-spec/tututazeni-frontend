@@ -45,6 +45,7 @@ const TABS: { id: Tab; label: string; icon: LucideIcon }[] = [
 export default function ContentLibraryPage() {
   const role = useCurrentRole();
   const canAddContent = !!role && AUTHOR_ROLES.includes(role);
+  const tabs = TABS.filter((t) => t.id !== 'analytics' || role !== 'COLABORADOR');
   const [showAdd, setShowAdd] = useState(false);
 
   return (
@@ -76,14 +77,14 @@ export default function ContentLibraryPage() {
       <Tabs defaultValue="home">
         <div className="border-b border-border bg-surface px-6">
           <TabsList className="mx-auto max-w-7xl overflow-x-auto gap-0">
-            {TABS.map((t, i) => {
+            {tabs.map((t, i) => {
               const Icon = t.icon;
               return (
                 <TabsTrigger
                   key={t.id}
                   value={t.id}
                   className={
-                    i < TABS.length - 1
+                    i < tabs.length - 1
                       ? 'gap-2 whitespace-nowrap mr-[1cm]!'
                       : 'gap-2 whitespace-nowrap'
                   }
@@ -109,9 +110,11 @@ export default function ContentLibraryPage() {
           <TabsContent value="my-progress">
             <MyProgressTab />
           </TabsContent>
-          <TabsContent value="analytics">
-            <AnalyticsTab />
-          </TabsContent>
+          {role !== 'COLABORADOR' && (
+            <TabsContent value="analytics">
+              <AnalyticsTab />
+            </TabsContent>
+          )}
         </div>
       </Tabs>
     </div>
