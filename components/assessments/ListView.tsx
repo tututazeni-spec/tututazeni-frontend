@@ -36,10 +36,16 @@ const TYPE_ICON_BG: Record<string, string> = {
 };
 
 export function ListView({ onStart }: ListViewProps) {
+  // EXAM é reservado às "Avaliações Formais" do módulo evaluation (ver
+  // components/evaluation/FormalEvaluationsTab.tsx) — excluído aqui para não
+  // duplicar a listagem entre os dois ecrãs.
   const dataQ = useApiQuery<Assessment[]>(
     queryKeys.assessments.list(),
     '/assessments',
-    { params: { status: 'PUBLISHED' }, staleTime: STALE_TIME.SEMI_STATIC },
+    {
+      params: { status: 'PUBLISHED', excludeType: 'EXAM' },
+      staleTime: STALE_TIME.SEMI_STATIC,
+    },
   );
   const attemptsQ = useApiQuery<MyAttemptSummary[]>(
     queryKeys.assessments.myAttempts(),

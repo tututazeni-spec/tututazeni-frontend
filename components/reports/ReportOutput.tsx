@@ -73,6 +73,9 @@ const SUMMARY_LABELS: Record<string, string> = {
   // performance
   totalReviews: 'Avaliações Totais',
   avgScore: 'Pontuação Média',
+  // evaluations (avaliações formais)
+  totalAttempts: 'Tentativas Totais',
+  passRate: 'Taxa de Aprovação',
 };
 
 export function ReportOutput({ data }: ReportOutputProps) {
