@@ -1,5 +1,5 @@
 // components/evaluation/FormalEvaluationsParticipantView.tsx
-// Experiência de COLABORADOR/AUDITOR: listar avaliações formais disponíveis
+// Experiência de COLABORADOR/AUDITOR/INSTRUCTOR: listar avaliações formais disponíveis
 // (GET /assessments/available — já filtrado por departamento + janela de
 // disponibilidade) e participar reaproveitando o AssessmentPlayer genérico
 // do módulo assessments (mesma lógica de perguntas/temporizador/autosave).

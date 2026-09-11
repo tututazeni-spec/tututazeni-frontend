@@ -3,9 +3,9 @@
 // os separadores Ciclos/Resultados/Análises/Calibração (backend
 // src/evaluation, 360°): este fala com src/assessments (type=EXAM).
 //
-// ADMIN, RH, GESTOR, INSTRUCTOR, DIRECTOR, LIDER (EVAL_CREATOR_ROLES): criam,
+// ADMIN, GESTOR, RH, DIRECTOR, LIDER (EVAL_CREATOR_ROLES): criam,
 // publicam/arquivam/duplicam/eliminam e vêem os resultados totais.
-// COLABORADOR, AUDITOR: só vêem e participam (FormalEvaluationsParticipantView).
+// COLABORADOR, AUDITOR, INSTRUCTOR: só vêem e participam (FormalEvaluationsParticipantView).
 
 'use client';
 

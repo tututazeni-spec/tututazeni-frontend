@@ -1,7 +1,7 @@
 // components/evaluation/CreateFormalEvaluationModal.tsx
 // Modal "Nova Avaliação Formal" — cria um Assessment com type:'EXAM' via
-// POST /assessments (backend alargado a EVAL_CREATOR_ROLES: ADMIN, RH,
-// GESTOR, INSTRUCTOR, DIRECTOR, LIDER). Ligação a curso é opcional (null =
+// POST /assessments (backend alargado a EVAL_CREATOR_ROLES: ADMIN, GESTOR,
+// RH, DIRECTOR, LIDER). Ligação a curso é opcional (null =
 // avaliação geral); departamentos-alvo vazio = todos; perguntas de múltipla
 // escolha (única/múltipla) e/ou resposta aberta são criadas na mesma
 // submissão (create() já aceita `questions` aninhadas).

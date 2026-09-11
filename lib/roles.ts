@@ -53,12 +53,17 @@ export const NON_COLABORADOR_ROLES: readonly Role[] = AUTHENTICATED_ROLES.filter
 
 /**
  * Espelha EVAL_CREATOR_ROLES em src/assessments/assessments.controller.ts:
- * quem pode criar/gerir avaliações formais (tudo excepto COLABORADOR e
- * AUDITOR, que só vêem e participam).
+ * quem pode criar/gerir avaliações formais — ADMIN, GESTOR, RH, DIRECTOR,
+ * LIDER. COLABORADOR, AUDITOR e INSTRUCTOR só vêem as avaliações abertas e
+ * participam.
  */
-export const EVAL_CREATOR_ROLES: readonly Role[] = AUTHENTICATED_ROLES.filter(
-  (r) => r !== 'COLABORADOR' && r !== 'AUDITOR',
-);
+export const EVAL_CREATOR_ROLES: readonly Role[] = [
+  'ADMIN',
+  'GESTOR',
+  'RH',
+  'DIRECTOR',
+  'LIDER',
+];
 
 export interface RoleRestricted {
   /** Omitido/vazio = sem @Roles() no endpoint principal → visível a todos. */
