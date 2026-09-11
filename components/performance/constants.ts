@@ -3,7 +3,7 @@
 // app/(platform)/performance/page.tsx. Cores mapeadas para os tokens
 // semânticos da fundação de design (Fase A).
 
-import { NON_COLABORADOR_ROLES, type Role } from '@/lib/roles';
+import { ADMIN_ROLES, EVAL_CREATOR_ROLES, NON_COLABORADOR_ROLES, type Role } from '@/lib/roles';
 import type { StatusBadgeMap } from '@/lib/statusBadge';
 import type { GoalStatus, PerfCategory, ReviewStatus, View } from './types';
 
@@ -91,20 +91,34 @@ export const BOX_LABELS: Record<
   },
 };
 
-// "A minha equipa", "Matriz 9-Box" e "Análises" ficam escondidas de
-// COLABORADOR a pedido do utilizador — o que aqui também espelha o backend:
-// GET /performance/team, /performance/9box e /performance/analytics têm
-// todos @Roles(ADMIN, RH, GESTOR) (analytics é mesmo ADMIN/RH) em
-// performance.controller.ts, nenhum inclui COLABORADOR.
+// "Ciclos" (criar/activar avaliações de desempenho) só para
+// EVAL_CREATOR_ROLES = ADMIN, GESTOR, RH, DIRECTOR, LIDER — espelha
+// PERFORMANCE_MGMT_ROLES de POST /performance/cycles no backend.
+//
+// "A minha equipa" e "Matriz 9-Box" ficam escondidas de COLABORADOR a pedido
+// do utilizador (NON_COLABORADOR_ROLES) — mais larga do que a @Roles() real
+// do backend (PERFORMANCE_MGMT_ROLES), de propósito: esconder só de
+// COLABORADOR, não replicar o guard exacto (ver NON_COLABORADOR_ROLES em
+// lib/roles.ts). AUDITOR/INSTRUCTOR veem o separador mas o pedido ao backend
+// continua protegido por @Roles() do lado do servidor.
+//
+// "Análises" tinha NON_COLABORADOR_ROLES aqui mas o backend GET
+// /performance/analytics é @Roles(ADMIN, RH) — mais estrito, GESTOR/LIDER
+// incluídos batiam sempre em 403 ao abrir o separador. Corrigido para
+// ADMIN_ROLES, mesmo precedente de Análises/Calibração em
+// app/(platform)/evaluation/page.tsx (ver memory
+// project_innova_evaluation_role_scoping).
 export const NAV: Array<{ id: View; label: string; roles?: readonly Role[] }> = [
   { id: 'dashboard', label: 'O meu desempenho' },
+  { id: 'cycles', label: 'Ciclos', roles: EVAL_CREATOR_ROLES },
   { id: 'team', label: 'A minha equipa', roles: NON_COLABORADOR_ROLES },
   { id: 'matrix9box', label: 'Matriz 9-Box ', roles: NON_COLABORADOR_ROLES },
-  { id: 'analytics', label: 'Análises', roles: NON_COLABORADOR_ROLES },
+  { id: 'analytics', label: 'Análises', roles: ADMIN_ROLES },
 ];
 
 export const TITLES: Record<View, string> = {
   dashboard: 'O meu Desempenho',
+  cycles: 'Ciclos de Avaliação',
   team: 'Performance da Equipa',
   matrix9box: 'Matriz 9-Box',
   analytics: 'Análises de Performance',

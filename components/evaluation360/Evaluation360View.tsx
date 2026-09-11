@@ -27,7 +27,10 @@ import { NineBoxGrid } from './NineBoxGrid';
 import { OverviewTab } from './OverviewTab';
 import { FeedbackTab } from './FeedbackTab';
 import { EvaluationFormTab } from './EvaluationFormTab';
+import { EvaluateOthersTab } from './EvaluateOthersTab';
 import { CreateCycleModal } from './CreateCycleModal';
+import { useCurrentRole } from '@/hooks/useCurrentRole';
+import { EVAL_CREATOR_ROLES } from '@/lib/roles';
 import { Button } from '@/components/ui/Button';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/Tabs';
@@ -39,8 +42,14 @@ import {
   LayoutGrid,
   MessageSquare,
   Radar,
+  UserCheck,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
+
+// Espelha canSeeFull em evaluation360.service.ts#getParticipantResult — só
+// estes papéis conseguem ver o resultado de outro colaborador; para os
+// restantes, escolher alguém no seletor da Visão Geral daria sempre 403.
+const RESULT_VIEWER_ROLES = ['ADMIN', 'RH'];
 
 const TABS: { id: TabId; label: string; icon: LucideIcon }[] = [
   { id: 'overview', label: 'Visão Geral', icon: LayoutDashboard },
@@ -49,19 +58,24 @@ const TABS: { id: TabId; label: string; icon: LucideIcon }[] = [
   { id: 'feedback', label: 'Feedback', icon: MessageSquare },
   { id: 'ninebox', label: 'Matriz 9 Box', icon: LayoutGrid },
   { id: 'cycles', label: 'Ciclos', icon: Layers },
+  { id: 'selfassessment', label: 'Auto-avaliação', icon: UserCheck },
   { id: 'form', label: 'Avaliar', icon: ClipboardCheck },
 ];
 
 export interface Evaluation360ViewProps {
   activeTab: TabId;
   onTabChange: (tab: TabId) => void;
-  result: ParticipantResult;
-  cycle: CycleInfo;
+  result: ParticipantResult | null;
+  cycle: CycleInfo | null;
   cycles: CycleInfo[];
   competencies: CompetencyScore[];
   nineBox: NineBoxEntry[];
   feedbacks: ContinuousFeedback[];
-  formQuestions: EvaluationQuestion[];
+  selfFormQuestions: EvaluationQuestion[];
+  myId?: string;
+  cycleId?: string;
+  isOwnResult: boolean;
+  onSelectParticipant: (id: string | undefined) => void;
 }
 
 export function Evaluation360View({
@@ -73,16 +87,34 @@ export function Evaluation360View({
   competencies,
   nineBox,
   feedbacks,
-  formQuestions,
+  selfFormQuestions,
+  myId,
+  cycleId,
+  isOwnResult,
+  onSelectParticipant,
 }: Evaluation360ViewProps) {
   const [cycleModalOpen, setCycleModalOpen] = useState(false);
-  const [addedCycles, setAddedCycles] = useState<CycleInfo[]>([]);
-  const allCycles = [...addedCycles, ...cycles];
+  const role = useCurrentRole();
+  // Espelha EVAL_CREATOR_ROLES de POST /evaluation360/cycles
+  // (evaluation360.controller.ts) — ADMIN, GESTOR, RH, DIRECTOR, LIDER podem
+  // criar/distribuir questionários; a leitura (separador Ciclos) fica aberta
+  // a todos, só a criação é restrita.
+  const canCreateCycle = !!role && EVAL_CREATOR_ROLES.includes(role);
+  const canPickParticipant = !!role && RESULT_VIEWER_ROLES.includes(role);
+  const feedbackTargetId = result?.userId ?? myId;
 
   const renderTab = () => {
     switch (activeTab) {
       case 'overview':
-        return <OverviewTab result={result} cycle={cycle} />;
+        return (
+          <OverviewTab
+            result={result}
+            cycle={cycle}
+            canPickParticipant={canPickParticipant}
+            isOwnResult={isOwnResult}
+            onSelectParticipant={onSelectParticipant}
+          />
+        );
       case 'radar':
         return (
           <div className="flex flex-col gap-6">
@@ -90,55 +122,59 @@ export function Evaluation360View({
               <h2 className="m-0 text-lg font-bold text-ink">
                 Radar de Competências 360°
               </h2>
-              <p className="m-0 mt-1 text-sm text-ink-muted">
-              </p>
             </div>
-            <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_320px] lg:items-start">
-              <div className="rounded-xl border border-border bg-surface p-6 flex justify-center">
-                <ErrorBoundary source="evaluation360.RadarChart">
-                  <RadarChart competencies={competencies} />
-                </ErrorBoundary>
+            {competencies.length === 0 ? (
+              <div className="rounded-xl border border-border bg-surface p-6 text-sm text-ink-muted">
+                Ainda sem competências pontuadas para {isOwnResult ? 'ti' : 'este colaborador'}.
               </div>
-              <div className="flex flex-col gap-2.5">
-                <div className="text-xs font-bold uppercase tracking-wider text-ink-muted mb-1">
-                  Legenda de Lacunas
+            ) : (
+              <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_320px] lg:items-start">
+                <div className="rounded-xl border border-border bg-surface p-6 flex justify-center">
+                  <ErrorBoundary source="evaluation360.RadarChart">
+                    <RadarChart competencies={competencies} />
+                  </ErrorBoundary>
                 </div>
-                {competencies.map((c) => (
-                  <div
-                    key={c.id}
-                    className="rounded-lg border border-border bg-surface px-3.5 py-2.5 flex justify-between items-center"
-                  >
-                    <span className="text-sm font-semibold text-ink">
-                      {c.name}
-                    </span>
-                    <span
-                      className="text-sm font-bold"
-                      style={{
-                        color:
-                          c.gap > 0.5
-                            ? 'rgb(245, 158, 11)'
-                            : c.gap < -0.5
-                              ? 'rgb(34, 197, 94)'
-                              : 'var(--color-ink-muted)',
-                      }}
-                    >
-                      {c.gap > 0
-                        ? `▲ +${c.gap.toFixed(1)}`
-                        : `▼ ${c.gap.toFixed(1)}`}
-                    </span>
+                <div className="flex flex-col gap-2.5">
+                  <div className="text-xs font-bold uppercase tracking-wider text-ink-muted mb-1">
+                    Legenda de Lacunas
                   </div>
-                ))}
-                <div className="text-xs text-ink-muted mt-2 leading-relaxed">
-                  <span style={{ color: 'rgb(245, 158, 11)' }}>▲ positivo</span>{' '}
-                  = sobreestima-se vs. outros
-                  <br />
-                  <span style={{ color: 'rgb(34, 197, 94)' }}>
-                    ▼ negativo
-                  </span>{' '}
-                  = subestima-se (ponto forte!)
+                  {competencies.map((c) => (
+                    <div
+                      key={c.id}
+                      className="rounded-lg border border-border bg-surface px-3.5 py-2.5 flex justify-between items-center"
+                    >
+                      <span className="text-sm font-semibold text-ink">
+                        {c.name}
+                      </span>
+                      <span
+                        className="text-sm font-bold"
+                        style={{
+                          color:
+                            c.gap > 0.5
+                              ? 'rgb(245, 158, 11)'
+                              : c.gap < -0.5
+                                ? 'rgb(34, 197, 94)'
+                                : 'var(--color-ink-muted)',
+                        }}
+                      >
+                        {c.gap > 0
+                          ? `▲ +${c.gap.toFixed(1)}`
+                          : `▼ ${c.gap.toFixed(1)}`}
+                      </span>
+                    </div>
+                  ))}
+                  <div className="text-xs text-ink-muted mt-2 leading-relaxed">
+                    <span style={{ color: 'rgb(245, 158, 11)' }}>▲ positivo</span>{' '}
+                    = sobreestima-se vs. outros
+                    <br />
+                    <span style={{ color: 'rgb(34, 197, 94)' }}>
+                      ▼ negativo
+                    </span>{' '}
+                    = subestima-se (ponto forte!)
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
           </div>
         );
       case 'competencies':
@@ -150,7 +186,7 @@ export function Evaluation360View({
               </h2>
               <p className="m-0 mt-1 text-sm text-ink-muted">
                 Pontuação por fonte de avaliador, Lacuna e Referência
-                Comparativa do Cargo
+                Comparativa (média deste ciclo)
               </p>
             </div>
             <div className="flex gap-2 mb-1">
@@ -175,7 +211,9 @@ export function Evaluation360View({
           </div>
         );
       case 'feedback':
-        return <FeedbackTab feedbacks={feedbacks} />;
+        return feedbackTargetId ? (
+          <FeedbackTab feedbacks={feedbacks} toUserId={feedbackTargetId} />
+        ) : null;
       case 'ninebox':
         return (
           <div className="flex flex-col gap-5">
@@ -202,18 +240,23 @@ export function Evaluation360View({
                 <h2 className="m-0 text-lg font-bold text-ink">
                   Ciclos de Avaliação
                 </h2>
-                <p className="m-0 mt-1 text-sm text-ink-muted">
-                </p>
               </div>
-              <Button
-                intent="primary"
-                size="sm"
-                onClick={() => setCycleModalOpen(true)}
-              >
-                + Novo Ciclo
-              </Button>
+              {canCreateCycle && (
+                <Button
+                  intent="primary"
+                  size="sm"
+                  onClick={() => setCycleModalOpen(true)}
+                >
+                  + Novo Ciclo
+                </Button>
+              )}
             </div>
-            {allCycles.map((c) => {
+            {cycles.length === 0 && (
+              <div className="rounded-lg border border-border bg-surface p-5 text-sm text-ink-muted">
+                Ainda não existe nenhum ciclo de avaliação 360º.
+              </div>
+            )}
+            {cycles.map((c) => {
               const pct =
                 c.participantsCount > 0
                   ? Math.round((c.completedCount / c.participantsCount) * 100)
@@ -265,20 +308,35 @@ export function Evaluation360View({
                 </div>
               );
             })}
-            {cycleModalOpen && (
+            {cycleModalOpen && canCreateCycle && (
               <CreateCycleModal
                 onClose={() => setCycleModalOpen(false)}
-                onCreate={(c) => setAddedCycles((prev) => [c, ...prev])}
+                onSuccess={() => setCycleModalOpen(false)}
               />
             )}
           </div>
         );
-      case 'form':
-        return (
+      case 'selfassessment':
+        return cycleId && myId ? (
           <EvaluationFormTab
-            questions={formQuestions}
-            participantName={result.fullName}
+            questions={selfFormQuestions}
+            participantName="Eu"
+            evaluatorRole="SELF"
+            cycleId={cycleId}
+            evaluateeId={myId}
           />
+        ) : (
+          <div className="rounded-lg border border-border bg-surface p-5 text-sm text-ink-muted">
+            Ainda não existe nenhum ciclo de avaliação 360º activo.
+          </div>
+        );
+      case 'form':
+        return cycleId ? (
+          <EvaluateOthersTab cycleId={cycleId} />
+        ) : (
+          <div className="rounded-lg border border-border bg-surface p-5 text-sm text-ink-muted">
+            Ainda não existe nenhum ciclo de avaliação 360º activo.
+          </div>
         );
       default:
         return null;
@@ -293,9 +351,11 @@ export function Evaluation360View({
           <h1 className="font-display text-xl font-bold text-ink">
             Avaliação 360°
           </h1>
-          <p className="mt-0.5 shrink-0 text-sm text-ink-muted">
-            Ciclo: <strong className="text-ink">{cycle.name}</strong>
-          </p>
+          {cycle && (
+            <p className="mt-0.5 shrink-0 text-sm text-ink-muted">
+              Ciclo: <strong className="text-ink">{cycle.name}</strong>
+            </p>
+          )}
         </div>
       </div>
 

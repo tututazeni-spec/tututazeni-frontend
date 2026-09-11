@@ -79,7 +79,7 @@ export function ChatView() {
   const [input, setInput] = useState('');
   const [thinking, setThinking] = useState(false);
   const [personality, setPersonality] = useState('FRIENDLY');
-  const [voiceEnabled, setVoiceEnabled] = useState(true);
+  const [voiceEnabled, setVoiceEnabled] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {

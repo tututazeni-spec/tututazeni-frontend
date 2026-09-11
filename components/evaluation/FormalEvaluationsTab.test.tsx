@@ -61,10 +61,20 @@ describe('FormalEvaluationsTab', () => {
     expect(screen.getByTestId('participant-view')).toBeInTheDocument();
   });
 
-  test('GESTOR e INSTRUCTOR também têm acesso à gestão', () => {
+  test('GESTOR, RH, DIRECTOR e LIDER também têm acesso à gestão', () => {
+    for (const role of ['GESTOR', 'RH', 'DIRECTOR', 'LIDER']) {
+      currentRole = role;
+      const { unmount } = render(<FormalEvaluationsTab />);
+      expect(screen.getAllByRole('button', { name: /Nova Avaliação/ }).length).toBeGreaterThan(0);
+      unmount();
+    }
+  });
+
+  test('INSTRUCTOR vê apenas a vista de participante', () => {
     currentRole = 'INSTRUCTOR';
     render(<FormalEvaluationsTab />);
-    expect(screen.getAllByRole('button', { name: /Nova Avaliação/ }).length).toBeGreaterThan(0);
+    expect(screen.getByTestId('participant-view')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /Nova Avaliação/ })).not.toBeInTheDocument();
   });
 
   test('mostra "Resultados" e "Publicar" conforme o estado de cada avaliação', () => {

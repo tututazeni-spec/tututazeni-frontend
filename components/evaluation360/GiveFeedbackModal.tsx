@@ -1,28 +1,31 @@
 // components/evaluation360/GiveFeedbackModal.tsx
 // Modal "Dar Feedback" do separador "Feedback" da Avaliação 360º.
 //
-// NOTA: o módulo evaluation360 corre 100% sobre dados mock (ver
-// hooks/useEvaluation360.ts) — não há endpoint POST /evaluation360/feedback.
-// Este modal valida a mensagem e devolve um ContinuousFeedback via `onCreate`,
-// que a FeedbackTab acrescenta à lista localmente (mesmo padrão
-// local-state-only usado em components/scalability/LoadTestModal.tsx).
+// Antes: o módulo corria 100% sobre dados mock — este modal só validava a
+// mensagem e devolvia um ContinuousFeedback local via `onCreate`, sem
+// persistir nada (POST /evaluation360/feedback/continuous não era chamado).
+// Agora liga a esse endpoint real; `toUserId` é sempre o participante que
+// está a ser visto na página (ver Evaluation360View.tsx).
 
 'use client';
 
 import { useState } from 'react';
 import type { ContinuousFeedback } from './types';
-import { useCurrentUser } from '@/hooks/useCurrentUser';
+import { useApiMutation } from '@/hooks/useApiQuery';
+import { apiClient } from '@/lib/apiClient';
+import { queryKeys } from '@/lib/queryKeys';
+import { STALE_TIME } from '@/lib/queryClient';
+import { useApiQuery } from '@/hooks/useApiQuery';
 import { Button } from '@/components/ui/Button';
 import { FormField } from '@/components/ui/FormField';
-import { Input } from '@/components/ui/Input';
 import { Modal, ModalContent } from '@/components/ui/Modal';
 import { Select } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
 import { useToast } from '@/providers/ToastProvider';
 
 export interface GiveFeedbackModalProps {
+  toUserId: string;
   onClose: () => void;
-  onCreate: (feedback: ContinuousFeedback) => void;
 }
 
 const TYPE_ITEMS = [
@@ -31,32 +34,54 @@ const TYPE_ITEMS = [
   { value: 'CHECK_IN', label: 'Check-in 1:1' },
 ];
 
-export function GiveFeedbackModal({
-  onClose,
-  onCreate,
-}: GiveFeedbackModalProps) {
+interface CompetencyOption {
+  id: number;
+  name: string;
+}
+
+export function GiveFeedbackModal({ toUserId, onClose }: GiveFeedbackModalProps) {
   const notify = useToast();
-  const { data: me } = useCurrentUser();
-  const [type, setType] =
-    useState<ContinuousFeedback['type']>('RECOGNITION');
+  const [type, setType] = useState<ContinuousFeedback['type']>('RECOGNITION');
   const [message, setMessage] = useState('');
-  const [competency, setCompetency] = useState('');
+  const [competencyId, setCompetencyId] = useState('');
+
+  // Banco fixo de 8 competências (ver prisma/seed.ts) — evita mandar texto
+  // livre para um campo que no backend é uma FK (Eval360Feedback.competencyId).
+  const { data: competencies } = useApiQuery<CompetencyOption[]>(
+    queryKeys.evaluation360.competencies(),
+    '/evaluation360/competencies',
+    { staleTime: STALE_TIME.STATIC },
+  );
+  const competencyItems = (competencies ?? []).map((c) => ({
+    value: String(c.id),
+    label: c.name,
+  }));
 
   const canSubmit = message.trim().length >= 3;
 
+  const create = useApiMutation(
+    () =>
+      apiClient.post('/evaluation360/feedback/continuous', {
+        tenantId: 'default',
+        toUserId,
+        type,
+        message: message.trim(),
+        competencyId: competencyId || undefined,
+      }),
+    {
+      invalidateKeys: [queryKeys.evaluation360.feedbacks(toUserId)],
+      onSuccess: () => {
+        notify({ title: 'Feedback enviado.', intent: 'success' });
+        onClose();
+      },
+      onError: () =>
+        notify({ title: 'Erro ao enviar feedback. Tenta novamente.', intent: 'danger' }),
+    },
+  );
+
   const handleSubmit = () => {
     if (!canSubmit) return;
-    const feedback: ContinuousFeedback = {
-      id: `local-${Date.now()}`,
-      fromName: me?.fullName ?? 'Eu',
-      type,
-      message: message.trim(),
-      competency: competency.trim() || undefined,
-      createdAt: new Date().toISOString(),
-    };
-    onCreate(feedback);
-    notify({ title: 'Feedback enviado.', intent: 'success' });
-    onClose();
+    create.mutate(undefined);
   };
 
   return (
@@ -71,9 +96,7 @@ export function GiveFeedbackModal({
             <Select
               items={TYPE_ITEMS}
               value={type}
-              onValueChange={(v) =>
-                setType(v as ContinuousFeedback['type'])
-              }
+              onValueChange={(v) => setType(v as ContinuousFeedback['type'])}
               className="w-full"
             />
           </FormField>
@@ -83,11 +106,12 @@ export function GiveFeedbackModal({
             htmlFor="fb-competency"
             hint="Opcional — competência a que o feedback se refere."
           >
-            <Input
-              id="fb-competency"
-              value={competency}
-              onChange={(e) => setCompetency(e.target.value)}
-              placeholder="Ex.: Comunicação"
+            <Select
+              items={competencyItems}
+              value={competencyId || undefined}
+              onValueChange={setCompetencyId}
+              placeholder="Nenhuma em especial"
+              className="w-full"
             />
           </FormField>
 
@@ -106,7 +130,7 @@ export function GiveFeedbackModal({
           <Button intent="ghost" onClick={onClose}>
             Cancelar
           </Button>
-          <Button onClick={handleSubmit} disabled={!canSubmit}>
+          <Button onClick={handleSubmit} disabled={!canSubmit} loading={create.isPending}>
             Enviar Feedback
           </Button>
         </div>

@@ -7,6 +7,7 @@
 
 import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
+import { Search } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { useDebounce } from '@/hooks/useDebounce';
 import { queryKeys } from '@/lib/queryKeys';
@@ -62,12 +63,19 @@ export function ScenariosTab({ onStart }: ScenariosTabProps) {
     <div className="space-y-4">
       {/* Filters */}
       <Card className="p-4 flex flex-wrap gap-2">
-        <Input
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Pesquisar cenários..."
-          className="flex-1 min-w-[180px] text-sm"
-        />
+        <div className="relative flex-1 min-w-[180px]">
+          <Search
+            size={16}
+            strokeWidth={1.75}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-faint"
+          />
+          <Input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Pesquisar cenários..."
+            className="w-full pl-9 text-sm"
+          />
+        </div>
 
         <Select
           items={[

@@ -5,9 +5,14 @@
 
 'use client';
 
-import { useApiQuery } from '@/hooks/useApiQuery';
+import { useState } from 'react';
+import { CalendarPlus, Target } from 'lucide-react';
+import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
+import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
+import { useConfirm } from '@/providers/ConfirmProvider';
+import { useToast } from '@/providers/ToastProvider';
 import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
 import { ProgressBar } from '@/components/ui/ProgressBar';
@@ -22,9 +27,14 @@ import {
   TableRow,
 } from '@/components/ui/Table';
 import { PERF_CATEGORY_MAP, REVIEW_STATUS_MAP } from './constants';
+import { ScheduleFeedbackMeetingModal } from './ScheduleFeedbackMeetingModal';
 import type { Cycle, ReviewStatus, TeamMember } from './types';
 
 export function TeamView() {
+  const notify = useToast();
+  const confirm = useConfirm();
+  const [meetingFor, setMeetingFor] = useState<{ reviewId: number; userName: string } | null>(null);
+
   const dataQ = useApiQuery<{ team: TeamMember[]; total: number }>(
     queryKeys.performance.team(),
     '/performance/team',
@@ -38,6 +48,26 @@ export function TeamView() {
   const data = dataQ.data ?? null;
   const cycle = cycleQ.data ?? null;
   const loading = dataQ.isLoading;
+
+  // Secção 16 do formulário — "Criar PDI" a partir de uma avaliação
+  // publicada. reviewId vem sempre de latestReview (type=MANAGER, ver
+  // getTeamPerformance no backend) — só aparece quando já está PUBLISHED.
+  const createPdi = useApiMutation(
+    (reviewId: number) => apiClient.post(`/performance/${reviewId}/pdi`),
+    {
+      onSuccess: () => notify({ title: 'PDI criado a partir da avaliação', intent: 'success' }),
+      onError: (e) => notify({ title: e.message, intent: 'danger' }),
+    },
+  );
+
+  const handleCreatePdi = async (member: TeamMember) => {
+    if (!member.latestReview) return;
+    const ok = await confirm({
+      title: 'Criar PDI',
+      message: `Criar um plano de desenvolvimento para ${member.user.fullName} a partir desta avaliação?`,
+    });
+    if (ok) createPdi.mutate(member.latestReview.id);
+  };
 
   if (loading) return <Skeleton />;
   if (!data) return null;
@@ -61,6 +91,7 @@ export function TeamView() {
             <TableHeaderCell>Pontuações</TableHeaderCell>
             <TableHeaderCell>Estado</TableHeaderCell>
             <TableHeaderCell>Pendências</TableHeaderCell>
+            <TableHeaderCell>Acções</TableHeaderCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -118,6 +149,35 @@ export function TeamView() {
                     <span className="text-xs text-ink-faint">Não iniciado</span>
                   )}
               </TableCell>
+              <TableCell>
+                {member.latestReview?.status === 'PUBLISHED' && (
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => handleCreatePdi(member)}
+                      aria-label="Criar PDI"
+                      title="Criar PDI"
+                      className="text-ink-faint hover:text-primary"
+                    >
+                      <Target size={16} strokeWidth={1.75} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setMeetingFor({
+                          reviewId: member.latestReview!.id,
+                          userName: member.user.fullName,
+                        })
+                      }
+                      aria-label="Agendar reunião de feedback"
+                      title="Agendar reunião de feedback"
+                      className="text-ink-faint hover:text-primary"
+                    >
+                      <CalendarPlus size={16} strokeWidth={1.75} />
+                    </button>
+                  </div>
+                )}
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>
@@ -127,6 +187,14 @@ export function TeamView() {
         <div className="px-4 py-12 text-center text-sm text-ink-faint">
           Sem membros de equipa
         </div>
+      )}
+
+      {meetingFor && (
+        <ScheduleFeedbackMeetingModal
+          reviewId={meetingFor.reviewId}
+          userName={meetingFor.userName}
+          onClose={() => setMeetingFor(null)}
+        />
       )}
     </div>
   );

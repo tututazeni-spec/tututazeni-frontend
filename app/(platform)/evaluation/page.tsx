@@ -7,20 +7,17 @@
 // e components/payslips/page.tsx usam). Ver memory
 // project_innova_component_separation_audit.
 
-import { useState } from 'react';
 import {
   BarChart2,
   ClipboardList,
   Clock,
   Layers,
-  Plus,
   Shield,
   Star,
   TrendingUp,
 } from 'lucide-react';
 import { AnalyticsTab } from '@/components/evaluation/AnalyticsTab';
 import { CalibrationTab } from '@/components/evaluation/CalibrationTab';
-import { CreateCycleModal } from '@/components/evaluation/CreateCycleModal';
 import { CyclesTab } from '@/components/evaluation/CyclesTab';
 import { FormalEvaluationsTab } from '@/components/evaluation/FormalEvaluationsTab';
 import { OverviewTab } from '@/components/evaluation/OverviewTab';
@@ -28,7 +25,6 @@ import { PendingTab } from '@/components/evaluation/PendingTab';
 import { ResultsTab } from '@/components/evaluation/ResultsTab';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
 import { ADMIN_ROLES, filterByRole } from '@/lib/roles';
-import { Button } from '@/components/ui/Button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
 
 // Análises e Calibração espelham exactamente @Roles(ADMIN, RH) de
@@ -55,12 +51,7 @@ const TABS = [
 
 export default function EvaluationsPage() {
   const role = useCurrentRole();
-  // Enquanto a role ainda não chegou (arranque pós-login/reload) tratamos
-  // como não-admin — o botão aparece assim que /auth/me resolve. Espelha o
-  // @Roles(ADMIN, RH) de POST /evaluations/cycles.
-  const canCreateCycle = !!role && ADMIN_ROLES.includes(role);
   const visibleTabs = filterByRole(TABS, role);
-  const [showCreate, setShowCreate] = useState(false);
 
   return (
     <div className="min-h-screen bg-canvas">
@@ -72,21 +63,13 @@ export default function EvaluationsPage() {
               Avaliações
             </h1>
           </div>
-          {canCreateCycle && (
-            <Button size="sm" onClick={() => setShowCreate(true)}>
-              <Plus size={14} strokeWidth={1.75} />
-              Novo Ciclo
-            </Button>
-          )}
+          {/* A criação de ciclos ("Novo Ciclo") vive só em evaluation360
+              agora (components/evaluation360/CreateCycleModal.tsx), que
+              chama o mesmo POST /evaluations/cycles — ver
+              memory project_innova_evaluation_role_scoping. Este módulo só
+              lista/publica/activa ciclos em CyclesTab. */}
         </div>
       </div>
-
-      {showCreate && (
-        <CreateCycleModal
-          onClose={() => setShowCreate(false)}
-          onSuccess={() => setShowCreate(false)}
-        />
-      )}
 
       {/* Tabs */}
       <Tabs defaultValue="overview">

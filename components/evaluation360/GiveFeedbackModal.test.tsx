@@ -2,13 +2,29 @@ import { describe, expect, test, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 
 const notify = vi.fn();
+vi.mock('@/providers/ToastProvider', () => ({ useToast: () => notify }));
 
-vi.mock('@/providers/ToastProvider', () => ({
-  useToast: () => notify,
+const post = vi.fn().mockResolvedValue({ id: 'fb-1' });
+vi.mock('@/lib/apiClient', () => ({
+  apiClient: { post: (...a: unknown[]) => post(...a) },
 }));
 
-vi.mock('@/hooks/useCurrentUser', () => ({
-  useCurrentUser: () => ({ data: { fullName: 'Maria Santos' } }),
+vi.mock('@/hooks/useApiQuery', () => ({
+  useApiQuery: () => ({ data: [{ id: 1, name: 'Comunicação' }], isLoading: false }),
+  useApiMutation: (
+    fn: (v: unknown) => Promise<unknown>,
+    opts: {
+      onSuccess?: (d: unknown, v: unknown) => void;
+      onError?: (e: Error) => void;
+    },
+  ) => ({
+    mutate: (v: unknown) =>
+      fn(v).then(
+        (d) => opts?.onSuccess?.(d, v),
+        (e) => opts?.onError?.(e as Error),
+      ),
+    isPending: false,
+  }),
 }));
 
 vi.mock('@/components/ui/Modal', () => ({
@@ -33,52 +49,36 @@ vi.mock('@/components/ui/Select', () => ({
 
 import { GiveFeedbackModal } from './GiveFeedbackModal';
 
-beforeEach(() => notify.mockReset());
+beforeEach(() => {
+  notify.mockReset();
+  post.mockClear();
+});
 
 describe('GiveFeedbackModal', () => {
-  test('envia feedback com a mensagem e o nome do utilizador actual', () => {
+  test('envia feedback real para o backend (POST /evaluation360/feedback/continuous)', async () => {
     const onClose = vi.fn();
-    const onCreate = vi.fn();
-    render(<GiveFeedbackModal onClose={onClose} onCreate={onCreate} />);
+    render(<GiveFeedbackModal toUserId="42" onClose={onClose} />);
 
     fireEvent.change(screen.getByLabelText('Mensagem *'), {
       target: { value: 'Excelente trabalho na apresentação.' },
     });
-    fireEvent.change(screen.getByLabelText('Competência'), {
-      target: { value: 'Comunicação' },
-    });
     fireEvent.click(screen.getByRole('button', { name: 'Enviar Feedback' }));
 
-    expect(onCreate).toHaveBeenCalledTimes(1);
-    const fb = onCreate.mock.calls[0][0];
-    expect(fb.message).toBe('Excelente trabalho na apresentação.');
-    expect(fb.competency).toBe('Comunicação');
-    expect(fb.fromName).toBe('Maria Santos');
-    expect(fb.type).toBe('RECOGNITION');
-    expect(onClose).toHaveBeenCalledTimes(1);
-    expect(notify).toHaveBeenCalledTimes(1);
+    expect(post).toHaveBeenCalledWith('/evaluation360/feedback/continuous', {
+      tenantId: 'default',
+      toUserId: '42',
+      type: 'RECOGNITION',
+      message: 'Excelente trabalho na apresentação.',
+      competencyId: undefined,
+    });
   });
 
   test('mensagem demasiado curta mantém o botão desactivado', () => {
-    render(<GiveFeedbackModal onClose={vi.fn()} onCreate={vi.fn()} />);
-    expect(
-      screen.getByRole('button', { name: 'Enviar Feedback' }),
-    ).toBeDisabled();
+    render(<GiveFeedbackModal toUserId="42" onClose={vi.fn()} />);
+    expect(screen.getByRole('button', { name: 'Enviar Feedback' })).toBeDisabled();
     fireEvent.change(screen.getByLabelText('Mensagem *'), {
       target: { value: 'ok' },
     });
-    expect(
-      screen.getByRole('button', { name: 'Enviar Feedback' }),
-    ).toBeDisabled();
-  });
-
-  test('competência vazia é omitida do feedback', () => {
-    const onCreate = vi.fn();
-    render(<GiveFeedbackModal onClose={vi.fn()} onCreate={onCreate} />);
-    fireEvent.change(screen.getByLabelText('Mensagem *'), {
-      target: { value: 'Boa colaboração esta semana.' },
-    });
-    fireEvent.click(screen.getByRole('button', { name: 'Enviar Feedback' }));
-    expect(onCreate.mock.calls[0][0].competency).toBeUndefined();
+    expect(screen.getByRole('button', { name: 'Enviar Feedback' })).toBeDisabled();
   });
 });

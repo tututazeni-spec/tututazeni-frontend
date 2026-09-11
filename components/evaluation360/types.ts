@@ -1,13 +1,12 @@
 // components/evaluation360/types.ts
-// Tipos do domínio "avaliação 360º" — movidos verbatim de
-// app/(platform)/evaluation360/page.tsx. Usados por hooks/useEvaluation360.ts
-// (dono dos dados, mock por agora) e pelos componentes de apresentação em
-// components/evaluation360/ (Evaluation360View, OverviewTab, RadarChart,
-// CompetencyHeatmap, FeedbackTab, NineBoxGrid, EvaluationFormTab) — page.tsx
-// é hoje só o container que liga o hook à Evaluation360View.
-// Ver memory project_innova_component_separation_audit.
+// Tipos do domínio "avaliação 360º". Usados por hooks/useEvaluation360.ts
+// (dono dos dados reais — GET /evaluation360/*, ver esse ficheiro) e pelos
+// componentes de apresentação em components/evaluation360/ (Evaluation360View,
+// OverviewTab, RadarChart, CompetencyHeatmap, FeedbackTab, NineBoxGrid,
+// EvaluationFormTab) — page.tsx é só o container que liga o hook à
+// Evaluation360View. Ver memory project_innova_component_separation_audit.
 
-export type EvaluatorRole = 'SELF' | 'MANAGER' | 'PEER' | 'SUBORDINATE';
+export type EvaluatorRole = 'SELF' | 'MANAGER' | 'PEER' | 'SUBORDINATE' | 'EXTERNAL';
 export type AlertType = 'STRENGTH' | 'GAP' | 'INFO';
 export type TabId =
   | 'overview'
@@ -16,6 +15,7 @@ export type TabId =
   | 'feedback'
   | 'ninebox'
   | 'cycles'
+  | 'selfassessment'
   | 'form';
 
 export interface CompetencyScore {
@@ -36,6 +36,7 @@ export interface ParticipantResult {
   fullName: string;
   position: string;
   department: string;
+  avatarUrl?: string | null;
   overallScore: number;
   weightedScore: number;
   selfScore: number;
@@ -44,8 +45,6 @@ export interface ParticipantResult {
   competencies: CompetencyScore[];
   strengths: CompetencyScore[];
   gaps: CompetencyScore[];
-  isEligiblePromotion: boolean;
-  isEligibleBonus: boolean;
 }
 
 export interface CycleInfo {
@@ -76,12 +75,12 @@ export interface ContinuousFeedback {
   createdAt: string;
 }
 
-// Usado só pelo formulário de avaliação (EvaluationFormTab) — antes
-// hardcoded no componente, agora dado do hook (virá de
-// GET /evaluation360/forms/:formId/questions quando o backend existir).
+// Usado pelo formulário de avaliação (EvaluationFormTab), vindo de
+// GET /evaluation360/cycles/:cycleId/form?evaluateeId=...
 export interface EvaluationQuestion {
   id: string;
   text: string;
-  type: 'FREQUENCY' | 'LIKERT';
+  type: 'FREQUENCY' | 'LIKERT' | 'OPEN_TEXT';
   competency: string;
+  isRequired: boolean;
 }

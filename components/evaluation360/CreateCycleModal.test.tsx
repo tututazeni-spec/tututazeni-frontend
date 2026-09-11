@@ -1,11 +1,29 @@
 import { describe, expect, test, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 
-const notify = vi.fn();
-
-vi.mock('@/providers/ToastProvider', () => ({
-  useToast: () => notify,
+const post = vi.fn().mockResolvedValue({ id: '1' });
+vi.mock('@/lib/apiClient', () => ({
+  apiClient: { post: (...a: unknown[]) => post(...a) },
 }));
+
+vi.mock('@/hooks/useApiQuery', () => ({
+  useApiMutation: (
+    fn: (v: unknown) => Promise<unknown>,
+    opts: {
+      onSuccess?: (d: unknown, v: unknown) => void;
+      onError?: (e: Error) => void;
+    },
+  ) => ({
+    mutate: (v: unknown) =>
+      fn(v).then(
+        (d) => opts?.onSuccess?.(d, v),
+        (e) => opts?.onError?.(e as Error),
+      ),
+    isPending: false,
+  }),
+}));
+
+vi.mock('@/providers/ToastProvider', () => ({ useToast: () => vi.fn() }));
 
 vi.mock('@/components/ui/Modal', () => ({
   Modal: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
@@ -22,93 +40,115 @@ vi.mock('@/components/ui/Modal', () => ({
     </div>
   ),
 }));
-
 vi.mock('@/components/ui/Select', () => ({
-  Select: ({ value }: { value?: string }) => <div data-testid="select">{value}</div>,
+  Select: () => <div data-testid="select" />,
+}));
+
+vi.mock('./cycleData', () => ({
+  useDepartmentOptions: () => ({
+    options: [{ value: '5', label: 'Operações' }],
+    loading: false,
+  }),
 }));
 
 import { CreateCycleModal } from './CreateCycleModal';
 
-beforeEach(() => notify.mockReset());
+beforeEach(() => post.mockClear());
 
-describe('CreateCycleModal', () => {
-  test('cria um ciclo em rascunho com os campos preenchidos', () => {
-    const onClose = vi.fn();
-    const onCreate = vi.fn();
-    render(<CreateCycleModal onClose={onClose} onCreate={onCreate} />);
+function fillValid() {
+  fireEvent.change(screen.getByLabelText('Nome *'), {
+    target: { value: 'Ciclo 2026 S1' },
+  });
+  fireEvent.change(screen.getByLabelText('Início *'), {
+    target: { value: '2026-01-01' },
+  });
+  fireEvent.change(screen.getByLabelText('Fim *'), {
+    target: { value: '2026-06-30' },
+  });
+  fireEvent.click(screen.getByLabelText('Operações'));
+}
 
-    fireEvent.change(screen.getByLabelText('Nome *'), {
-      target: { value: 'Avaliação Anual 2026' },
-    });
-    fireEvent.change(screen.getByLabelText('Início *'), {
-      target: { value: '2026-01-01' },
-    });
-    fireEvent.change(screen.getByLabelText('Fim *'), {
-      target: { value: '2026-06-30' },
-    });
-    fireEvent.change(screen.getByLabelText('Participantes'), {
-      target: { value: '42' },
-    });
-    fireEvent.click(screen.getByRole('button', { name: 'Criar Ciclo' }));
+describe('CreateCycleModal (evaluation360)', () => {
+  test('cria o ciclo, adiciona participantes por departamento e distribui — 3 chamadas em sequência', async () => {
+    render(<CreateCycleModal onClose={vi.fn()} onSuccess={vi.fn()} />);
+    fillValid();
+    fireEvent.click(screen.getByRole('button', { name: 'Criar e Distribuir' }));
 
-    expect(onCreate).toHaveBeenCalledTimes(1);
-    const cycle = onCreate.mock.calls[0][0];
-    expect(cycle.name).toBe('Avaliação Anual 2026');
-    expect(cycle.status).toBe('DRAFT');
-    expect(cycle.participantsCount).toBe(42);
-    expect(cycle.completedCount).toBe(0);
-    expect(onClose).toHaveBeenCalledTimes(1);
-    expect(notify).toHaveBeenCalledTimes(1);
+    await waitFor(() => expect(post).toHaveBeenCalledTimes(3));
+    expect(post).toHaveBeenNthCalledWith(1, '/evaluation360/cycles', {
+      tenantId: 'default',
+      name: 'Ciclo 2026 S1',
+      model: 'DEG_360',
+      type: 'SEMESTRAL',
+      startDate: '2026-01-01',
+      endDate: '2026-06-30',
+      weightSelf: 10,
+      weightManager: 30,
+      weightPeer: 20,
+      weightSubordinate: 40,
+      weightExternal: 0,
+    });
+    expect(post).toHaveBeenNthCalledWith(
+      2,
+      '/evaluation360/cycles/1/participants/by-department',
+      { departmentIds: ['5'] },
+    );
+    expect(post).toHaveBeenNthCalledWith(3, '/evaluation360/cycles/1/distribute');
   });
 
-  test('botão desactivado sem nome', () => {
-    render(<CreateCycleModal onClose={vi.fn()} onCreate={vi.fn()} />);
+  test('não submete sem departamento seleccionado', () => {
+    render(<CreateCycleModal onClose={vi.fn()} onSuccess={vi.fn()} />);
+    fireEvent.change(screen.getByLabelText('Nome *'), {
+      target: { value: 'Ciclo 2026 S1' },
+    });
     fireEvent.change(screen.getByLabelText('Início *'), {
       target: { value: '2026-01-01' },
     });
     fireEvent.change(screen.getByLabelText('Fim *'), {
       target: { value: '2026-06-30' },
     });
-    expect(
-      screen.getByRole('button', { name: 'Criar Ciclo' }),
-    ).toBeDisabled();
+    fireEvent.click(screen.getByRole('button', { name: 'Criar e Distribuir' }));
+    expect(post).not.toHaveBeenCalled();
+    expect(screen.getByText(/pelo menos um departamento/)).toBeInTheDocument();
   });
 
-  test('rejeita data de fim anterior à de início', () => {
-    render(<CreateCycleModal onClose={vi.fn()} onCreate={vi.fn()} />);
-    fireEvent.change(screen.getByLabelText('Nome *'), {
-      target: { value: 'X' },
+  test('não submete quando os pesos não somam 100', () => {
+    render(<CreateCycleModal onClose={vi.fn()} onSuccess={vi.fn()} />);
+    fillValid();
+    fireEvent.change(screen.getByLabelText('Autoavaliação'), {
+      target: { value: '50' },
     });
-    fireEvent.change(screen.getByLabelText('Início *'), {
-      target: { value: '2026-06-30' },
-    });
-    fireEvent.change(screen.getByLabelText('Fim *'), {
-      target: { value: '2026-01-01' },
-    });
-    expect(
-      screen.getByRole('button', { name: 'Criar Ciclo' }),
-    ).toBeDisabled();
-    expect(
-      screen.getByText('A data de fim não pode ser anterior à de início.'),
-    ).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Criar e Distribuir' }));
+    expect(post).not.toHaveBeenCalled();
+    expect(screen.getByText(/somar 100/)).toBeInTheDocument();
   });
 
-  test('participantes não numérico bloqueia a submissão', () => {
-    render(<CreateCycleModal onClose={vi.fn()} onCreate={vi.fn()} />);
-    fireEvent.change(screen.getByLabelText('Nome *'), {
-      target: { value: 'X' },
-    });
+  test('não submete sem nome', () => {
+    render(<CreateCycleModal onClose={vi.fn()} onSuccess={vi.fn()} />);
     fireEvent.change(screen.getByLabelText('Início *'), {
       target: { value: '2026-01-01' },
     });
     fireEvent.change(screen.getByLabelText('Fim *'), {
       target: { value: '2026-06-30' },
     });
-    fireEvent.change(screen.getByLabelText('Participantes'), {
-      target: { value: 'abc' },
+    fireEvent.click(screen.getByLabelText('Operações'));
+    fireEvent.click(screen.getByRole('button', { name: 'Criar e Distribuir' }));
+    expect(post).not.toHaveBeenCalled();
+  });
+
+  test('não submete quando a data de fim é anterior à de início', () => {
+    render(<CreateCycleModal onClose={vi.fn()} onSuccess={vi.fn()} />);
+    fireEvent.change(screen.getByLabelText('Nome *'), {
+      target: { value: 'Ciclo inválido' },
     });
-    expect(
-      screen.getByRole('button', { name: 'Criar Ciclo' }),
-    ).toBeDisabled();
+    fireEvent.change(screen.getByLabelText('Início *'), {
+      target: { value: '2026-06-30' },
+    });
+    fireEvent.change(screen.getByLabelText('Fim *'), {
+      target: { value: '2026-01-01' },
+    });
+    fireEvent.click(screen.getByLabelText('Operações'));
+    fireEvent.click(screen.getByRole('button', { name: 'Criar e Distribuir' }));
+    expect(post).not.toHaveBeenCalled();
   });
 });

@@ -150,11 +150,27 @@ export function MyDashboard() {
   const handleUpdateProgress = (goalId: number, currentValue: number) =>
     updateProgress.mutate({ goalId, currentValue });
 
+  // Secção 21 do formulário — "assinatura/aceitação do colaborador" sobre o
+  // resultado publicado. Só relevante quando o ciclo tem
+  // rules.requireAcceptance activo; mostrar sempre que acceptedAt está vazio
+  // não faz mal quando desactivado — é uma acção opcional para o
+  // colaborador, nunca bloqueante.
+  const acceptReview = useApiMutation(
+    (reviewId: number) => apiClient.post(`/performance/${reviewId}/accept`),
+    {
+      onSuccess: () => historyQ.refetch(),
+      onError: (e) => notify({ title: e.message, intent: 'danger' }),
+    },
+  );
+
   if (loading) return <Skeleton />;
   if (!history) return null;
 
   const pendingReviews = history.reviews.filter((r: Review) =>
     ['PENDING_SELF', 'PENDING_MANAGER'].includes(r.status),
+  );
+  const unacceptedReviews = history.reviews.filter(
+    (r: Review) => r.status === 'PUBLISHED' && !r.acceptedAt,
   );
 
   return (
@@ -211,6 +227,37 @@ export function MyDashboard() {
               </div>
               <Button intent="warning" size="sm">
                 Completar
+              </Button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Resultados publicados por aceitar */}
+      {unacceptedReviews.length > 0 && (
+        <div className="rounded-card border border-success bg-success-subtle p-4">
+          <div className="mb-2 text-sm font-semibold text-success-ink">
+            Resultado disponível
+          </div>
+          {unacceptedReviews.map((r: Review) => (
+            <div
+              key={r.id}
+              className="flex items-center justify-between py-2 border-b border-success/20 last:border-0"
+            >
+              <div>
+                <div className="text-sm font-medium text-ink">{r.cycle.name}</div>
+                <div className="text-xs text-ink-faint">
+                  Nota: {r.score ?? '—'}
+                  {r.category && ` · ${r.category}`}
+                </div>
+              </div>
+              <Button
+                intent="success"
+                size="sm"
+                onClick={() => acceptReview.mutate(r.id)}
+                loading={acceptReview.isPending}
+              >
+                Aceitar resultado
               </Button>
             </div>
           ))}
