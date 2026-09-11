@@ -1,7 +1,7 @@
 // components/academic/ProgramsListView.tsx
 
 import Link from 'next/link';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, Search } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
 import { Button, buttonVariants } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -80,13 +80,20 @@ export function ProgramsListView({
       </div>
 
       <div className="flex gap-4 flex-wrap">
-        <Input
-          type="text"
-          placeholder="Pesquisar por nome ou código..."
-          value={search}
-          onChange={(e) => onSearchChange(e.target.value)}
-          className="flex-1 min-w-[200px]"
-        />
+        <div className="relative flex-1 min-w-[200px]">
+          <Search
+            size={16}
+            strokeWidth={1.75}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-faint"
+          />
+          <Input
+            type="text"
+            placeholder="Pesquisar por nome ou código..."
+            value={search}
+            onChange={(e) => onSearchChange(e.target.value)}
+            className="w-full pl-9"
+          />
+        </div>
         <Select
           value={levelFilter || 'ALL'}
           onValueChange={(value) => onLevelFilterChange(value === 'ALL' ? '' : value)}
