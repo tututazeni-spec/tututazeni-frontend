@@ -1,6 +1,6 @@
 // components/lms/LearningPathsView.tsx
 
-import { GraduationCap } from 'lucide-react';
+import { GraduationCap, Search } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
 import { Button, buttonVariants } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
@@ -18,6 +18,7 @@ interface LearningPathsViewProps {
   setPage: (updater: (p: number) => number) => void;
   search: string;
   onSearchChange: (value: string) => void;
+  onSearchSubmit: () => void;
   loading: boolean;
   error: string;
   onRetry: () => void;
@@ -32,6 +33,7 @@ export function LearningPathsView({
   setPage,
   search,
   onSearchChange,
+  onSearchSubmit,
   loading,
   error,
   onRetry,
@@ -67,13 +69,24 @@ export function LearningPathsView({
         </div>
       </div>
 
-      <Input
-        type="text"
-        placeholder="Pesquisar percursos..."
-        value={search}
-        onChange={(e) => onSearchChange(e.target.value)}
-        className="w-full max-w-md"
-      />
+      <div className="relative w-full max-w-md">
+        <button
+          type="button"
+          onClick={onSearchSubmit}
+          aria-label="Pesquisar"
+          className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-faint hover:text-ink"
+        >
+          <Search size={16} strokeWidth={1.75} />
+        </button>
+        <Input
+          type="text"
+          placeholder="Pesquisar percursos..."
+          value={search}
+          onChange={(e) => onSearchChange(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && onSearchSubmit()}
+          className="w-full pl-9"
+        />
+      </div>
 
       {data.length === 0 ? (
         <EmptyState

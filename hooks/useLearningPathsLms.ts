@@ -5,7 +5,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
 import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
 import { useDebounce } from '@/hooks/useDebounce';
@@ -20,7 +20,14 @@ export function useLearningPathsLms() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
   const debouncedSearch = useDebounce(search);
-  const params = { page, limit: 20, search: debouncedSearch };
+  // Termo efetivamente usado na query: segue o debounce normalmente, mas
+  // onSearchSubmit (Enter / clique na lupa) força-o de imediato, saltando
+  // a espera do debounce.
+  const [activeSearch, setActiveSearch] = useState('');
+  useEffect(() => {
+    setActiveSearch(debouncedSearch);
+  }, [debouncedSearch]);
+  const params = { page, limit: 20, search: activeSearch };
 
   const {
     data: resp,
@@ -55,6 +62,10 @@ export function useLearningPathsLms() {
     setSearch(value);
     setPage(1);
   }
+  function onSearchSubmit() {
+    setActiveSearch(search);
+    setPage(1);
+  }
 
   return {
     data: resp?.data ?? [],
@@ -64,6 +75,7 @@ export function useLearningPathsLms() {
     setPage,
     search,
     onSearchChange,
+    onSearchSubmit,
     loading,
     error: queryError?.message ?? '',
     onRetry: () => refetch(),
