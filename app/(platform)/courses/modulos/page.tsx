@@ -6,10 +6,12 @@
 
 import { useEffect, useReducer, useState } from 'react';
 import { useApiQuery } from '@/hooks/useApiQuery';
+import { useCurrentRole } from '@/hooks/useCurrentRole';
 import { apiClient } from '@/lib/apiClient';
 import { reportError } from '@/lib/errorReporting';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
+import { ADMIN_ROLES } from '@/lib/roles';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
 import { Search, BookMarked, AlertTriangle, Package } from 'lucide-react';
@@ -26,6 +28,11 @@ import { ModuleBlock } from '@/components/courses-modulos/ModuleBlock';
 import type { CourseModule, Lesson } from '@/components/courses-modulos/types';
 
 export default function CourseModulesPage() {
+  const role = useCurrentRole();
+  // POST/PUT/DELETE de módulos e lições são @Roles(ADMIN, RH) no backend —
+  // GET fica aberto a todos, por isso só os controlos de escrita são gated.
+  const canManage = !!role && ADMIN_ROLES.includes(role);
+
   const [courseIdInput, setCourseIdInput] = useState('');
   const [submittedCourseId, setSubmittedCourseId] = useState<number | null>(
     null,
@@ -147,7 +154,7 @@ export default function CourseModulesPage() {
           >
             Progresso
           </Button>
-          {loaded && (
+          {loaded && canManage && (
             <Button
               onClick={() => dispatchModal({ type: 'openNewModule' })}
               intent="primary"
@@ -285,12 +292,14 @@ export default function CourseModulesPage() {
             <p className="text-ink-faint text-sm mb-4">
               Este curso não tem módulos ainda.
             </p>
-            <Button
-              onClick={() => dispatchModal({ type: 'openNewModule' })}
-              intent="primary"
-            >
-              + Criar Primeiro Módulo
-            </Button>
+            {canManage && (
+              <Button
+                onClick={() => dispatchModal({ type: 'openNewModule' })}
+                intent="primary"
+              >
+                + Criar Primeiro Módulo
+              </Button>
+            )}
           </CardBody>
         </Card>
       ) : (
@@ -316,6 +325,7 @@ export default function CourseModulesPage() {
                   })
                 }
                 onDeleteLesson={deleteLesson}
+                canManage={canManage}
               />
             ))}
         </div>

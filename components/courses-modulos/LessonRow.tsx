@@ -20,9 +20,16 @@ interface LessonRowProps {
   lesson: Lesson;
   onEdit: () => void;
   onDelete: () => void;
+  /** ADMIN/RH apenas — POST/PUT/DELETE lessons são @Roles(ADMIN, RH) no backend. */
+  canManage: boolean;
 }
 
-export function LessonRow({ lesson, onEdit, onDelete }: LessonRowProps) {
+export function LessonRow({
+  lesson,
+  onEdit,
+  onDelete,
+  canManage,
+}: LessonRowProps) {
   const ct = CONTENT_TYPE[lesson.type] ?? {
     icon: BookMarked,
     color: '#64748b',
@@ -97,18 +104,20 @@ export function LessonRow({ lesson, onEdit, onDelete }: LessonRowProps) {
             ))}
         </div>
       </div>
-      <div className="flex gap-1 flex-shrink-0">
-        <Button onClick={onEdit} intent="ghost" className="px-2 py-1 text-xs">
-          <Pencil size={14} strokeWidth={1.75} />
-        </Button>
-        <Button
-          onClick={onDelete}
-          intent="danger"
-          className="px-2 py-1 text-xs"
-        >
-          <Trash2 size={14} strokeWidth={1.75} />
-        </Button>
-      </div>
+      {canManage && (
+        <div className="flex gap-1 flex-shrink-0">
+          <Button onClick={onEdit} intent="ghost" className="px-2 py-1 text-xs">
+            <Pencil size={14} strokeWidth={1.75} />
+          </Button>
+          <Button
+            onClick={onDelete}
+            intent="danger"
+            className="px-2 py-1 text-xs"
+          >
+            <Trash2 size={14} strokeWidth={1.75} />
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
