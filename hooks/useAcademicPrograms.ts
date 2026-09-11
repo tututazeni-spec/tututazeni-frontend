@@ -3,7 +3,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { useDebounce } from '@/hooks/useDebounce';
@@ -16,10 +16,17 @@ export function useAcademicPrograms() {
   const [search, setSearch] = useState('');
   const [levelFilter, setLevelFilter] = useState('');
   const debouncedSearch = useDebounce(search);
+  // Termo efetivamente usado na query: segue o debounce normalmente, mas
+  // onSearchSubmit (Enter / clique na lupa) força-o de imediato, saltando
+  // a espera de 350ms.
+  const [activeSearch, setActiveSearch] = useState('');
+  useEffect(() => {
+    setActiveSearch(debouncedSearch);
+  }, [debouncedSearch]);
   const params = {
     page,
     limit: 20,
-    search: debouncedSearch,
+    search: activeSearch,
     level: levelFilter,
   };
 
@@ -42,6 +49,10 @@ export function useAcademicPrograms() {
     setSearch(value);
     setPage(1);
   }
+  function onSearchSubmit() {
+    setActiveSearch(search);
+    setPage(1);
+  }
   function onLevelFilterChange(value: string) {
     setLevelFilter(value);
     setPage(1);
@@ -55,6 +66,7 @@ export function useAcademicPrograms() {
     setPage,
     search,
     onSearchChange,
+    onSearchSubmit,
     levelFilter,
     onLevelFilterChange,
     loading,

@@ -27,6 +27,7 @@ interface ProgramsListViewProps {
   setPage: (updater: (p: number) => number) => void;
   search: string;
   onSearchChange: (value: string) => void;
+  onSearchSubmit: () => void;
   levelFilter: string;
   onLevelFilterChange: (value: string) => void;
   loading: boolean;
@@ -42,6 +43,7 @@ export function ProgramsListView({
   setPage,
   search,
   onSearchChange,
+  onSearchSubmit,
   levelFilter,
   onLevelFilterChange,
   loading,
@@ -81,16 +83,20 @@ export function ProgramsListView({
 
       <div className="flex gap-4 flex-wrap">
         <div className="relative flex-1 min-w-[200px]">
-          <Search
-            size={16}
-            strokeWidth={1.75}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-faint"
-          />
+          <button
+            type="button"
+            onClick={onSearchSubmit}
+            aria-label="Pesquisar"
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-faint hover:text-ink"
+          >
+            <Search size={16} strokeWidth={1.75} />
+          </button>
           <Input
             type="text"
             placeholder="Pesquisar por nome ou código..."
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && onSearchSubmit()}
             className="w-full pl-9"
           />
         </div>
