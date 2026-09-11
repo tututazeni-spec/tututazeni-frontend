@@ -49,7 +49,7 @@ export default function CoursesPage() {
           <h1 className="text-xl font-semibold text-ink">{TITLES[nav.view]}</h1>
           <p className="text-sm text-ink-faint mt-0.5"></p>
         </div>
-        {(nav.view === 'catalog' || nav.view === 'gestao') && (
+        {isAdmin && (nav.view === 'catalog' || nav.view === 'gestao') && (
           <Button onClick={() => setShowCreate(true)}>+ Criar curso</Button>
         )}
       </div>
