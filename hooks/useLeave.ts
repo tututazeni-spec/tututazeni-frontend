@@ -40,21 +40,32 @@ export function useMyRequests() {
   return { data: q.data ?? null, loading: q.isLoading, refetch: q.refetch };
 }
 
-export function useLeaveDashboard() {
+/**
+ * @param enabled - GET /leave/dashboard exige @Roles(ADMIN, RH, GESTOR) no
+ * backend; por omissão `true` para não mudar o comportamento de quem já
+ * chamava esta hook sem o parâmetro. As páginas que a montam para todas as
+ * roles (ex.: app/(platform)/leave/page.tsx) devem passar `false` para um
+ * COLABORADOR, ou o pedido rebenta sempre com 403 mal a página monta.
+ */
+export function useLeaveDashboard(enabled = true) {
   const q = useApiQuery<DashboardData>(
     queryKeys.leave.dashboard(),
     '/leave/dashboard',
-    { staleTime: STALE_TIME.SEMI_STATIC },
+    { staleTime: STALE_TIME.SEMI_STATIC, enabled },
   );
   return { data: q.data ?? null, loading: q.isLoading, refetch: q.refetch };
 }
 
-export function usePendingApprovals() {
+/**
+ * @param enabled - GET /leave/pending-approvals exige @Roles(ADMIN, RH,
+ * GESTOR) no backend; ver nota em useLeaveDashboard acima.
+ */
+export function usePendingApprovals(enabled = true) {
   // Fila de aprovações → polling de 60s.
   const q = useApiQuery<LeaveRequest[]>(
     queryKeys.leave.pendingApprovals(),
     '/leave/pending-approvals',
-    { staleTime: STALE_TIME.DYNAMIC, refetchInterval: 60_000 },
+    { staleTime: STALE_TIME.DYNAMIC, refetchInterval: 60_000, enabled },
   );
   return { data: q.data ?? [], loading: q.isLoading, refetch: q.refetch };
 }
