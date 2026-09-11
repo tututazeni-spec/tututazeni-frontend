@@ -9,6 +9,7 @@
 import { useState } from 'react';
 import { NAV, TITLES } from '@/components/performance/constants';
 import { AnalyticsView } from '@/components/performance/AnalyticsView';
+import { CyclesTab } from '@/components/performance/CyclesTab';
 import { MyDashboard } from '@/components/performance/MyDashboard';
 import { NineBoxView } from '@/components/performance/NineBoxView';
 import { TeamView } from '@/components/performance/TeamView';
@@ -50,9 +51,10 @@ export default function PerformancePage() {
       </div>
 
       {view === 'dashboard' && <MyDashboard />}
-      {/* Team/9-Box/Analytics: nem montados para quem não tem
-          @Roles(ADMIN, RH, GESTOR) no backend — não só escondidos da lista
-          de separadores acima. */}
+      {/* Ciclos/Team/9-Box/Analytics: nem montados para quem não tem o
+          @Roles() correspondente no backend — não só escondidos da lista de
+          separadores acima. */}
+      {view === 'cycles' && visibleNav.some((n) => n.id === 'cycles') && <CyclesTab />}
       {view === 'team' && visibleNav.some((n) => n.id === 'team') && (
         <TeamView />
       )}

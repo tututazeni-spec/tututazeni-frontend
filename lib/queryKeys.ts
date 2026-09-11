@@ -251,6 +251,7 @@ export const queryKeys = {
     my: () => [...queryKeys.performance.all, 'my'] as const,
     currentCycle: () =>
       [...queryKeys.performance.all, 'current-cycle'] as const,
+    cycles: () => [...queryKeys.performance.all, 'cycles'] as const,
     team: () => [...queryKeys.performance.all, 'team'] as const,
     nineBox: () => [...queryKeys.performance.all, '9box'] as const,
     analytics: () => [...queryKeys.performance.all, 'analytics'] as const,

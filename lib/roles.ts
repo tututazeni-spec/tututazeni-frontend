@@ -56,6 +56,11 @@ export const NON_COLABORADOR_ROLES: readonly Role[] = AUTHENTICATED_ROLES.filter
  * quem pode criar/gerir avaliações formais — ADMIN, GESTOR, RH, DIRECTOR,
  * LIDER. COLABORADOR, AUDITOR e INSTRUCTOR só vêem as avaliações abertas e
  * participam.
+ *
+ * Mesmo conjunto de 5 papéis usado por PERFORMANCE_MGMT_ROLES em
+ * src/performance/performance.controller.ts (criar/activar ciclos de
+ * avaliação de desempenho) — reutilizado aqui em vez de duplicado, já que o
+ * pedido do utilizador definiu os dois com exactamente os mesmos papéis.
  */
 export const EVAL_CREATOR_ROLES: readonly Role[] = [
   'ADMIN',

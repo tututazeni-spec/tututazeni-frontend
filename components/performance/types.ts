@@ -18,19 +18,43 @@ export type GoalStatus = 'ON_TRACK' | 'AT_RISK' | 'OFF_TRACK' | 'COMPLETED';
 export type FeedbackType = 'PRAISE' | 'IMPROVEMENT' | 'GENERAL';
 export type PerfCategory = 'LOW' | 'MEDIUM' | 'HIGH';
 
+// Configurações da avaliação (secção 21 do formulário) — serializadas em
+// PerformanceCycle.rules (JSON) no backend. Ver performance.dto.ts
+// PerformanceCycleRulesDto — mesmos campos, mesmos defaults.
+export interface CycleRules {
+  allowSelfEvaluation?: boolean;
+  allowComments?: boolean;
+  requireCommentsBelow?: number;
+  allowAttachments?: boolean;
+  allowManagerEvaluation?: boolean;
+  allowRhEvaluation?: boolean;
+  calibrationEnabled?: boolean;
+  pdiEnabled?: boolean;
+  feedbackMeetingEnabled?: boolean;
+  allowDispute?: boolean;
+  requireAcceptance?: boolean;
+}
+
 export interface Cycle {
   id: number;
   name: string;
+  code: string | null;
+  description: string | null;
   type: string;
   status: CycleStatus;
   startDate: string;
   endDate: string;
   selfEvalDeadline: string | null;
   managerEvalDeadline: string | null;
+  targetDepartmentIds: number[];
+  ownerId: number | null;
   goalsWeight: number;
   competenciesWeight: number;
   behaviorsWeight: number;
   scoreScale: number;
+  // O backend guarda isto como JSON serializado (String?) — nunca vem
+  // pré-parseado da API. Usar parseCycleRules() (utils.ts) para ler.
+  rules: string | null;
   _count: { reviews: number };
 }
 
@@ -45,6 +69,7 @@ export interface Review {
   feedback: string | null;
   category: PerfCategory | null;
   submittedAt: string | null;
+  acceptedAt: string | null;
   createdAt: string;
   user: {
     id: number;
@@ -130,4 +155,4 @@ export interface MyPerformanceHistory {
   avgScore: number;
 }
 
-export type View = 'dashboard' | 'team' | 'matrix9box' | 'analytics';
+export type View = 'dashboard' | 'cycles' | 'team' | 'matrix9box' | 'analytics';
