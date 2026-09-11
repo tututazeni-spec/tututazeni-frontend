@@ -19,6 +19,7 @@ import { CATEGORY_CFG, Skeleton } from '@/components/notifications/shared';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
+import { useCurrentRole } from '@/hooks/useCurrentRole';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 // Priority/Category/Notification/NotifData/Stats/AdminForm vivem em
@@ -325,6 +326,11 @@ const TITLES: Record<View, string> = {
 
 export default function NotificationsPage() {
   const [view, setView] = useState<View>('inbox');
+  const role = useCurrentRole();
+  // GET /notifications/admin/* tem @Roles(ADMIN, RH) no backend, mas o
+  // pedido aqui foi só esconder de COLABORADOR — ver NON_COLABORADOR_ROLES
+  // em lib/roles.ts.
+  const canSeeAdmin = role !== 'COLABORADOR';
 
   // Badge de não lidas com polling (60s). Key partilhada com as mutações do inbox.
   const { data: unreadData } = useApiQuery<{ count: number }>(
@@ -362,7 +368,7 @@ export default function NotificationsPage() {
             )}
           </TabsTrigger>
           <TabsTrigger value="preferences">Preferências</TabsTrigger>
-          <TabsTrigger value="admin">Admin</TabsTrigger>
+          {canSeeAdmin && <TabsTrigger value="admin">Admin</TabsTrigger>}
         </TabsList>
 
         <TabsContent value="inbox">
@@ -371,9 +377,11 @@ export default function NotificationsPage() {
         <TabsContent value="preferences">
           <PreferencesView />
         </TabsContent>
-        <TabsContent value="admin">
-          <AdminView />
-        </TabsContent>
+        {canSeeAdmin && (
+          <TabsContent value="admin">
+            <AdminView />
+          </TabsContent>
+        )}
       </Tabs>
     </div>
   );

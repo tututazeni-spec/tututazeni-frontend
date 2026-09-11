@@ -10,6 +10,7 @@
 
 import { Activity, Award, Clock, Shield } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
+import { NON_COLABORADOR_ROLES, type Role } from '@/lib/roles';
 import type { Tab } from './types';
 
 export const CATEGORY_COLOR: Record<
@@ -114,9 +115,18 @@ export function formatAuditAction(action: string): string {
   return pretty.charAt(0).toUpperCase() + pretty.slice(1);
 }
 
-export const TABS: { id: Tab; label: string; icon: LucideIcon }[] = [
+// Separador "Auditoria" chama GET /history/audit/stats, que tem
+// @Roles(ADMIN, RH) no backend — mas o pedido aqui foi só esconder de
+// COLABORADOR, por isso mantém-se visível aos restantes papéis também.
+// Ver NON_COLABORADOR_ROLES em lib/roles.ts.
+export const TABS: {
+  id: Tab;
+  label: string;
+  icon: LucideIcon;
+  roles?: readonly Role[];
+}[] = [
   { id: 'timeline', label: 'Linha de Tempo', icon: Clock },
   { id: 'milestones', label: 'Marcos', icon: Award },
   { id: 'stats', label: 'Actividade', icon: Activity },
-  { id: 'audit', label: 'Auditoria', icon: Shield },
+  { id: 'audit', label: 'Auditoria', icon: Shield, roles: NON_COLABORADOR_ROLES },
 ];

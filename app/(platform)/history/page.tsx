@@ -7,8 +7,13 @@ import { MilestonesTab } from '@/components/history/MilestonesTab';
 import { StatsTab } from '@/components/history/StatsTab';
 import { TimelineTab } from '@/components/history/TimelineTab';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
+import { useCurrentRole } from '@/hooks/useCurrentRole';
+import { filterByRole } from '@/lib/roles';
 
 export default function HistoryPage() {
+  const role = useCurrentRole();
+  const visibleTabs = filterByRole(TABS, role);
+
   return (
     <div className="min-h-screen bg-canvas">
       <div className="border-b border-border bg-surface px-6 py-5">
@@ -25,14 +30,14 @@ export default function HistoryPage() {
       <Tabs defaultValue="timeline">
         <div className="border-b border-border bg-surface px-6">
           <TabsList className="mx-auto max-w-7xl overflow-x-auto gap-0">
-            {TABS.map((t, i) => {
+            {visibleTabs.map((t, i) => {
               const Icon = t.icon;
               return (
                 <TabsTrigger
                   key={t.id}
                   value={t.id}
                   className={
-                    i < TABS.length - 1
+                    i < visibleTabs.length - 1
                       ? 'gap-2 whitespace-nowrap mr-[1cm]!'
                       : 'gap-2 whitespace-nowrap'
                   }

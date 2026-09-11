@@ -13,7 +13,7 @@ import { useState } from 'react';
 import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
-import { ADMIN_ROLES } from '@/lib/roles';
+import { ADMIN_ROLES, filterByRole, NON_COLABORADOR_ROLES, type Role } from '@/lib/roles';
 import { CreateProcessModal } from '@/components/processes/CreateProcessModal';
 import { DashboardView } from '@/components/processes/DashboardView';
 import { LibraryView } from '@/components/processes/LibraryView';
@@ -30,15 +30,20 @@ type Nav =
   | { view: 'viewer'; processId: number }
   | { view: 'runner'; instanceId: number; processId: number | null };
 
-const NAV: Array<{ id: TabKey; label: string }> = [
+// Separador "Dashboard" chama GET /process-standard/dashboard, que tem
+// @Roles(ADMIN, RH, GESTOR) no backend — mas o pedido aqui foi só esconder
+// de COLABORADOR, por isso mantém-se visível a LIDER/INSTRUCTOR/DIRECTOR/
+// AUDITOR também. Ver NON_COLABORADOR_ROLES em lib/roles.ts.
+const NAV: Array<{ id: TabKey; label: string; roles?: readonly Role[] }> = [
   { id: 'library', label: 'Biblioteca' },
   { id: 'tasks', label: 'Minhas tarefas' },
-  { id: 'dashboard', label: 'Dashboard' },
+  { id: 'dashboard', label: 'Dashboard', roles: NON_COLABORADOR_ROLES },
 ];
 
 export default function ProcessStandardPage() {
   const role = useCurrentRole();
   const canCreate = !!role && ADMIN_ROLES.includes(role);
+  const visibleNav = filterByRole(NAV, role);
 
   const [nav, setNav] = useState<Nav>({ view: 'library' });
   const [showCreate, setShowCreate] = useState(false);
@@ -95,7 +100,7 @@ export default function ProcessStandardPage() {
       {/* Tabs (não mostrar em viewer/runner) */}
       {nav.view !== 'viewer' && nav.view !== 'runner' && (
         <div className="mb-6 flex w-fit gap-1 rounded-card bg-surface-sunken p-1">
-          {NAV.map((n) => (
+          {visibleNav.map((n) => (
             <Button
               key={n.id}
               size="sm"

@@ -8,8 +8,8 @@
 
 import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
+import { Search } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
-import { useDebounce } from '@/hooks/useDebounce';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Button } from '@/components/ui/Button';
@@ -47,11 +47,19 @@ export function LibraryView({ onSelect }: LibraryViewProps) {
   const [risk, setRisk] = useState('');
   const [page, setPage] = useState(1);
 
-  const debouncedSearch = useDebounce(search, 300);
+  // `query` é o valor efectivamente enviado ao backend — só muda quando a
+  // lupa é clicada ou Enter é premido (pedido do utilizador: pesquisa sob
+  // demanda, não a cada tecla).
+  const [query, setQuery] = useState('');
+  const runSearch = () => {
+    setQuery(search);
+    setPage(1);
+  };
+
   const params = {
     page,
     limit: 15,
-    ...(debouncedSearch ? { search: debouncedSearch } : {}),
+    ...(query ? { search: query } : {}),
     ...(status ? { status } : {}),
     ...(risk ? { riskLevel: risk } : {}),
   };
@@ -73,16 +81,26 @@ export function LibraryView({ onSelect }: LibraryViewProps) {
     <div>
       {/* Filtros */}
       <div className="mb-5 flex flex-wrap items-center gap-3">
-        <Input
-          type="text"
-          placeholder="Pesquisar por nome, código, tag…"
-          value={search}
-          onChange={(e) => {
-            setSearch(e.target.value);
-            setPage(1);
-          }}
-          className="min-w-[200px] flex-1"
-        />
+        <div className="relative min-w-[200px] flex-1">
+          <Input
+            type="text"
+            placeholder="Pesquisar por nome, código, tag…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') runSearch();
+            }}
+            className="w-full pl-8"
+          />
+          <button
+            type="button"
+            onClick={runSearch}
+            aria-label="Pesquisar"
+            className="absolute left-2.5 top-1/2 z-10 -translate-y-1/2 text-ink-faint hover:text-ink"
+          >
+            <Search size={14} strokeWidth={1.75} />
+          </button>
+        </div>
         <Select
           items={STATUS_ITEMS}
           value={status || 'ALL'}
