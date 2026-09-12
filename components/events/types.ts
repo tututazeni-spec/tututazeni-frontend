@@ -45,6 +45,8 @@ export interface Event {
   mandatory: boolean;
   bannerUrl: string | null;
   tags: string[];
+  /** IDs de Department a que o evento fica restrito; [] = visível a todos. */
+  restrictedDeptIds: number[];
   isFull: boolean;
   occupancyRate: number | null;
   avgNps?: number | null;

@@ -11,6 +11,12 @@
 // evento nasce como DRAFT. O botão que abre esta modal já está escondido
 // para quem não é ADMIN/RH/GESTOR; aqui só blindamos o payload: datas
 // locais -> ISO, capacidade -> número, opcionais vazios omitidos.
+//
+// Público-alvo (restrictedDeptIds): campo já existia no CreateEventDto do
+// backend mas era descartado em silêncio — nunca chegava a ser gravado nem
+// a filtrar quem via/entrava no evento (ver EventsService#create e
+// #applyDeptVisibility, agora corrigidos). Por omissão "Enviar para todos"
+// ([]); ao escolher departamentos específicos exige-se pelo menos um.
 
 'use client';
 
@@ -24,9 +30,11 @@ import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { Modal, ModalContent } from '@/components/ui/Modal';
 import { Select } from '@/components/ui/Select';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { Textarea } from '@/components/ui/Textarea';
 import { useToast } from '@/providers/ToastProvider';
 import { MODALITY_CFG, TYPE_CFG } from './constants';
+import { useDepartmentOptions } from './eventsData';
 import type { EventModalidade, EventType } from './types';
 
 export interface CreateEventModalProps {
@@ -55,7 +63,15 @@ export function CreateEventModal({ onClose }: CreateEventModalProps) {
   const [meetingUrl, setMeetingUrl] = useState('');
   const [maxCapacity, setMaxCapacity] = useState('50');
   const [description, setDescription] = useState('');
+  const [sendToAll, setSendToAll] = useState(true);
+  const [selectedDeptIds, setSelectedDeptIds] = useState<number[]>([]);
   const [submitError, setSubmitError] = useState('');
+
+  const { departments, loading: deptsLoading } = useDepartmentOptions(!sendToAll);
+  const toggleDept = (id: number) =>
+    setSelectedDeptIds((prev) =>
+      prev.includes(id) ? prev.filter((d) => d !== id) : [...prev, id],
+    );
 
   const capacityNum = Number(maxCapacity);
   const datesOk =
@@ -66,7 +82,8 @@ export function CreateEventModal({ onClose }: CreateEventModalProps) {
     title.trim().length > 0 &&
     datesOk &&
     Number.isFinite(capacityNum) &&
-    capacityNum >= 1;
+    capacityNum >= 1 &&
+    (sendToAll || selectedDeptIds.length > 0);
 
   const createEvent = useApiMutation(
     (body: Record<string, unknown>) => apiClient.post('/events', body),
@@ -108,6 +125,7 @@ export function CreateEventModal({ onClose }: CreateEventModalProps) {
       ...(location.trim() ? { location: location.trim() } : {}),
       ...(meetingUrl.trim() ? { meetingUrl: meetingUrl.trim() } : {}),
       ...(description.trim() ? { description: description.trim() } : {}),
+      restrictedDeptIds: sendToAll ? [] : selectedDeptIds,
     });
   };
 
@@ -221,6 +239,68 @@ export function CreateEventModal({ onClose }: CreateEventModalProps) {
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Agenda, oradores, pré-requisitos…"
             />
+          </FormField>
+
+          <FormField label="Público-alvo *" htmlFor="ev-audience">
+            <div className="flex gap-2">
+              <button
+                type="button"
+                id="ev-audience"
+                onClick={() => setSendToAll(true)}
+                className={`rounded-control border-[1.5px] px-3 py-1.5 font-body text-sm transition-colors ${
+                  sendToAll
+                    ? 'border-accent bg-accent-subtle text-accent'
+                    : 'border-border-strong bg-surface text-ink-muted hover:bg-surface-sunken'
+                }`}
+              >
+                Enviar para todos
+              </button>
+              <button
+                type="button"
+                onClick={() => setSendToAll(false)}
+                className={`rounded-control border-[1.5px] px-3 py-1.5 font-body text-sm transition-colors ${
+                  !sendToAll
+                    ? 'border-accent bg-accent-subtle text-accent'
+                    : 'border-border-strong bg-surface text-ink-muted hover:bg-surface-sunken'
+                }`}
+              >
+                Departamentos específicos
+              </button>
+            </div>
+
+            {!sendToAll && (
+              <div className="mt-3 max-h-40 overflow-y-auto rounded-card border border-border p-2">
+                {deptsLoading ? (
+                  <Skeleton rows={3} itemClassName="h-6 bg-surface-sunken rounded" />
+                ) : departments.length === 0 ? (
+                  <p className="px-1 py-1 font-body text-sm text-ink-faint">
+                    Nenhum departamento encontrado.
+                  </p>
+                ) : (
+                  <div className="space-y-1">
+                    {departments.map((d) => (
+                      <label
+                        key={d.id}
+                        className="flex items-center gap-2 rounded px-1 py-1 font-body text-sm text-ink hover:bg-surface-sunken"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={selectedDeptIds.includes(d.id)}
+                          onChange={() => toggleDept(d.id)}
+                          className="h-4 w-4 rounded border-border-strong accent-primary"
+                        />
+                        {d.name}
+                      </label>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+            {!sendToAll && selectedDeptIds.length === 0 && (
+              <p className="mt-1 font-body text-xs text-ink-faint">
+                Escolhe pelo menos um departamento.
+              </p>
+            )}
           </FormField>
         </div>
 

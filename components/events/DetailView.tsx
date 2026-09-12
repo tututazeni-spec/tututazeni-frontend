@@ -10,7 +10,7 @@
 'use client';
 
 import { useState } from 'react';
-import { ArrowLeft, GraduationCap, KeyRound } from 'lucide-react';
+import { ArrowLeft, Building2, GraduationCap, KeyRound } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
@@ -182,6 +182,13 @@ export function DetailView({ eventId, onBack }: DetailViewProps) {
                 {event.certificateEnabled && (
                   <span className="inline-flex items-center gap-1 font-body text-xs text-success-ink">
                     <GraduationCap size={12} strokeWidth={1.75} /> Certificado
+                  </span>
+                )}
+                {event.restrictedDeptIds?.length > 0 && (
+                  <span className="inline-flex items-center gap-1 rounded bg-warning-subtle px-2 py-0.5 font-body text-xs text-warning-ink">
+                    <Building2 size={12} strokeWidth={1.75} /> Restrito a{' '}
+                    {event.restrictedDeptIds.length} departamento
+                    {event.restrictedDeptIds.length === 1 ? '' : 's'}
                   </span>
                 )}
               </div>

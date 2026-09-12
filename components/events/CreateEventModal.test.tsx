@@ -67,6 +67,15 @@ vi.mock('@/components/ui/Select', () => ({
 
 vi.mock('@/providers/ToastProvider', () => ({ useToast: () => vi.fn() }));
 
+const DEPARTMENTS = [
+  { id: 1, name: 'Recursos Humanos' },
+  { id: 2, name: 'Engenharia' },
+];
+
+vi.mock('./eventsData', () => ({
+  useDepartmentOptions: () => ({ departments: DEPARTMENTS, loading: false }),
+}));
+
 import { CreateEventModal } from './CreateEventModal';
 
 beforeEach(() => post.mockReset().mockResolvedValue({ id: 1 }));
@@ -97,6 +106,7 @@ describe('CreateEventModal', () => {
       startAt: new Date('2026-12-31T09:00').toISOString(),
       endAt: new Date('2026-12-31T12:00').toISOString(),
       maxCapacity: 50,
+      restrictedDeptIds: [],
     });
   });
 
@@ -130,7 +140,28 @@ describe('CreateEventModal', () => {
       location: 'Auditório',
       meetingUrl: 'https://meet.example/1',
       description: 'Agenda cheia',
+      restrictedDeptIds: [],
     });
+  });
+
+  test('departamentos específicos — exige pelo menos um e envia os IDs escolhidos', async () => {
+    render(<CreateEventModal onClose={vi.fn()} />);
+    fillRequired();
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Departamentos específicos' }),
+    );
+
+    // Sem nenhum departamento escolhido, o botão fica desactivado.
+    expect(screen.getByRole('button', { name: 'Criar evento' })).toBeDisabled();
+
+    fireEvent.click(screen.getByLabelText('Engenharia'));
+    fireEvent.click(screen.getByRole('button', { name: 'Criar evento' }));
+
+    await waitFor(() => expect(post).toHaveBeenCalledTimes(1));
+    expect(post).toHaveBeenCalledWith(
+      '/events',
+      expect.objectContaining({ restrictedDeptIds: [2] }),
+    );
   });
 
   test('sem obrigatórios — botão desactivado, não submete', () => {
