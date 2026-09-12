@@ -1,6 +1,8 @@
 // components/onboarding/PlansView.tsx
 // Separador "Planos" — lista filtrável e paginada de todos os planos de
-// integração. ADMIN/RH/GESTOR (GET /onboarding é @Roles(ADMIN, RH, GESTOR)).
+// integração. ADMIN/GESTOR/RH/DIRECTOR/LIDER (GET /onboarding é
+// @Roles(ADMIN, GESTOR, RH, DIRECTOR, LIDER) — mesmo conjunto de
+// EVAL_CREATOR_ROLES que dá acesso a "+ Atribuir plano" em page.tsx).
 // A linha abre o PlanDetailModal; a remoção do plano vive lá dentro e só
 // para ADMIN/RH (prop `canManagePlan`, resolvida no page.tsx).
 

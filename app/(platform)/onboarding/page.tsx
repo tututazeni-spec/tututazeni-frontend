@@ -8,18 +8,21 @@
 // de design: Button substitui os botões/tabs bespoke, mesmo padrão de
 // app/(platform)/events/page.tsx.
 //
-// RBAC: separadores marcados `mgmtOnly` (Planos, Dashboard) só entram na
-// navegação para ADMIN/RH/GESTOR — espelha @Roles(ADMIN, RH, GESTOR) em
-// onboarding.controller.ts (GET /onboarding e GET /onboarding/dashboard).
-// "+ Atribuir plano" é mais restrito (ADMIN/RH). "+ Novo template" (criar
-// plano de integração) é EVAL_CREATOR_ROLES — ADMIN, GESTOR, RH, DIRECTOR,
-// LIDER — espelha @Roles(...) de POST /onboarding/templates; editar/apagar
-// template e gerir as tarefas de cada fase continuam ADMIN/RH (canManage).
+// RBAC: cada item de NAV traz o seu próprio `roles` (ver constants.ts) —
+// "Planos" e "Dashboard" já não partilham o mesmo critério: "Planos" abre
+// para ADMIN/GESTOR/RH/DIRECTOR/LIDER (para chegar a "+ Atribuir plano"),
+// "Dashboard" fica em DASHBOARD_ROLES (ADMIN/RH/GESTOR, espelha
+// @Roles(...) de GET /onboarding/dashboard). "+ Atribuir plano" e "+ Novo
+// template" (criar plano de integração) usam ambos EVAL_CREATOR_ROLES —
+// espelham @Roles(...) de POST /onboarding e POST /onboarding/templates
+// respectivamente; editar/apagar template ou plano continuam ADMIN/RH
+// (canManage), aprovar/saltar tarefas continua DASHBOARD_ROLES
+// (canManageTasks).
 
 import { useState } from 'react';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
-import { ADMIN_ROLES, EVAL_CREATOR_ROLES, type Role } from '@/lib/roles';
-import { NAV, TITLES } from '@/components/onboarding/constants';
+import { ADMIN_ROLES, EVAL_CREATOR_ROLES, filterByRole } from '@/lib/roles';
+import { DASHBOARD_ROLES, NAV, TITLES } from '@/components/onboarding/constants';
 import { AssignPlanModal } from '@/components/onboarding/AssignPlanModal';
 import { TemplateFormModal } from '@/components/onboarding/TemplateFormModal';
 import { DashboardView } from '@/components/onboarding/DashboardView';
@@ -29,24 +32,23 @@ import { TemplatesView } from '@/components/onboarding/TemplatesView';
 import type { View } from '@/components/onboarding/types';
 import { Button } from '@/components/ui/Button';
 
-// Exactamente @Roles(ADMIN, RH, GESTOR) — não reutiliza MGMT_ROLES de
-// lib/roles.ts porque esse inclui LIDER, que o backend não autoriza aqui.
-const MGMT_ROLES: readonly Role[] = ['ADMIN', 'RH', 'GESTOR'];
-
 export default function OnboardingPage() {
   const [view, setView] = useState<View>('my-plan');
   const [showCreate, setShowCreate] = useState(false);
   const [showAssign, setShowAssign] = useState(false);
 
   const role = useCurrentRole();
-  // Editar/apagar template, gestão de tarefas do template, POST
-  // /onboarding e DELETE /onboarding/:id são @Roles(ADMIN, RH).
+  // Editar/apagar template, gestão de tarefas do template e DELETE
+  // /onboarding/:id são @Roles(ADMIN, RH).
   const canManage = !!role && ADMIN_ROLES.includes(role);
-  // Criar plano de integração — @Roles(ADMIN, GESTOR, RH, DIRECTOR, LIDER)
-  // em POST /onboarding/templates.
+  // Criar plano de integração (POST /onboarding/templates) e atribuí-lo a
+  // um colaborador (POST /onboarding) — ambos @Roles(ADMIN, GESTOR, RH,
+  // DIRECTOR, LIDER).
   const canCreateTemplate = !!role && EVAL_CREATOR_ROLES.includes(role);
-  const isMgmt = !!role && MGMT_ROLES.includes(role);
-  const visibleNav = isMgmt ? NAV : NAV.filter((n) => !n.mgmtOnly);
+  const canAssignPlan = !!role && EVAL_CREATOR_ROLES.includes(role);
+  // Aprovar/saltar tarefas de um plano — @Roles(ADMIN, RH, GESTOR).
+  const canManageTasks = !!role && DASHBOARD_ROLES.includes(role);
+  const visibleNav = filterByRole(NAV, role);
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
@@ -60,7 +62,7 @@ export default function OnboardingPage() {
             + Novo template
           </Button>
         )}
-        {view === 'plans' && canManage && (
+        {view === 'plans' && canAssignPlan && (
           <Button size="sm" onClick={() => setShowAssign(true)}>
             + Atribuir plano
           </Button>
@@ -82,10 +84,10 @@ export default function OnboardingPage() {
 
       {view === 'my-plan' && <MyPlanView />}
       {view === 'plans' && (
-        <PlansView canManagePlan={canManage} canManageTasks={isMgmt} />
+        <PlansView canManagePlan={canManage} canManageTasks={canManageTasks} />
       )}
       {view === 'dashboard' && (
-        <DashboardView canManagePlan={canManage} canManageTasks={isMgmt} />
+        <DashboardView canManagePlan={canManage} canManageTasks={canManageTasks} />
       )}
       {view === 'templates' && <TemplatesView canManage={canManage} />}
 

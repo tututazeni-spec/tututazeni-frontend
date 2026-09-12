@@ -71,6 +71,7 @@ function paceLabel(pct: number): string {
 
 export function MyPlanView() {
   const notify = useToast();
+  const [starting, setStarting] = useState(false);
   const [surveyScore, setSurveyScore] = useState(0);
   const [surveyComment, setSurveyComment] = useState('');
   // Marco escolhido no Select; '' = usar o mais recente disponível.
@@ -102,6 +103,25 @@ export function MyPlanView() {
         title: e instanceof Error ? e.message : String(e),
         intent: 'danger',
       });
+    }
+  };
+
+  // "Começar integração" — atalho explícito para NOT_STARTED → IN_PROGRESS
+  // (POST /onboarding/:id/start). O plano também avança sozinho ao concluir
+  // a 1ª tarefa; isto só dá a opção de o fazer sem depender disso.
+  const handleStart = async (planId: number) => {
+    setStarting(true);
+    try {
+      await apiClient.post(`/onboarding/${planId}/start`, {});
+      await refetch();
+    } catch (e) {
+      reportError(e, { source: 'MyPlanView.handleStart' });
+      notify({
+        title: e instanceof Error ? e.message : String(e),
+        intent: 'danger',
+      });
+    } finally {
+      setStarting(false);
     }
   };
 
@@ -238,9 +258,25 @@ export function MyPlanView() {
             </div>
           </div>
           <ProgressBar value={pct} />
-          <div className="mt-1 text-right text-xs text-ink-faint">
-            {paceLabel(pct)}
-          </div>
+          {plan.status === 'NOT_STARTED' ? (
+            <div className="mt-3 flex items-center justify-between gap-3 rounded-card bg-primary-subtle px-3 py-2">
+              <span className="text-xs text-ink-muted">
+                Este plano ainda não foi iniciado.
+              </span>
+              <Button
+                size="sm"
+                onClick={() => handleStart(plan.id)}
+                loading={starting}
+                disabled={starting}
+              >
+                {starting ? 'A começar…' : 'Começar integração'}
+              </Button>
+            </div>
+          ) : (
+            <div className="mt-1 text-right text-xs text-ink-faint">
+              {paceLabel(pct)}
+            </div>
+          )}
         </CardBody>
       </Card>
 

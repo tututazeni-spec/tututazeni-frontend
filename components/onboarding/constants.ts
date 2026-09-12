@@ -32,6 +32,7 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import type { StatusBadgeMap } from '@/lib/statusBadge';
+import { EVAL_CREATOR_ROLES, NON_INSTRUCTOR_ROLES, type Role } from '@/lib/roles';
 import type {
   OnboardingStatus,
   ResponsibleRole,
@@ -178,13 +179,22 @@ export const PHASE_ORDER: TaskPhase[] = [
   'DAY_90',
 ];
 
-// `mgmtOnly` — só entra na navegação renderida para ADMIN/RH/GESTOR
-// (espelha @Roles(ADMIN, RH, GESTOR) em onboarding.controller.ts para
-// GET /onboarding/dashboard e GET /onboarding).
-export const NAV: Array<{ id: View; label: string; mgmtOnly?: boolean }> = [
-  { id: 'my-plan', label: 'O Meu plano de Integração' },
-  { id: 'plans', label: 'Planos', mgmtOnly: true },
-  { id: 'dashboard', label: 'Dashboard', mgmtOnly: true },
+// Espelha exactamente @Roles(ADMIN, RH, GESTOR) em
+// onboarding.controller.ts (GET /onboarding/dashboard) — não reutiliza
+// MGMT_ROLES de lib/roles.ts porque esse inclui LIDER, que o backend não
+// autoriza neste endpoint.
+export const DASHBOARD_ROLES: readonly Role[] = ['ADMIN', 'RH', 'GESTOR'];
+
+// `roles` omitido = visível a qualquer autenticado (aba "Templates").
+// - "my-plan": todos excepto INSTRUCTOR (espelha ONBOARDING_MY_ROLES em
+//   onboarding.controller.ts — GET /onboarding/my).
+// - "plans": ADMIN/GESTOR/RH/DIRECTOR/LIDER (espelha ONBOARDING_ASSIGN_ROLES
+//   — GET /onboarding, para chegar ao botão "+ Atribuir plano").
+// - "dashboard": DASHBOARD_ROLES (ADMIN/RH/GESTOR, ver acima).
+export const NAV: Array<{ id: View; label: string; roles?: readonly Role[] }> = [
+  { id: 'my-plan', label: 'O Meu plano de Integração', roles: NON_INSTRUCTOR_ROLES },
+  { id: 'plans', label: 'Planos', roles: EVAL_CREATOR_ROLES },
+  { id: 'dashboard', label: 'Dashboard', roles: DASHBOARD_ROLES },
   { id: 'templates', label: 'Templates' },
 ];
 

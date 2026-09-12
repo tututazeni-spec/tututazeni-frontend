@@ -1,8 +1,8 @@
 // components/onboarding/AssignPlanModal.tsx
 // Modal "+ Atribuir plano" do separador "Planos". Inicia um processo de
-// integração para um colaborador. Só ADMIN/RH — espelha @Roles(ADMIN, RH)
-// em onboarding.controller.ts (POST /onboarding e
-// POST /onboarding/auto-assign/:userId).
+// integração para um colaborador. ADMIN/GESTOR/RH/DIRECTOR/LIDER — espelha
+// @Roles(ADMIN, GESTOR, RH, DIRECTOR, LIDER) em onboarding.controller.ts
+// (POST /onboarding e POST /onboarding/auto-assign/:userId).
 //
 // Segue o padrão de components/enrollments/EnrollUserModal: a page só monta
 // o componente quando está aberto (Modal sempre `open`, onOpenChange delega
