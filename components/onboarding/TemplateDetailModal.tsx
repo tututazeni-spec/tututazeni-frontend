@@ -232,6 +232,7 @@ export function TemplateDetailModal({
                                 {task.requiresEvidence && (
                                   <span>requer evidência</span>
                                 )}
+                                {!task.isMandatory && <span>opcional</span>}
                               </div>
                             </div>
                             {canManage && (

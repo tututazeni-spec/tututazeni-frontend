@@ -76,6 +76,10 @@ interface TaskDraft {
   responsible: ResponsibleRole;
   dueDayOffset: string;
   xpReward: string;
+  // Formação obrigatória (e qualquer outro item da Estrutura) — default
+  // true, batendo com o default do backend (schema.prisma); desmarcar
+  // marca o item como opcional (ex.: formação avançada para seniores).
+  isMandatory: boolean;
 }
 
 let nextDraftKey = 0;
@@ -87,6 +91,7 @@ const emptyTask = (): TaskDraft => ({
   responsible: 'SELF',
   dueDayOffset: '0',
   xpReward: '10',
+  isMandatory: true,
 });
 
 // TaskType não é exposto na Estrutura desta modal (fica implícito pela
@@ -95,7 +100,7 @@ const emptyTask = (): TaskDraft => ({
 function typeForCategory(category: TaskCategory): TaskType {
   if (category === 'DOCUMENTS' || category === 'POLICIES') return 'DOCUMENT';
   if (category === 'TRAINING') return 'COURSE';
-  if (category === 'MEETING') return 'MEETING';
+  if (category === 'MEETING' || category === 'ONE_ON_ONE') return 'MEETING';
   return 'TASK';
 }
 
@@ -249,6 +254,7 @@ export function TemplateFormModal({
         type: typeForCategory(t.category as TaskCategory),
         phase: t.phase,
         responsible: t.responsible,
+        isMandatory: t.isMandatory,
         dueDayOffset: t.dueDayOffset.trim() === '' ? 0 : Math.trunc(Number(t.dueDayOffset)),
         xpReward: Math.max(0, Math.trunc(Number(t.xpReward) || 0)),
         seq,
@@ -469,6 +475,18 @@ export function TemplateFormModal({
                         className="w-full"
                       />
                     </div>
+                    <label className="flex items-center gap-2 text-xs text-ink-muted">
+                      <input
+                        type="checkbox"
+                        checked={t.isMandatory}
+                        onChange={(e) =>
+                          patchTask(t.key, { isMandatory: e.target.checked })
+                        }
+                        className="h-4 w-4 rounded border-border-strong accent-primary"
+                      />
+                      Obrigatória (ex.: Formação obrigatória) — desmarcar
+                      torna-a opcional
+                    </label>
                   </div>
                 ))}
               </div>

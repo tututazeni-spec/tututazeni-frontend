@@ -165,6 +165,55 @@ describe('TemplateFormModal — criar', () => {
 
     await waitFor(() => expect(onClose).toHaveBeenCalledTimes(1));
   });
+
+  test('Estrutura — item ONE_ON_ONE (Reuniões 1:1) desmarcado como opcional entra em `tasks`', async () => {
+    render(<TemplateFormModal onClose={vi.fn()} />);
+    fireEvent.change(screen.getByLabelText('Nome *'), {
+      target: { value: 'Onboarding Comercial' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Adicionar item' }));
+    fireEvent.change(screen.getByLabelText('Título do item'), {
+      target: { value: '1:1 com o gestor' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'dur-ONE_ON_ONE' }));
+    fireEvent.click(screen.getByRole('checkbox'));
+    fireEvent.click(screen.getByRole('button', { name: 'Criar plano de integração' }));
+
+    await waitFor(() => expect(post).toHaveBeenCalledTimes(1));
+    expect(post).toHaveBeenCalledWith('/onboarding/templates', {
+      name: 'Onboarding Comercial',
+      durationDays: 30,
+      tasks: [
+        expect.objectContaining({
+          title: '1:1 com o gestor',
+          category: 'ONE_ON_ONE',
+          type: 'MEETING',
+          isMandatory: false,
+        }),
+      ],
+    });
+  });
+
+  test('Estrutura — item sem desmarcar a checkbox fica isMandatory=true por defeito', async () => {
+    render(<TemplateFormModal onClose={vi.fn()} />);
+    fireEvent.change(screen.getByLabelText('Nome *'), {
+      target: { value: 'Onboarding Comercial' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Adicionar item' }));
+    fireEvent.change(screen.getByLabelText('Título do item'), {
+      target: { value: 'Formação de compliance' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'dur-TRAINING' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Criar plano de integração' }));
+
+    await waitFor(() => expect(post).toHaveBeenCalledTimes(1));
+    expect(post).toHaveBeenCalledWith(
+      '/onboarding/templates',
+      expect.objectContaining({
+        tasks: [expect.objectContaining({ category: 'TRAINING', isMandatory: true })],
+      }),
+    );
+  });
 });
 
 describe('TemplateFormModal — editar', () => {

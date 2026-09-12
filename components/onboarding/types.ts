@@ -16,7 +16,8 @@ export type TaskCategory =
   | 'ADMIN'
   | 'MEETING'
   | 'POLICIES'
-  | 'EVALUATION';
+  | 'EVALUATION'
+  | 'ONE_ON_ONE';
 export type TaskPhase =
   'PRE_BOARDING' | 'DAY_1' | 'WEEK_1' | 'DAY_30' | 'DAY_60' | 'DAY_90';
 // Espelham os enums Prisma TaskType / ResponsibleRole (schema.prisma).
@@ -35,6 +36,7 @@ export interface TemplateTask {
   type: TaskType;
   phase: TaskPhase;
   responsible: ResponsibleRole;
+  isMandatory: boolean;
   dueDayOffset: number | null;
   xpReward: number;
   requiresApproval: boolean;

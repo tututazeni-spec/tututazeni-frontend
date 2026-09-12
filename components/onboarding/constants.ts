@@ -8,9 +8,10 @@
 // components/reports/constants.ts. CATEGORY_CFG tinha exactamente 7
 // categorias para os 6 tokens semânticos + neutral (um token distinto
 // cada). POLICIES/EVALUATION entraram depois para cobrir "Políticas e
-// procedimentos" e "Avaliações" da Estrutura do plano de integração —
-// com 9 categorias para 7 tokens, estas duas reaproveitam o token de uma
-// categoria próxima (ícone continua distinto).
+// procedimentos" e "Avaliações" da Estrutura do plano de integração, e
+// ONE_ON_ONE para isolar "Reuniões 1:1" de MEETING (agora só reuniões de
+// equipa/grupo) — com 10 categorias para 7 tokens, estas três reaproveitam
+// o token de uma categoria próxima (ícone continua distinto).
 
 import {
   Circle,
@@ -27,6 +28,7 @@ import {
   Calendar,
   ShieldCheck,
   ClipboardCheck,
+  UserCheck,
   type LucideIcon,
 } from 'lucide-react';
 import type { StatusBadgeMap } from '@/lib/statusBadge';
@@ -96,7 +98,11 @@ export const CATEGORY_CFG: Record<
   },
   BENEFITS: { label: 'Benefícios', icon: Gift, cls: cls(TOKEN.primary) },
   ADMIN: { label: 'Tarefas', icon: ClipboardList, cls: cls(TOKEN.neutral) },
-  MEETING: { label: 'Reuniões 1:1', icon: Calendar, cls: cls(TOKEN.danger) },
+  MEETING: {
+    label: 'Reuniões de Equipa',
+    icon: Calendar,
+    cls: cls(TOKEN.danger),
+  },
   POLICIES: {
     label: 'Políticas e Procedimentos',
     icon: ShieldCheck,
@@ -106,6 +112,11 @@ export const CATEGORY_CFG: Record<
     label: 'Avaliações',
     icon: ClipboardCheck,
     cls: cls(TOKEN.accent),
+  },
+  ONE_ON_ONE: {
+    label: 'Reuniões 1:1',
+    icon: UserCheck,
+    cls: cls(TOKEN.danger),
   },
 };
 
