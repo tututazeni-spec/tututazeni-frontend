@@ -53,6 +53,25 @@ import {
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
+// Legenda de Lacunas (separador Radar): mostra a lacuna real (auto vs.
+// outros) quando ambas as fontes existem; quando só uma existe ainda (ex.:
+// auto-avaliação submetida mas ninguém avaliou este colaborador nesta
+// competência), mostra essa pontuação parcial em vez de "Sem dados" — é
+// dado real na mesma, só não dá para calcular a lacuna comparativa. Nunca
+// inventa um valor (era a bug de antes: gap null a colapsar para "▼ 0.0").
+function competencyGapDisplay(c: CompetencyScore): { text: string; color: string } {
+  if (c.gap !== null) {
+    const color =
+      c.gap > 0.5 ? 'rgb(245, 158, 11)' : c.gap < -0.5 ? 'rgb(34, 197, 94)' : 'var(--color-ink-muted)';
+    const text = c.gap > 0 ? `▲ +${c.gap.toFixed(1)}` : `▼ ${c.gap.toFixed(1)}`;
+    return { text, color };
+  }
+  if (c.selfRaw !== null) return { text: `Auto: ${c.selfRaw.toFixed(1)}`, color: 'var(--color-ink-muted)' };
+  if (c.othersRaw !== null)
+    return { text: `Outros: ${c.othersRaw.toFixed(1)}`, color: 'var(--color-ink-muted)' };
+  return { text: 'Sem dados', color: 'var(--color-ink-faint)' };
+}
+
 const TABS: { id: TabId; label: string; icon: LucideIcon }[] = [
   { id: 'overview', label: 'Visão Geral', icon: LayoutDashboard },
   { id: 'radar', label: 'Radar 360°', icon: Radar },
@@ -159,35 +178,22 @@ export function Evaluation360View({
                   <div className="text-xs font-bold uppercase tracking-wider text-ink-muted mb-1">
                     Legenda de Lacunas
                   </div>
-                  {competencies.map((c) => (
-                    <div
-                      key={c.id}
-                      className="rounded-lg border border-border bg-surface px-3.5 py-2.5 flex justify-between items-center"
-                    >
-                      <span className="text-sm font-semibold text-ink">
-                        {c.name}
-                      </span>
-                      <span
-                        className="text-sm font-bold"
-                        style={{
-                          color:
-                            c.gap === null
-                              ? 'var(--color-ink-faint)'
-                              : c.gap > 0.5
-                                ? 'rgb(245, 158, 11)'
-                                : c.gap < -0.5
-                                  ? 'rgb(34, 197, 94)'
-                                  : 'var(--color-ink-muted)',
-                        }}
+                  {competencies.map((c) => {
+                    const { text, color } = competencyGapDisplay(c);
+                    return (
+                      <div
+                        key={c.id}
+                        className="rounded-lg border border-border bg-surface px-3.5 py-2.5 flex justify-between items-center"
                       >
-                        {c.gap === null
-                          ? 'Sem dados'
-                          : c.gap > 0
-                            ? `▲ +${c.gap.toFixed(1)}`
-                            : `▼ ${c.gap.toFixed(1)}`}
-                      </span>
-                    </div>
-                  ))}
+                        <span className="text-sm font-semibold text-ink">
+                          {c.name}
+                        </span>
+                        <span className="text-sm font-bold" style={{ color }}>
+                          {text}
+                        </span>
+                      </div>
+                    );
+                  })}
                   <div className="text-xs text-ink-muted mt-2 leading-relaxed">
                     <span style={{ color: 'rgb(245, 158, 11)' }}>▲ positivo</span>{' '}
                     = sobreestima-se vs. outros

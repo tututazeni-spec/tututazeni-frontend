@@ -128,6 +128,8 @@ function toCompetencies(
       // Não faz `?? 0` — um gap null (falta auto ou outros avaliadores) é
       // "sem dados", não uma lacuna real de zero. Ver CompetencyScore.gap.
       gap: v.gap,
+      selfRaw: v.selfScore,
+      othersRaw: v.othersScore,
       benchmark: v.benchmark ?? v.score ?? 0,
     }));
 }
