@@ -2,10 +2,16 @@
 // Separador "As minhas matrículas" — tabs por grupo + cancelamento.
 // Dados próprios + apresentação. Extraído de
 // app/(platform)/enrollments/page.tsx.
+//
+// Mistura duas fontes — /enrollments/my (cursos, Enrollment) e
+// /trainings/my (formações, TrainingParticipant) — para que a lista mostre
+// as duas matrículas de qualquer role, ver [[project_innova_enrollments_bugs]].
+// Training não tem conceito de "atrasado" (sem deadline/lições), por isso o
+// bucket `overdue` fica exclusivo de cursos.
 
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { AlertTriangle } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { useConfirm } from '@/providers/ConfirmProvider';
@@ -17,7 +23,62 @@ import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { EnrollmentCard } from './EnrollmentCard';
-import type { MyEnrollmentsResponse } from './types';
+import { TrainingEnrollmentCard } from './TrainingEnrollmentCard';
+import type { MatriculaItem, MyEnrollmentsResponse } from './types';
+import type {
+  MyTrainingEntry,
+  ParticipantStatus,
+} from '@/components/trainings/types';
+
+type Bucket = 'overdue' | 'inProgress' | 'notStarted' | 'completed' | 'cancelled';
+
+/** Mapa Training → mesmos buckets usados para Enrollment/curso, para que as
+ * tabs "Em progresso"/"Não iniciados"/"Concluídos" cubram as duas fontes. */
+function trainingBucket(status: ParticipantStatus): Bucket | null {
+  switch (status) {
+    case 'REGISTERED':
+    case 'WAITLIST':
+      return 'notStarted';
+    case 'ATTENDED':
+      return 'inProgress';
+    case 'COMPLETED':
+      return 'completed';
+    case 'ABSENT':
+    case 'CANCELLED':
+      return 'cancelled';
+    default:
+      return null;
+  }
+}
+
+function groupTrainings(trainings: MyTrainingEntry[]) {
+  const groups: Record<Bucket, MyTrainingEntry[]> = {
+    overdue: [],
+    inProgress: [],
+    notStarted: [],
+    completed: [],
+    cancelled: [],
+  };
+  for (const t of trainings) {
+    const bucket = trainingBucket(t.status);
+    if (bucket) groups[bucket].push(t);
+  }
+  return groups;
+}
+
+function toItems(
+  courses: MyEnrollmentsResponse['enrollments'],
+  trainings: MyTrainingEntry[],
+): MatriculaItem[] {
+  return [
+    ...courses.map((data) => ({ kind: 'course' as const, id: `course-${data.id}`, data })),
+    ...trainings.map((data) => ({
+      kind: 'training' as const,
+      id: `training-${data.id}`,
+      data,
+    })),
+  ];
+}
 
 export function MyEnrollmentsView() {
   const notify = useToast();
@@ -25,11 +86,19 @@ export function MyEnrollmentsView() {
     'all' | 'overdue' | 'inProgress' | 'notStarted' | 'completed'
   >('all');
 
-  const { data, isLoading } = useApiQuery<MyEnrollmentsResponse>(
+  const { data, isLoading: coursesLoading } = useApiQuery<MyEnrollmentsResponse>(
     queryKeys.enrollments.my(),
     '/enrollments/my',
     { staleTime: STALE_TIME.DYNAMIC },
   );
+
+  const { data: trainings = [], isLoading: trainingsLoading } = useApiQuery<
+    MyTrainingEntry[]
+  >(queryKeys.trainings.my(), '/trainings/my', {
+    staleTime: STALE_TIME.DYNAMIC,
+  });
+
+  const trainingGroups = useMemo(() => groupTrainings(trainings), [trainings]);
 
   const cancel = useApiMutation(
     (id: number) => apiClient.patch(`/enrollments/my/${id}/cancel`, {}),
@@ -52,7 +121,7 @@ export function MyEnrollmentsView() {
     cancel.mutate(id);
   };
 
-  if (isLoading || !data)
+  if (coursesLoading || trainingsLoading || !data)
     return (
       <Skeleton
         rows={4}
@@ -62,30 +131,37 @@ export function MyEnrollmentsView() {
     );
 
   const tabs: Array<{ id: typeof tab; label: string; count: number }> = [
-    { id: 'all', label: 'Todos', count: data.enrollments.length },
+    {
+      id: 'all',
+      label: 'Todos',
+      count: data.enrollments.length + trainings.length,
+    },
     { id: 'overdue', label: 'Atrasados', count: data.groups.overdue.length },
     {
       id: 'inProgress',
       label: 'Em progresso',
-      count: data.groups.inProgress.length,
+      count: data.groups.inProgress.length + trainingGroups.inProgress.length,
     },
     {
       id: 'notStarted',
       label: 'Não iniciados',
-      count: data.groups.notStarted.length,
+      count: data.groups.notStarted.length + trainingGroups.notStarted.length,
     },
     {
       id: 'completed',
       label: 'Concluídos',
-      count: data.groups.completed.length,
+      count: data.groups.completed.length + trainingGroups.completed.length,
     },
   ];
 
-  const displayed = tab === 'all' ? data.enrollments : (data.groups[tab] ?? []);
+  const displayed: MatriculaItem[] =
+    tab === 'all'
+      ? toItems(data.enrollments, trainings)
+      : toItems(data.groups[tab] ?? [], trainingGroups[tab] ?? []);
 
   return (
     <div>
-      {/* Alertas de overdue */}
+      {/* Alertas de overdue (cursos — formação não tem conceito de prazo) */}
       {data.groups.overdue.length > 0 && (
         <div className="mb-5 flex items-center gap-3 rounded-card border border-danger bg-danger-subtle px-4 py-3">
           <AlertTriangle
@@ -133,9 +209,17 @@ export function MyEnrollmentsView() {
             Sem matrículas nesta categoria
           </div>
         ) : (
-          displayed.map((e) => (
-            <EnrollmentCard key={e.id} enrollment={e} onCancel={handleCancel} />
-          ))
+          displayed.map((item) =>
+            item.kind === 'course' ? (
+              <EnrollmentCard
+                key={item.id}
+                enrollment={item.data}
+                onCancel={handleCancel}
+              />
+            ) : (
+              <TrainingEnrollmentCard key={item.id} entry={item.data} />
+            ),
+          )
         )}
       </div>
     </div>

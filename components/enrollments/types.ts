@@ -2,6 +2,8 @@
 // Tipos do domínio de matrículas (learner/admin/compliance/equipa).
 // Extraído de app/(platform)/enrollments/page.tsx.
 
+import type { MyTrainingEntry } from '@/components/trainings/types';
+
 export type EnrollmentStatus =
   | 'NOT_STARTED'
   | 'IN_PROGRESS'
@@ -103,3 +105,12 @@ export interface TeamProgress {
 }
 
 export type View = 'my' | 'admin' | 'compliance' | 'team';
+
+// "Minhas Matrículas" mistura duas fontes distintas — Enrollment (cursos,
+// com progresso por lição) e TrainingParticipant (formações, sem conteúdo de
+// lições, só sessões/presença) — ver src/trainings/trainings.service.ts.
+// `id` prefixado por tipo evita colisão de key na lista combinada, já que os
+// dois modelos têm PKs independentes.
+export type MatriculaItem =
+  | { kind: 'course'; id: string; data: Enrollment }
+  | { kind: 'training'; id: string; data: MyTrainingEntry };
