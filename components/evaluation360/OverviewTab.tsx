@@ -1,6 +1,6 @@
 // components/evaluation360/OverviewTab.tsx
-// Cabeçalho do participante, scores, pontos fortes/gaps e progresso do
-// ciclo — tudo vindo de avaliações reais (ver hooks/useEvaluation360.ts).
+// Cabeçalho do participante, scores e pontos fortes/gaps — tudo vindo de
+// avaliações reais (ver hooks/useEvaluation360.ts).
 //
 // Regra do produto: ninguém vê o resultado de outro utilizador — nem
 // ADMIN nem RH têm excepção (evaluation360.service.ts#getParticipantResult
@@ -14,6 +14,11 @@
 // depende de já existir `result` calculado. Só as pontuações/pontos
 // fortes/gaps é que ficam por mostrar enquanto o RH não correr o cálculo do
 // ciclo.
+//
+// Não repete o cartão de progresso do ciclo (nome/datas/% concluído) — esse
+// já aparece uma única vez no cabeçalho da página (Evaluation360View, "Ciclo:
+// {cycle.name}"); tê-lo aqui também era um cartão duplicado com o mesmo
+// ciclo, não dados fictícios diferentes.
 
 'use client';
 
@@ -28,11 +33,6 @@ export interface OverviewTabProps {
 }
 
 export function OverviewTab({ result, participant, cycle }: OverviewTabProps) {
-  const completionPct =
-    cycle && cycle.participantsCount > 0
-      ? Math.round((cycle.completedCount / cycle.participantsCount) * 100)
-      : 0;
-
   return (
     <div className="flex flex-col gap-6">
       {/* Participant header — sempre o próprio, independente de já haver
@@ -145,33 +145,6 @@ export function OverviewTab({ result, participant, cycle }: OverviewTabProps) {
             </div>
           </div>
         </>
-      )}
-
-      {/* Cycle progress */}
-      {cycle && (
-        <div className="rounded-lg border border-border bg-surface px-6 py-5">
-          <div className="flex justify-between mb-3">
-            <div>
-              <div className="text-sm font-bold text-ink">{cycle.name}</div>
-              <div className="text-xs text-ink-muted">
-                {cycle.startDate} → {cycle.endDate}
-              </div>
-            </div>
-            <div className="text-xs text-ink-muted">
-              {cycle.completedCount}/{cycle.participantsCount} concluídos
-            </div>
-          </div>
-          <div className="bg-surface-sunken rounded h-2 overflow-hidden mb-1.5">
-            <div
-              className="h-full rounded transition-all"
-              style={{
-                width: `${completionPct}%`,
-                background: 'linear-gradient(90deg, rgb(99, 102, 241), rgb(124, 58, 237))',
-              }}
-            />
-          </div>
-          <div className="text-xs font-semibold text-primary">{completionPct}% de participação</div>
-        </div>
       )}
     </div>
   );

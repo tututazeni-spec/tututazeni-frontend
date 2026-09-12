@@ -27,7 +27,10 @@ export interface CompetencyScore {
   othersScore: number; // média ponderada dos outros avaliadores
   managerScore: number;
   peerScore: number;
-  gap: number; // selfScore - othersScore (positivo = sobrestima-se)
+  // selfScore - othersScore (positivo = sobrestima-se); null quando ainda não
+  // há dados suficientes de auto e/ou outros avaliadores para calcular a
+  // lacuna — nunca apresentar isso como "0.0" (seria uma lacuna fictícia).
+  gap: number | null;
   benchmark: number; // média do cargo/nível
 }
 

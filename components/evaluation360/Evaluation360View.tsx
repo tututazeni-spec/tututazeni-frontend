@@ -31,8 +31,13 @@ import { EvaluationFormTab } from './EvaluationFormTab';
 import { EvaluateOthersTab } from './EvaluateOthersTab';
 import { CreateCycleModal } from './CreateCycleModal';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
-import { EVAL_CREATOR_ROLES } from '@/lib/roles';
-import { Button } from '@/components/ui/Button';
+import { EVAL_CREATOR_ROLES, EVAL_CYCLE_DELETE_ROLES } from '@/lib/roles';
+import { useApiMutation } from '@/hooks/useApiQuery';
+import { apiClient } from '@/lib/apiClient';
+import { queryKeys } from '@/lib/queryKeys';
+import { useConfirm } from '@/providers/ConfirmProvider';
+import { useToast } from '@/providers/ToastProvider';
+import { Button, IconButton } from '@/components/ui/Button';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/Tabs';
 import {
@@ -43,6 +48,7 @@ import {
   LayoutGrid,
   MessageSquare,
   Radar,
+  Trash2,
   UserCheck,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
@@ -94,7 +100,37 @@ export function Evaluation360View({
   // criar/distribuir questionários; a leitura (separador Ciclos) fica aberta
   // a todos, só a criação é restrita.
   const canCreateCycle = !!role && EVAL_CREATOR_ROLES.includes(role);
+  // Espelha EVAL_CYCLE_DELETE_ROLES de DELETE /evaluation360/cycles/:id —
+  // eliminar é mais restrito que criar (só ADMIN/DIRECTOR), embora seja soft
+  // delete: o ciclo fica auditável e restaurável no separador "Apagados" do
+  // módulo de auditoria (ver evaluation360.service.ts#deleteCycle).
+  const canDeleteCycle = !!role && EVAL_CYCLE_DELETE_ROLES.includes(role);
   const feedbackTargetId = result?.userId ?? myId;
+
+  const confirm = useConfirm();
+  const notify = useToast();
+  const deleteCycle = useApiMutation<unknown, string>(
+    (id) => apiClient.delete<unknown>(`/evaluation360/cycles/${id}`),
+    {
+      invalidateKeys: [queryKeys.evaluation360.cycles()],
+      onSuccess: () => notify({ title: 'Ciclo eliminado', intent: 'success' }),
+      onError: () =>
+        notify({
+          title: 'Não foi possível eliminar o ciclo',
+          intent: 'danger',
+        }),
+    },
+  );
+
+  async function handleDeleteCycle(c: CycleInfo) {
+    const ok = await confirm({
+      title: 'Eliminar ciclo de avaliação',
+      message: `Tens a certeza que queres eliminar "${c.name}"? Fica registado em Auditoria → Apagados e pode ser restaurado a partir de lá.`,
+      confirmLabel: 'Eliminar',
+      destructive: true,
+    });
+    if (ok) deleteCycle.mutate(c.id);
+  }
 
   const renderTab = () => {
     switch (activeTab) {
@@ -135,16 +171,20 @@ export function Evaluation360View({
                         className="text-sm font-bold"
                         style={{
                           color:
-                            c.gap > 0.5
-                              ? 'rgb(245, 158, 11)'
-                              : c.gap < -0.5
-                                ? 'rgb(34, 197, 94)'
-                                : 'var(--color-ink-muted)',
+                            c.gap === null
+                              ? 'var(--color-ink-faint)'
+                              : c.gap > 0.5
+                                ? 'rgb(245, 158, 11)'
+                                : c.gap < -0.5
+                                  ? 'rgb(34, 197, 94)'
+                                  : 'var(--color-ink-muted)',
                         }}
                       >
-                        {c.gap > 0
-                          ? `▲ +${c.gap.toFixed(1)}`
-                          : `▼ ${c.gap.toFixed(1)}`}
+                        {c.gap === null
+                          ? 'Sem dados'
+                          : c.gap > 0
+                            ? `▲ +${c.gap.toFixed(1)}`
+                            : `▼ ${c.gap.toFixed(1)}`}
                       </span>
                     </div>
                   ))}
@@ -260,21 +300,33 @@ export function Evaluation360View({
                         {c.model} · {c.startDate} → {c.endDate}
                       </div>
                     </div>
-                    <span
-                      className="text-xs font-bold px-3 py-1 rounded-full"
-                      style={{
-                        background:
-                          c.status === 'COMPLETED'
-                            ? 'rgb(20, 83, 45)'
-                            : 'rgb(30, 27, 75)',
-                        color:
-                          c.status === 'COMPLETED'
-                            ? 'rgb(74, 222, 128)'
-                            : 'rgb(129, 140, 248)',
-                      }}
-                    >
-                      {cycleStatusText(c.status)}
-                    </span>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <span
+                        className="text-xs font-bold px-3 py-1 rounded-full"
+                        style={{
+                          background:
+                            c.status === 'COMPLETED'
+                              ? 'rgb(20, 83, 45)'
+                              : 'rgb(30, 27, 75)',
+                          color:
+                            c.status === 'COMPLETED'
+                              ? 'rgb(74, 222, 128)'
+                              : 'rgb(129, 140, 248)',
+                        }}
+                      >
+                        {cycleStatusText(c.status)}
+                      </span>
+                      {canDeleteCycle && (
+                        <IconButton
+                          icon={Trash2}
+                          label={`Eliminar ciclo ${c.name}`}
+                          intent="danger"
+                          size="sm"
+                          onClick={() => handleDeleteCycle(c)}
+                          disabled={deleteCycle.isPending}
+                        />
+                      )}
+                    </div>
                   </div>
                   <div className="bg-surface-sunken rounded h-1.5 mb-2 overflow-hidden">
                     <div

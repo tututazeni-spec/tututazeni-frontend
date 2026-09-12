@@ -125,7 +125,9 @@ function toCompetencies(
       othersScore: v.othersScore ?? 0,
       managerScore: v.managerScore ?? 0,
       peerScore: v.peerScore ?? 0,
-      gap: v.gap ?? 0,
+      // Não faz `?? 0` — um gap null (falta auto ou outros avaliadores) é
+      // "sem dados", não uma lacuna real de zero. Ver CompetencyScore.gap.
+      gap: v.gap,
       benchmark: v.benchmark ?? v.score ?? 0,
     }));
 }

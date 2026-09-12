@@ -235,7 +235,15 @@ const NAV: Array<{ label: string; items: NavItem[] }> = [
         roles: ADMIN_ROLES,
       },
       { href: '/history', icon: Clock, label: 'Histórico' },
-      { href: '/audit', icon: Shield, label: 'Auditoria', roles: ADMIN_ROLES },
+      // DIRECTOR entra só para o separador "Apagados" (restaurar ciclos 360º
+      // que eliminou) — a página filtra os restantes separadores por papel,
+      // ver components/audit/constants.ts NAV[].roles.
+      {
+        href: '/audit',
+        icon: Shield,
+        label: 'Auditoria',
+        roles: [...ADMIN_ROLES, 'DIRECTOR'],
+      },
     ],
   },
   {

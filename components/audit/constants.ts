@@ -4,6 +4,7 @@
 // Extraído de app/(platform)/audit/page.tsx.
 
 import type { StatusBadgeMap } from '@/lib/statusBadge';
+import { ADMIN_ROLES, EVAL_CYCLE_DELETE_ROLES, type Role } from '@/lib/roles';
 import type { Severity, Status, View } from './types';
 
 export const SEVERITY_CFG: Record<
@@ -42,6 +43,7 @@ export const ACTION_LABELS: Record<string, string> = {
   SUBMIT: 'Submeter',
   SUBMIT2: 'Submeter',
   SAVE_DRAFT: 'Guardar rascunho',
+  RESTORE: 'Restaurar',
 };
 
 /** Rótulo PT de uma acção, com fallback legível para acções não mapeadas. */
@@ -71,11 +73,18 @@ export function entityLabel(entity: string): string {
   return ENTITY_LABELS[entity] ?? entity;
 }
 
-export const NAV: Array<{ id: View; label: string }> = [
-  { id: 'logs', label: 'Logs' },
-  { id: 'stats', label: 'Estatísticas' },
-  { id: 'anomalies', label: 'Anomalias' },
-  { id: 'timeline', label: 'Linha de Tempo' },
+// `roles` espelha exactamente quem o backend deixa entrar em cada separador —
+// 'logs'/'stats'/'anomalies'/'timeline' vêm de AuditController (@Roles(ADMIN,
+// RH) a nível de classe); 'deleted' vem de GET /evaluation360/cycles/deleted
+// (@Roles(ADMIN, DIRECTOR) — EVAL_CYCLE_DELETE_ROLES). DIRECTOR só vê
+// "Apagados": não ganha acesso aos logs gerais de auditoria só por poder
+// eliminar/restaurar ciclos.
+export const NAV: Array<{ id: View; label: string; roles: readonly Role[] }> = [
+  { id: 'logs', label: 'Logs', roles: ADMIN_ROLES },
+  { id: 'stats', label: 'Estatísticas', roles: ADMIN_ROLES },
+  { id: 'anomalies', label: 'Anomalias', roles: ADMIN_ROLES },
+  { id: 'timeline', label: 'Linha de Tempo', roles: ADMIN_ROLES },
+  { id: 'deleted', label: 'Apagados', roles: EVAL_CYCLE_DELETE_ROLES },
 ];
 
 export const TITLES: Record<View, string> = {
@@ -83,4 +92,5 @@ export const TITLES: Record<View, string> = {
   stats: 'Estatísticas de Auditoria',
   anomalies: 'Detecção de Anomalias',
   timeline: 'Linha de Tempo por Recurso',
+  deleted: 'Apagados',
 };

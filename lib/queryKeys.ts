@@ -258,6 +258,7 @@ export const queryKeys = {
       [...queryKeys.evaluation360.all, 'progress', cycleId, userId] as const,
     myAssignments: (cycleId: string) =>
       [...queryKeys.evaluation360.all, 'my-assignments', cycleId] as const,
+    deletedCycles: () => [...queryKeys.evaluation360.all, 'cycles', 'deleted'] as const,
   },
 
   analyticsPage: {
