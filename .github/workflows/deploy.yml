@@ -53,10 +53,19 @@ jobs:
     needs: build
     if: ${{ github.event_name == 'push' }}
     steps:
+      # BACKEND_DISPATCH_TOKEN pode não estar configurado (ex.: secret ainda
+      # não criado/reposto no repo). Sem esta guarda, a action rebenta com
+      # "Parameter token or opts.auth is required" e falha o workflow inteiro
+      # em TODOS os pushes a main, mesmo sem relação nenhuma com o commit.
       - name: Disparar rollout no repo do backend
+        if: ${{ secrets.BACKEND_DISPATCH_TOKEN != '' }}
         uses: peter-evans/repository-dispatch@v3
         with:
           token: ${{ secrets.BACKEND_DISPATCH_TOKEN }}
           repository: tututazeni-spec/tututazeni-backend
           event-type: frontend-updated
           client-payload: '{"tag": "sha-${{ github.sha }}"}'
+
+      - name: Aviso — secret em falta, rollout não disparado
+        if: ${{ secrets.BACKEND_DISPATCH_TOKEN == '' }}
+        run: echo "::warning::BACKEND_DISPATCH_TOKEN não está configurado neste repo — o rollout automático do backend NÃO foi disparado. Configura o secret em Settings > Secrets and variables > Actions para restaurar o comportamento normal."
