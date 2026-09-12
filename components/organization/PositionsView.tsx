@@ -9,7 +9,6 @@ import { keepPreviousData } from '@tanstack/react-query';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { formatKz as fmtKz } from '@/lib/format';
 import { Button } from '@/components/ui/Button';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
@@ -80,7 +79,6 @@ export function PositionsView() {
             <TableHeaderCell>Nível</TableHeaderCell>
             <TableHeaderCell>Activos</TableHeaderCell>
             <TableHeaderCell>Vagas</TableHeaderCell>
-            <TableHeaderCell>Salário</TableHeaderCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -111,17 +109,12 @@ export function PositionsView() {
                   <span className="font-body text-xs text-ink-faint">—</span>
                 )}
               </TableCell>
-              <TableCell className="font-body text-xs text-ink-muted">
-                {pos.salaryMin && pos.salaryMax
-                  ? `${fmtKz(pos.salaryMin)} – ${fmtKz(pos.salaryMax)}`
-                  : '—'}
-              </TableCell>
             </TableRow>
           ))}
           {data?.data.length === 0 && (
             <TableRow>
               <td
-                colSpan={5}
+                colSpan={4}
                 className="px-4 py-12 text-center font-body text-sm text-ink-faint"
               >
                 Sem cargos
