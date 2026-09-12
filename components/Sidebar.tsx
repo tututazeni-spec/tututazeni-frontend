@@ -255,7 +255,12 @@ const NAV: Array<{ label: string; items: NavItem[] }> = [
         label: 'ROI e Impacto',
         roles: ['ADMIN', 'RH', 'DIRECTOR'],
       },
-      { href: '/scalability', icon: PieChart, label: 'Escalabilidade' },
+      {
+        href: '/scalability',
+        icon: PieChart,
+        label: 'Escalabilidade',
+        roles: ['ADMIN', 'AUDITOR'],
+      },
       {
         href: '/executive-reports',
         icon: Download,

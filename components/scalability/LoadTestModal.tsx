@@ -3,15 +3,18 @@
 // A página só monta o componente quando aberto, por isso o Modal fica sempre
 // `open` e delega o fecho em `onClose` (X, Escape, clique fora).
 //
-// NOTA: o módulo corre sobre dados mock (ver
-// app/(platform)/scalability/page.tsx). Este modal valida a configuração com
-// os mesmos limites do LoadTestConfigDto do backend e devolve um resumo via
-// toast — não chega a chamar POST /scalability/load-test (que exige @Roles
-// ADMIN). Ligar ao endpoint real fica para quando o módulo deixar o mock.
+// Valida a configuração com os mesmos limites do LoadTestConfigDto do backend
+// e agenda o teste via POST /scalability/load-test (@Roles ADMIN) — o backend
+// só regista o agendamento (emite um evento; a execução real do stress test
+// é feita por uma ferramenta externa como k6/Locust), por isso o toast reflecte
+// isso em vez de fingir que o teste já correu.
 
 'use client';
 
 import { useState } from 'react';
+import { useApiMutation } from '@/hooks/useApiQuery';
+import { apiClient } from '@/lib/apiClient';
+import { reportError } from '@/lib/errorReporting';
 import { Button } from '@/components/ui/Button';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
@@ -28,6 +31,13 @@ const LIMITS = {
   durationSeconds: { min: 30, max: 3600 },
 } as const;
 
+interface LoadTestVars {
+  concurrentUsers: number;
+  durationSeconds: number;
+  rampUpSeconds?: number;
+  targetEndpoint: string;
+}
+
 function intInRange(raw: string, min: number, max: number): number | null {
   if (!/^\d+$/.test(raw.trim())) return null;
   const n = Number(raw);
@@ -41,6 +51,10 @@ export function LoadTestModal({ onClose }: LoadTestModalProps) {
   const [durationSeconds, setDurationSeconds] = useState('300');
   const [rampUpSeconds, setRampUpSeconds] = useState('');
   const [targetEndpoint, setTargetEndpoint] = useState('');
+
+  const schedule = useApiMutation<{ message: string }, LoadTestVars>((vars) =>
+    apiClient.post('/scalability/load-test', vars),
+  );
 
   const users = intInRange(
     concurrentUsers,
@@ -59,24 +73,39 @@ export function LoadTestModal({ onClose }: LoadTestModalProps) {
   const endpoint = targetEndpoint.trim();
 
   const canSubmit =
-    users !== null && duration !== null && rampValid && endpoint.length > 0;
+    users !== null &&
+    duration !== null &&
+    rampValid &&
+    endpoint.length > 0 &&
+    !schedule.isPending;
 
   const handleSubmit = () => {
-    if (!canSubmit) return;
-    const rampPart =
-      ramp !== undefined && ramp > 0 ? `, rampa ${ramp}s` : '';
-    notify({
-      title: `Teste de carga agendado: ${users} utilizadores durante ${duration}s${rampPart} → ${endpoint}`,
-      intent: 'success',
-    });
-    onClose();
+    if (!canSubmit || users === null || duration === null) return;
+    schedule.mutate(
+      {
+        concurrentUsers: users,
+        durationSeconds: duration,
+        rampUpSeconds: ramp,
+        targetEndpoint: endpoint,
+      },
+      {
+        onSuccess: (result) => {
+          notify({ title: result.message, intent: 'success' });
+          onClose();
+        },
+        onError: (err) => {
+          reportError(err, { source: 'LoadTestModal.handleSubmit' });
+          notify({ title: 'Não foi possível agendar o teste de carga', intent: 'danger' });
+        },
+      },
+    );
   };
 
   return (
     <Modal open onOpenChange={(open) => !open && onClose()}>
       <ModalContent
         title="Configurar teste de carga"
-        description="Simula picos de utilizadores simultâneos para validar a escalabilidade. Os limites seguem os do motor de stress test."
+        description="Agenda um teste de stress (executado externamente via k6/Locust). Os limites seguem os do motor de stress test."
         className="max-w-lg"
       >
         <div className="mt-5 space-y-4">
@@ -154,7 +183,7 @@ export function LoadTestModal({ onClose }: LoadTestModalProps) {
             Cancelar
           </Button>
           <Button onClick={handleSubmit} disabled={!canSubmit}>
-            Agendar teste
+            {schedule.isPending ? 'A agendar…' : 'Agendar teste'}
           </Button>
         </div>
       </ModalContent>

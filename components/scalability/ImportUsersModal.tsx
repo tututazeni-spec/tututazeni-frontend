@@ -3,45 +3,61 @@
 // A página só monta o componente quando aberto, por isso o Modal fica sempre
 // `open` e delega o fecho em `onClose` (X, Escape, clique fora).
 //
-// NOTA: o módulo corre sobre dados mock (ver
-// app/(platform)/scalability/page.tsx). O ficheiro é lido e validado no
-// browser (ver importUsersCsv.ts) para dar feedback real — contagem de linhas,
-// emails válidos/ignorados — e a "importação" soma as linhas válidas à
-// contagem local de utilizadores activos (limitada por maxUsers). O endpoint
-// real (POST /scalability/users/bulk-import) exige um tenantId que os dados de
-// sessão actuais não fornecem.
+// O ficheiro é lido e validado no browser primeiro (ver importUsersCsv.ts)
+// para dar feedback imediato — contagem de linhas, emails válidos/ignorados —
+// e só depois enviado tal-e-qual (base64) para POST /scalability/users/bulk-import
+// (@Roles ADMIN), que faz a validação/criação reais. `tenantId` vem do
+// `dashboard.tenantInfo.id` já carregado pelo container (plataforma
+// single-tenant na prática).
 
 'use client';
 
 import { useState } from 'react';
 import { AlertCircle, FileCheck2 } from 'lucide-react';
+import { useApiMutation } from '@/hooks/useApiQuery';
+import { apiClient } from '@/lib/apiClient';
+import { queryKeys } from '@/lib/queryKeys';
+import { reportError } from '@/lib/errorReporting';
 import { Button } from '@/components/ui/Button';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { Modal, ModalContent } from '@/components/ui/Modal';
 import { useToast } from '@/providers/ToastProvider';
 import { parseUsersCsv, type ParsedUsersCsv } from './importUsersCsv';
+import type { BulkImportResultDto } from './types';
 
 export interface ImportUsersModalProps {
-  activeUsersCount: number;
-  maxUsers: number;
-  onImported: (newActiveUsersCount: number) => void;
+  tenantId: string;
   onClose: () => void;
 }
 
-export function ImportUsersModal({
-  activeUsersCount,
-  maxUsers,
-  onImported,
-  onClose,
-}: ImportUsersModalProps) {
+export function ImportUsersModal({ tenantId, onClose }: ImportUsersModalProps) {
   const notify = useToast();
   const [fileName, setFileName] = useState('');
+  const [rawText, setRawText] = useState('');
   const [parsed, setParsed] = useState<ParsedUsersCsv | null>(null);
   const [readError, setReadError] = useState('');
 
+  const importMutation = useApiMutation<BulkImportResultDto, string>(
+    (base64Payload) =>
+      apiClient.post('/scalability/users/bulk-import', {
+        tenantId,
+        format: 'CSV',
+        payload: base64Payload,
+        upsert: false,
+        sendWelcomeEmail: true,
+      }),
+    {
+      invalidateKeys: [
+        queryKeys.scalability.dashboard(),
+        queryKeys.scalability.automations(),
+      ],
+    },
+  );
+
   const handleFile = (file: File | undefined) => {
     setParsed(null);
+    setRawText('');
     setReadError('');
     if (!file) {
       setFileName('');
@@ -51,6 +67,7 @@ export function ImportUsersModal({
     const reader = new FileReader();
     reader.onload = () => {
       const text = typeof reader.result === 'string' ? reader.result : '';
+      setRawText(text);
       setParsed(parseUsersCsv(text));
     };
     reader.onerror = () =>
@@ -58,24 +75,32 @@ export function ImportUsersModal({
     reader.readAsText(file);
   };
 
-  const licencesLeft = Math.max(0, maxUsers - activeUsersCount);
-  const willAdd = parsed ? Math.min(parsed.validRows, licencesLeft) : 0;
-  const newCount = activeUsersCount + willAdd;
-
   const canImport =
-    !!parsed && !parsed.error && !readError && parsed.validRows > 0;
+    !!parsed && !parsed.error && !readError && parsed.validRows > 0 && !importMutation.isPending;
 
   const handleImport = () => {
-    if (!canImport || !parsed) return;
-    onImported(newCount);
-    const capped = willAdd < parsed.validRows;
-    notify({
-      title: capped
-        ? `Importados ${willAdd} de ${parsed.validRows} — limite de ${maxUsers.toLocaleString('pt-PT')} licenças atingido`
-        : `${willAdd} utilizador${willAdd === 1 ? '' : 'es'} importado${willAdd === 1 ? '' : 's'} — ${newCount.toLocaleString('pt-PT')} activos`,
-      intent: 'success',
+    if (!canImport) return;
+    const base64Payload =
+      typeof window === 'undefined'
+        ? Buffer.from(rawText, 'utf-8').toString('base64')
+        : window.btoa(unescape(encodeURIComponent(rawText)));
+
+    importMutation.mutate(base64Payload, {
+      onSuccess: (result) => {
+        notify({
+          title:
+            result.failed > 0
+              ? `${result.created} importados, ${result.failed} falharam (ver consola para detalhes)`
+              : `${result.created} utilizador${result.created === 1 ? '' : 'es'} importado${result.created === 1 ? '' : 's'} com sucesso`,
+          intent: result.failed > 0 ? 'info' : 'success',
+        });
+        onClose();
+      },
+      onError: (err) => {
+        reportError(err, { source: 'ImportUsersModal.handleImport' });
+        notify({ title: 'Não foi possível importar os utilizadores', intent: 'danger' });
+      },
     });
-    onClose();
   };
 
   return (
@@ -89,7 +114,7 @@ export function ImportUsersModal({
           <FormField
             label="Ficheiro CSV"
             htmlFor="iu-file"
-            hint="Formato: cabeçalho + uma linha por utilizador (ex.: name,email,department)."
+            hint="Formato: cabeçalho + uma linha por utilizador (ex.: email,fullname,departmentid)."
           >
             <Input
               id="iu-file"
@@ -132,13 +157,6 @@ export function ImportUsersModal({
               <p className="mt-1 font-body text-xs text-ink-faint">
                 Colunas: {parsed.headers.join(', ')}
               </p>
-              {parsed.validRows > 0 && (
-                <p className="mt-2 font-body text-xs text-ink-muted">
-                  Serão adicionados {willAdd} utilizadores · contagem passa a{' '}
-                  {newCount.toLocaleString('pt-PT')} de{' '}
-                  {maxUsers.toLocaleString('pt-PT')}.
-                </p>
-              )}
             </div>
           )}
         </div>
@@ -148,7 +166,7 @@ export function ImportUsersModal({
             Cancelar
           </Button>
           <Button onClick={handleImport} disabled={!canImport}>
-            Importar
+            {importMutation.isPending ? 'A importar…' : 'Importar'}
           </Button>
         </div>
       </ModalContent>

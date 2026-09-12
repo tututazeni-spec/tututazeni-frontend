@@ -3,11 +3,9 @@
 // de Escalabilidade. Mantido puro (sem React, sem FileReader) para ser testável
 // isoladamente — o modal trata só da leitura do ficheiro e delega aqui.
 //
-// NOTA: o módulo ainda corre sobre dados mock (ver
-// app/(platform)/scalability/page.tsx). Isto valida e conta as linhas do
-// ficheiro para dar feedback real ao utilizador; a importação em si actualiza
-// só a contagem local. O endpoint real (POST /scalability/users/bulk-import)
-// exige um tenantId que os dados de sessão actuais não fornecem.
+// Só dá feedback rápido (contagem de linhas/emails plausíveis) antes de
+// enviar; a validação e criação reais acontecem no backend
+// (POST /scalability/users/bulk-import, ver ImportUsersModal.tsx).
 
 export interface ParsedUsersCsv {
   /** Linhas de dados (exclui o cabeçalho). */

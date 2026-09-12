@@ -19,10 +19,12 @@ vi.mock('./RenameTenantModal', () => ({
 }));
 
 import { ScalabilityDashboardView } from './ScalabilityDashboardView';
-import type { DashboardData, Alert } from './types';
+import type { DashboardData, Alert, Integration, AutomationRule } from './types';
 
 const DASHBOARD: DashboardData = {
   tenantInfo: {
+    id: 'tenant-1',
+    tenantCode: 'SONANGOL',
     tenantName: 'Sonangol EP',
     plan: 'ENTERPRISE',
     maxUsers: 5000,
@@ -81,25 +83,36 @@ const ALERTS: Alert[] = [
   },
 ];
 
+const INTEGRATIONS: Integration[] = [];
+const AUTOMATIONS: AutomationRule[] = [];
+
 function renderView(activeTab: string) {
+  return renderViewWithAlerts(activeTab, ALERTS);
+}
+
+function renderViewWithAlerts(activeTab: string, alerts: Alert[]) {
   return render(
     <ScalabilityDashboardView
       activeTab={activeTab}
       onTabChange={vi.fn()}
       dashboard={DASHBOARD}
-      alerts={ALERTS}
-      integrations={[]}
-      automations={[]}
+      alerts={alerts}
+      integrations={INTEGRATIONS}
+      automations={AUTOMATIONS}
+      slaConfigs={[]}
+      contentDelivery={null}
       lastRefresh={new Date('2026-09-03T22:00:00Z')}
       onRefresh={vi.fn()}
-      onPatchTenantInfo={vi.fn()}
+      onSyncIntegration={vi.fn()}
+      onExecuteRule={vi.fn()}
+      onResolveAlert={vi.fn()}
     />,
   );
 }
 
 describe('ScalabilityDashboardView — alertas', () => {
   test('"Críticos" mostra só os alertas CRITICAL', () => {
-    renderView('alerts');
+    renderViewWithAlerts('alerts', ALERTS);
     expect(screen.getByText('Falha ERP')).toBeInTheDocument();
     expect(screen.getByText('CPU alta')).toBeInTheDocument();
 
@@ -111,7 +124,7 @@ describe('ScalabilityDashboardView — alertas', () => {
   });
 
   test('"Avisos" mostra só os alertas WARNING', () => {
-    renderView('alerts');
+    renderViewWithAlerts('alerts', ALERTS);
     fireEvent.click(screen.getByRole('button', { name: 'Avisos' }));
     expect(screen.getByText('CPU alta')).toBeInTheDocument();
     expect(screen.queryByText('Falha ERP')).not.toBeInTheDocument();
@@ -119,25 +132,13 @@ describe('ScalabilityDashboardView — alertas', () => {
   });
 
   test('estado vazio quando o filtro não tem correspondência', () => {
-    render(
-      <ScalabilityDashboardView
-        activeTab="alerts"
-        onTabChange={vi.fn()}
-        dashboard={DASHBOARD}
-        alerts={[ALERTS[2]]}
-        integrations={[]}
-        automations={[]}
-        lastRefresh={new Date('2026-09-03T22:00:00Z')}
-        onRefresh={vi.fn()}
-        onPatchTenantInfo={vi.fn()}
-      />,
-    );
+    renderViewWithAlerts('alerts', [ALERTS[2]]);
     fireEvent.click(screen.getByRole('button', { name: 'Críticos' }));
     expect(screen.getByText('Sem alertas nesta categoria.')).toBeInTheDocument();
   });
 
   test('chip activo reflecte-se em aria-pressed', () => {
-    renderView('alerts');
+    renderViewWithAlerts('alerts', ALERTS);
     fireEvent.click(screen.getByRole('button', { name: 'Críticos' }));
     expect(screen.getByRole('button', { name: 'Críticos' })).toHaveAttribute(
       'aria-pressed',
@@ -147,6 +148,29 @@ describe('ScalabilityDashboardView — alertas', () => {
       'aria-pressed',
       'false',
     );
+  });
+
+  test('"Resolver" chama onResolveAlert com o id do alerta', () => {
+    const onResolveAlert = vi.fn();
+    render(
+      <ScalabilityDashboardView
+        activeTab="alerts"
+        onTabChange={vi.fn()}
+        dashboard={DASHBOARD}
+        alerts={[ALERTS[0]]}
+        integrations={INTEGRATIONS}
+        automations={AUTOMATIONS}
+        slaConfigs={[]}
+        contentDelivery={null}
+        lastRefresh={new Date('2026-09-03T22:00:00Z')}
+        onRefresh={vi.fn()}
+        onSyncIntegration={vi.fn()}
+        onExecuteRule={vi.fn()}
+        onResolveAlert={onResolveAlert}
+      />,
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Resolver' }));
+    expect(onResolveAlert).toHaveBeenCalledWith('1');
   });
 });
 
@@ -184,5 +208,33 @@ describe('ScalabilityDashboardView — performance', () => {
       screen.getByRole('button', { name: 'Configurar Teste' }),
     );
     expect(screen.getByText('[LoadTestModal]')).toBeInTheDocument();
+  });
+});
+
+describe('ScalabilityDashboardView — integrações e automações', () => {
+  test('lista vazia mostra EmptyState em vez de nada', () => {
+    renderView('integrations');
+    expect(screen.getByText('Sem integrações configuradas')).toBeInTheDocument();
+  });
+
+  test('regras vazias mostram EmptyState', () => {
+    renderView('automations');
+    expect(screen.getByText('Sem regras de automação')).toBeInTheDocument();
+  });
+});
+
+describe('ScalabilityDashboardView — SLA', () => {
+  test('sem SLA configurado mostra EmptyState (não fabrica compliance)', () => {
+    renderView('sla');
+    expect(screen.getByText('Sem SLA configurado')).toBeInTheDocument();
+  });
+});
+
+describe('ScalabilityDashboardView — conteúdo', () => {
+  test('sem configuração de CDN mostra EmptyState (não fabrica infra)', () => {
+    renderView('content');
+    expect(
+      screen.getByText('Sem configuração de entrega de conteúdo'),
+    ).toBeInTheDocument();
   });
 });

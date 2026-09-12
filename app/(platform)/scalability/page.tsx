@@ -9,235 +9,168 @@
 // juntos); os *Tab já estavam razoavelmente isolados, faltava só separar o
 // topo. Ver memory project_innova_component_separation_audit, item 3.1.
 //
-// NOTA: ainda usa dados mock (MOCK_DASHBOARD/MOCK_ALERTS/...) — o módulo
-// tem endpoints reais no backend (GET /scalability/dashboard/:tenantId,
-// /scalability/integrations/tenant/:tenantId, /scalability/automations/
-// tenant/:tenantId, /scalability/alerts), mas ligar isto requer primeiro
-// resolver de onde vem o tenantId (a rota é multi-tenant — gestão de
-// clientes da INNOVA, não o tenant do próprio utilizador — não há um
-// "meu tenant" óbvio nos dados de sessão actuais) e confirmar que as DTOs
-// do backend correspondem aos tipos aqui. Ficou fora de âmbito desta
-// refactor (que é sobre separação de responsabilidades, não sobre ligar
-// a API); a estrutura container/view já está pronta para isso — só a
-// função `refresh` abaixo precisa de passar a fazer o fetch real.
+// Já não corre sobre dados mock — usa os endpoints reais sem :tenantId
+// (GET /scalability/dashboard, /integrations, /automations, /sla,
+// /content-delivery — resolvem sozinhos o tenant único da plataforma, ver
+// resolveTenantId() em scalability.service.ts) mais GET /scalability/alerts
+// (já era tenant-less). Só ADMIN/AUDITOR chegam aqui (ver Sidebar.tsx e os
+// @Roles() em scalability.controller.ts).
 
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useState } from 'react';
+import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
+import { apiClient } from '@/lib/apiClient';
+import { queryKeys } from '@/lib/queryKeys';
+import { STALE_TIME } from '@/lib/queryClient';
+import { reportError } from '@/lib/errorReporting';
+import { useToast } from '@/providers/ToastProvider';
+import { Skeleton } from '@/components/ui/Skeleton';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { ScalabilityDashboardView } from '@/components/scalability/ScalabilityDashboardView';
 import type {
   AutomationRule,
   Alert,
+  ContentDeliveryConfig,
   DashboardData,
   Integration,
+  SlaConfig,
 } from '@/components/scalability/types';
 
-// ─── MOCK DATA (substituir por chamadas API) ──────────────────
-const MOCK_DASHBOARD: DashboardData = {
-  tenantInfo: {
-    tenantName: 'Sonangol EP',
-    plan: 'ENTERPRISE',
-    maxUsers: 5000,
-    activeUsersCount: 3847,
-    storageUsedGb: 128,
-    maxStorageGb: 500,
-  },
-  performanceSummary: {
-    uptimePercent: 99.97,
-    avgLatencyMs: 187,
-    errorRate: 0.03,
-    activeSessionsNow: 412,
-    requestsPerMinute: 2840,
-    cpuUsagePercent: 34,
-    memoryUsagePercent: 61,
-  },
-  integrations: {
-    total: 7,
-    active: 5,
-    withErrors: 1,
-    lastSyncAt: new Date(Date.now() - 3600000).toISOString(),
-  },
-  automations: { total: 18, active: 14, executionsToday: 234, failedToday: 3 },
-  alerts: { open: 4, critical: 1, warning: 2, info: 1 },
-  slaCompliance: {
-    currentUptimePercent: 99.97,
-    slaTarget: 99.9,
-    isBreached: false,
-    avgLatencyMs: 187,
-    latencyTarget: 2000,
-  },
-};
-
-const MOCK_ALERTS: Alert[] = [
-  {
-    id: '1',
-    severity: 'CRITICAL',
-    category: 'INTEGRATION',
-    title: 'Falha na sincronização ERP',
-    message:
-      'Integração com ERP HR Angola falhou às 14:32. 0 registos processados.',
-    isResolved: false,
-    createdAt: new Date(Date.now() - 7200000).toISOString(),
-  },
-  {
-    id: '2',
-    severity: 'WARNING',
-    category: 'PERFORMANCE',
-    title: 'CPU acima de 80%',
-    message: 'Uso de CPU atingiu 82% durante pico de acessos simultâneos.',
-    isResolved: false,
-    createdAt: new Date(Date.now() - 3600000).toISOString(),
-  },
-  {
-    id: '3',
-    severity: 'WARNING',
-    category: 'STORAGE',
-    title: 'Armazenamento em 76%',
-    message: 'Uso de armazenamento atingiu 76% da capacidade contratada.',
-    isResolved: false,
-    createdAt: new Date(Date.now() - 1800000).toISOString(),
-  },
-  {
-    id: '4',
-    severity: 'INFO',
-    category: 'AUTOMATION',
-    title: 'Automação de onboarding executada',
-    message: '47 novos colaboradores processados via automação USER_HIRED.',
-    isResolved: false,
-    createdAt: new Date(Date.now() - 900000).toISOString(),
-  },
-];
-
-const MOCK_INTEGRATIONS: Integration[] = [
-  {
-    id: '1',
-    name: 'ERP RH Angola',
-    type: 'ERP_HR',
-    status: 'ERROR',
-    syncFrequency: 'DAILY',
-    lastSyncAt: new Date(Date.now() - 86400000).toISOString(),
-    lastSyncStatus: 'FAILED',
-  },
-  {
-    id: '2',
-    name: 'Microsoft Teams',
-    type: 'MICROSOFT_TEAMS',
-    status: 'ACTIVE',
-    syncFrequency: 'REALTIME',
-    lastSyncAt: new Date(Date.now() - 300000).toISOString(),
-    lastSyncStatus: 'SUCCESS',
-  },
-  {
-    id: '3',
-    name: 'Folha de Pagamento',
-    type: 'PAYROLL',
-    status: 'ACTIVE',
-    syncFrequency: 'WEEKLY',
-    lastSyncAt: new Date(Date.now() - 172800000).toISOString(),
-    lastSyncStatus: 'SUCCESS',
-  },
-  {
-    id: '4',
-    name: 'SSO Microsoft',
-    type: 'SSO_MICROSOFT',
-    status: 'ACTIVE',
-    syncFrequency: 'REALTIME',
-    lastSyncAt: null,
-    lastSyncStatus: null,
-  },
-  {
-    id: '5',
-    name: 'xAPI LRS',
-    type: 'XAPI_LRS',
-    status: 'ACTIVE',
-    syncFrequency: 'REALTIME',
-    lastSyncAt: new Date(Date.now() - 60000).toISOString(),
-    lastSyncStatus: 'SUCCESS',
-  },
-];
-
-const MOCK_AUTOMATIONS: AutomationRule[] = [
-  {
-    id: '1',
-    name: 'Onboarding — Trilha Inicial',
-    triggerType: 'USER_HIRED',
-    isActive: true,
-    runCount: 234,
-    lastRunAt: new Date(Date.now() - 1800000).toISOString(),
-    lastRunStatus: 'SUCCESS',
-  },
-  {
-    id: '2',
-    name: 'Promoção — Atualizar Trilha de Liderança',
-    triggerType: 'USER_PROMOTED',
-    isActive: true,
-    runCount: 47,
-    lastRunAt: new Date(Date.now() - 7200000).toISOString(),
-    lastRunStatus: 'SUCCESS',
-  },
-  {
-    id: '3',
-    name: 'Recertificação Obrigatória',
-    triggerType: 'CERTIFICATE_EXPIRED',
-    isActive: true,
-    runCount: 89,
-    lastRunAt: new Date(Date.now() - 3600000).toISOString(),
-    lastRunStatus: 'FAILED',
-  },
-  {
-    id: '4',
-    name: 'Conclusão de Curso — Notificar Gestor',
-    triggerType: 'COURSE_COMPLETED',
-    isActive: true,
-    runCount: 1203,
-    lastRunAt: new Date(Date.now() - 300000).toISOString(),
-    lastRunStatus: 'SUCCESS',
-  },
-  {
-    id: '5',
-    name: 'Offboarding — Revogar Acessos',
-    triggerType: 'USER_OFFBOARDED',
-    isActive: false,
-    runCount: 12,
-    lastRunAt: new Date(Date.now() - 604800000).toISOString(),
-    lastRunStatus: 'SUCCESS',
-  },
-];
-
 export default function ScalabilityPage() {
+  const notify = useToast();
+  const { data: currentUser } = useCurrentUser();
   const [activeTab, setActiveTab] = useState('overview');
-  const [dashboard, setDashboard] = useState<DashboardData>(MOCK_DASHBOARD);
-  // Dados mock estáticos — não há interacção que os altere (ver nota no topo).
-  const alerts: Alert[] = MOCK_ALERTS;
-  const integrations: Integration[] = MOCK_INTEGRATIONS;
-  const automations: AutomationRule[] = MOCK_AUTOMATIONS;
-  const [lastRefresh, setLastRefresh] = useState(new Date());
 
-  const refresh = useCallback(() => {
-    // Em produção: await fetch('/api/scalability/dashboard/{tenantId}')
-    setLastRefresh(new Date());
-  }, []);
-
-  // Enquanto o módulo corre sobre mock (ver nota no topo), as edições do
-  // banner "Tenant Activo" — renomear a empresa, importação de CSV a somar à
-  // contagem de activos — actualizam só este estado local. Os endpoints reais
-  // (PATCH /scalability/tenants/:id, POST /scalability/users/bulk-import)
-  // dependem de um tenantId que a sessão actual não expõe.
-  const patchTenantInfo = useCallback(
-    (patch: Partial<DashboardData['tenantInfo']>) => {
-      setDashboard((d) => ({
-        ...d,
-        tenantInfo: { ...d.tenantInfo, ...patch },
-      }));
-    },
-    [],
+  const {
+    data: dashboard,
+    isLoading: dashboardLoading,
+    isError: dashboardError,
+    dataUpdatedAt,
+    refetch: refetchDashboard,
+  } = useApiQuery<DashboardData>(
+    queryKeys.scalability.dashboard(),
+    '/scalability/dashboard',
+    { staleTime: STALE_TIME.DYNAMIC, refetchInterval: 60_000 },
   );
 
-  // Auto-refresh a cada 60s
-  useEffect(() => {
-    const interval = setInterval(refresh, 60000);
-    return () => clearInterval(interval);
-  }, [refresh]);
+  const { data: integrations = [] } = useApiQuery<Integration[]>(
+    queryKeys.scalability.integrations(),
+    '/scalability/integrations',
+    {
+      staleTime: STALE_TIME.DYNAMIC,
+      params: { limit: 100 },
+      select: (r: any) => r.data ?? r,
+    },
+  );
+
+  const { data: automations = [] } = useApiQuery<AutomationRule[]>(
+    queryKeys.scalability.automations(),
+    '/scalability/automations',
+    {
+      staleTime: STALE_TIME.DYNAMIC,
+      params: { limit: 100 },
+      select: (r: any) => r.data ?? r,
+    },
+  );
+
+  const { data: alerts = [] } = useApiQuery<Alert[]>(
+    queryKeys.scalability.alerts(),
+    '/scalability/alerts',
+    {
+      staleTime: STALE_TIME.DYNAMIC,
+      params: { isResolved: false, limit: 100 },
+      select: (r: any) => r.data ?? r,
+    },
+  );
+
+  const { data: slaConfigs = [] } = useApiQuery<SlaConfig[]>(
+    queryKeys.scalability.sla(),
+    '/scalability/sla',
+    { staleTime: STALE_TIME.SEMI_STATIC },
+  );
+
+  const { data: contentDelivery = null } = useApiQuery<ContentDeliveryConfig | null>(
+    queryKeys.scalability.contentDelivery(),
+    '/scalability/content-delivery',
+    { staleTime: STALE_TIME.SEMI_STATIC },
+  );
+
+  const refresh = () => {
+    void refetchDashboard();
+  };
+
+  const syncIntegration = useApiMutation<unknown, number>(
+    (integrationId) => apiClient.post('/scalability/integrations/sync', { integrationId }),
+    { invalidateKeys: [queryKeys.scalability.integrations(), queryKeys.scalability.dashboard()] },
+  );
+  const onSyncIntegration = (id: number) => {
+    syncIntegration.mutate(id, {
+      onSuccess: () => notify({ title: 'Sincronização iniciada', intent: 'success' }),
+      onError: (err) => {
+        reportError(err, { source: 'ScalabilityPage.onSyncIntegration' });
+        notify({ title: 'Não foi possível iniciar a sincronização', intent: 'danger' });
+      },
+    });
+  };
+
+  const executeRule = useApiMutation<unknown, number>(
+    (ruleId) => apiClient.post('/scalability/automations/execute', { ruleId }),
+    { invalidateKeys: [queryKeys.scalability.automations(), queryKeys.scalability.dashboard()] },
+  );
+  const onExecuteRule = (id: number) => {
+    executeRule.mutate(id, {
+      onSuccess: () => notify({ title: 'Execução iniciada', intent: 'success' }),
+      onError: (err) => {
+        reportError(err, { source: 'ScalabilityPage.onExecuteRule' });
+        notify({ title: 'Não foi possível executar a regra', intent: 'danger' });
+      },
+    });
+  };
+
+  const resolveAlert = useApiMutation<unknown, string>(
+    (id) =>
+      apiClient.patch(`/scalability/alerts/${id}/resolve`, {
+        resolvedBy: currentUser ? String(currentUser.id) : 'unknown',
+      }),
+    { invalidateKeys: [queryKeys.scalability.alerts(), queryKeys.scalability.dashboard()] },
+  );
+  const onResolveAlert = (id: string) => {
+    resolveAlert.mutate(id, {
+      onSuccess: () => notify({ title: 'Alerta resolvido', intent: 'success' }),
+      onError: (err) => {
+        reportError(err, { source: 'ScalabilityPage.onResolveAlert' });
+        notify({ title: 'Não foi possível resolver o alerta', intent: 'danger' });
+      },
+    });
+  };
+
+  if (dashboardLoading) {
+    return (
+      <div className="min-h-screen bg-canvas px-6 py-6">
+        <Skeleton
+          wrapperClassName="mx-auto max-w-7xl space-y-4 animate-pulse"
+          itemClassName="h-20 bg-surface-sunken rounded-panel"
+          rows={4}
+        />
+      </div>
+    );
+  }
+
+  if (dashboardError || !dashboard) {
+    return (
+      <div className="min-h-screen bg-canvas px-6 py-6">
+        <div className="mx-auto max-w-7xl">
+          <EmptyState
+            title="Não foi possível carregar o dashboard de escalabilidade"
+            description="Verifica a ligação ao backend e tenta novamente."
+            action={{ label: 'Tentar novamente', onClick: refresh }}
+          />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <ScalabilityDashboardView
@@ -247,9 +180,13 @@ export default function ScalabilityPage() {
       alerts={alerts}
       integrations={integrations}
       automations={automations}
-      lastRefresh={lastRefresh}
+      slaConfigs={slaConfigs}
+      contentDelivery={contentDelivery}
+      lastRefresh={new Date(dataUpdatedAt || Date.now())}
       onRefresh={refresh}
-      onPatchTenantInfo={patchTenantInfo}
+      onSyncIntegration={onSyncIntegration}
+      onExecuteRule={onExecuteRule}
+      onResolveAlert={onResolveAlert}
     />
   );
 }
