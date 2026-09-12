@@ -4,7 +4,8 @@
 // — gestor/pares do departamento/subordinados que lhe foram distribuídos,
 // ver evaluation360.service.ts#distributeCycle) e deixa escolher uma para
 // preencher. Antes disto não existia forma nenhuma de descobrir quem se
-// pode avaliar — o módulo era 100% mock.
+// pode avaliar — o módulo era 100% mock. Cada card mostra nome, departamento
+// e a fotografia carregada pelo próprio avaliado (evaluateeAvatarUrl).
 
 'use client';
 
@@ -15,12 +16,14 @@ import { EvaluationFormTab } from './EvaluationFormTab';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
+import { Avatar } from '@/components/ui/Avatar';
 
 interface RawAssignment {
   id: string;
   evaluateeId: string;
   evaluateeName: string;
   evaluateeDepartment: string | null;
+  evaluateeAvatarUrl: string | null;
   role: EvaluatorRole;
   status: 'PENDING' | 'INVITED' | 'IN_PROGRESS' | 'COMPLETED' | 'EXPIRED';
 }
@@ -130,10 +133,13 @@ export function EvaluateOthersTab({ cycleId }: EvaluateOthersTabProps) {
           onClick={() => setSelected(a)}
           className="flex items-center justify-between rounded-lg border border-border bg-surface px-5 py-4 text-left transition-colors enabled:hover:bg-surface-sunken disabled:opacity-60"
         >
-          <div>
-            <div className="text-sm font-semibold text-ink">{a.evaluateeName}</div>
-            <div className="text-xs text-ink-muted mt-0.5">
-              {a.evaluateeDepartment ?? '—'} · {ROLE_LABEL[a.role]}
+          <div className="flex items-center gap-3">
+            <Avatar name={a.evaluateeName} url={a.evaluateeAvatarUrl ?? undefined} size="md" />
+            <div>
+              <div className="text-sm font-semibold text-ink">{a.evaluateeName}</div>
+              <div className="text-xs text-ink-muted mt-0.5">
+                {a.evaluateeDepartment ?? '—'} · {ROLE_LABEL[a.role]}
+              </div>
             </div>
           </div>
           <span className="text-xs font-semibold text-ink-muted">{STATUS_LABEL[a.status]}</span>

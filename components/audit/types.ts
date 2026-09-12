@@ -73,4 +73,4 @@ export interface IntegrityCheck {
   broken: number[];
 }
 
-export type View = 'logs' | 'stats' | 'anomalies' | 'timeline';
+export type View = 'logs' | 'stats' | 'anomalies' | 'timeline' | 'deleted';

@@ -1,6 +1,12 @@
 @import 'tailwindcss';
 
 :root {
+  /* Só temos um tema (claro) — sem isto o "Auto Dark Mode" do Chrome/Edge
+     tenta escurecer a página sozinho e, em conteúdo montado num Portal
+     (modais, toasts), o heurístico falha e deixa texto ilegível sobre o
+     próprio fundo que escureceu. Ver também `viewport.colorScheme` em
+     app/layout.tsx (mesma declaração, via a meta tag). */
+  color-scheme: light;
   --sidebar-bg: #0f1623;
   --sidebar-hover: #1a2438;
   --sidebar-active: #1e3a5f;

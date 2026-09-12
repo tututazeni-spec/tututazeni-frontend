@@ -27,7 +27,17 @@ export interface CompetencyScore {
   othersScore: number; // média ponderada dos outros avaliadores
   managerScore: number;
   peerScore: number;
-  gap: number; // selfScore - othersScore (positivo = sobrestima-se)
+  // selfScore - othersScore (positivo = sobrestima-se); null quando ainda não
+  // há dados suficientes de auto e/ou outros avaliadores para calcular a
+  // lacuna — nunca apresentar isso como "0.0" (seria uma lacuna fictícia).
+  gap: number | null;
+  // Versões não-defaulted de selfScore/othersScore (que ficam a 0 quando
+  // falta essa fonte, só para o radar/heatmap não terem um buraco na
+  // geometria) — usadas só pela Legenda de Lacunas, para mostrar "Auto: X.X"
+  // ou "Outros: X.X" (real, parcial) em vez de "Sem dados" sempre que já
+  // exista pelo menos uma das duas fontes, mesmo sem a lacuna comparativa.
+  selfRaw: number | null;
+  othersRaw: number | null;
   benchmark: number; // média do cargo/nível
 }
 

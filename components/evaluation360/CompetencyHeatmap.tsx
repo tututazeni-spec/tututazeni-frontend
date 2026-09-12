@@ -35,11 +35,13 @@ export function CompetencyHeatmap({ competencies }: CompetencyHeatmapProps) {
         <tbody>
           {competencies.map((c, i) => {
             const gapColor =
-              c.gap > 0.5
-                ? 'rgb(245, 158, 11)'
-                : c.gap < -0.5
-                  ? 'rgb(34, 197, 94)'
-                  : 'var(--color-ink-muted)';
+              c.gap === null
+                ? 'var(--color-ink-faint)'
+                : c.gap > 0.5
+                  ? 'rgb(245, 158, 11)'
+                  : c.gap < -0.5
+                    ? 'rgb(34, 197, 94)'
+                    : 'var(--color-ink-muted)';
             return (
               <tr
                 key={c.id}
@@ -85,8 +87,9 @@ export function CompetencyHeatmap({ competencies }: CompetencyHeatmapProps) {
                     className="text-sm font-bold"
                     style={{ color: gapColor }}
                   >
-                    {c.gap > 0 ? '+' : ''}
-                    {c.gap.toFixed(1)}
+                    {c.gap === null
+                      ? '—'
+                      : `${c.gap > 0 ? '+' : ''}${c.gap.toFixed(1)}`}
                   </span>
                 </td>
                 <td className="text-center px-3 py-2.5 border-b border-border">

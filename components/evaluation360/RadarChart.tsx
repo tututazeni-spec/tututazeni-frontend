@@ -249,15 +249,18 @@ export function RadarChart({ competencies }: RadarChartProps) {
                   y={ty + 56}
                   fontSize={9}
                   fill={
-                    c.gap > 0.3
-                      ? 'rgb(245, 158, 11)'
-                      : c.gap < -0.3
-                        ? 'rgb(34, 197, 94)'
-                        : 'var(--color-ink-muted)'
+                    c.gap === null
+                      ? 'var(--color-ink-faint)'
+                      : c.gap > 0.3
+                        ? 'rgb(245, 158, 11)'
+                        : c.gap < -0.3
+                          ? 'rgb(34, 197, 94)'
+                          : 'var(--color-ink-muted)'
                   }
                 >
-                  Gap: {c.gap > 0 ? '+' : ''}
-                  {c.gap.toFixed(1)}
+                  {c.gap === null
+                    ? 'Gap: sem dados'
+                    : `Gap: ${c.gap > 0 ? '+' : ''}${c.gap.toFixed(1)}`}
                 </text>
               </g>
             );

@@ -70,6 +70,15 @@ export const EVAL_CREATOR_ROLES: readonly Role[] = [
   'LIDER',
 ];
 
+/**
+ * Espelha EVAL_CYCLE_DELETE_ROLES em src/evaluation360/evaluation360.controller.ts:
+ * quem pode eliminar (soft delete) e restaurar um ciclo de Avaliação 360º —
+ * mais restrito que EVAL_CREATOR_ROLES porque eliminar é destrutivo mesmo
+ * sendo reversível. Também controla quem vê o separador "Apagados" do módulo
+ * de auditoria (frontend/components/audit/constants.ts).
+ */
+export const EVAL_CYCLE_DELETE_ROLES: readonly Role[] = ['ADMIN', 'DIRECTOR'];
+
 export interface RoleRestricted {
   /** Omitido/vazio = sem @Roles() no endpoint principal → visível a todos. */
   roles?: readonly Role[];

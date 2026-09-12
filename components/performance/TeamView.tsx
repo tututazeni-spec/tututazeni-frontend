@@ -6,7 +6,7 @@
 'use client';
 
 import { useState } from 'react';
-import { CalendarPlus, Target } from 'lucide-react';
+import { CalendarPlus, ClipboardCheck, Target } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -28,12 +28,16 @@ import {
 } from '@/components/ui/Table';
 import { PERF_CATEGORY_MAP, REVIEW_STATUS_MAP } from './constants';
 import { ScheduleFeedbackMeetingModal } from './ScheduleFeedbackMeetingModal';
+import { SubmitReviewModal } from './SubmitReviewModal';
 import type { Cycle, ReviewStatus, TeamMember } from './types';
 
 export function TeamView() {
   const notify = useToast();
   const confirm = useConfirm();
   const [meetingFor, setMeetingFor] = useState<{ reviewId: number; userName: string } | null>(null);
+  const [evaluating, setEvaluating] = useState<{ reviewId: number; userName: string } | null>(
+    null,
+  );
 
   const dataQ = useApiQuery<{ team: TeamMember[]; total: number }>(
     queryKeys.performance.team(),
@@ -150,6 +154,23 @@ export function TeamView() {
                   )}
               </TableCell>
               <TableCell>
+                {member.latestReview?.status === 'PENDING_MANAGER' && (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setEvaluating({
+                        reviewId: member.latestReview!.id,
+                        userName: member.user.fullName,
+                      })
+                    }
+                    aria-label="Avaliar"
+                    title="Avaliar"
+                    className="flex items-center gap-1.5 text-xs font-medium text-primary hover:text-primary-hover"
+                  >
+                    <ClipboardCheck size={16} strokeWidth={1.75} />
+                    Avaliar
+                  </button>
+                )}
                 {member.latestReview?.status === 'PUBLISHED' && (
                   <div className="flex items-center gap-2">
                     <button
@@ -194,6 +215,16 @@ export function TeamView() {
           reviewId={meetingFor.reviewId}
           userName={meetingFor.userName}
           onClose={() => setMeetingFor(null)}
+        />
+      )}
+
+      {evaluating && (
+        <SubmitReviewModal
+          reviewId={evaluating.reviewId}
+          userName={evaluating.userName}
+          mode="manager"
+          scoreMax={(cycle?.scoreScale ?? 5) * 20}
+          onClose={() => setEvaluating(null)}
         />
       )}
     </div>

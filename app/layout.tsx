@@ -1,5 +1,5 @@
 import "./globals.css";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import ClientInit from "../components/ClientInit";
 import ReactQueryProvider from "../providers/ReactQueryProvider";
@@ -42,6 +42,17 @@ export const metadata: Metadata = {
   },
   // Plataforma interna: nunca indexar em motores de busca.
   robots: { index: false, follow: false },
+};
+
+// design system é light-only (sem variantes [data-theme=dark]/prefers-color-
+// scheme, ver globals.css) — sem isto, o "Auto Dark Mode" do Chrome/Edge
+// tenta reescrever as cores da página sozinho, e o heurístico falha em
+// conteúdo montado dinamicamente num Portal (modais, toasts): o texto de um
+// título fica com uma cor quase igual ao fundo que o browser escureceu por
+// cima, ilegível, sem que nada no nosso CSS tenha mudado. Declarar
+// color-scheme diz ao browser para não tentar.
+export const viewport: Viewport = {
+  colorScheme: "light",
 };
 
 export default function RootLayout({

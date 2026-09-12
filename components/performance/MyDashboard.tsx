@@ -24,6 +24,7 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { Textarea } from '@/components/ui/Textarea';
 import { GOAL_STATUS_MAP, REVIEW_STATUS_MAP } from './constants';
+import { SubmitReviewModal } from './SubmitReviewModal';
 import { isOverdue } from './utils';
 import type {
   Cycle,
@@ -120,6 +121,7 @@ function useFeedbackForm(cycleId: number | undefined, onSent: () => void) {
 
 export function MyDashboard() {
   const notify = useToast();
+  const [completing, setCompleting] = useState<{ reviewId: number } | null>(null);
   const historyQ = useApiQuery<MyPerformanceHistory>(
     queryKeys.performance.my(),
     '/performance/my',
@@ -225,12 +227,30 @@ export function MyDashboard() {
                   variant="dot"
                 />
               </div>
-              <Button intent="warning" size="sm">
-                Completar
-              </Button>
+              {/* PENDING_MANAGER não é accionável aqui — está à espera do
+                  gestor (submitReview só aceita o reviewer para esse tipo),
+                  só mostramos o botão para a parte que o próprio submete. */}
+              {r.status === 'PENDING_SELF' && (
+                <Button
+                  intent="warning"
+                  size="sm"
+                  onClick={() => setCompleting({ reviewId: r.id })}
+                >
+                  Completar
+                </Button>
+              )}
             </div>
           ))}
         </div>
+      )}
+
+      {completing && (
+        <SubmitReviewModal
+          reviewId={completing.reviewId}
+          mode="self"
+          scoreMax={(cycle?.scoreScale ?? 5) * 20}
+          onClose={() => setCompleting(null)}
+        />
       )}
 
       {/* Resultados publicados por aceitar */}

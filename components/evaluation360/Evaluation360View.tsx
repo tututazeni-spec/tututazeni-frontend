@@ -31,8 +31,13 @@ import { EvaluationFormTab } from './EvaluationFormTab';
 import { EvaluateOthersTab } from './EvaluateOthersTab';
 import { CreateCycleModal } from './CreateCycleModal';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
-import { EVAL_CREATOR_ROLES } from '@/lib/roles';
-import { Button } from '@/components/ui/Button';
+import { EVAL_CREATOR_ROLES, EVAL_CYCLE_DELETE_ROLES } from '@/lib/roles';
+import { useApiMutation } from '@/hooks/useApiQuery';
+import { apiClient } from '@/lib/apiClient';
+import { queryKeys } from '@/lib/queryKeys';
+import { useConfirm } from '@/providers/ConfirmProvider';
+import { useToast } from '@/providers/ToastProvider';
+import { Button, IconButton } from '@/components/ui/Button';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/Tabs';
 import {
@@ -43,9 +48,29 @@ import {
   LayoutGrid,
   MessageSquare,
   Radar,
+  Trash2,
   UserCheck,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
+
+// Legenda de Lacunas (separador Radar): mostra a lacuna real (auto vs.
+// outros) quando ambas as fontes existem; quando só uma existe ainda (ex.:
+// auto-avaliação submetida mas ninguém avaliou este colaborador nesta
+// competência), mostra essa pontuação parcial em vez de "Sem dados" — é
+// dado real na mesma, só não dá para calcular a lacuna comparativa. Nunca
+// inventa um valor (era a bug de antes: gap null a colapsar para "▼ 0.0").
+function competencyGapDisplay(c: CompetencyScore): { text: string; color: string } {
+  if (c.gap !== null) {
+    const color =
+      c.gap > 0.5 ? 'rgb(245, 158, 11)' : c.gap < -0.5 ? 'rgb(34, 197, 94)' : 'var(--color-ink-muted)';
+    const text = c.gap > 0 ? `▲ +${c.gap.toFixed(1)}` : `▼ ${c.gap.toFixed(1)}`;
+    return { text, color };
+  }
+  if (c.selfRaw !== null) return { text: `Auto: ${c.selfRaw.toFixed(1)}`, color: 'var(--color-ink-muted)' };
+  if (c.othersRaw !== null)
+    return { text: `Outros: ${c.othersRaw.toFixed(1)}`, color: 'var(--color-ink-muted)' };
+  return { text: 'Sem dados', color: 'var(--color-ink-faint)' };
+}
 
 const TABS: { id: TabId; label: string; icon: LucideIcon }[] = [
   { id: 'overview', label: 'Visão Geral', icon: LayoutDashboard },
@@ -94,7 +119,37 @@ export function Evaluation360View({
   // criar/distribuir questionários; a leitura (separador Ciclos) fica aberta
   // a todos, só a criação é restrita.
   const canCreateCycle = !!role && EVAL_CREATOR_ROLES.includes(role);
+  // Espelha EVAL_CYCLE_DELETE_ROLES de DELETE /evaluation360/cycles/:id —
+  // eliminar é mais restrito que criar (só ADMIN/DIRECTOR), embora seja soft
+  // delete: o ciclo fica auditável e restaurável no separador "Apagados" do
+  // módulo de auditoria (ver evaluation360.service.ts#deleteCycle).
+  const canDeleteCycle = !!role && EVAL_CYCLE_DELETE_ROLES.includes(role);
   const feedbackTargetId = result?.userId ?? myId;
+
+  const confirm = useConfirm();
+  const notify = useToast();
+  const deleteCycle = useApiMutation<unknown, string>(
+    (id) => apiClient.delete<unknown>(`/evaluation360/cycles/${id}`),
+    {
+      invalidateKeys: [queryKeys.evaluation360.cycles()],
+      onSuccess: () => notify({ title: 'Ciclo eliminado', intent: 'success' }),
+      onError: () =>
+        notify({
+          title: 'Não foi possível eliminar o ciclo',
+          intent: 'danger',
+        }),
+    },
+  );
+
+  async function handleDeleteCycle(c: CycleInfo) {
+    const ok = await confirm({
+      title: 'Eliminar ciclo de avaliação',
+      message: `Tens a certeza que queres eliminar "${c.name}"? Fica registado em Auditoria → Apagados e pode ser restaurado a partir de lá.`,
+      confirmLabel: 'Eliminar',
+      destructive: true,
+    });
+    if (ok) deleteCycle.mutate(c.id);
+  }
 
   const renderTab = () => {
     switch (activeTab) {
@@ -123,31 +178,22 @@ export function Evaluation360View({
                   <div className="text-xs font-bold uppercase tracking-wider text-ink-muted mb-1">
                     Legenda de Lacunas
                   </div>
-                  {competencies.map((c) => (
-                    <div
-                      key={c.id}
-                      className="rounded-lg border border-border bg-surface px-3.5 py-2.5 flex justify-between items-center"
-                    >
-                      <span className="text-sm font-semibold text-ink">
-                        {c.name}
-                      </span>
-                      <span
-                        className="text-sm font-bold"
-                        style={{
-                          color:
-                            c.gap > 0.5
-                              ? 'rgb(245, 158, 11)'
-                              : c.gap < -0.5
-                                ? 'rgb(34, 197, 94)'
-                                : 'var(--color-ink-muted)',
-                        }}
+                  {competencies.map((c) => {
+                    const { text, color } = competencyGapDisplay(c);
+                    return (
+                      <div
+                        key={c.id}
+                        className="rounded-lg border border-border bg-surface px-3.5 py-2.5 flex justify-between items-center"
                       >
-                        {c.gap > 0
-                          ? `▲ +${c.gap.toFixed(1)}`
-                          : `▼ ${c.gap.toFixed(1)}`}
-                      </span>
-                    </div>
-                  ))}
+                        <span className="text-sm font-semibold text-ink">
+                          {c.name}
+                        </span>
+                        <span className="text-sm font-bold" style={{ color }}>
+                          {text}
+                        </span>
+                      </div>
+                    );
+                  })}
                   <div className="text-xs text-ink-muted mt-2 leading-relaxed">
                     <span style={{ color: 'rgb(245, 158, 11)' }}>▲ positivo</span>{' '}
                     = sobreestima-se vs. outros
@@ -196,9 +242,7 @@ export function Evaluation360View({
           </div>
         );
       case 'feedback':
-        return feedbackTargetId ? (
-          <FeedbackTab feedbacks={feedbacks} toUserId={feedbackTargetId} />
-        ) : null;
+        return feedbackTargetId ? <FeedbackTab feedbacks={feedbacks} /> : null;
       case 'ninebox':
         return (
           <div className="flex flex-col gap-5">
@@ -260,21 +304,33 @@ export function Evaluation360View({
                         {c.model} · {c.startDate} → {c.endDate}
                       </div>
                     </div>
-                    <span
-                      className="text-xs font-bold px-3 py-1 rounded-full"
-                      style={{
-                        background:
-                          c.status === 'COMPLETED'
-                            ? 'rgb(20, 83, 45)'
-                            : 'rgb(30, 27, 75)',
-                        color:
-                          c.status === 'COMPLETED'
-                            ? 'rgb(74, 222, 128)'
-                            : 'rgb(129, 140, 248)',
-                      }}
-                    >
-                      {cycleStatusText(c.status)}
-                    </span>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <span
+                        className="text-xs font-bold px-3 py-1 rounded-full"
+                        style={{
+                          background:
+                            c.status === 'COMPLETED'
+                              ? 'rgb(20, 83, 45)'
+                              : 'rgb(30, 27, 75)',
+                          color:
+                            c.status === 'COMPLETED'
+                              ? 'rgb(74, 222, 128)'
+                              : 'rgb(129, 140, 248)',
+                        }}
+                      >
+                        {cycleStatusText(c.status)}
+                      </span>
+                      {canDeleteCycle && (
+                        <IconButton
+                          icon={Trash2}
+                          label={`Eliminar ciclo ${c.name}`}
+                          intent="danger"
+                          size="sm"
+                          onClick={() => handleDeleteCycle(c)}
+                          disabled={deleteCycle.isPending}
+                        />
+                      )}
+                    </div>
                   </div>
                   <div className="bg-surface-sunken rounded h-1.5 mb-2 overflow-hidden">
                     <div
