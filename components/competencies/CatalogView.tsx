@@ -11,7 +11,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
 import { Search } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
@@ -54,12 +54,25 @@ export function CatalogView({ onSelect, canManage = false }: CatalogViewProps) {
   const [statusFilter, setStatusFilter] = useState('ACTIVE');
   const [page, setPage] = useState(1);
   const debouncedSearch = useDebounce(search);
+  const [committedSearch, setCommittedSearch] = useState('');
+
+  // A pesquisa dispara sozinha ao parar de digitar (debounce), mas a lupa e
+  // o Enter também a disparam de imediato, sem esperar pelo debounce.
+  useEffect(() => {
+    setCommittedSearch(debouncedSearch);
+  }, [debouncedSearch]);
+
+  const runSearch = () => {
+    setCommittedSearch(search);
+    setPage(1);
+  };
+
   const effectiveStatus = canManage ? statusFilter : 'ACTIVE';
   const params = {
     page,
     limit: 24,
     status: effectiveStatus === 'ALL' ? '' : effectiveStatus,
-    search: debouncedSearch,
+    search: committedSearch,
     category: category === 'ALL' ? '' : category,
   };
 
@@ -76,11 +89,14 @@ export function CatalogView({ onSelect, canManage = false }: CatalogViewProps) {
     <div>
       <div className="mb-5 flex flex-wrap items-center gap-3">
         <div className="relative min-w-[200px] flex-1">
-          <Search
-            size={16}
-            strokeWidth={1.75}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-faint"
-          />
+          <button
+            type="button"
+            onClick={runSearch}
+            aria-label="Pesquisar"
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-faint hover:text-ink transition-colors"
+          >
+            <Search size={16} strokeWidth={1.75} />
+          </button>
           <Input
             type="text"
             placeholder="Pesquisar competências, tags…"
@@ -89,6 +105,7 @@ export function CatalogView({ onSelect, canManage = false }: CatalogViewProps) {
               setSearch(e.target.value);
               setPage(1);
             }}
+            onKeyDown={(e) => e.key === 'Enter' && runSearch()}
             className="w-full pl-9"
           />
         </div>

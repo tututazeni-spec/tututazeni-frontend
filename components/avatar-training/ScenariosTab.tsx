@@ -5,7 +5,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
 import { Search } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
@@ -42,12 +42,21 @@ export function ScenariosTab({ onStart }: ScenariosTabProps) {
   const [difficulty, setDifficulty] = useState('');
   const [search, setSearch] = useState('');
   const debouncedSearch = useDebounce(search, 300);
+  const [committedSearch, setCommittedSearch] = useState('');
+
+  // A pesquisa dispara sozinha ao parar de digitar (debounce), mas a lupa e
+  // o Enter também a disparam de imediato, sem esperar pelo debounce.
+  useEffect(() => {
+    setCommittedSearch(debouncedSearch);
+  }, [debouncedSearch]);
+
+  const runSearch = () => setCommittedSearch(search);
 
   const params = {
     limit: 30,
     ...(category ? { category } : {}),
     ...(difficulty ? { difficulty } : {}),
-    ...(debouncedSearch ? { search: debouncedSearch } : {}),
+    ...(committedSearch ? { search: committedSearch } : {}),
   };
   const { data, isLoading } = useApiQuery<{
     data: Scenario[];
@@ -64,14 +73,18 @@ export function ScenariosTab({ onStart }: ScenariosTabProps) {
       {/* Filters */}
       <Card className="p-4 flex flex-wrap gap-2">
         <div className="relative flex-1 min-w-[180px]">
-          <Search
-            size={16}
-            strokeWidth={1.75}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-faint"
-          />
+          <button
+            type="button"
+            onClick={runSearch}
+            aria-label="Pesquisar"
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-faint hover:text-ink transition-colors"
+          >
+            <Search size={16} strokeWidth={1.75} />
+          </button>
           <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && runSearch()}
             placeholder="Pesquisar cenários..."
             className="w-full pl-9 text-sm"
           />
