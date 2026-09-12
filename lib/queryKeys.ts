@@ -385,6 +385,9 @@ export const queryKeys = {
     my: () => [...queryKeys.trainings.all, 'my'] as const,
     adminDashboard: () =>
       [...queryKeys.trainings.all, 'admin-dashboard'] as const,
+    manage: (params: Record<string, unknown>) =>
+      [...queryKeys.trainings.all, 'manage', params] as const,
+    results: (id: number) => [...queryKeys.trainings.all, 'results', id] as const,
   },
 
   acl: {

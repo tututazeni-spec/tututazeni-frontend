@@ -32,6 +32,12 @@ export const TYPE_CFG: Record<
   PRESENTIAL: { label: 'Presencial', cls: cls(TOKEN.info) },
   ONLINE: { label: 'Online', cls: cls(TOKEN.primary) },
   HYBRID: { label: 'Híbrido', cls: cls(TOKEN.warning) },
+  VIRTUAL_ROOM: { label: 'Sala virtual', cls: cls(TOKEN.info) },
+  ELEARNING: { label: 'E-learning', cls: cls(TOKEN.primary) },
+  WORKSHOP: { label: 'Workshop', cls: cls(TOKEN.success) },
+  SEMINAR: { label: 'Seminário', cls: cls(TOKEN.success) },
+  COACHING: { label: 'Coaching', cls: cls(TOKEN.warning) },
+  MENTORING: { label: 'Mentoria', cls: cls(TOKEN.warning) },
 };
 
 export const LEVEL_CFG: StatusBadgeMap<TrainingLevel> = {
@@ -42,6 +48,7 @@ export const LEVEL_CFG: StatusBadgeMap<TrainingLevel> = {
 
 export const PARTICIPANT_CFG: StatusBadgeMap<ParticipantStatus> = {
   WAITLIST: { label: 'Lista espera', cls: cls(TOKEN.neutral) },
+  PENDING_APPROVAL: { label: 'Pendente aprovação', cls: cls(TOKEN.warning) },
   REGISTERED: { label: 'Inscrito', cls: cls(TOKEN.info) },
   ATTENDED: { label: 'Presente', cls: cls(TOKEN.success) },
   ABSENT: { label: 'Ausente', cls: cls(TOKEN.danger) },
@@ -49,12 +56,26 @@ export const PARTICIPANT_CFG: StatusBadgeMap<ParticipantStatus> = {
     label: 'Cancelado',
     cls: 'bg-surface-sunken text-ink-faint',
   },
+  REJECTED: { label: 'Rejeitado', cls: cls(TOKEN.danger) },
   COMPLETED: { label: 'Concluído', cls: cls(TOKEN.success) },
 };
+
+// Papéis que podem criar/gerir formações — espelha CAN_CREATE_TRAININGS do
+// backend (trainings.controller.ts). Controla a visibilidade do separador
+// "Gestão" (só a UI; a autorização real está sempre no backend).
+export const CAN_MANAGE_TRAININGS_ROLES = [
+  'ADMIN',
+  'RH',
+  'GESTOR',
+  'INSTRUCTOR',
+  'DIRECTOR',
+  'LIDER',
+] as const;
 
 export const NAV = [
   { id: 'catalog', label: 'Catálogo' },
   { id: 'my-trainings', label: 'Os meus treinamentos' },
+  { id: 'manage', label: 'Gestão' },
   { id: 'dashboard', label: 'Dashboard (Admin)' },
 ] as const;
 
@@ -65,4 +86,6 @@ export const TITLES: Record<View, string> = {
   detail: 'Detalhe',
   'my-trainings': 'Os meus treinamentos',
   dashboard: 'Dashboard',
+  manage: 'Gestão',
+  'manage-detail': 'Gerir formação',
 };
