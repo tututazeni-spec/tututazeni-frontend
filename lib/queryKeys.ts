@@ -212,6 +212,16 @@ export const queryKeys = {
     stats: () => [...queryKeys.automation.all, 'stats'] as const,
   },
 
+  scalability: {
+    all: ['scalability'] as const,
+    dashboard: () => [...queryKeys.scalability.all, 'dashboard'] as const,
+    integrations: () => [...queryKeys.scalability.all, 'integrations'] as const,
+    automations: () => [...queryKeys.scalability.all, 'automations'] as const,
+    alerts: () => [...queryKeys.scalability.all, 'alerts'] as const,
+    sla: () => [...queryKeys.scalability.all, 'sla'] as const,
+    contentDelivery: () => [...queryKeys.scalability.all, 'content-delivery'] as const,
+  },
+
   dashboardRh: {
     all: ['dashboard-rh'] as const,
     overview: () => [...queryKeys.dashboardRh.all, 'overview'] as const,

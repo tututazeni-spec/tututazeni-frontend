@@ -1,10 +1,37 @@
 import { describe, expect, test, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 
 const notify = vi.fn();
+const post = vi.fn();
 
 vi.mock('@/providers/ToastProvider', () => ({
   useToast: () => notify,
+}));
+
+vi.mock('@/lib/apiClient', () => {
+  class ApiError extends Error {
+    constructor(
+      public status: number,
+      message: string,
+    ) {
+      super(message);
+    }
+  }
+  return { apiClient: { post: (...a: unknown[]) => post(...a) }, ApiError };
+});
+
+vi.mock('@/hooks/useApiQuery', () => ({
+  useApiMutation: (fn: (v: unknown) => Promise<unknown>) => ({
+    mutate: (
+      v: unknown,
+      opts?: { onSuccess?: (d: unknown) => void; onError?: (e: unknown) => void },
+    ) =>
+      Promise.resolve(fn(v)).then(
+        (d) => opts?.onSuccess?.(d),
+        (e) => opts?.onError?.(e),
+      ),
+    isPending: false,
+  }),
 }));
 
 vi.mock('@/components/ui/Modal', () => ({
@@ -25,10 +52,14 @@ vi.mock('@/components/ui/Modal', () => ({
 
 import { LoadTestModal } from './LoadTestModal';
 
-beforeEach(() => notify.mockReset());
+beforeEach(() => {
+  notify.mockReset();
+  post.mockReset();
+  post.mockResolvedValue({ message: 'Teste de carga agendado.' });
+});
 
 describe('LoadTestModal', () => {
-  test('submete com os valores por omissão — toast resume a configuração', () => {
+  test('submete com os valores por omissão — POST real e toast com a resposta do backend', async () => {
     const onClose = vi.fn();
     render(<LoadTestModal onClose={onClose} />);
 
@@ -37,12 +68,36 @@ describe('LoadTestModal', () => {
     });
     fireEvent.click(screen.getByRole('button', { name: 'Agendar teste' }));
 
-    expect(notify).toHaveBeenCalledTimes(1);
-    const arg = notify.mock.calls[0][0];
-    expect(arg.intent).toBe('success');
-    expect(arg.title).toContain('100');
-    expect(arg.title).toContain('/api/courses');
+    await waitFor(() => expect(post).toHaveBeenCalledTimes(1));
+    expect(post).toHaveBeenCalledWith('/scalability/load-test', {
+      concurrentUsers: 100,
+      durationSeconds: 300,
+      rampUpSeconds: undefined,
+      targetEndpoint: '/api/courses',
+    });
+
+    await waitFor(() =>
+      expect(notify).toHaveBeenCalledWith(
+        expect.objectContaining({ intent: 'success', title: 'Teste de carga agendado.' }),
+      ),
+    );
     expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  test('erro do backend — toast de erro e modal continua aberto', async () => {
+    post.mockRejectedValue(new Error('boom'));
+    const onClose = vi.fn();
+    render(<LoadTestModal onClose={onClose} />);
+
+    fireEvent.change(screen.getByLabelText('Endpoint alvo *'), {
+      target: { value: '/x' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Agendar teste' }));
+
+    await waitFor(() =>
+      expect(notify).toHaveBeenCalledWith(expect.objectContaining({ intent: 'danger' })),
+    );
+    expect(onClose).not.toHaveBeenCalled();
   });
 
   test('rejeita utilizadores simultâneos fora dos limites (1–10000)', () => {
@@ -58,7 +113,7 @@ describe('LoadTestModal', () => {
       screen.getByRole('button', { name: 'Agendar teste' }),
     ).toBeDisabled();
     fireEvent.click(screen.getByRole('button', { name: 'Agendar teste' }));
-    expect(notify).not.toHaveBeenCalled();
+    expect(post).not.toHaveBeenCalled();
   });
 
   test('rejeita duração abaixo de 30s', () => {

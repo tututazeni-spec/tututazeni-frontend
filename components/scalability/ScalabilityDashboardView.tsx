@@ -17,6 +17,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
 import { Card, CardBody } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
+import { EmptyState } from '@/components/ui/EmptyState';
 import {
   Bell,
   Gauge,
@@ -41,6 +42,8 @@ import type {
   Alert,
   Integration,
   AutomationRule,
+  SlaConfig,
+  ContentDeliveryConfig,
 } from './types';
 
 // ─── UTILITY FUNCTIONS ─────────────────────────────────────
@@ -250,6 +253,7 @@ const INTEGRATION_STATUS: Record<
   INACTIVE: { label: 'Inactivo', intent: 'neutral' },
   ERROR: { label: 'Erro', intent: 'danger' },
   PENDING_AUTH: { label: 'Aguarda Auth', intent: 'warning' },
+  RATE_LIMITED: { label: 'Limite Atingido', intent: 'warning' },
 };
 
 const SEVERITY: Record<
@@ -265,10 +269,9 @@ const SEVERITY: Record<
 
 interface OverviewTabProps {
   data: DashboardData;
-  onPatchTenantInfo: (patch: Partial<DashboardData['tenantInfo']>) => void;
 }
 
-function OverviewTab({ data, onPatchTenantInfo }: OverviewTabProps) {
+function OverviewTab({ data }: OverviewTabProps) {
   const {
     tenantInfo: t,
     performanceSummary: p,
@@ -310,8 +313,8 @@ function OverviewTab({ data, onPatchTenantInfo }: OverviewTabProps) {
 
       {renaming && (
         <RenameTenantModal
+          tenantId={t.id}
           currentName={t.tenantName}
-          onRename={(tenantName) => onPatchTenantInfo({ tenantName })}
           onClose={() => setRenaming(false)}
         />
       )}
@@ -557,9 +560,10 @@ function PerformanceTab({ data }: PerformanceTabProps) {
 
 interface IntegrationsTabProps {
   integrations: Integration[];
+  onSync: (id: number) => void;
 }
 
-function IntegrationsTab({ integrations }: IntegrationsTabProps) {
+function IntegrationsTab({ integrations, onSync }: IntegrationsTabProps) {
   const notify = useToast();
   const typeLabels: Record<string, string> = {
     ERP_HR: 'ERP de RH',
@@ -628,12 +632,7 @@ function IntegrationsTab({ integrations }: IntegrationsTabProps) {
                   <Button
                     intent="secondary"
                     size="sm"
-                    onClick={() =>
-                      notify({
-                        title: `Sincronizando ${int.name}...`,
-                        intent: 'info',
-                      })
-                    }
+                    onClick={() => onSync(int.id)}
                   >
                     Sync
                   </Button>
@@ -654,6 +653,12 @@ function IntegrationsTab({ integrations }: IntegrationsTabProps) {
             </Card>
           );
         })}
+        {integrations.length === 0 && (
+          <EmptyState
+            title="Sem integrações configuradas"
+            description="Adiciona uma integração (ERP, SSO, LMS…) para começar a sincronizar dados."
+          />
+        )}
       </div>
     </div>
   );
@@ -661,9 +666,10 @@ function IntegrationsTab({ integrations }: IntegrationsTabProps) {
 
 interface AutomationsTabProps {
   rules: AutomationRule[];
+  onExecute: (id: number) => void;
 }
 
-function AutomationsTab({ rules }: AutomationsTabProps) {
+function AutomationsTab({ rules, onExecute }: AutomationsTabProps) {
   const notify = useToast();
   const triggerLabel: Record<string, string> = {
     USER_HIRED: 'Contratação',
@@ -727,9 +733,8 @@ function AutomationsTab({ rules }: AutomationsTabProps) {
                 <Button
                   intent="ghost"
                   size="sm"
-                  onClick={() =>
-                    notify({ title: `Executar: ${rule.name}`, intent: 'info' })
-                  }
+                  disabled={!rule.isActive}
+                  onClick={() => onExecute(rule.id)}
                 >
                   Executar
                 </Button>
@@ -737,6 +742,12 @@ function AutomationsTab({ rules }: AutomationsTabProps) {
             </Card>
           );
         })}
+        {rules.length === 0 && (
+          <EmptyState
+            title="Sem regras de automação"
+            description="Cria uma regra para automatizar acções em resposta a eventos da plataforma."
+          />
+        )}
       </div>
     </div>
   );
@@ -744,12 +755,12 @@ function AutomationsTab({ rules }: AutomationsTabProps) {
 
 interface AlertsTabProps {
   alerts: Alert[];
+  onResolve: (id: string) => void;
 }
 
 type AlertFilter = 'ALL' | 'CRITICAL' | 'WARNING';
 
-function AlertsTab({ alerts }: AlertsTabProps) {
-  const notify = useToast();
+function AlertsTab({ alerts, onResolve }: AlertsTabProps) {
   const [filter, setFilter] = useState<AlertFilter>('ALL');
   const shown =
     filter === 'ALL'
@@ -818,9 +829,7 @@ function AlertsTab({ alerts }: AlertsTabProps) {
                 <Button
                   intent="ghost"
                   size="sm"
-                  onClick={() =>
-                    notify({ title: 'Resolver alerta...', intent: 'info' })
-                  }
+                  onClick={() => onResolve(alert.id)}
                 >
                   Resolver
                 </Button>
@@ -835,9 +844,10 @@ function AlertsTab({ alerts }: AlertsTabProps) {
 
 interface SlaTabProps {
   data: DashboardData;
+  slaConfigs: SlaConfig[];
 }
 
-function SlaTab({ data }: SlaTabProps) {
+function SlaTab({ data, slaConfigs }: SlaTabProps) {
   const { slaCompliance: s } = data;
   const complianceScore = Math.min(
     100,
@@ -891,58 +901,53 @@ function SlaTab({ data }: SlaTabProps) {
         </div>
       </div>
 
-      {/* Compliance checklist */}
+      {/* SLA configurados — dados reais de SlaConfig, não uma checklist de
+          certificações fabricada (não existe nenhum modelo de compliance
+          LGPD/GDPR/ISO27001 no schema; mostrar isso como "Conforme" seria
+          inventar um estado legal que ninguém verificou). */}
+      <SectionHeader title="Configurações de SLA" sub="Contratos activos para este tenant" />
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-        {[
-          {
-            label: 'LGPD (Lei Geral de Protecção de Dados)',
-            status: true,
-            desc: 'Brasil',
-          },
-          {
-            label: 'GDPR (General Data Protection Regulation)',
-            status: true,
-            desc: 'União Europeia',
-          },
-          {
-            label: 'APD (Lei de Protecção de Dados de Angola)',
-            status: true,
-            desc: 'Angola',
-          },
-          {
-            label: 'ISO 27001 — Segurança da Informação',
-            status: true,
-            desc: 'Internacional',
-          },
-          {
-            label: 'SOC 2 Type II',
-            status: false,
-            desc: 'Em processo de certificação',
-          },
-          {
-            label: 'Backups Automáticos Diários',
-            status: true,
-            desc: 'RPO: 60min · RTO: 4h',
-          },
-        ].map((item, i) => (
-          <Card key={i}>
-            <CardBody className="flex items-center justify-between gap-3">
-              <div>
-                <p className="font-body text-sm font-semibold text-ink">
-                  {item.label}
-                </p>
-                <p className="font-body text-xs text-ink-muted">{item.desc}</p>
+        {slaConfigs.map((sla) => (
+          <Card key={sla.id}>
+            <CardBody>
+              <div className="mb-2 flex items-center justify-between gap-3">
+                <p className="font-body text-sm font-semibold text-ink">{sla.name}</p>
+                <Badge intent={sla.isActive ? 'success' : 'neutral'} dot={false}>
+                  {sla.isActive ? 'Activo' : 'Inactivo'}
+                </Badge>
               </div>
-              <Badge
-                intent={item.status ? 'success' : 'warning'}
-                dot={false}
-                className="shrink-0"
-              >
-                {item.status ? 'Conforme' : 'Em curso'}
-              </Badge>
+              <div className="grid grid-cols-2 gap-x-4 gap-y-1 font-body text-xs text-ink-muted">
+                <span>Uptime mínimo</span>
+                <span className="text-right text-ink">{formatPercent(sla.uptimePercent, 2)}</span>
+                <span>Latência máx.</span>
+                <span className="text-right text-ink">{sla.maxLatencyMs}ms</span>
+                <span>Taxa de erro máx.</span>
+                <span className="text-right text-ink">{formatPercent(sla.maxErrorRate * 100, 2)}</span>
+                <span>Resposta a incidentes</span>
+                <span className="text-right text-ink">{sla.incidentResponse}min</span>
+                {sla.rpoMinutes != null && (
+                  <>
+                    <span>RPO</span>
+                    <span className="text-right text-ink">{sla.rpoMinutes}min</span>
+                  </>
+                )}
+                {sla.rtoMinutes != null && (
+                  <>
+                    <span>RTO</span>
+                    <span className="text-right text-ink">{sla.rtoMinutes}min</span>
+                  </>
+                )}
+              </div>
             </CardBody>
           </Card>
         ))}
+        {slaConfigs.length === 0 && (
+          <EmptyState
+            className="md:col-span-2"
+            title="Sem SLA configurado"
+            description="Cria uma configuração de SLA para definir metas de uptime, latência e resposta a incidentes."
+          />
+        )}
       </div>
     </div>
   );
@@ -950,10 +955,9 @@ function SlaTab({ data }: SlaTabProps) {
 
 interface UsersTabProps {
   data: DashboardData;
-  onPatchTenantInfo: (patch: Partial<DashboardData['tenantInfo']>) => void;
 }
 
-function UsersTab({ data, onPatchTenantInfo }: UsersTabProps) {
+function UsersTab({ data }: UsersTabProps) {
   const { tenantInfo: t } = data;
   const [importing, setImporting] = useState(false);
   return (
@@ -973,14 +977,7 @@ function UsersTab({ data, onPatchTenantInfo }: UsersTabProps) {
       </div>
 
       {importing && (
-        <ImportUsersModal
-          activeUsersCount={t.activeUsersCount}
-          maxUsers={t.maxUsers}
-          onImported={(activeUsersCount) =>
-            onPatchTenantInfo({ activeUsersCount })
-          }
-          onClose={() => setImporting(false)}
-        />
+        <ImportUsersModal tenantId={t.id} onClose={() => setImporting(false)} />
       )}
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
@@ -1061,42 +1058,69 @@ function UsersTab({ data, onPatchTenantInfo }: UsersTabProps) {
   );
 }
 
-function ContentTab() {
+interface ContentTabProps {
+  config: ContentDeliveryConfig | null;
+}
+
+function ContentTab({ config }: ContentTabProps) {
+  if (!config) {
+    return (
+      <div className="flex flex-col gap-6">
+        <SectionHeader
+          title="Conteúdo & CDN"
+          sub="Distribuição de vídeos, SCORM e PDFs com bitrate adaptativo"
+        />
+        <EmptyState
+          title="Sem configuração de entrega de conteúdo"
+          description="Este tenant ainda não tem CDN/bitrate adaptativo configurado."
+        />
+      </div>
+    );
+  }
+
+  const rows: { title: string; value: string; active: boolean }[] = [
+    {
+      title: 'CDN',
+      value: config.cdnProvider ?? 'Não configurado',
+      active: !!config.cdnProvider,
+    },
+    {
+      title: 'Bitrate Adaptativo',
+      value: config.adaptiveBitrate ? 'Activado' : 'Desactivado',
+      active: config.adaptiveBitrate,
+    },
+    {
+      title: 'Sincronização Offline',
+      value: config.offlineSyncEnabled
+        ? `Activada — ${config.maxOfflineDays} dias de cache`
+        : 'Desactivada',
+      active: config.offlineSyncEnabled,
+    },
+    {
+      title: 'Compressão',
+      value: config.compressionEnabled ? 'Activada' : 'Desactivada',
+      active: config.compressionEnabled,
+    },
+    {
+      title: 'Formatos Suportados',
+      value: config.allowedFormats.join(', ').toUpperCase() || '—',
+      active: config.allowedFormats.length > 0,
+    },
+    {
+      title: 'Tamanho Máx. Vídeo',
+      value: `${config.maxVideoSizeMb} MB por ficheiro`,
+      active: true,
+    },
+  ];
+
   return (
     <div className="flex flex-col gap-6">
       <SectionHeader
         title="Conteúdo & CDN"
-        sub="Distribuição global de vídeos, SCORM e PDFs com bitrate adaptativo"
+        sub="Distribuição de vídeos, SCORM e PDFs com bitrate adaptativo"
       />
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-        {[
-          { title: 'CDN Activo', value: 'Cloudfront (AWS)', active: true },
-          {
-            title: 'Bitrate Adaptativo',
-            value: '360p / 480p / 720p / 1080p',
-            active: true,
-          },
-          {
-            title: 'Modo Offline',
-            value: 'Mobile app — 30 dias de cache',
-            active: true,
-          },
-          {
-            title: 'Compressão',
-            value: 'Activada — GZIP/Brotli',
-            active: true,
-          },
-          {
-            title: 'Formatos Suportados',
-            value: 'MP4, PDF, SCORM, xAPI',
-            active: true,
-          },
-          {
-            title: 'Tamanho Máx. Vídeo',
-            value: '500 MB por ficheiro',
-            active: false,
-          },
-        ].map((item) => (
+        {rows.map((item) => (
           <Card key={item.title}>
             <CardBody className="flex items-center justify-between gap-3">
               <div>
@@ -1142,9 +1166,13 @@ export interface ScalabilityDashboardViewProps {
   alerts: Alert[];
   integrations: Integration[];
   automations: AutomationRule[];
+  slaConfigs: SlaConfig[];
+  contentDelivery: ContentDeliveryConfig | null;
   lastRefresh: Date;
   onRefresh: () => void;
-  onPatchTenantInfo: (patch: Partial<DashboardData['tenantInfo']>) => void;
+  onSyncIntegration: (id: number) => void;
+  onExecuteRule: (id: number) => void;
+  onResolveAlert: (id: string) => void;
 }
 
 export function ScalabilityDashboardView({
@@ -1154,9 +1182,13 @@ export function ScalabilityDashboardView({
   alerts,
   integrations,
   automations,
+  slaConfigs,
+  contentDelivery,
   lastRefresh,
   onRefresh,
-  onPatchTenantInfo,
+  onSyncIntegration,
+  onExecuteRule,
+  onResolveAlert,
 }: ScalabilityDashboardViewProps) {
   const openAlertCount = alerts.filter((a) => !a.isResolved).length;
   const criticalCount = alerts.filter(
@@ -1225,34 +1257,28 @@ export function ScalabilityDashboardView({
 
         <div className="mx-auto max-w-7xl px-6 py-6">
           <TabsContent value="overview">
-            <OverviewTab
-              data={dashboard}
-              onPatchTenantInfo={onPatchTenantInfo}
-            />
+            <OverviewTab data={dashboard} />
           </TabsContent>
           <TabsContent value="performance">
             <PerformanceTab data={dashboard} />
           </TabsContent>
           <TabsContent value="integrations">
-            <IntegrationsTab integrations={integrations} />
+            <IntegrationsTab integrations={integrations} onSync={onSyncIntegration} />
           </TabsContent>
           <TabsContent value="automations">
-            <AutomationsTab rules={automations} />
+            <AutomationsTab rules={automations} onExecute={onExecuteRule} />
           </TabsContent>
           <TabsContent value="alerts">
-            <AlertsTab alerts={alerts} />
+            <AlertsTab alerts={alerts} onResolve={onResolveAlert} />
           </TabsContent>
           <TabsContent value="sla">
-            <SlaTab data={dashboard} />
+            <SlaTab data={dashboard} slaConfigs={slaConfigs} />
           </TabsContent>
           <TabsContent value="users">
-            <UsersTab
-              data={dashboard}
-              onPatchTenantInfo={onPatchTenantInfo}
-            />
+            <UsersTab data={dashboard} />
           </TabsContent>
           <TabsContent value="content">
-            <ContentTab />
+            <ContentTab config={contentDelivery} />
           </TabsContent>
         </div>
       </Tabs>

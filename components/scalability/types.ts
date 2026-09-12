@@ -3,14 +3,24 @@
 // e a view apresentacional (ScalabilityDashboardView). Extraído da junção
 // container+apresentação original — ver memory
 // project_innova_component_separation_audit, item 3.1.
+//
+// Espelham os DTOs/modelos reais do backend (src/scalability/scalability.dto.ts,
+// prisma/schema.prisma) desde que o módulo deixou de correr sobre dados mock —
+// ver app/(platform)/scalability/page.tsx.
 
 export type AlertSeverity = 'CRITICAL' | 'WARNING' | 'INFO';
 export type IntegrationStatus =
-  'ACTIVE' | 'INACTIVE' | 'ERROR' | 'PENDING_AUTH';
+  | 'ACTIVE'
+  | 'INACTIVE'
+  | 'ERROR'
+  | 'PENDING_AUTH'
+  | 'RATE_LIMITED';
 export type TenantPlan = 'STARTER' | 'GROWTH' | 'ENTERPRISE' | 'CUSTOM';
 
 export interface DashboardData {
   tenantInfo: {
+    id: string;
+    tenantCode: string;
     tenantName: string;
     plan: TenantPlan;
     maxUsers: number;
@@ -59,8 +69,10 @@ export interface Alert {
   createdAt: string;
 }
 
+// IntegrationConfig.id / AutomationRule.id são Int (autoincrement) no Prisma
+// — ver [[project_innova_schema_code_drift]] (entrada scalability).
 export interface Integration {
-  id: string;
+  id: number;
   name: string;
   type: string;
   status: IntegrationStatus;
@@ -70,11 +82,51 @@ export interface Integration {
 }
 
 export interface AutomationRule {
-  id: string;
+  id: number;
   name: string;
   triggerType: string;
   isActive: boolean;
   runCount: number;
   lastRunAt: string | null;
   lastRunStatus: string | null;
+}
+
+// SlaConfig — resposta real de GET /scalability/sla.
+export interface SlaConfig {
+  id: string;
+  name: string;
+  uptimePercent: number;
+  maxLatencyMs: number;
+  maxErrorRate: number;
+  incidentResponse: number;
+  dataRetentionDays: number | null;
+  backupFrequency: string | null;
+  rpoMinutes: number | null;
+  rtoMinutes: number | null;
+  isActive: boolean;
+}
+
+// Resposta real de POST /scalability/users/bulk-import.
+export interface BulkImportResultDto {
+  total: number;
+  created: number;
+  updated: number;
+  skipped: number;
+  failed: number;
+  errors: Array<{ row: number; reason: string }>;
+}
+
+// ContentDeliveryConfig — resposta real de GET /scalability/content-delivery
+// (`null` quando o tenant ainda não tem nenhuma configurada).
+export interface ContentDeliveryConfig {
+  id: string;
+  tenantId: string;
+  cdnProvider: string | null;
+  cdnBaseUrl: string | null;
+  adaptiveBitrate: boolean;
+  offlineSyncEnabled: boolean;
+  maxOfflineDays: number;
+  compressionEnabled: boolean;
+  maxVideoSizeMb: number;
+  allowedFormats: string[];
 }
