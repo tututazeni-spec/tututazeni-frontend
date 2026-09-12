@@ -14,7 +14,9 @@ export type TaskCategory =
   | 'SOCIAL'
   | 'BENEFITS'
   | 'ADMIN'
-  | 'MEETING';
+  | 'MEETING'
+  | 'POLICIES'
+  | 'EVALUATION';
 export type TaskPhase =
   'PRE_BOARDING' | 'DAY_1' | 'WEEK_1' | 'DAY_30' | 'DAY_60' | 'DAY_90';
 // Espelham os enums Prisma TaskType / ResponsibleRole (schema.prisma).
@@ -147,6 +149,8 @@ export interface OnboardingTemplate {
   id: number;
   name: string;
   description: string | null;
+  company?: string | null;
+  location?: string | null;
   active: boolean;
   durationDays: number;
   position?: { name: string } | null;
@@ -161,6 +165,8 @@ export interface OnboardingTemplateDetail {
   id: number;
   name: string;
   description: string | null;
+  company: string | null;
+  location: string | null;
   active: boolean;
   durationDays: number;
   welcomeVideoUrl: string | null;

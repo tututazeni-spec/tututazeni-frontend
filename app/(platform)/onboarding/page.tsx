@@ -11,11 +11,14 @@
 // RBAC: separadores marcados `mgmtOnly` (Planos, Dashboard) só entram na
 // navegação para ADMIN/RH/GESTOR — espelha @Roles(ADMIN, RH, GESTOR) em
 // onboarding.controller.ts (GET /onboarding e GET /onboarding/dashboard).
-// "+ Novo template" e "+ Atribuir plano" são mais restritos (ADMIN/RH).
+// "+ Atribuir plano" é mais restrito (ADMIN/RH). "+ Novo template" (criar
+// plano de integração) é EVAL_CREATOR_ROLES — ADMIN, GESTOR, RH, DIRECTOR,
+// LIDER — espelha @Roles(...) de POST /onboarding/templates; editar/apagar
+// template e gerir as tarefas de cada fase continuam ADMIN/RH (canManage).
 
 import { useState } from 'react';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
-import { ADMIN_ROLES, type Role } from '@/lib/roles';
+import { ADMIN_ROLES, EVAL_CREATOR_ROLES, type Role } from '@/lib/roles';
 import { NAV, TITLES } from '@/components/onboarding/constants';
 import { AssignPlanModal } from '@/components/onboarding/AssignPlanModal';
 import { TemplateFormModal } from '@/components/onboarding/TemplateFormModal';
@@ -36,9 +39,12 @@ export default function OnboardingPage() {
   const [showAssign, setShowAssign] = useState(false);
 
   const role = useCurrentRole();
-  // POST /onboarding/templates, gestão de tarefas do template, POST
+  // Editar/apagar template, gestão de tarefas do template, POST
   // /onboarding e DELETE /onboarding/:id são @Roles(ADMIN, RH).
   const canManage = !!role && ADMIN_ROLES.includes(role);
+  // Criar plano de integração — @Roles(ADMIN, GESTOR, RH, DIRECTOR, LIDER)
+  // em POST /onboarding/templates.
+  const canCreateTemplate = !!role && EVAL_CREATOR_ROLES.includes(role);
   const isMgmt = !!role && MGMT_ROLES.includes(role);
   const visibleNav = isMgmt ? NAV : NAV.filter((n) => !n.mgmtOnly);
 
@@ -49,7 +55,7 @@ export default function OnboardingPage() {
           <h1 className="text-xl font-semibold text-ink">{TITLES[view]}</h1>
           <p className="text-sm text-ink-faint mt-0.5"></p>
         </div>
-        {view === 'templates' && canManage && (
+        {view === 'templates' && canCreateTemplate && (
           <Button size="sm" onClick={() => setShowCreate(true)}>
             + Novo template
           </Button>
