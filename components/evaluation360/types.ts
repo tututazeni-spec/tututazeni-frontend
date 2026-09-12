@@ -72,12 +72,14 @@ export interface CycleInfo {
   completedCount: number;
 }
 
+// Agregado por quadrante — regra "ninguém vê o resultado de outro" (a mesma
+// já aplicada a getTeamAnalytics/calibrateScore no backend): já não carrega
+// participantId/name/score de ninguém, só a contagem de pessoas naquele
+// quadrante. Ver evaluation360.service.ts#getNineBox.
 export interface NineBoxEntry {
-  participantId: string;
-  name: string;
   performance: 'LOW' | 'MID' | 'HIGH';
   potential: 'LOW' | 'MID' | 'HIGH';
-  score: number;
+  count: number;
 }
 
 export interface ContinuousFeedback {

@@ -28,9 +28,11 @@ import { useCurrentRole } from '@/hooks/useCurrentRole';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 
-// Espelha @Roles(ADMIN, RH, GESTOR) de GET /evaluation360/analytics/nine-box
-// (evaluation360.controller.ts) — não pedir o endpoint a quem vai receber 403.
-const NINE_BOX_ROLES = ['ADMIN', 'RH', 'GESTOR'];
+// Espelha @Roles(ADMIN, RH) de GET /evaluation360/analytics/nine-box
+// (evaluation360.controller.ts) — GESTOR perdeu o acesso quando a matriz
+// deixou de identificar indivíduos (regra "ninguém vê o resultado de
+// outro"); não pedir o endpoint a quem vai receber 403.
+const NINE_BOX_ROLES = ['ADMIN', 'RH'];
 
 // ─── Formas da resposta do backend ─────────────────────────────────────────
 
@@ -71,11 +73,9 @@ interface RawParticipantResult {
 }
 
 interface RawNineBoxEntry {
-  participantId: string;
-  name?: string;
   performance: 'LOW' | 'MID' | 'HIGH';
   potential: 'LOW' | 'MID' | 'HIGH';
-  score: number;
+  count: number;
 }
 
 interface RawFeedback {
@@ -249,11 +249,9 @@ export function useEvaluation360() {
     },
   );
   const nineBox: NineBoxEntry[] = (nineBoxData ?? []).map((n) => ({
-    participantId: n.participantId,
-    name: n.name ?? '—',
     performance: n.performance,
     potential: n.potential,
-    score: n.score,
+    count: n.count,
   }));
 
   const { data: feedbackData } = useApiQuery<{ data: RawFeedback[]; total: number }>(

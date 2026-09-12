@@ -207,7 +207,7 @@ export function Evaluation360View({
                 Matriz Nine Box
               </h2>
               <p className="m-0 mt-1 text-sm text-ink-muted">
-                Performance vs Potencial · {nineBox.length} colaboradores
+                Performance vs Potencial · {nineBox.reduce((s, e) => s + e.count, 0)} colaboradores
               </p>
             </div>
             <div className="rounded-xl border border-border bg-surface p-6">

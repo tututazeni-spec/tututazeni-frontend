@@ -5,6 +5,11 @@
 // NOTA: Os 9 boxes usam cores categóricas (não ordinais) para codificar
 // combinações de performance/potential. Estas cores são uma data-viz exception
 // e ficam como raw hex/rgb — não são mapeadas para tokens semânticos.
+//
+// Regra "ninguém vê o resultado de outro" (evaluation360.service.ts#
+// getNineBox): cada quadrante mostra só uma contagem de pessoas, nunca
+// nomes/scores individuais — antes mostrava um chip por pessoa com o
+// primeiro nome e o score em tooltip, exactamente o que a regra proíbe.
 
 'use client';
 
@@ -81,9 +86,9 @@ export function NineBoxGrid({ entries }: NineBoxGridProps) {
           cols.map((performance) => {
             const key = `${performance}_${potential}`;
             const cfg = boxConfig[key];
-            const boxEntries = entries.filter(
-              (e) => e.performance === performance && e.potential === potential,
-            );
+            const count =
+              entries.find((e) => e.performance === performance && e.potential === potential)
+                ?.count ?? 0;
             return (
               <div
                 key={key}
@@ -92,19 +97,9 @@ export function NineBoxGrid({ entries }: NineBoxGridProps) {
                 <div className="text-xs font-bold uppercase tracking-wider mb-2 text-black">
                   {cfg.label}
                 </div>
-                <div className="flex flex-wrap gap-1">
-                  {boxEntries.map((e) => (
-                    <div
-                      key={e.participantId}
-                      className="rounded border border-black bg-white px-2 py-0.5 text-xs font-semibold whitespace-nowrap text-black"
-                      title={`Score: ${e.score.toFixed(2)}`}
-                    >
-                      {e.name.split(' ')[0]}
-                    </div>
-                  ))}
-                  {boxEntries.length === 0 && (
-                    <span className="text-xs text-ink-faint">—</span>
-                  )}
+                <div className="text-2xl font-bold text-black">{count}</div>
+                <div className="text-xs text-ink-faint">
+                  {count === 1 ? 'colaborador' : 'colaboradores'}
                 </div>
               </div>
             );
