@@ -25,8 +25,25 @@ interface ListViewProps {
   onSelect: (id: number) => void;
 }
 
+const EXPORT_MONTHS = [
+  { value: 'ALL', label: 'Ano completo' },
+  { value: '01', label: 'Janeiro' },
+  { value: '02', label: 'Fevereiro' },
+  { value: '03', label: 'Março' },
+  { value: '04', label: 'Abril' },
+  { value: '05', label: 'Maio' },
+  { value: '06', label: 'Junho' },
+  { value: '07', label: 'Julho' },
+  { value: '08', label: 'Agosto' },
+  { value: '09', label: 'Setembro' },
+  { value: '10', label: 'Outubro' },
+  { value: '11', label: 'Novembro' },
+  { value: '12', label: 'Dezembro' },
+];
+
 export function ListView({ onSelect }: ListViewProps) {
   const [year, setYear] = useState(new Date().getFullYear().toString());
+  const [exportMonth, setExportMonth] = useState('ALL');
   const [page, setPage] = useState(1);
   const params = { year, page, limit: 12 };
 
@@ -64,19 +81,25 @@ export function ListView({ onSelect }: ListViewProps) {
         <span className="font-body text-sm text-ink-faint">
           {data?.meta.total ?? 0} recibos
         </span>
+        <Select
+          items={EXPORT_MONTHS}
+          value={exportMonth}
+          onValueChange={setExportMonth}
+          className="ml-auto"
+        />
         <Button
           intent="secondary"
           size="sm"
-          className="ml-auto"
-          onClick={() =>
+          onClick={() => {
+            const monthParam = exportMonth === 'ALL' ? '' : `&month=${exportMonth}`;
             window.open(
-              `${API_BASE}/payslips/my/annual-summary/export?year=${year}&format=pdf`,
+              `${API_BASE}/payslips/my/annual-summary/export?year=${year}${monthParam}&format=pdf`,
               '_blank',
-            )
-          }
+            );
+          }}
         >
           <Download size={14} strokeWidth={1.75} />
-          Exportar ano
+          {exportMonth === 'ALL' ? 'Exportar ano' : 'Exportar mês'}
         </Button>
       </div>
 
