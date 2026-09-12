@@ -13,6 +13,7 @@ import { Button, IconButton } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { NewIntegrationModal } from './NewIntegrationModal';
 import type { Integration, TestIntegrationResponse } from './types';
 
 const HEALTH_INTENT: Record<string, NonNullable<BadgeProps['intent']>> = {
@@ -35,6 +36,7 @@ const HEALTH_CHIP_CLASSES: Record<NonNullable<BadgeProps['intent']>, string> = {
 export function IntegrationsTab() {
   const notify = useToast();
   const [testing, setTesting] = useState<number | null>(null);
+  const [creating, setCreating] = useState(false);
 
   const {
     data: list = [],
@@ -98,11 +100,13 @@ export function IntegrationsTab() {
         <span className="font-body text-sm text-ink-muted">
           {list.length} integração(ões)
         </span>
-        <Button size="sm">
+        <Button size="sm" onClick={() => setCreating(true)}>
           <Plus size={14} strokeWidth={1.75} />
           Nova Integração
         </Button>
       </div>
+
+      {creating && <NewIntegrationModal onClose={() => setCreating(false)} />}
 
       <div className="grid gap-3">
         {list.map((i) => {
