@@ -26,8 +26,8 @@ export function NineBoxView() {
   return (
     <div>
       <div className="text-sm text-ink-muted mb-5">
-        Matriz de desempenho × potencial. Eixo X = Performance (1-3), Eixo Y =
-        Potencial (1-3).
+        Matriz de desempenho × potencial da minha equipa directa. Eixo X =
+        Performance (1-3), Eixo Y = Potencial (1-3).
       </div>
 
       {/* Eixo Y label */}
