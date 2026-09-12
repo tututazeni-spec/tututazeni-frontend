@@ -33,6 +33,7 @@ import type { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { useToast } from '@/providers/ToastProvider';
 import { ImportUsersModal } from './ImportUsersModal';
+import { NewIntegrationModal } from './NewIntegrationModal';
 import { LoadTestModal } from './LoadTestModal';
 import { RenameTenantModal } from './RenameTenantModal';
 import type {
@@ -254,6 +255,8 @@ const INTEGRATION_STATUS: Record<
   ERROR: { label: 'Erro', intent: 'danger' },
   PENDING_AUTH: { label: 'Aguarda Auth', intent: 'warning' },
   RATE_LIMITED: { label: 'Limite Atingido', intent: 'warning' },
+  CONFIGURING: { label: 'Em Configuração', intent: 'neutral' },
+  SUSPENDED: { label: 'Suspensa', intent: 'warning' },
 };
 
 const SEVERITY: Record<
@@ -559,12 +562,14 @@ function PerformanceTab({ data }: PerformanceTabProps) {
 }
 
 interface IntegrationsTabProps {
+  tenantId: string;
   integrations: Integration[];
   onSync: (id: number) => void;
 }
 
-function IntegrationsTab({ integrations, onSync }: IntegrationsTabProps) {
+function IntegrationsTab({ tenantId, integrations, onSync }: IntegrationsTabProps) {
   const notify = useToast();
+  const [creating, setCreating] = useState(false);
   const typeLabels: Record<string, string> = {
     ERP_HR: 'ERP de RH',
     PAYROLL: 'Folha de Pagamento',
@@ -577,6 +582,18 @@ function IntegrationsTab({ integrations, onSync }: IntegrationsTabProps) {
     XAPI_LRS: 'xAPI / LRS',
     BI_TOOL: 'Ferramenta BI',
     CUSTOM_WEBHOOK: 'Webhook Custom',
+    REST_API: 'API REST',
+    SOAP_API: 'API SOAP',
+    WEBHOOK: 'Webhook',
+    SFTP: 'SFTP',
+    OAUTH2: 'OAuth 2.0',
+    LDAP: 'LDAP',
+    SAML2: 'SAML 2.0',
+    OPENID_CONNECT: 'OpenID Connect',
+    DATABASE: 'Base de Dados',
+    CSV_FILE: 'Ficheiro CSV',
+    EXCEL_FILE: 'Ficheiro Excel',
+    OTHER: 'Outro',
   };
   const freqLabel: Record<string, string> = {
     REALTIME: 'Tempo Real',
@@ -593,16 +610,13 @@ function IntegrationsTab({ integrations, onSync }: IntegrationsTabProps) {
           title="Integrações Configuradas"
           sub="ERP, SSO, LMS padrões e comunicação"
         />
-        <Button
-          intent="secondary"
-          size="sm"
-          onClick={() =>
-            notify({ title: 'Modal de nova integração', intent: 'info' })
-          }
-        >
+        <Button intent="secondary" size="sm" onClick={() => setCreating(true)}>
           Nova Integração
         </Button>
       </div>
+      {creating && (
+        <NewIntegrationModal tenantId={tenantId} onClose={() => setCreating(false)} />
+      )}
       <div className="flex flex-col gap-3">
         {integrations.map((int) => {
           const s = INTEGRATION_STATUS[int.status];
@@ -1263,7 +1277,11 @@ export function ScalabilityDashboardView({
             <PerformanceTab data={dashboard} />
           </TabsContent>
           <TabsContent value="integrations">
-            <IntegrationsTab integrations={integrations} onSync={onSyncIntegration} />
+            <IntegrationsTab
+              tenantId={dashboard.tenantInfo.id}
+              integrations={integrations}
+              onSync={onSyncIntegration}
+            />
           </TabsContent>
           <TabsContent value="automations">
             <AutomationsTab rules={automations} onExecute={onExecuteRule} />

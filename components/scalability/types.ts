@@ -14,8 +14,97 @@ export type IntegrationStatus =
   | 'INACTIVE'
   | 'ERROR'
   | 'PENDING_AUTH'
-  | 'RATE_LIMITED';
+  | 'RATE_LIMITED'
+  | 'CONFIGURING'
+  | 'SUSPENDED';
 export type TenantPlan = 'STARTER' | 'GROWTH' | 'ENTERPRISE' | 'CUSTOM';
+
+// Espelham os enums Prisma (ver prisma/schema.prisma) usados no formulário de
+// criação — Escalabilidade > Integrações > "Nova Integração".
+export type IntegrationTypeValue =
+  | 'REST_API'
+  | 'SOAP_API'
+  | 'WEBHOOK'
+  | 'SFTP'
+  | 'OAUTH2'
+  | 'LDAP'
+  | 'SAML2'
+  | 'OPENID_CONNECT'
+  | 'DATABASE'
+  | 'CSV_FILE'
+  | 'EXCEL_FILE'
+  | 'OTHER'
+  // Valores legados — ainda usados por integrações já existentes.
+  | 'ERP_HR'
+  | 'PAYROLL'
+  | 'ATS'
+  | 'MICROSOFT_TEAMS'
+  | 'SLACK'
+  | 'SSO_GOOGLE'
+  | 'SSO_MICROSOFT'
+  | 'SCORM_PROVIDER'
+  | 'XAPI_LRS'
+  | 'BI_TOOL'
+  | 'CUSTOM_WEBHOOK';
+export type IntegrationCategoryValue =
+  | 'ERP'
+  | 'SSO'
+  | 'LMS'
+  | 'COMMUNICATION'
+  | 'HR'
+  | 'FINANCE'
+  | 'PAYROLL'
+  | 'IDENTITY_ACCESS'
+  | 'OTHER';
+export type IntegrationAuthTypeValue = 'OAUTH2' | 'API_KEY' | 'BASIC' | 'BEARER' | 'NONE';
+export type IntegrationEnvironmentValue = 'PRODUCTION' | 'STAGING' | 'DEVELOPMENT' | 'SANDBOX';
+export type IntegrationDataFormatValue = 'JSON' | 'XML' | 'CSV' | 'EXCEL';
+export type IntegrationCommunicationMethodValue = 'PULL' | 'PUSH' | 'POLLING' | 'STREAMING';
+export type IntegrationSyncFrequencyValue = 'REALTIME' | 'HOURLY' | 'DAILY' | 'WEEKLY' | 'MANUAL';
+export type IntegrationSyncDirectionValue = 'INBOUND' | 'OUTBOUND' | 'BIDIRECTIONAL';
+
+// Payload real de POST /scalability/integrations — ver
+// CreateIntegrationConfigDto (src/scalability/scalability.dto.ts).
+export interface CreateIntegrationPayload {
+  tenantId: string;
+  name: string;
+  type: IntegrationTypeValue;
+  category?: IntegrationCategoryValue;
+  platform?: string;
+  description?: string;
+  baseUrl?: string;
+  authType?: IntegrationAuthTypeValue;
+  clientId?: string;
+  clientSecret?: string;
+  accessToken?: string;
+  apiKey?: string;
+  authUrl?: string;
+  environment?: IntegrationEnvironmentValue;
+  apiVersion?: string;
+  dataFormat?: IntegrationDataFormatValue;
+  communicationMethod?: IntegrationCommunicationMethodValue;
+  syncFrequency?: IntegrationSyncFrequencyValue;
+  syncDirection?: IntegrationSyncDirectionValue;
+  dataToSync?: string[];
+  fieldMapping?: Record<string, string>;
+  webhookUrl?: string;
+  webhookEvents?: string[];
+  timeoutMs?: number;
+  maxRetries?: number;
+  retryIntervalMs?: number;
+  status?: IntegrationStatus;
+  activatedAt?: string;
+  responsibleUserId?: string;
+  active?: boolean;
+  notes?: string;
+}
+
+export interface TestConnectionResult {
+  success: boolean;
+  statusCode?: number;
+  latencyMs: number;
+  message: string;
+}
 
 export interface DashboardData {
   tenantInfo: {
