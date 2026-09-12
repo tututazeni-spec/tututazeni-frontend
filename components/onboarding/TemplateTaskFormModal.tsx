@@ -101,6 +101,7 @@ export function TemplateTaskFormModal({
   const [requiresEvidence, setRequiresEvidence] = useState(
     task?.requiresEvidence ?? false,
   );
+  const [isMandatory, setIsMandatory] = useState(task?.isMandatory ?? true);
   const [submitError, setSubmitError] = useState('');
 
   const canSubmit = title.trim().length > 0 && category.length > 0;
@@ -141,6 +142,7 @@ export function TemplateTaskFormModal({
       xpReward: Number.isFinite(xp) && xp >= 0 ? Math.trunc(xp) : 0,
       requiresApproval,
       requiresEvidence,
+      isMandatory,
       dueDayOffset:
         dueDayOffset.trim() === '' ? null : Math.trunc(Number(dueDayOffset)),
     };
@@ -284,6 +286,19 @@ export function TemplateTaskFormModal({
               )}
             >
               Requer evidência
+            </button>
+            <button
+              type="button"
+              aria-pressed={isMandatory}
+              onClick={() => setIsMandatory((v) => !v)}
+              className={cn(
+                'rounded-control border px-3 py-1.5 font-body text-xs transition-colors',
+                isMandatory
+                  ? 'border-primary bg-primary-subtle text-primary'
+                  : 'border-border-strong bg-surface text-ink-muted',
+              )}
+            >
+              Obrigatória
             </button>
           </div>
         </div>

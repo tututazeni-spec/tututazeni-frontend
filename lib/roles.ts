@@ -61,6 +61,11 @@ export const NON_COLABORADOR_ROLES: readonly Role[] = AUTHENTICATED_ROLES.filter
  * src/performance/performance.controller.ts (criar/activar ciclos de
  * avaliação de desempenho) — reutilizado aqui em vez de duplicado, já que o
  * pedido do utilizador definiu os dois com exactamente os mesmos papéis.
+ *
+ * Também usado por POST /onboarding/templates (criar plano de integração)
+ * em src/onboarding/onboarding.controller.ts — mesmos 5 papéis; edição/
+ * eliminação de templates e gestão de tarefas continuam ADMIN_ROLES
+ * (ADMIN, RH), ver app/(platform)/onboarding/page.tsx.
  */
 export const EVAL_CREATOR_ROLES: readonly Role[] = [
   'ADMIN',

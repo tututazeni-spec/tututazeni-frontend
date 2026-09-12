@@ -82,6 +82,7 @@ const existing: TemplateTask = {
   type: 'PROCESS',
   phase: 'DAY_1',
   responsible: 'IT',
+  isMandatory: true,
   dueDayOffset: 2,
   xpReward: 20,
   requiresApproval: true,
@@ -138,6 +139,7 @@ describe('TemplateTaskFormModal — criar', () => {
       xpReward: 10,
       requiresApproval: false,
       requiresEvidence: false,
+      isMandatory: true,
       dueDayOffset: null,
       templateId: 3,
       seq: 5,
@@ -162,6 +164,7 @@ describe('TemplateTaskFormModal — criar', () => {
     });
     fireEvent.click(screen.getByRole('button', { name: 'Requer aprovação' }));
     fireEvent.click(screen.getByRole('button', { name: 'Requer evidência' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Obrigatória' }));
     fireEvent.click(screen.getByRole('button', { name: 'Adicionar' }));
 
     await waitFor(() => expect(post).toHaveBeenCalledTimes(1));
@@ -175,6 +178,7 @@ describe('TemplateTaskFormModal — criar', () => {
       xpReward: 25,
       requiresApproval: true,
       requiresEvidence: true,
+      isMandatory: false,
       dueDayOffset: 7,
       templateId: 3,
       seq: 5,
@@ -214,6 +218,7 @@ describe('TemplateTaskFormModal — editar', () => {
       xpReward: 20,
       requiresApproval: true,
       requiresEvidence: false,
+      isMandatory: true,
       dueDayOffset: 2,
     });
     expect(post).not.toHaveBeenCalled();

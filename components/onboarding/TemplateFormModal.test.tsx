@@ -26,6 +26,9 @@ vi.mock('@/hooks/useApiQuery', () => ({
       ),
     isPending: false,
   }),
+  // Departamentos/cargos (Informações gerais) — sem dados nestes testes,
+  // fica só o item "Sem X" nos selects.
+  useApiQuery: () => ({ data: undefined }),
 }));
 
 vi.mock('@/components/ui/Modal', () => ({
@@ -75,6 +78,8 @@ const template = {
   id: 9,
   name: 'Onboarding TI',
   description: 'Plano TI',
+  company: null,
+  location: null,
   active: true,
   durationDays: 30,
   welcomeVideoUrl: null,
@@ -95,7 +100,7 @@ describe('TemplateFormModal — criar', () => {
     fireEvent.change(screen.getByLabelText('Nome *'), {
       target: { value: '  Onboarding Colaborador TI  ' },
     });
-    fireEvent.click(screen.getByRole('button', { name: 'Criar template' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Criar plano de integração' }));
 
     await waitFor(() => expect(post).toHaveBeenCalledTimes(1));
     expect(post).toHaveBeenCalledWith('/onboarding/templates', {
@@ -118,7 +123,7 @@ describe('TemplateFormModal — criar', () => {
       target: { value: '  https://vid.example/welcome  ' },
     });
     fireEvent.click(screen.getByRole('button', { name: 'Template activo' }));
-    fireEvent.click(screen.getByRole('button', { name: 'Criar template' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Criar plano de integração' }));
 
     await waitFor(() => expect(post).toHaveBeenCalledTimes(1));
     expect(post).toHaveBeenCalledWith('/onboarding/templates', {
@@ -132,10 +137,10 @@ describe('TemplateFormModal — criar', () => {
 
   test('sem nome — botão desactivado, não submete', () => {
     render(<TemplateFormModal onClose={vi.fn()} />);
-    fireEvent.click(screen.getByRole('button', { name: 'Criar template' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Criar plano de integração' }));
     expect(post).not.toHaveBeenCalled();
     expect(
-      screen.getByRole('button', { name: 'Criar template' }),
+      screen.getByRole('button', { name: 'Criar plano de integração' }),
     ).toBeDisabled();
   });
 
@@ -145,7 +150,7 @@ describe('TemplateFormModal — criar', () => {
     fireEvent.change(screen.getByLabelText('Nome *'), {
       target: { value: 'Onboarding X' },
     });
-    fireEvent.click(screen.getByRole('button', { name: 'Criar template' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Criar plano de integração' }));
 
     await waitFor(() => expect(screen.getByText('Boom')).toBeInTheDocument());
   });
@@ -156,9 +161,58 @@ describe('TemplateFormModal — criar', () => {
     fireEvent.change(screen.getByLabelText('Nome *'), {
       target: { value: 'Onboarding X' },
     });
-    fireEvent.click(screen.getByRole('button', { name: 'Criar template' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Criar plano de integração' }));
 
     await waitFor(() => expect(onClose).toHaveBeenCalledTimes(1));
+  });
+
+  test('Estrutura — item ONE_ON_ONE (Reuniões 1:1) desmarcado como opcional entra em `tasks`', async () => {
+    render(<TemplateFormModal onClose={vi.fn()} />);
+    fireEvent.change(screen.getByLabelText('Nome *'), {
+      target: { value: 'Onboarding Comercial' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Adicionar item' }));
+    fireEvent.change(screen.getByLabelText('Título do item'), {
+      target: { value: '1:1 com o gestor' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'dur-ONE_ON_ONE' }));
+    fireEvent.click(screen.getByRole('checkbox'));
+    fireEvent.click(screen.getByRole('button', { name: 'Criar plano de integração' }));
+
+    await waitFor(() => expect(post).toHaveBeenCalledTimes(1));
+    expect(post).toHaveBeenCalledWith('/onboarding/templates', {
+      name: 'Onboarding Comercial',
+      durationDays: 30,
+      tasks: [
+        expect.objectContaining({
+          title: '1:1 com o gestor',
+          category: 'ONE_ON_ONE',
+          type: 'MEETING',
+          isMandatory: false,
+        }),
+      ],
+    });
+  });
+
+  test('Estrutura — item sem desmarcar a checkbox fica isMandatory=true por defeito', async () => {
+    render(<TemplateFormModal onClose={vi.fn()} />);
+    fireEvent.change(screen.getByLabelText('Nome *'), {
+      target: { value: 'Onboarding Comercial' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Adicionar item' }));
+    fireEvent.change(screen.getByLabelText('Título do item'), {
+      target: { value: 'Formação de compliance' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'dur-TRAINING' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Criar plano de integração' }));
+
+    await waitFor(() => expect(post).toHaveBeenCalledTimes(1));
+    expect(post).toHaveBeenCalledWith(
+      '/onboarding/templates',
+      expect.objectContaining({
+        tasks: [expect.objectContaining({ category: 'TRAINING', isMandatory: true })],
+      }),
+    );
   });
 });
 
@@ -179,6 +233,10 @@ describe('TemplateFormModal — editar', () => {
       name: 'Onboarding TI',
       durationDays: 30,
       description: 'Plano TI',
+      company: null,
+      location: null,
+      departmentId: null,
+      positionId: null,
       welcomeVideoUrl: null,
       active: true,
     });

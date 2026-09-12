@@ -5,9 +5,13 @@
 // STATUS_CFG/TASK_STATUS_CFG/CATEGORY_CFG migrados para os tokens
 // semânticos da fundação de design (Fase A) — mesmo padrão de TOKEN
 // usado em components/trainings/constants.ts e
-// components/reports/constants.ts. CATEGORY_CFG tem exactamente 7
-// categorias de domínio para os 6 tokens semânticos + neutral, por isso
-// cada uma recebe um token distinto (sem reaproveitamento).
+// components/reports/constants.ts. CATEGORY_CFG tinha exactamente 7
+// categorias para os 6 tokens semânticos + neutral (um token distinto
+// cada). POLICIES/EVALUATION entraram depois para cobrir "Políticas e
+// procedimentos" e "Avaliações" da Estrutura do plano de integração, e
+// ONE_ON_ONE para isolar "Reuniões 1:1" de MEETING (agora só reuniões de
+// equipa/grupo) — com 10 categorias para 7 tokens, estas três reaproveitam
+// o token de uma categoria próxima (ícone continua distinto).
 
 import {
   Circle,
@@ -22,6 +26,9 @@ import {
   Gift,
   ClipboardList,
   Calendar,
+  ShieldCheck,
+  ClipboardCheck,
+  UserCheck,
   type LucideIcon,
 } from 'lucide-react';
 import type { StatusBadgeMap } from '@/lib/statusBadge';
@@ -74,12 +81,43 @@ export const CATEGORY_CFG: Record<
   { label: string; icon: LucideIcon; cls: string }
 > = {
   DOCUMENTS: { label: 'Documentos', icon: FileText, cls: cls(TOKEN.warning) },
-  IT_ACCESS: { label: 'TI & Acesso', icon: Laptop, cls: cls(TOKEN.info) },
-  TRAINING: { label: 'Formação', icon: GraduationCap, cls: cls(TOKEN.accent) },
-  SOCIAL: { label: 'Social', icon: Users, cls: cls(TOKEN.success) },
+  IT_ACCESS: {
+    label: 'Acessos e Equipamentos',
+    icon: Laptop,
+    cls: cls(TOKEN.info),
+  },
+  TRAINING: {
+    label: 'Formação obrigatória',
+    icon: GraduationCap,
+    cls: cls(TOKEN.accent),
+  },
+  SOCIAL: {
+    label: 'Apresentações / Equipa',
+    icon: Users,
+    cls: cls(TOKEN.success),
+  },
   BENEFITS: { label: 'Benefícios', icon: Gift, cls: cls(TOKEN.primary) },
-  ADMIN: { label: 'Admin', icon: ClipboardList, cls: cls(TOKEN.neutral) },
-  MEETING: { label: 'Reunião', icon: Calendar, cls: cls(TOKEN.danger) },
+  ADMIN: { label: 'Tarefas', icon: ClipboardList, cls: cls(TOKEN.neutral) },
+  MEETING: {
+    label: 'Reuniões de Equipa',
+    icon: Calendar,
+    cls: cls(TOKEN.danger),
+  },
+  POLICIES: {
+    label: 'Políticas e Procedimentos',
+    icon: ShieldCheck,
+    cls: cls(TOKEN.neutral),
+  },
+  EVALUATION: {
+    label: 'Avaliações',
+    icon: ClipboardCheck,
+    cls: cls(TOKEN.accent),
+  },
+  ONE_ON_ONE: {
+    label: 'Reuniões 1:1',
+    icon: UserCheck,
+    cls: cls(TOKEN.danger),
+  },
 };
 
 // Rótulos PT-PT dos enums Prisma. value = enum, validado por @IsEnum no

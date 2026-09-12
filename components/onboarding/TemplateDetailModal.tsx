@@ -131,9 +131,15 @@ export function TemplateDetailModal({
           title={data?.name ?? 'Template'}
           description={
             data
-              ? `${data.durationDays} dias · ${tasks.length} tarefas${
-                  data.active ? '' : ' · inactivo'
-                }`
+              ? [
+                  `${data.durationDays} dias`,
+                  `${tasks.length} tarefas`,
+                  data.company,
+                  data.location,
+                  data.active ? null : 'inactivo',
+                ]
+                  .filter(Boolean)
+                  .join(' · ')
               : undefined
           }
           className="max-w-2xl max-h-[90vh] overflow-y-auto"
@@ -226,6 +232,7 @@ export function TemplateDetailModal({
                                 {task.requiresEvidence && (
                                   <span>requer evidência</span>
                                 )}
+                                {!task.isMandatory && <span>opcional</span>}
                               </div>
                             </div>
                             {canManage && (
