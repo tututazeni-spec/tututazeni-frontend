@@ -15,11 +15,11 @@ import type { TabId } from '@/components/evaluation360/types';
 
 export default function Evaluation360Page() {
   const [activeTab, setActiveTab] = useState<TabId>('overview');
-  // undefined = o próprio utilizador. Só ADMIN/RH conseguem escolher outro
-  // colaborador na Visão Geral (ver Evaluation360View.tsx/OverviewTab.tsx).
-  const [participantId, setParticipantId] = useState<string | undefined>(undefined);
+  // Regra do produto: ninguém vê o resultado de outro utilizador — o hook já
+  // não aceita escolher um participante, é sempre o próprio autenticado.
   const {
     result,
+    participant,
     cycle,
     cycles,
     competencies,
@@ -28,13 +28,14 @@ export default function Evaluation360Page() {
     selfFormQuestions,
     myId,
     cycleId,
-  } = useEvaluation360(participantId);
+  } = useEvaluation360();
 
   return (
     <Evaluation360View
       activeTab={activeTab}
       onTabChange={setActiveTab}
       result={result}
+      participant={participant}
       cycle={cycle}
       cycles={cycles}
       competencies={competencies}
@@ -43,8 +44,6 @@ export default function Evaluation360Page() {
       selfFormQuestions={selfFormQuestions}
       myId={myId}
       cycleId={cycleId}
-      isOwnResult={!participantId}
-      onSelectParticipant={setParticipantId}
     />
   );
 }

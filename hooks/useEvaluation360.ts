@@ -6,11 +6,10 @@
 // endpoint errado). Todos os dados vêm de avaliações reais submetidas na
 // plataforma — sem dados fictícios/mock.
 //
-// `participantId` (opcional): de quem se quer ver o resultado. Por omissão,
-// o próprio utilizador autenticado. Só ADMIN/RH conseguem ver o resultado de
-// outro colaborador (espelha `canSeeFull` em
-// evaluation360.service.ts#getParticipantResult) — para os restantes papéis,
-// mesmo passando um `participantId` diferente, o backend devolve 403.
+// Regra do produto: ninguém vê o resultado de outro utilizador — nem ADMIN
+// nem RH têm excepção (ver evaluation360.service.ts#getParticipantResult,
+// que devolve 403 para qualquer participantId != requesterId). Por isso este
+// hook já não aceita um `participantId` a escolher — é sempre "o meu".
 
 'use client';
 
@@ -20,6 +19,7 @@ import type {
   CycleInfo,
   EvaluationQuestion,
   NineBoxEntry,
+  ParticipantProfile,
   ParticipantResult,
 } from '@/components/evaluation360/types';
 import { useApiQuery } from '@/hooks/useApiQuery';
@@ -28,9 +28,11 @@ import { useCurrentRole } from '@/hooks/useCurrentRole';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 
-// Espelha @Roles(ADMIN, RH, GESTOR) de GET /evaluation360/analytics/nine-box
-// (evaluation360.controller.ts) — não pedir o endpoint a quem vai receber 403.
-const NINE_BOX_ROLES = ['ADMIN', 'RH', 'GESTOR'];
+// Espelha @Roles(ADMIN, RH) de GET /evaluation360/analytics/nine-box
+// (evaluation360.controller.ts) — GESTOR perdeu o acesso quando a matriz
+// deixou de identificar indivíduos (regra "ninguém vê o resultado de
+// outro"); não pedir o endpoint a quem vai receber 403.
+const NINE_BOX_ROLES = ['ADMIN', 'RH'];
 
 // ─── Formas da resposta do backend ─────────────────────────────────────────
 
@@ -71,11 +73,9 @@ interface RawParticipantResult {
 }
 
 interface RawNineBoxEntry {
-  participantId: string;
-  name?: string;
   performance: 'LOW' | 'MID' | 'HIGH';
   potential: 'LOW' | 'MID' | 'HIGH';
-  score: number;
+  count: number;
 }
 
 interface RawFeedback {
@@ -93,13 +93,6 @@ interface RawQuestion {
   type: string;
   isRequired: boolean;
   competency?: { name: string } | null;
-}
-
-interface UserProfileLite {
-  fullName: string;
-  department?: { name: string } | null;
-  position?: { name: string } | null;
-  avatarUrl?: string | null;
 }
 
 // ─── Mapeamentos ────────────────────────────────────────────────────────────
@@ -139,16 +132,16 @@ function toCompetencies(
 
 function toParticipantResult(
   raw: RawParticipantResult | undefined,
-  participant: { id: string; fullName: string; department?: string; position?: string; avatarUrl?: string | null } | undefined,
+  participant: ParticipantProfile | undefined,
 ): ParticipantResult | null {
   if (!raw || !participant) return null;
   const competencies = toCompetencies(raw.scoresByCompetency);
   const byId = new Map(competencies.map((c) => [c.id, c]));
   return {
-    userId: participant.id,
+    userId: participant.userId,
     fullName: participant.fullName,
-    position: participant.position ?? '—',
-    department: participant.department ?? '—',
+    position: participant.position,
+    department: participant.department,
     avatarUrl: participant.avatarUrl,
     overallScore: raw.overallScore,
     weightedScore: raw.weightedScore,
@@ -188,12 +181,12 @@ function toQuestion(q: RawQuestion): EvaluationQuestion {
 
 // ─── Hook ───────────────────────────────────────────────────────────────────
 
-export function useEvaluation360(participantIdOverride?: string) {
+export function useEvaluation360() {
   const { data: me } = useCurrentUser();
   const role = useCurrentRole();
   const myId = me ? String(me.id) : undefined;
-  const participantId = participantIdOverride ?? myId;
-  const isOwnResult = participantId === myId;
+  // Sempre o próprio — ver nota de regra no topo do ficheiro.
+  const participantId = myId;
 
   const { data: cyclesData, isLoading: cyclesLoading } = useApiQuery<{
     data: RawCycle[];
@@ -227,35 +220,19 @@ export function useEvaluation360(participantIdOverride?: string) {
     },
   );
 
-  // Nome/departamento/foto de quem se está a ver: o próprio (useCurrentUser
-  // já tem tudo) ou outro colaborador (GET /users/:id — perfil básico, aberto
-  // a qualquer autenticado; só ADMIN/RH chegam a escolher alguém, ver
-  // OverviewTab). GET /users/directory não serve aqui: não filtra por id.
-  const { data: otherUser } = useApiQuery<UserProfileLite>(
-    queryKeys.users.detail(participantId ?? ''),
-    participantId ? `/users/${participantId}` : '',
-    { enabled: !isOwnResult && !!participantId, staleTime: STALE_TIME.SEMI_STATIC },
-  );
-
-  const participant = isOwnResult
-    ? me
-      ? {
-          id: myId!,
-          fullName: me.fullName,
-          department: me.department?.name,
-          position: me.position?.name,
-          avatarUrl: me.avatarUrl,
-        }
-      : undefined
-    : otherUser
-      ? {
-          id: participantId!,
-          fullName: otherUser.fullName,
-          department: otherUser.department?.name,
-          position: otherUser.position?.name,
-          avatarUrl: otherUser.avatarUrl,
-        }
-      : undefined;
+  // Cabeçalho "de quem é este ecrã" — sempre o próprio (useCurrentUser já tem
+  // tudo: nome, departamento, foto carregada por ele). Disponível mesmo antes
+  // de existir ParticipantResult calculado — é isso que faz o cartão de
+  // identidade aparecer logo, sem esperar pelo cálculo do ciclo.
+  const participant: ParticipantProfile | undefined = me
+    ? {
+        userId: myId!,
+        fullName: me.fullName,
+        department: me.department?.name ?? '—',
+        position: me.position?.name ?? '—',
+        avatarUrl: me.avatarUrl,
+      }
+    : undefined;
 
   const result = toParticipantResult(rawResult, participant);
   const competencies = result?.competencies ?? [];
@@ -272,11 +249,9 @@ export function useEvaluation360(participantIdOverride?: string) {
     },
   );
   const nineBox: NineBoxEntry[] = (nineBoxData ?? []).map((n) => ({
-    participantId: n.participantId,
-    name: n.name ?? '—',
     performance: n.performance,
     potential: n.potential,
-    score: n.score,
+    count: n.count,
   }));
 
   const { data: feedbackData } = useApiQuery<{ data: RawFeedback[]; total: number }>(
@@ -302,6 +277,7 @@ export function useEvaluation360(participantIdOverride?: string) {
 
   return {
     result,
+    participant,
     cycle,
     cycles,
     competencies,

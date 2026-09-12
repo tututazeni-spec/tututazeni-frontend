@@ -2,43 +2,32 @@
 // Cabeçalho do participante, scores, pontos fortes/gaps e progresso do
 // ciclo — tudo vindo de avaliações reais (ver hooks/useEvaluation360.ts).
 //
-// Antes mostrava sempre "Maria João Santos" fixo e 2 cards de elegibilidade
-// (Promoção/Bónus) que nunca reflectiam dados reais. Agora: o cabeçalho
-// mostra o avaliado real (nome, departamento, foto carregada por ele —
-// Avatar com fallback de iniciais); só ADMIN/RH conseguem escolher outro
-// colaborador (espelha canSeeFull em
-// evaluation360.service.ts#getParticipantResult — para os restantes papéis o
-// backend devolve 403 a ver o resultado de outra pessoa, por isso nem se
-// mostra o seletor). Os cards de elegibilidade foram removidos a pedido.
+// Regra do produto: ninguém vê o resultado de outro utilizador — nem
+// ADMIN nem RH têm excepção (evaluation360.service.ts#getParticipantResult
+// devolve 403 para qualquer participantId que não seja o do próprio
+// requester). Por isso este separador já não tem nenhum selector de
+// colaborador — mostra sempre e só o resultado de quem está autenticado.
+//
+// O cartão de identidade (nome, departamento, foto carregada pelo próprio —
+// Avatar com fallback de iniciais) usa `participant`, que vem sempre
+// preenchido (é o próprio utilizador autenticado, via useCurrentUser) — não
+// depende de já existir `result` calculado. Só as pontuações/pontos
+// fortes/gaps é que ficam por mostrar enquanto o RH não correr o cálculo do
+// ciclo.
 
 'use client';
 
-import { useState } from 'react';
-import { X } from 'lucide-react';
-import type { CycleInfo, ParticipantResult } from './types';
+import type { CycleInfo, ParticipantProfile, ParticipantResult } from './types';
 import { COLORS } from './colors';
-import { useDirectoryUsers } from '@/components/enrollments/enrollData';
 import { Avatar } from '@/components/ui/Avatar';
-import { Input } from '@/components/ui/Input';
 
 export interface OverviewTabProps {
   result: ParticipantResult | null;
+  participant?: ParticipantProfile;
   cycle: CycleInfo | null;
-  canPickParticipant: boolean;
-  isOwnResult: boolean;
-  onSelectParticipant: (id: string | undefined) => void;
 }
 
-export function OverviewTab({
-  result,
-  cycle,
-  canPickParticipant,
-  isOwnResult,
-  onSelectParticipant,
-}: OverviewTabProps) {
-  const [search, setSearch] = useState('');
-  const { users, loading: searchLoading } = useDirectoryUsers(search, '', search.trim().length > 0);
-
+export function OverviewTab({ result, participant, cycle }: OverviewTabProps) {
   const completionPct =
     cycle && cycle.participantsCount > 0
       ? Math.round((cycle.completedCount / cycle.participantsCount) * 100)
@@ -46,81 +35,33 @@ export function OverviewTab({
 
   return (
     <div className="flex flex-col gap-6">
-      {canPickParticipant && (
-        <div className="rounded-xl border border-border bg-surface p-4">
-          {isOwnResult ? (
-            <div className="relative max-w-sm">
-              <Input
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Ver o resultado de outro colaborador…"
-                autoComplete="off"
-              />
-              {search.trim().length > 0 && (
-                <div className="absolute z-10 mt-1 max-h-56 w-full overflow-y-auto rounded-card border border-border bg-surface shadow-elevated">
-                  {searchLoading && (
-                    <div className="px-3 py-2 text-sm text-ink-muted">A pesquisar…</div>
-                  )}
-                  {!searchLoading && users.length === 0 && (
-                    <div className="px-3 py-2 text-sm text-ink-muted">
-                      Nenhum colaborador encontrado
-                    </div>
-                  )}
-                  {users.map((u) => (
-                    <button
-                      key={u.id}
-                      type="button"
-                      onClick={() => {
-                        onSelectParticipant(String(u.id));
-                        setSearch('');
-                      }}
-                      className="flex w-full items-center gap-2 px-3 py-2 text-left hover:bg-primary-subtle"
-                    >
-                      <Avatar name={u.fullName} url={u.avatarUrl ?? undefined} size="sm" />
-                      <div className="min-w-0">
-                        <div className="truncate text-sm text-ink">{u.fullName}</div>
-                        <div className="truncate text-xs text-ink-faint">
-                          {u.department?.name ?? u.email ?? '—'}
-                        </div>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          ) : (
-            <button
-              type="button"
-              onClick={() => onSelectParticipant(undefined)}
-              className="flex items-center gap-2 rounded-control border border-border-strong px-3 py-1.5 text-sm text-ink hover:bg-surface-sunken"
-            >
-              <X size={14} strokeWidth={1.75} />
-              Voltar ao meu resultado
-            </button>
-          )}
-        </div>
-      )}
-
-      {/* Participant header */}
+      {/* Participant header — sempre o próprio, independente de já haver
+          resultado calculado. */}
       <div className="rounded-xl border border-border bg-surface p-7 flex items-center gap-4">
-        {result ? (
+        {participant ? (
           <>
-            <Avatar name={result.fullName} url={result.avatarUrl ?? undefined} size="lg" />
+            <Avatar name={participant.fullName} url={participant.avatarUrl ?? undefined} size="lg" />
             <div>
-              <div className="text-xl font-bold text-ink tracking-tight">{result.fullName}</div>
+              <div className="text-xl font-bold text-ink tracking-tight">
+                {participant.fullName}
+              </div>
               <div className="text-sm text-ink-muted mt-0.5">
-                {result.position} · {result.department}
+                {participant.position} · {participant.department}
               </div>
             </div>
           </>
         ) : (
-          <div className="text-sm text-ink-muted">
-            {cycle
-              ? 'Ainda não há resultado calculado para este ciclo. O RH precisa de correr o cálculo de resultados depois de as avaliações serem submetidas.'
-              : 'Ainda não existe nenhum ciclo de avaliação 360º.'}
-          </div>
+          <div className="text-sm text-ink-muted">A carregar o teu perfil…</div>
         )}
       </div>
+
+      {!result && (
+        <div className="rounded-xl border border-border bg-surface p-6 text-sm text-ink-muted">
+          {cycle
+            ? 'Ainda não há resultado calculado para este ciclo. O RH precisa de correr o cálculo de resultados depois de as avaliações serem submetidas.'
+            : 'Ainda não existe nenhum ciclo de avaliação 360º.'}
+        </div>
+      )}
 
       {result && (
         <>
