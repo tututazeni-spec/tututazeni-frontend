@@ -40,6 +40,19 @@ export interface AssignPlanModalProps {
   onClose: () => void;
 }
 
+// Variáveis explícitas passadas a `mutate()` em vez de o mutationFn ler
+// `selectedUser`/`auto`/etc. do closure do componente — `handleSubmit` só
+// chama `mutate` depois de confirmar `selectedUser` (guarda no handler),
+// por isso `userId` aqui nunca é null. Antes disto, `selectedUser!.id`
+// lido directamente do closure crashava com "Cannot read properties of
+// null (reading 'id')".
+interface AssignVars {
+  userId: number;
+  auto: boolean;
+  templateId: string;
+  startDate: string;
+}
+
 export function AssignPlanModal({ onClose }: AssignPlanModalProps) {
   const notify = useToast();
   const [userSearch, setUserSearch] = useState('');
@@ -56,15 +69,14 @@ export function AssignPlanModal({ onClose }: AssignPlanModalProps) {
   );
 
   const assign = useApiMutation(
-    () => {
-      const userId = selectedUser!.id;
-      if (auto) {
-        return apiClient.post(`/onboarding/auto-assign/${userId}`, {});
+    (vars: AssignVars) => {
+      if (vars.auto) {
+        return apiClient.post(`/onboarding/auto-assign/${vars.userId}`, {});
       }
       return apiClient.post('/onboarding', {
-        userId,
-        templateId: Number(templateId),
-        ...(startDate ? { startDate } : {}),
+        userId: vars.userId,
+        templateId: Number(vars.templateId),
+        ...(vars.startDate ? { startDate: vars.startDate } : {}),
       });
     },
     {
@@ -96,9 +108,9 @@ export function AssignPlanModal({ onClose }: AssignPlanModalProps) {
     Boolean(selectedUser) && (auto || Boolean(templateId)) && !loading;
 
   const handleSubmit = () => {
-    if (!canSubmit) return;
+    if (!canSubmit || !selectedUser) return;
     setSubmitError('');
-    assign.mutate(undefined);
+    assign.mutate({ userId: selectedUser.id, auto, templateId, startDate });
   };
 
   return (
