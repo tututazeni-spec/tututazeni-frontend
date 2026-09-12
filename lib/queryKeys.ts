@@ -385,6 +385,9 @@ export const queryKeys = {
     my: () => [...queryKeys.trainings.all, 'my'] as const,
     adminDashboard: () =>
       [...queryKeys.trainings.all, 'admin-dashboard'] as const,
+    manageable: () => [...queryKeys.trainings.all, 'manageable'] as const,
+    participants: (id: number) =>
+      [...queryKeys.trainings.all, 'participants', id] as const,
   },
 
   acl: {
@@ -479,6 +482,8 @@ export const queryKeys = {
     adminDashboard: () =>
       [...queryKeys.enrollments.all, 'admin-dashboard'] as const,
     team: () => [...queryKeys.enrollments.all, 'team'] as const,
+    manageableCourses: () =>
+      [...queryKeys.enrollments.all, 'manageable-courses'] as const,
   },
 
   attendance: {

@@ -8,6 +8,7 @@
 
 import { useState } from 'react';
 import { Zap } from 'lucide-react';
+import { useCurrentRole } from '@/hooks/useCurrentRole';
 import { Button } from '@/components/ui/Button';
 import { NAV, TITLES } from '@/components/enrollments/constants';
 import { AdminView } from '@/components/enrollments/AdminView';
@@ -21,6 +22,12 @@ import type { View } from '@/components/enrollments/types';
 export default function EnrollmentsPage() {
   const [view, setView] = useState<View>('my');
   const [modal, setModal] = useState<'single' | 'bulk' | null>(null);
+  const role = useCurrentRole();
+  // Matricular/matricular em massa continuam exclusivos de ADMIN/RH no
+  // backend (POST /enrollments, /enrollments/bulk) — a aba "Gestão" agora
+  // também é visível para DIRECTOR/GESTOR/LIDER/INSTRUCTOR (consulta, com
+  // escopo por papel), mas estes botões ficariam a dar 403 para eles.
+  const canManage = role === 'ADMIN' || role === 'RH';
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-8">
@@ -32,7 +39,7 @@ export default function EnrollmentsPage() {
           </h1>
           <p className="mt-0.5 font-body text-sm text-ink-faint"></p>
         </div>
-        {view === 'admin' && (
+        {view === 'admin' && canManage && (
           <div className="flex gap-2">
             <Button size="sm" onClick={() => setModal('single')}>
               + Matricular

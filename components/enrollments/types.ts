@@ -2,7 +2,7 @@
 // Tipos do domínio de matrículas (learner/admin/compliance/equipa).
 // Extraído de app/(platform)/enrollments/page.tsx.
 
-import type { MyTrainingEntry } from '@/components/trainings/types';
+import type { MyTrainingEntry, ParticipantStatus } from '@/components/trainings/types';
 
 export type EnrollmentStatus =
   | 'NOT_STARTED'
@@ -114,3 +114,53 @@ export type View = 'my' | 'admin' | 'compliance' | 'team';
 export type MatriculaItem =
   | { kind: 'course'; id: string; data: Enrollment }
   | { kind: 'training'; id: string; data: MyTrainingEntry };
+
+// ─── "Gestão (Admin)" — passo 1 (seleccionar) / passo 2 (matriculados) ──────
+// O ciclo é sempre: seleccionar um curso/formação primeiro, só depois ver a
+// lista de inscritos — nunca uma lista plana de todas as matrículas
+// misturadas. O escopo por papel (GESTOR/LIDER → só o próprio departamento;
+// INSTRUCTOR → só o que lecciona) é aplicado no backend, não aqui.
+
+export interface ManageableCourse {
+  id: number;
+  title: string;
+  thumbnailUrl: string | null;
+  category: string | null;
+  status: string;
+  enrollments: number;
+}
+
+export interface ManageableTraining {
+  id: number;
+  title: string;
+  thumbnailUrl: string | null;
+  category: string | null;
+  status: string;
+  participants: number;
+}
+
+export type ManageableSelection =
+  | { kind: 'course'; id: number; title: string }
+  | { kind: 'training'; id: number; title: string };
+
+export interface TrainingParticipantRow {
+  id: number;
+  status: ParticipantStatus;
+  finalScore: number | null;
+  attendedHours: number | null;
+  completedAt: string | null;
+  createdAt: string;
+  user: {
+    id: number;
+    fullName: string;
+    email: string;
+    avatarUrl: string | null;
+    department: { name: string } | null;
+  };
+  session: { id: number; sessionDate: string };
+}
+
+export interface TrainingParticipantsResponse {
+  training: { id: number; title: string };
+  participants: TrainingParticipantRow[];
+}
