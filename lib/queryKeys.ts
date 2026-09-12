@@ -242,7 +242,8 @@ export const queryKeys = {
   // performance geral). Ver frontend/hooks/useEvaluation360.ts.
   evaluation360: {
     all: ['evaluation360'] as const,
-    competencies: () => [...queryKeys.evaluation360.all, 'competencies'] as const,
+    competencies: (tag?: string) =>
+      [...queryKeys.evaluation360.all, 'competencies', tag] as const,
     cycles: () => [...queryKeys.evaluation360.all, 'cycles'] as const,
     cycleDetail: (cycleId: string) =>
       [...queryKeys.evaluation360.all, 'cycle', cycleId] as const,

@@ -1,9 +1,11 @@
 // components/evaluation360/FeedbackTab.tsx
-// Lista de feedback contínuo recebido fora dos ciclos formais, do
-// participante actualmente visto na página (ver Evaluation360View.tsx).
-// Dados reais (GET /evaluation360/feedback/continuous/:userId, ver
-// hooks/useEvaluation360.ts) — "+ Dar Feedback" persiste via
-// GiveFeedbackModal, que invalida esta lista ao ter sucesso.
+// Lista de feedback contínuo recebido fora dos ciclos formais, sempre do
+// próprio utilizador autenticado (ver Evaluation360View.tsx / hooks/
+// useEvaluation360.ts — ninguém vê o feedback de outro). Dados reais (GET
+// /evaluation360/feedback/continuous/:userId) — fica vazia até alguém dar
+// feedback de verdade, nunca mostra dados fictícios. "+ Dar Feedback" abre a
+// GiveFeedbackModal, que deixa escolher o colega destinatário e não afecta
+// esta lista (o feedback vai para a lista DELE, não para a minha).
 //
 // NOTA: Os tipos de feedback (RECOGNITION, DEVELOPMENT, CHECK_IN) usam cores
 // categóricas para codificação de tipo, não ordinal. Estas são data-viz exceptions.
@@ -18,16 +20,15 @@ import { Button } from '@/components/ui/Button';
 
 export interface FeedbackTabProps {
   feedbacks: ContinuousFeedback[];
-  toUserId: string;
 }
 
-export function FeedbackTab({ feedbacks, toUserId }: FeedbackTabProps) {
+export function FeedbackTab({ feedbacks }: FeedbackTabProps) {
   const [modalOpen, setModalOpen] = useState(false);
 
   const typeConfig: Record<string, { label: string; color: string }> = {
     RECOGNITION: { label: 'Reconhecimento', color: 'rgb(34, 197, 94)' },
     DEVELOPMENT: { label: 'Desenvolvimento', color: 'rgb(129, 140, 248)' },
-    CHECK_IN: { label: 'Check-in 1:1', color: 'rgb(96, 165, 250)' },
+    CHECK_IN: { label: 'Conversa Individual 1:1', color: 'rgb(96, 165, 250)' },
   };
   return (
     <div className="flex flex-col gap-3">
@@ -77,9 +78,7 @@ export function FeedbackTab({ feedbacks, toUserId }: FeedbackTabProps) {
           </div>
         );
       })}
-      {modalOpen && (
-        <GiveFeedbackModal toUserId={toUserId} onClose={() => setModalOpen(false)} />
-      )}
+      {modalOpen && <GiveFeedbackModal onClose={() => setModalOpen(false)} />}
     </div>
   );
 }

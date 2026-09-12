@@ -21,7 +21,7 @@ export interface CurrentUser {
   createdAt: string;
   role?: { name: string; code: string | null; permissions: { name: string }[] };
   unit?: { name: string };
-  department?: { name: string };
+  department?: { id: number; name: string };
   position?: { name: string; level?: string };
   profile?: { bio: string };
   points?: { points: number };

@@ -242,9 +242,7 @@ export function Evaluation360View({
           </div>
         );
       case 'feedback':
-        return feedbackTargetId ? (
-          <FeedbackTab feedbacks={feedbacks} toUserId={feedbackTargetId} />
-        ) : null;
+        return feedbackTargetId ? <FeedbackTab feedbacks={feedbacks} /> : null;
       case 'ninebox':
         return (
           <div className="flex flex-col gap-5">
