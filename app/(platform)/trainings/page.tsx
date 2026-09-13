@@ -7,19 +7,36 @@
 // project_innova_component_separation_audit.
 
 import { useState } from 'react';
-import { NAV, TITLES } from '@/components/trainings/constants';
+import { useCurrentRole } from '@/hooks/useCurrentRole';
+import { CAN_MANAGE_TRAININGS_ROLES, NAV, TITLES } from '@/components/trainings/constants';
 import { CatalogView } from '@/components/trainings/CatalogView';
 import { DashboardView } from '@/components/trainings/DashboardView';
 import { DetailView } from '@/components/trainings/DetailView';
+import { GestaoView } from '@/components/trainings/GestaoView';
+import { ManageTrainingView } from '@/components/trainings/ManageTrainingView';
 import { MyTrainingsView } from '@/components/trainings/MyTrainingsView';
 import type { Nav } from '@/components/trainings/types';
 
 export default function TrainingsPage() {
   const [nav, setNav] = useState<Nav>({ view: 'catalog' });
+  const role = useCurrentRole();
+
+  const canManage = !!role && (CAN_MANAGE_TRAININGS_ROLES as readonly string[]).includes(role);
+  const isAdminOrRh = role === 'ADMIN' || role === 'RH';
+  // Só a UI — a autorização real é sempre feita no backend (403 se o
+  // separador for forçado por URL/estado sem o papel certo).
+  const visibleNav = NAV.filter((n) => {
+    if (n.id === 'manage') return canManage;
+    if (n.id === 'dashboard') return isAdminOrRh;
+    return true;
+  });
 
   const handleSelect = (id: number) =>
     setNav({ view: 'detail', selectedId: id });
+  const handleManage = (id: number) =>
+    setNav({ view: 'manage-detail', selectedId: id });
   const handleBack = () => setNav({ view: 'catalog' });
+  const handleBackToManage = () => setNav({ view: 'manage' });
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
@@ -33,9 +50,9 @@ export default function TrainingsPage() {
         </div>
       </div>
 
-      {nav.view !== 'detail' && (
+      {nav.view !== 'detail' && nav.view !== 'manage-detail' && (
         <div className="mb-6 flex w-fit gap-1 rounded-xl bg-surface-sunken p-1">
-          {NAV.map((n) => (
+          {visibleNav.map((n) => (
             <button
               key={n.id}
               onClick={() => setNav({ view: n.id })}
@@ -57,6 +74,10 @@ export default function TrainingsPage() {
       )}
       {nav.view === 'my-trainings' && (
         <MyTrainingsView onSelect={handleSelect} />
+      )}
+      {nav.view === 'manage' && <GestaoView onManage={handleManage} />}
+      {nav.view === 'manage-detail' && (
+        <ManageTrainingView trainingId={nav.selectedId} onBack={handleBackToManage} />
       )}
       {nav.view === 'dashboard' && <DashboardView />}
     </div>

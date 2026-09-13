@@ -18,8 +18,25 @@ import { Select } from '@/components/ui/Select';
 import { fmtPeriod } from './format';
 import type { AnnualSummary } from './types';
 
+const EXPORT_MONTHS = [
+  { value: 'ALL', label: 'Ano completo' },
+  { value: '01', label: 'Janeiro' },
+  { value: '02', label: 'Fevereiro' },
+  { value: '03', label: 'Março' },
+  { value: '04', label: 'Abril' },
+  { value: '05', label: 'Maio' },
+  { value: '06', label: 'Junho' },
+  { value: '07', label: 'Julho' },
+  { value: '08', label: 'Agosto' },
+  { value: '09', label: 'Setembro' },
+  { value: '10', label: 'Outubro' },
+  { value: '11', label: 'Novembro' },
+  { value: '12', label: 'Dezembro' },
+];
+
 export function AnnualView() {
   const [year, setYear] = useState(new Date().getFullYear().toString());
+  const [exportMonth, setExportMonth] = useState('ALL');
 
   const {
     data,
@@ -36,6 +53,8 @@ export function AnnualView() {
     (new Date().getFullYear() - i).toString(),
   );
 
+  const monthParam = exportMonth === 'ALL' ? '' : `&month=${exportMonth}`;
+
   return (
     <div>
       <div className="flex items-center gap-3 mb-5">
@@ -44,12 +63,17 @@ export function AnnualView() {
           value={year}
           onValueChange={setYear}
         />
+        <Select
+          items={EXPORT_MONTHS}
+          value={exportMonth}
+          onValueChange={setExportMonth}
+        />
         <Button
           intent="secondary"
           size="sm"
           onClick={() =>
             window.open(
-              `${API_BASE}/payslips/my/annual-summary/export?year=${year}&format=csv`,
+              `${API_BASE}/payslips/my/annual-summary/export?year=${year}${monthParam}&format=csv`,
               '_blank',
             )
           }
