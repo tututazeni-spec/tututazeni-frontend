@@ -26,6 +26,7 @@
 
 import { useRef, useState } from 'react';
 import type { ReactNode } from 'react';
+import type { QueryKey } from '@tanstack/react-query';
 import { AlertCircle, Plus, Trash2 } from 'lucide-react';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
@@ -41,6 +42,13 @@ import { useToast } from '@/providers/ToastProvider';
 
 export interface CreateRuleModalProps {
   onClose: () => void;
+  /**
+   * Query keys adicionais a invalidar depois de criar a regra, além de
+   * queryKeys.automation.rules()/.stats() — usado por quem monta este modal
+   * fora do módulo de Automação (ex.: aba "Automações" do scalability, que
+   * lê a mesma tabela via GET /scalability/automations sob outra query key).
+   */
+  extraInvalidateKeys?: QueryKey[];
 }
 
 // Mesmo padrão de secção usado em components/scalability/NewIntegrationModal.tsx
@@ -207,7 +215,7 @@ interface ConditionRow {
   value: string;
 }
 
-export function CreateRuleModal({ onClose }: CreateRuleModalProps) {
+export function CreateRuleModal({ onClose, extraInvalidateKeys }: CreateRuleModalProps) {
   const notify = useToast();
 
   // ── Geral ──────────────────────────────────────────────────────
@@ -270,6 +278,7 @@ export function CreateRuleModal({ onClose }: CreateRuleModalProps) {
       invalidateKeys: [
         queryKeys.automation.rules(),
         queryKeys.automation.stats(),
+        ...(extraInvalidateKeys ?? []),
       ],
       onSuccess: () => {
         notify({ title: 'Regra criada', intent: 'success' });
