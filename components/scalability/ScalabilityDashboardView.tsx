@@ -38,6 +38,8 @@ import { ImportUsersModal } from './ImportUsersModal';
 import { NewIntegrationModal } from './NewIntegrationModal';
 import { LoadTestModal } from './LoadTestModal';
 import { RenameTenantModal } from './RenameTenantModal';
+import { SlaConfigModal } from './SlaConfigModal';
+import { ContentDeliveryConfigModal } from './ContentDeliveryConfigModal';
 import type {
   AlertSeverity,
   IntegrationStatus,
@@ -872,7 +874,8 @@ interface SlaTabProps {
 }
 
 function SlaTab({ data, slaConfigs }: SlaTabProps) {
-  const { slaCompliance: s } = data;
+  const { slaCompliance: s, tenantInfo: t } = data;
+  const [configuring, setConfiguring] = useState(false);
   const complianceScore = Math.min(
     100,
     (s.currentUptimePercent / s.slaTarget) * 100,
@@ -883,10 +886,19 @@ function SlaTab({ data, slaConfigs }: SlaTabProps) {
 
   return (
     <div className="flex flex-col gap-6">
-      <SectionHeader
-        title="SLA & Compliance"
-        sub="Monitorização de acordos de nível de serviço e conformidade regulatória"
-      />
+      <div className="flex items-center justify-between">
+        <SectionHeader
+          title="SLA & Compliance"
+          sub="Monitorização de acordos de nível de serviço e conformidade regulatória"
+        />
+        <Button intent="secondary" size="sm" onClick={() => setConfiguring(true)}>
+          Nova Configuração de SLA
+        </Button>
+      </div>
+
+      {configuring && (
+        <SlaConfigModal tenantId={t.id} onClose={() => setConfiguring(false)} />
+      )}
 
       {/* SLA score */}
       <div className="flex items-center gap-8 rounded-panel border border-border bg-surface p-6">
@@ -1083,20 +1095,36 @@ function UsersTab({ data }: UsersTabProps) {
 }
 
 interface ContentTabProps {
+  tenantId: string;
   config: ContentDeliveryConfig | null;
 }
 
-function ContentTab({ config }: ContentTabProps) {
+function ContentTab({ tenantId, config }: ContentTabProps) {
+  const [configuring, setConfiguring] = useState(false);
+
   if (!config) {
     return (
       <div className="flex flex-col gap-6">
-        <SectionHeader
-          title="Conteúdo & CDN"
-          sub="Distribuição de vídeos, SCORM e PDFs com bitrate adaptativo"
-        />
+        <div className="flex items-center justify-between">
+          <SectionHeader
+            title="Conteúdo & CDN"
+            sub="Distribuição de vídeos, SCORM e PDFs com bitrate adaptativo"
+          />
+          <Button intent="secondary" size="sm" onClick={() => setConfiguring(true)}>
+            Configurar CDN
+          </Button>
+        </div>
+        {configuring && (
+          <ContentDeliveryConfigModal
+            tenantId={tenantId}
+            config={null}
+            onClose={() => setConfiguring(false)}
+          />
+        )}
         <EmptyState
           title="Sem configuração de entrega de conteúdo"
           description="Este tenant ainda não tem CDN/bitrate adaptativo configurado."
+          action={{ label: 'Configurar CDN', onClick: () => setConfiguring(true) }}
         />
       </div>
     );
@@ -1139,10 +1167,22 @@ function ContentTab({ config }: ContentTabProps) {
 
   return (
     <div className="flex flex-col gap-6">
-      <SectionHeader
-        title="Conteúdo & CDN"
-        sub="Distribuição de vídeos, SCORM e PDFs com bitrate adaptativo"
-      />
+      <div className="flex items-center justify-between">
+        <SectionHeader
+          title="Conteúdo & CDN"
+          sub="Distribuição de vídeos, SCORM e PDFs com bitrate adaptativo"
+        />
+        <Button intent="secondary" size="sm" onClick={() => setConfiguring(true)}>
+          Editar Configuração
+        </Button>
+      </div>
+      {configuring && (
+        <ContentDeliveryConfigModal
+          tenantId={tenantId}
+          config={config}
+          onClose={() => setConfiguring(false)}
+        />
+      )}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         {rows.map((item) => (
           <Card key={item.title}>
@@ -1306,7 +1346,7 @@ export function ScalabilityDashboardView({
             <UsersTab data={dashboard} />
           </TabsContent>
           <TabsContent value="content">
-            <ContentTab config={contentDelivery} />
+            <ContentTab tenantId={dashboard.tenantInfo.id} config={contentDelivery} />
           </TabsContent>
         </div>
       </Tabs>
