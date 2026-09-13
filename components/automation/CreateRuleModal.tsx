@@ -9,9 +9,11 @@
 // (Condições/Campo/Operador/Valor/Lógica E-OU) grava em conditionsJson e é
 // avaliado por evaluateRuleConditions() no engine; os campos da acção
 // (Destinatário/Canal/Modelo/Assunto/Dados dinâmicos/Prazo) entram em
-// actionParams — só o canal "Notificação interna" tem entrega real, os
-// restantes ficam registados para auditoria (ver comentário em
-// executeAction() no service). Frequência/Horário/Dias da semana/Datas/Nº
+// actionParams — os canais Notificação interna/E-mail/SMS/WhatsApp têm
+// entrega real (via MailService/SmsService — precisam de SMTP/Twilio
+// configurados em .env, ver .env.example); Push/Webhook continuam só
+// registados para auditoria (ver deliverViaChannel() no service).
+// Frequência/Horário/Dias da semana/Datas/Nº
 // máx. execuções ficam guardados em triggerConfigJson mas NÃO há ainda um
 // scheduler a consumi-los — regras agendadas só correm via "Executar Todas".
 // "Registo de execução" não é um campo do formulário: aparece no separador
@@ -505,10 +507,16 @@ export function CreateRuleModal({ onClose }: CreateRuleModalProps) {
                 </FormField>
               </div>
 
-              {channel !== 'internal' && (
+              {(channel === 'push' || channel === 'webhook') && (
                 <p className="font-body text-xs text-ink-muted">
-                  Só o canal "Notificação interna" tem entrega automática nesta versão — os
-                  restantes ficam registados para auditoria, sem envio real.
+                  Este canal ainda não tem entrega automática — fica registado para auditoria,
+                  sem envio real.
+                </p>
+              )}
+              {(channel === 'email' || channel === 'sms' || channel === 'whatsapp') && (
+                <p className="font-body text-xs text-ink-muted">
+                  Entrega real — requer SMTP (email) ou Twilio (SMS/WhatsApp) configurados no
+                  servidor, e o destinatário ter email/telemóvel preenchidos no perfil.
                 </p>
               )}
 
