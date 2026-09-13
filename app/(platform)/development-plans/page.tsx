@@ -3,7 +3,8 @@
 
 import { useState } from 'react';
 import { Plus } from 'lucide-react';
-import { useToast } from '@/providers/ToastProvider';
+import { useCurrentRole } from '@/hooks/useCurrentRole';
+import { CreatePlanWizard } from '@/components/development-plans/CreatePlanWizard';
 import { NAV, TITLES } from '@/components/development-plans/constants';
 import { DetailView } from '@/components/development-plans/DetailView';
 import { MyPlansView } from '@/components/development-plans/MyPlansView';
@@ -11,9 +12,15 @@ import { TeamView } from '@/components/development-plans/TeamView';
 import type { Nav } from '@/components/development-plans/types';
 import { Button } from '@/components/ui/Button';
 
+// Espelha @Roles(ADMIN, RH, GESTOR) em POST /development-plans
+// (development-plans.controller.ts) — quem cria um PDI para um colaborador.
+const CAN_CREATE_PLAN_ROLES = ['ADMIN', 'RH', 'GESTOR'];
+
 export default function DevelopmentPlansPage() {
-  const notify = useToast();
+  const role = useCurrentRole();
   const [nav, setNav] = useState<Nav>({ view: 'my-plans' });
+  const [showWizard, setShowWizard] = useState(false);
+  const canCreate = role != null && CAN_CREATE_PLAN_ROLES.includes(role);
 
   const handleSelect = (id: number) =>
     setNav({ view: 'detail', selectedId: id });
@@ -28,16 +35,8 @@ export default function DevelopmentPlansPage() {
           </h1>
           <p className="mt-0.5 font-body text-sm text-ink-faint"></p>
         </div>
-        {nav.view !== 'detail' && (
-          <Button
-            size="sm"
-            onClick={() =>
-              notify({
-                title: 'Abrir formulário de criação de PDI',
-                intent: 'info',
-              })
-            }
-          >
+        {nav.view !== 'detail' && canCreate && (
+          <Button size="sm" onClick={() => setShowWizard(true)}>
             <Plus size={14} strokeWidth={1.75} />
             Novo PDI
           </Button>
@@ -64,6 +63,13 @@ export default function DevelopmentPlansPage() {
         <DetailView planId={nav.selectedId} onBack={handleBack} />
       )}
       {nav.view === 'team' && <TeamView onSelect={handleSelect} />}
+
+      {showWizard && (
+        <CreatePlanWizard
+          onClose={() => setShowWizard(false)}
+          onSuccess={(planId) => setNav({ view: 'detail', selectedId: planId })}
+        />
+      )}
     </div>
   );
 }
