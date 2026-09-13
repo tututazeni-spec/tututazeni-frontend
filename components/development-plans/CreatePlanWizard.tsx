@@ -201,7 +201,7 @@ export function CreatePlanWizard({ onClose, onSuccess }: CreatePlanWizardProps) 
       (f) =>
         ({
           ...f,
-          [key]: (f[key] as Array<Record<string, unknown>>).map((row, i) =>
+          [key]: (f[key] as unknown as Array<Record<string, unknown>>).map((row, i) =>
             i === index ? { ...row, ...patch } : row,
           ),
         }) as WizardForm,

@@ -22,6 +22,7 @@ import {
   GAP_PRIORITY_ITEMS,
   ORIGIN_ITEMS,
   PRIORITY_CFG,
+  type WizardStepId,
 } from './constants';
 import {
   useCompetencyOptions,
@@ -37,7 +38,6 @@ import type {
   CompetencyGapDraft,
   GoalDraft,
   WizardForm,
-  WizardStepId,
 } from './types';
 
 type ListKey = 'competencyGaps' | 'goals' | 'actions' | 'checkpoints';
