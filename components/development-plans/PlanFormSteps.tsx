@@ -22,7 +22,13 @@ import {
   ORIGIN_ITEMS,
   PRIORITY_CFG,
 } from './constants';
-import { useCompetencyOptions, useCycleOptions, useDirectoryUsers, type DirectoryUser } from './planData';
+import {
+  useCompetencyOptions,
+  useCourseOptions,
+  useCycleOptions,
+  useDirectoryUsers,
+  type DirectoryUser,
+} from './planData';
 import type {
   ActionDraft,
   ActionType,
@@ -191,6 +197,7 @@ function ListEditor<T>({ title, hint, rows, onAdd, onRemove, isLocked, render }:
 export function PlanFormSteps({ stepId, form, setField, addRow, removeRow, setRow }: PlanFormStepsProps) {
   const { options: competencyOptions } = useCompetencyOptions(stepId === 'competencies');
   const { options: cycleOptions } = useCycleOptions(stepId === 'identification');
+  const { options: courseOptions } = useCourseOptions(stepId === 'actionPlan');
 
   switch (stepId) {
     case 'identification':
@@ -510,6 +517,16 @@ export function PlanFormSteps({ stepId, form, setField, addRow, removeRow, setRo
                 disabled={locked}
                 className="w-full"
               />
+              {row.type === 'COURSE' && (
+                <Select
+                  items={courseOptions}
+                  value={row.courseId || undefined}
+                  onValueChange={(v) => setRow('actions', i, { courseId: v })}
+                  placeholder="Curso associado"
+                  disabled={locked}
+                  className="w-full"
+                />
+              )}
               <Input
                 type="number"
                 min={0}

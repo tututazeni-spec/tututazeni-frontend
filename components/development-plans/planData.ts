@@ -58,6 +58,21 @@ export function useCompetencyOptions(enabled = true) {
   return { options, loading: query.isLoading };
 }
 
+/** Catálogo de cursos (para o picker "Curso associado" nas acções tipo COURSE). */
+export function useCourseOptions(enabled = true) {
+  const params = { limit: 100 };
+  const query = useApiQuery<{ data: { id: number; title: string }[] }>(
+    ['development-plans', 'courses-picker', params],
+    '/courses',
+    { params, staleTime: STALE_TIME.SEMI_STATIC, enabled },
+  );
+  const options: Option[] = (query.data?.data ?? []).map((c) => ({
+    value: String(c.id),
+    label: c.title,
+  }));
+  return { options, loading: query.isLoading };
+}
+
 /** Ciclos de avaliação (para "Ciclo do PDI" / ligação à avaliação de origem). */
 export function useCycleOptions(enabled = true) {
   const query = useApiQuery<{ id: number; name: string }[]>(
