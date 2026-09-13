@@ -657,7 +657,7 @@ export function CreateRuleModal({ onClose }: CreateRuleModalProps) {
 
               <p className="font-body text-xs text-ink-muted">
                 Estes campos ficam guardados na regra, mas a sua execução periódica ainda
-                depende de "Executar Todas" (manual) ou de um cron externo a chamar
+                depende de &quot;Executar Todas&quot; (manual) ou de um cron externo a chamar
                 POST /automation/run — não há scheduler automático nesta versão.
               </p>
           </Section>
@@ -740,7 +740,7 @@ export function CreateRuleModal({ onClose }: CreateRuleModalProps) {
 
               <p className="font-body text-xs text-ink-muted">
                 O registo de cada execução desta regra fica disponível no separador
-                "Execuções" depois de criada — não é algo que se defina aqui.
+                &quot;Execuções&quot; depois de criada — não é algo que se defina aqui.
               </p>
           </Section>
         </div>
