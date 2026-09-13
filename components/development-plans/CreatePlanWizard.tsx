@@ -24,7 +24,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { AlertCircle, Check } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/lib/apiClient';
@@ -45,17 +45,22 @@ import type {
 
 type ListKey = 'competencyGaps' | 'goals' | 'actions' | 'checkpoints';
 
-let nextDraftKey = 0;
-const emptyGap = (): CompetencyGapDraft => ({
-  key: nextDraftKey++,
+// Recebem a key em vez de a gerarem — o contador vive numa ref por instância
+// do wizard (ver `nextKeyRef` no componente), não a nível de módulo. Duas
+// modais abertas em simultâneo (ou um hot-reload) partilhariam o mesmo
+// contador módulo-a-módulo; por instância, cada wizard começa do zero e
+// nunca colide consigo próprio, que é a única garantia que a key de lista
+// do React precisa.
+const emptyGap = (key: number): CompetencyGapDraft => ({
+  key,
   id: null,
   competencyId: '',
   currentLevel: '',
   targetLevel: '',
   priority: 'MEDIUM',
 });
-const emptyGoal = (): GoalDraft => ({
-  key: nextDraftKey++,
+const emptyGoal = (key: number): GoalDraft => ({
+  key,
   id: null,
   title: '',
   description: '',
@@ -63,8 +68,8 @@ const emptyGoal = (): GoalDraft => ({
   dueDate: '',
   weight: '',
 });
-const emptyAction = (): ActionDraft => ({
-  key: nextDraftKey++,
+const emptyAction = (key: number): ActionDraft => ({
+  key,
   id: null,
   title: '',
   description: '',
@@ -74,8 +79,8 @@ const emptyAction = (): ActionDraft => ({
   dueDate: '',
   mandatory: false,
 });
-const emptyCheckpoint = (): CheckpointDraft => ({
-  key: nextDraftKey++,
+const emptyCheckpoint = (key: number): CheckpointDraft => ({
+  key,
   id: null,
   title: '',
   description: '',
@@ -83,7 +88,10 @@ const emptyCheckpoint = (): CheckpointDraft => ({
   type: 'QUICK',
 });
 
-const EMPTY_ROW: Record<ListKey, () => CompetencyGapDraft | GoalDraft | ActionDraft | CheckpointDraft> = {
+const EMPTY_ROW: Record<
+  ListKey,
+  (key: number) => CompetencyGapDraft | GoalDraft | ActionDraft | CheckpointDraft
+> = {
   competencyGaps: emptyGap,
   goals: emptyGoal,
   actions: emptyAction,
@@ -139,6 +147,9 @@ export function CreatePlanWizard({ onClose, onSuccess }: CreatePlanWizardProps) 
   const [planId, setPlanId] = useState<number | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+  // Contador de keys de rascunho por instância do wizard — ver nota em
+  // EMPTY_ROW acima.
+  const nextKeyRef = useRef(0);
 
   const current = WIZARD_STEPS[step];
   const isLast = step === WIZARD_STEPS.length - 1;
@@ -174,7 +185,11 @@ export function CreatePlanWizard({ onClose, onSuccess }: CreatePlanWizardProps) 
   // campo via `patch`).
   const addRow = (key: ListKey) =>
     setForm(
-      (f) => ({ ...f, [key]: [...(f[key] as unknown[]), EMPTY_ROW[key]()] }) as WizardForm,
+      (f) =>
+        ({
+          ...f,
+          [key]: [...(f[key] as unknown[]), EMPTY_ROW[key](nextKeyRef.current++)],
+        }) as WizardForm,
     );
   const removeRow = (key: ListKey, index: number) =>
     setForm(

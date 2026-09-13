@@ -7,6 +7,7 @@
 'use client';
 
 import { useState } from 'react';
+import { Popover } from 'radix-ui';
 import { Plus, Trash2, X } from 'lucide-react';
 import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
@@ -59,7 +60,15 @@ const PRIORITY_ITEMS = Object.entries(PRIORITY_CFG).map(([value, cfg]) => ({
   label: cfg.label,
 }));
 
-/** Picker de colaborador/gestor por pesquisa no diretório interno. */
+/**
+ * Picker de colaborador/gestor por pesquisa no diretório interno. O
+ * dropdown de resultados vai num Popover.Portal (mesmo primitivo do
+ * components/ui/Combobox) em vez de `position: absolute` dentro do fluxo
+ * normal — o CreatePlanWizard corre dentro de um ModalContent com
+ * `overflow-y-auto`, e um dropdown absoluto ficava sujeito a ser cortado
+ * pelo overflow do modal quando o picker está perto do fundo visível; o
+ * portal escapa para o body e não sofre esse corte.
+ */
 function UserPicker({
   label,
   htmlFor,
@@ -75,8 +84,15 @@ function UserPicker({
   excludeId?: number;
 }) {
   const [search, setSearch] = useState('');
-  const { users, loading } = useDirectoryUsers(search, !value && search.trim().length > 0);
+  const [open, setOpen] = useState(false);
+  const { users, loading } = useDirectoryUsers(search, open && !value && search.trim().length > 0);
   const results = users.filter((u) => u.id !== excludeId);
+
+  const select = (u: DirectoryUser) => {
+    onChange(u);
+    setSearch('');
+    setOpen(false);
+  };
 
   return (
     <FormField label={label} htmlFor={htmlFor}>
@@ -101,17 +117,30 @@ function UserPicker({
           </button>
         </div>
       ) : (
-        <div className="relative">
-          <Input
-            id={htmlFor}
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full"
-            placeholder="Pesquisar por nome ou email…"
-            autoComplete="off"
-          />
-          {search.trim().length > 0 && (
-            <div className="absolute z-10 mt-1 max-h-56 w-full overflow-y-auto rounded-card border border-border bg-surface shadow-elevated">
+        <Popover.Root open={open} onOpenChange={setOpen}>
+          <Popover.Anchor asChild>
+            <Input
+              id={htmlFor}
+              value={search}
+              onChange={(e) => {
+                const v = e.target.value;
+                setSearch(v);
+                setOpen(v.trim().length > 0);
+              }}
+              onFocus={() => search.trim().length > 0 && setOpen(true)}
+              className="w-full"
+              placeholder="Pesquisar por nome ou email…"
+              autoComplete="off"
+            />
+          </Popover.Anchor>
+          <Popover.Portal>
+            <Popover.Content
+              align="start"
+              sideOffset={4}
+              onOpenAutoFocus={(e) => e.preventDefault()}
+              onCloseAutoFocus={(e) => e.preventDefault()}
+              className="z-[60] max-h-56 w-[--radix-popover-trigger-width] overflow-y-auto rounded-card border border-border bg-surface shadow-elevated"
+            >
               {loading && <div className="px-3 py-2 text-sm text-ink-muted">A pesquisar…</div>}
               {!loading && results.length === 0 && (
                 <div className="px-3 py-2 text-sm text-ink-muted">Nenhum colaborador encontrado</div>
@@ -120,10 +149,7 @@ function UserPicker({
                 <button
                   key={u.id}
                   type="button"
-                  onClick={() => {
-                    onChange(u);
-                    setSearch('');
-                  }}
+                  onClick={() => select(u)}
                   className="flex w-full items-center gap-2 px-3 py-2 text-left hover:bg-primary-subtle"
                 >
                   <Avatar name={u.fullName} url={u.avatarUrl ?? undefined} size="sm" />
@@ -135,9 +161,9 @@ function UserPicker({
                   </div>
                 </button>
               ))}
-            </div>
-          )}
-        </div>
+            </Popover.Content>
+          </Popover.Portal>
+        </Popover.Root>
       )}
     </FormField>
   );
