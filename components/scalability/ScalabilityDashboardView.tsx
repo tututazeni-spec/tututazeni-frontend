@@ -31,7 +31,9 @@ import {
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/cn';
+import { queryKeys } from '@/lib/queryKeys';
 import { useToast } from '@/providers/ToastProvider';
+import { CreateRuleModal } from '@/components/automation/CreateRuleModal';
 import { ImportUsersModal } from './ImportUsersModal';
 import { NewIntegrationModal } from './NewIntegrationModal';
 import { LoadTestModal } from './LoadTestModal';
@@ -684,7 +686,7 @@ interface AutomationsTabProps {
 }
 
 function AutomationsTab({ rules, onExecute }: AutomationsTabProps) {
-  const notify = useToast();
+  const [creatingRule, setCreatingRule] = useState(false);
   const triggerLabel: Record<string, string> = {
     USER_HIRED: 'Contratação',
     USER_PROMOTED: 'Promoção',
@@ -705,9 +707,7 @@ function AutomationsTab({ rules, onExecute }: AutomationsTabProps) {
         <Button
           intent="secondary"
           size="sm"
-          onClick={() =>
-            notify({ title: 'Modal de nova regra', intent: 'info' })
-          }
+          onClick={() => setCreatingRule(true)}
         >
           Nova Regra
         </Button>
@@ -763,6 +763,16 @@ function AutomationsTab({ rules, onExecute }: AutomationsTabProps) {
           />
         )}
       </div>
+
+      {creatingRule && (
+        <CreateRuleModal
+          onClose={() => setCreatingRule(false)}
+          extraInvalidateKeys={[
+            queryKeys.scalability.automations(),
+            queryKeys.scalability.dashboard(),
+          ]}
+        />
+      )}
     </div>
   );
 }
