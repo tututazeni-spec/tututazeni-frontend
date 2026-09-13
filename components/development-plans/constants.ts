@@ -10,6 +10,11 @@ import type { StatusBadgeMap } from '@/lib/statusBadge';
 import type {
   ActionStatus,
   ActionType,
+  CompetencyGapPriority,
+  PdiFinalResult,
+  PdiNextSteps,
+  PdiOrigin,
+  PdiOverallResult,
   PlanStatus,
   Priority,
   View,
@@ -22,10 +27,83 @@ export const STATUS_CFG: StatusBadgeMap<PlanStatus> = {
     cls: 'bg-warning-subtle text-warning-ink',
   },
   ACTIVE: { label: 'Activo', cls: 'bg-success-subtle text-success-ink' },
+  PAUSED: { label: 'Pausado', cls: 'bg-surface-sunken text-ink-muted' },
+  AT_RISK: { label: 'Em risco', cls: 'bg-warning-subtle text-warning-ink' },
   COMPLETED: { label: 'Concluído', cls: 'bg-info-subtle text-info-ink' },
+  PARTIALLY_COMPLETED: {
+    label: 'Concluído parcialmente',
+    cls: 'bg-info-subtle text-info-ink',
+  },
   CANCELLED: { label: 'Cancelado', cls: 'bg-danger-subtle text-danger-ink' },
   OVERDUE: { label: 'Atrasado', cls: 'bg-danger-subtle text-danger-ink' },
 };
+
+// Secção 2 do doc — origem do PDI.
+export const ORIGIN_CFG: Record<PdiOrigin, string> = {
+  PERFORMANCE_REVIEW: 'Avaliação de desempenho',
+  EVALUATION_360: 'Avaliação 360°',
+  COMPETENCY_MAP: 'Mapa de competências',
+  COMPETENCY_GAP: 'Gap de competências',
+  CAREER_PLAN: 'Plano de carreira',
+  SUCCESSION: 'Sucessão',
+  LEADERSHIP_PROGRAM: 'Programa de liderança',
+  MANAGER_REQUEST: 'Necessidade identificada pelo gestor',
+  EMPLOYEE_REQUEST: 'Pedido do colaborador',
+  ONBOARDING: 'Onboarding',
+  ROLE_CHANGE: 'Mudança de função',
+  PROMOTION: 'Promoção',
+  OPERATIONAL_NEED: 'Necessidade operacional',
+  STRATEGIC_NEED: 'Necessidade estratégica da empresa',
+  OTHER: 'Outro',
+};
+export const ORIGIN_ITEMS = Object.entries(ORIGIN_CFG).map(([value, label]) => ({
+  value,
+  label,
+}));
+
+export const GAP_PRIORITY_CFG: Record<CompetencyGapPriority, string> = {
+  LOW: 'Baixa',
+  MEDIUM: 'Média',
+  HIGH: 'Alta',
+};
+export const GAP_PRIORITY_ITEMS = Object.entries(GAP_PRIORITY_CFG).map(
+  ([value, label]) => ({ value, label }),
+);
+
+// Secção 19 — avaliação final do PDI.
+export const FINAL_RESULT_CFG: Record<PdiFinalResult, string> = {
+  GOAL_ACHIEVED: 'Objectivo alcançado',
+  PARTIALLY_ACHIEVED: 'Parcialmente alcançado',
+  NOT_ACHIEVED: 'Não alcançado',
+};
+export const FINAL_RESULT_ITEMS = Object.entries(FINAL_RESULT_CFG).map(
+  ([value, label]) => ({ value, label }),
+);
+
+export const OVERALL_RESULT_CFG: Record<PdiOverallResult, string> = {
+  EXCEEDED: 'Excedeu expectativas',
+  MET: 'Atingiu expectativas',
+  PARTIALLY_MET: 'Atingiu parcialmente',
+  NOT_MET: 'Não atingiu',
+};
+export const OVERALL_RESULT_ITEMS = Object.entries(OVERALL_RESULT_CFG).map(
+  ([value, label]) => ({ value, label }),
+);
+
+// Secção 20 — próximos passos.
+export const NEXT_STEPS_CFG: Record<PdiNextSteps, string> = {
+  NEW_PDI: 'Novo PDI',
+  CONTINUE_PDI: 'Continuidade do PDI',
+  NEW_COMPETENCY_ASSESSMENT: 'Nova avaliação de competências',
+  LEARNING_PATH: 'Inclusão numa trilha de aprendizagem',
+  LEADERSHIP_PROGRAM: 'Inclusão num programa de liderança',
+  ROLE_PREPARATION: 'Preparação para nova função',
+  SUCCESSION_PLAN: 'Encaminhamento para plano de sucessão',
+  NONE: 'Sem acção adicional',
+};
+export const NEXT_STEPS_ITEMS = Object.entries(NEXT_STEPS_CFG).map(
+  ([value, label]) => ({ value, label }),
+);
 
 export const ACTION_CFG: Record<ActionType, { label: string; cls: string }> = {
   COURSE: { label: 'Curso', cls: 'bg-info-subtle text-info-ink' },
@@ -96,3 +174,35 @@ export const TITLES: Record<View, string> = {
   team: 'PDIs da Equipa',
   create: 'Novo PDI',
 };
+
+// ─── CreatePlanWizard (wizard em 7 etapas, doc "Criar Novo PDI") ───────────
+
+export type WizardStepId =
+  | 'identification'
+  | 'diagnosis'
+  | 'competencies'
+  | 'objectives'
+  | 'actionPlan'
+  | 'tracking'
+  | 'review';
+
+export const WIZARD_STEPS: Array<{ id: WizardStepId; label: string }> = [
+  { id: 'identification', label: 'Identificação' },
+  { id: 'diagnosis', label: 'Diagnóstico' },
+  { id: 'competencies', label: 'Competências' },
+  { id: 'objectives', label: 'Objectivos' },
+  { id: 'actionPlan', label: 'Plano de acção' },
+  { id: 'tracking', label: 'Indicadores' },
+  { id: 'review', label: 'Revisão' },
+];
+
+// Durações típicas de um PDI (secção 1) — meses a somar à data de início
+// para derivar a data de conclusão prevista quando o utilizador não escreve
+// a endDate à mão.
+export const DURATION_PRESETS = [
+  { value: '3', label: '3 meses' },
+  { value: '6', label: '6 meses' },
+  { value: '9', label: '9 meses' },
+  { value: '12', label: '12 meses' },
+  { value: 'custom', label: 'Personalizado' },
+];

@@ -39,6 +39,11 @@ import { formatDate as fmtDate } from '@/lib/format';
 import {
   ACTION_CFG,
   ACTION_STATUS,
+  FINAL_RESULT_CFG,
+  GAP_PRIORITY_CFG,
+  NEXT_STEPS_CFG,
+  ORIGIN_CFG,
+  OVERALL_RESULT_CFG,
   PRIORITY_CFG,
   STATUS_CFG,
 } from './constants';
@@ -54,6 +59,7 @@ const TABS = [
   { id: 'actions', label: 'Acções', Icon: CheckCircle2 },
   { id: 'goals', label: 'Metas', Icon: Target },
   { id: 'checkpoints', label: 'Checkpoints', Icon: MapPin },
+  { id: 'diagnosis', label: 'Diagnóstico', Icon: FileText },
 ] as const;
 
 export function DetailView({ planId, onBack }: DetailViewProps) {
@@ -61,7 +67,7 @@ export function DetailView({ planId, onBack }: DetailViewProps) {
   const [updatingAction, setUpdatingAction] = useState<number | null>(null);
   const [updatingGoal, setUpdatingGoal] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState<
-    'actions' | 'goals' | 'checkpoints'
+    'actions' | 'goals' | 'checkpoints' | 'diagnosis'
   >('actions');
 
   const {
@@ -212,6 +218,39 @@ export function DetailView({ planId, onBack }: DetailViewProps) {
           </div>
         </CardBody>
       </Card>
+
+      {/* Fecho do PDI (secção 19-20) — só depois de concluído */}
+      {(plan.finalResult || plan.overallResult || plan.nextSteps) && (
+        <Card className="mb-5">
+          <CardBody>
+            <div className="mb-3 font-body text-sm font-semibold text-ink">
+              Avaliação final
+            </div>
+            <div className="mb-3 flex flex-wrap gap-2">
+              {plan.finalResult && (
+                <span className="rounded-full bg-info-subtle px-2.5 py-1 font-body text-xs text-info-ink">
+                  {FINAL_RESULT_CFG[plan.finalResult]}
+                </span>
+              )}
+              {plan.overallResult && (
+                <span className="rounded-full bg-success-subtle px-2.5 py-1 font-body text-xs text-success-ink">
+                  {OVERALL_RESULT_CFG[plan.overallResult]}
+                </span>
+              )}
+              {plan.nextSteps && (
+                <span className="rounded-full bg-surface-sunken px-2.5 py-1 font-body text-xs text-ink-muted">
+                  Próximo passo: {NEXT_STEPS_CFG[plan.nextSteps]}
+                </span>
+              )}
+            </div>
+            <div className="space-y-1.5 font-body text-sm text-ink-muted">
+              {plan.employeeComment && <p>Colaborador: {plan.employeeComment}</p>}
+              {plan.managerComment && <p>Gestor: {plan.managerComment}</p>}
+              {plan.rhComment && <p>RH: {plan.rhComment}</p>}
+            </div>
+          </CardBody>
+        </Card>
+      )}
 
       {/* Tabs */}
       <div className="mb-5 flex w-fit gap-1 rounded-card bg-surface-sunken p-1">
@@ -467,6 +506,101 @@ export function DetailView({ planId, onBack }: DetailViewProps) {
               Sem checkpoints agendados
             </div>
           )}
+        </div>
+      )}
+
+      {/* Diagnóstico (origem, pontos fortes/necessidades, competências, carreira) */}
+      {activeTab === 'diagnosis' && (
+        <div className="space-y-4">
+          <Card>
+            <CardBody className="space-y-3">
+              {plan.origin && (
+                <div>
+                  <div className="font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+                    Origem
+                  </div>
+                  <p className="font-body text-sm text-ink">{ORIGIN_CFG[plan.origin]}</p>
+                  {plan.originJustification && (
+                    <p className="mt-0.5 font-body text-xs text-ink-muted">
+                      {plan.originJustification}
+                    </p>
+                  )}
+                </div>
+              )}
+              {plan.strengths && (
+                <div>
+                  <div className="font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+                    Principais pontos fortes
+                  </div>
+                  <p className="font-body text-sm text-ink">{plan.strengths}</p>
+                </div>
+              )}
+              {plan.developmentNeeds && (
+                <div>
+                  <div className="font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+                    Principais necessidades de desenvolvimento
+                  </div>
+                  <p className="font-body text-sm text-ink">{plan.developmentNeeds}</p>
+                </div>
+              )}
+              {plan.careerPlan && (
+                <div>
+                  <div className="font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+                    Objectivo de carreira associado
+                  </div>
+                  <p className="font-body text-sm text-ink">
+                    {plan.careerPlan.title}
+                    {plan.careerPlan.currentRole && plan.careerPlan.targetRole && (
+                      <span className="text-ink-muted">
+                        {' '}
+                        — {plan.careerPlan.currentRole.name} → {plan.careerPlan.targetRole.name}
+                      </span>
+                    )}
+                  </p>
+                  {plan.careerReadinessPercent != null && (
+                    <p className="mt-0.5 font-body text-xs text-ink-muted">
+                      Prontidão actual: {plan.careerReadinessPercent}%
+                    </p>
+                  )}
+                </div>
+              )}
+              {!plan.origin && !plan.strengths && !plan.developmentNeeds && !plan.careerPlan && (
+                <p className="font-body text-sm text-ink-faint">Sem diagnóstico registado.</p>
+              )}
+            </CardBody>
+          </Card>
+
+          <div>
+            <div className="mb-2 font-body text-sm font-semibold text-ink">
+              Competências a desenvolver
+            </div>
+            <div className="space-y-2">
+              {plan.competencyGaps?.map((g) => (
+                <Card key={g.id}>
+                  <CardBody className="flex items-center justify-between gap-4">
+                    <div>
+                      <div className="font-body text-sm text-ink">
+                        {g.competency?.name ?? `Competência #${g.competencyId}`}
+                      </div>
+                      {(g.currentLevel != null || g.targetLevel != null) && (
+                        <div className="font-body text-xs text-ink-faint">
+                          Nível {g.currentLevel ?? '—'} → {g.targetLevel ?? '—'}
+                        </div>
+                      )}
+                    </div>
+                    <span className="flex-shrink-0 rounded-full bg-surface-sunken px-2 py-0.5 font-body text-xs text-ink-muted">
+                      {GAP_PRIORITY_CFG[g.priority]}
+                    </span>
+                  </CardBody>
+                </Card>
+              ))}
+              {(!plan.competencyGaps || plan.competencyGaps.length === 0) && (
+                <div className="rounded-card border border-dashed border-border-strong py-6 text-center font-body text-sm text-ink-faint">
+                  Sem competências associadas
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       )}
     </div>
