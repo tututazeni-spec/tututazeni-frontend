@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { AdminDashboardView } from '@/components/courses/AdminDashboardView';
 import { CatalogView } from '@/components/courses/CatalogView';
 import { CertificatesView } from '@/components/courses/CertificatesView';
@@ -8,8 +8,9 @@ import { NAV, TITLES } from '@/components/courses/constants';
 import { CourseDetail } from '@/components/courses/CourseDetail';
 import { CreateCourseModal } from '@/components/courses/CreateCourseModal';
 import { GestaoView } from '@/components/courses/GestaoView';
+import { ModulosView } from '@/components/courses/ModulosView';
 import { MyEnrollmentsView } from '@/components/courses/MyEnrollmentsView';
-import type { Nav } from '@/components/courses/types';
+import type { Nav, TopLevelView } from '@/components/courses/types';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
 import { ADMIN_ROLES } from '@/lib/roles';
 import { Button } from '@/components/ui/Button';
@@ -25,10 +26,37 @@ export default function CoursesPage() {
 
   const [nav, setNav] = useState<Nav>({ view: 'catalog' });
   const [showCreate, setShowCreate] = useState(false);
+  // Curso pré-seleccionado ao entrar na aba "Módulos & Lições" — via
+  // "Gerir módulos" na aba Gestão (handleManageModules) ou via deep-link
+  // ?courseId= (ver useEffect abaixo e o redirect em
+  // app/(platform)/courses/modulos/page.tsx, mantido para bookmarks antigos
+  // ao antigo separador próprio de sidebar).
+  const [modulosCourseId, setModulosCourseId] = useState<number | undefined>(
+    undefined,
+  );
+
+  // Lê ?tab=&courseId= do URL no arranque (não usa useSearchParams() para
+  // não obrigar a envolver a página num <Suspense> — mesmo raciocínio da
+  // antiga app/(platform)/courses/modulos/page.tsx).
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const tab = params.get('tab') as TopLevelView | null;
+    if (tab && NAV.some((n) => n.id === tab)) {
+      setNav({ view: tab });
+    }
+    const courseId = params.get('courseId');
+    if (courseId && /^\d+$/.test(courseId)) {
+      setModulosCourseId(Number(courseId));
+    }
+  }, []);
 
   const handleSelect = (id: number) =>
     setNav({ view: 'detail', selectedId: id });
   const handleBack = () => setNav({ view: 'catalog' });
+  const handleManageModules = (id: number) => {
+    setModulosCourseId(id);
+    setNav({ view: 'modulos' });
+  };
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
@@ -74,7 +102,13 @@ export default function CoursesPage() {
         <AdminDashboardView onSelect={handleSelect} />
       )}
       {nav.view === 'gestao' && isAdmin && (
-        <GestaoView onSelect={handleSelect} />
+        <GestaoView
+          onSelect={handleSelect}
+          onManageModules={handleManageModules}
+        />
+      )}
+      {nav.view === 'modulos' && (
+        <ModulosView initialCourseId={modulosCourseId} />
       )}
 
       {showCreate && (
