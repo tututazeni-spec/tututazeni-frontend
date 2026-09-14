@@ -291,6 +291,18 @@ export const queryKeys = {
     manager: () => [...queryKeys.analyticsPage.all, 'manager'] as const,
     hr: () => [...queryKeys.analyticsPage.all, 'hr'] as const,
     risks: () => [...queryKeys.analyticsPage.all, 'risks'] as const,
+    learning: () => [...queryKeys.analyticsPage.all, 'learning'] as const,
+    people: () => [...queryKeys.analyticsPage.all, 'people'] as const,
+    department: (departmentId: number) =>
+      [...queryKeys.analyticsPage.all, 'department', departmentId] as const,
+    pdi: () => [...queryKeys.analyticsPage.all, 'pdi'] as const,
+    competencyGaps: () => [...queryKeys.analyticsPage.all, 'competency-gaps'] as const,
+    engagement: () => [...queryKeys.analyticsPage.all, 'engagement'] as const,
+    roi: () => [...queryKeys.analyticsPage.all, 'roi'] as const,
+    courses: () => [...queryKeys.analyticsPage.all, 'courses'] as const,
+    courseDetail: (courseId: number) =>
+      [...queryKeys.analyticsPage.all, 'courses', courseId] as const,
+    snapshots: () => [...queryKeys.analyticsPage.all, 'snapshots'] as const,
   },
 
   performance: {
