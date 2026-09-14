@@ -1,6 +1,6 @@
-// components/career-plans/SkillGapList.tsx
+// components/career/plans/SkillGapList.tsx
 // Lista de gaps de skill (obrigatórios ou complementares). Extraído
-// de app/(platform)/career-plans/page.tsx.
+// de app/(platform)/career/page.tsx (módulo "Carreira" fundido).
 //
 // A cor da barra (mandatória=vermelho / complementar=âmbar) era só
 // decorativa — reforçava um sentido já comunicado pelo cabeçalho da

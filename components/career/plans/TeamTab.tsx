@@ -1,6 +1,6 @@
-// components/career-plans/TeamTab.tsx
+// components/career/plans/TeamTab.tsx
 // Tab "Equipa" — placeholder estático. Extraído de
-// app/(platform)/career-plans/page.tsx.
+// app/(platform)/career/page.tsx (módulo "Carreira" fundido).
 
 'use client';
 
