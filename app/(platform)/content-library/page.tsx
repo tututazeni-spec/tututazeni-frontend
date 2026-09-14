@@ -9,6 +9,7 @@
 
 import { useState } from 'react';
 import {
+  Archive,
   BarChart2,
   BookOpen,
   Layers,
@@ -23,6 +24,7 @@ import { CatalogueTab } from '@/components/content-library/CatalogueTab';
 import { HomeTab } from '@/components/content-library/HomeTab';
 import { MyProgressTab } from '@/components/content-library/MyProgressTab';
 import { PathsTab } from '@/components/content-library/PathsTab';
+import { RepositoryTab } from '@/components/content-library/RepositoryTab';
 import type { Tab } from '@/components/content-library/types';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
 import { Button } from '@/components/ui/Button';
@@ -37,6 +39,7 @@ const AUTHOR_ROLES: readonly Role[] = ['ADMIN', 'RH', 'INSTRUCTOR'];
 const TABS: { id: Tab; label: string; icon: LucideIcon }[] = [
   { id: 'home', label: 'Início', icon: BookOpen },
   { id: 'catalogue', label: 'Catálogo', icon: Search },
+  { id: 'repository', label: 'Repositório', icon: Archive },
   { id: 'paths', label: 'Trilhas', icon: Layers },
   { id: 'my-progress', label: 'O Meu Percurso', icon: TrendingUp },
   { id: 'analytics', label: 'Análises', icon: BarChart2 },
@@ -102,6 +105,9 @@ export default function ContentLibraryPage() {
           </TabsContent>
           <TabsContent value="catalogue">
             <CatalogueTab />
+          </TabsContent>
+          <TabsContent value="repository">
+            <RepositoryTab />
           </TabsContent>
           <TabsContent value="paths">
             <PathsTab />
