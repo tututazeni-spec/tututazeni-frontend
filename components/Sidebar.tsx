@@ -9,7 +9,7 @@ import {
   ChevronDown, ChevronRight, BookMarked, Map, Crown, UserPlus,
   Layers, Play, Cpu, Database, Globe, Target, PieChart,
   Clock, MessageSquare, Scroll, Library, DollarSign, Activity,
-  Download, CheckSquare, Building2, LogOut, Share2, Brain,
+  Download, CheckSquare, Building2, LogOut, Share2, Brain, Trophy,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -19,6 +19,7 @@ const NAV = [
     items: [
       { href: "/dashboard",    icon: LayoutDashboard,  label: "Dashboard"    },
       { href: "/dashboard/institutional", icon: PieChart, label: "Dashboard Institucional" },
+      { href: "/dashboard/executive", icon: Trophy, label: "Dashboard Executivo" },
       { href: "/dashboard-rh", icon: Users,            label: "Dashboard RH" },
       { href: "/analytics",    icon: BarChart2,        label: "Indicadores de Desempenho"    },
       { href: "/reports",      icon: FileText,         label: "Relatórios"   },

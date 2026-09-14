@@ -20,6 +20,8 @@ export const queryKeys = {
       [...queryKeys.dashboard.all, 'institutional', 'trend', months] as const,
     institutionalAlerts: () =>
       [...queryKeys.dashboard.all, 'institutional', 'alerts'] as const,
+    executive: (period: string) =>
+      [...queryKeys.dashboard.all, 'executive', period] as const,
   },
 
   beneficiaries: {
