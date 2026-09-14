@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 
-export const metadata: Metadata = { title: 'Programas de Liderança' };
+export const metadata: Metadata = { title: 'Liderança' };
 
 export default function LeadershipLayout({
   children,
