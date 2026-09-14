@@ -25,6 +25,8 @@ export const queryKeys = {
       [...queryKeys.dashboard.all, 'institutional', 'trend', months] as const,
     institutionalAlerts: () =>
       [...queryKeys.dashboard.all, 'institutional', 'alerts'] as const,
+    institutionalModules: () =>
+      [...queryKeys.dashboard.all, 'institutional', 'modules'] as const,
   },
 
   beneficiaries: {
