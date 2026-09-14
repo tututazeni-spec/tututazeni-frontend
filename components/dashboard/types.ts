@@ -91,6 +91,153 @@ export interface OrgDashboardData {
   departments?: OrgDepartment[];
   insights?: string[];
   topContent?: OrgTopContent[];
+  // Só presentes quando vindo de GET /dashboard-institutional/executive
+  // (composição de DashboardService.getExecutiveDashboard()) — ver
+  // OrgDashboard.tsx. Ausentes/undefined se esse lado da agregação falhar.
+  talentHealth?: { healthScore: number; grade: 'A' | 'B' | 'C' | 'D' };
+  enps?: { enps: number; promoterPct: number; total: number } | null;
+  topTalent?: Array<{
+    id: number;
+    fullName: string;
+    position?: { name?: string };
+    points: number;
+    score: number;
+    talent: number;
+  }>;
+  risks?: Array<{ type: string; label: string; severity: string }>;
+}
+
+// ─── Executivo (GET /dashboard-institutional/executive) ───────────────────
+// Único endpoint consumido pelo separador "Executivo" — compõe o resumo
+// organizacional (DashboardService, acima) com o resumo institucional
+// (CRM/conhecimento/alertas/tendência/geografia/módulos) num único payload.
+// Ver src/dashboard-institutional/dashboard-institutional.service.ts#getExecutive.
+
+export interface ExecutiveSummary {
+  people: { total: number; newThisMonth: number };
+  learning: {
+    courses: number;
+    activeEnrollments: number;
+    completedThisYear: number;
+    completionRate: number;
+  };
+  crm: {
+    beneficiaries: number;
+    partners: number;
+    funders: number;
+    totalFunding: number;
+  };
+  knowledge: {
+    libraryItems: number;
+    certificates: number;
+    badgesIssued: number;
+  };
+}
+
+export interface ExecutiveTrendPoint {
+  month: string;
+  users: number;
+  enrollments: number;
+  completions: number;
+}
+
+export interface ExecutiveAlerts {
+  critical: number;
+  warnings: number;
+  reminders: number;
+  details: Record<string, number>;
+}
+
+export interface ExecutiveGeographic {
+  beneficiariesByProvince: Array<{
+    province: string | null;
+    _count: { id: number };
+  }>;
+}
+
+// Cada bloco vem null se o respectivo módulo falhar na agregação
+// (Promise.allSettled no backend) — nunca derruba o resto do painel.
+export interface ExecutiveModulesOverview {
+  engagement: {
+    index: number;
+    level: string;
+    participationRate: number;
+    enps: number | null;
+  } | null;
+  talentAndSuccession: {
+    criticalPositions: number;
+    withoutSuccessor: number;
+    coverageRate: number;
+    highRiskPositions: number;
+  } | null;
+  onboarding: {
+    active: number;
+    overdueTasks: number;
+    avgSurveyScore: number;
+  } | null;
+  events: {
+    total: number;
+    totalParticipants: number;
+  } | null;
+  processes: {
+    active: number;
+    inProgress: number;
+    overdueSteps: number;
+  } | null;
+  declarations: {
+    pending: number;
+    issued: number;
+    total: number;
+  } | null;
+  audit: {
+    totalEvents: number;
+    todayEvents: number;
+    criticalEvents: number;
+  } | null;
+  automation: {
+    totalRules: number;
+    activeRules: number;
+    successRate: number;
+  } | null;
+  platform: {
+    uptimePercent: number;
+    openAlerts: number;
+    criticalAlerts: number;
+    integrationsWithErrors: number;
+  } | null;
+  okr: {
+    activeCycles: number;
+    objectiveCompletionRate: number;
+  } | null;
+  evaluationCycles: {
+    activeCycles: number;
+    pendingEvaluations: number;
+    completionRate: number;
+  } | null;
+}
+
+export interface ExecutiveDashboardData {
+  organization: OrgDashboardData;
+  summary: ExecutiveSummary;
+  growthTrend: ExecutiveTrendPoint[];
+  geographic: ExecutiveGeographic;
+  alerts: ExecutiveAlerts;
+  modules: ExecutiveModulesOverview;
+}
+
+export interface ExecutiveSnapshot {
+  id: string;
+  period: string;
+  type: 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'QUARTERLY' | 'ANNUAL';
+  notes?: string | null;
+  totalUsers: number;
+  totalEnrollments: number;
+  totalBeneficiaries: number;
+  totalFunding: number;
+  totalCertificates: number;
+  completionRate: number;
+  createdAt: string;
+  createdBy?: { fullName?: string };
 }
 
 export interface SearchUserResult {

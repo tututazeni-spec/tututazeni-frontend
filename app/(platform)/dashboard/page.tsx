@@ -23,8 +23,8 @@ import { useApiQuery } from '@/hooks/useApiQuery';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
 import { queryKeys } from '@/lib/queryKeys';
 import {
-  ADMIN_ROLES,
   AUTHENTICATED_ROLES,
+  EXECUTIVE_ROLES,
   filterByRole,
   MGMT_ROLES,
 } from '@/lib/roles';
@@ -40,7 +40,10 @@ import { ALERTS_POLL_MS, type Alert } from '@/components/dashboard/types';
 // roles por separador alinhados com @Roles(...ALL_ROLES)/@Roles(...MGMT_ROLES)/
 // @Roles(...ADMIN_ROLES) em src/dashboard/dashboard.controller.ts — os grupos
 // vêm de lib/roles.ts (fonte única partilhada com o Sidebar), não alargar sem
-// confirmar lá e no controller primeiro.
+// confirmar lá e no controller primeiro. O separador "org" ("Executivo")
+// corresponde a Role.ADMIN/RH/GESTOR em
+// src/dashboard-institutional/dashboard-institutional.controller.ts#getExecutive
+// — antiga página /dashboard/institutional, consolidada aqui (ver OrgDashboard.tsx).
 const TABS = [
   {
     id: 'personal',
@@ -54,7 +57,7 @@ const TABS = [
     icon: Users,
     roles: MGMT_ROLES,
   },
-  { id: 'org', label: 'Organização', icon: BarChart2, roles: ADMIN_ROLES },
+  { id: 'org', label: 'Executivo', icon: BarChart2, roles: EXECUTIVE_ROLES },
 ];
 
 export default function DashboardPage() {

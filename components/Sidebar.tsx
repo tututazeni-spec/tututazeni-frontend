@@ -29,12 +29,6 @@ const NAV: Array<{ label: string; items: NavItem[] }> = [
     items: [
       { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
       {
-        href: '/dashboard/institutional',
-        icon: PieChart,
-        label: 'Dashboard Institucional',
-        roles: ['ADMIN', 'RH', 'GESTOR'],
-      },
-      {
         href: '/dashboard-rh',
         icon: Users,
         label: 'Dashboard RH',
