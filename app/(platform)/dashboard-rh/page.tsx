@@ -12,29 +12,50 @@
 import {
   BarChart2,
   BookOpen,
+  Clock,
   RefreshCw,
+  ShieldCheck,
+  Smile,
+  Sparkles,
   Star,
   Target,
+  TrendingDown,
   Users,
+  Wallet,
+  Wrench,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { UsersRound } from 'lucide-react';
 import { IconButton } from '@/components/ui/Button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
+import { AttendancePanel } from '@/components/dashboard-rh/AttendancePanel';
+import { CompliancePanel } from '@/components/dashboard-rh/CompliancePanel';
 import { CorrelationsPanel } from '@/components/dashboard-rh/CorrelationsPanel';
+import { EngagementPanel } from '@/components/dashboard-rh/EngagementPanel';
 import { HeadcountPanel } from '@/components/dashboard-rh/HeadcountPanel';
 import { OverviewPanel } from '@/components/dashboard-rh/OverviewPanel';
+import { PayrollPanel } from '@/components/dashboard-rh/PayrollPanel';
 import { PerformancePanel } from '@/components/dashboard-rh/PerformancePanel';
+import { PredictionsPanel } from '@/components/dashboard-rh/PredictionsPanel';
+import { SkillsPanel } from '@/components/dashboard-rh/SkillsPanel';
 import { TalentPanel } from '@/components/dashboard-rh/TalentPanel';
 import { TrainingPanel } from '@/components/dashboard-rh/TrainingPanel';
+import { TurnoverPanel } from '@/components/dashboard-rh/TurnoverPanel';
 import type { Panel } from '@/components/dashboard-rh/types';
 
 const PANELS: { id: Panel; label: string; icon: LucideIcon | null }[] = [
   { id: 'overview', label: 'Visão Geral', icon: BarChart2 },
   { id: 'headcount', label: 'Número de Colaboradores', icon: Users },
+  { id: 'turnover', label: 'Rotatividade', icon: TrendingDown },
   { id: 'performance', label: 'Performance', icon: Star },
+  { id: 'engagement', label: 'Engagement', icon: Smile },
+  { id: 'skills', label: 'Competências', icon: Wrench },
   { id: 'training', label: 'Formação', icon: BookOpen },
+  { id: 'compliance', label: 'Compliance', icon: ShieldCheck },
+  { id: 'attendance', label: 'Presenças', icon: Clock },
+  { id: 'payroll', label: 'Folha Salarial', icon: Wallet },
   { id: 'talent', label: 'Talento', icon: Target },
+  { id: 'predictions', label: 'Previsões', icon: Sparkles },
   { id: 'correlations', label: 'Análise de Pessoas', icon: UsersRound },
 ];
 
@@ -90,14 +111,35 @@ export default function DashboardRhPage() {
           <TabsContent value="headcount">
             <HeadcountPanel />
           </TabsContent>
+          <TabsContent value="turnover">
+            <TurnoverPanel />
+          </TabsContent>
           <TabsContent value="performance">
             <PerformancePanel />
+          </TabsContent>
+          <TabsContent value="engagement">
+            <EngagementPanel />
+          </TabsContent>
+          <TabsContent value="skills">
+            <SkillsPanel />
           </TabsContent>
           <TabsContent value="training">
             <TrainingPanel />
           </TabsContent>
+          <TabsContent value="compliance">
+            <CompliancePanel />
+          </TabsContent>
+          <TabsContent value="attendance">
+            <AttendancePanel />
+          </TabsContent>
+          <TabsContent value="payroll">
+            <PayrollPanel />
+          </TabsContent>
           <TabsContent value="talent">
             <TalentPanel />
+          </TabsContent>
+          <TabsContent value="predictions">
+            <PredictionsPanel />
           </TabsContent>
           <TabsContent value="correlations">
             <CorrelationsPanel />
