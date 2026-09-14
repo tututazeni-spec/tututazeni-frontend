@@ -14,7 +14,8 @@ export const queryKeys = {
   dashboard: {
     all: ['dashboard'] as const,
     my: () => [...queryKeys.dashboard.all, 'my'] as const,
-    manager: () => [...queryKeys.dashboard.all, 'manager'] as const,
+    manager: (period?: string) =>
+      [...queryKeys.dashboard.all, 'manager', period ?? 'MONTH'] as const,
     alerts: () => [...queryKeys.dashboard.all, 'alerts'] as const,
     search: (q: string) => [...queryKeys.dashboard.all, 'search', q] as const,
     // Separador "Executivo" — único endpoint consolidado

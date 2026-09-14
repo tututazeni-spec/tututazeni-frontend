@@ -45,8 +45,11 @@ export interface ManagerTeamMember {
     fullName: string;
     avatarUrl?: string;
     position?: { name?: string };
+    department?: { name?: string };
   };
-  plan?: { progress: number };
+  xp?: number;
+  enrollment?: { completed: number; inProgress: number };
+  plan?: { progress: number; status?: string };
   lastScore?: number;
   alert?: boolean;
 }
@@ -55,10 +58,17 @@ export interface ManagerDashboardData {
   teamSize?: number;
   kpis?: {
     activePlans?: number;
+    completedPlans?: number;
+    inProgress?: number;
+    completedEnrollments?: number;
     pdpCoverage?: number;
     avgScore?: number;
     scoreTrend?: number;
     mandatoryRate?: number;
+    engagementResponses?: number;
+    avatarSessions?: number;
+    pendingEvals?: number;
+    overdueActions?: number;
   };
   team?: ManagerTeamMember[];
   alerts?: Array<{ priority: string; message: string }>;
