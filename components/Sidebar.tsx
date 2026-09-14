@@ -125,11 +125,6 @@ const NAV: Array<{ label: string; items: NavItem[] }> = [
     items: [
       { href: '/courses', icon: BookOpen, label: 'Cursos' },
       {
-        href: '/academic/programs',
-        icon: GraduationCap,
-        label: 'Gestão Académica',
-      },
-      {
         href: '/learning-paths',
         icon: GitBranch,
         label: 'Percursos de Aprendizagem',

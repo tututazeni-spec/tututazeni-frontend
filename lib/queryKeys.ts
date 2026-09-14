@@ -102,15 +102,6 @@ export const queryKeys = {
       [...queryKeys.certification.all, 'verify', code] as const,
   },
 
-  academic: {
-    all: ['academic'] as const,
-    programs: (params: Record<string, unknown>) =>
-      [...queryKeys.academic.all, 'programs', params] as const,
-    program: (id: string) =>
-      [...queryKeys.academic.all, 'program', id] as const,
-    transcript: () => [...queryKeys.academic.all, 'transcript'] as const,
-  },
-
   payslips: {
     all: ['payslips'] as const,
     list: (params: Record<string, unknown>) =>
