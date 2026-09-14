@@ -1,7 +1,8 @@
-// components/career-plans/MyCareerTab.tsx
-// Tab "Minha Carreira": plano activo, roadmap, gaps, cursos e metas
-// do PDI. Extraído de app/(platform)/career-plans/page.tsx. Vista
-// puramente de apresentação — os dados vêm todos do container.
+// components/career/plans/MyCareerTab.tsx
+// Tab "Prontidão & Metas": plano activo, roadmap, gaps, cursos e metas
+// do PDI. Renderizado em app/(platform)/career/page.tsx (módulo
+// "Carreira" fundido). Vista puramente de apresentação — os dados vêm
+// todos do container.
 
 'use client';
 

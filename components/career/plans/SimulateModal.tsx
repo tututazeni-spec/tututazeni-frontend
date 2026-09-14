@@ -1,6 +1,6 @@
-// components/career-plans/SimulateModal.tsx
+// components/career/plans/SimulateModal.tsx
 // Simulador de carreira: escolhe um cargo alvo e mostra readiness,
-// gaps e estimativa. Extraído de app/(platform)/career-plans/page.tsx.
+// gaps e estimativa. Extraído de app/(platform)/career/page.tsx (módulo "Carreira" fundido).
 //
 // Overlay mantém-se hand-rolled (não converteu para ui/Modal/Radix
 // Dialog) — o original não fecha ao clicar fora, e o Dialog do Radix

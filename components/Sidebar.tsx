@@ -163,7 +163,6 @@ const NAV: Array<{ label: string; items: NavItem[] }> = [
     label: 'Carreira',
     items: [
       { href: '/career', icon: Target, label: 'Carreira' },
-      { href: '/career-plans', icon: Layers, label: 'Planos de Carreira' },
       {
         href: '/development-plans',
         icon: Activity,

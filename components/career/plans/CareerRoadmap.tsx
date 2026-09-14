@@ -1,6 +1,6 @@
-// components/career-plans/CareerRoadmap.tsx
+// components/career/plans/CareerRoadmap.tsx
 // Trilha visual de carreira (steps do careerPath). Extraído de
-// app/(platform)/career-plans/page.tsx.
+// app/(platform)/career/page.tsx (módulo "Carreira" fundido).
 
 'use client';
 

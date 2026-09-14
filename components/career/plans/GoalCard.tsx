@@ -1,6 +1,6 @@
-// components/career-plans/GoalCard.tsx
+// components/career/plans/GoalCard.tsx
 // Cartão de meta do PDI com slider de progresso. Extraído de
-// app/(platform)/career-plans/page.tsx.
+// app/(platform)/career/page.tsx (módulo "Carreira" fundido).
 
 'use client';
 

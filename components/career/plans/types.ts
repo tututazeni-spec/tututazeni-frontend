@@ -1,7 +1,7 @@
-// components/career-plans/types.ts
+// components/career/plans/types.ts
 // Tipos do domínio de planos de carreira: readiness, metas, planos,
 // cargos, simulação e analytics. Extraído de
-// app/(platform)/career-plans/page.tsx.
+// app/(platform)/career/page.tsx (módulo "Carreira" fundido).
 
 export type ReadinessLevel = 'READY' | 'DEVELOPING' | 'STARTING';
 export type GoalStatus = 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';

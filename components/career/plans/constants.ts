@@ -1,6 +1,6 @@
-// components/career-plans/constants.ts
+// components/career/plans/constants.ts
 // Configuração visual de readiness e tipos de meta de carreira.
-// Extraído de app/(platform)/career-plans/page.tsx.
+// Extraído de app/(platform)/career/page.tsx (módulo "Carreira" fundido).
 
 import {
   Award,

@@ -1,6 +1,6 @@
-// components/career-plans/AnalyticsTab.tsx
+// components/career/plans/AnalyticsTab.tsx
 // Tab "Analytics": KPIs agregados de planos e promoções. Extraído de
-// app/(platform)/career-plans/page.tsx.
+// app/(platform)/career/page.tsx (módulo "Carreira" fundido).
 
 'use client';
 
