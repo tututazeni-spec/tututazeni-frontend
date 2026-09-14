@@ -130,7 +130,21 @@ export interface AdminDashboard {
   topPaths: LearningPath[];
 }
 
-export type View = 'catalog' | 'detail' | 'my-paths' | 'dashboard';
+// 'lms-*' cobre o módulo LMS (percursos com courseIds/courseOrder em
+// array + sessões ao vivo — modelo Prisma LmsLearningPath, distinto do
+// LearningPath relacional deste módulo, ver memory
+// project_innova_learning_path_unification_faseF1). Integrado nesta
+// mesma página/sidebar a pedido do utilizador, sem fundir os dados dos
+// dois módulos — cada separador continua a bater no seu próprio
+// controller (/learning-paths vs /lms).
+export type View =
+  | 'catalog'
+  | 'detail'
+  | 'my-paths'
+  | 'dashboard'
+  | 'lms-catalog'
+  | 'lms-my-paths'
+  | 'lms-sessions';
 
 // view e selectedId eram dois useState separados sempre definidos em conjunto
 // — um único estado torna "detail sem id" irrepresentável.

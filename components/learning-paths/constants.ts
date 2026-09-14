@@ -50,6 +50,9 @@ export const NAV: Array<{ id: Exclude<View, 'detail'>; label: string }> = [
   { id: 'catalog', label: 'Catálogo' },
   { id: 'my-paths', label: 'As minhas trilhas' },
   { id: 'dashboard', label: 'Dashboard (Admin)' },
+  { id: 'lms-catalog', label: 'Percursos LMS' },
+  { id: 'lms-my-paths', label: 'Os meus percursos LMS' },
+  { id: 'lms-sessions', label: 'Sessões ao Vivo' },
 ];
 
 export const TITLES: Record<View, string> = {
@@ -57,4 +60,7 @@ export const TITLES: Record<View, string> = {
   detail: 'Detalhe da Trilha',
   'my-paths': 'As minhas trilhas',
   dashboard: 'Dashboard de Trilhas de Aprendizagem',
+  'lms-catalog': 'Percursos de Aprendizagem — LMS',
+  'lms-my-paths': 'Os meus percursos — LMS',
+  'lms-sessions': 'Sessões ao Vivo — LMS',
 };
