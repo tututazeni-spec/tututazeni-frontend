@@ -2,7 +2,13 @@
 // Tipos do domínio "biblioteca de conteúdos" — movidos verbatim de
 // app/(platform)/content-library/page.tsx.
 
-export type Tab = 'home' | 'catalogue' | 'paths' | 'my-progress' | 'analytics';
+export type Tab =
+  | 'home'
+  | 'catalogue'
+  | 'repository'
+  | 'paths'
+  | 'my-progress'
+  | 'analytics';
 
 export interface Content {
   id: number;

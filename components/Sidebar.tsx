@@ -134,7 +134,6 @@ const NAV: Array<{ label: string; items: NavItem[] }> = [
       { href: '/micro-learning', icon: Zap, label: 'Micro-aprendizagem' },
       { href: '/live-classes', icon: Play, label: 'Aulas ao Vivo' },
       { href: '/content-library', icon: Library, label: 'Biblioteca' },
-      { href: '/library', icon: BookMarked, label: 'Biblioteca Digital' },
       { href: '/knowledge', icon: BookMarked, label: 'Conhecimento' },
       { href: '/ai-tutor', icon: Bot, label: 'Tutor de IA' },
       { href: '/avatar-training', icon: Cpu, label: 'Treino de Avatar' },
