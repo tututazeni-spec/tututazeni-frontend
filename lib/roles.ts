@@ -40,6 +40,14 @@ export const MGMT_ROLES: readonly Role[] = ['ADMIN', 'RH', 'LIDER', 'GESTOR'];
 export const ADMIN_ROLES: readonly Role[] = ['ADMIN', 'RH'];
 
 /**
+ * Espelha @Roles(Role.ADMIN, Role.RH, Role.GESTOR) em
+ * src/dashboard-institutional/dashboard-institutional.controller.ts —
+ * separador "Executivo" de /dashboard (GET /dashboard-institutional/executive).
+ * Mais largo que ADMIN_ROLES (inclui GESTOR); não confundir os dois.
+ */
+export const EXECUTIVE_ROLES: readonly Role[] = ['ADMIN', 'RH', 'GESTOR'];
+
+/**
  * Todos os papéis autenticados excepto COLABORADOR. Para separadores/links
  * que um pedido do utilizador pede para esconder só de COLABORADOR, mesmo
  * quando o endpoint por trás tem uma @Roles() mais restrita no backend (ex.:

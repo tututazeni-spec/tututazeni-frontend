@@ -15,18 +15,14 @@ export const queryKeys = {
     all: ['dashboard'] as const,
     my: () => [...queryKeys.dashboard.all, 'my'] as const,
     manager: () => [...queryKeys.dashboard.all, 'manager'] as const,
-    organization: (period: string) =>
-      [...queryKeys.dashboard.all, 'organization', period] as const,
     alerts: () => [...queryKeys.dashboard.all, 'alerts'] as const,
     search: (q: string) => [...queryKeys.dashboard.all, 'search', q] as const,
-    institutionalSummary: () =>
-      [...queryKeys.dashboard.all, 'institutional', 'summary'] as const,
-    institutionalTrend: (months: number) =>
-      [...queryKeys.dashboard.all, 'institutional', 'trend', months] as const,
-    institutionalAlerts: () =>
-      [...queryKeys.dashboard.all, 'institutional', 'alerts'] as const,
-    institutionalModules: () =>
-      [...queryKeys.dashboard.all, 'institutional', 'modules'] as const,
+    // Separador "Executivo" — único endpoint consolidado
+    // (GET /dashboard-institutional/executive), ver components/dashboard/OrgDashboard.tsx.
+    executive: (period: string) =>
+      [...queryKeys.dashboard.all, 'executive', period] as const,
+    executiveSnapshots: () =>
+      [...queryKeys.dashboard.all, 'executive', 'snapshots'] as const,
   },
 
   beneficiaries: {
