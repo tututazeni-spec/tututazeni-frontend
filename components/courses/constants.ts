@@ -17,6 +17,7 @@ export const NAV: Array<{
   { id: 'certificates', label: 'Certificados' },
   { id: 'dashboard', label: 'Dashboard (Admin)', adminOnly: true },
   { id: 'gestao', label: 'Gestão', adminOnly: true },
+  { id: 'modulos', label: 'Módulos & Lições' },
 ];
 
 export const TITLES: Record<View, string> = {
@@ -26,4 +27,5 @@ export const TITLES: Record<View, string> = {
   certificates: 'Os meus certificados',
   dashboard: 'Dashboard de Formação',
   gestao: 'Gestão de Cursos',
+  modulos: 'Módulos & Lições',
 };

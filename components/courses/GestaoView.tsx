@@ -20,7 +20,6 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
 import { Plus } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
@@ -39,6 +38,11 @@ import type { Course, PaginatedCourses } from './types';
 
 interface GestaoViewProps {
   onSelect: (id: number) => void;
+  /** Muda a página de Cursos para a aba "Módulos & Lições" pré-carregada
+   *  com este curso (fundida aqui — ver components/courses/ModulosView e
+   *  memory project_innova_courses_gestao_tab). Opcional só para não
+   *  obrigar os testes a passá-la. */
+  onManageModules?: (courseId: number) => void;
 }
 
 const DRAFT_PARAMS = { status: 'DRAFT', limit: 50 } as const;
@@ -48,7 +52,7 @@ function plural(n: number, singular: string, plural: string): string {
   return `${n} ${n === 1 ? singular : plural}`;
 }
 
-export function GestaoView({ onSelect }: GestaoViewProps) {
+export function GestaoView({ onSelect, onManageModules }: GestaoViewProps) {
   const confirm = useConfirm();
   const toast = useToast();
   const [addModuleFor, setAddModuleFor] = useState<number | null>(null);
@@ -194,12 +198,15 @@ export function GestaoView({ onSelect }: GestaoViewProps) {
                       <Plus size={14} strokeWidth={1.75} />
                       Módulo
                     </Button>
-                    <Link
-                      href={`/courses/modulos?courseId=${c.id}`}
-                      className="px-1 text-xs font-semibold text-primary hover:underline"
-                    >
-                      Gerir módulos
-                    </Link>
+                    {onManageModules && (
+                      <button
+                        type="button"
+                        onClick={() => onManageModules(c.id)}
+                        className="px-1 text-xs font-semibold text-primary hover:underline"
+                      >
+                        Gerir módulos
+                      </button>
+                    )}
                     <Button
                       intent="ghost"
                       size="sm"

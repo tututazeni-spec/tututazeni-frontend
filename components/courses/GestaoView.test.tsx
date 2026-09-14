@@ -36,12 +36,6 @@ vi.mock('@/providers/ConfirmProvider', () => ({
 }));
 vi.mock('@/providers/ToastProvider', () => ({ useToast: () => vi.fn() }));
 
-vi.mock('next/link', () => ({
-  default: ({ href, children }: { href: string; children: unknown }) => (
-    <a href={href}>{children as never}</a>
-  ),
-}));
-
 type QueryData = { data: unknown[] } | undefined; // molde de PaginatedCourses
 const responses: Record<string, QueryData> = {};
 vi.mock('@/hooks/useApiQuery', () => ({
@@ -192,5 +186,21 @@ describe('GestaoView', () => {
     render(<GestaoView onSelect={vi.fn()} />);
     fireEvent.click(screen.getByRole('button', { name: 'Eliminar' }));
     await waitFor(() => expect(del).toHaveBeenCalledWith('/courses/9'));
+  });
+
+  test('"Gerir módulos" chama onManageModules com o id do curso da linha', () => {
+    setData([draftReady], []);
+    const onManageModules = vi.fn();
+    render(<GestaoView onSelect={vi.fn()} onManageModules={onManageModules} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Gerir módulos' }));
+    expect(onManageModules).toHaveBeenCalledWith(2);
+  });
+
+  test('"Gerir módulos" não aparece sem onManageModules', () => {
+    setData([draftReady], []);
+    render(<GestaoView onSelect={vi.fn()} />);
+    expect(
+      screen.queryByRole('button', { name: 'Gerir módulos' }),
+    ).not.toBeInTheDocument();
   });
 });
