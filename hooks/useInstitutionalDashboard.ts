@@ -8,12 +8,13 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import type {
   Alerts,
+  ModulesOverview,
   Summary,
   TrendPoint,
 } from '@/components/dashboard-institutional/types';
 
 export function useInstitutionalDashboard() {
-  // Três queries independentes → em paralelo (sem waterfall).
+  // Quatro queries independentes → em paralelo (sem waterfall).
   const sumQ = useApiQuery<Summary>(
     queryKeys.dashboard.institutionalSummary(),
     '/dashboard-institutional/summary',
@@ -29,17 +30,24 @@ export function useInstitutionalDashboard() {
     '/dashboard-institutional/alerts',
     { staleTime: STALE_TIME.DYNAMIC },
   );
+  const modulesQ = useApiQuery<ModulesOverview>(
+    queryKeys.dashboard.institutionalModules(),
+    '/dashboard-institutional/modules',
+    { staleTime: STALE_TIME.SEMI_STATIC },
+  );
 
   return {
     summary: sumQ.data ?? null,
     trend: trendQ.data ?? [],
     alerts: alertsQ.data ?? null,
+    modules: modulesQ.data ?? null,
     loading: sumQ.isLoading,
     error: sumQ.error?.message ?? '',
     onRetry: () => {
       sumQ.refetch();
       trendQ.refetch();
       alertsQ.refetch();
+      modulesQ.refetch();
     },
   };
 }

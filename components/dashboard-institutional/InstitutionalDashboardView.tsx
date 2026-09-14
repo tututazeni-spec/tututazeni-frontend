@@ -6,19 +6,58 @@
 // components/ui/ — fica local (não exportado), só troca cores cruas por
 // tokens da fundação de design.
 
+import type { ReactNode } from 'react';
 import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
 import { KpiCard } from '@/components/ui/KpiCard';
 import { Skeleton } from '@/components/ui/Skeleton';
-import type { Alerts, Summary, TrendPoint } from './types';
+import type { Alerts, ModulesOverview, Summary, TrendPoint } from './types';
 
 interface InstitutionalDashboardViewProps {
   summary: Summary | null;
   trend: TrendPoint[];
   alerts: Alerts | null;
+  modules: ModulesOverview | null;
   loading: boolean;
   error: string;
   onRetry: () => void;
+}
+
+// Uma linha label/valor dentro de um ModulePanel.
+function Stat({ label, value }: { label: string; value: string | number }) {
+  return (
+    <div className="flex items-center justify-between gap-3">
+      <span className="font-body text-xs text-ink-muted">{label}</span>
+      <span className="font-body text-sm font-semibold text-ink">{value}</span>
+    </div>
+  );
+}
+
+// Painel compacto por módulo — mesmo espírito do bloco "Talentos" do
+// OrgDashboard.tsx (components/dashboard/OrgDashboard.tsx), mas genérico:
+// null (módulo falhou na agregação — ver Promise.allSettled no backend)
+// mostra um aviso discreto em vez de rebentar ou desaparecer sem explicação.
+function ModulePanel({
+  title,
+  data,
+  children,
+}: {
+  title: string;
+  data: unknown;
+  children: ReactNode;
+}) {
+  return (
+    <div className="rounded-card border border-border bg-surface p-5">
+      <h3 className="mb-3 font-body font-semibold text-ink-muted">{title}</h3>
+      {data ? (
+        <div className="space-y-2">{children}</div>
+      ) : (
+        <p className="font-body text-xs text-ink-faint">
+          Indisponível de momento
+        </p>
+      )}
+    </div>
+  );
 }
 
 function MiniBarChart({ data }: { data: TrendPoint[] }) {
@@ -45,6 +84,7 @@ export function InstitutionalDashboardView({
   summary,
   trend,
   alerts,
+  modules,
   loading,
   error,
   onRetry,
@@ -156,6 +196,182 @@ export function InstitutionalDashboardView({
           )}
         </CardBody>
       </Card>
+
+      {/* Visão por módulo — agregação cruzada de engagement, sucessão,
+          onboarding, eventos, processos, declarações, auditoria, automação,
+          plataforma e OKRs/avaliação (GET /dashboard-institutional/modules) */}
+      {modules && (
+        <div>
+          <h2 className="mb-4 font-display text-lg font-bold text-ink">
+            Visão por Módulo
+          </h2>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <ModulePanel title="Engagement" data={modules.engagement}>
+              {modules.engagement && (
+                <>
+                  <Stat label="Índice" value={`${modules.engagement.index}%`} />
+                  <Stat label="Nível" value={modules.engagement.level} />
+                  <Stat
+                    label="Participação"
+                    value={`${modules.engagement.participationRate}%`}
+                  />
+                  <Stat
+                    label="eNPS"
+                    value={modules.engagement.enps ?? '—'}
+                  />
+                </>
+              )}
+            </ModulePanel>
+
+            <ModulePanel title="Sucessão & Talento" data={modules.talentAndSuccession}>
+              {modules.talentAndSuccession && (
+                <>
+                  <Stat
+                    label="Posições críticas"
+                    value={modules.talentAndSuccession.criticalPositions}
+                  />
+                  <Stat
+                    label="Sem sucessor"
+                    value={modules.talentAndSuccession.withoutSuccessor}
+                  />
+                  <Stat
+                    label="Cobertura"
+                    value={`${modules.talentAndSuccession.coverageRate}%`}
+                  />
+                  <Stat
+                    label="Risco elevado"
+                    value={modules.talentAndSuccession.highRiskPositions}
+                  />
+                </>
+              )}
+            </ModulePanel>
+
+            <ModulePanel title="Onboarding" data={modules.onboarding}>
+              {modules.onboarding && (
+                <>
+                  <Stat label="Activos" value={modules.onboarding.active} />
+                  <Stat
+                    label="Tarefas atrasadas"
+                    value={modules.onboarding.overdueTasks}
+                  />
+                  <Stat
+                    label="Satisfação média"
+                    value={modules.onboarding.avgSurveyScore}
+                  />
+                </>
+              )}
+            </ModulePanel>
+
+            <ModulePanel title="Eventos" data={modules.events}>
+              {modules.events && (
+                <>
+                  <Stat label="Total" value={modules.events.total} />
+                  <Stat
+                    label="Participantes confirmados"
+                    value={modules.events.totalParticipants}
+                  />
+                </>
+              )}
+            </ModulePanel>
+
+            <ModulePanel title="Processos" data={modules.processes}>
+              {modules.processes && (
+                <>
+                  <Stat label="Activos" value={modules.processes.active} />
+                  <Stat
+                    label="Instâncias em curso"
+                    value={modules.processes.inProgress}
+                  />
+                  <Stat
+                    label="Passos atrasados"
+                    value={modules.processes.overdueSteps}
+                  />
+                </>
+              )}
+            </ModulePanel>
+
+            <ModulePanel title="Declarações" data={modules.declarations}>
+              {modules.declarations && (
+                <>
+                  <Stat label="Pendentes" value={modules.declarations.pending} />
+                  <Stat label="Emitidas" value={modules.declarations.issued} />
+                  <Stat label="Total" value={modules.declarations.total} />
+                </>
+              )}
+            </ModulePanel>
+
+            <ModulePanel title="Auditoria" data={modules.audit}>
+              {modules.audit && (
+                <>
+                  <Stat label="Eventos totais" value={modules.audit.totalEvents} />
+                  <Stat label="Hoje" value={modules.audit.todayEvents} />
+                  <Stat label="Críticos" value={modules.audit.criticalEvents} />
+                </>
+              )}
+            </ModulePanel>
+
+            <ModulePanel title="Automação" data={modules.automation}>
+              {modules.automation && (
+                <>
+                  <Stat label="Regras" value={modules.automation.totalRules} />
+                  <Stat label="Activas" value={modules.automation.activeRules} />
+                  <Stat
+                    label="Taxa de sucesso"
+                    value={`${modules.automation.successRate}%`}
+                  />
+                </>
+              )}
+            </ModulePanel>
+
+            <ModulePanel title="Plataforma" data={modules.platform}>
+              {modules.platform && (
+                <>
+                  <Stat
+                    label="Uptime"
+                    value={`${modules.platform.uptimePercent}%`}
+                  />
+                  <Stat label="Alertas abertos" value={modules.platform.openAlerts} />
+                  <Stat
+                    label="Alertas críticos"
+                    value={modules.platform.criticalAlerts}
+                  />
+                  <Stat
+                    label="Integrações com erro"
+                    value={modules.platform.integrationsWithErrors}
+                  />
+                </>
+              )}
+            </ModulePanel>
+
+            <ModulePanel
+              title="OKRs & Avaliação"
+              data={modules.okr ?? modules.evaluationCycles}
+            >
+              {modules.okr && (
+                <>
+                  <Stat label="Ciclos OKR activos" value={modules.okr.activeCycles} />
+                  <Stat
+                    label="Objectivos concluídos"
+                    value={`${modules.okr.objectiveCompletionRate}%`}
+                  />
+                </>
+              )}
+              {modules.evaluationCycles && (
+                <>
+                  <Stat
+                    label="Avaliações pendentes"
+                    value={modules.evaluationCycles.pendingEvaluations}
+                  />
+                  <Stat
+                    label="Conclusão de avaliações"
+                    value={`${modules.evaluationCycles.completionRate}%`}
+                  />
+                </>
+              )}
+            </ModulePanel>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
