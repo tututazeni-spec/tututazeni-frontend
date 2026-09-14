@@ -168,13 +168,14 @@ const NAV: Array<{ label: string; items: NavItem[] }> = [
         icon: Activity,
         label: 'Planos de Desenvolvimento',
       },
-      {
-        href: '/leader',
-        icon: Crown,
-        label: 'Liderança',
-        roles: ['ADMIN', 'RH', 'LIDER', 'DIRECTOR', 'GESTOR'],
-      },
-      { href: '/leadership', icon: BookOpen, label: 'Programas de Liderança' },
+      // Módulo fundido (pedido do utilizador): antigos /leader ("Centro de
+      // Liderança") e /leadership ("Programas de Liderança") passam a viver
+      // numa única página em /leadership, sob uma só entrada "Liderança".
+      // Sem `roles`: a secção "Gestão de Equipa" é escondida internamente
+      // para quem não tem nenhum de ADMIN/RH/LIDER/DIRECTOR/GESTOR (ver
+      // TEAM_MANAGEMENT_ROLES em components/leader/constants.ts), mas
+      // Programas/Feedback 360°/Kudos continuam abertos a todos.
+      { href: '/leadership', icon: Crown, label: 'Liderança' },
       { href: '/certificates', icon: Scroll, label: 'Certificados' },
       {
         href: '/certification/templates',
