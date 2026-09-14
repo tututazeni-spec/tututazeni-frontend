@@ -11,6 +11,7 @@ import { useState } from 'react';
 import {
   Archive,
   BarChart2,
+  BookMarked,
   BookOpen,
   Layers,
   Plus,
@@ -22,6 +23,7 @@ import { AddContentModal } from '@/components/content-library/AddContentModal';
 import { AnalyticsTab } from '@/components/content-library/AnalyticsTab';
 import { CatalogueTab } from '@/components/content-library/CatalogueTab';
 import { HomeTab } from '@/components/content-library/HomeTab';
+import { KnowledgeTab } from '@/components/content-library/KnowledgeTab';
 import { MyProgressTab } from '@/components/content-library/MyProgressTab';
 import { PathsTab } from '@/components/content-library/PathsTab';
 import { RepositoryTab } from '@/components/content-library/RepositoryTab';
@@ -40,6 +42,7 @@ const TABS: { id: Tab; label: string; icon: LucideIcon }[] = [
   { id: 'home', label: 'Início', icon: BookOpen },
   { id: 'catalogue', label: 'Catálogo', icon: Search },
   { id: 'repository', label: 'Repositório', icon: Archive },
+  { id: 'knowledge', label: 'Conhecimento', icon: BookMarked },
   { id: 'paths', label: 'Trilhas', icon: Layers },
   { id: 'my-progress', label: 'O Meu Percurso', icon: TrendingUp },
   { id: 'analytics', label: 'Análises', icon: BarChart2 },
@@ -108,6 +111,9 @@ export default function ContentLibraryPage() {
           </TabsContent>
           <TabsContent value="repository">
             <RepositoryTab />
+          </TabsContent>
+          <TabsContent value="knowledge">
+            <KnowledgeTab />
           </TabsContent>
           <TabsContent value="paths">
             <PathsTab />

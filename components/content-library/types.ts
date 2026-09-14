@@ -6,6 +6,7 @@ export type Tab =
   | 'home'
   | 'catalogue'
   | 'repository'
+  | 'knowledge'
   | 'paths'
   | 'my-progress'
   | 'analytics';
