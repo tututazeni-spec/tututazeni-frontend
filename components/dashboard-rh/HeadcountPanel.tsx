@@ -16,6 +16,7 @@ import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
 import type {
   AnniversaryUser,
+  EmployeesHeadcountData,
   HeadcountData,
   HeadcountTrendPoint,
 } from './types';
@@ -125,6 +126,84 @@ export function HeadcountPanel() {
 
       {/* Anniversaries */}
       <AnniversariesWidget />
+
+      {/* Segmentação real de contratos — módulo employees/ (ficha de
+          colaborador), complementar ao headcount por departamento/cargo
+          acima (modelo User). */}
+      <EmploymentSegmentationWidget />
+    </div>
+  );
+}
+
+function SegmentBreakdown({
+  title,
+  rows,
+}: {
+  title: string;
+  rows: { label: string; count: number }[];
+}) {
+  if (!rows.length) return null;
+  const max = Math.max(...rows.map((r) => r.count));
+  return (
+    <div>
+      <h5 className="mb-2 font-body text-xs font-semibold text-ink-muted">
+        {title}
+      </h5>
+      {rows.map((r, i) => (
+        <div key={i} className="mb-2">
+          <div className="mb-0.5 flex justify-between font-body text-xs">
+            <span className="truncate text-ink-muted">{r.label}</span>
+            <span className="font-semibold text-ink">{r.count}</span>
+          </div>
+          <ProgressBar value={max > 0 ? (r.count / max) * 100 : 0} />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// FIX: dashboard-rh só segmentava headcount por departamento/cargo (modelo
+// User). O módulo employees/ mantém a ficha completa do colaborador
+// (senioridade, tipo de contrato, modo de trabalho) — dado real e usado em
+// components/employees/CreateEmployeeModal.tsx, mas até agora invisível
+// neste dashboard. `retry: false` + esconder se vazio: tabela Employee só
+// é populada à medida que RH cria fichas, pode estar vazia nalguns
+// ambientes.
+function EmploymentSegmentationWidget() {
+  const { data } = useApiQuery<EmployeesHeadcountData>(
+    queryKeys.dashboardRh.employeesHeadcount(),
+    '/employees/headcount',
+    { staleTime: STALE_TIME.SEMI_STATIC, retry: false },
+  );
+  if (!data?.total) return null;
+
+  const toRows = (
+    arr: { [key: string]: unknown; _count: number }[] | undefined,
+    field: string,
+  ) =>
+    (arr ?? [])
+      .map((r) => ({ label: String(r[field] ?? 'Não definido'), count: r._count }))
+      .sort((a, b) => b.count - a.count);
+
+  return (
+    <div className="rounded-card border border-border bg-surface p-5">
+      <h4 className="mb-4 font-body font-semibold text-ink-muted">
+        Segmentação de Contratos ({data.total} fichas de colaborador)
+      </h4>
+      <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
+        <SegmentBreakdown
+          title="Por Senioridade"
+          rows={toRows(data.bySeniority, 'seniority')}
+        />
+        <SegmentBreakdown
+          title="Por Tipo de Contrato"
+          rows={toRows(data.byContractType, 'contractType')}
+        />
+        <SegmentBreakdown
+          title="Por Modo de Trabalho"
+          rows={toRows(data.byWorkMode, 'workMode')}
+        />
+      </div>
     </div>
   );
 }

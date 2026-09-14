@@ -234,6 +234,19 @@ export const queryKeys = {
     training: () => [...queryKeys.dashboardRh.all, 'training'] as const,
     correlations: () => [...queryKeys.dashboardRh.all, 'correlations'] as const,
     talent: () => [...queryKeys.dashboardRh.all, 'talent'] as const,
+    turnover: () => [...queryKeys.dashboardRh.all, 'turnover'] as const,
+    engagement: () => [...queryKeys.dashboardRh.all, 'engagement'] as const,
+    skills: () => [...queryKeys.dashboardRh.all, 'skills'] as const,
+    compliance: () => [...queryKeys.dashboardRh.all, 'compliance'] as const,
+    attendance: () => [...queryKeys.dashboardRh.all, 'attendance'] as const,
+    payroll: (period: string) =>
+      [...queryKeys.dashboardRh.all, 'payroll', period] as const,
+    predictions: () => [...queryKeys.dashboardRh.all, 'predictions'] as const,
+    // Tier 2 — dados reais de outros módulos, mostrados dentro do dashboard-rh
+    employeesHeadcount: () =>
+      [...queryKeys.dashboardRh.all, 'employees-headcount'] as const,
+    documentsDashboard: () =>
+      [...queryKeys.dashboardRh.all, 'documents-dashboard'] as const,
   },
 
   evaluation: {
