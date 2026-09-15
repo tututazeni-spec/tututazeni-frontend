@@ -86,14 +86,40 @@ export function ChatView() {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, thinking]);
 
+  // Limpa o texto antes de o entregar ao motor de voz: remove emojis e
+  // marcações markdown (**negrito**, *itálico*, listas com "-"/"•", "#"
+  // de títulos, etc.) que algumas vozes leem literalmente em voz alta
+  // ("asterisco", "cardinal"...). A bolha de chat continua a mostrar o
+  // texto original formatado — só a fala é afectada.
+  const sanitizeForSpeech = (text: string) =>
+    text
+      // emojis e outros símbolos pictográficos (inclui variação/ZWJ)
+      .replace(
+        /[\u{1F1E6}-\u{1F1FF}\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}\u{2190}-\u{21FF}️‍]/gu,
+        '',
+      )
+      // marcações markdown, mantendo o conteúdo dentro delas
+      .replace(/\*\*(.*?)\*\*/g, '$1')
+      .replace(/\*(.*?)\*/g, '$1')
+      .replace(/`{1,3}(.*?)`{1,3}/g, '$1')
+      .replace(/^#{1,6}\s+/gm, '')
+      .replace(/^[\s]*[-•]\s+/gm, '')
+      .replace(/[*_~`#>]/g, '')
+      .replace(/ +([.,!?;:])/g, '$1')
+      .replace(/\s{2,}/g, ' ')
+      .trim();
+
   // Faz a Ísis "falar" um texto em voz alta, usando a voz
   // já incorporada no navegador (não precisa de nenhum serviço externo).
   const speak = (text: string) => {
     if (!voiceEnabled) return;
     if (typeof window === 'undefined' || !window.speechSynthesis) return;
 
+    const clean = sanitizeForSpeech(text);
+    if (!clean) return;
+
     window.speechSynthesis.cancel(); // evita sobrepor falas anteriores
-    const utterance = new SpeechSynthesisUtterance(text);
+    const utterance = new SpeechSynthesisUtterance(clean);
     utterance.lang = 'pt-PT';
     utterance.rate = 1;
     utterance.pitch = 1;
