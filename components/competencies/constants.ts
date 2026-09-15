@@ -29,11 +29,19 @@ export const CATEGORY_CFG: StatusBadgeMap<CompetencyCategory> = {
 // /competencies/skill-matrix é @Roles(ADMIN, RH, GESTOR) e GET
 // /competencies/dashboard/gaps é @Roles(ADMIN, RH) em
 // competencies.controller.ts, nenhum inclui COLABORADOR.
+// "Mapa de Competências" junta aqui o ex-módulo CompetencyMapModule
+// (heatmap, matriz por cargo, gap organizacional) sem fundir dados —
+// continua a bater no seu próprio controller /competency-map. Ver
+// components/competency-map/CompetencyMapView.tsx. Sem restrição de
+// roles, tal como a entrada de sidebar standalone que substitui — a
+// visibilidade fina dos seus separadores internos já é feita dentro do
+// próprio CompetencyMapView.
 export const NAV: Array<{ id: View; label: string; roles?: readonly Role[] }> = [
   { id: 'catalog', label: 'Catálogo' },
   { id: 'my-profile', label: 'O meu perfil' },
   { id: 'matrix', label: 'Matriz de Competências', roles: NON_COLABORADOR_ROLES },
   { id: 'dashboard', label: 'Dashboard RH', roles: NON_COLABORADOR_ROLES },
+  { id: 'competency-map', label: 'Mapa de Competências' },
 ];
 
 export const TITLES: Record<View, string> = {
@@ -41,4 +49,5 @@ export const TITLES: Record<View, string> = {
   'my-profile': 'O meu Perfil de Competências',
   matrix: 'Matriz de Competências',
   dashboard: 'Dashboard de Competências',
+  'competency-map': 'Mapa de Competências',
 };

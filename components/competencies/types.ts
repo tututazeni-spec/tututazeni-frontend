@@ -127,4 +127,9 @@ export interface TopCompetency {
   avgLevel: number;
 }
 
-export type View = 'catalog' | 'my-profile' | 'matrix' | 'dashboard';
+export type View =
+  | 'catalog'
+  | 'my-profile'
+  | 'matrix'
+  | 'dashboard'
+  | 'competency-map';
