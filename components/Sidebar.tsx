@@ -171,8 +171,14 @@ const NAV: Array<{ label: string; items: NavItem[] }> = [
         icon: Target,
         label: 'Monitoria e Avaliação',
       },
-      { href: '/competencies', icon: Award, label: 'Competências' },
-      { href: '/competency-map', icon: Share2, label: 'Mapa de Competências' },
+      {
+        // Módulo "Competências" único: integra Competências + Mapa de
+        // Competências (ex-/competency-map) como separadores da mesma
+        // página. Ver app/(platform)/competencies/page.tsx.
+        href: '/competencies',
+        icon: Award,
+        label: 'Competências',
+      },
       { href: '/evaluation360', icon: MessageSquare, label: 'Avaliação 360°' },
       { href: '/onboarding', icon: UserPlus, label: 'Integração' },
       {
