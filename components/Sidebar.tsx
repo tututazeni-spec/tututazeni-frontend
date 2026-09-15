@@ -141,16 +141,14 @@ const NAV: Array<{ label: string; items: NavItem[] }> = [
     label: 'Recursos Humanos',
     items: [
       {
+        // Módulo "Utilizadores" único: integra Utilizadores + Colaboradores
+        // (ex-/employees) + Permissões por Cargos (ex-/roles-permissions)
+        // como separadores da mesma página. Roles = união dos 3 antigos
+        // itens de sidebar. Ver app/(platform)/users/page.tsx.
         href: '/users',
         icon: Users,
         label: 'Utilizadores',
-        roles: ['ADMIN', 'RH', 'GESTOR'],
-      },
-      {
-        href: '/employees',
-        icon: UserCheck,
-        label: 'Colaborador',
-        roles: ['ADMIN', 'RH', 'LIDER'],
+        roles: ['ADMIN', 'RH', 'GESTOR', 'LIDER'],
       },
       { href: '/leave', icon: Calendar, label: 'Férias e Licenças' },
       {
@@ -166,12 +164,6 @@ const NAV: Array<{ label: string; items: NavItem[] }> = [
           'DIRECTOR',
           'AUDITOR',
         ],
-      },
-      {
-        href: '/roles-permissions',
-        icon: Briefcase,
-        label: 'Permissões por Cargos',
-        roles: ADMIN_ROLES,
       },
       { href: '/performance', icon: TrendingUp, label: 'Desempenho' },
       {

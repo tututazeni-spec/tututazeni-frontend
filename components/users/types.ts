@@ -124,7 +124,14 @@ export interface AdminDashboard {
   byDepartment: Array<{ id: number; name: string; count: number }>;
 }
 
-export type View = 'list' | 'detail' | 'create' | 'dashboard' | 'directory';
+export type View =
+  | 'list'
+  | 'detail'
+  | 'create'
+  | 'dashboard'
+  | 'directory'
+  | 'employees'
+  | 'permissions';
 
 // view e selectedId eram dois useState separados sempre definidos em conjunto
 // — um único estado torna "detail sem id" irrepresentável.
