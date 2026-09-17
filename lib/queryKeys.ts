@@ -186,6 +186,7 @@ export const queryKeys = {
     list: (params: Record<string, unknown>) =>
       [...queryKeys.departments.all, 'list', params] as const,
     tree: () => [...queryKeys.departments.all, 'tree'] as const,
+    units: () => [...queryKeys.departments.all, 'units'] as const,
     detail: (id: number) =>
       [...queryKeys.departments.all, 'detail', id] as const,
     metrics: (id: number) =>
