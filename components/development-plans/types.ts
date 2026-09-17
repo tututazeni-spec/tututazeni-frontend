@@ -110,6 +110,7 @@ export interface Plan {
     targetRole: { id: number; name: string } | null;
   } | null;
   careerReadinessPercent?: number | null;
+  successionPlanId?: number | null;
 
   // ── Competências a desenvolver (secção 5) ────────────────────────
   competencyGaps?: CompetencyGap[];

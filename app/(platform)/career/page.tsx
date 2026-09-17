@@ -1,69 +1,75 @@
 // src/app/(dashboard)/career/page.tsx
 'use client';
 
-// Módulo único "Carreira" — junta o antigo /career (perfil, trilhas, vagas
-// internas, plano pessoal simples) com o antigo /career-plans (plano por
-// cargo com prontidão de skills, equipa, analytics de promoções). Os dois
-// back-ends continuam separados (ver src/career/career.module.ts) porque
-// escrevem em modelos parcialmente sobrepostos com vocabulários próprios —
-// aqui só se une a apresentação, sem perder nenhum separador de nenhum dos
-// dois módulos originais. Container: gere o separador activo; delega
-// dados+apresentação a cada componente auto-contido (mesmo padrão que
-// components/payslips/page.tsx usa). Ver memory
-// project_innova_component_separation_audit e
+// Módulo "Carreira" — estrutura final por docs/04-modulo-career.md: Visão
+// Geral, A Minha Carreira, Percursos de Carreira, Planos de Carreira,
+// Oportunidades, PDI & Desenvolvimento, Sucessão, Histórico. Sucessão foi
+// fundida aqui a partir do antigo /sucession (ver
+// app/(platform)/sucession/page.tsx, agora um stub de redireccionamento) —
+// os componentes continuam intactos em components/career/succession/.
+// PDI continua um módulo próprio (src/development-plans); o separador
+// "PDI & Desenvolvimento" só resume e liga para lá, não duplica.
+// Container: gere o separador activo; delega dados+apresentação a cada
+// componente auto-contido (mesmo padrão que components/payslips/page.tsx
+// usa). Ver memory project_innova_component_separation_audit e
 // project_innova_career_pdi_module_duplication.
 
 import { useState } from 'react';
 import { Compass, RefreshCcw } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { apiClient } from '@/lib/apiClient';
 import { reportError } from '@/lib/errorReporting';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
+import { EXECUTIVE_ROLES, filterByRole, type Role, type RoleRestricted } from '@/lib/roles';
 import { useToast } from '@/providers/ToastProvider';
 import { Button } from '@/components/ui/Button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
 import { DashboardView } from '@/components/career/DashboardView';
+import { HistoryTab } from '@/components/career/HistoryTab';
+import { OverviewTab } from '@/components/career/OverviewTab';
 import { PathsView } from '@/components/career/PathsView';
-import { PlanView } from '@/components/career/PlanView';
+import { PdiTab } from '@/components/career/PdiTab';
 import { VacanciesView } from '@/components/career/VacanciesView';
-import { AnalyticsTab } from '@/components/career/plans/AnalyticsTab';
 import { MyCareerTab } from '@/components/career/plans/MyCareerTab';
+import { PlansManagementView } from '@/components/career/plans/PlansManagementView';
 import { SimulateModal } from '@/components/career/plans/SimulateModal';
-import { TeamTab } from '@/components/career/plans/TeamTab';
-import type {
-  CareerPlan as CareerPlansPlan,
-  CareerPlansAnalytics,
-  Role as CareerPlansRole,
-} from '@/components/career/plans/types';
+import { SuccessionTab } from '@/components/career/succession/SuccessionTab';
+import type { CareerPlan as CareerPlansPlan, Role as CareerPlansRole } from '@/components/career/plans/types';
 
 type CareerTab =
-  | 'dashboard'
+  | 'overview'
+  | 'me'
   | 'paths'
-  | 'vacancies'
-  | 'plan'
-  | 'readiness'
-  | 'team'
-  | 'analytics';
+  | 'plans'
+  | 'opportunities'
+  | 'pdi'
+  | 'succession'
+  | 'history';
 
-const TABS: Array<{ id: CareerTab; label: string }> = [
-  { id: 'dashboard', label: 'Minha Carreira' },
-  { id: 'paths', label: 'Trilhas' },
-  { id: 'vacancies', label: 'Vagas Internas' },
-  { id: 'plan', label: 'Meu Plano' },
-  { id: 'readiness', label: 'Prontidão & Metas' },
-  { id: 'team', label: 'Equipa' },
-  { id: 'analytics', label: 'Analytics' },
+const TABS: Array<{ id: CareerTab; label: string } & RoleRestricted> = [
+  { id: 'overview', label: 'Visão Geral', roles: EXECUTIVE_ROLES },
+  { id: 'me', label: 'A Minha Carreira' },
+  { id: 'paths', label: 'Percursos de Carreira' },
+  { id: 'plans', label: 'Planos de Carreira', roles: EXECUTIVE_ROLES },
+  { id: 'opportunities', label: 'Oportunidades' },
+  { id: 'pdi', label: 'PDI & Desenvolvimento' },
+  { id: 'succession', label: 'Sucessão', roles: EXECUTIVE_ROLES },
+  { id: 'history', label: 'Histórico' },
 ];
 
 export default function CareerPage() {
-  const [tab, setTab] = useState<CareerTab>('dashboard');
+  const { data: me } = useCurrentUser();
+  const role = me?.role?.name as Role | undefined;
+  const visibleTabs = filterByRole(TABS, role);
+
+  const [tab, setTab] = useState<CareerTab>('me');
   const [showSimulate, setShowSimulate] = useState(false);
   const notify = useToast();
 
-  // Dados do bloco "Planos de Carreira" (ex-módulo career-plans) —
-  // mesmo comportamento de fetch que a página original tinha (plan/roles
-  // sempre pedidos, analytics só quando o separador está activo).
+  // Dados do bloco "Prontidão & Metas" (ex-módulo career-plans) — mesmo
+  // comportamento de fetch que a página original tinha.
   const planQuery = useApiQuery<CareerPlansPlan | null>(
     queryKeys.careerPlans.my(),
     '/career-plans/my',
@@ -74,15 +80,9 @@ export default function CareerPage() {
     '/career-plans/roles',
     { staleTime: STALE_TIME.STATIC },
   );
-  const analyticsQuery = useApiQuery<CareerPlansAnalytics>(
-    queryKeys.careerPlans.analytics(),
-    '/career-plans/analytics',
-    { staleTime: STALE_TIME.SEMI_STATIC, enabled: tab === 'analytics' },
-  );
 
   const myPlan = planQuery.data ?? null;
   const roles = rolesQuery.data ?? [];
-  const analytics = analyticsQuery.data ?? null;
   const plansLoading = planQuery.isLoading || rolesQuery.isLoading;
 
   const refreshPlans = () => {
@@ -132,7 +132,7 @@ export default function CareerPage() {
       <Tabs value={tab} onValueChange={v => setTab(v as CareerTab)}>
         <div className="overflow-x-auto">
           <TabsList>
-            {TABS.map(t => (
+            {visibleTabs.map(t => (
               <TabsTrigger key={t.id} value={t.id} className="whitespace-nowrap">
                 {t.label}
               </TabsTrigger>
@@ -140,30 +140,32 @@ export default function CareerPage() {
           </TabsList>
         </div>
 
-        <TabsContent value="dashboard">
-          <DashboardView />
+        <TabsContent value="overview">
+          <OverviewTab />
+        </TabsContent>
+        <TabsContent value="me">
+          <div className="space-y-6">
+            <DashboardView />
+            <MyCareerTab loading={plansLoading} myPlan={myPlan} onGoalProgress={handleGoalProgress} />
+          </div>
         </TabsContent>
         <TabsContent value="paths">
           <PathsView />
         </TabsContent>
-        <TabsContent value="vacancies">
+        <TabsContent value="plans">
+          <PlansManagementView />
+        </TabsContent>
+        <TabsContent value="opportunities">
           <VacanciesView />
         </TabsContent>
-        <TabsContent value="plan">
-          <PlanView />
+        <TabsContent value="pdi">
+          <PdiTab />
         </TabsContent>
-        <TabsContent value="readiness">
-          <MyCareerTab
-            loading={plansLoading}
-            myPlan={myPlan}
-            onGoalProgress={handleGoalProgress}
-          />
+        <TabsContent value="succession">
+          <SuccessionTab />
         </TabsContent>
-        <TabsContent value="team">
-          <TeamTab />
-        </TabsContent>
-        <TabsContent value="analytics">
-          {analytics && <AnalyticsTab analytics={analytics} />}
+        <TabsContent value="history">
+          <HistoryTab />
         </TabsContent>
       </Tabs>
 
