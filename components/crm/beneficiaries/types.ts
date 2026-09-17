@@ -99,3 +99,60 @@ export const PRIORITY_COLORS: Record<string, string> = {
 // Lista partilhada — ver lib/provinces.ts (antes duplicada aqui e em
 // components/crm/partners/types.ts).
 export { ANGOLA_PROVINCES as PROVINCES } from '@/lib/provinces';
+
+// ─── Dashboard / follow-ups / relatório ─────────────────────────────────────
+
+export interface BeneficiaryDashboard {
+  totals: {
+    total: number;
+    newThisMonth: number;
+    active: number;
+    pendingFollowUps: number;
+    openNeeds: number;
+  };
+  satisfaction: number;
+  distributions: {
+    byType: { type: string; _count: { id: number } }[];
+    byStatus: { status: string; _count: { id: number } }[];
+    byProvince: { province: string; _count: { id: number } }[];
+  };
+  recentInteractions: {
+    id: string;
+    type: string;
+    subject: string;
+    date: string;
+    beneficiary: { fullName: string; code: string };
+    user: { fullName: string } | null;
+  }[];
+}
+
+export interface FollowUp {
+  id: string;
+  code: string;
+  fullName: string;
+  phone: string | null;
+  email: string | null;
+  nextFollowUpAt: string;
+  assignedTo: { fullName: string } | null;
+  _count: { interactions: number };
+}
+
+export interface BeneficiaryReport {
+  period: { start: string; end: string };
+  created: number;
+  interactions: number;
+  byType: { type: string; _count: { id: number } }[];
+  byProvince: { province: string; _count: { id: number } }[];
+}
+
+export interface NeedForm {
+  category: string;
+  description: string;
+  priority: string;
+}
+
+export const EMPTY_NEED_FORM: NeedForm = {
+  category: '',
+  description: '',
+  priority: 'MEDIUM',
+};

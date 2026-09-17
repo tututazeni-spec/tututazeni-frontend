@@ -9,7 +9,7 @@ import { Select } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
 import { Info, formatDate } from '@/components/crm/shared';
 import { STATUS_COLORS, MILESTONE_COLORS, TYPE_LABELS } from './types';
-import type { PartnerDetail, InteractionForm } from './types';
+import type { PartnerDetail, InteractionForm, MilestoneForm } from './types';
 
 interface PartnerDetailViewProps {
   partner: PartnerDetail;
@@ -19,6 +19,12 @@ interface PartnerDetailViewProps {
   setForm: (form: InteractionForm) => void;
   submitInteraction: (e: React.FormEvent) => void;
   completeMilestone: (milestoneId: string) => void;
+  showMilestoneForm: boolean;
+  setShowMilestoneForm: (updater: (s: boolean) => boolean) => void;
+  milestoneForm: MilestoneForm;
+  setMilestoneForm: (form: MilestoneForm) => void;
+  submitMilestone: (e: React.FormEvent) => void;
+  savingMilestone: boolean;
   saving: boolean;
   canDelete: boolean;
   onDelete: () => void;
@@ -33,6 +39,12 @@ export function PartnerDetailView({
   setForm,
   submitInteraction,
   completeMilestone,
+  showMilestoneForm,
+  setShowMilestoneForm,
+  milestoneForm,
+  setMilestoneForm,
+  submitMilestone,
+  savingMilestone,
   saving,
   canDelete,
   onDelete,
@@ -152,9 +164,100 @@ export function PartnerDetailView({
 
       {/* Milestones */}
       <section>
-        <h2 className="font-display text-lg font-semibold text-ink mb-3">
-          Milestones ({p.milestones.length})
-        </h2>
+        <div className="flex justify-between items-center mb-3">
+          <h2 className="font-display text-lg font-semibold text-ink">
+            Milestones ({p.milestones.length})
+          </h2>
+          <Button
+            onClick={() => setShowMilestoneForm((s) => !s)}
+            intent={showMilestoneForm ? 'secondary' : 'primary'}
+          >
+            {showMilestoneForm ? 'Cancelar' : '+ Novo Milestone'}
+          </Button>
+        </div>
+
+        {showMilestoneForm && (
+          <form onSubmit={submitMilestone} className="mb-4">
+            <Card>
+              <CardBody className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <Input
+                  required
+                  placeholder="Título"
+                  value={milestoneForm.title}
+                  onChange={(e) =>
+                    setMilestoneForm({ ...milestoneForm, title: e.target.value })
+                  }
+                  className="md:col-span-2"
+                />
+                <Textarea
+                  placeholder="Descrição (opcional)"
+                  value={milestoneForm.description}
+                  onChange={(e) =>
+                    setMilestoneForm({
+                      ...milestoneForm,
+                      description: e.target.value,
+                    })
+                  }
+                  rows={2}
+                  className="md:col-span-2"
+                />
+                <div>
+                  <label className="font-body text-xs text-ink-muted block mb-1">
+                    Prazo
+                  </label>
+                  <Input
+                    required
+                    type="date"
+                    value={milestoneForm.dueDate}
+                    onChange={(e) =>
+                      setMilestoneForm({
+                        ...milestoneForm,
+                        dueDate: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+                <Select
+                  value={milestoneForm.priority}
+                  onValueChange={(value) =>
+                    setMilestoneForm({ ...milestoneForm, priority: value })
+                  }
+                  items={[
+                    { value: 'LOW', label: 'Baixa' },
+                    { value: 'MEDIUM', label: 'Média' },
+                    { value: 'HIGH', label: 'Alta' },
+                    { value: 'URGENT', label: 'Urgente' },
+                  ]}
+                />
+                <Input
+                  type="number"
+                  min={0}
+                  placeholder="Valor (opcional)"
+                  value={milestoneForm.value}
+                  onChange={(e) =>
+                    setMilestoneForm({ ...milestoneForm, value: e.target.value })
+                  }
+                />
+                <Input
+                  placeholder="Moeda"
+                  value={milestoneForm.currency}
+                  onChange={(e) =>
+                    setMilestoneForm({
+                      ...milestoneForm,
+                      currency: e.target.value,
+                    })
+                  }
+                />
+                <div className="md:col-span-2">
+                  <Button type="submit" disabled={savingMilestone}>
+                    {savingMilestone ? 'A guardar...' : 'Criar Milestone'}
+                  </Button>
+                </div>
+              </CardBody>
+            </Card>
+          </form>
+        )}
+
         <Card>
           <div className="divide-y divide-border">
             {p.milestones.length === 0 ? (

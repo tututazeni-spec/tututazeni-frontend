@@ -103,3 +103,82 @@ export const TYPE_LABELS: Record<string, string> = {
 
 // Partilhado com beneficiaries — ver components/crm/shared.tsx.
 export type InteractionForm = CrmInteractionForm;
+
+// ─── Dashboard / expiring-contracts / overdue-milestones / relatório ───────
+// Espelham GET /crm/partners/dashboard, /expiring-contracts,
+// /overdue-milestones e /report (crm-partners.service.ts) — endpoints já
+// existiam no backend sem consumidor no frontend.
+
+export interface PartnerDashboard {
+  totals: {
+    total: number;
+    newThisMonth: number;
+    active: number;
+    totalValueAOA: number;
+    expiringContracts: number;
+    overdueMilestones: number;
+  };
+  satisfaction: number;
+  distributions: {
+    byType: { type: string; _count: { id: number } }[];
+    byTier: { tier: string; _count: { id: number } }[];
+    byStatus: { status: string; _count: { id: number } }[];
+  };
+  recentInteractions: {
+    id: string;
+    type: string;
+    subject: string;
+    date: string;
+    partner: { name: string; code: string };
+    user: { fullName: string } | null;
+  }[];
+}
+
+export interface ExpiringContract {
+  id: string;
+  code: string;
+  name: string;
+  contractEnd: string;
+  contractUrl: string | null;
+  annualValue: number | null;
+  currency: string;
+  assignedTo: { fullName: string; email: string } | null;
+}
+
+export interface OverdueMilestone {
+  id: string;
+  partnerId: string;
+  title: string;
+  dueDate: string;
+  status: string;
+  partner: { name: string; code: string };
+  createdBy: { fullName: string } | null;
+}
+
+export interface PartnerReport {
+  period: { start: string; end: string };
+  created: number;
+  byType: { type: string; _count: { id: number } }[];
+  byTier: { tier: string; _count: { id: number } }[];
+  totalValue: number;
+  interactions: number;
+  milestonesCompleted: number;
+}
+
+export interface MilestoneForm {
+  title: string;
+  description: string;
+  dueDate: string;
+  value: string;
+  currency: string;
+  priority: string;
+}
+
+export const EMPTY_MILESTONE_FORM: MilestoneForm = {
+  title: '',
+  description: '',
+  dueDate: '',
+  value: '',
+  currency: 'AOA',
+  priority: 'MEDIUM',
+};

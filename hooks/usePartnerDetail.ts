@@ -10,9 +10,11 @@ import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import type {
-  PartnerDetail,
-  InteractionForm,
+import {
+  EMPTY_MILESTONE_FORM,
+  type PartnerDetail,
+  type InteractionForm,
+  type MilestoneForm,
 } from '@/components/crm/partners/types';
 
 const EMPTY_FORM: InteractionForm = {
@@ -27,6 +29,10 @@ export function usePartnerDetail(id: string) {
   const notify = useToast();
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState<InteractionForm>(EMPTY_FORM);
+  const [showMilestoneForm, setShowMilestoneForm] = useState(false);
+  const [milestoneForm, setMilestoneForm] = useState<MilestoneForm>(
+    EMPTY_MILESTONE_FORM,
+  );
 
   const {
     data: partner,
@@ -80,6 +86,37 @@ export function usePartnerDetail(id: string) {
     completeMut.mutate(milestoneId);
   }
 
+  // POST /crm/partners/:id/milestones — existia no backend sem nenhum
+  // consumidor no frontend (só era possível concluir milestones já criados
+  // pelo seed, nunca criar um novo pela UI).
+  const milestoneMut = useApiMutation(
+    () =>
+      apiClient.post(`/crm/partners/${id}/milestones`, {
+        title: milestoneForm.title,
+        dueDate: milestoneForm.dueDate,
+        ...(milestoneForm.description && {
+          description: milestoneForm.description,
+        }),
+        ...(milestoneForm.value && { value: Number(milestoneForm.value) }),
+        ...(milestoneForm.currency && { currency: milestoneForm.currency }),
+        ...(milestoneForm.priority && { priority: milestoneForm.priority }),
+      }),
+    {
+      invalidateKeys: [detailKey],
+      onSuccess: () => {
+        setShowMilestoneForm(false);
+        setMilestoneForm(EMPTY_MILESTONE_FORM);
+      },
+      onError: (e) =>
+        notify({ title: e.message || 'Erro inesperado', intent: 'danger' }),
+    },
+  );
+
+  function submitMilestone(e: React.FormEvent) {
+    e.preventDefault();
+    milestoneMut.mutate(undefined);
+  }
+
   // Eliminar parceiro — só ADMIN/RH (espelha @Roles(ADMIN, RH) do
   // DELETE /crm/partners/:id, que faz soft delete). Ver useResourceDelete.
   const { canDelete, onDelete, isDeleting } = useResourceDelete({
@@ -103,6 +140,12 @@ export function usePartnerDetail(id: string) {
     setForm,
     submitInteraction,
     completeMilestone,
+    showMilestoneForm,
+    setShowMilestoneForm,
+    milestoneForm,
+    setMilestoneForm,
+    submitMilestone,
+    savingMilestone: milestoneMut.isPending,
     saving,
     canDelete,
     onDelete,

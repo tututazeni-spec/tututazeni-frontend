@@ -119,3 +119,75 @@ export interface InteractionForm {
   description: string;
   outcome: string;
 }
+
+export const GRANT_STATUS_OPTIONS = [
+  'ACTIVE',
+  'COMPLETED',
+  'SUSPENDED',
+  'CANCELLED',
+  'CLOSED',
+] as const;
+
+// ─── Dashboard / relatório por período ─────────────────────────────────────
+// Espelham GET /crm/funders/dashboard e /report (crm-funders.service.ts) —
+// endpoints já existiam no backend sem consumidor no frontend.
+
+export interface FunderDashboard {
+  totals: {
+    total: number;
+    newThisMonth: number;
+    active: number;
+    activeGrants: number;
+    overdueReports: number;
+    reportsThisMonth: number;
+    totalCommitted: number;
+    totalReceived: number;
+    totalPending: number;
+    executionRate: number;
+  };
+  distributions: {
+    byType: { type: string; _count: { id: number } }[];
+    byStatus: { status: string; _count: { id: number } }[];
+  };
+  recentDisbursements: {
+    id: string;
+    amount: number;
+    receivedAt: string;
+    grant: { title: string; code: string };
+    createdBy: { fullName: string } | null;
+  }[];
+  recentInteractions: {
+    id: string;
+    subject: string;
+    date: string;
+    funder: { name: string; code: string };
+    user: { fullName: string } | null;
+  }[];
+}
+
+export interface FunderReportSummary {
+  period: { start: string; end: string };
+  created: number;
+  byType: { type: string; _count: { id: number } }[];
+  grantsCreated: number;
+  totalDisbursed: number;
+  reportsSubmitted: number;
+}
+
+// ─── Criar/submeter relatório para financiador ─────────────────────────────
+// POST /:id/reports (metadados) e PUT reports/:id/submit (anexar ficheiro) —
+// existiam no backend sem nenhum consumidor no frontend.
+
+export interface CreateReportForm {
+  title: string;
+  period: string;
+  dueDate: string;
+  grantId: string;
+}
+
+export const EMPTY_REPORT_FORM: CreateReportForm = {
+  title: '',
+  period: '',
+  dueDate: '',
+  grantId: '',
+};

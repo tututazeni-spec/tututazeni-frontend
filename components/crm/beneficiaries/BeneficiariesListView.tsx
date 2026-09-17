@@ -70,9 +70,20 @@ export function BeneficiariesListView({
           <h1 className="font-display text-2xl font-bold text-ink">Beneficiários</h1>
           <p className="font-body text-ink-muted">{total} beneficiários registados</p>
         </div>
-        <Link href="/crm/beneficiaries/novo">
-          <Button>+ Novo Beneficiário</Button>
-        </Link>
+        <div className="flex gap-2">
+          <Link href="/crm/beneficiaries/dashboard">
+            <Button intent="secondary">Dashboard</Button>
+          </Link>
+          <Link href="/crm/beneficiaries/follow-ups">
+            <Button intent="secondary">Follow-ups</Button>
+          </Link>
+          <Link href="/crm/beneficiaries/report">
+            <Button intent="secondary">Relatório</Button>
+          </Link>
+          <Link href="/crm/beneficiaries/novo">
+            <Button>+ Novo Beneficiário</Button>
+          </Link>
+        </div>
       </div>
 
       {/* Filtros */}

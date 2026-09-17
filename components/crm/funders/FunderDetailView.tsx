@@ -15,8 +15,13 @@ import {
   formatMoney,
   formatDate,
 } from '@/components/crm/shared';
-import { STATUS_COLORS, REPORT_COLORS } from './types';
-import type { FunderDetail, GrantForm, InteractionForm } from './types';
+import { STATUS_COLORS, REPORT_COLORS, GRANT_STATUS_OPTIONS } from './types';
+import type {
+  FunderDetail,
+  GrantForm,
+  InteractionForm,
+  CreateReportForm,
+} from './types';
 
 interface FunderDetailViewProps {
   funder: FunderDetail;
@@ -31,6 +36,19 @@ interface FunderDetailViewProps {
   setIntForm: (form: InteractionForm) => void;
   submitInteraction: (e: React.FormEvent) => void;
   addDisbursement: (grantId: string) => void;
+  updateGrantStatus: (grantId: string, status: string) => void;
+  showReportForm: boolean;
+  setShowReportForm: (updater: (s: boolean) => boolean) => void;
+  reportForm: CreateReportForm;
+  setReportForm: (form: CreateReportForm) => void;
+  submitReportForm: (e: React.FormEvent) => void;
+  savingReport: boolean;
+  submittingReportId: string | null;
+  setSubmittingReportId: (id: string | null) => void;
+  reportFileUrl: string;
+  setReportFileUrl: (value: string) => void;
+  confirmReportSubmission: (reportId: string) => void;
+  submittingReport: boolean;
   saving: boolean;
   canDelete: boolean;
   onDelete: () => void;
@@ -50,6 +68,19 @@ export function FunderDetailView({
   setIntForm,
   submitInteraction,
   addDisbursement,
+  updateGrantStatus,
+  showReportForm,
+  setShowReportForm,
+  reportForm,
+  setReportForm,
+  submitReportForm,
+  savingReport,
+  submittingReportId,
+  setSubmittingReportId,
+  reportFileUrl,
+  setReportFileUrl,
+  confirmReportSubmission,
+  submittingReport,
   saving,
   canDelete,
   onDelete,
@@ -240,9 +271,14 @@ export function FunderDetailView({
                         </p>
                       </div>
                       <div className="flex items-center gap-3">
-                        <span className="inline-flex items-center rounded-pill px-2 py-1 font-body text-xs font-semibold bg-surface-sunken text-ink-muted">
-                          {g.status}
-                        </span>
+                        <Select
+                          value={g.status}
+                          onValueChange={(value) => updateGrantStatus(g.id, value)}
+                          items={GRANT_STATUS_OPTIONS.map((s) => ({
+                            value: s,
+                            label: s,
+                          }))}
+                        />
                         {g.status === 'ACTIVE' && (
                           <button
                             onClick={() => addDisbursement(g.id)}
@@ -269,32 +305,141 @@ export function FunderDetailView({
 
       {/* Relatórios */}
       <section>
-        <h2 className="font-display text-lg font-semibold text-ink mb-3">
-          Relatórios ({f.reports.length})
-        </h2>
+        <div className="flex justify-between items-center mb-3">
+          <h2 className="font-display text-lg font-semibold text-ink">
+            Relatórios ({f.reports.length})
+          </h2>
+          <Button
+            onClick={() => setShowReportForm((s) => !s)}
+            intent={showReportForm ? 'secondary' : 'primary'}
+          >
+            {showReportForm ? 'Cancelar' : '+ Novo Relatório'}
+          </Button>
+        </div>
+
+        {showReportForm && (
+          <form onSubmit={submitReportForm} className="mb-4">
+            <Card>
+              <CardBody className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <Input
+                  required
+                  placeholder="Título"
+                  value={reportForm.title}
+                  onChange={(e) =>
+                    setReportForm({ ...reportForm, title: e.target.value })
+                  }
+                  className="md:col-span-2"
+                />
+                <Input
+                  required
+                  placeholder="Período (ex.: Q2 2026)"
+                  value={reportForm.period}
+                  onChange={(e) =>
+                    setReportForm({ ...reportForm, period: e.target.value })
+                  }
+                />
+                <div>
+                  <label className="font-body text-xs text-ink-muted block mb-1">
+                    Prazo
+                  </label>
+                  <Input
+                    required
+                    type="date"
+                    value={reportForm.dueDate}
+                    onChange={(e) =>
+                      setReportForm({ ...reportForm, dueDate: e.target.value })
+                    }
+                  />
+                </div>
+                {f.grants.length > 0 && (
+                  <Select
+                    value={reportForm.grantId}
+                    onValueChange={(value) =>
+                      setReportForm({ ...reportForm, grantId: value })
+                    }
+                    items={[
+                      { value: '', label: 'Sem grant associado' },
+                      ...f.grants.map((g) => ({ value: g.id, label: g.title })),
+                    ]}
+                  />
+                )}
+                <div className="md:col-span-2">
+                  <Button type="submit" disabled={savingReport}>
+                    {savingReport ? 'A guardar...' : 'Criar Relatório'}
+                  </Button>
+                </div>
+              </CardBody>
+            </Card>
+          </form>
+        )}
+
         <Card>
           <div className="divide-y divide-border">
             {f.reports.length === 0 ? (
               <p className="p-4 font-body text-ink-faint">Sem relatórios registados</p>
             ) : (
-              f.reports.map((r) => (
-                <div key={r.id} className="p-4 flex justify-between items-center">
-                  <div>
-                    <p className="font-body font-medium text-ink">{r.title}</p>
-                    <p className="font-body text-xs text-ink-muted">
-                      {r.period} · Prazo {formatDate(r.dueDate)}
-                    </p>
-                  </div>
-                  <span
-                    className={cn(
-                      'inline-flex items-center rounded-pill px-2 py-1 font-body text-xs font-semibold',
-                      REPORT_COLORS[r.status] ?? 'bg-surface-sunken text-ink-muted',
+              f.reports.map((r) => {
+                const canSubmit = r.status === 'PENDING' || r.status === 'REJECTED';
+                const submitting = submittingReportId === r.id;
+                return (
+                  <div key={r.id} className="p-4">
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <p className="font-body font-medium text-ink">{r.title}</p>
+                        <p className="font-body text-xs text-ink-muted">
+                          {r.period} · Prazo {formatDate(r.dueDate)}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span
+                          className={cn(
+                            'inline-flex items-center rounded-pill px-2 py-1 font-body text-xs font-semibold',
+                            REPORT_COLORS[r.status] ?? 'bg-surface-sunken text-ink-muted',
+                          )}
+                        >
+                          {r.status}
+                        </span>
+                        {canSubmit && !submitting && (
+                          <button
+                            onClick={() => setSubmittingReportId(r.id)}
+                            className="font-body text-xs text-success-ink hover:underline"
+                          >
+                            Submeter
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                    {submitting && (
+                      <div className="mt-3 flex flex-wrap items-center gap-2">
+                        <Input
+                          type="url"
+                          placeholder="https://… link do relatório"
+                          value={reportFileUrl}
+                          onChange={(e) => setReportFileUrl(e.target.value)}
+                          className="flex-1 min-w-[220px]"
+                        />
+                        <Button
+                          size="sm"
+                          disabled={!reportFileUrl.trim() || submittingReport}
+                          onClick={() => confirmReportSubmission(r.id)}
+                        >
+                          {submittingReport ? 'A submeter...' : 'Confirmar'}
+                        </Button>
+                        <Button
+                          size="sm"
+                          intent="secondary"
+                          onClick={() => {
+                            setSubmittingReportId(null);
+                            setReportFileUrl('');
+                          }}
+                        >
+                          Cancelar
+                        </Button>
+                      </div>
                     )}
-                  >
-                    {r.status}
-                  </span>
-                </div>
-              ))
+                  </div>
+                );
+              })
             )}
           </div>
         </Card>
