@@ -1,4 +1,4 @@
-// components/sucession/SuccessorCard.tsx
+// components/career/succession/SuccessorCard.tsx
 // Cartão de sucessor usado no pipeline de um cargo crítico. Extraído
 // de app/(platform)/sucession/page.tsx.
 

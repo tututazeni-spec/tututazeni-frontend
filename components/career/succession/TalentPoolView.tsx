@@ -1,4 +1,4 @@
-// components/sucession/TalentPoolView.tsx
+// components/career/succession/TalentPoolView.tsx
 // Vista "Talent Pool": lista filtrável de talentos por nível de
 // prontidão. Extraído de app/(platform)/sucession/page.tsx.
 
@@ -34,8 +34,16 @@ export function TalentPoolView() {
     <div>
       {/* Filter */}
       <div className="mb-5 flex items-center gap-2">
-        {(['', 'READY_NOW', 'READY_SOON', 'NEEDS_DEVELOPMENT'] as const).map(
-          (r) => (
+        {(
+          [
+            '',
+            'READY_NOW',
+            'READY_SOON',
+            'READY_1_2_YEARS',
+            'READY_2_3_YEARS',
+            'NEEDS_DEVELOPMENT',
+          ] as const
+        ).map((r) => (
             <Button
               key={r}
               size="sm"

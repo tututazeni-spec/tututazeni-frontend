@@ -1,4 +1,4 @@
-// components/sucession/PositionsView.tsx
+// components/career/succession/PositionsView.tsx
 // Vista "Cargos Críticos": lista de cargos + chair view do pipeline de
 // sucessão do cargo seleccionado. Extraído de
 // app/(platform)/sucession/page.tsx.
@@ -161,6 +161,8 @@ export function PositionsView() {
               [
                 'READY_NOW',
                 'READY_SOON',
+                'READY_1_2_YEARS',
+                'READY_2_3_YEARS',
                 'NEEDS_DEVELOPMENT',
               ] as ReadinessLevel[]
             ).map((level) => {

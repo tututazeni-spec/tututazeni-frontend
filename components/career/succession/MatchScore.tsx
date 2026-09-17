@@ -1,4 +1,4 @@
-// components/sucession/MatchScore.tsx
+// components/career/succession/MatchScore.tsx
 // Score de compatibilidade sucessor↔cargo: barra mono (ProgressBar da
 // fundação) + percentagem colorida por token semântico ao lado — a cor
 // deixou de estar na barra em si (ProgressBar é mono-cor, bg-accent),
