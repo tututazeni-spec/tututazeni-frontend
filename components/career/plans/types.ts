@@ -44,9 +44,13 @@ export interface CareerGoal {
 export interface CareerPlan {
   id: number;
   userId: number;
+  user?: { id: number; fullName: string; avatarUrl?: string | null };
   title: string;
   status: string;
   targetDate?: string;
+  mentoringNotes?: string | null;
+  coachingNotes?: string | null;
+  openToMobility?: boolean | null;
   readiness?: Readiness;
   currentRole?: { id: number; name: string; level: number };
   targetRole?: { id: number; name: string; level: number };

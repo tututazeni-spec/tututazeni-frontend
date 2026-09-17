@@ -1,9 +1,14 @@
-// components/sucession/types.ts
+// components/career/succession/types.ts
 // Tipos do domínio de planeamento de sucessão: cargos críticos, planos
 // de sucessão, talent pool e mapa organizacional. Extraído de
 // app/(platform)/sucession/page.tsx.
 
-export type ReadinessLevel = 'READY_NOW' | 'READY_SOON' | 'NEEDS_DEVELOPMENT';
+export type ReadinessLevel =
+  | 'READY_NOW'
+  | 'READY_SOON'
+  | 'READY_1_2_YEARS'
+  | 'READY_2_3_YEARS'
+  | 'NEEDS_DEVELOPMENT';
 export type SuccessorPriority = 'PRIMARY' | 'SECONDARY' | 'TERTIARY';
 export type RiskLevel = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
 export type BusinessImpact = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
@@ -123,4 +128,14 @@ export interface PositionSummary {
   byReadiness: Partial<Record<ReadinessLevel, SuccessionPlan[]>>;
 }
 
-export type View = 'dashboard' | 'org-chart' | 'talent-pool' | 'positions';
+export interface SuccessionMatrixRow {
+  criticalPositionId: number;
+  position: string;
+  titular: string | null;
+  sucessor: string | null;
+  readinessLevel: ReadinessLevel | null;
+  gap: number | null;
+  exitRisk: RiskLevel;
+}
+
+export type View = 'dashboard' | 'org-chart' | 'talent-pool' | 'positions' | 'matrix';

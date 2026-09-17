@@ -181,12 +181,6 @@ const NAV: Array<{ label: string; items: NavItem[] }> = [
       },
       { href: '/evaluation360', icon: MessageSquare, label: 'Avaliação 360°' },
       { href: '/onboarding', icon: UserPlus, label: 'Integração' },
-      {
-        href: '/sucession',
-        icon: GitBranch,
-        label: 'Sucessão',
-        roles: ['ADMIN', 'RH', 'GESTOR'],
-      },
       { href: '/payslips', icon: FileText, label: 'Recibos Salariais' },
       {
         href: '/payroll',
@@ -201,7 +195,13 @@ const NAV: Array<{ label: string; items: NavItem[] }> = [
   {
     label: 'Carreira',
     items: [
-      { href: '/career', icon: Target, label: 'Carreira' },
+      {
+        // Módulo "Carreira" único: integra Sucessão (ex-/sucession) como
+        // separador da mesma página. Ver app/(platform)/career/page.tsx.
+        href: '/career',
+        icon: Target,
+        label: 'Carreira',
+      },
       {
         href: '/development-plans',
         icon: Activity,

@@ -1,4 +1,4 @@
-// components/sucession/OrgChartView.tsx
+// components/career/succession/OrgChartView.tsx
 // Vista "Mapa de Sucessão": lista de cargos críticos ordenada por
 // risco, com pipeline expansível. Extraído de
 // app/(platform)/sucession/page.tsx.

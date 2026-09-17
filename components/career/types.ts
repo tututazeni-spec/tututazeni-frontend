@@ -161,3 +161,91 @@ export interface CareerPlan {
 // renderizado pela página — estado pré-existente inalcançável, preservado
 // tal como no ficheiro original (não é um bug desta extracção).
 export type View = 'dashboard' | 'paths' | 'vacancies' | 'plan' | 'succession';
+
+// ─── Histórico (GET /career/me/history) ─────────────────────────────────────
+
+export interface CareerHistory {
+  positionHistory: Array<{
+    id: number;
+    startedAt: string;
+    endedAt: string | null;
+    position: { id: number; title: string } | null;
+  }>;
+  orgChanges: Array<{
+    id: number;
+    changeType: string;
+    effectiveDate: string;
+    fromDepartment: { id: number; name: string } | null;
+    toDepartment: { id: number; name: string } | null;
+    fromPosition: { id: number; name: string } | null;
+    toPosition: { id: number; name: string } | null;
+  }>;
+  plans: Array<{
+    id: number;
+    title: string;
+    status: string;
+    currentRole: { id: number; name: string } | null;
+    targetRole: { id: number; name: string } | null;
+  }>;
+  applications: Array<{
+    id: number;
+    status: string;
+    appliedAt: string;
+    vacancy: { id: number; title: string; type: string };
+  }>;
+  certificates: Array<{
+    id: number;
+    type: string;
+    issuedAt: string;
+    course: { id: number; title: string } | null;
+    program: { id: number; name: string } | null;
+  }>;
+}
+
+// ─── Famílias Profissionais (GET /career/job-families) ──────────────────────
+
+export interface JobFamily {
+  id: number;
+  name: string;
+  code: string | null;
+  description: string | null;
+  area: string | null;
+  active: boolean;
+}
+
+// ─── Visão Geral (GET /career/overview) ─────────────────────────────────────
+
+export interface CareerOverview {
+  careerAnalytics: {
+    overview: {
+      totalUsers: number;
+      usersWithActivePlan: number;
+      pdiEngagementRate: string;
+      activeVacancies: number;
+      totalApplications: number;
+      promotionRequests: number;
+      avgCompetencyGap: number;
+    };
+  };
+  careerPlansAnalytics: {
+    plans: { active: number; completed: number };
+    promotions: { approved: number };
+    avgPromotionDays: number;
+  };
+  successionDashboard: {
+    kpis: {
+      totalCriticalPositions: number;
+      withoutSuccessor: number;
+      coverageRate: number;
+      readinessIndex: number;
+      highRiskPositions: number;
+      avgMatchScore: number;
+    };
+  };
+  employeesWithoutPlan: number;
+  internalMovements: Array<{ changeType: string; count: number }>;
+  evolutionByDepartment: Array<{ key: string; count: number }>;
+  evolutionByUnit: Array<{ key: string; count: number }>;
+  evolutionByPosition: Array<{ key: string; count: number }>;
+  alerts: string[];
+}

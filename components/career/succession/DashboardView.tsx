@@ -1,4 +1,4 @@
-// components/sucession/DashboardView.tsx
+// components/career/succession/DashboardView.tsx
 // Vista "Dashboard": KPIs de sucessão e alertas críticos. Extraído de
 // app/(platform)/sucession/page.tsx.
 

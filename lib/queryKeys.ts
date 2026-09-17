@@ -394,6 +394,10 @@ export const queryKeys = {
     vacancies: (type: string) =>
       [...queryKeys.career.all, 'vacancies', type] as const,
     plan: () => [...queryKeys.career.all, 'plan'] as const,
+    overview: () => [...queryKeys.career.all, 'overview'] as const,
+    history: (userId?: number) =>
+      [...queryKeys.career.all, 'history', userId ?? 'me'] as const,
+    jobFamilies: () => [...queryKeys.career.all, 'job-families'] as const,
   },
 
   history: {
@@ -451,6 +455,7 @@ export const queryKeys = {
     positionSummary: (id: number) =>
       [...queryKeys.succession.all, 'position-summary', id] as const,
     talentPool: () => [...queryKeys.succession.all, 'talent-pool'] as const,
+    matrix: () => [...queryKeys.succession.all, 'matrix'] as const,
   },
 
   microLearning: {
@@ -690,6 +695,9 @@ export const queryKeys = {
     my: () => [...queryKeys.careerPlans.all, 'my'] as const,
     roles: () => [...queryKeys.careerPlans.all, 'roles'] as const,
     analytics: () => [...queryKeys.careerPlans.all, 'analytics'] as const,
+    list: (filters: Record<string, unknown>) =>
+      [...queryKeys.careerPlans.all, 'list', filters] as const,
+    detail: (id: number) => [...queryKeys.careerPlans.all, 'detail', id] as const,
   },
 
   talentDevelopment: {
