@@ -5,13 +5,16 @@
 'use client';
 
 import { useState } from 'react';
+import { Plus } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
 import { reportError } from '@/lib/errorReporting';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { cn } from '@/lib/cn';
+import { EXECUTIVE_ROLES, isRoleAllowed, type Role } from '@/lib/roles';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -19,6 +22,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { VACANCY_TYPE } from './constants';
+import { NewOpportunityModal } from './NewOpportunityModal';
 import type { InternalVacancy } from './types';
 
 function scoreClass(score: number): string {
@@ -29,8 +33,11 @@ function scoreClass(score: number): string {
 
 export function VacanciesView() {
   const notify = useToast();
+  const { data: me } = useCurrentUser();
+  const canManage = isRoleAllowed(EXECUTIVE_ROLES, me?.role?.name as Role | undefined);
   const [typeFilter, setTypeFilter] = useState('');
   const [applying, setApplying] = useState<number | null>(null);
+  const [showNew, setShowNew] = useState(false);
 
   const {
     data: resp,
@@ -66,7 +73,7 @@ export function VacanciesView() {
   return (
     <div>
       {/* Filtros */}
-      <div className="mb-5 flex flex-wrap gap-2">
+      <div className="mb-5 flex flex-wrap items-center gap-2">
         <Button
           size="sm"
           intent={!typeFilter ? 'primary' : 'ghost'}
@@ -84,6 +91,11 @@ export function VacanciesView() {
             {v.label}
           </Button>
         ))}
+        {canManage && (
+          <Button size="sm" className="ml-auto" onClick={() => setShowNew(true)}>
+            <Plus size={14} strokeWidth={1.75} /> Nova Oportunidade
+          </Button>
+        )}
       </div>
 
       {loading ? (
@@ -162,6 +174,13 @@ export function VacanciesView() {
             </div>
           )}
         </div>
+      )}
+
+      {showNew && (
+        <NewOpportunityModal
+          onClose={() => setShowNew(false)}
+          onSuccess={() => refetch()}
+        />
       )}
     </div>
   );

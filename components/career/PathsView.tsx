@@ -6,30 +6,47 @@
 'use client';
 
 import { useState } from 'react';
-import { Clock } from 'lucide-react';
+import { Clock, Plus } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { cn } from '@/lib/cn';
+import { EXECUTIVE_ROLES, isRoleAllowed, type Role } from '@/lib/roles';
 import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { CAREER_PATH_TYPE } from './constants';
+import { NewCareerPathModal } from './NewCareerPathModal';
 import type { CareerPath } from './types';
 
 export function PathsView() {
   const [selected, setSelected] = useState<CareerPath | null>(null);
-  const { data: paths = [], isLoading: loading } = useApiQuery<CareerPath[]>(
-    queryKeys.career.paths(),
-    '/career/paths',
-    { staleTime: STALE_TIME.SEMI_STATIC },
-  );
+  const [showNew, setShowNew] = useState(false);
+  const { data: me } = useCurrentUser();
+  const canManage = isRoleAllowed(EXECUTIVE_ROLES, me?.role?.name as Role | undefined);
+  const {
+    data: paths = [],
+    isLoading: loading,
+    refetch,
+  } = useApiQuery<CareerPath[]>(queryKeys.career.paths(), '/career/paths', {
+    staleTime: STALE_TIME.SEMI_STATIC,
+  });
 
   if (loading) return <Skeleton />;
 
   return (
-    <div className="grid grid-cols-[300px_1fr] gap-5">
+    <div>
+      {canManage && (
+        <div className="mb-4 flex justify-end">
+          <Button size="sm" onClick={() => setShowNew(true)}>
+            <Plus size={14} strokeWidth={1.75} /> Novo Percurso de Carreira
+          </Button>
+        </div>
+      )}
+      <div className="grid grid-cols-[300px_1fr] gap-5">
       {/* Lista */}
       <div className="space-y-2">
         {paths.map((path) => (
@@ -144,6 +161,14 @@ export function PathsView() {
           </Card>
         )}
       </div>
+      </div>
+
+      {showNew && (
+        <NewCareerPathModal
+          onClose={() => setShowNew(false)}
+          onSuccess={() => refetch()}
+        />
+      )}
     </div>
   );
 }
