@@ -108,7 +108,6 @@ const EMPTY_FORM: WizardForm = {
   startDate: '',
   endDate: '',
   durationPreset: '',
-  performanceCycleId: '',
   origin: '',
   originJustification: '',
   strengths: '',
@@ -252,7 +251,6 @@ export function CreatePlanWizard({ onClose, onSuccess }: CreatePlanWizardProps) 
       period: form.period.trim() || undefined,
       startDate: form.startDate || undefined,
       endDate: form.endDate || undefined,
-      performanceCycleId: form.performanceCycleId ? Number(form.performanceCycleId) : undefined,
     });
     setPlanId(created.id);
     return created.id;
@@ -267,7 +265,6 @@ export function CreatePlanWizard({ onClose, onSuccess }: CreatePlanWizardProps) 
       period: form.period.trim() || undefined,
       startDate: form.startDate || undefined,
       endDate: form.endDate || undefined,
-      performanceCycleId: form.performanceCycleId ? Number(form.performanceCycleId) : undefined,
     });
 
   const putDiagnosis = (id: number) =>

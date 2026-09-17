@@ -265,7 +265,6 @@ export interface WizardForm {
   startDate: string;
   endDate: string;
   durationPreset: string;
-  performanceCycleId: string;
   // 2. Diagnóstico
   origin: PdiOrigin | '';
   originJustification: string;

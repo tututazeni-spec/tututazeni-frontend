@@ -46,8 +46,6 @@ export const queryKeys = {
     list: (params: Record<string, unknown>) =>
       [...queryKeys.funders.lists(), params] as const,
     detail: (id: string) => [...queryKeys.funders.all, 'detail', id] as const,
-    overdueReports: (params: Record<string, unknown>) =>
-      [...queryKeys.funders.all, 'overdue-reports', params] as const,
     dashboard: () => [...queryKeys.funders.all, 'dashboard'] as const,
     report: (params: Record<string, unknown>) =>
       [...queryKeys.funders.all, 'report', params] as const,
@@ -106,15 +104,6 @@ export const queryKeys = {
     items: (params: Record<string, unknown>) =>
       [...queryKeys.library.all, 'items', params] as const,
     item: (id: string) => [...queryKeys.library.all, 'item', id] as const,
-  },
-
-  certification: {
-    all: ['certification'] as const,
-    myCertificates: () =>
-      [...queryKeys.certification.all, 'my-certificates'] as const,
-    templates: () => [...queryKeys.certification.all, 'templates'] as const,
-    verify: (code: string) =>
-      [...queryKeys.certification.all, 'verify', code] as const,
   },
 
   payslips: {
@@ -504,8 +493,6 @@ export const queryKeys = {
       [...queryKeys.monitoring.all, 'evaluations-to-complete'] as const,
     indicators: (params: Record<string, unknown>) =>
       [...queryKeys.monitoring.all, 'indicators', params] as const,
-    okrs: (params: Record<string, unknown>) =>
-      [...queryKeys.monitoring.all, 'okrs', params] as const,
   },
 
   leave: {

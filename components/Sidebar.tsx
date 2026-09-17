@@ -4,12 +4,7 @@ import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { logout } from '@/lib/apiClient';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
-import {
-  ADMIN_ROLES,
-  NON_COLABORADOR_ROLES,
-  filterNavSections,
-  type Role,
-} from '@/lib/roles';
+import { ADMIN_ROLES, filterNavSections, type Role } from '@/lib/roles';
 import {
   LayoutDashboard,
   BookOpen,
@@ -17,7 +12,6 @@ import {
   ClipboardList,
   Star,
   Award,
-  TrendingUp,
   Briefcase,
   BarChart2,
   FileText,
@@ -32,17 +26,14 @@ import {
   Settings,
   ChevronDown,
   ChevronRight,
-  Crown,
   UserPlus,
   Play,
-  Cpu,
   Database,
   Globe,
   Target,
   PieChart,
   Clock,
   MessageSquare,
-  Scroll,
   Library,
   DollarSign,
   Activity,
@@ -111,12 +102,6 @@ const NAV: Array<{ label: string; items: NavItem[] }> = [
         label: 'Financiadores',
         roles: ['ADMIN', 'RH', 'GESTOR'],
       },
-      {
-        href: '/crm/funders/overdue-reports',
-        icon: Clock,
-        label: 'Relatórios em Atraso',
-        roles: ['ADMIN', 'RH', 'GESTOR'],
-      },
     ],
   },
   {
@@ -124,17 +109,19 @@ const NAV: Array<{ label: string; items: NavItem[] }> = [
     items: [
       { href: '/courses', icon: BookOpen, label: 'Cursos' },
       {
-        href: '/learning-paths',
+        // Módulo learning-paths (RH) removido da plataforma — LMS é um
+        // domínio distinto e continua intacto nas suas rotas próprias
+        // (/lms/paths, /lms/my-paths, /lms/sessions), só perdeu o antigo
+        // ponto de entrada partilhado em /learning-paths.
+        href: '/lms/paths',
         icon: GitBranch,
-        label: 'Percursos de Aprendizagem',
+        label: 'Percursos & Sessões (LMS)',
       },
       { href: '/enrollments', icon: ClipboardList, label: 'Matrículas' },
       { href: '/evaluation', icon: Star, label: 'Avaliações' },
-      { href: '/micro-learning', icon: Zap, label: 'Micro-aprendizagem' },
       { href: '/live-classes', icon: Play, label: 'Aulas ao Vivo' },
       { href: '/content-library', icon: Library, label: 'Biblioteca' },
       { href: '/ai-tutor', icon: Bot, label: 'Tutor de IA' },
-      { href: '/avatar-training', icon: Cpu, label: 'Treino de Avatar' },
     ],
   },
   {
@@ -165,9 +152,8 @@ const NAV: Array<{ label: string; items: NavItem[] }> = [
           'AUDITOR',
         ],
       },
-      { href: '/performance', icon: TrendingUp, label: 'Desempenho' },
       {
-        href: '/monitoring/okrs',
+        href: '/monitoring/evaluations',
         icon: Target,
         label: 'Monitoria e Avaliação',
       },
@@ -207,20 +193,6 @@ const NAV: Array<{ label: string; items: NavItem[] }> = [
         icon: Activity,
         label: 'Planos de Desenvolvimento',
       },
-      // Módulo fundido (pedido do utilizador): antigos /leader ("Centro de
-      // Liderança") e /leadership ("Programas de Liderança") passam a viver
-      // numa única página em /leadership, sob uma só entrada "Liderança".
-      // Sem `roles`: a secção "Gestão de Equipa" é escondida internamente
-      // para quem não tem nenhum de ADMIN/RH/LIDER/DIRECTOR/GESTOR (ver
-      // TEAM_MANAGEMENT_ROLES em components/leader/constants.ts), mas
-      // Programas/Feedback 360°/Kudos continuam abertos a todos.
-      { href: '/leadership', icon: Crown, label: 'Liderança' },
-      { href: '/certificates', icon: Scroll, label: 'Certificados' },
-      {
-        href: '/certification/templates',
-        icon: Award,
-        label: 'Modelos de Certificado',
-      },
       {
         href: '/talent-development',
         icon: Brain,
@@ -231,25 +203,7 @@ const NAV: Array<{ label: string; items: NavItem[] }> = [
   },
   {
     label: 'Compromisso',
-    items: [
-      { href: '/events', icon: Calendar, label: 'Eventos Corporativos' },
-      {
-        href: '/engagement',
-        icon: MessageSquare,
-        label: 'Participação',
-        roles: ['ADMIN', 'RH', 'LIDER', 'GESTOR'],
-      },
-      {
-        href: '/instructor',
-        icon: GraduationCap,
-        label: 'Instrutores',
-        // Só esconde do sidebar por pedido — o backend continua a permitir
-        // que um COLABORADOR se candidate a instrutor via POST
-        // /instructors/profile (ver test/integration/instructor). Não
-        // reflecte nenhuma restrição real do controller.
-        roles: NON_COLABORADOR_ROLES,
-      },
-    ],
+    items: [{ href: '/events', icon: Calendar, label: 'Eventos Corporativos' }],
   },
   {
     label: 'Processos',

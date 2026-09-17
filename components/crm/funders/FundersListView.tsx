@@ -61,9 +61,6 @@ export function FundersListView({
           <Link href="/crm/funders/dashboard">
             <Button intent="secondary">Dashboard</Button>
           </Link>
-          <Link href="/crm/funders/overdue-reports">
-            <Button intent="secondary">Relatórios em atraso</Button>
-          </Link>
           <Link href="/crm/funders/report">
             <Button intent="secondary">Relatório por período</Button>
           </Link>

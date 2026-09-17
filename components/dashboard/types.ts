@@ -168,18 +168,6 @@ export interface ExecutiveGeographic {
 // Cada bloco vem null se o respectivo módulo falhar na agregação
 // (Promise.allSettled no backend) — nunca derruba o resto do painel.
 export interface ExecutiveModulesOverview {
-  engagement: {
-    index: number;
-    level: string;
-    participationRate: number;
-    enps: number | null;
-  } | null;
-  talentAndSuccession: {
-    criticalPositions: number;
-    withoutSuccessor: number;
-    coverageRate: number;
-    highRiskPositions: number;
-  } | null;
   onboarding: {
     active: number;
     overdueTasks: number;
@@ -214,10 +202,6 @@ export interface ExecutiveModulesOverview {
     openAlerts: number;
     criticalAlerts: number;
     integrationsWithErrors: number;
-  } | null;
-  okr: {
-    activeCycles: number;
-    objectiveCompletionRate: number;
   } | null;
   evaluationCycles: {
     activeCycles: number;

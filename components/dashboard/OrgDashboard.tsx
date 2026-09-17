@@ -646,51 +646,14 @@ export function OrgDashboard() {
         </div>
       )}
 
-      {/* Visão por módulo — engagement, sucessão, onboarding, eventos,
-          processos, declarações, auditoria, automação, plataforma, OKRs */}
+      {/* Visão por módulo — onboarding, eventos, processos, declarações,
+          auditoria, automação, plataforma, OKRs */}
       {modules && (
         <div>
           <h2 className="mb-4 font-display text-lg font-bold text-ink">
             Visão por Módulo
           </h2>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <ModulePanel title="Engagement" data={modules.engagement}>
-              {modules.engagement && (
-                <>
-                  <Stat label="Índice" value={`${modules.engagement.index}%`} />
-                  <Stat label="Nível" value={modules.engagement.level} />
-                  <Stat
-                    label="Participação"
-                    value={`${modules.engagement.participationRate}%`}
-                  />
-                  <Stat label="eNPS" value={modules.engagement.enps ?? '—'} />
-                </>
-              )}
-            </ModulePanel>
-
-            <ModulePanel title="Sucessão & Talento" data={modules.talentAndSuccession}>
-              {modules.talentAndSuccession && (
-                <>
-                  <Stat
-                    label="Posições críticas"
-                    value={modules.talentAndSuccession.criticalPositions}
-                  />
-                  <Stat
-                    label="Sem sucessor"
-                    value={modules.talentAndSuccession.withoutSuccessor}
-                  />
-                  <Stat
-                    label="Cobertura"
-                    value={`${modules.talentAndSuccession.coverageRate}%`}
-                  />
-                  <Stat
-                    label="Risco elevado"
-                    value={modules.talentAndSuccession.highRiskPositions}
-                  />
-                </>
-              )}
-            </ModulePanel>
-
             <ModulePanel title="Onboarding" data={modules.onboarding}>
               {modules.onboarding && (
                 <>
@@ -785,19 +748,7 @@ export function OrgDashboard() {
               )}
             </ModulePanel>
 
-            <ModulePanel
-              title="OKRs & Avaliação"
-              data={modules.okr ?? modules.evaluationCycles}
-            >
-              {modules.okr && (
-                <>
-                  <Stat label="Ciclos OKR activos" value={modules.okr.activeCycles} />
-                  <Stat
-                    label="Objectivos concluídos"
-                    value={`${modules.okr.objectiveCompletionRate}%`}
-                  />
-                </>
-              )}
+            <ModulePanel title="Avaliação" data={modules.evaluationCycles}>
               {modules.evaluationCycles && (
                 <>
                   <Stat

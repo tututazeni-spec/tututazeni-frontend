@@ -27,7 +27,6 @@ import {
 import {
   useCompetencyOptions,
   useCourseOptions,
-  useCycleOptions,
   useDirectoryUsers,
   type DirectoryUser,
 } from './planData';
@@ -222,7 +221,6 @@ function ListEditor<T>({ title, hint, rows, onAdd, onRemove, isLocked, render }:
 
 export function PlanFormSteps({ stepId, form, setField, addRow, removeRow, setRow }: PlanFormStepsProps) {
   const { options: competencyOptions } = useCompetencyOptions(stepId === 'competencies');
-  const { options: cycleOptions } = useCycleOptions(stepId === 'identification');
   const { options: courseOptions } = useCourseOptions(stepId === 'actionPlan');
 
   switch (stepId) {
@@ -277,15 +275,6 @@ export function PlanFormSteps({ stepId, form, setField, addRow, removeRow, setRo
                 value={form.period}
                 onChange={(e) => setField('period', e.target.value)}
                 placeholder="Ex.: 2026 ou 2026/2027"
-                className="w-full"
-              />
-            </FormField>
-            <FormField label="Ciclo de avaliação associado" htmlFor="pdi-cycle">
-              <Select
-                items={cycleOptions}
-                value={form.performanceCycleId || undefined}
-                onValueChange={(v) => setField('performanceCycleId', v)}
-                placeholder="Nenhum"
                 className="w-full"
               />
             </FormField>
