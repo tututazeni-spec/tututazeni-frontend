@@ -5,9 +5,11 @@
 // financiador tinha ainda um `money()` local. Ver memory
 // project_innova_component_separation_audit.
 
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { cn } from '@/lib/cn';
+import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
+import { Input } from '@/components/ui/Input';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { formatDate as formatDateShared } from '@/lib/format';
 
@@ -121,6 +123,115 @@ export function DetailSkeleton() {
       />
     </div>
   );
+}
+
+// ─── Dashboard / Relatório — peças partilhadas pelos 3 sub-módulos ─────────
+
+interface GroupCount {
+  _count: { id: number };
+  [key: string]: unknown;
+}
+
+interface DistributionListProps {
+  title: string;
+  data: GroupCount[] | undefined;
+  labelKey: string;
+  /** Traduz o valor bruto do groupBy (ex.: enum) para um rótulo legível. */
+  formatLabel?: (value: string) => string;
+}
+
+/** Lista label→contagem a partir de um `groupBy` do Prisma (dashboards CRM). */
+export function DistributionList({
+  title,
+  data,
+  labelKey,
+  formatLabel,
+}: DistributionListProps) {
+  const rows = data ?? [];
+  return (
+    <Card>
+      <CardBody>
+        <h3 className="font-body text-sm font-semibold text-ink mb-3">{title}</h3>
+        {rows.length === 0 ? (
+          <p className="font-body text-sm text-ink-faint">Sem dados</p>
+        ) : (
+          <div className="space-y-2">
+            {rows.map((row) => {
+              const raw = String(row[labelKey] ?? '—');
+              return (
+                <div key={raw} className="flex justify-between items-center">
+                  <span className="font-body text-sm text-ink-muted">
+                    {formatLabel ? formatLabel(raw) : raw}
+                  </span>
+                  <span className="font-body text-sm font-semibold text-ink">
+                    {row._count.id}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </CardBody>
+    </Card>
+  );
+}
+
+export interface DateRange {
+  start: string;
+  end: string;
+  [key: string]: string;
+}
+
+interface DateRangeFormProps {
+  value: DateRange;
+  onChange: (value: DateRange) => void;
+  onSubmit: () => void;
+  loading: boolean;
+}
+
+/** Selector de período + botão "Gerar", partilhado pelos 3 relatórios CRM. */
+export function DateRangeForm({ value, onChange, onSubmit, loading }: DateRangeFormProps) {
+  return (
+    <Card>
+      <CardBody className="flex flex-wrap items-end gap-3">
+        <div>
+          <label className="font-body text-xs font-medium text-ink-muted uppercase block mb-1">
+            Início
+          </label>
+          <Input
+            type="date"
+            required
+            value={value.start}
+            onChange={(e) => onChange({ ...value, start: e.target.value })}
+          />
+        </div>
+        <div>
+          <label className="font-body text-xs font-medium text-ink-muted uppercase block mb-1">
+            Fim
+          </label>
+          <Input
+            type="date"
+            required
+            value={value.end}
+            onChange={(e) => onChange({ ...value, end: e.target.value })}
+          />
+        </div>
+        <Button onClick={onSubmit} disabled={!value.start || !value.end} loading={loading}>
+          Gerar relatório
+        </Button>
+      </CardBody>
+    </Card>
+  );
+}
+
+/** Estado local do período do relatório — extraído porque os 3 hooks de
+ * relatório (beneficiaries/partners/funders) repetiam a mesma lógica. */
+export function useDateRangeReport() {
+  const today = new Date().toISOString().slice(0, 10);
+  const firstOfMonth = today.slice(0, 8) + '01';
+  const [range, setRange] = useState<DateRange>({ start: firstOfMonth, end: today });
+  const [submitted, setSubmitted] = useState<DateRange | null>(null);
+  return { range, setRange, submitted, generate: () => setSubmitted(range) };
 }
 
 interface ErrorBannerProps {

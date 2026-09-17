@@ -9,7 +9,7 @@ import { Select } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
 import { Info, formatDate } from '@/components/crm/shared';
 import { PRIORITY_COLORS } from './types';
-import type { BeneficiaryDetail, InteractionForm } from './types';
+import type { BeneficiaryDetail, InteractionForm, NeedForm } from './types';
 
 interface BeneficiaryDetailViewProps {
   beneficiary: BeneficiaryDetail;
@@ -18,6 +18,12 @@ interface BeneficiaryDetailViewProps {
   form: InteractionForm;
   setForm: (form: InteractionForm) => void;
   submitInteraction: (e: React.FormEvent) => void;
+  showNeedForm: boolean;
+  setShowNeedForm: (updater: (s: boolean) => boolean) => void;
+  needForm: NeedForm;
+  setNeedForm: (form: NeedForm) => void;
+  submitNeed: (e: React.FormEvent) => void;
+  savingNeed: boolean;
   canDelete: boolean;
   onDelete: () => void;
   isDeleting: boolean;
@@ -30,6 +36,12 @@ export function BeneficiaryDetailView({
   form,
   setForm,
   submitInteraction,
+  showNeedForm,
+  setShowNeedForm,
+  needForm,
+  setNeedForm,
+  submitNeed,
+  savingNeed,
   canDelete,
   onDelete,
   isDeleting,
@@ -99,9 +111,59 @@ export function BeneficiaryDetailView({
 
       {/* Necessidades */}
       <section>
-        <h2 className="font-display text-lg font-semibold text-ink mb-3">
-          Necessidades ({b.needs.length})
-        </h2>
+        <div className="flex justify-between items-center mb-3">
+          <h2 className="font-display text-lg font-semibold text-ink">
+            Necessidades ({b.needs.length})
+          </h2>
+          <Button
+            onClick={() => setShowNeedForm((s) => !s)}
+            intent={showNeedForm ? 'secondary' : 'primary'}
+          >
+            {showNeedForm ? 'Cancelar' : '+ Nova Necessidade'}
+          </Button>
+        </div>
+
+        {showNeedForm && (
+          <form onSubmit={submitNeed} className="mb-4">
+            <Card>
+              <CardBody className="space-y-3">
+                <Input
+                  required
+                  placeholder="Categoria (ex.: Saúde, Habitação, Educação)"
+                  value={needForm.category}
+                  onChange={(e) =>
+                    setNeedForm({ ...needForm, category: e.target.value })
+                  }
+                />
+                <Textarea
+                  required
+                  placeholder="Descrição"
+                  value={needForm.description}
+                  onChange={(e) =>
+                    setNeedForm({ ...needForm, description: e.target.value })
+                  }
+                  rows={3}
+                />
+                <Select
+                  value={needForm.priority}
+                  onValueChange={(value) =>
+                    setNeedForm({ ...needForm, priority: value })
+                  }
+                  items={[
+                    { value: 'LOW', label: 'Baixa' },
+                    { value: 'MEDIUM', label: 'Média' },
+                    { value: 'HIGH', label: 'Alta' },
+                    { value: 'URGENT', label: 'Urgente' },
+                  ]}
+                />
+                <Button type="submit" disabled={savingNeed}>
+                  {savingNeed ? 'A guardar...' : 'Guardar Necessidade'}
+                </Button>
+              </CardBody>
+            </Card>
+          </form>
+        )}
+
         <Card>
           <div className="divide-y divide-border">
             {b.needs.length === 0 ? (

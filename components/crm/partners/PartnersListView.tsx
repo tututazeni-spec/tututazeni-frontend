@@ -58,9 +58,23 @@ export function PartnersListView({
             {total} parceiros registados
           </p>
         </div>
-        <Link href="/crm/partners/novo">
-          <Button>+ Novo Parceiro</Button>
-        </Link>
+        <div className="flex gap-2">
+          <Link href="/crm/partners/dashboard">
+            <Button intent="secondary">Dashboard</Button>
+          </Link>
+          <Link href="/crm/partners/expiring-contracts">
+            <Button intent="secondary">Contratos a expirar</Button>
+          </Link>
+          <Link href="/crm/partners/overdue-milestones">
+            <Button intent="secondary">Milestones em atraso</Button>
+          </Link>
+          <Link href="/crm/partners/report">
+            <Button intent="secondary">Relatório</Button>
+          </Link>
+          <Link href="/crm/partners/novo">
+            <Button>+ Novo Parceiro</Button>
+          </Link>
+        </div>
       </div>
 
       {/* Filtros */}

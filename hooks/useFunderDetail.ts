@@ -11,10 +11,12 @@ import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import type {
-  FunderDetail,
-  GrantForm,
-  InteractionForm,
+import {
+  EMPTY_REPORT_FORM,
+  type FunderDetail,
+  type GrantForm,
+  type InteractionForm,
+  type CreateReportForm,
 } from '@/components/crm/funders/types';
 
 const EMPTY_GRANT_FORM: GrantForm = {
@@ -40,6 +42,15 @@ export function useFunderDetail(id: string) {
   const [intForm, setIntForm] = useState<InteractionForm>(
     EMPTY_INTERACTION_FORM,
   );
+
+  const [showReportForm, setShowReportForm] = useState(false);
+  const [reportForm, setReportForm] = useState<CreateReportForm>(
+    EMPTY_REPORT_FORM,
+  );
+  const [submittingReportId, setSubmittingReportId] = useState<string | null>(
+    null,
+  );
+  const [reportFileUrl, setReportFileUrl] = useState('');
 
   const {
     data: funder,
@@ -104,6 +115,75 @@ export function useFunderDetail(id: string) {
     },
   );
 
+  // PUT /crm/funders/grants/:grantId/status — existia no backend sem nenhum
+  // consumidor no frontend (grants só podiam ser criados, nunca actualizados).
+  const grantStatusMut = useApiMutation(
+    (vars: { grantId: string; status: string }) =>
+      apiClient.put(`/crm/funders/grants/${vars.grantId}/status`, {
+        status: vars.status,
+      }),
+    {
+      invalidateKeys: [detailKey],
+      onError: (e) =>
+        notify({ title: e.message || 'Erro inesperado', intent: 'danger' }),
+    },
+  );
+
+  // POST /crm/funders/:id/reports — existia no backend sem nenhum consumidor
+  // no frontend (a secção "Relatórios" só listava, nunca criava).
+  const reportMut = useApiMutation(
+    () =>
+      apiClient.post(`/crm/funders/${id}/reports`, {
+        title: reportForm.title,
+        period: reportForm.period,
+        dueDate: reportForm.dueDate,
+        ...(reportForm.grantId && { grantId: reportForm.grantId }),
+      }),
+    {
+      invalidateKeys: [detailKey],
+      onSuccess: () => {
+        setShowReportForm(false);
+        setReportForm(EMPTY_REPORT_FORM);
+      },
+      onError: (e) =>
+        notify({ title: e.message || 'Erro inesperado', intent: 'danger' }),
+    },
+  );
+
+  // PUT /crm/funders/reports/:reportId/submit — existia no backend sem
+  // nenhum consumidor no frontend (nunca era possível anexar o ficheiro e
+  // avançar um relatório de PENDING para SUBMITTED pela UI).
+  const submitReportMut = useApiMutation(
+    (vars: { reportId: string; fileUrl: string }) =>
+      apiClient.put(`/crm/funders/reports/${vars.reportId}/submit`, {
+        fileUrl: vars.fileUrl,
+      }),
+    {
+      invalidateKeys: [detailKey],
+      onSuccess: () => {
+        setSubmittingReportId(null);
+        setReportFileUrl('');
+        notify({ title: 'Relatório submetido.', intent: 'success' });
+      },
+      onError: (e) =>
+        notify({ title: e.message || 'Erro inesperado', intent: 'danger' }),
+    },
+  );
+
+  function updateGrantStatus(grantId: string, status: string) {
+    grantStatusMut.mutate({ grantId, status });
+  }
+
+  function submitReportForm(e: React.FormEvent) {
+    e.preventDefault();
+    reportMut.mutate(undefined);
+  }
+
+  function confirmReportSubmission(reportId: string) {
+    if (!reportFileUrl.trim()) return;
+    submitReportMut.mutate({ reportId, fileUrl: reportFileUrl.trim() });
+  }
+
   const saving = grantMut.isPending || intMut.isPending;
 
   function submitGrant(e: React.FormEvent) {
@@ -155,6 +235,19 @@ export function useFunderDetail(id: string) {
     setIntForm,
     submitInteraction,
     addDisbursement,
+    updateGrantStatus,
+    showReportForm,
+    setShowReportForm,
+    reportForm,
+    setReportForm,
+    submitReportForm,
+    savingReport: reportMut.isPending,
+    submittingReportId,
+    setSubmittingReportId,
+    reportFileUrl,
+    setReportFileUrl,
+    confirmReportSubmission,
+    submittingReport: submitReportMut.isPending,
     saving,
     canDelete,
     onDelete,

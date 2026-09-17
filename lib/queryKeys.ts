@@ -33,6 +33,11 @@ export const queryKeys = {
       [...queryKeys.beneficiaries.lists(), params] as const,
     detail: (id: string) =>
       [...queryKeys.beneficiaries.all, 'detail', id] as const,
+    dashboard: () => [...queryKeys.beneficiaries.all, 'dashboard'] as const,
+    followUps: (days: number) =>
+      [...queryKeys.beneficiaries.all, 'follow-ups', days] as const,
+    report: (params: Record<string, unknown>) =>
+      [...queryKeys.beneficiaries.all, 'report', params] as const,
   },
 
   funders: {
@@ -43,6 +48,9 @@ export const queryKeys = {
     detail: (id: string) => [...queryKeys.funders.all, 'detail', id] as const,
     overdueReports: (params: Record<string, unknown>) =>
       [...queryKeys.funders.all, 'overdue-reports', params] as const,
+    dashboard: () => [...queryKeys.funders.all, 'dashboard'] as const,
+    report: (params: Record<string, unknown>) =>
+      [...queryKeys.funders.all, 'report', params] as const,
   },
 
   partners: {
@@ -51,6 +59,13 @@ export const queryKeys = {
     list: (params: Record<string, unknown>) =>
       [...queryKeys.partners.lists(), params] as const,
     detail: (id: string) => [...queryKeys.partners.all, 'detail', id] as const,
+    dashboard: () => [...queryKeys.partners.all, 'dashboard'] as const,
+    expiringContracts: (days: number) =>
+      [...queryKeys.partners.all, 'expiring-contracts', days] as const,
+    overdueMilestones: () =>
+      [...queryKeys.partners.all, 'overdue-milestones'] as const,
+    report: (params: Record<string, unknown>) =>
+      [...queryKeys.partners.all, 'report', params] as const,
   },
 
   users: {
