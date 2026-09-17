@@ -8,11 +8,11 @@ import { buttonVariants } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
 
 // GET /monitoring/indicators não tem @Roles no backend, mas o link
-// "Indicadores" foi escondido de COLABORADOR no hub de OKRs (ver
-// OkrsView/OkrsPage) — sem este gate a rota continuava acessível a quem
-// escrevesse o URL directamente. `role` undefined (arranque pós-login/
-// reload) passa, como em qualquer outro filtro por role no frontend, para
-// não mostrar o bloqueio por instantes a quem tem acesso.
+// "Indicadores" foi escondido de COLABORADOR na página de Avaliações — sem
+// este gate a rota continuava acessível a quem escrevesse o URL
+// directamente. `role` undefined (arranque pós-login/reload) passa, como em
+// qualquer outro filtro por role no frontend, para não mostrar o bloqueio
+// por instantes a quem tem acesso.
 export default function IndicatorsPage() {
   const role = useCurrentRole();
   const blocked = role === 'COLABORADOR';
@@ -28,10 +28,10 @@ export default function IndicatorsPage() {
         />
         <div className="mt-4 flex justify-center">
           <a
-            href="/monitoring/okrs"
+            href="/monitoring/evaluations"
             className={buttonVariants({ intent: 'secondary', size: 'sm' })}
           >
-            ← OKRs
+            ← Avaliações
           </a>
         </div>
       </div>

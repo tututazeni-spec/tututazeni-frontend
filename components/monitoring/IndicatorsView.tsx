@@ -45,8 +45,8 @@ export function IndicatorsView({
           </h1>
           <p className="font-body text-ink-muted">{total} indicadores activos</p>
         </div>
-        <a href="/monitoring/okrs" className="font-body text-sm text-primary hover:underline">
-          ← OKRs
+        <a href="/monitoring/evaluations" className="font-body text-sm text-primary hover:underline">
+          ← Avaliações
         </a>
       </div>
 

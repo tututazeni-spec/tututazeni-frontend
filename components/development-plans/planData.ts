@@ -73,16 +73,3 @@ export function useCourseOptions(enabled = true) {
   return { options, loading: query.isLoading };
 }
 
-/** Ciclos de avaliação (para "Ciclo do PDI" / ligação à avaliação de origem). */
-export function useCycleOptions(enabled = true) {
-  const query = useApiQuery<{ id: number; name: string }[]>(
-    ['development-plans', 'cycles-picker'],
-    '/performance/cycles',
-    { staleTime: STALE_TIME.SEMI_STATIC, enabled },
-  );
-  const options: Option[] = (query.data ?? []).map((c) => ({
-    value: String(c.id),
-    label: c.name,
-  }));
-  return { options, loading: query.isLoading };
-}

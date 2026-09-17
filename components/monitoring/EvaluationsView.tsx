@@ -34,8 +34,8 @@ export function EvaluationsView({
         <h1 className="font-display text-2xl font-bold text-ink">
           Avaliação de Desempenho
         </h1>
-        <a href="/monitoring/okrs" className="font-body text-sm text-primary hover:underline">
-          ← OKRs
+        <a href="/monitoring/indicators" className="font-body text-sm text-primary hover:underline">
+          Indicadores →
         </a>
       </div>
 

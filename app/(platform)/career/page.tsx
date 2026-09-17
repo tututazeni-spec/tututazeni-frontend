@@ -3,10 +3,8 @@
 
 // Módulo "Carreira" — estrutura final por docs/04-modulo-career.md: Visão
 // Geral, A Minha Carreira, Percursos de Carreira, Planos de Carreira,
-// Oportunidades, PDI & Desenvolvimento, Sucessão, Histórico. Sucessão foi
-// fundida aqui a partir do antigo /sucession (ver
-// app/(platform)/sucession/page.tsx, agora um stub de redireccionamento) —
-// os componentes continuam intactos em components/career/succession/.
+// Oportunidades, PDI & Desenvolvimento, Histórico. Módulo de Sucessão
+// removido da plataforma (ex-separador "Sucessão").
 // PDI continua um módulo próprio (src/development-plans); o separador
 // "PDI & Desenvolvimento" só resume e liga para lá, não duplica.
 // Container: gere o separador activo; delega dados+apresentação a cada
@@ -35,7 +33,6 @@ import { VacanciesView } from '@/components/career/VacanciesView';
 import { MyCareerTab } from '@/components/career/plans/MyCareerTab';
 import { PlansManagementView } from '@/components/career/plans/PlansManagementView';
 import { SimulateModal } from '@/components/career/plans/SimulateModal';
-import { SuccessionTab } from '@/components/career/succession/SuccessionTab';
 import type { CareerPlan as CareerPlansPlan, Role as CareerPlansRole } from '@/components/career/plans/types';
 
 type CareerTab =
@@ -45,7 +42,6 @@ type CareerTab =
   | 'plans'
   | 'opportunities'
   | 'pdi'
-  | 'succession'
   | 'history';
 
 const TABS: Array<{ id: CareerTab; label: string } & RoleRestricted> = [
@@ -55,7 +51,6 @@ const TABS: Array<{ id: CareerTab; label: string } & RoleRestricted> = [
   { id: 'plans', label: 'Planos de Carreira', roles: EXECUTIVE_ROLES },
   { id: 'opportunities', label: 'Oportunidades' },
   { id: 'pdi', label: 'PDI & Desenvolvimento' },
-  { id: 'succession', label: 'Sucessão', roles: EXECUTIVE_ROLES },
   { id: 'history', label: 'Histórico' },
 ];
 
@@ -160,9 +155,6 @@ export default function CareerPage() {
         </TabsContent>
         <TabsContent value="pdi">
           <PdiTab />
-        </TabsContent>
-        <TabsContent value="succession">
-          <SuccessionTab />
         </TabsContent>
         <TabsContent value="history">
           <HistoryTab />
