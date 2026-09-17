@@ -1,19 +1,25 @@
 // components/career/HistoryTab.tsx
-// Separador "Histórico" — composição só-leitura de GET /career/me/history:
-// cargos, mudanças organizacionais, planos de carreira (passados+actuais),
-// candidaturas internas e certificados.
+// Separador "Histórico" — composição só-leitura de GET /career/me/history
+// (ou /career/users/:id/history para RH/Gestor/Admin a consultar outro
+// colaborador): cargos, mudanças organizacionais, planos de carreira
+// (passados+actuais), candidaturas internas e certificados.
 
 'use client';
 
+import { useState } from 'react';
 import type { ReactNode } from 'react';
-import { Award, Briefcase, FileText, GitCommitHorizontal, Send } from 'lucide-react';
+import { Award, Briefcase, FileText, GitCommitHorizontal, Send, X } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
+import { EXECUTIVE_ROLES, isRoleAllowed, type Role } from '@/lib/roles';
 import { Badge } from '@/components/ui/Badge';
 import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { DepartmentUserPicker } from '@/components/departments/DepartmentUserPicker';
+import type { DirectoryUser } from '@/components/users/types';
 import type { CareerHistory } from './types';
 
 function fmt(date: string | null | undefined): string {
@@ -49,18 +55,68 @@ function Section({
 }
 
 export function HistoryTab() {
+  const { data: me } = useCurrentUser();
+  const canLookup = isRoleAllowed(EXECUTIVE_ROLES, me?.role?.name as Role | undefined);
+  const [employee, setEmployee] = useState<DirectoryUser | null>(null);
+  const [showPicker, setShowPicker] = useState(false);
+
   const { data: history, isLoading: loading } = useApiQuery<CareerHistory>(
-    queryKeys.career.history(),
-    '/career/me/history',
+    queryKeys.career.history(employee?.id),
+    employee ? `/career/users/${employee.id}/history` : '/career/me/history',
     { staleTime: STALE_TIME.SEMI_STATIC },
   );
 
-  if (loading) return <Skeleton rows={4} />;
+  return (
+    <div>
+      {canLookup && (
+        <div className="mb-4">
+          {employee ? (
+            <div className="flex items-center gap-2 rounded-control border border-primary bg-primary-subtle px-3 py-2">
+              <span className="font-body text-xs text-primary">A ver histórico de:</span>
+              <span className="font-body text-sm font-medium text-ink">{employee.fullName}</span>
+              <button
+                type="button"
+                aria-label="Voltar à minha carreira"
+                onClick={() => setEmployee(null)}
+                className="ml-auto rounded-control p-1 text-ink-muted hover:bg-surface-sunken hover:text-ink"
+              >
+                <X size={14} strokeWidth={1.75} />
+              </button>
+            </div>
+          ) : showPicker ? (
+            <DepartmentUserPicker
+              label="Ver histórico de outro colaborador"
+              htmlFor="history-employee-picker"
+              value={employee}
+              onChange={(u) => {
+                setEmployee(u);
+                setShowPicker(false);
+              }}
+            />
+          ) : (
+            <button
+              type="button"
+              onClick={() => setShowPicker(true)}
+              className="font-body text-xs font-medium text-primary hover:underline"
+            >
+              Ver histórico de outro colaborador
+            </button>
+          )}
+        </div>
+      )}
 
-  if (!history) {
-    return <EmptyState title="Histórico indisponível" description="Não foi possível carregar o histórico." />;
-  }
+      {loading ? (
+        <Skeleton rows={4} />
+      ) : !history ? (
+        <EmptyState title="Histórico indisponível" description="Não foi possível carregar o histórico." />
+      ) : (
+        <HistoryContent history={history} />
+      )}
+    </div>
+  );
+}
 
+function HistoryContent({ history }: { history: CareerHistory }) {
   const { positionHistory, orgChanges, plans, applications, certificates } = history;
   const isEmpty =
     positionHistory.length === 0 &&
