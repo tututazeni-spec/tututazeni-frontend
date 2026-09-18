@@ -99,7 +99,11 @@ export default function CoursesPage() {
       )}
       {nav.view === 'certificates' && <CertificatesView />}
       {nav.view === 'dashboard' && isAdmin && (
-        <AdminDashboardView onSelect={handleSelect} />
+        <AdminDashboardView
+          onSelect={handleSelect}
+          onNavigate={(view) => setNav({ view })}
+          onCreateCourse={() => setShowCreate(true)}
+        />
       )}
       {nav.view === 'gestao' && isAdmin && (
         <GestaoView
