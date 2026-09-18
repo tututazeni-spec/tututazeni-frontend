@@ -62,6 +62,7 @@ export interface LessonProgress {
   liveInstructor: { id: number; fullName: string } | null;
   activities: LessonActivity[];
   resources: LessonResource[];
+  quizId: number | null;
   allowDownload: boolean;
 }
 
