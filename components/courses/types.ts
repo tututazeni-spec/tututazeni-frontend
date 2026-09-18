@@ -180,11 +180,76 @@ export interface PaginatedCourses {
   totalPages: number;
 }
 
+export interface DashboardCourseRef {
+  id: number;
+  title: string;
+}
+
+export interface DashboardActivityUser {
+  fullName: string;
+}
+
 export interface AdminDashboard {
+  // Mantidos por compatibilidade — sobrepostos por `counts`/`rates` abaixo.
   courses: { total: number; published: number };
   enrollments: { total: number; completed: number; overdue: number };
   completionRate: number;
-  topCourses: Course[];
+
+  counts: {
+    total: number;
+    published: number;
+    draft: number;
+    paused: number;
+    archived: number;
+    totalModules: number;
+    totalLessons: number;
+    totalEnrollments: number;
+    pendingEnrollments: number;
+    mandatoryCourses: number;
+    optionalCourses: number;
+    certificatesIssued: number;
+  };
+  rates: {
+    avgCompletionRate: number;
+    avgPassRate: number;
+    avgRating: number;
+    totalLearningHours: number;
+  };
+  topCourses: Array<DashboardCourseRef & { enrollments: number }>;
+  bestCompletion: Array<DashboardCourseRef & { rate: number }>;
+  worstCompletion: Array<DashboardCourseRef & { rate: number }>;
+  byCategory: Array<{ category: string; count: number }>;
+  byLevel: Array<{ level: CourseLevel; count: number }>;
+  byUnit: Array<{ unit: string; count: number }>;
+  byDepartment: Array<{ department: string; count: number }>;
+  byInstructor: Array<{ instructor: string; count: number }>;
+  recentlyCreated: Array<DashboardCourseRef & { createdAt: string }>;
+  recentlyUpdated: Array<DashboardCourseRef & { updatedAt: string }>;
+  openForEnrollment: number;
+  endingSoon: Array<DashboardCourseRef & { endDate: string }>;
+  withoutEnrollments: number;
+  withoutContent: number;
+  withoutInstructor: number;
+  withPendingContent: number;
+  upcomingLiveSessions: Array<{
+    id: number;
+    title: string;
+    liveDate: string | null;
+    instructor: string | null;
+    course: DashboardCourseRef;
+  }>;
+  recentActivity: {
+    enrollments: Array<{ id: number; enrolledAt: string; user: DashboardActivityUser; course: DashboardCourseRef }>;
+    completions: Array<{ id: number; completedAt: string | null; user: DashboardActivityUser; course: DashboardCourseRef }>;
+    feedbacks: Array<{ id: number; rating: number; createdAt: string; user: DashboardActivityUser; course: DashboardCourseRef }>;
+    certificates: Array<{ id: number; issuedAt: string; user: DashboardActivityUser | null; course: DashboardCourseRef | null }>;
+  };
+  monthlyTrend: {
+    enrollments: Array<{ month: string; count: number }>;
+    completions: Array<{ month: string; count: number }>;
+  };
+  topCompetencies: Array<{ id: number; name: string; count: number }>;
+  alerts: Array<{ message: string; severity: 'warning' | 'danger' | 'info' }>;
 }
 
 export interface MyEnrollment {
