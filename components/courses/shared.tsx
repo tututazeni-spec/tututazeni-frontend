@@ -20,6 +20,7 @@ import {
   Link2,
   Package,
   HelpCircle,
+  Radio,
   type LucideIcon,
 } from 'lucide-react';
 import type { StatusBadgeMap } from '@/lib/statusBadge';
@@ -57,16 +58,22 @@ export const COURSE_LEVEL_MAP: StatusBadgeMap<CourseLevel> = {
 export const COURSE_STATUS_MAP: StatusBadgeMap<CourseStatus> = {
   DRAFT: { label: 'Rascunho', cls: 'bg-surface-sunken text-ink-muted' },
   PUBLISHED: { label: 'Publicado', cls: 'bg-success-subtle text-success-ink' },
+  PAUSED: { label: 'Em pausa', cls: 'bg-warning-subtle text-warning-ink' },
   ARCHIVED: { label: 'Arquivado', cls: 'bg-surface-sunken text-ink-faint' },
 };
 
 const ENROLLMENT_STATUS_MAP: StatusBadgeMap<EnrollmentStatus> = {
+  PENDING_APPROVAL: {
+    label: 'Pendente de aprovação',
+    cls: 'bg-warning-subtle text-warning-ink',
+  },
   NOT_STARTED: {
     label: 'Não iniciado',
     cls: 'bg-surface-sunken text-ink-muted',
   },
   IN_PROGRESS: { label: 'Em progresso', cls: 'bg-info-subtle text-info-ink' },
   COMPLETED: { label: 'Concluído', cls: 'bg-success-subtle text-success-ink' },
+  CANCELLED: { label: 'Cancelado', cls: 'bg-surface-sunken text-ink-faint' },
   EXPIRED: { label: 'Expirado', cls: 'bg-danger-subtle text-danger-ink' },
 };
 
@@ -104,6 +111,7 @@ export function LessonIcon({ type }: LessonIconProps) {
     LINK: Link2,
     SCORM: Package,
     QUIZ: HelpCircle,
+    LIVE: Radio,
   };
   const Icon = icons[type] ?? FileText;
   return <Icon size={14} strokeWidth={1.75} className="inline" />;
