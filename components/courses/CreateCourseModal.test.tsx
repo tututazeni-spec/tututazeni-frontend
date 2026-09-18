@@ -7,6 +7,10 @@ vi.mock('@/lib/apiClient', () => ({
 }));
 
 vi.mock('@/hooks/useApiQuery', () => ({
+  // CreateCourseModal usa useApiQuery para /departments/tree e /courses
+  // (lista de pré-requisitos) — nenhum teste aqui depende dos dados reais,
+  // por isso `data: undefined` chega (optional chaining trata o resto).
+  useApiQuery: () => ({ data: undefined, isLoading: false, error: null }),
   useApiMutation: (
     fn: (v: unknown) => Promise<unknown>,
     opts: {
@@ -21,6 +25,10 @@ vi.mock('@/hooks/useApiQuery', () => ({
       ),
     isPending: false,
   }),
+}));
+
+vi.mock('@/components/departments/DepartmentUserPicker', () => ({
+  DepartmentUserPicker: () => <div data-testid="instructor-picker" />,
 }));
 
 vi.mock('@/components/ui/Modal', () => ({
@@ -71,7 +79,14 @@ describe('CreateCourseModal', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Criar Curso' }));
 
     await waitFor(() => expect(post).toHaveBeenCalledTimes(1));
-    expect(post).toHaveBeenCalledWith('/courses', { title: 'Curso Novo' });
+    expect(post).toHaveBeenCalledWith('/courses', {
+      title: 'Curso Novo',
+      language: 'pt',
+      visibility: 'PUBLIC',
+      mandatory: false,
+      requiresApproval: false,
+      certificateEnabled: false,
+    });
   });
 
   test('com imagem escolhida — inclui thumbnailUrl no payload', async () => {
@@ -86,6 +101,11 @@ describe('CreateCourseModal', () => {
     expect(post).toHaveBeenCalledWith('/courses', {
       title: 'Curso Com Capa',
       thumbnailUrl: 'data:image/jpeg;base64,ZZZZ',
+      language: 'pt',
+      visibility: 'PUBLIC',
+      mandatory: false,
+      requiresApproval: false,
+      certificateEnabled: false,
     });
   });
 
