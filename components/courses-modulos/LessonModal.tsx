@@ -38,6 +38,8 @@ import type { Lesson, LessonActivityType } from './types';
 interface LessonModalProps {
   moduleId: number;
   editing: Lesson | null;
+  /** Outras aulas do módulo — para escolher a aula pré-requisito. */
+  otherLessons: Lesson[];
   onClose: () => void;
   onSaved: () => void;
   /** Refresca o curso sem fechar o modal — usado pelas actividades/recursos. */
@@ -74,6 +76,7 @@ const ACTIVITY_TYPE_ITEMS: { value: LessonActivityType; label: string }[] = [
 export function LessonModal({
   moduleId,
   editing,
+  otherLessons,
   onClose,
   onSaved,
   onRefresh,
@@ -103,7 +106,13 @@ export function LessonModal({
     liveDate: editing?.liveDate ? editing.liveDate.slice(0, 16) : '',
     liveSessionUrl: editing?.liveSessionUrl ?? '',
     liveInstructorId: editing?.liveInstructorId ? String(editing.liveInstructorId) : '',
+    requiredLessonId: editing?.requiredLessonId ? String(editing.requiredLessonId) : '',
   });
+
+  const prerequisiteItems = otherLessons
+    .filter((l) => l.id !== editing?.id)
+    .sort((a, b) => a.seq - b.seq)
+    .map((l) => ({ value: String(l.id), label: `${l.seq}. ${l.title}` }));
 
   const { data: instructorsResp } = useApiQuery<{ data: { id: number; fullName: string }[] }>(
     ['courses-modulos', 'instructors-picker'],
@@ -184,6 +193,7 @@ export function LessonModal({
           form.contentType === 'LIVE' && form.liveInstructorId
             ? +form.liveInstructorId
             : undefined,
+        requiredLessonId: form.requiredLessonId ? +form.requiredLessonId : null,
       };
       return editing
         ? apiClient.put(`/courses/lessons/${editing.id}`, payload)
@@ -473,6 +483,18 @@ export function LessonModal({
                 />
               </FormField>
             </div>
+
+            {prerequisiteItems.length > 0 && (
+              <FormField label="Aula pré-requisito" htmlFor="lesson-required">
+                <Select
+                  items={prerequisiteItems}
+                  value={form.requiredLessonId || undefined}
+                  onValueChange={(v) => set('requiredLessonId', v)}
+                  className="w-full"
+                  placeholder="Nenhuma"
+                />
+              </FormField>
+            )}
 
             <div className="flex flex-wrap gap-x-4 gap-y-2">
               {[
