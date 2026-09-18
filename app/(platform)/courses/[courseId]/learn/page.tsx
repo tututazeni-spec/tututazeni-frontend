@@ -70,6 +70,38 @@ export default function CourseLearnPage() {
   const overallPct =
     totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
 
+  // Lista plana de aulas (todas as aulas de todos os módulos, pela ordem do
+  // curso) — usada só para "‹ Lição anterior / Próxima lição ›". Marca cada
+  // entrada com o estado de bloqueio do módulo-mãe para não avançar para
+  // dentro de um módulo ainda trancado.
+  const flatLessons = useMemo(
+    () =>
+      modules.flatMap((m) =>
+        m.lessons.map((l) => ({ lesson: l, moduleLocked: m.locked })),
+      ),
+    [modules],
+  );
+  const activeLessonIndex = activeLesson
+    ? flatLessons.findIndex((e) => e.lesson.id === activeLesson.id)
+    : -1;
+  const previousEntry =
+    activeLessonIndex > 0 ? flatLessons[activeLessonIndex - 1] : null;
+  const nextEntry =
+    activeLessonIndex >= 0 && activeLessonIndex < flatLessons.length - 1
+      ? flatLessons[activeLessonIndex + 1]
+      : null;
+
+  const handlePrevious = () => {
+    if (!previousEntry) return;
+    setActiveLesson(previousEntry.lesson);
+    setJustCompletedModule(null);
+  };
+  const handleNext = () => {
+    if (!nextEntry || nextEntry.moduleLocked) return;
+    setActiveLesson(nextEntry.lesson);
+    setJustCompletedModule(null);
+  };
+
   // Auto-seleccionar aula activa (continuar de onde parou) quando o progresso chega.
   useEffect(() => {
     if (activeLesson || modules.length === 0) return;
@@ -278,6 +310,10 @@ export default function CourseLearnPage() {
                 onComplete={handleMarkComplete}
                 completing={completing}
                 currentModule={activeModule}
+                onPrevious={handlePrevious}
+                onNext={handleNext}
+                hasPrevious={!!previousEntry}
+                hasNext={!!nextEntry && !nextEntry.moduleLocked}
               />
             ) : (
               <div className="flex-1 bg-ink flex items-center justify-center text-canvas text-center">
