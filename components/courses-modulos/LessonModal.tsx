@@ -19,8 +19,9 @@
 import { useState } from 'react';
 import { Pencil, BookMarked, Plus, Trash2, FileQuestion } from 'lucide-react';
 import { useToast } from '@/providers/ToastProvider';
-import { useApiMutation } from '@/hooks/useApiQuery';
+import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
+import { STALE_TIME } from '@/lib/queryClient';
 import { fileToPdfDataUrl, pdfErrorMessage } from '@/lib/lessonPdf';
 import { fileToSlideDataUrl, slideErrorMessage } from '@/lib/lessonSlide';
 import { CONTENT_TYPE } from './constants';
@@ -37,11 +38,24 @@ import type { Lesson, LessonActivityType } from './types';
 interface LessonModalProps {
   moduleId: number;
   editing: Lesson | null;
+  /** Outras aulas do módulo — para escolher a aula pré-requisito. */
+  otherLessons: Lesson[];
   onClose: () => void;
   onSaved: () => void;
   /** Refresca o curso sem fechar o modal — usado pelas actividades/recursos. */
   onRefresh: () => Promise<unknown>;
 }
+
+const RESOURCE_TYPE_ITEMS = [
+  { value: 'PDF', label: 'PDF' },
+  { value: 'ARTICLE', label: 'Artigo' },
+  { value: 'VIDEO', label: 'Vídeo' },
+  { value: 'LINK', label: 'Link' },
+  { value: 'BOOK', label: 'Livro' },
+  { value: 'FILE', label: 'Ficheiro' },
+  { value: 'TEMPLATE', label: 'Modelo/Template' },
+  { value: 'SUPPORT_MATERIAL', label: 'Material de apoio' },
+];
 
 const ACTIVITY_TYPE_ITEMS: { value: LessonActivityType; label: string }[] = [
   { value: 'TEXT', label: 'Texto' },
@@ -62,6 +76,7 @@ const ACTIVITY_TYPE_ITEMS: { value: LessonActivityType; label: string }[] = [
 export function LessonModal({
   moduleId,
   editing,
+  otherLessons,
   onClose,
   onSaved,
   onRefresh,
@@ -75,10 +90,13 @@ export function LessonModal({
     status: editing?.status ?? 'PUBLISHED',
     contentUrl: editing?.contentUrl ?? '',
     textContent: editing?.textContent ?? '',
+    captionsUrl: editing?.captionsUrl ?? '',
+    transcript: editing?.transcript ?? '',
     seq: editing?.seq ?? 1,
     durationMinutes: editing?.durationMinutes != null ? String(editing.durationMinutes) : '',
     mandatory: editing?.mandatory ?? true,
     allowSkip: editing?.allowSkip ?? true,
+    allowDownload: editing?.allowDownload ?? false,
     autoComplete: editing?.autoComplete ?? false,
     minWatchSeconds: editing?.minWatchSeconds != null ? String(editing.minWatchSeconds) : '',
     requiresActivity: editing?.requiresActivity ?? false,
@@ -87,7 +105,24 @@ export function LessonModal({
     availableUntil: editing?.availableUntil ? editing.availableUntil.slice(0, 10) : '',
     liveDate: editing?.liveDate ? editing.liveDate.slice(0, 16) : '',
     liveSessionUrl: editing?.liveSessionUrl ?? '',
+    liveInstructorId: editing?.liveInstructorId ? String(editing.liveInstructorId) : '',
+    requiredLessonId: editing?.requiredLessonId ? String(editing.requiredLessonId) : '',
   });
+
+  const prerequisiteItems = otherLessons
+    .filter((l) => l.id !== editing?.id)
+    .sort((a, b) => a.seq - b.seq)
+    .map((l) => ({ value: String(l.id), label: `${l.seq}. ${l.title}` }));
+
+  const { data: instructorsResp } = useApiQuery<{ data: { id: number; fullName: string }[] }>(
+    ['courses-modulos', 'instructors-picker'],
+    '/users',
+    { params: { limit: 200 }, staleTime: STALE_TIME.SEMI_STATIC },
+  );
+  const instructorItems = (instructorsResp?.data ?? []).map((u) => ({
+    value: String(u.id),
+    label: u.fullName,
+  }));
   function set(k: string, v: string | number | boolean) {
     setForm((f) => ({ ...f, [k]: v }));
   }
@@ -135,9 +170,16 @@ export function LessonModal({
         seq: +form.seq,
         contentUrl: form.contentType !== 'TEXT' ? form.contentUrl || undefined : undefined,
         textContent: form.contentType === 'TEXT' ? form.textContent || undefined : undefined,
+        captionsUrl:
+          form.contentType === 'VIDEO' ? form.captionsUrl.trim() || undefined : undefined,
+        transcript:
+          form.contentType === 'VIDEO' || form.contentType === 'AUDIO'
+            ? form.transcript.trim() || undefined
+            : undefined,
         durationMinutes: form.durationMinutes !== '' ? +form.durationMinutes : undefined,
         mandatory: form.mandatory,
         allowSkip: form.allowSkip,
+        allowDownload: form.allowDownload,
         autoComplete: form.autoComplete,
         minWatchSeconds: form.minWatchSeconds !== '' ? +form.minWatchSeconds : undefined,
         requiresActivity: form.requiresActivity,
@@ -147,6 +189,11 @@ export function LessonModal({
         liveDate: form.contentType === 'LIVE' && form.liveDate ? form.liveDate : undefined,
         liveSessionUrl:
           form.contentType === 'LIVE' ? form.liveSessionUrl || undefined : undefined,
+        liveInstructorId:
+          form.contentType === 'LIVE' && form.liveInstructorId
+            ? +form.liveInstructorId
+            : undefined,
+        requiredLessonId: form.requiredLessonId ? +form.requiredLessonId : null,
       };
       return editing
         ? apiClient.put(`/courses/lessons/${editing.id}`, payload)
@@ -293,6 +340,28 @@ export function LessonModal({
               </FormField>
             )}
 
+            {form.contentType === 'VIDEO' && (
+              <FormField label="Legendas (URL)" htmlFor="lesson-captions">
+                <Input
+                  id="lesson-captions"
+                  value={form.captionsUrl}
+                  onChange={(e) => set('captionsUrl', e.target.value)}
+                  placeholder="https://... (.vtt/.srt)"
+                />
+              </FormField>
+            )}
+
+            {(form.contentType === 'VIDEO' || form.contentType === 'AUDIO') && (
+              <FormField label="Transcrição" htmlFor="lesson-transcript">
+                <Textarea
+                  id="lesson-transcript"
+                  value={form.transcript}
+                  onChange={(e) => set('transcript', e.target.value)}
+                  rows={3}
+                />
+              </FormField>
+            )}
+
             {form.contentType === 'LIVE' && (
               <div className="grid grid-cols-2 gap-3">
                 <FormField label="Data/hora" htmlFor="lesson-live-date">
@@ -309,6 +378,15 @@ export function LessonModal({
                     value={form.liveSessionUrl}
                     onChange={(e) => set('liveSessionUrl', e.target.value)}
                     placeholder="https://..."
+                  />
+                </FormField>
+                <FormField label="Instrutor" htmlFor="lesson-live-instructor">
+                  <Select
+                    items={instructorItems}
+                    value={form.liveInstructorId || undefined}
+                    onValueChange={(v) => set('liveInstructorId', v)}
+                    className="w-full"
+                    placeholder="Não definido"
                   />
                 </FormField>
               </div>
@@ -406,6 +484,18 @@ export function LessonModal({
               </FormField>
             </div>
 
+            {prerequisiteItems.length > 0 && (
+              <FormField label="Aula pré-requisito" htmlFor="lesson-required">
+                <Select
+                  items={prerequisiteItems}
+                  value={form.requiredLessonId || undefined}
+                  onValueChange={(v) => set('requiredLessonId', v)}
+                  className="w-full"
+                  placeholder="Nenhuma"
+                />
+              </FormField>
+            )}
+
             <div className="flex flex-wrap gap-x-4 gap-y-2">
               {[
                 ['mandatory', 'Obrigatória'],
@@ -413,6 +503,7 @@ export function LessonModal({
                 ['autoComplete', 'Marcar automaticamente como concluída'],
                 ['requiresActivity', 'Exigir actividade'],
                 ['requiresAssessment', 'Exigir avaliação'],
+                ['allowDownload', 'Permitir download'],
               ].map(([key, label]) => (
                 <label key={key} className="flex items-center gap-2 text-xs text-ink-muted">
                   <input
@@ -461,7 +552,7 @@ function LessonActivitiesAndResources({
 }) {
   const notify = useToast();
   const [activityForm, setActivityForm] = useState({ type: 'TEXT' as LessonActivityType, title: '' });
-  const [resourceForm, setResourceForm] = useState({ title: '', url: '' });
+  const [resourceForm, setResourceForm] = useState({ title: '', url: '', fileType: 'PDF' });
   const [quizEditorOpen, setQuizEditorOpen] = useState(false);
 
   const addActivity = useApiMutation(
@@ -493,10 +584,11 @@ function LessonActivitiesAndResources({
       apiClient.post(`/courses/lessons/${lesson.id}/resources`, {
         title: resourceForm.title,
         url: resourceForm.url,
+        fileType: resourceForm.fileType,
       }),
     {
       onSuccess: async () => {
-        setResourceForm({ title: '', url: '' });
+        setResourceForm({ title: '', url: '', fileType: 'PDF' });
         await onRefresh();
       },
       onError: (e) => notify({ title: e.message, intent: 'danger' }),
@@ -573,6 +665,11 @@ function LessonActivitiesAndResources({
               key={r.id}
               className="flex items-center gap-2 rounded-lg bg-surface-sunken border border-border px-3 py-1.5"
             >
+              {r.fileType && (
+                <span className="text-xs font-bold text-ink-faint">
+                  {RESOURCE_TYPE_ITEMS.find((t) => t.value === r.fileType)?.label ?? r.fileType}
+                </span>
+              )}
               <span className="flex-1 text-sm text-ink truncate">{r.title}</span>
               <button
                 type="button"
@@ -589,6 +686,12 @@ function LessonActivitiesAndResources({
           )}
         </div>
         <div className="flex gap-2">
+          <Select
+            items={RESOURCE_TYPE_ITEMS}
+            value={resourceForm.fileType}
+            onValueChange={(v) => setResourceForm((f) => ({ ...f, fileType: v }))}
+            className="w-40"
+          />
           <Input
             value={resourceForm.title}
             onChange={(e) => setResourceForm((f) => ({ ...f, title: e.target.value }))}

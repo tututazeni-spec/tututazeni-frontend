@@ -5,7 +5,7 @@
 // project_innova_component_separation_audit.
 
 import { useEffect, useMemo, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, PanelLeft, BookOpen } from 'lucide-react';
 import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
@@ -32,6 +32,7 @@ import type {
 export default function CourseLearnPage() {
   const notify = useToast();
   const params = useParams();
+  const router = useRouter();
   const courseId = parseInt((params?.courseId as string) ?? '0');
 
   const qc = useQueryClient();
@@ -199,7 +200,7 @@ export default function CourseLearnPage() {
       {/* Top bar */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-surface flex-shrink-0">
         <div className="flex items-center gap-4">
-          <Button intent="ghost" size="sm">
+          <Button intent="ghost" size="sm" onClick={() => router.back()}>
             <ArrowLeft size={16} strokeWidth={1.75} />
             Voltar
           </Button>

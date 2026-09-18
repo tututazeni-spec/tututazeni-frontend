@@ -58,10 +58,13 @@ export interface Lesson {
   status?: LessonStatus;
   contentUrl?: string | null;
   textContent?: string | null;
+  captionsUrl?: string | null;
+  transcript?: string | null;
   seq: number;
   durationMinutes?: number | null;
   mandatory?: boolean;
   allowSkip?: boolean;
+  allowDownload?: boolean;
   autoComplete?: boolean;
   minWatchSeconds?: number | null;
   requiresActivity?: boolean;
@@ -76,12 +79,32 @@ export interface Lesson {
   resources?: LessonResource[];
 }
 
+export interface ModuleCompetency {
+  competency: { id: number; name: string };
+}
+
+export interface ModuleMaterial {
+  id: number;
+  moduleId: number;
+  title: string;
+  url: string;
+  fileType?: string | null;
+  fileSizeKb?: number | null;
+}
+
+export interface ModuleAssessment {
+  id: number;
+  title: string;
+  status?: string;
+}
+
 export interface CourseModule {
   id: number;
   courseId: number;
   code?: string | null;
   title: string;
   description?: string | null;
+  thumbnailUrl?: string | null;
   seq: number;
   status?: ModuleStatus;
   type?: ModuleType | null;
@@ -94,6 +117,9 @@ export interface CourseModule {
   learningObjectives?: string[];
   requiredModuleId?: number | null;
   lessons: Lesson[];
+  competencies?: ModuleCompetency[];
+  materials?: ModuleMaterial[];
+  assessments?: ModuleAssessment[];
 }
 
 export interface LessonProgress {

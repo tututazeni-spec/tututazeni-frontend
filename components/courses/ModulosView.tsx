@@ -362,6 +362,7 @@ export function ModulosView({ initialCourseId }: ModulosViewProps) {
                 modal.editing)
               : null
           }
+          otherLessons={modules.find((m) => m.id === modal.moduleId)?.lessons ?? []}
           onClose={() => dispatchModal({ type: 'close' })}
           onSaved={async () => {
             await refetch();
