@@ -5,12 +5,26 @@
 // (hooks/useCourseDetail.ts, components/courses/CourseDetailView.tsx).
 // Ver memory project_innova_component_separation_audit, item 3.6.
 
-export type CourseStatus = 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
+export type CourseStatus = 'DRAFT' | 'PUBLISHED' | 'PAUSED' | 'ARCHIVED';
+export type CourseVisibility = 'PUBLIC' | 'PRIVATE' | 'EMPLOYEES_ONLY' | 'SELECTED_GROUPS';
 export type CourseLevel = 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED';
 export type LessonType =
-  'VIDEO' | 'PDF' | 'TEXT' | 'AUDIO' | 'SLIDE' | 'LINK' | 'SCORM' | 'QUIZ';
+  | 'VIDEO'
+  | 'PDF'
+  | 'TEXT'
+  | 'AUDIO'
+  | 'SLIDE'
+  | 'LINK'
+  | 'SCORM'
+  | 'QUIZ'
+  | 'LIVE';
 export type EnrollmentStatus =
-  'NOT_STARTED' | 'IN_PROGRESS' | 'COMPLETED' | 'EXPIRED';
+  | 'PENDING_APPROVAL'
+  | 'NOT_STARTED'
+  | 'IN_PROGRESS'
+  | 'COMPLETED'
+  | 'CANCELLED'
+  | 'EXPIRED';
 
 export interface Course {
   id: number;
@@ -18,20 +32,43 @@ export interface Course {
   shortDescription: string | null;
   description: string | null;
   category: string | null;
+  knowledgeArea: string | null;
   tags: string[];
   thumbnailUrl: string | null;
   workloadHours: number | null;
+  estimatedDurationDays: number | null;
   language: string;
   level: CourseLevel;
   status: CourseStatus;
+  visibility: CourseVisibility;
   mandatory: boolean;
   internalCode: string | null;
+  departmentId: number | null;
+  department?: { id: number; name: string; code: string } | null;
+  unit: string | null;
+  targetAudience: string[];
   learningObjectives: string[];
+  startDate: string | null;
+  endDate: string | null;
+  requiresApproval: boolean;
   passingScore: number | null;
+  minCompletionPercent: number | null;
+  certificateEnabled: boolean;
+  certificateCriteria: string | null;
+  certificateValidityDays: number | null;
+  primaryInstructorId: number | null;
+  requiredCourseId: number | null;
   createdAt: string;
   publishedAt: string | null;
   _count: { enrollments: number; feedbacks: number; modules: number };
   competencies: Array<{ competency: { id: number; name: string } }>;
+  primaryInstructor?: { id: number; fullName: string; avatarUrl: string | null } | null;
+  requiredCourse?: { id: number; title: string } | null;
+  instructors?: Array<{
+    id: number;
+    userId: number;
+    user: { id: number; fullName: string; avatarUrl: string | null };
+  }>;
 }
 
 export interface Lesson {

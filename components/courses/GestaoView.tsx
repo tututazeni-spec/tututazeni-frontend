@@ -29,6 +29,7 @@ import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
 import { ModuleModal } from '@/components/courses-modulos/ModuleModal';
 import { EditCourseModal } from './EditCourseModal';
+import { PendingEnrollmentsModal } from './PendingEnrollmentsModal';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -46,6 +47,8 @@ interface GestaoViewProps {
 }
 
 const DRAFT_PARAMS = { status: 'DRAFT', limit: 50 } as const;
+const PUBLISHED_PARAMS = { status: 'PUBLISHED', limit: 50 } as const;
+const PAUSED_PARAMS = { status: 'PAUSED', limit: 50 } as const;
 const ARCHIVED_PARAMS = { status: 'ARCHIVED', limit: 50 } as const;
 
 function plural(n: number, singular: string, plural: string): string {
@@ -57,11 +60,22 @@ export function GestaoView({ onSelect, onManageModules }: GestaoViewProps) {
   const toast = useToast();
   const [addModuleFor, setAddModuleFor] = useState<number | null>(null);
   const [editCourseId, setEditCourseId] = useState<number | null>(null);
+  const [pendingFor, setPendingFor] = useState<Course | null>(null);
 
   const drafts = useApiQuery<PaginatedCourses>(
     queryKeys.courses.list(DRAFT_PARAMS),
     '/courses',
     { params: DRAFT_PARAMS, staleTime: STALE_TIME.DYNAMIC },
+  );
+  const published = useApiQuery<PaginatedCourses>(
+    queryKeys.courses.list(PUBLISHED_PARAMS),
+    '/courses',
+    { params: PUBLISHED_PARAMS, staleTime: STALE_TIME.DYNAMIC },
+  );
+  const paused = useApiQuery<PaginatedCourses>(
+    queryKeys.courses.list(PAUSED_PARAMS),
+    '/courses',
+    { params: PAUSED_PARAMS, staleTime: STALE_TIME.DYNAMIC },
   );
   const archived = useApiQuery<PaginatedCourses>(
     queryKeys.courses.list(ARCHIVED_PARAMS),
@@ -102,6 +116,25 @@ export function GestaoView({ onSelect, onManageModules }: GestaoViewProps) {
       onError: toastError,
     },
   );
+  // Sem endpoint dedicado para pausar/retomar (só /publish e /archive têm
+  // regras de negócio próprias) — mudança de estado directa, mesmo padrão
+  // de `restore` acima.
+  const pause = useApiMutation(
+    (id: number) => apiClient.put(`/courses/${id}`, { status: 'PAUSED' }),
+    {
+      invalidateKeys,
+      onSuccess: () => toast({ title: 'Curso em pausa.', intent: 'success' }),
+      onError: toastError,
+    },
+  );
+  const resume = useApiMutation(
+    (id: number) => apiClient.put(`/courses/${id}`, { status: 'PUBLISHED' }),
+    {
+      invalidateKeys,
+      onSuccess: () => toast({ title: 'Curso retomado.', intent: 'success' }),
+      onError: toastError,
+    },
+  );
   const remove = useApiMutation(
     (id: number) => apiClient.delete(`/courses/${id}`),
     {
@@ -115,6 +148,8 @@ export function GestaoView({ onSelect, onManageModules }: GestaoViewProps) {
     (publish.isPending && publish.variables === id) ||
     (archive.isPending && archive.variables === id) ||
     (restore.isPending && restore.variables === id) ||
+    (pause.isPending && pause.variables === id) ||
+    (resume.isPending && resume.variables === id) ||
     (remove.isPending && remove.variables === id);
 
   async function onArchive(c: Course) {
@@ -135,9 +170,12 @@ export function GestaoView({ onSelect, onManageModules }: GestaoViewProps) {
     if (ok) remove.mutate(c.id);
   }
 
-  if (drafts.isLoading || archived.isLoading) return <Skeleton rows={3} />;
+  if (drafts.isLoading || published.isLoading || paused.isLoading || archived.isLoading)
+    return <Skeleton rows={3} />;
 
   const draftList = drafts.data?.data ?? [];
+  const publishedList = published.data?.data ?? [];
+  const pausedList = paused.data?.data ?? [];
   const archivedList = archived.data?.data ?? [];
   const someWithoutModules = draftList.some((c) => c._count.modules === 0);
 
@@ -253,6 +291,139 @@ export function GestaoView({ onSelect, onManageModules }: GestaoViewProps) {
 
       <section>
         <h2 className="text-sm font-semibold text-ink mb-3">
+          Publicados ({publishedList.length})
+        </h2>
+        {publishedList.length === 0 ? (
+          <EmptyState
+            title="Sem cursos publicados"
+            description="Publica um rascunho para o veres aqui."
+          />
+        ) : (
+          <Card className="divide-y divide-border">
+            {publishedList.map((c) => (
+              <div key={c.id} className="flex flex-wrap items-center gap-3 px-4 py-3">
+                <button
+                  type="button"
+                  className="flex-1 min-w-0 text-left"
+                  onClick={() => onSelect(c.id)}
+                >
+                  <div className="text-sm font-medium text-ink truncate">{c.title}</div>
+                  <div className="text-xs text-ink-faint">
+                    {plural(c._count.enrollments, 'matrícula', 'matrículas')}
+                  </div>
+                </button>
+                <StatusBadge
+                  value={c.status}
+                  map={COURSE_STATUS_MAP}
+                  variant="dot"
+                  className="flex-shrink-0"
+                />
+                <div className="flex flex-shrink-0 items-center gap-2">
+                  <Button
+                    intent="ghost"
+                    size="sm"
+                    onClick={() => setEditCourseId(c.id)}
+                    disabled={rowBusy(c.id)}
+                  >
+                    Editar
+                  </Button>
+                  {c.requiresApproval && (
+                    <Button
+                      intent="secondary"
+                      size="sm"
+                      onClick={() => setPendingFor(c)}
+                    >
+                      Pedidos
+                    </Button>
+                  )}
+                  <Button
+                    intent="secondary"
+                    size="sm"
+                    onClick={() => pause.mutate(c.id)}
+                    loading={pause.isPending && pause.variables === c.id}
+                    disabled={rowBusy(c.id)}
+                  >
+                    Pausar
+                  </Button>
+                  <Button
+                    intent="ghost"
+                    size="sm"
+                    onClick={() => onArchive(c)}
+                    disabled={rowBusy(c.id)}
+                  >
+                    Arquivar
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </Card>
+        )}
+      </section>
+
+      <section>
+        <h2 className="text-sm font-semibold text-ink mb-3">
+          Em pausa ({pausedList.length})
+        </h2>
+        {pausedList.length === 0 ? (
+          <EmptyState
+            title="Sem cursos em pausa"
+            description="Cursos pausados deixam de aceitar novas matrículas mas mantêm o progresso dos inscritos."
+          />
+        ) : (
+          <Card className="divide-y divide-border">
+            {pausedList.map((c) => (
+              <div key={c.id} className="flex flex-wrap items-center gap-3 px-4 py-3">
+                <button
+                  type="button"
+                  className="flex-1 min-w-0 text-left"
+                  onClick={() => onSelect(c.id)}
+                >
+                  <div className="text-sm font-medium text-ink truncate">{c.title}</div>
+                  <div className="text-xs text-ink-faint">
+                    {plural(c._count.enrollments, 'matrícula', 'matrículas')}
+                  </div>
+                </button>
+                <StatusBadge
+                  value={c.status}
+                  map={COURSE_STATUS_MAP}
+                  variant="dot"
+                  className="flex-shrink-0"
+                />
+                <div className="flex flex-shrink-0 items-center gap-2">
+                  <Button
+                    intent="ghost"
+                    size="sm"
+                    onClick={() => setEditCourseId(c.id)}
+                    disabled={rowBusy(c.id)}
+                  >
+                    Editar
+                  </Button>
+                  <Button
+                    intent="success"
+                    size="sm"
+                    onClick={() => resume.mutate(c.id)}
+                    loading={resume.isPending && resume.variables === c.id}
+                    disabled={rowBusy(c.id)}
+                  >
+                    Retomar
+                  </Button>
+                  <Button
+                    intent="ghost"
+                    size="sm"
+                    onClick={() => onArchive(c)}
+                    disabled={rowBusy(c.id)}
+                  >
+                    Arquivar
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </Card>
+        )}
+      </section>
+
+      <section>
+        <h2 className="text-sm font-semibold text-ink mb-3">
           Arquivados ({archivedList.length})
         </h2>
         {archivedList.length === 0 ? (
@@ -323,6 +494,7 @@ export function GestaoView({ onSelect, onManageModules }: GestaoViewProps) {
         <ModuleModal
           courseId={addModuleFor}
           editing={null}
+          otherModules={[]}
           onClose={() => setAddModuleFor(null)}
           onSaved={() =>
             toast({
@@ -340,6 +512,14 @@ export function GestaoView({ onSelect, onManageModules }: GestaoViewProps) {
           onSuccess={() =>
             toast({ title: 'Curso actualizado.', intent: 'success' })
           }
+        />
+      )}
+
+      {pendingFor && (
+        <PendingEnrollmentsModal
+          courseId={pendingFor.id}
+          courseTitle={pendingFor.title}
+          onClose={() => setPendingFor(null)}
         />
       )}
     </div>

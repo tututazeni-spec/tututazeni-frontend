@@ -18,7 +18,13 @@ const course = {
 };
 
 vi.mock('@/hooks/useApiQuery', () => ({
-  useApiQuery: () => ({ data: course, isLoading: false, error: null }),
+  // A 1ª chamada (GET /courses/:id) precisa do fixture `course`; as
+  // restantes (departamentos, lista de pré-requisitos) não são usadas por
+  // nenhum teste aqui — `data: undefined` chega.
+  useApiQuery: (_key: unknown, path: string) =>
+    typeof path === 'string' && path.startsWith('/courses/7')
+      ? { data: course, isLoading: false, error: null }
+      : { data: undefined, isLoading: false, error: null },
   useApiMutation: (
     fn: (v: unknown) => Promise<unknown>,
     opts: {
@@ -33,6 +39,14 @@ vi.mock('@/hooks/useApiQuery', () => ({
       ),
     isPending: false,
   }),
+}));
+
+vi.mock('@/providers/ToastProvider', () => ({
+  useToast: () => vi.fn(),
+}));
+
+vi.mock('@/components/departments/DepartmentUserPicker', () => ({
+  DepartmentUserPicker: () => <div data-testid="instructor-picker" />,
 }));
 
 vi.mock('@/components/ui/Modal', () => ({
@@ -93,7 +107,12 @@ describe('EditCourseModal', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Guardar' }));
 
     await waitFor(() => expect(put).toHaveBeenCalledTimes(1));
-    expect(put).toHaveBeenCalledWith('/courses/7', {
+    // toMatchObject (não toHaveBeenCalledWith exacto) — o payload cresceu
+    // com os novos campos do curso (visibilidade, datas, certificado, …)
+    // que este teste não está a exercitar; mesmo padrão dos dois testes
+    // seguintes neste ficheiro.
+    expect(put.mock.calls[0][0]).toBe('/courses/7');
+    expect(put.mock.calls[0][1]).toMatchObject({
       title: 'Curso 7',
       shortDescription: 'Resumo',
       description: 'Descrição longa',
