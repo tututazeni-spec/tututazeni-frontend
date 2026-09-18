@@ -1,6 +1,13 @@
 // components/courses-modulos/ModuleModal.tsx
 // Modal de criação/edição de módulo. Extraído de
-// app/(platform)/courses/modulos/page.tsx.
+// app/(platform)/courses/modulos/page.tsx; campos alinhados com a secção
+// "3. Novo Módulo" de docs/06-modulo-courses.md.
+//
+// Achado real ao expandir este modal: `POST /modules` e `PUT /modules/:id`
+// apontavam para rotas que nunca existiram no backend (courses.controller.ts
+// só regista rotas aninhadas sob /courses) — toda a criação/edição de
+// módulos rebentava sempre com 404. Corrigido aqui para
+// /courses/:courseId/modules[/:moduleId].
 
 'use client';
 
@@ -11,6 +18,8 @@ import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { Textarea } from '@/components/ui/Textarea';
+import { Select } from '@/components/ui/Select';
 import { FormField } from '@/components/ui/FormField';
 import { Card, CardBody } from '@/components/ui/Card';
 import { useToast } from '@/providers/ToastProvider';
@@ -19,39 +28,95 @@ import type { CourseModule } from './types';
 interface ModuleModalProps {
   courseId: number;
   editing: CourseModule | null;
+  /** Outros módulos do curso — para escolher o módulo pré-requisito. */
+  otherModules: CourseModule[];
   onClose: () => void;
   onSaved: () => void;
 }
 
+const STATUS_ITEMS = [
+  { value: 'DRAFT', label: 'Rascunho' },
+  { value: 'PUBLISHED', label: 'Publicado' },
+  { value: 'PAUSED', label: 'Em pausa' },
+  { value: 'ARCHIVED', label: 'Arquivado' },
+];
+
+const TYPE_ITEMS = [
+  { value: 'THEORETICAL', label: 'Teórico' },
+  { value: 'PRACTICAL', label: 'Prático' },
+  { value: 'ASSESSMENT', label: 'Avaliação' },
+  { value: 'PROJECT', label: 'Projecto' },
+];
+
+const PROGRESSION_ITEMS = [
+  { value: 'SEQUENTIAL', label: 'Sequencial (ordem obrigatória)' },
+  { value: 'FREE', label: 'Livre' },
+  { value: 'HYBRID', label: 'Híbrida' },
+];
+
 export function ModuleModal({
   courseId,
   editing,
+  otherModules,
   onClose,
   onSaved,
 }: ModuleModalProps) {
   const notify = useToast();
   const [form, setForm] = useState({
     title: editing?.title ?? '',
+    code: editing?.code ?? '',
+    description: editing?.description ?? '',
     seq: editing?.seq ?? 1,
+    status: editing?.status ?? 'DRAFT',
+    type: editing?.type ?? '',
+    progressionType: editing?.progressionType ?? 'SEQUENTIAL',
+    mandatory: editing?.mandatory ?? true,
+    allowSkip: editing?.allowSkip ?? false,
+    minCompletionPercent:
+      editing?.minCompletionPercent != null ? String(editing.minCompletionPercent) : '100',
+    minQuizScore: editing?.minQuizScore != null ? String(editing.minQuizScore) : '',
+    estimatedDurationMinutes:
+      editing?.estimatedDurationMinutes != null ? String(editing.estimatedDurationMinutes) : '',
+    learningObjectives: (editing?.learningObjectives ?? []).join('\n'),
+    requiredModuleId: editing?.requiredModuleId ? String(editing.requiredModuleId) : '',
   });
+  function set<K extends keyof typeof form>(k: K, v: (typeof form)[K]) {
+    setForm((f) => ({ ...f, [k]: v }));
+  }
+
+  const prerequisiteItems = otherModules
+    .filter((m) => m.id !== editing?.id)
+    .sort((a, b) => a.seq - b.seq)
+    .map((m) => ({ value: String(m.id), label: `${m.seq}. ${m.title}` }));
 
   const saveModule = useApiMutation(
-    () =>
-      editing
-        ? apiClient.put(`/modules/${editing.id}`, {
-            title: form.title,
-            seq: +form.seq,
-          })
-        : apiClient.post('/modules', {
-            courseId,
-            title: form.title,
-            seq: +form.seq,
-          }),
+    () => {
+      const payload: Record<string, unknown> = {
+        title: form.title,
+        code: form.code.trim() || undefined,
+        description: form.description.trim() || undefined,
+        seq: +form.seq,
+        status: form.status,
+        type: form.type || undefined,
+        progressionType: form.progressionType,
+        mandatory: form.mandatory,
+        allowSkip: form.allowSkip,
+        minCompletionPercent:
+          form.minCompletionPercent !== '' ? +form.minCompletionPercent : undefined,
+        minQuizScore: form.minQuizScore !== '' ? +form.minQuizScore : undefined,
+        estimatedDurationMinutes:
+          form.estimatedDurationMinutes !== '' ? +form.estimatedDurationMinutes : undefined,
+        learningObjectives: form.learningObjectives
+          .split('\n')
+          .map((s) => s.trim())
+          .filter(Boolean),
+        requiredModuleId: form.requiredModuleId ? +form.requiredModuleId : null,
+      };
+      return editing
+        ? apiClient.put(`/courses/${courseId}/modules/${editing.id}`, payload)
+        : apiClient.post(`/courses/${courseId}/modules`, payload);
+    },
     {
-      // Invalida também a árvore 'courses' (['courses', ...]) para que a
-      // contagem _count.modules na aba Gestão de cursos e no catálogo
-      // reflicta o módulo acabado de criar — sem isto o botão "Publicar"
-      // ficava preso em desativado até o staleTime expirar.
       invalidateKeys: [queryKeys.courses.all],
       onSuccess: () => {
         onSaved();
@@ -71,7 +136,7 @@ export function ModuleModal({
       onClick={onClose}
     >
       <Card
-        className="w-full max-w-sm shadow-elevated"
+        className="w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-elevated"
         onClick={(e) => e.stopPropagation()}
       >
         <CardBody className="flex flex-col gap-5">
@@ -97,30 +162,152 @@ export function ModuleModal({
           </div>
 
           <form onSubmit={submit} className="flex flex-col gap-4">
-            <FormField label="Título *" htmlFor="module-title">
-              <Input
-                id="module-title"
-                value={form.title}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, title: e.target.value }))
-                }
-                required
+            <div className="grid grid-cols-2 gap-3">
+              <FormField label="Título *" htmlFor="module-title">
+                <Input
+                  id="module-title"
+                  value={form.title}
+                  onChange={(e) => set('title', e.target.value)}
+                  required
+                />
+              </FormField>
+              <FormField label="Código" htmlFor="module-code">
+                <Input
+                  id="module-code"
+                  value={form.code}
+                  onChange={(e) => set('code', e.target.value)}
+                  placeholder="Ex: MOD-01"
+                />
+              </FormField>
+            </div>
+
+            <FormField label="Descrição" htmlFor="module-description">
+              <Textarea
+                id="module-description"
+                value={form.description}
+                onChange={(e) => set('description', e.target.value)}
+                rows={2}
               />
             </FormField>
 
-            <FormField label="Sequência" htmlFor="module-seq">
+            <div className="grid grid-cols-2 gap-3">
+              <FormField label="Sequência" htmlFor="module-seq">
+                <Input
+                  id="module-seq"
+                  type="number"
+                  min={1}
+                  value={form.seq}
+                  onChange={(e) => set('seq', +e.target.value)}
+                />
+              </FormField>
+              <FormField label="Estado" htmlFor="module-status">
+                <Select
+                  items={STATUS_ITEMS}
+                  value={form.status}
+                  onValueChange={(v) => set('status', v as typeof form.status)}
+                  className="w-full"
+                />
+              </FormField>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <FormField label="Tipo" htmlFor="module-type">
+                <Select
+                  items={TYPE_ITEMS}
+                  value={form.type || undefined}
+                  onValueChange={(v) => set('type', v)}
+                  className="w-full"
+                  placeholder="Não definido"
+                />
+              </FormField>
+              <FormField label="Progressão" htmlFor="module-progression">
+                <Select
+                  items={PROGRESSION_ITEMS}
+                  value={form.progressionType}
+                  onValueChange={(v) => set('progressionType', v as typeof form.progressionType)}
+                  className="w-full"
+                />
+              </FormField>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <FormField label="Duração estimada (min)" htmlFor="module-duration">
+                <Input
+                  id="module-duration"
+                  type="number"
+                  min={0}
+                  value={form.estimatedDurationMinutes}
+                  onChange={(e) => set('estimatedDurationMinutes', e.target.value)}
+                />
+              </FormField>
+              <FormField label="% mínima de conclusão" htmlFor="module-min-completion">
+                <Input
+                  id="module-min-completion"
+                  type="number"
+                  min={0}
+                  max={100}
+                  value={form.minCompletionPercent}
+                  onChange={(e) => set('minCompletionPercent', e.target.value)}
+                />
+              </FormField>
+            </div>
+
+            <FormField label="Nota mínima do quiz (%)" htmlFor="module-min-quiz">
               <Input
-                id="module-seq"
+                id="module-min-quiz"
                 type="number"
-                min={1}
-                value={form.seq}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, seq: +e.target.value }))
-                }
+                min={0}
+                max={100}
+                value={form.minQuizScore}
+                onChange={(e) => set('minQuizScore', e.target.value)}
+                placeholder="Não exigida"
               />
             </FormField>
 
-            <div className="flex gap-2 justify-end pt-2">
+            {prerequisiteItems.length > 0 && (
+              <FormField label="Módulo pré-requisito" htmlFor="module-required">
+                <Select
+                  items={prerequisiteItems}
+                  value={form.requiredModuleId || undefined}
+                  onValueChange={(v) => set('requiredModuleId', v)}
+                  className="w-full"
+                  placeholder="Nenhum"
+                />
+              </FormField>
+            )}
+
+            <FormField label="Objectivos de aprendizagem" htmlFor="module-objectives">
+              <Textarea
+                id="module-objectives"
+                value={form.learningObjectives}
+                onChange={(e) => set('learningObjectives', e.target.value)}
+                rows={3}
+                placeholder={'Um objectivo por linha'}
+              />
+            </FormField>
+
+            <div className="flex flex-wrap gap-4">
+              <label className="flex items-center gap-2 text-xs text-ink-muted">
+                <input
+                  type="checkbox"
+                  checked={form.mandatory}
+                  onChange={(e) => set('mandatory', e.target.checked)}
+                  className="h-3.5 w-3.5 rounded border-border-strong accent-primary"
+                />
+                Módulo obrigatório
+              </label>
+              <label className="flex items-center gap-2 text-xs text-ink-muted">
+                <input
+                  type="checkbox"
+                  checked={form.allowSkip}
+                  onChange={(e) => set('allowSkip', e.target.checked)}
+                  className="h-3.5 w-3.5 rounded border-border-strong accent-primary"
+                />
+                Pode avançar sem concluir
+              </label>
+            </div>
+
+            <div className="flex gap-2 justify-end pt-2 border-t border-border">
               <Button type="button" onClick={onClose} intent="ghost">
                 Cancelar
               </Button>

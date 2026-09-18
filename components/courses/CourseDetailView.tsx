@@ -85,6 +85,13 @@ export function CourseDetailView({
       </div>
     );
 
+  // Curso exige aprovação (Course.requiresApproval) — o registo Enrollment já
+  // existe (isEnrolled fica true) mas o acesso ao conteúdo só faz sentido
+  // depois de RH/instrutor aprovar (courses.controller.ts:
+  // PATCH /courses/enrollments/:id/approve). Ver secção "2. Botão principal"
+  // de docs/06-modulo-courses.md.
+  const pendingApproval = progress?.enrollment.status === 'PENDING_APPROVAL';
+
   return (
     <div>
       <button
@@ -95,8 +102,20 @@ export function CourseDetailView({
         Voltar ao catálogo
       </button>
 
+      {isEnrolled && pendingApproval && (
+        <Card className="p-5 mb-6 bg-warning-subtle">
+          <p className="m-0 text-sm font-medium text-warning-ink">
+            Pedido de inscrição enviado — aguarda aprovação
+          </p>
+          <p className="m-0 mt-1 text-xs text-warning-ink/80">
+            Este curso requer aprovação para inscrição. Vais poder aceder ao conteúdo assim
+            que o pedido for aprovado.
+          </p>
+        </Card>
+      )}
+
       {/* Player Layout: sidebar + content */}
-      {isEnrolled && activeLesson ? (
+      {isEnrolled && !pendingApproval && activeLesson ? (
         <div className="grid grid-cols-[1fr_300px] gap-5 mb-6">
           {/* Player principal */}
           <div>
@@ -303,7 +322,16 @@ export function CourseDetailView({
                 disabled={enrolling}
                 className="w-full"
               >
-                {enrolling ? 'A matricular…' : 'Inscrever-me gratuitamente'}
+                {enrolling
+                  ? 'A processar…'
+                  : course.requiresApproval
+                    ? 'Solicitar inscrição'
+                    : 'Inscrever-me gratuitamente'}
+              </Button>
+            )}
+            {!isEnrolled && course.status !== 'PUBLISHED' && (
+              <Button disabled className="w-full">
+                Curso indisponível
               </Button>
             )}
             {isEnrolled && (
@@ -312,10 +340,14 @@ export function CourseDetailView({
                   status={progress!.enrollment.status}
                   deadline={progress!.enrollment.deadline}
                 />
-                <ProgressBar value={progressPct} className="h-2.5" />
-                <div className="text-xs text-ink-faint text-center">
-                  {progressPct}% concluído
-                </div>
+                {!pendingApproval && (
+                  <>
+                    <ProgressBar value={progressPct} className="h-2.5" />
+                    <div className="text-xs text-ink-faint text-center">
+                      {progressPct}% concluído
+                    </div>
+                  </>
+                )}
               </div>
             )}
           </Card>
@@ -323,7 +355,7 @@ export function CourseDetailView({
       )}
 
       {/* Módulos accordion */}
-      {!isEnrolled && course.modules && (
+      {(!isEnrolled || pendingApproval) && course.modules && (
         <Card className="overflow-hidden mb-6">
           <div className="px-4 py-3 border-b border-border text-sm font-semibold text-ink">
             Conteúdo do curso

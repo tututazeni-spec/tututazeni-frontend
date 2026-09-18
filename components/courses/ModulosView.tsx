@@ -89,6 +89,9 @@ export function ModulosView({ initialCourseId }: ModulosViewProps) {
 
   const confirm = useConfirm();
   // ── Delete module ─────────────────────────────────────────────────────────
+  // Rotas reais são aninhadas sob /courses (courses.controller.ts) — não
+  // existe nenhum /modules ou /lessons de topo no backend; a versão anterior
+  // apontava para essas rotas inexistentes e rebentava sempre com 404.
   async function deleteModule(mod: CourseModule) {
     if (
       !(await confirm({
@@ -99,7 +102,7 @@ export function ModulosView({ initialCourseId }: ModulosViewProps) {
     )
       return;
     try {
-      await apiClient.delete(`/modules/${mod.id}`);
+      await apiClient.delete(`/courses/${submittedCourseId}/modules/${mod.id}`);
       await refetch();
       toast({ title: 'Módulo removido', intent: 'success' });
     } catch (e) {
@@ -122,7 +125,7 @@ export function ModulosView({ initialCourseId }: ModulosViewProps) {
     )
       return;
     try {
-      await apiClient.delete(`/lessons/${lesson.id}`);
+      await apiClient.delete(`/courses/lessons/${lesson.id}`);
       await refetch();
       toast({ title: 'Lição removida', intent: 'success' });
     } catch (e) {
@@ -336,6 +339,7 @@ export function ModulosView({ initialCourseId }: ModulosViewProps) {
         <ModuleModal
           courseId={submittedCourseId!}
           editing={modal.editing}
+          otherModules={modules}
           onClose={() => dispatchModal({ type: 'close' })}
           onSaved={() => {
             refetch();
@@ -349,7 +353,15 @@ export function ModulosView({ initialCourseId }: ModulosViewProps) {
       {modal.kind === 'lesson' && (
         <LessonModal
           moduleId={modal.moduleId}
-          editing={modal.editing}
+          // Relê a lição a partir de `modules` (em vez do snapshot estático
+          // `modal.editing`) para que actividades/recursos adicionados via
+          // onRefresh apareçam na lista sem fechar o modal.
+          editing={
+            modal.editing
+              ? (modules.flatMap((m) => m.lessons).find((l) => l.id === modal.editing!.id) ??
+                modal.editing)
+              : null
+          }
           onClose={() => dispatchModal({ type: 'close' })}
           onSaved={async () => {
             await refetch();
@@ -358,6 +370,7 @@ export function ModulosView({ initialCourseId }: ModulosViewProps) {
               intent: 'success',
             });
           }}
+          onRefresh={refetch}
         />
       )}
       {modal.kind === 'progress' && (
