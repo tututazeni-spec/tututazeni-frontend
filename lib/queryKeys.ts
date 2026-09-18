@@ -380,8 +380,10 @@ export const queryKeys = {
     me: () => [...queryKeys.career.all, 'me'] as const,
     paths: () => [...queryKeys.career.all, 'paths'] as const,
     positions: () => [...queryKeys.career.all, 'positions'] as const,
-    vacancies: (type: string) =>
-      [...queryKeys.career.all, 'vacancies', type] as const,
+    vacancies: (type: string, status?: string) =>
+      [...queryKeys.career.all, 'vacancies', type, status ?? ''] as const,
+    vacancyApplications: (vacancyId: number) =>
+      [...queryKeys.career.all, 'vacancies', vacancyId, 'applications'] as const,
     plan: () => [...queryKeys.career.all, 'plan'] as const,
     overview: () => [...queryKeys.career.all, 'overview'] as const,
     history: (userId?: number) =>

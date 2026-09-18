@@ -23,6 +23,7 @@ import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { VACANCY_TYPE } from './constants';
 import { NewOpportunityModal } from './NewOpportunityModal';
+import { VacancyApplicationsModal } from './VacancyApplicationsModal';
 import type { InternalVacancy } from './types';
 
 function scoreClass(score: number): string {
@@ -31,24 +32,53 @@ function scoreClass(score: number): string {
   return 'text-ink-faint';
 }
 
+// Só visível a quem gere vagas — colaboradores só veem vagas OPEN, que é o
+// que o backend já devolve por omissão quando `status` não é enviado.
+const MANAGE_STATUS_FILTERS = [
+  { value: '', label: 'Abertas' },
+  { value: 'DRAFT', label: 'Rascunhos' },
+  { value: 'CLOSED', label: 'Fechadas' },
+  { value: 'FILLED', label: 'Preenchidas' },
+];
+
 export function VacanciesView() {
   const notify = useToast();
   const { data: me } = useCurrentUser();
   const canManage = isRoleAllowed(EXECUTIVE_ROLES, me?.role?.name as Role | undefined);
   const [typeFilter, setTypeFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
   const [applying, setApplying] = useState<number | null>(null);
+  const [publishing, setPublishing] = useState<number | null>(null);
   const [showNew, setShowNew] = useState(false);
+  const [applicationsFor, setApplicationsFor] = useState<InternalVacancy | null>(null);
 
   const {
     data: resp,
     isLoading: loading,
     refetch,
   } = useApiQuery<{ data: InternalVacancy[] }>(
-    queryKeys.career.vacancies(typeFilter),
+    queryKeys.career.vacancies(typeFilter, canManage ? statusFilter : undefined),
     '/career/vacancies',
-    { params: { type: typeFilter }, staleTime: STALE_TIME.SEMI_STATIC },
+    {
+      params: { type: typeFilter, ...(canManage && statusFilter ? { status: statusFilter } : {}) },
+      staleTime: STALE_TIME.SEMI_STATIC,
+    },
   );
   const vacancies = resp?.data ?? [];
+
+  const publish = async (vacancyId: number) => {
+    setPublishing(vacancyId);
+    try {
+      await apiClient.patch(`/career/vacancies/${vacancyId}/publish`, {});
+      await refetch();
+      notify({ title: 'Vaga publicada — colaboradores compatíveis foram notificados', intent: 'success' });
+    } catch (e) {
+      reportError(e, { source: 'VacanciesView.publish' });
+      notify({ title: e instanceof Error ? e.message : String(e), intent: 'danger' });
+    } finally {
+      setPublishing(null);
+    }
+  };
 
   const apply = async (vacancyId: number) => {
     setApplying(vacancyId);
@@ -98,6 +128,22 @@ export function VacanciesView() {
         )}
       </div>
 
+      {canManage && (
+        <div className="mb-5 flex flex-wrap items-center gap-2">
+          <span className="font-body text-xs text-ink-faint">Estado:</span>
+          {MANAGE_STATUS_FILTERS.map((s) => (
+            <Button
+              key={s.value}
+              size="sm"
+              intent={statusFilter === s.value ? 'secondary' : 'ghost'}
+              onClick={() => setStatusFilter(s.value)}
+            >
+              {s.label}
+            </Button>
+          ))}
+        </div>
+      )}
+
       {loading ? (
         <Skeleton rows={4} />
       ) : (
@@ -113,7 +159,18 @@ export function VacanciesView() {
                 className="p-4 transition-shadow duration-150 hover:shadow-hover"
               >
                 <div className="mb-2 flex items-start justify-between gap-2">
-                  <Badge intent={typeCfg.intent}>{typeCfg.label}</Badge>
+                  <div className="flex items-center gap-1.5">
+                    <Badge intent={typeCfg.intent}>{typeCfg.label}</Badge>
+                    {v.status !== 'OPEN' && (
+                      <Badge intent={v.status === 'DRAFT' ? 'warning' : 'neutral'}>
+                        {v.status === 'DRAFT'
+                          ? 'Rascunho'
+                          : v.status === 'CLOSED'
+                            ? 'Fechada'
+                            : 'Preenchida'}
+                      </Badge>
+                    )}
+                  </div>
                   {v.matchScore !== undefined && (
                     <span
                       className={cn(
@@ -139,25 +196,46 @@ export function VacanciesView() {
                     {v.closingDate &&
                       ` · Fecha ${new Date(v.closingDate).toLocaleDateString('pt-AO', { day: '2-digit', month: 'short' })}`}
                   </span>
-                  {v.applied ? (
-                    <Badge
-                      intent={
-                        v.applicationStatus === 'ACCEPTED'
-                          ? 'success'
-                          : 'neutral'
-                      }
-                    >
-                      {v.applicationStatus ?? 'Candidatado'}
-                    </Badge>
-                  ) : (
-                    <Button
-                      size="sm"
-                      onClick={() => apply(v.id)}
-                      loading={applying === v.id}
-                    >
-                      Candidatar-me
-                    </Button>
-                  )}
+                  <div className="flex items-center gap-2">
+                    {canManage && (
+                      <Button
+                        size="sm"
+                        intent="ghost"
+                        onClick={() => setApplicationsFor(v)}
+                      >
+                        Ver candidaturas
+                      </Button>
+                    )}
+                    {canManage && v.status === 'DRAFT' ? (
+                      <Button
+                        size="sm"
+                        onClick={() => publish(v.id)}
+                        loading={publishing === v.id}
+                      >
+                        Publicar
+                      </Button>
+                    ) : v.status === 'OPEN' ? (
+                      v.applied ? (
+                        <Badge
+                          intent={
+                            v.applicationStatus === 'ACCEPTED'
+                              ? 'success'
+                              : 'neutral'
+                          }
+                        >
+                          {v.applicationStatus ?? 'Candidatado'}
+                        </Badge>
+                      ) : (
+                        <Button
+                          size="sm"
+                          onClick={() => apply(v.id)}
+                          loading={applying === v.id}
+                        >
+                          Candidatar-me
+                        </Button>
+                      )
+                    ) : null}
+                  </div>
                 </div>
                 {v.matchScore !== undefined && v.matchScore > 0 && (
                   <ProgressBar value={v.matchScore} className="mt-2" />
@@ -168,7 +246,7 @@ export function VacanciesView() {
           {vacancies.length === 0 && (
             <div className="col-span-2">
               <EmptyState
-                title="Sem vagas internas abertas"
+                title="Sem vagas internas"
                 description="Ainda não há vagas internas disponíveis para o filtro seleccionado."
               />
             </div>
@@ -180,6 +258,13 @@ export function VacanciesView() {
         <NewOpportunityModal
           onClose={() => setShowNew(false)}
           onSuccess={() => refetch()}
+        />
+      )}
+      {applicationsFor && (
+        <VacancyApplicationsModal
+          vacancyId={applicationsFor.id}
+          vacancyTitle={applicationsFor.title}
+          onClose={() => setApplicationsFor(null)}
         />
       )}
     </div>

@@ -122,6 +122,24 @@ export interface InternalVacancy {
   closingDate?: string;
 }
 
+// GET /career/vacancies/:id/applications (RH/Gestor/Admin) — revisão de
+// candidatos, secção 5 (Oportunidades).
+export interface VacancyApplication {
+  id: number;
+  status: 'PENDING' | 'REVIEWING' | 'SHORTLISTED' | 'REJECTED' | 'ACCEPTED';
+  motivation: string | null;
+  feedback: string | null;
+  appliedAt: string;
+  user: {
+    id: number;
+    fullName: string;
+    avatarUrl?: string | null;
+    email?: string;
+    position?: { name?: string | null } | null;
+    department?: { name?: string | null } | null;
+  };
+}
+
 export interface Position {
   id: number;
   name: string;
