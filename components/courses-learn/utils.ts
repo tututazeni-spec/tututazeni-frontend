@@ -11,6 +11,7 @@ import {
   Link2,
   Package,
   HelpCircle,
+  Radio,
   type LucideIcon,
 } from 'lucide-react';
 import type { LessonType, ModuleType } from './types';
@@ -31,6 +32,7 @@ export function lessonIcon(type: LessonType): LucideIcon {
       LINK: Link2,
       SCORM: Package,
       QUIZ: HelpCircle,
+      LIVE: Radio,
     }[type] ?? FileText
   );
 }

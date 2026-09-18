@@ -4,9 +4,41 @@
 // app/(platform)/courses/[courseId]/learn/page.tsx.
 
 export type LessonType =
-  'VIDEO' | 'PDF' | 'TEXT' | 'AUDIO' | 'SLIDE' | 'LINK' | 'SCORM' | 'QUIZ';
+  'VIDEO' | 'PDF' | 'TEXT' | 'AUDIO' | 'SLIDE' | 'LINK' | 'SCORM' | 'QUIZ' | 'LIVE';
 export type ModuleType = 'THEORETICAL' | 'PRACTICAL' | 'ASSESSMENT' | 'PROJECT';
 export type ModuleStatus = 'DRAFT' | 'PUBLISHED';
+
+export type LessonActivityType =
+  | 'TEXT'
+  | 'VIDEO'
+  | 'DOCUMENT'
+  | 'IMAGE'
+  | 'AUDIO'
+  | 'QUIZ'
+  | 'OPEN_QUESTION'
+  | 'EXERCISE'
+  | 'TASK'
+  | 'SURVEY'
+  | 'DISCUSSION'
+  | 'DOWNLOAD'
+  | 'EXTERNAL_LINK';
+
+export interface LessonActivity {
+  id: number;
+  type: LessonActivityType;
+  title: string;
+  description: string | null;
+  contentUrl: string | null;
+  seq: number;
+}
+
+export interface LessonResource {
+  id: number;
+  title: string;
+  url: string;
+  fileType: string | null;
+  fileSizeKb: number | null;
+}
 
 export interface LessonProgress {
   id: number;
@@ -22,6 +54,14 @@ export interface LessonProgress {
   // quando o utilizador não está inscrito no curso — ver
   // course-modules.service.getLessonProgress.
   contentUrl: string | null;
+  textContent: string | null;
+  captionsUrl: string | null;
+  transcript: string | null;
+  liveDate: string | null;
+  liveSessionUrl: string | null;
+  liveInstructor: { id: number; fullName: string } | null;
+  activities: LessonActivity[];
+  resources: LessonResource[];
   allowDownload: boolean;
 }
 
