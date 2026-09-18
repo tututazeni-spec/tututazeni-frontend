@@ -36,6 +36,25 @@ export function CyclesTab() {
   // mas não gere o ciclo. Sem isto os botões apareciam para todos e
   // rebentavam com 403 ao clicar.
   const canManageCycle = !!role && ADMIN_ROLES.includes(role);
+
+  // docs/modulo_evaluation.md ponto 3 — Pausar/Encerrar/Reabrir/Enviar
+  // lembretes, mesmo padrão de publish/activate já existente (reload após
+  // sucesso em vez de invalidação de cache, ver comentário histórico
+  // acima destas duas acções).
+  const runCycleAction = (
+    cycleId: number,
+    action: 'publish' | 'activate' | 'pause' | 'close' | 'reopen' | 'remind',
+    method: 'POST' | 'PATCH',
+  ) => {
+    const call = method === 'POST' ? apiClient.post : apiClient.patch;
+    call(`/evaluations/cycles/${cycleId}/${action}`, {})
+      .then(() => window.location.reload())
+      .catch((e) => {
+        reportError(e, { source: `CyclesTab.${action}` });
+        notify({ title: e instanceof Error ? e.message : String(e), intent: 'danger' });
+      });
+  };
+
   const { data, isLoading: loading } = useApiQuery<{
     data: Cycle[];
     meta: { total: number };
@@ -130,46 +149,51 @@ export function CyclesTab() {
                 <span>{new Date(cycle.endDate).toLocaleDateString('pt')}</span>
               </div>
 
+              {(cycle.selfEvalDueDate || cycle.managerEvalDueDate || cycle.targetUnitIds?.length) && (
+                <div className="mt-1.5 flex flex-wrap gap-x-3 gap-y-0.5 text-[10px] text-ink-faint">
+                  {cycle.selfEvalDueDate && (
+                    <span>Prazo autoavaliação: {new Date(cycle.selfEvalDueDate).toLocaleDateString('pt')}</span>
+                  )}
+                  {cycle.managerEvalDueDate && (
+                    <span>Prazo gestor: {new Date(cycle.managerEvalDueDate).toLocaleDateString('pt')}</span>
+                  )}
+                  {!!cycle.targetUnitIds?.length && <span>{cycle.targetUnitIds.length} unidade(s)</span>}
+                  {!!cycle.targetDeptIds?.length && <span>{cycle.targetDeptIds.length} departamento(s)</span>}
+                </div>
+              )}
+
               {/* Actions */}
               {canManageCycle && cycle.status === 'DRAFT' && (
                 <Button
                   size="sm"
                   intent="secondary"
                   className="mt-3 w-full"
-                  onClick={() =>
-                    apiClient
-                      .post(`/evaluations/cycles/${cycle.id}/publish`, {})
-                      .then(() => window.location.reload())
-                      .catch((e) => {
-                        reportError(e, { source: 'CyclesTab.publish' });
-                        notify({
-                          title: e instanceof Error ? e.message : String(e),
-                          intent: 'danger',
-                        });
-                      })
-                  }
+                  onClick={() => runCycleAction(cycle.id, 'publish', 'POST')}
                 >
                   Publicar
                 </Button>
               )}
               {canManageCycle && cycle.status === 'PUBLISHED' && (
-                <Button
-                  size="sm"
-                  className="mt-3 w-full"
-                  onClick={() =>
-                    apiClient
-                      .post(`/evaluations/cycles/${cycle.id}/activate`, {})
-                      .then(() => window.location.reload())
-                      .catch((e) => {
-                        reportError(e, { source: 'CyclesTab.activate' });
-                        notify({
-                          title: e instanceof Error ? e.message : String(e),
-                          intent: 'danger',
-                        });
-                      })
-                  }
-                >
+                <Button size="sm" className="mt-3 w-full" onClick={() => runCycleAction(cycle.id, 'activate', 'POST')}>
                   Activar
+                </Button>
+              )}
+              {canManageCycle && cycle.status === 'ACTIVE' && (
+                <div className="mt-3 grid grid-cols-2 gap-2">
+                  <Button size="sm" intent="secondary" onClick={() => runCycleAction(cycle.id, 'pause', 'PATCH')}>
+                    Pausar
+                  </Button>
+                  <Button size="sm" intent="secondary" onClick={() => runCycleAction(cycle.id, 'close', 'PATCH')}>
+                    Encerrar
+                  </Button>
+                  <Button size="sm" intent="secondary" onClick={() => runCycleAction(cycle.id, 'remind', 'POST')}>
+                    Lembretes
+                  </Button>
+                </div>
+              )}
+              {canManageCycle && (cycle.status === 'PAUSED' || cycle.status === 'COMPLETED') && (
+                <Button size="sm" className="mt-3 w-full" onClick={() => runCycleAction(cycle.id, 'reopen', 'PATCH')}>
+                  Reabrir
                 </Button>
               )}
             </CardBody>

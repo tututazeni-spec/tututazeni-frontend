@@ -5,6 +5,7 @@
 
 'use client';
 
+import { useState } from 'react';
 import { ClipboardList, AlertTriangle, AlarmClock } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
@@ -18,6 +19,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { EVAL_TYPE_MAP } from './constants';
+import { SubmitEvaluationModal } from './SubmitEvaluationModal';
 import type { EvalRequest } from './types';
 
 export function PendingTab() {
@@ -26,6 +28,10 @@ export function PendingTab() {
     '/evaluations/pending',
     { staleTime: STALE_TIME.DYNAMIC },
   );
+  // Botão "Avaliar →" nunca teve onClick — POST /evaluations/submit e GET
+  // /evaluations/forms/:id já existiam no backend, mas nada no frontend os
+  // chamava. Ver docs/modulo_evaluation.md ponto 2.
+  const [toSubmit, setToSubmit] = useState<EvalRequest | null>(null);
 
   if (loading)
     return (
@@ -115,7 +121,7 @@ export function PendingTab() {
                         {new Date(r.dueDate).toLocaleDateString('pt')}
                       </p>
                     )}
-                    <Button size="sm" className="mt-2">
+                    <Button size="sm" className="mt-2" onClick={() => setToSubmit(r)}>
                       Avaliar →
                     </Button>
                   </div>
@@ -132,6 +138,15 @@ export function PendingTab() {
           />
         )}
       </div>
+
+      {toSubmit && (
+        <SubmitEvaluationModal
+          requestId={toSubmit.id}
+          cycleId={toSubmit.cycle?.id}
+          evaluatedName={toSubmit.evaluated.fullName}
+          onClose={() => setToSubmit(null)}
+        />
+      )}
     </div>
   );
 }

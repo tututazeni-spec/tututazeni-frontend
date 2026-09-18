@@ -253,6 +253,13 @@ export const queryKeys = {
       [...queryKeys.evaluation.all, 'results', userId] as const,
     cycles: () => [...queryKeys.evaluation.all, 'cycles'] as const,
     analytics: () => [...queryKeys.evaluation.all, 'analytics'] as const,
+    overview: () => [...queryKeys.evaluation.all, 'overview'] as const,
+    requests: (filters?: Record<string, unknown>) =>
+      [...queryKeys.evaluation.all, 'requests', filters ?? {}] as const,
+    requestDetail: (id: string | number) =>
+      [...queryKeys.evaluation.all, 'requests', id] as const,
+    criteria: () => [...queryKeys.evaluation.all, 'criteria'] as const,
+    scales: () => [...queryKeys.evaluation.all, 'scales'] as const,
   },
 
   // Módulo real de Avaliação 360º (src/evaluation360/, backend `/evaluation360`)

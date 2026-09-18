@@ -9,6 +9,7 @@
 
 import {
   BarChart2,
+  ClipboardCheck,
   ClipboardList,
   Clock,
   Layers,
@@ -19,12 +20,13 @@ import {
 import { AnalyticsTab } from '@/components/evaluation/AnalyticsTab';
 import { CalibrationTab } from '@/components/evaluation/CalibrationTab';
 import { CyclesTab } from '@/components/evaluation/CyclesTab';
+import { EvaluationsTab } from '@/components/evaluation/EvaluationsTab';
 import { FormalEvaluationsTab } from '@/components/evaluation/FormalEvaluationsTab';
 import { OverviewTab } from '@/components/evaluation/OverviewTab';
 import { PendingTab } from '@/components/evaluation/PendingTab';
 import { ResultsTab } from '@/components/evaluation/ResultsTab';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
-import { ADMIN_ROLES, filterByRole } from '@/lib/roles';
+import { ADMIN_ROLES, MGMT_ROLES, filterByRole } from '@/lib/roles';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
 
 // Análises e Calibração espelham exactamente @Roles(ADMIN, RH) de
@@ -39,9 +41,17 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
 // o próprio FormalEvaluationsTab ramifica internamente entre gestão
 // (EVAL_CREATOR_ROLES) e participação (COLABORADOR/AUDITOR), tal como o
 // ResultsTab já faz para COLABORADOR.
+// Ordem/nomenclatura segue docs/modulo_evaluation.md ponto 0 para as abas
+// já construídas (0-3): Visão Geral, Avaliações, Ciclos de Avaliação. As
+// restantes abas do doc (Modelos/Critérios/Competências/Objetivos&Metas/
+// Autoavaliações/Relatórios/Configurações) ficam para próximas partes —
+// não criadas aqui como stubs vazios. "Avaliações Formais" (quizzes/exames,
+// backend src/assessments) e "Análises" já existiam antes deste doc e não
+// fazem parte da IA dele; mantidas tal como estavam.
 const TABS = [
   { id: 'overview', label: 'Visão Geral', icon: Star },
-  { id: 'cycles', label: 'Ciclos', icon: Layers },
+  { id: 'evaluations', label: 'Avaliações', icon: ClipboardCheck, roles: MGMT_ROLES },
+  { id: 'cycles', label: 'Ciclos de Avaliação', icon: Layers },
   { id: 'formal', label: 'Avaliações Formais', icon: ClipboardList },
   { id: 'pending', label: 'Pendentes', icon: Clock },
   { id: 'results', label: 'Resultados', icon: BarChart2 },
@@ -100,6 +110,11 @@ export default function EvaluationsPage() {
           <TabsContent value="overview">
             <OverviewTab />
           </TabsContent>
+          {visibleTabs.some((t) => t.id === 'evaluations') && (
+            <TabsContent value="evaluations">
+              <EvaluationsTab />
+            </TabsContent>
+          )}
           <TabsContent value="cycles">
             <CyclesTab />
           </TabsContent>
