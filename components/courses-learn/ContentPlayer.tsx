@@ -22,6 +22,7 @@ import {
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { LessonAudioBar } from './LessonAudioBar';
+import { QuizPlayer } from './QuizPlayer';
 import { lessonIcon, fmtDuration } from './utils';
 import type { LessonActivity, LessonProgress, ModuleProgress } from './types';
 
@@ -403,6 +404,14 @@ export function ContentPlayer({
                 </a>
               ))}
             </div>
+          </div>
+        )}
+
+        {/* Avaliação (quiz) — docs/06-modulo-courses.md secção 8 */}
+        {lesson.quizId && (
+          <div className="px-6 py-5 border-t border-border">
+            <h3 className="font-body text-sm font-semibold text-ink mb-3">Avaliação</h3>
+            <QuizPlayer quizId={lesson.quizId} />
           </div>
         )}
       </div>
