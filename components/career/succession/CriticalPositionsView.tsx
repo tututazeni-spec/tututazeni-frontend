@@ -9,7 +9,7 @@
 'use client';
 
 import { useState } from 'react';
-import { ClipboardList, Plus, Sparkles } from 'lucide-react';
+import { ChevronDown, ChevronUp, ClipboardList, Plus, Sparkles } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -21,9 +21,11 @@ import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { AddSuccessorModal } from './AddSuccessorModal';
 import { NewCriticalPositionModal } from './NewCriticalPositionModal';
+import { SuccessionHistoryPanel } from './SuccessionHistoryPanel';
 import {
   BUSINESS_IMPACT_LABEL,
   COVERAGE_LABEL,
@@ -33,6 +35,30 @@ import {
   RISK_LABEL,
 } from './constants';
 import type { CriticalPositionEntry } from './types';
+
+const DEV_PLAN_STATUS_LABEL: Record<string, string> = {
+  DRAFT: 'Rascunho',
+  PENDING_APPROVAL: 'Pendente de aprovação',
+  ACTIVE: 'Em curso',
+  PAUSED: 'Em pausa',
+  AT_RISK: 'Em risco',
+  COMPLETED: 'Concluído',
+  PARTIALLY_COMPLETED: 'Parcialmente concluído',
+  CANCELLED: 'Cancelado',
+  OVERDUE: 'Atrasado',
+};
+
+function ScoreBar({ label, value }: { label: string; value: number | null }) {
+  return (
+    <div>
+      <div className="mb-0.5 flex items-center justify-between font-body text-xs text-ink-faint">
+        <span>{label}</span>
+        <span>{value === null ? '—' : `${Math.round(value)}%`}</span>
+      </div>
+      <ProgressBar value={value ?? 0} className="h-1.5" />
+    </div>
+  );
+}
 
 const PRIORITY_LABEL: Record<string, string> = {
   PRIMARY: '1º sucessor',
@@ -50,6 +76,7 @@ export function CriticalPositionsView() {
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [showNewPosition, setShowNewPosition] = useState(false);
   const [showAddSuccessor, setShowAddSuccessor] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
   const [generatingPdiFor, setGeneratingPdiFor] = useState<number | null>(null);
 
   const {
@@ -92,6 +119,7 @@ export function CriticalPositionsView() {
     setGeneratingPdiFor(successionPlanId);
     try {
       await generatePdi.mutateAsync(successionPlanId);
+      refetchDetail();
     } finally {
       setGeneratingPdiFor(null);
     }
@@ -235,19 +263,61 @@ export function CriticalPositionsView() {
                                 {sp.matchScore}% match
                               </span>
                             )}
-                            {!sp.available && (
-                              <span className="text-warning">Indisponível</span>
+                            {!sp.available && <span className="text-warning">Indisponível</span>}
+                            {sp.geographicMobility && (
+                              <span className="text-ink-faint">Mobilidade geográfica</span>
+                            )}
+                            {sp.readinessByDate && (
+                              <span className="text-ink-faint">
+                                Prontidão prevista:{' '}
+                                {new Date(sp.readinessByDate).toLocaleDateString('pt-AO', {
+                                  month: 'short',
+                                  year: 'numeric',
+                                })}
+                              </span>
                             )}
                           </div>
-                          <div className="mt-2">
-                            <Button
-                              size="sm"
-                              intent="ghost"
-                              onClick={() => handleGeneratePdi(sp.id)}
-                              loading={generatingPdiFor === sp.id}
-                            >
-                              <Sparkles size={13} strokeWidth={1.75} /> Gerar PDI de preparação
-                            </Button>
+
+                          {/* Acrescento 4: Desempenho → Potencial → Competências → Gaps */}
+                          {sp.matchDetails && (
+                            <div className="mt-3 grid grid-cols-3 gap-3">
+                              <ScoreBar label="Desempenho" value={sp.matchDetails.perfScore} />
+                              <ScoreBar label="Potencial" value={sp.matchDetails.potentialScore} />
+                              <ScoreBar label="Competências" value={sp.matchDetails.compScore} />
+                            </div>
+                          )}
+                          {sp.matchDetails && sp.matchDetails.gaps.length > 0 && (
+                            <div className="mt-2 font-body text-xs text-warning-ink">
+                              {sp.matchDetails.gaps.length} lacuna(s) de competência face ao cargo
+                            </div>
+                          )}
+
+                          {/* Acrescento 3: plano de preparação do sucessor */}
+                          <div className="mt-3">
+                            {sp.developmentPlan ? (
+                              <div className="rounded-control bg-surface p-2">
+                                <div className="mb-1 flex items-center justify-between font-body text-xs">
+                                  <span className="font-medium text-ink">
+                                    Plano de preparação:{' '}
+                                    {DEV_PLAN_STATUS_LABEL[sp.developmentPlan.status] ??
+                                      sp.developmentPlan.status}
+                                  </span>
+                                  <span className="text-ink-faint">
+                                    {sp.developmentPlan.overallProgress}%
+                                  </span>
+                                </div>
+                                <ProgressBar value={sp.developmentPlan.overallProgress} className="h-1.5" />
+                              </div>
+                            ) : (
+                              <Button
+                                size="sm"
+                                intent="ghost"
+                                onClick={() => handleGeneratePdi(sp.id)}
+                                loading={generatingPdiFor === sp.id}
+                              >
+                                <Sparkles size={13} strokeWidth={1.75} /> Gerar PDI de preparação
+                              </Button>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -259,6 +329,26 @@ export function CriticalPositionsView() {
                   <ClipboardList size={13} strokeWidth={1.75} />
                   Mínimo de {detail.minSuccessorsRequired} sucessor(es) requerido(s) para cobertura
                   completa.
+                </div>
+
+                <div className="mt-4 border-t border-border pt-3">
+                  <button
+                    type="button"
+                    onClick={() => setShowHistory((v) => !v)}
+                    className="flex items-center gap-1.5 font-body text-xs font-medium text-ink-muted hover:text-ink"
+                  >
+                    {showHistory ? (
+                      <ChevronUp size={14} strokeWidth={1.75} />
+                    ) : (
+                      <ChevronDown size={14} strokeWidth={1.75} />
+                    )}
+                    Histórico de sucessão
+                  </button>
+                  {showHistory && (
+                    <div className="mt-3">
+                      <SuccessionHistoryPanel criticalPositionId={detail.id} />
+                    </div>
+                  )}
                 </div>
               </Card>
             )}

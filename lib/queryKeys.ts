@@ -445,6 +445,8 @@ export const queryKeys = {
       [...queryKeys.succession.all, 'critical-positions'] as const,
     criticalPosition: (id: number) =>
       [...queryKeys.succession.all, 'critical-position', id] as const,
+    criticalPositionHistory: (id: number) =>
+      [...queryKeys.succession.all, 'critical-position', id, 'history'] as const,
     positionSummary: (id: number) =>
       [...queryKeys.succession.all, 'position-summary', id] as const,
     talentPool: () => [...queryKeys.succession.all, 'talent-pool'] as const,

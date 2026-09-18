@@ -25,6 +25,33 @@ export interface SuccessionCandidateRef {
   department?: { name?: string | null } | null;
 }
 
+// Secção 7, acrescento 4 — quebra do match por eixo (Desempenho/Potencial/
+// Competências/Gaps). Calculado a pedido em findOneCriticalPosition(), não
+// persistido — potentialScore fica null quando o candidato não tem
+// colocação 9-box (distingue "sem dado" de "potencial médio").
+export interface SuccessionMatchDetails {
+  compScore: number;
+  perfScore: number;
+  expScore: number;
+  potentialScore: number | null;
+  gaps: Array<{
+    competencyId: number;
+    requiredLevel: number;
+    currentLevel: number;
+    gap: number;
+  }>;
+}
+
+// Secção 7, acrescento 3 — resumo do plano de preparação do sucessor
+// (DevelopmentPlan origin=SUCCESSION gerado via "Gerar PDI"). null antes de
+// gerado.
+export interface SuccessionDevelopmentPlanSummary {
+  id: number;
+  status: string;
+  overallProgress: number;
+  actions: Array<{ type: string; status: string }>;
+}
+
 export interface SuccessionPlanEntry {
   id: number;
   criticalPositionId: number;
@@ -37,6 +64,20 @@ export interface SuccessionPlanEntry {
   notes: string | null;
   readinessByDate: string | null;
   candidate: SuccessionCandidateRef;
+  matchDetails?: SuccessionMatchDetails;
+  developmentPlan?: SuccessionDevelopmentPlanSummary | null;
+}
+
+// GET /succession/critical-positions/:id/history — secção 7 "histórico de
+// sucessão" (auditoria de mudanças, via AuditService comum).
+export interface SuccessionHistoryEntry {
+  id: number;
+  action: string;
+  entity: 'CriticalPosition' | 'SuccessionPlan';
+  entityId: number | null;
+  user: { id: number; fullName: string; avatarUrl?: string | null } | null;
+  metadata: Record<string, unknown> | null;
+  createdAt: string;
 }
 
 export interface CriticalPositionEntry {
