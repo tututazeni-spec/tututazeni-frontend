@@ -63,11 +63,12 @@ export default function EvaluationsPage() {
               Avaliações
             </h1>
           </div>
-          {/* A criação de ciclos ("Novo Ciclo") vive só em evaluation360
-              agora (components/evaluation360/CreateCycleModal.tsx), que
-              chama o mesmo POST /evaluations/cycles — ver
-              memory project_innova_evaluation_role_scoping. Este módulo só
-              lista/publica/activa ciclos em CyclesTab. */}
+          {/* "Novo Ciclo" (criar) vive dentro da própria CyclesTab
+              (components/evaluation/CreateCycleModal.tsx → POST
+              /evaluations/cycles). Distinto de evaluation360's próprio
+              "Novo Ciclo" (components/evaluation360/CreateCycleModal.tsx),
+              que fala com o módulo evaluation360 à parte
+              (/evaluation360/cycles) — não confundir os dois. */}
         </div>
       </div>
 

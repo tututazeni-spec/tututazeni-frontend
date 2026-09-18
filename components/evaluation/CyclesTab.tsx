@@ -5,7 +5,8 @@
 
 'use client';
 
-import { Calendar } from 'lucide-react';
+import { useState } from 'react';
+import { Calendar, Plus } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
 import { apiClient } from '@/lib/apiClient';
@@ -21,14 +22,16 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
+import { CreateCycleModal } from './CreateCycleModal';
 import { MODEL_LABEL, STATUS_MAP } from './constants';
 import type { Cycle } from './types';
 
 export function CyclesTab() {
   const notify = useToast();
   const role = useCurrentRole();
-  // Publicar/Activar espelham @Roles(ADMIN, RH) de POST
-  // /evaluations/cycles/:id/publish e /activate (evaluation.controller.ts) —
+  const [showCreate, setShowCreate] = useState(false);
+  // Publicar/Activar/Criar espelham @Roles(ADMIN, RH) de POST
+  // /evaluations/cycles(/:id/publish|/activate) (evaluation.controller.ts) —
   // um COLABORADOR pode ver este separador (participa nas suas avaliações),
   // mas não gere o ciclo. Sem isto os botões apareciam para todos e
   // rebentavam com 403 ao clicar.
@@ -55,10 +58,25 @@ export function CyclesTab() {
         <h3 className="font-display font-semibold text-ink">
           Ciclos de Avaliação
         </h3>
-        <span className="text-xs text-ink-faint">
-          {data?.meta.total ?? 0} ciclos
-        </span>
+        <div className="flex items-center gap-3">
+          <span className="text-xs text-ink-faint">
+            {data?.meta.total ?? 0} ciclos
+          </span>
+          {canManageCycle && (
+            <Button size="sm" onClick={() => setShowCreate(true)}>
+              <Plus size={14} strokeWidth={1.75} className="mr-1" />
+              Novo Ciclo
+            </Button>
+          )}
+        </div>
       </div>
+
+      {showCreate && (
+        <CreateCycleModal
+          onClose={() => setShowCreate(false)}
+          onSuccess={() => setShowCreate(false)}
+        />
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
         {data?.data.map((cycle) => (
