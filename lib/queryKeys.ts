@@ -441,6 +441,8 @@ export const queryKeys = {
     orgChart: () => [...queryKeys.succession.all, 'org-chart'] as const,
     criticalPositions: () =>
       [...queryKeys.succession.all, 'critical-positions'] as const,
+    criticalPosition: (id: number) =>
+      [...queryKeys.succession.all, 'critical-position', id] as const,
     positionSummary: (id: number) =>
       [...queryKeys.succession.all, 'position-summary', id] as const,
     talentPool: () => [...queryKeys.succession.all, 'talent-pool'] as const,
