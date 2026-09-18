@@ -101,7 +101,13 @@ export interface CourseModule {
 // Todos os consumidores têm de tratar a ausência (ver useCourseDetail /
 // CourseDetailView).
 export interface CourseProgress {
-  enrollment: { id: number; status: EnrollmentStatus; deadline: string | null };
+  enrollment: {
+    id: number;
+    status: EnrollmentStatus;
+    deadline: string | null;
+    completedAt?: string | null;
+    certificate?: { id: number; code: string | null; issuedAt: string; fileUrl: string | null } | null;
+  };
   courseProgress?: {
     totalLessons: number;
     completedLessons: number;
@@ -129,9 +135,25 @@ export interface CourseFeedback {
   user: { fullName: string };
 }
 
+export interface RelatedCourse {
+  id: number;
+  title: string;
+  thumbnailUrl: string | null;
+  category: string | null;
+  level: CourseLevel;
+  workloadHours: number | null;
+}
+
+export interface LearningPathRef {
+  id: number;
+  title: string;
+}
+
 export type CourseDetailData = Course & {
   modules?: CourseDetailModule[];
   feedbacks?: CourseFeedback[];
+  relatedCourses?: RelatedCourse[];
+  learningPaths?: LearningPathRef[];
 };
 
 // ─── Tipos das restantes views (Catalog/MyEnrollments/Certificates/AdminDashboard) ──

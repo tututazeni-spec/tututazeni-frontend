@@ -19,6 +19,12 @@ import {
   Clock,
   Users,
   ClipboardList,
+  Award,
+  GraduationCap,
+  Route,
+  Download,
+  Layers,
+  Globe,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
@@ -91,6 +97,14 @@ export function CourseDetailView({
   // PATCH /courses/enrollments/:id/approve). Ver secção "2. Botão principal"
   // de docs/06-modulo-courses.md.
   const pendingApproval = progress?.enrollment.status === 'PENDING_APPROVAL';
+
+  const continueOrReviewLesson = () => {
+    const modules = progress?.modules ?? [];
+    const target =
+      modules.flatMap(m => m.lessons).find(l => !l.completed) ??
+      modules[0]?.lessons[0];
+    if (target) onSelectLesson(target);
+  };
 
   return (
     <div>
@@ -343,15 +357,258 @@ export function CourseDetailView({
                 {!pendingApproval && (
                   <>
                     <ProgressBar value={progressPct} className="h-2.5" />
-                    <div className="text-xs text-ink-faint text-center">
+                    <div className="text-xs text-ink-faint text-center mb-2">
                       {progressPct}% concluído
                     </div>
+                    {/* docs/06-modulo-courses.md secção 2 — "Continuar curso" /
+                        "Rever curso": o resto do CTA card só mostrava o badge
+                        de estado, sem acção para entrar no conteúdo quando
+                        nenhuma aula estava activa. */}
+                    <Button className="w-full" onClick={continueOrReviewLesson}>
+                      {progress?.enrollment.status === 'COMPLETED'
+                        ? 'Rever curso'
+                        : 'Continuar curso'}
+                    </Button>
                   </>
                 )}
               </div>
             )}
           </Card>
         </div>
+      )}
+
+      {/* Estado pós-conclusão — docs/06-modulo-courses.md secção 16 */}
+      {isEnrolled && progress?.enrollment.status === 'COMPLETED' && (
+        <Card className="p-5 mb-6 bg-success-subtle">
+          <div className="flex items-center justify-between flex-wrap gap-3">
+            <div>
+              <p className="m-0 text-sm font-semibold text-success-ink flex items-center gap-2">
+                <Check size={16} strokeWidth={1.75} /> Curso concluído
+              </p>
+              {progress.enrollment.completedAt && (
+                <p className="m-0 mt-1 text-xs text-success-ink/80">
+                  Concluído em{' '}
+                  {new Date(progress.enrollment.completedAt).toLocaleDateString('pt')} ·{' '}
+                  {progressPct}% do conteúdo
+                </p>
+              )}
+            </div>
+            <div className="flex items-center gap-2">
+              <Button intent="secondary" onClick={continueOrReviewLesson}>
+                Rever curso
+              </Button>
+              {progress.enrollment.certificate && (
+                <>
+                  <Button intent="secondary">Ver certificado</Button>
+                  {progress.enrollment.certificate.fileUrl && (
+                    <a
+                      href={progress.enrollment.certificate.fileUrl}
+                      download
+                      className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-canvas hover:bg-primary/90"
+                    >
+                      <Download size={14} strokeWidth={1.75} /> Descarregar certificado
+                    </a>
+                  )}
+                </>
+              )}
+            </div>
+          </div>
+        </Card>
+      )}
+
+      {/* Sobre o curso — secção 3 */}
+      {(course.description || course.targetAudience.length > 0 || course.requiredCourse) && (
+        <Card className="p-5 mb-6">
+          <div className="text-sm font-semibold text-ink mb-3">Sobre o curso</div>
+          {course.description && (
+            <p className="text-sm text-ink-muted whitespace-pre-wrap mb-3">
+              {course.description}
+            </p>
+          )}
+          {course.targetAudience.length > 0 && (
+            <div className="mb-3">
+              <div className="text-xs font-medium text-ink-faint uppercase tracking-wide mb-1">
+                Para quem se destina
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {course.targetAudience.map((t, i) => (
+                  <Badge key={i} intent="neutral">
+                    {t}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          )}
+          {course.requiredCourse && (
+            <div className="text-xs text-ink-muted">
+              <span className="font-medium">Pré-requisito:</span>{' '}
+              {course.requiredCourse.title}
+            </div>
+          )}
+        </Card>
+      )}
+
+      {/* Competências desenvolvidas — secção 6 */}
+      {course.competencies.length > 0 && (
+        <Card className="p-5 mb-6">
+          <div className="text-sm font-semibold text-ink mb-3 flex items-center gap-2">
+            <Layers size={16} strokeWidth={1.75} /> Competências desenvolvidas
+          </div>
+          <div className="flex flex-wrap gap-1.5">
+            {course.competencies.map((c) => (
+              <Badge key={c.competency.id} intent="info">
+                {c.competency.name}
+              </Badge>
+            ))}
+          </div>
+        </Card>
+      )}
+
+      {/* Instrutor(es) — secção 7 */}
+      {(course.primaryInstructor || (course.instructors?.length ?? 0) > 0) && (
+        <Card className="p-5 mb-6">
+          <div className="text-sm font-semibold text-ink mb-3 flex items-center gap-2">
+            <GraduationCap size={16} strokeWidth={1.75} /> Instrutor(es)
+          </div>
+          <div className="space-y-3">
+            {course.primaryInstructor && (
+              <div className="flex items-center gap-3">
+                {course.primaryInstructor.avatarUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={course.primaryInstructor.avatarUrl}
+                    alt={course.primaryInstructor.fullName}
+                    className="w-9 h-9 rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="w-9 h-9 rounded-full bg-primary-subtle flex items-center justify-center text-xs font-semibold text-primary">
+                    {course.primaryInstructor.fullName.slice(0, 2).toUpperCase()}
+                  </div>
+                )}
+                <div>
+                  <div className="text-sm font-medium text-ink">
+                    {course.primaryInstructor.fullName}
+                  </div>
+                  <div className="text-xs text-ink-faint">Instrutor principal</div>
+                </div>
+              </div>
+            )}
+            {course.instructors
+              ?.filter((i) => i.userId !== course.primaryInstructorId)
+              .map((i) => (
+                <div key={i.id} className="flex items-center gap-3">
+                  {i.user.avatarUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={i.user.avatarUrl}
+                      alt={i.user.fullName}
+                      className="w-9 h-9 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-9 h-9 rounded-full bg-surface-sunken flex items-center justify-center text-xs font-semibold text-ink-muted">
+                      {i.user.fullName.slice(0, 2).toUpperCase()}
+                    </div>
+                  )}
+                  <div className="text-sm text-ink">{i.user.fullName}</div>
+                </div>
+              ))}
+          </div>
+        </Card>
+      )}
+
+      {/* Informações adicionais — secção 8 */}
+      <Card className="p-5 mb-6">
+        <div className="text-sm font-semibold text-ink mb-3">Informações adicionais</div>
+        <dl className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+          <div>
+            <dt className="text-xs text-ink-faint">Nível</dt>
+            <dd className="text-sm text-ink">{COURSE_LEVEL_MAP[course.level]?.label ?? course.level}</dd>
+          </div>
+          {course.workloadHours && (
+            <div>
+              <dt className="text-xs text-ink-faint">Duração</dt>
+              <dd className="text-sm text-ink">{fmtDuration(course.workloadHours)}</dd>
+            </div>
+          )}
+          <div>
+            <dt className="text-xs text-ink-faint">Módulos</dt>
+            <dd className="text-sm text-ink">{course._count.modules}</dd>
+          </div>
+          <div>
+            <dt className="text-xs text-ink-faint flex items-center gap-1">
+              <Globe size={11} strokeWidth={1.75} /> Idioma
+            </dt>
+            <dd className="text-sm text-ink">{course.language}</dd>
+          </div>
+          <div>
+            <dt className="text-xs text-ink-faint">Certificado</dt>
+            <dd className="text-sm text-ink">{course.certificateEnabled ? 'Sim' : 'Não'}</dd>
+          </div>
+          {course.passingScore != null && (
+            <div>
+              <dt className="text-xs text-ink-faint">Nota mínima</dt>
+              <dd className="text-sm text-ink">{course.passingScore}%</dd>
+            </div>
+          )}
+        </dl>
+      </Card>
+
+      {/* Certificação — secção 9 */}
+      {course.certificateEnabled && (
+        <Card className="p-5 mb-6">
+          <div className="text-sm font-semibold text-ink mb-3 flex items-center gap-2">
+            <Award size={16} strokeWidth={1.75} /> Certificação
+          </div>
+          <ul className="space-y-1 text-sm text-ink-muted">
+            {course.certificateCriteria && <li>{course.certificateCriteria}</li>}
+            {course.passingScore != null && <li>Nota mínima: {course.passingScore}%</li>}
+            {course.minCompletionPercent != null && (
+              <li>Conclusão mínima: {course.minCompletionPercent}%</li>
+            )}
+            {course.certificateValidityDays && (
+              <li>Validade: {course.certificateValidityDays} dias</li>
+            )}
+          </ul>
+        </Card>
+      )}
+
+      {/* Percursos de aprendizagem — secção 12 */}
+      {(course.learningPaths?.length ?? 0) > 0 && (
+        <Card className="p-5 mb-6">
+          <div className="text-sm font-semibold text-ink mb-2 flex items-center gap-2">
+            <Route size={16} strokeWidth={1.75} /> Percursos de aprendizagem
+          </div>
+          {course.learningPaths!.map((lp) => (
+            <p key={lp.id} className="text-sm text-ink-muted">
+              Este curso faz parte de:{' '}
+              <span className="font-medium text-ink">{lp.title}</span>
+            </p>
+          ))}
+        </Card>
+      )}
+
+      {/* Cursos relacionados — secção 11 */}
+      {(course.relatedCourses?.length ?? 0) > 0 && (
+        <Card className="p-5 mb-6">
+          <div className="text-sm font-semibold text-ink mb-3">Cursos relacionados</div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            {course.relatedCourses!.map((rc) => (
+              <div key={rc.id} className="rounded-card border border-border overflow-hidden">
+                <div className="aspect-video bg-surface-sunken">
+                  {rc.thumbnailUrl && (
+                    <CourseThumbnail src={rc.thumbnailUrl} alt={rc.title} />
+                  )}
+                </div>
+                <div className="p-2">
+                  <div className="text-xs font-medium text-ink truncate">{rc.title}</div>
+                  {rc.category && (
+                    <div className="text-xs text-ink-faint">{rc.category}</div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </Card>
       )}
 
       {/* Módulos accordion */}
