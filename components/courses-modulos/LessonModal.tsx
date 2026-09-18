@@ -17,13 +17,14 @@
 'use client';
 
 import { useState } from 'react';
-import { Pencil, BookMarked, Plus, Trash2 } from 'lucide-react';
+import { Pencil, BookMarked, Plus, Trash2, FileQuestion } from 'lucide-react';
 import { useToast } from '@/providers/ToastProvider';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { fileToPdfDataUrl, pdfErrorMessage } from '@/lib/lessonPdf';
 import { fileToSlideDataUrl, slideErrorMessage } from '@/lib/lessonSlide';
 import { CONTENT_TYPE } from './constants';
+import { QuizEditorModal } from './QuizEditorModal';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
@@ -461,6 +462,7 @@ function LessonActivitiesAndResources({
   const notify = useToast();
   const [activityForm, setActivityForm] = useState({ type: 'TEXT' as LessonActivityType, title: '' });
   const [resourceForm, setResourceForm] = useState({ title: '', url: '' });
+  const [quizEditorOpen, setQuizEditorOpen] = useState(false);
 
   const addActivity = useApiMutation(
     () =>
@@ -609,6 +611,21 @@ function LessonActivitiesAndResources({
           </Button>
         </div>
       </div>
+
+      {/* Avaliação (quiz) — docs/06-modulo-courses.md secção 8 */}
+      <div>
+        <h3 className="m-0 mb-2 text-sm font-bold text-ink">Avaliação (Quiz)</h3>
+        <Button type="button" intent="secondary" onClick={() => setQuizEditorOpen(true)}>
+          <FileQuestion size={14} strokeWidth={1.75} /> Configurar quiz
+        </Button>
+      </div>
+      {quizEditorOpen && (
+        <QuizEditorModal
+          lessonId={lesson.id}
+          lessonTitle={lesson.title}
+          onClose={() => setQuizEditorOpen(false)}
+        />
+      )}
     </div>
   );
 }

@@ -775,5 +775,9 @@ export const queryKeys = {
       [...queryKeys.courses.all, 'my-certificates'] as const,
     adminDashboard: () =>
       [...queryKeys.courses.all, 'admin-dashboard'] as const,
+    lessonQuiz: (lessonId: number) =>
+      [...queryKeys.courses.all, 'lesson-quiz', lessonId] as const,
+    quizAttempt: (quizId: number) =>
+      [...queryKeys.courses.all, 'quiz-attempt', quizId] as const,
   },
 } as const;

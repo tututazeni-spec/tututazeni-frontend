@@ -35,6 +35,7 @@ const baseLesson: LessonProgress = {
   liveInstructor: null,
   activities: [],
   resources: [],
+  quizId: null,
 };
 
 const noop = () => {};
