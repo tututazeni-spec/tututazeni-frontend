@@ -13,15 +13,20 @@ import {
   ClipboardList,
   Clock,
   Layers,
+  ListChecks,
   Shield,
+  Sparkles,
   Star,
   TrendingUp,
 } from 'lucide-react';
 import { AnalyticsTab } from '@/components/evaluation/AnalyticsTab';
 import { CalibrationTab } from '@/components/evaluation/CalibrationTab';
+import { CompetenciesTab } from '@/components/evaluation/CompetenciesTab';
+import { CriteriaTab } from '@/components/evaluation/CriteriaTab';
 import { CyclesTab } from '@/components/evaluation/CyclesTab';
 import { EvaluationsTab } from '@/components/evaluation/EvaluationsTab';
 import { FormalEvaluationsTab } from '@/components/evaluation/FormalEvaluationsTab';
+import { ModelsTab } from '@/components/evaluation/ModelsTab';
 import { OverviewTab } from '@/components/evaluation/OverviewTab';
 import { PendingTab } from '@/components/evaluation/PendingTab';
 import { ResultsTab } from '@/components/evaluation/ResultsTab';
@@ -41,19 +46,31 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
 // o próprio FormalEvaluationsTab ramifica internamente entre gestão
 // (EVAL_CREATOR_ROLES) e participação (COLABORADOR/AUDITOR), tal como o
 // ResultsTab já faz para COLABORADOR.
-// Ordem/nomenclatura segue docs/modulo_evaluation.md ponto 0 para as abas
-// já construídas (0-3): Visão Geral, Avaliações, Ciclos de Avaliação. As
-// restantes abas do doc (Modelos/Critérios/Competências/Objetivos&Metas/
-// Autoavaliações/Relatórios/Configurações) ficam para próximas partes —
-// não criadas aqui como stubs vazios. "Avaliações Formais" (quizzes/exames,
-// backend src/assessments) e "Análises" já existiam antes deste doc e não
-// fazem parte da IA dele; mantidas tal como estavam.
+// Ordem/nomenclatura segue docs/modulo_evaluation.md ponto 0.
+// Parte 1 (0-3): Visão Geral, Avaliações, Ciclos de Avaliação.
+// Parte 2 (4-7, esta): Modelos/Critérios — leitura MGMT_ROLES (espelha
+// @Roles(...MGMT_ROLES) em GET /evaluations/templates|criteria no backend;
+// criar/editar fica restrito a ADMIN_ROLES dentro do próprio separador,
+// tal como CyclesTab/EvaluationsTab já fazem); Competências — sem @Roles()
+// no backend (GET /competencies/my|user/:id/gap), visível a todos, o
+// próprio CompetenciesTab ramifica MGMT (escolhe colaborador) vs
+// COLABORADOR (só o próprio); "Pendentes" renomeado para "Avaliações
+// Pendentes" (nome do doc) e passa a incluir também a fila do gestor
+// (avaliações que tem de preencher) e, do lado do colaborador,
+// "Avaliações concluídas"/"Feedback recebido" — ver PendingTab.tsx.
+// Restantes pontos do doc (8-12: Resultados/Calibração/Conversa 1:1/
+// Relatórios/Configurações) ficam para próximas partes — "Resultados" e
+// "Calibração" abaixo já existiam antes deste doc (não fazem parte da
+// numeração 8-9 dele) e mantêm-se tal como estavam.
 const TABS = [
   { id: 'overview', label: 'Visão Geral', icon: Star },
   { id: 'evaluations', label: 'Avaliações', icon: ClipboardCheck, roles: MGMT_ROLES },
   { id: 'cycles', label: 'Ciclos de Avaliação', icon: Layers },
+  { id: 'templates', label: 'Modelos', icon: Layers, roles: MGMT_ROLES },
+  { id: 'criteria', label: 'Critérios', icon: ListChecks, roles: MGMT_ROLES },
+  { id: 'competencies', label: 'Competências', icon: Sparkles },
   { id: 'formal', label: 'Avaliações Formais', icon: ClipboardList },
-  { id: 'pending', label: 'Pendentes', icon: Clock },
+  { id: 'pending', label: 'Avaliações Pendentes', icon: Clock },
   { id: 'results', label: 'Resultados', icon: BarChart2 },
   { id: 'analytics', label: 'Análises', icon: TrendingUp, roles: ADMIN_ROLES },
   { id: 'calibration', label: 'Calibração', icon: Shield, roles: ADMIN_ROLES },
@@ -117,6 +134,19 @@ export default function EvaluationsPage() {
           )}
           <TabsContent value="cycles">
             <CyclesTab />
+          </TabsContent>
+          {visibleTabs.some((t) => t.id === 'templates') && (
+            <TabsContent value="templates">
+              <ModelsTab />
+            </TabsContent>
+          )}
+          {visibleTabs.some((t) => t.id === 'criteria') && (
+            <TabsContent value="criteria">
+              <CriteriaTab />
+            </TabsContent>
+          )}
+          <TabsContent value="competencies">
+            <CompetenciesTab />
           </TabsContent>
           <TabsContent value="formal">
             <FormalEvaluationsTab />

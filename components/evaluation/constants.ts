@@ -143,6 +143,33 @@ export const MONTH_OPTIONS: { value: string; label: string }[] = [
   { value: '12', label: 'Dezembro' },
 ];
 
+// docs/modulo_evaluation.md pt.5 — "biblioteca central" de categorias de
+// critério. Guardado como string livre no backend (EvaluationCriteria.category),
+// não um enum Prisma — esta lista é só a sugestão apresentada no Select.
+export const CRITERIA_CATEGORY_OPTIONS = [
+  'Critérios de desempenho',
+  'Competências comportamentais',
+  'Competências técnicas',
+  'Valores',
+  'Liderança',
+  'Resultados',
+] as const;
+
+// docs/modulo_evaluation.md pt.4 — categorias de modelo sugeridas.
+// Guardado em EvaluationTemplate.type (string livre).
+export const TEMPLATE_TYPE_OPTIONS = [
+  'Avaliação anual',
+  'Avaliação semestral',
+  'Período experimental',
+  'Liderança',
+  'Administrativo',
+  'Operacional',
+  'Logística',
+  'Indústria',
+  'Lojas',
+  'Modelo personalizado',
+] as const;
+
 export const SCORE_BG = (score: number) =>
   score >= 4
     ? 'bg-success-subtle border-success'

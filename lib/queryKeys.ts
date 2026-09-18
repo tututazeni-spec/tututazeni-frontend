@@ -196,6 +196,8 @@ export const queryKeys = {
     dashboardGaps: () =>
       [...queryKeys.competencies.all, 'dashboard-gaps'] as const,
     top: () => [...queryKeys.competencies.all, 'top'] as const,
+    gap: (userId: string | number) =>
+      [...queryKeys.competencies.all, 'gap', userId] as const,
   },
 
   automation: {
@@ -258,8 +260,14 @@ export const queryKeys = {
       [...queryKeys.evaluation.all, 'requests', filters ?? {}] as const,
     requestDetail: (id: string | number) =>
       [...queryKeys.evaluation.all, 'requests', id] as const,
-    criteria: () => [...queryKeys.evaluation.all, 'criteria'] as const,
+    criteria: (params?: Record<string, unknown>) =>
+      [...queryKeys.evaluation.all, 'criteria', params ?? {}] as const,
     scales: () => [...queryKeys.evaluation.all, 'scales'] as const,
+    templates: () => [...queryKeys.evaluation.all, 'templates'] as const,
+    templateDetail: (id: string | number) =>
+      [...queryKeys.evaluation.all, 'templates', id] as const,
+    myEvaluations: (period?: string) =>
+      [...queryKeys.evaluation.all, 'my-evaluations', period ?? null] as const,
   },
 
   // Módulo real de Avaliação 360º (src/evaluation360/, backend `/evaluation360`)
