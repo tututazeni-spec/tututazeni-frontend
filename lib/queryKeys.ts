@@ -268,6 +268,11 @@ export const queryKeys = {
       [...queryKeys.evaluation.all, 'templates', id] as const,
     myEvaluations: (period?: string) =>
       [...queryKeys.evaluation.all, 'my-evaluations', period ?? null] as const,
+    oneOnOne: (requestId: string | number) =>
+      [...queryKeys.evaluation.all, 'requests', requestId, 'one-on-one'] as const,
+    reports: (filters?: Record<string, unknown>) =>
+      [...queryKeys.evaluation.all, 'reports', filters ?? {}] as const,
+    settings: () => [...queryKeys.evaluation.all, 'settings'] as const,
   },
 
   // Módulo real de Avaliação 360º (src/evaluation360/, backend `/evaluation360`)

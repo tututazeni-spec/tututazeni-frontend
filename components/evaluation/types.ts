@@ -68,10 +68,51 @@ export interface CalibrationParticipant {
   dispersion?: number;
 }
 
+// docs/modulo_evaluation.md ponto 9 — "Comparar equipas"/"Distribuição de
+// resultados" (sempre sobre o ciclo inteiro, não o filtro de departamento).
+export interface CalibrationByDepartment {
+  department: string;
+  avgScore: number;
+  count: number;
+}
+
 export interface CalibrationData {
   biasedEvaluators?: BiasedEvaluator[];
   globalAvg?: number;
   participants?: CalibrationParticipant[];
+  byDepartment?: CalibrationByDepartment[];
+  distribution?: { exceptional: number; above: number; expected: number; below: number };
+}
+
+export interface CalibrationHistoryEntry {
+  evaluatedId: number;
+  calibratedBy: { id: number; fullName: string } | null;
+  previousScore: number | null;
+  calibratedScore: number | null;
+  reason: string | null;
+  cycleId: number | null;
+  createdAt: string;
+}
+
+// docs/modulo_evaluation.md ponto 10 — "Conversa 1:1"
+export interface OneOnOneMeetingView {
+  id: number;
+  scheduledAt: string;
+  status: string;
+  agenda?: string | null;
+  minutes?: string | null;
+  actionItems?: string | null;
+  nextMeetingDate?: string | null;
+  completedAt?: string | null;
+}
+
+export interface OneOnOneMinutes {
+  discussionPoints?: string;
+  strengths?: string;
+  developmentAreas?: string;
+  commitments?: string;
+  objectivesSet?: string;
+  observations?: string;
 }
 
 export interface Cycle {
@@ -287,4 +328,60 @@ export interface EvalResults {
     recommendations: string[];
   };
   hasResults?: boolean;
+  // docs/modulo_evaluation.md ponto 8 — Objetivos/Comentários/Evolução
+  objectives?: {
+    total: number;
+    avgAchievement: number | null;
+    items: EvaluationObjective[];
+  };
+  comments?: {
+    manager: { evaluatorId: number; comment: string | null }[];
+    self: { evaluatorId: number; comment: string | null }[];
+  };
+  evolution?: {
+    history: { period: string; avgScore: number; evals: number }[];
+    trend: number | null;
+  };
+}
+
+// docs/modulo_evaluation.md ponto 11 — Relatórios
+export interface EvaluationReportGroup {
+  id: number;
+  name: string;
+  count: number;
+  avgScore: number;
+}
+
+export interface EvaluationCompetencyGap {
+  competencyId: number;
+  name: string;
+  avgScore: number;
+  gap: number;
+}
+
+export interface EvaluationReportsOverview {
+  totalEvaluations: number;
+  avgScore: number;
+  completionRate: number;
+  distribution: { exceptional: number; above: number; expected: number; below: number };
+  byDepartment: EvaluationReportGroup[];
+  byUnit: EvaluationReportGroup[];
+  byPosition: EvaluationReportGroup[];
+  byManager: EvaluationReportGroup[];
+  evolution: { period: string; avgScore: number; count: number }[];
+  competencyGaps: EvaluationCompetencyGap[];
+  objectivesAchieved: { total: number; avgAchievement: number | null };
+}
+
+// docs/modulo_evaluation.md ponto 12 — Configurações
+export interface EvaluationSettings {
+  scales: EvalScale[];
+  criteriaCount: number;
+  templatesCount: number;
+  evalTypes: string[];
+  evalPurposes: string[];
+  populationTypes: string[];
+  cycleStatuses: string[];
+  approvalFlow: string[];
+  resultsVisibilityOptions: string[];
 }

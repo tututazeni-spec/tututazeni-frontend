@@ -12,8 +12,10 @@ import {
   ClipboardCheck,
   ClipboardList,
   Clock,
+  FileBarChart,
   Layers,
   ListChecks,
+  Settings,
   Shield,
   Sparkles,
   Star,
@@ -29,7 +31,9 @@ import { FormalEvaluationsTab } from '@/components/evaluation/FormalEvaluationsT
 import { ModelsTab } from '@/components/evaluation/ModelsTab';
 import { OverviewTab } from '@/components/evaluation/OverviewTab';
 import { PendingTab } from '@/components/evaluation/PendingTab';
+import { ReportsTab } from '@/components/evaluation/ReportsTab';
 import { ResultsTab } from '@/components/evaluation/ResultsTab';
+import { SettingsTab } from '@/components/evaluation/SettingsTab';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
 import { ADMIN_ROLES, MGMT_ROLES, filterByRole } from '@/lib/roles';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
@@ -58,10 +62,17 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
 // Pendentes" (nome do doc) e passa a incluir também a fila do gestor
 // (avaliações que tem de preencher) e, do lado do colaborador,
 // "Avaliações concluídas"/"Feedback recebido" — ver PendingTab.tsx.
-// Restantes pontos do doc (8-12: Resultados/Calibração/Conversa 1:1/
-// Relatórios/Configurações) ficam para próximas partes — "Resultados" e
-// "Calibração" abaixo já existiam antes deste doc (não fazem parte da
-// numeração 8-9 dele) e mantêm-se tal como estavam.
+// Parte 3 (8-12): "Resultados" e "Calibração" já existiam antes do doc (não
+// eram os pontos 8-9 originalmente) e foram agora enriquecidos com os campos
+// em falta (objetivos/evolução/comentários por papel; filtro por
+// departamento/justificação/histórico/comparação de equipas) em vez de
+// duplicados — ver ResultsTab/CalibrationTab. "Conversa 1:1" (ponto 10) não
+// é separador próprio: vive dentro de EvaluationDetailModal (ligada à
+// EvaluationRequest da etapa ONE_ON_ONE), tal como "Objetivos" já vivia.
+// "Relatórios" (11) e "Configurações" (12) são novos separadores —
+// Relatórios espelha @Roles(ADMIN, RH) de GET /evaluations/reports/overview;
+// Configurações é leitura MGMT_ROLES (mesmo nível de Escalas/Critérios/
+// Modelos, que aqui são só agregados, não recriados).
 const TABS = [
   { id: 'overview', label: 'Visão Geral', icon: Star },
   { id: 'evaluations', label: 'Avaliações', icon: ClipboardCheck, roles: MGMT_ROLES },
@@ -74,6 +85,8 @@ const TABS = [
   { id: 'results', label: 'Resultados', icon: BarChart2 },
   { id: 'analytics', label: 'Análises', icon: TrendingUp, roles: ADMIN_ROLES },
   { id: 'calibration', label: 'Calibração', icon: Shield, roles: ADMIN_ROLES },
+  { id: 'reports', label: 'Relatórios', icon: FileBarChart, roles: ADMIN_ROLES },
+  { id: 'settings', label: 'Configurações', icon: Settings, roles: MGMT_ROLES },
 ];
 
 export default function EvaluationsPage() {
@@ -167,6 +180,16 @@ export default function EvaluationsPage() {
           {visibleTabs.some((t) => t.id === 'calibration') && (
             <TabsContent value="calibration">
               <CalibrationTab />
+            </TabsContent>
+          )}
+          {visibleTabs.some((t) => t.id === 'reports') && (
+            <TabsContent value="reports">
+              <ReportsTab />
+            </TabsContent>
+          )}
+          {visibleTabs.some((t) => t.id === 'settings') && (
+            <TabsContent value="settings">
+              <SettingsTab />
             </TabsContent>
           )}
         </div>

@@ -7,7 +7,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { AlertCircle, Plus, Trash2 } from 'lucide-react';
+import { AlertCircle, ArrowRight, Plus, Trash2 } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -23,7 +23,7 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { Textarea } from '@/components/ui/Textarea';
 import { EVAL_TYPE_MAP, PURPOSE_LABEL, REQUEST_STATUS_MAP, STAGE_LABEL } from './constants';
-import type { EvaluationObjective, EvaluationRequestDetail } from './types';
+import type { EvaluationObjective, EvaluationRequestDetail, OneOnOneMeetingView, OneOnOneMinutes } from './types';
 
 export interface EvaluationDetailModalProps {
   requestId: number;
@@ -44,10 +44,18 @@ export function EvaluationDetailModal({ requestId, editable, onClose }: Evaluati
   const [purpose, setPurpose] = useState('');
   const [dueDate, setDueDate] = useState('');
   const [objectives, setObjectives] = useState<EvaluationObjective[]>([]);
+  const [oneOnOneAt, setOneOnOneAt] = useState('');
+  const [minutes, setMinutes] = useState<OneOnOneMinutes & { actions?: string; nextMeetingDate?: string }>({});
 
   const { data, isLoading } = useApiQuery<EvaluationRequestDetail>(
     queryKeys.evaluation.requestDetail(requestId),
     `/evaluations/requests/${requestId}`,
+  );
+
+  const { data: oneOnOne } = useApiQuery<OneOnOneMeetingView | null>(
+    queryKeys.evaluation.oneOnOne(requestId),
+    `/evaluations/requests/${requestId}/one-on-one`,
+    { enabled: editable },
   );
 
   useEffect(() => {
@@ -79,6 +87,50 @@ export function EvaluationDetailModal({ requestId, editable, onClose }: Evaluati
 
   const updateObjective = (i: number, patch: Partial<EvaluationObjective>) =>
     setObjectives((prev) => prev.map((o, idx) => (idx === i ? { ...o, ...patch } : o)));
+
+  const advanceStage = useApiMutation(
+    () => apiClient.post(`/evaluations/requests/${requestId}/advance-stage`, {}),
+    {
+      invalidateKeys: [queryKeys.evaluation.requests(), queryKeys.evaluation.requestDetail(requestId)],
+      onSuccess: () => notify({ title: 'Etapa avançada', intent: 'success' }),
+      onError: () => notify({ title: 'Não foi possível avançar a etapa.', intent: 'danger' }),
+    },
+  );
+
+  // docs/modulo_evaluation.md ponto 10 — "Conversa 1:1"
+  const scheduleOneOnOne = useApiMutation(
+    () =>
+      apiClient.post(`/evaluations/requests/${requestId}/one-on-one`, {
+        scheduledAt: oneOnOneAt || new Date().toISOString(),
+      }),
+    {
+      invalidateKeys: [queryKeys.evaluation.oneOnOne(requestId)],
+      onSuccess: () => notify({ title: 'Conversa 1:1 agendada', intent: 'success' }),
+      onError: () => notify({ title: 'Não foi possível agendar a conversa 1:1.', intent: 'danger' }),
+    },
+  );
+
+  const registerOneOnOne = useApiMutation(
+    () =>
+      apiClient.patch(`/evaluations/requests/${requestId}/one-on-one`, {
+        discussionPoints: minutes.discussionPoints,
+        strengths: minutes.strengths,
+        developmentAreas: minutes.developmentAreas,
+        commitments: minutes.commitments,
+        objectivesSet: minutes.objectivesSet,
+        actions: minutes.actions,
+        observations: minutes.observations,
+        nextMeetingDate: minutes.nextMeetingDate || undefined,
+      }),
+    {
+      invalidateKeys: [
+        queryKeys.evaluation.oneOnOne(requestId),
+        queryKeys.evaluation.requestDetail(requestId),
+      ],
+      onSuccess: () => notify({ title: 'Conversa 1:1 registada', intent: 'success' }),
+      onError: () => notify({ title: 'Não foi possível registar a conversa 1:1.', intent: 'danger' }),
+    },
+  );
 
   return (
     <Modal open onOpenChange={(open) => !open && onClose()}>
@@ -217,6 +269,107 @@ export function EvaluationDetailModal({ requestId, editable, onClose }: Evaluati
                 ))}
               </div>
             </div>
+
+            {/* Fluxo — docs/modulo_evaluation.md ponto 2 etapa 8 */}
+            {editable && data.stage && data.stage !== 'DONE' && (
+              <Button
+                intent="secondary"
+                size="sm"
+                loading={advanceStage.isPending}
+                onClick={() => advanceStage.mutate(undefined)}
+              >
+                Avançar para a próxima etapa <ArrowRight size={14} strokeWidth={1.75} className="ml-1 inline" />
+              </Button>
+            )}
+
+            {/* Conversa 1:1 — docs/modulo_evaluation.md ponto 10 */}
+            {editable && (
+              <div className="rounded-card border border-border p-4 space-y-3">
+                <p className="text-sm font-semibold text-ink">Conversa 1:1</p>
+                {!oneOnOne ? (
+                  <div className="flex items-end gap-2">
+                    <div className="flex-1">
+                      <FormField label="Data" htmlFor="ev-1on1-date">
+                        <Input
+                          id="ev-1on1-date"
+                          type="datetime-local"
+                          value={oneOnOneAt}
+                          onChange={(e) => setOneOnOneAt(e.target.value)}
+                          className="w-full"
+                        />
+                      </FormField>
+                    </div>
+                    <Button
+                      size="sm"
+                      loading={scheduleOneOnOne.isPending}
+                      onClick={() => scheduleOneOnOne.mutate(undefined)}
+                    >
+                      Agendar
+                    </Button>
+                  </div>
+                ) : (
+                  <>
+                    <p className="text-xs text-ink-faint">
+                      {oneOnOne.status === 'COMPLETED' ? 'Registada em' : 'Agendada para'}{' '}
+                      {new Date(oneOnOne.completedAt ?? oneOnOne.scheduledAt).toLocaleString('pt')}
+                    </p>
+                    <div className="grid grid-cols-2 gap-2">
+                      <Textarea
+                        placeholder="Pontos discutidos"
+                        value={minutes.discussionPoints ?? ''}
+                        onChange={(e) => setMinutes((p) => ({ ...p, discussionPoints: e.target.value }))}
+                      />
+                      <Textarea
+                        placeholder="Pontos fortes"
+                        value={minutes.strengths ?? ''}
+                        onChange={(e) => setMinutes((p) => ({ ...p, strengths: e.target.value }))}
+                      />
+                      <Textarea
+                        placeholder="Áreas de desenvolvimento"
+                        value={minutes.developmentAreas ?? ''}
+                        onChange={(e) => setMinutes((p) => ({ ...p, developmentAreas: e.target.value }))}
+                      />
+                      <Textarea
+                        placeholder="Compromissos"
+                        value={minutes.commitments ?? ''}
+                        onChange={(e) => setMinutes((p) => ({ ...p, commitments: e.target.value }))}
+                      />
+                      <Textarea
+                        placeholder="Objetivos definidos"
+                        value={minutes.objectivesSet ?? ''}
+                        onChange={(e) => setMinutes((p) => ({ ...p, objectivesSet: e.target.value }))}
+                      />
+                      <Textarea
+                        placeholder="Ações"
+                        value={minutes.actions ?? ''}
+                        onChange={(e) => setMinutes((p) => ({ ...p, actions: e.target.value }))}
+                      />
+                      <Textarea
+                        placeholder="Observações"
+                        value={minutes.observations ?? ''}
+                        onChange={(e) => setMinutes((p) => ({ ...p, observations: e.target.value }))}
+                      />
+                      <FormField label="Próxima reunião" htmlFor="ev-1on1-next">
+                        <Input
+                          id="ev-1on1-next"
+                          type="date"
+                          value={minutes.nextMeetingDate ?? ''}
+                          onChange={(e) => setMinutes((p) => ({ ...p, nextMeetingDate: e.target.value }))}
+                          className="w-full"
+                        />
+                      </FormField>
+                    </div>
+                    <Button
+                      size="sm"
+                      loading={registerOneOnOne.isPending}
+                      onClick={() => registerOneOnOne.mutate(undefined)}
+                    >
+                      Registar Conversa
+                    </Button>
+                  </>
+                )}
+              </div>
+            )}
           </div>
         )}
 

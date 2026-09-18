@@ -1,52 +1,162 @@
 // components/evaluation/CalibrationTab.tsx
-// Separador "Calibração" — pesquisa por ciclo, alerta de avaliadores com
-// viés e ajuste manual de scores. Dados próprios (useApiMutation, pesquisa
-// manual por ID) + apresentação. Extraído de
+// Separador "Calibração" — pesquisa por ciclo (+ filtro por departamento),
+// alerta de avaliadores com viés, ajuste manual de scores com justificação,
+// comparação entre equipas/distribuição e histórico de alterações
+// (docs/modulo_evaluation.md ponto 9). Dados próprios (useApiMutation,
+// pesquisa manual por ID) + apresentação. Extraído de
 // app/(platform)/evaluation/page.tsx.
 
 'use client';
 
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, History, Lock, Unlock } from 'lucide-react';
 import { useState } from 'react';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { reportError } from '@/lib/errorReporting';
 import { useToast } from '@/providers/ToastProvider';
 import { Avatar } from '@/components/ui/Avatar';
+import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { Textarea } from '@/components/ui/Textarea';
 import { SCORE_COLOR } from './constants';
-import type { CalibrationData } from './types';
+import type { CalibrationData, CalibrationHistoryEntry } from './types';
 
 export function CalibrationTab() {
   const notify = useToast();
   const [cycleId, setCycleId] = useState('');
+  const [departmentId, setDepartmentId] = useState('');
+  const [notes, setNotes] = useState<Record<number, string>>({});
+  const [showHistory, setShowHistory] = useState(false);
 
-  const loadCalibration = useApiMutation((id: string) =>
-    apiClient.get<CalibrationData>(`/evaluations/calibration/${id}`),
+  const loadCalibration = useApiMutation((params: { id: string; dept?: string }) =>
+    apiClient.get<CalibrationData>(
+      `/evaluations/calibration/${params.id}${params.dept ? `?departmentId=${params.dept}` : ''}`,
+    ),
   );
   const data = loadCalibration.data ?? null;
   const loading = loadCalibration.isPending;
 
+  const loadHistory = useApiMutation((id: string) =>
+    apiClient.get<CalibrationHistoryEntry[]>(`/evaluations/calibration/${id}/history`),
+  );
+
   const load = () => {
-    if (cycleId) loadCalibration.mutate(cycleId);
+    if (cycleId) loadCalibration.mutate({ id: cycleId, dept: departmentId || undefined });
+  };
+
+  const openCalibration = useApiMutation(
+    () => apiClient.post(`/evaluations/calibration/${cycleId}/open`, {}),
+    {
+      onSuccess: () => notify({ title: 'Calibração aberta', intent: 'success' }),
+      onError: () => notify({ title: 'Não foi possível abrir a calibração', intent: 'danger' }),
+    },
+  );
+
+  const confirmCalibration = useApiMutation(
+    () => apiClient.post(`/evaluations/calibration/${cycleId}/confirm`, {}),
+    {
+      onSuccess: (res) => {
+        const advanced = (res as { advanced?: number })?.advanced ?? 0;
+        notify({
+          title: 'Calibração confirmada',
+          description: `${advanced} avaliação(ões) avançaram para a etapa seguinte.`,
+          intent: 'success',
+        });
+      },
+      onError: () => notify({ title: 'Não foi possível confirmar a calibração', intent: 'danger' }),
+    },
+  );
+
+  const toggleHistory = () => {
+    if (!showHistory && cycleId) loadHistory.mutate(cycleId);
+    setShowHistory((v) => !v);
   };
 
   return (
     <div className="space-y-4">
       <Card>
-        <CardBody className="flex gap-3">
-          <Input
-            value={cycleId}
-            onChange={(e) => setCycleId(e.target.value)}
-            placeholder="ID do ciclo..."
-            className="w-48"
-          />
+        <CardBody className="flex flex-wrap items-end gap-3">
+          <div>
+            <label className="mb-1 block text-xs font-medium text-ink-muted">Ciclo</label>
+            <Input
+              value={cycleId}
+              onChange={(e) => setCycleId(e.target.value)}
+              placeholder="ID do ciclo..."
+              className="w-40"
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-medium text-ink-muted">
+              Departamento (opcional)
+            </label>
+            <Input
+              value={departmentId}
+              onChange={(e) => setDepartmentId(e.target.value)}
+              placeholder="ID do departamento..."
+              className="w-48"
+            />
+          </div>
           <Button onClick={load}>Abrir Calibração</Button>
+          {cycleId && (
+            <>
+              <Button
+                intent="secondary"
+                loading={openCalibration.isPending}
+                onClick={() => openCalibration.mutate(undefined)}
+              >
+                <Unlock size={14} strokeWidth={1.75} className="mr-1" /> Iniciar Janela
+              </Button>
+              <Button
+                intent="secondary"
+                loading={confirmCalibration.isPending}
+                onClick={() => confirmCalibration.mutate(undefined)}
+              >
+                <Lock size={14} strokeWidth={1.75} className="mr-1" /> Confirmar Calibração
+              </Button>
+              <Button intent="secondary" onClick={toggleHistory}>
+                <History size={14} strokeWidth={1.75} className="mr-1" />
+                {showHistory ? 'Ocultar histórico' : 'Ver histórico'}
+              </Button>
+            </>
+          )}
         </CardBody>
       </Card>
+
+      {showHistory && (
+        <Card>
+          <div className="px-4 py-3 border-b border-border">
+            <h4 className="font-display font-semibold text-ink">Histórico de Alterações</h4>
+          </div>
+          <div className="divide-y divide-border max-h-64 overflow-y-auto">
+            {loadHistory.isPending && (
+              <div className="p-4">
+                <Skeleton rows={2} itemClassName="skeleton-shimmer h-10 rounded-card" />
+              </div>
+            )}
+            {!loadHistory.isPending && (loadHistory.data ?? []).length === 0 && (
+              <p className="p-4 text-xs text-ink-faint">Sem alterações registadas.</p>
+            )}
+            {(loadHistory.data ?? []).map((h, i) => (
+              <div key={i} className="px-4 py-2 text-xs">
+                <div className="flex items-center justify-between">
+                  <span className="text-ink-muted">Colaborador #{h.evaluatedId}</span>
+                  <span className="text-ink-faint">
+                    {new Date(h.createdAt).toLocaleString('pt')}
+                  </span>
+                </div>
+                <p className="text-ink">
+                  {h.previousScore?.toFixed(1) ?? '—'} → {h.calibratedScore?.toFixed(1) ?? '—'} por{' '}
+                  {h.calibratedBy?.fullName ?? '—'}
+                </p>
+                {h.reason && <p className="text-ink-faint italic mt-0.5">"{h.reason}"</p>}
+              </div>
+            ))}
+          </div>
+        </Card>
+      )}
 
       {loading && (
         <Skeleton
@@ -84,6 +194,58 @@ export function CalibrationTab() {
             </div>
           )}
 
+          {/* Comparar equipas / distribuição */}
+          {(data.byDepartment?.length ?? 0) > 0 && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Card>
+                <CardBody>
+                  <h4 className="font-display font-semibold text-ink mb-3">Comparar Equipas</h4>
+                  <div className="space-y-2">
+                    {(data.byDepartment ?? []).map((d) => (
+                      <div key={d.department} className="flex items-center justify-between text-xs">
+                        <span className="text-ink-muted">{d.department}</span>
+                        <span className={`font-bold ${SCORE_COLOR(d.avgScore)}`}>
+                          {d.avgScore.toFixed(1)} ({d.count})
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </CardBody>
+              </Card>
+              {data.distribution && (
+                <Card>
+                  <CardBody>
+                    <h4 className="font-display font-semibold text-ink mb-3">
+                      Distribuição de Resultados
+                    </h4>
+                    <div className="space-y-2 text-xs">
+                      <div className="flex justify-between">
+                        <span className="text-ink-muted">Excepcional (≥4)</span>
+                        <span className="font-bold text-success-ink">
+                          {data.distribution.exceptional}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-ink-muted">Acima do esperado (3-4)</span>
+                        <span className="font-bold text-info-ink">{data.distribution.above}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-ink-muted">Dentro do esperado (2-3)</span>
+                        <span className="font-bold text-warning-ink">
+                          {data.distribution.expected}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-ink-muted">Abaixo do esperado (&lt;2)</span>
+                        <span className="font-bold text-danger-ink">{data.distribution.below}</span>
+                      </div>
+                    </div>
+                  </CardBody>
+                </Card>
+              )}
+            </div>
+          )}
+
           {/* Participants ranking */}
           <Card>
             <div className="px-4 py-3 border-b border-border flex items-center justify-between">
@@ -96,67 +258,80 @@ export function CalibrationTab() {
             </div>
             <div className="divide-y divide-border max-h-[480px] overflow-y-auto">
               {(data.participants ?? []).map((p, i) => (
-                <div key={i} className="px-4 py-3 flex items-center gap-3">
-                  <span className="text-xs font-bold text-ink-faint w-5 text-right">
-                    #{i + 1}
-                  </span>
-                  <Avatar
-                    name={p.evaluated?.fullName ?? '?'}
-                    url={p.evaluated?.avatarUrl}
-                  />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-ink">
-                      {p.evaluated?.fullName}
-                    </p>
-                    <p className="text-xs text-ink-faint">
-                      {p.evaluated?.position?.name} ·{' '}
-                      {p.evaluated?.department?.name}
-                    </p>
-                  </div>
-                  <div className="text-center">
-                    <p
-                      className={`text-sm font-bold ${SCORE_COLOR(p.avgScore)}`}
-                    >
-                      {p.avgScore.toFixed(1)}
-                    </p>
-                    <p className="text-[10px] text-ink-faint">
-                      P{p.percentile}
-                    </p>
-                  </div>
-                  {(p.dispersion ?? 0) > 1 && (
-                    <span className="text-[10px] bg-danger-subtle text-danger-ink px-1.5 py-0.5 rounded">
-                      ±{p.dispersion?.toFixed(1)}
+                <div key={i} className="px-4 py-3 flex flex-col gap-2">
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs font-bold text-ink-faint w-5 text-right">
+                      #{i + 1}
                     </span>
-                  )}
-                  <Input
-                    type="number"
-                    min={0}
-                    max={5}
-                    step={0.1}
-                    defaultValue={p.avgScore}
-                    className="w-16 text-center"
-                    onBlur={async (e) => {
-                      const val = parseFloat(e.target.value);
-                      if (val >= 0 && val <= 5 && val !== p.avgScore) {
-                        try {
-                          await apiClient.post(
-                            `/evaluations/calibration/${cycleId}/calibrate`,
-                            {
-                              evaluatedId: p.evaluated.id,
-                              calibratedScore: val,
-                            },
-                          );
-                        } catch (err) {
-                          reportError(err, {
-                            source: 'CalibrationTab.calibrate',
-                          });
-                          notify({
-                            title: 'Não foi possível calibrar o score',
-                            intent: 'danger',
-                          });
+                    <Avatar
+                      name={p.evaluated?.fullName ?? '?'}
+                      url={p.evaluated?.avatarUrl}
+                    />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-ink">
+                        {p.evaluated?.fullName}
+                      </p>
+                      <p className="text-xs text-ink-faint">
+                        {p.evaluated?.position?.name} ·{' '}
+                        {p.evaluated?.department?.name}
+                      </p>
+                    </div>
+                    <div className="text-center">
+                      <p
+                        className={`text-sm font-bold ${SCORE_COLOR(p.avgScore)}`}
+                      >
+                        {p.avgScore.toFixed(1)}
+                      </p>
+                      <p className="text-[10px] text-ink-faint">
+                        P{p.percentile}
+                      </p>
+                    </div>
+                    {(p.dispersion ?? 0) > 1 && (
+                      <span className="text-[10px] bg-danger-subtle text-danger-ink px-1.5 py-0.5 rounded">
+                        ±{p.dispersion?.toFixed(1)}
+                      </span>
+                    )}
+                    <Input
+                      type="number"
+                      min={0}
+                      max={5}
+                      step={0.1}
+                      defaultValue={p.avgScore}
+                      className="w-16 text-center"
+                      onBlur={async (e) => {
+                        const val = parseFloat(e.target.value);
+                        if (val >= 0 && val <= 5 && val !== p.avgScore) {
+                          try {
+                            await apiClient.post(
+                              `/evaluations/calibration/${cycleId}/calibrate`,
+                              {
+                                evaluatedId: p.evaluated.id,
+                                calibratedScore: val,
+                                calibrationNote: notes[p.evaluated.id]?.trim() || undefined,
+                              },
+                            );
+                            notify({ title: 'Score calibrado', intent: 'success' });
+                          } catch (err) {
+                            reportError(err, {
+                              source: 'CalibrationTab.calibrate',
+                            });
+                            notify({
+                              title: 'Não foi possível calibrar o score',
+                              intent: 'danger',
+                            });
+                          }
                         }
-                      }
-                    }}
+                      }}
+                    />
+                  </div>
+                  <Textarea
+                    value={notes[p.evaluated.id] ?? ''}
+                    onChange={(e) =>
+                      setNotes((prev) => ({ ...prev, [p.evaluated.id]: e.target.value }))
+                    }
+                    placeholder="Justificação da alteração (opcional, fica em auditoria)..."
+                    className="ml-8 text-xs"
+                    rows={1}
                   />
                 </div>
               ))}
