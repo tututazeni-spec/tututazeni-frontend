@@ -28,7 +28,9 @@ import { Skeleton as SharedSkeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import type {
   CourseLevel,
+  CourseModality,
   CourseStatus,
+  CourseType,
   EnrollmentStatus,
   LessonType,
 } from './types';
@@ -60,6 +62,27 @@ export const COURSE_STATUS_MAP: StatusBadgeMap<CourseStatus> = {
   PUBLISHED: { label: 'Publicado', cls: 'bg-success-subtle text-success-ink' },
   PAUSED: { label: 'Em pausa', cls: 'bg-warning-subtle text-warning-ink' },
   ARCHIVED: { label: 'Arquivado', cls: 'bg-surface-sunken text-ink-faint' },
+};
+
+// docs/modulo_courses.md secção 2 ("Tipos"/"Modalidade") — labels PT dos
+// dois enums novos (Course.type/modality, ver prisma/schema.prisma).
+export const COURSE_TYPE_LABELS: Record<CourseType, string> = {
+  OBRIGATORIO: 'Obrigatório',
+  OPCIONAL: 'Opcional',
+  COMPLIANCE: 'Compliance',
+  INTEGRACAO: 'Integração',
+  DESENVOLVIMENTO: 'Desenvolvimento',
+  TECNICO: 'Técnico',
+  COMPORTAMENTAL: 'Comportamental',
+  LIDERANCA: 'Liderança',
+};
+
+export const COURSE_MODALITY_LABELS: Record<CourseModality, string> = {
+  ONLINE: 'Online',
+  PRESENCIAL: 'Presencial',
+  HIBRIDO: 'Híbrido',
+  AO_VIVO: 'Ao vivo',
+  AUTOAPRENDIZAGEM: 'Autoaprendizagem',
 };
 
 const ENROLLMENT_STATUS_MAP: StatusBadgeMap<EnrollmentStatus> = {

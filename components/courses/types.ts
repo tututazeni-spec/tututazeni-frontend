@@ -8,6 +8,16 @@
 export type CourseStatus = 'DRAFT' | 'PUBLISHED' | 'PAUSED' | 'ARCHIVED';
 export type CourseVisibility = 'PUBLIC' | 'PRIVATE' | 'EMPLOYEES_ONLY' | 'SELECTED_GROUPS';
 export type CourseLevel = 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED';
+export type CourseType =
+  | 'OBRIGATORIO'
+  | 'OPCIONAL'
+  | 'COMPLIANCE'
+  | 'INTEGRACAO'
+  | 'DESENVOLVIMENTO'
+  | 'TECNICO'
+  | 'COMPORTAMENTAL'
+  | 'LIDERANCA';
+export type CourseModality = 'ONLINE' | 'PRESENCIAL' | 'HIBRIDO' | 'AO_VIVO' | 'AUTOAPRENDIZAGEM';
 export type LessonType =
   | 'VIDEO'
   | 'PDF'
@@ -42,6 +52,8 @@ export interface Course {
   status: CourseStatus;
   visibility: CourseVisibility;
   mandatory: boolean;
+  type: CourseType | null;
+  modality: CourseModality | null;
   internalCode: string | null;
   departmentId: number | null;
   department?: { id: number; name: string; code: string } | null;
@@ -61,6 +73,8 @@ export interface Course {
   createdAt: string;
   publishedAt: string | null;
   _count: { enrollments: number; feedbacks: number; modules: number };
+  /** Média de Enrollment.progress dos inscritos — só em GET /courses (findAll). */
+  avgProgress?: number;
   competencies: Array<{ competency: { id: number; name: string } }>;
   primaryInstructor?: { id: number; fullName: string; avatarUrl: string | null } | null;
   requiredCourse?: { id: number; title: string } | null;
@@ -205,6 +219,8 @@ export interface AdminDashboard {
     totalLessons: number;
     totalEnrollments: number;
     pendingEnrollments: number;
+    completions: number;
+    totalLearners: number;
     mandatoryCourses: number;
     optionalCourses: number;
     certificatesIssued: number;
@@ -273,6 +289,73 @@ export interface CertificateVerifyResult {
   course?: { title: string };
 }
 
+// ─── Turmas (docs/modulo_courses.md secção 5) ──────────────────────────────
+
+export type CohortStatus = 'DRAFT' | 'OPEN' | 'ACTIVE' | 'CLOSED' | 'CANCELLED';
+
+export interface CohortParticipant {
+  id: number;
+  userId: number;
+  enrolledAt: string;
+  user: { id: number; fullName: string; avatarUrl: string | null; email: string };
+}
+
+export interface Cohort {
+  id: number;
+  courseId: number;
+  instructorId: number | null;
+  name: string;
+  location: string | null;
+  room: string | null;
+  schedule: string | null;
+  capacity: number;
+  status: CohortStatus;
+  startDate: string;
+  endDate: string | null;
+  instructor: { id: number; fullName: string; avatarUrl: string | null } | null;
+  enrolled: number;
+  availableSlots: number;
+}
+
+export type CohortDetail = Cohort & {
+  course: { id: number; title: string };
+  participants: CohortParticipant[];
+};
+
+export interface CohortAttendanceEntry {
+  userId: number;
+  status: 'PRESENT' | 'ABSENT' | string;
+  notes: string | null;
+}
+
+// ─── Categorias (docs/modulo_courses.md secção 6) ──────────────────────────
+
+export interface CourseCategoryManaged {
+  id: number;
+  name: string;
+  description: string | null;
+  isActive: boolean;
+  courseCount: number;
+  createdAt: string;
+}
+
+// ─── Relatórios (docs/modulo_courses.md secção 7) ──────────────────────────
+
+export interface CourseReports {
+  topCourses: Array<DashboardCourseRef & { enrollments: number }>;
+  bestCompletion: Array<DashboardCourseRef & { rate: number }>;
+  worstCompletion: Array<DashboardCourseRef & { rate: number }>;
+  learnersByCourse: Array<DashboardCourseRef & { enrollments: number }>;
+  byDepartment: Array<{ department: string; count: number }>;
+  byUnit: Array<{ unit: string; count: number }>;
+  totalLearningHours: number;
+  approvalRate: number;
+  abandonmentRate: number;
+  avgProgress: number;
+  evaluationResults: { totalAttempts: number; avgScore: number; passRate: number };
+  mandatoryPending: { count: number; courses: Array<{ id: number; title: string; pending: number }> };
+}
+
 export type View =
   | 'catalog'
   | 'detail'
@@ -280,7 +363,12 @@ export type View =
   | 'certificates'
   | 'dashboard'
   | 'gestao'
-  | 'modulos';
+  | 'inscricoes'
+  | 'progresso'
+  | 'modulos'
+  | 'turmas'
+  | 'categorias'
+  | 'relatorios';
 export type TopLevelView = Exclude<View, 'detail'>;
 
 // view e selectedId eram dois useState separados sempre definidos em conjunto

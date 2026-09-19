@@ -38,6 +38,7 @@ export interface Enrollment {
     email: string;
     avatarUrl: string | null;
     department: { name: string } | null;
+    unit: { name: string } | null;
   };
   course: {
     id: number;
@@ -46,7 +47,13 @@ export interface Enrollment {
     category: string | null;
     workloadHours: number | null;
   };
-  certificate: { id: number; code: string; issuedAt: string } | null;
+  certificate: {
+    id: number;
+    validationCode: string;
+    issuedAt: string;
+    expiresAt: string | null;
+    score: number | null;
+  } | null;
 }
 
 export interface MyEnrollmentsResponse {
@@ -100,6 +107,21 @@ export interface TeamMember {
 export interface TeamProgress {
   team: TeamMember[];
   total: number;
+}
+
+export interface DepartmentProgressRow {
+  id: number;
+  name: string;
+  total: number;
+  completed: number;
+  inProgress: number;
+  overdue: number;
+  completionRate: number;
+}
+
+export interface ProgressByDepartment {
+  byDepartment: DepartmentProgressRow[];
+  byUnit: DepartmentProgressRow[];
 }
 
 export type View = 'my' | 'admin' | 'compliance' | 'team';

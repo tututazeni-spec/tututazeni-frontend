@@ -1,75 +1,19 @@
 'use client';
+// Antiga página própria "Matrículas" — fundida nas abas "Inscrições" e
+// "Progresso" da página única de Cursos (docs/modulo_courses.md secções 3-4;
+// ver components/courses/InscricoesView.tsx e ProgressoView.tsx). Esta rota
+// fica só como redirect para não partir bookmarks/links antigos a
+// /enrollments — mesmo padrão de app/(platform)/courses/modulos/page.tsx.
 
-// Container: gere o separador activo; delega dados+apresentação de cada
-// separador aos componentes auto-contidos em components/enrollments/
-// (mesmo padrão que components/payslips/page.tsx usa para ListView/
-// CompareView/AnnualView). Ver memory
-// project_innova_component_separation_audit.
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
-import { useState } from 'react';
-import { Zap } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
-import { NAV, TITLES } from '@/components/enrollments/constants';
-import { AdminView } from '@/components/enrollments/AdminView';
-import { BulkEnrollModal } from '@/components/enrollments/BulkEnrollModal';
-import { ComplianceView } from '@/components/enrollments/ComplianceView';
-import { EnrollUserModal } from '@/components/enrollments/EnrollUserModal';
-import { MyEnrollmentsView } from '@/components/enrollments/MyEnrollmentsView';
-import { TeamView } from '@/components/enrollments/TeamView';
-import type { View } from '@/components/enrollments/types';
+export default function EnrollmentsRedirectPage() {
+  const router = useRouter();
 
-export default function EnrollmentsPage() {
-  const [view, setView] = useState<View>('my');
-  const [modal, setModal] = useState<'single' | 'bulk' | null>(null);
+  useEffect(() => {
+    router.replace('/courses?tab=inscricoes');
+  }, [router]);
 
-  return (
-    <div className="mx-auto max-w-5xl px-4 py-8">
-      {/* Header */}
-      <div className="mb-6 flex items-center justify-between">
-        <div>
-          <h1 className="font-display text-xl font-semibold text-ink">
-            {TITLES[view]}
-          </h1>
-          <p className="mt-0.5 font-body text-sm text-ink-faint"></p>
-        </div>
-        {view === 'admin' && (
-          <div className="flex gap-2">
-            <Button size="sm" onClick={() => setModal('single')}>
-              + Matricular
-            </Button>
-            <Button
-              size="sm"
-              intent="secondary"
-              onClick={() => setModal('bulk')}
-            >
-              <Zap size={14} strokeWidth={1.75} />
-              Em massa
-            </Button>
-          </div>
-        )}
-      </div>
-
-      {/* Tabs */}
-      <div className="mb-6 flex w-fit flex-wrap gap-1 rounded-card bg-surface-sunken p-1">
-        {NAV.map((n) => (
-          <Button
-            key={n.id}
-            size="sm"
-            intent={view === n.id ? 'primary' : 'ghost'}
-            onClick={() => setView(n.id)}
-          >
-            {n.label}
-          </Button>
-        ))}
-      </div>
-
-      {view === 'my' && <MyEnrollmentsView />}
-      {view === 'admin' && <AdminView />}
-      {view === 'compliance' && <ComplianceView />}
-      {view === 'team' && <TeamView />}
-
-      {modal === 'single' && <EnrollUserModal onClose={() => setModal(null)} />}
-      {modal === 'bulk' && <BulkEnrollModal onClose={() => setModal(null)} />}
-    </div>
-  );
+  return null;
 }

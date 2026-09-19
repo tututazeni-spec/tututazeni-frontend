@@ -57,6 +57,26 @@ const VISIBILITY_ITEMS = [
   { value: 'SELECTED_GROUPS', label: 'Apenas grupos seleccionados' },
 ];
 
+// docs/modulo_courses.md secção 2 — "Tipos" e "Modalidade".
+const TYPE_ITEMS = [
+  { value: 'OBRIGATORIO', label: 'Obrigatório' },
+  { value: 'OPCIONAL', label: 'Opcional' },
+  { value: 'COMPLIANCE', label: 'Compliance' },
+  { value: 'INTEGRACAO', label: 'Integração' },
+  { value: 'DESENVOLVIMENTO', label: 'Desenvolvimento' },
+  { value: 'TECNICO', label: 'Técnico' },
+  { value: 'COMPORTAMENTAL', label: 'Comportamental' },
+  { value: 'LIDERANCA', label: 'Liderança' },
+];
+
+const MODALITY_ITEMS = [
+  { value: 'ONLINE', label: 'Online' },
+  { value: 'PRESENCIAL', label: 'Presencial' },
+  { value: 'HIBRIDO', label: 'Híbrido' },
+  { value: 'AO_VIVO', label: 'Ao vivo' },
+  { value: 'AUTOAPRENDIZAGEM', label: 'Autoaprendizagem' },
+];
+
 const NO_DEPT = 'NONE';
 const NO_PREREQUISITE = 'NONE';
 
@@ -131,6 +151,8 @@ function EditCourseForm({ course, onClose, onSuccess }: EditCourseFormProps) {
       knowledgeArea: course.knowledgeArea ?? '',
       internalCode: course.internalCode ?? '',
       level: String(course.level ?? ''),
+      type: course.type ?? '',
+      modality: course.modality ?? '',
       language: course.language ?? 'pt',
       visibility: String(course.visibility ?? 'PUBLIC'),
       workloadHours:
@@ -241,6 +263,8 @@ function EditCourseForm({ course, onClose, onSuccess }: EditCourseFormProps) {
         targetAudience: form.targetAudience.split(',').map((t) => t.trim()).filter(Boolean),
       };
       if (form.level) payload.level = form.level;
+      payload.type = form.type || null;
+      payload.modality = form.modality || null;
       return apiClient.put(`/courses/${course.id}`, payload);
     },
     {
@@ -363,6 +387,27 @@ function EditCourseForm({ course, onClose, onSuccess }: EditCourseFormProps) {
                   value={form.language}
                   onChange={(e) => setField('language', e.target.value)}
                   className="w-full"
+                />
+              </FormField>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <FormField label="Tipo" htmlFor="ec-type">
+                <Select
+                  items={TYPE_ITEMS}
+                  value={form.type || undefined}
+                  onValueChange={(v) => setField('type', v)}
+                  className="w-full"
+                  placeholder="Selecionar tipo"
+                />
+              </FormField>
+              <FormField label="Modalidade" htmlFor="ec-modality">
+                <Select
+                  items={MODALITY_ITEMS}
+                  value={form.modality || undefined}
+                  onValueChange={(v) => setField('modality', v)}
+                  className="w-full"
+                  placeholder="Selecionar modalidade"
                 />
               </FormField>
             </div>

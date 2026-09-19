@@ -29,6 +29,8 @@ import {
 
 export interface BulkEnrollModalProps {
   onClose: () => void;
+  /** Pré-selecciona e bloqueia o curso — ver EnrollUserModalProps. */
+  initialCourseId?: number;
 }
 
 // Radix Select rejeita value="" — sentinela para "sem filtro".
@@ -45,8 +47,10 @@ interface BulkResult {
   };
 }
 
-export function BulkEnrollModal({ onClose }: BulkEnrollModalProps) {
-  const [courseId, setCourseId] = useState('');
+export function BulkEnrollModal({ onClose, initialCourseId }: BulkEnrollModalProps) {
+  const [courseId, setCourseId] = useState(
+    initialCourseId ? String(initialCourseId) : '',
+  );
   const [deptFilter, setDeptFilter] = useState(ALL_DEPTS);
   const [userSearch, setUserSearch] = useState('');
   const [selected, setSelected] = useState<Map<number, DirectoryUser>>(
@@ -153,6 +157,7 @@ export function BulkEnrollModal({ onClose }: BulkEnrollModalProps) {
                   placeholder="Selecionar curso"
                   searchPlaceholder="Escreva para filtrar cursos…"
                   emptyText="Nenhum curso encontrado"
+                  disabled={!!initialCourseId}
                 />
               </FormField>
 

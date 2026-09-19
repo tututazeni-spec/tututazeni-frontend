@@ -21,6 +21,8 @@ const baseCourse: CourseDetailData = {
   status: 'PUBLISHED',
   visibility: 'PUBLIC',
   mandatory: false,
+  type: null,
+  modality: null,
   internalCode: 'C001',
   departmentId: null,
   unit: null,

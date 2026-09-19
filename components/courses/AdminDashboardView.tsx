@@ -137,11 +137,11 @@ const SHORTCUTS: Array<{
   action: (nav: (v: TopLevelView) => void, create: () => void) => void;
 }> = [
   { icon: PlusCircle, label: 'Criar curso', action: (_n, create) => create() },
-  { icon: Settings, label: 'Gerir cursos', action: (n) => n('gestao') },
-  { icon: Layers, label: 'Gerir módulos e lições', action: (n) => n('gestao') },
-  { icon: ClipboardCheck, label: 'Gerir inscrições', action: (n) => n('gestao') },
+  { icon: Settings, label: 'Gerir cursos', action: (n) => n('catalog') },
+  { icon: Layers, label: 'Gerir módulos e lições', action: (n) => n('catalog') },
+  { icon: ClipboardCheck, label: 'Gerir inscrições', action: (n) => n('inscricoes') },
   { icon: Award, label: 'Gerir certificados', action: (n) => n('certificates') },
-  { icon: FileBarChart, label: 'Consultar relatórios', action: (n) => n('gestao') },
+  { icon: FileBarChart, label: 'Ver progresso', action: (n) => n('progresso') },
 ];
 
 export function AdminDashboardView({ onSelect, onNavigate, onCreateCourse }: AdminDashboardViewProps) {
@@ -200,6 +200,8 @@ export function AdminDashboardView({ onSelect, onNavigate, onCreateCourse }: Adm
         <KpiCard icon={Layers} label="Módulos" value={counts.totalModules} intent="primary" className="w-full" />
         <KpiCard icon={ListChecks} label="Lições" value={counts.totalLessons} intent="primary" className="w-full" />
         <KpiCard icon={Users} label="Inscritos" value={counts.totalEnrollments} intent="primary" className="w-full" />
+        <KpiCard icon={Users} label="Formandos" value={counts.totalLearners} intent="primary" className="w-full" />
+        <KpiCard icon={CheckCircle2} label="Conclusões" value={counts.completions} intent="success" className="w-full" />
         <KpiCard icon={Clock} label="Inscrições pendentes" value={counts.pendingEnrollments} intent={counts.pendingEnrollments > 0 ? 'warning' : 'primary'} className="w-full" />
         <KpiCard icon={Award} label="Certificados emitidos" value={counts.certificatesIssued} intent="success" className="w-full" />
         <KpiCard icon={BookOpen} label="Obrigatórios / opcionais" value={`${counts.mandatoryCourses}/${counts.optionalCourses}`} intent="primary" className="w-full" />

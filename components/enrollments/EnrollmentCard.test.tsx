@@ -33,6 +33,7 @@ function makeEnrollment(status: EnrollmentStatus): Enrollment {
       email: 't@innova.ao',
       avatarUrl: null,
       department: null,
+      unit: null,
     },
     course: {
       id: 123,
