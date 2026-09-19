@@ -53,6 +53,13 @@ const LEVEL_ITEMS = [
   { value: 'ADVANCED', label: 'Avançado' },
 ];
 
+const PRIORITY_ITEMS = [
+  { value: 'LOW', label: 'Baixa' },
+  { value: 'MEDIUM', label: 'Média' },
+  { value: 'HIGH', label: 'Alta' },
+  { value: 'URGENT', label: 'Urgente' },
+];
+
 interface UserOption {
   id: number;
   fullName: string;
@@ -60,6 +67,19 @@ interface UserOption {
 interface CompetencyOption {
   id: number;
   name: string;
+}
+interface CourseOption {
+  id: number;
+  title: string;
+}
+interface OrgOption {
+  id: number;
+  name: string;
+}
+interface TrainerOption {
+  id: number;
+  name: string;
+  entity: string | null;
 }
 
 function n(value: string): number | undefined {
@@ -81,17 +101,60 @@ export function TrainingFormModal({ training, onClose, onSuccess }: TrainingForm
     '/competencies',
     { params: { limit: 200 }, staleTime: STALE_TIME.SEMI_STATIC },
   );
+  const { data: coursesResp } = useApiQuery<{ data: CourseOption[] }>(
+    ['trainings', 'courses-picker'],
+    '/courses',
+    { params: { limit: 200 }, staleTime: STALE_TIME.SEMI_STATIC },
+  );
+  const { data: departmentsResp } = useApiQuery<{ data: OrgOption[] }>(
+    ['trainings', 'departments-picker'],
+    '/departments',
+    { params: { limit: 200 }, staleTime: STALE_TIME.SEMI_STATIC },
+  );
+  const { data: unitsResp } = useApiQuery<OrgOption[]>(
+    ['trainings', 'units-picker'],
+    '/units',
+    { staleTime: STALE_TIME.SEMI_STATIC },
+  );
+  const { data: positionsResp } = useApiQuery<OrgOption[]>(
+    ['trainings', 'positions-picker'],
+    '/positions',
+    { staleTime: STALE_TIME.SEMI_STATIC },
+  );
+  // docs/trainings-detalhado.md pt.7 — formador externo (sem User),
+  // registado em TrainingInstructorProfile (ver TrainersView).
+  const { data: externalTrainersResp } = useApiQuery<{ data: TrainerOption[] }>(
+    ['trainings', 'external-trainers-picker'],
+    '/training-trainers',
+    { params: { limit: 200, type: 'EXTERNAL' }, staleTime: STALE_TIME.SEMI_STATIC },
+  );
   const userItems = (usersResp?.data ?? []).map((u) => ({
     value: String(u.id),
     label: u.fullName,
   }));
+  const externalTrainerItems = (externalTrainersResp?.data ?? []).map((t) => ({
+    value: String(t.id),
+    label: t.entity ? `${t.name} (${t.entity})` : t.name,
+  }));
+  const courseItems = (coursesResp?.data ?? []).map((c) => ({
+    value: String(c.id),
+    label: c.title,
+  }));
   const competencyOptions = competenciesResp?.data ?? [];
+  const departmentOptions = departmentsResp?.data ?? [];
+  const unitOptions = Array.isArray(unitsResp) ? unitsResp : [];
+  const positionOptions = Array.isArray(positionsResp) ? positionsResp : [];
 
   const [coInstructorIds, setCoInstructorIds] = useState<number[]>(
     training?.coInstructors?.map((c) => c.user.id) ?? [],
   );
   const [competencyIds, setCompetencyIds] = useState<number[]>(
     training?.competencies?.map((c) => c.competency.id) ?? [],
+  );
+  const [targetDeptIds, setTargetDeptIds] = useState<number[]>(training?.targetDeptIds ?? []);
+  const [targetUnitIds, setTargetUnitIds] = useState<number[]>(training?.targetUnitIds ?? []);
+  const [targetPositionIds, setTargetPositionIds] = useState<number[]>(
+    training?.targetPositionIds ?? [],
   );
 
   const {
@@ -117,6 +180,11 @@ export function TrainingFormModal({ training, onClose, onSuccess }: TrainingForm
       thumbnailUrl: training?.thumbnailUrl ?? '',
       prerequisites: training?.prerequisites ?? '',
       instructorId: training?.instructor?.id?.toString() ?? '',
+      externalInstructorId: training?.externalInstructorId?.toString() ?? '',
+      responsibleId: training?.responsible?.id?.toString() ?? '',
+      courseId: training?.courseId?.toString() ?? '',
+      priority: training?.priority ?? '',
+      plannedBudget: training?.plannedBudget?.toString() ?? '',
       trainingEntity: training?.trainingEntity ?? '',
       classDescription: training?.classDescription ?? '',
       modalityDetails: training?.modalityDetails ?? '',
@@ -183,6 +251,14 @@ export function TrainingFormModal({ training, onClose, onSuccess }: TrainingForm
         .filter(Boolean);
     }
     if (form.instructorId) payload.instructorId = n(form.instructorId);
+    if (form.externalInstructorId) payload.externalInstructorId = n(form.externalInstructorId);
+    if (form.responsibleId) payload.responsibleId = n(form.responsibleId);
+    if (form.courseId) payload.courseId = n(form.courseId);
+    if (form.plannedBudget) payload.plannedBudget = n(form.plannedBudget);
+    payload.priority = form.priority || 'MEDIUM';
+    payload.targetDeptIds = targetDeptIds;
+    payload.targetUnitIds = targetUnitIds;
+    payload.targetPositionIds = targetPositionIds;
     if (form.workloadHours) payload.workloadHours = n(form.workloadHours);
     if (form.passingScore) payload.passingScore = n(form.passingScore);
     if (form.completionDeadlineDays) {
@@ -410,7 +486,7 @@ export function TrainingFormModal({ training, onClose, onSuccess }: TrainingForm
               </FormField>
 
               <div className="grid grid-cols-2 gap-3">
-                <FormField label="Formador/Instrutor" htmlFor="tf-instructor">
+                <FormField label="Formador/Instrutor (colaborador)" htmlFor="tf-instructor">
                   <Combobox
                     items={userItems}
                     value={form.instructorId || undefined}
@@ -419,12 +495,52 @@ export function TrainingFormModal({ training, onClose, onSuccess }: TrainingForm
                     className="w-full"
                   />
                 </FormField>
-                <FormField label="Entidade formadora" htmlFor="tf-trainingEntity">
-                  <Input
-                    id="tf-trainingEntity"
-                    value={form.trainingEntity}
-                    onChange={(e) => setField('trainingEntity', e.target.value)}
+                <FormField label="Formador externo (registo)" htmlFor="tf-externalInstructor">
+                  <Combobox
+                    items={externalTrainerItems}
+                    value={form.externalInstructorId || undefined}
+                    onValueChange={(v) => setField('externalInstructorId', v)}
+                    placeholder="Selecionar formador externo"
                     className="w-full"
+                  />
+                </FormField>
+              </div>
+
+              <FormField label="Entidade formadora" htmlFor="tf-trainingEntity">
+                <Input
+                  id="tf-trainingEntity"
+                  value={form.trainingEntity}
+                  onChange={(e) => setField('trainingEntity', e.target.value)}
+                  className="w-full"
+                />
+              </FormField>
+
+              <div className="grid grid-cols-3 gap-3">
+                <FormField label="Responsável" htmlFor="tf-responsible">
+                  <Combobox
+                    items={userItems}
+                    value={form.responsibleId || undefined}
+                    onValueChange={(v) => setField('responsibleId', v)}
+                    placeholder="Selecionar responsável"
+                    className="w-full"
+                  />
+                </FormField>
+                <FormField label="Curso associado" htmlFor="tf-course">
+                  <Combobox
+                    items={courseItems}
+                    value={form.courseId || undefined}
+                    onValueChange={(v) => setField('courseId', v)}
+                    placeholder="Selecionar curso"
+                    className="w-full"
+                  />
+                </FormField>
+                <FormField label="Prioridade" htmlFor="tf-priority">
+                  <Select
+                    items={PRIORITY_ITEMS}
+                    value={form.priority || undefined}
+                    onValueChange={(v) => setField('priority', v)}
+                    className="w-full"
+                    placeholder="Selecionar"
                   />
                 </FormField>
               </div>
@@ -572,6 +688,71 @@ export function TrainingFormModal({ training, onClose, onSuccess }: TrainingForm
                   className="w-full resize-none"
                 />
               </FormField>
+
+              <FormField label="Orçamento previsto (Kz)" htmlFor="tf-plannedBudget">
+                <Input
+                  id="tf-plannedBudget"
+                  type="number"
+                  min={0}
+                  value={form.plannedBudget}
+                  onChange={(e) => setField('plannedBudget', e.target.value)}
+                  className="w-full max-w-[220px]"
+                />
+              </FormField>
+
+              <div className="grid grid-cols-3 gap-3">
+                <FormField label="Unidades abrangidas" htmlFor="tf-units">
+                  <div className="max-h-32 space-y-1 overflow-y-auto rounded-control border border-border p-2">
+                    {unitOptions.length === 0 && (
+                      <p className="text-xs text-ink-faint">Sem unidades.</p>
+                    )}
+                    {unitOptions.map((u) => (
+                      <label key={u.id} className="flex items-center gap-2 text-xs text-ink-muted">
+                        <input
+                          type="checkbox"
+                          checked={targetUnitIds.includes(u.id)}
+                          onChange={() => toggle(targetUnitIds, setTargetUnitIds, u.id)}
+                        />
+                        {u.name}
+                      </label>
+                    ))}
+                  </div>
+                </FormField>
+                <FormField label="Departamentos abrangidos" htmlFor="tf-departments">
+                  <div className="max-h-32 space-y-1 overflow-y-auto rounded-control border border-border p-2">
+                    {departmentOptions.length === 0 && (
+                      <p className="text-xs text-ink-faint">Sem departamentos.</p>
+                    )}
+                    {departmentOptions.map((d) => (
+                      <label key={d.id} className="flex items-center gap-2 text-xs text-ink-muted">
+                        <input
+                          type="checkbox"
+                          checked={targetDeptIds.includes(d.id)}
+                          onChange={() => toggle(targetDeptIds, setTargetDeptIds, d.id)}
+                        />
+                        {d.name}
+                      </label>
+                    ))}
+                  </div>
+                </FormField>
+                <FormField label="Cargos abrangidos" htmlFor="tf-positions">
+                  <div className="max-h-32 space-y-1 overflow-y-auto rounded-control border border-border p-2">
+                    {positionOptions.length === 0 && (
+                      <p className="text-xs text-ink-faint">Sem cargos.</p>
+                    )}
+                    {positionOptions.map((p) => (
+                      <label key={p.id} className="flex items-center gap-2 text-xs text-ink-muted">
+                        <input
+                          type="checkbox"
+                          checked={targetPositionIds.includes(p.id)}
+                          onChange={() => toggle(targetPositionIds, setTargetPositionIds, p.id)}
+                        />
+                        {p.name}
+                      </label>
+                    ))}
+                  </div>
+                </FormField>
+              </div>
             </TabsContent>
 
             {/* ── Participantes ────────────────────────────────────────── */}

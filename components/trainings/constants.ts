@@ -9,7 +9,13 @@
 import type { StatusBadgeMap } from '@/lib/statusBadge';
 import type {
   ParticipantStatus,
+  TrainingInstructorStatus,
   TrainingLevel,
+  TrainingPlanStatus,
+  TrainingPriority,
+  TrainingResourceKind,
+  TrainingResourceStatus,
+  TrainingStatus,
   TrainingType,
   View,
 } from './types';
@@ -73,10 +79,15 @@ export const CAN_MANAGE_TRAININGS_ROLES = [
 ] as const;
 
 export const NAV = [
+  { id: 'dashboard', label: 'Visão Geral' },
+  { id: 'plans', label: 'Plano de Formação' },
   { id: 'catalog', label: 'Catálogo' },
+  { id: 'calendar', label: 'Calendário' },
   { id: 'my-trainings', label: 'Os meus treinamentos' },
   { id: 'manage', label: 'Gestão' },
-  { id: 'dashboard', label: 'Dashboard (Admin)' },
+  { id: 'trainers', label: 'Formadores' },
+  { id: 'resources', label: 'Recursos & Logística' },
+  { id: 'reports', label: 'Relatórios' },
 ] as const;
 
 export type NavId = (typeof NAV)[number]['id'];
@@ -85,7 +96,73 @@ export const TITLES: Record<View, string> = {
   catalog: 'Treinamentos',
   detail: 'Detalhe',
   'my-trainings': 'Os meus treinamentos',
-  dashboard: 'Dashboard',
+  dashboard: 'Visão Geral',
   manage: 'Gestão',
   'manage-detail': 'Gerir formação',
+  plans: 'Plano de Formação',
+  'plan-detail': 'Detalhe do plano',
+  calendar: 'Calendário',
+  trainers: 'Formadores',
+  resources: 'Recursos & Logística',
+  reports: 'Relatórios',
+};
+
+// docs/trainings-detalhado.md pt.7 — Formadores.
+export const TRAINER_STATUS_CFG: StatusBadgeMap<TrainingInstructorStatus> = {
+  ACTIVE: { label: 'Activo', cls: cls(TOKEN.success) },
+  INACTIVE: { label: 'Inactivo', cls: cls(TOKEN.neutral) },
+};
+
+export const TRAINER_TYPE_LABEL: Record<string, string> = {
+  INTERNAL: 'Interno',
+  EXTERNAL: 'Externo',
+};
+
+// docs/trainings-detalhado.md pt.8 — Recursos & Logística.
+export const RESOURCE_KIND_LABEL: Record<TrainingResourceKind, string> = {
+  ROOM: 'Sala',
+  EQUIPMENT: 'Equipamento',
+  MATERIAL: 'Material',
+  CATERING: 'Catering',
+  TRANSPORT: 'Transporte',
+  ACCOMMODATION: 'Alojamento',
+  OTHER: 'Outro',
+};
+
+export const RESOURCE_STATUS_CFG: StatusBadgeMap<TrainingResourceStatus> = {
+  AVAILABLE: { label: 'Disponível', cls: cls(TOKEN.success) },
+  UNAVAILABLE: { label: 'Indisponível', cls: cls(TOKEN.danger) },
+  MAINTENANCE: { label: 'Manutenção', cls: cls(TOKEN.warning) },
+};
+
+// docs/trainings-detalhado.md pt.3 — "Prioridade" da formação/plano.
+export const PRIORITY_CFG: StatusBadgeMap<TrainingPriority> = {
+  LOW: { label: 'Baixa', cls: cls(TOKEN.neutral) },
+  MEDIUM: { label: 'Média', cls: cls(TOKEN.info) },
+  HIGH: { label: 'Alta', cls: cls(TOKEN.warning) },
+  URGENT: { label: 'Urgente', cls: cls(TOKEN.danger) },
+};
+
+export const STATUS_CFG: StatusBadgeMap<TrainingStatus> = {
+  DRAFT: { label: 'Rascunho', cls: cls(TOKEN.neutral) },
+  PUBLISHED: { label: 'Publicada', cls: cls(TOKEN.success) },
+  ARCHIVED: { label: 'Arquivada', cls: cls(TOKEN.neutral) },
+  CANCELLED: { label: 'Cancelada', cls: cls(TOKEN.danger) },
+  COMPLETED: { label: 'Concluída', cls: cls(TOKEN.info) },
+};
+
+// docs/trainings-detalhado.md pt.2 — ciclo de vida do Plano de Formação.
+export const PLAN_STATUS_CFG: StatusBadgeMap<TrainingPlanStatus> = {
+  DRAFT: { label: 'Rascunho', cls: cls(TOKEN.neutral) },
+  SUBMITTED: { label: 'Submetido', cls: cls(TOKEN.warning) },
+  APPROVED: { label: 'Aprovado', cls: cls(TOKEN.info) },
+  REJECTED: { label: 'Rejeitado', cls: cls(TOKEN.danger) },
+  PUBLISHED: { label: 'Publicado', cls: cls(TOKEN.success) },
+  ARCHIVED: { label: 'Arquivado', cls: cls(TOKEN.neutral) },
+};
+
+export const PLAN_PERIOD_LABEL: Record<string, string> = {
+  ANNUAL: 'Anual',
+  QUARTERLY: 'Trimestral',
+  EXTRAORDINARY: 'Extraordinário',
 };

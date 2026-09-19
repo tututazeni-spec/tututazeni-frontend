@@ -216,7 +216,8 @@ export const queryKeys = {
     automations: () => [...queryKeys.scalability.all, 'automations'] as const,
     alerts: () => [...queryKeys.scalability.all, 'alerts'] as const,
     sla: () => [...queryKeys.scalability.all, 'sla'] as const,
-    contentDelivery: () => [...queryKeys.scalability.all, 'content-delivery'] as const,
+    contentDelivery: () =>
+      [...queryKeys.scalability.all, 'content-delivery'] as const,
   },
 
   dashboardRh: {
@@ -269,7 +270,12 @@ export const queryKeys = {
     myEvaluations: (period?: string) =>
       [...queryKeys.evaluation.all, 'my-evaluations', period ?? null] as const,
     oneOnOne: (requestId: string | number) =>
-      [...queryKeys.evaluation.all, 'requests', requestId, 'one-on-one'] as const,
+      [
+        ...queryKeys.evaluation.all,
+        'requests',
+        requestId,
+        'one-on-one',
+      ] as const,
     reports: (filters?: Record<string, unknown>) =>
       [...queryKeys.evaluation.all, 'reports', filters ?? {}] as const,
     settings: () => [...queryKeys.evaluation.all, 'settings'] as const,
@@ -286,7 +292,12 @@ export const queryKeys = {
     cycleDetail: (cycleId: string) =>
       [...queryKeys.evaluation360.all, 'cycle', cycleId] as const,
     result: (cycleId: string, participantId: string) =>
-      [...queryKeys.evaluation360.all, 'result', cycleId, participantId] as const,
+      [
+        ...queryKeys.evaluation360.all,
+        'result',
+        cycleId,
+        participantId,
+      ] as const,
     nineBox: (cycleId: string) =>
       [...queryKeys.evaluation360.all, 'nine-box', cycleId] as const,
     feedbacks: (userId: string) =>
@@ -297,7 +308,8 @@ export const queryKeys = {
       [...queryKeys.evaluation360.all, 'progress', cycleId, userId] as const,
     myAssignments: (cycleId: string) =>
       [...queryKeys.evaluation360.all, 'my-assignments', cycleId] as const,
-    deletedCycles: () => [...queryKeys.evaluation360.all, 'cycles', 'deleted'] as const,
+    deletedCycles: () =>
+      [...queryKeys.evaluation360.all, 'cycles', 'deleted'] as const,
   },
 
   analyticsPage: {
@@ -312,7 +324,8 @@ export const queryKeys = {
     department: (departmentId: number) =>
       [...queryKeys.analyticsPage.all, 'department', departmentId] as const,
     pdi: () => [...queryKeys.analyticsPage.all, 'pdi'] as const,
-    competencyGaps: () => [...queryKeys.analyticsPage.all, 'competency-gaps'] as const,
+    competencyGaps: () =>
+      [...queryKeys.analyticsPage.all, 'competency-gaps'] as const,
     engagement: () => [...queryKeys.analyticsPage.all, 'engagement'] as const,
     roi: () => [...queryKeys.analyticsPage.all, 'roi'] as const,
     courses: () => [...queryKeys.analyticsPage.all, 'courses'] as const,
@@ -403,7 +416,12 @@ export const queryKeys = {
     vacancies: (type: string, status?: string) =>
       [...queryKeys.career.all, 'vacancies', type, status ?? ''] as const,
     vacancyApplications: (vacancyId: number) =>
-      [...queryKeys.career.all, 'vacancies', vacancyId, 'applications'] as const,
+      [
+        ...queryKeys.career.all,
+        'vacancies',
+        vacancyId,
+        'applications',
+      ] as const,
     plan: () => [...queryKeys.career.all, 'plan'] as const,
     overview: () => [...queryKeys.career.all, 'overview'] as const,
     history: (userId?: number) =>
@@ -443,7 +461,40 @@ export const queryKeys = {
       [...queryKeys.trainings.all, 'admin-dashboard'] as const,
     manage: (params: Record<string, unknown>) =>
       [...queryKeys.trainings.all, 'manage', params] as const,
-    results: (id: number) => [...queryKeys.trainings.all, 'results', id] as const,
+    results: (id: number) =>
+      [...queryKeys.trainings.all, 'results', id] as const,
+    calendar: (params: Record<string, unknown>) =>
+      [...queryKeys.trainings.all, 'calendar', params] as const,
+    history: (id: number) =>
+      [...queryKeys.trainings.all, 'history', id] as const,
+    reports: (params: Record<string, unknown>) =>
+      [...queryKeys.trainings.all, 'reports', params] as const,
+  },
+
+  trainingPlans: {
+    all: ['training-plans'] as const,
+    list: (params: Record<string, unknown>) =>
+      [...queryKeys.trainingPlans.all, 'list', params] as const,
+    detail: (id: number) =>
+      [...queryKeys.trainingPlans.all, 'detail', id] as const,
+    execution: (id: number) =>
+      [...queryKeys.trainingPlans.all, 'execution', id] as const,
+  },
+
+  trainingTrainers: {
+    all: ['training-trainers'] as const,
+    list: (params: Record<string, unknown>) =>
+      [...queryKeys.trainingTrainers.all, 'list', params] as const,
+    detail: (id: number) =>
+      [...queryKeys.trainingTrainers.all, 'detail', id] as const,
+  },
+
+  trainingResources: {
+    all: ['training-resources'] as const,
+    list: (params: Record<string, unknown>) =>
+      [...queryKeys.trainingResources.all, 'list', params] as const,
+    detail: (id: number) =>
+      [...queryKeys.trainingResources.all, 'detail', id] as const,
   },
 
   acl: {
@@ -466,7 +517,12 @@ export const queryKeys = {
     criticalPosition: (id: number) =>
       [...queryKeys.succession.all, 'critical-position', id] as const,
     criticalPositionHistory: (id: number) =>
-      [...queryKeys.succession.all, 'critical-position', id, 'history'] as const,
+      [
+        ...queryKeys.succession.all,
+        'critical-position',
+        id,
+        'history',
+      ] as const,
     positionSummary: (id: number) =>
       [...queryKeys.succession.all, 'position-summary', id] as const,
     talentPool: () => [...queryKeys.succession.all, 'talent-pool'] as const,
@@ -712,7 +768,8 @@ export const queryKeys = {
     analytics: () => [...queryKeys.careerPlans.all, 'analytics'] as const,
     list: (filters: Record<string, unknown>) =>
       [...queryKeys.careerPlans.all, 'list', filters] as const,
-    detail: (id: number) => [...queryKeys.careerPlans.all, 'detail', id] as const,
+    detail: (id: number) =>
+      [...queryKeys.careerPlans.all, 'detail', id] as const,
   },
 
   talentDevelopment: {

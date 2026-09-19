@@ -173,7 +173,7 @@ const NAV: Array<{ label: string; items: NavItem[] }> = [
         roles: ADMIN_ROLES,
       },
       { href: '/organization', icon: Share2, label: 'Organograma' },
-      { href: '/trainings', icon: GraduationCap, label: 'Treinamentos' },
+      { href: '/trainings', icon: GraduationCap, label: 'Gestão de Formações' },
     ],
   },
   {

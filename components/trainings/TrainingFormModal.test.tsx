@@ -106,6 +106,10 @@ describe('TrainingFormModal — criação', () => {
       mandatory: false,
       issueCertificate: false,
       requiresApproval: false,
+      priority: 'MEDIUM',
+      targetDeptIds: [],
+      targetUnitIds: [],
+      targetPositionIds: [],
       coInstructorIds: [],
       competencyIds: [],
     });
