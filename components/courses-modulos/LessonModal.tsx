@@ -86,6 +86,7 @@ export function LessonModal({
     title: editing?.title ?? '',
     code: editing?.code ?? '',
     description: editing?.description ?? '',
+    learningObjectives: (editing?.learningObjectives ?? []).join('\n'),
     contentType: editing?.type ?? 'VIDEO',
     status: editing?.status ?? 'PUBLISHED',
     contentUrl: editing?.contentUrl ?? '',
@@ -165,6 +166,10 @@ export function LessonModal({
         title: form.title,
         code: form.code.trim() || undefined,
         description: form.description.trim() || undefined,
+        learningObjectives: form.learningObjectives
+          .split('\n')
+          .map((s) => s.trim())
+          .filter(Boolean),
         type: form.contentType,
         status: form.status,
         seq: +form.seq,
@@ -272,6 +277,16 @@ export function LessonModal({
                 value={form.description}
                 onChange={(e) => set('description', e.target.value)}
                 rows={2}
+              />
+            </FormField>
+
+            <FormField label="Objectivos de aprendizagem" htmlFor="lesson-objectives">
+              <Textarea
+                id="lesson-objectives"
+                value={form.learningObjectives}
+                onChange={(e) => set('learningObjectives', e.target.value)}
+                rows={2}
+                placeholder={'Um objectivo por linha'}
               />
             </FormField>
 

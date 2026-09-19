@@ -50,6 +50,7 @@ export interface Lesson {
   code?: string | null;
   title: string;
   description?: string | null;
+  learningObjectives?: string[];
   // Campos tal como chegam de GET /courses/:id (registo Lesson cru): `type`
   // é o enum LessonType (VIDEO|TEXT|PDF|AUDIO|SLIDE|LINK|SCORM|QUIZ|LIVE) e o
   // conteúdo (URL de vídeo ou PDF, este último em data URL) vive em
