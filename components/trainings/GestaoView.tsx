@@ -21,14 +21,8 @@ import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { TrainingFormModal } from './TrainingFormModal';
-import { TYPE_CFG } from './constants';
+import { STATUS_CFG, TYPE_CFG } from './constants';
 import type { Training } from './types';
-
-const STATUS_CFG = {
-  DRAFT: { label: 'Rascunho', cls: 'bg-surface-sunken text-ink-muted' },
-  PUBLISHED: { label: 'Publicada', cls: 'bg-success-subtle text-success-ink' },
-  ARCHIVED: { label: 'Arquivada', cls: 'bg-surface-sunken text-ink-faint' },
-};
 
 interface ManageResponse {
   data: Training[];
@@ -78,11 +72,29 @@ export function GestaoView({ onManage }: GestaoViewProps) {
       onError: toastError,
     },
   );
+  const cancelTraining = useApiMutation(
+    (id: number) => apiClient.patch(`/trainings/${id}/cancel`, {}),
+    {
+      invalidateKeys,
+      onSuccess: () => toast({ title: 'Formação cancelada.', intent: 'success' }),
+      onError: toastError,
+    },
+  );
+  const complete = useApiMutation(
+    (id: number) => apiClient.patch(`/trainings/${id}/complete`, {}),
+    {
+      invalidateKeys,
+      onSuccess: () => toast({ title: 'Formação concluída.', intent: 'success' }),
+      onError: toastError,
+    },
+  );
 
   const rowBusy = (id: number) =>
     (publish.isPending && publish.variables === id) ||
     (archive.isPending && archive.variables === id) ||
-    (remove.isPending && remove.variables === id);
+    (remove.isPending && remove.variables === id) ||
+    (cancelTraining.isPending && cancelTraining.variables === id) ||
+    (complete.isPending && complete.variables === id);
 
   async function onDelete(t: Training) {
     const ok = await confirm({
@@ -96,6 +108,20 @@ export function GestaoView({ onManage }: GestaoViewProps) {
   async function onArchive(t: Training) {
     const ok = await confirm({ title: `Arquivar "${t.title}"?`, confirmLabel: 'Arquivar' });
     if (ok) archive.mutate(t.id);
+  }
+
+  async function onCancel(t: Training) {
+    const ok = await confirm({
+      title: `Cancelar "${t.title}"?`,
+      confirmLabel: 'Cancelar formação',
+      destructive: true,
+    });
+    if (ok) cancelTraining.mutate(t.id);
+  }
+
+  async function onComplete(t: Training) {
+    const ok = await confirm({ title: `Concluir "${t.title}"?`, confirmLabel: 'Concluir' });
+    if (ok) complete.mutate(t.id);
   }
 
   if (isLoading) return <Skeleton rows={3} />;
@@ -152,7 +178,7 @@ export function GestaoView({ onManage }: GestaoViewProps) {
                   >
                     Editar
                   </Button>
-                  {t.status !== 'ARCHIVED' && (
+                  {t.status !== 'ARCHIVED' && t.status !== 'CANCELLED' && t.status !== 'COMPLETED' && (
                     <Button
                       intent="ghost"
                       size="sm"
@@ -172,6 +198,28 @@ export function GestaoView({ onManage }: GestaoViewProps) {
                     >
                       Publicar
                     </Button>
+                  )}
+                  {t.status === 'PUBLISHED' && (
+                    <>
+                      <Button
+                        intent="ghost"
+                        size="sm"
+                        onClick={() => onComplete(t)}
+                        disabled={rowBusy(t.id)}
+                        loading={complete.isPending && complete.variables === t.id}
+                      >
+                        Concluir
+                      </Button>
+                      <Button
+                        intent="danger"
+                        size="sm"
+                        onClick={() => onCancel(t)}
+                        disabled={rowBusy(t.id)}
+                        loading={cancelTraining.isPending && cancelTraining.variables === t.id}
+                      >
+                        Cancelar
+                      </Button>
+                    </>
                   )}
                   <Button
                     intent="danger"

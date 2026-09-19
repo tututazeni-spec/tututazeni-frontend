@@ -444,6 +444,16 @@ export const queryKeys = {
     manage: (params: Record<string, unknown>) =>
       [...queryKeys.trainings.all, 'manage', params] as const,
     results: (id: number) => [...queryKeys.trainings.all, 'results', id] as const,
+    calendar: (params: Record<string, unknown>) =>
+      [...queryKeys.trainings.all, 'calendar', params] as const,
+  },
+
+  trainingPlans: {
+    all: ['training-plans'] as const,
+    list: (params: Record<string, unknown>) =>
+      [...queryKeys.trainingPlans.all, 'list', params] as const,
+    detail: (id: number) => [...queryKeys.trainingPlans.all, 'detail', id] as const,
+    execution: (id: number) => [...queryKeys.trainingPlans.all, 'execution', id] as const,
   },
 
   acl: {
