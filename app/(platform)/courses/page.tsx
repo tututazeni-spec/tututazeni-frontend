@@ -9,9 +9,12 @@ import { CourseDetail } from '@/components/courses/CourseDetail';
 import { CreateCourseModal } from '@/components/courses/CreateCourseModal';
 import { GestaoView } from '@/components/courses/GestaoView';
 import { InscricoesView } from '@/components/courses/InscricoesView';
+import { CategoriasView } from '@/components/courses/CategoriasView';
 import { ModulosView } from '@/components/courses/ModulosView';
 import { MyEnrollmentsView } from '@/components/courses/MyEnrollmentsView';
 import { ProgressoView } from '@/components/courses/ProgressoView';
+import { RelatoriosView } from '@/components/courses/RelatoriosView';
+import { TurmasView } from '@/components/courses/TurmasView';
 import type { Nav, TopLevelView } from '@/components/courses/types';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
 import { ADMIN_ROLES } from '@/lib/roles';
@@ -131,6 +134,9 @@ export default function CoursesPage() {
       {nav.view === 'modulos' && (
         <ModulosView initialCourseId={modulosCourseId} />
       )}
+      {nav.view === 'turmas' && <TurmasView />}
+      {nav.view === 'categorias' && <CategoriasView />}
+      {nav.view === 'relatorios' && <RelatoriosView onSelect={handleSelect} />}
 
       {showCreate && (
         <CreateCourseModal

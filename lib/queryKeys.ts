@@ -807,5 +807,14 @@ export const queryKeys = {
       [...queryKeys.courses.all, 'lesson-quiz', lessonId] as const,
     quizAttempt: (quizId: number) =>
       [...queryKeys.courses.all, 'quiz-attempt', quizId] as const,
+    cohorts: (courseId: number) =>
+      [...queryKeys.courses.all, 'cohorts', courseId] as const,
+    cohortDetail: (cohortId: number) =>
+      [...queryKeys.courses.all, 'cohort-detail', cohortId] as const,
+    cohortAttendance: (cohortId: number, date: string) =>
+      [...queryKeys.courses.all, 'cohort-attendance', cohortId, date] as const,
+    categoriesManaged: () =>
+      [...queryKeys.courses.all, 'categories-managed'] as const,
+    reports: () => [...queryKeys.courses.all, 'reports'] as const,
   },
 } as const;
