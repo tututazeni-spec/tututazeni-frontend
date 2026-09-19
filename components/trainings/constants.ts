@@ -87,6 +87,7 @@ export const NAV = [
   { id: 'manage', label: 'Gestão' },
   { id: 'trainers', label: 'Formadores' },
   { id: 'resources', label: 'Recursos & Logística' },
+  { id: 'reports', label: 'Relatórios' },
 ] as const;
 
 export type NavId = (typeof NAV)[number]['id'];
@@ -103,6 +104,7 @@ export const TITLES: Record<View, string> = {
   calendar: 'Calendário',
   trainers: 'Formadores',
   resources: 'Recursos & Logística',
+  reports: 'Relatórios',
 };
 
 // docs/trainings-detalhado.md pt.7 — Formadores.

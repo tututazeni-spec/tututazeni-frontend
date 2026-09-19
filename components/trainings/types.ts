@@ -14,16 +14,12 @@ export type TrainingType =
   | 'COACHING'
   | 'MENTORING';
 export type TrainingLevel = 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED';
-export type TrainingStatus = 'DRAFT' | 'PUBLISHED' | 'ARCHIVED' | 'CANCELLED' | 'COMPLETED';
+export type TrainingStatus =
+  'DRAFT' | 'PUBLISHED' | 'ARCHIVED' | 'CANCELLED' | 'COMPLETED';
 export type TrainingPriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
 export type TrainingPlanPeriod = 'ANNUAL' | 'QUARTERLY' | 'EXTRAORDINARY';
 export type TrainingPlanStatus =
-  | 'DRAFT'
-  | 'SUBMITTED'
-  | 'APPROVED'
-  | 'REJECTED'
-  | 'PUBLISHED'
-  | 'ARCHIVED';
+  'DRAFT' | 'SUBMITTED' | 'APPROVED' | 'REJECTED' | 'PUBLISHED' | 'ARCHIVED';
 export type ParticipantStatus =
   | 'WAITLIST'
   | 'PENDING_APPROVAL'
@@ -51,7 +47,8 @@ export type TrainingResourceKind =
   | 'TRANSPORT'
   | 'ACCOMMODATION'
   | 'OTHER';
-export type TrainingResourceStatus = 'AVAILABLE' | 'UNAVAILABLE' | 'MAINTENANCE';
+export type TrainingResourceStatus =
+  'AVAILABLE' | 'UNAVAILABLE' | 'MAINTENANCE';
 
 export interface TrainingDocument {
   id: number;
@@ -138,7 +135,11 @@ export interface Training {
     position: { name: string } | null;
   } | null;
   externalInstructorId?: number | null;
-  externalInstructor?: { id: number; name: string; entity: string | null } | null;
+  externalInstructor?: {
+    id: number;
+    name: string;
+    entity: string | null;
+  } | null;
   responsible?: { id: number; fullName: string } | null;
   createdBy: { id: number; fullName: string } | null;
   coInstructors?: TrainingCoInstructorLink[];
@@ -278,14 +279,26 @@ export interface TrainingPlan {
   trainings?: Array<
     Pick<
       Training,
-      'id' | 'title' | 'status' | 'type' | 'startDate' | 'endDate' | 'plannedBudget' | 'workloadHours'
+      | 'id'
+      | 'title'
+      | 'status'
+      | 'type'
+      | 'startDate'
+      | 'endDate'
+      | 'plannedBudget'
+      | 'workloadHours'
     > & { cost: number | null; _count: { participants: number } }
   >;
   _count?: { trainings: number };
 }
 
 export interface TrainingPlanExecution {
-  planned: { participants: number; hours: number; budget: number; trainingsCount: number };
+  planned: {
+    participants: number;
+    hours: number;
+    budget: number;
+    trainingsCount: number;
+  };
   realized: {
     participants: number;
     hours: number;
@@ -368,7 +381,10 @@ export interface Trainer {
     avgRating: number;
   };
   trainings?: Array<
-    Pick<Training, 'id' | 'title' | 'status' | 'startDate' | 'endDate' | 'workloadHours'> & {
+    Pick<
+      Training,
+      'id' | 'title' | 'status' | 'startDate' | 'endDate' | 'workloadHours'
+    > & {
       _count: { sessions: number };
     }
   >;
@@ -409,6 +425,70 @@ export interface TrainingResourceItem {
   _count?: { bookings: number };
 }
 
+// ─── Histórico (docs/trainings-detalhado.md pt.11 — aba "Histórico") ────────
+
+export interface TrainingHistoryEntry {
+  id: number;
+  action: string;
+  user: { id: number; fullName: string; avatarUrl: string | null } | null;
+  timestamp: string;
+  metadata: Record<string, unknown> | null;
+}
+
+// ─── Relatórios (docs/trainings-detalhado.md pt.10) ──────────────────────────
+
+export interface TrainingReportFilters {
+  year?: number;
+  departmentId?: number;
+  unitId?: number;
+  category?: string;
+  modality?: TrainingType;
+  instructorId?: number;
+  trainingPlanId?: number;
+}
+
+export interface TrainingReport {
+  totals: {
+    trainings: number;
+    planned: number;
+    published: number;
+    completed: number;
+    cancelled: number;
+  };
+  participants: {
+    enrolled: number;
+    attended: number;
+    completed: number;
+    notCompleted: number;
+    cancelled: number;
+    participationRate: number;
+    completionRate: number;
+  };
+  hours: {
+    total: number;
+    byDepartment: { department: string; hours: number }[];
+  };
+  byCategory: { category: string; count: number }[];
+  byModality: { modality: string; count: number }[];
+  byInstructor: { instructor: string; count: number }[];
+  costs: {
+    total: number;
+    perParticipant: number;
+    perHour: number;
+    budgetPlanned: number;
+    budgetExecutionRate: number;
+  };
+  satisfaction: {
+    avgRating: number | null;
+    nps: number | null;
+    responses: number;
+  };
+  efficacy: { approvalRate: number; scoredParticipants: number };
+  competenciesDeveloped: number;
+  certificatesIssued: number;
+  planExecution: { plans: number; executed: number; rate: number };
+}
+
 export type View =
   | 'catalog'
   | 'detail'
@@ -420,7 +500,8 @@ export type View =
   | 'plan-detail'
   | 'calendar'
   | 'trainers'
-  | 'resources';
+  | 'resources'
+  | 'reports';
 
 // view e selectedId eram dois useState separados sempre definidos em conjunto
 // — um único estado torna "detail sem id" irrepresentável.
