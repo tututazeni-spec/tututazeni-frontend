@@ -37,9 +37,11 @@ export const EMPLOYEE_NAV: Array<{ id: View; label: string }> = [
 ];
 
 // Navegação para ADMIN/RH — consola de gestão do AI Tutor
-// (docs/ai-tutor.md, "Abas principais (a acrescentar)").
+// (docs/ai-tutor.md, "Abas principais (a acrescentar)"), mais o Chat
+// (docs/ai-tutor.md secção 2), que também está disponível para ADMIN/RH.
 export const ADMIN_NAV: Array<{ id: View; label: string }> = [
   { id: 'overview', label: 'Visão Geral' },
+  { id: 'chat', label: 'Chat' },
   { id: 'knowledge', label: 'Base de Conhecimento' },
   { id: 'sessions', label: 'Sessões' },
   { id: 'exercises', label: 'Exercícios' },
