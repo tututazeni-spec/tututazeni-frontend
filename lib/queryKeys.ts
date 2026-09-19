@@ -456,6 +456,20 @@ export const queryKeys = {
     execution: (id: number) => [...queryKeys.trainingPlans.all, 'execution', id] as const,
   },
 
+  trainingTrainers: {
+    all: ['training-trainers'] as const,
+    list: (params: Record<string, unknown>) =>
+      [...queryKeys.trainingTrainers.all, 'list', params] as const,
+    detail: (id: number) => [...queryKeys.trainingTrainers.all, 'detail', id] as const,
+  },
+
+  trainingResources: {
+    all: ['training-resources'] as const,
+    list: (params: Record<string, unknown>) =>
+      [...queryKeys.trainingResources.all, 'list', params] as const,
+    detail: (id: number) => [...queryKeys.trainingResources.all, 'detail', id] as const,
+  },
+
   acl: {
     all: ['acl'] as const,
     stats: () => [...queryKeys.acl.all, 'stats'] as const,

@@ -37,7 +37,21 @@ export type TrainingAssessmentRole =
   | 'INITIAL'
   | 'FINAL'
   | 'SATISFACTION_SURVEY'
-  | 'INSTRUCTOR_EVALUATION';
+  | 'INSTRUCTOR_EVALUATION'
+  | 'ORGANIZATION_EVALUATION'
+  | 'APPLICABILITY_EVALUATION'
+  | 'POST_TRAINING_EFFECTIVENESS';
+export type TrainingInstructorType = 'INTERNAL' | 'EXTERNAL';
+export type TrainingInstructorStatus = 'ACTIVE' | 'INACTIVE';
+export type TrainingResourceKind =
+  | 'ROOM'
+  | 'EQUIPMENT'
+  | 'MATERIAL'
+  | 'CATERING'
+  | 'TRANSPORT'
+  | 'ACCOMMODATION'
+  | 'OTHER';
+export type TrainingResourceStatus = 'AVAILABLE' | 'UNAVAILABLE' | 'MAINTENANCE';
 
 export interface TrainingDocument {
   id: number;
@@ -123,6 +137,8 @@ export interface Training {
     avatarUrl: string | null;
     position: { name: string } | null;
   } | null;
+  externalInstructorId?: number | null;
+  externalInstructor?: { id: number; name: string; entity: string | null } | null;
   responsible?: { id: number; fullName: string } | null;
   createdBy: { id: number; fullName: string } | null;
   coInstructors?: TrainingCoInstructorLink[];
@@ -144,7 +160,10 @@ export interface TrainingResults {
   completionRate: number;
   attendanceRate: number;
   avgScore: number | null;
+  approvalRate: number | null;
   satisfaction: number;
+  responseRate: number;
+  nps: number | null;
   totalCost: number;
   costPerParticipant: number;
 }
@@ -319,6 +338,77 @@ export interface MyTrainingEntry {
   } | null;
 }
 
+// ─── Formadores (docs/trainings-detalhado.md pt.7) ───────────────────────────
+
+export interface Trainer {
+  id: number;
+  type: TrainingInstructorType;
+  userId: number | null;
+  name: string;
+  entity: string | null;
+  nif: string | null;
+  email: string | null;
+  phone: string | null;
+  specialties: string[];
+  trainingAreas: string[];
+  competencyIds: number[];
+  certifications: string | null;
+  professionalExperience: string | null;
+  trainerExperience: string | null;
+  availability: string | null;
+  hourlyCost: number | null;
+  documentUrl: string | null;
+  status: TrainingInstructorStatus;
+  notes: string | null;
+  user?: { id: number; fullName: string; avatarUrl: string | null } | null;
+  stats?: {
+    trainingsAssigned: number;
+    sessionsAssigned: number;
+    hoursMinistered: number;
+    avgRating: number;
+  };
+  trainings?: Array<
+    Pick<Training, 'id' | 'title' | 'status' | 'startDate' | 'endDate' | 'workloadHours'> & {
+      _count: { sessions: number };
+    }
+  >;
+}
+
+// ─── Recursos & Logística (docs/trainings-detalhado.md pt.8) ────────────────
+
+export interface ResourceBooking {
+  id: number;
+  resourceId: number;
+  trainingId: number | null;
+  sessionId: number | null;
+  startAt: string;
+  endAt: string;
+  releasedAt: string | null;
+  training?: { id: number; title: string } | null;
+  session?: { id: number; sessionDate: string } | null;
+  resource?: { id: number; name: string; kind: TrainingResourceKind };
+}
+
+export interface TrainingResourceItem {
+  id: number;
+  kind: TrainingResourceKind;
+  name: string;
+  code: string | null;
+  category: string | null;
+  location: string | null;
+  unitId: number | null;
+  capacity: number | null;
+  quantity: number;
+  equipment: string[];
+  cost: number | null;
+  responsibleId: number | null;
+  status: TrainingResourceStatus;
+  notes: string | null;
+  responsible?: { id: number; fullName: string } | null;
+  bookings?: ResourceBooking[];
+  _count?: { bookings: number };
+}
+
 export type View =
   | 'catalog'
   | 'detail'
@@ -328,7 +418,9 @@ export type View =
   | 'manage-detail'
   | 'plans'
   | 'plan-detail'
-  | 'calendar';
+  | 'calendar'
+  | 'trainers'
+  | 'resources';
 
 // view e selectedId eram dois useState separados sempre definidos em conjunto
 // — um único estado torna "detail sem id" irrepresentável.

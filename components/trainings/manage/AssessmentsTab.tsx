@@ -29,10 +29,13 @@ interface AssessmentOption {
 }
 
 const ROLES: { id: TrainingAssessmentRole; label: string }[] = [
-  { id: 'INITIAL', label: 'Avaliação inicial' },
-  { id: 'FINAL', label: 'Avaliação final' },
-  { id: 'SATISFACTION_SURVEY', label: 'Questionário de satisfação' },
+  { id: 'INITIAL', label: 'Avaliação de aprendizagem (inicial)' },
+  { id: 'FINAL', label: 'Avaliação de aprendizagem (final)' },
+  { id: 'SATISFACTION_SURVEY', label: 'Avaliação de reação / satisfação' },
   { id: 'INSTRUCTOR_EVALUATION', label: 'Avaliação do formador' },
+  { id: 'ORGANIZATION_EVALUATION', label: 'Avaliação da organização' },
+  { id: 'APPLICABILITY_EVALUATION', label: 'Avaliação de aplicabilidade' },
+  { id: 'POST_TRAINING_EFFECTIVENESS', label: 'Avaliação de eficácia / pós-formação' },
 ];
 
 export function AssessmentsTab({ training }: AssessmentsTabProps) {
