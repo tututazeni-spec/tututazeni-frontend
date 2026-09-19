@@ -56,6 +56,26 @@ const VISIBILITY_ITEMS = [
   { value: 'SELECTED_GROUPS', label: 'Apenas grupos seleccionados' },
 ];
 
+// docs/modulo_courses.md secção 2 — "Tipos" e "Modalidade".
+const TYPE_ITEMS = [
+  { value: 'OBRIGATORIO', label: 'Obrigatório' },
+  { value: 'OPCIONAL', label: 'Opcional' },
+  { value: 'COMPLIANCE', label: 'Compliance' },
+  { value: 'INTEGRACAO', label: 'Integração' },
+  { value: 'DESENVOLVIMENTO', label: 'Desenvolvimento' },
+  { value: 'TECNICO', label: 'Técnico' },
+  { value: 'COMPORTAMENTAL', label: 'Comportamental' },
+  { value: 'LIDERANCA', label: 'Liderança' },
+];
+
+const MODALITY_ITEMS = [
+  { value: 'ONLINE', label: 'Online' },
+  { value: 'PRESENCIAL', label: 'Presencial' },
+  { value: 'HIBRIDO', label: 'Híbrido' },
+  { value: 'AO_VIVO', label: 'Ao vivo' },
+  { value: 'AUTOAPRENDIZAGEM', label: 'Autoaprendizagem' },
+];
+
 const NO_DEPT = 'NONE';
 const NO_PREREQUISITE = 'NONE';
 
@@ -87,6 +107,8 @@ export function CreateCourseModal({
       knowledgeArea: '',
       internalCode: '',
       level: '',
+      type: '',
+      modality: '',
       language: 'pt',
       visibility: 'PUBLIC',
       workloadHours: '',
@@ -145,6 +167,8 @@ export function CreateCourseModal({
       if (str(form.knowledgeArea)) payload.knowledgeArea = form.knowledgeArea.trim();
       if (str(form.internalCode)) payload.internalCode = form.internalCode.trim();
       if (form.level) payload.level = form.level;
+      if (form.type) payload.type = form.type;
+      if (form.modality) payload.modality = form.modality;
       payload.language = form.language || 'pt';
       payload.visibility = form.visibility;
       payload.mandatory = form.mandatory;
@@ -308,6 +332,27 @@ export function CreateCourseModal({
                     onChange={(e) => setField('language', e.target.value)}
                     className="w-full"
                     placeholder="pt"
+                  />
+                </FormField>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <FormField label="Tipo" htmlFor="cc-type">
+                  <Select
+                    items={TYPE_ITEMS}
+                    value={form.type || undefined}
+                    onValueChange={(v) => setField('type', v)}
+                    className="w-full"
+                    placeholder="Selecionar"
+                  />
+                </FormField>
+                <FormField label="Modalidade" htmlFor="cc-modality">
+                  <Select
+                    items={MODALITY_ITEMS}
+                    value={form.modality || undefined}
+                    onValueChange={(v) => setField('modality', v)}
+                    className="w-full"
+                    placeholder="Selecionar"
                   />
                 </FormField>
               </div>

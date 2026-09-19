@@ -541,6 +541,8 @@ export const queryKeys = {
     adminDashboard: () =>
       [...queryKeys.enrollments.all, 'admin-dashboard'] as const,
     team: () => [...queryKeys.enrollments.all, 'team'] as const,
+    byDepartment: () =>
+      [...queryKeys.enrollments.all, 'by-department'] as const,
   },
 
   attendance: {

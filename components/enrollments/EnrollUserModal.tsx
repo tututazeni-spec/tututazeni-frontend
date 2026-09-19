@@ -30,11 +30,16 @@ import {
 
 export interface EnrollUserModalProps {
   onClose: () => void;
+  /** Pré-selecciona e bloqueia o curso — usado pela acção "Inscrever
+   *  colaboradores" na tabela de Cursos (docs/modulo_courses.md secção 2). */
+  initialCourseId?: number;
 }
 
-export function EnrollUserModal({ onClose }: EnrollUserModalProps) {
+export function EnrollUserModal({ onClose, initialCourseId }: EnrollUserModalProps) {
   const notify = useToast();
-  const [courseId, setCourseId] = useState('');
+  const [courseId, setCourseId] = useState(
+    initialCourseId ? String(initialCourseId) : '',
+  );
   const [userSearch, setUserSearch] = useState('');
   const [selectedUser, setSelectedUser] = useState<DirectoryUser | null>(null);
   const [deadline, setDeadline] = useState('');
@@ -108,6 +113,7 @@ export function EnrollUserModal({ onClose }: EnrollUserModalProps) {
               placeholder="Selecionar curso"
               searchPlaceholder="Escreva para filtrar cursos…"
               emptyText="Nenhum curso encontrado"
+              disabled={!!initialCourseId}
             />
           </FormField>
 

@@ -17,6 +17,8 @@ const dashboard: AdminDashboard = {
     totalLessons: 80,
     totalEnrollments: 50,
     pendingEnrollments: 3,
+    completions: 20,
+    totalLearners: 18,
     mandatoryCourses: 4,
     optionalCourses: 6,
     certificatesIssued: 15,

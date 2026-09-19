@@ -8,6 +8,16 @@
 export type CourseStatus = 'DRAFT' | 'PUBLISHED' | 'PAUSED' | 'ARCHIVED';
 export type CourseVisibility = 'PUBLIC' | 'PRIVATE' | 'EMPLOYEES_ONLY' | 'SELECTED_GROUPS';
 export type CourseLevel = 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED';
+export type CourseType =
+  | 'OBRIGATORIO'
+  | 'OPCIONAL'
+  | 'COMPLIANCE'
+  | 'INTEGRACAO'
+  | 'DESENVOLVIMENTO'
+  | 'TECNICO'
+  | 'COMPORTAMENTAL'
+  | 'LIDERANCA';
+export type CourseModality = 'ONLINE' | 'PRESENCIAL' | 'HIBRIDO' | 'AO_VIVO' | 'AUTOAPRENDIZAGEM';
 export type LessonType =
   | 'VIDEO'
   | 'PDF'
@@ -42,6 +52,8 @@ export interface Course {
   status: CourseStatus;
   visibility: CourseVisibility;
   mandatory: boolean;
+  type: CourseType | null;
+  modality: CourseModality | null;
   internalCode: string | null;
   departmentId: number | null;
   department?: { id: number; name: string; code: string } | null;
@@ -61,6 +73,8 @@ export interface Course {
   createdAt: string;
   publishedAt: string | null;
   _count: { enrollments: number; feedbacks: number; modules: number };
+  /** Média de Enrollment.progress dos inscritos — só em GET /courses (findAll). */
+  avgProgress?: number;
   competencies: Array<{ competency: { id: number; name: string } }>;
   primaryInstructor?: { id: number; fullName: string; avatarUrl: string | null } | null;
   requiredCourse?: { id: number; title: string } | null;
@@ -205,6 +219,8 @@ export interface AdminDashboard {
     totalLessons: number;
     totalEnrollments: number;
     pendingEnrollments: number;
+    completions: number;
+    totalLearners: number;
     mandatoryCourses: number;
     optionalCourses: number;
     certificatesIssued: number;
@@ -280,6 +296,8 @@ export type View =
   | 'certificates'
   | 'dashboard'
   | 'gestao'
+  | 'inscricoes'
+  | 'progresso'
   | 'modulos';
 export type TopLevelView = Exclude<View, 'detail'>;
 

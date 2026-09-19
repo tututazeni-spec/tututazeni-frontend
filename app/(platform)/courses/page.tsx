@@ -8,8 +8,10 @@ import { NAV, TITLES } from '@/components/courses/constants';
 import { CourseDetail } from '@/components/courses/CourseDetail';
 import { CreateCourseModal } from '@/components/courses/CreateCourseModal';
 import { GestaoView } from '@/components/courses/GestaoView';
+import { InscricoesView } from '@/components/courses/InscricoesView';
 import { ModulosView } from '@/components/courses/ModulosView';
 import { MyEnrollmentsView } from '@/components/courses/MyEnrollmentsView';
+import { ProgressoView } from '@/components/courses/ProgressoView';
 import type { Nav, TopLevelView } from '@/components/courses/types';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
 import { ADMIN_ROLES } from '@/lib/roles';
@@ -20,20 +22,24 @@ export default function CoursesPage() {
   const notify = useToast();
   const role = useCurrentRole();
   // Enquanto a role ainda não chegou (arranque pós-login/reload) tratamos
-  // como não-admin — as abas adminOnly aparecem assim que /auth/me resolve.
+  // como não-privilegiado — os separadores restritos aparecem assim que
+  // /auth/me resolve.
   const isAdmin = !!role && ADMIN_ROLES.includes(role);
-  const visibleNav = isAdmin ? NAV : NAV.filter((n) => !n.adminOnly);
+  const visibleNav = NAV.filter((n) => !n.roles || (!!role && n.roles.includes(role)));
 
   const [nav, setNav] = useState<Nav>({ view: 'catalog' });
   const [showCreate, setShowCreate] = useState(false);
   // Curso pré-seleccionado ao entrar na aba "Módulos & Lições" — via
-  // "Gerir módulos" na aba Gestão (handleManageModules) ou via deep-link
-  // ?courseId= (ver useEffect abaixo e o redirect em
-  // app/(platform)/courses/modulos/page.tsx, mantido para bookmarks antigos
-  // ao antigo separador próprio de sidebar).
+  // "Gerir módulos" na aba Cursos (handleManageModules), "Ver inscrições"
+  // (handleViewEnrollments) ou via deep-link ?courseId= (ver useEffect
+  // abaixo e o redirect em app/(platform)/courses/modulos/page.tsx, mantido
+  // para bookmarks antigos ao antigo separador próprio de sidebar).
   const [modulosCourseId, setModulosCourseId] = useState<number | undefined>(
     undefined,
   );
+  const [enrollmentsCourseId, setEnrollmentsCourseId] = useState<
+    number | undefined
+  >(undefined);
 
   // Lê ?tab=&courseId= do URL no arranque (não usa useSearchParams() para
   // não obrigar a envolver a página num <Suspense> — mesmo raciocínio da
@@ -57,6 +63,10 @@ export default function CoursesPage() {
     setModulosCourseId(id);
     setNav({ view: 'modulos' });
   };
+  const handleViewEnrollments = (id: number) => {
+    setEnrollmentsCourseId(id);
+    setNav({ view: 'inscricoes' });
+  };
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
@@ -66,14 +76,14 @@ export default function CoursesPage() {
           <h1 className="text-xl font-semibold text-ink">{TITLES[nav.view]}</h1>
           <p className="text-sm text-ink-faint mt-0.5"></p>
         </div>
-        {(nav.view === 'catalog' || nav.view === 'gestao') && (
+        {nav.view === 'catalog' && isAdmin && (
           <Button onClick={() => setShowCreate(true)}>+ Criar curso</Button>
         )}
       </div>
 
       {/* Tabs */}
       {nav.view !== 'detail' && (
-        <div className="flex gap-1 mb-6 bg-surface-sunken p-1 rounded-card w-fit">
+        <div className="flex gap-1 mb-6 bg-surface-sunken p-1 rounded-card w-fit flex-wrap">
           {visibleNav.map((n) => (
             <button
               key={n.id}
@@ -90,7 +100,16 @@ export default function CoursesPage() {
         </div>
       )}
 
-      {nav.view === 'catalog' && <CatalogView onSelect={handleSelect} />}
+      {nav.view === 'catalog' &&
+        (isAdmin ? (
+          <GestaoView
+            onSelect={handleSelect}
+            onManageModules={handleManageModules}
+            onViewEnrollments={handleViewEnrollments}
+          />
+        ) : (
+          <CatalogView onSelect={handleSelect} />
+        ))}
       {nav.view === 'detail' && (
         <CourseDetail courseId={nav.selectedId} onBack={handleBack} />
       )}
@@ -105,12 +124,10 @@ export default function CoursesPage() {
           onCreateCourse={() => setShowCreate(true)}
         />
       )}
-      {nav.view === 'gestao' && isAdmin && (
-        <GestaoView
-          onSelect={handleSelect}
-          onManageModules={handleManageModules}
-        />
+      {nav.view === 'inscricoes' && (
+        <InscricoesView initialCourseId={enrollmentsCourseId} />
       )}
+      {nav.view === 'progresso' && <ProgressoView role={role} />}
       {nav.view === 'modulos' && (
         <ModulosView initialCourseId={modulosCourseId} />
       )}
@@ -120,7 +137,7 @@ export default function CoursesPage() {
           onClose={() => setShowCreate(false)}
           onSuccess={() =>
             notify({
-              title: 'Curso criado como rascunho. Vê-o na aba Gestão.',
+              title: 'Curso criado como rascunho. Vê-o na aba Cursos.',
               intent: 'success',
             })
           }
