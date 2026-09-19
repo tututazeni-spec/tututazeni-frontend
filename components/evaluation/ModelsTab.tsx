@@ -94,7 +94,7 @@ export function ModelsTab() {
                     <div className="flex items-center gap-2 flex-wrap">
                       <p className="font-semibold text-ink truncate">{t.name}</p>
                       {t.isDefault && (
-                        <Badge intent="primary">
+                        <Badge intent="success">
                           <Star size={11} strokeWidth={1.75} className="inline mr-1" />
                           Por omissão
                         </Badge>

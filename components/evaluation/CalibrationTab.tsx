@@ -151,7 +151,9 @@ export function CalibrationTab() {
                   {h.previousScore?.toFixed(1) ?? '—'} → {h.calibratedScore?.toFixed(1) ?? '—'} por{' '}
                   {h.calibratedBy?.fullName ?? '—'}
                 </p>
-                {h.reason && <p className="text-ink-faint italic mt-0.5">"{h.reason}"</p>}
+                {h.reason && (
+                  <p className="text-ink-faint italic mt-0.5">&ldquo;{h.reason}&rdquo;</p>
+                )}
               </div>
             ))}
           </div>

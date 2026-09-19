@@ -131,7 +131,13 @@ function ManagerQueue() {
                           type: r.type,
                           status: r.status,
                           dueDate: r.dueDate ?? undefined,
-                          evaluated: r.evaluated,
+                          evaluated: {
+                            id: r.evaluated.id,
+                            fullName: r.evaluated.fullName,
+                            avatarUrl: r.evaluated.avatarUrl,
+                            position: r.evaluated.position ?? undefined,
+                            department: r.evaluated.department ?? undefined,
+                          },
                           cycle: r.cycle ?? undefined,
                         })
                       }
