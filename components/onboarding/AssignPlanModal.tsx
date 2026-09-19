@@ -56,8 +56,8 @@ export function AssignPlanModal({ onClose }: AssignPlanModalProps) {
   );
 
   const assign = useApiMutation(
-    () => {
-      const userId = selectedUser!.id;
+    (user: DirectoryUser) => {
+      const userId = user.id;
       if (auto) {
         return apiClient.post(`/onboarding/auto-assign/${userId}`, {});
       }
@@ -96,9 +96,9 @@ export function AssignPlanModal({ onClose }: AssignPlanModalProps) {
     Boolean(selectedUser) && (auto || Boolean(templateId)) && !loading;
 
   const handleSubmit = () => {
-    if (!canSubmit) return;
+    if (!canSubmit || !selectedUser) return;
     setSubmitError('');
-    assign.mutate(undefined);
+    assign.mutate(selectedUser);
   };
 
   return (

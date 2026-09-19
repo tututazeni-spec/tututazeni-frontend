@@ -81,8 +81,8 @@ export function CompensationFormModal({
 
   const save = useApiMutation(
     (body: Record<string, unknown>) =>
-      editing
-        ? apiClient.put(`/payroll/compensation/${record!.id}`, body)
+      editing && record
+        ? apiClient.put(`/payroll/compensation/${record.id}`, body)
         : apiClient.post('/payroll/compensation', body),
     {
       invalidateKeys: [queryKeys.payslips.all],

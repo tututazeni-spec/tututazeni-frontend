@@ -64,12 +64,12 @@ function AddMaterialModal({ onClose }: { onClose: () => void }) {
   );
 
   const add = useApiMutation(
-    () =>
+    (doc: { id: number; title: string }) =>
       sessionId
         ? apiClient.post(`/live-classes/${liveClassId}/sessions/${sessionId}/materials`, {
-            documentId: selectedDoc!.id,
+            documentId: doc.id,
           })
-        : apiClient.post(`/live-classes/${liveClassId}/materials`, { documentId: selectedDoc!.id }),
+        : apiClient.post(`/live-classes/${liveClassId}/materials`, { documentId: doc.id }),
     {
       invalidateKeys: [queryKeys.liveClasses.all],
       onSuccess: () => {
@@ -140,7 +140,7 @@ function AddMaterialModal({ onClose }: { onClose: () => void }) {
             className="flex-1 justify-center"
             disabled={!liveClassId || !selectedDoc}
             loading={add.isPending}
-            onClick={() => add.mutate(undefined)}
+            onClick={() => selectedDoc && add.mutate(selectedDoc)}
           >
             Associar
           </Button>

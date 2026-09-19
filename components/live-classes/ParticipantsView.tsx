@@ -119,8 +119,8 @@ export function ParticipantsView({ canManage }: { canManage: boolean }) {
   );
 
   const register = useApiMutation(
-    () =>
-      apiClient.put(`/live-classes/${registering!.liveClassId}/attendance/${registering!.id}`, {
+    (p: LiveParticipant) =>
+      apiClient.put(`/live-classes/${p.liveClassId}/attendance/${p.id}`, {
         joinedAt: registerForm.joinedAt ? new Date(registerForm.joinedAt).toISOString() : undefined,
         leftAt: registerForm.leftAt ? new Date(registerForm.leftAt).toISOString() : undefined,
       }),
@@ -135,8 +135,8 @@ export function ParticipantsView({ canManage }: { canManage: boolean }) {
   );
 
   const justify = useApiMutation(
-    () =>
-      apiClient.put(`/live-classes/${justifying!.liveClassId}/attendance/${justifying!.id}`, {
+    (p: LiveParticipant) =>
+      apiClient.put(`/live-classes/${p.liveClassId}/attendance/${p.id}`, {
         status: 'JUSTIFICADO',
         justification,
       }),
@@ -345,7 +345,7 @@ export function ParticipantsView({ canManage }: { canManage: boolean }) {
               <Button intent="secondary" className="flex-1 justify-center" onClick={() => setRegistering(null)}>
                 Cancelar
               </Button>
-              <Button className="flex-1 justify-center" onClick={() => register.mutate(undefined)} loading={register.isPending}>
+              <Button className="flex-1 justify-center" onClick={() => register.mutate(registering)} loading={register.isPending}>
                 Guardar
               </Button>
             </div>
@@ -373,7 +373,7 @@ export function ParticipantsView({ canManage }: { canManage: boolean }) {
               </Button>
               <Button
                 className="flex-1 justify-center"
-                onClick={() => justify.mutate(undefined)}
+                onClick={() => justify.mutate(justifying)}
                 loading={justify.isPending}
                 disabled={!justification.trim()}
               >

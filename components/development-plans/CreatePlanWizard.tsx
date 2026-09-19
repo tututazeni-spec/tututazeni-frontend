@@ -242,8 +242,9 @@ export function CreatePlanWizard({ onClose, onSuccess }: CreatePlanWizardProps) 
   // ─── Persistência ───────────────────────────────────────────────────────
 
   const createPlan = async (): Promise<number> => {
+    if (!form.employee) throw new Error('Colaborador não seleccionado.');
     const created = await apiClient.post<{ id: number }>('/development-plans', {
-      userId: form.employee!.id,
+      userId: form.employee.id,
       name: form.name.trim(),
       goal: form.goal.trim(),
       managerId: form.manager?.id,

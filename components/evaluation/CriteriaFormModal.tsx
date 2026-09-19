@@ -71,8 +71,8 @@ export function CriteriaFormModal({ criteria, onClose }: CriteriaFormModalProps)
 
   const save = useApiMutation(
     () =>
-      isEdit
-        ? apiClient.patch(`/evaluations/criteria/${criteria!.id}`, payload())
+      criteria
+        ? apiClient.patch(`/evaluations/criteria/${criteria.id}`, payload())
         : apiClient.post('/evaluations/criteria', payload()),
     {
       invalidateKeys: [queryKeys.evaluation.criteria()],

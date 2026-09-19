@@ -82,8 +82,8 @@ export function TemplateFormModal({ template, onClose }: TemplateFormModalProps)
 
   const save = useApiMutation(
     () =>
-      isEdit
-        ? apiClient.patch(`/evaluations/templates/${template!.id}`, payload())
+      template
+        ? apiClient.patch(`/evaluations/templates/${template.id}`, payload())
         : apiClient.post('/evaluations/templates', payload()),
     {
       invalidateKeys: [queryKeys.evaluation.templates()],

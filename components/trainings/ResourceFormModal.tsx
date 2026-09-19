@@ -111,8 +111,8 @@ export function ResourceFormModal({ resource, onClose, onSuccess }: ResourceForm
   const mutation = useApiMutation(
     () => {
       const payload = buildPayload();
-      return editing
-        ? apiClient.put(`/training-resources/${resource!.id}`, payload)
+      return resource
+        ? apiClient.put(`/training-resources/${resource.id}`, payload)
         : apiClient.post('/training-resources', payload);
     },
     {

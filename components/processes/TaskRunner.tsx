@@ -60,9 +60,9 @@ export function TaskRunner({ instanceId, onBack }: TaskRunnerProps) {
   }, [instance]);
 
   const completeStepMutation = useApiMutation(
-    () =>
+    (step: StepProgress) =>
       apiClient.post(
-        `/processes/instances/${instanceId}/steps/${activeStep!.stepId}/complete`,
+        `/processes/instances/${instanceId}/steps/${step.stepId}/complete`,
         { notes },
       ),
     {
@@ -73,13 +73,13 @@ export function TaskRunner({ instanceId, onBack }: TaskRunnerProps) {
   );
   const completing = completeStepMutation.isPending;
   const completeStep = () => {
-    if (activeStep) completeStepMutation.mutate(undefined);
+    if (activeStep) completeStepMutation.mutate(activeStep);
   };
 
   const rejectStepMutation = useApiMutation(
-    (reason: string) =>
+    ({ step, reason }: { step: StepProgress; reason: string }) =>
       apiClient.post(
-        `/processes/instances/${instanceId}/steps/${activeStep!.stepId}/reject`,
+        `/processes/instances/${instanceId}/steps/${step.stepId}/reject`,
         { reason },
       ),
     {
@@ -91,7 +91,7 @@ export function TaskRunner({ instanceId, onBack }: TaskRunnerProps) {
     if (!activeStep) return;
     const reason = prompt('Motivo da rejeição:');
     if (!reason) return;
-    rejectStepMutation.mutate(reason);
+    rejectStepMutation.mutate({ step: activeStep, reason });
   };
 
   if (loading)

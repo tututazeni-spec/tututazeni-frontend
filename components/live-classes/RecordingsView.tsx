@@ -82,8 +82,7 @@ export function RecordingsView({ canManage }: { canManage: boolean }) {
   }
 
   const save = useApiMutation(
-    () => {
-      const r = editing!;
+    (r: RecordingRow) => {
       const payload = r.sessionId
         ? { recordingUrl: editForm.recordingUrl }
         : {
@@ -240,7 +239,7 @@ export function RecordingsView({ canManage }: { canManage: boolean }) {
               <Button intent="secondary" className="flex-1 justify-center" onClick={() => setEditing(null)}>
                 Cancelar
               </Button>
-              <Button className="flex-1 justify-center" onClick={() => save.mutate(undefined)} loading={save.isPending}>
+              <Button className="flex-1 justify-center" onClick={() => save.mutate(editing)} loading={save.isPending}>
                 Guardar
               </Button>
             </div>
