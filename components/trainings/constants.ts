@@ -9,9 +9,12 @@
 import type { StatusBadgeMap } from '@/lib/statusBadge';
 import type {
   ParticipantStatus,
+  TrainingInstructorStatus,
   TrainingLevel,
   TrainingPlanStatus,
   TrainingPriority,
+  TrainingResourceKind,
+  TrainingResourceStatus,
   TrainingStatus,
   TrainingType,
   View,
@@ -82,6 +85,8 @@ export const NAV = [
   { id: 'calendar', label: 'Calendário' },
   { id: 'my-trainings', label: 'Os meus treinamentos' },
   { id: 'manage', label: 'Gestão' },
+  { id: 'trainers', label: 'Formadores' },
+  { id: 'resources', label: 'Recursos & Logística' },
 ] as const;
 
 export type NavId = (typeof NAV)[number]['id'];
@@ -96,6 +101,36 @@ export const TITLES: Record<View, string> = {
   plans: 'Plano de Formação',
   'plan-detail': 'Detalhe do plano',
   calendar: 'Calendário',
+  trainers: 'Formadores',
+  resources: 'Recursos & Logística',
+};
+
+// docs/trainings-detalhado.md pt.7 — Formadores.
+export const TRAINER_STATUS_CFG: StatusBadgeMap<TrainingInstructorStatus> = {
+  ACTIVE: { label: 'Activo', cls: cls(TOKEN.success) },
+  INACTIVE: { label: 'Inactivo', cls: cls(TOKEN.neutral) },
+};
+
+export const TRAINER_TYPE_LABEL: Record<string, string> = {
+  INTERNAL: 'Interno',
+  EXTERNAL: 'Externo',
+};
+
+// docs/trainings-detalhado.md pt.8 — Recursos & Logística.
+export const RESOURCE_KIND_LABEL: Record<TrainingResourceKind, string> = {
+  ROOM: 'Sala',
+  EQUIPMENT: 'Equipamento',
+  MATERIAL: 'Material',
+  CATERING: 'Catering',
+  TRANSPORT: 'Transporte',
+  ACCOMMODATION: 'Alojamento',
+  OTHER: 'Outro',
+};
+
+export const RESOURCE_STATUS_CFG: StatusBadgeMap<TrainingResourceStatus> = {
+  AVAILABLE: { label: 'Disponível', cls: cls(TOKEN.success) },
+  UNAVAILABLE: { label: 'Indisponível', cls: cls(TOKEN.danger) },
+  MAINTENANCE: { label: 'Manutenção', cls: cls(TOKEN.warning) },
 };
 
 // docs/trainings-detalhado.md pt.3 — "Prioridade" da formação/plano.

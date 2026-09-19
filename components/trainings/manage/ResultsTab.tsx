@@ -41,7 +41,14 @@ export function ResultsTab({ trainingId }: ResultsTabProps) {
       <KpiCard label="Taxa de conclusão" value={`${data.completionRate}%`} intent="success" />
       <KpiCard label="Presença" value={`${data.attendanceRate}%`} intent="info" />
       <KpiCard label="Nota média" value={data.avgScore != null ? data.avgScore : '—'} intent="accent" />
+      <KpiCard
+        label="Taxa de aprovação"
+        value={data.approvalRate != null ? `${data.approvalRate}%` : '—'}
+        intent="success"
+      />
       <KpiCard label="Satisfação" value={`${data.satisfaction} / 5`} intent="warning" />
+      <KpiCard label="Taxa de resposta" value={`${data.responseRate}%`} intent="info" />
+      <KpiCard label="NPS" value={data.nps != null ? data.nps : '—'} intent="warning" />
       <KpiCard label="Custo por participante" value={kz(data.costPerParticipant)} intent="danger" />
     </div>
   );

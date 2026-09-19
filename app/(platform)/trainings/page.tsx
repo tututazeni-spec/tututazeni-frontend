@@ -18,6 +18,8 @@ import { ManageTrainingView } from '@/components/trainings/ManageTrainingView';
 import { MyTrainingsView } from '@/components/trainings/MyTrainingsView';
 import { PlanDetailView } from '@/components/trainings/plans/PlanDetailView';
 import { PlansView } from '@/components/trainings/plans/PlansView';
+import { TrainersView } from '@/components/trainings/TrainersView';
+import { ResourcesView } from '@/components/trainings/ResourcesView';
 import type { Nav } from '@/components/trainings/types';
 
 export default function TrainingsPage() {
@@ -31,6 +33,8 @@ export default function TrainingsPage() {
   const visibleNav = NAV.filter((n) => {
     if (n.id === 'manage') return canManage;
     if (n.id === 'plans') return canManage;
+    if (n.id === 'trainers') return canManage;
+    if (n.id === 'resources') return canManage;
     if (n.id === 'dashboard') return isAdminOrRh;
     return true;
   });
@@ -92,6 +96,8 @@ export default function TrainingsPage() {
         <PlanDetailView planId={nav.selectedId} onBack={handleBackToPlans} />
       )}
       {nav.view === 'calendar' && <CalendarView onSelectTraining={handleSelect} />}
+      {nav.view === 'trainers' && <TrainersView />}
+      {nav.view === 'resources' && <ResourcesView />}
     </div>
   );
 }

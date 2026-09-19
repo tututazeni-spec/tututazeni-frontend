@@ -76,6 +76,11 @@ interface OrgOption {
   id: number;
   name: string;
 }
+interface TrainerOption {
+  id: number;
+  name: string;
+  entity: string | null;
+}
 
 function n(value: string): number | undefined {
   if (value.trim() === '') return undefined;
@@ -116,9 +121,20 @@ export function TrainingFormModal({ training, onClose, onSuccess }: TrainingForm
     '/positions',
     { staleTime: STALE_TIME.SEMI_STATIC },
   );
+  // docs/trainings-detalhado.md pt.7 — formador externo (sem User),
+  // registado em TrainingInstructorProfile (ver TrainersView).
+  const { data: externalTrainersResp } = useApiQuery<{ data: TrainerOption[] }>(
+    ['trainings', 'external-trainers-picker'],
+    '/training-trainers',
+    { params: { limit: 200, type: 'EXTERNAL' }, staleTime: STALE_TIME.SEMI_STATIC },
+  );
   const userItems = (usersResp?.data ?? []).map((u) => ({
     value: String(u.id),
     label: u.fullName,
+  }));
+  const externalTrainerItems = (externalTrainersResp?.data ?? []).map((t) => ({
+    value: String(t.id),
+    label: t.entity ? `${t.name} (${t.entity})` : t.name,
   }));
   const courseItems = (coursesResp?.data ?? []).map((c) => ({
     value: String(c.id),
@@ -164,6 +180,7 @@ export function TrainingFormModal({ training, onClose, onSuccess }: TrainingForm
       thumbnailUrl: training?.thumbnailUrl ?? '',
       prerequisites: training?.prerequisites ?? '',
       instructorId: training?.instructor?.id?.toString() ?? '',
+      externalInstructorId: training?.externalInstructorId?.toString() ?? '',
       responsibleId: training?.responsible?.id?.toString() ?? '',
       courseId: training?.courseId?.toString() ?? '',
       priority: training?.priority ?? '',
@@ -234,6 +251,7 @@ export function TrainingFormModal({ training, onClose, onSuccess }: TrainingForm
         .filter(Boolean);
     }
     if (form.instructorId) payload.instructorId = n(form.instructorId);
+    if (form.externalInstructorId) payload.externalInstructorId = n(form.externalInstructorId);
     if (form.responsibleId) payload.responsibleId = n(form.responsibleId);
     if (form.courseId) payload.courseId = n(form.courseId);
     if (form.plannedBudget) payload.plannedBudget = n(form.plannedBudget);
@@ -468,7 +486,7 @@ export function TrainingFormModal({ training, onClose, onSuccess }: TrainingForm
               </FormField>
 
               <div className="grid grid-cols-2 gap-3">
-                <FormField label="Formador/Instrutor" htmlFor="tf-instructor">
+                <FormField label="Formador/Instrutor (colaborador)" htmlFor="tf-instructor">
                   <Combobox
                     items={userItems}
                     value={form.instructorId || undefined}
@@ -477,15 +495,25 @@ export function TrainingFormModal({ training, onClose, onSuccess }: TrainingForm
                     className="w-full"
                   />
                 </FormField>
-                <FormField label="Entidade formadora" htmlFor="tf-trainingEntity">
-                  <Input
-                    id="tf-trainingEntity"
-                    value={form.trainingEntity}
-                    onChange={(e) => setField('trainingEntity', e.target.value)}
+                <FormField label="Formador externo (registo)" htmlFor="tf-externalInstructor">
+                  <Combobox
+                    items={externalTrainerItems}
+                    value={form.externalInstructorId || undefined}
+                    onValueChange={(v) => setField('externalInstructorId', v)}
+                    placeholder="Selecionar formador externo"
                     className="w-full"
                   />
                 </FormField>
               </div>
+
+              <FormField label="Entidade formadora" htmlFor="tf-trainingEntity">
+                <Input
+                  id="tf-trainingEntity"
+                  value={form.trainingEntity}
+                  onChange={(e) => setField('trainingEntity', e.target.value)}
+                  className="w-full"
+                />
+              </FormField>
 
               <div className="grid grid-cols-3 gap-3">
                 <FormField label="Responsável" htmlFor="tf-responsible">

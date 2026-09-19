@@ -5,19 +5,23 @@
 'use client';
 
 import { useState } from 'react';
-import { FileText, Send, Trash2, Upload } from 'lucide-react';
-import { useApiMutation } from '@/hooks/useApiQuery';
+import { FileText, Send, Trash2, Unlock, Upload } from 'lucide-react';
+import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
+import { STALE_TIME } from '@/lib/queryClient';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
+import { Combobox } from '@/components/ui/Combobox';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
-import type { Training } from '../types';
+import { RESOURCE_KIND_LABEL } from '../constants';
+import { fmtDate } from '../utils';
+import type { ResourceBooking, Training, TrainingResourceItem } from '../types';
 
 interface OperationTabProps {
   training: Training;
@@ -32,6 +36,51 @@ export function OperationTab({ training }: OperationTabProps) {
   const [docUrl, setDocUrl] = useState('');
   const [docCategory, setDocCategory] = useState('');
   const [message, setMessage] = useState('');
+  const [resourceId, setResourceId] = useState('');
+
+  const { data: resourcesResp } = useApiQuery<{ data: TrainingResourceItem[] }>(
+    ['training-resources', 'picker'],
+    '/training-resources',
+    { params: { limit: 200, status: 'AVAILABLE' }, staleTime: STALE_TIME.SEMI_STATIC },
+  );
+  const resourceItems = (resourcesResp?.data ?? []).map((r) => ({
+    value: String(r.id),
+    label: `${r.name} (${RESOURCE_KIND_LABEL[r.kind]})`,
+  }));
+
+  const { data: bookings = [], refetch: refetchBookings } = useApiQuery<ResourceBooking[]>(
+    ['training-resources', 'bookings', training.id],
+    `/training-resources/bookings/training/${training.id}`,
+    { staleTime: STALE_TIME.DYNAMIC },
+  );
+
+  const reserveResource = useApiMutation(
+    () =>
+      apiClient.post('/training-resources/bookings', {
+        resourceId: Number(resourceId),
+        trainingId: training.id,
+        startAt: training.startDate ?? new Date().toISOString(),
+        endAt: training.endDate ?? training.startDate ?? new Date().toISOString(),
+      }),
+    {
+      onSuccess: () => {
+        toast({ title: 'Recurso reservado.', intent: 'success' });
+        setResourceId('');
+        refetchBookings();
+      },
+      onError: (e) => toast({ title: e.message, intent: 'danger' }),
+    },
+  );
+  const releaseResource = useApiMutation(
+    (bookingId: number) => apiClient.post(`/training-resources/bookings/${bookingId}/release`, {}),
+    {
+      onSuccess: () => {
+        toast({ title: 'Recurso libertado.', intent: 'success' });
+        refetchBookings();
+      },
+      onError: (e) => toast({ title: e.message, intent: 'danger' }),
+    },
+  );
 
   const addDocument = useApiMutation(
     () =>
@@ -103,6 +152,61 @@ export function OperationTab({ training }: OperationTabProps) {
             ))}
           </div>
         )}
+      </Card>
+
+      {/* Salas e recursos reservados (docs/trainings-detalhado.md pt.8) */}
+      <Card className="p-4">
+        <div className="mb-3 font-body text-sm font-semibold text-ink">
+          Salas e recursos reservados
+        </div>
+        {bookings.length === 0 ? (
+          <p className="mb-3 text-xs text-ink-faint">Nenhuma sala/recurso reservado para esta turma.</p>
+        ) : (
+          <div className="mb-4 space-y-2">
+            {bookings.map((b) => (
+              <div
+                key={b.id}
+                className="flex items-center justify-between gap-3 rounded-control bg-surface-sunken px-3 py-2"
+              >
+                <span className="text-sm text-ink-muted">
+                  {b.resource?.name} ({b.resource ? RESOURCE_KIND_LABEL[b.resource.kind] : ''})
+                  <span className="ml-2 text-xs text-ink-faint">
+                    {fmtDate(b.startAt)} – {fmtDate(b.endAt)}
+                  </span>
+                </span>
+                <Button
+                  intent="ghost"
+                  size="sm"
+                  onClick={() => releaseResource.mutate(b.id)}
+                  loading={releaseResource.isPending && releaseResource.variables === b.id}
+                >
+                  <Unlock size={14} strokeWidth={1.75} />
+                </Button>
+              </div>
+            ))}
+          </div>
+        )}
+        <div className="flex items-end gap-3 border-t border-border pt-3">
+          <div className="flex-1">
+            <FormField label="Reservar sala/recurso" htmlFor="op-resource">
+              <Combobox
+                items={resourceItems}
+                value={resourceId || undefined}
+                onValueChange={setResourceId}
+                placeholder="Selecionar"
+                className="w-full"
+              />
+            </FormField>
+          </div>
+          <Button
+            size="sm"
+            disabled={!resourceId}
+            loading={reserveResource.isPending}
+            onClick={() => reserveResource.mutate(undefined)}
+          >
+            Reservar
+          </Button>
+        </div>
       </Card>
 
       {/* Documentos administrativos */}

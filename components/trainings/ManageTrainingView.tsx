@@ -70,6 +70,9 @@ export function ManageTrainingView({ trainingId, onBack }: ManageTrainingViewPro
               )}
               <span>{training._count.participants} inscritos</span>
               {training.instructor && <span>Formador: {training.instructor.fullName}</span>}
+              {!training.instructor && training.externalInstructor && (
+                <span>Formador externo: {training.externalInstructor.name}</span>
+              )}
               {training.requiresApproval && (
                 <span className="text-warning-ink">Inscrições requerem aprovação</span>
               )}
