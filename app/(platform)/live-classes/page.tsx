@@ -5,6 +5,11 @@
 // em components/live-classes/LiveClassesView.tsx (mesmo padrão que
 // components/evaluation360/page.tsx usa para a Evaluation360View). Ver
 // memory project_innova_component_separation_audit.
+//
+// Separador de topo (Visão Geral/Aulas/Calendário/Sessões) adicionado para
+// docs/aulas-ao-vivo.md secções 1/2/4/5 — mesmo padrão de
+// app/(platform)/trainings/page.tsx (estado local `nav`, sem rota própria
+// por separador).
 
 import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
@@ -17,32 +22,33 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { ADMIN_ROLES } from '@/lib/roles';
 import { useConfirm } from '@/providers/ConfirmProvider';
-import { CreateLiveClassModal } from '@/components/live-classes/CreateLiveClassModal';
+import { CalendarView } from '@/components/live-classes/CalendarView';
+import { DashboardView } from '@/components/live-classes/DashboardView';
+import { NAV, type NavId } from '@/components/live-classes/constants';
 import { LiveClassesView } from '@/components/live-classes/LiveClassesView';
+import { PostponeModal } from '@/components/live-classes/PostponeModal';
 import { RecordingModal } from '@/components/live-classes/RecordingModal';
+import { SessionsView } from '@/components/live-classes/SessionsView';
 import { Toast } from '@/components/live-classes/Toast';
 import { getStatus } from '@/components/live-classes/utils';
-import type {
-  Filters,
-  MainTab,
-} from '@/components/live-classes/LiveClassesView';
-import type {
-  LiveClass,
-  PaginatedClasses,
-} from '@/components/live-classes/types';
+import { CreateLiveClassWizard } from '@/components/live-classes/wizard/CreateLiveClassWizard';
+import type { Filters, MainTab } from '@/components/live-classes/LiveClassesView';
+import type { LiveClass, PaginatedClasses } from '@/components/live-classes/types';
 
-const INITIAL_FILTERS: Filters = { page: 1, courseId: '' };
+const INITIAL_FILTERS: Filters = { page: 1, courseId: '', type: '', status: '', modality: '' };
 
 export default function LivePage() {
   const router = useRouter();
   const role = useCurrentRole();
   const canCreate = !!role && ADMIN_ROLES.includes(role);
 
+  const [nav, setNav] = useState<NavId>('list');
   const [tab, setTab] = useState<MainTab>('live');
   const [filters, setFilters] = useState<Filters>(INITIAL_FILTERS);
   const [search, setSearch] = useState('');
   const [showCreate, setShowCreate] = useState(false);
   const [viewRecording, setViewRecording] = useState<LiveClass | null>(null);
+  const [postponing, setPostponing] = useState<LiveClass | null>(null);
   const [toast, setToast] = useState<{
     msg: string;
     type: 'success' | 'error' | 'info';
@@ -64,6 +70,9 @@ export default function LivePage() {
     page: filters.page,
     limit: 12,
     ...(filters.courseId ? { courseId: filters.courseId } : {}),
+    ...(filters.type ? { type: filters.type } : {}),
+    ...(filters.status ? { status: filters.status } : {}),
+    ...(filters.modality ? { modality: filters.modality } : {}),
   };
   const { data: classesData, isLoading: loading } =
     useApiQuery<PaginatedClasses>(
@@ -73,6 +82,7 @@ export default function LivePage() {
         params: listParams,
         staleTime: STALE_TIME.DYNAMIC,
         placeholderData: keepPreviousData,
+        enabled: nav === 'list',
       },
     );
   const classes = classesData?.data ?? [];
@@ -90,9 +100,11 @@ export default function LivePage() {
   // ── Handlers ────────────────────────────────────────────────────────────────
 
   const confirm = useConfirm();
+  const invalidateKeys = [queryKeys.liveClasses.all];
+
   const deleteMutation = useApiMutation<void, number>(
     (id) => apiClient.delete(`/live-classes/${id}`),
-    { invalidateKeys: [queryKeys.liveClasses.all] },
+    { invalidateKeys },
   );
   async function deleteClass(lc: LiveClass) {
     if (
@@ -108,6 +120,56 @@ export default function LivePage() {
       showToast('Aula eliminada.', 'info');
     } catch (e) {
       reportError(e, { source: 'LiveClassesPage.deleteLiveClass' });
+      showToast(e instanceof Error ? e.message : String(e), 'error');
+    }
+  }
+
+  const startMutation = useApiMutation<unknown, number>(
+    (id) => apiClient.post(`/live-classes/${id}/start`, {}),
+    { invalidateKeys },
+  );
+  async function startClass(lc: LiveClass) {
+    try {
+      await startMutation.mutateAsync(lc.id);
+      showToast('Aula iniciada.', 'success');
+    } catch (e) {
+      reportError(e, { source: 'LiveClassesPage.startClass' });
+      showToast(e instanceof Error ? e.message : String(e), 'error');
+    }
+  }
+
+  const cancelMutation = useApiMutation<unknown, number>(
+    (id) => apiClient.post(`/live-classes/${id}/cancel`, {}),
+    { invalidateKeys },
+  );
+  async function cancelClass(lc: LiveClass) {
+    if (
+      !(await confirm({
+        title: `Cancelar "${lc.topic}"?`,
+        confirmLabel: 'Cancelar aula',
+        destructive: true,
+      }))
+    )
+      return;
+    try {
+      await cancelMutation.mutateAsync(lc.id);
+      showToast('Aula cancelada.', 'info');
+    } catch (e) {
+      reportError(e, { source: 'LiveClassesPage.cancelClass' });
+      showToast(e instanceof Error ? e.message : String(e), 'error');
+    }
+  }
+
+  const duplicateMutation = useApiMutation<unknown, number>(
+    (id) => apiClient.post(`/live-classes/${id}/duplicate`, {}),
+    { invalidateKeys },
+  );
+  async function duplicateClass(lc: LiveClass) {
+    try {
+      await duplicateMutation.mutateAsync(lc.id);
+      showToast('Aula duplicada.', 'success');
+    } catch (e) {
+      reportError(e, { source: 'LiveClassesPage.duplicateClass' });
       showToast(e instanceof Error ? e.message : String(e), 'error');
     }
   }
@@ -137,47 +199,62 @@ export default function LivePage() {
   ).length;
 
   return (
-    <>
-      <LiveClassesView
-        tab={tab}
-        onTabChange={setTab}
-        filters={filters}
-        onFiltersChange={updateFilters}
-        onGoToPage={goToPage}
-        search={search}
-        onSearchChange={setSearch}
-        loading={loading}
-        filtered={filtered}
-        total={total}
-        totalPages={totalPages}
-        recordings={recordings}
-        upcoming={upcoming}
-        liveNow={liveNow}
-        upcomingCount={upcomingCount}
-        canCreate={canCreate}
-        onOpen={(id) => router.push(`/live-classes/${id}`)}
-        onCreateNew={() => setShowCreate(true)}
-        onViewRecording={setViewRecording}
-        onDelete={deleteClass}
-      />
+    <div className="mx-auto max-w-6xl px-4 py-8">
+      <div className="mb-6 flex w-fit gap-1 rounded-xl bg-surface-sunken p-1">
+        {NAV.map((n) => (
+          <button
+            key={n.id}
+            onClick={() => setNav(n.id)}
+            className={`rounded-lg px-4 py-2 font-body text-sm font-medium transition-colors ${
+              nav === n.id ? 'bg-surface text-ink shadow-resting' : 'text-ink-muted hover:text-ink'
+            }`}
+          >
+            {n.label}
+          </button>
+        ))}
+      </div>
 
-      {/* ── Modals ── */}
-      {showCreate && (
-        <CreateLiveClassModal onClose={() => setShowCreate(false)} />
+      {nav === 'dashboard' && <DashboardView />}
+      {nav === 'calendar' && <CalendarView />}
+      {nav === 'sessions' && <SessionsView canManage={canCreate} />}
+      {nav === 'list' && (
+        <>
+          <LiveClassesView
+            tab={tab}
+            onTabChange={setTab}
+            filters={filters}
+            onFiltersChange={updateFilters}
+            onGoToPage={goToPage}
+            search={search}
+            onSearchChange={setSearch}
+            loading={loading}
+            filtered={filtered}
+            total={total}
+            totalPages={totalPages}
+            recordings={recordings}
+            upcoming={upcoming}
+            liveNow={liveNow}
+            upcomingCount={upcomingCount}
+            canCreate={canCreate}
+            onOpen={(id) => router.push(`/live-classes/${id}`)}
+            onCreateNew={() => setShowCreate(true)}
+            onViewRecording={setViewRecording}
+            onDelete={deleteClass}
+            onStart={startClass}
+            onPostpone={setPostponing}
+            onCancel={cancelClass}
+            onDuplicate={duplicateClass}
+          />
+
+          {/* ── Modals ── */}
+          {showCreate && <CreateLiveClassWizard onClose={() => setShowCreate(false)} />}
+          {viewRecording && (
+            <RecordingModal lc={viewRecording} onClose={() => setViewRecording(null)} />
+          )}
+          {postponing && <PostponeModal lc={postponing} onClose={() => setPostponing(null)} />}
+          {toast && <Toast msg={toast.msg} type={toast.type} onClose={() => setToast(null)} />}
+        </>
       )}
-      {viewRecording && (
-        <RecordingModal
-          lc={viewRecording}
-          onClose={() => setViewRecording(null)}
-        />
-      )}
-      {toast && (
-        <Toast
-          msg={toast.msg}
-          type={toast.type}
-          onClose={() => setToast(null)}
-        />
-      )}
-    </>
+    </div>
   );
 }

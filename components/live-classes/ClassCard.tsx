@@ -10,23 +10,45 @@ import {
   Timer,
   Users,
   Trash2,
+  MoreVertical,
+  Play,
+  CalendarClock,
+  Ban,
+  Copy,
 } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/DropdownMenu';
 import { CARD, fmtDate, getStatus } from './utils';
+import { MODALITY_CFG, STATUS_CFG, TYPE_CFG } from './constants';
 import { formatTime as fmtTime } from '@/lib/format';
 import type { LiveClass } from './types';
 
 export interface ClassCardProps {
   lc: LiveClass;
+  canManage: boolean;
   onOpen: (id: number) => void;
   onViewRecording: (lc: LiveClass) => void;
   onDelete: (lc: LiveClass) => void;
+  onStart: (lc: LiveClass) => void;
+  onPostpone: (lc: LiveClass) => void;
+  onCancel: (lc: LiveClass) => void;
+  onDuplicate: (lc: LiveClass) => void;
 }
 
 export function ClassCard({
   lc,
+  canManage,
   onOpen,
   onViewRecording,
   onDelete,
+  onStart,
+  onPostpone,
+  onCancel,
+  onDuplicate,
 }: ClassCardProps) {
   const status = getStatus(lc.scheduledAt, lc.duration);
   const isLive = status === 'live';
@@ -81,7 +103,49 @@ export function ClassCard({
           {lc.course && (
             <p className="mt-0.5 text-xs text-ink-muted">{lc.course.title}</p>
           )}
+          <div className="mt-1.5 flex flex-wrap gap-1">
+            <span className={`rounded px-1.5 py-0.5 text-[10px] font-medium ${TYPE_CFG[lc.type]?.cls ?? ''}`}>
+              {TYPE_CFG[lc.type]?.label ?? lc.type}
+            </span>
+            <span className={`rounded px-1.5 py-0.5 text-[10px] font-medium ${STATUS_CFG[lc.status]?.cls ?? ''}`}>
+              {STATUS_CFG[lc.status]?.label ?? lc.status}
+            </span>
+            <span className="rounded bg-surface-sunken px-1.5 py-0.5 text-[10px] font-medium text-ink-muted">
+              {MODALITY_CFG[lc.modality]?.label ?? lc.modality}
+            </span>
+            {lc.instructor && (
+              <span className="rounded bg-surface-sunken px-1.5 py-0.5 text-[10px] font-medium text-ink-muted">
+                {lc.instructor.name}
+              </span>
+            )}
+          </div>
         </div>
+        {canManage && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button
+                aria-label="Mais ações"
+                className="flex-shrink-0 rounded-lg p-1.5 text-ink-faint hover:bg-surface-sunken"
+              >
+                <MoreVertical size={16} strokeWidth={1.75} />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onSelect={() => onStart(lc)}>
+                <Play size={13} strokeWidth={1.75} className="mr-2 inline" /> Iniciar aula
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => onPostpone(lc)}>
+                <CalendarClock size={13} strokeWidth={1.75} className="mr-2 inline" /> Adiar
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => onDuplicate(lc)}>
+                <Copy size={13} strokeWidth={1.75} className="mr-2 inline" /> Duplicar
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => onCancel(lc)}>
+                <Ban size={13} strokeWidth={1.75} className="mr-2 inline" /> Cancelar
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
       </div>
 
       {/* Meta */}

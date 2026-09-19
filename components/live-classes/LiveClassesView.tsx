@@ -10,19 +10,39 @@
 // numa única função — ver memory project_innova_component_separation_audit.
 
 import { Circle, Calendar, Clapperboard, Video } from 'lucide-react';
+import { Select } from '@/components/ui/Select';
 import { ClassCard } from './ClassCard';
 import { RecordingCard } from './RecordingCard';
 import { Spinner } from './Spinner';
 import { UpcomingStrip } from './UpcomingStrip';
+import { STATUS_CFG, TYPE_CFG } from './constants';
 import { CARD, INP, tabBtn } from './utils';
-import type { LiveClass } from './types';
+import type { LiveClass, LiveClassStatus, LiveClassType, SessionModality } from './types';
 
 export type MainTab = 'live' | 'recordings';
 
 export interface Filters {
   page: number;
   courseId: string;
+  type: LiveClassType | '';
+  status: LiveClassStatus | '';
+  modality: SessionModality | '';
 }
+
+const TYPE_ITEMS = [
+  { value: '', label: 'Todos os tipos' },
+  ...(Object.keys(TYPE_CFG) as LiveClassType[]).map((t) => ({ value: t, label: TYPE_CFG[t].label })),
+];
+const STATUS_ITEMS = [
+  { value: '', label: 'Todos os estados' },
+  ...(Object.keys(STATUS_CFG) as LiveClassStatus[]).map((s) => ({ value: s, label: STATUS_CFG[s].label })),
+];
+const MODALITY_ITEMS = [
+  { value: '', label: 'Todas as modalidades' },
+  { value: 'ONLINE', label: 'Online' },
+  { value: 'PRESENTIAL', label: 'Presencial' },
+  { value: 'HYBRID', label: 'Híbrida' },
+];
 
 export interface LiveClassesViewProps {
   tab: MainTab;
@@ -45,6 +65,10 @@ export interface LiveClassesViewProps {
   onCreateNew: () => void;
   onViewRecording: (lc: LiveClass) => void;
   onDelete: (lc: LiveClass) => void;
+  onStart: (lc: LiveClass) => void;
+  onPostpone: (lc: LiveClass) => void;
+  onCancel: (lc: LiveClass) => void;
+  onDuplicate: (lc: LiveClass) => void;
 }
 
 export function LiveClassesView({
@@ -68,6 +92,10 @@ export function LiveClassesView({
   onCreateNew,
   onViewRecording,
   onDelete,
+  onStart,
+  onPostpone,
+  onCancel,
+  onDuplicate,
 }: LiveClassesViewProps) {
   const stats = [
     {
@@ -189,19 +217,39 @@ export function LiveClassesView({
             className={`${INP} min-w-65`}
           />
           {tab === 'live' && (
-            <input
-              value={filters.courseId}
-              onChange={(e) => onFiltersChange({ courseId: e.target.value })}
-              placeholder="ID do Curso"
-              type="number"
-              className={`${INP} w-32`}
-            />
+            <>
+              <input
+                value={filters.courseId}
+                onChange={(e) => onFiltersChange({ courseId: e.target.value })}
+                placeholder="ID do Curso"
+                type="number"
+                className={`${INP} w-32`}
+              />
+              <Select
+                items={TYPE_ITEMS}
+                value={filters.type}
+                onValueChange={(v) => onFiltersChange({ type: v as Filters['type'] })}
+                className="w-44"
+              />
+              <Select
+                items={STATUS_ITEMS}
+                value={filters.status}
+                onValueChange={(v) => onFiltersChange({ status: v as Filters['status'] })}
+                className="w-44"
+              />
+              <Select
+                items={MODALITY_ITEMS}
+                value={filters.modality}
+                onValueChange={(v) => onFiltersChange({ modality: v as Filters['modality'] })}
+                className="w-44"
+              />
+            </>
           )}
-          {(search || filters.courseId) && (
+          {(search || filters.courseId || filters.type || filters.status || filters.modality) && (
             <button
               onClick={() => {
                 onSearchChange('');
-                onFiltersChange({ courseId: '' });
+                onFiltersChange({ courseId: '', type: '', status: '', modality: '' });
               }}
               aria-label="Limpar filtros"
               className="py-2.25 px-3.5 rounded-lg border border-border bg-white cursor-pointer text-xs text-ink-muted"
@@ -234,9 +282,14 @@ export function LiveClassesView({
                   <ClassCard
                     key={lc.id}
                     lc={lc}
+                    canManage={canCreate}
                     onOpen={onOpen}
                     onViewRecording={onViewRecording}
                     onDelete={onDelete}
+                    onStart={onStart}
+                    onPostpone={onPostpone}
+                    onCancel={onCancel}
+                    onDuplicate={onDuplicate}
                   />
                 ))}
               </div>

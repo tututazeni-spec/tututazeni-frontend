@@ -736,6 +736,13 @@ export const queryKeys = {
     detail: (id: number) =>
       [...queryKeys.liveClasses.all, 'detail', id] as const,
     upcoming: () => [...queryKeys.liveClasses.all, 'upcoming'] as const,
+    dashboard: () => [...queryKeys.liveClasses.all, 'dashboard'] as const,
+    calendar: (params: Record<string, unknown>) =>
+      [...queryKeys.liveClasses.all, 'calendar', params] as const,
+    sessions: (id: number) =>
+      [...queryKeys.liveClasses.all, 'detail', id, 'sessions'] as const,
+    allSessions: (params: Record<string, unknown>) =>
+      [...queryKeys.liveClasses.all, 'sessions', params] as const,
   },
 
   declarations: {
