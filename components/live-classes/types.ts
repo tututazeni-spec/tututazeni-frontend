@@ -25,6 +25,8 @@ export type LiveClassEnrollmentMode = 'AUTO' | 'MANUAL' | 'SELF' | 'APPROVAL';
 
 export type SessionModality = 'PRESENTIAL' | 'ONLINE' | 'HYBRID';
 
+export type LiveAttendanceStatus = 'PRESENTE' | 'AUSENTE' | 'ATRASADO' | 'PARCIAL' | 'JUSTIFICADO';
+
 export interface InstructorRef {
   id: number;
   name: string;
@@ -85,6 +87,7 @@ export interface LiveClass {
 
   recordSession: boolean;
   recordingExpiresAt?: string | null;
+  recordingPublishedAt?: string | null;
   allowRecordingDownload: boolean;
 
   evaluationRequired: boolean;
@@ -109,6 +112,7 @@ export interface LiveClassSession {
   status: LiveClassStatus;
   notes?: string | null;
   recordingUrl?: string | null;
+  recordingPublishedAt?: string | null;
   liveClass?: { id: number; topic: string; modality: SessionModality; course?: { id: number; title: string } };
   _count?: { attendances: number };
 }
@@ -156,4 +160,100 @@ export interface LiveClassCalendarEvent {
   status: LiveClassStatus;
   courseTitle: string | null;
   instructorName: string | null;
+}
+
+// ─── Participantes (secção 6) / Presenças (secção 10) ───────────────────────
+
+export interface LiveParticipant {
+  id: number;
+  liveClassId: number;
+  userId: number;
+  joinedAt: string | null;
+  leftAt: string | null;
+  sessionId: number | null;
+  status: LiveAttendanceStatus | null;
+  attendancePercent: number | null;
+  justification: string | null;
+  durationMinutes: number | null;
+  computedStatus: LiveAttendanceStatus;
+  user: {
+    id: number;
+    fullName: string;
+    email: string;
+    employeeNumber: string | null;
+    department: { id: number; name: string } | null;
+    unit: { id: number; name: string } | null;
+  };
+  liveClass: {
+    id: number;
+    topic: string;
+    scheduledAt: string;
+    duration: number;
+    course?: { id: number; title: string } | null;
+    postEvaluation?: { averageScore: number } | null;
+  };
+  session: { id: number; seq: number; sessionDate: string } | null;
+}
+
+export interface PaginatedMeta<T> {
+  data: T[];
+  meta: { total: number; page: number; limit: number; totalPages: number };
+}
+
+// ─── Formadores (secção 7) ──────────────────────────────────────────────────
+
+export interface LiveInstructor {
+  id: number;
+  name: string;
+  entity: string | null;
+  email: string | null;
+  phone: string | null;
+  specialties: string[];
+  trainingAreas: string[];
+  certifications: string | null;
+  professionalExperience: string | null;
+  availability: string | null;
+  status: string;
+  user?: { id: number; fullName: string; avatarUrl: string | null } | null;
+  liveClassStats: {
+    scheduled: number;
+    completed: number;
+    hoursMinistered: number;
+    participants: number;
+    avgRating: number;
+    courses: string[];
+  };
+}
+
+// ─── Salas & Links (secção 8) ───────────────────────────────────────────────
+
+export interface VirtualRoom {
+  liveClassId: number;
+  topic: string;
+  course?: { id: number; title: string } | null;
+  instructor?: { id: number; name: string } | null;
+  status: LiveClassStatus;
+  scheduledAt: string;
+  platform: string;
+  meetingId: string | null;
+  link: string | null;
+  sessions: { id: number; seq: number; meetingUrl: string | null; sessionDate: string; status: LiveClassStatus }[];
+}
+
+// ─── Gravações (secção 9) ───────────────────────────────────────────────────
+
+export interface RecordingRow {
+  liveClassId: number;
+  sessionId: number | null;
+  sessionSeq: number | null;
+  topic: string;
+  course?: { id: number; title: string } | null;
+  instructor?: { id: number; name: string } | null;
+  date: string;
+  durationMinutes: number;
+  participants: number;
+  recordingUrl: string;
+  publishedAt: string | null;
+  expiresAt: string | null;
+  allowDownload: boolean | null;
 }

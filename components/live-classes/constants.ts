@@ -3,6 +3,7 @@
 // assistente "Nova Aula" — mesmo padrão de components/trainings/constants.ts.
 
 import type {
+  LiveAttendanceStatus,
   LiveClassEnrollmentMode,
   LiveClassRecurrence,
   LiveClassStatus,
@@ -12,15 +13,31 @@ import type {
 
 export const CAN_MANAGE_LIVE_CLASSES_ROLES = ['ADMIN', 'RH'] as const;
 
-// ─── Navegação de topo (Visão Geral/Aulas/Calendário/Sessões) ───────────────
+// ─── Navegação de topo (docs/aulas-ao-vivo.md — abas principais) ───────────
+// Materiais/Avaliações/Configurações (secções 11/12/14) continuam por fazer
+// — só 6 a 10 foram acrescentadas nesta ronda (ver Sessões/Calendário/etc.
+// para as secções 1/2/4/5 já existentes).
 export const NAV = [
   { id: 'dashboard', label: 'Visão Geral' },
   { id: 'list', label: 'Aulas' },
   { id: 'calendar', label: 'Calendário' },
   { id: 'sessions', label: 'Sessões' },
+  { id: 'participants', label: 'Participantes' },
+  { id: 'instructors', label: 'Formadores' },
+  { id: 'rooms', label: 'Salas & Links' },
+  { id: 'recordings', label: 'Gravações' },
+  { id: 'attendance', label: 'Presenças' },
 ] as const;
 
 export type NavId = (typeof NAV)[number]['id'];
+
+export const LIVE_ATTENDANCE_STATUS_CFG: Record<LiveAttendanceStatus, { label: string; cls: string }> = {
+  PRESENTE: { label: 'Presente', cls: 'bg-success-subtle text-success-ink' },
+  AUSENTE: { label: 'Ausente', cls: 'bg-danger-subtle text-danger-ink' },
+  ATRASADO: { label: 'Atrasado', cls: 'bg-warning-subtle text-warning-ink' },
+  PARCIAL: { label: 'Presença parcial', cls: 'bg-warning-subtle text-warning-ink' },
+  JUSTIFICADO: { label: 'Justificado', cls: 'bg-info-subtle text-info-ink' },
+};
 
 export const TYPE_CFG: Record<LiveClassType, { label: string; cls: string }> = {
   AULA: { label: 'Aula', cls: 'bg-info-subtle text-info-ink' },

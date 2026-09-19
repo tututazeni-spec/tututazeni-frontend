@@ -4,10 +4,22 @@
 
 import { BookOpen, Clapperboard } from 'lucide-react';
 import { fmtDate, getEmbedUrl, isVideoUrl } from './utils';
-import type { LiveClass } from './types';
+
+// Subconjunto de LiveClass (ou de uma linha de RecordingsView.tsx — secção
+// 9, que também cobre gravações ao nível da Sessão) — só o que este overlay
+// de reprodução efectivamente lê.
+export interface RecordingModalClass {
+  topic: string;
+  recordingUrl?: string | null;
+  duration: number;
+  scheduledAt: string;
+  course?: { id: number; title: string } | null;
+  _count?: { attendances: number };
+  postEvaluation?: { averageScore: number } | null;
+}
 
 export interface RecordingModalProps {
-  lc: LiveClass;
+  lc: RecordingModalClass;
   onClose: () => void;
 }
 

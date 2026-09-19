@@ -22,17 +22,22 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { ADMIN_ROLES } from '@/lib/roles';
 import { useConfirm } from '@/providers/ConfirmProvider';
+import { AttendanceView } from '@/components/live-classes/AttendanceView';
 import { CalendarView } from '@/components/live-classes/CalendarView';
 import { DashboardView } from '@/components/live-classes/DashboardView';
+import { InstructorsView } from '@/components/live-classes/InstructorsView';
 import { NAV, type NavId } from '@/components/live-classes/constants';
 import { LiveClassesView } from '@/components/live-classes/LiveClassesView';
+import { ParticipantsView } from '@/components/live-classes/ParticipantsView';
 import { PostponeModal } from '@/components/live-classes/PostponeModal';
 import { RecordingModal } from '@/components/live-classes/RecordingModal';
+import { RecordingsView } from '@/components/live-classes/RecordingsView';
+import { RoomsView } from '@/components/live-classes/RoomsView';
 import { SessionsView } from '@/components/live-classes/SessionsView';
 import { Toast } from '@/components/live-classes/Toast';
 import { getStatus } from '@/components/live-classes/utils';
 import { CreateLiveClassWizard } from '@/components/live-classes/wizard/CreateLiveClassWizard';
-import type { Filters, MainTab } from '@/components/live-classes/LiveClassesView';
+import type { Filters } from '@/components/live-classes/LiveClassesView';
 import type { LiveClass, PaginatedClasses } from '@/components/live-classes/types';
 
 const INITIAL_FILTERS: Filters = { page: 1, courseId: '', type: '', status: '', modality: '' };
@@ -43,7 +48,6 @@ export default function LivePage() {
   const canCreate = !!role && ADMIN_ROLES.includes(role);
 
   const [nav, setNav] = useState<NavId>('list');
-  const [tab, setTab] = useState<MainTab>('live');
   const [filters, setFilters] = useState<Filters>(INITIAL_FILTERS);
   const [search, setSearch] = useState('');
   const [showCreate, setShowCreate] = useState(false);
@@ -176,20 +180,12 @@ export default function LivePage() {
 
   // ── Filters ────────────────────────────────────────────────────────────────
 
-  const filtered =
-    tab === 'recordings'
-      ? recordings.filter(
-          (lc) =>
-            !search ||
-            lc.topic.toLowerCase().includes(search.toLowerCase()) ||
-            lc.course?.title?.toLowerCase().includes(search.toLowerCase()),
-        )
-      : classes.filter(
-          (lc) =>
-            !search ||
-            lc.topic.toLowerCase().includes(search.toLowerCase()) ||
-            lc.course?.title?.toLowerCase().includes(search.toLowerCase()),
-        );
+  const filtered = classes.filter(
+    (lc) =>
+      !search ||
+      lc.topic.toLowerCase().includes(search.toLowerCase()) ||
+      lc.course?.title?.toLowerCase().includes(search.toLowerCase()),
+  );
 
   const liveNow = upcoming.filter(
     (lc) => getStatus(lc.scheduledAt, lc.duration) === 'live',
@@ -217,11 +213,14 @@ export default function LivePage() {
       {nav === 'dashboard' && <DashboardView />}
       {nav === 'calendar' && <CalendarView />}
       {nav === 'sessions' && <SessionsView canManage={canCreate} />}
+      {nav === 'participants' && <ParticipantsView canManage={canCreate} />}
+      {nav === 'instructors' && <InstructorsView />}
+      {nav === 'rooms' && <RoomsView canManage={canCreate} />}
+      {nav === 'recordings' && <RecordingsView canManage={canCreate} />}
+      {nav === 'attendance' && <AttendanceView canManage={canCreate} />}
       {nav === 'list' && (
         <>
           <LiveClassesView
-            tab={tab}
-            onTabChange={setTab}
             filters={filters}
             onFiltersChange={updateFilters}
             onGoToPage={goToPage}
@@ -231,7 +230,7 @@ export default function LivePage() {
             filtered={filtered}
             total={total}
             totalPages={totalPages}
-            recordings={recordings}
+            recordingsCount={recordings.length}
             upcoming={upcoming}
             liveNow={liveNow}
             upcomingCount={upcomingCount}
