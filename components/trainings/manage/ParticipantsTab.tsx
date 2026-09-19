@@ -101,8 +101,8 @@ export function ParticipantsTab({ training }: ParticipantsTabProps) {
     },
   );
   const transfer = useApiMutation(
-    () =>
-      apiClient.patch(`/trainings/participants/${transferring!.id}/transfer`, {
+    (p: Participant) =>
+      apiClient.patch(`/trainings/participants/${p.id}/transfer`, {
         targetSessionId: Number(targetSessionId),
       }),
     {
@@ -286,7 +286,7 @@ export function ParticipantsTab({ training }: ParticipantsTabProps) {
                 className="flex-1 justify-center"
                 disabled={!targetSessionId}
                 loading={transfer.isPending}
-                onClick={() => transfer.mutate(undefined)}
+                onClick={() => transfer.mutate(transferring)}
               >
                 Transferir
               </Button>

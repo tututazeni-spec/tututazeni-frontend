@@ -358,7 +358,7 @@ export function ModulosView({ initialCourseId }: ModulosViewProps) {
           // onRefresh apareçam na lista sem fechar o modal.
           editing={
             modal.editing
-              ? (modules.flatMap((m) => m.lessons).find((l) => l.id === modal.editing!.id) ??
+              ? (modules.flatMap((m) => m.lessons).find((l) => l.id === modal.editing?.id) ??
                 modal.editing)
               : null
           }

@@ -7,7 +7,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, PanelLeft, BookOpen } from 'lucide-react';
+import { ArrowLeft, PanelLeft, BookOpen, Sparkles } from 'lucide-react';
 import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
 import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
@@ -22,6 +22,7 @@ import { ModuleAccordion } from '@/components/courses-learn/ModuleAccordion';
 import { ContentPlayer } from '@/components/courses-learn/ContentPlayer';
 import { ModuleCompletedBanner } from '@/components/courses-learn/ModuleCompletedBanner';
 import { ModuleBuilder } from '@/components/courses-learn/ModuleBuilder';
+import { LessonTutorModal } from '@/components/ai-tutor/LessonTutorModal';
 import type {
   CourseDetail,
   LessonProgress,
@@ -41,6 +42,7 @@ export default function CourseLearnPage() {
   const [justCompletedModule, setJustCompletedModule] =
     useState<ModuleProgress | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [tutorOpen, setTutorOpen] = useState(false);
 
   const progressKey = queryKeys.courses.progress(courseId);
   // GET /courses/:id/progress devolve { enrollment, courseProgress, modules }
@@ -306,16 +308,32 @@ export default function CourseLearnPage() {
                 onContinue={handleContinueAfterModule}
               />
             ) : activeLesson ? (
-              <ContentPlayer
-                lesson={activeLesson}
-                onComplete={handleMarkComplete}
-                completing={completing}
-                currentModule={activeModule}
-                onPrevious={handlePrevious}
-                onNext={handleNext}
-                hasPrevious={!!previousEntry}
-                hasNext={!!nextEntry && !nextEntry.moduleLocked}
-              />
+              <>
+                <ContentPlayer
+                  lesson={activeLesson}
+                  onComplete={handleMarkComplete}
+                  completing={completing}
+                  currentModule={activeModule}
+                  onPrevious={handlePrevious}
+                  onNext={handleNext}
+                  hasPrevious={!!previousEntry}
+                  hasNext={!!nextEntry && !nextEntry.moduleLocked}
+                />
+                <button
+                  onClick={() => setTutorOpen(true)}
+                  className="fixed bottom-6 right-6 z-40 flex items-center gap-2 rounded-pill bg-primary px-4 py-3 font-body text-sm font-semibold text-canvas shadow-elevated hover:bg-primary-hover transition-colors"
+                >
+                  <Sparkles size={16} strokeWidth={1.75} />
+                  Perguntar à Ísis
+                </button>
+                <LessonTutorModal
+                  courseId={courseId}
+                  lessonId={activeLesson.id}
+                  lessonTitle={activeLesson.title}
+                  open={tutorOpen}
+                  onOpenChange={setTutorOpen}
+                />
+              </>
             ) : (
               <div className="flex-1 bg-ink flex items-center justify-center text-canvas text-center">
                 <div>

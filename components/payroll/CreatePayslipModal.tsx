@@ -84,9 +84,9 @@ export function CreatePayslipModal({ onClose, onCreated }: CreatePayslipModalPro
     !!picked && period.trim() !== '' && paymentDate !== '' && baseSalary.trim() !== '';
 
   const handleSubmit = () => {
-    if (!valid || create.isPending) return;
+    if (!picked || !valid || create.isPending) return;
     const body: Record<string, unknown> = {
-      userId: picked!.id,
+      userId: picked.id,
       period: period.trim(),
       paymentDate,
       baseSalary: Number(baseSalary),

@@ -289,8 +289,8 @@ export function TrainingFormModal({ training, onClose, onSuccess }: TrainingForm
   const mutation = useApiMutation(
     () => {
       const payload = buildPayload();
-      return editing
-        ? apiClient.put(`/trainings/${training!.id}`, payload)
+      return training
+        ? apiClient.put(`/trainings/${training.id}`, payload)
         : apiClient.post('/trainings', payload);
     },
     {

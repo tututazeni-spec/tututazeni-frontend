@@ -20,7 +20,6 @@ import {
   GraduationCap,
   Calendar,
   UserCheck,
-  GitBranch,
   Zap,
   Settings,
   ChevronDown,
@@ -107,15 +106,6 @@ const NAV: Array<{ label: string; items: NavItem[] }> = [
     label: 'Aprendizagem',
     items: [
       { href: '/courses', icon: BookOpen, label: 'Cursos' },
-      {
-        // Módulo learning-paths (RH) removido da plataforma — LMS é um
-        // domínio distinto e continua intacto nas suas rotas próprias
-        // (/lms/paths, /lms/my-paths, /lms/sessions), só perdeu o antigo
-        // ponto de entrada partilhado em /learning-paths.
-        href: '/lms/paths',
-        icon: GitBranch,
-        label: 'Percursos & Sessões (LMS)',
-      },
       { href: '/evaluation', icon: Star, label: 'Avaliações' },
       { href: '/live-classes', icon: Play, label: 'Aulas ao Vivo' },
       { href: '/content-library', icon: Library, label: 'Biblioteca' },

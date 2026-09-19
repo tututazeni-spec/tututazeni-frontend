@@ -4,21 +4,48 @@
 
 'use client';
 
-import { GraduationCap } from 'lucide-react';
-import { useApiQuery } from '@/hooks/useApiQuery';
+import { CheckCircle2, GraduationCap } from 'lucide-react';
+import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
+import { apiClient } from '@/lib/apiClient';
+import { reportError } from '@/lib/errorReporting';
+import { useToast } from '@/providers/ToastProvider';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Skeleton } from '@/components/ui/Skeleton';
 import type { Recommendation } from './types';
 
 export function RecommendationsView() {
+  const notify = useToast();
   const { data, isLoading: loading } = useApiQuery<Recommendation>(
     queryKeys.aiTutor.recommendations(),
     '/ai-tutor/recommendations',
     { staleTime: STALE_TIME.SEMI_STATIC },
+  );
+
+  const acceptMutation = useApiMutation(
+    (courseId: number) =>
+      apiClient.post<{ alreadyEnrolled: boolean }>(
+        `/ai-tutor/recommendations/${data?.logId}/accept`,
+        { courseId },
+      ),
+    {
+      invalidateKeys: [queryKeys.aiTutor.recommendations()],
+      onSuccess: (res) =>
+        notify({
+          title: res.alreadyEnrolled
+            ? 'Já estavas inscrito neste curso'
+            : 'Inscrição feita a partir da recomendação',
+          intent: 'success',
+        }),
+      onError: (e) => {
+        reportError(e, { source: 'RecommendationsView.accept' });
+        notify({ title: e.message, intent: 'danger' });
+      },
+    },
   );
 
   if (loading)
@@ -87,6 +114,18 @@ export function RecommendationsView() {
                 {c.workloadHours ? ` · ${c.workloadHours}h` : ''}
               </div>
             </div>
+            {data.logId != null && (
+              <Button
+                size="sm"
+                intent="secondary"
+                onClick={() => acceptMutation.mutate(c.id)}
+                loading={acceptMutation.isPending}
+                className="flex-shrink-0"
+              >
+                <CheckCircle2 size={14} strokeWidth={1.75} />
+                Aceitar
+              </Button>
+            )}
           </div>
         ))}
       </Card>

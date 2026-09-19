@@ -1,32 +1,51 @@
 // components/live-classes/LiveClassesView.tsx
-// Vista apresentacional da página de aulas ao vivo: cabeçalho, stats,
-// faixa de próximas sessões, separadores (Todas as Aulas/Gravações),
-// pesquisa e paginação. Todos os dados/estado de UI chegam por props —
-// quem os obtém/gere é o container em
+// Vista apresentacional do separador "Aulas": cabeçalho, stats, faixa de
+// próximas sessões, pesquisa e paginação. Todos os dados/estado de UI
+// chegam por props — quem os obtém/gere é o container em
 // app/(platform)/live-classes/page.tsx (mesmo padrão usado em
 // components/evaluation360/Evaluation360View.tsx).
 //
 // Extraído de page.tsx porque a página inteira (1364 linhas) estava toda
 // numa única função — ver memory project_innova_component_separation_audit.
+//
+// O separador "Gravações" que aqui existia como sub-tab foi promovido a
+// separador de topo próprio (docs/aulas-ao-vivo.md secção 9 lista-o como
+// uma das 14 abas principais, não uma sub-vista de "Aulas") — ver
+// RecordingsView.tsx.
 
 import { Circle, Calendar, Clapperboard, Video } from 'lucide-react';
+import { Select } from '@/components/ui/Select';
 import { ClassCard } from './ClassCard';
-import { RecordingCard } from './RecordingCard';
 import { Spinner } from './Spinner';
 import { UpcomingStrip } from './UpcomingStrip';
-import { CARD, INP, tabBtn } from './utils';
-import type { LiveClass } from './types';
-
-export type MainTab = 'live' | 'recordings';
+import { STATUS_CFG, TYPE_CFG } from './constants';
+import { CARD, INP } from './utils';
+import type { LiveClass, LiveClassStatus, LiveClassType, SessionModality } from './types';
 
 export interface Filters {
   page: number;
   courseId: string;
+  type: LiveClassType | '';
+  status: LiveClassStatus | '';
+  modality: SessionModality | '';
 }
 
+const TYPE_ITEMS = [
+  { value: '', label: 'Todos os tipos' },
+  ...(Object.keys(TYPE_CFG) as LiveClassType[]).map((t) => ({ value: t, label: TYPE_CFG[t].label })),
+];
+const STATUS_ITEMS = [
+  { value: '', label: 'Todos os estados' },
+  ...(Object.keys(STATUS_CFG) as LiveClassStatus[]).map((s) => ({ value: s, label: STATUS_CFG[s].label })),
+];
+const MODALITY_ITEMS = [
+  { value: '', label: 'Todas as modalidades' },
+  { value: 'ONLINE', label: 'Online' },
+  { value: 'PRESENTIAL', label: 'Presencial' },
+  { value: 'HYBRID', label: 'Híbrida' },
+];
+
 export interface LiveClassesViewProps {
-  tab: MainTab;
-  onTabChange: (tab: MainTab) => void;
   filters: Filters;
   onFiltersChange: (patch: Partial<Omit<Filters, 'page'>>) => void;
   onGoToPage: (delta: number) => void;
@@ -36,7 +55,7 @@ export interface LiveClassesViewProps {
   filtered: LiveClass[];
   total: number;
   totalPages: number;
-  recordings: LiveClass[];
+  recordingsCount: number;
   upcoming: LiveClass[];
   liveNow: number;
   upcomingCount: number;
@@ -45,11 +64,13 @@ export interface LiveClassesViewProps {
   onCreateNew: () => void;
   onViewRecording: (lc: LiveClass) => void;
   onDelete: (lc: LiveClass) => void;
+  onStart: (lc: LiveClass) => void;
+  onPostpone: (lc: LiveClass) => void;
+  onCancel: (lc: LiveClass) => void;
+  onDuplicate: (lc: LiveClass) => void;
 }
 
 export function LiveClassesView({
-  tab,
-  onTabChange,
   filters,
   onFiltersChange,
   onGoToPage,
@@ -59,7 +80,7 @@ export function LiveClassesView({
   filtered,
   total,
   totalPages,
-  recordings,
+  recordingsCount,
   upcoming,
   liveNow,
   upcomingCount,
@@ -68,6 +89,10 @@ export function LiveClassesView({
   onCreateNew,
   onViewRecording,
   onDelete,
+  onStart,
+  onPostpone,
+  onCancel,
+  onDuplicate,
 }: LiveClassesViewProps) {
   const stats = [
     {
@@ -87,7 +112,7 @@ export function LiveClassesView({
     {
       icon: Clapperboard,
       label: 'Gravações',
-      value: recordings.length,
+      value: recordingsCount,
       textClass: 'text-accent',
       bgClass: 'bg-accent-subtle',
     },
@@ -124,7 +149,7 @@ export function LiveClassesView({
               )}
             </h1>
             <p className="mt-1 text-sm text-ink-muted">
-              {recordings.length} gravações disponíveis
+              {recordingsCount} gravações disponíveis
             </p>
           </div>
           {canCreate && (
@@ -164,22 +189,6 @@ export function LiveClassesView({
         {/* ── Upcoming strip ── */}
         <UpcomingStrip upcoming={upcoming} onOpen={onOpen} />
 
-        {/* ── Tabs ── */}
-        <div className="flex gap-1 bg-surface-sunken rounded-lg p-1 mb-5 w-fit">
-          <button
-            onClick={() => onTabChange('live')}
-            className={tabBtn(tab === 'live')}
-          >
-            Todas as Aulas
-          </button>
-          <button
-            onClick={() => onTabChange('recordings')}
-            className={tabBtn(tab === 'recordings')}
-          >
-            Gravações ({recordings.length})
-          </button>
-        </div>
-
         {/* ── Search ── */}
         <div className="flex gap-3 mb-4.5 flex-wrap items-center">
           <input
@@ -188,20 +197,36 @@ export function LiveClassesView({
             placeholder="Pesquisar por tópico ou curso..."
             className={`${INP} min-w-65`}
           />
-          {tab === 'live' && (
-            <input
-              value={filters.courseId}
-              onChange={(e) => onFiltersChange({ courseId: e.target.value })}
-              placeholder="ID do Curso"
-              type="number"
-              className={`${INP} w-32`}
-            />
-          )}
-          {(search || filters.courseId) && (
+          <input
+            value={filters.courseId}
+            onChange={(e) => onFiltersChange({ courseId: e.target.value })}
+            placeholder="ID do Curso"
+            type="number"
+            className={`${INP} w-32`}
+          />
+          <Select
+            items={TYPE_ITEMS}
+            value={filters.type}
+            onValueChange={(v) => onFiltersChange({ type: v as Filters['type'] })}
+            className="w-44"
+          />
+          <Select
+            items={STATUS_ITEMS}
+            value={filters.status}
+            onValueChange={(v) => onFiltersChange({ status: v as Filters['status'] })}
+            className="w-44"
+          />
+          <Select
+            items={MODALITY_ITEMS}
+            value={filters.modality}
+            onValueChange={(v) => onFiltersChange({ modality: v as Filters['modality'] })}
+            className="w-44"
+          />
+          {(search || filters.courseId || filters.type || filters.status || filters.modality) && (
             <button
               onClick={() => {
                 onSearchChange('');
-                onFiltersChange({ courseId: '' });
+                onFiltersChange({ courseId: '', type: '', status: '', modality: '' });
               }}
               aria-label="Limpar filtros"
               className="py-2.25 px-3.5 rounded-lg border border-border bg-white cursor-pointer text-xs text-ink-muted"
@@ -211,87 +236,65 @@ export function LiveClassesView({
           )}
         </div>
 
-        {/* ══════════════════════════════════════
-            TAB: TODAS AS AULAS
-        ══════════════════════════════════════ */}
-        {tab === 'live' &&
-          (loading ? (
-            <Spinner />
-          ) : filtered.length === 0 ? (
-            <div className={`${CARD} py-13 px-6 text-center`}>
-              <p className="text-4xl m-0 mb-2.5"></p>
-              <p className="text-sm font-semibold text-ink m-0 mb-1.5">
-                Sem aulas encontradas
-              </p>
-              <p className="text-sm text-ink-faint">
-                Cria a primeira sessão de formação ao vivo.
-              </p>
-            </div>
-          ) : (
-            <>
-              <div className="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-3.5">
-                {filtered.map((lc) => (
-                  <ClassCard
-                    key={lc.id}
-                    lc={lc}
-                    onOpen={onOpen}
-                    onViewRecording={onViewRecording}
-                    onDelete={onDelete}
-                  />
-                ))}
-              </div>
-
-              {/* Pagination */}
-              {totalPages > 1 && (
-                <div className="flex justify-center gap-2 mt-6">
-                  <button
-                    onClick={() => onGoToPage(-1)}
-                    disabled={filters.page === 1}
-                    className={`py-2 px-4 rounded-lg border border-border bg-white cursor-pointer text-xs ${
-                      filters.page === 1 ? 'opacity-40' : ''
-                    }`}
-                  >
-                    ← Anterior
-                  </button>
-                  <span className="py-2 px-3.5 text-sm text-ink-muted">
-                    {filters.page} / {totalPages}
-                  </span>
-                  <button
-                    onClick={() => onGoToPage(1)}
-                    disabled={filters.page === totalPages}
-                    className={`py-2 px-4 rounded-lg border border-border bg-white cursor-pointer text-xs ${
-                      filters.page === totalPages ? 'opacity-40' : ''
-                    }`}
-                  >
-                    Seguinte →
-                  </button>
-                </div>
-              )}
-            </>
-          ))}
-
-        {/* ══════════════════════════════════════
-            TAB: GRAVAÇÕES
-        ══════════════════════════════════════ */}
-        {tab === 'recordings' &&
-          (filtered.length === 0 ? (
-            <div className={`${CARD} py-13 px-6 text-center`}>
-              <p className="text-4xl m-0 mb-2.5"></p>
-              <p className="text-sm font-semibold text-ink m-0 mb-1.5">
-                Sem gravações disponíveis
-              </p>
-              <p className="text-sm text-ink-faint">
-                As gravações aparecem aqui após as aulas terminarem e o URL ser
-                guardado.
-              </p>
-            </div>
-          ) : (
+        {loading ? (
+          <Spinner />
+        ) : filtered.length === 0 ? (
+          <div className={`${CARD} py-13 px-6 text-center`}>
+            <p className="text-4xl m-0 mb-2.5"></p>
+            <p className="text-sm font-semibold text-ink m-0 mb-1.5">
+              Sem aulas encontradas
+            </p>
+            <p className="text-sm text-ink-faint">
+              Cria a primeira sessão de formação ao vivo.
+            </p>
+          </div>
+        ) : (
+          <>
             <div className="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-3.5">
               {filtered.map((lc) => (
-                <RecordingCard key={lc.id} lc={lc} onView={onViewRecording} />
+                <ClassCard
+                  key={lc.id}
+                  lc={lc}
+                  canManage={canCreate}
+                  onOpen={onOpen}
+                  onViewRecording={onViewRecording}
+                  onDelete={onDelete}
+                  onStart={onStart}
+                  onPostpone={onPostpone}
+                  onCancel={onCancel}
+                  onDuplicate={onDuplicate}
+                />
               ))}
             </div>
-          ))}
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex justify-center gap-2 mt-6">
+                <button
+                  onClick={() => onGoToPage(-1)}
+                  disabled={filters.page === 1}
+                  className={`py-2 px-4 rounded-lg border border-border bg-white cursor-pointer text-xs ${
+                    filters.page === 1 ? 'opacity-40' : ''
+                  }`}
+                >
+                  ← Anterior
+                </button>
+                <span className="py-2 px-3.5 text-sm text-ink-muted">
+                  {filters.page} / {totalPages}
+                </span>
+                <button
+                  onClick={() => onGoToPage(1)}
+                  disabled={filters.page === totalPages}
+                  className={`py-2 px-4 rounded-lg border border-border bg-white cursor-pointer text-xs ${
+                    filters.page === totalPages ? 'opacity-40' : ''
+                  }`}
+                >
+                  Seguinte →
+                </button>
+              </div>
+            )}
+          </>
+        )}
       </div>
     </>
   );

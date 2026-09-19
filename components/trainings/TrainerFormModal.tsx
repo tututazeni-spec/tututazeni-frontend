@@ -125,8 +125,8 @@ export function TrainerFormModal({ trainer, onClose, onSuccess }: TrainerFormMod
   const mutation = useApiMutation(
     () => {
       const payload = buildPayload();
-      return editing
-        ? apiClient.put(`/training-trainers/${trainer!.id}`, payload)
+      return trainer
+        ? apiClient.put(`/training-trainers/${trainer.id}`, payload)
         : apiClient.post('/training-trainers', payload);
     },
     {

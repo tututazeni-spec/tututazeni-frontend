@@ -191,6 +191,7 @@ export function ChatView() {
           rating: null,
           provider: res.provider,
           agentAction: res.message.agentAction,
+          sourceLabels: res.sources?.map((s) => s.label),
         },
       ]);
       speak(res.message.content);

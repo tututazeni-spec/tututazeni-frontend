@@ -148,8 +148,8 @@ export function PlanFormModal({ plan, onClose, onSuccess }: PlanFormModalProps) 
   const mutation = useApiMutation(
     () => {
       const payload = buildPayload();
-      return editing
-        ? apiClient.put(`/training-plans/${plan!.id}`, payload)
+      return plan
+        ? apiClient.put(`/training-plans/${plan.id}`, payload)
         : apiClient.post('/training-plans', payload);
     },
     {
