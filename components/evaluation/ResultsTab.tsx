@@ -62,14 +62,9 @@ export function ResultsTab() {
   const notify = useToast();
 
   const loadResults = useApiMutation(({ uid, period }: LoadParams) =>
-    Promise.all([
-      apiClient.get<EvalResults>(
-        `/evaluations/results/${uid}${period ? `?period=${period}` : ''}`,
-      ),
-      apiClient.get<unknown>(`/evaluations/evolution/${uid}`),
-    ]),
+    apiClient.get<EvalResults>(`/evaluations/results/${uid}${period ? `?period=${period}` : ''}`),
   );
-  const raw = loadResults.data?.[0] ?? null;
+  const raw = loadResults.data ?? null;
   const loading = loadResults.isPending;
 
   // O backend responde 200 com { evaluated, hasResults: false } quando o
@@ -325,6 +320,104 @@ export function ResultsTab() {
               </CardBody>
             </Card>
           )}
+
+          {/* Objetivos — docs/modulo_evaluation.md ponto 8 */}
+          {result.objectives && result.objectives.total > 0 && (
+            <Card>
+              <CardBody>
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="font-display font-semibold text-ink">Objetivos</h4>
+                  {result.objectives.avgAchievement != null && (
+                    <span className="text-sm font-bold text-ink">
+                      {result.objectives.avgAchievement}% realizado
+                    </span>
+                  )}
+                </div>
+                <div className="space-y-2">
+                  {result.objectives.items.map((o, i) => (
+                    <div key={i} className="rounded-card border border-border p-3">
+                      <div className="flex items-center justify-between">
+                        <p className="text-sm font-medium text-ink">{o.objective}</p>
+                        {o.percentage != null && (
+                          <Badge intent={o.percentage >= 100 ? 'success' : 'warning'}>
+                            {o.percentage}%
+                          </Badge>
+                        )}
+                      </div>
+                      {o.achievedResult && (
+                        <p className="text-xs text-ink-faint mt-1">
+                          Resultado: {o.achievedResult}
+                        </p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </CardBody>
+            </Card>
+          )}
+
+          {/* Evolução histórica — comparação com avaliação anterior */}
+          {result.evolution && result.evolution.history.length > 1 && (
+            <Card>
+              <CardBody>
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="font-display font-semibold text-ink">Evolução</h4>
+                  {result.evolution.trend != null && (
+                    <Badge intent={result.evolution.trend >= 0 ? 'success' : 'danger'}>
+                      {result.evolution.trend >= 0 ? '+' : ''}
+                      {result.evolution.trend.toFixed(1)} vs. anterior
+                    </Badge>
+                  )}
+                </div>
+                <div className="flex items-end gap-2 h-24">
+                  {result.evolution.history.map((h) => (
+                    <div key={h.period} className="flex-1 flex flex-col items-center gap-1">
+                      <div
+                        className={`w-full rounded-t ${SCORE_BG(h.avgScore)}`}
+                        style={{ height: `${(h.avgScore / 5) * 100}%` }}
+                      />
+                      <span className="text-[10px] text-ink-faint">{h.period}</span>
+                    </div>
+                  ))}
+                </div>
+              </CardBody>
+            </Card>
+          )}
+
+          {/* Comentários por papel — gestor vs. colaborador */}
+          {result.comments &&
+            (result.comments.manager.length > 0 || result.comments.self.length > 0) && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {result.comments.manager.length > 0 && (
+                  <Card>
+                    <CardBody>
+                      <h4 className="font-display font-semibold text-ink mb-2">
+                        Comentários do Gestor
+                      </h4>
+                      {result.comments.manager.map((c, i) => (
+                        <p key={i} className="text-xs text-ink-muted mb-1">
+                          {c.comment}
+                        </p>
+                      ))}
+                    </CardBody>
+                  </Card>
+                )}
+                {result.comments.self.length > 0 && (
+                  <Card>
+                    <CardBody>
+                      <h4 className="font-display font-semibold text-ink mb-2">
+                        Comentários do Colaborador
+                      </h4>
+                      {result.comments.self.map((c, i) => (
+                        <p key={i} className="text-xs text-ink-muted mb-1">
+                          {c.comment}
+                        </p>
+                      ))}
+                    </CardBody>
+                  </Card>
+                )}
+              </div>
+            )}
 
           {/* Qualitative */}
           {(result.qualitative.strengths.length > 0 ||

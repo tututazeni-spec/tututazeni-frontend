@@ -196,6 +196,8 @@ export const queryKeys = {
     dashboardGaps: () =>
       [...queryKeys.competencies.all, 'dashboard-gaps'] as const,
     top: () => [...queryKeys.competencies.all, 'top'] as const,
+    gap: (userId: string | number) =>
+      [...queryKeys.competencies.all, 'gap', userId] as const,
   },
 
   automation: {
@@ -253,6 +255,24 @@ export const queryKeys = {
       [...queryKeys.evaluation.all, 'results', userId] as const,
     cycles: () => [...queryKeys.evaluation.all, 'cycles'] as const,
     analytics: () => [...queryKeys.evaluation.all, 'analytics'] as const,
+    overview: () => [...queryKeys.evaluation.all, 'overview'] as const,
+    requests: (filters?: Record<string, unknown>) =>
+      [...queryKeys.evaluation.all, 'requests', filters ?? {}] as const,
+    requestDetail: (id: string | number) =>
+      [...queryKeys.evaluation.all, 'requests', id] as const,
+    criteria: (params?: Record<string, unknown>) =>
+      [...queryKeys.evaluation.all, 'criteria', params ?? {}] as const,
+    scales: () => [...queryKeys.evaluation.all, 'scales'] as const,
+    templates: () => [...queryKeys.evaluation.all, 'templates'] as const,
+    templateDetail: (id: string | number) =>
+      [...queryKeys.evaluation.all, 'templates', id] as const,
+    myEvaluations: (period?: string) =>
+      [...queryKeys.evaluation.all, 'my-evaluations', period ?? null] as const,
+    oneOnOne: (requestId: string | number) =>
+      [...queryKeys.evaluation.all, 'requests', requestId, 'one-on-one'] as const,
+    reports: (filters?: Record<string, unknown>) =>
+      [...queryKeys.evaluation.all, 'reports', filters ?? {}] as const,
+    settings: () => [...queryKeys.evaluation.all, 'settings'] as const,
   },
 
   // Módulo real de Avaliação 360º (src/evaluation360/, backend `/evaluation360`)
@@ -380,8 +400,10 @@ export const queryKeys = {
     me: () => [...queryKeys.career.all, 'me'] as const,
     paths: () => [...queryKeys.career.all, 'paths'] as const,
     positions: () => [...queryKeys.career.all, 'positions'] as const,
-    vacancies: (type: string) =>
-      [...queryKeys.career.all, 'vacancies', type] as const,
+    vacancies: (type: string, status?: string) =>
+      [...queryKeys.career.all, 'vacancies', type, status ?? ''] as const,
+    vacancyApplications: (vacancyId: number) =>
+      [...queryKeys.career.all, 'vacancies', vacancyId, 'applications'] as const,
     plan: () => [...queryKeys.career.all, 'plan'] as const,
     overview: () => [...queryKeys.career.all, 'overview'] as const,
     history: (userId?: number) =>
@@ -441,6 +463,10 @@ export const queryKeys = {
     orgChart: () => [...queryKeys.succession.all, 'org-chart'] as const,
     criticalPositions: () =>
       [...queryKeys.succession.all, 'critical-positions'] as const,
+    criticalPosition: (id: number) =>
+      [...queryKeys.succession.all, 'critical-position', id] as const,
+    criticalPositionHistory: (id: number) =>
+      [...queryKeys.succession.all, 'critical-position', id, 'history'] as const,
     positionSummary: (id: number) =>
       [...queryKeys.succession.all, 'position-summary', id] as const,
     talentPool: () => [...queryKeys.succession.all, 'talent-pool'] as const,

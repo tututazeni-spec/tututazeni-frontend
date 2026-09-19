@@ -50,10 +50,7 @@ beforeEach(() => {
 
 describe('ResultsTab', () => {
   test('hasResults:false — mostra estado vazio, sem rebentar', () => {
-    mutationData = [
-      { evaluated: { id: 7, fullName: 'Maria Silva' }, hasResults: false },
-      { userId: 7, evolution: [] },
-    ];
+    mutationData = { evaluated: { id: 7, fullName: 'Maria Silva' }, hasResults: false };
     render(<ResultsTab />);
     expect(screen.getByText('Sem avaliações registadas')).toBeInTheDocument();
     expect(screen.getByText(/Maria Silva/)).toBeInTheDocument();
@@ -62,19 +59,16 @@ describe('ResultsTab', () => {
   });
 
   test('resultado completo — rende o score', () => {
-    mutationData = [
-      {
-        evaluated: { id: 7, fullName: 'Maria Silva' },
-        finalScore: 3.9,
-        scoreLabel: 'Acima Esperado',
-        byType: { SELF: 4 },
-        competencies: {},
-        concordance: null,
-        totalEvaluators: 5,
-        qualitative: { strengths: [], improvements: [], recommendations: [] },
-      },
-      { userId: 7, evolution: [] },
-    ];
+    mutationData = {
+      evaluated: { id: 7, fullName: 'Maria Silva' },
+      finalScore: 3.9,
+      scoreLabel: 'Acima Esperado',
+      byType: { SELF: 4 },
+      competencies: {},
+      concordance: null,
+      totalEvaluators: 5,
+      qualitative: { strengths: [], improvements: [], recommendations: [] },
+    };
     render(<ResultsTab />);
     expect(screen.getByText('Score 360°')).toBeInTheDocument();
     expect(screen.getByText('3.9')).toBeInTheDocument();

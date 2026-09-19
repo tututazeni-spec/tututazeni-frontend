@@ -11,10 +11,12 @@
 
 'use client';
 
-import { AlertTriangle, ChevronRight } from 'lucide-react';
+import { AlertTriangle, CalendarClock, ChevronRight, ClipboardCheck, Layers } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
+import { useCurrentRole } from '@/hooks/useCurrentRole';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
+import { MGMT_ROLES } from '@/lib/roles';
 import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
 import { Card, CardBody } from '@/components/ui/Card';
@@ -24,13 +26,113 @@ import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { RadarChart } from './RadarChart';
 import { SCORE_BG, SCORE_COLOR, TYPE_LABEL } from './constants';
-import type { EvalRequest, EvalResults, MyProgress } from './types';
+import type { EvalRequest, EvalResults, MyProgress, OverviewDashboard } from './types';
+
+const DIST_CONFIG = [
+  { key: 'exceptional', label: 'Excepcional', bg: 'bg-success' },
+  { key: 'above', label: 'Acima', bg: 'bg-info' },
+  { key: 'expected', label: 'Esperado', bg: 'bg-warning' },
+  { key: 'below', label: 'Abaixo', bg: 'bg-danger' },
+] as const;
+
+// docs/modulo_evaluation.md ponto 1 — bloco organizacional, visível só a
+// quem gere avaliações (mesmo scoping de CyclesTab/AnalyticsTab). Backend
+// já ramifica sozinho (getOverviewDashboard), mas o pedido também é
+// mostrado aqui para não montar/pedir o endpoint a quem nunca o vê.
+function OrganizationOverview() {
+  const { data } = useApiQuery<OverviewDashboard>(
+    queryKeys.evaluation.overview(),
+    '/evaluations/overview',
+    { staleTime: STALE_TIME.DYNAMIC },
+  );
+  if (!data || data.scope !== 'organization') return null;
+
+  const distTotal = Object.values(data.distribution).reduce((a, b) => a + b, 0);
+
+  return (
+    <div className="space-y-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4">
+        <KpiCard label="Em curso" value={data.kpis.inProgress} intent="info" />
+        <KpiCard label="Pendentes" value={data.kpis.pending} intent="warning" />
+        <KpiCard label="Concluídas" value={data.kpis.completed} intent="success" />
+        <KpiCard label="Taxa Conclusão" value={`${data.kpis.completionRate}%`} intent="primary" />
+        <KpiCard label="Média Desempenho" value={data.kpis.avgScore.toFixed(1)} intent="accent" />
+        <KpiCard label="Colaboradores Avaliados" value={data.kpis.evaluatedCount} intent="primary" />
+      </div>
+
+      {data.alerts.length > 0 && (
+        <div className="bg-danger-subtle border border-danger rounded-card p-3 flex items-center gap-2">
+          <AlertTriangle size={16} strokeWidth={1.75} className="text-danger-ink" />
+          <p className="text-sm font-medium text-danger-ink">
+            {data.alerts[0].count} avaliação(ões) em atraso
+          </p>
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Card>
+          <CardBody>
+            <h3 className="font-display text-sm font-semibold text-ink mb-3 flex items-center gap-2">
+              <ClipboardCheck size={15} strokeWidth={1.75} /> Distribuição das classificações
+            </h3>
+            <div className="space-y-2">
+              {DIST_CONFIG.map((d) => {
+                const count = data.distribution[d.key] ?? 0;
+                const pct = distTotal > 0 ? Math.round((count / distTotal) * 100) : 0;
+                return (
+                  <div key={d.key}>
+                    <div className="flex justify-between text-xs mb-0.5">
+                      <span className="text-ink-muted">{d.label}</span>
+                      <span className="font-semibold text-ink">{count} ({pct}%)</span>
+                    </div>
+                    <div className="h-2 rounded-full bg-surface-sunken overflow-hidden">
+                      <div className={`h-full ${d.bg}`} style={{ width: `${pct}%` }} />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            <p className="text-xs text-ink-faint mt-3">
+              <Layers size={12} strokeWidth={1.75} className="inline align-[-2px]" />{' '}
+              {data.activeCycles} ciclo(s) activo(s) · {data.toEvaluateCount} colaborador(es) por
+              avaliar
+            </p>
+          </CardBody>
+        </Card>
+
+        <Card>
+          <CardBody>
+            <h3 className="font-display text-sm font-semibold text-ink mb-3 flex items-center gap-2">
+              <CalendarClock size={15} strokeWidth={1.75} /> Próximos prazos
+            </h3>
+            <div className="space-y-2">
+              {data.upcomingDeadlines.slice(0, 5).map((d) => (
+                <div key={d.id} className="flex items-center gap-2 text-sm">
+                  <Avatar name={d.evaluated.fullName} url={d.evaluated.avatarUrl} size="sm" />
+                  <span className="flex-1 text-ink-muted truncate">{d.evaluated.fullName}</span>
+                  <span className="text-xs text-ink-faint">
+                    {d.dueDate ? new Date(d.dueDate).toLocaleDateString('pt') : '—'}
+                  </span>
+                </div>
+              ))}
+              {data.upcomingDeadlines.length === 0 && (
+                <p className="text-xs text-ink-faint">Sem prazos próximos.</p>
+              )}
+            </div>
+          </CardBody>
+        </Card>
+      </div>
+    </div>
+  );
+}
 
 export interface OverviewTabProps {
   userId?: number;
 }
 
 export function OverviewTab({ userId }: OverviewTabProps) {
+  const role = useCurrentRole();
+  const isManagement = !!role && MGMT_ROLES.includes(role);
   const progressQ = useApiQuery<MyProgress>(
     queryKeys.evaluation.myProgress(),
     '/evaluations/my-progress',
@@ -63,6 +165,8 @@ export function OverviewTab({ userId }: OverviewTabProps) {
 
   return (
     <div className="space-y-6">
+      {isManagement && <OrganizationOverview />}
+
       {/* My completion progress */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <KpiCard

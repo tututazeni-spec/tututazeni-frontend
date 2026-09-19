@@ -3,8 +3,11 @@
 
 // Módulo "Carreira" — estrutura final por docs/04-modulo-career.md: Visão
 // Geral, A Minha Carreira, Percursos de Carreira, Planos de Carreira,
-// Oportunidades, PDI & Desenvolvimento, Histórico. Módulo de Sucessão
-// removido da plataforma (ex-separador "Sucessão").
+// Oportunidades, Sucessão, PDI & Desenvolvimento, Histórico. Sucessão
+// NÃO é módulo separado — é um separador deste módulo (components/career/
+// succession/*), reconstruído a partir do motor que sobreviveu à limpeza
+// de "módulos legados" (#295), que apanhou src/succession/ por engano
+// junto com módulos efectivamente mortos — ver [[project_innova_...]].
 // PDI continua um módulo próprio (src/development-plans); o separador
 // "PDI & Desenvolvimento" só resume e liga para lá, não duplica.
 // Container: gere o separador activo; delega dados+apresentação a cada
@@ -33,6 +36,7 @@ import { VacanciesView } from '@/components/career/VacanciesView';
 import { MyCareerTab } from '@/components/career/plans/MyCareerTab';
 import { PlansManagementView } from '@/components/career/plans/PlansManagementView';
 import { SimulateModal } from '@/components/career/plans/SimulateModal';
+import { SuccessionTab } from '@/components/career/succession/SuccessionTab';
 import type { CareerPlan as CareerPlansPlan, Role as CareerPlansRole } from '@/components/career/plans/types';
 
 type CareerTab =
@@ -41,6 +45,7 @@ type CareerTab =
   | 'paths'
   | 'plans'
   | 'opportunities'
+  | 'succession'
   | 'pdi'
   | 'history';
 
@@ -50,6 +55,10 @@ const TABS: Array<{ id: CareerTab; label: string } & RoleRestricted> = [
   { id: 'paths', label: 'Percursos de Carreira' },
   { id: 'plans', label: 'Planos de Carreira', roles: EXECUTIVE_ROLES },
   { id: 'opportunities', label: 'Oportunidades' },
+  // ADMIN/RH apenas (não GESTOR) — CriticalPositionsView chama
+  // GET/POST /succession/critical-positions, que o backend restringe a
+  // @Roles(ADMIN, RH); só o dashboard/matriz aceitam GESTOR também.
+  { id: 'succession', label: 'Sucessão', roles: ['ADMIN', 'RH'] },
   { id: 'pdi', label: 'PDI & Desenvolvimento' },
   { id: 'history', label: 'Histórico' },
 ];
@@ -152,6 +161,9 @@ export default function CareerPage() {
         </TabsContent>
         <TabsContent value="opportunities">
           <VacanciesView />
+        </TabsContent>
+        <TabsContent value="succession">
+          <SuccessionTab />
         </TabsContent>
         <TabsContent value="pdi">
           <PdiTab />
