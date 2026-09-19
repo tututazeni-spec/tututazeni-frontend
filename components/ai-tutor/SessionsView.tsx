@@ -22,6 +22,7 @@ import { Button, IconButton } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { ActivityFeedView } from './ActivityFeedView';
 import { SessionThread } from './SessionThread';
 import type { AdminSessionRow, Session } from './types';
 
@@ -33,6 +34,7 @@ export function SessionsView() {
   const role = useCurrentRole();
   const isPrivileged = !!role && PRIVILEGED_ROLES.has(role);
   const [selected, setSelected] = useState<number | null>(null);
+  const [subView, setSubView] = useState<'sessions' | 'activity'>('sessions');
 
   const mine = useApiQuery<{ data: Session[] }>(
     queryKeys.aiTutor.sessions(),
@@ -75,19 +77,51 @@ export function SessionsView() {
 
   if (selected) return <SessionThread sessionId={selected} onBack={() => setSelected(null)} />;
 
+  const subViewToggle = (
+    <div className="flex gap-2 mb-4">
+      <Button
+        size="sm"
+        intent={subView === 'sessions' ? 'primary' : 'secondary'}
+        onClick={() => setSubView('sessions')}
+      >
+        Sessões
+      </Button>
+      <Button
+        size="sm"
+        intent={subView === 'activity' ? 'primary' : 'secondary'}
+        onClick={() => setSubView('activity')}
+      >
+        Actividade
+      </Button>
+    </div>
+  );
+
+  if (subView === 'activity')
+    return (
+      <div>
+        {subViewToggle}
+        <ActivityFeedView />
+      </div>
+    );
+
   if (loading)
     return (
-      <Skeleton
-        rows={4}
-        wrapperClassName="space-y-3"
-        itemClassName="skeleton-shimmer h-16 rounded-card"
-      />
+      <div>
+        {subViewToggle}
+        <Skeleton
+          rows={4}
+          wrapperClassName="space-y-3"
+          itemClassName="skeleton-shimmer h-16 rounded-card"
+        />
+      </div>
     );
 
   if (isPrivileged) {
     const rows = all.data?.data ?? [];
     return (
-      <div className="space-y-2">
+      <div>
+        {subViewToggle}
+        <div className="space-y-2">
         {rows.map((s) => (
           <Card key={s.id} className="flex items-center gap-4 p-4">
             <Avatar name={s.user?.fullName ?? 'Ísis'} size="md" className="flex-shrink-0" />
@@ -134,13 +168,16 @@ export function SessionsView() {
             description="As sessões dos colaboradores com a Ísis vão aparecer aqui."
           />
         )}
+        </div>
       </div>
     );
   }
 
   const sessions = mine.data?.data ?? [];
   return (
-    <div className="space-y-2">
+    <div>
+      {subViewToggle}
+      <div className="space-y-2">
       {sessions.map((s) => (
         <Card key={s.id} className="flex items-center gap-4 p-4">
           <Avatar name="Ísis" size="md" className="flex-shrink-0" />
@@ -177,6 +214,7 @@ export function SessionsView() {
           description="Inicia uma conversa com a Ísis no separador Chat para veres o histórico aqui."
         />
       )}
+      </div>
     </div>
   );
 }

@@ -66,6 +66,7 @@ export interface SessionDetail {
 }
 
 export interface Recommendation {
+  logId: number | null;
   courses: Array<{
     id: number;
     title: string;
@@ -180,4 +181,51 @@ export interface AdminSessionRow {
   questions: number;
   contentsConsulted: number;
   avgRating: number | null;
+}
+
+// ─── Histórico (secção 6) ────────────────────────────────────────────────────────
+
+export interface ActivityFeed {
+  questions: Array<{ id: number; content: string; createdAt: string; sessionId: number }>;
+  exercises: Array<{
+    id: number;
+    type: string;
+    topic: string | null;
+    courseId: number | null;
+    count: number | null;
+    createdAt: string;
+  }>;
+  recommendations: Array<{
+    id: number;
+    createdAt: string;
+    courseIds: number[];
+    accepted: boolean;
+  }>;
+  sourcesConsulted: Array<{ title: string; type: string; consultedAt: string }>;
+}
+
+// ─── Analytics (secção 7) ────────────────────────────────────────────────────────
+
+export interface AiTutorAnalytics {
+  utilizadoresDoAiTutor: number;
+  taxaDeUtilizacao: number;
+  sessoesPorColaborador: number;
+  tempoMedioMinutos: number;
+  exerciciosRealizados: number;
+  recomendacoesAceites: number;
+  perguntasPorCurso: Array<{ title: string; count: number }>;
+  perguntasSemResposta: Array<{ question: string; count: number }>;
+}
+
+// ─── Configurações (secção 8) ────────────────────────────────────────────────────
+
+export interface AiTutorSettingsData {
+  allowOutsideKnowledge: boolean;
+  sourceOnlyMode: boolean;
+  showSources: boolean;
+  temperature: number;
+  defaultLanguage: string;
+  dailyMessageLimit: number | null;
+  historyRetentionDays: number | null;
+  customSystemPromptAddendum: string | null;
 }

@@ -562,6 +562,9 @@ export const queryKeys = {
       [...queryKeys.aiTutor.all, 'knowledge-search', q] as const,
     allSessions: (params?: Record<string, unknown>) =>
       [...queryKeys.aiTutor.all, 'all-sessions', params ?? {}] as const,
+    history: () => [...queryKeys.aiTutor.all, 'history'] as const,
+    analytics: () => [...queryKeys.aiTutor.all, 'analytics'] as const,
+    settings: () => [...queryKeys.aiTutor.all, 'settings'] as const,
   },
 
   monitoring: {

@@ -9,7 +9,8 @@ import { KnowledgeBaseView } from '@/components/ai-tutor/KnowledgeBaseView';
 import { SessionsView } from '@/components/ai-tutor/SessionsView';
 import { ExercisesView } from '@/components/ai-tutor/ExercisesView';
 import { RecommendationsView } from '@/components/ai-tutor/RecommendationsView';
-import { ComingSoonView } from '@/components/ai-tutor/ComingSoonView';
+import { AnalyticsView } from '@/components/ai-tutor/AnalyticsView';
+import { SettingsView } from '@/components/ai-tutor/SettingsView';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
 import type { View } from '@/components/ai-tutor/types';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
@@ -58,31 +59,10 @@ export default function AiTutorPage() {
           <RecommendationsView />
         </TabsContent>
         <TabsContent value="analytics">
-          <ComingSoonView
-            title="Analytics detalhado — em construção"
-            description="Métricas aprofundadas de utilização do AI Tutor para a Academia/RH, para além dos indicadores já disponíveis em Visão Geral."
-            planned={[
-              'Perguntas por curso',
-              'Taxa de utilização',
-              'Tempo médio por sessão',
-              'Exercícios realizados',
-              'Recomendações aceites',
-              'Perguntas sem resposta',
-            ]}
-          />
+          <AnalyticsView />
         </TabsContent>
         <TabsContent value="settings">
-          <ComingSoonView
-            title="Configurações — em construção"
-            description="Gestão do modelo de IA, prompts, fontes autorizadas, limites de utilização e privacidade do AI Tutor."
-            planned={[
-              'Modelo de IA',
-              'Fontes autorizadas',
-              'Limites de utilização',
-              'Idiomas',
-              'Privacidade e segurança',
-            ]}
-          />
+          <SettingsView />
         </TabsContent>
       </Tabs>
     </div>
