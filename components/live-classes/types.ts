@@ -240,6 +240,107 @@ export interface VirtualRoom {
   sessions: { id: number; seq: number; meetingUrl: string | null; sessionDate: string; status: LiveClassStatus }[];
 }
 
+// ─── Materiais (secção 11) ───────────────────────────────────────────────────
+
+export interface MaterialReference {
+  liveClassId: number;
+  topic: string;
+  course: { id: number; title: string } | null;
+  sessionId: number | null;
+  sessionSeq: number | null;
+}
+
+export interface MaterialDocument {
+  id: number;
+  title: string;
+  category: string;
+  fileUrl: string;
+  mimeType: string;
+  fileSize: number | null;
+  tags: string[];
+  createdAt: string;
+}
+
+export interface MaterialRow {
+  document: MaterialDocument;
+  referencedBy: MaterialReference[];
+}
+
+// ─── Avaliações (secção 12) ─────────────────────────────────────────────────
+
+export interface LiveEvaluationResponse {
+  id: number;
+  rating: number;
+  instructorRating: number | null;
+  contentRating: number | null;
+  organizationRating: number | null;
+  applicabilityRating: number | null;
+  nps: number | null;
+  feedback: string | null;
+  createdAt: string;
+  user: { id: number; fullName: string };
+  evaluation: {
+    id: number;
+    averageScore: number;
+    liveClass: {
+      id: number;
+      topic: string;
+      scheduledAt: string;
+      course?: { id: number; title: string } | null;
+      instructor?: { id: number; name: string } | null;
+    };
+  };
+}
+
+export interface EvaluationsSummary {
+  responses: number;
+  avgRating: number | null;
+  avgInstructorRating: number | null;
+  avgContentRating: number | null;
+  avgOrganizationRating: number | null;
+  avgApplicabilityRating: number | null;
+  nps: number | null;
+}
+
+// ─── Relatórios (secção 13) ─────────────────────────────────────────────────
+
+export interface LiveClassesReport {
+  totals: {
+    classes: number;
+    completed: number;
+    cancelled: number;
+    hoursDelivered: number;
+  };
+  attendance: {
+    participants: number;
+    present: number;
+    absent: number;
+    late: number;
+    attendanceRate: number;
+  };
+  avgEvaluation: number | null;
+  byInstructor: { instructor: string; completed: number; avgRating: number | null }[];
+  byDepartment: { department: string; count: number }[];
+  byUnit: { unit: string; count: number }[];
+  hoursByCollaborator: { userId: number; collaborator: string; hours: number }[];
+}
+
+// ─── Configurações (secção 14) ──────────────────────────────────────────────
+
+export interface LiveClassesSettings {
+  types: LiveClassType[];
+  statuses: LiveClassStatus[];
+  modalities: SessionModality[];
+  recurrences: LiveClassRecurrence[];
+  enrollmentModes: LiveClassEnrollmentMode[];
+  attendanceStatuses: LiveAttendanceStatus[];
+  attendanceDefaults: { minAttendancePercent: number; lateToleranceMinutes: number };
+  recordingDefaults: { recordSession: boolean; allowRecordingDownload: boolean };
+  notifySettingsKeys: string[];
+  notificationChannels: string[];
+  permissions: { action: string; roles: string[] }[];
+}
+
 // ─── Gravações (secção 9) ───────────────────────────────────────────────────
 
 export interface RecordingRow {

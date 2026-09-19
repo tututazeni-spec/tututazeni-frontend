@@ -24,16 +24,20 @@ import { ADMIN_ROLES } from '@/lib/roles';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { AttendanceView } from '@/components/live-classes/AttendanceView';
 import { CalendarView } from '@/components/live-classes/CalendarView';
+import { CAN_VIEW_LIVE_CLASSES_REPORTS_ROLES, NAV, type NavId } from '@/components/live-classes/constants';
 import { DashboardView } from '@/components/live-classes/DashboardView';
+import { EvaluationsView } from '@/components/live-classes/EvaluationsView';
 import { InstructorsView } from '@/components/live-classes/InstructorsView';
-import { NAV, type NavId } from '@/components/live-classes/constants';
 import { LiveClassesView } from '@/components/live-classes/LiveClassesView';
+import { MaterialsView } from '@/components/live-classes/MaterialsView';
 import { ParticipantsView } from '@/components/live-classes/ParticipantsView';
 import { PostponeModal } from '@/components/live-classes/PostponeModal';
 import { RecordingModal } from '@/components/live-classes/RecordingModal';
 import { RecordingsView } from '@/components/live-classes/RecordingsView';
+import { ReportsView } from '@/components/live-classes/ReportsView';
 import { RoomsView } from '@/components/live-classes/RoomsView';
 import { SessionsView } from '@/components/live-classes/SessionsView';
+import { SettingsView } from '@/components/live-classes/SettingsView';
 import { Toast } from '@/components/live-classes/Toast';
 import { getStatus } from '@/components/live-classes/utils';
 import { CreateLiveClassWizard } from '@/components/live-classes/wizard/CreateLiveClassWizard';
@@ -46,6 +50,10 @@ export default function LivePage() {
   const router = useRouter();
   const role = useCurrentRole();
   const canCreate = !!role && ADMIN_ROLES.includes(role);
+  const canViewReports = !!role && CAN_VIEW_LIVE_CLASSES_REPORTS_ROLES.includes(role);
+  const visibleNav = NAV.filter(
+    (n) => (n.id !== 'settings' || canCreate) && (n.id !== 'reports' && n.id !== 'evaluations' ? true : canViewReports),
+  );
 
   const [nav, setNav] = useState<NavId>('list');
   const [filters, setFilters] = useState<Filters>(INITIAL_FILTERS);
@@ -196,8 +204,8 @@ export default function LivePage() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
-      <div className="mb-6 flex w-fit gap-1 rounded-xl bg-surface-sunken p-1">
-        {NAV.map((n) => (
+      <div className="mb-6 flex w-fit flex-wrap gap-1 rounded-xl bg-surface-sunken p-1">
+        {visibleNav.map((n) => (
           <button
             key={n.id}
             onClick={() => setNav(n.id)}
@@ -218,6 +226,10 @@ export default function LivePage() {
       {nav === 'rooms' && <RoomsView canManage={canCreate} />}
       {nav === 'recordings' && <RecordingsView canManage={canCreate} />}
       {nav === 'attendance' && <AttendanceView canManage={canCreate} />}
+      {nav === 'materials' && <MaterialsView canManage={canCreate} />}
+      {nav === 'evaluations' && canViewReports && <EvaluationsView />}
+      {nav === 'reports' && canViewReports && <ReportsView />}
+      {nav === 'settings' && canCreate && <SettingsView />}
       {nav === 'list' && (
         <>
           <LiveClassesView

@@ -10,13 +10,19 @@ import type {
   LiveClassType,
   SessionModality,
 } from './types';
+import type { Role } from '@/lib/roles';
 
-export const CAN_MANAGE_LIVE_CLASSES_ROLES = ['ADMIN', 'RH'] as const;
+export const CAN_MANAGE_LIVE_CLASSES_ROLES: readonly Role[] = ['ADMIN', 'RH'];
+
+// Espelha @Roles(Role.ADMIN, Role.RH, Role.LIDER) em
+// live-classes.controller.ts para GET /evaluations, /evaluations/summary e
+// /reports/* — usado só para esconder os separadores "Avaliações"/
+// "Relatórios" de quem de qualquer forma levaria 403 do backend.
+export const CAN_VIEW_LIVE_CLASSES_REPORTS_ROLES: readonly Role[] = ['ADMIN', 'RH', 'LIDER'];
 
 // ─── Navegação de topo (docs/aulas-ao-vivo.md — abas principais) ───────────
-// Materiais/Avaliações/Configurações (secções 11/12/14) continuam por fazer
-// — só 6 a 10 foram acrescentadas nesta ronda (ver Sessões/Calendário/etc.
-// para as secções 1/2/4/5 já existentes).
+// Materiais/Avaliações/Relatórios/Configurações (secções 11/12/13/14)
+// completam a lista — settings só é mostrado a canManage (ver page.tsx).
 export const NAV = [
   { id: 'dashboard', label: 'Visão Geral' },
   { id: 'list', label: 'Aulas' },
@@ -27,6 +33,10 @@ export const NAV = [
   { id: 'rooms', label: 'Salas & Links' },
   { id: 'recordings', label: 'Gravações' },
   { id: 'attendance', label: 'Presenças' },
+  { id: 'materials', label: 'Materiais' },
+  { id: 'evaluations', label: 'Avaliações' },
+  { id: 'reports', label: 'Relatórios' },
+  { id: 'settings', label: 'Configurações' },
 ] as const;
 
 export type NavId = (typeof NAV)[number]['id'];

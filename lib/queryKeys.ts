@@ -750,6 +750,15 @@ export const queryKeys = {
       [...queryKeys.liveClasses.all, 'virtual-rooms', params] as const,
     recordings: (params: Record<string, unknown>) =>
       [...queryKeys.liveClasses.all, 'recordings', params] as const,
+    materials: (params: Record<string, unknown>) =>
+      [...queryKeys.liveClasses.all, 'materials', params] as const,
+    evaluations: (params: Record<string, unknown>) =>
+      [...queryKeys.liveClasses.all, 'evaluations', params] as const,
+    evaluationsSummary: (params: Record<string, unknown>) =>
+      [...queryKeys.liveClasses.all, 'evaluations-summary', params] as const,
+    reports: (params: Record<string, unknown>) =>
+      [...queryKeys.liveClasses.all, 'reports', params] as const,
+    settings: () => [...queryKeys.liveClasses.all, 'settings'] as const,
   },
 
   declarations: {
