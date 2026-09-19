@@ -13,7 +13,6 @@ import {
   BarChart2,
   BookMarked,
   BookOpen,
-  Layers,
   Plus,
   Search,
   TrendingUp,
@@ -25,7 +24,6 @@ import { CatalogueTab } from '@/components/content-library/CatalogueTab';
 import { HomeTab } from '@/components/content-library/HomeTab';
 import { KnowledgeTab } from '@/components/content-library/KnowledgeTab';
 import { MyProgressTab } from '@/components/content-library/MyProgressTab';
-import { PathsTab } from '@/components/content-library/PathsTab';
 import { RepositoryTab } from '@/components/content-library/RepositoryTab';
 import type { Tab } from '@/components/content-library/types';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
@@ -43,7 +41,6 @@ const TABS: { id: Tab; label: string; icon: LucideIcon }[] = [
   { id: 'catalogue', label: 'Catálogo', icon: Search },
   { id: 'repository', label: 'Repositório', icon: Archive },
   { id: 'knowledge', label: 'Conhecimento', icon: BookMarked },
-  { id: 'paths', label: 'Trilhas', icon: Layers },
   { id: 'my-progress', label: 'O Meu Percurso', icon: TrendingUp },
   { id: 'analytics', label: 'Análises', icon: BarChart2 },
 ];
@@ -114,9 +111,6 @@ export default function ContentLibraryPage() {
           </TabsContent>
           <TabsContent value="knowledge">
             <KnowledgeTab />
-          </TabsContent>
-          <TabsContent value="paths">
-            <PathsTab />
           </TabsContent>
           <TabsContent value="my-progress">
             <MyProgressTab />

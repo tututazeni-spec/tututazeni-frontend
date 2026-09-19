@@ -7,7 +7,6 @@ export type Tab =
   | 'catalogue'
   | 'repository'
   | 'knowledge'
-  | 'paths'
   | 'my-progress'
   | 'analytics';
 
@@ -79,16 +78,4 @@ export interface ContentAnalytics {
   formatBreakdown?: FormatBreakdownItem[];
   mostViewed?: MostViewedItem[];
   recentlyAdded?: RecentlyAddedItem[];
-}
-
-export interface LearningPath {
-  id: number;
-  title: string;
-  description?: string;
-  thumbnailUrl?: string;
-  hasCertification?: boolean;
-  xpReward?: number;
-  totalItems?: number;
-  completedItems?: number;
-  overallProgress?: number;
 }
