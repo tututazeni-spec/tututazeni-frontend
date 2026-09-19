@@ -1,6 +1,6 @@
 // components/ai-tutor/constants.ts
-// Acções rápidas do chat e navegação do módulo de Tutor IA. Extraído
-// de app/(platform)/ai-tutor/page.tsx.
+// Acções rápidas do chat e navegação do módulo de Tutor IA
+// (docs/ai-tutor.md). Extraído de app/(platform)/ai-tutor/page.tsx.
 
 import type { View } from './types';
 
@@ -25,16 +25,35 @@ export const QUICK_ACTIONS = [
   },
 ];
 
-export const NAV: Array<{ id: View; label: string }> = [
+// Navegação para colaboradores — mantém o Chat pessoal e acrescenta as
+// secções novas (Base de Conhecimento, Sessões, Exercícios).
+export const EMPLOYEE_NAV: Array<{ id: View; label: string }> = [
+  { id: 'overview', label: 'Visão Geral' },
   { id: 'chat', label: 'Chat' },
-  { id: 'generate', label: 'Gerar conteúdo' },
+  { id: 'knowledge', label: 'Base de Conhecimento' },
+  { id: 'sessions', label: 'Sessões' },
+  { id: 'exercises', label: 'Exercícios' },
   { id: 'recommendations', label: 'Recomendações' },
-  { id: 'history', label: 'Histórico' },
+];
+
+// Navegação para ADMIN/RH — consola de gestão do AI Tutor
+// (docs/ai-tutor.md, "Abas principais (a acrescentar)").
+export const ADMIN_NAV: Array<{ id: View; label: string }> = [
+  { id: 'overview', label: 'Visão Geral' },
+  { id: 'knowledge', label: 'Base de Conhecimento' },
+  { id: 'sessions', label: 'Sessões' },
+  { id: 'exercises', label: 'Exercícios' },
+  { id: 'analytics', label: 'Analytics' },
+  { id: 'settings', label: 'Configurações' },
 ];
 
 export const TITLES: Record<View, string> = {
+  overview: 'Visão Geral',
   chat: 'Ísis — Tutor IA',
-  generate: 'Gerar conteúdo com IA',
+  knowledge: 'Base de Conhecimento',
+  sessions: 'Sessões',
+  exercises: 'Exercícios',
   recommendations: 'Recomendações personalizadas',
-  history: 'Histórico de sessões',
+  analytics: 'Analytics',
+  settings: 'Configurações',
 };

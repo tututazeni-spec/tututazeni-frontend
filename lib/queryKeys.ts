@@ -555,6 +555,13 @@ export const queryKeys = {
     session: (id: number) => [...queryKeys.aiTutor.all, 'session', id] as const,
     recommendations: () =>
       [...queryKeys.aiTutor.all, 'recommendations'] as const,
+    overview: () => [...queryKeys.aiTutor.all, 'overview'] as const,
+    knowledgeSources: () =>
+      [...queryKeys.aiTutor.all, 'knowledge-sources'] as const,
+    knowledgeSearch: (q: string) =>
+      [...queryKeys.aiTutor.all, 'knowledge-search', q] as const,
+    allSessions: (params?: Record<string, unknown>) =>
+      [...queryKeys.aiTutor.all, 'all-sessions', params ?? {}] as const,
   },
 
   monitoring: {

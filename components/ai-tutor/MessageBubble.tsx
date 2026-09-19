@@ -64,6 +64,19 @@ export function MessageBubble({ msg, onRate }: MessageBubbleProps) {
           </Card>
         )}
 
+        {!isUser && msg.sourceLabels && msg.sourceLabels.length > 0 && (
+          <div className="flex flex-wrap gap-1 mt-1.5 px-1">
+            {msg.sourceLabels.map((label, i) => (
+              <span
+                key={i}
+                className="font-body text-[10px] text-ink-faint bg-surface-sunken border border-border rounded-pill px-2 py-0.5"
+              >
+                Fonte: {label}
+              </span>
+            ))}
+          </div>
+        )}
+
         <div
           className={`flex items-center gap-2 mt-1 px-1 ${isUser ? 'flex-row-reverse' : 'flex-row'}`}
         >
