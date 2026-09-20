@@ -26,11 +26,6 @@ import { CorporateDocsTab } from '@/components/content-library/CorporateDocsTab'
 import { HomeTab } from '@/components/content-library/HomeTab';
 import { KnowledgeTab } from '@/components/content-library/KnowledgeTab';
 import { MyProgressTab } from '@/components/content-library/MyProgressTab';
-// PathsTab (separador "Trilhas") ficou órfão desde a Fase F1: chama
-// GET /content-library/paths/all, removido do backend porque nunca
-// persistia nada; o comentário no controller aponta para um módulo
-// `learning-paths` que nunca chegou a existir em src/. Escondido do nav até
-// haver um backend real — ver memory project_innova_learning_path_unification_faseF1.
 import { RepositoryTab } from '@/components/content-library/RepositoryTab';
 import type { Tab } from '@/components/content-library/types';
 import { useCurrentRole } from '@/hooks/useCurrentRole';

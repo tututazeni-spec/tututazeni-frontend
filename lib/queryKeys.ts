@@ -630,20 +630,6 @@ export const queryKeys = {
     dashboard: () => [...queryKeys.processes.all, 'dashboard'] as const,
   },
 
-  learningPaths: {
-    all: ['learning-paths'] as const,
-    catalog: (params: Record<string, unknown>) =>
-      [...queryKeys.learningPaths.all, 'catalog', params] as const,
-    detail: (id: number) =>
-      [...queryKeys.learningPaths.all, 'detail', id] as const,
-    progress: (id: number) =>
-      [...queryKeys.learningPaths.all, 'progress', id] as const,
-    myEnrollments: () =>
-      [...queryKeys.learningPaths.all, 'my-enrollments'] as const,
-    adminDashboard: () =>
-      [...queryKeys.learningPaths.all, 'admin-dashboard'] as const,
-  },
-
   leadership: {
     all: ['leadership'] as const,
     myDashboard: () => [...queryKeys.leadership.all, 'my-dashboard'] as const,
@@ -829,7 +815,6 @@ export const queryKeys = {
     mandatory: () => [...queryKeys.contentLibrary.all, 'mandatory'] as const,
     catalogue: (params: Record<string, unknown>) =>
       [...queryKeys.contentLibrary.all, 'catalogue', params] as const,
-    paths: () => [...queryKeys.contentLibrary.all, 'paths'] as const,
     myProgress: () => [...queryKeys.contentLibrary.all, 'my-progress'] as const,
     myStats: () => [...queryKeys.contentLibrary.all, 'my-stats'] as const,
     bookmarks: () => [...queryKeys.contentLibrary.all, 'bookmarks'] as const,

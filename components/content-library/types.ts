@@ -80,15 +80,3 @@ export interface ContentAnalytics {
   mostViewed?: MostViewedItem[];
   recentlyAdded?: RecentlyAddedItem[];
 }
-
-export interface LearningPath {
-  id: number;
-  title: string;
-  description?: string;
-  thumbnailUrl?: string;
-  hasCertification?: boolean;
-  xpReward?: number;
-  totalItems?: number;
-  completedItems?: number;
-  overallProgress?: number;
-}
