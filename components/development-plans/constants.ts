@@ -163,15 +163,27 @@ export const PRIORITY_CFG: StatusBadgeMap<Priority> = {
   URGENT: { label: 'Urgente', cls: 'bg-danger-subtle text-danger-ink' },
 };
 
+// Separadores de Desenvolvimento de Talentos (ex-/talent-development, módulo
+// fundido aqui) — pool, skill-gaps e mentoring/analytics no mesmo nível dos
+// separadores de PDI. "plans" original desse módulo foi descartado: redundante
+// com Os meus PDIs/Equipa acima.
 export const NAV = [
   { id: 'my-plans', label: 'Os meus PDIs' },
   { id: 'team', label: 'Equipa' },
+  { id: 'pool', label: 'Banco de Talentos' },
+  { id: 'skill-gaps', label: 'Lacunas de Competências' },
+  { id: 'mentoring', label: 'Mentoria' },
+  { id: 'analytics', label: 'Análises' },
 ] as const;
 
 export const TITLES: Record<View, string> = {
   'my-plans': 'Planos de Desenvolvimento Individual',
   detail: 'Detalhe do PDI',
   team: 'PDIs da Equipa',
+  pool: 'Banco de Talentos',
+  'skill-gaps': 'Lacunas de Competências',
+  mentoring: 'Mentoria',
+  analytics: 'Análises de Desenvolvimento',
   create: 'Novo PDI',
 };
 

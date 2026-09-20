@@ -2,7 +2,6 @@
 // Tipos do domínio "talent development" — movidos verbatim de
 // app/(platform)/talent-development/page.tsx.
 
-export type Tab = 'pool' | 'plans' | 'skill-gaps' | 'mentoring' | 'analytics';
 export type Tier = 'HIGH' | 'MEDIUM' | 'DEVELOPING';
 
 export interface TalentUser {
@@ -24,19 +23,6 @@ export interface TalentUser {
   tier: Tier;
   activePlan: { id: number; name: string; overallProgress: number } | null;
   nineBox: { performanceAxis: number; potentialAxis: number } | null;
-}
-
-export interface Plan {
-  id: number;
-  name: string;
-  status: string;
-  priority: string;
-  overallProgress: number;
-  user: { fullName: string; avatarUrl?: string; department?: { name: string } };
-  manager?: { fullName: string };
-  stats: { total: number; completed: number; overdue: number };
-  startDate?: string;
-  endDate?: string;
 }
 
 export interface HealthScore {

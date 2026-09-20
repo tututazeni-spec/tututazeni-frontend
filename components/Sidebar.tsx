@@ -39,7 +39,6 @@ import {
   Building2,
   LogOut,
   Share2,
-  Brain,
   Wallet,
 } from 'lucide-react';
 import { useState } from 'react';
@@ -177,15 +176,12 @@ const NAV: Array<{ label: string; items: NavItem[] }> = [
         label: 'Carreira',
       },
       {
+        // Módulo "Planos de Desenvolvimento" único: integra Desenvolvimento
+        // de Talentos (ex-/talent-development — pool, skill-gaps, mentoria,
+        // análises) como separadores da mesma página.
         href: '/development-plans',
         icon: Activity,
         label: 'Planos de Desenvolvimento',
-      },
-      {
-        href: '/talent-development',
-        icon: Brain,
-        label: 'Desenvolvimento de Talentos',
-        roles: ['ADMIN', 'RH', 'LIDER', 'GESTOR'],
       },
     ],
   },

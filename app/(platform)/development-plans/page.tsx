@@ -10,6 +10,10 @@ import { DetailView } from '@/components/development-plans/DetailView';
 import { MyPlansView } from '@/components/development-plans/MyPlansView';
 import { TeamView } from '@/components/development-plans/TeamView';
 import type { Nav } from '@/components/development-plans/types';
+import { AnalyticsTab } from '@/components/talent-development/AnalyticsTab';
+import { MentoringTab } from '@/components/talent-development/MentoringTab';
+import { PoolTab } from '@/components/talent-development/PoolTab';
+import { SkillGapsTab } from '@/components/talent-development/SkillGapsTab';
 import { Button } from '@/components/ui/Button';
 
 // Espelha @Roles(ADMIN, RH, GESTOR) em POST /development-plans
@@ -27,7 +31,7 @@ export default function DevelopmentPlansPage() {
   const handleBack = () => setNav({ view: 'my-plans' });
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-8">
+    <div className="mx-auto max-w-7xl px-4 py-8">
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="mb-1 font-display text-xl font-semibold text-ink">
@@ -44,7 +48,7 @@ export default function DevelopmentPlansPage() {
       </div>
 
       {nav.view !== 'detail' && (
-        <div className="mb-6 flex w-fit gap-1 rounded-card bg-surface-sunken p-1">
+        <div className="mb-6 flex w-fit max-w-full gap-1 overflow-x-auto rounded-card bg-surface-sunken p-1">
           {NAV.map((n) => (
             <Button
               key={n.id}
@@ -63,6 +67,10 @@ export default function DevelopmentPlansPage() {
         <DetailView planId={nav.selectedId} onBack={handleBack} />
       )}
       {nav.view === 'team' && <TeamView onSelect={handleSelect} />}
+      {nav.view === 'pool' && <PoolTab />}
+      {nav.view === 'skill-gaps' && <SkillGapsTab />}
+      {nav.view === 'mentoring' && <MentoringTab />}
+      {nav.view === 'analytics' && <AnalyticsTab />}
 
       {showWizard && (
         <CreatePlanWizard

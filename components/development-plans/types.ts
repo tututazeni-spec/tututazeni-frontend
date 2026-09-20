@@ -204,7 +204,15 @@ export interface TeamPlanSummary {
   };
 }
 
-export type View = 'my-plans' | 'detail' | 'team' | 'create';
+export type View =
+  | 'my-plans'
+  | 'detail'
+  | 'team'
+  | 'pool'
+  | 'skill-gaps'
+  | 'mentoring'
+  | 'analytics'
+  | 'create';
 
 // view e selectedId eram dois useState separados sempre definidos em conjunto
 // — um único estado torna "detail sem id" irrepresentável.
