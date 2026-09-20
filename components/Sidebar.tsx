@@ -9,7 +9,7 @@ import {
   ChevronDown, ChevronRight, BookMarked, Map, Crown, UserPlus,
   Layers, Play, Cpu, Database, Globe, Target, PieChart,
   Clock, MessageSquare, Scroll, Library, DollarSign, Activity,
-  Download, CheckSquare, Building2, LogOut, Share2, Brain, Trophy,
+  Download, CheckSquare, Building2, LogOut, Share2,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -82,7 +82,6 @@ const NAV = [
       { href: "/leadership",        icon: BookOpen, label: "Programas de Liderança" },
       { href: "/certificates",      icon: Scroll,   label: "Certificados"    },
       { href: "/certification/templates", icon: Award, label: "Templates Certificado" },
-      { href: "/talent-development",      icon: Brain, label: "Desenvolvimento de Talentos" },
     ],
   },
   {
