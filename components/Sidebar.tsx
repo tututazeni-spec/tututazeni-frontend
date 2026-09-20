@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { logout } from '@/lib/apiClient';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
-import { ADMIN_ROLES, filterNavSections, type Role } from '@/lib/roles';
+import { ADMIN_ROLES, NON_COLABORADOR_ROLES, filterNavSections, type Role } from '@/lib/roles';
 import {
   LayoutDashboard,
   BookOpen,
@@ -141,9 +141,10 @@ const NAV: Array<{ label: string; items: NavItem[] }> = [
         ],
       },
       {
-        href: '/monitoring/evaluations',
+        href: '/monitoring/indicators',
         icon: Target,
-        label: 'Monitoria e Avaliação',
+        label: 'Monitoria',
+        roles: NON_COLABORADOR_ROLES,
       },
       {
         // Módulo "Competências" único: integra Competências + Mapa de

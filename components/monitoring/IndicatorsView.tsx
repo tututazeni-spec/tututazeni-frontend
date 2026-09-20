@@ -38,16 +38,11 @@ export function IndicatorsView({
 
   return (
     <div className="p-6 space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="font-display text-2xl font-bold text-ink">
-            Indicadores de Monitoria
-          </h1>
-          <p className="font-body text-ink-muted">{total} indicadores activos</p>
-        </div>
-        <a href="/monitoring/evaluations" className="font-body text-sm text-primary hover:underline">
-          ← Avaliações
-        </a>
+      <div>
+        <h1 className="font-display text-2xl font-bold text-ink">
+          Indicadores de Monitoria
+        </h1>
+        <p className="font-body text-ink-muted">{total} indicadores activos</p>
       </div>
 
       <Table>
