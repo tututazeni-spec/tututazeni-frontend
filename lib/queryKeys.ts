@@ -569,10 +569,6 @@ export const queryKeys = {
 
   monitoring: {
     all: ['monitoring'] as const,
-    myEvaluations: () =>
-      [...queryKeys.monitoring.all, 'my-evaluations'] as const,
-    evaluationsToComplete: () =>
-      [...queryKeys.monitoring.all, 'evaluations-to-complete'] as const,
     indicators: (params: Record<string, unknown>) =>
       [...queryKeys.monitoring.all, 'indicators', params] as const,
   },
