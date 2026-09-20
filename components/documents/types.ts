@@ -144,6 +144,8 @@ export interface ReadStatus {
   totalRequired: number;
   confirmedCount: number;
   percentage: number;
+  /** Total por confirmar. `pendingUsers` é só uma amostra (máx. 50 nomes). */
+  pendingCount: number;
   pendingUsers: { id: number; fullName: string; email: string }[];
 }
 
