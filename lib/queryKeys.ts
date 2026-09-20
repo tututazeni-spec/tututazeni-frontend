@@ -768,6 +768,12 @@ export const queryKeys = {
       [...queryKeys.documents.all, 'list', params] as const,
     dashboard: () => [...queryKeys.documents.all, 'dashboard'] as const,
     tags: () => [...queryKeys.documents.all, 'tags'] as const,
+    detail: (id: number) => [...queryKeys.documents.all, 'detail', id] as const,
+    pendingReads: () => [...queryKeys.documents.all, 'pending-reads'] as const,
+    favorites: () => [...queryKeys.documents.all, 'favorites'] as const,
+    recent: () => [...queryKeys.documents.all, 'recent'] as const,
+    complianceOverview: () => [...queryKeys.documents.all, 'compliance-overview'] as const,
+    readStatus: (id: number) => [...queryKeys.documents.all, 'read-status', id] as const,
   },
 
   careerPlans: {

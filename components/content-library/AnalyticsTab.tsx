@@ -2,10 +2,18 @@
 // Separador "Analytics" — KPIs, distribuição por formato, mais vistos e
 // adicionados recentemente. Dados próprios (useApiQuery) + apresentação.
 // Extraído de app/(platform)/content-library/page.tsx.
+//
+// docs/biblioteca.md pedia um separador "Relatórios" dedicado; em vez de
+// duplicar navegação optou-se por acrescentar aqui a secção "Compliance de
+// Leitura Obrigatória" (GET /documents/compliance-overview) — este
+// separador já É o relatório da Biblioteca, só lhe faltava a peça de
+// confirmação de leitura dos Documentos Corporativos.
 
 'use client';
 
+import { useComplianceOverview } from '@/components/documents/hooks';
 import { useApiQuery } from '@/hooks/useApiQuery';
+import { useCurrentRole } from '@/hooks/useCurrentRole';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Card, CardBody } from '@/components/ui/Card';
@@ -15,12 +23,19 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { FORMAT_CLS, FORMAT_CLS_FALLBACK } from './constants';
 import type { ContentAnalytics } from './types';
 
+// Espelha @Roles(...) em GET /documents/compliance-overview.
+const COMPLIANCE_ROLES = ['ADMIN', 'RH', 'DIRECTOR'];
+
 export function AnalyticsTab() {
+  const role = useCurrentRole();
   const { data, isLoading } = useApiQuery<ContentAnalytics>(
     queryKeys.contentLibrary.analytics(),
     '/content-library/analytics/dashboard',
     { staleTime: STALE_TIME.SEMI_STATIC },
   );
+  const canSeeCompliance = !!role && COMPLIANCE_ROLES.includes(role);
+  const { data: compliance, loading: complianceLoading } =
+    useComplianceOverview(canSeeCompliance);
 
   if (isLoading) return <Skeleton rows={4} />;
 
@@ -152,6 +167,38 @@ export function AnalyticsTab() {
             </div>
           </CardBody>
         </Card>
+      )}
+
+      {/* Compliance de leitura obrigatória — Documentos Corporativos (ADMIN/RH/DIRECTOR) */}
+      {canSeeCompliance && (
+      <Card>
+        <CardBody>
+          <h3 className="mb-4 font-body font-semibold text-ink">
+            Compliance de Leitura Obrigatória
+          </h3>
+          {complianceLoading ? (
+            <Skeleton rows={3} />
+          ) : compliance.length === 0 ? (
+            <p className="py-6 text-center font-body text-sm text-ink-faint">
+              Nenhum documento exige confirmação de leitura no momento.
+            </p>
+          ) : (
+            <div className="space-y-3">
+              {compliance.map((c) => (
+                <div key={c.id} className="flex items-center gap-3">
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate font-body text-xs font-medium text-ink">{c.title}</p>
+                    <ProgressBar value={c.percentage} className="mt-1 h-2" />
+                  </div>
+                  <span className="shrink-0 font-body text-xs font-bold text-ink-muted">
+                    {c.confirmedCount}/{c.totalRequired} ({c.percentage}%)
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardBody>
+      </Card>
       )}
     </div>
   );

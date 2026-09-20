@@ -20,7 +20,7 @@ import {
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import type { BadgeProps } from '@/components/ui/Badge';
-import type { DocCategory, DocFilters, DocSensitivity } from './types';
+import type { DocCategory, DocFilters, DocSensitivity, DocStatus } from './types';
 
 export const CATEGORY_CONFIG: Record<
   DocCategory,
@@ -35,7 +35,40 @@ export const CATEGORY_CONFIG: Record<
   HEALTH: { label: 'Saúde', intent: 'success', dot: 'bg-success' },
   PAYROLL: { label: 'Payroll', intent: 'success', dot: 'bg-success' },
   LEAVE: { label: 'Licença', intent: 'warning', dot: 'bg-warning' },
+  POLITICA: { label: 'Política', intent: 'neutral', dot: 'bg-ink-faint' },
+  MANUAL: { label: 'Manual', intent: 'info', dot: 'bg-info' },
+  PROCEDIMENTO: { label: 'Procedimento', intent: 'info', dot: 'bg-info' },
+  FORMULARIO: { label: 'Formulário', intent: 'neutral', dot: 'bg-ink-faint' },
+  CONTRATO: { label: 'Contrato', intent: 'warning', dot: 'bg-warning' },
+  REGULAMENTO: { label: 'Regulamento', intent: 'neutral', dot: 'bg-ink-faint' },
+  COMUNICADO: { label: 'Comunicado', intent: 'info', dot: 'bg-info' },
+  CIRCULAR: { label: 'Circular', intent: 'info', dot: 'bg-info' },
+  ORDEM_SERVICO: { label: 'Ordem de Serviço', intent: 'warning', dot: 'bg-warning' },
+  LEGISLACAO: { label: 'Lei / Regulamento', intent: 'danger', dot: 'bg-danger' },
+  INSTRUCAO_TRABALHO: { label: 'Instrução de Trabalho', intent: 'info', dot: 'bg-info' },
+  MODELO: { label: 'Modelo', intent: 'neutral', dot: 'bg-ink-faint' },
+  CODIGO: { label: 'Código', intent: 'neutral', dot: 'bg-ink-faint' },
+  DIRETIVA: { label: 'Diretiva', intent: 'warning', dot: 'bg-warning' },
   OTHER: { label: 'Outro', intent: 'neutral', dot: 'bg-ink-faint' },
+  OUTRO: { label: 'Outro', intent: 'neutral', dot: 'bg-ink-faint' },
+};
+
+// Estados do documento (docs/biblioteca.md) — ACTIVE é rotulado "Publicado"
+// (é o mesmo valor de sempre, só o rótulo muda consoante o contexto).
+export const STATUS_CONFIG: Record<
+  DocStatus,
+  { label: string; intent: NonNullable<BadgeProps['intent']> }
+> = {
+  DRAFT: { label: 'Rascunho', intent: 'neutral' },
+  EM_REVISAO: { label: 'Em revisão', intent: 'info' },
+  PENDENTE_APROVACAO: { label: 'Pendente de aprovação', intent: 'warning' },
+  APROVADO: { label: 'Aprovado', intent: 'info' },
+  ACTIVE: { label: 'Publicado', intent: 'success' },
+  SUSPENSO: { label: 'Suspenso', intent: 'warning' },
+  EXPIRED: { label: 'Expirado', intent: 'danger' },
+  SUBSTITUIDO: { label: 'Substituído', intent: 'neutral' },
+  ARCHIVED: { label: 'Arquivado', intent: 'neutral' },
+  DELETED: { label: 'Eliminado', intent: 'danger' },
 };
 
 export const SENSITIVITY_CONFIG: Record<

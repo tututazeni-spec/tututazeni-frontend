@@ -57,7 +57,7 @@ export function DocRow({ doc, onView, onDownload }: DocRowProps) {
         </Badge>
       </TableCell>
       <TableCell className="text-xs text-ink-muted">
-        {doc.createdBy?.name ?? '—'}
+        {doc.createdBy?.fullName ?? '—'}
       </TableCell>
       <TableCell className="text-xs text-ink-muted">
         {formatBytes(doc.fileSize)}
