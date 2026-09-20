@@ -8,7 +8,6 @@ export type Tab =
   | 'repository'
   | 'corporate-docs'
   | 'knowledge'
-  | 'paths'
   | 'my-progress'
   | 'analytics';
 
