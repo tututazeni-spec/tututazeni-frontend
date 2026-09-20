@@ -13,6 +13,7 @@ import {
   BarChart2,
   BookMarked,
   BookOpen,
+  Landmark,
   Layers,
   Plus,
   Search,
@@ -22,6 +23,7 @@ import type { LucideIcon } from 'lucide-react';
 import { AddContentModal } from '@/components/content-library/AddContentModal';
 import { AnalyticsTab } from '@/components/content-library/AnalyticsTab';
 import { CatalogueTab } from '@/components/content-library/CatalogueTab';
+import { CorporateDocsTab } from '@/components/content-library/CorporateDocsTab';
 import { HomeTab } from '@/components/content-library/HomeTab';
 import { KnowledgeTab } from '@/components/content-library/KnowledgeTab';
 import { MyProgressTab } from '@/components/content-library/MyProgressTab';
@@ -42,6 +44,7 @@ const TABS: { id: Tab; label: string; icon: LucideIcon }[] = [
   { id: 'home', label: 'Início', icon: BookOpen },
   { id: 'catalogue', label: 'Catálogo', icon: Search },
   { id: 'repository', label: 'Repositório', icon: Archive },
+  { id: 'corporate-docs', label: 'Documentos Corporativos', icon: Landmark },
   { id: 'knowledge', label: 'Conhecimento', icon: BookMarked },
   { id: 'paths', label: 'Trilhas', icon: Layers },
   { id: 'my-progress', label: 'O Meu Percurso', icon: TrendingUp },
@@ -111,6 +114,9 @@ export default function ContentLibraryPage() {
           </TabsContent>
           <TabsContent value="repository">
             <RepositoryTab />
+          </TabsContent>
+          <TabsContent value="corporate-docs">
+            <CorporateDocsTab />
           </TabsContent>
           <TabsContent value="knowledge">
             <KnowledgeTab />

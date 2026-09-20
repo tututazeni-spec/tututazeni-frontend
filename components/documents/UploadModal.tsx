@@ -56,6 +56,10 @@ export function UploadModal({ onClose, onSuccess }: UploadModalProps) {
       tags: [] as string[],
       expiresAt: '',
       department: '',
+      documentNumber: '',
+      requiresReadConfirmation: false,
+      readDeadlineDays: 15,
+      asDraft: false,
     },
     { title: [required()], fileUrl: [required()] },
   );
@@ -70,13 +74,24 @@ export function UploadModal({ onClose, onSuccess }: UploadModalProps) {
     }
   };
 
-  const uploadDoc = useApiMutation(() => apiClient.post('/documents', form), {
-    onSuccess: () => {
-      onSuccess();
-      onClose();
+  const uploadDoc = useApiMutation(
+    () => {
+      const { asDraft, readDeadlineDays, requiresReadConfirmation, ...rest } = form;
+      return apiClient.post('/documents', {
+        ...rest,
+        requiresReadConfirmation,
+        ...(requiresReadConfirmation && { readDeadlineDays }),
+        ...(asDraft && { status: 'DRAFT' }),
+      });
     },
-    onError: (e) => setSubmitError(e.message),
-  });
+    {
+      onSuccess: () => {
+        onSuccess();
+        onClose();
+      },
+      onError: (e) => setSubmitError(e.message),
+    },
+  );
   const loading = uploadDoc.isPending;
 
   const handleSubmit = withValidation(() => {
@@ -177,6 +192,55 @@ export function UploadModal({ onClose, onSuccess }: UploadModalProps) {
               />
             </FormField>
           </div>
+
+          <FormField label="Nº do documento" htmlFor="upload-document-number">
+            <Input
+              id="upload-document-number"
+              value={form.documentNumber}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, documentNumber: e.target.value }))
+              }
+              placeholder="Ex: 12/2026"
+              className="w-full"
+            />
+          </FormField>
+
+          <label className="flex items-center gap-2 cursor-pointer text-sm text-ink">
+            <input
+              type="checkbox"
+              checked={form.asDraft}
+              onChange={(e) => setForm((f) => ({ ...f, asDraft: e.target.checked }))}
+              className="w-4 h-4 rounded border-border text-primary focus:ring-primary"
+            />
+            Guardar como rascunho (inicia fluxo de revisão/aprovação)
+          </label>
+
+          <label className="flex items-center gap-2 cursor-pointer text-sm text-ink">
+            <input
+              type="checkbox"
+              checked={form.requiresReadConfirmation}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, requiresReadConfirmation: e.target.checked }))
+              }
+              className="w-4 h-4 rounded border-border text-primary focus:ring-primary"
+            />
+            Exigir confirmação de leitura
+          </label>
+
+          {form.requiresReadConfirmation && (
+            <FormField label="Prazo para leitura (dias)" htmlFor="upload-read-deadline">
+              <Input
+                id="upload-read-deadline"
+                type="number"
+                min={1}
+                value={form.readDeadlineDays}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, readDeadlineDays: Number(e.target.value) }))
+                }
+                className="w-full"
+              />
+            </FormField>
+          )}
 
           <FormField label="Tags" htmlFor="upload-tag-input">
             <div className="flex gap-2">
