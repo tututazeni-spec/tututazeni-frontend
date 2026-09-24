@@ -16,6 +16,10 @@
 //        { reason } (motivo obrigatório).
 //    Rejeitar (tarefa/documento) e Saltar abrem um painel inline com
 //    textarea; Aprovar é directo.
+//  - "Pedir avaliação" (Avaliação de Integração, docs/onboarding.md ponto 9)
+//    — só com plano COMPLETED e `canManageTasks`. POST
+//    /onboarding/:id/trigger-evaluation; despoleta um EvaluationRequest no
+//    módulo Evaluation (não cria formulário próprio aqui).
 
 'use client';
 
@@ -38,6 +42,8 @@ import { StatusBadge } from '@/components/ui/StatusBadge';
 import { Textarea } from '@/components/ui/Textarea';
 import {
   CATEGORY_CFG,
+  DOC_BADGE,
+  DOC_LABEL,
   PHASE_LABELS,
   PHASE_ORDER,
   STATUS_CFG,
@@ -60,17 +66,6 @@ export interface PlanDetailModalProps {
 
 // Estados em que ainda faz sentido saltar uma tarefa.
 const SKIPPABLE = new Set(['PENDING', 'IN_PROGRESS', 'BLOCKED']);
-
-const DOC_LABEL: Record<DocStatus, string> = {
-  PENDING: 'Pendente',
-  APPROVED: 'Aprovado',
-  REJECTED: 'Rejeitado',
-};
-const DOC_BADGE: Record<DocStatus, 'warning' | 'success' | 'danger'> = {
-  PENDING: 'warning',
-  APPROVED: 'success',
-  REJECTED: 'danger',
-};
 
 type PendingAction = { taskId: number; kind: 'skip' | 'reject' } | null;
 
@@ -185,12 +180,23 @@ export function PlanDetailModal({
     },
   );
 
+  const triggerEval = useApiMutation(
+    () => apiClient.post(`/onboarding/${planId}/trigger-evaluation`, {}),
+    {
+      invalidateKeys,
+      onSuccess: () =>
+        toast({ title: 'Avaliação de Integração pedida.', intent: 'success' }),
+      onError: onTaskError,
+    },
+  );
+
   const busy =
     remove.isPending ||
     approve.isPending ||
     reject.isPending ||
     skip.isPending ||
-    validateDoc.isPending;
+    validateDoc.isPending ||
+    triggerEval.isPending;
 
   async function onDelete() {
     const ok = await confirm({
@@ -315,6 +321,43 @@ export function PlanDetailModal({
                 </div>
               ))}
             </div>
+
+            {/* Avaliação de Integração — docs/onboarding.md ponto 9. Só faz
+                sentido depois do onboarding concluído; despoleta um
+                EvaluationRequest no módulo Evaluation em vez de duplicar um
+                sistema de avaliação próprio. */}
+            {data.status === 'COMPLETED' &&
+              (canManageTasks || data.integrationEvalRequestId) && (
+                <div className="flex items-center justify-between gap-3 rounded-card border border-border bg-surface p-4">
+                  <div className="min-w-0">
+                    <div className="font-body text-sm font-semibold text-ink">
+                      Avaliação de Integração
+                    </div>
+                    <div className="font-body text-xs text-ink-faint">
+                      {data.integrationEvalRequestId
+                        ? 'Já foi pedida — acompanha o resultado no módulo Evaluation.'
+                        : 'Avalia se o onboarding foi concluído com sucesso.'}
+                    </div>
+                  </div>
+                  {data.integrationEvalRequestId ? (
+                    <Badge dot={false} intent="success">
+                      Pedida
+                    </Badge>
+                  ) : (
+                    canManageTasks && (
+                      <Button
+                        size="sm"
+                        intent="secondary"
+                        disabled={busy}
+                        loading={triggerEval.isPending}
+                        onClick={() => triggerEval.mutate(undefined)}
+                      >
+                        Pedir avaliação
+                      </Button>
+                    )
+                  )}
+                </div>
+              )}
 
             {/* Tarefas por fase */}
             {PHASE_ORDER.map((phase) => {

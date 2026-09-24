@@ -449,6 +449,20 @@ export const queryKeys = {
     plans: (params: Record<string, unknown>) =>
       [...queryKeys.onboarding.all, 'plans', params] as const,
     plan: (id: number) => [...queryKeys.onboarding.all, 'plans', id] as const,
+    stages: (templateId: number) =>
+      [...queryKeys.onboarding.all, 'stages', templateId] as const,
+    tasks: (params: Record<string, unknown>) =>
+      [...queryKeys.onboarding.all, 'tasks', params] as const,
+    documents: (params: Record<string, unknown>) =>
+      [...queryKeys.onboarding.all, 'documents', params] as const,
+    training: (params: Record<string, unknown>) =>
+      [...queryKeys.onboarding.all, 'training', params] as const,
+    checkins: (params: Record<string, unknown>) =>
+      [...queryKeys.onboarding.all, 'checkins', params] as const,
+    integrationEvaluations: () =>
+      [...queryKeys.onboarding.all, 'integration-evaluations'] as const,
+    reportsOverview: (params: Record<string, unknown>) =>
+      [...queryKeys.onboarding.all, 'reports-overview', params] as const,
   },
 
   trainings: {
