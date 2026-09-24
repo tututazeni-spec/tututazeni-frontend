@@ -273,6 +273,92 @@ export interface CompetencyEvaluation {
   proximaAvaliacao: string | null;
 }
 
+// docs/módulo_competencies.md §7 — forma devolvida por GET /competencies/gaps
+// (competencies.service.ts#getGaps). Prioridade/Estado são derivados, não
+// persistidos — ver comentário do endpoint no backend.
+export type CompetencyGapPriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+export type CompetencyGapStatus =
+  | 'IDENTIFICADO'
+  | 'EM_DESENVOLVIMENTO'
+  | 'EM_ACOMPANHAMENTO'
+  | 'RESOLVIDO'
+  | 'ENCERRADO';
+export type CompetencyGapImpact = 'ALTO' | 'MEDIO' | 'BAIXO';
+
+export interface CompetencyGap {
+  id: number;
+  colaborador: string;
+  colaboradorId: number;
+  colaboradorAvatarUrl: string | null;
+  departamentoId: number | null;
+  departamento: string | null;
+  cargo: string | null;
+  competencia: string;
+  competenciaId: number;
+  categoria: CompetencyCategory;
+  nivelAtual: number;
+  nivelEsperado: number;
+  gap: number;
+  prioridade: CompetencyGapPriority;
+  competenciaCritica: boolean;
+  impacto: CompetencyGapImpact;
+  dataIdentificacao: string;
+  planoDesenvolvimentoAssociado: { id: number; name: string } | null;
+  estado: CompetencyGapStatus;
+}
+
+// docs/módulo_competencies.md §8 — forma devolvida por GET
+// /competencies/development (competencies.service.ts#getDevelopmentActions).
+// Tipo/Estado espelham DevelopmentPlanAction (ActionType/ActionStatus no
+// Prisma) — enum completo, distinto do subconjunto usado em
+// components/development-plans/types.ts.
+export type DevelopmentActionType =
+  | 'COURSE'
+  | 'MENTORING'
+  | 'COACHING'
+  | 'READING'
+  | 'PROJECT'
+  | 'JOB_ROTATION'
+  | 'MICROLEARNING'
+  | 'WORKSHOP'
+  | 'CERTIFICATION'
+  | 'SHADOWING'
+  | 'PEER_COACHING'
+  | 'FEEDBACK'
+  | 'CONFERENCE'
+  | 'LEADERSHIP_EXPOSURE'
+  | 'OTHER';
+export type DevelopmentActionStatus =
+  'TODO' | 'IN_PROGRESS' | 'COMPLETED' | 'BLOCKED' | 'CANCELLED' | 'OVERDUE';
+export type DevelopmentResult = 'MELHOROU' | 'MANTEVE' | 'PENDENTE';
+
+export interface CompetencyDevelopmentAction {
+  id: string;
+  actionId: number;
+  colaborador: string;
+  colaboradorId: number;
+  colaboradorAvatarUrl: string | null;
+  departamento: string | null;
+  competencia: string;
+  competenciaId: number;
+  categoria: CompetencyCategory;
+  gap: number | null;
+  nivelAtual: number | null;
+  nivelObjetivo: number | null;
+  acao: string;
+  tipoAcao: DevelopmentActionType;
+  cursoFormacao: string | null;
+  cursoFormacaoId: number | null;
+  pdiAssociado: { id: number; name: string };
+  responsavel: string | null;
+  dataInicio: string | null;
+  dataPrevistaConclusao: string | null;
+  estado: DevelopmentActionStatus;
+  progresso: number;
+  resultado: DevelopmentResult;
+  nivelAposDesenvolvimento: number | null;
+}
+
 export type View =
   | 'overview'
   | 'catalog'
@@ -281,5 +367,7 @@ export type View =
   | 'my-profile'
   | 'matrix'
   | 'evaluations'
+  | 'gaps'
+  | 'development'
   | 'dashboard'
   | 'competency-map';

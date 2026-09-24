@@ -33,7 +33,9 @@ import { CatalogView } from '@/components/competencies/CatalogView';
 import { CompetencyDetailModal } from '@/components/competencies/CompetencyDetailModal';
 import { CompetencyFormModal } from '@/components/competencies/CompetencyFormModal';
 import { DashboardView } from '@/components/competencies/DashboardView';
+import { DevelopmentView } from '@/components/competencies/DevelopmentView';
 import { EvaluationsView } from '@/components/competencies/EvaluationsView';
+import { GapsView } from '@/components/competencies/GapsView';
 import { LevelsView } from '@/components/competencies/LevelsView';
 import { ModelDetailModal } from '@/components/competencies/ModelDetailModal';
 import { ModelFormModal } from '@/components/competencies/ModelFormModal';
@@ -127,6 +129,10 @@ export default function CompetenciesPage() {
       )}
       {view === 'evaluations' && visibleNav.some((n) => n.id === 'evaluations') && (
         <EvaluationsView />
+      )}
+      {view === 'gaps' && visibleNav.some((n) => n.id === 'gaps') && <GapsView />}
+      {view === 'development' && visibleNav.some((n) => n.id === 'development') && (
+        <DevelopmentView />
       )}
       {view === 'dashboard' && visibleNav.some((n) => n.id === 'dashboard') && (
         <DashboardView />
