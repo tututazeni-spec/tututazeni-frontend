@@ -71,6 +71,8 @@ export interface Event {
   department?: { id: number; name: string } | null;
   unit?: { id: number; name: string } | null;
   _count: { participants: number; feedbacks?: number };
+  /** Participantes com estado CONFIRMED/PRESENT — só presente em GET /events. */
+  confirmedCount?: number;
 }
 
 export interface MyEvents {
@@ -98,6 +100,38 @@ export interface OrganizerDashboard {
     feedbackCount: number;
     avgNps: number | null;
   }>;
+}
+
+// Aba "Visão Geral" (docs/events.md #1) — GET /events/stats.
+export interface EventDashboardUpcoming {
+  id: number;
+  title: string;
+  type: EventType;
+  status: EventStatus;
+  startAt: string;
+  location: string | null;
+  modalidade: EventModalidade;
+  _count: { participants: number };
+}
+
+export interface EventDashboard {
+  total: number;
+  byType: Record<string, number>;
+  byStatus: Record<string, number>;
+  byDepartment: Record<string, number>;
+  byUnit: Record<string, number>;
+  totalParticipants: number;
+  registeredParticipants: number;
+  confirmedParticipants: number;
+  checkinsDone: number;
+  pendingRegistrations: number;
+  pendingEvaluations: number;
+  participationRate: number;
+  upcomingCount: number;
+  liveCount: number;
+  endedCount: number;
+  cancelledCount: number;
+  upcomingEvents: EventDashboardUpcoming[];
 }
 
 export interface EventParticipant {

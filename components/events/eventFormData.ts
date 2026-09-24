@@ -33,3 +33,18 @@ export function useDepartmentOptions(enabled = true) {
   }));
   return { options, loading: query.isLoading };
 }
+
+// GET /units devolve array directo (sem paginação) — usado pelo filtro
+// "Unidade" da aba Eventos (docs/events.md #2).
+export function useUnitOptions(enabled = true) {
+  const query = useApiQuery<{ id: number; name: string }[]>(
+    queryKeys.departments.units(),
+    '/units',
+    { staleTime: STALE_TIME.SEMI_STATIC, enabled },
+  );
+  const options: SelectOption[] = (query.data ?? []).map((u) => ({
+    value: String(u.id),
+    label: u.name,
+  }));
+  return { options, loading: query.isLoading };
+}

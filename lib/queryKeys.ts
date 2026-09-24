@@ -719,6 +719,9 @@ export const queryKeys = {
     all: ['events'] as const,
     catalog: (params: Record<string, unknown>) =>
       [...queryKeys.events.all, 'catalog', params] as const,
+    list: (params: Record<string, unknown>) =>
+      [...queryKeys.events.all, 'list', params] as const,
+    dashboard: () => [...queryKeys.events.all, 'dashboard'] as const,
     my: () => [...queryKeys.events.all, 'my'] as const,
     detail: (id: number) => [...queryKeys.events.all, 'detail', id] as const,
     organizerDashboard: () =>
