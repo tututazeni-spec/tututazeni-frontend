@@ -135,6 +135,7 @@ const baseDetail = {
     },
   ],
   surveys: [],
+  integrationEvalRequestId: null,
   byPhase: {
     DAY_1: [
       instance({
@@ -356,5 +357,48 @@ describe('PlanDetailModal — validação de documentos', () => {
       status: 'REJECTED',
       rejectionReason: 'Ilegível',
     });
+  });
+});
+
+describe('PlanDetailModal — Avaliação de Integração', () => {
+  test('plano não concluído não mostra a secção', () => {
+    renderModal();
+    expect(screen.queryByText('Avaliação de Integração')).not.toBeInTheDocument();
+  });
+
+  test('plano concluído sem canManageTasks não mostra a secção', () => {
+    detailResult = {
+      data: { ...baseDetail, status: 'COMPLETED' },
+      isLoading: false,
+      error: null,
+    };
+    renderModal({ canManageTasks: false });
+    expect(screen.queryByText('Avaliação de Integração')).not.toBeInTheDocument();
+  });
+
+  test('"Pedir avaliação" envia POST /onboarding/:id/trigger-evaluation', async () => {
+    detailResult = {
+      data: { ...baseDetail, status: 'COMPLETED' },
+      isLoading: false,
+      error: null,
+    };
+    renderModal();
+    fireEvent.click(screen.getByRole('button', { name: 'Pedir avaliação' }));
+
+    await waitFor(() => expect(post).toHaveBeenCalledTimes(1));
+    expect(post).toHaveBeenCalledWith('/onboarding/7/trigger-evaluation', {});
+  });
+
+  test('já pedida mostra badge "Pedida" e esconde o botão', () => {
+    detailResult = {
+      data: { ...baseDetail, status: 'COMPLETED', integrationEvalRequestId: 42 },
+      isLoading: false,
+      error: null,
+    };
+    renderModal();
+    expect(screen.getByText('Pedida')).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Pedir avaliação' }),
+    ).not.toBeInTheDocument();
   });
 });
