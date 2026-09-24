@@ -726,6 +726,10 @@ export const queryKeys = {
     detail: (id: number) => [...queryKeys.events.all, 'detail', id] as const,
     organizerDashboard: () =>
       [...queryKeys.events.all, 'organizer-dashboard'] as const,
+    calendar: (params: Record<string, unknown>) =>
+      [...queryKeys.events.all, 'calendar', params] as const,
+    participants: (eventId: number, params: Record<string, unknown>) =>
+      [...queryKeys.events.all, 'detail', eventId, 'participants', params] as const,
   },
 
   liveClasses: {

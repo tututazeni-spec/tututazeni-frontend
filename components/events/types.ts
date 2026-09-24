@@ -26,7 +26,8 @@ export type ParticipantStatus =
   | 'PRESENT'
   | 'ABSENT'
   | 'CANCELLED'
-  | 'NO_SHOW';
+  | 'NO_SHOW'
+  | 'REJECTED';
 
 export interface Event {
   id: number;
@@ -142,6 +143,53 @@ export interface EventParticipant {
 
 export interface EventDetail extends Event {
   participants?: EventParticipant[];
+}
+
+// Aba "Calendário" (docs/events.md #3) — GET /events/calendar.
+export interface EventCalendarItem {
+  id: number;
+  title: string;
+  startAt: string;
+  endAt: string;
+  durationMinutes: number;
+  location: string | null;
+  responsible: { id: number; fullName: string } | null;
+  type: EventType;
+  status: EventStatus;
+  modalidade: EventModalidade;
+  participants: number;
+}
+
+// Aba "Participantes" (docs/events.md #4) — GET /events/:id/participants.
+export interface EventParticipantRow {
+  id: number;
+  userId: number;
+  eventId: number;
+  status: ParticipantStatus;
+  note: string | null;
+  registeredAt: string;
+  confirmedAt: string | null;
+  checkedInAt: string | null;
+  checkedOutAt: string | null;
+  hasCertificate: boolean;
+  hasEvaluation: boolean;
+  user: {
+    id: number;
+    fullName: string;
+    avatarUrl: string | null;
+    employeeNumber: string | null;
+    position: { name: string } | null;
+    department: { id: number; name: string } | null;
+    unit: { id: number; name: string } | null;
+  };
+}
+
+export interface AddParticipantsResult {
+  success: number;
+  skipped: number;
+  errors: number;
+  total: number;
+  details: { added: number[]; errors: Array<{ userId: number; error: string }> };
 }
 
 // Abas principais do módulo (docs/events.md) — ver constants.ts#NAV.

@@ -134,6 +134,7 @@ export const PARTICIPANT_STATUS: StatusBadgeMap<ParticipantStatus> = {
   ABSENT: { label: 'Ausente', cls: 'bg-danger-subtle text-danger-ink' },
   CANCELLED: { label: 'Cancelado', cls: 'bg-surface-sunken text-ink-faint' },
   NO_SHOW: { label: 'Não apareceu', cls: 'bg-danger-subtle text-danger-ink' },
+  REJECTED: { label: 'Rejeitado', cls: 'bg-danger-subtle text-danger' },
 };
 
 // Abas principais do módulo (docs/events.md) — remodel em curso, uma aba
