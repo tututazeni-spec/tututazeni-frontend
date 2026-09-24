@@ -23,7 +23,10 @@ import {
 } from 'lucide-react';
 import type { StatusBadgeMap } from '@/lib/statusBadge';
 import type {
+  EventEquipmentType,
+  EventLogisticsStatus,
   EventModalidade,
+  EventSessionStatus,
   EventStatus,
   EventType,
   EventVisibility,
@@ -135,6 +138,34 @@ export const PARTICIPANT_STATUS: StatusBadgeMap<ParticipantStatus> = {
   CANCELLED: { label: 'Cancelado', cls: 'bg-surface-sunken text-ink-faint' },
   NO_SHOW: { label: 'Não apareceu', cls: 'bg-danger-subtle text-danger-ink' },
   REJECTED: { label: 'Rejeitado', cls: 'bg-danger-subtle text-danger' },
+};
+
+export const SESSION_STATUS_CFG: StatusBadgeMap<EventSessionStatus> = {
+  SCHEDULED: { label: 'Agendada', cls: 'bg-info-subtle text-info-ink' },
+  IN_PROGRESS: { label: 'Em curso', cls: 'bg-danger-subtle text-danger-ink' },
+  COMPLETED: { label: 'Concluída', cls: 'bg-success-subtle text-success-ink' },
+  CANCELLED: { label: 'Cancelada', cls: 'bg-surface-sunken text-ink-faint' },
+};
+
+export const LOGISTICS_STATUS_CFG: StatusBadgeMap<EventLogisticsStatus> = {
+  PLANNED: { label: 'Planeado', cls: 'bg-surface-sunken text-ink-muted' },
+  IN_PROGRESS: { label: 'Em preparação', cls: 'bg-warning-subtle text-warning-ink' },
+  CONFIRMED: { label: 'Confirmado', cls: 'bg-info-subtle text-info-ink' },
+  COMPLETED: { label: 'Concluído', cls: 'bg-success-subtle text-success-ink' },
+  CANCELLED: { label: 'Cancelado', cls: 'bg-danger-subtle text-danger-ink' },
+};
+
+export const EQUIPMENT_CFG: Record<EventEquipmentType, { label: string }> = {
+  PROJECTOR: { label: 'Projetor' },
+  SCREEN: { label: 'Ecrã' },
+  SOUND_SYSTEM: { label: 'Sistema de som' },
+  MICROPHONES: { label: 'Microfones' },
+  CHAIRS: { label: 'Cadeiras' },
+  TABLES: { label: 'Mesas' },
+  COMPUTERS: { label: 'Computadores' },
+  INTERNET: { label: 'Internet' },
+  MATERIALS: { label: 'Materiais' },
+  SIGNAGE: { label: 'Sinalização' },
 };
 
 // Abas principais do módulo (docs/events.md) — remodel em curso, uma aba

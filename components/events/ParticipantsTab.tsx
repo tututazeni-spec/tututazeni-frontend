@@ -42,8 +42,8 @@ import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { PARTICIPANT_STATUS } from './constants';
-import { useDepartmentOptions, useUnitOptions } from './eventFormData';
-import type { AddParticipantsResult, Event, EventParticipantRow, ParticipantStatus } from './types';
+import { useDepartmentOptions, useEventPickerOptions, useUnitOptions } from './eventFormData';
+import type { AddParticipantsResult, EventParticipantRow, ParticipantStatus } from './types';
 
 interface Paginated<T> {
   data: T[];
@@ -67,26 +67,7 @@ export function ParticipantsTab() {
 
   const { options: departmentOptions } = useDepartmentOptions();
   const { options: unitOptions } = useUnitOptions();
-
-  // Selector de evento: publicados/ao vivo (uso corrente) + encerrados
-  // (gestão pós-evento — certificados, avaliações). Rascunho/cancelado ficam
-  // de fora, sem inscrições reais para gerir.
-  const { data: activeEvents } = useApiQuery<Paginated<Event>>(
-    queryKeys.events.list({ picker: 'participants-active', limit: 100 }),
-    '/events',
-    { params: { limit: 100 }, staleTime: STALE_TIME.DYNAMIC },
-  );
-  const { data: endedEvents } = useApiQuery<Paginated<Event>>(
-    queryKeys.events.list({ picker: 'participants-ended', limit: 100, status: 'ENDED' }),
-    '/events',
-    { params: { limit: 100, status: 'ENDED' }, staleTime: STALE_TIME.DYNAMIC },
-  );
-  const eventOptions = useMemo(() => {
-    const all = [...(activeEvents?.data ?? []), ...(endedEvents?.data ?? [])];
-    return all
-      .sort((a, b) => new Date(b.startAt).getTime() - new Date(a.startAt).getTime())
-      .map((e) => ({ value: String(e.id), label: `${e.title} — ${formatDate(e.startAt)}` }));
-  }, [activeEvents, endedEvents]);
+  const eventOptions = useEventPickerOptions('participants');
 
   function updateFilters(patch: Partial<Omit<typeof filters, 'page'>>) {
     setFilters((f) => ({ ...f, ...patch, page: 1 }));

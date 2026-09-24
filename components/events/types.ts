@@ -192,6 +192,62 @@ export interface AddParticipantsResult {
   details: { added: number[]; errors: Array<{ userId: number; error: string }> };
 }
 
+// Aba "Programação" (docs/events.md #5) — GET /events/sessions e
+// /events/:id/sessions.
+export type EventSessionStatus = 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
+
+export interface EventSession {
+  id: number;
+  eventId: number;
+  title: string;
+  description: string | null;
+  startAt: string;
+  endAt: string;
+  durationMinutes: number;
+  location: string | null;
+  room: string | null;
+  responsibleId: number | null;
+  speaker: string | null;
+  capacity: number | null;
+  status: EventSessionStatus;
+  event?: { id: number; title: string; departmentId: number | null; unitId: number | null };
+  responsible: { id: number; fullName: string } | null;
+}
+
+// Aba "Locais & Logística" (docs/events.md #6) — GET/PUT
+// /events/:id/logistics.
+export type EventLogisticsStatus = 'PLANNED' | 'IN_PROGRESS' | 'CONFIRMED' | 'COMPLETED' | 'CANCELLED';
+
+export type EventEquipmentType =
+  | 'PROJECTOR'
+  | 'SCREEN'
+  | 'SOUND_SYSTEM'
+  | 'MICROPHONES'
+  | 'CHAIRS'
+  | 'TABLES'
+  | 'COMPUTERS'
+  | 'INTERNET'
+  | 'MATERIALS'
+  | 'SIGNAGE';
+
+export interface EventLogistics {
+  id: number;
+  eventId: number;
+  responsibleId: number | null;
+  equipment: EventEquipmentType[];
+  resourcesNeeded: string | null;
+  suppliers: string | null;
+  catering: string | null;
+  transport: string | null;
+  accommodation: string | null;
+  security: string | null;
+  decoration: string | null;
+  budget: number | null;
+  actualCost: number | null;
+  status: EventLogisticsStatus;
+  responsible: { id: number; fullName: string } | null;
+}
+
 // Abas principais do módulo (docs/events.md) — ver constants.ts#NAV.
 export type View =
   | 'overview'

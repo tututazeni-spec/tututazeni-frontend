@@ -10,13 +10,44 @@
 
 'use client';
 
+import { useMemo } from 'react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
+import { formatDate } from '@/lib/format';
+import type { Event } from './types';
 
 export interface SelectOption {
   value: string;
   label: string;
+}
+
+interface Paginated<T> {
+  data: T[];
+  meta: { total: number; page: number; limit: number; totalPages: number };
+}
+
+// Opções de evento para os pickers das abas que operam no contexto de UM
+// evento seleccionado (Participantes, Programação, Locais & Logística):
+// publicados/ao vivo (uso corrente) + encerrados (gestão pós-evento).
+// Rascunho/cancelado ficam de fora — sem dados reais para gerir.
+export function useEventPickerOptions(scope: string) {
+  const { data: activeEvents } = useApiQuery<Paginated<Event>>(
+    queryKeys.events.list({ picker: `${scope}-active`, limit: 100 }),
+    '/events',
+    { params: { limit: 100 }, staleTime: STALE_TIME.DYNAMIC },
+  );
+  const { data: endedEvents } = useApiQuery<Paginated<Event>>(
+    queryKeys.events.list({ picker: `${scope}-ended`, limit: 100, status: 'ENDED' }),
+    '/events',
+    { params: { limit: 100, status: 'ENDED' }, staleTime: STALE_TIME.DYNAMIC },
+  );
+  return useMemo(() => {
+    const all = [...(activeEvents?.data ?? []), ...(endedEvents?.data ?? [])];
+    return all
+      .sort((a, b) => new Date(b.startAt).getTime() - new Date(a.startAt).getTime())
+      .map((e) => ({ value: String(e.id), label: `${e.title} — ${formatDate(e.startAt)}` }));
+  }, [activeEvents, endedEvents]);
 }
 
 // GET /departments devolve { data, meta } (pagination.helper).
