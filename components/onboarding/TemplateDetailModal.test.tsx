@@ -115,7 +115,7 @@ describe('TemplateDetailModal', () => {
   test('lista a tarefa com fase e categoria legíveis', () => {
     renderModal();
     expect(screen.getByText('Entregar documentos')).toBeInTheDocument();
-    expect(screen.getByText('Dia 1')).toBeInTheDocument();
+    expect(screen.getByText('Primeiro Dia')).toBeInTheDocument();
     expect(screen.getByText('Documentos')).toBeInTheDocument();
   });
 
