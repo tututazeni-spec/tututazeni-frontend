@@ -26,6 +26,7 @@ import type {
   EventModalidade,
   EventStatus,
   EventType,
+  EventVisibility,
   ParticipantStatus,
   View,
 } from './types';
@@ -108,6 +109,12 @@ export const MODALITY_CFG: Record<EventModalidade, { label: string }> = {
   HYBRID: { label: 'Híbrido' },
 };
 
+export const VISIBILITY_CFG: Record<EventVisibility, { label: string }> = {
+  PUBLIC: { label: 'Público' },
+  INTERNAL: { label: 'Interno' },
+  RESTRICTED: { label: 'Restrito (departamentos elegíveis)' },
+};
+
 export const STATUS_CFG: StatusBadgeMap<EventStatus> = {
   DRAFT: { label: 'Rascunho', cls: 'bg-surface-sunken text-ink-muted' },
   PUBLISHED: { label: 'Publicado', cls: 'bg-info-subtle text-info-ink' },
@@ -129,18 +136,37 @@ export const PARTICIPANT_STATUS: StatusBadgeMap<ParticipantStatus> = {
   NO_SHOW: { label: 'Não apareceu', cls: 'bg-danger-subtle text-danger-ink' },
 };
 
+// Abas principais do módulo (docs/events.md) — remodel em curso, uma aba
+// de cada vez. CatalogView/MyEventsView/OrganizerView/DetailView (nav
+// anterior: catálogo/os meus eventos/organizador) ficam por agora sem
+// referência a partir da page; o conteúdo real de cada aba entra quando
+// a tarefa correspondente do events.md for trabalhada.
 export const NAV = [
-  { id: 'catalog', label: ' Catálogo' },
-  { id: 'my-events', label: ' Os meus eventos' },
-  { id: 'organizer', label: ' Organizador' },
+  { id: 'overview', label: 'Visão Geral' },
+  { id: 'events', label: 'Eventos' },
+  { id: 'calendar', label: 'Calendário' },
+  { id: 'participants', label: 'Participantes' },
+  { id: 'schedule', label: 'Programação' },
+  { id: 'venues-logistics', label: 'Locais & Logística' },
+  { id: 'speakers-guests', label: 'Oradores & Convidados' },
+  { id: 'communication', label: 'Comunicação' },
+  { id: 'checkin-attendance', label: 'Check-in & Presença' },
+  { id: 'evaluation', label: 'Avaliação' },
+  { id: 'reports', label: 'Relatórios' },
 ] as const;
 
 export const TITLES: Record<View, string> = {
-  catalog: 'Eventos Corporativos',
-  'my-events': 'Os meus Eventos',
-  detail: 'Detalhe do Evento',
-  organizer: 'Dashboard Organizador',
-  create: 'Criar Evento',
+  overview: 'Visão Geral',
+  events: 'Eventos',
+  calendar: 'Calendário',
+  participants: 'Participantes',
+  schedule: 'Programação',
+  'venues-logistics': 'Locais & Logística',
+  'speakers-guests': 'Oradores & Convidados',
+  communication: 'Comunicação',
+  'checkin-attendance': 'Check-in & Presença',
+  evaluation: 'Avaliação',
+  reports: 'Relatórios',
 };
 
 /** Tom do indicador de ocupação (dot + texto) — 3 níveis, mesmos limiares

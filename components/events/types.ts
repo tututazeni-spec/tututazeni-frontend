@@ -16,6 +16,7 @@ export type EventType =
   | 'EXTERNAL'
   | 'TALK';
 export type EventModalidade = 'ONLINE' | 'PRESENCIAL' | 'HYBRID';
+export type EventVisibility = 'PUBLIC' | 'INTERNAL' | 'RESTRICTED';
 export type EventStatus =
   'DRAFT' | 'PUBLISHED' | 'LIVE' | 'ENDED' | 'CANCELLED';
 export type ParticipantStatus =
@@ -30,26 +31,45 @@ export type ParticipantStatus =
 export interface Event {
   id: number;
   title: string;
+  code?: string | null;
   description: string | null;
+  objective?: string | null;
   type: EventType;
+  category?: string | null;
   modalidade: EventModalidade;
   status: EventStatus;
+  visibility?: EventVisibility;
   startAt: string;
   endAt: string;
+  timezone?: string;
   location: string | null;
+  address?: string | null;
+  room?: string | null;
   meetingUrl: string | null;
   meetingPassword: string | null;
   maxCapacity: number;
   waitlistEnabled: boolean;
+  requiresApproval?: boolean;
+  registrationStartAt?: string | null;
+  registrationEndAt?: string | null;
+  targetAudience?: string | null;
+  allowGuest?: boolean;
   certificateEnabled: boolean;
+  evaluationEnabled?: boolean;
+  checkinEnabled?: boolean;
+  notificationsEnabled?: boolean;
   mandatory: boolean;
   bannerUrl: string | null;
   tags: string[];
+  restrictedDeptIds?: number[];
   isFull: boolean;
   occupancyRate: number | null;
   avgNps?: number | null;
   avgRating?: number | null;
   organizer: { id: number; fullName: string; avatarUrl: string | null };
+  responsible?: { id: number; fullName: string; avatarUrl: string | null } | null;
+  department?: { id: number; name: string } | null;
+  unit?: { id: number; name: string } | null;
   _count: { participants: number; feedbacks?: number };
 }
 
@@ -90,9 +110,20 @@ export interface EventDetail extends Event {
   participants?: EventParticipant[];
 }
 
-export type View = 'catalog' | 'my-events' | 'detail' | 'organizer' | 'create';
+// Abas principais do módulo (docs/events.md) — ver constants.ts#NAV.
+export type View =
+  | 'overview'
+  | 'events'
+  | 'calendar'
+  | 'participants'
+  | 'schedule'
+  | 'venues-logistics'
+  | 'speakers-guests'
+  | 'communication'
+  | 'checkin-attendance'
+  | 'evaluation'
+  | 'reports';
 
-// view e selectedId eram dois useState separados sempre definidos em conjunto
-// — um único estado torna "detail sem id" irrepresentável.
-export type Nav =
-  { view: Exclude<View, 'detail'> } | { view: 'detail'; selectedId: number };
+export interface Nav {
+  view: View;
+}
