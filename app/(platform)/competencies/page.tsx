@@ -34,6 +34,7 @@ import { CompetencyDetailModal } from '@/components/competencies/CompetencyDetai
 import { CompetencyFormModal } from '@/components/competencies/CompetencyFormModal';
 import { DashboardView } from '@/components/competencies/DashboardView';
 import { MyProfileView } from '@/components/competencies/MyProfileView';
+import { OverviewView } from '@/components/competencies/OverviewView';
 import { SkillMatrixView } from '@/components/competencies/SkillMatrixView';
 import type { View } from '@/components/competencies/types';
 import { Button } from '@/components/ui/Button';
@@ -88,13 +89,16 @@ export default function CompetenciesPage() {
         ))}
       </div>
 
+      {/* Overview/Matrix/Dashboard: nem montados para quem não tem
+          @Roles(ADMIN, RH, GESTOR)/(ADMIN, RH) no backend — não só
+          escondidos da lista de separadores acima. */}
+      {view === 'overview' && visibleNav.some((n) => n.id === 'overview') && (
+        <OverviewView />
+      )}
       {view === 'catalog' && (
         <CatalogView onSelect={setDetailId} canManage={canManage} />
       )}
       {view === 'my-profile' && <MyProfileView />}
-      {/* Matrix/Dashboard: nem montados para quem não tem @Roles(ADMIN, RH,
-          GESTOR)/(ADMIN, RH) no backend — não só escondidos da lista de
-          separadores acima. */}
       {view === 'matrix' && visibleNav.some((n) => n.id === 'matrix') && (
         <SkillMatrixView />
       )}

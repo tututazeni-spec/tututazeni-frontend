@@ -195,6 +195,7 @@ export const queryKeys = {
       [...queryKeys.competencies.all, 'skill-matrix', deptId] as const,
     dashboardGaps: () =>
       [...queryKeys.competencies.all, 'dashboard-gaps'] as const,
+    overview: () => [...queryKeys.competencies.all, 'overview'] as const,
     top: () => [...queryKeys.competencies.all, 'top'] as const,
     gap: (userId: string | number) =>
       [...queryKeys.competencies.all, 'gap', userId] as const,

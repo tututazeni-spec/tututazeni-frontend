@@ -5,7 +5,7 @@
 
 import { NON_COLABORADOR_ROLES, type Role } from '@/lib/roles';
 import type { StatusBadgeMap } from '@/lib/statusBadge';
-import type { CompetencyCategory, View } from './types';
+import type { CompetencyCategory, CompetencyStatus, View } from './types';
 
 export const LEVEL_LABELS = [
   '—',
@@ -22,6 +22,16 @@ export const CATEGORY_CFG: StatusBadgeMap<CompetencyCategory> = {
   LANGUAGE: { label: 'Idioma', cls: 'bg-success-subtle text-success-ink' },
   TOOL: { label: 'Ferramenta', cls: 'bg-warning-subtle text-warning-ink' },
   LEADERSHIP: { label: 'Liderança', cls: 'bg-accent-subtle text-accent' },
+  FUNCTIONAL: { label: 'Competências Funcionais', cls: 'bg-danger-subtle text-danger-ink' },
+};
+
+// docs/módulo_competencies.md §2 — "Estado" da competência. Usado no
+// catálogo (badge) e no formulário. ACTIVE/INACTIVE já tinham rotulagem ad
+// hoc inline em CatalogView.tsx; IN_REVIEW é novo (Fase 1).
+export const STATUS_CFG: StatusBadgeMap<CompetencyStatus> = {
+  ACTIVE: { label: 'Activa', cls: 'bg-success-subtle text-success-ink' },
+  IN_REVIEW: { label: 'Em revisão', cls: 'bg-warning-subtle text-warning-ink' },
+  INACTIVE: { label: 'Arquivada', cls: 'bg-surface-sunken text-ink-muted' },
 };
 
 // "Matriz de Competências" e "Dashboard RH" ficam escondidas de COLABORADOR
@@ -36,8 +46,12 @@ export const CATEGORY_CFG: StatusBadgeMap<CompetencyCategory> = {
 // roles, tal como a entrada de sidebar standalone que substitui — a
 // visibilidade fina dos seus separadores internos já é feita dentro do
 // próprio CompetencyMapView.
+// "Visão Geral" (docs/módulo_competencies.md §1) é a nova primeira aba —
+// KPIs organizacionais, mesma restrição de roles de "Dashboard RH" (o
+// endpoint GET /competencies/overview é @Roles(ADMIN, RH, GESTOR)).
 export const NAV: Array<{ id: View; label: string; roles?: readonly Role[] }> = [
-  { id: 'catalog', label: 'Catálogo' },
+  { id: 'overview', label: 'Visão Geral', roles: NON_COLABORADOR_ROLES },
+  { id: 'catalog', label: 'Competências' },
   { id: 'my-profile', label: 'O meu perfil' },
   { id: 'matrix', label: 'Matriz de Competências', roles: NON_COLABORADOR_ROLES },
   { id: 'dashboard', label: 'Dashboard RH', roles: NON_COLABORADOR_ROLES },
@@ -45,7 +59,8 @@ export const NAV: Array<{ id: View; label: string; roles?: readonly Role[] }> = 
 ];
 
 export const TITLES: Record<View, string> = {
-  catalog: 'Catálogo de Competências',
+  overview: 'Visão Geral de Competências',
+  catalog: 'Competências',
   'my-profile': 'O meu Perfil de Competências',
   matrix: 'Matriz de Competências',
   dashboard: 'Dashboard de Competências',

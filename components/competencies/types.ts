@@ -4,8 +4,8 @@
 // app/(platform)/competencies/page.tsx.
 
 export type CompetencyCategory =
-  'HARD_SKILL' | 'SOFT_SKILL' | 'LANGUAGE' | 'TOOL' | 'LEADERSHIP';
-export type CompetencyStatus = 'ACTIVE' | 'INACTIVE';
+  'HARD_SKILL' | 'SOFT_SKILL' | 'LANGUAGE' | 'TOOL' | 'LEADERSHIP' | 'FUNCTIONAL';
+export type CompetencyStatus = 'ACTIVE' | 'INACTIVE' | 'IN_REVIEW';
 export type CompetencySource =
   'MANUAL' | 'COURSE' | 'ASSESSMENT' | 'MANAGER' | 'HRIS';
 
@@ -16,7 +16,27 @@ export interface ProficiencyLevel {
   description: string | null;
 }
 
-export interface Competency {
+export interface CompetencyOwner {
+  id: number;
+  fullName: string;
+}
+
+// docs/módulo_competencies.md §2 — Informações gerais + Configuração
+// (Fase 1). Aplicabilidade/Critérios/Desenvolvimento ficam para fases
+// futuras — ver docs/superpowers/specs/2026-09-24-competencies-fase1-design.md.
+export interface CompetencyCatalogFields {
+  code: string | null;
+  family: string | null;
+  objective: string | null;
+  isCritical: boolean;
+  isStrategic: boolean;
+  isMandatory: boolean;
+  isAssessable: boolean;
+  isDevelopable: boolean;
+  owner: CompetencyOwner | null;
+}
+
+export interface Competency extends CompetencyCatalogFields {
   id: number;
   name: string;
   description: string | null;
@@ -28,7 +48,7 @@ export interface Competency {
 }
 
 // Forma devolvida por GET /competencies/:id (competencies.service.ts#findOne).
-export interface CompetencyDetail {
+export interface CompetencyDetail extends CompetencyCatalogFields {
   id: number;
   name: string;
   description: string | null;
@@ -127,7 +147,44 @@ export interface TopCompetency {
   avgLevel: number;
 }
 
+// Forma devolvida por GET /competencies/overview (competencies.service.ts#getOverview).
+export interface CompetencyOverview {
+  total: number;
+  byCategory: {
+    technical: number;
+    behavioral: number;
+    leadership: number;
+    functional: number;
+    language: number;
+    tool: number;
+  };
+  critical: number;
+  strategic: number;
+  active: number;
+  inReview: number;
+  avgProficiency: number;
+  evaluatedUsers: number;
+  biggestGaps: Array<{
+    id: number;
+    name: string;
+    category: CompetencyCategory;
+    isCritical: boolean;
+    usersWithGap: number;
+  }>;
+  criticalAlerts: Array<{
+    id: number;
+    name: string;
+    category: CompetencyCategory;
+    isCritical: boolean;
+    usersWithGap: number;
+  }>;
+  topCompetencies: TopCompetency[];
+  /** null = ainda não medido — depende do tab "Avaliações" (fase futura). */
+  pendingEvaluations: number | null;
+}
+
 export type View =
+  | 'overview'
   | 'catalog'
   | 'my-profile'
   | 'matrix'

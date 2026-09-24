@@ -35,6 +35,13 @@ vi.mock('@/hooks/useApiQuery', () => ({
   }),
 }));
 
+// Stub: evita montar o picker real (pesquisa no diretório via useApiQuery,
+// Popover Radix) — os testes deste ficheiro não exercitam a escolha de
+// responsável.
+vi.mock('@/components/departments/DepartmentUserPicker', () => ({
+  DepartmentUserPicker: ({ label }: { label: string }) => <div>{label}</div>,
+}));
+
 vi.mock('@/components/ui/Modal', () => ({
   Modal: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
   ModalContent: ({
@@ -115,6 +122,15 @@ describe('CompetencyFormModal — modo criação', () => {
       category: 'SOFT_SKILL',
       description: null,
       tags: ['vendas', 'persuasão'],
+      code: null,
+      family: null,
+      objective: null,
+      isCritical: false,
+      isStrategic: false,
+      isMandatory: false,
+      isAssessable: true,
+      isDevelopable: true,
+      ownerId: null,
     });
     expect(put).not.toHaveBeenCalled();
   });
@@ -181,6 +197,15 @@ describe('CompetencyFormModal — modo edição', () => {
       category: 'SOFT_SKILL',
       description: 'Descrição atual',
       tags: ['comunicação', 'apresentação'],
+      code: null,
+      family: null,
+      objective: null,
+      isCritical: false,
+      isStrategic: false,
+      isMandatory: false,
+      isAssessable: true,
+      isDevelopable: true,
+      ownerId: null,
       status: 'ACTIVE',
     });
     expect(post).not.toHaveBeenCalled();
