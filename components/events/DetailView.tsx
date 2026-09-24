@@ -50,10 +50,56 @@ const TABS = [
   { id: 'participants', label: 'Participantes' },
 ] as const;
 
+// Linha de estrelas 1-5 reutilizada pelos vários aspectos do formulário de
+// avaliação (docs/events.md #10: organização/conteúdo/local/oradores/
+// logística/comunicação/participaria novamente) — evita repetir o markup
+// de botões 8 vezes.
+function RatingRow({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: number;
+  onChange: (n: number) => void;
+}) {
+  return (
+    <div className="flex items-center justify-between gap-3">
+      <span className="font-body text-xs text-ink-muted">{label}</span>
+      <div className="flex gap-1">
+        {[1, 2, 3, 4, 5].map((n) => (
+          <button
+            key={n}
+            type="button"
+            onClick={() => onChange(n)}
+            className={cn(
+              'text-xl transition-colors',
+              n <= value ? 'text-accent' : 'text-border-strong hover:text-accent-hover',
+            )}
+          >
+            ★
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function DetailView({ eventId, onBack }: DetailViewProps) {
   const notify = useToast();
   const [showFeedback, setShowFeedback] = useState(false);
-  const [feedback, setFeedback] = useState({ nps: 8, rating: 4, comment: '' });
+  const [feedback, setFeedback] = useState({
+    nps: 8,
+    rating: 4,
+    organizationRating: 4,
+    contentRating: 4,
+    locationRating: 4,
+    speakersRating: 4,
+    logisticsRating: 4,
+    communicationRating: 4,
+    wouldAttendAgain: 4,
+    comment: '',
+  });
   const [tab, setTab] = useState<'info' | 'participants'>('info');
 
   const {
@@ -305,26 +351,47 @@ export function DetailView({ eventId, onBack }: DetailViewProps) {
                 ))}
               </div>
             </div>
-            <div>
-              <div className="mb-1 font-body text-xs text-ink-muted">
-                Avaliação geral (1-5)
-              </div>
-              <div className="flex gap-1">
-                {[1, 2, 3, 4, 5].map((n) => (
-                  <button
-                    key={n}
-                    onClick={() => setFeedback((f) => ({ ...f, rating: n }))}
-                    className={cn(
-                      'text-2xl transition-colors',
-                      n <= feedback.rating
-                        ? 'text-accent'
-                        : 'text-border-strong hover:text-accent-hover',
-                    )}
-                  >
-                    ★
-                  </button>
-                ))}
-              </div>
+            <div className="space-y-2 border-t border-border-strong/50 pt-3">
+              <RatingRow
+                label="Avaliação geral"
+                value={feedback.rating}
+                onChange={(n) => setFeedback((f) => ({ ...f, rating: n }))}
+              />
+              <RatingRow
+                label="Organização"
+                value={feedback.organizationRating}
+                onChange={(n) => setFeedback((f) => ({ ...f, organizationRating: n }))}
+              />
+              <RatingRow
+                label="Conteúdo"
+                value={feedback.contentRating}
+                onChange={(n) => setFeedback((f) => ({ ...f, contentRating: n }))}
+              />
+              <RatingRow
+                label="Local"
+                value={feedback.locationRating}
+                onChange={(n) => setFeedback((f) => ({ ...f, locationRating: n }))}
+              />
+              <RatingRow
+                label="Oradores"
+                value={feedback.speakersRating}
+                onChange={(n) => setFeedback((f) => ({ ...f, speakersRating: n }))}
+              />
+              <RatingRow
+                label="Logística"
+                value={feedback.logisticsRating}
+                onChange={(n) => setFeedback((f) => ({ ...f, logisticsRating: n }))}
+              />
+              <RatingRow
+                label="Comunicação"
+                value={feedback.communicationRating}
+                onChange={(n) => setFeedback((f) => ({ ...f, communicationRating: n }))}
+              />
+              <RatingRow
+                label="Participarias novamente?"
+                value={feedback.wouldAttendAgain}
+                onChange={(n) => setFeedback((f) => ({ ...f, wouldAttendAgain: n }))}
+              />
             </div>
             <Textarea
               rows={3}

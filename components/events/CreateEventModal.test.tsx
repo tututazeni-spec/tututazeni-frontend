@@ -67,12 +67,34 @@ vi.mock('@/components/ui/Select', () => ({
 
 vi.mock('@/providers/ToastProvider', () => ({ useToast: () => vi.fn() }));
 
+vi.mock('@/components/departments/departmentFormData', () => ({
+  useUnits: () => ({ units: [], loading: false }),
+  useDirectoryUsers: () => ({ users: [], loading: false }),
+}));
+
+vi.mock('./eventFormData', () => ({
+  useDepartmentOptions: () => ({ options: [], loading: false }),
+}));
+
 import { CreateEventModal } from './CreateEventModal';
+
+const BASE_DEFAULTS = {
+  visibility: 'INTERNAL',
+  timezone: 'Africa/Luanda',
+  waitlistEnabled: true,
+  requiresApproval: false,
+  allowGuest: false,
+  certificateEnabled: false,
+  evaluationEnabled: true,
+  checkinEnabled: true,
+  notificationsEnabled: true,
+  mandatory: false,
+};
 
 beforeEach(() => post.mockReset().mockResolvedValue({ id: 1 }));
 
 function fillRequired() {
-  fireEvent.change(screen.getByLabelText('Título *'), {
+  fireEvent.change(screen.getByLabelText('Nome *'), {
     target: { value: '  Workshop Q1  ' },
   });
   fireEvent.change(screen.getByLabelText('Início *'), {
@@ -91,6 +113,7 @@ describe('CreateEventModal', () => {
 
     await waitFor(() => expect(post).toHaveBeenCalledTimes(1));
     expect(post).toHaveBeenCalledWith('/events', {
+      ...BASE_DEFAULTS,
       title: 'Workshop Q1',
       type: 'TRAINING',
       modalidade: 'ONLINE',
@@ -121,6 +144,7 @@ describe('CreateEventModal', () => {
 
     await waitFor(() => expect(post).toHaveBeenCalledTimes(1));
     expect(post).toHaveBeenCalledWith('/events', {
+      ...BASE_DEFAULTS,
       title: 'Workshop Q1',
       type: 'WORKSHOP',
       modalidade: 'PRESENCIAL',
@@ -142,7 +166,7 @@ describe('CreateEventModal', () => {
 
   test('fim antes do início — botão desactivado', () => {
     render(<CreateEventModal onClose={vi.fn()} />);
-    fireEvent.change(screen.getByLabelText('Título *'), {
+    fireEvent.change(screen.getByLabelText('Nome *'), {
       target: { value: 'X' },
     });
     fireEvent.change(screen.getByLabelText('Início *'), {

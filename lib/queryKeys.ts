@@ -719,10 +719,33 @@ export const queryKeys = {
     all: ['events'] as const,
     catalog: (params: Record<string, unknown>) =>
       [...queryKeys.events.all, 'catalog', params] as const,
+    list: (params: Record<string, unknown>) =>
+      [...queryKeys.events.all, 'list', params] as const,
+    dashboard: () => [...queryKeys.events.all, 'dashboard'] as const,
     my: () => [...queryKeys.events.all, 'my'] as const,
     detail: (id: number) => [...queryKeys.events.all, 'detail', id] as const,
     organizerDashboard: () =>
       [...queryKeys.events.all, 'organizer-dashboard'] as const,
+    calendar: (params: Record<string, unknown>) =>
+      [...queryKeys.events.all, 'calendar', params] as const,
+    participants: (eventId: number, params: Record<string, unknown>) =>
+      [...queryKeys.events.all, 'detail', eventId, 'participants', params] as const,
+    allSessions: (params: Record<string, unknown>) =>
+      [...queryKeys.events.all, 'sessions', params] as const,
+    logistics: (eventId: number) =>
+      [...queryKeys.events.all, 'detail', eventId, 'logistics'] as const,
+    speakers: (eventId: number, params: Record<string, unknown>) =>
+      [...queryKeys.events.all, 'detail', eventId, 'speakers', params] as const,
+    allCommunications: (params: Record<string, unknown>) =>
+      [...queryKeys.events.all, 'communications', params] as const,
+    checkins: (params: Record<string, unknown>) =>
+      [...queryKeys.events.all, 'checkins', params] as const,
+    sessionAttendance: (eventId: number, sessionId: number) =>
+      [...queryKeys.events.all, 'detail', eventId, 'sessions', sessionId, 'attendance'] as const,
+    evaluations: (params: Record<string, unknown>) =>
+      [...queryKeys.events.all, 'evaluations', params] as const,
+    reports: (params: Record<string, unknown>) =>
+      [...queryKeys.events.all, 'reports', params] as const,
   },
 
   liveClasses: {

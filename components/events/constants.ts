@@ -23,9 +23,21 @@ import {
 } from 'lucide-react';
 import type { StatusBadgeMap } from '@/lib/statusBadge';
 import type {
+  EventCheckinMethod,
+  EventCheckinState,
+  EventCommunicationChannel,
+  EventCommunicationStatus,
+  EventCommunicationType,
+  EventEquipmentType,
+  EventEvaluationStatus,
+  EventLogisticsStatus,
   EventModalidade,
+  EventSessionStatus,
+  EventSpeakerStatus,
+  EventSpeakerType,
   EventStatus,
   EventType,
+  EventVisibility,
   ParticipantStatus,
   View,
 } from './types';
@@ -108,6 +120,12 @@ export const MODALITY_CFG: Record<EventModalidade, { label: string }> = {
   HYBRID: { label: 'Híbrido' },
 };
 
+export const VISIBILITY_CFG: Record<EventVisibility, { label: string }> = {
+  PUBLIC: { label: 'Público' },
+  INTERNAL: { label: 'Interno' },
+  RESTRICTED: { label: 'Restrito (departamentos elegíveis)' },
+};
+
 export const STATUS_CFG: StatusBadgeMap<EventStatus> = {
   DRAFT: { label: 'Rascunho', cls: 'bg-surface-sunken text-ink-muted' },
   PUBLISHED: { label: 'Publicado', cls: 'bg-info-subtle text-info-ink' },
@@ -127,20 +145,130 @@ export const PARTICIPANT_STATUS: StatusBadgeMap<ParticipantStatus> = {
   ABSENT: { label: 'Ausente', cls: 'bg-danger-subtle text-danger-ink' },
   CANCELLED: { label: 'Cancelado', cls: 'bg-surface-sunken text-ink-faint' },
   NO_SHOW: { label: 'Não apareceu', cls: 'bg-danger-subtle text-danger-ink' },
+  REJECTED: { label: 'Rejeitado', cls: 'bg-danger-subtle text-danger' },
 };
 
+export const SESSION_STATUS_CFG: StatusBadgeMap<EventSessionStatus> = {
+  SCHEDULED: { label: 'Agendada', cls: 'bg-info-subtle text-info-ink' },
+  IN_PROGRESS: { label: 'Em curso', cls: 'bg-danger-subtle text-danger-ink' },
+  COMPLETED: { label: 'Concluída', cls: 'bg-success-subtle text-success-ink' },
+  CANCELLED: { label: 'Cancelada', cls: 'bg-surface-sunken text-ink-faint' },
+};
+
+export const LOGISTICS_STATUS_CFG: StatusBadgeMap<EventLogisticsStatus> = {
+  PLANNED: { label: 'Planeado', cls: 'bg-surface-sunken text-ink-muted' },
+  IN_PROGRESS: { label: 'Em preparação', cls: 'bg-warning-subtle text-warning-ink' },
+  CONFIRMED: { label: 'Confirmado', cls: 'bg-info-subtle text-info-ink' },
+  COMPLETED: { label: 'Concluído', cls: 'bg-success-subtle text-success-ink' },
+  CANCELLED: { label: 'Cancelado', cls: 'bg-danger-subtle text-danger-ink' },
+};
+
+export const EQUIPMENT_CFG: Record<EventEquipmentType, { label: string }> = {
+  PROJECTOR: { label: 'Projetor' },
+  SCREEN: { label: 'Ecrã' },
+  SOUND_SYSTEM: { label: 'Sistema de som' },
+  MICROPHONES: { label: 'Microfones' },
+  CHAIRS: { label: 'Cadeiras' },
+  TABLES: { label: 'Mesas' },
+  COMPUTERS: { label: 'Computadores' },
+  INTERNET: { label: 'Internet' },
+  MATERIALS: { label: 'Materiais' },
+  SIGNAGE: { label: 'Sinalização' },
+};
+
+export const SPEAKER_TYPE_CFG: Record<EventSpeakerType, { label: string }> = {
+  SPEAKER: { label: 'Orador' },
+  LECTURER: { label: 'Palestrante' },
+  MODERATOR: { label: 'Moderador' },
+  GUEST: { label: 'Convidado' },
+  PANELIST: { label: 'Painelista' },
+  FACILITATOR: { label: 'Facilitador' },
+  INSTITUTIONAL_REP: { label: 'Representante institucional' },
+};
+
+export const SPEAKER_STATUS_CFG: StatusBadgeMap<EventSpeakerStatus> = {
+  INVITED: { label: 'Convidado', cls: 'bg-info-subtle text-info-ink' },
+  CONFIRMED: { label: 'Confirmado', cls: 'bg-success-subtle text-success-ink' },
+  DECLINED: { label: 'Recusado', cls: 'bg-danger-subtle text-danger-ink' },
+  CANCELLED: { label: 'Cancelado', cls: 'bg-surface-sunken text-ink-faint' },
+};
+
+export const COMMUNICATION_TYPE_CFG: Record<EventCommunicationType, { label: string }> = {
+  INVITATION: { label: 'Convite' },
+  CONFIRMATION: { label: 'Confirmação' },
+  REMINDER: { label: 'Lembrete' },
+  TIME_CHANGE: { label: 'Alteração de horário' },
+  LOCATION_CHANGE: { label: 'Alteração de local' },
+  CANCELLATION: { label: 'Cancelamento' },
+  INSTRUCTIONS: { label: 'Instruções' },
+  THANK_YOU: { label: 'Agradecimento' },
+  FOLLOW_UP: { label: 'Follow-up' },
+};
+
+export const COMMUNICATION_CHANNEL_CFG: Record<EventCommunicationChannel, { label: string }> = {
+  INNOVA_NOTIFICATION: { label: 'Notificação INNOVA' },
+  EMAIL: { label: 'E-mail' },
+  SMS: { label: 'SMS' },
+  WHATSAPP: { label: 'WhatsApp' },
+};
+
+export const COMMUNICATION_STATUS_CFG: StatusBadgeMap<EventCommunicationStatus> = {
+  DRAFT: { label: 'Rascunho', cls: 'bg-surface-sunken text-ink-muted' },
+  SENT: { label: 'Enviado', cls: 'bg-success-subtle text-success-ink' },
+  FAILED: { label: 'Falhou', cls: 'bg-danger-subtle text-danger-ink' },
+};
+
+export const CHECKIN_METHOD_CFG: Record<EventCheckinMethod, { label: string }> = {
+  QR_CODE: { label: 'QR Code' },
+  MOBILE_APP: { label: 'Aplicação móvel' },
+  CODE: { label: 'Código' },
+  MANUAL: { label: 'Registo manual' },
+};
+
+export const CHECKIN_STATE_CFG: StatusBadgeMap<EventCheckinState> = {
+  PENDENTE: { label: 'Pendente', cls: 'bg-surface-sunken text-ink-muted' },
+  PRESENTE: { label: 'Presente', cls: 'bg-success-subtle text-success-ink' },
+  AUSENTE: { label: 'Ausente', cls: 'bg-danger-subtle text-danger-ink' },
+  ENTRADA_REGISTADA: { label: 'Entrada registada', cls: 'bg-info-subtle text-info-ink' },
+  SAIDA_REGISTADA: { label: 'Saída registada', cls: 'bg-success-subtle text-success-ink' },
+};
+
+export const EVALUATION_STATUS_CFG: StatusBadgeMap<EventEvaluationStatus> = {
+  AVALIADO: { label: 'Avaliado', cls: 'bg-success-subtle text-success-ink' },
+  PENDENTE: { label: 'Pendente', cls: 'bg-surface-sunken text-ink-muted' },
+};
+
+// Abas principais do módulo (docs/events.md) — remodel em curso, uma aba
+// de cada vez. CatalogView/MyEventsView/OrganizerView/DetailView (nav
+// anterior: catálogo/os meus eventos/organizador) ficam por agora sem
+// referência a partir da page; o conteúdo real de cada aba entra quando
+// a tarefa correspondente do events.md for trabalhada.
 export const NAV = [
-  { id: 'catalog', label: ' Catálogo' },
-  { id: 'my-events', label: ' Os meus eventos' },
-  { id: 'organizer', label: ' Organizador' },
+  { id: 'overview', label: 'Visão Geral' },
+  { id: 'events', label: 'Eventos' },
+  { id: 'calendar', label: 'Calendário' },
+  { id: 'participants', label: 'Participantes' },
+  { id: 'schedule', label: 'Programação' },
+  { id: 'venues-logistics', label: 'Locais & Logística' },
+  { id: 'speakers-guests', label: 'Oradores & Convidados' },
+  { id: 'communication', label: 'Comunicação' },
+  { id: 'checkin-attendance', label: 'Check-in & Presença' },
+  { id: 'evaluation', label: 'Avaliação' },
+  { id: 'reports', label: 'Relatórios' },
 ] as const;
 
 export const TITLES: Record<View, string> = {
-  catalog: 'Eventos Corporativos',
-  'my-events': 'Os meus Eventos',
-  detail: 'Detalhe do Evento',
-  organizer: 'Dashboard Organizador',
-  create: 'Criar Evento',
+  overview: 'Visão Geral',
+  events: 'Eventos',
+  calendar: 'Calendário',
+  participants: 'Participantes',
+  schedule: 'Programação',
+  'venues-logistics': 'Locais & Logística',
+  'speakers-guests': 'Oradores & Convidados',
+  communication: 'Comunicação',
+  'checkin-attendance': 'Check-in & Presença',
+  evaluation: 'Avaliação',
+  reports: 'Relatórios',
 };
 
 /** Tom do indicador de ocupação (dot + texto) — 3 níveis, mesmos limiares
