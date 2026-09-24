@@ -33,7 +33,16 @@ import { CatalogView } from '@/components/competencies/CatalogView';
 import { CompetencyDetailModal } from '@/components/competencies/CompetencyDetailModal';
 import { CompetencyFormModal } from '@/components/competencies/CompetencyFormModal';
 import { DashboardView } from '@/components/competencies/DashboardView';
+import { DevelopmentView } from '@/components/competencies/DevelopmentView';
+import { EvaluationsView } from '@/components/competencies/EvaluationsView';
+import { GapsView } from '@/components/competencies/GapsView';
+import { LevelsView } from '@/components/competencies/LevelsView';
+import { ModelDetailModal } from '@/components/competencies/ModelDetailModal';
+import { ModelFormModal } from '@/components/competencies/ModelFormModal';
+import { ModelsView } from '@/components/competencies/ModelsView';
 import { MyProfileView } from '@/components/competencies/MyProfileView';
+import { OverviewView } from '@/components/competencies/OverviewView';
+import { ReportsView } from '@/components/competencies/ReportsView';
 import { SkillMatrixView } from '@/components/competencies/SkillMatrixView';
 import type { View } from '@/components/competencies/types';
 import { Button } from '@/components/ui/Button';
@@ -50,6 +59,13 @@ export default function CompetenciesPage() {
   const [detailId, setDetailId] = useState<number | null>(null);
   // null → fechado; { competencyId: null } → criar; { competencyId: n } → editar.
   const [form, setForm] = useState<{ competencyId: number | null } | null>(
+    null,
+  );
+
+  // docs/módulo_competencies.md §4 (Fase 2) — mesmo padrão de
+  // detailId/form acima, para a aba "Modelos de Competências".
+  const [modelDetailId, setModelDetailId] = useState<number | null>(null);
+  const [modelForm, setModelForm] = useState<{ modelId: number | null } | null>(
     null,
   );
 
@@ -71,6 +87,11 @@ export default function CompetenciesPage() {
               + Nova competência
             </Button>
           )}
+          {view === 'models' && canManage && (
+            <Button onClick={() => setModelForm({ modelId: null })}>
+              + Novo modelo
+            </Button>
+          )}
         </div>
       )}
 
@@ -88,15 +109,34 @@ export default function CompetenciesPage() {
         ))}
       </div>
 
+      {/* Overview/Matrix/Dashboard: nem montados para quem não tem
+          @Roles(ADMIN, RH, GESTOR)/(ADMIN, RH) no backend — não só
+          escondidos da lista de separadores acima. */}
+      {view === 'overview' && visibleNav.some((n) => n.id === 'overview') && (
+        <OverviewView />
+      )}
       {view === 'catalog' && (
         <CatalogView onSelect={setDetailId} canManage={canManage} />
       )}
+      {view === 'levels' && visibleNav.some((n) => n.id === 'levels') && (
+        <LevelsView canManage={canManage} />
+      )}
+      {view === 'models' && visibleNav.some((n) => n.id === 'models') && (
+        <ModelsView onSelect={setModelDetailId} />
+      )}
       {view === 'my-profile' && <MyProfileView />}
-      {/* Matrix/Dashboard: nem montados para quem não tem @Roles(ADMIN, RH,
-          GESTOR)/(ADMIN, RH) no backend — não só escondidos da lista de
-          separadores acima. */}
       {view === 'matrix' && visibleNav.some((n) => n.id === 'matrix') && (
         <SkillMatrixView />
+      )}
+      {view === 'evaluations' &&
+        visibleNav.some((n) => n.id === 'evaluations') && <EvaluationsView />}
+      {view === 'gaps' && visibleNav.some((n) => n.id === 'gaps') && (
+        <GapsView />
+      )}
+      {view === 'development' &&
+        visibleNav.some((n) => n.id === 'development') && <DevelopmentView />}
+      {view === 'reports' && visibleNav.some((n) => n.id === 'reports') && (
+        <ReportsView />
       )}
       {view === 'dashboard' && visibleNav.some((n) => n.id === 'dashboard') && (
         <DashboardView />
@@ -125,6 +165,33 @@ export default function CompetenciesPage() {
               title: form.competencyId
                 ? 'Competência actualizada.'
                 : 'Competência criada.',
+              intent: 'success',
+            })
+          }
+        />
+      )}
+
+      {modelDetailId !== null && (
+        <ModelDetailModal
+          modelId={modelDetailId}
+          canManage={canManage}
+          onEdit={() => {
+            setModelForm({ modelId: modelDetailId });
+            setModelDetailId(null);
+          }}
+          onClose={() => setModelDetailId(null)}
+        />
+      )}
+
+      {modelForm !== null && (
+        <ModelFormModal
+          modelId={modelForm.modelId}
+          onClose={() => setModelForm(null)}
+          onSuccess={() =>
+            notify({
+              title: modelForm.modelId
+                ? 'Modelo actualizado.'
+                : 'Modelo criado.',
               intent: 'success',
             })
           }

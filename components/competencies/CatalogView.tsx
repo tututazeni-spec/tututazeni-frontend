@@ -38,6 +38,7 @@ const CATEGORY_ITEMS = [
 // restantes o catálogo mostra sempre e só as activas.
 const STATUS_ITEMS = [
   { value: 'ACTIVE', label: 'Activas' },
+  { value: 'IN_REVIEW', label: 'Em revisão' },
   { value: 'INACTIVE', label: 'Arquivadas' },
   { value: 'ALL', label: 'Todas' },
 ];
@@ -154,12 +155,37 @@ export function CatalogView({ onSelect, canManage = false }: CatalogViewProps) {
                 <div className="flex-1">
                   <div className="mb-1 font-body text-sm font-semibold text-ink">
                     {comp.name}
+                    {comp.code && (
+                      <span className="ml-1.5 font-body text-xs font-normal text-ink-faint">
+                        {comp.code}
+                      </span>
+                    )}
                   </div>
+                  {comp.family && (
+                    <div className="mb-1 font-body text-xs text-ink-faint">
+                      {comp.family}
+                    </div>
+                  )}
                   <div className="flex flex-wrap items-center gap-1.5">
                     <StatusBadge value={comp.category} map={CATEGORY_CFG} />
+                    {canManage && comp.status === 'IN_REVIEW' && (
+                      <span className="rounded bg-warning-subtle px-1.5 py-0.5 font-body text-xs text-warning-ink">
+                        Em revisão
+                      </span>
+                    )}
                     {canManage && comp.status === 'INACTIVE' && (
                       <span className="rounded bg-surface-sunken px-1.5 py-0.5 font-body text-xs text-ink-muted">
                         Arquivada
+                      </span>
+                    )}
+                    {comp.isCritical && (
+                      <span className="rounded bg-danger-subtle px-1.5 py-0.5 font-body text-xs text-danger-ink">
+                        Crítica
+                      </span>
+                    )}
+                    {comp.isStrategic && (
+                      <span className="rounded bg-accent-subtle px-1.5 py-0.5 font-body text-xs text-accent">
+                        Estratégica
                       </span>
                     )}
                   </div>
@@ -185,6 +211,11 @@ export function CatalogView({ onSelect, canManage = false }: CatalogViewProps) {
                 <span> {comp._count.courses} cursos</span>
                 <span> {comp._count.positions} cargos</span>
               </div>
+              {comp.owner && (
+                <div className="mt-2 font-body text-xs text-ink-faint">
+                  Responsável: {comp.owner.fullName}
+                </div>
+              )}
             </div>
           ))}
           {data?.data.length === 0 && (

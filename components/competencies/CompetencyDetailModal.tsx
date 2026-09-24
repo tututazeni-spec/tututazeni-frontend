@@ -28,7 +28,7 @@ import { Button } from '@/components/ui/Button';
 import { Modal, ModalContent } from '@/components/ui/Modal';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
-import { CATEGORY_CFG, LEVEL_LABELS } from './constants';
+import { CATEGORY_CFG, LEVEL_LABELS, STATUS_CFG } from './constants';
 import type { CompetencyDetail } from './types';
 
 export interface CompetencyDetailModalProps {
@@ -143,16 +143,42 @@ export function CompetencyDetailModal({
             <div className="mt-4 space-y-4">
               <div className="flex flex-wrap items-center gap-2">
                 <StatusBadge value={data.category} map={CATEGORY_CFG} />
-                {archived && (
-                  <span className="rounded bg-surface-sunken px-1.5 py-0.5 font-body text-xs text-ink-muted">
-                    Arquivada
+                <StatusBadge value={data.status} map={STATUS_CFG} />
+                {data.isCritical && (
+                  <span className="rounded bg-danger-subtle px-1.5 py-0.5 font-body text-xs text-danger-ink">
+                    Crítica
+                  </span>
+                )}
+                {data.isStrategic && (
+                  <span className="rounded bg-accent-subtle px-1.5 py-0.5 font-body text-xs text-accent">
+                    Estratégica
                   </span>
                 )}
               </div>
 
+              {(data.code || data.family) && (
+                <div className="flex gap-4 font-body text-xs text-ink-faint">
+                  {data.code && <span>Código: {data.code}</span>}
+                  {data.family && <span>Família: {data.family}</span>}
+                </div>
+              )}
+
               {data.description && (
                 <p className="font-body text-sm text-ink-muted">
                   {data.description}
+                </p>
+              )}
+
+              {data.objective && (
+                <p className="font-body text-sm text-ink-muted">
+                  <span className="font-semibold text-ink">Objetivo: </span>
+                  {data.objective}
+                </p>
+              )}
+
+              {data.owner && (
+                <p className="font-body text-xs text-ink-faint">
+                  Responsável: {data.owner.fullName}
                 </p>
               )}
 
