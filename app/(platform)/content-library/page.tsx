@@ -11,7 +11,6 @@ import { useState } from 'react';
 import {
   Archive,
   BarChart2,
-  BookMarked,
   BookOpen,
   Landmark,
   Plus,
@@ -24,7 +23,6 @@ import { AnalyticsTab } from '@/components/content-library/AnalyticsTab';
 import { CatalogueTab } from '@/components/content-library/CatalogueTab';
 import { CorporateDocsTab } from '@/components/content-library/CorporateDocsTab';
 import { HomeTab } from '@/components/content-library/HomeTab';
-import { KnowledgeTab } from '@/components/content-library/KnowledgeTab';
 import { MyProgressTab } from '@/components/content-library/MyProgressTab';
 import { RepositoryTab } from '@/components/content-library/RepositoryTab';
 import type { Tab } from '@/components/content-library/types';
@@ -43,7 +41,6 @@ const TABS: { id: Tab; label: string; icon: LucideIcon }[] = [
   { id: 'catalogue', label: 'Catálogo', icon: Search },
   { id: 'repository', label: 'Repositório', icon: Archive },
   { id: 'corporate-docs', label: 'Documentos Corporativos', icon: Landmark },
-  { id: 'knowledge', label: 'Conhecimento', icon: BookMarked },
   { id: 'my-progress', label: 'O Meu Percurso', icon: TrendingUp },
   { id: 'analytics', label: 'Análises', icon: BarChart2 },
 ];
@@ -114,9 +111,6 @@ export default function ContentLibraryPage() {
           </TabsContent>
           <TabsContent value="corporate-docs">
             <CorporateDocsTab />
-          </TabsContent>
-          <TabsContent value="knowledge">
-            <KnowledgeTab />
           </TabsContent>
           <TabsContent value="my-progress">
             <MyProgressTab />

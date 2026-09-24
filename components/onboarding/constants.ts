@@ -29,18 +29,28 @@ import {
   ShieldCheck,
   ClipboardCheck,
   UserCheck,
+  LayoutDashboard,
+  Layers,
+  Milestone,
+  ListChecks,
+  MessageCircle,
+  FileBarChart,
   type LucideIcon,
 } from 'lucide-react';
+import { ADMIN_ROLES, EXECUTIVE_ROLES, type Role } from '@/lib/roles';
 import type { StatusBadgeMap } from '@/lib/statusBadge';
 import type {
+  CheckinStatus,
+  CheckinType,
+  DocStatus,
   OnboardingStatus,
+  OnboardingTabId,
   ResponsibleRole,
   SurveyMilestone,
   TaskCategory,
   TaskPhase,
   TaskStatus,
   TaskType,
-  View,
 } from './types';
 
 const TOKEN = {
@@ -131,6 +141,34 @@ export const TASK_TYPE_LABELS: Record<TaskType, string> = {
   MEETING: 'Reunião',
 };
 
+// Movidos de PlanDetailModal.tsx para serem partilhados com DocumentsTab.tsx
+// (Fase B, docs/onboarding.md ponto 6).
+export const DOC_LABEL: Record<DocStatus, string> = {
+  PENDING: 'Pendente',
+  APPROVED: 'Aprovado',
+  REJECTED: 'Rejeitado',
+};
+export const DOC_BADGE: Record<DocStatus, 'warning' | 'success' | 'danger'> = {
+  PENDING: 'warning',
+  APPROVED: 'success',
+  REJECTED: 'danger',
+};
+
+// Fase C — Acompanhamento (docs/onboarding.md ponto 8).
+export const CHECKIN_TYPE_LABELS: Record<CheckinType, string> = {
+  DAY_1: '1.º dia',
+  WEEK_1: '1.ª semana',
+  DAY_30: '30 dias',
+  DAY_60: '60 dias',
+  DAY_90: '90 dias',
+  CUSTOM: 'Avulso',
+};
+export const CHECKIN_STATUS_CFG: StatusBadgeMap<CheckinStatus> = {
+  PENDING: { label: 'Pendente', cls: 'bg-warning-subtle text-warning-ink' },
+  COMPLETED: { label: 'Concluído', cls: 'bg-success-subtle text-success-ink' },
+  SKIPPED: { label: 'Saltado', cls: 'bg-surface-sunken text-ink-muted' },
+};
+
 export const RESPONSIBLE_LABELS: Record<ResponsibleRole, string> = {
   SELF: 'Colaborador',
   HR: 'RH',
@@ -140,13 +178,19 @@ export const RESPONSIBLE_LABELS: Record<ResponsibleRole, string> = {
   EXTERNAL: 'Externo',
 };
 
+// Fase B: INTEGRATION/FOLLOW_UP/CONCLUSION são as 3 etapas novas
+// (docs/onboarding.md ponto 4 — Integração/Acompanhamento/Conclusão).
+// DAY_60/DAY_90 mantidos só para dados de templates antigos.
 export const PHASE_LABELS: Record<TaskPhase, string> = {
-  PRE_BOARDING: 'Pré-boarding',
-  DAY_1: 'Dia 1',
-  WEEK_1: 'Semana 1',
-  DAY_30: 'Dia 30',
-  DAY_60: 'Dia 60',
-  DAY_90: 'Dia 90',
+  PRE_BOARDING: 'Pré-Onboarding',
+  DAY_1: 'Primeiro Dia',
+  WEEK_1: 'Primeira Semana',
+  DAY_30: 'Primeiro Mês',
+  DAY_60: 'Dia 60 (legado)',
+  DAY_90: 'Dia 90 (legado)',
+  INTEGRATION: 'Integração',
+  FOLLOW_UP: 'Acompanhamento',
+  CONCLUSION: 'Conclusão',
 };
 
 // Pesquisas de satisfação por marco. `day` = dias desde o início do plano a
@@ -169,6 +213,10 @@ export const SURVEY_MILESTONE_LABELS: Record<SurveyMilestone, string> =
     string
   >;
 
+// Ordem de apresentação (PlanDetailModal/MyPlanView agrupam tarefas por
+// esta ordem) — DAY_60/DAY_90 ficam entre DAY_30 e as 3 etapas novas para
+// que tarefas antigas nessas fases continuem visíveis, mesmo não fazendo
+// parte da estrutura de 7 etapas recomendada para templates novos.
 export const PHASE_ORDER: TaskPhase[] = [
   'PRE_BOARDING',
   'DAY_1',
@@ -176,21 +224,42 @@ export const PHASE_ORDER: TaskPhase[] = [
   'DAY_30',
   'DAY_60',
   'DAY_90',
+  'INTEGRATION',
+  'FOLLOW_UP',
+  'CONCLUSION',
 ];
 
-// `mgmtOnly` — só entra na navegação renderida para ADMIN/RH/GESTOR
-// (espelha @Roles(ADMIN, RH, GESTOR) em onboarding.controller.ts para
-// GET /onboarding/dashboard e GET /onboarding).
-export const NAV: Array<{ id: View; label: string; mgmtOnly?: boolean }> = [
-  { id: 'my-plan', label: 'O Meu plano de Integração' },
-  { id: 'plans', label: 'Planos', mgmtOnly: true },
-  { id: 'dashboard', label: 'Dashboard', mgmtOnly: true },
-  { id: 'templates', label: 'Templates' },
+// Separadores de topo — nomenclatura e ordem seguem docs/onboarding.md
+// (pontos 1-10). "O Meu Plano" (não numerado no doc) é a vista pessoal do
+// colaborador e fica sempre visível, fora da numeração. `roles` espelha os
+// @Roles() reais do backend (onboarding.controller.ts) — EXECUTIVE_ROLES
+// (ADMIN/RH/GESTOR), não MGMT_ROLES de lib/roles.ts, porque esse inclui
+// LIDER e o backend não autoriza LIDER nestas rotas
+// (GET /onboarding/dashboard, GET /onboarding).
+// Fase A (pontos 1-3): Visão Geral, Onboardings, Planos de Integração.
+// Fase B (pontos 4-7, esta): Etapas/Tarefas/Documentos/Formação — leitura
+// EXECUTIVE_ROLES, espelhando @Roles(ADMIN, RH, GESTOR) das novas rotas
+// GET /onboarding/tasks|documents|training (onboarding.controller.ts).
+// "Etapas" fica sem roles (como "Planos de Integração", de que depende —
+// GET /onboarding/templates/:id/stages não tem @Roles() próprio).
+// Fase C acrescenta Acompanhamento/Avaliação de Integração/Relatórios.
+export const TABS: Array<{
+  id: OnboardingTabId;
+  label: string;
+  icon: LucideIcon;
+  roles?: readonly Role[];
+}> = [
+  { id: 'my-plan', label: 'O Meu Plano', icon: UserCheck },
+  { id: 'overview', label: 'Visão Geral', icon: LayoutDashboard, roles: EXECUTIVE_ROLES },
+  { id: 'plans', label: 'Onboardings', icon: ClipboardList, roles: EXECUTIVE_ROLES },
+  { id: 'templates', label: 'Planos de Integração', icon: Layers },
+  { id: 'stages', label: 'Etapas', icon: Milestone },
+  { id: 'tasks', label: 'Tarefas', icon: ListChecks, roles: EXECUTIVE_ROLES },
+  { id: 'documents', label: 'Documentos', icon: FileText, roles: EXECUTIVE_ROLES },
+  { id: 'training', label: 'Formação', icon: GraduationCap, roles: EXECUTIVE_ROLES },
+  { id: 'checkins', label: 'Acompanhamento', icon: MessageCircle, roles: EXECUTIVE_ROLES },
+  { id: 'integration-evaluations', label: 'Avaliação de Integração', icon: ClipboardCheck, roles: EXECUTIVE_ROLES },
+  // Relatórios espelha @Roles(ADMIN, RH) de GET /onboarding/reports/overview
+  // — mais restrito que as outras (sem GESTOR), por isso usa ADMIN_ROLES.
+  { id: 'reports', label: 'Relatórios', icon: FileBarChart, roles: ADMIN_ROLES },
 ];
-
-export const TITLES: Record<View, string> = {
-  'my-plan': 'O Meu Plano de Integração',
-  plans: 'Planos de Integração',
-  dashboard: 'Dashboard de Integração',
-  templates: 'Modelos de Integração',
-};

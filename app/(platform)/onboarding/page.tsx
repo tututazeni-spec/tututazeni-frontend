@@ -1,93 +1,155 @@
 'use client';
 
-// Container: gere o separador activo; delega dados+apresentação de cada
-// separador aos componentes auto-contidos em components/onboarding/
-// (mesmo padrão que components/payslips/page.tsx usa para ListView/
-// CompareView/AnnualView). Ver memory
-// project_innova_component_separation_audit. Migrado para a fundação
-// de design: Button substitui os botões/tabs bespoke, mesmo padrão de
-// app/(platform)/events/page.tsx.
+// Container: gere o separador activo (via Tabs do Radix) e delega dados+
+// apresentação de cada separador aos componentes auto-contidos em
+// components/onboarding/ — mesmo padrão de app/(platform)/evaluation/
+// page.tsx, remodelado a partir de docs/onboarding.md (ver Fase A/B/C no
+// plano). Ordem/nomenclatura dos separadores segue o doc: "O Meu Plano"
+// (vista pessoal, fora da numeração) + pontos 1-10.
 //
-// RBAC: separadores marcados `mgmtOnly` (Planos, Dashboard) só entram na
-// navegação para ADMIN/RH/GESTOR — espelha @Roles(ADMIN, RH, GESTOR) em
-// onboarding.controller.ts (GET /onboarding e GET /onboarding/dashboard).
-// "+ Atribuir plano" é mais restrito (ADMIN/RH). "+ Novo template" (criar
-// plano de integração) é EVAL_CREATOR_ROLES — ADMIN, GESTOR, RH, DIRECTOR,
-// LIDER — espelha @Roles(...) de POST /onboarding/templates; editar/apagar
-// template e gerir as tarefas de cada fase continuam ADMIN/RH (canManage).
+// RBAC: "Visão Geral"/"Onboardings" espelham @Roles(ADMIN, RH, GESTOR) em
+// onboarding.controller.ts (GET /onboarding/dashboard, GET /onboarding) —
+// via EXECUTIVE_ROLES em constants.ts, não MGMT_ROLES (inclui LIDER, que o
+// backend não autoriza aqui). Ficam desmontadas (não só escondidas) para
+// quem não tem acesso, para não disparar pedidos que dariam 403/404.
+// "Planos de Integração" (templates) não tem @Roles() na leitura — aberto a
+// todos; "+ Atribuir plano" é ADMIN/RH e "+ Novo template" é
+// EVAL_CREATOR_ROLES (ADMIN, GESTOR, RH, DIRECTOR, LIDER), espelhando
+// POST /onboarding e POST /onboarding/templates.
 
 import { useState } from 'react';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
-import { ADMIN_ROLES, EVAL_CREATOR_ROLES, type Role } from '@/lib/roles';
-import { NAV, TITLES } from '@/components/onboarding/constants';
+import { ADMIN_ROLES, EVAL_CREATOR_ROLES, EXECUTIVE_ROLES, filterByRole } from '@/lib/roles';
+import { TABS } from '@/components/onboarding/constants';
 import { AssignPlanModal } from '@/components/onboarding/AssignPlanModal';
 import { TemplateFormModal } from '@/components/onboarding/TemplateFormModal';
-import { DashboardView } from '@/components/onboarding/DashboardView';
+import { OverviewTab } from '@/components/onboarding/OverviewTab';
 import { MyPlanView } from '@/components/onboarding/MyPlanView';
-import { PlansView } from '@/components/onboarding/PlansView';
-import { TemplatesView } from '@/components/onboarding/TemplatesView';
-import type { View } from '@/components/onboarding/types';
+import { OnboardingsTab } from '@/components/onboarding/OnboardingsTab';
+import { IntegrationPlansTab } from '@/components/onboarding/IntegrationPlansTab';
+import { StagesTab } from '@/components/onboarding/StagesTab';
+import { TasksTab } from '@/components/onboarding/TasksTab';
+import { DocumentsTab } from '@/components/onboarding/DocumentsTab';
+import { TrainingTab } from '@/components/onboarding/TrainingTab';
+import { CheckinsTab } from '@/components/onboarding/CheckinsTab';
+import { IntegrationEvaluationTab } from '@/components/onboarding/IntegrationEvaluationTab';
+import { ReportsTab } from '@/components/onboarding/ReportsTab';
 import { Button } from '@/components/ui/Button';
-
-// Exactamente @Roles(ADMIN, RH, GESTOR) — não reutiliza MGMT_ROLES de
-// lib/roles.ts porque esse inclui LIDER, que o backend não autoriza aqui.
-const MGMT_ROLES: readonly Role[] = ['ADMIN', 'RH', 'GESTOR'];
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
 
 export default function OnboardingPage() {
-  const [view, setView] = useState<View>('my-plan');
   const [showCreate, setShowCreate] = useState(false);
   const [showAssign, setShowAssign] = useState(false);
 
   const role = useCurrentRole();
+  const visibleTabs = filterByRole(TABS, role);
   // Editar/apagar template, gestão de tarefas do template, POST
   // /onboarding e DELETE /onboarding/:id são @Roles(ADMIN, RH).
   const canManage = !!role && ADMIN_ROLES.includes(role);
   // Criar plano de integração — @Roles(ADMIN, GESTOR, RH, DIRECTOR, LIDER)
   // em POST /onboarding/templates.
   const canCreateTemplate = !!role && EVAL_CREATOR_ROLES.includes(role);
-  const isMgmt = !!role && MGMT_ROLES.includes(role);
-  const visibleNav = isMgmt ? NAV : NAV.filter((n) => !n.mgmtOnly);
+  const isMgmt = !!role && EXECUTIVE_ROLES.includes(role);
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-8">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-xl font-semibold text-ink">{TITLES[view]}</h1>
-          <p className="text-sm text-ink-faint mt-0.5"></p>
+    <div className="min-h-screen bg-canvas">
+      <div className="border-b border-border bg-surface px-6 py-5">
+        <div className="mx-auto flex max-w-7xl items-center justify-between">
+          <h1 className="font-display text-xl font-bold text-ink">Onboarding</h1>
         </div>
-        {view === 'templates' && canCreateTemplate && (
-          <Button size="sm" onClick={() => setShowCreate(true)}>
-            + Novo template
-          </Button>
-        )}
-        {view === 'plans' && canManage && (
-          <Button size="sm" onClick={() => setShowAssign(true)}>
-            + Atribuir plano
-          </Button>
-        )}
       </div>
 
-      <div className="flex gap-1 mb-6 bg-surface-sunken p-1 rounded-card w-fit">
-        {visibleNav.map((n) => (
-          <Button
-            key={n.id}
-            size="sm"
-            intent={view === n.id ? 'primary' : 'ghost'}
-            onClick={() => setView(n.id)}
-          >
-            {n.label}
-          </Button>
-        ))}
-      </div>
+      <Tabs defaultValue="my-plan">
+        <div className="border-b border-border bg-surface px-6">
+          <TabsList className="mx-auto max-w-7xl overflow-x-auto gap-0">
+            {visibleTabs.map((t) => {
+              const Icon = t.icon;
+              return (
+                <TabsTrigger key={t.id} value={t.id} className="gap-2 whitespace-nowrap">
+                  <Icon size={16} strokeWidth={1.75} />
+                  {t.label}
+                </TabsTrigger>
+              );
+            })}
+          </TabsList>
+        </div>
 
-      {view === 'my-plan' && <MyPlanView />}
-      {view === 'plans' && (
-        <PlansView canManagePlan={canManage} canManageTasks={isMgmt} />
-      )}
-      {view === 'dashboard' && (
-        <DashboardView canManagePlan={canManage} canManageTasks={isMgmt} />
-      )}
-      {view === 'templates' && <TemplatesView canManage={canManage} />}
+        <div className="mx-auto max-w-7xl px-6 py-6">
+          <TabsContent value="my-plan">
+            <MyPlanView />
+          </TabsContent>
+
+          {visibleTabs.some((t) => t.id === 'overview') && (
+            <TabsContent value="overview">
+              <OverviewTab canManagePlan={canManage} canManageTasks={isMgmt} />
+            </TabsContent>
+          )}
+
+          {visibleTabs.some((t) => t.id === 'plans') && (
+            <TabsContent value="plans">
+              <div className="mb-4 flex items-center justify-end">
+                {canManage && (
+                  <Button size="sm" onClick={() => setShowAssign(true)}>
+                    + Atribuir plano
+                  </Button>
+                )}
+              </div>
+              <OnboardingsTab canManagePlan={canManage} canManageTasks={isMgmt} />
+            </TabsContent>
+          )}
+
+          <TabsContent value="templates">
+            <div className="mb-4 flex items-center justify-end">
+              {canCreateTemplate && (
+                <Button size="sm" onClick={() => setShowCreate(true)}>
+                  + Novo template
+                </Button>
+              )}
+            </div>
+            <IntegrationPlansTab canManage={canManage} />
+          </TabsContent>
+
+          <TabsContent value="stages">
+            <StagesTab />
+          </TabsContent>
+
+          {visibleTabs.some((t) => t.id === 'tasks') && (
+            <TabsContent value="tasks">
+              <TasksTab canManagePlan={canManage} canManageTasks={isMgmt} />
+            </TabsContent>
+          )}
+
+          {visibleTabs.some((t) => t.id === 'documents') && (
+            <TabsContent value="documents">
+              <DocumentsTab canManagePlan={canManage} canManageTasks={isMgmt} />
+            </TabsContent>
+          )}
+
+          {visibleTabs.some((t) => t.id === 'training') && (
+            <TabsContent value="training">
+              <TrainingTab canManagePlan={canManage} canManageTasks={isMgmt} />
+            </TabsContent>
+          )}
+
+          {visibleTabs.some((t) => t.id === 'checkins') && (
+            <TabsContent value="checkins">
+              <CheckinsTab />
+            </TabsContent>
+          )}
+
+          {visibleTabs.some((t) => t.id === 'integration-evaluations') && (
+            <TabsContent value="integration-evaluations">
+              <IntegrationEvaluationTab />
+            </TabsContent>
+          )}
+
+          {visibleTabs.some((t) => t.id === 'reports') && (
+            <TabsContent value="reports">
+              <ReportsTab />
+            </TabsContent>
+          )}
+        </div>
+      </Tabs>
 
       {showCreate && <TemplateFormModal onClose={() => setShowCreate(false)} />}
       {showAssign && <AssignPlanModal onClose={() => setShowAssign(false)} />}

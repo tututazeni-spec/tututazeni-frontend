@@ -184,7 +184,7 @@ describe('PlanDetailModal — leitura e remoção', () => {
     renderModal();
     expect(screen.getAllByText('Ana Silva').length).toBeGreaterThan(0);
     expect(screen.getByText('Onboarding TI')).toBeInTheDocument();
-    expect(screen.getByText('Dia 1')).toBeInTheDocument();
+    expect(screen.getByText('Primeiro Dia')).toBeInTheDocument();
     expect(screen.getByText('Entregar documentos')).toBeInTheDocument();
   });
 

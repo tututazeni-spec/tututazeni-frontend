@@ -42,6 +42,8 @@ import { StatusBadge } from '@/components/ui/StatusBadge';
 import { Textarea } from '@/components/ui/Textarea';
 import {
   CATEGORY_CFG,
+  DOC_BADGE,
+  DOC_LABEL,
   PHASE_LABELS,
   PHASE_ORDER,
   STATUS_CFG,
@@ -64,17 +66,6 @@ export interface PlanDetailModalProps {
 
 // Estados em que ainda faz sentido saltar uma tarefa.
 const SKIPPABLE = new Set(['PENDING', 'IN_PROGRESS', 'BLOCKED']);
-
-const DOC_LABEL: Record<DocStatus, string> = {
-  PENDING: 'Pendente',
-  APPROVED: 'Aprovado',
-  REJECTED: 'Rejeitado',
-};
-const DOC_BADGE: Record<DocStatus, 'warning' | 'success' | 'danger'> = {
-  PENDING: 'warning',
-  APPROVED: 'success',
-  REJECTED: 'danger',
-};
 
 type PendingAction = { taskId: number; kind: 'skip' | 'reject' } | null;
 

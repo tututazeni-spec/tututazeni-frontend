@@ -747,21 +747,6 @@ export function OrgDashboard() {
                 </>
               )}
             </ModulePanel>
-
-            <ModulePanel title="Avaliação" data={modules.evaluationCycles}>
-              {modules.evaluationCycles && (
-                <>
-                  <Stat
-                    label="Avaliações pendentes"
-                    value={modules.evaluationCycles.pendingEvaluations}
-                  />
-                  <Stat
-                    label="Conclusão de avaliações"
-                    value={`${modules.evaluationCycles.completionRate}%`}
-                  />
-                </>
-              )}
-            </ModulePanel>
           </div>
         </div>
       )}

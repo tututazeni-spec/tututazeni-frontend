@@ -19,7 +19,15 @@ export type TaskCategory =
   | 'EVALUATION'
   | 'ONE_ON_ONE';
 export type TaskPhase =
-  'PRE_BOARDING' | 'DAY_1' | 'WEEK_1' | 'DAY_30' | 'DAY_60' | 'DAY_90';
+  | 'PRE_BOARDING'
+  | 'DAY_1'
+  | 'WEEK_1'
+  | 'DAY_30'
+  | 'DAY_60'
+  | 'DAY_90'
+  | 'INTEGRATION'
+  | 'FOLLOW_UP'
+  | 'CONCLUSION';
 // Espelham os enums Prisma TaskType / ResponsibleRole (schema.prisma).
 export type TaskType =
   'TASK' | 'COURSE' | 'LEARNING_PATH' | 'PROCESS' | 'DOCUMENT' | 'MEETING';
@@ -136,8 +144,22 @@ export interface Dashboard {
     byStatus: Record<string, number>;
     overdueTasks: number;
     avgSurveyScore: number;
+    completionRate: number;
+    pendingDocuments: number;
+    pendingTrainings: number;
+    newHires: number;
+    pendingIntegrationEvals: number;
+    byDepartment: Record<string, number>;
+    byUnit: Record<string, number>;
+    byResponsible: Record<string, number>;
   };
   active: Array<OnboardingPlan & { daysIn: number }>;
+  upcomingStarts: Array<{
+    id: number;
+    startDate: string;
+    user: { id: number; fullName: string; avatarUrl: string | null };
+    template: { name: string };
+  }>;
 }
 
 export interface TemplateTaskSummary {
@@ -153,10 +175,13 @@ export interface OnboardingTemplate {
   description: string | null;
   company?: string | null;
   location?: string | null;
+  objective?: string | null;
+  version?: number;
   active: boolean;
   durationDays: number;
   position?: { name: string } | null;
   department?: { name: string } | null;
+  unit?: { id: number; name: string } | null;
   _count?: { tasks: number; plans: number };
   tasks?: TemplateTaskSummary[];
 }
@@ -167,6 +192,8 @@ export interface OnboardingTemplateDetail {
   id: number;
   name: string;
   description: string | null;
+  objective: string | null;
+  version: number;
   company: string | null;
   location: string | null;
   active: boolean;
@@ -174,6 +201,7 @@ export interface OnboardingTemplateDetail {
   welcomeVideoUrl: string | null;
   positionId: number | null;
   departmentId: number | null;
+  unitId: number | null;
   tasks: TemplateTask[];
   _count?: { plans: number };
 }
@@ -187,16 +215,21 @@ export interface OnboardingPlanListItem {
   status: OnboardingStatus;
   startDate: string;
   expectedEndDate: string | null;
+  createdAt: string;
   xpEarned: number;
+  progress: number;
   user: {
     id: number;
     fullName: string;
     email: string;
     avatarUrl: string | null;
+    employeeNumber: string | null;
     position: { name: string } | null;
+    department: { id: number; name: string } | null;
   };
   template: { id: number; name: string; durationDays: number };
   buddy: { id: number; fullName: string; avatarUrl: string | null } | null;
+  manager: { id: number; fullName: string; avatarUrl: string | null } | null;
   hrResponsible: { id: number; fullName: string } | null;
   _count: { taskInstances: number; documents: number };
 }
@@ -258,4 +291,139 @@ export interface OnboardingPlanDetail {
   integrationEvalRequestId: number | null;
 }
 
-export type View = 'my-plan' | 'plans' | 'dashboard' | 'templates';
+// ─── Fase B (docs/onboarding.md pontos 4-7) ─────────────────────────────────
+
+// GET /onboarding/templates/:id/stages — tarefas do template agrupadas por
+// fase, com agregados derivados (não configuração persistida — ver
+// decisão 1 do plano).
+export interface OnboardingStageGroup {
+  phase: TaskPhase;
+  tasks: TemplateTask[];
+  taskCount: number;
+  mandatoryCount: number;
+  minDayOffset: number | null;
+  maxDayOffset: number | null;
+  responsible: ResponsibleRole | null;
+}
+
+export type TaskPriority = 'HIGH' | 'MEDIUM' | 'LOW';
+
+// GET /onboarding/tasks — vista transversal (qualquer plano).
+export interface OnboardingTaskListItem {
+  id: number;
+  planId: number;
+  status: TaskStatus;
+  dueDate: string | null;
+  completedAt: string | null;
+  skipReason: string | null;
+  priority: TaskPriority;
+  templateTask: TemplateTask;
+  plan: { id: number; user: { id: number; fullName: string; avatarUrl: string | null } };
+}
+
+// GET /onboarding/documents — dois grupos distintos (ver comentário no
+// backend: sem FK entre OnboardingDocument e a tarefa que o pediu).
+export interface OnboardingDocumentsResponse {
+  submitted: Array<
+    OnboardingDoc & {
+      planId: number;
+      plan: { id: number; user: { id: number; fullName: string; avatarUrl: string | null } };
+      uploadedBy: { id: number; fullName: string };
+      validatedBy: { id: number; fullName: string } | null;
+    }
+  >;
+  pendingSubmission: Array<{
+    taskInstanceId: number;
+    planId: number;
+    documentType: string;
+    dueDate: string | null;
+    plan: { id: number; user: { id: number; fullName: string; avatarUrl: string | null } };
+  }>;
+}
+
+// GET /onboarding/training
+export interface OnboardingTrainingRow {
+  taskInstanceId: number;
+  planId: number;
+  user: { id: number; fullName: string; avatarUrl: string | null };
+  title: string;
+  phase: TaskPhase;
+  course: { id: number; title: string } | null;
+  isMandatory: boolean;
+  dueDate: string | null;
+  taskStatus: TaskStatus;
+  enrollment: {
+    status: string;
+    progress: number;
+    completedAt: string | null;
+    hasCertificate: boolean;
+  } | null;
+}
+
+// ─── Fase C (docs/onboarding.md pontos 8-10) ────────────────────────────────
+
+export type CheckinType = 'DAY_1' | 'WEEK_1' | 'DAY_30' | 'DAY_60' | 'DAY_90' | 'CUSTOM';
+export type CheckinStatus = 'PENDING' | 'COMPLETED' | 'SKIPPED';
+
+export interface OnboardingCheckin {
+  id: number;
+  type: CheckinType;
+  status: CheckinStatus;
+  dueDate: string | null;
+  completedAt: string | null;
+  difficulties: string | null;
+  positives: string | null;
+  supportNeeds: string | null;
+  managerFeedback: string | null;
+  employeeFeedback: string | null;
+  nextActions: string | null;
+  plan: {
+    id: number;
+    user: { id: number; fullName: string; avatarUrl: string | null };
+    manager: { id: number; fullName: string } | null;
+    buddy: { id: number; fullName: string } | null;
+  };
+  responsible: { id: number; fullName: string } | null;
+}
+
+export interface OnboardingIntegrationEvaluation {
+  planId: number;
+  user: { id: number; fullName: string; avatarUrl: string | null };
+  onboardingCompletedAt: string | null;
+  evaluation: {
+    id: number;
+    status: string;
+    dueDate: string | null;
+    completedAt: string | null;
+    evaluator: { id: number; fullName: string };
+  } | null;
+}
+
+export interface OnboardingReportOverview {
+  total: number;
+  completionRate: number;
+  avgDurationDays: number;
+  tasksCompleted: number;
+  tasksOverdue: number;
+  documentsPending: number;
+  avgFeedback: number;
+  byDepartment: Record<string, number>;
+  byUnit: Record<string, number>;
+  byResponsible: Record<string, number>;
+}
+
+// Ids dos separadores de topo (app/(platform)/onboarding/page.tsx),
+// espelhando docs/onboarding.md — ver TABS em constants.ts. Fase A cobre
+// my-plan/overview/plans/templates; Fase B/C acrescentam os restantes.
+export type OnboardingTabId =
+  | 'my-plan'
+  | 'overview'
+  | 'plans'
+  | 'templates'
+  | 'stages'
+  | 'tasks'
+  | 'documents'
+  | 'training'
+  | 'checkins'
+  | 'integration-evaluations'
+  | 'reports';

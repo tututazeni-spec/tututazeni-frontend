@@ -1,9 +1,8 @@
-// components/onboarding/TemplatesView.tsx
-// Separador "Templates" — catálogo de templates de onboarding. Dados
-// próprios + apresentação. Extraído de
-// app/(platform)/onboarding/page.tsx. Migrado para a fundação de
-// design: Card/Badge/EmptyState/Skeleton substituem os elementos
-// bespoke.
+// components/onboarding/IntegrationPlansTab.tsx
+// Separador "Planos de Integração" (docs/onboarding.md ponto 3) — catálogo
+// de templates de onboarding ("Onboarding Administrativo", "Onboarding
+// Lojas", etc.). Sucessor de TemplatesView.tsx (Fase A do remodelo):
+// acrescenta Objectivo/Unidade/Versão, que o backend já devolve.
 //
 // O clique num cartão abre o TemplateDetailModal (leitura aberta a todos);
 // é lá que ADMIN/RH gere as tarefas de cada fase — daí a prop `canManage`,
@@ -23,12 +22,12 @@ import { CATEGORY_CFG } from './constants';
 import { TemplateDetailModal } from './TemplateDetailModal';
 import type { OnboardingTemplate } from './types';
 
-export interface TemplatesViewProps {
+export interface IntegrationPlansTabProps {
   /** ADMIN/RH: activa a gestão de tarefas no detalhe do template. */
   canManage?: boolean;
 }
 
-export function TemplatesView({ canManage = false }: TemplatesViewProps) {
+export function IntegrationPlansTab({ canManage = false }: IntegrationPlansTabProps) {
   const [detailId, setDetailId] = useState<number | null>(null);
   const { data = [], isLoading: loading } = useApiQuery<OnboardingTemplate[]>(
     queryKeys.onboarding.templates(),
@@ -46,35 +45,30 @@ export function TemplatesView({ canManage = false }: TemplatesViewProps) {
     );
 
   if (data.length === 0) {
-    return (
-      <EmptyState
-        title="Sem templates"
-        description="Sem templates de integração configurados"
-      />
-    );
+    return <EmptyState title="Sem planos de integração" description="Sem planos de integração configurados" />;
   }
 
   return (
     <div className="grid grid-cols-3 gap-4">
       {data.map((t) => (
-        <Card
-          key={t.id}
-          interactive
-          onClick={() => setDetailId(t.id)}
-          className="p-5"
-        >
+        <Card key={t.id} interactive onClick={() => setDetailId(t.id)} className="p-5">
           <div className="flex items-start justify-between mb-3">
             <div>
-              <div className="text-sm font-semibold text-ink">{t.name}</div>
-              {t.description && (
-                <p className="text-xs text-ink-muted mt-0.5 line-clamp-2">
-                  {t.description}
-                </p>
+              <div className="text-sm font-semibold text-ink">
+                {t.name}
+                {t.version && t.version > 1 && (
+                  <span className="ml-1.5 font-mono text-xs font-normal text-ink-faint">v{t.version}</span>
+                )}
+              </div>
+              {t.objective ? (
+                <p className="text-xs text-ink-muted mt-0.5 line-clamp-2">{t.objective}</p>
+              ) : (
+                t.description && (
+                  <p className="text-xs text-ink-muted mt-0.5 line-clamp-2">{t.description}</p>
+                )
               )}
             </div>
-            <Badge intent={t.active ? 'success' : 'neutral'}>
-              {t.active ? 'Activo' : 'Inactivo'}
-            </Badge>
+            <Badge intent={t.active ? 'success' : 'neutral'}>{t.active ? 'Activo' : 'Inactivo'}</Badge>
           </div>
 
           <div className="flex flex-wrap gap-2 text-xs text-ink-faint mb-4">
@@ -83,6 +77,7 @@ export function TemplatesView({ canManage = false }: TemplatesViewProps) {
             <span> {t._count?.plans ?? 0} planos</span>
             {t.position && <span> {t.position.name}</span>}
             {t.department && <span> {t.department.name}</span>}
+            {t.unit && <span> {t.unit.name}</span>}
           </div>
 
           {t.tasks && t.tasks.length > 0 && (
@@ -91,24 +86,15 @@ export function TemplatesView({ canManage = false }: TemplatesViewProps) {
                 const catCfg = CATEGORY_CFG[task.category];
                 const CatIcon = catCfg?.icon;
                 return (
-                  <div
-                    key={task.id}
-                    className="flex items-center gap-2 text-xs text-ink-muted"
-                  >
-                    <span>
-                      {CatIcon ? <CatIcon size={13} strokeWidth={1.75} /> : '•'}
-                    </span>
+                  <div key={task.id} className="flex items-center gap-2 text-xs text-ink-muted">
+                    <span>{CatIcon ? <CatIcon size={13} strokeWidth={1.75} /> : '•'}</span>
                     <span className="truncate">{task.title}</span>
-                    <span className="ml-auto text-warning-ink">
-                      +{task.xpReward}xp
-                    </span>
+                    <span className="ml-auto text-warning-ink">+{task.xpReward}xp</span>
                   </div>
                 );
               })}
               {t.tasks.length > 3 && (
-                <div className="text-xs text-ink-faint">
-                  +{t.tasks.length - 3} mais tarefas…
-                </div>
+                <div className="text-xs text-ink-faint">+{t.tasks.length - 3} mais tarefas…</div>
               )}
             </div>
           )}
@@ -116,11 +102,7 @@ export function TemplatesView({ canManage = false }: TemplatesViewProps) {
       ))}
 
       {detailId !== null && (
-        <TemplateDetailModal
-          templateId={detailId}
-          canManage={canManage}
-          onClose={() => setDetailId(null)}
-        />
+        <TemplateDetailModal templateId={detailId} canManage={canManage} onClose={() => setDetailId(null)} />
       )}
     </div>
   );

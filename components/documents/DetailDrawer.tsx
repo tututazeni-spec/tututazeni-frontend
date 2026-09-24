@@ -135,9 +135,12 @@ export function DetailDrawer({ doc, onClose, onDownload }: DetailDrawerProps) {
               <p className="font-semibold text-ink">
                 {readStatus.confirmedCount} / {readStatus.totalRequired} ({readStatus.percentage}%)
               </p>
-              {readStatus.pendingUsers.length > 0 && (
+              {readStatus.pendingCount > 0 && (
                 <p className="mt-1 text-xs text-ink-faint">
-                  Por confirmar: {readStatus.pendingUsers.map((u) => u.fullName).join(', ')}
+                  Por confirmar ({readStatus.pendingCount}):{' '}
+                  {readStatus.pendingUsers.map((u) => u.fullName).join(', ')}
+                  {readStatus.pendingCount > readStatus.pendingUsers.length &&
+                    ` e mais ${readStatus.pendingCount - readStatus.pendingUsers.length}`}
                 </p>
               )}
             </div>

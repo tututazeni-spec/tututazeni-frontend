@@ -203,11 +203,6 @@ export interface ExecutiveModulesOverview {
     criticalAlerts: number;
     integrationsWithErrors: number;
   } | null;
-  evaluationCycles: {
-    activeCycles: number;
-    pendingEvaluations: number;
-    completionRate: number;
-  } | null;
 }
 
 export interface ExecutiveDashboardData {
