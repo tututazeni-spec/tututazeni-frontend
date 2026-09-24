@@ -248,6 +248,69 @@ export interface EventLogistics {
   responsible: { id: number; fullName: string } | null;
 }
 
+// Aba "Oradores & Convidados" (docs/events.md #7) — GET/POST/PUT/DELETE
+// /events/:id/speakers.
+export type EventSpeakerType =
+  | 'SPEAKER'
+  | 'LECTURER'
+  | 'MODERATOR'
+  | 'GUEST'
+  | 'PANELIST'
+  | 'FACILITATOR'
+  | 'INSTITUTIONAL_REP';
+export type EventSpeakerStatus = 'INVITED' | 'CONFIRMED' | 'DECLINED' | 'CANCELLED';
+
+export interface EventSpeaker {
+  id: number;
+  eventId: number;
+  name: string;
+  type: EventSpeakerType;
+  organization: string | null;
+  position: string | null;
+  contact: string | null;
+  bio: string | null;
+  photoUrl: string | null;
+  topic: string | null;
+  sessionId: number | null;
+  schedule: string | null;
+  specialNeeds: string | null;
+  fee: number | null;
+  transport: string | null;
+  accommodation: string | null;
+  status: EventSpeakerStatus;
+  session: { id: number; title: string; startAt: string; endAt: string } | null;
+}
+
+// Aba "Comunicação" (docs/events.md #8) — GET /events/communications e
+// POST /events/:id/communications.
+export type EventCommunicationType =
+  | 'INVITATION'
+  | 'CONFIRMATION'
+  | 'REMINDER'
+  | 'TIME_CHANGE'
+  | 'LOCATION_CHANGE'
+  | 'CANCELLATION'
+  | 'INSTRUCTIONS'
+  | 'THANK_YOU'
+  | 'FOLLOW_UP';
+export type EventCommunicationChannel = 'INNOVA_NOTIFICATION' | 'EMAIL' | 'SMS' | 'WHATSAPP';
+export type EventCommunicationStatus = 'DRAFT' | 'SENT' | 'FAILED';
+
+export interface EventCommunication {
+  id: number;
+  eventId: number;
+  type: EventCommunicationType;
+  subject: string;
+  message: string;
+  channel: EventCommunicationChannel;
+  recipientCount: number;
+  status: EventCommunicationStatus;
+  sentAt: string | null;
+  createdAt: string;
+  event: { id: number; title: string };
+  createdBy: { id: number; fullName: string };
+}
+
 // Abas principais do módulo (docs/events.md) — ver constants.ts#NAV.
 export type View =
   | 'overview'

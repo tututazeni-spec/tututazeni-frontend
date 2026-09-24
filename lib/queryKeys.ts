@@ -734,6 +734,10 @@ export const queryKeys = {
       [...queryKeys.events.all, 'sessions', params] as const,
     logistics: (eventId: number) =>
       [...queryKeys.events.all, 'detail', eventId, 'logistics'] as const,
+    speakers: (eventId: number, params: Record<string, unknown>) =>
+      [...queryKeys.events.all, 'detail', eventId, 'speakers', params] as const,
+    allCommunications: (params: Record<string, unknown>) =>
+      [...queryKeys.events.all, 'communications', params] as const,
   },
 
   liveClasses: {

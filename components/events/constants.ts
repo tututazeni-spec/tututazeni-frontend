@@ -23,10 +23,15 @@ import {
 } from 'lucide-react';
 import type { StatusBadgeMap } from '@/lib/statusBadge';
 import type {
+  EventCommunicationChannel,
+  EventCommunicationStatus,
+  EventCommunicationType,
   EventEquipmentType,
   EventLogisticsStatus,
   EventModalidade,
   EventSessionStatus,
+  EventSpeakerStatus,
+  EventSpeakerType,
   EventStatus,
   EventType,
   EventVisibility,
@@ -166,6 +171,48 @@ export const EQUIPMENT_CFG: Record<EventEquipmentType, { label: string }> = {
   INTERNET: { label: 'Internet' },
   MATERIALS: { label: 'Materiais' },
   SIGNAGE: { label: 'Sinalização' },
+};
+
+export const SPEAKER_TYPE_CFG: Record<EventSpeakerType, { label: string }> = {
+  SPEAKER: { label: 'Orador' },
+  LECTURER: { label: 'Palestrante' },
+  MODERATOR: { label: 'Moderador' },
+  GUEST: { label: 'Convidado' },
+  PANELIST: { label: 'Painelista' },
+  FACILITATOR: { label: 'Facilitador' },
+  INSTITUTIONAL_REP: { label: 'Representante institucional' },
+};
+
+export const SPEAKER_STATUS_CFG: StatusBadgeMap<EventSpeakerStatus> = {
+  INVITED: { label: 'Convidado', cls: 'bg-info-subtle text-info-ink' },
+  CONFIRMED: { label: 'Confirmado', cls: 'bg-success-subtle text-success-ink' },
+  DECLINED: { label: 'Recusado', cls: 'bg-danger-subtle text-danger-ink' },
+  CANCELLED: { label: 'Cancelado', cls: 'bg-surface-sunken text-ink-faint' },
+};
+
+export const COMMUNICATION_TYPE_CFG: Record<EventCommunicationType, { label: string }> = {
+  INVITATION: { label: 'Convite' },
+  CONFIRMATION: { label: 'Confirmação' },
+  REMINDER: { label: 'Lembrete' },
+  TIME_CHANGE: { label: 'Alteração de horário' },
+  LOCATION_CHANGE: { label: 'Alteração de local' },
+  CANCELLATION: { label: 'Cancelamento' },
+  INSTRUCTIONS: { label: 'Instruções' },
+  THANK_YOU: { label: 'Agradecimento' },
+  FOLLOW_UP: { label: 'Follow-up' },
+};
+
+export const COMMUNICATION_CHANNEL_CFG: Record<EventCommunicationChannel, { label: string }> = {
+  INNOVA_NOTIFICATION: { label: 'Notificação INNOVA' },
+  EMAIL: { label: 'E-mail' },
+  SMS: { label: 'SMS' },
+  WHATSAPP: { label: 'WhatsApp' },
+};
+
+export const COMMUNICATION_STATUS_CFG: StatusBadgeMap<EventCommunicationStatus> = {
+  DRAFT: { label: 'Rascunho', cls: 'bg-surface-sunken text-ink-muted' },
+  SENT: { label: 'Enviado', cls: 'bg-success-subtle text-success-ink' },
+  FAILED: { label: 'Falhou', cls: 'bg-danger-subtle text-danger-ink' },
 };
 
 // Abas principais do módulo (docs/events.md) — remodel em curso, uma aba
