@@ -36,7 +36,12 @@ import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { Textarea } from '@/components/ui/Textarea';
-import { COMMUNICATION_CHANNEL_CFG, COMMUNICATION_STATUS_CFG, COMMUNICATION_TYPE_CFG, PARTICIPANT_STATUS } from './constants';
+import {
+  COMMUNICATION_CHANNEL_CFG,
+  COMMUNICATION_STATUS_CFG,
+  COMMUNICATION_TYPE_CFG,
+  PARTICIPANT_STATUS,
+} from './constants';
 import { useEventPickerOptions } from './eventFormData';
 import type {
   EventCommunication,
@@ -54,11 +59,17 @@ const MANAGE_ROLES: readonly Role[] = ['ADMIN', 'RH', 'GESTOR'];
 
 const TYPE_ITEMS = [
   { value: 'ALL', label: 'Todos os tipos' },
-  ...Object.entries(COMMUNICATION_TYPE_CFG).map(([value, cfg]) => ({ value, label: cfg.label })),
+  ...Object.entries(COMMUNICATION_TYPE_CFG).map(([value, cfg]) => ({
+    value,
+    label: cfg.label,
+  })),
 ];
 const CHANNEL_ITEMS = [
   { value: 'ALL', label: 'Todos os canais' },
-  ...Object.entries(COMMUNICATION_CHANNEL_CFG).map(([value, cfg]) => ({ value, label: cfg.label })),
+  ...Object.entries(COMMUNICATION_CHANNEL_CFG).map(([value, cfg]) => ({
+    value,
+    label: cfg.label,
+  })),
 ];
 
 export function CommunicationTab() {
@@ -80,11 +91,13 @@ export function CommunicationTab() {
     channel: channel === 'ALL' ? undefined : channel,
   };
 
-  const { data, isLoading, error, refetch } = useApiQuery<Paginated<EventCommunication>>(
-    queryKeys.events.allCommunications(params),
-    '/events/communications',
-    { params, staleTime: STALE_TIME.DYNAMIC, placeholderData: keepPreviousData },
-  );
+  const { data, isLoading, error, refetch } = useApiQuery<
+    Paginated<EventCommunication>
+  >(queryKeys.events.allCommunications(params), '/events/communications', {
+    params,
+    staleTime: STALE_TIME.DYNAMIC,
+    placeholderData: keepPreviousData,
+  });
   const communications = data?.data ?? [];
 
   return (
@@ -92,7 +105,10 @@ export function CommunicationTab() {
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div className="flex flex-wrap items-end gap-3">
           <Combobox
-            items={[{ value: 'ALL', label: 'Todos os eventos' }, ...eventOptions]}
+            items={[
+              { value: 'ALL', label: 'Todos os eventos' },
+              ...eventOptions,
+            ]}
             value={eventFilter}
             onValueChange={(v) => {
               setEventFilter(v);
@@ -146,9 +162,12 @@ export function CommunicationTab() {
               className="flex w-full flex-wrap items-center gap-3 border-b border-border px-4 py-3 last:border-0"
             >
               <div className="min-w-0 flex-1">
-                <div className="truncate font-body text-sm font-medium text-ink">{c.subject}</div>
+                <div className="truncate font-body text-sm font-medium text-ink">
+                  {c.subject}
+                </div>
                 <div className="truncate font-body text-xs text-ink-faint">
-                  {c.event.title} · {COMMUNICATION_TYPE_CFG[c.type].label} · {c.recipientCount} destinatário
+                  {c.event.title} · {COMMUNICATION_TYPE_CFG[c.type].label} ·{' '}
+                  {c.recipientCount} destinatário
                   {c.recipientCount === 1 ? '' : 's'}
                 </div>
               </div>
@@ -156,7 +175,9 @@ export function CommunicationTab() {
                 {COMMUNICATION_CHANNEL_CFG[c.channel].label}
               </div>
               <div className="hidden w-40 shrink-0 font-body text-xs text-ink-faint md:block">
-                {c.sentAt ? `${formatDate(c.sentAt)} · ${formatTime(c.sentAt)}` : '—'}
+                {c.sentAt
+                  ? `${formatDate(c.sentAt)} · ${formatTime(c.sentAt)}`
+                  : '—'}
               </div>
               <StatusBadge value={c.status} map={COMMUNICATION_STATUS_CFG} />
             </div>
@@ -165,7 +186,11 @@ export function CommunicationTab() {
       )}
 
       {data && data.meta.totalPages > 1 && (
-        <Pagination page={data.meta.page} totalPages={data.meta.totalPages} onPageChange={setPage} />
+        <Pagination
+          page={data.meta.page}
+          totalPages={data.meta.totalPages}
+          onPageChange={setPage}
+        />
       )}
 
       {showNew && <NewCommunicationModal onClose={() => setShowNew(false)} />}
@@ -209,7 +234,9 @@ function NewCommunicationModal({ onClose }: { onClose: () => void }) {
         subject: form.subject,
         message: form.message,
         channel: form.channel,
-        participantStatuses: form.participantStatuses.length ? form.participantStatuses : undefined,
+        participantStatuses: form.participantStatuses.length
+          ? form.participantStatuses
+          : undefined,
       }),
     {
       invalidateKeys: [queryKeys.events.all],
@@ -253,17 +280,28 @@ function NewCommunicationModal({ onClose }: { onClose: () => void }) {
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <FormField label="Tipo *" htmlFor="comm-type">
               <Select
-                items={Object.entries(COMMUNICATION_TYPE_CFG).map(([value, cfg]) => ({ value, label: cfg.label }))}
+                items={Object.entries(COMMUNICATION_TYPE_CFG).map(
+                  ([value, cfg]) => ({ value, label: cfg.label }),
+                )}
                 value={form.type}
-                onValueChange={(v) => setForm((f) => ({ ...f, type: v as EventCommunicationType }))}
+                onValueChange={(v) =>
+                  setForm((f) => ({ ...f, type: v as EventCommunicationType }))
+                }
                 className="w-full"
               />
             </FormField>
             <FormField label="Canal *" htmlFor="comm-channel">
               <Select
-                items={Object.entries(COMMUNICATION_CHANNEL_CFG).map(([value, cfg]) => ({ value, label: cfg.label }))}
+                items={Object.entries(COMMUNICATION_CHANNEL_CFG).map(
+                  ([value, cfg]) => ({ value, label: cfg.label }),
+                )}
                 value={form.channel}
-                onValueChange={(v) => setForm((f) => ({ ...f, channel: v as EventCommunicationChannel }))}
+                onValueChange={(v) =>
+                  setForm((f) => ({
+                    ...f,
+                    channel: v as EventCommunicationChannel,
+                  }))
+                }
                 className="w-full"
               />
             </FormField>
@@ -272,7 +310,9 @@ function NewCommunicationModal({ onClose }: { onClose: () => void }) {
             <Input
               id="comm-subject"
               value={form.subject}
-              onChange={(e) => setForm((f) => ({ ...f, subject: e.target.value }))}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, subject: e.target.value }))
+              }
               className="w-full"
             />
           </FormField>
@@ -280,37 +320,46 @@ function NewCommunicationModal({ onClose }: { onClose: () => void }) {
             <Textarea
               id="comm-message"
               value={form.message}
-              onChange={(e) => setForm((f) => ({ ...f, message: e.target.value }))}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, message: e.target.value }))
+              }
               rows={4}
               className="w-full resize-none"
             />
           </FormField>
           <div>
             <div className="mb-2 font-body text-xs font-medium text-ink">
-              Destinatários — filtrar por estado de inscrição (vazio = todos os inscritos)
+              Destinatários — filtrar por estado de inscrição (vazio = todos os
+              inscritos)
             </div>
             <div className="flex flex-wrap gap-2">
-              {(Object.entries(PARTICIPANT_STATUS) as Array<[ParticipantStatus, { label: string }]>).map(
-                ([value, cfg]) => (
-                  <label
-                    key={value}
-                    className="flex cursor-pointer items-center gap-1.5 rounded-full border border-border px-2.5 py-1 text-xs text-ink hover:bg-surface-sunken has-[:checked]:border-primary has-[:checked]:bg-primary-subtle has-[:checked]:text-primary"
-                  >
-                    <input
-                      type="checkbox"
-                      checked={form.participantStatuses.includes(value)}
-                      onChange={() => toggleStatus(value)}
-                      className="h-3.5 w-3.5 rounded border-border-strong accent-primary"
-                    />
-                    {cfg.label}
-                  </label>
-                ),
-              )}
+              {(
+                Object.entries(PARTICIPANT_STATUS) as Array<
+                  [ParticipantStatus, { label: string }]
+                >
+              ).map(([value, cfg]) => (
+                <label
+                  key={value}
+                  className="flex cursor-pointer items-center gap-1.5 rounded-full border border-border px-2.5 py-1 text-xs text-ink hover:bg-surface-sunken has-[:checked]:border-primary has-[:checked]:bg-primary-subtle has-[:checked]:text-primary"
+                >
+                  <input
+                    type="checkbox"
+                    checked={form.participantStatuses.includes(value)}
+                    onChange={() => toggleStatus(value)}
+                    className="h-3.5 w-3.5 rounded border-border-strong accent-primary"
+                  />
+                  {cfg.label}
+                </label>
+              ))}
             </div>
           </div>
         </div>
         <div className="mt-6 flex gap-3 border-t border-border pt-4">
-          <Button intent="secondary" className="flex-1 justify-center" onClick={onClose}>
+          <Button
+            intent="secondary"
+            className="flex-1 justify-center"
+            onClick={onClose}
+          >
             Cancelar
           </Button>
           <Button

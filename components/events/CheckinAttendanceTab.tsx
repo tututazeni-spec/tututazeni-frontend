@@ -15,7 +15,14 @@
 
 import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
-import { CalendarCheck, Download, LogIn, LogOut, MoreVertical, QrCode } from 'lucide-react';
+import {
+  CalendarCheck,
+  Download,
+  LogIn,
+  LogOut,
+  MoreVertical,
+  QrCode,
+} from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { useDebounce } from '@/hooks/useDebounce';
 import { useToast } from '@/providers/ToastProvider';
@@ -42,8 +49,16 @@ import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { Textarea } from '@/components/ui/Textarea';
-import { CHECKIN_METHOD_CFG, CHECKIN_STATE_CFG, PARTICIPANT_STATUS } from './constants';
-import { useDepartmentOptions, useEventPickerOptions, useUnitOptions } from './eventFormData';
+import {
+  CHECKIN_METHOD_CFG,
+  CHECKIN_STATE_CFG,
+  PARTICIPANT_STATUS,
+} from './constants';
+import {
+  useDepartmentOptions,
+  useEventPickerOptions,
+  useUnitOptions,
+} from './eventFormData';
 import type {
   EventCheckinMethod,
   EventCheckinRow,
@@ -58,11 +73,17 @@ interface Paginated<T> {
 
 const STATUS_ITEMS = [
   { value: 'ALL', label: 'Todos os estados' },
-  ...Object.entries(PARTICIPANT_STATUS).map(([value, cfg]) => ({ value, label: cfg.label })),
+  ...Object.entries(PARTICIPANT_STATUS).map(([value, cfg]) => ({
+    value,
+    label: cfg.label,
+  })),
 ];
 const METHOD_ITEMS = [
   { value: 'ALL', label: 'Todos os métodos' },
-  ...Object.entries(CHECKIN_METHOD_CFG).map(([value, cfg]) => ({ value, label: cfg.label })),
+  ...Object.entries(CHECKIN_METHOD_CFG).map(([value, cfg]) => ({
+    value,
+    label: cfg.label,
+  })),
 ];
 
 export function CheckinAttendanceTab() {
@@ -81,7 +102,9 @@ export function CheckinAttendanceTab() {
     unitId: 'ALL',
     page: 1,
   });
-  const [manualTarget, setManualTarget] = useState<EventCheckinRow | null>(null);
+  const [manualTarget, setManualTarget] = useState<EventCheckinRow | null>(
+    null,
+  );
   const [showSessionAttendance, setShowSessionAttendance] = useState(false);
 
   function updateFilters(patch: Partial<Omit<typeof filters, 'page'>>) {
@@ -95,21 +118,28 @@ export function CheckinAttendanceTab() {
     eventId: filters.eventId === 'ALL' ? undefined : filters.eventId,
     status: filters.status === 'ALL' ? undefined : filters.status,
     method: filters.method === 'ALL' ? undefined : filters.method,
-    departmentId: filters.departmentId === 'ALL' ? undefined : filters.departmentId,
+    departmentId:
+      filters.departmentId === 'ALL' ? undefined : filters.departmentId,
     unitId: filters.unitId === 'ALL' ? undefined : filters.unitId,
   };
 
-  const { data, isLoading, error, refetch } = useApiQuery<Paginated<EventCheckinRow>>(
-    queryKeys.events.checkins(params),
-    '/events/checkins',
-    { params, staleTime: STALE_TIME.DYNAMIC, placeholderData: keepPreviousData },
-  );
+  const { data, isLoading, error, refetch } = useApiQuery<
+    Paginated<EventCheckinRow>
+  >(queryKeys.events.checkins(params), '/events/checkins', {
+    params,
+    staleTime: STALE_TIME.DYNAMIC,
+    placeholderData: keepPreviousData,
+  });
   const rows = data?.data ?? [];
 
   const onErr = (e: Error) => notify({ title: e.message, intent: 'danger' });
 
   const checkoutMutation = useApiMutation<unknown, EventCheckinRow>(
-    (row) => apiClient.patch(`/events/${row.eventId}/participants/${row.userId}/checkout`, {}),
+    (row) =>
+      apiClient.patch(
+        `/events/${row.eventId}/participants/${row.userId}/checkout`,
+        {},
+      ),
     {
       onSuccess: () => {
         refetch();
@@ -131,7 +161,10 @@ export function CheckinAttendanceTab() {
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div className="flex flex-wrap items-end gap-3">
           <Combobox
-            items={[{ value: 'ALL', label: 'Todos os eventos' }, ...eventOptions]}
+            items={[
+              { value: 'ALL', label: 'Todos os eventos' },
+              ...eventOptions,
+            ]}
             value={filters.eventId}
             onValueChange={(v) => updateFilters({ eventId: v })}
             placeholder="Filtrar por evento"
@@ -145,22 +178,40 @@ export function CheckinAttendanceTab() {
             onChange={(e) => setSearch(e.target.value)}
             className="w-52"
           />
-          <Select items={STATUS_ITEMS} value={filters.status} onValueChange={(v) => updateFilters({ status: v })} />
-          <Select items={METHOD_ITEMS} value={filters.method} onValueChange={(v) => updateFilters({ method: v })} />
           <Select
-            items={[{ value: 'ALL', label: 'Todos os departamentos' }, ...departmentOptions]}
+            items={STATUS_ITEMS}
+            value={filters.status}
+            onValueChange={(v) => updateFilters({ status: v })}
+          />
+          <Select
+            items={METHOD_ITEMS}
+            value={filters.method}
+            onValueChange={(v) => updateFilters({ method: v })}
+          />
+          <Select
+            items={[
+              { value: 'ALL', label: 'Todos os departamentos' },
+              ...departmentOptions,
+            ]}
             value={filters.departmentId}
             onValueChange={(v) => updateFilters({ departmentId: v })}
           />
           <Select
-            items={[{ value: 'ALL', label: 'Todas as unidades' }, ...unitOptions]}
+            items={[
+              { value: 'ALL', label: 'Todas as unidades' },
+              ...unitOptions,
+            ]}
             value={filters.unitId}
             onValueChange={(v) => updateFilters({ unitId: v })}
           />
         </div>
         <div className="flex gap-2">
           {filters.eventId !== 'ALL' && (
-            <Button size="sm" intent="secondary" onClick={() => setShowSessionAttendance(true)}>
+            <Button
+              size="sm"
+              intent="secondary"
+              onClick={() => setShowSessionAttendance(true)}
+            >
               <CalendarCheck size={14} strokeWidth={1.75} />
               Presença por sessão
             </Button>
@@ -188,7 +239,9 @@ export function CheckinAttendanceTab() {
       ) : (
         <div className="overflow-hidden rounded-card border border-border bg-surface">
           {rows.map((p) => {
-            const isCheckingOut = checkoutMutation.isPending && checkoutMutation.variables?.id === p.id;
+            const isCheckingOut =
+              checkoutMutation.isPending &&
+              checkoutMutation.variables?.id === p.id;
             const canCheckIn = !p.checkedInAt;
             const canCheckOut = !!p.checkedInAt && !p.checkedOutAt;
 
@@ -199,7 +252,9 @@ export function CheckinAttendanceTab() {
               >
                 <Avatar name={p.user.fullName} size="sm" />
                 <div className="min-w-0 flex-1">
-                  <div className="truncate font-body text-sm font-medium text-ink">{p.user.fullName}</div>
+                  <div className="truncate font-body text-sm font-medium text-ink">
+                    {p.user.fullName}
+                  </div>
                   <div className="truncate font-body text-xs text-ink-faint">
                     {p.event.title}
                     {p.user.department && ` · ${p.user.department.name}`}
@@ -213,7 +268,9 @@ export function CheckinAttendanceTab() {
                   {p.durationMinutes != null && ` (${p.durationMinutes} min)`}
                 </div>
                 <div className="hidden w-32 shrink-0 font-body text-xs text-ink-faint lg:block">
-                  {p.checkinMethod ? CHECKIN_METHOD_CFG[p.checkinMethod].label : '—'}
+                  {p.checkinMethod
+                    ? CHECKIN_METHOD_CFG[p.checkinMethod].label
+                    : '—'}
                 </div>
 
                 <StatusBadge value={p.checkinState} map={CHECKIN_STATE_CFG} />
@@ -232,7 +289,11 @@ export function CheckinAttendanceTab() {
                     <DropdownMenuContent align="end">
                       {canCheckIn && (
                         <DropdownMenuItem onSelect={() => setManualTarget(p)}>
-                          <LogIn size={14} strokeWidth={1.75} className="mr-1 inline" />
+                          <LogIn
+                            size={14}
+                            strokeWidth={1.75}
+                            className="mr-1 inline"
+                          />
                           Registar check-in
                         </DropdownMenuItem>
                       )}
@@ -241,7 +302,11 @@ export function CheckinAttendanceTab() {
                           disabled={isCheckingOut}
                           onSelect={() => checkoutMutation.mutate(p)}
                         >
-                          <LogOut size={14} strokeWidth={1.75} className="mr-1 inline" />
+                          <LogOut
+                            size={14}
+                            strokeWidth={1.75}
+                            className="mr-1 inline"
+                          />
                           {isCheckingOut ? 'A registar…' : 'Registar check-out'}
                         </DropdownMenuItem>
                       )}
@@ -270,7 +335,10 @@ export function CheckinAttendanceTab() {
         />
       )}
       {showSessionAttendance && filters.eventId !== 'ALL' && (
-        <SessionAttendanceModal eventId={Number(filters.eventId)} onClose={() => setShowSessionAttendance(false)} />
+        <SessionAttendanceModal
+          eventId={Number(filters.eventId)}
+          onClose={() => setShowSessionAttendance(false)}
+        />
       )}
     </div>
   );
@@ -293,10 +361,13 @@ function ManualCheckInModal({
 
   const checkIn = useApiMutation(
     () =>
-      apiClient.patch(`/events/${row.eventId}/participants/${row.userId}/checkin`, {
-        method,
-        note: note || undefined,
-      }),
+      apiClient.patch(
+        `/events/${row.eventId}/participants/${row.userId}/checkin`,
+        {
+          method,
+          note: note || undefined,
+        },
+      ),
     {
       onSuccess: () => {
         onDone();
@@ -309,11 +380,17 @@ function ManualCheckInModal({
 
   return (
     <Modal open onOpenChange={(open) => !open && onClose()}>
-      <ModalContent title="Registar check-in" description={`${row.user.fullName} — ${row.event.title}`}>
+      <ModalContent
+        title="Registar check-in"
+        description={`${row.user.fullName} — ${row.event.title}`}
+      >
         <div className="mt-4 space-y-4">
           <FormField label="Método" htmlFor="checkin-method">
             <Select
-              items={Object.entries(CHECKIN_METHOD_CFG).map(([value, cfg]) => ({ value, label: cfg.label }))}
+              items={Object.entries(CHECKIN_METHOD_CFG).map(([value, cfg]) => ({
+                value,
+                label: cfg.label,
+              }))}
               value={method}
               onValueChange={(v) => setMethod(v as EventCheckinMethod)}
               className="w-full"
@@ -330,7 +407,11 @@ function ManualCheckInModal({
           </FormField>
         </div>
         <div className="mt-6 flex gap-3 border-t border-border pt-4">
-          <Button intent="secondary" className="flex-1 justify-center" onClick={onClose}>
+          <Button
+            intent="secondary"
+            className="flex-1 justify-center"
+            onClick={onClose}
+          >
             Cancelar
           </Button>
           <Button
@@ -353,15 +434,22 @@ function ManualCheckInModal({
 // escolher uma, a presença dos participantes confirmados/presentes nessa
 // sessão (GET /events/:id/sessions/:sessionId/attendance).
 
-function SessionAttendanceModal({ eventId, onClose }: { eventId: number; onClose: () => void }) {
+function SessionAttendanceModal({
+  eventId,
+  onClose,
+}: {
+  eventId: number;
+  onClose: () => void;
+}) {
   const notify = useToast();
   const [sessionId, setSessionId] = useState<number | null>(null);
 
-  const { data: sessions, isLoading: sessionsLoading } = useApiQuery<Paginated<EventSession>>(
-    queryKeys.events.allSessions({ eventId, limit: 100 }),
-    '/events/sessions',
-    { params: { eventId, limit: 100 }, staleTime: STALE_TIME.DYNAMIC },
-  );
+  const { data: sessions, isLoading: sessionsLoading } = useApiQuery<
+    Paginated<EventSession>
+  >(queryKeys.events.allSessions({ eventId, limit: 100 }), '/events/sessions', {
+    params: { eventId, limit: 100 },
+    staleTime: STALE_TIME.DYNAMIC,
+  });
   const sessionOptions = (sessions?.data ?? []).map((s) => ({
     value: String(s.id),
     label: `${s.title} — ${formatDate(s.startAt)} ${formatTime(s.startAt)}`,
@@ -382,14 +470,20 @@ function SessionAttendanceModal({ eventId, onClose }: { eventId: number; onClose
 
   const checkIn = useApiMutation<unknown, number>(
     (userId) =>
-      apiClient.patch(`/events/${eventId}/sessions/${sessionId}/attendance/${userId}/checkin`, {
-        method: 'MANUAL',
-      }),
+      apiClient.patch(
+        `/events/${eventId}/sessions/${sessionId}/attendance/${userId}/checkin`,
+        {
+          method: 'MANUAL',
+        },
+      ),
     { onSuccess: () => refetch(), onError: onErr },
   );
   const checkOut = useApiMutation<unknown, number>(
     (userId) =>
-      apiClient.patch(`/events/${eventId}/sessions/${sessionId}/attendance/${userId}/checkout`, {}),
+      apiClient.patch(
+        `/events/${eventId}/sessions/${sessionId}/attendance/${userId}/checkout`,
+        {},
+      ),
     { onSuccess: () => refetch(), onError: onErr },
   );
 
@@ -404,7 +498,10 @@ function SessionAttendanceModal({ eventId, onClose }: { eventId: number; onClose
           {sessionsLoading ? (
             <Skeleton rows={2} />
           ) : sessionOptions.length === 0 ? (
-            <EmptyState title="Sem sessões" description="Este evento ainda não tem sessões na Programação." />
+            <EmptyState
+              title="Sem sessões"
+              description="Este evento ainda não tem sessões na Programação."
+            />
           ) : (
             <>
               <Combobox
@@ -418,11 +515,17 @@ function SessionAttendanceModal({ eventId, onClose }: { eventId: number; onClose
 
               {sessionId &&
                 (attendanceError ? (
-                  <QueryError error={attendanceError} onRetry={() => refetch()} />
+                  <QueryError
+                    error={attendanceError}
+                    onRetry={() => refetch()}
+                  />
                 ) : attendanceLoading ? (
                   <Skeleton rows={4} />
                 ) : !attendance || attendance.length === 0 ? (
-                  <EmptyState title="Sem participantes" description="Nenhum participante confirmado para esta sessão." />
+                  <EmptyState
+                    title="Sem participantes"
+                    description="Nenhum participante confirmado para esta sessão."
+                  />
                 ) : (
                   <div className="overflow-hidden rounded-card border border-border">
                     {attendance.map((a) => (
@@ -430,16 +533,23 @@ function SessionAttendanceModal({ eventId, onClose }: { eventId: number; onClose
                         key={a.userId}
                         className="flex items-center gap-3 border-b border-border px-3 py-2 last:border-0"
                       >
-                        <div className="min-w-0 flex-1 truncate font-body text-sm text-ink">{a.user.fullName}</div>
+                        <div className="min-w-0 flex-1 truncate font-body text-sm text-ink">
+                          {a.user.fullName}
+                        </div>
                         <div className="hidden w-36 shrink-0 font-body text-xs text-ink-faint sm:block">
                           {a.checkedInAt ? formatTime(a.checkedInAt) : '—'}
-                          {a.checkedOutAt ? ` → ${formatTime(a.checkedOutAt)}` : ''}
+                          {a.checkedOutAt
+                            ? ` → ${formatTime(a.checkedOutAt)}`
+                            : ''}
                         </div>
                         {!a.checkedInAt ? (
                           <Button
                             size="sm"
                             intent="secondary"
-                            loading={checkIn.isPending && checkIn.variables === a.userId}
+                            loading={
+                              checkIn.isPending &&
+                              checkIn.variables === a.userId
+                            }
                             onClick={() => checkIn.mutate(a.userId)}
                           >
                             Check-in
@@ -448,14 +558,19 @@ function SessionAttendanceModal({ eventId, onClose }: { eventId: number; onClose
                           <Button
                             size="sm"
                             intent="secondary"
-                            loading={checkOut.isPending && checkOut.variables === a.userId}
+                            loading={
+                              checkOut.isPending &&
+                              checkOut.variables === a.userId
+                            }
                             onClick={() => checkOut.mutate(a.userId)}
                           >
                             Check-out
                           </Button>
                         ) : (
                           <span className="font-body text-xs text-ink-faint">
-                            {a.durationMinutes != null ? `${a.durationMinutes} min` : '—'}
+                            {a.durationMinutes != null
+                              ? `${a.durationMinutes} min`
+                              : '—'}
                           </span>
                         )}
                       </div>

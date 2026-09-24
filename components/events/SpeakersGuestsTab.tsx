@@ -43,7 +43,12 @@ import { StatusBadge } from '@/components/ui/StatusBadge';
 import { Textarea } from '@/components/ui/Textarea';
 import { SPEAKER_STATUS_CFG, SPEAKER_TYPE_CFG } from './constants';
 import { useEventPickerOptions } from './eventFormData';
-import type { EventSession, EventSpeaker, EventSpeakerStatus, EventSpeakerType } from './types';
+import type {
+  EventSession,
+  EventSpeaker,
+  EventSpeakerStatus,
+  EventSpeakerType,
+} from './types';
 
 interface Paginated<T> {
   data: T[];
@@ -54,11 +59,17 @@ const MANAGE_ROLES: readonly Role[] = ['ADMIN', 'RH', 'GESTOR'];
 
 const TYPE_ITEMS = [
   { value: 'ALL', label: 'Todos os tipos' },
-  ...Object.entries(SPEAKER_TYPE_CFG).map(([value, cfg]) => ({ value, label: cfg.label })),
+  ...Object.entries(SPEAKER_TYPE_CFG).map(([value, cfg]) => ({
+    value,
+    label: cfg.label,
+  })),
 ];
 const STATUS_ITEMS = [
   { value: 'ALL', label: 'Todos os estados' },
-  ...Object.entries(SPEAKER_STATUS_CFG).map(([value, cfg]) => ({ value, label: cfg.label })),
+  ...Object.entries(SPEAKER_STATUS_CFG).map(([value, cfg]) => ({
+    value,
+    label: cfg.label,
+  })),
 ];
 
 interface SpeakerFormState {
@@ -139,21 +150,35 @@ export function SpeakersGuestsTab() {
     status: status === 'ALL' ? undefined : status,
   };
 
-  const { data, isLoading, error, refetch } = useApiQuery<Paginated<EventSpeaker>>(
+  const { data, isLoading, error, refetch } = useApiQuery<
+    Paginated<EventSpeaker>
+  >(
     queryKeys.events.speakers(eventId ?? 0, params),
     `/events/${eventId}/speakers`,
-    { params, enabled: !!eventId, staleTime: STALE_TIME.DYNAMIC, placeholderData: keepPreviousData },
+    {
+      params,
+      enabled: !!eventId,
+      staleTime: STALE_TIME.DYNAMIC,
+      placeholderData: keepPreviousData,
+    },
   );
   const speakers = data?.data ?? [];
 
   const { data: sessionsData } = useApiQuery<Paginated<EventSession>>(
     queryKeys.events.allSessions({ eventId: eventId ?? 0, limit: 100 }),
     '/events/sessions',
-    { params: { eventId: eventId ?? undefined, limit: 100 }, enabled: !!eventId, staleTime: STALE_TIME.DYNAMIC },
+    {
+      params: { eventId: eventId ?? undefined, limit: 100 },
+      enabled: !!eventId,
+      staleTime: STALE_TIME.DYNAMIC,
+    },
   );
   const sessionOptions = [
     { value: 'NONE', label: 'Sem sessão associada' },
-    ...(sessionsData?.data ?? []).map((s) => ({ value: String(s.id), label: s.title })),
+    ...(sessionsData?.data ?? []).map((s) => ({
+      value: String(s.id),
+      label: s.title,
+    })),
   ];
 
   const invalidateKeys = [queryKeys.events.all];
@@ -201,10 +226,12 @@ export function SpeakersGuestsTab() {
   );
 
   const remove = useApiMutation(
-    (s: EventSpeaker) => apiClient.delete(`/events/${eventId}/speakers/${s.id}`),
+    (s: EventSpeaker) =>
+      apiClient.delete(`/events/${eventId}/speakers/${s.id}`),
     {
       invalidateKeys,
-      onSuccess: () => notify({ title: 'Orador/convidado removido', intent: 'success' }),
+      onSuccess: () =>
+        notify({ title: 'Orador/convidado removido', intent: 'success' }),
       onError: (e) => notify({ title: e.message, intent: 'danger' }),
     },
   );
@@ -302,7 +329,9 @@ export function SpeakersGuestsTab() {
             >
               <Avatar name={s.name} url={s.photoUrl ?? undefined} size="sm" />
               <div className="min-w-0 flex-1">
-                <div className="truncate font-body text-sm font-medium text-ink">{s.name}</div>
+                <div className="truncate font-body text-sm font-medium text-ink">
+                  {s.name}
+                </div>
                 <div className="truncate font-body text-xs text-ink-faint">
                   {SPEAKER_TYPE_CFG[s.type].label}
                   {s.organization && ` · ${s.organization}`}
@@ -328,12 +357,18 @@ export function SpeakersGuestsTab() {
                     </button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
-                    <DropdownMenuItem onSelect={() => openEdit(s)}>Editar</DropdownMenuItem>
+                    <DropdownMenuItem onSelect={() => openEdit(s)}>
+                      Editar
+                    </DropdownMenuItem>
                     <DropdownMenuItem
-                      disabled={remove.isPending && remove.variables?.id === s.id}
+                      disabled={
+                        remove.isPending && remove.variables?.id === s.id
+                      }
                       onSelect={() => onDelete(s)}
                     >
-                      {remove.isPending && remove.variables?.id === s.id ? 'A remover…' : 'Remover'}
+                      {remove.isPending && remove.variables?.id === s.id
+                        ? 'A remover…'
+                        : 'Remover'}
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -344,13 +379,21 @@ export function SpeakersGuestsTab() {
       )}
 
       {data && data.meta.totalPages > 1 && (
-        <Pagination page={data.meta.page} totalPages={data.meta.totalPages} onPageChange={setPage} />
+        <Pagination
+          page={data.meta.page}
+          totalPages={data.meta.totalPages}
+          onPageChange={setPage}
+        />
       )}
 
       {editing && (
         <Modal open onOpenChange={(open) => !open && setEditing(null)}>
           <ModalContent
-            title={editing === 'new' ? 'Novo orador/convidado' : 'Editar orador/convidado'}
+            title={
+              editing === 'new'
+                ? 'Novo orador/convidado'
+                : 'Editar orador/convidado'
+            }
             className="max-h-[90vh] max-w-2xl overflow-y-auto"
           >
             <div className="mt-4 space-y-4">
@@ -359,15 +402,21 @@ export function SpeakersGuestsTab() {
                   <Input
                     id="spk-name"
                     value={form.name}
-                    onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, name: e.target.value }))
+                    }
                     className="w-full"
                   />
                 </FormField>
                 <FormField label="Tipo *" htmlFor="spk-type">
                   <Select
-                    items={Object.entries(SPEAKER_TYPE_CFG).map(([value, cfg]) => ({ value, label: cfg.label }))}
+                    items={Object.entries(SPEAKER_TYPE_CFG).map(
+                      ([value, cfg]) => ({ value, label: cfg.label }),
+                    )}
                     value={form.type}
-                    onValueChange={(v) => setForm((f) => ({ ...f, type: v as EventSpeakerType }))}
+                    onValueChange={(v) =>
+                      setForm((f) => ({ ...f, type: v as EventSpeakerType }))
+                    }
                     className="w-full"
                   />
                 </FormField>
@@ -377,7 +426,9 @@ export function SpeakersGuestsTab() {
                   <Input
                     id="spk-org"
                     value={form.organization}
-                    onChange={(e) => setForm((f) => ({ ...f, organization: e.target.value }))}
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, organization: e.target.value }))
+                    }
                     className="w-full"
                   />
                 </FormField>
@@ -385,7 +436,9 @@ export function SpeakersGuestsTab() {
                   <Input
                     id="spk-position"
                     value={form.position}
-                    onChange={(e) => setForm((f) => ({ ...f, position: e.target.value }))}
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, position: e.target.value }))
+                    }
                     className="w-full"
                   />
                 </FormField>
@@ -395,7 +448,9 @@ export function SpeakersGuestsTab() {
                   <Input
                     id="spk-contact"
                     value={form.contact}
-                    onChange={(e) => setForm((f) => ({ ...f, contact: e.target.value }))}
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, contact: e.target.value }))
+                    }
                     placeholder="Email ou telefone"
                     className="w-full"
                   />
@@ -404,7 +459,9 @@ export function SpeakersGuestsTab() {
                   <Input
                     id="spk-photo"
                     value={form.photoUrl}
-                    onChange={(e) => setForm((f) => ({ ...f, photoUrl: e.target.value }))}
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, photoUrl: e.target.value }))
+                    }
                     className="w-full"
                   />
                 </FormField>
@@ -413,7 +470,9 @@ export function SpeakersGuestsTab() {
                 <Textarea
                   id="spk-bio"
                   value={form.bio}
-                  onChange={(e) => setForm((f) => ({ ...f, bio: e.target.value }))}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, bio: e.target.value }))
+                  }
                   rows={2}
                   className="w-full resize-none"
                 />
@@ -423,7 +482,9 @@ export function SpeakersGuestsTab() {
                   <Input
                     id="spk-topic"
                     value={form.topic}
-                    onChange={(e) => setForm((f) => ({ ...f, topic: e.target.value }))}
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, topic: e.target.value }))
+                    }
                     className="w-full"
                   />
                 </FormField>
@@ -431,7 +492,9 @@ export function SpeakersGuestsTab() {
                   <Select
                     items={sessionOptions}
                     value={form.sessionId}
-                    onValueChange={(v) => setForm((f) => ({ ...f, sessionId: v }))}
+                    onValueChange={(v) =>
+                      setForm((f) => ({ ...f, sessionId: v }))
+                    }
                     className="w-full"
                   />
                 </FormField>
@@ -441,7 +504,9 @@ export function SpeakersGuestsTab() {
                   <Input
                     id="spk-schedule"
                     value={form.schedule}
-                    onChange={(e) => setForm((f) => ({ ...f, schedule: e.target.value }))}
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, schedule: e.target.value }))
+                    }
                     placeholder="Ex.: 09:00–09:30"
                     className="w-full"
                   />
@@ -453,7 +518,9 @@ export function SpeakersGuestsTab() {
                     min={0}
                     step="0.01"
                     value={form.fee}
-                    onChange={(e) => setForm((f) => ({ ...f, fee: e.target.value }))}
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, fee: e.target.value }))
+                    }
                     className="w-full"
                   />
                 </FormField>
@@ -462,7 +529,9 @@ export function SpeakersGuestsTab() {
                 <Textarea
                   id="spk-needs"
                   value={form.specialNeeds}
-                  onChange={(e) => setForm((f) => ({ ...f, specialNeeds: e.target.value }))}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, specialNeeds: e.target.value }))
+                  }
                   rows={2}
                   className="w-full resize-none"
                 />
@@ -472,7 +541,9 @@ export function SpeakersGuestsTab() {
                   <Input
                     id="spk-transport"
                     value={form.transport}
-                    onChange={(e) => setForm((f) => ({ ...f, transport: e.target.value }))}
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, transport: e.target.value }))
+                    }
                     className="w-full"
                   />
                 </FormField>
@@ -480,22 +551,32 @@ export function SpeakersGuestsTab() {
                   <Input
                     id="spk-accommodation"
                     value={form.accommodation}
-                    onChange={(e) => setForm((f) => ({ ...f, accommodation: e.target.value }))}
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, accommodation: e.target.value }))
+                    }
                     className="w-full"
                   />
                 </FormField>
               </div>
               <FormField label="Estado" htmlFor="spk-status">
                 <Select
-                  items={Object.entries(SPEAKER_STATUS_CFG).map(([value, cfg]) => ({ value, label: cfg.label }))}
+                  items={Object.entries(SPEAKER_STATUS_CFG).map(
+                    ([value, cfg]) => ({ value, label: cfg.label }),
+                  )}
                   value={form.status}
-                  onValueChange={(v) => setForm((f) => ({ ...f, status: v as EventSpeakerStatus }))}
+                  onValueChange={(v) =>
+                    setForm((f) => ({ ...f, status: v as EventSpeakerStatus }))
+                  }
                   className="w-full"
                 />
               </FormField>
             </div>
             <div className="mt-6 flex gap-3 border-t border-border pt-4">
-              <Button intent="secondary" className="flex-1 justify-center" onClick={() => setEditing(null)}>
+              <Button
+                intent="secondary"
+                className="flex-1 justify-center"
+                onClick={() => setEditing(null)}
+              >
                 Cancelar
               </Button>
               <Button

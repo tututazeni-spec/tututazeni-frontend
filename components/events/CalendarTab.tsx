@@ -42,11 +42,17 @@ const VIEW_ITEMS: Array<{ value: View; label: string }> = [
 
 const TYPE_ITEMS = [
   { value: 'ALL', label: 'Todos os tipos' },
-  ...Object.entries(TYPE_CFG).map(([value, cfg]) => ({ value, label: cfg.label })),
+  ...Object.entries(TYPE_CFG).map(([value, cfg]) => ({
+    value,
+    label: cfg.label,
+  })),
 ];
 const STATUS_ITEMS = [
   { value: 'ALL', label: 'Todos os estados' },
-  ...Object.entries(STATUS_CFG).map(([value, cfg]) => ({ value, label: cfg.label })),
+  ...Object.entries(STATUS_CFG).map(([value, cfg]) => ({
+    value,
+    label: cfg.label,
+  })),
 ];
 
 function startOfMonth(d: Date) {
@@ -106,10 +112,15 @@ export function CalendarTab() {
   const { options: unitOptions } = useUnitOptions();
 
   const range = useMemo(() => {
-    if (view === 'week') return { from: startOfWeek(anchor), to: endOfWeek(anchor) };
-    if (view === 'day') return { from: startOfDay(anchor), to: endOfDay(anchor) };
+    if (view === 'week')
+      return { from: startOfWeek(anchor), to: endOfWeek(anchor) };
+    if (view === 'day')
+      return { from: startOfDay(anchor), to: endOfDay(anchor) };
     // month + agenda partilham o mesmo intervalo (grelha completa do mês).
-    return { from: startOfWeek(startOfMonth(anchor)), to: endOfWeek(endOfMonth(anchor)) };
+    return {
+      from: startOfWeek(startOfMonth(anchor)),
+      to: endOfWeek(endOfMonth(anchor)),
+    };
   }, [view, anchor]);
 
   const params = {
@@ -138,14 +149,17 @@ export function CalendarTab() {
       map.set(key, arr);
     }
     for (const arr of map.values()) {
-      arr.sort((a, b) => new Date(a.startAt).getTime() - new Date(b.startAt).getTime());
+      arr.sort(
+        (a, b) => new Date(a.startAt).getTime() - new Date(b.startAt).getTime(),
+      );
     }
     return map;
   }, [data]);
 
   function step(delta: number) {
     setAnchor((d) => {
-      if (view === 'month' || view === 'agenda') return new Date(d.getFullYear(), d.getMonth() + delta, 1);
+      if (view === 'month' || view === 'agenda')
+        return new Date(d.getFullYear(), d.getMonth() + delta, 1);
       if (view === 'week') return addDays(d, delta * 7);
       return addDays(d, delta);
     });
@@ -153,10 +167,18 @@ export function CalendarTab() {
 
   const headerLabel =
     view === 'day'
-      ? formatDate(anchor, { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })
+      ? formatDate(anchor, {
+          weekday: 'long',
+          day: '2-digit',
+          month: 'long',
+          year: 'numeric',
+        })
       : view === 'week'
         ? `${formatDate(startOfWeek(anchor))} – ${formatDate(endOfWeek(anchor))}`
-        : anchor.toLocaleDateString('pt-AO', { month: 'long', year: 'numeric' });
+        : anchor.toLocaleDateString('pt-AO', {
+            month: 'long',
+            year: 'numeric',
+          });
 
   if (detailId !== null) {
     return <DetailView eventId={detailId} onBack={() => setDetailId(null)} />;
@@ -166,16 +188,30 @@ export function CalendarTab() {
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <Button intent="ghost" size="sm" onClick={() => step(-1)} aria-label="Anterior">
+          <Button
+            intent="ghost"
+            size="sm"
+            onClick={() => step(-1)}
+            aria-label="Anterior"
+          >
             <ChevronLeft size={16} strokeWidth={1.75} />
           </Button>
           <span className="min-w-[160px] text-center font-body text-sm font-medium capitalize text-ink">
             {headerLabel}
           </span>
-          <Button intent="ghost" size="sm" onClick={() => step(1)} aria-label="Seguinte">
+          <Button
+            intent="ghost"
+            size="sm"
+            onClick={() => step(1)}
+            aria-label="Seguinte"
+          >
             <ChevronRight size={16} strokeWidth={1.75} />
           </Button>
-          <Button intent="ghost" size="sm" onClick={() => setAnchor(new Date())}>
+          <Button
+            intent="ghost"
+            size="sm"
+            onClick={() => setAnchor(new Date())}
+          >
             Hoje
           </Button>
         </div>
@@ -197,7 +233,10 @@ export function CalendarTab() {
         <Select items={TYPE_ITEMS} value={type} onValueChange={setType} />
         <Select items={STATUS_ITEMS} value={status} onValueChange={setStatus} />
         <Select
-          items={[{ value: 'ALL', label: 'Todos os departamentos' }, ...departmentOptions]}
+          items={[
+            { value: 'ALL', label: 'Todos os departamentos' },
+            ...departmentOptions,
+          ]}
           value={departmentId}
           onValueChange={setDepartmentId}
         />
@@ -213,18 +252,32 @@ export function CalendarTab() {
           className="w-36"
         />
         <div className="w-56">
-          <DepartmentUserPicker label="Responsável" htmlFor="cal-responsible" value={responsible} onChange={setResponsible} />
+          <DepartmentUserPicker
+            label="Responsável"
+            htmlFor="cal-responsible"
+            value={responsible}
+            onChange={setResponsible}
+          />
         </div>
       </div>
 
       {isLoading ? (
         <Skeleton rows={4} />
       ) : view === 'month' ? (
-        <MonthGrid anchor={anchor} range={range} byDay={byDay} onSelect={setDetailId} />
+        <MonthGrid
+          anchor={anchor}
+          range={range}
+          byDay={byDay}
+          onSelect={setDetailId}
+        />
       ) : view === 'week' ? (
         <WeekList range={range} byDay={byDay} onSelect={setDetailId} />
       ) : view === 'day' ? (
-        <DayList day={anchor} events={byDay.get(dayKey(anchor)) ?? []} onSelect={setDetailId} />
+        <DayList
+          day={anchor}
+          events={byDay.get(dayKey(anchor)) ?? []}
+          onSelect={setDetailId}
+        />
       ) : (
         <AgendaList byDay={byDay} onSelect={setDetailId} />
       )}
@@ -232,7 +285,13 @@ export function CalendarTab() {
   );
 }
 
-function EventChip({ ev, onSelect }: { ev: EventCalendarItem; onSelect: (id: number) => void }) {
+function EventChip({
+  ev,
+  onSelect,
+}: {
+  ev: EventCalendarItem;
+  onSelect: (id: number) => void;
+}) {
   const typeCfg = TYPE_CFG[ev.type] ?? TYPE_CFG.CORPORATE;
   return (
     <button
@@ -279,7 +338,10 @@ function MonthGrid({
     <Card className="overflow-hidden p-0">
       <div className="grid grid-cols-7 border-b border-border bg-surface-sunken">
         {WEEKDAY_LABELS.map((label, i) => (
-          <div key={i} className="px-2 py-1.5 text-center font-body text-xs font-medium capitalize text-ink-muted">
+          <div
+            key={i}
+            className="px-2 py-1.5 text-center font-body text-xs font-medium capitalize text-ink-muted"
+          >
             {label}
           </div>
         ))}
@@ -301,7 +363,11 @@ function MonthGrid({
               <div
                 className={cn(
                   'mb-0.5 font-body text-xs',
-                  isSameDay(day, today) ? 'font-bold text-primary' : inMonth ? 'text-ink-muted' : 'text-ink-faint',
+                  isSameDay(day, today)
+                    ? 'font-bold text-primary'
+                    : inMonth
+                      ? 'text-ink-muted'
+                      : 'text-ink-faint',
                 )}
               >
                 {day.getDate()}
@@ -310,7 +376,9 @@ function MonthGrid({
                 <EventChip key={ev.id} ev={ev} onSelect={onSelect} />
               ))}
               {overflow > 0 && (
-                <div className="px-1 font-body text-[11px] text-ink-faint">+{overflow} mais</div>
+                <div className="px-1 font-body text-[11px] text-ink-faint">
+                  +{overflow} mais
+                </div>
               )}
             </div>
           );
@@ -320,23 +388,38 @@ function MonthGrid({
   );
 }
 
-function DayEventRow({ ev, onSelect }: { ev: EventCalendarItem; onSelect: (id: number) => void }) {
+function DayEventRow({
+  ev,
+  onSelect,
+}: {
+  ev: EventCalendarItem;
+  onSelect: (id: number) => void;
+}) {
   return (
     <button
       type="button"
       onClick={() => onSelect(ev.id)}
       className="flex w-full flex-wrap items-center gap-3 px-4 py-3 text-left hover:bg-surface-sunken"
     >
-      <span className="w-14 shrink-0 font-mono text-xs text-ink-faint">{formatTime(ev.startAt)}</span>
+      <span className="w-14 shrink-0 font-mono text-xs text-ink-faint">
+        {formatTime(ev.startAt)}
+      </span>
       <div className="min-w-0 flex-1">
         <div className="truncate text-sm font-medium text-ink">{ev.title}</div>
         <div className="flex flex-wrap items-center gap-2 text-xs text-ink-faint">
           {ev.location && <span>{ev.location}</span>}
           {ev.responsible && <span>{ev.responsible.fullName}</span>}
-          <span>{ev.participants} inscrito{ev.participants === 1 ? '' : 's'}</span>
+          <span>
+            {ev.participants} inscrito{ev.participants === 1 ? '' : 's'}
+          </span>
         </div>
       </div>
-      <span className={cn('rounded px-2 py-0.5 font-body text-xs font-medium', TYPE_CFG[ev.type]?.cls)}>
+      <span
+        className={cn(
+          'rounded px-2 py-0.5 font-body text-xs font-medium',
+          TYPE_CFG[ev.type]?.cls,
+        )}
+      >
         {TYPE_CFG[ev.type]?.label ?? ev.type}
       </span>
       <StatusBadge value={ev.status} map={STATUS_CFG} />
@@ -370,10 +453,16 @@ function WeekList({
         return (
           <Card key={dayKey(day)} className="overflow-hidden p-0">
             <div className="border-b border-border bg-surface-sunken px-4 py-2 font-body text-xs font-medium capitalize text-ink-muted">
-              {formatDate(day, { weekday: 'long', day: '2-digit', month: 'long' })}
+              {formatDate(day, {
+                weekday: 'long',
+                day: '2-digit',
+                month: 'long',
+              })}
             </div>
             {events.length === 0 ? (
-              <div className="px-4 py-4 font-body text-xs text-ink-faint">Sem eventos</div>
+              <div className="px-4 py-4 font-body text-xs text-ink-faint">
+                Sem eventos
+              </div>
             ) : (
               <div className="divide-y divide-border">
                 {events.map((ev) => (
@@ -421,7 +510,10 @@ function AgendaList({
   byDay: Map<string, EventCalendarItem[]>;
   onSelect: (id: number) => void;
 }) {
-  const groups = useMemo(() => [...byDay.entries()].sort(([a], [b]) => a.localeCompare(b)), [byDay]);
+  const groups = useMemo(
+    () => [...byDay.entries()].sort(([a], [b]) => a.localeCompare(b)),
+    [byDay],
+  );
 
   if (groups.length === 0) {
     return (
@@ -437,7 +529,11 @@ function AgendaList({
       {groups.map(([day, events]) => (
         <Card key={day} className="overflow-hidden p-0">
           <div className="border-b border-border bg-surface-sunken px-4 py-2 font-body text-xs font-medium capitalize text-ink-muted">
-            {formatDate(day, { weekday: 'long', day: '2-digit', month: 'long' })}
+            {formatDate(day, {
+              weekday: 'long',
+              day: '2-digit',
+              month: 'long',
+            })}
           </div>
           <div className="divide-y divide-border">
             {events.map((ev) => (

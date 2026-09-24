@@ -34,7 +34,12 @@ import { StatusBadge } from '@/components/ui/StatusBadge';
 import { Textarea } from '@/components/ui/Textarea';
 import { EQUIPMENT_CFG, LOGISTICS_STATUS_CFG } from './constants';
 import { useEventPickerOptions } from './eventFormData';
-import type { Event, EventEquipmentType, EventLogistics, EventLogisticsStatus } from './types';
+import type {
+  Event,
+  EventEquipmentType,
+  EventLogistics,
+  EventLogisticsStatus,
+} from './types';
 
 const MANAGE_ROLES: readonly Role[] = ['ADMIN', 'RH', 'GESTOR'];
 
@@ -93,10 +98,14 @@ export function VenuesLogisticsTab() {
   const [responsible, setResponsible] = useState<DirectoryUser | null>(null);
   const [form, setForm] = useState<LogisticsFormState>(EMPTY_FORM);
 
-  const { data: event } = useApiQuery<Event>(queryKeys.events.detail(eventId ?? 0), `/events/${eventId}`, {
-    enabled: !!eventId,
-    staleTime: STALE_TIME.DYNAMIC,
-  });
+  const { data: event } = useApiQuery<Event>(
+    queryKeys.events.detail(eventId ?? 0),
+    `/events/${eventId}`,
+    {
+      enabled: !!eventId,
+      staleTime: STALE_TIME.DYNAMIC,
+    },
+  );
 
   const {
     data: logistics,
@@ -113,7 +122,11 @@ export function VenuesLogisticsTab() {
     setForm(toForm(logistics ?? null));
     setResponsible(
       logistics?.responsible
-        ? { id: logistics.responsible.id, fullName: logistics.responsible.fullName, avatarUrl: null }
+        ? {
+            id: logistics.responsible.id,
+            fullName: logistics.responsible.fullName,
+            avatarUrl: null,
+          }
         : null,
     );
   }, [logistics]);
@@ -136,7 +149,8 @@ export function VenuesLogisticsTab() {
       }),
     {
       invalidateKeys: [queryKeys.events.all],
-      onSuccess: () => notify({ title: 'Logística guardada', intent: 'success' }),
+      onSuccess: () =>
+        notify({ title: 'Logística guardada', intent: 'success' }),
       onError: (e) => notify({ title: e.message, intent: 'danger' }),
     },
   );
@@ -144,7 +158,9 @@ export function VenuesLogisticsTab() {
   function toggleEquipment(item: EventEquipmentType) {
     setForm((f) => ({
       ...f,
-      equipment: f.equipment.includes(item) ? f.equipment.filter((e) => e !== item) : [...f.equipment, item],
+      equipment: f.equipment.includes(item)
+        ? f.equipment.filter((e) => e !== item)
+        : [...f.equipment, item],
     }));
   }
 
@@ -181,7 +197,9 @@ export function VenuesLogisticsTab() {
           emptyText="Nenhum evento encontrado"
           className="max-w-sm"
         />
-        {logistics && <StatusBadge value={logistics.status} map={LOGISTICS_STATUS_CFG} />}
+        {logistics && (
+          <StatusBadge value={logistics.status} map={LOGISTICS_STATUS_CFG} />
+        )}
       </div>
 
       {error ? (
@@ -201,7 +219,9 @@ export function VenuesLogisticsTab() {
                 <div className="truncate text-ink">{event.room ?? '—'}</div>
               </div>
               <div>
-                <div className="font-body text-xs text-ink-faint">Capacidade</div>
+                <div className="font-body text-xs text-ink-faint">
+                  Capacidade
+                </div>
                 <div className="text-ink">{event.maxCapacity}</div>
               </div>
               <div>
@@ -213,25 +233,29 @@ export function VenuesLogisticsTab() {
 
           <Card className="space-y-4 p-4">
             <div>
-              <div className="mb-2 font-body text-xs font-medium text-ink">Equipamentos</div>
+              <div className="mb-2 font-body text-xs font-medium text-ink">
+                Equipamentos
+              </div>
               <div className="flex flex-wrap gap-2">
-                {(Object.entries(EQUIPMENT_CFG) as Array<[EventEquipmentType, { label: string }]>).map(
-                  ([value, cfg]) => (
-                    <label
-                      key={value}
-                      className="flex cursor-pointer items-center gap-1.5 rounded-full border border-border px-2.5 py-1 text-xs text-ink hover:bg-surface-sunken has-[:checked]:border-primary has-[:checked]:bg-primary-subtle has-[:checked]:text-primary"
-                    >
-                      <input
-                        type="checkbox"
-                        checked={form.equipment.includes(value)}
-                        onChange={() => toggleEquipment(value)}
-                        disabled={!canManage}
-                        className="h-3.5 w-3.5 rounded border-border-strong accent-primary"
-                      />
-                      {cfg.label}
-                    </label>
-                  ),
-                )}
+                {(
+                  Object.entries(EQUIPMENT_CFG) as Array<
+                    [EventEquipmentType, { label: string }]
+                  >
+                ).map(([value, cfg]) => (
+                  <label
+                    key={value}
+                    className="flex cursor-pointer items-center gap-1.5 rounded-full border border-border px-2.5 py-1 text-xs text-ink hover:bg-surface-sunken has-[:checked]:border-primary has-[:checked]:bg-primary-subtle has-[:checked]:text-primary"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={form.equipment.includes(value)}
+                      onChange={() => toggleEquipment(value)}
+                      disabled={!canManage}
+                      className="h-3.5 w-3.5 rounded border-border-strong accent-primary"
+                    />
+                    {cfg.label}
+                  </label>
+                ))}
               </div>
             </div>
 
@@ -246,8 +270,12 @@ export function VenuesLogisticsTab() {
               </div>
             ) : (
               <div className="w-full sm:max-w-xs">
-                <div className="mb-1.5 font-body text-xs font-medium text-ink">Responsável</div>
-                <div className="text-sm text-ink">{responsible?.fullName ?? '—'}</div>
+                <div className="mb-1.5 font-body text-xs font-medium text-ink">
+                  Responsável
+                </div>
+                <div className="text-sm text-ink">
+                  {responsible?.fullName ?? '—'}
+                </div>
               </div>
             )}
 
@@ -256,7 +284,9 @@ export function VenuesLogisticsTab() {
                 <Textarea
                   id="log-resources"
                   value={form.resourcesNeeded}
-                  onChange={(e) => setForm((f) => ({ ...f, resourcesNeeded: e.target.value }))}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, resourcesNeeded: e.target.value }))
+                  }
                   rows={2}
                   disabled={!canManage}
                   className="w-full resize-none"
@@ -266,7 +296,9 @@ export function VenuesLogisticsTab() {
                 <Textarea
                   id="log-suppliers"
                   value={form.suppliers}
-                  onChange={(e) => setForm((f) => ({ ...f, suppliers: e.target.value }))}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, suppliers: e.target.value }))
+                  }
                   rows={2}
                   disabled={!canManage}
                   className="w-full resize-none"
@@ -279,7 +311,9 @@ export function VenuesLogisticsTab() {
                 <Input
                   id="log-catering"
                   value={form.catering}
-                  onChange={(e) => setForm((f) => ({ ...f, catering: e.target.value }))}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, catering: e.target.value }))
+                  }
                   disabled={!canManage}
                   className="w-full"
                 />
@@ -288,7 +322,9 @@ export function VenuesLogisticsTab() {
                 <Input
                   id="log-transport"
                   value={form.transport}
-                  onChange={(e) => setForm((f) => ({ ...f, transport: e.target.value }))}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, transport: e.target.value }))
+                  }
                   disabled={!canManage}
                   className="w-full"
                 />
@@ -297,7 +333,9 @@ export function VenuesLogisticsTab() {
                 <Input
                   id="log-accommodation"
                   value={form.accommodation}
-                  onChange={(e) => setForm((f) => ({ ...f, accommodation: e.target.value }))}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, accommodation: e.target.value }))
+                  }
                   disabled={!canManage}
                   className="w-full"
                 />
@@ -306,7 +344,9 @@ export function VenuesLogisticsTab() {
                 <Input
                   id="log-security"
                   value={form.security}
-                  onChange={(e) => setForm((f) => ({ ...f, security: e.target.value }))}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, security: e.target.value }))
+                  }
                   disabled={!canManage}
                   className="w-full"
                 />
@@ -315,16 +355,25 @@ export function VenuesLogisticsTab() {
                 <Input
                   id="log-decoration"
                   value={form.decoration}
-                  onChange={(e) => setForm((f) => ({ ...f, decoration: e.target.value }))}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, decoration: e.target.value }))
+                  }
                   disabled={!canManage}
                   className="w-full"
                 />
               </FormField>
               <FormField label="Estado" htmlFor="log-status">
                 <Select
-                  items={Object.entries(LOGISTICS_STATUS_CFG).map(([value, cfg]) => ({ value, label: cfg.label }))}
+                  items={Object.entries(LOGISTICS_STATUS_CFG).map(
+                    ([value, cfg]) => ({ value, label: cfg.label }),
+                  )}
                   value={form.status}
-                  onValueChange={(v) => setForm((f) => ({ ...f, status: v as EventLogisticsStatus }))}
+                  onValueChange={(v) =>
+                    setForm((f) => ({
+                      ...f,
+                      status: v as EventLogisticsStatus,
+                    }))
+                  }
                   disabled={!canManage}
                   className="w-full"
                 />
@@ -332,14 +381,19 @@ export function VenuesLogisticsTab() {
             </div>
 
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <FormField label="Orçamento (custo estimado)" htmlFor="log-budget">
+              <FormField
+                label="Orçamento (custo estimado)"
+                htmlFor="log-budget"
+              >
                 <Input
                   id="log-budget"
                   type="number"
                   min={0}
                   step="0.01"
                   value={form.budget}
-                  onChange={(e) => setForm((f) => ({ ...f, budget: e.target.value }))}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, budget: e.target.value }))
+                  }
                   disabled={!canManage}
                   className="w-full"
                 />
@@ -351,7 +405,9 @@ export function VenuesLogisticsTab() {
                   min={0}
                   step="0.01"
                   value={form.actualCost}
-                  onChange={(e) => setForm((f) => ({ ...f, actualCost: e.target.value }))}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, actualCost: e.target.value }))
+                  }
                   disabled={!canManage}
                   className="w-full"
                 />
@@ -360,7 +416,10 @@ export function VenuesLogisticsTab() {
 
             {canManage && (
               <div className="flex justify-end border-t border-border pt-4">
-                <Button loading={save.isPending} onClick={() => save.mutate(undefined)}>
+                <Button
+                  loading={save.isPending}
+                  onClick={() => save.mutate(undefined)}
+                >
                   Guardar
                 </Button>
               </div>

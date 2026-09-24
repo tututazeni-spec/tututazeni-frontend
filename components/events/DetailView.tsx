@@ -74,7 +74,9 @@ function RatingRow({
             onClick={() => onChange(n)}
             className={cn(
               'text-xl transition-colors',
-              n <= value ? 'text-accent' : 'text-border-strong hover:text-accent-hover',
+              n <= value
+                ? 'text-accent'
+                : 'text-border-strong hover:text-accent-hover',
             )}
           >
             ★
@@ -360,37 +362,51 @@ export function DetailView({ eventId, onBack }: DetailViewProps) {
               <RatingRow
                 label="Organização"
                 value={feedback.organizationRating}
-                onChange={(n) => setFeedback((f) => ({ ...f, organizationRating: n }))}
+                onChange={(n) =>
+                  setFeedback((f) => ({ ...f, organizationRating: n }))
+                }
               />
               <RatingRow
                 label="Conteúdo"
                 value={feedback.contentRating}
-                onChange={(n) => setFeedback((f) => ({ ...f, contentRating: n }))}
+                onChange={(n) =>
+                  setFeedback((f) => ({ ...f, contentRating: n }))
+                }
               />
               <RatingRow
                 label="Local"
                 value={feedback.locationRating}
-                onChange={(n) => setFeedback((f) => ({ ...f, locationRating: n }))}
+                onChange={(n) =>
+                  setFeedback((f) => ({ ...f, locationRating: n }))
+                }
               />
               <RatingRow
                 label="Oradores"
                 value={feedback.speakersRating}
-                onChange={(n) => setFeedback((f) => ({ ...f, speakersRating: n }))}
+                onChange={(n) =>
+                  setFeedback((f) => ({ ...f, speakersRating: n }))
+                }
               />
               <RatingRow
                 label="Logística"
                 value={feedback.logisticsRating}
-                onChange={(n) => setFeedback((f) => ({ ...f, logisticsRating: n }))}
+                onChange={(n) =>
+                  setFeedback((f) => ({ ...f, logisticsRating: n }))
+                }
               />
               <RatingRow
                 label="Comunicação"
                 value={feedback.communicationRating}
-                onChange={(n) => setFeedback((f) => ({ ...f, communicationRating: n }))}
+                onChange={(n) =>
+                  setFeedback((f) => ({ ...f, communicationRating: n }))
+                }
               />
               <RatingRow
                 label="Participarias novamente?"
                 value={feedback.wouldAttendAgain}
-                onChange={(n) => setFeedback((f) => ({ ...f, wouldAttendAgain: n }))}
+                onChange={(n) =>
+                  setFeedback((f) => ({ ...f, wouldAttendAgain: n }))
+                }
               />
             </div>
             <Textarea

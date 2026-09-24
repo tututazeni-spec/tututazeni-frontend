@@ -33,7 +33,11 @@ import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { EVALUATION_STATUS_CFG } from './constants';
-import { useDepartmentOptions, useEventPickerOptions, useUnitOptions } from './eventFormData';
+import {
+  useDepartmentOptions,
+  useEventPickerOptions,
+  useUnitOptions,
+} from './eventFormData';
 import type { EventEvaluationRow } from './types';
 
 interface Paginated<T> {
@@ -41,7 +45,10 @@ interface Paginated<T> {
   meta: { total: number; page: number; limit: number; totalPages: number };
 }
 
-const ASPECTS: Array<{ key: keyof NonNullable<EventEvaluationRow['evaluation']>; label: string }> = [
+const ASPECTS: Array<{
+  key: keyof NonNullable<EventEvaluationRow['evaluation']>;
+  label: string;
+}> = [
   { key: 'rating', label: 'Avaliação geral' },
   { key: 'organizationRating', label: 'Organização' },
   { key: 'contentRating', label: 'Conteúdo' },
@@ -52,7 +59,8 @@ const ASPECTS: Array<{ key: keyof NonNullable<EventEvaluationRow['evaluation']>;
 ];
 
 function Stars({ value }: { value: number | null }) {
-  if (value == null) return <span className="font-body text-xs text-ink-faint">—</span>;
+  if (value == null)
+    return <span className="font-body text-xs text-ink-faint">—</span>;
   return (
     <span className="inline-flex items-center gap-0.5">
       {[1, 2, 3, 4, 5].map((n) => (
@@ -60,7 +68,9 @@ function Stars({ value }: { value: number | null }) {
           key={n}
           size={13}
           strokeWidth={1.75}
-          className={n <= value ? 'fill-accent text-accent' : 'text-border-strong'}
+          className={
+            n <= value ? 'fill-accent text-accent' : 'text-border-strong'
+          }
         />
       ))}
     </span>
@@ -91,15 +101,18 @@ export function EvaluationTab() {
     limit: 20,
     search: debouncedSearch || undefined,
     eventId: filters.eventId === 'ALL' ? undefined : filters.eventId,
-    departmentId: filters.departmentId === 'ALL' ? undefined : filters.departmentId,
+    departmentId:
+      filters.departmentId === 'ALL' ? undefined : filters.departmentId,
     unitId: filters.unitId === 'ALL' ? undefined : filters.unitId,
   };
 
-  const { data, isLoading, error, refetch } = useApiQuery<Paginated<EventEvaluationRow>>(
-    queryKeys.events.evaluations(params),
-    '/events/evaluations',
-    { params, staleTime: STALE_TIME.DYNAMIC, placeholderData: keepPreviousData },
-  );
+  const { data, isLoading, error, refetch } = useApiQuery<
+    Paginated<EventEvaluationRow>
+  >(queryKeys.events.evaluations(params), '/events/evaluations', {
+    params,
+    staleTime: STALE_TIME.DYNAMIC,
+    placeholderData: keepPreviousData,
+  });
   const rows = data?.data ?? [];
 
   const exportParams = new URLSearchParams(
@@ -114,7 +127,10 @@ export function EvaluationTab() {
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div className="flex flex-wrap items-end gap-3">
           <Combobox
-            items={[{ value: 'ALL', label: 'Todos os eventos' }, ...eventOptions]}
+            items={[
+              { value: 'ALL', label: 'Todos os eventos' },
+              ...eventOptions,
+            ]}
             value={filters.eventId}
             onValueChange={(v) => updateFilters({ eventId: v })}
             placeholder="Filtrar por evento"
@@ -129,12 +145,18 @@ export function EvaluationTab() {
             className="w-52"
           />
           <Select
-            items={[{ value: 'ALL', label: 'Todos os departamentos' }, ...departmentOptions]}
+            items={[
+              { value: 'ALL', label: 'Todos os departamentos' },
+              ...departmentOptions,
+            ]}
             value={filters.departmentId}
             onValueChange={(v) => updateFilters({ departmentId: v })}
           />
           <Select
-            items={[{ value: 'ALL', label: 'Todas as unidades' }, ...unitOptions]}
+            items={[
+              { value: 'ALL', label: 'Todas as unidades' },
+              ...unitOptions,
+            ]}
             value={filters.unitId}
             onValueChange={(v) => updateFilters({ unitId: v })}
           />
@@ -170,7 +192,9 @@ export function EvaluationTab() {
             >
               <Avatar name={p.user.fullName} size="sm" />
               <div className="min-w-0 flex-1">
-                <div className="truncate font-body text-sm font-medium text-ink">{p.user.fullName}</div>
+                <div className="truncate font-body text-sm font-medium text-ink">
+                  {p.user.fullName}
+                </div>
                 <div className="truncate font-body text-xs text-ink-faint">
                   {p.event.title}
                   {p.user.department && ` · ${p.user.department.name}`}
@@ -185,13 +209,22 @@ export function EvaluationTab() {
                 {p.evaluation ? `NPS ${p.evaluation.nps}/10` : '—'}
               </div>
               <div className="hidden w-40 shrink-0 font-body text-xs text-ink-faint lg:block">
-                {p.evaluation?.createdAt ? formatDateTime(p.evaluation.createdAt) : '—'}
+                {p.evaluation?.createdAt
+                  ? formatDateTime(p.evaluation.createdAt)
+                  : '—'}
               </div>
 
-              <StatusBadge value={p.evaluationStatus} map={EVALUATION_STATUS_CFG} />
+              <StatusBadge
+                value={p.evaluationStatus}
+                map={EVALUATION_STATUS_CFG}
+              />
 
               {p.evaluation?.comment && (
-                <MessageSquareText size={14} strokeWidth={1.75} className="shrink-0 text-ink-faint" />
+                <MessageSquareText
+                  size={14}
+                  strokeWidth={1.75}
+                  className="shrink-0 text-ink-faint"
+                />
               )}
             </button>
           ))}
@@ -214,25 +247,42 @@ export function EvaluationTab() {
           >
             <div className="mt-4 space-y-3">
               {ASPECTS.map(({ key, label }) => (
-                <div key={key} className="flex items-center justify-between gap-3">
-                  <span className="font-body text-sm text-ink-muted">{label}</span>
-                  <Stars value={(detailRow.evaluation?.[key] as number | null) ?? null} />
+                <div
+                  key={key}
+                  className="flex items-center justify-between gap-3"
+                >
+                  <span className="font-body text-sm text-ink-muted">
+                    {label}
+                  </span>
+                  <Stars
+                    value={
+                      (detailRow.evaluation?.[key] as number | null) ?? null
+                    }
+                  />
                 </div>
               ))}
               <div className="flex items-center justify-between gap-3 border-t border-border pt-3">
                 <span className="font-body text-sm text-ink-muted">
                   Recomendaria a um colega (NPS)
                 </span>
-                <span className="font-mono text-sm text-ink">{detailRow.evaluation.nps}/10</span>
+                <span className="font-mono text-sm text-ink">
+                  {detailRow.evaluation.nps}/10
+                </span>
               </div>
               <div className="flex items-center justify-between gap-3">
-                <span className="font-body text-sm text-ink-muted">Participaria novamente</span>
+                <span className="font-body text-sm text-ink-muted">
+                  Participaria novamente
+                </span>
                 <Stars value={detailRow.evaluation.wouldAttendAgain} />
               </div>
               {detailRow.evaluation.comment && (
                 <div className="border-t border-border pt-3">
-                  <div className="mb-1 font-body text-xs text-ink-faint">Comentário</div>
-                  <p className="font-body text-sm text-ink">{detailRow.evaluation.comment}</p>
+                  <div className="mb-1 font-body text-xs text-ink-faint">
+                    Comentário
+                  </div>
+                  <p className="font-body text-sm text-ink">
+                    {detailRow.evaluation.comment}
+                  </p>
                 </div>
               )}
             </div>
