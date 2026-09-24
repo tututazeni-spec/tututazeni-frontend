@@ -23,6 +23,8 @@ import {
 } from 'lucide-react';
 import type { StatusBadgeMap } from '@/lib/statusBadge';
 import type {
+  EventCheckinMethod,
+  EventCheckinState,
   EventCommunicationChannel,
   EventCommunicationStatus,
   EventCommunicationType,
@@ -213,6 +215,21 @@ export const COMMUNICATION_STATUS_CFG: StatusBadgeMap<EventCommunicationStatus> 
   DRAFT: { label: 'Rascunho', cls: 'bg-surface-sunken text-ink-muted' },
   SENT: { label: 'Enviado', cls: 'bg-success-subtle text-success-ink' },
   FAILED: { label: 'Falhou', cls: 'bg-danger-subtle text-danger-ink' },
+};
+
+export const CHECKIN_METHOD_CFG: Record<EventCheckinMethod, { label: string }> = {
+  QR_CODE: { label: 'QR Code' },
+  MOBILE_APP: { label: 'Aplicação móvel' },
+  CODE: { label: 'Código' },
+  MANUAL: { label: 'Registo manual' },
+};
+
+export const CHECKIN_STATE_CFG: StatusBadgeMap<EventCheckinState> = {
+  PENDENTE: { label: 'Pendente', cls: 'bg-surface-sunken text-ink-muted' },
+  PRESENTE: { label: 'Presente', cls: 'bg-success-subtle text-success-ink' },
+  AUSENTE: { label: 'Ausente', cls: 'bg-danger-subtle text-danger-ink' },
+  ENTRADA_REGISTADA: { label: 'Entrada registada', cls: 'bg-info-subtle text-info-ink' },
+  SAIDA_REGISTADA: { label: 'Saída registada', cls: 'bg-success-subtle text-success-ink' },
 };
 
 // Abas principais do módulo (docs/events.md) — remodel em curso, uma aba

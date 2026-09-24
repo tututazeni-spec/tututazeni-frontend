@@ -311,6 +311,48 @@ export interface EventCommunication {
   createdBy: { id: number; fullName: string };
 }
 
+// Aba "Check-in & Presença" (docs/events.md #9) — GET /events/checkins e
+// PATCH /events/:id/participants/:userId/{checkin,checkout}.
+export type EventCheckinMethod = 'QR_CODE' | 'MOBILE_APP' | 'CODE' | 'MANUAL';
+export type EventCheckinState =
+  | 'PENDENTE'
+  | 'PRESENTE'
+  | 'AUSENTE'
+  | 'ENTRADA_REGISTADA'
+  | 'SAIDA_REGISTADA';
+
+export interface EventCheckinRow {
+  id: number;
+  userId: number;
+  eventId: number;
+  status: ParticipantStatus;
+  registeredAt: string;
+  checkedInAt: string | null;
+  checkedOutAt: string | null;
+  checkinMethod: EventCheckinMethod | null;
+  checkinNote: string | null;
+  checkinState: EventCheckinState;
+  durationMinutes: number | null;
+  event: { id: number; title: string };
+  user: {
+    id: number;
+    fullName: string;
+    department: { id: number; name: string } | null;
+    unit: { id: number; name: string } | null;
+  };
+}
+
+// Presença por sessão (docs/events.md #9, eventos com Programação) — GET
+// /events/:id/sessions/:sessionId/attendance.
+export interface EventSessionAttendanceRow {
+  userId: number;
+  user: { id: number; fullName: string };
+  checkedInAt: string | null;
+  checkedOutAt: string | null;
+  method: EventCheckinMethod | null;
+  durationMinutes: number | null;
+}
+
 // Abas principais do módulo (docs/events.md) — ver constants.ts#NAV.
 export type View =
   | 'overview'
