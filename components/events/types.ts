@@ -353,6 +353,78 @@ export interface EventSessionAttendanceRow {
   durationMinutes: number | null;
 }
 
+// Aba "Avaliação" (docs/events.md #10) — GET /events/evaluations e POST
+// /events/:id/feedback.
+export type EventEvaluationStatus = 'AVALIADO' | 'PENDENTE';
+
+export interface EventFeedback {
+  id: number;
+  eventId: number;
+  userId: number;
+  nps: number;
+  rating: number | null;
+  instructorRating: number | null;
+  organizationRating: number | null;
+  contentRating: number | null;
+  locationRating: number | null;
+  speakersRating: number | null;
+  logisticsRating: number | null;
+  communicationRating: number | null;
+  wouldAttendAgain: number | null;
+  comment: string | null;
+  createdAt: string;
+}
+
+export interface EventEvaluationRow {
+  id: number;
+  userId: number;
+  eventId: number;
+  status: ParticipantStatus;
+  registeredAt: string;
+  event: { id: number; title: string };
+  user: {
+    id: number;
+    fullName: string;
+    department: { id: number; name: string } | null;
+    unit: { id: number; name: string } | null;
+  };
+  evaluation: EventFeedback | null;
+  /** Estado calculado — AVALIADO/PENDENTE, nunca persistido. Distinto de
+   * `status` (estado da inscrição). */
+  evaluationStatus: EventEvaluationStatus;
+}
+
+// Aba "Relatórios" (docs/events.md #11) — GET /events/reports/overview.
+export interface EventReport {
+  totals: {
+    events: number;
+    draft: number;
+    published: number;
+    live: number;
+    ended: number;
+    cancelled: number;
+  };
+  byPeriod: Array<{ period: string; count: number }>;
+  byUnit: Array<{ unit: string; count: number }>;
+  byDepartment: Array<{ department: string; count: number }>;
+  byModality: Array<{ modalidade: string; count: number }>;
+  topEventsByParticipants: Array<{ eventId: number; title: string; participants: number }>;
+  registration: { registered: number; capacity: number; rate: number };
+  confirmation: { confirmed: number; registered: number; rate: number };
+  participation: { present: number; confirmed: number; rate: number; absences: number };
+  checkins: { total: number };
+  sessionAttendance: { total: number; checkedIn: number; rate: number };
+  costs: {
+    budget: number;
+    actualCost: number;
+    budgetExecutionRate: number;
+    byEvent: Array<{ eventId: number; title: string; budget: number; actualCost: number }>;
+  };
+  satisfaction: { avgRating: number | null; responses: number };
+  speakers: { avgRating: number | null };
+  nps: { avg: number | null; responses: number };
+}
+
 // Abas principais do módulo (docs/events.md) — ver constants.ts#NAV.
 export type View =
   | 'overview'

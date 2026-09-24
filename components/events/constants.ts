@@ -29,6 +29,7 @@ import type {
   EventCommunicationStatus,
   EventCommunicationType,
   EventEquipmentType,
+  EventEvaluationStatus,
   EventLogisticsStatus,
   EventModalidade,
   EventSessionStatus,
@@ -230,6 +231,11 @@ export const CHECKIN_STATE_CFG: StatusBadgeMap<EventCheckinState> = {
   AUSENTE: { label: 'Ausente', cls: 'bg-danger-subtle text-danger-ink' },
   ENTRADA_REGISTADA: { label: 'Entrada registada', cls: 'bg-info-subtle text-info-ink' },
   SAIDA_REGISTADA: { label: 'Saída registada', cls: 'bg-success-subtle text-success-ink' },
+};
+
+export const EVALUATION_STATUS_CFG: StatusBadgeMap<EventEvaluationStatus> = {
+  AVALIADO: { label: 'Avaliado', cls: 'bg-success-subtle text-success-ink' },
+  PENDENTE: { label: 'Pendente', cls: 'bg-surface-sunken text-ink-muted' },
 };
 
 // Abas principais do módulo (docs/events.md) — remodel em curso, uma aba
