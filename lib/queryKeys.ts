@@ -747,13 +747,7 @@ export const queryKeys = {
     calendar: (params: Record<string, unknown>) =>
       [...queryKeys.events.all, 'calendar', params] as const,
     participants: (eventId: number, params: Record<string, unknown>) =>
-      [
-        ...queryKeys.events.all,
-        'detail',
-        eventId,
-        'participants',
-        params,
-      ] as const,
+      [...queryKeys.events.all, 'detail', eventId, 'participants', params] as const,
     allSessions: (params: Record<string, unknown>) =>
       [...queryKeys.events.all, 'sessions', params] as const,
     logistics: (eventId: number) =>
@@ -765,14 +759,7 @@ export const queryKeys = {
     checkins: (params: Record<string, unknown>) =>
       [...queryKeys.events.all, 'checkins', params] as const,
     sessionAttendance: (eventId: number, sessionId: number) =>
-      [
-        ...queryKeys.events.all,
-        'detail',
-        eventId,
-        'sessions',
-        sessionId,
-        'attendance',
-      ] as const,
+      [...queryKeys.events.all, 'detail', eventId, 'sessions', sessionId, 'attendance'] as const,
     evaluations: (params: Record<string, unknown>) =>
       [...queryKeys.events.all, 'evaluations', params] as const,
     reports: (params: Record<string, unknown>) =>

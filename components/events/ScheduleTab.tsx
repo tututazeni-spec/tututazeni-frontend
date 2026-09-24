@@ -43,11 +43,7 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { Textarea } from '@/components/ui/Textarea';
 import { SESSION_STATUS_CFG } from './constants';
-import {
-  useDepartmentOptions,
-  useEventPickerOptions,
-  useUnitOptions,
-} from './eventFormData';
+import { useDepartmentOptions, useEventPickerOptions, useUnitOptions } from './eventFormData';
 import type { EventSession, EventSessionStatus } from './types';
 
 interface Paginated<T> {
@@ -59,10 +55,7 @@ const MANAGE_ROLES: readonly Role[] = ['ADMIN', 'RH', 'GESTOR'];
 
 const STATUS_ITEMS = [
   { value: 'ALL', label: 'Todos os estados' },
-  ...Object.entries(SESSION_STATUS_CFG).map(([value, cfg]) => ({
-    value,
-    label: cfg.label,
-  })),
+  ...Object.entries(SESSION_STATUS_CFG).map(([value, cfg]) => ({ value, label: cfg.label })),
 ];
 
 interface SessionFormState {
@@ -119,13 +112,11 @@ export function ScheduleTab() {
     responsibleId: responsible ? responsible.id : undefined,
   };
 
-  const { data, isLoading, error, refetch } = useApiQuery<
-    Paginated<EventSession>
-  >(queryKeys.events.allSessions(params), '/events/sessions', {
-    params,
-    staleTime: STALE_TIME.DYNAMIC,
-    placeholderData: keepPreviousData,
-  });
+  const { data, isLoading, error, refetch } = useApiQuery<Paginated<EventSession>>(
+    queryKeys.events.allSessions(params),
+    '/events/sessions',
+    { params, staleTime: STALE_TIME.DYNAMIC, placeholderData: keepPreviousData },
+  );
   const sessions = data?.data ?? [];
 
   const invalidateKeys = [queryKeys.events.all];
@@ -165,10 +156,7 @@ export function ScheduleTab() {
         status: form.status,
       };
       return editing !== 'new' && editing
-        ? apiClient.put(
-            `/events/${editing.eventId}/sessions/${editing.id}`,
-            payload,
-          )
+        ? apiClient.put(`/events/${editing.eventId}/sessions/${editing.id}`, payload)
         : apiClient.post(`/events/${formEventId}/sessions`, payload);
     },
     {
@@ -182,8 +170,7 @@ export function ScheduleTab() {
   );
 
   const remove = useApiMutation(
-    (s: EventSession) =>
-      apiClient.delete(`/events/${s.eventId}/sessions/${s.id}`),
+    (s: EventSession) => apiClient.delete(`/events/${s.eventId}/sessions/${s.id}`),
     {
       invalidateKeys,
       onSuccess: () => notify({ title: 'Sessão eliminada', intent: 'success' }),
@@ -202,20 +189,14 @@ export function ScheduleTab() {
   }
 
   const canSubmit =
-    !!form.title &&
-    !!form.startAt &&
-    !!form.endAt &&
-    (editing !== 'new' || !!formEventId);
+    !!form.title && !!form.startAt && !!form.endAt && (editing !== 'new' || !!formEventId);
 
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div className="flex flex-wrap items-end gap-3">
           <Combobox
-            items={[
-              { value: 'ALL', label: 'Todos os eventos' },
-              ...eventOptions,
-            ]}
+            items={[{ value: 'ALL', label: 'Todos os eventos' }, ...eventOptions]}
             value={eventFilter}
             onValueChange={(v) => {
               setEventFilter(v);
@@ -235,10 +216,7 @@ export function ScheduleTab() {
             }}
           />
           <Select
-            items={[
-              { value: 'ALL', label: 'Todos os departamentos' },
-              ...departmentOptions,
-            ]}
+            items={[{ value: 'ALL', label: 'Todos os departamentos' }, ...departmentOptions]}
             value={departmentId}
             onValueChange={(v) => {
               setDepartmentId(v);
@@ -246,10 +224,7 @@ export function ScheduleTab() {
             }}
           />
           <Select
-            items={[
-              { value: 'ALL', label: 'Todas as unidades' },
-              ...unitOptions,
-            ]}
+            items={[{ value: 'ALL', label: 'Todas as unidades' }, ...unitOptions]}
             value={unitId}
             onValueChange={(v) => {
               setUnitId(v);
@@ -294,9 +269,7 @@ export function ScheduleTab() {
               className="flex w-full flex-wrap items-center gap-3 border-b border-border px-4 py-3 last:border-0"
             >
               <div className="min-w-0 flex-1">
-                <div className="truncate font-body text-sm font-medium text-ink">
-                  {s.title}
-                </div>
+                <div className="truncate font-body text-sm font-medium text-ink">{s.title}</div>
                 <div className="truncate font-body text-xs text-ink-faint">
                   {s.event?.title ?? `Evento #${s.eventId}`}
                   {s.speaker && ` · Orador: ${s.speaker}`}
@@ -304,8 +277,7 @@ export function ScheduleTab() {
                 </div>
               </div>
               <div className="hidden w-40 shrink-0 font-body text-xs text-ink-faint sm:block">
-                {formatDate(s.startAt)} · {formatTime(s.startAt)}–
-                {formatTime(s.endAt)}
+                {formatDate(s.startAt)} · {formatTime(s.startAt)}–{formatTime(s.endAt)}
               </div>
               <div className="hidden w-24 shrink-0 font-body text-xs text-ink-faint md:block">
                 {s.durationMinutes}min
@@ -326,18 +298,12 @@ export function ScheduleTab() {
                     </button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
-                    <DropdownMenuItem onSelect={() => openEdit(s)}>
-                      Editar
-                    </DropdownMenuItem>
+                    <DropdownMenuItem onSelect={() => openEdit(s)}>Editar</DropdownMenuItem>
                     <DropdownMenuItem
-                      disabled={
-                        remove.isPending && remove.variables?.id === s.id
-                      }
+                      disabled={remove.isPending && remove.variables?.id === s.id}
                       onSelect={() => onDelete(s)}
                     >
-                      {remove.isPending && remove.variables?.id === s.id
-                        ? 'A eliminar…'
-                        : 'Eliminar'}
+                      {remove.isPending && remove.variables?.id === s.id ? 'A eliminar…' : 'Eliminar'}
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -348,18 +314,12 @@ export function ScheduleTab() {
       )}
 
       {data && data.meta.totalPages > 1 && (
-        <Pagination
-          page={data.meta.page}
-          totalPages={data.meta.totalPages}
-          onPageChange={setPage}
-        />
+        <Pagination page={data.meta.page} totalPages={data.meta.totalPages} onPageChange={setPage} />
       )}
 
       {editing && (
         <Modal open onOpenChange={(open) => !open && setEditing(null)}>
-          <ModalContent
-            title={editing === 'new' ? 'Nova sessão' : 'Editar sessão'}
-          >
+          <ModalContent title={editing === 'new' ? 'Nova sessão' : 'Editar sessão'}>
             <div className="mt-4 space-y-4">
               {editing === 'new' && (
                 <FormField label="Evento *" htmlFor="sched-event">
@@ -377,9 +337,7 @@ export function ScheduleTab() {
                 <Input
                   id="sched-title"
                   value={form.title}
-                  onChange={(e) =>
-                    setForm((f) => ({ ...f, title: e.target.value }))
-                  }
+                  onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
                   className="w-full"
                 />
               </FormField>
@@ -387,9 +345,7 @@ export function ScheduleTab() {
                 <Textarea
                   id="sched-description"
                   value={form.description}
-                  onChange={(e) =>
-                    setForm((f) => ({ ...f, description: e.target.value }))
-                  }
+                  onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
                   rows={2}
                   className="w-full resize-none"
                 />
@@ -400,9 +356,7 @@ export function ScheduleTab() {
                     id="sched-start"
                     type="datetime-local"
                     value={form.startAt}
-                    onChange={(e) =>
-                      setForm((f) => ({ ...f, startAt: e.target.value }))
-                    }
+                    onChange={(e) => setForm((f) => ({ ...f, startAt: e.target.value }))}
                     className="w-full"
                   />
                 </FormField>
@@ -411,9 +365,7 @@ export function ScheduleTab() {
                     id="sched-end"
                     type="datetime-local"
                     value={form.endAt}
-                    onChange={(e) =>
-                      setForm((f) => ({ ...f, endAt: e.target.value }))
-                    }
+                    onChange={(e) => setForm((f) => ({ ...f, endAt: e.target.value }))}
                     className="w-full"
                   />
                 </FormField>
@@ -423,9 +375,7 @@ export function ScheduleTab() {
                   <Input
                     id="sched-location"
                     value={form.location}
-                    onChange={(e) =>
-                      setForm((f) => ({ ...f, location: e.target.value }))
-                    }
+                    onChange={(e) => setForm((f) => ({ ...f, location: e.target.value }))}
                     className="w-full"
                   />
                 </FormField>
@@ -433,9 +383,7 @@ export function ScheduleTab() {
                   <Input
                     id="sched-room"
                     value={form.room}
-                    onChange={(e) =>
-                      setForm((f) => ({ ...f, room: e.target.value }))
-                    }
+                    onChange={(e) => setForm((f) => ({ ...f, room: e.target.value }))}
                     className="w-full"
                   />
                 </FormField>
@@ -445,9 +393,7 @@ export function ScheduleTab() {
                   <Input
                     id="sched-speaker"
                     value={form.speaker}
-                    onChange={(e) =>
-                      setForm((f) => ({ ...f, speaker: e.target.value }))
-                    }
+                    onChange={(e) => setForm((f) => ({ ...f, speaker: e.target.value }))}
                     className="w-full"
                   />
                 </FormField>
@@ -457,32 +403,22 @@ export function ScheduleTab() {
                     type="number"
                     min={1}
                     value={form.capacity}
-                    onChange={(e) =>
-                      setForm((f) => ({ ...f, capacity: e.target.value }))
-                    }
+                    onChange={(e) => setForm((f) => ({ ...f, capacity: e.target.value }))}
                     className="w-full"
                   />
                 </FormField>
               </div>
               <FormField label="Estado" htmlFor="sched-status">
                 <Select
-                  items={Object.entries(SESSION_STATUS_CFG).map(
-                    ([value, cfg]) => ({ value, label: cfg.label }),
-                  )}
+                  items={Object.entries(SESSION_STATUS_CFG).map(([value, cfg]) => ({ value, label: cfg.label }))}
                   value={form.status}
-                  onValueChange={(v) =>
-                    setForm((f) => ({ ...f, status: v as EventSessionStatus }))
-                  }
+                  onValueChange={(v) => setForm((f) => ({ ...f, status: v as EventSessionStatus }))}
                   className="w-full"
                 />
               </FormField>
             </div>
             <div className="mt-6 flex gap-3 border-t border-border pt-4">
-              <Button
-                intent="secondary"
-                className="flex-1 justify-center"
-                onClick={() => setEditing(null)}
-              >
+              <Button intent="secondary" className="flex-1 justify-center" onClick={() => setEditing(null)}>
                 Cancelar
               </Button>
               <Button

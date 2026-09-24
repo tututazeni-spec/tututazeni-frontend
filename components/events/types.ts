@@ -68,11 +68,7 @@ export interface Event {
   avgNps?: number | null;
   avgRating?: number | null;
   organizer: { id: number; fullName: string; avatarUrl: string | null };
-  responsible?: {
-    id: number;
-    fullName: string;
-    avatarUrl: string | null;
-  } | null;
+  responsible?: { id: number; fullName: string; avatarUrl: string | null } | null;
   department?: { id: number; name: string } | null;
   unit?: { id: number; name: string } | null;
   _count: { participants: number; feedbacks?: number };
@@ -193,16 +189,12 @@ export interface AddParticipantsResult {
   skipped: number;
   errors: number;
   total: number;
-  details: {
-    added: number[];
-    errors: Array<{ userId: number; error: string }>;
-  };
+  details: { added: number[]; errors: Array<{ userId: number; error: string }> };
 }
 
 // Aba "Programação" (docs/events.md #5) — GET /events/sessions e
 // /events/:id/sessions.
-export type EventSessionStatus =
-  'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
+export type EventSessionStatus = 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
 
 export interface EventSession {
   id: number;
@@ -218,19 +210,13 @@ export interface EventSession {
   speaker: string | null;
   capacity: number | null;
   status: EventSessionStatus;
-  event?: {
-    id: number;
-    title: string;
-    departmentId: number | null;
-    unitId: number | null;
-  };
+  event?: { id: number; title: string; departmentId: number | null; unitId: number | null };
   responsible: { id: number; fullName: string } | null;
 }
 
 // Aba "Locais & Logística" (docs/events.md #6) — GET/PUT
 // /events/:id/logistics.
-export type EventLogisticsStatus =
-  'PLANNED' | 'IN_PROGRESS' | 'CONFIRMED' | 'COMPLETED' | 'CANCELLED';
+export type EventLogisticsStatus = 'PLANNED' | 'IN_PROGRESS' | 'CONFIRMED' | 'COMPLETED' | 'CANCELLED';
 
 export type EventEquipmentType =
   | 'PROJECTOR'
@@ -272,8 +258,7 @@ export type EventSpeakerType =
   | 'PANELIST'
   | 'FACILITATOR'
   | 'INSTITUTIONAL_REP';
-export type EventSpeakerStatus =
-  'INVITED' | 'CONFIRMED' | 'DECLINED' | 'CANCELLED';
+export type EventSpeakerStatus = 'INVITED' | 'CONFIRMED' | 'DECLINED' | 'CANCELLED';
 
 export interface EventSpeaker {
   id: number;
@@ -308,8 +293,7 @@ export type EventCommunicationType =
   | 'INSTRUCTIONS'
   | 'THANK_YOU'
   | 'FOLLOW_UP';
-export type EventCommunicationChannel =
-  'INNOVA_NOTIFICATION' | 'EMAIL' | 'SMS' | 'WHATSAPP';
+export type EventCommunicationChannel = 'INNOVA_NOTIFICATION' | 'EMAIL' | 'SMS' | 'WHATSAPP';
 export type EventCommunicationStatus = 'DRAFT' | 'SENT' | 'FAILED';
 
 export interface EventCommunication {
@@ -331,7 +315,11 @@ export interface EventCommunication {
 // PATCH /events/:id/participants/:userId/{checkin,checkout}.
 export type EventCheckinMethod = 'QR_CODE' | 'MOBILE_APP' | 'CODE' | 'MANUAL';
 export type EventCheckinState =
-  'PENDENTE' | 'PRESENTE' | 'AUSENTE' | 'ENTRADA_REGISTADA' | 'SAIDA_REGISTADA';
+  | 'PENDENTE'
+  | 'PRESENTE'
+  | 'AUSENTE'
+  | 'ENTRADA_REGISTADA'
+  | 'SAIDA_REGISTADA';
 
 export interface EventCheckinRow {
   id: number;
@@ -420,31 +408,17 @@ export interface EventReport {
   byUnit: Array<{ unit: string; count: number }>;
   byDepartment: Array<{ department: string; count: number }>;
   byModality: Array<{ modalidade: string; count: number }>;
-  topEventsByParticipants: Array<{
-    eventId: number;
-    title: string;
-    participants: number;
-  }>;
+  topEventsByParticipants: Array<{ eventId: number; title: string; participants: number }>;
   registration: { registered: number; capacity: number; rate: number };
   confirmation: { confirmed: number; registered: number; rate: number };
-  participation: {
-    present: number;
-    confirmed: number;
-    rate: number;
-    absences: number;
-  };
+  participation: { present: number; confirmed: number; rate: number; absences: number };
   checkins: { total: number };
   sessionAttendance: { total: number; checkedIn: number; rate: number };
   costs: {
     budget: number;
     actualCost: number;
     budgetExecutionRate: number;
-    byEvent: Array<{
-      eventId: number;
-      title: string;
-      budget: number;
-      actualCost: number;
-    }>;
+    byEvent: Array<{ eventId: number; title: string; budget: number; actualCost: number }>;
   };
   satisfaction: { avgRating: number | null; responses: number };
   speakers: { avgRating: number | null };

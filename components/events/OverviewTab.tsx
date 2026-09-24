@@ -23,13 +23,7 @@ import { STATUS_CFG, TYPE_CFG } from './constants';
 import { DetailView } from './DetailView';
 import type { EventDashboard, EventStatus, EventType } from './types';
 
-function RankedList({
-  title,
-  rows,
-}: {
-  title: string;
-  rows: Array<[string, number]>;
-}) {
+function RankedList({ title, rows }: { title: string; rows: Array<[string, number]> }) {
   const sorted = [...rows].sort((a, b) => b[1] - a[1]).slice(0, 6);
   const max = Math.max(...sorted.map(([, n]) => n), 1);
   return (
@@ -38,17 +32,12 @@ function RankedList({
         {title}
       </div>
       {sorted.length === 0 ? (
-        <p className="py-4 text-center font-body text-sm text-ink-faint">
-          Sem dados
-        </p>
+        <p className="py-4 text-center font-body text-sm text-ink-faint">Sem dados</p>
       ) : (
         <div className="space-y-2">
           {sorted.map(([label, count]) => (
             <div key={label} className="flex items-center gap-3">
-              <span
-                className="w-28 shrink-0 truncate font-body text-xs text-ink-muted"
-                title={label}
-              >
+              <span className="w-28 shrink-0 truncate font-body text-xs text-ink-muted" title={label}>
                 {label}
               </span>
               <div className="h-2 flex-1 overflow-hidden rounded-full bg-surface-sunken">
@@ -57,9 +46,7 @@ function RankedList({
                   style={{ width: `${Math.round((count / max) * 100)}%` }}
                 />
               </div>
-              <span className="w-6 text-right font-mono text-xs text-ink-faint">
-                {count}
-              </span>
+              <span className="w-6 text-right font-mono text-xs text-ink-faint">{count}</span>
             </div>
           ))}
         </div>
@@ -70,13 +57,14 @@ function RankedList({
 
 export function OverviewTab() {
   const [detailId, setDetailId] = useState<number | null>(null);
-  const { data, isLoading, error, refetch } = useApiQuery<EventDashboard>(
-    queryKeys.events.dashboard(),
-    '/events/stats',
-    {
-      staleTime: STALE_TIME.SEMI_STATIC,
-    },
-  );
+  const {
+    data,
+    isLoading,
+    error,
+    refetch,
+  } = useApiQuery<EventDashboard>(queryKeys.events.dashboard(), '/events/stats', {
+    staleTime: STALE_TIME.SEMI_STATIC,
+  });
 
   if (detailId !== null) {
     return <DetailView eventId={detailId} onBack={() => setDetailId(null)} />;
@@ -93,41 +81,22 @@ export function OverviewTab() {
       />
     );
 
-  const byTypeLabeled: Array<[string, number]> = Object.entries(
-    data.byType,
-  ).map(([k, v]) => [TYPE_CFG[k as EventType]?.label ?? k, v]);
+  const byTypeLabeled: Array<[string, number]> = Object.entries(data.byType).map(([k, v]) => [
+    TYPE_CFG[k as EventType]?.label ?? k,
+    v,
+  ]);
 
   return (
     <div className="space-y-6">
       {/* KPIs */}
       <div className="grid grid-cols-4 gap-3">
         <KpiCard label="Total de eventos" value={data.total} />
-        <KpiCard
-          label="Eventos próximos"
-          value={data.upcomingCount}
-          intent="info"
-        />
-        <KpiCard
-          label="Eventos em curso"
-          value={data.liveCount}
-          intent={data.liveCount > 0 ? 'danger' : 'primary'}
-        />
+        <KpiCard label="Eventos próximos" value={data.upcomingCount} intent="info" />
+        <KpiCard label="Eventos em curso" value={data.liveCount} intent={data.liveCount > 0 ? 'danger' : 'primary'} />
         <KpiCard label="Eventos concluídos" value={data.endedCount} />
-        <KpiCard
-          label="Eventos cancelados"
-          value={data.cancelledCount}
-          intent={data.cancelledCount > 0 ? 'warning' : 'primary'}
-        />
-        <KpiCard
-          label="Participantes inscritos"
-          value={data.registeredParticipants}
-          intent="accent"
-        />
-        <KpiCard
-          label="Participantes confirmados"
-          value={data.confirmedParticipants}
-          intent="success"
-        />
+        <KpiCard label="Eventos cancelados" value={data.cancelledCount} intent={data.cancelledCount > 0 ? 'warning' : 'primary'} />
+        <KpiCard label="Participantes inscritos" value={data.registeredParticipants} intent="accent" />
+        <KpiCard label="Participantes confirmados" value={data.confirmedParticipants} intent="success" />
         <KpiCard
           label="Taxa de participação"
           value={`${data.participationRate}%`}
@@ -136,33 +105,16 @@ export function OverviewTab() {
       </div>
 
       <div className="grid grid-cols-3 gap-3">
-        <KpiCard
-          label="Inscrições pendentes"
-          value={data.pendingRegistrations}
-          intent={data.pendingRegistrations > 0 ? 'warning' : 'primary'}
-        />
-        <KpiCard
-          label="Check-ins realizados"
-          value={data.checkinsDone}
-          intent="success"
-        />
-        <KpiCard
-          label="Avaliações pendentes"
-          value={data.pendingEvaluations}
-          intent={data.pendingEvaluations > 0 ? 'warning' : 'primary'}
-        />
+        <KpiCard label="Inscrições pendentes" value={data.pendingRegistrations} intent={data.pendingRegistrations > 0 ? 'warning' : 'primary'} />
+        <KpiCard label="Check-ins realizados" value={data.checkinsDone} intent="success" />
+        <KpiCard label="Avaliações pendentes" value={data.pendingEvaluations} intent={data.pendingEvaluations > 0 ? 'warning' : 'primary'} />
       </div>
 
       {/* Status breakdown */}
       <div className="grid grid-cols-5 gap-2">
         {Object.entries(STATUS_CFG).map(([status, cfg]) => (
-          <div
-            key={status}
-            className={`rounded-card px-3 py-2 text-center ${cfg.cls}`}
-          >
-            <div className="text-lg font-bold font-mono">
-              {data.byStatus[status] ?? 0}
-            </div>
+          <div key={status} className={`rounded-card px-3 py-2 text-center ${cfg.cls}`}>
+            <div className="text-lg font-bold font-mono">{data.byStatus[status] ?? 0}</div>
             <div className="text-xs font-medium">{cfg.label}</div>
           </div>
         ))}
@@ -171,14 +123,8 @@ export function OverviewTab() {
       {/* Breakdowns */}
       <div className="grid grid-cols-3 gap-3">
         <RankedList title="Eventos por tipo" rows={byTypeLabeled} />
-        <RankedList
-          title="Eventos por unidade"
-          rows={Object.entries(data.byUnit)}
-        />
-        <RankedList
-          title="Eventos por departamento"
-          rows={Object.entries(data.byDepartment)}
-        />
+        <RankedList title="Eventos por unidade" rows={Object.entries(data.byUnit)} />
+        <RankedList title="Eventos por departamento" rows={Object.entries(data.byDepartment)} />
       </div>
 
       {/* Próximos eventos */}
@@ -204,22 +150,16 @@ export function OverviewTab() {
                 onClick={() => setDetailId(e.id)}
                 className="flex w-full items-center gap-3 border-b border-border px-4 py-3 text-left last:border-0 hover:bg-surface-sunken"
               >
-                <span
-                  className={`inline-flex items-center gap-1 rounded px-2 py-0.5 font-body text-xs ${typeCfg.cls}`}
-                >
+                <span className={`inline-flex items-center gap-1 rounded px-2 py-0.5 font-body text-xs ${typeCfg.cls}`}>
                   <TypeIcon size={12} strokeWidth={1.75} /> {typeCfg.label}
                 </span>
                 <div className="min-w-0 flex-1">
-                  <div className="truncate font-body text-sm font-medium text-ink">
-                    {e.title}
-                  </div>
+                  <div className="truncate font-body text-sm font-medium text-ink">{e.title}</div>
                   <div className="truncate font-body text-xs text-ink-faint">
                     {e.location ?? (e.modalidade === 'ONLINE' ? 'Online' : '—')}
                   </div>
                 </div>
-                <div className="shrink-0 font-body text-xs text-ink-faint">
-                  {fmtDateTime(e.startAt)}
-                </div>
+                <div className="shrink-0 font-body text-xs text-ink-faint">{fmtDateTime(e.startAt)}</div>
                 <div className="w-16 shrink-0 text-right font-mono text-xs text-ink-faint">
                   {e._count.participants} insc.
                 </div>
