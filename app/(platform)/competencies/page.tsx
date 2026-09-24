@@ -33,6 +33,7 @@ import { CatalogView } from '@/components/competencies/CatalogView';
 import { CompetencyDetailModal } from '@/components/competencies/CompetencyDetailModal';
 import { CompetencyFormModal } from '@/components/competencies/CompetencyFormModal';
 import { DashboardView } from '@/components/competencies/DashboardView';
+import { EvaluationsView } from '@/components/competencies/EvaluationsView';
 import { LevelsView } from '@/components/competencies/LevelsView';
 import { ModelDetailModal } from '@/components/competencies/ModelDetailModal';
 import { ModelFormModal } from '@/components/competencies/ModelFormModal';
@@ -123,6 +124,9 @@ export default function CompetenciesPage() {
       {view === 'my-profile' && <MyProfileView />}
       {view === 'matrix' && visibleNav.some((n) => n.id === 'matrix') && (
         <SkillMatrixView />
+      )}
+      {view === 'evaluations' && visibleNav.some((n) => n.id === 'evaluations') && (
+        <EvaluationsView />
       )}
       {view === 'dashboard' && visibleNav.some((n) => n.id === 'dashboard') && (
         <DashboardView />

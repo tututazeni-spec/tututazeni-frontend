@@ -191,8 +191,10 @@ export const queryKeys = {
       [...queryKeys.competencies.all, 'detail', id] as const,
     myProfile: () => [...queryKeys.competencies.all, 'my-profile'] as const,
     myEvolution: () => [...queryKeys.competencies.all, 'my-evolution'] as const,
-    skillMatrix: (deptId: string) =>
-      [...queryKeys.competencies.all, 'skill-matrix', deptId] as const,
+    skillMatrix: (params: Record<string, unknown>) =>
+      [...queryKeys.competencies.all, 'skill-matrix', params] as const,
+    evaluations: (params: Record<string, unknown>) =>
+      [...queryKeys.competencies.all, 'evaluations', params] as const,
     dashboardGaps: () =>
       [...queryKeys.competencies.all, 'dashboard-gaps'] as const,
     overview: () => [...queryKeys.competencies.all, 'overview'] as const,

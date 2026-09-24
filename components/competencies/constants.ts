@@ -5,7 +5,15 @@
 
 import { NON_COLABORADOR_ROLES, type Role } from '@/lib/roles';
 import type { StatusBadgeMap } from '@/lib/statusBadge';
-import type { CompetencyCategory, CompetencyStatus, SeniorityLevel, View } from './types';
+import type {
+  CompetencyCategory,
+  CompetencyEvaluationStatus,
+  CompetencySource,
+  CompetencyStatus,
+  PositionLevel,
+  SeniorityLevel,
+  View,
+} from './types';
 
 export const LEVEL_LABELS = [
   '—',
@@ -55,6 +63,9 @@ export const STATUS_CFG: StatusBadgeMap<CompetencyStatus> = {
 // /competencies/proficiency-levels e GET /competencies/models não têm
 // @Roles no backend (leitura aberta), mas a aba só interessa a quem gere o
 // catálogo, por isso escondida de COLABORADOR tal como "Visão Geral".
+// "Avaliações" (docs/módulo_competencies.md §6) — mesma restrição de roles
+// que "Matriz de Competências": GET /competencies/evaluations é
+// @Roles(ADMIN, RH, GESTOR) em competencies.controller.ts.
 export const NAV: Array<{ id: View; label: string; roles?: readonly Role[] }> = [
   { id: 'overview', label: 'Visão Geral', roles: NON_COLABORADOR_ROLES },
   { id: 'catalog', label: 'Competências' },
@@ -62,6 +73,7 @@ export const NAV: Array<{ id: View; label: string; roles?: readonly Role[] }> = 
   { id: 'models', label: 'Modelos de Competências', roles: NON_COLABORADOR_ROLES },
   { id: 'my-profile', label: 'O meu perfil' },
   { id: 'matrix', label: 'Matriz de Competências', roles: NON_COLABORADOR_ROLES },
+  { id: 'evaluations', label: 'Avaliações', roles: NON_COLABORADOR_ROLES },
   { id: 'dashboard', label: 'Dashboard RH', roles: NON_COLABORADOR_ROLES },
   { id: 'competency-map', label: 'Mapa de Competências' },
 ];
@@ -73,6 +85,7 @@ export const TITLES: Record<View, string> = {
   models: 'Modelos de Competências',
   'my-profile': 'O meu Perfil de Competências',
   matrix: 'Matriz de Competências',
+  evaluations: 'Avaliações de Competências',
   dashboard: 'Dashboard de Competências',
   'competency-map': 'Mapa de Competências',
 };
@@ -103,4 +116,36 @@ export const HIERARCHY_LEVEL_CFG: StatusBadgeMap<SeniorityLevel> = {
   MANAGER: { label: 'Gestor', cls: 'bg-warning-subtle text-warning-ink' },
   DIRECTOR: { label: 'Director', cls: 'bg-danger-subtle text-danger-ink' },
   C_LEVEL: { label: 'C-Level', cls: 'bg-danger-subtle text-danger-ink' },
+};
+
+// docs/módulo_competencies.md §5 — filtro "Nível hierárquico" da Matriz de
+// Competências, sobre Position.level (PositionLevel), distinto do
+// SeniorityLevel acima usado só nos Modelos de Competências.
+export const POSITION_LEVEL_CFG: StatusBadgeMap<PositionLevel> = {
+  INTERN: { label: 'Estagiário', cls: 'bg-surface-sunken text-ink-muted' },
+  JUNIOR: { label: 'Júnior', cls: 'bg-success-subtle text-success-ink' },
+  MID: { label: 'Pleno', cls: 'bg-info-subtle text-info-ink' },
+  SENIOR: { label: 'Sénior', cls: 'bg-primary-subtle text-primary' },
+  LEAD: { label: 'Lead', cls: 'bg-accent-subtle text-accent' },
+  MANAGER: { label: 'Gestor', cls: 'bg-warning-subtle text-warning-ink' },
+  DIRECTOR: { label: 'Director', cls: 'bg-danger-subtle text-danger-ink' },
+  EXECUTIVE: { label: 'Executivo', cls: 'bg-danger-subtle text-danger-ink' },
+};
+
+// docs/módulo_competencies.md §6 — "Tipo de avaliação" mapeado a partir de
+// CompetencySource (origem real do registo em UserCompetency); espelha
+// competencies.service.ts#EVALUATION_TYPE_LABELS no backend.
+export const EVALUATION_TYPE_LABELS: Record<CompetencySource, string> = {
+  MANUAL: 'Autoavaliação',
+  MANAGER: 'Avaliação do gestor',
+  ASSESSMENT: 'Avaliação técnica',
+  COURSE: 'Avaliação de certificação',
+  TRAINING: 'Avaliação de formação',
+  HRIS: 'Importação HRIS',
+};
+
+export const EVALUATION_STATUS_CFG: StatusBadgeMap<CompetencyEvaluationStatus> = {
+  ATINGIDO: { label: 'Atingido', cls: 'bg-success-subtle text-success-ink' },
+  ABAIXO_DO_ESPERADO: { label: 'Abaixo do esperado', cls: 'bg-warning-subtle text-warning-ink' },
+  SEM_META: { label: 'Sem meta definida', cls: 'bg-surface-sunken text-ink-muted' },
 };

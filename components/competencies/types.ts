@@ -7,9 +7,14 @@ export type CompetencyCategory =
   'HARD_SKILL' | 'SOFT_SKILL' | 'LANGUAGE' | 'TOOL' | 'LEADERSHIP' | 'FUNCTIONAL';
 export type CompetencyStatus = 'ACTIVE' | 'INACTIVE' | 'IN_REVIEW';
 export type CompetencySource =
-  'MANUAL' | 'COURSE' | 'ASSESSMENT' | 'MANAGER' | 'HRIS';
+  'MANUAL' | 'COURSE' | 'ASSESSMENT' | 'MANAGER' | 'HRIS' | 'TRAINING';
 export type SeniorityLevel =
   'JUNIOR' | 'MID' | 'SENIOR' | 'LEAD' | 'MANAGER' | 'DIRECTOR' | 'C_LEVEL';
+// "Nível hierárquico" dos filtros §5/§6 usa Position.level (PositionLevel),
+// não SeniorityLevel (que só existe em CompetencyModel/CareerRole) — ver
+// backend competencies.dto.ts#SkillMatrixFilterDto.
+export type PositionLevel =
+  'INTERN' | 'JUNIOR' | 'MID' | 'SENIOR' | 'LEAD' | 'MANAGER' | 'DIRECTOR' | 'EXECUTIVE';
 
 export interface ProficiencyLevel {
   id: number;
@@ -128,7 +133,7 @@ export interface MatrixUser {
   id: number;
   fullName: string;
   avatarUrl: string | null;
-  position: { name: string } | null;
+  position: { name: string; level: PositionLevel | null } | null;
 }
 
 export interface SkillMatrix {
@@ -239,6 +244,35 @@ export interface CompetencyModelDetail
   items: CompetencyModelItem[];
 }
 
+// docs/módulo_competencies.md §6 (Fase 3) — forma devolvida por GET
+// /competencies/evaluations (competencies.service.ts#getEvaluations). A
+// avaliação em si acontece nos módulos Evaluation/Evaluation360; esta lista
+// apresenta o resultado já gravado em UserCompetency.
+export type CompetencyEvaluationStatus = 'ATINGIDO' | 'ABAIXO_DO_ESPERADO' | 'SEM_META';
+
+export interface CompetencyEvaluation {
+  id: number;
+  colaborador: string;
+  colaboradorId: number;
+  colaboradorAvatarUrl: string | null;
+  departamento: string | null;
+  cargo: string | null;
+  avaliador: string | null;
+  competencia: string;
+  competenciaId: number;
+  categoria: CompetencyCategory;
+  tipoAvaliacao: string;
+  source: CompetencySource;
+  nivelObtido: number;
+  nivelEsperado: number | null;
+  gap: number | null;
+  data: string;
+  estado: CompetencyEvaluationStatus;
+  comentarios: string | null;
+  evidencias: string | null;
+  proximaAvaliacao: string | null;
+}
+
 export type View =
   | 'overview'
   | 'catalog'
@@ -246,5 +280,6 @@ export type View =
   | 'models'
   | 'my-profile'
   | 'matrix'
+  | 'evaluations'
   | 'dashboard'
   | 'competency-map';
