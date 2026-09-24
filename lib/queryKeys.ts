@@ -213,6 +213,9 @@ export const queryKeys = {
       [...queryKeys.competencies.all, 'models', params] as const,
     modelDetail: (id: number) =>
       [...queryKeys.competencies.all, 'models', 'detail', id] as const,
+    // docs/módulo_competencies.md §9
+    reports: (params: Record<string, unknown>) =>
+      [...queryKeys.competencies.all, 'reports', params] as const,
   },
 
   automation: {
@@ -744,7 +747,13 @@ export const queryKeys = {
     calendar: (params: Record<string, unknown>) =>
       [...queryKeys.events.all, 'calendar', params] as const,
     participants: (eventId: number, params: Record<string, unknown>) =>
-      [...queryKeys.events.all, 'detail', eventId, 'participants', params] as const,
+      [
+        ...queryKeys.events.all,
+        'detail',
+        eventId,
+        'participants',
+        params,
+      ] as const,
     allSessions: (params: Record<string, unknown>) =>
       [...queryKeys.events.all, 'sessions', params] as const,
     logistics: (eventId: number) =>
@@ -756,7 +765,14 @@ export const queryKeys = {
     checkins: (params: Record<string, unknown>) =>
       [...queryKeys.events.all, 'checkins', params] as const,
     sessionAttendance: (eventId: number, sessionId: number) =>
-      [...queryKeys.events.all, 'detail', eventId, 'sessions', sessionId, 'attendance'] as const,
+      [
+        ...queryKeys.events.all,
+        'detail',
+        eventId,
+        'sessions',
+        sessionId,
+        'attendance',
+      ] as const,
     evaluations: (params: Record<string, unknown>) =>
       [...queryKeys.events.all, 'evaluations', params] as const,
     reports: (params: Record<string, unknown>) =>
@@ -820,8 +836,10 @@ export const queryKeys = {
     pendingReads: () => [...queryKeys.documents.all, 'pending-reads'] as const,
     favorites: () => [...queryKeys.documents.all, 'favorites'] as const,
     recent: () => [...queryKeys.documents.all, 'recent'] as const,
-    complianceOverview: () => [...queryKeys.documents.all, 'compliance-overview'] as const,
-    readStatus: (id: number) => [...queryKeys.documents.all, 'read-status', id] as const,
+    complianceOverview: () =>
+      [...queryKeys.documents.all, 'compliance-overview'] as const,
+    readStatus: (id: number) =>
+      [...queryKeys.documents.all, 'read-status', id] as const,
   },
 
   careerPlans: {

@@ -4,7 +4,12 @@
 // app/(platform)/competencies/page.tsx.
 
 export type CompetencyCategory =
-  'HARD_SKILL' | 'SOFT_SKILL' | 'LANGUAGE' | 'TOOL' | 'LEADERSHIP' | 'FUNCTIONAL';
+  | 'HARD_SKILL'
+  | 'SOFT_SKILL'
+  | 'LANGUAGE'
+  | 'TOOL'
+  | 'LEADERSHIP'
+  | 'FUNCTIONAL';
 export type CompetencyStatus = 'ACTIVE' | 'INACTIVE' | 'IN_REVIEW';
 export type CompetencySource =
   'MANUAL' | 'COURSE' | 'ASSESSMENT' | 'MANAGER' | 'HRIS' | 'TRAINING';
@@ -14,7 +19,14 @@ export type SeniorityLevel =
 // não SeniorityLevel (que só existe em CompetencyModel/CareerRole) — ver
 // backend competencies.dto.ts#SkillMatrixFilterDto.
 export type PositionLevel =
-  'INTERN' | 'JUNIOR' | 'MID' | 'SENIOR' | 'LEAD' | 'MANAGER' | 'DIRECTOR' | 'EXECUTIVE';
+  | 'INTERN'
+  | 'JUNIOR'
+  | 'MID'
+  | 'SENIOR'
+  | 'LEAD'
+  | 'MANAGER'
+  | 'DIRECTOR'
+  | 'EXECUTIVE';
 
 export interface ProficiencyLevel {
   id: number;
@@ -239,8 +251,7 @@ export interface CompetencyModel {
   _count: { items: number };
 }
 
-export interface CompetencyModelDetail
-  extends Omit<CompetencyModel, '_count'> {
+export interface CompetencyModelDetail extends Omit<CompetencyModel, '_count'> {
   items: CompetencyModelItem[];
 }
 
@@ -248,7 +259,8 @@ export interface CompetencyModelDetail
 // /competencies/evaluations (competencies.service.ts#getEvaluations). A
 // avaliação em si acontece nos módulos Evaluation/Evaluation360; esta lista
 // apresenta o resultado já gravado em UserCompetency.
-export type CompetencyEvaluationStatus = 'ATINGIDO' | 'ABAIXO_DO_ESPERADO' | 'SEM_META';
+export type CompetencyEvaluationStatus =
+  'ATINGIDO' | 'ABAIXO_DO_ESPERADO' | 'SEM_META';
 
 export interface CompetencyEvaluation {
   id: number;
@@ -359,6 +371,90 @@ export interface CompetencyDevelopmentAction {
   nivelAposDesenvolvimento: number | null;
 }
 
+// docs/módulo_competencies.md §9 — forma devolvida por GET
+// /competencies/reports/overview (competencies.service.ts#getReports). Todos
+// os 14 relatórios são derivados de UserCompetency no momento da leitura,
+// sem tabela própria — mesma filosofia de §7/§8.
+export interface CompetencyReportGroup {
+  label: string;
+  totalCompetencies: number;
+  usersAssessed: number;
+  avgLevel: number;
+}
+
+export interface CompetencyReportGapGroup {
+  label: string;
+  count: number;
+  usersWithGap: number;
+  avgGap: number;
+}
+
+export interface CompetencyReport {
+  filters: Record<string, unknown>;
+  mapaGeral: {
+    totalCompetencies: number;
+    byCategory: Record<string, number>;
+    critical: number;
+    strategic: number;
+    usersEligible: number;
+    usersAssessed: number;
+  };
+  porDepartamento: CompetencyReportGroup[];
+  porCargo: CompetencyReportGroup[];
+  porUnidade: CompetencyReportGroup[];
+  nivelMedioProficiencia: {
+    geral: number;
+    porCategoria: Array<{
+      category: CompetencyCategory;
+      avgLevel: number;
+      count: number;
+    }>;
+  };
+  gaps: { total: number; usersWithGap: number; avgGap: number };
+  gapsPorDepartamento: CompetencyReportGapGroup[];
+  gapsPorCargo: CompetencyReportGapGroup[];
+  competenciasCriticas: Array<{
+    id: number;
+    name: string;
+    category: CompetencyCategory;
+    usersAssessed: number;
+    usersWithGap: number;
+    avgLevel: number;
+  }>;
+  maisDesenvolvidas: Array<{
+    id: number;
+    name: string;
+    category?: CompetencyCategory;
+    usersAssessed: number;
+  }>;
+  maiorDefice: Array<{
+    id: number;
+    name: string;
+    category?: CompetencyCategory;
+    totalGap: number;
+  }>;
+  colaboradoresAbaixoDoEsperado: {
+    total: number;
+    items: Array<{
+      userId: number;
+      department: string | null;
+      position: string | null;
+      gapsCount: number;
+    }>;
+  };
+  porNivelHierarquico: CompetencyReportGroup[];
+  impactoFormacoes: {
+    events: number;
+    improved: number;
+    avgLevelIncrease: number;
+    bySource: Array<{
+      source: string;
+      events: number;
+      avgLevelIncrease: number;
+    }>;
+  };
+}
+
 export type View =
   | 'overview'
   | 'catalog'
@@ -369,5 +465,6 @@ export type View =
   | 'evaluations'
   | 'gaps'
   | 'development'
+  | 'reports'
   | 'dashboard'
   | 'competency-map';

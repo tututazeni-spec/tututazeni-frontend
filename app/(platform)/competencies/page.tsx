@@ -42,6 +42,7 @@ import { ModelFormModal } from '@/components/competencies/ModelFormModal';
 import { ModelsView } from '@/components/competencies/ModelsView';
 import { MyProfileView } from '@/components/competencies/MyProfileView';
 import { OverviewView } from '@/components/competencies/OverviewView';
+import { ReportsView } from '@/components/competencies/ReportsView';
 import { SkillMatrixView } from '@/components/competencies/SkillMatrixView';
 import type { View } from '@/components/competencies/types';
 import { Button } from '@/components/ui/Button';
@@ -127,12 +128,15 @@ export default function CompetenciesPage() {
       {view === 'matrix' && visibleNav.some((n) => n.id === 'matrix') && (
         <SkillMatrixView />
       )}
-      {view === 'evaluations' && visibleNav.some((n) => n.id === 'evaluations') && (
-        <EvaluationsView />
+      {view === 'evaluations' &&
+        visibleNav.some((n) => n.id === 'evaluations') && <EvaluationsView />}
+      {view === 'gaps' && visibleNav.some((n) => n.id === 'gaps') && (
+        <GapsView />
       )}
-      {view === 'gaps' && visibleNav.some((n) => n.id === 'gaps') && <GapsView />}
-      {view === 'development' && visibleNav.some((n) => n.id === 'development') && (
-        <DevelopmentView />
+      {view === 'development' &&
+        visibleNav.some((n) => n.id === 'development') && <DevelopmentView />}
+      {view === 'reports' && visibleNav.some((n) => n.id === 'reports') && (
+        <ReportsView />
       )}
       {view === 'dashboard' && visibleNav.some((n) => n.id === 'dashboard') && (
         <DashboardView />
@@ -185,7 +189,9 @@ export default function CompetenciesPage() {
           onClose={() => setModelForm(null)}
           onSuccess={() =>
             notify({
-              title: modelForm.modelId ? 'Modelo actualizado.' : 'Modelo criado.',
+              title: modelForm.modelId
+                ? 'Modelo actualizado.'
+                : 'Modelo criado.',
               intent: 'success',
             })
           }

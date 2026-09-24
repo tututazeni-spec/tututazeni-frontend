@@ -55,6 +55,42 @@ export function useCompetencyOptions(enabled = true) {
   return { options, loading: query.isLoading };
 }
 
+/** Unidades para o filtro "Relatórios" (§9) — mesma fonte (GET /units) que
+ *  components/onboarding/planData.ts#useUnitOptions. */
+export function useUnitOptions(enabled = true) {
+  const query = useApiQuery<{ id: number; name: string }[]>(
+    queryKeys.departments.units(),
+    '/units',
+    { staleTime: STALE_TIME.SEMI_STATIC, enabled },
+  );
+  const options: Option[] = (query.data ?? []).map((u) => ({
+    value: String(u.id),
+    label: u.name,
+  }));
+  return { options, loading: query.isLoading };
+}
+
+/** Subdepartamentos (filhos directos) de um departamento — filtro
+ *  "Subdepartamento" da aba "Relatórios" (§9). Só dispara com um
+ *  departamento seleccionado. */
+export function useSubDepartmentOptions(departmentId?: number, enabled = true) {
+  const params = { parentId: departmentId, limit: 200 };
+  const query = useApiQuery<{ data: { id: number; name: string }[] }>(
+    queryKeys.departments.list({ picker: 'competency-reports-sub', ...params }),
+    '/departments',
+    {
+      params,
+      staleTime: STALE_TIME.STATIC,
+      enabled: enabled && !!departmentId,
+    },
+  );
+  const options: Option[] = (query.data?.data ?? []).map((d) => ({
+    value: String(d.id),
+    label: d.name,
+  }));
+  return { options, loading: query.isLoading };
+}
+
 /** Cargos/funções para os filtros das abas "Matriz de Competências" e
  *  "Avaliações" (docs/módulo_competencies.md §5/§6). Mesma fonte que
  *  components/onboarding/planData.ts#usePositionOptions. */

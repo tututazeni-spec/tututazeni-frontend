@@ -31,12 +31,21 @@ export const LEVEL_LABELS = [
 ];
 
 export const CATEGORY_CFG: StatusBadgeMap<CompetencyCategory> = {
-  HARD_SKILL: { label: 'Competências Técnicas', cls: 'bg-info-subtle text-info-ink' },
-  SOFT_SKILL: { label: 'Competências Comportamentais', cls: 'bg-primary-subtle text-primary' },
+  HARD_SKILL: {
+    label: 'Competências Técnicas',
+    cls: 'bg-info-subtle text-info-ink',
+  },
+  SOFT_SKILL: {
+    label: 'Competências Comportamentais',
+    cls: 'bg-primary-subtle text-primary',
+  },
   LANGUAGE: { label: 'Idioma', cls: 'bg-success-subtle text-success-ink' },
   TOOL: { label: 'Ferramenta', cls: 'bg-warning-subtle text-warning-ink' },
   LEADERSHIP: { label: 'Liderança', cls: 'bg-accent-subtle text-accent' },
-  FUNCTIONAL: { label: 'Competências Funcionais', cls: 'bg-danger-subtle text-danger-ink' },
+  FUNCTIONAL: {
+    label: 'Competências Funcionais',
+    cls: 'bg-danger-subtle text-danger-ink',
+  },
 };
 
 // docs/módulo_competencies.md §2 — "Estado" da competência. Usado no
@@ -75,19 +84,39 @@ export const STATUS_CFG: StatusBadgeMap<CompetencyStatus> = {
 // "Gaps de Competências" e "Desenvolvimento" (docs/módulo_competencies.md
 // §7/§8) — mesma restrição: GET /competencies/gaps e GET
 // /competencies/development são @Roles(ADMIN, RH, GESTOR).
-export const NAV: Array<{ id: View; label: string; roles?: readonly Role[] }> = [
-  { id: 'overview', label: 'Visão Geral', roles: NON_COLABORADOR_ROLES },
-  { id: 'catalog', label: 'Competências' },
-  { id: 'levels', label: 'Níveis de Proficiência', roles: NON_COLABORADOR_ROLES },
-  { id: 'models', label: 'Modelos de Competências', roles: NON_COLABORADOR_ROLES },
-  { id: 'my-profile', label: 'O meu perfil' },
-  { id: 'matrix', label: 'Matriz de Competências', roles: NON_COLABORADOR_ROLES },
-  { id: 'evaluations', label: 'Avaliações', roles: NON_COLABORADOR_ROLES },
-  { id: 'gaps', label: 'Gaps de Competências', roles: NON_COLABORADOR_ROLES },
-  { id: 'development', label: 'Desenvolvimento', roles: NON_COLABORADOR_ROLES },
-  { id: 'dashboard', label: 'Dashboard RH', roles: NON_COLABORADOR_ROLES },
-  { id: 'competency-map', label: 'Mapa de Competências' },
-];
+// "Relatórios" (docs/módulo_competencies.md §9) — mesma restrição de roles:
+// GET /competencies/reports/overview é @Roles(ADMIN, RH, GESTOR).
+export const NAV: Array<{ id: View; label: string; roles?: readonly Role[] }> =
+  [
+    { id: 'overview', label: 'Visão Geral', roles: NON_COLABORADOR_ROLES },
+    { id: 'catalog', label: 'Competências' },
+    {
+      id: 'levels',
+      label: 'Níveis de Proficiência',
+      roles: NON_COLABORADOR_ROLES,
+    },
+    {
+      id: 'models',
+      label: 'Modelos de Competências',
+      roles: NON_COLABORADOR_ROLES,
+    },
+    { id: 'my-profile', label: 'O meu perfil' },
+    {
+      id: 'matrix',
+      label: 'Matriz de Competências',
+      roles: NON_COLABORADOR_ROLES,
+    },
+    { id: 'evaluations', label: 'Avaliações', roles: NON_COLABORADOR_ROLES },
+    { id: 'gaps', label: 'Gaps de Competências', roles: NON_COLABORADOR_ROLES },
+    {
+      id: 'development',
+      label: 'Desenvolvimento',
+      roles: NON_COLABORADOR_ROLES,
+    },
+    { id: 'reports', label: 'Relatórios', roles: NON_COLABORADOR_ROLES },
+    { id: 'dashboard', label: 'Dashboard RH', roles: NON_COLABORADOR_ROLES },
+    { id: 'competency-map', label: 'Mapa de Competências' },
+  ];
 
 export const TITLES: Record<View, string> = {
   overview: 'Visão Geral de Competências',
@@ -99,6 +128,7 @@ export const TITLES: Record<View, string> = {
   evaluations: 'Avaliações de Competências',
   gaps: 'Gaps de Competências',
   development: 'Desenvolvimento',
+  reports: 'Relatórios de Competências',
   dashboard: 'Dashboard de Competências',
   'competency-map': 'Mapa de Competências',
 };
@@ -112,11 +142,31 @@ export const PROFICIENCY_SCALE_PRESET: Array<{
   name: string;
   description: string;
 }> = [
-  { value: 1, name: 'Inicial', description: 'Conhecimento básico, aplica com supervisão directa.' },
-  { value: 2, name: 'Básico', description: 'Aplica em tarefas simples, com apoio ocasional.' },
-  { value: 3, name: 'Intermédio', description: 'Aplica com autonomia em situações comuns.' },
-  { value: 4, name: 'Avançado', description: 'Domina a competência, resolve situações complexas.' },
-  { value: 5, name: 'Especialista', description: 'Referência na organização, forma outros.' },
+  {
+    value: 1,
+    name: 'Inicial',
+    description: 'Conhecimento básico, aplica com supervisão directa.',
+  },
+  {
+    value: 2,
+    name: 'Básico',
+    description: 'Aplica em tarefas simples, com apoio ocasional.',
+  },
+  {
+    value: 3,
+    name: 'Intermédio',
+    description: 'Aplica com autonomia em situações comuns.',
+  },
+  {
+    value: 4,
+    name: 'Avançado',
+    description: 'Domina a competência, resolve situações complexas.',
+  },
+  {
+    value: 5,
+    name: 'Especialista',
+    description: 'Referência na organização, forma outros.',
+  },
 ];
 
 // docs/módulo_competencies.md §4 — "Nível hierárquico" do modelo, reaproveita
@@ -157,11 +207,18 @@ export const EVALUATION_TYPE_LABELS: Record<CompetencySource, string> = {
   HRIS: 'Importação HRIS',
 };
 
-export const EVALUATION_STATUS_CFG: StatusBadgeMap<CompetencyEvaluationStatus> = {
-  ATINGIDO: { label: 'Atingido', cls: 'bg-success-subtle text-success-ink' },
-  ABAIXO_DO_ESPERADO: { label: 'Abaixo do esperado', cls: 'bg-warning-subtle text-warning-ink' },
-  SEM_META: { label: 'Sem meta definida', cls: 'bg-surface-sunken text-ink-muted' },
-};
+export const EVALUATION_STATUS_CFG: StatusBadgeMap<CompetencyEvaluationStatus> =
+  {
+    ATINGIDO: { label: 'Atingido', cls: 'bg-success-subtle text-success-ink' },
+    ABAIXO_DO_ESPERADO: {
+      label: 'Abaixo do esperado',
+      cls: 'bg-warning-subtle text-warning-ink',
+    },
+    SEM_META: {
+      label: 'Sem meta definida',
+      cls: 'bg-surface-sunken text-ink-muted',
+    },
+  };
 
 // docs/módulo_competencies.md §7 — "Prioridade"/"Estado"/"Impacto" do gap.
 // Derivados no backend (competencies.service.ts#getGaps), não persistidos.
@@ -173,9 +230,18 @@ export const GAP_PRIORITY_CFG: StatusBadgeMap<CompetencyGapPriority> = {
 };
 
 export const GAP_STATUS_CFG: StatusBadgeMap<CompetencyGapStatus> = {
-  IDENTIFICADO: { label: 'Identificado', cls: 'bg-surface-sunken text-ink-muted' },
-  EM_DESENVOLVIMENTO: { label: 'Em desenvolvimento', cls: 'bg-info-subtle text-info-ink' },
-  EM_ACOMPANHAMENTO: { label: 'Em acompanhamento', cls: 'bg-warning-subtle text-warning-ink' },
+  IDENTIFICADO: {
+    label: 'Identificado',
+    cls: 'bg-surface-sunken text-ink-muted',
+  },
+  EM_DESENVOLVIMENTO: {
+    label: 'Em desenvolvimento',
+    cls: 'bg-info-subtle text-info-ink',
+  },
+  EM_ACOMPANHAMENTO: {
+    label: 'Em acompanhamento',
+    cls: 'bg-warning-subtle text-warning-ink',
+  },
   RESOLVIDO: { label: 'Resolvido', cls: 'bg-success-subtle text-success-ink' },
   ENCERRADO: { label: 'Encerrado', cls: 'bg-surface-sunken text-ink-muted' },
 };
@@ -194,17 +260,32 @@ export const DEV_ACTION_TYPE_CFG: StatusBadgeMap<DevelopmentActionType> = {
   COURSE: { label: 'Curso', cls: 'bg-info-subtle text-info-ink' },
   MENTORING: { label: 'Mentoria', cls: 'bg-primary-subtle text-primary' },
   COACHING: { label: 'Coaching', cls: 'bg-warning-subtle text-warning-ink' },
-  READING: { label: 'Leitura/conteúdo', cls: 'bg-success-subtle text-success-ink' },
+  READING: {
+    label: 'Leitura/conteúdo',
+    cls: 'bg-success-subtle text-success-ink',
+  },
   PROJECT: { label: 'Projecto', cls: 'bg-danger-subtle text-danger-ink' },
   JOB_ROTATION: { label: 'Job rotation', cls: 'bg-accent-subtle text-accent' },
-  MICROLEARNING: { label: 'Micro-aprendizagem', cls: 'bg-info-subtle text-info-ink' },
+  MICROLEARNING: {
+    label: 'Micro-aprendizagem',
+    cls: 'bg-info-subtle text-info-ink',
+  },
   WORKSHOP: { label: 'Workshop', cls: 'bg-success-subtle text-success-ink' },
   CERTIFICATION: { label: 'Certificação', cls: 'bg-accent-subtle text-accent' },
-  SHADOWING: { label: 'Acompanhamento do gestor', cls: 'bg-primary-subtle text-primary' },
-  PEER_COACHING: { label: 'Coaching entre pares', cls: 'bg-warning-subtle text-warning-ink' },
+  SHADOWING: {
+    label: 'Acompanhamento do gestor',
+    cls: 'bg-primary-subtle text-primary',
+  },
+  PEER_COACHING: {
+    label: 'Coaching entre pares',
+    cls: 'bg-warning-subtle text-warning-ink',
+  },
   FEEDBACK: { label: 'Feedback', cls: 'bg-info-subtle text-info-ink' },
   CONFERENCE: { label: 'Conferência', cls: 'bg-accent-subtle text-accent' },
-  LEADERSHIP_EXPOSURE: { label: 'Exposição de liderança', cls: 'bg-danger-subtle text-danger-ink' },
+  LEADERSHIP_EXPOSURE: {
+    label: 'Exposição de liderança',
+    cls: 'bg-danger-subtle text-danger-ink',
+  },
   OTHER: { label: 'Outro', cls: 'bg-surface-sunken text-ink-muted' },
 };
 
@@ -219,6 +300,9 @@ export const DEV_ACTION_STATUS_CFG: StatusBadgeMap<DevelopmentActionStatus> = {
 
 export const DEV_RESULT_CFG: StatusBadgeMap<DevelopmentResult> = {
   MELHOROU: { label: 'Melhorou', cls: 'bg-success-subtle text-success-ink' },
-  MANTEVE: { label: 'Manteve o nível', cls: 'bg-surface-sunken text-ink-muted' },
+  MANTEVE: {
+    label: 'Manteve o nível',
+    cls: 'bg-surface-sunken text-ink-muted',
+  },
   PENDENTE: { label: 'Pendente', cls: 'bg-info-subtle text-info-ink' },
 };
