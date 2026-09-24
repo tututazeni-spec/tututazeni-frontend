@@ -253,6 +253,9 @@ export interface OnboardingPlanDetail {
   } | null;
   documents: OnboardingDoc[];
   surveys: Survey[];
+  /** EvaluationRequest já despoletado para este plano (ponto 9 — Avaliação
+   *  de Integração), ou null se ainda não foi pedida. */
+  integrationEvalRequestId: number | null;
 }
 
 export type View = 'my-plan' | 'plans' | 'dashboard' | 'templates';
