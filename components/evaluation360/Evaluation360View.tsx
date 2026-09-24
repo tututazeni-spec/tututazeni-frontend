@@ -16,7 +16,6 @@ import type {
   ContinuousFeedback,
   CycleInfo,
   EvaluationQuestion,
-  NineBoxEntry,
   ParticipantProfile,
   ParticipantResult,
   TabId,
@@ -24,7 +23,6 @@ import type {
 import { cycleStatusText, typeColor, typeLabel } from './colors';
 import { RadarChart } from './RadarChart';
 import { CompetencyHeatmap } from './CompetencyHeatmap';
-import { NineBoxGrid } from './NineBoxGrid';
 import { OverviewTab } from './OverviewTab';
 import { FeedbackTab } from './FeedbackTab';
 import { EvaluationFormTab } from './EvaluationFormTab';
@@ -45,7 +43,6 @@ import {
   Grid3x3,
   Layers,
   LayoutDashboard,
-  LayoutGrid,
   MessageSquare,
   Radar,
   Trash2,
@@ -77,7 +74,6 @@ const TABS: { id: TabId; label: string; icon: LucideIcon }[] = [
   { id: 'radar', label: 'Radar 360°', icon: Radar },
   { id: 'competencies', label: 'Competências', icon: Grid3x3 },
   { id: 'feedback', label: 'Feedback', icon: MessageSquare },
-  { id: 'ninebox', label: 'Matriz 9 Box', icon: LayoutGrid },
   { id: 'cycles', label: 'Ciclos', icon: Layers },
   { id: 'selfassessment', label: 'Auto-avaliação', icon: UserCheck },
   { id: 'form', label: 'Avaliar', icon: ClipboardCheck },
@@ -91,7 +87,6 @@ export interface Evaluation360ViewProps {
   cycle: CycleInfo | null;
   cycles: CycleInfo[];
   competencies: CompetencyScore[];
-  nineBox: NineBoxEntry[];
   feedbacks: ContinuousFeedback[];
   selfFormQuestions: EvaluationQuestion[];
   myId?: string;
@@ -106,7 +101,6 @@ export function Evaluation360View({
   cycle,
   cycles,
   competencies,
-  nineBox,
   feedbacks,
   selfFormQuestions,
   myId,
@@ -243,24 +237,6 @@ export function Evaluation360View({
         );
       case 'feedback':
         return feedbackTargetId ? <FeedbackTab feedbacks={feedbacks} /> : null;
-      case 'ninebox':
-        return (
-          <div className="flex flex-col gap-5">
-            <div>
-              <h2 className="m-0 text-lg font-bold text-ink">
-                Matriz Nine Box
-              </h2>
-              <p className="m-0 mt-1 text-sm text-ink-muted">
-                Performance vs Potencial · {nineBox.reduce((s, e) => s + e.count, 0)} colaboradores
-              </p>
-            </div>
-            <div className="rounded-xl border border-border bg-surface p-6">
-              <ErrorBoundary source="evaluation360.NineBoxGrid">
-                <NineBoxGrid entries={nineBox} />
-              </ErrorBoundary>
-            </div>
-          </div>
-        );
       case 'cycles':
         return (
           <div className="flex flex-col gap-5">

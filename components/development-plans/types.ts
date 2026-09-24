@@ -212,7 +212,18 @@ export type View =
   | 'skill-gaps'
   | 'mentoring'
   | 'analytics'
+  | 'ninebox'
   | 'create';
+
+// Agregado por quadrante (Avaliação 360º) — regra "ninguém vê o resultado de
+// outro" (evaluation360.service.ts#getNineBox): só a contagem de pessoas
+// naquele quadrante, nunca participantId/name/score. Movido de
+// components/evaluation360/types.ts junto com o separador "Matriz 9 Box".
+export interface NineBoxEntry {
+  performance: 'LOW' | 'MID' | 'HIGH';
+  potential: 'LOW' | 'MID' | 'HIGH';
+  count: number;
+}
 
 // view e selectedId eram dois useState separados sempre definidos em conjunto
 // — um único estado torna "detail sem id" irrepresentável.

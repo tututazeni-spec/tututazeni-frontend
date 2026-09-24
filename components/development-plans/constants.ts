@@ -174,6 +174,7 @@ export const NAV = [
   { id: 'skill-gaps', label: 'Lacunas de Competências' },
   { id: 'mentoring', label: 'Mentoria' },
   { id: 'analytics', label: 'Análises' },
+  { id: 'ninebox', label: 'Matriz 9 Box' },
 ] as const;
 
 export const TITLES: Record<View, string> = {
@@ -184,6 +185,7 @@ export const TITLES: Record<View, string> = {
   'skill-gaps': 'Lacunas de Competências',
   mentoring: 'Mentoria',
   analytics: 'Análises de Desenvolvimento',
+  ninebox: 'Matriz 9 Box',
   create: 'Novo PDI',
 };
 

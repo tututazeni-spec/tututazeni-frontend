@@ -1,6 +1,8 @@
-// components/evaluation360/NineBoxGrid.tsx
-// Matriz 3x3 performance x potencial. Extraído de
-// app/(platform)/evaluation360/page.tsx.
+// components/development-plans/NineBoxGrid.tsx
+// Matriz 3x3 performance x potencial (Avaliação 360º). Movida de
+// components/evaluation360/ para o separador "Matriz 9 Box" deste módulo —
+// a matriz agrega toda a organização, não é específica ao ecrã pessoal de
+// 360º, por isso faz mais sentido junto das análises de PDI/equipa.
 //
 // Cor = tier de Potencial (linha), sempre os 3 tokens semânticos de estado já
 // usados no resto da app (--color-success/warning/danger, ver globals.css) —

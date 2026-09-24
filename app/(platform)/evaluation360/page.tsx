@@ -23,7 +23,6 @@ export default function Evaluation360Page() {
     cycle,
     cycles,
     competencies,
-    nineBox,
     feedbacks,
     selfFormQuestions,
     myId,
@@ -39,7 +38,6 @@ export default function Evaluation360Page() {
       cycle={cycle}
       cycles={cycles}
       competencies={competencies}
-      nineBox={nineBox}
       feedbacks={feedbacks}
       selfFormQuestions={selfFormQuestions}
       myId={myId}

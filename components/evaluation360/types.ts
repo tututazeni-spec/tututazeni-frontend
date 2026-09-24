@@ -2,7 +2,7 @@
 // Tipos do domínio "avaliação 360º". Usados por hooks/useEvaluation360.ts
 // (dono dos dados reais — GET /evaluation360/*, ver esse ficheiro) e pelos
 // componentes de apresentação em components/evaluation360/ (Evaluation360View,
-// OverviewTab, RadarChart, CompetencyHeatmap, FeedbackTab, NineBoxGrid,
+// OverviewTab, RadarChart, CompetencyHeatmap, FeedbackTab,
 // EvaluationFormTab) — page.tsx é só o container que liga o hook à
 // Evaluation360View. Ver memory project_innova_component_separation_audit.
 
@@ -13,7 +13,6 @@ export type TabId =
   | 'radar'
   | 'competencies'
   | 'feedback'
-  | 'ninebox'
   | 'cycles'
   | 'selfassessment'
   | 'form';
@@ -80,16 +79,6 @@ export interface CycleInfo {
   endDate: string;
   participantsCount: number;
   completedCount: number;
-}
-
-// Agregado por quadrante — regra "ninguém vê o resultado de outro" (a mesma
-// já aplicada a getTeamAnalytics/calibrateScore no backend): já não carrega
-// participantId/name/score de ninguém, só a contagem de pessoas naquele
-// quadrante. Ver evaluation360.service.ts#getNineBox.
-export interface NineBoxEntry {
-  performance: 'LOW' | 'MID' | 'HIGH';
-  potential: 'LOW' | 'MID' | 'HIGH';
-  count: number;
 }
 
 export interface ContinuousFeedback {
