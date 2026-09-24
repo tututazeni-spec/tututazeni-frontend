@@ -46,6 +46,7 @@ import {
   PHASE_ORDER,
   RESPONSIBLE_LABELS,
 } from './constants';
+import { useUnitOptions } from './planData';
 import type {
   OnboardingTemplateDetail,
   ResponsibleRole,
@@ -67,6 +68,7 @@ const BASE_DURATIONS = ['7', '15', '30', '60', '90'];
 
 const NO_DEPT = 'NONE';
 const NO_POSITION = 'NONE';
+const NO_UNIT = 'NONE';
 
 interface TaskDraft {
   key: number;
@@ -135,10 +137,14 @@ export function TemplateFormModal({
 
   const [name, setName] = useState(template?.name ?? '');
   const [description, setDescription] = useState(template?.description ?? '');
+  const [objective, setObjective] = useState(template?.objective ?? '');
   const [company, setCompany] = useState(template?.company ?? '');
   const [location, setLocation] = useState(template?.location ?? '');
   const [departmentId, setDepartmentId] = useState(
     template?.departmentId != null ? String(template.departmentId) : NO_DEPT,
+  );
+  const [unitId, setUnitId] = useState(
+    template?.unitId != null ? String(template.unitId) : NO_UNIT,
   );
   const [positionId, setPositionId] = useState(
     template?.positionId != null ? String(template.positionId) : NO_POSITION,
@@ -163,6 +169,7 @@ export function TemplateFormModal({
     '/organization/positions',
     { params: { limit: 200 }, staleTime: STALE_TIME.SEMI_STATIC },
   );
+  const { options: unitOptions } = useUnitOptions();
 
   const deptItems = [
     { value: NO_DEPT, label: 'Sem departamento' },
@@ -175,6 +182,7 @@ export function TemplateFormModal({
       label: p.name,
     })),
   ];
+  const unitItems = [{ value: NO_UNIT, label: 'Sem unidade' }, ...unitOptions];
 
   const durationItems = Array.from(new Set([...BASE_DURATIONS, durationDays]))
     .map(Number)
@@ -231,6 +239,8 @@ export function TemplateFormModal({
     };
     if (description.trim()) payload.description = description.trim();
     else if (editing) payload.description = null;
+    if (objective.trim()) payload.objective = objective.trim();
+    else if (editing) payload.objective = null;
     if (company.trim()) payload.company = company.trim();
     else if (editing) payload.company = null;
     if (location.trim()) payload.location = location.trim();
@@ -239,6 +249,8 @@ export function TemplateFormModal({
     else if (editing) payload.departmentId = null;
     if (positionId !== NO_POSITION) payload.positionId = Number(positionId);
     else if (editing) payload.positionId = null;
+    if (unitId !== NO_UNIT) payload.unitId = Number(unitId);
+    else if (editing) payload.unitId = null;
     if (welcomeVideoUrl.trim())
       payload.welcomeVideoUrl = welcomeVideoUrl.trim();
     else if (editing) payload.welcomeVideoUrl = null;
@@ -302,8 +314,19 @@ export function TemplateFormModal({
               id="ot-description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Opcional — objectivo e âmbito do plano."
+              placeholder="Opcional — âmbito do plano."
               rows={3}
+              className="w-full"
+            />
+          </FormField>
+
+          <FormField label="Objectivo" htmlFor="ot-objective">
+            <Textarea
+              id="ot-objective"
+              value={objective}
+              onChange={(e) => setObjective(e.target.value)}
+              placeholder="Opcional — o que este plano de integração pretende alcançar."
+              rows={2}
               className="w-full"
             />
           </FormField>
@@ -334,6 +357,15 @@ export function TemplateFormModal({
                 items={deptItems}
                 value={departmentId}
                 onValueChange={setDepartmentId}
+                className="w-full"
+              />
+            </FormField>
+
+            <FormField label="Unidade" htmlFor="ot-unit">
+              <Select
+                items={unitItems}
+                value={unitId}
+                onValueChange={setUnitId}
                 className="w-full"
               />
             </FormField>

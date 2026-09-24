@@ -12,6 +12,8 @@ vi.mock('@/hooks/useApiQuery', () => ({
 vi.mock('./planData', () => ({
   useTemplateOptions: () => ({ options: [], loading: false }),
   useDepartmentOptions: () => ({ options: [], loading: false }),
+  useUnitOptions: () => ({ options: [], loading: false }),
+  usePositionOptions: () => ({ options: [], loading: false }),
 }));
 
 // Stub — o detalhe tem cobertura própria.
@@ -45,23 +47,28 @@ vi.mock('@/components/ui/Select', () => ({
   ),
 }));
 
-import { PlansView } from './PlansView';
+import { OnboardingsTab } from './OnboardingsTab';
 
 const plan = {
   id: 42,
   status: 'IN_PROGRESS',
   startDate: '2026-08-01T00:00:00.000Z',
   expectedEndDate: null,
+  createdAt: '2026-08-01T00:00:00.000Z',
   xpEarned: 0,
+  progress: 40,
   user: {
     id: 1,
     fullName: 'Ana Silva',
     email: 'ana@innova.com',
     avatarUrl: null,
+    employeeNumber: null,
     position: { name: 'Programadora' },
+    department: null,
   },
   template: { id: 3, name: 'Onboarding TI', durationDays: 30 },
   buddy: null,
+  manager: null,
   hrResponsible: null,
   _count: { taskInstances: 5, documents: 2 },
 };
@@ -75,16 +82,16 @@ beforeEach(() => {
   queryResult = { data: page1, isLoading: false };
 });
 
-describe('PlansView', () => {
-  test('lista um plano com colaborador e template', () => {
-    render(<PlansView />);
+describe('OnboardingsTab', () => {
+  test('lista um onboarding com colaborador e plano de integração', () => {
+    render(<OnboardingsTab />);
     expect(screen.getByText('Ana Silva')).toBeInTheDocument();
     expect(screen.getByText(/Onboarding TI/)).toBeInTheDocument();
-    expect(screen.getByText('1 planos')).toBeInTheDocument();
+    expect(screen.getByText('1 onboardings')).toBeInTheDocument();
   });
 
   test('clicar numa linha abre o detalhe', () => {
-    render(<PlansView />);
+    render(<OnboardingsTab />);
     fireEvent.click(screen.getByRole('button', { name: /Ana Silva/ }));
     expect(screen.getByText('stub-detail-42')).toBeInTheDocument();
   });
@@ -94,7 +101,7 @@ describe('PlansView', () => {
       data: { data: [], meta: { total: 0, page: 1, limit: 20, totalPages: 0 } },
       isLoading: false,
     };
-    render(<PlansView />);
-    expect(screen.getByText('Sem planos')).toBeInTheDocument();
+    render(<OnboardingsTab />);
+    expect(screen.getByText('Sem onboardings')).toBeInTheDocument();
   });
 });
