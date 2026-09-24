@@ -199,6 +199,13 @@ export const queryKeys = {
     top: () => [...queryKeys.competencies.all, 'top'] as const,
     gap: (userId: string | number) =>
       [...queryKeys.competencies.all, 'gap', userId] as const,
+    // docs/módulo_competencies.md §3/§4 (Fase 2)
+    levels: (params: Record<string, unknown>) =>
+      [...queryKeys.competencies.all, 'levels', params] as const,
+    models: (params: Record<string, unknown>) =>
+      [...queryKeys.competencies.all, 'models', params] as const,
+    modelDetail: (id: number) =>
+      [...queryKeys.competencies.all, 'models', 'detail', id] as const,
   },
 
   automation: {

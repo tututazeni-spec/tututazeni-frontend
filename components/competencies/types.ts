@@ -8,12 +8,33 @@ export type CompetencyCategory =
 export type CompetencyStatus = 'ACTIVE' | 'INACTIVE' | 'IN_REVIEW';
 export type CompetencySource =
   'MANUAL' | 'COURSE' | 'ASSESSMENT' | 'MANAGER' | 'HRIS';
+export type SeniorityLevel =
+  'JUNIOR' | 'MID' | 'SENIOR' | 'LEAD' | 'MANAGER' | 'DIRECTOR' | 'C_LEVEL';
 
 export interface ProficiencyLevel {
   id: number;
+  competencyId: number;
   value: number;
   name: string;
   description: string | null;
+  // docs/módulo_competencies.md §3 (Fase 2) — ver
+  // docs/superpowers/specs/2026-09-25-competencies-fase2-design.md.
+  code: string | null;
+  minScore: number | null;
+  maxScore: number | null;
+  expectedBehaviors: string | null;
+  knowledgeDemonstrated: string | null;
+  autonomy: string | null;
+  taskComplexity: string | null;
+  observableEvidence: string | null;
+  evaluationCriteria: string | null;
+  status: CompetencyStatus;
+}
+
+/** Nível de proficiência com a competência-dona anexada — forma devolvida
+ *  por GET /competencies/proficiency-levels (aba "Níveis de Proficiência"). */
+export interface ProficiencyLevelWithCompetency extends ProficiencyLevel {
+  competency: { id: number; name: string; category: CompetencyCategory };
 }
 
 export interface CompetencyOwner {
@@ -183,9 +204,46 @@ export interface CompetencyOverview {
   pendingEvaluations: number | null;
 }
 
+// docs/módulo_competencies.md §4 (Fase 2) — ver
+// docs/superpowers/specs/2026-09-25-competencies-fase2-design.md.
+export interface CompetencyModelItem {
+  id: number;
+  competencyId: number;
+  weight: number;
+  expectedLevel: number;
+  isMandatory: boolean;
+  isCritical: boolean;
+  competency: { id: number; name: string; category: CompetencyCategory };
+}
+
+export interface CompetencyModel {
+  id: number;
+  name: string;
+  code: string | null;
+  description: string | null;
+  objective: string | null;
+  type: string | null;
+  positionFamily: string | null;
+  hierarchyLevel: SeniorityLevel | null;
+  status: CompetencyStatus;
+  version: number;
+  effectiveDate: string | null;
+  endDate: string | null;
+  department: { id: number; name: string } | null;
+  owner: CompetencyOwner | null;
+  _count: { items: number };
+}
+
+export interface CompetencyModelDetail
+  extends Omit<CompetencyModel, '_count'> {
+  items: CompetencyModelItem[];
+}
+
 export type View =
   | 'overview'
   | 'catalog'
+  | 'levels'
+  | 'models'
   | 'my-profile'
   | 'matrix'
   | 'dashboard'

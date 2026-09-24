@@ -5,7 +5,7 @@
 
 import { NON_COLABORADOR_ROLES, type Role } from '@/lib/roles';
 import type { StatusBadgeMap } from '@/lib/statusBadge';
-import type { CompetencyCategory, CompetencyStatus, View } from './types';
+import type { CompetencyCategory, CompetencyStatus, SeniorityLevel, View } from './types';
 
 export const LEVEL_LABELS = [
   '—',
@@ -49,9 +49,17 @@ export const STATUS_CFG: StatusBadgeMap<CompetencyStatus> = {
 // "Visão Geral" (docs/módulo_competencies.md §1) é a nova primeira aba —
 // KPIs organizacionais, mesma restrição de roles de "Dashboard RH" (o
 // endpoint GET /competencies/overview é @Roles(ADMIN, RH, GESTOR)).
+// "Níveis de Proficiência" e "Modelos de Competências" (docs/
+// módulo_competencies.md §3/§4, Fase 2) — mesma restrição de roles das
+// restantes abas de gestão (overview/matrix/dashboard): GET
+// /competencies/proficiency-levels e GET /competencies/models não têm
+// @Roles no backend (leitura aberta), mas a aba só interessa a quem gere o
+// catálogo, por isso escondida de COLABORADOR tal como "Visão Geral".
 export const NAV: Array<{ id: View; label: string; roles?: readonly Role[] }> = [
   { id: 'overview', label: 'Visão Geral', roles: NON_COLABORADOR_ROLES },
   { id: 'catalog', label: 'Competências' },
+  { id: 'levels', label: 'Níveis de Proficiência', roles: NON_COLABORADOR_ROLES },
+  { id: 'models', label: 'Modelos de Competências', roles: NON_COLABORADOR_ROLES },
   { id: 'my-profile', label: 'O meu perfil' },
   { id: 'matrix', label: 'Matriz de Competências', roles: NON_COLABORADOR_ROLES },
   { id: 'dashboard', label: 'Dashboard RH', roles: NON_COLABORADOR_ROLES },
@@ -61,8 +69,38 @@ export const NAV: Array<{ id: View; label: string; roles?: readonly Role[] }> = 
 export const TITLES: Record<View, string> = {
   overview: 'Visão Geral de Competências',
   catalog: 'Competências',
+  levels: 'Níveis de Proficiência',
+  models: 'Modelos de Competências',
   'my-profile': 'O meu Perfil de Competências',
   matrix: 'Matriz de Competências',
   dashboard: 'Dashboard de Competências',
   'competency-map': 'Mapa de Competências',
+};
+
+// docs/módulo_competencies.md §3 — "Escala proposta". Só um preset para
+// pré-preencher o formulário de criação de nível (ver decisão 1 em
+// docs/superpowers/specs/2026-09-25-competencies-fase2-design.md) — não é
+// persistido como tabela à parte.
+export const PROFICIENCY_SCALE_PRESET: Array<{
+  value: number;
+  name: string;
+  description: string;
+}> = [
+  { value: 1, name: 'Inicial', description: 'Conhecimento básico, aplica com supervisão directa.' },
+  { value: 2, name: 'Básico', description: 'Aplica em tarefas simples, com apoio ocasional.' },
+  { value: 3, name: 'Intermédio', description: 'Aplica com autonomia em situações comuns.' },
+  { value: 4, name: 'Avançado', description: 'Domina a competência, resolve situações complexas.' },
+  { value: 5, name: 'Especialista', description: 'Referência na organização, forma outros.' },
+];
+
+// docs/módulo_competencies.md §4 — "Nível hierárquico" do modelo, reaproveita
+// o enum SeniorityLevel já existente no schema (ver decisão 6 do spec Fase 2).
+export const HIERARCHY_LEVEL_CFG: StatusBadgeMap<SeniorityLevel> = {
+  JUNIOR: { label: 'Júnior', cls: 'bg-success-subtle text-success-ink' },
+  MID: { label: 'Pleno', cls: 'bg-info-subtle text-info-ink' },
+  SENIOR: { label: 'Sénior', cls: 'bg-primary-subtle text-primary' },
+  LEAD: { label: 'Lead', cls: 'bg-accent-subtle text-accent' },
+  MANAGER: { label: 'Gestor', cls: 'bg-warning-subtle text-warning-ink' },
+  DIRECTOR: { label: 'Director', cls: 'bg-danger-subtle text-danger-ink' },
+  C_LEVEL: { label: 'C-Level', cls: 'bg-danger-subtle text-danger-ink' },
 };

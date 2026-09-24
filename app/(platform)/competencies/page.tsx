@@ -33,6 +33,10 @@ import { CatalogView } from '@/components/competencies/CatalogView';
 import { CompetencyDetailModal } from '@/components/competencies/CompetencyDetailModal';
 import { CompetencyFormModal } from '@/components/competencies/CompetencyFormModal';
 import { DashboardView } from '@/components/competencies/DashboardView';
+import { LevelsView } from '@/components/competencies/LevelsView';
+import { ModelDetailModal } from '@/components/competencies/ModelDetailModal';
+import { ModelFormModal } from '@/components/competencies/ModelFormModal';
+import { ModelsView } from '@/components/competencies/ModelsView';
 import { MyProfileView } from '@/components/competencies/MyProfileView';
 import { OverviewView } from '@/components/competencies/OverviewView';
 import { SkillMatrixView } from '@/components/competencies/SkillMatrixView';
@@ -54,6 +58,13 @@ export default function CompetenciesPage() {
     null,
   );
 
+  // docs/módulo_competencies.md §4 (Fase 2) — mesmo padrão de
+  // detailId/form acima, para a aba "Modelos de Competências".
+  const [modelDetailId, setModelDetailId] = useState<number | null>(null);
+  const [modelForm, setModelForm] = useState<{ modelId: number | null } | null>(
+    null,
+  );
+
   const hasOwnHeader = view === 'competency-map';
 
   return (
@@ -70,6 +81,11 @@ export default function CompetenciesPage() {
           {view === 'catalog' && canManage && (
             <Button onClick={() => setForm({ competencyId: null })}>
               + Nova competência
+            </Button>
+          )}
+          {view === 'models' && canManage && (
+            <Button onClick={() => setModelForm({ modelId: null })}>
+              + Novo modelo
             </Button>
           )}
         </div>
@@ -97,6 +113,12 @@ export default function CompetenciesPage() {
       )}
       {view === 'catalog' && (
         <CatalogView onSelect={setDetailId} canManage={canManage} />
+      )}
+      {view === 'levels' && visibleNav.some((n) => n.id === 'levels') && (
+        <LevelsView canManage={canManage} />
+      )}
+      {view === 'models' && visibleNav.some((n) => n.id === 'models') && (
+        <ModelsView onSelect={setModelDetailId} />
       )}
       {view === 'my-profile' && <MyProfileView />}
       {view === 'matrix' && visibleNav.some((n) => n.id === 'matrix') && (
@@ -129,6 +151,31 @@ export default function CompetenciesPage() {
               title: form.competencyId
                 ? 'Competência actualizada.'
                 : 'Competência criada.',
+              intent: 'success',
+            })
+          }
+        />
+      )}
+
+      {modelDetailId !== null && (
+        <ModelDetailModal
+          modelId={modelDetailId}
+          canManage={canManage}
+          onEdit={() => {
+            setModelForm({ modelId: modelDetailId });
+            setModelDetailId(null);
+          }}
+          onClose={() => setModelDetailId(null)}
+        />
+      )}
+
+      {modelForm !== null && (
+        <ModelFormModal
+          modelId={modelForm.modelId}
+          onClose={() => setModelForm(null)}
+          onSuccess={() =>
+            notify({
+              title: modelForm.modelId ? 'Modelo actualizado.' : 'Modelo criado.',
               intent: 'success',
             })
           }
