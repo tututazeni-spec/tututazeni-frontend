@@ -3,7 +3,7 @@
 // dos ciclos de avaliação, com as colunas e filtros pedidos no documento
 // (Nome, Código, Tipo, Período, Datas, Nº avaliados/avaliadores, Taxa de
 // participação, Estado, Criado por, Data de criação; filtros por Estado,
-// Período/Tipo, Departamento, Data, Responsável). Substitui o antigo
+// Tipo, Departamento, Unidade, Cargo, Responsável, Data). Substitui o antigo
 // separador "Ciclos" (mesma entidade — um ciclo É uma avaliação 360°, ver
 // docs/evaluation360.md "Estrutura final"), agora com os campos que o
 // documento pede em vez do cartão simples anterior.
@@ -29,7 +29,7 @@ import { Input } from '@/components/ui/Input';
 import { Trash2 } from 'lucide-react';
 import { cycleStatusDisplay } from './colors';
 import { CreateCycleModal } from './CreateCycleModal';
-import { useDepartmentOptions } from './cycleData';
+import { useDepartmentOptions, useUnitOptions, usePositionOptions } from './cycleData';
 
 interface RawCycleRow {
   id: string;
@@ -39,6 +39,7 @@ interface RawCycleRow {
   status: string;
   startDate: string;
   endDate: string;
+  createdBy: string;
   createdByName: string;
   createdAt: string;
   _count: { participants: number };
@@ -79,6 +80,9 @@ export function EvaluationCyclesTab() {
   const [status, setStatus] = useState(ALL);
   const [type, setType] = useState(ALL);
   const [departmentId, setDepartmentId] = useState(ALL);
+  const [unitId, setUnitId] = useState(ALL);
+  const [positionId, setPositionId] = useState(ALL);
+  const [createdBy, setCreatedBy] = useState(ALL);
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
   const [cycleModalOpen, setCycleModalOpen] = useState(false);
@@ -88,11 +92,24 @@ export function EvaluationCyclesTab() {
     { value: ALL, label: 'Todos os departamentos' },
     ...departmentOptionsRaw,
   ];
+  const { options: unitOptionsRaw } = useUnitOptions();
+  const unitOptions: SelectItemOption[] = [
+    { value: ALL, label: 'Todas as unidades' },
+    ...unitOptionsRaw,
+  ];
+  const { options: positionOptionsRaw } = usePositionOptions();
+  const positionOptions: SelectItemOption[] = [
+    { value: ALL, label: 'Todos os cargos' },
+    ...positionOptionsRaw,
+  ];
 
   const params: Record<string, string> = { tenantId: 'default', limit: '100' };
   if (status !== ALL) params.status = status;
   if (type !== ALL) params.type = type;
   if (departmentId !== ALL) params.departmentId = departmentId;
+  if (unitId !== ALL) params.unitId = unitId;
+  if (positionId !== ALL) params.positionId = positionId;
+  if (createdBy !== ALL) params.createdBy = createdBy;
   if (from) params.from = from;
   if (to) params.to = to;
 
@@ -102,6 +119,25 @@ export function EvaluationCyclesTab() {
     { params, staleTime: STALE_TIME.DYNAMIC },
   );
   const cycles = data?.data ?? [];
+
+  // Opções do filtro "Responsável" — não há endpoint dedicado de "criadores
+  // de ciclos"; deriva-se de uma leitura própria sem filtros (não da lista já
+  // filtrada acima, que teria um problema de ovo-e-galinha ao filtrar por
+  // criador antes de saber quem são os criadores possíveis).
+  const creatorsParams = { tenantId: 'default', limit: '200' };
+  const { data: allCyclesForCreators } = useApiQuery<{ data: RawCycleRow[]; total: number }>(
+    queryKeys.evaluation360.cyclesList(creatorsParams),
+    '/evaluation360/cycles',
+    { params: creatorsParams, staleTime: STALE_TIME.SEMI_STATIC },
+  );
+  const creatorOptions: SelectItemOption[] = [
+    { value: ALL, label: 'Todos os responsáveis' },
+    ...Array.from(
+      new Map(
+        (allCyclesForCreators?.data ?? []).map((c) => [c.createdBy, c.createdByName]),
+      ).entries(),
+    ).map(([value, label]) => ({ value, label })),
+  ];
 
   const confirm = useConfirm();
   const notify = useToast();
@@ -141,7 +177,7 @@ export function EvaluationCyclesTab() {
         )}
       </div>
 
-      {/* Filtros: Estado, Período/Tipo, Departamento, Data — docs/evaluation360.md §2 */}
+      {/* Filtros: Estado, Tipo, Departamento, Unidade, Cargo, Responsável, Data — docs/evaluation360.md §2 */}
       <div className="flex flex-wrap gap-3 items-end">
         <div>
           <div className="text-xs font-semibold text-ink-muted mb-1">Estado</div>
@@ -158,6 +194,18 @@ export function EvaluationCyclesTab() {
             value={departmentId}
             onValueChange={setDepartmentId}
           />
+        </div>
+        <div>
+          <div className="text-xs font-semibold text-ink-muted mb-1">Unidade</div>
+          <Select items={unitOptions} value={unitId} onValueChange={setUnitId} />
+        </div>
+        <div>
+          <div className="text-xs font-semibold text-ink-muted mb-1">Cargo</div>
+          <Select items={positionOptions} value={positionId} onValueChange={setPositionId} />
+        </div>
+        <div>
+          <div className="text-xs font-semibold text-ink-muted mb-1">Responsável</div>
+          <Select items={creatorOptions} value={createdBy} onValueChange={setCreatedBy} />
         </div>
         <div>
           <div className="text-xs font-semibold text-ink-muted mb-1">De</div>
