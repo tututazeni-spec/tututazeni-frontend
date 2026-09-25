@@ -11,6 +11,7 @@ export type Tab =
   | 'costs'
   | 'kpis'
   | 'correlations'
+  | 'scenarios'
   | 'learning'
   | 'retention'
   | 'performance'
@@ -424,4 +425,57 @@ export interface CorrelationDetail extends CorrelationRow {
 export interface CorrelationListData {
   total: number;
   correlations: CorrelationRow[];
+}
+
+// ─────────────────────────────────────────────────────────────────
+// Cenários & Simulações (docs/roi-impact.md §8)
+// ─────────────────────────────────────────────────────────────────
+
+export type ScenarioCase = 'OTIMISTA' | 'REALISTA' | 'PESSIMISTA';
+
+export interface ScenarioCaseProjection {
+  cost: number;
+  benefit: number;
+  roiPercent: number;
+  paybackMonths: number | null;
+}
+
+export type ScenarioProjections = Record<ScenarioCase, ScenarioCaseProjection>;
+
+export interface ScenarioRow {
+  id: number;
+  name: string;
+  initiativeType: RoiInitiativeType;
+  description: string | null;
+  departmentId: number | null;
+  targetAudienceCount: number | null;
+  estimatedCost: number;
+  basedOnAnalysisId: number | null;
+  expectedBenefit: number | null;
+  assumptions: string | null;
+  note: string | null;
+  roiPercent: number | null;
+  paybackMonths: number | null;
+  projections: ScenarioProjections | null;
+  createdAt: string;
+}
+
+export interface ScenarioDetail extends ScenarioRow {
+  basedOnAnalysis: {
+    id: number;
+    name: string;
+    roiPercent: number | null;
+    computedBenefit: number | null;
+    computedCost: number | null;
+  } | null;
+}
+
+export interface ScenarioListData {
+  total: number;
+  scenarios: ScenarioRow[];
+}
+
+export interface ScenarioCompareData {
+  scenarios: ScenarioRow[];
+  bestId: number | null;
 }

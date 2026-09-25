@@ -433,6 +433,9 @@ export const queryKeys = {
     correlations: (filter?: Record<string, unknown>) =>
       [...queryKeys.roiImpact.all, 'correlations', filter ?? {}] as const,
     correlation: (id: number) => [...queryKeys.roiImpact.all, 'correlations', id] as const,
+    scenarios: (filter?: Record<string, unknown>) =>
+      [...queryKeys.roiImpact.all, 'scenarios', filter ?? {}] as const,
+    scenario: (id: number) => [...queryKeys.roiImpact.all, 'scenarios', id] as const,
   },
 
   rolesPermissions: {

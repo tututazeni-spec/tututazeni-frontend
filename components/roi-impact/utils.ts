@@ -206,3 +206,16 @@ export function correlationStrengthLabel(r: number): string {
   if (abs >= 0.3) return 'Moderada';
   return 'Fraca';
 }
+
+// Cenários & Simulações (docs/roi-impact.md §8)
+export const SCENARIO_CASE_LABELS: Record<string, string> = {
+  OTIMISTA: 'Otimista',
+  REALISTA: 'Realista',
+  PESSIMISTA: 'Pessimista',
+};
+
+export const SCENARIO_CASE_INTENTS: Record<string, 'success' | 'info' | 'warning'> = {
+  OTIMISTA: 'success',
+  REALISTA: 'info',
+  PESSIMISTA: 'warning',
+};

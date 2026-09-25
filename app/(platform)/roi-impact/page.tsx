@@ -13,6 +13,7 @@ import {
   Calculator,
   ClipboardList,
   Coins,
+  FlaskConical,
   Gauge,
   GitCompareArrows,
   GraduationCap,
@@ -29,6 +30,7 @@ import { EvaluationModelsTab } from '@/components/roi-impact/EvaluationModelsTab
 import { CostsTab } from '@/components/roi-impact/CostsTab';
 import { KpisTab } from '@/components/roi-impact/KpisTab';
 import { CorrelationsTab } from '@/components/roi-impact/CorrelationsTab';
+import { ScenariosTab } from '@/components/roi-impact/ScenariosTab';
 import { LearningTab } from '@/components/roi-impact/LearningTab';
 import { PerformanceTab } from '@/components/roi-impact/PerformanceTab';
 import { ProgramsTab } from '@/components/roi-impact/ProgramsTab';
@@ -39,10 +41,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
 
 // docs/roi-impact.md — "Visão Geral", "ROI da Formação", "Impacto no
 // Negócio", "Modelos de Avaliação", "Custos & Investimento", "Indicadores
-// & KPIs" e "Correlações" (§1-7) já seguem a ordem/nome do spec; as
-// restantes abas (Aprendizagem/Retenção/Performance/Simulador/Programas)
-// são as fases seguintes do remodel e mantêm-se por agora com os
-// nomes/dados legados.
+// & KPIs", "Correlações" e "Cenários & Simulações" (§1-8) já seguem a
+// ordem/nome do spec; as restantes abas (Aprendizagem/Retenção/Performance/
+// Simulador/Programas) são as fases seguintes do remodel e mantêm-se por
+// agora com os nomes/dados legados — "Simulador" é o what-if de taxa de
+// conclusão pré-existente, distinto de "Cenários & Simulações" (§8), que
+// projecta o ROI de uma iniciativa futura ainda não executada.
 const TABS: { id: Tab; label: string; icon: LucideIcon | null }[] = [
   { id: 'executive', label: 'Visão Geral', icon: Briefcase },
   { id: 'roi-analysis', label: 'ROI da Formação', icon: LineChart },
@@ -51,6 +55,7 @@ const TABS: { id: Tab; label: string; icon: LucideIcon | null }[] = [
   { id: 'costs', label: 'Custos & Investimento', icon: Coins },
   { id: 'kpis', label: 'Indicadores & KPIs', icon: Gauge },
   { id: 'correlations', label: 'Correlações', icon: GitCompareArrows },
+  { id: 'scenarios', label: 'Cenários & Simulações', icon: FlaskConical },
   { id: 'learning', label: 'Aprendizagem', icon: BookOpen },
   { id: 'retention', label: 'Retenção', icon: Users },
   { id: 'performance', label: 'Performance', icon: Star },
@@ -115,6 +120,9 @@ export default function RoiImpactPage() {
           </TabsContent>
           <TabsContent value="correlations">
             <CorrelationsTab />
+          </TabsContent>
+          <TabsContent value="scenarios">
+            <ScenariosTab />
           </TabsContent>
           <TabsContent value="learning">
             <LearningTab />
