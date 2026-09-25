@@ -6,6 +6,8 @@
 export type Tab =
   | 'executive'
   | 'roi-analysis'
+  | 'impact'
+  | 'evaluation-models'
   | 'learning'
   | 'retention'
   | 'performance'
@@ -171,4 +173,84 @@ export interface PerformanceData {
   atRisk?: number;
   insights?: string[];
   confidence?: string;
+}
+
+// ─────────────────────────────────────────────────────────────────
+// Impacto no Negócio (docs/roi-impact.md §3)
+// ─────────────────────────────────────────────────────────────────
+
+export type ImpactSubjectType = 'COLABORADOR' | 'EQUIPA' | 'DEPARTAMENTO';
+
+export type ImpactCategory =
+  | 'PRODUTIVIDADE'
+  | 'QUALIDADE'
+  | 'ROTATIVIDADE'
+  | 'ABSENTISMO'
+  | 'SEGURANCA'
+  | 'VENDAS_RECEITA'
+  | 'SATISFACAO_CLIENTE'
+  | 'SATISFACAO_COLABORADOR'
+  | 'TEMPO_RESPOSTA'
+  | 'CUMPRIMENTO_SLA'
+  | 'COMPLIANCE'
+  | 'CUSTO_EVITADO';
+
+export interface ImpactRecordRow {
+  id: number;
+  subjectType: ImpactSubjectType;
+  subjectLabel: string | null;
+  initiativeType: RoiInitiativeType;
+  initiative: string | null;
+  category: ImpactCategory;
+  indicatorName: string;
+  valueBefore: number | null;
+  valueAfter: number | null;
+  variation: number | null;
+  observationPeriodStart: string | null;
+  observationPeriodEnd: string | null;
+  attributionPercent: number | null;
+  attributedImpact: number | null;
+  dataSource: string | null;
+  validatedById: number | null;
+  validatedAt: string | null;
+}
+
+export interface ImpactRecordListData {
+  total: number;
+  records: ImpactRecordRow[];
+}
+
+export interface ImpactCategorySummaryRow {
+  category: ImpactCategory;
+  count: number;
+  avgAttributionPercent: number | null;
+  attributedTotal: number;
+}
+
+// ─────────────────────────────────────────────────────────────────
+// Modelos de Avaliação (docs/roi-impact.md §4)
+// ─────────────────────────────────────────────────────────────────
+
+export type RoiModelStatus = 'ACTIVO' | 'INACTIVO';
+
+export interface RoiEvaluationLevel {
+  level: number;
+  name: string;
+  mandatory: boolean;
+  weight: number;
+}
+
+export interface RoiEvaluationApplicability {
+  initiativeTypes?: RoiInitiativeType[];
+  criticality?: string[];
+  minCost?: number;
+}
+
+export interface RoiEvaluationModelRow {
+  id: number;
+  name: string;
+  description: string | null;
+  levels: RoiEvaluationLevel[];
+  applicability: RoiEvaluationApplicability | null;
+  status: RoiModelStatus;
 }

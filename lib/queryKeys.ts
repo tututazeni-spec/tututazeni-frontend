@@ -417,6 +417,11 @@ export const queryKeys = {
       [...queryKeys.roiImpact.all, 'analyses', filter ?? {}] as const,
     initiativeOptions: (type: string) =>
       [...queryKeys.roiImpact.all, 'initiative-options', type] as const,
+    impactRecords: (filter?: Record<string, unknown>) =>
+      [...queryKeys.roiImpact.all, 'impact-records', filter ?? {}] as const,
+    impactByCategory: (filter?: Record<string, unknown>) =>
+      [...queryKeys.roiImpact.all, 'impact-by-category', filter ?? {}] as const,
+    evaluationModels: () => [...queryKeys.roiImpact.all, 'evaluation-models'] as const,
   },
 
   rolesPermissions: {

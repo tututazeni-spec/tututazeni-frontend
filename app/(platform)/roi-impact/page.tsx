@@ -7,10 +7,22 @@
 // page.tsx usa para as suas tabs). Ver memory
 // project_innova_component_separation_audit.
 
-import { BookOpen, Briefcase, Calculator, GraduationCap, LineChart, Star, Users } from 'lucide-react';
+import {
+  BookOpen,
+  Briefcase,
+  Calculator,
+  ClipboardList,
+  GraduationCap,
+  LineChart,
+  Star,
+  Target,
+  Users,
+} from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { ExecutiveTab } from '@/components/roi-impact/ExecutiveTab';
 import { RoiAnalysisTab } from '@/components/roi-impact/RoiAnalysisTab';
+import { ImpactTab } from '@/components/roi-impact/ImpactTab';
+import { EvaluationModelsTab } from '@/components/roi-impact/EvaluationModelsTab';
 import { LearningTab } from '@/components/roi-impact/LearningTab';
 import { PerformanceTab } from '@/components/roi-impact/PerformanceTab';
 import { ProgramsTab } from '@/components/roi-impact/ProgramsTab';
@@ -19,13 +31,16 @@ import { SimulatorTab } from '@/components/roi-impact/SimulatorTab';
 import type { Tab } from '@/components/roi-impact/types';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
 
-// docs/roi-impact.md — "Visão Geral" e "ROI da Formação" (§1-2) já seguem a
-// ordem/nome do spec; as restantes abas (Aprendizagem/Retenção/Performance/
-// Simulador/Programas) são as fases seguintes do remodel e mantêm-se por
-// agora com os nomes/dados legados.
+// docs/roi-impact.md — "Visão Geral", "ROI da Formação", "Impacto no
+// Negócio" e "Modelos de Avaliação" (§1-4) já seguem a ordem/nome do spec;
+// as restantes abas (Aprendizagem/Retenção/Performance/Simulador/Programas)
+// são as fases seguintes do remodel e mantêm-se por agora com os
+// nomes/dados legados.
 const TABS: { id: Tab; label: string; icon: LucideIcon | null }[] = [
   { id: 'executive', label: 'Visão Geral', icon: Briefcase },
   { id: 'roi-analysis', label: 'ROI da Formação', icon: LineChart },
+  { id: 'impact', label: 'Impacto no Negócio', icon: Target },
+  { id: 'evaluation-models', label: 'Modelos de Avaliação', icon: ClipboardList },
   { id: 'learning', label: 'Aprendizagem', icon: BookOpen },
   { id: 'retention', label: 'Retenção', icon: Users },
   { id: 'performance', label: 'Performance', icon: Star },
@@ -75,6 +90,12 @@ export default function RoiImpactPage() {
           </TabsContent>
           <TabsContent value="roi-analysis">
             <RoiAnalysisTab />
+          </TabsContent>
+          <TabsContent value="impact">
+            <ImpactTab />
+          </TabsContent>
+          <TabsContent value="evaluation-models">
+            <EvaluationModelsTab />
           </TabsContent>
           <TabsContent value="learning">
             <LearningTab />

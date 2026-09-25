@@ -71,3 +71,36 @@ export const BENEFIT_TYPE_LABELS: Record<string, string> = {
   SATISFACAO_CLIENTE: 'Satisfação do cliente',
   OUTRO: 'Outro',
 };
+
+// Impacto no Negócio (docs/roi-impact.md §3)
+export const IMPACT_SUBJECT_TYPE_LABELS: Record<string, string> = {
+  COLABORADOR: 'Colaborador',
+  EQUIPA: 'Equipa',
+  DEPARTAMENTO: 'Departamento',
+};
+
+export const IMPACT_CATEGORY_LABELS: Record<string, string> = {
+  PRODUTIVIDADE: 'Produtividade',
+  QUALIDADE: 'Qualidade',
+  ROTATIVIDADE: 'Rotatividade',
+  ABSENTISMO: 'Absentismo',
+  SEGURANCA: 'Segurança',
+  VENDAS_RECEITA: 'Vendas/Receita',
+  SATISFACAO_CLIENTE: 'Satisfação do cliente',
+  SATISFACAO_COLABORADOR: 'Satisfação/engagement do colaborador',
+  TEMPO_RESPOSTA: 'Tempo de resposta/ciclo',
+  CUMPRIMENTO_SLA: 'Cumprimento de SLA',
+  COMPLIANCE: 'Compliance',
+  CUSTO_EVITADO: 'Custo evitado',
+};
+
+// Modelos de Avaliação (docs/roi-impact.md §4)
+export const ROI_MODEL_STATUS_LABELS: Record<string, string> = {
+  ACTIVO: 'Ativo',
+  INACTIVO: 'Inativo',
+};
+
+export const ROI_MODEL_STATUS_INTENTS: Record<string, 'success' | 'neutral'> = {
+  ACTIVO: 'success',
+  INACTIVO: 'neutral',
+};
