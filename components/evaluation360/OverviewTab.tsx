@@ -30,6 +30,7 @@ export interface OverviewTabProps {
   result: ParticipantResult | null;
   participant?: ParticipantProfile;
   cycle: CycleInfo | null;
+  cycleId?: string;
 }
 
 export function OverviewTab({ result, participant, cycle }: OverviewTabProps) {

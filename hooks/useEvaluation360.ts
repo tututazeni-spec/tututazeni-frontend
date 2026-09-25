@@ -18,21 +18,13 @@ import type {
   ContinuousFeedback,
   CycleInfo,
   EvaluationQuestion,
-  NineBoxEntry,
   ParticipantProfile,
   ParticipantResult,
 } from '@/components/evaluation360/types';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
-import { useCurrentRole } from '@/hooks/useCurrentRole';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-
-// Espelha @Roles(ADMIN, RH) de GET /evaluation360/analytics/nine-box
-// (evaluation360.controller.ts) — GESTOR perdeu o acesso quando a matriz
-// deixou de identificar indivíduos (regra "ninguém vê o resultado de
-// outro"); não pedir o endpoint a quem vai receber 403.
-const NINE_BOX_ROLES = ['ADMIN', 'RH'];
 
 // ─── Formas da resposta do backend ─────────────────────────────────────────
 
@@ -57,8 +49,13 @@ interface RawCompetencyScoreEntry {
   othersScore: number | null;
   managerScore: number | null;
   peerScore: number | null;
+  subordinateScore: number | null;
+  externalScore: number | null;
+  responseCount: number;
   gap: number | null;
   benchmark: number | null;
+  expectedLevel: number | null;
+  gapToExpected: number | null;
 }
 
 interface RawParticipantResult {
@@ -70,12 +67,6 @@ interface RawParticipantResult {
   scoresByCompetency: Record<string, RawCompetencyScoreEntry>;
   gaps: { competencyId: string; name: string; score: number | null; gap: number | null }[];
   strengths: { competencyId: string; name: string; score: number | null }[];
-}
-
-interface RawNineBoxEntry {
-  performance: 'LOW' | 'MID' | 'HIGH';
-  potential: 'LOW' | 'MID' | 'HIGH';
-  count: number;
 }
 
 interface RawFeedback {
@@ -125,12 +116,18 @@ function toCompetencies(
       othersScore: v.othersScore ?? 0,
       managerScore: v.managerScore ?? 0,
       peerScore: v.peerScore ?? 0,
+      subordinateScore: v.subordinateScore,
+      externalScore: v.externalScore,
+      responseCount: v.responseCount ?? 0,
       // Não faz `?? 0` — um gap null (falta auto ou outros avaliadores) é
       // "sem dados", não uma lacuna real de zero. Ver CompetencyScore.gap.
       gap: v.gap,
       selfRaw: v.selfScore,
       othersRaw: v.othersScore,
       benchmark: v.benchmark ?? v.score ?? 0,
+      score: v.score,
+      expectedLevel: v.expectedLevel,
+      gapToExpected: v.gapToExpected,
     }));
 }
 
@@ -187,7 +184,6 @@ function toQuestion(q: RawQuestion): EvaluationQuestion {
 
 export function useEvaluation360() {
   const { data: me } = useCurrentUser();
-  const role = useCurrentRole();
   const myId = me ? String(me.id) : undefined;
   // Sempre o próprio — ver nota de regra no topo do ficheiro.
   const participantId = myId;
@@ -241,23 +237,6 @@ export function useEvaluation360() {
   const result = toParticipantResult(rawResult, participant);
   const competencies = result?.competencies ?? [];
 
-  const canSeeNineBox = !!role && NINE_BOX_ROLES.includes(role);
-  const { data: nineBoxData } = useApiQuery<RawNineBoxEntry[]>(
-    queryKeys.evaluation360.nineBox(cycleId ?? ''),
-    '/evaluation360/analytics/nine-box',
-    {
-      params: { cycleId },
-      enabled: !!cycleId && canSeeNineBox,
-      staleTime: STALE_TIME.DYNAMIC,
-      meta: { silent: true },
-    },
-  );
-  const nineBox: NineBoxEntry[] = (nineBoxData ?? []).map((n) => ({
-    performance: n.performance,
-    potential: n.potential,
-    count: n.count,
-  }));
-
   const { data: feedbackData } = useApiQuery<{ data: RawFeedback[]; total: number }>(
     queryKeys.evaluation360.feedbacks(participantId ?? ''),
     participantId ? `/evaluation360/feedback/continuous/${participantId}` : '',
@@ -285,7 +264,6 @@ export function useEvaluation360() {
     cycle,
     cycles,
     competencies,
-    nineBox,
     feedbacks,
     selfFormQuestions,
     myId,

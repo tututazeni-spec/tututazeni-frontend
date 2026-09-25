@@ -10,6 +10,7 @@ import { DetailView } from '@/components/development-plans/DetailView';
 import { MyPlansView } from '@/components/development-plans/MyPlansView';
 import { TeamView } from '@/components/development-plans/TeamView';
 import type { Nav } from '@/components/development-plans/types';
+import { NineBoxTab } from '@/components/development-plans/NineBoxTab';
 import { AnalyticsTab } from '@/components/talent-development/AnalyticsTab';
 import { MentoringTab } from '@/components/talent-development/MentoringTab';
 import { PoolTab } from '@/components/talent-development/PoolTab';
@@ -71,6 +72,7 @@ export default function DevelopmentPlansPage() {
       {nav.view === 'skill-gaps' && <SkillGapsTab />}
       {nav.view === 'mentoring' && <MentoringTab />}
       {nav.view === 'analytics' && <AnalyticsTab />}
+      {nav.view === 'ninebox' && <NineBoxTab />}
 
       {showWizard && (
         <CreatePlanWizard

@@ -21,6 +21,11 @@ vi.mock('@/hooks/useApiQuery', () => ({
       ),
     isPending: false,
   }),
+  // Picker de competências específicas (só busca o catálogo quando o
+  // toggle "Escolher competências específicas" está ligado); os testes
+  // existentes cobrem o caminho por omissão (8 competências-padrão do
+  // backend), por isso nunca precisam de dados aqui.
+  useApiQuery: () => ({ data: undefined, isLoading: false }),
 }));
 
 vi.mock('@/providers/ToastProvider', () => ({ useToast: () => vi.fn() }));
@@ -87,6 +92,12 @@ describe('CreateCycleModal (evaluation360)', () => {
       weightPeer: 20,
       weightSubordinate: 40,
       weightExternal: 0,
+      anonymityMode: 'ANONYMOUS',
+      quorumMinimum: 3,
+      gracePeriodDays: 3,
+      linkedToPdi: true,
+      linkedToBonus: false,
+      linkedToOkrs: false,
     });
     expect(post).toHaveBeenNthCalledWith(
       2,
@@ -150,5 +161,14 @@ describe('CreateCycleModal (evaluation360)', () => {
     fireEvent.click(screen.getByLabelText('Operações'));
     fireEvent.click(screen.getByRole('button', { name: 'Criar e Distribuir' }));
     expect(post).not.toHaveBeenCalled();
+  });
+
+  test('não submete com "competências específicas" ligado mas nenhuma escolhida', () => {
+    render(<CreateCycleModal onClose={vi.fn()} onSuccess={vi.fn()} />);
+    fillValid();
+    fireEvent.click(screen.getByLabelText('Escolher competências específicas do catálogo'));
+    fireEvent.click(screen.getByRole('button', { name: 'Criar e Distribuir' }));
+    expect(post).not.toHaveBeenCalled();
+    expect(screen.getByText(/Escolhe pelo menos uma competência/)).toBeInTheDocument();
   });
 });

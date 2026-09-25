@@ -6,10 +6,25 @@
 // falar com o módulo evaluation360.controller.ts (`/evaluation360/cycles`),
 // que tem competências/avaliadores/pesos por papel próprios.
 //
-// Não expõe escolha de modelo (fica sempre DEG_360, único pedido) nem
-// picker de competências/perguntas: o backend (createCycle→
-// attachStandardCompetencies) já anexa sozinho as 8 competências fixas da
-// INNOVA + 1 questão cada quando o ciclo é criado sem `competencies`.
+// Não expõe escolha de modelo (fica sempre DEG_360, único pedido). Por
+// omissão também não mostra o picker de competências: o backend
+// (createCycle→attachStandardCompetencies) anexa sozinho as 8 competências
+// fixas da INNOVA + 1 questão cada quando o ciclo é criado sem
+// `competencies` — mas docs/evaluation360.md §3 "Competências avaliadas"
+// pede para poder escolher outras do catálogo real (módulo Competencies),
+// por isso há um toggle "Escolher competências específicas" que expõe esse
+// picker (peso + obrigatória/opcional por competência). Quando usado, o
+// backend gera a mesma questão FREQUENCY por omissão que geraria para as 8
+// fixas (attachDefaultQuestions em evaluation360.service.ts), senão o ciclo
+// ficava sem nenhuma questão preenchível.
+//
+// Também expõe Configuração/Privacidade/Ligações do §3 que já existem como
+// campos reais do Eval360Cycle mas que a versão anterior deste modal não
+// mostrava: anonymityMode, quorumMinimum, gracePeriodDays, linkedToPdi/
+// Bonus/Okrs. Não expõe "Comunicação" (notificação inicial/lembretes/
+// mensagem personalizada) nem "código"/"objetivo" separados — nenhum destes
+// existe como campo em Eval360Cycle (schema.prisma); lembretes são enviados
+// depois, ad-hoc, via POST /evaluation360/cycles/:id/reminders.
 //
 // Botão único "Criar e Distribuir" em vez do fluxo manual
 // suggest→assign→approve→invite: cria o ciclo, adiciona todos os
@@ -22,9 +37,10 @@
 
 import { useMemo, useState } from 'react';
 import { AlertCircle } from 'lucide-react';
-import { useApiMutation } from '@/hooks/useApiQuery';
+import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
+import { STALE_TIME } from '@/lib/queryClient';
 import { useFormValidation } from '@/hooks/useFormValidation';
 import { required } from '@/lib/validation';
 import { useToast } from '@/providers/ToastProvider';
@@ -71,6 +87,25 @@ const DEFAULT_WEIGHTS: Record<WeightType, string> = {
   EXTERNAL: '0',
 };
 
+// Espelha o enum AnonymityMode do backend.
+const ANONYMITY_LABEL: Record<string, string> = {
+  ANONYMOUS: 'Anónimo (identidade do avaliador nunca é revelada)',
+  SEMI_ANONYMOUS: 'Semi-anónimo (visível apenas para RH)',
+  OPEN: 'Aberto (identidade visível para o avaliado)',
+};
+const ANONYMITY_ITEMS = Object.entries(ANONYMITY_LABEL).map(([value, label]) => ({
+  value,
+  label,
+}));
+
+interface CompetencyOption {
+  id: number;
+  name: string;
+  category?: string;
+  scaleMin?: number;
+  scaleMax?: number;
+}
+
 interface CreatedCycle {
   id: string;
 }
@@ -97,6 +132,51 @@ export function CreateCycleModal({ onClose, onSuccess }: CreateCycleModalProps) 
   const [departmentIds, setDepartmentIds] = useState<string[]>([]);
   const [weights, setWeights] = useState<Record<WeightType, string>>(DEFAULT_WEIGHTS);
   const [submitError, setSubmitError] = useState('');
+
+  // docs/evaluation360.md §3 "Configuração" + "Privacidade" — campos reais
+  // do Eval360Cycle (schema.prisma), valores por omissão iguais aos do
+  // modelo (@default).
+  const [anonymityMode, setAnonymityMode] = useState('ANONYMOUS');
+  const [quorumMinimum, setQuorumMinimum] = useState('3');
+  const [gracePeriodDays, setGracePeriodDays] = useState('3');
+  const [linkedToPdi, setLinkedToPdi] = useState(true);
+  const [linkedToBonus, setLinkedToBonus] = useState(false);
+  const [linkedToOkrs, setLinkedToOkrs] = useState(false);
+
+  // docs/evaluation360.md §3 "Competências avaliadas" — por omissão o
+  // backend anexa sozinho as 8 competências-padrão da INNOVA
+  // (attachStandardCompetencies) quando `competencies` vem vazio/omitido;
+  // aqui só se sobrepõe esse comportamento quando o utilizador escolhe
+  // explicitamente competências específicas do catálogo real (módulo
+  // Competencies — nunca uma segunda lista independente).
+  const [useCustomCompetencies, setUseCustomCompetencies] = useState(false);
+  const [competencySelection, setCompetencySelection] = useState<
+    Record<number, { weight: string; isRequired: boolean }>
+  >({});
+
+  const { data: competencyCatalogue, isLoading: competenciesLoading } = useApiQuery<
+    CompetencyOption[]
+  >(queryKeys.evaluation360.competencies(), '/evaluation360/competencies', {
+    enabled: useCustomCompetencies,
+    staleTime: STALE_TIME.STATIC,
+  });
+
+  const toggleCompetency = (id: number) =>
+    setCompetencySelection((prev) => {
+      const next = { ...prev };
+      if (next[id]) delete next[id];
+      else next[id] = { weight: '1', isRequired: true };
+      return next;
+    });
+  const setCompetencyWeight = (id: number, weight: string) =>
+    setCompetencySelection((prev) =>
+      prev[id] ? { ...prev, [id]: { ...prev[id], weight } } : prev,
+    );
+  const toggleCompetencyRequired = (id: number) =>
+    setCompetencySelection((prev) =>
+      prev[id] ? { ...prev, [id]: { ...prev[id], isRequired: !prev[id].isRequired } } : prev,
+    );
+  const selectedCompetencyIds = Object.keys(competencySelection).map(Number);
 
   const weightPayload = useMemo(
     () =>
@@ -125,7 +205,23 @@ export function CreateCycleModal({ onClose, onSuccess }: CreateCycleModalProps) 
         startDate: form.startDate,
         endDate: form.endDate,
         ...weightPayload,
+        anonymityMode,
+        quorumMinimum: Number(quorumMinimum) || 3,
+        gracePeriodDays: Number(gracePeriodDays) || 0,
+        linkedToPdi,
+        linkedToBonus,
+        linkedToOkrs,
         ...(form.description.trim() ? { description: form.description.trim() } : {}),
+        ...(useCustomCompetencies && selectedCompetencyIds.length > 0
+          ? {
+              competencies: selectedCompetencyIds.map((id, order) => ({
+                competencyId: String(id),
+                weight: Number(competencySelection[id].weight) || 1,
+                isRequired: competencySelection[id].isRequired,
+                order,
+              })),
+            }
+          : {}),
       });
       await apiClient.post(`/evaluation360/cycles/${cycle.id}/participants/by-department`, {
         departmentIds,
@@ -133,7 +229,10 @@ export function CreateCycleModal({ onClose, onSuccess }: CreateCycleModalProps) 
       return apiClient.post(`/evaluation360/cycles/${cycle.id}/distribute`);
     },
     {
-      invalidateKeys: [queryKeys.evaluation360.cycles()],
+      // .all (não só .cycles()) — a aba "Avaliações 360°" (cyclesList, ver
+      // EvaluationCyclesTab.tsx) tem uma chave própria com os filtros activos
+      // que .cycles() sozinho não invalida (prefixos de queryKey diferentes).
+      invalidateKeys: [queryKeys.evaluation360.all],
       onSuccess: () => {
         notify({
           title: 'Ciclo criado e distribuído',
@@ -156,6 +255,8 @@ export function CreateCycleModal({ onClose, onSuccess }: CreateCycleModalProps) 
     if (departmentIds.length === 0) return 'Escolhe pelo menos um departamento a avaliar.';
     if (weightTotal !== 100)
       return `Os pesos por papel têm de somar 100 (soma actual: ${weightTotal}).`;
+    if (useCustomCompetencies && selectedCompetencyIds.length === 0)
+      return 'Escolhe pelo menos uma competência do catálogo, ou desliga "Escolher competências específicas" para usar as 8 competências-padrão.';
     return '';
   })();
 
@@ -308,6 +409,150 @@ export function CreateCycleModal({ onClose, onSuccess }: CreateCycleModalProps) 
                   />
                 </div>
               ))}
+            </div>
+          </div>
+
+          <div>
+            <label className="flex items-center gap-2 font-body text-sm font-medium text-ink">
+              <input
+                type="checkbox"
+                checked={useCustomCompetencies}
+                onChange={(e) => setUseCustomCompetencies(e.target.checked)}
+                className="h-4 w-4 rounded border-border-strong"
+              />
+              Escolher competências específicas do catálogo
+            </label>
+            <p className="mt-1 mb-2 font-body text-xs text-ink-muted">
+              Por omissão o ciclo usa as 8 competências-padrão da INNOVA. Aqui
+              podes escolher outras do módulo Competências e ajustar o peso e
+              se são obrigatórias.
+            </p>
+            {useCustomCompetencies && (
+              <div className="max-h-48 overflow-y-auto rounded-card border border-border p-2 space-y-1">
+                {competenciesLoading && (
+                  <div className="px-1 py-1 text-sm text-ink-muted">A carregar…</div>
+                )}
+                {!competenciesLoading && (competencyCatalogue ?? []).length === 0 && (
+                  <div className="px-1 py-1 text-sm text-ink-muted">
+                    Nenhuma competência encontrada no catálogo.
+                  </div>
+                )}
+                {(competencyCatalogue ?? []).map((c) => {
+                  const selection = competencySelection[c.id];
+                  return (
+                    <div key={c.id} className="rounded-control px-1 py-1 hover:bg-surface-sunken">
+                      <label className="flex items-center gap-2 font-body text-sm text-ink">
+                        <input
+                          type="checkbox"
+                          checked={!!selection}
+                          onChange={() => toggleCompetency(c.id)}
+                          className="h-4 w-4 rounded border-border-strong"
+                        />
+                        {c.name}
+                      </label>
+                      {selection && (
+                        <div className="mt-1 ml-6 flex items-center gap-3">
+                          <label
+                            htmlFor={`cyc-comp-w-${c.id}`}
+                            className="font-body text-xs text-ink-muted"
+                          >
+                            Peso
+                          </label>
+                          <Input
+                            id={`cyc-comp-w-${c.id}`}
+                            type="number"
+                            min={0}
+                            value={selection.weight}
+                            onChange={(e) => setCompetencyWeight(c.id, e.target.value)}
+                            className="w-20"
+                          />
+                          <label className="flex items-center gap-2 font-body text-xs text-ink-muted">
+                            <input
+                              type="checkbox"
+                              checked={selection.isRequired}
+                              onChange={() => toggleCompetencyRequired(c.id)}
+                              className="h-4 w-4 rounded border-border-strong"
+                            />
+                            Obrigatória
+                          </label>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          <FormField label="Modo de anonimato" htmlFor="cyc-anonymity">
+            <Select
+              items={ANONYMITY_ITEMS}
+              value={anonymityMode}
+              onValueChange={setAnonymityMode}
+              className="w-full"
+            />
+          </FormField>
+
+          <div className="grid grid-cols-2 gap-3">
+            <FormField
+              label="Nº mínimo p/ mostrar resultados"
+              htmlFor="cyc-quorum"
+              hint="Abaixo deste nº de respostas, os scores desse grupo ficam ocultos (protege o anonimato)."
+            >
+              <Input
+                id="cyc-quorum"
+                type="number"
+                min={1}
+                value={quorumMinimum}
+                onChange={(e) => setQuorumMinimum(e.target.value)}
+                className="w-full"
+              />
+            </FormField>
+            <FormField label="Dias de tolerância após o prazo" htmlFor="cyc-grace">
+              <Input
+                id="cyc-grace"
+                type="number"
+                min={0}
+                value={gracePeriodDays}
+                onChange={(e) => setGracePeriodDays(e.target.value)}
+                className="w-full"
+              />
+            </FormField>
+          </div>
+
+          <div>
+            <span className="font-body text-sm font-medium text-ink">Ligações</span>
+            <p className="mt-1 mb-2 font-body text-xs text-ink-muted">
+              Os resultados deste ciclo podem alimentar outros módulos.
+            </p>
+            <div className="space-y-1">
+              <label className="flex items-center gap-2 font-body text-sm text-ink">
+                <input
+                  type="checkbox"
+                  checked={linkedToPdi}
+                  onChange={(e) => setLinkedToPdi(e.target.checked)}
+                  className="h-4 w-4 rounded border-border-strong"
+                />
+                Gera gaps de competência no PDI
+              </label>
+              <label className="flex items-center gap-2 font-body text-sm text-ink">
+                <input
+                  type="checkbox"
+                  checked={linkedToBonus}
+                  onChange={(e) => setLinkedToBonus(e.target.checked)}
+                  className="h-4 w-4 rounded border-border-strong"
+                />
+                Resultado conta para bónus
+              </label>
+              <label className="flex items-center gap-2 font-body text-sm text-ink">
+                <input
+                  type="checkbox"
+                  checked={linkedToOkrs}
+                  onChange={(e) => setLinkedToOkrs(e.target.checked)}
+                  className="h-4 w-4 rounded border-border-strong"
+                />
+                Resultado conta para OKRs
+              </label>
             </div>
           </div>
         </div>

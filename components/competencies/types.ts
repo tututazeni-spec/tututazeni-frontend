@@ -465,6 +465,4 @@ export type View =
   | 'evaluations'
   | 'gaps'
   | 'development'
-  | 'reports'
-  | 'dashboard'
-  | 'competency-map';
+  | 'reports';
