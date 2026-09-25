@@ -1,6 +1,5 @@
 // components/roi-impact/types.ts
-// Formas dos dados de ROI/impacto vindos da API: executivo,
-// aprendizagem, retenção, performance, simulador e programas.
+// Formas dos dados de ROI/impacto vindos da API.
 // Extraído de app/(platform)/roi-impact/page.tsx.
 
 export type Tab =
@@ -14,12 +13,7 @@ export type Tab =
   | 'scenarios'
   | 'benchmarks'
   | 'reports'
-  | 'config'
-  | 'learning'
-  | 'retention'
-  | 'performance'
-  | 'simulator'
-  | 'programs';
+  | 'config';
 
 export interface RoiBreakdown {
   key: string | number | null;
@@ -118,68 +112,6 @@ export interface RoiAnalysisListData {
 export interface InitiativeOption {
   id: number;
   label: string;
-}
-
-export interface CourseImpact {
-  course?: { title?: string; category?: string };
-  completions?: number;
-  roi?: number;
-  bcr?: number;
-}
-
-export interface LearningData {
-  volume?: { completed?: number; completionRate?: number };
-  financial?: {
-    roi?: number;
-    hoursEstimated?: number;
-    costEstimated?: number;
-    benefitEstimated?: number;
-  };
-  topCourses?: CourseImpact[];
-  insights?: string[];
-}
-
-export interface RetentionData {
-  headcount?: { active?: number };
-  turnoverRate?: number;
-  turnoverTrend?: number;
-  retentionRate?: number;
-  savedValue?: number;
-  saved?: number;
-  prevTurnoverRate?: number;
-  insights?: string[];
-}
-
-export interface SimulateSnapshot {
-  completionRate?: number;
-  cost?: number;
-  benefit?: number;
-  roi?: number;
-}
-
-export interface SimulateResult {
-  narrative: string;
-  current: SimulateSnapshot;
-  projected: SimulateSnapshot;
-  delta: { roiLift: number; benefitDelta: number; costDelta: number };
-}
-
-export interface ProgramsData {
-  total?: number;
-  avgRoi?: number;
-  topByRoi?: unknown[];
-  programs?: CourseImpact[];
-}
-
-export interface PerformanceData {
-  before?: number;
-  after?: number;
-  lift?: number | null;
-  monetised?: { productivityBenefit?: number };
-  highPerformers?: number;
-  atRisk?: number;
-  insights?: string[];
-  confidence?: string;
 }
 
 // ─────────────────────────────────────────────────────────────────

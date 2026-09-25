@@ -9,21 +9,16 @@
 
 import {
   BarChart3,
-  BookOpen,
   Briefcase,
-  Calculator,
   ClipboardList,
   Coins,
   FlaskConical,
   Gauge,
   GitCompareArrows,
-  GraduationCap,
   LineChart,
   Scale,
   Settings,
-  Star,
   Target,
-  Users,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { ExecutiveTab } from '@/components/roi-impact/ExecutiveTab';
@@ -37,23 +32,13 @@ import { ScenariosTab } from '@/components/roi-impact/ScenariosTab';
 import { BenchmarksTab } from '@/components/roi-impact/BenchmarksTab';
 import { ReportsTab } from '@/components/roi-impact/ReportsTab';
 import { ConfigTab } from '@/components/roi-impact/ConfigTab';
-import { LearningTab } from '@/components/roi-impact/LearningTab';
-import { PerformanceTab } from '@/components/roi-impact/PerformanceTab';
-import { ProgramsTab } from '@/components/roi-impact/ProgramsTab';
-import { RetentionTab } from '@/components/roi-impact/RetentionTab';
-import { SimulatorTab } from '@/components/roi-impact/SimulatorTab';
 import type { Tab } from '@/components/roi-impact/types';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
 
 // docs/roi-impact.md — "Visão Geral", "ROI da Formação", "Impacto no
 // Negócio", "Modelos de Avaliação", "Custos & Investimento", "Indicadores
 // & KPIs", "Correlações", "Cenários & Simulações", "Benchmarks",
-// "Relatórios" e "Configurações" (§1-11) já seguem a ordem/nome do spec; as
-// restantes abas (Aprendizagem/Retenção/Performance/Simulador/Programas) são
-// as fases seguintes do remodel e mantêm-se por agora com os nomes/dados
-// legados — "Simulador" é o what-if de taxa de conclusão pré-existente,
-// distinto de "Cenários & Simulações" (§8), que projecta o ROI de uma
-// iniciativa futura ainda não executada.
+// "Relatórios" e "Configurações" (§1-11) seguem a ordem/nome do spec.
 const TABS: { id: Tab; label: string; icon: LucideIcon | null }[] = [
   { id: 'executive', label: 'Visão Geral', icon: Briefcase },
   { id: 'roi-analysis', label: 'ROI da Formação', icon: LineChart },
@@ -66,11 +51,6 @@ const TABS: { id: Tab; label: string; icon: LucideIcon | null }[] = [
   { id: 'benchmarks', label: 'Benchmarks', icon: Scale },
   { id: 'reports', label: 'Relatórios', icon: BarChart3 },
   { id: 'config', label: 'Configurações', icon: Settings },
-  { id: 'learning', label: 'Aprendizagem', icon: BookOpen },
-  { id: 'retention', label: 'Retenção', icon: Users },
-  { id: 'performance', label: 'Performance', icon: Star },
-  { id: 'simulator', label: 'Simulador', icon: Calculator },
-  { id: 'programs', label: 'Programas', icon: GraduationCap },
 ];
 
 export default function RoiImpactPage() {
@@ -142,21 +122,6 @@ export default function RoiImpactPage() {
           </TabsContent>
           <TabsContent value="config">
             <ConfigTab />
-          </TabsContent>
-          <TabsContent value="learning">
-            <LearningTab />
-          </TabsContent>
-          <TabsContent value="retention">
-            <RetentionTab />
-          </TabsContent>
-          <TabsContent value="performance">
-            <PerformanceTab />
-          </TabsContent>
-          <TabsContent value="simulator">
-            <SimulatorTab />
-          </TabsContent>
-          <TabsContent value="programs">
-            <ProgramsTab />
           </TabsContent>
         </div>
       </Tabs>
