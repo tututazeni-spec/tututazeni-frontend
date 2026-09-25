@@ -14,6 +14,7 @@ export type Tab =
   | 'scenarios'
   | 'benchmarks'
   | 'reports'
+  | 'config'
   | 'learning'
   | 'retention'
   | 'performance'
@@ -662,4 +663,22 @@ export interface LeadershipEngagementRow {
 export interface LeadershipEngagementReportData {
   leaders: LeadershipEngagementRow[];
   note: string | null;
+}
+
+// ─────────────────────────────────────────────────────────────────
+// Configurações (docs/roi-impact.md §11)
+// ─────────────────────────────────────────────────────────────────
+
+export interface RoiConfigData {
+  currency: string;
+  discountRatePercent: number | null;
+  defaultIsolationFactors: Record<string, number>;
+  level45CostThreshold: number | null;
+  defaultMeasurementPeriods: number[];
+  defaultBenefitValidatorIds: number[];
+  benefitConversionFormulas: Record<string, string>;
+  financialAccessRoles: string[];
+  operationalOnlyRoles: string[];
+  alertNoMeasurementDays: number | null;
+  alertRoiBelowExpectedPercent: number | null;
 }

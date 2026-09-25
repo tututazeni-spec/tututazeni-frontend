@@ -444,6 +444,7 @@ export const queryKeys = {
       [...queryKeys.roiImpact.all, 'benchmarks-sector-comparison'] as const,
     report: (key: string, filter?: Record<string, unknown>) =>
       [...queryKeys.roiImpact.all, 'reports', key, filter ?? {}] as const,
+    config: () => [...queryKeys.roiImpact.all, 'config'] as const,
   },
 
   rolesPermissions: {

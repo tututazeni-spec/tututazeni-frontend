@@ -9,7 +9,7 @@
 
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { AlertCircle, Check } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
@@ -28,7 +28,7 @@ import { DepartmentUserPicker } from '@/components/departments/DepartmentUserPic
 import type { DirectoryUser } from '@/components/departments/departmentFormData';
 import { fmt$ } from './utils';
 import { INITIATIVE_TYPE_LABELS, BENEFIT_TYPE_LABELS, CONFIDENCE_LABELS } from './utils';
-import type { InitiativeOption, RoiInitiativeType, RoiBenefitType } from './types';
+import type { InitiativeOption, RoiInitiativeType, RoiBenefitType, RoiConfigData } from './types';
 
 const STEPS = [
   { id: 'identification', label: 'Identificação' },
@@ -46,7 +46,7 @@ const BENEFIT_TYPE_ITEMS = Object.entries(BENEFIT_TYPE_LABELS).map(([value, labe
   value,
   label,
 }));
-const MEASUREMENT_PERIOD_ITEMS = [30, 60, 90, 180].map((d) => ({ value: String(d), label: `${d} dias` }));
+const DEFAULT_MEASUREMENT_PERIODS = [30, 60, 90, 180];
 
 interface ComputeResult {
   computedCost: number | null;
@@ -128,6 +128,28 @@ export function NewRoiAnalysisWizard({ onClose }: NewRoiAnalysisWizardProps) {
     '/roi-impact/analyses/initiative-options',
     { params: { type: initiativeType }, staleTime: STALE_TIME.SEMI_STATIC },
   );
+
+  // docs/roi-impact.md §11 "Configurações" — defaults do RH para esta
+  // metodologia (fator de isolamento por tipo de iniciativa, períodos de
+  // medição); nunca sobrepõe um valor que o utilizador já tenha editado.
+  const { data: roiConfig } = useApiQuery<RoiConfigData>(
+    queryKeys.roiImpact.config(),
+    '/roi-impact/config',
+    { staleTime: STALE_TIME.SEMI_STATIC },
+  );
+  const measurementPeriodItems = useMemo(
+    () =>
+      (roiConfig?.defaultMeasurementPeriods?.length
+        ? roiConfig.defaultMeasurementPeriods
+        : DEFAULT_MEASUREMENT_PERIODS
+      ).map((d) => ({ value: String(d), label: `${d} dias` })),
+    [roiConfig],
+  );
+  useEffect(() => {
+    if (isolationFactor !== '') return;
+    const preset = roiConfig?.defaultIsolationFactors?.[initiativeType];
+    if (preset != null) setIsolationFactor(String(preset));
+  }, [initiativeType, roiConfig, isolationFactor]);
 
   const current = STEPS[step];
   const isLast = step === STEPS.length - 1;
@@ -350,7 +372,7 @@ export function NewRoiAnalysisWizard({ onClose }: NewRoiAnalysisWizardProps) {
               </FormField>
               <FormField label="Medição pós-iniciativa" htmlFor="ra-measure">
                 <Select
-                  items={MEASUREMENT_PERIOD_ITEMS}
+                  items={measurementPeriodItems}
                   value={measurementPeriodDays}
                   onValueChange={setMeasurementPeriodDays}
                   className="w-full"
