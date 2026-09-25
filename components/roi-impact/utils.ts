@@ -186,3 +186,23 @@ export const KPI_STATUS_INTENTS: Record<string, 'success' | 'neutral'> = {
   ACTIVO: 'success',
   INACTIVO: 'neutral',
 };
+
+// Correlações (docs/roi-impact.md §7)
+export const CORRELATION_TYPE_LABELS: Record<string, string> = {
+  HORAS_FORMACAO_DESEMPENHO: 'Horas de formação × desempenho',
+  COMPETENCIAS_PRODUTIVIDADE: 'Competências × produtividade',
+  PDI_RETENCAO: 'PDI × retenção',
+  INVESTIMENTO_ROTATIVIDADE: 'Investimento × rotatividade',
+  ONBOARDING_TEMPO_PRODUTIVIDADE: 'Onboarding × tempo até produtividade',
+  MENTORIA_PROGRESSAO_CARREIRA: 'Mentoria × progressão de carreira',
+  LIDERANCA_ENGAGEMENT_EQUIPA: 'Liderança × engagement da equipa',
+};
+
+// Convenção estatística comum: |r| < 0.3 fraca, < 0.6 moderada, >= 0.6 forte
+// (independente do sinal — a força não implica direcção nem causalidade).
+export function correlationStrengthLabel(r: number): string {
+  const abs = Math.abs(r);
+  if (abs >= 0.6) return 'Forte';
+  if (abs >= 0.3) return 'Moderada';
+  return 'Fraca';
+}

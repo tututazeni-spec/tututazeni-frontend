@@ -429,6 +429,10 @@ export const queryKeys = {
     kpis: (filter?: Record<string, unknown>) =>
       [...queryKeys.roiImpact.all, 'kpis', filter ?? {}] as const,
     kpisByCategory: () => [...queryKeys.roiImpact.all, 'kpis-by-category'] as const,
+    correlationDefinitions: () => [...queryKeys.roiImpact.all, 'correlation-definitions'] as const,
+    correlations: (filter?: Record<string, unknown>) =>
+      [...queryKeys.roiImpact.all, 'correlations', filter ?? {}] as const,
+    correlation: (id: number) => [...queryKeys.roiImpact.all, 'correlations', id] as const,
   },
 
   rolesPermissions: {

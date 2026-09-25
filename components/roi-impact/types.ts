@@ -10,6 +10,7 @@ export type Tab =
   | 'evaluation-models'
   | 'costs'
   | 'kpis'
+  | 'correlations'
   | 'learning'
   | 'retention'
   | 'performance'
@@ -370,4 +371,57 @@ export interface KpiDefinitionListData {
 export interface KpiCategorySummaryRow {
   category: KpiCategory;
   count: number;
+}
+
+// ─────────────────────────────────────────────────────────────────
+// Correlações (docs/roi-impact.md §7)
+// ─────────────────────────────────────────────────────────────────
+
+export type CorrelationType =
+  | 'HORAS_FORMACAO_DESEMPENHO'
+  | 'COMPETENCIAS_PRODUTIVIDADE'
+  | 'PDI_RETENCAO'
+  | 'INVESTIMENTO_ROTATIVIDADE'
+  | 'ONBOARDING_TEMPO_PRODUTIVIDADE'
+  | 'MENTORIA_PROGRESSAO_CARREIRA'
+  | 'LIDERANCA_ENGAGEMENT_EQUIPA';
+
+export interface CorrelationDefinition {
+  type: CorrelationType;
+  label: string;
+  xLabel: string;
+  yLabel: string;
+  description: string;
+}
+
+export interface CorrelationDataPoint {
+  x: number;
+  y: number;
+  label?: string;
+}
+
+export interface CorrelationRow {
+  id: number;
+  type: CorrelationType;
+  label: string;
+  departmentId: number | null;
+  periodStart: string | null;
+  periodEnd: string | null;
+  xLabel: string;
+  yLabel: string;
+  sampleSize: number;
+  coefficient: number | null;
+  pValue: number | null;
+  significant: boolean | null;
+  note: string | null;
+  createdAt: string;
+}
+
+export interface CorrelationDetail extends CorrelationRow {
+  dataPoints: CorrelationDataPoint[];
+}
+
+export interface CorrelationListData {
+  total: number;
+  correlations: CorrelationRow[];
 }

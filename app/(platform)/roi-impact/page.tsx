@@ -14,6 +14,7 @@ import {
   ClipboardList,
   Coins,
   Gauge,
+  GitCompareArrows,
   GraduationCap,
   LineChart,
   Star,
@@ -27,6 +28,7 @@ import { ImpactTab } from '@/components/roi-impact/ImpactTab';
 import { EvaluationModelsTab } from '@/components/roi-impact/EvaluationModelsTab';
 import { CostsTab } from '@/components/roi-impact/CostsTab';
 import { KpisTab } from '@/components/roi-impact/KpisTab';
+import { CorrelationsTab } from '@/components/roi-impact/CorrelationsTab';
 import { LearningTab } from '@/components/roi-impact/LearningTab';
 import { PerformanceTab } from '@/components/roi-impact/PerformanceTab';
 import { ProgramsTab } from '@/components/roi-impact/ProgramsTab';
@@ -36,10 +38,11 @@ import type { Tab } from '@/components/roi-impact/types';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
 
 // docs/roi-impact.md — "Visão Geral", "ROI da Formação", "Impacto no
-// Negócio", "Modelos de Avaliação", "Custos & Investimento" e "Indicadores
-// & KPIs" (§1-6) já seguem a ordem/nome do spec; as restantes abas
-// (Aprendizagem/Retenção/Performance/Simulador/Programas) são as fases
-// seguintes do remodel e mantêm-se por agora com os nomes/dados legados.
+// Negócio", "Modelos de Avaliação", "Custos & Investimento", "Indicadores
+// & KPIs" e "Correlações" (§1-7) já seguem a ordem/nome do spec; as
+// restantes abas (Aprendizagem/Retenção/Performance/Simulador/Programas)
+// são as fases seguintes do remodel e mantêm-se por agora com os
+// nomes/dados legados.
 const TABS: { id: Tab; label: string; icon: LucideIcon | null }[] = [
   { id: 'executive', label: 'Visão Geral', icon: Briefcase },
   { id: 'roi-analysis', label: 'ROI da Formação', icon: LineChart },
@@ -47,6 +50,7 @@ const TABS: { id: Tab; label: string; icon: LucideIcon | null }[] = [
   { id: 'evaluation-models', label: 'Modelos de Avaliação', icon: ClipboardList },
   { id: 'costs', label: 'Custos & Investimento', icon: Coins },
   { id: 'kpis', label: 'Indicadores & KPIs', icon: Gauge },
+  { id: 'correlations', label: 'Correlações', icon: GitCompareArrows },
   { id: 'learning', label: 'Aprendizagem', icon: BookOpen },
   { id: 'retention', label: 'Retenção', icon: Users },
   { id: 'performance', label: 'Performance', icon: Star },
@@ -108,6 +112,9 @@ export default function RoiImpactPage() {
           </TabsContent>
           <TabsContent value="kpis">
             <KpisTab />
+          </TabsContent>
+          <TabsContent value="correlations">
+            <CorrelationsTab />
           </TabsContent>
           <TabsContent value="learning">
             <LearningTab />
