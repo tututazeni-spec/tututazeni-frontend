@@ -11,14 +11,13 @@ export type AlertType = 'STRENGTH' | 'GAP' | 'INFO';
 export type TabId =
   | 'overview'
   | 'adminOverview'
-  | 'radar'
-  | 'competencies'
   | 'feedback'
   | 'cycles'
   | 'evaluated'
   | 'evaluators'
-  | 'selfassessment'
-  | 'form';
+  | 'questionnaires'
+  | 'results'
+  | 'reports';
 
 export interface CompetencyScore {
   id: string;
@@ -29,6 +28,12 @@ export interface CompetencyScore {
   othersScore: number; // média ponderada dos outros avaliadores
   managerScore: number;
   peerScore: number;
+  // "Avaliação dos subordinados"/"Outras avaliações" (docs/evaluation360.md
+  // §7) — colunas próprias da tabela de Resultados, distintas de othersScore
+  // (que agrega TUDO que não é auto-avaliação).
+  subordinateScore: number | null;
+  externalScore: number | null;
+  responseCount: number;
   // selfScore - othersScore (positivo = sobrestima-se); null quando ainda não
   // há dados suficientes de auto e/ou outros avaliadores para calcular a
   // lacuna — nunca apresentar isso como "0.0" (seria uma lacuna fictícia).
@@ -41,6 +46,14 @@ export interface CompetencyScore {
   selfRaw: number | null;
   othersRaw: number | null;
   benchmark: number; // média do cargo/nível
+  // Média geral desta competência (todos os grupos de avaliador combinados,
+  // para este avaliado) — distinto de `benchmark` (referência comparativa do
+  // ciclo inteiro); coluna "Média geral" da tabela de Resultados (§7).
+  score: number | null;
+  // "Nível esperado"/gap face ao esperado (docs/evaluation360.md §3/§7) —
+  // null quando o ciclo não configurou expectedLevel para esta competência.
+  expectedLevel: number | null;
+  gapToExpected: number | null;
 }
 
 // Cabeçalho "de quem é este ecrã" — sempre disponível (é o próprio
@@ -234,4 +247,160 @@ export interface CycleEvaluatorRow {
   respondedAt: string | null;
   status: 'PENDING' | 'INVITED' | 'IN_PROGRESS' | 'COMPLETED' | 'EXPIRED';
   progressPercent: number;
+}
+
+// Linha da aba "Questionários" (docs/evaluation360.md §6) — GET
+// /evaluation360/questionnaires.
+export type QuestionnaireStatus = 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
+
+export interface QuestionnaireListItem {
+  id: string;
+  name: string;
+  code: string;
+  description: string | null;
+  version: number;
+  scaleMin: number;
+  scaleMax: number;
+  questionCount: number;
+  competencyCount: number;
+  status: QuestionnaireStatus;
+  createdBy: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface QuestionnaireQuestionItem {
+  id: string;
+  text: string;
+  type: 'LIKERT' | 'FREQUENCY' | 'MULTIPLE_CHOICE' | 'YES_NO' | 'OPEN_TEXT' | 'SITUATIONAL';
+  isRequired: boolean;
+  allowComment: boolean;
+  order: number;
+  competencyId: number | null;
+}
+
+export interface QuestionnaireDetail {
+  id: string;
+  name: string;
+  code: string;
+  description: string | null;
+  instructions: string | null;
+  version: number;
+  scaleMin: number;
+  scaleMax: number;
+  scaleLabels: string | null;
+  status: QuestionnaireStatus;
+  createdBy: string;
+  createdAt: string;
+  updatedAt: string;
+  competencies: { competencyId: number; name: string; order: number }[];
+  questions: QuestionnaireQuestionItem[];
+}
+
+// Linha da aba "Resultados" (docs/evaluation360.md §7) para ADMIN/RH — GET
+// /evaluation360/cycles/:cycleId/results (ver lib/roles.ts#EVAL_RESULTS_ADMIN_ROLES).
+// Uma linha por avaliado × competência do ciclo.
+export interface CycleResultRow {
+  userId: string;
+  fullName: string;
+  position: string | null;
+  department: string | null;
+  competencyId: string;
+  competencyName: string;
+  selfScore: number | null;
+  managerScore: number | null;
+  peerScore: number | null;
+  subordinateScore: number | null;
+  externalScore: number | null;
+  overallScore: number | null;
+  expectedLevel: number | null;
+  gap: number | null;
+  responseCount: number;
+}
+
+// Linha da aba "Feedback" (docs/evaluation360.md §8) — GET
+// /evaluation360/cycles/:cycleId/feedback. Comentários qualitativos das
+// respostas já submetidas no ciclo; distinto de ContinuousFeedback acima
+// (esse é sempre "recebido por mim", fora de qualquer ciclo). `category`
+// deriva da pontuação já calculada para a mesma competência (ver
+// evaluation360.service.ts#getCycleFeedback) — null quando ainda não há
+// resultado calculado para separar em ponto forte/oportunidade de melhoria.
+export interface CycleFeedbackRow {
+  evaluateeId: string;
+  evaluateeName: string;
+  competencyId: string | null;
+  competencyName: string | null;
+  comment: string;
+  evaluatorRole: EvaluatorRole;
+  date: string;
+  status: 'SUBMITTED';
+  visibility: string;
+  category: 'STRENGTH' | 'IMPROVEMENT' | null;
+}
+
+// Separador "Relatórios" (docs/evaluation360.md §9) — GET
+// /evaluation360/cycles/:cycleId/reports. Cobre num único payload todos os
+// relatórios pedidos no documento que fazem sentido para UM ciclo; a
+// evolução/comparação entre vários ciclos vem à parte (CycleEvolutionPoint).
+export interface CycleReportData {
+  cycle: { id: string; name: string; status: string; startDate: string; endDate: string };
+  overall: {
+    totalParticipants: number;
+    avgOverall: number;
+    avgWeighted: number;
+    eligiblePromotion: number;
+  };
+  byCompetency: { competencyId: string; name: string; average: number }[];
+  byDepartment: { id: string; name: string; average: number; count: number }[];
+  byPosition: { id: string; name: string; average: number; count: number }[];
+  byUnit: { id: string; name: string; average: number; count: number }[];
+  byEvaluatorGroup: {
+    self: number | null;
+    manager: number | null;
+    peer: number | null;
+    subordinate: number | null;
+    external: number | null;
+  };
+  selfVsExternal: { a: number | null; b: number | null; diff: number | null };
+  managerVsPeer: { a: number | null; b: number | null; diff: number | null };
+  managerVsSubordinate: { a: number | null; b: number | null; diff: number | null };
+  topStrengths: { competencyId: string; name: string; occurrences: number; avgScore: number | null }[];
+  topGaps: { competencyId: string; name: string; occurrences: number; avgScore: number | null }[];
+  participationRate: number;
+  completionRate: number;
+  pendingEvaluators: {
+    count: number;
+    list: {
+      evaluatorId: string;
+      evaluatorName: string;
+      evaluateeId: string;
+      evaluateeName: string;
+      role: EvaluatorRole;
+      status: string;
+      invitedAt: string | null;
+    }[];
+  };
+  criticalCompetencies: {
+    competencyId: string;
+    name: string;
+    average: number;
+    expectedLevel: number | null;
+    gapToExpected: number | null;
+  }[];
+}
+
+// "Evolução entre ciclos"/"Comparação entre ciclos" (docs/evaluation360.md
+// §9) — GET /evaluation360/reports/evolution.
+export interface CycleEvolutionPoint {
+  cycleId: string;
+  name: string;
+  type: string;
+  status: string;
+  startDate: string;
+  endDate: string;
+  totalParticipants: number;
+  avgOverall: number;
+  avgWeighted: number;
+  participationRate: number;
+  completionRate: number;
 }

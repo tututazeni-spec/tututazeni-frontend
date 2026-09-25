@@ -342,6 +342,24 @@ export const queryKeys = {
     // Aba "Avaliadores" (docs/evaluation360.md §5).
     cycleEvaluators: (cycleId: string, filters: Record<string, string>) =>
       [...queryKeys.evaluation360.all, 'cycle-evaluators', cycleId, filters] as const,
+    // Aba "Questionários" (docs/evaluation360.md §6).
+    questionnaires: (filters: Record<string, string>) =>
+      [...queryKeys.evaluation360.all, 'questionnaires', filters] as const,
+    questionnaireDetail: (id: string) =>
+      [...queryKeys.evaluation360.all, 'questionnaire', id] as const,
+    // Aba "Resultados" (docs/evaluation360.md §7) — só ADMIN/RH, ver
+    // lib/roles.ts#EVAL_RESULTS_ADMIN_ROLES.
+    cycleResults: (cycleId: string) =>
+      [...queryKeys.evaluation360.all, 'cycle-results', cycleId] as const,
+    // Aba "Feedback" (docs/evaluation360.md §8) — feedback qualitativo do
+    // ciclo, distinto de feedbacks() acima (esse é feedback contínuo).
+    cycleFeedback: (cycleId: string, filters: Record<string, string>) =>
+      [...queryKeys.evaluation360.all, 'cycle-feedback', cycleId, filters] as const,
+    // Aba "Relatórios" (docs/evaluation360.md §9).
+    cycleReport: (cycleId: string, filters: Record<string, string>) =>
+      [...queryKeys.evaluation360.all, 'cycle-report', cycleId, filters] as const,
+    cycleEvolution: (filters: Record<string, string>) =>
+      [...queryKeys.evaluation360.all, 'cycle-evolution', filters] as const,
   },
 
   analyticsPage: {
