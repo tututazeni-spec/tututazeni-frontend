@@ -334,6 +334,14 @@ export const queryKeys = {
     deletedCycles: () =>
       [...queryKeys.evaluation360.all, 'cycles', 'deleted'] as const,
     overview: () => [...queryKeys.evaluation360.all, 'overview'] as const,
+    // Aba "Avaliados" (docs/evaluation360.md §4).
+    cycleParticipants: (cycleId: string, filters: Record<string, string>) =>
+      [...queryKeys.evaluation360.all, 'cycle-participants', cycleId, filters] as const,
+    participantDetail: (cycleId: string, userId: string) =>
+      [...queryKeys.evaluation360.all, 'participant-detail', cycleId, userId] as const,
+    // Aba "Avaliadores" (docs/evaluation360.md §5).
+    cycleEvaluators: (cycleId: string, filters: Record<string, string>) =>
+      [...queryKeys.evaluation360.all, 'cycle-evaluators', cycleId, filters] as const,
   },
 
   analyticsPage: {

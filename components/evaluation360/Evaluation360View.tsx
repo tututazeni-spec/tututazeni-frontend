@@ -25,11 +25,13 @@ import { CompetencyHeatmap } from './CompetencyHeatmap';
 import { OverviewTab } from './OverviewTab';
 import { OverviewAdminTab } from './OverviewAdminTab';
 import { EvaluationCyclesTab } from './EvaluationCyclesTab';
+import { AvaliadosTab } from './AvaliadosTab';
+import { AvaliadoresTab } from './AvaliadoresTab';
 import { FeedbackTab } from './FeedbackTab';
 import { EvaluationFormTab } from './EvaluationFormTab';
 import { EvaluateOthersTab } from './EvaluateOthersTab';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
-import { EVAL_OVERVIEW_ROLES } from '@/lib/roles';
+import { EVAL_OVERVIEW_ROLES, EVAL_CREATOR_ROLES } from '@/lib/roles';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/Tabs';
 import {
@@ -41,6 +43,8 @@ import {
   MessageSquare,
   Radar,
   UserCheck,
+  Users,
+  UserCog,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
@@ -70,9 +74,16 @@ const TABS: { id: TabId; label: string; icon: LucideIcon }[] = [
   { id: 'competencies', label: 'Competências', icon: Grid3x3 },
   { id: 'feedback', label: 'Feedback', icon: MessageSquare },
   { id: 'cycles', label: 'Avaliações 360°', icon: Layers },
+  { id: 'evaluated', label: 'Avaliados', icon: Users },
+  { id: 'evaluators', label: 'Avaliadores', icon: UserCog },
   { id: 'selfassessment', label: 'Auto-avaliação', icon: UserCheck },
   { id: 'form', label: 'Avaliar', icon: ClipboardCheck },
 ];
+
+// Abas "Avaliados"/"Avaliadores" (docs/evaluation360.md §4/§5) são vistas de
+// gestão do ciclo — mesmo grupo de papéis que já gere participantes/
+// avaliadores nas rotas POST (EVAL_CREATOR_ROLES), não a vista pessoal.
+const MANAGEMENT_TAB_IDS: TabId[] = ['evaluated', 'evaluators'];
 
 export interface Evaluation360ViewProps {
   activeTab: TabId;
@@ -104,7 +115,12 @@ export function Evaluation360View({
   // vê o painel agregado; o separador pessoal "Visão Geral" fica aberto a
   // todos (ver EVAL_OVERVIEW_ROLES em lib/roles.ts).
   const canSeeOverview = !!role && EVAL_OVERVIEW_ROLES.includes(role);
-  const visibleTabs = TABS.filter((t) => t.id !== 'adminOverview' || canSeeOverview);
+  const canManage = !!role && EVAL_CREATOR_ROLES.includes(role);
+  const visibleTabs = TABS.filter((t) => {
+    if (t.id === 'adminOverview') return canSeeOverview;
+    if (MANAGEMENT_TAB_IDS.includes(t.id)) return canManage;
+    return true;
+  });
   const feedbackTargetId = result?.userId ?? myId;
 
   const renderTab = () => {
@@ -203,6 +219,10 @@ export function Evaluation360View({
         return feedbackTargetId ? <FeedbackTab feedbacks={feedbacks} /> : null;
       case 'cycles':
         return <EvaluationCyclesTab />;
+      case 'evaluated':
+        return canManage ? <AvaliadosTab /> : null;
+      case 'evaluators':
+        return canManage ? <AvaliadoresTab /> : null;
       case 'selfassessment':
         return cycleId && myId ? (
           <EvaluationFormTab

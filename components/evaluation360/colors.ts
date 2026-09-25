@@ -67,6 +67,38 @@ export function cycleStatusDisplay(
   return cycleStatusLabel[status] ?? status;
 }
 
+// Estados de CycleParticipant (aba "Avaliados", docs/evaluation360.md §4).
+export const participantStatusLabel: Record<string, string> = {
+  PENDING: 'Pendente',
+  IN_PROGRESS: 'Em andamento',
+  COMPLETED: 'Concluído',
+};
+
+// Estados de EvaluatorAssignment (aba "Avaliadores", docs/evaluation360.md
+// §5). O documento pede 6 estados ("Iniciado" e "Em preenchimento"
+// separados) mas o schema só distingue 5 (EvaluatorAssignmentStatus) — os
+// dois colapsam em IN_PROGRESS, mesmo padrão de cycleStatusDisplay acima.
+export const evaluatorAssignmentStatusLabel: Record<string, string> = {
+  PENDING: 'Pendente',
+  INVITED: 'Convite enviado',
+  IN_PROGRESS: 'Em preenchimento',
+  COMPLETED: 'Concluído',
+  EXPIRED: 'Expirado',
+};
+
+// Tipos de avaliador (EvaluatorRole) — o documento pede 7 (Próprio, Gestor,
+// Par, Subordinado, Cliente, Parceiro, Outro), o schema só modela 5; os
+// últimos 3 (Cliente/Parceiro/Outro) colapsam em EXTERNAL, atribuível
+// manualmente mas sem fluxo de sugestão automática (buildEvaluatorSuggestions
+// só sugere SELF/MANAGER/PEER/SUBORDINATE).
+export const evaluatorRoleLabel: Record<string, string> = {
+  SELF: 'Próprio (Autoavaliação)',
+  MANAGER: 'Gestor',
+  PEER: 'Par',
+  SUBORDINATE: 'Subordinado',
+  EXTERNAL: 'Externo (cliente/parceiro/outro)',
+};
+
 export function timeAgo(iso: string): string {
   const d = Math.floor((Date.now() - new Date(iso).getTime()) / 86400000);
   return d === 0 ? 'hoje' : d === 1 ? 'ontem' : `há ${d} dias`;

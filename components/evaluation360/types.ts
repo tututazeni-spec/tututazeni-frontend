@@ -15,6 +15,8 @@ export type TabId =
   | 'competencies'
   | 'feedback'
   | 'cycles'
+  | 'evaluated'
+  | 'evaluators'
   | 'selfassessment'
   | 'form';
 
@@ -145,4 +147,91 @@ export interface EvaluationQuestion {
   type: 'FREQUENCY' | 'LIKERT' | 'OPEN_TEXT';
   competency: string;
   isRequired: boolean;
+}
+
+// Linha da aba "Avaliados" (docs/evaluation360.md §4) — GET
+// /evaluation360/cycles/:cycleId/participants. finalScore só vem preenchido
+// para ADMIN/RH (decisão desta sessão: loosen da regra "ninguém vê o
+// resultado de outro utilizador" só para quem administra o módulo — ver
+// evaluation360.service.ts#listCycleParticipants); null para os restantes
+// papéis que também podem abrir esta aba (GESTOR/LIDER/DIRECTOR).
+export interface CycleParticipantRow {
+  userId: string;
+  fullName: string;
+  employeeNumber: string | null;
+  position: string | null;
+  department: string | null;
+  unit: string | null;
+  managerName: string | null;
+  avatarUrl: string | null;
+  evaluatorsCount: number;
+  confirmedEvaluators: number;
+  responsesReceived: number;
+  progressPercent: number;
+  status: 'PENDING' | 'IN_PROGRESS' | 'COMPLETED';
+  finalScore: number | null;
+  completedAt: string | null;
+}
+
+// "Ao abrir um colaborador" (docs/evaluation360.md §4) — GET
+// /evaluation360/cycles/:cycleId/participants/:userId/detail. `result` só
+// vem preenchido para ADMIN/RH, mesma regra de CycleParticipantRow.finalScore.
+export interface ParticipantDetail {
+  profile: {
+    userId: string;
+    fullName: string;
+    employeeNumber: string | null;
+    position: string | null;
+    department: string | null;
+    unit: string | null;
+    managerName: string | null;
+    avatarUrl: string | null;
+  };
+  competencies: Record<
+    string,
+    { name: string; category: string; score: number | null; gap: number | null }
+  >;
+  evaluators: {
+    id: string;
+    evaluatorId: string;
+    evaluatorName: string;
+    role: EvaluatorRole;
+    status: 'PENDING' | 'INVITED' | 'IN_PROGRESS' | 'COMPLETED' | 'EXPIRED';
+    invitedAt: string | null;
+    completedAt: string | null;
+  }[];
+  progress: { totalAssigned: number; completed: number; pending: number; completionPercent: number };
+  status: 'PENDING' | 'IN_PROGRESS' | 'COMPLETED';
+  result: {
+    overallScore: number;
+    weightedScore: number;
+    selfScore: number | null;
+    managerScore: number | null;
+    peerScore: number | null;
+    subordinateScore: number | null;
+    externalScore: number | null;
+    gaps: { competencyId: string; name: string; score: number | null; gap: number | null }[];
+    strengths: { competencyId: string; name: string; score: number | null }[];
+  } | null;
+  comments: { text: string; evaluatorRole: EvaluatorRole; question: string }[];
+}
+
+// Linha da aba "Avaliadores" (docs/evaluation360.md §5) — GET
+// /evaluation360/cycles/:cycleId/evaluators. "Relação com o avaliado" e
+// "Tipo de avaliador" (duas colunas no documento) derivam ambas do mesmo
+// `role` — o schema não guarda um segundo campo distinto, ver comentário em
+// evaluation360.service.ts#listCycleEvaluators.
+export interface CycleEvaluatorRow {
+  id: string;
+  evaluatorId: string;
+  evaluatorName: string;
+  position: string | null;
+  department: string | null;
+  role: EvaluatorRole;
+  evaluateeId: string;
+  evaluateeName: string;
+  invitedAt: string | null;
+  respondedAt: string | null;
+  status: 'PENDING' | 'INVITED' | 'IN_PROGRESS' | 'COMPLETED' | 'EXPIRED';
+  progressPercent: number;
 }

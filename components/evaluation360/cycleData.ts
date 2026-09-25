@@ -75,3 +75,29 @@ export function usePositionOptions(enabled = true) {
   }));
   return { options, loading: query.isLoading };
 }
+
+interface CycleOption {
+  id: string;
+  name: string;
+  status: string;
+  startDate: string;
+  endDate: string;
+}
+
+/** Selector de ciclo partilhado pelas abas "Avaliados" e "Avaliadores"
+ *  (docs/evaluation360.md §4/§5) — ambas listam entidades por-ciclo
+ *  (CycleParticipant/EvaluatorAssignment), sem "ciclo activo" implícito como
+ *  a vista pessoal tem (hooks/useEvaluation360.ts); quem gere o módulo
+ *  escolhe qual ciclo quer inspeccionar. Ordenado por createdAt desc (mesmo
+ *  endpoint de EvaluationCyclesTab) — o mais recente vem primeiro. */
+export function useCycleSelectorOptions(enabled = true) {
+  const params = { tenantId: 'default', limit: '100' };
+  const query = useApiQuery<{ data: CycleOption[]; total: number }>(
+    queryKeys.evaluation360.cyclesList(params),
+    '/evaluation360/cycles',
+    { params, staleTime: STALE_TIME.DYNAMIC, enabled },
+  );
+  const cycles = query.data?.data ?? [];
+  const options: Option[] = cycles.map((c) => ({ value: c.id, label: c.name }));
+  return { cycles, options, loading: query.isLoading };
+}
