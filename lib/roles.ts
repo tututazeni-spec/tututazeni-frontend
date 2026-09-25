@@ -101,6 +101,16 @@ export const EVAL_CYCLE_DELETE_ROLES: readonly Role[] = ['ADMIN', 'DIRECTOR'];
  */
 export const EVAL_OVERVIEW_ROLES: readonly Role[] = ['ADMIN', 'RH', 'GESTOR', 'DIRECTOR'];
 
+/**
+ * Espelha o @Roles de GET /evaluation360/cycles/:cycleId/results em
+ * src/evaluation360/evaluation360.controller.ts: quem vê a tabela agregada
+ * do separador "Resultados" (avaliado × competência, todo o ciclo) — mais
+ * restrito que EVAL_CREATOR_ROLES porque expõe resultados individuais de
+ * outras pessoas (mesma regra de canSeeScore em getParticipantDetailForAdmin).
+ * Qualquer outro papel vê só o seu próprio resultado nesse separador.
+ */
+export const EVAL_RESULTS_ADMIN_ROLES: readonly Role[] = ['ADMIN', 'RH'];
+
 export interface RoleRestricted {
   /** Omitido/vazio = sem @Roles() no endpoint principal → visível a todos. */
   roles?: readonly Role[];

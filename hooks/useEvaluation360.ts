@@ -49,8 +49,13 @@ interface RawCompetencyScoreEntry {
   othersScore: number | null;
   managerScore: number | null;
   peerScore: number | null;
+  subordinateScore: number | null;
+  externalScore: number | null;
+  responseCount: number;
   gap: number | null;
   benchmark: number | null;
+  expectedLevel: number | null;
+  gapToExpected: number | null;
 }
 
 interface RawParticipantResult {
@@ -111,12 +116,18 @@ function toCompetencies(
       othersScore: v.othersScore ?? 0,
       managerScore: v.managerScore ?? 0,
       peerScore: v.peerScore ?? 0,
+      subordinateScore: v.subordinateScore,
+      externalScore: v.externalScore,
+      responseCount: v.responseCount ?? 0,
       // Não faz `?? 0` — um gap null (falta auto ou outros avaliadores) é
       // "sem dados", não uma lacuna real de zero. Ver CompetencyScore.gap.
       gap: v.gap,
       selfRaw: v.selfScore,
       othersRaw: v.othersScore,
       benchmark: v.benchmark ?? v.score ?? 0,
+      score: v.score,
+      expectedLevel: v.expectedLevel,
+      gapToExpected: v.gapToExpected,
     }));
 }
 

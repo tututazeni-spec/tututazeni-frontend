@@ -14,6 +14,7 @@ import type {
   CompetencyScore,
   ContinuousFeedback,
   CycleInfo,
+  EvaluationQuestion,
   ParticipantProfile,
   ParticipantResult,
   TabId,
@@ -68,6 +69,9 @@ export interface Evaluation360ViewProps {
   cycle: CycleInfo | null;
   competencies: CompetencyScore[];
   feedbacks: ContinuousFeedback[];
+  // Perguntas da auto-avaliação (GET /evaluation360/cycles/:id/form), já
+  // calculadas pelo hook — nenhuma aba consome isto ainda.
+  selfFormQuestions?: EvaluationQuestion[];
   myId?: string;
   cycleId?: string;
 }
