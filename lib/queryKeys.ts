@@ -307,6 +307,11 @@ export const queryKeys = {
     competencies: (tag?: string) =>
       [...queryKeys.evaluation360.all, 'competencies', tag] as const,
     cycles: () => [...queryKeys.evaluation360.all, 'cycles'] as const,
+    // Aba "Avaliações 360°" (docs/evaluation360.md §2) — lista filtrada,
+    // chave própria para não colidir com o cache de cycles() (usado por
+    // hooks/useEvaluation360.ts só para resolver o "ciclo activo").
+    cyclesList: (filters: Record<string, string>) =>
+      [...queryKeys.evaluation360.all, 'cycles-list', filters] as const,
     cycleDetail: (cycleId: string) =>
       [...queryKeys.evaluation360.all, 'cycle', cycleId] as const,
     result: (cycleId: string, participantId: string) =>
@@ -328,6 +333,7 @@ export const queryKeys = {
       [...queryKeys.evaluation360.all, 'my-assignments', cycleId] as const,
     deletedCycles: () =>
       [...queryKeys.evaluation360.all, 'cycles', 'deleted'] as const,
+    overview: () => [...queryKeys.evaluation360.all, 'overview'] as const,
   },
 
   analyticsPage: {

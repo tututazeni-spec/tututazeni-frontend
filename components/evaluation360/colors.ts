@@ -33,17 +33,37 @@ export const typeLabel: Record<string, string> = {
 // Rótulos PT dos estados de um ciclo de avaliação. CycleInfo.status é uma
 // string livre (vem do backend em maiúsculas/inglês) — a UI mostra sempre o
 // rótulo traduzido, com fallback para o valor cru se aparecer um estado novo.
+// Espelha Eval360CycleStatus (prisma/schema.prisma): DRAFT, PUBLISHED,
+// IN_PROGRESS, PROCESSING, COMPLETED, CANCELLED.
 export const cycleStatusLabel: Record<string, string> = {
   DRAFT: 'Rascunho',
-  SCHEDULED: 'Agendado',
-  IN_PROGRESS: 'Em Curso',
-  ACTIVE: 'Em Curso',
-  COMPLETED: 'Completo',
-  ARCHIVED: 'Arquivado',
-  CANCELLED: 'Cancelado',
+  PUBLISHED: 'Agendada',
+  IN_PROGRESS: 'Em andamento',
+  PROCESSING: 'Em análise',
+  COMPLETED: 'Concluída',
+  CANCELLED: 'Arquivada',
 };
 
 export function cycleStatusText(status: string): string {
+  return cycleStatusLabel[status] ?? status;
+}
+
+// Estados apresentáveis pedidos em docs/evaluation360.md §2 (Rascunho,
+// Agendada, Aberta, Em andamento, Encerrada, Em análise, Concluída,
+// Arquivada) — mais granulares que os 6 valores reais do enum: "Agendada"
+// vs. "Aberta" e "Em andamento" vs. "Encerrada" distinguem-se pelas datas do
+// ciclo, não por um valor de BD próprio (evita inflacionar o enum por uma
+// diferença puramente de apresentação).
+export function cycleStatusDisplay(
+  status: string,
+  startDate: string,
+  endDate: string,
+): string {
+  const now = Date.now();
+  const start = new Date(startDate).getTime();
+  const end = new Date(endDate).getTime();
+  if (status === 'PUBLISHED') return now < start ? 'Agendada' : 'Aberta';
+  if (status === 'IN_PROGRESS') return now > end ? 'Encerrada' : 'Em andamento';
   return cycleStatusLabel[status] ?? status;
 }
 

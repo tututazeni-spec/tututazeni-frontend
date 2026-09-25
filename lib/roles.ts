@@ -92,6 +92,15 @@ export const EVAL_CREATOR_ROLES: readonly Role[] = [
  */
 export const EVAL_CYCLE_DELETE_ROLES: readonly Role[] = ['ADMIN', 'DIRECTOR'];
 
+/**
+ * Espelha o @Roles de GET /evaluation360/overview em
+ * src/evaluation360/evaluation360.controller.ts: quem vê o separador
+ * "Painel Geral" (KPIs agregados de todas as avaliações 360º — nunca
+ * resultados individuais). Distinto do separador pessoal "Visão Geral",
+ * visível a todos.
+ */
+export const EVAL_OVERVIEW_ROLES: readonly Role[] = ['ADMIN', 'RH', 'GESTOR', 'DIRECTOR'];
+
 export interface RoleRestricted {
   /** Omitido/vazio = sem @Roles() no endpoint principal → visível a todos. */
   roles?: readonly Role[];

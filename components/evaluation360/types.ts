@@ -10,6 +10,7 @@ export type EvaluatorRole = 'SELF' | 'MANAGER' | 'PEER' | 'SUBORDINATE' | 'EXTER
 export type AlertType = 'STRENGTH' | 'GAP' | 'INFO';
 export type TabId =
   | 'overview'
+  | 'adminOverview'
   | 'radar'
   | 'competencies'
   | 'feedback'
@@ -79,6 +80,52 @@ export interface CycleInfo {
   endDate: string;
   participantsCount: number;
   completedCount: number;
+}
+
+// Linha da aba "Avaliações 360°" (docs/evaluation360.md §2) — GET
+// /evaluation360/cycles. Mais rica que CycleInfo (usado só para resolver o
+// "ciclo activo" da vista pessoal): tem código, tipo, criado por e taxa de
+// participação real (avaliadores que responderam / avaliadores convidados).
+export interface Eval360CycleListItem {
+  id: string;
+  name: string;
+  code: string;
+  type: string;
+  status: string;
+  startDate: string;
+  endDate: string;
+  createdByName: string;
+  createdAt: string;
+  participantsCount: number;
+  evaluatorsCount: number;
+  completedParticipants: number;
+  participationRate: number;
+}
+
+// Aba "Painel Geral" (admin/RH/gestor — docs/evaluation360.md §1). Distinta
+// do separador pessoal "Visão Geral" (OverviewTab.tsx, os MEUS resultados) —
+// ver decisão registada em memory project_innova_evaluation360_ninebox_calculated
+// e a discussão desta sessão: mantém a vista pessoal intacta, isto é um
+// separador novo só para quem gere o módulo.
+export interface Evaluation360OverviewData {
+  totalCycles: number;
+  inPreparation: number;
+  open: number;
+  inProgress: number;
+  completed: number;
+  closed: number;
+  evaluatedCount: number;
+  invitedEvaluatorsCount: number;
+  respondedEvaluatorsCount: number;
+  participationRate: number;
+  completionRate: number;
+  avgOverall: number;
+  competencyAverages: { competencyId: string; name: string; average: number }[];
+  topCompetencies: { competencyId: string; name: string; average: number }[];
+  bottomCompetencies: { competencyId: string; name: string; average: number }[];
+  pendingAssignments: number;
+  upcomingDeadline: { id: string; name: string; endDate: string }[];
+  recentCompleted: { id: string; name: string; endDate: string; createdByName: string }[];
 }
 
 export interface ContinuousFeedback {

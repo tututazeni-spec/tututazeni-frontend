@@ -133,7 +133,10 @@ export function CreateCycleModal({ onClose, onSuccess }: CreateCycleModalProps) 
       return apiClient.post(`/evaluation360/cycles/${cycle.id}/distribute`);
     },
     {
-      invalidateKeys: [queryKeys.evaluation360.cycles()],
+      // .all (não só .cycles()) — a aba "Avaliações 360°" (cyclesList, ver
+      // EvaluationCyclesTab.tsx) tem uma chave própria com os filtros activos
+      // que .cycles() sozinho não invalida (prefixos de queryKey diferentes).
+      invalidateKeys: [queryKeys.evaluation360.all],
       onSuccess: () => {
         notify({
           title: 'Ciclo criado e distribuído',

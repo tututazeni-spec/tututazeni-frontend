@@ -21,7 +21,6 @@ export default function Evaluation360Page() {
     result,
     participant,
     cycle,
-    cycles,
     competencies,
     feedbacks,
     selfFormQuestions,
@@ -36,7 +35,6 @@ export default function Evaluation360Page() {
       result={result}
       participant={participant}
       cycle={cycle}
-      cycles={cycles}
       competencies={competencies}
       feedbacks={feedbacks}
       selfFormQuestions={selfFormQuestions}
