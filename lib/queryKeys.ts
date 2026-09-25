@@ -422,6 +422,13 @@ export const queryKeys = {
     impactByCategory: (filter?: Record<string, unknown>) =>
       [...queryKeys.roiImpact.all, 'impact-by-category', filter ?? {}] as const,
     evaluationModels: () => [...queryKeys.roiImpact.all, 'evaluation-models'] as const,
+    costs: (filter?: Record<string, unknown>) =>
+      [...queryKeys.roiImpact.all, 'costs', filter ?? {}] as const,
+    costsConsolidation: (filter?: Record<string, unknown>) =>
+      [...queryKeys.roiImpact.all, 'costs-consolidation', filter ?? {}] as const,
+    kpis: (filter?: Record<string, unknown>) =>
+      [...queryKeys.roiImpact.all, 'kpis', filter ?? {}] as const,
+    kpisByCategory: () => [...queryKeys.roiImpact.all, 'kpis-by-category'] as const,
   },
 
   rolesPermissions: {

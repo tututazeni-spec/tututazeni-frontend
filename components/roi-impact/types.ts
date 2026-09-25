@@ -8,6 +8,8 @@ export type Tab =
   | 'roi-analysis'
   | 'impact'
   | 'evaluation-models'
+  | 'costs'
+  | 'kpis'
   | 'learning'
   | 'retention'
   | 'performance'
@@ -253,4 +255,119 @@ export interface RoiEvaluationModelRow {
   levels: RoiEvaluationLevel[];
   applicability: RoiEvaluationApplicability | null;
   status: RoiModelStatus;
+}
+
+// ─────────────────────────────────────────────────────────────────
+// Custos & Investimento (docs/roi-impact.md §5)
+// ─────────────────────────────────────────────────────────────────
+
+export type CostCategory = 'DIRETO' | 'INDIRETO' | 'OPORTUNIDADE';
+
+export type CostSubCategory =
+  | 'FORMADOR_CONSULTOR'
+  | 'MATERIAL_DIDATICO'
+  | 'PLATAFORMA_LICENCAS'
+  | 'SALA_LOGISTICA'
+  | 'DESLOCACAO_ALOJAMENTO'
+  | 'CERTIFICACAO'
+  | 'HORAS_TRABALHO_PERDIDAS'
+  | 'SUBSTITUICAO_COBERTURA'
+  | 'COORDENACAO_GESTAO_RH'
+  | 'PRODUCAO_NAO_REALIZADA'
+  | 'ATRASO_PROJETOS';
+
+export interface CostEntryRow {
+  id: number;
+  initiativeType: RoiInitiativeType;
+  initiativeId: number | null;
+  category: CostCategory;
+  subCategory: CostSubCategory;
+  description: string | null;
+  amount: number;
+  source: string | null;
+  incurredAt: string | null;
+  createdAt: string;
+}
+
+export interface CostEntryListData {
+  total: number;
+  entries: CostEntryRow[];
+}
+
+export interface CostConsolidationRow {
+  initiativeType: RoiInitiativeType;
+  initiativeId: number | null;
+  initiative: string | null;
+  participants: number;
+  costDirect: number;
+  costIndirect: number;
+  costOpportunity: number;
+  costTotal: number;
+  costPerParticipant: number | null;
+  entryCount: number;
+}
+
+export interface CostConsolidationData {
+  total: number;
+  rows: CostConsolidationRow[];
+  grandTotal: { direct: number; indirect: number; opportunity: number; total: number };
+}
+
+export interface LaborCostEstimateRow {
+  userId: number;
+  fullName: string;
+  hourlyRate: number | null;
+  cost: number | null;
+  payslipPeriod: string | null;
+  confidence: string;
+}
+
+export interface LaborCostEstimateData {
+  hours: number;
+  breakdown: LaborCostEstimateRow[];
+  totalCost: number;
+  note: string | null;
+}
+
+// ─────────────────────────────────────────────────────────────────
+// Indicadores & KPIs (docs/roi-impact.md §6)
+// ─────────────────────────────────────────────────────────────────
+
+export type KpiCategory =
+  | 'PRODUTIVIDADE'
+  | 'QUALIDADE'
+  | 'PESSOAS'
+  | 'FINANCEIRO'
+  | 'CLIENTE'
+  | 'SEGURANCA'
+  | 'COMPLIANCE';
+
+export type KpiFrequency = 'DIARIA' | 'SEMANAL' | 'MENSAL' | 'TRIMESTRAL' | 'SEMESTRAL' | 'ANUAL';
+
+export type KpiDefinitionStatus = 'ACTIVO' | 'INACTIVO';
+
+export interface KpiDefinitionRow {
+  id: number;
+  name: string;
+  code: string;
+  category: KpiCategory;
+  description: string | null;
+  unit: string;
+  formula: string | null;
+  dataSource: string | null;
+  frequency: KpiFrequency;
+  targetValue: number | null;
+  benchmarkNote: string | null;
+  responsibleId: number | null;
+  status: KpiDefinitionStatus;
+}
+
+export interface KpiDefinitionListData {
+  total: number;
+  kpis: KpiDefinitionRow[];
+}
+
+export interface KpiCategorySummaryRow {
+  category: KpiCategory;
+  count: number;
 }

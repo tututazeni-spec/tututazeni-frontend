@@ -104,3 +104,85 @@ export const ROI_MODEL_STATUS_INTENTS: Record<string, 'success' | 'neutral'> = {
   ACTIVO: 'success',
   INACTIVO: 'neutral',
 };
+
+// Custos & Investimento (docs/roi-impact.md §5)
+export const COST_CATEGORY_LABELS: Record<string, string> = {
+  DIRETO: 'Direto',
+  INDIRETO: 'Indireto',
+  OPORTUNIDADE: 'Oportunidade',
+};
+
+export const COST_CATEGORY_INTENTS: Record<string, 'info' | 'warning' | 'danger'> = {
+  DIRETO: 'info',
+  INDIRETO: 'warning',
+  OPORTUNIDADE: 'danger',
+};
+
+export const COST_SUBCATEGORY_LABELS: Record<string, string> = {
+  FORMADOR_CONSULTOR: 'Formador/consultor externo',
+  MATERIAL_DIDATICO: 'Material didático',
+  PLATAFORMA_LICENCAS: 'Plataforma/licenças',
+  SALA_LOGISTICA: 'Sala/logística',
+  DESLOCACAO_ALOJAMENTO: 'Deslocação e alojamento',
+  CERTIFICACAO: 'Certificação',
+  HORAS_TRABALHO_PERDIDAS: 'Horas de trabalho perdidas',
+  SUBSTITUICAO_COBERTURA: 'Substituição/cobertura durante ausência',
+  COORDENACAO_GESTAO_RH: 'Coordenação e gestão do RH',
+  PRODUCAO_NAO_REALIZADA: 'Produção não realizada',
+  ATRASO_PROJETOS: 'Atraso de projetos associados',
+};
+
+// Agrupa as subcategorias por categoria — usado no Select do formulário
+// "Nova Linha de Custo" para o utilizador escolher directamente a
+// subcategoria (a categoria é sempre derivada no backend).
+export const COST_SUBCATEGORIES_BY_CATEGORY: Record<string, string[]> = {
+  DIRETO: [
+    'FORMADOR_CONSULTOR',
+    'MATERIAL_DIDATICO',
+    'PLATAFORMA_LICENCAS',
+    'SALA_LOGISTICA',
+    'DESLOCACAO_ALOJAMENTO',
+    'CERTIFICACAO',
+  ],
+  INDIRETO: ['HORAS_TRABALHO_PERDIDAS', 'SUBSTITUICAO_COBERTURA', 'COORDENACAO_GESTAO_RH'],
+  OPORTUNIDADE: ['PRODUCAO_NAO_REALIZADA', 'ATRASO_PROJETOS'],
+};
+
+// Inverso do mapa acima — só para pré-visualização no formulário (a
+// categoria real é sempre derivada no backend a partir da subcategoria
+// escolhida, nunca aceite do cliente).
+export const CATEGORY_BY_COST_SUBCATEGORY: Record<string, string> = Object.fromEntries(
+  Object.entries(COST_SUBCATEGORIES_BY_CATEGORY).flatMap(([category, subs]) =>
+    subs.map((sub) => [sub, category]),
+  ),
+);
+
+// Indicadores & KPIs (docs/roi-impact.md §6)
+export const KPI_CATEGORY_LABELS: Record<string, string> = {
+  PRODUTIVIDADE: 'Produtividade',
+  QUALIDADE: 'Qualidade',
+  PESSOAS: 'Pessoas',
+  FINANCEIRO: 'Financeiro',
+  CLIENTE: 'Cliente',
+  SEGURANCA: 'Segurança',
+  COMPLIANCE: 'Compliance',
+};
+
+export const KPI_FREQUENCY_LABELS: Record<string, string> = {
+  DIARIA: 'Diária',
+  SEMANAL: 'Semanal',
+  MENSAL: 'Mensal',
+  TRIMESTRAL: 'Trimestral',
+  SEMESTRAL: 'Semestral',
+  ANUAL: 'Anual',
+};
+
+export const KPI_STATUS_LABELS: Record<string, string> = {
+  ACTIVO: 'Ativo',
+  INACTIVO: 'Inativo',
+};
+
+export const KPI_STATUS_INTENTS: Record<string, 'success' | 'neutral'> = {
+  ACTIVO: 'success',
+  INACTIVO: 'neutral',
+};

@@ -12,6 +12,8 @@ import {
   Briefcase,
   Calculator,
   ClipboardList,
+  Coins,
+  Gauge,
   GraduationCap,
   LineChart,
   Star,
@@ -23,6 +25,8 @@ import { ExecutiveTab } from '@/components/roi-impact/ExecutiveTab';
 import { RoiAnalysisTab } from '@/components/roi-impact/RoiAnalysisTab';
 import { ImpactTab } from '@/components/roi-impact/ImpactTab';
 import { EvaluationModelsTab } from '@/components/roi-impact/EvaluationModelsTab';
+import { CostsTab } from '@/components/roi-impact/CostsTab';
+import { KpisTab } from '@/components/roi-impact/KpisTab';
 import { LearningTab } from '@/components/roi-impact/LearningTab';
 import { PerformanceTab } from '@/components/roi-impact/PerformanceTab';
 import { ProgramsTab } from '@/components/roi-impact/ProgramsTab';
@@ -32,15 +36,17 @@ import type { Tab } from '@/components/roi-impact/types';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
 
 // docs/roi-impact.md — "Visão Geral", "ROI da Formação", "Impacto no
-// Negócio" e "Modelos de Avaliação" (§1-4) já seguem a ordem/nome do spec;
-// as restantes abas (Aprendizagem/Retenção/Performance/Simulador/Programas)
-// são as fases seguintes do remodel e mantêm-se por agora com os
-// nomes/dados legados.
+// Negócio", "Modelos de Avaliação", "Custos & Investimento" e "Indicadores
+// & KPIs" (§1-6) já seguem a ordem/nome do spec; as restantes abas
+// (Aprendizagem/Retenção/Performance/Simulador/Programas) são as fases
+// seguintes do remodel e mantêm-se por agora com os nomes/dados legados.
 const TABS: { id: Tab; label: string; icon: LucideIcon | null }[] = [
   { id: 'executive', label: 'Visão Geral', icon: Briefcase },
   { id: 'roi-analysis', label: 'ROI da Formação', icon: LineChart },
   { id: 'impact', label: 'Impacto no Negócio', icon: Target },
   { id: 'evaluation-models', label: 'Modelos de Avaliação', icon: ClipboardList },
+  { id: 'costs', label: 'Custos & Investimento', icon: Coins },
+  { id: 'kpis', label: 'Indicadores & KPIs', icon: Gauge },
   { id: 'learning', label: 'Aprendizagem', icon: BookOpen },
   { id: 'retention', label: 'Retenção', icon: Users },
   { id: 'performance', label: 'Performance', icon: Star },
@@ -96,6 +102,12 @@ export default function RoiImpactPage() {
           </TabsContent>
           <TabsContent value="evaluation-models">
             <EvaluationModelsTab />
+          </TabsContent>
+          <TabsContent value="costs">
+            <CostsTab />
+          </TabsContent>
+          <TabsContent value="kpis">
+            <KpisTab />
           </TabsContent>
           <TabsContent value="learning">
             <LearningTab />
