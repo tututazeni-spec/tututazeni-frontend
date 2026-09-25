@@ -413,6 +413,10 @@ export const queryKeys = {
     retention: () => [...queryKeys.roiImpact.all, 'retention'] as const,
     performance: () => [...queryKeys.roiImpact.all, 'performance'] as const,
     programs: () => [...queryKeys.roiImpact.all, 'programs'] as const,
+    analyses: (filter?: Record<string, unknown>) =>
+      [...queryKeys.roiImpact.all, 'analyses', filter ?? {}] as const,
+    initiativeOptions: (type: string) =>
+      [...queryKeys.roiImpact.all, 'initiative-options', type] as const,
   },
 
   rolesPermissions: {

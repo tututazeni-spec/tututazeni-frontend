@@ -7,9 +7,10 @@
 // page.tsx usa para as suas tabs). Ver memory
 // project_innova_component_separation_audit.
 
-import { BookOpen, Briefcase, Calculator, GraduationCap, Star, Users } from 'lucide-react';
+import { BookOpen, Briefcase, Calculator, GraduationCap, LineChart, Star, Users } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { ExecutiveTab } from '@/components/roi-impact/ExecutiveTab';
+import { RoiAnalysisTab } from '@/components/roi-impact/RoiAnalysisTab';
 import { LearningTab } from '@/components/roi-impact/LearningTab';
 import { PerformanceTab } from '@/components/roi-impact/PerformanceTab';
 import { ProgramsTab } from '@/components/roi-impact/ProgramsTab';
@@ -18,8 +19,13 @@ import { SimulatorTab } from '@/components/roi-impact/SimulatorTab';
 import type { Tab } from '@/components/roi-impact/types';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
 
+// docs/roi-impact.md — "Visão Geral" e "ROI da Formação" (§1-2) já seguem a
+// ordem/nome do spec; as restantes abas (Aprendizagem/Retenção/Performance/
+// Simulador/Programas) são as fases seguintes do remodel e mantêm-se por
+// agora com os nomes/dados legados.
 const TABS: { id: Tab; label: string; icon: LucideIcon | null }[] = [
-  { id: 'executive', label: 'Executivo', icon: Briefcase },
+  { id: 'executive', label: 'Visão Geral', icon: Briefcase },
+  { id: 'roi-analysis', label: 'ROI da Formação', icon: LineChart },
   { id: 'learning', label: 'Aprendizagem', icon: BookOpen },
   { id: 'retention', label: 'Retenção', icon: Users },
   { id: 'performance', label: 'Performance', icon: Star },
@@ -66,6 +72,9 @@ export default function RoiImpactPage() {
         <div className="mx-auto max-w-7xl px-6 py-6">
           <TabsContent value="executive">
             <ExecutiveTab />
+          </TabsContent>
+          <TabsContent value="roi-analysis">
+            <RoiAnalysisTab />
           </TabsContent>
           <TabsContent value="learning">
             <LearningTab />
