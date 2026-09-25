@@ -15,14 +15,13 @@
 // /competencies/:id. O clique num cartão do catálogo abre o detalhe
 // (leitura aberta a todos).
 //
-// Módulo "Competências" único na sidebar: junta o catálogo/perfil/matriz
-// original ao ex-módulo CompetencyMapModule ("Mapa de Competências"),
-// sem fundir dados — continua a bater no seu próprio controller
-// /competency-map. O separador 'competency-map' delega no
-// CompetencyMapView, que já traz o seu próprio h1 (usado também pela
-// rota standalone /competency-map, que continua a existir) — por isso o
-// cabeçalho genérico do container fica só para os separadores originais
-// de competências.
+// Módulo "Competências" único na sidebar: junta catálogo/perfil/matriz
+// numa só página com separadores. As abas "Dashboard RH" e "Mapa de
+// Competências" que aqui existiram foram removidas a pedido do
+// utilizador — o backend (models/controllers, incl. /competency-map)
+// mantém-se intacto, só a navegação deste módulo mudou. A rota standalone
+// /competency-map continua a existir e a usar CompetencyMapView, sem
+// entrada de sidebar.
 
 import { useState } from 'react';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
@@ -32,7 +31,6 @@ import { NAV, TITLES } from '@/components/competencies/constants';
 import { CatalogView } from '@/components/competencies/CatalogView';
 import { CompetencyDetailModal } from '@/components/competencies/CompetencyDetailModal';
 import { CompetencyFormModal } from '@/components/competencies/CompetencyFormModal';
-import { DashboardView } from '@/components/competencies/DashboardView';
 import { DevelopmentView } from '@/components/competencies/DevelopmentView';
 import { EvaluationsView } from '@/components/competencies/EvaluationsView';
 import { GapsView } from '@/components/competencies/GapsView';
@@ -46,7 +44,6 @@ import { ReportsView } from '@/components/competencies/ReportsView';
 import { SkillMatrixView } from '@/components/competencies/SkillMatrixView';
 import type { View } from '@/components/competencies/types';
 import { Button } from '@/components/ui/Button';
-import { CompetencyMapView } from '@/components/competency-map/CompetencyMapView';
 
 export default function CompetenciesPage() {
   const notify = useToast();
@@ -69,31 +66,27 @@ export default function CompetenciesPage() {
     null,
   );
 
-  const hasOwnHeader = view === 'competency-map';
-
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
       {/* Header */}
-      {!hasOwnHeader && (
-        <div className="mb-6 flex items-center justify-between">
-          <div>
-            <h1 className="font-display text-xl font-semibold text-ink">
-              {TITLES[view]}
-            </h1>
-            <p className="mt-0.5 font-body text-sm text-ink-faint"></p>
-          </div>
-          {view === 'catalog' && canManage && (
-            <Button onClick={() => setForm({ competencyId: null })}>
-              + Nova competência
-            </Button>
-          )}
-          {view === 'models' && canManage && (
-            <Button onClick={() => setModelForm({ modelId: null })}>
-              + Novo modelo
-            </Button>
-          )}
+      <div className="mb-6 flex items-center justify-between">
+        <div>
+          <h1 className="font-display text-xl font-semibold text-ink">
+            {TITLES[view]}
+          </h1>
+          <p className="mt-0.5 font-body text-sm text-ink-faint"></p>
         </div>
-      )}
+        {view === 'catalog' && canManage && (
+          <Button onClick={() => setForm({ competencyId: null })}>
+            + Nova competência
+          </Button>
+        )}
+        {view === 'models' && canManage && (
+          <Button onClick={() => setModelForm({ modelId: null })}>
+            + Novo modelo
+          </Button>
+        )}
+      </div>
 
       {/* Tabs */}
       <div className="mb-6 flex w-fit gap-1 rounded-card bg-surface-sunken p-1">
@@ -109,9 +102,9 @@ export default function CompetenciesPage() {
         ))}
       </div>
 
-      {/* Overview/Matrix/Dashboard: nem montados para quem não tem
-          @Roles(ADMIN, RH, GESTOR)/(ADMIN, RH) no backend — não só
-          escondidos da lista de separadores acima. */}
+      {/* Overview/Matrix/etc.: nem montados para quem não tem
+          @Roles(ADMIN, RH, GESTOR) no backend — não só escondidos da
+          lista de separadores acima. */}
       {view === 'overview' && visibleNav.some((n) => n.id === 'overview') && (
         <OverviewView />
       )}
@@ -138,10 +131,6 @@ export default function CompetenciesPage() {
       {view === 'reports' && visibleNav.some((n) => n.id === 'reports') && (
         <ReportsView />
       )}
-      {view === 'dashboard' && visibleNav.some((n) => n.id === 'dashboard') && (
-        <DashboardView />
-      )}
-      {view === 'competency-map' && <CompetencyMapView />}
 
       {detailId !== null && (
         <CompetencyDetailModal

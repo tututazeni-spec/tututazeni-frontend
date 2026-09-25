@@ -57,18 +57,17 @@ export const STATUS_CFG: StatusBadgeMap<CompetencyStatus> = {
   INACTIVE: { label: 'Arquivada', cls: 'bg-surface-sunken text-ink-muted' },
 };
 
-// "Matriz de Competências" e "Dashboard RH" ficam escondidas de COLABORADOR
-// a pedido do utilizador — espelha também o backend: GET
-// /competencies/skill-matrix é @Roles(ADMIN, RH, GESTOR) e GET
-// /competencies/dashboard/gaps é @Roles(ADMIN, RH) em
-// competencies.controller.ts, nenhum inclui COLABORADOR.
-// "Mapa de Competências" junta aqui o ex-módulo CompetencyMapModule
-// (heatmap, matriz por cargo, gap organizacional) sem fundir dados —
-// continua a bater no seu próprio controller /competency-map. Ver
-// components/competency-map/CompetencyMapView.tsx. Sem restrição de
-// roles, tal como a entrada de sidebar standalone que substitui — a
-// visibilidade fina dos seus separadores internos já é feita dentro do
-// próprio CompetencyMapView.
+// "Matriz de Competências" fica escondida de COLABORADOR a pedido do
+// utilizador — espelha também o backend: GET /competencies/skill-matrix é
+// @Roles(ADMIN, RH, GESTOR) em competencies.controller.ts, que não inclui
+// COLABORADOR.
+// As abas "Dashboard RH" e "Mapa de Competências" foram removidas a pedido
+// do utilizador (mantendo os models/controllers no backend intactos — só a
+// navegação deste módulo foi alterada). "Mapa de Competências" delegava em
+// components/competency-map/CompetencyMapView.tsx, que continua a existir e
+// a ser servido pela rota standalone /competency-map (sem entrada de
+// sidebar). "Dashboard RH" delegava em DashboardView.tsx deste módulo, que
+// foi removido por deixar de ter chamador.
 // "Visão Geral" (docs/módulo_competencies.md §1) é a nova primeira aba —
 // KPIs organizacionais, mesma restrição de roles de "Dashboard RH" (o
 // endpoint GET /competencies/overview é @Roles(ADMIN, RH, GESTOR)).
@@ -114,8 +113,6 @@ export const NAV: Array<{ id: View; label: string; roles?: readonly Role[] }> =
       roles: NON_COLABORADOR_ROLES,
     },
     { id: 'reports', label: 'Relatórios', roles: NON_COLABORADOR_ROLES },
-    { id: 'dashboard', label: 'Dashboard RH', roles: NON_COLABORADOR_ROLES },
-    { id: 'competency-map', label: 'Mapa de Competências' },
   ];
 
 export const TITLES: Record<View, string> = {
@@ -129,8 +126,6 @@ export const TITLES: Record<View, string> = {
   gaps: 'Gaps de Competências',
   development: 'Desenvolvimento',
   reports: 'Relatórios de Competências',
-  dashboard: 'Dashboard de Competências',
-  'competency-map': 'Mapa de Competências',
 };
 
 // docs/módulo_competencies.md §3 — "Escala proposta". Só um preset para
