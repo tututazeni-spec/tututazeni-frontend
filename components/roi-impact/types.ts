@@ -12,6 +12,8 @@ export type Tab =
   | 'kpis'
   | 'correlations'
   | 'scenarios'
+  | 'benchmarks'
+  | 'reports'
   | 'learning'
   | 'retention'
   | 'performance'
@@ -478,4 +480,186 @@ export interface ScenarioListData {
 export interface ScenarioCompareData {
   scenarios: ScenarioRow[];
   bestId: number | null;
+}
+
+// ─────────────────────────────────────────────────────────────────
+// Benchmarks (docs/roi-impact.md §9)
+// ─────────────────────────────────────────────────────────────────
+
+export type BenchmarkType = 'INTERNO' | 'EXTERNO';
+
+export interface BenchmarkRow {
+  id: number;
+  name: string;
+  type: BenchmarkType;
+  source: string;
+  referenceYear: number;
+  value: number;
+  unit: string;
+  kpiDefinitionId: number | null;
+  indicatorName: string | null;
+  observations: string | null;
+  createdAt: string;
+}
+
+export interface BenchmarkListData {
+  total: number;
+  benchmarks: BenchmarkRow[];
+}
+
+export interface BenchmarkBestWorst {
+  initiativeType: RoiInitiativeType;
+  best: { id: number; name: string; roiPercent: number | null } | null;
+  worst: { id: number; name: string; roiPercent: number | null } | null;
+}
+
+export interface BenchmarkInternalComparisonsData {
+  totalAnalyses: number;
+  byDepartment: RoiBreakdown[];
+  byUnit: RoiBreakdown[];
+  byCycle: RoiBreakdown[];
+  bestWorstByType: BenchmarkBestWorst[];
+}
+
+export interface BenchmarkSectorComparisonData {
+  internalAvgRoi: number | null;
+  sampleSize: number;
+  externalBenchmarks: BenchmarkRow[];
+  note: string | null;
+}
+
+// ─────────────────────────────────────────────────────────────────
+// Relatórios (docs/roi-impact.md §10)
+// ─────────────────────────────────────────────────────────────────
+
+export type RoiReportKey =
+  | 'roi-consolidated'
+  | 'roi-by-dimension'
+  | 'impact-by-indicator'
+  | 'training-cost-vs-budget'
+  | 'budget-execution'
+  | 'top-initiatives'
+  | 'insufficient-data'
+  | 'roi-evolution'
+  | 'onboarding-retention'
+  | 'leadership-engagement'
+  | 'executive-summary';
+
+export interface RoiReportFilter {
+  from?: string;
+  to?: string;
+  departmentId?: number;
+  unit?: string;
+  initiativeType?: RoiInitiativeType;
+  evaluationModelUsed?: string;
+  status?: RoiAnalysisStatus;
+  hierarchyLevel?: string;
+  limit?: number;
+}
+
+export interface RoiConsolidatedData {
+  period: { from: string | null; to: string | null };
+  totalAnalyses: number;
+  totalCost: number;
+  totalBenefit: number;
+  netBenefit: number;
+  avgRoi: number | null;
+  byStatus: { status: RoiAnalysisStatus; count: number }[];
+}
+
+export interface RoiByDimensionData {
+  total: number;
+  byDepartment: RoiBreakdown[];
+  byUnit: RoiBreakdown[];
+  byInitiativeType: RoiBreakdown[];
+}
+
+export interface ImpactByIndicatorRow {
+  indicatorName: string;
+  category: ImpactCategory;
+  records: number;
+  avgAttributedImpact: number | null;
+  avgAttributionPercent: number | null;
+}
+
+export interface ImpactByIndicatorData {
+  total: number;
+  indicators: ImpactByIndicatorRow[];
+}
+
+export interface TrainingPlanExecutionRow {
+  planId: number;
+  name: string;
+  year: number;
+  period: string;
+  status: string;
+  plannedBudget: number;
+  realizedBudget: number;
+  executionRatePercent: number | null;
+  variance: number;
+}
+
+export interface TrainingPlansExecutionData {
+  plans: TrainingPlanExecutionRow[];
+  totalPlannedBudget: number;
+  totalRealizedBudget: number;
+  overallExecutionRatePercent: number | null;
+}
+
+export interface TopInitiativesReportData {
+  total: number;
+  top: TopInitiative[];
+}
+
+export interface InsufficientDataInitiativeRow {
+  id: number;
+  name: string;
+  initiativeType: RoiInitiativeType;
+  department: string | null;
+  costRegistered: boolean;
+  totalCostSoFar: number;
+  createdAt: string;
+}
+
+export interface InsufficientDataReportData {
+  total: number;
+  expensiveWithoutReturn: number;
+  initiatives: InsufficientDataInitiativeRow[];
+}
+
+export interface RoiEvolutionYearRow {
+  year: number;
+  avgRoi: number;
+  count: number;
+  totalBenefit: number;
+  totalCost: number;
+}
+
+export interface RoiEvolutionReportData {
+  years: RoiEvolutionYearRow[];
+}
+
+export interface OnboardingCohort {
+  count: number;
+  retentionRatePercent: number | null;
+}
+
+export interface OnboardingRetentionReportData {
+  completedCohort: OnboardingCohort;
+  incompleteCohort: OnboardingCohort;
+  abandonedCohort: OnboardingCohort;
+  note: string | null;
+}
+
+export interface LeadershipEngagementRow {
+  leaderId: number;
+  leaderName: string;
+  avgProgress: number;
+  teamSize: number;
+  avgEngagement: number | null;
+}
+
+export interface LeadershipEngagementReportData {
+  leaders: LeadershipEngagementRow[];
+  note: string | null;
 }

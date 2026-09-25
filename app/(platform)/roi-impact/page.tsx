@@ -8,6 +8,7 @@
 // project_innova_component_separation_audit.
 
 import {
+  BarChart3,
   BookOpen,
   Briefcase,
   Calculator,
@@ -18,6 +19,7 @@ import {
   GitCompareArrows,
   GraduationCap,
   LineChart,
+  Scale,
   Star,
   Target,
   Users,
@@ -31,6 +33,8 @@ import { CostsTab } from '@/components/roi-impact/CostsTab';
 import { KpisTab } from '@/components/roi-impact/KpisTab';
 import { CorrelationsTab } from '@/components/roi-impact/CorrelationsTab';
 import { ScenariosTab } from '@/components/roi-impact/ScenariosTab';
+import { BenchmarksTab } from '@/components/roi-impact/BenchmarksTab';
+import { ReportsTab } from '@/components/roi-impact/ReportsTab';
 import { LearningTab } from '@/components/roi-impact/LearningTab';
 import { PerformanceTab } from '@/components/roi-impact/PerformanceTab';
 import { ProgramsTab } from '@/components/roi-impact/ProgramsTab';
@@ -41,12 +45,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
 
 // docs/roi-impact.md — "Visão Geral", "ROI da Formação", "Impacto no
 // Negócio", "Modelos de Avaliação", "Custos & Investimento", "Indicadores
-// & KPIs", "Correlações" e "Cenários & Simulações" (§1-8) já seguem a
-// ordem/nome do spec; as restantes abas (Aprendizagem/Retenção/Performance/
-// Simulador/Programas) são as fases seguintes do remodel e mantêm-se por
-// agora com os nomes/dados legados — "Simulador" é o what-if de taxa de
-// conclusão pré-existente, distinto de "Cenários & Simulações" (§8), que
-// projecta o ROI de uma iniciativa futura ainda não executada.
+// & KPIs", "Correlações", "Cenários & Simulações", "Benchmarks" e
+// "Relatórios" (§1-10) já seguem a ordem/nome do spec; as restantes abas
+// (Aprendizagem/Retenção/Performance/Simulador/Programas) são as fases
+// seguintes do remodel e mantêm-se por agora com os nomes/dados legados —
+// "Simulador" é o what-if de taxa de conclusão pré-existente, distinto de
+// "Cenários & Simulações" (§8), que projecta o ROI de uma iniciativa futura
+// ainda não executada.
 const TABS: { id: Tab; label: string; icon: LucideIcon | null }[] = [
   { id: 'executive', label: 'Visão Geral', icon: Briefcase },
   { id: 'roi-analysis', label: 'ROI da Formação', icon: LineChart },
@@ -56,6 +61,8 @@ const TABS: { id: Tab; label: string; icon: LucideIcon | null }[] = [
   { id: 'kpis', label: 'Indicadores & KPIs', icon: Gauge },
   { id: 'correlations', label: 'Correlações', icon: GitCompareArrows },
   { id: 'scenarios', label: 'Cenários & Simulações', icon: FlaskConical },
+  { id: 'benchmarks', label: 'Benchmarks', icon: Scale },
+  { id: 'reports', label: 'Relatórios', icon: BarChart3 },
   { id: 'learning', label: 'Aprendizagem', icon: BookOpen },
   { id: 'retention', label: 'Retenção', icon: Users },
   { id: 'performance', label: 'Performance', icon: Star },
@@ -123,6 +130,12 @@ export default function RoiImpactPage() {
           </TabsContent>
           <TabsContent value="scenarios">
             <ScenariosTab />
+          </TabsContent>
+          <TabsContent value="benchmarks">
+            <BenchmarksTab />
+          </TabsContent>
+          <TabsContent value="reports">
+            <ReportsTab />
           </TabsContent>
           <TabsContent value="learning">
             <LearningTab />

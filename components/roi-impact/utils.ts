@@ -219,3 +219,29 @@ export const SCENARIO_CASE_INTENTS: Record<string, 'success' | 'info' | 'warning
   REALISTA: 'info',
   PESSIMISTA: 'warning',
 };
+
+// Benchmarks (docs/roi-impact.md §9)
+export const BENCHMARK_TYPE_LABELS: Record<string, string> = {
+  INTERNO: 'Interno',
+  EXTERNO: 'Externo',
+};
+
+export const BENCHMARK_TYPE_INTENTS: Record<string, 'info' | 'neutral'> = {
+  INTERNO: 'neutral',
+  EXTERNO: 'info',
+};
+
+// Relatórios (docs/roi-impact.md §10)
+export const ROI_REPORT_LABELS: Record<string, string> = {
+  'roi-consolidated': 'ROI consolidado da Academia',
+  'roi-by-dimension': 'ROI por departamento/unidade/tipo',
+  'impact-by-indicator': 'Impacto no negócio por indicador',
+  'training-cost-vs-budget': 'Custo de formação vs. orçamento',
+  'budget-execution': 'Execução orçamental da Academia',
+  'top-initiatives': 'Top iniciativas por ROI',
+  'insufficient-data': 'Iniciativas sem dados suficientes',
+  'roi-evolution': 'Evolução do ROI ano a ano',
+  'onboarding-retention': 'Impacto do onboarding na retenção',
+  'leadership-engagement': 'Impacto da liderança no engagement',
+  'executive-summary': 'Relatório executivo para Administração',
+};

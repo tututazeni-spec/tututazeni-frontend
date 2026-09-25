@@ -436,6 +436,14 @@ export const queryKeys = {
     scenarios: (filter?: Record<string, unknown>) =>
       [...queryKeys.roiImpact.all, 'scenarios', filter ?? {}] as const,
     scenario: (id: number) => [...queryKeys.roiImpact.all, 'scenarios', id] as const,
+    benchmarks: (filter?: Record<string, unknown>) =>
+      [...queryKeys.roiImpact.all, 'benchmarks', filter ?? {}] as const,
+    benchmarkInternalComparisons: (filter?: Record<string, unknown>) =>
+      [...queryKeys.roiImpact.all, 'benchmarks-internal-comparisons', filter ?? {}] as const,
+    benchmarkSectorComparison: () =>
+      [...queryKeys.roiImpact.all, 'benchmarks-sector-comparison'] as const,
+    report: (key: string, filter?: Record<string, unknown>) =>
+      [...queryKeys.roiImpact.all, 'reports', key, filter ?? {}] as const,
   },
 
   rolesPermissions: {
