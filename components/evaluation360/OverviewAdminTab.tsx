@@ -31,6 +31,7 @@ interface RawOverview {
   participationRate: number;
   completionRate: number;
   avgOverall: number;
+  competencyAverages: { competencyId: string; name: string; average: number }[];
   topCompetencies: { competencyId: string; name: string; average: number }[];
   bottomCompetencies: { competencyId: string; name: string; average: number }[];
   pendingAssignments: number;
@@ -102,6 +103,38 @@ export function OverviewAdminTab() {
           label="Média global"
           value={data.avgOverall > 0 ? data.avgOverall.toFixed(1) : '—'}
         />
+      </div>
+
+      {/* Média por competência (docs/evaluation360.md §1) — todas, não só top/bottom */}
+      <div className="rounded-lg border border-border bg-surface px-5 py-4.5">
+        <div className="text-xs font-bold text-ink-muted uppercase tracking-wider mb-3.5">
+          Média por competência
+        </div>
+        {data.competencyAverages.length === 0 && (
+          <div className="text-sm text-ink-muted">Sem dados suficientes ainda.</div>
+        )}
+        <div className="flex flex-col gap-2.5">
+          {data.competencyAverages.map((c) => (
+            <div key={c.competencyId} className="flex items-center gap-3">
+              <span className="text-sm text-ink w-44 shrink-0 truncate">{c.name}</span>
+              <div className="flex-1 bg-surface-sunken rounded h-2 overflow-hidden">
+                <div
+                  className="h-full rounded"
+                  style={{
+                    width: `${Math.min(100, (c.average / 5) * 100)}%`,
+                    background: scoreColor(c.average),
+                  }}
+                />
+              </div>
+              <span
+                className="text-sm font-bold w-10 text-right shrink-0"
+                style={{ color: scoreColor(c.average) }}
+              >
+                {c.average.toFixed(1)}
+              </span>
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* Competências */}
