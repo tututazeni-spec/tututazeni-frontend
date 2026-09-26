@@ -382,6 +382,53 @@ export interface AuditLogEntry {
   createdAt: string;
 }
 
+// ─── Histórico & Auditoria — nível de módulo (Ponto 6) ─────────────────────
+
+export interface ModuleAuditLogEntry {
+  id: number;
+  userId: number;
+  performedById: number;
+  action: string;
+  meta: string | null;
+  createdAt: string;
+  user: { id: number; fullName: string; email: string } | null;
+  performedBy: { id: number; fullName: string } | null;
+}
+
+export interface ModuleAuditLogsResponse {
+  data: ModuleAuditLogEntry[];
+  meta: { total: number; page: number; limit: number; totalPages: number };
+}
+
+// ─── Importação (Ponto 5) ───────────────────────────────────────────────────
+
+export interface ImportUserRow {
+  email: string;
+  fullName: string;
+  employeeNumber?: string;
+  phone?: string;
+  departmentName?: string;
+  positionName?: string;
+  hireDate?: string;
+}
+
+export interface ImportRowResult {
+  line: number;
+  email: string;
+  outcome: 'create' | 'update' | 'skip-duplicate' | 'skip-existing' | 'error';
+  detail?: string;
+}
+
+export interface ImportReport {
+  total: number;
+  created: number;
+  updated: number;
+  skipped: number;
+  errors: Array<{ line: number; email: string; error: string }>;
+  rows: ImportRowResult[];
+  dryRun: boolean;
+}
+
 export interface TeamMember {
   id: number;
   fullName: string;
@@ -446,7 +493,8 @@ export type View =
   | 'create'
   | 'dashboard'
   | 'directory'
-  | 'employees'
+  | 'import'
+  | 'audit'
   | 'permissions';
 
 // view e selectedId eram dois useState separados sempre definidos em conjunto

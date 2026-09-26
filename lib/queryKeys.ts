@@ -92,6 +92,9 @@ export const queryKeys = {
     // Separador "Acesso & Permissões" do perfil (docs/modulo_users.md Ponto 4).
     access: (id: number | string) =>
       [...queryKeys.users.all, 'access', id] as const,
+    // Separador "Histórico & Auditoria" do módulo (docs/modulo_users.md Ponto 6).
+    moduleAuditLogs: (params: Record<string, unknown>) =>
+      [...queryKeys.users.all, 'module-audit-logs', params] as const,
   },
 
   employees: {
