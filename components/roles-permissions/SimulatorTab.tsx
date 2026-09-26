@@ -23,6 +23,7 @@ export function SimulatorTab() {
   const simulateMutation = useApiMutation(
     (payload: { userId: number; resource: string; action: string }) =>
       apiClient.post<SimulationResult>('/roles-permissions/simulate', payload),
+    { mutationKey: ['roles-permissions', 'simulate'] },
   );
   const result = simulateMutation.data ?? null;
   const loading = simulateMutation.isPending;

@@ -17,7 +17,6 @@ import type {
   CompetencyScore,
   ContinuousFeedback,
   CycleInfo,
-  EvaluationQuestion,
   ParticipantProfile,
   ParticipantResult,
 } from '@/components/evaluation360/types';
@@ -76,14 +75,6 @@ interface RawFeedback {
   message: string;
   competencyName: string | null;
   createdAt: string;
-}
-
-interface RawQuestion {
-  id: string;
-  text: string;
-  type: string;
-  isRequired: boolean;
-  competency?: { name: string } | null;
 }
 
 // ─── Mapeamentos ────────────────────────────────────────────────────────────
@@ -170,16 +161,6 @@ function toFeedback(f: RawFeedback): ContinuousFeedback {
   };
 }
 
-function toQuestion(q: RawQuestion): EvaluationQuestion {
-  return {
-    id: q.id,
-    text: q.text,
-    type: q.type === 'FREQUENCY' ? 'FREQUENCY' : q.type === 'OPEN_TEXT' ? 'OPEN_TEXT' : 'LIKERT',
-    competency: q.competency?.name ?? '',
-    isRequired: q.isRequired,
-  };
-}
-
 // ─── Hook ───────────────────────────────────────────────────────────────────
 
 export function useEvaluation360() {
@@ -244,20 +225,6 @@ export function useEvaluation360() {
   );
   const feedbacks = (feedbackData?.data ?? []).map(toFeedback);
 
-  // Formulário de auto-avaliação (evaluateeId = o próprio utilizador).
-  const { data: selfFormData } = useApiQuery<{ questions: RawQuestion[] }>(
-    queryKeys.evaluation360.form(cycleId ?? '', myId ?? ''),
-    cycleId && myId ? `/evaluation360/cycles/${cycleId}/form` : '',
-    {
-      params: { evaluateeId: myId },
-      enabled: !!cycleId && !!myId,
-      staleTime: STALE_TIME.DYNAMIC,
-      meta: { silent: true },
-      retry: false,
-    },
-  );
-  const selfFormQuestions = (selfFormData?.questions ?? []).map(toQuestion);
-
   return {
     result,
     participant,
@@ -265,7 +232,6 @@ export function useEvaluation360() {
     cycles,
     competencies,
     feedbacks,
-    selfFormQuestions,
     myId,
     cycleId,
     loading: cyclesLoading,

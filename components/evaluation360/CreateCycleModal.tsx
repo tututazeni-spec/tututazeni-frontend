@@ -110,6 +110,12 @@ interface CreatedCycle {
   id: string;
 }
 
+interface QuestionnaireOption {
+  id: string;
+  name: string;
+  code: string;
+}
+
 export function CreateCycleModal({ onClose, onSuccess }: CreateCycleModalProps) {
   const notify = useToast();
   const { options: departmentOptions, loading: departmentsLoading } = useDepartmentOptions();
@@ -160,6 +166,23 @@ export function CreateCycleModal({ onClose, onSuccess }: CreateCycleModalProps) 
     enabled: useCustomCompetencies,
     staleTime: STALE_TIME.STATIC,
   });
+
+  // Questionário (docs/evaluation360.md §6) — alternativa a
+  // competências avulsas/doutrina-padrão: sobrepõe-se a `useCustomCompetencies`
+  // quando escolhido (evaluation360.service.ts#createCycle clona as
+  // competências+perguntas do questionário para o ciclo).
+  const [questionnaireId, setQuestionnaireId] = useState('');
+  const { data: questionnairesData, isLoading: questionnairesLoading } = useApiQuery<{
+    data: QuestionnaireOption[];
+  }>(
+    queryKeys.evaluation360.questionnaires({ tenantId: 'default', status: 'PUBLISHED' }),
+    '/evaluation360/questionnaires',
+    { params: { tenantId: 'default', status: 'PUBLISHED', limit: '100' }, staleTime: STALE_TIME.STATIC },
+  );
+  const questionnaireOptions = [
+    { value: '', label: 'Nenhum (usar competências abaixo)' },
+    ...(questionnairesData?.data ?? []).map((q) => ({ value: q.id, label: `${q.name} (${q.code})` })),
+  ];
 
   const toggleCompetency = (id: number) =>
     setCompetencySelection((prev) => {
@@ -212,16 +235,18 @@ export function CreateCycleModal({ onClose, onSuccess }: CreateCycleModalProps) 
         linkedToBonus,
         linkedToOkrs,
         ...(form.description.trim() ? { description: form.description.trim() } : {}),
-        ...(useCustomCompetencies && selectedCompetencyIds.length > 0
-          ? {
-              competencies: selectedCompetencyIds.map((id, order) => ({
-                competencyId: String(id),
-                weight: Number(competencySelection[id].weight) || 1,
-                isRequired: competencySelection[id].isRequired,
-                order,
-              })),
-            }
-          : {}),
+        ...(questionnaireId
+          ? { questionnaireId }
+          : useCustomCompetencies && selectedCompetencyIds.length > 0
+            ? {
+                competencies: selectedCompetencyIds.map((id, order) => ({
+                  competencyId: String(id),
+                  weight: Number(competencySelection[id].weight) || 1,
+                  isRequired: competencySelection[id].isRequired,
+                  order,
+                })),
+              }
+            : {}),
       });
       await apiClient.post(`/evaluation360/cycles/${cycle.id}/participants/by-department`, {
         departmentIds,
@@ -412,12 +437,27 @@ export function CreateCycleModal({ onClose, onSuccess }: CreateCycleModalProps) 
             </div>
           </div>
 
-          <div>
+          <FormField
+            label="Questionário (docs/evaluation360.md §6)"
+            htmlFor="cyc-questionnaire"
+            hint="Quando escolhido, semeia o ciclo com as competências + perguntas desse questionário em vez das opções abaixo."
+          >
+            <Select
+              items={questionnaireOptions}
+              value={questionnaireId}
+              onValueChange={setQuestionnaireId}
+              placeholder={questionnairesLoading ? 'A carregar…' : 'Nenhum'}
+              className="w-full"
+            />
+          </FormField>
+
+          <div className={questionnaireId ? 'opacity-50 pointer-events-none' : undefined}>
             <label className="flex items-center gap-2 font-body text-sm font-medium text-ink">
               <input
                 type="checkbox"
                 checked={useCustomCompetencies}
                 onChange={(e) => setUseCustomCompetencies(e.target.checked)}
+                disabled={!!questionnaireId}
                 className="h-4 w-4 rounded border-border-strong"
               />
               Escolher competências específicas do catálogo

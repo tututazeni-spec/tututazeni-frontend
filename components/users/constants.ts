@@ -2,13 +2,18 @@
 // Navegação e títulos do módulo de utilizadores. Extraído de
 // app/(platform)/users/page.tsx.
 //
-// Módulo "Utilizadores" único na sidebar: integra os ex-módulos Employees
-// (separador "Colaboradores") e Roles-Permissions (separador "Permissões
-// por Cargos") sem fundir dados — cada um continua a bater no seu próprio
-// controller (/employees, /roles-permissions). Ver
-// components/employees/EmployeesView.tsx e
-// components/roles-permissions/RolesPermissionsView.tsx. Mesmo padrão de
-// app/(platform)/learning-paths/page.tsx (separadores 'lms-*').
+// Módulo "Utilizadores" único na sidebar: integra o ex-módulo
+// Roles-Permissions (separador "Permissões por Cargos") sem fundir dados —
+// continua a bater no seu próprio controller (/roles-permissions). Ver
+// components/roles-permissions/RolesPermissionsView.tsx.
+//
+// O separador "Colaboradores" (ex-módulo Employees) foi removido daqui —
+// docs/modulo_users.md pediu a remoção da aba, mas os modelos Prisma
+// (Employee, EmployeeSkill, EmployeeDocument, EmployeeTimeline) e o
+// controller /employees mantêm-se intactos; a rota standalone
+// app/(platform)/employees/page.tsx continua a existir para quem lá bater
+// directamente. Substituído por "Importação" e "Histórico & Auditoria"
+// (Ponto 5 e Ponto 6).
 
 import type { View } from './types';
 
@@ -19,7 +24,8 @@ export const NAV: Array<{
   { id: 'list', label: 'Utilizadores' },
   { id: 'directory', label: 'Diretório' },
   { id: 'dashboard', label: 'Dashboard' },
-  { id: 'employees', label: 'Colaboradores' },
+  { id: 'import', label: 'Importação' },
+  { id: 'audit', label: 'Histórico & Auditoria' },
   { id: 'permissions', label: 'Permissões por Cargos' },
 ];
 
@@ -29,6 +35,7 @@ export const TITLES: Record<View, string> = {
   create: 'Novo Colaborador',
   dashboard: 'Dashboard de RH',
   directory: 'Diretório Interno',
-  employees: 'Colaboradores',
+  import: 'Importação',
+  audit: 'Histórico & Auditoria',
   permissions: 'Permissões por Cargos',
 };
