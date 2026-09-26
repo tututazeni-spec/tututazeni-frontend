@@ -35,6 +35,7 @@ import { Card, CardBody } from '@/components/ui/Card';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
+import { GanttChart, type GanttRow } from '@/components/ui/charts/GanttChart';
 import { formatDate as fmtDate } from '@/lib/format';
 import {
   ACTION_CFG,
@@ -48,7 +49,38 @@ import {
   STATUS_CFG,
 } from './constants';
 import { isOverdue, progressTextClass } from './utils';
-import type { Plan } from './types';
+import type { Action, Plan } from './types';
+
+const MS_PER_DAY = 86_400_000;
+
+function dayOffset(dateStr: string, referenceStr: string): number {
+  return Math.round((new Date(dateStr).getTime() - new Date(referenceStr).getTime()) / MS_PER_DAY);
+}
+
+// Não há uma data de início por acção (só `dueDate`) — o cronograma usa o
+// início do próprio plano como início de todas as barras, mostrando "tempo
+// disponível até ao prazo" a partir do arranque do PDI, não uma janela de
+// execução real da acção.
+function actionsToGanttRows(actions: Action[], planStartDate: string | null): GanttRow[] {
+  if (!planStartDate) return [];
+  return actions
+    .filter((a) => a.dueDate != null)
+    .map((a) => {
+      const end = Math.max(0, dayOffset(a.dueDate as string, planStartDate));
+      let status: GanttRow['status'];
+      if (a.status === 'COMPLETED') status = 'done';
+      else if (a.status === 'CANCELLED') status = 'pending';
+      else if (isOverdue(a.dueDate, a.status)) status = 'overdue';
+      else status = 'current';
+      return {
+        label: a.title,
+        start: 0,
+        end,
+        status,
+        detail: `${ACTION_STATUS[a.status].label} · ${a.progress}%`,
+      };
+    });
+}
 
 interface DetailViewProps {
   planId: number;
@@ -270,7 +302,15 @@ export function DetailView({ planId, onBack }: DetailViewProps) {
 
       {/* Actions */}
       {activeTab === 'actions' && (
-        <div className="space-y-3">
+        <div className="space-y-6">
+          {plan.actions && plan.actions.length > 0 && actionsToGanttRows(plan.actions, plan.startDate).length > 0 && (
+            <GanttChart
+              rows={actionsToGanttRows(plan.actions, plan.startDate)}
+              todayValue={plan.startDate ? Math.max(0, dayOffset(new Date().toISOString(), plan.startDate)) : undefined}
+              unitLabel="dias desde o início do PDI"
+            />
+          )}
+          <div className="space-y-3">
           {plan.actions?.map((action) => {
             const typeCfg = ACTION_CFG[action.type];
             const statusCfg = ACTION_STATUS[action.status];
@@ -344,7 +384,7 @@ export function DetailView({ planId, onBack }: DetailViewProps) {
                       </div>
                       {action.status !== 'COMPLETED' && (
                         <div className="mt-2">
-                          <ProgressBar value={action.progress} />
+                          <ProgressBar value={action.progress} intent={overdue ? 'danger' : 'accent'} />
                         </div>
                       )}
                     </div>
@@ -372,6 +412,7 @@ export function DetailView({ planId, onBack }: DetailViewProps) {
               Sem acções adicionadas
             </div>
           )}
+          </div>
         </div>
       )}
 
@@ -411,7 +452,16 @@ export function DetailView({ planId, onBack }: DetailViewProps) {
                     )}
                   </div>
                 </div>
-                <ProgressBar value={goal.progress} />
+                <ProgressBar
+                  value={goal.progress}
+                  intent={
+                    goal.progress >= 100
+                      ? 'success'
+                      : goal.dueDate && isOverdue(goal.dueDate, goal.completedAt ? 'COMPLETED' : 'ACTIVE')
+                        ? 'danger'
+                        : 'accent'
+                  }
+                />
                 {goal.progress < 100 && (
                   <div className="mt-3 flex gap-2">
                     {[25, 50, 75, 100].map((v) => {
