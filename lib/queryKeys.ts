@@ -409,10 +409,38 @@ export const queryKeys = {
   roiImpact: {
     all: ['roi-impact'] as const,
     executive: () => [...queryKeys.roiImpact.all, 'executive'] as const,
-    learning: () => [...queryKeys.roiImpact.all, 'learning'] as const,
-    retention: () => [...queryKeys.roiImpact.all, 'retention'] as const,
-    performance: () => [...queryKeys.roiImpact.all, 'performance'] as const,
-    programs: () => [...queryKeys.roiImpact.all, 'programs'] as const,
+    analyses: (filter?: Record<string, unknown>) =>
+      [...queryKeys.roiImpact.all, 'analyses', filter ?? {}] as const,
+    initiativeOptions: (type: string) =>
+      [...queryKeys.roiImpact.all, 'initiative-options', type] as const,
+    impactRecords: (filter?: Record<string, unknown>) =>
+      [...queryKeys.roiImpact.all, 'impact-records', filter ?? {}] as const,
+    impactByCategory: (filter?: Record<string, unknown>) =>
+      [...queryKeys.roiImpact.all, 'impact-by-category', filter ?? {}] as const,
+    evaluationModels: () => [...queryKeys.roiImpact.all, 'evaluation-models'] as const,
+    costs: (filter?: Record<string, unknown>) =>
+      [...queryKeys.roiImpact.all, 'costs', filter ?? {}] as const,
+    costsConsolidation: (filter?: Record<string, unknown>) =>
+      [...queryKeys.roiImpact.all, 'costs-consolidation', filter ?? {}] as const,
+    kpis: (filter?: Record<string, unknown>) =>
+      [...queryKeys.roiImpact.all, 'kpis', filter ?? {}] as const,
+    kpisByCategory: () => [...queryKeys.roiImpact.all, 'kpis-by-category'] as const,
+    correlationDefinitions: () => [...queryKeys.roiImpact.all, 'correlation-definitions'] as const,
+    correlations: (filter?: Record<string, unknown>) =>
+      [...queryKeys.roiImpact.all, 'correlations', filter ?? {}] as const,
+    correlation: (id: number) => [...queryKeys.roiImpact.all, 'correlations', id] as const,
+    scenarios: (filter?: Record<string, unknown>) =>
+      [...queryKeys.roiImpact.all, 'scenarios', filter ?? {}] as const,
+    scenario: (id: number) => [...queryKeys.roiImpact.all, 'scenarios', id] as const,
+    benchmarks: (filter?: Record<string, unknown>) =>
+      [...queryKeys.roiImpact.all, 'benchmarks', filter ?? {}] as const,
+    benchmarkInternalComparisons: (filter?: Record<string, unknown>) =>
+      [...queryKeys.roiImpact.all, 'benchmarks-internal-comparisons', filter ?? {}] as const,
+    benchmarkSectorComparison: () =>
+      [...queryKeys.roiImpact.all, 'benchmarks-sector-comparison'] as const,
+    report: (key: string, filter?: Record<string, unknown>) =>
+      [...queryKeys.roiImpact.all, 'reports', key, filter ?? {}] as const,
+    config: () => [...queryKeys.roiImpact.all, 'config'] as const,
   },
 
   rolesPermissions: {
