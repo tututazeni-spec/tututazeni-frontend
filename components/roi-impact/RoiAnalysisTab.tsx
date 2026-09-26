@@ -16,16 +16,8 @@ import { useToast } from '@/providers/ToastProvider';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
-import { EmptyState } from '@/components/ui/EmptyState';
 import { Skeleton } from '@/components/ui/Skeleton';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeaderCell,
-  TableRow,
-} from '@/components/ui/Table';
+import { DataTable } from '@/components/ui/DataTable';
 import { NewRoiAnalysisWizard } from './NewRoiAnalysisWizard';
 import {
   fmt$,
@@ -78,70 +70,84 @@ export function RoiAnalysisTab() {
       </div>
 
       <Card>
-        {analyses.length === 0 ? (
-          <EmptyState
-            title="Sem análises de ROI ainda"
-            description="Cria a primeira análise para começar a medir o retorno de uma iniciativa."
-            className="border-none"
+        <div className="p-5">
+          <DataTable
+            data={analyses}
+            rowKey={(a) => a.id}
+            searchKeys={['name']}
+            searchPlaceholder="Pesquisar iniciativa…"
+            emptyLabel="Cria a primeira análise para começar a medir o retorno de uma iniciativa."
+            columns={[
+              {
+                key: 'name',
+                header: 'Iniciativa',
+                sortable: true,
+                render: (a) => (
+                  <>
+                    <p className="font-medium text-ink">{a.name}</p>
+                    <p className="text-xs text-ink-faint">{a.initiative ?? '—'}</p>
+                  </>
+                ),
+              },
+              {
+                key: 'initiativeType',
+                header: 'Tipo',
+                render: (a) => INITIATIVE_TYPE_LABELS[a.initiativeType] ?? a.initiativeType,
+              },
+              { key: 'participants', header: 'Participantes', sortable: true },
+              { key: 'totalCost', header: 'Custo total', sortable: true, render: (a) => fmt$(a.totalCost) },
+              {
+                key: 'costPerParticipant',
+                header: 'Custo/participante',
+                sortable: true,
+                render: (a) => (a.costPerParticipant != null ? fmt$(a.costPerParticipant) : '—'),
+              },
+              {
+                key: 'realizedBenefit',
+                header: 'Benefício realizado',
+                sortable: true,
+                render: (a) => (a.realizedBenefit != null ? fmt$(a.realizedBenefit) : '—'),
+              },
+              {
+                key: 'roiPercent',
+                header: 'ROI',
+                sortable: true,
+                render: (a) => (a.roiPercent != null ? `${a.roiPercent}%` : '—'),
+              },
+              {
+                key: 'paybackMonths',
+                header: 'Payback',
+                sortable: true,
+                render: (a) => (a.paybackMonths != null ? `${a.paybackMonths}m` : '—'),
+              },
+              {
+                key: 'confidenceLevel',
+                header: 'Confiança',
+                render: (a) => (a.confidenceLevel ? (CONFIDENCE_LABELS[a.confidenceLevel] ?? a.confidenceLevel) : '—'),
+              },
+              {
+                key: 'status',
+                header: 'Estado',
+                sortable: true,
+                render: (a) => (
+                  <Badge intent={ANALYSIS_STATUS_INTENTS[a.status] ?? 'neutral'}>
+                    {ANALYSIS_STATUS_LABELS[a.status] ?? a.status}
+                  </Badge>
+                ),
+              },
+              {
+                key: 'actions',
+                header: '',
+                render: (a) =>
+                  a.status === 'CALCULADO' && (
+                    <Button size="sm" intent="secondary" loading={approve.isPending} onClick={() => approve.mutate(a.id)}>
+                      Validar
+                    </Button>
+                  ),
+              },
+            ]}
           />
-        ) : (
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableHeaderCell>Iniciativa</TableHeaderCell>
-                  <TableHeaderCell>Tipo</TableHeaderCell>
-                  <TableHeaderCell>Participantes</TableHeaderCell>
-                  <TableHeaderCell>Custo total</TableHeaderCell>
-                  <TableHeaderCell>Custo/participante</TableHeaderCell>
-                  <TableHeaderCell>Benefício realizado</TableHeaderCell>
-                  <TableHeaderCell>ROI</TableHeaderCell>
-                  <TableHeaderCell>Payback</TableHeaderCell>
-                  <TableHeaderCell>Confiança</TableHeaderCell>
-                  <TableHeaderCell>Estado</TableHeaderCell>
-                  <TableHeaderCell />
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {analyses.map((a) => (
-                  <TableRow key={a.id}>
-                    <TableCell>
-                      <p className="font-medium text-ink">{a.name}</p>
-                      <p className="text-xs text-ink-faint">{a.initiative ?? '—'}</p>
-                    </TableCell>
-                    <TableCell>{INITIATIVE_TYPE_LABELS[a.initiativeType] ?? a.initiativeType}</TableCell>
-                    <TableCell>{a.participants}</TableCell>
-                    <TableCell>{fmt$(a.totalCost)}</TableCell>
-                    <TableCell>{a.costPerParticipant != null ? fmt$(a.costPerParticipant) : '—'}</TableCell>
-                    <TableCell>{a.realizedBenefit != null ? fmt$(a.realizedBenefit) : '—'}</TableCell>
-                    <TableCell>{a.roiPercent != null ? `${a.roiPercent}%` : '—'}</TableCell>
-                    <TableCell>{a.paybackMonths != null ? `${a.paybackMonths}m` : '—'}</TableCell>
-                    <TableCell>
-                      {a.confidenceLevel ? (CONFIDENCE_LABELS[a.confidenceLevel] ?? a.confidenceLevel) : '—'}
-                    </TableCell>
-                    <TableCell>
-                      <Badge intent={ANALYSIS_STATUS_INTENTS[a.status] ?? 'neutral'}>
-                        {ANALYSIS_STATUS_LABELS[a.status] ?? a.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      {a.status === 'CALCULADO' && (
-                        <Button
-                          size="sm"
-                          intent="secondary"
-                          loading={approve.isPending}
-                          onClick={() => approve.mutate(a.id)}
-                        >
-                          Validar
-                        </Button>
-                      )}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        )}
+        </div>
       </Card>
 
       {wizardOpen && <NewRoiAnalysisWizard onClose={() => setWizardOpen(false)} />}

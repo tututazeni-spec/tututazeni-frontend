@@ -27,6 +27,13 @@ export interface GaugeChartProps {
   invert?: boolean;
   size?: number;
   className?: string;
+  /**
+   * Rótulo central — por omissão o próprio valor arredondado em "%". Recebe
+   * o valor original (não limitado a 100), útil para métricas que podem
+   * ultrapassar 100% (ex.: ROI) — o arco continua a representar o valor
+   * limitado a [0,100], só o texto mostra o número real.
+   */
+  format?: (value: number) => string;
 }
 
 function polarToCartesian(cx: number, cy: number, r: number, angleDeg: number) {
@@ -54,7 +61,7 @@ function resolveColor(value: number, thresholds?: GaugeThresholds, invert = fals
   return STATUS.good;
 }
 
-export function GaugeChart({ value, label, thresholds, invert, size = 160, className }: GaugeChartProps) {
+export function GaugeChart({ value, label, thresholds, invert, size = 160, className, format }: GaugeChartProps) {
   const clamped = Math.min(100, Math.max(0, value));
   const cx = size / 2;
   const cy = size / 2;
@@ -62,6 +69,7 @@ export function GaugeChart({ value, label, thresholds, invert, size = 160, class
   const color = useMemo(() => resolveColor(clamped, thresholds, invert), [clamped, thresholds, invert]);
   const sweep = 180 * (clamped / 100);
   const viewHeight = size / 2 + 16;
+  const displayText = format ? format(value) : `${Math.round(clamped)}%`;
 
   return (
     <div className={cn('flex flex-col items-center', className)}>
@@ -75,7 +83,7 @@ export function GaugeChart({ value, label, thresholds, invert, size = 160, class
         <path d={arcPath(cx, cy, r, 180, 360)} className="stroke-surface-sunken" strokeWidth={12} fill="none" strokeLinecap="round" />
         <path d={arcPath(cx, cy, r, 180, 180 + sweep)} stroke={color} strokeWidth={12} fill="none" strokeLinecap="round" />
       </svg>
-      <p className="-mt-7 font-display text-2xl font-bold text-ink">{Math.round(clamped)}%</p>
+      <p className="-mt-7 font-display text-2xl font-bold text-ink">{displayText}</p>
       {label && <p className="mt-1 text-center font-body text-xs text-ink-muted">{label}</p>}
     </div>
   );
