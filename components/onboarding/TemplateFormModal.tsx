@@ -39,7 +39,6 @@ import { Textarea } from '@/components/ui/Textarea';
 import { cn } from '@/lib/cn';
 import { useToast } from '@/providers/ToastProvider';
 import type { DepartmentNode } from '@/components/departments/types';
-import type { Position } from '@/components/organization/types';
 import {
   CATEGORY_CFG,
   PHASE_LABELS,
@@ -164,10 +163,10 @@ export function TemplateFormModal({
     '/departments/tree',
     { staleTime: STALE_TIME.SEMI_STATIC },
   );
-  const { data: positionsResp } = useApiQuery<{ data: Position[] }>(
-    queryKeys.organization.positions(''),
-    '/organization/positions',
-    { params: { limit: 200 }, staleTime: STALE_TIME.SEMI_STATIC },
+  const { data: positions } = useApiQuery<Array<{ id: number; name: string }>>(
+    queryKeys.departments.positions(),
+    '/positions',
+    { staleTime: STALE_TIME.SEMI_STATIC },
   );
   const { options: unitOptions } = useUnitOptions();
 
@@ -177,7 +176,7 @@ export function TemplateFormModal({
   ];
   const positionItems = [
     { value: NO_POSITION, label: 'Sem cargo/função' },
-    ...(positionsResp?.data ?? []).map((p) => ({
+    ...(positions ?? []).map((p) => ({
       value: String(p.id),
       label: p.name,
     })),

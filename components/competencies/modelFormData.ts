@@ -15,7 +15,6 @@ import { useDebounce } from '@/hooks/useDebounce';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import type { DirectoryUser } from '@/components/users/types';
-import type { Position } from '@/components/organization/types';
 
 export type { DirectoryUser };
 
@@ -95,12 +94,12 @@ export function useSubDepartmentOptions(departmentId?: number, enabled = true) {
  *  "Avaliações" (docs/módulo_competencies.md §5/§6). Mesma fonte que
  *  components/onboarding/planData.ts#usePositionOptions. */
 export function usePositionOptions(enabled = true) {
-  const query = useApiQuery<{ data: Position[] }>(
-    queryKeys.organization.positions(''),
-    '/organization/positions',
+  const query = useApiQuery<{ id: number; name: string }[]>(
+    queryKeys.departments.positions(),
+    '/positions',
     { staleTime: STALE_TIME.STATIC, enabled },
   );
-  const options: Option[] = (query.data?.data ?? []).map((p) => ({
+  const options: Option[] = (query.data ?? []).map((p) => ({
     value: String(p.id),
     label: p.name,
   }));

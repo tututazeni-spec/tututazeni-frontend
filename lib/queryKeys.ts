@@ -184,6 +184,7 @@ export const queryKeys = {
       [...queryKeys.departments.all, 'list', params] as const,
     tree: () => [...queryKeys.departments.all, 'tree'] as const,
     units: () => [...queryKeys.departments.all, 'units'] as const,
+    positions: () => [...queryKeys.departments.all, 'positions'] as const,
     detail: (id: number) =>
       [...queryKeys.departments.all, 'detail', id] as const,
     metrics: (id: number) =>
@@ -793,19 +794,6 @@ export const queryKeys = {
       [...queryKeys.leadership.all, 'program', id, 'outcomes'] as const,
     costs: (id: number) =>
       [...queryKeys.leadership.all, 'program', id, 'costs'] as const,
-  },
-
-  organization: {
-    all: ['organization'] as const,
-    stats: () => [...queryKeys.organization.all, 'stats'] as const,
-    headcount: () => [...queryKeys.organization.all, 'headcount'] as const,
-    chart: (depth: number) =>
-      [...queryKeys.organization.all, 'chart', depth] as const,
-    departments: (search: string) =>
-      [...queryKeys.organization.all, 'departments', search] as const,
-    positions: (level: string) =>
-      [...queryKeys.organization.all, 'positions', level] as const,
-    timeline: () => [...queryKeys.organization.all, 'timeline'] as const,
   },
 
   developmentPlans: {
