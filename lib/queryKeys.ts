@@ -89,6 +89,9 @@ export const queryKeys = {
       ] as const,
     learningPathLookups: () =>
       [...queryKeys.users.all, 'lookups', 'learning-paths'] as const,
+    // Separador "Acesso & Permissões" do perfil (docs/modulo_users.md Ponto 4).
+    access: (id: number | string) =>
+      [...queryKeys.users.all, 'access', id] as const,
   },
 
   employees: {
@@ -218,6 +221,10 @@ export const queryKeys = {
     // docs/módulo_competencies.md §9
     reports: (params: Record<string, unknown>) =>
       [...queryKeys.competencies.all, 'reports', params] as const,
+    // Separador "Competências" do perfil de utilizador (docs/modulo_users.md
+    // Ponto 3) — distinto de gap(userId), que é só a análise de gap.
+    byUser: (userId: number | string) =>
+      [...queryKeys.competencies.all, 'by-user', userId] as const,
   },
 
   automation: {
@@ -362,6 +369,9 @@ export const queryKeys = {
       [...queryKeys.evaluation360.all, 'cycle-report', cycleId, filters] as const,
     cycleEvolution: (filters: Record<string, string>) =>
       [...queryKeys.evaluation360.all, 'cycle-evolution', filters] as const,
+    // Separador "Avaliações" do perfil de utilizador (docs/modulo_users.md Ponto 3).
+    userCycles: (userId: string) =>
+      [...queryKeys.evaluation360.all, 'user-cycles', userId] as const,
   },
 
   analyticsPage: {
@@ -507,6 +517,9 @@ export const queryKeys = {
     history: (userId?: number) =>
       [...queryKeys.career.all, 'history', userId ?? 'me'] as const,
     jobFamilies: () => [...queryKeys.career.all, 'job-families'] as const,
+    // Separador "Carreira" do perfil de utilizador (docs/modulo_users.md Ponto 3).
+    profileByUser: (userId: number) =>
+      [...queryKeys.career.all, 'profile-by-user', userId] as const,
   },
 
   history: {
@@ -517,6 +530,17 @@ export const queryKeys = {
     stats: () => [...queryKeys.history.all, 'stats'] as const,
     auditStats: () => [...queryKeys.history.all, 'audit-stats'] as const,
     upcoming: () => [...queryKeys.history.all, 'upcoming'] as const,
+    // Separadores "Histórico" e "Atividade" do perfil de utilizador
+    // (docs/modulo_users.md Ponto 3) — versões por utilizador (ADMIN/RH/GESTOR)
+    // das rotas acima, que são todas do próprio chamador.
+    logByUser: (userId: number) =>
+      [...queryKeys.history.all, 'log-by-user', userId] as const,
+    timelineByUser: (userId: number) =>
+      [...queryKeys.history.all, 'timeline-by-user', userId] as const,
+    statsByUser: (userId: number) =>
+      [...queryKeys.history.all, 'stats-by-user', userId] as const,
+    milestonesByUser: (userId: number) =>
+      [...queryKeys.history.all, 'milestones-by-user', userId] as const,
   },
 
   onboarding: {
@@ -563,6 +587,9 @@ export const queryKeys = {
       [...queryKeys.trainings.all, 'history', id] as const,
     reports: (params: Record<string, unknown>) =>
       [...queryKeys.trainings.all, 'reports', params] as const,
+    // Separador "Formação" do perfil de utilizador (docs/modulo_users.md Ponto 3).
+    byUser: (userId: number) =>
+      [...queryKeys.trainings.all, 'by-user', userId] as const,
   },
 
   trainingPlans: {
@@ -676,6 +703,11 @@ export const queryKeys = {
     dashboard: () => [...queryKeys.leave.all, 'dashboard'] as const,
     pendingApprovals: () =>
       [...queryKeys.leave.all, 'pending-approvals'] as const,
+    // Separador "Férias & Licenças" do perfil de utilizador (docs/modulo_users.md Ponto 3).
+    byUser: (userId: number) =>
+      [...queryKeys.leave.all, 'by-user', userId] as const,
+    balanceByUser: (userId: number) =>
+      [...queryKeys.leave.all, 'balance-by-user', userId] as const,
   },
 
   enrollments: {
@@ -690,6 +722,9 @@ export const queryKeys = {
     team: () => [...queryKeys.enrollments.all, 'team'] as const,
     byDepartment: () =>
       [...queryKeys.enrollments.all, 'by-department'] as const,
+    // Separador "Cursos" do perfil de utilizador (docs/modulo_users.md Ponto 3).
+    byUser: (userId: number | string) =>
+      [...queryKeys.enrollments.all, 'by-user', userId] as const,
   },
 
   attendance: {
@@ -698,6 +733,9 @@ export const queryKeys = {
     my: (params: Record<string, unknown>) =>
       [...queryKeys.attendance.all, 'my', params] as const,
     leaveBalance: () => [...queryKeys.attendance.all, 'leave-balance'] as const,
+    // Separador "Presenças" do perfil de utilizador (docs/modulo_users.md Ponto 3).
+    byUser: (userId: number) =>
+      [...queryKeys.attendance.all, 'by-user', userId] as const,
   },
 
   notifications: {
@@ -773,6 +811,9 @@ export const queryKeys = {
       [...queryKeys.developmentPlans.all, 'detail', id] as const,
     teamDashboard: () =>
       [...queryKeys.developmentPlans.all, 'team-dashboard'] as const,
+    // Separador "PDI" do perfil de utilizador (docs/modulo_users.md Ponto 3).
+    byUser: (userId: number | string) =>
+      [...queryKeys.developmentPlans.all, 'by-user', userId] as const,
   },
 
   executiveReports: {
@@ -890,6 +931,9 @@ export const queryKeys = {
       [...queryKeys.documents.all, 'compliance-overview'] as const,
     readStatus: (id: number) =>
       [...queryKeys.documents.all, 'read-status', id] as const,
+    // Separador "Documentos" do perfil de utilizador (docs/modulo_users.md Ponto 3).
+    byOwner: (ownerId: number) =>
+      [...queryKeys.documents.all, 'by-owner', ownerId] as const,
   },
 
   careerPlans: {

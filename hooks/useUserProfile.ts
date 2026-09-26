@@ -1,12 +1,10 @@
 // hooks/useUserProfile.ts
-// Container do perfil de um utilizador — as 3 queries (user, stats, audit
-// logs — este último lazy, só quando o separador de auditoria está aberto)
-// e a mutação de acção (activate/deactivate/suspend). Extraído de
-// UserProfileView em app/(platform)/users/page.tsx (357 linhas, misturava
-// isto tudo com o JSX de 4 separadores). `tab` entra como argumento (não
-// como estado do próprio hook) porque quem decide qual separador está
-// activo é a UI — o hook só usa esse valor para decidir se activa a query
-// de auditoria.
+// Container do perfil de um utilizador — user/stats (sempre pedidos, para o
+// cabeçalho e o separador "Resumo") e a mutação de acção (activate/
+// deactivate/suspend). Os restantes separadores (docs/modulo_users.md Ponto
+// 3) fazem o seu próprio fetch lazy em components/users/ProfileTabs.tsx, só
+// pedido quando o separador é montado — mesmo padrão que já existia aqui
+// para a auditoria antes desta extracção.
 // Ver memory project_innova_component_separation_audit, item 3.3.
 
 'use client';
@@ -17,12 +15,33 @@ import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import type { AuditLogEntry, User, UserStats } from '@/components/users/types';
+import type { User, UserStats } from '@/components/users/types';
 
-export type ProfileTab = 'overview' | 'learning' | 'team' | 'audit';
+// docs/modulo_users.md Ponto 3 — separadores do "Perfil do Colaborador".
+// 'personal'/'professional'/'organization'/'access' e os separadores de
+// 'training' a 'activity' são renderizados por components/users/ProfileTabs.tsx,
+// cada um com o seu próprio fetch lazy (só pedido quando montado).
+export type ProfileTab =
+  | 'overview'
+  | 'personal'
+  | 'professional'
+  | 'organization'
+  | 'access'
+  | 'training'
+  | 'courses'
+  | 'competencies'
+  | 'performance'
+  | 'evaluations'
+  | 'pdi'
+  | 'career'
+  | 'documents'
+  | 'leave'
+  | 'attendance'
+  | 'history'
+  | 'activity';
 export type UserAction = 'activate' | 'deactivate' | 'suspend';
 
-export function useUserProfile(userId: number, tab: ProfileTab) {
+export function useUserProfile(userId: number) {
   const notify = useToast();
   // user e stats correm em paralelo (sem waterfall).
   const { data: user, isLoading: loadingUser } = useApiQuery<User>(
@@ -35,13 +54,6 @@ export function useUserProfile(userId: number, tab: ProfileTab) {
     `/users/${userId}/stats`,
     { staleTime: STALE_TIME.DYNAMIC },
   );
-  // Auditoria só é pedida quando o separador é aberto (lazy).
-  const { data: auditData } = useApiQuery<{ data: AuditLogEntry[] }>(
-    queryKeys.users.auditLogs(userId),
-    `/users/${userId}/audit-logs`,
-    { enabled: tab === 'audit', staleTime: STALE_TIME.DYNAMIC },
-  );
-  const auditLogs = auditData?.data ?? [];
 
   // Acções (activate/deactivate/suspend): invalidam detalhe + listas após sucesso.
   const action = useApiMutation(
@@ -71,7 +83,6 @@ export function useUserProfile(userId: number, tab: ProfileTab) {
     user,
     loadingUser,
     stats,
-    auditLogs,
     actionLoading,
     handleAction,
   };

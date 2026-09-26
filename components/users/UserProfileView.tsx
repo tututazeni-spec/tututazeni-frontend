@@ -1,10 +1,12 @@
 // components/users/UserProfileView.tsx
 // Vista apresentacional do perfil de um utilizador — sem fetch de user/
-// stats/audit-logs, sem mutação de acção (tudo isso vem do container,
-// hooks/useUserProfile.ts, usado em UserProfileView dentro de
-// app/(platform)/users/page.tsx). `TeamView` fica aqui porque só é usado
-// no separador "Equipa" deste perfil — continua a fazer o seu próprio
-// fetch (widget autónomo), tal como já fazia antes desta separação.
+// stats, sem mutação de acção (tudo isso vem do container,
+// hooks/useUserProfile.ts, usado em UserProfile dentro de
+// app/(platform)/users/page.tsx). Os separadores "Dados Pessoais" a
+// "Atividade" (docs/modulo_users.md Ponto 3) vivem em ./ProfileTabs.tsx,
+// cada um com o seu próprio fetch lazy — só pedido quando o separador activo
+// os monta (mesmo padrão que a antiga TeamView já usava antes desta
+// extracção).
 // Ver memory project_innova_component_separation_audit, item 3.3.
 
 'use client';
@@ -18,9 +20,6 @@ import {
   Trophy,
   AlertTriangle,
 } from 'lucide-react';
-import { useApiQuery } from '@/hooks/useApiQuery';
-import { queryKeys } from '@/lib/queryKeys';
-import { STALE_TIME } from '@/lib/queryClient';
 import { formatDate as fmtDate } from '@/lib/format';
 import Image from 'next/image';
 import { Avatar } from '@/components/ui/Avatar';
@@ -30,105 +29,26 @@ import { Card } from '@/components/ui/Card';
 import { KpiCard } from '@/components/ui/KpiCard';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeaderCell,
-  TableRow,
-} from '@/components/ui/Table';
 import type { ProfileTab, UserAction } from '@/hooks/useUserProfile';
+import { ACCOUNT_STATUS_MAP, HR_STATUS_MAP, type User, type UserStats } from './types';
 import {
-  ACCOUNT_STATUS_MAP,
-  HR_STATUS_MAP,
-  type AuditLogEntry,
-  type TeamResponse,
-  type User,
-  type UserStats,
-} from './types';
-
-interface TeamViewProps {
-  managerId: number;
-}
-
-function TeamView({ managerId }: TeamViewProps) {
-  const { data, isLoading: loading } = useApiQuery<TeamResponse>(
-    queryKeys.users.team(managerId),
-    `/users/${managerId}/team`,
-    { staleTime: STALE_TIME.DYNAMIC },
-  );
-
-  if (loading)
-    return (
-      <Skeleton
-        rows={4}
-        wrapperClassName="space-y-2 animate-pulse"
-        itemClassName="h-14 rounded-card bg-surface-sunken"
-      />
-    );
-  if (!data || data.team.length === 0)
-    return (
-      <div className="py-8 text-center text-sm text-ink-faint border border-dashed border-border-strong rounded-card">
-        Sem subordinados directos
-      </div>
-    );
-
-  return (
-    <Table>
-      <TableHead>
-        <TableRow>
-          <TableHeaderCell>Colaborador</TableHeaderCell>
-          <TableHeaderCell>Concluídos</TableHeaderCell>
-          <TableHeaderCell>Em curso</TableHeaderCell>
-          <TableHeaderCell>Atrasos</TableHeaderCell>
-          <TableHeaderCell>Estado</TableHeaderCell>
-        </TableRow>
-      </TableHead>
-      <TableBody>
-        {data.team.map((member) => (
-          <TableRow key={member.id}>
-            <TableCell>
-              <div className="flex items-center gap-3">
-                <Avatar
-                  name={member.fullName}
-                  url={member.avatarUrl ?? undefined}
-                  size="sm"
-                />
-                <div>
-                  <div className="text-sm font-medium text-ink">
-                    {member.fullName}
-                  </div>
-                  <div className="text-xs text-ink-faint">
-                    {member.position?.name ?? '—'}
-                  </div>
-                </div>
-              </div>
-            </TableCell>
-            <TableCell className="text-sm text-success font-mono">
-              {member.learningStats.completed}
-            </TableCell>
-            <TableCell className="text-sm text-info font-mono">
-              {member.learningStats.inProgress}
-            </TableCell>
-            <TableCell
-              className={`text-sm font-mono ${member.learningStats.overdue > 0 ? 'text-danger' : 'text-ink-faint'}`}
-            >
-              {member.learningStats.overdue}
-            </TableCell>
-            <TableCell>
-              <StatusBadge
-                value={member.accountStatus}
-                map={ACCOUNT_STATUS_MAP}
-                variant="dot"
-              />
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
-  );
-}
+  AccessTab,
+  ActivityTab,
+  AttendanceTab,
+  CareerTab,
+  CompetenciesTab,
+  CoursesTab,
+  DocumentsTab,
+  EvaluationsTab,
+  HistoryTab,
+  LeaveTab,
+  OrganizationTab,
+  PdiTab,
+  PerformanceTab,
+  PersonalDataTab,
+  ProfessionalDataTab,
+  TrainingTab,
+} from './ProfileTabs';
 
 export interface UserProfileViewProps {
   userId: number;
@@ -138,10 +58,30 @@ export interface UserProfileViewProps {
   user: User | undefined;
   loadingUser: boolean;
   stats: UserStats | undefined;
-  auditLogs: AuditLogEntry[];
   actionLoading: boolean;
   onAction: (action: UserAction) => void;
 }
+
+// docs/modulo_users.md Ponto 3 — ordem e rótulos exactos dos 17 separadores.
+const TABS: Array<{ id: ProfileTab; label: string }> = [
+  { id: 'overview', label: 'Resumo' },
+  { id: 'personal', label: 'Dados Pessoais' },
+  { id: 'professional', label: 'Dados Profissionais' },
+  { id: 'organization', label: 'Organização' },
+  { id: 'access', label: 'Acesso & Permissões' },
+  { id: 'training', label: 'Formação' },
+  { id: 'courses', label: 'Cursos' },
+  { id: 'competencies', label: 'Competências' },
+  { id: 'performance', label: 'Desempenho' },
+  { id: 'evaluations', label: 'Avaliações' },
+  { id: 'pdi', label: 'PDI' },
+  { id: 'career', label: 'Carreira' },
+  { id: 'documents', label: 'Documentos' },
+  { id: 'leave', label: 'Férias & Licenças' },
+  { id: 'attendance', label: 'Presenças' },
+  { id: 'history', label: 'Histórico' },
+  { id: 'activity', label: 'Atividade' },
+];
 
 export function UserProfileView({
   userId,
@@ -151,7 +91,6 @@ export function UserProfileView({
   user,
   loadingUser,
   stats,
-  auditLogs,
   actionLoading,
   onAction,
 }: UserProfileViewProps) {
@@ -165,13 +104,6 @@ export function UserProfileView({
         />
       </div>
     );
-
-  const tabs: Array<{ id: ProfileTab; label: string }> = [
-    { id: 'overview', label: 'Visão geral' },
-    { id: 'learning', label: 'Formação' },
-    { id: 'team', label: 'Equipa' },
-    { id: 'audit', label: 'Auditoria' },
-  ];
 
   return (
     <div>
@@ -283,8 +215,8 @@ export function UserProfileView({
       </Card>
 
       {/* Tabs */}
-      <div className="flex w-fit gap-1 mb-5 rounded-control bg-surface-sunken p-1">
-        {tabs.map((t) => (
+      <div className="flex w-fit flex-wrap gap-1 mb-5 rounded-control bg-surface-sunken p-1">
+        {TABS.map((t) => (
           <Button
             key={t.id}
             size="sm"
@@ -296,7 +228,7 @@ export function UserProfileView({
         ))}
       </div>
 
-      {/* Overview tab */}
+      {/* Resumo */}
       {tab === 'overview' && stats && (
         <div className="space-y-5">
           <div className="grid grid-cols-4 gap-3">
@@ -337,7 +269,6 @@ export function UserProfileView({
             </div>
           )}
 
-          {/* Info pessoal e organizacional */}
           <div className="grid grid-cols-2 gap-5">
             <Card className="p-5">
               <div className="text-xs font-medium text-ink-faint uppercase tracking-wide mb-3">
@@ -366,7 +297,7 @@ export function UserProfileView({
               {[
                 ['Departamento', user.department?.name ?? '—'],
                 ['Cargo', user.position?.name ?? '—'],
-                ['Unidade', '—'],
+                ['Unidade', user.unit?.name ?? '—'],
                 ['Admissão', fmtDate(user.hireDate)],
                 ['Role sistema', user.role?.name ?? '—'],
               ].map(([l, v]) => (
@@ -380,32 +311,7 @@ export function UserProfileView({
               ))}
             </Card>
           </div>
-        </div>
-      )}
 
-      {/* Learning tab */}
-      {tab === 'learning' && stats && (
-        <div className="space-y-4">
-          <div className="grid grid-cols-3 gap-3">
-            <KpiCard
-              icon={Clock}
-              label="Em progresso"
-              value={stats.enrollments.inProgress}
-              intent="info"
-            />
-            <KpiCard
-              icon={CheckCircle2}
-              label="Concluídos"
-              value={stats.enrollments.completed}
-              intent="success"
-            />
-            <KpiCard
-              icon={Award}
-              label="Badges"
-              value={stats.gamification.badges}
-              intent="accent"
-            />
-          </div>
           {stats.recentActivity.length > 0 && (
             <Card className="overflow-hidden">
               <div className="px-4 py-3 border-b border-border text-xs font-medium text-ink-faint uppercase tracking-wide">
@@ -441,52 +347,22 @@ export function UserProfileView({
         </div>
       )}
 
-      {/* Team tab */}
-      {tab === 'team' && <TeamView managerId={userId} />}
-
-      {/* Audit tab */}
-      {tab === 'audit' && (
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableHeaderCell>Acção</TableHeaderCell>
-              <TableHeaderCell>Por</TableHeaderCell>
-              <TableHeaderCell>Data</TableHeaderCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {auditLogs.length === 0 ? (
-              <TableRow>
-                <TableCell
-                  colSpan={3}
-                  className="py-8 text-center text-ink-faint"
-                >
-                  Sem logs de auditoria
-                </TableCell>
-              </TableRow>
-            ) : (
-              auditLogs.map((log) => (
-                <TableRow key={log.id}>
-                  <TableCell>
-                    <div className="text-xs font-medium font-mono text-ink">
-                      {log.action}
-                    </div>
-                    {log.meta && (
-                      <div className="text-xs text-ink-faint">{log.meta}</div>
-                    )}
-                  </TableCell>
-                  <TableCell className="text-xs text-ink-muted">
-                    {log.performedBy?.fullName ?? '—'}
-                  </TableCell>
-                  <TableCell className="text-xs text-ink-faint">
-                    {fmtDate(log.createdAt)}
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      )}
+      {tab === 'personal' && <PersonalDataTab user={user} />}
+      {tab === 'professional' && <ProfessionalDataTab user={user} />}
+      {tab === 'organization' && <OrganizationTab user={user} />}
+      {tab === 'access' && <AccessTab userId={userId} />}
+      {tab === 'training' && <TrainingTab userId={userId} />}
+      {tab === 'courses' && <CoursesTab userId={userId} />}
+      {tab === 'competencies' && <CompetenciesTab userId={userId} />}
+      {tab === 'performance' && <PerformanceTab userId={userId} />}
+      {tab === 'evaluations' && <EvaluationsTab userId={userId} />}
+      {tab === 'pdi' && <PdiTab userId={userId} />}
+      {tab === 'career' && <CareerTab userId={userId} />}
+      {tab === 'documents' && <DocumentsTab userId={userId} />}
+      {tab === 'leave' && <LeaveTab userId={userId} />}
+      {tab === 'attendance' && <AttendanceTab userId={userId} />}
+      {tab === 'history' && <HistoryTab userId={userId} />}
+      {tab === 'activity' && <ActivityTab userId={userId} />}
     </div>
   );
 }
