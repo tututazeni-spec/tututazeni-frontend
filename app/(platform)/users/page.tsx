@@ -51,7 +51,7 @@ export default function UsersPage() {
             <div className="flex gap-2">
               <Button onClick={handleCreate}>
                 <Plus size={16} strokeWidth={1.75} />
-                Novo colaborador
+                Novo utilizador
               </Button>
               <Button
                 intent="secondary"

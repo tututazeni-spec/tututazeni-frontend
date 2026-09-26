@@ -87,6 +87,8 @@ export const queryKeys = {
         search,
         departmentId ?? '',
       ] as const,
+    learningPathLookups: () =>
+      [...queryKeys.users.all, 'lookups', 'learning-paths'] as const,
   },
 
   employees: {
@@ -593,6 +595,7 @@ export const queryKeys = {
     all: ['acl'] as const,
     stats: () => [...queryKeys.acl.all, 'stats'] as const,
     myPermissions: () => [...queryKeys.acl.all, 'my-permissions'] as const,
+    permissions: () => [...queryKeys.acl.all, 'permissions'] as const,
     roles: () => [...queryKeys.acl.all, 'roles'] as const,
     matrix: () => [...queryKeys.acl.all, 'matrix'] as const,
     audit: (view: string, page: number) =>
