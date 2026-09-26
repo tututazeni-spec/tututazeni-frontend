@@ -68,11 +68,16 @@ function buildUrl(path: string, params?: RequestOptions['params']): string {
 let loggingOut = false;
 
 /**
- * Limpa a sessão (cookie httpOnly) e redirecciona para /login. Chamado tanto
- * automaticamente (401 em qualquer pedido) como manualmente (botão "Sair").
- * Idempotente: chamadas repetidas antes do redirect completar são ignoradas.
+ * Limpa a sessão (cookie httpOnly) e redirecciona para /login. Chamado
+ * automaticamente (401 em qualquer pedido, ou inactividade detectada por
+ * lib/sessionActivity.ts) e manualmente (botão "Sair"). Idempotente:
+ * chamadas repetidas antes do redirect completar são ignoradas.
+ *
+ * `reason: 'idle'` acrescenta ?reason=idle ao redirect para o login mostrar
+ * "a tua sessão expirou por inactividade" em vez de simplesmente reabrir o
+ * formulário sem explicação.
  */
-export function logout(): void {
+export function logout(reason?: 'idle'): void {
   if (
     typeof window === 'undefined' ||
     window.location.pathname.startsWith('/login') ||
@@ -91,7 +96,7 @@ export function logout(): void {
     method: 'POST',
     credentials: 'include',
   }).finally(() => {
-    window.location.href = '/login';
+    window.location.href = reason === 'idle' ? '/login?reason=idle' : '/login';
   });
 }
 

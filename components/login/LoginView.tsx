@@ -11,6 +11,7 @@ interface LoginViewProps {
   showPass: boolean;
   setShowPass: (updater: (s: boolean) => boolean) => void;
   error: string | null;
+  notice: string | null;
   loading: boolean;
   handleSubmit: (e: React.FormEvent) => void;
 }
@@ -23,6 +24,7 @@ export function LoginView({
   showPass,
   setShowPass,
   error,
+  notice,
   loading,
   handleSubmit,
 }: LoginViewProps) {
@@ -192,6 +194,17 @@ export function LoginView({
           background: #fef2f2;
           border: 1px solid #fecaca;
           color: #dc2626;
+          font-size: 13px;
+          padding: 10px 14px;
+          border-radius: 8px;
+          margin-bottom: 20px;
+          text-align: center;
+        }
+
+        .login-notice {
+          background: #eff6ff;
+          border: 1px solid #bfdbfe;
+          color: #1d4ed8;
           font-size: 13px;
           padding: 10px 14px;
           border-radius: 8px;
@@ -373,6 +386,7 @@ export function LoginView({
               </div>
             </div>
 
+            {!error && notice && <div className="login-notice">{notice}</div>}
             {error && <div className="login-error">{error}</div>}
 
             <button type="submit" className="login-btn" disabled={loading}>

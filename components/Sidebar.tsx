@@ -382,7 +382,7 @@ export default function Sidebar() {
       {/* Logout */}
       <div style={{ padding: '12px 8px', borderTop: '1px solid #1e293b' }}>
         <button
-          onClick={logout}
+          onClick={() => logout()}
           style={{
             width: '100%',
             display: 'flex',

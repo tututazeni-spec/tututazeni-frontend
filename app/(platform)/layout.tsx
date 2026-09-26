@@ -1,6 +1,7 @@
 import "../globals.css";
 import Sidebar from "../../components/Sidebar";
 import Topbar from "../../components/Topbar";
+import SessionIdleWatcher from "../../components/SessionIdleWatcher";
 
 export default function PlatformLayout({
   children,
@@ -9,6 +10,7 @@ export default function PlatformLayout({
 }) {
   return (
     <div style={{ display: "flex", margin: 0, padding: 0 }}>
+      <SessionIdleWatcher />
       <Sidebar />
       <div style={{ marginLeft: "240px", flex: 1, display: "flex", flexDirection: "column", minHeight: "100vh" }}>
         <Topbar />
