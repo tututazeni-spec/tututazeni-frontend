@@ -1,12 +1,24 @@
 // components/ui/Modal.tsx
 'use client';
 
-import type { ReactNode } from 'react';
+import { useEffect, type ComponentProps, type ReactNode } from 'react';
 import { Dialog } from 'radix-ui';
 import { X } from 'lucide-react';
 import { cn } from '@/lib/cn';
+import { useModalVisibilityStore } from '@/lib/modalVisibility';
 
-export const Modal = Dialog.Root;
+// Envolve o Dialog.Root só para registar no store partilhado quando este
+// modal está aberto — o Topbar usa isso para se auto-ocultar. Mesma API do
+// Dialog.Root, por isso todos os consumidores existentes continuam a funcionar.
+export function Modal({ open, ...props }: ComponentProps<typeof Dialog.Root>) {
+  useEffect(() => {
+    if (!open) return;
+    useModalVisibilityStore.getState().increment();
+    return () => useModalVisibilityStore.getState().decrement();
+  }, [open]);
+
+  return <Dialog.Root open={open} {...props} />;
+}
 export const ModalTrigger = Dialog.Trigger;
 export const ModalClose = Dialog.Close;
 
@@ -37,6 +49,9 @@ export function ModalContent({
       />
       <Dialog.Content
         onOpenAutoFocus={onOpenAutoFocus}
+        onPointerDownOutside={(event) => event.preventDefault()}
+        onInteractOutside={(event) => event.preventDefault()}
+        onEscapeKeyDown={(event) => event.preventDefault()}
         className={cn(
           'fixed left-1/2 top-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2',
           'rounded-panel border border-border bg-surface p-6 shadow-elevated',

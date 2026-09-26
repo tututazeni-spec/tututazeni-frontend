@@ -8,6 +8,7 @@ import { queryKeys } from '@/lib/queryKeys';
 import { Avatar } from '@/components/ui/Avatar';
 import { Modal, ModalContent } from '@/components/ui/Modal';
 import { AvatarUploader } from '@/components/ui/AvatarUploader';
+import { useAnyModalOpen } from '@/lib/modalVisibility';
 
 interface TopbarProps {
   title?: string;
@@ -18,6 +19,7 @@ export default function Topbar({ title }: TopbarProps) {
   const { data: user } = useCurrentUser();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
+  const anyModalOpen = useAnyModalOpen();
 
   // Contador de não lidas — mesma key/endpoint que a página de notificações,
   // por isso partilha cache e refresca ao marcar como lida por lá.
@@ -44,7 +46,10 @@ export default function Topbar({ title }: TopbarProps) {
         height: 56,
         background: '#ffffff',
         borderBottom: '1px solid #e2e8f0',
-        display: 'flex',
+        // Auto-oculta-se enquanto qualquer Modal está aberto — o header tem
+        // z-index acima do Overlay/Content do Modal, por isso sem isto
+        // ficaria por cima do modal a interferir com os cliques.
+        display: anyModalOpen ? 'none' : 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
         padding: '0 24px',
