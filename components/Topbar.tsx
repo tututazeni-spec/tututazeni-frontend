@@ -1,7 +1,7 @@
 'use client';
 import { useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
-import { Bell, Search } from 'lucide-react';
+import { Bell, Home, Search } from 'lucide-react';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
@@ -65,6 +65,22 @@ export default function Topbar({ title }: TopbarProps) {
             {title}
           </span>
         )}
+        <button
+          type="button"
+          onClick={() => router.push('/dashboard')}
+          aria-label="Dashboard"
+          title="Dashboard"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            background: 'none',
+            border: 'none',
+            padding: 0,
+            cursor: 'pointer',
+          }}
+        >
+          <Home size={18} color="#64748b" />
+        </button>
         <form
           role="search"
           onSubmit={submitSearch}

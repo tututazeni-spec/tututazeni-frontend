@@ -56,7 +56,6 @@ const NAV: Array<{ label: string; items: NavItem[] }> = [
   {
     label: 'Principal',
     items: [
-      { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
       {
         href: '/dashboard-rh',
         icon: Users,
