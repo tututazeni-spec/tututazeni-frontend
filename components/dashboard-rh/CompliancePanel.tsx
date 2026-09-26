@@ -11,6 +11,7 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { Badge } from '@/components/ui/Badge';
 import { KpiCard } from '@/components/ui/KpiCard';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { GaugeChart } from '@/components/ui/charts/GaugeChart';
 import type { ComplianceData, DocumentsDashboardData } from './types';
 
 const RISK_LABEL: Record<string, string> = {
@@ -44,13 +45,14 @@ export function CompliancePanel() {
   return (
     <div className="space-y-5">
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-        <KpiCard
-          label="Formações Obrigatórias Concluídas"
-          value={`${data?.mandatoryRate ?? 0}%`}
-          sub={`${data?.mandatoryDone ?? 0} de ${data?.mandatory ?? 0}`}
-          intent="primary"
-          className="w-full"
-        />
+        <div className="flex flex-col items-center justify-center rounded-card border border-border bg-surface p-3">
+          <GaugeChart
+            value={data?.mandatoryRate ?? 0}
+            label={`Obrigatórias (${data?.mandatoryDone ?? 0}/${data?.mandatory ?? 0})`}
+            thresholds={{ warning: 80, danger: 60 }}
+            size={120}
+          />
+        </div>
         <KpiCard
           label="Nível de Risco"
           value={RISK_LABEL[risk]}

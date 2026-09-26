@@ -14,6 +14,8 @@ import { Avatar } from '@/components/ui/Avatar';
 import { KpiCard } from '@/components/ui/KpiCard';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { AreaLineChart } from '@/components/ui/charts/AreaLineChart';
+import { BarChart } from '@/components/ui/charts/BarChart';
 import type {
   AnniversaryUser,
   EmployeesHeadcountData,
@@ -83,22 +85,10 @@ export function HeadcountPanel() {
             <h4 className="mb-4 font-body font-semibold text-ink-muted">
               Distribuição por Tempo de Casa
             </h4>
-            {Object.entries(data.byTenure as Record<string, number>).map(
-              ([k, v]) => {
-                const max = Math.max(
-                  ...Object.values(data.byTenure as Record<string, number>),
-                );
-                return (
-                  <div key={k} className="mb-2">
-                    <div className="mb-0.5 flex justify-between font-body text-xs">
-                      <span className="text-ink-muted">{k}</span>
-                      <span className="font-semibold text-ink">{v}</span>
-                    </div>
-                    <ProgressBar value={max > 0 ? (v / max) * 100 : 0} />
-                  </div>
-                );
-              },
-            )}
+            <BarChart
+              categories={Object.keys(data.byTenure)}
+              series={[{ label: 'Colaboradores', values: Object.values(data.byTenure) }]}
+            />
           </div>
         )}
 
@@ -107,20 +97,18 @@ export function HeadcountPanel() {
           <h4 className="mb-4 font-body font-semibold text-ink-muted">
             Evolução Mensal
           </h4>
-          <div className="space-y-2">
-            {trend.map((t, i) => {
-              const max = Math.max(...trend.map((x) => x.count));
-              return (
-                <div key={i}>
-                  <div className="mb-0.5 flex justify-between font-body text-xs">
-                    <span className="text-ink-muted">{t.month}</span>
-                    <span className="font-semibold text-ink">{t.count}</span>
-                  </div>
-                  <ProgressBar value={(t.count / max) * 100} />
-                </div>
-              );
-            })}
-          </div>
+          {trend.length > 0 ? (
+            <AreaLineChart
+              series={[
+                {
+                  label: 'Colaboradores',
+                  points: trend.map((t, i) => ({ x: i, y: t.count, xLabel: t.month })),
+                },
+              ]}
+            />
+          ) : (
+            <p className="font-body text-xs text-ink-faint">Sem dados suficientes.</p>
+          )}
         </div>
       </div>
 

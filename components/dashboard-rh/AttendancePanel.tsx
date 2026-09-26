@@ -10,6 +10,7 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { KpiCard } from '@/components/ui/KpiCard';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { GaugeChart } from '@/components/ui/charts/GaugeChart';
 import type { AttendanceData } from './types';
 
 export function AttendancePanel() {
@@ -36,12 +37,9 @@ export function AttendancePanel() {
       </p>
 
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-        <KpiCard
-          label="Taxa de Presença"
-          value={`${k.attendanceRate ?? 0}%`}
-          intent="primary"
-          className="w-full"
-        />
+        <div className="flex flex-col items-center justify-center rounded-card border border-border bg-surface p-3">
+          <GaugeChart value={k.attendanceRate ?? 0} label="Taxa de Presença" thresholds={{ warning: 90, danger: 75 }} size={120} />
+        </div>
         <KpiCard
           label="Presentes Agora"
           value={k.checkedInNow ?? 0}

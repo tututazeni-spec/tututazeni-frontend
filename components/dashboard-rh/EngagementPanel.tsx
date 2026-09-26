@@ -10,8 +10,9 @@ import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { KpiCard } from '@/components/ui/KpiCard';
-import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { BarChart } from '@/components/ui/charts/BarChart';
+import { GaugeChart } from '@/components/ui/charts/GaugeChart';
 import type { EngagementData } from './types';
 
 export function EngagementPanel() {
@@ -30,7 +31,6 @@ export function EngagementPanel() {
     );
 
   const byDept = data?.byDepartment ?? [];
-  const maxResponses = Math.max(1, ...byDept.map((d) => d.responses));
 
   return (
     <div className="space-y-5">
@@ -42,12 +42,9 @@ export function EngagementPanel() {
           intent="accent"
           className="w-full"
         />
-        <KpiCard
-          label="Participação em Surveys"
-          value={`${data?.participationRate ?? 0}%`}
-          intent="primary"
-          className="w-full"
-        />
+        <div className="flex flex-col items-center justify-center rounded-card border border-border bg-surface p-3">
+          <GaugeChart value={data?.participationRate ?? 0} label="Participação em Surveys" thresholds={{ warning: 50, danger: 25 }} size={120} />
+        </div>
         <KpiCard
           label="Reconhecimentos (mês)"
           value={data?.recognitions ?? 0}
@@ -67,18 +64,15 @@ export function EngagementPanel() {
           <h4 className="mb-4 font-body font-semibold text-ink-muted">
             Participação em Surveys por Departamento
           </h4>
-          {byDept.length === 0 && (
+          {byDept.length === 0 ? (
             <p className="font-body text-xs text-ink-faint">Sem respostas este mês.</p>
+          ) : (
+            <BarChart
+              orientation="horizontal"
+              categories={byDept.slice(0, 8).map((d) => d.department)}
+              series={[{ label: 'Respostas', values: byDept.slice(0, 8).map((d) => d.responses) }]}
+            />
           )}
-          {byDept.slice(0, 8).map((d, i) => (
-            <div key={i} className="mb-2">
-              <div className="mb-0.5 flex justify-between font-body text-xs">
-                <span className="truncate text-ink-muted">{d.department}</span>
-                <span className="font-semibold text-ink">{d.responses}</span>
-              </div>
-              <ProgressBar value={(d.responses / maxResponses) * 100} />
-            </div>
-          ))}
         </div>
 
         <div className="rounded-card border border-border bg-surface p-5">

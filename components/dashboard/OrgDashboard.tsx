@@ -29,9 +29,11 @@ import { useToast } from '@/providers/ToastProvider';
 import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
 import { KpiCard } from '@/components/ui/KpiCard';
-import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { AreaLineChart } from '@/components/ui/charts/AreaLineChart';
+import { DonutChart } from '@/components/ui/charts/DonutChart';
+import { GaugeChart } from '@/components/ui/charts/GaugeChart';
 import type {
   ExecutiveDashboardData,
   ExecutiveSnapshot,
@@ -44,28 +46,6 @@ const PERIODS = [
   { id: 'QUARTER', label: 'Trimestre' },
   { id: 'YEAR', label: 'Ano' },
 ];
-
-// Gráfico de barras simples em SVG (sem libraria externa — convenção do
-// projecto, ver DASHBOARD-INSTITUCIONAL-GUIDE.md).
-function MiniBarChart({ data }: { data: ExecutiveTrendPoint[] }) {
-  const max = Math.max(...data.map((d) => d.users), 1);
-  return (
-    <div className="flex h-32 items-end gap-2">
-      {data.map((d, i) => (
-        <div key={i} className="flex flex-1 flex-col items-center gap-1">
-          <div
-            className="w-full rounded-t-control bg-primary"
-            style={{ height: `${(d.users / max) * 100}%`, minHeight: '4px' }}
-            title={`${d.month}: ${d.users}`}
-          />
-          <span className="font-body text-[10px] text-ink-faint">
-            {d.month.split(' ')[0]}
-          </span>
-        </div>
-      ))}
-    </div>
-  );
-}
 
 // Linha label/valor dentro de um ModulePanel.
 function Stat({ label, value }: { label: string; value: string | number }) {
@@ -470,27 +450,14 @@ export function OrgDashboard() {
           <h3 className="mb-4 font-body font-semibold text-ink-muted">
             Departamentos
           </h3>
-          <div className="space-y-2">
-            {(org.departments ?? []).slice(0, 6).map((d) => {
-              const total = (org.departments ?? []).reduce(
-                (a, x) => a + x.headcount,
-                0,
-              );
-              const pct =
-                total > 0 ? Math.round((d.headcount / total) * 100) : 0;
-              return (
-                <div key={d.id}>
-                  <div className="mb-0.5 flex justify-between font-body text-xs">
-                    <span className="truncate text-ink-muted">{d.name}</span>
-                    <span className="font-semibold text-ink">
-                      {d.headcount}
-                    </span>
-                  </div>
-                  <ProgressBar value={pct} />
-                </div>
-              );
-            })}
-          </div>
+          {(org.departments ?? []).length > 0 ? (
+            <DonutChart
+              centerLabel="Colaboradores"
+              data={(org.departments ?? []).map((d) => ({ label: d.name, value: d.headcount }))}
+            />
+          ) : (
+            <p className="py-6 text-center font-body text-sm text-ink-faint">Sem dados</p>
+          )}
         </div>
 
         {/* AI Insights */}
@@ -582,7 +549,18 @@ export function OrgDashboard() {
             <h3 className="mb-4 font-display font-semibold text-ink">
               Novos Funcionários (6 meses)
             </h3>
-            <MiniBarChart data={data.growthTrend} />
+            <AreaLineChart
+              series={[
+                {
+                  label: 'Novos colaboradores',
+                  points: data.growthTrend.map((d: ExecutiveTrendPoint, i: number) => ({
+                    x: i,
+                    y: d.users,
+                    xLabel: d.month.split(' ')[0],
+                  })),
+                },
+              ]}
+            />
           </CardBody>
         </Card>
       )}
@@ -723,10 +701,14 @@ export function OrgDashboard() {
                 <>
                   <Stat label="Regras" value={modules.automation.totalRules} />
                   <Stat label="Activas" value={modules.automation.activeRules} />
-                  <Stat
-                    label="Taxa de sucesso"
-                    value={`${modules.automation.successRate}%`}
-                  />
+                  <div className="flex justify-center pt-1">
+                    <GaugeChart
+                      value={modules.automation.successRate}
+                      label="Taxa de sucesso"
+                      thresholds={{ warning: 80, danger: 50 }}
+                      size={120}
+                    />
+                  </div>
                 </>
               )}
             </ModulePanel>
@@ -734,7 +716,14 @@ export function OrgDashboard() {
             <ModulePanel title="Plataforma" data={modules.platform}>
               {modules.platform && (
                 <>
-                  <Stat label="Uptime" value={`${modules.platform.uptimePercent}%`} />
+                  <div className="flex justify-center pt-1">
+                    <GaugeChart
+                      value={modules.platform.uptimePercent}
+                      label="Uptime"
+                      thresholds={{ warning: 99, danger: 95 }}
+                      size={120}
+                    />
+                  </div>
                   <Stat label="Alertas abertos" value={modules.platform.openAlerts} />
                   <Stat
                     label="Alertas críticos"

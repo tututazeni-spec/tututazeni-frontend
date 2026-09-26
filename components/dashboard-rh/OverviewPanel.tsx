@@ -11,8 +11,8 @@ import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { KpiCard } from '@/components/ui/KpiCard';
-import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { DonutChart } from '@/components/ui/charts/DonutChart';
 import { AlertStrip } from './AlertStrip';
 import type { Alert, OverviewData } from './types';
 
@@ -107,28 +107,13 @@ export function OverviewPanel() {
           <h3 className="mb-4 font-body font-semibold text-ink-muted">
             Distribuição por Departamento
           </h3>
-          <div className="space-y-2">
-            {(data?.distribution?.byDepartment ?? [])
-              .slice(0, 8)
-              .map((d, i) => {
-                const maxCount = Math.max(
-                  ...(data?.distribution?.byDepartment ?? []).map(
-                    (x) => x.count,
-                  ),
-                );
-                return (
-                  <div key={i}>
-                    <div className="mb-0.5 flex justify-between font-body text-xs">
-                      <span className="truncate text-ink-muted">
-                        {d.name ?? `Dept ${d.id}`}
-                      </span>
-                      <span className="font-semibold text-ink">{d.count}</span>
-                    </div>
-                    <ProgressBar value={(d.count / maxCount) * 100} />
-                  </div>
-                );
-              })}
-          </div>
+          <DonutChart
+            centerLabel="Colaboradores"
+            data={(data?.distribution?.byDepartment ?? []).map((d, i) => ({
+              label: d.name ?? `Dept ${d.id ?? i}`,
+              value: d.count,
+            }))}
+          />
         </div>
       )}
     </div>

@@ -15,6 +15,7 @@ import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
 import { KpiCard } from '@/components/ui/KpiCard';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { GaugeChart } from '@/components/ui/charts/GaugeChart';
 import type { TalentData } from './types';
 
 export function TalentPanel() {
@@ -35,12 +36,9 @@ export function TalentPanel() {
   return (
     <div className="space-y-5">
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-        <KpiCard
-          label="Posições Cobertas"
-          value={`${data?.coverageRate ?? 0}%`}
-          intent="primary"
-          className="w-full"
-        />
+        <div className="flex flex-col items-center justify-center rounded-card border border-border bg-surface p-3">
+          <GaugeChart value={data?.coverageRate ?? 0} label="Posições Cobertas" thresholds={{ warning: 60, danger: 30 }} size={120} />
+        </div>
         <KpiCard
           label="Planos de Sucessão"
           value={data?.successionPlans?.length ?? 0}

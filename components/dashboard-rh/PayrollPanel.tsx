@@ -12,6 +12,7 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { Input } from '@/components/ui/Input';
 import { KpiCard } from '@/components/ui/KpiCard';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { DonutChart } from '@/components/ui/charts/DonutChart';
 import type { PayrollData } from './types';
 
 function currentPeriod(): string {
@@ -57,32 +58,49 @@ export function PayrollPanel() {
           Sem recibos processados para {period}.
         </p>
       ) : (
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-          <KpiCard
-            label="Recibos Processados"
-            value={data.headcount}
-            intent="primary"
-            className="w-full"
-          />
-          <KpiCard
-            label="Massa Salarial Bruta"
-            value={money(data.totalGross)}
-            intent="info"
-            className="w-full"
-          />
-          <KpiCard
-            label="Massa Salarial Líquida"
-            value={money(data.totalNet)}
-            intent="success"
-            className="w-full"
-          />
-          <KpiCard
-            label="Deduções Totais"
-            value={money(data.totalDeductions)}
-            intent="warning"
-            className="w-full"
-          />
-        </div>
+        <>
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+            <KpiCard
+              label="Recibos Processados"
+              value={data.headcount}
+              intent="primary"
+              className="w-full"
+            />
+            <KpiCard
+              label="Massa Salarial Bruta"
+              value={money(data.totalGross)}
+              intent="info"
+              className="w-full"
+            />
+            <KpiCard
+              label="Massa Salarial Líquida"
+              value={money(data.totalNet)}
+              intent="success"
+              className="w-full"
+            />
+            <KpiCard
+              label="Deduções Totais"
+              value={money(data.totalDeductions)}
+              intent="warning"
+              className="w-full"
+            />
+          </div>
+          {((data.totalNet ?? 0) > 0 || (data.totalDeductions ?? 0) > 0) && (
+            <div className="rounded-card border border-border bg-surface p-5">
+              <h4 className="mb-4 font-body font-semibold text-ink-muted">
+                Composição da Massa Salarial Bruta
+              </h4>
+              <DonutChart
+                centerLabel="Bruto"
+                valueFormat={money}
+                data={[
+                  { label: 'Líquido', value: data.totalNet ?? 0 },
+                  { label: 'Deduções', value: data.totalDeductions ?? 0 },
+                ]}
+              />
+            </div>
+          )}
+        </>
       )}
     </div>
   );

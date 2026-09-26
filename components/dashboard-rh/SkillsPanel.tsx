@@ -10,6 +10,7 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { KpiCard } from '@/components/ui/KpiCard';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { BarChart } from '@/components/ui/charts/BarChart';
 import type { SkillsData } from './types';
 
 export function SkillsPanel() {
@@ -56,10 +57,18 @@ export function SkillsPanel() {
           <h4 className="mb-3 font-body font-semibold text-ink-muted">
             Maiores Gaps de Competência
           </h4>
+          {(data?.topGaps ?? []).length === 0 ? (
+            <p className="font-body text-xs text-ink-faint">Sem gaps identificados.</p>
+          ) : (
+            <BarChart
+              orientation="horizontal"
+              categories={(data?.topGaps ?? []).map((s, i) => s.competency?.name ?? `Competência ${i + 1}`)}
+              series={[{ label: 'Gap médio', values: (data?.topGaps ?? []).map((s) => s.avgGap) }]}
+              className="mb-4"
+              yFormat={(v) => v.toFixed(1)}
+            />
+          )}
           <div className="space-y-2">
-            {(data?.topGaps ?? []).length === 0 && (
-              <p className="font-body text-xs text-ink-faint">Sem gaps identificados.</p>
-            )}
             {(data?.topGaps ?? []).map((s, i) => (
               <div
                 key={i}
@@ -85,10 +94,18 @@ export function SkillsPanel() {
           <h4 className="mb-3 font-body font-semibold text-ink-muted">
             Maiores Forças
           </h4>
+          {(data?.topStrengths ?? []).length === 0 ? (
+            <p className="font-body text-xs text-ink-faint">Sem dados suficientes.</p>
+          ) : (
+            <BarChart
+              orientation="horizontal"
+              categories={(data?.topStrengths ?? []).map((s, i) => s.competency?.name ?? `Competência ${i + 1}`)}
+              series={[{ label: 'Nível médio', values: (data?.topStrengths ?? []).map((s) => s.avgLevel) }]}
+              className="mb-4"
+              yFormat={(v) => v.toFixed(1)}
+            />
+          )}
           <div className="space-y-2">
-            {(data?.topStrengths ?? []).length === 0 && (
-              <p className="font-body text-xs text-ink-faint">Sem dados suficientes.</p>
-            )}
             {(data?.topStrengths ?? []).map((s, i) => (
               <div
                 key={i}
