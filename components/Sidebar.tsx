@@ -148,7 +148,7 @@ const NAV: Array<{ label: string; items: NavItem[] }> = [
         label: 'Competências',
       },
       { href: '/evaluation360', icon: MessageSquare, label: 'Avaliação 360°' },
-      { href: '/onboarding', icon: UserPlus, label: 'Integração' },
+      { href: '/onboarding', icon: UserPlus, label: 'Onboarding - Integração' },
       { href: '/payslips', icon: FileText, label: 'Recibos Salariais' },
       {
         href: '/payroll',

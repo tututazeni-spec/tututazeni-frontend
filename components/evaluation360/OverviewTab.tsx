@@ -25,6 +25,7 @@
 import type { CycleInfo, ParticipantProfile, ParticipantResult } from './types';
 import { COLORS } from './colors';
 import { Avatar } from '@/components/ui/Avatar';
+import { PendingEvaluationsCard } from './PendingEvaluationsCard';
 
 export interface OverviewTabProps {
   result: ParticipantResult | null;
@@ -33,7 +34,7 @@ export interface OverviewTabProps {
   cycleId?: string;
 }
 
-export function OverviewTab({ result, participant, cycle }: OverviewTabProps) {
+export function OverviewTab({ result, participant, cycle, cycleId }: OverviewTabProps) {
   return (
     <div className="flex flex-col gap-6">
       {/* Participant header — sempre o próprio, independente de já haver
@@ -55,6 +56,8 @@ export function OverviewTab({ result, participant, cycle }: OverviewTabProps) {
           <div className="text-sm text-ink-muted">A carregar o teu perfil…</div>
         )}
       </div>
+
+      {cycleId && <PendingEvaluationsCard cycleId={cycleId} />}
 
       {!result && (
         <div className="rounded-xl border border-border bg-surface p-6 text-sm text-ink-muted">

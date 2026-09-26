@@ -1,11 +1,11 @@
-// components/evaluation360/EvaluateOthersTab.tsx
-// Separador "Avaliar": lista as atribuições reais de avaliador do utilizador
-// autenticado neste ciclo (GET /evaluation360/cycles/:cycleId/my-assignments
-// — gestor/pares do departamento/subordinados que lhe foram distribuídos,
-// ver evaluation360.service.ts#distributeCycle) e deixa escolher uma para
-// preencher. Antes disto não existia forma nenhuma de descobrir quem se
-// pode avaliar — o módulo era 100% mock. Cada card mostra nome, departamento
-// e a fotografia carregada pelo próprio avaliado (evaluateeAvatarUrl).
+// components/evaluation360/PendingEvaluationsCard.tsx
+// Secção "Avaliações pendentes" da Visão Geral pessoal (docs/evaluation360.md
+// §1) — lista TODAS as atribuições reais de avaliador do utilizador
+// autenticado neste ciclo (GET /evaluation360/cycles/:cycleId/my-assignments),
+// incluindo a própria autoavaliação (role SELF), e deixa escolher uma para
+// preencher (EvaluationFormTab). Substitui os antigos separadores de topo
+// "Auto-avaliação"/"Avaliar" — a acção de preencher fica junto do resto da
+// Visão Geral pessoal em vez de ocupar dois separadores próprios.
 
 'use client';
 
@@ -62,11 +62,11 @@ const STATUS_LABEL: Record<RawAssignment['status'], string> = {
   EXPIRED: 'Expirada',
 };
 
-export interface EvaluateOthersTabProps {
+export interface PendingEvaluationsCardProps {
   cycleId: string;
 }
 
-export function EvaluateOthersTab({ cycleId }: EvaluateOthersTabProps) {
+export function PendingEvaluationsCard({ cycleId }: PendingEvaluationsCardProps) {
   const { data, isLoading } = useApiQuery<RawAssignment[]>(
     queryKeys.evaluation360.myAssignments(cycleId),
     `/evaluation360/cycles/${cycleId}/my-assignments`,
@@ -74,8 +74,9 @@ export function EvaluateOthersTab({ cycleId }: EvaluateOthersTabProps) {
   );
   const [selected, setSelected] = useState<RawAssignment | null>(null);
 
-  // SELF fica no separador "Auto-avaliação" — aqui só colegas/gestor/equipa.
-  const assignments = (data ?? []).filter((a) => a.role !== 'SELF');
+  const assignments = (data ?? []).filter(
+    (a) => a.status !== 'COMPLETED' && a.status !== 'EXPIRED',
+  );
 
   const { data: formData } = useApiQuery<{ questions: RawQuestion[] }>(
     queryKeys.evaluation360.form(cycleId, selected?.evaluateeId ?? ''),
@@ -100,7 +101,7 @@ export function EvaluateOthersTab({ cycleId }: EvaluateOthersTabProps) {
         </button>
         <EvaluationFormTab
           questions={(formData?.questions ?? []).map(toQuestion)}
-          participantName={selected.evaluateeName}
+          participantName={selected.role === 'SELF' ? 'Eu' : selected.evaluateeName}
           evaluatorRole={selected.role}
           cycleId={cycleId}
           evaluateeId={selected.evaluateeId}
@@ -110,41 +111,44 @@ export function EvaluateOthersTab({ cycleId }: EvaluateOthersTabProps) {
     );
   }
 
+  if (isLoading) return <div className="text-sm text-ink-muted">A carregar…</div>;
+  if (assignments.length === 0) return null;
+
   return (
-    <div className="flex flex-col gap-5">
-      <div>
-        <h2 className="m-0 text-lg font-bold text-ink">Avaliações a Realizar</h2>
-        <p className="m-0 mt-1 text-sm text-ink-muted">
-          Colegas do teu departamento, o teu gestor directo e a tua equipa,
-          conforme foram distribuídos neste ciclo.
+    <div className="rounded-xl border border-border bg-surface p-5">
+      <div className="mb-3">
+        <h3 className="m-0 text-sm font-bold text-ink">Avaliações Pendentes</h3>
+        <p className="m-0 mt-0.5 text-xs text-ink-muted">
+          Inclui a tua autoavaliação e as avaliações de colegas/equipa que te foram distribuídas.
         </p>
       </div>
-      {isLoading && <div className="text-sm text-ink-muted">A carregar…</div>}
-      {!isLoading && assignments.length === 0 && (
-        <div className="rounded-lg border border-border bg-surface p-5 text-sm text-ink-muted">
-          Não tens nenhuma avaliação atribuída neste ciclo.
-        </div>
-      )}
-      {assignments.map((a) => (
-        <button
-          key={a.id}
-          type="button"
-          disabled={a.status === 'COMPLETED' || a.status === 'EXPIRED'}
-          onClick={() => setSelected(a)}
-          className="flex items-center justify-between rounded-lg border border-border bg-surface px-5 py-4 text-left transition-colors enabled:hover:bg-surface-sunken disabled:opacity-60"
-        >
-          <div className="flex items-center gap-3">
-            <Avatar name={a.evaluateeName} url={a.evaluateeAvatarUrl ?? undefined} size="md" />
-            <div>
-              <div className="text-sm font-semibold text-ink">{a.evaluateeName}</div>
-              <div className="text-xs text-ink-muted mt-0.5">
-                {a.evaluateeDepartment ?? '—'} · {ROLE_LABEL[a.role]}
+      <div className="flex flex-col gap-2">
+        {assignments.map((a) => (
+          <button
+            key={a.id}
+            type="button"
+            onClick={() => setSelected(a)}
+            className="flex items-center justify-between rounded-lg border border-border bg-surface px-4 py-3 text-left transition-colors hover:bg-surface-sunken"
+          >
+            <div className="flex items-center gap-3">
+              {a.role === 'SELF' ? (
+                <Avatar name="Eu" size="sm" />
+              ) : (
+                <Avatar name={a.evaluateeName} url={a.evaluateeAvatarUrl ?? undefined} size="sm" />
+              )}
+              <div>
+                <div className="text-sm font-semibold text-ink">
+                  {a.role === 'SELF' ? 'A minha autoavaliação' : a.evaluateeName}
+                </div>
+                <div className="text-xs text-ink-muted mt-0.5">
+                  {a.role === 'SELF' ? ROLE_LABEL.SELF : `${a.evaluateeDepartment ?? '—'} · ${ROLE_LABEL[a.role]}`}
+                </div>
               </div>
             </div>
-          </div>
-          <span className="text-xs font-semibold text-ink-muted">{STATUS_LABEL[a.status]}</span>
-        </button>
-      ))}
+            <span className="text-xs font-semibold text-ink-muted">{STATUS_LABEL[a.status]}</span>
+          </button>
+        ))}
+      </div>
     </div>
   );
 }

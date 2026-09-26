@@ -17,16 +17,8 @@ export default function Evaluation360Page() {
   const [activeTab, setActiveTab] = useState<TabId>('overview');
   // Regra do produto: ninguém vê o resultado de outro utilizador — o hook já
   // não aceita escolher um participante, é sempre o próprio autenticado.
-  const {
-    result,
-    participant,
-    cycle,
-    competencies,
-    feedbacks,
-    selfFormQuestions,
-    myId,
-    cycleId,
-  } = useEvaluation360();
+  const { result, participant, cycle, competencies, feedbacks, myId, cycleId } =
+    useEvaluation360();
 
   return (
     <Evaluation360View
@@ -37,7 +29,6 @@ export default function Evaluation360Page() {
       cycle={cycle}
       competencies={competencies}
       feedbacks={feedbacks}
-      selfFormQuestions={selfFormQuestions}
       myId={myId}
       cycleId={cycleId}
     />
