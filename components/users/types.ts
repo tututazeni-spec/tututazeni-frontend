@@ -253,7 +253,7 @@ export interface DocumentEntry {
 
 export interface DocumentsResponse {
   data: DocumentEntry[];
-  total: number;
+  meta: { total: number; page: number; limit: number; totalPages: number };
 }
 
 // ─── Separador "Férias & Licenças" ───────────────────────────────────────────
@@ -271,7 +271,7 @@ export interface LeaveRequestEntry {
 
 export interface LeaveRequestsResponse {
   data: LeaveRequestEntry[];
-  total: number;
+  meta: { total: number; page: number; limit: number; totalPages: number };
 }
 
 export interface LeaveBalanceEntry {

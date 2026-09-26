@@ -720,7 +720,7 @@ export function CareerTab({ userId }: { userId: number }) {
 export function DocumentsTab({ userId }: { userId: number }) {
   const { data, isLoading } = useApiQuery<DocumentsResponse>(
     queryKeys.documents.byOwner(userId),
-    '/document-repository',
+    '/documents',
     { params: { ownerId: userId }, staleTime: STALE_TIME.DYNAMIC },
   );
 
@@ -760,12 +760,12 @@ export function DocumentsTab({ userId }: { userId: number }) {
 export function LeaveTab({ userId }: { userId: number }) {
   const requests = useApiQuery<LeaveRequestsResponse>(
     queryKeys.leave.byUser(userId),
-    '/leave-management',
+    '/leave',
     { params: { userId }, staleTime: STALE_TIME.DYNAMIC },
   );
   const balance = useApiQuery<LeaveBalanceEntry[]>(
     queryKeys.leave.balanceByUser(userId),
-    `/leave-management/balance/${userId}`,
+    `/leave/balance/${userId}`,
     { staleTime: STALE_TIME.DYNAMIC },
   );
 
