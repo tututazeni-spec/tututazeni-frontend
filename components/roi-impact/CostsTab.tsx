@@ -16,16 +16,9 @@ import { useToast } from '@/providers/ToastProvider';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
-import { EmptyState } from '@/components/ui/EmptyState';
 import { Skeleton } from '@/components/ui/Skeleton';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeaderCell,
-  TableRow,
-} from '@/components/ui/Table';
+import { DataTable } from '@/components/ui/DataTable';
+import { DonutChart } from '@/components/ui/charts/DonutChart';
 import { NewCostEntryModal } from './NewCostEntryModal';
 import { fmt$, INITIATIVE_TYPE_LABELS, COST_CATEGORY_LABELS, COST_CATEGORY_INTENTS, COST_SUBCATEGORY_LABELS } from './utils';
 import type { CostConsolidationData, CostEntryListData } from './types';
@@ -78,31 +71,47 @@ export function CostsTab() {
       </div>
 
       {grandTotal && (
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-          <Card>
+        <div className="flex flex-wrap items-start gap-4">
+          <Card className="shrink-0">
             <CardBody>
-              <p className="font-display text-xl font-bold text-ink">{fmt$(grandTotal.direct)}</p>
-              <p className="font-body text-[10px] text-ink-faint">Custo direto total</p>
+              <DonutChart
+                size={140}
+                centerLabel="Investimento total"
+                valueFormat={fmt$}
+                data={[
+                  { label: 'Directo', value: grandTotal.direct },
+                  { label: 'Indirecto', value: grandTotal.indirect },
+                  { label: 'Oportunidade', value: grandTotal.opportunity },
+                ]}
+              />
             </CardBody>
           </Card>
-          <Card>
-            <CardBody>
-              <p className="font-display text-xl font-bold text-ink">{fmt$(grandTotal.indirect)}</p>
-              <p className="font-body text-[10px] text-ink-faint">Custo indireto total</p>
-            </CardBody>
-          </Card>
-          <Card>
-            <CardBody>
-              <p className="font-display text-xl font-bold text-ink">{fmt$(grandTotal.opportunity)}</p>
-              <p className="font-body text-[10px] text-ink-faint">Custo de oportunidade total</p>
-            </CardBody>
-          </Card>
-          <Card>
-            <CardBody>
-              <p className="font-display text-xl font-bold text-ink">{fmt$(grandTotal.total)}</p>
-              <p className="font-body text-[10px] text-ink-faint">Investimento total</p>
-            </CardBody>
-          </Card>
+          <div className="grid flex-1 grid-cols-2 gap-4 md:grid-cols-4">
+            <Card>
+              <CardBody>
+                <p className="font-display text-xl font-bold text-ink">{fmt$(grandTotal.direct)}</p>
+                <p className="font-body text-[10px] text-ink-faint">Custo direto total</p>
+              </CardBody>
+            </Card>
+            <Card>
+              <CardBody>
+                <p className="font-display text-xl font-bold text-ink">{fmt$(grandTotal.indirect)}</p>
+                <p className="font-body text-[10px] text-ink-faint">Custo indireto total</p>
+              </CardBody>
+            </Card>
+            <Card>
+              <CardBody>
+                <p className="font-display text-xl font-bold text-ink">{fmt$(grandTotal.opportunity)}</p>
+                <p className="font-body text-[10px] text-ink-faint">Custo de oportunidade total</p>
+              </CardBody>
+            </Card>
+            <Card>
+              <CardBody>
+                <p className="font-display text-xl font-bold text-ink">{fmt$(grandTotal.total)}</p>
+                <p className="font-body text-[10px] text-ink-faint">Investimento total</p>
+              </CardBody>
+            </Card>
+          </div>
         </div>
       )}
 
@@ -110,102 +119,97 @@ export function CostsTab() {
         <div className="border-b border-border px-5 py-3">
           <h4 className="font-display text-sm font-semibold text-ink">Consolidação por iniciativa</h4>
         </div>
-        {rows.length === 0 ? (
-          <EmptyState
-            title="Sem custos registados ainda"
-            description="Regista a primeira linha de custo para começar a consolidar o investimento por iniciativa."
-            className="border-none"
+        <div className="p-5">
+          <DataTable
+            data={rows}
+            rowKey={(r) => `${r.initiativeType}:${r.initiativeId}`}
+            emptyLabel="Regista a primeira linha de custo para começar a consolidar o investimento por iniciativa."
+            columns={[
+              {
+                key: 'initiative',
+                header: 'Iniciativa',
+                sortable: true,
+                accessor: (r) => r.initiative ?? '',
+                render: (r) => (
+                  <>
+                    <p className="text-ink">{r.initiative ?? '—'}</p>
+                    <p className="text-xs text-ink-faint">{INITIATIVE_TYPE_LABELS[r.initiativeType] ?? r.initiativeType}</p>
+                  </>
+                ),
+              },
+              { key: 'participants', header: 'Participantes', sortable: true },
+              { key: 'costDirect', header: 'Custo direto', sortable: true, render: (r) => fmt$(r.costDirect) },
+              { key: 'costIndirect', header: 'Custo indirecto', sortable: true, render: (r) => fmt$(r.costIndirect) },
+              { key: 'costOpportunity', header: 'Custo oportunidade', sortable: true, render: (r) => fmt$(r.costOpportunity) },
+              {
+                key: 'costTotal',
+                header: 'Custo total',
+                sortable: true,
+                className: 'font-medium text-ink',
+                render: (r) => fmt$(r.costTotal),
+              },
+              {
+                key: 'costPerParticipant',
+                header: 'Custo/participante',
+                sortable: true,
+                render: (r) => (r.costPerParticipant != null ? fmt$(r.costPerParticipant) : '—'),
+              },
+            ]}
           />
-        ) : (
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableHeaderCell>Iniciativa</TableHeaderCell>
-                  <TableHeaderCell>Participantes</TableHeaderCell>
-                  <TableHeaderCell>Custo direto</TableHeaderCell>
-                  <TableHeaderCell>Custo indireto</TableHeaderCell>
-                  <TableHeaderCell>Custo oportunidade</TableHeaderCell>
-                  <TableHeaderCell>Custo total</TableHeaderCell>
-                  <TableHeaderCell>Custo/participante</TableHeaderCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {rows.map((r) => (
-                  <TableRow key={`${r.initiativeType}:${r.initiativeId}`}>
-                    <TableCell>
-                      <p className="text-ink">{r.initiative ?? '—'}</p>
-                      <p className="text-xs text-ink-faint">
-                        {INITIATIVE_TYPE_LABELS[r.initiativeType] ?? r.initiativeType}
-                      </p>
-                    </TableCell>
-                    <TableCell>{r.participants}</TableCell>
-                    <TableCell>{fmt$(r.costDirect)}</TableCell>
-                    <TableCell>{fmt$(r.costIndirect)}</TableCell>
-                    <TableCell>{fmt$(r.costOpportunity)}</TableCell>
-                    <TableCell className="font-medium text-ink">{fmt$(r.costTotal)}</TableCell>
-                    <TableCell>{r.costPerParticipant != null ? fmt$(r.costPerParticipant) : '—'}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        )}
+        </div>
       </Card>
 
       <Card>
         <div className="border-b border-border px-5 py-3">
           <h4 className="font-display text-sm font-semibold text-ink">Linhas de custo</h4>
         </div>
-        {entries.length === 0 ? (
-          <EmptyState
-            title="Sem linhas de custo ainda"
-            description="As linhas de custo aparecem aqui à medida que forem registadas."
-            className="border-none"
+        <div className="p-5">
+          <DataTable
+            data={entries}
+            rowKey={(e) => e.id}
+            emptyLabel="As linhas de custo aparecem aqui à medida que forem registadas."
+            columns={[
+              {
+                key: 'initiativeType',
+                header: 'Iniciativa',
+                render: (e) => INITIATIVE_TYPE_LABELS[e.initiativeType] ?? e.initiativeType,
+              },
+              {
+                key: 'category',
+                header: 'Categoria',
+                sortable: true,
+                render: (e) => (
+                  <Badge intent={COST_CATEGORY_INTENTS[e.category] ?? 'info'}>
+                    {COST_CATEGORY_LABELS[e.category] ?? e.category}
+                  </Badge>
+                ),
+              },
+              {
+                key: 'subCategory',
+                header: 'Subcategoria',
+                render: (e) => COST_SUBCATEGORY_LABELS[e.subCategory] ?? e.subCategory,
+              },
+              { key: 'description', header: 'Descrição', render: (e) => e.description ?? '—' },
+              {
+                key: 'amount',
+                header: 'Valor',
+                sortable: true,
+                className: 'font-medium text-ink',
+                render: (e) => fmt$(e.amount),
+              },
+              { key: 'source', header: 'Fonte', className: 'text-xs text-ink-faint', render: (e) => e.source ?? '—' },
+              {
+                key: 'actions',
+                header: '',
+                render: (e) => (
+                  <Button size="sm" intent="secondary" loading={remove.isPending} onClick={() => remove.mutate(e.id)}>
+                    <Trash2 size={14} strokeWidth={1.75} />
+                  </Button>
+                ),
+              },
+            ]}
           />
-        ) : (
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableHeaderCell>Iniciativa</TableHeaderCell>
-                  <TableHeaderCell>Categoria</TableHeaderCell>
-                  <TableHeaderCell>Subcategoria</TableHeaderCell>
-                  <TableHeaderCell>Descrição</TableHeaderCell>
-                  <TableHeaderCell>Valor</TableHeaderCell>
-                  <TableHeaderCell>Fonte</TableHeaderCell>
-                  <TableHeaderCell />
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {entries.map((e) => (
-                  <TableRow key={e.id}>
-                    <TableCell>{INITIATIVE_TYPE_LABELS[e.initiativeType] ?? e.initiativeType}</TableCell>
-                    <TableCell>
-                      <Badge intent={COST_CATEGORY_INTENTS[e.category] ?? 'info'}>
-                        {COST_CATEGORY_LABELS[e.category] ?? e.category}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>{COST_SUBCATEGORY_LABELS[e.subCategory] ?? e.subCategory}</TableCell>
-                    <TableCell>{e.description ?? '—'}</TableCell>
-                    <TableCell className="font-medium text-ink">{fmt$(e.amount)}</TableCell>
-                    <TableCell className="text-xs text-ink-faint">{e.source ?? '—'}</TableCell>
-                    <TableCell>
-                      <Button
-                        size="sm"
-                        intent="secondary"
-                        loading={remove.isPending}
-                        onClick={() => remove.mutate(e.id)}
-                      >
-                        <Trash2 size={14} strokeWidth={1.75} />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        )}
+        </div>
       </Card>
 
       {modalOpen && <NewCostEntryModal onClose={() => setModalOpen(false)} />}

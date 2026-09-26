@@ -21,6 +21,7 @@ import { Card, CardBody } from '@/components/ui/Card';
 import { KpiCard } from '@/components/ui/KpiCard';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { BarChart } from '@/components/ui/charts/BarChart';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { NineBox } from './NineBox';
@@ -154,6 +155,15 @@ export function ManagerView() {
               <div className="text-xs font-medium text-ink-faint uppercase tracking-wide mb-4">
                 Top De Lacunas de Competências
               </div>
+              {competencyGaps.length > 0 && (
+                <BarChart
+                  orientation="horizontal"
+                  categories={competencyGaps.map((g) => g.name)}
+                  series={[{ label: 'Gap médio', values: competencyGaps.map((g) => g.avgGap) }]}
+                  yFormat={(v) => v.toFixed(1)}
+                  className="mb-4"
+                />
+              )}
               <div className="space-y-3">
                 {competencyGaps.map((g) => (
                   <div key={g.name} className="flex items-center gap-3">

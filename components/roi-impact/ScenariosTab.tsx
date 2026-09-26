@@ -16,9 +16,10 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { useToast } from '@/providers/ToastProvider';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
+import { Card, CardBody } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { BarChart } from '@/components/ui/charts/BarChart';
 import {
   Table,
   TableBody,
@@ -79,6 +80,22 @@ export function ScenariosTab() {
           </Button>
         </div>
       </div>
+
+      {scenarios.filter((s) => s.roiPercent != null).length > 1 && (
+        <Card>
+          <CardBody>
+            <p className="mb-2 font-body text-xs font-semibold uppercase tracking-wide text-ink-muted">
+              ROI projectado por cenário
+            </p>
+            <BarChart
+              orientation="horizontal"
+              categories={scenarios.filter((s) => s.roiPercent != null).map((s) => s.name)}
+              series={[{ label: 'ROI projectado', values: scenarios.filter((s) => s.roiPercent != null).map((s) => s.roiPercent!) }]}
+              yFormat={(v) => `${v}%`}
+            />
+          </CardBody>
+        </Card>
+      )}
 
       <Card>
         {isLoading ? (

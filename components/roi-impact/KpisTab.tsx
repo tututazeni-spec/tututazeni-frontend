@@ -16,16 +16,9 @@ import { useToast } from '@/providers/ToastProvider';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
-import { EmptyState } from '@/components/ui/EmptyState';
 import { Skeleton } from '@/components/ui/Skeleton';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeaderCell,
-  TableRow,
-} from '@/components/ui/Table';
+import { DataTable } from '@/components/ui/DataTable';
+import { DonutChart } from '@/components/ui/charts/DonutChart';
 import { KpiDefinitionModal } from './KpiDefinitionModal';
 import { KPI_CATEGORY_LABELS, KPI_FREQUENCY_LABELS, KPI_STATUS_INTENTS, KPI_STATUS_LABELS } from './utils';
 import type { KpiCategorySummaryRow, KpiDefinitionListData, KpiDefinitionRow } from './types';
@@ -81,75 +74,92 @@ export function KpisTab() {
       </div>
 
       {(byCategory?.length ?? 0) > 0 && (
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-          {byCategory!.map((c) => (
-            <Card key={c.category}>
-              <CardBody>
-                <p className="font-display text-xl font-bold text-ink">{c.count}</p>
-                <p className="font-body text-[10px] text-ink-faint">
-                  {KPI_CATEGORY_LABELS[c.category] ?? c.category}
-                </p>
-              </CardBody>
-            </Card>
-          ))}
+        <div className="flex flex-wrap items-start gap-4">
+          <Card className="shrink-0">
+            <CardBody>
+              <DonutChart
+                size={140}
+                centerLabel="KPIs"
+                data={byCategory!.map((c) => ({ label: KPI_CATEGORY_LABELS[c.category] ?? c.category, value: c.count }))}
+              />
+            </CardBody>
+          </Card>
+          <div className="grid flex-1 grid-cols-2 gap-4 md:grid-cols-4">
+            {byCategory!.map((c) => (
+              <Card key={c.category}>
+                <CardBody>
+                  <p className="font-display text-xl font-bold text-ink">{c.count}</p>
+                  <p className="font-body text-[10px] text-ink-faint">
+                    {KPI_CATEGORY_LABELS[c.category] ?? c.category}
+                  </p>
+                </CardBody>
+              </Card>
+            ))}
+          </div>
         </div>
       )}
 
       <Card>
-        {kpis.length === 0 ? (
-          <EmptyState
-            title="Sem KPIs ainda"
-            description="Cria o primeiro KPI para começar a biblioteca central de indicadores."
-            className="border-none"
+        <div className="p-5">
+          <DataTable
+            data={kpis}
+            rowKey={(k) => k.id}
+            searchKeys={['name', 'code']}
+            searchPlaceholder="Pesquisar KPI…"
+            emptyLabel="Cria o primeiro KPI para começar a biblioteca central de indicadores."
+            columns={[
+              {
+                key: 'name',
+                header: 'Nome',
+                sortable: true,
+                render: (k) => (
+                  <>
+                    <p className="font-medium text-ink">{k.name}</p>
+                    {k.description && <p className="text-xs text-ink-faint">{k.description}</p>}
+                  </>
+                ),
+              },
+              { key: 'code', header: 'Código', sortable: true, className: 'font-mono text-xs' },
+              {
+                key: 'category',
+                header: 'Categoria',
+                sortable: true,
+                render: (k) => KPI_CATEGORY_LABELS[k.category] ?? k.category,
+              },
+              { key: 'unit', header: 'Unidade' },
+              {
+                key: 'frequency',
+                header: 'Frequência',
+                render: (k) => KPI_FREQUENCY_LABELS[k.frequency] ?? k.frequency,
+              },
+              { key: 'targetValue', header: 'Meta', sortable: true, render: (k) => (k.targetValue != null ? k.targetValue : '—') },
+              {
+                key: 'status',
+                header: 'Estado',
+                sortable: true,
+                render: (k) => (
+                  <Badge intent={KPI_STATUS_INTENTS[k.status] ?? 'neutral'}>
+                    {KPI_STATUS_LABELS[k.status] ?? k.status}
+                  </Badge>
+                ),
+              },
+              {
+                key: 'actions',
+                header: '',
+                render: (k) => (
+                  <div className="flex gap-2">
+                    <Button size="sm" intent="secondary" onClick={() => setModalKpi(k)}>
+                      Editar
+                    </Button>
+                    <Button size="sm" intent="secondary" onClick={() => toggleStatus.mutate(k)}>
+                      {k.status === 'ACTIVO' ? 'Desativar' : 'Ativar'}
+                    </Button>
+                  </div>
+                ),
+              },
+            ]}
           />
-        ) : (
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableHeaderCell>Nome</TableHeaderCell>
-                  <TableHeaderCell>Código</TableHeaderCell>
-                  <TableHeaderCell>Categoria</TableHeaderCell>
-                  <TableHeaderCell>Unidade</TableHeaderCell>
-                  <TableHeaderCell>Frequência</TableHeaderCell>
-                  <TableHeaderCell>Meta</TableHeaderCell>
-                  <TableHeaderCell>Estado</TableHeaderCell>
-                  <TableHeaderCell />
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {kpis.map((k) => (
-                  <TableRow key={k.id}>
-                    <TableCell>
-                      <p className="font-medium text-ink">{k.name}</p>
-                      {k.description && <p className="text-xs text-ink-faint">{k.description}</p>}
-                    </TableCell>
-                    <TableCell className="font-mono text-xs">{k.code}</TableCell>
-                    <TableCell>{KPI_CATEGORY_LABELS[k.category] ?? k.category}</TableCell>
-                    <TableCell>{k.unit}</TableCell>
-                    <TableCell>{KPI_FREQUENCY_LABELS[k.frequency] ?? k.frequency}</TableCell>
-                    <TableCell>{k.targetValue != null ? k.targetValue : '—'}</TableCell>
-                    <TableCell>
-                      <Badge intent={KPI_STATUS_INTENTS[k.status] ?? 'neutral'}>
-                        {KPI_STATUS_LABELS[k.status] ?? k.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex gap-2">
-                        <Button size="sm" intent="secondary" onClick={() => setModalKpi(k)}>
-                          Editar
-                        </Button>
-                        <Button size="sm" intent="secondary" onClick={() => toggleStatus.mutate(k)}>
-                          {k.status === 'ACTIVO' ? 'Desativar' : 'Ativar'}
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        )}
+        </div>
       </Card>
 
       {modalKpi && (

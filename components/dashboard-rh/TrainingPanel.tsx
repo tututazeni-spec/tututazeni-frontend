@@ -11,6 +11,7 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { KpiCard } from '@/components/ui/KpiCard';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { BarChart } from '@/components/ui/charts/BarChart';
 import type { TrainingData } from './types';
 
 export function TrainingPanel() {
@@ -64,6 +65,12 @@ export function TrainingPanel() {
           <h4 className="mb-3 font-body font-semibold text-ink-muted">
             Top 5 Cursos
           </h4>
+          <BarChart
+            orientation="horizontal"
+            categories={(data?.topCourses ?? []).map((c, i) => c.course?.title ?? `Curso ${c.courseId ?? i}`)}
+            series={[{ label: 'Inscrições', values: (data?.topCourses ?? []).map((c) => c.count) }]}
+            className="mb-4"
+          />
           <div className="space-y-2">
             {(data?.topCourses ?? []).map((c, i) => (
               <div key={i} className="flex items-center gap-3">

@@ -13,8 +13,8 @@ import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { KpiCard } from '@/components/ui/KpiCard';
-import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { BarChart } from '@/components/ui/charts/BarChart';
 import type { PerformanceData } from './types';
 
 export function PerformancePanel() {
@@ -32,10 +32,6 @@ export function PerformancePanel() {
       />
     );
   const dist = data?.distribution ?? {};
-  const total = Object.values(dist as Record<string, number>).reduce(
-    (a, b) => a + b,
-    0,
-  );
 
   return (
     <div className="space-y-5">
@@ -74,27 +70,17 @@ export function PerformancePanel() {
           <h4 className="mb-4 font-body font-semibold text-ink-muted">
             Distribuição de Performance
           </h4>
-          {[
-            { key: 'exceptional', label: ' Excepcional' },
-            { key: 'above', label: ' Acima' },
-            { key: 'expected', label: ' Esperado' },
-            { key: 'below', label: ' Abaixo' },
-            { key: 'critical', label: ' Crítico' },
-          ].map((b) => {
-            const val = dist[b.key] ?? 0;
-            const pct = total > 0 ? Math.round((val / total) * 100) : 0;
-            return (
-              <div key={b.key} className="mb-2">
-                <div className="mb-0.5 flex justify-between font-body text-xs">
-                  <span className="text-ink-muted">{b.label}</span>
-                  <span className="font-semibold text-ink">
-                    {val} ({pct}%)
-                  </span>
-                </div>
-                <ProgressBar value={pct} />
-              </div>
-            );
-          })}
+          <BarChart
+            categories={['Excepcional', 'Acima', 'Esperado', 'Abaixo', 'Crítico']}
+            series={[
+              {
+                label: 'Colaboradores',
+                values: ['exceptional', 'above', 'expected', 'below', 'critical'].map(
+                  (key) => dist[key] ?? 0,
+                ),
+              },
+            ]}
+          />
         </div>
 
         {/* By dept */}
@@ -102,25 +88,18 @@ export function PerformancePanel() {
           <h4 className="mb-4 font-body font-semibold text-ink-muted">
             Pontuação por Departamento
           </h4>
-          {(data?.byDepartment ?? []).slice(0, 6).map((d, i) => (
-            <div key={i} className="mb-2">
-              <div className="mb-0.5 flex justify-between font-body text-xs">
-                <span className="truncate text-ink-muted">{d.department}</span>
-                <span
-                  className={`text-xs font-bold ${
-                    d.avgScore >= 4
-                      ? 'text-success'
-                      : d.avgScore >= 3
-                        ? 'text-warning'
-                        : 'text-danger'
-                  }`}
-                >
-                  {d.avgScore.toFixed(1)}
-                </span>
-              </div>
-              <ProgressBar value={(d.avgScore / 5) * 100} />
-            </div>
-          ))}
+          {(data?.byDepartment ?? []).length > 0 ? (
+            <BarChart
+              orientation="horizontal"
+              categories={(data?.byDepartment ?? []).slice(0, 6).map((d) => d.department)}
+              series={[
+                { label: 'Pontuação média', values: (data?.byDepartment ?? []).slice(0, 6).map((d) => d.avgScore) },
+              ]}
+              yFormat={(v) => v.toFixed(1)}
+            />
+          ) : (
+            <p className="font-body text-xs text-ink-faint">Sem dados suficientes.</p>
+          )}
         </div>
       </div>
 

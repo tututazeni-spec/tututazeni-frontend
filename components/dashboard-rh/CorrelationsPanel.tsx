@@ -12,8 +12,8 @@
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { BarChart } from '@/components/ui/charts/BarChart';
 import type { CorrelationsData } from './types';
 
 export function CorrelationsPanel() {
@@ -50,31 +50,19 @@ export function CorrelationsPanel() {
           <p className="mb-4 rounded-control border border-black bg-white px-3 py-2 font-body text-xs text-black">
             {data.trainingVsPerformance.insight}
           </p>
-          <div className="grid grid-cols-2 gap-4">
-            {[
+          <BarChart
+            categories={['Alto treino (3+ cursos)', 'Baixo treino']}
+            series={[
               {
-                label: 'Alto treino (3+ cursos)',
-                value: data.trainingVsPerformance.highTrainingAvgPerf,
+                label: 'Performance média',
+                values: [
+                  data.trainingVsPerformance.highTrainingAvgPerf ?? 0,
+                  data.trainingVsPerformance.lowTrainingAvgPerf ?? 0,
+                ],
               },
-              {
-                label: 'Baixo treino',
-                value: data.trainingVsPerformance.lowTrainingAvgPerf,
-              },
-            ].map((item) => (
-              <div key={item.label} className="text-center">
-                <p
-                  className={`font-display text-3xl font-black ${(item.value ?? 0) >= 3.5 ? 'text-success' : 'text-danger'}`}
-                >
-                  {item.value?.toFixed(1) ?? '–'}
-                </p>
-                <p className="font-body text-xs text-ink-muted">{item.label}</p>
-                <ProgressBar
-                  value={((item.value ?? 0) / 5) * 100}
-                  className="h-2"
-                />
-              </div>
-            ))}
-          </div>
+            ]}
+            yFormat={(v) => v.toFixed(1)}
+          />
           {(data.trainingVsPerformance.lift ?? 0) > 0 && (
             <div className="mt-3 text-center">
               <span className="font-body text-sm font-bold text-success">
@@ -96,31 +84,19 @@ export function CorrelationsPanel() {
           <p className="mb-4 rounded-control border border-black bg-white px-3 py-2 font-body text-xs text-black">
             {data.engagementVsPerformance.insight}
           </p>
-          <div className="grid grid-cols-2 gap-4">
-            {[
+          <BarChart
+            categories={['Alto Compromisso', 'Baixo Compromisso']}
+            series={[
               {
-                label: 'Alto Compromisso',
-                value: data.engagementVsPerformance.highEngAvgPerf,
+                label: 'Performance média',
+                values: [
+                  data.engagementVsPerformance.highEngAvgPerf ?? 0,
+                  data.engagementVsPerformance.lowEngAvgPerf ?? 0,
+                ],
               },
-              {
-                label: 'Baixo Compromisso',
-                value: data.engagementVsPerformance.lowEngAvgPerf,
-              },
-            ].map((item) => (
-              <div key={item.label} className="text-center">
-                <p
-                  className={`font-display text-3xl font-black ${(item.value ?? 0) >= 3.5 ? 'text-success' : 'text-danger'}`}
-                >
-                  {item.value?.toFixed(1) ?? '–'}
-                </p>
-                <p className="font-body text-xs text-ink-muted">{item.label}</p>
-                <ProgressBar
-                  value={((item.value ?? 0) / 5) * 100}
-                  className="h-2"
-                />
-              </div>
-            ))}
-          </div>
+            ]}
+            yFormat={(v) => v.toFixed(1)}
+          />
         </div>
       )}
     </div>

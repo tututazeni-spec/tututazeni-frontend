@@ -4,10 +4,11 @@
 
 'use client';
 
-import { BarChart3, Calendar, Clock, FileText, Timer, TrendingUp, UserCheck, UserX, Zap } from 'lucide-react';
+import { BarChart3, Calendar, Clock, FileText, Timer, UserCheck, UserX, Zap } from 'lucide-react';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { Avatar } from '@/components/ui/Avatar';
 import { KpiCard } from '@/components/ui/KpiCard';
+import { GaugeChart } from '@/components/ui/charts/GaugeChart';
 import { STATUS_CONFIG } from './constants';
 import type { AttendanceStatus, DashboardData } from './types';
 import type { StatusBadgeMap } from '@/lib/statusBadge';
@@ -68,12 +69,6 @@ export function DashboardTab({ data, loading, refetch }: DashboardTabProps) {
           intent="warning"
         />
         <KpiCard
-          label="Taxa de Presença"
-          value={`${data.kpis.attendanceRate}%`}
-          icon={TrendingUp}
-          intent="primary"
-        />
-        <KpiCard
           label="Activos Agora"
           value={data.kpis.checkedInNow}
           icon={Timer}
@@ -102,7 +97,18 @@ export function DashboardTab({ data, loading, refetch }: DashboardTabProps) {
         />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* Taxa de presença — % pontual, sem série histórica nos dados
+            actuais (DashboardData não tem um array por período), por isso
+            gauge em vez de linha de tendência. */}
+        <div className="bg-surface rounded-panel border border-border shadow-sm flex flex-col items-center justify-center px-5 py-6">
+          <GaugeChart
+            value={data.kpis.attendanceRate}
+            label="Taxa de Presença"
+            thresholds={{ warning: 85, danger: 70 }}
+          />
+        </div>
+
         {/* Presentes */}
         <div className="bg-surface rounded-panel border border-border shadow-sm">
           <div className="px-5 py-4 border-b border-border flex items-center justify-between">

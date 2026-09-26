@@ -12,6 +12,7 @@ import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
 import { KpiCard } from '@/components/ui/KpiCard';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { GaugeChart } from '@/components/ui/charts/GaugeChart';
 import type { TurnoverData } from './types';
 
 export function TurnoverPanel() {
@@ -32,18 +33,23 @@ export function TurnoverPanel() {
   return (
     <div className="space-y-5">
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-        <KpiCard
-          label="Taxa de Rotatividade"
-          value={`${data?.turnoverRate ?? 0}%`}
-          intent="danger"
-          className="w-full"
-        />
-        <KpiCard
-          label="Taxa de Retenção"
-          value={`${data?.retentionRate ?? 0}%`}
-          intent="success"
-          className="w-full"
-        />
+        <div className="flex flex-col items-center justify-center rounded-card border border-border bg-surface p-3">
+          <GaugeChart
+            value={data?.turnoverRate ?? 0}
+            label="Taxa de Rotatividade"
+            invert
+            thresholds={{ warning: 15, danger: 25 }}
+            size={120}
+          />
+        </div>
+        <div className="flex flex-col items-center justify-center rounded-card border border-border bg-surface p-3">
+          <GaugeChart
+            value={data?.retentionRate ?? 0}
+            label="Taxa de Retenção"
+            thresholds={{ warning: 70, danger: 50 }}
+            size={120}
+          />
+        </div>
         <KpiCard
           label="Saídas (últimos 3 meses)"
           value={data?.leftLast3Months ?? 0}

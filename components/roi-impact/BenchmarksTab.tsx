@@ -20,6 +20,7 @@ import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { BarChart } from '@/components/ui/charts/BarChart';
 import {
   Table,
   TableBody,
@@ -87,14 +88,12 @@ export function BenchmarksTab() {
                 <p className="mb-2 font-body text-xs font-semibold uppercase tracking-wide text-ink-muted">
                   ROI médio por departamento
                 </p>
-                <ul className="space-y-1 text-sm text-ink">
-                  {(internal?.byDepartment ?? []).map((d) => (
-                    <li key={String(d.key)} className="flex justify-between">
-                      <span className="text-ink-faint">{d.key}</span>
-                      <span className="font-semibold">{d.avgRoi}%</span>
-                    </li>
-                  ))}
-                </ul>
+                <BarChart
+                  orientation="horizontal"
+                  categories={(internal?.byDepartment ?? []).map((d) => String(d.key))}
+                  series={[{ label: 'ROI médio', values: (internal?.byDepartment ?? []).map((d) => d.avgRoi) }]}
+                  yFormat={(v) => `${v}%`}
+                />
               </CardBody>
             </Card>
             <Card>
@@ -102,14 +101,12 @@ export function BenchmarksTab() {
                 <p className="mb-2 font-body text-xs font-semibold uppercase tracking-wide text-ink-muted">
                   ROI médio por unidade
                 </p>
-                <ul className="space-y-1 text-sm text-ink">
-                  {(internal?.byUnit ?? []).map((d) => (
-                    <li key={String(d.key)} className="flex justify-between">
-                      <span className="text-ink-faint">{d.key}</span>
-                      <span className="font-semibold">{d.avgRoi}%</span>
-                    </li>
-                  ))}
-                </ul>
+                <BarChart
+                  orientation="horizontal"
+                  categories={(internal?.byUnit ?? []).map((d) => String(d.key))}
+                  series={[{ label: 'ROI médio', values: (internal?.byUnit ?? []).map((d) => d.avgRoi) }]}
+                  yFormat={(v) => `${v}%`}
+                />
               </CardBody>
             </Card>
             <Card>
@@ -117,14 +114,12 @@ export function BenchmarksTab() {
                 <p className="mb-2 font-body text-xs font-semibold uppercase tracking-wide text-ink-muted">
                   ROI médio por ciclo/ano
                 </p>
-                <ul className="space-y-1 text-sm text-ink">
-                  {(internal?.byCycle ?? []).map((d) => (
-                    <li key={String(d.key)} className="flex justify-between">
-                      <span className="text-ink-faint">{d.key}</span>
-                      <span className="font-semibold">{d.avgRoi}%</span>
-                    </li>
-                  ))}
-                </ul>
+                <BarChart
+                  orientation="horizontal"
+                  categories={(internal?.byCycle ?? []).map((d) => String(d.key))}
+                  series={[{ label: 'ROI médio', values: (internal?.byCycle ?? []).map((d) => d.avgRoi) }]}
+                  yFormat={(v) => `${v}%`}
+                />
               </CardBody>
             </Card>
           </div>

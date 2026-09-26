@@ -36,6 +36,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useToast } from '@/providers/ToastProvider';
 import { StyleguideSection } from './StyleguideSection';
+import { StyleguideChartsSection } from './StyleguideChartsSection';
 
 export default function StyleguidePage() {
   const { data: user, isLoading } = useCurrentUser();
@@ -237,6 +238,7 @@ export default function StyleguidePage() {
           itemClassName="skeleton-shimmer h-4 rounded-control"
         />
       </StyleguideSection>
+      <StyleguideChartsSection />
       {/* Tasks seguintes acrescentam <StyleguideSection> aqui, por ordem */}
     </div>
   );

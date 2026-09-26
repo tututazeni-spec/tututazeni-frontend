@@ -11,6 +11,8 @@ import { cn } from '@/lib/cn';
 import { Badge } from '@/components/ui/Badge';
 import { Card, CardBody } from '@/components/ui/Card';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { GaugeChart } from '@/components/ui/charts/GaugeChart';
+import { BarChart } from '@/components/ui/charts/BarChart';
 import { CONFIDENCE_INTENTS, CONFIDENCE_LABELS, INITIATIVE_TYPE_LABELS, fmt$, ptInsight } from './utils';
 import type { ExecutiveData } from './types';
 
@@ -70,18 +72,20 @@ export function ExecutiveTab() {
       {/* ROI Hero */}
       <div className="rounded-panel border border-border bg-surface p-6 text-ink">
         <div className="mb-4 flex items-start justify-between">
-          <div>
-            <p className="mb-1 font-body text-sm text-ink-muted">
-              ROI Total do Investimento em Pessoas
-            </p>
-            <p className="font-display text-6xl font-black">{h.overallRoi ?? 0}%</p>
-            <p className="mt-1 font-body text-sm text-ink-muted">
-              Rácio Benefício-Custo:{' '}
-              {(h.totalCost ?? 0) > 0
-                ? ((h.totalBenefit ?? 0) / (h.totalCost ?? 1)).toFixed(2)
-                : '–'}{' '}
-              · Status: {h.status}
-            </p>
+          <div className="flex items-center gap-5">
+            <GaugeChart value={h.overallRoi ?? 0} format={(v) => `${v}%`} size={140} />
+            <div>
+              <p className="mb-1 font-body text-sm text-ink-muted">
+                ROI Total do Investimento em Pessoas
+              </p>
+              <p className="font-body text-sm text-ink-muted">
+                Rácio Benefício-Custo:{' '}
+                {(h.totalCost ?? 0) > 0
+                  ? ((h.totalBenefit ?? 0) / (h.totalCost ?? 1)).toFixed(2)
+                  : '–'}{' '}
+                · Status: {h.status}
+              </p>
+            </div>
           </div>
           <div className="text-right">
             <p className="mb-1 font-body text-xs text-ink-muted">Benefício Total</p>
@@ -141,17 +145,13 @@ export function ExecutiveTab() {
               <div className="border-b border-border px-5 py-3">
                 <h4 className="font-display text-sm font-semibold text-ink">ROI por tipo de iniciativa</h4>
               </div>
-              <div className="divide-y divide-border">
-                {data!.byInitiativeType!.map((b) => (
-                  <div key={String(b.key)} className="flex items-center justify-between px-5 py-2.5">
-                    <span className="font-body text-sm text-ink">
-                      {INITIATIVE_TYPE_LABELS[String(b.key)] ?? String(b.key)}
-                    </span>
-                    <span className="font-body text-sm font-semibold text-ink">
-                      {b.avgRoi}% <span className="text-ink-faint">({b.count})</span>
-                    </span>
-                  </div>
-                ))}
+              <div className="p-5">
+                <BarChart
+                  orientation="horizontal"
+                  categories={data!.byInitiativeType!.map((b) => INITIATIVE_TYPE_LABELS[String(b.key)] ?? String(b.key))}
+                  series={[{ label: 'ROI médio', values: data!.byInitiativeType!.map((b) => b.avgRoi) }]}
+                  yFormat={(v) => `${v}%`}
+                />
               </div>
             </Card>
           )}
@@ -160,15 +160,13 @@ export function ExecutiveTab() {
               <div className="border-b border-border px-5 py-3">
                 <h4 className="font-display text-sm font-semibold text-ink">ROI por departamento</h4>
               </div>
-              <div className="divide-y divide-border">
-                {data!.byDepartment!.map((b) => (
-                  <div key={String(b.key)} className="flex items-center justify-between px-5 py-2.5">
-                    <span className="font-body text-sm text-ink">Departamento #{String(b.key)}</span>
-                    <span className="font-body text-sm font-semibold text-ink">
-                      {b.avgRoi}% <span className="text-ink-faint">({b.count})</span>
-                    </span>
-                  </div>
-                ))}
+              <div className="p-5">
+                <BarChart
+                  orientation="horizontal"
+                  categories={data!.byDepartment!.map((b) => `Departamento #${String(b.key)}`)}
+                  series={[{ label: 'ROI médio', values: data!.byDepartment!.map((b) => b.avgRoi) }]}
+                  yFormat={(v) => `${v}%`}
+                />
               </div>
             </Card>
           )}

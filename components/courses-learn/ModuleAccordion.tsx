@@ -77,7 +77,7 @@ export function ModuleAccordion({
           </div>
           {!mod.locked && mod.totalCount > 0 && (
             <div className="flex items-center gap-2">
-              <ProgressBar value={mod.pct} className="flex-1" />
+              <ProgressBar value={mod.pct} intent={mod.pct >= 100 ? 'success' : 'accent'} className="flex-1" />
               <span className="font-body text-xs text-ink-faint flex-shrink-0">
                 {mod.completedCount}/{mod.totalCount}
               </span>

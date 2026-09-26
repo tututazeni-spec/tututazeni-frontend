@@ -351,6 +351,13 @@ export function DashboardView() {
             </div>
             <ProgressBar
               value={simulation.readinessScore}
+              intent={
+                simulation.summary.ready
+                  ? 'success'
+                  : simulation.readinessScore >= 50
+                    ? 'warning'
+                    : 'danger'
+              }
               className="mb-3 bg-surface"
             />
             <div className="mb-3 grid grid-cols-3 gap-2 font-body text-xs">
