@@ -18,7 +18,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { AlertCircle } from 'lucide-react';
 import type { QueryKey } from '@tanstack/react-query';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
@@ -70,6 +70,19 @@ const STRATEGIC_ITEMS: SelectItemOption[] = [
   { value: 'false', label: 'Não' },
   { value: 'true', label: 'Sim' },
 ];
+
+const APPROVAL_ITEMS: SelectItemOption[] = [
+  { value: 'false', label: 'Não' },
+  { value: 'true', label: 'Sim' },
+];
+
+const VISIBILITY_ITEMS: SelectItemOption[] = [
+  { value: 'PUBLIC', label: 'Pública — visível a toda a empresa' },
+  { value: 'DEPARTMENT_ONLY', label: 'Apenas o departamento' },
+  { value: 'RESTRICTED', label: 'Restrita — apenas responsáveis' },
+];
+
+const NO_PROCESS_OWNER = 'NONE';
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -140,12 +153,50 @@ export function CreateDepartmentModal({
     department?.mainResponsibilities ?? '',
   );
   const [functionalArea, setFunctionalArea] = useState(department?.functionalArea ?? '');
+  const [businessArea, setBusinessArea] = useState(department?.businessArea ?? '');
   const [isStrategic, setIsStrategic] = useState(
     department ? String(department.isStrategic) : 'false',
   );
   const [notes, setNotes] = useState(department?.notes ?? '');
   const [color, setColor] = useState(department?.color ?? DEFAULT_COLOR);
+  const [expectedEmployees, setExpectedEmployees] = useState(
+    department?.expectedEmployees != null ? String(department.expectedEmployees) : '',
+  );
+  const [institutionalContact, setInstitutionalContact] = useState(
+    department?.institutionalContact ?? '',
+  );
+  const [dataVisibility, setDataVisibility] = useState(
+    department?.dataVisibility ?? 'DEPARTMENT_ONLY',
+  );
+  const [approvalRequired, setApprovalRequired] = useState(
+    department ? String(department.approvalRequired) : 'false',
+  );
+  const [approvers, setApprovers] = useState<DirectoryUser[]>([]);
+  const [approverPick, setApproverPick] = useState<DirectoryUser | null>(null);
+  const [processOwnerId, setProcessOwnerId] = useState(
+    department?.processOwnerDepartmentId != null
+      ? String(department.processOwnerDepartmentId)
+      : NO_PROCESS_OWNER,
+  );
   const [submitError, setSubmitError] = useState('');
+
+  // Ao editar, os aprovadores só vêm como IDs — resolve-se o nome de cada um
+  // uma única vez ao abrir o modal (não há endpoint de pesquisa por lote).
+  useEffect(() => {
+    if (!department?.approverIds?.length) return;
+    let cancelled = false;
+    Promise.all(
+      department.approverIds.map((id) =>
+        apiClient.get<DirectoryUser>(`/users/${id}`).catch(() => null),
+      ),
+    ).then((users) => {
+      if (!cancelled) setApprovers(users.filter((u): u is DirectoryUser => u != null));
+    });
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [department?.id]);
 
   const { data: tree } = useApiQuery<DepartmentNode[]>(
     queryKeys.departments.tree(),
@@ -161,6 +212,10 @@ export function CreateDepartmentModal({
   const unitItems = [
     { value: NO_UNIT, label: 'Sem unidade/empresa associada' },
     ...units.map((u) => ({ value: String(u.id), label: `${u.name} (${u.code})` })),
+  ];
+  const processOwnerItems = [
+    { value: NO_PROCESS_OWNER, label: 'Nenhum' },
+    ...flattenTree(tree ?? []).filter((d) => !isEdit || Number(d.value) !== department!.id),
   ];
 
   const canSubmit = name.trim().length > 0 && code.trim().length > 0;
@@ -214,9 +269,20 @@ export function CreateDepartmentModal({
         ? { mainResponsibilities: mainResponsibilities.trim() }
         : {}),
       ...(functionalArea.trim() ? { functionalArea: functionalArea.trim() } : {}),
+      ...(businessArea.trim() ? { businessArea: businessArea.trim() } : {}),
       isStrategic: isStrategic === 'true',
       ...(notes.trim() ? { notes: notes.trim() } : {}),
       ...(color ? { color } : {}),
+      ...(expectedEmployees.trim() ? { expectedEmployees: Number(expectedEmployees) } : {}),
+      ...(institutionalContact.trim()
+        ? { institutionalContact: institutionalContact.trim() }
+        : {}),
+      dataVisibility,
+      approvalRequired: approvalRequired === 'true',
+      approverIds: approvers.map((a) => a.id),
+      ...(processOwnerId !== NO_PROCESS_OWNER
+        ? { processOwnerDepartmentId: Number(processOwnerId) }
+        : {}),
     });
   };
 
@@ -276,6 +342,16 @@ export function CreateDepartmentModal({
                 value={functionalArea}
                 onChange={(e) => setFunctionalArea(e.target.value)}
                 placeholder="Ex.: Gestão de Pessoas"
+                maxLength={120}
+              />
+            </FormField>
+
+            <FormField label="Área de negócio" htmlFor="cd-business-area">
+              <Input
+                id="cd-business-area"
+                value={businessArea}
+                onChange={(e) => setBusinessArea(e.target.value)}
+                placeholder="Ex.: Suporte ao negócio"
                 maxLength={120}
               />
             </FormField>
@@ -395,6 +471,21 @@ export function CreateDepartmentModal({
               />
             </FormField>
 
+            <FormField
+              label="Número de colaboradores previsto"
+              htmlFor="cd-expected-employees"
+              hint="Headcount planeado — distinto do limite máximo."
+            >
+              <Input
+                id="cd-expected-employees"
+                type="number"
+                min={0}
+                value={expectedEmployees}
+                onChange={(e) => setExpectedEmployees(e.target.value)}
+                placeholder="Ex.: 20"
+              />
+            </FormField>
+
             <FormField label="Número máximo de colaboradores" htmlFor="cd-max-employees">
               <Input
                 id="cd-max-employees"
@@ -427,6 +518,16 @@ export function CreateDepartmentModal({
           </Section>
 
           <Section title="Contacto e localização">
+            <FormField label="Contacto institucional" htmlFor="cd-institutional-contact">
+              <Input
+                id="cd-institutional-contact"
+                value={institutionalContact}
+                onChange={(e) => setInstitutionalContact(e.target.value)}
+                placeholder="Ex.: Recepção — Edifício A"
+                maxLength={150}
+              />
+            </FormField>
+
             <FormField label="E-mail institucional" htmlFor="cd-email">
               <Input
                 id="cd-email"
@@ -465,6 +566,73 @@ export function CreateDepartmentModal({
                 placeholder="Ex.: Edifício A, Piso 3, Sala 12"
               />
             </FormField>
+          </Section>
+
+          <Section title="Configurações">
+            <FormField label="Visibilidade dos dados" htmlFor="cd-visibility">
+              <Select
+                items={VISIBILITY_ITEMS}
+                value={dataVisibility}
+                onValueChange={(v) => setDataVisibility(v as typeof dataVisibility)}
+                className="w-full"
+              />
+            </FormField>
+
+            <FormField
+              label="Departamento responsável por processos"
+              htmlFor="cd-process-owner"
+              hint="Ex.: RH central, para processos delegados."
+            >
+              <Select
+                items={processOwnerItems}
+                value={processOwnerId}
+                onValueChange={setProcessOwnerId}
+                className="w-full"
+              />
+            </FormField>
+
+            <FormField label="Exige aprovação para processos" htmlFor="cd-approval-required">
+              <Select
+                items={APPROVAL_ITEMS}
+                value={approvalRequired}
+                onValueChange={setApprovalRequired}
+                className="w-full"
+              />
+            </FormField>
+
+            <div className="sm:col-span-2">
+              <DepartmentUserPicker
+                label="Aprovadores"
+                htmlFor="cd-approvers"
+                value={approverPick}
+                onChange={(u) => {
+                  if (u && !approvers.some((a) => a.id === u.id)) {
+                    setApprovers((prev) => [...prev, u]);
+                  }
+                  setApproverPick(null);
+                }}
+              />
+              {approvers.length > 0 && (
+                <ul className="mt-2 flex flex-wrap gap-2">
+                  {approvers.map((a) => (
+                    <li
+                      key={a.id}
+                      className="flex items-center gap-1.5 rounded-control border border-border-strong bg-surface px-2 py-1 text-xs text-ink"
+                    >
+                      {a.fullName}
+                      <button
+                        type="button"
+                        aria-label={`Remover ${a.fullName}`}
+                        onClick={() => setApprovers((prev) => prev.filter((x) => x.id !== a.id))}
+                        className="text-ink-faint hover:text-ink"
+                      >
+                        ×
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
           </Section>
 
           <Section title="Outros">

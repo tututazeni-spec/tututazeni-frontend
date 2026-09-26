@@ -27,8 +27,15 @@ export interface Department {
   objective: string | null;
   mainResponsibilities: string | null;
   functionalArea: string | null;
+  businessArea: string | null;
   isStrategic: boolean;
   notes: string | null;
+  expectedEmployees: number | null;
+  institutionalContact: string | null;
+  dataVisibility: 'PUBLIC' | 'DEPARTMENT_ONLY' | 'RESTRICTED';
+  approvalRequired: boolean;
+  approverIds: number[];
+  processOwnerDepartmentId: number | null;
   parentId: number | null;
   headId: number | null;
   directManagerId: number | null;
@@ -39,6 +46,7 @@ export interface Department {
   directManager: { id: number; fullName: string; email: string } | null;
   unit: { id: number; name: string; code: string } | null;
   parent: { id: number; name: string; code: string } | null;
+  processOwnerDepartment: { id: number; name: string; code: string } | null;
   children: DepartmentNode[];
   _count: { users: number; children: number };
 }
@@ -78,6 +86,64 @@ export interface Metrics {
   avgPerformanceScore: number | null;
   recentActivity: Array<{ date: string; description: string }>;
   alerts: string[];
+}
+
+// "Estrutura de um departamento" (docs/modulo_departments.md Ponto 2):
+// Departamento → Subdepartamentos → Equipas → Responsável → Colaboradores →
+// Cargos → Posições.
+export interface StructureTeam {
+  manager: { id: number; fullName: string } | null;
+  members: Array<{
+    id: number;
+    fullName: string;
+    email: string;
+    position: { id: number; name: string } | null;
+  }>;
+}
+
+export interface StructurePosition {
+  id: number;
+  name: string;
+  code: string | null;
+  level: string | null;
+  headcountPlanned: number;
+  headcountOccupied: number;
+}
+
+export interface StructureVacancy {
+  id: number;
+  title: string;
+  status: string;
+  slots: number;
+  closingDate: string | null;
+  createdAt: string;
+}
+
+export interface StructureDocument {
+  id: number;
+  title: string;
+  category: string;
+  fileUrl: string;
+  fileType: string;
+  createdAt: string;
+}
+
+export interface StructureGoal {
+  id: number;
+  title: string;
+  status: string;
+  progress: number;
+  dueDate: string | null;
+  user: { id: number; fullName: string };
+}
+
+export interface Structure {
+  departmentId: number;
+  teams: StructureTeam[];
+  positions: StructurePosition[];
+  vacancies: StructureVacancy[];
+  documents: StructureDocument[];
+  goals: StructureGoal[];
 }
 
 export interface PaginatedDepts {

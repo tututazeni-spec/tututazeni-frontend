@@ -188,6 +188,8 @@ export const queryKeys = {
       [...queryKeys.departments.all, 'detail', id] as const,
     metrics: (id: number) =>
       [...queryKeys.departments.all, 'metrics', id] as const,
+    structure: (id: number) =>
+      [...queryKeys.departments.all, 'structure', id] as const,
     comparative: () => [...queryKeys.departments.all, 'comparative'] as const,
   },
 

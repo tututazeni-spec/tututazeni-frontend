@@ -27,6 +27,8 @@ import {
   Target,
   Wallet,
   Clock,
+  FileText,
+  DoorOpen,
 } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { useDebounce } from '@/hooks/useDebounce';
@@ -51,7 +53,7 @@ import {
 import { CreateDepartmentModal } from './CreateDepartmentModal';
 import { DepartmentUserPicker } from './DepartmentUserPicker';
 import type { DirectoryUser } from './departmentFormData';
-import type { Department, HeadHistoryEntry, Member, Metrics } from './types';
+import type { Department, HeadHistoryEntry, Member, Metrics, Structure } from './types';
 
 interface DetailViewProps {
   deptId: number;
@@ -141,7 +143,11 @@ function OverviewSection({ dept, metrics }: { dept: Department; metrics: Metrics
           label="N.º de colaboradores"
           value={metrics ? metrics.totalUsers : dept._count.users}
         />
-        <Field icon={Users} label="Headcount previsto" value={dept.maxEmployees ?? '—'} />
+        <Field
+          icon={Users}
+          label="Headcount previsto"
+          value={dept.expectedEmployees ?? '—'}
+        />
         <Field
           icon={UserCheck}
           label="Headcount atual"
@@ -291,7 +297,15 @@ function LookupHint({
 export function DetailView({ deptId, onBack }: DetailViewProps) {
   const notify = useToast();
   const [activeTab, setActiveTab] = useState<
-    'members' | 'subdepts' | 'history' | 'metrics'
+    | 'members'
+    | 'teams'
+    | 'positions'
+    | 'vacancies'
+    | 'goals'
+    | 'documents'
+    | 'subdepts'
+    | 'history'
+    | 'metrics'
   >('members');
   // Colaborador identificado por nome (pesquisa no diretório) ou por ID
   // (o próprio DepartmentUserPicker resolve ambos — ver departmentFormData.ts).
@@ -322,8 +336,14 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
     `/departments/${deptId}/metrics`,
     { enabled: !!deptId, staleTime: STALE_TIME.DYNAMIC },
   );
+  const structureQ = useApiQuery<Structure>(
+    queryKeys.departments.structure(deptId),
+    `/departments/${deptId}/structure`,
+    { enabled: !!deptId, staleTime: STALE_TIME.DYNAMIC },
+  );
   const dept = deptQ.data ?? null;
   const metrics = metricsQ.data ?? null;
+  const structure = structureQ.data ?? null;
   const loading = deptQ.isLoading;
 
   const reloadKeys = [
@@ -345,12 +365,8 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
   };
 
   const transferMutation = useApiMutation(
-    () =>
-      apiClient.post('/departments/members/transfer', {
-        userId: transferUser!.id,
-        targetDepartmentId: parseInt(transferTargetId),
-        reason: transferReason || undefined,
-      }),
+    (vars: { userId: number; targetDepartmentId: number; reason?: string }) =>
+      apiClient.post('/departments/members/transfer', vars),
     {
       invalidateKeys: reloadKeys,
       onSuccess: () => {
@@ -368,20 +384,20 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
   const transferLoading = transferMutation.isPending;
   const canTransfer = !!transferUser && transferTargetLookup.status === 'found';
   const handleTransfer = () => {
-    if (!canTransfer) return;
-    transferMutation.mutate(undefined);
+    if (!transferUser || !canTransfer) return;
+    transferMutation.mutate({
+      userId: transferUser.id,
+      targetDepartmentId: parseInt(transferTargetId, 10),
+      reason: transferReason || undefined,
+    });
   };
 
   // "Adicionar colaborador" reutiliza o endpoint de transferência com o
   // destino fixo neste departamento — o backend não tem rota dedicada e
   // transferir para cá é exactamente o que "adicionar" significa.
   const addMemberMutation = useApiMutation(
-    () =>
-      apiClient.post('/departments/members/transfer', {
-        userId: addUser!.id,
-        targetDepartmentId: deptId,
-        reason: addReason || undefined,
-      }),
+    (vars: { userId: number; targetDepartmentId: number; reason?: string }) =>
+      apiClient.post('/departments/members/transfer', vars),
     {
       invalidateKeys: reloadKeys,
       onSuccess: () => {
@@ -398,8 +414,12 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
   const addMemberLoading = addMemberMutation.isPending;
   const canAddMember = !!addUser;
   const handleAddMember = () => {
-    if (!canAddMember) return;
-    addMemberMutation.mutate(undefined);
+    if (!addUser || !canAddMember) return;
+    addMemberMutation.mutate({
+      userId: addUser.id,
+      targetDepartmentId: deptId,
+      reason: addReason || undefined,
+    });
   };
 
   if (deptQ.isError)
@@ -440,6 +460,17 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
 
   const tabs: Array<{ id: typeof activeTab; label: string }> = [
     { id: 'members', label: `Membros (${dept._count.users})` },
+    { id: 'teams', label: `Equipas${structure ? ` (${structure.teams.length})` : ''}` },
+    {
+      id: 'positions',
+      label: `Cargos & Funções${structure ? ` (${structure.positions.length})` : ''}`,
+    },
+    { id: 'vacancies', label: `Vagas${structure ? ` (${structure.vacancies.length})` : ''}` },
+    { id: 'goals', label: `Objectivos${structure ? ` (${structure.goals.length})` : ''}` },
+    {
+      id: 'documents',
+      label: `Documentos${structure ? ` (${structure.documents.length})` : ''}`,
+    },
     { id: 'subdepts', label: `Sub-departamentos (${dept._count.children})` },
     { id: 'metrics', label: 'Métricas' },
     { id: 'history', label: 'Histórico gestores' },
@@ -692,6 +723,208 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
               )}
             </TableBody>
           </Table>
+        </div>
+      )}
+
+      {/* Teams tab — "Equipas" (docs/modulo_departments.md, Estrutura de um
+          departamento). Sem modelo Team próprio: agrupa-se por gestor
+          directo (User.managerId), a única noção de equipa já existente. */}
+      {activeTab === 'teams' && (
+        <div className="space-y-3">
+          {structureQ.isLoading ? (
+            <Skeleton
+              rows={3}
+              wrapperClassName="space-y-2 animate-pulse"
+              itemClassName="h-16 rounded-card bg-surface-sunken"
+            />
+          ) : !structure || structure.teams.length === 0 ? (
+            <div className="rounded-card border border-dashed border-border-strong py-8 text-center text-sm text-ink-faint">
+              Sem equipas identificadas
+            </div>
+          ) : (
+            structure.teams.map((team, i) => (
+              <Card key={team.manager?.id ?? `no-team-${i}`} className="p-4">
+                <div className="mb-3 flex items-center gap-2">
+                  {team.manager ? (
+                    <>
+                      <Avatar name={team.manager.fullName} size="sm" />
+                      <span className="text-sm font-medium text-ink">
+                        {team.manager.fullName}
+                      </span>
+                      <Badge intent="neutral">Gestor directo</Badge>
+                    </>
+                  ) : (
+                    <span className="text-sm font-medium text-ink-faint">
+                      Sem equipa atribuída
+                    </span>
+                  )}
+                  <span className="ml-auto text-xs text-ink-faint">
+                    {team.members.length} membro(s)
+                  </span>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {team.members.map((m) => (
+                    <div
+                      key={m.id}
+                      className="flex items-center gap-2 rounded-control border border-border bg-surface-sunken px-2 py-1"
+                    >
+                      <Avatar name={m.fullName} size="sm" />
+                      <div>
+                        <div className="text-xs text-ink">{m.fullName}</div>
+                        {m.position && (
+                          <div className="text-[11px] text-ink-faint">{m.position.name}</div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </Card>
+            ))
+          )}
+        </div>
+      )}
+
+      {/* Positions tab — "Cargos & Funções" */}
+      {activeTab === 'positions' && (
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableHeaderCell>Cargo</TableHeaderCell>
+              <TableHeaderCell>Nível</TableHeaderCell>
+              <TableHeaderCell>Posições ocupadas</TableHeaderCell>
+              <TableHeaderCell>Posições previstas</TableHeaderCell>
+              <TableHeaderCell>Vagas</TableHeaderCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {!structure || structure.positions.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={5} className="py-8 text-center text-ink-faint">
+                  Sem cargos definidos neste departamento
+                </TableCell>
+              </TableRow>
+            ) : (
+              structure.positions.map((p) => (
+                <TableRow key={p.id}>
+                  <TableCell>
+                    <div className="text-sm text-ink">{p.name}</div>
+                    {p.code && <div className="text-xs text-ink-faint">{p.code}</div>}
+                  </TableCell>
+                  <TableCell className="text-xs text-ink-muted">{p.level ?? '—'}</TableCell>
+                  <TableCell className="text-sm text-ink">{p.headcountOccupied}</TableCell>
+                  <TableCell className="text-sm text-ink">{p.headcountPlanned}</TableCell>
+                  <TableCell>
+                    <Badge
+                      intent={
+                        p.headcountPlanned - p.headcountOccupied > 0 ? 'success' : 'neutral'
+                      }
+                    >
+                      {Math.max(p.headcountPlanned - p.headcountOccupied, 0)}
+                    </Badge>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      )}
+
+      {/* Vacancies tab — "Vagas" */}
+      {activeTab === 'vacancies' && (
+        <div className="space-y-2">
+          {!structure || structure.vacancies.length === 0 ? (
+            <div className="rounded-card border border-dashed border-border-strong py-8 text-center text-sm text-ink-faint">
+              Sem vagas internas para este departamento
+            </div>
+          ) : (
+            structure.vacancies.map((v) => (
+              <Card key={v.id} className="flex items-center gap-3 p-4">
+                <DoorOpen size={16} strokeWidth={1.75} className="flex-shrink-0 text-ink-faint" />
+                <div className="flex-1">
+                  <div className="text-sm font-medium text-ink">{v.title}</div>
+                  <div className="text-xs text-ink-faint">
+                    {v.slots} vaga(s)
+                    {v.closingDate &&
+                      ` · fecha em ${new Date(v.closingDate).toLocaleDateString('pt-AO')}`}
+                  </div>
+                </div>
+                <Badge intent={v.status === 'PUBLISHED' || v.status === 'OPEN' ? 'success' : 'neutral'}>
+                  {v.status}
+                </Badge>
+              </Card>
+            ))
+          )}
+        </div>
+      )}
+
+      {/* Goals tab — "Objectivos" (indicadores organizacionais, não um
+          módulo de Monitoring separado) */}
+      {activeTab === 'goals' && (
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableHeaderCell>Objectivo</TableHeaderCell>
+              <TableHeaderCell>Colaborador</TableHeaderCell>
+              <TableHeaderCell>Progresso</TableHeaderCell>
+              <TableHeaderCell>Estado</TableHeaderCell>
+              <TableHeaderCell>Prazo</TableHeaderCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {!structure || structure.goals.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={5} className="py-8 text-center text-ink-faint">
+                  Sem objectivos activos
+                </TableCell>
+              </TableRow>
+            ) : (
+              structure.goals.map((g) => (
+                <TableRow key={g.id}>
+                  <TableCell className="text-sm text-ink">{g.title}</TableCell>
+                  <TableCell className="text-xs text-ink-muted">{g.user.fullName}</TableCell>
+                  <TableCell className="text-sm text-ink">{g.progress}%</TableCell>
+                  <TableCell>
+                    <Badge intent={g.status === 'COMPLETED' ? 'success' : 'neutral'}>
+                      {g.status}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-xs text-ink-muted">
+                    {g.dueDate ? new Date(g.dueDate).toLocaleDateString('pt-AO') : '—'}
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      )}
+
+      {/* Documents tab — "Documentos" */}
+      {activeTab === 'documents' && (
+        <div className="space-y-2">
+          {!structure || structure.documents.length === 0 ? (
+            <div className="rounded-card border border-dashed border-border-strong py-8 text-center text-sm text-ink-faint">
+              Sem documentos associados a este departamento
+            </div>
+          ) : (
+            structure.documents.map((d) => (
+              <a
+                key={d.id}
+                href={d.fileUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-center gap-3 rounded-card border border-border bg-surface p-4 hover:border-primary"
+              >
+                <FileText size={16} strokeWidth={1.75} className="flex-shrink-0 text-ink-faint" />
+                <div className="flex-1">
+                  <div className="text-sm font-medium text-ink">{d.title}</div>
+                  <div className="text-xs text-ink-faint">
+                    {d.category} · {d.fileType} ·{' '}
+                    {new Date(d.createdAt).toLocaleDateString('pt-AO')}
+                  </div>
+                </div>
+              </a>
+            ))
+          )}
         </div>
       )}
 
