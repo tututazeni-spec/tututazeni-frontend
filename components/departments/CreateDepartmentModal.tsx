@@ -32,15 +32,16 @@ import { Modal, ModalContent } from '@/components/ui/Modal';
 import { Select, type SelectItemOption } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
 import { useToast } from '@/providers/ToastProvider';
-import type { DepartmentNode } from './types';
+import type { Department, DepartmentNode } from './types';
 import { DepartmentUserPicker } from './DepartmentUserPicker';
 import { useUnits, type DirectoryUser } from './departmentFormData';
+import { flattenTree } from './treeUtils';
 
 export interface CreateDepartmentModalProps {
   onClose: () => void;
-  /** Endpoint de criação — difere entre os dois módulos. */
+  /** Endpoint de criação/actualização — difere entre os dois módulos. */
   endpoint: '/departments' | '/organization/departments';
-  /** Keys a invalidar após criar (lista/árvore de cada módulo). */
+  /** Keys a invalidar após criar/editar (lista/árvore de cada módulo). */
   invalidateKeys: QueryKey[];
   /**
    * Quando definido, o novo departamento fica preso a este pai (usado a
@@ -48,6 +49,12 @@ export interface CreateDepartmentModalProps {
    * pré-seleccionado e bloqueado.
    */
   defaultParentId?: number;
+  /**
+   * Quando definido, o modal abre em modo edição (acção "Editar" da tabela
+   * de Departamentos): pré-preenche todos os campos e faz PUT
+   * `${endpoint}/${department.id}` em vez de POST `${endpoint}`.
+   */
+  department?: Department;
 }
 
 const NO_PARENT = 'NONE';
@@ -63,16 +70,6 @@ const STRATEGIC_ITEMS: SelectItemOption[] = [
   { value: 'false', label: 'Não' },
   { value: 'true', label: 'Sim' },
 ];
-
-function flattenTree(
-  nodes: DepartmentNode[],
-  depth = 0,
-): Array<{ value: string; label: string }> {
-  return nodes.flatMap((n) => [
-    { value: String(n.id), label: `${'— '.repeat(depth)}${n.name}` },
-    ...flattenTree(n.children ?? [], depth + 1),
-  ]);
-}
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -90,35 +87,64 @@ export function CreateDepartmentModal({
   endpoint,
   invalidateKeys,
   defaultParentId,
+  department,
 }: CreateDepartmentModalProps) {
   const notify = useToast();
+  const isEdit = department != null;
 
-  const parentLocked = defaultParentId != null;
+  const parentLocked = !isEdit && defaultParentId != null;
 
-  const [name, setName] = useState('');
-  const [code, setCode] = useState('');
-  const [description, setDescription] = useState('');
+  const [name, setName] = useState(department?.name ?? '');
+  const [code, setCode] = useState(department?.code ?? '');
+  const [acronym, setAcronym] = useState(department?.acronym ?? '');
+  const [description, setDescription] = useState(department?.description ?? '');
   const [parentId, setParentId] = useState(
-    parentLocked ? String(defaultParentId) : NO_PARENT,
+    department?.parentId != null
+      ? String(department.parentId)
+      : parentLocked
+        ? String(defaultParentId)
+        : NO_PARENT,
   );
-  const [unitId, setUnitId] = useState(NO_UNIT);
-  const [location, setLocation] = useState('');
-  const [head, setHead] = useState<DirectoryUser | null>(null);
-  const [directManager, setDirectManager] = useState<DirectoryUser | null>(null);
-  const [costCenter, setCostCenter] = useState('');
-  const [annualBudget, setAnnualBudget] = useState('');
-  const [maxEmployees, setMaxEmployees] = useState('');
-  const [status, setStatus] = useState('ACTIVE');
-  const [operationalStartDate, setOperationalStartDate] = useState('');
-  const [institutionalEmail, setInstitutionalEmail] = useState('');
-  const [phoneExtension, setPhoneExtension] = useState('');
-  const [physicalLocation, setPhysicalLocation] = useState('');
-  const [objective, setObjective] = useState('');
-  const [mainResponsibilities, setMainResponsibilities] = useState('');
-  const [functionalArea, setFunctionalArea] = useState('');
-  const [isStrategic, setIsStrategic] = useState('false');
-  const [notes, setNotes] = useState('');
-  const [color, setColor] = useState(DEFAULT_COLOR);
+  const [unitId, setUnitId] = useState(
+    department?.unitId != null ? String(department.unitId) : NO_UNIT,
+  );
+  const [location, setLocation] = useState(department?.location ?? '');
+  const [head, setHead] = useState<DirectoryUser | null>(
+    department?.head ? { ...department.head, avatarUrl: null } : null,
+  );
+  const [directManager, setDirectManager] = useState<DirectoryUser | null>(
+    department?.directManager ? { ...department.directManager, avatarUrl: null } : null,
+  );
+  const [costCenter, setCostCenter] = useState(department?.costCenter ?? '');
+  const [annualBudget, setAnnualBudget] = useState(
+    department?.annualBudget != null ? String(department.annualBudget) : '',
+  );
+  const [maxEmployees, setMaxEmployees] = useState(
+    department?.maxEmployees != null ? String(department.maxEmployees) : '',
+  );
+  // ARCHIVED só é atingido pela acção dedicada "Arquivar" (ListView) — aqui o
+  // selector cobre apenas o ciclo activo/inactivo normal.
+  const [status, setStatus] = useState(
+    department && department.status !== 'ARCHIVED' ? department.status : 'ACTIVE',
+  );
+  const [operationalStartDate, setOperationalStartDate] = useState(
+    department?.operationalStartDate?.slice(0, 10) ?? '',
+  );
+  const [institutionalEmail, setInstitutionalEmail] = useState(
+    department?.institutionalEmail ?? '',
+  );
+  const [phoneExtension, setPhoneExtension] = useState(department?.phoneExtension ?? '');
+  const [physicalLocation, setPhysicalLocation] = useState(department?.physicalLocation ?? '');
+  const [objective, setObjective] = useState(department?.objective ?? '');
+  const [mainResponsibilities, setMainResponsibilities] = useState(
+    department?.mainResponsibilities ?? '',
+  );
+  const [functionalArea, setFunctionalArea] = useState(department?.functionalArea ?? '');
+  const [isStrategic, setIsStrategic] = useState(
+    department ? String(department.isStrategic) : 'false',
+  );
+  const [notes, setNotes] = useState(department?.notes ?? '');
+  const [color, setColor] = useState(department?.color ?? DEFAULT_COLOR);
   const [submitError, setSubmitError] = useState('');
 
   const { data: tree } = useApiQuery<DepartmentNode[]>(
@@ -139,28 +165,36 @@ export function CreateDepartmentModal({
 
   const canSubmit = name.trim().length > 0 && code.trim().length > 0;
 
-  const createDept = useApiMutation(
-    (body: Record<string, unknown>) => apiClient.post(endpoint, body),
+  const saveDept = useApiMutation(
+    (body: Record<string, unknown>) =>
+      isEdit
+        ? apiClient.put(`${endpoint}/${department!.id}`, body)
+        : apiClient.post(endpoint, body),
     {
       invalidateKeys,
       onSuccess: () => {
-        notify({ title: 'Departamento criado', intent: 'success' });
+        notify({
+          title: isEdit ? 'Departamento actualizado' : 'Departamento criado',
+          intent: 'success',
+        });
         onClose();
       },
       onError: (e) =>
         setSubmitError(
-          e.message || 'Erro ao criar o departamento. Tente novamente.',
+          e.message ||
+            `Erro ao ${isEdit ? 'actualizar' : 'criar'} o departamento. Tente novamente.`,
         ),
     },
   );
-  const loading = createDept.isPending;
+  const loading = saveDept.isPending;
 
   const handleSubmit = () => {
     if (!canSubmit || loading) return;
     setSubmitError('');
-    createDept.mutate({
+    saveDept.mutate({
       name: name.trim(),
       code: code.trim(),
+      ...(acronym.trim() ? { acronym: acronym.trim() } : {}),
       ...(description.trim() ? { description: description.trim() } : {}),
       ...(parentId !== NO_PARENT ? { parentId: Number(parentId) } : {}),
       ...(unitId !== NO_UNIT ? { unitId: Number(unitId) } : {}),
@@ -189,8 +223,12 @@ export function CreateDepartmentModal({
   return (
     <Modal open onOpenChange={(open) => !open && onClose()}>
       <ModalContent
-        title="Novo departamento"
-        description="Cria um departamento. Podes associá-lo a um departamento pai para formar a hierarquia."
+        title={isEdit ? 'Editar departamento' : 'Novo departamento'}
+        description={
+          isEdit
+            ? 'Actualiza os dados do departamento.'
+            : 'Cria um departamento. Podes associá-lo a um departamento pai para formar a hierarquia.'
+        }
         className="max-w-2xl max-h-[90vh] overflow-y-auto"
       >
         <div className="mt-5 space-y-6">
@@ -219,6 +257,16 @@ export function CreateDepartmentModal({
                 onChange={(e) => setCode(e.target.value)}
                 placeholder="Ex.: RH-001"
                 maxLength={20}
+              />
+            </FormField>
+
+            <FormField label="Sigla" htmlFor="cd-acronym">
+              <Input
+                id="cd-acronym"
+                value={acronym}
+                onChange={(e) => setAcronym(e.target.value)}
+                placeholder="Ex.: RH"
+                maxLength={15}
               />
             </FormField>
 
@@ -318,7 +366,7 @@ export function CreateDepartmentModal({
             />
 
             <DepartmentUserPicker
-              label="Gestor directo"
+              label="Substituto do responsável"
               htmlFor="cd-direct-manager"
               value={directManager}
               onChange={setDirectManager}
@@ -462,7 +510,7 @@ export function CreateDepartmentModal({
             disabled={!canSubmit}
             loading={loading}
           >
-            Criar departamento
+            {isEdit ? 'Guardar alterações' : 'Criar departamento'}
           </Button>
         </div>
       </ModalContent>

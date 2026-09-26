@@ -7,9 +7,12 @@ export interface Department {
   id: number;
   code: string;
   name: string;
+  acronym: string | null;
   description: string | null;
   active: boolean;
   status: string;
+  closedAt: string | null;
+  closureReason: string | null;
   color: string | null;
   icon: string | null;
   costCenter: string | null;
@@ -17,6 +20,15 @@ export interface Department {
   annualBudget: number | null;
   maxEmployees: number | null;
   location: string | null;
+  physicalLocation: string | null;
+  operationalStartDate: string | null;
+  institutionalEmail: string | null;
+  phoneExtension: string | null;
+  objective: string | null;
+  mainResponsibilities: string | null;
+  functionalArea: string | null;
+  isStrategic: boolean;
+  notes: string | null;
   parentId: number | null;
   headId: number | null;
   directManagerId: number | null;
