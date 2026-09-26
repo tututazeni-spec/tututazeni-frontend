@@ -14,3 +14,11 @@ export function flattenTree(
     ...flattenTree(n.children ?? [], depth + 1),
   ]);
 }
+
+// Achata a árvore preservando o nó completo (não só id/label) — usado pela
+// "Lista hierárquica" da aba Estrutura Organizacional (docs/modulo_departments.md
+// Ponto 3), que precisa de todos os campos por linha, ordenados em pré-ordem
+// (pai sempre antes dos filhos, como numa árvore expandida).
+export function flattenTreeFull(nodes: DepartmentNode[]): DepartmentNode[] {
+  return nodes.flatMap((n) => [n, ...flattenTreeFull(n.children ?? [])]);
+}

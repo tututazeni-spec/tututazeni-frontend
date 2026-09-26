@@ -12,7 +12,7 @@ import { NAV, TITLES } from '@/components/departments/constants';
 import { DashboardView } from '@/components/departments/DashboardView';
 import { DetailView } from '@/components/departments/DetailView';
 import { ListView } from '@/components/departments/ListView';
-import { TreeView } from '@/components/departments/TreeView';
+import { OrgStructureView } from '@/components/departments/OrgStructureView';
 import type { Nav } from '@/components/departments/types';
 
 export default function DepartmentsPage() {
@@ -50,7 +50,7 @@ export default function DepartmentsPage() {
 
       {/* Views */}
       {nav.view === 'list' && <ListView onSelect={handleSelect} />}
-      {nav.view === 'tree' && <TreeView onSelect={handleSelect} />}
+      {nav.view === 'structure' && <OrgStructureView onSelect={handleSelect} />}
       {nav.view === 'detail' && (
         <DetailView deptId={nav.selectedId} onBack={handleBack} />
       )}

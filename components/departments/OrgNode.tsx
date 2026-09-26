@@ -67,15 +67,18 @@ export function OrgNode({ node, onSelect, level = 0 }: OrgNodeProps) {
               <span className="text-xs text-ink-faint">(inactivo)</span>
             )}
           </div>
-          <div className="mt-0.5 flex items-center gap-3 text-xs text-ink-faint">
+          <div className="mt-0.5 flex flex-wrap items-center gap-3 text-xs text-ink-faint">
             {node.head && (
               <span className="flex items-center gap-1">
                 <Avatar name={node.head.fullName} size="sm" />
                 {node.head.fullName}
               </span>
             )}
-            <span>{node._count.users} membros</span>
+            {node.unit && <span>{node.unit.name}</span>}
+            <span>{node._count.users} colaboradores</span>
+            <span>{node.positionsCount} cargos</span>
             {hasChildren && <span>{node.children.length} subdeptos</span>}
+            {node.location && <span>{node.location}</span>}
           </div>
         </div>
       </div>

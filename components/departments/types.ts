@@ -53,6 +53,10 @@ export interface Department {
 
 export interface DepartmentNode extends Omit<Department, 'children'> {
   children: DepartmentNode[];
+  // Só presentes em GET /departments/tree (docs/modulo_departments.md
+  // Ponto 3 — "Estrutura Organizacional").
+  positionsCount: number;
+  level: number;
 }
 
 export interface Member {
@@ -163,7 +167,7 @@ export interface ComparativeRow {
   active: boolean;
 }
 
-export type View = 'list' | 'tree' | 'detail' | 'dashboard';
+export type View = 'list' | 'structure' | 'detail' | 'dashboard';
 
 // view e selectedId eram dois useState separados sempre definidos em conjunto
 // — um único estado torna "detail sem id" irrepresentável.
