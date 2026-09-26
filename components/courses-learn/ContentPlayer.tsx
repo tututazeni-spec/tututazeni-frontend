@@ -21,6 +21,8 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
+import { PdfViewer } from '@/components/viewers/PdfViewer';
+import { PptxViewer } from '@/components/viewers/PptxViewer';
 import { LessonAudioBar } from './LessonAudioBar';
 import { QuizPlayer } from './QuizPlayer';
 import { lessonIcon, fmtDuration } from './utils';
@@ -202,11 +204,7 @@ export function ContentPlayer({
             )
           ) : lesson.type === 'PDF' ? (
             fileSrc ? (
-              <iframe
-                src={fileSrc}
-                title={lesson.title}
-                className="w-full h-full border-0 bg-canvas"
-              />
+              <PdfViewer src={fileSrc} title={lesson.title} />
             ) : (
               <div className="text-canvas text-center px-8">
                 <FileText size={56} strokeWidth={1.5} className="mx-auto mb-4" />
@@ -219,31 +217,32 @@ export function ContentPlayer({
               </div>
             )
           ) : lesson.type === 'SLIDE' ? (
-            <div className="text-canvas text-center px-8">
-              <BarChart3 size={56} strokeWidth={1.5} className="mx-auto mb-4" />
-              <div className="font-body text-base font-medium">
-                {lesson.title}
-              </div>
-              {fileSrc ? (
-                <>
-                  <p className="font-body text-sm text-canvas/70 mt-2">
-                    Apresentação PowerPoint — descarrega para veres nos teus
-                    slides.
-                  </p>
+            fileSrc ? (
+              <div className="w-full h-full flex flex-col">
+                <div className="flex-1 min-h-0">
+                  <PptxViewer src={fileSrc} title={lesson.title} />
+                </div>
+                <div className="px-6 py-3 bg-ink border-t border-canvas/10 text-center">
                   <a
                     href={fileSrc}
                     download={`${lesson.title}.pptx`}
-                    className="inline-block mt-4 rounded-lg bg-canvas px-4 py-2 font-body text-sm font-semibold text-ink hover:bg-canvas/90"
+                    className="font-body text-xs text-canvas/70 hover:text-canvas underline"
                   >
                     Descarregar apresentação
                   </a>
-                </>
-              ) : (
+                </div>
+              </div>
+            ) : (
+              <div className="text-canvas text-center px-8">
+                <BarChart3 size={56} strokeWidth={1.5} className="mx-auto mb-4" />
+                <div className="font-body text-base font-medium">
+                  {lesson.title}
+                </div>
                 <p className="font-body text-sm text-canvas/70 mt-2">
                   Esta aula ainda não tem ficheiro PPTX carregado.
                 </p>
-              )}
-            </div>
+              </div>
+            )
           ) : lesson.type === 'AUDIO' ? (
             <div className="text-canvas text-center px-8 w-full max-w-lg">
               <div className="font-body text-base font-medium mb-4">

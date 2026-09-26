@@ -15,6 +15,21 @@ vi.mock('@/hooks/useLessonAudio', () => ({
   }),
 }));
 
+// PdfViewer/PptxViewer carregam pdfjs-dist/pptx-preview dinamicamente e
+// fazem fetch/parsing real do ficheiro — fora de scope aqui (têm os seus
+// próprios testes). Este ficheiro só verifica que o ContentPlayer os monta
+// com a fonte/título certos.
+vi.mock('@/components/viewers/PdfViewer', () => ({
+  PdfViewer: ({ src, title }: { src: string; title: string }) => (
+    <div data-testid="pdf-viewer" data-src={src} data-title={title} />
+  ),
+}));
+vi.mock('@/components/viewers/PptxViewer', () => ({
+  PptxViewer: ({ src, title }: { src: string; title: string }) => (
+    <div data-testid="pptx-viewer" data-src={src} data-title={title} />
+  ),
+}));
+
 const baseLesson: LessonProgress = {
   id: 1,
   title: 'Manual em PDF',
@@ -61,9 +76,9 @@ describe('ContentPlayer — lição PDF', () => {
         currentModule={null}
       />,
     );
-    const frame = screen.getByTitle('Manual em PDF');
-    expect(frame).toBeInTheDocument();
-    expect(frame.tagName).toBe('IFRAME');
+    const viewer = screen.getByTestId('pdf-viewer');
+    expect(viewer).toBeInTheDocument();
+    expect(viewer).toHaveAttribute('data-title', 'Manual em PDF');
   });
 
   test('mostra aviso quando a lição PDF não tem ficheiro', () => {
@@ -75,7 +90,7 @@ describe('ContentPlayer — lição PDF', () => {
         currentModule={null}
       />,
     );
-    expect(screen.queryByTitle('Manual em PDF')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('pdf-viewer')).not.toBeInTheDocument();
     expect(screen.getByText(/ainda não tem ficheiro/i)).toBeInTheDocument();
   });
 });
@@ -102,6 +117,10 @@ describe('ContentPlayer — lição PPTX', () => {
         currentModule={null}
       />,
     );
+    const viewer = screen.getByTestId('pptx-viewer');
+    expect(viewer).toBeInTheDocument();
+    expect(viewer).toHaveAttribute('data-title', 'Slides da aula');
+
     const link = screen.getByRole('link', {
       name: /descarregar apresentação/i,
     });
@@ -117,6 +136,7 @@ describe('ContentPlayer — lição PPTX', () => {
         currentModule={null}
       />,
     );
+    expect(screen.queryByTestId('pptx-viewer')).not.toBeInTheDocument();
     expect(
       screen.queryByRole('link', { name: /descarregar apresentação/i }),
     ).not.toBeInTheDocument();
