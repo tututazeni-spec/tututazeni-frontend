@@ -47,6 +47,7 @@ export function useUserProfile(userId: number, tab: ProfileTab) {
   const action = useApiMutation(
     (act: UserAction) => apiClient.patch(`/users/${userId}/${act}`, {}),
     {
+      mutationKey: ['users', 'action', userId],
       invalidateKeys: [queryKeys.users.detail(userId), queryKeys.users.lists()],
       onError: (e) => notify({ title: e.message, intent: 'danger' }),
     },
