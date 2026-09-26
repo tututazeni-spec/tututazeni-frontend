@@ -13,34 +13,27 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { Card } from '@/components/ui/Card';
 import { KpiCard } from '@/components/ui/KpiCard';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { BarChart } from '@/components/ui/charts/BarChart';
+import { GaugeChart } from '@/components/ui/charts/GaugeChart';
+import { DonutChart } from '@/components/ui/charts/DonutChart';
 import type { CareerOverview } from './types';
 
+// Comparação entre categorias nomeadas (departamento/unidade/cargo) — antes
+// eram barras horizontais desenhadas à mão, sem hover; agora usa o
+// BarChart partilhado do design system (mesma cor de série, tooltip incluído).
 function EvolutionList({ title, items }: { title: string; items: Array<{ key: string; count: number }> }) {
-  const max = Math.max(1, ...items.map((i) => i.count));
+  const top = items.slice(0, 6);
   return (
     <Card className="p-4">
       <div className="mb-3 font-body text-sm font-semibold text-ink">{title}</div>
-      {items.length === 0 ? (
+      {top.length === 0 ? (
         <div className="py-3 text-center font-body text-xs text-ink-faint">Sem dados</div>
       ) : (
-        <div className="space-y-2">
-          {items.slice(0, 6).map((i) => (
-            <div key={i.key} className="flex items-center gap-2">
-              <span className="w-24 flex-shrink-0 truncate font-body text-xs text-ink-muted">
-                {i.key}
-              </span>
-              <div className="h-2 flex-1 overflow-hidden rounded-pill bg-surface-sunken">
-                <div
-                  className="h-full rounded-pill bg-primary"
-                  style={{ width: `${(i.count / max) * 100}%` }}
-                />
-              </div>
-              <span className="w-6 flex-shrink-0 text-right font-mono text-xs text-ink-faint">
-                {i.count}
-              </span>
-            </div>
-          ))}
-        </div>
+        <BarChart
+          orientation="horizontal"
+          categories={top.map((i) => i.key)}
+          series={[{ label: title, values: top.map((i) => i.count) }]}
+        />
       )}
     </Card>
   );
@@ -107,14 +100,16 @@ export function OverviewTab() {
           sub={`${successionDashboard.kpis.withoutSuccessor} sem sucessor`}
           intent={successionDashboard.kpis.withoutSuccessor > 0 ? 'danger' : 'success'}
         />
-        <KpiCard
-          label="Cobertura de sucessão"
-          value={`${successionDashboard.kpis.coverageRate}%`}
-          intent="primary"
-        />
       </div>
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+        <Card className="flex flex-col items-center justify-center p-4">
+          <GaugeChart
+            value={successionDashboard.kpis.coverageRate}
+            label="Cobertura de Sucessão"
+            thresholds={{ warning: 70, danger: 40 }}
+          />
+        </Card>
         <EvolutionList title="Planos por Departamento" items={overview.evolutionByDepartment} />
         <EvolutionList title="Planos por Unidade" items={overview.evolutionByUnit} />
         <EvolutionList title="Planos por Cargo" items={overview.evolutionByPosition} />
@@ -129,14 +124,10 @@ export function OverviewTab() {
             Sem movimentações registadas
           </div>
         ) : (
-          <div className="flex flex-wrap gap-3">
-            {overview.internalMovements.map((m) => (
-              <div key={m.changeType} className="rounded-control bg-surface-sunken px-3 py-2">
-                <div className="font-mono text-lg font-bold text-ink">{m.count}</div>
-                <div className="font-body text-xs text-ink-faint">{m.changeType}</div>
-              </div>
-            ))}
-          </div>
+          <DonutChart
+            centerLabel="Movimentações"
+            data={overview.internalMovements.map((m) => ({ label: m.changeType, value: m.count }))}
+          />
         )}
       </Card>
     </div>
