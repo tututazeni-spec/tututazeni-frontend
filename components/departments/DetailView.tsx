@@ -19,6 +19,14 @@ import {
   Users,
   Building2,
   AlertTriangle,
+  Calendar,
+  MapPin,
+  Briefcase,
+  GraduationCap,
+  ClipboardCheck,
+  Target,
+  Wallet,
+  Clock,
 } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { useDebounce } from '@/hooks/useDebounce';
@@ -41,6 +49,8 @@ import {
   TableRow,
 } from '@/components/ui/Table';
 import { CreateDepartmentModal } from './CreateDepartmentModal';
+import { DepartmentUserPicker } from './DepartmentUserPicker';
+import type { DirectoryUser } from './departmentFormData';
 import type { Department, HeadHistoryEntry, Member, Metrics } from './types';
 
 interface DetailViewProps {
@@ -66,6 +76,160 @@ function Breadcrumb({
         </span>
       ))}
     </div>
+  );
+}
+
+function Field({
+  icon: Icon,
+  label,
+  value,
+}: {
+  icon: React.ComponentType<{ size?: number; strokeWidth?: number; className?: string }>;
+  label: string;
+  value: React.ReactNode;
+}) {
+  return (
+    <div className="flex items-start gap-2">
+      <Icon size={14} strokeWidth={1.75} className="mt-0.5 flex-shrink-0 text-ink-faint" />
+      <div className="min-w-0">
+        <div className="text-[11px] uppercase tracking-wide text-ink-faint">{label}</div>
+        <div className="truncate text-sm text-ink">{value}</div>
+      </div>
+    </div>
+  );
+}
+
+// Painel "Visão Geral" (docs/modulo_departments.md Ponto 1) — embutido em
+// cada departamento (Lista, Organograma, Dashboard levam todos aqui ao
+// clicar), não uma aba nova.
+function OverviewSection({ dept, metrics }: { dept: Department; metrics: Metrics | null }) {
+  const occupancyPct =
+    dept.maxEmployees && dept.maxEmployees > 0
+      ? Math.round((metrics ? metrics.totalUsers : dept._count.users) / dept.maxEmployees * 100)
+      : null;
+
+  return (
+    <Card className="mb-5 p-5">
+      <div className="mb-4 text-xs font-medium uppercase tracking-wide text-ink-faint">
+        Visão geral
+      </div>
+      <div className="grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-3 lg:grid-cols-4">
+        <Field icon={Building2} label="Unidade/empresa" value={dept.unit?.name ?? '—'} />
+        <Field icon={MapPin} label="Localização" value={dept.location ?? '—'} />
+        <Field
+          icon={Users}
+          label="Substituto do responsável"
+          value={dept.directManager?.fullName ?? '—'}
+        />
+        <Field
+          icon={Building2}
+          label="Departamento superior"
+          value={dept.parent?.name ?? 'Raiz'}
+        />
+        <Field
+          icon={Building2}
+          label="Nível hierárquico"
+          value={metrics ? metrics.hierarchyLevel : '—'}
+        />
+        <Field
+          icon={Calendar}
+          label="Data de criação"
+          value={new Date(dept.createdAt).toLocaleDateString('pt-AO')}
+        />
+        <Field
+          icon={Users}
+          label="N.º de colaboradores"
+          value={metrics ? metrics.totalUsers : dept._count.users}
+        />
+        <Field icon={Users} label="Headcount previsto" value={dept.maxEmployees ?? '—'} />
+        <Field
+          icon={UserCheck}
+          label="Headcount atual"
+          value={metrics ? metrics.activeUsers : '—'}
+        />
+        <Field
+          icon={Briefcase}
+          label="N.º de cargos activos"
+          value={metrics ? metrics.activePositions : '—'}
+        />
+        <Field
+          icon={Building2}
+          label="N.º de subdepartamentos"
+          value={metrics ? metrics.subdepartments : dept._count.children}
+        />
+        <Field
+          icon={GraduationCap}
+          label="Formações em curso"
+          value={metrics ? metrics.coursesInProgress : '—'}
+        />
+        <Field
+          icon={ClipboardCheck}
+          label="Avaliações pendentes"
+          value={metrics ? metrics.pendingEvaluations : '—'}
+        />
+        <Field
+          icon={Target}
+          label="Objectivos activos"
+          value={metrics ? metrics.activeGoals : '—'}
+        />
+        <Field
+          icon={Target}
+          label="Indicadores de desempenho"
+          value={
+            metrics?.avgPerformanceScore != null
+              ? `${metrics.avgPerformanceScore.toFixed(1)} / 5 (nota média)`
+              : '—'
+          }
+        />
+        <Field
+          icon={Wallet}
+          label="Orçamento anual"
+          value={dept.annualBudget ? `${dept.annualBudget.toLocaleString('pt-AO')} Kz` : '—'}
+        />
+        <Field
+          icon={Target}
+          label="KPIs do departamento"
+          value={occupancyPct != null ? `Ocupação de lotação: ${occupancyPct}%` : '—'}
+        />
+      </div>
+
+      {/* Atividades recentes */}
+      <div className="mt-5 border-t border-border pt-4">
+        <div className="mb-2 flex items-center gap-1.5 text-[11px] uppercase tracking-wide text-ink-faint">
+          <Clock size={12} strokeWidth={1.75} />
+          Atividades recentes
+        </div>
+        {!metrics || metrics.recentActivity.length === 0 ? (
+          <p className="text-sm text-ink-faint">Sem atividade recente.</p>
+        ) : (
+          <ul className="space-y-1.5">
+            {metrics.recentActivity.map((a, i) => (
+              <li key={i} className="flex items-center gap-2 text-sm text-ink-muted">
+                <span className="text-xs text-ink-faint">
+                  {new Date(a.date).toLocaleDateString('pt-AO')}
+                </span>
+                {a.description}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      {/* Alertas/pendências */}
+      {metrics && metrics.alerts.length > 0 && (
+        <div className="mt-4 space-y-2">
+          {metrics.alerts.map((a, i) => (
+            <div
+              key={i}
+              className="flex items-center gap-2 rounded-control border border-black bg-white px-3 py-2 text-xs text-black"
+            >
+              <AlertTriangle size={13} strokeWidth={1.75} className="flex-shrink-0" />
+              {a}
+            </div>
+          ))}
+        </div>
+      )}
+    </Card>
   );
 }
 
@@ -129,27 +293,17 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
   const [activeTab, setActiveTab] = useState<
     'members' | 'subdepts' | 'history' | 'metrics'
   >('members');
-  const [transferUserId, setTransferUserId] = useState('');
+  // Colaborador identificado por nome (pesquisa no diretório) ou por ID
+  // (o próprio DepartmentUserPicker resolve ambos — ver departmentFormData.ts).
+  const [transferUser, setTransferUser] = useState<DirectoryUser | null>(null);
   const [transferTargetId, setTransferTargetId] = useState('');
   const [transferReason, setTransferReason] = useState('');
-  const [addUserId, setAddUserId] = useState('');
+  const [addUser, setAddUser] = useState<DirectoryUser | null>(null);
   const [addReason, setAddReason] = useState('');
   const [createSubOpen, setCreateSubOpen] = useState(false);
 
-  // Confirmação do nome antes de qualquer acção: só é possível adicionar /
-  // transferir depois de o colaborador (e o departamento destino) resolverem.
-  const addUserLookup = useEntityLookup<Member>(
-    addUserId,
-    (id) => `/users/${id}`,
-    (id) => queryKeys.users.detail(id),
-    (u) => `${u.fullName} · ${u.email}`,
-  );
-  const transferUserLookup = useEntityLookup<Member>(
-    transferUserId,
-    (id) => `/users/${id}`,
-    (id) => queryKeys.users.detail(id),
-    (u) => `${u.fullName} · ${u.email}`,
-  );
+  // Confirmação do nome antes de qualquer acção: só é possível transferir
+  // depois de o departamento destino resolver por ID.
   const transferTargetLookup = useEntityLookup<Department>(
     transferTargetId,
     (id) => `/departments/${id}`,
@@ -193,7 +347,7 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
   const transferMutation = useApiMutation(
     () =>
       apiClient.post('/departments/members/transfer', {
-        userId: parseInt(transferUserId),
+        userId: transferUser!.id,
         targetDepartmentId: parseInt(transferTargetId),
         reason: transferReason || undefined,
       }),
@@ -204,7 +358,7 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
           title: 'Transferência realizada com sucesso',
           intent: 'success',
         });
-        setTransferUserId('');
+        setTransferUser(null);
         setTransferTargetId('');
         setTransferReason('');
       },
@@ -212,9 +366,7 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
     },
   );
   const transferLoading = transferMutation.isPending;
-  const canTransfer =
-    transferUserLookup.status === 'found' &&
-    transferTargetLookup.status === 'found';
+  const canTransfer = !!transferUser && transferTargetLookup.status === 'found';
   const handleTransfer = () => {
     if (!canTransfer) return;
     transferMutation.mutate(undefined);
@@ -226,7 +378,7 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
   const addMemberMutation = useApiMutation(
     () =>
       apiClient.post('/departments/members/transfer', {
-        userId: parseInt(addUserId),
+        userId: addUser!.id,
         targetDepartmentId: deptId,
         reason: addReason || undefined,
       }),
@@ -237,14 +389,14 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
           title: 'Colaborador adicionado ao departamento',
           intent: 'success',
         });
-        setAddUserId('');
+        setAddUser(null);
         setAddReason('');
       },
       onError: (e) => notify({ title: e.message, intent: 'danger' }),
     },
   );
   const addMemberLoading = addMemberMutation.isPending;
-  const canAddMember = addUserLookup.status === 'found';
+  const canAddMember = !!addUser;
   const handleAddMember = () => {
     if (!canAddMember) return;
     addMemberMutation.mutate(undefined);
@@ -400,6 +552,9 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
         )}
       </Card>
 
+      {/* Visão geral (docs/modulo_departments.md Ponto 1) */}
+      <OverviewSection dept={dept} metrics={metrics} />
+
       {/* Tabs */}
       <div className="mb-5 flex w-fit flex-wrap gap-1 rounded-control bg-surface-sunken p-1">
         {tabs.map((t) => (
@@ -422,14 +577,15 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
             <div className="mb-3 text-xs font-medium uppercase tracking-wide text-success-ink">
               Adicionar colaborador ao departamento
             </div>
-            <div className="flex flex-wrap gap-3">
-              <Input
-                type="number"
-                placeholder="ID do colaborador"
-                value={addUserId}
-                onChange={(e) => setAddUserId(e.target.value)}
-                className="min-w-[140px] flex-1"
-              />
+            <div className="flex flex-wrap items-end gap-3">
+              <div className="min-w-[220px] flex-1">
+                <DepartmentUserPicker
+                  label="Colaborador (nome ou ID)"
+                  htmlFor="add-member-user"
+                  value={addUser}
+                  onChange={setAddUser}
+                />
+              </div>
               <Input
                 type="text"
                 placeholder="Motivo (opcional)"
@@ -445,11 +601,6 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
                 Adicionar
               </Button>
             </div>
-            <LookupHint
-              status={addUserLookup.status}
-              label={addUserLookup.label}
-              foundPrefix="Colaborador:"
-            />
           </Card>
 
           {/* Transfer form */}
@@ -457,14 +608,15 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
             <div className="mb-3 text-xs font-medium uppercase tracking-wide text-info-ink">
               Transferir colaborador
             </div>
-            <div className="flex flex-wrap gap-3">
-              <Input
-                type="number"
-                placeholder="ID do colaborador"
-                value={transferUserId}
-                onChange={(e) => setTransferUserId(e.target.value)}
-                className="min-w-[140px] flex-1"
-              />
+            <div className="flex flex-wrap items-end gap-3">
+              <div className="min-w-[220px] flex-1">
+                <DepartmentUserPicker
+                  label="Colaborador (nome ou ID)"
+                  htmlFor="transfer-member-user"
+                  value={transferUser}
+                  onChange={setTransferUser}
+                />
+              </div>
               <Input
                 type="number"
                 placeholder="ID do departamento destino"
@@ -487,11 +639,6 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
                 Transferir
               </Button>
             </div>
-            <LookupHint
-              status={transferUserLookup.status}
-              label={transferUserLookup.label}
-              foundPrefix="Colaborador:"
-            />
             <LookupHint
               status={transferTargetLookup.status}
               label={transferTargetLookup.label}

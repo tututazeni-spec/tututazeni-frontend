@@ -9,15 +9,23 @@ export interface Department {
   name: string;
   description: string | null;
   active: boolean;
+  status: string;
   color: string | null;
   icon: string | null;
   costCenter: string | null;
   trainingBudget: number | null;
+  annualBudget: number | null;
+  maxEmployees: number | null;
+  location: string | null;
   parentId: number | null;
   headId: number | null;
+  directManagerId: number | null;
+  unitId: number | null;
   createdAt: string;
   updatedAt: string;
   head: { id: number; fullName: string; email: string } | null;
+  directManager: { id: number; fullName: string; email: string } | null;
+  unit: { id: number; name: string; code: string } | null;
   parent: { id: number; name: string; code: string } | null;
   children: DepartmentNode[];
   _count: { users: number; children: number };
@@ -49,6 +57,15 @@ export interface Metrics {
   inactiveUsers: number;
   transfers: { in: number; out: number };
   breadcrumb: Array<{ id: number; name: string; code: string }>;
+  hierarchyLevel: number;
+  activePositions: number;
+  subdepartments: number;
+  coursesInProgress: number;
+  pendingEvaluations: number;
+  activeGoals: number;
+  avgPerformanceScore: number | null;
+  recentActivity: Array<{ date: string; description: string }>;
+  alerts: string[];
 }
 
 export interface PaginatedDepts {

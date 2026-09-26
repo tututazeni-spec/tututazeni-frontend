@@ -75,7 +75,7 @@ export function DepartmentUserPicker({
               }}
               onFocus={() => search.trim().length > 0 && setOpen(true)}
               className="w-full"
-              placeholder="Pesquisar por nome ou email…"
+              placeholder="Pesquisar por nome, email ou ID…"
               autoComplete="off"
             />
           </Popover.Anchor>
