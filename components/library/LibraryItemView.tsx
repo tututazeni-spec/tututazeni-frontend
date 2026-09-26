@@ -7,6 +7,8 @@ import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
+import { PdfViewer } from '@/components/viewers/PdfViewer';
+import { PptxViewer } from '@/components/viewers/PptxViewer';
 import { Info } from './shared';
 import { TYPE_ICONS } from './types';
 import type { ItemDetail } from './types';
@@ -97,6 +99,21 @@ export function LibraryItemView({
           </div>
         </CardBody>
       </Card>
+
+      {/* Leitor embutido (PDF / apresentações) */}
+      {(item.type === 'PDF' || item.type === 'PRESENTATION') && item.fileUrl && (
+        <Card>
+          <CardBody className="p-0">
+            <div className="flex h-[70vh] items-center justify-center overflow-hidden rounded-card bg-ink">
+              {item.type === 'PDF' ? (
+                <PdfViewer src={item.fileUrl} title={item.title} />
+              ) : (
+                <PptxViewer src={item.fileUrl} title={item.title} />
+              )}
+            </div>
+          </CardBody>
+        </Card>
+      )}
 
       {/* Metadados */}
       <Card>
