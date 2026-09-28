@@ -128,10 +128,18 @@ export interface PositionAtRisk {
   level: number;
 }
 
+export interface HiPoUser {
+  fullName?: string;
+  avatarUrl?: string;
+  department?: string;
+  position?: { name?: string };
+}
+
 export interface TalentData {
   coverageRate?: number;
   successionPlans?: SuccessionPlan[];
   hiPoCount?: number;
+  hiPoList?: HiPoUser[];
   positionsAtRisk?: PositionAtRisk[];
 }
 

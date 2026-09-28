@@ -38,6 +38,107 @@ const STAT_TILES: Array<{
   { key: 'totalXp', label: 'Pontos de Experiência', color: 'text-black' },
 ];
 
+<<<<<<< Updated upstream
+=======
+type MilestoneStatus = 'completed' | 'current' | 'locked';
+
+interface Milestone {
+  id: string;
+  label: string;
+  date: string;
+  status: MilestoneStatus;
+  progress?: number;
+}
+
+// TODO: substituir por dados reais quando soubermos o campo da API
+// (ex.: data.learningPath) que traz esta lista.
+const MOCK_MILESTONES: Milestone[] = [
+  { id: '1', label: 'Fundamentos de Gestão', date: 'Jul 15', status: 'completed' },
+  { id: '2', label: 'Comunicação Eficaz', date: 'Aug 01', status: 'completed' },
+  { id: '3', label: 'Liderança Ágil', date: 'Aug 20', status: 'completed', progress: 60 },
+  { id: '4', label: 'Liderança Ágil', date: 'Set 10', status: 'current', progress: 60 },
+  { id: '5', label: 'Desenvolvimento de Equipe', date: 'Set 10', status: 'locked' },
+  { id: '6', label: 'Estratégia de Negócios', date: 'Set 30', status: 'locked' },
+];
+
+function LearningSequenceChart({ milestones }: { milestones: Milestone[] }) {
+  const activeIndex = milestones.findIndex((m) => m.status === 'current');
+  const completedCount = milestones.filter((m) => m.status === 'completed').length;
+  const lineProgress =
+    activeIndex >= 0
+      ? (activeIndex / Math.max(milestones.length - 1, 1)) * 100
+      : (completedCount / Math.max(milestones.length - 1, 1)) * 100;
+
+  return (
+        <div className="relative overflow-hidden px-1 pt-2">
+      <div className="absolute left-0 right-0 top-9 h-0.5 bg-border" />
+      <div
+        className="absolute left-0 top-9 h-0.5 bg-primary transition-all"
+        style={{ width: `${lineProgress}%` }}
+      />
+
+      <div className="relative flex items-start justify-between gap-1">
+        {milestones.map((m) => {
+          const isCurrent = m.status === 'current';
+          const isCompleted = m.status === 'completed';
+          const isLocked = m.status === 'locked';
+
+          return (
+                  <div key={m.id} className="flex min-w-0 flex-1 flex-col items-center text-center">
+              <div
+                className={
+                  isCurrent
+                    ? 'rounded-2xl bg-ink p-2.5 shadow-lg ring-4 ring-primary/20'
+                    : ''
+                }
+              >
+                <div
+                  className={`flex h-12 w-12 items-center justify-center rounded-full ${
+                    isCompleted || isCurrent
+                      ? 'bg-primary text-white'
+                      : 'bg-surface-sunken text-ink-faint'
+                  }`}
+                >
+                  {isLocked ? (
+                    <Lock size={18} strokeWidth={1.75} />
+                  ) : isCompleted ? (
+                    <Check size={20} strokeWidth={2} />
+                  ) : (
+                    <BookOpen size={18} strokeWidth={1.75} />
+                  )}
+                </div>
+              </div>
+
+              {!isLocked ? (
+                <div className="-mt-2.5 flex h-5 w-5 items-center justify-center rounded-full border-2 border-white bg-primary text-white">
+                  <Check size={11} strokeWidth={2.5} />
+                </div>
+              ) : (
+                <div className="mt-2.5" />
+              )}
+
+                   <div
+                className={`mt-2 w-full break-words font-body text-xs font-semibold leading-tight ${
+                  isLocked ? 'text-ink-faint' : 'text-ink'
+                }`}
+              >
+                {m.label}
+              </div>
+              {typeof m.progress === 'number' && (
+                <div className="font-body text-[11px] text-primary">
+                  {m.progress}% Completo
+                </div>
+              )}
+              <div className="mt-1 font-body text-[11px] text-ink-faint">{m.date}</div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+>>>>>>> Stashed changes
 export function MyDashboardView() {
   const { data, isLoading } = useApiQuery<CollaboratorDashboard>(
     queryKeys.analyticsPage.me(),

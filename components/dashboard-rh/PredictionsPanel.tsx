@@ -33,7 +33,8 @@ export function PredictionsPanel() {
     <div className="space-y-5">
       <div className="rounded-card border border-warning-subtle bg-warning-subtle p-3">
         <p className="font-body text-xs text-warning-ink">
-          Previsão heurística baseada em performance e tempo de casa — não substitui análise de RH.
+          Previsão heurística baseada em performance e tempo de casa — não
+          substitui análise de RH.
         </p>
       </div>
 
@@ -69,7 +70,10 @@ export function PredictionsPanel() {
                 key={i}
                 className="flex items-center gap-3 border-b border-border py-2 last:border-0"
               >
-                <Avatar name={r.user?.fullName ?? '?'} url={r.user?.avatarUrl} />
+                <Avatar
+                  name={r.user?.fullName ?? '?'}
+                  url={r.user?.avatarUrl}
+                />
                 <div className="min-w-0 flex-1">
                   <p className="font-body text-sm font-medium text-ink">
                     {r.user?.fullName}

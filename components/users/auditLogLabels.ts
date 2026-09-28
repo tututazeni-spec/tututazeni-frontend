@@ -29,7 +29,10 @@ export function auditActionLabel(action: string): string {
 }
 
 /** Extrai um resumo legível do JSON.stringify guardado em UserAuditLog.meta. */
-export function describeAuditMeta(action: string, meta: string | null): string | null {
+export function describeAuditMeta(
+  action: string,
+  meta: string | null,
+): string | null {
   if (!meta) return null;
   try {
     const parsed = JSON.parse(meta) as Record<string, unknown>;
@@ -44,7 +47,8 @@ export function describeAuditMeta(action: string, meta: string | null): string |
     if (action === 'USER_UPDATED' && Array.isArray(parsed.fields)) {
       return `campos: ${(parsed.fields as string[]).join(', ')}`;
     }
-    if (typeof parsed.reason === 'string' && parsed.reason) return `motivo: ${parsed.reason}`;
+    if (typeof parsed.reason === 'string' && parsed.reason)
+      return `motivo: ${parsed.reason}`;
     return null;
   } catch {
     return null;

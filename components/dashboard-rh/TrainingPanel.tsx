@@ -67,8 +67,15 @@ export function TrainingPanel() {
           </h4>
           <BarChart
             orientation="horizontal"
-            categories={(data?.topCourses ?? []).map((c, i) => c.course?.title ?? `Curso ${c.courseId ?? i}`)}
-            series={[{ label: 'Inscrições', values: (data?.topCourses ?? []).map((c) => c.count) }]}
+            categories={(data?.topCourses ?? []).map(
+              (c, i) => c.course?.title ?? `Curso ${c.courseId ?? i}`,
+            )}
+            series={[
+              {
+                label: 'Inscrições',
+                values: (data?.topCourses ?? []).map((c) => c.count),
+              },
+            ]}
             className="mb-4"
           />
           <div className="space-y-2">
@@ -106,3 +113,51 @@ export function TrainingPanel() {
     </div>
   );
 }
+<<<<<<< Updated upstream
+=======
+
+// Cartão estilo Udemy/MasterClass: badge de ícone colorido, número grande
+// em destaque, etiqueta discreta por baixo, elevação subtil ao hover.
+// Local a este painel — não substitui o KpiCard partilhado.
+type StatIntent =
+  'primary' | 'info' | 'success' | 'warning' | 'danger' | 'accent';
+
+const STAT_INTENT_STYLES: Record<StatIntent, { badge: string }> = {
+  primary: { badge: 'bg-primary/10 text-primary' },
+  info: { badge: 'bg-info/10 text-info' },
+  success: { badge: 'bg-success/10 text-success' },
+  warning: { badge: 'bg-warning/10 text-warning' },
+  danger: { badge: 'bg-danger/10 text-danger' },
+  accent: { badge: 'bg-accent/10 text-accent' },
+};
+
+function StatCard({
+  icon: Icon,
+  label,
+  value,
+  sub,
+  intent = 'primary',
+}: {
+  icon: LucideIcon;
+  label: string;
+  value: string | number;
+  sub?: string;
+  intent?: StatIntent;
+}) {
+  const styles = STAT_INTENT_STYLES[intent];
+  return (
+    <div className="group relative overflow-hidden rounded-2xl border border-border bg-surface p-5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg">
+      <div
+        className={`mb-4 inline-flex h-11 w-11 items-center justify-center rounded-xl ${styles.badge}`}
+      >
+        <Icon size={20} strokeWidth={1.75} />
+      </div>
+      <p className="font-display text-2xl font-bold text-ink">{value}</p>
+      <p className="mt-1 font-body text-sm font-medium text-ink-muted">
+        {label}
+      </p>
+      {sub && <p className="mt-0.5 font-body text-xs text-ink-faint">{sub}</p>}
+    </div>
+  );
+}
+>>>>>>> Stashed changes

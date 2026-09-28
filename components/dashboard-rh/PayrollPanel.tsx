@@ -35,7 +35,10 @@ export function PayrollPanel() {
   return (
     <div className="space-y-5">
       <div className="flex items-center gap-3">
-        <label className="font-body text-xs font-medium text-ink-muted" htmlFor="payroll-period">
+        <label
+          className="font-body text-xs font-medium text-ink-muted"
+          htmlFor="payroll-period"
+        >
           Período
         </label>
         <Input

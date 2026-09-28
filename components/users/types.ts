@@ -125,7 +125,11 @@ export interface TrainingParticipation {
       thumbnailUrl: string | null;
       workloadHours: number | null;
       issueCertificate: boolean;
-      instructor: { id: number; fullName: string; avatarUrl: string | null } | null;
+      instructor: {
+        id: number;
+        fullName: string;
+        avatarUrl: string | null;
+      } | null;
     };
   } | null;
 }

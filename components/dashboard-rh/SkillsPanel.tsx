@@ -5,6 +5,11 @@
 
 'use client';
 
+<<<<<<< Updated upstream
+=======
+import { AlertTriangle, Layers, ListChecks } from 'lucide-react';
+import { TopBarCard } from '@/components/ui/TopBarCard';
+>>>>>>> Stashed changes
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -27,10 +32,17 @@ export function SkillsPanel() {
         itemClassName="h-24 rounded-card bg-surface-sunken"
       />
     );
+  const sortedGaps = [...(data?.topGaps ?? [])].sort(
+    (a, b) => b.avgGap - a.avgGap,
+  );
+  const sortedStrengths = [...(data?.topStrengths ?? [])].sort(
+    (a, b) => b.avgLevel - a.avgLevel,
+  );
 
   return (
     <div className="space-y-5">
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+<<<<<<< Updated upstream
         <KpiCard
           label="Colaboradores Avaliados"
           value={`${data?.assessmentRate ?? 0}%`}
@@ -49,6 +61,25 @@ export function SkillsPanel() {
           value={data?.criticalGaps ?? 0}
           intent="danger"
           className="w-full"
+=======
+        <TopBarCard
+          label="Colaboradores Avaliados"
+          value={`${data?.assessmentRate ?? 0}%`}
+          tone="blue"
+          icon={<ListChecks className="h-6 w-6" />}
+        />
+        <TopBarCard
+          label="Competências Mapeadas"
+          value={data?.totalCompetencies ?? 0}
+          tone="gold"
+          icon={<Layers className="h-6 w-6" />}
+        />
+        <TopBarCard
+          label="Gaps Críticos"
+          value={data?.criticalGaps ?? 0}
+          tone="red"
+          icon={<AlertTriangle className="h-6 w-6" />}
+>>>>>>> Stashed changes
         />
       </div>
 
@@ -57,19 +88,25 @@ export function SkillsPanel() {
           <h4 className="mb-3 font-body font-semibold text-ink-muted">
             Maiores Gaps de Competência
           </h4>
-          {(data?.topGaps ?? []).length === 0 ? (
-            <p className="font-body text-xs text-ink-faint">Sem gaps identificados.</p>
+          {sortedGaps.length === 0 ? (
+            <p className="font-body text-xs text-ink-faint">
+              Sem gaps identificados.
+            </p>
           ) : (
             <BarChart
               orientation="horizontal"
-              categories={(data?.topGaps ?? []).map((s, i) => s.competency?.name ?? `Competência ${i + 1}`)}
-              series={[{ label: 'Gap médio', values: (data?.topGaps ?? []).map((s) => s.avgGap) }]}
+              categories={sortedGaps.map(
+                (s, i) => s.competency?.name ?? `Competência ${i + 1}`,
+              )}
+              series={[
+                { label: 'Gap médio', values: sortedGaps.map((s) => s.avgGap) },
+              ]}
               className="mb-4"
               yFormat={(v) => v.toFixed(1)}
             />
           )}
           <div className="space-y-2">
-            {(data?.topGaps ?? []).map((s, i) => (
+            {sortedGaps.map((s, i) => (
               <div
                 key={i}
                 className="flex items-center justify-between border-b border-border py-2 last:border-0"
@@ -94,19 +131,28 @@ export function SkillsPanel() {
           <h4 className="mb-3 font-body font-semibold text-ink-muted">
             Maiores Forças
           </h4>
-          {(data?.topStrengths ?? []).length === 0 ? (
-            <p className="font-body text-xs text-ink-faint">Sem dados suficientes.</p>
+          {sortedStrengths.length === 0 ? (
+            <p className="font-body text-xs text-ink-faint">
+              Sem dados suficientes.
+            </p>
           ) : (
             <BarChart
               orientation="horizontal"
-              categories={(data?.topStrengths ?? []).map((s, i) => s.competency?.name ?? `Competência ${i + 1}`)}
-              series={[{ label: 'Nível médio', values: (data?.topStrengths ?? []).map((s) => s.avgLevel) }]}
+              categories={sortedStrengths.map(
+                (s, i) => s.competency?.name ?? `Competência ${i + 1}`,
+              )}
+              series={[
+                {
+                  label: 'Nível médio',
+                  values: sortedStrengths.map((s) => s.avgLevel),
+                },
+              ]}
               className="mb-4"
               yFormat={(v) => v.toFixed(1)}
             />
           )}
           <div className="space-y-2">
-            {(data?.topStrengths ?? []).map((s, i) => (
+            {sortedStrengths.map((s, i) => (
               <div
                 key={i}
                 className="flex items-center justify-between border-b border-border py-2 last:border-0"

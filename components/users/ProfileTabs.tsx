@@ -55,7 +55,13 @@ import {
 
 // ─── Helpers partilhados ────────────────────────────────────────────────────
 
-function InfoCard({ title, rows }: { title: string; rows: Array<[string, ReactNode]> }) {
+function InfoCard({
+  title,
+  rows,
+}: {
+  title: string;
+  rows: Array<[string, ReactNode]>;
+}) {
   return (
     <Card className="p-5">
       <div className="text-xs font-medium text-ink-faint uppercase tracking-wide mb-3">
@@ -68,7 +74,9 @@ function InfoCard({ title, rows }: { title: string; rows: Array<[string, ReactNo
         >
           <span className="text-xs text-ink-muted">{label}</span>
           <span className="text-xs font-medium text-ink text-right">
-            {value === null || value === undefined || value === '' ? '—' : value}
+            {value === null || value === undefined || value === ''
+              ? '—'
+              : value}
           </span>
         </div>
       ))}
@@ -196,10 +204,18 @@ function TeamView({ managerId }: { managerId: number }) {
             <TableRow key={member.id}>
               <TableCell>
                 <div className="flex items-center gap-3">
-                  <Avatar name={member.fullName} url={member.avatarUrl ?? undefined} size="sm" />
+                  <Avatar
+                    name={member.fullName}
+                    url={member.avatarUrl ?? undefined}
+                    size="sm"
+                  />
                   <div>
-                    <div className="text-sm font-medium text-ink">{member.fullName}</div>
-                    <div className="text-xs text-ink-faint">{member.position?.name ?? '—'}</div>
+                    <div className="text-sm font-medium text-ink">
+                      {member.fullName}
+                    </div>
+                    <div className="text-xs text-ink-faint">
+                      {member.position?.name ?? '—'}
+                    </div>
                   </div>
                 </div>
               </TableCell>
@@ -215,7 +231,11 @@ function TeamView({ managerId }: { managerId: number }) {
                 {member.learningStats.overdue}
               </TableCell>
               <TableCell>
-                <StatusBadge value={member.accountStatus} map={ACCOUNT_STATUS_MAP} variant="dot" />
+                <StatusBadge
+                  value={member.accountStatus}
+                  map={ACCOUNT_STATUS_MAP}
+                  variant="dot"
+                />
               </TableCell>
             </TableRow>
           ))}
@@ -246,7 +266,11 @@ export function OrganizationTab({ user }: { user: User }) {
               'Gestor directo',
               user.manager ? (
                 <span key="mgr" className="inline-flex items-center gap-2">
-                  <Avatar name={user.manager.fullName} url={user.manager.avatarUrl ?? undefined} size="sm" />
+                  <Avatar
+                    name={user.manager.fullName}
+                    url={user.manager.avatarUrl ?? undefined}
+                    size="sm"
+                  />
                   {user.manager.fullName}
                 </span>
               ) : null,
@@ -288,11 +312,23 @@ export function AccessTab({ userId }: { userId: number }) {
           title="Sessão"
           rows={[
             ['Data de criação da conta', fmtDate(data.accountCreatedAt)],
-            ['Último login', data.lastLoginAt ? fmtDate(data.lastLoginAt) : 'Sem registo'],
+            [
+              'Último login',
+              data.lastLoginAt ? fmtDate(data.lastLoginAt) : 'Sem registo',
+            ],
             ['Sessões activas', data.activeSessions],
-            ['Dispositivos', 'Não disponível — não existe registo de dispositivos'],
-            ['Tentativas de login', 'Não disponível — não existe registo de tentativas'],
-            ['Histórico de bloqueios', 'Não disponível — não existe histórico de bloqueios'],
+            [
+              'Dispositivos',
+              'Não disponível — não existe registo de dispositivos',
+            ],
+            [
+              'Tentativas de login',
+              'Não disponível — não existe registo de tentativas',
+            ],
+            [
+              'Histórico de bloqueios',
+              'Não disponível — não existe histórico de bloqueios',
+            ],
           ]}
         />
       </div>
@@ -330,9 +366,15 @@ export function AccessTab({ userId }: { userId: number }) {
             <TableBody>
               {data.permissions.map((p) => (
                 <TableRow key={p.id}>
-                  <TableCell className="text-xs font-medium text-ink">{p.name}</TableCell>
-                  <TableCell className="text-xs text-ink-muted">{p.action}</TableCell>
-                  <TableCell className="text-xs text-ink-muted">{p.subject}</TableCell>
+                  <TableCell className="text-xs font-medium text-ink">
+                    {p.name}
+                  </TableCell>
+                  <TableCell className="text-xs text-ink-muted">
+                    {p.action}
+                  </TableCell>
+                  <TableCell className="text-xs text-ink-muted">
+                    {p.subject}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -357,7 +399,9 @@ export function AccessTab({ userId }: { userId: number }) {
             <TableBody>
               {data.specialPermissions.map((p) => (
                 <TableRow key={p.id}>
-                  <TableCell className="text-xs font-medium text-ink">{p.name}</TableCell>
+                  <TableCell className="text-xs font-medium text-ink">
+                    {p.name}
+                  </TableCell>
                   <TableCell className="text-xs text-ink-muted">
                     {p.grantedAt ? fmtDate(p.grantedAt) : '—'}
                   </TableCell>
@@ -381,7 +425,8 @@ export function TrainingTab({ userId }: { userId: number }) {
   );
 
   if (isLoading) return <LoadingRows />;
-  if (!data || data.length === 0) return <EmptyState>Sem formações registadas</EmptyState>;
+  if (!data || data.length === 0)
+    return <EmptyState>Sem formações registadas</EmptyState>;
 
   return (
     <Table>
@@ -397,8 +442,12 @@ export function TrainingTab({ userId }: { userId: number }) {
         {data.map((p) => (
           <TableRow key={p.id}>
             <TableCell>
-              <div className="text-sm font-medium text-ink">{p.session?.training.title ?? '—'}</div>
-              <div className="text-xs text-ink-faint">{p.session?.training.type}</div>
+              <div className="text-sm font-medium text-ink">
+                {p.session?.training.title ?? '—'}
+              </div>
+              <div className="text-xs text-ink-faint">
+                {p.session?.training.type}
+              </div>
             </TableCell>
             <TableCell className="text-xs text-ink-muted">
               {p.session?.training.instructor?.fullName ?? '—'}
@@ -426,15 +475,28 @@ export function CoursesTab({ userId }: { userId: number }) {
   );
 
   if (isLoading) return <LoadingRows />;
-  if (!data || data.enrollments.length === 0) return <EmptyState>Sem matrículas</EmptyState>;
+  if (!data || data.enrollments.length === 0)
+    return <EmptyState>Sem matrículas</EmptyState>;
 
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-4 gap-3">
-        <KpiCard label="Concluídos" value={data.groups.completed.length} intent="success" />
-        <KpiCard label="Em curso" value={data.groups.inProgress.length} intent="info" />
+        <KpiCard
+          label="Concluídos"
+          value={data.groups.completed.length}
+          intent="success"
+        />
+        <KpiCard
+          label="Em curso"
+          value={data.groups.inProgress.length}
+          intent="info"
+        />
         <KpiCard label="Não iniciados" value={data.groups.notStarted.length} />
-        <KpiCard label="Atrasados" value={data.groups.overdue.length} intent="danger" />
+        <KpiCard
+          label="Atrasados"
+          value={data.groups.overdue.length}
+          intent="danger"
+        />
       </div>
       <Table>
         <TableHead>
@@ -450,8 +512,12 @@ export function CoursesTab({ userId }: { userId: number }) {
           {data.enrollments.map((e) => (
             <TableRow key={e.id}>
               <TableCell>
-                <div className="text-sm font-medium text-ink">{e.course.title}</div>
-                <div className="text-xs text-ink-faint">{e.course.category ?? '—'}</div>
+                <div className="text-sm font-medium text-ink">
+                  {e.course.title}
+                </div>
+                <div className="text-xs text-ink-faint">
+                  {e.course.category ?? '—'}
+                </div>
               </TableCell>
               <TableCell className="text-xs font-mono text-ink-muted">
                 {e.progress ?? 0}%
@@ -460,7 +526,9 @@ export function CoursesTab({ userId }: { userId: number }) {
                 {e.deadline ? fmtDate(e.deadline) : '—'}
               </TableCell>
               <TableCell>
-                <Badge intent={e.status === 'COMPLETED' ? 'success' : 'info'}>{e.status}</Badge>
+                <Badge intent={e.status === 'COMPLETED' ? 'success' : 'info'}>
+                  {e.status}
+                </Badge>
               </TableCell>
               <TableCell className="text-xs text-ink-muted">
                 {e.certificate ? fmtDate(e.certificate.issuedAt) : '—'}
@@ -483,7 +551,8 @@ export function CompetenciesTab({ userId }: { userId: number }) {
   );
 
   if (isLoading) return <LoadingRows />;
-  if (!data || data.length === 0) return <EmptyState>Sem competências avaliadas</EmptyState>;
+  if (!data || data.length === 0)
+    return <EmptyState>Sem competências avaliadas</EmptyState>;
 
   return (
     <Table>
@@ -500,17 +569,27 @@ export function CompetenciesTab({ userId }: { userId: number }) {
         {data.map((c) => (
           <TableRow key={c.id}>
             <TableCell>
-              <div className="text-sm font-medium text-ink">{c.competency.name}</div>
-              <div className="text-xs text-ink-faint">{c.competency.category ?? '—'}</div>
+              <div className="text-sm font-medium text-ink">
+                {c.competency.name}
+              </div>
+              <div className="text-xs text-ink-faint">
+                {c.competency.category ?? '—'}
+              </div>
             </TableCell>
-            <TableCell className="text-xs font-mono text-ink-muted">{c.currentLevel}</TableCell>
-            <TableCell className="text-xs font-mono text-ink-muted">{c.targetLevel ?? '—'}</TableCell>
+            <TableCell className="text-xs font-mono text-ink-muted">
+              {c.currentLevel}
+            </TableCell>
+            <TableCell className="text-xs font-mono text-ink-muted">
+              {c.targetLevel ?? '—'}
+            </TableCell>
             <TableCell
               className={`text-xs font-mono ${c.gap && c.gap > 0 ? 'text-danger' : 'text-success'}`}
             >
               {c.gap ?? '—'}
             </TableCell>
-            <TableCell className="text-xs text-ink-faint">{fmtDate(c.evaluatedAt)}</TableCell>
+            <TableCell className="text-xs text-ink-faint">
+              {fmtDate(c.evaluatedAt)}
+            </TableCell>
           </TableRow>
         ))}
       </TableBody>
@@ -528,35 +607,56 @@ export function PerformanceTab({ userId }: { userId: number }) {
   );
 
   if (isLoading) return <LoadingRows />;
-  if (!data || data.hasResults === false) return <EmptyState>Sem avaliações de desempenho</EmptyState>;
+  if (!data || data.hasResults === false)
+    return <EmptyState>Sem avaliações de desempenho</EmptyState>;
 
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-3 gap-3">
-        <KpiCard label="Score final" value={data.finalScore} sub={data.scoreLabel} intent="primary" />
-        <KpiCard label="Avaliadores" value={data.totalEvaluators} intent="info" />
+        <KpiCard
+          label="Score final"
+          value={data.finalScore}
+          sub={data.scoreLabel}
+          intent="primary"
+        />
+        <KpiCard
+          label="Avaliadores"
+          value={data.totalEvaluators}
+          intent="info"
+        />
         {data.concordance && (
-          <KpiCard label="Gap auto vs. outros" value={data.concordance.gap} sub={data.concordance.label} intent="warning" />
+          <KpiCard
+            label="Gap auto vs. outros"
+            value={data.concordance.gap}
+            sub={data.concordance.label}
+            intent="warning"
+          />
         )}
       </div>
       {data.qualitative && (
         <div className="grid grid-cols-3 gap-3">
-          {(['strengths', 'improvements', 'recommendations'] as const).map((key) => (
-            <Card key={key} className="p-4">
-              <div className="text-xs font-medium text-ink-faint uppercase tracking-wide mb-2">
-                {key === 'strengths' ? 'Pontos fortes' : key === 'improvements' ? 'A melhorar' : 'Recomendações'}
-              </div>
-              {data.qualitative[key].length === 0 ? (
-                <div className="text-xs text-ink-faint">—</div>
-              ) : (
-                <ul className="text-xs text-ink-muted space-y-1 list-disc list-inside">
-                  {data.qualitative[key].map((t, i) => (
-                    <li key={i}>{t}</li>
-                  ))}
-                </ul>
-              )}
-            </Card>
-          ))}
+          {(['strengths', 'improvements', 'recommendations'] as const).map(
+            (key) => (
+              <Card key={key} className="p-4">
+                <div className="text-xs font-medium text-ink-faint uppercase tracking-wide mb-2">
+                  {key === 'strengths'
+                    ? 'Pontos fortes'
+                    : key === 'improvements'
+                      ? 'A melhorar'
+                      : 'Recomendações'}
+                </div>
+                {data.qualitative[key].length === 0 ? (
+                  <div className="text-xs text-ink-faint">—</div>
+                ) : (
+                  <ul className="text-xs text-ink-muted space-y-1 list-disc list-inside">
+                    {data.qualitative[key].map((t, i) => (
+                      <li key={i}>{t}</li>
+                    ))}
+                  </ul>
+                )}
+              </Card>
+            ),
+          )}
         </div>
       )}
     </div>
@@ -573,7 +673,8 @@ export function EvaluationsTab({ userId }: { userId: number }) {
   );
 
   if (isLoading) return <LoadingRows />;
-  if (!data || data.length === 0) return <EmptyState>Sem avaliações 360° registadas</EmptyState>;
+  if (!data || data.length === 0)
+    return <EmptyState>Sem avaliações 360° registadas</EmptyState>;
 
   return (
     <Table>
@@ -596,7 +697,11 @@ export function EvaluationsTab({ userId }: { userId: number }) {
               {fmtDate(c.startDate)} — {fmtDate(c.endDate)}
             </TableCell>
             <TableCell>
-              <Badge intent={c.participantStatus === 'COMPLETED' ? 'success' : 'info'}>
+              <Badge
+                intent={
+                  c.participantStatus === 'COMPLETED' ? 'success' : 'info'
+                }
+              >
                 {c.participantStatus}
               </Badge>
             </TableCell>
@@ -620,7 +725,8 @@ export function PdiTab({ userId }: { userId: number }) {
   );
 
   if (isLoading) return <LoadingRows />;
-  if (!data || data.data.length === 0) return <EmptyState>Sem PDI registados</EmptyState>;
+  if (!data || data.data.length === 0)
+    return <EmptyState>Sem PDI registados</EmptyState>;
 
   return (
     <Table>
@@ -638,15 +744,25 @@ export function PdiTab({ userId }: { userId: number }) {
           <TableRow key={p.id}>
             <TableCell>
               <div className="text-sm font-medium text-ink">{p.name}</div>
-              <div className="text-xs text-ink-faint">{p.manager?.fullName ?? '—'}</div>
+              <div className="text-xs text-ink-faint">
+                {p.manager?.fullName ?? '—'}
+              </div>
             </TableCell>
             <TableCell>
-              <Badge intent={p.priority === 'HIGH' ? 'danger' : 'neutral'}>{p.priority}</Badge>
+              <Badge intent={p.priority === 'HIGH' ? 'danger' : 'neutral'}>
+                {p.priority}
+              </Badge>
             </TableCell>
-            <TableCell className="text-xs font-mono text-ink-muted">{p.overallProgress}%</TableCell>
-            <TableCell className="text-xs text-ink-faint">{p.period ?? '—'}</TableCell>
+            <TableCell className="text-xs font-mono text-ink-muted">
+              {p.overallProgress}%
+            </TableCell>
+            <TableCell className="text-xs text-ink-faint">
+              {p.period ?? '—'}
+            </TableCell>
             <TableCell>
-              <Badge intent={p.status === 'COMPLETED' ? 'success' : 'info'}>{p.status}</Badge>
+              <Badge intent={p.status === 'COMPLETED' ? 'success' : 'info'}>
+                {p.status}
+              </Badge>
             </TableCell>
           </TableRow>
         ))}
@@ -694,8 +810,12 @@ export function CareerTab({ userId }: { userId: number }) {
             <TableBody>
               {data.careerHistory.map((h) => (
                 <TableRow key={h.id}>
-                  <TableCell className="text-sm text-ink">{h.position?.title ?? '—'}</TableCell>
-                  <TableCell className="text-xs text-ink-faint">{fmtDate(h.startedAt)}</TableCell>
+                  <TableCell className="text-sm text-ink">
+                    {h.position?.title ?? '—'}
+                  </TableCell>
+                  <TableCell className="text-xs text-ink-faint">
+                    {fmtDate(h.startedAt)}
+                  </TableCell>
                   <TableCell className="text-xs text-ink-faint">
                     {h.endedAt ? fmtDate(h.endedAt) : 'Actual'}
                   </TableCell>
@@ -725,7 +845,8 @@ export function DocumentsTab({ userId }: { userId: number }) {
   );
 
   if (isLoading) return <LoadingRows />;
-  if (!data || data.data.length === 0) return <EmptyState>Sem documentos associados</EmptyState>;
+  if (!data || data.data.length === 0)
+    return <EmptyState>Sem documentos associados</EmptyState>;
 
   return (
     <Table>
@@ -740,14 +861,24 @@ export function DocumentsTab({ userId }: { userId: number }) {
       <TableBody>
         {data.data.map((d) => (
           <TableRow key={d.id}>
-            <TableCell className="text-sm font-medium text-ink">{d.title}</TableCell>
-            <TableCell className="text-xs text-ink-muted">{d.category ?? '—'}</TableCell>
+            <TableCell className="text-sm font-medium text-ink">
+              {d.title}
+            </TableCell>
+            <TableCell className="text-xs text-ink-muted">
+              {d.category ?? '—'}
+            </TableCell>
             <TableCell>
-              <Badge intent={d.sensitivity === 'CONFIDENTIAL' ? 'warning' : 'neutral'}>
+              <Badge
+                intent={
+                  d.sensitivity === 'CONFIDENTIAL' ? 'warning' : 'neutral'
+                }
+              >
                 {d.sensitivity}
               </Badge>
             </TableCell>
-            <TableCell className="text-xs text-ink-faint">{fmtDate(d.createdAt)}</TableCell>
+            <TableCell className="text-xs text-ink-faint">
+              {fmtDate(d.createdAt)}
+            </TableCell>
           </TableRow>
         ))}
       </TableBody>
@@ -801,13 +932,19 @@ export function LeaveTab({ userId }: { userId: number }) {
           <TableBody>
             {requests.data.data.map((r) => (
               <TableRow key={r.id}>
-                <TableCell className="text-sm text-ink">{r.leaveTypeCode}</TableCell>
+                <TableCell className="text-sm text-ink">
+                  {r.leaveTypeCode}
+                </TableCell>
                 <TableCell className="text-xs text-ink-faint">
                   {fmtDate(r.startDate)} — {fmtDate(r.endDate)}
                 </TableCell>
-                <TableCell className="text-xs font-mono text-ink-muted">{r.workDays}</TableCell>
+                <TableCell className="text-xs font-mono text-ink-muted">
+                  {r.workDays}
+                </TableCell>
                 <TableCell>
-                  <Badge intent={r.status === 'APPROVED' ? 'success' : 'info'}>{r.status}</Badge>
+                  <Badge intent={r.status === 'APPROVED' ? 'success' : 'info'}>
+                    {r.status}
+                  </Badge>
                 </TableCell>
               </TableRow>
             ))}
@@ -828,15 +965,32 @@ export function AttendanceTab({ userId }: { userId: number }) {
   );
 
   if (isLoading) return <LoadingRows />;
-  if (!data || data.records.length === 0) return <EmptyState>Sem registos de presença</EmptyState>;
+  if (!data || data.records.length === 0)
+    return <EmptyState>Sem registos de presença</EmptyState>;
 
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-4 gap-3">
-        <KpiCard label="Taxa de presença" value={`${data.summary.attendanceRate}%`} intent="success" />
-        <KpiCard label="Presente" value={data.summary.presentDays} intent="info" />
-        <KpiCard label="Atrasos" value={data.summary.lateDays} intent="warning" />
-        <KpiCard label="Ausências" value={data.summary.absentDays} intent="danger" />
+        <KpiCard
+          label="Taxa de presença"
+          value={`${data.summary.attendanceRate}%`}
+          intent="success"
+        />
+        <KpiCard
+          label="Presente"
+          value={data.summary.presentDays}
+          intent="info"
+        />
+        <KpiCard
+          label="Atrasos"
+          value={data.summary.lateDays}
+          intent="warning"
+        />
+        <KpiCard
+          label="Ausências"
+          value={data.summary.absentDays}
+          intent="danger"
+        />
       </div>
       <Table>
         <TableHead>
@@ -850,11 +1004,25 @@ export function AttendanceTab({ userId }: { userId: number }) {
         <TableBody>
           {data.records.slice(0, 30).map((r) => (
             <TableRow key={r.id}>
-              <TableCell className="text-xs text-ink-faint">{fmtDate(r.date)}</TableCell>
-              <TableCell className="text-xs font-mono text-ink-muted">{r.clockIn ?? '—'}</TableCell>
-              <TableCell className="text-xs font-mono text-ink-muted">{r.clockOut ?? '—'}</TableCell>
+              <TableCell className="text-xs text-ink-faint">
+                {fmtDate(r.date)}
+              </TableCell>
+              <TableCell className="text-xs font-mono text-ink-muted">
+                {r.clockIn ?? '—'}
+              </TableCell>
+              <TableCell className="text-xs font-mono text-ink-muted">
+                {r.clockOut ?? '—'}
+              </TableCell>
               <TableCell>
-                <Badge intent={r.status === 'PRESENT' ? 'success' : r.status === 'ABSENT' ? 'danger' : 'warning'}>
+                <Badge
+                  intent={
+                    r.status === 'PRESENT'
+                      ? 'success'
+                      : r.status === 'ABSENT'
+                        ? 'danger'
+                        : 'warning'
+                  }
+                >
                   {r.status}
                 </Badge>
               </TableCell>
@@ -876,7 +1044,8 @@ export function HistoryTab({ userId }: { userId: number }) {
   );
 
   if (isLoading) return <LoadingRows />;
-  if (!data || data.data.length === 0) return <EmptyState>Sem histórico registado</EmptyState>;
+  if (!data || data.data.length === 0)
+    return <EmptyState>Sem histórico registado</EmptyState>;
 
   return (
     <Table>
@@ -900,7 +1069,9 @@ export function HistoryTab({ userId }: { userId: number }) {
               )}
             </TableCell>
             <TableCell className="text-xs text-ink-muted">{e.module}</TableCell>
-            <TableCell className="text-xs text-ink-faint">{fmtDate(e.timestamp)}</TableCell>
+            <TableCell className="text-xs text-ink-faint">
+              {fmtDate(e.timestamp)}
+            </TableCell>
           </TableRow>
         ))}
       </TableBody>
@@ -923,9 +1094,21 @@ export function ActivityTab({ userId }: { userId: number }) {
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-4 gap-3">
-        <KpiCard label="Sequência activa" value={`${data.streak} dias`} intent="accent" />
-        <KpiCard label="Dias activos (1 ano)" value={data.activeDays} intent="info" />
-        <KpiCard label="Taxa de conclusão" value={`${data.completionRate}%`} intent="success" />
+        <KpiCard
+          label="Sequência activa"
+          value={`${data.streak} dias`}
+          intent="accent"
+        />
+        <KpiCard
+          label="Dias activos (1 ano)"
+          value={data.activeDays}
+          intent="info"
+        />
+        <KpiCard
+          label="Taxa de conclusão"
+          value={`${data.completionRate}%`}
+          intent="success"
+        />
         <KpiCard label="Pontos (XP)" value={data.xpPoints} intent="primary" />
       </div>
       <Card className="p-5">
@@ -933,7 +1116,9 @@ export function ActivityTab({ userId }: { userId: number }) {
           Actividade por categoria
         </div>
         {Object.keys(data.byCategory).length === 0 ? (
-          <div className="text-xs text-ink-faint">Sem eventos no último ano</div>
+          <div className="text-xs text-ink-faint">
+            Sem eventos no último ano
+          </div>
         ) : (
           <div className="flex flex-wrap gap-1.5">
             {Object.entries(data.byCategory).map(([cat, count]) => (

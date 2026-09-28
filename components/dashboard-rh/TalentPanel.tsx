@@ -33,11 +33,49 @@ export function TalentPanel() {
       />
     );
 
+<<<<<<< Updated upstream
+=======
+  const successionPlans = data?.successionPlans ?? [];
+  const hiPoList = data?.hiPoList ?? [];
+  const positionsAtRisk = data?.positionsAtRisk ?? [];
+
+  const tabs: Array<{
+    key: TabKey;
+    label: string;
+    icon: LucideIcon;
+    count: number;
+  }> = [
+    {
+      key: 'succession',
+      label: 'Planos de Sucessão',
+      icon: Users,
+      count: successionPlans.length,
+    },
+    {
+      key: 'hipo',
+      label: 'Alto Potencial',
+      icon: Star,
+      count: data?.hiPoCount ?? hiPoList.length,
+    },
+    {
+      key: 'risk',
+      label: 'Posições em Risco',
+      icon: AlertTriangle,
+      count: positionsAtRisk.length,
+    },
+  ];
+
+>>>>>>> Stashed changes
   return (
     <div className="space-y-5">
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         <div className="flex flex-col items-center justify-center rounded-card border border-border bg-surface p-3">
-          <GaugeChart value={data?.coverageRate ?? 0} label="Posições Cobertas" thresholds={{ warning: 60, danger: 30 }} size={120} />
+          <GaugeChart
+            value={data?.coverageRate ?? 0}
+            label="Posições Cobertas"
+            thresholds={{ warning: 60, danger: 30 }}
+            size={120}
+          />
         </div>
         <KpiCard
           label="Planos de Sucessão"
@@ -59,6 +97,36 @@ export function TalentPanel() {
         />
       </div>
 
+<<<<<<< Updated upstream
+=======
+      {/* Tab bar */}
+      <div className="flex gap-1 rounded-panel border border-border bg-surface p-1.5 shadow-sm">
+        {tabs.map((t) => (
+          <button
+            key={t.key}
+            onClick={() => setTab(t.key)}
+            className={`flex flex-1 items-center justify-center gap-2 rounded-control py-2 font-body text-sm font-medium transition-colors ${
+              tab === t.key
+                ? 'bg-primary text-canvas shadow-sm'
+                : 'text-ink-muted hover:bg-surface-sunken hover:text-ink'
+            }`}
+          >
+            <t.icon size={15} strokeWidth={1.75} />
+            <span className="hidden sm:inline">{t.label}</span>
+            <span
+              className={`rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${
+                tab === t.key
+                  ? 'bg-canvas/20 text-canvas'
+                  : 'bg-surface-sunken text-ink-faint'
+              }`}
+            >
+              {t.count}
+            </span>
+          </button>
+        ))}
+      </div>
+
+>>>>>>> Stashed changes
       {/* Succession plans */}
       {(data?.successionPlans ?? []).length > 0 && (
         <div className="rounded-card border border-border bg-surface p-5">
@@ -83,10 +151,57 @@ export function TalentPanel() {
                     → {p.position?.name}
                   </p>
                 </div>
+<<<<<<< Updated upstream
                 {p.readiness && <Badge intent="info">{p.readiness}</Badge>}
               </div>
             ))}
           </div>
+=======
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* High potentials */}
+      {tab === 'hipo' && (
+        <div className="rounded-card border border-border bg-surface p-5">
+          <h4 className="mb-3 font-body font-semibold text-ink-muted">
+            Profissionais de Alto Potencial
+          </h4>
+          {hiPoList.length === 0 ? (
+            <p className="font-body text-sm text-ink-faint">
+              Sem colaboradores identificados como alto potencial.
+            </p>
+          ) : (
+            <div className="space-y-2">
+              {hiPoList.slice(0, 8).map((h, i) => (
+                <div
+                  key={i}
+                  className="flex items-center gap-3 border-b border-border py-2 last:border-0"
+                >
+                  <Avatar name={h.fullName ?? '?'} url={h.avatarUrl} />
+                  <div className="min-w-0 flex-1">
+                    <p className="font-body text-sm font-medium text-ink">
+                      {h.fullName}
+                    </p>
+                    <p className="font-body text-[10px] text-ink-faint">
+                      {h.position?.name ?? h.department}
+                    </p>
+                  </div>
+                  <Badge intent="warning">
+                    <Star
+                      size={11}
+                      strokeWidth={2}
+                      className="mr-1 inline align-[-1px]"
+                    />
+                    Alto Potencial
+                  </Badge>
+                </div>
+              ))}
+            </div>
+          )}
+>>>>>>> Stashed changes
         </div>
       )}
 

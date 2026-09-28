@@ -17,7 +17,8 @@ interface UserProfileProps {
 
 export function UserProfile({ userId, onBack }: UserProfileProps) {
   const [tab, setTab] = useState<ProfileTab>('overview');
-  const { user, loadingUser, stats, actionLoading, handleAction } = useUserProfile(userId);
+  const { user, loadingUser, stats, actionLoading, handleAction } =
+    useUserProfile(userId);
 
   return (
     <UserProfileView

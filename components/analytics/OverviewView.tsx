@@ -17,6 +17,51 @@ import { KpiCard } from '@/components/ui/KpiCard';
 import { Skeleton } from '@/components/ui/Skeleton';
 import type { OrgOverview } from './types';
 
+<<<<<<< Updated upstream
+=======
+type Tone = 'blue' | 'green' | 'gold';
+
+interface ToneStyle {
+  header: string;
+  title: string;
+  iconBg: string;
+  iconText: string;
+  track: string;
+  fill: string;
+  number: string;
+}
+
+const TONES: { [K in Tone]: ToneStyle } = {
+  blue: {
+    header: 'bg-[#2B6CC4]',
+    title: 'text-white/80',
+    iconBg: 'bg-[#BCD0EC]',
+    iconText: 'text-[#2B6CC4]',
+    track: 'bg-[#C9D9F0]',
+    fill: 'bg-[#2B6CC4]',
+    number: 'text-[#2B6CC4]',
+  },
+  green: {
+    header: 'bg-[#2E8B3E]',
+    title: 'text-white/80',
+    iconBg: 'bg-[#B5DBB8]',
+    iconText: 'text-[#2E8B3E]',
+    track: 'bg-[#C8E4CA]',
+    fill: 'bg-[#2E8B3E]',
+    number: 'text-[#2E7D32]',
+  },
+  gold: {
+    header: 'bg-[#C9A227]',
+    title: 'text-white/80',
+    iconBg: 'bg-[#F0E0AE]',
+    iconText: 'text-[#B8912A]',
+    track: 'bg-[#EADFB8]',
+    fill: 'bg-[#B8912A]',
+    number: 'text-[#B8912A]',
+  },
+};
+
+>>>>>>> Stashed changes
 function Tile({
   label,
   value,

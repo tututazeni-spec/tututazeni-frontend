@@ -51,6 +51,7 @@ export function HeadcountPanel() {
     <div className="space-y-5">
       {/* KPIs */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+<<<<<<< Updated upstream
         <KpiCard
           label="Total"
           value={data?.total ?? 0}
@@ -75,6 +76,33 @@ export function HeadcountPanel() {
           sub={`≈ ${((data?.avgTenureMonths ?? 0) / 12).toFixed(1)} anos`}
           intent="primary"
           className="w-full"
+=======
+        <TopBarKpiCard
+          icon={Users}
+          label="Total"
+          value={data?.total ?? 0}
+          tone="blue"
+        />
+        <TopBarKpiCard
+          icon={UserCheck}
+          label="Activos"
+          value={data?.active ?? 0}
+          tone="green"
+        />
+        <TrendKpiCard
+          icon={TrendingDown}
+          label="Taxa de Rotatividade"
+          value={`${data?.turnoverRate ?? 0}%`}
+          trendData={MOCK_TURNOVER_TREND}
+          tone="red"
+        />
+        <TopBarKpiCard
+          icon={Clock}
+          label="Tempo Médio de Serviço"
+          value={`${data?.avgTenureMonths ?? 0}m`}
+          sub={`≈ ${((data?.avgTenureMonths ?? 0) / 12).toFixed(1)} anos`}
+          tone="blue"
+>>>>>>> Stashed changes
         />
       </div>
 
@@ -87,7 +115,12 @@ export function HeadcountPanel() {
             </h4>
             <BarChart
               categories={Object.keys(data.byTenure)}
-              series={[{ label: 'Colaboradores', values: Object.values(data.byTenure) }]}
+              series={[
+                {
+                  label: 'Colaboradores',
+                  values: Object.values(data.byTenure),
+                },
+              ]}
             />
           </div>
         )}
@@ -102,12 +135,18 @@ export function HeadcountPanel() {
               series={[
                 {
                   label: 'Colaboradores',
-                  points: trend.map((t, i) => ({ x: i, y: t.count, xLabel: t.month })),
+                  points: trend.map((t, i) => ({
+                    x: i,
+                    y: t.count,
+                    xLabel: t.month,
+                  })),
                 },
               ]}
             />
           ) : (
-            <p className="font-body text-xs text-ink-faint">Sem dados suficientes.</p>
+            <p className="font-body text-xs text-ink-faint">
+              Sem dados suficientes.
+            </p>
           )}
         </div>
       </div>
@@ -123,6 +162,107 @@ export function HeadcountPanel() {
   );
 }
 
+<<<<<<< Updated upstream
+=======
+// Cartão estilo Udemy/MasterClass: badge de ícone colorido, número grande
+// em destaque, etiqueta discreta por baixo, elevação subtil ao hover.
+// Local a este painel — não substitui o KpiCard partilhado.
+type StatIntent = 'primary' | 'success' | 'danger';
+
+const STAT_INTENT_STYLES: Record<StatIntent, { badge: string }> = {
+  primary: { badge: 'bg-primary/10 text-primary' },
+  success: { badge: 'bg-success/10 text-success' },
+  danger: { badge: 'bg-danger/10 text-danger' },
+};
+
+type Tone = 'blue' | 'green' | 'gold' | 'red';
+
+const TONES: Record<Tone, { bar: string; text: string }> = {
+  blue: { bar: 'bg-[#2B6CC4]', text: 'text-[#2B6CC4]' },
+  green: { bar: 'bg-[#2E8B3E]', text: 'text-[#2E8B3E]' },
+  gold: { bar: 'bg-[#C9A227]', text: 'text-[#B8912A]' },
+  red: { bar: 'bg-[#C0453F]', text: 'text-[#C0453F]' },
+};
+
+function TopBarKpiCard({
+  icon: Icon,
+  label,
+  value,
+  sub,
+  tone,
+}: {
+  icon: LucideIcon;
+  label: string;
+  value: string | number;
+  sub?: string;
+  tone: Tone;
+}) {
+  const t = TONES[tone];
+  return (
+    <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting transition-shadow hover:shadow-lg">
+      <div className={`h-1.5 w-full ${t.bar}`} />
+      <div className="p-5 pt-6">
+        <Icon size={22} strokeWidth={1.75} className={t.text} />
+        <p className={`mt-3 font-display text-3xl font-bold ${t.text}`}>
+          {value}
+        </p>
+        <p className="mt-1 font-body text-sm font-medium text-ink-muted">
+          {label}
+        </p>
+        {sub && <p className="mt-1 font-body text-xs text-ink-faint">{sub}</p>}
+      </div>
+    </div>
+  );
+}
+
+// TODO: substituir por dados reais quando soubermos o campo da API
+// (ex.: data.turnoverTrend) com o histórico mensal da rotatividade.
+const MOCK_TURNOVER_TREND = [6.2, 5.8, 6.5, 7.1, 6.4, 5.9];
+
+function TrendKpiCard({
+  icon: Icon,
+  label,
+  value,
+  sub,
+  trendData,
+  tone,
+}: {
+  icon: LucideIcon;
+  label: string;
+  value: string | number;
+  sub?: string;
+  trendData: number[];
+  tone: Tone;
+}) {
+  const t = TONES[tone];
+  return (
+    <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting transition-shadow hover:shadow-lg">
+      <div className={`h-1.5 w-full ${t.bar}`} />
+      <div className="p-5 pt-6">
+        <Icon size={22} strokeWidth={1.75} className={t.text} />
+        <p className={`mt-3 font-display text-3xl font-bold ${t.text}`}>
+          {value}
+        </p>
+        <p className="mt-1 font-body text-sm font-medium text-ink-muted">
+          {label}
+        </p>
+        {sub && <p className="mt-1 font-body text-xs text-ink-faint">{sub}</p>}
+        <div className="mt-3 h-14">
+          <AreaLineChart
+            series={[
+              {
+                label,
+                points: trendData.map((v, i) => ({ x: i, y: v, xLabel: '' })),
+              },
+            ]}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+>>>>>>> Stashed changes
 function SegmentBreakdown({
   title,
   rows,
@@ -170,7 +310,10 @@ function EmploymentSegmentationWidget() {
     field: string,
   ) =>
     (arr ?? [])
-      .map((r) => ({ label: String(r[field] ?? 'Não definido'), count: r._count }))
+      .map((r) => ({
+        label: String(r[field] ?? 'Não definido'),
+        count: r._count,
+      }))
       .sort((a, b) => b.count - a.count);
 
   return (
