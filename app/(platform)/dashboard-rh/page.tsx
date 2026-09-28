@@ -48,7 +48,7 @@ const PANELS: { id: Panel; label: string; icon: LucideIcon | null }[] = [
   { id: 'headcount', label: 'Número de Colaboradores', icon: Users },
   { id: 'turnover', label: 'Rotatividade', icon: TrendingDown },
   { id: 'performance', label: 'Performance', icon: Star },
-  { id: 'engagement', label: 'Engagement', icon: Smile },
+  { id: 'engagement', label: 'Engajamento', icon: Smile },
   { id: 'skills', label: 'Competências', icon: Wrench },
   { id: 'training', label: 'Formação', icon: BookOpen },
   { id: 'compliance', label: 'Compliance', icon: ShieldCheck },
@@ -80,20 +80,20 @@ export default function DashboardRhPage() {
       </div>
 
       <Tabs defaultValue="overview">
-        {/* Tabs */}
-        <div className="border-b border-border bg-surface px-6">
-          <TabsList className="mx-auto max-w-7xl overflow-x-auto gap-0">
-            {PANELS.map((p, i) => {
+        {/* Tabs — formato de "cartão": cada trigger é um cartão
+            independente (borda + fundo branco + rounded), sem underline
+            no container. Estado activo usa data-[state=active] do Radix
+            para aplicar destaque azul (borda/fundo/texto primary). */}
+        <div className="bg-surface px-6">
+          <TabsList className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-2 overflow-x-auto bg-transparent p-0 py-3">
+            {PANELS.map((p) => {
               const Icon = p.icon;
               return (
                 <TabsTrigger
                   key={p.id}
                   value={p.id}
-                  className={
-                    i < PANELS.length - 1
-                      ? 'gap-2 whitespace-nowrap mr-[1cm]!'
-                      : 'gap-2 whitespace-nowrap'
-                  }
+                  className="flex items-center gap-2 whitespace-nowrap rounded-lg border border-border bg-white px-4 py-2 text-sm font-medium text-foreground shadow-none
+                             data-[state=active]:border-primary data-[state=active]:bg-primary/10 data-[state=active]:text-primary"
                 >
                   {Icon && <Icon size={14} strokeWidth={1.75} />}
                   {p.label}

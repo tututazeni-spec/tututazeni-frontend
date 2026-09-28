@@ -47,8 +47,14 @@ export default function ReportsPage() {
         </div>
       </div>
 
-      <div className="mt-[2.375rem] border-b border-border bg-surface px-6">
-        <div className="mx-auto flex max-w-7xl overflow-x-auto">
+      {/* Abas em formato de "cartão": cada botão é um cartão independente
+          (borda + fundo branco + rounded), sem underline no container.
+          Alinhadas horizontal e verticalmente (justify-center +
+          items-center no wrapper, flex items-center em cada botão).
+          Estado activo usa a mesma variável `active` de sempre para
+          aplicar destaque azul (borda/fundo/texto primary). */}
+      <div className="bg-canvas px-6 py-3">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-2 overflow-x-auto">
           {TABS.map((t) => {
             const Icon = t.icon;
             const active = tab === t.id && !activeTemplate;
@@ -59,10 +65,10 @@ export default function ReportsPage() {
                   setTab(t.id);
                   setActiveTemplate(null);
                 }}
-                className={`flex items-center gap-2 whitespace-nowrap border-b-2 px-5 py-4 font-body text-sm font-medium transition-colors ${
+                className={`flex items-center gap-2 whitespace-nowrap rounded-lg border px-4 py-2 font-body text-sm font-medium transition-colors ${
                   active
-                    ? 'border-primary text-primary'
-                    : 'border-transparent text-ink-muted hover:text-ink'
+                    ? 'border-primary bg-primary/10 text-primary'
+                    : 'border-border bg-white text-foreground hover:text-ink'
                 }`}
               >
                 <Icon size={16} strokeWidth={1.75} />

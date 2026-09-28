@@ -56,14 +56,21 @@ export default function AnalyticsPage() {
       </div>
 
       <Tabs value={view} onValueChange={(v) => setView(v as View)}>
-        <TabsList className="mb-6 w-fit flex-wrap gap-x-8 gap-y-2">
+        {/* Abas em formato de "cartão": cada trigger é um cartão
+            independente (borda + fundo branco + rounded), sem underline
+            no container. Alinhadas horizontal e verticalmente
+            (justify-center + items-center no TabsList, flex items-center
+            em cada TabsTrigger). Estado activo usa data-[state=active] do
+            Radix para aplicar destaque azul (borda/fundo/texto primary). */}
+        <TabsList className="mb-6 flex w-full flex-wrap items-center justify-center gap-2 bg-transparent p-0 py-3">
           {nav.map((n) => {
             const Icon = n.icon;
             return (
               <TabsTrigger
                 key={n.id}
                 value={n.id}
-                className="gap-2 whitespace-nowrap"
+                className="flex items-center gap-2 whitespace-nowrap rounded-lg border border-border bg-white px-4 py-2 text-sm font-medium text-foreground shadow-none
+                           data-[state=active]:border-primary data-[state=active]:bg-primary/10 data-[state=active]:text-primary"
               >
                 <Icon size={14} strokeWidth={1.75} />
                 {n.label}

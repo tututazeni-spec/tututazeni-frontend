@@ -6,10 +6,11 @@
 
 'use client';
 
+import { CheckCircle2, Clock, GraduationCap, ShieldAlert } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { KpiCard } from '@/components/ui/KpiCard';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { BarChart } from '@/components/ui/charts/BarChart';
 import type { TrainingData } from './types';
@@ -25,37 +26,38 @@ export function TrainingPanel() {
       <Skeleton
         rows={4}
         wrapperClassName="grid grid-cols-2 md:grid-cols-4 gap-4 animate-pulse"
-        itemClassName="h-24 rounded-card bg-surface-sunken"
+        itemClassName="h-28 rounded-2xl bg-surface-sunken"
       />
     );
 
   return (
     <div className="space-y-5">
+      {/* KPIs — cartão estilo Udemy/MasterClass */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-        <KpiCard
+        <StatCard
+          icon={CheckCircle2}
           label="Conclusões (mês)"
           value={data?.completed ?? 0}
           intent="info"
-          className="w-full"
         />
-        <KpiCard
+        <StatCard
+          icon={GraduationCap}
           label="Taxa de Conclusão"
           value={`${data?.completionRate ?? 0}%`}
           intent="primary"
-          className="w-full"
         />
-        <KpiCard
+        <StatCard
+          icon={ShieldAlert}
           label="Formações Obrigatórias"
           value={`${data?.mandatoryRate ?? 0}%`}
           sub={data?.mandatoryStatus}
           intent="danger"
-          className="w-full"
         />
-        <KpiCard
+        <StatCard
+          icon={Clock}
           label="Horas Estimadas"
           value={`${data?.estimatedHours ?? 0}h`}
           intent="accent"
-          className="w-full"
         />
       </div>
 
@@ -103,6 +105,48 @@ export function TrainingPanel() {
           ))}
         </div>
       )}
+    </div>
+  );
+}
+
+// Cartão estilo Udemy/MasterClass: badge de ícone colorido, número grande
+// em destaque, etiqueta discreta por baixo, elevação subtil ao hover.
+// Local a este painel — não substitui o KpiCard partilhado.
+type StatIntent = 'primary' | 'info' | 'success' | 'warning' | 'danger' | 'accent';
+
+const STAT_INTENT_STYLES: Record<StatIntent, { badge: string }> = {
+  primary: { badge: 'bg-primary/10 text-primary' },
+  info: { badge: 'bg-info/10 text-info' },
+  success: { badge: 'bg-success/10 text-success' },
+  warning: { badge: 'bg-warning/10 text-warning' },
+  danger: { badge: 'bg-danger/10 text-danger' },
+  accent: { badge: 'bg-accent/10 text-accent' },
+};
+
+function StatCard({
+  icon: Icon,
+  label,
+  value,
+  sub,
+  intent = 'primary',
+}: {
+  icon: LucideIcon;
+  label: string;
+  value: string | number;
+  sub?: string;
+  intent?: StatIntent;
+}) {
+  const styles = STAT_INTENT_STYLES[intent];
+  return (
+    <div className="group relative overflow-hidden rounded-2xl border border-border bg-surface p-5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg">
+      <div
+        className={`mb-4 inline-flex h-11 w-11 items-center justify-center rounded-xl ${styles.badge}`}
+      >
+        <Icon size={20} strokeWidth={1.75} />
+      </div>
+      <p className="font-display text-2xl font-bold text-ink">{value}</p>
+      <p className="mt-1 font-body text-sm font-medium text-ink-muted">{label}</p>
+      {sub && <p className="mt-0.5 font-body text-xs text-ink-faint">{sub}</p>}
     </div>
   );
 }

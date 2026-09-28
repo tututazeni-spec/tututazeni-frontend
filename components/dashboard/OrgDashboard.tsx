@@ -12,14 +12,26 @@
 
 import { useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
+import type { LucideIcon } from 'lucide-react';
 import {
   AlertTriangle,
   Award,
+  BadgeCheck,
+  BookOpen,
   Brain,
+  Building2,
+  CheckCircle2,
   GitCompare,
+  HeartHandshake,
+  Library,
   MapPin,
   Save,
   ShieldAlert,
+  Smile,
+  Star,
+  Target,
+  Users,
+  Wallet,
 } from 'lucide-react';
 import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
@@ -28,7 +40,6 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { useToast } from '@/providers/ToastProvider';
 import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
-import { KpiCard } from '@/components/ui/KpiCard';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { AreaLineChart } from '@/components/ui/charts/AreaLineChart';
@@ -46,6 +57,117 @@ const PERIODS = [
   { id: 'QUARTER', label: 'Trimestre' },
   { id: 'YEAR', label: 'Ano' },
 ];
+
+type KpiTone = 'blue' | 'green' | 'gold' | 'red' | 'orange';
+
+// Classes completas: o Tailwind não detecta nomes montados dinamicamente
+const KPI_TONES: Record<KpiTone, { bar: string; text: string }> = {
+  blue: { bar: 'bg-blue-500', text: 'text-blue-600' },
+  green: { bar: 'bg-green-600', text: 'text-green-600' },
+  gold: { bar: 'bg-amber-500', text: 'text-amber-600' },
+  red: { bar: 'bg-red-500', text: 'text-red-600' },
+  orange: { bar: 'bg-orange-500', text: 'text-orange-600' },
+};
+
+function HighlightKpiCard({
+  icon: Icon,
+  label,
+  value,
+  sub,
+  trend,
+  tone,
+}: {
+  icon: LucideIcon;
+  label: string;
+  value: string | number;
+  sub?: string;
+  trend?: number | null;
+  tone: KpiTone;
+}) {
+  const t = KPI_TONES[tone];
+  return (
+    <div className="relative overflow-hidden rounded-2xl border border-border bg-surface p-5 pt-6 shadow-resting transition-shadow duration-150 hover:shadow-hover">
+      <span aria-hidden className={`absolute inset-x-0 top-0 h-1.5 ${t.bar}`} />
+      <Icon size={26} strokeWidth={1.75} className={`mb-4 ${t.text}`} />
+      <div className="flex items-baseline gap-2">
+        <p className={`font-display text-4xl font-bold ${t.text}`}>{value}</p>
+        {typeof trend === 'number' && trend !== 0 && (
+          <span
+            className={`font-body text-xs font-semibold ${trend > 0 ? 'text-success' : 'text-danger'}`}
+          >
+            {trend > 0 ? '▲' : '▼'} {Math.abs(trend)}
+          </span>
+        )}
+      </div>
+      <p className="mt-1 font-body text-sm text-ink">{label}</p>
+      {sub && <p className="mt-1 font-body text-xs text-ink-faint">{sub}</p>}
+    </div>
+  );
+}
+
+
+// TODO: substituir por dados reais quando soubermos o campo da API
+// (ex.: summary.crm.fundingByQuarter) com a distribuição do financiamento
+// ao longo do período. Enquanto isso, usa-se uma série de exemplo.
+const MOCK_FUNDING_BREAKDOWN = [
+  { label: 'T1', value: 0.6 },
+  { label: 'T2', value: 0.9 },
+  { label: 'T3', value: 0.75 },
+  { label: 'T4', value: 1.2 },
+];
+
+function FundingKpiCard({
+  icon: Icon,
+  label,
+  value,
+  sub,
+  breakdown,
+  tone,
+}: {
+  icon: LucideIcon;
+  label: string;
+  value: string | number;
+  sub?: string;
+  breakdown: { label: string; value: number }[];
+  tone: KpiTone;
+}) {
+  const t = KPI_TONES[tone];
+  const max = Math.max(...breakdown.map((b) => b.value), 1);
+
+  const BAR_COLOR: Record<KpiTone, string> = {
+    blue: '#3B82F6',
+    green: '#16A34A',
+    gold: '#F59E0B',
+    red: '#EF4444',
+    orange: '#F97316',
+  };
+
+  return (
+    <div className="relative overflow-hidden rounded-2xl border border-border bg-surface p-5 pt-6 shadow-resting transition-shadow duration-150 hover:shadow-hover">
+      <span aria-hidden className={`absolute inset-x-0 top-0 h-1.5 ${t.bar}`} />
+      <Icon size={26} strokeWidth={1.75} className={`mb-4 ${t.text}`} />
+      <p className={`font-display text-4xl font-bold ${t.text}`}>{value}</p>
+      <p className="mt-1 font-body text-sm text-ink">{label}</p>
+      {sub && <p className="mt-1 font-body text-xs text-ink-faint">{sub}</p>}
+
+      <div className="mt-4 flex h-12 items-end gap-1.5">
+        {breakdown.map((b) => (
+          <div key={b.label} className="flex flex-1 flex-col items-center gap-1">
+            <div
+              className="w-full rounded-t"
+              style={{
+                height: `${Math.max((b.value / max) * 100, 6)}%`,
+                backgroundColor: BAR_COLOR[tone],
+                opacity: 0.85,
+              }}
+            />
+            <span className="font-body text-[9px] text-ink-faint">{b.label}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 // Linha label/valor dentro de um ModulePanel.
 function Stat({ label, value }: { label: string; value: string | number }) {
@@ -352,54 +474,91 @@ export function OrgDashboard() {
       )}
 
       {/* KPIs — organização */}
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-        <KpiCard
+            <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+        <HighlightKpiCard
+          icon={Users}
+          tone="blue"
           label="Colaboradores Activos"
           value={k.headcount?.active ?? 0}
           sub={`+${k.headcount?.new ?? 0} no período`}
           trend={k.headcount?.newTrend}
         />
-        <KpiCard
+        <HighlightKpiCard
+          icon={CheckCircle2}
+          tone="green"
           label="Conclusões de Cursos"
           value={k.learning?.completions ?? 0}
           trend={k.learning?.completionsTrend}
-          intent="info"
         />
-        <KpiCard
+        <HighlightKpiCard
+          icon={Target}
+          tone="gold"
           label="PDIs Activos"
           value={k.development?.activePlans ?? 0}
           sub={`Cobertura: ${k.development?.coverage ?? 0}%`}
         />
-        <KpiCard
+        <HighlightKpiCard
+          icon={Star}
+          tone="orange"
           label="Pontuação Média Geral"
           value={k.performance?.avgScore?.toFixed(1) ?? '–'}
-          intent="warning"
         />
       </div>
 
       {/* KPIs — CRM & conhecimento (getExecutiveSummary) */}
       {summary && (
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-          <KpiCard label="Cursos" value={summary.learning.courses} intent="accent" />
-          <KpiCard label="Beneficiários" value={summary.crm.beneficiaries} />
-          <KpiCard
+                <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+          <HighlightKpiCard
+            icon={BookOpen}
+            tone="blue"
+            label="Cursos"
+            value={summary.learning.courses}
+          />
+          <HighlightKpiCard
+            icon={HeartHandshake}
+            tone="green"
+            label="Beneficiários"
+            value={summary.crm.beneficiaries}
+          />
+                    <FundingKpiCard
+            icon={Wallet}
+            tone="gold"
             label="Financiamento"
             value={`AOA ${(summary.crm.totalFunding / 1_000_000).toFixed(1)}M`}
-            intent="accent"
+            sub="Distribuição por trimestre"
+            breakdown={MOCK_FUNDING_BREAKDOWN}
           />
-          <KpiCard label="Parceiros" value={summary.crm.partners} />
-          <KpiCard label="Certificados" value={summary.knowledge.certificates} />
-          <KpiCard
+          <HighlightKpiCard
+            icon={Building2}
+            tone="orange"
+            label="Parceiros"
+            value={summary.crm.partners}
+          />
+          <HighlightKpiCard
+            icon={Award}
+            tone="gold"
+            label="Certificados"
+            value={summary.knowledge.certificates}
+          />
+          <HighlightKpiCard
+            icon={Library}
+            tone="blue"
             label="Biblioteca"
             value={summary.knowledge.libraryItems}
             sub="recursos"
           />
-          <KpiCard label="Badges Emitidos" value={summary.knowledge.badgesIssued} />
-          <KpiCard
+          <HighlightKpiCard
+            icon={BadgeCheck}
+            tone="orange"
+            label="Distintivos Emitidos"
+            value={summary.knowledge.badgesIssued}
+          />
+          <HighlightKpiCard
+            icon={Smile}
+            tone="green"
             label="eNPS"
             value={org.enps?.enps ?? '—'}
             sub={org.enps ? `${org.enps.total} respostas` : 'Sem dados'}
-            intent="success"
           />
         </div>
       )}

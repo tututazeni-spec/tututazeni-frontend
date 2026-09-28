@@ -62,19 +62,20 @@ export default function DashboardPage() {
       </div>
 
       <Tabs value={tab} onValueChange={setTab}>
-        <div className="border-b border-border bg-surface px-6">
-          <TabsList className="mx-auto max-w-7xl overflow-x-auto gap-0">
-            {availableTabs.map((t, i) => {
+        {/* Abas em formato de "cartão": cada trigger é um cartão
+            independente (borda + fundo branco + rounded), sem underline
+            no container. Estado activo usa data-[state=active] do Radix
+            para aplicar destaque azul (borda/fundo/texto primary). */}
+        <div className="bg-canvas px-6">
+          <TabsList className="mx-auto flex max-w-7xl gap-2 overflow-x-auto bg-transparent p-0">
+            {availableTabs.map((t) => {
               const Icon = t.icon;
               return (
                 <TabsTrigger
                   key={t.id}
                   value={t.id}
-                  className={
-                    i < availableTabs.length - 1
-                      ? 'gap-2 whitespace-nowrap mr-[1cm]!'
-                      : 'gap-2 whitespace-nowrap'
-                  }
+                  className="gap-2 whitespace-nowrap rounded-lg border border-border bg-white px-4 py-2 text-sm font-medium text-foreground shadow-none
+                             data-[state=active]:border-primary data-[state=active]:bg-primary/10 data-[state=active]:text-primary"
                 >
                   <Icon size={14} strokeWidth={1.75} />
                   {t.label}
@@ -85,7 +86,7 @@ export default function DashboardPage() {
         </div>
 
         <div className="mx-auto max-w-7xl px-6 py-6">
-          <TabsContent value="personal" className="pt-[0,10cm]!">
+          <TabsContent value="personal">
             <ColaboradorDashboard />
           </TabsContent>
           <TabsContent value="manager">

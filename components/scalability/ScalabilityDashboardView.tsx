@@ -798,22 +798,48 @@ function AlertsTab({ alerts, onResolve }: AlertsTabProps) {
           title="Alertas de Sistema"
           sub="Monitorização automática de performance, integrações e compliance"
         />
-        <div className="flex gap-2">
-          <FilterChip
-            label="Todos"
-            active={filter === 'ALL'}
+        {/* Filtros secundários mantêm-se em estilo "pílula" — não são as
+            abas principais do módulo, e agora dispostos verticalmente. */}
+        <div className="flex flex-col gap-1 rounded-card bg-surface-sunken p-1">
+          <button
+            type="button"
             onClick={() => setFilter('ALL')}
-          />
-          <FilterChip
-            label="Críticos"
-            active={filter === 'CRITICAL'}
+            aria-pressed={filter === 'ALL'}
+            className={cn(
+              'rounded-pill px-3 py-1 font-body text-xs font-medium transition-colors',
+              filter === 'ALL'
+                ? 'bg-surface text-ink shadow-resting'
+                : 'text-ink-muted hover:text-ink',
+            )}
+          >
+            Todos
+          </button>
+          <button
+            type="button"
             onClick={() => setFilter('CRITICAL')}
-          />
-          <FilterChip
-            label="Avisos"
-            active={filter === 'WARNING'}
+            aria-pressed={filter === 'CRITICAL'}
+            className={cn(
+              'rounded-pill px-3 py-1 font-body text-xs font-medium transition-colors',
+              filter === 'CRITICAL'
+                ? 'bg-surface text-ink shadow-resting'
+                : 'text-ink-muted hover:text-ink',
+            )}
+          >
+            Críticos
+          </button>
+          <button
+            type="button"
             onClick={() => setFilter('WARNING')}
-          />
+            aria-pressed={filter === 'WARNING'}
+            className={cn(
+              'rounded-pill px-3 py-1 font-body text-xs font-medium transition-colors',
+              filter === 'WARNING'
+                ? 'bg-surface text-ink shadow-resting'
+                : 'text-ink-muted hover:text-ink',
+            )}
+          >
+            Avisos
+          </button>
         </div>
       </div>
       {shown.length === 0 && (
@@ -1250,17 +1276,23 @@ export function ScalabilityDashboardView({
         </div>
       </div>
 
-      {/* Tabs */}
+      {/* Tabs — formato de "cartão": cada trigger é um cartão independente
+          (borda + fundo branco + rounded), sem underline no container.
+          Alinhadas horizontal e verticalmente (justify-center +
+          items-center no TabsList, flex items-center em cada TabsTrigger)
+          com largura mínima uniforme. Estado activo usa data-[state=active]
+          do Radix para aplicar destaque azul (borda/fundo/texto primary). */}
       <Tabs value={activeTab} onValueChange={onTabChange}>
-        <div className="border-b border-border bg-surface px-6">
-          <TabsList className="mx-auto max-w-7xl gap-4 overflow-x-auto border-b-0">
+        <div className="bg-surface px-6 py-3">
+          <TabsList className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-2 overflow-x-auto border-b-0 bg-transparent p-0">
             {TABS.map((tab) => {
               const Icon = tab.icon;
               return (
                 <TabsTrigger
                   key={tab.id}
                   value={tab.id}
-                  className="gap-2 whitespace-nowrap"
+                  className="flex min-w-[140px] items-center justify-center gap-2 whitespace-nowrap rounded-lg border border-border bg-white px-4 py-2 text-center text-sm font-medium text-foreground shadow-none
+                             data-[state=active]:border-primary data-[state=active]:bg-primary/10 data-[state=active]:text-primary"
                 >
                   <Icon size={16} strokeWidth={1.75} />
                   {tab.label}

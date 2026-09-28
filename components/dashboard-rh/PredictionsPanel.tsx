@@ -2,9 +2,13 @@
 // Painel "Previsões" — risco de saída projectado a partir de performance +
 // tenure. Dados próprios (useApiQuery) + apresentação. Mesmo padrão de
 // components/dashboard-rh/TurnoverPanel.tsx.
+//
+// KpiCards com ícone, seguindo o mesmo padrão aplicado nos outros painéis
+// do dashboard-rh (icon + intent color).
 
 'use client';
 
+import { AlertTriangle, MessageSquare, TrendingDown } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -41,18 +45,21 @@ export function PredictionsPanel() {
         <KpiCard
           label="Em Risco de Saída"
           value={data?.summary?.atRiskCount ?? 0}
+          icon={AlertTriangle}
           intent="danger"
           className="w-full"
         />
         <KpiCard
           label="Baixa Performance"
           value={data?.summary?.lowPerfCount ?? 0}
+          icon={TrendingDown}
           intent="warning"
           className="w-full"
         />
         <KpiCard
           label="Respostas de Engagement (mês)"
           value={data?.summary?.engagementResponses ?? 0}
+          icon={MessageSquare}
           intent="info"
           className="w-full"
         />
