@@ -10,12 +10,102 @@ import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Card, CardBody } from '@/components/ui/Card';
-import { KpiCard } from '@/components/ui/KpiCard';
+import type { LucideIcon } from 'lucide-react';
+import { TrendingDown, UserMinus, UserPlus, Users } from 'lucide-react';
 import { Modal, ModalContent } from '@/components/ui/Modal';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
 import type { DepartmentAnalytics, PeopleAnalytics } from './types';
 
+type Tone = 'blue' | 'green' | 'gold' | 'red';
+
+const TONES: Record<Tone, { bar: string; text: string; stroke: string }> = {
+  blue: { bar: 'bg-[#2B6CC4]', text: 'text-[#2B6CC4]', stroke: '#2B6CC4' },
+  green: { bar: 'bg-[#2E8B3E]', text: 'text-[#2E8B3E]', stroke: '#2E8B3E' },
+  gold: { bar: 'bg-[#C9A227]', text: 'text-[#B8912A]', stroke: '#C9A227' },
+  red: { bar: 'bg-[#C0453F]', text: 'text-[#C0453F]', stroke: '#C0453F' },
+};
+
+function TopBarKpiCard({
+  icon: Icon,
+  label,
+  value,
+  tone,
+}: {
+  icon: LucideIcon;
+  label: string;
+  value: string | number;
+  tone: Tone;
+}) {
+  const t = TONES[tone];
+  return (
+    <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting">
+      <div className={`h-1.5 w-full ${t.bar}`} />
+      <div className="p-5 pt-6">
+        <Icon size={22} strokeWidth={1.75} className={t.text} />
+        <p className={`mt-3 font-display text-3xl font-bold ${t.text}`}>{value}</p>
+        <p className="mt-1 font-body text-sm font-medium text-ink-muted">{label}</p>
+      </div>
+    </div>
+  );
+}
+
+// TODO: substituir por dados reais quando soubermos o campo da API
+// (ex.: data.headcount.turnoverTrend) com o histórico mensal da rotatividade.
+const MOCK_TURNOVER_TREND = [5.1, 5.6, 4.9, 6.2, 5.8, 6.5];
+
+function TrendKpiCard({
+  icon: Icon,
+  label,
+  value,
+  trendData,
+  tone,
+}: {
+  icon: LucideIcon;
+  label: string;
+  value: string | number;
+  trendData: number[];
+  tone: Tone;
+}) {
+  const t = TONES[tone];
+  const width = 100;
+  const height = 28;
+  const max = Math.max(...trendData, 1);
+  const min = Math.min(...trendData, 0);
+  const range = max - min || 1;
+  const points = trendData
+    .map((v, i) => {
+      const x = (i / Math.max(trendData.length - 1, 1)) * width;
+      const y = height - ((v - min) / range) * height;
+      return `${x},${y}`;
+    })
+    .join(' ');
+
+  return (
+    <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting">
+      <div className={`h-1.5 w-full ${t.bar}`} />
+      <div className="p-5 pt-6">
+        <Icon size={22} strokeWidth={1.75} className={t.text} />
+        <p className={`mt-3 font-display text-3xl font-bold ${t.text}`}>{value}</p>
+        <p className="mt-1 font-body text-sm font-medium text-ink-muted">{label}</p>
+        <svg
+          viewBox={`0 0 ${width} ${height}`}
+          className="mt-2 h-7 w-full"
+          preserveAspectRatio="none"
+        >
+          <polyline
+            points={points}
+            fill="none"
+            stroke={t.stroke}
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </div>
+    </div>
+  );
+}
 // Espelha o enum Gender em prisma/schema.prisma; 'N/D' é o fallback do
 // próprio backend (analytics.service.ts#getPeopleAnalytics) para género nulo.
 const GENDER_LABELS: Record<string, string> = {
@@ -94,30 +184,31 @@ export function PeopleAnalyticsView() {
   return (
     <div className="space-y-5">
       {/* Headcount */}
-      <div className="grid grid-cols-4 gap-3">
-        <KpiCard
+            <div className="grid grid-cols-4 gap-4">
+        <TopBarKpiCard
+          icon={Users}
           label="Colaboradores activos"
           value={data.headcount.total}
-          intent="primary"
-          className="w-full [&_p]:text-black"
+          tone="blue"
         />
-        <KpiCard
+        <TopBarKpiCard
+          icon={UserPlus}
           label="Admitidos (período)"
           value={data.headcount.hired}
-          intent="success"
-          className="w-full [&_p]:text-black"
+          tone="green"
         />
-        <KpiCard
+        <TopBarKpiCard
+          icon={UserMinus}
           label="Saídas (período)"
           value={data.headcount.terminated}
-          intent="danger"
-          className="w-full [&_p]:text-black"
+          tone="red"
         />
-        <KpiCard
+        <TrendKpiCard
+          icon={TrendingDown}
           label="Taxa de rotatividade"
           value={`${data.headcount.turnoverRate}%`}
-          intent="warning"
-          className="w-full [&_p]:text-black"
+          trendData={MOCK_TURNOVER_TREND}
+          tone="gold"
         />
       </div>
       {data.headcount.onLeave > 0 && (
@@ -127,18 +218,29 @@ export function PeopleAnalyticsView() {
       )}
 
       {/* Diversidade */}
-      <Card>
-        <CardBody>
-          <div className="mb-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+            {/* Diversidade */}
+      <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting">
+        <div className="h-1.5 w-full bg-[#2B6CC4]" />
+        <div className="p-5">
+          <div className="mb-3 font-body text-sm font-semibold text-ink-muted">
             Diversidade — género
           </div>
           <div className="flex flex-wrap gap-3">
             {Object.entries(data.diversity.gender).map(([gender, count]) => (
-              <Tile key={gender} label={GENDER_LABELS[gender] ?? gender} value={count} />
+              <div
+                key={gender}
+                className="rounded-2xl border border-border bg-surface-sunken p-4"
+              >
+                <Users size={18} strokeWidth={1.75} className="text-[#2B6CC4]" />
+                <p className="mt-2 font-display text-2xl font-bold text-[#2B6CC4]">{count}</p>
+                <p className="mt-0.5 font-body text-xs font-medium text-ink-muted">
+                  {GENDER_LABELS[gender] ?? gender}
+                </p>
+              </div>
             ))}
           </div>
-        </CardBody>
-      </Card>
+        </div>
+      </div>
 
       {/* Departamentos */}
       <Card className="overflow-hidden">

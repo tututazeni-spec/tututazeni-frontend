@@ -7,16 +7,49 @@
 'use client';
 
 import { useState } from 'react';
-import { AlertTriangle, CheckCircle2, Circle } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
+import { AlertTriangle, CheckCircle2, Circle, Clock, ShieldAlert } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Avatar } from '@/components/ui/Avatar';
 import { Card } from '@/components/ui/Card';
-import { KpiCard } from '@/components/ui/KpiCard';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
 import type { RiskAlert } from './types';
+
+type Tone = 'blue' | 'green' | 'gold' | 'red';
+
+const TONES: Record<Tone, { bar: string; text: string }> = {
+  blue: { bar: 'bg-[#2B6CC4]', text: 'text-[#2B6CC4]' },
+  green: { bar: 'bg-[#2E8B3E]', text: 'text-[#2E8B3E]' },
+  gold: { bar: 'bg-[#C9A227]', text: 'text-[#B8912A]' },
+  red: { bar: 'bg-[#C0453F]', text: 'text-[#C0453F]' },
+};
+
+function TopBarKpiCard({
+  icon: Icon,
+  label,
+  value,
+  tone,
+}: {
+  icon: LucideIcon;
+  label: string;
+  value: string | number;
+  tone: Tone;
+}) {
+  const t = TONES[tone];
+  return (
+    <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting">
+      <div className={`h-1.5 w-full ${t.bar}`} />
+      <div className="p-5 pt-6">
+        <Icon size={22} strokeWidth={1.75} className={t.text} />
+        <p className={`mt-3 font-display text-3xl font-bold ${t.text}`}>{value}</p>
+        <p className="mt-1 font-body text-sm font-medium text-ink-muted">{label}</p>
+      </div>
+    </div>
+  );
+}
 
 export function RisksView() {
   const [tab, setTab] = useState<'inactive' | 'pdis' | 'actions'>('inactive');
@@ -33,24 +66,24 @@ export function RisksView() {
   return (
     <div className="space-y-5">
       {/* Summary */}
-      <div className="grid grid-cols-3 gap-3">
-        <KpiCard
+            <div className="grid grid-cols-3 gap-4">
+        <TopBarKpiCard
+          icon={Clock}
           label="Inactivos (+60 dias)"
           value={summary.inactiveCount}
-          intent={summary.inactiveCount > 0 ? 'warning' : 'primary'}
-          className="w-full"
+          tone={summary.inactiveCount > 0 ? 'gold' : 'green'}
         />
-        <KpiCard
+        <TopBarKpiCard
+          icon={AlertTriangle}
           label="PDIs atrasados"
           value={summary.overduePDICount}
-          intent={summary.overduePDICount > 0 ? 'danger' : 'primary'}
-          className="w-full"
+          tone={summary.overduePDICount > 0 ? 'red' : 'green'}
         />
-        <KpiCard
+        <TopBarKpiCard
+          icon={ShieldAlert}
           label="Acções críticas"
           value={summary.criticalActionCount}
-          intent={summary.criticalActionCount > 0 ? 'danger' : 'primary'}
-          className="w-full"
+          tone={summary.criticalActionCount > 0 ? 'red' : 'green'}
         />
       </div>
 
