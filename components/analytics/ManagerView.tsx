@@ -12,16 +12,17 @@
 'use client';
 
 import { useState } from 'react';
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, Users, TrendingUp } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Avatar } from '@/components/ui/Avatar';
 import { Card, CardBody } from '@/components/ui/Card';
-import { KpiCard } from '@/components/ui/KpiCard';
+import { TopBarCard } from '@/components/ui/TopBarCard';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { BarChart } from '@/components/ui/charts/BarChart';
+import { GaugeChart } from '@/components/ui/charts/GaugeChart';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { NineBox } from './NineBox';
@@ -61,31 +62,34 @@ export function ManagerView() {
       )}
 
       {/* KPIs */}
-      <div className="grid grid-cols-4 gap-3">
-        <KpiCard
+            <div className="grid grid-cols-4 gap-3">
+        <TopBarCard
           label="Equipa"
           value={metrics.headcount}
-          intent="primary"
-          className="w-full [&_p]:text-black"
+          tone="blue"
+          icon={<Users className="h-6 w-6" />}
         />
-        <KpiCard
-          label="PDIs activos"
-          value={`${metrics.pdiAdoptionRate}%`}
-          sub="adopção"
-          intent="info"
-          className="w-full [&_p]:text-black"
-        />
-        <KpiCard
-          label="Conclusão cursos"
-          value={`${metrics.completionRate}%`}
-          intent="success"
-          className="w-full [&_p]:text-black"
-        />
-        <KpiCard
+        <div className="flex flex-col items-center justify-center rounded-card border border-border bg-surface p-3">
+          <GaugeChart
+            value={metrics.pdiAdoptionRate}
+            label="PDIs Activos"
+            thresholds={{ warning: 50, danger: 25 }}
+            size={120}
+          />
+        </div>
+        <div className="flex flex-col items-center justify-center rounded-card border border-border bg-surface p-3">
+          <GaugeChart
+            value={metrics.completionRate}
+            label="Conclusão Cursos"
+            thresholds={{ warning: 50, danger: 25 }}
+            size={120}
+          />
+        </div>
+        <TopBarCard
           label="Desempenho Médio"
           value={metrics.avgPerformance}
-          intent="warning"
-          className="w-full [&_p]:text-black"
+          tone="gold"
+          icon={<TrendingUp className="h-6 w-6" />}
         />
       </div>
       {metrics.overdueActions > 0 && (

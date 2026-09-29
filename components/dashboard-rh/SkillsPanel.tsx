@@ -6,7 +6,7 @@
 'use client';
 
 import { AlertTriangle, Layers, ListChecks } from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
+import { TopBarCard } from '@/components/ui/TopBarCard';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -29,49 +29,51 @@ export function SkillsPanel() {
       />
     );
 
+      const sortedGaps = [...(data?.topGaps ?? [])].sort((a, b) => b.avgGap - a.avgGap);
+  const sortedStrengths = [...(data?.topStrengths ?? [])].sort((a, b) => b.avgLevel - a.avgLevel);
+
   return (
     <div className="space-y-5">
       {/* KPIs — cartão estilo Udemy/MasterClass */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-        <StatCard
-          icon={ListChecks}
+                <TopBarCard
           label="Colaboradores Avaliados"
           value={`${data?.assessmentRate ?? 0}%`}
-          sub={`${data?.assessed ?? 0} de ${data?.totalUsers ?? 0}`}
-          intent="primary"
+          tone="blue"
+          icon={<ListChecks className="h-6 w-6" />}
         />
-        <StatCard
-          icon={Layers}
+        <TopBarCard
           label="Competências Mapeadas"
           value={data?.totalCompetencies ?? 0}
-          intent="info"
+          tone="gold"
+          icon={<Layers className="h-6 w-6" />}
         />
-        <StatCard
-          icon={AlertTriangle}
+        <TopBarCard
           label="Gaps Críticos"
           value={data?.criticalGaps ?? 0}
-          intent="danger"
+          tone="red"
+          icon={<AlertTriangle className="h-6 w-6" />}
         />
       </div>
 
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-        <div className="rounded-card border border-border bg-surface p-5">
+               <div className="rounded-card border border-border bg-surface p-5">
           <h4 className="mb-3 font-body font-semibold text-ink-muted">
             Maiores Gaps de Competência
           </h4>
-          {(data?.topGaps ?? []).length === 0 ? (
+          {sortedGaps.length === 0 ? (
             <p className="font-body text-xs text-ink-faint">Sem gaps identificados.</p>
           ) : (
             <BarChart
               orientation="horizontal"
-              categories={(data?.topGaps ?? []).map((s, i) => s.competency?.name ?? `Competência ${i + 1}`)}
-              series={[{ label: 'Gap médio', values: (data?.topGaps ?? []).map((s) => s.avgGap) }]}
+              categories={sortedGaps.map((s, i) => s.competency?.name ?? `Competência ${i + 1}`)}
+              series={[{ label: 'Gap médio', values: sortedGaps.map((s) => s.avgGap) }]}
               className="mb-4"
               yFormat={(v) => v.toFixed(1)}
             />
           )}
           <div className="space-y-2">
-            {(data?.topGaps ?? []).map((s, i) => (
+            {sortedGaps.map((s, i) => (
               <div
                 key={i}
                 className="flex items-center justify-between border-b border-border py-2 last:border-0"
@@ -92,23 +94,23 @@ export function SkillsPanel() {
           </div>
         </div>
 
-        <div className="rounded-card border border-border bg-surface p-5">
+                <div className="rounded-card border border-border bg-surface p-5">
           <h4 className="mb-3 font-body font-semibold text-ink-muted">
             Maiores Forças
           </h4>
-          {(data?.topStrengths ?? []).length === 0 ? (
+          {sortedStrengths.length === 0 ? (
             <p className="font-body text-xs text-ink-faint">Sem dados suficientes.</p>
           ) : (
             <BarChart
               orientation="horizontal"
-              categories={(data?.topStrengths ?? []).map((s, i) => s.competency?.name ?? `Competência ${i + 1}`)}
-              series={[{ label: 'Nível médio', values: (data?.topStrengths ?? []).map((s) => s.avgLevel) }]}
+              categories={sortedStrengths.map((s, i) => s.competency?.name ?? `Competência ${i + 1}`)}
+              series={[{ label: 'Nível médio', values: sortedStrengths.map((s) => s.avgLevel) }]}
               className="mb-4"
               yFormat={(v) => v.toFixed(1)}
             />
           )}
           <div className="space-y-2">
-            {(data?.topStrengths ?? []).map((s, i) => (
+            {sortedStrengths.map((s, i) => (
               <div
                 key={i}
                 className="flex items-center justify-between border-b border-border py-2 last:border-0"
@@ -129,47 +131,6 @@ export function SkillsPanel() {
           </div>
         </div>
       </div>
-    </div>
-  );
-}
-
-// Cartão estilo Udemy/MasterClass: badge de ícone colorido, número grande
-// em destaque, etiqueta discreta por baixo, elevação subtil ao hover.
-// Local a este painel — não substitui o KpiCard partilhado.
-type StatIntent = 'primary' | 'info' | 'success' | 'warning' | 'danger';
-
-const STAT_INTENT_STYLES: Record<StatIntent, { badge: string }> = {
-  primary: { badge: 'bg-primary/10 text-primary' },
-  info: { badge: 'bg-info/10 text-info' },
-  success: { badge: 'bg-success/10 text-success' },
-  warning: { badge: 'bg-warning/10 text-warning' },
-  danger: { badge: 'bg-danger/10 text-danger' },
-};
-
-function StatCard({
-  icon: Icon,
-  label,
-  value,
-  sub,
-  intent = 'primary',
-}: {
-  icon: LucideIcon;
-  label: string;
-  value: string | number;
-  sub?: string;
-  intent?: StatIntent;
-}) {
-  const styles = STAT_INTENT_STYLES[intent];
-  return (
-    <div className="group relative overflow-hidden rounded-2xl border border-border bg-surface p-5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg">
-      <div
-        className={`mb-4 inline-flex h-11 w-11 items-center justify-center rounded-xl ${styles.badge}`}
-      >
-        <Icon size={20} strokeWidth={1.75} />
-      </div>
-      <p className="font-display text-2xl font-bold text-ink">{value}</p>
-      <p className="mt-1 font-body text-sm font-medium text-ink-muted">{label}</p>
-      {sub && <p className="mt-0.5 font-body text-xs text-ink-faint">{sub}</p>}
     </div>
   );
 }
