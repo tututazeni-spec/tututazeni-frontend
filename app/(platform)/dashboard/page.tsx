@@ -35,16 +35,24 @@ const TABS = [
   {
     id: 'personal',
     label: 'O Meu Dashboard',
+    hint: 'Resumo pessoal',
     icon: LayoutDashboard,
     roles: AUTHENTICATED_ROLES,
   },
   {
     id: 'manager',
     label: 'Gestor',
+    hint: 'Equipa e desempenho',
     icon: Users,
     roles: MGMT_ROLES,
   },
-  { id: 'org', label: 'Executivo', icon: BarChart2, roles: EXECUTIVE_ROLES },
+  {
+    id: 'org',
+    label: 'Executivo',
+    hint: 'Visão estratégica',
+    icon: BarChart2,
+    roles: EXECUTIVE_ROLES,
+  },
 ];
 
 export default function DashboardPage() {
@@ -53,8 +61,38 @@ export default function DashboardPage() {
 
   const availableTabs = filterByRole(TABS, role);
 
+  const activeTab =
+  availableTabs.find((item) => item.id === tab) ?? availableTabs[0];
+
+const ActiveIcon = activeTab?.icon;
+
   return (
     <div className="min-h-screen bg-canvas">
+            {/* Header dinâmico */}
+      <div className="border-b border-border bg-canvas px-6 py-5">
+        <div className="mx-auto flex max-w-7xl items-center gap-3">
+          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+            {ActiveIcon && (
+              <ActiveIcon
+                size={22}
+                strokeWidth={1.8}
+                className="transition-all duration-300"
+              />
+            )}
+          </div>
+
+          <div>
+            <h1 className="font-display text-xl font-bold text-ink">
+              Dashboard 
+            </h1>
+            {activeTab?.hint && (
+              <p className="mt-0.5 font-body text-xs text-ink-muted">
+                {activeTab.hint}
+              </p>
+            )}
+          </div>
+        </div>
+      </div>
       {/* Slideshow — mesma posição de sempre: acima das tabs, visível em
           qualquer separador. */}
       <div className="mx-auto max-w-7xl px-6 pt-6">
