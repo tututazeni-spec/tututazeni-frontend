@@ -7,7 +7,6 @@
 'use client';
 
 import { Clock, TrendingDown, Trophy, UserCheck, Users } from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -15,6 +14,7 @@ import { Avatar } from '@/components/ui/Avatar';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { AreaLineChart } from '@/components/ui/charts/AreaLineChart';
+import { TopBarCard } from '@/components/ui/TopBarCard';
 import { BarChart } from '@/components/ui/charts/BarChart';
 import type {
   AnniversaryUser,
@@ -50,31 +50,30 @@ export function HeadcountPanel() {
   return (
     <div className="space-y-5">
       {/* KPIs — cartão estilo Udemy/MasterClass */}
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-        <StatCard
-          icon={Users}
+           <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+        <TopBarCard
           label="Total"
           value={data?.total ?? 0}
-          intent="primary"
+          tone="blue"
+          icon={<Users className="h-6 w-6" />}
         />
-        <StatCard
-          icon={UserCheck}
+        <TopBarCard
           label="Activos"
           value={data?.active ?? 0}
-          intent="success"
+          tone="green"
+          icon={<UserCheck className="h-6 w-6" />}
         />
-        <StatCard
-          icon={TrendingDown}
+        <TopBarCard
           label="Taxa de Rotatividade"
           value={`${data?.turnoverRate ?? 0}%`}
-          intent="danger"
+          tone="red"
+          icon={<TrendingDown className="h-6 w-6" />}
         />
-        <StatCard
-          icon={Clock}
+        <TopBarCard
           label="Tempo Médio de Serviço"
           value={`${data?.avgTenureMonths ?? 0}m`}
-          sub={`≈ ${((data?.avgTenureMonths ?? 0) / 12).toFixed(1)} anos`}
-          intent="primary"
+          tone="gold"
+          icon={<Clock className="h-6 w-6" />}
         />
       </div>
 
@@ -119,45 +118,6 @@ export function HeadcountPanel() {
           colaborador), complementar ao headcount por departamento/cargo
           acima (modelo User). */}
       <EmploymentSegmentationWidget />
-    </div>
-  );
-}
-
-// Cartão estilo Udemy/MasterClass: badge de ícone colorido, número grande
-// em destaque, etiqueta discreta por baixo, elevação subtil ao hover.
-// Local a este painel — não substitui o KpiCard partilhado.
-type StatIntent = 'primary' | 'success' | 'danger';
-
-const STAT_INTENT_STYLES: Record<StatIntent, { badge: string }> = {
-  primary: { badge: 'bg-primary/10 text-primary' },
-  success: { badge: 'bg-success/10 text-success' },
-  danger: { badge: 'bg-danger/10 text-danger' },
-};
-
-function StatCard({
-  icon: Icon,
-  label,
-  value,
-  sub,
-  intent = 'primary',
-}: {
-  icon: LucideIcon;
-  label: string;
-  value: string | number;
-  sub?: string;
-  intent?: StatIntent;
-}) {
-  const styles = STAT_INTENT_STYLES[intent];
-  return (
-    <div className="group relative overflow-hidden rounded-2xl border border-border bg-surface p-5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg">
-      <div
-        className={`mb-4 inline-flex h-11 w-11 items-center justify-center rounded-xl ${styles.badge}`}
-      >
-        <Icon size={20} strokeWidth={1.75} />
-      </div>
-      <p className="font-display text-2xl font-bold text-ink">{value}</p>
-      <p className="mt-1 font-body text-sm font-medium text-ink-muted">{label}</p>
-      {sub && <p className="mt-0.5 font-body text-xs text-ink-faint">{sub}</p>}
     </div>
   );
 }

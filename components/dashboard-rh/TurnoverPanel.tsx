@@ -10,9 +10,10 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
-import { KpiCard } from '@/components/ui/KpiCard';
+import { TopBarCard } from '@/components/ui/TopBarCard';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { GaugeChart } from '@/components/ui/charts/GaugeChart';
+import { AlertTriangle, Clock } from 'lucide-react';
 import type { TurnoverData } from './types';
 
 export function TurnoverPanel() {
@@ -50,17 +51,17 @@ export function TurnoverPanel() {
             size={120}
           />
         </div>
-        <KpiCard
+        <TopBarCard
           label="Saídas (últimos 3 meses)"
           value={data?.leftLast3Months ?? 0}
-          intent="warning"
-          className="w-full"
+          tone="red"
+          icon={<AlertTriangle className="h-6 w-6" />}
         />
-        <KpiCard
+        <TopBarCard
           label="Tempo Médio de Casa"
           value={`${data?.avgTenureYears ?? 0} anos`}
-          intent="primary"
-          className="w-full"
+          tone="blue"
+          icon={<Clock className="h-6 w-6" />}
         />
       </div>
 

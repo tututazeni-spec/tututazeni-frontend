@@ -82,7 +82,7 @@ const ActiveIcon = activeNav?.icon as LucideIcon | undefined;
 
     <div>
       <h1 className="font-display text-xl font-semibold text-ink">
-  Analytics
+  Indicadores de Desempenho
 </h1>
       {activeNav?.label && activeNav.label !== TITLES[view] && (
         <p className="mt-0.5 font-body text-xs text-ink-muted">
