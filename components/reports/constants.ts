@@ -25,18 +25,18 @@ import type { LucideIcon } from 'lucide-react';
 import type { Tab } from './types';
 
 const TOKEN = {
-  primary: { color: 'text-primary', bg: 'bg-primary-subtle' },
-  accent: { color: 'text-accent', bg: 'bg-accent-subtle' },
-  success: { color: 'text-success-ink', bg: 'bg-success-subtle' },
-  warning: { color: 'text-warning-ink', bg: 'bg-warning-subtle' },
-  danger: { color: 'text-danger-ink', bg: 'bg-danger-subtle' },
-  info: { color: 'text-info-ink', bg: 'bg-info-subtle' },
-  neutral: { color: 'text-ink-muted', bg: 'bg-surface-sunken' },
+  primary: { color: 'text-primary', bg: 'bg-primary-subtle', bar: 'bg-primary' },
+  accent: { color: 'text-accent', bg: 'bg-accent-subtle', bar: 'bg-accent' },
+  success: { color: 'text-success-ink', bg: 'bg-success-subtle', bar: 'bg-success' },
+  warning: { color: 'text-warning-ink', bg: 'bg-warning-subtle', bar: 'bg-warning' },
+  danger: { color: 'text-danger-ink', bg: 'bg-danger-subtle', bar: 'bg-danger' },
+  info: { color: 'text-info-ink', bg: 'bg-info-subtle', bar: 'bg-info' },
+  neutral: { color: 'text-ink-muted', bg: 'bg-surface-sunken', bar: 'bg-ink-faint' },
 } as const;
 
 export const CAT_CONFIG: Record<
   string,
-  { label: string; icon: LucideIcon; color: string; bg: string }
+  { label: string; icon: LucideIcon; color: string; bg: string; bar: string }
 > = {
   HR: { label: 'RH & Pessoas', icon: Users, ...TOKEN.primary },
   LEARNING: { label: 'Aprendizagem', icon: BookOpen, ...TOKEN.info },
