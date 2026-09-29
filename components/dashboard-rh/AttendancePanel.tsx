@@ -48,88 +48,82 @@ export function AttendancePanel() {
         <div className="flex flex-col items-center justify-center rounded-card border border-border bg-surface p-3">
           <GaugeChart value={k.attendanceRate ?? 0} label="Taxa de Presença" thresholds={{ warning: 90, danger: 75 }} size={120} />
         </div>
-        <StatCard
+               <TopBarKpiCard
           icon={UserCheck}
           label="Presentes Agora"
           value={k.checkedInNow ?? 0}
-          intent="success"
+          tone="green"
         />
-        <StatCard
+        <TopBarKpiCard
           icon={UserX}
           label="Ausentes"
           value={k.totalAbsent ?? 0}
-          intent="danger"
+          tone="red"
         />
-        <StatCard
+        <TopBarKpiCard
           icon={AlarmClock}
           label="Atrasos"
           value={k.totalLate ?? 0}
-          intent="warning"
+          tone="gold"
         />
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <StatCard
+                <TopBarKpiCard
           icon={CalendarClock}
           label="Férias/Baixas Pendentes"
           value={k.pendingLeaves ?? 0}
-          intent="info"
+          tone="blue"
         />
-        <StatCard
+        <TopBarKpiCard
           icon={FileCheck}
           label="Justificações Pendentes"
           value={k.pendingJustifications ?? 0}
-          intent="info"
+          tone="blue"
         />
-        <StatCard
+        <TopBarKpiCard
           icon={Hourglass}
           label="Horas-Extra Pendentes"
           value={k.pendingOvertime ?? 0}
-          intent="info"
+          tone="blue"
         />
       </div>
     </div>
   );
 }
 
-// Cartão estilo Udemy/MasterClass: badge de ícone colorido, número grande
-// em destaque, etiqueta discreta por baixo, elevação subtil ao hover.
-// Local a este painel — não substitui o KpiCard partilhado.
-type StatIntent = 'primary' | 'info' | 'success' | 'warning' | 'danger' | 'accent';
+type Tone = 'blue' | 'green' | 'gold' | 'red';
 
-const STAT_INTENT_STYLES: Record<StatIntent, { badge: string }> = {
-  primary: { badge: 'bg-primary/10 text-primary' },
-  info: { badge: 'bg-info/10 text-info' },
-  success: { badge: 'bg-success/10 text-success' },
-  warning: { badge: 'bg-warning/10 text-warning' },
-  danger: { badge: 'bg-danger/10 text-danger' },
-  accent: { badge: 'bg-accent/10 text-accent' },
+const TONES: Record<Tone, { bar: string; text: string }> = {
+  blue: { bar: 'bg-[#2B6CC4]', text: 'text-[#2B6CC4]' },
+  green: { bar: 'bg-[#2E8B3E]', text: 'text-[#2E8B3E]' },
+  gold: { bar: 'bg-[#C9A227]', text: 'text-[#B8912A]' },
+  red: { bar: 'bg-[#C0453F]', text: 'text-[#C0453F]' },
 };
 
-function StatCard({
+function TopBarKpiCard({
   icon: Icon,
   label,
   value,
   sub,
-  intent = 'primary',
+  tone,
 }: {
   icon: LucideIcon;
   label: string;
   value: string | number;
   sub?: string;
-  intent?: StatIntent;
+  tone: Tone;
 }) {
-  const styles = STAT_INTENT_STYLES[intent];
+  const t = TONES[tone];
   return (
-    <div className="group relative overflow-hidden rounded-2xl border border-border bg-surface p-5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg">
-      <div
-        className={`mb-4 inline-flex h-11 w-11 items-center justify-center rounded-xl ${styles.badge}`}
-      >
-        <Icon size={20} strokeWidth={1.75} />
+    <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting transition-shadow hover:shadow-lg">
+      <div className={`h-1.5 w-full ${t.bar}`} />
+      <div className="p-5 pt-6">
+        <Icon size={22} strokeWidth={1.75} className={t.text} />
+        <p className={`mt-3 font-display text-3xl font-bold ${t.text}`}>{value}</p>
+        <p className="mt-1 font-body text-sm font-medium text-ink-muted">{label}</p>
+        {sub && <p className="mt-1 font-body text-xs text-ink-faint">{sub}</p>}
       </div>
-      <p className="font-display text-2xl font-bold text-ink">{value}</p>
-      <p className="mt-1 font-body text-sm font-medium text-ink-muted">{label}</p>
-      {sub && <p className="mt-0.5 font-body text-xs text-ink-faint">{sub}</p>}
     </div>
   );
 }

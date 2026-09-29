@@ -42,61 +42,67 @@ export function CorrelationsPanel() {
         </span>
       </div>
 
-      {data?.trainingVsPerformance && (
-        <div className="rounded-card border border-border bg-surface p-5">
-          <h4 className="mb-1 font-body font-semibold text-ink-muted">
-            Formação × Performance
-          </h4>
-          <p className="mb-4 rounded-control border border-black bg-white px-3 py-2 font-body text-xs text-black">
-            {data.trainingVsPerformance.insight}
-          </p>
-          <BarChart
-            categories={['Alto treino (3+ cursos)', 'Baixo treino']}
-            series={[
-              {
-                label: 'Performance média',
-                values: [
-                  data.trainingVsPerformance.highTrainingAvgPerf ?? 0,
-                  data.trainingVsPerformance.lowTrainingAvgPerf ?? 0,
-                ],
-              },
-            ]}
-            yFormat={(v) => v.toFixed(1)}
-          />
-          {(data.trainingVsPerformance.lift ?? 0) > 0 && (
-            <div className="mt-3 text-center">
-              <span className="font-body text-sm font-bold text-success">
-                +{data.trainingVsPerformance.lift} pts lift
-              </span>
-              <span className="ml-2 font-body text-xs text-ink-faint">
-                por alto consumo de formação
-              </span>
-            </div>
-          )}
+         {data?.trainingVsPerformance && (
+        <div className="overflow-hidden rounded-2xl border border-border bg-surface shadow-resting">
+          <div className="h-1.5 w-full bg-[#2B6CC4]" />
+          <div className="p-5">
+            <h4 className="mb-1 font-body font-semibold text-ink-muted">
+              Formação × Performance
+            </h4>
+            <p className="mb-4 rounded-control border border-[#2B6CC4]/30 bg-[#2B6CC4]/10 px-3 py-2 font-body text-xs text-[#1E4E8C]">
+              {data.trainingVsPerformance.insight}
+            </p>
+            <BarChart
+              categories={['Alto treino (3+ cursos)', 'Baixo treino']}
+              series={[
+                {
+                  label: 'Performance média',
+                  values: [
+                    data.trainingVsPerformance.highTrainingAvgPerf ?? 0,
+                    data.trainingVsPerformance.lowTrainingAvgPerf ?? 0,
+                  ],
+                },
+              ]}
+              yFormat={(v) => v.toFixed(1)}
+            />
+            {(data.trainingVsPerformance.lift ?? 0) > 0 && (
+              <div className="mt-3 text-center">
+                <span className="font-body text-sm font-bold text-success">
+                  +{data.trainingVsPerformance.lift} pts lift
+                </span>
+                <span className="ml-2 font-body text-xs text-ink-faint">
+                  por alto consumo de formação
+                </span>
+              </div>
+            )}
+          </div>
         </div>
       )}
 
-      {data?.engagementVsPerformance && (
-        <div className="rounded-card border border-border bg-surface p-5">
-          <h4 className="mb-1 font-body font-semibold text-ink-muted">
-            Compromisso dos Colaboradores × Performance
-          </h4>
-          <p className="mb-4 rounded-control border border-black bg-white px-3 py-2 font-body text-xs text-black">
-            {data.engagementVsPerformance.insight}
-          </p>
-          <BarChart
-            categories={['Alto Compromisso', 'Baixo Compromisso']}
-            series={[
-              {
-                label: 'Performance média',
-                values: [
-                  data.engagementVsPerformance.highEngAvgPerf ?? 0,
-                  data.engagementVsPerformance.lowEngAvgPerf ?? 0,
-                ],
-              },
-            ]}
-            yFormat={(v) => v.toFixed(1)}
-          />
+            {data?.engagementVsPerformance && (
+        <div className="overflow-hidden rounded-2xl border border-border bg-surface shadow-resting">
+          <div className="h-1.5 w-full bg-[#C9A227]" />
+          <div className="p-5">
+            <h4 className="mb-1 font-body font-semibold text-ink-muted">
+              Compromisso dos Colaboradores × Performance
+            </h4>
+            <p className="mb-4 rounded-control border border-[#C9A227]/30 bg-[#C9A227]/10 px-3 py-2 font-body text-xs text-[#8A6B14]">
+              {data.engagementVsPerformance.insight}
+            </p>
+            <BarChart
+              categories={['Alto Compromisso', 'Baixo Compromisso']}
+              series={[
+                {
+                  label: 'Performance média',
+                  values: [
+                    data.engagementVsPerformance.highEngAvgPerf ?? 0,
+                    data.engagementVsPerformance.lowEngAvgPerf ?? 0,
+                  ],
+                },
+              ]}
+              yFormat={(v) => v.toFixed(1)}
+            />
+          </div>
         </div>
       )}
     </div>

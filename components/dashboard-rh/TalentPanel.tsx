@@ -18,12 +18,47 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
-import { KpiCard } from '@/components/ui/KpiCard';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { GaugeChart } from '@/components/ui/charts/GaugeChart';
 import type { TalentData } from './types';
 
 type TabKey = 'succession' | 'hipo' | 'risk';
+
+type Tone = 'blue' | 'green' | 'gold' | 'red';
+
+const TONES: Record<Tone, { bar: string; text: string }> = {
+  blue: { bar: 'bg-[#2B6CC4]', text: 'text-[#2B6CC4]' },
+  green: { bar: 'bg-[#2E8B3E]', text: 'text-[#2E8B3E]' },
+  gold: { bar: 'bg-[#C9A227]', text: 'text-[#B8912A]' },
+  red: { bar: 'bg-[#C0453F]', text: 'text-[#C0453F]' },
+};
+
+function TopBarKpiCard({
+  icon: Icon,
+  label,
+  value,
+  sub,
+  tone,
+}: {
+  icon: LucideIcon;
+  label: string;
+  value: string | number;
+  sub?: string;
+  tone: Tone;
+}) {
+  const t = TONES[tone];
+  return (
+    <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting transition-shadow hover:shadow-lg">
+      <div className={`h-1.5 w-full ${t.bar}`} />
+      <div className="p-5 pt-6">
+        <Icon size={22} strokeWidth={1.75} className={t.text} />
+        <p className={`mt-3 font-display text-3xl font-bold ${t.text}`}>{value}</p>
+        <p className="mt-1 font-body text-sm font-medium text-ink-muted">{label}</p>
+        {sub && <p className="mt-1 font-body text-xs text-ink-faint">{sub}</p>}
+      </div>
+    </div>
+  );
+}
 
 export function TalentPanel() {
   const { data, isLoading: loading } = useApiQuery<TalentData>(
@@ -58,23 +93,23 @@ export function TalentPanel() {
         <div className="flex flex-col items-center justify-center rounded-card border border-border bg-surface p-3">
           <GaugeChart value={data?.coverageRate ?? 0} label="Posições Cobertas" thresholds={{ warning: 60, danger: 30 }} size={120} />
         </div>
-        <KpiCard
+                <TopBarKpiCard
+          icon={Users}
           label="Planos de Sucessão"
           value={successionPlans.length}
-          intent="primary"
-          className="w-full"
+          tone="blue"
         />
-        <KpiCard
+        <TopBarKpiCard
+          icon={Star}
           label="Profissionais de Alto Potencial"
           value={data?.hiPoCount ?? hiPoList.length}
-          intent="warning"
-          className="w-full"
+          tone="gold"
         />
-        <KpiCard
+        <TopBarKpiCard
+          icon={AlertTriangle}
           label="Posições em Risco"
           value={positionsAtRisk.length}
-          intent="danger"
-          className="w-full"
+          tone="red"
         />
       </div>
 

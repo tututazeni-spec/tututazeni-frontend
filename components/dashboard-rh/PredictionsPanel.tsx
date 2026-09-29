@@ -8,15 +8,51 @@
 
 'use client';
 
+import type { LucideIcon } from 'lucide-react';
 import { AlertTriangle, MessageSquare, TrendingDown } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
-import { KpiCard } from '@/components/ui/KpiCard';
 import { Skeleton } from '@/components/ui/Skeleton';
 import type { PredictionsData } from './types';
+
+type Tone = 'blue' | 'green' | 'gold' | 'red';
+
+const TONES: Record<Tone, { bar: string; text: string }> = {
+  blue: { bar: 'bg-[#2B6CC4]', text: 'text-[#2B6CC4]' },
+  green: { bar: 'bg-[#2E8B3E]', text: 'text-[#2E8B3E]' },
+  gold: { bar: 'bg-[#C9A227]', text: 'text-[#B8912A]' },
+  red: { bar: 'bg-[#C0453F]', text: 'text-[#C0453F]' },
+};
+
+function TopBarKpiCard({
+  icon: Icon,
+  label,
+  value,
+  sub,
+  tone,
+}: {
+  icon: LucideIcon;
+  label: string;
+  value: string | number;
+  sub?: string;
+  tone: Tone;
+}) {
+  const t = TONES[tone];
+  return (
+    <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting transition-shadow hover:shadow-lg">
+      <div className={`h-1.5 w-full ${t.bar}`} />
+      <div className="p-5 pt-6">
+        <Icon size={22} strokeWidth={1.75} className={t.text} />
+        <p className={`mt-3 font-display text-3xl font-bold ${t.text}`}>{value}</p>
+        <p className="mt-1 font-body text-sm font-medium text-ink-muted">{label}</p>
+        {sub && <p className="mt-1 font-body text-xs text-ink-faint">{sub}</p>}
+      </div>
+    </div>
+  );
+}
 
 export function PredictionsPanel() {
   const { data, isLoading: loading } = useApiQuery<PredictionsData>(
@@ -42,26 +78,23 @@ export function PredictionsPanel() {
       </div>
 
       <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
-        <KpiCard
+                <TopBarKpiCard
+          icon={AlertTriangle}
           label="Em Risco de Saída"
           value={data?.summary?.atRiskCount ?? 0}
-          icon={AlertTriangle}
-          intent="danger"
-          className="w-full"
+          tone="red"
         />
-        <KpiCard
+        <TopBarKpiCard
+          icon={TrendingDown}
           label="Baixa Performance"
           value={data?.summary?.lowPerfCount ?? 0}
-          icon={TrendingDown}
-          intent="warning"
-          className="w-full"
+          tone="gold"
         />
-        <KpiCard
-          label="Respostas de Engagement (mês)"
-          value={data?.summary?.engagementResponses ?? 0}
+        <TopBarKpiCard
           icon={MessageSquare}
-          intent="info"
-          className="w-full"
+          label="Respostas de Engajamento (mês)"
+          value={data?.summary?.engagementResponses ?? 0}
+          tone="blue"
         />
       </div>
 
