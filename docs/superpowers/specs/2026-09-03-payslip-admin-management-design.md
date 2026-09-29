@@ -31,14 +31,14 @@ sequer devolve `payslip.disputes`. O modelo `PayslipDispute` já tem
 
 ## Decisões (validadas em brainstorming com o utilizador, 2026-09-03)
 
-| # | Decisão | Alternativa rejeitada |
-|---|---|---|
-| 1 | **Adicionar a `/payroll`** com uma tira de abas (`Runs · Recibos · Dashboard · Disputas`), no mesmo molde do `Button` tab-strip de `app/(platform)/payslips/page.tsx`. | Abas `adminOnly` em `/payslips` (como o B) — a página já tem 7 abas e o detalhe admin de um recibo (documento + emitir/editar + logs de acesso + disputas) não cabe no layout `max-w-4xl`; `/payroll` já é `max-w-6xl`. Rota nova dedicada — introduz uma terceira zona de navegação no domínio payroll sem ganho. |
-| 2 | **Sem UI para `POST /payslips/bulk-create`.** D cobre só `POST /payslips` (recibo individual avulso). | Formulário de geração em massa — o workflow `PayrollRun` do Sub-projecto C já é a forma moderna e revisável de gerar recibos em lote (criar run → processar → rever excepções → aprovar → publicar). Dois caminhos concorrentes para a mesma tarefa na mesma página é confusão desnecessária. |
-| 3 | **Incluir fatia backend para disputas** — `GET /payslips/disputes` + `PATCH /payslips/disputes/:id/resolve` — mergeada como PR próprio antes do frontend, tal como o B-1 (`GET /payroll/compensation/all`). | Só-leitura (mostrar `payslip.disputes` no detalhe sem acção de resolver) — deixava o gap de nunca se poder fechar uma disputa pela app. Fora de âmbito — a memória lista disputas explicitamente como parte do gap de D. |
-| 4 | **Resolver disputa é opt-in quanto a reemitir.** `resolve` grava sempre `RESOLVED` + `resolution` + `resolvedAt`; só devolve o recibo a `ISSUED` se `reissue: true` for enviado (checkbox na modal, por omissão desligado). | `resolve` reemite sempre — tira ao RH o controlo sobre quando o recibo sai do estado `DISPUTED` (a correcção pode ainda não estar feita). |
-| 5 | Segue exactamente os padrões já estabelecidos por `components/payroll/*` (C) e `components/payslips/*` (B): `useApiQuery`/`useApiMutation` + `invalidateKeys`, `StatusBadge` + `StatusBadgeMap`, `Pagination`, `useConfirm`/`useToast`, `KpiCard` para o dashboard, `useDirectoryUsers` para o picker de colaborador. Reutiliza `PAYSLIP_STATUS_MAP` / `formatKz` / `formatDate` / `fmtPeriod` de `components/payslips/` — **sem duplicar**. | Introduzir um padrão novo (tudo em modais, ou rota dinâmica `[id]`) — quebra a consistência do domínio payroll construído em B e C. |
-| 6 | Sem guarda client-side própria na página — a sidebar já filtra `/payroll` com `roles: ADMIN_ROLES` (`['ADMIN','RH']`) e o backend faz `@Roles(Role.ADMIN, Role.RH)` em todas as rotas admin de `payslips`. | Guarda + redirect no `page.tsx` — precedente de `roles-permissions/page.tsx` e do próprio `/payroll` (C) é não ter guarda própria. |
+| #   | Decisão                                                                                                                                                                                                                                                                                                                                                                                                                                      | Alternativa rejeitada                                                                                                                                                                                                                                                                                              |
+| --- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1   | **Adicionar a `/payroll`** com uma tira de abas (`Runs · Recibos · Dashboard · Disputas`), no mesmo molde do `Button` tab-strip de `app/(platform)/payslips/page.tsx`.                                                                                                                                                                                                                                                                       | Abas `adminOnly` em `/payslips` (como o B) — a página já tem 7 abas e o detalhe admin de um recibo (documento + emitir/editar + logs de acesso + disputas) não cabe no layout `max-w-4xl`; `/payroll` já é `max-w-6xl`. Rota nova dedicada — introduz uma terceira zona de navegação no domínio payroll sem ganho. |
+| 2   | **Sem UI para `POST /payslips/bulk-create`.** D cobre só `POST /payslips` (recibo individual avulso).                                                                                                                                                                                                                                                                                                                                        | Formulário de geração em massa — o workflow `PayrollRun` do Sub-projecto C já é a forma moderna e revisável de gerar recibos em lote (criar run → processar → rever excepções → aprovar → publicar). Dois caminhos concorrentes para a mesma tarefa na mesma página é confusão desnecessária.                      |
+| 3   | **Incluir fatia backend para disputas** — `GET /payslips/disputes` + `PATCH /payslips/disputes/:id/resolve` — mergeada como PR próprio antes do frontend, tal como o B-1 (`GET /payroll/compensation/all`).                                                                                                                                                                                                                                  | Só-leitura (mostrar `payslip.disputes` no detalhe sem acção de resolver) — deixava o gap de nunca se poder fechar uma disputa pela app. Fora de âmbito — a memória lista disputas explicitamente como parte do gap de D.                                                                                           |
+| 4   | **Resolver disputa é opt-in quanto a reemitir.** `resolve` grava sempre `RESOLVED` + `resolution` + `resolvedAt`; só devolve o recibo a `ISSUED` se `reissue: true` for enviado (checkbox na modal, por omissão desligado).                                                                                                                                                                                                                  | `resolve` reemite sempre — tira ao RH o controlo sobre quando o recibo sai do estado `DISPUTED` (a correcção pode ainda não estar feita).                                                                                                                                                                          |
+| 5   | Segue exactamente os padrões já estabelecidos por `components/payroll/*` (C) e `components/payslips/*` (B): `useApiQuery`/`useApiMutation` + `invalidateKeys`, `StatusBadge` + `StatusBadgeMap`, `Pagination`, `useConfirm`/`useToast`, `KpiCard` para o dashboard, `useDirectoryUsers` para o picker de colaborador. Reutiliza `PAYSLIP_STATUS_MAP` / `formatKz` / `formatDate` / `fmtPeriod` de `components/payslips/` — **sem duplicar**. | Introduzir um padrão novo (tudo em modais, ou rota dinâmica `[id]`) — quebra a consistência do domínio payroll construído em B e C.                                                                                                                                                                                |
+| 6   | Sem guarda client-side própria na página — a sidebar já filtra `/payroll` com `roles: ADMIN_ROLES` (`['ADMIN','RH']`) e o backend faz `@Roles(Role.ADMIN, Role.RH)` em todas as rotas admin de `payslips`.                                                                                                                                                                                                                                   | Guarda + redirect no `page.tsx` — precedente de `roles-permissions/page.tsx` e do próprio `/payroll` (C) é não ter guarda própria.                                                                                                                                                                                 |
 
 ---
 
@@ -49,15 +49,15 @@ sequer devolve `payslip.disputes`. O modelo `PayslipDispute` já tem
 `@Controller('payslips')`, `@UseGuards(JwtAuthGuard, RolesGuard)`. Rotas admin
 (todas `@Roles(Role.ADMIN, Role.RH)`):
 
-| Método | Rota | Body / Query | Devolve |
-|---|---|---|---|
-| GET | `/payslips` | query `PayslipFilterDto` | `{ data: Payslip[] (com `user`), total, page, limit, totalPages }` |
-| GET | `/payslips/dashboard` | query `?period=AAAA-MM` (opcional, default mês corrente) | objecto de métricas (ver abaixo) |
-| GET | `/payslips/:id` | — | `Payslip & { user }` (ver §2 — passa a incluir `disputes`) |
-| GET | `/payslips/:id/access-logs` | — | `PayslipAccessLog[]` (`take: 50`, desc por `accessedAt`; ver §2 — passa a incluir `user`) |
-| POST | `/payslips` | `CreatePayslipDto` | `Payslip & { user }` (status `DRAFT`) — **409** se já existir recibo desse `period` para o `userId` |
-| PATCH | `/payslips/:id/issue` | — | `Payslip` (status `ISSUED`, notifica colaborador) — **409** se já `ISSUED`/`ACKNOWLEDGED` |
-| PUT | `/payslips/:id` | `UpdatePayslipDto` (`PartialType(CreatePayslipDto)`) | `Payslip` recalculado, **status forçado a `DRAFT`** — **403** (`assertPayslipEditable`) se bloqueado |
+| Método | Rota                        | Body / Query                                             | Devolve                                                                                              |
+| ------ | --------------------------- | -------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| GET    | `/payslips`                 | query `PayslipFilterDto`                                 | `{ data: Payslip[] (com `user`), total, page, limit, totalPages }`                                   |
+| GET    | `/payslips/dashboard`       | query `?period=AAAA-MM` (opcional, default mês corrente) | objecto de métricas (ver abaixo)                                                                     |
+| GET    | `/payslips/:id`             | —                                                        | `Payslip & { user }` (ver §2 — passa a incluir `disputes`)                                           |
+| GET    | `/payslips/:id/access-logs` | —                                                        | `PayslipAccessLog[]` (`take: 50`, desc por `accessedAt`; ver §2 — passa a incluir `user`)            |
+| POST   | `/payslips`                 | `CreatePayslipDto`                                       | `Payslip & { user }` (status `DRAFT`) — **409** se já existir recibo desse `period` para o `userId`  |
+| PATCH  | `/payslips/:id/issue`       | —                                                        | `Payslip` (status `ISSUED`, notifica colaborador) — **409** se já `ISSUED`/`ACKNOWLEDGED`            |
+| PUT    | `/payslips/:id`             | `UpdatePayslipDto` (`PartialType(CreatePayslipDto)`)     | `Payslip` recalculado, **status forçado a `DRAFT`** — **403** (`assertPayslipEditable`) se bloqueado |
 
 `GET /payslips/:id/pdf` **não existe** para admin — só `GET /payslips/my/:id/pdf`
 (dono ou ADMIN/RH ao nível do dado, mas prefixo `my`). Download de PDF a partir
@@ -84,6 +84,7 @@ envia campos calculados.
 `PUT /payslips/:id` valida isto antes de gravar (`ForbiddenException`).
 
 **`GET /payslips/dashboard`** devolve:
+
 ```
 {
   period: "AAAA-MM",
@@ -121,7 +122,7 @@ accessedAt }`. `getAccessLogs` não inclui `user` hoje → só `userId` cru.
   Líquido (linhas ~252-383) a extrair como presentational partilhado (§5).
 - `components/payslips/CompensationFormModal.tsx` — modo "create sem userId" com
   pesquisa de colaborador via `useDirectoryUsers(rawSearch, departmentId,
-  enabled)` (re-exportado de `components/enrollments/enrollData.ts` através de
+enabled)` (re-exportado de `components/enrollments/enrollData.ts` através de
   `components/payslips/compensationData.ts`). Modelo directo para o picker do
   `CreatePayslipModal`.
 - `components/onboarding/PlanDetailModal.tsx` — painel/modal com `Textarea` +
@@ -166,6 +167,7 @@ components/payslips/
 ```
 
 `page.tsx` `Nav`:
+
 ```ts
 type Nav =
   | { tab: 'runs'; view: 'list' }
@@ -175,6 +177,7 @@ type Nav =
   | { tab: 'dashboard' }
   | { tab: 'disputes' };
 ```
+
 Tira de abas só visível quando `view === 'list'` do lado dos `runs`/`payslips`
 (nos detalhes some, como em `payslips/page.tsx`). Título por aba via um
 `Record<Nav['tab'], string>`. Estado inicial `{ tab: 'runs', view: 'list' }` —
@@ -187,26 +190,28 @@ Ramo/PR no repo `innova`: **`feat(payslips): admin disputes list + resolve; acce
 **2.1 — `GET /payslips/disputes`** (`payslips.controller.ts`, `@Roles(ADMIN, RH)`,
 colocar **antes** de `@Get(':id')` para não ser comido pela rota paramétrica —
 mesma armadilha de ordenação de `dashboard`).
+
 - Query `DisputeFilterDto extends BaseFilterDto`: `status?: DisputeStatus`,
   `period?: string` (filtra `payslip.period`).
 - `svc.listDisputes(filters)` → `buildPaginatedResponse` com
   `include: { payslip: { select: { id, receiptCode, period, userId, status } },
-  user: { select: { id, fullName, employeeNumber } } }`, `orderBy: [{ status:
-  'asc' }, { createdAt: 'desc' }]` (OPEN primeiro).
+user: { select: { id, fullName, employeeNumber } } }`, `orderBy: [{ status:
+'asc' }, { createdAt: 'desc' }]` (OPEN primeiro).
 
 **2.2 — `PATCH /payslips/disputes/:id/resolve`** (`@Roles(ADMIN, RH)`,
 `@HttpCode(200)`).
+
 - Body `ResolveDisputeDto`: `resolution: string` (`@IsString`, `@MinLength(1)`),
   `reissue?: boolean` (`@IsOptional @IsBoolean`).
 - `svc.resolveDispute(id, dto)`:
   - `findUnique` a disputa com `include: { payslip: true }`; 404 se não existir.
   - Se `status === 'RESOLVED'` → 409 `ConflictException('Disputa já resolvida')`.
   - `update` disputa: `{ status: 'RESOLVED', resolvedAt: new Date(), resolution:
-    dto.resolution }`.
+dto.resolution }`.
   - Se `dto.reissue === true` **e** `payslip.status === 'DISPUTED'` →
     `payslip.update({ status: 'ISSUED' })`. Senão não toca no recibo.
   - `createNotificationSafe(prisma, logger, { userId: dispute.userId, type:
-    'PAYSLIP_DISPUTE', message: `A sua disputa sobre o recibo ${receiptCode} foi
+'PAYSLIP_DISPUTE', message: `A sua disputa sobre o recibo ${receiptCode} foi
     resolvida.` })`.
   - Devolve a disputa actualizada (com `payslip` incluído).
 
@@ -221,6 +226,7 @@ altera a autorização (o `assertCanAccess` continua a filtrar por dono/ADMIN/RH
 
 **2.6 — Teste de integração** (`test/integration/payslip-disputes.integration-spec.ts`,
 molde dos specs de payslips existentes):
+
 - seed: 1 recibo `ISSUED` → colaborador abre disputa → recibo `DISPUTED`.
 - `GET /payslips/disputes?status=OPEN` como RH devolve a disputa; como
   COLABORADOR → 403.
@@ -242,6 +248,7 @@ correr a suite de integração completa, não só o ficheiro novo.
 
 Estender o bloco `payslips` (todas funções — chaves estáticas rebentam com
 "Cannot access before initialization", convenção já documentada):
+
 ```ts
 adminList: (params: Record<string, unknown>) =>
   [...queryKeys.payslips.all, 'admin-list', params] as const,
@@ -257,11 +264,11 @@ disputes: (params: Record<string, unknown>) =>
 
 Regra de invalidação (`useApiMutation({ invalidateKeys: [...] })`):
 
-| Mutação | Invalida |
-|---|---|
-| criar recibo (`POST /payslips`) | `adminList` (prefixo, sem `params`) |
-| emitir (`PATCH :id/issue`) | `adminDetail(id)`, `adminList`, `dashboard` (prefixo) |
-| editar (`PUT :id`) | `adminDetail(id)`, `adminList` (prefixo) |
+| Mutação                                         | Invalida                                                                                     |
+| ----------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| criar recibo (`POST /payslips`)                 | `adminList` (prefixo, sem `params`)                                                          |
+| emitir (`PATCH :id/issue`)                      | `adminDetail(id)`, `adminList`, `dashboard` (prefixo)                                        |
+| editar (`PUT :id`)                              | `adminDetail(id)`, `adminList` (prefixo)                                                     |
 | resolver disputa (`PATCH disputes/:id/resolve`) | `disputes` (prefixo), `adminDetail(payslipId)`, `adminList` (prefixo), `dashboard` (prefixo) |
 
 Prefixo = passar `[...queryKeys.payslips.all, 'admin-list']` sem `params` —
@@ -276,6 +283,7 @@ keepPreviousData })`.
 
 Filtros (linha acima da tabela, `Select`/`Input`, sem debounce — poucos filtros,
 não é pesquisa livre):
+
 - `Select` estado: `Todos` + os 4 valores de `PayslipStatus`.
 - `Input` período: texto livre, placeholder `"AAAA-MM"`.
 - `Input` ano: placeholder `"AAAA"` (ignorado pelo backend se período preenchido
@@ -288,10 +296,11 @@ Líquido (`formatKz`, semibold) · Estado (`StatusBadge` + `PAYSLIP_STATUS_MAP`,
 `variant="dot"`) · Acções.
 
 Acções por linha (`onClick` com `stopPropagation`):
+
 - "Ver" (`IconButton` Eye) → `onSelect(p.id)`.
 - "Emitir" (`Button` sm, **só** `p.status === 'DRAFT'`) → `useConfirm({ title:
-  'Emitir recibo?', message: 'O colaborador é notificado e passa a poder ver o
-  recibo.' })` → `issue.mutate(p.id)` (`apiClient.patch(`/payslips/${id}/issue`)`).
+'Emitir recibo?', message: 'O colaborador é notificado e passa a poder ver o
+recibo.' })` → `issue.mutate(p.id)` (`apiClient.patch(`/payslips/${id}/issue`)`).
 
 Clique na linha → `onSelect(p.id)`.
 
@@ -312,12 +321,27 @@ sub-componente `SalaryRow`) para
 
 ```tsx
 export interface PayslipAmountBreakdownProps {
-  payslip: Pick<Payslip,
-    | 'baseSalary' | 'mealAllowance' | 'vacationAllowance' | 'christmasAllowance'
-    | 'overtime' | 'bonuses' | 'otherAllowances' | 'grossSalary'
-    | 'incomeTax' | 'socialSecurity' | 'employerInss' | 'healthInsurance'
-    | 'loanDeduction' | 'advanceDeduction' | 'otherDeductions'
-    | 'totalDeductions' | 'netSalary' | 'irtBracketRate'>;
+  payslip: Pick<
+    Payslip,
+    | 'baseSalary'
+    | 'mealAllowance'
+    | 'vacationAllowance'
+    | 'christmasAllowance'
+    | 'overtime'
+    | 'bonuses'
+    | 'otherAllowances'
+    | 'grossSalary'
+    | 'incomeTax'
+    | 'socialSecurity'
+    | 'employerInss'
+    | 'healthInsurance'
+    | 'loanDeduction'
+    | 'advanceDeduction'
+    | 'otherDeductions'
+    | 'totalDeductions'
+    | 'netSalary'
+    | 'irtBracketRate'
+  >;
 }
 ```
 
@@ -339,12 +363,12 @@ recibo — classe de bug recorrente neste repo.
 **Barra de acções** — condicionada a `status`, espelhando `assertPayslipEditable`
 para nunca oferecer uma acção que devolveria 403/409:
 
-| `status` | Acções |
-|---|---|
-| `DRAFT` | "Editar" (→ `EditPayslipModal`) · "Emitir" (`useConfirm` → `PATCH :id/issue`) |
-| `ISSUED` | — + nota "Recibo emitido — já não é editável." |
-| `ACKNOWLEDGED` | — + nota "Recibo confirmado pelo colaborador." |
-| `DISPUTED` | — + nota "Recibo em disputa." · secção de disputas com "Resolver" nas `OPEN` |
+| `status`       | Acções                                                                        |
+| -------------- | ----------------------------------------------------------------------------- |
+| `DRAFT`        | "Editar" (→ `EditPayslipModal`) · "Emitir" (`useConfirm` → `PATCH :id/issue`) |
+| `ISSUED`       | — + nota "Recibo emitido — já não é editável."                                |
+| `ACKNOWLEDGED` | — + nota "Recibo confirmado pelo colaborador."                                |
+| `DISPUTED`     | — + nota "Recibo em disputa." · secção de disputas com "Resolver" nas `OPEN`  |
 
 (Se `payslip.run?.status === 'PUBLISHED'` mas o `status` ainda fosse `DRAFT` — não
 deve acontecer, mas guardar: tratar como não-editável, nota "Recibo pertence a um
@@ -378,9 +402,10 @@ fixo, sem `page`). Vazio → linha "Sem acessos registados." Erro → `text-dang
 `Modal` (`components/ui/Modal`). `POST /payslips` via `useApiMutation`.
 
 Campos:
+
 - **Colaborador** (obrigatório) — picker igual ao `CompensationFormModal` modo
   "create sem userId": `Input` de pesquisa → `useDirectoryUsers(rawSearch,
-  departmentId='', enabled=modalOpen)` (importado de
+departmentId='', enabled=modalOpen)` (importado de
   `@/components/payslips/compensationData`) → lista de resultados → ao escolher
   fixa `picked: DirectoryUser`, com "x" para limpar. Envia `userId: picked.id`.
 - **Período** (obrigatório) — `Input`, placeholder `"AAAA-MM"`.
@@ -428,6 +453,7 @@ STALE_TIME.SEMI_STATIC })`.
 `new Date().toISOString().slice(0,7)`).
 
 Três grupos de `KpiCard`:
+
 - **Contagens**: Total · Emitidos · Confirmados · Em disputa · Por confirmar
   (`notViewed`) · Rascunhos (`draft`).
 - **Financeiro** (`formatKz`): Bruto total · Líquido total · IRT total ·
@@ -460,6 +486,7 @@ Acção: "Resolver" (`Button` sm, só `status === 'OPEN'`) → `ResolveDisputeMo
 
 **`ResolveDisputeModal`** (`Modal`, partilhado com `AdminPayslipDetailView`).
 `PATCH /payslips/disputes/:id/resolve` via `useApiMutation`.
+
 - `Textarea` **Resolução** (obrigatório) — descrição do que foi feito/decidido.
 - `Checkbox` "Reemitir recibo (volta a Emitido)" → `reissue` — **por omissão
   desligado**. Texto de ajuda: "Marca apenas se a correcção já está feita e o
@@ -477,42 +504,65 @@ import type { PayslipStatus } from '@/components/payslips/types';
 export type DisputeStatus = 'OPEN' | 'RESOLVED';
 
 export interface PayslipDispute {
-  id: number; payslipId: number; userId: number;
-  reason: string; details: string | null;
-  status: DisputeStatus; createdAt: string;
-  resolvedAt: string | null; resolution: string | null;
+  id: number;
+  payslipId: number;
+  userId: number;
+  reason: string;
+  details: string | null;
+  status: DisputeStatus;
+  createdAt: string;
+  resolvedAt: string | null;
+  resolution: string | null;
   user?: { id: number; fullName: string; employeeNumber: string | null };
-  payslip?: { id: number; receiptCode: string | null; period: string;
-              userId: number; status: PayslipStatus };
+  payslip?: {
+    id: number;
+    receiptCode: string | null;
+    period: string;
+    userId: number;
+    status: PayslipStatus;
+  };
 }
 
 export interface PayslipAccessLog {
-  id: number; payslipId: number; userId: number;
+  id: number;
+  payslipId: number;
+  userId: number;
   action: 'VIEW' | 'ADMIN_VIEW' | 'DOWNLOAD';
-  ipAddress: string | null; accessedAt: string;
+  ipAddress: string | null;
+  accessedAt: string;
   user?: { id: number; fullName: string };
 }
 
 // AdminPayslip = a Payslip de components/payslips/types (o seu `user` já traz
 // position/department/nif/nib/hireDate) + disputes + run.
-export type AdminPayslip =
-  import('@/components/payslips/types').Payslip & {
-    disputes: PayslipDispute[];
-    run?: { id: number; status: string } | null;
-  };
+export type AdminPayslip = import('@/components/payslips/types').Payslip & {
+  disputes: PayslipDispute[];
+  run?: { id: number; status: string } | null;
+};
 
 export interface HrDashboard {
   period: string;
-  counts: { total: number; issued: number; acknowledged: number;
-            disputed: number; notViewed: number; draft: number };
-  financials: { totalGross: number; totalNet: number; totalIRT: number;
-                totalINSSEmployee: number; totalINSSEmployer: number;
-                avgNet: number };
+  counts: {
+    total: number;
+    issued: number;
+    acknowledged: number;
+    disputed: number;
+    notViewed: number;
+    draft: number;
+  };
+  financials: {
+    totalGross: number;
+    totalNet: number;
+    totalIRT: number;
+    totalINSSEmployee: number;
+    totalINSSEmployer: number;
+    avgNet: number;
+  };
   compliance: { viewRate: string; pendingAcknowledgement: number };
 }
 
 export const DISPUTE_STATUS_MAP: StatusBadgeMap<DisputeStatus> = {
-  OPEN:     { label: 'Aberta',    cls: 'bg-warning-subtle text-warning-ink' },
+  OPEN: { label: 'Aberta', cls: 'bg-warning-subtle text-warning-ink' },
   RESOLVED: { label: 'Resolvida', cls: 'bg-success-subtle text-success-ink' },
 };
 ```
@@ -546,7 +596,7 @@ export const DISPUTE_STATUS_MAP: StatusBadgeMap<DisputeStatus> = {
 - **`ResolveDisputeModal`**: confirmar desactivado com `resolution` vazio;
   `reissue` por omissão `false` e vai no body só quando marcado; 409 → toast.
 - **`page.tsx`**: trocar de aba muda a vista; entrar em `{tab:'payslips',
-  view:'detail'}` esconde a tira de abas.
+view:'detail'}` esconde a tira de abas.
 - **Backend**: `payslip-disputes.integration-spec.ts` (§2.6).
 - Sem E2E (consistente com A/B/C).
 
@@ -557,7 +607,7 @@ export const DISPUTE_STATUS_MAP: StatusBadgeMap<DisputeStatus> = {
 - **UI de `POST /payslips/bulk-create`** — decisão #2; geração em lote é o
   workflow `PayrollRun` (`/payroll`, aba Runs).
 - **Download de PDF a partir das vistas admin** — não existe `GET /payslips/:id/
-  pdf` (só `/payslips/my/:id/pdf`). Follow-up de backend (rota admin de PDF +
+pdf` (só `/payslips/my/:id/pdf`). Follow-up de backend (rota admin de PDF +
   botão nas vistas).
 - **Pesquisa por nome de colaborador na lista** — `PayslipFilterDto` só filtra
   por `userId`. Se for preciso, é um filtro de backend novo.

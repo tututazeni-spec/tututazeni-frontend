@@ -33,24 +33,24 @@
 
 Contagem = ocorrências de `(violet|indigo|slate|amber|emerald|red|teal|purple|blue|green|yellow|orange|gray|zinc|neutral|stone|cyan|sky|rose|pink|fuchsia|lime)-[0-9]{2,3}` ou `text-white` em `components/<módulo>/**`.
 
-| Tier | Critério (raw hits) | Módulos (raw / ficheiros / atoms.tsx) |
-|---|---|---|
-| **S — pequeno** | < 60 | certification (19/2/não), dashboard-institutional (19/3/**sim**), library (37/5/não), search (47/5/não), lms (48/5/não), notifications (48/4/não), work-declaration (49/7/não), monitoring (50/5/não), academic (54/5/não), automation (59/6/**sim**) |
-| **M — médio** | 60–109 | api-integrations (70/6/**sim**), reports (73/9/**sim**), courses-learn (75/9/**sim**), ai-tutor (75/8/**sim**), roles-permissions (77/7/**sim**), micro-learning (80/10/**sim**), executive-reports (84/8/**sim**), audit (86/10/**sim**), career-plans (87/10/**sim**), competency-map (87/9/não), instructor (87/7/**sim**), documents (89/9/não), development-plans (96/8/**sim**), organization (97/9/**sim**), departments (97/8/**sim**), history (97/9/**sim**), knowledge (95/9/**sim**), trainings (93/9/**sim**), events (93/8/**sim**), leader (100/9/**sim**), assessments (103/9/não), learning-paths (103/9/**sim**), sucession (103/8/**sim**), onboarding (104/8/**sim**), leave (105/12/não) |
-| **L — grande** | 110–159 | competencies (116/8/**sim**), enrollments (117/9/**sim**), performance (117/8/**sim**), users (119/9/não), leadership (120/9/**sim**), dashboard (121/7/**sim**), content-library (122/10/**sim**), payslips (122/10/**sim**), employees (125/11/não), roi-impact (125/9/**sim**), career (130/7/**sim**), courses (129/10/não), dashboard-rh (131/9/**sim**), declarations (133/10/não), analytics (136/9/**sim**), talent-development (156/9/**sim**), avatar-training (159/11/**sim**) |
-| **XL — muito grande** | ≥ 160 | processes (160/8/não), evaluation (167/10/**sim**), crm (201/14/não) |
+| Tier                  | Critério (raw hits) | Módulos (raw / ficheiros / atoms.tsx)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| --------------------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **S — pequeno**       | < 60                | certification (19/2/não), dashboard-institutional (19/3/**sim**), library (37/5/não), search (47/5/não), lms (48/5/não), notifications (48/4/não), work-declaration (49/7/não), monitoring (50/5/não), academic (54/5/não), automation (59/6/**sim**)                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| **M — médio**         | 60–109              | api-integrations (70/6/**sim**), reports (73/9/**sim**), courses-learn (75/9/**sim**), ai-tutor (75/8/**sim**), roles-permissions (77/7/**sim**), micro-learning (80/10/**sim**), executive-reports (84/8/**sim**), audit (86/10/**sim**), career-plans (87/10/**sim**), competency-map (87/9/não), instructor (87/7/**sim**), documents (89/9/não), development-plans (96/8/**sim**), organization (97/9/**sim**), departments (97/8/**sim**), history (97/9/**sim**), knowledge (95/9/**sim**), trainings (93/9/**sim**), events (93/8/**sim**), leader (100/9/**sim**), assessments (103/9/não), learning-paths (103/9/**sim**), sucession (103/8/**sim**), onboarding (104/8/**sim**), leave (105/12/não) |
+| **L — grande**        | 110–159             | competencies (116/8/**sim**), enrollments (117/9/**sim**), performance (117/8/**sim**), users (119/9/não), leadership (120/9/**sim**), dashboard (121/7/**sim**), content-library (122/10/**sim**), payslips (122/10/**sim**), employees (125/11/não), roi-impact (125/9/**sim**), career (130/7/**sim**), courses (129/10/não), dashboard-rh (131/9/**sim**), declarations (133/10/não), analytics (136/9/**sim**), talent-development (156/9/**sim**), avatar-training (159/11/**sim**)                                                                                                                                                                                                                     |
+| **XL — muito grande** | ≥ 160               | processes (160/8/não), evaluation (167/10/**sim**), crm (201/14/não)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 
 ### Trilha 2 — `style={{ color: '#hex' }}` inline, sem classes Tailwind de cor (6 módulos)
 
 Padrão diferente — não aparece no grep de paleta crua acima porque não usa classes Tailwind para cor. Contagem = literais hex (`#[0-9a-fA-F]{3,6}`) + atributos `style={{`.
 
-| Módulo | Ficheiros | Hex | `style={{` |
-|---|---|---|---|
-| courses-modulos | 10 | 57 | 76 |
-| settings | 6 | 61 | 65 |
-| live-classes | 15 | 129 | 137 |
-| evaluation360 | 9 | 123 | 158 |
-| scalability | 2 | 163 | 128 |
+| Módulo          | Ficheiros | Hex | `style={{` |
+| --------------- | --------- | --- | ---------- |
+| courses-modulos | 10        | 57  | 76         |
+| settings        | 6         | 61  | 65         |
+| live-classes    | 15        | 129 | 137        |
+| evaluation360   | 9         | 123 | 158        |
+| scalability     | 2         | 163 | 128        |
 
 **`login` sai desta tabela — investigado na Vaga 0, não é o mesmo padrão** (ver secção "Excepção — login" abaixo).
 
@@ -75,6 +75,7 @@ Padrão diferente — não aparece no grep de paleta crua acima porque não usa 
 9. Commit final + push + PR (título `refactor(<módulo>): migrar para a fundação de design`, corpo a referenciar PR #183/#185) → aguardar `build` CI verde → squash-merge.
 
 **Recipe Trilha 2** (módulos `style={{ color: '#hex' }}`) — mesmos passos 1, 3, 6-9, mas o passo 2/5 muda:
+
 - Mapear cada literal hex para o token semântico mais próximo (ex.: `#163A2E` → `primary`, ver tabela de tokens em `app/globals.css`); onde o hex não corresponde a nenhum token existente, é sinal de que a cor era decorativa/arbitrária — decidir caso a caso se vira `ink-faint`/`border` ou se é genuinamente um valor de dados (ex.: cor de um gráfico) que fica fora do escopo deste rollout (ver nota de gráficos abaixo).
 - Grep de confirmação troca para: `grep -rn "#[0-9a-fA-F]\{3,6\}" components/<módulo>/`.
 
@@ -94,7 +95,7 @@ marca própria da página pública, ou herda os tokens internos da app?). Por
 isso `login` **não** é o piloto da Trilha 2 — fica de fora das duas
 trilhas, tratado à parte só depois dessa decisão ser tomada.
 
-**Nota — módulos com visualização de dados (`analytics`, `roi-impact`, `avatar-training`, partes de `evaluation`/`competencies`):** cores usadas como *codificação de dados* num gráfico (ex.: série A vs série B) não são o mesmo problema que cor decorativa/estado — não forçar essas para os 6 tokens semânticos (`primary/accent/success/warning/danger/info`) só para "zerar o grep"; documentar no plano detalhado desse módulo qual sub-conjunto de cores é decorativo (migra) vs. codificação de série (fica, ou usa uma paleta categórica à parte — fora do escopo deste rollout, não inventar aqui).
+**Nota — módulos com visualização de dados (`analytics`, `roi-impact`, `avatar-training`, partes de `evaluation`/`competencies`):** cores usadas como _codificação de dados_ num gráfico (ex.: série A vs série B) não são o mesmo problema que cor decorativa/estado — não forçar essas para os 6 tokens semânticos (`primary/accent/success/warning/danger/info`) só para "zerar o grep"; documentar no plano detalhado desse módulo qual sub-conjunto de cores é decorativo (migra) vs. codificação de série (fica, ou usa uma paleta categórica à parte — fora do escopo deste rollout, não inventar aqui).
 
 ---
 
@@ -208,10 +209,10 @@ não deu 0 resultados).
 Ambos seguem o padrão Trilha 1 (paleta Tailwind crua + `atoms.tsx` local
 que embrulha `components/ui/`):
 
-| Módulo | Ficheiros | Raw hits | `atoms.tsx` |
-|---|---|---|---|
-| acl | 7 | 81 | sim |
-| attendance | 10 | 111 | sim |
+| Módulo     | Ficheiros | Raw hits | `atoms.tsx` |
+| ---------- | --------- | -------- | ----------- |
+| acl        | 7         | 81       | sim         |
+| attendance | 10        | 111      | sim         |
 
 - [x] **Step 1:** Correr os dois em paralelo (auto-contidos, mesmo padrão da Vaga 1/2) — plano detalhado por módulo (Task 0 recipe), executar até PR aberto. `acl` → PR #250, `attendance` → PR #251.
 - [x] **Step 2:** Aguardar CI (`build`) verde por PR; squash-merge cada um. Ambos `MERGED`, check `build` = `SUCCESS`.
@@ -228,8 +229,9 @@ módulo `evaluation360` **foi** inventariado, despachado e "fechado" na Task
 incompleta em vários dos 8 ficheiros, apesar do PR os ter todos tocado.
 
 Confirmado por leitura directa:
+
 - `OverviewTab.tsx` — **por migrar**: `border-indigo-800`, `bg-gradient-to-r
-  from-slate-900 to-indigo-900`, `text-white`, `text-slate-100/400/500`,
+from-slate-900 to-indigo-900`, `text-white`, `text-slate-100/400/500`,
   `bg-slate-800/900`, `border-green-600/900`, `text-green-400`,
   `border-amber-600`, `text-amber-300`, `border-red-900`, `text-red-400`,
   `text-indigo-400` — chrome genuíno (cards, bordas, badges, títulos), não

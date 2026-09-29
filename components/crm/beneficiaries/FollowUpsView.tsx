@@ -36,8 +36,8 @@ export function FollowUpsView({
           </h1>
           <p className="font-body text-ink-muted">
             {followUps.length}{' '}
-            {followUps.length === 1 ? 'beneficiário' : 'beneficiários'} atribuídos a si
-            com follow-up a vencer
+            {followUps.length === 1 ? 'beneficiário' : 'beneficiários'}{' '}
+            atribuídos a si com follow-up a vencer
           </p>
         </div>
         <Link href="/crm/beneficiaries">
@@ -48,7 +48,9 @@ export function FollowUpsView({
       <Card>
         <div className="divide-y divide-border">
           {followUps.length === 0 ? (
-            <p className="p-4 font-body text-ink-faint">Sem follow-ups pendentes</p>
+            <p className="p-4 font-body text-ink-faint">
+              Sem follow-ups pendentes
+            </p>
           ) : (
             followUps.map((f) => (
               <Link
@@ -58,11 +60,14 @@ export function FollowUpsView({
               >
                 <div>
                   <p className="font-body font-medium text-ink">
-                    <span className="font-mono text-primary mr-2">{f.code}</span>
+                    <span className="font-mono text-primary mr-2">
+                      {f.code}
+                    </span>
                     {f.fullName}
                   </p>
                   <p className="font-body text-xs text-ink-muted">
-                    {f.phone || f.email || '—'} · {f._count.interactions} interacções
+                    {f.phone || f.email || '—'} · {f._count.interactions}{' '}
+                    interacções
                   </p>
                 </div>
                 <span className="font-body text-xs text-warning-ink font-medium">

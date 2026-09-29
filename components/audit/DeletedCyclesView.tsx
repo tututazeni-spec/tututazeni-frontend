@@ -62,7 +62,10 @@ export function DeletedCyclesView() {
       ],
       onSuccess: () => notify({ title: 'Ciclo restaurado', intent: 'success' }),
       onError: () =>
-        notify({ title: 'Não foi possível restaurar o ciclo', intent: 'danger' }),
+        notify({
+          title: 'Não foi possível restaurar o ciclo',
+          intent: 'danger',
+        }),
     },
   );
 
@@ -89,11 +92,14 @@ export function DeletedCyclesView() {
     <div className="flex flex-col gap-4">
       <p className="m-0 text-xs text-ink-faint">
         Eliminação de ciclos é soft delete: o registo (config, competências,
-        participantes, respostas) continua completo na base de dados — só
-        fica escondido do separador Ciclos até ser restaurado.
+        participantes, respostas) continua completo na base de dados — só fica
+        escondido do separador Ciclos até ser restaurado.
       </p>
       {data.map((c) => (
-        <div key={c.id} className="rounded-lg border border-border bg-surface p-5">
+        <div
+          key={c.id}
+          className="rounded-lg border border-border bg-surface p-5"
+        >
           <div className="mb-3 flex items-start justify-between gap-3">
             <div>
               <div className="text-sm font-semibold text-ink">{c.name}</div>
@@ -106,22 +112,32 @@ export function DeletedCyclesView() {
                 {c.deletedById ? ` · por utilizador #${c.deletedById}` : ''}
               </div>
             </div>
-            <Button intent="secondary" size="sm" onClick={() => handleRestore(c)}>
+            <Button
+              intent="secondary"
+              size="sm"
+              onClick={() => handleRestore(c)}
+            >
               Restaurar
             </Button>
           </div>
 
           <div className="grid grid-cols-2 gap-2 text-xs text-ink-muted sm:grid-cols-4">
             <div>
-              <span className="font-semibold text-ink">{c._count.participants}</span>{' '}
+              <span className="font-semibold text-ink">
+                {c._count.participants}
+              </span>{' '}
               participantes
             </div>
             <div>
-              <span className="font-semibold text-ink">{c._count.assignments}</span>{' '}
+              <span className="font-semibold text-ink">
+                {c._count.assignments}
+              </span>{' '}
               atribuições
             </div>
             <div>
-              <span className="font-semibold text-ink">{c._count.responses}</span>{' '}
+              <span className="font-semibold text-ink">
+                {c._count.responses}
+              </span>{' '}
               respostas
             </div>
             <div>

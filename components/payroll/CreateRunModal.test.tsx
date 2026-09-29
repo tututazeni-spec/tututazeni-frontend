@@ -32,7 +32,10 @@ const depOptions = [
   { value: 3, label: 'Engenharia' },
   { value: 7, label: 'Financeiro' },
 ];
-const useDepartmentOptions = vi.fn(() => ({ options: depOptions, loading: false }));
+const useDepartmentOptions = vi.fn(() => ({
+  options: depOptions,
+  loading: false,
+}));
 vi.mock('./runData', () => ({
   useDepartmentOptions: () => useDepartmentOptions(),
 }));

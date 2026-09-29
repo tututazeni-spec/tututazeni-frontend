@@ -16,7 +16,12 @@
 import { useEffect, useState } from 'react';
 import type { CycleEvolutionPoint, CycleReportData } from './types';
 import { evaluatorRoleLabel, scoreColor, cycleStatusText } from './colors';
-import { useCycleSelectorOptions, useDepartmentOptions, useUnitOptions, usePositionOptions } from './cycleData';
+import {
+  useCycleSelectorOptions,
+  useDepartmentOptions,
+  useUnitOptions,
+  usePositionOptions,
+} from './cycleData';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -30,7 +35,9 @@ function Stat({ label, value }: { label: string; value: string | number }) {
       <div className="text-xs font-semibold uppercase tracking-wider text-ink-muted mb-2">
         {label}
       </div>
-      <div className="text-2xl font-bold leading-tight tracking-tighter text-ink">{value}</div>
+      <div className="text-2xl font-bold leading-tight tracking-tighter text-ink">
+        {value}
+      </div>
     </div>
   );
 }
@@ -39,20 +46,35 @@ function fmt(v: number | null): string {
   return v === null ? '—' : v.toFixed(1);
 }
 
-function BarList({ items }: { items: { key: string; label: string; average: number }[] }) {
-  if (items.length === 0) return <div className="text-sm text-ink-muted">Sem dados suficientes ainda.</div>;
+function BarList({
+  items,
+}: {
+  items: { key: string; label: string; average: number }[];
+}) {
+  if (items.length === 0)
+    return (
+      <div className="text-sm text-ink-muted">Sem dados suficientes ainda.</div>
+    );
   return (
     <div className="flex flex-col gap-2.5">
       {items.map((c) => (
         <div key={c.key} className="flex items-center gap-3">
-          <span className="text-sm text-ink w-44 shrink-0 truncate">{c.label}</span>
+          <span className="text-sm text-ink w-44 shrink-0 truncate">
+            {c.label}
+          </span>
           <div className="flex-1 bg-surface-sunken rounded h-2 overflow-hidden">
             <div
               className="h-full rounded"
-              style={{ width: `${Math.min(100, (c.average / 5) * 100)}%`, background: scoreColor(c.average) }}
+              style={{
+                width: `${Math.min(100, (c.average / 5) * 100)}%`,
+                background: scoreColor(c.average),
+              }}
             />
           </div>
-          <span className="text-sm font-bold w-10 text-right shrink-0" style={{ color: scoreColor(c.average) }}>
+          <span
+            className="text-sm font-bold w-10 text-right shrink-0"
+            style={{ color: scoreColor(c.average) }}
+          >
             {c.average.toFixed(1)}
           </span>
         </div>
@@ -82,7 +104,9 @@ function ComparisonStat({
 }) {
   return (
     <div className="rounded-lg border border-border bg-surface px-5 py-4.5">
-      <div className="text-xs font-bold text-ink-muted uppercase tracking-wider mb-3.5">{title}</div>
+      <div className="text-xs font-bold text-ink-muted uppercase tracking-wider mb-3.5">
+        {title}
+      </div>
       <div className="flex items-center justify-between text-sm">
         <span className="text-ink-muted">{labelA}</span>
         <span className="font-bold text-ink">{fmt(cmp.a)}</span>
@@ -94,9 +118,12 @@ function ComparisonStat({
       {cmp.diff !== null && (
         <div
           className="mt-2.5 text-xs font-bold"
-          style={{ color: cmp.diff > 0 ? 'rgb(245, 158, 11)' : 'rgb(34, 197, 94)' }}
+          style={{
+            color: cmp.diff > 0 ? 'rgb(245, 158, 11)' : 'rgb(34, 197, 94)',
+          }}
         >
-          {cmp.diff > 0 ? '▲' : '▼'} diferença de {Math.abs(cmp.diff).toFixed(1)}
+          {cmp.diff > 0 ? '▲' : '▼'} diferença de{' '}
+          {Math.abs(cmp.diff).toFixed(1)}
         </div>
       )}
     </div>
@@ -104,7 +131,11 @@ function ComparisonStat({
 }
 
 export function RelatoriosTab() {
-  const { cycles, options: cycleOptions, loading: cyclesLoading } = useCycleSelectorOptions();
+  const {
+    cycles,
+    options: cycleOptions,
+    loading: cyclesLoading,
+  } = useCycleSelectorOptions();
   const [cycleId, setCycleId] = useState('');
   useEffect(() => {
     if (!cycleId && cycles.length > 0) setCycleId(cycles[0].id);
@@ -118,12 +149,24 @@ export function RelatoriosTab() {
   const { options: departmentOptionsRaw } = useDepartmentOptions();
   const { options: unitOptionsRaw } = useUnitOptions();
   const { options: positionOptionsRaw } = usePositionOptions();
-  const departmentOptions: SelectItemOption[] = [{ value: ALL, label: 'Todos os departamentos' }, ...departmentOptionsRaw];
-  const unitOptions: SelectItemOption[] = [{ value: ALL, label: 'Todas as unidades' }, ...unitOptionsRaw];
-  const positionOptions: SelectItemOption[] = [{ value: ALL, label: 'Todos os cargos' }, ...positionOptionsRaw];
+  const departmentOptions: SelectItemOption[] = [
+    { value: ALL, label: 'Todos os departamentos' },
+    ...departmentOptionsRaw,
+  ];
+  const unitOptions: SelectItemOption[] = [
+    { value: ALL, label: 'Todas as unidades' },
+    ...unitOptionsRaw,
+  ];
+  const positionOptions: SelectItemOption[] = [
+    { value: ALL, label: 'Todos os cargos' },
+    ...positionOptionsRaw,
+  ];
   const roleOptions: SelectItemOption[] = [
     { value: ALL, label: 'Todos os tipos de avaliador' },
-    ...Object.entries(evaluatorRoleLabel).map(([value, label]) => ({ value, label })),
+    ...Object.entries(evaluatorRoleLabel).map(([value, label]) => ({
+      value,
+      label,
+    })),
   ];
 
   const params: Record<string, string> = {};
@@ -143,8 +186,8 @@ export function RelatoriosTab() {
       <div>
         <h2 className="m-0 text-lg font-bold text-ink">Relatórios</h2>
         <p className="m-0 mt-1 text-sm text-ink-muted">
-          Relatórios agregados de um ciclo de avaliação 360° — nunca identifica um avaliador
-          individual.
+          Relatórios agregados de um ciclo de avaliação 360° — nunca identifica
+          um avaliador individual.
         </p>
       </div>
 
@@ -160,20 +203,42 @@ export function RelatoriosTab() {
           />
         </div>
         <div>
-          <div className="text-xs font-semibold text-ink-muted mb-1">Departamento</div>
-          <Select items={departmentOptions} value={departmentId} onValueChange={setDepartmentId} />
+          <div className="text-xs font-semibold text-ink-muted mb-1">
+            Departamento
+          </div>
+          <Select
+            items={departmentOptions}
+            value={departmentId}
+            onValueChange={setDepartmentId}
+          />
         </div>
         <div>
-          <div className="text-xs font-semibold text-ink-muted mb-1">Unidade</div>
-          <Select items={unitOptions} value={unitId} onValueChange={setUnitId} />
+          <div className="text-xs font-semibold text-ink-muted mb-1">
+            Unidade
+          </div>
+          <Select
+            items={unitOptions}
+            value={unitId}
+            onValueChange={setUnitId}
+          />
         </div>
         <div>
           <div className="text-xs font-semibold text-ink-muted mb-1">Cargo</div>
-          <Select items={positionOptions} value={positionId} onValueChange={setPositionId} />
+          <Select
+            items={positionOptions}
+            value={positionId}
+            onValueChange={setPositionId}
+          />
         </div>
         <div>
-          <div className="text-xs font-semibold text-ink-muted mb-1">Grupo de avaliador</div>
-          <Select items={roleOptions} value={evaluatorRole} onValueChange={setEvaluatorRole} />
+          <div className="text-xs font-semibold text-ink-muted mb-1">
+            Grupo de avaliador
+          </div>
+          <Select
+            items={roleOptions}
+            value={evaluatorRole}
+            onValueChange={setEvaluatorRole}
+          />
         </div>
       </div>
 
@@ -182,19 +247,41 @@ export function RelatoriosTab() {
           Ainda não existe nenhum ciclo de avaliação 360º.
         </div>
       )}
-      {cycleId && isLoading && <div className="text-sm text-ink-muted">A carregar…</div>}
+      {cycleId && isLoading && (
+        <div className="text-sm text-ink-muted">A carregar…</div>
+      )}
 
       {data && (
         <>
           {/* Resultado geral 360° */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <Stat label="Avaliados" value={data.overall.totalParticipants} />
-            <Stat label="Média geral" value={data.overall.avgOverall ? data.overall.avgOverall.toFixed(1) : '—'} />
-            <Stat label="Média ponderada" value={data.overall.avgWeighted ? data.overall.avgWeighted.toFixed(1) : '—'} />
-            <Stat label="Elegíveis a promoção" value={data.overall.eligiblePromotion} />
+            <Stat
+              label="Média geral"
+              value={
+                data.overall.avgOverall
+                  ? data.overall.avgOverall.toFixed(1)
+                  : '—'
+              }
+            />
+            <Stat
+              label="Média ponderada"
+              value={
+                data.overall.avgWeighted
+                  ? data.overall.avgWeighted.toFixed(1)
+                  : '—'
+              }
+            />
+            <Stat
+              label="Elegíveis a promoção"
+              value={data.overall.eligiblePromotion}
+            />
           </div>
           <div className="grid grid-cols-2 gap-3">
-            <Stat label="Taxa de participação" value={`${data.participationRate}%`} />
+            <Stat
+              label="Taxa de participação"
+              value={`${data.participationRate}%`}
+            />
             <Stat label="Taxa de conclusão" value={`${data.completionRate}%`} />
           </div>
 
@@ -203,7 +290,13 @@ export function RelatoriosTab() {
             <div className="text-xs font-bold text-ink-muted uppercase tracking-wider mb-3.5">
               Resultados por competência
             </div>
-            <BarList items={data.byCompetency.map((c) => ({ key: c.competencyId, label: c.name, average: c.average }))} />
+            <BarList
+              items={data.byCompetency.map((c) => ({
+                key: c.competencyId,
+                label: c.name,
+                average: c.average,
+              }))}
+            />
           </div>
 
           {/* Resultados por departamento / cargo / unidade */}
@@ -212,19 +305,37 @@ export function RelatoriosTab() {
               <div className="text-xs font-bold text-ink-muted uppercase tracking-wider mb-3.5">
                 Por departamento
               </div>
-              <BarList items={data.byDepartment.map((d) => ({ key: d.id, label: `${d.name} (${d.count})`, average: d.average }))} />
+              <BarList
+                items={data.byDepartment.map((d) => ({
+                  key: d.id,
+                  label: `${d.name} (${d.count})`,
+                  average: d.average,
+                }))}
+              />
             </div>
             <div className="rounded-lg border border-border bg-surface px-5 py-4.5">
               <div className="text-xs font-bold text-ink-muted uppercase tracking-wider mb-3.5">
                 Por cargo
               </div>
-              <BarList items={data.byPosition.map((d) => ({ key: d.id, label: `${d.name} (${d.count})`, average: d.average }))} />
+              <BarList
+                items={data.byPosition.map((d) => ({
+                  key: d.id,
+                  label: `${d.name} (${d.count})`,
+                  average: d.average,
+                }))}
+              />
             </div>
             <div className="rounded-lg border border-border bg-surface px-5 py-4.5">
               <div className="text-xs font-bold text-ink-muted uppercase tracking-wider mb-3.5">
                 Por unidade
               </div>
-              <BarList items={data.byUnit.map((d) => ({ key: d.id, label: `${d.name} (${d.count})`, average: d.average }))} />
+              <BarList
+                items={data.byUnit.map((d) => ({
+                  key: d.id,
+                  label: `${d.name} (${d.count})`,
+                  average: d.average,
+                }))}
+              />
             </div>
           </div>
 
@@ -236,7 +347,11 @@ export function RelatoriosTab() {
             <BarList
               items={Object.entries(data.byEvaluatorGroup)
                 .filter(([, v]) => v !== null)
-                .map(([k, v]) => ({ key: k, label: EVALUATOR_GROUP_LABEL[k] ?? k, average: v as number }))}
+                .map(([k, v]) => ({
+                  key: k,
+                  label: EVALUATOR_GROUP_LABEL[k] ?? k,
+                  average: v as number,
+                }))}
             />
           </div>
 
@@ -248,7 +363,12 @@ export function RelatoriosTab() {
               labelB="Externa"
               cmp={data.selfVsExternal}
             />
-            <ComparisonStat title="Gestor vs. pares" labelA="Gestor" labelB="Pares" cmp={data.managerVsPeer} />
+            <ComparisonStat
+              title="Gestor vs. pares"
+              labelA="Gestor"
+              labelB="Pares"
+              cmp={data.managerVsPeer}
+            />
             <ComparisonStat
               title="Gestor vs. subordinados"
               labelA="Gestor"
@@ -263,11 +383,22 @@ export function RelatoriosTab() {
               <div className="text-xs font-bold text-success-ink uppercase tracking-wider mb-3.5">
                 Principais pontos fortes
               </div>
-              {data.topStrengths.length === 0 && <div className="text-sm text-ink-muted">Sem dados suficientes ainda.</div>}
+              {data.topStrengths.length === 0 && (
+                <div className="text-sm text-ink-muted">
+                  Sem dados suficientes ainda.
+                </div>
+              )}
               {data.topStrengths.map((c) => (
-                <div key={c.competencyId} className="flex justify-between items-center mb-2.5">
-                  <span className="text-sm font-semibold text-ink">{c.name}</span>
-                  <span className="text-xs text-ink-muted">{c.occurrences}× · {fmt(c.avgScore)}</span>
+                <div
+                  key={c.competencyId}
+                  className="flex justify-between items-center mb-2.5"
+                >
+                  <span className="text-sm font-semibold text-ink">
+                    {c.name}
+                  </span>
+                  <span className="text-xs text-ink-muted">
+                    {c.occurrences}× · {fmt(c.avgScore)}
+                  </span>
                 </div>
               ))}
             </div>
@@ -275,11 +406,22 @@ export function RelatoriosTab() {
               <div className="text-xs font-bold text-danger-ink uppercase tracking-wider mb-3.5">
                 Principais gaps
               </div>
-              {data.topGaps.length === 0 && <div className="text-sm text-ink-muted">Sem dados suficientes ainda.</div>}
+              {data.topGaps.length === 0 && (
+                <div className="text-sm text-ink-muted">
+                  Sem dados suficientes ainda.
+                </div>
+              )}
               {data.topGaps.map((c) => (
-                <div key={c.competencyId} className="flex justify-between items-center mb-2.5">
-                  <span className="text-sm font-semibold text-ink">{c.name}</span>
-                  <span className="text-xs text-ink-muted">{c.occurrences}× · {fmt(c.avgScore)}</span>
+                <div
+                  key={c.competencyId}
+                  className="flex justify-between items-center mb-2.5"
+                >
+                  <span className="text-sm font-semibold text-ink">
+                    {c.name}
+                  </span>
+                  <span className="text-xs text-ink-muted">
+                    {c.occurrences}× · {fmt(c.avgScore)}
+                  </span>
                 </div>
               ))}
             </div>
@@ -291,14 +433,22 @@ export function RelatoriosTab() {
               Competências críticas (abaixo do nível esperado)
             </div>
             {data.criticalCompetencies.length === 0 && (
-              <div className="text-sm text-ink-muted">Nenhuma competência abaixo do nível esperado.</div>
+              <div className="text-sm text-ink-muted">
+                Nenhuma competência abaixo do nível esperado.
+              </div>
             )}
             {data.criticalCompetencies.map((c) => (
-              <div key={c.competencyId} className="flex justify-between items-center mb-2.5 text-sm">
+              <div
+                key={c.competencyId}
+                className="flex justify-between items-center mb-2.5 text-sm"
+              >
                 <span className="font-semibold text-ink">{c.name}</span>
                 <span className="text-ink-muted">
                   {c.average.toFixed(1)} / esperado {fmt(c.expectedLevel)}
-                  <span className="ml-2 font-bold" style={{ color: 'rgb(239, 68, 68)' }}>
+                  <span
+                    className="ml-2 font-bold"
+                    style={{ color: 'rgb(239, 68, 68)' }}
+                  >
                     {c.gapToExpected?.toFixed(1)}
                   </span>
                 </span>
@@ -309,11 +459,17 @@ export function RelatoriosTab() {
           {/* Avaliadores pendentes */}
           <div className="rounded-xl border border-border bg-surface overflow-hidden">
             <div className="px-5 py-4 border-b border-border flex items-center justify-between">
-              <div className="text-xs font-bold text-ink-muted uppercase tracking-wider">Avaliadores pendentes</div>
-              <span className="text-sm font-bold text-ink">{data.pendingEvaluators.count}</span>
+              <div className="text-xs font-bold text-ink-muted uppercase tracking-wider">
+                Avaliadores pendentes
+              </div>
+              <span className="text-sm font-bold text-ink">
+                {data.pendingEvaluators.count}
+              </span>
             </div>
             {data.pendingEvaluators.list.length === 0 ? (
-              <div className="px-5 py-4 text-sm text-ink-muted">Sem avaliadores pendentes.</div>
+              <div className="px-5 py-4 text-sm text-ink-muted">
+                Sem avaliadores pendentes.
+              </div>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-sm border-collapse min-w-[700px]">
@@ -328,12 +484,25 @@ export function RelatoriosTab() {
                   </thead>
                   <tbody>
                     {data.pendingEvaluators.list.map((p, i) => (
-                      <tr key={`${p.evaluatorId}-${p.evaluateeId}-${i}`} className="border-b border-border last:border-0">
-                        <td className="px-4 py-2.5 text-ink">{p.evaluatorName}</td>
-                        <td className="px-4 py-2.5 text-ink-muted">{p.evaluateeName}</td>
-                        <td className="px-4 py-2.5 text-ink-muted">{evaluatorRoleLabel[p.role] ?? p.role}</td>
-                        <td className="px-4 py-2.5 text-ink-muted">{p.status}</td>
-                        <td className="px-4 py-2.5 text-ink-muted">{p.invitedAt ? p.invitedAt.slice(0, 10) : '—'}</td>
+                      <tr
+                        key={`${p.evaluatorId}-${p.evaluateeId}-${i}`}
+                        className="border-b border-border last:border-0"
+                      >
+                        <td className="px-4 py-2.5 text-ink">
+                          {p.evaluatorName}
+                        </td>
+                        <td className="px-4 py-2.5 text-ink-muted">
+                          {p.evaluateeName}
+                        </td>
+                        <td className="px-4 py-2.5 text-ink-muted">
+                          {evaluatorRoleLabel[p.role] ?? p.role}
+                        </td>
+                        <td className="px-4 py-2.5 text-ink-muted">
+                          {p.status}
+                        </td>
+                        <td className="px-4 py-2.5 text-ink-muted">
+                          {p.invitedAt ? p.invitedAt.slice(0, 10) : '—'}
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -353,7 +522,11 @@ export function RelatoriosTab() {
 // §9) — a mesma série de métricas por ciclo. Sem selecção, mostra a
 // evolução completa (ordenada por data); escolher 2+ ciclos abaixo restringe
 // a tabela só a esses (comparação lado a lado).
-function CycleEvolutionSection({ cycles }: { cycles: { id: string; name: string }[] }) {
+function CycleEvolutionSection({
+  cycles,
+}: {
+  cycles: { id: string; name: string }[];
+}) {
   const [selected, setSelected] = useState<string[]>([]);
   const cycleIds = selected.length > 0 ? selected.join(',') : '';
   const params: Record<string, string> = {};
@@ -367,15 +540,20 @@ function CycleEvolutionSection({ cycles }: { cycles: { id: string; name: string 
   const points = data?.data ?? [];
 
   const toggle = (id: string) => {
-    setSelected((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
+    setSelected((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
+    );
   };
 
   return (
     <section className="flex flex-col gap-5 border-t border-border pt-6">
       <div>
-        <h2 className="m-0 text-lg font-bold text-ink">Evolução e Comparação entre Ciclos</h2>
+        <h2 className="m-0 text-lg font-bold text-ink">
+          Evolução e Comparação entre Ciclos
+        </h2>
         <p className="m-0 mt-1 text-sm text-ink-muted">
-          Escolhe ciclos específicos para comparar, ou deixa em branco para ver a evolução completa.
+          Escolhe ciclos específicos para comparar, ou deixa em branco para ver
+          a evolução completa.
         </p>
       </div>
 
@@ -420,17 +598,32 @@ function CycleEvolutionSection({ cycles }: { cycles: { id: string; name: string 
             </thead>
             <tbody>
               {points.map((p) => (
-                <tr key={p.cycleId} className="border-b border-border last:border-0">
+                <tr
+                  key={p.cycleId}
+                  className="border-b border-border last:border-0"
+                >
                   <td className="px-4 py-3 font-semibold text-ink">{p.name}</td>
-                  <td className="px-4 py-3 text-ink-muted">{cycleStatusText(p.status)}</td>
-                  <td className="px-4 py-3 text-ink-muted whitespace-nowrap">{p.startDate.slice(0, 10)}</td>
-                  <td className="px-4 py-3 text-right text-ink">{p.totalParticipants}</td>
+                  <td className="px-4 py-3 text-ink-muted">
+                    {cycleStatusText(p.status)}
+                  </td>
+                  <td className="px-4 py-3 text-ink-muted whitespace-nowrap">
+                    {p.startDate.slice(0, 10)}
+                  </td>
+                  <td className="px-4 py-3 text-right text-ink">
+                    {p.totalParticipants}
+                  </td>
                   <td className="px-4 py-3 text-right font-semibold text-ink">
                     {p.avgOverall ? p.avgOverall.toFixed(1) : '—'}
                   </td>
-                  <td className="px-4 py-3 text-right text-ink">{p.avgWeighted ? p.avgWeighted.toFixed(1) : '—'}</td>
-                  <td className="px-4 py-3 text-right text-ink-muted">{p.participationRate}%</td>
-                  <td className="px-4 py-3 text-right text-ink-muted">{p.completionRate}%</td>
+                  <td className="px-4 py-3 text-right text-ink">
+                    {p.avgWeighted ? p.avgWeighted.toFixed(1) : '—'}
+                  </td>
+                  <td className="px-4 py-3 text-right text-ink-muted">
+                    {p.participationRate}%
+                  </td>
+                  <td className="px-4 py-3 text-right text-ink-muted">
+                    {p.completionRate}%
+                  </td>
                 </tr>
               ))}
             </tbody>

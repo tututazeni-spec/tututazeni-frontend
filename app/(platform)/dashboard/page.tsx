@@ -1,4 +1,3 @@
-
 'use client';
 // src/app/(dashboard)/dashboard/page.tsx
 //
@@ -63,13 +62,13 @@ export default function DashboardPage() {
   const availableTabs = filterByRole(TABS, role);
 
   const activeTab =
-  availableTabs.find((item) => item.id === tab) ?? availableTabs[0];
+    availableTabs.find((item) => item.id === tab) ?? availableTabs[0];
 
-const ActiveIcon = activeTab?.icon;
+  const ActiveIcon = activeTab?.icon;
 
   return (
     <div className="min-h-screen bg-canvas">
-            {/* Header dinâmico */}
+      {/* Header dinâmico */}
       <div className="border-b border-border bg-canvas px-6 py-5">
         <div className="mx-auto flex max-w-7xl items-center gap-3">
           <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/10 text-primary">
@@ -84,7 +83,7 @@ const ActiveIcon = activeTab?.icon;
 
           <div>
             <h1 className="font-display text-xl font-bold text-ink">
-              Dashboard 
+              Dashboard
             </h1>
             {activeTab?.hint && (
               <p className="mt-0.5 font-body text-xs text-ink-muted">
@@ -101,7 +100,7 @@ const ActiveIcon = activeTab?.icon;
       </div>
 
       <Tabs value={tab} onValueChange={setTab}>
-               {/* Abas em "glassmorphism": contentor translúcido com desfoque
+        {/* Abas em "glassmorphism": contentor translúcido com desfoque
             (backdrop-blur) e botões em forma de pílula com ícone, título e
             subtítulo (`hint` definido em TABS). A aba activa
             (data-[state=active] do Radix) ganha gradiente azul, sombra e

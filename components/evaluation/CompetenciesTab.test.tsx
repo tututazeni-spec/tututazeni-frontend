@@ -13,7 +13,9 @@ vi.mock('@/hooks/useApiQuery', () => ({
 }));
 
 let currentRole: string | undefined = 'COLABORADOR';
-vi.mock('@/hooks/useCurrentRole', () => ({ useCurrentRole: () => currentRole }));
+vi.mock('@/hooks/useCurrentRole', () => ({
+  useCurrentRole: () => currentRole,
+}));
 
 vi.mock('@/components/departments/DepartmentUserPicker', () => ({
   DepartmentUserPicker: () => <div data-testid="user-picker" />,
@@ -29,15 +31,32 @@ beforeEach(() => {
 
 describe('CompetenciesTab', () => {
   test('COLABORADOR chama o gap "my" e não vê o selector de colaborador', () => {
-    gapData = { gaps: [], totalGap: 0, mandatoryGaps: 0, readinessPercent: 100, positionId: 1, userId: 1 };
+    gapData = {
+      gaps: [],
+      totalGap: 0,
+      mandatoryGaps: 0,
+      readinessPercent: 100,
+      positionId: 1,
+      userId: 1,
+    };
     render(<CompetenciesTab />);
     expect(lastPath.value).toBe('/competencies/my/gap');
     expect(screen.queryByTestId('user-picker')).not.toBeInTheDocument();
-    expect(screen.getByText('Sem competências mapeadas para o cargo')).toBeInTheDocument();
+    expect(
+      screen.getByText('Sem competências mapeadas para o cargo'),
+    ).toBeInTheDocument();
   });
 
   test('sem cargo atribuído mostra estado vazio dedicado', () => {
-    gapData = { gaps: [], totalGap: 0, mandatoryGaps: 0, readinessPercent: 100, positionId: null, userId: 1, noPosition: true };
+    gapData = {
+      gaps: [],
+      totalGap: 0,
+      mandatoryGaps: 0,
+      readinessPercent: 100,
+      positionId: null,
+      userId: 1,
+      noPosition: true,
+    };
     render(<CompetenciesTab />);
     expect(screen.getByText('Sem cargo atribuído')).toBeInTheDocument();
   });
@@ -71,6 +90,8 @@ describe('CompetenciesTab', () => {
     };
     render(<CompetenciesTab />);
     expect(screen.getByText('Liderança')).toBeInTheDocument();
-    expect(screen.getByText('Demonstrado: 2 · Esperado: 4')).toBeInTheDocument();
+    expect(
+      screen.getByText('Demonstrado: 2 · Esperado: 4'),
+    ).toBeInTheDocument();
   });
 });

@@ -79,9 +79,7 @@ describe('LessonAudioBar', () => {
     expect(
       screen.getByText('Leitura por voz não configurada'),
     ).toBeInTheDocument();
-    fireEvent.click(
-      screen.getByRole('button', { name: /tentar de novo/i }),
-    );
+    fireEvent.click(screen.getByRole('button', { name: /tentar de novo/i }));
     expect(play).toHaveBeenCalledTimes(1);
   });
 });

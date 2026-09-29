@@ -13,7 +13,7 @@ a11y, sem precisar de `htmlFor`) — ex.: o componente `Field` dos crm/library.
 Os gaps **reais** (label-irmão ou `<span>` em vez de `<label>`) são poucos:
 
 1. `app/(platform)/users/page.tsx` — o `Field` inline renderiza `<div><label/>
-   <input/></div>` (irmãos, sem associação).
+<input/></div>` (irmãos, sem associação).
 2. `app/(platform)/settings/page.tsx` — usa `<span style={labelStyle}>X</span>` +
    input (3 campos de senha), sem `<label>` nenhum.
 

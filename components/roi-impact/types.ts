@@ -63,7 +63,8 @@ export interface ExecutiveData {
 // ROI da Formação (docs/roi-impact.md §2)
 // ─────────────────────────────────────────────────────────────────
 
-export type RoiInitiativeType = 'CURSO' | 'FORMACAO' | 'PERCURSO' | 'PDI' | 'MENTORIA' | 'EVENTO';
+export type RoiInitiativeType =
+  'CURSO' | 'FORMACAO' | 'PERCURSO' | 'PDI' | 'MENTORIA' | 'EVENTO';
 
 export type RoiAnalysisStatus =
   | 'EM_PREPARACAO'
@@ -247,7 +248,12 @@ export interface CostConsolidationRow {
 export interface CostConsolidationData {
   total: number;
   rows: CostConsolidationRow[];
-  grandTotal: { direct: number; indirect: number; opportunity: number; total: number };
+  grandTotal: {
+    direct: number;
+    indirect: number;
+    opportunity: number;
+    total: number;
+  };
 }
 
 export interface LaborCostEstimateRow {
@@ -279,7 +285,8 @@ export type KpiCategory =
   | 'SEGURANCA'
   | 'COMPLIANCE';
 
-export type KpiFrequency = 'DIARIA' | 'SEMANAL' | 'MENSAL' | 'TRIMESTRAL' | 'SEMESTRAL' | 'ANUAL';
+export type KpiFrequency =
+  'DIARIA' | 'SEMANAL' | 'MENSAL' | 'TRIMESTRAL' | 'SEMESTRAL' | 'ANUAL';
 
 export type KpiDefinitionStatus = 'ACTIVO' | 'INACTIVO';
 

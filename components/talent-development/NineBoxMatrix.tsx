@@ -56,7 +56,10 @@ export function NineBoxMatrix({ matrix }: NineBoxMatrixProps) {
                   const key = `${y}_${x}`;
                   const cell = matrix.find((m) => m.box === key);
                   const labelShort = cell?.label.split(' — ')[0] ?? '';
-                  const colors = BOX_COLORS[key] ?? { bg: '#f8fafc', border: '#e2e8f0' };
+                  const colors = BOX_COLORS[key] ?? {
+                    bg: '#f8fafc',
+                    border: '#e2e8f0',
+                  };
                   return (
                     <div
                       key={key}

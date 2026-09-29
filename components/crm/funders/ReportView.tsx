@@ -41,14 +41,21 @@ export function ReportView({
           <h1 className="font-display text-2xl font-bold text-ink">
             Relatório por Período
           </h1>
-          <p className="font-body text-ink-muted">Financiadores e actividade no intervalo</p>
+          <p className="font-body text-ink-muted">
+            Financiadores e actividade no intervalo
+          </p>
         </div>
         <Link href="/crm/funders">
           <Button intent="secondary">← Financiadores</Button>
         </Link>
       </div>
 
-      <DateRangeForm value={range} onChange={setRange} onSubmit={generate} loading={isLoading} />
+      <DateRangeForm
+        value={range}
+        onChange={setRange}
+        onSubmit={generate}
+        loading={isLoading}
+      />
 
       {isError && <ErrorBanner message={errorMessage} onRetry={generate} />}
 
@@ -76,7 +83,11 @@ export function ReportView({
               color="text-ink"
             />
           </div>
-          <DistributionList title="Por tipo" data={report.byType} labelKey="type" />
+          <DistributionList
+            title="Por tipo"
+            data={report.byType}
+            labelKey="type"
+          />
         </>
       )}
     </div>

@@ -31,9 +31,7 @@ export function EmployeeRow({ employee, onView, onEdit }: EmployeeRowProps) {
         </div>
       </TableCell>
       <TableCell>
-        <p className="text-sm text-ink">
-          {employee.jobTitle ?? employee.role}
-        </p>
+        <p className="text-sm text-ink">{employee.jobTitle ?? employee.role}</p>
         <p className="text-xs text-ink-faint">{employee.department ?? '—'}</p>
       </TableCell>
       <TableCell className="text-sm text-ink-muted">

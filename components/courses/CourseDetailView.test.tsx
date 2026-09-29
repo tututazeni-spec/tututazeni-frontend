@@ -101,7 +101,10 @@ describe('CourseDetailView — secções do doc renderizadas com dados reais', (
     render(
       <CourseDetailView
         {...baseProps}
-        course={{ ...baseCourse, learningPaths: [{ id: 5, title: 'Percurso de Liderança' }] }}
+        course={{
+          ...baseCourse,
+          learningPaths: [{ id: 5, title: 'Percurso de Liderança' }],
+        }}
       />,
     );
     expect(screen.getByText('Percurso de Liderança')).toBeInTheDocument();
@@ -125,7 +128,12 @@ describe('CourseDetailView — secções do doc renderizadas com dados reais', (
             status: 'COMPLETED',
             deadline: null,
             completedAt: '2026-02-01T00:00:00.000Z',
-            certificate: { id: 1, code: 'CERT-1', issuedAt: '2026-02-01T00:00:00.000Z', fileUrl: 'https://cdn.example.com/cert.pdf' },
+            certificate: {
+              id: 1,
+              code: 'CERT-1',
+              issuedAt: '2026-02-01T00:00:00.000Z',
+              fileUrl: 'https://cdn.example.com/cert.pdf',
+            },
           },
           courseProgress: { totalLessons: 4, completedLessons: 4, pct: 100 },
           modules: [],
@@ -156,13 +164,24 @@ describe('CourseDetailView — secções do doc renderizadas com dados reais', (
               completedCount: 0,
               totalCount: 1,
               lessons: [
-                { id: 1, title: 'Lição 1', type: 'TEXT', seq: 0, durationMinutes: null, isFree: true, completed: false, resumePosition: 0 },
+                {
+                  id: 1,
+                  title: 'Lição 1',
+                  type: 'TEXT',
+                  seq: 0,
+                  durationMinutes: null,
+                  isFree: true,
+                  completed: false,
+                  resumePosition: 0,
+                },
               ],
             },
           ],
         }}
       />,
     );
-    expect(screen.getByRole('button', { name: /continuar curso/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /continuar curso/i }),
+    ).toBeInTheDocument();
   });
 });

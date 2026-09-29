@@ -20,7 +20,12 @@ import {
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import type { BadgeProps } from '@/components/ui/Badge';
-import type { DocCategory, DocFilters, DocSensitivity, DocStatus } from './types';
+import type {
+  DocCategory,
+  DocFilters,
+  DocSensitivity,
+  DocStatus,
+} from './types';
 
 export const CATEGORY_CONFIG: Record<
   DocCategory,
@@ -43,9 +48,21 @@ export const CATEGORY_CONFIG: Record<
   REGULAMENTO: { label: 'Regulamento', intent: 'neutral', dot: 'bg-ink-faint' },
   COMUNICADO: { label: 'Comunicado', intent: 'info', dot: 'bg-info' },
   CIRCULAR: { label: 'Circular', intent: 'info', dot: 'bg-info' },
-  ORDEM_SERVICO: { label: 'Ordem de Serviço', intent: 'warning', dot: 'bg-warning' },
-  LEGISLACAO: { label: 'Lei / Regulamento', intent: 'danger', dot: 'bg-danger' },
-  INSTRUCAO_TRABALHO: { label: 'Instrução de Trabalho', intent: 'info', dot: 'bg-info' },
+  ORDEM_SERVICO: {
+    label: 'Ordem de Serviço',
+    intent: 'warning',
+    dot: 'bg-warning',
+  },
+  LEGISLACAO: {
+    label: 'Lei / Regulamento',
+    intent: 'danger',
+    dot: 'bg-danger',
+  },
+  INSTRUCAO_TRABALHO: {
+    label: 'Instrução de Trabalho',
+    intent: 'info',
+    dot: 'bg-info',
+  },
   MODELO: { label: 'Modelo', intent: 'neutral', dot: 'bg-ink-faint' },
   CODIGO: { label: 'Código', intent: 'neutral', dot: 'bg-ink-faint' },
   DIRETIVA: { label: 'Diretiva', intent: 'warning', dot: 'bg-warning' },

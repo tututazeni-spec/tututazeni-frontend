@@ -11,8 +11,14 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { Card, CardBody } from '@/components/ui/Card';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
-import { ACTION_CFG, STATUS_CFG as PLAN_STATUS_CFG } from '@/components/development-plans/constants';
-import type { ActionType, PlanStatus } from '@/components/development-plans/types';
+import {
+  ACTION_CFG,
+  STATUS_CFG as PLAN_STATUS_CFG,
+} from '@/components/development-plans/constants';
+import type {
+  ActionType,
+  PlanStatus,
+} from '@/components/development-plans/types';
 import type { PDIAnalytics } from './types';
 import type { LucideIcon } from 'lucide-react';
 import { AlertTriangle, CheckCircle2, TrendingUp } from 'lucide-react';
@@ -43,8 +49,12 @@ function TopBarKpiCard({
       <div className={`h-1.5 w-full ${t.bar}`} />
       <div className="p-5 pt-6">
         <Icon size={22} strokeWidth={1.75} className={t.text} />
-        <p className={`mt-3 font-display text-3xl font-bold ${t.text}`}>{value}</p>
-        <p className="mt-1 font-body text-sm font-medium text-ink-muted">{label}</p>
+        <p className={`mt-3 font-display text-3xl font-bold ${t.text}`}>
+          {value}
+        </p>
+        <p className="mt-1 font-body text-sm font-medium text-ink-muted">
+          {label}
+        </p>
       </div>
     </div>
   );
@@ -96,8 +106,14 @@ export function PDIAnalyticsView() {
                 key={status}
                 className="flex items-center gap-2 rounded-full border border-border bg-surface-sunken px-3 py-1.5"
               >
-                <StatusBadge value={status as PlanStatus} map={PLAN_STATUS_CFG} variant="dot" />
-                <span className="font-data text-sm font-bold text-ink">{count}</span>
+                <StatusBadge
+                  value={status as PlanStatus}
+                  map={PLAN_STATUS_CFG}
+                  variant="dot"
+                />
+                <span className="font-data text-sm font-bold text-ink">
+                  {count}
+                </span>
               </div>
             ))}
           </div>
@@ -116,12 +132,20 @@ export function PDIAnalyticsView() {
                 key={a.type}
                 className="flex items-center gap-2 rounded-card bg-surface-sunken px-3 py-2"
               >
-                <StatusBadge value={a.type as ActionType} map={ACTION_CFG} variant="plain" />
-                <span className="font-data text-sm font-bold text-black">{a.count}</span>
+                <StatusBadge
+                  value={a.type as ActionType}
+                  map={ACTION_CFG}
+                  variant="plain"
+                />
+                <span className="font-data text-sm font-bold text-black">
+                  {a.count}
+                </span>
               </div>
             ))}
             {data.actionsByType.length === 0 && (
-              <div className="text-sm text-ink-faint py-2">Sem acções registadas</div>
+              <div className="text-sm text-ink-faint py-2">
+                Sem acções registadas
+              </div>
             )}
           </div>
         </CardBody>

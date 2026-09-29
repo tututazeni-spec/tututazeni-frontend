@@ -30,17 +30,30 @@ export interface NewCareerPlanModalProps {
   onSuccess: () => void;
 }
 
-export function NewCareerPlanModal({ onClose, onSuccess }: NewCareerPlanModalProps) {
+export function NewCareerPlanModal({
+  onClose,
+  onSuccess,
+}: NewCareerPlanModalProps) {
   const { data: roles = [] } = useApiQuery<CareerPlansRole[]>(
     queryKeys.careerPlans.roles(),
     '/career-plans/roles',
     { staleTime: STALE_TIME.STATIC },
   );
-  const { data: paths = [] } = useApiQuery<CareerPath[]>(queryKeys.career.paths(), '/career/paths', {
-    staleTime: STALE_TIME.SEMI_STATIC,
-  });
-  const roleOptions = roles.map((r) => ({ value: String(r.id), label: `${r.name} · nível ${r.level}` }));
-  const pathOptions = paths.map((p) => ({ value: String(p.id), label: p.name }));
+  const { data: paths = [] } = useApiQuery<CareerPath[]>(
+    queryKeys.career.paths(),
+    '/career/paths',
+    {
+      staleTime: STALE_TIME.SEMI_STATIC,
+    },
+  );
+  const roleOptions = roles.map((r) => ({
+    value: String(r.id),
+    label: `${r.name} · nível ${r.level}`,
+  }));
+  const pathOptions = paths.map((p) => ({
+    value: String(p.id),
+    label: p.name,
+  }));
 
   const [colaborador, setColaborador] = useState<DirectoryUser | null>(null);
   const [mentor, setMentor] = useState<DirectoryUser | null>(null);
@@ -73,7 +86,9 @@ export function NewCareerPlanModal({ onClose, onSuccess }: NewCareerPlanModalPro
         title: form.title,
         description: form.description || undefined,
         careerPathId: form.careerPathId ? Number(form.careerPathId) : undefined,
-        currentRoleId: form.currentRoleId ? Number(form.currentRoleId) : undefined,
+        currentRoleId: form.currentRoleId
+          ? Number(form.currentRoleId)
+          : undefined,
         targetRoleId: form.targetRoleId ? Number(form.targetRoleId) : undefined,
         targetDate: form.targetDate || undefined,
         mentorId: mentor?.id,
@@ -103,7 +118,10 @@ export function NewCareerPlanModal({ onClose, onSuccess }: NewCareerPlanModalPro
 
   return (
     <Modal open onOpenChange={(open) => !open && onClose()}>
-      <ModalContent title="Novo Plano de Carreira" className="max-h-[90vh] max-w-lg overflow-y-auto">
+      <ModalContent
+        title="Novo Plano de Carreira"
+        className="max-h-[90vh] max-w-lg overflow-y-auto"
+      >
         <div className="mt-4 space-y-4">
           {error && (
             <div className="flex items-center gap-2 rounded-card bg-danger-subtle p-3 text-sm text-danger-ink">
@@ -123,7 +141,9 @@ export function NewCareerPlanModal({ onClose, onSuccess }: NewCareerPlanModalPro
             <Input
               id="plan-title"
               value={form.title}
-              onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, title: e.target.value }))
+              }
               placeholder="Ex.: Tornar-se Tech Lead até 2027"
               className="w-full"
             />
@@ -144,7 +164,9 @@ export function NewCareerPlanModal({ onClose, onSuccess }: NewCareerPlanModalPro
               <Select
                 items={roleOptions}
                 value={form.currentRoleId}
-                onValueChange={(v) => setForm((f) => ({ ...f, currentRoleId: v }))}
+                onValueChange={(v) =>
+                  setForm((f) => ({ ...f, currentRoleId: v }))
+                }
                 placeholder="Seleccionar…"
                 className="w-full"
               />
@@ -153,7 +175,9 @@ export function NewCareerPlanModal({ onClose, onSuccess }: NewCareerPlanModalPro
               <Select
                 items={roleOptions}
                 value={form.targetRoleId}
-                onValueChange={(v) => setForm((f) => ({ ...f, targetRoleId: v }))}
+                onValueChange={(v) =>
+                  setForm((f) => ({ ...f, targetRoleId: v }))
+                }
                 placeholder="Seleccionar…"
                 className="w-full"
               />
@@ -165,18 +189,27 @@ export function NewCareerPlanModal({ onClose, onSuccess }: NewCareerPlanModalPro
               id="plan-date"
               type="date"
               value={form.targetDate}
-              onChange={(e) => setForm((f) => ({ ...f, targetDate: e.target.value }))}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, targetDate: e.target.value }))
+              }
               className="w-full"
             />
           </FormField>
 
-          <DepartmentUserPicker label="Responsável (mentor)" htmlFor="plan-mentor" value={mentor} onChange={setMentor} />
+          <DepartmentUserPicker
+            label="Responsável (mentor)"
+            htmlFor="plan-mentor"
+            value={mentor}
+            onChange={setMentor}
+          />
 
           <FormField label="Mentoring" htmlFor="plan-mentoring">
             <Textarea
               id="plan-mentoring"
               value={form.mentoringNotes}
-              onChange={(e) => setForm((f) => ({ ...f, mentoringNotes: e.target.value }))}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, mentoringNotes: e.target.value }))
+              }
               rows={2}
               className="w-full resize-none"
             />
@@ -186,7 +219,9 @@ export function NewCareerPlanModal({ onClose, onSuccess }: NewCareerPlanModalPro
             <Textarea
               id="plan-coaching"
               value={form.coachingNotes}
-              onChange={(e) => setForm((f) => ({ ...f, coachingNotes: e.target.value }))}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, coachingNotes: e.target.value }))
+              }
               rows={2}
               className="w-full resize-none"
             />
@@ -206,7 +241,9 @@ export function NewCareerPlanModal({ onClose, onSuccess }: NewCareerPlanModalPro
             <Textarea
               id="plan-description"
               value={form.description}
-              onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, description: e.target.value }))
+              }
               rows={2}
               className="w-full resize-none"
             />

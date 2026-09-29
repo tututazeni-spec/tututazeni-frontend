@@ -28,9 +28,7 @@ import { useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { Button } from '@/components/ui/Button';
-import {
-  DepartmentUserPicker,
-} from '@/components/departments/DepartmentUserPicker';
+import { DepartmentUserPicker } from '@/components/departments/DepartmentUserPicker';
 import {
   useUnits,
   type DirectoryUser,
@@ -250,7 +248,11 @@ export function CreateEventModal({ onClose }: CreateEventModalProps) {
                 />
               </FormField>
 
-              <FormField label="Categoria" htmlFor="ev-category" hint="Opcional.">
+              <FormField
+                label="Categoria"
+                htmlFor="ev-category"
+                hint="Opcional."
+              >
                 <Input
                   id="ev-category"
                   value={category}

@@ -34,7 +34,8 @@ export function DashboardView({
   if (isError || !dashboard)
     return <ErrorBanner message={errorMessage} onRetry={onRetry} />;
 
-  const { totals, distributions, recentDisbursements, recentInteractions } = dashboard;
+  const { totals, distributions, recentDisbursements, recentInteractions } =
+    dashboard;
 
   return (
     <div className="p-6 space-y-6">
@@ -56,17 +57,41 @@ export function DashboardView({
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <SummaryCard label="Total" value={String(totals.total)} color="text-ink" />
-        <SummaryCard label="Activos" value={String(totals.active)} color="text-success-ink" />
-        <SummaryCard label="Grants activos" value={String(totals.activeGrants)} color="text-primary" />
+        <SummaryCard
+          label="Total"
+          value={String(totals.total)}
+          color="text-ink"
+        />
+        <SummaryCard
+          label="Activos"
+          value={String(totals.active)}
+          color="text-success-ink"
+        />
+        <SummaryCard
+          label="Grants activos"
+          value={String(totals.activeGrants)}
+          color="text-primary"
+        />
         <SummaryCard
           label="Relatórios em atraso"
           value={String(totals.overdueReports)}
           color="text-danger-ink"
         />
-        <SummaryCard label="Comprometido" value={formatMoney(totals.totalCommitted)} color="text-ink" />
-        <SummaryCard label="Recebido" value={formatMoney(totals.totalReceived)} color="text-success-ink" />
-        <SummaryCard label="Pendente" value={formatMoney(totals.totalPending)} color="text-warning-ink" />
+        <SummaryCard
+          label="Comprometido"
+          value={formatMoney(totals.totalCommitted)}
+          color="text-ink"
+        />
+        <SummaryCard
+          label="Recebido"
+          value={formatMoney(totals.totalReceived)}
+          color="text-success-ink"
+        />
+        <SummaryCard
+          label="Pendente"
+          value={formatMoney(totals.totalPending)}
+          color="text-warning-ink"
+        />
         <SummaryCard
           label="Taxa de execução"
           value={`${totals.executionRate.toFixed(1)}%`}
@@ -75,8 +100,16 @@ export function DashboardView({
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <DistributionList title="Por tipo" data={distributions.byType} labelKey="type" />
-        <DistributionList title="Por estado" data={distributions.byStatus} labelKey="status" />
+        <DistributionList
+          title="Por tipo"
+          data={distributions.byType}
+          labelKey="type"
+        />
+        <DistributionList
+          title="Por estado"
+          data={distributions.byStatus}
+          labelKey="status"
+        />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -88,15 +121,24 @@ export function DashboardView({
           </div>
           <div className="divide-y divide-border">
             {recentDisbursements.length === 0 ? (
-              <p className="p-4 font-body text-ink-faint">Sem desembolsos recentes</p>
+              <p className="p-4 font-body text-ink-faint">
+                Sem desembolsos recentes
+              </p>
             ) : (
               recentDisbursements.map((d) => (
-                <div key={d.id} className="p-4 flex justify-between items-center">
+                <div
+                  key={d.id}
+                  className="p-4 flex justify-between items-center"
+                >
                   <div>
-                    <p className="font-body text-sm font-medium text-ink">{d.grant.title}</p>
+                    <p className="font-body text-sm font-medium text-ink">
+                      {d.grant.title}
+                    </p>
                     <p className="font-body text-xs text-ink-muted">
                       {formatMoney(d.amount)}
-                      {d.createdBy?.fullName ? ` · ${d.createdBy.fullName}` : ''}
+                      {d.createdBy?.fullName
+                        ? ` · ${d.createdBy.fullName}`
+                        : ''}
                     </p>
                   </div>
                   <span className="font-body text-xs text-ink-faint">
@@ -116,12 +158,19 @@ export function DashboardView({
           </div>
           <div className="divide-y divide-border">
             {recentInteractions.length === 0 ? (
-              <p className="p-4 font-body text-ink-faint">Sem interacções recentes</p>
+              <p className="p-4 font-body text-ink-faint">
+                Sem interacções recentes
+              </p>
             ) : (
               recentInteractions.map((it) => (
-                <div key={it.id} className="p-4 flex justify-between items-center">
+                <div
+                  key={it.id}
+                  className="p-4 flex justify-between items-center"
+                >
                   <div>
-                    <p className="font-body text-sm font-medium text-ink">{it.subject}</p>
+                    <p className="font-body text-sm font-medium text-ink">
+                      {it.subject}
+                    </p>
                     <p className="font-body text-xs text-ink-muted">
                       {it.funder.name} ({it.funder.code})
                       {it.user?.fullName ? ` · ${it.user.fullName}` : ''}

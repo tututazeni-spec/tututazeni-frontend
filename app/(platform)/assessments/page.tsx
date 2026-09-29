@@ -39,9 +39,7 @@ export default function AssessmentsPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-xl font-semibold text-ink">
-            {TITLES[nav.view]}
-          </h1>
+          <h1 className="text-xl font-semibold text-ink">{TITLES[nav.view]}</h1>
           <p className="text-sm text-ink-faint mt-0.5">INNOVA — Avaliações</p>
         </div>
       </div>

@@ -38,19 +38,26 @@ export function CriteriaTab() {
   const confirm = useConfirm();
 
   const criteriaParams = { includeInactive: 'true' };
-  const { data: criteria = [], isLoading: loading } = useApiQuery<EvalCriteria[]>(
-    queryKeys.evaluation.criteria(criteriaParams),
-    '/evaluations/criteria',
-    { params: criteriaParams, staleTime: STALE_TIME.SEMI_STATIC },
+  const { data: criteria = [], isLoading: loading } = useApiQuery<
+    EvalCriteria[]
+  >(queryKeys.evaluation.criteria(criteriaParams), '/evaluations/criteria', {
+    params: criteriaParams,
+    staleTime: STALE_TIME.SEMI_STATIC,
+  });
+
+  const [editing, setEditing] = useState<EvalCriteria | null | undefined>(
+    undefined,
   );
 
-  const [editing, setEditing] = useState<EvalCriteria | null | undefined>(undefined);
-
   const toggleActive = useApiMutation(
-    (c: EvalCriteria) => apiClient.patch(`/evaluations/criteria/${c.id}`, { isActive: !c.isActive }),
+    (c: EvalCriteria) =>
+      apiClient.patch(`/evaluations/criteria/${c.id}`, {
+        isActive: !c.isActive,
+      }),
     {
       invalidateKeys: [queryKeys.evaluation.criteria()],
-      onSuccess: () => notify({ title: 'Estado do critério actualizado', intent: 'success' }),
+      onSuccess: () =>
+        notify({ title: 'Estado do critério actualizado', intent: 'success' }),
     },
   );
 
@@ -58,7 +65,8 @@ export function CriteriaTab() {
     if (
       await confirm({
         title: `Remover "${c.name}"?`,
-        message: 'O critério deixa de estar disponível para novos modelos, mas não afecta avaliações já criadas.',
+        message:
+          'O critério deixa de estar disponível para novos modelos, mas não afecta avaliações já criadas.',
         confirmLabel: 'Remover',
         destructive: true,
       })
@@ -67,14 +75,21 @@ export function CriteriaTab() {
         await apiClient.delete(`/evaluations/criteria/${c.id}`);
         notify({ title: 'Critério removido', intent: 'success' });
       } catch {
-        notify({ title: 'Não foi possível remover o critério', intent: 'danger' });
+        notify({
+          title: 'Não foi possível remover o critério',
+          intent: 'danger',
+        });
       }
     }
   };
 
   if (loading)
     return (
-      <Skeleton rows={4} wrapperClassName="space-y-3" itemClassName="skeleton-shimmer h-14 rounded-card" />
+      <Skeleton
+        rows={4}
+        wrapperClassName="space-y-3"
+        itemClassName="skeleton-shimmer h-14 rounded-card"
+      />
     );
 
   return (
@@ -99,7 +114,15 @@ export function CriteriaTab() {
         <Table>
           <TableHead>
             <TableRow>
-              {['Nome', 'Código', 'Categoria', 'Peso', 'Escala', 'Estado', ''].map((h) => (
+              {[
+                'Nome',
+                'Código',
+                'Categoria',
+                'Peso',
+                'Escala',
+                'Estado',
+                '',
+              ].map((h) => (
                 <TableHeaderCell key={h}>{h}</TableHeaderCell>
               ))}
             </TableRow>
@@ -110,13 +133,21 @@ export function CriteriaTab() {
                 <TableCell>
                   <div className="font-medium text-ink">{c.name}</div>
                   {c.description && (
-                    <div className="text-xs text-ink-faint line-clamp-1">{c.description}</div>
+                    <div className="text-xs text-ink-faint line-clamp-1">
+                      {c.description}
+                    </div>
                   )}
                 </TableCell>
-                <TableCell className="text-ink-muted">{c.code ?? '—'}</TableCell>
-                <TableCell className="text-ink-muted">{c.category ?? '—'}</TableCell>
+                <TableCell className="text-ink-muted">
+                  {c.code ?? '—'}
+                </TableCell>
+                <TableCell className="text-ink-muted">
+                  {c.category ?? '—'}
+                </TableCell>
                 <TableCell className="text-ink-muted">{c.weight}</TableCell>
-                <TableCell className="text-ink-muted">{c.scale?.name ?? '—'}</TableCell>
+                <TableCell className="text-ink-muted">
+                  {c.scale?.name ?? '—'}
+                </TableCell>
                 <TableCell>
                   <Badge intent={c.isActive ? 'success' : 'neutral'}>
                     {c.isActive ? 'Activo' : 'Inactivo'}
@@ -159,7 +190,10 @@ export function CriteriaTab() {
       )}
 
       {editing !== undefined && (
-        <CriteriaFormModal criteria={editing} onClose={() => setEditing(undefined)} />
+        <CriteriaFormModal
+          criteria={editing}
+          onClose={() => setEditing(undefined)}
+        />
       )}
     </div>
   );

@@ -54,9 +54,7 @@ export function EmployeeDrawer({ employee, onClose }: EmployeeDrawerProps) {
             <div className="flex items-center gap-4">
               <Avatar url={employee.avatarUrl} name={employee.name} size="lg" />
               <div>
-                <h2 className="text-lg font-bold text-ink">
-                  {employee.name}
-                </h2>
+                <h2 className="text-lg font-bold text-ink">{employee.name}</h2>
                 <p className="text-sm text-ink-muted">
                   {employee.jobTitle ?? employee.role}
                 </p>
@@ -67,7 +65,12 @@ export function EmployeeDrawer({ employee, onClose }: EmployeeDrawerProps) {
                 )}
               </div>
             </div>
-            <IconButton icon={X} label="Fechar" intent="ghost" onClick={onClose} />
+            <IconButton
+              icon={X}
+              label="Fechar"
+              intent="ghost"
+              onClick={onClose}
+            />
           </div>
         </div>
 
@@ -121,7 +124,11 @@ export function EmployeeDrawer({ employee, onClose }: EmployeeDrawerProps) {
                   key={row.label}
                   className="flex items-center gap-3 py-2 border-b border-border last:border-0"
                 >
-                  <row.icon size={16} strokeWidth={1.75} className="text-ink-faint flex-shrink-0" />
+                  <row.icon
+                    size={16}
+                    strokeWidth={1.75}
+                    className="text-ink-faint flex-shrink-0"
+                  />
                   <span className="text-xs text-ink-muted w-24 flex-shrink-0">
                     {row.label}
                   </span>
@@ -155,7 +162,11 @@ export function EmployeeDrawer({ employee, onClose }: EmployeeDrawerProps) {
                   key={s.label}
                   className="bg-surface-sunken rounded-card p-3 text-center"
                 >
-                  <s.icon size={16} strokeWidth={1.75} className="text-ink-faint mx-auto mb-1" />
+                  <s.icon
+                    size={16}
+                    strokeWidth={1.75}
+                    className="text-ink-faint mx-auto mb-1"
+                  />
                   <p className="text-xl font-bold text-ink">{s.value}</p>
                   <p className="text-xs text-ink-muted">{s.label}</p>
                 </div>

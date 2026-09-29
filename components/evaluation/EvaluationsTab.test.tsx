@@ -10,13 +10,18 @@ const post = vi.fn().mockResolvedValue({});
 const patch = vi.fn().mockResolvedValue({});
 
 vi.mock('@/lib/apiClient', () => ({
-  apiClient: { post: (...a: unknown[]) => post(...a), patch: (...a: unknown[]) => patch(...a) },
+  apiClient: {
+    post: (...a: unknown[]) => post(...a),
+    patch: (...a: unknown[]) => patch(...a),
+  },
 }));
 
 vi.mock('@/hooks/useApiQuery', () => ({
   useApiQuery: (key: unknown, path: string) => {
-    if (path === '/evaluations/requests') return { data: requestsData, isLoading: false };
-    if (path === '/evaluations/cycles') return { data: { data: [] }, isLoading: false };
+    if (path === '/evaluations/requests')
+      return { data: requestsData, isLoading: false };
+    if (path === '/evaluations/cycles')
+      return { data: { data: [] }, isLoading: false };
     if (path === '/departments/tree') return { data: [], isLoading: false };
     return { data: undefined, isLoading: false };
   },
@@ -40,15 +45,25 @@ vi.mock('@/components/departments/departmentFormData', () => ({
 
 let currentRole: string | undefined = 'ADMIN';
 let currentUser: { id: number } | undefined = { id: 1 };
-vi.mock('@/hooks/useCurrentRole', () => ({ useCurrentRole: () => currentRole }));
-vi.mock('@/hooks/useCurrentUser', () => ({ useCurrentUser: () => ({ data: currentUser }) }));
+vi.mock('@/hooks/useCurrentRole', () => ({
+  useCurrentRole: () => currentRole,
+}));
+vi.mock('@/hooks/useCurrentUser', () => ({
+  useCurrentUser: () => ({ data: currentUser }),
+}));
 
 const notify = vi.fn();
 vi.mock('@/providers/ToastProvider', () => ({ useToast: () => notify }));
 
-vi.mock('./NewEvaluationWizard', () => ({ NewEvaluationWizard: () => <div data-testid="wizard" /> }));
-vi.mock('./EvaluationDetailModal', () => ({ EvaluationDetailModal: () => <div data-testid="detail" /> }));
-vi.mock('./SubmitEvaluationModal', () => ({ SubmitEvaluationModal: () => <div data-testid="submit" /> }));
+vi.mock('./NewEvaluationWizard', () => ({
+  NewEvaluationWizard: () => <div data-testid="wizard" />,
+}));
+vi.mock('./EvaluationDetailModal', () => ({
+  EvaluationDetailModal: () => <div data-testid="detail" />,
+}));
+vi.mock('./SubmitEvaluationModal', () => ({
+  SubmitEvaluationModal: () => <div data-testid="submit" />,
+}));
 
 import { EvaluationsTab } from './EvaluationsTab';
 
@@ -84,7 +99,12 @@ describe('EvaluationsTab', () => {
           type: 'MANAGER',
           purpose: 'PERFORMANCE',
           name: null,
-          cycle: { id: 1, name: 'Ciclo 2026', startDate: '2026-01-01', endDate: '2026-12-31' },
+          cycle: {
+            id: 1,
+            name: 'Ciclo 2026',
+            startDate: '2026-01-01',
+            endDate: '2026-12-31',
+          },
           period: '2026',
           status: 'IN_PROGRESS',
           dueDate: null,
@@ -127,7 +147,9 @@ describe('EvaluationsTab', () => {
     };
     render(<EvaluationsTab />);
     fireEvent.click(screen.getByLabelText('Enviar lembrete'));
-    await waitFor(() => expect(post).toHaveBeenCalledWith('/evaluations/requests/10/remind', {}));
+    await waitFor(() =>
+      expect(post).toHaveBeenCalledWith('/evaluations/requests/10/remind', {}),
+    );
   });
 
   test('botão "Nova Avaliação" abre o assistente', () => {

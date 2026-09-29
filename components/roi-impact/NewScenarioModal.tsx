@@ -20,12 +20,18 @@ import { Modal, ModalContent } from '@/components/ui/Modal';
 import { Select } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
 import { fmt$, INITIATIVE_TYPE_LABELS, SCENARIO_CASE_LABELS } from './utils';
-import type { RoiAnalysisListData, RoiInitiativeType, ScenarioProjections } from './types';
+import type {
+  RoiAnalysisListData,
+  RoiInitiativeType,
+  ScenarioProjections,
+} from './types';
 
-const INITIATIVE_TYPE_ITEMS = Object.entries(INITIATIVE_TYPE_LABELS).map(([value, label]) => ({
-  value,
-  label,
-}));
+const INITIATIVE_TYPE_ITEMS = Object.entries(INITIATIVE_TYPE_LABELS).map(
+  ([value, label]) => ({
+    value,
+    label,
+  }),
+);
 
 export interface NewScenarioModalProps {
   onClose: () => void;
@@ -36,12 +42,15 @@ export function NewScenarioModal({ onClose }: NewScenarioModalProps) {
   const [error, setError] = useState('');
 
   const [name, setName] = useState('');
-  const [initiativeType, setInitiativeType] = useState<RoiInitiativeType>('CURSO');
+  const [initiativeType, setInitiativeType] =
+    useState<RoiInitiativeType>('CURSO');
   const [description, setDescription] = useState('');
   const [departmentId, setDepartmentId] = useState('');
   const [targetAudienceCount, setTargetAudienceCount] = useState('');
   const [estimatedCost, setEstimatedCost] = useState('');
-  const [benefitSource, setBenefitSource] = useState<'manual' | 'analysis'>('manual');
+  const [benefitSource, setBenefitSource] = useState<'manual' | 'analysis'>(
+    'manual',
+  );
   const [expectedBenefit, setExpectedBenefit] = useState('');
   const [basedOnAnalysisId, setBasedOnAnalysisId] = useState('');
   const [assumptions, setAssumptions] = useState('');
@@ -52,11 +61,11 @@ export function NewScenarioModal({ onClose }: NewScenarioModalProps) {
     projections: ScenarioProjections | null;
   } | null>(null);
 
-  const { data: deptTree } = useApiQuery<{ id: number; name: string; children?: unknown[] }[]>(
-    queryKeys.departments.tree(),
-    '/departments/tree',
-    { staleTime: STALE_TIME.SEMI_STATIC },
-  );
+  const { data: deptTree } = useApiQuery<
+    { id: number; name: string; children?: unknown[] }[]
+  >(queryKeys.departments.tree(), '/departments/tree', {
+    staleTime: STALE_TIME.SEMI_STATIC,
+  });
   const departments = useMemo(() => {
     const flat: { id: number; name: string }[] = [];
     const walk = (nodes: typeof deptTree) => {
@@ -74,7 +83,9 @@ export function NewScenarioModal({ onClose }: NewScenarioModalProps) {
     '/roi-impact/analyses',
     { staleTime: STALE_TIME.DYNAMIC, enabled: benefitSource === 'analysis' },
   );
-  const measuredAnalyses = (analysesData?.analyses ?? []).filter((a) => a.realizedBenefit != null);
+  const measuredAnalyses = (analysesData?.analyses ?? []).filter(
+    (a) => a.realizedBenefit != null,
+  );
 
   const create = useApiMutation(
     () =>
@@ -88,12 +99,18 @@ export function NewScenarioModal({ onClose }: NewScenarioModalProps) {
         initiativeType,
         description: description.trim() || undefined,
         departmentId: departmentId ? Number(departmentId) : undefined,
-        targetAudienceCount: targetAudienceCount ? Number(targetAudienceCount) : undefined,
+        targetAudienceCount: targetAudienceCount
+          ? Number(targetAudienceCount)
+          : undefined,
         estimatedCost: Number(estimatedCost),
         expectedBenefit:
-          benefitSource === 'manual' && expectedBenefit ? Number(expectedBenefit) : undefined,
+          benefitSource === 'manual' && expectedBenefit
+            ? Number(expectedBenefit)
+            : undefined,
         basedOnAnalysisId:
-          benefitSource === 'analysis' && basedOnAnalysisId ? Number(basedOnAnalysisId) : undefined,
+          benefitSource === 'analysis' && basedOnAnalysisId
+            ? Number(basedOnAnalysisId)
+            : undefined,
         assumptions: assumptions.trim() || undefined,
       }),
     {
@@ -147,13 +164,18 @@ export function NewScenarioModal({ onClose }: NewScenarioModalProps) {
                 <Select
                   items={INITIATIVE_TYPE_ITEMS}
                   value={initiativeType}
-                  onValueChange={(v) => setInitiativeType(v as RoiInitiativeType)}
+                  onValueChange={(v) =>
+                    setInitiativeType(v as RoiInitiativeType)
+                  }
                   className="w-full"
                 />
               </FormField>
               <FormField label="Departamento (público-alvo)" htmlFor="sc-dept">
                 <Select
-                  items={departments.map((d) => ({ value: String(d.id), label: d.name }))}
+                  items={departments.map((d) => ({
+                    value: String(d.id),
+                    label: d.name,
+                  }))}
                   value={departmentId}
                   onValueChange={setDepartmentId}
                   placeholder="Selecionar…"
@@ -163,7 +185,10 @@ export function NewScenarioModal({ onClose }: NewScenarioModalProps) {
             </div>
 
             <div className="grid grid-cols-2 gap-3">
-              <FormField label="Nº de colaboradores (público-alvo)" htmlFor="sc-audience">
+              <FormField
+                label="Nº de colaboradores (público-alvo)"
+                htmlFor="sc-audience"
+              >
                 <Input
                   id="sc-audience"
                   type="number"
@@ -227,7 +252,10 @@ export function NewScenarioModal({ onClose }: NewScenarioModalProps) {
               </div>
 
               {benefitSource === 'manual' ? (
-                <FormField label="Benefício esperado (AOA, em 12 meses)" htmlFor="sc-benefit">
+                <FormField
+                  label="Benefício esperado (AOA, em 12 meses)"
+                  htmlFor="sc-benefit"
+                >
                   <Input
                     id="sc-benefit"
                     type="number"
@@ -238,12 +266,17 @@ export function NewScenarioModal({ onClose }: NewScenarioModalProps) {
                   />
                 </FormField>
               ) : (
-                <FormField label="Análise de ROI semelhante (já medida) *" htmlFor="sc-analysis">
+                <FormField
+                  label="Análise de ROI semelhante (já medida) *"
+                  htmlFor="sc-analysis"
+                >
                   <Select
                     items={measuredAnalyses.map((a) => ({
                       value: String(a.id),
                       label: `${a.name} — BCR ${
-                        a.totalCost > 0 ? (a.realizedBenefit! / a.totalCost).toFixed(2) : '—'
+                        a.totalCost > 0
+                          ? (a.realizedBenefit! / a.totalCost).toFixed(2)
+                          : '—'
                       }`,
                     }))}
                     value={basedOnAnalysisId}
@@ -258,8 +291,8 @@ export function NewScenarioModal({ onClose }: NewScenarioModalProps) {
                 </FormField>
               )}
               <p className="mt-2 font-body text-[11px] text-ink-faint">
-                O benefício projectado é escalado pelo rácio benefício/custo (BCR) da análise
-                escolhida sobre o custo estimado deste cenário.
+                O benefício projectado é escalado pelo rácio benefício/custo
+                (BCR) da análise escolhida sobre o custo estimado deste cenário.
               </p>
             </div>
 
@@ -277,7 +310,9 @@ export function NewScenarioModal({ onClose }: NewScenarioModalProps) {
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-3 text-sm">
               <div className="rounded-card border border-border bg-surface-sunken p-3">
-                <p className="text-ink-faint text-xs">ROI projectado (Realista)</p>
+                <p className="text-ink-faint text-xs">
+                  ROI projectado (Realista)
+                </p>
                 <p className="font-display text-xl font-bold text-ink">
                   {preview.roiPercent != null ? `${preview.roiPercent}%` : '—'}
                 </p>
@@ -285,7 +320,9 @@ export function NewScenarioModal({ onClose }: NewScenarioModalProps) {
               <div className="rounded-card border border-border bg-surface-sunken p-3">
                 <p className="text-ink-faint text-xs">Payback projectado</p>
                 <p className="font-display text-xl font-bold text-ink">
-                  {preview.paybackMonths != null ? `${preview.paybackMonths} meses` : '—'}
+                  {preview.paybackMonths != null
+                    ? `${preview.paybackMonths} meses`
+                    : '—'}
                 </p>
               </div>
             </div>
@@ -303,16 +340,31 @@ export function NewScenarioModal({ onClose }: NewScenarioModalProps) {
                     </tr>
                   </thead>
                   <tbody>
-                    {(Object.keys(preview.projections) as (keyof ScenarioProjections)[]).map((k) => {
+                    {(
+                      Object.keys(
+                        preview.projections,
+                      ) as (keyof ScenarioProjections)[]
+                    ).map((k) => {
                       const p = preview.projections![k];
                       return (
-                        <tr key={k} className="border-b border-border last:border-0">
-                          <td className="px-3 py-2 font-medium text-ink">{SCENARIO_CASE_LABELS[k]}</td>
+                        <tr
+                          key={k}
+                          className="border-b border-border last:border-0"
+                        >
+                          <td className="px-3 py-2 font-medium text-ink">
+                            {SCENARIO_CASE_LABELS[k]}
+                          </td>
                           <td className="px-3 py-2 text-ink">{fmt$(p.cost)}</td>
-                          <td className="px-3 py-2 text-ink">{fmt$(p.benefit)}</td>
-                          <td className="px-3 py-2 text-ink">{p.roiPercent}%</td>
                           <td className="px-3 py-2 text-ink">
-                            {p.paybackMonths != null ? `${p.paybackMonths} meses` : '—'}
+                            {fmt$(p.benefit)}
+                          </td>
+                          <td className="px-3 py-2 text-ink">
+                            {p.roiPercent}%
+                          </td>
+                          <td className="px-3 py-2 text-ink">
+                            {p.paybackMonths != null
+                              ? `${p.paybackMonths} meses`
+                              : '—'}
                           </td>
                         </tr>
                       );
@@ -322,7 +374,8 @@ export function NewScenarioModal({ onClose }: NewScenarioModalProps) {
               </div>
             ) : (
               <p className="rounded-card bg-warning-subtle p-3 text-xs text-warning-ink">
-                {preview.note ?? 'Sem benefício esperado — projecção indisponível.'}
+                {preview.note ??
+                  'Sem benefício esperado — projecção indisponível.'}
               </p>
             )}
 
@@ -335,7 +388,12 @@ export function NewScenarioModal({ onClose }: NewScenarioModalProps) {
         )}
 
         <div className="mt-6 flex gap-3 border-t border-border pt-4">
-          <Button intent="secondary" className="justify-center" onClick={onClose} disabled={create.isPending}>
+          <Button
+            intent="secondary"
+            className="justify-center"
+            onClick={onClose}
+            disabled={create.isPending}
+          >
             {preview ? 'Fechar' : 'Cancelar'}
           </Button>
           {!preview && (

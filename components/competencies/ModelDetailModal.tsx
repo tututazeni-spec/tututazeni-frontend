@@ -33,7 +33,12 @@ export interface ModelDetailModalProps {
   onClose: () => void;
 }
 
-export function ModelDetailModal({ modelId, canManage, onEdit, onClose }: ModelDetailModalProps) {
+export function ModelDetailModal({
+  modelId,
+  canManage,
+  onEdit,
+  onClose,
+}: ModelDetailModalProps) {
   const confirm = useConfirm();
   const toast = useToast();
 
@@ -47,23 +52,28 @@ export function ModelDetailModal({ modelId, canManage, onEdit, onClose }: ModelD
     queryKeys.competencies.all,
     queryKeys.competencies.modelDetail(modelId),
   ];
-  const toastError = (e: Error) => toast({ title: e.message, intent: 'danger' });
+  const toastError = (e: Error) =>
+    toast({ title: e.message, intent: 'danger' });
 
-  const removeModel = useApiMutation(() => apiClient.delete(`/competencies/models/${modelId}`), {
-    invalidateKeys,
-    onSuccess: () => {
-      toast({ title: 'Modelo eliminado.', intent: 'success' });
-      onClose();
+  const removeModel = useApiMutation(
+    () => apiClient.delete(`/competencies/models/${modelId}`),
+    {
+      invalidateKeys,
+      onSuccess: () => {
+        toast({ title: 'Modelo eliminado.', intent: 'success' });
+        onClose();
+      },
+      onError: toastError,
     },
-    onError: toastError,
-  });
+  );
 
   const removeItem = useApiMutation(
     (competencyId: number) =>
       apiClient.delete(`/competencies/models/${modelId}/items/${competencyId}`),
     {
       invalidateKeys,
-      onSuccess: () => toast({ title: 'Competência removida do modelo.', intent: 'success' }),
+      onSuccess: () =>
+        toast({ title: 'Competência removida do modelo.', intent: 'success' }),
       onError: toastError,
     },
   );
@@ -71,7 +81,8 @@ export function ModelDetailModal({ modelId, canManage, onEdit, onClose }: ModelD
   async function onDeleteModel() {
     const ok = await confirm({
       title: `Eliminar "${data?.name}"?`,
-      message: 'Esta acção é irreversível. Remova primeiro as competências associadas.',
+      message:
+        'Esta acção é irreversível. Remova primeiro as competências associadas.',
       confirmLabel: 'Eliminar',
       destructive: true,
     });
@@ -108,7 +119,10 @@ export function ModelDetailModal({ modelId, canManage, onEdit, onClose }: ModelD
               <div className="flex flex-wrap items-center gap-2">
                 <StatusBadge value={data.status} map={STATUS_CFG} />
                 {data.hierarchyLevel && (
-                  <StatusBadge value={data.hierarchyLevel} map={HIERARCHY_LEVEL_CFG} />
+                  <StatusBadge
+                    value={data.hierarchyLevel}
+                    map={HIERARCHY_LEVEL_CFG}
+                  />
                 )}
                 <span className="rounded bg-surface-sunken px-1.5 py-0.5 font-body text-xs text-ink-muted">
                   v{data.version}
@@ -118,12 +132,18 @@ export function ModelDetailModal({ modelId, canManage, onEdit, onClose }: ModelD
               <div className="flex flex-wrap gap-4 font-body text-xs text-ink-faint">
                 {data.code && <span>Código: {data.code}</span>}
                 {data.type && <span>Tipo: {data.type}</span>}
-                {data.department && <span>Departamento: {data.department.name}</span>}
-                {data.positionFamily && <span>Família: {data.positionFamily}</span>}
+                {data.department && (
+                  <span>Departamento: {data.department.name}</span>
+                )}
+                {data.positionFamily && (
+                  <span>Família: {data.positionFamily}</span>
+                )}
               </div>
 
               {data.description && (
-                <p className="font-body text-sm text-ink-muted">{data.description}</p>
+                <p className="font-body text-sm text-ink-muted">
+                  {data.description}
+                </p>
               )}
 
               {data.objective && (
@@ -165,7 +185,10 @@ export function ModelDetailModal({ modelId, canManage, onEdit, onClose }: ModelD
                           <div className="font-body text-sm font-medium text-ink">
                             {item.competency.name}
                           </div>
-                          <StatusBadge value={item.competency.category} map={CATEGORY_CFG} />
+                          <StatusBadge
+                            value={item.competency.category}
+                            map={CATEGORY_CFG}
+                          />
                         </div>
                         <span className="font-data text-xs text-ink-muted">
                           nível {item.expectedLevel} · peso {item.weight}
@@ -184,7 +207,12 @@ export function ModelDetailModal({ modelId, canManage, onEdit, onClose }: ModelD
                           <button
                             type="button"
                             aria-label="Remover competência do modelo"
-                            onClick={() => onRemoveItem(item.competencyId, item.competency.name)}
+                            onClick={() =>
+                              onRemoveItem(
+                                item.competencyId,
+                                item.competency.name,
+                              )
+                            }
                             className="rounded p-1.5 text-ink-faint hover:bg-danger-subtle hover:text-danger-ink"
                           >
                             <Trash2 size={14} strokeWidth={1.75} />
@@ -196,7 +224,10 @@ export function ModelDetailModal({ modelId, canManage, onEdit, onClose }: ModelD
                 )}
 
                 {canManage && (
-                  <AddItemForm modelId={modelId} existingIds={data.items.map((i) => i.competencyId)} />
+                  <AddItemForm
+                    modelId={modelId}
+                    existingIds={data.items.map((i) => i.competencyId)}
+                  />
                 )}
               </div>
             </div>
@@ -223,10 +254,18 @@ export function ModelDetailModal({ modelId, canManage, onEdit, onClose }: ModelD
   );
 }
 
-function AddItemForm({ modelId, existingIds }: { modelId: number; existingIds: number[] }) {
+function AddItemForm({
+  modelId,
+  existingIds,
+}: {
+  modelId: number;
+  existingIds: number[];
+}) {
   const toast = useToast();
   const { options: allOptions, loading } = useCompetencyOptions();
-  const options = allOptions.filter((o) => !existingIds.includes(parseInt(o.value, 10)));
+  const options = allOptions.filter(
+    (o) => !existingIds.includes(parseInt(o.value, 10)),
+  );
 
   const [competencyId, setCompetencyId] = useState('');
   const [expectedLevel, setExpectedLevel] = useState('3');
@@ -245,7 +284,10 @@ function AddItemForm({ modelId, existingIds }: { modelId: number; existingIds: n
     {
       invalidateKeys,
       onSuccess: () => {
-        toast({ title: 'Competência adicionada ao modelo.', intent: 'success' });
+        toast({
+          title: 'Competência adicionada ao modelo.',
+          intent: 'success',
+        });
         setCompetencyId('');
         setExpectedLevel('3');
         setWeight('1');

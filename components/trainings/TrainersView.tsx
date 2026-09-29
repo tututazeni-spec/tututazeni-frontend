@@ -40,11 +40,15 @@ export function TrainersView() {
   );
 
   const invalidateKeys = [queryKeys.trainingTrainers.all];
-  const remove = useApiMutation((id: number) => apiClient.delete(`/training-trainers/${id}`), {
-    invalidateKeys,
-    onSuccess: () => toast({ title: 'Formador eliminado.', intent: 'success' }),
-    onError: (e) => toast({ title: e.message, intent: 'danger' }),
-  });
+  const remove = useApiMutation(
+    (id: number) => apiClient.delete(`/training-trainers/${id}`),
+    {
+      invalidateKeys,
+      onSuccess: () =>
+        toast({ title: 'Formador eliminado.', intent: 'success' }),
+      onError: (e) => toast({ title: e.message, intent: 'danger' }),
+    },
+  );
 
   async function onRemove(t: Trainer) {
     const ok = await confirm({
@@ -78,21 +82,38 @@ export function TrainersView() {
           {list.map((t) => {
             const statusCfg = TRAINER_STATUS_CFG[t.status];
             return (
-              <div key={t.id} className="flex flex-wrap items-center gap-3 px-4 py-3">
-                <Avatar name={t.name} url={t.user?.avatarUrl ?? undefined} size="sm" />
+              <div
+                key={t.id}
+                className="flex flex-wrap items-center gap-3 px-4 py-3"
+              >
+                <Avatar
+                  name={t.name}
+                  url={t.user?.avatarUrl ?? undefined}
+                  size="sm"
+                />
                 <div className="min-w-0 flex-1">
-                  <div className="truncate text-sm font-medium text-ink">{t.name}</div>
+                  <div className="truncate text-sm font-medium text-ink">
+                    {t.name}
+                  </div>
                   <div className="text-xs text-ink-faint">
                     {TRAINER_TYPE_LABEL[t.type]}
                     {t.entity ? ` · ${t.entity}` : ''}
-                    {t.trainingAreas.length > 0 ? ` · ${t.trainingAreas.join(', ')}` : ''}
+                    {t.trainingAreas.length > 0
+                      ? ` · ${t.trainingAreas.join(', ')}`
+                      : ''}
                   </div>
                 </div>
-                <span className={`flex-shrink-0 rounded px-2 py-0.5 font-body text-xs font-medium ${statusCfg.cls}`}>
+                <span
+                  className={`flex-shrink-0 rounded px-2 py-0.5 font-body text-xs font-medium ${statusCfg.cls}`}
+                >
                   {statusCfg.label}
                 </span>
                 <div className="flex flex-shrink-0 items-center gap-2">
-                  <Button intent="ghost" size="sm" onClick={() => setEditTrainer(t)}>
+                  <Button
+                    intent="ghost"
+                    size="sm"
+                    onClick={() => setEditTrainer(t)}
+                  >
                     Editar
                   </Button>
                   <Button
@@ -114,14 +135,18 @@ export function TrainersView() {
         <TrainerFormModal
           trainer={null}
           onClose={() => setShowCreate(false)}
-          onSuccess={() => toast({ title: 'Formador criado.', intent: 'success' })}
+          onSuccess={() =>
+            toast({ title: 'Formador criado.', intent: 'success' })
+          }
         />
       )}
       {editTrainer && (
         <TrainerFormModal
           trainer={editTrainer}
           onClose={() => setEditTrainer(null)}
-          onSuccess={() => toast({ title: 'Formador actualizado.', intent: 'success' })}
+          onSuccess={() =>
+            toast({ title: 'Formador actualizado.', intent: 'success' })
+          }
         />
       )}
     </div>

@@ -40,13 +40,20 @@ export function RecordingsView({ canManage }: { canManage: boolean }) {
   const [page, setPage] = useState(1);
   const [viewing, setViewing] = useState<RecordingRow | null>(null);
   const [editing, setEditing] = useState<RecordingRow | null>(null);
-  const [editForm, setEditForm] = useState({ recordingUrl: '', recordingExpiresAt: '' });
+  const [editForm, setEditForm] = useState({
+    recordingUrl: '',
+    recordingExpiresAt: '',
+  });
 
   const params = { page, limit: 20 };
   const { data, isLoading } = useApiQuery<PaginatedMeta<RecordingRow>>(
     queryKeys.liveClasses.recordings(params),
     '/live-classes/recordings',
-    { params, staleTime: STALE_TIME.DYNAMIC, placeholderData: keepPreviousData },
+    {
+      params,
+      staleTime: STALE_TIME.DYNAMIC,
+      placeholderData: keepPreviousData,
+    },
   );
   const rows = data?.data ?? [];
   const totalPages = data?.meta.totalPages ?? 1;
@@ -54,22 +61,40 @@ export function RecordingsView({ canManage }: { canManage: boolean }) {
   const invalidateKeys = [queryKeys.liveClasses.all];
 
   const togglePublish = useApiMutation(
-    (r: RecordingRow) => apiClient.post(`${routeFor(r)}/${r.publishedAt ? 'unpublish' : 'publish'}`, {}),
+    (r: RecordingRow) =>
+      apiClient.post(
+        `${routeFor(r)}/${r.publishedAt ? 'unpublish' : 'publish'}`,
+        {},
+      ),
     {
       invalidateKeys,
-      onSuccess: (_d, r) => toast({ title: r.publishedAt ? 'Gravação despublicada.' : 'Gravação publicada.', intent: 'success' }),
+      onSuccess: (_d, r) =>
+        toast({
+          title: r.publishedAt
+            ? 'Gravação despublicada.'
+            : 'Gravação publicada.',
+          intent: 'success',
+        }),
       onError: (e) => toast({ title: e.message, intent: 'danger' }),
     },
   );
 
-  const remove = useApiMutation((r: RecordingRow) => apiClient.delete(routeFor(r)), {
-    invalidateKeys,
-    onSuccess: () => toast({ title: 'Gravação eliminada.', intent: 'success' }),
-    onError: (e) => toast({ title: e.message, intent: 'danger' }),
-  });
+  const remove = useApiMutation(
+    (r: RecordingRow) => apiClient.delete(routeFor(r)),
+    {
+      invalidateKeys,
+      onSuccess: () =>
+        toast({ title: 'Gravação eliminada.', intent: 'success' }),
+      onError: (e) => toast({ title: e.message, intent: 'danger' }),
+    },
+  );
 
   async function onRemove(r: RecordingRow) {
-    const ok = await confirm({ title: `Eliminar a gravação de "${r.topic}"?`, confirmLabel: 'Eliminar', destructive: true });
+    const ok = await confirm({
+      title: `Eliminar a gravação de "${r.topic}"?`,
+      confirmLabel: 'Eliminar',
+      destructive: true,
+    });
     if (ok) remove.mutate(r);
   }
 
@@ -92,7 +117,10 @@ export function RecordingsView({ canManage }: { canManage: boolean }) {
               : undefined,
           };
       return r.sessionId
-        ? apiClient.put(`/live-classes/${r.liveClassId}/sessions/${r.sessionId}`, payload)
+        ? apiClient.put(
+            `/live-classes/${r.liveClassId}/sessions/${r.sessionId}`,
+            payload,
+          )
         : apiClient.put(`/live-classes/${r.liveClassId}`, payload);
     },
     {
@@ -120,7 +148,10 @@ export function RecordingsView({ canManage }: { canManage: boolean }) {
     <div className="space-y-4">
       <Card className="divide-y divide-border">
         {rows.map((r) => (
-          <div key={`${r.liveClassId}-${r.sessionId ?? 0}`} className="flex flex-wrap items-center gap-3 px-4 py-3">
+          <div
+            key={`${r.liveClassId}-${r.sessionId ?? 0}`}
+            className="flex flex-wrap items-center gap-3 px-4 py-3"
+          >
             <div className="min-w-0 flex-1">
               <div className="truncate text-sm font-medium text-ink">
                 {r.topic}
@@ -132,15 +163,21 @@ export function RecordingsView({ canManage }: { canManage: boolean }) {
                 <span>· {formatDateTime(r.date)}</span>
                 <span>· {r.durationMinutes}min</span>
                 <span>· {r.participants} participante(s)</span>
-                {r.expiresAt && <span>· Expira {formatDateTime(r.expiresAt)}</span>}
+                {r.expiresAt && (
+                  <span>· Expira {formatDateTime(r.expiresAt)}</span>
+                )}
               </div>
             </div>
             <span
               className={`rounded px-2 py-0.5 font-body text-xs font-medium ${
-                r.publishedAt ? 'bg-success-subtle text-success-ink' : 'bg-surface-sunken text-ink-faint'
+                r.publishedAt
+                  ? 'bg-success-subtle text-success-ink'
+                  : 'bg-surface-sunken text-ink-faint'
               }`}
             >
-              {r.publishedAt ? `Publicada ${formatDateTime(r.publishedAt)}` : 'Não publicada'}
+              {r.publishedAt
+                ? `Publicada ${formatDateTime(r.publishedAt)}`
+                : 'Não publicada'}
             </span>
             <div className="flex gap-2">
               <Button intent="ghost" size="sm" onClick={() => setViewing(r)}>
@@ -163,9 +200,15 @@ export function RecordingsView({ canManage }: { canManage: boolean }) {
                     intent="ghost"
                     size="sm"
                     onClick={() => togglePublish.mutate(r)}
-                    loading={togglePublish.isPending && togglePublish.variables === r}
+                    loading={
+                      togglePublish.isPending && togglePublish.variables === r
+                    }
                   >
-                    {r.publishedAt ? <EyeOff size={14} strokeWidth={1.75} /> : <Eye size={14} strokeWidth={1.75} />}
+                    {r.publishedAt ? (
+                      <EyeOff size={14} strokeWidth={1.75} />
+                    ) : (
+                      <Eye size={14} strokeWidth={1.75} />
+                    )}
                     {r.publishedAt ? 'Despublicar' : 'Publicar'}
                   </Button>
                   <Button
@@ -185,13 +228,23 @@ export function RecordingsView({ canManage }: { canManage: boolean }) {
 
       {totalPages > 1 && (
         <div className="flex justify-center gap-2">
-          <Button intent="ghost" size="sm" disabled={page === 1} onClick={() => setPage((p) => p - 1)}>
+          <Button
+            intent="ghost"
+            size="sm"
+            disabled={page === 1}
+            onClick={() => setPage((p) => p - 1)}
+          >
             ← Anterior
           </Button>
           <span className="py-2 px-3 text-sm text-ink-muted">
             {page} / {totalPages}
           </span>
-          <Button intent="ghost" size="sm" disabled={page === totalPages} onClick={() => setPage((p) => p + 1)}>
+          <Button
+            intent="ghost"
+            size="sm"
+            disabled={page === totalPages}
+            onClick={() => setPage((p) => p + 1)}
+          >
             Seguinte →
           </Button>
         </div>
@@ -200,7 +253,9 @@ export function RecordingsView({ canManage }: { canManage: boolean }) {
       {viewing && (
         <RecordingModal
           lc={{
-            topic: viewing.sessionSeq ? `${viewing.topic} · Sessão ${viewing.sessionSeq}` : viewing.topic,
+            topic: viewing.sessionSeq
+              ? `${viewing.topic} · Sessão ${viewing.sessionSeq}`
+              : viewing.topic,
             recordingUrl: viewing.recordingUrl,
             duration: viewing.durationMinutes,
             scheduledAt: viewing.date,
@@ -219,7 +274,9 @@ export function RecordingsView({ canManage }: { canManage: boolean }) {
                 <Input
                   id="rv-url"
                   value={editForm.recordingUrl}
-                  onChange={(e) => setEditForm((f) => ({ ...f, recordingUrl: e.target.value }))}
+                  onChange={(e) =>
+                    setEditForm((f) => ({ ...f, recordingUrl: e.target.value }))
+                  }
                   className="w-full"
                 />
               </FormField>
@@ -229,17 +286,30 @@ export function RecordingsView({ canManage }: { canManage: boolean }) {
                     id="rv-expires"
                     type="date"
                     value={editForm.recordingExpiresAt}
-                    onChange={(e) => setEditForm((f) => ({ ...f, recordingExpiresAt: e.target.value }))}
+                    onChange={(e) =>
+                      setEditForm((f) => ({
+                        ...f,
+                        recordingExpiresAt: e.target.value,
+                      }))
+                    }
                     className="w-full"
                   />
                 </FormField>
               )}
             </div>
             <div className="mt-6 flex gap-3 border-t border-border pt-4">
-              <Button intent="secondary" className="flex-1 justify-center" onClick={() => setEditing(null)}>
+              <Button
+                intent="secondary"
+                className="flex-1 justify-center"
+                onClick={() => setEditing(null)}
+              >
                 Cancelar
               </Button>
-              <Button className="flex-1 justify-center" onClick={() => save.mutate(editing)} loading={save.isPending}>
+              <Button
+                className="flex-1 justify-center"
+                onClick={() => save.mutate(editing)}
+                loading={save.isPending}
+              >
                 Guardar
               </Button>
             </div>

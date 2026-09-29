@@ -52,12 +52,19 @@ function RoleCheckboxGroup({
   onChange: (roles: string[]) => void;
 }) {
   const toggle = (role: Role) => {
-    onChange(selected.includes(role) ? selected.filter((r) => r !== role) : [...selected, role]);
+    onChange(
+      selected.includes(role)
+        ? selected.filter((r) => r !== role)
+        : [...selected, role],
+    );
   };
   return (
     <div className="flex flex-wrap gap-3">
       {AUTHENTICATED_ROLES.map((role) => (
-        <label key={role} className="flex items-center gap-1.5 text-sm text-ink cursor-pointer">
+        <label
+          key={role}
+          className="flex items-center gap-1.5 text-sm text-ink cursor-pointer"
+        >
           <input
             type="checkbox"
             checked={selected.includes(role)}
@@ -72,13 +79,23 @@ function RoleCheckboxGroup({
 }
 
 function ValidatorChip({ id, onRemove }: { id: number; onRemove: () => void }) {
-  const { data: user } = useApiQuery<DirectoryUser>(queryKeys.users.detail(id), `/users/${id}`, {
-    staleTime: STALE_TIME.SEMI_STATIC,
-  });
+  const { data: user } = useApiQuery<DirectoryUser>(
+    queryKeys.users.detail(id),
+    `/users/${id}`,
+    {
+      staleTime: STALE_TIME.SEMI_STATIC,
+    },
+  );
   return (
     <div className="flex items-center gap-2 rounded-control border-[1.5px] border-border-strong bg-surface px-2 py-1.5">
-      <Avatar name={user?.fullName ?? `#${id}`} url={user?.avatarUrl ?? undefined} size="sm" />
-      <span className="text-sm text-ink">{user?.fullName ?? `Utilizador #${id}`}</span>
+      <Avatar
+        name={user?.fullName ?? `#${id}`}
+        url={user?.avatarUrl ?? undefined}
+        size="sm"
+      />
+      <span className="text-sm text-ink">
+        {user?.fullName ?? `Utilizador #${id}`}
+      </span>
       <button
         type="button"
         aria-label="Remover responsável"
@@ -113,14 +130,18 @@ export function ConfigTab() {
       apiClient.patch<RoiConfigData>('/roi-impact/config', payload),
     {
       invalidateKeys: [queryKeys.roiImpact.config()],
-      onSuccess: () => notify({ title: 'Configurações guardadas', intent: 'success' }),
+      onSuccess: () =>
+        notify({ title: 'Configurações guardadas', intent: 'success' }),
       onError: (e) => notify({ title: e.message, intent: 'danger' }),
     },
   );
 
   const addValidator = (u: DirectoryUser | null) => {
     if (!u || !form || form.defaultBenefitValidatorIds.includes(u.id)) return;
-    setForm({ ...form, defaultBenefitValidatorIds: [...form.defaultBenefitValidatorIds, u.id] });
+    setForm({
+      ...form,
+      defaultBenefitValidatorIds: [...form.defaultBenefitValidatorIds, u.id],
+    });
   };
 
   if (loading || !form)
@@ -155,7 +176,10 @@ export function ConfigTab() {
               className="w-full"
             />
           </FormField>
-          <FormField label="Taxa de desconto / custo de capital (%)" htmlFor="roi-cfg-discount">
+          <FormField
+            label="Taxa de desconto / custo de capital (%)"
+            htmlFor="roi-cfg-discount"
+          >
             <Input
               id="roi-cfg-discount"
               type="number"
@@ -165,7 +189,9 @@ export function ConfigTab() {
               onChange={(e) =>
                 setForm({
                   ...form,
-                  discountRatePercent: e.target.value ? Number(e.target.value) : null,
+                  discountRatePercent: e.target.value
+                    ? Number(e.target.value)
+                    : null,
                 })
               }
               className="w-full"
@@ -179,8 +205,9 @@ export function ConfigTab() {
           Fator de isolamento padrão por tipo de iniciativa
         </div>
         <p className="font-body text-xs text-ink-faint mb-3">
-          Pré-preenche a Etapa 4 (Metodologia) do assistente &quot;Nova Análise de ROI&quot; — quanto
-          do resultado é atribuível à iniciativa (0–1), por omissão.
+          Pré-preenche a Etapa 4 (Metodologia) do assistente &quot;Nova Análise
+          de ROI&quot; — quanto do resultado é atribuível à iniciativa (0–1),
+          por omissão.
         </p>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
           {Object.entries(INITIATIVE_TYPE_LABELS).map(([type, label]) => (
@@ -198,7 +225,9 @@ export function ConfigTab() {
                     ...form,
                     defaultIsolationFactors: {
                       ...form.defaultIsolationFactors,
-                      ...(e.target.value ? { [type]: Number(e.target.value) } : {}),
+                      ...(e.target.value
+                        ? { [type]: Number(e.target.value) }
+                        : {}),
                       ...(e.target.value
                         ? {}
                         : Object.fromEntries(
@@ -246,7 +275,9 @@ export function ConfigTab() {
               onChange={(e) =>
                 setForm({
                   ...form,
-                  level45CostThreshold: e.target.value ? Number(e.target.value) : null,
+                  level45CostThreshold: e.target.value
+                    ? Number(e.target.value)
+                    : null,
                 })
               }
               className="w-full"
@@ -267,9 +298,8 @@ export function ConfigTab() {
               onRemove={() =>
                 setForm({
                   ...form,
-                  defaultBenefitValidatorIds: form.defaultBenefitValidatorIds.filter(
-                    (v) => v !== id,
-                  ),
+                  defaultBenefitValidatorIds:
+                    form.defaultBenefitValidatorIds.filter((v) => v !== id),
                 })
               }
             />
@@ -288,12 +318,17 @@ export function ConfigTab() {
           Fórmulas de conversão de benefícios não financeiros
         </div>
         <p className="font-body text-xs text-ink-faint mb-3">
-          Como converter cada tipo de benefício em valor monetário — texto livre usado como guia
-          na Etapa 3 do assistente &quot;Nova Análise de ROI&quot;.
+          Como converter cada tipo de benefício em valor monetário — texto livre
+          usado como guia na Etapa 3 do assistente &quot;Nova Análise de
+          ROI&quot;.
         </p>
         <div className="space-y-2">
           {Object.entries(BENEFIT_TYPE_LABELS).map(([type, label]) => (
-            <FormField key={type} label={label} htmlFor={`roi-cfg-formula-${type}`}>
+            <FormField
+              key={type}
+              label={label}
+              htmlFor={`roi-cfg-formula-${type}`}
+            >
               <Input
                 id={`roi-cfg-formula-${type}`}
                 placeholder="ex.: output/hora × salário/hora"
@@ -306,9 +341,9 @@ export function ConfigTab() {
                       ...(e.target.value
                         ? { [type]: e.target.value }
                         : Object.fromEntries(
-                            Object.entries(form.benefitConversionFormulas).filter(
-                              ([k]) => k !== type,
-                            ),
+                            Object.entries(
+                              form.benefitConversionFormulas,
+                            ).filter(([k]) => k !== type),
                           )),
                     },
                   })
@@ -321,24 +356,34 @@ export function ConfigTab() {
       </Card>
 
       <Card className="p-5">
-        <div className="font-body text-sm font-semibold text-ink mb-1">Permissões de acesso</div>
+        <div className="font-body text-sm font-semibold text-ink mb-1">
+          Permissões de acesso
+        </div>
         <p className="font-body text-xs text-ink-faint mb-3">
-          Quem vê o ROI financeiro (valores monetários/%) vs. quem vê apenas os indicadores
-          operacionais.
+          Quem vê o ROI financeiro (valores monetários/%) vs. quem vê apenas os
+          indicadores operacionais.
         </p>
         <div className="space-y-3">
           <div>
-            <div className="font-body text-xs text-ink-muted mb-1">Vê o ROI financeiro</div>
+            <div className="font-body text-xs text-ink-muted mb-1">
+              Vê o ROI financeiro
+            </div>
             <RoleCheckboxGroup
               selected={form.financialAccessRoles}
-              onChange={(roles) => setForm({ ...form, financialAccessRoles: roles })}
+              onChange={(roles) =>
+                setForm({ ...form, financialAccessRoles: roles })
+              }
             />
           </div>
           <div>
-            <div className="font-body text-xs text-ink-muted mb-1">Vê apenas indicadores operacionais</div>
+            <div className="font-body text-xs text-ink-muted mb-1">
+              Vê apenas indicadores operacionais
+            </div>
             <RoleCheckboxGroup
               selected={form.operationalOnlyRoles}
-              onChange={(roles) => setForm({ ...form, operationalOnlyRoles: roles })}
+              onChange={(roles) =>
+                setForm({ ...form, operationalOnlyRoles: roles })
+              }
             />
           </div>
         </div>
@@ -349,7 +394,10 @@ export function ConfigTab() {
           Alertas &amp; notificações
         </div>
         <div className="grid grid-cols-2 gap-4">
-          <FormField label="Iniciativa sem medição há X dias" htmlFor="roi-cfg-alert-days">
+          <FormField
+            label="Iniciativa sem medição há X dias"
+            htmlFor="roi-cfg-alert-days"
+          >
             <Input
               id="roi-cfg-alert-days"
               type="number"
@@ -359,13 +407,18 @@ export function ConfigTab() {
               onChange={(e) =>
                 setForm({
                   ...form,
-                  alertNoMeasurementDays: e.target.value ? Number(e.target.value) : null,
+                  alertNoMeasurementDays: e.target.value
+                    ? Number(e.target.value)
+                    : null,
                 })
               }
               className="w-full"
             />
           </FormField>
-          <FormField label="ROI abaixo do esperado (%)" htmlFor="roi-cfg-alert-roi">
+          <FormField
+            label="ROI abaixo do esperado (%)"
+            htmlFor="roi-cfg-alert-roi"
+          >
             <Input
               id="roi-cfg-alert-roi"
               type="number"
@@ -374,7 +427,9 @@ export function ConfigTab() {
               onChange={(e) =>
                 setForm({
                   ...form,
-                  alertRoiBelowExpectedPercent: e.target.value ? Number(e.target.value) : null,
+                  alertRoiBelowExpectedPercent: e.target.value
+                    ? Number(e.target.value)
+                    : null,
                 })
               }
               className="w-full"

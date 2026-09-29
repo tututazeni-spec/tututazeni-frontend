@@ -75,7 +75,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
 // Modelos, que aqui são só agregados, não recriados).
 const TABS = [
   { id: 'overview', label: 'Visão Geral', icon: Star },
-  { id: 'evaluations', label: 'Avaliações', icon: ClipboardCheck, roles: MGMT_ROLES },
+  {
+    id: 'evaluations',
+    label: 'Avaliações',
+    icon: ClipboardCheck,
+    roles: MGMT_ROLES,
+  },
   { id: 'cycles', label: 'Ciclos de Avaliação', icon: Layers },
   { id: 'templates', label: 'Modelos', icon: Layers, roles: MGMT_ROLES },
   { id: 'criteria', label: 'Critérios', icon: ListChecks, roles: MGMT_ROLES },
@@ -85,7 +90,12 @@ const TABS = [
   { id: 'results', label: 'Resultados', icon: BarChart2 },
   { id: 'analytics', label: 'Análises', icon: TrendingUp, roles: ADMIN_ROLES },
   { id: 'calibration', label: 'Calibração', icon: Shield, roles: ADMIN_ROLES },
-  { id: 'reports', label: 'Relatórios', icon: FileBarChart, roles: ADMIN_ROLES },
+  {
+    id: 'reports',
+    label: 'Relatórios',
+    icon: FileBarChart,
+    roles: ADMIN_ROLES,
+  },
   { id: 'settings', label: 'Configurações', icon: Settings, roles: MGMT_ROLES },
 ];
 

@@ -7,7 +7,15 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { AlarmClock, Bell, CheckCircle2, Eye, Plus, RotateCcw, Sparkles } from 'lucide-react';
+import {
+  AlarmClock,
+  Bell,
+  CheckCircle2,
+  Eye,
+  Plus,
+  RotateCcw,
+  Sparkles,
+} from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
@@ -40,7 +48,10 @@ import type { Cycle, EvaluationRequestRow } from './types';
 const ALL = 'ALL';
 const STATUS_ITEMS = [
   { value: ALL, label: 'Todos os estados' },
-  ...Object.entries(REQUEST_STATUS_MAP).map(([value, cfg]) => ({ value, label: cfg.label })),
+  ...Object.entries(REQUEST_STATUS_MAP).map(([value, cfg]) => ({
+    value,
+    label: cfg.label,
+  })),
 ];
 const PURPOSE_ITEMS = [
   { value: ALL, label: 'Todos os tipos' },
@@ -48,14 +59,16 @@ const PURPOSE_ITEMS = [
 ];
 
 function useDepartmentOptions() {
-  const { data } = useApiQuery<{ id: number; name: string; children?: unknown[] }[]>(
-    queryKeys.departments.tree(),
-    '/departments/tree',
-    { staleTime: STALE_TIME.SEMI_STATIC },
-  );
+  const { data } = useApiQuery<
+    { id: number; name: string; children?: unknown[] }[]
+  >(queryKeys.departments.tree(), '/departments/tree', {
+    staleTime: STALE_TIME.SEMI_STATIC,
+  });
   return useMemo(() => {
     const flat: { id: number; name: string }[] = [];
-    const walk = (nodes: { id: number; name: string; children?: unknown[] }[] | undefined) => {
+    const walk = (
+      nodes: { id: number; name: string; children?: unknown[] }[] | undefined,
+    ) => {
       for (const n of nodes ?? []) {
         flat.push({ id: n.id, name: n.name });
         walk(n.children as typeof nodes);
@@ -80,7 +93,8 @@ export function EvaluationsTab() {
   const [page, setPage] = useState(1);
   const [showWizard, setShowWizard] = useState(false);
   const [viewingId, setViewingId] = useState<number | null>(null);
-  const [submittingRow, setSubmittingRow] = useState<EvaluationRequestRow | null>(null);
+  const [submittingRow, setSubmittingRow] =
+    useState<EvaluationRequestRow | null>(null);
 
   const departments = useDepartmentOptions();
   const { units } = useUnits(canManage);
@@ -112,29 +126,55 @@ export function EvaluationsTab() {
     (id: number) => apiClient.post(`/evaluations/requests/${id}/remind`, {}),
     {
       onSuccess: () => notify({ title: 'Lembrete enviado', intent: 'success' }),
-      onError: (e) => notify({ title: e instanceof Error ? e.message : 'Erro', intent: 'danger' }),
+      onError: (e) =>
+        notify({
+          title: e instanceof Error ? e.message : 'Erro',
+          intent: 'danger',
+        }),
     },
   );
   const finish = useApiMutation(
     (id: number) => apiClient.patch(`/evaluations/requests/${id}/finish`, {}),
     {
       invalidateKeys: [queryKeys.evaluation.requests(filters)],
-      onSuccess: () => notify({ title: 'Avaliação finalizada', intent: 'success' }),
-      onError: (e) => notify({ title: e instanceof Error ? e.message : 'Erro', intent: 'danger' }),
+      onSuccess: () =>
+        notify({ title: 'Avaliação finalizada', intent: 'success' }),
+      onError: (e) =>
+        notify({
+          title: e instanceof Error ? e.message : 'Erro',
+          intent: 'danger',
+        }),
     },
   );
   const reopen = useApiMutation(
     (id: number) => apiClient.patch(`/evaluations/requests/${id}/reopen`, {}),
     {
       invalidateKeys: [queryKeys.evaluation.requests(filters)],
-      onSuccess: () => notify({ title: 'Avaliação reaberta', intent: 'success' }),
-      onError: (e) => notify({ title: e instanceof Error ? e.message : 'Erro', intent: 'danger' }),
+      onSuccess: () =>
+        notify({ title: 'Avaliação reaberta', intent: 'success' }),
+      onError: (e) =>
+        notify({
+          title: e instanceof Error ? e.message : 'Erro',
+          intent: 'danger',
+        }),
     },
   );
 
   const exportCsv = () => {
     const rows = data?.data ?? [];
-    const header = ['Colaborador', 'Nº colaborador', 'Departamento', 'Cargo', 'Avaliador', 'Tipo', 'Ciclo', 'Estado', 'Prazo', 'Resultado', 'Data de conclusão'];
+    const header = [
+      'Colaborador',
+      'Nº colaborador',
+      'Departamento',
+      'Cargo',
+      'Avaliador',
+      'Tipo',
+      'Ciclo',
+      'Estado',
+      'Prazo',
+      'Resultado',
+      'Data de conclusão',
+    ];
     const lines = rows.map((r) =>
       [
         r.evaluated.fullName,
@@ -188,7 +228,13 @@ export function EvaluationsTab() {
 
       <div className="flex flex-wrap gap-2">
         <Select
-          items={[{ value: ALL, label: 'Todos os ciclos' }, ...(cyclesData?.data ?? []).map((c) => ({ value: String(c.id), label: c.name }))]}
+          items={[
+            { value: ALL, label: 'Todos os ciclos' },
+            ...(cyclesData?.data ?? []).map((c) => ({
+              value: String(c.id),
+              label: c.name,
+            })),
+          ]}
           value={cycleId}
           onValueChange={(v) => {
             setCycleId(v);
@@ -196,7 +242,10 @@ export function EvaluationsTab() {
           }}
         />
         <Select
-          items={[{ value: ALL, label: 'Todos os departamentos' }, ...departments.map((d) => ({ value: String(d.id), label: d.name }))]}
+          items={[
+            { value: ALL, label: 'Todos os departamentos' },
+            ...departments.map((d) => ({ value: String(d.id), label: d.name })),
+          ]}
           value={departmentId}
           onValueChange={(v) => {
             setDepartmentId(v);
@@ -204,7 +253,10 @@ export function EvaluationsTab() {
           }}
         />
         <Select
-          items={[{ value: ALL, label: 'Todas as unidades' }, ...units.map((u) => ({ value: String(u.id), label: u.name }))]}
+          items={[
+            { value: ALL, label: 'Todas as unidades' },
+            ...units.map((u) => ({ value: String(u.id), label: u.name })),
+          ]}
           value={unitId}
           onValueChange={(v) => {
             setUnitId(v);
@@ -230,50 +282,110 @@ export function EvaluationsTab() {
       </div>
 
       {loading ? (
-        <Skeleton rows={5} wrapperClassName="space-y-2" itemClassName="skeleton-shimmer h-12 rounded-card" />
+        <Skeleton
+          rows={5}
+          wrapperClassName="space-y-2"
+          itemClassName="skeleton-shimmer h-12 rounded-card"
+        />
       ) : (data?.data.length ?? 0) === 0 ? (
-        <EmptyState title="Sem avaliações" description="Nenhuma avaliação corresponde aos filtros seleccionados." />
+        <EmptyState
+          title="Sem avaliações"
+          description="Nenhuma avaliação corresponde aos filtros seleccionados."
+        />
       ) : (
         <Table>
           <TableHead>
             <TableRow>
-              {['Colaborador', 'Departamento', 'Cargo', 'Avaliador', 'Tipo', 'Ciclo', 'Estado', 'Prazo', 'Resultado', 'Ações'].map((h) => (
+              {[
+                'Colaborador',
+                'Departamento',
+                'Cargo',
+                'Avaliador',
+                'Tipo',
+                'Ciclo',
+                'Estado',
+                'Prazo',
+                'Resultado',
+                'Ações',
+              ].map((h) => (
                 <TableHeaderCell key={h}>{h}</TableHeaderCell>
               ))}
             </TableRow>
           </TableHead>
           <TableBody>
             {data?.data.map((r) => {
-              const isOverdue = r.dueDate && r.status !== 'COMPLETED' && new Date(r.dueDate) < new Date();
-              const canContinue = r.status !== 'COMPLETED' && r.evaluator?.id === me?.id;
+              const isOverdue =
+                r.dueDate &&
+                r.status !== 'COMPLETED' &&
+                new Date(r.dueDate) < new Date();
+              const canContinue =
+                r.status !== 'COMPLETED' && r.evaluator?.id === me?.id;
               return (
                 <TableRow key={r.key}>
                   <TableCell>
                     <div className="flex items-center gap-2">
-                      <Avatar name={r.evaluated.fullName} url={r.evaluated.avatarUrl} size="sm" />
+                      <Avatar
+                        name={r.evaluated.fullName}
+                        url={r.evaluated.avatarUrl}
+                        size="sm"
+                      />
                       <div>
-                        <p className="text-sm font-medium text-ink">{r.evaluated.fullName}</p>
+                        <p className="text-sm font-medium text-ink">
+                          {r.evaluated.fullName}
+                        </p>
                         {r.evaluated.employeeNumber && (
-                          <p className="text-[11px] text-ink-faint">#{r.evaluated.employeeNumber}</p>
+                          <p className="text-[11px] text-ink-faint">
+                            #{r.evaluated.employeeNumber}
+                          </p>
                         )}
                       </div>
                     </div>
                   </TableCell>
-                  <TableCell className="text-sm text-ink-muted">{r.evaluated.department?.name ?? '—'}</TableCell>
-                  <TableCell className="text-sm text-ink-muted">{r.evaluated.position?.name ?? '—'}</TableCell>
-                  <TableCell className="text-sm text-ink-muted">{r.evaluator?.fullName ?? '—'}</TableCell>
-                  <TableCell className="text-xs text-ink-muted">{r.purpose ? PURPOSE_LABEL[r.purpose] : '—'}</TableCell>
-                  <TableCell className="text-sm text-ink-muted">{r.cycle?.name ?? '—'}</TableCell>
+                  <TableCell className="text-sm text-ink-muted">
+                    {r.evaluated.department?.name ?? '—'}
+                  </TableCell>
+                  <TableCell className="text-sm text-ink-muted">
+                    {r.evaluated.position?.name ?? '—'}
+                  </TableCell>
+                  <TableCell className="text-sm text-ink-muted">
+                    {r.evaluator?.fullName ?? '—'}
+                  </TableCell>
+                  <TableCell className="text-xs text-ink-muted">
+                    {r.purpose ? PURPOSE_LABEL[r.purpose] : '—'}
+                  </TableCell>
+                  <TableCell className="text-sm text-ink-muted">
+                    {r.cycle?.name ?? '—'}
+                  </TableCell>
                   <TableCell>
-                    <StatusBadge value={r.status} map={REQUEST_STATUS_MAP} variant="pill" />
+                    <StatusBadge
+                      value={r.status}
+                      map={REQUEST_STATUS_MAP}
+                      variant="pill"
+                    />
                   </TableCell>
-                  <TableCell className={isOverdue ? 'text-xs font-medium text-danger-ink' : 'text-xs text-ink-muted'}>
-                    {r.dueDate ? new Date(r.dueDate).toLocaleDateString('pt') : '—'}
+                  <TableCell
+                    className={
+                      isOverdue
+                        ? 'text-xs font-medium text-danger-ink'
+                        : 'text-xs text-ink-muted'
+                    }
+                  >
+                    {r.dueDate
+                      ? new Date(r.dueDate).toLocaleDateString('pt')
+                      : '—'}
                   </TableCell>
-                  <TableCell className="text-sm text-ink-muted">{r.result != null ? r.result.toFixed(1) : '—'}</TableCell>
+                  <TableCell className="text-sm text-ink-muted">
+                    {r.result != null ? r.result.toFixed(1) : '—'}
+                  </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-1">
-                      <IconButton icon={Eye} label="Ver" size="sm" intent="ghost" onClick={() => setViewingId(r.id)} />
+                      <IconButton
+                        icon={Eye}
+                        label="Ver"
+                        size="sm"
+                        intent="ghost"
+                        onClick={() => setViewingId(r.id)}
+                      />
                       {canContinue && (
                         <IconButton
                           icon={Sparkles}
@@ -309,7 +421,13 @@ export function EvaluationsTab() {
                           onClick={() => reopen.mutate(r.id)}
                         />
                       )}
-                      {isOverdue && <AlarmClock size={14} strokeWidth={1.75} className="text-danger-ink" />}
+                      {isOverdue && (
+                        <AlarmClock
+                          size={14}
+                          strokeWidth={1.75}
+                          className="text-danger-ink"
+                        />
+                      )}
                     </div>
                   </TableCell>
                 </TableRow>
@@ -321,7 +439,12 @@ export function EvaluationsTab() {
 
       {data && data.meta.totalPages > 1 && (
         <div className="flex items-center justify-end gap-2">
-          <Button size="sm" intent="secondary" disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>
+          <Button
+            size="sm"
+            intent="secondary"
+            disabled={page <= 1}
+            onClick={() => setPage((p) => p - 1)}
+          >
             Anterior
           </Button>
           <span className="text-xs text-ink-faint">
@@ -339,7 +462,11 @@ export function EvaluationsTab() {
       )}
 
       {viewingId != null && (
-        <EvaluationDetailModal requestId={viewingId} editable={canManage} onClose={() => setViewingId(null)} />
+        <EvaluationDetailModal
+          requestId={viewingId}
+          editable={canManage}
+          onClose={() => setViewingId(null)}
+        />
       )}
       {submittingRow && (
         <SubmitEvaluationModal
@@ -349,7 +476,9 @@ export function EvaluationsTab() {
           onClose={() => setSubmittingRow(null)}
         />
       )}
-      {showWizard && <NewEvaluationWizard onClose={() => setShowWizard(false)} />}
+      {showWizard && (
+        <NewEvaluationWizard onClose={() => setShowWizard(false)} />
+      )}
     </div>
   );
 }

@@ -88,7 +88,10 @@ const TRIGGER_ITEMS: { value: string; label: string }[] = [
   { value: 'BIRTHDAY_TODAY', label: 'Aniversário' },
   { value: 'hire_date.reached', label: 'Data de admissão' },
   { value: 'deadline.reached', label: 'Prazo atingido' },
-  { value: 'competency.below_expected', label: 'Competência abaixo do nível esperado' },
+  {
+    value: 'competency.below_expected',
+    label: 'Competência abaixo do nível esperado',
+  },
   { value: 'objective.overdue', label: 'Objetivo em atraso' },
   { value: 'other', label: 'Outro' },
 ];
@@ -215,7 +218,10 @@ interface ConditionRow {
   value: string;
 }
 
-export function CreateRuleModal({ onClose, extraInvalidateKeys }: CreateRuleModalProps) {
+export function CreateRuleModal({
+  onClose,
+  extraInvalidateKeys,
+}: CreateRuleModalProps) {
   const notify = useToast();
 
   // ── Geral ──────────────────────────────────────────────────────
@@ -232,10 +238,17 @@ export function CreateRuleModal({ onClose, extraInvalidateKeys }: CreateRuleModa
   const addCondition = () =>
     setConditions((rows) => [
       ...rows,
-      { id: nextConditionId.current++, field: '', operator: OPERATOR_ITEMS[0].value, value: '' },
+      {
+        id: nextConditionId.current++,
+        field: '',
+        operator: OPERATOR_ITEMS[0].value,
+        value: '',
+      },
     ]);
   const updateCondition = (id: number, patch: Partial<ConditionRow>) =>
-    setConditions((rows) => rows.map((r) => (r.id === id ? { ...r, ...patch } : r)));
+    setConditions((rows) =>
+      rows.map((r) => (r.id === id ? { ...r, ...patch } : r)),
+    );
   const removeCondition = (id: number) =>
     setConditions((rows) => rows.filter((r) => r.id !== id));
 
@@ -254,7 +267,9 @@ export function CreateRuleModal({ onClose, extraInvalidateKeys }: CreateRuleModa
   const [executionTime, setExecutionTime] = useState('');
   const [daysOfWeek, setDaysOfWeek] = useState<number[]>([]);
   const toggleDay = (day: number) =>
-    setDaysOfWeek((days) => (days.includes(day) ? days.filter((d) => d !== day) : [...days, day]));
+    setDaysOfWeek((days) =>
+      days.includes(day) ? days.filter((d) => d !== day) : [...days, day],
+    );
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [maxExecutions, setMaxExecutions] = useState('');
@@ -309,7 +324,9 @@ export function CreateRuleModal({ onClose, extraInvalidateKeys }: CreateRuleModa
       .map(({ field, operator, value }) => ({
         field: field.trim(),
         operator,
-        value: VALUELESS_OPERATORS.has(operator) ? undefined : value.trim() || undefined,
+        value: VALUELESS_OPERATORS.has(operator)
+          ? undefined
+          : value.trim() || undefined,
       }));
 
     createRule.mutate({
@@ -327,8 +344,12 @@ export function CreateRuleModal({ onClose, extraInvalidateKeys }: CreateRuleModa
         : {}),
       ...(recipient.trim() ? { recipient: recipient.trim() } : {}),
       ...(channel ? { channel } : {}),
-      ...(messageTemplate.trim() ? { messageTemplate: messageTemplate.trim() } : {}),
-      ...(channel === 'email' && subject.trim() ? { subject: subject.trim() } : {}),
+      ...(messageTemplate.trim()
+        ? { messageTemplate: messageTemplate.trim() }
+        : {}),
+      ...(channel === 'email' && subject.trim()
+        ? { subject: subject.trim() }
+        : {}),
       ...(dynamicData.trim() ? { dynamicData: dynamicData.trim() } : {}),
       ...(deadlineMinutes ? { deadlineMinutes: Number(deadlineMinutes) } : {}),
       ...(frequency !== NO_FREQUENCY ? { frequency } : {}),
@@ -401,7 +422,11 @@ export function CreateRuleModal({ onClose, extraInvalidateKeys }: CreateRuleModa
                   className="w-full"
                 />
               </FormField>
-              <FormField label="Categoria" htmlFor="cr-category" hint="Opcional.">
+              <FormField
+                label="Categoria"
+                htmlFor="cr-category"
+                hint="Opcional."
+              >
                 <Select
                   items={CATEGORY_ITEMS}
                   value={category}
@@ -414,58 +439,73 @@ export function CreateRuleModal({ onClose, extraInvalidateKeys }: CreateRuleModa
 
           <Section title="Condições">
             <p className="font-body text-xs text-ink-muted">
-              Condições adicionais sobre o payload do evento — a regra só executa a ação se
-              todas (ou qualquer uma) se verificarem. Sem condições, a regra executa sempre
-              que o gatilho ocorre.
+              Condições adicionais sobre o payload do evento — a regra só
+              executa a ação se todas (ou qualquer uma) se verificarem. Sem
+              condições, a regra executa sempre que o gatilho ocorre.
             </p>
 
             {conditions.map((row) => (
-                <div key={row.id} className="flex flex-wrap items-start gap-2 rounded-card border border-border p-3">
-                  <div className="min-w-[140px] flex-1">
-                    <FormField label="Campo da condição" htmlFor={`cr-cond-field-${row.id}`}>
-                      <Input
-                        id={`cr-cond-field-${row.id}`}
-                        value={row.field}
-                        onChange={(e) => updateCondition(row.id, { field: e.target.value })}
-                        placeholder="ex.: departmentId"
-                      />
-                    </FormField>
-                  </div>
-                  <div className="min-w-[150px] flex-1">
-                    <FormField label="Operador" htmlFor={`cr-cond-op-${row.id}`}>
-                      <Select
-                        items={OPERATOR_ITEMS}
-                        value={row.operator}
-                        onValueChange={(v) => updateCondition(row.id, { operator: v })}
-                        className="w-full"
-                      />
-                    </FormField>
-                  </div>
-                  {!VALUELESS_OPERATORS.has(row.operator) && (
-                    <div className="min-w-[140px] flex-1">
-                      <FormField label="Valor da condição" htmlFor={`cr-cond-value-${row.id}`}>
-                        <Input
-                          id={`cr-cond-value-${row.id}`}
-                          value={row.value}
-                          onChange={(e) => updateCondition(row.id, { value: e.target.value })}
-                        />
-                      </FormField>
-                    </div>
-                  )}
-                  <IconButton
-                    icon={Trash2}
-                    label="Remover condição"
-                    intent="ghost"
-                    className="mt-6 hover:bg-danger-subtle hover:text-danger"
-                    onClick={() => removeCondition(row.id)}
-                  />
+              <div
+                key={row.id}
+                className="flex flex-wrap items-start gap-2 rounded-card border border-border p-3"
+              >
+                <div className="min-w-[140px] flex-1">
+                  <FormField
+                    label="Campo da condição"
+                    htmlFor={`cr-cond-field-${row.id}`}
+                  >
+                    <Input
+                      id={`cr-cond-field-${row.id}`}
+                      value={row.field}
+                      onChange={(e) =>
+                        updateCondition(row.id, { field: e.target.value })
+                      }
+                      placeholder="ex.: departmentId"
+                    />
+                  </FormField>
                 </div>
-              ))}
+                <div className="min-w-[150px] flex-1">
+                  <FormField label="Operador" htmlFor={`cr-cond-op-${row.id}`}>
+                    <Select
+                      items={OPERATOR_ITEMS}
+                      value={row.operator}
+                      onValueChange={(v) =>
+                        updateCondition(row.id, { operator: v })
+                      }
+                      className="w-full"
+                    />
+                  </FormField>
+                </div>
+                {!VALUELESS_OPERATORS.has(row.operator) && (
+                  <div className="min-w-[140px] flex-1">
+                    <FormField
+                      label="Valor da condição"
+                      htmlFor={`cr-cond-value-${row.id}`}
+                    >
+                      <Input
+                        id={`cr-cond-value-${row.id}`}
+                        value={row.value}
+                        onChange={(e) =>
+                          updateCondition(row.id, { value: e.target.value })
+                        }
+                      />
+                    </FormField>
+                  </div>
+                )}
+                <IconButton
+                  icon={Trash2}
+                  label="Remover condição"
+                  intent="ghost"
+                  className="mt-6 hover:bg-danger-subtle hover:text-danger"
+                  onClick={() => removeCondition(row.id)}
+                />
+              </div>
+            ))}
 
-              <Button size="sm" intent="secondary" onClick={addCondition}>
-                <Plus size={14} strokeWidth={1.75} />
-                Adicionar condição
-              </Button>
+            <Button size="sm" intent="secondary" onClick={addCondition}>
+              <Plus size={14} strokeWidth={1.75} />
+              Adicionar condição
+            </Button>
 
             {conditions.length > 1 && (
               <FormField
@@ -485,272 +525,289 @@ export function CreateRuleModal({ onClose, extraInvalidateKeys }: CreateRuleModa
 
           <Section title="Ação">
             <FormField label="Tipo de ação *" htmlFor="cr-action">
-                <Select
-                  items={ACTION_ITEMS}
-                  value={action}
-                  onValueChange={setAction}
-                  className="w-full"
-                />
-              </FormField>
+              <Select
+                items={ACTION_ITEMS}
+                value={action}
+                onValueChange={setAction}
+                className="w-full"
+              />
+            </FormField>
 
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <FormField
-                  label="Destinatário"
-                  htmlFor="cr-recipient"
-                  hint="userId — vazio usa o utilizador do evento."
-                >
-                  <Input
-                    id="cr-recipient"
-                    value={recipient}
-                    onChange={(e) => setRecipient(e.target.value)}
-                    placeholder="Ex.: 42"
-                  />
-                </FormField>
-                <FormField label="Canal de comunicação" htmlFor="cr-channel">
-                  <Select
-                    items={CHANNEL_ITEMS}
-                    value={channel}
-                    onValueChange={setChannel}
-                    className="w-full"
-                  />
-                </FormField>
-              </div>
-
-              {(channel === 'push' || channel === 'webhook') && (
-                <p className="font-body text-xs text-ink-muted">
-                  Este canal ainda não tem entrega automática — fica registado para auditoria,
-                  sem envio real.
-                </p>
-              )}
-              {(channel === 'email' || channel === 'sms' || channel === 'whatsapp') && (
-                <p className="font-body text-xs text-ink-muted">
-                  Entrega real — requer SMTP (email) ou Twilio (SMS/WhatsApp) configurados no
-                  servidor, e o destinatário ter email/telemóvel preenchidos no perfil.
-                </p>
-              )}
-
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <FormField
-                label="Modelo de mensagem"
-                htmlFor="cr-message-template"
-                hint="Suporta placeholders {{campo}} substituídos pelos dados dinâmicos ou pelo evento."
-              >
-                <Textarea
-                  id="cr-message-template"
-                  value={messageTemplate}
-                  onChange={(e) => setMessageTemplate(e.target.value)}
-                  rows={2}
-                  className="w-full"
-                  placeholder="Ex.: Olá {{nome}}, o teu curso {{nomeCurso}} está disponível."
-                />
-              </FormField>
-
-              {channel === 'email' && (
-                <FormField label="Assunto" htmlFor="cr-subject">
-                  <Input
-                    id="cr-subject"
-                    value={subject}
-                    onChange={(e) => setSubject(e.target.value)}
-                  />
-                </FormField>
-              )}
-
-              <FormField
-                label="Dados dinâmicos"
-                htmlFor="cr-dynamic-data"
-                hint='JSON com valores para os placeholders — ex.: {"nomeCurso": "Excel Avançado"}'
-                error={dynamicDataError}
-              >
-                <Textarea
-                  id="cr-dynamic-data"
-                  value={dynamicData}
-                  onChange={(e) => {
-                    setDynamicData(e.target.value);
-                    if (dynamicDataError) setDynamicDataError('');
-                  }}
-                  rows={2}
-                  className="w-full font-data"
-                  placeholder='{"nomeCurso": "Excel Avançado"}'
-                />
-              </FormField>
-
-              <FormField
-                label="Prazo para execução"
-                htmlFor="cr-deadline"
-                hint="Minutos após o gatilho — opcional."
+                label="Destinatário"
+                htmlFor="cr-recipient"
+                hint="userId — vazio usa o utilizador do evento."
               >
                 <Input
-                  id="cr-deadline"
-                  type="number"
-                  min={0}
-                  value={deadlineMinutes}
-                  onChange={(e) => setDeadlineMinutes(e.target.value)}
-                  className="max-w-[160px]"
+                  id="cr-recipient"
+                  value={recipient}
+                  onChange={(e) => setRecipient(e.target.value)}
+                  placeholder="Ex.: 42"
                 />
               </FormField>
+              <FormField label="Canal de comunicação" htmlFor="cr-channel">
+                <Select
+                  items={CHANNEL_ITEMS}
+                  value={channel}
+                  onValueChange={setChannel}
+                  className="w-full"
+                />
+              </FormField>
+            </div>
+
+            {(channel === 'push' || channel === 'webhook') && (
+              <p className="font-body text-xs text-ink-muted">
+                Este canal ainda não tem entrega automática — fica registado
+                para auditoria, sem envio real.
+              </p>
+            )}
+            {(channel === 'email' ||
+              channel === 'sms' ||
+              channel === 'whatsapp') && (
+              <p className="font-body text-xs text-ink-muted">
+                Entrega real — requer SMTP (email) ou Twilio (SMS/WhatsApp)
+                configurados no servidor, e o destinatário ter email/telemóvel
+                preenchidos no perfil.
+              </p>
+            )}
+
+            <FormField
+              label="Modelo de mensagem"
+              htmlFor="cr-message-template"
+              hint="Suporta placeholders {{campo}} substituídos pelos dados dinâmicos ou pelo evento."
+            >
+              <Textarea
+                id="cr-message-template"
+                value={messageTemplate}
+                onChange={(e) => setMessageTemplate(e.target.value)}
+                rows={2}
+                className="w-full"
+                placeholder="Ex.: Olá {{nome}}, o teu curso {{nomeCurso}} está disponível."
+              />
+            </FormField>
+
+            {channel === 'email' && (
+              <FormField label="Assunto" htmlFor="cr-subject">
+                <Input
+                  id="cr-subject"
+                  value={subject}
+                  onChange={(e) => setSubject(e.target.value)}
+                />
+              </FormField>
+            )}
+
+            <FormField
+              label="Dados dinâmicos"
+              htmlFor="cr-dynamic-data"
+              hint='JSON com valores para os placeholders — ex.: {"nomeCurso": "Excel Avançado"}'
+              error={dynamicDataError}
+            >
+              <Textarea
+                id="cr-dynamic-data"
+                value={dynamicData}
+                onChange={(e) => {
+                  setDynamicData(e.target.value);
+                  if (dynamicDataError) setDynamicDataError('');
+                }}
+                rows={2}
+                className="w-full font-data"
+                placeholder='{"nomeCurso": "Excel Avançado"}'
+              />
+            </FormField>
+
+            <FormField
+              label="Prazo para execução"
+              htmlFor="cr-deadline"
+              hint="Minutos após o gatilho — opcional."
+            >
+              <Input
+                id="cr-deadline"
+                type="number"
+                min={0}
+                value={deadlineMinutes}
+                onChange={(e) => setDeadlineMinutes(e.target.value)}
+                className="max-w-[160px]"
+              />
+            </FormField>
           </Section>
 
           <Section title="Agendamento">
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <FormField label="Frequência" htmlFor="cr-frequency">
-                  <Select
-                    items={FREQUENCY_ITEMS}
-                    value={frequency}
-                    onValueChange={setFrequency}
-                    className="w-full"
-                  />
-                </FormField>
-                <FormField label="Horário de execução" htmlFor="cr-execution-time" hint="Opcional.">
-                  <Input
-                    id="cr-execution-time"
-                    type="time"
-                    value={executionTime}
-                    onChange={(e) => setExecutionTime(e.target.value)}
-                  />
-                </FormField>
-              </div>
-
-              {frequency === 'weekly' && (
-                <FormField label="Dias da semana" htmlFor="cr-days-of-week">
-                  <div id="cr-days-of-week" className="flex flex-wrap gap-1.5">
-                    {DAYS_OF_WEEK.map((d) => (
-                      <button
-                        key={d.value}
-                        type="button"
-                        onClick={() => toggleDay(d.value)}
-                        aria-pressed={daysOfWeek.includes(d.value)}
-                        className={cn(
-                          'rounded-control border-[1.5px] px-2.5 py-1 font-body text-xs font-semibold transition-colors',
-                          daysOfWeek.includes(d.value)
-                            ? 'border-primary bg-primary text-canvas'
-                            : 'border-border-strong bg-surface text-ink-muted hover:bg-surface-sunken',
-                        )}
-                      >
-                        {d.label}
-                      </button>
-                    ))}
-                  </div>
-                </FormField>
-              )}
-
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                <FormField label="Data de início" htmlFor="cr-start-date" hint="Opcional.">
-                  <Input
-                    id="cr-start-date"
-                    type="date"
-                    value={startDate}
-                    onChange={(e) => setStartDate(e.target.value)}
-                  />
-                </FormField>
-                <FormField label="Data de fim" htmlFor="cr-end-date" hint="Opcional.">
-                  <Input
-                    id="cr-end-date"
-                    type="date"
-                    value={endDate}
-                    onChange={(e) => setEndDate(e.target.value)}
-                  />
-                </FormField>
-                <FormField
-                  label="Nº máximo de execuções"
-                  htmlFor="cr-max-executions"
-                  hint="Opcional."
-                >
-                  <Input
-                    id="cr-max-executions"
-                    type="number"
-                    min={1}
-                    value={maxExecutions}
-                    onChange={(e) => setMaxExecutions(e.target.value)}
-                  />
-                </FormField>
-              </div>
-
-              <p className="font-body text-xs text-ink-muted">
-                Estes campos ficam guardados na regra, mas a sua execução periódica ainda
-                depende de &quot;Executar Todas&quot; (manual) ou de um cron externo a chamar
-                POST /automation/run — não há scheduler automático nesta versão.
-              </p>
-          </Section>
-
-          <Section title="Gestão">
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <FormField
-                  label="Prioridade"
-                  htmlFor="cr-priority"
-                  hint="Ordem de execução — menor corre primeiro."
-                >
-                  <Input
-                    id="cr-priority"
-                    type="number"
-                    min={0}
-                    value={priority}
-                    onChange={(e) => setPriority(e.target.value)}
-                  />
-                </FormField>
-                <FormField
-                  label="Estado"
-                  htmlFor="cr-state"
-                  hint='"Suspensa" e "Com erro" só acontecem depois de a regra correr.'
-                >
-                  <Select
-                    items={STATE_ITEMS}
-                    value={state}
-                    onValueChange={setState}
-                    className="w-full"
-                  />
-                </FormField>
-              </div>
-
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <FormField
-                  label="Responsável"
-                  htmlFor="cr-owner"
-                  hint="Opcional — por omissão, quem cria a regra."
-                >
-                  <Input
-                    id="cr-owner"
-                    value={ownerId}
-                    onChange={(e) => setOwnerId(e.target.value)}
-                    placeholder="ID ou nome do responsável"
-                  />
-                </FormField>
-                <FormField label="Ambiente" htmlFor="cr-environment">
-                  <Select
-                    items={ENVIRONMENT_ITEMS}
-                    value={environment}
-                    onValueChange={setEnvironment}
-                    className="w-full"
-                  />
-                </FormField>
-              </div>
-
-              <label className="flex items-center gap-2 text-sm text-ink-muted">
-                <input
-                  type="checkbox"
-                  checked={notifyOnError}
-                  onChange={(e) => setNotifyOnError(e.target.checked)}
-                  className="h-4 w-4 rounded border-border-strong accent-primary"
-                />
-                Notificar o responsável em caso de erro
-              </label>
-
-              <FormField
-                label="Observações"
-                htmlFor="cr-notes"
-                hint="Opcional — notas livres sobre a regra."
-              >
-                <Textarea
-                  id="cr-notes"
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  rows={2}
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <FormField label="Frequência" htmlFor="cr-frequency">
+                <Select
+                  items={FREQUENCY_ITEMS}
+                  value={frequency}
+                  onValueChange={setFrequency}
                   className="w-full"
                 />
               </FormField>
+              <FormField
+                label="Horário de execução"
+                htmlFor="cr-execution-time"
+                hint="Opcional."
+              >
+                <Input
+                  id="cr-execution-time"
+                  type="time"
+                  value={executionTime}
+                  onChange={(e) => setExecutionTime(e.target.value)}
+                />
+              </FormField>
+            </div>
 
-              <p className="font-body text-xs text-ink-muted">
-                O registo de cada execução desta regra fica disponível no separador
-                &quot;Execuções&quot; depois de criada — não é algo que se defina aqui.
-              </p>
+            {frequency === 'weekly' && (
+              <FormField label="Dias da semana" htmlFor="cr-days-of-week">
+                <div id="cr-days-of-week" className="flex flex-wrap gap-1.5">
+                  {DAYS_OF_WEEK.map((d) => (
+                    <button
+                      key={d.value}
+                      type="button"
+                      onClick={() => toggleDay(d.value)}
+                      aria-pressed={daysOfWeek.includes(d.value)}
+                      className={cn(
+                        'rounded-control border-[1.5px] px-2.5 py-1 font-body text-xs font-semibold transition-colors',
+                        daysOfWeek.includes(d.value)
+                          ? 'border-primary bg-primary text-canvas'
+                          : 'border-border-strong bg-surface text-ink-muted hover:bg-surface-sunken',
+                      )}
+                    >
+                      {d.label}
+                    </button>
+                  ))}
+                </div>
+              </FormField>
+            )}
+
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+              <FormField
+                label="Data de início"
+                htmlFor="cr-start-date"
+                hint="Opcional."
+              >
+                <Input
+                  id="cr-start-date"
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                />
+              </FormField>
+              <FormField
+                label="Data de fim"
+                htmlFor="cr-end-date"
+                hint="Opcional."
+              >
+                <Input
+                  id="cr-end-date"
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                />
+              </FormField>
+              <FormField
+                label="Nº máximo de execuções"
+                htmlFor="cr-max-executions"
+                hint="Opcional."
+              >
+                <Input
+                  id="cr-max-executions"
+                  type="number"
+                  min={1}
+                  value={maxExecutions}
+                  onChange={(e) => setMaxExecutions(e.target.value)}
+                />
+              </FormField>
+            </div>
+
+            <p className="font-body text-xs text-ink-muted">
+              Estes campos ficam guardados na regra, mas a sua execução
+              periódica ainda depende de &quot;Executar Todas&quot; (manual) ou
+              de um cron externo a chamar POST /automation/run — não há
+              scheduler automático nesta versão.
+            </p>
+          </Section>
+
+          <Section title="Gestão">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <FormField
+                label="Prioridade"
+                htmlFor="cr-priority"
+                hint="Ordem de execução — menor corre primeiro."
+              >
+                <Input
+                  id="cr-priority"
+                  type="number"
+                  min={0}
+                  value={priority}
+                  onChange={(e) => setPriority(e.target.value)}
+                />
+              </FormField>
+              <FormField
+                label="Estado"
+                htmlFor="cr-state"
+                hint='"Suspensa" e "Com erro" só acontecem depois de a regra correr.'
+              >
+                <Select
+                  items={STATE_ITEMS}
+                  value={state}
+                  onValueChange={setState}
+                  className="w-full"
+                />
+              </FormField>
+            </div>
+
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <FormField
+                label="Responsável"
+                htmlFor="cr-owner"
+                hint="Opcional — por omissão, quem cria a regra."
+              >
+                <Input
+                  id="cr-owner"
+                  value={ownerId}
+                  onChange={(e) => setOwnerId(e.target.value)}
+                  placeholder="ID ou nome do responsável"
+                />
+              </FormField>
+              <FormField label="Ambiente" htmlFor="cr-environment">
+                <Select
+                  items={ENVIRONMENT_ITEMS}
+                  value={environment}
+                  onValueChange={setEnvironment}
+                  className="w-full"
+                />
+              </FormField>
+            </div>
+
+            <label className="flex items-center gap-2 text-sm text-ink-muted">
+              <input
+                type="checkbox"
+                checked={notifyOnError}
+                onChange={(e) => setNotifyOnError(e.target.checked)}
+                className="h-4 w-4 rounded border-border-strong accent-primary"
+              />
+              Notificar o responsável em caso de erro
+            </label>
+
+            <FormField
+              label="Observações"
+              htmlFor="cr-notes"
+              hint="Opcional — notas livres sobre a regra."
+            >
+              <Textarea
+                id="cr-notes"
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                rows={2}
+                className="w-full"
+              />
+            </FormField>
+
+            <p className="font-body text-xs text-ink-muted">
+              O registo de cada execução desta regra fica disponível no
+              separador &quot;Execuções&quot; depois de criada — não é algo que
+              se defina aqui.
+            </p>
           </Section>
         </div>
 

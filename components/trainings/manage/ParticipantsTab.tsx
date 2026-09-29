@@ -46,7 +46,9 @@ const STATUS_ITEMS = [
 export function ParticipantsTab({ training }: ParticipantsTabProps) {
   const toast = useToast();
   const sessions = training.sessions ?? [];
-  const [sessionId, setSessionId] = useState<number | null>(sessions[0]?.id ?? null);
+  const [sessionId, setSessionId] = useState<number | null>(
+    sessions[0]?.id ?? null,
+  );
   const [showAdd, setShowAdd] = useState(false);
   const [addUserIds, setAddUserIds] = useState<number[]>([]);
   const [transferring, setTransferring] = useState<Participant | null>(null);
@@ -61,7 +63,11 @@ export function ParticipantsTab({ training }: ParticipantsTabProps) {
   const { data: usersResp } = useApiQuery<{ data: UserOption[] }>(
     ['trainings', 'users-picker'],
     '/users',
-    { params: { limit: 200 }, enabled: showAdd, staleTime: STALE_TIME.SEMI_STATIC },
+    {
+      params: { limit: 200 },
+      enabled: showAdd,
+      staleTime: STALE_TIME.SEMI_STATIC,
+    },
   );
   const enrolledIds = new Set(participants.map((p) => p.user.id));
   const userItems = (usersResp?.data ?? [])
@@ -85,7 +91,12 @@ export function ParticipantsTab({ training }: ParticipantsTabProps) {
     { onSuccess: invalidate, onError: onErr },
   );
   const bulkRegister = useApiMutation(
-    () => apiClient.post('/trainings/sessions/register/bulk', { sessionId, userIds: addUserIds, allowWaitlist: true }),
+    () =>
+      apiClient.post('/trainings/sessions/register/bulk', {
+        sessionId,
+        userIds: addUserIds,
+        allowWaitlist: true,
+      }),
     {
       onSuccess: (res: unknown) => {
         const r = res as { registered?: number; failed?: number };
@@ -132,7 +143,10 @@ export function ParticipantsTab({ training }: ParticipantsTabProps) {
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <Select
-          items={sessions.map((s) => ({ value: String(s.id), label: fmtDate(s.sessionDate) }))}
+          items={sessions.map((s) => ({
+            value: String(s.id),
+            label: fmtDate(s.sessionDate),
+          }))}
           value={sessionId ? String(sessionId) : undefined}
           onValueChange={(v) => setSessionId(Number(v))}
           className="max-w-xs"
@@ -159,8 +173,13 @@ export function ParticipantsTab({ training }: ParticipantsTabProps) {
           </div>
           <div className="space-y-2">
             {pending.map((p) => (
-              <div key={p.id} className="flex items-center justify-between gap-3">
-                <span className="font-body text-sm text-ink">{p.user.fullName}</span>
+              <div
+                key={p.id}
+                className="flex items-center justify-between gap-3"
+              >
+                <span className="font-body text-sm text-ink">
+                  {p.user.fullName}
+                </span>
                 <div className="flex gap-2">
                   <Button
                     size="sm"
@@ -186,16 +205,28 @@ export function ParticipantsTab({ training }: ParticipantsTabProps) {
       )}
 
       {participants.length === 0 ? (
-        <EmptyState title="Sem participantes" description="Ainda ninguém se inscreveu nesta sessão." />
+        <EmptyState
+          title="Sem participantes"
+          description="Ainda ninguém se inscreveu nesta sessão."
+        />
       ) : (
         <Card className="divide-y divide-border">
           {participants
             .filter((p) => p.status !== 'PENDING_APPROVAL')
             .map((p) => (
-              <div key={p.id} className="flex flex-wrap items-center gap-3 px-4 py-3">
-                <Avatar name={p.user.fullName} url={p.user.avatarUrl ?? undefined} size="sm" />
+              <div
+                key={p.id}
+                className="flex flex-wrap items-center gap-3 px-4 py-3"
+              >
+                <Avatar
+                  name={p.user.fullName}
+                  url={p.user.avatarUrl ?? undefined}
+                  size="sm"
+                />
                 <div className="min-w-0 flex-1">
-                  <div className="truncate text-sm font-medium text-ink">{p.user.fullName}</div>
+                  <div className="truncate text-sm font-medium text-ink">
+                    {p.user.fullName}
+                  </div>
                   <div className="text-xs text-ink-faint">
                     {p.user.department?.name ?? '—'}
                     {p.finalScore != null ? ` · Nota: ${p.finalScore}` : ''}
@@ -205,11 +236,17 @@ export function ParticipantsTab({ training }: ParticipantsTabProps) {
                 <Select
                   items={STATUS_ITEMS}
                   value={p.status}
-                  onValueChange={(status) => updateStatus.mutate({ id: p.id, status })}
+                  onValueChange={(status) =>
+                    updateStatus.mutate({ id: p.id, status })
+                  }
                   className="w-40 flex-shrink-0"
                 />
                 {otherSessions.length > 0 && (
-                  <Button intent="ghost" size="sm" onClick={() => setTransferring(p)}>
+                  <Button
+                    intent="ghost"
+                    size="sm"
+                    onClick={() => setTransferring(p)}
+                  >
                     Transferir
                   </Button>
                 )}
@@ -223,16 +260,24 @@ export function ParticipantsTab({ training }: ParticipantsTabProps) {
           <ModalContent title="Adicionar participantes" className="max-w-lg">
             <div className="mt-4 space-y-4">
               <p className="font-body text-xs text-ink-faint">
-                Selecciona um ou mais colaboradores para inscrever na sessão de {fmtDate(sessions.find((s) => s.id === sessionId)?.sessionDate ?? null)}.
+                Selecciona um ou mais colaboradores para inscrever na sessão de{' '}
+                {fmtDate(
+                  sessions.find((s) => s.id === sessionId)?.sessionDate ?? null,
+                )}
+                .
               </p>
               <div className="max-h-64 space-y-1 overflow-y-auto rounded-control border border-border p-2">
                 {userItems.length === 0 && (
                   <p className="flex items-center gap-2 p-2 text-xs text-ink-faint">
-                    <UsersIcon size={14} strokeWidth={1.75} /> Sem colaboradores disponíveis.
+                    <UsersIcon size={14} strokeWidth={1.75} /> Sem colaboradores
+                    disponíveis.
                   </p>
                 )}
                 {userItems.map((u) => (
-                  <label key={u.value} className="flex items-center gap-2 px-2 py-1 text-sm text-ink-muted">
+                  <label
+                    key={u.value}
+                    className="flex items-center gap-2 px-2 py-1 text-sm text-ink-muted"
+                  >
                     <input
                       type="checkbox"
                       checked={addUserIds.includes(Number(u.value))}
@@ -250,7 +295,11 @@ export function ParticipantsTab({ training }: ParticipantsTabProps) {
               </div>
             </div>
             <div className="mt-6 flex gap-3 border-t border-border pt-4">
-              <Button intent="secondary" className="flex-1 justify-center" onClick={() => setShowAdd(false)}>
+              <Button
+                intent="secondary"
+                className="flex-1 justify-center"
+                onClick={() => setShowAdd(false)}
+              >
                 Cancelar
               </Button>
               <Button
@@ -259,7 +308,8 @@ export function ParticipantsTab({ training }: ParticipantsTabProps) {
                 loading={bulkRegister.isPending}
                 onClick={() => bulkRegister.mutate(undefined)}
               >
-                Inscrever {addUserIds.length > 0 ? `(${addUserIds.length})` : ''}
+                Inscrever{' '}
+                {addUserIds.length > 0 ? `(${addUserIds.length})` : ''}
               </Button>
             </div>
           </ModalContent>
@@ -268,10 +318,16 @@ export function ParticipantsTab({ training }: ParticipantsTabProps) {
 
       {transferring && (
         <Modal open onOpenChange={(open) => !open && setTransferring(null)}>
-          <ModalContent title={`Transferir ${transferring.user.fullName}`} className="max-w-md">
+          <ModalContent
+            title={`Transferir ${transferring.user.fullName}`}
+            className="max-w-md"
+          >
             <div className="mt-4 space-y-4">
               <Select
-                items={otherSessions.map((s) => ({ value: String(s.id), label: fmtDate(s.sessionDate) }))}
+                items={otherSessions.map((s) => ({
+                  value: String(s.id),
+                  label: fmtDate(s.sessionDate),
+                }))}
                 value={targetSessionId || undefined}
                 onValueChange={setTargetSessionId}
                 placeholder="Turma/sessão de destino"
@@ -279,7 +335,11 @@ export function ParticipantsTab({ training }: ParticipantsTabProps) {
               />
             </div>
             <div className="mt-6 flex gap-3 border-t border-border pt-4">
-              <Button intent="secondary" className="flex-1 justify-center" onClick={() => setTransferring(null)}>
+              <Button
+                intent="secondary"
+                className="flex-1 justify-center"
+                onClick={() => setTransferring(null)}
+              >
                 Cancelar
               </Button>
               <Button

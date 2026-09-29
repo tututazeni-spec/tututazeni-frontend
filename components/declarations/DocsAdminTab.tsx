@@ -28,7 +28,14 @@ export interface DocsAdminTabProps {
   onGenerate: (id: number) => void;
 }
 
-const HEADERS = ['Colaborador', 'Template', 'Finalidade', 'Estado', 'Data', 'Acções'];
+const HEADERS = [
+  'Colaborador',
+  'Template',
+  'Finalidade',
+  'Estado',
+  'Data',
+  'Acções',
+];
 
 export function DocsAdminTab({
   docDash,
@@ -40,19 +47,36 @@ export function DocsAdminTab({
     <div className="space-y-5">
       {docDash && (
         <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-          <KpiCard label="Pendentes" value={docDash.kpis.pending} icon={Clock} intent="warning" />
-          <KpiCard label="Gerados" value={docDash.kpis.generated} icon={FileCheck} intent="info" />
+          <KpiCard
+            label="Pendentes"
+            value={docDash.kpis.pending}
+            icon={Clock}
+            intent="warning"
+          />
+          <KpiCard
+            label="Gerados"
+            value={docDash.kpis.generated}
+            icon={FileCheck}
+            intent="info"
+          />
           <KpiCard
             label="Emitidos"
             value={docDash.kpis.issued}
             icon={CheckCircle2}
             intent="success"
           />
-          <KpiCard label="Total" value={docDash.kpis.total} icon={FileText} intent="accent" />
+          <KpiCard
+            label="Total"
+            value={docDash.kpis.total}
+            icon={FileText}
+            intent="accent"
+          />
         </div>
       )}
       <div>
-        <h2 className="mb-3 font-display text-sm font-semibold text-ink">Todos os Pedidos</h2>
+        <h2 className="mb-3 font-display text-sm font-semibold text-ink">
+          Todos os Pedidos
+        </h2>
         <Table>
           <TableHead>
             <TableRow>

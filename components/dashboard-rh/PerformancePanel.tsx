@@ -37,7 +37,7 @@ export function PerformancePanel() {
   return (
     <div className="space-y-5">
       {/* KPIs — cartão estilo Udemy/MasterClass */}
-            <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         <TopBarCard
           label="Pontuação Média"
           value={data?.avgScore?.toFixed(1) ?? '–'}
@@ -71,13 +71,23 @@ export function PerformancePanel() {
             Distribuição de Performance
           </h4>
           <BarChart
-            categories={['Excepcional', 'Acima', 'Esperado', 'Abaixo', 'Crítico']}
+            categories={[
+              'Excepcional',
+              'Acima',
+              'Esperado',
+              'Abaixo',
+              'Crítico',
+            ]}
             series={[
               {
                 label: 'Colaboradores',
-                values: ['exceptional', 'above', 'expected', 'below', 'critical'].map(
-                  (key) => dist[key] ?? 0,
-                ),
+                values: [
+                  'exceptional',
+                  'above',
+                  'expected',
+                  'below',
+                  'critical',
+                ].map((key) => dist[key] ?? 0),
               },
             ]}
           />
@@ -91,14 +101,23 @@ export function PerformancePanel() {
           {(data?.byDepartment ?? []).length > 0 ? (
             <BarChart
               orientation="horizontal"
-              categories={(data?.byDepartment ?? []).slice(0, 6).map((d) => d.department)}
+              categories={(data?.byDepartment ?? [])
+                .slice(0, 6)
+                .map((d) => d.department)}
               series={[
-                { label: 'Pontuação média', values: (data?.byDepartment ?? []).slice(0, 6).map((d) => d.avgScore) },
+                {
+                  label: 'Pontuação média',
+                  values: (data?.byDepartment ?? [])
+                    .slice(0, 6)
+                    .map((d) => d.avgScore),
+                },
               ]}
               yFormat={(v) => v.toFixed(1)}
             />
           ) : (
-            <p className="font-body text-xs text-ink-faint">Sem dados suficientes.</p>
+            <p className="font-body text-xs text-ink-faint">
+              Sem dados suficientes.
+            </p>
           )}
         </div>
       </div>
@@ -116,4 +135,3 @@ export function PerformancePanel() {
     </div>
   );
 }
-

@@ -22,7 +22,10 @@ import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
 import type { Plan } from '@/components/development-plans/types';
 
-const STATUS_INTENT: Record<string, 'success' | 'warning' | 'info' | 'neutral' | 'danger'> = {
+const STATUS_INTENT: Record<
+  string,
+  'success' | 'warning' | 'info' | 'neutral' | 'danger'
+> = {
   DRAFT: 'neutral',
   PENDING_APPROVAL: 'warning',
   ACTIVE: 'info',
@@ -44,14 +47,19 @@ export function PdiTab() {
 
   if (loading) return <Skeleton rows={3} />;
 
-  const active = plans.filter((p) => !['COMPLETED', 'CANCELLED'].includes(p.status));
+  const active = plans.filter(
+    (p) => !['COMPLETED', 'CANCELLED'].includes(p.status),
+  );
 
   if (plans.length === 0) {
     return (
       <EmptyState
         title="Sem PDI activo"
         description="Cria um Plano de Desenvolvimento Individual — pode nascer ligado a este plano de carreira."
-        action={{ label: 'Criar PDI', onClick: () => router.push('/development-plans') }}
+        action={{
+          label: 'Criar PDI',
+          onClick: () => router.push('/development-plans'),
+        }}
       />
     );
   }
@@ -60,7 +68,11 @@ export function PdiTab() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-1.5 font-body text-sm font-semibold text-ink">
-          <ClipboardList size={16} strokeWidth={1.75} className="text-primary" />
+          <ClipboardList
+            size={16}
+            strokeWidth={1.75}
+            className="text-primary"
+          />
           Planos de Desenvolvimento Individual
         </div>
         <Link href="/development-plans">
@@ -83,7 +95,9 @@ export function PdiTab() {
                     {plan.goal}
                   </div>
                 </div>
-                <Badge intent={STATUS_INTENT[plan.status] ?? 'neutral'}>{plan.status}</Badge>
+                <Badge intent={STATUS_INTENT[plan.status] ?? 'neutral'}>
+                  {plan.status}
+                </Badge>
               </div>
               <ProgressBar value={plan.overallProgress} className="mb-2" />
               <div className="flex items-center justify-between font-body text-xs text-ink-faint">

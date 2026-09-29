@@ -60,7 +60,9 @@ interface InfoProps {
 export function Info({ label, value }: InfoProps) {
   return (
     <div>
-      <p className="font-body text-xs font-medium text-ink-muted uppercase">{label}</p>
+      <p className="font-body text-xs font-medium text-ink-muted uppercase">
+        {label}
+      </p>
       <p className="font-body text-sm text-ink">{value || '—'}</p>
     </div>
   );
@@ -74,7 +76,9 @@ interface FieldProps {
 export function Field({ label, children }: FieldProps) {
   return (
     <label className="block">
-      <span className="font-body text-xs font-medium text-ink-muted uppercase">{label}</span>
+      <span className="font-body text-xs font-medium text-ink-muted uppercase">
+        {label}
+      </span>
       <div className="mt-1">{children}</div>
     </label>
   );
@@ -90,7 +94,9 @@ export function SummaryCard({ label, value, color }: SummaryCardProps) {
   return (
     <Card>
       <CardBody>
-        <p className="font-body text-xs font-medium text-ink-muted uppercase">{label}</p>
+        <p className="font-body text-xs font-medium text-ink-muted uppercase">
+          {label}
+        </p>
         <p className={cn('font-display text-lg font-bold', color)}>{value}</p>
       </CardBody>
     </Card>
@@ -119,7 +125,10 @@ export function DetailSkeleton() {
       <Skeleton
         rows={2}
         wrapperClassName="space-y-4 animate-pulse"
-        itemClassName={cn('rounded-card bg-surface-sunken', 'first:h-24 last:h-64')}
+        itemClassName={cn(
+          'rounded-card bg-surface-sunken',
+          'first:h-24 last:h-64',
+        )}
       />
     </div>
   );
@@ -151,7 +160,9 @@ export function DistributionList({
   return (
     <Card>
       <CardBody>
-        <h3 className="font-body text-sm font-semibold text-ink mb-3">{title}</h3>
+        <h3 className="font-body text-sm font-semibold text-ink mb-3">
+          {title}
+        </h3>
         {rows.length === 0 ? (
           <p className="font-body text-sm text-ink-faint">Sem dados</p>
         ) : (
@@ -190,7 +201,12 @@ interface DateRangeFormProps {
 }
 
 /** Selector de período + botão "Gerar", partilhado pelos 3 relatórios CRM. */
-export function DateRangeForm({ value, onChange, onSubmit, loading }: DateRangeFormProps) {
+export function DateRangeForm({
+  value,
+  onChange,
+  onSubmit,
+  loading,
+}: DateRangeFormProps) {
   return (
     <Card>
       <CardBody className="flex flex-wrap items-end gap-3">
@@ -216,7 +232,11 @@ export function DateRangeForm({ value, onChange, onSubmit, loading }: DateRangeF
             onChange={(e) => onChange({ ...value, end: e.target.value })}
           />
         </div>
-        <Button onClick={onSubmit} disabled={!value.start || !value.end} loading={loading}>
+        <Button
+          onClick={onSubmit}
+          disabled={!value.start || !value.end}
+          loading={loading}
+        >
           Gerar relatório
         </Button>
       </CardBody>
@@ -229,7 +249,10 @@ export function DateRangeForm({ value, onChange, onSubmit, loading }: DateRangeF
 export function useDateRangeReport() {
   const today = new Date().toISOString().slice(0, 10);
   const firstOfMonth = today.slice(0, 8) + '01';
-  const [range, setRange] = useState<DateRange>({ start: firstOfMonth, end: today });
+  const [range, setRange] = useState<DateRange>({
+    start: firstOfMonth,
+    end: today,
+  });
   const [submitted, setSubmitted] = useState<DateRange | null>(null);
   return { range, setRange, submitted, generate: () => setSubmitted(range) };
 }

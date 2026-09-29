@@ -29,14 +29,18 @@ export function SkillsPanel() {
       />
     );
 
-      const sortedGaps = [...(data?.topGaps ?? [])].sort((a, b) => b.avgGap - a.avgGap);
-  const sortedStrengths = [...(data?.topStrengths ?? [])].sort((a, b) => b.avgLevel - a.avgLevel);
+  const sortedGaps = [...(data?.topGaps ?? [])].sort(
+    (a, b) => b.avgGap - a.avgGap,
+  );
+  const sortedStrengths = [...(data?.topStrengths ?? [])].sort(
+    (a, b) => b.avgLevel - a.avgLevel,
+  );
 
   return (
     <div className="space-y-5">
       {/* KPIs — cartão estilo Udemy/MasterClass */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-                <TopBarCard
+        <TopBarCard
           label="Colaboradores Avaliados"
           value={`${data?.assessmentRate ?? 0}%`}
           tone="blue"
@@ -57,17 +61,23 @@ export function SkillsPanel() {
       </div>
 
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-               <div className="rounded-card border border-border bg-surface p-5">
+        <div className="rounded-card border border-border bg-surface p-5">
           <h4 className="mb-3 font-body font-semibold text-ink-muted">
             Maiores Gaps de Competência
           </h4>
           {sortedGaps.length === 0 ? (
-            <p className="font-body text-xs text-ink-faint">Sem gaps identificados.</p>
+            <p className="font-body text-xs text-ink-faint">
+              Sem gaps identificados.
+            </p>
           ) : (
             <BarChart
               orientation="horizontal"
-              categories={sortedGaps.map((s, i) => s.competency?.name ?? `Competência ${i + 1}`)}
-              series={[{ label: 'Gap médio', values: sortedGaps.map((s) => s.avgGap) }]}
+              categories={sortedGaps.map(
+                (s, i) => s.competency?.name ?? `Competência ${i + 1}`,
+              )}
+              series={[
+                { label: 'Gap médio', values: sortedGaps.map((s) => s.avgGap) },
+              ]}
               className="mb-4"
               yFormat={(v) => v.toFixed(1)}
             />
@@ -94,17 +104,26 @@ export function SkillsPanel() {
           </div>
         </div>
 
-                <div className="rounded-card border border-border bg-surface p-5">
+        <div className="rounded-card border border-border bg-surface p-5">
           <h4 className="mb-3 font-body font-semibold text-ink-muted">
             Maiores Forças
           </h4>
           {sortedStrengths.length === 0 ? (
-            <p className="font-body text-xs text-ink-faint">Sem dados suficientes.</p>
+            <p className="font-body text-xs text-ink-faint">
+              Sem dados suficientes.
+            </p>
           ) : (
             <BarChart
               orientation="horizontal"
-              categories={sortedStrengths.map((s, i) => s.competency?.name ?? `Competência ${i + 1}`)}
-              series={[{ label: 'Nível médio', values: sortedStrengths.map((s) => s.avgLevel) }]}
+              categories={sortedStrengths.map(
+                (s, i) => s.competency?.name ?? `Competência ${i + 1}`,
+              )}
+              series={[
+                {
+                  label: 'Nível médio',
+                  values: sortedStrengths.map((s) => s.avgLevel),
+                },
+              ]}
               className="mb-4"
               yFormat={(v) => v.toFixed(1)}
             />

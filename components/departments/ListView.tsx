@@ -96,9 +96,7 @@ export function ListView({ onSelect }: ListViewProps) {
         />
       )}
       {error && (
-        <div className="px-4 py-8 text-center text-sm text-danger">
-          {error}
-        </div>
+        <div className="px-4 py-8 text-center text-sm text-danger">{error}</div>
       )}
       {!loading && (
         <Table>
@@ -133,7 +131,9 @@ export function ListView({ onSelect }: ListViewProps) {
                   <div className="flex items-center gap-2">
                     <div
                       className="h-2.5 w-2.5 flex-shrink-0 rounded-full"
-                      style={{ background: d.color ?? 'var(--color-ink-faint)' }}
+                      style={{
+                        background: d.color ?? 'var(--color-ink-faint)',
+                      }}
                     />
                     <div>
                       <div className="text-sm font-medium text-ink">

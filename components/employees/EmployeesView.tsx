@@ -19,7 +19,18 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { useCallback, useState } from 'react';
-import { AlertCircle, Download, LayoutGrid, List, RefreshCcw, Search, SlidersHorizontal, UserPlus, Users, X } from 'lucide-react';
+import {
+  AlertCircle,
+  Download,
+  LayoutGrid,
+  List,
+  RefreshCcw,
+  Search,
+  SlidersHorizontal,
+  UserPlus,
+  Users,
+  X,
+} from 'lucide-react';
 import {
   useEmployees,
   useHeadcount,

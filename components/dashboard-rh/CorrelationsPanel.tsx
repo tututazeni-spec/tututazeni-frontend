@@ -42,7 +42,7 @@ export function CorrelationsPanel() {
         </span>
       </div>
 
-         {data?.trainingVsPerformance && (
+      {data?.trainingVsPerformance && (
         <div className="overflow-hidden rounded-2xl border border-border bg-surface shadow-resting">
           <div className="h-1.5 w-full bg-[#2B6CC4]" />
           <div className="p-5">
@@ -79,7 +79,7 @@ export function CorrelationsPanel() {
         </div>
       )}
 
-            {data?.engagementVsPerformance && (
+      {data?.engagementVsPerformance && (
         <div className="overflow-hidden rounded-2xl border border-border bg-surface shadow-resting">
           <div className="h-1.5 w-full bg-[#C9A227]" />
           <div className="p-5">

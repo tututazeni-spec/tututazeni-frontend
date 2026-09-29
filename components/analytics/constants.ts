@@ -33,16 +33,36 @@ export const NAV: Array<{
   icon: LucideIcon;
   roles?: readonly Role[];
 }> = [
-  { id: 'overview', label: 'Visão geral', icon: LayoutDashboard, roles: EXECUTIVE_ROLES },
+  {
+    id: 'overview',
+    label: 'Visão geral',
+    icon: LayoutDashboard,
+    roles: EXECUTIVE_ROLES,
+  },
   { id: 'my', label: 'O Meu Progresso', icon: TrendingUp },
   { id: 'manager', label: 'Equipa', icon: UsersRound, roles: EXECUTIVE_ROLES },
   { id: 'hr', label: 'RH', icon: UserCog, roles: ADMIN_ROLES },
-  { id: 'learning', label: 'Aprendizagem', icon: GraduationCap, roles: EXECUTIVE_ROLES },
+  {
+    id: 'learning',
+    label: 'Aprendizagem',
+    icon: GraduationCap,
+    roles: EXECUTIVE_ROLES,
+  },
   { id: 'courses', label: 'Cursos', icon: BookOpen, roles: EXECUTIVE_ROLES },
   { id: 'pdi', label: 'PDI', icon: Target, roles: EXECUTIVE_ROLES },
-  { id: 'competencies', label: 'Competências', icon: BarChart2, roles: EXECUTIVE_ROLES },
+  {
+    id: 'competencies',
+    label: 'Competências',
+    icon: BarChart2,
+    roles: EXECUTIVE_ROLES,
+  },
   { id: 'people', label: 'Pessoas', icon: Users, roles: ADMIN_ROLES },
-  { id: 'engagement', label: 'Engagement', icon: Sparkles, roles: EXECUTIVE_ROLES },
+  {
+    id: 'engagement',
+    label: 'Engagement',
+    icon: Sparkles,
+    roles: EXECUTIVE_ROLES,
+  },
   { id: 'roi', label: 'ROI Formação', icon: DollarSign, roles: ADMIN_ROLES },
   { id: 'risks', label: 'Riscos', icon: TriangleAlert, roles: EXECUTIVE_ROLES },
   { id: 'snapshots', label: 'Snapshots', icon: History, roles: ADMIN_ROLES },

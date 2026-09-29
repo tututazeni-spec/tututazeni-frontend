@@ -104,7 +104,12 @@ export function Evaluation360View({
     switch (activeTab) {
       case 'overview':
         return (
-          <OverviewTab result={result} participant={participant} cycle={cycle} cycleId={cycleId} />
+          <OverviewTab
+            result={result}
+            participant={participant}
+            cycle={cycle}
+            cycleId={cycleId}
+          />
         );
       case 'adminOverview':
         return canSeeOverview ? <OverviewAdminTab /> : null;

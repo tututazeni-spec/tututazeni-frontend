@@ -63,7 +63,10 @@ export function AttendanceHistory({ records }: AttendanceHistoryProps) {
               </tr>
             )}
             {records.map((r) => (
-              <tr key={r.id} className="hover:bg-primary-subtle transition-colors">
+              <tr
+                key={r.id}
+                className="hover:bg-primary-subtle transition-colors"
+              >
                 <td className="px-4 py-3 text-sm font-medium text-ink">
                   {new Date(r.date).toLocaleDateString('pt-PT', {
                     day: '2-digit',

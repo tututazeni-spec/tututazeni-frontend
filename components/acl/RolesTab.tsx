@@ -18,16 +18,15 @@ export function RolesTab() {
     { staleTime: STALE_TIME.SEMI_STATIC },
   );
 
-  if (loading) return <Skeleton rows={3} itemClassName="h-16 bg-surface rounded-xl" />;
+  if (loading)
+    return <Skeleton rows={3} itemClassName="h-16 bg-surface rounded-xl" />;
 
   return (
     <div className="gap-5 grid grid-cols-1 md:grid-cols-3">
       {/* Role list */}
       <Card className="divide-y divide-border overflow-hidden">
         <div className="flex items-center justify-between border-b border-border px-4 py-3">
-          <h4 className="font-semibold text-ink">
-            Roles ({roles.length})
-          </h4>
+          <h4 className="font-semibold text-ink">Roles ({roles.length})</h4>
         </div>
         <div className="divide-y divide-border">
           {roles.map((r) => (
@@ -46,7 +45,11 @@ export function RolesTab() {
                   {r.permissions?.length ?? 0} permissões
                 </p>
               </div>
-              <ChevronRight size={13} strokeWidth={1.75} className="text-ink-faint" />
+              <ChevronRight
+                size={13}
+                strokeWidth={1.75}
+                className="text-ink-faint"
+              />
             </button>
           ))}
         </div>
@@ -56,16 +59,18 @@ export function RolesTab() {
       <Card className="md:col-span-2 p-5">
         {!selected ? (
           <div className="py-12 text-center text-ink-faint">
-            <Shield size={36} strokeWidth={1.75} className="mx-auto mb-2 opacity-30" />
+            <Shield
+              size={36}
+              strokeWidth={1.75}
+              className="mx-auto mb-2 opacity-30"
+            />
             <p className="text-sm">Selecciona um role para ver detalhes</p>
           </div>
         ) : (
           <div>
             <div className="mb-4 flex items-center justify-between">
               <div>
-                <h4 className="font-bold text-ink text-lg">
-                  {selected.name}
-                </h4>
+                <h4 className="font-bold text-ink text-lg">{selected.name}</h4>
                 <p className="font-mono text-ink-faint text-xs">
                   {selected.code}
                 </p>

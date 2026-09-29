@@ -55,15 +55,26 @@ interface TrendKpiCardProps {
   tone: Tone;
 }
 
-function TrendKpiCard({ icon: Icon, label, value, sub, trendData, tone }: TrendKpiCardProps) {
+function TrendKpiCard({
+  icon: Icon,
+  label,
+  value,
+  sub,
+  trendData,
+  tone,
+}: TrendKpiCardProps) {
   const t = TONES[tone];
   return (
     <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting transition-shadow hover:shadow-lg">
       <div className={`h-1.5 w-full ${t.bar}`} />
       <div className="p-5 pt-6">
         <Icon size={22} strokeWidth={1.75} className={t.text} />
-        <p className={`mt-3 font-display text-3xl font-bold ${t.text}`}>{value}</p>
-        <p className="mt-1 font-body text-sm font-medium text-ink-muted">{label}</p>
+        <p className={`mt-3 font-display text-3xl font-bold ${t.text}`}>
+          {value}
+        </p>
+        <p className="mt-1 font-body text-sm font-medium text-ink-muted">
+          {label}
+        </p>
         {sub && <p className="mt-1 font-body text-xs text-ink-faint">{sub}</p>}
         <div className="mt-3 h-14">
           <AreaLineChart
@@ -89,7 +100,14 @@ interface ProgressKpiCardProps {
   tone: Tone;
 }
 
-function ProgressKpiCard({ icon: Icon, label, value, sub, coveredPct, tone }: ProgressKpiCardProps) {
+function ProgressKpiCard({
+  icon: Icon,
+  label,
+  value,
+  sub,
+  coveredPct,
+  tone,
+}: ProgressKpiCardProps) {
   const t = TONES[tone];
   const clamped = Math.max(0, Math.min(100, coveredPct));
   return (
@@ -97,8 +115,12 @@ function ProgressKpiCard({ icon: Icon, label, value, sub, coveredPct, tone }: Pr
       <div className={`h-1.5 w-full ${t.bar}`} />
       <div className="p-5 pt-6">
         <Icon size={22} strokeWidth={1.75} className={t.text} />
-        <p className={`mt-3 font-display text-3xl font-bold ${t.text}`}>{value}</p>
-        <p className="mt-1 font-body text-sm font-medium text-ink-muted">{label}</p>
+        <p className={`mt-3 font-display text-3xl font-bold ${t.text}`}>
+          {value}
+        </p>
+        <p className="mt-1 font-body text-sm font-medium text-ink-muted">
+          {label}
+        </p>
         {sub && <p className="mt-1 font-body text-xs text-ink-faint">{sub}</p>}
         <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-[#E3E8EF]">
           <div
@@ -106,7 +128,9 @@ function ProgressKpiCard({ icon: Icon, label, value, sub, coveredPct, tone }: Pr
             style={{ width: `${clamped}%` }}
           />
         </div>
-        <p className="mt-1.5 font-body text-xs text-ink-faint">{Math.round(clamped)}% com PDI activo</p>
+        <p className="mt-1.5 font-body text-xs text-ink-faint">
+          {Math.round(clamped)}% com PDI activo
+        </p>
       </div>
     </div>
   );

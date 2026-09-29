@@ -148,32 +148,32 @@ export function ColaboradorDashboard() {
       </div>
 
       {/* KPIs */}
-   <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-  <CourseStyleKpiCard
-    icon={BookOpen}
-    tone="blue"
-    label="Cursos em Progresso"
-    value={data?.learning?.inProgress ?? 0}
-  />
-  <CourseStyleKpiCard
-    icon={CheckCircle2}
-    tone="green"
-    label="Cursos Concluídos"
-    value={data?.learning?.completed ?? 0}
-  />
-  <CourseStyleKpiCard
-    icon={Award}
-    tone="gold"
-    label="Distintivos Conquistados"
-    value={data?.gamification?.recentBadges?.length ?? 0}
-  />
-  <CourseStyleKpiCard
-    icon={ClipboardList}
-    tone="red"
-    label="Avaliações Pendentes"
-    value={data?.engagement?.pendingSurveys ?? 0}
-  />
-</div>
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+        <CourseStyleKpiCard
+          icon={BookOpen}
+          tone="blue"
+          label="Cursos em Progresso"
+          value={data?.learning?.inProgress ?? 0}
+        />
+        <CourseStyleKpiCard
+          icon={CheckCircle2}
+          tone="green"
+          label="Cursos Concluídos"
+          value={data?.learning?.completed ?? 0}
+        />
+        <CourseStyleKpiCard
+          icon={Award}
+          tone="gold"
+          label="Distintivos Conquistados"
+          value={data?.gamification?.recentBadges?.length ?? 0}
+        />
+        <CourseStyleKpiCard
+          icon={ClipboardList}
+          tone="red"
+          label="Avaliações Pendentes"
+          value={data?.engagement?.pendingSurveys ?? 0}
+        />
+      </div>
 
       <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
         {/* PDI */}
@@ -207,28 +207,31 @@ export function ColaboradorDashboard() {
         )}
 
         {/* Pending items */}
-<div className="relative overflow-hidden rounded-2xl border border-border bg-surface p-5 pt-6 shadow-resting">
-  <span aria-hidden className="absolute inset-x-0 top-0 h-1.5 bg-orange-500" />
-  <div className="mb-3 flex items-center gap-2">
-    <div className="rounded-control bg-orange-100 p-2 text-orange-600">
-      <Clock size={18} strokeWidth={1.75} />
-    </div>
-    <h3 className="font-body font-semibold text-ink">Pendentes</h3>
-  </div>
-  <p className="font-display text-4xl font-bold text-orange-600">
-    {(data?.pendingItems ?? []).length}
-  </p>
-  {(() => {
-    const highCount = (data?.pendingItems ?? []).filter(
-      (item) => item.priority === 'HIGH',
-    ).length;
-    return highCount > 0 ? (
-      <p className="mt-1 font-body text-xs text-danger">
-        {highCount} de alta prioridade
-      </p>
-    ) : null;
-  })()}
-</div>
+        <div className="relative overflow-hidden rounded-2xl border border-border bg-surface p-5 pt-6 shadow-resting">
+          <span
+            aria-hidden
+            className="absolute inset-x-0 top-0 h-1.5 bg-orange-500"
+          />
+          <div className="mb-3 flex items-center gap-2">
+            <div className="rounded-control bg-orange-100 p-2 text-orange-600">
+              <Clock size={18} strokeWidth={1.75} />
+            </div>
+            <h3 className="font-body font-semibold text-ink">Pendentes</h3>
+          </div>
+          <p className="font-display text-4xl font-bold text-orange-600">
+            {(data?.pendingItems ?? []).length}
+          </p>
+          {(() => {
+            const highCount = (data?.pendingItems ?? []).filter(
+              (item) => item.priority === 'HIGH',
+            ).length;
+            return highCount > 0 ? (
+              <p className="mt-1 font-body text-xs text-danger">
+                {highCount} de alta prioridade
+              </p>
+            ) : null;
+          })()}
+        </div>
       </div>
 
       {/* Competencies radar */}

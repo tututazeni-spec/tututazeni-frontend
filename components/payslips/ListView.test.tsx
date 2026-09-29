@@ -58,9 +58,7 @@ describe('ListView (os meus recibos)', () => {
     queryResult = { data: envelope(37, 4), isLoading: false };
     render(<ListView onSelect={() => {}} />);
     expect(screen.getByText('Página 1 de 4')).toBeInTheDocument();
-    expect(
-      screen.getByRole('button', { name: /Próxima/ }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Próxima/ })).toBeInTheDocument();
   });
 
   test('hides the paginator on a single page', () => {

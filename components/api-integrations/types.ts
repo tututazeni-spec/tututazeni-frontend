@@ -60,12 +60,17 @@ export type IntegrationCategoryValue =
   | 'PAYROLL'
   | 'IDENTITY_ACCESS'
   | 'OTHER';
-export type IntegrationAuthTypeValue = 'OAUTH2' | 'API_KEY' | 'BASIC' | 'BEARER' | 'NONE';
-export type IntegrationEnvironmentValue = 'PRODUCTION' | 'STAGING' | 'DEVELOPMENT' | 'SANDBOX';
+export type IntegrationAuthTypeValue =
+  'OAUTH2' | 'API_KEY' | 'BASIC' | 'BEARER' | 'NONE';
+export type IntegrationEnvironmentValue =
+  'PRODUCTION' | 'STAGING' | 'DEVELOPMENT' | 'SANDBOX';
 export type IntegrationDataFormatValue = 'JSON' | 'XML' | 'CSV' | 'EXCEL';
-export type IntegrationCommunicationMethodValue = 'PULL' | 'PUSH' | 'POLLING' | 'STREAMING';
-export type IntegrationSyncFrequencyValue = 'REALTIME' | 'HOURLY' | 'DAILY' | 'WEEKLY' | 'MANUAL';
-export type IntegrationSyncDirectionValue = 'INBOUND' | 'OUTBOUND' | 'BIDIRECTIONAL';
+export type IntegrationCommunicationMethodValue =
+  'PULL' | 'PUSH' | 'POLLING' | 'STREAMING';
+export type IntegrationSyncFrequencyValue =
+  'REALTIME' | 'HOURLY' | 'DAILY' | 'WEEKLY' | 'MANUAL';
+export type IntegrationSyncDirectionValue =
+  'INBOUND' | 'OUTBOUND' | 'BIDIRECTIONAL';
 export type IntegrationStatusValue =
   | 'ACTIVE'
   | 'INACTIVE'

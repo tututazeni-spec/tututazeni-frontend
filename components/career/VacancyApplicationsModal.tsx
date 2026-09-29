@@ -23,7 +23,10 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { Textarea } from '@/components/ui/Textarea';
 import type { VacancyApplication } from './types';
 
-const STATUS_INTENT: Record<VacancyApplication['status'], 'success' | 'warning' | 'info' | 'neutral' | 'danger'> = {
+const STATUS_INTENT: Record<
+  VacancyApplication['status'],
+  'success' | 'warning' | 'info' | 'neutral' | 'danger'
+> = {
   PENDING: 'neutral',
   REVIEWING: 'info',
   SHORTLISTED: 'warning',
@@ -62,16 +65,26 @@ export function VacancyApplicationsModal({
 
   return (
     <Modal open onOpenChange={(open) => !open && onClose()}>
-      <ModalContent title={`Candidaturas — ${vacancyTitle}`} className="max-h-[85vh] max-w-2xl overflow-y-auto">
+      <ModalContent
+        title={`Candidaturas — ${vacancyTitle}`}
+        className="max-h-[85vh] max-w-2xl overflow-y-auto"
+      >
         <div className="mt-4">
           {loading ? (
             <Skeleton rows={3} />
           ) : applications.length === 0 ? (
-            <EmptyState title="Sem candidaturas" description="Ainda ninguém se candidatou a esta vaga." />
+            <EmptyState
+              title="Sem candidaturas"
+              description="Ainda ninguém se candidatou a esta vaga."
+            />
           ) : (
             <div className="space-y-3">
               {applications.map((app) => (
-                <ApplicationRow key={app.id} app={app} onChanged={() => refetch()} />
+                <ApplicationRow
+                  key={app.id}
+                  app={app}
+                  onChanged={() => refetch()}
+                />
               ))}
             </div>
           )}
@@ -87,7 +100,13 @@ export function VacancyApplicationsModal({
   );
 }
 
-function ApplicationRow({ app, onChanged }: { app: VacancyApplication; onChanged: () => void }) {
+function ApplicationRow({
+  app,
+  onChanged,
+}: {
+  app: VacancyApplication;
+  onChanged: () => void;
+}) {
   const [feedback, setFeedback] = useState(app.feedback ?? '');
   const [showFeedback, setShowFeedback] = useState(false);
   const [error, setError] = useState('');
@@ -110,19 +129,28 @@ function ApplicationRow({ app, onChanged }: { app: VacancyApplication; onChanged
   return (
     <div className="rounded-card border border-border p-3">
       <div className="flex items-start gap-3">
-        <Avatar name={app.user.fullName} url={app.user.avatarUrl ?? undefined} size="sm" />
+        <Avatar
+          name={app.user.fullName}
+          url={app.user.avatarUrl ?? undefined}
+          size="sm"
+        />
         <div className="min-w-0 flex-1">
           <div className="flex items-center justify-between gap-2">
             <span className="truncate font-body text-sm font-medium text-ink">
               {app.user.fullName}
             </span>
-            <Badge intent={STATUS_INTENT[app.status]}>{STATUS_LABEL[app.status]}</Badge>
+            <Badge intent={STATUS_INTENT[app.status]}>
+              {STATUS_LABEL[app.status]}
+            </Badge>
           </div>
           <div className="font-body text-xs text-ink-faint">
-            {app.user.position?.name ?? '—'} · {app.user.department?.name ?? '—'}
+            {app.user.position?.name ?? '—'} ·{' '}
+            {app.user.department?.name ?? '—'}
           </div>
           {app.motivation && (
-            <p className="mt-2 font-body text-xs text-ink-muted">{app.motivation}</p>
+            <p className="mt-2 font-body text-xs text-ink-muted">
+              {app.motivation}
+            </p>
           )}
 
           {error && (
@@ -159,7 +187,10 @@ function ApplicationRow({ app, onChanged }: { app: VacancyApplication; onChanged
                     setError('');
                     updateStatus.mutate('REVIEWING');
                   }}
-                  loading={updateStatus.isPending && updateStatus.variables === 'REVIEWING'}
+                  loading={
+                    updateStatus.isPending &&
+                    updateStatus.variables === 'REVIEWING'
+                  }
                 >
                   Marcar em revisão
                 </Button>
@@ -171,7 +202,10 @@ function ApplicationRow({ app, onChanged }: { app: VacancyApplication; onChanged
                   setError('');
                   updateStatus.mutate('SHORTLISTED');
                 }}
-                loading={updateStatus.isPending && updateStatus.variables === 'SHORTLISTED'}
+                loading={
+                  updateStatus.isPending &&
+                  updateStatus.variables === 'SHORTLISTED'
+                }
               >
                 Pré-seleccionar
               </Button>
@@ -182,7 +216,10 @@ function ApplicationRow({ app, onChanged }: { app: VacancyApplication; onChanged
                   setError('');
                   updateStatus.mutate('ACCEPTED');
                 }}
-                loading={updateStatus.isPending && updateStatus.variables === 'ACCEPTED'}
+                loading={
+                  updateStatus.isPending &&
+                  updateStatus.variables === 'ACCEPTED'
+                }
               >
                 Aceitar
               </Button>
@@ -193,7 +230,10 @@ function ApplicationRow({ app, onChanged }: { app: VacancyApplication; onChanged
                   setError('');
                   updateStatus.mutate('REJECTED');
                 }}
-                loading={updateStatus.isPending && updateStatus.variables === 'REJECTED'}
+                loading={
+                  updateStatus.isPending &&
+                  updateStatus.variables === 'REJECTED'
+                }
               >
                 Rejeitar
               </Button>

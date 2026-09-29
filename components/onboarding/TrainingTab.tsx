@@ -25,7 +25,10 @@ export interface TrainingTabProps {
   canManageTasks?: boolean;
 }
 
-export function TrainingTab({ canManagePlan = false, canManageTasks = false }: TrainingTabProps) {
+export function TrainingTab({
+  canManagePlan = false,
+  canManageTasks = false,
+}: TrainingTabProps) {
   const [detailId, setDetailId] = useState<number | null>(null);
   const { data = [], isLoading } = useApiQuery<OnboardingTrainingRow[]>(
     queryKeys.onboarding.training({}),
@@ -53,7 +56,11 @@ export function TrainingTab({ canManagePlan = false, canManageTasks = false }: T
           onClick={() => setDetailId(row.planId)}
           className="flex w-full items-center gap-4 border-b border-border px-4 py-3 text-left last:border-0 hover:bg-surface-sunken"
         >
-          <Avatar name={row.user.fullName} url={row.user.avatarUrl ?? undefined} size="sm" />
+          <Avatar
+            name={row.user.fullName}
+            url={row.user.avatarUrl ?? undefined}
+            size="sm"
+          />
           <div className="min-w-0 flex-1">
             <div className="truncate font-body text-sm font-medium text-ink">
               {row.course?.title ?? row.title}

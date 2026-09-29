@@ -44,9 +44,8 @@ export function useFunderDetail(id: string) {
   );
 
   const [showReportForm, setShowReportForm] = useState(false);
-  const [reportForm, setReportForm] = useState<CreateReportForm>(
-    EMPTY_REPORT_FORM,
-  );
+  const [reportForm, setReportForm] =
+    useState<CreateReportForm>(EMPTY_REPORT_FORM);
   const [submittingReportId, setSubmittingReportId] = useState<string | null>(
     null,
   );

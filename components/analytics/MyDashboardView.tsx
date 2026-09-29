@@ -46,7 +46,12 @@ const STAT_TILES: Array<{
   icon: LucideIcon;
   suffix?: string;
 }> = [
-  { key: 'completed', label: 'Cursos Concluídos', tone: 'green', icon: CheckCircle2 },
+  {
+    key: 'completed',
+    label: 'Cursos Concluídos',
+    tone: 'green',
+    icon: CheckCircle2,
+  },
   { key: 'inProgress', label: 'Em Progresso', tone: 'blue', icon: BookOpen },
   {
     key: 'totalHours',
@@ -60,35 +65,64 @@ const STAT_TILES: Array<{
 
 type MilestoneStatus = 'completed' | 'current' | 'locked';
 
-type Milestone = {
+interface Milestone {
   id: string;
   label: string;
   date: string;
   status: MilestoneStatus;
   progress?: number;
-};
+}
 
 // TODO: substituir por dados reais quando soubermos o campo da API
 // (ex.: data.learningPath) que traz esta lista.
 const MOCK_MILESTONES: Milestone[] = [
-  { id: '1', label: 'Fundamentos de Gestão', date: 'Jul 15', status: 'completed' },
+  {
+    id: '1',
+    label: 'Fundamentos de Gestão',
+    date: 'Jul 15',
+    status: 'completed',
+  },
   { id: '2', label: 'Comunicação Eficaz', date: 'Aug 01', status: 'completed' },
-  { id: '3', label: 'Liderança Ágil', date: 'Aug 20', status: 'completed', progress: 60 },
-  { id: '4', label: 'Liderança Ágil', date: 'Set 10', status: 'current', progress: 60 },
-  { id: '5', label: 'Desenvolvimento de Equipe', date: 'Set 10', status: 'locked' },
-  { id: '6', label: 'Estratégia de Negócios', date: 'Set 30', status: 'locked' },
+  {
+    id: '3',
+    label: 'Liderança Ágil',
+    date: 'Aug 20',
+    status: 'completed',
+    progress: 60,
+  },
+  {
+    id: '4',
+    label: 'Liderança Ágil',
+    date: 'Set 10',
+    status: 'current',
+    progress: 60,
+  },
+  {
+    id: '5',
+    label: 'Desenvolvimento de Equipe',
+    date: 'Set 10',
+    status: 'locked',
+  },
+  {
+    id: '6',
+    label: 'Estratégia de Negócios',
+    date: 'Set 30',
+    status: 'locked',
+  },
 ];
 
 function LearningSequenceChart({ milestones }: { milestones: Milestone[] }) {
   const activeIndex = milestones.findIndex((m) => m.status === 'current');
-  const completedCount = milestones.filter((m) => m.status === 'completed').length;
+  const completedCount = milestones.filter(
+    (m) => m.status === 'completed',
+  ).length;
   const lineProgress =
     activeIndex >= 0
       ? (activeIndex / Math.max(milestones.length - 1, 1)) * 100
       : (completedCount / Math.max(milestones.length - 1, 1)) * 100;
 
   return (
-        <div className="relative overflow-hidden px-1 pt-2">
+    <div className="relative overflow-hidden px-1 pt-2">
       <div className="absolute left-0 right-0 top-9 h-0.5 bg-border" />
       <div
         className="absolute left-0 top-9 h-0.5 bg-primary transition-all"
@@ -102,7 +136,10 @@ function LearningSequenceChart({ milestones }: { milestones: Milestone[] }) {
           const isLocked = m.status === 'locked';
 
           return (
-                  <div key={m.id} className="flex min-w-0 flex-1 flex-col items-center text-center">
+            <div
+              key={m.id}
+              className="flex min-w-0 flex-1 flex-col items-center text-center"
+            >
               <div
                 className={
                   isCurrent
@@ -135,7 +172,7 @@ function LearningSequenceChart({ milestones }: { milestones: Milestone[] }) {
                 <div className="mt-2.5" />
               )}
 
-                   <div
+              <div
                 className={`mt-2 w-full break-words font-body text-xs font-semibold leading-tight ${
                   isLocked ? 'text-ink-faint' : 'text-ink'
                 }`}
@@ -147,7 +184,9 @@ function LearningSequenceChart({ milestones }: { milestones: Milestone[] }) {
                   {m.progress}% Completo
                 </div>
               )}
-              <div className="mt-1 font-body text-[11px] text-ink-faint">{m.date}</div>
+              <div className="mt-1 font-body text-[11px] text-ink-faint">
+                {m.date}
+              </div>
             </div>
           );
         })}

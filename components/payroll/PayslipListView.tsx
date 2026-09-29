@@ -16,7 +16,10 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { cn } from '@/lib/cn';
 import { formatKz as fmtKz, formatDate as fmtDate } from '@/lib/format';
 import { fmtPeriod } from '@/components/payslips/format';
-import { PAYSLIP_STATUS_MAP, type PayslipStatus } from '@/components/payslips/types';
+import {
+  PAYSLIP_STATUS_MAP,
+  type PayslipStatus,
+} from '@/components/payslips/types';
 import { Button, IconButton, buttonVariants } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
@@ -53,8 +56,7 @@ const STATUS_ITEMS = [
   { value: 'DISPUTED', label: PAYSLIP_STATUS_MAP.DISPUTED.label },
 ];
 
-const COLS =
-  'grid grid-cols-[1.4fr_110px_120px_130px_130px_120px_120px] gap-3';
+const COLS = 'grid grid-cols-[1.4fr_110px_120px_130px_130px_120px_120px] gap-3';
 
 export function PayslipListView({ onSelect, onCreate }: PayslipListViewProps) {
   const confirm = useConfirm();
@@ -75,7 +77,11 @@ export function PayslipListView({ onSelect, onCreate }: PayslipListViewProps) {
   const { data, isLoading, error } = useApiQuery<Paginated<AdminPayslipRow>>(
     queryKeys.payslips.adminList(params),
     '/payslips',
-    { params, staleTime: STALE_TIME.DYNAMIC, placeholderData: keepPreviousData },
+    {
+      params,
+      staleTime: STALE_TIME.DYNAMIC,
+      placeholderData: keepPreviousData,
+    },
   );
 
   const issue = useApiMutation(

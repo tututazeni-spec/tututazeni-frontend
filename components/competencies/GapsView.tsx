@@ -44,17 +44,26 @@ const ALL = 'ALL';
 
 const HIERARCHY_LEVEL_ITEMS = [
   { value: ALL, label: 'Todos os níveis hierárquicos' },
-  ...Object.entries(POSITION_LEVEL_CFG).map(([value, cfg]) => ({ value, label: cfg.label })),
+  ...Object.entries(POSITION_LEVEL_CFG).map(([value, cfg]) => ({
+    value,
+    label: cfg.label,
+  })),
 ];
 
 const PRIORITY_ITEMS = [
   { value: ALL, label: 'Todas as prioridades' },
-  ...Object.entries(GAP_PRIORITY_CFG).map(([value, cfg]) => ({ value, label: cfg.label })),
+  ...Object.entries(GAP_PRIORITY_CFG).map(([value, cfg]) => ({
+    value,
+    label: cfg.label,
+  })),
 ];
 
 const STATUS_ITEMS = [
   { value: ALL, label: 'Todos os estados' },
-  ...Object.entries(GAP_STATUS_CFG).map(([value, cfg]) => ({ value, label: cfg.label })),
+  ...Object.entries(GAP_STATUS_CFG).map(([value, cfg]) => ({
+    value,
+    label: cfg.label,
+  })),
 ];
 
 export function GapsView() {
@@ -90,7 +99,10 @@ export function GapsView() {
     <div className="space-y-4">
       <div className="flex flex-wrap gap-2">
         <Select
-          items={[{ value: ALL, label: 'Todos os departamentos' }, ...departmentOptions]}
+          items={[
+            { value: ALL, label: 'Todos os departamentos' },
+            ...departmentOptions,
+          ]}
           value={departmentId}
           onValueChange={setDepartmentId}
         />
@@ -100,14 +112,29 @@ export function GapsView() {
           onValueChange={setPositionId}
         />
         <Select
-          items={[{ value: ALL, label: 'Todas as competências' }, ...competencyOptions]}
+          items={[
+            { value: ALL, label: 'Todas as competências' },
+            ...competencyOptions,
+          ]}
           value={competencyId}
           onValueChange={setCompetencyId}
         />
-        <Select items={HIERARCHY_LEVEL_ITEMS} value={hierarchyLevel} onValueChange={setHierarchyLevel} />
-        <Select items={PRIORITY_ITEMS} value={priority} onValueChange={setPriority} />
+        <Select
+          items={HIERARCHY_LEVEL_ITEMS}
+          value={hierarchyLevel}
+          onValueChange={setHierarchyLevel}
+        />
+        <Select
+          items={PRIORITY_ITEMS}
+          value={priority}
+          onValueChange={setPriority}
+        />
         <Select items={STATUS_ITEMS} value={status} onValueChange={setStatus} />
-        <UserFilterSearch selected={user} onChange={setUser} className="w-[220px]" />
+        <UserFilterSearch
+          selected={user}
+          onChange={setUser}
+          className="w-[220px]"
+        />
       </div>
 
       {loading ? (
@@ -149,7 +176,9 @@ export function GapsView() {
                       size="sm"
                     />
                     <div>
-                      <p className="text-sm font-medium text-ink">{r.colaborador}</p>
+                      <p className="text-sm font-medium text-ink">
+                        {r.colaborador}
+                      </p>
                       <p className="text-[11px] text-ink-faint">
                         {r.departamento ?? '—'} · {r.cargo ?? '—'}
                       </p>
@@ -158,11 +187,21 @@ export function GapsView() {
                 </TableCell>
                 <TableCell>
                   <p className="text-sm text-ink">{r.competencia}</p>
-                  <StatusBadge value={r.categoria} map={CATEGORY_CFG} className="mt-0.5" />
+                  <StatusBadge
+                    value={r.categoria}
+                    map={CATEGORY_CFG}
+                    className="mt-0.5"
+                  />
                 </TableCell>
-                <TableCell className="text-sm text-ink-muted">{r.nivelAtual}</TableCell>
-                <TableCell className="text-sm font-medium text-ink">{r.nivelEsperado}</TableCell>
-                <TableCell className="text-sm font-medium text-danger-ink">{r.gap}</TableCell>
+                <TableCell className="text-sm text-ink-muted">
+                  {r.nivelAtual}
+                </TableCell>
+                <TableCell className="text-sm font-medium text-ink">
+                  {r.nivelEsperado}
+                </TableCell>
+                <TableCell className="text-sm font-medium text-danger-ink">
+                  {r.gap}
+                </TableCell>
                 <TableCell>
                   <StatusBadge value={r.prioridade} map={GAP_PRIORITY_CFG} />
                 </TableCell>

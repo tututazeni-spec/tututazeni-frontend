@@ -60,7 +60,11 @@ export function TeamView() {
               className="grid grid-cols-[1fr_80px_80px_80px_100px] items-center gap-3 border-b border-border px-4 py-3 last:border-0"
             >
               <div className="flex items-center gap-3">
-                <Avatar name={member.fullName} url={member.avatarUrl ?? undefined} size="sm" />
+                <Avatar
+                  name={member.fullName}
+                  url={member.avatarUrl ?? undefined}
+                  size="sm"
+                />
                 <div>
                   <div className="text-sm font-medium text-ink">
                     {member.fullName}

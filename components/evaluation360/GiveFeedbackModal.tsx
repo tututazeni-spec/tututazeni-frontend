@@ -65,7 +65,9 @@ export function GiveFeedbackModal({ onClose }: GiveFeedbackModalProps) {
     .filter((u) => u != null && u.id != null && String(u.id) !== String(me?.id))
     .map((u) => ({
       value: String(u.id),
-      label: u.position?.name ? `${u.fullName} — ${u.position.name}` : u.fullName,
+      label: u.position?.name
+        ? `${u.fullName} — ${u.position.name}`
+        : u.fullName,
     }));
 
   // Banco curado de competências (ver seedFeedbackTagCompetencies em
@@ -99,7 +101,10 @@ export function GiveFeedbackModal({ onClose }: GiveFeedbackModalProps) {
         onClose();
       },
       onError: () =>
-        notify({ title: 'Erro ao enviar feedback. Tenta novamente.', intent: 'danger' }),
+        notify({
+          title: 'Erro ao enviar feedback. Tenta novamente.',
+          intent: 'danger',
+        }),
     },
   );
 
@@ -116,7 +121,11 @@ export function GiveFeedbackModal({ onClose }: GiveFeedbackModalProps) {
         className="max-w-lg"
       >
         <div className="mt-5 space-y-4">
-          <FormField label="Colega *" htmlFor="fb-colleague" hint="Do teu departamento.">
+          <FormField
+            label="Colega *"
+            htmlFor="fb-colleague"
+            hint="Do teu departamento."
+          >
             <Select
               items={colleagueItems}
               value={toUserId || undefined}
@@ -164,7 +173,11 @@ export function GiveFeedbackModal({ onClose }: GiveFeedbackModalProps) {
           <Button intent="ghost" onClick={onClose}>
             Cancelar
           </Button>
-          <Button onClick={handleSubmit} disabled={!canSubmit} loading={create.isPending}>
+          <Button
+            onClick={handleSubmit}
+            disabled={!canSubmit}
+            loading={create.isPending}
+          >
             Enviar Feedback
           </Button>
         </div>

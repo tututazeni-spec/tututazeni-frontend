@@ -30,7 +30,12 @@ import { KpiCard } from '@/components/ui/KpiCard';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import type { ProfileTab, UserAction } from '@/hooks/useUserProfile';
-import { ACCOUNT_STATUS_MAP, HR_STATUS_MAP, type User, type UserStats } from './types';
+import {
+  ACCOUNT_STATUS_MAP,
+  HR_STATUS_MAP,
+  type User,
+  type UserStats,
+} from './types';
 import {
   AccessTab,
   ActivityTab,

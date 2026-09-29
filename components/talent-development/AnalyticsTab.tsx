@@ -101,7 +101,9 @@ export function AnalyticsTab() {
               <div
                 className={`mb-4 flex h-28 w-28 flex-col items-center justify-center rounded-full border-4 ${grade.border}`}
               >
-                <span className={`font-display text-4xl font-black ${grade.text}`}>
+                <span
+                  className={`font-display text-4xl font-black ${grade.text}`}
+                >
                   {health.grade}
                 </span>
                 <span className="font-body text-xs text-ink-muted">

@@ -32,8 +32,16 @@ export function OverviewView() {
     <div className="space-y-6">
       {/* KPIs gerais */}
       <div className="grid grid-cols-4 gap-3">
-        <KpiCard label="Total de competências" value={data.total} intent="primary" />
-        <KpiCard label="Competências activas" value={data.active} intent="success" />
+        <KpiCard
+          label="Total de competências"
+          value={data.total}
+          intent="primary"
+        />
+        <KpiCard
+          label="Competências activas"
+          value={data.active}
+          intent="success"
+        />
         <KpiCard
           label="Em revisão"
           value={data.inReview}
@@ -48,16 +56,40 @@ export function OverviewView() {
 
       {/* Por categoria */}
       <div className="grid grid-cols-4 gap-3">
-        <KpiCard label="Técnicas" value={data.byCategory.technical} intent="info" />
-        <KpiCard label="Comportamentais" value={data.byCategory.behavioral} intent="primary" />
-        <KpiCard label="Liderança" value={data.byCategory.leadership} intent="accent" />
-        <KpiCard label="Funcionais" value={data.byCategory.functional} intent="danger" />
+        <KpiCard
+          label="Técnicas"
+          value={data.byCategory.technical}
+          intent="info"
+        />
+        <KpiCard
+          label="Comportamentais"
+          value={data.byCategory.behavioral}
+          intent="primary"
+        />
+        <KpiCard
+          label="Liderança"
+          value={data.byCategory.leadership}
+          intent="accent"
+        />
+        <KpiCard
+          label="Funcionais"
+          value={data.byCategory.functional}
+          intent="danger"
+        />
       </div>
 
       {/* Avaliação da organização */}
       <div className="grid grid-cols-4 gap-3">
-        <KpiCard label="Competências estratégicas" value={data.strategic} intent="accent" />
-        <KpiCard label="Colaboradores avaliados" value={data.evaluatedUsers} intent="info" />
+        <KpiCard
+          label="Competências estratégicas"
+          value={data.strategic}
+          intent="accent"
+        />
+        <KpiCard
+          label="Colaboradores avaliados"
+          value={data.evaluatedUsers}
+          intent="info"
+        />
         <KpiCard
           label="Média global de proficiência"
           value={data.avgProficiency}
@@ -87,7 +119,9 @@ export function OverviewView() {
                 className="flex items-center gap-4 border-b border-border px-4 py-3 last:border-0"
               >
                 <div className="flex-1">
-                  <div className="font-body text-sm font-medium text-ink">{c.name}</div>
+                  <div className="font-body text-sm font-medium text-ink">
+                    {c.name}
+                  </div>
                   <StatusBadge
                     value={c.category as CompetencyCategory}
                     map={CATEGORY_CFG}
@@ -125,8 +159,13 @@ export function OverviewView() {
               className="flex items-center gap-4 border-b border-border px-4 py-3 last:border-0"
             >
               <div className="flex-1">
-                <div className="font-body text-sm font-medium text-ink">{c.name}</div>
-                <StatusBadge value={c.category as CompetencyCategory} map={CATEGORY_CFG} />
+                <div className="font-body text-sm font-medium text-ink">
+                  {c.name}
+                </div>
+                <StatusBadge
+                  value={c.category as CompetencyCategory}
+                  map={CATEGORY_CFG}
+                />
               </div>
               <span className="font-data text-sm text-ink-muted">
                 {c.usersWithGap} utilizadores com lacuna
@@ -155,7 +194,10 @@ export function OverviewView() {
                   {t.competency?.name ?? '—'}
                 </div>
                 <StatusBadge
-                  value={(t.competency?.category ?? 'HARD_SKILL') as CompetencyCategory}
+                  value={
+                    (t.competency?.category ??
+                      'HARD_SKILL') as CompetencyCategory
+                  }
                   map={CATEGORY_CFG}
                 />
               </div>

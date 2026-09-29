@@ -94,20 +94,30 @@ export function LessonModal({
     captionsUrl: editing?.captionsUrl ?? '',
     transcript: editing?.transcript ?? '',
     seq: editing?.seq ?? 1,
-    durationMinutes: editing?.durationMinutes != null ? String(editing.durationMinutes) : '',
+    durationMinutes:
+      editing?.durationMinutes != null ? String(editing.durationMinutes) : '',
     mandatory: editing?.mandatory ?? true,
     allowSkip: editing?.allowSkip ?? true,
     allowDownload: editing?.allowDownload ?? false,
     autoComplete: editing?.autoComplete ?? false,
-    minWatchSeconds: editing?.minWatchSeconds != null ? String(editing.minWatchSeconds) : '',
+    minWatchSeconds:
+      editing?.minWatchSeconds != null ? String(editing.minWatchSeconds) : '',
     requiresActivity: editing?.requiresActivity ?? false,
     requiresAssessment: editing?.requiresAssessment ?? false,
-    availableFrom: editing?.availableFrom ? editing.availableFrom.slice(0, 10) : '',
-    availableUntil: editing?.availableUntil ? editing.availableUntil.slice(0, 10) : '',
+    availableFrom: editing?.availableFrom
+      ? editing.availableFrom.slice(0, 10)
+      : '',
+    availableUntil: editing?.availableUntil
+      ? editing.availableUntil.slice(0, 10)
+      : '',
     liveDate: editing?.liveDate ? editing.liveDate.slice(0, 16) : '',
     liveSessionUrl: editing?.liveSessionUrl ?? '',
-    liveInstructorId: editing?.liveInstructorId ? String(editing.liveInstructorId) : '',
-    requiredLessonId: editing?.requiredLessonId ? String(editing.requiredLessonId) : '',
+    liveInstructorId: editing?.liveInstructorId
+      ? String(editing.liveInstructorId)
+      : '',
+    requiredLessonId: editing?.requiredLessonId
+      ? String(editing.requiredLessonId)
+      : '',
   });
 
   const prerequisiteItems = otherLessons
@@ -115,11 +125,12 @@ export function LessonModal({
     .sort((a, b) => a.seq - b.seq)
     .map((l) => ({ value: String(l.id), label: `${l.seq}. ${l.title}` }));
 
-  const { data: instructorsResp } = useApiQuery<{ data: { id: number; fullName: string }[] }>(
-    ['courses-modulos', 'instructors-picker'],
-    '/users',
-    { params: { limit: 200 }, staleTime: STALE_TIME.SEMI_STATIC },
-  );
+  const { data: instructorsResp } = useApiQuery<{
+    data: { id: number; fullName: string }[];
+  }>(['courses-modulos', 'instructors-picker'], '/users', {
+    params: { limit: 200 },
+    staleTime: STALE_TIME.SEMI_STATIC,
+  });
   const instructorItems = (instructorsResp?.data ?? []).map((u) => ({
     value: String(u.id),
     label: u.fullName,
@@ -133,7 +144,9 @@ export function LessonModal({
   const [fileError, setFileError] = useState<string | null>(null);
   const [fileBusy, setFileBusy] = useState(false);
   const isFileType = form.contentType === 'PDF' || form.contentType === 'SLIDE';
-  const isUrlType = ['VIDEO', 'AUDIO', 'LINK', 'SCORM'].includes(form.contentType);
+  const isUrlType = ['VIDEO', 'AUDIO', 'LINK', 'SCORM'].includes(
+    form.contentType,
+  );
 
   async function handleFilePick(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -173,27 +186,42 @@ export function LessonModal({
         type: form.contentType,
         status: form.status,
         seq: +form.seq,
-        contentUrl: form.contentType !== 'TEXT' ? form.contentUrl || undefined : undefined,
-        textContent: form.contentType === 'TEXT' ? form.textContent || undefined : undefined,
+        contentUrl:
+          form.contentType !== 'TEXT'
+            ? form.contentUrl || undefined
+            : undefined,
+        textContent:
+          form.contentType === 'TEXT'
+            ? form.textContent || undefined
+            : undefined,
         captionsUrl:
-          form.contentType === 'VIDEO' ? form.captionsUrl.trim() || undefined : undefined,
+          form.contentType === 'VIDEO'
+            ? form.captionsUrl.trim() || undefined
+            : undefined,
         transcript:
           form.contentType === 'VIDEO' || form.contentType === 'AUDIO'
             ? form.transcript.trim() || undefined
             : undefined,
-        durationMinutes: form.durationMinutes !== '' ? +form.durationMinutes : undefined,
+        durationMinutes:
+          form.durationMinutes !== '' ? +form.durationMinutes : undefined,
         mandatory: form.mandatory,
         allowSkip: form.allowSkip,
         allowDownload: form.allowDownload,
         autoComplete: form.autoComplete,
-        minWatchSeconds: form.minWatchSeconds !== '' ? +form.minWatchSeconds : undefined,
+        minWatchSeconds:
+          form.minWatchSeconds !== '' ? +form.minWatchSeconds : undefined,
         requiresActivity: form.requiresActivity,
         requiresAssessment: form.requiresAssessment,
         availableFrom: form.availableFrom || undefined,
         availableUntil: form.availableUntil || undefined,
-        liveDate: form.contentType === 'LIVE' && form.liveDate ? form.liveDate : undefined,
+        liveDate:
+          form.contentType === 'LIVE' && form.liveDate
+            ? form.liveDate
+            : undefined,
         liveSessionUrl:
-          form.contentType === 'LIVE' ? form.liveSessionUrl || undefined : undefined,
+          form.contentType === 'LIVE'
+            ? form.liveSessionUrl || undefined
+            : undefined,
         liveInstructorId:
           form.contentType === 'LIVE' && form.liveInstructorId
             ? +form.liveInstructorId
@@ -280,7 +308,10 @@ export function LessonModal({
               />
             </FormField>
 
-            <FormField label="Objectivos de aprendizagem" htmlFor="lesson-objectives">
+            <FormField
+              label="Objectivos de aprendizagem"
+              htmlFor="lesson-objectives"
+            >
               <Textarea
                 id="lesson-objectives"
                 value={form.learningObjectives}
@@ -320,7 +351,11 @@ export function LessonModal({
                           'text-xs font-bold text-center leading-tight',
                           form.contentType !== k && 'text-ink-faint',
                         )}
-                        style={form.contentType === k ? { color: v.color } : undefined}
+                        style={
+                          form.contentType === k
+                            ? { color: v.color }
+                            : undefined
+                        }
                       >
                         {v.label}
                       </span>
@@ -343,7 +378,11 @@ export function LessonModal({
 
             {isUrlType && (
               <FormField
-                label={form.contentType === 'VIDEO' ? 'URL do Vídeo' : 'URL do conteúdo'}
+                label={
+                  form.contentType === 'VIDEO'
+                    ? 'URL do Vídeo'
+                    : 'URL do conteúdo'
+                }
                 htmlFor="lesson-url"
               >
                 <Input
@@ -409,7 +448,11 @@ export function LessonModal({
 
             {isFileType && (
               <FormField
-                label={form.contentType === 'SLIDE' ? 'Ficheiro PPTX' : 'Ficheiro PDF'}
+                label={
+                  form.contentType === 'SLIDE'
+                    ? 'Ficheiro PPTX'
+                    : 'Ficheiro PDF'
+                }
                 htmlFor="lesson-file"
               >
                 <input
@@ -423,8 +466,12 @@ export function LessonModal({
                   onChange={handleFilePick}
                   className="block w-full text-sm text-ink-muted file:mr-3 file:rounded-lg file:border-0 file:bg-primary-subtle file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-primary"
                 />
-                {fileBusy && <p className="text-xs text-ink-faint mt-1">A processar…</p>}
-                {fileError && <p className="text-xs text-danger mt-1">{fileError}</p>}
+                {fileBusy && (
+                  <p className="text-xs text-ink-faint mt-1">A processar…</p>
+                )}
+                {fileError && (
+                  <p className="text-xs text-danger mt-1">{fileError}</p>
+                )}
                 {!fileBusy && !fileError && form.contentUrl && (
                   <p className="text-xs text-success mt-1 break-all">
                     {fileName ??
@@ -469,7 +516,10 @@ export function LessonModal({
                   className="w-full"
                 />
               </FormField>
-              <FormField label="Tempo mínimo de visualização (s)" htmlFor="lesson-min-watch">
+              <FormField
+                label="Tempo mínimo de visualização (s)"
+                htmlFor="lesson-min-watch"
+              >
                 <Input
                   id="lesson-min-watch"
                   type="number"
@@ -481,7 +531,10 @@ export function LessonModal({
             </div>
 
             <div className="grid grid-cols-2 gap-3">
-              <FormField label="Disponível a partir de" htmlFor="lesson-available-from">
+              <FormField
+                label="Disponível a partir de"
+                htmlFor="lesson-available-from"
+              >
                 <Input
                   id="lesson-available-from"
                   type="date"
@@ -489,7 +542,10 @@ export function LessonModal({
                   onChange={(e) => set('availableFrom', e.target.value)}
                 />
               </FormField>
-              <FormField label="Data de encerramento" htmlFor="lesson-available-until">
+              <FormField
+                label="Data de encerramento"
+                htmlFor="lesson-available-until"
+              >
                 <Input
                   id="lesson-available-until"
                   type="date"
@@ -520,7 +576,10 @@ export function LessonModal({
                 ['requiresAssessment', 'Exigir avaliação'],
                 ['allowDownload', 'Permitir download'],
               ].map(([key, label]) => (
-                <label key={key} className="flex items-center gap-2 text-xs text-ink-muted">
+                <label
+                  key={key}
+                  className="flex items-center gap-2 text-xs text-ink-muted"
+                >
                   <input
                     type="checkbox"
                     checked={Boolean(form[key as keyof typeof form])}
@@ -548,7 +607,10 @@ export function LessonModal({
           </form>
 
           {editing && (
-            <LessonActivitiesAndResources lesson={editing} onRefresh={onRefresh} />
+            <LessonActivitiesAndResources
+              lesson={editing}
+              onRefresh={onRefresh}
+            />
           )}
         </CardBody>
       </Card>
@@ -566,8 +628,15 @@ function LessonActivitiesAndResources({
   onRefresh: () => Promise<unknown>;
 }) {
   const notify = useToast();
-  const [activityForm, setActivityForm] = useState({ type: 'TEXT' as LessonActivityType, title: '' });
-  const [resourceForm, setResourceForm] = useState({ title: '', url: '', fileType: 'PDF' });
+  const [activityForm, setActivityForm] = useState({
+    type: 'TEXT' as LessonActivityType,
+    title: '',
+  });
+  const [resourceForm, setResourceForm] = useState({
+    title: '',
+    url: '',
+    fileType: 'PDF',
+  });
   const [quizEditorOpen, setQuizEditorOpen] = useState(false);
 
   const addActivity = useApiMutation(
@@ -575,7 +644,7 @@ function LessonActivitiesAndResources({
       apiClient.post(`/courses/lessons/${lesson.id}/activities`, {
         type: activityForm.type,
         title: activityForm.title,
-        seq: (lesson.activities?.length ?? 0),
+        seq: lesson.activities?.length ?? 0,
       }),
     {
       onSuccess: async () => {
@@ -587,7 +656,8 @@ function LessonActivitiesAndResources({
   );
 
   const removeActivity = useApiMutation(
-    (activityId: number) => apiClient.delete(`/courses/lessons/activities/${activityId}`),
+    (activityId: number) =>
+      apiClient.delete(`/courses/lessons/activities/${activityId}`),
     {
       onSuccess: () => onRefresh(),
       onError: (e) => notify({ title: e.message, intent: 'danger' }),
@@ -611,7 +681,8 @@ function LessonActivitiesAndResources({
   );
 
   const removeResource = useApiMutation(
-    (resourceId: number) => apiClient.delete(`/courses/lessons/resources/${resourceId}`),
+    (resourceId: number) =>
+      apiClient.delete(`/courses/lessons/resources/${resourceId}`),
     {
       onSuccess: () => onRefresh(),
       onError: (e) => notify({ title: e.message, intent: 'danger' }),
@@ -630,9 +701,12 @@ function LessonActivitiesAndResources({
               className="flex items-center gap-2 rounded-lg bg-surface-sunken border border-border px-3 py-1.5"
             >
               <span className="text-xs font-bold text-ink-faint">
-                {ACTIVITY_TYPE_ITEMS.find((t) => t.value === a.type)?.label ?? a.type}
+                {ACTIVITY_TYPE_ITEMS.find((t) => t.value === a.type)?.label ??
+                  a.type}
               </span>
-              <span className="flex-1 text-sm text-ink truncate">{a.title}</span>
+              <span className="flex-1 text-sm text-ink truncate">
+                {a.title}
+              </span>
               <button
                 type="button"
                 onClick={() => removeActivity.mutate(a.id)}
@@ -644,19 +718,25 @@ function LessonActivitiesAndResources({
             </div>
           ))}
           {(lesson.activities ?? []).length === 0 && (
-            <p className="m-0 text-xs text-ink-faint">Nenhuma actividade adicionada.</p>
+            <p className="m-0 text-xs text-ink-faint">
+              Nenhuma actividade adicionada.
+            </p>
           )}
         </div>
         <div className="flex gap-2">
           <Select
             items={ACTIVITY_TYPE_ITEMS}
             value={activityForm.type}
-            onValueChange={(v) => setActivityForm((f) => ({ ...f, type: v as LessonActivityType }))}
+            onValueChange={(v) =>
+              setActivityForm((f) => ({ ...f, type: v as LessonActivityType }))
+            }
             className="w-40"
           />
           <Input
             value={activityForm.title}
-            onChange={(e) => setActivityForm((f) => ({ ...f, title: e.target.value }))}
+            onChange={(e) =>
+              setActivityForm((f) => ({ ...f, title: e.target.value }))
+            }
             placeholder="Título da actividade"
             className="flex-1"
           />
@@ -673,7 +753,9 @@ function LessonActivitiesAndResources({
 
       {/* Recursos */}
       <div>
-        <h3 className="m-0 mb-2 text-sm font-bold text-ink">Recursos / Material de apoio</h3>
+        <h3 className="m-0 mb-2 text-sm font-bold text-ink">
+          Recursos / Material de apoio
+        </h3>
         <div className="flex flex-col gap-1.5 mb-2">
           {(lesson.resources ?? []).map((r) => (
             <div
@@ -682,10 +764,13 @@ function LessonActivitiesAndResources({
             >
               {r.fileType && (
                 <span className="text-xs font-bold text-ink-faint">
-                  {RESOURCE_TYPE_ITEMS.find((t) => t.value === r.fileType)?.label ?? r.fileType}
+                  {RESOURCE_TYPE_ITEMS.find((t) => t.value === r.fileType)
+                    ?.label ?? r.fileType}
                 </span>
               )}
-              <span className="flex-1 text-sm text-ink truncate">{r.title}</span>
+              <span className="flex-1 text-sm text-ink truncate">
+                {r.title}
+              </span>
               <button
                 type="button"
                 onClick={() => removeResource.mutate(r.id)}
@@ -697,32 +782,44 @@ function LessonActivitiesAndResources({
             </div>
           ))}
           {(lesson.resources ?? []).length === 0 && (
-            <p className="m-0 text-xs text-ink-faint">Nenhum recurso adicionado.</p>
+            <p className="m-0 text-xs text-ink-faint">
+              Nenhum recurso adicionado.
+            </p>
           )}
         </div>
         <div className="flex gap-2">
           <Select
             items={RESOURCE_TYPE_ITEMS}
             value={resourceForm.fileType}
-            onValueChange={(v) => setResourceForm((f) => ({ ...f, fileType: v }))}
+            onValueChange={(v) =>
+              setResourceForm((f) => ({ ...f, fileType: v }))
+            }
             className="w-40"
           />
           <Input
             value={resourceForm.title}
-            onChange={(e) => setResourceForm((f) => ({ ...f, title: e.target.value }))}
+            onChange={(e) =>
+              setResourceForm((f) => ({ ...f, title: e.target.value }))
+            }
             placeholder="Título"
             className="flex-1"
           />
           <Input
             value={resourceForm.url}
-            onChange={(e) => setResourceForm((f) => ({ ...f, url: e.target.value }))}
+            onChange={(e) =>
+              setResourceForm((f) => ({ ...f, url: e.target.value }))
+            }
             placeholder="URL"
             className="flex-1"
           />
           <Button
             type="button"
             intent="secondary"
-            disabled={!resourceForm.title.trim() || !resourceForm.url.trim() || addResource.isPending}
+            disabled={
+              !resourceForm.title.trim() ||
+              !resourceForm.url.trim() ||
+              addResource.isPending
+            }
             onClick={() => addResource.mutate(undefined)}
           >
             <Plus size={14} strokeWidth={1.75} />
@@ -732,8 +829,14 @@ function LessonActivitiesAndResources({
 
       {/* Avaliação (quiz) — docs/06-modulo-courses.md secção 8 */}
       <div>
-        <h3 className="m-0 mb-2 text-sm font-bold text-ink">Avaliação (Quiz)</h3>
-        <Button type="button" intent="secondary" onClick={() => setQuizEditorOpen(true)}>
+        <h3 className="m-0 mb-2 text-sm font-bold text-ink">
+          Avaliação (Quiz)
+        </h3>
+        <Button
+          type="button"
+          intent="secondary"
+          onClick={() => setQuizEditorOpen(true)}
+        >
           <FileQuestion size={14} strokeWidth={1.75} /> Configurar quiz
         </Button>
       </div>

@@ -185,7 +185,10 @@ export function PartnerDetailView({
                   placeholder="Título"
                   value={milestoneForm.title}
                   onChange={(e) =>
-                    setMilestoneForm({ ...milestoneForm, title: e.target.value })
+                    setMilestoneForm({
+                      ...milestoneForm,
+                      title: e.target.value,
+                    })
                   }
                   className="md:col-span-2"
                 />
@@ -235,7 +238,10 @@ export function PartnerDetailView({
                   placeholder="Valor (opcional)"
                   value={milestoneForm.value}
                   onChange={(e) =>
-                    setMilestoneForm({ ...milestoneForm, value: e.target.value })
+                    setMilestoneForm({
+                      ...milestoneForm,
+                      value: e.target.value,
+                    })
                   }
                 />
                 <Input

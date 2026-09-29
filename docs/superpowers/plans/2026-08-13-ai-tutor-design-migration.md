@@ -11,10 +11,10 @@ nenhum comportamento de dados. Mesmo padrão da migração piloto de
 
 ## Mapeamento atoms.tsx → components/ui/
 
-| Export local (`atoms.tsx`) | Consumidores | Destino |
-|---|---|---|
-| `Skeleton({ rows })` | `HistoryView`, `RecommendationsView` | `@/components/ui/Skeleton` directo, com `itemClassName="skeleton-shimmer h-12 rounded-card"` (mesmo padrão já usado em `components/engagement/*`) |
-| `TypingDots()` | `ChatView` (indicador "a escrever") | inline em `ChatView.tsx` (JSX local, `bg-accent` em vez de `bg-blue-400`) — não é promovido a componente novo, é bespoke local como o selector de humor em `MoodCheckin.tsx` |
+| Export local (`atoms.tsx`) | Consumidores                         | Destino                                                                                                                                                                      |
+| -------------------------- | ------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Skeleton({ rows })`       | `HistoryView`, `RecommendationsView` | `@/components/ui/Skeleton` directo, com `itemClassName="skeleton-shimmer h-12 rounded-card"` (mesmo padrão já usado em `components/engagement/*`)                            |
+| `TypingDots()`             | `ChatView` (indicador "a escrever")  | inline em `ChatView.tsx` (JSX local, `bg-accent` em vez de `bg-blue-400`) — não é promovido a componente novo, é bespoke local como o selector de humor em `MoodCheckin.tsx` |
 
 Depois de `ChatView`/`HistoryView`/`RecommendationsView` migrados, `atoms.tsx`
 é eliminado (`git rm`) e confirmado com

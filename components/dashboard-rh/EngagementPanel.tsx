@@ -36,16 +36,23 @@ export function EngagementPanel() {
   return (
     <div className="space-y-5">
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-               <TopBarCard
+        <TopBarCard
           label="Score de Engagement"
-          value={data?.engagementScore != null ? `${data.engagementScore}%` : '–'}
+          value={
+            data?.engagementScore != null ? `${data.engagementScore}%` : '–'
+          }
           tone="blue"
           icon={<Activity className="h-6 w-6" />}
         />
         <div className="flex flex-col items-center justify-center rounded-card border border-border bg-surface p-3">
-          <GaugeChart value={data?.participationRate ?? 0} label="Participação em Surveys" thresholds={{ warning: 50, danger: 25 }} size={120} />
+          <GaugeChart
+            value={data?.participationRate ?? 0}
+            label="Participação em Surveys"
+            thresholds={{ warning: 50, danger: 25 }}
+            size={120}
+          />
         </div>
-                <TopBarCard
+        <TopBarCard
           label="Reconhecimentos (mês)"
           value={data?.recognitions ?? 0}
           tone="green"
@@ -65,17 +72,24 @@ export function EngagementPanel() {
             Participação em Surveys por Departamento
           </h4>
           {byDept.length === 0 ? (
-            <p className="font-body text-xs text-ink-faint">Sem respostas este mês.</p>
+            <p className="font-body text-xs text-ink-faint">
+              Sem respostas este mês.
+            </p>
           ) : (
             <BarChart
               orientation="horizontal"
               categories={byDept.slice(0, 8).map((d) => d.department)}
-              series={[{ label: 'Respostas', values: byDept.slice(0, 8).map((d) => d.responses) }]}
+              series={[
+                {
+                  label: 'Respostas',
+                  values: byDept.slice(0, 8).map((d) => d.responses),
+                },
+              ]}
             />
           )}
         </div>
 
-              <div className="rounded-card border border-border bg-surface p-5">
+        <div className="rounded-card border border-border bg-surface p-5">
           <h4 className="mb-4 font-body font-semibold text-ink-muted">
             Actividade de Clima
           </h4>
@@ -83,11 +97,15 @@ export function EngagementPanel() {
             <tbody>
               <tr className="border-b border-border">
                 <td className="py-2 text-ink-muted">Pesquisas activas</td>
-                <td className="py-2 text-right font-semibold">{data?.activeSurveys ?? 0}</td>
+                <td className="py-2 text-right font-semibold">
+                  {data?.activeSurveys ?? 0}
+                </td>
               </tr>
               <tr>
                 <td className="py-2 text-ink-muted">Sessões de avatar (mês)</td>
-                <td className="py-2 text-right font-semibold">{data?.avatarSessions ?? 0}</td>
+                <td className="py-2 text-right font-semibold">
+                  {data?.avatarSessions ?? 0}
+                </td>
               </tr>
             </tbody>
           </table>

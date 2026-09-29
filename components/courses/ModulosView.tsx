@@ -358,11 +358,14 @@ export function ModulosView({ initialCourseId }: ModulosViewProps) {
           // onRefresh apareçam na lista sem fechar o modal.
           editing={
             modal.editing
-              ? (modules.flatMap((m) => m.lessons).find((l) => l.id === modal.editing?.id) ??
-                modal.editing)
+              ? (modules
+                  .flatMap((m) => m.lessons)
+                  .find((l) => l.id === modal.editing?.id) ?? modal.editing)
               : null
           }
-          otherLessons={modules.find((m) => m.id === modal.moduleId)?.lessons ?? []}
+          otherLessons={
+            modules.find((m) => m.id === modal.moduleId)?.lessons ?? []
+          }
           onClose={() => dispatchModal({ type: 'close' })}
           onSaved={async () => {
             await refetch();

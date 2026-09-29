@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { useApiQuery } from "../hooks/useApiQuery";
-import { queryKeys } from "../lib/queryKeys";
-import UserCard from "../components/UserCard";
-import type { User } from "../types/user";
+import { useApiQuery } from '../hooks/useApiQuery';
+import { queryKeys } from '../lib/queryKeys';
+import UserCard from '../components/UserCard';
+import type { User } from '../types/user';
 
 interface PaginatedUsers {
   data: User[];
@@ -20,7 +20,7 @@ const PARAMS = { page: 1, limit: 50 };
 export default function Home() {
   const { data, isLoading, error } = useApiQuery<PaginatedUsers>(
     queryKeys.users.list(PARAMS),
-    "/users",
+    '/users',
     { params: PARAMS },
   );
 
@@ -35,7 +35,7 @@ export default function Home() {
   if (error) {
     return (
       <main style={{ padding: 40 }}>
-        <p style={{ color: "red" }}>{error.message}</p>
+        <p style={{ color: 'red' }}>{error.message}</p>
       </main>
     );
   }

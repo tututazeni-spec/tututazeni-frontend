@@ -24,7 +24,10 @@ vi.mock('@/hooks/useApiQuery', () => ({
   useApiMutation: (fn: (v: unknown) => Promise<unknown>) => ({
     mutate: (
       v: unknown,
-      opts?: { onSuccess?: (d: unknown) => void; onError?: (e: unknown) => void },
+      opts?: {
+        onSuccess?: (d: unknown) => void;
+        onError?: (e: unknown) => void;
+      },
     ) =>
       Promise.resolve(fn(v)).then(
         (d) => opts?.onSuccess?.(d),
@@ -78,7 +81,10 @@ describe('LoadTestModal', () => {
 
     await waitFor(() =>
       expect(notify).toHaveBeenCalledWith(
-        expect.objectContaining({ intent: 'success', title: 'Teste de carga agendado.' }),
+        expect.objectContaining({
+          intent: 'success',
+          title: 'Teste de carga agendado.',
+        }),
       ),
     );
     expect(onClose).toHaveBeenCalledTimes(1);
@@ -95,7 +101,9 @@ describe('LoadTestModal', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Agendar teste' }));
 
     await waitFor(() =>
-      expect(notify).toHaveBeenCalledWith(expect.objectContaining({ intent: 'danger' })),
+      expect(notify).toHaveBeenCalledWith(
+        expect.objectContaining({ intent: 'danger' }),
+      ),
     );
     expect(onClose).not.toHaveBeenCalled();
   });

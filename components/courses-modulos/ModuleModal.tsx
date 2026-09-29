@@ -81,13 +81,20 @@ export function ModuleModal({
     mandatory: editing?.mandatory ?? true,
     allowSkip: editing?.allowSkip ?? false,
     minCompletionPercent:
-      editing?.minCompletionPercent != null ? String(editing.minCompletionPercent) : '100',
+      editing?.minCompletionPercent != null
+        ? String(editing.minCompletionPercent)
+        : '100',
     requiresMinScore: editing?.minQuizScore != null,
-    minQuizScore: editing?.minQuizScore != null ? String(editing.minQuizScore) : '',
+    minQuizScore:
+      editing?.minQuizScore != null ? String(editing.minQuizScore) : '',
     estimatedDurationMinutes:
-      editing?.estimatedDurationMinutes != null ? String(editing.estimatedDurationMinutes) : '',
+      editing?.estimatedDurationMinutes != null
+        ? String(editing.estimatedDurationMinutes)
+        : '',
     learningObjectives: (editing?.learningObjectives ?? []).join('\n'),
-    requiredModuleId: editing?.requiredModuleId ? String(editing.requiredModuleId) : '',
+    requiredModuleId: editing?.requiredModuleId
+      ? String(editing.requiredModuleId)
+      : '',
   });
   function set<K extends keyof typeof form>(k: K, v: (typeof form)[K]) {
     setForm((f) => ({ ...f, [k]: v }));
@@ -103,7 +110,9 @@ export function ModuleModal({
     editing?.competencies?.map((c) => c.competency.id) ?? [],
   );
   function toggleCompetency(id: number) {
-    setCompetencyIds((ids) => (ids.includes(id) ? ids.filter((x) => x !== id) : [...ids, id]));
+    setCompetencyIds((ids) =>
+      ids.includes(id) ? ids.filter((x) => x !== id) : [...ids, id],
+    );
   }
 
   const prerequisiteItems = otherModules
@@ -133,11 +142,17 @@ export function ModuleModal({
         mandatory: form.mandatory,
         allowSkip: form.allowSkip,
         minCompletionPercent:
-          form.minCompletionPercent !== '' ? +form.minCompletionPercent : undefined,
+          form.minCompletionPercent !== ''
+            ? +form.minCompletionPercent
+            : undefined,
         minQuizScore:
-          form.requiresMinScore && form.minQuizScore !== '' ? +form.minQuizScore : null,
+          form.requiresMinScore && form.minQuizScore !== ''
+            ? +form.minQuizScore
+            : null,
         estimatedDurationMinutes:
-          form.estimatedDurationMinutes !== '' ? +form.estimatedDurationMinutes : undefined,
+          form.estimatedDurationMinutes !== ''
+            ? +form.estimatedDurationMinutes
+            : undefined,
         learningObjectives: form.learningObjectives
           .split('\n')
           .map((s) => s.trim())
@@ -264,23 +279,33 @@ export function ModuleModal({
                 <Select
                   items={PROGRESSION_ITEMS}
                   value={form.progressionType}
-                  onValueChange={(v) => set('progressionType', v as typeof form.progressionType)}
+                  onValueChange={(v) =>
+                    set('progressionType', v as typeof form.progressionType)
+                  }
                   className="w-full"
                 />
               </FormField>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
-              <FormField label="Duração estimada (min)" htmlFor="module-duration">
+              <FormField
+                label="Duração estimada (min)"
+                htmlFor="module-duration"
+              >
                 <Input
                   id="module-duration"
                   type="number"
                   min={0}
                   value={form.estimatedDurationMinutes}
-                  onChange={(e) => set('estimatedDurationMinutes', e.target.value)}
+                  onChange={(e) =>
+                    set('estimatedDurationMinutes', e.target.value)
+                  }
                 />
               </FormField>
-              <FormField label="% mínima de conclusão" htmlFor="module-min-completion">
+              <FormField
+                label="% mínima de conclusão"
+                htmlFor="module-min-completion"
+              >
                 <Input
                   id="module-min-completion"
                   type="number"
@@ -303,7 +328,10 @@ export function ModuleModal({
                 Requer nota mínima
               </label>
               {form.requiresMinScore && (
-                <FormField label="Nota mínima do quiz (%)" htmlFor="module-min-quiz">
+                <FormField
+                  label="Nota mínima do quiz (%)"
+                  htmlFor="module-min-quiz"
+                >
                   <Input
                     id="module-min-quiz"
                     type="number"
@@ -328,7 +356,10 @@ export function ModuleModal({
               </FormField>
             )}
 
-            <FormField label="Objectivos de aprendizagem" htmlFor="module-objectives">
+            <FormField
+              label="Objectivos de aprendizagem"
+              htmlFor="module-objectives"
+            >
               <Textarea
                 id="module-objectives"
                 value={form.learningObjectives}
@@ -338,13 +369,21 @@ export function ModuleModal({
               />
             </FormField>
 
-            <FormField label="Competências associadas" htmlFor="module-competencies">
+            <FormField
+              label="Competências associadas"
+              htmlFor="module-competencies"
+            >
               <div className="max-h-36 space-y-1 overflow-y-auto rounded-control border border-border p-2">
                 {competencyOptions.length === 0 && (
-                  <p className="text-xs text-ink-faint">Sem competências cadastradas.</p>
+                  <p className="text-xs text-ink-faint">
+                    Sem competências cadastradas.
+                  </p>
                 )}
                 {competencyOptions.map((c) => (
-                  <label key={c.id} className="flex items-center gap-2 text-xs text-ink-muted">
+                  <label
+                    key={c.id}
+                    className="flex items-center gap-2 text-xs text-ink-muted"
+                  >
                     <input
                       type="checkbox"
                       checked={competencyIds.includes(c.id)}
@@ -381,16 +420,20 @@ export function ModuleModal({
             {editing && (
               <div className="grid grid-cols-2 gap-x-4 gap-y-1 rounded-control border border-border bg-surface-sunken p-3 text-xs text-ink-muted">
                 <span>
-                  Nº de lições: <strong className="text-ink">{totalLessons}</strong>
+                  Nº de lições:{' '}
+                  <strong className="text-ink">{totalLessons}</strong>
                 </span>
                 <span>
                   Carga horária:{' '}
                   <strong className="text-ink">
-                    {totalWorkloadMinutes > 0 ? `${totalWorkloadMinutes} min` : '—'}
+                    {totalWorkloadMinutes > 0
+                      ? `${totalWorkloadMinutes} min`
+                      : '—'}
                   </strong>
                 </span>
                 <span>
-                  Recursos: <strong className="text-ink">{totalMaterials}</strong>
+                  Recursos:{' '}
+                  <strong className="text-ink">{totalMaterials}</strong>
                 </span>
                 <span>
                   Avaliação associada:{' '}

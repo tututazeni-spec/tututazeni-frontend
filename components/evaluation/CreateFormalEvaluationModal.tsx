@@ -22,7 +22,10 @@ import { Textarea } from '@/components/ui/Textarea';
 import { useToast } from '@/providers/ToastProvider';
 import type { PaginatedDepts } from '@/components/departments/types';
 import type { Course, PaginatedCourses } from '@/components/courses/types';
-import type { DraftQuestion, FormalQuestionType } from './formalEvaluationTypes';
+import type {
+  DraftQuestion,
+  FormalQuestionType,
+} from './formalEvaluationTypes';
 
 export interface CreateFormalEvaluationModalProps {
   onClose: () => void;
@@ -46,7 +49,9 @@ function blankQuestion(): DraftQuestion {
   };
 }
 
-export function CreateFormalEvaluationModal({ onClose }: CreateFormalEvaluationModalProps) {
+export function CreateFormalEvaluationModal({
+  onClose,
+}: CreateFormalEvaluationModalProps) {
   const notify = useToast();
 
   const [title, setTitle] = useState('');
@@ -58,7 +63,9 @@ export function CreateFormalEvaluationModal({ onClose }: CreateFormalEvaluationM
   const [passingScore, setPassingScore] = useState('70');
   const [allDepartments, setAllDepartments] = useState(true);
   const [targetDepartmentIds, setTargetDepartmentIds] = useState<number[]>([]);
-  const [questions, setQuestions] = useState<DraftQuestion[]>([blankQuestion()]);
+  const [questions, setQuestions] = useState<DraftQuestion[]>([
+    blankQuestion(),
+  ]);
   const [submitError, setSubmitError] = useState('');
 
   const coursesQ = useApiQuery<PaginatedCourses>(
@@ -82,14 +89,20 @@ export function CreateFormalEvaluationModal({ onClose }: CreateFormalEvaluationM
   };
 
   const updateQuestion = (index: number, patch: Partial<DraftQuestion>) => {
-    setQuestions((prev) => prev.map((q, i) => (i === index ? { ...q, ...patch } : q)));
+    setQuestions((prev) =>
+      prev.map((q, i) => (i === index ? { ...q, ...patch } : q)),
+    );
   };
   const removeQuestion = (index: number) => {
     setQuestions((prev) => prev.filter((_, i) => i !== index));
   };
   const addQuestion = () => setQuestions((prev) => [...prev, blankQuestion()]);
 
-  const updateOption = (qIndex: number, oIndex: number, patch: Partial<{ text: string; isCorrect: boolean }>) => {
+  const updateOption = (
+    qIndex: number,
+    oIndex: number,
+    patch: Partial<{ text: string; isCorrect: boolean }>,
+  ) => {
     setQuestions((prev) =>
       prev.map((q, i) => {
         if (i !== qIndex) return q;
@@ -109,14 +122,18 @@ export function CreateFormalEvaluationModal({ onClose }: CreateFormalEvaluationM
   const addOption = (qIndex: number) => {
     setQuestions((prev) =>
       prev.map((q, i) =>
-        i === qIndex ? { ...q, options: [...q.options, { text: '', isCorrect: false }] } : q,
+        i === qIndex
+          ? { ...q, options: [...q.options, { text: '', isCorrect: false }] }
+          : q,
       ),
     );
   };
   const removeOption = (qIndex: number, oIndex: number) => {
     setQuestions((prev) =>
       prev.map((q, i) =>
-        i === qIndex ? { ...q, options: q.options.filter((_, j) => j !== oIndex) } : q,
+        i === qIndex
+          ? { ...q, options: q.options.filter((_, j) => j !== oIndex) }
+          : q,
       ),
     );
   };
@@ -138,14 +155,18 @@ export function CreateFormalEvaluationModal({ onClose }: CreateFormalEvaluationM
   const canSubmit = title.trim().length > 0 && datesOk && questionsOk;
 
   const createEvaluation = useApiMutation(
-    (body: Record<string, unknown>) => apiClient.post<{ id: number }>('/assessments', body),
+    (body: Record<string, unknown>) =>
+      apiClient.post<{ id: number }>('/assessments', body),
     {
       invalidateKeys: [queryKeys.formalEvaluations.list()],
       onSuccess: () => {
         notify({ title: 'Avaliação criada como rascunho', intent: 'success' });
         onClose();
       },
-      onError: (e) => setSubmitError(e.message || 'Erro ao criar a avaliação. Tente novamente.'),
+      onError: (e) =>
+        setSubmitError(
+          e.message || 'Erro ao criar a avaliação. Tente novamente.',
+        ),
     },
   );
   const loading = createEvaluation.isPending;
@@ -158,8 +179,12 @@ export function CreateFormalEvaluationModal({ onClose }: CreateFormalEvaluationM
       type: 'EXAM',
       ...(description.trim() ? { description: description.trim() } : {}),
       ...(courseId ? { courseId: Number(courseId) } : {}),
-      ...(availableFrom ? { availableFrom: new Date(availableFrom).toISOString() } : {}),
-      ...(availableUntil ? { availableUntil: new Date(availableUntil).toISOString() } : {}),
+      ...(availableFrom
+        ? { availableFrom: new Date(availableFrom).toISOString() }
+        : {}),
+      ...(availableUntil
+        ? { availableUntil: new Date(availableUntil).toISOString() }
+        : {}),
       maxGrade: Number(maxGrade) || 20,
       passingScore: Number(passingScore) || 70,
       targetDepartmentIds: allDepartments ? [] : targetDepartmentIds,
@@ -203,7 +228,11 @@ export function CreateFormalEvaluationModal({ onClose }: CreateFormalEvaluationM
                 placeholder="Ex.: Avaliação Final — Compliance 2026"
               />
             </FormField>
-            <FormField label="Descrição" htmlFor="fe-description" hint="Opcional.">
+            <FormField
+              label="Descrição"
+              htmlFor="fe-description"
+              hint="Opcional."
+            >
               <Textarea
                 id="fe-description"
                 rows={2}
@@ -219,7 +248,10 @@ export function CreateFormalEvaluationModal({ onClose }: CreateFormalEvaluationM
               <Select
                 items={[
                   { value: '', label: 'Geral (sem curso)' },
-                  ...courses.map((c: Course) => ({ value: String(c.id), label: c.title })),
+                  ...courses.map((c: Course) => ({
+                    value: String(c.id),
+                    label: c.title,
+                  })),
                 ]}
                 value={courseId}
                 onValueChange={setCourseId}
@@ -257,7 +289,11 @@ export function CreateFormalEvaluationModal({ onClose }: CreateFormalEvaluationM
               </p>
             )}
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <FormField label="Nota máxima" htmlFor="fe-maxgrade" hint="Ex.: 20, 10 ou 100.">
+              <FormField
+                label="Nota máxima"
+                htmlFor="fe-maxgrade"
+                hint="Ex.: 20, 10 ou 100."
+              >
                 <Input
                   id="fe-maxgrade"
                   type="number"
@@ -296,7 +332,10 @@ export function CreateFormalEvaluationModal({ onClose }: CreateFormalEvaluationM
             {!allDepartments && (
               <div className="grid max-h-40 grid-cols-2 gap-2 overflow-y-auto rounded-card border border-border p-3">
                 {departments.map((d) => (
-                  <label key={d.id} className="flex items-center gap-2 text-sm text-ink">
+                  <label
+                    key={d.id}
+                    className="flex items-center gap-2 text-sm text-ink"
+                  >
                     <input
                       type="checkbox"
                       checked={targetDepartmentIds.includes(d.id)}
@@ -307,7 +346,9 @@ export function CreateFormalEvaluationModal({ onClose }: CreateFormalEvaluationM
                   </label>
                 ))}
                 {departments.length === 0 && (
-                  <span className="text-xs text-ink-faint">A carregar departamentos…</span>
+                  <span className="text-xs text-ink-faint">
+                    A carregar departamentos…
+                  </span>
                 )}
               </div>
             )}
@@ -326,7 +367,10 @@ export function CreateFormalEvaluationModal({ onClose }: CreateFormalEvaluationM
             </div>
 
             {questions.map((q, qIndex) => (
-              <div key={qIndex} className="space-y-3 rounded-card border border-border p-4">
+              <div
+                key={qIndex}
+                className="space-y-3 rounded-card border border-border p-4"
+              >
                 <div className="flex items-start gap-3">
                   <div className="flex-1 space-y-3">
                     <Select
@@ -347,7 +391,9 @@ export function CreateFormalEvaluationModal({ onClose }: CreateFormalEvaluationM
                     <Textarea
                       rows={2}
                       value={q.questionText}
-                      onChange={(e) => updateQuestion(qIndex, { questionText: e.target.value })}
+                      onChange={(e) =>
+                        updateQuestion(qIndex, { questionText: e.target.value })
+                      }
                       placeholder={`Pergunta ${qIndex + 1}`}
                     />
                   </div>
@@ -368,15 +414,27 @@ export function CreateFormalEvaluationModal({ onClose }: CreateFormalEvaluationM
                     {q.options.map((o, oIndex) => (
                       <div key={oIndex} className="flex items-center gap-2">
                         <input
-                          type={q.type === 'MULTIPLE_CHOICE_SINGLE' ? 'radio' : 'checkbox'}
+                          type={
+                            q.type === 'MULTIPLE_CHOICE_SINGLE'
+                              ? 'radio'
+                              : 'checkbox'
+                          }
                           name={`fe-correct-${qIndex}`}
                           checked={o.isCorrect}
-                          onChange={(e) => updateOption(qIndex, oIndex, { isCorrect: e.target.checked })}
+                          onChange={(e) =>
+                            updateOption(qIndex, oIndex, {
+                              isCorrect: e.target.checked,
+                            })
+                          }
                           className="h-4 w-4"
                         />
                         <Input
                           value={o.text}
-                          onChange={(e) => updateOption(qIndex, oIndex, { text: e.target.value })}
+                          onChange={(e) =>
+                            updateOption(qIndex, oIndex, {
+                              text: e.target.value,
+                            })
+                          }
                           placeholder={`Opção ${oIndex + 1}`}
                           className="flex-1"
                         />
@@ -392,7 +450,11 @@ export function CreateFormalEvaluationModal({ onClose }: CreateFormalEvaluationM
                         )}
                       </div>
                     ))}
-                    <Button intent="ghost" size="sm" onClick={() => addOption(qIndex)}>
+                    <Button
+                      intent="ghost"
+                      size="sm"
+                      onClick={() => addOption(qIndex)}
+                    >
                       <Plus size={12} strokeWidth={1.75} />
                       Adicionar opção
                     </Button>
@@ -407,7 +469,11 @@ export function CreateFormalEvaluationModal({ onClose }: CreateFormalEvaluationM
           <Button intent="ghost" onClick={onClose} disabled={loading}>
             Cancelar
           </Button>
-          <Button onClick={handleSubmit} disabled={!canSubmit} loading={loading}>
+          <Button
+            onClick={handleSubmit}
+            disabled={!canSubmit}
+            loading={loading}
+          >
             Criar avaliação
           </Button>
         </div>

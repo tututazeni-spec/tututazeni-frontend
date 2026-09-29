@@ -58,7 +58,7 @@ export interface PaginationProps {
   onPageChange: (page: number) => void;
 }
 
-export function Pagination({ page, totalPages, onPageChange }: PaginationProps)
+export function Pagination({ page, totalPages, onPageChange }: PaginationProps);
 ```
 
 Renders `null` when `totalPages <= 1` (unchanged from today). Internal
@@ -83,6 +83,7 @@ BaseFilterDto` on both `GET /acl/audit` and `GET /acl/audit/denied` (see
 backend change needed — the frontend has simply never sent a `page` param.
 
 Changes:
+
 - Add `const [page, setPage] = useState(1)`.
 - Reset `page` to 1 when `view` changes (switching between "all"/"denied"
   must not strand the user on a page number that may not exist in the new

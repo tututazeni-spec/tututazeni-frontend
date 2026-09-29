@@ -1,4 +1,5 @@
 # INNOVA — Auditoria de Frontend (Sénior 20 Anos)
+
 > Next.js + TypeScript + Tailwind CSS
 > Análise completa antes da produção | 6000 funcionários
 
@@ -421,6 +422,7 @@ Números:
 ## CHECKLIST FINAL ANTES DA PRODUÇÃO
 
 ### Segurança
+
 ```
 □ Token JWT em httpOnly cookie (não localStorage)
 □ middleware.ts protege todas as rotas privadas
@@ -430,6 +432,7 @@ Números:
 ```
 
 ### Funcionalidade
+
 ```
 □ Loading states em todas as operações
 □ Mensagens de erro claras (não "Erro 500")
@@ -440,6 +443,7 @@ Números:
 ```
 
 ### Performance
+
 ```
 □ npm run build sem warnings de bundle > 300KB
 □ Next.js Image em todas as imagens
@@ -449,6 +453,7 @@ Números:
 ```
 
 ### Qualidade
+
 ```
 □ npx tsc --noEmit → zero erros TypeScript
 □ Zero any nas respostas da API
@@ -538,6 +543,6 @@ git push origin main
 
 ---
 
-*INNOVA — Frontend Audit Guide v1.0*
-*Análise de sénior com 20 anos de experiência*
-*Verificar antes de produção com 6000 funcionários*
+_INNOVA — Frontend Audit Guide v1.0_
+_Análise de sénior com 20 anos de experiência_
+_Verificar antes de produção com 6000 funcionários_

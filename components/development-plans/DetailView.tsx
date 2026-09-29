@@ -54,14 +54,20 @@ import type { Action, Plan } from './types';
 const MS_PER_DAY = 86_400_000;
 
 function dayOffset(dateStr: string, referenceStr: string): number {
-  return Math.round((new Date(dateStr).getTime() - new Date(referenceStr).getTime()) / MS_PER_DAY);
+  return Math.round(
+    (new Date(dateStr).getTime() - new Date(referenceStr).getTime()) /
+      MS_PER_DAY,
+  );
 }
 
 // Não há uma data de início por acção (só `dueDate`) — o cronograma usa o
 // início do próprio plano como início de todas as barras, mostrando "tempo
 // disponível até ao prazo" a partir do arranque do PDI, não uma janela de
 // execução real da acção.
-function actionsToGanttRows(actions: Action[], planStartDate: string | null): GanttRow[] {
+function actionsToGanttRows(
+  actions: Action[],
+  planStartDate: string | null,
+): GanttRow[] {
   if (!planStartDate) return [];
   return actions
     .filter((a) => a.dueDate != null)
@@ -276,7 +282,9 @@ export function DetailView({ planId, onBack }: DetailViewProps) {
               )}
             </div>
             <div className="space-y-1.5 font-body text-sm text-ink-muted">
-              {plan.employeeComment && <p>Colaborador: {plan.employeeComment}</p>}
+              {plan.employeeComment && (
+                <p>Colaborador: {plan.employeeComment}</p>
+              )}
               {plan.managerComment && <p>Gestor: {plan.managerComment}</p>}
               {plan.rhComment && <p>RH: {plan.rhComment}</p>}
             </div>
@@ -303,115 +311,127 @@ export function DetailView({ planId, onBack }: DetailViewProps) {
       {/* Actions */}
       {activeTab === 'actions' && (
         <div className="space-y-6">
-          {plan.actions && plan.actions.length > 0 && actionsToGanttRows(plan.actions, plan.startDate).length > 0 && (
-            <GanttChart
-              rows={actionsToGanttRows(plan.actions, plan.startDate)}
-              todayValue={plan.startDate ? Math.max(0, dayOffset(new Date().toISOString(), plan.startDate)) : undefined}
-              unitLabel="dias desde o início do PDI"
-            />
-          )}
+          {plan.actions &&
+            plan.actions.length > 0 &&
+            actionsToGanttRows(plan.actions, plan.startDate).length > 0 && (
+              <GanttChart
+                rows={actionsToGanttRows(plan.actions, plan.startDate)}
+                todayValue={
+                  plan.startDate
+                    ? Math.max(
+                        0,
+                        dayOffset(new Date().toISOString(), plan.startDate),
+                      )
+                    : undefined
+                }
+                unitLabel="dias desde o início do PDI"
+              />
+            )}
           <div className="space-y-3">
-          {plan.actions?.map((action) => {
-            const typeCfg = ACTION_CFG[action.type];
-            const statusCfg = ACTION_STATUS[action.status];
-            const overdue = isOverdue(action.dueDate, action.status);
-            return (
-              <Card
-                key={action.id}
-                className={overdue ? 'border-danger' : undefined}
-              >
-                <CardBody>
-                  <div className="flex items-start gap-3">
-                    <div className="min-w-0 flex-1">
-                      <div className="mb-1 flex items-center gap-2">
-                        <span
-                          className={cn('flex items-center', statusCfg.cls)}
-                        >
-                          <statusCfg.icon size={16} strokeWidth={1.75} />
-                        </span>
-                        <span
-                          className={cn(
-                            'font-body text-sm font-medium',
-                            action.status === 'COMPLETED'
-                              ? 'text-ink-faint line-through'
-                              : 'text-ink',
-                          )}
-                        >
-                          {action.title}
-                        </span>
-                        {action.mandatory && (
-                          <span className="font-body text-xs text-danger">
-                            Obrigatória
+            {plan.actions?.map((action) => {
+              const typeCfg = ACTION_CFG[action.type];
+              const statusCfg = ACTION_STATUS[action.status];
+              const overdue = isOverdue(action.dueDate, action.status);
+              return (
+                <Card
+                  key={action.id}
+                  className={overdue ? 'border-danger' : undefined}
+                >
+                  <CardBody>
+                    <div className="flex items-start gap-3">
+                      <div className="min-w-0 flex-1">
+                        <div className="mb-1 flex items-center gap-2">
+                          <span
+                            className={cn('flex items-center', statusCfg.cls)}
+                          >
+                            <statusCfg.icon size={16} strokeWidth={1.75} />
                           </span>
-                        )}
-                      </div>
-                      {action.description && (
-                        <p className="mb-2 font-body text-xs text-ink-muted">
-                          {action.description}
-                        </p>
-                      )}
-                      <div className="flex flex-wrap items-center gap-3 font-body text-xs text-ink-faint">
-                        <span>{typeCfg.label}</span>
-                        {action.workloadHours && (
-                          <span className="flex items-center gap-1">
-                            <Clock size={14} strokeWidth={1.75} />
-                            {action.workloadHours}h
-                          </span>
-                        )}
-                        {action.dueDate && (
                           <span
                             className={cn(
-                              'flex items-center gap-1',
-                              overdue && 'font-medium text-danger',
+                              'font-body text-sm font-medium',
+                              action.status === 'COMPLETED'
+                                ? 'text-ink-faint line-through'
+                                : 'text-ink',
                             )}
                           >
-                            {overdue && (
-                              <TriangleAlert size={14} strokeWidth={1.75} />
-                            )}
-                            <Calendar size={14} strokeWidth={1.75} />
-                            {fmtDate(action.dueDate)}
+                            {action.title}
                           </span>
+                          {action.mandatory && (
+                            <span className="font-body text-xs text-danger">
+                              Obrigatória
+                            </span>
+                          )}
+                        </div>
+                        {action.description && (
+                          <p className="mb-2 font-body text-xs text-ink-muted">
+                            {action.description}
+                          </p>
                         )}
-                        <span className="text-accent">
-                          +{action.xpReward} XP
-                        </span>
-                        {action.evidence && action.evidence.length > 0 && (
-                          <span className="flex items-center gap-1 text-info">
-                            <Paperclip size={14} strokeWidth={1.75} />
-                            {action.evidence.length} evidência(s)
+                        <div className="flex flex-wrap items-center gap-3 font-body text-xs text-ink-faint">
+                          <span>{typeCfg.label}</span>
+                          {action.workloadHours && (
+                            <span className="flex items-center gap-1">
+                              <Clock size={14} strokeWidth={1.75} />
+                              {action.workloadHours}h
+                            </span>
+                          )}
+                          {action.dueDate && (
+                            <span
+                              className={cn(
+                                'flex items-center gap-1',
+                                overdue && 'font-medium text-danger',
+                              )}
+                            >
+                              {overdue && (
+                                <TriangleAlert size={14} strokeWidth={1.75} />
+                              )}
+                              <Calendar size={14} strokeWidth={1.75} />
+                              {fmtDate(action.dueDate)}
+                            </span>
+                          )}
+                          <span className="text-accent">
+                            +{action.xpReward} XP
                           </span>
+                          {action.evidence && action.evidence.length > 0 && (
+                            <span className="flex items-center gap-1 text-info">
+                              <Paperclip size={14} strokeWidth={1.75} />
+                              {action.evidence.length} evidência(s)
+                            </span>
+                          )}
+                        </div>
+                        {action.status !== 'COMPLETED' && (
+                          <div className="mt-2">
+                            <ProgressBar
+                              value={action.progress}
+                              intent={overdue ? 'danger' : 'accent'}
+                            />
+                          </div>
                         )}
                       </div>
-                      {action.status !== 'COMPLETED' && (
-                        <div className="mt-2">
-                          <ProgressBar value={action.progress} intent={overdue ? 'danger' : 'accent'} />
-                        </div>
-                      )}
+                      {action.status !== 'COMPLETED' &&
+                        action.status !== 'CANCELLED' && (
+                          <Button
+                            size="sm"
+                            intent="success"
+                            loading={updatingAction === action.id}
+                            onClick={() =>
+                              handleCompleteAction(action.id, action.xpReward)
+                            }
+                            className="flex-shrink-0"
+                          >
+                            Concluir
+                          </Button>
+                        )}
                     </div>
-                    {action.status !== 'COMPLETED' &&
-                      action.status !== 'CANCELLED' && (
-                        <Button
-                          size="sm"
-                          intent="success"
-                          loading={updatingAction === action.id}
-                          onClick={() =>
-                            handleCompleteAction(action.id, action.xpReward)
-                          }
-                          className="flex-shrink-0"
-                        >
-                          Concluir
-                        </Button>
-                      )}
-                  </div>
-                </CardBody>
-              </Card>
-            );
-          })}
-          {(!plan.actions || plan.actions.length === 0) && (
-            <div className="rounded-card border border-dashed border-border-strong py-8 text-center font-body text-sm text-ink-faint">
-              Sem acções adicionadas
-            </div>
-          )}
+                  </CardBody>
+                </Card>
+              );
+            })}
+            {(!plan.actions || plan.actions.length === 0) && (
+              <div className="rounded-card border border-dashed border-border-strong py-8 text-center font-body text-sm text-ink-faint">
+                Sem acções adicionadas
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -457,7 +477,11 @@ export function DetailView({ planId, onBack }: DetailViewProps) {
                   intent={
                     goal.progress >= 100
                       ? 'success'
-                      : goal.dueDate && isOverdue(goal.dueDate, goal.completedAt ? 'COMPLETED' : 'ACTIVE')
+                      : goal.dueDate &&
+                          isOverdue(
+                            goal.dueDate,
+                            goal.completedAt ? 'COMPLETED' : 'ACTIVE',
+                          )
                         ? 'danger'
                         : 'accent'
                   }
@@ -569,7 +593,9 @@ export function DetailView({ planId, onBack }: DetailViewProps) {
                   <div className="font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
                     Origem
                   </div>
-                  <p className="font-body text-sm text-ink">{ORIGIN_CFG[plan.origin]}</p>
+                  <p className="font-body text-sm text-ink">
+                    {ORIGIN_CFG[plan.origin]}
+                  </p>
                   {plan.originJustification && (
                     <p className="mt-0.5 font-body text-xs text-ink-muted">
                       {plan.originJustification}
@@ -590,7 +616,9 @@ export function DetailView({ planId, onBack }: DetailViewProps) {
                   <div className="font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
                     Principais necessidades de desenvolvimento
                   </div>
-                  <p className="font-body text-sm text-ink">{plan.developmentNeeds}</p>
+                  <p className="font-body text-sm text-ink">
+                    {plan.developmentNeeds}
+                  </p>
                 </div>
               )}
               {plan.careerPlan && (
@@ -600,12 +628,14 @@ export function DetailView({ planId, onBack }: DetailViewProps) {
                   </div>
                   <p className="font-body text-sm text-ink">
                     {plan.careerPlan.title}
-                    {plan.careerPlan.currentRole && plan.careerPlan.targetRole && (
-                      <span className="text-ink-muted">
-                        {' '}
-                        — {plan.careerPlan.currentRole.name} → {plan.careerPlan.targetRole.name}
-                      </span>
-                    )}
+                    {plan.careerPlan.currentRole &&
+                      plan.careerPlan.targetRole && (
+                        <span className="text-ink-muted">
+                          {' '}
+                          — {plan.careerPlan.currentRole.name} →{' '}
+                          {plan.careerPlan.targetRole.name}
+                        </span>
+                      )}
                   </p>
                   {plan.careerReadinessPercent != null && (
                     <p className="mt-0.5 font-body text-xs text-ink-muted">
@@ -614,9 +644,14 @@ export function DetailView({ planId, onBack }: DetailViewProps) {
                   )}
                 </div>
               )}
-              {!plan.origin && !plan.strengths && !plan.developmentNeeds && !plan.careerPlan && (
-                <p className="font-body text-sm text-ink-faint">Sem diagnóstico registado.</p>
-              )}
+              {!plan.origin &&
+                !plan.strengths &&
+                !plan.developmentNeeds &&
+                !plan.careerPlan && (
+                  <p className="font-body text-sm text-ink-faint">
+                    Sem diagnóstico registado.
+                  </p>
+                )}
             </CardBody>
           </Card>
 

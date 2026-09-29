@@ -17,11 +17,7 @@ import { API_URL } from '@/lib/api';
 import { reportError } from '@/lib/errorReporting';
 
 export type LessonAudioState =
-  | 'idle'
-  | 'loading'
-  | 'playing'
-  | 'paused'
-  | 'error';
+  'idle' | 'loading' | 'playing' | 'paused' | 'error';
 
 // Acima disto não vale a pena encher o sessionStorage (quota ~5 MB e é
 // partilhada com o resto da app).

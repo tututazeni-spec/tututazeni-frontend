@@ -3,7 +3,9 @@ import { guessMapping, mapRows, parseCsv } from './importUsersCsv';
 
 describe('parseCsv', () => {
   test('separa cabeçalho e linhas de dados, ignorando linhas em branco', () => {
-    const csv = ['email,nome', '', 'ana@x.com,Ana', 'beto@x.com,Beto'].join('\n');
+    const csv = ['email,nome', '', 'ana@x.com,Ana', 'beto@x.com,Beto'].join(
+      '\n',
+    );
     const r = parseCsv(csv);
     expect(r.error).toBeUndefined();
     expect(r.headers).toEqual(['email', 'nome']);
@@ -24,12 +26,14 @@ describe('parseCsv', () => {
 
 describe('guessMapping', () => {
   test('reconhece cabeçalhos em português e inglês, indiferente a maiúsculas', () => {
-    expect(guessMapping(['Email', 'Nome Completo', 'Departamento', 'Coluna Aleatória'])).toEqual([
-      'email',
-      'fullName',
-      'departmentName',
-      'ignore',
-    ]);
+    expect(
+      guessMapping([
+        'Email',
+        'Nome Completo',
+        'Departamento',
+        'Coluna Aleatória',
+      ]),
+    ).toEqual(['email', 'fullName', 'departmentName', 'ignore']);
   });
 });
 

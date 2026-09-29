@@ -48,8 +48,12 @@ function TopBarKpiCard({
       <div className={`h-1.5 w-full ${t.bar}`} />
       <div className="p-5 pt-6">
         <Icon size={22} strokeWidth={1.75} className={t.text} />
-        <p className={`mt-3 font-display text-3xl font-bold ${t.text}`}>{value}</p>
-        <p className="mt-1 font-body text-sm font-medium text-ink-muted">{label}</p>
+        <p className={`mt-3 font-display text-3xl font-bold ${t.text}`}>
+          {value}
+        </p>
+        <p className="mt-1 font-body text-sm font-medium text-ink-muted">
+          {label}
+        </p>
       </div>
     </div>
   );
@@ -66,7 +70,7 @@ export function ROIView() {
 
   return (
     <div className="space-y-5">
-            <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-3 gap-4">
         <TopBarKpiCard
           icon={Clock}
           label="Horas de formação investidas"
@@ -108,12 +112,17 @@ export function ROIView() {
                 </TableCell>
                 <TableCell>{imp.metric}</TableCell>
                 <TableCell>{imp.impactRate}%</TableCell>
-                <TableCell>{new Date(imp.calculatedAt).toLocaleDateString('pt-PT')}</TableCell>
+                <TableCell>
+                  {new Date(imp.calculatedAt).toLocaleDateString('pt-PT')}
+                </TableCell>
               </TableRow>
             ))}
             {data.impacts.length === 0 && (
               <TableRow>
-                <TableCell colSpan={4} className="text-center text-ink-faint py-6">
+                <TableCell
+                  colSpan={4}
+                  className="text-center text-ink-faint py-6"
+                >
                   Sem dados de impacto de formação
                 </TableCell>
               </TableRow>

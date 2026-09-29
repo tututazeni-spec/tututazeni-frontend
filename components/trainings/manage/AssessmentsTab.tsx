@@ -35,7 +35,10 @@ const ROLES: { id: TrainingAssessmentRole; label: string }[] = [
   { id: 'INSTRUCTOR_EVALUATION', label: 'Avaliação do formador' },
   { id: 'ORGANIZATION_EVALUATION', label: 'Avaliação da organização' },
   { id: 'APPLICABILITY_EVALUATION', label: 'Avaliação de aplicabilidade' },
-  { id: 'POST_TRAINING_EFFECTIVENESS', label: 'Avaliação de eficácia / pós-formação' },
+  {
+    id: 'POST_TRAINING_EFFECTIVENESS',
+    label: 'Avaliação de eficácia / pós-formação',
+  },
 ];
 
 export function AssessmentsTab({ training }: AssessmentsTabProps) {
@@ -47,7 +50,10 @@ export function AssessmentsTab({ training }: AssessmentsTabProps) {
     '/assessments',
     { staleTime: STALE_TIME.SEMI_STATIC },
   );
-  const items = assessments.map((a) => ({ value: String(a.id), label: `${a.title} (${a.type})` }));
+  const items = assessments.map((a) => ({
+    value: String(a.id),
+    label: `${a.title} (${a.type})`,
+  }));
 
   const invalidateKeys = [queryKeys.trainings.detail(training.id)];
   const onErr = (e: Error) => toast({ title: e.message, intent: 'danger' });
@@ -60,7 +66,8 @@ export function AssessmentsTab({ training }: AssessmentsTabProps) {
       }),
     {
       invalidateKeys,
-      onSuccess: () => toast({ title: 'Avaliação associada.', intent: 'success' }),
+      onSuccess: () =>
+        toast({ title: 'Avaliação associada.', intent: 'success' }),
       onError: onErr,
     },
   );
@@ -70,7 +77,8 @@ export function AssessmentsTab({ training }: AssessmentsTabProps) {
       apiClient.delete(`/trainings/${training.id}/assessments/${role}`),
     {
       invalidateKeys,
-      onSuccess: () => toast({ title: 'Avaliação desassociada.', intent: 'success' }),
+      onSuccess: () =>
+        toast({ title: 'Avaliação desassociada.', intent: 'success' }),
       onError: onErr,
     },
   );
@@ -78,9 +86,14 @@ export function AssessmentsTab({ training }: AssessmentsTabProps) {
   return (
     <Card className="divide-y divide-border">
       {ROLES.map((r) => {
-        const existing = (training.assessmentLinks ?? []).find((l) => l.role === r.id);
+        const existing = (training.assessmentLinks ?? []).find(
+          (l) => l.role === r.id,
+        );
         return (
-          <div key={r.id} className="flex flex-wrap items-center gap-3 px-4 py-4">
+          <div
+            key={r.id}
+            className="flex flex-wrap items-center gap-3 px-4 py-4"
+          >
             <div className="w-56 flex-shrink-0 font-body text-sm font-medium text-ink">
               {r.label}
             </div>

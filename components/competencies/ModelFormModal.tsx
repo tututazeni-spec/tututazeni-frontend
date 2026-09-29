@@ -37,12 +37,18 @@ const STATUS_ITEMS = [
   { value: 'INACTIVE', label: 'Inactivo' },
 ];
 
-const HIERARCHY_ITEMS = Object.entries(HIERARCHY_LEVEL_CFG).map(([value, cfg]) => ({
-  value,
-  label: cfg.label,
-}));
+const HIERARCHY_ITEMS = Object.entries(HIERARCHY_LEVEL_CFG).map(
+  ([value, cfg]) => ({
+    value,
+    label: cfg.label,
+  }),
+);
 
-export function ModelFormModal({ modelId, onClose, onSuccess }: ModelFormModalProps) {
+export function ModelFormModal({
+  modelId,
+  onClose,
+  onSuccess,
+}: ModelFormModalProps) {
   const editing = modelId != null;
 
   const detail = useApiQuery<CompetencyModelDetail>(
@@ -54,7 +60,11 @@ export function ModelFormModal({ modelId, onClose, onSuccess }: ModelFormModalPr
   return (
     <Modal open onOpenChange={(open) => !open && onClose()}>
       <ModalContent
-        title={editing ? 'Editar modelo de competências' : 'Novo modelo de competências'}
+        title={
+          editing
+            ? 'Editar modelo de competências'
+            : 'Novo modelo de competências'
+        }
         description={
           editing
             ? 'Actualiza os dados do modelo. As competências incluídas geram-se no detalhe.'
@@ -91,7 +101,8 @@ interface ModelFormProps {
 
 function ModelForm({ modelId, initial, onClose, onSuccess }: ModelFormProps) {
   const editing = modelId != null;
-  const { options: departmentOptions, loading: loadingDepartments } = useDepartmentOptions();
+  const { options: departmentOptions, loading: loadingDepartments } =
+    useDepartmentOptions();
 
   const [name, setName] = useState(initial?.name ?? '');
   const [code, setCode] = useState(initial?.code ?? '');
@@ -101,16 +112,28 @@ function ModelForm({ modelId, initial, onClose, onSuccess }: ModelFormProps) {
   const [departmentId, setDepartmentId] = useState(
     initial?.department ? String(initial.department.id) : '',
   );
-  const [positionFamily, setPositionFamily] = useState(initial?.positionFamily ?? '');
-  const [hierarchyLevel, setHierarchyLevel] = useState(initial?.hierarchyLevel ?? '');
+  const [positionFamily, setPositionFamily] = useState(
+    initial?.positionFamily ?? '',
+  );
+  const [hierarchyLevel, setHierarchyLevel] = useState(
+    initial?.hierarchyLevel ?? '',
+  );
   const [status, setStatus] = useState<string>(initial?.status ?? 'ACTIVE');
   const [version, setVersion] = useState(String(initial?.version ?? 1));
   const [effectiveDate, setEffectiveDate] = useState(
     initial?.effectiveDate ? initial.effectiveDate.slice(0, 10) : '',
   );
-  const [endDate, setEndDate] = useState(initial?.endDate ? initial.endDate.slice(0, 10) : '');
+  const [endDate, setEndDate] = useState(
+    initial?.endDate ? initial.endDate.slice(0, 10) : '',
+  );
   const [owner, setOwner] = useState<DirectoryUser | null>(
-    initial?.owner ? { id: initial.owner.id, fullName: initial.owner.fullName, avatarUrl: null } : null,
+    initial?.owner
+      ? {
+          id: initial.owner.id,
+          fullName: initial.owner.fullName,
+          avatarUrl: null,
+        }
+      : null,
   );
   const [submitError, setSubmitError] = useState('');
 
@@ -127,7 +150,10 @@ function ModelForm({ modelId, initial, onClose, onSuccess }: ModelFormProps) {
         onSuccess();
         onClose();
       },
-      onError: (e) => setSubmitError(e.message || 'Erro ao guardar o modelo. Tente novamente.'),
+      onError: (e) =>
+        setSubmitError(
+          e.message || 'Erro ao guardar o modelo. Tente novamente.',
+        ),
     },
   );
   const loading = save.isPending;
@@ -185,7 +211,11 @@ function ModelForm({ modelId, initial, onClose, onSuccess }: ModelFormProps) {
               className="w-full"
             />
           </FormField>
-          <FormField label="Tipo" htmlFor="mf-type" hint="Ex.: Liderança, Vendas, RH.">
+          <FormField
+            label="Tipo"
+            htmlFor="mf-type"
+            hint="Ex.: Liderança, Vendas, RH."
+          >
             <Input
               id="mf-type"
               value={type}

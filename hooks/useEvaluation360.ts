@@ -64,7 +64,12 @@ interface RawParticipantResult {
   managerScore: number | null;
   peerScore: number | null;
   scoresByCompetency: Record<string, RawCompetencyScoreEntry>;
-  gaps: { competencyId: string; name: string; score: number | null; gap: number | null }[];
+  gaps: {
+    competencyId: string;
+    name: string;
+    score: number | null;
+    gap: number | null;
+  }[];
   strengths: { competencyId: string; name: string; score: number | null }[];
 }
 
@@ -190,7 +195,9 @@ export function useEvaluation360() {
 
   const { data: rawResult } = useApiQuery<RawParticipantResult>(
     queryKeys.evaluation360.result(cycleId ?? '', participantId ?? ''),
-    cycleId && participantId ? `/evaluation360/cycles/${cycleId}/results/${participantId}` : '',
+    cycleId && participantId
+      ? `/evaluation360/cycles/${cycleId}/results/${participantId}`
+      : '',
     {
       enabled: !!cycleId && !!participantId,
       staleTime: STALE_TIME.DYNAMIC,
@@ -218,7 +225,10 @@ export function useEvaluation360() {
   const result = toParticipantResult(rawResult, participant);
   const competencies = result?.competencies ?? [];
 
-  const { data: feedbackData } = useApiQuery<{ data: RawFeedback[]; total: number }>(
+  const { data: feedbackData } = useApiQuery<{
+    data: RawFeedback[];
+    total: number;
+  }>(
     queryKeys.evaluation360.feedbacks(participantId ?? ''),
     participantId ? `/evaluation360/feedback/continuous/${participantId}` : '',
     { enabled: !!participantId, staleTime: STALE_TIME.DYNAMIC },

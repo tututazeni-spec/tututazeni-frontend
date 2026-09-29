@@ -53,17 +53,26 @@ const MODERATE_ROLES: readonly Role[] = ['ADMIN', 'RH'];
 
 const TYPE_ITEMS = [
   { value: 'ALL', label: 'Todos os tipos' },
-  ...Object.entries(TYPE_CFG).map(([value, cfg]) => ({ value, label: cfg.label })),
+  ...Object.entries(TYPE_CFG).map(([value, cfg]) => ({
+    value,
+    label: cfg.label,
+  })),
 ];
 
 const STATUS_ITEMS = [
   { value: 'ALL', label: 'Publicados e ao vivo (padrão)' },
-  ...Object.entries(STATUS_CFG).map(([value, cfg]) => ({ value, label: cfg.label })),
+  ...Object.entries(STATUS_CFG).map(([value, cfg]) => ({
+    value,
+    label: cfg.label,
+  })),
 ];
 
 const MODALITY_ITEMS = [
   { value: 'ALL', label: 'Todas as modalidades' },
-  ...Object.entries(MODALITY_CFG).map(([value, cfg]) => ({ value, label: cfg.label })),
+  ...Object.entries(MODALITY_CFG).map(([value, cfg]) => ({
+    value,
+    label: cfg.label,
+  })),
 ];
 
 export function EventsTab() {
@@ -99,14 +108,19 @@ export function EventsTab() {
     type: filters.type === 'ALL' ? undefined : filters.type,
     status: filters.status === 'ALL' ? undefined : filters.status,
     modalidade: filters.modalidade === 'ALL' ? undefined : filters.modalidade,
-    departmentId: filters.departmentId === 'ALL' ? undefined : filters.departmentId,
+    departmentId:
+      filters.departmentId === 'ALL' ? undefined : filters.departmentId,
     unitId: filters.unitId === 'ALL' ? undefined : filters.unitId,
   };
 
   const { data, isLoading, error, refetch } = useApiQuery<Paginated>(
     queryKeys.events.list(params),
     '/events',
-    { params, staleTime: STALE_TIME.DYNAMIC, placeholderData: keepPreviousData },
+    {
+      params,
+      staleTime: STALE_TIME.DYNAMIC,
+      placeholderData: keepPreviousData,
+    },
   );
 
   const publishMutation = useApiMutation<unknown, number>(
@@ -122,7 +136,11 @@ export function EventsTab() {
     (id) => apiClient.patch(`/events/${id}/cancel`, {}),
     {
       invalidateKeys: [queryKeys.events.all],
-      onSuccess: () => notify({ title: 'Evento cancelado e participantes notificados', intent: 'success' }),
+      onSuccess: () =>
+        notify({
+          title: 'Evento cancelado e participantes notificados',
+          intent: 'success',
+        }),
       onError: (e) => notify({ title: e.message, intent: 'danger' }),
     },
   );
@@ -173,11 +191,26 @@ export function EventsTab() {
           onChange={(e) => setSearch(e.target.value)}
           className="w-56"
         />
-        <Select items={TYPE_ITEMS} value={filters.type} onValueChange={(v) => updateFilters({ type: v })} />
-        <Select items={STATUS_ITEMS} value={filters.status} onValueChange={(v) => updateFilters({ status: v })} />
-        <Select items={MODALITY_ITEMS} value={filters.modalidade} onValueChange={(v) => updateFilters({ modalidade: v })} />
         <Select
-          items={[{ value: 'ALL', label: 'Todos os departamentos' }, ...departmentOptions]}
+          items={TYPE_ITEMS}
+          value={filters.type}
+          onValueChange={(v) => updateFilters({ type: v })}
+        />
+        <Select
+          items={STATUS_ITEMS}
+          value={filters.status}
+          onValueChange={(v) => updateFilters({ status: v })}
+        />
+        <Select
+          items={MODALITY_ITEMS}
+          value={filters.modalidade}
+          onValueChange={(v) => updateFilters({ modalidade: v })}
+        />
+        <Select
+          items={[
+            { value: 'ALL', label: 'Todos os departamentos' },
+            ...departmentOptions,
+          ]}
           value={filters.departmentId}
           onValueChange={(v) => updateFilters({ departmentId: v })}
         />
@@ -186,7 +219,9 @@ export function EventsTab() {
           value={filters.unitId}
           onValueChange={(v) => updateFilters({ unitId: v })}
         />
-        <span className="ml-auto font-body text-sm text-ink-faint">{data?.meta.total ?? 0} eventos</span>
+        <span className="ml-auto font-body text-sm text-ink-faint">
+          {data?.meta.total ?? 0} eventos
+        </span>
       </div>
 
       {error ? (
@@ -194,18 +229,25 @@ export function EventsTab() {
       ) : isLoading ? (
         <Skeleton rows={5} />
       ) : !data || data.data.length === 0 ? (
-        <EmptyState title="Sem eventos" description="Nenhum evento corresponde aos filtros." />
+        <EmptyState
+          title="Sem eventos"
+          description="Nenhum evento corresponde aos filtros."
+        />
       ) : (
         <div className="overflow-hidden rounded-card border border-border bg-surface">
           {data.data.map((e) => {
             const typeCfg = TYPE_CFG[e.type] ?? TYPE_CFG.CORPORATE;
             const TypeIcon = typeCfg.icon;
-            const isPublishing = publishMutation.isPending && publishMutation.variables === e.id;
-            const isCancelling = cancelMutation.isPending && cancelMutation.variables === e.id;
-            const isDeleting = deleteMutation.isPending && deleteMutation.variables === e.id;
+            const isPublishing =
+              publishMutation.isPending && publishMutation.variables === e.id;
+            const isCancelling =
+              cancelMutation.isPending && cancelMutation.variables === e.id;
+            const isDeleting =
+              deleteMutation.isPending && deleteMutation.variables === e.id;
             const showActions =
               (canPublish && e.status === 'DRAFT') ||
-              (canModerate && (e.status === 'PUBLISHED' || e.status === 'LIVE')) ||
+              (canModerate &&
+                (e.status === 'PUBLISHED' || e.status === 'LIVE')) ||
               (canModerate && e.status === 'DRAFT');
 
             return (
@@ -218,32 +260,46 @@ export function EventsTab() {
                   onClick={() => setDetailId(e.id)}
                   className="flex min-w-0 flex-1 items-center gap-3 text-left"
                 >
-                  <span className={`inline-flex shrink-0 items-center gap-1 rounded px-2 py-0.5 font-body text-xs ${typeCfg.cls}`}>
+                  <span
+                    className={`inline-flex shrink-0 items-center gap-1 rounded px-2 py-0.5 font-body text-xs ${typeCfg.cls}`}
+                  >
                     <TypeIcon size={12} strokeWidth={1.75} /> {typeCfg.label}
                   </span>
                   <div className="min-w-0 flex-1">
                     <div className="truncate font-body text-sm font-medium text-ink">
                       {e.title}
-                      {e.code && <span className="ml-1.5 font-mono text-xs text-ink-faint">#{e.code}</span>}
+                      {e.code && (
+                        <span className="ml-1.5 font-mono text-xs text-ink-faint">
+                          #{e.code}
+                        </span>
+                      )}
                     </div>
                     <div className="truncate font-body text-xs text-ink-faint">
                       {e.organizer.fullName}
                       {e.department && ` · ${e.department.name}`}
                       {e.unit && ` · ${e.unit.name}`}
                       {' · '}
-                      {e.location ?? (e.modalidade === 'ONLINE' ? 'Online' : '—')}
+                      {e.location ??
+                        (e.modalidade === 'ONLINE' ? 'Online' : '—')}
                     </div>
                   </div>
                 </button>
 
                 <div className="hidden shrink-0 items-center gap-2 sm:flex">
-                  <Avatar name={e.organizer.fullName} url={e.organizer.avatarUrl ?? undefined} size="sm" />
+                  <Avatar
+                    name={e.organizer.fullName}
+                    url={e.organizer.avatarUrl ?? undefined}
+                    size="sm"
+                  />
                 </div>
 
-                <div className="shrink-0 font-body text-xs text-ink-faint">{fmtDate(e.startAt)}</div>
+                <div className="shrink-0 font-body text-xs text-ink-faint">
+                  {fmtDate(e.startAt)}
+                </div>
 
                 <div className="w-24 shrink-0 text-right font-mono text-xs text-ink-faint">
-                  {e.confirmedCount ?? 0}/{e._count.participants} · {e.maxCapacity}
+                  {e.confirmedCount ?? 0}/{e._count.participants} ·{' '}
+                  {e.maxCapacity}
                 </div>
 
                 <StatusBadge value={e.status} map={STATUS_CFG} />
@@ -268,14 +324,15 @@ export function EventsTab() {
                           {isPublishing ? 'A publicar…' : 'Publicar'}
                         </DropdownMenuItem>
                       )}
-                      {canModerate && (e.status === 'PUBLISHED' || e.status === 'LIVE') && (
-                        <DropdownMenuItem
-                          disabled={isCancelling}
-                          onSelect={() => handleCancel(e.id, e.title)}
-                        >
-                          {isCancelling ? 'A cancelar…' : 'Cancelar'}
-                        </DropdownMenuItem>
-                      )}
+                      {canModerate &&
+                        (e.status === 'PUBLISHED' || e.status === 'LIVE') && (
+                          <DropdownMenuItem
+                            disabled={isCancelling}
+                            onSelect={() => handleCancel(e.id, e.title)}
+                          >
+                            {isCancelling ? 'A cancelar…' : 'Cancelar'}
+                          </DropdownMenuItem>
+                        )}
                       {canModerate && e.status === 'DRAFT' && (
                         <DropdownMenuItem
                           disabled={isDeleting}

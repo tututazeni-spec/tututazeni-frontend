@@ -28,7 +28,9 @@ export default function CoursesPage() {
   // como não-privilegiado — os separadores restritos aparecem assim que
   // /auth/me resolve.
   const isAdmin = !!role && ADMIN_ROLES.includes(role);
-  const visibleNav = NAV.filter((n) => !n.roles || (!!role && n.roles.includes(role)));
+  const visibleNav = NAV.filter(
+    (n) => !n.roles || (!!role && n.roles.includes(role)),
+  );
 
   const [nav, setNav] = useState<Nav>({ view: 'catalog' });
   const [showCreate, setShowCreate] = useState(false);

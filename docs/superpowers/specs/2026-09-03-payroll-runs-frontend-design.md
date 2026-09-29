@@ -21,12 +21,12 @@ processar → rever → aprovar → publicar → colaborador vê o recibo).
 
 ## Decisões (validadas em brainstorming com o utilizador, 2026-09-03)
 
-| # | Decisão | Alternativa rejeitada |
-|---|---|---|
-| 1 | **Rota dedicada `/payroll`** (página própria, nav local lista⇄detalhe), não uma 8ª aba de `/payslips`. | Aba extra em `/payslips` — a página já tem 7 abas e o detalhe de um run (estado+timeline+tabela de recibos+painel de exceções) não cabe no layout `max-w-4xl` actual. |
-| 2 | **Formulário de criar run simples**: `period` + `payGroup` + `countryCode` + `notes`. Sem selector de `departmentIds`/`userIds`. | Picker de departamentos/utilizadores no formulário — mais trabalho de UI (pesquisa/paginação) para um caso (`scope` parcial) que ainda não foi pedido; o DTO aceita os campos, só não há UI para eles nesta entrega. |
-| 3 | Segue exactamente os padrões já estabelecidos por `components/payslips/CompensationsView.tsx` / `CompensationDetailView.tsx` (lista paginada → detalhe, `useApiQuery`/`useApiMutation`, `StatusBadge`, painel inline com `Textarea` para acções que exigem motivo). | Introduzir um padrão novo (ex: modais para tudo, ou React Router aninhado) — sem ganho, quebra consistência visual com o resto do módulo payroll. |
-| 4 | Sem guarda client-side extra na página (`isAdmin` check) — só a sidebar filtra (`roles: ['ADMIN','RH']`); o backend já faz `@Roles(ADMIN, RH)` em todo o `PayrollRunController`. | Guarda + redirect no `page.tsx` — precedente existente é `roles-permissions/page.tsx`, que não tem guarda própria. |
+| #   | Decisão                                                                                                                                                                                                                                                             | Alternativa rejeitada                                                                                                                                                                                                |
+| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | **Rota dedicada `/payroll`** (página própria, nav local lista⇄detalhe), não uma 8ª aba de `/payslips`.                                                                                                                                                              | Aba extra em `/payslips` — a página já tem 7 abas e o detalhe de um run (estado+timeline+tabela de recibos+painel de exceções) não cabe no layout `max-w-4xl` actual.                                                |
+| 2   | **Formulário de criar run simples**: `period` + `payGroup` + `countryCode` + `notes`. Sem selector de `departmentIds`/`userIds`.                                                                                                                                    | Picker de departamentos/utilizadores no formulário — mais trabalho de UI (pesquisa/paginação) para um caso (`scope` parcial) que ainda não foi pedido; o DTO aceita os campos, só não há UI para eles nesta entrega. |
+| 3   | Segue exactamente os padrões já estabelecidos por `components/payslips/CompensationsView.tsx` / `CompensationDetailView.tsx` (lista paginada → detalhe, `useApiQuery`/`useApiMutation`, `StatusBadge`, painel inline com `Textarea` para acções que exigem motivo). | Introduzir um padrão novo (ex: modais para tudo, ou React Router aninhado) — sem ganho, quebra consistência visual com o resto do módulo payroll.                                                                    |
+| 4   | Sem guarda client-side extra na página (`isAdmin` check) — só a sidebar filtra (`roles: ['ADMIN','RH']`); o backend já faz `@Roles(ADMIN, RH)` em todo o `PayrollRunController`.                                                                                    | Guarda + redirect no `page.tsx` — precedente existente é `roles-permissions/page.tsx`, que não tem guarda própria.                                                                                                   |
 
 ## Estado actual confirmado
 
@@ -35,21 +35,21 @@ processar → rever → aprovar → publicar → colaborador vê o recibo).
 `@Controller('payroll/runs')`, `@Roles(Role.ADMIN, Role.RH)` em todo o controller
 (`src/payslips/payroll-run.controller.ts`):
 
-| Método | Rota | DTO body | Devolve |
-|---|---|---|---|
-| POST | `/` | `CreatePayrollRunDto` | `PayrollRun` (DRAFT) |
-| GET | `/` | query `PayrollRunFilterDto` | `Paginated<PayrollRun>` |
-| GET | `/:id` | — | `PayrollRun & { timeline: TimelineStep[] }` |
-| GET | `/:id/payslips` | query `PayrollRunFilterDto` (page/limit) | `Paginated<Payslip & { user, items }>` |
-| GET | `/:id/exceptions` | — | `RunException[]` (lista plana) |
-| POST | `/:id/process` | — | `PayrollRun` (SIMULATED) |
-| PATCH | `/:id/payslips/:payslipId/recalc` | `RecalcPayslipInputsDto` | `Payslip` |
-| PATCH | `/:id/payslips/:payslipId/exclude` | — | `Payslip` (runId=null) |
-| POST | `/:id/submit` | — | `PayrollRun` (PENDING_APPROVAL) — 409 se `errorCount>0` |
-| POST | `/:id/approve` | — | `PayrollRun` (APPROVED) |
-| POST | `/:id/reject` | `RejectRunDto { reason }` | `PayrollRun` (volta a SIMULATED) |
-| POST | `/:id/publish` | — | `PayrollRun` (PUBLISHED) |
-| POST | `/:id/cancel` | `CancelRunDto { reason }` | `PayrollRun` (CANCELLED) |
+| Método | Rota                               | DTO body                                 | Devolve                                                 |
+| ------ | ---------------------------------- | ---------------------------------------- | ------------------------------------------------------- |
+| POST   | `/`                                | `CreatePayrollRunDto`                    | `PayrollRun` (DRAFT)                                    |
+| GET    | `/`                                | query `PayrollRunFilterDto`              | `Paginated<PayrollRun>`                                 |
+| GET    | `/:id`                             | —                                        | `PayrollRun & { timeline: TimelineStep[] }`             |
+| GET    | `/:id/payslips`                    | query `PayrollRunFilterDto` (page/limit) | `Paginated<Payslip & { user, items }>`                  |
+| GET    | `/:id/exceptions`                  | —                                        | `RunException[]` (lista plana)                          |
+| POST   | `/:id/process`                     | —                                        | `PayrollRun` (SIMULATED)                                |
+| PATCH  | `/:id/payslips/:payslipId/recalc`  | `RecalcPayslipInputsDto`                 | `Payslip`                                               |
+| PATCH  | `/:id/payslips/:payslipId/exclude` | —                                        | `Payslip` (runId=null)                                  |
+| POST   | `/:id/submit`                      | —                                        | `PayrollRun` (PENDING_APPROVAL) — 409 se `errorCount>0` |
+| POST   | `/:id/approve`                     | —                                        | `PayrollRun` (APPROVED)                                 |
+| POST   | `/:id/reject`                      | `RejectRunDto { reason }`                | `PayrollRun` (volta a SIMULATED)                        |
+| POST   | `/:id/publish`                     | —                                        | `PayrollRun` (PUBLISHED)                                |
+| POST   | `/:id/cancel`                      | `CancelRunDto { reason }`                | `PayrollRun` (CANCELLED)                                |
 
 **`CreatePayrollRunDto`** (`src/payslips/payroll.dto.ts`): `period: string` (obrigatório,
 `"AAAA-MM"`), `payGroup?`, `countryCode?` (default `AO` no backend), `taxYear?`,
@@ -78,16 +78,16 @@ qualquer estado ≠ PUBLISHED ──cancel──▶ CANCELLED   (terminal)
 **Exceções** — 8 códigos confirmados em `payroll-calculation.service.ts`, severidade
 `ERROR` (bloqueia `submit`) ou `WARNING`:
 
-| code | severity |
-|---|---|
-| `NO_COMPENSATION` | ERROR |
-| `ZERO_BASE_SALARY` | ERROR |
-| `NEGATIVE_NET` | ERROR |
-| `DUPLICATE_PAYSLIP_FOR_PERIOD` | ERROR |
-| `NET_BELOW_MINIMUM_WAGE` | WARNING |
-| `MISSING_BANK_DETAILS` | WARNING |
-| `HIGH_VARIANCE_VS_PREV_MONTH` | WARNING |
-| `USING_FALLBACK_TAX_CONFIG` | WARNING |
+| code                           | severity |
+| ------------------------------ | -------- |
+| `NO_COMPENSATION`              | ERROR    |
+| `ZERO_BASE_SALARY`             | ERROR    |
+| `NEGATIVE_NET`                 | ERROR    |
+| `DUPLICATE_PAYSLIP_FOR_PERIOD` | ERROR    |
+| `NET_BELOW_MINIMUM_WAGE`       | WARNING  |
+| `MISSING_BANK_DETAILS`         | WARNING  |
+| `HIGH_VARIANCE_VS_PREV_MONTH`  | WARNING  |
+| `USING_FALLBACK_TAX_CONFIG`    | WARNING  |
 
 `RunException` (de `GET /:id/exceptions`): `{ payslipId, userId, fullName, code,
 severity, message }`.
@@ -150,9 +150,11 @@ components/payroll/
 
 `Sidebar.tsx`: nova linha no grupo "Recursos Humanos", logo antes ou depois de
 `/payslips`:
+
 ```ts
 { href: '/payroll', icon: Wallet, label: 'Folha de Pagamento', roles: ['ADMIN', 'RH'] },
 ```
+
 (`Wallet` de `lucide-react` — confirmar que já está importado no ficheiro; se não,
 adicionar ao import existente.)
 
@@ -175,11 +177,11 @@ payroll: {
 
 Regra de invalidação por mutação (todas via `useApiMutation({ invalidateKeys: [...] })`):
 
-| Mutação | invalida |
-|---|---|
-| criar run | `runList` |
-| process / submit / approve / reject / publish / cancel | `runDetail(id)`, `runList` |
-| recalc / exclude payslip | `runDetail(id)` (totais/errorCount mudam), `runPayslips(id, *)`, `runExceptions(id)` |
+| Mutação                                                | invalida                                                                             |
+| ------------------------------------------------------ | ------------------------------------------------------------------------------------ |
+| criar run                                              | `runList`                                                                            |
+| process / submit / approve / reject / publish / cancel | `runDetail(id)`, `runList`                                                           |
+| recalc / exclude payslip                               | `runDetail(id)` (totais/errorCount mudam), `runPayslips(id, *)`, `runExceptions(id)` |
 
 `invalidateKeys` com prefixo parcial (`runPayslips(id, *)`) não é suportado directamente
 por `invalidateQueries({ queryKey })` com igualdade exacta de array — usar o prefixo sem
@@ -227,15 +229,15 @@ run ainda `DRAFT` não processado não tem totais).
 `assertTransition`/`assertRunEditable` do backend para nunca oferecer uma acção que
 devolveria 409/403 (tabela de referência):
 
-| `run.status` | Acções visíveis |
-|---|---|
-| `DRAFT` | Processar |
-| `SIMULATED` | Processar (reprocessar) · Submeter (desactivado + aviso se `errorCount>0`, mesmo texto do backend: `` `Run tem ${errorCount} exceção(ões) de erro — resolver antes de submeter.` ``) · Cancelar |
-| `PROCESSING` | (transitório — nenhuma acção; mostrar spinner/estado, `useApiQuery` com `refetchInterval` curto até sair deste estado) |
-| `PENDING_APPROVAL` | Aprovar · Rejeitar (painel motivo) · Cancelar |
-| `APPROVED` | Publicar · Cancelar |
-| `PUBLISHED` | — (terminal, sem acções) |
-| `CANCELLED` | — (terminal, sem acções) |
+| `run.status`       | Acções visíveis                                                                                                                                                                                 |
+| ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `DRAFT`            | Processar                                                                                                                                                                                       |
+| `SIMULATED`        | Processar (reprocessar) · Submeter (desactivado + aviso se `errorCount>0`, mesmo texto do backend: `` `Run tem ${errorCount} exceção(ões) de erro — resolver antes de submeter.` ``) · Cancelar |
+| `PROCESSING`       | (transitório — nenhuma acção; mostrar spinner/estado, `useApiQuery` com `refetchInterval` curto até sair deste estado)                                                                          |
+| `PENDING_APPROVAL` | Aprovar · Rejeitar (painel motivo) · Cancelar                                                                                                                                                   |
+| `APPROVED`         | Publicar · Cancelar                                                                                                                                                                             |
+| `PUBLISHED`        | — (terminal, sem acções)                                                                                                                                                                        |
+| `CANCELLED`        | — (terminal, sem acções)                                                                                                                                                                        |
 
 Todas as mutações simples (`process`, `submit`, `approve`, `publish`) usam `useConfirm()`
 antes de disparar — evita clique acidental numa acção irreversível (`publish`, `cancel`
@@ -258,6 +260,7 @@ Tabela paginada (`GET /:id/payslips`, `limit=50` por omissão): colaborador
 reutiliza `PAYSLIP_STATUS_MAP` de `components/payslips/types.ts`, não duplicar).
 
 Acções por linha, só quando `run.status === 'SIMULATED'`:
+
 - "Recalcular" → `RecalcPayslipModal` (form com os 4 campos opcionais do
   `RecalcPayslipInputsDto`, pré-preenchidos se o recibo já tiver `calcInputs`
   anteriores — a API devolve o `Payslip` completo, então os valores actuais estão

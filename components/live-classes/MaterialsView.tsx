@@ -38,14 +38,20 @@ function AddMaterialModal({ onClose }: { onClose: () => void }) {
   const [liveClassId, setLiveClassId] = useState('');
   const [sessionId, setSessionId] = useState('');
   const [docSearch, setDocSearch] = useState('');
-  const [selectedDoc, setSelectedDoc] = useState<{ id: number; title: string } | null>(null);
+  const [selectedDoc, setSelectedDoc] = useState<{
+    id: number;
+    title: string;
+  } | null>(null);
 
   const { data: classesData } = useApiQuery<{ data: LiveClass[] }>(
     queryKeys.liveClasses.list({ limit: 100 }),
     '/live-classes',
     { params: { limit: 100 }, staleTime: STALE_TIME.DYNAMIC },
   );
-  const classItems = (classesData?.data ?? []).map((c) => ({ value: String(c.id), label: c.topic }));
+  const classItems = (classesData?.data ?? []).map((c) => ({
+    value: String(c.id),
+    label: c.topic,
+  }));
 
   const { data: sessions } = useApiQuery<{ id: number; seq: number }[]>(
     queryKeys.liveClasses.sessions(Number(liveClassId)),
@@ -54,22 +60,32 @@ function AddMaterialModal({ onClose }: { onClose: () => void }) {
   );
   const sessionItems = [
     { value: '', label: 'Material da aula (não de uma sessão específica)' },
-    ...(sessions ?? []).map((s) => ({ value: String(s.id), label: `Sessão ${s.seq}` })),
+    ...(sessions ?? []).map((s) => ({
+      value: String(s.id),
+      label: `Sessão ${s.seq}`,
+    })),
   ];
 
-  const { data: docResults } = useApiQuery<{ data: { id: number; title: string }[] }>(
-    ['documents-picker', docSearch],
-    '/documents',
-    { params: { search: docSearch, limit: 10 }, staleTime: STALE_TIME.DYNAMIC, enabled: docSearch.length >= 2 },
-  );
+  const { data: docResults } = useApiQuery<{
+    data: { id: number; title: string }[];
+  }>(['documents-picker', docSearch], '/documents', {
+    params: { search: docSearch, limit: 10 },
+    staleTime: STALE_TIME.DYNAMIC,
+    enabled: docSearch.length >= 2,
+  });
 
   const add = useApiMutation(
     (doc: { id: number; title: string }) =>
       sessionId
-        ? apiClient.post(`/live-classes/${liveClassId}/sessions/${sessionId}/materials`, {
+        ? apiClient.post(
+            `/live-classes/${liveClassId}/sessions/${sessionId}/materials`,
+            {
+              documentId: doc.id,
+            },
+          )
+        : apiClient.post(`/live-classes/${liveClassId}/materials`, {
             documentId: doc.id,
-          })
-        : apiClient.post(`/live-classes/${liveClassId}/materials`, { documentId: doc.id }),
+          }),
     {
       invalidateKeys: [queryKeys.liveClasses.all],
       onSuccess: () => {
@@ -98,7 +114,12 @@ function AddMaterialModal({ onClose }: { onClose: () => void }) {
           </FormField>
           {liveClassId && (
             <FormField label="Âmbito" htmlFor="mat-session">
-              <Select items={sessionItems} value={sessionId} onValueChange={setSessionId} className="w-full" />
+              <Select
+                items={sessionItems}
+                value={sessionId}
+                onValueChange={setSessionId}
+                className="w-full"
+              />
             </FormField>
           )}
           <FormField label="Documento da Biblioteca" htmlFor="mat-doc">
@@ -115,7 +136,9 @@ function AddMaterialModal({ onClose }: { onClose: () => void }) {
             {!selectedDoc && docSearch.length >= 2 && (
               <div className="mt-1 max-h-40 overflow-y-auto rounded-control border border-border">
                 {(docResults?.data ?? []).length === 0 ? (
-                  <p className="px-3 py-2 font-body text-xs text-ink-faint">Sem resultados.</p>
+                  <p className="px-3 py-2 font-body text-xs text-ink-faint">
+                    Sem resultados.
+                  </p>
                 ) : (
                   docResults!.data.map((d) => (
                     <button
@@ -133,7 +156,11 @@ function AddMaterialModal({ onClose }: { onClose: () => void }) {
           </FormField>
         </div>
         <div className="mt-6 flex gap-3 border-t border-border pt-4">
-          <Button intent="secondary" className="flex-1 justify-center" onClick={onClose}>
+          <Button
+            intent="secondary"
+            className="flex-1 justify-center"
+            onClick={onClose}
+          >
             Cancelar
           </Button>
           <Button
@@ -161,13 +188,21 @@ export function MaterialsView({ canManage }: { canManage: boolean }) {
   const { data, isLoading } = useApiQuery<PaginatedMeta<MaterialRow>>(
     queryKeys.liveClasses.materials(params),
     '/live-classes/materials',
-    { params, staleTime: STALE_TIME.DYNAMIC, placeholderData: keepPreviousData },
+    {
+      params,
+      staleTime: STALE_TIME.DYNAMIC,
+      placeholderData: keepPreviousData,
+    },
   );
   const rows = data?.data ?? [];
   const totalPages = data?.meta.totalPages ?? 1;
 
   const remove = useApiMutation(
-    (ref: { liveClassId: number; sessionId: number | null; documentId: number }) =>
+    (ref: {
+      liveClassId: number;
+      sessionId: number | null;
+      documentId: number;
+    }) =>
       apiClient.delete(
         ref.sessionId
           ? `/live-classes/${ref.liveClassId}/sessions/${ref.sessionId}/materials/${ref.documentId}`
@@ -175,18 +210,27 @@ export function MaterialsView({ canManage }: { canManage: boolean }) {
       ),
     {
       invalidateKeys: [queryKeys.liveClasses.all],
-      onSuccess: () => toast({ title: 'Material removido.', intent: 'success' }),
+      onSuccess: () =>
+        toast({ title: 'Material removido.', intent: 'success' }),
       onError: (e) => toast({ title: e.message, intent: 'danger' }),
     },
   );
 
-  async function onRemove(row: MaterialRow, ref: MaterialRow['referencedBy'][number]) {
+  async function onRemove(
+    row: MaterialRow,
+    ref: MaterialRow['referencedBy'][number],
+  ) {
     const ok = await confirm({
       title: `Remover "${row.document.title}" de "${ref.topic}"?`,
       confirmLabel: 'Remover',
       destructive: true,
     });
-    if (ok) remove.mutate({ liveClassId: ref.liveClassId, sessionId: ref.sessionId, documentId: row.document.id });
+    if (ok)
+      remove.mutate({
+        liveClassId: ref.liveClassId,
+        sessionId: ref.sessionId,
+        documentId: row.document.id,
+      });
   }
 
   return (
@@ -219,11 +263,20 @@ export function MaterialsView({ canManage }: { canManage: boolean }) {
       ) : (
         <Card className="divide-y divide-border">
           {rows.map((row) => (
-            <div key={row.document.id} className="flex flex-wrap items-start gap-3 px-4 py-3">
-              <FileText size={16} strokeWidth={1.75} className="mt-0.5 shrink-0 text-ink-faint" />
+            <div
+              key={row.document.id}
+              className="flex flex-wrap items-start gap-3 px-4 py-3"
+            >
+              <FileText
+                size={16}
+                strokeWidth={1.75}
+                className="mt-0.5 shrink-0 text-ink-faint"
+              />
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
-                  <span className="truncate text-sm font-medium text-ink">{row.document.title}</span>
+                  <span className="truncate text-sm font-medium text-ink">
+                    {row.document.title}
+                  </span>
                   <a
                     href={row.document.fileUrl}
                     target="_blank"
@@ -266,13 +319,23 @@ export function MaterialsView({ canManage }: { canManage: boolean }) {
 
       {totalPages > 1 && (
         <div className="flex justify-center gap-2">
-          <Button intent="ghost" size="sm" disabled={page === 1} onClick={() => setPage((p) => p - 1)}>
+          <Button
+            intent="ghost"
+            size="sm"
+            disabled={page === 1}
+            onClick={() => setPage((p) => p - 1)}
+          >
             ← Anterior
           </Button>
           <span className="py-2 px-3 text-sm text-ink-muted">
             {page} / {totalPages}
           </span>
-          <Button intent="ghost" size="sm" disabled={page === totalPages} onClick={() => setPage((p) => p + 1)}>
+          <Button
+            intent="ghost"
+            size="sm"
+            disabled={page === totalPages}
+            onClick={() => setPage((p) => p + 1)}
+          >
             Seguinte →
           </Button>
         </div>

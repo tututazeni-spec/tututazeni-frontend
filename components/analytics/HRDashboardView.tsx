@@ -60,7 +60,9 @@ function TopBarKpiCard({
       <div className="p-4 pt-5">
         <Icon size={20} strokeWidth={1.75} className={t.text} />
         <p className={`mt-2 font-data text-2xl font-bold ${t.text}`}>{value}</p>
-        <p className="mt-1 font-body text-xs font-medium text-ink-muted">{label}</p>
+        <p className="mt-1 font-body text-xs font-medium text-ink-muted">
+          {label}
+        </p>
       </div>
     </div>
   );
@@ -103,7 +105,9 @@ function TrendKpiCard({
       <div className="p-4 pt-5">
         <Icon size={20} strokeWidth={1.75} className={t.text} />
         <p className={`mt-2 font-data text-2xl font-bold ${t.text}`}>{value}</p>
-        <p className="mt-1 font-body text-xs font-medium text-ink-muted">{label}</p>
+        <p className="mt-1 font-body text-xs font-medium text-ink-muted">
+          {label}
+        </p>
         <svg
           viewBox={`0 0 ${width} ${height}`}
           className="mt-2 h-7 w-full"
@@ -144,7 +148,9 @@ function HorizontalBarKpiCard({
       <div className="p-4 pt-5">
         <Icon size={20} strokeWidth={1.75} className={t.text} />
         <p className={`mt-2 font-data text-2xl font-bold ${t.text}`}>{value}</p>
-        <p className="mt-1 font-body text-xs font-medium text-ink-muted">{label}</p>
+        <p className="mt-1 font-body text-xs font-medium text-ink-muted">
+          {label}
+        </p>
         <div className="mt-2 h-2.5 w-full overflow-hidden rounded-full bg-[#E3E8EF]">
           <div
             className={`h-full rounded-full ${t.bar} transition-all`}
@@ -189,7 +195,9 @@ function FunnelKpiCard({
       <div className="p-4 pt-5">
         <Icon size={20} strokeWidth={1.75} className={t.text} />
         <p className={`mt-2 font-data text-2xl font-bold ${t.text}`}>{value}</p>
-        <p className="mt-1 font-body text-xs font-medium text-ink-muted">{label}</p>
+        <p className="mt-1 font-body text-xs font-medium text-ink-muted">
+          {label}
+        </p>
         <div className="mt-2 space-y-1">
           {stages.map((s) => (
             <div key={s.label} className="flex items-center gap-2">
@@ -227,10 +235,25 @@ export function HRDashboardView() {
           <div className="mb-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
             Análise de Dados de Pessoas
           </div>
-                  <div className="grid grid-cols-4 gap-3">
-            <TopBarKpiCard icon={Users} label="Activos" value={data.people.total} tone="blue" />
-            <TopBarKpiCard icon={UserPlus} label="Admitidos" value={data.people.hired} tone="green" />
-            <TopBarKpiCard icon={UserMinus} label="Saídas" value={data.people.terminated} tone="red" />
+          <div className="grid grid-cols-4 gap-3">
+            <TopBarKpiCard
+              icon={Users}
+              label="Activos"
+              value={data.people.total}
+              tone="blue"
+            />
+            <TopBarKpiCard
+              icon={UserPlus}
+              label="Admitidos"
+              value={data.people.hired}
+              tone="green"
+            />
+            <TopBarKpiCard
+              icon={UserMinus}
+              label="Saídas"
+              value={data.people.terminated}
+              tone="red"
+            />
             <TrendKpiCard
               icon={TrendingDown}
               label="Taxa de Rotatividade"
@@ -248,9 +271,19 @@ export function HRDashboardView() {
           <div className="mb-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
             Análise da Aprendizagem
           </div>
-                    <div className="grid grid-cols-4 gap-3">
-            <TopBarKpiCard icon={BookOpen} label="Matrículas" value={data.learning.enrollments} tone="blue" />
-            <TopBarKpiCard icon={CheckCircle2} label="Concluídas" value={data.learning.completed} tone="green" />
+          <div className="grid grid-cols-4 gap-3">
+            <TopBarKpiCard
+              icon={BookOpen}
+              label="Matrículas"
+              value={data.learning.enrollments}
+              tone="blue"
+            />
+            <TopBarKpiCard
+              icon={CheckCircle2}
+              label="Concluídas"
+              value={data.learning.completed}
+              tone="green"
+            />
             <HorizontalBarKpiCard
               icon={BarChart3}
               label="Taxa conclusão"
@@ -258,7 +291,12 @@ export function HRDashboardView() {
               percent={data.learning.completionRate}
               tone="green"
             />
-            <TopBarKpiCard icon={XCircle} label="Abandonadas" value={data.learning.abandoned} tone="red" />
+            <TopBarKpiCard
+              icon={XCircle}
+              label="Abandonadas"
+              value={data.learning.abandoned}
+              tone="red"
+            />
           </div>
         </CardBody>
       </Card>
@@ -269,8 +307,13 @@ export function HRDashboardView() {
           <div className="mb-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
             Análise dos Planos de Desenvolvimento Individual
           </div>
-                    <div className="grid grid-cols-4 gap-3">
-            <TopBarKpiCard icon={Target} label="PDIs activos" value={data.pdi.active} tone="blue" />
+          <div className="grid grid-cols-4 gap-3">
+            <TopBarKpiCard
+              icon={Target}
+              label="PDIs activos"
+              value={data.pdi.active}
+              tone="blue"
+            />
             <FunnelKpiCard
               icon={Filter}
               label="Adopção"
@@ -284,7 +327,12 @@ export function HRDashboardView() {
               value={data.pdi.pendingApproval}
               tone="gold"
             />
-            <TopBarKpiCard icon={Award} label="Concluídos (mês)" value={data.pdi.completed} tone="green" />
+            <TopBarKpiCard
+              icon={Award}
+              label="Concluídos (mês)"
+              value={data.pdi.completed}
+              tone="green"
+            />
           </div>
         </CardBody>
       </Card>

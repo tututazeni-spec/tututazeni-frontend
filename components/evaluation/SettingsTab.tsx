@@ -15,7 +15,12 @@ import { Badge } from '@/components/ui/Badge';
 import { Card, CardBody } from '@/components/ui/Card';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { QueryError } from '@/components/ui/QueryError';
-import { PURPOSE_LABEL, STAGE_LABEL, STATUS_MAP, TYPE_LABEL } from './constants';
+import {
+  PURPOSE_LABEL,
+  STAGE_LABEL,
+  STATUS_MAP,
+  TYPE_LABEL,
+} from './constants';
 import type { EvaluationSettings } from './types';
 
 const VISIBILITY_LABEL: Record<string, string> = {
@@ -33,7 +38,11 @@ export function SettingsTab() {
 
   if (isLoading) {
     return (
-      <Skeleton rows={4} wrapperClassName="space-y-3" itemClassName="skeleton-shimmer h-24 rounded-card" />
+      <Skeleton
+        rows={4}
+        wrapperClassName="space-y-3"
+        itemClassName="skeleton-shimmer h-24 rounded-card"
+      />
     );
   }
 
@@ -66,12 +75,16 @@ export function SettingsTab() {
 
       <Card>
         <CardBody>
-          <h4 className="font-display font-semibold text-ink mb-3">Fluxo de Aprovação</h4>
+          <h4 className="font-display font-semibold text-ink mb-3">
+            Fluxo de Aprovação
+          </h4>
           <div className="flex flex-wrap items-center gap-2">
             {data.approvalFlow.map((stage, i) => (
               <div key={stage} className="flex items-center gap-2">
                 <Badge intent="info">{STAGE_LABEL[stage] ?? stage}</Badge>
-                {i < data.approvalFlow.length - 1 && <span className="text-ink-faint">→</span>}
+                {i < data.approvalFlow.length - 1 && (
+                  <span className="text-ink-faint">→</span>
+                )}
               </div>
             ))}
           </div>
@@ -81,7 +94,9 @@ export function SettingsTab() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card>
           <CardBody>
-            <h4 className="font-display font-semibold text-ink mb-3">Tipos de Avaliação</h4>
+            <h4 className="font-display font-semibold text-ink mb-3">
+              Tipos de Avaliação
+            </h4>
             <div className="flex flex-wrap gap-2">
               {data.evalPurposes.map((p) => (
                 <Badge key={p} intent="neutral">
@@ -93,7 +108,9 @@ export function SettingsTab() {
         </Card>
         <Card>
           <CardBody>
-            <h4 className="font-display font-semibold text-ink mb-3">Tipos de Avaliador</h4>
+            <h4 className="font-display font-semibold text-ink mb-3">
+              Tipos de Avaliador
+            </h4>
             <div className="flex flex-wrap gap-2">
               {data.evalTypes.map((t) => (
                 <Badge key={t} intent="neutral">
@@ -105,7 +122,9 @@ export function SettingsTab() {
         </Card>
         <Card>
           <CardBody>
-            <h4 className="font-display font-semibold text-ink mb-3">Estados do Ciclo</h4>
+            <h4 className="font-display font-semibold text-ink mb-3">
+              Estados do Ciclo
+            </h4>
             <div className="flex flex-wrap gap-2">
               {data.cycleStatuses.map((s) => (
                 <Badge key={s} intent="neutral" className={STATUS_MAP[s]?.cls}>
@@ -117,7 +136,9 @@ export function SettingsTab() {
         </Card>
         <Card>
           <CardBody>
-            <h4 className="font-display font-semibold text-ink mb-3">Visibilidade dos Resultados</h4>
+            <h4 className="font-display font-semibold text-ink mb-3">
+              Visibilidade dos Resultados
+            </h4>
             <div className="flex flex-wrap gap-2">
               {data.resultsVisibilityOptions.map((v) => (
                 <Badge key={v} intent="neutral">
@@ -132,12 +153,18 @@ export function SettingsTab() {
       <Card>
         <CardBody>
           <h4 className="font-display font-semibold text-ink mb-3">Escalas</h4>
-          {data.scales.length === 0 && <p className="text-xs text-ink-faint">Sem escalas criadas.</p>}
+          {data.scales.length === 0 && (
+            <p className="text-xs text-ink-faint">Sem escalas criadas.</p>
+          )}
           <div className="space-y-2">
             {data.scales.map((s) => (
-              <div key={s.id} className="flex items-center justify-between text-sm rounded-control bg-surface-sunken px-3 py-2">
+              <div
+                key={s.id}
+                className="flex items-center justify-between text-sm rounded-control bg-surface-sunken px-3 py-2"
+              >
                 <span className="text-ink">
-                  {s.name} {s.isDefault && <Badge intent="success">Por omissão</Badge>}
+                  {s.name}{' '}
+                  {s.isDefault && <Badge intent="success">Por omissão</Badge>}
                 </span>
                 <span className="text-xs text-ink-faint">
                   {s.minValue}–{s.maxValue}

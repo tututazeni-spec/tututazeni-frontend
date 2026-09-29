@@ -31,8 +31,17 @@ import { Modal, ModalContent } from '@/components/ui/Modal';
 import { Select } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
 import { DepartmentUserPicker } from '@/components/departments/DepartmentUserPicker';
-import { useDirectoryUsers, useUnits, type DirectoryUser } from '@/components/departments/departmentFormData';
-import { BLOCK_OPTIONS, MODEL_LABEL, POPULATION_TYPE_LABEL, PURPOSE_LABEL } from './constants';
+import {
+  useDirectoryUsers,
+  useUnits,
+  type DirectoryUser,
+} from '@/components/departments/departmentFormData';
+import {
+  BLOCK_OPTIONS,
+  MODEL_LABEL,
+  POPULATION_TYPE_LABEL,
+  PURPOSE_LABEL,
+} from './constants';
 import type { Cycle, EvaluationObjective } from './types';
 
 interface CriteriaOption {
@@ -58,9 +67,17 @@ const STEPS = [
   { id: 'flow', label: 'Fluxo' },
 ] as const;
 
-const PURPOSE_ITEMS = Object.entries(PURPOSE_LABEL).map(([value, label]) => ({ value, label }));
-const MODEL_ITEMS = Object.entries(MODEL_LABEL).map(([value, label]) => ({ value, label }));
-const POPULATION_ITEMS = Object.entries(POPULATION_TYPE_LABEL).map(([value, label]) => ({ value, label }));
+const PURPOSE_ITEMS = Object.entries(PURPOSE_LABEL).map(([value, label]) => ({
+  value,
+  label,
+}));
+const MODEL_ITEMS = Object.entries(MODEL_LABEL).map(([value, label]) => ({
+  value,
+  label,
+}));
+const POPULATION_ITEMS = Object.entries(POPULATION_TYPE_LABEL).map(
+  ([value, label]) => ({ value, label }),
+);
 
 function emptyObjective(): EvaluationObjective {
   return { objective: '' };
@@ -81,7 +98,9 @@ export function NewEvaluationWizard({ onClose }: NewEvaluationWizardProps) {
   // Etapa 1
   const [name, setName] = useState('');
   const [purpose, setPurpose] = useState('PERFORMANCE');
-  const [cycleMode, setCycleMode] = useState<'standalone' | 'existing'>('standalone');
+  const [cycleMode, setCycleMode] = useState<'standalone' | 'existing'>(
+    'standalone',
+  );
   const [existingCycleId, setExistingCycleId] = useState('');
   const [description, setDescription] = useState('');
   const [startDate, setStartDate] = useState('');
@@ -89,20 +108,26 @@ export function NewEvaluationWizard({ onClose }: NewEvaluationWizardProps) {
   const [dueDate, setDueDate] = useState('');
 
   // Etapa 2
-  const [populationType, setPopulationType] = useState<'ALL' | 'DEPARTMENT' | 'UNIT' | 'GROUP'>('GROUP');
+  const [populationType, setPopulationType] = useState<
+    'ALL' | 'DEPARTMENT' | 'UNIT' | 'GROUP'
+  >('GROUP');
   const [departmentId, setDepartmentId] = useState('');
   const [unitId, setUnitId] = useState('');
   const [selectedUsers, setSelectedUsers] = useState<DirectoryUser[]>([]);
   const [userSearch, setUserSearch] = useState('');
-  const [primaryEvaluator, setPrimaryEvaluator] = useState<DirectoryUser | null>(null);
-  const [secondaryEvaluator, setSecondaryEvaluator] = useState<DirectoryUser | null>(null);
+  const [primaryEvaluator, setPrimaryEvaluator] =
+    useState<DirectoryUser | null>(null);
+  const [secondaryEvaluator, setSecondaryEvaluator] =
+    useState<DirectoryUser | null>(null);
 
   // Etapa 3
   const [model, setModel] = useState('360');
   const [blocks, setBlocks] = useState<string[]>(['GOALS', 'COMPETENCIES']);
 
   // Etapa 4
-  const [criteriaWeights, setCriteriaWeights] = useState<Record<number, number>>({});
+  const [criteriaWeights, setCriteriaWeights] = useState<
+    Record<number, number>
+  >({});
 
   // Etapa 5
   const [scaleId, setScaleId] = useState('');
@@ -124,11 +149,11 @@ export function NewEvaluationWizard({ onClose }: NewEvaluationWizardProps) {
     '/evaluations/cycles',
     { staleTime: STALE_TIME.SEMI_STATIC },
   );
-  const { data: deptTree } = useApiQuery<{ id: number; name: string; children?: unknown[] }[]>(
-    queryKeys.departments.tree(),
-    '/departments/tree',
-    { staleTime: STALE_TIME.SEMI_STATIC },
-  );
+  const { data: deptTree } = useApiQuery<
+    { id: number; name: string; children?: unknown[] }[]
+  >(queryKeys.departments.tree(), '/departments/tree', {
+    staleTime: STALE_TIME.SEMI_STATIC,
+  });
   const departments = useMemo(() => {
     const flat: { id: number; name: string }[] = [];
     const walk = (nodes: typeof deptTree) => {
@@ -151,7 +176,10 @@ export function NewEvaluationWizard({ onClose }: NewEvaluationWizardProps) {
     '/evaluations/scales',
     { staleTime: STALE_TIME.SEMI_STATIC },
   );
-  const { users: searchResults } = useDirectoryUsers(userSearch, userSearch.trim().length > 0);
+  const { users: searchResults } = useDirectoryUsers(
+    userSearch,
+    userSearch.trim().length > 0,
+  );
 
   const current = STEPS[step];
   const isLast = step === STEPS.length - 1;
@@ -161,14 +189,18 @@ export function NewEvaluationWizard({ onClose }: NewEvaluationWizardProps) {
       case 'general': {
         const missing: string[] = [];
         if (!name.trim()) missing.push('nome');
-        if (cycleMode === 'standalone' && (!startDate || !endDate)) missing.push('datas');
+        if (cycleMode === 'standalone' && (!startDate || !endDate))
+          missing.push('datas');
         if (cycleMode === 'existing' && !existingCycleId) missing.push('ciclo');
         return missing.length ? [`Falta preencher: ${missing.join(', ')}`] : [];
       }
       case 'participants': {
-        if (populationType === 'GROUP' && selectedUsers.length === 0) return ['selecciona pelo menos um colaborador'];
-        if (populationType === 'DEPARTMENT' && !departmentId) return ['selecciona um departamento'];
-        if (populationType === 'UNIT' && !unitId) return ['selecciona uma unidade'];
+        if (populationType === 'GROUP' && selectedUsers.length === 0)
+          return ['selecciona pelo menos um colaborador'];
+        if (populationType === 'DEPARTMENT' && !departmentId)
+          return ['selecciona um departamento'];
+        if (populationType === 'UNIT' && !unitId)
+          return ['selecciona uma unidade'];
         return [];
       }
       default:
@@ -178,10 +210,13 @@ export function NewEvaluationWizard({ onClose }: NewEvaluationWizardProps) {
   const canAdvance = stepIssues.length === 0;
 
   const toggleBlock = (v: string) =>
-    setBlocks((prev) => (prev.includes(v) ? prev.filter((b) => b !== v) : [...prev, v]));
+    setBlocks((prev) =>
+      prev.includes(v) ? prev.filter((b) => b !== v) : [...prev, v],
+    );
 
   const addUser = (u: DirectoryUser) => {
-    if (!selectedUsers.some((s) => s.id === u.id)) setSelectedUsers((prev) => [...prev, u]);
+    if (!selectedUsers.some((s) => s.id === u.id))
+      setSelectedUsers((prev) => [...prev, u]);
     setUserSearch('');
   };
 
@@ -193,17 +228,22 @@ export function NewEvaluationWizard({ onClose }: NewEvaluationWizardProps) {
       // (reaproveita createTemplate/createCriteria já existentes) para que
       // o ciclo criado abaixo os use via templateId.
       let templateId: number | undefined;
-      const criteriaEntries = Object.entries(criteriaWeights).filter(([, w]) => w > 0);
+      const criteriaEntries = Object.entries(criteriaWeights).filter(
+        ([, w]) => w > 0,
+      );
       if (criteriaEntries.length > 0 || scaleId) {
-        const template = await apiClient.post<{ id: number }>('/evaluations/templates', {
-          name: `${name.trim()} — Modelo`,
-          type: purpose,
-          scaleId: scaleId ? Number(scaleId) : undefined,
-          criteria: criteriaEntries.map(([criteriaId, weight]) => ({
-            criteriaId: Number(criteriaId),
-            weight,
-          })),
-        });
+        const template = await apiClient.post<{ id: number }>(
+          '/evaluations/templates',
+          {
+            name: `${name.trim()} — Modelo`,
+            type: purpose,
+            scaleId: scaleId ? Number(scaleId) : undefined,
+            criteria: criteriaEntries.map(([criteriaId, weight]) => ({
+              criteriaId: Number(criteriaId),
+              weight,
+            })),
+          },
+        );
         templateId = template.id;
       }
 
@@ -211,31 +251,40 @@ export function NewEvaluationWizard({ onClose }: NewEvaluationWizardProps) {
       if (cycleMode === 'existing') {
         cycleId = Number(existingCycleId);
       } else {
-        const created = await apiClient.post<{ id: number }>('/evaluations/cycles', {
-          name: name.trim(),
-          purpose,
-          model,
-          startDate,
-          endDate,
-          ...(description.trim() ? { description: description.trim() } : {}),
-          templateId,
-          blocks,
-          populationType,
-          ...(populationType === 'DEPARTMENT' ? { targetDeptIds: [Number(departmentId)] } : {}),
-          ...(populationType === 'UNIT' ? { targetUnitIds: [Number(unitId)] } : {}),
-          ...(populationType === 'GROUP' ? { targetUserIds: selectedUsers.map((u) => u.id) } : {}),
-          ...(selfEvalDueDate ? { selfEvalDueDate } : {}),
-          ...(dueDate ? { managerEvalDueDate: dueDate } : {}),
-          requireComments,
-          requireEvidence,
-          allowCalibration,
-          weights: allowSelfEval
-            ? [
-                { type: 'SELF', weight: 30 },
-                { type: 'MANAGER', weight: 70 },
-              ]
-            : [{ type: 'MANAGER', weight: 100 }],
-        });
+        const created = await apiClient.post<{ id: number }>(
+          '/evaluations/cycles',
+          {
+            name: name.trim(),
+            purpose,
+            model,
+            startDate,
+            endDate,
+            ...(description.trim() ? { description: description.trim() } : {}),
+            templateId,
+            blocks,
+            populationType,
+            ...(populationType === 'DEPARTMENT'
+              ? { targetDeptIds: [Number(departmentId)] }
+              : {}),
+            ...(populationType === 'UNIT'
+              ? { targetUnitIds: [Number(unitId)] }
+              : {}),
+            ...(populationType === 'GROUP'
+              ? { targetUserIds: selectedUsers.map((u) => u.id) }
+              : {}),
+            ...(selfEvalDueDate ? { selfEvalDueDate } : {}),
+            ...(dueDate ? { managerEvalDueDate: dueDate } : {}),
+            requireComments,
+            requireEvidence,
+            allowCalibration,
+            weights: allowSelfEval
+              ? [
+                  { type: 'SELF', weight: 30 },
+                  { type: 'MANAGER', weight: 70 },
+                ]
+              : [{ type: 'MANAGER', weight: 100 }],
+          },
+        );
         cycleId = created.id;
       }
 
@@ -266,11 +315,20 @@ export function NewEvaluationWizard({ onClose }: NewEvaluationWizardProps) {
             });
           }
           if (allowSelfEval) {
-            rows.push({ evaluatedId: u.id, evaluatorId: u.id, type: 'SELF', purpose, objectives: undefined });
+            rows.push({
+              evaluatedId: u.id,
+              evaluatorId: u.id,
+              type: 'SELF',
+              purpose,
+              objectives: undefined,
+            });
           }
           return rows;
         });
-        await apiClient.post('/evaluations/bulk-assign', { cycleId, assignments });
+        await apiClient.post('/evaluations/bulk-assign', {
+          cycleId,
+          assignments,
+        });
       }
 
       qc.invalidateQueries({ queryKey: queryKeys.evaluation.cycles() });
@@ -320,7 +378,11 @@ export function NewEvaluationWizard({ onClose }: NewEvaluationWizardProps) {
                         : 'bg-surface-sunken text-ink-faint')
                   }
                 >
-                  {done && !isCurrent ? <Check size={12} strokeWidth={2.5} /> : i + 1}
+                  {done && !isCurrent ? (
+                    <Check size={12} strokeWidth={2.5} />
+                  ) : (
+                    i + 1
+                  )}
                 </button>
               </li>
             );
@@ -337,10 +399,20 @@ export function NewEvaluationWizard({ onClose }: NewEvaluationWizardProps) {
         {current.id === 'general' && (
           <div className="space-y-4">
             <FormField label="Nome da avaliação *" htmlFor="ne-name">
-              <Input id="ne-name" value={name} onChange={(e) => setName(e.target.value)} className="w-full" />
+              <Input
+                id="ne-name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="w-full"
+              />
             </FormField>
             <FormField label="Tipo de avaliação" htmlFor="ne-purpose">
-              <Select items={PURPOSE_ITEMS} value={purpose} onValueChange={setPurpose} className="w-full" />
+              <Select
+                items={PURPOSE_ITEMS}
+                value={purpose}
+                onValueChange={setPurpose}
+                className="w-full"
+              />
             </FormField>
             <div className="flex gap-2">
               <Button
@@ -361,7 +433,10 @@ export function NewEvaluationWizard({ onClose }: NewEvaluationWizardProps) {
             {cycleMode === 'existing' ? (
               <FormField label="Ciclo de avaliação *" htmlFor="ne-cycle">
                 <Select
-                  items={(cyclesData?.data ?? []).map((c) => ({ value: String(c.id), label: c.name }))}
+                  items={(cyclesData?.data ?? []).map((c) => ({
+                    value: String(c.id),
+                    label: c.name,
+                  }))}
                   value={existingCycleId}
                   onValueChange={setExistingCycleId}
                   className="w-full"
@@ -370,18 +445,42 @@ export function NewEvaluationWizard({ onClose }: NewEvaluationWizardProps) {
             ) : (
               <div className="grid grid-cols-2 gap-3">
                 <FormField label="Início *" htmlFor="ne-start">
-                  <Input id="ne-start" type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="w-full" />
+                  <Input
+                    id="ne-start"
+                    type="date"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                    className="w-full"
+                  />
                 </FormField>
                 <FormField label="Fim *" htmlFor="ne-end">
-                  <Input id="ne-end" type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="w-full" />
+                  <Input
+                    id="ne-end"
+                    type="date"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    className="w-full"
+                  />
                 </FormField>
               </div>
             )}
             <FormField label="Prazo de resposta (avaliador)" htmlFor="ne-due">
-              <Input id="ne-due" type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} className="w-full" />
+              <Input
+                id="ne-due"
+                type="date"
+                value={dueDate}
+                onChange={(e) => setDueDate(e.target.value)}
+                className="w-full"
+              />
             </FormField>
             <FormField label="Descrição" htmlFor="ne-desc">
-              <Textarea id="ne-desc" value={description} onChange={(e) => setDescription(e.target.value)} rows={2} className="w-full" />
+              <Textarea
+                id="ne-desc"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                rows={2}
+                className="w-full"
+              />
             </FormField>
           </div>
         )}
@@ -392,14 +491,19 @@ export function NewEvaluationWizard({ onClose }: NewEvaluationWizardProps) {
               <Select
                 items={POPULATION_ITEMS}
                 value={populationType}
-                onValueChange={(v) => setPopulationType(v as typeof populationType)}
+                onValueChange={(v) =>
+                  setPopulationType(v as typeof populationType)
+                }
                 className="w-full"
               />
             </FormField>
             {populationType === 'DEPARTMENT' && (
               <FormField label="Departamento *" htmlFor="ne-dept">
                 <Select
-                  items={departments.map((d) => ({ value: String(d.id), label: d.name }))}
+                  items={departments.map((d) => ({
+                    value: String(d.id),
+                    label: d.name,
+                  }))}
                   value={departmentId}
                   onValueChange={setDepartmentId}
                   className="w-full"
@@ -409,7 +513,10 @@ export function NewEvaluationWizard({ onClose }: NewEvaluationWizardProps) {
             {populationType === 'UNIT' && (
               <FormField label="Unidade *" htmlFor="ne-unit">
                 <Select
-                  items={units.map((u) => ({ value: String(u.id), label: u.name }))}
+                  items={units.map((u) => ({
+                    value: String(u.id),
+                    label: u.name,
+                  }))}
                   value={unitId}
                   onValueChange={setUnitId}
                   className="w-full"
@@ -435,7 +542,11 @@ export function NewEvaluationWizard({ onClose }: NewEvaluationWizardProps) {
                           onClick={() => addUser(u)}
                           className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-surface-sunken"
                         >
-                          <Avatar name={u.fullName} url={u.avatarUrl ?? undefined} size="sm" />
+                          <Avatar
+                            name={u.fullName}
+                            url={u.avatarUrl ?? undefined}
+                            size="sm"
+                          />
                           {u.fullName}
                         </button>
                       ))}
@@ -446,7 +557,14 @@ export function NewEvaluationWizard({ onClose }: NewEvaluationWizardProps) {
                   {selectedUsers.map((u) => (
                     <Badge key={u.id} intent="info" className="gap-1">
                       {u.fullName}
-                      <button type="button" onClick={() => setSelectedUsers((p) => p.filter((s) => s.id !== u.id))}>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setSelectedUsers((p) =>
+                            p.filter((s) => s.id !== u.id),
+                          )
+                        }
+                      >
                         <X size={12} strokeWidth={2} />
                       </button>
                     </Badge>
@@ -468,8 +586,8 @@ export function NewEvaluationWizard({ onClose }: NewEvaluationWizardProps) {
             )}
             {populationType !== 'GROUP' && (
               <p className="text-xs text-ink-faint">
-                A atribuição de avaliadores segue a hierarquia (gestor directo) quando o ciclo for
-                activado em &quot;Ciclos de Avaliação&quot;.
+                A atribuição de avaliadores segue a hierarquia (gestor directo)
+                quando o ciclo for activado em &quot;Ciclos de Avaliação&quot;.
               </p>
             )}
           </div>
@@ -478,7 +596,12 @@ export function NewEvaluationWizard({ onClose }: NewEvaluationWizardProps) {
         {current.id === 'structure' && (
           <div className="space-y-4">
             <FormField label="Modelo" htmlFor="ne-model">
-              <Select items={MODEL_ITEMS} value={model} onValueChange={setModel} className="w-full" />
+              <Select
+                items={MODEL_ITEMS}
+                value={model}
+                onValueChange={setModel}
+                className="w-full"
+              />
             </FormField>
             <div>
               <p className="mb-2 text-sm font-medium text-ink">Blocos</p>
@@ -505,17 +628,24 @@ export function NewEvaluationWizard({ onClose }: NewEvaluationWizardProps) {
 
         {current.id === 'criteria' && (
           <div className="space-y-2">
-            <p className="text-xs text-ink-faint mb-2">Escolhe os critérios e o peso (%) de cada um.</p>
+            <p className="text-xs text-ink-faint mb-2">
+              Escolhe os critérios e o peso (%) de cada um.
+            </p>
             {(criteriaList ?? []).map((c) => (
               <div key={c.id} className="flex items-center gap-3">
-                <label className="flex-1 text-sm text-ink-muted">{c.name}</label>
+                <label className="flex-1 text-sm text-ink-muted">
+                  {c.name}
+                </label>
                 <Input
                   type="number"
                   min={0}
                   max={100}
                   value={criteriaWeights[c.id] ?? ''}
                   onChange={(e) =>
-                    setCriteriaWeights((prev) => ({ ...prev, [c.id]: Number(e.target.value) || 0 }))
+                    setCriteriaWeights((prev) => ({
+                      ...prev,
+                      [c.id]: Number(e.target.value) || 0,
+                    }))
                   }
                   className="w-24"
                   placeholder="0"
@@ -523,7 +653,9 @@ export function NewEvaluationWizard({ onClose }: NewEvaluationWizardProps) {
               </div>
             ))}
             {(criteriaList ?? []).length === 0 && (
-              <p className="text-sm text-ink-faint">Sem critérios cadastrados ainda.</p>
+              <p className="text-sm text-ink-faint">
+                Sem critérios cadastrados ainda.
+              </p>
             )}
           </div>
         )}
@@ -547,27 +679,50 @@ export function NewEvaluationWizard({ onClose }: NewEvaluationWizardProps) {
           <div className="space-y-3">
             {populationType !== 'GROUP' ? (
               <p className="text-sm text-ink-faint">
-                Objectivos individuais só ficam disponíveis quando o âmbito é &quot;Grupo de
-                colaboradores&quot; (etapa Participantes) — para Departamento/Unidade/Todos, define
-                objectivos depois, por colaborador, em &quot;Avaliações&quot;.
+                Objectivos individuais só ficam disponíveis quando o âmbito é
+                &quot;Grupo de colaboradores&quot; (etapa Participantes) — para
+                Departamento/Unidade/Todos, define objectivos depois, por
+                colaborador, em &quot;Avaliações&quot;.
               </p>
             ) : (
               <>
-                <Button size="sm" intent="secondary" onClick={() => setObjectives((p) => [...p, emptyObjective()])}>
-                  <Plus size={14} strokeWidth={1.75} className="mr-1" /> Adicionar objectivo
+                <Button
+                  size="sm"
+                  intent="secondary"
+                  onClick={() => setObjectives((p) => [...p, emptyObjective()])}
+                >
+                  <Plus size={14} strokeWidth={1.75} className="mr-1" />{' '}
+                  Adicionar objectivo
                 </Button>
                 {objectives.map((o, i) => (
-                  <div key={i} className="rounded-card border border-border p-3 space-y-2">
+                  <div
+                    key={i}
+                    className="rounded-card border border-border p-3 space-y-2"
+                  >
                     <div className="flex gap-2">
                       <Input
                         placeholder="Objectivo"
                         value={o.objective}
                         onChange={(e) =>
-                          setObjectives((prev) => prev.map((x, idx) => (idx === i ? { ...x, objective: e.target.value } : x)))
+                          setObjectives((prev) =>
+                            prev.map((x, idx) =>
+                              idx === i
+                                ? { ...x, objective: e.target.value }
+                                : x,
+                            ),
+                          )
                         }
                         className="flex-1"
                       />
-                      <Button size="sm" intent="secondary" onClick={() => setObjectives((prev) => prev.filter((_, idx) => idx !== i))}>
+                      <Button
+                        size="sm"
+                        intent="secondary"
+                        onClick={() =>
+                          setObjectives((prev) =>
+                            prev.filter((_, idx) => idx !== i),
+                          )
+                        }
+                      >
                         <Trash2 size={14} strokeWidth={1.75} />
                       </Button>
                     </div>
@@ -576,14 +731,24 @@ export function NewEvaluationWizard({ onClose }: NewEvaluationWizardProps) {
                         placeholder="Indicador"
                         value={o.indicator ?? ''}
                         onChange={(e) =>
-                          setObjectives((prev) => prev.map((x, idx) => (idx === i ? { ...x, indicator: e.target.value } : x)))
+                          setObjectives((prev) =>
+                            prev.map((x, idx) =>
+                              idx === i
+                                ? { ...x, indicator: e.target.value }
+                                : x,
+                            ),
+                          )
                         }
                       />
                       <Input
                         placeholder="Meta"
                         value={o.target ?? ''}
                         onChange={(e) =>
-                          setObjectives((prev) => prev.map((x, idx) => (idx === i ? { ...x, target: e.target.value } : x)))
+                          setObjectives((prev) =>
+                            prev.map((x, idx) =>
+                              idx === i ? { ...x, target: e.target.value } : x,
+                            ),
+                          )
                         }
                       />
                       <Input
@@ -592,7 +757,14 @@ export function NewEvaluationWizard({ onClose }: NewEvaluationWizardProps) {
                         value={o.weight ?? ''}
                         onChange={(e) =>
                           setObjectives((prev) =>
-                            prev.map((x, idx) => (idx === i ? { ...x, weight: Number(e.target.value) || undefined } : x)),
+                            prev.map((x, idx) =>
+                              idx === i
+                                ? {
+                                    ...x,
+                                    weight: Number(e.target.value) || undefined,
+                                  }
+                                : x,
+                            ),
                           )
                         }
                       />
@@ -607,7 +779,11 @@ export function NewEvaluationWizard({ onClose }: NewEvaluationWizardProps) {
         {current.id === 'selfEval' && (
           <div className="space-y-4">
             <label className="flex items-center gap-2 text-sm text-ink">
-              <input type="checkbox" checked={allowSelfEval} onChange={(e) => setAllowSelfEval(e.target.checked)} />
+              <input
+                type="checkbox"
+                checked={allowSelfEval}
+                onChange={(e) => setAllowSelfEval(e.target.checked)}
+              />
               Permitir autoavaliação
             </label>
             {allowSelfEval && (
@@ -622,11 +798,19 @@ export function NewEvaluationWizard({ onClose }: NewEvaluationWizardProps) {
               </FormField>
             )}
             <label className="flex items-center gap-2 text-sm text-ink">
-              <input type="checkbox" checked={requireComments} onChange={(e) => setRequireComments(e.target.checked)} />
+              <input
+                type="checkbox"
+                checked={requireComments}
+                onChange={(e) => setRequireComments(e.target.checked)}
+              />
               Comentários obrigatórios
             </label>
             <label className="flex items-center gap-2 text-sm text-ink">
-              <input type="checkbox" checked={requireEvidence} onChange={(e) => setRequireEvidence(e.target.checked)} />
+              <input
+                type="checkbox"
+                checked={requireEvidence}
+                onChange={(e) => setRequireEvidence(e.target.checked)}
+              />
               Exigir evidências
             </label>
           </div>
@@ -635,21 +819,35 @@ export function NewEvaluationWizard({ onClose }: NewEvaluationWizardProps) {
         {current.id === 'flow' && (
           <div className="space-y-4">
             <p className="text-xs text-ink-faint">
-              Fluxo: Autoavaliação → Avaliação do gestor → Revisão RH → Calibração → Conversa 1:1 →
-              Aprovação → Resultado final.
+              Fluxo: Autoavaliação → Avaliação do gestor → Revisão RH →
+              Calibração → Conversa 1:1 → Aprovação → Resultado final.
             </p>
             <label className="flex items-center gap-2 text-sm text-ink">
-              <input type="checkbox" checked={allowCalibration} onChange={(e) => setAllowCalibration(e.target.checked)} />
+              <input
+                type="checkbox"
+                checked={allowCalibration}
+                onChange={(e) => setAllowCalibration(e.target.checked)}
+              />
               Incluir etapa de calibração
             </label>
           </div>
         )}
 
         <div className="mt-6 flex gap-3 border-t border-border pt-4">
-          <Button intent="secondary" className="justify-center" onClick={() => (step === 0 ? onClose() : setStep((s) => s - 1))} disabled={busy}>
+          <Button
+            intent="secondary"
+            className="justify-center"
+            onClick={() => (step === 0 ? onClose() : setStep((s) => s - 1))}
+            disabled={busy}
+          >
             {step === 0 ? 'Cancelar' : 'Voltar'}
           </Button>
-          <Button className="flex-1 justify-center" onClick={advance} loading={busy} disabled={!canAdvance}>
+          <Button
+            className="flex-1 justify-center"
+            onClick={advance}
+            loading={busy}
+            disabled={!canAdvance}
+          >
             {isLast ? 'Criar Avaliação' : 'Continuar'}
           </Button>
         </div>

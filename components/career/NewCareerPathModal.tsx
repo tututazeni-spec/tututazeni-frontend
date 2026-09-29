@@ -20,12 +20,18 @@ import { Modal, ModalContent } from '@/components/ui/Modal';
 import { Select } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
 import { CAREER_PATH_TYPE } from './constants';
-import { useDepartmentOptions, useJobFamilyOptions, usePositionOptions } from './careerFormData';
+import {
+  useDepartmentOptions,
+  useJobFamilyOptions,
+  usePositionOptions,
+} from './careerFormData';
 
-const CAREER_PATH_TYPE_OPTIONS = Object.entries(CAREER_PATH_TYPE).map(([value, label]) => ({
-  value,
-  label,
-}));
+const CAREER_PATH_TYPE_OPTIONS = Object.entries(CAREER_PATH_TYPE).map(
+  ([value, label]) => ({
+    value,
+    label,
+  }),
+);
 
 interface StepDraft {
   positionId: string;
@@ -36,7 +42,13 @@ interface StepDraft {
 }
 
 function emptyStep(): StepDraft {
-  return { positionId: '', isLateralMove: false, minMonthsRequired: '', minExperienceMonths: '', certifications: '' };
+  return {
+    positionId: '',
+    isLateralMove: false,
+    minMonthsRequired: '',
+    minExperienceMonths: '',
+    certifications: '',
+  };
 }
 
 export interface NewCareerPathModalProps {
@@ -44,7 +56,10 @@ export interface NewCareerPathModalProps {
   onSuccess: () => void;
 }
 
-export function NewCareerPathModal({ onClose, onSuccess }: NewCareerPathModalProps) {
+export function NewCareerPathModal({
+  onClose,
+  onSuccess,
+}: NewCareerPathModalProps) {
   const qc = useQueryClient();
   const { options: departmentOptions } = useDepartmentOptions();
   const { options: jobFamilyOptions } = useJobFamilyOptions();
@@ -59,13 +74,22 @@ export function NewCareerPathModal({ onClose, onSuccess }: NewCareerPathModalPro
     errorMessage: validationError,
     handleSubmit: withValidation,
   } = useFormValidation(
-    { name: '', code: '', type: '', description: '', departmentId: '', jobFamilyId: '' },
+    {
+      name: '',
+      code: '',
+      type: '',
+      description: '',
+      departmentId: '',
+      jobFamilyId: '',
+    },
     { name: [required()], type: [required()] },
   );
   const error = validationError || submitError;
 
   const updateStep = (idx: number, patch: Partial<StepDraft>) => {
-    setSteps((prev) => prev.map((s, i) => (i === idx ? { ...s, ...patch } : s)));
+    setSteps((prev) =>
+      prev.map((s, i) => (i === idx ? { ...s, ...patch } : s)),
+    );
   };
 
   const handleSubmit = withValidation(async () => {
@@ -88,10 +112,17 @@ export function NewCareerPathModal({ onClose, onSuccess }: NewCareerPathModalPro
           positionId: Number(s.positionId),
           order: i + 1,
           isLateralMove: s.isLateralMove,
-          minMonthsRequired: s.minMonthsRequired ? Number(s.minMonthsRequired) : undefined,
-          minExperienceMonths: s.minExperienceMonths ? Number(s.minExperienceMonths) : undefined,
+          minMonthsRequired: s.minMonthsRequired
+            ? Number(s.minMonthsRequired)
+            : undefined,
+          minExperienceMonths: s.minExperienceMonths
+            ? Number(s.minExperienceMonths)
+            : undefined,
           certifications: s.certifications
-            ? s.certifications.split(',').map((c) => c.trim()).filter(Boolean)
+            ? s.certifications
+                .split(',')
+                .map((c) => c.trim())
+                .filter(Boolean)
             : undefined,
         });
       }
@@ -109,7 +140,10 @@ export function NewCareerPathModal({ onClose, onSuccess }: NewCareerPathModalPro
 
   return (
     <Modal open onOpenChange={(open) => !open && onClose()}>
-      <ModalContent title="Novo Percurso de Carreira" className="max-h-[90vh] max-w-xl overflow-y-auto">
+      <ModalContent
+        title="Novo Percurso de Carreira"
+        className="max-h-[90vh] max-w-xl overflow-y-auto"
+      >
         <div className="mt-4 space-y-4">
           {error && (
             <div className="flex items-center gap-2 rounded-card bg-danger-subtle p-3 text-sm text-danger-ink">
@@ -132,7 +166,9 @@ export function NewCareerPathModal({ onClose, onSuccess }: NewCareerPathModalPro
               <Input
                 id="path-code"
                 value={form.code}
-                onChange={(e) => setForm((f) => ({ ...f, code: e.target.value }))}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, code: e.target.value }))
+                }
                 className="w-full"
               />
             </FormField>
@@ -152,7 +188,9 @@ export function NewCareerPathModal({ onClose, onSuccess }: NewCareerPathModalPro
               <Select
                 items={departmentOptions}
                 value={form.departmentId}
-                onValueChange={(v) => setForm((f) => ({ ...f, departmentId: v }))}
+                onValueChange={(v) =>
+                  setForm((f) => ({ ...f, departmentId: v }))
+                }
                 placeholder="Seleccionar…"
                 className="w-full"
               />
@@ -161,7 +199,9 @@ export function NewCareerPathModal({ onClose, onSuccess }: NewCareerPathModalPro
               <Select
                 items={jobFamilyOptions}
                 value={form.jobFamilyId}
-                onValueChange={(v) => setForm((f) => ({ ...f, jobFamilyId: v }))}
+                onValueChange={(v) =>
+                  setForm((f) => ({ ...f, jobFamilyId: v }))
+                }
                 placeholder="Seleccionar…"
                 className="w-full"
               />
@@ -172,7 +212,9 @@ export function NewCareerPathModal({ onClose, onSuccess }: NewCareerPathModalPro
             <Textarea
               id="path-description"
               value={form.description}
-              onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, description: e.target.value }))
+              }
               rows={2}
               className="w-full resize-none"
             />
@@ -193,7 +235,10 @@ export function NewCareerPathModal({ onClose, onSuccess }: NewCareerPathModalPro
             </div>
             <div className="space-y-3">
               {steps.map((s, idx) => (
-                <div key={idx} className="rounded-card border border-border p-3">
+                <div
+                  key={idx}
+                  className="rounded-card border border-border p-3"
+                >
                   <div className="mb-2 flex items-center gap-2">
                     <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-primary font-body text-xs font-bold text-canvas">
                       {idx + 1}
@@ -202,7 +247,9 @@ export function NewCareerPathModal({ onClose, onSuccess }: NewCareerPathModalPro
                       <Select
                         items={positionOptions}
                         value={s.positionId}
-                        onValueChange={(v) => updateStep(idx, { positionId: v })}
+                        onValueChange={(v) =>
+                          updateStep(idx, { positionId: v })
+                        }
                         placeholder="Cargo…"
                         className="w-full"
                       />
@@ -211,7 +258,9 @@ export function NewCareerPathModal({ onClose, onSuccess }: NewCareerPathModalPro
                       <button
                         type="button"
                         aria-label="Remover nível"
-                        onClick={() => setSteps((prev) => prev.filter((_, i) => i !== idx))}
+                        onClick={() =>
+                          setSteps((prev) => prev.filter((_, i) => i !== idx))
+                        }
                         className="rounded-control p-1.5 text-ink-muted hover:bg-danger-subtle hover:text-danger-ink"
                       >
                         <Trash2 size={14} strokeWidth={1.75} />
@@ -221,21 +270,27 @@ export function NewCareerPathModal({ onClose, onSuccess }: NewCareerPathModalPro
                   <div className="grid grid-cols-3 gap-2">
                     <Input
                       value={s.minMonthsRequired}
-                      onChange={(e) => updateStep(idx, { minMonthsRequired: e.target.value })}
+                      onChange={(e) =>
+                        updateStep(idx, { minMonthsRequired: e.target.value })
+                      }
                       placeholder="Meses mínimos"
                       type="number"
                       className="w-full text-xs"
                     />
                     <Input
                       value={s.minExperienceMonths}
-                      onChange={(e) => updateStep(idx, { minExperienceMonths: e.target.value })}
+                      onChange={(e) =>
+                        updateStep(idx, { minExperienceMonths: e.target.value })
+                      }
                       placeholder="Experiência (meses)"
                       type="number"
                       className="w-full text-xs"
                     />
                     <Input
                       value={s.certifications}
-                      onChange={(e) => updateStep(idx, { certifications: e.target.value })}
+                      onChange={(e) =>
+                        updateStep(idx, { certifications: e.target.value })
+                      }
                       placeholder="Certificações (vírgulas)"
                       className="w-full text-xs"
                     />
@@ -244,7 +299,9 @@ export function NewCareerPathModal({ onClose, onSuccess }: NewCareerPathModalPro
                     <input
                       type="checkbox"
                       checked={s.isLateralMove}
-                      onChange={(e) => updateStep(idx, { isLateralMove: e.target.checked })}
+                      onChange={(e) =>
+                        updateStep(idx, { isLateralMove: e.target.checked })
+                      }
                       className="h-3.5 w-3.5 rounded border-border-strong accent-primary"
                     />
                     Movimento lateral (não vertical)

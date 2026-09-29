@@ -23,7 +23,10 @@ export const TITLES: Record<View, string> = {
 };
 
 export const STATUS_CFG: StatusBadgeMap<EnrollmentStatus> = {
-  NOT_STARTED: { label: 'Não iniciado', cls: 'bg-surface-sunken text-ink-muted' },
+  NOT_STARTED: {
+    label: 'Não iniciado',
+    cls: 'bg-surface-sunken text-ink-muted',
+  },
   IN_PROGRESS: { label: 'Em progresso', cls: 'bg-info-subtle text-info-ink' },
   COMPLETED: { label: 'Concluído', cls: 'bg-success-subtle text-success-ink' },
   OVERDUE: { label: 'Atrasado', cls: 'bg-danger-subtle text-danger-ink' },

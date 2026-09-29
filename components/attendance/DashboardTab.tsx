@@ -4,7 +4,16 @@
 
 'use client';
 
-import { BarChart3, Calendar, Clock, FileText, Timer, UserCheck, UserX, Zap } from 'lucide-react';
+import {
+  BarChart3,
+  Calendar,
+  Clock,
+  FileText,
+  Timer,
+  UserCheck,
+  UserX,
+  Zap,
+} from 'lucide-react';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { Avatar } from '@/components/ui/Avatar';
 import { KpiCard } from '@/components/ui/KpiCard';
@@ -134,14 +143,14 @@ export function DashboardTab({ data, loading, refetch }: DashboardTabProps) {
                 <div className="flex items-center gap-3">
                   <Avatar name={p.name} />
                   <div>
-                    <p className="text-sm font-medium text-ink">
-                      {p.name}
-                    </p>
+                    <p className="text-sm font-medium text-ink">{p.name}</p>
                     <p className="text-xs text-ink-muted">{p.department}</p>
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="text-xs font-data text-ink-muted">{p.clockIn}</p>
+                  <p className="text-xs font-data text-ink-muted">
+                    {p.clockIn}
+                  </p>
                   <StatusBadge
                     value={p.status as AttendanceStatus}
                     map={STATUS_BADGE_MAP}

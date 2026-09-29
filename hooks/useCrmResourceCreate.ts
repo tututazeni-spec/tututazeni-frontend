@@ -59,7 +59,9 @@ export function useCrmResourceCreate<F extends Record<string, string>>(
   const error = validationError || submitError;
 
   const alwaysSet = new Set<string>(alwaysInclude as readonly string[]);
-  const numericSet = new Set<string>((numericFields ?? []) as readonly string[]);
+  const numericSet = new Set<string>(
+    (numericFields ?? []) as readonly string[],
+  );
 
   const createMut = useApiMutation(
     () => {

@@ -45,14 +45,19 @@ import type {
   TrainingPlansExecutionData,
 } from './types';
 
-const REPORT_ITEMS = (Object.keys(ROI_REPORT_LABELS) as RoiReportKey[]).map((key) => ({
-  value: key,
-  label: ROI_REPORT_LABELS[key],
-}));
+const REPORT_ITEMS = (Object.keys(ROI_REPORT_LABELS) as RoiReportKey[]).map(
+  (key) => ({
+    value: key,
+    label: ROI_REPORT_LABELS[key],
+  }),
+);
 
 const INITIATIVE_TYPE_ITEMS = [
   { value: '', label: 'Todos os tipos' },
-  ...Object.entries(INITIATIVE_TYPE_LABELS).map(([value, label]) => ({ value, label })),
+  ...Object.entries(INITIATIVE_TYPE_LABELS).map(([value, label]) => ({
+    value,
+    label,
+  })),
 ];
 
 const XLSX_REPORTS: Partial<Record<RoiReportKey, string>> = {
@@ -61,8 +66,13 @@ const XLSX_REPORTS: Partial<Record<RoiReportKey, string>> = {
   'top-initiatives': 'top-initiatives/export/xlsx',
 };
 
-async function downloadReportFile(path: string, filename: string): Promise<void> {
-  const res = await fetch(`${API_URL}/roi-impact/reports/${path}`, { credentials: 'include' });
+async function downloadReportFile(
+  path: string,
+  filename: string,
+): Promise<void> {
+  const res = await fetch(`${API_URL}/roi-impact/reports/${path}`, {
+    credentials: 'include',
+  });
   if (!res.ok) throw new Error('Erro ao gerar o ficheiro');
   const blob = await res.blob();
   const url = URL.createObjectURL(blob);
@@ -87,16 +97,23 @@ export function ReportsTab() {
     () => ({
       from: from || undefined,
       to: to || undefined,
-      initiativeType: (initiativeType || undefined) as RoiInitiativeType | undefined,
+      initiativeType: (initiativeType || undefined) as
+        RoiInitiativeType | undefined,
     }),
     [from, to, initiativeType],
   );
 
   const path = `/roi-impact/reports/${reportKey}`;
   const { data, isLoading: loading } = useApiQuery<unknown>(
-    queryKeys.roiImpact.report(reportKey, filter as unknown as Record<string, unknown>),
+    queryKeys.roiImpact.report(
+      reportKey,
+      filter as unknown as Record<string, unknown>,
+    ),
     path,
-    { params: filter as Record<string, string | undefined>, staleTime: STALE_TIME.DYNAMIC },
+    {
+      params: filter as Record<string, string | undefined>,
+      staleTime: STALE_TIME.DYNAMIC,
+    },
   );
 
   const xlsxPath = XLSX_REPORTS[reportKey];
@@ -107,7 +124,11 @@ export function ReportsTab() {
     try {
       await downloadReportFile(xlsxPath, `${reportKey}.xlsx`);
     } catch (e) {
-      notify({ title: 'Erro ao exportar', description: (e as Error).message, intent: 'danger' });
+      notify({
+        title: 'Erro ao exportar',
+        description: (e as Error).message,
+        intent: 'danger',
+      });
     } finally {
       setDownloading(false);
     }
@@ -116,9 +137,16 @@ export function ReportsTab() {
   async function handleExportPdf() {
     setDownloading(true);
     try {
-      await downloadReportFile('executive-summary/export/pdf', 'relatorio-executivo-roi-impacto.pdf');
+      await downloadReportFile(
+        'executive-summary/export/pdf',
+        'relatorio-executivo-roi-impacto.pdf',
+      );
     } catch (e) {
-      notify({ title: 'Erro ao exportar', description: (e as Error).message, intent: 'danger' });
+      notify({
+        title: 'Erro ao exportar',
+        description: (e as Error).message,
+        intent: 'danger',
+      });
     } finally {
       setDownloading(false);
     }
@@ -139,14 +167,26 @@ export function ReportsTab() {
           </div>
           <div>
             <p className="mb-1 font-body text-xs text-ink-faint">De</p>
-            <Input type="date" value={from} onChange={(e) => setFrom(e.target.value)} className="text-xs" />
+            <Input
+              type="date"
+              value={from}
+              onChange={(e) => setFrom(e.target.value)}
+              className="text-xs"
+            />
           </div>
           <div>
             <p className="mb-1 font-body text-xs text-ink-faint">Até</p>
-            <Input type="date" value={to} onChange={(e) => setTo(e.target.value)} className="text-xs" />
+            <Input
+              type="date"
+              value={to}
+              onChange={(e) => setTo(e.target.value)}
+              className="text-xs"
+            />
           </div>
           <div className="min-w-[180px]">
-            <p className="mb-1 font-body text-xs text-ink-faint">Tipo de iniciativa</p>
+            <p className="mb-1 font-body text-xs text-ink-faint">
+              Tipo de iniciativa
+            </p>
             <Select
               items={INITIATIVE_TYPE_ITEMS}
               value={initiativeType}
@@ -155,13 +195,23 @@ export function ReportsTab() {
             />
           </div>
           {xlsxPath && (
-            <Button size="sm" intent="secondary" loading={downloading} onClick={handleExportXlsx}>
+            <Button
+              size="sm"
+              intent="secondary"
+              loading={downloading}
+              onClick={handleExportXlsx}
+            >
               <Download size={14} strokeWidth={1.75} className="mr-1" />
               XLSX
             </Button>
           )}
           {reportKey === 'executive-summary' && (
-            <Button size="sm" intent="secondary" loading={downloading} onClick={handleExportPdf}>
+            <Button
+              size="sm"
+              intent="secondary"
+              loading={downloading}
+              onClick={handleExportPdf}
+            >
               <Download size={14} strokeWidth={1.75} className="mr-1" />
               PDF
             </Button>
@@ -170,7 +220,11 @@ export function ReportsTab() {
       </Card>
 
       {loading ? (
-        <Skeleton rows={4} wrapperClassName="space-y-3 animate-pulse" itemClassName="h-14 rounded-card bg-surface-sunken" />
+        <Skeleton
+          rows={4}
+          wrapperClassName="space-y-3 animate-pulse"
+          itemClassName="h-14 rounded-card bg-surface-sunken"
+        />
       ) : (
         <ReportBody reportKey={reportKey} data={data} />
       )}
@@ -178,7 +232,13 @@ export function ReportsTab() {
   );
 }
 
-function ReportBody({ reportKey, data }: { reportKey: RoiReportKey; data: unknown }) {
+function ReportBody({
+  reportKey,
+  data,
+}: {
+  reportKey: RoiReportKey;
+  data: unknown;
+}) {
   if (!data) return null;
 
   switch (reportKey) {
@@ -189,7 +249,10 @@ function ReportBody({ reportKey, data }: { reportKey: RoiReportKey; data: unknow
           <StatCard label="Análises" value={String(d.totalAnalyses)} />
           <StatCard label="Custo total" value={fmt$(d.totalCost)} />
           <StatCard label="Benefício total" value={fmt$(d.totalBenefit)} />
-          <StatCard label="ROI médio" value={d.avgRoi != null ? `${d.avgRoi}%` : '—'} />
+          <StatCard
+            label="ROI médio"
+            value={d.avgRoi != null ? `${d.avgRoi}%` : '—'}
+          />
           <Card className="col-span-2 md:col-span-4">
             <CardBody>
               <p className="mb-2 font-body text-xs font-semibold uppercase tracking-wide text-ink-muted">
@@ -214,7 +277,10 @@ function ReportBody({ reportKey, data }: { reportKey: RoiReportKey; data: unknow
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <BreakdownCard title="Por departamento" rows={d.byDepartment} />
           <BreakdownCard title="Por unidade" rows={d.byUnit} />
-          <BreakdownCard title="Por tipo de iniciativa" rows={d.byInitiativeType} />
+          <BreakdownCard
+            title="Por tipo de iniciativa"
+            rows={d.byInitiativeType}
+          />
         </div>
       );
     }
@@ -240,7 +306,11 @@ function ReportBody({ reportKey, data }: { reportKey: RoiReportKey; data: unknow
                     <TableCell className="text-xs">{row.category}</TableCell>
                     <TableCell>{row.records}</TableCell>
                     <TableCell>{row.avgAttributedImpact ?? '—'}</TableCell>
-                    <TableCell>{row.avgAttributionPercent != null ? `${row.avgAttributionPercent}%` : '—'}</TableCell>
+                    <TableCell>
+                      {row.avgAttributionPercent != null
+                        ? `${row.avgAttributionPercent}%`
+                        : '—'}
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -255,11 +325,21 @@ function ReportBody({ reportKey, data }: { reportKey: RoiReportKey; data: unknow
       return (
         <div className="space-y-4">
           <div className="grid grid-cols-3 gap-4">
-            <StatCard label="Orçamento planeado" value={fmt$(d.totalPlannedBudget)} />
-            <StatCard label="Custo realizado" value={fmt$(d.totalRealizedBudget)} />
+            <StatCard
+              label="Orçamento planeado"
+              value={fmt$(d.totalPlannedBudget)}
+            />
+            <StatCard
+              label="Custo realizado"
+              value={fmt$(d.totalRealizedBudget)}
+            />
             <StatCard
               label="Execução"
-              value={d.overallExecutionRatePercent != null ? `${d.overallExecutionRatePercent}%` : '—'}
+              value={
+                d.overallExecutionRatePercent != null
+                  ? `${d.overallExecutionRatePercent}%`
+                  : '—'
+              }
             />
           </div>
           <Card>
@@ -281,7 +361,11 @@ function ReportBody({ reportKey, data }: { reportKey: RoiReportKey; data: unknow
                       <TableCell>{p.year}</TableCell>
                       <TableCell>{fmt$(p.plannedBudget)}</TableCell>
                       <TableCell>{fmt$(p.realizedBudget)}</TableCell>
-                      <TableCell>{p.executionRatePercent != null ? `${p.executionRatePercent}%` : '—'}</TableCell>
+                      <TableCell>
+                        {p.executionRatePercent != null
+                          ? `${p.executionRatePercent}%`
+                          : '—'}
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -310,10 +394,15 @@ function ReportBody({ reportKey, data }: { reportKey: RoiReportKey; data: unknow
                   <TableRow key={row.id}>
                     <TableCell>{row.name}</TableCell>
                     <TableCell className="text-xs">
-                      {INITIATIVE_TYPE_LABELS[row.initiativeType] ?? row.initiativeType}
+                      {INITIATIVE_TYPE_LABELS[row.initiativeType] ??
+                        row.initiativeType}
                     </TableCell>
                     <TableCell>{row.roiPercent}%</TableCell>
-                    <TableCell>{row.computedBenefit != null ? fmt$(row.computedBenefit) : '—'}</TableCell>
+                    <TableCell>
+                      {row.computedBenefit != null
+                        ? fmt$(row.computedBenefit)
+                        : '—'}
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -327,8 +416,9 @@ function ReportBody({ reportKey, data }: { reportKey: RoiReportKey; data: unknow
       return (
         <div className="space-y-3">
           <p className="font-body text-sm text-ink-muted">
-            {d.total} iniciativa(s) sem dados suficientes — {d.expensiveWithoutReturn} com custo já
-            registado e sem retorno demonstrado.
+            {d.total} iniciativa(s) sem dados suficientes —{' '}
+            {d.expensiveWithoutReturn} com custo já registado e sem retorno
+            demonstrado.
           </p>
           <Card>
             <div className="overflow-x-auto">
@@ -419,7 +509,11 @@ function ReportBody({ reportKey, data }: { reportKey: RoiReportKey; data: unknow
               hint={`${d.abandonedCohort.count} colaborador(es)`}
             />
           </div>
-          {d.note && <p className="rounded-card bg-warning-subtle p-3 text-xs text-warning-ink">{d.note}</p>}
+          {d.note && (
+            <p className="rounded-card bg-warning-subtle p-3 text-xs text-warning-ink">
+              {d.note}
+            </p>
+          )}
         </div>
       );
     }
@@ -451,7 +545,11 @@ function ReportBody({ reportKey, data }: { reportKey: RoiReportKey; data: unknow
               </Table>
             </div>
           </Card>
-          {d.note && <p className="rounded-card bg-warning-subtle p-3 text-xs text-warning-ink">{d.note}</p>}
+          {d.note && (
+            <p className="rounded-card bg-warning-subtle p-3 text-xs text-warning-ink">
+              {d.note}
+            </p>
+          )}
         </div>
       );
     }
@@ -460,15 +558,39 @@ function ReportBody({ reportKey, data }: { reportKey: RoiReportKey; data: unknow
       return (
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-            <StatCard label="ROI global" value={d.headline?.overallRoi != null ? `${d.headline.overallRoi}%` : '—'} />
-            <StatCard label="Benefício total" value={d.headline?.totalBenefit != null ? fmt$(d.headline.totalBenefit) : '—'} />
-            <StatCard label="Custo total" value={d.headline?.totalCost != null ? fmt$(d.headline.totalCost) : '—'} />
-            <StatCard label="Colaboradores impactados" value={String(d.headline?.impactedEmployees ?? '—')} />
+            <StatCard
+              label="ROI global"
+              value={
+                d.headline?.overallRoi != null
+                  ? `${d.headline.overallRoi}%`
+                  : '—'
+              }
+            />
+            <StatCard
+              label="Benefício total"
+              value={
+                d.headline?.totalBenefit != null
+                  ? fmt$(d.headline.totalBenefit)
+                  : '—'
+              }
+            />
+            <StatCard
+              label="Custo total"
+              value={
+                d.headline?.totalCost != null ? fmt$(d.headline.totalCost) : '—'
+              }
+            />
+            <StatCard
+              label="Colaboradores impactados"
+              value={String(d.headline?.impactedEmployees ?? '—')}
+            />
           </div>
           {d.headline?.narrative && (
             <Card>
               <CardBody>
-                <p className="font-body text-sm text-ink">{d.headline.narrative}</p>
+                <p className="font-body text-sm text-ink">
+                  {d.headline.narrative}
+                </p>
               </CardBody>
             </Card>
           )}
@@ -494,7 +616,15 @@ function ReportBody({ reportKey, data }: { reportKey: RoiReportKey; data: unknow
   }
 }
 
-function StatCard({ label, value, hint }: { label: string; value: string; hint?: string }) {
+function StatCard({
+  label,
+  value,
+  hint,
+}: {
+  label: string;
+  value: string;
+  hint?: string;
+}) {
   return (
     <Card>
       <CardBody>
@@ -506,11 +636,19 @@ function StatCard({ label, value, hint }: { label: string; value: string; hint?:
   );
 }
 
-function BreakdownCard({ title, rows }: { title: string; rows: { key: string | number | null; avgRoi: number; count: number }[] }) {
+function BreakdownCard({
+  title,
+  rows,
+}: {
+  title: string;
+  rows: { key: string | number | null; avgRoi: number; count: number }[];
+}) {
   return (
     <Card>
       <CardBody>
-        <p className="mb-2 font-body text-xs font-semibold uppercase tracking-wide text-ink-muted">{title}</p>
+        <p className="mb-2 font-body text-xs font-semibold uppercase tracking-wide text-ink-muted">
+          {title}
+        </p>
         {rows.length === 0 ? (
           <p className="text-xs text-ink-faint">Sem dados.</p>
         ) : (

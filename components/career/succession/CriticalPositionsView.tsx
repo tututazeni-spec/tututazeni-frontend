@@ -9,7 +9,13 @@
 'use client';
 
 import { useState } from 'react';
-import { ChevronDown, ChevronUp, ClipboardList, Plus, Sparkles } from 'lucide-react';
+import {
+  ChevronDown,
+  ChevronUp,
+  ClipboardList,
+  Plus,
+  Sparkles,
+} from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -101,10 +107,14 @@ export function CriticalPositionsView() {
   );
 
   const generatePdi = useApiMutation(
-    (successionPlanId: number) => apiClient.post('/succession/pdi/generate', { successionPlanId }),
+    (successionPlanId: number) =>
+      apiClient.post('/succession/pdi/generate', { successionPlanId }),
     {
       onSuccess: () => {
-        notify({ title: 'PDI de preparação gerado com sucesso', intent: 'success' });
+        notify({
+          title: 'PDI de preparação gerado com sucesso',
+          intent: 'success',
+        });
       },
       onError: (e) => notify({ title: e.message, intent: 'danger' }),
     },
@@ -169,7 +179,9 @@ export function CriticalPositionsView() {
                       {cp.position.users?.[0]?.fullName ?? 'Sem titular'}
                     </div>
                   </div>
-                  <Badge intent={RISK_INTENT[cp.exitRisk]}>{RISK_LABEL[cp.exitRisk]}</Badge>
+                  <Badge intent={RISK_INTENT[cp.exitRisk]}>
+                    {RISK_LABEL[cp.exitRisk]}
+                  </Badge>
                 </div>
                 <div className="mt-2 flex items-center justify-between font-body text-xs text-ink-faint">
                   <span>{COVERAGE_LABEL[cp.coverageStatus]}</span>
@@ -199,7 +211,8 @@ export function CriticalPositionsView() {
                       {detail.position.name}
                     </div>
                     <div className="font-body text-xs text-ink-faint">
-                      Titular: {detail.position.users?.[0]?.fullName ?? 'Sem titular'}
+                      Titular:{' '}
+                      {detail.position.users?.[0]?.fullName ?? 'Sem titular'}
                     </div>
                   </div>
                   <Badge intent={RISK_INTENT[detail.exitRisk]}>
@@ -223,14 +236,20 @@ export function CriticalPositionsView() {
                 </div>
 
                 {detail.criticalReason && (
-                  <p className="mt-3 font-body text-xs text-ink-muted">{detail.criticalReason}</p>
+                  <p className="mt-3 font-body text-xs text-ink-muted">
+                    {detail.criticalReason}
+                  </p>
                 )}
 
                 <div className="mt-5 flex items-center justify-between">
                   <span className="font-body text-sm font-semibold text-ink">
                     Pipeline de Sucessão
                   </span>
-                  <Button size="sm" intent="secondary" onClick={() => setShowAddSuccessor(true)}>
+                  <Button
+                    size="sm"
+                    intent="secondary"
+                    onClick={() => setShowAddSuccessor(true)}
+                  >
                     <Plus size={14} strokeWidth={1.75} /> Adicionar Sucessor
                   </Button>
                 </div>
@@ -242,14 +261,23 @@ export function CriticalPositionsView() {
                 ) : (
                   <div className="mt-3 space-y-3">
                     {detail.successionPlans.map((sp) => (
-                      <div key={sp.id} className="flex items-start gap-3 rounded-card bg-surface-sunken p-3">
-                        <Avatar name={sp.candidate.fullName} url={sp.candidate.avatarUrl ?? undefined} size="sm" />
+                      <div
+                        key={sp.id}
+                        className="flex items-start gap-3 rounded-card bg-surface-sunken p-3"
+                      >
+                        <Avatar
+                          name={sp.candidate.fullName}
+                          url={sp.candidate.avatarUrl ?? undefined}
+                          size="sm"
+                        />
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center justify-between gap-2">
                             <span className="truncate font-body text-sm font-medium text-ink">
                               {sp.candidate.fullName}
                             </span>
-                            <Badge intent="neutral">{PRIORITY_LABEL[sp.priority] ?? sp.priority}</Badge>
+                            <Badge intent="neutral">
+                              {PRIORITY_LABEL[sp.priority] ?? sp.priority}
+                            </Badge>
                           </div>
                           <div className="mt-0.5 font-body text-xs text-ink-faint">
                             {sp.candidate.position?.name ?? '—'}
@@ -263,14 +291,20 @@ export function CriticalPositionsView() {
                                 {sp.matchScore}% match
                               </span>
                             )}
-                            {!sp.available && <span className="text-warning">Indisponível</span>}
+                            {!sp.available && (
+                              <span className="text-warning">Indisponível</span>
+                            )}
                             {sp.geographicMobility && (
-                              <span className="text-ink-faint">Mobilidade geográfica</span>
+                              <span className="text-ink-faint">
+                                Mobilidade geográfica
+                              </span>
                             )}
                             {sp.readinessByDate && (
                               <span className="text-ink-faint">
                                 Prontidão prevista:{' '}
-                                {new Date(sp.readinessByDate).toLocaleDateString('pt-AO', {
+                                {new Date(
+                                  sp.readinessByDate,
+                                ).toLocaleDateString('pt-AO', {
                                   month: 'short',
                                   year: 'numeric',
                                 })}
@@ -281,16 +315,27 @@ export function CriticalPositionsView() {
                           {/* Acrescento 4: Desempenho → Potencial → Competências → Gaps */}
                           {sp.matchDetails && (
                             <div className="mt-3 grid grid-cols-3 gap-3">
-                              <ScoreBar label="Desempenho" value={sp.matchDetails.perfScore} />
-                              <ScoreBar label="Potencial" value={sp.matchDetails.potentialScore} />
-                              <ScoreBar label="Competências" value={sp.matchDetails.compScore} />
+                              <ScoreBar
+                                label="Desempenho"
+                                value={sp.matchDetails.perfScore}
+                              />
+                              <ScoreBar
+                                label="Potencial"
+                                value={sp.matchDetails.potentialScore}
+                              />
+                              <ScoreBar
+                                label="Competências"
+                                value={sp.matchDetails.compScore}
+                              />
                             </div>
                           )}
-                          {sp.matchDetails && sp.matchDetails.gaps.length > 0 && (
-                            <div className="mt-2 font-body text-xs text-warning-ink">
-                              {sp.matchDetails.gaps.length} lacuna(s) de competência face ao cargo
-                            </div>
-                          )}
+                          {sp.matchDetails &&
+                            sp.matchDetails.gaps.length > 0 && (
+                              <div className="mt-2 font-body text-xs text-warning-ink">
+                                {sp.matchDetails.gaps.length} lacuna(s) de
+                                competência face ao cargo
+                              </div>
+                            )}
 
                           {/* Acrescento 3: plano de preparação do sucessor */}
                           <div className="mt-3">
@@ -299,14 +344,18 @@ export function CriticalPositionsView() {
                                 <div className="mb-1 flex items-center justify-between font-body text-xs">
                                   <span className="font-medium text-ink">
                                     Plano de preparação:{' '}
-                                    {DEV_PLAN_STATUS_LABEL[sp.developmentPlan.status] ??
-                                      sp.developmentPlan.status}
+                                    {DEV_PLAN_STATUS_LABEL[
+                                      sp.developmentPlan.status
+                                    ] ?? sp.developmentPlan.status}
                                   </span>
                                   <span className="text-ink-faint">
                                     {sp.developmentPlan.overallProgress}%
                                   </span>
                                 </div>
-                                <ProgressBar value={sp.developmentPlan.overallProgress} className="h-1.5" />
+                                <ProgressBar
+                                  value={sp.developmentPlan.overallProgress}
+                                  className="h-1.5"
+                                />
                               </div>
                             ) : (
                               <Button
@@ -315,7 +364,8 @@ export function CriticalPositionsView() {
                                 onClick={() => handleGeneratePdi(sp.id)}
                                 loading={generatingPdiFor === sp.id}
                               >
-                                <Sparkles size={13} strokeWidth={1.75} /> Gerar PDI de preparação
+                                <Sparkles size={13} strokeWidth={1.75} /> Gerar
+                                PDI de preparação
                               </Button>
                             )}
                           </div>
@@ -327,8 +377,8 @@ export function CriticalPositionsView() {
 
                 <div className="mt-4 flex items-center gap-1.5 font-body text-xs text-ink-faint">
                   <ClipboardList size={13} strokeWidth={1.75} />
-                  Mínimo de {detail.minSuccessorsRequired} sucessor(es) requerido(s) para cobertura
-                  completa.
+                  Mínimo de {detail.minSuccessorsRequired} sucessor(es)
+                  requerido(s) para cobertura completa.
                 </div>
 
                 <div className="mt-4 border-t border-border pt-3">

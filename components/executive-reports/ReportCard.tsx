@@ -77,7 +77,11 @@ export function ReportCard({ report, onClick }: ReportCardProps) {
 
       <div className="flex items-center justify-between font-body text-xs text-ink-faint">
         <div className="flex items-center gap-2">
-          <Avatar name={report.generatedBy.fullName} url={report.generatedBy.avatarUrl ?? undefined} size="sm" />
+          <Avatar
+            name={report.generatedBy.fullName}
+            url={report.generatedBy.avatarUrl ?? undefined}
+            size="sm"
+          />
           <span>{report.generatedBy.fullName}</span>
         </div>
         <span>{fmtDate(report.createdAt)}</span>

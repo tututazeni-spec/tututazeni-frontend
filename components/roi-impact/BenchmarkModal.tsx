@@ -22,7 +22,9 @@ import { Textarea } from '@/components/ui/Textarea';
 import { BENCHMARK_TYPE_LABELS } from './utils';
 import type { BenchmarkRow, BenchmarkType } from './types';
 
-const TYPE_ITEMS = Object.entries(BENCHMARK_TYPE_LABELS).map(([value, label]) => ({ value, label }));
+const TYPE_ITEMS = Object.entries(BENCHMARK_TYPE_LABELS).map(
+  ([value, label]) => ({ value, label }),
+);
 
 export interface BenchmarkModalProps {
   benchmark?: BenchmarkRow;
@@ -37,12 +39,18 @@ export function BenchmarkModal({ benchmark, onClose }: BenchmarkModalProps) {
   const [type, setType] = useState<BenchmarkType>(benchmark?.type ?? 'EXTERNO');
   const [source, setSource] = useState(benchmark?.source ?? '');
   const [referenceYear, setReferenceYear] = useState(
-    benchmark ? String(benchmark.referenceYear) : String(new Date().getFullYear()),
+    benchmark
+      ? String(benchmark.referenceYear)
+      : String(new Date().getFullYear()),
   );
   const [value, setValue] = useState(benchmark ? String(benchmark.value) : '');
   const [unit, setUnit] = useState(benchmark?.unit ?? '');
-  const [indicatorName, setIndicatorName] = useState(benchmark?.indicatorName ?? '');
-  const [observations, setObservations] = useState(benchmark?.observations ?? '');
+  const [indicatorName, setIndicatorName] = useState(
+    benchmark?.indicatorName ?? '',
+  );
+  const [observations, setObservations] = useState(
+    benchmark?.observations ?? '',
+  );
 
   const save = useApiMutation(
     () => {
@@ -66,7 +74,10 @@ export function BenchmarkModal({ benchmark, onClose }: BenchmarkModalProps) {
         queryKeys.roiImpact.benchmarkSectorComparison(),
       ],
       onSuccess: () => {
-        notify({ title: benchmark ? 'Benchmark actualizado' : 'Benchmark registado', intent: 'success' });
+        notify({
+          title: benchmark ? 'Benchmark actualizado' : 'Benchmark registado',
+          intent: 'success',
+        });
         onClose();
       },
       onError: (e) => setError(e.message || 'Erro ao guardar o benchmark.'),
@@ -177,7 +188,12 @@ export function BenchmarkModal({ benchmark, onClose }: BenchmarkModalProps) {
         </div>
 
         <div className="mt-6 flex gap-3 border-t border-border pt-4">
-          <Button intent="secondary" className="justify-center" onClick={onClose} disabled={save.isPending}>
+          <Button
+            intent="secondary"
+            className="justify-center"
+            onClick={onClose}
+            disabled={save.isPending}
+          >
             Cancelar
           </Button>
           <Button

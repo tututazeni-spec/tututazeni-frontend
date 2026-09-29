@@ -19,7 +19,11 @@ import { Pagination } from '@/components/ui/Pagination';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { Button } from '@/components/ui/Button';
 import { ResolveDisputeModal } from './ResolveDisputeModal';
-import { DISPUTE_STATUS_MAP, type Paginated, type PayslipDispute } from './types';
+import {
+  DISPUTE_STATUS_MAP,
+  type Paginated,
+  type PayslipDispute,
+} from './types';
 
 export interface DisputesViewProps {
   onOpenPayslip: (payslipId: number) => void;
@@ -31,8 +35,7 @@ const STATUS_ITEMS = [
   { value: 'all', label: 'Todas' },
 ];
 
-const COLS =
-  'grid grid-cols-[1.3fr_1.4fr_1.4fr_110px_130px_130px_110px] gap-3';
+const COLS = 'grid grid-cols-[1.3fr_1.4fr_1.4fr_110px_130px_130px_110px] gap-3';
 
 export function DisputesView({ onOpenPayslip }: DisputesViewProps) {
   const [status, setStatus] = useState('OPEN');
@@ -45,7 +48,11 @@ export function DisputesView({ onOpenPayslip }: DisputesViewProps) {
   const { data, isLoading, error } = useApiQuery<Paginated<PayslipDispute>>(
     queryKeys.payslips.disputes(params),
     '/payslips/disputes',
-    { params, staleTime: STALE_TIME.DYNAMIC, placeholderData: keepPreviousData },
+    {
+      params,
+      staleTime: STALE_TIME.DYNAMIC,
+      placeholderData: keepPreviousData,
+    },
   );
 
   const rows = data?.data ?? [];

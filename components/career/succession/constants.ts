@@ -3,7 +3,12 @@
 // components/career/constants.ts (tokens semânticos da fundação de design).
 
 import type { BadgeProps } from '@/components/ui/Badge';
-import type { BusinessImpact, ReadinessLevel, ReplacementTime, RiskLevel } from './types';
+import type {
+  BusinessImpact,
+  ReadinessLevel,
+  ReplacementTime,
+  RiskLevel,
+} from './types';
 
 // Módulo Career, secção 7, acrescento 1: "Nível de prontidão" — Pronto
 // agora, pronto em <1 ano, 1-2 anos, 2-3 anos, desenvolvimento de longo
@@ -19,7 +24,10 @@ export const READINESS_LABEL: Record<ReadinessLevel, string> = {
 // Módulo Career, secção 7, acrescento 2: "Risco de sucessão" — Baixo,
 // médio, alto, calculado (computeExitRisk), nunca atribuído manualmente
 // como CRITICAL pelo motor automático.
-export const RISK_INTENT: Record<RiskLevel, NonNullable<BadgeProps['intent']>> = {
+export const RISK_INTENT: Record<
+  RiskLevel,
+  NonNullable<BadgeProps['intent']>
+> = {
   LOW: 'success',
   MEDIUM: 'warning',
   HIGH: 'danger',
@@ -47,14 +55,16 @@ export const REPLACEMENT_TIME_LABEL: Record<ReplacementTime, string> = {
   LONG_TERM: 'Longo prazo',
 };
 
-export const READINESS_OPTIONS = (Object.keys(READINESS_LABEL) as ReadinessLevel[]).map((v) => ({
+export const READINESS_OPTIONS = (
+  Object.keys(READINESS_LABEL) as ReadinessLevel[]
+).map((v) => ({
   value: v,
   label: READINESS_LABEL[v],
 }));
 
-export const BUSINESS_IMPACT_OPTIONS = (Object.keys(BUSINESS_IMPACT_LABEL) as BusinessImpact[]).map(
-  (v) => ({ value: v, label: BUSINESS_IMPACT_LABEL[v] }),
-);
+export const BUSINESS_IMPACT_OPTIONS = (
+  Object.keys(BUSINESS_IMPACT_LABEL) as BusinessImpact[]
+).map((v) => ({ value: v, label: BUSINESS_IMPACT_LABEL[v] }));
 
 export const REPLACEMENT_TIME_OPTIONS = (
   Object.keys(REPLACEMENT_TIME_LABEL) as ReplacementTime[]

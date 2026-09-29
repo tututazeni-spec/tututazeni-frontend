@@ -34,7 +34,8 @@ export function OverdueMilestonesView({
             Milestones em Atraso
           </h1>
           <p className="font-body text-ink-muted">
-            {data.length} {data.length === 1 ? 'milestone' : 'milestones'} por concluir
+            {data.length} {data.length === 1 ? 'milestone' : 'milestones'} por
+            concluir
           </p>
         </div>
         <Link href="/crm/partners">
@@ -45,7 +46,9 @@ export function OverdueMilestonesView({
       <Card>
         <div className="divide-y divide-border">
           {data.length === 0 ? (
-            <p className="p-4 font-body text-ink-faint">Sem milestones em atraso</p>
+            <p className="p-4 font-body text-ink-faint">
+              Sem milestones em atraso
+            </p>
           ) : (
             data.map((m) => (
               <Link
@@ -56,9 +59,13 @@ export function OverdueMilestonesView({
                 <div>
                   <p className="font-body font-medium text-ink">{m.title}</p>
                   <p className="font-body text-xs text-ink-muted">
-                    <span className="font-mono text-primary mr-1">{m.partner.code}</span>
+                    <span className="font-mono text-primary mr-1">
+                      {m.partner.code}
+                    </span>
                     {m.partner.name}
-                    {m.createdBy?.fullName ? ` · Criado por ${m.createdBy.fullName}` : ''}
+                    {m.createdBy?.fullName
+                      ? ` · Criado por ${m.createdBy.fullName}`
+                      : ''}
                   </p>
                 </div>
                 <span className="font-body text-xs text-danger-ink font-medium">

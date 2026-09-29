@@ -15,9 +15,7 @@ describe('Pagination', () => {
     ['1', '2', '3', '4', '5'].forEach((label) => {
       expect(screen.getByRole('button', { name: label })).toBeInTheDocument();
     });
-    expect(
-      screen.queryByRole('button', { name: '6' }),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: '6' })).not.toBeInTheDocument();
   });
 
   test('mostra a janela de 5 páginas centrada numa página intermédia', () => {
@@ -48,27 +46,21 @@ describe('Pagination', () => {
 
   test('chama onPageChange com o número correcto ao clicar num botão numerado', () => {
     const onPageChange = vi.fn();
-    render(
-      <Pagination page={5} totalPages={10} onPageChange={onPageChange} />,
-    );
+    render(<Pagination page={5} totalPages={10} onPageChange={onPageChange} />);
     fireEvent.click(screen.getByRole('button', { name: '7' }));
     expect(onPageChange).toHaveBeenCalledWith(7);
   });
 
   test('chama onPageChange com page - 1 ao clicar na seta "anterior"', () => {
     const onPageChange = vi.fn();
-    render(
-      <Pagination page={5} totalPages={10} onPageChange={onPageChange} />,
-    );
+    render(<Pagination page={5} totalPages={10} onPageChange={onPageChange} />);
     fireEvent.click(screen.getByRole('button', { name: '←' }));
     expect(onPageChange).toHaveBeenCalledWith(4);
   });
 
   test('chama onPageChange com page + 1 ao clicar na seta "seguinte"', () => {
     const onPageChange = vi.fn();
-    render(
-      <Pagination page={5} totalPages={10} onPageChange={onPageChange} />,
-    );
+    render(<Pagination page={5} totalPages={10} onPageChange={onPageChange} />);
     fireEvent.click(screen.getByRole('button', { name: '→' }));
     expect(onPageChange).toHaveBeenCalledWith(6);
   });

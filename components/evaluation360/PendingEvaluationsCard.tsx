@@ -40,7 +40,12 @@ function toQuestion(q: RawQuestion): EvaluationQuestion {
   return {
     id: q.id,
     text: q.text,
-    type: q.type === 'FREQUENCY' ? 'FREQUENCY' : q.type === 'OPEN_TEXT' ? 'OPEN_TEXT' : 'LIKERT',
+    type:
+      q.type === 'FREQUENCY'
+        ? 'FREQUENCY'
+        : q.type === 'OPEN_TEXT'
+          ? 'OPEN_TEXT'
+          : 'LIKERT',
     competency: q.competency?.name ?? '',
     isRequired: q.isRequired,
   };
@@ -66,7 +71,9 @@ export interface PendingEvaluationsCardProps {
   cycleId: string;
 }
 
-export function PendingEvaluationsCard({ cycleId }: PendingEvaluationsCardProps) {
+export function PendingEvaluationsCard({
+  cycleId,
+}: PendingEvaluationsCardProps) {
   const { data, isLoading } = useApiQuery<RawAssignment[]>(
     queryKeys.evaluation360.myAssignments(cycleId),
     `/evaluation360/cycles/${cycleId}/my-assignments`,
@@ -101,7 +108,9 @@ export function PendingEvaluationsCard({ cycleId }: PendingEvaluationsCardProps)
         </button>
         <EvaluationFormTab
           questions={(formData?.questions ?? []).map(toQuestion)}
-          participantName={selected.role === 'SELF' ? 'Eu' : selected.evaluateeName}
+          participantName={
+            selected.role === 'SELF' ? 'Eu' : selected.evaluateeName
+          }
           evaluatorRole={selected.role}
           cycleId={cycleId}
           evaluateeId={selected.evaluateeId}
@@ -111,7 +120,8 @@ export function PendingEvaluationsCard({ cycleId }: PendingEvaluationsCardProps)
     );
   }
 
-  if (isLoading) return <div className="text-sm text-ink-muted">A carregar…</div>;
+  if (isLoading)
+    return <div className="text-sm text-ink-muted">A carregar…</div>;
   if (assignments.length === 0) return null;
 
   return (
@@ -119,7 +129,8 @@ export function PendingEvaluationsCard({ cycleId }: PendingEvaluationsCardProps)
       <div className="mb-3">
         <h3 className="m-0 text-sm font-bold text-ink">Avaliações Pendentes</h3>
         <p className="m-0 mt-0.5 text-xs text-ink-muted">
-          Inclui a tua autoavaliação e as avaliações de colegas/equipa que te foram distribuídas.
+          Inclui a tua autoavaliação e as avaliações de colegas/equipa que te
+          foram distribuídas.
         </p>
       </div>
       <div className="flex flex-col gap-2">
@@ -134,18 +145,28 @@ export function PendingEvaluationsCard({ cycleId }: PendingEvaluationsCardProps)
               {a.role === 'SELF' ? (
                 <Avatar name="Eu" size="sm" />
               ) : (
-                <Avatar name={a.evaluateeName} url={a.evaluateeAvatarUrl ?? undefined} size="sm" />
+                <Avatar
+                  name={a.evaluateeName}
+                  url={a.evaluateeAvatarUrl ?? undefined}
+                  size="sm"
+                />
               )}
               <div>
                 <div className="text-sm font-semibold text-ink">
-                  {a.role === 'SELF' ? 'A minha autoavaliação' : a.evaluateeName}
+                  {a.role === 'SELF'
+                    ? 'A minha autoavaliação'
+                    : a.evaluateeName}
                 </div>
                 <div className="text-xs text-ink-muted mt-0.5">
-                  {a.role === 'SELF' ? ROLE_LABEL.SELF : `${a.evaluateeDepartment ?? '—'} · ${ROLE_LABEL[a.role]}`}
+                  {a.role === 'SELF'
+                    ? ROLE_LABEL.SELF
+                    : `${a.evaluateeDepartment ?? '—'} · ${ROLE_LABEL[a.role]}`}
                 </div>
               </div>
             </div>
-            <span className="text-xs font-semibold text-ink-muted">{STATUS_LABEL[a.status]}</span>
+            <span className="text-xs font-semibold text-ink-muted">
+              {STATUS_LABEL[a.status]}
+            </span>
           </button>
         ))}
       </div>

@@ -25,12 +25,19 @@ import {
   TableHeaderCell,
   TableRow,
 } from '@/components/ui/Table';
-import { AUDIT_ACTION_LABELS, auditActionLabel, describeAuditMeta } from './auditLogLabels';
+import {
+  AUDIT_ACTION_LABELS,
+  auditActionLabel,
+  describeAuditMeta,
+} from './auditLogLabels';
 import type { ModuleAuditLogsResponse } from './types';
 
 const ACTION_ITEMS = [
   { value: 'ALL', label: 'Todas as ações' },
-  ...Object.entries(AUDIT_ACTION_LABELS).map(([value, label]) => ({ value, label })),
+  ...Object.entries(AUDIT_ACTION_LABELS).map(([value, label]) => ({
+    value,
+    label,
+  })),
 ];
 
 export function AuditHistoryView() {
@@ -50,7 +57,11 @@ export function AuditHistoryView() {
   const { data, isLoading } = useApiQuery<ModuleAuditLogsResponse>(
     queryKeys.users.moduleAuditLogs(params),
     '/users/audit-logs',
-    { params, staleTime: STALE_TIME.DYNAMIC, placeholderData: keepPreviousData },
+    {
+      params,
+      staleTime: STALE_TIME.DYNAMIC,
+      placeholderData: keepPreviousData,
+    },
   );
 
   return (
@@ -113,7 +124,9 @@ export function AuditHistoryView() {
                     {log.user?.fullName ?? `#${log.userId}`}
                   </TableCell>
                   <TableCell>
-                    <Badge intent="neutral">{auditActionLabel(log.action)}</Badge>
+                    <Badge intent="neutral">
+                      {auditActionLabel(log.action)}
+                    </Badge>
                   </TableCell>
                   <TableCell className="text-sm text-ink-muted">
                     {log.performedBy?.fullName ?? `#${log.performedById}`}
@@ -125,7 +138,10 @@ export function AuditHistoryView() {
               ))}
               {data?.data.length === 0 && (
                 <TableRow>
-                  <td colSpan={5} className="px-4 py-10 text-center font-body text-sm text-ink-faint">
+                  <td
+                    colSpan={5}
+                    className="px-4 py-10 text-center font-body text-sm text-ink-faint"
+                  >
                     Sem registos de auditoria para os filtros escolhidos
                   </td>
                 </TableRow>

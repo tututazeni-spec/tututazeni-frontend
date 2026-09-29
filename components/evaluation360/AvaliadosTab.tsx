@@ -33,7 +33,11 @@ const STATUS_OPTIONS: SelectItemOption[] = [
 ];
 
 export function AvaliadosTab() {
-  const { cycles, options: cycleOptions, loading: cyclesLoading } = useCycleSelectorOptions();
+  const {
+    cycles,
+    options: cycleOptions,
+    loading: cyclesLoading,
+  } = useCycleSelectorOptions();
   const [cycleId, setCycleId] = useState('');
   // Assim que os ciclos chegam, selecciona o mais recente por omissão — sem
   // isto a aba ficava sempre vazia até o utilizador escolher manualmente.
@@ -55,7 +59,10 @@ export function AvaliadosTab() {
   if (status !== ALL) params.status = status;
   if (departmentId !== ALL) params.departmentId = departmentId;
 
-  const { data, isLoading } = useApiQuery<{ data: CycleParticipantRow[]; total: number }>(
+  const { data, isLoading } = useApiQuery<{
+    data: CycleParticipantRow[];
+    total: number;
+  }>(
     queryKeys.evaluation360.cycleParticipants(cycleId, params),
     `/evaluation360/cycles/${cycleId}/participants`,
     { params, staleTime: STALE_TIME.DYNAMIC, enabled: !!cycleId },
@@ -67,7 +74,9 @@ export function AvaliadosTab() {
       <div>
         <h2 className="m-0 text-lg font-bold text-ink">Avaliados</h2>
         <p className="m-0 mt-1 text-sm text-ink-muted">
-          {cycleId && data ? `${data.total} avaliado(s) neste ciclo` : 'Escolhe um ciclo de avaliação 360°.'}
+          {cycleId && data
+            ? `${data.total} avaliado(s) neste ciclo`
+            : 'Escolhe um ciclo de avaliação 360°.'}
         </p>
       </div>
 
@@ -83,12 +92,24 @@ export function AvaliadosTab() {
           />
         </div>
         <div>
-          <div className="text-xs font-semibold text-ink-muted mb-1">Estado</div>
-          <Select items={STATUS_OPTIONS} value={status} onValueChange={setStatus} />
+          <div className="text-xs font-semibold text-ink-muted mb-1">
+            Estado
+          </div>
+          <Select
+            items={STATUS_OPTIONS}
+            value={status}
+            onValueChange={setStatus}
+          />
         </div>
         <div>
-          <div className="text-xs font-semibold text-ink-muted mb-1">Departamento</div>
-          <Select items={departmentOptions} value={departmentId} onValueChange={setDepartmentId} />
+          <div className="text-xs font-semibold text-ink-muted mb-1">
+            Departamento
+          </div>
+          <Select
+            items={departmentOptions}
+            value={departmentId}
+            onValueChange={setDepartmentId}
+          />
         </div>
       </div>
 
@@ -97,7 +118,9 @@ export function AvaliadosTab() {
           Ainda não existe nenhum ciclo de avaliação 360º.
         </div>
       )}
-      {cycleId && isLoading && <div className="text-sm text-ink-muted">A carregar…</div>}
+      {cycleId && isLoading && (
+        <div className="text-sm text-ink-muted">A carregar…</div>
+      )}
       {cycleId && !isLoading && rows.length === 0 && (
         <div className="rounded-lg border border-border bg-surface p-5 text-sm text-ink-muted">
           Nenhum avaliado encontrado com estes filtros.
@@ -131,22 +154,44 @@ export function AvaliadosTab() {
                 >
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2.5">
-                      <Avatar name={p.fullName} url={p.avatarUrl ?? undefined} size="sm" />
+                      <Avatar
+                        name={p.fullName}
+                        url={p.avatarUrl ?? undefined}
+                        size="sm"
+                      />
                       <div>
-                        <div className="font-semibold text-ink">{p.fullName}</div>
+                        <div className="font-semibold text-ink">
+                          {p.fullName}
+                        </div>
                         {p.employeeNumber && (
-                          <div className="text-xs text-ink-muted">Nº {p.employeeNumber}</div>
+                          <div className="text-xs text-ink-muted">
+                            Nº {p.employeeNumber}
+                          </div>
                         )}
                       </div>
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-ink-muted">{p.position ?? '—'}</td>
-                  <td className="px-4 py-3 text-ink-muted">{p.department ?? '—'}</td>
-                  <td className="px-4 py-3 text-ink-muted">{p.managerName ?? '—'}</td>
-                  <td className="px-4 py-3 text-right text-ink">{p.evaluatorsCount}</td>
-                  <td className="px-4 py-3 text-right text-ink">{p.confirmedEvaluators}</td>
-                  <td className="px-4 py-3 text-right text-ink">{p.responsesReceived}</td>
-                  <td className="px-4 py-3 text-right text-ink">{p.progressPercent}%</td>
+                  <td className="px-4 py-3 text-ink-muted">
+                    {p.position ?? '—'}
+                  </td>
+                  <td className="px-4 py-3 text-ink-muted">
+                    {p.department ?? '—'}
+                  </td>
+                  <td className="px-4 py-3 text-ink-muted">
+                    {p.managerName ?? '—'}
+                  </td>
+                  <td className="px-4 py-3 text-right text-ink">
+                    {p.evaluatorsCount}
+                  </td>
+                  <td className="px-4 py-3 text-right text-ink">
+                    {p.confirmedEvaluators}
+                  </td>
+                  <td className="px-4 py-3 text-right text-ink">
+                    {p.responsesReceived}
+                  </td>
+                  <td className="px-4 py-3 text-right text-ink">
+                    {p.progressPercent}%
+                  </td>
                   <td className="px-4 py-3">
                     <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-surface-sunken text-ink">
                       {participantStatusLabel[p.status] ?? p.status}

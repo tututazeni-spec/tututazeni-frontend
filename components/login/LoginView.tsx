@@ -1,7 +1,7 @@
 // components/login/LoginView.tsx
-"use client";
+'use client';
 
-import Image from "next/image";
+import Image from 'next/image';
 
 interface LoginViewProps {
   email: string;
@@ -273,14 +273,16 @@ export function LoginView({
               alt="Innova"
               width={52}
               height={52}
-              style={{ objectFit: "contain" }}
+              style={{ objectFit: 'contain' }}
             />
             <span className="login-logo-text">Innova</span>
           </div>
 
           <div className="login-divider" />
 
-          <p className="login-subtitle">Academia Digital e Gestão de Recursos Humanos Aceda à sua conta</p>
+          <p className="login-subtitle">
+            Academia Digital e Gestão de Recursos Humanos Aceda à sua conta
+          </p>
 
           <form onSubmit={handleSubmit}>
             <div className="login-field">
@@ -382,7 +384,8 @@ export function LoginView({
           </form>
 
           <div className="login-footer">
-            © {new Date().getFullYear()} Innova — Propriedade da EVOS, LDA. Todos os direitos reservados.
+            © {new Date().getFullYear()} Innova — Propriedade da EVOS, LDA.
+            Todos os direitos reservados.
           </div>
         </div>
       </div>

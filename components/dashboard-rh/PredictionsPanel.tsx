@@ -46,8 +46,12 @@ function TopBarKpiCard({
       <div className={`h-1.5 w-full ${t.bar}`} />
       <div className="p-5 pt-6">
         <Icon size={22} strokeWidth={1.75} className={t.text} />
-        <p className={`mt-3 font-display text-3xl font-bold ${t.text}`}>{value}</p>
-        <p className="mt-1 font-body text-sm font-medium text-ink-muted">{label}</p>
+        <p className={`mt-3 font-display text-3xl font-bold ${t.text}`}>
+          {value}
+        </p>
+        <p className="mt-1 font-body text-sm font-medium text-ink-muted">
+          {label}
+        </p>
         {sub && <p className="mt-1 font-body text-xs text-ink-faint">{sub}</p>}
       </div>
     </div>
@@ -73,12 +77,13 @@ export function PredictionsPanel() {
     <div className="space-y-5">
       <div className="rounded-card border border-warning-subtle bg-warning-subtle p-3">
         <p className="font-body text-xs text-warning-ink">
-          Previsão heurística baseada em performance e tempo de casa — não substitui análise de RH.
+          Previsão heurística baseada em performance e tempo de casa — não
+          substitui análise de RH.
         </p>
       </div>
 
       <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
-                <TopBarKpiCard
+        <TopBarKpiCard
           icon={AlertTriangle}
           label="Em Risco de Saída"
           value={data?.summary?.atRiskCount ?? 0}
@@ -109,7 +114,10 @@ export function PredictionsPanel() {
                 key={i}
                 className="flex items-center gap-3 border-b border-border py-2 last:border-0"
               >
-                <Avatar name={r.user?.fullName ?? '?'} url={r.user?.avatarUrl} />
+                <Avatar
+                  name={r.user?.fullName ?? '?'}
+                  url={r.user?.avatarUrl}
+                />
                 <div className="min-w-0 flex-1">
                   <p className="font-body text-sm font-medium text-ink">
                     {r.user?.fullName}

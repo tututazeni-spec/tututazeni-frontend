@@ -43,7 +43,11 @@ const TABS: { id: Tab; label: string; icon: LucideIcon | null }[] = [
   { id: 'executive', label: 'Visão Geral', icon: Briefcase },
   { id: 'roi-analysis', label: 'ROI da Formação', icon: LineChart },
   { id: 'impact', label: 'Impacto no Negócio', icon: Target },
-  { id: 'evaluation-models', label: 'Modelos de Avaliação', icon: ClipboardList },
+  {
+    id: 'evaluation-models',
+    label: 'Modelos de Avaliação',
+    icon: ClipboardList,
+  },
   { id: 'costs', label: 'Custos & Investimento', icon: Coins },
   { id: 'kpis', label: 'Indicadores & KPIs', icon: Gauge },
   { id: 'correlations', label: 'Correlações', icon: GitCompareArrows },
@@ -60,7 +64,9 @@ export default function RoiImpactPage() {
         <div className="mx-auto flex max-w-7xl items-start justify-between">
           <div>
             <div className="mb-1 flex items-center gap-2">
-              <h1 className="font-display text-xl font-bold text-ink">ROI & Impacto</h1>
+              <h1 className="font-display text-xl font-bold text-ink">
+                ROI & Impacto
+              </h1>
             </div>
           </div>
         </div>

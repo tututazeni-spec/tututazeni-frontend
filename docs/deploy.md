@@ -18,7 +18,7 @@ réplicas) atrás do Caddy. Rota `/` → frontend; `/api/*` → backend.
 
 `BACKEND_DISPATCH_TOKEN` — PAT fine-grained com `contents: write` **apenas** no
 repo `tututazeni-spec/tututazeni-backend`. Sem ele, a imagem é publicada mas o
-rollout não arranca (recuperável com *Run workflow* manual no backend).
+rollout não arranca (recuperável com _Run workflow_ manual no backend).
 
 ## Env de runtime
 

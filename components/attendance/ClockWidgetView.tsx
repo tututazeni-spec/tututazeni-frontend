@@ -55,7 +55,9 @@ export function ClockWidgetView({
   return (
     <div className="bg-primary rounded-panel p-6 text-canvas shadow-elevated">
       <div className="text-center mb-6">
-        <p className="text-primary-ink text-sm capitalize opacity-75">{dateStr}</p>
+        <p className="text-primary-ink text-sm capitalize opacity-75">
+          {dateStr}
+        </p>
         <p className="text-5xl font-bold mt-1 font-data tracking-tight">
           {timeStr}
         </p>
@@ -106,7 +108,9 @@ export function ClockWidgetView({
         <div className="bg-primary-subtle rounded-control p-4 text-center">
           <CheckCircle2 size={28} className="mx-auto mb-2 text-success" />
           <p className="text-sm text-canvas">Dia registado com sucesso</p>
-          <p className="text-xs text-primary-ink/75 mt-0.5">Entrada: {clockInTime}</p>
+          <p className="text-xs text-primary-ink/75 mt-0.5">
+            Entrada: {clockInTime}
+          </p>
         </div>
       )}
 

@@ -46,9 +46,14 @@ export function AttendancePanel() {
 
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         <div className="flex flex-col items-center justify-center rounded-card border border-border bg-surface p-3">
-          <GaugeChart value={k.attendanceRate ?? 0} label="Taxa de Presença" thresholds={{ warning: 90, danger: 75 }} size={120} />
+          <GaugeChart
+            value={k.attendanceRate ?? 0}
+            label="Taxa de Presença"
+            thresholds={{ warning: 90, danger: 75 }}
+            size={120}
+          />
         </div>
-               <TopBarKpiCard
+        <TopBarKpiCard
           icon={UserCheck}
           label="Presentes Agora"
           value={k.checkedInNow ?? 0}
@@ -69,7 +74,7 @@ export function AttendancePanel() {
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                <TopBarKpiCard
+        <TopBarKpiCard
           icon={CalendarClock}
           label="Férias/Baixas Pendentes"
           value={k.pendingLeaves ?? 0}
@@ -120,8 +125,12 @@ function TopBarKpiCard({
       <div className={`h-1.5 w-full ${t.bar}`} />
       <div className="p-5 pt-6">
         <Icon size={22} strokeWidth={1.75} className={t.text} />
-        <p className={`mt-3 font-display text-3xl font-bold ${t.text}`}>{value}</p>
-        <p className="mt-1 font-body text-sm font-medium text-ink-muted">{label}</p>
+        <p className={`mt-3 font-display text-3xl font-bold ${t.text}`}>
+          {value}
+        </p>
+        <p className="mt-1 font-body text-sm font-medium text-ink-muted">
+          {label}
+        </p>
         {sub && <p className="mt-1 font-body text-xs text-ink-faint">{sub}</p>}
       </div>
     </div>

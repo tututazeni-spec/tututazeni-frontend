@@ -28,7 +28,11 @@ import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { Textarea } from '@/components/ui/Textarea';
 import { STATUS_CFG } from './constants';
-import type { LiveClassSession, LiveClassStatus, PaginatedSessions } from './types';
+import type {
+  LiveClassSession,
+  LiveClassStatus,
+  PaginatedSessions,
+} from './types';
 
 interface SessionFormState {
   liveClassId: string;
@@ -50,7 +54,10 @@ const EMPTY: SessionFormState = {
 
 const STATUS_ITEMS = [
   { value: 'ALL', label: 'Todos os estados' },
-  ...(Object.keys(STATUS_CFG) as LiveClassStatus[]).map((s) => ({ value: s, label: STATUS_CFG[s].label })),
+  ...(Object.keys(STATUS_CFG) as LiveClassStatus[]).map((s) => ({
+    value: s,
+    label: STATUS_CFG[s].label,
+  })),
 ];
 
 function useLiveClassOptions() {
@@ -60,7 +67,10 @@ function useLiveClassOptions() {
     '/live-classes',
     { params, staleTime: STALE_TIME.SEMI_STATIC },
   );
-  const options = (query.data?.data ?? []).map((c) => ({ value: String(c.id), label: c.topic }));
+  const options = (query.data?.data ?? []).map((c) => ({
+    value: String(c.id),
+    label: c.topic,
+  }));
   return { options, loading: query.isLoading };
 }
 
@@ -74,13 +84,20 @@ export function SessionsView({ canManage }: { canManage: boolean }) {
   const [editing, setEditing] = useState<LiveClassSession | 'new' | null>(null);
   const [form, setForm] = useState<SessionFormState>(EMPTY);
 
-  const params: Record<string, string | number | boolean | null | undefined> = { page, limit: 20 };
+  const params: Record<string, string | number | boolean | null | undefined> = {
+    page,
+    limit: 20,
+  };
   if (status !== 'ALL') params.status = status;
 
   const { data, isLoading } = useApiQuery<PaginatedSessions>(
     queryKeys.liveClasses.allSessions(params),
     '/live-classes/sessions',
-    { params, staleTime: STALE_TIME.DYNAMIC, placeholderData: keepPreviousData },
+    {
+      params,
+      staleTime: STALE_TIME.DYNAMIC,
+      placeholderData: keepPreviousData,
+    },
   );
   const sessions = data?.data ?? [];
   const totalPages = data?.meta.totalPages ?? 1;
@@ -113,7 +130,10 @@ export function SessionsView({ canManage }: { canManage: boolean }) {
         notes: form.notes || undefined,
       };
       return editing !== 'new' && editing
-        ? apiClient.put(`/live-classes/${editing.liveClassId}/sessions/${editing.id}`, payload)
+        ? apiClient.put(
+            `/live-classes/${editing.liveClassId}/sessions/${editing.id}`,
+            payload,
+          )
         : apiClient.post(`/live-classes/${form.liveClassId}/sessions`, payload);
     },
     {
@@ -127,7 +147,8 @@ export function SessionsView({ canManage }: { canManage: boolean }) {
   );
 
   const remove = useApiMutation(
-    (s: LiveClassSession) => apiClient.delete(`/live-classes/${s.liveClassId}/sessions/${s.id}`),
+    (s: LiveClassSession) =>
+      apiClient.delete(`/live-classes/${s.liveClassId}/sessions/${s.id}`),
     {
       invalidateKeys,
       onSuccess: () => toast({ title: 'Sessão eliminada.', intent: 'success' }),
@@ -175,18 +196,24 @@ export function SessionsView({ canManage }: { canManage: boolean }) {
         <>
           <Card className="divide-y divide-border">
             {sessions.map((s) => (
-              <div key={s.id} className="flex flex-wrap items-center gap-3 px-4 py-3">
+              <div
+                key={s.id}
+                className="flex flex-wrap items-center gap-3 px-4 py-3"
+              >
                 <div className="min-w-0 flex-1">
                   <div className="text-sm font-medium text-ink">
-                    {s.liveClass?.topic ?? `Aula #${s.liveClassId}`} · Sessão {s.seq}
+                    {s.liveClass?.topic ?? `Aula #${s.liveClassId}`} · Sessão{' '}
+                    {s.seq}
                   </div>
                   <div className="mt-1 flex flex-wrap items-center gap-3 font-body text-xs text-ink-faint">
                     <span className="inline-flex items-center gap-1">
-                      <Clock size={12} strokeWidth={1.75} /> {formatDateTime(s.sessionDate)} ({s.durationMinutes}min)
+                      <Clock size={12} strokeWidth={1.75} />{' '}
+                      {formatDateTime(s.sessionDate)} ({s.durationMinutes}min)
                     </span>
                     {s.instructor && (
                       <span className="inline-flex items-center gap-1">
-                        <User size={12} strokeWidth={1.75} /> {s.instructor.name}
+                        <User size={12} strokeWidth={1.75} />{' '}
+                        {s.instructor.name}
                       </span>
                     )}
                     {s.location && (
@@ -194,23 +221,33 @@ export function SessionsView({ canManage }: { canManage: boolean }) {
                         <MapPin size={12} strokeWidth={1.75} /> {s.location}
                       </span>
                     )}
-                    {s.liveClass?.course && <span>{s.liveClass.course.title}</span>}
+                    {s.liveClass?.course && (
+                      <span>{s.liveClass.course.title}</span>
+                    )}
                     <span>{s._count?.attendances ?? 0} presenças</span>
                   </div>
                 </div>
-                <span className={`rounded px-2 py-0.5 font-body text-xs font-medium ${STATUS_CFG[s.status]?.cls ?? ''}`}>
+                <span
+                  className={`rounded px-2 py-0.5 font-body text-xs font-medium ${STATUS_CFG[s.status]?.cls ?? ''}`}
+                >
                   {STATUS_CFG[s.status]?.label ?? s.status}
                 </span>
                 {canManage && (
                   <>
-                    <Button intent="ghost" size="sm" onClick={() => openEdit(s)}>
+                    <Button
+                      intent="ghost"
+                      size="sm"
+                      onClick={() => openEdit(s)}
+                    >
                       Editar
                     </Button>
                     <Button
                       intent="danger"
                       size="sm"
                       onClick={() => onDelete(s)}
-                      loading={remove.isPending && remove.variables?.id === s.id}
+                      loading={
+                        remove.isPending && remove.variables?.id === s.id
+                      }
                     >
                       <Trash2 size={14} strokeWidth={1.75} />
                     </Button>
@@ -222,13 +259,23 @@ export function SessionsView({ canManage }: { canManage: boolean }) {
 
           {totalPages > 1 && (
             <div className="flex justify-center gap-2">
-              <Button intent="ghost" size="sm" disabled={page === 1} onClick={() => setPage((p) => p - 1)}>
+              <Button
+                intent="ghost"
+                size="sm"
+                disabled={page === 1}
+                onClick={() => setPage((p) => p - 1)}
+              >
                 ← Anterior
               </Button>
               <span className="py-2 px-3 text-sm text-ink-muted">
                 {page} / {totalPages}
               </span>
-              <Button intent="ghost" size="sm" disabled={page === totalPages} onClick={() => setPage((p) => p + 1)}>
+              <Button
+                intent="ghost"
+                size="sm"
+                disabled={page === totalPages}
+                onClick={() => setPage((p) => p + 1)}
+              >
                 Seguinte →
               </Button>
             </div>
@@ -238,14 +285,18 @@ export function SessionsView({ canManage }: { canManage: boolean }) {
 
       {editing && (
         <Modal open onOpenChange={(open) => !open && setEditing(null)}>
-          <ModalContent title={editing === 'new' ? 'Nova sessão' : 'Editar sessão'}>
+          <ModalContent
+            title={editing === 'new' ? 'Nova sessão' : 'Editar sessão'}
+          >
             <div className="mt-4 space-y-4">
               {editing === 'new' && (
                 <FormField label="Aula *" htmlFor="sv-liveclass">
                   <Combobox
                     items={liveClassOptions}
                     value={form.liveClassId}
-                    onValueChange={(v) => setForm((f) => ({ ...f, liveClassId: v }))}
+                    onValueChange={(v) =>
+                      setForm((f) => ({ ...f, liveClassId: v }))
+                    }
                     placeholder="Selecionar aula…"
                     searchPlaceholder="Escreva para filtrar…"
                   />
@@ -256,7 +307,9 @@ export function SessionsView({ canManage }: { canManage: boolean }) {
                   id="sv-date"
                   type="datetime-local"
                   value={form.sessionDate}
-                  onChange={(e) => setForm((f) => ({ ...f, sessionDate: e.target.value }))}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, sessionDate: e.target.value }))
+                  }
                   className="w-full"
                 />
               </FormField>
@@ -266,7 +319,9 @@ export function SessionsView({ canManage }: { canManage: boolean }) {
                   type="number"
                   min={15}
                   value={form.durationMinutes}
-                  onChange={(e) => setForm((f) => ({ ...f, durationMinutes: e.target.value }))}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, durationMinutes: e.target.value }))
+                  }
                   className="w-full"
                 />
               </FormField>
@@ -274,7 +329,9 @@ export function SessionsView({ canManage }: { canManage: boolean }) {
                 <Input
                   id="sv-location"
                   value={form.location}
-                  onChange={(e) => setForm((f) => ({ ...f, location: e.target.value }))}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, location: e.target.value }))
+                  }
                   className="w-full"
                 />
               </FormField>
@@ -282,7 +339,9 @@ export function SessionsView({ canManage }: { canManage: boolean }) {
                 <Input
                   id="sv-meetingUrl"
                   value={form.meetingUrl}
-                  onChange={(e) => setForm((f) => ({ ...f, meetingUrl: e.target.value }))}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, meetingUrl: e.target.value }))
+                  }
                   className="w-full"
                 />
               </FormField>
@@ -290,21 +349,29 @@ export function SessionsView({ canManage }: { canManage: boolean }) {
                 <Textarea
                   id="sv-notes"
                   value={form.notes}
-                  onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, notes: e.target.value }))
+                  }
                   rows={2}
                   className="w-full resize-none"
                 />
               </FormField>
             </div>
             <div className="mt-6 flex gap-3 border-t border-border pt-4">
-              <Button intent="secondary" className="flex-1 justify-center" onClick={() => setEditing(null)}>
+              <Button
+                intent="secondary"
+                className="flex-1 justify-center"
+                onClick={() => setEditing(null)}
+              >
                 Cancelar
               </Button>
               <Button
                 className="flex-1 justify-center"
                 onClick={() => save.mutate(undefined)}
                 loading={save.isPending}
-                disabled={!form.sessionDate || (editing === 'new' && !form.liveClassId)}
+                disabled={
+                  !form.sessionDate || (editing === 'new' && !form.liveClassId)
+                }
               >
                 Guardar
               </Button>

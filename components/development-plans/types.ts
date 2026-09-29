@@ -37,7 +37,8 @@ export type PdiOrigin =
 export type CompetencyGapPriority = 'LOW' | 'MEDIUM' | 'HIGH';
 
 // Secção 19 — avaliação final no encerramento.
-export type PdiFinalResult = 'GOAL_ACHIEVED' | 'PARTIALLY_ACHIEVED' | 'NOT_ACHIEVED';
+export type PdiFinalResult =
+  'GOAL_ACHIEVED' | 'PARTIALLY_ACHIEVED' | 'NOT_ACHIEVED';
 export type PdiOverallResult = 'EXCEEDED' | 'MET' | 'PARTIALLY_MET' | 'NOT_MET';
 
 // Secção 20 — o que acontece depois de o PDI terminar.
@@ -100,7 +101,11 @@ export interface Plan {
 
   // ── Ligações (secções 4 e 8) ─────────────────────────────────────
   sourceReviewId?: number | null;
-  sourceReview?: { id: number; score: number | null; category: string | null } | null;
+  sourceReview?: {
+    id: number;
+    score: number | null;
+    category: string | null;
+  } | null;
   careerPlanId?: number | null;
   careerPlan?: {
     id: number;

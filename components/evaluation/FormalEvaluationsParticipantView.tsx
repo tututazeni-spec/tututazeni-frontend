@@ -39,7 +39,10 @@ export function FormalEvaluationsParticipantView() {
           <ArrowLeft size={14} strokeWidth={1.75} />
           Voltar
         </Button>
-        <AssessmentPlayer assessmentId={nav.id} onBack={() => setNav({ view: 'list' })} />
+        <AssessmentPlayer
+          assessmentId={nav.id}
+          onBack={() => setNav({ view: 'list' })}
+        />
       </div>
     );
   }
@@ -67,7 +70,9 @@ export function FormalEvaluationsParticipantView() {
             <ClipboardList size={20} strokeWidth={1.75} />
           </div>
           <div className="flex-1">
-            <div className="mb-0.5 text-sm font-semibold text-ink">{e.title}</div>
+            <div className="mb-0.5 text-sm font-semibold text-ink">
+              {e.title}
+            </div>
             <div className="flex flex-wrap items-center gap-3 text-xs text-ink-faint">
               <span>{e._count.questions} perguntas</span>
               <span>Nota máxima: {e.maxGrade}</span>
@@ -79,7 +84,10 @@ export function FormalEvaluationsParticipantView() {
               )}
             </div>
           </div>
-          <Button size="sm" onClick={() => setNav({ view: 'player', id: e.id })}>
+          <Button
+            size="sm"
+            onClick={() => setNav({ view: 'player', id: e.id })}
+          >
             Iniciar
           </Button>
         </div>

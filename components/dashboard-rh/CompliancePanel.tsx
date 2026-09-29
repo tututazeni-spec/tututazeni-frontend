@@ -55,8 +55,12 @@ function TopBarKpiCard({
       <div className={`h-1.5 w-full ${t.bar}`} />
       <div className="p-5 pt-6">
         <Icon size={22} strokeWidth={1.75} className={t.text} />
-        <p className={`mt-3 font-display text-3xl font-bold ${t.text}`}>{value}</p>
-        <p className="mt-1 font-body text-sm font-medium text-ink-muted">{label}</p>
+        <p className={`mt-3 font-display text-3xl font-bold ${t.text}`}>
+          {value}
+        </p>
+        <p className="mt-1 font-body text-sm font-medium text-ink-muted">
+          {label}
+        </p>
         {sub && <p className="mt-1 font-body text-xs text-ink-faint">{sub}</p>}
       </div>
     </div>
@@ -108,7 +112,9 @@ function ThermometerKpiCard({
           <p className="mt-2 font-display text-2xl font-bold" style={{ color }}>
             {value}
           </p>
-          <p className="mt-1 font-body text-sm font-medium text-ink-muted">{label}</p>
+          <p className="mt-1 font-body text-sm font-medium text-ink-muted">
+            {label}
+          </p>
         </div>
       </div>
     </div>
@@ -143,7 +149,7 @@ export function CompliancePanel() {
             size={120}
           />
         </div>
-                <ThermometerKpiCard
+        <ThermometerKpiCard
           icon={ShieldAlert}
           label="Nível de Risco"
           value={RISK_LABEL[risk]}

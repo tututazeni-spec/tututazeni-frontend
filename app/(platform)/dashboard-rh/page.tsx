@@ -54,19 +54,69 @@ const PANELS: {
   hint: string;
   icon: LucideIcon | null;
 }[] = [
-  { id: 'overview', label: 'Visão Geral', hint: 'Resumo geral', icon: BarChart2 },
-  { id: 'headcount', label: 'Número de Colaboradores', hint: 'Efectivo actual', icon: Users },
-  { id: 'turnover', label: 'Rotatividade', hint: 'Saídas e retenção', icon: TrendingDown },
+  {
+    id: 'overview',
+    label: 'Visão Geral',
+    hint: 'Resumo geral',
+    icon: BarChart2,
+  },
+  {
+    id: 'headcount',
+    label: 'Número de Colaboradores',
+    hint: 'Efectivo actual',
+    icon: Users,
+  },
+  {
+    id: 'turnover',
+    label: 'Rotatividade',
+    hint: 'Saídas e retenção',
+    icon: TrendingDown,
+  },
   { id: 'performance', label: 'Performance', hint: 'Avaliações', icon: Star },
-  { id: 'engagement', label: 'Engajamento', hint: 'Clima e satisfação', icon: Smile },
-  { id: 'skills', label: 'Competências', hint: 'Níveis e lacunas', icon: Wrench },
+  {
+    id: 'engagement',
+    label: 'Engajamento',
+    hint: 'Clima e satisfação',
+    icon: Smile,
+  },
+  {
+    id: 'skills',
+    label: 'Competências',
+    hint: 'Níveis e lacunas',
+    icon: Wrench,
+  },
   { id: 'training', label: 'Formação', hint: 'Planos e horas', icon: BookOpen },
-  { id: 'compliance', label: 'Compliance', hint: 'Obrigações legais', icon: ShieldCheck },
+  {
+    id: 'compliance',
+    label: 'Compliance',
+    hint: 'Obrigações legais',
+    icon: ShieldCheck,
+  },
   { id: 'attendance', label: 'Presenças', hint: 'Assiduidade', icon: Clock },
-  { id: 'payroll', label: 'Folha Salarial', hint: 'Custos e encargos', icon: Wallet },
-  { id: 'talent', label: 'Talento', hint: 'Potencial e sucessão', icon: Target },
-  { id: 'predictions', label: 'Previsões', hint: 'Tendências futuras', icon: Sparkles },
-  { id: 'correlations', label: 'Análise de Pessoas', hint: 'Cruzamento de dados', icon: UsersRound },
+  {
+    id: 'payroll',
+    label: 'Folha Salarial',
+    hint: 'Custos e encargos',
+    icon: Wallet,
+  },
+  {
+    id: 'talent',
+    label: 'Talento',
+    hint: 'Potencial e sucessão',
+    icon: Target,
+  },
+  {
+    id: 'predictions',
+    label: 'Previsões',
+    hint: 'Tendências futuras',
+    icon: Sparkles,
+  },
+  {
+    id: 'correlations',
+    label: 'Análise de Pessoas',
+    hint: 'Cruzamento de dados',
+    icon: UsersRound,
+  },
 ];
 
 export default function DashboardRhPage() {
@@ -82,26 +132,26 @@ export default function DashboardRhPage() {
       {/* Header */}
       <div className="border-b border-border bg-surface px-6 py-5">
         <div className="mx-auto flex max-w-7xl items-start justify-between">
-         <div className="flex items-center gap-3">
-  <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-    {ActiveIcon && (
-      <ActiveIcon
-        size={22}
-        strokeWidth={1.8}
-        className="transition-all duration-300"
-      />
-    )}
-  </div>
+          <div className="flex items-center gap-3">
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+              {ActiveIcon && (
+                <ActiveIcon
+                  size={22}
+                  strokeWidth={1.8}
+                  className="transition-all duration-300"
+                />
+              )}
+            </div>
 
-  <div>
-    <h1 className="font-display text-xl font-bold text-ink">
-      Dashboard RH 
-    </h1>
-    <p className="mt-0.5 font-body text-xs text-ink-muted">
-      {activePanelConfig.hint}
-    </p>
-  </div>
-</div>
+            <div>
+              <h1 className="font-display text-xl font-bold text-ink">
+                Dashboard RH
+              </h1>
+              <p className="mt-0.5 font-body text-xs text-ink-muted">
+                {activePanelConfig.hint}
+              </p>
+            </div>
+          </div>
           <IconButton
             icon={RefreshCw}
             label="Actualizar"
@@ -112,9 +162,9 @@ export default function DashboardRhPage() {
       </div>
 
       <Tabs
-  value={activePanel}
-  onValueChange={(value) => setActivePanel(value as Panel)}
->
+        value={activePanel}
+        onValueChange={(value) => setActivePanel(value as Panel)}
+      >
         {/* Tabs — barra flutuante em "glassmorphism": contentor translúcido
             com desfoque (backdrop-blur) e botões em forma de pílula com
             ícone, título e subtítulo. A aba activa (data-[state=active]

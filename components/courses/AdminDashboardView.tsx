@@ -43,7 +43,11 @@ interface AdminDashboardViewProps {
   onCreateCourse: () => void;
 }
 
-const ALERT_ICON = { warning: AlertTriangle, danger: AlertCircle, info: Info } as const;
+const ALERT_ICON = {
+  warning: AlertTriangle,
+  danger: AlertCircle,
+  info: Info,
+} as const;
 const ALERT_CLASS = {
   warning: 'bg-warning-subtle text-warning-ink',
   danger: 'bg-danger-subtle text-danger-ink',
@@ -72,8 +76,12 @@ function DistributionList({
           {items.slice(0, 6).map((item, i) => (
             <div key={i}>
               <div className="flex items-center justify-between text-xs mb-0.5">
-                <span className="text-ink-muted truncate pr-2">{item.label}</span>
-                <span className="font-data text-ink-faint flex-shrink-0">{item.count}</span>
+                <span className="text-ink-muted truncate pr-2">
+                  {item.label}
+                </span>
+                <span className="font-data text-ink-faint flex-shrink-0">
+                  {item.count}
+                </span>
               </div>
               <div className="h-1.5 rounded-full bg-surface-sunken overflow-hidden">
                 <div
@@ -118,7 +126,9 @@ function CourseRankList({
               {idx + 1}
             </span>
             <div className="flex-1 min-w-0">
-              <div className="text-xs font-medium text-ink truncate">{c.title}</div>
+              <div className="text-xs font-medium text-ink truncate">
+                {c.title}
+              </div>
             </div>
             <div className="text-xs text-ink-muted flex-shrink-0">
               {c.value}
@@ -138,13 +148,29 @@ const SHORTCUTS: Array<{
 }> = [
   { icon: PlusCircle, label: 'Criar curso', action: (_n, create) => create() },
   { icon: Settings, label: 'Gerir cursos', action: (n) => n('catalog') },
-  { icon: Layers, label: 'Gerir módulos e lições', action: (n) => n('catalog') },
-  { icon: ClipboardCheck, label: 'Gerir inscrições', action: (n) => n('inscricoes') },
-  { icon: Award, label: 'Gerir certificados', action: (n) => n('certificates') },
+  {
+    icon: Layers,
+    label: 'Gerir módulos e lições',
+    action: (n) => n('catalog'),
+  },
+  {
+    icon: ClipboardCheck,
+    label: 'Gerir inscrições',
+    action: (n) => n('inscricoes'),
+  },
+  {
+    icon: Award,
+    label: 'Gerir certificados',
+    action: (n) => n('certificates'),
+  },
   { icon: FileBarChart, label: 'Ver progresso', action: (n) => n('progresso') },
 ];
 
-export function AdminDashboardView({ onSelect, onNavigate, onCreateCourse }: AdminDashboardViewProps) {
+export function AdminDashboardView({
+  onSelect,
+  onNavigate,
+  onCreateCourse,
+}: AdminDashboardViewProps) {
   const { data, isLoading } = useApiQuery<AdminDashboard>(
     queryKeys.courses.adminDashboard(),
     '/courses/admin/dashboard',
@@ -192,42 +218,156 @@ export function AdminDashboardView({ onSelect, onNavigate, onCreateCourse }: Adm
 
       {/* KPIs principais */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-        <KpiCard icon={BookOpen} label="Total de cursos" value={counts.total} intent="primary" className="w-full" />
-        <KpiCard icon={Check} label="Publicados" value={counts.published} intent="success" className="w-full" />
-        <KpiCard icon={FileEdit} label="Rascunhos" value={counts.draft} intent="info" className="w-full" />
-        <KpiCard icon={Pause} label="Em pausa" value={counts.paused} intent="warning" className="w-full" />
-        <KpiCard icon={Archive} label="Arquivados" value={counts.archived} intent="accent" className="w-full" />
-        <KpiCard icon={Layers} label="Módulos" value={counts.totalModules} intent="primary" className="w-full" />
-        <KpiCard icon={ListChecks} label="Lições" value={counts.totalLessons} intent="primary" className="w-full" />
-        <KpiCard icon={Users} label="Inscritos" value={counts.totalEnrollments} intent="primary" className="w-full" />
-        <KpiCard icon={Users} label="Formandos" value={counts.totalLearners} intent="primary" className="w-full" />
-        <KpiCard icon={CheckCircle2} label="Conclusões" value={counts.completions} intent="success" className="w-full" />
-        <KpiCard icon={Clock} label="Inscrições pendentes" value={counts.pendingEnrollments} intent={counts.pendingEnrollments > 0 ? 'warning' : 'primary'} className="w-full" />
-        <KpiCard icon={Award} label="Certificados emitidos" value={counts.certificatesIssued} intent="success" className="w-full" />
-        <KpiCard icon={BookOpen} label="Obrigatórios / opcionais" value={`${counts.mandatoryCourses}/${counts.optionalCourses}`} intent="primary" className="w-full" />
-        <KpiCard icon={TrendingUp} label="Taxa de conclusão" value={`${rates.avgCompletionRate}%`} intent="success" className="w-full" />
-        <KpiCard icon={CheckCircle2} label="Taxa de aprovação" value={`${rates.avgPassRate}%`} intent="success" className="w-full" />
-        <KpiCard icon={Star} label="Nota média" value={rates.avgRating || '—'} intent="warning" className="w-full" />
-        <KpiCard icon={Timer} label="Horas de aprendizagem" value={fmtDuration(rates.totalLearningHours)} intent="primary" className="w-full" />
+        <KpiCard
+          icon={BookOpen}
+          label="Total de cursos"
+          value={counts.total}
+          intent="primary"
+          className="w-full"
+        />
+        <KpiCard
+          icon={Check}
+          label="Publicados"
+          value={counts.published}
+          intent="success"
+          className="w-full"
+        />
+        <KpiCard
+          icon={FileEdit}
+          label="Rascunhos"
+          value={counts.draft}
+          intent="info"
+          className="w-full"
+        />
+        <KpiCard
+          icon={Pause}
+          label="Em pausa"
+          value={counts.paused}
+          intent="warning"
+          className="w-full"
+        />
+        <KpiCard
+          icon={Archive}
+          label="Arquivados"
+          value={counts.archived}
+          intent="accent"
+          className="w-full"
+        />
+        <KpiCard
+          icon={Layers}
+          label="Módulos"
+          value={counts.totalModules}
+          intent="primary"
+          className="w-full"
+        />
+        <KpiCard
+          icon={ListChecks}
+          label="Lições"
+          value={counts.totalLessons}
+          intent="primary"
+          className="w-full"
+        />
+        <KpiCard
+          icon={Users}
+          label="Inscritos"
+          value={counts.totalEnrollments}
+          intent="primary"
+          className="w-full"
+        />
+        <KpiCard
+          icon={Users}
+          label="Formandos"
+          value={counts.totalLearners}
+          intent="primary"
+          className="w-full"
+        />
+        <KpiCard
+          icon={CheckCircle2}
+          label="Conclusões"
+          value={counts.completions}
+          intent="success"
+          className="w-full"
+        />
+        <KpiCard
+          icon={Clock}
+          label="Inscrições pendentes"
+          value={counts.pendingEnrollments}
+          intent={counts.pendingEnrollments > 0 ? 'warning' : 'primary'}
+          className="w-full"
+        />
+        <KpiCard
+          icon={Award}
+          label="Certificados emitidos"
+          value={counts.certificatesIssued}
+          intent="success"
+          className="w-full"
+        />
+        <KpiCard
+          icon={BookOpen}
+          label="Obrigatórios / opcionais"
+          value={`${counts.mandatoryCourses}/${counts.optionalCourses}`}
+          intent="primary"
+          className="w-full"
+        />
+        <KpiCard
+          icon={TrendingUp}
+          label="Taxa de conclusão"
+          value={`${rates.avgCompletionRate}%`}
+          intent="success"
+          className="w-full"
+        />
+        <KpiCard
+          icon={CheckCircle2}
+          label="Taxa de aprovação"
+          value={`${rates.avgPassRate}%`}
+          intent="success"
+          className="w-full"
+        />
+        <KpiCard
+          icon={Star}
+          label="Nota média"
+          value={rates.avgRating || '—'}
+          intent="warning"
+          className="w-full"
+        />
+        <KpiCard
+          icon={Timer}
+          label="Horas de aprendizagem"
+          value={fmtDuration(rates.totalLearningHours)}
+          intent="primary"
+          className="w-full"
+        />
       </div>
 
       {/* Rankings */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <CourseRankList
           title="Cursos mais populares"
-          items={data.topCourses.map((c) => ({ id: c.id, title: c.title, value: c.enrollments }))}
+          items={data.topCourses.map((c) => ({
+            id: c.id,
+            title: c.title,
+            value: c.enrollments,
+          }))}
           suffix=" matrículas"
           onSelect={onSelect}
         />
         <CourseRankList
           title="Maior taxa de conclusão"
-          items={data.bestCompletion.map((c) => ({ id: c.id, title: c.title, value: c.rate }))}
+          items={data.bestCompletion.map((c) => ({
+            id: c.id,
+            title: c.title,
+            value: c.rate,
+          }))}
           suffix="%"
           onSelect={onSelect}
         />
         <CourseRankList
           title="Menor taxa de conclusão / maior abandono"
-          items={data.worstCompletion.map((c) => ({ id: c.id, title: c.title, value: c.rate }))}
+          items={data.worstCompletion.map((c) => ({
+            id: c.id,
+            title: c.title,
+            value: c.rate,
+          }))}
           suffix="%"
           onSelect={onSelect}
         />
@@ -237,7 +377,10 @@ export function AdminDashboardView({ onSelect, onNavigate, onCreateCourse }: Adm
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <DistributionList
           title="Por categoria"
-          items={data.byCategory.map((c) => ({ label: c.category, count: c.count }))}
+          items={data.byCategory.map((c) => ({
+            label: c.category,
+            count: c.count,
+          }))}
         />
         <DistributionList
           title="Por nível"
@@ -249,15 +392,24 @@ export function AdminDashboardView({ onSelect, onNavigate, onCreateCourse }: Adm
         />
         <DistributionList
           title="Por departamento"
-          items={data.byDepartment.map((c) => ({ label: c.department, count: c.count }))}
+          items={data.byDepartment.map((c) => ({
+            label: c.department,
+            count: c.count,
+          }))}
         />
         <DistributionList
           title="Por instrutor"
-          items={data.byInstructor.map((c) => ({ label: c.instructor, count: c.count }))}
+          items={data.byInstructor.map((c) => ({
+            label: c.instructor,
+            count: c.count,
+          }))}
         />
         <DistributionList
           title="Competências mais desenvolvidas"
-          items={data.topCompetencies.map((c) => ({ label: c.name, count: c.count }))}
+          items={data.topCompetencies.map((c) => ({
+            label: c.name,
+            count: c.count,
+          }))}
         />
       </div>
 
@@ -268,7 +420,10 @@ export function AdminDashboardView({ onSelect, onNavigate, onCreateCourse }: Adm
             <Radio size={14} strokeWidth={1.75} /> Próximas formações/sessões
           </div>
           {data.upcomingLiveSessions.map((s) => (
-            <div key={s.id} className="flex items-center justify-between px-4 py-2.5 border-b border-border last:border-0">
+            <div
+              key={s.id}
+              className="flex items-center justify-between px-4 py-2.5 border-b border-border last:border-0"
+            >
               <div>
                 <div className="text-xs font-medium text-ink">{s.title}</div>
                 <div className="text-xs text-ink-faint">
@@ -277,7 +432,12 @@ export function AdminDashboardView({ onSelect, onNavigate, onCreateCourse }: Adm
                 </div>
               </div>
               <div className="text-xs text-ink-muted">
-                {s.liveDate ? new Date(s.liveDate).toLocaleString('pt', { dateStyle: 'short', timeStyle: 'short' }) : '—'}
+                {s.liveDate
+                  ? new Date(s.liveDate).toLocaleString('pt', {
+                      dateStyle: 'short',
+                      timeStyle: 'short',
+                    })
+                  : '—'}
               </div>
             </div>
           ))}
@@ -294,7 +454,10 @@ export function AdminDashboardView({ onSelect, onNavigate, onCreateCourse }: Adm
             <p className="p-4 text-xs text-ink-faint">Sem dados</p>
           ) : (
             data.recentActivity.enrollments.map((e) => (
-              <div key={e.id} className="px-4 py-2 border-b border-border last:border-0 text-xs">
+              <div
+                key={e.id}
+                className="px-4 py-2 border-b border-border last:border-0 text-xs"
+              >
                 <span className="font-medium text-ink">{e.user.fullName}</span>{' '}
                 <span className="text-ink-faint">inscreveu-se em</span>{' '}
                 <span className="text-ink-muted">{e.course.title}</span>
@@ -310,7 +473,10 @@ export function AdminDashboardView({ onSelect, onNavigate, onCreateCourse }: Adm
             <p className="p-4 text-xs text-ink-faint">Sem dados</p>
           ) : (
             data.recentActivity.completions.map((e) => (
-              <div key={e.id} className="px-4 py-2 border-b border-border last:border-0 text-xs">
+              <div
+                key={e.id}
+                className="px-4 py-2 border-b border-border last:border-0 text-xs"
+              >
                 <span className="font-medium text-ink">{e.user.fullName}</span>{' '}
                 <span className="text-ink-faint">concluiu</span>{' '}
                 <span className="text-ink-muted">{e.course.title}</span>
@@ -326,7 +492,10 @@ export function AdminDashboardView({ onSelect, onNavigate, onCreateCourse }: Adm
             <p className="p-4 text-xs text-ink-faint">Sem dados</p>
           ) : (
             data.recentActivity.feedbacks.map((f) => (
-              <div key={f.id} className="px-4 py-2 border-b border-border last:border-0 text-xs">
+              <div
+                key={f.id}
+                className="px-4 py-2 border-b border-border last:border-0 text-xs"
+              >
                 <span className="font-medium text-ink">{f.user.fullName}</span>{' '}
                 <span className="text-ink-faint">avaliou</span>{' '}
                 <span className="text-ink-muted">{f.course.title}</span>{' '}
@@ -343,8 +512,13 @@ export function AdminDashboardView({ onSelect, onNavigate, onCreateCourse }: Adm
             <p className="p-4 text-xs text-ink-faint">Sem dados</p>
           ) : (
             data.recentActivity.certificates.map((c) => (
-              <div key={c.id} className="px-4 py-2 border-b border-border last:border-0 text-xs">
-                <span className="font-medium text-ink">{c.user?.fullName ?? '—'}</span>{' '}
+              <div
+                key={c.id}
+                className="px-4 py-2 border-b border-border last:border-0 text-xs"
+              >
+                <span className="font-medium text-ink">
+                  {c.user?.fullName ?? '—'}
+                </span>{' '}
                 <span className="text-ink-faint">certificado em</span>{' '}
                 <span className="text-ink-muted">{c.course?.title ?? '—'}</span>
               </div>
@@ -388,7 +562,9 @@ export function AdminDashboardView({ onSelect, onNavigate, onCreateCourse }: Adm
             Próximos do término
           </div>
           {data.endingSoon.length === 0 ? (
-            <p className="p-4 text-xs text-ink-faint">Nenhum nos próximos 14 dias</p>
+            <p className="p-4 text-xs text-ink-faint">
+              Nenhum nos próximos 14 dias
+            </p>
           ) : (
             data.endingSoon.map((c) => (
               <div

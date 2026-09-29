@@ -318,7 +318,10 @@ export interface OnboardingTaskListItem {
   skipReason: string | null;
   priority: TaskPriority;
   templateTask: TemplateTask;
-  plan: { id: number; user: { id: number; fullName: string; avatarUrl: string | null } };
+  plan: {
+    id: number;
+    user: { id: number; fullName: string; avatarUrl: string | null };
+  };
 }
 
 // GET /onboarding/documents — dois grupos distintos (ver comentário no
@@ -327,7 +330,10 @@ export interface OnboardingDocumentsResponse {
   submitted: Array<
     OnboardingDoc & {
       planId: number;
-      plan: { id: number; user: { id: number; fullName: string; avatarUrl: string | null } };
+      plan: {
+        id: number;
+        user: { id: number; fullName: string; avatarUrl: string | null };
+      };
       uploadedBy: { id: number; fullName: string };
       validatedBy: { id: number; fullName: string } | null;
     }
@@ -337,7 +343,10 @@ export interface OnboardingDocumentsResponse {
     planId: number;
     documentType: string;
     dueDate: string | null;
-    plan: { id: number; user: { id: number; fullName: string; avatarUrl: string | null } };
+    plan: {
+      id: number;
+      user: { id: number; fullName: string; avatarUrl: string | null };
+    };
   }>;
 }
 
@@ -362,7 +371,8 @@ export interface OnboardingTrainingRow {
 
 // ─── Fase C (docs/onboarding.md pontos 8-10) ────────────────────────────────
 
-export type CheckinType = 'DAY_1' | 'WEEK_1' | 'DAY_30' | 'DAY_60' | 'DAY_90' | 'CUSTOM';
+export type CheckinType =
+  'DAY_1' | 'WEEK_1' | 'DAY_30' | 'DAY_60' | 'DAY_90' | 'CUSTOM';
 export type CheckinStatus = 'PENDING' | 'COMPLETED' | 'SKIPPED';
 
 export interface OnboardingCheckin {

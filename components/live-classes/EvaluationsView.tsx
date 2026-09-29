@@ -18,7 +18,11 @@ import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { KpiCard } from '@/components/ui/KpiCard';
 import { Skeleton } from '@/components/ui/Skeleton';
-import type { EvaluationsSummary, LiveEvaluationResponse, PaginatedMeta } from './types';
+import type {
+  EvaluationsSummary,
+  LiveEvaluationResponse,
+  PaginatedMeta,
+} from './types';
 
 function Score({ value }: { value: number | null }) {
   if (value == null) return <span className="text-ink-faint">—</span>;
@@ -33,18 +37,21 @@ function Score({ value }: { value: number | null }) {
 export function EvaluationsView() {
   const [page, setPage] = useState(1);
 
-  const { data: summary, isLoading: loadingSummary } = useApiQuery<EvaluationsSummary>(
-    queryKeys.liveClasses.evaluationsSummary({}),
-    '/live-classes/evaluations/summary',
-    { staleTime: STALE_TIME.DYNAMIC },
-  );
+  const { data: summary, isLoading: loadingSummary } =
+    useApiQuery<EvaluationsSummary>(
+      queryKeys.liveClasses.evaluationsSummary({}),
+      '/live-classes/evaluations/summary',
+      { staleTime: STALE_TIME.DYNAMIC },
+    );
 
   const params = { page, limit: 20 };
-  const { data, isLoading } = useApiQuery<PaginatedMeta<LiveEvaluationResponse>>(
-    queryKeys.liveClasses.evaluations(params),
-    '/live-classes/evaluations',
-    { params, staleTime: STALE_TIME.DYNAMIC, placeholderData: keepPreviousData },
-  );
+  const { data, isLoading } = useApiQuery<
+    PaginatedMeta<LiveEvaluationResponse>
+  >(queryKeys.liveClasses.evaluations(params), '/live-classes/evaluations', {
+    params,
+    staleTime: STALE_TIME.DYNAMIC,
+    placeholderData: keepPreviousData,
+  });
   const rows = data?.data ?? [];
   const totalPages = data?.meta.totalPages ?? 1;
 
@@ -54,11 +61,25 @@ export function EvaluationsView() {
         <Skeleton rows={1} itemClassName="skeleton-shimmer h-24 rounded-card" />
       ) : (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-          <KpiCard label="Respostas" value={summary.responses} intent="primary" />
-          <KpiCard label="Avaliação da sessão" value={summary.avgRating ?? '—'} intent="accent" />
-          <KpiCard label="Formador" value={summary.avgInstructorRating ?? '—'} />
+          <KpiCard
+            label="Respostas"
+            value={summary.responses}
+            intent="primary"
+          />
+          <KpiCard
+            label="Avaliação da sessão"
+            value={summary.avgRating ?? '—'}
+            intent="accent"
+          />
+          <KpiCard
+            label="Formador"
+            value={summary.avgInstructorRating ?? '—'}
+          />
           <KpiCard label="Conteúdo" value={summary.avgContentRating ?? '—'} />
-          <KpiCard label="Organização / Aplicabilidade" value={summary.avgOrganizationRating ?? '—'} />
+          <KpiCard
+            label="Organização / Aplicabilidade"
+            value={summary.avgOrganizationRating ?? '—'}
+          />
           <KpiCard label="NPS" value={summary.nps ?? '—'} intent="warning" />
         </div>
       )}
@@ -73,15 +94,24 @@ export function EvaluationsView() {
       ) : (
         <Card className="divide-y divide-border">
           {rows.map((r) => (
-            <div key={r.id} className="flex flex-wrap items-start gap-3 px-4 py-3">
+            <div
+              key={r.id}
+              className="flex flex-wrap items-start gap-3 px-4 py-3"
+            >
               <div className="min-w-0 flex-1">
-                <div className="truncate text-sm font-medium text-ink">{r.evaluation.liveClass.topic}</div>
+                <div className="truncate text-sm font-medium text-ink">
+                  {r.evaluation.liveClass.topic}
+                </div>
                 <div className="mt-0.5 flex flex-wrap items-center gap-x-2 font-body text-xs text-ink-faint">
                   <span>{r.user.fullName}</span>
                   <span>· {r.evaluation.liveClass.course?.title ?? '—'}</span>
                   <span>· {formatDateTime(r.createdAt)}</span>
                 </div>
-                {r.feedback && <p className="mt-1 font-body text-sm text-ink-muted">{r.feedback}</p>}
+                {r.feedback && (
+                  <p className="mt-1 font-body text-sm text-ink-muted">
+                    {r.feedback}
+                  </p>
+                )}
               </div>
               <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs sm:grid-cols-5">
                 <div>
@@ -117,13 +147,23 @@ export function EvaluationsView() {
 
       {totalPages > 1 && (
         <div className="flex justify-center gap-2">
-          <Button intent="ghost" size="sm" disabled={page === 1} onClick={() => setPage((p) => p - 1)}>
+          <Button
+            intent="ghost"
+            size="sm"
+            disabled={page === 1}
+            onClick={() => setPage((p) => p - 1)}
+          >
             ← Anterior
           </Button>
           <span className="py-2 px-3 text-sm text-ink-muted">
             {page} / {totalPages}
           </span>
-          <Button intent="ghost" size="sm" disabled={page === totalPages} onClick={() => setPage((p) => p + 1)}>
+          <Button
+            intent="ghost"
+            size="sm"
+            disabled={page === totalPages}
+            onClick={() => setPage((p) => p + 1)}
+          >
             Seguinte →
           </Button>
         </div>

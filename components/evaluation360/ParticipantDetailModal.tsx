@@ -10,7 +10,11 @@
 'use client';
 
 import type { ParticipantDetail } from './types';
-import { participantStatusLabel, evaluatorAssignmentStatusLabel, evaluatorRoleLabel } from './colors';
+import {
+  participantStatusLabel,
+  evaluatorAssignmentStatusLabel,
+  evaluatorRoleLabel,
+} from './colors';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -23,7 +27,11 @@ export interface ParticipantDetailModalProps {
   onClose: () => void;
 }
 
-export function ParticipantDetailModal({ cycleId, userId, onClose }: ParticipantDetailModalProps) {
+export function ParticipantDetailModal({
+  cycleId,
+  userId,
+  onClose,
+}: ParticipantDetailModalProps) {
   const { data, isLoading } = useApiQuery<ParticipantDetail>(
     queryKeys.evaluation360.participantDetail(cycleId, userId),
     `/evaluation360/cycles/${cycleId}/participants/${userId}/detail`,
@@ -37,19 +45,31 @@ export function ParticipantDetailModal({ cycleId, userId, onClose }: Participant
         description="Perfil, competências avaliadas, avaliadores, progresso e resultados"
         className="max-w-2xl"
       >
-        {isLoading && <div className="mt-4 text-sm text-ink-muted">A carregar…</div>}
+        {isLoading && (
+          <div className="mt-4 text-sm text-ink-muted">A carregar…</div>
+        )}
 
         {data && (
           <div className="mt-4 flex flex-col gap-5">
             <div className="flex items-center gap-3">
-              <Avatar name={data.profile.fullName} url={data.profile.avatarUrl ?? undefined} size="lg" />
+              <Avatar
+                name={data.profile.fullName}
+                url={data.profile.avatarUrl ?? undefined}
+                size="lg"
+              />
               <div>
-                <div className="font-bold text-ink">{data.profile.fullName}</div>
+                <div className="font-bold text-ink">
+                  {data.profile.fullName}
+                </div>
                 <div className="text-sm text-ink-muted">
-                  {[data.profile.position, data.profile.department].filter(Boolean).join(' · ') || '—'}
+                  {[data.profile.position, data.profile.department]
+                    .filter(Boolean)
+                    .join(' · ') || '—'}
                 </div>
                 {data.profile.managerName && (
-                  <div className="text-xs text-ink-muted">Gestor: {data.profile.managerName}</div>
+                  <div className="text-xs text-ink-muted">
+                    Gestor: {data.profile.managerName}
+                  </div>
                 )}
               </div>
               <span className="ml-auto text-xs font-bold px-2.5 py-1 rounded-full bg-surface-sunken text-ink">
@@ -58,15 +78,25 @@ export function ParticipantDetailModal({ cycleId, userId, onClose }: Participant
             </div>
 
             <div className="grid grid-cols-3 gap-3">
-              <Stat label="Avaliadores atribuídos" value={data.progress.totalAssigned} />
+              <Stat
+                label="Avaliadores atribuídos"
+                value={data.progress.totalAssigned}
+              />
               <Stat label="Concluídas" value={data.progress.completed} />
-              <Stat label="Progresso" value={`${data.progress.completionPercent}%`} />
+              <Stat
+                label="Progresso"
+                value={`${data.progress.completionPercent}%`}
+              />
             </div>
 
             <section>
-              <h3 className="m-0 mb-2 text-sm font-bold text-ink">Competências avaliadas</h3>
+              <h3 className="m-0 mb-2 text-sm font-bold text-ink">
+                Competências avaliadas
+              </h3>
               {Object.keys(data.competencies).length === 0 ? (
-                <p className="m-0 text-sm text-ink-muted">Ainda sem respostas submetidas.</p>
+                <p className="m-0 text-sm text-ink-muted">
+                  Ainda sem respostas submetidas.
+                </p>
               ) : (
                 <div className="flex flex-col gap-1.5">
                   {Object.entries(data.competencies).map(([id, c]) => (
@@ -85,7 +115,9 @@ export function ParticipantDetailModal({ cycleId, userId, onClose }: Participant
             </section>
 
             <section>
-              <h3 className="m-0 mb-2 text-sm font-bold text-ink">Avaliadores</h3>
+              <h3 className="m-0 mb-2 text-sm font-bold text-ink">
+                Avaliadores
+              </h3>
               <div className="flex flex-col gap-1.5">
                 {data.evaluators.map((e) => (
                   <div
@@ -93,8 +125,13 @@ export function ParticipantDetailModal({ cycleId, userId, onClose }: Participant
                     className="flex justify-between items-center rounded-lg border border-border px-3 py-2 text-sm"
                   >
                     <div>
-                      <span className="text-ink font-medium">{e.evaluatorName}</span>
-                      <span className="text-ink-muted"> — {evaluatorRoleLabel[e.role] ?? e.role}</span>
+                      <span className="text-ink font-medium">
+                        {e.evaluatorName}
+                      </span>
+                      <span className="text-ink-muted">
+                        {' '}
+                        — {evaluatorRoleLabel[e.role] ?? e.role}
+                      </span>
                     </div>
                     <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-surface-sunken text-ink">
                       {evaluatorAssignmentStatusLabel[e.status] ?? e.status}
@@ -110,14 +147,27 @@ export function ParticipantDetailModal({ cycleId, userId, onClose }: Participant
                   Resultado — comparação entre perspectivas
                 </h3>
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                  <Stat label="Global" value={data.result.weightedScore.toFixed(1)} />
-                  <Stat label="Autoavaliação" value={data.result.selfScore?.toFixed(1) ?? '—'} />
-                  <Stat label="Gestor" value={data.result.managerScore?.toFixed(1) ?? '—'} />
-                  <Stat label="Pares" value={data.result.peerScore?.toFixed(1) ?? '—'} />
+                  <Stat
+                    label="Global"
+                    value={data.result.weightedScore.toFixed(1)}
+                  />
+                  <Stat
+                    label="Autoavaliação"
+                    value={data.result.selfScore?.toFixed(1) ?? '—'}
+                  />
+                  <Stat
+                    label="Gestor"
+                    value={data.result.managerScore?.toFixed(1) ?? '—'}
+                  />
+                  <Stat
+                    label="Pares"
+                    value={data.result.peerScore?.toFixed(1) ?? '—'}
+                  />
                 </div>
                 {data.result.gaps.length > 0 && (
                   <p className="m-0 mt-3 text-xs text-ink-muted">
-                    Maiores gaps: {data.result.gaps.map((g) => g.name).join(', ')}
+                    Maiores gaps:{' '}
+                    {data.result.gaps.map((g) => g.name).join(', ')}
                   </p>
                 )}
               </section>
@@ -129,12 +179,18 @@ export function ParticipantDetailModal({ cycleId, userId, onClose }: Participant
 
             {data.comments.length > 0 && (
               <section>
-                <h3 className="m-0 mb-2 text-sm font-bold text-ink">Comentários</h3>
+                <h3 className="m-0 mb-2 text-sm font-bold text-ink">
+                  Comentários
+                </h3>
                 <div className="flex flex-col gap-2">
                   {data.comments.map((c, i) => (
-                    <div key={i} className="rounded-lg border border-border px-3 py-2 text-sm">
+                    <div
+                      key={i}
+                      className="rounded-lg border border-border px-3 py-2 text-sm"
+                    >
                       <div className="text-xs text-ink-muted mb-1">
-                        {evaluatorRoleLabel[c.evaluatorRole] ?? c.evaluatorRole} · {c.question}
+                        {evaluatorRoleLabel[c.evaluatorRole] ?? c.evaluatorRole}{' '}
+                        · {c.question}
                       </div>
                       <div className="text-ink">{c.text}</div>
                     </div>

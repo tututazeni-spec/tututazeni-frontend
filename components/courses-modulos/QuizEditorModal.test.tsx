@@ -8,7 +8,10 @@ const put = vi.fn().mockResolvedValue({});
 
 vi.mock('@/hooks/useApiQuery', () => ({
   useApiQuery: () => ({ data: queryData, isLoading: false, error: null }),
-  useApiMutation: (fn: () => Promise<unknown>, opts: { onSuccess?: () => void }) => ({
+  useApiMutation: (
+    fn: () => Promise<unknown>,
+    opts: { onSuccess?: () => void },
+  ) => ({
     mutate: async () => {
       await fn();
       opts.onSuccess?.();
@@ -35,11 +38,17 @@ describe('QuizEditorModal', () => {
   test('sem quiz existente, cria com POST', async () => {
     queryData = null;
     const onClose = vi.fn();
-    render(<QuizEditorModal lessonId={7} lessonTitle="Feedback" onClose={onClose} />);
+    render(
+      <QuizEditorModal lessonId={7} lessonTitle="Feedback" onClose={onClose} />,
+    );
 
-    fireEvent.change(screen.getByLabelText('Título'), { target: { value: 'Avaliação de Feedback' } });
+    fireEvent.change(screen.getByLabelText('Título'), {
+      target: { value: 'Avaliação de Feedback' },
+    });
     const questionBox = screen.getByPlaceholderText('Enunciado da pergunta');
-    fireEvent.change(questionBox, { target: { value: 'O que é feedback construtivo?' } });
+    fireEvent.change(questionBox, {
+      target: { value: 'O que é feedback construtivo?' },
+    });
 
     fireEvent.click(screen.getByRole('button', { name: /guardar quiz/i }));
 
@@ -48,7 +57,11 @@ describe('QuizEditorModal', () => {
       '/courses/lessons/7/quiz',
       expect.objectContaining({
         title: 'Avaliação de Feedback',
-        questions: [expect.objectContaining({ question: 'O que é feedback construtivo?' })],
+        questions: [
+          expect.objectContaining({
+            question: 'O que é feedback construtivo?',
+          }),
+        ],
       }),
     );
     expect(put).not.toHaveBeenCalled();
@@ -70,19 +83,29 @@ describe('QuizEditorModal', () => {
           id: 1,
           question: '2+2?',
           type: 'MULTIPLE_CHOICE',
-          options: JSON.stringify([{ text: '3', isCorrect: false }, { text: '4', isCorrect: true }]),
+          options: JSON.stringify([
+            { text: '3', isCorrect: false },
+            { text: '4', isCorrect: true },
+          ]),
           correctAnswer: '4',
           points: 1,
         },
       ],
     };
-    render(<QuizEditorModal lessonId={7} lessonTitle="Feedback" onClose={vi.fn()} />);
+    render(
+      <QuizEditorModal lessonId={7} lessonTitle="Feedback" onClose={vi.fn()} />,
+    );
 
-    expect(await screen.findByDisplayValue('Quiz existente')).toBeInTheDocument();
+    expect(
+      await screen.findByDisplayValue('Quiz existente'),
+    ).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: /guardar quiz/i }));
 
     await vi.waitFor(() => expect(put).toHaveBeenCalled());
-    expect(put).toHaveBeenCalledWith('/courses/quizzes/3', expect.objectContaining({ title: 'Quiz existente' }));
+    expect(put).toHaveBeenCalledWith(
+      '/courses/quizzes/3',
+      expect.objectContaining({ title: 'Quiz existente' }),
+    );
     expect(post).not.toHaveBeenCalled();
   });
 });

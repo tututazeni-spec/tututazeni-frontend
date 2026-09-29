@@ -47,10 +47,12 @@ const LEGEND = [
   { level: 5, label: '5 — Especialista' },
 ];
 
-const HIERARCHY_LEVEL_OPTIONS = Object.entries(POSITION_LEVEL_CFG).map(([value, cfg]) => ({
-  value,
-  label: cfg.label,
-}));
+const HIERARCHY_LEVEL_OPTIONS = Object.entries(POSITION_LEVEL_CFG).map(
+  ([value, cfg]) => ({
+    value,
+    label: cfg.label,
+  }),
+);
 
 const CURRENT_LEVEL_OPTIONS = LEGEND.map(({ level, label }) => ({
   value: String(level),
@@ -92,42 +94,63 @@ export function SkillMatrixView() {
     <div>
       <div className="mb-5 flex flex-wrap items-center gap-3">
         <Select
-          items={[{ value: 'ALL', label: 'Todos os departamentos' }, ...departmentOptions]}
+          items={[
+            { value: 'ALL', label: 'Todos os departamentos' },
+            ...departmentOptions,
+          ]}
           value={departmentId}
           onValueChange={setDepartmentId}
           className="w-[180px]"
         />
         <Select
-          items={[{ value: 'ALL', label: 'Todos os cargos' }, ...positionOptions]}
+          items={[
+            { value: 'ALL', label: 'Todos os cargos' },
+            ...positionOptions,
+          ]}
           value={positionId}
           onValueChange={setPositionId}
           className="w-[180px]"
         />
         <Select
-          items={[{ value: 'ALL', label: 'Todas as competências' }, ...competencyOptions]}
+          items={[
+            { value: 'ALL', label: 'Todas as competências' },
+            ...competencyOptions,
+          ]}
           value={competencyId}
           onValueChange={setCompetencyId}
           className="w-[200px]"
         />
         <Select
-          items={[{ value: 'ALL', label: 'Todos os níveis hierárquicos' }, ...HIERARCHY_LEVEL_OPTIONS]}
+          items={[
+            { value: 'ALL', label: 'Todos os níveis hierárquicos' },
+            ...HIERARCHY_LEVEL_OPTIONS,
+          ]}
           value={hierarchyLevel}
           onValueChange={setHierarchyLevel}
           className="w-[200px]"
         />
         <Select
-          items={[{ value: 'ALL', label: 'Todos os níveis actuais' }, ...CURRENT_LEVEL_OPTIONS]}
+          items={[
+            { value: 'ALL', label: 'Todos os níveis actuais' },
+            ...CURRENT_LEVEL_OPTIONS,
+          ]}
           value={currentLevel}
           onValueChange={setCurrentLevel}
           className="w-[190px]"
         />
-        <UserFilterSearch selected={user} onChange={setUser} className="w-[220px]" />
+        <UserFilterSearch
+          selected={user}
+          onChange={setUser}
+          className="w-[220px]"
+        />
       </div>
 
       <div className="mb-5 flex justify-end gap-2 font-body text-xs text-ink-faint">
         {LEGEND.map(({ level, label }) => (
           <div key={label} className="flex items-center gap-1">
-            <div className={`h-3 w-3 rounded-sm ${levelColor(level).split(' ')[0]}`} />
+            <div
+              className={`h-3 w-3 rounded-sm ${levelColor(level).split(' ')[0]}`}
+            />
             {label}
           </div>
         ))}

@@ -12,13 +12,21 @@
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { Award, BookOpen, FileBadge, Users, CheckCircle2, ClipboardList, TrendingUp } from 'lucide-react';
+import {
+  Award,
+  BookOpen,
+  FileBadge,
+  Users,
+  CheckCircle2,
+  ClipboardList,
+  TrendingUp,
+} from 'lucide-react';
 import { Skeleton } from '@/components/ui/Skeleton';
 import type { OrgOverview } from './types';
 
 type Tone = 'blue' | 'green' | 'gold';
 
-type ToneStyle = {
+interface ToneStyle {
   header: string;
   title: string;
   iconBg: string;
@@ -26,7 +34,7 @@ type ToneStyle = {
   track: string;
   fill: string;
   number: string;
-};
+}
 
 const TONES: { [K in Tone]: ToneStyle } = {
   blue: {
@@ -68,7 +76,7 @@ function Tile({
   tone: Tone;
 }) {
   return (
-       <div className="rounded-2xl border border-border bg-white p-4 shadow-resting">
+    <div className="rounded-2xl border border-border bg-white p-4 shadow-resting">
       <div className="mb-2 font-body text-sm text-black">{label}</div>
       <div className={`font-data text-4xl font-bold ${TONES[tone].number}`}>
         {value}
@@ -98,7 +106,7 @@ function TopBarCard({
   icon: React.ReactNode;
 }) {
   const t = KPI_TONES[tone];
-    return (
+  return (
     <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting">
       <div className={`h-1.5 w-full ${t.bar}`} />
       <div className="p-5 pt-6">
@@ -111,7 +119,6 @@ function TopBarCard({
     </div>
   );
 }
-
 
 function SummaryCard({
   title,
@@ -131,7 +138,7 @@ function SummaryCard({
   const t = TONES[tone];
   const width = Math.max(8, Math.min(100, progress));
 
-   return (
+  return (
     <div>
       <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting">
         <div
@@ -172,8 +179,8 @@ export function OverviewView() {
 
   return (
     <div className="space-y-8">
-           {/* KPIs principais */}
-           <div className="mt-6 grid grid-cols-4 gap-4">
+      {/* KPIs principais */}
+      <div className="mt-6 grid grid-cols-4 gap-4">
         <TopBarCard
           label="Colaboradores activos"
           value={data.users.active}
@@ -200,8 +207,8 @@ export function OverviewView() {
         />
       </div>
 
-            {/* Segunda linha */}
-            <div className="grid grid-cols-3 gap-4">
+      {/* Segunda linha */}
+      <div className="grid grid-cols-3 gap-4">
         <SummaryCard
           title="Cursos"
           tone="blue"

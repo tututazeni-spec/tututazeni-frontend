@@ -50,7 +50,7 @@ export function HeadcountPanel() {
   return (
     <div className="space-y-5">
       {/* KPIs — cartão estilo Udemy/MasterClass */}
-           <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         <TopBarCard
           label="Total"
           value={data?.total ?? 0}
@@ -86,7 +86,12 @@ export function HeadcountPanel() {
             </h4>
             <BarChart
               categories={Object.keys(data.byTenure)}
-              series={[{ label: 'Colaboradores', values: Object.values(data.byTenure) }]}
+              series={[
+                {
+                  label: 'Colaboradores',
+                  values: Object.values(data.byTenure),
+                },
+              ]}
             />
           </div>
         )}
@@ -101,12 +106,18 @@ export function HeadcountPanel() {
               series={[
                 {
                   label: 'Colaboradores',
-                  points: trend.map((t, i) => ({ x: i, y: t.count, xLabel: t.month })),
+                  points: trend.map((t, i) => ({
+                    x: i,
+                    y: t.count,
+                    xLabel: t.month,
+                  })),
                 },
               ]}
             />
           ) : (
-            <p className="font-body text-xs text-ink-faint">Sem dados suficientes.</p>
+            <p className="font-body text-xs text-ink-faint">
+              Sem dados suficientes.
+            </p>
           )}
         </div>
       </div>
@@ -169,7 +180,10 @@ function EmploymentSegmentationWidget() {
     field: string,
   ) =>
     (arr ?? [])
-      .map((r) => ({ label: String(r[field] ?? 'Não definido'), count: r._count }))
+      .map((r) => ({
+        label: String(r[field] ?? 'Não definido'),
+        count: r._count,
+      }))
       .sort((a, b) => b.count - a.count);
 
   return (

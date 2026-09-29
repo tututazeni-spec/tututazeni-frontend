@@ -25,15 +25,18 @@
 ### Task 1: Dependências + helper `cn`
 
 **Files:**
+
 - Create: `lib/cn.ts`
 - Modify: `package.json`, `package-lock.json` (via `npm install`)
 
 **Interfaces:**
+
 - Produces: `cn(...inputs: import('clsx').ClassValue[]): string`
 
 - [ ] **Step 1: Instalar dependências**
 
 Run:
+
 ```
 npm install radix-ui class-variance-authority clsx tailwind-merge
 ```
@@ -73,44 +76,46 @@ Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>"
 ### Task 2: Tipografia (`next/font`)
 
 **Files:**
+
 - Modify: `app/layout.tsx`
 
 **Interfaces:**
+
 - Produces: variáveis CSS `--font-sora`, `--font-inter`, `--font-plex-mono` disponíveis em toda a app (consumidas pelo `@theme` da Task 3).
 
 - [ ] **Step 1: Adicionar os fonts ao `app/layout.tsx`**
 
 ```tsx
-import "./globals.css";
-import type { Metadata } from "next";
-import { Sora, Inter, IBM_Plex_Mono } from "next/font/google";
-import ClientInit from "../components/ClientInit";
-import ReactQueryProvider from "../providers/ReactQueryProvider";
-import { ConfirmProvider } from "../providers/ConfirmProvider";
+import './globals.css';
+import type { Metadata } from 'next';
+import { Sora, Inter, IBM_Plex_Mono } from 'next/font/google';
+import ClientInit from '../components/ClientInit';
+import ReactQueryProvider from '../providers/ReactQueryProvider';
+import { ConfirmProvider } from '../providers/ConfirmProvider';
 
 const sora = Sora({
-  subsets: ["latin"],
-  weight: ["600", "700", "800"],
-  variable: "--font-sora",
-  display: "swap",
+  subsets: ['latin'],
+  weight: ['600', '700', '800'],
+  variable: '--font-sora',
+  display: 'swap',
 });
 const inter = Inter({
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
-  variable: "--font-inter",
-  display: "swap",
+  subsets: ['latin'],
+  weight: ['400', '500', '600'],
+  variable: '--font-inter',
+  display: 'swap',
 });
 const plexMono = IBM_Plex_Mono({
-  subsets: ["latin"],
-  weight: ["400", "500"],
-  variable: "--font-plex-mono",
-  display: "swap",
+  subsets: ['latin'],
+  weight: ['400', '500'],
+  variable: '--font-plex-mono',
+  display: 'swap',
 });
 
 export const metadata: Metadata = {
   title: {
-    template: "%s | INNOVA",
-    default: "INNOVA",
+    template: '%s | INNOVA',
+    default: 'INNOVA',
   },
   // Plataforma interna: nunca indexar em motores de busca.
   robots: { index: false, follow: false },
@@ -122,7 +127,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="pt" className={`${sora.variable} ${inter.variable} ${plexMono.variable}`}>
+    <html
+      lang="pt"
+      className={`${sora.variable} ${inter.variable} ${plexMono.variable}`}
+    >
       <body style={{ margin: 0, padding: 0 }}>
         <ClientInit />
         <ReactQueryProvider>
@@ -157,9 +165,11 @@ Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>"
 ### Task 3: Tokens (`app/globals.css`)
 
 **Files:**
+
 - Modify: `app/globals.css` (só acrescentar no fim do ficheiro)
 
 **Interfaces:**
+
 - Produces: utilitários Tailwind `bg-canvas`, `bg-surface`, `bg-surface-sunken`, `border-border`, `border-border-strong`, `text-ink`, `text-ink-muted`, `text-ink-faint`, `bg-primary`/`text-primary`/`border-primary` (+ `-hover`/`-active`/`-subtle`), `bg-accent`/`text-accent` (+ `-hover`/`-subtle`), `bg-success`/`text-success` (+ `-subtle`/`-ink`), idem `warning`/`danger`/`info`, `rounded-control`/`rounded-card`/`rounded-panel`/`rounded-pill`, `font-display`/`font-body`/`font-mono`; classe utilitária `.skeleton-shimmer`.
 
 - [ ] **Step 1: Acrescentar o bloco `@theme` e o shimmer no fim de `app/globals.css`**
@@ -169,39 +179,39 @@ Acrescentar (sem alterar nada acima):
 ```css
 @theme {
   /* superfícies */
-  --color-canvas: #F7F5EF;
-  --color-surface: #FFFFFF;
-  --color-surface-sunken: #F1EEE5;
-  --color-border: #E7E2D4;
-  --color-border-strong: #D8D1BE;
+  --color-canvas: #f7f5ef;
+  --color-surface: #ffffff;
+  --color-surface-sunken: #f1eee5;
+  --color-border: #e7e2d4;
+  --color-border-strong: #d8d1be;
 
   /* texto */
-  --color-ink: #20241F;
-  --color-ink-muted: #6E756B;
-  --color-ink-faint: #9AA097;
+  --color-ink: #20241f;
+  --color-ink-muted: #6e756b;
+  --color-ink-faint: #9aa097;
 
   /* marca */
-  --color-primary: #163A2E;
-  --color-primary-hover: #1F4E3D;
-  --color-primary-active: #0E2820;
-  --color-primary-subtle: #E7EFEA;
-  --color-accent: #D6963A;
-  --color-accent-hover: #C2822A;
-  --color-accent-subtle: #F3E1BE;
+  --color-primary: #163a2e;
+  --color-primary-hover: #1f4e3d;
+  --color-primary-active: #0e2820;
+  --color-primary-subtle: #e7efea;
+  --color-accent: #d6963a;
+  --color-accent-hover: #c2822a;
+  --color-accent-subtle: #f3e1be;
 
   /* semântica de estado */
-  --color-success: #2F9E63;
-  --color-success-subtle: #E4F5EC;
-  --color-success-ink: #1E7A4C;
-  --color-warning: #C97A1F;
-  --color-warning-subtle: #FBEEDC;
-  --color-warning-ink: #9C5F17;
-  --color-danger: #B3432E;
-  --color-danger-subtle: #FBE7E2;
-  --color-danger-ink: #8F3421;
-  --color-info: #3B6FA0;
-  --color-info-subtle: #E7EEF5;
-  --color-info-ink: #2C557E;
+  --color-success: #2f9e63;
+  --color-success-subtle: #e4f5ec;
+  --color-success-ink: #1e7a4c;
+  --color-warning: #c97a1f;
+  --color-warning-subtle: #fbeedc;
+  --color-warning-ink: #9c5f17;
+  --color-danger: #b3432e;
+  --color-danger-subtle: #fbe7e2;
+  --color-danger-ink: #8f3421;
+  --color-info: #3b6fa0;
+  --color-info-subtle: #e7eef5;
+  --color-info-ink: #2c557e;
 
   /* forma — nomes próprios, não colidem com a escala nativa do Tailwind */
   --radius-control: 6px;
@@ -210,9 +220,9 @@ Acrescentar (sem alterar nada acima):
   --radius-pill: 999px;
 
   /* profundidade */
-  --shadow-resting: 0 1px 2px rgba(22, 58, 46, .06);
-  --shadow-hover: 0 4px 12px rgba(22, 58, 46, .08);
-  --shadow-elevated: 0 12px 32px rgba(22, 58, 46, .14);
+  --shadow-resting: 0 1px 2px rgba(22, 58, 46, 0.06);
+  --shadow-hover: 0 4px 12px rgba(22, 58, 46, 0.08);
+  --shadow-elevated: 0 12px 32px rgba(22, 58, 46, 0.14);
 
   /* tipografia — variáveis vindas do next/font (Task 2) */
   --font-display: var(--font-sora);
@@ -221,7 +231,9 @@ Acrescentar (sem alterar nada acima):
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+  *,
+  *::before,
+  *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
@@ -244,8 +256,12 @@ Acrescentar (sem alterar nada acima):
   animation: skeleton-shimmer-move 1.4s infinite;
 }
 @keyframes skeleton-shimmer-move {
-  0% { background-position: -200px 0; }
-  100% { background-position: 200px 0; }
+  0% {
+    background-position: -200px 0;
+  }
+  100% {
+    background-position: 200px 0;
+  }
 }
 ```
 
@@ -272,9 +288,11 @@ Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>"
 ### Task 4: Rota `_styleguide` (scaffold, ADMIN only)
 
 **Files:**
+
 - Create: `app/(platform)/_styleguide/page.tsx`
 
 **Interfaces:**
+
 - Produces: `StyleguideSection({ title: string; children: React.ReactNode })` — usado por todas as tasks seguintes para acrescentar a sua secção.
 - Consumes: `useCurrentUser()` (`hooks/useCurrentUser.ts`), `ADMIN_ROLES`/`type Role` (`lib/roles.ts`).
 
@@ -362,10 +380,12 @@ Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>"
 ### Task 5: `Button` + `IconButton`
 
 **Files:**
+
 - Create: `components/ui/Button.tsx`
 - Modify: `app/(platform)/_styleguide/page.tsx`
 
 **Interfaces:**
+
 - Consumes: `cn` (Task 1).
 - Produces: `buttonVariants` (cva), `Button({ intent?: 'primary'|'secondary'|'ghost'|'danger'; size?: 'sm'|'md'; loading?: boolean } & ButtonHTMLAttributes)`, `IconButton({ icon: LucideIcon; label: string; intent?; size? } & ButtonHTMLAttributes)`.
 
@@ -389,10 +409,12 @@ export const buttonVariants = cva(
   {
     variants: {
       intent: {
-        primary: 'bg-primary text-canvas hover:bg-primary-hover active:bg-primary-active',
+        primary:
+          'bg-primary text-canvas hover:bg-primary-hover active:bg-primary-active',
         secondary:
           'border-[1.5px] border-primary bg-surface text-primary hover:bg-primary-subtle',
-        ghost: 'bg-transparent text-ink-muted hover:bg-surface-sunken hover:text-ink',
+        ghost:
+          'bg-transparent text-ink-muted hover:bg-surface-sunken hover:text-ink',
         danger: 'bg-danger text-white hover:brightness-95 active:brightness-90',
       },
       size: {
@@ -405,7 +427,8 @@ export const buttonVariants = cva(
 );
 
 export interface ButtonProps
-  extends ButtonHTMLAttributes<HTMLButtonElement>,
+  extends
+    ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
   loading?: boolean;
 }
@@ -419,7 +442,9 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       aria-busy={loading || undefined}
       {...props}
     >
-      {loading && <Loader2 size={16} strokeWidth={1.75} className="animate-spin" />}
+      {loading && (
+        <Loader2 size={16} strokeWidth={1.75} className="animate-spin" />
+      )}
       {children}
     </button>
   ),
@@ -427,7 +452,8 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 Button.displayName = 'Button';
 
 export interface IconButtonProps
-  extends ButtonHTMLAttributes<HTMLButtonElement>,
+  extends
+    ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
   icon: LucideIcon;
   /** aria-label — obrigatório: botão só de ícone tem de ter nome acessível. */
@@ -439,7 +465,11 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
     <button
       ref={ref}
       aria-label={label}
-      className={cn(buttonVariants({ intent, size }), 'aspect-square h-9 w-9 p-0', className)}
+      className={cn(
+        buttonVariants({ intent, size }),
+        'aspect-square h-9 w-9 p-0',
+        className,
+      )}
       {...props}
     >
       <Icon size={18} strokeWidth={1.75} />
@@ -491,10 +521,12 @@ Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>"
 ### Task 6: `Badge`
 
 **Files:**
+
 - Create: `components/ui/Badge.tsx`
 - Modify: `app/(platform)/_styleguide/page.tsx`
 
 **Interfaces:**
+
 - Consumes: `cn` (Task 1).
 - Produces: `Badge({ intent?: 'success'|'warning'|'danger'|'info'|'neutral'; children } & HTMLAttributes<HTMLSpanElement>)`.
 
@@ -523,7 +555,12 @@ export interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
   intent?: keyof typeof INTENT_CLASSES;
 }
 
-export function Badge({ intent = 'neutral', className, children, ...props }: BadgeProps) {
+export function Badge({
+  intent = 'neutral',
+  className,
+  children,
+  ...props
+}: BadgeProps) {
   return (
     <span
       className={cn(
@@ -572,10 +609,12 @@ Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>"
 ### Task 7: `Card`
 
 **Files:**
+
 - Create: `components/ui/Card.tsx`
 - Modify: `app/(platform)/_styleguide/page.tsx`
 
 **Interfaces:**
+
 - Consumes: `cn` (Task 1).
 - Produces: `Card({ interactive?: boolean } & HTMLAttributes<HTMLDivElement>)`, `CardHeader`, `CardBody`, `CardFooter` (todos `HTMLAttributes<HTMLDivElement>`).
 
@@ -604,15 +643,26 @@ export function Card({ interactive, className, ...props }: CardProps) {
   );
 }
 
-export function CardHeader({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn('border-b border-border p-4', className)} {...props} />;
+export function CardHeader({
+  className,
+  ...props
+}: HTMLAttributes<HTMLDivElement>) {
+  return (
+    <div className={cn('border-b border-border p-4', className)} {...props} />
+  );
 }
 
-export function CardBody({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
+export function CardBody({
+  className,
+  ...props
+}: HTMLAttributes<HTMLDivElement>) {
   return <div className={cn('p-4', className)} {...props} />;
 }
 
-export function CardFooter({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
+export function CardFooter({
+  className,
+  ...props
+}: HTMLAttributes<HTMLDivElement>) {
   return (
     <div className={cn('border-t border-border p-4', className)} {...props} />
   );
@@ -628,17 +678,23 @@ e acrescentar:
 <StyleguideSection title="Card">
   <Card className="w-64">
     <CardHeader>
-      <h3 className="font-display text-sm font-bold text-ink">Título do card</h3>
+      <h3 className="font-display text-sm font-bold text-ink">
+        Título do card
+      </h3>
     </CardHeader>
     <CardBody>
-      <p className="text-sm text-ink-muted">Conteúdo de exemplo do corpo do card.</p>
+      <p className="text-sm text-ink-muted">
+        Conteúdo de exemplo do corpo do card.
+      </p>
     </CardBody>
     <CardFooter>
       <Button size="sm">Acção</Button>
     </CardFooter>
   </Card>
   <Card interactive className="w-64 p-4">
-    <p className="text-sm text-ink-muted">Card interactivo (hover para ver a sombra crescer).</p>
+    <p className="text-sm text-ink-muted">
+      Card interactivo (hover para ver a sombra crescer).
+    </p>
   </Card>
 </StyleguideSection>
 ```
@@ -663,10 +719,12 @@ Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>"
 ### Task 8: `FormField` + `Input` + `Textarea`
 
 **Files:**
+
 - Create: `components/ui/Input.tsx`, `components/ui/Textarea.tsx`, `components/ui/FormField.tsx`
 - Modify: `app/(platform)/_styleguide/page.tsx`
 
 **Interfaces:**
+
 - Consumes: `cn` (Task 1).
 - Produces: `Input(InputHTMLAttributes<HTMLInputElement> & { invalid?: boolean })`, `Textarea(TextareaHTMLAttributes<HTMLTextAreaElement> & { invalid?: boolean })`, `FormField({ label: string; htmlFor: string; hint?: string; error?: string; children: ReactNode })`.
 
@@ -753,12 +811,21 @@ export interface FormFieldProps {
   children: ReactNode;
 }
 
-export function FormField({ label, htmlFor, hint, error, children }: FormFieldProps) {
+export function FormField({
+  label,
+  htmlFor,
+  hint,
+  error,
+  children,
+}: FormFieldProps) {
   const hintId = hint ? `${htmlFor}-hint` : undefined;
   const errorId = error ? `${htmlFor}-error` : undefined;
   return (
     <div className="flex flex-col gap-1.5">
-      <label htmlFor={htmlFor} className="font-body text-xs font-medium text-ink">
+      <label
+        htmlFor={htmlFor}
+        className="font-body text-xs font-medium text-ink"
+      >
         {label}
       </label>
       {children}
@@ -784,14 +851,27 @@ acrescentar:
 
 ```tsx
 <StyleguideSection title="Input / Textarea">
-  <FormField label="Email" htmlFor="sg-email" hint="Usa o teu email corporativo">
+  <FormField
+    label="Email"
+    htmlFor="sg-email"
+    hint="Usa o teu email corporativo"
+  >
     <Input id="sg-email" placeholder="nome@empresa.co.ao" className="w-64" />
   </FormField>
-  <FormField label="NIF" htmlFor="sg-nif" error="NIF inválido — verifica o formato">
+  <FormField
+    label="NIF"
+    htmlFor="sg-nif"
+    error="NIF inválido — verifica o formato"
+  >
     <Input id="sg-nif" defaultValue="00512345" invalid className="w-64" />
   </FormField>
   <FormField label="Notas" htmlFor="sg-notes">
-    <Textarea id="sg-notes" rows={3} placeholder="Escreve aqui…" className="w-64" />
+    <Textarea
+      id="sg-notes"
+      rows={3}
+      placeholder="Escreve aqui…"
+      className="w-64"
+    />
   </FormField>
 </StyleguideSection>
 ```
@@ -814,10 +894,12 @@ Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>"
 ### Task 9: `Select` (Radix)
 
 **Files:**
+
 - Create: `components/ui/Select.tsx`
 - Modify: `app/(platform)/_styleguide/page.tsx`
 
 **Interfaces:**
+
 - Consumes: `cn` (Task 1), `radix-ui` (`Select`).
 - Produces: `Select({ items: { value: string; label: string }[]; value?: string; onValueChange?: (v: string) => void; placeholder?: string; invalid?: boolean; disabled?: boolean })`.
 
@@ -856,7 +938,11 @@ export function Select({
   className,
 }: SelectProps) {
   return (
-    <RadixSelect.Root value={value} onValueChange={onValueChange} disabled={disabled}>
+    <RadixSelect.Root
+      value={value}
+      onValueChange={onValueChange}
+      disabled={disabled}
+    >
       <RadixSelect.Trigger
         aria-invalid={invalid || undefined}
         className={cn(
@@ -864,13 +950,18 @@ export function Select({
           'bg-surface px-3 py-[9px] font-body text-sm text-ink',
           'focus:border-accent focus:outline-none focus:ring-[3px] focus:ring-accent-subtle',
           'disabled:cursor-not-allowed disabled:opacity-50',
-          invalid && 'border-danger focus:border-danger focus:ring-danger-subtle',
+          invalid &&
+            'border-danger focus:border-danger focus:ring-danger-subtle',
           className,
         )}
       >
         <RadixSelect.Value placeholder={placeholder} />
         <RadixSelect.Icon>
-          <ChevronDown size={16} strokeWidth={1.75} className="text-ink-muted" />
+          <ChevronDown
+            size={16}
+            strokeWidth={1.75}
+            className="text-ink-muted"
+          />
         </RadixSelect.Icon>
       </RadixSelect.Trigger>
       <RadixSelect.Portal>
@@ -891,7 +982,11 @@ export function Select({
               >
                 <RadixSelect.ItemText>{item.label}</RadixSelect.ItemText>
                 <RadixSelect.ItemIndicator>
-                  <Check size={14} strokeWidth={1.75} className="text-primary" />
+                  <Check
+                    size={14}
+                    strokeWidth={1.75}
+                    className="text-primary"
+                  />
                 </RadixSelect.ItemIndicator>
               </RadixSelect.Item>
             ))}
@@ -945,10 +1040,12 @@ Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>"
 ### Task 10: `Modal` (Radix Dialog) + refactor do `ConfirmDialog`
 
 **Files:**
+
 - Create: `components/ui/Modal.tsx`
 - Modify: `components/ui/ConfirmDialog.tsx`, `app/(platform)/_styleguide/page.tsx`
 
 **Interfaces:**
+
 - Consumes: `cn` (Task 1), `radix-ui` (`Dialog`).
 - Produces: `Modal` (= `Dialog.Root`), `ModalTrigger` (= `Dialog.Trigger`), `ModalClose` (= `Dialog.Close`), `ModalContent({ title: string; description?: string; children, className? })` (monta Portal+Overlay+Content+Title+Description já estilizados).
 - **Contrato inalterado:** `useConfirm(): (options: ConfirmOptions) => Promise<boolean>` continua exactamente igual — só a implementação interna de `ConfirmDialog` muda.
@@ -975,7 +1072,12 @@ export interface ModalContentProps {
   className?: string;
 }
 
-export function ModalContent({ title, description, children, className }: ModalContentProps) {
+export function ModalContent({
+  title,
+  description,
+  children,
+  className,
+}: ModalContentProps) {
   return (
     <Dialog.Portal>
       <Dialog.Overlay
@@ -993,7 +1095,9 @@ export function ModalContent({ title, description, children, className }: ModalC
           className,
         )}
       >
-        <Dialog.Title className="font-display text-lg font-bold text-ink">{title}</Dialog.Title>
+        <Dialog.Title className="font-display text-lg font-bold text-ink">
+          {title}
+        </Dialog.Title>
         {description && (
           <Dialog.Description className="mt-2 font-body text-sm text-ink-muted">
             {description}
@@ -1054,7 +1158,11 @@ export function ConfirmDialog({
               {cancelLabel}
             </Button>
           </ModalClose>
-          <Button intent={destructive ? 'danger' : 'primary'} onClick={onConfirm} autoFocus>
+          <Button
+            intent={destructive ? 'danger' : 'primary'}
+            onClick={onConfirm}
+            autoFocus
+          >
             {confirmLabel}
           </Button>
         </div>
@@ -1081,7 +1189,10 @@ Importar `Modal, ModalTrigger, ModalContent, ModalClose` de
     <ModalTrigger asChild>
       <Button intent="secondary">Abrir modal</Button>
     </ModalTrigger>
-    <ModalContent title="Exemplo de modal" description="Descrição de apoio ao título.">
+    <ModalContent
+      title="Exemplo de modal"
+      description="Descrição de apoio ao título."
+    >
       <div className="mt-6 flex justify-end gap-3">
         <ModalClose asChild>
           <Button intent="ghost">Cancelar</Button>
@@ -1120,10 +1231,12 @@ Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>"
 ### Task 11: `Tabs` (Radix)
 
 **Files:**
+
 - Create: `components/ui/Tabs.tsx`
 - Modify: `app/(platform)/_styleguide/page.tsx`
 
 **Interfaces:**
+
 - Consumes: `cn` (Task 1), `radix-ui` (`Tabs`).
 - Produces: `Tabs` (= `RadixTabs.Root`), `TabsList`, `TabsTrigger`, `TabsContent` (wrappers estilizados de `RadixTabs.List/Trigger/Content`).
 
@@ -1139,7 +1252,10 @@ import { cn } from '@/lib/cn';
 
 export const Tabs = RadixTabs.Root;
 
-export function TabsList({ className, ...props }: ComponentProps<typeof RadixTabs.List>) {
+export function TabsList({
+  className,
+  ...props
+}: ComponentProps<typeof RadixTabs.List>) {
   return (
     <RadixTabs.List
       className={cn('flex gap-1 border-b border-border', className)}
@@ -1148,7 +1264,10 @@ export function TabsList({ className, ...props }: ComponentProps<typeof RadixTab
   );
 }
 
-export function TabsTrigger({ className, ...props }: ComponentProps<typeof RadixTabs.Trigger>) {
+export function TabsTrigger({
+  className,
+  ...props
+}: ComponentProps<typeof RadixTabs.Trigger>) {
   return (
     <RadixTabs.Trigger
       className={cn(
@@ -1163,10 +1282,16 @@ export function TabsTrigger({ className, ...props }: ComponentProps<typeof Radix
   );
 }
 
-export function TabsContent({ className, ...props }: ComponentProps<typeof RadixTabs.Content>) {
+export function TabsContent({
+  className,
+  ...props
+}: ComponentProps<typeof RadixTabs.Content>) {
   return (
     <RadixTabs.Content
-      className={cn('pt-4 font-body text-sm text-ink focus-visible:outline-none', className)}
+      className={cn(
+        'pt-4 font-body text-sm text-ink focus-visible:outline-none',
+        className,
+      )}
       {...props}
     />
   );
@@ -1214,10 +1339,12 @@ Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>"
 ### Task 12: `DropdownMenu` (Radix)
 
 **Files:**
+
 - Create: `components/ui/DropdownMenu.tsx`
 - Modify: `app/(platform)/_styleguide/page.tsx`
 
 **Interfaces:**
+
 - Consumes: `cn` (Task 1), `radix-ui` (`DropdownMenu`).
 - Produces: `DropdownMenu` (= Root), `DropdownMenuTrigger` (= Trigger), `DropdownMenuContent`, `DropdownMenuItem`, `DropdownMenuSeparator`.
 
@@ -1275,7 +1402,10 @@ export function DropdownMenuSeparator({
   ...props
 }: ComponentProps<typeof RadixDropdown.Separator>) {
   return (
-    <RadixDropdown.Separator className={cn('my-1 h-px bg-border', className)} {...props} />
+    <RadixDropdown.Separator
+      className={cn('my-1 h-px bg-border', className)}
+      {...props}
+    />
   );
 }
 ```
@@ -1319,10 +1449,12 @@ Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>"
 ### Task 13: `Tooltip` (Radix) + `TooltipProvider` global
 
 **Files:**
+
 - Create: `components/ui/Tooltip.tsx`
 - Modify: `app/layout.tsx`, `app/(platform)/_styleguide/page.tsx`
 
 **Interfaces:**
+
 - Consumes: `cn` (Task 1), `radix-ui` (`Tooltip`).
 - Produces: `TooltipProvider` (registado uma vez no root layout), `Tooltip({ content: ReactNode; children: ReactNode; side?: 'top'|'right'|'bottom'|'left' })`.
 
@@ -1406,10 +1538,12 @@ Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>"
 ### Task 14: `Toast` (Radix) + `ToastProvider` global
 
 **Files:**
+
 - Create: `components/ui/Toast.tsx`, `providers/ToastProvider.tsx`
 - Modify: `app/layout.tsx`, `app/(platform)/_styleguide/page.tsx`
 
 **Interfaces:**
+
 - Consumes: `cn` (Task 1), `radix-ui` (`Toast`).
 - Produces: `ToastProvider` (registado no root layout), `useToast(): (options: ToastOptions) => void` — `ToastOptions = { title: string; description?: string; intent?: 'success'|'danger'|'info' }`.
 
@@ -1424,7 +1558,11 @@ import { CheckCircle2, XCircle, Info, X } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import type { ToastOptions } from '../../providers/ToastProvider';
 
-const INTENT_ICON = { success: CheckCircle2, danger: XCircle, info: Info } as const;
+const INTENT_ICON = {
+  success: CheckCircle2,
+  danger: XCircle,
+  info: Info,
+} as const;
 const INTENT_COLOR = {
   success: 'text-success',
   danger: 'text-danger',
@@ -1436,7 +1574,12 @@ export interface ToastItemProps extends ToastOptions {
   onOpenChange: (open: boolean) => void;
 }
 
-export function ToastItem({ title, description, intent = 'info', onOpenChange }: ToastItemProps) {
+export function ToastItem({
+  title,
+  description,
+  intent = 'info',
+  onOpenChange,
+}: ToastItemProps) {
   const Icon = INTENT_ICON[intent];
   return (
     <RadixToast.Root
@@ -1448,7 +1591,11 @@ export function ToastItem({ title, description, intent = 'info', onOpenChange }:
         'data-[state=closed]:animate-out data-[state=closed]:fade-out',
       )}
     >
-      <Icon size={20} strokeWidth={1.75} className={cn('shrink-0', INTENT_COLOR[intent])} />
+      <Icon
+        size={20}
+        strokeWidth={1.75}
+        className={cn('shrink-0', INTENT_COLOR[intent])}
+      />
       <div className="flex-1">
         <RadixToast.Title className="font-body text-sm font-semibold text-ink">
           {title}
@@ -1459,7 +1606,10 @@ export function ToastItem({ title, description, intent = 'info', onOpenChange }:
           </RadixToast.Description>
         )}
       </div>
-      <RadixToast.Close aria-label="Fechar notificação" className="text-ink-faint hover:text-ink">
+      <RadixToast.Close
+        aria-label="Fechar notificação"
+        className="text-ink-faint hover:text-ink"
+      >
         <X size={16} strokeWidth={1.75} />
       </RadixToast.Close>
     </RadixToast.Root>
@@ -1527,7 +1677,8 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
 
 export function useToast(): ToastFn {
   const ctx = useContext(ToastContext);
-  if (!ctx) throw new Error('useToast deve ser usado dentro de <ToastProvider>');
+  if (!ctx)
+    throw new Error('useToast deve ser usado dentro de <ToastProvider>');
   return ctx;
 }
 ```
@@ -1535,8 +1686,9 @@ export function useToast(): ToastFn {
 - [ ] **Step 3: Registar `ToastProvider` em `app/layout.tsx`**
 
 ```tsx
-import { ToastProvider } from "../providers/ToastProvider";
+import { ToastProvider } from '../providers/ToastProvider';
 ```
+
 ```tsx
 <ReactQueryProvider>
   <ConfirmProvider>
@@ -1560,12 +1712,20 @@ E na JSX:
 
 ```tsx
 <StyleguideSection title="Toast">
-  <Button onClick={() => toast({ title: 'Guardado com sucesso', intent: 'success' })}>
+  <Button
+    onClick={() => toast({ title: 'Guardado com sucesso', intent: 'success' })}
+  >
     Disparar toast de sucesso
   </Button>
   <Button
     intent="danger"
-    onClick={() => toast({ title: 'Falha ao guardar', description: 'Tenta novamente.', intent: 'danger' })}
+    onClick={() =>
+      toast({
+        title: 'Falha ao guardar',
+        description: 'Tenta novamente.',
+        intent: 'danger',
+      })
+    }
   >
     Disparar toast de erro
   </Button>
@@ -1596,10 +1756,12 @@ Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>"
 ### Task 15: `Table`
 
 **Files:**
+
 - Create: `components/ui/Table.tsx`
 - Modify: `app/(platform)/_styleguide/page.tsx`
 
 **Interfaces:**
+
 - Consumes: `cn` (Task 1).
 - Produces: `Table`, `TableHead`, `TableBody`, `TableRow`, `TableHeaderCell`, `TableCell` (todos wrappers de elementos HTML de tabela nativos).
 
@@ -1615,15 +1777,27 @@ import type {
 } from 'react';
 import { cn } from '@/lib/cn';
 
-export function Table({ className, ...props }: TableHTMLAttributes<HTMLTableElement>) {
+export function Table({
+  className,
+  ...props
+}: TableHTMLAttributes<HTMLTableElement>) {
   return (
     <div className="overflow-x-auto rounded-card border border-border">
-      <table className={cn('w-full border-collapse font-body text-sm text-ink', className)} {...props} />
+      <table
+        className={cn(
+          'w-full border-collapse font-body text-sm text-ink',
+          className,
+        )}
+        {...props}
+      />
     </div>
   );
 }
 
-export function TableHead({ className, ...props }: HTMLAttributes<HTMLTableSectionElement>) {
+export function TableHead({
+  className,
+  ...props
+}: HTMLAttributes<HTMLTableSectionElement>) {
   return <thead className={cn('bg-surface-sunken', className)} {...props} />;
 }
 
@@ -1631,7 +1805,10 @@ export function TableBody(props: HTMLAttributes<HTMLTableSectionElement>) {
   return <tbody {...props} />;
 }
 
-export function TableRow({ className, ...props }: HTMLAttributes<HTMLTableRowElement>) {
+export function TableRow({
+  className,
+  ...props
+}: HTMLAttributes<HTMLTableRowElement>) {
   return (
     <tr
       className={cn(
@@ -1643,7 +1820,10 @@ export function TableRow({ className, ...props }: HTMLAttributes<HTMLTableRowEle
   );
 }
 
-export function TableHeaderCell({ className, ...props }: ThHTMLAttributes<HTMLTableCellElement>) {
+export function TableHeaderCell({
+  className,
+  ...props
+}: ThHTMLAttributes<HTMLTableCellElement>) {
   return (
     <th
       className={cn(
@@ -1655,7 +1835,10 @@ export function TableHeaderCell({ className, ...props }: ThHTMLAttributes<HTMLTa
   );
 }
 
-export function TableCell({ className, ...props }: TdHTMLAttributes<HTMLTableCellElement>) {
+export function TableCell({
+  className,
+  ...props
+}: TdHTMLAttributes<HTMLTableCellElement>) {
   return <td className={cn('px-4 py-3', className)} {...props} />;
 }
 ```
@@ -1678,12 +1861,16 @@ Importar os componentes de `@/components/ui/Table` e acrescentar:
       <TableRow>
         <TableCell>Ana Silva</TableCell>
         <TableCell>Recursos Humanos</TableCell>
-        <TableCell><Badge intent="success">Activo</Badge></TableCell>
+        <TableCell>
+          <Badge intent="success">Activo</Badge>
+        </TableCell>
       </TableRow>
       <TableRow>
         <TableCell>João Pedro</TableCell>
         <TableCell>Tecnologia</TableCell>
-        <TableCell><Badge intent="neutral">Inactivo</Badge></TableCell>
+        <TableCell>
+          <Badge intent="neutral">Inactivo</Badge>
+        </TableCell>
       </TableRow>
     </TableBody>
   </Table>
@@ -1710,10 +1897,12 @@ Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>"
 ### Task 16: `Avatar`
 
 **Files:**
+
 - Create: `components/ui/Avatar.tsx`
 - Modify: `app/(platform)/_styleguide/page.tsx`
 
 **Interfaces:**
+
 - Consumes: `cn` (Task 1).
 - Produces: `Avatar({ name: string; url?: string; size?: 'sm'|'md'|'lg' })`.
 
@@ -1744,11 +1933,16 @@ function getInitials(name: string): string {
 
 function gradientFor(name: string): (typeof GRADIENTS)[number] {
   let hash = 0;
-  for (let i = 0; i < name.length; i++) hash = (hash * 31 + name.charCodeAt(i)) >>> 0;
+  for (let i = 0; i < name.length; i++)
+    hash = (hash * 31 + name.charCodeAt(i)) >>> 0;
   return GRADIENTS[hash % GRADIENTS.length];
 }
 
-const SIZE_CLASSES = { sm: 'h-7 w-7 text-[10px]', md: 'h-9 w-9 text-xs', lg: 'h-12 w-12 text-sm' } as const;
+const SIZE_CLASSES = {
+  sm: 'h-7 w-7 text-[10px]',
+  md: 'h-9 w-9 text-xs',
+  lg: 'h-12 w-12 text-sm',
+} as const;
 
 export interface AvatarProps {
   name: string;
@@ -1760,7 +1954,13 @@ export interface AvatarProps {
 export function Avatar({ name, url, size = 'md', className }: AvatarProps) {
   if (url) {
     return (
-      <div className={cn('relative overflow-hidden rounded-full', SIZE_CLASSES[size], className)}>
+      <div
+        className={cn(
+          'relative overflow-hidden rounded-full',
+          SIZE_CLASSES[size],
+          className,
+        )}
+      >
         <Image src={url} alt={name} fill className="object-cover" />
       </div>
     );
@@ -1810,10 +2010,12 @@ Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>"
 ### Task 17: `ProgressBar` + `PathProgress` (assinatura)
 
 **Files:**
+
 - Create: `components/ui/ProgressBar.tsx`, `components/ui/PathProgress.tsx`
 - Modify: `app/(platform)/_styleguide/page.tsx`
 
 **Interfaces:**
+
 - Consumes: `cn` (Task 1).
 - Produces: `ProgressBar({ value: number; className? })`, `PathProgress({ steps: { label: string; status: 'done'|'current'|'pending' }[] })`.
 
@@ -1875,13 +2077,17 @@ export function PathProgress({ steps, className }: PathProgressProps) {
   return (
     <ol className={cn('flex items-center', className)}>
       {steps.map((step, i) => (
-        <li key={step.label} className="flex flex-1 items-center last:flex-none">
+        <li
+          key={step.label}
+          className="flex flex-1 items-center last:flex-none"
+        >
           <div className="flex flex-col items-center gap-1">
             <span
               className={cn(
                 'h-2.5 w-2.5 rounded-full',
                 step.status === 'pending' ? 'bg-border-strong' : 'bg-primary',
-                step.status === 'current' && 'ring-2 ring-accent-subtle ring-offset-2 ring-offset-canvas',
+                step.status === 'current' &&
+                  'ring-2 ring-accent-subtle ring-offset-2 ring-offset-canvas',
               )}
               aria-current={step.status === 'current' ? 'step' : undefined}
             />
@@ -1943,10 +2149,12 @@ Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>"
 ### Task 18: `KpiCard`
 
 **Files:**
+
 - Create: `components/ui/KpiCard.tsx`
 - Modify: `app/(platform)/_styleguide/page.tsx`
 
 **Interfaces:**
+
 - Consumes: `cn` (Task 1), `Card`/`CardBody` (Task 7).
 - Produces: `KpiCard({ icon: LucideIcon; label: string; value: string|number; sub?: string; trend?: number; intent?: 'primary'|'accent'|'success'|'warning'|'danger'|'info' })`.
 
@@ -2002,14 +2210,20 @@ export function KpiCard({
               trend >= 0 ? 'text-success' : 'text-danger',
             )}
           >
-            {trend >= 0 ? <TrendingUp size={12} strokeWidth={1.75} /> : <TrendingDown size={12} strokeWidth={1.75} />}
+            {trend >= 0 ? (
+              <TrendingUp size={12} strokeWidth={1.75} />
+            ) : (
+              <TrendingDown size={12} strokeWidth={1.75} />
+            )}
             {Math.abs(trend)}%
           </span>
         )}
       </div>
       <p className="font-display text-2xl font-bold text-ink">{value}</p>
       <p className="mt-0.5 font-body text-xs text-ink-muted">{label}</p>
-      {sub && <p className="mt-0.5 font-body text-[10px] text-ink-faint">{sub}</p>}
+      {sub && (
+        <p className="mt-0.5 font-body text-[10px] text-ink-faint">{sub}</p>
+      )}
     </Card>
   );
 }
@@ -2022,8 +2236,21 @@ Importar `KpiCard` de `@/components/ui/KpiCard` e `Target` de
 
 ```tsx
 <StyleguideSection title="KpiCard">
-  <KpiCard icon={Target} label="Progresso" value="78%" intent="primary" trend={4} />
-  <KpiCard icon={Target} label="eNPS" value="8.4" intent="accent" trend={-2} sub="vs. trimestre anterior" />
+  <KpiCard
+    icon={Target}
+    label="Progresso"
+    value="78%"
+    intent="primary"
+    trend={4}
+  />
+  <KpiCard
+    icon={Target}
+    label="eNPS"
+    value="8.4"
+    intent="accent"
+    trend={-2}
+    sub="vs. trimestre anterior"
+  />
 </StyleguideSection>
 ```
 
@@ -2045,10 +2272,12 @@ Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>"
 ### Task 19: `EmptyState` + demonstração do `Skeleton` (shimmer)
 
 **Files:**
+
 - Create: `components/ui/EmptyState.tsx`
 - Modify: `app/(platform)/_styleguide/page.tsx`
 
 **Interfaces:**
+
 - Consumes: `cn` (Task 1), `Button` (Task 5).
 - Produces: `EmptyState({ icon: LucideIcon; title: string; description: string; action?: { label: string; onClick: () => void } })`.
 - `Skeleton` (`components/ui/Skeleton.tsx`) **não é modificado** — a Task 3 já
@@ -2070,7 +2299,13 @@ export interface EmptyStateProps {
   className?: string;
 }
 
-export function EmptyState({ icon: Icon, title, description, action, className }: EmptyStateProps) {
+export function EmptyState({
+  icon: Icon,
+  title,
+  description,
+  action,
+  className,
+}: EmptyStateProps) {
   return (
     <div
       className={cn(
@@ -2083,7 +2318,9 @@ export function EmptyState({ icon: Icon, title, description, action, className }
       </div>
       <div>
         <h3 className="font-display text-sm font-bold text-ink">{title}</h3>
-        <p className="mt-1 max-w-xs font-body text-xs text-ink-muted">{description}</p>
+        <p className="mt-1 max-w-xs font-body text-xs text-ink-muted">
+          {description}
+        </p>
       </div>
       {action && (
         <Button size="sm" onClick={action.onClick}>
@@ -2138,6 +2375,7 @@ Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>"
 ### Task 20: Verificação final
 
 **Files:**
+
 - Nenhum novo — só verificação.
 
 - [ ] **Step 1: Typecheck completo**
@@ -2158,6 +2396,7 @@ Run: `npm test` → verde (confirma que nada em `lib/*.test.ts` foi afectado
 
 `npm run dev`, abrir `/_styleguide` como ADMIN/RH e, só com Tab/Shift+Tab/
 Enter/Space/Escape/setas, confirmar para cada secção:
+
 - `Button`/`IconButton`: anel de foco visível, `Enter`/`Space` activam.
 - `Select`: `Enter` abre, setas navegam, `Enter` selecciona, `Escape` fecha.
 - `Modal`: foco entra no diálogo ao abrir, `Escape` fecha, foco volta ao

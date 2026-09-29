@@ -63,7 +63,11 @@ function n(value: string): number | undefined {
   return Number.isFinite(parsed) ? parsed : undefined;
 }
 
-export function PlanFormModal({ plan, onClose, onSuccess }: PlanFormModalProps) {
+export function PlanFormModal({
+  plan,
+  onClose,
+  onSuccess,
+}: PlanFormModalProps) {
   const editing = !!plan;
 
   const { data: usersResp } = useApiQuery<{ data: UserOption[] }>(
@@ -76,7 +80,10 @@ export function PlanFormModal({ plan, onClose, onSuccess }: PlanFormModalProps) 
     '/competencies',
     { params: { limit: 200 }, staleTime: STALE_TIME.SEMI_STATIC },
   );
-  const userItems = (usersResp?.data ?? []).map((u) => ({ value: String(u.id), label: u.fullName }));
+  const userItems = (usersResp?.data ?? []).map((u) => ({
+    value: String(u.id),
+    label: u.fullName,
+  }));
   const competencyOptions = competenciesResp?.data ?? [];
 
   const [competencyIds, setCompetencyIds] = useState<number[]>(
@@ -133,12 +140,14 @@ export function PlanFormModal({ plan, onClose, onSuccess }: PlanFormModalProps) 
     str('notes');
     if (form.period) payload.period = form.period;
     if (form.modality) payload.modality = form.modality;
-    if (form.expectedParticipants) payload.expectedParticipants = n(form.expectedParticipants);
+    if (form.expectedParticipants)
+      payload.expectedParticipants = n(form.expectedParticipants);
     if (form.expectedHours) payload.expectedHours = n(form.expectedHours);
     if (form.plannedBudget) payload.plannedBudget = n(form.plannedBudget);
     if (form.responsibleId) payload.responsibleId = n(form.responsibleId);
     if (form.approverId) payload.approverId = n(form.approverId);
-    if (form.startDate) payload.startDate = new Date(form.startDate).toISOString();
+    if (form.startDate)
+      payload.startDate = new Date(form.startDate).toISOString();
     if (form.endDate) payload.endDate = new Date(form.endDate).toISOString();
     payload.priority = form.priority || 'MEDIUM';
     payload.competencyIds = competencyIds;
@@ -159,7 +168,11 @@ export function PlanFormModal({ plan, onClose, onSuccess }: PlanFormModalProps) 
         onClose();
       },
       onError: () =>
-        setSubmitError(editing ? 'Erro ao actualizar plano.' : 'Erro ao criar plano. Verifique os dados.'),
+        setSubmitError(
+          editing
+            ? 'Erro ao actualizar plano.'
+            : 'Erro ao criar plano. Verifique os dados.',
+        ),
     },
   );
   const loading = mutation.isPending;
@@ -176,7 +189,11 @@ export function PlanFormModal({ plan, onClose, onSuccess }: PlanFormModalProps) 
     <Modal open onOpenChange={(open) => !open && onClose()}>
       <ModalContent
         title={editing ? `Editar "${plan!.name}"` : 'Novo Plano de Formação'}
-        description={editing ? undefined : 'O plano é criado como rascunho — submete-o depois para aprovação.'}
+        description={
+          editing
+            ? undefined
+            : 'O plano é criado como rascunho — submete-o depois para aprovação.'
+        }
         className="max-w-2xl max-h-[90vh] overflow-y-auto"
       >
         <div className="mt-4 space-y-4">
@@ -199,7 +216,12 @@ export function PlanFormModal({ plan, onClose, onSuccess }: PlanFormModalProps) 
 
           <div className="grid grid-cols-3 gap-3">
             <FormField label="Código" htmlFor="pf-code">
-              <Input id="pf-code" value={form.code} onChange={(e) => setField('code', e.target.value)} className="w-full" />
+              <Input
+                id="pf-code"
+                value={form.code}
+                onChange={(e) => setField('code', e.target.value)}
+                className="w-full"
+              />
             </FormField>
             <FormField label="Ano *" htmlFor="pf-year">
               <Input
@@ -241,7 +263,10 @@ export function PlanFormModal({ plan, onClose, onSuccess }: PlanFormModalProps) 
             />
           </FormField>
 
-          <FormField label="Necessidades de formação identificadas" htmlFor="pf-identifiedNeeds">
+          <FormField
+            label="Necessidades de formação identificadas"
+            htmlFor="pf-identifiedNeeds"
+          >
             <Textarea
               id="pf-identifiedNeeds"
               value={form.identifiedNeeds}
@@ -251,7 +276,10 @@ export function PlanFormModal({ plan, onClose, onSuccess }: PlanFormModalProps) 
             />
           </FormField>
 
-          <FormField label="Prioridades estratégicas" htmlFor="pf-strategicPriorities">
+          <FormField
+            label="Prioridades estratégicas"
+            htmlFor="pf-strategicPriorities"
+          >
             <Textarea
               id="pf-strategicPriorities"
               value={form.strategicPriorities}
@@ -271,17 +299,27 @@ export function PlanFormModal({ plan, onClose, onSuccess }: PlanFormModalProps) 
             />
           </FormField>
 
-          <FormField label="Competências a desenvolver" htmlFor="pf-competencies">
+          <FormField
+            label="Competências a desenvolver"
+            htmlFor="pf-competencies"
+          >
             <div className="max-h-36 space-y-1 overflow-y-auto rounded-control border border-border p-2">
               {competencyOptions.length === 0 && (
-                <p className="text-xs text-ink-faint">Sem competências cadastradas.</p>
+                <p className="text-xs text-ink-faint">
+                  Sem competências cadastradas.
+                </p>
               )}
               {competencyOptions.map((c) => (
-                <label key={c.id} className="flex items-center gap-2 text-xs text-ink-muted">
+                <label
+                  key={c.id}
+                  className="flex items-center gap-2 text-xs text-ink-muted"
+                >
                   <input
                     type="checkbox"
                     checked={competencyIds.includes(c.id)}
-                    onChange={() => toggle(competencyIds, setCompetencyIds, c.id)}
+                    onChange={() =>
+                      toggle(competencyIds, setCompetencyIds, c.id)
+                    }
                   />
                   {c.name}
                 </label>
@@ -290,13 +328,18 @@ export function PlanFormModal({ plan, onClose, onSuccess }: PlanFormModalProps) 
           </FormField>
 
           <div className="grid grid-cols-2 gap-3">
-            <FormField label="Número previsto de participantes" htmlFor="pf-expectedParticipants">
+            <FormField
+              label="Número previsto de participantes"
+              htmlFor="pf-expectedParticipants"
+            >
               <Input
                 id="pf-expectedParticipants"
                 type="number"
                 min={0}
                 value={form.expectedParticipants}
-                onChange={(e) => setField('expectedParticipants', e.target.value)}
+                onChange={(e) =>
+                  setField('expectedParticipants', e.target.value)
+                }
                 className="w-full"
               />
             </FormField>
@@ -322,7 +365,10 @@ export function PlanFormModal({ plan, onClose, onSuccess }: PlanFormModalProps) 
                 placeholder="Selecionar"
               />
             </FormField>
-            <FormField label="Orçamento previsto (Kz)" htmlFor="pf-plannedBudget">
+            <FormField
+              label="Orçamento previsto (Kz)"
+              htmlFor="pf-plannedBudget"
+            >
               <Input
                 id="pf-plannedBudget"
                 type="number"
@@ -397,11 +443,23 @@ export function PlanFormModal({ plan, onClose, onSuccess }: PlanFormModalProps) 
         </div>
 
         <div className="mt-6 flex gap-3 border-t border-border pt-4">
-          <Button intent="secondary" className="flex-1 justify-center" onClick={onClose}>
+          <Button
+            intent="secondary"
+            className="flex-1 justify-center"
+            onClick={onClose}
+          >
             Cancelar
           </Button>
-          <Button className="flex-1 justify-center" onClick={handleSubmit} loading={loading}>
-            {loading ? 'A guardar...' : editing ? 'Guardar alterações' : 'Criar Plano'}
+          <Button
+            className="flex-1 justify-center"
+            onClick={handleSubmit}
+            loading={loading}
+          >
+            {loading
+              ? 'A guardar...'
+              : editing
+                ? 'Guardar alterações'
+                : 'Criar Plano'}
           </Button>
         </div>
       </ModalContent>

@@ -21,6 +21,7 @@
 ### Task 1: Aplicar os 3 fixes da auditoria
 
 **Files:**
+
 - Modify: `components/ui/PdfDownloadButton.tsx`
 - Modify: `app/(platform)/declarations/page.tsx`
 - Modify: `app/(platform)/settings/page.tsx`
@@ -28,46 +29,67 @@
 - [ ] **Step 1: `PdfDownloadButton.tsx` — usar cookie em vez de token localStorage**
 
 Substituir o bloco `const res = await fetch(...)` (o que tem o header `Authorization`) por:
+
 ```ts
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/pdf/${type}/${id}`,
-        {
-          method: 'GET',
-          credentials: 'include',
-        }
-      );
+const res = await fetch(
+  `${process.env.NEXT_PUBLIC_API_URL}/pdf/${type}/${id}`,
+  {
+    method: 'GET',
+    credentials: 'include',
+  },
+);
 ```
+
 (Remove o `headers: { Authorization: \`Bearer ${localStorage.getItem('token')}\` }`. O cookie httpOnly passa a autenticar, como no `lib/api.ts`.)
 
 - [ ] **Step 2: `declarations/page.tsx` — remover o `dangerouslySetInnerHTML` por regex**
 
 Substituir a linha:
+
 ```tsx
-                <pre className="text-xs text-gray-700 whitespace-pre-wrap font-sans" dangerouslySetInnerHTML={{ __html: preview.previewHtml.replace(/<[^>]*>/g, ' ').trim() }} />
+<pre
+  className="text-xs text-gray-700 whitespace-pre-wrap font-sans"
+  dangerouslySetInnerHTML={{
+    __html: preview.previewHtml.replace(/<[^>]*>/g, ' ').trim(),
+  }}
+/>
 ```
+
 por (mesmo output — texto puro, sem vetor de injeção):
+
 ```tsx
-                <pre className="text-xs text-gray-700 whitespace-pre-wrap font-sans">{preview.previewHtml.replace(/<[^>]*>/g, ' ').trim()}</pre>
+<pre className="text-xs text-gray-700 whitespace-pre-wrap font-sans">
+  {preview.previewHtml.replace(/<[^>]*>/g, ' ').trim()}
+</pre>
 ```
 
 - [ ] **Step 3: `settings/page.tsx` — remover o `localStorage` de `user`**
 
 Remover estas duas linhas (nada lê `getItem("user")`; a sessão vive no Zustand `authStore`):
+
 ```ts
-        localStorage.setItem("user", JSON.stringify({ fullName: res.fullName, email: res.email }));
+localStorage.setItem(
+  'user',
+  JSON.stringify({ fullName: res.fullName, email: res.email }),
+);
 ```
+
 e a linha pareada (agora redundante):
+
 ```ts
-        localStorage.removeItem("user");
+localStorage.removeItem('user');
 ```
+
 Manter o resto da lógica à volta (mensagens de sucesso, atualização do estado/store) intacta.
 
 - [ ] **Step 4: Confirmar que não restam acessos problemáticos**
 
 Run (PowerShell, no repo): localizar `localStorage.getItem('token')` e `setItem("user"` — não devem aparecer:
+
 ```
 Get-ChildItem -Recurse -Filter *.tsx | Where-Object FullName -notmatch 'node_modules|\.next' | Select-String "getItem\('token'\)|setItem\(""user"""
 ```
+
 Expected: 0 resultados (em código; comentários não contam).
 
 - [ ] **Step 5: Typecheck**
@@ -90,6 +112,7 @@ Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
 ```
 
 ## Notas
+
 - Só estas 3 mudanças; não toques noutros ficheiros.
 - `noindex` NÃO precisa de alteração (o `app/layout.tsx` já tem `robots: { index: false, follow: false }`).
 - Se o `settings/page.tsx` usar o objeto guardado em `user` algures (procura `getItem("user")` antes de remover) — pela auditoria não usa, mas confirma; se usar, substitui a leitura pela fonte real (store/endpoint) em vez de partir.

@@ -55,7 +55,11 @@ function listField(value: string): string[] {
     .filter(Boolean);
 }
 
-export function TrainerFormModal({ trainer, onClose, onSuccess }: TrainerFormModalProps) {
+export function TrainerFormModal({
+  trainer,
+  onClose,
+  onSuccess,
+}: TrainerFormModalProps) {
   const editing = !!trainer;
 
   const { data: usersResp } = useApiQuery<{ data: UserOption[] }>(
@@ -63,7 +67,10 @@ export function TrainerFormModal({ trainer, onClose, onSuccess }: TrainerFormMod
     '/users',
     { params: { limit: 200 }, staleTime: STALE_TIME.SEMI_STATIC },
   );
-  const userItems = (usersResp?.data ?? []).map((u) => ({ value: String(u.id), label: u.fullName }));
+  const userItems = (usersResp?.data ?? []).map((u) => ({
+    value: String(u.id),
+    label: u.fullName,
+  }));
 
   const {
     values: form,
@@ -107,7 +114,8 @@ export function TrainerFormModal({ trainer, onClose, onSuccess }: TrainerFormMod
       const v = (form[key] as string).trim();
       if (v) payload[key] = v;
     };
-    if (form.type === 'INTERNAL' && form.userId) payload.userId = n(form.userId);
+    if (form.type === 'INTERNAL' && form.userId)
+      payload.userId = n(form.userId);
     str('entity');
     str('nif');
     str('email');
@@ -135,7 +143,13 @@ export function TrainerFormModal({ trainer, onClose, onSuccess }: TrainerFormMod
         onSuccess();
         onClose();
       },
-      onError: (e) => setSubmitError(e.message || (editing ? 'Erro ao actualizar formador.' : 'Erro ao criar formador.')),
+      onError: (e) =>
+        setSubmitError(
+          e.message ||
+            (editing
+              ? 'Erro ao actualizar formador.'
+              : 'Erro ao criar formador.'),
+        ),
     },
   );
   const loading = mutation.isPending;
@@ -181,28 +195,56 @@ export function TrainerFormModal({ trainer, onClose, onSuccess }: TrainerFormMod
           </div>
 
           <FormField label="Nome *" htmlFor="tf-name">
-            <Input id="tf-name" value={form.name} onChange={(e) => setField('name', e.target.value)} className="w-full" />
+            <Input
+              id="tf-name"
+              value={form.name}
+              onChange={(e) => setField('name', e.target.value)}
+              className="w-full"
+            />
           </FormField>
 
           <div className="grid grid-cols-2 gap-3">
             <FormField label="Entidade" htmlFor="tf-entity">
-              <Input id="tf-entity" value={form.entity} onChange={(e) => setField('entity', e.target.value)} className="w-full" />
+              <Input
+                id="tf-entity"
+                value={form.entity}
+                onChange={(e) => setField('entity', e.target.value)}
+                className="w-full"
+              />
             </FormField>
             <FormField label="NIF" htmlFor="tf-nif">
-              <Input id="tf-nif" value={form.nif} onChange={(e) => setField('nif', e.target.value)} className="w-full" />
+              <Input
+                id="tf-nif"
+                value={form.nif}
+                onChange={(e) => setField('nif', e.target.value)}
+                className="w-full"
+              />
             </FormField>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <FormField label="E-mail" htmlFor="tf-email">
-              <Input id="tf-email" value={form.email} onChange={(e) => setField('email', e.target.value)} className="w-full" />
+              <Input
+                id="tf-email"
+                value={form.email}
+                onChange={(e) => setField('email', e.target.value)}
+                className="w-full"
+              />
             </FormField>
             <FormField label="Telefone" htmlFor="tf-phone">
-              <Input id="tf-phone" value={form.phone} onChange={(e) => setField('phone', e.target.value)} className="w-full" />
+              <Input
+                id="tf-phone"
+                value={form.phone}
+                onChange={(e) => setField('phone', e.target.value)}
+                className="w-full"
+              />
             </FormField>
           </div>
 
-          <FormField label="Especialidades (separadas por vírgula)" htmlFor="tf-specialties">
+          <FormField
+            label="Especialidades (separadas por vírgula)"
+            htmlFor="tf-specialties"
+          >
             <Input
               id="tf-specialties"
               value={form.specialties}
@@ -211,7 +253,10 @@ export function TrainerFormModal({ trainer, onClose, onSuccess }: TrainerFormMod
             />
           </FormField>
 
-          <FormField label="Áreas de formação (separadas por vírgula)" htmlFor="tf-trainingAreas">
+          <FormField
+            label="Áreas de formação (separadas por vírgula)"
+            htmlFor="tf-trainingAreas"
+          >
             <Input
               id="tf-trainingAreas"
               value={form.trainingAreas}
@@ -231,16 +276,24 @@ export function TrainerFormModal({ trainer, onClose, onSuccess }: TrainerFormMod
           </FormField>
 
           <div className="grid grid-cols-2 gap-3">
-            <FormField label="Experiência profissional" htmlFor="tf-professionalExperience">
+            <FormField
+              label="Experiência profissional"
+              htmlFor="tf-professionalExperience"
+            >
               <Textarea
                 id="tf-professionalExperience"
                 value={form.professionalExperience}
-                onChange={(e) => setField('professionalExperience', e.target.value)}
+                onChange={(e) =>
+                  setField('professionalExperience', e.target.value)
+                }
                 rows={2}
                 className="w-full resize-none"
               />
             </FormField>
-            <FormField label="Experiência como formador" htmlFor="tf-trainerExperience">
+            <FormField
+              label="Experiência como formador"
+              htmlFor="tf-trainerExperience"
+            >
               <Textarea
                 id="tf-trainerExperience"
                 value={form.trainerExperience}
@@ -288,7 +341,9 @@ export function TrainerFormModal({ trainer, onClose, onSuccess }: TrainerFormMod
               <Select
                 items={STATUS_ITEMS}
                 value={form.status}
-                onValueChange={(v) => setField('status', v as typeof form.status)}
+                onValueChange={(v) =>
+                  setField('status', v as typeof form.status)
+                }
                 className="w-full"
               />
             </FormField>
@@ -306,11 +361,23 @@ export function TrainerFormModal({ trainer, onClose, onSuccess }: TrainerFormMod
         </div>
 
         <div className="mt-6 flex gap-3 border-t border-border pt-4">
-          <Button intent="secondary" className="flex-1 justify-center" onClick={onClose}>
+          <Button
+            intent="secondary"
+            className="flex-1 justify-center"
+            onClick={onClose}
+          >
             Cancelar
           </Button>
-          <Button className="flex-1 justify-center" onClick={handleSubmit} loading={loading}>
-            {loading ? 'A guardar...' : editing ? 'Guardar alterações' : 'Criar formador'}
+          <Button
+            className="flex-1 justify-center"
+            onClick={handleSubmit}
+            loading={loading}
+          >
+            {loading
+              ? 'A guardar...'
+              : editing
+                ? 'Guardar alterações'
+                : 'Criar formador'}
           </Button>
         </div>
       </ModalContent>

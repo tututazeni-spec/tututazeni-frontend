@@ -43,8 +43,12 @@ function TopBarKpiCard({
       <div className={`h-1.5 w-full ${t.bar}`} />
       <div className="p-5 pt-6">
         <Icon size={22} strokeWidth={1.75} className={t.text} />
-        <p className={`mt-3 font-display text-3xl font-bold ${t.text}`}>{value}</p>
-        <p className="mt-1 font-body text-sm font-medium text-ink-muted">{label}</p>
+        <p className={`mt-3 font-display text-3xl font-bold ${t.text}`}>
+          {value}
+        </p>
+        <p className="mt-1 font-body text-sm font-medium text-ink-muted">
+          {label}
+        </p>
       </div>
     </div>
   );
@@ -86,8 +90,12 @@ function TrendKpiCard({
       <div className={`h-1.5 w-full ${t.bar}`} />
       <div className="p-5 pt-6">
         <Icon size={22} strokeWidth={1.75} className={t.text} />
-        <p className={`mt-3 font-display text-3xl font-bold ${t.text}`}>{value}</p>
-        <p className="mt-1 font-body text-sm font-medium text-ink-muted">{label}</p>
+        <p className={`mt-3 font-display text-3xl font-bold ${t.text}`}>
+          {value}
+        </p>
+        <p className="mt-1 font-body text-sm font-medium text-ink-muted">
+          {label}
+        </p>
         <svg
           viewBox={`0 0 ${width} ${height}`}
           className="mt-2 h-7 w-full"
@@ -153,7 +161,9 @@ function DepartmentDetail({ departmentId }: { departmentId: number }) {
           <div className="space-y-2">
             {data.topCompetencies.map((c) => (
               <div key={c.name} className="flex items-center gap-3">
-                <div className="w-32 truncate text-xs text-ink-muted">{c.name}</div>
+                <div className="w-32 truncate text-xs text-ink-muted">
+                  {c.name}
+                </div>
                 <div className="flex-1">
                   <ProgressBar value={Math.round((c.avgLevel / 5) * 100)} />
                 </div>
@@ -184,7 +194,7 @@ export function PeopleAnalyticsView() {
   return (
     <div className="space-y-5">
       {/* Headcount */}
-            <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-4 gap-4">
         <TopBarKpiCard
           icon={Users}
           label="Colaboradores activos"
@@ -218,7 +228,7 @@ export function PeopleAnalyticsView() {
       )}
 
       {/* Diversidade */}
-            {/* Diversidade */}
+      {/* Diversidade */}
       <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting">
         <div className="h-1.5 w-full bg-[#2B6CC4]" />
         <div className="p-5">
@@ -231,8 +241,14 @@ export function PeopleAnalyticsView() {
                 key={gender}
                 className="rounded-2xl border border-border bg-surface-sunken p-4"
               >
-                <Users size={18} strokeWidth={1.75} className="text-[#2B6CC4]" />
-                <p className="mt-2 font-display text-2xl font-bold text-[#2B6CC4]">{count}</p>
+                <Users
+                  size={18}
+                  strokeWidth={1.75}
+                  className="text-[#2B6CC4]"
+                />
+                <p className="mt-2 font-display text-2xl font-bold text-[#2B6CC4]">
+                  {count}
+                </p>
                 <p className="mt-0.5 font-body text-xs font-medium text-ink-muted">
                   {GENDER_LABELS[gender] ?? gender}
                 </p>
@@ -254,10 +270,14 @@ export function PeopleAnalyticsView() {
             onClick={() => setOpenDeptId(d.id)}
             className="flex w-full items-center gap-4 px-4 py-3 border-b border-border last:border-0 text-left hover:bg-surface-sunken/60 transition-colors duration-150"
           >
-            <div className="text-sm font-medium text-ink w-48 truncate">{d.name}</div>
+            <div className="text-sm font-medium text-ink w-48 truncate">
+              {d.name}
+            </div>
             <div className="flex-1">
               <ProgressBar
-                value={Math.round((d.count / Math.max(data.headcount.total, 1)) * 100)}
+                value={Math.round(
+                  (d.count / Math.max(data.headcount.total, 1)) * 100,
+                )}
               />
             </div>
             <div className="text-sm font-data font-bold text-black w-8 text-right">
@@ -277,18 +297,29 @@ export function PeopleAnalyticsView() {
             key={p.id}
             className="flex items-center gap-4 px-4 py-3 border-b border-border last:border-0"
           >
-            <div className="text-sm font-medium text-ink flex-1 truncate">{p.name}</div>
-            <div className="text-sm font-data font-bold text-black">{p.count}</div>
+            <div className="text-sm font-medium text-ink flex-1 truncate">
+              {p.name}
+            </div>
+            <div className="text-sm font-data font-bold text-black">
+              {p.count}
+            </div>
           </div>
         ))}
         {data.byPosition.length === 0 && (
-          <div className="px-4 py-8 text-center text-sm text-ink-faint">Sem dados de cargos</div>
+          <div className="px-4 py-8 text-center text-sm text-ink-faint">
+            Sem dados de cargos
+          </div>
         )}
       </Card>
 
-      <Modal open={openDeptId !== null} onOpenChange={(o) => !o && setOpenDeptId(null)}>
+      <Modal
+        open={openDeptId !== null}
+        onOpenChange={(o) => !o && setOpenDeptId(null)}
+      >
         <ModalContent title={openDept?.name ?? 'Departamento'}>
-          {openDeptId !== null && <DepartmentDetail departmentId={openDeptId} />}
+          {openDeptId !== null && (
+            <DepartmentDetail departmentId={openDeptId} />
+          )}
         </ModalContent>
       </Modal>
     </div>

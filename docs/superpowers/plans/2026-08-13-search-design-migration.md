@@ -24,15 +24,15 @@
 
 `TYPE_CONFIG` tem 7 entradas (`user`, `course`, `content`, `document`, `pdi`, `competency`, `scenario`), cada uma com uma cor Tailwind crua distinta. A fundação tem exactamente 7 tokens de intenção (`primary`, `accent`, `success`, `warning`, `danger`, `info`, mais o par neutro `surface-sunken`/`ink-muted`) — mapeamento 1:1, sem reutilizar nenhum token duas vezes:
 
-| Tipo | Antes | Depois (`color` / `bg`) |
-|---|---|---|
-| `user` | `indigo-600` / `indigo-50` | `text-primary` / `bg-primary-subtle` |
-| `course` | `teal-600` / `teal-50` | `text-accent` / `bg-accent-subtle` |
-| `content` | `blue-600` / `blue-50` | `text-info-ink` / `bg-info-subtle` |
-| `document` | `violet-600` / `violet-50` | `text-warning-ink` / `bg-warning-subtle` |
-| `pdi` | `amber-600` / `amber-50` | `text-success-ink` / `bg-success-subtle` |
-| `competency` | `emerald-600` / `emerald-50` | `text-danger-ink` / `bg-danger-subtle` |
-| `scenario` | `pink-600` / `pink-50` | `text-ink-muted` / `bg-surface-sunken` |
+| Tipo         | Antes                        | Depois (`color` / `bg`)                  |
+| ------------ | ---------------------------- | ---------------------------------------- |
+| `user`       | `indigo-600` / `indigo-50`   | `text-primary` / `bg-primary-subtle`     |
+| `course`     | `teal-600` / `teal-50`       | `text-accent` / `bg-accent-subtle`       |
+| `content`    | `blue-600` / `blue-50`       | `text-info-ink` / `bg-info-subtle`       |
+| `document`   | `violet-600` / `violet-50`   | `text-warning-ink` / `bg-warning-subtle` |
+| `pdi`        | `amber-600` / `amber-50`     | `text-success-ink` / `bg-success-subtle` |
+| `competency` | `emerald-600` / `emerald-50` | `text-danger-ink` / `bg-danger-subtle`   |
+| `scenario`   | `pink-600` / `pink-50`       | `text-ink-muted` / `bg-surface-sunken`   |
 
 A forma do record (`{ label, icon, color, bg, path }`) não muda — só os valores de `color`/`bg` — por isso `SearchView`/`ResultsView`/`ResultCard` continuam a consumir `conf.color`/`conf.bg` sem qualquer alteração estrutural.
 
@@ -59,7 +59,7 @@ Mapeamento consistente com o piloto `engagement`: `rounded-2xl` (barra de pesqui
 **Files:** Modify `components/search/types.ts`.
 
 - [ ] Substituir os 7 pares `color`/`bg` de `TYPE_CONFIG` pelos tokens da tabela acima. Forma do record inalterada.
-- [ ] Typecheck: `npx tsc --noEmit` (erros noutros ficheiros do módulo, ainda não migrados, são esperados nesta fase só se algo *depender* da forma — não é o caso aqui, a forma não muda).
+- [ ] Typecheck: `npx tsc --noEmit` (erros noutros ficheiros do módulo, ainda não migrados, são esperados nesta fase só se algo _depender_ da forma — não é o caso aqui, a forma não muda).
 - [ ] Commit: `refactor(search): migrar types.ts para tokens da fundacao`
 
 ## Task 2: `components/search/ResultCard.tsx`

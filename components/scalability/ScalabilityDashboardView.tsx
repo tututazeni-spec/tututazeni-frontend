@@ -556,9 +556,7 @@ function PerformanceTab({ data }: PerformanceTabProps) {
         </Button>
       </div>
 
-      {configuring && (
-        <LoadTestModal onClose={() => setConfiguring(false)} />
-      )}
+      {configuring && <LoadTestModal onClose={() => setConfiguring(false)} />}
     </div>
   );
 }
@@ -569,7 +567,11 @@ interface IntegrationsTabProps {
   onSync: (id: number) => void;
 }
 
-function IntegrationsTab({ tenantId, integrations, onSync }: IntegrationsTabProps) {
+function IntegrationsTab({
+  tenantId,
+  integrations,
+  onSync,
+}: IntegrationsTabProps) {
   const notify = useToast();
   const [creating, setCreating] = useState(false);
   const typeLabels: Record<string, string> = {
@@ -617,7 +619,10 @@ function IntegrationsTab({ tenantId, integrations, onSync }: IntegrationsTabProp
         </Button>
       </div>
       {creating && (
-        <NewIntegrationModal tenantId={tenantId} onClose={() => setCreating(false)} />
+        <NewIntegrationModal
+          tenantId={tenantId}
+          onClose={() => setCreating(false)}
+        />
       )}
       <div className="flex flex-col gap-3">
         {integrations.map((int) => {
@@ -787,9 +792,7 @@ type AlertFilter = 'ALL' | 'CRITICAL' | 'WARNING';
 function AlertsTab({ alerts, onResolve }: AlertsTabProps) {
   const [filter, setFilter] = useState<AlertFilter>('ALL');
   const shown =
-    filter === 'ALL'
-      ? alerts
-      : alerts.filter((a) => a.severity === filter);
+    filter === 'ALL' ? alerts : alerts.filter((a) => a.severity === filter);
 
   return (
     <div className="flex flex-col gap-5">
@@ -955,36 +958,56 @@ function SlaTab({ data, slaConfigs }: SlaTabProps) {
           certificações fabricada (não existe nenhum modelo de compliance
           LGPD/GDPR/ISO27001 no schema; mostrar isso como "Conforme" seria
           inventar um estado legal que ninguém verificou). */}
-      <SectionHeader title="Configurações de SLA" sub="Contratos activos para este tenant" />
+      <SectionHeader
+        title="Configurações de SLA"
+        sub="Contratos activos para este tenant"
+      />
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         {slaConfigs.map((sla) => (
           <Card key={sla.id}>
             <CardBody>
               <div className="mb-2 flex items-center justify-between gap-3">
-                <p className="font-body text-sm font-semibold text-ink">{sla.name}</p>
-                <Badge intent={sla.isActive ? 'success' : 'neutral'} dot={false}>
+                <p className="font-body text-sm font-semibold text-ink">
+                  {sla.name}
+                </p>
+                <Badge
+                  intent={sla.isActive ? 'success' : 'neutral'}
+                  dot={false}
+                >
                   {sla.isActive ? 'Activo' : 'Inactivo'}
                 </Badge>
               </div>
               <div className="grid grid-cols-2 gap-x-4 gap-y-1 font-body text-xs text-ink-muted">
                 <span>Uptime mínimo</span>
-                <span className="text-right text-ink">{formatPercent(sla.uptimePercent, 2)}</span>
+                <span className="text-right text-ink">
+                  {formatPercent(sla.uptimePercent, 2)}
+                </span>
                 <span>Latência máx.</span>
-                <span className="text-right text-ink">{sla.maxLatencyMs}ms</span>
+                <span className="text-right text-ink">
+                  {sla.maxLatencyMs}ms
+                </span>
                 <span>Taxa de erro máx.</span>
-                <span className="text-right text-ink">{formatPercent(sla.maxErrorRate * 100, 2)}</span>
+                <span className="text-right text-ink">
+                  {formatPercent(sla.maxErrorRate * 100, 2)}
+                </span>
                 <span>Resposta a incidentes</span>
-                <span className="text-right text-ink">{sla.incidentResponse}min</span>
+                <span className="text-right text-ink">
+                  {sla.incidentResponse}min
+                </span>
                 {sla.rpoMinutes != null && (
                   <>
                     <span>RPO</span>
-                    <span className="text-right text-ink">{sla.rpoMinutes}min</span>
+                    <span className="text-right text-ink">
+                      {sla.rpoMinutes}min
+                    </span>
                   </>
                 )}
                 {sla.rtoMinutes != null && (
                   <>
                     <span>RTO</span>
-                    <span className="text-right text-ink">{sla.rtoMinutes}min</span>
+                    <span className="text-right text-ink">
+                      {sla.rtoMinutes}min
+                    </span>
                   </>
                 )}
               </div>
@@ -1017,11 +1040,7 @@ function UsersTab({ data }: UsersTabProps) {
           title="Gestão Massiva de Utilizadores"
           sub="Importação, segmentação e gestão de licenças em escala"
         />
-        <Button
-          intent="secondary"
-          size="sm"
-          onClick={() => setImporting(true)}
-        >
+        <Button intent="secondary" size="sm" onClick={() => setImporting(true)}>
           Importar CSV
         </Button>
       </div>

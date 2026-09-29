@@ -37,7 +37,10 @@ export function SnapshotsView() {
       invalidateKeys: [queryKeys.analyticsPage.snapshots()],
       onSuccess: () => notify({ title: 'Snapshot gerado', intent: 'success' }),
       onError: (err) =>
-        notify({ title: err.message || 'Falha ao gerar snapshot', intent: 'danger' }),
+        notify({
+          title: err.message || 'Falha ao gerar snapshot',
+          intent: 'danger',
+        }),
     },
   );
 
@@ -72,7 +75,9 @@ export function SnapshotsView() {
           <TableBody>
             {data.map((s) => (
               <TableRow key={s.id}>
-                <TableCell>{new Date(s.generatedAt).toLocaleString('pt-PT')}</TableCell>
+                <TableCell>
+                  {new Date(s.generatedAt).toLocaleString('pt-PT')}
+                </TableCell>
                 <TableCell>{s.department?.name ?? 'Organização'}</TableCell>
                 <TableCell>{s.totalUsers}</TableCell>
                 <TableCell>{s.totalCoursesCompleted}</TableCell>
@@ -82,7 +87,10 @@ export function SnapshotsView() {
             ))}
             {data.length === 0 && (
               <TableRow>
-                <TableCell colSpan={6} className="text-center text-ink-faint py-6">
+                <TableCell
+                  colSpan={6}
+                  className="text-center text-ink-faint py-6"
+                >
                   Sem snapshots gerados ainda
                 </TableCell>
               </TableRow>

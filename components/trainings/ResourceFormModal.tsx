@@ -28,7 +28,9 @@ export interface ResourceFormModalProps {
   onSuccess: () => void;
 }
 
-const KIND_ITEMS = Object.entries(RESOURCE_KIND_LABEL).map(([value, label]) => ({ value, label }));
+const KIND_ITEMS = Object.entries(RESOURCE_KIND_LABEL).map(
+  ([value, label]) => ({ value, label }),
+);
 
 const STATUS_ITEMS = [
   { value: 'AVAILABLE', label: 'Disponível' },
@@ -47,7 +49,11 @@ function n(value: string): number | undefined {
   return Number.isFinite(parsed) ? parsed : undefined;
 }
 
-export function ResourceFormModal({ resource, onClose, onSuccess }: ResourceFormModalProps) {
+export function ResourceFormModal({
+  resource,
+  onClose,
+  onSuccess,
+}: ResourceFormModalProps) {
   const editing = !!resource;
 
   const { data: usersResp } = useApiQuery<{ data: UserOption[] }>(
@@ -55,7 +61,10 @@ export function ResourceFormModal({ resource, onClose, onSuccess }: ResourceForm
     '/users',
     { params: { limit: 200 }, staleTime: STALE_TIME.SEMI_STATIC },
   );
-  const userItems = (usersResp?.data ?? []).map((u) => ({ value: String(u.id), label: u.fullName }));
+  const userItems = (usersResp?.data ?? []).map((u) => ({
+    value: String(u.id),
+    label: u.fullName,
+  }));
 
   const {
     values: form,
@@ -121,7 +130,13 @@ export function ResourceFormModal({ resource, onClose, onSuccess }: ResourceForm
         onSuccess();
         onClose();
       },
-      onError: (e) => setSubmitError(e.message || (editing ? 'Erro ao actualizar recurso.' : 'Erro ao criar recurso.')),
+      onError: (e) =>
+        setSubmitError(
+          e.message ||
+            (editing
+              ? 'Erro ao actualizar recurso.'
+              : 'Erro ao criar recurso.'),
+        ),
     },
   );
   const loading = mutation.isPending;
@@ -154,15 +169,28 @@ export function ResourceFormModal({ resource, onClose, onSuccess }: ResourceForm
               />
             </FormField>
             <FormField label="Nome *" htmlFor="rf-name">
-              <Input id="rf-name" value={form.name} onChange={(e) => setField('name', e.target.value)} className="w-full" />
+              <Input
+                id="rf-name"
+                value={form.name}
+                onChange={(e) => setField('name', e.target.value)}
+                className="w-full"
+              />
             </FormField>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <FormField label="Código" htmlFor="rf-code">
-              <Input id="rf-code" value={form.code} onChange={(e) => setField('code', e.target.value)} className="w-full" />
+              <Input
+                id="rf-code"
+                value={form.code}
+                onChange={(e) => setField('code', e.target.value)}
+                className="w-full"
+              />
             </FormField>
-            <FormField label={isRoom ? 'Tipo de sala' : 'Categoria'} htmlFor="rf-category">
+            <FormField
+              label={isRoom ? 'Tipo de sala' : 'Categoria'}
+              htmlFor="rf-category"
+            >
               <Input
                 id="rf-category"
                 value={form.category}
@@ -173,7 +201,12 @@ export function ResourceFormModal({ resource, onClose, onSuccess }: ResourceForm
           </div>
 
           <FormField label="Localização / Unidade" htmlFor="rf-location">
-            <Input id="rf-location" value={form.location} onChange={(e) => setField('location', e.target.value)} className="w-full" />
+            <Input
+              id="rf-location"
+              value={form.location}
+              onChange={(e) => setField('location', e.target.value)}
+              className="w-full"
+            />
           </FormField>
 
           <div className="grid grid-cols-2 gap-3">
@@ -213,7 +246,10 @@ export function ResourceFormModal({ resource, onClose, onSuccess }: ResourceForm
           </div>
 
           {isRoom && (
-            <FormField label="Equipamentos disponíveis (separados por vírgula)" htmlFor="rf-equipment">
+            <FormField
+              label="Equipamentos disponíveis (separados por vírgula)"
+              htmlFor="rf-equipment"
+            >
               <Input
                 id="rf-equipment"
                 value={form.equipment}
@@ -238,7 +274,9 @@ export function ResourceFormModal({ resource, onClose, onSuccess }: ResourceForm
               <Select
                 items={STATUS_ITEMS}
                 value={form.status}
-                onValueChange={(v) => setField('status', v as typeof form.status)}
+                onValueChange={(v) =>
+                  setField('status', v as typeof form.status)
+                }
                 className="w-full"
               />
             </FormField>
@@ -256,11 +294,23 @@ export function ResourceFormModal({ resource, onClose, onSuccess }: ResourceForm
         </div>
 
         <div className="mt-6 flex gap-3 border-t border-border pt-4">
-          <Button intent="secondary" className="flex-1 justify-center" onClick={onClose}>
+          <Button
+            intent="secondary"
+            className="flex-1 justify-center"
+            onClick={onClose}
+          >
             Cancelar
           </Button>
-          <Button className="flex-1 justify-center" onClick={handleSubmit} loading={loading}>
-            {loading ? 'A guardar...' : editing ? 'Guardar alterações' : 'Criar'}
+          <Button
+            className="flex-1 justify-center"
+            onClick={handleSubmit}
+            loading={loading}
+          >
+            {loading
+              ? 'A guardar...'
+              : editing
+                ? 'Guardar alterações'
+                : 'Criar'}
           </Button>
         </div>
       </ModalContent>

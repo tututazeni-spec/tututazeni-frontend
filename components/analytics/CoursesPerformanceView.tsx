@@ -49,8 +49,12 @@ function TopBarKpiCard({
       <div className={`h-1.5 w-full ${t.bar}`} />
       <div className="p-4 pt-5">
         <Icon size={20} strokeWidth={1.75} className={t.text} />
-        <p className={`mt-2 font-display text-2xl font-bold ${t.text}`}>{value}</p>
-        <p className="mt-1 font-body text-xs font-medium text-ink-muted">{label}</p>
+        <p className={`mt-2 font-display text-2xl font-bold ${t.text}`}>
+          {value}
+        </p>
+        <p className="mt-1 font-body text-xs font-medium text-ink-muted">
+          {label}
+        </p>
       </div>
     </div>
   );
@@ -63,31 +67,34 @@ function CourseDetail({ courseId }: { courseId: number }) {
     { staleTime: STALE_TIME.SEMI_STATIC },
   );
 
-    return (
+  if (isLoading || !data) return <Skeleton rows={2} />;
+
+  const rating = data.feedbackStats?._avg.rating ?? null;
+  const feedbackCount = data.feedbackStats?._count ?? 0;
+  const score = data.assessmentStats?._avg.score ?? null;
+  const attempts = data.assessmentStats?._count ?? 0;
+
+  return (
     <div className="mt-4 grid grid-cols-2 gap-4">
       <TopBarKpiCard
         icon={Star}
         label="Feedback médio"
-        value={rating != null ? `${rating.toFixed(1)} ★ (${feedbackCount})` : 'Sem feedback'}
+        value={
+          rating != null
+            ? `${rating.toFixed(1)} ★ (${feedbackCount})`
+            : 'Sem feedback'
+        }
         tone="gold"
       />
       <TopBarKpiCard
         icon={ClipboardCheck}
         label="Nota média de avaliação"
-        value={score != null ? `${score.toFixed(1)} (${attempts} tentativas)` : 'Sem tentativas'}
+        value={
+          score != null
+            ? `${score.toFixed(1)} (${attempts} tentativas)`
+            : 'Sem tentativas'
+        }
         tone="blue"
-      />
-    </div>
-  );
-  return (
-    <div className="mt-4 grid grid-cols-2 gap-3">
-      <Tile
-        label="Feedback médio"
-        value={rating != null ? `${rating.toFixed(1)} ★ (${feedbackCount})` : 'Sem feedback'}
-      />
-      <Tile
-        label="Nota média de avaliação"
-        value={score != null ? `${score.toFixed(1)} (${attempts} tentativas)` : 'Sem tentativas'}
       />
     </div>
   );
@@ -125,17 +132,24 @@ export function CoursesPerformanceView() {
               className="cursor-pointer"
               onClick={() => setOpenCourseId(c.courseId)}
             >
-              <TableCell className="font-medium text-ink">{c.course.title}</TableCell>
+              <TableCell className="font-medium text-ink">
+                {c.course.title}
+              </TableCell>
               <TableCell>{c.course.category ?? '—'}</TableCell>
               <TableCell>{c.course.level ?? '—'}</TableCell>
               <TableCell>{c.totalEnrollments}</TableCell>
               <TableCell>{c.totalCompleted}</TableCell>
-              <TableCell>{c.avgRating > 0 ? `${c.avgRating.toFixed(1)} ★` : '—'}</TableCell>
+              <TableCell>
+                {c.avgRating > 0 ? `${c.avgRating.toFixed(1)} ★` : '—'}
+              </TableCell>
             </TableRow>
           ))}
           {data.analytics.length === 0 && (
             <TableRow>
-              <TableCell colSpan={6} className="text-center text-ink-faint py-6">
+              <TableCell
+                colSpan={6}
+                className="text-center text-ink-faint py-6"
+              >
                 Sem dados de performance de cursos
               </TableCell>
             </TableRow>
@@ -143,7 +157,10 @@ export function CoursesPerformanceView() {
         </TableBody>
       </Table>
 
-      <Modal open={openCourseId !== null} onOpenChange={(o) => !o && setOpenCourseId(null)}>
+      <Modal
+        open={openCourseId !== null}
+        onOpenChange={(o) => !o && setOpenCourseId(null)}
+      >
         <ModalContent title={openCourse?.course.title ?? 'Curso'}>
           {openCourseId !== null && <CourseDetail courseId={openCourseId} />}
         </ModalContent>

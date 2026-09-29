@@ -52,11 +52,13 @@ app/(platform)/payroll/
 ### Task 1: Types, status maps, and query keys
 
 **Files:**
+
 - Create: `components/payroll/types.ts`
 - Test: `components/payroll/types.test.ts`
 - Modify: `lib/queryKeys.ts`
 
 **Interfaces:**
+
 - Produces: `RunStatus`, `PayrollRun`, `PayrollRunDetail`, `TimelineStep`, `RunException`, `RunPayslip`, `RunPayslipItem`, `Paginated<T>`, `RUN_STATUS_MAP`, `EXCEPTION_SEVERITY_MAP`, `EXCEPTION_CODE_LABEL` — every later task imports these from `@/components/payroll/types`.
 - Produces: `queryKeys.payroll.{all, runList, runDetail, runPayslipsAll, runPayslips, runExceptions}` — every later task imports these from `@/lib/queryKeys`.
 
@@ -302,10 +304,12 @@ git commit -m "feat(payroll): types + status maps + queryKeys for the run workfl
 ### Task 2: `CreateRunModal`
 
 **Files:**
+
 - Create: `components/payroll/CreateRunModal.tsx`
 - Test: `components/payroll/CreateRunModal.test.tsx`
 
 **Interfaces:**
+
 - Consumes: `PayrollRun` (Task 1), `queryKeys.payroll.all` (Task 1).
 - Produces: `CreateRunModalProps { onClose: () => void; onCreated: (runId: number) => void }` — Task 3 renders this component and passes both callbacks.
 
@@ -435,7 +439,8 @@ export function CreateRunModal({ onClose, onCreated }: CreateRunModalProps) {
   const [notes, setNotes] = useState('');
 
   const create = useApiMutation(
-    (body: Record<string, unknown>) => apiClient.post<PayrollRun>('/payroll/runs', body),
+    (body: Record<string, unknown>) =>
+      apiClient.post<PayrollRun>('/payroll/runs', body),
     {
       invalidateKeys: [queryKeys.payroll.all],
       onSuccess: (run) => {
@@ -461,7 +466,11 @@ export function CreateRunModal({ onClose, onCreated }: CreateRunModalProps) {
     <Modal open onOpenChange={(open) => !open && onClose()}>
       <ModalContent title="Novo run" className="max-w-md">
         <div className="mt-5 space-y-4">
-          <FormField label="Período *" htmlFor="crm-period" hint="Formato AAAA-MM">
+          <FormField
+            label="Período *"
+            htmlFor="crm-period"
+            hint="Formato AAAA-MM"
+          >
             <Input
               id="crm-period"
               value={period}
@@ -502,7 +511,11 @@ export function CreateRunModal({ onClose, onCreated }: CreateRunModalProps) {
           <Button intent="ghost" onClick={onClose} disabled={create.isPending}>
             Cancelar
           </Button>
-          <Button onClick={handleSubmit} disabled={!valid} loading={create.isPending}>
+          <Button
+            onClick={handleSubmit}
+            disabled={!valid}
+            loading={create.isPending}
+          >
             Criar
           </Button>
         </div>
@@ -529,10 +542,12 @@ git commit -m "feat(payroll): CreateRunModal (POST /payroll/runs)"
 ### Task 3: `RunListView`
 
 **Files:**
+
 - Create: `components/payroll/RunListView.tsx`
 - Test: `components/payroll/RunListView.test.tsx`
 
 **Interfaces:**
+
 - Consumes: `PayrollRun`, `Paginated<T>`, `RUN_STATUS_MAP`, `RunStatus` (Task 1); `queryKeys.payroll.runList` (Task 1); `CreateRunModalProps` (Task 2).
 - Produces: `RunListViewProps { onSelect: (runId: number) => void }` — Task 8's `page.tsx` renders this.
 
@@ -702,7 +717,8 @@ const STATUS_ITEMS = [
   { value: 'CANCELLED', label: RUN_STATUS_MAP.CANCELLED.label },
 ];
 
-const COLS = 'grid grid-cols-[110px_1fr_70px_120px_1fr_130px_110px_110px] gap-3';
+const COLS =
+  'grid grid-cols-[110px_1fr_70px_120px_1fr_130px_110px_110px] gap-3';
 
 export function RunListView({ onSelect }: RunListViewProps) {
   const [status, setStatus] = useState('all');
@@ -719,7 +735,11 @@ export function RunListView({ onSelect }: RunListViewProps) {
   const { data, isLoading, error } = useApiQuery<Paginated<PayrollRun>>(
     queryKeys.payroll.runList(params),
     '/payroll/runs',
-    { params, staleTime: STALE_TIME.DYNAMIC, placeholderData: keepPreviousData },
+    {
+      params,
+      staleTime: STALE_TIME.DYNAMIC,
+      placeholderData: keepPreviousData,
+    },
   );
 
   const rows = data?.data ?? [];
@@ -761,7 +781,9 @@ export function RunListView({ onSelect }: RunListViewProps) {
       </div>
 
       {isLoading && <Skeleton rows={8} />}
-      {error && <div className="font-body text-sm text-danger">{error.message}</div>}
+      {error && (
+        <div className="font-body text-sm text-danger">{error.message}</div>
+      )}
 
       {!isLoading && !error && rows.length === 0 && (
         <EmptyState
@@ -791,25 +813,39 @@ export function RunListView({ onSelect }: RunListViewProps) {
                 className={`${COLS} cursor-pointer items-center border-b border-border px-4 py-3.5 last:border-0 hover:bg-surface-sunken`}
                 onClick={() => onSelect(r.id)}
               >
-                <div className="font-mono text-sm font-medium text-ink">{r.period}</div>
+                <div className="font-mono text-sm font-medium text-ink">
+                  {r.period}
+                </div>
                 <div className="truncate font-body text-sm text-ink-muted">
                   {r.payGroup ?? '—'}
                 </div>
-                <div className="font-body text-sm text-ink-muted">{r.countryCode}</div>
-                <div>
-                  <StatusBadge value={r.status} map={RUN_STATUS_MAP} variant="dot" />
+                <div className="font-body text-sm text-ink-muted">
+                  {r.countryCode}
                 </div>
-                <div className="font-mono text-sm text-ink">{r.employeeCount ?? '—'}</div>
+                <div>
+                  <StatusBadge
+                    value={r.status}
+                    map={RUN_STATUS_MAP}
+                    variant="dot"
+                  />
+                </div>
+                <div className="font-mono text-sm text-ink">
+                  {r.employeeCount ?? '—'}
+                </div>
                 <div className="font-mono text-sm font-semibold text-ink">
                   {fmtKz(r.totalNet)}
                 </div>
                 <div className="font-body text-sm text-ink-muted">
                   {r.exceptionsCount ?? 0}
                   {(r.errorCount ?? 0) > 0 && (
-                    <span className="ml-1 text-danger">({r.errorCount} erro)</span>
+                    <span className="ml-1 text-danger">
+                      ({r.errorCount} erro)
+                    </span>
                   )}
                 </div>
-                <div className="font-body text-sm text-ink-muted">{fmtDate(r.createdAt)}</div>
+                <div className="font-body text-sm text-ink-muted">
+                  {fmtDate(r.createdAt)}
+                </div>
               </div>
             ))}
           </div>
@@ -849,10 +885,12 @@ git commit -m "feat(payroll): RunListView (GET /payroll/runs, paginated + filter
 ### Task 4: `RecalcPayslipModal`
 
 **Files:**
+
 - Create: `components/payroll/RecalcPayslipModal.tsx`
 - Test: `components/payroll/RecalcPayslipModal.test.tsx`
 
 **Interfaces:**
+
 - Consumes: `RunPayslip`, `queryKeys.payroll.{runDetail, runPayslipsAll, runExceptions}` (Task 1).
 - Produces: `RecalcPayslipModalProps { runId: number; payslip: RunPayslip; onClose: () => void }` — Task 5 renders this.
 
@@ -901,7 +939,12 @@ const payslip: RunPayslip = {
   netSalary: 120000,
   status: 'DRAFT',
   hasExceptions: false,
-  calcInputs: { absenceDays: 2, overtimeHours: 0, bonusAmount: null, advanceDeduction: null },
+  calcInputs: {
+    absenceDays: 2,
+    overtimeHours: 0,
+    bonusAmount: null,
+    advanceDeduction: null,
+  },
   user: { id: 7, fullName: 'Ana Silva', employeeNumber: 'E-7' },
   items: [],
 };
@@ -913,7 +956,9 @@ beforeEach(() => {
 
 describe('RecalcPayslipModal', () => {
   test('prefills inputs from payslip.calcInputs', () => {
-    render(<RecalcPayslipModal runId={9} payslip={payslip} onClose={vi.fn()} />);
+    render(
+      <RecalcPayslipModal runId={9} payslip={payslip} onClose={vi.fn()} />,
+    );
     expect(screen.getByLabelText(/Dias de falta/i)).toHaveValue(2);
     expect(screen.getByLabelText(/Horas extra/i)).toHaveValue(0);
     expect(screen.getByLabelText(/Bónus/i)).toHaveValue(null);
@@ -933,13 +978,21 @@ describe('RecalcPayslipModal', () => {
 
   test('submits only the filled fields as numbers to the right endpoint', async () => {
     const onClose = vi.fn();
-    render(<RecalcPayslipModal runId={9} payslip={payslip} onClose={onClose} />);
-    fireEvent.change(screen.getByLabelText(/Bónus/i), { target: { value: '10000' } });
+    render(
+      <RecalcPayslipModal runId={9} payslip={payslip} onClose={onClose} />,
+    );
+    fireEvent.change(screen.getByLabelText(/Bónus/i), {
+      target: { value: '10000' },
+    });
     fireEvent.click(screen.getByRole('button', { name: 'Recalcular' }));
     await waitFor(() => expect(patch).toHaveBeenCalledTimes(1));
     const [url, body] = patch.mock.calls[0];
     expect(url).toBe('/payroll/runs/9/payslips/5/recalc');
-    expect(body).toEqual({ absenceDays: 2, overtimeHours: 0, bonusAmount: 10000 });
+    expect(body).toEqual({
+      absenceDays: 2,
+      overtimeHours: 0,
+      bonusAmount: 10000,
+    });
     expect(onClose).toHaveBeenCalled();
   });
 });
@@ -976,22 +1029,34 @@ export interface RecalcPayslipModalProps {
   onClose: () => void;
 }
 
-const toInputValue = (n: number | null | undefined) => (n == null ? '' : String(n));
+const toInputValue = (n: number | null | undefined) =>
+  n == null ? '' : String(n);
 
-export function RecalcPayslipModal({ runId, payslip, onClose }: RecalcPayslipModalProps) {
+export function RecalcPayslipModal({
+  runId,
+  payslip,
+  onClose,
+}: RecalcPayslipModalProps) {
   const notify = useToast();
-  const [absenceDays, setAbsenceDays] = useState(toInputValue(payslip.calcInputs?.absenceDays));
+  const [absenceDays, setAbsenceDays] = useState(
+    toInputValue(payslip.calcInputs?.absenceDays),
+  );
   const [overtimeHours, setOvertimeHours] = useState(
     toInputValue(payslip.calcInputs?.overtimeHours),
   );
-  const [bonusAmount, setBonusAmount] = useState(toInputValue(payslip.calcInputs?.bonusAmount));
+  const [bonusAmount, setBonusAmount] = useState(
+    toInputValue(payslip.calcInputs?.bonusAmount),
+  );
   const [advanceDeduction, setAdvanceDeduction] = useState(
     toInputValue(payslip.calcInputs?.advanceDeduction),
   );
 
   const recalc = useApiMutation(
     (body: Record<string, number>) =>
-      apiClient.patch(`/payroll/runs/${runId}/payslips/${payslip.id}/recalc`, body),
+      apiClient.patch(
+        `/payroll/runs/${runId}/payslips/${payslip.id}/recalc`,
+        body,
+      ),
     {
       invalidateKeys: [
         queryKeys.payroll.runDetail(runId),
@@ -1010,7 +1075,8 @@ export function RecalcPayslipModal({ runId, payslip, onClose }: RecalcPayslipMod
     if (absenceDays.trim() !== '') body.absenceDays = Number(absenceDays);
     if (overtimeHours.trim() !== '') body.overtimeHours = Number(overtimeHours);
     if (bonusAmount.trim() !== '') body.bonusAmount = Number(bonusAmount);
-    if (advanceDeduction.trim() !== '') body.advanceDeduction = Number(advanceDeduction);
+    if (advanceDeduction.trim() !== '')
+      body.advanceDeduction = Number(advanceDeduction);
     recalc.mutate(body);
   };
 
@@ -1094,10 +1160,12 @@ git commit -m "feat(payroll): RecalcPayslipModal (PATCH .../payslips/:id/recalc)
 ### Task 5: `RunPayslipsTable`
 
 **Files:**
+
 - Create: `components/payroll/RunPayslipsTable.tsx`
 - Test: `components/payroll/RunPayslipsTable.test.tsx`
 
 **Interfaces:**
+
 - Consumes: `RunPayslip`, `Paginated<T>`, `RunStatus`, `queryKeys.payroll.{runPayslips, runDetail, runPayslipsAll, runExceptions}` (Task 1); `RecalcPayslipModalProps` (Task 4); `PAYSLIP_STATUS_MAP`, `PayslipStatus` from `@/components/payslips/types` (existing).
 - Produces: `RunPayslipsTableProps { runId: number; runStatus: RunStatus; highlightPayslipId?: number | null }` — Task 7 renders this.
 
@@ -1178,8 +1246,12 @@ describe('RunPayslipsTable', () => {
 
   test('row actions are hidden when run is not SIMULATED', () => {
     render(<RunPayslipsTable runId={9} runStatus="PENDING_APPROVAL" />);
-    expect(screen.queryByRole('button', { name: 'Recalcular' })).not.toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'Excluir' })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Recalcular' }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Excluir' }),
+    ).not.toBeInTheDocument();
   });
 
   test('"Recalcular" opens RecalcPayslipModal for that row when run is SIMULATED', () => {
@@ -1204,8 +1276,16 @@ describe('RunPayslipsTable', () => {
   });
 
   test('the row matching highlightPayslipId gets the highlight class', () => {
-    render(<RunPayslipsTable runId={9} runStatus="SIMULATED" highlightPayslipId={5} />);
-    expect(screen.getByTestId('run-payslip-row-5')).toHaveClass('bg-warning-subtle');
+    render(
+      <RunPayslipsTable
+        runId={9}
+        runStatus="SIMULATED"
+        highlightPayslipId={5}
+      />,
+    );
+    expect(screen.getByTestId('run-payslip-row-5')).toHaveClass(
+      'bg-warning-subtle',
+    );
   });
 });
 ```
@@ -1252,7 +1332,11 @@ export interface RunPayslipsTableProps {
 
 const COLS = 'grid grid-cols-[1.4fr_130px_130px_110px_120px_220px] gap-3';
 
-export function RunPayslipsTable({ runId, runStatus, highlightPayslipId }: RunPayslipsTableProps) {
+export function RunPayslipsTable({
+  runId,
+  runStatus,
+  highlightPayslipId,
+}: RunPayslipsTableProps) {
   const confirm = useConfirm();
   const notify = useToast();
   const [page, setPage] = useState(1);
@@ -1262,18 +1346,24 @@ export function RunPayslipsTable({ runId, runStatus, highlightPayslipId }: RunPa
   const { data, isLoading, error } = useApiQuery<Paginated<RunPayslip>>(
     queryKeys.payroll.runPayslips(runId, params),
     `/payroll/runs/${runId}/payslips`,
-    { params, staleTime: STALE_TIME.DYNAMIC, placeholderData: keepPreviousData },
+    {
+      params,
+      staleTime: STALE_TIME.DYNAMIC,
+      placeholderData: keepPreviousData,
+    },
   );
 
   const exclude = useApiMutation(
-    (payslipId: number) => apiClient.patch(`/payroll/runs/${runId}/payslips/${payslipId}/exclude`),
+    (payslipId: number) =>
+      apiClient.patch(`/payroll/runs/${runId}/payslips/${payslipId}/exclude`),
     {
       invalidateKeys: [
         queryKeys.payroll.runDetail(runId),
         queryKeys.payroll.runPayslipsAll(runId),
         queryKeys.payroll.runExceptions(runId),
       ],
-      onSuccess: () => notify({ title: 'Recibo excluído do run', intent: 'success' }),
+      onSuccess: () =>
+        notify({ title: 'Recibo excluído do run', intent: 'success' }),
     },
   );
 
@@ -1299,10 +1389,15 @@ export function RunPayslipsTable({ runId, runStatus, highlightPayslipId }: RunPa
       </h3>
 
       {isLoading && <Skeleton rows={6} />}
-      {error && <div className="font-body text-sm text-danger">{error.message}</div>}
+      {error && (
+        <div className="font-body text-sm text-danger">{error.message}</div>
+      )}
 
       {!isLoading && !error && rows.length === 0 && (
-        <EmptyState title="Sem recibos" description="Este run ainda não tem recibos gerados." />
+        <EmptyState
+          title="Sem recibos"
+          description="Este run ainda não tem recibos gerados."
+        />
       )}
 
       {!isLoading && rows.length > 0 && (
@@ -1334,12 +1429,18 @@ export function RunPayslipsTable({ runId, runStatus, highlightPayslipId }: RunPa
                     {p.user.employeeNumber ?? '—'}
                   </div>
                 </div>
-                <div className="font-mono text-sm text-ink-muted">{fmtKz(p.grossSalary)}</div>
+                <div className="font-mono text-sm text-ink-muted">
+                  {fmtKz(p.grossSalary)}
+                </div>
                 <div className="font-mono text-sm font-semibold text-ink">
                   {fmtKz(p.netSalary)}
                 </div>
                 <div>
-                  <StatusBadge value={p.status} map={PAYSLIP_STATUS_MAP} variant="plain" />
+                  <StatusBadge
+                    value={p.status}
+                    map={PAYSLIP_STATUS_MAP}
+                    variant="plain"
+                  />
                 </div>
                 <div>
                   {p.hasExceptions && (
@@ -1350,10 +1451,18 @@ export function RunPayslipsTable({ runId, runStatus, highlightPayslipId }: RunPa
                 </div>
                 {editable && (
                   <div className="flex gap-2">
-                    <Button size="sm" intent="secondary" onClick={() => setRecalcTarget(p)}>
+                    <Button
+                      size="sm"
+                      intent="secondary"
+                      onClick={() => setRecalcTarget(p)}
+                    >
                       Recalcular
                     </Button>
-                    <Button size="sm" intent="danger" onClick={() => handleExclude(p)}>
+                    <Button
+                      size="sm"
+                      intent="danger"
+                      onClick={() => handleExclude(p)}
+                    >
                       Excluir
                     </Button>
                   </div>
@@ -1395,10 +1504,12 @@ git commit -m "feat(payroll): RunPayslipsTable (GET .../payslips, recalc/exclude
 ### Task 6: `ExceptionsPanel`
 
 **Files:**
+
 - Create: `components/payroll/ExceptionsPanel.tsx`
 - Test: `components/payroll/ExceptionsPanel.test.tsx`
 
 **Interfaces:**
+
 - Consumes: `RunException`, `EXCEPTION_SEVERITY_MAP`, `queryKeys.payroll.runExceptions` (Task 1).
 - Produces: `ExceptionsPanelProps { runId: number; onSelectException?: (payslipId: number) => void }` — Task 7 renders this.
 
@@ -1445,7 +1556,9 @@ beforeEach(() => {
 describe('ExceptionsPanel', () => {
   test('renders ERROR before WARNING, each with its count', () => {
     render(<ExceptionsPanel runId={9} />);
-    const headings = screen.getAllByRole('heading', { level: 4 }).map((h) => h.textContent);
+    const headings = screen
+      .getAllByRole('heading', { level: 4 })
+      .map((h) => h.textContent);
     expect(headings.join(' ')).toMatch(/Erros.*Avisos/s);
     expect(screen.getByText(/Erros \(1\)/)).toBeInTheDocument();
     expect(screen.getByText(/Avisos \(1\)/)).toBeInTheDocument();
@@ -1454,7 +1567,9 @@ describe('ExceptionsPanel', () => {
   test('renders the message and collaborator for each exception', () => {
     render(<ExceptionsPanel runId={9} />);
     expect(screen.getByText('Ana Silva')).toBeInTheDocument();
-    expect(screen.getByText('Líquido abaixo do salário mínimo.')).toBeInTheDocument();
+    expect(
+      screen.getByText('Líquido abaixo do salário mínimo.'),
+    ).toBeInTheDocument();
     expect(screen.getByText('Rui Costa')).toBeInTheDocument();
     expect(screen.getByText('Salário-base é 0.')).toBeInTheDocument();
   });
@@ -1494,7 +1609,11 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { StatusBadge } from '@/components/ui/StatusBadge';
-import { EXCEPTION_SEVERITY_MAP, EXCEPTION_CODE_LABEL, type RunException } from './types';
+import {
+  EXCEPTION_SEVERITY_MAP,
+  EXCEPTION_CODE_LABEL,
+  type RunException,
+} from './types';
 
 export interface ExceptionsPanelProps {
   runId: number;
@@ -1524,12 +1643,20 @@ function Group({
             onClick={() => onSelectException?.(e.payslipId)}
             className="flex w-full items-center gap-3 border-b border-border px-4 py-2.5 text-left last:border-0 hover:bg-surface-sunken"
           >
-            <StatusBadge value={e.severity} map={EXCEPTION_SEVERITY_MAP} variant="pill" />
-            <span className="font-body text-sm font-medium text-ink">{e.fullName}</span>
+            <StatusBadge
+              value={e.severity}
+              map={EXCEPTION_SEVERITY_MAP}
+              variant="pill"
+            />
+            <span className="font-body text-sm font-medium text-ink">
+              {e.fullName}
+            </span>
             <span className="font-body text-xs text-ink-faint">
               {EXCEPTION_CODE_LABEL[e.code] ?? e.code}
             </span>
-            <span className="ml-auto font-body text-sm text-ink-muted">{e.message}</span>
+            <span className="ml-auto font-body text-sm text-ink-muted">
+              {e.message}
+            </span>
           </button>
         ))}
       </div>
@@ -1537,7 +1664,10 @@ function Group({
   );
 }
 
-export function ExceptionsPanel({ runId, onSelectException }: ExceptionsPanelProps) {
+export function ExceptionsPanel({
+  runId,
+  onSelectException,
+}: ExceptionsPanelProps) {
   const { data, isLoading } = useApiQuery<RunException[]>(
     queryKeys.payroll.runExceptions(runId),
     `/payroll/runs/${runId}/exceptions`,
@@ -1554,10 +1684,21 @@ export function ExceptionsPanel({ runId, onSelectException }: ExceptionsPanelPro
         Exceções
       </h3>
       {!isLoading && exceptions.length === 0 && (
-        <EmptyState title="Sem exceções" description="Nenhuma exceção detectada neste run." />
+        <EmptyState
+          title="Sem exceções"
+          description="Nenhuma exceção detectada neste run."
+        />
       )}
-      <Group title="Erros" items={errors} onSelectException={onSelectException} />
-      <Group title="Avisos" items={warnings} onSelectException={onSelectException} />
+      <Group
+        title="Erros"
+        items={errors}
+        onSelectException={onSelectException}
+      />
+      <Group
+        title="Avisos"
+        items={warnings}
+        onSelectException={onSelectException}
+      />
     </div>
   );
 }
@@ -1580,10 +1721,12 @@ git commit -m "feat(payroll): ExceptionsPanel (GET .../exceptions, grouped by se
 ### Task 7: `RunDetailView`
 
 **Files:**
+
 - Create: `components/payroll/RunDetailView.tsx`
 - Test: `components/payroll/RunDetailView.test.tsx`
 
 **Interfaces:**
+
 - Consumes: `PayrollRunDetail`, `RUN_STATUS_MAP`, `queryKeys.payroll.{runDetail, all}` (Task 1); `RunPayslipsTableProps` (Task 5); `ExceptionsPanelProps` (Task 6).
 - Produces: `RunDetailViewProps { runId: number; onBack: () => void }` — Task 8's `page.tsx` renders this.
 
@@ -1658,7 +1801,11 @@ function makeRun(overrides: Record<string, unknown>) {
     rejectionReason: null,
     cancellationReason: null,
     timeline: [
-      { step: 'created', at: '2026-09-01T08:00:00.000Z', by: { id: 1, fullName: 'Rita RH' } },
+      {
+        step: 'created',
+        at: '2026-09-01T08:00:00.000Z',
+        by: { id: 1, fullName: 'Rita RH' },
+      },
       { step: 'processed', at: null, by: null },
       { step: 'submitted', at: null, by: null },
       { step: 'approved', at: null, by: null },
@@ -1680,36 +1827,61 @@ describe('RunDetailView — action visibility per status', () => {
   test('DRAFT shows only "Processar"', () => {
     queryResult = { data: makeRun({ status: 'DRAFT' }), isLoading: false };
     render(<RunDetailView runId={9} onBack={vi.fn()} />);
-    expect(screen.getByRole('button', { name: 'Processar' })).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'Submeter' })).not.toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'Aprovar' })).not.toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'Publicar' })).not.toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Processar' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Submeter' }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Aprovar' }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Publicar' }),
+    ).not.toBeInTheDocument();
   });
 
   test('SIMULATED with no errors shows Reprocessar/Submeter(enabled)/Cancelar', () => {
-    queryResult = { data: makeRun({ status: 'SIMULATED', errorCount: 0 }), isLoading: false };
+    queryResult = {
+      data: makeRun({ status: 'SIMULATED', errorCount: 0 }),
+      isLoading: false,
+    };
     render(<RunDetailView runId={9} onBack={vi.fn()} />);
-    expect(screen.getByRole('button', { name: 'Reprocessar' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Reprocessar' }),
+    ).toBeInTheDocument();
     const submit = screen.getByRole('button', { name: 'Submeter' });
     expect(submit).toBeEnabled();
-    expect(screen.getByRole('button', { name: 'Cancelar' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Cancelar' }),
+    ).toBeInTheDocument();
   });
 
   test('SIMULATED with errorCount>0 disables Submeter and shows the backend warning text', () => {
-    queryResult = { data: makeRun({ status: 'SIMULATED', errorCount: 2 }), isLoading: false };
+    queryResult = {
+      data: makeRun({ status: 'SIMULATED', errorCount: 2 }),
+      isLoading: false,
+    };
     render(<RunDetailView runId={9} onBack={vi.fn()} />);
     expect(screen.getByRole('button', { name: 'Submeter' })).toBeDisabled();
     expect(
-      screen.getByText('Run tem 2 exceção(ões) de erro — resolver antes de submeter.'),
+      screen.getByText(
+        'Run tem 2 exceção(ões) de erro — resolver antes de submeter.',
+      ),
     ).toBeInTheDocument();
   });
 
   test('PENDING_APPROVAL shows Aprovar/Rejeitar/Cancelar; Rejeitar opens the reason panel', async () => {
-    queryResult = { data: makeRun({ status: 'PENDING_APPROVAL' }), isLoading: false };
+    queryResult = {
+      data: makeRun({ status: 'PENDING_APPROVAL' }),
+      isLoading: false,
+    };
     render(<RunDetailView runId={9} onBack={vi.fn()} />);
     expect(screen.getByRole('button', { name: 'Aprovar' })).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Rejeitar' }));
-    const confirmReject = screen.getByRole('button', { name: 'Confirmar rejeição' });
+    const confirmReject = screen.getByRole('button', {
+      name: 'Confirmar rejeição',
+    });
     expect(confirmReject).toBeDisabled();
     fireEvent.change(screen.getByPlaceholderText(/Motivo/i), {
       target: { value: 'Valores incorrectos' },
@@ -1727,7 +1899,9 @@ describe('RunDetailView — action visibility per status', () => {
     render(<RunDetailView runId={9} onBack={vi.fn()} />);
     fireEvent.click(screen.getByRole('button', { name: 'Publicar' }));
     await waitFor(() => expect(confirm).toHaveBeenCalledTimes(1));
-    await waitFor(() => expect(post).toHaveBeenCalledWith('/payroll/runs/9/publish', {}));
+    await waitFor(() =>
+      expect(post).toHaveBeenCalledWith('/payroll/runs/9/publish', {}),
+    );
   });
 
   test('a declined confirm does not POST', async () => {
@@ -1742,11 +1916,19 @@ describe('RunDetailView — action visibility per status', () => {
   test('PUBLISHED and CANCELLED show no action buttons', () => {
     queryResult = { data: makeRun({ status: 'PUBLISHED' }), isLoading: false };
     const { rerender } = render(<RunDetailView runId={9} onBack={vi.fn()} />);
-    expect(screen.queryByRole('button', { name: /Processar|Submeter|Aprovar|Publicar|Cancelar/ })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', {
+        name: /Processar|Submeter|Aprovar|Publicar|Cancelar/,
+      }),
+    ).not.toBeInTheDocument();
 
     queryResult = { data: makeRun({ status: 'CANCELLED' }), isLoading: false };
     rerender(<RunDetailView runId={9} onBack={vi.fn()} />);
-    expect(screen.queryByRole('button', { name: /Processar|Submeter|Aprovar|Publicar|Cancelar/ })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', {
+        name: /Processar|Submeter|Aprovar|Publicar|Cancelar/,
+      }),
+    ).not.toBeInTheDocument();
   });
 
   test('renders the timeline with dates and actor names', () => {
@@ -1827,9 +2009,15 @@ export function RunDetailView({ runId, onBack }: RunDetailViewProps) {
   const notify = useToast();
   const [panel, setPanel] = useState<Panel>({ kind: 'none' });
   const [reason, setReason] = useState('');
-  const [highlightPayslipId, setHighlightPayslipId] = useState<number | null>(null);
+  const [highlightPayslipId, setHighlightPayslipId] = useState<number | null>(
+    null,
+  );
 
-  const { data: run, isLoading, error } = useApiQuery<PayrollRunDetail>(
+  const {
+    data: run,
+    isLoading,
+    error,
+  } = useApiQuery<PayrollRunDetail>(
     queryKeys.payroll.runDetail(runId),
     `/payroll/runs/${runId}`,
     {
@@ -1837,7 +2025,8 @@ export function RunDetailView({ runId, onBack }: RunDetailViewProps) {
       // Enquanto o run está PROCESSING (passo síncrono no backend), sonda a
       // cada 3s até transitar para SIMULATED — evita exigir refresh manual.
       refetchInterval: (query) =>
-        (query.state.data as PayrollRunDetail | undefined)?.status === 'PROCESSING'
+        (query.state.data as PayrollRunDetail | undefined)?.status ===
+        'PROCESSING'
           ? 3000
           : false,
     },
@@ -1848,13 +2037,15 @@ export function RunDetailView({ runId, onBack }: RunDetailViewProps) {
       apiClient.post(`/payroll/runs/${runId}/${action}`, {}),
     {
       invalidateKeys: [queryKeys.payroll.all],
-      onSuccess: () => notify({ title: 'Estado do run actualizado', intent: 'success' }),
+      onSuccess: () =>
+        notify({ title: 'Estado do run actualizado', intent: 'success' }),
       onError: (e: Error) => notify({ title: e.message, intent: 'danger' }),
     },
   );
 
   const rejectMut = useApiMutation(
-    (body: { reason: string }) => apiClient.post(`/payroll/runs/${runId}/reject`, body),
+    (body: { reason: string }) =>
+      apiClient.post(`/payroll/runs/${runId}/reject`, body),
     {
       invalidateKeys: [queryKeys.payroll.all],
       onSuccess: () => {
@@ -1866,7 +2057,8 @@ export function RunDetailView({ runId, onBack }: RunDetailViewProps) {
   );
 
   const cancelMut = useApiMutation(
-    (body: { reason: string }) => apiClient.post(`/payroll/runs/${runId}/cancel`, body),
+    (body: { reason: string }) =>
+      apiClient.post(`/payroll/runs/${runId}/cancel`, body),
     {
       invalidateKeys: [queryKeys.payroll.all],
       onSuccess: () => {
@@ -1888,10 +2080,12 @@ export function RunDetailView({ runId, onBack }: RunDetailViewProps) {
   };
 
   if (isLoading) return <Skeleton rows={6} />;
-  if (error) return <div className="font-body text-sm text-danger">{error.message}</div>;
+  if (error)
+    return <div className="font-body text-sm text-danger">{error.message}</div>;
   if (!run) return null;
 
-  const busy = transition.isPending || rejectMut.isPending || cancelMut.isPending;
+  const busy =
+    transition.isPending || rejectMut.isPending || cancelMut.isPending;
 
   return (
     <div>
@@ -1916,9 +2110,14 @@ export function RunDetailView({ runId, onBack }: RunDetailViewProps) {
 
       <dl className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-5">
         {TOTALS.map(([label, getValue]) => (
-          <div key={label} className="rounded-card border border-border bg-surface p-3">
+          <div
+            key={label}
+            className="rounded-card border border-border bg-surface p-3"
+          >
             <dt className="font-body text-xs text-ink-faint">{label}</dt>
-            <dd className="font-mono text-sm font-semibold text-ink">{getValue(run)}</dd>
+            <dd className="font-mono text-sm font-semibold text-ink">
+              {getValue(run)}
+            </dd>
           </div>
         ))}
       </dl>
@@ -1968,7 +2167,12 @@ export function RunDetailView({ runId, onBack }: RunDetailViewProps) {
             >
               Submeter
             </Button>
-            <Button size="sm" intent="danger" disabled={busy} onClick={() => setPanel({ kind: 'cancel' })}>
+            <Button
+              size="sm"
+              intent="danger"
+              disabled={busy}
+              onClick={() => setPanel({ kind: 'cancel' })}
+            >
               Cancelar
             </Button>
           </>
@@ -1980,15 +2184,29 @@ export function RunDetailView({ runId, onBack }: RunDetailViewProps) {
               intent="success"
               disabled={busy}
               onClick={() =>
-                runSimpleAction('approve', 'Aprovar run?', 'O run avança para publicação.')
+                runSimpleAction(
+                  'approve',
+                  'Aprovar run?',
+                  'O run avança para publicação.',
+                )
               }
             >
               Aprovar
             </Button>
-            <Button size="sm" intent="danger" disabled={busy} onClick={() => setPanel({ kind: 'reject' })}>
+            <Button
+              size="sm"
+              intent="danger"
+              disabled={busy}
+              onClick={() => setPanel({ kind: 'reject' })}
+            >
               Rejeitar
             </Button>
-            <Button size="sm" intent="ghost" disabled={busy} onClick={() => setPanel({ kind: 'cancel' })}>
+            <Button
+              size="sm"
+              intent="ghost"
+              disabled={busy}
+              onClick={() => setPanel({ kind: 'cancel' })}
+            >
               Cancelar
             </Button>
           </>
@@ -2009,7 +2227,12 @@ export function RunDetailView({ runId, onBack }: RunDetailViewProps) {
             >
               Publicar
             </Button>
-            <Button size="sm" intent="ghost" disabled={busy} onClick={() => setPanel({ kind: 'cancel' })}>
+            <Button
+              size="sm"
+              intent="ghost"
+              disabled={busy}
+              onClick={() => setPanel({ kind: 'cancel' })}
+            >
               Cancelar
             </Button>
           </>
@@ -2046,14 +2269,20 @@ export function RunDetailView({ runId, onBack }: RunDetailViewProps) {
               size="sm"
               intent="danger"
               disabled={!reason.trim()}
-              loading={panel.kind === 'reject' ? rejectMut.isPending : cancelMut.isPending}
+              loading={
+                panel.kind === 'reject'
+                  ? rejectMut.isPending
+                  : cancelMut.isPending
+              }
               onClick={() =>
                 panel.kind === 'reject'
                   ? rejectMut.mutate({ reason })
                   : cancelMut.mutate({ reason })
               }
             >
-              {panel.kind === 'reject' ? 'Confirmar rejeição' : 'Confirmar cancelamento'}
+              {panel.kind === 'reject'
+                ? 'Confirmar rejeição'
+                : 'Confirmar cancelamento'}
             </Button>
           </div>
         </div>
@@ -2064,9 +2293,14 @@ export function RunDetailView({ runId, onBack }: RunDetailViewProps) {
       </h3>
       <ol className="mb-8 space-y-2">
         {run.timeline.map((t) => (
-          <li key={t.step} className="flex items-center gap-3 font-body text-sm">
+          <li
+            key={t.step}
+            className="flex items-center gap-3 font-body text-sm"
+          >
             <span className={t.at ? 'text-success' : 'text-ink-faint'}>●</span>
-            <span className="w-24 text-ink-muted">{TIMELINE_LABEL[t.step] ?? t.step}</span>
+            <span className="w-24 text-ink-muted">
+              {TIMELINE_LABEL[t.step] ?? t.step}
+            </span>
             <span className="text-ink">{t.at ? fmtDateTime(t.at) : '—'}</span>
             {t.by && <span className="text-ink-faint">· {t.by.fullName}</span>}
           </li>
@@ -2074,9 +2308,16 @@ export function RunDetailView({ runId, onBack }: RunDetailViewProps) {
       </ol>
 
       <div className="mb-8">
-        <ExceptionsPanel runId={runId} onSelectException={setHighlightPayslipId} />
+        <ExceptionsPanel
+          runId={runId}
+          onSelectException={setHighlightPayslipId}
+        />
       </div>
-      <RunPayslipsTable runId={runId} runStatus={run.status} highlightPayslipId={highlightPayslipId} />
+      <RunPayslipsTable
+        runId={runId}
+        runStatus={run.status}
+        highlightPayslipId={highlightPayslipId}
+      />
     </div>
   );
 }
@@ -2099,11 +2340,13 @@ git commit -m "feat(payroll): RunDetailView (state machine actions + timeline)"
 ### Task 8: Wire up the route and sidebar nav
 
 **Files:**
+
 - Create: `app/(platform)/payroll/layout.tsx`
 - Create: `app/(platform)/payroll/page.tsx`
 - Modify: `components/Sidebar.tsx`
 
 **Interfaces:**
+
 - Consumes: `RunListViewProps` (Task 3), `RunDetailViewProps` (Task 7).
 - Produces: the `/payroll` route itself — nothing downstream depends on this task.
 
@@ -2117,7 +2360,11 @@ import type { Metadata } from 'next';
 
 export const metadata: Metadata = { title: 'Folha de Pagamento' };
 
-export default function PayrollLayout({ children }: { children: React.ReactNode }) {
+export default function PayrollLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return <>{children}</>;
 }
 ```
@@ -2140,13 +2387,18 @@ export default function PayrollPage() {
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
       <div className="mb-6">
-        <h1 className="font-display text-xl font-semibold text-ink">Folha de Pagamento</h1>
+        <h1 className="font-display text-xl font-semibold text-ink">
+          Folha de Pagamento
+        </h1>
       </div>
       {nav.view === 'list' && (
         <RunListView onSelect={(runId) => setNav({ view: 'detail', runId })} />
       )}
       {nav.view === 'detail' && (
-        <RunDetailView runId={nav.runId} onBack={() => setNav({ view: 'list' })} />
+        <RunDetailView
+          runId={nav.runId}
+          onBack={() => setNav({ view: 'list' })}
+        />
       )}
     </div>
   );
@@ -2173,11 +2425,13 @@ Then, in the "Recursos Humanos" section's `items` array, immediately after the `
 - [ ] **Step 4: Verify the build and the full test suite**
 
 Run:
+
 ```bash
 npx tsc --noEmit
 npx vitest run
 npm run build
 ```
+
 Expected: `tsc` reports no errors; the full Vitest suite passes (including the 6 new `components/payroll/*.test.tsx` files and every pre-existing test, unaffected); `next build` completes and lists `/payroll` among the generated routes.
 
 - [ ] **Step 5: Format and commit**
@@ -2193,6 +2447,7 @@ git commit -m "feat(payroll): wire up /payroll route + sidebar nav entry"
 ## Self-Review
 
 **1. Spec coverage:**
+
 - §1 Rotas e ficheiros novos → Task 1 (types/queryKeys), Tasks 2-7 (all six components), Task 8 (route + nav). ✅
 - §2 Camada de dados (query keys + invalidation rules table) → Task 1 (`queryKeys.payroll.*`), invalidation applied exactly per the spec's table in Tasks 2 (create → `all`), 4/5 (recalc/exclude → `runDetail`+`runPayslipsAll`+`runExceptions`), 7 (transitions → `all`). ✅
 - §3 `RunListView` (columns, filters, empty state, "+ Novo run") → Task 3, all covered by the 6 tests. ✅
@@ -2203,7 +2458,7 @@ git commit -m "feat(payroll): wire up /payroll route + sidebar nav entry"
 - §8 Testing → every component has its own `.test.tsx`; `RunDetailView`'s per-status coverage directly addresses the spec's stated main risk. ✅
 - "Fora de âmbito" (dept/user picker, run editing, bulk actions, exceptions pagination) → none of the 8 tasks implement any of these. ✅
 - Risk: `PROCESSING` polling → implemented in Task 7 via `refetchInterval`. ✅
-- Risk: `invalidateKeys` prefix behavior → Task 1's `runPayslipsAll`/`runPayslips` key shape is designed for React Query's default `exact:false` invalidation; Tasks 4/5's tests don't assert cache internals directly (mocked `useApiMutation` doesn't exercise real invalidation), so this remains implicitly trusted to React Query's documented default rather than independently proven — acceptable, since the risk was about key *shape*, and the shape is correct by construction (`runPayslips` literally extends the `runPayslipsAll` array).
+- Risk: `invalidateKeys` prefix behavior → Task 1's `runPayslipsAll`/`runPayslips` key shape is designed for React Query's default `exact:false` invalidation; Tasks 4/5's tests don't assert cache internals directly (mocked `useApiMutation` doesn't exercise real invalidation), so this remains implicitly trusted to React Query's documented default rather than independently proven — acceptable, since the risk was about key _shape_, and the shape is correct by construction (`runPayslips` literally extends the `runPayslipsAll` array).
 
 **2. Placeholder scan:** No "TBD"/"TODO"/"add validation"/"similar to Task N" patterns — every step has full, real code or an exact runnable command.
 

@@ -42,7 +42,10 @@ export function AddSuccessorModal({
     values: form,
     setValues: setForm,
     handleSubmit: withValidation,
-  } = useFormValidation({ readinessLevel: '', readinessByDate: '', notes: '' }, {});
+  } = useFormValidation(
+    { readinessLevel: '', readinessByDate: '', notes: '' },
+    {},
+  );
 
   const create = useApiMutation(
     () =>
@@ -80,7 +83,10 @@ export function AddSuccessorModal({
 
   return (
     <Modal open onOpenChange={(open) => !open && onClose()}>
-      <ModalContent title="Adicionar Sucessor" className="max-h-[90vh] max-w-lg overflow-y-auto">
+      <ModalContent
+        title="Adicionar Sucessor"
+        className="max-h-[90vh] max-w-lg overflow-y-auto"
+      >
         <div className="mt-4 space-y-4">
           {submitError && (
             <div className="flex items-center gap-2 rounded-card bg-danger-subtle p-3 text-sm text-danger-ink">
@@ -100,25 +106,33 @@ export function AddSuccessorModal({
             <Select
               items={READINESS_OPTIONS}
               value={form.readinessLevel}
-              onValueChange={(v) => setForm((f) => ({ ...f, readinessLevel: v }))}
+              onValueChange={(v) =>
+                setForm((f) => ({ ...f, readinessLevel: v }))
+              }
               placeholder="Seleccionar…"
               className="w-full"
             />
           </FormField>
 
-          <FormField label="Data prevista de prontidão" htmlFor="succ-readiness-date">
+          <FormField
+            label="Data prevista de prontidão"
+            htmlFor="succ-readiness-date"
+          >
             <Input
               id="succ-readiness-date"
               type="date"
               value={form.readinessByDate}
-              onChange={(e) => setForm((f) => ({ ...f, readinessByDate: e.target.value }))}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, readinessByDate: e.target.value }))
+              }
               className="w-full"
             />
           </FormField>
 
           <p className="font-body text-xs text-ink-faint">
-            A prioridade (1º/2º/3º sucessor) e o score de compatibilidade são calculados
-            automaticamente a partir dos sucessores já existentes e das competências do cargo.
+            A prioridade (1º/2º/3º sucessor) e o score de compatibilidade são
+            calculados automaticamente a partir dos sucessores já existentes e
+            das competências do cargo.
           </p>
 
           <label className="flex items-center gap-2 text-sm text-ink-muted">
@@ -145,7 +159,9 @@ export function AddSuccessorModal({
             <Textarea
               id="succ-notes"
               value={form.notes}
-              onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, notes: e.target.value }))
+              }
               rows={2}
               className="w-full resize-none"
             />

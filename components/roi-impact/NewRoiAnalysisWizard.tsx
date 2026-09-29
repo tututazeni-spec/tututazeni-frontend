@@ -27,8 +27,17 @@ import { Badge } from '@/components/ui/Badge';
 import { DepartmentUserPicker } from '@/components/departments/DepartmentUserPicker';
 import type { DirectoryUser } from '@/components/departments/departmentFormData';
 import { fmt$ } from './utils';
-import { INITIATIVE_TYPE_LABELS, BENEFIT_TYPE_LABELS, CONFIDENCE_LABELS } from './utils';
-import type { InitiativeOption, RoiInitiativeType, RoiBenefitType, RoiConfigData } from './types';
+import {
+  INITIATIVE_TYPE_LABELS,
+  BENEFIT_TYPE_LABELS,
+  CONFIDENCE_LABELS,
+} from './utils';
+import type {
+  InitiativeOption,
+  RoiInitiativeType,
+  RoiBenefitType,
+  RoiConfigData,
+} from './types';
 
 const STEPS = [
   { id: 'identification', label: 'Identificação' },
@@ -38,14 +47,18 @@ const STEPS = [
   { id: 'result', label: 'Resultado' },
 ] as const;
 
-const INITIATIVE_TYPE_ITEMS = Object.entries(INITIATIVE_TYPE_LABELS).map(([value, label]) => ({
-  value,
-  label,
-}));
-const BENEFIT_TYPE_ITEMS = Object.entries(BENEFIT_TYPE_LABELS).map(([value, label]) => ({
-  value,
-  label,
-}));
+const INITIATIVE_TYPE_ITEMS = Object.entries(INITIATIVE_TYPE_LABELS).map(
+  ([value, label]) => ({
+    value,
+    label,
+  }),
+);
+const BENEFIT_TYPE_ITEMS = Object.entries(BENEFIT_TYPE_LABELS).map(
+  ([value, label]) => ({
+    value,
+    label,
+  }),
+);
 const DEFAULT_MEASUREMENT_PERIODS = [30, 60, 90, 180];
 
 interface ComputeResult {
@@ -72,7 +85,8 @@ export function NewRoiAnalysisWizard({ onClose }: NewRoiAnalysisWizardProps) {
 
   // Etapa 1 — Identificação
   const [name, setName] = useState('');
-  const [initiativeType, setInitiativeType] = useState<RoiInitiativeType>('CURSO');
+  const [initiativeType, setInitiativeType] =
+    useState<RoiInitiativeType>('CURSO');
   const [initiativeId, setInitiativeId] = useState('');
   const [departmentId, setDepartmentId] = useState('');
   const [unit, setUnit] = useState('');
@@ -87,12 +101,14 @@ export function NewRoiAnalysisWizard({ onClose }: NewRoiAnalysisWizardProps) {
   const [costOpportunity, setCostOpportunity] = useState('');
 
   // Etapa 3 — Benefícios esperados
-  const [benefitType, setBenefitType] = useState<RoiBenefitType>('PRODUTIVIDADE');
+  const [benefitType, setBenefitType] =
+    useState<RoiBenefitType>('PRODUTIVIDADE');
   const [benefitIndicator, setBenefitIndicator] = useState('');
   const [benefitBaselineValue, setBenefitBaselineValue] = useState('');
   const [benefitExpectedValue, setBenefitExpectedValue] = useState('');
   const [benefitConversionNote, setBenefitConversionNote] = useState('');
-  const [benefitValidator, setBenefitValidator] = useState<DirectoryUser | null>(null);
+  const [benefitValidator, setBenefitValidator] =
+    useState<DirectoryUser | null>(null);
 
   // Etapa 4 — Metodologia
   const [evaluationModelUsed, setEvaluationModelUsed] = useState('');
@@ -106,11 +122,11 @@ export function NewRoiAnalysisWizard({ onClose }: NewRoiAnalysisWizardProps) {
   const [observations, setObservations] = useState('');
   const [result, setResult] = useState<ComputeResult | null>(null);
 
-  const { data: deptTree } = useApiQuery<{ id: number; name: string; children?: unknown[] }[]>(
-    queryKeys.departments.tree(),
-    '/departments/tree',
-    { staleTime: STALE_TIME.SEMI_STATIC },
-  );
+  const { data: deptTree } = useApiQuery<
+    { id: number; name: string; children?: unknown[] }[]
+  >(queryKeys.departments.tree(), '/departments/tree', {
+    staleTime: STALE_TIME.SEMI_STATIC,
+  });
   const departments = useMemo(() => {
     const flat: { id: number; name: string }[] = [];
     const walk = (nodes: typeof deptTree) => {
@@ -178,7 +194,10 @@ export function NewRoiAnalysisWizard({ onClose }: NewRoiAnalysisWizardProps) {
       measurementPeriodDays: Number(measurementPeriodDays),
     };
     if (analysisId == null) {
-      const created = await apiClient.post<{ id: number }>('/roi-impact/analyses', payload);
+      const created = await apiClient.post<{ id: number }>(
+        '/roi-impact/analyses',
+        payload,
+      );
       setAnalysisId(created.id);
       return created.id;
     }
@@ -198,8 +217,12 @@ export function NewRoiAnalysisWizard({ onClose }: NewRoiAnalysisWizardProps) {
     await apiClient.patch(`/roi-impact/analyses/${id}`, {
       benefitType,
       benefitIndicator: benefitIndicator.trim() || undefined,
-      benefitBaselineValue: benefitBaselineValue ? Number(benefitBaselineValue) : undefined,
-      benefitExpectedValue: benefitExpectedValue ? Number(benefitExpectedValue) : undefined,
+      benefitBaselineValue: benefitBaselineValue
+        ? Number(benefitBaselineValue)
+        : undefined,
+      benefitExpectedValue: benefitExpectedValue
+        ? Number(benefitExpectedValue)
+        : undefined,
       benefitConversionNote: benefitConversionNote.trim() || undefined,
       benefitValidatorId: benefitValidator?.id,
     });
@@ -251,13 +274,20 @@ export function NewRoiAnalysisWizard({ onClose }: NewRoiAnalysisWizardProps) {
     setBusy(true);
     setError('');
     try {
-      const computed = await apiClient.post<ComputeResult>(`/roi-impact/analyses/${analysisId}/compute`, {
-        monetaryBenefitOverride: monetaryBenefitOverride ? Number(monetaryBenefitOverride) : undefined,
-        observations: observations.trim() || undefined,
-      });
+      const computed = await apiClient.post<ComputeResult>(
+        `/roi-impact/analyses/${analysisId}/compute`,
+        {
+          monetaryBenefitOverride: monetaryBenefitOverride
+            ? Number(monetaryBenefitOverride)
+            : undefined,
+          observations: observations.trim() || undefined,
+        },
+      );
       setResult(computed);
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Erro ao calcular o resultado.');
+      setError(
+        e instanceof Error ? e.message : 'Erro ao calcular o resultado.',
+      );
     } finally {
       setBusy(false);
     }
@@ -290,7 +320,11 @@ export function NewRoiAnalysisWizard({ onClose }: NewRoiAnalysisWizardProps) {
                         : 'bg-surface-sunken text-ink-faint')
                   }
                 >
-                  {done && !isCurrent ? <Check size={12} strokeWidth={2.5} /> : i + 1}
+                  {done && !isCurrent ? (
+                    <Check size={12} strokeWidth={2.5} />
+                  ) : (
+                    i + 1
+                  )}
                 </button>
               </li>
             );
@@ -307,7 +341,12 @@ export function NewRoiAnalysisWizard({ onClose }: NewRoiAnalysisWizardProps) {
         {current.id === 'identification' && (
           <div className="space-y-4">
             <FormField label="Nome da análise *" htmlFor="ra-name">
-              <Input id="ra-name" value={name} onChange={(e) => setName(e.target.value)} className="w-full" />
+              <Input
+                id="ra-name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="w-full"
+              />
             </FormField>
             <div className="grid grid-cols-2 gap-3">
               <FormField label="Tipo de iniciativa" htmlFor="ra-type">
@@ -323,7 +362,10 @@ export function NewRoiAnalysisWizard({ onClose }: NewRoiAnalysisWizardProps) {
               </FormField>
               <FormField label="Iniciativa associada *" htmlFor="ra-initiative">
                 <Select
-                  items={(initiativeOptions ?? []).map((o) => ({ value: String(o.id), label: o.label }))}
+                  items={(initiativeOptions ?? []).map((o) => ({
+                    value: String(o.id),
+                    label: o.label,
+                  }))}
                   value={initiativeId}
                   onValueChange={setInitiativeId}
                   placeholder="Selecionar…"
@@ -334,7 +376,10 @@ export function NewRoiAnalysisWizard({ onClose }: NewRoiAnalysisWizardProps) {
             <div className="grid grid-cols-2 gap-3">
               <FormField label="Departamento" htmlFor="ra-dept">
                 <Select
-                  items={departments.map((d) => ({ value: String(d.id), label: d.name }))}
+                  items={departments.map((d) => ({
+                    value: String(d.id),
+                    label: d.name,
+                  }))}
                   value={departmentId}
                   onValueChange={setDepartmentId}
                   placeholder="Selecionar…"
@@ -342,7 +387,12 @@ export function NewRoiAnalysisWizard({ onClose }: NewRoiAnalysisWizardProps) {
                 />
               </FormField>
               <FormField label="Unidade" htmlFor="ra-unit">
-                <Input id="ra-unit" value={unit} onChange={(e) => setUnit(e.target.value)} className="w-full" />
+                <Input
+                  id="ra-unit"
+                  value={unit}
+                  onChange={(e) => setUnit(e.target.value)}
+                  className="w-full"
+                />
               </FormField>
             </div>
             <DepartmentUserPicker
@@ -352,7 +402,10 @@ export function NewRoiAnalysisWizard({ onClose }: NewRoiAnalysisWizardProps) {
               onChange={setResponsible}
             />
             <div className="grid grid-cols-3 gap-3">
-              <FormField label="Período de referência — início" htmlFor="ra-ref-start">
+              <FormField
+                label="Período de referência — início"
+                htmlFor="ra-ref-start"
+              >
                 <Input
                   id="ra-ref-start"
                   type="date"
@@ -361,7 +414,10 @@ export function NewRoiAnalysisWizard({ onClose }: NewRoiAnalysisWizardProps) {
                   className="w-full"
                 />
               </FormField>
-              <FormField label="Período de referência — fim" htmlFor="ra-ref-end">
+              <FormField
+                label="Período de referência — fim"
+                htmlFor="ra-ref-end"
+              >
                 <Input
                   id="ra-ref-end"
                   type="date"
@@ -385,9 +441,10 @@ export function NewRoiAnalysisWizard({ onClose }: NewRoiAnalysisWizardProps) {
         {current.id === 'costs' && (
           <div className="space-y-4">
             <p className="text-xs text-ink-faint">
-              Custos consolidados desta iniciativa — formador/material/plataforma/logística
-              (diretos), horas perdidas/cobertura/coordenação (indiretos) e produção não realizada
-              (oportunidade).
+              Custos consolidados desta iniciativa —
+              formador/material/plataforma/logística (diretos), horas
+              perdidas/cobertura/coordenação (indiretos) e produção não
+              realizada (oportunidade).
             </p>
             <FormField label="Custos diretos" htmlFor="ra-cost-direct">
               <Input
@@ -409,7 +466,10 @@ export function NewRoiAnalysisWizard({ onClose }: NewRoiAnalysisWizardProps) {
                 className="w-full"
               />
             </FormField>
-            <FormField label="Custos de oportunidade" htmlFor="ra-cost-opportunity">
+            <FormField
+              label="Custos de oportunidade"
+              htmlFor="ra-cost-opportunity"
+            >
               <Input
                 id="ra-cost-opportunity"
                 type="number"
@@ -432,7 +492,10 @@ export function NewRoiAnalysisWizard({ onClose }: NewRoiAnalysisWizardProps) {
                 className="w-full"
               />
             </FormField>
-            <FormField label="Indicador associado" htmlFor="ra-benefit-indicator">
+            <FormField
+              label="Indicador associado"
+              htmlFor="ra-benefit-indicator"
+            >
               <Input
                 id="ra-benefit-indicator"
                 placeholder="ex.: NPS, taxa de erro, produção/hora…"
@@ -442,7 +505,10 @@ export function NewRoiAnalysisWizard({ onClose }: NewRoiAnalysisWizardProps) {
               />
             </FormField>
             <div className="grid grid-cols-2 gap-3">
-              <FormField label="Valor de referência (antes)" htmlFor="ra-benefit-before">
+              <FormField
+                label="Valor de referência (antes)"
+                htmlFor="ra-benefit-before"
+              >
                 <Input
                   id="ra-benefit-before"
                   type="number"
@@ -451,7 +517,10 @@ export function NewRoiAnalysisWizard({ onClose }: NewRoiAnalysisWizardProps) {
                   className="w-full"
                 />
               </FormField>
-              <FormField label="Valor esperado (depois)" htmlFor="ra-benefit-after">
+              <FormField
+                label="Valor esperado (depois)"
+                htmlFor="ra-benefit-after"
+              >
                 <Input
                   id="ra-benefit-after"
                   type="number"
@@ -461,7 +530,10 @@ export function NewRoiAnalysisWizard({ onClose }: NewRoiAnalysisWizardProps) {
                 />
               </FormField>
             </div>
-            <FormField label="Forma de conversão em valor monetário" htmlFor="ra-benefit-note">
+            <FormField
+              label="Forma de conversão em valor monetário"
+              htmlFor="ra-benefit-note"
+            >
               <Textarea
                 id="ra-benefit-note"
                 rows={2}
@@ -532,7 +604,10 @@ export function NewRoiAnalysisWizard({ onClose }: NewRoiAnalysisWizardProps) {
 
         {current.id === 'result' && (
           <div className="space-y-4">
-            <FormField label="Benefício monetário validado" htmlFor="ra-benefit-override">
+            <FormField
+              label="Benefício monetário validado"
+              htmlFor="ra-benefit-override"
+            >
               <Input
                 id="ra-benefit-override"
                 type="number"
@@ -544,10 +619,16 @@ export function NewRoiAnalysisWizard({ onClose }: NewRoiAnalysisWizardProps) {
               />
             </FormField>
             <p className="text-xs text-ink-faint">
-              Sem um valor monetário validado, a análise fica &quot;Dados insuficientes&quot; em vez
-              de apresentar um ROI como número definitivo.
+              Sem um valor monetário validado, a análise fica &quot;Dados
+              insuficientes&quot; em vez de apresentar um ROI como número
+              definitivo.
             </p>
-            <Button type="button" intent="secondary" onClick={compute} loading={busy}>
+            <Button
+              type="button"
+              intent="secondary"
+              onClick={compute}
+              loading={busy}
+            >
               Calcular resultado
             </Button>
 
@@ -557,35 +638,50 @@ export function NewRoiAnalysisWizard({ onClose }: NewRoiAnalysisWizardProps) {
                   <div>
                     <p className="text-ink-faint text-xs">Custo total</p>
                     <p className="font-semibold text-ink">
-                      {result.computedCost != null ? fmt$(result.computedCost) : '—'}
+                      {result.computedCost != null
+                        ? fmt$(result.computedCost)
+                        : '—'}
                     </p>
                   </div>
                   <div>
                     <p className="text-ink-faint text-xs">Benefício</p>
                     <p className="font-semibold text-ink">
-                      {result.computedBenefit != null ? fmt$(result.computedBenefit) : '—'}
+                      {result.computedBenefit != null
+                        ? fmt$(result.computedBenefit)
+                        : '—'}
                     </p>
                   </div>
                   <div>
                     <p className="text-ink-faint text-xs">ROI</p>
                     <p className="font-semibold text-ink">
-                      {result.roiPercent != null ? `${result.roiPercent}%` : '—'}
+                      {result.roiPercent != null
+                        ? `${result.roiPercent}%`
+                        : '—'}
                     </p>
                   </div>
                   <div>
                     <p className="text-ink-faint text-xs">Payback</p>
                     <p className="font-semibold text-ink">
-                      {result.paybackMonths != null ? `${result.paybackMonths} meses` : '—'}
+                      {result.paybackMonths != null
+                        ? `${result.paybackMonths} meses`
+                        : '—'}
                     </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Badge intent={result.status === 'DADOS_INSUFICIENTES' ? 'warning' : 'info'}>
+                  <Badge
+                    intent={
+                      result.status === 'DADOS_INSUFICIENTES'
+                        ? 'warning'
+                        : 'info'
+                    }
+                  >
                     {result.status}
                   </Badge>
                   {result.confidenceLevel && (
                     <Badge intent="neutral">
-                      {CONFIDENCE_LABELS[result.confidenceLevel] ?? result.confidenceLevel}
+                      {CONFIDENCE_LABELS[result.confidenceLevel] ??
+                        result.confidenceLevel}
                     </Badge>
                   )}
                 </div>

@@ -68,7 +68,10 @@ describe('CreateFormalEvaluationModal', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Criar avaliação' }));
 
     await waitFor(() => expect(post).toHaveBeenCalledTimes(1));
-    const [url, payload] = post.mock.calls[0] as [string, Record<string, unknown>];
+    const [url, payload] = post.mock.calls[0] as [
+      string,
+      Record<string, unknown>,
+    ];
     expect(url).toBe('/assessments');
     expect(payload).toMatchObject({
       title: 'Avaliação Final',

@@ -58,7 +58,11 @@ export function PlanCard({ plan, onClick }: PlanCardProps) {
             {plan.goal}
           </p>
         </div>
-        <Avatar name={plan.user.fullName} url={plan.user.avatarUrl ?? undefined} size="sm" />
+        <Avatar
+          name={plan.user.fullName}
+          url={plan.user.avatarUrl ?? undefined}
+          size="sm"
+        />
       </div>
 
       <div className="flex items-center gap-2">

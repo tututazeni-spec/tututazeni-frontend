@@ -18,7 +18,8 @@ export function MatrixTab() {
     { staleTime: STALE_TIME.SEMI_STATIC },
   );
 
-  if (loading) return <Skeleton rows={3} itemClassName="h-16 bg-surface rounded-xl" />;
+  if (loading)
+    return <Skeleton rows={3} itemClassName="h-16 bg-surface rounded-xl" />;
 
   const subjects: string[] = [
     ...new Set<string>((data?.permissions ?? []).map((p) => String(p.subject))),

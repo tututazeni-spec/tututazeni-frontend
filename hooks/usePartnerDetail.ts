@@ -30,9 +30,8 @@ export function usePartnerDetail(id: string) {
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState<InteractionForm>(EMPTY_FORM);
   const [showMilestoneForm, setShowMilestoneForm] = useState(false);
-  const [milestoneForm, setMilestoneForm] = useState<MilestoneForm>(
-    EMPTY_MILESTONE_FORM,
-  );
+  const [milestoneForm, setMilestoneForm] =
+    useState<MilestoneForm>(EMPTY_MILESTONE_FORM);
 
   const {
     data: partner,

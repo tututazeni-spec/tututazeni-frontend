@@ -34,9 +34,10 @@ const CATEGORY_ITEMS = Object.entries(CATEGORY_CONFIG).map(([k, v]) => ({
   value: k,
   label: v.label,
 }));
-const SENSITIVITY_ITEMS = Object.entries(SENSITIVITY_CONFIG).map(
-  ([k, v]) => ({ value: k, label: v.label }),
-);
+const SENSITIVITY_ITEMS = Object.entries(SENSITIVITY_CONFIG).map(([k, v]) => ({
+  value: k,
+  label: v.label,
+}));
 
 export function UploadModal({ onClose, onSuccess }: UploadModalProps) {
   const {
@@ -76,7 +77,8 @@ export function UploadModal({ onClose, onSuccess }: UploadModalProps) {
 
   const uploadDoc = useApiMutation(
     () => {
-      const { asDraft, readDeadlineDays, requiresReadConfirmation, ...rest } = form;
+      const { asDraft, readDeadlineDays, requiresReadConfirmation, ...rest } =
+        form;
       return apiClient.post('/documents', {
         ...rest,
         requiresReadConfirmation,
@@ -116,7 +118,11 @@ export function UploadModal({ onClose, onSuccess }: UploadModalProps) {
 
           {/* Área de upload */}
           <div className="border-2 border-dashed border-border-strong rounded-panel p-6 text-center hover:border-accent hover:bg-accent-subtle/30 transition-colors cursor-pointer">
-            <Upload size={28} strokeWidth={1.75} className="mx-auto text-ink-faint mb-2" />
+            <Upload
+              size={28}
+              strokeWidth={1.75}
+              className="mx-auto text-ink-faint mb-2"
+            />
             <p className="text-sm text-ink-muted">
               Arraste o ficheiro ou clique para carregar
             </p>
@@ -209,7 +215,9 @@ export function UploadModal({ onClose, onSuccess }: UploadModalProps) {
             <input
               type="checkbox"
               checked={form.asDraft}
-              onChange={(e) => setForm((f) => ({ ...f, asDraft: e.target.checked }))}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, asDraft: e.target.checked }))
+              }
               className="w-4 h-4 rounded border-border text-primary focus:ring-primary"
             />
             Guardar como rascunho (inicia fluxo de revisão/aprovação)
@@ -220,7 +228,10 @@ export function UploadModal({ onClose, onSuccess }: UploadModalProps) {
               type="checkbox"
               checked={form.requiresReadConfirmation}
               onChange={(e) =>
-                setForm((f) => ({ ...f, requiresReadConfirmation: e.target.checked }))
+                setForm((f) => ({
+                  ...f,
+                  requiresReadConfirmation: e.target.checked,
+                }))
               }
               className="w-4 h-4 rounded border-border text-primary focus:ring-primary"
             />
@@ -228,14 +239,20 @@ export function UploadModal({ onClose, onSuccess }: UploadModalProps) {
           </label>
 
           {form.requiresReadConfirmation && (
-            <FormField label="Prazo para leitura (dias)" htmlFor="upload-read-deadline">
+            <FormField
+              label="Prazo para leitura (dias)"
+              htmlFor="upload-read-deadline"
+            >
               <Input
                 id="upload-read-deadline"
                 type="number"
                 min={1}
                 value={form.readDeadlineDays}
                 onChange={(e) =>
-                  setForm((f) => ({ ...f, readDeadlineDays: Number(e.target.value) }))
+                  setForm((f) => ({
+                    ...f,
+                    readDeadlineDays: Number(e.target.value),
+                  }))
                 }
                 className="w-full"
               />

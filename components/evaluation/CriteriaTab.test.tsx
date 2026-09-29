@@ -14,7 +14,8 @@ vi.mock('@/lib/apiClient', () => ({
 
 vi.mock('@/hooks/useApiQuery', () => ({
   useApiQuery: (_key: unknown, path: string) => {
-    if (path === '/evaluations/criteria') return { data: criteriaData, isLoading: false };
+    if (path === '/evaluations/criteria')
+      return { data: criteriaData, isLoading: false };
     return { data: undefined, isLoading: false };
   },
   useApiMutation: (
@@ -27,7 +28,9 @@ vi.mock('@/hooks/useApiQuery', () => ({
 }));
 
 let currentRole: string | undefined = 'ADMIN';
-vi.mock('@/hooks/useCurrentRole', () => ({ useCurrentRole: () => currentRole }));
+vi.mock('@/hooks/useCurrentRole', () => ({
+  useCurrentRole: () => currentRole,
+}));
 
 const confirmFn = vi.fn().mockResolvedValue(true);
 vi.mock('@/providers/ConfirmProvider', () => ({ useConfirm: () => confirmFn }));
@@ -68,7 +71,15 @@ describe('CriteriaTab', () => {
   test('COLABORADOR não vê acções de gestão', () => {
     currentRole = 'COLABORADOR';
     criteriaData = [
-      { id: 1, name: 'Comunicação', weight: 1, isActive: true, code: null, category: null, scale: null },
+      {
+        id: 1,
+        name: 'Comunicação',
+        weight: 1,
+        isActive: true,
+        code: null,
+        category: null,
+        scale: null,
+      },
     ];
     render(<CriteriaTab />);
     expect(screen.queryByText('Novo Critério')).not.toBeInTheDocument();
@@ -77,11 +88,21 @@ describe('CriteriaTab', () => {
 
   test('linha existente permite remover com confirmação', async () => {
     criteriaData = [
-      { id: 1, name: 'Comunicação', weight: 1, isActive: true, code: null, category: null, scale: null },
+      {
+        id: 1,
+        name: 'Comunicação',
+        weight: 1,
+        isActive: true,
+        code: null,
+        category: null,
+        scale: null,
+      },
     ];
     render(<CriteriaTab />);
     fireEvent.click(screen.getByText('Remover'));
     expect(confirmFn).toHaveBeenCalled();
-    await waitFor(() => expect(del).toHaveBeenCalledWith('/evaluations/criteria/1'));
+    await waitFor(() =>
+      expect(del).toHaveBeenCalledWith('/evaluations/criteria/1'),
+    );
   });
 });

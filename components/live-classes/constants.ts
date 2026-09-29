@@ -18,7 +18,11 @@ export const CAN_MANAGE_LIVE_CLASSES_ROLES: readonly Role[] = ['ADMIN', 'RH'];
 // live-classes.controller.ts para GET /evaluations, /evaluations/summary e
 // /reports/* — usado só para esconder os separadores "Avaliações"/
 // "Relatórios" de quem de qualquer forma levaria 403 do backend.
-export const CAN_VIEW_LIVE_CLASSES_REPORTS_ROLES: readonly Role[] = ['ADMIN', 'RH', 'LIDER'];
+export const CAN_VIEW_LIVE_CLASSES_REPORTS_ROLES: readonly Role[] = [
+  'ADMIN',
+  'RH',
+  'LIDER',
+];
 
 // ─── Navegação de topo (docs/aulas-ao-vivo.md — abas principais) ───────────
 // Materiais/Avaliações/Relatórios/Configurações (secções 11/12/13/14)
@@ -41,11 +45,17 @@ export const NAV = [
 
 export type NavId = (typeof NAV)[number]['id'];
 
-export const LIVE_ATTENDANCE_STATUS_CFG: Record<LiveAttendanceStatus, { label: string; cls: string }> = {
+export const LIVE_ATTENDANCE_STATUS_CFG: Record<
+  LiveAttendanceStatus,
+  { label: string; cls: string }
+> = {
   PRESENTE: { label: 'Presente', cls: 'bg-success-subtle text-success-ink' },
   AUSENTE: { label: 'Ausente', cls: 'bg-danger-subtle text-danger-ink' },
   ATRASADO: { label: 'Atrasado', cls: 'bg-warning-subtle text-warning-ink' },
-  PARCIAL: { label: 'Presença parcial', cls: 'bg-warning-subtle text-warning-ink' },
+  PARCIAL: {
+    label: 'Presença parcial',
+    cls: 'bg-warning-subtle text-warning-ink',
+  },
   JUSTIFICADO: { label: 'Justificado', cls: 'bg-info-subtle text-info-ink' },
 };
 
@@ -53,16 +63,31 @@ export const TYPE_CFG: Record<LiveClassType, { label: string; cls: string }> = {
   AULA: { label: 'Aula', cls: 'bg-info-subtle text-info-ink' },
   WEBINAR: { label: 'Webinar', cls: 'bg-accent-subtle text-accent' },
   WORKSHOP: { label: 'Workshop', cls: 'bg-primary-subtle text-primary' },
-  SESSAO_PRATICA: { label: 'Sessão prática', cls: 'bg-success-subtle text-success-ink' },
-  SESSAO_ESCLARECIMENTO: { label: 'Sessão de esclarecimento', cls: 'bg-warning-subtle text-warning-ink' },
+  SESSAO_PRATICA: {
+    label: 'Sessão prática',
+    cls: 'bg-success-subtle text-success-ink',
+  },
+  SESSAO_ESCLARECIMENTO: {
+    label: 'Sessão de esclarecimento',
+    cls: 'bg-warning-subtle text-warning-ink',
+  },
   MENTORIA: { label: 'Mentoria', cls: 'bg-accent-subtle text-accent' },
   TUTORIA: { label: 'Tutoria', cls: 'bg-accent-subtle text-accent' },
-  SESSAO_REVISAO: { label: 'Sessão de revisão', cls: 'bg-info-subtle text-info-ink' },
+  SESSAO_REVISAO: {
+    label: 'Sessão de revisão',
+    cls: 'bg-info-subtle text-info-ink',
+  },
 };
 
-export const STATUS_CFG: Record<LiveClassStatus, { label: string; cls: string }> = {
+export const STATUS_CFG: Record<
+  LiveClassStatus,
+  { label: string; cls: string }
+> = {
   AGENDADA: { label: 'Agendada', cls: 'bg-info-subtle text-info-ink' },
-  EM_PREPARACAO: { label: 'Em preparação', cls: 'bg-warning-subtle text-warning-ink' },
+  EM_PREPARACAO: {
+    label: 'Em preparação',
+    cls: 'bg-warning-subtle text-warning-ink',
+  },
   EM_CURSO: { label: 'Em curso', cls: 'bg-danger-subtle text-danger-ink' },
   CONCLUIDA: { label: 'Concluída', cls: 'bg-success-subtle text-success-ink' },
   CANCELADA: { label: 'Cancelada', cls: 'bg-surface-sunken text-ink-faint' },
@@ -82,7 +107,10 @@ export const RECURRENCE_CFG: Record<LiveClassRecurrence, { label: string }> = {
   CUSTOM: { label: 'Personalizada' },
 };
 
-export const ENROLLMENT_MODE_CFG: Record<LiveClassEnrollmentMode, { label: string }> = {
+export const ENROLLMENT_MODE_CFG: Record<
+  LiveClassEnrollmentMode,
+  { label: string }
+> = {
   AUTO: { label: 'Inscrição automática' },
   MANUAL: { label: 'Inscrição manual' },
   SELF: { label: 'Autoinscrição' },

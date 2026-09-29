@@ -43,8 +43,7 @@ export function SearchView({
         <h1 className="font-display text-xl font-semibold text-ink">
           Pesquisa Universal
         </h1>
-        <p className="mt-0.5 font-body text-sm text-ink-faint">
-        </p>
+        <p className="mt-0.5 font-body text-sm text-ink-faint"></p>
       </div>
 
       {/* Search bar */}

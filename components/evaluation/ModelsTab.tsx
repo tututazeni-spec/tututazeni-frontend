@@ -29,18 +29,22 @@ export function ModelsTab() {
   const notify = useToast();
   const confirm = useConfirm();
 
-  const { data: templates = [], isLoading: loading } = useApiQuery<EvalTemplate[]>(
-    queryKeys.evaluation.templates(),
-    '/evaluations/templates',
-    { staleTime: STALE_TIME.SEMI_STATIC },
-  );
+  const { data: templates = [], isLoading: loading } = useApiQuery<
+    EvalTemplate[]
+  >(queryKeys.evaluation.templates(), '/evaluations/templates', {
+    staleTime: STALE_TIME.SEMI_STATIC,
+  });
 
   // 'new' = modal aberto para criar; um id = a editar (a lista só traz
   // `_count.criteria`, por isso busca-se o detalhe completo — com os links
   // criteriaId+weight — antes de montar o modal).
-  const [editingId, setEditingId] = useState<number | 'new' | undefined>(undefined);
+  const [editingId, setEditingId] = useState<number | 'new' | undefined>(
+    undefined,
+  );
   const { data: editingDetail } = useApiQuery<EvalTemplate>(
-    queryKeys.evaluation.templateDetail(typeof editingId === 'number' ? editingId : 0),
+    queryKeys.evaluation.templateDetail(
+      typeof editingId === 'number' ? editingId : 0,
+    ),
     `/evaluations/templates/${editingId}`,
     { enabled: typeof editingId === 'number' },
   );
@@ -58,20 +62,29 @@ export function ModelsTab() {
         await apiClient.delete(`/evaluations/templates/${t.id}`);
         notify({ title: 'Modelo removido', intent: 'success' });
       } catch {
-        notify({ title: 'Não foi possível remover o modelo', intent: 'danger' });
+        notify({
+          title: 'Não foi possível remover o modelo',
+          intent: 'danger',
+        });
       }
     }
   };
 
   if (loading)
     return (
-      <Skeleton rows={3} wrapperClassName="space-y-3" itemClassName="skeleton-shimmer h-20 rounded-card" />
+      <Skeleton
+        rows={3}
+        wrapperClassName="space-y-3"
+        itemClassName="skeleton-shimmer h-20 rounded-card"
+      />
     );
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="font-display font-semibold text-ink">Modelos de Avaliação</h3>
+        <h3 className="font-display font-semibold text-ink">
+          Modelos de Avaliação
+        </h3>
         {isAdmin && (
           <Button size="sm" onClick={() => setEditingId('new')}>
             <Plus size={16} strokeWidth={1.75} /> Novo Modelo
@@ -92,10 +105,16 @@ export function ModelsTab() {
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <p className="font-semibold text-ink truncate">{t.name}</p>
+                      <p className="font-semibold text-ink truncate">
+                        {t.name}
+                      </p>
                       {t.isDefault && (
                         <Badge intent="success">
-                          <Star size={11} strokeWidth={1.75} className="inline mr-1" />
+                          <Star
+                            size={11}
+                            strokeWidth={1.75}
+                            className="inline mr-1"
+                          />
                           Por omissão
                         </Badge>
                       )}
@@ -103,10 +122,16 @@ export function ModelsTab() {
                     </div>
                     <p className="text-xs text-ink-faint mt-0.5">{t.type}</p>
                     {t.description && (
-                      <p className="text-sm text-ink-muted mt-2 line-clamp-2">{t.description}</p>
+                      <p className="text-sm text-ink-muted mt-2 line-clamp-2">
+                        {t.description}
+                      </p>
                     )}
                     <p className="text-xs text-ink-faint mt-2">
-                      <Layers size={13} strokeWidth={1.75} className="inline align-[-2px]" />{' '}
+                      <Layers
+                        size={13}
+                        strokeWidth={1.75}
+                        className="inline align-[-2px]"
+                      />{' '}
                       {t._count?.criteria ?? t.criteria?.length ?? 0} critérios
                     </p>
                   </div>
@@ -138,7 +163,10 @@ export function ModelsTab() {
       )}
 
       {editingId === 'new' && (
-        <TemplateFormModal template={null} onClose={() => setEditingId(undefined)} />
+        <TemplateFormModal
+          template={null}
+          onClose={() => setEditingId(undefined)}
+        />
       )}
       {typeof editingId === 'number' && editingDetail && (
         <TemplateFormModal

@@ -53,8 +53,12 @@ function TopBarKpiCard({
       <div className={`h-1.5 w-full ${t.bar}`} />
       <div className="p-5 pt-6">
         <Icon size={22} strokeWidth={1.75} className={t.text} />
-        <p className={`mt-3 font-display text-3xl font-bold ${t.text}`}>{value}</p>
-        <p className="mt-1 font-body text-sm font-medium text-ink-muted">{label}</p>
+        <p className={`mt-3 font-display text-3xl font-bold ${t.text}`}>
+          {value}
+        </p>
+        <p className="mt-1 font-body text-sm font-medium text-ink-muted">
+          {label}
+        </p>
       </div>
     </div>
   );
@@ -72,7 +76,7 @@ export function LearningAnalyticsView() {
   return (
     <div className="space-y-5">
       {/* KPIs */}
-            <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-3 gap-4">
         <TopBarKpiCard
           icon={ClipboardCheck}
           label="Nota média de avaliação"
@@ -93,7 +97,7 @@ export function LearningAnalyticsView() {
         />
       </div>
 
-           {/* Estado das matrículas */}
+      {/* Estado das matrículas */}
       <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting">
         <div className="h-1.5 w-full bg-[#2E8B3E]" />
         <div className="p-5">
@@ -111,7 +115,9 @@ export function LearningAnalyticsView() {
                   map={ENROLLMENT_STATUS_CFG}
                   variant="dot"
                 />
-                <span className="font-data text-sm font-bold text-ink">{count}</span>
+                <span className="font-data text-sm font-bold text-ink">
+                  {count}
+                </span>
               </div>
             ))}
           </div>
@@ -128,7 +134,7 @@ export function LearningAnalyticsView() {
         </CardBody>
       </Card>
 
-            {/* Top cursos */}
+      {/* Top cursos */}
       <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting">
         <div className="h-1.5 w-full bg-[#2B6CC4]" />
         <div className="p-5">
@@ -148,7 +154,9 @@ export function LearningAnalyticsView() {
             <TableBody>
               {data.topCourses.map((c) => (
                 <TableRow key={c.id}>
-                  <TableCell className="font-medium text-ink">{c.course.title}</TableCell>
+                  <TableCell className="font-medium text-ink">
+                    {c.course.title}
+                  </TableCell>
                   <TableCell>{c.course.category ?? '—'}</TableCell>
                   <TableCell>{c.totalEnrollments}</TableCell>
                   <TableCell>{c.totalCompleted}</TableCell>
@@ -159,7 +167,10 @@ export function LearningAnalyticsView() {
               ))}
               {data.topCourses.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center text-ink-faint py-6">
+                  <TableCell
+                    colSpan={5}
+                    className="text-center text-ink-faint py-6"
+                  >
                     Sem dados de cursos
                   </TableCell>
                 </TableRow>

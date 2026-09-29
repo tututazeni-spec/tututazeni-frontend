@@ -34,14 +34,14 @@ export function TrainingPanel() {
   return (
     <div className="space-y-5">
       {/* KPIs — cartão estilo Udemy/MasterClass */}
-            <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         <TopBarCard
           label="Conclusões (mês)"
           value={data?.completed ?? 0}
           tone="blue"
           icon={<CheckCircle2 className="h-6 w-6" />}
         />
-                <div className="flex flex-col items-center justify-center rounded-2xl border border-border bg-white p-4 shadow-resting">
+        <div className="flex flex-col items-center justify-center rounded-2xl border border-border bg-white p-4 shadow-resting">
           <GaugeChart
             value={data?.completionRate ?? 0}
             label="Taxa de Conclusão"
@@ -73,8 +73,15 @@ export function TrainingPanel() {
           </h4>
           <BarChart
             orientation="horizontal"
-            categories={(data?.topCourses ?? []).map((c, i) => c.course?.title ?? `Curso ${c.courseId ?? i}`)}
-            series={[{ label: 'Inscrições', values: (data?.topCourses ?? []).map((c) => c.count) }]}
+            categories={(data?.topCourses ?? []).map(
+              (c, i) => c.course?.title ?? `Curso ${c.courseId ?? i}`,
+            )}
+            series={[
+              {
+                label: 'Inscrições',
+                values: (data?.topCourses ?? []).map((c) => c.count),
+              },
+            ]}
             className="mb-4"
           />
           <div className="space-y-2">
@@ -112,4 +119,3 @@ export function TrainingPanel() {
     </div>
   );
 }
-

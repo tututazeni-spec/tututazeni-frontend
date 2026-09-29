@@ -20,7 +20,12 @@ import { Spinner } from './Spinner';
 import { UpcomingStrip } from './UpcomingStrip';
 import { STATUS_CFG, TYPE_CFG } from './constants';
 import { CARD, INP } from './utils';
-import type { LiveClass, LiveClassStatus, LiveClassType, SessionModality } from './types';
+import type {
+  LiveClass,
+  LiveClassStatus,
+  LiveClassType,
+  SessionModality,
+} from './types';
 
 export interface Filters {
   page: number;
@@ -32,11 +37,17 @@ export interface Filters {
 
 const TYPE_ITEMS = [
   { value: '', label: 'Todos os tipos' },
-  ...(Object.keys(TYPE_CFG) as LiveClassType[]).map((t) => ({ value: t, label: TYPE_CFG[t].label })),
+  ...(Object.keys(TYPE_CFG) as LiveClassType[]).map((t) => ({
+    value: t,
+    label: TYPE_CFG[t].label,
+  })),
 ];
 const STATUS_ITEMS = [
   { value: '', label: 'Todos os estados' },
-  ...(Object.keys(STATUS_CFG) as LiveClassStatus[]).map((s) => ({ value: s, label: STATUS_CFG[s].label })),
+  ...(Object.keys(STATUS_CFG) as LiveClassStatus[]).map((s) => ({
+    value: s,
+    label: STATUS_CFG[s].label,
+  })),
 ];
 const MODALITY_ITEMS = [
   { value: '', label: 'Todas as modalidades' },
@@ -207,26 +218,41 @@ export function LiveClassesView({
           <Select
             items={TYPE_ITEMS}
             value={filters.type}
-            onValueChange={(v) => onFiltersChange({ type: v as Filters['type'] })}
+            onValueChange={(v) =>
+              onFiltersChange({ type: v as Filters['type'] })
+            }
             className="w-44"
           />
           <Select
             items={STATUS_ITEMS}
             value={filters.status}
-            onValueChange={(v) => onFiltersChange({ status: v as Filters['status'] })}
+            onValueChange={(v) =>
+              onFiltersChange({ status: v as Filters['status'] })
+            }
             className="w-44"
           />
           <Select
             items={MODALITY_ITEMS}
             value={filters.modality}
-            onValueChange={(v) => onFiltersChange({ modality: v as Filters['modality'] })}
+            onValueChange={(v) =>
+              onFiltersChange({ modality: v as Filters['modality'] })
+            }
             className="w-44"
           />
-          {(search || filters.courseId || filters.type || filters.status || filters.modality) && (
+          {(search ||
+            filters.courseId ||
+            filters.type ||
+            filters.status ||
+            filters.modality) && (
             <button
               onClick={() => {
                 onSearchChange('');
-                onFiltersChange({ courseId: '', type: '', status: '', modality: '' });
+                onFiltersChange({
+                  courseId: '',
+                  type: '',
+                  status: '',
+                  modality: '',
+                });
               }}
               aria-label="Limpar filtros"
               className="py-2.25 px-3.5 rounded-lg border border-border bg-white cursor-pointer text-xs text-ink-muted"

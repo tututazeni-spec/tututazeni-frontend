@@ -95,7 +95,10 @@ export function LoadTestModal({ onClose }: LoadTestModalProps) {
         },
         onError: (err) => {
           reportError(err, { source: 'LoadTestModal.handleSubmit' });
-          notify({ title: 'Não foi possível agendar o teste de carga', intent: 'danger' });
+          notify({
+            title: 'Não foi possível agendar o teste de carga',
+            intent: 'danger',
+          });
         },
       },
     );
@@ -153,7 +156,9 @@ export function LoadTestModal({ onClose }: LoadTestModalProps) {
             label="Rampa de subida (segundos)"
             htmlFor="lt-ramp"
             hint="Opcional — tempo até atingir o total de utilizadores."
-            error={!rampValid ? 'Indica um número de segundos (≥ 0).' : undefined}
+            error={
+              !rampValid ? 'Indica um número de segundos (≥ 0).' : undefined
+            }
           >
             <Input
               id="lt-ramp"

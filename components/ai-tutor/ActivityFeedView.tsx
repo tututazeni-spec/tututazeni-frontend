@@ -55,12 +55,21 @@ export function ActivityFeedView() {
           Perguntas realizadas
         </div>
         {data.questions.length === 0 ? (
-          <div className="px-4 py-4 font-body text-sm text-ink-faint">Nenhuma ainda.</div>
+          <div className="px-4 py-4 font-body text-sm text-ink-faint">
+            Nenhuma ainda.
+          </div>
         ) : (
           data.questions.map((q) => (
-            <div key={q.id} className="px-4 py-2.5 border-b border-border last:border-0">
-              <div className="font-body text-sm text-ink truncate">{q.content}</div>
-              <div className="font-body text-xs text-ink-faint">{fmtDate(q.createdAt)}</div>
+            <div
+              key={q.id}
+              className="px-4 py-2.5 border-b border-border last:border-0"
+            >
+              <div className="font-body text-sm text-ink truncate">
+                {q.content}
+              </div>
+              <div className="font-body text-xs text-ink-faint">
+                {fmtDate(q.createdAt)}
+              </div>
             </div>
           ))
         )}
@@ -72,7 +81,9 @@ export function ActivityFeedView() {
           Exercícios gerados
         </div>
         {data.exercises.length === 0 ? (
-          <div className="px-4 py-4 font-body text-sm text-ink-faint">Nenhum ainda.</div>
+          <div className="px-4 py-4 font-body text-sm text-ink-faint">
+            Nenhum ainda.
+          </div>
         ) : (
           data.exercises.map((e) => (
             <div
@@ -80,8 +91,12 @@ export function ActivityFeedView() {
               className="flex items-center justify-between gap-3 px-4 py-2.5 border-b border-border last:border-0"
             >
               <div className="min-w-0">
-                <div className="font-body text-sm text-ink truncate">{e.topic ?? 'Curso'}</div>
-                <div className="font-body text-xs text-ink-faint">{fmtDate(e.createdAt)}</div>
+                <div className="font-body text-sm text-ink truncate">
+                  {e.topic ?? 'Curso'}
+                </div>
+                <div className="font-body text-xs text-ink-faint">
+                  {fmtDate(e.createdAt)}
+                </div>
               </div>
               <Badge intent="neutral" className="flex-shrink-0">
                 {e.type}
@@ -97,7 +112,9 @@ export function ActivityFeedView() {
           Recomendações
         </div>
         {data.recommendations.length === 0 ? (
-          <div className="px-4 py-4 font-body text-sm text-ink-faint">Nenhuma ainda.</div>
+          <div className="px-4 py-4 font-body text-sm text-ink-faint">
+            Nenhuma ainda.
+          </div>
         ) : (
           data.recommendations.map((r) => (
             <div
@@ -107,7 +124,10 @@ export function ActivityFeedView() {
               <span className="font-body text-sm text-ink">
                 {r.courseIds.length} curso(s) recomendado(s)
               </span>
-              <Badge intent={r.accepted ? 'success' : 'neutral'} className="flex-shrink-0">
+              <Badge
+                intent={r.accepted ? 'success' : 'neutral'}
+                className="flex-shrink-0"
+              >
                 {r.accepted ? 'Aceite' : fmtDate(r.createdAt)}
               </Badge>
             </div>
@@ -121,12 +141,21 @@ export function ActivityFeedView() {
           Conteúdos consultados
         </div>
         {data.sourcesConsulted.length === 0 ? (
-          <div className="px-4 py-4 font-body text-sm text-ink-faint">Nenhum ainda.</div>
+          <div className="px-4 py-4 font-body text-sm text-ink-faint">
+            Nenhum ainda.
+          </div>
         ) : (
           data.sourcesConsulted.map((s, i) => (
-            <div key={i} className="px-4 py-2.5 border-b border-border last:border-0">
-              <div className="font-body text-sm text-ink truncate">{s.title}</div>
-              <div className="font-body text-xs text-ink-faint">{fmtDate(s.consultedAt)}</div>
+            <div
+              key={i}
+              className="px-4 py-2.5 border-b border-border last:border-0"
+            >
+              <div className="font-body text-sm text-ink truncate">
+                {s.title}
+              </div>
+              <div className="font-body text-xs text-ink-faint">
+                {fmtDate(s.consultedAt)}
+              </div>
             </div>
           ))
         )}

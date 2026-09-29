@@ -57,12 +57,22 @@ export function BarChart({
   yFormat = String,
   className,
 }: BarChartProps) {
-  const [hover, setHover] = useState<{ seriesIdx: number; catIdx: number; cx: number; cy: number } | null>(null);
+  const [hover, setHover] = useState<{
+    seriesIdx: number;
+    catIdx: number;
+    cx: number;
+    cy: number;
+  } | null>(null);
 
-  const max = useMemo(() => Math.max(1, ...series.flatMap((s) => s.values)), [series]);
+  const max = useMemo(
+    () => Math.max(1, ...series.flatMap((s) => s.values)),
+    [series],
+  );
   const isHorizontal = orientation === 'horizontal';
   const padding = isHorizontal ? PADDING_H : PADDING_V;
-  const resolvedHeight = isHorizontal ? categories.length * ROW_HEIGHT + padding.top + padding.bottom : height;
+  const resolvedHeight = isHorizontal
+    ? categories.length * ROW_HEIGHT + padding.top + padding.bottom
+    : height;
   const plotW = WIDTH - padding.left - padding.right;
   const plotH = resolvedHeight - padding.top - padding.bottom;
   const groupCount = Math.max(1, categories.length);
@@ -82,7 +92,15 @@ export function BarChart({
               const v = (max * i) / 3;
               const x = padding.left + (v / max) * plotW;
               return (
-                <line key={i} x1={x} x2={x} y1={padding.top} y2={resolvedHeight - padding.bottom} className="stroke-border" strokeWidth={1} />
+                <line
+                  key={i}
+                  x1={x}
+                  x2={x}
+                  y1={padding.top}
+                  y2={resolvedHeight - padding.bottom}
+                  className="stroke-border"
+                  strokeWidth={1}
+                />
               );
             })}
             {categories.map((cat, ci) => {
@@ -101,16 +119,34 @@ export function BarChart({
                   {series.map((s, si) => {
                     const v = s.values[ci] ?? 0;
                     const w = (v / max) * plotW;
-                    const y = padding.top + groupH * ci + groupH / 2 - (barH * seriesCount) / 2 + barH * si;
-                    const color = s.color ?? CATEGORICAL[si % CATEGORICAL.length];
+                    const y =
+                      padding.top +
+                      groupH * ci +
+                      groupH / 2 -
+                      (barH * seriesCount) / 2 +
+                      barH * si;
+                    const color =
+                      s.color ?? CATEGORICAL[si % CATEGORICAL.length];
                     return (
                       <path
                         key={s.label}
-                        d={rightRoundedRectPath(padding.left, y, w, barH * 0.82)}
+                        d={rightRoundedRectPath(
+                          padding.left,
+                          y,
+                          w,
+                          barH * 0.82,
+                        )}
                         fill={color}
                         stroke="var(--color-surface)"
                         strokeWidth={1}
-                        onMouseEnter={() => setHover({ seriesIdx: si, catIdx: ci, cx: padding.left + w, cy: y })}
+                        onMouseEnter={() =>
+                          setHover({
+                            seriesIdx: si,
+                            catIdx: ci,
+                            cx: padding.left + w,
+                            cy: y,
+                          })
+                        }
                         onMouseLeave={() => setHover(null)}
                       />
                     );
@@ -126,8 +162,20 @@ export function BarChart({
               const y = padding.top + plotH - (v / max) * plotH;
               return (
                 <g key={i}>
-                  <line x1={padding.left} x2={WIDTH - padding.right} y1={y} y2={y} className="stroke-border" strokeWidth={1} />
-                  <text x={padding.left - 8} y={y + 3} textAnchor="end" className="fill-ink-faint text-[9px]">
+                  <line
+                    x1={padding.left}
+                    x2={WIDTH - padding.right}
+                    y1={y}
+                    y2={y}
+                    className="stroke-border"
+                    strokeWidth={1}
+                  />
+                  <text
+                    x={padding.left - 8}
+                    y={y + 3}
+                    textAnchor="end"
+                    className="fill-ink-faint text-[9px]"
+                  >
                     {yFormat(Math.round(v))}
                   </text>
                 </g>
@@ -149,9 +197,15 @@ export function BarChart({
                   {series.map((s, si) => {
                     const v = s.values[ci] ?? 0;
                     const h = (v / max) * plotH;
-                    const x = padding.left + groupW * ci + groupW / 2 - (barW * seriesCount) / 2 + barW * si;
+                    const x =
+                      padding.left +
+                      groupW * ci +
+                      groupW / 2 -
+                      (barW * seriesCount) / 2 +
+                      barW * si;
                     const y = padding.top + plotH - h;
-                    const color = s.color ?? CATEGORICAL[si % CATEGORICAL.length];
+                    const color =
+                      s.color ?? CATEGORICAL[si % CATEGORICAL.length];
                     return (
                       <path
                         key={s.label}
@@ -159,7 +213,9 @@ export function BarChart({
                         fill={color}
                         stroke="var(--color-surface)"
                         strokeWidth={1}
-                        onMouseEnter={() => setHover({ seriesIdx: si, catIdx: ci, cx: x, cy: y })}
+                        onMouseEnter={() =>
+                          setHover({ seriesIdx: si, catIdx: ci, cx: x, cy: y })
+                        }
                         onMouseLeave={() => setHover(null)}
                       />
                     );
@@ -172,17 +228,24 @@ export function BarChart({
       </svg>
 
       {hover && (
-        <ChartTooltip xPct={(hover.cx / WIDTH) * 100} yPct={(hover.cy / resolvedHeight) * 100}>
+        <ChartTooltip
+          xPct={(hover.cx / WIDTH) * 100}
+          yPct={(hover.cy / resolvedHeight) * 100}
+        >
           <p className="font-medium">{categories[hover.catIdx]}</p>
           <p>
-            {series[hover.seriesIdx].label}: {yFormat(series[hover.seriesIdx].values[hover.catIdx])}
+            {series[hover.seriesIdx].label}:{' '}
+            {yFormat(series[hover.seriesIdx].values[hover.catIdx])}
           </p>
         </ChartTooltip>
       )}
 
       <ChartLegend
         className="mt-2"
-        items={series.map((s, i) => ({ label: s.label, color: s.color ?? CATEGORICAL[i % CATEGORICAL.length] }))}
+        items={series.map((s, i) => ({
+          label: s.label,
+          color: s.color ?? CATEGORICAL[i % CATEGORICAL.length],
+        }))}
       />
     </div>
   );

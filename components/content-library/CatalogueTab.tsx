@@ -41,14 +41,8 @@ const LEVELS = [
   { value: 'EXPERT', label: 'Perito' },
 ];
 
-const FORMAT_ITEMS = [
-  { value: 'ALL', label: 'Todos os formatos' },
-  ...FORMATS,
-];
-const LEVEL_ITEMS = [
-  { value: 'ALL', label: 'Todos os níveis' },
-  ...LEVELS,
-];
+const FORMAT_ITEMS = [{ value: 'ALL', label: 'Todos os formatos' }, ...FORMATS];
+const LEVEL_ITEMS = [{ value: 'ALL', label: 'Todos os níveis' }, ...LEVELS];
 const SORT_ITEMS = [
   { value: 'newest', label: 'Mais recente' },
   { value: 'popular', label: 'Mais visto' },
@@ -146,7 +140,11 @@ export function CatalogueTab() {
             />
 
             {[
-              { label: 'Micro-aprendizagem', value: micro, key: 'micro' as const },
+              {
+                label: 'Micro-aprendizagem',
+                value: micro,
+                key: 'micro' as const,
+              },
               { label: 'Certificação', value: cert, key: 'cert' as const },
             ].map((t) => (
               <button

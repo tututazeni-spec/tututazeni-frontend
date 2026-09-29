@@ -35,7 +35,7 @@ export default function ReportsPage() {
   const [activeTemplate, setActiveTemplate] = useState<Template | null>(null);
   const [showSave, setShowSave] = useState(false);
   const activeTab = TABS.find((item) => item.id === tab) ?? TABS[0];
-const ActiveIcon = activeTab?.icon as LucideIcon | undefined;
+  const ActiveIcon = activeTab?.icon as LucideIcon | undefined;
 
   const handleRun = (t: Template) => {
     setActiveTemplate(t);
@@ -47,27 +47,27 @@ const ActiveIcon = activeTab?.icon as LucideIcon | undefined;
       <div className="border-b border-border bg-surface px-6 py-5">
         <div className="mx-auto flex max-w-7xl items-start justify-between">
           <div className="flex items-center gap-3">
-  <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-    {ActiveIcon && (
-      <ActiveIcon
-        size={22}
-        strokeWidth={1.8}
-        className="transition-all duration-300"
-      />
-    )}
-  </div>
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+              {ActiveIcon && (
+                <ActiveIcon
+                  size={22}
+                  strokeWidth={1.8}
+                  className="transition-all duration-300"
+                />
+              )}
+            </div>
 
-  <div>
-    <h1 className="font-display text-xl font-bold text-ink">
-      Relatórios
-    </h1>
-    {activeTab?.label && (
-      <p className="mt-0.5 font-body text-xs text-ink-muted">
-        {activeTab.label}
-      </p>
-    )}
-  </div>
-</div>
+            <div>
+              <h1 className="font-display text-xl font-bold text-ink">
+                Relatórios
+              </h1>
+              {activeTab?.label && (
+                <p className="mt-0.5 font-body text-xs text-ink-muted">
+                  {activeTab.label}
+                </p>
+              )}
+            </div>
+          </div>
           <Button size="sm" onClick={() => setShowSave(true)}>
             <Plus size={14} strokeWidth={1.75} />
             Criar Relatório
@@ -75,7 +75,7 @@ const ActiveIcon = activeTab?.icon as LucideIcon | undefined;
         </div>
       </div>
 
-            {/* Abas em "glassmorphism": contentor translúcido com desfoque
+      {/* Abas em "glassmorphism": contentor translúcido com desfoque
           (backdrop-blur) e botões em forma de pílula com ícone, título e
           subtítulo. A aba activa usa a mesma variável `active` de sempre
           (tab === t.id && !activeTemplate) para ganhar gradiente azul,

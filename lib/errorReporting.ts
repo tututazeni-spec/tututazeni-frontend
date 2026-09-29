@@ -15,7 +15,6 @@ export function reportError(error: unknown, context?: ErrorContext): void {
   const message = error instanceof Error ? error.message : String(error);
   const status = error instanceof ApiError ? error.status : undefined;
 
-  // eslint-disable-next-line no-console -- ponto central de logging; ver comentário acima.
   console.error(
     `[error]${context?.source ? ` ${context.source}:` : ''} ${message}`,
     { status, context, error },

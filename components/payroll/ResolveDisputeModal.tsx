@@ -15,7 +15,11 @@ export interface ResolveDisputeModalProps {
   onClose: () => void;
 }
 
-export function ResolveDisputeModal({ disputeId, payslipId, onClose }: ResolveDisputeModalProps) {
+export function ResolveDisputeModal({
+  disputeId,
+  payslipId,
+  onClose,
+}: ResolveDisputeModalProps) {
   const notify = useToast();
   const [resolution, setResolution] = useState('');
   const [reissue, setReissue] = useState(false);
@@ -37,7 +41,9 @@ export function ResolveDisputeModal({ disputeId, payslipId, onClose }: ResolveDi
       onError: (e: Error) =>
         notify({
           title:
-            (e as { status?: number }).status === 409 ? 'Disputa já resolvida' : e.message,
+            (e as { status?: number }).status === 409
+              ? 'Disputa já resolvida'
+              : e.message,
           intent: 'danger',
         }),
       meta: { silent: true },
@@ -54,7 +60,10 @@ export function ResolveDisputeModal({ disputeId, payslipId, onClose }: ResolveDi
       <ModalContent title="Resolver disputa" className="max-w-md">
         <div className="mt-5 space-y-4">
           <div>
-            <label htmlFor="rdm-resolution" className="mb-1 block font-body text-sm text-ink-muted">
+            <label
+              htmlFor="rdm-resolution"
+              className="mb-1 block font-body text-sm text-ink-muted"
+            >
               Resolução *
             </label>
             <Textarea
@@ -76,15 +85,22 @@ export function ResolveDisputeModal({ disputeId, payslipId, onClose }: ResolveDi
             <span>
               Reemitir recibo (volta a Emitido)
               <span className="mt-0.5 block font-body text-xs text-ink-faint">
-                Marca apenas se a correcção já está feita e o recibo pode sair do estado Disputa.
+                Marca apenas se a correcção já está feita e o recibo pode sair
+                do estado Disputa.
               </span>
             </span>
           </label>
         </div>
 
         <div className="mt-6 flex justify-end gap-3">
-          <Button intent="ghost" onClick={onClose} disabled={resolve.isPending}>Cancelar</Button>
-          <Button onClick={handleSubmit} disabled={!resolution.trim()} loading={resolve.isPending}>
+          <Button intent="ghost" onClick={onClose} disabled={resolve.isPending}>
+            Cancelar
+          </Button>
+          <Button
+            onClick={handleSubmit}
+            disabled={!resolution.trim()}
+            loading={resolve.isPending}
+          >
             Resolver disputa
           </Button>
         </div>

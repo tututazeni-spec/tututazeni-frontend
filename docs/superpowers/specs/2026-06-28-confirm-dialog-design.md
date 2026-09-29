@@ -39,7 +39,15 @@ age), com melhor acessibilidade e consistência visual.
   renderiza o `ConfirmDialog` uma vez. Expõe `useConfirm()`:
   ```ts
   const confirm = useConfirm();
-  if (!(await confirm({ title, message, confirmLabel: 'Apagar', destructive: true }))) return;
+  if (
+    !(await confirm({
+      title,
+      message,
+      confirmLabel: 'Apagar',
+      destructive: true,
+    }))
+  )
+    return;
   ```
   `confirm(options): Promise<boolean>` — mesma ergonomia do `window.confirm`.
 - Registar o `ConfirmProvider` nos providers da app (no `app/layout.tsx` ou no
@@ -48,13 +56,25 @@ age), com melhor acessibilidade e consistência visual.
 ### 2. Migração dos 11 ficheiros
 
 Em cada um, no topo do componente `const confirm = useConfirm();` e substituir:
+
 ```ts
 if (!window.confirm('…')) return;
 ```
+
 por:
+
 ```ts
-if (!(await confirm({ title: '…?', message: '…', confirmLabel: 'Apagar', destructive: true }))) return;
+if (
+  !(await confirm({
+    title: '…?',
+    message: '…',
+    confirmLabel: 'Apagar',
+    destructive: true,
+  }))
+)
+  return;
 ```
+
 O handler já é (ou passa a ser) `async`. Título/mensagem adaptados ao contexto.
 Agrupar por área em tarefas (no plano).
 

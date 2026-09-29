@@ -157,7 +157,10 @@ export const SESSION_STATUS_CFG: StatusBadgeMap<EventSessionStatus> = {
 
 export const LOGISTICS_STATUS_CFG: StatusBadgeMap<EventLogisticsStatus> = {
   PLANNED: { label: 'Planeado', cls: 'bg-surface-sunken text-ink-muted' },
-  IN_PROGRESS: { label: 'Em preparação', cls: 'bg-warning-subtle text-warning-ink' },
+  IN_PROGRESS: {
+    label: 'Em preparação',
+    cls: 'bg-warning-subtle text-warning-ink',
+  },
   CONFIRMED: { label: 'Confirmado', cls: 'bg-info-subtle text-info-ink' },
   COMPLETED: { label: 'Concluído', cls: 'bg-success-subtle text-success-ink' },
   CANCELLED: { label: 'Cancelado', cls: 'bg-danger-subtle text-danger-ink' },
@@ -193,7 +196,10 @@ export const SPEAKER_STATUS_CFG: StatusBadgeMap<EventSpeakerStatus> = {
   CANCELLED: { label: 'Cancelado', cls: 'bg-surface-sunken text-ink-faint' },
 };
 
-export const COMMUNICATION_TYPE_CFG: Record<EventCommunicationType, { label: string }> = {
+export const COMMUNICATION_TYPE_CFG: Record<
+  EventCommunicationType,
+  { label: string }
+> = {
   INVITATION: { label: 'Convite' },
   CONFIRMATION: { label: 'Confirmação' },
   REMINDER: { label: 'Lembrete' },
@@ -205,32 +211,43 @@ export const COMMUNICATION_TYPE_CFG: Record<EventCommunicationType, { label: str
   FOLLOW_UP: { label: 'Follow-up' },
 };
 
-export const COMMUNICATION_CHANNEL_CFG: Record<EventCommunicationChannel, { label: string }> = {
+export const COMMUNICATION_CHANNEL_CFG: Record<
+  EventCommunicationChannel,
+  { label: string }
+> = {
   INNOVA_NOTIFICATION: { label: 'Notificação INNOVA' },
   EMAIL: { label: 'E-mail' },
   SMS: { label: 'SMS' },
   WHATSAPP: { label: 'WhatsApp' },
 };
 
-export const COMMUNICATION_STATUS_CFG: StatusBadgeMap<EventCommunicationStatus> = {
-  DRAFT: { label: 'Rascunho', cls: 'bg-surface-sunken text-ink-muted' },
-  SENT: { label: 'Enviado', cls: 'bg-success-subtle text-success-ink' },
-  FAILED: { label: 'Falhou', cls: 'bg-danger-subtle text-danger-ink' },
-};
+export const COMMUNICATION_STATUS_CFG: StatusBadgeMap<EventCommunicationStatus> =
+  {
+    DRAFT: { label: 'Rascunho', cls: 'bg-surface-sunken text-ink-muted' },
+    SENT: { label: 'Enviado', cls: 'bg-success-subtle text-success-ink' },
+    FAILED: { label: 'Falhou', cls: 'bg-danger-subtle text-danger-ink' },
+  };
 
-export const CHECKIN_METHOD_CFG: Record<EventCheckinMethod, { label: string }> = {
-  QR_CODE: { label: 'QR Code' },
-  MOBILE_APP: { label: 'Aplicação móvel' },
-  CODE: { label: 'Código' },
-  MANUAL: { label: 'Registo manual' },
-};
+export const CHECKIN_METHOD_CFG: Record<EventCheckinMethod, { label: string }> =
+  {
+    QR_CODE: { label: 'QR Code' },
+    MOBILE_APP: { label: 'Aplicação móvel' },
+    CODE: { label: 'Código' },
+    MANUAL: { label: 'Registo manual' },
+  };
 
 export const CHECKIN_STATE_CFG: StatusBadgeMap<EventCheckinState> = {
   PENDENTE: { label: 'Pendente', cls: 'bg-surface-sunken text-ink-muted' },
   PRESENTE: { label: 'Presente', cls: 'bg-success-subtle text-success-ink' },
   AUSENTE: { label: 'Ausente', cls: 'bg-danger-subtle text-danger-ink' },
-  ENTRADA_REGISTADA: { label: 'Entrada registada', cls: 'bg-info-subtle text-info-ink' },
-  SAIDA_REGISTADA: { label: 'Saída registada', cls: 'bg-success-subtle text-success-ink' },
+  ENTRADA_REGISTADA: {
+    label: 'Entrada registada',
+    cls: 'bg-info-subtle text-info-ink',
+  },
+  SAIDA_REGISTADA: {
+    label: 'Saída registada',
+    cls: 'bg-success-subtle text-success-ink',
+  },
 };
 
 export const EVALUATION_STATUS_CFG: StatusBadgeMap<EventEvaluationStatus> = {

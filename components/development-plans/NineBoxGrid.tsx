@@ -27,7 +27,10 @@ export interface NineBoxGridProps {
 
 type Tier = 'LOW' | 'MID' | 'HIGH';
 
-const potentialStyle: Record<Tier, { bg: string; border: string; text: string; dot: string }> = {
+const potentialStyle: Record<
+  Tier,
+  { bg: string; border: string; text: string; dot: string }
+> = {
   HIGH: {
     bg: 'var(--color-success-subtle)',
     border: 'var(--color-success)',
@@ -75,8 +78,11 @@ export function NineBoxGrid({ entries }: NineBoxGridProps) {
     <div>
       {/* Legenda de cor — potencial é a única escala de cor da matriz */}
       <div className="flex flex-wrap gap-3 mb-3">
-        {(['HIGH', 'MID', 'LOW'] as Tier[]).map(tier => (
-          <div key={tier} className="flex items-center gap-1.5 text-xs text-ink-muted">
+        {(['HIGH', 'MID', 'LOW'] as Tier[]).map((tier) => (
+          <div
+            key={tier}
+            className="flex items-center gap-1.5 text-xs text-ink-muted"
+          >
             <span
               className="inline-block w-2.5 h-2.5 rounded-full"
               style={{ backgroundColor: potentialStyle[tier].border }}
@@ -84,7 +90,9 @@ export function NineBoxGrid({ entries }: NineBoxGridProps) {
             {potentialStyle[tier].dot}
           </div>
         ))}
-        <div className="text-xs text-ink-faint">· borda mais grossa = performance mais alta</div>
+        <div className="text-xs text-ink-faint">
+          · borda mais grossa = performance mais alta
+        </div>
       </div>
 
       <div className="flex gap-2 mb-3">
@@ -93,11 +101,15 @@ export function NineBoxGrid({ entries }: NineBoxGridProps) {
         </div>
       </div>
       <div className="grid grid-cols-3 gap-1.5 relative">
-        {rows.map(potential =>
-          cols.map(performance => {
+        {rows.map((potential) =>
+          cols.map((performance) => {
             const key = `${performance}_${potential}`;
             const style = potentialStyle[potential];
-            const count = entries.find(e => e.performance === performance && e.potential === potential)?.count ?? 0;
+            const count =
+              entries.find(
+                (e) =>
+                  e.performance === performance && e.potential === potential,
+              )?.count ?? 0;
             return (
               <div
                 key={key}
@@ -115,10 +127,15 @@ export function NineBoxGrid({ entries }: NineBoxGridProps) {
                 >
                   {boxLabel[key]}
                 </div>
-                <div className="text-2xl font-bold" style={{ color: style.text }}>
+                <div
+                  className="text-2xl font-bold"
+                  style={{ color: style.text }}
+                >
                   {count}
                 </div>
-                <div className="text-xs text-ink-faint">{count === 1 ? 'colaborador' : 'colaboradores'}</div>
+                <div className="text-xs text-ink-faint">
+                  {count === 1 ? 'colaborador' : 'colaboradores'}
+                </div>
               </div>
             );
           }),
@@ -126,13 +143,17 @@ export function NineBoxGrid({ entries }: NineBoxGridProps) {
       </div>
       {/* Axis labels */}
       <div className="flex justify-between mt-2 px-1">
-        {['Baixa Performance', 'Performance Média', 'Alta Performance'].map(l => (
-          <span key={l} className="text-xs text-ink-muted text-center flex-1">
-            {l}
-          </span>
-        ))}
+        {['Baixa Performance', 'Performance Média', 'Alta Performance'].map(
+          (l) => (
+            <span key={l} className="text-xs text-ink-muted text-center flex-1">
+              {l}
+            </span>
+          ),
+        )}
       </div>
-      <div className="text-center text-xs text-ink-muted mt-1">→ Performance</div>
+      <div className="text-center text-xs text-ink-muted mt-1">
+        → Performance
+      </div>
     </div>
   );
 }

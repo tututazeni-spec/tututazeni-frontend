@@ -56,7 +56,10 @@ export default function UsersPage() {
                 <Plus size={16} strokeWidth={1.75} />
                 Novo utilizador
               </Button>
-              <Button intent="secondary" onClick={() => setNav({ view: 'import' })}>
+              <Button
+                intent="secondary"
+                onClick={() => setNav({ view: 'import' })}
+              >
                 Importar
               </Button>
             </div>

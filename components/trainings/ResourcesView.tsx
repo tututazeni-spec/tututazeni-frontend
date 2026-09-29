@@ -31,7 +31,9 @@ export function ResourcesView() {
   const confirm = useConfirm();
   const toast = useToast();
   const [showCreate, setShowCreate] = useState(false);
-  const [editResource, setEditResource] = useState<TrainingResourceItem | null>(null);
+  const [editResource, setEditResource] = useState<TrainingResourceItem | null>(
+    null,
+  );
   const [expanded, setExpanded] = useState<number | null>(null);
 
   const { data, isLoading } = useApiQuery<ResourcesResponse>(
@@ -47,16 +49,22 @@ export function ResourcesView() {
   );
 
   const invalidateKeys = [queryKeys.trainingResources.all];
-  const remove = useApiMutation((id: number) => apiClient.delete(`/training-resources/${id}`), {
-    invalidateKeys,
-    onSuccess: () => toast({ title: 'Recurso eliminado.', intent: 'success' }),
-    onError: (e) => toast({ title: e.message, intent: 'danger' }),
-  });
-  const release = useApiMutation(
-    (bookingId: number) => apiClient.post(`/training-resources/bookings/${bookingId}/release`, {}),
+  const remove = useApiMutation(
+    (id: number) => apiClient.delete(`/training-resources/${id}`),
     {
       invalidateKeys,
-      onSuccess: () => toast({ title: 'Recurso libertado.', intent: 'success' }),
+      onSuccess: () =>
+        toast({ title: 'Recurso eliminado.', intent: 'success' }),
+      onError: (e) => toast({ title: e.message, intent: 'danger' }),
+    },
+  );
+  const release = useApiMutation(
+    (bookingId: number) =>
+      apiClient.post(`/training-resources/bookings/${bookingId}/release`, {}),
+    {
+      invalidateKeys,
+      onSuccess: () =>
+        toast({ title: 'Recurso libertado.', intent: 'success' }),
       onError: (e) => toast({ title: e.message, intent: 'danger' }),
     },
   );
@@ -101,20 +109,30 @@ export function ResourcesView() {
                     className="min-w-0 flex-1 text-left"
                     onClick={() => setExpanded(isOpen ? null : r.id)}
                   >
-                    <div className="truncate text-sm font-medium text-ink">{r.name}</div>
+                    <div className="truncate text-sm font-medium text-ink">
+                      {r.name}
+                    </div>
                     <div className="text-xs text-ink-faint">
                       {RESOURCE_KIND_LABEL[r.kind]}
                       {r.location ? ` · ${r.location}` : ''}
                       {r.capacity ? ` · Capacidade: ${r.capacity}` : ''}
                       {r.kind !== 'ROOM' ? ` · Qtd: ${r.quantity}` : ''}
-                      {r._count ? ` · ${r._count.bookings} reserva(s) activa(s)` : ''}
+                      {r._count
+                        ? ` · ${r._count.bookings} reserva(s) activa(s)`
+                        : ''}
                     </div>
                   </button>
-                  <span className={`flex-shrink-0 rounded px-2 py-0.5 font-body text-xs font-medium ${statusCfg.cls}`}>
+                  <span
+                    className={`flex-shrink-0 rounded px-2 py-0.5 font-body text-xs font-medium ${statusCfg.cls}`}
+                  >
                     {statusCfg.label}
                   </span>
                   <div className="flex flex-shrink-0 items-center gap-2">
-                    <Button intent="ghost" size="sm" onClick={() => setEditResource(r)}>
+                    <Button
+                      intent="ghost"
+                      size="sm"
+                      onClick={() => setEditResource(r)}
+                    >
                       Editar
                     </Button>
                     <Button
@@ -134,13 +152,19 @@ export function ResourcesView() {
                       Reservas activas
                     </div>
                     {(detail?.bookings ?? []).length === 0 ? (
-                      <p className="text-xs text-ink-faint">Sem reservas activas.</p>
+                      <p className="text-xs text-ink-faint">
+                        Sem reservas activas.
+                      </p>
                     ) : (
                       <div className="space-y-1.5">
                         {(detail?.bookings ?? []).map((b) => (
-                          <div key={b.id} className="flex items-center justify-between gap-3 text-xs">
+                          <div
+                            key={b.id}
+                            className="flex items-center justify-between gap-3 text-xs"
+                          >
                             <span className="text-ink-muted">
-                              {b.training?.title ?? `Sessão #${b.sessionId}`} — {fmtDate(b.startAt)}
+                              {b.training?.title ?? `Sessão #${b.sessionId}`} —{' '}
+                              {fmtDate(b.startAt)}
                               {' – '}
                               {fmtDate(b.endAt)}
                             </span>
@@ -148,7 +172,9 @@ export function ResourcesView() {
                               intent="ghost"
                               size="sm"
                               onClick={() => release.mutate(b.id)}
-                              loading={release.isPending && release.variables === b.id}
+                              loading={
+                                release.isPending && release.variables === b.id
+                              }
                             >
                               <Unlock size={12} strokeWidth={1.75} />
                               Libertar
@@ -169,14 +195,18 @@ export function ResourcesView() {
         <ResourceFormModal
           resource={null}
           onClose={() => setShowCreate(false)}
-          onSuccess={() => toast({ title: 'Recurso criado.', intent: 'success' })}
+          onSuccess={() =>
+            toast({ title: 'Recurso criado.', intent: 'success' })
+          }
         />
       )}
       {editResource && (
         <ResourceFormModal
           resource={editResource}
           onClose={() => setEditResource(null)}
-          onSuccess={() => toast({ title: 'Recurso actualizado.', intent: 'success' })}
+          onSuccess={() =>
+            toast({ title: 'Recurso actualizado.', intent: 'success' })
+          }
         />
       )}
     </div>

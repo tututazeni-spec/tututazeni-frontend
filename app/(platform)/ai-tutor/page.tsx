@@ -2,7 +2,11 @@
 'use client';
 
 import { useState } from 'react';
-import { EMPLOYEE_NAV, ADMIN_NAV, TITLES } from '@/components/ai-tutor/constants';
+import {
+  EMPLOYEE_NAV,
+  ADMIN_NAV,
+  TITLES,
+} from '@/components/ai-tutor/constants';
 import { ChatView } from '@/components/ai-tutor/ChatView';
 import { OverviewView } from '@/components/ai-tutor/OverviewView';
 import { KnowledgeBaseView } from '@/components/ai-tutor/KnowledgeBaseView';
@@ -27,7 +31,9 @@ export default function AiTutorPage() {
     <div className="max-w-5xl mx-auto px-4 py-8">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="font-display text-xl font-semibold text-ink">{TITLES[view]}</h1>
+          <h1 className="font-display text-xl font-semibold text-ink">
+            {TITLES[view]}
+          </h1>
         </div>
       </div>
 

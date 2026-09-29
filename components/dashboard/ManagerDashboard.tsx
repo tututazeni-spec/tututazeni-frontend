@@ -161,7 +161,9 @@ function GaugeKpiCard({
         <div className="min-w-0">
           <p className={`font-display text-3xl font-bold ${t.text}`}>{value}</p>
           <p className="mt-0.5 font-body text-sm text-ink">{label}</p>
-          {sub && <p className="mt-0.5 font-body text-xs text-ink-faint">{sub}</p>}
+          {sub && (
+            <p className="mt-0.5 font-body text-xs text-ink-faint">{sub}</p>
+          )}
         </div>
       </div>
     </div>
@@ -201,8 +203,7 @@ function SparklineKpiCard({
       return `${x},${y}`;
     })
     .join(' ');
-  const lastY =
-    height - ((trend[trend.length - 1] - min) / range) * height;
+  const lastY = height - ((trend[trend.length - 1] - min) / range) * height;
 
   const STROKE_COLOR: Record<KpiTone, string> = {
     blue: '#3B82F6',
@@ -220,7 +221,9 @@ function SparklineKpiCard({
           <Icon size={26} strokeWidth={1.75} className={`mb-4 ${t.text}`} />
           <p className={`font-display text-4xl font-bold ${t.text}`}>{value}</p>
           <p className="mt-1 font-body text-sm text-ink">{label}</p>
-          {sub && <p className="mt-1 font-body text-xs text-ink-faint">{sub}</p>}
+          {sub && (
+            <p className="mt-1 font-body text-xs text-ink-faint">{sub}</p>
+          )}
         </div>
         <svg
           viewBox={`0 0 ${width} ${height}`}
@@ -292,67 +295,67 @@ export function ManagerDashboard() {
 
       {/* KPIs — visão geral da equipa */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-  <HighlightKpiCard
-    icon={Users}
-    tone="blue"
-    label="Equipa"
-    value={data?.teamSize ?? 0}
-  />
-  <HighlightKpiCard
-    icon={Target}
-    tone="green"
-    label="PDIs Activos"
-    value={kpis.activePlans ?? 0}
-    sub={`Cobertura: ${kpis.pdpCoverage ?? 0}% · ${kpis.completedPlans ?? 0} concluídos`}
-  />
-  <HighlightKpiCard
-    icon={Star}
-    tone="gold"
-    label="Pontuação Média"
-    value={kpis.avgScore?.toFixed(1) ?? '–'}
-    trend={kpis.scoreTrend}
-  />
-    <GaugeKpiCard
-    icon={GraduationCap}
-    tone={mandatoryOk ? 'green' : 'red'}
-    label="Formação Obrigatória"
-    value={`${kpis.mandatoryRate ?? 0}%`}
-    percent={kpis.mandatoryRate ?? 0}
-  />
-</div>
+        <HighlightKpiCard
+          icon={Users}
+          tone="blue"
+          label="Equipa"
+          value={data?.teamSize ?? 0}
+        />
+        <HighlightKpiCard
+          icon={Target}
+          tone="green"
+          label="PDIs Activos"
+          value={kpis.activePlans ?? 0}
+          sub={`Cobertura: ${kpis.pdpCoverage ?? 0}% · ${kpis.completedPlans ?? 0} concluídos`}
+        />
+        <HighlightKpiCard
+          icon={Star}
+          tone="gold"
+          label="Pontuação Média"
+          value={kpis.avgScore?.toFixed(1) ?? '–'}
+          trend={kpis.scoreTrend}
+        />
+        <GaugeKpiCard
+          icon={GraduationCap}
+          tone={mandatoryOk ? 'green' : 'red'}
+          label="Formação Obrigatória"
+          value={`${kpis.mandatoryRate ?? 0}%`}
+          percent={kpis.mandatoryRate ?? 0}
+        />
+      </div>
 
       {/* KPIs — accionáveis para o gestor + engagement da equipa */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-  <HighlightKpiCard
-    icon={ClipboardList}
-    tone={hasPendingEvals ? 'red' : 'green'}
-    label="Avaliações Pendentes"
-    value={kpis.pendingEvals ?? 0}
-    sub="Aguardam a tua avaliação"
-  />
-  <HighlightKpiCard
-    icon={AlarmClock}
-    tone={hasOverdueActions ? 'red' : 'green'}
-    label="Ações de PDI Atrasadas"
-    value={kpis.overdueActions ?? 0}
-    sub="Da equipa, prazo já passado"
-  />
-   <SparklineKpiCard
-    icon={BookOpen}
-    tone="orange"
-    label="Inscrições em Curso"
-    value={kpis.inProgress ?? 0}
-    sub={`${kpis.completedEnrollments ?? 0} concluídas no período`}
-    trend={MOCK_ENROLLMENT_TREND}
-  />
-  <HighlightKpiCard
-    icon={MessageSquare}
-    tone="blue"
-    label="Engajamento"
-    value={kpis.engagementResponses ?? 0}
-    sub={`${kpis.avatarSessions ?? 0} sessões de avatar concluídas`}
-  />
-</div>
+        <HighlightKpiCard
+          icon={ClipboardList}
+          tone={hasPendingEvals ? 'red' : 'green'}
+          label="Avaliações Pendentes"
+          value={kpis.pendingEvals ?? 0}
+          sub="Aguardam a tua avaliação"
+        />
+        <HighlightKpiCard
+          icon={AlarmClock}
+          tone={hasOverdueActions ? 'red' : 'green'}
+          label="Ações de PDI Atrasadas"
+          value={kpis.overdueActions ?? 0}
+          sub="Da equipa, prazo já passado"
+        />
+        <SparklineKpiCard
+          icon={BookOpen}
+          tone="orange"
+          label="Inscrições em Curso"
+          value={kpis.inProgress ?? 0}
+          sub={`${kpis.completedEnrollments ?? 0} concluídas no período`}
+          trend={MOCK_ENROLLMENT_TREND}
+        />
+        <HighlightKpiCard
+          icon={MessageSquare}
+          tone="blue"
+          label="Engajamento"
+          value={kpis.engagementResponses ?? 0}
+          sub={`${kpis.avatarSessions ?? 0} sessões de avatar concluídas`}
+        />
+      </div>
 
       {/* Team table */}
       <div className="rounded-card border border-border bg-surface">
@@ -401,7 +404,8 @@ export function ManagerDashboard() {
                 <div className="w-20">
                   <ProgressBar value={u.plan.progress} />
                   <p className="mt-0.5 text-center font-body text-[9px] text-ink-faint">
-                    {u.plan.progress}% PDI{u.plan.status ? ` · ${u.plan.status}` : ''}
+                    {u.plan.progress}% PDI
+                    {u.plan.status ? ` · ${u.plan.status}` : ''}
                   </p>
                 </div>
               )}

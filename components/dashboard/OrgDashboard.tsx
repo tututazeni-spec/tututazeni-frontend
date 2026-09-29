@@ -105,7 +105,6 @@ function HighlightKpiCard({
   );
 }
 
-
 // TODO: substituir por dados reais quando soubermos o campo da API
 // (ex.: summary.crm.fundingByQuarter) com a distribuição do financiamento
 // ao longo do período. Enquanto isso, usa-se uma série de exemplo.
@@ -152,7 +151,10 @@ function FundingKpiCard({
 
       <div className="mt-4 flex h-12 items-end gap-1.5">
         {breakdown.map((b) => (
-          <div key={b.label} className="flex flex-1 flex-col items-center gap-1">
+          <div
+            key={b.label}
+            className="flex flex-1 flex-col items-center gap-1"
+          >
             <div
               className="w-full rounded-t"
               style={{
@@ -161,7 +163,9 @@ function FundingKpiCard({
                 opacity: 0.85,
               }}
             />
-            <span className="font-body text-[9px] text-ink-faint">{b.label}</span>
+            <span className="font-body text-[9px] text-ink-faint">
+              {b.label}
+            </span>
           </div>
         ))}
       </div>
@@ -243,7 +247,10 @@ function SnapshotsPanel() {
     '/dashboard-institutional/snapshots',
     { params: { page: 1, limit: 12 }, staleTime: STALE_TIME.SEMI_STATIC },
   );
-  const snapshots = useMemo(() => snapshotsQ.data?.data ?? [], [snapshotsQ.data]);
+  const snapshots = useMemo(
+    () => snapshotsQ.data?.data ?? [],
+    [snapshotsQ.data],
+  );
 
   const saveSnapshot = useApiMutation<ExecutiveSnapshot, void>(
     () =>
@@ -253,15 +260,21 @@ function SnapshotsPanel() {
       }),
     {
       invalidateKeys: [queryKeys.dashboard.executiveSnapshots()],
-      onSuccess: () => notify({ title: 'Snapshot guardado', intent: 'success' }),
+      onSuccess: () =>
+        notify({ title: 'Snapshot guardado', intent: 'success' }),
       onError: (err) =>
-        notify({ title: err.message || 'Erro ao guardar snapshot', intent: 'danger' }),
+        notify({
+          title: err.message || 'Erro ao guardar snapshot',
+          intent: 'danger',
+        }),
     },
   );
 
   const [period1, setPeriod1] = useState<string>();
   const [period2, setPeriod2] = useState<string>();
-  const [compareResult, setCompareResult] = useState<CompareResult | null>(null);
+  const [compareResult, setCompareResult] = useState<CompareResult | null>(
+    null,
+  );
   const [comparing, setComparing] = useState(false);
 
   const periodOptions = useMemo(
@@ -280,7 +293,8 @@ function SnapshotsPanel() {
       setCompareResult(result);
     } catch (err) {
       notify({
-        title: err instanceof Error ? err.message : 'Erro ao comparar snapshots',
+        title:
+          err instanceof Error ? err.message : 'Erro ao comparar snapshots',
         intent: 'danger',
       });
     } finally {
@@ -326,10 +340,16 @@ function SnapshotsPanel() {
                 <tbody>
                   {snapshots.map((s) => (
                     <tr key={s.id} className="border-t border-border">
-                      <td className="py-2 font-semibold text-ink">{s.period}</td>
+                      <td className="py-2 font-semibold text-ink">
+                        {s.period}
+                      </td>
                       <td className="py-2 text-ink-muted">{s.totalUsers}</td>
-                      <td className="py-2 text-ink-muted">{s.totalEnrollments}</td>
-                      <td className="py-2 text-ink-muted">{s.completionRate}%</td>
+                      <td className="py-2 text-ink-muted">
+                        {s.totalEnrollments}
+                      </td>
+                      <td className="py-2 text-ink-muted">
+                        {s.completionRate}%
+                      </td>
                       <td className="py-2 text-ink-faint">
                         {s.createdBy?.fullName ?? '—'}
                       </td>
@@ -341,7 +361,9 @@ function SnapshotsPanel() {
 
             <div className="flex flex-wrap items-end gap-3 border-t border-border pt-4">
               <div>
-                <p className="mb-1 font-body text-xs text-ink-faint">Período A</p>
+                <p className="mb-1 font-body text-xs text-ink-faint">
+                  Período A
+                </p>
                 <Select
                   items={periodOptions}
                   value={period1}
@@ -350,7 +372,9 @@ function SnapshotsPanel() {
                 />
               </div>
               <div>
-                <p className="mb-1 font-body text-xs text-ink-faint">Período B</p>
+                <p className="mb-1 font-body text-xs text-ink-faint">
+                  Período B
+                </p>
                 <Select
                   items={periodOptions}
                   value={period2}
@@ -447,34 +471,37 @@ export function OrgDashboard() {
       </div>
 
       {/* Alertas institucionais */}
-      {alerts && (alerts.critical > 0 || alerts.warnings > 0 || alerts.reminders > 0) && (
-        <div className="flex flex-wrap gap-4">
-          {alerts.critical > 0 && (
-            <div className="min-w-[180px] flex-1 rounded-card border border-danger bg-danger-subtle px-4 py-3">
-              <span className="font-body font-semibold text-danger-ink">
-                {alerts.critical} alertas críticos
-              </span>
-            </div>
-          )}
-          {alerts.warnings > 0 && (
-            <div className="min-w-[180px] flex-1 rounded-card border border-warning bg-warning-subtle px-4 py-3">
-              <span className="font-body font-semibold text-warning-ink">
-                {alerts.warnings} avisos
-              </span>
-            </div>
-          )}
-          {alerts.reminders > 0 && (
-            <div className="min-w-[180px] flex-1 rounded-card border border-info bg-info-subtle px-4 py-3">
-              <span className="font-body font-semibold text-info-ink">
-                {alerts.reminders} lembretes
-              </span>
-            </div>
-          )}
-        </div>
-      )}
+      {alerts &&
+        (alerts.critical > 0 ||
+          alerts.warnings > 0 ||
+          alerts.reminders > 0) && (
+          <div className="flex flex-wrap gap-4">
+            {alerts.critical > 0 && (
+              <div className="min-w-[180px] flex-1 rounded-card border border-danger bg-danger-subtle px-4 py-3">
+                <span className="font-body font-semibold text-danger-ink">
+                  {alerts.critical} alertas críticos
+                </span>
+              </div>
+            )}
+            {alerts.warnings > 0 && (
+              <div className="min-w-[180px] flex-1 rounded-card border border-warning bg-warning-subtle px-4 py-3">
+                <span className="font-body font-semibold text-warning-ink">
+                  {alerts.warnings} avisos
+                </span>
+              </div>
+            )}
+            {alerts.reminders > 0 && (
+              <div className="min-w-[180px] flex-1 rounded-card border border-info bg-info-subtle px-4 py-3">
+                <span className="font-body font-semibold text-info-ink">
+                  {alerts.reminders} lembretes
+                </span>
+              </div>
+            )}
+          </div>
+        )}
 
       {/* KPIs — organização */}
-            <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         <HighlightKpiCard
           icon={Users}
           tone="blue"
@@ -507,7 +534,7 @@ export function OrgDashboard() {
 
       {/* KPIs — CRM & conhecimento (getExecutiveSummary) */}
       {summary && (
-                <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
           <HighlightKpiCard
             icon={BookOpen}
             tone="blue"
@@ -520,7 +547,7 @@ export function OrgDashboard() {
             label="Beneficiários"
             value={summary.crm.beneficiaries}
           />
-                    <FundingKpiCard
+          <FundingKpiCard
             icon={Wallet}
             tone="gold"
             label="Financiamento"
@@ -612,10 +639,15 @@ export function OrgDashboard() {
           {(org.departments ?? []).length > 0 ? (
             <DonutChart
               centerLabel="Colaboradores"
-              data={(org.departments ?? []).map((d) => ({ label: d.name, value: d.headcount }))}
+              data={(org.departments ?? []).map((d) => ({
+                label: d.name,
+                value: d.headcount,
+              }))}
             />
           ) : (
-            <p className="py-6 text-center font-body text-sm text-ink-faint">Sem dados</p>
+            <p className="py-6 text-center font-body text-sm text-ink-faint">
+              Sem dados
+            </p>
           )}
         </div>
 
@@ -712,11 +744,13 @@ export function OrgDashboard() {
               series={[
                 {
                   label: 'Novos colaboradores',
-                  points: data.growthTrend.map((d: ExecutiveTrendPoint, i: number) => ({
-                    x: i,
-                    y: d.users,
-                    xLabel: d.month.split(' ')[0],
-                  })),
+                  points: data.growthTrend.map(
+                    (d: ExecutiveTrendPoint, i: number) => ({
+                      x: i,
+                      y: d.users,
+                      xLabel: d.month.split(' ')[0],
+                    }),
+                  ),
                 },
               ]}
             />
@@ -725,31 +759,32 @@ export function OrgDashboard() {
       )}
 
       {/* Distribuição geográfica */}
-      {data?.geographic && data.geographic.beneficiariesByProvince.length > 0 && (
-        <Card>
-          <CardBody>
-            <h3 className="mb-4 flex items-center gap-2 font-display font-semibold text-ink">
-              <MapPin size={16} strokeWidth={1.75} className="text-accent" />
-              Beneficiários por Província
-            </h3>
-            <div className="grid grid-cols-2 gap-2 md:grid-cols-3">
-              {data.geographic.beneficiariesByProvince.map((p) => (
-                <div
-                  key={p.province ?? 'sem-provincia'}
-                  className="flex items-center justify-between rounded-control border border-border px-3 py-2"
-                >
-                  <span className="font-body text-xs text-ink-muted">
-                    {p.province ?? 'Sem província'}
-                  </span>
-                  <span className="font-body text-sm font-semibold text-ink">
-                    {p._count.id}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </CardBody>
-        </Card>
-      )}
+      {data?.geographic &&
+        data.geographic.beneficiariesByProvince.length > 0 && (
+          <Card>
+            <CardBody>
+              <h3 className="mb-4 flex items-center gap-2 font-display font-semibold text-ink">
+                <MapPin size={16} strokeWidth={1.75} className="text-accent" />
+                Beneficiários por Província
+              </h3>
+              <div className="grid grid-cols-2 gap-2 md:grid-cols-3">
+                {data.geographic.beneficiariesByProvince.map((p) => (
+                  <div
+                    key={p.province ?? 'sem-provincia'}
+                    className="flex items-center justify-between rounded-control border border-border px-3 py-2"
+                  >
+                    <span className="font-body text-xs text-ink-muted">
+                      {p.province ?? 'Sem província'}
+                    </span>
+                    <span className="font-body text-sm font-semibold text-ink">
+                      {p._count.id}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </CardBody>
+          </Card>
+        )}
 
       {/* Top content */}
       {(org.topContent?.length ?? 0) > 0 && (
@@ -838,7 +873,10 @@ export function OrgDashboard() {
             <ModulePanel title="Declarações" data={modules.declarations}>
               {modules.declarations && (
                 <>
-                  <Stat label="Pendentes" value={modules.declarations.pending} />
+                  <Stat
+                    label="Pendentes"
+                    value={modules.declarations.pending}
+                  />
                   <Stat label="Emitidas" value={modules.declarations.issued} />
                   <Stat label="Total" value={modules.declarations.total} />
                 </>
@@ -848,7 +886,10 @@ export function OrgDashboard() {
             <ModulePanel title="Auditoria" data={modules.audit}>
               {modules.audit && (
                 <>
-                  <Stat label="Eventos totais" value={modules.audit.totalEvents} />
+                  <Stat
+                    label="Eventos totais"
+                    value={modules.audit.totalEvents}
+                  />
                   <Stat label="Hoje" value={modules.audit.todayEvents} />
                   <Stat label="Críticos" value={modules.audit.criticalEvents} />
                 </>
@@ -859,7 +900,10 @@ export function OrgDashboard() {
               {modules.automation && (
                 <>
                   <Stat label="Regras" value={modules.automation.totalRules} />
-                  <Stat label="Activas" value={modules.automation.activeRules} />
+                  <Stat
+                    label="Activas"
+                    value={modules.automation.activeRules}
+                  />
                   <div className="flex justify-center pt-1">
                     <GaugeChart
                       value={modules.automation.successRate}
@@ -883,7 +927,10 @@ export function OrgDashboard() {
                       size={120}
                     />
                   </div>
-                  <Stat label="Alertas abertos" value={modules.platform.openAlerts} />
+                  <Stat
+                    label="Alertas abertos"
+                    value={modules.platform.openAlerts}
+                  />
                   <Stat
                     label="Alertas críticos"
                     value={modules.platform.criticalAlerts}

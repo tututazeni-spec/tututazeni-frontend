@@ -20,12 +20,23 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { DataTable } from '@/components/ui/DataTable';
 import { DonutChart } from '@/components/ui/charts/DonutChart';
 import { KpiDefinitionModal } from './KpiDefinitionModal';
-import { KPI_CATEGORY_LABELS, KPI_FREQUENCY_LABELS, KPI_STATUS_INTENTS, KPI_STATUS_LABELS } from './utils';
-import type { KpiCategorySummaryRow, KpiDefinitionListData, KpiDefinitionRow } from './types';
+import {
+  KPI_CATEGORY_LABELS,
+  KPI_FREQUENCY_LABELS,
+  KPI_STATUS_INTENTS,
+  KPI_STATUS_LABELS,
+} from './utils';
+import type {
+  KpiCategorySummaryRow,
+  KpiDefinitionListData,
+  KpiDefinitionRow,
+} from './types';
 
 export function KpisTab() {
   const notify = useToast();
-  const [modalKpi, setModalKpi] = useState<KpiDefinitionRow | 'new' | null>(null);
+  const [modalKpi, setModalKpi] = useState<KpiDefinitionRow | 'new' | null>(
+    null,
+  );
 
   const { data, isLoading: loading } = useApiQuery<KpiDefinitionListData>(
     queryKeys.roiImpact.kpis(),
@@ -44,9 +55,18 @@ export function KpisTab() {
         status: k.status === 'ACTIVO' ? 'INACTIVO' : 'ACTIVO',
       }),
     {
-      invalidateKeys: [queryKeys.roiImpact.kpis(), queryKeys.roiImpact.kpisByCategory()],
-      onSuccess: () => notify({ title: 'Estado actualizado', intent: 'success' }),
-      onError: (e) => notify({ title: 'Erro ao actualizar', description: e.message, intent: 'danger' }),
+      invalidateKeys: [
+        queryKeys.roiImpact.kpis(),
+        queryKeys.roiImpact.kpisByCategory(),
+      ],
+      onSuccess: () =>
+        notify({ title: 'Estado actualizado', intent: 'success' }),
+      onError: (e) =>
+        notify({
+          title: 'Erro ao actualizar',
+          description: e.message,
+          intent: 'danger',
+        }),
     },
   );
 
@@ -65,7 +85,8 @@ export function KpisTab() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <p className="font-body text-sm text-ink-muted">
-          {data?.total ?? 0} KPI(s) — biblioteca central que o RH pode associar a qualquer iniciativa
+          {data?.total ?? 0} KPI(s) — biblioteca central que o RH pode associar
+          a qualquer iniciativa
         </p>
         <Button size="sm" onClick={() => setModalKpi('new')}>
           <Plus size={14} strokeWidth={1.75} className="mr-1" />
@@ -80,7 +101,10 @@ export function KpisTab() {
               <DonutChart
                 size={140}
                 centerLabel="KPIs"
-                data={byCategory!.map((c) => ({ label: KPI_CATEGORY_LABELS[c.category] ?? c.category, value: c.count }))}
+                data={byCategory!.map((c) => ({
+                  label: KPI_CATEGORY_LABELS[c.category] ?? c.category,
+                  value: c.count,
+                }))}
               />
             </CardBody>
           </Card>
@@ -88,7 +112,9 @@ export function KpisTab() {
             {byCategory!.map((c) => (
               <Card key={c.category}>
                 <CardBody>
-                  <p className="font-display text-xl font-bold text-ink">{c.count}</p>
+                  <p className="font-display text-xl font-bold text-ink">
+                    {c.count}
+                  </p>
                   <p className="font-body text-[10px] text-ink-faint">
                     {KPI_CATEGORY_LABELS[c.category] ?? c.category}
                   </p>
@@ -115,11 +141,18 @@ export function KpisTab() {
                 render: (k) => (
                   <>
                     <p className="font-medium text-ink">{k.name}</p>
-                    {k.description && <p className="text-xs text-ink-faint">{k.description}</p>}
+                    {k.description && (
+                      <p className="text-xs text-ink-faint">{k.description}</p>
+                    )}
                   </>
                 ),
               },
-              { key: 'code', header: 'Código', sortable: true, className: 'font-mono text-xs' },
+              {
+                key: 'code',
+                header: 'Código',
+                sortable: true,
+                className: 'font-mono text-xs',
+              },
               {
                 key: 'category',
                 header: 'Categoria',
@@ -132,7 +165,12 @@ export function KpisTab() {
                 header: 'Frequência',
                 render: (k) => KPI_FREQUENCY_LABELS[k.frequency] ?? k.frequency,
               },
-              { key: 'targetValue', header: 'Meta', sortable: true, render: (k) => (k.targetValue != null ? k.targetValue : '—') },
+              {
+                key: 'targetValue',
+                header: 'Meta',
+                sortable: true,
+                render: (k) => (k.targetValue != null ? k.targetValue : '—'),
+              },
               {
                 key: 'status',
                 header: 'Estado',
@@ -148,10 +186,18 @@ export function KpisTab() {
                 header: '',
                 render: (k) => (
                   <div className="flex gap-2">
-                    <Button size="sm" intent="secondary" onClick={() => setModalKpi(k)}>
+                    <Button
+                      size="sm"
+                      intent="secondary"
+                      onClick={() => setModalKpi(k)}
+                    >
                       Editar
                     </Button>
-                    <Button size="sm" intent="secondary" onClick={() => toggleStatus.mutate(k)}>
+                    <Button
+                      size="sm"
+                      intent="secondary"
+                      onClick={() => toggleStatus.mutate(k)}
+                    >
                       {k.status === 'ACTIVO' ? 'Desativar' : 'Ativar'}
                     </Button>
                   </div>
@@ -163,7 +209,10 @@ export function KpisTab() {
       </Card>
 
       {modalKpi && (
-        <KpiDefinitionModal kpi={modalKpi === 'new' ? undefined : modalKpi} onClose={() => setModalKpi(null)} />
+        <KpiDefinitionModal
+          kpi={modalKpi === 'new' ? undefined : modalKpi}
+          onClose={() => setModalKpi(null)}
+        />
       )}
     </div>
   );

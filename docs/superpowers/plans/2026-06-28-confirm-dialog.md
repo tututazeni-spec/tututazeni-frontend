@@ -22,17 +22,26 @@
 ### Task 1: Primitivo (ConfirmProvider + ConfirmDialog + useConfirm)
 
 **Files:**
+
 - Create: `providers/ConfirmProvider.tsx`
 - Create: `components/ui/ConfirmDialog.tsx`
 - Modify: `app/layout.tsx` (envolver children + import)
 
 **Interfaces:**
+
 - Produces: `useConfirm(): (options: ConfirmOptions) => Promise<boolean>`; `ConfirmOptions = { title: string; message?: string; confirmLabel?: string; cancelLabel?: string; destructive?: boolean }`.
 
 - [ ] **Step 1: `providers/ConfirmProvider.tsx`**
+
 ```tsx
 'use client';
-import { createContext, useCallback, useContext, useRef, useState } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useRef,
+  useState,
+} from 'react';
 import { ConfirmDialog } from '../components/ui/ConfirmDialog';
 
 export interface ConfirmOptions {
@@ -67,7 +76,11 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
     <ConfirmContext.Provider value={confirm}>
       {children}
       {options && (
-        <ConfirmDialog {...options} onCancel={() => close(false)} onConfirm={() => close(true)} />
+        <ConfirmDialog
+          {...options}
+          onCancel={() => close(false)}
+          onConfirm={() => close(true)}
+        />
       )}
     </ConfirmContext.Provider>
   );
@@ -75,12 +88,14 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
 
 export function useConfirm(): ConfirmFn {
   const ctx = useContext(ConfirmContext);
-  if (!ctx) throw new Error('useConfirm deve ser usado dentro de <ConfirmProvider>');
+  if (!ctx)
+    throw new Error('useConfirm deve ser usado dentro de <ConfirmProvider>');
   return ctx;
 }
 ```
 
 - [ ] **Step 2: `components/ui/ConfirmDialog.tsx`**
+
 ```tsx
 'use client';
 import { useEffect, useRef } from 'react';
@@ -112,7 +127,10 @@ export function ConfirmDialog({
   }, [onCancel]);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={onCancel}>
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+      onClick={onCancel}
+    >
       <div
         role="dialog"
         aria-modal="true"
@@ -121,10 +139,20 @@ export function ConfirmDialog({
         className="w-full max-w-sm rounded-xl bg-white p-6 shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 id="confirm-title" className="text-lg font-semibold text-gray-900">{title}</h2>
-        {message && <p id="confirm-message" className="mt-2 text-sm text-gray-600">{message}</p>}
+        <h2 id="confirm-title" className="text-lg font-semibold text-gray-900">
+          {title}
+        </h2>
+        {message && (
+          <p id="confirm-message" className="mt-2 text-sm text-gray-600">
+            {message}
+          </p>
+        )}
         <div className="mt-6 flex justify-end gap-3">
-          <button type="button" onClick={onCancel} className="rounded-lg px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100">
+          <button
+            type="button"
+            onClick={onCancel}
+            className="rounded-lg px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100"
+          >
             {cancelLabel}
           </button>
           <button
@@ -143,11 +171,14 @@ export function ConfirmDialog({
 ```
 
 - [ ] **Step 3: Registar no `app/layout.tsx`**
-Adicionar o import no topo:
+      Adicionar o import no topo:
+
 ```tsx
-import { ConfirmProvider } from "../providers/ConfirmProvider";
+import { ConfirmProvider } from '../providers/ConfirmProvider';
 ```
+
 E envolver os children (dentro do `ReactQueryProvider`):
+
 ```tsx
 <ReactQueryProvider>
   <ConfirmProvider>{children}</ConfirmProvider>
@@ -155,10 +186,11 @@ E envolver os children (dentro do `ReactQueryProvider`):
 ```
 
 - [ ] **Step 4: Typecheck + build**
-Run: `npx tsc --noEmit` → sem erros.
-Run: `npm run build` → completa sem erros.
+      Run: `npx tsc --noEmit` → sem erros.
+      Run: `npm run build` → completa sem erros.
 
 - [ ] **Step 5: Commit**
+
 ```
 git add providers/ConfirmProvider.tsx components/ui/ConfirmDialog.tsx app/layout.tsx
 git commit --no-verify -m "feat(ui): ConfirmDialog acessivel + useConfirm
@@ -171,20 +203,40 @@ Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
 ### Task 2: Migrar grupo 1 (users, roles-permissions, enrollments, events)
 
 **Files:**
+
 - Modify: `app/(platform)/users/page.tsx`, `app/(platform)/roles-permissions/page.tsx`, `app/(platform)/enrollments/page.tsx`, `app/(platform)/events/page.tsx`
 
 **Interfaces:**
+
 - Consumes: `useConfirm` (Task 1).
 
 - [ ] **Step 1: Migrar cada ficheiro (padrão)**
-Em cada ficheiro: importar `import { useConfirm } from '@/providers/ConfirmProvider';` (ou caminho relativo correto) e no topo do componente `const confirm = useConfirm();`. Depois, para cada `if (!confirm('…')) return;` / `if (!window.confirm('…')) return;`, substituir por:
+      Em cada ficheiro: importar `import { useConfirm } from '@/providers/ConfirmProvider';` (ou caminho relativo correto) e no topo do componente `const confirm = useConfirm();`. Depois, para cada `if (!confirm('…')) return;` / `if (!window.confirm('…')) return;`, substituir por:
+
 ```ts
-if (!(await confirm({ title: '<pergunta curta>', message: 'Esta ação não pode ser anulada.', confirmLabel: '<verbo, ex.: Apagar>', destructive: true }))) return;
+if (
+  !(await confirm({
+    title: '<pergunta curta>',
+    message: 'Esta ação não pode ser anulada.',
+    confirmLabel: '<verbo, ex.: Apagar>',
+    destructive: true,
+  }))
+)
+  return;
 ```
+
 Garantir que o handler envolvente é `async`. Exemplos reais:
+
 - `users/page.tsx` — `if (!confirm(\`${act} este utilizador?\`)) return;` →
   ```ts
-  if (!(await confirm({ title: `${act} este utilizador?`, confirmLabel: act, destructive: true }))) return;
+  if (
+    !(await confirm({
+      title: `${act} este utilizador?`,
+      confirmLabel: act,
+      destructive: true,
+    }))
+  )
+    return;
   ```
 - `roles-permissions/page.tsx` — `onClick={() => { if (confirm('Remover role?')) apiClient.delete(...).then(...) }}` →
   ```tsx
@@ -193,12 +245,13 @@ Garantir que o handler envolvente é `async`. Exemplos reais:
 - `enrollments`/`events` — localizar os `confirm('…')` e aplicar o mesmo padrão (handler async + `await confirm({...})`).
 
 - [ ] **Step 2: Confirmar 0 confirm() nestes ficheiros**
-Run (PowerShell): procurar `confirm(` nos 4 ficheiros — só deve aparecer `await confirm({` (não `confirm('` nem `window.confirm`).
+      Run (PowerShell): procurar `confirm(` nos 4 ficheiros — só deve aparecer `await confirm({` (não `confirm('` nem `window.confirm`).
 
 - [ ] **Step 3: Typecheck**
-Run: `npx tsc --noEmit` → sem erros (se ficar algum `confirm('string')`, o tsc acusa).
+      Run: `npx tsc --noEmit` → sem erros (se ficar algum `confirm('string')`, o tsc acusa).
 
 - [ ] **Step 4: Commit**
+
 ```
 git add "app/(platform)/users/page.tsx" "app/(platform)/roles-permissions/page.tsx" "app/(platform)/enrollments/page.tsx" "app/(platform)/events/page.tsx"
 git commit --no-verify -m "refactor(ui): migrar window.confirm para useConfirm (grupo 1)
@@ -211,20 +264,23 @@ Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
 ### Task 3: Migrar grupo 2 (courses learn, courses modulos, live-classes, leave)
 
 **Files:**
+
 - Modify: `app/(platform)/courses/[courseId]/learn/page.tsx`, `app/(platform)/courses/modulos/page.tsx`, `app/(platform)/live-classes/page.tsx`, `app/(platform)/leave/page.tsx`
 
 **Interfaces:**
+
 - Consumes: `useConfirm` (Task 1).
 
 - [ ] **Step 1: Migrar cada ficheiro**
-Mesmo padrão da Task 2 Step 1: `const confirm = useConfirm();` no topo do componente; cada `confirm('…')`/`window.confirm('…')` → `await confirm({ title, message?, confirmLabel, destructive: true })`; handlers `async`. Adaptar título/verbo ao contexto (apagar módulo, cancelar aula, cancelar pedido de férias, etc.).
+      Mesmo padrão da Task 2 Step 1: `const confirm = useConfirm();` no topo do componente; cada `confirm('…')`/`window.confirm('…')` → `await confirm({ title, message?, confirmLabel, destructive: true })`; handlers `async`. Adaptar título/verbo ao contexto (apagar módulo, cancelar aula, cancelar pedido de férias, etc.).
 
 - [ ] **Step 2: Confirmar 0 confirm() nestes ficheiros** (como Task 2 Step 2).
 
 - [ ] **Step 3: Typecheck**
-Run: `npx tsc --noEmit` → sem erros.
+      Run: `npx tsc --noEmit` → sem erros.
 
 - [ ] **Step 4: Commit**
+
 ```
 git add "app/(platform)/courses/[courseId]/learn/page.tsx" "app/(platform)/courses/modulos/page.tsx" "app/(platform)/live-classes/page.tsx" "app/(platform)/leave/page.tsx"
 git commit --no-verify -m "refactor(ui): migrar window.confirm para useConfirm (grupo 2)
@@ -237,26 +293,31 @@ Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
 ### Task 4: Migrar grupo 3 (api-integrations, automation, processes) + verificação final
 
 **Files:**
+
 - Modify: `app/(platform)/api-integrations/page.tsx`, `app/(platform)/automation/page.tsx`, `app/(platform)/processes/page.tsx`
 
 **Interfaces:**
+
 - Consumes: `useConfirm` (Task 1).
 
 - [ ] **Step 1: Migrar cada ficheiro**
-Mesmo padrão. Adaptar título/verbo (apagar integração, apagar regra de automação, apagar processo, etc.).
+      Mesmo padrão. Adaptar título/verbo (apagar integração, apagar regra de automação, apagar processo, etc.).
 
 - [ ] **Step 2: Confirmar 0 `window.confirm`/`confirm('` em TODO o projeto**
-Run (PowerShell, no repo):
+      Run (PowerShell, no repo):
+
 ```
 Get-ChildItem -Recurse -Filter *.tsx | Where-Object FullName -notmatch 'node_modules|\.next|ConfirmProvider|ConfirmDialog' | Select-String -Pattern "window\.confirm|confirm\('|confirm\(`"
 ```
+
 Expected: 0 resultados (só deve existir `await confirm({` nos call-sites e a definição em ConfirmProvider/ConfirmDialog).
 
 - [ ] **Step 3: Typecheck + build**
-Run: `npx tsc --noEmit` → sem erros.
-Run: `npm run build` → completa sem erros.
+      Run: `npx tsc --noEmit` → sem erros.
+      Run: `npm run build` → completa sem erros.
 
 - [ ] **Step 4: Commit**
+
 ```
 git add "app/(platform)/api-integrations/page.tsx" "app/(platform)/automation/page.tsx" "app/(platform)/processes/page.tsx"
 git commit --no-verify -m "refactor(ui): migrar window.confirm para useConfirm (grupo 3) + verificacao
@@ -267,6 +328,7 @@ Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
 ---
 
 ## Notas de execução
+
 - **Atenção ao `await`**: o erro mais provável é esquecer o `await` (o tsc não o apanha — `!Promise` é sempre falsy → confirma sempre). Reler cada call-site migrado.
 - Se um ficheiro usar `confirm(...)` para uma ação NÃO destrutiva (ex.: confirmar antes de submeter algo benigno), migrar à mesma para o modal, com `destructive: false` e verbo adequado.
 - Cada componente migrado tem de ser client component (`'use client'` — já são, são páginas interativas).

@@ -75,21 +75,21 @@ Toast) + `lucide-react` (ícones) + `lib/cn.ts` (clsx + tailwind-merge).
 
 ## Mapeamento de tokens (referência para todas as tasks)
 
-| Hex/uso actual | Token/classe destino | Nota |
-|---|---|---|
-| `#1e40af` (botão primário, ícones activos, tab activa, força-senha "boa") | `primary` | |
-| `#f1f5f9`/`#475569` (botão ghost) | `surface-sunken` / `ink-muted` | |
-| `#e2e8f0` (borders de input/card) | `border` (ou `border-strong` se já era mais escuro) | |
-| `#1e293b` (texto principal) | `ink` | |
-| `#64748b`/`#94a3b8` (texto secundário/placeholder) | `ink-muted` / `ink-faint` | |
-| `#fff`/superfícies de card | `surface` | |
-| `#dc2626`/`#fef2f2`/`#fecaca` (erro, logout, força-senha "fraca") | `danger` / `danger-subtle` / `danger-ink` | |
-| `#16a34a`/`#ecfdf5`/`#bbf7d0` (activo, sucesso, força-senha "forte", dicas ok) | `success` / `success-subtle` / `success-ink` | |
-| `#f59e0b` (força-senha "razoável") | `warning` | única ocorrência onde `#f59e0b` mapeia para warning — ordinal genuína de força |
-| `#fffbeb`/`#fde68a`/`#92400e` (aviso de expiração de token em `TabSeguranca`) | `warning-subtle` / `warning` / `warning-ink` | aviso de caução real |
-| `#fffbeb`/`#fde68a` (painel "badges recentes" e pontos em `TabPerfil`) | `accent-subtle` / `accent` | **não** warning — é decorativo/gamificação, não caução (distinto do caso acima) |
-| `#eff6ff`/`#1e40af`/`#bfdbfe` (badge de role, pills de permissão) | `info-subtle` / `info-ink` / `info` | **não** primary mesmo sendo azul — primary neste tema é verde-escuro |
-| gradiente `#1e40af`→`#6366f1` (avatar/ícone de role) | `<Avatar>` (perfil) / `bg-gradient-to-br from-primary to-accent` (ícone de role em Permissões, sem primitivo exacto) | |
+| Hex/uso actual                                                                 | Token/classe destino                                                                                                 | Nota                                                                            |
+| ------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| `#1e40af` (botão primário, ícones activos, tab activa, força-senha "boa")      | `primary`                                                                                                            |                                                                                 |
+| `#f1f5f9`/`#475569` (botão ghost)                                              | `surface-sunken` / `ink-muted`                                                                                       |                                                                                 |
+| `#e2e8f0` (borders de input/card)                                              | `border` (ou `border-strong` se já era mais escuro)                                                                  |                                                                                 |
+| `#1e293b` (texto principal)                                                    | `ink`                                                                                                                |                                                                                 |
+| `#64748b`/`#94a3b8` (texto secundário/placeholder)                             | `ink-muted` / `ink-faint`                                                                                            |                                                                                 |
+| `#fff`/superfícies de card                                                     | `surface`                                                                                                            |                                                                                 |
+| `#dc2626`/`#fef2f2`/`#fecaca` (erro, logout, força-senha "fraca")              | `danger` / `danger-subtle` / `danger-ink`                                                                            |                                                                                 |
+| `#16a34a`/`#ecfdf5`/`#bbf7d0` (activo, sucesso, força-senha "forte", dicas ok) | `success` / `success-subtle` / `success-ink`                                                                         |                                                                                 |
+| `#f59e0b` (força-senha "razoável")                                             | `warning`                                                                                                            | única ocorrência onde `#f59e0b` mapeia para warning — ordinal genuína de força  |
+| `#fffbeb`/`#fde68a`/`#92400e` (aviso de expiração de token em `TabSeguranca`)  | `warning-subtle` / `warning` / `warning-ink`                                                                         | aviso de caução real                                                            |
+| `#fffbeb`/`#fde68a` (painel "badges recentes" e pontos em `TabPerfil`)         | `accent-subtle` / `accent`                                                                                           | **não** warning — é decorativo/gamificação, não caução (distinto do caso acima) |
+| `#eff6ff`/`#1e40af`/`#bfdbfe` (badge de role, pills de permissão)              | `info-subtle` / `info-ink` / `info`                                                                                  | **não** primary mesmo sendo azul — primary neste tema é verde-escuro            |
+| gradiente `#1e40af`→`#6366f1` (avatar/ícone de role)                           | `<Avatar>` (perfil) / `bg-gradient-to-br from-primary to-accent` (ícone de role em Permissões, sem primitivo exacto) |                                                                                 |
 
 ---
 
@@ -129,7 +129,7 @@ Toast) + `lucide-react` (ícones) + `lib/cn.ts` (clsx + tailwind-merge).
 - [x] Painel de dicas de segurança: estado `ok` (`#ecfdf5`/`#bbf7d0`/`#16a34a`)
       → `bg-success-subtle border-success text-success-ink`; estado
       default (`#f8fafc`/`#e2e8f0`/`#64748b`) → `bg-surface-sunken
-      border-border text-ink-muted`.
+    border-border text-ink-muted`.
 - [x] Caixa de aviso de expiração de token: `#fffbeb`/`#fde68a`/`#92400e`
       → `bg-warning-subtle border-warning text-warning-ink` (é um aviso de
       caução genuíno — mantém-se warning, ao contrário do painel de badges
@@ -150,7 +150,7 @@ Toast) + `lucide-react` (ícones) + `lib/cn.ts` (clsx + tailwind-merge).
 - [x] Tabela de info organizacional: `text-ink` / `text-ink-muted` /
       `border-border` simples.
 - [x] Painel "badges recentes" (`#fffbeb`/`#fde68a`) → `bg-accent-subtle
-      border-accent` — mesmo raciocínio que os pontos: painel decorativo de
+    border-accent` — mesmo raciocínio que os pontos: painel decorativo de
       conquista, não um aviso (contrasta com a caixa de expiração de token
       em `TabSeguranca`, que É um aviso real).
 - [x] Troca cards manuais (`style={card}`) por `<Card><CardBody>...</CardBody></Card>`.
@@ -191,7 +191,7 @@ Toast) + `lucide-react` (ícones) + `lib/cn.ts` (clsx + tailwind-merge).
       ganha).
 - [x] Tab switcher manual (`NAV.map` + `TAB_STYLE`, wrapper `#f1f5f9`) →
       substitui por completo por `<Tabs><TabsList><TabsTrigger>...
-      <TabsContent>` de `components/ui/Tabs.tsx`. Nota: isto muda o
+    <TabsContent>` de `components/ui/Tabs.tsx`. Nota: isto muda o
       visual de "pills activo/inactivo" para "tab sublinhada activa" —
       é uma mudança visual aceite, consistente com o padrão já usado nas
       migrações anteriores (consolidar no primitivo partilhado tal como

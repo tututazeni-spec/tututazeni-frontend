@@ -37,7 +37,11 @@ export function parseCsv(text: string): ParsedCsv {
   const rows = lines.slice(1).map(splitLine);
 
   if (rows.length === 0) {
-    return { headers, rows: [], error: 'Nenhuma linha de dados encontrada além do cabeçalho.' };
+    return {
+      headers,
+      rows: [],
+      error: 'Nenhuma linha de dados encontrada além do cabeçalho.',
+    };
   }
 
   return { headers, rows };
@@ -116,7 +120,10 @@ export interface ImportRowDraft {
 }
 
 /** Aplica o mapeamento escolhido às linhas em bruto, produzindo o payload que vai para POST /users/import. */
-export function mapRows(rows: string[][], mapping: ImportField[]): ImportRowDraft[] {
+export function mapRows(
+  rows: string[][],
+  mapping: ImportField[],
+): ImportRowDraft[] {
   const indexOf = (field: ImportField) => mapping.indexOf(field);
   const emailIdx = indexOf('email');
   const nameIdx = indexOf('fullName');
@@ -126,7 +133,8 @@ export function mapRows(rows: string[][], mapping: ImportField[]): ImportRowDraf
   const posIdx = indexOf('positionName');
   const hireIdx = indexOf('hireDate');
 
-  const cell = (cells: string[], idx: number) => (idx >= 0 ? cells[idx] || undefined : undefined);
+  const cell = (cells: string[], idx: number) =>
+    idx >= 0 ? cells[idx] || undefined : undefined;
 
   return rows.map((cells, i) => {
     const email = (emailIdx >= 0 ? cells[emailIdx] : '') ?? '';

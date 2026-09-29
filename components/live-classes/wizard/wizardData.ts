@@ -36,7 +36,10 @@ export function useCourseModules(courseId: string) {
   const query = useApiQuery<{ modules: CourseModule[] }>(
     ['live-classes-wizard', 'course-detail', id],
     `/courses/${id}`,
-    { enabled: Number.isFinite(id) && id > 0, staleTime: STALE_TIME.SEMI_STATIC },
+    {
+      enabled: Number.isFinite(id) && id > 0,
+      staleTime: STALE_TIME.SEMI_STATIC,
+    },
   );
   return query.data?.modules ?? [];
 }
@@ -46,11 +49,12 @@ export function useCourseModules(courseId: string) {
 // duplicar uma gestão de formadores própria deste módulo.
 export function useInstructorOptions() {
   const params = { limit: 200 };
-  const query = useApiQuery<{ data: { id: number; name: string; entity?: string | null }[] }>(
-    ['live-classes-wizard', 'instructors-picker'],
-    '/training-trainers',
-    { params, staleTime: STALE_TIME.SEMI_STATIC },
-  );
+  const query = useApiQuery<{
+    data: { id: number; name: string; entity?: string | null }[];
+  }>(['live-classes-wizard', 'instructors-picker'], '/training-trainers', {
+    params,
+    staleTime: STALE_TIME.SEMI_STATIC,
+  });
   const options: PickerOption[] = (query.data?.data ?? []).map((t) => ({
     value: String(t.id),
     label: t.entity ? `${t.name} (${t.entity})` : t.name,
@@ -73,15 +77,23 @@ export function useDepartmentOptions(): OrgOption[] {
 }
 
 export function useUnitOptions(): OrgOption[] {
-  const query = useApiQuery<OrgOption[]>(['live-classes-wizard', 'units-picker'], '/units', {
-    staleTime: STALE_TIME.SEMI_STATIC,
-  });
+  const query = useApiQuery<OrgOption[]>(
+    ['live-classes-wizard', 'units-picker'],
+    '/units',
+    {
+      staleTime: STALE_TIME.SEMI_STATIC,
+    },
+  );
   return Array.isArray(query.data) ? query.data : [];
 }
 
 export function usePositionOptions(): OrgOption[] {
-  const query = useApiQuery<OrgOption[]>(['live-classes-wizard', 'positions-picker'], '/positions', {
-    staleTime: STALE_TIME.SEMI_STATIC,
-  });
+  const query = useApiQuery<OrgOption[]>(
+    ['live-classes-wizard', 'positions-picker'],
+    '/positions',
+    {
+      staleTime: STALE_TIME.SEMI_STATIC,
+    },
+  );
   return Array.isArray(query.data) ? query.data : [];
 }

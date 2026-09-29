@@ -10,7 +10,14 @@
 'use client';
 
 import { useState } from 'react';
-import { BarChart3, ClipboardList, Copy, Plus, Timer, Trash2 } from 'lucide-react';
+import {
+  BarChart3,
+  ClipboardList,
+  Copy,
+  Plus,
+  Timer,
+  Trash2,
+} from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -49,19 +56,35 @@ function ManagementView() {
   const invalidate = [queryKeys.formalEvaluations.list()];
   const publish = useApiMutation(
     (id: number) => apiClient.patch(`/assessments/${id}/publish`),
-    { invalidateKeys: invalidate, onSuccess: () => notify({ title: 'Avaliação publicada', intent: 'success' }) },
+    {
+      invalidateKeys: invalidate,
+      onSuccess: () =>
+        notify({ title: 'Avaliação publicada', intent: 'success' }),
+    },
   );
   const archive = useApiMutation(
     (id: number) => apiClient.patch(`/assessments/${id}/archive`),
-    { invalidateKeys: invalidate, onSuccess: () => notify({ title: 'Avaliação arquivada', intent: 'success' }) },
+    {
+      invalidateKeys: invalidate,
+      onSuccess: () =>
+        notify({ title: 'Avaliação arquivada', intent: 'success' }),
+    },
   );
   const duplicate = useApiMutation(
     (id: number) => apiClient.post(`/assessments/${id}/duplicate`),
-    { invalidateKeys: invalidate, onSuccess: () => notify({ title: 'Avaliação duplicada', intent: 'success' }) },
+    {
+      invalidateKeys: invalidate,
+      onSuccess: () =>
+        notify({ title: 'Avaliação duplicada', intent: 'success' }),
+    },
   );
   const remove = useApiMutation(
     (id: number) => apiClient.delete(`/assessments/${id}`),
-    { invalidateKeys: invalidate, onSuccess: () => notify({ title: 'Avaliação eliminada', intent: 'success' }) },
+    {
+      invalidateKeys: invalidate,
+      onSuccess: () =>
+        notify({ title: 'Avaliação eliminada', intent: 'success' }),
+    },
   );
 
   const handleRemove = async (evaluation: FormalEvaluation) => {
@@ -89,7 +112,10 @@ function ManagementView() {
           icon={ClipboardList}
           title="Sem avaliações formais"
           description="Cria a primeira avaliação para um departamento específico ou para todos."
-          action={{ label: 'Nova Avaliação', onClick: () => setShowCreate(true) }}
+          action={{
+            label: 'Nova Avaliação',
+            onClick: () => setShowCreate(true),
+          }}
         />
       )}
 
@@ -122,13 +148,21 @@ function ManagementView() {
             </div>
             <div className="flex items-center gap-2">
               {e.status !== 'DRAFT' && (
-                <Button intent="secondary" size="sm" onClick={() => setResultsId(e.id)}>
+                <Button
+                  intent="secondary"
+                  size="sm"
+                  onClick={() => setResultsId(e.id)}
+                >
                   <BarChart3 size={14} strokeWidth={1.75} />
                   Resultados
                 </Button>
               )}
               {e.status === 'DRAFT' && (
-                <Button size="sm" onClick={() => publish.mutate(e.id)} loading={publish.isPending}>
+                <Button
+                  size="sm"
+                  onClick={() => publish.mutate(e.id)}
+                  loading={publish.isPending}
+                >
                   Publicar
                 </Button>
               )}
@@ -165,9 +199,14 @@ function ManagementView() {
         ))}
       </div>
 
-      {showCreate && <CreateFormalEvaluationModal onClose={() => setShowCreate(false)} />}
+      {showCreate && (
+        <CreateFormalEvaluationModal onClose={() => setShowCreate(false)} />
+      )}
       {resultsId !== null && (
-        <FormalEvaluationResultsPanel assessmentId={resultsId} onClose={() => setResultsId(null)} />
+        <FormalEvaluationResultsPanel
+          assessmentId={resultsId}
+          onClose={() => setResultsId(null)}
+        />
       )}
     </div>
   );

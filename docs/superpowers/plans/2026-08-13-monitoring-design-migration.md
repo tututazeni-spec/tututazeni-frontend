@@ -60,7 +60,7 @@ passam a `STATUS_INTENT` no formato `BadgeProps['intent']`), `shared.tsx`
 ### Task 2: `components/monitoring/shared.tsx`
 
 - [ ] `ErrorBanner`: `bg-red-50 border-red-200 text-red-700` → `rounded-card border
-      border-danger bg-danger-subtle text-danger-ink`; botão "Tentar novamente" vira
+    border-danger bg-danger-subtle text-danger-ink`; botão "Tentar novamente" vira
       `Button` (`intent="ghost" size="sm"`).
 - [ ] `ListSkeleton`: reimplementar sobre `@/components/ui/Skeleton`, preservando as props
       `rows`/`height` (via `itemClassName` computado) e o wrapper `p-6 space-y-4`.
@@ -71,7 +71,7 @@ passam a `STATUS_INTENT` no formato `BadgeProps['intent']`), `shared.tsx`
 
 - [ ] Header: `h1` → `font-display text-2xl font-bold text-ink`; links de navegação
       ("Indicadores"/"Avaliações") viram `<a className={buttonVariants({ intent:
-      'secondary', size: 'sm' })}>`.
+    'secondary', size: 'sm' })}>`.
 - [ ] `<select>` de ciclo → `Select` (`items` derivado de `cycles`).
 - [ ] Estados vazios (sem ciclos / sem objectivos) → `EmptyState`.
 - [ ] Card de objectivo: `bg-white rounded-lg shadow` → `<Card className="p-5">`; barra de

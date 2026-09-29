@@ -30,7 +30,11 @@ import {
   TableRow,
 } from '@/components/ui/Table';
 import { BenchmarkModal } from './BenchmarkModal';
-import { BENCHMARK_TYPE_INTENTS, BENCHMARK_TYPE_LABELS, INITIATIVE_TYPE_LABELS } from './utils';
+import {
+  BENCHMARK_TYPE_INTENTS,
+  BENCHMARK_TYPE_LABELS,
+  INITIATIVE_TYPE_LABELS,
+} from './utils';
 import type {
   BenchmarkInternalComparisonsData,
   BenchmarkListData,
@@ -40,7 +44,9 @@ import type {
 
 export function BenchmarksTab() {
   const notify = useToast();
-  const [modalBenchmark, setModalBenchmark] = useState<BenchmarkRow | 'new' | null>(null);
+  const [modalBenchmark, setModalBenchmark] = useState<
+    BenchmarkRow | 'new' | null
+  >(null);
 
   const { data, isLoading: loading } = useApiQuery<BenchmarkListData>(
     queryKeys.roiImpact.benchmarks(),
@@ -48,11 +54,12 @@ export function BenchmarksTab() {
     { staleTime: STALE_TIME.SEMI_STATIC },
   );
 
-  const { data: internal, isLoading: loadingInternal } = useApiQuery<BenchmarkInternalComparisonsData>(
-    queryKeys.roiImpact.benchmarkInternalComparisons(),
-    '/roi-impact/benchmarks/internal-comparisons',
-    { staleTime: STALE_TIME.DYNAMIC },
-  );
+  const { data: internal, isLoading: loadingInternal } =
+    useApiQuery<BenchmarkInternalComparisonsData>(
+      queryKeys.roiImpact.benchmarkInternalComparisons(),
+      '/roi-impact/benchmarks/internal-comparisons',
+      { staleTime: STALE_TIME.DYNAMIC },
+    );
 
   const { data: sector } = useApiQuery<BenchmarkSectorComparisonData>(
     queryKeys.roiImpact.benchmarkSectorComparison(),
@@ -60,26 +67,42 @@ export function BenchmarksTab() {
     { staleTime: STALE_TIME.DYNAMIC },
   );
 
-  const remove = useApiMutation((id: number) => apiClient.delete(`/roi-impact/benchmarks/${id}`), {
-    invalidateKeys: [
-      queryKeys.roiImpact.benchmarks(),
-      queryKeys.roiImpact.benchmarkSectorComparison(),
-    ],
-    onSuccess: () => notify({ title: 'Benchmark removido', intent: 'success' }),
-    onError: (e) => notify({ title: 'Erro ao remover', description: e.message, intent: 'danger' }),
-  });
+  const remove = useApiMutation(
+    (id: number) => apiClient.delete(`/roi-impact/benchmarks/${id}`),
+    {
+      invalidateKeys: [
+        queryKeys.roiImpact.benchmarks(),
+        queryKeys.roiImpact.benchmarkSectorComparison(),
+      ],
+      onSuccess: () =>
+        notify({ title: 'Benchmark removido', intent: 'success' }),
+      onError: (e) =>
+        notify({
+          title: 'Erro ao remover',
+          description: e.message,
+          intent: 'danger',
+        }),
+    },
+  );
 
   const benchmarks = data?.benchmarks ?? [];
 
   return (
     <div className="space-y-6">
       <section className="space-y-3">
-        <h3 className="font-display text-sm font-semibold text-ink">Internos</h3>
+        <h3 className="font-display text-sm font-semibold text-ink">
+          Internos
+        </h3>
         {loadingInternal ? (
-          <Skeleton rows={2} wrapperClassName="space-y-2 animate-pulse" itemClassName="h-14 rounded-card bg-surface-sunken" />
+          <Skeleton
+            rows={2}
+            wrapperClassName="space-y-2 animate-pulse"
+            itemClassName="h-14 rounded-card bg-surface-sunken"
+          />
         ) : (internal?.totalAnalyses ?? 0) === 0 ? (
           <p className="font-body text-sm text-ink-faint">
-            Sem análises de ROI calculadas ainda para comparar departamentos/unidades/ciclos.
+            Sem análises de ROI calculadas ainda para comparar
+            departamentos/unidades/ciclos.
           </p>
         ) : (
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
@@ -90,8 +113,17 @@ export function BenchmarksTab() {
                 </p>
                 <BarChart
                   orientation="horizontal"
-                  categories={(internal?.byDepartment ?? []).map((d) => String(d.key))}
-                  series={[{ label: 'ROI médio', values: (internal?.byDepartment ?? []).map((d) => d.avgRoi) }]}
+                  categories={(internal?.byDepartment ?? []).map((d) =>
+                    String(d.key),
+                  )}
+                  series={[
+                    {
+                      label: 'ROI médio',
+                      values: (internal?.byDepartment ?? []).map(
+                        (d) => d.avgRoi,
+                      ),
+                    },
+                  ]}
                   yFormat={(v) => `${v}%`}
                 />
               </CardBody>
@@ -103,8 +135,15 @@ export function BenchmarksTab() {
                 </p>
                 <BarChart
                   orientation="horizontal"
-                  categories={(internal?.byUnit ?? []).map((d) => String(d.key))}
-                  series={[{ label: 'ROI médio', values: (internal?.byUnit ?? []).map((d) => d.avgRoi) }]}
+                  categories={(internal?.byUnit ?? []).map((d) =>
+                    String(d.key),
+                  )}
+                  series={[
+                    {
+                      label: 'ROI médio',
+                      values: (internal?.byUnit ?? []).map((d) => d.avgRoi),
+                    },
+                  ]}
                   yFormat={(v) => `${v}%`}
                 />
               </CardBody>
@@ -116,8 +155,15 @@ export function BenchmarksTab() {
                 </p>
                 <BarChart
                   orientation="horizontal"
-                  categories={(internal?.byCycle ?? []).map((d) => String(d.key))}
-                  series={[{ label: 'ROI médio', values: (internal?.byCycle ?? []).map((d) => d.avgRoi) }]}
+                  categories={(internal?.byCycle ?? []).map((d) =>
+                    String(d.key),
+                  )}
+                  series={[
+                    {
+                      label: 'ROI médio',
+                      values: (internal?.byCycle ?? []).map((d) => d.avgRoi),
+                    },
+                  ]}
                   yFormat={(v) => `${v}%`}
                 />
               </CardBody>
@@ -143,12 +189,19 @@ export function BenchmarksTab() {
                   <TableBody>
                     {internal!.bestWorstByType.map((row) => (
                       <TableRow key={row.initiativeType}>
-                        <TableCell>{INITIATIVE_TYPE_LABELS[row.initiativeType] ?? row.initiativeType}</TableCell>
                         <TableCell>
-                          {row.best ? `${row.best.name} (${row.best.roiPercent}%)` : '—'}
+                          {INITIATIVE_TYPE_LABELS[row.initiativeType] ??
+                            row.initiativeType}
                         </TableCell>
                         <TableCell>
-                          {row.worst ? `${row.worst.name} (${row.worst.roiPercent}%)` : '—'}
+                          {row.best
+                            ? `${row.best.name} (${row.best.roiPercent}%)`
+                            : '—'}
+                        </TableCell>
+                        <TableCell>
+                          {row.worst
+                            ? `${row.worst.name} (${row.worst.roiPercent}%)`
+                            : '—'}
                         </TableCell>
                       </TableRow>
                     ))}
@@ -161,20 +214,30 @@ export function BenchmarksTab() {
       </section>
 
       <section className="space-y-3">
-        <h3 className="font-display text-sm font-semibold text-ink">Externos</h3>
+        <h3 className="font-display text-sm font-semibold text-ink">
+          Externos
+        </h3>
         <Card>
           <CardBody>
             <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
               <div>
-                <p className="text-xs text-ink-faint">ROI médio da Academia INNOVA</p>
-                <p className="font-display text-xl font-bold text-ink">
-                  {sector?.internalAvgRoi != null ? `${sector.internalAvgRoi}%` : '—'}
+                <p className="text-xs text-ink-faint">
+                  ROI médio da Academia INNOVA
                 </p>
-                <p className="text-[11px] text-ink-faint">{sector?.sampleSize ?? 0} análise(s)</p>
+                <p className="font-display text-xl font-bold text-ink">
+                  {sector?.internalAvgRoi != null
+                    ? `${sector.internalAvgRoi}%`
+                    : '—'}
+                </p>
+                <p className="text-[11px] text-ink-faint">
+                  {sector?.sampleSize ?? 0} análise(s)
+                </p>
               </div>
             </div>
             {sector?.note && (
-              <p className="mt-3 rounded-card bg-warning-subtle p-3 text-xs text-warning-ink">{sector.note}</p>
+              <p className="mt-3 rounded-card bg-warning-subtle p-3 text-xs text-warning-ink">
+                {sector.note}
+              </p>
             )}
             {(sector?.externalBenchmarks.length ?? 0) > 0 && (
               <ul className="mt-3 space-y-1 text-sm text-ink">
@@ -197,7 +260,9 @@ export function BenchmarksTab() {
 
       <section className="space-y-3">
         <div className="flex items-center justify-between">
-          <h3 className="font-display text-sm font-semibold text-ink">Registos de benchmarks</h3>
+          <h3 className="font-display text-sm font-semibold text-ink">
+            Registos de benchmarks
+          </h3>
           <Button size="sm" onClick={() => setModalBenchmark('new')}>
             <Plus size={14} strokeWidth={1.75} className="mr-1" />
             Novo benchmark
@@ -206,7 +271,11 @@ export function BenchmarksTab() {
 
         <Card>
           {loading ? (
-            <Skeleton rows={3} wrapperClassName="space-y-2 p-4 animate-pulse" itemClassName="h-12 rounded-card bg-surface-sunken" />
+            <Skeleton
+              rows={3}
+              wrapperClassName="space-y-2 p-4 animate-pulse"
+              itemClassName="h-12 rounded-card bg-surface-sunken"
+            />
           ) : benchmarks.length === 0 ? (
             <EmptyState
               title="Sem benchmarks registados ainda"
@@ -229,10 +298,16 @@ export function BenchmarksTab() {
                 </TableHead>
                 <TableBody>
                   {benchmarks.map((b) => (
-                    <TableRow key={b.id} className="cursor-pointer" onClick={() => setModalBenchmark(b)}>
+                    <TableRow
+                      key={b.id}
+                      className="cursor-pointer"
+                      onClick={() => setModalBenchmark(b)}
+                    >
                       <TableCell className="text-ink">{b.name}</TableCell>
                       <TableCell>
-                        <Badge intent={BENCHMARK_TYPE_INTENTS[b.type] ?? 'neutral'}>
+                        <Badge
+                          intent={BENCHMARK_TYPE_INTENTS[b.type] ?? 'neutral'}
+                        >
                           {BENCHMARK_TYPE_LABELS[b.type] ?? b.type}
                         </Badge>
                       </TableCell>
@@ -242,7 +317,9 @@ export function BenchmarksTab() {
                         {b.value}
                         {b.unit}
                       </TableCell>
-                      <TableCell className="text-xs text-ink-faint">{b.indicatorName ?? '—'}</TableCell>
+                      <TableCell className="text-xs text-ink-faint">
+                        {b.indicatorName ?? '—'}
+                      </TableCell>
                       <TableCell onClick={(e) => e.stopPropagation()}>
                         <Button
                           size="sm"

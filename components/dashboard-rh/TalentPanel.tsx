@@ -52,8 +52,12 @@ function TopBarKpiCard({
       <div className={`h-1.5 w-full ${t.bar}`} />
       <div className="p-5 pt-6">
         <Icon size={22} strokeWidth={1.75} className={t.text} />
-        <p className={`mt-3 font-display text-3xl font-bold ${t.text}`}>{value}</p>
-        <p className="mt-1 font-body text-sm font-medium text-ink-muted">{label}</p>
+        <p className={`mt-3 font-display text-3xl font-bold ${t.text}`}>
+          {value}
+        </p>
+        <p className="mt-1 font-body text-sm font-medium text-ink-muted">
+          {label}
+        </p>
         {sub && <p className="mt-1 font-body text-xs text-ink-faint">{sub}</p>}
       </div>
     </div>
@@ -81,19 +85,44 @@ export function TalentPanel() {
   const hiPoList = data?.hiPoList ?? [];
   const positionsAtRisk = data?.positionsAtRisk ?? [];
 
-  const tabs: Array<{ key: TabKey; label: string; icon: LucideIcon; count: number }> = [
-    { key: 'succession', label: 'Planos de Sucessão', icon: Users, count: successionPlans.length },
-    { key: 'hipo', label: 'Alto Potencial', icon: Star, count: data?.hiPoCount ?? hiPoList.length },
-    { key: 'risk', label: 'Posições em Risco', icon: AlertTriangle, count: positionsAtRisk.length },
+  const tabs: Array<{
+    key: TabKey;
+    label: string;
+    icon: LucideIcon;
+    count: number;
+  }> = [
+    {
+      key: 'succession',
+      label: 'Planos de Sucessão',
+      icon: Users,
+      count: successionPlans.length,
+    },
+    {
+      key: 'hipo',
+      label: 'Alto Potencial',
+      icon: Star,
+      count: data?.hiPoCount ?? hiPoList.length,
+    },
+    {
+      key: 'risk',
+      label: 'Posições em Risco',
+      icon: AlertTriangle,
+      count: positionsAtRisk.length,
+    },
   ];
 
   return (
     <div className="space-y-5">
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         <div className="flex flex-col items-center justify-center rounded-card border border-border bg-surface p-3">
-          <GaugeChart value={data?.coverageRate ?? 0} label="Posições Cobertas" thresholds={{ warning: 60, danger: 30 }} size={120} />
+          <GaugeChart
+            value={data?.coverageRate ?? 0}
+            label="Posições Cobertas"
+            thresholds={{ warning: 60, danger: 30 }}
+            size={120}
+          />
         </div>
-                <TopBarKpiCard
+        <TopBarKpiCard
           icon={Users}
           label="Planos de Sucessão"
           value={successionPlans.length}
@@ -129,7 +158,9 @@ export function TalentPanel() {
             <span className="hidden sm:inline">{t.label}</span>
             <span
               className={`rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${
-                tab === t.key ? 'bg-canvas/20 text-canvas' : 'bg-surface-sunken text-ink-faint'
+                tab === t.key
+                  ? 'bg-canvas/20 text-canvas'
+                  : 'bg-surface-sunken text-ink-faint'
               }`}
             >
               {t.count}
@@ -202,7 +233,11 @@ export function TalentPanel() {
                     </p>
                   </div>
                   <Badge intent="warning">
-                    <Star size={11} strokeWidth={2} className="mr-1 inline align-[-1px]" />
+                    <Star
+                      size={11}
+                      strokeWidth={2}
+                      className="mr-1 inline align-[-1px]"
+                    />
                     Alto Potencial
                   </Badge>
                 </div>

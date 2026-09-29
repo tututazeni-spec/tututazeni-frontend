@@ -62,7 +62,7 @@ export function ManagerView() {
       )}
 
       {/* KPIs */}
-            <div className="grid grid-cols-4 gap-3">
+      <div className="grid grid-cols-4 gap-3">
         <TopBarCard
           label="Equipa"
           value={metrics.headcount}
@@ -163,7 +163,12 @@ export function ManagerView() {
                 <BarChart
                   orientation="horizontal"
                   categories={competencyGaps.map((g) => g.name)}
-                  series={[{ label: 'Gap médio', values: competencyGaps.map((g) => g.avgGap) }]}
+                  series={[
+                    {
+                      label: 'Gap médio',
+                      values: competencyGaps.map((g) => g.avgGap),
+                    },
+                  ]}
                   yFormat={(v) => v.toFixed(1)}
                   className="mb-4"
                 />

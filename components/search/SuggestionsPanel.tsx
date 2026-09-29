@@ -61,7 +61,12 @@ export function SuggestionsPanel({ onSearch }: SuggestionsPanelProps) {
           </h3>
           <div className="flex flex-wrap gap-2">
             {(data?.trendingSearches ?? []).slice(0, 6).map((t, i) => (
-              <Button key={i} intent="secondary" size="sm" onClick={() => onSearch(t)}>
+              <Button
+                key={i}
+                intent="secondary"
+                size="sm"
+                onClick={() => onSearch(t)}
+              >
                 {t}
               </Button>
             ))}

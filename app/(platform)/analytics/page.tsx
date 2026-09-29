@@ -63,38 +63,38 @@ export default function AnalyticsPage() {
     () => NAV.filter((n) => !n.roles || (role && n.roles.includes(role))),
     [role],
   );
-const activeNav = nav.find((item) => item.id === view) ?? nav[0];
-const ActiveIcon = activeNav?.icon as LucideIcon | undefined;
+  const activeNav = nav.find((item) => item.id === view) ?? nav[0];
+  const ActiveIcon = activeNav?.icon as LucideIcon | undefined;
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
       <div className="mb-6 flex items-center justify-between">
-  <div className="flex items-center gap-3">
-    <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-      {ActiveIcon && (
-        <ActiveIcon
-          size={22}
-          strokeWidth={1.8}
-          className="transition-all duration-300"
-        />
-      )}
-    </div>
+        <div className="flex items-center gap-3">
+          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+            {ActiveIcon && (
+              <ActiveIcon
+                size={22}
+                strokeWidth={1.8}
+                className="transition-all duration-300"
+              />
+            )}
+          </div>
 
-    <div>
-      <h1 className="font-display text-xl font-semibold text-ink">
-  Indicadores de Desempenho
-</h1>
-      {activeNav?.label && activeNav.label !== TITLES[view] && (
-        <p className="mt-0.5 font-body text-xs text-ink-muted">
-          {activeNav.label}
-        </p>
-      )}
-    </div>
-  </div>
-</div>
+          <div>
+            <h1 className="font-display text-xl font-semibold text-ink">
+              Indicadores de Desempenho
+            </h1>
+            {activeNav?.label && activeNav.label !== TITLES[view] && (
+              <p className="mt-0.5 font-body text-xs text-ink-muted">
+                {activeNav.label}
+              </p>
+            )}
+          </div>
+        </div>
+      </div>
 
       <Tabs value={view} onValueChange={(v) => setView(v as View)}>
-               {/* Abas em "glassmorphism": contentor translúcido com desfoque
+        {/* Abas em "glassmorphism": contentor translúcido com desfoque
             (backdrop-blur) e botões em forma de pílula com ícone, título e
             subtítulo. A aba activa (data-[state=active] do Radix) ganha
             gradiente azul, sombra e um visto à direita. As manchas

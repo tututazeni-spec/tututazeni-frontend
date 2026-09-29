@@ -24,7 +24,11 @@ import { ADMIN_ROLES } from '@/lib/roles';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { AttendanceView } from '@/components/live-classes/AttendanceView';
 import { CalendarView } from '@/components/live-classes/CalendarView';
-import { CAN_VIEW_LIVE_CLASSES_REPORTS_ROLES, NAV, type NavId } from '@/components/live-classes/constants';
+import {
+  CAN_VIEW_LIVE_CLASSES_REPORTS_ROLES,
+  NAV,
+  type NavId,
+} from '@/components/live-classes/constants';
 import { DashboardView } from '@/components/live-classes/DashboardView';
 import { EvaluationsView } from '@/components/live-classes/EvaluationsView';
 import { InstructorsView } from '@/components/live-classes/InstructorsView';
@@ -42,17 +46,29 @@ import { Toast } from '@/components/live-classes/Toast';
 import { getStatus } from '@/components/live-classes/utils';
 import { CreateLiveClassWizard } from '@/components/live-classes/wizard/CreateLiveClassWizard';
 import type { Filters } from '@/components/live-classes/LiveClassesView';
-import type { LiveClass, PaginatedClasses } from '@/components/live-classes/types';
+import type {
+  LiveClass,
+  PaginatedClasses,
+} from '@/components/live-classes/types';
 
-const INITIAL_FILTERS: Filters = { page: 1, courseId: '', type: '', status: '', modality: '' };
+const INITIAL_FILTERS: Filters = {
+  page: 1,
+  courseId: '',
+  type: '',
+  status: '',
+  modality: '',
+};
 
 export default function LivePage() {
   const router = useRouter();
   const role = useCurrentRole();
   const canCreate = !!role && ADMIN_ROLES.includes(role);
-  const canViewReports = !!role && CAN_VIEW_LIVE_CLASSES_REPORTS_ROLES.includes(role);
+  const canViewReports =
+    !!role && CAN_VIEW_LIVE_CLASSES_REPORTS_ROLES.includes(role);
   const visibleNav = NAV.filter(
-    (n) => (n.id !== 'settings' || canCreate) && (n.id !== 'reports' && n.id !== 'evaluations' ? true : canViewReports),
+    (n) =>
+      (n.id !== 'settings' || canCreate) &&
+      (n.id !== 'reports' && n.id !== 'evaluations' ? true : canViewReports),
   );
 
   const [nav, setNav] = useState<NavId>('list');
@@ -266,12 +282,28 @@ export default function LivePage() {
           />
 
           {/* ── Modals ── */}
-          {showCreate && <CreateLiveClassWizard onClose={() => setShowCreate(false)} />}
-          {viewRecording && (
-            <RecordingModal lc={viewRecording} onClose={() => setViewRecording(null)} />
+          {showCreate && (
+            <CreateLiveClassWizard onClose={() => setShowCreate(false)} />
           )}
-          {postponing && <PostponeModal lc={postponing} onClose={() => setPostponing(null)} />}
-          {toast && <Toast msg={toast.msg} type={toast.type} onClose={() => setToast(null)} />}
+          {viewRecording && (
+            <RecordingModal
+              lc={viewRecording}
+              onClose={() => setViewRecording(null)}
+            />
+          )}
+          {postponing && (
+            <PostponeModal
+              lc={postponing}
+              onClose={() => setPostponing(null)}
+            />
+          )}
+          {toast && (
+            <Toast
+              msg={toast.msg}
+              type={toast.type}
+              onClose={() => setToast(null)}
+            />
+          )}
         </>
       )}
     </div>

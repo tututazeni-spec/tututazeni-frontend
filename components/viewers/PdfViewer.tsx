@@ -119,7 +119,7 @@ export function PdfViewer({ src, title }: PdfViewerProps) {
             size="sm"
             aria-label="Página anterior"
             disabled={pageNum <= 1}
-            onClick={() => setPageNum(p => Math.max(1, p - 1))}
+            onClick={() => setPageNum((p) => Math.max(1, p - 1))}
           >
             <ChevronLeft size={16} strokeWidth={1.75} />
           </Button>
@@ -131,7 +131,7 @@ export function PdfViewer({ src, title }: PdfViewerProps) {
             size="sm"
             aria-label="Página seguinte"
             disabled={pageNum >= numPages}
-            onClick={() => setPageNum(p => Math.min(numPages, p + 1))}
+            onClick={() => setPageNum((p) => Math.min(numPages, p + 1))}
           >
             <ChevronRight size={16} strokeWidth={1.75} />
           </Button>

@@ -348,12 +348,27 @@ export const queryKeys = {
     overview: () => [...queryKeys.evaluation360.all, 'overview'] as const,
     // Aba "Avaliados" (docs/evaluation360.md §4).
     cycleParticipants: (cycleId: string, filters: Record<string, string>) =>
-      [...queryKeys.evaluation360.all, 'cycle-participants', cycleId, filters] as const,
+      [
+        ...queryKeys.evaluation360.all,
+        'cycle-participants',
+        cycleId,
+        filters,
+      ] as const,
     participantDetail: (cycleId: string, userId: string) =>
-      [...queryKeys.evaluation360.all, 'participant-detail', cycleId, userId] as const,
+      [
+        ...queryKeys.evaluation360.all,
+        'participant-detail',
+        cycleId,
+        userId,
+      ] as const,
     // Aba "Avaliadores" (docs/evaluation360.md §5).
     cycleEvaluators: (cycleId: string, filters: Record<string, string>) =>
-      [...queryKeys.evaluation360.all, 'cycle-evaluators', cycleId, filters] as const,
+      [
+        ...queryKeys.evaluation360.all,
+        'cycle-evaluators',
+        cycleId,
+        filters,
+      ] as const,
     // Aba "Questionários" (docs/evaluation360.md §6).
     questionnaires: (filters: Record<string, string>) =>
       [...queryKeys.evaluation360.all, 'questionnaires', filters] as const,
@@ -366,10 +381,20 @@ export const queryKeys = {
     // Aba "Feedback" (docs/evaluation360.md §8) — feedback qualitativo do
     // ciclo, distinto de feedbacks() acima (esse é feedback contínuo).
     cycleFeedback: (cycleId: string, filters: Record<string, string>) =>
-      [...queryKeys.evaluation360.all, 'cycle-feedback', cycleId, filters] as const,
+      [
+        ...queryKeys.evaluation360.all,
+        'cycle-feedback',
+        cycleId,
+        filters,
+      ] as const,
     // Aba "Relatórios" (docs/evaluation360.md §9).
     cycleReport: (cycleId: string, filters: Record<string, string>) =>
-      [...queryKeys.evaluation360.all, 'cycle-report', cycleId, filters] as const,
+      [
+        ...queryKeys.evaluation360.all,
+        'cycle-report',
+        cycleId,
+        filters,
+      ] as const,
     cycleEvolution: (filters: Record<string, string>) =>
       [...queryKeys.evaluation360.all, 'cycle-evolution', filters] as const,
     // Separador "Avaliações" do perfil de utilizador (docs/modulo_users.md Ponto 3).
@@ -432,25 +457,38 @@ export const queryKeys = {
       [...queryKeys.roiImpact.all, 'impact-records', filter ?? {}] as const,
     impactByCategory: (filter?: Record<string, unknown>) =>
       [...queryKeys.roiImpact.all, 'impact-by-category', filter ?? {}] as const,
-    evaluationModels: () => [...queryKeys.roiImpact.all, 'evaluation-models'] as const,
+    evaluationModels: () =>
+      [...queryKeys.roiImpact.all, 'evaluation-models'] as const,
     costs: (filter?: Record<string, unknown>) =>
       [...queryKeys.roiImpact.all, 'costs', filter ?? {}] as const,
     costsConsolidation: (filter?: Record<string, unknown>) =>
-      [...queryKeys.roiImpact.all, 'costs-consolidation', filter ?? {}] as const,
+      [
+        ...queryKeys.roiImpact.all,
+        'costs-consolidation',
+        filter ?? {},
+      ] as const,
     kpis: (filter?: Record<string, unknown>) =>
       [...queryKeys.roiImpact.all, 'kpis', filter ?? {}] as const,
-    kpisByCategory: () => [...queryKeys.roiImpact.all, 'kpis-by-category'] as const,
-    correlationDefinitions: () => [...queryKeys.roiImpact.all, 'correlation-definitions'] as const,
+    kpisByCategory: () =>
+      [...queryKeys.roiImpact.all, 'kpis-by-category'] as const,
+    correlationDefinitions: () =>
+      [...queryKeys.roiImpact.all, 'correlation-definitions'] as const,
     correlations: (filter?: Record<string, unknown>) =>
       [...queryKeys.roiImpact.all, 'correlations', filter ?? {}] as const,
-    correlation: (id: number) => [...queryKeys.roiImpact.all, 'correlations', id] as const,
+    correlation: (id: number) =>
+      [...queryKeys.roiImpact.all, 'correlations', id] as const,
     scenarios: (filter?: Record<string, unknown>) =>
       [...queryKeys.roiImpact.all, 'scenarios', filter ?? {}] as const,
-    scenario: (id: number) => [...queryKeys.roiImpact.all, 'scenarios', id] as const,
+    scenario: (id: number) =>
+      [...queryKeys.roiImpact.all, 'scenarios', id] as const,
     benchmarks: (filter?: Record<string, unknown>) =>
       [...queryKeys.roiImpact.all, 'benchmarks', filter ?? {}] as const,
     benchmarkInternalComparisons: (filter?: Record<string, unknown>) =>
-      [...queryKeys.roiImpact.all, 'benchmarks-internal-comparisons', filter ?? {}] as const,
+      [
+        ...queryKeys.roiImpact.all,
+        'benchmarks-internal-comparisons',
+        filter ?? {},
+      ] as const,
     benchmarkSectorComparison: () =>
       [...queryKeys.roiImpact.all, 'benchmarks-sector-comparison'] as const,
     report: (key: string, filter?: Record<string, unknown>) =>
@@ -854,7 +892,13 @@ export const queryKeys = {
     calendar: (params: Record<string, unknown>) =>
       [...queryKeys.events.all, 'calendar', params] as const,
     participants: (eventId: number, params: Record<string, unknown>) =>
-      [...queryKeys.events.all, 'detail', eventId, 'participants', params] as const,
+      [
+        ...queryKeys.events.all,
+        'detail',
+        eventId,
+        'participants',
+        params,
+      ] as const,
     allSessions: (params: Record<string, unknown>) =>
       [...queryKeys.events.all, 'sessions', params] as const,
     logistics: (eventId: number) =>
@@ -866,7 +910,14 @@ export const queryKeys = {
     checkins: (params: Record<string, unknown>) =>
       [...queryKeys.events.all, 'checkins', params] as const,
     sessionAttendance: (eventId: number, sessionId: number) =>
-      [...queryKeys.events.all, 'detail', eventId, 'sessions', sessionId, 'attendance'] as const,
+      [
+        ...queryKeys.events.all,
+        'detail',
+        eventId,
+        'sessions',
+        sessionId,
+        'attendance',
+      ] as const,
     evaluations: (params: Record<string, unknown>) =>
       [...queryKeys.events.all, 'evaluations', params] as const,
     reports: (params: Record<string, unknown>) =>

@@ -90,7 +90,9 @@ const emptyCheckpoint = (key: number): CheckpointDraft => ({
 
 const EMPTY_ROW: Record<
   ListKey,
-  (key: number) => CompetencyGapDraft | GoalDraft | ActionDraft | CheckpointDraft
+  (
+    key: number,
+  ) => CompetencyGapDraft | GoalDraft | ActionDraft | CheckpointDraft
 > = {
   competencyGaps: emptyGap,
   goals: emptyGoal,
@@ -129,7 +131,9 @@ function addMonths(dateStr: string, months: number): string {
 }
 
 function extractMessage(e: unknown): string {
-  return e instanceof Error ? e.message : 'Erro ao gravar esta etapa. Tente novamente.';
+  return e instanceof Error
+    ? e.message
+    : 'Erro ao gravar esta etapa. Tente novamente.';
 }
 
 export interface CreatePlanWizardProps {
@@ -138,7 +142,10 @@ export interface CreatePlanWizardProps {
   onSuccess: (planId: number) => void;
 }
 
-export function CreatePlanWizard({ onClose, onSuccess }: CreatePlanWizardProps) {
+export function CreatePlanWizard({
+  onClose,
+  onSuccess,
+}: CreatePlanWizardProps) {
   const qc = useQueryClient();
   const notify = useToast();
   const [step, setStep] = useState(0);
@@ -153,7 +160,10 @@ export function CreatePlanWizard({ onClose, onSuccess }: CreatePlanWizardProps) 
   const current = WIZARD_STEPS[step];
   const isLast = step === WIZARD_STEPS.length - 1;
 
-  const setField = <K extends keyof WizardForm>(key: K, value: WizardForm[K]) => {
+  const setField = <K extends keyof WizardForm>(
+    key: K,
+    value: WizardForm[K],
+  ) => {
     setForm((f) => {
       if (key === 'startDate') {
         const v = value as unknown as string;
@@ -187,21 +197,31 @@ export function CreatePlanWizard({ onClose, onSuccess }: CreatePlanWizardProps) 
       (f) =>
         ({
           ...f,
-          [key]: [...(f[key] as unknown[]), EMPTY_ROW[key](nextKeyRef.current++)],
+          [key]: [
+            ...(f[key] as unknown[]),
+            EMPTY_ROW[key](nextKeyRef.current++),
+          ],
         }) as WizardForm,
     );
   const removeRow = (key: ListKey, index: number) =>
     setForm(
       (f) =>
-        ({ ...f, [key]: (f[key] as unknown[]).filter((_, i) => i !== index) }) as WizardForm,
+        ({
+          ...f,
+          [key]: (f[key] as unknown[]).filter((_, i) => i !== index),
+        }) as WizardForm,
     );
-  const setRow = (key: ListKey, index: number, patch: Record<string, unknown>) =>
+  const setRow = (
+    key: ListKey,
+    index: number,
+    patch: Record<string, unknown>,
+  ) =>
     setForm(
       (f) =>
         ({
           ...f,
-          [key]: (f[key] as unknown as Array<Record<string, unknown>>).map((row, i) =>
-            i === index ? { ...row, ...patch } : row,
+          [key]: (f[key] as unknown as Array<Record<string, unknown>>).map(
+            (row, i) => (i === index ? { ...row, ...patch } : row),
           ),
         }) as WizardForm,
     );
@@ -229,7 +249,9 @@ export function CreatePlanWizard({ onClose, onSuccess }: CreatePlanWizardProps) 
           ? ['cada acção precisa de um nome']
           : [];
       case 'tracking':
-        return form.checkpoints.some((c) => c.id === null && (!c.title.trim() || !c.scheduledAt))
+        return form.checkpoints.some(
+          (c) => c.id === null && (!c.title.trim() || !c.scheduledAt),
+        )
           ? ['cada checkpoint precisa de título e data']
           : [];
       default:
@@ -282,7 +304,9 @@ export function CreatePlanWizard({ onClose, onSuccess }: CreatePlanWizardProps) 
         .filter((g) => g.competencyId)
         .map((g) => ({
           competencyId: Number(g.competencyId),
-          currentLevel: g.currentLevel.trim() ? Number(g.currentLevel) : undefined,
+          currentLevel: g.currentLevel.trim()
+            ? Number(g.currentLevel)
+            : undefined,
           targetLevel: g.targetLevel.trim() ? Number(g.targetLevel) : undefined,
           priority: g.priority,
         })),
@@ -291,7 +315,9 @@ export function CreatePlanWizard({ onClose, onSuccess }: CreatePlanWizardProps) 
   const putCareerLink = (id: number) =>
     apiClient.put(`/development-plans/${id}`, {
       careerPlanId:
-        form.careerLinked && form.careerPlanId.trim() ? Number(form.careerPlanId) : undefined,
+        form.careerLinked && form.careerPlanId.trim()
+          ? Number(form.careerPlanId)
+          : undefined,
       careerReadinessPercent:
         form.careerLinked && form.careerReadinessPercent.trim()
           ? Number(form.careerReadinessPercent)
@@ -302,14 +328,17 @@ export function CreatePlanWizard({ onClose, onSuccess }: CreatePlanWizardProps) 
     const updated = await Promise.all(
       form.goals.map(async (g) => {
         if (g.id !== null || !g.title.trim()) return g;
-        const created = await apiClient.post<{ id: number }>('/development-plans/goals', {
-          planId: id,
-          title: g.title.trim(),
-          description: g.description.trim() || undefined,
-          successIndicator: g.successIndicator.trim() || undefined,
-          dueDate: g.dueDate || undefined,
-          weight: g.weight.trim() ? Number(g.weight) : undefined,
-        });
+        const created = await apiClient.post<{ id: number }>(
+          '/development-plans/goals',
+          {
+            planId: id,
+            title: g.title.trim(),
+            description: g.description.trim() || undefined,
+            successIndicator: g.successIndicator.trim() || undefined,
+            dueDate: g.dueDate || undefined,
+            weight: g.weight.trim() ? Number(g.weight) : undefined,
+          },
+        );
         return { ...g, id: created.id };
       }),
     );
@@ -320,17 +349,22 @@ export function CreatePlanWizard({ onClose, onSuccess }: CreatePlanWizardProps) 
     const updated = await Promise.all(
       form.actions.map(async (a, seq) => {
         if (a.id !== null || !a.title.trim()) return a;
-        const created = await apiClient.post<{ id: number }>('/development-plans/actions', {
-          planId: id,
-          title: a.title.trim(),
-          description: a.description.trim() || undefined,
-          type: a.type,
-          courseId: a.courseId.trim() ? Number(a.courseId) : undefined,
-          workloadHours: a.workloadHours.trim() ? Number(a.workloadHours) : undefined,
-          dueDate: a.dueDate || undefined,
-          mandatory: a.mandatory,
-          seq,
-        });
+        const created = await apiClient.post<{ id: number }>(
+          '/development-plans/actions',
+          {
+            planId: id,
+            title: a.title.trim(),
+            description: a.description.trim() || undefined,
+            type: a.type,
+            courseId: a.courseId.trim() ? Number(a.courseId) : undefined,
+            workloadHours: a.workloadHours.trim()
+              ? Number(a.workloadHours)
+              : undefined,
+            dueDate: a.dueDate || undefined,
+            mandatory: a.mandatory,
+            seq,
+          },
+        );
         return { ...a, id: created.id };
       }),
     );
@@ -341,13 +375,16 @@ export function CreatePlanWizard({ onClose, onSuccess }: CreatePlanWizardProps) 
     const updated = await Promise.all(
       form.checkpoints.map(async (c) => {
         if (c.id !== null || !c.title.trim() || !c.scheduledAt) return c;
-        const created = await apiClient.post<{ id: number }>('/development-plans/checkpoints', {
-          planId: id,
-          title: c.title.trim(),
-          description: c.description.trim() || undefined,
-          scheduledAt: c.scheduledAt,
-          type: c.type,
-        });
+        const created = await apiClient.post<{ id: number }>(
+          '/development-plans/checkpoints',
+          {
+            planId: id,
+            title: c.title.trim(),
+            description: c.description.trim() || undefined,
+            scheduledAt: c.scheduledAt,
+            type: c.type,
+          },
+        );
         return { ...c, id: created.id };
       }),
     );
@@ -409,7 +446,10 @@ export function CreatePlanWizard({ onClose, onSuccess }: CreatePlanWizardProps) 
       const id = await persistCurrent();
       if (isLast) {
         qc.invalidateQueries({ queryKey: queryKeys.developmentPlans.all });
-        notify({ title: 'PDI criado — fica em Rascunho até ser submetido', intent: 'success' });
+        notify({
+          title: 'PDI criado — fica em Rascunho até ser submetido',
+          intent: 'success',
+        });
         if (id) onSuccess(id);
         onClose();
         return;
@@ -453,7 +493,11 @@ export function CreatePlanWizard({ onClose, onSuccess }: CreatePlanWizardProps) 
                     cls
                   }
                 >
-                  {done && !isCurrent ? <Check size={12} strokeWidth={2.5} /> : i + 1}
+                  {done && !isCurrent ? (
+                    <Check size={12} strokeWidth={2.5} />
+                  ) : (
+                    i + 1
+                  )}
                 </button>
               </li>
             );

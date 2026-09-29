@@ -30,14 +30,20 @@ import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { Textarea } from '@/components/ui/Textarea';
 import { LIVE_ATTENDANCE_STATUS_CFG } from './constants';
-import type { LiveAttendanceStatus, LiveParticipant, PaginatedMeta } from './types';
+import type {
+  LiveAttendanceStatus,
+  LiveParticipant,
+  PaginatedMeta,
+} from './types';
 
 const STATUS_ITEMS = [
   { value: 'ALL', label: 'Todos os estados' },
-  ...(Object.keys(LIVE_ATTENDANCE_STATUS_CFG) as LiveAttendanceStatus[]).map((s) => ({
-    value: s,
-    label: LIVE_ATTENDANCE_STATUS_CFG[s].label,
-  })),
+  ...(Object.keys(LIVE_ATTENDANCE_STATUS_CFG) as LiveAttendanceStatus[]).map(
+    (s) => ({
+      value: s,
+      label: LIVE_ATTENDANCE_STATUS_CFG[s].label,
+    }),
+  ),
 ];
 
 function useLiveClassOptions() {
@@ -47,7 +53,10 @@ function useLiveClassOptions() {
     '/live-classes',
     { params, staleTime: STALE_TIME.SEMI_STATIC },
   );
-  return (query.data?.data ?? []).map((c) => ({ value: String(c.id), label: c.topic }));
+  return (query.data?.data ?? []).map((c) => ({
+    value: String(c.id),
+    label: c.topic,
+  }));
 }
 
 export function AttendanceView({ canManage }: { canManage: boolean }) {
@@ -60,11 +69,17 @@ export function AttendanceView({ canManage }: { canManage: boolean }) {
   const [dateTo, setDateTo] = useState('');
   const [page, setPage] = useState(1);
   const [registering, setRegistering] = useState<LiveParticipant | null>(null);
-  const [registerForm, setRegisterForm] = useState({ joinedAt: '', leftAt: '' });
+  const [registerForm, setRegisterForm] = useState({
+    joinedAt: '',
+    leftAt: '',
+  });
   const [justifying, setJustifying] = useState<LiveParticipant | null>(null);
   const [justification, setJustification] = useState('');
 
-  const params: Record<string, string | number | undefined> = { page, limit: 20 };
+  const params: Record<string, string | number | undefined> = {
+    page,
+    limit: 20,
+  };
   if (liveClassId !== 'ALL') params.liveClassId = Number(liveClassId);
   if (status !== 'ALL') params.status = status;
   if (dateFrom) params.dateFrom = new Date(dateFrom).toISOString();
@@ -73,7 +88,11 @@ export function AttendanceView({ canManage }: { canManage: boolean }) {
   const { data, isLoading } = useApiQuery<PaginatedMeta<LiveParticipant>>(
     queryKeys.liveClasses.participants({ view: 'attendance', ...params }),
     '/live-classes/participants',
-    { params, staleTime: STALE_TIME.DYNAMIC, placeholderData: keepPreviousData },
+    {
+      params,
+      staleTime: STALE_TIME.DYNAMIC,
+      placeholderData: keepPreviousData,
+    },
   );
   const rows = data?.data ?? [];
   const totalPages = data?.meta.totalPages ?? 1;
@@ -83,13 +102,21 @@ export function AttendanceView({ canManage }: { canManage: boolean }) {
   const register = useApiMutation(
     (p: LiveParticipant) =>
       apiClient.put(`/live-classes/${p.liveClassId}/attendance/${p.id}`, {
-        joinedAt: registerForm.joinedAt ? new Date(registerForm.joinedAt).toISOString() : undefined,
-        leftAt: registerForm.leftAt ? new Date(registerForm.leftAt).toISOString() : undefined,
+        joinedAt: registerForm.joinedAt
+          ? new Date(registerForm.joinedAt).toISOString()
+          : undefined,
+        leftAt: registerForm.leftAt
+          ? new Date(registerForm.leftAt).toISOString()
+          : undefined,
       }),
     {
       invalidateKeys,
       onSuccess: () => {
-        toast({ title: 'Presença registada — progresso do curso actualizado se aplicável.', intent: 'success' });
+        toast({
+          title:
+            'Presença registada — progresso do curso actualizado se aplicável.',
+          intent: 'success',
+        });
         setRegistering(null);
       },
       onError: (e) => toast({ title: e.message, intent: 'danger' }),
@@ -125,7 +152,10 @@ export function AttendanceView({ canManage }: { canManage: boolean }) {
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-3">
         <Combobox
-          items={[{ value: 'ALL', label: 'Todas as aulas' }, ...liveClassOptions]}
+          items={[
+            { value: 'ALL', label: 'Todas as aulas' },
+            ...liveClassOptions,
+          ]}
           value={liveClassId}
           onValueChange={(v) => {
             setLiveClassId(v);
@@ -173,29 +203,50 @@ export function AttendanceView({ canManage }: { canManage: boolean }) {
         <>
           <Card className="divide-y divide-border">
             {rows.map((p) => (
-              <div key={p.id} className="flex flex-wrap items-center gap-3 px-4 py-3">
+              <div
+                key={p.id}
+                className="flex flex-wrap items-center gap-3 px-4 py-3"
+              >
                 <Avatar name={p.user.fullName} size="sm" />
                 <div className="min-w-0 flex-1">
-                  <div className="truncate text-sm font-medium text-ink">{p.user.fullName}</div>
+                  <div className="truncate text-sm font-medium text-ink">
+                    {p.user.fullName}
+                  </div>
                   <div className="mt-0.5 flex flex-wrap items-center gap-x-2 font-body text-xs text-ink-faint">
                     <span>{p.liveClass.topic}</span>
                     {p.session && <span>· Sessão {p.session.seq}</span>}
-                    <span>· Entrada: {p.joinedAt ? formatDateTime(p.joinedAt) : '—'}</span>
-                    <span>· Saída: {p.leftAt ? formatDateTime(p.leftAt) : '—'}</span>
-                    {p.durationMinutes != null && <span>· {p.durationMinutes}min ({p.attendancePercent ?? 0}%)</span>}
+                    <span>
+                      · Entrada: {p.joinedAt ? formatDateTime(p.joinedAt) : '—'}
+                    </span>
+                    <span>
+                      · Saída: {p.leftAt ? formatDateTime(p.leftAt) : '—'}
+                    </span>
+                    {p.durationMinutes != null && (
+                      <span>
+                        · {p.durationMinutes}min ({p.attendancePercent ?? 0}%)
+                      </span>
+                    )}
                   </div>
                   {p.justification && (
                     <div className="mt-0.5 flex items-center gap-1 font-body text-xs text-info">
-                      <FileText size={11} strokeWidth={1.75} /> {p.justification}
+                      <FileText size={11} strokeWidth={1.75} />{' '}
+                      {p.justification}
                     </div>
                   )}
                 </div>
-                <span className={`rounded px-2 py-0.5 font-body text-xs font-medium ${LIVE_ATTENDANCE_STATUS_CFG[p.computedStatus]?.cls ?? ''}`}>
-                  {LIVE_ATTENDANCE_STATUS_CFG[p.computedStatus]?.label ?? p.computedStatus}
+                <span
+                  className={`rounded px-2 py-0.5 font-body text-xs font-medium ${LIVE_ATTENDANCE_STATUS_CFG[p.computedStatus]?.cls ?? ''}`}
+                >
+                  {LIVE_ATTENDANCE_STATUS_CFG[p.computedStatus]?.label ??
+                    p.computedStatus}
                 </span>
                 {canManage && (
                   <div className="flex gap-2">
-                    <Button intent="ghost" size="sm" onClick={() => openRegister(p)}>
+                    <Button
+                      intent="ghost"
+                      size="sm"
+                      onClick={() => openRegister(p)}
+                    >
                       <CheckCircle2 size={14} strokeWidth={1.75} />
                       Registar
                     </Button>
@@ -217,13 +268,23 @@ export function AttendanceView({ canManage }: { canManage: boolean }) {
 
           {totalPages > 1 && (
             <div className="flex justify-center gap-2">
-              <Button intent="ghost" size="sm" disabled={page === 1} onClick={() => setPage((p) => p - 1)}>
+              <Button
+                intent="ghost"
+                size="sm"
+                disabled={page === 1}
+                onClick={() => setPage((p) => p - 1)}
+              >
                 ← Anterior
               </Button>
               <span className="py-2 px-3 text-sm text-ink-muted">
                 {page} / {totalPages}
               </span>
-              <Button intent="ghost" size="sm" disabled={page === totalPages} onClick={() => setPage((p) => p + 1)}>
+              <Button
+                intent="ghost"
+                size="sm"
+                disabled={page === totalPages}
+                onClick={() => setPage((p) => p + 1)}
+              >
                 Seguinte →
               </Button>
             </div>
@@ -233,14 +294,18 @@ export function AttendanceView({ canManage }: { canManage: boolean }) {
 
       {registering && (
         <Modal open onOpenChange={(open) => !open && setRegistering(null)}>
-          <ModalContent title={`Registar presença — ${registering.user.fullName}`}>
+          <ModalContent
+            title={`Registar presença — ${registering.user.fullName}`}
+          >
             <div className="mt-4 space-y-4">
               <FormField label="Entrada" htmlFor="av-joinedAt">
                 <Input
                   id="av-joinedAt"
                   type="datetime-local"
                   value={registerForm.joinedAt}
-                  onChange={(e) => setRegisterForm((f) => ({ ...f, joinedAt: e.target.value }))}
+                  onChange={(e) =>
+                    setRegisterForm((f) => ({ ...f, joinedAt: e.target.value }))
+                  }
                   className="w-full"
                 />
               </FormField>
@@ -249,20 +314,32 @@ export function AttendanceView({ canManage }: { canManage: boolean }) {
                   id="av-leftAt"
                   type="datetime-local"
                   value={registerForm.leftAt}
-                  onChange={(e) => setRegisterForm((f) => ({ ...f, leftAt: e.target.value }))}
+                  onChange={(e) =>
+                    setRegisterForm((f) => ({ ...f, leftAt: e.target.value }))
+                  }
                   className="w-full"
                 />
               </FormField>
               <p className="font-body text-xs text-ink-faint">
-                O estado (Presente/Atrasado/Parcial/Ausente) e a percentagem são calculados automaticamente a partir
-                destes horários e da regra de presença mínima da aula ({registering.liveClass.duration}min).
+                O estado (Presente/Atrasado/Parcial/Ausente) e a percentagem são
+                calculados automaticamente a partir destes horários e da regra
+                de presença mínima da aula ({registering.liveClass.duration}
+                min).
               </p>
             </div>
             <div className="mt-6 flex gap-3 border-t border-border pt-4">
-              <Button intent="secondary" className="flex-1 justify-center" onClick={() => setRegistering(null)}>
+              <Button
+                intent="secondary"
+                className="flex-1 justify-center"
+                onClick={() => setRegistering(null)}
+              >
                 Cancelar
               </Button>
-              <Button className="flex-1 justify-center" onClick={() => register.mutate(registering)} loading={register.isPending}>
+              <Button
+                className="flex-1 justify-center"
+                onClick={() => register.mutate(registering)}
+                loading={register.isPending}
+              >
                 Guardar
               </Button>
             </div>
@@ -272,7 +349,9 @@ export function AttendanceView({ canManage }: { canManage: boolean }) {
 
       {justifying && (
         <Modal open onOpenChange={(open) => !open && setJustifying(null)}>
-          <ModalContent title={`Justificar ausência — ${justifying.user.fullName}`}>
+          <ModalContent
+            title={`Justificar ausência — ${justifying.user.fullName}`}
+          >
             <div className="mt-4">
               <FormField label="Justificação" htmlFor="av-justification">
                 <Textarea
@@ -285,7 +364,11 @@ export function AttendanceView({ canManage }: { canManage: boolean }) {
               </FormField>
             </div>
             <div className="mt-6 flex gap-3 border-t border-border pt-4">
-              <Button intent="secondary" className="flex-1 justify-center" onClick={() => setJustifying(null)}>
+              <Button
+                intent="secondary"
+                className="flex-1 justify-center"
+                onClick={() => setJustifying(null)}
+              >
                 Cancelar
               </Button>
               <Button

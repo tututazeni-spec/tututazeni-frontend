@@ -25,7 +25,10 @@ export interface NewCorrelationModalProps {
   onClose: () => void;
 }
 
-export function NewCorrelationModal({ initialType, onClose }: NewCorrelationModalProps) {
+export function NewCorrelationModal({
+  initialType,
+  onClose,
+}: NewCorrelationModalProps) {
   const notify = useToast();
   const [error, setError] = useState('');
   const [type, setType] = useState<CorrelationType | ''>(initialType ?? '');
@@ -74,7 +77,10 @@ export function NewCorrelationModal({ initialType, onClose }: NewCorrelationModa
         <div className="space-y-4">
           <FormField label="Análise *" htmlFor="corr-type">
             <Select
-              items={(definitions ?? []).map((d) => ({ value: d.type, label: d.label }))}
+              items={(definitions ?? []).map((d) => ({
+                value: d.type,
+                label: d.label,
+              }))}
               value={type}
               onValueChange={(v) => setType(v as CorrelationType)}
               placeholder="Selecionar…"
@@ -82,7 +88,11 @@ export function NewCorrelationModal({ initialType, onClose }: NewCorrelationModa
             />
           </FormField>
 
-          {selected && <p className="font-body text-xs text-ink-faint">{selected.description}</p>}
+          {selected && (
+            <p className="font-body text-xs text-ink-faint">
+              {selected.description}
+            </p>
+          )}
 
           <div className="grid grid-cols-2 gap-3">
             <FormField label="Período — de" htmlFor="corr-period-start">
@@ -106,14 +116,19 @@ export function NewCorrelationModal({ initialType, onClose }: NewCorrelationModa
           </div>
 
           <p className="rounded-card bg-surface-sunken p-3 font-body text-xs text-ink-faint">
-            Correlação não implica causalidade — leitura interpretativa, nunca automática. Esta
-            aba é analítica e de apoio à decisão; não deve alimentar automações sem validação
-            humana.
+            Correlação não implica causalidade — leitura interpretativa, nunca
+            automática. Esta aba é analítica e de apoio à decisão; não deve
+            alimentar automações sem validação humana.
           </p>
         </div>
 
         <div className="mt-6 flex gap-3 border-t border-border pt-4">
-          <Button intent="secondary" className="justify-center" onClick={onClose} disabled={run.isPending}>
+          <Button
+            intent="secondary"
+            className="justify-center"
+            onClick={onClose}
+            disabled={run.isPending}
+          >
             Cancelar
           </Button>
           <Button

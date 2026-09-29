@@ -25,7 +25,9 @@ interface FieldProps {
 export function Field({ label, children }: FieldProps) {
   return (
     <label className="block">
-      <span className="font-body text-xs uppercase text-ink-muted">{label}</span>
+      <span className="font-body text-xs uppercase text-ink-muted">
+        {label}
+      </span>
       <div className="mt-1">{children}</div>
     </label>
   );

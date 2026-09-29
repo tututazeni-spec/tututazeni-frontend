@@ -40,23 +40,31 @@ export function ModelsView({ onSelect }: ModelsViewProps) {
     limit: 50,
   };
 
-  const { data, isLoading } = useApiQuery<{ data: CompetencyModel[]; total: number }>(
-    queryKeys.competencies.models(params),
-    '/competencies/models',
-    { params, staleTime: STALE_TIME.SEMI_STATIC, placeholderData: keepPreviousData },
-  );
+  const { data, isLoading } = useApiQuery<{
+    data: CompetencyModel[];
+    total: number;
+  }>(queryKeys.competencies.models(params), '/competencies/models', {
+    params,
+    staleTime: STALE_TIME.SEMI_STATIC,
+    placeholderData: keepPreviousData,
+  });
 
   return (
     <div>
       <div className="mb-5 flex flex-wrap items-center gap-3">
         <Select
-          items={[{ value: 'ALL', label: 'Todos os departamentos' }, ...departmentOptions]}
+          items={[
+            { value: 'ALL', label: 'Todos os departamentos' },
+            ...departmentOptions,
+          ]}
           value={departmentId}
           onValueChange={setDepartmentId}
           className="min-w-[200px]"
         />
         <Select items={STATUS_ITEMS} value={status} onValueChange={setStatus} />
-        <span className="font-body text-sm text-ink-faint">{data?.total ?? 0} modelos</span>
+        <span className="font-body text-sm text-ink-faint">
+          {data?.total ?? 0} modelos
+        </span>
       </div>
 
       {isLoading ? (
@@ -90,7 +98,10 @@ export function ModelsView({ onSelect }: ModelsViewProps) {
                   <div className="flex flex-wrap items-center gap-1.5">
                     <StatusBadge value={model.status} map={STATUS_CFG} />
                     {model.hierarchyLevel && (
-                      <StatusBadge value={model.hierarchyLevel} map={HIERARCHY_LEVEL_CFG} />
+                      <StatusBadge
+                        value={model.hierarchyLevel}
+                        map={HIERARCHY_LEVEL_CFG}
+                      />
                     )}
                     <span className="rounded bg-surface-sunken px-1.5 py-0.5 font-body text-xs text-ink-muted">
                       v{model.version}

@@ -24,7 +24,10 @@ function fmtDate(v: string | null): string {
   return v ? new Date(v).toLocaleDateString('pt-PT') : '—';
 }
 
-export function CorrelationDetailModal({ id, onClose }: CorrelationDetailModalProps) {
+export function CorrelationDetailModal({
+  id,
+  onClose,
+}: CorrelationDetailModalProps) {
   const { data, isLoading } = useApiQuery<CorrelationDetail>(
     queryKeys.roiImpact.correlation(id),
     `/roi-impact/correlations/${id}`,
@@ -39,7 +42,11 @@ export function CorrelationDetailModal({ id, onClose }: CorrelationDetailModalPr
         className="max-h-[90vh] max-w-2xl overflow-y-auto"
       >
         {isLoading || !data ? (
-          <Skeleton rows={4} wrapperClassName="space-y-3 animate-pulse" itemClassName="h-10 rounded-card bg-surface-sunken" />
+          <Skeleton
+            rows={4}
+            wrapperClassName="space-y-3 animate-pulse"
+            itemClassName="h-10 rounded-card bg-surface-sunken"
+          />
         ) : (
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-3 text-sm md:grid-cols-4">
@@ -58,7 +65,10 @@ export function CorrelationDetailModal({ id, onClose }: CorrelationDetailModalPr
                 <p className="text-ink">
                   {data.coefficient != null ? (
                     <>
-                      {data.coefficient} <span className="text-ink-faint">({correlationStrengthLabel(data.coefficient)})</span>
+                      {data.coefficient}{' '}
+                      <span className="text-ink-faint">
+                        ({correlationStrengthLabel(data.coefficient)})
+                      </span>
                     </>
                   ) : (
                     '—'
@@ -70,7 +80,10 @@ export function CorrelationDetailModal({ id, onClose }: CorrelationDetailModalPr
                 <p className="text-ink">
                   {data.pValue != null ? (
                     <Badge intent={data.significant ? 'success' : 'warning'}>
-                      p = {data.pValue} {data.significant ? '(significativo)' : '(não significativo)'}
+                      p = {data.pValue}{' '}
+                      {data.significant
+                        ? '(significativo)'
+                        : '(não significativo)'}
                     </Badge>
                   ) : (
                     '—'
@@ -85,7 +98,11 @@ export function CorrelationDetailModal({ id, onClose }: CorrelationDetailModalPr
             </div>
 
             {data.dataPoints.length > 0 ? (
-              <ScatterPlot points={data.dataPoints} xLabel={data.xLabel} yLabel={data.yLabel} />
+              <ScatterPlot
+                points={data.dataPoints}
+                xLabel={data.xLabel}
+                yLabel={data.yLabel}
+              />
             ) : (
               <p className="rounded-card bg-surface-sunken p-4 text-center text-sm text-ink-faint">
                 Sem pontos suficientes para desenhar o gráfico de dispersão.
@@ -93,11 +110,14 @@ export function CorrelationDetailModal({ id, onClose }: CorrelationDetailModalPr
             )}
 
             {data.note && (
-              <p className="rounded-card bg-surface-sunken p-3 font-body text-xs text-ink-faint">{data.note}</p>
+              <p className="rounded-card bg-surface-sunken p-3 font-body text-xs text-ink-faint">
+                {data.note}
+              </p>
             )}
 
             <p className="rounded-card bg-warning-subtle p-3 font-body text-xs text-warning-ink">
-              Correlação não implica causalidade — leitura interpretativa, nunca automática.
+              Correlação não implica causalidade — leitura interpretativa, nunca
+              automática.
             </p>
           </div>
         )}

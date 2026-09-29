@@ -60,7 +60,9 @@ export function NineBox({ data }: NineBoxProps) {
               >
                 <div className={`h-1 w-full ${s.bar}`} />
                 <div className="min-h-[76px] p-3">
-                  <div className={`mb-1 font-body text-xs font-semibold leading-tight ${s.text}`}>
+                  <div
+                    className={`mb-1 font-body text-xs font-semibold leading-tight ${s.text}`}
+                  >
                     {LABELS[key]}
                   </div>
                   <div className="flex flex-wrap gap-1">

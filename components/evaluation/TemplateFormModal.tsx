@@ -33,7 +33,10 @@ const TYPE_ITEMS = [
   ...TEMPLATE_TYPE_OPTIONS.map((t) => ({ value: t, label: t })),
 ];
 
-export function TemplateFormModal({ template, onClose }: TemplateFormModalProps) {
+export function TemplateFormModal({
+  template,
+  onClose,
+}: TemplateFormModalProps) {
   const notify = useToast();
   const isEdit = !!template;
 
@@ -62,11 +65,18 @@ export function TemplateFormModal({ template, onClose }: TemplateFormModalProps)
   );
   const [isDefault, setIsDefault] = useState(template?.isDefault ?? false);
   const [weights, setWeights] = useState<Record<number, string>>(
-    Object.fromEntries((template?.criteria ?? []).map((c) => [c.criteriaId, String(c.weight ?? 1)])),
+    Object.fromEntries(
+      (template?.criteria ?? []).map((c) => [
+        c.criteriaId,
+        String(c.weight ?? 1),
+      ]),
+    ),
   );
   const [submitError, setSubmitError] = useState('');
 
-  const criteriaEntries = Object.entries(weights).filter(([, w]) => Number(w) > 0);
+  const criteriaEntries = Object.entries(weights).filter(
+    ([, w]) => Number(w) > 0,
+  );
 
   const payload = () => ({
     name: form.name.trim(),
@@ -88,10 +98,16 @@ export function TemplateFormModal({ template, onClose }: TemplateFormModalProps)
     {
       invalidateKeys: [queryKeys.evaluation.templates()],
       onSuccess: () => {
-        notify({ title: isEdit ? 'Modelo actualizado' : 'Modelo criado', intent: 'success' });
+        notify({
+          title: isEdit ? 'Modelo actualizado' : 'Modelo criado',
+          intent: 'success',
+        });
         onClose();
       },
-      onError: (e) => setSubmitError(e instanceof Error ? e.message : 'Erro ao guardar o modelo.'),
+      onError: (e) =>
+        setSubmitError(
+          e instanceof Error ? e.message : 'Erro ao guardar o modelo.',
+        ),
     },
   );
 
@@ -186,7 +202,8 @@ export function TemplateFormModal({ template, onClose }: TemplateFormModalProps)
               ))}
               {(criteriaList ?? []).length === 0 && (
                 <p className="text-sm text-ink-faint">
-                  Sem critérios criados — cria critérios na aba &quot;Critérios&quot; primeiro.
+                  Sem critérios criados — cria critérios na aba
+                  &quot;Critérios&quot; primeiro.
                 </p>
               )}
             </div>
@@ -204,7 +221,11 @@ export function TemplateFormModal({ template, onClose }: TemplateFormModalProps)
         </div>
 
         <div className="mt-6 flex gap-3 border-t border-border pt-4">
-          <Button intent="secondary" className="flex-1 justify-center" onClick={onClose}>
+          <Button
+            intent="secondary"
+            className="flex-1 justify-center"
+            onClick={onClose}
+          >
             Cancelar
           </Button>
           <Button

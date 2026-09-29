@@ -104,10 +104,14 @@ export function ClassCard({
             <p className="mt-0.5 text-xs text-ink-muted">{lc.course.title}</p>
           )}
           <div className="mt-1.5 flex flex-wrap gap-1">
-            <span className={`rounded px-1.5 py-0.5 text-[10px] font-medium ${TYPE_CFG[lc.type]?.cls ?? ''}`}>
+            <span
+              className={`rounded px-1.5 py-0.5 text-[10px] font-medium ${TYPE_CFG[lc.type]?.cls ?? ''}`}
+            >
               {TYPE_CFG[lc.type]?.label ?? lc.type}
             </span>
-            <span className={`rounded px-1.5 py-0.5 text-[10px] font-medium ${STATUS_CFG[lc.status]?.cls ?? ''}`}>
+            <span
+              className={`rounded px-1.5 py-0.5 text-[10px] font-medium ${STATUS_CFG[lc.status]?.cls ?? ''}`}
+            >
               {STATUS_CFG[lc.status]?.label ?? lc.status}
             </span>
             <span className="rounded bg-surface-sunken px-1.5 py-0.5 text-[10px] font-medium text-ink-muted">
@@ -132,16 +136,24 @@ export function ClassCard({
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onSelect={() => onStart(lc)}>
-                <Play size={13} strokeWidth={1.75} className="mr-2 inline" /> Iniciar aula
+                <Play size={13} strokeWidth={1.75} className="mr-2 inline" />{' '}
+                Iniciar aula
               </DropdownMenuItem>
               <DropdownMenuItem onSelect={() => onPostpone(lc)}>
-                <CalendarClock size={13} strokeWidth={1.75} className="mr-2 inline" /> Adiar
+                <CalendarClock
+                  size={13}
+                  strokeWidth={1.75}
+                  className="mr-2 inline"
+                />{' '}
+                Adiar
               </DropdownMenuItem>
               <DropdownMenuItem onSelect={() => onDuplicate(lc)}>
-                <Copy size={13} strokeWidth={1.75} className="mr-2 inline" /> Duplicar
+                <Copy size={13} strokeWidth={1.75} className="mr-2 inline" />{' '}
+                Duplicar
               </DropdownMenuItem>
               <DropdownMenuItem onSelect={() => onCancel(lc)}>
-                <Ban size={13} strokeWidth={1.75} className="mr-2 inline" /> Cancelar
+                <Ban size={13} strokeWidth={1.75} className="mr-2 inline" />{' '}
+                Cancelar
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

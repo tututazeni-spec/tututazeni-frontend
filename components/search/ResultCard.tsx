@@ -35,8 +35,12 @@ export function ResultCard({ result }: ResultCardProps) {
         </div>
       )}
       <div className="min-w-0 flex-1">
-        <p className="truncate font-body text-sm font-medium text-ink">{result.title}</p>
-        <p className="truncate font-body text-[10px] text-ink-faint">{result.subtitle}</p>
+        <p className="truncate font-body text-sm font-medium text-ink">
+          {result.title}
+        </p>
+        <p className="truncate font-body text-[10px] text-ink-faint">
+          {result.subtitle}
+        </p>
       </div>
       <div className="flex shrink-0 items-center gap-1">
         {result.mandatory && (

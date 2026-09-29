@@ -41,7 +41,9 @@ function buildPayload(form: WizardForm): Record<string, unknown> {
     instructorId: n(form.instructorId),
     coInstructorId: n(form.coInstructorId),
 
-    scheduledAt: form.scheduledAt ? new Date(form.scheduledAt).toISOString() : undefined,
+    scheduledAt: form.scheduledAt
+      ? new Date(form.scheduledAt).toISOString()
+      : undefined,
     duration: n(form.duration),
     timezone: form.timezone.trim() || undefined,
     recurrence: form.recurrence,
@@ -66,12 +68,17 @@ function buildPayload(form: WizardForm): Record<string, unknown> {
     waitlistEnabled: form.waitlistEnabled,
     targetDeptIds: form.targetDeptIds.length ? form.targetDeptIds : undefined,
     targetUnitIds: form.targetUnitIds.length ? form.targetUnitIds : undefined,
-    targetPositionIds: form.targetPositionIds.length ? form.targetPositionIds : undefined,
+    targetPositionIds: form.targetPositionIds.length
+      ? form.targetPositionIds
+      : undefined,
 
     objectives: form.objectives.trim() || undefined,
     agenda: form.agenda.trim() || undefined,
     topics: form.topics.trim()
-      ? form.topics.split(',').map((t) => t.trim()).filter(Boolean)
+      ? form.topics
+          .split(',')
+          .map((t) => t.trim())
+          .filter(Boolean)
       : undefined,
     materialDocumentIds: form.materialDocumentIds.trim()
       ? form.materialDocumentIds
@@ -86,7 +93,9 @@ function buildPayload(form: WizardForm): Record<string, unknown> {
     lateToleranceMinutes: n(form.lateToleranceMinutes),
 
     recordSession: form.recordSession,
-    recordingExpiresAt: form.recordingExpiresAt ? new Date(form.recordingExpiresAt).toISOString() : undefined,
+    recordingExpiresAt: form.recordingExpiresAt
+      ? new Date(form.recordingExpiresAt).toISOString()
+      : undefined,
     allowRecordingDownload: form.allowRecordingDownload,
 
     evaluationRequired: form.evaluationRequired,
@@ -104,7 +113,9 @@ function buildPayload(form: WizardForm): Record<string, unknown> {
 }
 
 function extractMessage(e: unknown): string {
-  return e instanceof Error ? e.message : 'Erro ao criar a aula. Tente novamente.';
+  return e instanceof Error
+    ? e.message
+    : 'Erro ao criar a aula. Tente novamente.';
 }
 
 export function CreateLiveClassWizard({ onClose }: CreateLiveClassWizardProps) {
@@ -143,8 +154,10 @@ export function CreateLiveClassWizard({ onClose }: CreateLiveClassWizardProps) {
       case 'schedule': {
         const missing: string[] = [];
         if (!form.scheduledAt) missing.push('data e hora');
-        if (!form.duration || Number(form.duration) <= 0) missing.push('duração');
-        if (form.recurrence !== 'ONCE' && !form.recurrenceEndDate) missing.push('data final da recorrência');
+        if (!form.duration || Number(form.duration) <= 0)
+          missing.push('duração');
+        if (form.recurrence !== 'ONCE' && !form.recurrenceEndDate)
+          missing.push('data final da recorrência');
         return missing.length ? [`Falta preencher: ${missing.join(', ')}`] : [];
       }
       default:
@@ -199,7 +212,11 @@ export function CreateLiveClassWizard({ onClose }: CreateLiveClassWizardProps) {
                     cls
                   }
                 >
-                  {done && !isCurrent ? <Check size={12} strokeWidth={2.5} /> : i + 1}
+                  {done && !isCurrent ? (
+                    <Check size={12} strokeWidth={2.5} />
+                  ) : (
+                    i + 1
+                  )}
                 </button>
               </li>
             );
@@ -214,7 +231,11 @@ export function CreateLiveClassWizard({ onClose }: CreateLiveClassWizardProps) {
         )}
 
         <div className="mt-4">
-          <NewLiveClassSteps stepId={current.id} form={form} setField={setField} />
+          <NewLiveClassSteps
+            stepId={current.id}
+            form={form}
+            setField={setField}
+          />
         </div>
 
         <div className="mt-6 flex gap-3 border-t border-border pt-4">

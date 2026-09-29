@@ -19,7 +19,11 @@ import { useToast } from '@/providers/ToastProvider';
 import { AccessLogsPanel } from './AccessLogsPanel';
 import { EditPayslipModal } from './EditPayslipModal';
 import { ResolveDisputeModal } from './ResolveDisputeModal';
-import { DISPUTE_STATUS_MAP, type AdminPayslip, type PayslipDispute } from './types';
+import {
+  DISPUTE_STATUS_MAP,
+  type AdminPayslip,
+  type PayslipDispute,
+} from './types';
 
 export interface AdminPayslipDetailViewProps {
   payslipId: number;
@@ -32,7 +36,10 @@ const LOCKED_NOTE: Record<string, string> = {
   DISPUTED: 'Recibo em disputa — já não é editável.',
 };
 
-export function AdminPayslipDetailView({ payslipId, onBack }: AdminPayslipDetailViewProps) {
+export function AdminPayslipDetailView({
+  payslipId,
+  onBack,
+}: AdminPayslipDetailViewProps) {
   const confirm = useConfirm();
   const notify = useToast();
   const [editing, setEditing] = useState(false);
@@ -68,7 +75,8 @@ export function AdminPayslipDetailView({ payslipId, onBack }: AdminPayslipDetail
   };
 
   if (isLoading) return <Skeleton rows={8} />;
-  if (error) return <div className="font-body text-sm text-danger">{error.message}</div>;
+  if (error)
+    return <div className="font-body text-sm text-danger">{error.message}</div>;
   if (!data) return null;
 
   const editable = data.status === 'DRAFT' && data.run?.status !== 'PUBLISHED';
@@ -89,10 +97,15 @@ export function AdminPayslipDetailView({ payslipId, onBack }: AdminPayslipDetail
             {data.user?.fullName ?? '—'}
           </h2>
           <p className="font-body text-sm text-ink-faint">
-            {fmtPeriod(data.period)} · <span className="font-mono">{data.receiptCode ?? data.id}</span>
+            {fmtPeriod(data.period)} ·{' '}
+            <span className="font-mono">{data.receiptCode ?? data.id}</span>
           </p>
         </div>
-        <StatusBadge value={data.status} map={PAYSLIP_STATUS_MAP} variant="dot" />
+        <StatusBadge
+          value={data.status}
+          map={PAYSLIP_STATUS_MAP}
+          variant="dot"
+        />
       </div>
 
       <div className="mb-6 flex flex-wrap items-center gap-2">
@@ -107,8 +120,16 @@ export function AdminPayslipDetailView({ payslipId, onBack }: AdminPayslipDetail
         </a>
         {editable ? (
           <>
-            <Button size="sm" intent="secondary" onClick={() => setEditing(true)}>Editar</Button>
-            <Button size="sm" onClick={handleIssue} disabled={issue.isPending}>Emitir</Button>
+            <Button
+              size="sm"
+              intent="secondary"
+              onClick={() => setEditing(true)}
+            >
+              Editar
+            </Button>
+            <Button size="sm" onClick={handleIssue} disabled={issue.isPending}>
+              Emitir
+            </Button>
           </>
         ) : (
           <p className="font-body text-sm text-ink-faint">
@@ -130,20 +151,40 @@ export function AdminPayslipDetailView({ payslipId, onBack }: AdminPayslipDetail
           </h3>
           <div className="space-y-3">
             {data.disputes.map((d) => (
-              <div key={d.id} className="rounded-card border border-border bg-surface p-4">
+              <div
+                key={d.id}
+                className="rounded-card border border-border bg-surface p-4"
+              >
                 <div className="flex items-center justify-between">
-                  <span className="font-body text-sm font-medium text-ink">{d.reason}</span>
-                  <StatusBadge value={d.status} map={DISPUTE_STATUS_MAP} variant="plain" />
+                  <span className="font-body text-sm font-medium text-ink">
+                    {d.reason}
+                  </span>
+                  <StatusBadge
+                    value={d.status}
+                    map={DISPUTE_STATUS_MAP}
+                    variant="plain"
+                  />
                 </div>
-                {d.details && <p className="mt-1 font-body text-sm text-ink-muted">{d.details}</p>}
-                <p className="mt-1 font-body text-xs text-ink-faint">Aberta em {fmtDate(d.createdAt)}</p>
+                {d.details && (
+                  <p className="mt-1 font-body text-sm text-ink-muted">
+                    {d.details}
+                  </p>
+                )}
+                <p className="mt-1 font-body text-xs text-ink-faint">
+                  Aberta em {fmtDate(d.createdAt)}
+                </p>
                 {d.status === 'RESOLVED' && (
                   <p className="mt-1 font-body text-xs text-success-ink">
                     Resolvida em {fmtDate(d.resolvedAt)} — {d.resolution}
                   </p>
                 )}
                 {d.status === 'OPEN' && (
-                  <Button size="sm" intent="secondary" className="mt-3" onClick={() => setResolving(d)}>
+                  <Button
+                    size="sm"
+                    intent="secondary"
+                    className="mt-3"
+                    onClick={() => setResolving(d)}
+                  >
                     Resolver
                   </Button>
                 )}
@@ -157,7 +198,9 @@ export function AdminPayslipDetailView({ payslipId, onBack }: AdminPayslipDetail
         <AccessLogsPanel payslipId={payslipId} />
       </div>
 
-      {editing && <EditPayslipModal payslip={data} onClose={() => setEditing(false)} />}
+      {editing && (
+        <EditPayslipModal payslip={data} onClose={() => setEditing(false)} />
+      )}
       {resolving && (
         <ResolveDisputeModal
           disputeId={resolving.id}

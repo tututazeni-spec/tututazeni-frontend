@@ -35,7 +35,10 @@ export interface EnrollUserModalProps {
   initialCourseId?: number;
 }
 
-export function EnrollUserModal({ onClose, initialCourseId }: EnrollUserModalProps) {
+export function EnrollUserModal({
+  onClose,
+  initialCourseId,
+}: EnrollUserModalProps) {
   const notify = useToast();
   const [courseId, setCourseId] = useState(
     initialCourseId ? String(initialCourseId) : '',

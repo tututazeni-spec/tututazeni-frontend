@@ -40,7 +40,11 @@ type ExerciseType =
   | 'SUMMARY'
   | 'STUDY_PLAN';
 
-const EXERCISE_TYPES: Array<{ id: ExerciseType; label: string; hasCount: boolean }> = [
+const EXERCISE_TYPES: Array<{
+  id: ExerciseType;
+  label: string;
+  hasCount: boolean;
+}> = [
   { id: 'QUIZ', label: 'Escolha múltipla', hasCount: true },
   { id: 'TRUE_FALSE', label: 'Verdadeiro/Falso', hasCount: true },
   { id: 'OPEN_QUESTION', label: 'Perguntas abertas', hasCount: true },
@@ -71,15 +75,21 @@ function ExerciseFeedbackBox({
     if (!answer.trim()) return;
     setLoading(true);
     try {
-      const res = await apiClient.post<ExerciseFeedbackResponse>('/ai-tutor/exercises/feedback', {
-        exerciseType,
-        question,
-        userAnswer: answer,
-        modelAnswer,
-      });
+      const res = await apiClient.post<ExerciseFeedbackResponse>(
+        '/ai-tutor/exercises/feedback',
+        {
+          exerciseType,
+          question,
+          userAnswer: answer,
+          modelAnswer,
+        },
+      );
       setFeedback(res.feedback);
     } catch (e) {
-      notify({ title: e instanceof Error ? e.message : 'Erro ao pedir feedback', intent: 'danger' });
+      notify({
+        title: e instanceof Error ? e.message : 'Erro ao pedir feedback',
+        intent: 'danger',
+      });
     } finally {
       setLoading(false);
     }
@@ -94,7 +104,13 @@ function ExerciseFeedbackBox({
         rows={3}
         className="w-full"
       />
-      <Button size="sm" intent="secondary" onClick={askFeedback} loading={loading} disabled={!answer.trim()}>
+      <Button
+        size="sm"
+        intent="secondary"
+        onClick={askFeedback}
+        loading={loading}
+        disabled={!answer.trim()}
+      >
         <Sparkles size={14} strokeWidth={1.75} />
         Pedir feedback à Ísis
       </Button>
@@ -107,7 +123,13 @@ function ExerciseFeedbackBox({
   );
 }
 
-function TrueFalseCard({ item, index }: { item: TrueFalseItem; index: number }) {
+function TrueFalseCard({
+  item,
+  index,
+}: {
+  item: TrueFalseItem;
+  index: number;
+}) {
   const [answer, setAnswer] = useState<boolean | null>(null);
   return (
     <Card className="p-4">
@@ -119,7 +141,13 @@ function TrueFalseCard({ item, index }: { item: TrueFalseItem; index: number }) 
           <Button
             key={String(v)}
             size="sm"
-            intent={answer === v ? (v === item.isTrue ? 'success' : 'danger') : 'secondary'}
+            intent={
+              answer === v
+                ? v === item.isTrue
+                  ? 'success'
+                  : 'danger'
+                : 'secondary'
+            }
             onClick={() => setAnswer(v)}
           >
             {v ? 'Verdadeiro' : 'Falso'}
@@ -135,7 +163,13 @@ function TrueFalseCard({ item, index }: { item: TrueFalseItem; index: number }) 
   );
 }
 
-function SimulationCard({ item, index }: { item: SimulationItem; index: number }) {
+function SimulationCard({
+  item,
+  index,
+}: {
+  item: SimulationItem;
+  index: number;
+}) {
   const [chosen, setChosen] = useState<number | null>(null);
   return (
     <Card className="p-4">
@@ -219,7 +253,11 @@ export function ExercisesView() {
               </div>
               {q.explanation && (
                 <div className="mt-3 font-body text-xs text-info-ink bg-info-subtle rounded-control px-3 py-2">
-                  <Lightbulb size={14} strokeWidth={1.75} className="inline align-[-2px]" />{' '}
+                  <Lightbulb
+                    size={14}
+                    strokeWidth={1.75}
+                    className="inline align-[-2px]"
+                  />{' '}
                   {q.explanation}
                 </div>
               )}
@@ -266,8 +304,12 @@ export function ExercisesView() {
               <div className="font-body text-xs text-ink-faint uppercase tracking-wide mb-1">
                 Caso {i + 1}
               </div>
-              <div className="font-body text-sm text-ink mb-2">{c.scenario}</div>
-              <div className="font-body text-sm font-semibold text-ink">{c.question}</div>
+              <div className="font-body text-sm text-ink mb-2">
+                {c.scenario}
+              </div>
+              <div className="font-body text-sm font-semibold text-ink">
+                {c.question}
+              </div>
               <ExerciseFeedbackBox
                 exerciseType="PRACTICAL_CASE"
                 question={c.question}
@@ -298,7 +340,9 @@ export function ExercisesView() {
                 Cenário {i + 1}
               </div>
               <div className="font-body text-sm text-ink mb-2">{s.context}</div>
-              <div className="font-body text-sm font-semibold text-ink mb-1">{s.challenge}</div>
+              <div className="font-body text-sm font-semibold text-ink mb-1">
+                {s.challenge}
+              </div>
               {s.reflectionQuestion && (
                 <Badge intent="info" className="mb-2">
                   {s.reflectionQuestion}
@@ -319,8 +363,12 @@ export function ExercisesView() {
         <div className="grid grid-cols-2 gap-3">
           {(content as Flashcard[]).map((c, i) => (
             <Card key={i} className="p-4">
-              <div className="font-body text-xs text-ink-faint mb-1">FRENTE</div>
-              <div className="font-body text-sm font-semibold text-ink mb-3">{c.front}</div>
+              <div className="font-body text-xs text-ink-faint mb-1">
+                FRENTE
+              </div>
+              <div className="font-body text-sm font-semibold text-ink mb-3">
+                {c.front}
+              </div>
               <div className="h-px bg-border mb-3" />
               <div className="font-body text-xs text-ink-faint mb-1">VERSO</div>
               <div className="font-body text-sm text-ink">{c.back}</div>
@@ -368,7 +416,9 @@ export function ExercisesView() {
 
         {activeType.hasCount && (
           <div className="flex items-center gap-3 mb-4">
-            <span className="font-body text-xs text-ink-muted">Quantidade:</span>
+            <span className="font-body text-xs text-ink-muted">
+              Quantidade:
+            </span>
             {[2, 3, 5, 8, 10].map((n) => (
               <Button
                 key={n}
@@ -383,8 +433,15 @@ export function ExercisesView() {
           </div>
         )}
 
-        <Button onClick={generate} disabled={!topic.trim()} loading={loading} className="w-full">
-          {loading ? 'A gerar com IA…' : `Gerar ${activeType.label.toLowerCase()}`}
+        <Button
+          onClick={generate}
+          disabled={!topic.trim()}
+          loading={loading}
+          className="w-full"
+        >
+          {loading
+            ? 'A gerar com IA…'
+            : `Gerar ${activeType.label.toLowerCase()}`}
         </Button>
       </Card>
 

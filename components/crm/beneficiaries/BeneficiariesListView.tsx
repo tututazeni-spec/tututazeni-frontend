@@ -67,8 +67,12 @@ export function BeneficiariesListView({
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="font-display text-2xl font-bold text-ink">Beneficiários</h1>
-          <p className="font-body text-ink-muted">{total} beneficiários registados</p>
+          <h1 className="font-display text-2xl font-bold text-ink">
+            Beneficiários
+          </h1>
+          <p className="font-body text-ink-muted">
+            {total} beneficiários registados
+          </p>
         </div>
         <div className="flex gap-2">
           <Link href="/crm/beneficiaries/dashboard">
@@ -132,30 +136,54 @@ export function BeneficiariesListView({
           <table className="w-full font-body text-sm">
             <thead className="bg-surface-sunken text-ink-muted uppercase">
               <tr>
-                <th className="px-4 py-3 text-left font-medium text-xs">Código</th>
-                <th className="px-4 py-3 text-left font-medium text-xs">Nome</th>
-                <th className="px-4 py-3 text-left font-medium text-xs">Tipo</th>
-                <th className="px-4 py-3 text-left font-medium text-xs">Província</th>
-                <th className="px-4 py-3 text-left font-medium text-xs">Estado</th>
-                <th className="px-4 py-3 text-left font-medium text-xs">Interacções</th>
-                <th className="px-4 py-3 text-left font-medium text-xs">Responsável</th>
-                <th className="px-4 py-3 text-left font-medium text-xs">Acções</th>
+                <th className="px-4 py-3 text-left font-medium text-xs">
+                  Código
+                </th>
+                <th className="px-4 py-3 text-left font-medium text-xs">
+                  Nome
+                </th>
+                <th className="px-4 py-3 text-left font-medium text-xs">
+                  Tipo
+                </th>
+                <th className="px-4 py-3 text-left font-medium text-xs">
+                  Província
+                </th>
+                <th className="px-4 py-3 text-left font-medium text-xs">
+                  Estado
+                </th>
+                <th className="px-4 py-3 text-left font-medium text-xs">
+                  Interacções
+                </th>
+                <th className="px-4 py-3 text-left font-medium text-xs">
+                  Responsável
+                </th>
+                <th className="px-4 py-3 text-left font-medium text-xs">
+                  Acções
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
               {rows.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="px-4 py-8 text-center text-ink-faint">
+                  <td
+                    colSpan={8}
+                    className="px-4 py-8 text-center text-ink-faint"
+                  >
                     Nenhum beneficiário encontrado
                   </td>
                 </tr>
               ) : (
                 rows.map((b) => (
-                  <tr key={b.id} className="hover:bg-surface-sunken transition-colors">
+                  <tr
+                    key={b.id}
+                    className="hover:bg-surface-sunken transition-colors"
+                  >
                     <td className="px-4 py-3 font-mono text-primary">
                       {b.code}
                     </td>
-                    <td className="px-4 py-3 font-medium text-ink">{b.fullName}</td>
+                    <td className="px-4 py-3 font-medium text-ink">
+                      {b.fullName}
+                    </td>
                     <td className="px-4 py-3 text-ink-muted">{b.type}</td>
                     <td className="px-4 py-3 text-ink-muted">
                       {b.province || '—'}
@@ -164,7 +192,8 @@ export function BeneficiariesListView({
                       <span
                         className={cn(
                           'inline-flex items-center rounded-pill px-2 py-1 font-body text-xs font-semibold',
-                          STATUS_COLORS[b.status] ?? 'bg-surface-sunken text-ink-muted',
+                          STATUS_COLORS[b.status] ??
+                            'bg-surface-sunken text-ink-muted',
                         )}
                       >
                         {b.status}

@@ -39,12 +39,14 @@ export function EditPayslipModal({ payslip, onClose }: EditPayslipModalProps) {
   const [notes, setNotes] = useState(payslip.notes ?? '');
   const [nums, setNums] = useState<Record<NumKey, string>>(() => {
     const init = {} as Record<NumKey, string>;
-    for (const [k] of NUM_FIELDS) init[k] = String((payslip as unknown as Record<string, number>)[k] ?? 0);
+    for (const [k] of NUM_FIELDS)
+      init[k] = String((payslip as unknown as Record<string, number>)[k] ?? 0);
     return init;
   });
 
   const save = useApiMutation(
-    (body: Record<string, unknown>) => apiClient.put(`/payslips/${payslip.id}`, body),
+    (body: Record<string, unknown>) =>
+      apiClient.put(`/payslips/${payslip.id}`, body),
     {
       invalidateKeys: [
         queryKeys.payslips.adminDetail(payslip.id),
@@ -52,7 +54,10 @@ export function EditPayslipModal({ payslip, onClose }: EditPayslipModalProps) {
         [...queryKeys.payslips.all, 'dashboard'],
       ],
       onSuccess: () => {
-        notify({ title: 'Recibo actualizado (voltou a Rascunho)', intent: 'success' });
+        notify({
+          title: 'Recibo actualizado (voltou a Rascunho)',
+          intent: 'success',
+        });
         onClose();
       },
       onError: (e: Error) =>
@@ -83,14 +88,24 @@ export function EditPayslipModal({ payslip, onClose }: EditPayslipModalProps) {
 
   return (
     <Modal open onOpenChange={(o) => !o && onClose()}>
-      <ModalContent title={`Editar recibo ${payslip.receiptCode ?? payslip.id}`} className="max-w-lg max-h-[90vh] overflow-y-auto">
+      <ModalContent
+        title={`Editar recibo ${payslip.receiptCode ?? payslip.id}`}
+        className="max-w-lg max-h-[90vh] overflow-y-auto"
+      >
         <div className="mt-4 rounded-control bg-warning-subtle p-3 font-body text-xs text-warning-ink">
-          Guardar devolve o recibo a Rascunho e recalcula IRT, INSS e líquido a partir dos valores introduzidos.
+          Guardar devolve o recibo a Rascunho e recalcula IRT, INSS e líquido a
+          partir dos valores introduzidos.
         </div>
 
         <div className="mt-4 space-y-4">
           <FormField label="Data de pagamento" htmlFor="epm-pay">
-            <Input id="epm-pay" type="date" value={paymentDate} onChange={(e) => setPaymentDate(e.target.value)} className="w-full" />
+            <Input
+              id="epm-pay"
+              type="date"
+              value={paymentDate}
+              onChange={(e) => setPaymentDate(e.target.value)}
+              className="w-full"
+            />
           </FormField>
           <div className="grid grid-cols-2 gap-3">
             {NUM_FIELDS.map(([key, label]) => (
@@ -99,20 +114,36 @@ export function EditPayslipModal({ payslip, onClose }: EditPayslipModalProps) {
                   id={`epm-${key}`}
                   type="number"
                   value={nums[key]}
-                  onChange={(e) => setNums((s) => ({ ...s, [key]: e.target.value }))}
+                  onChange={(e) =>
+                    setNums((s) => ({ ...s, [key]: e.target.value }))
+                  }
                   className="w-full"
                 />
               </FormField>
             ))}
           </div>
           <FormField label="Notas internas" htmlFor="epm-notes">
-            <Textarea id="epm-notes" value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} className="w-full" />
+            <Textarea
+              id="epm-notes"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              rows={2}
+              className="w-full"
+            />
           </FormField>
         </div>
 
         <div className="mt-6 flex justify-end gap-3">
-          <Button intent="ghost" onClick={onClose} disabled={save.isPending}>Cancelar</Button>
-          <Button onClick={handleSubmit} disabled={!valid} loading={save.isPending}>Guardar</Button>
+          <Button intent="ghost" onClick={onClose} disabled={save.isPending}>
+            Cancelar
+          </Button>
+          <Button
+            onClick={handleSubmit}
+            disabled={!valid}
+            loading={save.isPending}
+          >
+            Guardar
+          </Button>
         </div>
       </ModalContent>
     </Modal>

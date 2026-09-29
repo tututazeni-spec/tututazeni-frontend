@@ -18,7 +18,11 @@ import { IconButton } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Modal, ModalContent } from '@/components/ui/Modal';
 import { MessageBubble } from './MessageBubble';
-import type { Message, SendMessageResponse, StartSessionResponse } from './types';
+import type {
+  Message,
+  SendMessageResponse,
+  StartSessionResponse,
+} from './types';
 
 interface LessonTutorModalProps {
   courseId: number;
@@ -44,7 +48,10 @@ export function LessonTutorModal({
 
   const { mutate: startSession, isPending: starting } = useApiMutation(
     () =>
-      apiClient.post<StartSessionResponse>('/ai-tutor/sessions', { courseId, lessonId }),
+      apiClient.post<StartSessionResponse>('/ai-tutor/sessions', {
+        courseId,
+        lessonId,
+      }),
     {
       onSuccess: (res) => {
         setSession({ id: res.session.id });
@@ -82,8 +89,13 @@ export function LessonTutorModal({
 
   const handleRate = async (msgId: number, rating: number) => {
     try {
-      await apiClient.patch('/ai-tutor/messages/rate', { messageId: msgId, rating });
-      setMessages((prev) => prev.map((m) => (m.id === msgId ? { ...m, rating } : m)));
+      await apiClient.patch('/ai-tutor/messages/rate', {
+        messageId: msgId,
+        rating,
+      });
+      setMessages((prev) =>
+        prev.map((m) => (m.id === msgId ? { ...m, rating } : m)),
+      );
     } catch (e) {
       reportError(e, { source: 'LessonTutorModal.handleRate' });
     }
@@ -108,11 +120,14 @@ export function LessonTutorModal({
     ]);
     setThinking(true);
     try {
-      const res = await apiClient.post<SendMessageResponse>('/ai-tutor/sessions/message', {
-        sessionId: session.id,
-        message: msg,
-        contextHint: `Colaborador está na lição "${lessonTitle}"`,
-      });
+      const res = await apiClient.post<SendMessageResponse>(
+        '/ai-tutor/sessions/message',
+        {
+          sessionId: session.id,
+          message: msg,
+          contextHint: `Colaborador está na lição "${lessonTitle}"`,
+        },
+      );
       setMessages((prev) => [
         ...prev,
         {
@@ -129,7 +144,10 @@ export function LessonTutorModal({
       ]);
     } catch (e) {
       reportError(e, { source: 'LessonTutorModal.send' });
-      notify({ title: e instanceof Error ? e.message : 'Erro ao enviar mensagem', intent: 'danger' });
+      notify({
+        title: e instanceof Error ? e.message : 'Erro ao enviar mensagem',
+        intent: 'danger',
+      });
     } finally {
       setThinking(false);
     }
@@ -137,7 +155,11 @@ export function LessonTutorModal({
 
   return (
     <Modal open={open} onOpenChange={onOpenChange}>
-      <ModalContent title="Perguntar à Ísis" description={lessonTitle} className="max-w-lg">
+      <ModalContent
+        title="Perguntar à Ísis"
+        description={lessonTitle}
+        className="max-w-lg"
+      >
         <div className="max-h-[50vh] min-h-[200px] overflow-y-auto space-y-1 my-4 pr-1">
           {starting && !session && (
             <div className="flex items-center gap-2 text-ink-faint font-body text-sm">

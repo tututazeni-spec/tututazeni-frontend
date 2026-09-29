@@ -51,7 +51,9 @@ export function IndicatorsView({
             <TableHeaderCell>Código</TableHeaderCell>
             <TableHeaderCell>Indicador</TableHeaderCell>
             <TableHeaderCell>Categoria</TableHeaderCell>
-            <TableHeaderCell className="text-right">Referência Inicial</TableHeaderCell>
+            <TableHeaderCell className="text-right">
+              Referência Inicial
+            </TableHeaderCell>
             <TableHeaderCell className="text-right">Meta</TableHeaderCell>
             <TableHeaderCell>Frequência</TableHeaderCell>
             <TableHeaderCell className="text-center">Registos</TableHeaderCell>
@@ -60,23 +62,34 @@ export function IndicatorsView({
         <TableBody>
           {data.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={7} className="py-8 text-center text-ink-faint">
+              <TableCell
+                colSpan={7}
+                className="py-8 text-center text-ink-faint"
+              >
                 Nenhum indicador encontrado
               </TableCell>
             </TableRow>
           ) : (
             data.map((ind) => (
               <TableRow key={ind.id}>
-                <TableCell className="font-data text-primary">{ind.code}</TableCell>
+                <TableCell className="font-data text-primary">
+                  {ind.code}
+                </TableCell>
                 <TableCell className="font-medium">{ind.name}</TableCell>
-                <TableCell className="text-ink-muted">{ind.category || '—'}</TableCell>
+                <TableCell className="text-ink-muted">
+                  {ind.category || '—'}
+                </TableCell>
                 <TableCell className="text-right text-ink-muted">
-                  {ind.baseline != null ? `${ind.baseline}${ind.unit || ''}` : '—'}
+                  {ind.baseline != null
+                    ? `${ind.baseline}${ind.unit || ''}`
+                    : '—'}
                 </TableCell>
                 <TableCell className="text-right font-medium text-ink">
                   {ind.target != null ? `${ind.target}${ind.unit || ''}` : '—'}
                 </TableCell>
-                <TableCell className="text-ink-muted">{ind.frequency}</TableCell>
+                <TableCell className="text-ink-muted">
+                  {ind.frequency}
+                </TableCell>
                 <TableCell className="text-center text-ink-muted">
                   {ind._count?.records ?? 0}
                 </TableCell>

@@ -28,7 +28,11 @@ vi.mock('@/hooks/useApiQuery', () => ({
     isPending: false,
   }),
   useApiQuery: (_key: unknown, path: string) => {
-    if (path === '/courses') return { data: { data: [{ id: 7, title: 'Curso 7' }] }, isLoading: false };
+    if (path === '/courses')
+      return {
+        data: { data: [{ id: 7, title: 'Curso 7' }] },
+        isLoading: false,
+      };
     return { data: undefined, isLoading: false };
   },
 }));
@@ -98,7 +102,9 @@ import { CreateLiveClassWizard } from './CreateLiveClassWizard';
 beforeEach(() => post.mockReset().mockResolvedValue({ id: 1 }));
 
 function fillGeneralStep() {
-  fireEvent.click(screen.getByRole('button', { name: 'stub-pick:Selecionar curso…' }));
+  fireEvent.click(
+    screen.getByRole('button', { name: 'stub-pick:Selecionar curso…' }),
+  );
   fireEvent.change(screen.getByLabelText('Título da aula *'), {
     target: { value: '  Introdução ao CRM  ' },
   });
@@ -108,12 +114,16 @@ function fillScheduleStep() {
   fireEvent.change(screen.getByLabelText('Data e hora de início *'), {
     target: { value: '2026-12-31T14:30' },
   });
-  fireEvent.change(screen.getByLabelText('Duração (min) *'), { target: { value: '90' } });
+  fireEvent.change(screen.getByLabelText('Duração (min) *'), {
+    target: { value: '90' },
+  });
 }
 
 /** Avança da etapa actual clicando "Continuar" (ou "Criar Aula" na última). */
 function clickContinue() {
-  const btn = screen.queryByRole('button', { name: 'Continuar' }) ?? screen.getByRole('button', { name: 'Criar Aula' });
+  const btn =
+    screen.queryByRole('button', { name: 'Continuar' }) ??
+    screen.getByRole('button', { name: 'Criar Aula' });
   fireEvent.click(btn);
 }
 
@@ -127,7 +137,9 @@ describe('CreateLiveClassWizard', () => {
     render(<CreateLiveClassWizard onClose={vi.fn()} />);
     fillGeneralStep();
     clickContinue();
-    expect(screen.getByText('Etapa 2 de 9 — Data e horário')).toBeInTheDocument();
+    expect(
+      screen.getByText('Etapa 2 de 9 — Data e horário'),
+    ).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Continuar' })).toBeDisabled();
   });
 
@@ -154,7 +166,10 @@ describe('CreateLiveClassWizard', () => {
       recordSession: true,
       evaluationRequired: false,
     });
-    expect(body.notifySettings).toMatchObject({ onEnroll: true, onCancel: true });
+    expect(body.notifySettings).toMatchObject({
+      onEnroll: true,
+      onCancel: true,
+    });
   });
 
   test('erro da API no submit final — mostra mensagem', async () => {
@@ -176,7 +191,9 @@ describe('CreateLiveClassWizard', () => {
     // Único <select> visível na etapa "Data e horário" (Recorrência) — o
     // Select real é Radix (sem <select> nativo/htmlFor→id), por isso não dá
     // para usar getByLabelText aqui; ver mock de '@/components/ui/Select'.
-    fireEvent.change(screen.getByRole('combobox'), { target: { value: 'WEEKLY' } });
+    fireEvent.change(screen.getByRole('combobox'), {
+      target: { value: 'WEEKLY' },
+    });
     expect(screen.getByRole('button', { name: 'Continuar' })).toBeDisabled();
   });
 });

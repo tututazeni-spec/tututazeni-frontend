@@ -103,7 +103,9 @@ describe('TemplateFormModal — criar', () => {
     fireEvent.change(screen.getByLabelText('Nome *'), {
       target: { value: '  Onboarding Colaborador TI  ' },
     });
-    fireEvent.click(screen.getByRole('button', { name: 'Criar plano de integração' }));
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Criar plano de integração' }),
+    );
 
     await waitFor(() => expect(post).toHaveBeenCalledTimes(1));
     expect(post).toHaveBeenCalledWith('/onboarding/templates', {
@@ -126,7 +128,9 @@ describe('TemplateFormModal — criar', () => {
       target: { value: '  https://vid.example/welcome  ' },
     });
     fireEvent.click(screen.getByRole('button', { name: 'Template activo' }));
-    fireEvent.click(screen.getByRole('button', { name: 'Criar plano de integração' }));
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Criar plano de integração' }),
+    );
 
     await waitFor(() => expect(post).toHaveBeenCalledTimes(1));
     expect(post).toHaveBeenCalledWith('/onboarding/templates', {
@@ -140,7 +144,9 @@ describe('TemplateFormModal — criar', () => {
 
   test('sem nome — botão desactivado, não submete', () => {
     render(<TemplateFormModal onClose={vi.fn()} />);
-    fireEvent.click(screen.getByRole('button', { name: 'Criar plano de integração' }));
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Criar plano de integração' }),
+    );
     expect(post).not.toHaveBeenCalled();
     expect(
       screen.getByRole('button', { name: 'Criar plano de integração' }),
@@ -153,7 +159,9 @@ describe('TemplateFormModal — criar', () => {
     fireEvent.change(screen.getByLabelText('Nome *'), {
       target: { value: 'Onboarding X' },
     });
-    fireEvent.click(screen.getByRole('button', { name: 'Criar plano de integração' }));
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Criar plano de integração' }),
+    );
 
     await waitFor(() => expect(screen.getByText('Boom')).toBeInTheDocument());
   });
@@ -164,7 +172,9 @@ describe('TemplateFormModal — criar', () => {
     fireEvent.change(screen.getByLabelText('Nome *'), {
       target: { value: 'Onboarding X' },
     });
-    fireEvent.click(screen.getByRole('button', { name: 'Criar plano de integração' }));
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Criar plano de integração' }),
+    );
 
     await waitFor(() => expect(onClose).toHaveBeenCalledTimes(1));
   });
@@ -180,7 +190,9 @@ describe('TemplateFormModal — criar', () => {
     });
     fireEvent.click(screen.getByRole('button', { name: 'dur-ONE_ON_ONE' }));
     fireEvent.click(screen.getByRole('checkbox'));
-    fireEvent.click(screen.getByRole('button', { name: 'Criar plano de integração' }));
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Criar plano de integração' }),
+    );
 
     await waitFor(() => expect(post).toHaveBeenCalledTimes(1));
     expect(post).toHaveBeenCalledWith('/onboarding/templates', {
@@ -207,13 +219,17 @@ describe('TemplateFormModal — criar', () => {
       target: { value: 'Formação de compliance' },
     });
     fireEvent.click(screen.getByRole('button', { name: 'dur-TRAINING' }));
-    fireEvent.click(screen.getByRole('button', { name: 'Criar plano de integração' }));
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Criar plano de integração' }),
+    );
 
     await waitFor(() => expect(post).toHaveBeenCalledTimes(1));
     expect(post).toHaveBeenCalledWith(
       '/onboarding/templates',
       expect.objectContaining({
-        tasks: [expect.objectContaining({ category: 'TRAINING', isMandatory: true })],
+        tasks: [
+          expect.objectContaining({ category: 'TRAINING', isMandatory: true }),
+        ],
       }),
     );
   });

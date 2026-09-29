@@ -99,16 +99,24 @@ export function SubmitEvaluationModal({
     { enabled: !!cycleId },
   );
   const formId = cycleQ.data?.form?.id;
-  const formQ = useApiQuery<{ id: number; title: string; questions: FormQuestion[] }>(
+  const formQ = useApiQuery<{
+    id: number;
+    title: string;
+    questions: FormQuestion[];
+  }>(
     queryKeys.evaluation.requestDetail(`form-${formId}`),
     `/evaluations/forms/${formId}`,
     { enabled: !!formId },
   );
   const questions = formQ.data?.questions ?? [];
-  const loading = (!!cycleId && cycleQ.isLoading) || (!!formId && formQ.isLoading);
+  const loading =
+    (!!cycleId && cycleQ.isLoading) || (!!formId && formQ.isLoading);
 
   const setAnswer = (questionId: number, patch: Partial<AnswerState>) =>
-    setAnswers((prev) => ({ ...prev, [questionId]: { ...prev[questionId], ...patch } }));
+    setAnswers((prev) => ({
+      ...prev,
+      [questionId]: { ...prev[questionId], ...patch },
+    }));
 
   const missingRequired = questions.some((q) => {
     if (!q.required) return false;
@@ -129,7 +137,9 @@ export function SubmitEvaluationModal({
         })),
         ...(strengths.trim() ? { strengths: strengths.trim() } : {}),
         ...(improvements.trim() ? { improvements: improvements.trim() } : {}),
-        ...(recommendations.trim() ? { recommendations: recommendations.trim() } : {}),
+        ...(recommendations.trim()
+          ? { recommendations: recommendations.trim() }
+          : {}),
         isDraft,
       }),
     {
@@ -144,7 +154,10 @@ export function SubmitEvaluationModal({
         onSuccess?.();
         onClose();
       },
-      onError: (e) => setSubmitError(e instanceof Error ? e.message : 'Erro ao submeter a avaliação.'),
+      onError: (e) =>
+        setSubmitError(
+          e instanceof Error ? e.message : 'Erro ao submeter a avaliação.',
+        ),
     },
   );
 
@@ -164,28 +177,48 @@ export function SubmitEvaluationModal({
           )}
 
           {loading ? (
-            <Skeleton rows={3} wrapperClassName="space-y-3" itemClassName="skeleton-shimmer h-16 rounded-card" />
+            <Skeleton
+              rows={3}
+              wrapperClassName="space-y-3"
+              itemClassName="skeleton-shimmer h-16 rounded-card"
+            />
           ) : (
             questions.map((q) => (
-              <FormField key={q.id} label={`${q.text}${q.required ? ' *' : ''}`} htmlFor={`q-${q.id}`}>
+              <FormField
+                key={q.id}
+                label={`${q.text}${q.required ? ' *' : ''}`}
+                htmlFor={`q-${q.id}`}
+              >
                 <div className="space-y-2">
                   {q.type === 'TEXT' ? (
                     <Textarea
                       id={`q-${q.id}`}
                       value={answers[q.id]?.comment ?? ''}
-                      onChange={(e) => setAnswer(q.id, { comment: e.target.value })}
+                      onChange={(e) =>
+                        setAnswer(q.id, { comment: e.target.value })
+                      }
                       rows={2}
                       className="w-full"
                     />
                   ) : (
                     <>
                       <ScoreButtons
-                        max={q.type === 'NPS' ? 10 : q.type === 'BOOLEAN' ? 1 : (q.scaleMax ?? 5)}
+                        max={
+                          q.type === 'NPS'
+                            ? 10
+                            : q.type === 'BOOLEAN'
+                              ? 1
+                              : (q.scaleMax ?? 5)
+                        }
                         value={answers[q.id]?.score}
-                        onChange={(v) => setAnswer(q.id, { score: v, notApplicable: false })}
+                        onChange={(v) =>
+                          setAnswer(q.id, { score: v, notApplicable: false })
+                        }
                       />
                       {q.type === 'BOOLEAN' && (
-                        <p className="text-[11px] text-ink-faint">0 = Não · 1 = Sim</p>
+                        <p className="text-[11px] text-ink-faint">
+                          0 = Não · 1 = Sim
+                        </p>
                       )}
                       {q.type === 'NA_ALLOWED' && (
                         <label className="flex items-center gap-2 text-xs text-ink-muted">
@@ -193,7 +226,10 @@ export function SubmitEvaluationModal({
                             type="checkbox"
                             checked={!!answers[q.id]?.notApplicable}
                             onChange={(e) =>
-                              setAnswer(q.id, { notApplicable: e.target.checked, score: undefined })
+                              setAnswer(q.id, {
+                                notApplicable: e.target.checked,
+                                score: undefined,
+                              })
                             }
                           />
                           Não aplicável
@@ -202,7 +238,9 @@ export function SubmitEvaluationModal({
                       <Textarea
                         placeholder="Comentário (opcional)"
                         value={answers[q.id]?.comment ?? ''}
-                        onChange={(e) => setAnswer(q.id, { comment: e.target.value })}
+                        onChange={(e) =>
+                          setAnswer(q.id, { comment: e.target.value })
+                        }
                         rows={1}
                         className="w-full"
                       />
@@ -214,18 +252,40 @@ export function SubmitEvaluationModal({
           )}
 
           <FormField label="Pontos fortes" htmlFor="ev-strengths">
-            <Textarea id="ev-strengths" value={strengths} onChange={(e) => setStrengths(e.target.value)} rows={2} className="w-full" />
+            <Textarea
+              id="ev-strengths"
+              value={strengths}
+              onChange={(e) => setStrengths(e.target.value)}
+              rows={2}
+              className="w-full"
+            />
           </FormField>
           <FormField label="Áreas de melhoria" htmlFor="ev-improvements">
-            <Textarea id="ev-improvements" value={improvements} onChange={(e) => setImprovements(e.target.value)} rows={2} className="w-full" />
+            <Textarea
+              id="ev-improvements"
+              value={improvements}
+              onChange={(e) => setImprovements(e.target.value)}
+              rows={2}
+              className="w-full"
+            />
           </FormField>
           <FormField label="Recomendações" htmlFor="ev-recommendations">
-            <Textarea id="ev-recommendations" value={recommendations} onChange={(e) => setRecommendations(e.target.value)} rows={2} className="w-full" />
+            <Textarea
+              id="ev-recommendations"
+              value={recommendations}
+              onChange={(e) => setRecommendations(e.target.value)}
+              rows={2}
+              className="w-full"
+            />
           </FormField>
         </div>
 
         <div className="mt-6 flex gap-3 border-t border-border pt-4">
-          <Button intent="secondary" className="flex-1 justify-center" onClick={onClose}>
+          <Button
+            intent="secondary"
+            className="flex-1 justify-center"
+            onClick={onClose}
+          >
             Cancelar
           </Button>
           <Button

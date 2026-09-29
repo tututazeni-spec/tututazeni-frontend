@@ -38,15 +38,24 @@ export function useEventPickerOptions(scope: string) {
     { params: { limit: 100 }, staleTime: STALE_TIME.DYNAMIC },
   );
   const { data: endedEvents } = useApiQuery<Paginated<Event>>(
-    queryKeys.events.list({ picker: `${scope}-ended`, limit: 100, status: 'ENDED' }),
+    queryKeys.events.list({
+      picker: `${scope}-ended`,
+      limit: 100,
+      status: 'ENDED',
+    }),
     '/events',
     { params: { limit: 100, status: 'ENDED' }, staleTime: STALE_TIME.DYNAMIC },
   );
   return useMemo(() => {
     const all = [...(activeEvents?.data ?? []), ...(endedEvents?.data ?? [])];
     return all
-      .sort((a, b) => new Date(b.startAt).getTime() - new Date(a.startAt).getTime())
-      .map((e) => ({ value: String(e.id), label: `${e.title} — ${formatDate(e.startAt)}` }));
+      .sort(
+        (a, b) => new Date(b.startAt).getTime() - new Date(a.startAt).getTime(),
+      )
+      .map((e) => ({
+        value: String(e.id),
+        label: `${e.title} — ${formatDate(e.startAt)}`,
+      }));
   }, [activeEvents, endedEvents]);
 }
 

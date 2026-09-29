@@ -56,10 +56,12 @@ export const ORIGIN_CFG: Record<PdiOrigin, string> = {
   STRATEGIC_NEED: 'Necessidade estratégica da empresa',
   OTHER: 'Outro',
 };
-export const ORIGIN_ITEMS = Object.entries(ORIGIN_CFG).map(([value, label]) => ({
-  value,
-  label,
-}));
+export const ORIGIN_ITEMS = Object.entries(ORIGIN_CFG).map(
+  ([value, label]) => ({
+    value,
+    label,
+  }),
+);
 
 export const GAP_PRIORITY_CFG: Record<CompetencyGapPriority, string> = {
   LOW: 'Baixa',

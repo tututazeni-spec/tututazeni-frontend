@@ -33,39 +33,90 @@ export function HrDashboardView() {
       </div>
 
       {isLoading && <Skeleton rows={6} />}
-      {error && <div className="font-body text-sm text-danger">{error.message}</div>}
+      {error && (
+        <div className="font-body text-sm text-danger">{error.message}</div>
+      )}
 
       {!isLoading && !error && data && (
         <div className="space-y-8">
           <section>
-            <h3 className="mb-3 font-body text-sm font-semibold uppercase tracking-wide text-ink-faint">Contagens</h3>
+            <h3 className="mb-3 font-body text-sm font-semibold uppercase tracking-wide text-ink-faint">
+              Contagens
+            </h3>
             <div className="flex flex-wrap gap-3">
               <KpiCard label="Total" value={data.counts.total} />
-              <KpiCard label="Emitidos" value={data.counts.issued} intent="success" />
-              <KpiCard label="Confirmados" value={data.counts.acknowledged} intent="info" />
-              <KpiCard label="Em disputa" value={data.counts.disputed} intent="danger" />
-              <KpiCard label="Por confirmar" value={data.counts.notViewed} intent="warning" />
+              <KpiCard
+                label="Emitidos"
+                value={data.counts.issued}
+                intent="success"
+              />
+              <KpiCard
+                label="Confirmados"
+                value={data.counts.acknowledged}
+                intent="info"
+              />
+              <KpiCard
+                label="Em disputa"
+                value={data.counts.disputed}
+                intent="danger"
+              />
+              <KpiCard
+                label="Por confirmar"
+                value={data.counts.notViewed}
+                intent="warning"
+              />
               <KpiCard label="Rascunhos" value={data.counts.draft} />
             </div>
           </section>
 
           <section>
-            <h3 className="mb-3 font-body text-sm font-semibold uppercase tracking-wide text-ink-faint">Financeiro</h3>
+            <h3 className="mb-3 font-body text-sm font-semibold uppercase tracking-wide text-ink-faint">
+              Financeiro
+            </h3>
             <div className="flex flex-wrap gap-3">
-              <KpiCard label="Bruto total" value={fmtKz(data.financials.totalGross)} />
-              <KpiCard label="Líquido total" value={fmtKz(data.financials.totalNet)} intent="success" />
-              <KpiCard label="IRT total" value={fmtKz(data.financials.totalIRT)} />
-              <KpiCard label="INSS colaborador" value={fmtKz(data.financials.totalINSSEmployee)} />
-              <KpiCard label="INSS empregador" value={fmtKz(data.financials.totalINSSEmployer)} />
-              <KpiCard label="Líquido médio" value={fmtKz(data.financials.avgNet)} />
+              <KpiCard
+                label="Bruto total"
+                value={fmtKz(data.financials.totalGross)}
+              />
+              <KpiCard
+                label="Líquido total"
+                value={fmtKz(data.financials.totalNet)}
+                intent="success"
+              />
+              <KpiCard
+                label="IRT total"
+                value={fmtKz(data.financials.totalIRT)}
+              />
+              <KpiCard
+                label="INSS colaborador"
+                value={fmtKz(data.financials.totalINSSEmployee)}
+              />
+              <KpiCard
+                label="INSS empregador"
+                value={fmtKz(data.financials.totalINSSEmployer)}
+              />
+              <KpiCard
+                label="Líquido médio"
+                value={fmtKz(data.financials.avgNet)}
+              />
             </div>
           </section>
 
           <section>
-            <h3 className="mb-3 font-body text-sm font-semibold uppercase tracking-wide text-ink-faint">Compliance</h3>
+            <h3 className="mb-3 font-body text-sm font-semibold uppercase tracking-wide text-ink-faint">
+              Compliance
+            </h3>
             <div className="flex flex-wrap gap-3">
-              <KpiCard label="Taxa de confirmação" value={data.compliance.viewRate} intent="info" />
-              <KpiCard label="Pendentes de confirmação" value={data.compliance.pendingAcknowledgement} intent="warning" />
+              <KpiCard
+                label="Taxa de confirmação"
+                value={data.compliance.viewRate}
+                intent="info"
+              />
+              <KpiCard
+                label="Pendentes de confirmação"
+                value={data.compliance.pendingAcknowledgement}
+                intent="warning"
+              />
             </div>
           </section>
         </div>

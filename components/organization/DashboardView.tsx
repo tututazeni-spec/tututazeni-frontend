@@ -51,11 +51,7 @@ export function DashboardView() {
           value={stats.departments}
           intent="accent"
         />
-        <KpiCard
-          label="Unidades"
-          value={stats.units}
-          intent="info"
-        />
+        <KpiCard label="Unidades" value={stats.units} intent="info" />
       </div>
 
       {/* KPIs org */}

@@ -24,8 +24,17 @@ export interface ScatterPlotProps {
 
 const PADDING = { top: 16, right: 20, bottom: 40, left: 56 };
 
-export function ScatterPlot({ points, xLabel, yLabel, height = 280 }: ScatterPlotProps) {
-  const [hover, setHover] = useState<{ point: ScatterPlotPoint; cx: number; cy: number } | null>(null);
+export function ScatterPlot({
+  points,
+  xLabel,
+  yLabel,
+  height = 280,
+}: ScatterPlotProps) {
+  const [hover, setHover] = useState<{
+    point: ScatterPlotPoint;
+    cx: number;
+    cy: number;
+  } | null>(null);
   const width = 640;
 
   const { xMin, xMax, yMin, yMax } = useMemo(() => {
@@ -48,23 +57,42 @@ export function ScatterPlot({ points, xLabel, yLabel, height = 280 }: ScatterPlo
   const plotW = width - PADDING.left - PADDING.right;
   const plotH = height - PADDING.top - PADDING.bottom;
 
-  const scaleX = (x: number) => PADDING.left + ((x - xMin) / (xMax - xMin || 1)) * plotW;
-  const scaleY = (y: number) => PADDING.top + plotH - ((y - yMin) / (yMax - yMin || 1)) * plotH;
+  const scaleX = (x: number) =>
+    PADDING.left + ((x - xMin) / (xMax - xMin || 1)) * plotW;
+  const scaleY = (y: number) =>
+    PADDING.top + plotH - ((y - yMin) / (yMax - yMin || 1)) * plotH;
 
   const xTicks = 4;
   const yTicks = 4;
 
   return (
     <div className="relative">
-      <svg viewBox={`0 0 ${width} ${height}`} className="w-full" role="img" aria-label={`${xLabel} vs ${yLabel}`}>
+      <svg
+        viewBox={`0 0 ${width} ${height}`}
+        className="w-full"
+        role="img"
+        aria-label={`${xLabel} vs ${yLabel}`}
+      >
         {/* Grelha recessiva */}
         {Array.from({ length: yTicks + 1 }, (_, i) => {
           const v = yMin + ((yMax - yMin) * i) / yTicks;
           const y = scaleY(v);
           return (
             <g key={`y-${i}`}>
-              <line x1={PADDING.left} x2={width - PADDING.right} y1={y} y2={y} className="stroke-border" strokeWidth={1} />
-              <text x={PADDING.left - 8} y={y + 3} textAnchor="end" className="fill-ink-faint text-[9px]">
+              <line
+                x1={PADDING.left}
+                x2={width - PADDING.right}
+                y1={y}
+                y2={y}
+                className="stroke-border"
+                strokeWidth={1}
+              />
+              <text
+                x={PADDING.left - 8}
+                y={y + 3}
+                textAnchor="end"
+                className="fill-ink-faint text-[9px]"
+              >
                 {Number.isInteger(v) ? v : v.toFixed(1)}
               </text>
             </g>
@@ -75,7 +103,12 @@ export function ScatterPlot({ points, xLabel, yLabel, height = 280 }: ScatterPlo
           const x = scaleX(v);
           return (
             <g key={`x-${i}`}>
-              <text x={x} y={height - PADDING.bottom + 16} textAnchor="middle" className="fill-ink-faint text-[9px]">
+              <text
+                x={x}
+                y={height - PADDING.bottom + 16}
+                textAnchor="middle"
+                className="fill-ink-faint text-[9px]"
+              >
                 {Number.isInteger(v) ? v : v.toFixed(1)}
               </text>
             </g>
@@ -120,7 +153,12 @@ export function ScatterPlot({ points, xLabel, yLabel, height = 280 }: ScatterPlo
         })}
 
         {/* Labels dos eixos */}
-        <text x={(width + PADDING.left - PADDING.right) / 2} y={height - 6} textAnchor="middle" className="fill-ink-muted text-[10px] font-medium">
+        <text
+          x={(width + PADDING.left - PADDING.right) / 2}
+          y={height - 6}
+          textAnchor="middle"
+          className="fill-ink-muted text-[10px] font-medium"
+        >
           {xLabel}
         </text>
         <text
@@ -143,7 +181,9 @@ export function ScatterPlot({ points, xLabel, yLabel, height = 280 }: ScatterPlo
             transform: 'translate(-50%, -130%)',
           }}
         >
-          {hover.point.label && <p className="font-medium">{hover.point.label}</p>}
+          {hover.point.label && (
+            <p className="font-medium">{hover.point.label}</p>
+          )}
           <p>
             {xLabel}: {hover.point.x} · {yLabel}: {hover.point.y}
           </p>

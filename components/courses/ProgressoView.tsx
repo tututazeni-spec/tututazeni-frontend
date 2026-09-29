@@ -24,7 +24,9 @@ export function ProgressoView({ role }: ProgressoViewProps) {
     <div className="space-y-8">
       {showTeam && (
         <section>
-          <h2 className="mb-3 text-sm font-semibold text-ink">Progresso da equipa</h2>
+          <h2 className="mb-3 text-sm font-semibold text-ink">
+            Progresso da equipa
+          </h2>
           <TeamView />
         </section>
       )}

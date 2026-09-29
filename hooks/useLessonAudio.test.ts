@@ -31,7 +31,8 @@ function mockAudioResponse(status = 200, message?: string) {
   return {
     ok: status >= 200 && status < 300,
     status,
-    blob: () => Promise.resolve(new Blob(['audio-bytes'], { type: 'audio/mpeg' })),
+    blob: () =>
+      Promise.resolve(new Blob(['audio-bytes'], { type: 'audio/mpeg' })),
     json: () => Promise.resolve(message ? { message } : {}),
   };
 }
@@ -97,7 +98,9 @@ describe('useLessonAudio', () => {
   test('erro 500 → estado "error" e reportError é chamado', async () => {
     global.fetch = vi
       .fn()
-      .mockResolvedValue(mockAudioResponse(500, 'Falha ao gerar áudio da aula')) as unknown as typeof fetch;
+      .mockResolvedValue(
+        mockAudioResponse(500, 'Falha ao gerar áudio da aula'),
+      ) as unknown as typeof fetch;
 
     const { result } = renderHook(() => useLessonAudio(9));
     await act(async () => {

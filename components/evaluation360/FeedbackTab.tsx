@@ -57,7 +57,9 @@ export function FeedbackTab({ feedbacks }: FeedbackTabProps) {
       <section className="flex flex-col gap-3">
         <div className="flex justify-between items-center mb-2">
           <div>
-            <h2 className="m-0 text-lg font-bold text-ink">Feedback Contínuo</h2>
+            <h2 className="m-0 text-lg font-bold text-ink">
+              Feedback Contínuo
+            </h2>
           </div>
           <Button intent="primary" size="sm" onClick={() => setModalOpen(true)}>
             + Dar Feedback
@@ -90,9 +92,13 @@ export function FeedbackTab({ feedbacks }: FeedbackTabProps) {
                         {fb.competency}
                       </span>
                     )}
-                    <span className="text-xs text-ink-muted">· {timeAgo(fb.createdAt)}</span>
+                    <span className="text-xs text-ink-muted">
+                      · {timeAgo(fb.createdAt)}
+                    </span>
                   </div>
-                  <p className="m-0 text-sm text-ink leading-relaxed">{fb.message}</p>
+                  <p className="m-0 text-sm text-ink leading-relaxed">
+                    {fb.message}
+                  </p>
                 </div>
               </div>
               <div className="mt-2.5 text-xs text-ink-muted">
@@ -111,12 +117,18 @@ export function FeedbackTab({ feedbacks }: FeedbackTabProps) {
 
 const CATEGORY_CFG: Record<string, { label: string; color: string }> = {
   STRENGTH: { label: 'Ponto forte', color: 'rgb(34, 197, 94)' },
-  IMPROVEMENT: { label: 'Oportunidade de melhoria', color: 'rgb(245, 158, 11)' },
+  IMPROVEMENT: {
+    label: 'Oportunidade de melhoria',
+    color: 'rgb(245, 158, 11)',
+  },
 };
 
 const ROLE_OPTIONS: SelectItemOption[] = [
   { value: ALL, label: 'Todos os tipos de avaliador' },
-  ...Object.entries(evaluatorRoleLabel).map(([value, label]) => ({ value, label })),
+  ...Object.entries(evaluatorRoleLabel).map(([value, label]) => ({
+    value,
+    label,
+  })),
 ];
 
 // Feedback qualitativo de um ciclo (docs/evaluation360.md §8) — GET
@@ -124,7 +136,11 @@ const ROLE_OPTIONS: SelectItemOption[] = [
 // de AvaliadosTab/AvaliadoresTab (sem "ciclo activo" implícito, é uma vista
 // de gestão).
 function CycleFeedbackSection() {
-  const { cycles, options: cycleOptions, loading: cyclesLoading } = useCycleSelectorOptions();
+  const {
+    cycles,
+    options: cycleOptions,
+    loading: cyclesLoading,
+  } = useCycleSelectorOptions();
   const [cycleId, setCycleId] = useState('');
   useEffect(() => {
     if (!cycleId && cycles.length > 0) setCycleId(cycles[0].id);
@@ -134,7 +150,10 @@ function CycleFeedbackSection() {
   const params: Record<string, string> = {};
   if (evaluatorRole !== ALL) params.evaluatorRole = evaluatorRole;
 
-  const { data, isLoading } = useApiQuery<{ data: CycleFeedbackRow[]; total: number }>(
+  const { data, isLoading } = useApiQuery<{
+    data: CycleFeedbackRow[];
+    total: number;
+  }>(
     queryKeys.evaluation360.cycleFeedback(cycleId, params),
     `/evaluation360/cycles/${cycleId}/feedback`,
     { params, staleTime: STALE_TIME.DYNAMIC, enabled: !!cycleId },
@@ -146,8 +165,8 @@ function CycleFeedbackSection() {
       <div>
         <h2 className="m-0 text-lg font-bold text-ink">Feedback do Ciclo</h2>
         <p className="m-0 mt-1 text-sm text-ink-muted">
-          Comentários qualitativos das avaliações 360° já submetidas — a identidade do avaliador
-          nunca é exposta, só o tipo de avaliador.
+          Comentários qualitativos das avaliações 360° já submetidas — a
+          identidade do avaliador nunca é exposta, só o tipo de avaliador.
         </p>
       </div>
 
@@ -163,8 +182,14 @@ function CycleFeedbackSection() {
           />
         </div>
         <div>
-          <div className="text-xs font-semibold text-ink-muted mb-1">Tipo de avaliador</div>
-          <Select items={ROLE_OPTIONS} value={evaluatorRole} onValueChange={setEvaluatorRole} />
+          <div className="text-xs font-semibold text-ink-muted mb-1">
+            Tipo de avaliador
+          </div>
+          <Select
+            items={ROLE_OPTIONS}
+            value={evaluatorRole}
+            onValueChange={setEvaluatorRole}
+          />
         </div>
       </div>
 
@@ -173,7 +198,9 @@ function CycleFeedbackSection() {
           Ainda não existe nenhum ciclo de avaliação 360º.
         </div>
       )}
-      {cycleId && isLoading && <div className="text-sm text-ink-muted">A carregar…</div>}
+      {cycleId && isLoading && (
+        <div className="text-sm text-ink-muted">A carregar…</div>
+      )}
       {cycleId && !isLoading && rows.length === 0 && (
         <div className="rounded-lg border border-border bg-surface p-5 text-sm text-ink-muted">
           Ainda sem feedback submetido para este ciclo.
@@ -191,7 +218,9 @@ function CycleFeedbackSection() {
               >
                 <div className="flex flex-wrap justify-between items-start gap-2 mb-2">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="font-semibold text-ink">{r.evaluateeName}</span>
+                    <span className="font-semibold text-ink">
+                      {r.evaluateeName}
+                    </span>
                     {r.competencyName && (
                       <span className="text-xs text-ink-muted bg-surface-sunken px-2 py-0.5 rounded-full">
                         {r.competencyName}
@@ -214,7 +243,9 @@ function CycleFeedbackSection() {
                     <span>· {r.date.slice(0, 10)}</span>
                   </div>
                 </div>
-                <p className="m-0 text-sm text-ink leading-relaxed">{r.comment}</p>
+                <p className="m-0 text-sm text-ink leading-relaxed">
+                  {r.comment}
+                </p>
               </div>
             );
           })}

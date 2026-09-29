@@ -26,6 +26,12 @@ export function KpiCard({
   sub,
 }: KpiCardProps) {
   return (
-    <FoundationKpiCard icon={icon} label={label} value={value} intent={intent} sub={sub} />
+    <FoundationKpiCard
+      icon={icon}
+      label={label}
+      value={value}
+      intent={intent}
+      sub={sub}
+    />
   );
 }

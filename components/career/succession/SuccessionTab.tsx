@@ -30,11 +30,12 @@ const SUB_TABS: Array<{ id: SubView; label: string }> = [
 export function SuccessionTab() {
   const [subView, setSubView] = useState<SubView>('positions');
 
-  const { data: dashboard, isLoading: loading } = useApiQuery<SuccessionDashboard>(
-    queryKeys.succession.dashboard(),
-    '/succession/dashboard',
-    { staleTime: STALE_TIME.SEMI_STATIC },
-  );
+  const { data: dashboard, isLoading: loading } =
+    useApiQuery<SuccessionDashboard>(
+      queryKeys.succession.dashboard(),
+      '/succession/dashboard',
+      { staleTime: STALE_TIME.SEMI_STATIC },
+    );
 
   return (
     <div className="space-y-5">
@@ -54,7 +55,9 @@ export function SuccessionTab() {
                 icon={AlertTriangle}
                 label="Sem sucessor"
                 value={dashboard.kpis.withoutSuccessor}
-                intent={dashboard.kpis.withoutSuccessor > 0 ? 'danger' : 'success'}
+                intent={
+                  dashboard.kpis.withoutSuccessor > 0 ? 'danger' : 'success'
+                }
               />
               <KpiCard
                 icon={Users}
@@ -73,7 +76,9 @@ export function SuccessionTab() {
                 icon={AlertTriangle}
                 label="Risco alto/crítico"
                 value={dashboard.kpis.highRiskPositions}
-                intent={dashboard.kpis.highRiskPositions > 0 ? 'warning' : 'success'}
+                intent={
+                  dashboard.kpis.highRiskPositions > 0 ? 'warning' : 'success'
+                }
               />
             </div>
 
@@ -85,12 +90,17 @@ export function SuccessionTab() {
                 </div>
                 <div className="space-y-1.5">
                   {dashboard.criticalAlerts.map((a) => (
-                    <div key={a.id} className="flex items-center justify-between gap-2 font-body text-xs">
+                    <div
+                      key={a.id}
+                      className="flex items-center justify-between gap-2 font-body text-xs"
+                    >
                       <span className="text-warning-ink">
                         {a.position}
                         {a.alert ? ` — ${a.alert}` : ''}
                       </span>
-                      <Badge intent={RISK_INTENT[a.exitRisk]}>{RISK_LABEL[a.exitRisk]}</Badge>
+                      <Badge intent={RISK_INTENT[a.exitRisk]}>
+                        {RISK_LABEL[a.exitRisk]}
+                      </Badge>
                     </div>
                   ))}
                 </div>
@@ -118,7 +128,11 @@ export function SuccessionTab() {
         ))}
       </div>
 
-      {subView === 'positions' ? <CriticalPositionsView /> : <SuccessionMatrixView />}
+      {subView === 'positions' ? (
+        <CriticalPositionsView />
+      ) : (
+        <SuccessionMatrixView />
+      )}
     </div>
   );
 }
