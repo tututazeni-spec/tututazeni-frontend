@@ -10,7 +10,14 @@
 'use client';
 
 import { useState } from 'react';
-import { BookOpen, Building2, Check, FileText, TrendingUp, Users } from 'lucide-react';
+import {
+  BookOpen,
+  Building2,
+  Check,
+  FileText,
+  TrendingUp,
+  Users,
+} from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
@@ -90,7 +97,9 @@ export function CreateModal({ onClose }: CreateModalProps) {
                     )}
                   >
                     <Icon size={18} strokeWidth={1.75} />
-                    <span className="font-body text-xs font-medium">{label}</span>
+                    <span className="font-body text-xs font-medium">
+                      {label}
+                    </span>
                   </button>
                 ))}
               </div>
@@ -120,7 +129,9 @@ export function CreateModal({ onClose }: CreateModalProps) {
                   />
                 </FormField>
                 <div>
-                  <p className="mb-1.5 font-body text-xs font-medium text-ink">Idioma</p>
+                  <p className="mb-1.5 font-body text-xs font-medium text-ink">
+                    Idioma
+                  </p>
                   <div className="flex gap-2">
                     {LANGUAGES.map((lang) => (
                       <button
@@ -144,7 +155,9 @@ export function CreateModal({ onClose }: CreateModalProps) {
 
           {step === 3 && (
             <div className="space-y-4">
-              <p className="font-body text-sm text-ink-muted">Revisão e confirmação</p>
+              <p className="font-body text-sm text-ink-muted">
+                Revisão e confirmação
+              </p>
               <div className="divide-y divide-border rounded-card border border-border bg-surface-sunken">
                 {[
                   ['Tipo', TYPE_LABELS[form.type as DeclarationType] || '—'],
@@ -152,9 +165,16 @@ export function CreateModal({ onClose }: CreateModalProps) {
                   ['Template', 'Template Padrão — Vínculo'],
                   ['Status inicial', 'Rascunho'],
                 ].map(([label, value]) => (
-                  <div key={label} className="flex items-center justify-between px-4 py-3">
-                    <span className="font-body text-xs text-ink-muted">{label}</span>
-                    <span className="font-body text-xs font-medium text-ink">{value}</span>
+                  <div
+                    key={label}
+                    className="flex items-center justify-between px-4 py-3"
+                  >
+                    <span className="font-body text-xs text-ink-muted">
+                      {label}
+                    </span>
+                    <span className="font-body text-xs font-medium text-ink">
+                      {value}
+                    </span>
                   </div>
                 ))}
               </div>

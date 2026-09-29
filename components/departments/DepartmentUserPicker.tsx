@@ -31,7 +31,10 @@ export function DepartmentUserPicker({
 }) {
   const [search, setSearch] = useState('');
   const [open, setOpen] = useState(false);
-  const { users, loading } = useDirectoryUsers(search, open && !value && search.trim().length > 0);
+  const { users, loading } = useDirectoryUsers(
+    search,
+    open && !value && search.trim().length > 0,
+  );
   const results = users.filter((u) => u.id !== excludeId);
 
   const select = (u: DirectoryUser) => {
@@ -44,12 +47,18 @@ export function DepartmentUserPicker({
     <FormField label={label} htmlFor={htmlFor}>
       {value ? (
         <div className="flex items-center gap-2 rounded-control border-[1.5px] border-border-strong bg-surface px-2 py-1.5">
-          <Avatar name={value.fullName} url={value.avatarUrl ?? undefined} size="sm" />
+          <Avatar
+            name={value.fullName}
+            url={value.avatarUrl ?? undefined}
+            size="sm"
+          />
           <div className="min-w-0 flex-1">
             <div className="truncate text-sm text-ink">{value.fullName}</div>
             {(value.position?.name || value.department?.name) && (
               <div className="truncate text-xs text-ink-faint">
-                {[value.position?.name, value.department?.name].filter(Boolean).join(' · ')}
+                {[value.position?.name, value.department?.name]
+                  .filter(Boolean)
+                  .join(' · ')}
               </div>
             )}
           </div>
@@ -87,9 +96,15 @@ export function DepartmentUserPicker({
               onCloseAutoFocus={(e) => e.preventDefault()}
               className="z-[60] max-h-56 w-[--radix-popover-trigger-width] overflow-y-auto rounded-card border border-border bg-surface shadow-elevated"
             >
-              {loading && <div className="px-3 py-2 text-sm text-ink-muted">A pesquisar…</div>}
+              {loading && (
+                <div className="px-3 py-2 text-sm text-ink-muted">
+                  A pesquisar…
+                </div>
+              )}
               {!loading && results.length === 0 && (
-                <div className="px-3 py-2 text-sm text-ink-muted">Nenhum colaborador encontrado</div>
+                <div className="px-3 py-2 text-sm text-ink-muted">
+                  Nenhum colaborador encontrado
+                </div>
               )}
               {results.map((u) => (
                 <button
@@ -98,9 +113,15 @@ export function DepartmentUserPicker({
                   onClick={() => select(u)}
                   className="flex w-full items-center gap-2 px-3 py-2 text-left hover:bg-primary-subtle"
                 >
-                  <Avatar name={u.fullName} url={u.avatarUrl ?? undefined} size="sm" />
+                  <Avatar
+                    name={u.fullName}
+                    url={u.avatarUrl ?? undefined}
+                    size="sm"
+                  />
                   <div className="min-w-0">
-                    <div className="truncate text-sm text-ink">{u.fullName}</div>
+                    <div className="truncate text-sm text-ink">
+                      {u.fullName}
+                    </div>
                     <div className="truncate text-xs text-ink-faint">
                       {u.department?.name ?? u.email ?? '—'}
                     </div>

@@ -19,7 +19,12 @@
 
 import { useState } from 'react';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
-import { ADMIN_ROLES, EVAL_CREATOR_ROLES, EXECUTIVE_ROLES, filterByRole } from '@/lib/roles';
+import {
+  ADMIN_ROLES,
+  EVAL_CREATOR_ROLES,
+  EXECUTIVE_ROLES,
+  filterByRole,
+} from '@/lib/roles';
 import { TABS } from '@/components/onboarding/constants';
 import { AssignPlanModal } from '@/components/onboarding/AssignPlanModal';
 import { TemplateFormModal } from '@/components/onboarding/TemplateFormModal';
@@ -55,17 +60,30 @@ export default function OnboardingPage() {
     <div className="min-h-screen bg-canvas">
       <div className="border-b border-border bg-surface px-6 py-5">
         <div className="mx-auto flex max-w-7xl items-center justify-between">
-          <h1 className="font-display text-xl font-bold text-ink">Onboarding</h1>
+          <h1 className="font-display text-xl font-bold text-ink">
+            Onboarding
+          </h1>
         </div>
       </div>
 
+      {/* Tabs — formato de "cartão": cada trigger é um cartão independente
+          (borda + fundo branco + rounded), sem underline no container.
+          Alinhadas horizontal e verticalmente (justify-center +
+          items-center no TabsList, flex items-center em cada TabsTrigger)
+          com largura mínima uniforme. Estado activo usa data-[state=active]
+          do Radix para aplicar destaque azul (borda/fundo/texto primary). */}
       <Tabs defaultValue="my-plan">
-        <div className="border-b border-border bg-surface px-6">
-          <TabsList className="mx-auto max-w-7xl overflow-x-auto gap-0">
+        <div className="bg-surface px-6 py-3">
+          <TabsList className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-2 overflow-x-auto bg-transparent p-0">
             {visibleTabs.map((t) => {
               const Icon = t.icon;
               return (
-                <TabsTrigger key={t.id} value={t.id} className="gap-2 whitespace-nowrap">
+                <TabsTrigger
+                  key={t.id}
+                  value={t.id}
+                  className="flex min-w-[140px] items-center justify-center gap-2 whitespace-nowrap rounded-lg border border-border bg-white px-4 py-2 text-center text-sm font-medium text-foreground shadow-none
+                             data-[state=active]:border-primary data-[state=active]:bg-primary/10 data-[state=active]:text-primary"
+                >
                   <Icon size={16} strokeWidth={1.75} />
                   {t.label}
                 </TabsTrigger>
@@ -94,7 +112,10 @@ export default function OnboardingPage() {
                   </Button>
                 )}
               </div>
-              <OnboardingsTab canManagePlan={canManage} canManageTasks={isMgmt} />
+              <OnboardingsTab
+                canManagePlan={canManage}
+                canManageTasks={isMgmt}
+              />
             </TabsContent>
           )}
 

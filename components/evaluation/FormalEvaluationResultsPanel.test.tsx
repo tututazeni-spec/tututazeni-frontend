@@ -37,7 +37,12 @@ beforeEach(() => {
 describe('FormalEvaluationResultsPanel', () => {
   test('mostra EmptyState quando ainda não há participantes', () => {
     rosterData = {
-      assessment: { id: 1, title: 'Prova Final', maxGrade: 20, passingScore: 70 },
+      assessment: {
+        id: 1,
+        title: 'Prova Final',
+        maxGrade: 20,
+        passingScore: 70,
+      },
       roster: [],
     };
     render(<FormalEvaluationResultsPanel assessmentId={1} onClose={vi.fn()} />);
@@ -46,7 +51,12 @@ describe('FormalEvaluationResultsPanel', () => {
 
   test('lista nome, departamento, nota e rótulo qualitativo de cada participante', () => {
     rosterData = {
-      assessment: { id: 1, title: 'Prova Final', maxGrade: 20, passingScore: 70 },
+      assessment: {
+        id: 1,
+        title: 'Prova Final',
+        maxGrade: 20,
+        passingScore: 70,
+      },
       roster: [
         {
           attemptId: 42,
@@ -70,7 +80,12 @@ describe('FormalEvaluationResultsPanel', () => {
 
   test('clicar numa linha abre o drilldown das respostas desse utilizador', () => {
     rosterData = {
-      assessment: { id: 1, title: 'Prova Final', maxGrade: 20, passingScore: 70 },
+      assessment: {
+        id: 1,
+        title: 'Prova Final',
+        maxGrade: 20,
+        passingScore: 70,
+      },
       roster: [
         {
           attemptId: 42,

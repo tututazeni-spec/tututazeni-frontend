@@ -31,27 +31,36 @@ export function CalibrationTab() {
   const [notes, setNotes] = useState<Record<number, string>>({});
   const [showHistory, setShowHistory] = useState(false);
 
-  const loadCalibration = useApiMutation((params: { id: string; dept?: string }) =>
-    apiClient.get<CalibrationData>(
-      `/evaluations/calibration/${params.id}${params.dept ? `?departmentId=${params.dept}` : ''}`,
-    ),
+  const loadCalibration = useApiMutation(
+    (params: { id: string; dept?: string }) =>
+      apiClient.get<CalibrationData>(
+        `/evaluations/calibration/${params.id}${params.dept ? `?departmentId=${params.dept}` : ''}`,
+      ),
   );
   const data = loadCalibration.data ?? null;
   const loading = loadCalibration.isPending;
 
   const loadHistory = useApiMutation((id: string) =>
-    apiClient.get<CalibrationHistoryEntry[]>(`/evaluations/calibration/${id}/history`),
+    apiClient.get<CalibrationHistoryEntry[]>(
+      `/evaluations/calibration/${id}/history`,
+    ),
   );
 
   const load = () => {
-    if (cycleId) loadCalibration.mutate({ id: cycleId, dept: departmentId || undefined });
+    if (cycleId)
+      loadCalibration.mutate({ id: cycleId, dept: departmentId || undefined });
   };
 
   const openCalibration = useApiMutation(
     () => apiClient.post(`/evaluations/calibration/${cycleId}/open`, {}),
     {
-      onSuccess: () => notify({ title: 'Calibração aberta', intent: 'success' }),
-      onError: () => notify({ title: 'Não foi possível abrir a calibração', intent: 'danger' }),
+      onSuccess: () =>
+        notify({ title: 'Calibração aberta', intent: 'success' }),
+      onError: () =>
+        notify({
+          title: 'Não foi possível abrir a calibração',
+          intent: 'danger',
+        }),
     },
   );
 
@@ -66,7 +75,11 @@ export function CalibrationTab() {
           intent: 'success',
         });
       },
-      onError: () => notify({ title: 'Não foi possível confirmar a calibração', intent: 'danger' }),
+      onError: () =>
+        notify({
+          title: 'Não foi possível confirmar a calibração',
+          intent: 'danger',
+        }),
     },
   );
 
@@ -80,7 +93,9 @@ export function CalibrationTab() {
       <Card>
         <CardBody className="flex flex-wrap items-end gap-3">
           <div>
-            <label className="mb-1 block text-xs font-medium text-ink-muted">Ciclo</label>
+            <label className="mb-1 block text-xs font-medium text-ink-muted">
+              Ciclo
+            </label>
             <Input
               value={cycleId}
               onChange={(e) => setCycleId(e.target.value)}
@@ -107,14 +122,16 @@ export function CalibrationTab() {
                 loading={openCalibration.isPending}
                 onClick={() => openCalibration.mutate(undefined)}
               >
-                <Unlock size={14} strokeWidth={1.75} className="mr-1" /> Iniciar Janela
+                <Unlock size={14} strokeWidth={1.75} className="mr-1" /> Iniciar
+                Janela
               </Button>
               <Button
                 intent="secondary"
                 loading={confirmCalibration.isPending}
                 onClick={() => confirmCalibration.mutate(undefined)}
               >
-                <Lock size={14} strokeWidth={1.75} className="mr-1" /> Confirmar Calibração
+                <Lock size={14} strokeWidth={1.75} className="mr-1" /> Confirmar
+                Calibração
               </Button>
               <Button intent="secondary" onClick={toggleHistory}>
                 <History size={14} strokeWidth={1.75} className="mr-1" />
@@ -128,31 +145,44 @@ export function CalibrationTab() {
       {showHistory && (
         <Card>
           <div className="px-4 py-3 border-b border-border">
-            <h4 className="font-display font-semibold text-ink">Histórico de Alterações</h4>
+            <h4 className="font-display font-semibold text-ink">
+              Histórico de Alterações
+            </h4>
           </div>
           <div className="divide-y divide-border max-h-64 overflow-y-auto">
             {loadHistory.isPending && (
               <div className="p-4">
-                <Skeleton rows={2} itemClassName="skeleton-shimmer h-10 rounded-card" />
+                <Skeleton
+                  rows={2}
+                  itemClassName="skeleton-shimmer h-10 rounded-card"
+                />
               </div>
             )}
-            {!loadHistory.isPending && (loadHistory.data ?? []).length === 0 && (
-              <p className="p-4 text-xs text-ink-faint">Sem alterações registadas.</p>
-            )}
+            {!loadHistory.isPending &&
+              (loadHistory.data ?? []).length === 0 && (
+                <p className="p-4 text-xs text-ink-faint">
+                  Sem alterações registadas.
+                </p>
+              )}
             {(loadHistory.data ?? []).map((h, i) => (
               <div key={i} className="px-4 py-2 text-xs">
                 <div className="flex items-center justify-between">
-                  <span className="text-ink-muted">Colaborador #{h.evaluatedId}</span>
+                  <span className="text-ink-muted">
+                    Colaborador #{h.evaluatedId}
+                  </span>
                   <span className="text-ink-faint">
                     {new Date(h.createdAt).toLocaleString('pt')}
                   </span>
                 </div>
                 <p className="text-ink">
-                  {h.previousScore?.toFixed(1) ?? '—'} → {h.calibratedScore?.toFixed(1) ?? '—'} por{' '}
+                  {h.previousScore?.toFixed(1) ?? '—'} →{' '}
+                  {h.calibratedScore?.toFixed(1) ?? '—'} por{' '}
                   {h.calibratedBy?.fullName ?? '—'}
                 </p>
                 {h.reason && (
-                  <p className="text-ink-faint italic mt-0.5">&ldquo;{h.reason}&rdquo;</p>
+                  <p className="text-ink-faint italic mt-0.5">
+                    &ldquo;{h.reason}&rdquo;
+                  </p>
                 )}
               </div>
             ))}
@@ -201,12 +231,19 @@ export function CalibrationTab() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Card>
                 <CardBody>
-                  <h4 className="font-display font-semibold text-ink mb-3">Comparar Equipas</h4>
+                  <h4 className="font-display font-semibold text-ink mb-3">
+                    Comparar Equipas
+                  </h4>
                   <div className="space-y-2">
                     {(data.byDepartment ?? []).map((d) => (
-                      <div key={d.department} className="flex items-center justify-between text-xs">
+                      <div
+                        key={d.department}
+                        className="flex items-center justify-between text-xs"
+                      >
                         <span className="text-ink-muted">{d.department}</span>
-                        <span className={`font-bold ${SCORE_COLOR(d.avgScore)}`}>
+                        <span
+                          className={`font-bold ${SCORE_COLOR(d.avgScore)}`}
+                        >
                           {d.avgScore.toFixed(1)} ({d.count})
                         </span>
                       </div>
@@ -228,18 +265,28 @@ export function CalibrationTab() {
                         </span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-ink-muted">Acima do esperado (3-4)</span>
-                        <span className="font-bold text-info-ink">{data.distribution.above}</span>
+                        <span className="text-ink-muted">
+                          Acima do esperado (3-4)
+                        </span>
+                        <span className="font-bold text-info-ink">
+                          {data.distribution.above}
+                        </span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-ink-muted">Dentro do esperado (2-3)</span>
+                        <span className="text-ink-muted">
+                          Dentro do esperado (2-3)
+                        </span>
                         <span className="font-bold text-warning-ink">
                           {data.distribution.expected}
                         </span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-ink-muted">Abaixo do esperado (&lt;2)</span>
-                        <span className="font-bold text-danger-ink">{data.distribution.below}</span>
+                        <span className="text-ink-muted">
+                          Abaixo do esperado (&lt;2)
+                        </span>
+                        <span className="font-bold text-danger-ink">
+                          {data.distribution.below}
+                        </span>
                       </div>
                     </div>
                   </CardBody>
@@ -309,10 +356,14 @@ export function CalibrationTab() {
                               {
                                 evaluatedId: p.evaluated.id,
                                 calibratedScore: val,
-                                calibrationNote: notes[p.evaluated.id]?.trim() || undefined,
+                                calibrationNote:
+                                  notes[p.evaluated.id]?.trim() || undefined,
                               },
                             );
-                            notify({ title: 'Score calibrado', intent: 'success' });
+                            notify({
+                              title: 'Score calibrado',
+                              intent: 'success',
+                            });
                           } catch (err) {
                             reportError(err, {
                               source: 'CalibrationTab.calibrate',
@@ -329,7 +380,10 @@ export function CalibrationTab() {
                   <Textarea
                     value={notes[p.evaluated.id] ?? ''}
                     onChange={(e) =>
-                      setNotes((prev) => ({ ...prev, [p.evaluated.id]: e.target.value }))
+                      setNotes((prev) => ({
+                        ...prev,
+                        [p.evaluated.id]: e.target.value,
+                      }))
                     }
                     placeholder="Justificação da alteração (opcional, fica em auditoria)..."
                     className="ml-8 text-xs"

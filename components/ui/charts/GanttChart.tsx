@@ -43,8 +43,17 @@ const ROW_COLOR: Record<GanttRowStatus, string> = {
   pending: 'var(--color-border-strong)',
 };
 
-export function GanttChart({ rows, todayValue, unitLabel = 'dias', className }: GanttChartProps) {
-  const [hover, setHover] = useState<{ idx: number; cx: number; cy: number } | null>(null);
+export function GanttChart({
+  rows,
+  todayValue,
+  unitLabel = 'dias',
+  className,
+}: GanttChartProps) {
+  const [hover, setHover] = useState<{
+    idx: number;
+    cx: number;
+    cy: number;
+  } | null>(null);
 
   const { min, max } = useMemo(() => {
     const starts = rows.map((r) => r.start);
@@ -55,13 +64,20 @@ export function GanttChart({ rows, todayValue, unitLabel = 'dias', className }: 
     };
   }, [rows, todayValue]);
 
-  const height = PADDING.top + PADDING.bottom + Math.max(1, rows.length) * ROW_HEIGHT;
+  const height =
+    PADDING.top + PADDING.bottom + Math.max(1, rows.length) * ROW_HEIGHT;
   const plotW = WIDTH - PADDING.left - PADDING.right;
-  const scaleX = (v: number) => PADDING.left + ((v - min) / (max - min || 1)) * plotW;
+  const scaleX = (v: number) =>
+    PADDING.left + ((v - min) / (max - min || 1)) * plotW;
 
   return (
     <div className={cn('relative', className)}>
-      <svg viewBox={`0 0 ${WIDTH} ${height}`} className="w-full" role="img" aria-label="Cronograma de etapas">
+      <svg
+        viewBox={`0 0 ${WIDTH} ${height}`}
+        className="w-full"
+        role="img"
+        aria-label="Cronograma de etapas"
+      >
         {rows.map((row, i) => {
           const y = PADDING.top + i * ROW_HEIGHT + (ROW_HEIGHT - BAR_H) / 2;
           const x = scaleX(row.start);
@@ -69,10 +85,22 @@ export function GanttChart({ rows, todayValue, unitLabel = 'dias', className }: 
           const color = ROW_COLOR[row.status ?? 'pending'];
           return (
             <g key={row.label}>
-              <text x={PADDING.left - 10} y={y + BAR_H / 2 + 4} textAnchor="end" className="fill-ink-muted text-[10px]">
+              <text
+                x={PADDING.left - 10}
+                y={y + BAR_H / 2 + 4}
+                textAnchor="end"
+                className="fill-ink-muted text-[10px]"
+              >
                 {row.label}
               </text>
-              <rect x={PADDING.left} y={y} width={plotW} height={BAR_H} rx={4} className="fill-surface-sunken" />
+              <rect
+                x={PADDING.left}
+                y={y}
+                width={plotW}
+                height={BAR_H}
+                rx={4}
+                className="fill-surface-sunken"
+              />
               <rect
                 x={x}
                 y={y}
@@ -103,12 +131,17 @@ export function GanttChart({ rows, todayValue, unitLabel = 'dias', className }: 
       </svg>
 
       {hover && (
-        <ChartTooltip xPct={(hover.cx / WIDTH) * 100} yPct={(hover.cy / height) * 100}>
+        <ChartTooltip
+          xPct={(hover.cx / WIDTH) * 100}
+          yPct={(hover.cy / height) * 100}
+        >
           <p className="font-medium">{rows[hover.idx].label}</p>
           <p>
             {rows[hover.idx].start}–{rows[hover.idx].end} {unitLabel}
           </p>
-          {rows[hover.idx].detail && <p className="text-ink-faint">{rows[hover.idx].detail}</p>}
+          {rows[hover.idx].detail && (
+            <p className="text-ink-faint">{rows[hover.idx].detail}</p>
+          )}
         </ChartTooltip>
       )}
     </div>

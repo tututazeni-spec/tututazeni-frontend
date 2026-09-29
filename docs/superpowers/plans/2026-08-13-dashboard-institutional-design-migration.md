@@ -30,15 +30,18 @@
 ### Task 1: `components/dashboard-institutional/InstitutionalDashboardView.tsx`
 
 **Files:**
+
 - Modify: `components/dashboard-institutional/InstitutionalDashboardView.tsx`
 
 **Interfaces:**
+
 - Consumes: `Button` (`@/components/ui/Button`), `Card`/`CardBody` (`@/components/ui/Card`), `KpiCard` (`@/components/ui/KpiCard`), `Skeleton` (`@/components/ui/Skeleton`).
 - Produces: mesma export `InstitutionalDashboardView` com a mesma prop interface (`InstitutionalDashboardViewProps` inalterada) + função local `MiniBarChart` (não exportada, substitui o import de `./atoms`).
 
 - [ ] **Step 1: Reescrever `components/dashboard-institutional/InstitutionalDashboardView.tsx`**
 
 Estrutura:
+
 - Import de ícones `lucide-react`: `Award`, `BookOpen`, `GraduationCap`, `Handshake`, `HeartHandshake`, `Library`, `Users`, `Wallet`.
 - Import `Button`, `Card`, `CardBody`, `KpiCard`, `Skeleton` de `@/components/ui/*`.
 - Import `type { Alerts, Summary, TrendPoint }` de `./types` (sem alteração).
@@ -71,14 +74,17 @@ Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>"
 ### Task 2: Eliminar `atoms.tsx` + verificação final
 
 **Files:**
+
 - Delete: `components/dashboard-institutional/atoms.tsx`
 
 - [ ] **Step 1: Confirmar que nada importa de `./atoms`**
 
 Run:
+
 ```
 grep -rn "from './atoms'" components/dashboard-institutional/
 ```
+
 Expected: 0 resultados (Task 1 já removeu o único import).
 
 - [ ] **Step 2: Eliminar o ficheiro**
@@ -90,9 +96,11 @@ git rm components/dashboard-institutional/atoms.tsx
 - [ ] **Step 3: Grep de paleta crua**
 
 Run:
+
 ```
 grep -rniE "(violet|indigo|slate|amber|emerald|red|teal|purple|blue|green|yellow|orange|gray|zinc|neutral|stone|cyan|sky|rose|pink|fuchsia|lime)-[0-9]{2,3}|text-white\b" components/dashboard-institutional/ "app/(platform)/dashboard/institutional"
 ```
+
 Expected: 0 resultados.
 
 - [ ] **Step 4: Typecheck completo**

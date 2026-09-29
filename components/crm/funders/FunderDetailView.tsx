@@ -187,10 +187,7 @@ export function FunderDetailView({
         </div>
 
         {showGrantForm && (
-          <form
-            onSubmit={submitGrant}
-            className="mb-4"
-          >
+          <form onSubmit={submitGrant} className="mb-4">
             <Card>
               <CardBody className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <Input
@@ -251,7 +248,9 @@ export function FunderDetailView({
         <Card>
           <div className="divide-y divide-border">
             {f.grants.length === 0 ? (
-              <p className="p-4 font-body text-ink-faint">Sem grants registados</p>
+              <p className="p-4 font-body text-ink-faint">
+                Sem grants registados
+              </p>
             ) : (
               f.grants.map((g) => {
                 const pct = g.amount > 0 ? (g.disbursed / g.amount) * 100 : 0;
@@ -267,13 +266,16 @@ export function FunderDetailView({
                         </p>
                         <p className="font-body text-xs text-ink-muted mt-0.5">
                           {formatMoney(g.disbursed, g.currency)} de{' '}
-                          {formatMoney(g.amount, g.currency)} ({pct.toFixed(0)}%)
+                          {formatMoney(g.amount, g.currency)} ({pct.toFixed(0)}
+                          %)
                         </p>
                       </div>
                       <div className="flex items-center gap-3">
                         <Select
                           value={g.status}
-                          onValueChange={(value) => updateGrantStatus(g.id, value)}
+                          onValueChange={(value) =>
+                            updateGrantStatus(g.id, value)
+                          }
                           items={GRANT_STATUS_OPTIONS.map((s) => ({
                             value: s,
                             label: s,
@@ -376,16 +378,21 @@ export function FunderDetailView({
         <Card>
           <div className="divide-y divide-border">
             {f.reports.length === 0 ? (
-              <p className="p-4 font-body text-ink-faint">Sem relatórios registados</p>
+              <p className="p-4 font-body text-ink-faint">
+                Sem relatórios registados
+              </p>
             ) : (
               f.reports.map((r) => {
-                const canSubmit = r.status === 'PENDING' || r.status === 'REJECTED';
+                const canSubmit =
+                  r.status === 'PENDING' || r.status === 'REJECTED';
                 const submitting = submittingReportId === r.id;
                 return (
                   <div key={r.id} className="p-4">
                     <div className="flex justify-between items-center">
                       <div>
-                        <p className="font-body font-medium text-ink">{r.title}</p>
+                        <p className="font-body font-medium text-ink">
+                          {r.title}
+                        </p>
                         <p className="font-body text-xs text-ink-muted">
                           {r.period} · Prazo {formatDate(r.dueDate)}
                         </p>
@@ -394,7 +401,8 @@ export function FunderDetailView({
                         <span
                           className={cn(
                             'inline-flex items-center rounded-pill px-2 py-1 font-body text-xs font-semibold',
-                            REPORT_COLORS[r.status] ?? 'bg-surface-sunken text-ink-muted',
+                            REPORT_COLORS[r.status] ??
+                              'bg-surface-sunken text-ink-muted',
                           )}
                         >
                           {r.status}
@@ -460,15 +468,14 @@ export function FunderDetailView({
         </div>
 
         {showIntForm && (
-          <form
-            onSubmit={submitInteraction}
-            className="mb-4"
-          >
+          <form onSubmit={submitInteraction} className="mb-4">
             <Card>
               <CardBody className="space-y-3">
                 <Select
                   value={intForm.type}
-                  onValueChange={(value) => setIntForm({ ...intForm, type: value })}
+                  onValueChange={(value) =>
+                    setIntForm({ ...intForm, type: value })
+                  }
                   items={[
                     { value: 'MEETING', label: 'Reunião' },
                     { value: 'CALL', label: 'Chamada' },
@@ -503,10 +510,7 @@ export function FunderDetailView({
                     setIntForm({ ...intForm, outcome: e.target.value })
                   }
                 />
-                <Button
-                  type="submit"
-                  disabled={saving}
-                >
+                <Button type="submit" disabled={saving}>
                   {saving ? 'A guardar...' : 'Guardar Interacção'}
                 </Button>
               </CardBody>
@@ -517,7 +521,9 @@ export function FunderDetailView({
         <Card>
           <div className="divide-y divide-border">
             {f.interactions.length === 0 ? (
-              <p className="p-4 font-body text-ink-faint">Sem interacções registadas</p>
+              <p className="p-4 font-body text-ink-faint">
+                Sem interacções registadas
+              </p>
             ) : (
               f.interactions.map((it) => (
                 <div key={it.id} className="p-4">
@@ -532,7 +538,9 @@ export function FunderDetailView({
                       {formatDate(it.date)}
                     </span>
                   </div>
-                  <p className="font-body text-sm text-ink-muted mt-1">{it.description}</p>
+                  <p className="font-body text-sm text-ink-muted mt-1">
+                    {it.description}
+                  </p>
                   <div className="flex gap-4 mt-1 font-body text-xs text-ink-faint">
                     {it.user?.fullName && <span>Por: {it.user.fullName}</span>}
                     {it.outcome && <span>Resultado: {it.outcome}</span>}

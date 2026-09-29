@@ -158,7 +158,9 @@ function EditCourseForm({ course, onClose, onSuccess }: EditCourseFormProps) {
       workloadHours:
         course.workloadHours != null ? String(course.workloadHours) : '',
       estimatedDurationDays:
-        course.estimatedDurationDays != null ? String(course.estimatedDurationDays) : '',
+        course.estimatedDurationDays != null
+          ? String(course.estimatedDurationDays)
+          : '',
       startDate: course.startDate ? course.startDate.slice(0, 10) : '',
       endDate: course.endDate ? course.endDate.slice(0, 10) : '',
       thumbnailUrl: course.thumbnailUrl ?? '',
@@ -166,16 +168,23 @@ function EditCourseForm({ course, onClose, onSuccess }: EditCourseFormProps) {
       targetAudience: (course.targetAudience ?? []).join(', '),
       unit: course.unit ?? '',
       departmentId: course.departmentId ? String(course.departmentId) : NO_DEPT,
-      passingScore: course.passingScore != null ? String(course.passingScore) : '',
+      passingScore:
+        course.passingScore != null ? String(course.passingScore) : '',
       minCompletionPercent:
-        course.minCompletionPercent != null ? String(course.minCompletionPercent) : '',
+        course.minCompletionPercent != null
+          ? String(course.minCompletionPercent)
+          : '',
       certificateEnabled: course.certificateEnabled ?? false,
       certificateCriteria: course.certificateCriteria ?? '',
       certificateValidityDays:
-        course.certificateValidityDays != null ? String(course.certificateValidityDays) : '',
+        course.certificateValidityDays != null
+          ? String(course.certificateValidityDays)
+          : '',
       mandatory: course.mandatory ?? false,
       requiresApproval: course.requiresApproval ?? false,
-      requiredCourseId: course.requiredCourseId ? String(course.requiredCourseId) : NO_PREREQUISITE,
+      requiredCourseId: course.requiredCourseId
+        ? String(course.requiredCourseId)
+        : NO_PREREQUISITE,
     },
     { title: [required()] },
   );
@@ -241,9 +250,12 @@ function EditCourseForm({ course, onClose, onSuccess }: EditCourseFormProps) {
         endDate: form.endDate || null,
         thumbnailUrl: form.thumbnailUrl || null,
         unit: form.unit.trim() || null,
-        departmentId: form.departmentId !== NO_DEPT ? Number(form.departmentId) : null,
+        departmentId:
+          form.departmentId !== NO_DEPT ? Number(form.departmentId) : null,
         passingScore:
-          form.passingScore !== '' && Number.isFinite(passing) ? Math.trunc(passing) : null,
+          form.passingScore !== '' && Number.isFinite(passing)
+            ? Math.trunc(passing)
+            : null,
         minCompletionPercent:
           form.minCompletionPercent !== '' && Number.isFinite(minCompletion)
             ? Math.trunc(minCompletion)
@@ -257,10 +269,18 @@ function EditCourseForm({ course, onClose, onSuccess }: EditCourseFormProps) {
         mandatory: form.mandatory,
         requiresApproval: form.requiresApproval,
         requiredCourseId:
-          form.requiredCourseId !== NO_PREREQUISITE ? Number(form.requiredCourseId) : null,
+          form.requiredCourseId !== NO_PREREQUISITE
+            ? Number(form.requiredCourseId)
+            : null,
         primaryInstructorId: instructor ? instructor.id : null,
-        tags: form.tags.split(',').map((t) => t.trim()).filter(Boolean),
-        targetAudience: form.targetAudience.split(',').map((t) => t.trim()).filter(Boolean),
+        tags: form.tags
+          .split(',')
+          .map((t) => t.trim())
+          .filter(Boolean),
+        targetAudience: form.targetAudience
+          .split(',')
+          .map((t) => t.trim())
+          .filter(Boolean),
       };
       if (form.level) payload.level = form.level;
       payload.type = form.type || null;
@@ -285,20 +305,23 @@ function EditCourseForm({ course, onClose, onSuccess }: EditCourseFormProps) {
   });
 
   const addInstructor = useApiMutation(
-    (userId: number) => apiClient.post(`/courses/${course.id}/instructors/${userId}`),
+    (userId: number) =>
+      apiClient.post(`/courses/${course.id}/instructors/${userId}`),
     {
       invalidateKeys: [queryKeys.courses.detail(course.id)],
       onError: (e) => toast({ title: e.message, intent: 'danger' }),
     },
   );
   const removeInstructor = useApiMutation(
-    (userId: number) => apiClient.delete(`/courses/${course.id}/instructors/${userId}`),
+    (userId: number) =>
+      apiClient.delete(`/courses/${course.id}/instructors/${userId}`),
     {
       invalidateKeys: [queryKeys.courses.detail(course.id)],
       onError: (e) => toast({ title: e.message, intent: 'danger' }),
     },
   );
-  const [coInstructorPick, setCoInstructorPick] = useState<DirectoryUser | null>(null);
+  const [coInstructorPick, setCoInstructorPick] =
+    useState<DirectoryUser | null>(null);
 
   return (
     <>
@@ -353,7 +376,10 @@ function EditCourseForm({ course, onClose, onSuccess }: EditCourseFormProps) {
                   className="w-full"
                 />
               </FormField>
-              <FormField label="Área de conhecimento" htmlFor="ec-knowledgeArea">
+              <FormField
+                label="Área de conhecimento"
+                htmlFor="ec-knowledgeArea"
+              >
                 <Input
                   id="ec-knowledgeArea"
                   value={form.knowledgeArea}
@@ -455,13 +481,18 @@ function EditCourseForm({ course, onClose, onSuccess }: EditCourseFormProps) {
                 className="w-full"
               />
             </FormField>
-            <FormField label="Duração estimada (dias)" htmlFor="ec-estimatedDurationDays">
+            <FormField
+              label="Duração estimada (dias)"
+              htmlFor="ec-estimatedDurationDays"
+            >
               <Input
                 id="ec-estimatedDurationDays"
                 type="number"
                 min={0}
                 value={form.estimatedDurationDays}
-                onChange={(e) => setField('estimatedDurationDays', e.target.value)}
+                onChange={(e) =>
+                  setField('estimatedDurationDays', e.target.value)
+                }
                 className="w-full"
               />
             </FormField>
@@ -489,7 +520,10 @@ function EditCourseForm({ course, onClose, onSuccess }: EditCourseFormProps) {
           </div>
 
           <div className="grid grid-cols-2 gap-3">
-            <FormField label="Nota mínima de aprovação (%)" htmlFor="ec-passingScore">
+            <FormField
+              label="Nota mínima de aprovação (%)"
+              htmlFor="ec-passingScore"
+            >
               <Input
                 id="ec-passingScore"
                 type="number"
@@ -500,14 +534,19 @@ function EditCourseForm({ course, onClose, onSuccess }: EditCourseFormProps) {
                 className="w-full"
               />
             </FormField>
-            <FormField label="% mínima de conclusão" htmlFor="ec-minCompletionPercent">
+            <FormField
+              label="% mínima de conclusão"
+              htmlFor="ec-minCompletionPercent"
+            >
               <Input
                 id="ec-minCompletionPercent"
                 type="number"
                 min={0}
                 max={100}
                 value={form.minCompletionPercent}
-                onChange={(e) => setField('minCompletionPercent', e.target.value)}
+                onChange={(e) =>
+                  setField('minCompletionPercent', e.target.value)
+                }
                 className="w-full"
               />
             </FormField>
@@ -536,7 +575,9 @@ function EditCourseForm({ course, onClose, onSuccess }: EditCourseFormProps) {
               <input
                 type="checkbox"
                 checked={form.certificateEnabled}
-                onChange={(e) => setField('certificateEnabled', e.target.checked)}
+                onChange={(e) =>
+                  setField('certificateEnabled', e.target.checked)
+                }
                 className="h-3.5 w-3.5 rounded border-border-strong accent-primary"
               />
               Emite certificado
@@ -545,21 +586,31 @@ function EditCourseForm({ course, onClose, onSuccess }: EditCourseFormProps) {
 
           {form.certificateEnabled && (
             <div className="grid grid-cols-2 gap-3">
-              <FormField label="Critérios para emissão" htmlFor="ec-certificateCriteria">
+              <FormField
+                label="Critérios para emissão"
+                htmlFor="ec-certificateCriteria"
+              >
                 <Input
                   id="ec-certificateCriteria"
                   value={form.certificateCriteria}
-                  onChange={(e) => setField('certificateCriteria', e.target.value)}
+                  onChange={(e) =>
+                    setField('certificateCriteria', e.target.value)
+                  }
                   className="w-full"
                 />
               </FormField>
-              <FormField label="Validade do certificado (dias)" htmlFor="ec-certificateValidityDays">
+              <FormField
+                label="Validade do certificado (dias)"
+                htmlFor="ec-certificateValidityDays"
+              >
                 <Input
                   id="ec-certificateValidityDays"
                   type="number"
                   min={0}
                   value={form.certificateValidityDays}
-                  onChange={(e) => setField('certificateValidityDays', e.target.value)}
+                  onChange={(e) =>
+                    setField('certificateValidityDays', e.target.value)
+                  }
                   className="w-full"
                   placeholder="Sem expiração"
                 />
@@ -590,7 +641,9 @@ function EditCourseForm({ course, onClose, onSuccess }: EditCourseFormProps) {
                   key={ci.id}
                   className="flex items-center gap-2 rounded-lg border border-border bg-surface-sunken px-3 py-1.5"
                 >
-                  <span className="flex-1 truncate text-sm text-ink">{ci.user.fullName}</span>
+                  <span className="flex-1 truncate text-sm text-ink">
+                    {ci.user.fullName}
+                  </span>
                   <button
                     type="button"
                     onClick={() => removeInstructor.mutate(ci.userId)}
@@ -602,7 +655,9 @@ function EditCourseForm({ course, onClose, onSuccess }: EditCourseFormProps) {
                 </div>
               ))}
               {(course.instructors ?? []).length === 0 && (
-                <p className="m-0 text-xs text-ink-faint">Nenhum instrutor adicional.</p>
+                <p className="m-0 text-xs text-ink-faint">
+                  Nenhum instrutor adicional.
+                </p>
               )}
             </div>
             <div className="flex items-end gap-2">
@@ -657,7 +712,10 @@ function EditCourseForm({ course, onClose, onSuccess }: EditCourseFormProps) {
             />
           </FormField>
 
-          <FormField label="Público-alvo (separado por vírgula)" htmlFor="ec-targetAudience">
+          <FormField
+            label="Público-alvo (separado por vírgula)"
+            htmlFor="ec-targetAudience"
+          >
             <Input
               id="ec-targetAudience"
               value={form.targetAudience}

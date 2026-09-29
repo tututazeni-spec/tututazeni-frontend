@@ -36,7 +36,11 @@ export function StyleguideChartsSection() {
           series={[
             {
               label: 'Novos colaboradores',
-              points: TREND_MONTHS.map((m, i) => ({ x: i, y: [12, 18, 9, 24, 30, 21][i], xLabel: m })),
+              points: TREND_MONTHS.map((m, i) => ({
+                x: i,
+                y: [12, 18, 9, 24, 30, 21][i],
+                xLabel: m,
+              })),
             },
           ]}
         />
@@ -60,8 +64,17 @@ export function StyleguideChartsSection() {
       </StyleguideSection>
 
       <StyleguideSection title="GaugeChart">
-        <GaugeChart value={82} label="Conformidade" thresholds={{ warning: 70, danger: 50 }} />
-        <GaugeChart value={18} label="Rotatividade" invert thresholds={{ warning: 15, danger: 25 }} />
+        <GaugeChart
+          value={82}
+          label="Conformidade"
+          thresholds={{ warning: 70, danger: 50 }}
+        />
+        <GaugeChart
+          value={18}
+          label="Rotatividade"
+          invert
+          thresholds={{ warning: 15, danger: 25 }}
+        />
       </StyleguideSection>
 
       <StyleguideSection title="DonutChart">
@@ -85,7 +98,12 @@ export function StyleguideChartsSection() {
             { label: 'Boas-vindas', start: 0, end: 3, status: 'done' },
             { label: 'Documentação', start: 2, end: 10, status: 'current' },
             { label: 'Formação inicial', start: 8, end: 20, status: 'pending' },
-            { label: 'Avaliação 30 dias', start: 25, end: 30, status: 'overdue' },
+            {
+              label: 'Avaliação 30 dias',
+              start: 25,
+              end: 30,
+              status: 'overdue',
+            },
           ]}
         />
       </StyleguideSection>

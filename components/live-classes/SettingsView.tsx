@@ -32,7 +32,13 @@ export function SettingsView() {
   );
 
   if (isLoading) {
-    return <Skeleton rows={4} wrapperClassName="space-y-3" itemClassName="skeleton-shimmer h-24 rounded-card" />;
+    return (
+      <Skeleton
+        rows={4}
+        wrapperClassName="space-y-3"
+        itemClassName="skeleton-shimmer h-24 rounded-card"
+      />
+    );
   }
   if (error || !data) {
     return <QueryError error={error} onRetry={refetch} />;
@@ -43,7 +49,9 @@ export function SettingsView() {
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <Card>
           <CardBody>
-            <h4 className="mb-3 font-display font-semibold text-ink">Tipos de aula</h4>
+            <h4 className="mb-3 font-display font-semibold text-ink">
+              Tipos de aula
+            </h4>
             <div className="flex flex-wrap gap-2">
               {data.types.map((t) => (
                 <Badge key={t} intent="neutral" className={TYPE_CFG[t]?.cls}>
@@ -55,7 +63,9 @@ export function SettingsView() {
         </Card>
         <Card>
           <CardBody>
-            <h4 className="mb-3 font-display font-semibold text-ink">Modalidades</h4>
+            <h4 className="mb-3 font-display font-semibold text-ink">
+              Modalidades
+            </h4>
             <div className="flex flex-wrap gap-2">
               {data.modalities.map((m) => (
                 <Badge key={m} intent="neutral">
@@ -67,7 +77,9 @@ export function SettingsView() {
         </Card>
         <Card>
           <CardBody>
-            <h4 className="mb-3 font-display font-semibold text-ink">Estados</h4>
+            <h4 className="mb-3 font-display font-semibold text-ink">
+              Estados
+            </h4>
             <div className="flex flex-wrap gap-2">
               {data.statuses.map((s) => (
                 <Badge key={s} intent="neutral" className={STATUS_CFG[s]?.cls}>
@@ -79,7 +91,9 @@ export function SettingsView() {
         </Card>
         <Card>
           <CardBody>
-            <h4 className="mb-3 font-display font-semibold text-ink">Recorrência</h4>
+            <h4 className="mb-3 font-display font-semibold text-ink">
+              Recorrência
+            </h4>
             <div className="flex flex-wrap gap-2">
               {data.recurrences.map((r) => (
                 <Badge key={r} intent="neutral">
@@ -91,7 +105,9 @@ export function SettingsView() {
         </Card>
         <Card>
           <CardBody>
-            <h4 className="mb-3 font-display font-semibold text-ink">Inscrição</h4>
+            <h4 className="mb-3 font-display font-semibold text-ink">
+              Inscrição
+            </h4>
             <div className="flex flex-wrap gap-2">
               {data.enrollmentModes.map((m) => (
                 <Badge key={m} intent="neutral">
@@ -103,10 +119,16 @@ export function SettingsView() {
         </Card>
         <Card>
           <CardBody>
-            <h4 className="mb-3 font-display font-semibold text-ink">Estados de presença</h4>
+            <h4 className="mb-3 font-display font-semibold text-ink">
+              Estados de presença
+            </h4>
             <div className="flex flex-wrap gap-2">
               {data.attendanceStatuses.map((s) => (
-                <Badge key={s} intent="neutral" className={LIVE_ATTENDANCE_STATUS_CFG[s]?.cls}>
+                <Badge
+                  key={s}
+                  intent="neutral"
+                  className={LIVE_ATTENDANCE_STATUS_CFG[s]?.cls}
+                >
                   {LIVE_ATTENDANCE_STATUS_CFG[s]?.label ?? s}
                 </Badge>
               ))}
@@ -118,41 +140,63 @@ export function SettingsView() {
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <Card>
           <CardBody>
-            <h4 className="mb-3 font-display font-semibold text-ink">Regras de presença (por omissão)</h4>
+            <h4 className="mb-3 font-display font-semibold text-ink">
+              Regras de presença (por omissão)
+            </h4>
             <div className="space-y-2 font-body text-sm text-ink-muted">
               <div className="flex justify-between">
                 <span>Percentagem mínima de presença</span>
-                <span className="font-medium text-ink">{data.attendanceDefaults.minAttendancePercent}%</span>
+                <span className="font-medium text-ink">
+                  {data.attendanceDefaults.minAttendancePercent}%
+                </span>
               </div>
               <div className="flex justify-between">
                 <span>Tolerância de atraso</span>
-                <span className="font-medium text-ink">{data.attendanceDefaults.lateToleranceMinutes} min</span>
+                <span className="font-medium text-ink">
+                  {data.attendanceDefaults.lateToleranceMinutes} min
+                </span>
               </div>
             </div>
             <p className="mt-2 font-body text-xs text-ink-faint">
-              Valores aplicados a novas aulas — ajustáveis por aula na Etapa 6 do assistente.
+              Valores aplicados a novas aulas — ajustáveis por aula na Etapa 6
+              do assistente.
             </p>
           </CardBody>
         </Card>
         <Card>
           <CardBody>
-            <h4 className="mb-3 font-display font-semibold text-ink">Política de gravação (por omissão)</h4>
+            <h4 className="mb-3 font-display font-semibold text-ink">
+              Política de gravação (por omissão)
+            </h4>
             <div className="space-y-2 font-body text-sm text-ink-muted">
               <div className="flex justify-between">
                 <span>Gravar sessão</span>
-                <Badge intent={data.recordingDefaults.recordSession ? 'success' : 'neutral'}>
+                <Badge
+                  intent={
+                    data.recordingDefaults.recordSession ? 'success' : 'neutral'
+                  }
+                >
                   {data.recordingDefaults.recordSession ? 'Sim' : 'Não'}
                 </Badge>
               </div>
               <div className="flex justify-between">
                 <span>Permitir download</span>
-                <Badge intent={data.recordingDefaults.allowRecordingDownload ? 'success' : 'neutral'}>
-                  {data.recordingDefaults.allowRecordingDownload ? 'Sim' : 'Não'}
+                <Badge
+                  intent={
+                    data.recordingDefaults.allowRecordingDownload
+                      ? 'success'
+                      : 'neutral'
+                  }
+                >
+                  {data.recordingDefaults.allowRecordingDownload
+                    ? 'Sim'
+                    : 'Não'}
                 </Badge>
               </div>
             </div>
             <p className="mt-2 font-body text-xs text-ink-faint">
-              Gravações vão para Object Storage / CDN — nunca para o servidor da aplicação (ver docs/aulas-ao-vivo.md).
+              Gravações vão para Object Storage / CDN — nunca para o servidor da
+              aplicação (ver docs/aulas-ao-vivo.md).
             </p>
           </CardBody>
         </Card>
@@ -160,9 +204,12 @@ export function SettingsView() {
 
       <Card>
         <CardBody>
-          <h4 className="mb-3 font-display font-semibold text-ink">Notificações</h4>
+          <h4 className="mb-3 font-display font-semibold text-ink">
+            Notificações
+          </h4>
           <p className="mb-2 font-body text-xs text-ink-faint">
-            Eventos configuráveis por aula (Etapa 9) e canais disponíveis conforme as integrações activas.
+            Eventos configuráveis por aula (Etapa 9) e canais disponíveis
+            conforme as integrações activas.
           </p>
           <div className="mb-2 flex flex-wrap gap-2">
             {data.notifySettingsKeys.map((k) => (
@@ -183,7 +230,9 @@ export function SettingsView() {
 
       <Card>
         <CardBody>
-          <h4 className="mb-3 font-display font-semibold text-ink">Permissões</h4>
+          <h4 className="mb-3 font-display font-semibold text-ink">
+            Permissões
+          </h4>
           <div className="space-y-2">
             {data.permissions.map((p) => (
               <div

@@ -122,7 +122,13 @@ interface FieldMappingRow {
 
 const emptyMappingRow: FieldMappingRow = { source: '', target: '' };
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+function Section({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
   return (
     <div className="flex flex-col gap-4 border-t border-border pt-4 first:border-t-0 first:pt-0">
       <h3 className="font-body text-xs font-semibold uppercase tracking-wide text-ink-faint">
@@ -148,14 +154,22 @@ export function NewIntegrationModal({ onClose }: NewIntegrationModalProps) {
   const [apiKey, setApiKey] = useState('');
   const [accessToken, setAccessToken] = useState('');
   const [authUrl, setAuthUrl] = useState('');
-  const [environment, setEnvironment] = useState<string | undefined>('PRODUCTION');
+  const [environment, setEnvironment] = useState<string | undefined>(
+    'PRODUCTION',
+  );
   const [apiVersion, setApiVersion] = useState('');
   const [dataFormat, setDataFormat] = useState<string | undefined>('JSON');
-  const [communicationMethod, setCommunicationMethod] = useState<string | undefined>();
-  const [syncFrequency, setSyncFrequency] = useState<string | undefined>('DAILY');
+  const [communicationMethod, setCommunicationMethod] = useState<
+    string | undefined
+  >();
+  const [syncFrequency, setSyncFrequency] = useState<string | undefined>(
+    'DAILY',
+  );
   const [syncDirection, setSyncDirection] = useState<string | undefined>();
   const [dataToSync, setDataToSync] = useState('');
-  const [mappingRows, setMappingRows] = useState<FieldMappingRow[]>([{ ...emptyMappingRow }]);
+  const [mappingRows, setMappingRows] = useState<FieldMappingRow[]>([
+    { ...emptyMappingRow },
+  ]);
   const [webhookUrl, setWebhookUrl] = useState('');
   const [webhookEvents, setWebhookEvents] = useState('');
   const [timeoutMs, setTimeoutMs] = useState('5000');
@@ -166,7 +180,9 @@ export function NewIntegrationModal({ onClose }: NewIntegrationModalProps) {
   const [responsibleUserId, setResponsibleUserId] = useState('');
   const [notes, setNotes] = useState('');
 
-  const [testResult, setTestResult] = useState<TestConnectionResult | null>(null);
+  const [testResult, setTestResult] = useState<TestConnectionResult | null>(
+    null,
+  );
   const [testing, setTesting] = useState(false);
 
   const createMutation = useApiMutation<unknown, CreateIntegrationPayload>(
@@ -182,7 +198,8 @@ export function NewIntegrationModal({ onClose }: NewIntegrationModalProps) {
   const buildPayload = (): CreateIntegrationPayload => {
     const mapping: Record<string, string> = {};
     for (const row of mappingRows) {
-      if (row.source.trim() && row.target.trim()) mapping[row.source.trim()] = row.target.trim();
+      if (row.source.trim() && row.target.trim())
+        mapping[row.source.trim()] = row.target.trim();
     }
     return {
       name: name.trim(),
@@ -201,7 +218,8 @@ export function NewIntegrationModal({ onClose }: NewIntegrationModalProps) {
       environment: environment as CreateIntegrationPayload['environment'],
       apiVersion: apiVersion.trim() || undefined,
       dataFormat: dataFormat as CreateIntegrationPayload['dataFormat'],
-      communicationMethod: communicationMethod as CreateIntegrationPayload['communicationMethod'],
+      communicationMethod:
+        communicationMethod as CreateIntegrationPayload['communicationMethod'],
       syncFrequency: syncFrequency as CreateIntegrationPayload['syncFrequency'],
       syncDirection: syncDirection as CreateIntegrationPayload['syncDirection'],
       dataToSync: dataToSync
@@ -226,12 +244,18 @@ export function NewIntegrationModal({ onClose }: NewIntegrationModalProps) {
   };
 
   const canSubmit =
-    name.trim().length > 0 && !!type && baseUrl.trim().length > 0 && !createMutation.isPending;
+    name.trim().length > 0 &&
+    !!type &&
+    baseUrl.trim().length > 0 &&
+    !createMutation.isPending;
 
   const handleTestConnection = async () => {
     const url = baseUrl.trim();
     if (!url) {
-      notify({ title: 'Indica a URL/Endpoint antes de testar', intent: 'info' });
+      notify({
+        title: 'Indica a URL/Endpoint antes de testar',
+        intent: 'info',
+      });
       return;
     }
     setTesting(true);
@@ -252,24 +276,35 @@ export function NewIntegrationModal({ onClose }: NewIntegrationModalProps) {
       });
     setTesting(false);
     setTestResult(result);
-    if (!result) notify({ title: 'Não foi possível testar a conexão', intent: 'danger' });
+    if (!result)
+      notify({ title: 'Não foi possível testar a conexão', intent: 'danger' });
   };
 
   const handleSubmit = () => {
     if (!canSubmit) return;
     createMutation.mutate(buildPayload(), {
       onSuccess: () => {
-        notify({ title: `Integração "${name.trim()}" criada com sucesso`, intent: 'success' });
+        notify({
+          title: `Integração "${name.trim()}" criada com sucesso`,
+          intent: 'success',
+        });
         onClose();
       },
       onError: (err) => {
         reportError(err, { source: 'NewIntegrationModal.handleSubmit' });
-        notify({ title: 'Não foi possível criar a integração', intent: 'danger' });
+        notify({
+          title: 'Não foi possível criar a integração',
+          intent: 'danger',
+        });
       },
     });
   };
 
-  const updateMappingRow = (index: number, field: keyof FieldMappingRow, value: string) => {
+  const updateMappingRow = (
+    index: number,
+    field: keyof FieldMappingRow,
+    value: string,
+  ) => {
     setMappingRows((rows) =>
       rows.map((row, i) => (i === index ? { ...row, [field]: value } : row)),
     );
@@ -293,7 +328,11 @@ export function NewIntegrationModal({ onClose }: NewIntegrationModalProps) {
               />
             </FormField>
             <FormField label="Tipo de integração" htmlFor="ni-type">
-              <Select items={TYPE_OPTIONS} value={type} onValueChange={setType} />
+              <Select
+                items={TYPE_OPTIONS}
+                value={type}
+                onValueChange={setType}
+              />
             </FormField>
             <FormField label="Categoria" htmlFor="ni-category">
               <Select
@@ -354,7 +393,11 @@ export function NewIntegrationModal({ onClose }: NewIntegrationModalProps) {
               />
             </FormField>
             <FormField label="Formato de dados" htmlFor="ni-dataformat">
-              <Select items={DATA_FORMAT_OPTIONS} value={dataFormat} onValueChange={setDataFormat} />
+              <Select
+                items={DATA_FORMAT_OPTIONS}
+                value={dataFormat}
+                onValueChange={setDataFormat}
+              />
             </FormField>
             <FormField label="Método de comunicação" htmlFor="ni-commethod">
               <Select
@@ -368,7 +411,11 @@ export function NewIntegrationModal({ onClose }: NewIntegrationModalProps) {
 
           <Section title="Autenticação">
             <FormField label="Método de autenticação" htmlFor="ni-authtype">
-              <Select items={AUTH_TYPE_OPTIONS} value={authType} onValueChange={setAuthType} />
+              <Select
+                items={AUTH_TYPE_OPTIONS}
+                value={authType}
+                onValueChange={setAuthType}
+              />
             </FormField>
             <FormField label="URL de autenticação" htmlFor="ni-authurl">
               <Input
@@ -379,7 +426,11 @@ export function NewIntegrationModal({ onClose }: NewIntegrationModalProps) {
               />
             </FormField>
             <FormField label="Client ID" htmlFor="ni-clientid">
-              <Input id="ni-clientid" value={clientId} onChange={(e) => setClientId(e.target.value)} />
+              <Input
+                id="ni-clientid"
+                value={clientId}
+                onChange={(e) => setClientId(e.target.value)}
+              />
             </FormField>
             <FormField label="Client Secret" htmlFor="ni-clientsecret">
               <Input
@@ -413,7 +464,11 @@ export function NewIntegrationModal({ onClose }: NewIntegrationModalProps) {
                 onClick={handleTestConnection}
                 disabled={testing}
               >
-                {testing ? <Loader2 size={14} className="animate-spin" /> : <Plug size={14} strokeWidth={1.75} />}
+                {testing ? (
+                  <Loader2 size={14} className="animate-spin" />
+                ) : (
+                  <Plug size={14} strokeWidth={1.75} />
+                )}
                 Testar conexão
               </Button>
               {testResult && (
@@ -427,7 +482,10 @@ export function NewIntegrationModal({ onClose }: NewIntegrationModalProps) {
           </Section>
 
           <Section title="Sincronização">
-            <FormField label="Frequência de sincronização" htmlFor="ni-syncfreq">
+            <FormField
+              label="Frequência de sincronização"
+              htmlFor="ni-syncfreq"
+            >
               <Select
                 items={SYNC_FREQUENCY_OPTIONS}
                 value={syncFrequency}
@@ -457,13 +515,17 @@ export function NewIntegrationModal({ onClose }: NewIntegrationModalProps) {
               </FormField>
             </div>
             <div className="sm:col-span-2 flex flex-col gap-2">
-              <span className="font-body text-xs font-medium text-ink">Mapeamento de campos</span>
+              <span className="font-body text-xs font-medium text-ink">
+                Mapeamento de campos
+              </span>
               {mappingRows.map((row, i) => (
                 <div key={i} className="flex items-center gap-2">
                   <Input
                     aria-label="Campo de origem"
                     value={row.source}
-                    onChange={(e) => updateMappingRow(i, 'source', e.target.value)}
+                    onChange={(e) =>
+                      updateMappingRow(i, 'source', e.target.value)
+                    }
                     placeholder="Campo de origem"
                     className="flex-1"
                   />
@@ -471,7 +533,9 @@ export function NewIntegrationModal({ onClose }: NewIntegrationModalProps) {
                   <Input
                     aria-label="Campo de destino"
                     value={row.target}
-                    onChange={(e) => updateMappingRow(i, 'target', e.target.value)}
+                    onChange={(e) =>
+                      updateMappingRow(i, 'target', e.target.value)
+                    }
                     placeholder="Campo de destino"
                     className="flex-1"
                   />
@@ -480,7 +544,11 @@ export function NewIntegrationModal({ onClose }: NewIntegrationModalProps) {
                     size="sm"
                     type="button"
                     aria-label="Remover linha"
-                    onClick={() => setMappingRows((rows) => rows.filter((_, idx) => idx !== i))}
+                    onClick={() =>
+                      setMappingRows((rows) =>
+                        rows.filter((_, idx) => idx !== i),
+                      )
+                    }
                     disabled={mappingRows.length === 1}
                   >
                     <Trash2 size={14} strokeWidth={1.75} />
@@ -492,7 +560,9 @@ export function NewIntegrationModal({ onClose }: NewIntegrationModalProps) {
                 size="sm"
                 type="button"
                 className="self-start"
-                onClick={() => setMappingRows((rows) => [...rows, { ...emptyMappingRow }])}
+                onClick={() =>
+                  setMappingRows((rows) => [...rows, { ...emptyMappingRow }])
+                }
               >
                 <Plus size={14} strokeWidth={1.75} />
                 Adicionar campo
@@ -530,7 +600,10 @@ export function NewIntegrationModal({ onClose }: NewIntegrationModalProps) {
                 onChange={(e) => setTimeoutMs(e.target.value)}
               />
             </FormField>
-            <FormField label="Número máximo de tentativas" htmlFor="ni-maxretries">
+            <FormField
+              label="Número máximo de tentativas"
+              htmlFor="ni-maxretries"
+            >
               <Input
                 id="ni-maxretries"
                 type="number"
@@ -539,7 +612,10 @@ export function NewIntegrationModal({ onClose }: NewIntegrationModalProps) {
                 onChange={(e) => setMaxRetries(e.target.value)}
               />
             </FormField>
-            <FormField label="Intervalo entre tentativas (ms)" htmlFor="ni-retryinterval">
+            <FormField
+              label="Intervalo entre tentativas (ms)"
+              htmlFor="ni-retryinterval"
+            >
               <Input
                 id="ni-retryinterval"
                 type="number"
@@ -566,7 +642,10 @@ export function NewIntegrationModal({ onClose }: NewIntegrationModalProps) {
                 onChange={(e) => setActivatedAt(e.target.value)}
               />
             </FormField>
-            <FormField label="Responsável pela integração" htmlFor="ni-responsible">
+            <FormField
+              label="Responsável pela integração"
+              htmlFor="ni-responsible"
+            >
               <Input
                 id="ni-responsible"
                 value={responsibleUserId}

@@ -76,7 +76,11 @@ export function ImportUsersModal({ tenantId, onClose }: ImportUsersModalProps) {
   };
 
   const canImport =
-    !!parsed && !parsed.error && !readError && parsed.validRows > 0 && !importMutation.isPending;
+    !!parsed &&
+    !parsed.error &&
+    !readError &&
+    parsed.validRows > 0 &&
+    !importMutation.isPending;
 
   const handleImport = () => {
     if (!canImport) return;
@@ -98,7 +102,10 @@ export function ImportUsersModal({ tenantId, onClose }: ImportUsersModalProps) {
       },
       onError: (err) => {
         reportError(err, { source: 'ImportUsersModal.handleImport' });
-        notify({ title: 'Não foi possível importar os utilizadores', intent: 'danger' });
+        notify({
+          title: 'Não foi possível importar os utilizadores',
+          intent: 'danger',
+        });
       },
     });
   };

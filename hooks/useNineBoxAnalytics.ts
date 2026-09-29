@@ -54,7 +54,9 @@ export function useNineBoxAnalytics() {
     null;
   const cycleId = cycle?.id;
 
-  const { data: nineBoxData, isLoading: nineBoxLoading } = useApiQuery<RawNineBoxEntry[]>(
+  const { data: nineBoxData, isLoading: nineBoxLoading } = useApiQuery<
+    RawNineBoxEntry[]
+  >(
     queryKeys.evaluation360.nineBox(cycleId ?? ''),
     '/evaluation360/analytics/nine-box',
     {

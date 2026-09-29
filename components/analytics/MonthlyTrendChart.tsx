@@ -53,7 +53,10 @@ export function MonthlyTrendChart({ data }: { data: MonthlyCount[] }) {
       </div>
       <div className="flex h-28 items-end gap-1">
         {data.map((d, i) => {
-          const heightPct = Math.max((d.count / max) * 100, d.count > 0 ? 4 : 0);
+          const heightPct = Math.max(
+            (d.count / max) * 100,
+            d.count > 0 ? 4 : 0,
+          );
           return (
             <div
               key={d.month}
@@ -66,7 +69,10 @@ export function MonthlyTrendChart({ data }: { data: MonthlyCount[] }) {
                 aria-label={`${formatMonth(d.month)}: ${d.count}`}
                 title={`${formatMonth(d.month)}: ${d.count}`}
                 className="w-full rounded-t-[4px] bg-accent transition-[opacity] duration-150 group-hover:opacity-80"
-                style={{ height: `${heightPct}%`, minHeight: d.count > 0 ? 2 : 0 }}
+                style={{
+                  height: `${heightPct}%`,
+                  minHeight: d.count > 0 ? 2 : 0,
+                }}
               />
               <div className="font-body text-[10px] text-ink-faint">
                 {formatMonth(d.month)}

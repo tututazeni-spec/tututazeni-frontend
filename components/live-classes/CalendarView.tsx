@@ -71,25 +71,45 @@ export function CalendarView() {
           <Button
             intent="ghost"
             size="sm"
-            onClick={() => setMonthAnchor((d) => new Date(d.getFullYear(), d.getMonth() - 1, 1))}
+            onClick={() =>
+              setMonthAnchor(
+                (d) => new Date(d.getFullYear(), d.getMonth() - 1, 1),
+              )
+            }
           >
             <ChevronLeft size={16} strokeWidth={1.75} />
           </Button>
           <span className="min-w-[140px] text-center font-body text-sm font-medium text-ink">
-            {monthAnchor.toLocaleDateString('pt-AO', { month: 'long', year: 'numeric' })}
+            {monthAnchor.toLocaleDateString('pt-AO', {
+              month: 'long',
+              year: 'numeric',
+            })}
           </span>
           <Button
             intent="ghost"
             size="sm"
-            onClick={() => setMonthAnchor((d) => new Date(d.getFullYear(), d.getMonth() + 1, 1))}
+            onClick={() =>
+              setMonthAnchor(
+                (d) => new Date(d.getFullYear(), d.getMonth() + 1, 1),
+              )
+            }
           >
             <ChevronRight size={16} strokeWidth={1.75} />
           </Button>
-          <Button intent="ghost" size="sm" onClick={() => setMonthAnchor(new Date())}>
+          <Button
+            intent="ghost"
+            size="sm"
+            onClick={() => setMonthAnchor(new Date())}
+          >
             Hoje
           </Button>
         </div>
-        <Select items={MODALITY_ITEMS} value={modality} onValueChange={setModality} className="w-44" />
+        <Select
+          items={MODALITY_ITEMS}
+          value={modality}
+          onValueChange={setModality}
+          className="w-44"
+        />
       </div>
 
       {isLoading ? (
@@ -104,21 +124,29 @@ export function CalendarView() {
           {groups.map(([day, events]) => (
             <Card key={day} className="overflow-hidden p-0">
               <div className="border-b border-border bg-surface-sunken px-4 py-2 font-body text-xs font-medium text-ink-muted">
-                {formatDate(day, { weekday: 'long', day: '2-digit', month: 'long' })}
+                {formatDate(day, {
+                  weekday: 'long',
+                  day: '2-digit',
+                  month: 'long',
+                })}
               </div>
               <div className="divide-y divide-border">
                 {events.map((ev) => (
                   <button
                     key={ev.id}
                     type="button"
-                    onClick={() => router.push(`/live-classes/${ev.liveClassId}`)}
+                    onClick={() =>
+                      router.push(`/live-classes/${ev.liveClassId}`)
+                    }
                     className="flex w-full flex-wrap items-center gap-3 px-4 py-3 text-left hover:bg-surface-sunken"
                   >
                     <span className="w-14 flex-shrink-0 font-mono text-xs text-ink-faint">
                       {formatTime(ev.start)}
                     </span>
                     <div className="min-w-0 flex-1">
-                      <div className="truncate text-sm font-medium text-ink">{ev.title}</div>
+                      <div className="truncate text-sm font-medium text-ink">
+                        {ev.title}
+                      </div>
                       <div className="flex items-center gap-3 text-xs text-ink-faint">
                         {ev.courseTitle && <span>{ev.courseTitle}</span>}
                         {ev.instructorName && (
@@ -133,7 +161,9 @@ export function CalendarView() {
                     <span className="rounded px-2 py-0.5 font-body text-xs font-medium bg-surface-sunken text-ink-muted">
                       {MODALITY_CFG[ev.modality]?.label ?? ev.modality}
                     </span>
-                    <span className={`rounded px-2 py-0.5 font-body text-xs font-medium ${STATUS_CFG[ev.status]?.cls ?? ''}`}>
+                    <span
+                      className={`rounded px-2 py-0.5 font-body text-xs font-medium ${STATUS_CFG[ev.status]?.cls ?? ''}`}
+                    >
                       {STATUS_CFG[ev.status]?.label ?? ev.status}
                     </span>
                   </button>

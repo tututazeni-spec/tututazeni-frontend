@@ -30,7 +30,13 @@ vi.mock('@/hooks/useApiQuery', () => ({
 
 vi.mock('@/components/ui/Modal', () => ({
   Modal: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
-  ModalContent: ({ title, children }: { title: string; children: React.ReactNode }) => (
+  ModalContent: ({
+    title,
+    children,
+  }: {
+    title: string;
+    children: React.ReactNode;
+  }) => (
     <div>
       <h2>{title}</h2>
       {children}
@@ -92,7 +98,13 @@ function fillRequired() {
 
 describe('TrainingFormModal — criação', () => {
   test('payload mínimo inclui title/type/level e arrays vazios de competências/co-instrutores', async () => {
-    render(<TrainingFormModal training={null} onClose={vi.fn()} onSuccess={vi.fn()} />);
+    render(
+      <TrainingFormModal
+        training={null}
+        onClose={vi.fn()}
+        onSuccess={vi.fn()}
+      />,
+    );
     fillRequired();
     fireEvent.click(screen.getByRole('button', { name: 'Criar Formação' }));
 
@@ -116,20 +128,35 @@ describe('TrainingFormModal — criação', () => {
   });
 
   test('sem campos obrigatórios — não submete (validação)', () => {
-    render(<TrainingFormModal training={null} onClose={vi.fn()} onSuccess={vi.fn()} />);
+    render(
+      <TrainingFormModal
+        training={null}
+        onClose={vi.fn()}
+        onSuccess={vi.fn()}
+      />,
+    );
     fireEvent.click(screen.getByRole('button', { name: 'Criar Formação' }));
     expect(post).not.toHaveBeenCalled();
   });
 
   test('código e etiquetas entram no payload quando preenchidos', async () => {
-    render(<TrainingFormModal training={null} onClose={vi.fn()} onSuccess={vi.fn()} />);
+    render(
+      <TrainingFormModal
+        training={null}
+        onClose={vi.fn()}
+        onSuccess={vi.fn()}
+      />,
+    );
     fillRequired();
     fireEvent.change(screen.getByLabelText('Código da formação'), {
       target: { value: 'FORM-9' },
     });
-    fireEvent.change(screen.getByLabelText('Etiquetas (separadas por vírgula)'), {
-      target: { value: 'liderança, gestão' },
-    });
+    fireEvent.change(
+      screen.getByLabelText('Etiquetas (separadas por vírgula)'),
+      {
+        target: { value: 'liderança, gestão' },
+      },
+    );
     fireEvent.click(screen.getByRole('button', { name: 'Criar Formação' }));
 
     await waitFor(() => expect(post).toHaveBeenCalledTimes(1));
@@ -151,13 +178,23 @@ describe('TrainingFormModal — edição', () => {
       competencies: [],
     } as never;
 
-    render(<TrainingFormModal training={training} onClose={vi.fn()} onSuccess={vi.fn()} />);
+    render(
+      <TrainingFormModal
+        training={training}
+        onClose={vi.fn()}
+        onSuccess={vi.fn()}
+      />,
+    );
     fireEvent.click(screen.getByRole('button', { name: 'Guardar alterações' }));
 
     await waitFor(() => expect(put).toHaveBeenCalledTimes(1));
     expect(put).toHaveBeenCalledWith(
       '/trainings/7',
-      expect.objectContaining({ title: 'Formação Existente', type: 'PRESENTIAL', level: 'ADVANCED' }),
+      expect.objectContaining({
+        title: 'Formação Existente',
+        type: 'PRESENTIAL',
+        level: 'ADVANCED',
+      }),
     );
   });
 });

@@ -556,9 +556,7 @@ function PerformanceTab({ data }: PerformanceTabProps) {
         </Button>
       </div>
 
-      {configuring && (
-        <LoadTestModal onClose={() => setConfiguring(false)} />
-      )}
+      {configuring && <LoadTestModal onClose={() => setConfiguring(false)} />}
     </div>
   );
 }
@@ -569,7 +567,11 @@ interface IntegrationsTabProps {
   onSync: (id: number) => void;
 }
 
-function IntegrationsTab({ tenantId, integrations, onSync }: IntegrationsTabProps) {
+function IntegrationsTab({
+  tenantId,
+  integrations,
+  onSync,
+}: IntegrationsTabProps) {
   const notify = useToast();
   const [creating, setCreating] = useState(false);
   const typeLabels: Record<string, string> = {
@@ -617,7 +619,10 @@ function IntegrationsTab({ tenantId, integrations, onSync }: IntegrationsTabProp
         </Button>
       </div>
       {creating && (
-        <NewIntegrationModal tenantId={tenantId} onClose={() => setCreating(false)} />
+        <NewIntegrationModal
+          tenantId={tenantId}
+          onClose={() => setCreating(false)}
+        />
       )}
       <div className="flex flex-col gap-3">
         {integrations.map((int) => {
@@ -787,9 +792,7 @@ type AlertFilter = 'ALL' | 'CRITICAL' | 'WARNING';
 function AlertsTab({ alerts, onResolve }: AlertsTabProps) {
   const [filter, setFilter] = useState<AlertFilter>('ALL');
   const shown =
-    filter === 'ALL'
-      ? alerts
-      : alerts.filter((a) => a.severity === filter);
+    filter === 'ALL' ? alerts : alerts.filter((a) => a.severity === filter);
 
   return (
     <div className="flex flex-col gap-5">
@@ -798,22 +801,48 @@ function AlertsTab({ alerts, onResolve }: AlertsTabProps) {
           title="Alertas de Sistema"
           sub="Monitorização automática de performance, integrações e compliance"
         />
-        <div className="flex gap-2">
-          <FilterChip
-            label="Todos"
-            active={filter === 'ALL'}
+        {/* Filtros secundários mantêm-se em estilo "pílula" — não são as
+            abas principais do módulo, e agora dispostos verticalmente. */}
+        <div className="flex flex-col gap-1 rounded-card bg-surface-sunken p-1">
+          <button
+            type="button"
             onClick={() => setFilter('ALL')}
-          />
-          <FilterChip
-            label="Críticos"
-            active={filter === 'CRITICAL'}
+            aria-pressed={filter === 'ALL'}
+            className={cn(
+              'rounded-pill px-3 py-1 font-body text-xs font-medium transition-colors',
+              filter === 'ALL'
+                ? 'bg-surface text-ink shadow-resting'
+                : 'text-ink-muted hover:text-ink',
+            )}
+          >
+            Todos
+          </button>
+          <button
+            type="button"
             onClick={() => setFilter('CRITICAL')}
-          />
-          <FilterChip
-            label="Avisos"
-            active={filter === 'WARNING'}
+            aria-pressed={filter === 'CRITICAL'}
+            className={cn(
+              'rounded-pill px-3 py-1 font-body text-xs font-medium transition-colors',
+              filter === 'CRITICAL'
+                ? 'bg-surface text-ink shadow-resting'
+                : 'text-ink-muted hover:text-ink',
+            )}
+          >
+            Críticos
+          </button>
+          <button
+            type="button"
             onClick={() => setFilter('WARNING')}
-          />
+            aria-pressed={filter === 'WARNING'}
+            className={cn(
+              'rounded-pill px-3 py-1 font-body text-xs font-medium transition-colors',
+              filter === 'WARNING'
+                ? 'bg-surface text-ink shadow-resting'
+                : 'text-ink-muted hover:text-ink',
+            )}
+          >
+            Avisos
+          </button>
         </div>
       </div>
       {shown.length === 0 && (
@@ -929,36 +958,56 @@ function SlaTab({ data, slaConfigs }: SlaTabProps) {
           certificações fabricada (não existe nenhum modelo de compliance
           LGPD/GDPR/ISO27001 no schema; mostrar isso como "Conforme" seria
           inventar um estado legal que ninguém verificou). */}
-      <SectionHeader title="Configurações de SLA" sub="Contratos activos para este tenant" />
+      <SectionHeader
+        title="Configurações de SLA"
+        sub="Contratos activos para este tenant"
+      />
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         {slaConfigs.map((sla) => (
           <Card key={sla.id}>
             <CardBody>
               <div className="mb-2 flex items-center justify-between gap-3">
-                <p className="font-body text-sm font-semibold text-ink">{sla.name}</p>
-                <Badge intent={sla.isActive ? 'success' : 'neutral'} dot={false}>
+                <p className="font-body text-sm font-semibold text-ink">
+                  {sla.name}
+                </p>
+                <Badge
+                  intent={sla.isActive ? 'success' : 'neutral'}
+                  dot={false}
+                >
                   {sla.isActive ? 'Activo' : 'Inactivo'}
                 </Badge>
               </div>
               <div className="grid grid-cols-2 gap-x-4 gap-y-1 font-body text-xs text-ink-muted">
                 <span>Uptime mínimo</span>
-                <span className="text-right text-ink">{formatPercent(sla.uptimePercent, 2)}</span>
+                <span className="text-right text-ink">
+                  {formatPercent(sla.uptimePercent, 2)}
+                </span>
                 <span>Latência máx.</span>
-                <span className="text-right text-ink">{sla.maxLatencyMs}ms</span>
+                <span className="text-right text-ink">
+                  {sla.maxLatencyMs}ms
+                </span>
                 <span>Taxa de erro máx.</span>
-                <span className="text-right text-ink">{formatPercent(sla.maxErrorRate * 100, 2)}</span>
+                <span className="text-right text-ink">
+                  {formatPercent(sla.maxErrorRate * 100, 2)}
+                </span>
                 <span>Resposta a incidentes</span>
-                <span className="text-right text-ink">{sla.incidentResponse}min</span>
+                <span className="text-right text-ink">
+                  {sla.incidentResponse}min
+                </span>
                 {sla.rpoMinutes != null && (
                   <>
                     <span>RPO</span>
-                    <span className="text-right text-ink">{sla.rpoMinutes}min</span>
+                    <span className="text-right text-ink">
+                      {sla.rpoMinutes}min
+                    </span>
                   </>
                 )}
                 {sla.rtoMinutes != null && (
                   <>
                     <span>RTO</span>
-                    <span className="text-right text-ink">{sla.rtoMinutes}min</span>
+                    <span className="text-right text-ink">
+                      {sla.rtoMinutes}min
+                    </span>
                   </>
                 )}
               </div>
@@ -991,11 +1040,7 @@ function UsersTab({ data }: UsersTabProps) {
           title="Gestão Massiva de Utilizadores"
           sub="Importação, segmentação e gestão de licenças em escala"
         />
-        <Button
-          intent="secondary"
-          size="sm"
-          onClick={() => setImporting(true)}
-        >
+        <Button intent="secondary" size="sm" onClick={() => setImporting(true)}>
           Importar CSV
         </Button>
       </div>
@@ -1250,17 +1295,23 @@ export function ScalabilityDashboardView({
         </div>
       </div>
 
-      {/* Tabs */}
+      {/* Tabs — formato de "cartão": cada trigger é um cartão independente
+          (borda + fundo branco + rounded), sem underline no container.
+          Alinhadas horizontal e verticalmente (justify-center +
+          items-center no TabsList, flex items-center em cada TabsTrigger)
+          com largura mínima uniforme. Estado activo usa data-[state=active]
+          do Radix para aplicar destaque azul (borda/fundo/texto primary). */}
       <Tabs value={activeTab} onValueChange={onTabChange}>
-        <div className="border-b border-border bg-surface px-6">
-          <TabsList className="mx-auto max-w-7xl gap-4 overflow-x-auto border-b-0">
+        <div className="bg-surface px-6 py-3">
+          <TabsList className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-2 overflow-x-auto border-b-0 bg-transparent p-0">
             {TABS.map((tab) => {
               const Icon = tab.icon;
               return (
                 <TabsTrigger
                   key={tab.id}
                   value={tab.id}
-                  className="gap-2 whitespace-nowrap"
+                  className="flex min-w-[140px] items-center justify-center gap-2 whitespace-nowrap rounded-lg border border-border bg-white px-4 py-2 text-center text-sm font-medium text-foreground shadow-none
+                             data-[state=active]:border-primary data-[state=active]:bg-primary/10 data-[state=active]:text-primary"
                 >
                   <Icon size={16} strokeWidth={1.75} />
                   {tab.label}

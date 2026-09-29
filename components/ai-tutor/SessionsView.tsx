@@ -52,8 +52,12 @@ export function SessionsView() {
   const deleteMutation = useApiMutation(
     (id: number) => apiClient.delete(`/ai-tutor/sessions/${id}`),
     {
-      invalidateKeys: [queryKeys.aiTutor.sessions(), queryKeys.aiTutor.allSessions()],
-      onSuccess: () => notify({ title: 'Histórico eliminado', intent: 'success' }),
+      invalidateKeys: [
+        queryKeys.aiTutor.sessions(),
+        queryKeys.aiTutor.allSessions(),
+      ],
+      onSuccess: () =>
+        notify({ title: 'Histórico eliminado', intent: 'success' }),
       onError: (e) => {
         reportError(e, { source: 'SessionsView.delete' });
         notify({ title: e.message, intent: 'danger' });
@@ -75,7 +79,10 @@ export function SessionsView() {
     }
   };
 
-  if (selected) return <SessionThread sessionId={selected} onBack={() => setSelected(null)} />;
+  if (selected)
+    return (
+      <SessionThread sessionId={selected} onBack={() => setSelected(null)} />
+    );
 
   const subViewToggle = (
     <div className="flex gap-2 mb-4">
@@ -122,52 +129,60 @@ export function SessionsView() {
       <div>
         {subViewToggle}
         <div className="space-y-2">
-        {rows.map((s) => (
-          <Card key={s.id} className="flex items-center gap-4 p-4">
-            <Avatar name={s.user?.fullName ?? 'Ísis'} size="md" className="flex-shrink-0" />
-            <div className="flex-1 min-w-0">
-              <div className="font-body text-sm font-medium text-ink truncate">
-                {s.user?.fullName ?? 'Colaborador'}
-                {s.course ? ` · ${s.course.title}` : ''}
+          {rows.map((s) => (
+            <Card key={s.id} className="flex items-center gap-4 p-4">
+              <Avatar
+                name={s.user?.fullName ?? 'Ísis'}
+                size="md"
+                className="flex-shrink-0"
+              />
+              <div className="flex-1 min-w-0">
+                <div className="font-body text-sm font-medium text-ink truncate">
+                  {s.user?.fullName ?? 'Colaborador'}
+                  {s.course ? ` · ${s.course.title}` : ''}
+                </div>
+                <div className="font-body text-xs text-ink-faint">
+                  {fmtDate(s.startedAt)}
+                  {s.durationMinutes ? ` · ${s.durationMinutes} min` : ''}
+                </div>
               </div>
-              <div className="font-body text-xs text-ink-faint">
-                {fmtDate(s.startedAt)}
-                {s.durationMinutes ? ` · ${s.durationMinutes} min` : ''}
+              <div className="font-body text-xs text-ink-faint flex-shrink-0 text-right hidden sm:block">
+                {s.questions} perguntas
+                <br />
+                {s.contentsConsulted} conteúdos consultados
               </div>
-            </div>
-            <div className="font-body text-xs text-ink-faint flex-shrink-0 text-right hidden sm:block">
-              {s.questions} perguntas
-              <br />
-              {s.contentsConsulted} conteúdos consultados
-            </div>
-            {s.avgRating != null && (
-              <Badge intent="info" className="flex-shrink-0">
-                {s.avgRating}/5
-              </Badge>
-            )}
-            {s.endedAt ? (
-              <Badge intent="neutral">Encerrada</Badge>
-            ) : (
-              <Badge intent="success">Activa</Badge>
-            )}
-            <Button size="sm" intent="secondary" onClick={() => setSelected(s.id)}>
-              {s.endedAt ? 'Ver conversa' : 'Continuar'}
-            </Button>
-            <IconButton
-              icon={Trash2}
-              label="Eliminar histórico"
-              intent="ghost"
-              onClick={() => handleDelete(s.id)}
+              {s.avgRating != null && (
+                <Badge intent="info" className="flex-shrink-0">
+                  {s.avgRating}/5
+                </Badge>
+              )}
+              {s.endedAt ? (
+                <Badge intent="neutral">Encerrada</Badge>
+              ) : (
+                <Badge intent="success">Activa</Badge>
+              )}
+              <Button
+                size="sm"
+                intent="secondary"
+                onClick={() => setSelected(s.id)}
+              >
+                {s.endedAt ? 'Ver conversa' : 'Continuar'}
+              </Button>
+              <IconButton
+                icon={Trash2}
+                label="Eliminar histórico"
+                intent="ghost"
+                onClick={() => handleDelete(s.id)}
+              />
+            </Card>
+          ))}
+          {rows.length === 0 && (
+            <EmptyState
+              icon={MessageCircle}
+              title="Nenhuma sessão registada ainda"
+              description="As sessões dos colaboradores com a Ísis vão aparecer aqui."
             />
-          </Card>
-        ))}
-        {rows.length === 0 && (
-          <EmptyState
-            icon={MessageCircle}
-            title="Nenhuma sessão registada ainda"
-            description="As sessões dos colaboradores com a Ísis vão aparecer aqui."
-          />
-        )}
+          )}
         </div>
       </div>
     );
@@ -178,42 +193,48 @@ export function SessionsView() {
     <div>
       {subViewToggle}
       <div className="space-y-2">
-      {sessions.map((s) => (
-        <Card key={s.id} className="flex items-center gap-4 p-4">
-          <Avatar name="Ísis" size="md" className="flex-shrink-0" />
-          <div className="flex-1 min-w-0">
-            <div className="font-body text-sm font-medium text-ink truncate">
-              Sessão #{s.id}
-              {s.course ? ` · ${s.course.title}` : ''}
+        {sessions.map((s) => (
+          <Card key={s.id} className="flex items-center gap-4 p-4">
+            <Avatar name="Ísis" size="md" className="flex-shrink-0" />
+            <div className="flex-1 min-w-0">
+              <div className="font-body text-sm font-medium text-ink truncate">
+                Sessão #{s.id}
+                {s.course ? ` · ${s.course.title}` : ''}
+              </div>
+              <div className="font-body text-xs text-ink-faint">
+                {fmtDate(s.startedAt)}
+              </div>
             </div>
-            <div className="font-body text-xs text-ink-faint">{fmtDate(s.startedAt)}</div>
-          </div>
-          <div className="font-body text-xs text-ink-faint flex-shrink-0">
-            {s._count?.messages ?? 0} mensagens
-          </div>
-          {s.endedAt ? (
-            <Badge intent="neutral">Encerrada</Badge>
-          ) : (
-            <Badge intent="success">Activa</Badge>
-          )}
-          <Button size="sm" intent="secondary" onClick={() => setSelected(s.id)}>
-            {s.endedAt ? 'Ver conversa' : 'Continuar'}
-          </Button>
-          <IconButton
-            icon={Trash2}
-            label="Eliminar histórico"
-            intent="ghost"
-            onClick={() => handleDelete(s.id)}
+            <div className="font-body text-xs text-ink-faint flex-shrink-0">
+              {s._count?.messages ?? 0} mensagens
+            </div>
+            {s.endedAt ? (
+              <Badge intent="neutral">Encerrada</Badge>
+            ) : (
+              <Badge intent="success">Activa</Badge>
+            )}
+            <Button
+              size="sm"
+              intent="secondary"
+              onClick={() => setSelected(s.id)}
+            >
+              {s.endedAt ? 'Ver conversa' : 'Continuar'}
+            </Button>
+            <IconButton
+              icon={Trash2}
+              label="Eliminar histórico"
+              intent="ghost"
+              onClick={() => handleDelete(s.id)}
+            />
+          </Card>
+        ))}
+        {sessions.length === 0 && (
+          <EmptyState
+            icon={MessageCircle}
+            title="Nenhuma sessão iniciada ainda"
+            description="Inicia uma conversa com a Ísis no separador Chat para veres o histórico aqui."
           />
-        </Card>
-      ))}
-      {sessions.length === 0 && (
-        <EmptyState
-          icon={MessageCircle}
-          title="Nenhuma sessão iniciada ainda"
-          description="Inicia uma conversa com a Ísis no separador Chat para veres o histórico aqui."
-        />
-      )}
+        )}
       </div>
     </div>
   );

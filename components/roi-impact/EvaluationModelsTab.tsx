@@ -20,18 +20,24 @@ import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { RoiEvaluationModelModal } from './RoiEvaluationModelModal';
-import { INITIATIVE_TYPE_LABELS, ROI_MODEL_STATUS_INTENTS, ROI_MODEL_STATUS_LABELS } from './utils';
+import {
+  INITIATIVE_TYPE_LABELS,
+  ROI_MODEL_STATUS_INTENTS,
+  ROI_MODEL_STATUS_LABELS,
+} from './utils';
 import type { RoiEvaluationModelRow } from './types';
 
 export function EvaluationModelsTab() {
   const notify = useToast();
-  const [modalModel, setModalModel] = useState<RoiEvaluationModelRow | 'new' | null>(null);
+  const [modalModel, setModalModel] = useState<
+    RoiEvaluationModelRow | 'new' | null
+  >(null);
 
-  const { data: models, isLoading: loading } = useApiQuery<RoiEvaluationModelRow[]>(
-    queryKeys.roiImpact.evaluationModels(),
-    '/roi-impact/evaluation-models',
-    { staleTime: STALE_TIME.SEMI_STATIC },
-  );
+  const { data: models, isLoading: loading } = useApiQuery<
+    RoiEvaluationModelRow[]
+  >(queryKeys.roiImpact.evaluationModels(), '/roi-impact/evaluation-models', {
+    staleTime: STALE_TIME.SEMI_STATIC,
+  });
 
   const toggleStatus = useApiMutation(
     (m: RoiEvaluationModelRow) =>
@@ -40,8 +46,14 @@ export function EvaluationModelsTab() {
       }),
     {
       invalidateKeys: [queryKeys.roiImpact.evaluationModels()],
-      onSuccess: () => notify({ title: 'Estado actualizado', intent: 'success' }),
-      onError: (e) => notify({ title: 'Erro ao actualizar', description: e.message, intent: 'danger' }),
+      onSuccess: () =>
+        notify({ title: 'Estado actualizado', intent: 'success' }),
+      onError: (e) =>
+        notify({
+          title: 'Erro ao actualizar',
+          description: e.message,
+          intent: 'danger',
+        }),
     },
   );
 
@@ -60,7 +72,8 @@ export function EvaluationModelsTab() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <p className="font-body text-sm text-ink-muted">
-          {rows.length} modelo(s) — metodologia usada para medir impacto/ROI com rigor e comparabilidade
+          {rows.length} modelo(s) — metodologia usada para medir impacto/ROI com
+          rigor e comparabilidade
         </p>
         <Button size="sm" onClick={() => setModalModel('new')}>
           <Plus size={14} strokeWidth={1.75} className="mr-1" />
@@ -84,20 +97,34 @@ export function EvaluationModelsTab() {
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
-                      <h4 className="font-display text-sm font-semibold text-ink">{m.name}</h4>
-                      <Badge intent={ROI_MODEL_STATUS_INTENTS[m.status] ?? 'neutral'}>
+                      <h4 className="font-display text-sm font-semibold text-ink">
+                        {m.name}
+                      </h4>
+                      <Badge
+                        intent={ROI_MODEL_STATUS_INTENTS[m.status] ?? 'neutral'}
+                      >
                         {ROI_MODEL_STATUS_LABELS[m.status] ?? m.status}
                       </Badge>
                     </div>
                     {m.description && (
-                      <p className="mt-1 font-body text-xs text-ink-faint">{m.description}</p>
+                      <p className="mt-1 font-body text-xs text-ink-faint">
+                        {m.description}
+                      </p>
                     )}
                   </div>
                   <div className="flex shrink-0 gap-2">
-                    <Button size="sm" intent="secondary" onClick={() => setModalModel(m)}>
+                    <Button
+                      size="sm"
+                      intent="secondary"
+                      onClick={() => setModalModel(m)}
+                    >
                       Editar
                     </Button>
-                    <Button size="sm" intent="secondary" onClick={() => toggleStatus.mutate(m)}>
+                    <Button
+                      size="sm"
+                      intent="secondary"
+                      onClick={() => toggleStatus.mutate(m)}
+                    >
                       {m.status === 'ACTIVO' ? 'Desativar' : 'Ativar'}
                     </Button>
                   </div>
@@ -105,7 +132,10 @@ export function EvaluationModelsTab() {
 
                 <div className="mt-3 flex flex-wrap gap-1.5">
                   {m.levels.map((l) => (
-                    <Badge key={l.level} intent={l.mandatory ? 'info' : 'neutral'}>
+                    <Badge
+                      key={l.level}
+                      intent={l.mandatory ? 'info' : 'neutral'}
+                    >
                       L{l.level} {l.name} ({l.weight}%)
                     </Badge>
                   ))}

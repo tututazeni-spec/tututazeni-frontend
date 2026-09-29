@@ -363,7 +363,9 @@ describe('PlanDetailModal — validação de documentos', () => {
 describe('PlanDetailModal — Avaliação de Integração', () => {
   test('plano não concluído não mostra a secção', () => {
     renderModal();
-    expect(screen.queryByText('Avaliação de Integração')).not.toBeInTheDocument();
+    expect(
+      screen.queryByText('Avaliação de Integração'),
+    ).not.toBeInTheDocument();
   });
 
   test('plano concluído sem canManageTasks não mostra a secção', () => {
@@ -373,7 +375,9 @@ describe('PlanDetailModal — Avaliação de Integração', () => {
       error: null,
     };
     renderModal({ canManageTasks: false });
-    expect(screen.queryByText('Avaliação de Integração')).not.toBeInTheDocument();
+    expect(
+      screen.queryByText('Avaliação de Integração'),
+    ).not.toBeInTheDocument();
   });
 
   test('"Pedir avaliação" envia POST /onboarding/:id/trigger-evaluation', async () => {
@@ -391,7 +395,11 @@ describe('PlanDetailModal — Avaliação de Integração', () => {
 
   test('já pedida mostra badge "Pedida" e esconde o botão', () => {
     detailResult = {
-      data: { ...baseDetail, status: 'COMPLETED', integrationEvalRequestId: 42 },
+      data: {
+        ...baseDetail,
+        status: 'COMPLETED',
+        integrationEvalRequestId: 42,
+      },
       isLoading: false,
       error: null,
     };

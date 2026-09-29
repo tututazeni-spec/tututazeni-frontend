@@ -46,13 +46,15 @@ export function GestaoView({ onManage }: GestaoViewProps) {
   );
 
   const invalidateKeys = [queryKeys.trainings.all];
-  const toastError = (e: Error) => toast({ title: e.message, intent: 'danger' });
+  const toastError = (e: Error) =>
+    toast({ title: e.message, intent: 'danger' });
 
   const publish = useApiMutation(
     (id: number) => apiClient.patch(`/trainings/${id}/publish`),
     {
       invalidateKeys,
-      onSuccess: () => toast({ title: 'Formação publicada.', intent: 'success' }),
+      onSuccess: () =>
+        toast({ title: 'Formação publicada.', intent: 'success' }),
       onError: toastError,
     },
   );
@@ -60,7 +62,8 @@ export function GestaoView({ onManage }: GestaoViewProps) {
     (id: number) => apiClient.patch(`/trainings/${id}/archive`),
     {
       invalidateKeys,
-      onSuccess: () => toast({ title: 'Formação arquivada.', intent: 'success' }),
+      onSuccess: () =>
+        toast({ title: 'Formação arquivada.', intent: 'success' }),
       onError: toastError,
     },
   );
@@ -68,7 +71,8 @@ export function GestaoView({ onManage }: GestaoViewProps) {
     (id: number) => apiClient.delete(`/trainings/${id}`),
     {
       invalidateKeys,
-      onSuccess: () => toast({ title: 'Formação eliminada.', intent: 'success' }),
+      onSuccess: () =>
+        toast({ title: 'Formação eliminada.', intent: 'success' }),
       onError: toastError,
     },
   );
@@ -76,7 +80,8 @@ export function GestaoView({ onManage }: GestaoViewProps) {
     (id: number) => apiClient.patch(`/trainings/${id}/cancel`, {}),
     {
       invalidateKeys,
-      onSuccess: () => toast({ title: 'Formação cancelada.', intent: 'success' }),
+      onSuccess: () =>
+        toast({ title: 'Formação cancelada.', intent: 'success' }),
       onError: toastError,
     },
   );
@@ -84,7 +89,8 @@ export function GestaoView({ onManage }: GestaoViewProps) {
     (id: number) => apiClient.patch(`/trainings/${id}/complete`, {}),
     {
       invalidateKeys,
-      onSuccess: () => toast({ title: 'Formação concluída.', intent: 'success' }),
+      onSuccess: () =>
+        toast({ title: 'Formação concluída.', intent: 'success' }),
       onError: toastError,
     },
   );
@@ -106,7 +112,10 @@ export function GestaoView({ onManage }: GestaoViewProps) {
   }
 
   async function onArchive(t: Training) {
-    const ok = await confirm({ title: `Arquivar "${t.title}"?`, confirmLabel: 'Arquivar' });
+    const ok = await confirm({
+      title: `Arquivar "${t.title}"?`,
+      confirmLabel: 'Arquivar',
+    });
     if (ok) archive.mutate(t.id);
   }
 
@@ -120,7 +129,10 @@ export function GestaoView({ onManage }: GestaoViewProps) {
   }
 
   async function onComplete(t: Training) {
-    const ok = await confirm({ title: `Concluir "${t.title}"?`, confirmLabel: 'Concluir' });
+    const ok = await confirm({
+      title: `Concluir "${t.title}"?`,
+      confirmLabel: 'Concluir',
+    });
     if (ok) complete.mutate(t.id);
   }
 
@@ -147,13 +159,18 @@ export function GestaoView({ onManage }: GestaoViewProps) {
           {list.map((t) => {
             const statusCfg = STATUS_CFG[t.status];
             return (
-              <div key={t.id} className="flex flex-wrap items-center gap-3 px-4 py-3">
+              <div
+                key={t.id}
+                className="flex flex-wrap items-center gap-3 px-4 py-3"
+              >
                 <button
                   type="button"
                   className="min-w-0 flex-1 text-left"
                   onClick={() => onManage(t.id)}
                 >
-                  <div className="truncate text-sm font-medium text-ink">{t.title}</div>
+                  <div className="truncate text-sm font-medium text-ink">
+                    {t.title}
+                  </div>
                   <div className="text-xs text-ink-faint">
                     {t.code ? `${t.code} · ` : ''}
                     {TYPE_CFG[t.type]?.label}
@@ -167,7 +184,11 @@ export function GestaoView({ onManage }: GestaoViewProps) {
                   {statusCfg.label}
                 </span>
                 <div className="flex flex-shrink-0 items-center gap-2">
-                  <Button intent="ghost" size="sm" onClick={() => onManage(t.id)}>
+                  <Button
+                    intent="ghost"
+                    size="sm"
+                    onClick={() => onManage(t.id)}
+                  >
                     Gerir
                   </Button>
                   <Button
@@ -178,16 +199,18 @@ export function GestaoView({ onManage }: GestaoViewProps) {
                   >
                     Editar
                   </Button>
-                  {t.status !== 'ARCHIVED' && t.status !== 'CANCELLED' && t.status !== 'COMPLETED' && (
-                    <Button
-                      intent="ghost"
-                      size="sm"
-                      onClick={() => onArchive(t)}
-                      disabled={rowBusy(t.id)}
-                    >
-                      Arquivar
-                    </Button>
-                  )}
+                  {t.status !== 'ARCHIVED' &&
+                    t.status !== 'CANCELLED' &&
+                    t.status !== 'COMPLETED' && (
+                      <Button
+                        intent="ghost"
+                        size="sm"
+                        onClick={() => onArchive(t)}
+                        disabled={rowBusy(t.id)}
+                      >
+                        Arquivar
+                      </Button>
+                    )}
                   {t.status === 'DRAFT' && (
                     <Button
                       intent="success"
@@ -206,7 +229,9 @@ export function GestaoView({ onManage }: GestaoViewProps) {
                         size="sm"
                         onClick={() => onComplete(t)}
                         disabled={rowBusy(t.id)}
-                        loading={complete.isPending && complete.variables === t.id}
+                        loading={
+                          complete.isPending && complete.variables === t.id
+                        }
                       >
                         Concluir
                       </Button>
@@ -215,7 +240,10 @@ export function GestaoView({ onManage }: GestaoViewProps) {
                         size="sm"
                         onClick={() => onCancel(t)}
                         disabled={rowBusy(t.id)}
-                        loading={cancelTraining.isPending && cancelTraining.variables === t.id}
+                        loading={
+                          cancelTraining.isPending &&
+                          cancelTraining.variables === t.id
+                        }
                       >
                         Cancelar
                       </Button>
@@ -241,14 +269,18 @@ export function GestaoView({ onManage }: GestaoViewProps) {
         <TrainingFormModal
           training={null}
           onClose={() => setShowCreate(false)}
-          onSuccess={() => toast({ title: 'Formação criada.', intent: 'success' })}
+          onSuccess={() =>
+            toast({ title: 'Formação criada.', intent: 'success' })
+          }
         />
       )}
       {editTraining && (
         <TrainingFormModal
           training={editTraining}
           onClose={() => setEditTraining(null)}
-          onSuccess={() => toast({ title: 'Formação actualizada.', intent: 'success' })}
+          onSuccess={() =>
+            toast({ title: 'Formação actualizada.', intent: 'success' })
+          }
         />
       )}
     </div>

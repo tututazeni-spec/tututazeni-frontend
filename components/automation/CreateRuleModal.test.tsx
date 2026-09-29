@@ -75,8 +75,11 @@ import { CreateRuleModal } from './CreateRuleModal';
 beforeEach(() => post.mockReset().mockResolvedValue({ id: 1 }));
 
 const fillName = (value: string) =>
-  fireEvent.change(screen.getByLabelText('Nome da regra *'), { target: { value } });
-const submit = () => fireEvent.click(screen.getByRole('button', { name: 'Criar regra' }));
+  fireEvent.change(screen.getByLabelText('Nome da regra *'), {
+    target: { value },
+  });
+const submit = () =>
+  fireEvent.click(screen.getByRole('button', { name: 'Criar regra' }));
 
 describe('CreateRuleModal', () => {
   test('payload mínimo — nome trim + defaults de gatilho/acção/canal/ambiente/estado', async () => {
@@ -103,7 +106,9 @@ describe('CreateRuleModal', () => {
     fireEvent.change(screen.getByLabelText('Descrição'), {
       target: { value: '  faz algo  ' },
     });
-    fireEvent.change(screen.getByLabelText('Prioridade'), { target: { value: '5' } });
+    fireEvent.change(screen.getByLabelText('Prioridade'), {
+      target: { value: '5' },
+    });
 
     const selects = container.querySelectorAll('select');
     fireEvent.change(selects[1], { target: { value: 'User' } }); // entidade

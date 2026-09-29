@@ -15,13 +15,17 @@ export const buttonVariants = cva(
   {
     variants: {
       intent: {
-        primary: 'bg-primary text-canvas hover:bg-primary-hover active:bg-primary-active',
+        primary:
+          'bg-primary text-canvas hover:bg-primary-hover active:bg-primary-active',
         secondary:
           'border-[1.5px] border-primary bg-surface text-primary hover:bg-primary-subtle',
-        ghost: 'bg-transparent text-ink-muted hover:bg-surface-sunken hover:text-ink',
+        ghost:
+          'bg-transparent text-ink-muted hover:bg-surface-sunken hover:text-ink',
         danger: 'bg-danger text-white hover:brightness-95 active:brightness-90',
-        success: 'bg-success text-white hover:brightness-95 active:brightness-90',
-        warning: 'bg-warning text-white hover:brightness-95 active:brightness-90',
+        success:
+          'bg-success text-white hover:brightness-95 active:brightness-90',
+        warning:
+          'bg-warning text-white hover:brightness-95 active:brightness-90',
       },
       size: {
         sm: 'rounded-control px-3 py-1.5 text-xs',
@@ -33,7 +37,8 @@ export const buttonVariants = cva(
 );
 
 export interface ButtonProps
-  extends ButtonHTMLAttributes<HTMLButtonElement>,
+  extends
+    ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
   loading?: boolean;
 }
@@ -47,7 +52,9 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       aria-busy={loading || undefined}
       {...props}
     >
-      {loading && <Loader2 size={16} strokeWidth={1.75} className="animate-spin" />}
+      {loading && (
+        <Loader2 size={16} strokeWidth={1.75} className="animate-spin" />
+      )}
       {children}
     </button>
   ),
@@ -55,7 +62,8 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 Button.displayName = 'Button';
 
 export interface IconButtonProps
-  extends ButtonHTMLAttributes<HTMLButtonElement>,
+  extends
+    ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
   icon: LucideIcon;
   /** aria-label — obrigatório: botão só de ícone tem de ter nome acessível. */
@@ -67,7 +75,11 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
     <button
       ref={ref}
       aria-label={label}
-      className={cn(buttonVariants({ intent, size }), 'aspect-square h-9 w-9 p-0', className)}
+      className={cn(
+        buttonVariants({ intent, size }),
+        'aspect-square h-9 w-9 p-0',
+        className,
+      )}
       {...props}
     >
       <Icon size={18} strokeWidth={1.75} />

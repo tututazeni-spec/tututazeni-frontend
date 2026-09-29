@@ -47,12 +47,19 @@ export interface NewOpportunityModalProps {
   onSuccess: () => void;
 }
 
-export function NewOpportunityModal({ onClose, onSuccess }: NewOpportunityModalProps) {
+export function NewOpportunityModal({
+  onClose,
+  onSuccess,
+}: NewOpportunityModalProps) {
   const { options: departmentOptions } = useDepartmentOptions();
   const { options: positionOptions } = usePositionOptions();
   const { units } = useUnits();
-  const unitOptions = units.map((u) => ({ value: String(u.id), label: u.name }));
-  const [responsibleManager, setResponsibleManager] = useState<DirectoryUser | null>(null);
+  const unitOptions = units.map((u) => ({
+    value: String(u.id),
+    label: u.name,
+  }));
+  const [responsibleManager, setResponsibleManager] =
+    useState<DirectoryUser | null>(null);
   const [submitError, setSubmitError] = useState('');
 
   const {
@@ -111,7 +118,10 @@ export function NewOpportunityModal({ onClose, onSuccess }: NewOpportunityModalP
 
   return (
     <Modal open onOpenChange={(open) => !open && onClose()}>
-      <ModalContent title="Nova Oportunidade" className="max-h-[90vh] max-w-lg overflow-y-auto">
+      <ModalContent
+        title="Nova Oportunidade"
+        className="max-h-[90vh] max-w-lg overflow-y-auto"
+      >
         <div className="mt-4 space-y-4">
           {error && (
             <div className="flex items-center gap-2 rounded-card bg-danger-subtle p-3 text-sm text-danger-ink">
@@ -124,7 +134,9 @@ export function NewOpportunityModal({ onClose, onSuccess }: NewOpportunityModalP
             <Input
               id="opp-title"
               value={form.title}
-              onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, title: e.target.value }))
+              }
               className="w-full"
             />
           </FormField>
@@ -134,7 +146,9 @@ export function NewOpportunityModal({ onClose, onSuccess }: NewOpportunityModalP
               <Input
                 id="opp-code"
                 value={form.code}
-                onChange={(e) => setForm((f) => ({ ...f, code: e.target.value }))}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, code: e.target.value }))
+                }
                 className="w-full"
               />
             </FormField>
@@ -163,7 +177,9 @@ export function NewOpportunityModal({ onClose, onSuccess }: NewOpportunityModalP
               <Select
                 items={CAREER_LEVEL_OPTIONS}
                 value={form.careerLevel}
-                onValueChange={(v) => setForm((f) => ({ ...f, careerLevel: v }))}
+                onValueChange={(v) =>
+                  setForm((f) => ({ ...f, careerLevel: v }))
+                }
                 placeholder="Seleccionar…"
                 className="w-full"
               />
@@ -175,7 +191,9 @@ export function NewOpportunityModal({ onClose, onSuccess }: NewOpportunityModalP
               <Select
                 items={departmentOptions}
                 value={form.departmentId}
-                onValueChange={(v) => setForm((f) => ({ ...f, departmentId: v }))}
+                onValueChange={(v) =>
+                  setForm((f) => ({ ...f, departmentId: v }))
+                }
                 placeholder="Seleccionar…"
                 className="w-full"
               />
@@ -195,7 +213,9 @@ export function NewOpportunityModal({ onClose, onSuccess }: NewOpportunityModalP
             <Input
               id="opp-location"
               value={form.location}
-              onChange={(e) => setForm((f) => ({ ...f, location: e.target.value }))}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, location: e.target.value }))
+              }
               placeholder="Remoto, híbrido, cidade…"
               className="w-full"
             />
@@ -212,7 +232,9 @@ export function NewOpportunityModal({ onClose, onSuccess }: NewOpportunityModalP
             <Textarea
               id="opp-description"
               value={form.description}
-              onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, description: e.target.value }))
+              }
               rows={3}
               className="w-full resize-none"
             />
@@ -222,7 +244,9 @@ export function NewOpportunityModal({ onClose, onSuccess }: NewOpportunityModalP
             <Input
               id="opp-training"
               value={form.requiredTraining}
-              onChange={(e) => setForm((f) => ({ ...f, requiredTraining: e.target.value }))}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, requiredTraining: e.target.value }))
+              }
               className="w-full"
             />
           </FormField>
@@ -232,7 +256,9 @@ export function NewOpportunityModal({ onClose, onSuccess }: NewOpportunityModalP
               id="opp-closing"
               type="date"
               value={form.closingDate}
-              onChange={(e) => setForm((f) => ({ ...f, closingDate: e.target.value }))}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, closingDate: e.target.value }))
+              }
               className="w-full"
             />
           </FormField>

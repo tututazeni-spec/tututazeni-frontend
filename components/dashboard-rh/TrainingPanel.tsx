@@ -6,12 +6,14 @@
 
 'use client';
 
+import { CheckCircle2, Clock, GraduationCap, ShieldAlert } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { KpiCard } from '@/components/ui/KpiCard';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { GaugeChart } from '@/components/ui/charts/GaugeChart';
 import { BarChart } from '@/components/ui/charts/BarChart';
+import { TopBarCard } from '@/components/ui/TopBarCard';
 import type { TrainingData } from './types';
 
 export function TrainingPanel() {
@@ -25,37 +27,41 @@ export function TrainingPanel() {
       <Skeleton
         rows={4}
         wrapperClassName="grid grid-cols-2 md:grid-cols-4 gap-4 animate-pulse"
-        itemClassName="h-24 rounded-card bg-surface-sunken"
+        itemClassName="h-28 rounded-2xl bg-surface-sunken"
       />
     );
 
   return (
     <div className="space-y-5">
+      {/* KPIs — cartão estilo Udemy/MasterClass */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-        <KpiCard
+        <TopBarCard
           label="Conclusões (mês)"
           value={data?.completed ?? 0}
-          intent="info"
-          className="w-full"
+          tone="blue"
+          icon={<CheckCircle2 className="h-6 w-6" />}
         />
-        <KpiCard
-          label="Taxa de Conclusão"
-          value={`${data?.completionRate ?? 0}%`}
-          intent="primary"
-          className="w-full"
-        />
-        <KpiCard
-          label="Formações Obrigatórias"
-          value={`${data?.mandatoryRate ?? 0}%`}
-          sub={data?.mandatoryStatus}
-          intent="danger"
-          className="w-full"
-        />
-        <KpiCard
+        <div className="flex flex-col items-center justify-center rounded-2xl border border-border bg-white p-4 shadow-resting">
+          <GaugeChart
+            value={data?.completionRate ?? 0}
+            label="Taxa de Conclusão"
+            thresholds={{ warning: 50, danger: 25 }}
+            size={120}
+          />
+        </div>
+        <div className="flex flex-col items-center justify-center rounded-2xl border border-border bg-white p-4 shadow-resting">
+          <GaugeChart
+            value={data?.mandatoryRate ?? 0}
+            label="Formações Obrigatórias"
+            thresholds={{ warning: 50, danger: 25 }}
+            size={120}
+          />
+        </div>
+        <TopBarCard
           label="Horas Estimadas"
           value={`${data?.estimatedHours ?? 0}h`}
-          intent="accent"
-          className="w-full"
+          tone="gold"
+          icon={<Clock className="h-6 w-6" />}
         />
       </div>
 
@@ -67,8 +73,15 @@ export function TrainingPanel() {
           </h4>
           <BarChart
             orientation="horizontal"
-            categories={(data?.topCourses ?? []).map((c, i) => c.course?.title ?? `Curso ${c.courseId ?? i}`)}
-            series={[{ label: 'Inscrições', values: (data?.topCourses ?? []).map((c) => c.count) }]}
+            categories={(data?.topCourses ?? []).map(
+              (c, i) => c.course?.title ?? `Curso ${c.courseId ?? i}`,
+            )}
+            series={[
+              {
+                label: 'Inscrições',
+                values: (data?.topCourses ?? []).map((c) => c.count),
+              },
+            ]}
             className="mb-4"
           />
           <div className="space-y-2">

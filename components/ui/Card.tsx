@@ -7,10 +7,20 @@ export interface CardProps extends HTMLAttributes<HTMLDivElement> {
   interactive?: boolean;
 }
 
-export function Card({ interactive, className, onClick, onKeyDown, ...props }: CardProps) {
+export function Card({
+  interactive,
+  className,
+  onClick,
+  onKeyDown,
+  ...props
+}: CardProps) {
   const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     onKeyDown?.(event);
-    if (interactive && onClick && (event.key === 'Enter' || event.key === ' ')) {
+    if (
+      interactive &&
+      onClick &&
+      (event.key === 'Enter' || event.key === ' ')
+    ) {
       event.preventDefault();
       onClick(event as unknown as MouseEvent<HTMLDivElement>);
     }
@@ -33,15 +43,26 @@ export function Card({ interactive, className, onClick, onKeyDown, ...props }: C
   );
 }
 
-export function CardHeader({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn('border-b border-border p-4', className)} {...props} />;
+export function CardHeader({
+  className,
+  ...props
+}: HTMLAttributes<HTMLDivElement>) {
+  return (
+    <div className={cn('border-b border-border p-4', className)} {...props} />
+  );
 }
 
-export function CardBody({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
+export function CardBody({
+  className,
+  ...props
+}: HTMLAttributes<HTMLDivElement>) {
   return <div className={cn('p-4', className)} {...props} />;
 }
 
-export function CardFooter({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
+export function CardFooter({
+  className,
+  ...props
+}: HTMLAttributes<HTMLDivElement>) {
   return (
     <div className={cn('border-t border-border p-4', className)} {...props} />
   );

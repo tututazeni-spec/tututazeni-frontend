@@ -29,7 +29,11 @@ import { Input } from '@/components/ui/Input';
 import { Trash2 } from 'lucide-react';
 import { cycleStatusDisplay } from './colors';
 import { CreateCycleModal } from './CreateCycleModal';
-import { useDepartmentOptions, useUnitOptions, usePositionOptions } from './cycleData';
+import {
+  useDepartmentOptions,
+  useUnitOptions,
+  usePositionOptions,
+} from './cycleData';
 
 interface RawCycleRow {
   id: string;
@@ -113,11 +117,13 @@ export function EvaluationCyclesTab() {
   if (from) params.from = from;
   if (to) params.to = to;
 
-  const { data, isLoading } = useApiQuery<{ data: RawCycleRow[]; total: number }>(
-    queryKeys.evaluation360.cyclesList(params),
-    '/evaluation360/cycles',
-    { params, staleTime: STALE_TIME.DYNAMIC },
-  );
+  const { data, isLoading } = useApiQuery<{
+    data: RawCycleRow[];
+    total: number;
+  }>(queryKeys.evaluation360.cyclesList(params), '/evaluation360/cycles', {
+    params,
+    staleTime: STALE_TIME.DYNAMIC,
+  });
   const cycles = data?.data ?? [];
 
   // Opções do filtro "Responsável" — não há endpoint dedicado de "criadores
@@ -125,7 +131,10 @@ export function EvaluationCyclesTab() {
   // filtrada acima, que teria um problema de ovo-e-galinha ao filtrar por
   // criador antes de saber quem são os criadores possíveis).
   const creatorsParams = { tenantId: 'default', limit: '200' };
-  const { data: allCyclesForCreators } = useApiQuery<{ data: RawCycleRow[]; total: number }>(
+  const { data: allCyclesForCreators } = useApiQuery<{
+    data: RawCycleRow[];
+    total: number;
+  }>(
     queryKeys.evaluation360.cyclesList(creatorsParams),
     '/evaluation360/cycles',
     { params: creatorsParams, staleTime: STALE_TIME.SEMI_STATIC },
@@ -134,7 +143,10 @@ export function EvaluationCyclesTab() {
     { value: ALL, label: 'Todos os responsáveis' },
     ...Array.from(
       new Map(
-        (allCyclesForCreators?.data ?? []).map((c) => [c.createdBy, c.createdByName]),
+        (allCyclesForCreators?.data ?? []).map((c) => [
+          c.createdBy,
+          c.createdByName,
+        ]),
       ).entries(),
     ).map(([value, label]) => ({ value, label })),
   ];
@@ -147,7 +159,10 @@ export function EvaluationCyclesTab() {
       invalidateKeys: [queryKeys.evaluation360.all],
       onSuccess: () => notify({ title: 'Ciclo eliminado', intent: 'success' }),
       onError: () =>
-        notify({ title: 'Não foi possível eliminar o ciclo', intent: 'danger' }),
+        notify({
+          title: 'Não foi possível eliminar o ciclo',
+          intent: 'danger',
+        }),
     },
   );
 
@@ -171,7 +186,11 @@ export function EvaluationCyclesTab() {
           </p>
         </div>
         {canCreateCycle && (
-          <Button intent="primary" size="sm" onClick={() => setCycleModalOpen(true)}>
+          <Button
+            intent="primary"
+            size="sm"
+            onClick={() => setCycleModalOpen(true)}
+          >
             + Novo Ciclo
           </Button>
         )}
@@ -180,15 +199,23 @@ export function EvaluationCyclesTab() {
       {/* Filtros: Estado, Tipo, Departamento, Unidade, Cargo, Responsável, Data — docs/evaluation360.md §2 */}
       <div className="flex flex-wrap gap-3 items-end">
         <div>
-          <div className="text-xs font-semibold text-ink-muted mb-1">Estado</div>
-          <Select items={STATUS_OPTIONS} value={status} onValueChange={setStatus} />
+          <div className="text-xs font-semibold text-ink-muted mb-1">
+            Estado
+          </div>
+          <Select
+            items={STATUS_OPTIONS}
+            value={status}
+            onValueChange={setStatus}
+          />
         </div>
         <div>
           <div className="text-xs font-semibold text-ink-muted mb-1">Tipo</div>
           <Select items={TYPE_OPTIONS} value={type} onValueChange={setType} />
         </div>
         <div>
-          <div className="text-xs font-semibold text-ink-muted mb-1">Departamento</div>
+          <div className="text-xs font-semibold text-ink-muted mb-1">
+            Departamento
+          </div>
           <Select
             items={departmentOptions}
             value={departmentId}
@@ -196,24 +223,48 @@ export function EvaluationCyclesTab() {
           />
         </div>
         <div>
-          <div className="text-xs font-semibold text-ink-muted mb-1">Unidade</div>
-          <Select items={unitOptions} value={unitId} onValueChange={setUnitId} />
+          <div className="text-xs font-semibold text-ink-muted mb-1">
+            Unidade
+          </div>
+          <Select
+            items={unitOptions}
+            value={unitId}
+            onValueChange={setUnitId}
+          />
         </div>
         <div>
           <div className="text-xs font-semibold text-ink-muted mb-1">Cargo</div>
-          <Select items={positionOptions} value={positionId} onValueChange={setPositionId} />
+          <Select
+            items={positionOptions}
+            value={positionId}
+            onValueChange={setPositionId}
+          />
         </div>
         <div>
-          <div className="text-xs font-semibold text-ink-muted mb-1">Responsável</div>
-          <Select items={creatorOptions} value={createdBy} onValueChange={setCreatedBy} />
+          <div className="text-xs font-semibold text-ink-muted mb-1">
+            Responsável
+          </div>
+          <Select
+            items={creatorOptions}
+            value={createdBy}
+            onValueChange={setCreatedBy}
+          />
         </div>
         <div>
           <div className="text-xs font-semibold text-ink-muted mb-1">De</div>
-          <Input type="date" value={from} onChange={(e) => setFrom(e.target.value)} />
+          <Input
+            type="date"
+            value={from}
+            onChange={(e) => setFrom(e.target.value)}
+          />
         </div>
         <div>
           <div className="text-xs font-semibold text-ink-muted mb-1">Até</div>
-          <Input type="date" value={to} onChange={(e) => setTo(e.target.value)} />
+          <Input
+            type="date"
+            value={to}
+            onChange={(e) => setTo(e.target.value)}
+          />
         </div>
       </div>
 
@@ -246,22 +297,33 @@ export function EvaluationCyclesTab() {
               {cycles.map((c) => (
                 <tr key={c.id} className="border-b border-border last:border-0">
                   <td className="px-4 py-3 font-semibold text-ink">{c.name}</td>
-                  <td className="px-4 py-3 text-ink-muted font-mono text-xs">{c.code}</td>
+                  <td className="px-4 py-3 text-ink-muted font-mono text-xs">
+                    {c.code}
+                  </td>
                   <td className="px-4 py-3 text-ink-muted">
-                    {TYPE_OPTIONS.find((t) => t.value === c.type)?.label ?? c.type}
+                    {TYPE_OPTIONS.find((t) => t.value === c.type)?.label ??
+                      c.type}
                   </td>
                   <td className="px-4 py-3 text-ink-muted whitespace-nowrap">
                     {c.startDate.slice(0, 10)} → {c.endDate.slice(0, 10)}
                   </td>
-                  <td className="px-4 py-3 text-right text-ink">{c._count.participants}</td>
-                  <td className="px-4 py-3 text-right text-ink">{c.evaluatorsCount}</td>
-                  <td className="px-4 py-3 text-right text-ink">{c.participationRate}%</td>
+                  <td className="px-4 py-3 text-right text-ink">
+                    {c._count.participants}
+                  </td>
+                  <td className="px-4 py-3 text-right text-ink">
+                    {c.evaluatorsCount}
+                  </td>
+                  <td className="px-4 py-3 text-right text-ink">
+                    {c.participationRate}%
+                  </td>
                   <td className="px-4 py-3">
                     <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-surface-sunken text-ink">
                       {cycleStatusDisplay(c.status, c.startDate, c.endDate)}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-ink-muted">{c.createdByName}</td>
+                  <td className="px-4 py-3 text-ink-muted">
+                    {c.createdByName}
+                  </td>
                   <td className="px-4 py-3 text-ink-muted whitespace-nowrap">
                     {c.createdAt.slice(0, 10)}
                   </td>

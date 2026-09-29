@@ -58,7 +58,12 @@ export interface SendMessageResponse {
   };
   latencyMs: number | null;
   provider: string | null;
-  sources?: Array<{ type: string; id: number | string; title: string; label: string }>;
+  sources?: Array<{
+    type: string;
+    id: number | string;
+    title: string;
+    label: string;
+  }>;
 }
 
 export interface SessionDetail {
@@ -166,7 +171,11 @@ export interface AiTutorOverview {
   perguntasFrequentes?: Array<{ question: string; count: number }>;
   cursosMaisUtilizados?: Array<{ title: string; count: number }>;
   temasMaisProcurados?: Array<{ theme: string; count: number }>;
-  utilizadoresMaisAtivos?: Array<{ userId: number; fullName: string; count: number }>;
+  utilizadoresMaisAtivos?: Array<{
+    userId: number;
+    fullName: string;
+    count: number;
+  }>;
 }
 
 // ─── Sessões (secção 4) ──────────────────────────────────────────────────────────
@@ -186,7 +195,12 @@ export interface AdminSessionRow {
 // ─── Histórico (secção 6) ────────────────────────────────────────────────────────
 
 export interface ActivityFeed {
-  questions: Array<{ id: number; content: string; createdAt: string; sessionId: number }>;
+  questions: Array<{
+    id: number;
+    content: string;
+    createdAt: string;
+    sessionId: number;
+  }>;
   exercises: Array<{
     id: number;
     type: string;

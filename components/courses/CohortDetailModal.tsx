@@ -32,7 +32,10 @@ function todayISO() {
   return new Date().toISOString().slice(0, 10);
 }
 
-export function CohortDetailModal({ cohortId, onClose }: CohortDetailModalProps) {
+export function CohortDetailModal({
+  cohortId,
+  onClose,
+}: CohortDetailModalProps) {
   const toast = useToast();
   const confirm = useConfirm();
   const [addSearch, setAddSearch] = useState('');
@@ -45,7 +48,9 @@ export function CohortDetailModal({ cohortId, onClose }: CohortDetailModalProps)
     { staleTime: STALE_TIME.DYNAMIC },
   );
 
-  const { data: existingAttendance = [] } = useApiQuery<CohortAttendanceEntry[]>(
+  const { data: existingAttendance = [] } = useApiQuery<
+    CohortAttendanceEntry[]
+  >(
     queryKeys.courses.cohortAttendance(cohortId, date),
     `/courses/cohorts/${cohortId}/attendance`,
     { params: { date }, staleTime: STALE_TIME.DYNAMIC, enabled: !!cohort },
@@ -53,7 +58,9 @@ export function CohortDetailModal({ cohortId, onClose }: CohortDetailModalProps)
 
   useEffect(() => {
     if (!cohort) return;
-    const marked = new Map(existingAttendance.map((a) => [a.userId, a.status === 'PRESENT']));
+    const marked = new Map(
+      existingAttendance.map((a) => [a.userId, a.status === 'PRESENT']),
+    );
     const initial: Record<number, boolean> = {};
     for (const p of cohort.participants) {
       initial[p.userId] = marked.get(p.userId) ?? true;
@@ -66,7 +73,9 @@ export function CohortDetailModal({ cohortId, onClose }: CohortDetailModalProps)
     '',
     addSearch.trim().length > 0,
   );
-  const existingIds = new Set((cohort?.participants ?? []).map((p) => p.userId));
+  const existingIds = new Set(
+    (cohort?.participants ?? []).map((p) => p.userId),
+  );
 
   const invalidateKeys = [
     queryKeys.courses.cohortDetail(cohortId),
@@ -75,7 +84,9 @@ export function CohortDetailModal({ cohortId, onClose }: CohortDetailModalProps)
 
   const addParticipant = useApiMutation(
     (userId: number) =>
-      apiClient.post(`/courses/cohorts/${cohortId}/participants`, { userIds: [userId] }),
+      apiClient.post(`/courses/cohorts/${cohortId}/participants`, {
+        userIds: [userId],
+      }),
     {
       invalidateKeys,
       onSuccess: () => {
@@ -87,20 +98,26 @@ export function CohortDetailModal({ cohortId, onClose }: CohortDetailModalProps)
   );
 
   const removeParticipant = useApiMutation(
-    (userId: number) => apiClient.delete(`/courses/cohorts/${cohortId}/participants/${userId}`),
+    (userId: number) =>
+      apiClient.delete(`/courses/cohorts/${cohortId}/participants/${userId}`),
     {
       invalidateKeys,
-      onSuccess: () => toast({ title: 'Participante removido', intent: 'success' }),
+      onSuccess: () =>
+        toast({ title: 'Participante removido', intent: 'success' }),
       onError: (e) => toast({ title: e.message, intent: 'danger' }),
     },
   );
 
   const markAttendance = useApiMutation(
     (records: Array<{ userId: number; present: boolean }>) =>
-      apiClient.post(`/courses/cohorts/${cohortId}/attendance`, { date, records }),
+      apiClient.post(`/courses/cohorts/${cohortId}/attendance`, {
+        date,
+        records,
+      }),
     {
       invalidateKeys: [queryKeys.courses.cohortAttendance(cohortId, date)],
-      onSuccess: () => toast({ title: 'Presenças guardadas', intent: 'success' }),
+      onSuccess: () =>
+        toast({ title: 'Presenças guardadas', intent: 'success' }),
       onError: (e) => toast({ title: e.message, intent: 'danger' }),
     },
   );
@@ -136,19 +153,28 @@ export function CohortDetailModal({ cohortId, onClose }: CohortDetailModalProps)
           <div className="mt-5 space-y-6">
             <div className="grid grid-cols-2 gap-3 text-sm text-ink-muted sm:grid-cols-4">
               <div>
-                <div className="text-xs uppercase tracking-wide text-ink-faint">Formador</div>
+                <div className="text-xs uppercase tracking-wide text-ink-faint">
+                  Formador
+                </div>
                 {cohort.instructor?.fullName ?? '—'}
               </div>
               <div>
-                <div className="text-xs uppercase tracking-wide text-ink-faint">Local</div>
-                {[cohort.location, cohort.room].filter(Boolean).join(' · ') || '—'}
+                <div className="text-xs uppercase tracking-wide text-ink-faint">
+                  Local
+                </div>
+                {[cohort.location, cohort.room].filter(Boolean).join(' · ') ||
+                  '—'}
               </div>
               <div>
-                <div className="text-xs uppercase tracking-wide text-ink-faint">Horário</div>
+                <div className="text-xs uppercase tracking-wide text-ink-faint">
+                  Horário
+                </div>
                 {cohort.schedule ?? '—'}
               </div>
               <div>
-                <div className="text-xs uppercase tracking-wide text-ink-faint">Vagas</div>
+                <div className="text-xs uppercase tracking-wide text-ink-faint">
+                  Vagas
+                </div>
                 {cohort.availableSlots}/{cohort.capacity}
               </div>
             </div>
@@ -168,7 +194,9 @@ export function CohortDetailModal({ cohortId, onClose }: CohortDetailModalProps)
                 {addSearch.trim().length > 0 && (
                   <div className="absolute z-10 mt-1 max-h-56 w-full overflow-y-auto rounded-card border border-border bg-surface shadow-elevated">
                     {usersLoading && (
-                      <div className="px-3 py-2 text-sm text-ink-muted">A pesquisar…</div>
+                      <div className="px-3 py-2 text-sm text-ink-muted">
+                        A pesquisar…
+                      </div>
                     )}
                     {!usersLoading &&
                       users
@@ -180,8 +208,14 @@ export function CohortDetailModal({ cohortId, onClose }: CohortDetailModalProps)
                             onClick={() => addParticipant.mutate(u.id)}
                             className="flex w-full items-center gap-2 px-3 py-2 text-left hover:bg-primary-subtle"
                           >
-                            <Avatar name={u.fullName} url={u.avatarUrl ?? undefined} size="sm" />
-                            <div className="min-w-0 truncate text-sm text-ink">{u.fullName}</div>
+                            <Avatar
+                              name={u.fullName}
+                              url={u.avatarUrl ?? undefined}
+                              size="sm"
+                            />
+                            <div className="min-w-0 truncate text-sm text-ink">
+                              {u.fullName}
+                            </div>
                           </button>
                         ))}
                   </div>
@@ -189,12 +223,21 @@ export function CohortDetailModal({ cohortId, onClose }: CohortDetailModalProps)
               </div>
 
               {cohort.participants.length === 0 ? (
-                <p className="text-sm text-ink-faint">Ainda sem participantes.</p>
+                <p className="text-sm text-ink-faint">
+                  Ainda sem participantes.
+                </p>
               ) : (
                 <div className="divide-y divide-border rounded-card border border-border">
                   {cohort.participants.map((p) => (
-                    <div key={p.id} className="flex items-center gap-3 px-3 py-2">
-                      <Avatar name={p.user.fullName} url={p.user.avatarUrl ?? undefined} size="sm" />
+                    <div
+                      key={p.id}
+                      className="flex items-center gap-3 px-3 py-2"
+                    >
+                      <Avatar
+                        name={p.user.fullName}
+                        url={p.user.avatarUrl ?? undefined}
+                        size="sm"
+                      />
                       <div className="min-w-0 flex-1 truncate text-sm text-ink">
                         {p.user.fullName}
                       </div>
@@ -215,7 +258,9 @@ export function CohortDetailModal({ cohortId, onClose }: CohortDetailModalProps)
             {cohort.participants.length > 0 && (
               <section>
                 <div className="mb-2 flex items-center justify-between">
-                  <h3 className="text-sm font-medium text-ink">Marcar presenças</h3>
+                  <h3 className="text-sm font-medium text-ink">
+                    Marcar presenças
+                  </h3>
                   <Input
                     type="date"
                     value={date}
@@ -227,15 +272,25 @@ export function CohortDetailModal({ cohortId, onClose }: CohortDetailModalProps)
                   {cohort.participants.map((p) => {
                     const present = presence[p.userId] ?? true;
                     return (
-                      <div key={p.id} className="flex items-center gap-3 px-3 py-2">
-                        <Avatar name={p.user.fullName} url={p.user.avatarUrl ?? undefined} size="sm" />
+                      <div
+                        key={p.id}
+                        className="flex items-center gap-3 px-3 py-2"
+                      >
+                        <Avatar
+                          name={p.user.fullName}
+                          url={p.user.avatarUrl ?? undefined}
+                          size="sm"
+                        />
                         <div className="min-w-0 flex-1 truncate text-sm text-ink">
                           {p.user.fullName}
                         </div>
                         <button
                           type="button"
                           onClick={() =>
-                            setPresence((cur) => ({ ...cur, [p.userId]: !present }))
+                            setPresence((cur) => ({
+                              ...cur,
+                              [p.userId]: !present,
+                            }))
                           }
                           className={`flex items-center gap-1 rounded-control px-2 py-1 text-xs font-medium ${
                             present
@@ -243,7 +298,11 @@ export function CohortDetailModal({ cohortId, onClose }: CohortDetailModalProps)
                               : 'bg-danger-subtle text-danger-ink'
                           }`}
                         >
-                          {present ? <Check size={12} strokeWidth={2} /> : <X size={12} strokeWidth={2} />}
+                          {present ? (
+                            <Check size={12} strokeWidth={2} />
+                          ) : (
+                            <X size={12} strokeWidth={2} />
+                          )}
                           {present ? 'Presente' : 'Falta'}
                         </button>
                       </div>
@@ -265,7 +324,11 @@ export function CohortDetailModal({ cohortId, onClose }: CohortDetailModalProps)
         )}
 
         <div className="mt-6 flex border-t border-border pt-4">
-          <Button intent="secondary" className="flex-1 justify-center" onClick={onClose}>
+          <Button
+            intent="secondary"
+            className="flex-1 justify-center"
+            onClick={onClose}
+          >
             Fechar
           </Button>
         </div>

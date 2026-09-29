@@ -38,9 +38,15 @@ describe('NewEvaluationWizard', () => {
     fireEvent.change(screen.getByLabelText('Nome da avaliação *'), {
       target: { value: 'Avaliação de Desempenho 2026' },
     });
-    fireEvent.change(screen.getByLabelText('Início *'), { target: { value: '2026-01-01' } });
-    fireEvent.change(screen.getByLabelText('Fim *'), { target: { value: '2026-12-31' } });
-    expect(screen.getByRole('button', { name: 'Continuar' })).not.toBeDisabled();
+    fireEvent.change(screen.getByLabelText('Início *'), {
+      target: { value: '2026-01-01' },
+    });
+    fireEvent.change(screen.getByLabelText('Fim *'), {
+      target: { value: '2026-12-31' },
+    });
+    expect(
+      screen.getByRole('button', { name: 'Continuar' }),
+    ).not.toBeDisabled();
   });
 
   test('cancelar na etapa 1 chama onClose', () => {
@@ -55,10 +61,16 @@ describe('NewEvaluationWizard', () => {
     fireEvent.change(screen.getByLabelText('Nome da avaliação *'), {
       target: { value: 'Avaliação X' },
     });
-    fireEvent.change(screen.getByLabelText('Início *'), { target: { value: '2026-01-01' } });
-    fireEvent.change(screen.getByLabelText('Fim *'), { target: { value: '2026-12-31' } });
+    fireEvent.change(screen.getByLabelText('Início *'), {
+      target: { value: '2026-01-01' },
+    });
+    fireEvent.change(screen.getByLabelText('Fim *'), {
+      target: { value: '2026-12-31' },
+    });
     fireEvent.click(screen.getByRole('button', { name: 'Continuar' }));
-    expect(screen.getByText('Etapa 2 de 8 — Participantes')).toBeInTheDocument();
+    expect(
+      screen.getByText('Etapa 2 de 8 — Participantes'),
+    ).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Voltar' })).toBeInTheDocument();
   });
 });

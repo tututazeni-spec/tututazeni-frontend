@@ -48,34 +48,52 @@ export default function PayrollPage() {
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
       <div className="mb-6">
-        <h1 className="font-display text-xl font-semibold text-ink">{TITLES[nav.tab]}</h1>
+        <h1 className="font-display text-xl font-semibold text-ink">
+          {TITLES[nav.tab]}
+        </h1>
       </div>
 
+      {/* Tabs — formato de "cartão": cada botão é um cartão independente
+          (borda + fundo branco + rounded), sem o fundo/pill de grupo
+          anterior. Alinhadas horizontal e verticalmente (justify-center +
+          items-center no wrapper) com largura mínima uniforme. Estado
+          activo usa a mesma condição `nav.tab === t.id` de sempre para
+          aplicar destaque azul (borda/fundo/texto primary). */}
       {!isDetail && (
-        <div className="mb-6 flex w-fit gap-1 rounded-card bg-surface-sunken p-1">
+        <div className="mb-6 flex w-full flex-wrap items-center justify-center gap-2">
           {TABS.map((t) => (
-            <Button
+            <button
               key={t.id}
-              size="sm"
-              intent={nav.tab === t.id ? 'primary' : 'ghost'}
               onClick={() => selectTab(t.id)}
+              className={`flex min-w-[140px] items-center justify-center whitespace-nowrap rounded-lg border px-4 py-2 text-center text-sm font-medium transition-colors ${
+                nav.tab === t.id
+                  ? 'border-primary bg-primary/10 text-primary'
+                  : 'border-border bg-white text-ink-muted hover:text-ink'
+              }`}
             >
               {t.label}
-            </Button>
+            </button>
           ))}
         </div>
       )}
 
       {nav.tab === 'runs' && nav.view === 'list' && (
-        <RunListView onSelect={(runId) => setNav({ tab: 'runs', view: 'detail', runId })} />
+        <RunListView
+          onSelect={(runId) => setNav({ tab: 'runs', view: 'detail', runId })}
+        />
       )}
       {nav.tab === 'runs' && nav.view === 'detail' && (
-        <RunDetailView runId={nav.runId} onBack={() => setNav({ tab: 'runs', view: 'list' })} />
+        <RunDetailView
+          runId={nav.runId}
+          onBack={() => setNav({ tab: 'runs', view: 'list' })}
+        />
       )}
 
       {nav.tab === 'payslips' && nav.view === 'list' && (
         <PayslipListView
-          onSelect={(payslipId) => setNav({ tab: 'payslips', view: 'detail', payslipId })}
+          onSelect={(payslipId) =>
+            setNav({ tab: 'payslips', view: 'detail', payslipId })
+          }
           onCreate={() => setCreating(true)}
         />
       )}
@@ -89,7 +107,9 @@ export default function PayrollPage() {
       {nav.tab === 'dashboard' && <HrDashboardView />}
       {nav.tab === 'disputes' && (
         <DisputesView
-          onOpenPayslip={(payslipId) => setNav({ tab: 'payslips', view: 'detail', payslipId })}
+          onOpenPayslip={(payslipId) =>
+            setNav({ tab: 'payslips', view: 'detail', payslipId })
+          }
         />
       )}
 

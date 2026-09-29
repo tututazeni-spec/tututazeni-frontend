@@ -49,6 +49,9 @@ export function DropdownMenuSeparator({
   ...props
 }: ComponentProps<typeof RadixDropdown.Separator>) {
   return (
-    <RadixDropdown.Separator className={cn('my-1 h-px bg-border', className)} {...props} />
+    <RadixDropdown.Separator
+      className={cn('my-1 h-px bg-border', className)}
+      {...props}
+    />
   );
 }

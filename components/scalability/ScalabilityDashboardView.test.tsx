@@ -19,7 +19,12 @@ vi.mock('./RenameTenantModal', () => ({
 }));
 
 import { ScalabilityDashboardView } from './ScalabilityDashboardView';
-import type { DashboardData, Alert, Integration, AutomationRule } from './types';
+import type {
+  DashboardData,
+  Alert,
+  Integration,
+  AutomationRule,
+} from './types';
 
 const DASHBOARD: DashboardData = {
   tenantInfo: {
@@ -134,7 +139,9 @@ describe('ScalabilityDashboardView — alertas', () => {
   test('estado vazio quando o filtro não tem correspondência', () => {
     renderViewWithAlerts('alerts', [ALERTS[2]]);
     fireEvent.click(screen.getByRole('button', { name: 'Críticos' }));
-    expect(screen.getByText('Sem alertas nesta categoria.')).toBeInTheDocument();
+    expect(
+      screen.getByText('Sem alertas nesta categoria.'),
+    ).toBeInTheDocument();
   });
 
   test('chip activo reflecte-se em aria-pressed', () => {
@@ -177,9 +184,7 @@ describe('ScalabilityDashboardView — alertas', () => {
 describe('ScalabilityDashboardView — tenant activo', () => {
   test('o lápis abre o modal de renomear com o nome actual', () => {
     renderView('overview');
-    expect(
-      screen.queryByText(/\[RenameTenantModal/),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByText(/\[RenameTenantModal/)).not.toBeInTheDocument();
 
     fireEvent.click(
       screen.getByRole('button', { name: 'Editar nome da empresa' }),
@@ -204,9 +209,7 @@ describe('ScalabilityDashboardView — performance', () => {
   test('"Configurar Teste" monta o modal de teste de carga', () => {
     renderView('performance');
     expect(screen.queryByText('[LoadTestModal]')).not.toBeInTheDocument();
-    fireEvent.click(
-      screen.getByRole('button', { name: 'Configurar Teste' }),
-    );
+    fireEvent.click(screen.getByRole('button', { name: 'Configurar Teste' }));
     expect(screen.getByText('[LoadTestModal]')).toBeInTheDocument();
   });
 });
@@ -214,7 +217,9 @@ describe('ScalabilityDashboardView — performance', () => {
 describe('ScalabilityDashboardView — integrações e automações', () => {
   test('lista vazia mostra EmptyState em vez de nada', () => {
     renderView('integrations');
-    expect(screen.getByText('Sem integrações configuradas')).toBeInTheDocument();
+    expect(
+      screen.getByText('Sem integrações configuradas'),
+    ).toBeInTheDocument();
   });
 
   test('regras vazias mostram EmptyState', () => {

@@ -16,7 +16,13 @@ export interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
   dot?: boolean;
 }
 
-export function Badge({ intent = 'neutral', dot = true, className, children, ...props }: BadgeProps) {
+export function Badge({
+  intent = 'neutral',
+  dot = true,
+  className,
+  children,
+  ...props
+}: BadgeProps) {
   return (
     <span
       className={cn(

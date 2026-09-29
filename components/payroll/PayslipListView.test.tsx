@@ -21,7 +21,10 @@ vi.mock('@/hooks/useApiQuery', () => ({
 vi.mock('@tanstack/react-query', () => ({ keepPreviousData: Symbol('kpd') }));
 // identidade — o debounce real (setTimeout 350ms) não acrescenta nada ao teste
 vi.mock('@/hooks/useDebounce', () => ({ useDebounce: (v: unknown) => v }));
-vi.mock('@/lib/apiClient', () => ({ apiClient: { patch: (...a: unknown[]) => patch(...a) }, API_URL: '/api' }));
+vi.mock('@/lib/apiClient', () => ({
+  apiClient: { patch: (...a: unknown[]) => patch(...a) },
+  API_URL: '/api',
+}));
 vi.mock('@/providers/ConfirmProvider', () => ({ useConfirm: () => confirm }));
 vi.mock('@/providers/ToastProvider', () => ({ useToast: () => notify }));
 // components/ui/Select é um listbox Radix custom (não um <select> nativo):
@@ -46,26 +49,46 @@ vi.mock('@/components/ui/Select', () => ({
 import { PayslipListView } from './PayslipListView';
 
 const row = {
-  id: 1, receiptCode: 'REC-1', period: '2026-06', paymentDate: '2026-06-25',
-  grossSalary: 250000, netSalary: 180000, status: 'DRAFT',
+  id: 1,
+  receiptCode: 'REC-1',
+  period: '2026-06',
+  paymentDate: '2026-06-25',
+  grossSalary: 250000,
+  netSalary: 180000,
+  status: 'DRAFT',
   user: { id: 7, fullName: 'Ana Silva', employeeNumber: 'E-7' },
 };
-const page = { data: [row], meta: { total: 1, page: 1, limit: 20, totalPages: 1 } };
+const page = {
+  data: [row],
+  meta: { total: 1, page: 1, limit: 20, totalPages: 1 },
+};
 
 beforeEach(() => {
   useApiQuery.mockReset();
-  patch.mockClear(); confirm.mockClear(); notify.mockClear();
+  patch.mockClear();
+  confirm.mockClear();
+  notify.mockClear();
 });
 
 describe('PayslipListView', () => {
   test('shows skeleton while loading', () => {
-    useApiQuery.mockReturnValue({ data: undefined, isLoading: true, error: null });
-    const { container } = render(<PayslipListView onSelect={vi.fn()} onCreate={vi.fn()} />);
+    useApiQuery.mockReturnValue({
+      data: undefined,
+      isLoading: true,
+      error: null,
+    });
+    const { container } = render(
+      <PayslipListView onSelect={vi.fn()} onCreate={vi.fn()} />,
+    );
     expect(container.querySelector('.animate-pulse')).toBeTruthy();
   });
 
   test('shows an error message, not the empty state, when the fetch fails', () => {
-    useApiQuery.mockReturnValue({ data: undefined, isLoading: false, error: new Error('boom') });
+    useApiQuery.mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      error: new Error('boom'),
+    });
     render(<PayslipListView onSelect={vi.fn()} onCreate={vi.fn()} />);
     expect(screen.getByText('boom')).toBeInTheDocument();
     expect(screen.queryByText(/Sem recibos/i)).not.toBeInTheDocument();
@@ -74,7 +97,8 @@ describe('PayslipListView', () => {
   test('shows empty state when there are no rows', () => {
     useApiQuery.mockReturnValue({
       data: { data: [], meta: { total: 0, page: 1, limit: 20, totalPages: 0 } },
-      isLoading: false, error: null,
+      isLoading: false,
+      error: null,
     });
     render(<PayslipListView onSelect={vi.fn()} onCreate={vi.fn()} />);
     expect(screen.getByText(/Sem recibos/i)).toBeInTheDocument();
@@ -91,7 +115,9 @@ describe('PayslipListView', () => {
   test('status filter change refetches with the chosen status', () => {
     useApiQuery.mockReturnValue({ data: page, isLoading: false, error: null });
     render(<PayslipListView onSelect={vi.fn()} onCreate={vi.fn()} />);
-    fireEvent.change(screen.getByTestId('status-select'), { target: { value: 'ISSUED' } });
+    fireEvent.change(screen.getByTestId('status-select'), {
+      target: { value: 'ISSUED' },
+    });
     const lastCall = useApiQuery.mock.calls.at(-1)!;
     expect(lastCall[2].params).toMatchObject({ status: 'ISSUED' });
   });
@@ -121,24 +147,28 @@ describe('PayslipListView', () => {
     render(<PayslipListView onSelect={vi.fn()} onCreate={vi.fn()} />);
     fireEvent.click(screen.getByRole('button', { name: 'Emitir' }));
     await waitFor(() => expect(confirm).toHaveBeenCalled());
-    await waitFor(() => expect(patch).toHaveBeenCalledWith('/payslips/1/issue'));
+    await waitFor(() =>
+      expect(patch).toHaveBeenCalledWith('/payslips/1/issue'),
+    );
   });
 
   test('no "Emitir" button when the row is already ISSUED', () => {
     useApiQuery.mockReturnValue({
       data: { ...page, data: [{ ...row, status: 'ISSUED' }] },
-      isLoading: false, error: null,
+      isLoading: false,
+      error: null,
     });
     render(<PayslipListView onSelect={vi.fn()} onCreate={vi.fn()} />);
-    expect(screen.queryByRole('button', { name: 'Emitir' })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Emitir' }),
+    ).not.toBeInTheDocument();
   });
 
   test('each row has a PDF download link to the admin PDF route', () => {
     useApiQuery.mockReturnValue({ data: page, isLoading: false, error: null });
     render(<PayslipListView onSelect={vi.fn()} onCreate={vi.fn()} />);
-    expect(screen.getByRole('link', { name: /Descarregar PDF/i })).toHaveAttribute(
-      'href',
-      '/api/payslips/1/pdf',
-    );
+    expect(
+      screen.getByRole('link', { name: /Descarregar PDF/i }),
+    ).toHaveAttribute('href', '/api/payslips/1/pdf');
   });
 });

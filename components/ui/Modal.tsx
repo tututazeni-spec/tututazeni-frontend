@@ -62,7 +62,9 @@ export function ModalContent({
           className,
         )}
       >
-        <Dialog.Title className="font-display text-lg font-bold text-ink">{title}</Dialog.Title>
+        <Dialog.Title className="font-display text-lg font-bold text-ink">
+          {title}
+        </Dialog.Title>
         {description && (
           <Dialog.Description className="mt-2 font-body text-sm text-ink-muted">
             {description}

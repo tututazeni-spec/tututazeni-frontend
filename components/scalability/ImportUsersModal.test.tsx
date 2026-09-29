@@ -28,7 +28,10 @@ vi.mock('@/hooks/useApiQuery', () => ({
   useApiMutation: (fn: (v: unknown) => Promise<unknown>) => ({
     mutate: (
       v: unknown,
-      opts?: { onSuccess?: (d: unknown) => void; onError?: (e: unknown) => void },
+      opts?: {
+        onSuccess?: (d: unknown) => void;
+        onError?: (e: unknown) => void;
+      },
     ) =>
       Promise.resolve(fn(v)).then(
         (d) => opts?.onSuccess?.(d),
@@ -69,7 +72,14 @@ beforeEach(() => {
 
 describe('ImportUsersModal', () => {
   test('ficheiro válido — pré-visualização e POST real com tenantId', async () => {
-    post.mockResolvedValue({ total: 2, created: 2, updated: 0, skipped: 0, failed: 0, errors: [] });
+    post.mockResolvedValue({
+      total: 2,
+      created: 2,
+      updated: 0,
+      skipped: 0,
+      failed: 0,
+      errors: [],
+    });
     const onClose = vi.fn();
     render(<ImportUsersModal tenantId="tenant-1" onClose={onClose} />);
 
@@ -86,13 +96,22 @@ describe('ImportUsersModal', () => {
     expect(typeof body.payload).toBe('string');
 
     await waitFor(() =>
-      expect(notify).toHaveBeenCalledWith(expect.objectContaining({ intent: 'success' })),
+      expect(notify).toHaveBeenCalledWith(
+        expect.objectContaining({ intent: 'success' }),
+      ),
     );
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
   test('falhas parciais — mostra aviso em vez de sucesso', async () => {
-    post.mockResolvedValue({ total: 2, created: 1, updated: 0, skipped: 0, failed: 1, errors: [{ row: 2, reason: 'Email inválido' }] });
+    post.mockResolvedValue({
+      total: 2,
+      created: 1,
+      updated: 0,
+      skipped: 0,
+      failed: 1,
+      errors: [{ row: 2, reason: 'Email inválido' }],
+    });
     render(<ImportUsersModal tenantId="tenant-1" onClose={vi.fn()} />);
 
     upload('email\na@x.com\nb@x.com');
@@ -100,7 +119,9 @@ describe('ImportUsersModal', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Importar' }));
 
     await waitFor(() =>
-      expect(notify).toHaveBeenCalledWith(expect.objectContaining({ intent: 'info' })),
+      expect(notify).toHaveBeenCalledWith(
+        expect.objectContaining({ intent: 'info' }),
+      ),
     );
   });
 
@@ -114,7 +135,9 @@ describe('ImportUsersModal', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Importar' }));
 
     await waitFor(() =>
-      expect(notify).toHaveBeenCalledWith(expect.objectContaining({ intent: 'danger' })),
+      expect(notify).toHaveBeenCalledWith(
+        expect.objectContaining({ intent: 'danger' }),
+      ),
     );
     expect(onClose).not.toHaveBeenCalled();
   });

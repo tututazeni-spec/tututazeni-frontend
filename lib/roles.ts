@@ -55,9 +55,8 @@ export const EXECUTIVE_ROLES: readonly Role[] = ['ADMIN', 'RH', 'GESTOR'];
  * esconder de COLABORADOR) — não presumir que esta lista espelha um guard
  * exacto do backend antes de a reutilizar.
  */
-export const NON_COLABORADOR_ROLES: readonly Role[] = AUTHENTICATED_ROLES.filter(
-  (r) => r !== 'COLABORADOR',
-);
+export const NON_COLABORADOR_ROLES: readonly Role[] =
+  AUTHENTICATED_ROLES.filter((r) => r !== 'COLABORADOR');
 
 /**
  * Espelha EVAL_CREATOR_ROLES em src/assessments/assessments.controller.ts:
@@ -99,7 +98,12 @@ export const EVAL_CYCLE_DELETE_ROLES: readonly Role[] = ['ADMIN', 'DIRECTOR'];
  * resultados individuais). Distinto do separador pessoal "Visão Geral",
  * visível a todos.
  */
-export const EVAL_OVERVIEW_ROLES: readonly Role[] = ['ADMIN', 'RH', 'GESTOR', 'DIRECTOR'];
+export const EVAL_OVERVIEW_ROLES: readonly Role[] = [
+  'ADMIN',
+  'RH',
+  'GESTOR',
+  'DIRECTOR',
+];
 
 /**
  * Espelha o @Roles de GET /evaluation360/cycles/:cycleId/results em

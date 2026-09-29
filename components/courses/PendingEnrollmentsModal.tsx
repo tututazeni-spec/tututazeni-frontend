@@ -42,7 +42,8 @@ export function PendingEnrollmentsModal({
   );
 
   const approve = useApiMutation(
-    (enrollmentId: number) => apiClient.patch(`/courses/enrollments/${enrollmentId}/approve`),
+    (enrollmentId: number) =>
+      apiClient.patch(`/courses/enrollments/${enrollmentId}/approve`),
     {
       onSuccess: () => {
         pending.refetch();
@@ -52,7 +53,8 @@ export function PendingEnrollmentsModal({
     },
   );
   const reject = useApiMutation(
-    (enrollmentId: number) => apiClient.patch(`/courses/enrollments/${enrollmentId}/reject`),
+    (enrollmentId: number) =>
+      apiClient.patch(`/courses/enrollments/${enrollmentId}/reject`),
     {
       onSuccess: () => {
         pending.refetch();
@@ -85,7 +87,11 @@ export function PendingEnrollmentsModal({
                   key={e.id}
                   className="flex items-center gap-3 rounded-card border border-border p-3"
                 >
-                  <Avatar name={e.user.fullName} url={e.user.avatarUrl ?? undefined} size="sm" />
+                  <Avatar
+                    name={e.user.fullName}
+                    url={e.user.avatarUrl ?? undefined}
+                    size="sm"
+                  />
                   <span className="flex-1 min-w-0 truncate text-sm text-ink">
                     {e.user.fullName}
                   </span>

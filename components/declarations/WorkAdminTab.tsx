@@ -9,7 +9,15 @@
 // tokens em vez do Badge (que sempre desenha o ponto de estado). Extraído
 // de app/(platform)/declarations/page.tsx.
 
-import { Bell, BarChart3, Check, CheckCircle2, Clock, Shield, X } from 'lucide-react';
+import {
+  Bell,
+  BarChart3,
+  Check,
+  CheckCircle2,
+  Clock,
+  Shield,
+  X,
+} from 'lucide-react';
 import { Button, IconButton } from '@/components/ui/Button';
 import {
   Table,
@@ -31,7 +39,14 @@ export interface WorkAdminTabProps {
   onTriggerReminders: () => void;
 }
 
-const HEADERS = ['Colaborador', 'Formulário', 'Tipo', 'Estado', 'Submissão', 'Acções'];
+const HEADERS = [
+  'Colaborador',
+  'Formulário',
+  'Tipo',
+  'Estado',
+  'Submissão',
+  'Acções',
+];
 
 export function WorkAdminTab({
   workDash,
@@ -43,7 +58,12 @@ export function WorkAdminTab({
     <div className="space-y-5">
       {workDash && (
         <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-          <KpiCard label="Pendentes" value={workDash.kpis.pending} icon={Clock} intent="warning" />
+          <KpiCard
+            label="Pendentes"
+            value={workDash.kpis.pending}
+            icon={Clock}
+            intent="warning"
+          />
           <KpiCard
             label="Aprovadas"
             value={workDash.kpis.approved}
@@ -56,7 +76,12 @@ export function WorkAdminTab({
             icon={Shield}
             intent="info"
           />
-          <KpiCard label="Total" value={workDash.kpis.total} icon={BarChart3} intent="accent" />
+          <KpiCard
+            label="Total"
+            value={workDash.kpis.total}
+            icon={BarChart3}
+            intent="accent"
+          />
         </div>
       )}
       <div>
@@ -82,7 +107,9 @@ export function WorkAdminTab({
                 <TableCell className="font-body text-sm font-medium text-ink">
                   {s.user?.name}
                 </TableCell>
-                <TableCell className="font-body text-sm text-ink-muted">{s.form?.title}</TableCell>
+                <TableCell className="font-body text-sm text-ink-muted">
+                  {s.form?.title}
+                </TableCell>
                 <TableCell>
                   <span className="rounded-pill bg-surface-sunken px-2 py-0.5 font-body text-xs text-ink-muted">
                     {s.form?.type ? WORK_TYPE_LABELS[s.form.type] : '—'}
@@ -92,7 +119,9 @@ export function WorkAdminTab({
                   <StatusBadge status={s.status} type="work" />
                 </TableCell>
                 <TableCell className="font-body text-xs text-ink-faint">
-                  {s.submittedAt ? new Date(s.submittedAt).toLocaleDateString('pt-PT') : '—'}
+                  {s.submittedAt
+                    ? new Date(s.submittedAt).toLocaleDateString('pt-PT')
+                    : '—'}
                 </TableCell>
                 <TableCell>
                   {s.status === 'SUBMITTED' && (
@@ -116,7 +145,10 @@ export function WorkAdminTab({
             ))}
             {workSubs?.data.length === 0 && (
               <TableRow>
-                <TableCell colSpan={6} className="py-12 text-center font-body text-sm text-ink-faint">
+                <TableCell
+                  colSpan={6}
+                  className="py-12 text-center font-body text-sm text-ink-faint"
+                >
                   Sem submissões
                 </TableCell>
               </TableRow>

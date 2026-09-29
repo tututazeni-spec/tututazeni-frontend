@@ -91,40 +91,60 @@ export default function ScalabilityPage() {
     { staleTime: STALE_TIME.SEMI_STATIC },
   );
 
-  const { data: contentDelivery = null } = useApiQuery<ContentDeliveryConfig | null>(
-    queryKeys.scalability.contentDelivery(),
-    '/scalability/content-delivery',
-    { staleTime: STALE_TIME.SEMI_STATIC },
-  );
+  const { data: contentDelivery = null } =
+    useApiQuery<ContentDeliveryConfig | null>(
+      queryKeys.scalability.contentDelivery(),
+      '/scalability/content-delivery',
+      { staleTime: STALE_TIME.SEMI_STATIC },
+    );
 
   const refresh = () => {
     void refetchDashboard();
   };
 
   const syncIntegration = useApiMutation<unknown, number>(
-    (integrationId) => apiClient.post('/scalability/integrations/sync', { integrationId }),
-    { invalidateKeys: [queryKeys.scalability.integrations(), queryKeys.scalability.dashboard()] },
+    (integrationId) =>
+      apiClient.post('/scalability/integrations/sync', { integrationId }),
+    {
+      invalidateKeys: [
+        queryKeys.scalability.integrations(),
+        queryKeys.scalability.dashboard(),
+      ],
+    },
   );
   const onSyncIntegration = (id: number) => {
     syncIntegration.mutate(id, {
-      onSuccess: () => notify({ title: 'Sincronização iniciada', intent: 'success' }),
+      onSuccess: () =>
+        notify({ title: 'Sincronização iniciada', intent: 'success' }),
       onError: (err) => {
         reportError(err, { source: 'ScalabilityPage.onSyncIntegration' });
-        notify({ title: 'Não foi possível iniciar a sincronização', intent: 'danger' });
+        notify({
+          title: 'Não foi possível iniciar a sincronização',
+          intent: 'danger',
+        });
       },
     });
   };
 
   const executeRule = useApiMutation<unknown, number>(
     (ruleId) => apiClient.post('/scalability/automations/execute', { ruleId }),
-    { invalidateKeys: [queryKeys.scalability.automations(), queryKeys.scalability.dashboard()] },
+    {
+      invalidateKeys: [
+        queryKeys.scalability.automations(),
+        queryKeys.scalability.dashboard(),
+      ],
+    },
   );
   const onExecuteRule = (id: number) => {
     executeRule.mutate(id, {
-      onSuccess: () => notify({ title: 'Execução iniciada', intent: 'success' }),
+      onSuccess: () =>
+        notify({ title: 'Execução iniciada', intent: 'success' }),
       onError: (err) => {
         reportError(err, { source: 'ScalabilityPage.onExecuteRule' });
-        notify({ title: 'Não foi possível executar a regra', intent: 'danger' });
+        notify({
+          title: 'Não foi possível executar a regra',
+          intent: 'danger',
+        });
       },
     });
   };
@@ -134,14 +154,22 @@ export default function ScalabilityPage() {
       apiClient.patch(`/scalability/alerts/${id}/resolve`, {
         resolvedBy: currentUser ? String(currentUser.id) : 'unknown',
       }),
-    { invalidateKeys: [queryKeys.scalability.alerts(), queryKeys.scalability.dashboard()] },
+    {
+      invalidateKeys: [
+        queryKeys.scalability.alerts(),
+        queryKeys.scalability.dashboard(),
+      ],
+    },
   );
   const onResolveAlert = (id: string) => {
     resolveAlert.mutate(id, {
       onSuccess: () => notify({ title: 'Alerta resolvido', intent: 'success' }),
       onError: (err) => {
         reportError(err, { source: 'ScalabilityPage.onResolveAlert' });
-        notify({ title: 'Não foi possível resolver o alerta', intent: 'danger' });
+        notify({
+          title: 'Não foi possível resolver o alerta',
+          intent: 'danger',
+        });
       },
     });
   };

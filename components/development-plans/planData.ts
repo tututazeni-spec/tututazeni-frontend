@@ -72,4 +72,3 @@ export function useCourseOptions(enabled = true) {
   }));
   return { options, loading: query.isLoading };
 }
-

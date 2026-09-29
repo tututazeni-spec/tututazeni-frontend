@@ -25,7 +25,8 @@ export type LiveClassEnrollmentMode = 'AUTO' | 'MANUAL' | 'SELF' | 'APPROVAL';
 
 export type SessionModality = 'PRESENTIAL' | 'ONLINE' | 'HYBRID';
 
-export type LiveAttendanceStatus = 'PRESENTE' | 'AUSENTE' | 'ATRASADO' | 'PARCIAL' | 'JUSTIFICADO';
+export type LiveAttendanceStatus =
+  'PRESENTE' | 'AUSENTE' | 'ATRASADO' | 'PARCIAL' | 'JUSTIFICADO';
 
 export interface InstructorRef {
   id: number;
@@ -113,7 +114,12 @@ export interface LiveClassSession {
   notes?: string | null;
   recordingUrl?: string | null;
   recordingPublishedAt?: string | null;
-  liveClass?: { id: number; topic: string; modality: SessionModality; course?: { id: number; title: string } };
+  liveClass?: {
+    id: number;
+    topic: string;
+    modality: SessionModality;
+    course?: { id: number; title: string };
+  };
   _count?: { attendances: number };
 }
 
@@ -146,7 +152,11 @@ export interface LiveClassesDashboard {
     hoursDelivered: number;
   };
   byModality: { modality: SessionModality; count: number }[];
-  byInstructor: { instructorId: number | null; instructorName: string; count: number }[];
+  byInstructor: {
+    instructorId: number | null;
+    instructorName: string;
+    count: number;
+  }[];
 }
 
 export interface LiveClassCalendarEvent {
@@ -237,7 +247,13 @@ export interface VirtualRoom {
   platform: string;
   meetingId: string | null;
   link: string | null;
-  sessions: { id: number; seq: number; meetingUrl: string | null; sessionDate: string; status: LiveClassStatus }[];
+  sessions: {
+    id: number;
+    seq: number;
+    meetingUrl: string | null;
+    sessionDate: string;
+    status: LiveClassStatus;
+  }[];
 }
 
 // ─── Materiais (secção 11) ───────────────────────────────────────────────────
@@ -319,10 +335,18 @@ export interface LiveClassesReport {
     attendanceRate: number;
   };
   avgEvaluation: number | null;
-  byInstructor: { instructor: string; completed: number; avgRating: number | null }[];
+  byInstructor: {
+    instructor: string;
+    completed: number;
+    avgRating: number | null;
+  }[];
   byDepartment: { department: string; count: number }[];
   byUnit: { unit: string; count: number }[];
-  hoursByCollaborator: { userId: number; collaborator: string; hours: number }[];
+  hoursByCollaborator: {
+    userId: number;
+    collaborator: string;
+    hours: number;
+  }[];
 }
 
 // ─── Configurações (secção 14) ──────────────────────────────────────────────
@@ -334,8 +358,14 @@ export interface LiveClassesSettings {
   recurrences: LiveClassRecurrence[];
   enrollmentModes: LiveClassEnrollmentMode[];
   attendanceStatuses: LiveAttendanceStatus[];
-  attendanceDefaults: { minAttendancePercent: number; lateToleranceMinutes: number };
-  recordingDefaults: { recordSession: boolean; allowRecordingDownload: boolean };
+  attendanceDefaults: {
+    minAttendancePercent: number;
+    lateToleranceMinutes: number;
+  };
+  recordingDefaults: {
+    recordSession: boolean;
+    allowRecordingDownload: boolean;
+  };
   notifySettingsKeys: string[];
   notificationChannels: string[];
   permissions: { action: string; roles: string[] }[];

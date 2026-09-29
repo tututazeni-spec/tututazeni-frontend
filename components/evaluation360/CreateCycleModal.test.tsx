@@ -104,7 +104,10 @@ describe('CreateCycleModal (evaluation360)', () => {
       '/evaluation360/cycles/1/participants/by-department',
       { departmentIds: ['5'] },
     );
-    expect(post).toHaveBeenNthCalledWith(3, '/evaluation360/cycles/1/distribute');
+    expect(post).toHaveBeenNthCalledWith(
+      3,
+      '/evaluation360/cycles/1/distribute',
+    );
   });
 
   test('não submete sem departamento seleccionado', () => {
@@ -166,9 +169,13 @@ describe('CreateCycleModal (evaluation360)', () => {
   test('não submete com "competências específicas" ligado mas nenhuma escolhida', () => {
     render(<CreateCycleModal onClose={vi.fn()} onSuccess={vi.fn()} />);
     fillValid();
-    fireEvent.click(screen.getByLabelText('Escolher competências específicas do catálogo'));
+    fireEvent.click(
+      screen.getByLabelText('Escolher competências específicas do catálogo'),
+    );
     fireEvent.click(screen.getByRole('button', { name: 'Criar e Distribuir' }));
     expect(post).not.toHaveBeenCalled();
-    expect(screen.getByText(/Escolhe pelo menos uma competência/)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Escolhe pelo menos uma competência/),
+    ).toBeInTheDocument();
   });
 });

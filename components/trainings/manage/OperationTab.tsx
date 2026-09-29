@@ -41,14 +41,19 @@ export function OperationTab({ training }: OperationTabProps) {
   const { data: resourcesResp } = useApiQuery<{ data: TrainingResourceItem[] }>(
     ['training-resources', 'picker'],
     '/training-resources',
-    { params: { limit: 200, status: 'AVAILABLE' }, staleTime: STALE_TIME.SEMI_STATIC },
+    {
+      params: { limit: 200, status: 'AVAILABLE' },
+      staleTime: STALE_TIME.SEMI_STATIC,
+    },
   );
   const resourceItems = (resourcesResp?.data ?? []).map((r) => ({
     value: String(r.id),
     label: `${r.name} (${RESOURCE_KIND_LABEL[r.kind]})`,
   }));
 
-  const { data: bookings = [], refetch: refetchBookings } = useApiQuery<ResourceBooking[]>(
+  const { data: bookings = [], refetch: refetchBookings } = useApiQuery<
+    ResourceBooking[]
+  >(
     ['training-resources', 'bookings', training.id],
     `/training-resources/bookings/training/${training.id}`,
     { staleTime: STALE_TIME.DYNAMIC },
@@ -60,7 +65,8 @@ export function OperationTab({ training }: OperationTabProps) {
         resourceId: Number(resourceId),
         trainingId: training.id,
         startAt: training.startDate ?? new Date().toISOString(),
-        endAt: training.endDate ?? training.startDate ?? new Date().toISOString(),
+        endAt:
+          training.endDate ?? training.startDate ?? new Date().toISOString(),
       }),
     {
       onSuccess: () => {
@@ -72,7 +78,8 @@ export function OperationTab({ training }: OperationTabProps) {
     },
   );
   const releaseResource = useApiMutation(
-    (bookingId: number) => apiClient.post(`/training-resources/bookings/${bookingId}/release`, {}),
+    (bookingId: number) =>
+      apiClient.post(`/training-resources/bookings/${bookingId}/release`, {}),
     {
       onSuccess: () => {
         toast({ title: 'Recurso libertado.', intent: 'success' });
@@ -105,17 +112,24 @@ export function OperationTab({ training }: OperationTabProps) {
     (id: number) => apiClient.delete(`/trainings/documents/${id}`),
     {
       invalidateKeys,
-      onSuccess: () => toast({ title: 'Documento eliminado.', intent: 'success' }),
+      onSuccess: () =>
+        toast({ title: 'Documento eliminado.', intent: 'success' }),
       onError: (e) => toast({ title: e.message, intent: 'danger' }),
     },
   );
 
   const notify = useApiMutation(
-    () => apiClient.post(`/trainings/${training.id}/notify`, { message: message.trim() }),
+    () =>
+      apiClient.post(`/trainings/${training.id}/notify`, {
+        message: message.trim(),
+      }),
     {
       onSuccess: (res: unknown) => {
         const sent = (res as { sent?: number })?.sent ?? 0;
-        toast({ title: `Comunicação enviada a ${sent} participante(s).`, intent: 'success' });
+        toast({
+          title: `Comunicação enviada a ${sent} participante(s).`,
+          intent: 'success',
+        });
         setMessage('');
       },
       onError: (e) => toast({ title: e.message, intent: 'danger' }),
@@ -135,7 +149,9 @@ export function OperationTab({ training }: OperationTabProps) {
     <div className="space-y-6">
       {/* Recursos necessários */}
       <Card className="p-4">
-        <div className="mb-2 font-body text-sm font-semibold text-ink">Recursos necessários</div>
+        <div className="mb-2 font-body text-sm font-semibold text-ink">
+          Recursos necessários
+        </div>
         {training.requiredResources.length === 0 ? (
           <p className="text-xs text-ink-faint">
             Nenhum recurso indicado — edita a formação para adicionar.
@@ -160,7 +176,9 @@ export function OperationTab({ training }: OperationTabProps) {
           Salas e recursos reservados
         </div>
         {bookings.length === 0 ? (
-          <p className="mb-3 text-xs text-ink-faint">Nenhuma sala/recurso reservado para esta turma.</p>
+          <p className="mb-3 text-xs text-ink-faint">
+            Nenhuma sala/recurso reservado para esta turma.
+          </p>
         ) : (
           <div className="mb-4 space-y-2">
             {bookings.map((b) => (
@@ -169,7 +187,8 @@ export function OperationTab({ training }: OperationTabProps) {
                 className="flex items-center justify-between gap-3 rounded-control bg-surface-sunken px-3 py-2"
               >
                 <span className="text-sm text-ink-muted">
-                  {b.resource?.name} ({b.resource ? RESOURCE_KIND_LABEL[b.resource.kind] : ''})
+                  {b.resource?.name} (
+                  {b.resource ? RESOURCE_KIND_LABEL[b.resource.kind] : ''})
                   <span className="ml-2 text-xs text-ink-faint">
                     {fmtDate(b.startAt)} – {fmtDate(b.endAt)}
                   </span>
@@ -178,7 +197,10 @@ export function OperationTab({ training }: OperationTabProps) {
                   intent="ghost"
                   size="sm"
                   onClick={() => releaseResource.mutate(b.id)}
-                  loading={releaseResource.isPending && releaseResource.variables === b.id}
+                  loading={
+                    releaseResource.isPending &&
+                    releaseResource.variables === b.id
+                  }
                 >
                   <Unlock size={14} strokeWidth={1.75} />
                 </Button>
@@ -215,7 +237,10 @@ export function OperationTab({ training }: OperationTabProps) {
           Documentos administrativos
         </div>
         {(training.documents ?? []).length === 0 ? (
-          <EmptyState title="Sem documentos" description="Adiciona o primeiro documento abaixo." />
+          <EmptyState
+            title="Sem documentos"
+            description="Adiciona o primeiro documento abaixo."
+          />
         ) : (
           <div className="mb-4 space-y-2">
             {(training.documents ?? []).map((d) => (
@@ -229,14 +254,21 @@ export function OperationTab({ training }: OperationTabProps) {
                   rel="noreferrer"
                   className="flex min-w-0 items-center gap-2 text-sm text-primary hover:underline"
                 >
-                  <FileText size={14} strokeWidth={1.75} className="flex-shrink-0" />
+                  <FileText
+                    size={14}
+                    strokeWidth={1.75}
+                    className="flex-shrink-0"
+                  />
                   <span className="truncate">{d.name}</span>
                 </a>
                 <Button
                   intent="ghost"
                   size="sm"
                   onClick={() => onRemoveDocument(d.id, d.name)}
-                  loading={removeDocument.isPending && removeDocument.variables === d.id}
+                  loading={
+                    removeDocument.isPending &&
+                    removeDocument.variables === d.id
+                  }
                 >
                   <Trash2 size={14} strokeWidth={1.75} />
                 </Button>

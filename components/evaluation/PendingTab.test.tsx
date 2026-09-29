@@ -13,9 +13,12 @@ vi.mock('@/lib/apiClient', () => ({
 vi.mock('@/hooks/useApiQuery', () => ({
   useApiQuery: (_key: unknown, path: string, opts?: { enabled?: boolean }) => {
     if (opts?.enabled === false) return { data: undefined, isLoading: false };
-    if (path === '/evaluations/requests') return { data: requestsData, isLoading: false };
-    if (path === '/evaluations/pending') return { data: pendingData, isLoading: false };
-    if (path === '/evaluations/my-evaluations') return { data: myEvaluationsData, isLoading: false };
+    if (path === '/evaluations/requests')
+      return { data: requestsData, isLoading: false };
+    if (path === '/evaluations/pending')
+      return { data: pendingData, isLoading: false };
+    if (path === '/evaluations/my-evaluations')
+      return { data: myEvaluationsData, isLoading: false };
     return { data: undefined, isLoading: false };
   },
   useApiMutation: (
@@ -33,8 +36,12 @@ vi.mock('@/hooks/useApiQuery', () => ({
 
 let currentRole: string | undefined = 'COLABORADOR';
 let currentUser: { id: number } | undefined = { id: 1 };
-vi.mock('@/hooks/useCurrentRole', () => ({ useCurrentRole: () => currentRole }));
-vi.mock('@/hooks/useCurrentUser', () => ({ useCurrentUser: () => ({ data: currentUser }) }));
+vi.mock('@/hooks/useCurrentRole', () => ({
+  useCurrentRole: () => currentRole,
+}));
+vi.mock('@/hooks/useCurrentUser', () => ({
+  useCurrentUser: () => ({ data: currentUser }),
+}));
 
 const notify = vi.fn();
 vi.mock('@/providers/ToastProvider', () => ({ useToast: () => notify }));
@@ -60,13 +67,17 @@ beforeEach(() => {
 describe('PendingTab', () => {
   test('COLABORADOR não vê a fila do gestor', () => {
     render(<PendingTab />);
-    expect(screen.queryByText('Avaliações Pendentes — Para Avaliar')).not.toBeInTheDocument();
+    expect(
+      screen.queryByText('Avaliações Pendentes — Para Avaliar'),
+    ).not.toBeInTheDocument();
     expect(screen.getByText('Sem avaliações pendentes')).toBeInTheDocument();
   });
 
   test('COLABORADOR sem histórico vê estado vazio de concluídas', () => {
     render(<PendingTab />);
-    expect(screen.getByText('Ainda sem avaliações concluídas')).toBeInTheDocument();
+    expect(
+      screen.getByText('Ainda sem avaliações concluídas'),
+    ).toBeInTheDocument();
   });
 
   test('GESTOR vê a fila própria e pode enviar lembrete', async () => {
@@ -96,7 +107,9 @@ describe('PendingTab', () => {
     render(<PendingTab />);
     expect(screen.getByText('Ana Costa')).toBeInTheDocument();
     fireEvent.click(screen.getByText('Lembrar'));
-    await waitFor(() => expect(post).toHaveBeenCalledWith('/evaluations/requests/10/remind', {}));
+    await waitFor(() =>
+      expect(post).toHaveBeenCalledWith('/evaluations/requests/10/remind', {}),
+    );
   });
 
   test('secção "Feedback recebido" mostra os pontos fortes/a melhorar', () => {

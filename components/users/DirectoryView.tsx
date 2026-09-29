@@ -57,7 +57,11 @@ export function DirectoryView({ onSelect }: DirectoryViewProps) {
               className="p-4 flex items-center gap-3 cursor-pointer hover:shadow-hover transition-shadow"
               onClick={() => onSelect(user.id)}
             >
-              <Avatar name={user.fullName} url={user.avatarUrl ?? undefined} size="md" />
+              <Avatar
+                name={user.fullName}
+                url={user.avatarUrl ?? undefined}
+                size="md"
+              />
               <div className="flex-1 min-w-0">
                 <div className="text-sm font-medium text-ink truncate">
                   {user.fullName}

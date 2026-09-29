@@ -27,7 +27,10 @@ export interface DocumentsTabProps {
   canManageTasks?: boolean;
 }
 
-export function DocumentsTab({ canManagePlan = false, canManageTasks = false }: DocumentsTabProps) {
+export function DocumentsTab({
+  canManagePlan = false,
+  canManageTasks = false,
+}: DocumentsTabProps) {
   const [detailId, setDetailId] = useState<number | null>(null);
   const { data, isLoading } = useApiQuery<OnboardingDocumentsResponse>(
     queryKeys.onboarding.documents({}),
@@ -44,7 +47,10 @@ export function DocumentsTab({ canManagePlan = false, canManageTasks = false }: 
           Submetidos ({data.submitted.length})
         </h3>
         {data.submitted.length === 0 ? (
-          <EmptyState title="Sem documentos submetidos" description="Ainda não há documentos submetidos." />
+          <EmptyState
+            title="Sem documentos submetidos"
+            description="Ainda não há documentos submetidos."
+          />
         ) : (
           <div className="overflow-hidden rounded-card border border-border bg-surface">
             {data.submitted.map((doc) => (
@@ -54,9 +60,15 @@ export function DocumentsTab({ canManagePlan = false, canManageTasks = false }: 
                 onClick={() => setDetailId(doc.planId)}
                 className="flex w-full items-center gap-4 border-b border-border px-4 py-3 text-left last:border-0 hover:bg-surface-sunken"
               >
-                <Avatar name={doc.plan.user.fullName} url={doc.plan.user.avatarUrl ?? undefined} size="sm" />
+                <Avatar
+                  name={doc.plan.user.fullName}
+                  url={doc.plan.user.avatarUrl ?? undefined}
+                  size="sm"
+                />
                 <div className="min-w-0 flex-1">
-                  <div className="truncate font-body text-sm font-medium text-ink">{doc.documentType}</div>
+                  <div className="truncate font-body text-sm font-medium text-ink">
+                    {doc.documentType}
+                  </div>
                   <div className="truncate font-body text-xs text-ink-faint">
                     {doc.plan.user.fullName} · Enviado {fmtDate(doc.createdAt)}
                   </div>
@@ -75,7 +87,10 @@ export function DocumentsTab({ canManagePlan = false, canManageTasks = false }: 
           Por submeter ({data.pendingSubmission.length})
         </h3>
         {data.pendingSubmission.length === 0 ? (
-          <EmptyState title="Nada por submeter" description="Todos os documentos obrigatórios já foram submetidos." />
+          <EmptyState
+            title="Nada por submeter"
+            description="Todos os documentos obrigatórios já foram submetidos."
+          />
         ) : (
           <div className="overflow-hidden rounded-card border border-border bg-surface">
             {data.pendingSubmission.map((row) => (
@@ -85,13 +100,23 @@ export function DocumentsTab({ canManagePlan = false, canManageTasks = false }: 
                 onClick={() => setDetailId(row.planId)}
                 className="flex w-full items-center gap-4 border-b border-border px-4 py-3 text-left last:border-0 hover:bg-surface-sunken"
               >
-                <Avatar name={row.plan.user.fullName} url={row.plan.user.avatarUrl ?? undefined} size="sm" />
+                <Avatar
+                  name={row.plan.user.fullName}
+                  url={row.plan.user.avatarUrl ?? undefined}
+                  size="sm"
+                />
                 <div className="min-w-0 flex-1">
-                  <div className="truncate font-body text-sm font-medium text-ink">{row.documentType}</div>
-                  <div className="truncate font-body text-xs text-ink-faint">{row.plan.user.fullName}</div>
+                  <div className="truncate font-body text-sm font-medium text-ink">
+                    {row.documentType}
+                  </div>
+                  <div className="truncate font-body text-xs text-ink-faint">
+                    {row.plan.user.fullName}
+                  </div>
                 </div>
                 {row.dueDate && (
-                  <div className="shrink-0 font-body text-xs text-ink-faint">Prazo {fmtDate(row.dueDate)}</div>
+                  <div className="shrink-0 font-body text-xs text-ink-faint">
+                    Prazo {fmtDate(row.dueDate)}
+                  </div>
                 )}
                 <Badge dot={false} intent="warning">
                   Por submeter

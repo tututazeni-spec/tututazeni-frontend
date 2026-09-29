@@ -9,7 +9,8 @@
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { KpiCard } from '@/components/ui/KpiCard';
+import type { LucideIcon } from 'lucide-react';
+import { Award, CheckCircle2, Clock } from 'lucide-react';
 import { Skeleton } from '@/components/ui/Skeleton';
 import {
   Table,
@@ -20,6 +21,43 @@ import {
   TableRow,
 } from '@/components/ui/Table';
 import type { TrainingROI } from './types';
+
+type Tone = 'blue' | 'green' | 'gold' | 'red';
+
+const TONES: Record<Tone, { bar: string; text: string }> = {
+  blue: { bar: 'bg-[#2B6CC4]', text: 'text-[#2B6CC4]' },
+  green: { bar: 'bg-[#2E8B3E]', text: 'text-[#2E8B3E]' },
+  gold: { bar: 'bg-[#C9A227]', text: 'text-[#B8912A]' },
+  red: { bar: 'bg-[#C0453F]', text: 'text-[#C0453F]' },
+};
+
+function TopBarKpiCard({
+  icon: Icon,
+  label,
+  value,
+  tone,
+}: {
+  icon: LucideIcon;
+  label: string;
+  value: string | number;
+  tone: Tone;
+}) {
+  const t = TONES[tone];
+  return (
+    <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting">
+      <div className={`h-1.5 w-full ${t.bar}`} />
+      <div className="p-5 pt-6">
+        <Icon size={22} strokeWidth={1.75} className={t.text} />
+        <p className={`mt-3 font-display text-3xl font-bold ${t.text}`}>
+          {value}
+        </p>
+        <p className="mt-1 font-body text-sm font-medium text-ink-muted">
+          {label}
+        </p>
+      </div>
+    </div>
+  );
+}
 
 export function ROIView() {
   const { data, isLoading } = useApiQuery<TrainingROI>(
@@ -32,24 +70,24 @@ export function ROIView() {
 
   return (
     <div className="space-y-5">
-      <div className="grid grid-cols-3 gap-3">
-        <KpiCard
+      <div className="grid grid-cols-3 gap-4">
+        <TopBarKpiCard
+          icon={Clock}
           label="Horas de formação investidas"
           value={data.totalHoursInvested}
-          intent="info"
-          className="w-full [&_p]:text-black"
+          tone="blue"
         />
-        <KpiCard
+        <TopBarKpiCard
+          icon={CheckCircle2}
           label="Conclusões totais"
           value={data.totalCompletions}
-          intent="success"
-          className="w-full [&_p]:text-black"
+          tone="green"
         />
-        <KpiCard
+        <TopBarKpiCard
+          icon={Award}
           label="Certificados emitidos"
           value={data.totalCertificates}
-          intent="accent"
-          className="w-full [&_p]:text-black"
+          tone="gold"
         />
       </div>
 
@@ -74,12 +112,17 @@ export function ROIView() {
                 </TableCell>
                 <TableCell>{imp.metric}</TableCell>
                 <TableCell>{imp.impactRate}%</TableCell>
-                <TableCell>{new Date(imp.calculatedAt).toLocaleDateString('pt-PT')}</TableCell>
+                <TableCell>
+                  {new Date(imp.calculatedAt).toLocaleDateString('pt-PT')}
+                </TableCell>
               </TableRow>
             ))}
             {data.impacts.length === 0 && (
               <TableRow>
-                <TableCell colSpan={4} className="text-center text-ink-faint py-6">
+                <TableCell
+                  colSpan={4}
+                  className="text-center text-ink-faint py-6"
+                >
                   Sem dados de impacto de formação
                 </TableCell>
               </TableRow>

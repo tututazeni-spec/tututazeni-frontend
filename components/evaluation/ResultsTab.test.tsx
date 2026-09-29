@@ -50,7 +50,10 @@ beforeEach(() => {
 
 describe('ResultsTab', () => {
   test('hasResults:false — mostra estado vazio, sem rebentar', () => {
-    mutationData = { evaluated: { id: 7, fullName: 'Maria Silva' }, hasResults: false };
+    mutationData = {
+      evaluated: { id: 7, fullName: 'Maria Silva' },
+      hasResults: false,
+    };
     render(<ResultsTab />);
     expect(screen.getByText('Sem avaliações registadas')).toBeInTheDocument();
     expect(screen.getByText(/Maria Silva/)).toBeInTheDocument();

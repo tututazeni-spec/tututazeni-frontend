@@ -16,14 +16,20 @@ import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { Modal, ModalContent } from '@/components/ui/Modal';
 import { useToast } from '@/providers/ToastProvider';
-import { useDirectoryUsers, type DirectoryUser } from '@/components/enrollments/enrollData';
+import {
+  useDirectoryUsers,
+  type DirectoryUser,
+} from '@/components/enrollments/enrollData';
 
 export interface CreateCohortModalProps {
   courseId: number;
   onClose: () => void;
 }
 
-export function CreateCohortModal({ courseId, onClose }: CreateCohortModalProps) {
+export function CreateCohortModal({
+  courseId,
+  onClose,
+}: CreateCohortModalProps) {
   const toast = useToast();
   const [name, setName] = useState('');
   const [instructorSearch, setInstructorSearch] = useState('');
@@ -43,7 +49,8 @@ export function CreateCohortModal({ courseId, onClose }: CreateCohortModalProps)
   );
 
   const create = useApiMutation(
-    (vars: Record<string, unknown>) => apiClient.post(`/courses/${courseId}/cohorts`, vars),
+    (vars: Record<string, unknown>) =>
+      apiClient.post(`/courses/${courseId}/cohorts`, vars),
     {
       invalidateKeys: [queryKeys.courses.cohorts(courseId)],
       onSuccess: () => {
@@ -99,7 +106,11 @@ export function CreateCohortModal({ courseId, onClose }: CreateCohortModalProps)
           <FormField label="Formador (opcional)" htmlFor="ch-instructor">
             {instructor ? (
               <div className="flex items-center gap-2 rounded-control border-[1.5px] border-border-strong bg-surface px-2 py-1.5">
-                <Avatar name={instructor.fullName} url={instructor.avatarUrl ?? undefined} size="sm" />
+                <Avatar
+                  name={instructor.fullName}
+                  url={instructor.avatarUrl ?? undefined}
+                  size="sm"
+                />
                 <div className="min-w-0 flex-1 truncate text-sm text-ink">
                   {instructor.fullName}
                 </div>
@@ -125,7 +136,9 @@ export function CreateCohortModal({ courseId, onClose }: CreateCohortModalProps)
                 {instructorSearch.trim().length > 0 && (
                   <div className="absolute z-10 mt-1 max-h-56 w-full overflow-y-auto rounded-card border border-border bg-surface shadow-elevated">
                     {usersLoading && (
-                      <div className="px-3 py-2 text-sm text-ink-muted">A pesquisar…</div>
+                      <div className="px-3 py-2 text-sm text-ink-muted">
+                        A pesquisar…
+                      </div>
                     )}
                     {!usersLoading && users.length === 0 && (
                       <div className="px-3 py-2 text-sm text-ink-muted">
@@ -142,8 +155,14 @@ export function CreateCohortModal({ courseId, onClose }: CreateCohortModalProps)
                         }}
                         className="flex w-full items-center gap-2 px-3 py-2 text-left hover:bg-primary-subtle"
                       >
-                        <Avatar name={u.fullName} url={u.avatarUrl ?? undefined} size="sm" />
-                        <div className="min-w-0 truncate text-sm text-ink">{u.fullName}</div>
+                        <Avatar
+                          name={u.fullName}
+                          url={u.avatarUrl ?? undefined}
+                          size="sm"
+                        />
+                        <div className="min-w-0 truncate text-sm text-ink">
+                          {u.fullName}
+                        </div>
                       </button>
                     ))}
                   </div>
@@ -162,7 +181,12 @@ export function CreateCohortModal({ courseId, onClose }: CreateCohortModalProps)
               />
             </FormField>
             <FormField label="Sala" htmlFor="ch-room">
-              <Input id="ch-room" value={room} onChange={(e) => setRoom(e.target.value)} className="w-full" />
+              <Input
+                id="ch-room"
+                value={room}
+                onChange={(e) => setRoom(e.target.value)}
+                className="w-full"
+              />
             </FormField>
           </div>
 
@@ -209,7 +233,11 @@ export function CreateCohortModal({ courseId, onClose }: CreateCohortModalProps)
         </div>
 
         <div className="mt-6 flex gap-3 border-t border-border pt-4">
-          <Button intent="secondary" className="flex-1 justify-center" onClick={onClose}>
+          <Button
+            intent="secondary"
+            className="flex-1 justify-center"
+            onClick={onClose}
+          >
             Cancelar
           </Button>
           <Button

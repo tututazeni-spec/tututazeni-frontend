@@ -41,7 +41,13 @@ const MODEL_ITEMS = Object.entries(MODEL_LABEL).map(([value, label]) => ({
 
 // Espelha EvalType (evaluation.dto.ts) — pesos por omissão que somam 100
 // (autoavaliação conta pouco, gestor directo pesa mais).
-const WEIGHT_TYPES = ['SELF', 'MANAGER', 'PEER', 'SUBORDINATE', 'CLIENT'] as const;
+const WEIGHT_TYPES = [
+  'SELF',
+  'MANAGER',
+  'PEER',
+  'SUBORDINATE',
+  'CLIENT',
+] as const;
 type WeightType = (typeof WEIGHT_TYPES)[number];
 const DEFAULT_WEIGHTS: Record<WeightType, string> = {
   SELF: '10',
@@ -51,7 +57,10 @@ const DEFAULT_WEIGHTS: Record<WeightType, string> = {
   CLIENT: '0',
 };
 
-export function CreateCycleModal({ onClose, onSuccess }: CreateCycleModalProps) {
+export function CreateCycleModal({
+  onClose,
+  onSuccess,
+}: CreateCycleModalProps) {
   const notify = useToast();
   const {
     values: form,
@@ -69,10 +78,14 @@ export function CreateCycleModal({ onClose, onSuccess }: CreateCycleModalProps) 
     { name: [required()] },
   );
 
-  const [weights, setWeights] = useState<Record<WeightType, string>>(DEFAULT_WEIGHTS);
+  const [weights, setWeights] =
+    useState<Record<WeightType, string>>(DEFAULT_WEIGHTS);
   const [submitError, setSubmitError] = useState('');
 
-  const weightTotal = WEIGHT_TYPES.reduce((s, t) => s + (Number(weights[t]) || 0), 0);
+  const weightTotal = WEIGHT_TYPES.reduce(
+    (s, t) => s + (Number(weights[t]) || 0),
+    0,
+  );
 
   const createCycle = useApiMutation(
     () =>
@@ -81,11 +94,15 @@ export function CreateCycleModal({ onClose, onSuccess }: CreateCycleModalProps) 
         model: form.model,
         startDate: form.startDate,
         endDate: form.endDate,
-        ...(form.description.trim() ? { description: form.description.trim() } : {}),
-        weights: WEIGHT_TYPES.filter((t) => (Number(weights[t]) || 0) > 0).map((t) => ({
-          type: t,
-          weight: Number(weights[t]),
-        })),
+        ...(form.description.trim()
+          ? { description: form.description.trim() }
+          : {}),
+        weights: WEIGHT_TYPES.filter((t) => (Number(weights[t]) || 0) > 0).map(
+          (t) => ({
+            type: t,
+            weight: Number(weights[t]),
+          }),
+        ),
       }),
     {
       invalidateKeys: [queryKeys.evaluation.cycles()],
@@ -95,14 +112,18 @@ export function CreateCycleModal({ onClose, onSuccess }: CreateCycleModalProps) 
         onClose();
       },
       onError: (e) =>
-        setSubmitError(e instanceof Error ? e.message : 'Erro ao criar o ciclo.'),
+        setSubmitError(
+          e instanceof Error ? e.message : 'Erro ao criar o ciclo.',
+        ),
     },
   );
   const loading = createCycle.isPending;
 
   const localError = useMemo(() => {
-    if (!form.startDate || !form.endDate) return 'Indica as datas de início e fim.';
-    if (form.endDate < form.startDate) return 'A data de fim não pode ser anterior à de início.';
+    if (!form.startDate || !form.endDate)
+      return 'Indica as datas de início e fim.';
+    if (form.endDate < form.startDate)
+      return 'A data de fim não pode ser anterior à de início.';
     if (Math.abs(weightTotal - 100) > 0.5)
       return `Os pesos por tipo de avaliador têm de somar 100 (soma actual: ${weightTotal}).`;
     return '';
@@ -212,7 +233,9 @@ export function CreateCycleModal({ onClose, onSuccess }: CreateCycleModalProps) 
                     min={0}
                     max={100}
                     value={weights[type]}
-                    onChange={(e) => setWeights((w) => ({ ...w, [type]: e.target.value }))}
+                    onChange={(e) =>
+                      setWeights((w) => ({ ...w, [type]: e.target.value }))
+                    }
                     className="w-24"
                   />
                 </div>
@@ -222,10 +245,18 @@ export function CreateCycleModal({ onClose, onSuccess }: CreateCycleModalProps) 
         </div>
 
         <div className="mt-6 flex gap-3 border-t border-border pt-4">
-          <Button intent="secondary" className="flex-1 justify-center" onClick={onClose}>
+          <Button
+            intent="secondary"
+            className="flex-1 justify-center"
+            onClick={onClose}
+          >
             Cancelar
           </Button>
-          <Button className="flex-1 justify-center" onClick={handleSubmit} loading={loading}>
+          <Button
+            className="flex-1 justify-center"
+            onClick={handleSubmit}
+            loading={loading}
+          >
             {loading ? 'A criar...' : 'Criar Ciclo'}
           </Button>
         </div>

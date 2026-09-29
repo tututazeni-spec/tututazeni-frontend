@@ -205,7 +205,9 @@ export function TemplateFormModal({
         : [queryKeys.onboarding.all],
       onSuccess: () => {
         notify({
-          title: editing ? 'Template actualizado' : 'Plano de integração criado',
+          title: editing
+            ? 'Template actualizado'
+            : 'Plano de integração criado',
           description:
             editing || tasks.length > 0
               ? undefined
@@ -267,7 +269,8 @@ export function TemplateFormModal({
         phase: t.phase,
         responsible: t.responsible,
         isMandatory: t.isMandatory,
-        dueDayOffset: t.dueDayOffset.trim() === '' ? 0 : Math.trunc(Number(t.dueDayOffset)),
+        dueDayOffset:
+          t.dueDayOffset.trim() === '' ? 0 : Math.trunc(Number(t.dueDayOffset)),
         xpReward: Math.max(0, Math.trunc(Number(t.xpReward) || 0)),
         seq,
       }));
@@ -419,8 +422,8 @@ export function TemplateFormModal({
             <>
               <div className="mt-6 flex items-center justify-between border-t border-border pt-4">
                 <div className="text-xs font-medium text-ink-faint uppercase tracking-wide">
-                  Estrutura (Tarefas, Formação, Documentos, Acessos,
-                  Políticas, Reuniões, Avaliações…)
+                  Estrutura (Tarefas, Formação, Documentos, Acessos, Políticas,
+                  Reuniões, Avaliações…)
                 </div>
                 <Button
                   size="sm"

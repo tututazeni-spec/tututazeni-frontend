@@ -34,7 +34,10 @@ export function SessionThread({ sessionId, onBack }: SessionThreadProps) {
   const [sending, setSending] = useState(false);
 
   const { data, isLoading } = useApiQuery<
-    SessionDetail & { endedAt: string | null; course?: { title: string } | null }
+    SessionDetail & {
+      endedAt: string | null;
+      course?: { title: string } | null;
+    }
   >(queryKeys.aiTutor.session(sessionId), `/ai-tutor/sessions/${sessionId}`);
 
   useEffect(() => {
@@ -47,11 +50,20 @@ export function SessionThread({ sessionId, onBack }: SessionThreadProps) {
 
   const handleRate = async (msgId: number, rating: number) => {
     try {
-      await apiClient.patch('/ai-tutor/messages/rate', { messageId: msgId, rating });
-      setMessages((prev) => prev?.map((m) => (m.id === msgId ? { ...m, rating } : m)) ?? null);
+      await apiClient.patch('/ai-tutor/messages/rate', {
+        messageId: msgId,
+        rating,
+      });
+      setMessages(
+        (prev) =>
+          prev?.map((m) => (m.id === msgId ? { ...m, rating } : m)) ?? null,
+      );
     } catch (e) {
       reportError(e, { source: 'SessionThread.handleRate' });
-      notify({ title: 'Não foi possível avaliar a mensagem', intent: 'danger' });
+      notify({
+        title: 'Não foi possível avaliar a mensagem',
+        intent: 'danger',
+      });
     }
   };
 
@@ -74,10 +86,13 @@ export function SessionThread({ sessionId, onBack }: SessionThreadProps) {
     ]);
     setSending(true);
     try {
-      const res = await apiClient.post<SendMessageResponse>('/ai-tutor/sessions/message', {
-        sessionId,
-        message: msg,
-      });
+      const res = await apiClient.post<SendMessageResponse>(
+        '/ai-tutor/sessions/message',
+        {
+          sessionId,
+          message: msg,
+        },
+      );
       setMessages((prev) => [
         ...(prev ?? []),
         {

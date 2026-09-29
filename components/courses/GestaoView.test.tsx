@@ -37,14 +37,22 @@ vi.mock('./EditCourseModal', () => ({
 
 vi.mock('@/components/enrollments/EnrollUserModal', () => ({
   EnrollUserModal: ({ initialCourseId }: { initialCourseId: number }) => (
-    <div data-testid="enroll-user-modal">enroll-user-modal for {initialCourseId}</div>
+    <div data-testid="enroll-user-modal">
+      enroll-user-modal for {initialCourseId}
+    </div>
   ),
 }));
 
 vi.mock('@/components/ui/DropdownMenu', () => ({
-  DropdownMenu: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
-  DropdownMenuTrigger: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
-  DropdownMenuContent: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  DropdownMenu: ({ children }: { children: React.ReactNode }) => (
+    <div>{children}</div>
+  ),
+  DropdownMenuTrigger: ({ children }: { children: React.ReactNode }) => (
+    <div>{children}</div>
+  ),
+  DropdownMenuContent: ({ children }: { children: React.ReactNode }) => (
+    <div>{children}</div>
+  ),
   DropdownMenuItem: ({
     children,
     onSelect,
@@ -56,7 +64,12 @@ vi.mock('@/components/ui/DropdownMenu', () => ({
     disabled?: boolean;
     className?: string;
   }) => (
-    <button type="button" disabled={disabled} className={className} onClick={() => onSelect?.()}>
+    <button
+      type="button"
+      disabled={disabled}
+      className={className}
+      onClick={() => onSelect?.()}
+    >
       {children}
     </button>
   ),
@@ -72,9 +85,19 @@ vi.mock('@/providers/ToastProvider', () => ({ useToast: () => vi.fn() }));
 let courseList: unknown[] = [];
 vi.mock('@/hooks/useApiQuery', () => ({
   useApiQuery: (_key: unknown, path: string) => {
-    if (path === '/courses') return { data: { data: courseList, total: courseList.length, totalPages: 1, page: 1 }, isLoading: false };
+    if (path === '/courses')
+      return {
+        data: {
+          data: courseList,
+          total: courseList.length,
+          totalPages: 1,
+          page: 1,
+        },
+        isLoading: false,
+      };
     if (path === '/courses/categories') return { data: [], isLoading: false };
-    if (path === '/departments') return { data: { data: [] }, isLoading: false };
+    if (path === '/departments')
+      return { data: { data: [] }, isLoading: false };
     return { data: undefined, isLoading: false };
   },
   useApiMutation: (
@@ -176,7 +199,9 @@ describe('GestaoView', () => {
     setData([draftNoModules, draftReady]);
     render(<GestaoView onSelect={vi.fn()} />);
     fireEvent.click(screen.getAllByRole('button', { name: 'Publicar' })[1]);
-    await waitFor(() => expect(patch).toHaveBeenCalledWith('/courses/2/publish'));
+    await waitFor(() =>
+      expect(patch).toHaveBeenCalledWith('/courses/2/publish'),
+    );
   });
 
   test('Arquivar confirma e chama PATCH /courses/:id/archive', async () => {
@@ -184,14 +209,18 @@ describe('GestaoView', () => {
     render(<GestaoView onSelect={vi.fn()} />);
     fireEvent.click(screen.getByRole('button', { name: 'Arquivar' }));
     await waitFor(() => expect(confirmFn).toHaveBeenCalled());
-    await waitFor(() => expect(patch).toHaveBeenCalledWith('/courses/2/archive'));
+    await waitFor(() =>
+      expect(patch).toHaveBeenCalledWith('/courses/2/archive'),
+    );
   });
 
   test('Repor rascunho chama PUT /courses/:id com status DRAFT', async () => {
     setData([archivedCourse]);
     render(<GestaoView onSelect={vi.fn()} />);
     fireEvent.click(screen.getByRole('button', { name: 'Repor rascunho' }));
-    await waitFor(() => expect(put).toHaveBeenCalledWith('/courses/9', { status: 'DRAFT' }));
+    await waitFor(() =>
+      expect(put).toHaveBeenCalledWith('/courses/9', { status: 'DRAFT' }),
+    );
   });
 
   test('estado vazio quando não há cursos', () => {
@@ -205,7 +234,9 @@ describe('GestaoView', () => {
     render(<GestaoView onSelect={vi.fn()} />);
     expect(screen.queryByTestId('module-modal')).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: /Adicionar módulo/ }));
-    expect(screen.getByTestId('module-modal')).toHaveTextContent('module-modal for 1');
+    expect(screen.getByTestId('module-modal')).toHaveTextContent(
+      'module-modal for 1',
+    );
   });
 
   test('"Editar" abre o modal de edição para o curso da linha', () => {
@@ -213,14 +244,18 @@ describe('GestaoView', () => {
     render(<GestaoView onSelect={vi.fn()} />);
     expect(screen.queryByTestId('edit-course-modal')).not.toBeInTheDocument();
     fireEvent.click(screen.getAllByRole('button', { name: 'Editar' })[0]);
-    expect(screen.getByTestId('edit-course-modal')).toHaveTextContent('edit-course-modal for 2');
+    expect(screen.getByTestId('edit-course-modal')).toHaveTextContent(
+      'edit-course-modal for 2',
+    );
   });
 
   test('"Duplicar" chama POST /courses/:id/duplicate', async () => {
     setData([draftReady]);
     render(<GestaoView onSelect={vi.fn()} />);
     fireEvent.click(screen.getByRole('button', { name: 'Duplicar' }));
-    await waitFor(() => expect(post).toHaveBeenCalledWith('/courses/2/duplicate'));
+    await waitFor(() =>
+      expect(post).toHaveBeenCalledWith('/courses/2/duplicate'),
+    );
   });
 
   test('Eliminar um rascunho confirma e chama DELETE /courses/:id', async () => {
@@ -249,13 +284,17 @@ describe('GestaoView', () => {
   test('"Gerir módulos" não aparece sem onManageModules', () => {
     setData([draftReady]);
     render(<GestaoView onSelect={vi.fn()} />);
-    expect(screen.queryByRole('button', { name: 'Gerir módulos' })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Gerir módulos' }),
+    ).not.toBeInTheDocument();
   });
 
   test('"Ver inscrições / progresso" chama onViewEnrollments com o id do curso', () => {
     setData([draftReady]);
     const onViewEnrollments = vi.fn();
-    render(<GestaoView onSelect={vi.fn()} onViewEnrollments={onViewEnrollments} />);
+    render(
+      <GestaoView onSelect={vi.fn()} onViewEnrollments={onViewEnrollments} />,
+    );
     fireEvent.click(screen.getByRole('button', { name: /Ver inscrições/ }));
     expect(onViewEnrollments).toHaveBeenCalledWith(2);
   });
@@ -263,7 +302,9 @@ describe('GestaoView', () => {
   test('"Inscrever colaboradores" abre o EnrollUserModal pré-preenchido com o curso', () => {
     setData([draftReady]);
     render(<GestaoView onSelect={vi.fn()} />);
-    fireEvent.click(screen.getByRole('button', { name: 'Inscrever colaboradores' }));
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Inscrever colaboradores' }),
+    );
     expect(screen.getByTestId('enroll-user-modal')).toHaveTextContent(
       'enroll-user-modal for 2',
     );

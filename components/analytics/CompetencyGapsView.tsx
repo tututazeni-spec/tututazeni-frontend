@@ -34,8 +34,12 @@ export function CompetencyGapsView() {
           {data.map((g) => (
             <div key={g.name} className="flex items-center gap-3">
               <div className="w-40 flex-shrink-0">
-                <div className="truncate text-xs font-medium text-ink">{g.name}</div>
-                <div className="truncate text-[10px] text-ink-faint">{g.category}</div>
+                <div className="truncate text-xs font-medium text-ink">
+                  {g.name}
+                </div>
+                <div className="truncate text-[10px] text-ink-faint">
+                  {g.category}
+                </div>
               </div>
               <div className="flex-1">
                 <ProgressBar value={Math.min(g.avgCurrent * 20, 100)} />

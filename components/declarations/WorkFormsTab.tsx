@@ -7,7 +7,12 @@
 // e os botões passam a Button (components/ui/Button). Extraído de
 // app/(platform)/declarations/page.tsx.
 
-import { AlertCircle, CheckCircle2, ChevronRight, Clipboard } from 'lucide-react';
+import {
+  AlertCircle,
+  CheckCircle2,
+  ChevronRight,
+  Clipboard,
+} from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -21,18 +26,27 @@ export interface WorkFormsTabProps {
   onOpenForm: (form: WorkForm) => void;
 }
 
-export function WorkFormsTab({ pendingWork, workSubs, onOpenForm }: WorkFormsTabProps) {
+export function WorkFormsTab({
+  pendingWork,
+  workSubs,
+  onOpenForm,
+}: WorkFormsTabProps) {
   return (
     <div className="space-y-4">
       {(pendingWork?.pending.length ?? 0) > 0 && (
         <div className="flex items-start gap-3 rounded-card border border-warning bg-warning-subtle p-4">
-          <AlertCircle size={18} strokeWidth={1.75} className="mt-0.5 flex-shrink-0 text-warning-ink" />
+          <AlertCircle
+            size={18}
+            strokeWidth={1.75}
+            className="mt-0.5 flex-shrink-0 text-warning-ink"
+          />
           <div>
             <p className="font-body text-sm font-semibold text-warning-ink">
               {pendingWork!.total} declaração(ões) pendente(s)
             </p>
             <p className="mt-0.5 font-body text-xs text-warning-ink">
-              Complete os formulários abaixo para manter o seu perfil actualizado.
+              Complete os formulários abaixo para manter o seu perfil
+              actualizado.
             </p>
           </div>
         </div>
@@ -43,15 +57,24 @@ export function WorkFormsTab({ pendingWork, workSubs, onOpenForm }: WorkFormsTab
           <Card key={f.id} className="flex items-center justify-between p-5">
             <div className="flex items-start gap-3">
               <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-control bg-info-subtle">
-                <Clipboard size={18} strokeWidth={1.75} className="text-info-ink" />
+                <Clipboard
+                  size={18}
+                  strokeWidth={1.75}
+                  className="text-info-ink"
+                />
               </div>
               <div>
-                <p className="font-body text-sm font-semibold text-ink">{f.title}</p>
+                <p className="font-body text-sm font-semibold text-ink">
+                  {f.title}
+                </p>
                 <p className="mt-0.5 font-body text-xs text-ink-faint">
-                  {WORK_TYPE_LABELS[f.type]} {f.periodicity ? `· ${f.periodicity}` : ''}
+                  {WORK_TYPE_LABELS[f.type]}{' '}
+                  {f.periodicity ? `· ${f.periodicity}` : ''}
                 </p>
                 {f.mandatory && (
-                  <span className="font-body text-xs font-medium text-danger">Obrigatória</span>
+                  <span className="font-body text-xs font-medium text-danger">
+                    Obrigatória
+                  </span>
                 )}
               </div>
             </div>
@@ -79,11 +102,18 @@ export function WorkFormsTab({ pendingWork, workSubs, onOpenForm }: WorkFormsTab
           </div>
           <div className="divide-y divide-border">
             {workSubs?.data.map((s) => (
-              <div key={s.id} className="flex items-center justify-between px-5 py-3">
+              <div
+                key={s.id}
+                className="flex items-center justify-between px-5 py-3"
+              >
                 <div>
-                  <p className="font-body text-sm font-medium text-ink">{s.form?.title}</p>
+                  <p className="font-body text-sm font-medium text-ink">
+                    {s.form?.title}
+                  </p>
                   <p className="font-body text-xs text-ink-faint">
-                    {s.submittedAt ? new Date(s.submittedAt).toLocaleDateString('pt-PT') : '—'}
+                    {s.submittedAt
+                      ? new Date(s.submittedAt).toLocaleDateString('pt-PT')
+                      : '—'}
                   </p>
                 </div>
                 <StatusBadge status={s.status} type="work" />

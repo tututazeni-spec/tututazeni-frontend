@@ -236,9 +236,7 @@ const NAV: Array<{ label: string; items: NavItem[] }> = [
   },
   {
     label: 'Sistema',
-    items: [
-      { href: '/settings', icon: Settings, label: 'Definições' },
-    ],
+    items: [{ href: '/settings', icon: Settings, label: 'Definições' }],
   },
 ];
 

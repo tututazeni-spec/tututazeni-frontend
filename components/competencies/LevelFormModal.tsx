@@ -44,7 +44,10 @@ const STATUS_ITEMS = [
   { value: 'INACTIVE', label: 'Inactivo' },
 ];
 
-const VALUE_ITEMS = [1, 2, 3, 4, 5].map((v) => ({ value: String(v), label: `Nível ${v}` }));
+const VALUE_ITEMS = [1, 2, 3, 4, 5].map((v) => ({
+  value: String(v),
+  label: `Nível ${v}`,
+}));
 
 export function LevelFormModal({
   level,
@@ -53,27 +56,42 @@ export function LevelFormModal({
   onSuccess,
 }: LevelFormModalProps) {
   const editing = !!level;
-  const { options: competencyOptions, loading: loadingCompetencies } = useCompetencyOptions(
-    !editing,
-  );
+  const { options: competencyOptions, loading: loadingCompetencies } =
+    useCompetencyOptions(!editing);
 
   const [selectedCompetencyId, setSelectedCompetencyId] = useState<string>(
-    level ? String(level.competencyId) : competencyId ? String(competencyId) : '',
+    level
+      ? String(level.competencyId)
+      : competencyId
+        ? String(competencyId)
+        : '',
   );
   const [value, setValue] = useState<string>(level ? String(level.value) : '');
   const [name, setName] = useState(level?.name ?? '');
   const [description, setDescription] = useState(level?.description ?? '');
   const [code, setCode] = useState(level?.code ?? '');
-  const [minScore, setMinScore] = useState(level?.minScore != null ? String(level.minScore) : '');
-  const [maxScore, setMaxScore] = useState(level?.maxScore != null ? String(level.maxScore) : '');
-  const [expectedBehaviors, setExpectedBehaviors] = useState(level?.expectedBehaviors ?? '');
+  const [minScore, setMinScore] = useState(
+    level?.minScore != null ? String(level.minScore) : '',
+  );
+  const [maxScore, setMaxScore] = useState(
+    level?.maxScore != null ? String(level.maxScore) : '',
+  );
+  const [expectedBehaviors, setExpectedBehaviors] = useState(
+    level?.expectedBehaviors ?? '',
+  );
   const [knowledgeDemonstrated, setKnowledgeDemonstrated] = useState(
     level?.knowledgeDemonstrated ?? '',
   );
   const [autonomy, setAutonomy] = useState(level?.autonomy ?? '');
-  const [taskComplexity, setTaskComplexity] = useState(level?.taskComplexity ?? '');
-  const [observableEvidence, setObservableEvidence] = useState(level?.observableEvidence ?? '');
-  const [evaluationCriteria, setEvaluationCriteria] = useState(level?.evaluationCriteria ?? '');
+  const [taskComplexity, setTaskComplexity] = useState(
+    level?.taskComplexity ?? '',
+  );
+  const [observableEvidence, setObservableEvidence] = useState(
+    level?.observableEvidence ?? '',
+  );
+  const [evaluationCriteria, setEvaluationCriteria] = useState(
+    level?.evaluationCriteria ?? '',
+  );
   const [status, setStatus] = useState<string>(level?.status ?? 'ACTIVE');
   const [submitError, setSubmitError] = useState('');
 
@@ -86,7 +104,9 @@ export function LevelFormModal({
   };
 
   const canSubmit =
-    (editing || selectedCompetencyId.length > 0) && value.length > 0 && name.trim().length > 0;
+    (editing || selectedCompetencyId.length > 0) &&
+    value.length > 0 &&
+    name.trim().length > 0;
 
   const save = useApiMutation(
     (body: Record<string, unknown>) =>
@@ -100,7 +120,9 @@ export function LevelFormModal({
         onClose();
       },
       onError: (e) =>
-        setSubmitError(e.message || 'Erro ao guardar o nível. Tente novamente.'),
+        setSubmitError(
+          e.message || 'Erro ao guardar o nível. Tente novamente.',
+        ),
     },
   );
   const loading = save.isPending;
@@ -130,7 +152,11 @@ export function LevelFormModal({
   return (
     <Modal open onOpenChange={(open) => !open && onClose()}>
       <ModalContent
-        title={editing ? 'Editar nível de proficiência' : 'Novo nível de proficiência'}
+        title={
+          editing
+            ? 'Editar nível de proficiência'
+            : 'Novo nível de proficiência'
+        }
         description={
           editing
             ? `Competência: ${level!.competency.name}`
@@ -152,7 +178,9 @@ export function LevelFormModal({
                 items={competencyOptions}
                 value={selectedCompetencyId || undefined}
                 onValueChange={setSelectedCompetencyId}
-                placeholder={loadingCompetencies ? 'A carregar…' : 'Selecionar competência'}
+                placeholder={
+                  loadingCompetencies ? 'A carregar…' : 'Selecionar competência'
+                }
                 disabled={loadingCompetencies}
                 className="w-full"
               />
@@ -194,7 +222,12 @@ export function LevelFormModal({
                 />
               </FormField>
             </div>
-            <Button intent="ghost" size="sm" onClick={applyPreset} disabled={!value}>
+            <Button
+              intent="ghost"
+              size="sm"
+              onClick={applyPreset}
+              disabled={!value}
+            >
               Usar escala proposta
             </Button>
           </div>
@@ -306,7 +339,11 @@ export function LevelFormModal({
           <Button intent="ghost" onClick={onClose} disabled={loading}>
             Cancelar
           </Button>
-          <Button onClick={handleSubmit} disabled={!canSubmit} loading={loading}>
+          <Button
+            onClick={handleSubmit}
+            disabled={!canSubmit}
+            loading={loading}
+          >
             {editing ? 'Guardar' : 'Criar'}
           </Button>
         </div>

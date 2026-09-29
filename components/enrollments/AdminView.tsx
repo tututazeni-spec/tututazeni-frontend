@@ -103,30 +103,43 @@ export function AdminView({ initialCourseId }: AdminViewProps) {
   });
 
   const invalidateKeys = [queryKeys.enrollments.lists()];
-  const toastError = (e: Error) => notify({ title: e.message, intent: 'danger' });
+  const toastError = (e: Error) =>
+    notify({ title: e.message, intent: 'danger' });
 
-  const remove = useApiMutation((id: number) => apiClient.patch(`/enrollments/${id}/cancel`, {}), {
-    invalidateKeys,
-    onSuccess: () => notify({ title: 'Inscrição removida', intent: 'success' }),
-    onError: toastError,
-  });
-  const reenroll = useApiMutation((id: number) => apiClient.post(`/enrollments/${id}/reenroll`), {
-    invalidateKeys,
-    onSuccess: () => notify({ title: 'Colaborador reinscrito', intent: 'success' }),
-    onError: toastError,
-  });
+  const remove = useApiMutation(
+    (id: number) => apiClient.patch(`/enrollments/${id}/cancel`, {}),
+    {
+      invalidateKeys,
+      onSuccess: () =>
+        notify({ title: 'Inscrição removida', intent: 'success' }),
+      onError: toastError,
+    },
+  );
+  const reenroll = useApiMutation(
+    (id: number) => apiClient.post(`/enrollments/${id}/reenroll`),
+    {
+      invalidateKeys,
+      onSuccess: () =>
+        notify({ title: 'Colaborador reinscrito', intent: 'success' }),
+      onError: toastError,
+    },
+  );
   const resetProgress = useApiMutation(
     (id: number) => apiClient.post(`/enrollments/${id}/reset-progress`),
     {
       invalidateKeys,
-      onSuccess: () => notify({ title: 'Progresso reiniciado', intent: 'success' }),
+      onSuccess: () =>
+        notify({ title: 'Progresso reiniciado', intent: 'success' }),
       onError: toastError,
     },
   );
-  const remind = useApiMutation((id: number) => apiClient.post(`/enrollments/${id}/remind`), {
-    onSuccess: () => notify({ title: 'Lembrete enviado', intent: 'success' }),
-    onError: toastError,
-  });
+  const remind = useApiMutation(
+    (id: number) => apiClient.post(`/enrollments/${id}/remind`),
+    {
+      onSuccess: () => notify({ title: 'Lembrete enviado', intent: 'success' }),
+      onError: toastError,
+    },
+  );
 
   const rowBusy = (id: number) =>
     (remove.isPending && remove.variables === id) ||
@@ -139,7 +152,9 @@ export function AdminView({ initialCourseId }: AdminViewProps) {
     () =>
       Promise.all(
         selected.map((id) =>
-          apiClient.patch(`/enrollments/${id}/deadline`, { deadline: bulkDeadline }),
+          apiClient.patch(`/enrollments/${id}/deadline`, {
+            deadline: bulkDeadline,
+          }),
         ),
       ),
     {
@@ -159,7 +174,9 @@ export function AdminView({ initialCourseId }: AdminViewProps) {
   };
 
   const toggleSelect = (id: number) =>
-    setSelected((s) => (s.includes(id) ? s.filter((x) => x !== id) : [...s, id]));
+    setSelected((s) =>
+      s.includes(id) ? s.filter((x) => x !== id) : [...s, id],
+    );
 
   async function onRemove(e: Enrollment) {
     const ok = await confirm({
@@ -192,47 +209,69 @@ export function AdminView({ initialCourseId }: AdminViewProps) {
         <Select
           items={[{ value: 'ALL', label: 'Todos os cursos' }, ...courseOptions]}
           value={filters.courseId || 'ALL'}
-          onValueChange={(v) => updateFilters({ courseId: v === 'ALL' ? '' : v })}
+          onValueChange={(v) =>
+            updateFilters({ courseId: v === 'ALL' ? '' : v })
+          }
           className="w-52"
         />
         <Select
-          items={[{ value: 'ALL', label: 'Todos os departamentos' }, ...departmentOptions]}
+          items={[
+            { value: 'ALL', label: 'Todos os departamentos' },
+            ...departmentOptions,
+          ]}
           value={filters.departmentId || 'ALL'}
-          onValueChange={(v) => updateFilters({ departmentId: v === 'ALL' ? '' : v })}
+          onValueChange={(v) =>
+            updateFilters({ departmentId: v === 'ALL' ? '' : v })
+          }
           className="w-52"
         />
         <Select
           items={MANDATORY_ITEMS}
           value={filters.mandatory || 'ALL'}
-          onValueChange={(v) => updateFilters({ mandatory: v === 'ALL' ? '' : v })}
+          onValueChange={(v) =>
+            updateFilters({ mandatory: v === 'ALL' ? '' : v })
+          }
           className="w-52"
         />
         <label className="flex cursor-pointer items-center gap-2 text-sm text-ink-muted">
           <input
             type="checkbox"
             checked={!!filters.overdue}
-            onChange={(e) => updateFilters({ overdue: e.target.checked ? 'true' : '' })}
+            onChange={(e) =>
+              updateFilters({ overdue: e.target.checked ? 'true' : '' })
+            }
             className="h-4 w-4 rounded border-border-strong accent-primary"
           />
           Apenas atrasados
         </label>
-        <span className="ml-auto text-sm text-ink-faint">{data?.total ?? 0} matrículas</span>
+        <span className="ml-auto text-sm text-ink-faint">
+          {data?.total ?? 0} matrículas
+        </span>
       </div>
 
       {/* Bulk deadline */}
       {selected.length > 0 && (
         <div className="mb-4 flex items-center gap-3 rounded-card border border-border bg-info-subtle px-4 py-2.5">
-          <span className="text-sm font-medium text-info-ink">{selected.length} seleccionados</span>
+          <span className="text-sm font-medium text-info-ink">
+            {selected.length} seleccionados
+          </span>
           <Input
             type="date"
             value={bulkDeadline}
             onChange={(e) => setBulkDeadline(e.target.value)}
             className="py-1.5 text-sm"
           />
-          <Button size="sm" onClick={handleBulkDeadline} disabled={!bulkDeadline || bulkLoading}>
+          <Button
+            size="sm"
+            onClick={handleBulkDeadline}
+            disabled={!bulkDeadline || bulkLoading}
+          >
             {bulkLoading ? 'A aplicar…' : 'Actualizar deadline'}
           </Button>
-          <button onClick={() => setSelected([])} className="ml-auto text-xs text-info-ink">
+          <button
+            onClick={() => setSelected([])}
+            className="ml-auto text-xs text-info-ink"
+          >
             Limpar
           </button>
         </div>
@@ -278,17 +317,29 @@ export function AdminView({ initialCourseId }: AdminViewProps) {
               />
               <div className="flex flex-col gap-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <Avatar name={e.user?.fullName ?? ''} url={e.user?.avatarUrl ?? undefined} size="sm" />
+                  <Avatar
+                    name={e.user?.fullName ?? ''}
+                    url={e.user?.avatarUrl ?? undefined}
+                    size="sm"
+                  />
                   <div className="min-w-0">
-                    <div className="truncate text-xs font-medium text-ink">{e.user?.fullName}</div>
-                    <div className="truncate text-xs text-ink-faint">{e.user?.email}</div>
+                    <div className="truncate text-xs font-medium text-ink">
+                      {e.user?.fullName}
+                    </div>
+                    <div className="truncate text-xs text-ink-faint">
+                      {e.user?.email}
+                    </div>
                   </div>
                 </div>
-                <div className="truncate pl-10 text-xs text-ink-muted">{e.course?.title}</div>
+                <div className="truncate pl-10 text-xs text-ink-muted">
+                  {e.course?.title}
+                </div>
               </div>
               <div className="truncate text-xs text-ink-muted">
                 {e.user.department?.name ?? '—'}
-                {e.user.unit?.name ? <span className="text-ink-faint"> · {e.user.unit.name}</span> : null}
+                {e.user.unit?.name ? (
+                  <span className="text-ink-faint"> · {e.user.unit.name}</span>
+                ) : null}
               </div>
               <div>
                 <StatusBadge value={e.status} map={STATUS_CFG} variant="dot" />
@@ -300,21 +351,33 @@ export function AdminView({ initialCourseId }: AdminViewProps) {
                 {e.certificate?.score != null ? `${e.certificate.score}%` : '—'}
               </div>
               <div>
-                <span className="text-xs text-ink-faint">{ORIGIN_LABELS[e.origin]}</span>
+                <span className="text-xs text-ink-faint">
+                  {ORIGIN_LABELS[e.origin]}
+                </span>
               </div>
               <div className="text-xs text-ink-faint">
                 {new Date(e.enrolledAt).toLocaleDateString('pt')}
               </div>
               <div className="text-xs text-ink-faint">
-                {e.completedAt ? new Date(e.completedAt).toLocaleDateString('pt') : '—'}
+                {e.completedAt
+                  ? new Date(e.completedAt).toLocaleDateString('pt')
+                  : '—'}
               </div>
               <div className="text-xs">
                 {e.deadline ? (
                   <Badge intent={deadlineIntent(e.deadline, e.isOverdue)}>
                     {e.isOverdue ? (
-                      <AlertTriangle size={12} strokeWidth={1.75} className="inline mr-1" />
+                      <AlertTriangle
+                        size={12}
+                        strokeWidth={1.75}
+                        className="inline mr-1"
+                      />
                     ) : (
-                      <Hourglass size={12} strokeWidth={1.75} className="inline mr-1" />
+                      <Hourglass
+                        size={12}
+                        strokeWidth={1.75}
+                        className="inline mr-1"
+                      />
                     )}
                     {deadlineCountdown(e.deadline)}
                   </Badge>

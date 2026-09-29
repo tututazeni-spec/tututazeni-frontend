@@ -67,7 +67,8 @@ export function SettingsView() {
       apiClient.patch<AiTutorSettingsData>('/ai-tutor/settings', payload),
     {
       invalidateKeys: [queryKeys.aiTutor.settings()],
-      onSuccess: () => notify({ title: 'Configurações guardadas', intent: 'success' }),
+      onSuccess: () =>
+        notify({ title: 'Configurações guardadas', intent: 'success' }),
       onError: (e) => {
         reportError(e, { source: 'SettingsView.save' });
         notify({ title: e.message, intent: 'danger' });
@@ -76,7 +77,10 @@ export function SettingsView() {
   );
 
   const purgeMutation = useApiMutation(
-    () => apiClient.post<{ purged: number; message?: string }>('/ai-tutor/settings/purge-history'),
+    () =>
+      apiClient.post<{ purged: number; message?: string }>(
+        '/ai-tutor/settings/purge-history',
+      ),
     {
       onSuccess: (res) =>
         notify({
@@ -116,7 +120,9 @@ export function SettingsView() {
   return (
     <div className="space-y-5 max-w-2xl">
       <Card className="p-5">
-        <div className="font-body text-sm font-semibold text-ink mb-1">Base de conhecimento</div>
+        <div className="font-body text-sm font-semibold text-ink mb-1">
+          Base de conhecimento
+        </div>
         <ToggleRow
           label="Responder apenas com fontes autorizadas"
           description='"Responder apenas com informação encontrada nas fontes autorizadas" — desactiva o conhecimento geral do modelo.'
@@ -138,7 +144,9 @@ export function SettingsView() {
       </Card>
 
       <Card className="p-5">
-        <div className="font-body text-sm font-semibold text-ink mb-3">Modelo &amp; limites</div>
+        <div className="font-body text-sm font-semibold text-ink mb-3">
+          Modelo &amp; limites
+        </div>
         <div className="grid grid-cols-2 gap-4 mb-4">
           <div>
             <label className="font-body text-xs text-ink-muted mb-1 block">
@@ -150,14 +158,20 @@ export function SettingsView() {
               max={1}
               step={0.1}
               value={form.temperature}
-              onChange={(e) => setForm({ ...form, temperature: Number(e.target.value) })}
+              onChange={(e) =>
+                setForm({ ...form, temperature: Number(e.target.value) })
+              }
             />
           </div>
           <div>
-            <label className="font-body text-xs text-ink-muted mb-1 block">Idioma</label>
+            <label className="font-body text-xs text-ink-muted mb-1 block">
+              Idioma
+            </label>
             <Input
               value={form.defaultLanguage}
-              onChange={(e) => setForm({ ...form, defaultLanguage: e.target.value })}
+              onChange={(e) =>
+                setForm({ ...form, defaultLanguage: e.target.value })
+              }
             />
           </div>
           <div>
@@ -172,7 +186,9 @@ export function SettingsView() {
               onChange={(e) =>
                 setForm({
                   ...form,
-                  dailyMessageLimit: e.target.value ? Number(e.target.value) : null,
+                  dailyMessageLimit: e.target.value
+                    ? Number(e.target.value)
+                    : null,
                 })
               }
             />
@@ -189,7 +205,9 @@ export function SettingsView() {
               onChange={(e) =>
                 setForm({
                   ...form,
-                  historyRetentionDays: e.target.value ? Number(e.target.value) : null,
+                  historyRetentionDays: e.target.value
+                    ? Number(e.target.value)
+                    : null,
                 })
               }
             />
@@ -201,7 +219,9 @@ export function SettingsView() {
         </label>
         <Textarea
           value={form.customSystemPromptAddendum ?? ''}
-          onChange={(e) => setForm({ ...form, customSystemPromptAddendum: e.target.value })}
+          onChange={(e) =>
+            setForm({ ...form, customSystemPromptAddendum: e.target.value })
+          }
           placeholder="Ex: nunca comentes assuntos salariais individuais…"
           rows={3}
           className="w-full"
@@ -218,7 +238,10 @@ export function SettingsView() {
           <Trash2 size={14} strokeWidth={1.75} />
           Purgar histórico antigo agora
         </Button>
-        <Button onClick={() => saveMutation.mutate(form)} loading={saveMutation.isPending}>
+        <Button
+          onClick={() => saveMutation.mutate(form)}
+          loading={saveMutation.isPending}
+        >
           Guardar configurações
         </Button>
       </div>

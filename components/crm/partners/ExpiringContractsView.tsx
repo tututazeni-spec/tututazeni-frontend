@@ -35,7 +35,8 @@ export function ExpiringContractsView({
             Contratos a Expirar
           </h1>
           <p className="font-body text-ink-muted">
-            {data.length} {data.length === 1 ? 'contrato' : 'contratos'} nos próximos 30 dias
+            {data.length} {data.length === 1 ? 'contrato' : 'contratos'} nos
+            próximos 30 dias
           </p>
         </div>
         <Link href="/crm/partners">
@@ -48,23 +49,39 @@ export function ExpiringContractsView({
           <table className="w-full font-body text-sm">
             <thead className="bg-surface-sunken text-ink-muted uppercase">
               <tr>
-                <th className="px-4 py-3 text-left font-medium text-xs">Parceiro</th>
-                <th className="px-4 py-3 text-left font-medium text-xs">Fim do contrato</th>
-                <th className="px-4 py-3 text-right font-medium text-xs">Valor anual</th>
-                <th className="px-4 py-3 text-left font-medium text-xs">Responsável</th>
-                <th className="px-4 py-3 text-left font-medium text-xs">Contrato</th>
+                <th className="px-4 py-3 text-left font-medium text-xs">
+                  Parceiro
+                </th>
+                <th className="px-4 py-3 text-left font-medium text-xs">
+                  Fim do contrato
+                </th>
+                <th className="px-4 py-3 text-right font-medium text-xs">
+                  Valor anual
+                </th>
+                <th className="px-4 py-3 text-left font-medium text-xs">
+                  Responsável
+                </th>
+                <th className="px-4 py-3 text-left font-medium text-xs">
+                  Contrato
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
               {data.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-4 py-8 text-center text-ink-faint">
+                  <td
+                    colSpan={5}
+                    className="px-4 py-8 text-center text-ink-faint"
+                  >
                     Nenhum contrato a expirar
                   </td>
                 </tr>
               ) : (
                 data.map((c) => (
-                  <tr key={c.id} className="hover:bg-surface-sunken transition-colors">
+                  <tr
+                    key={c.id}
+                    className="hover:bg-surface-sunken transition-colors"
+                  >
                     <td className="px-4 py-3">
                       <Link
                         href={`/crm/partners/${c.id}`}

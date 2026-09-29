@@ -84,7 +84,10 @@ function embeddableVideoUrl(url: string): string | null {
   try {
     const u = new URL(url);
     if (u.hostname.includes('youtube.com') || u.hostname === 'youtu.be') {
-      const id = u.hostname === 'youtu.be' ? u.pathname.slice(1) : u.searchParams.get('v');
+      const id =
+        u.hostname === 'youtu.be'
+          ? u.pathname.slice(1)
+          : u.searchParams.get('v');
       return id ? `https://www.youtube.com/embed/${id}` : null;
     }
     if (u.hostname.includes('vimeo.com')) {
@@ -169,9 +172,17 @@ export function ContentPlayer({
                       className="w-full h-full border-0"
                     />
                   ) : (
-                    <video controls className="w-full h-full bg-black" src={lesson.contentUrl}>
+                    <video
+                      controls
+                      className="w-full h-full bg-black"
+                      src={lesson.contentUrl}
+                    >
                       {lesson.captionsUrl && (
-                        <track kind="captions" src={lesson.captionsUrl} default />
+                        <track
+                          kind="captions"
+                          src={lesson.captionsUrl}
+                          default
+                        />
                       )}
                     </video>
                   )}
@@ -180,10 +191,12 @@ export function ContentPlayer({
                   <div className="px-6 py-3 bg-ink border-t border-canvas/10">
                     <button
                       type="button"
-                      onClick={() => setShowTranscript(v => !v)}
+                      onClick={() => setShowTranscript((v) => !v)}
                       className="font-body text-xs text-canvas/70 hover:text-canvas underline"
                     >
-                      {showTranscript ? 'Ocultar transcrição' : 'Ver transcrição'}
+                      {showTranscript
+                        ? 'Ocultar transcrição'
+                        : 'Ver transcrição'}
                     </button>
                     {showTranscript && (
                       <p className="mt-2 font-body text-sm text-canvas/80 whitespace-pre-wrap leading-relaxed">
@@ -196,7 +209,9 @@ export function ContentPlayer({
             ) : (
               <div className="text-canvas text-center">
                 <Play size={56} strokeWidth={1.5} className="mx-auto mb-4" />
-                <div className="font-body text-base font-medium">{lesson.title}</div>
+                <div className="font-body text-base font-medium">
+                  {lesson.title}
+                </div>
                 <div className="font-body text-sm text-canvas/70 mt-2">
                   Esta aula ainda não tem vídeo associado.
                 </div>
@@ -207,7 +222,11 @@ export function ContentPlayer({
               <PdfViewer src={fileSrc} title={lesson.title} />
             ) : (
               <div className="text-canvas text-center px-8">
-                <FileText size={56} strokeWidth={1.5} className="mx-auto mb-4" />
+                <FileText
+                  size={56}
+                  strokeWidth={1.5}
+                  className="mx-auto mb-4"
+                />
                 <div className="font-body text-base font-medium">
                   {lesson.title}
                 </div>
@@ -234,7 +253,11 @@ export function ContentPlayer({
               </div>
             ) : (
               <div className="text-canvas text-center px-8">
-                <BarChart3 size={56} strokeWidth={1.5} className="mx-auto mb-4" />
+                <BarChart3
+                  size={56}
+                  strokeWidth={1.5}
+                  className="mx-auto mb-4"
+                />
                 <div className="font-body text-base font-medium">
                   {lesson.title}
                 </div>
@@ -259,7 +282,9 @@ export function ContentPlayer({
           ) : lesson.type === 'LIVE' ? (
             <div className="text-canvas text-center px-8">
               <Calendar size={56} strokeWidth={1.5} className="mx-auto mb-4" />
-              <div className="font-body text-base font-medium">{lesson.title}</div>
+              <div className="font-body text-base font-medium">
+                {lesson.title}
+              </div>
               {lesson.liveDate ? (
                 <div className="font-body text-sm text-canvas/70 mt-2">
                   {new Date(lesson.liveDate).toLocaleString('pt', {
@@ -334,20 +359,26 @@ export function ContentPlayer({
               Actividades
             </h3>
             <div className="space-y-2">
-              {lesson.activities.map(activity => {
+              {lesson.activities.map((activity) => {
                 const Icon = ACTIVITY_ICON[activity.type];
                 return (
                   <div
                     key={activity.id}
                     className="flex items-start gap-3 rounded-lg border border-border p-3"
                   >
-                    <Icon size={18} strokeWidth={1.75} className="text-ink-muted mt-0.5 flex-shrink-0" />
+                    <Icon
+                      size={18}
+                      strokeWidth={1.75}
+                      className="text-ink-muted mt-0.5 flex-shrink-0"
+                    />
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">
                         <span className="font-body text-sm font-medium text-ink">
                           {activity.title}
                         </span>
-                        <Badge intent="neutral">{ACTIVITY_LABEL[activity.type]}</Badge>
+                        <Badge intent="neutral">
+                          {ACTIVITY_LABEL[activity.type]}
+                        </Badge>
                       </div>
                       {activity.description && (
                         <p className="font-body text-xs text-ink-muted mt-1">
@@ -379,7 +410,7 @@ export function ContentPlayer({
               Recursos
             </h3>
             <div className="space-y-2">
-              {lesson.resources.map(resource => (
+              {lesson.resources.map((resource) => (
                 <a
                   key={resource.id}
                   href={resource.url}
@@ -387,14 +418,23 @@ export function ContentPlayer({
                   rel="noopener noreferrer"
                   className="flex items-center gap-3 rounded-lg border border-border p-3 hover:bg-surface-sunken"
                 >
-                  <Download size={18} strokeWidth={1.75} className="text-ink-muted flex-shrink-0" />
+                  <Download
+                    size={18}
+                    strokeWidth={1.75}
+                    className="text-ink-muted flex-shrink-0"
+                  />
                   <div className="min-w-0 flex-1">
                     <div className="font-body text-sm font-medium text-ink truncate">
                       {resource.title}
                     </div>
                     {(resource.fileType || resource.fileSizeKb) && (
                       <div className="font-body text-xs text-ink-faint">
-                        {[resource.fileType, resource.fileSizeKb ? `${resource.fileSizeKb} KB` : null]
+                        {[
+                          resource.fileType,
+                          resource.fileSizeKb
+                            ? `${resource.fileSizeKb} KB`
+                            : null,
+                        ]
                           .filter(Boolean)
                           .join(' · ')}
                       </div>
@@ -409,7 +449,9 @@ export function ContentPlayer({
         {/* Avaliação (quiz) — docs/06-modulo-courses.md secção 8 */}
         {lesson.quizId && (
           <div className="px-6 py-5 border-t border-border">
-            <h3 className="font-body text-sm font-semibold text-ink mb-3">Avaliação</h3>
+            <h3 className="font-body text-sm font-semibold text-ink mb-3">
+              Avaliação
+            </h3>
             <QuizPlayer quizId={lesson.quizId} />
           </div>
         )}
@@ -419,13 +461,23 @@ export function ContentPlayer({
       <div className="flex items-center justify-between gap-3 px-6 py-4 border-t border-border bg-surface flex-wrap">
         <div className="flex items-center gap-2">
           {onPrevious && (
-            <Button intent="secondary" size="sm" disabled={!hasPrevious} onClick={onPrevious}>
+            <Button
+              intent="secondary"
+              size="sm"
+              disabled={!hasPrevious}
+              onClick={onPrevious}
+            >
               <ChevronLeft size={16} strokeWidth={1.75} />
               Anterior
             </Button>
           )}
           {onNext && (
-            <Button intent="secondary" size="sm" disabled={!hasNext} onClick={onNext}>
+            <Button
+              intent="secondary"
+              size="sm"
+              disabled={!hasNext}
+              onClick={onNext}
+            >
               Próxima
               <ChevronRight size={16} strokeWidth={1.75} />
             </Button>

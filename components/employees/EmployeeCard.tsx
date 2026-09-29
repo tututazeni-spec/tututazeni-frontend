@@ -92,18 +92,30 @@ export function EmployeeCard({ employee, onView, onEdit }: EmployeeCardProps) {
       <div className="space-y-1.5 mb-4">
         {employee.department && (
           <div className="flex items-center gap-2 text-xs text-ink-muted">
-            <Building2 size={14} strokeWidth={1.75} className="flex-shrink-0 text-ink-faint" />
+            <Building2
+              size={14}
+              strokeWidth={1.75}
+              className="flex-shrink-0 text-ink-faint"
+            />
             <span className="truncate">{employee.department}</span>
           </div>
         )}
         {employee.location && (
           <div className="flex items-center gap-2 text-xs text-ink-muted">
-            <MapPin size={14} strokeWidth={1.75} className="flex-shrink-0 text-ink-faint" />
+            <MapPin
+              size={14}
+              strokeWidth={1.75}
+              className="flex-shrink-0 text-ink-faint"
+            />
             <span className="truncate">{employee.location}</span>
           </div>
         )}
         <div className="flex items-center gap-2 text-xs text-ink-muted">
-          <Calendar size={14} strokeWidth={1.75} className="flex-shrink-0 text-ink-faint" />
+          <Calendar
+            size={14}
+            strokeWidth={1.75}
+            className="flex-shrink-0 text-ink-faint"
+          />
           <span>{tenure}</span>
         </div>
       </div>
@@ -133,9 +145,7 @@ export function EmployeeCard({ employee, onView, onEdit }: EmployeeCardProps) {
             <p className="text-xs text-ink-faint">Skills</p>
           </div>
           <div>
-            <p className="text-sm font-bold text-ink">
-              {employee._count.pdis}
-            </p>
+            <p className="text-sm font-bold text-ink">{employee._count.pdis}</p>
             <p className="text-xs text-ink-faint">PDIs</p>
           </div>
           <div>

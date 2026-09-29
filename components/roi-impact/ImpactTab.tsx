@@ -21,7 +21,11 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { DataTable } from '@/components/ui/DataTable';
 import { DonutChart } from '@/components/ui/charts/DonutChart';
 import { NewImpactRecordModal } from './NewImpactRecordModal';
-import { INITIATIVE_TYPE_LABELS, IMPACT_CATEGORY_LABELS, IMPACT_SUBJECT_TYPE_LABELS } from './utils';
+import {
+  INITIATIVE_TYPE_LABELS,
+  IMPACT_CATEGORY_LABELS,
+  IMPACT_SUBJECT_TYPE_LABELS,
+} from './utils';
 import type { ImpactCategorySummaryRow, ImpactRecordListData } from './types';
 
 export function ImpactTab() {
@@ -42,11 +46,21 @@ export function ImpactTab() {
 
   const validate = useApiMutation(
     (id: number) =>
-      apiClient.post(`/roi-impact/impact-records/${id}/validate`, { validatedById: me?.id }),
+      apiClient.post(`/roi-impact/impact-records/${id}/validate`, {
+        validatedById: me?.id,
+      }),
     {
-      invalidateKeys: [queryKeys.roiImpact.impactRecords(), queryKeys.roiImpact.impactByCategory()],
+      invalidateKeys: [
+        queryKeys.roiImpact.impactRecords(),
+        queryKeys.roiImpact.impactByCategory(),
+      ],
       onSuccess: () => notify({ title: 'Registo validado', intent: 'success' }),
-      onError: (e) => notify({ title: 'Erro ao validar', description: e.message, intent: 'danger' }),
+      onError: (e) =>
+        notify({
+          title: 'Erro ao validar',
+          description: e.message,
+          intent: 'danger',
+        }),
     },
   );
 
@@ -65,7 +79,8 @@ export function ImpactTab() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <p className="font-body text-sm text-ink-muted">
-          {data?.total ?? 0} registo(s) — liga iniciativas de RH/Academia a indicadores de negócio reais
+          {data?.total ?? 0} registo(s) — liga iniciativas de RH/Academia a
+          indicadores de negócio reais
         </p>
         <Button size="sm" onClick={() => setModalOpen(true)}>
           <Plus size={14} strokeWidth={1.75} className="mr-1" />
@@ -80,7 +95,10 @@ export function ImpactTab() {
               <DonutChart
                 size={140}
                 centerLabel="Registos"
-                data={byCategory!.map((c) => ({ label: IMPACT_CATEGORY_LABELS[c.category] ?? c.category, value: c.count }))}
+                data={byCategory!.map((c) => ({
+                  label: IMPACT_CATEGORY_LABELS[c.category] ?? c.category,
+                  value: c.count,
+                }))}
               />
             </CardBody>
           </Card>
@@ -88,12 +106,16 @@ export function ImpactTab() {
             {byCategory!.map((c) => (
               <Card key={c.category}>
                 <CardBody>
-                  <p className="font-display text-xl font-bold text-ink">{c.count}</p>
+                  <p className="font-display text-xl font-bold text-ink">
+                    {c.count}
+                  </p>
                   <p className="font-body text-[10px] text-ink-faint">
                     {IMPACT_CATEGORY_LABELS[c.category] ?? c.category}
                   </p>
                   <p className="mt-1 font-body text-[10px] text-ink-faint">
-                    {c.avgAttributionPercent != null ? `${c.avgAttributionPercent}% atribuição média` : '—'}
+                    {c.avgAttributionPercent != null
+                      ? `${c.avgAttributionPercent}% atribuição média`
+                      : '—'}
                   </p>
                 </CardBody>
               </Card>
@@ -115,8 +137,13 @@ export function ImpactTab() {
                 sortable: true,
                 render: (r) => (
                   <>
-                    <p className="font-medium text-ink">{r.subjectLabel ?? '—'}</p>
-                    <p className="text-xs text-ink-faint">{IMPACT_SUBJECT_TYPE_LABELS[r.subjectType] ?? r.subjectType}</p>
+                    <p className="font-medium text-ink">
+                      {r.subjectLabel ?? '—'}
+                    </p>
+                    <p className="text-xs text-ink-faint">
+                      {IMPACT_SUBJECT_TYPE_LABELS[r.subjectType] ??
+                        r.subjectType}
+                    </p>
                   </>
                 ),
               },
@@ -126,26 +153,51 @@ export function ImpactTab() {
                 render: (r) => (
                   <>
                     <p className="text-ink">{r.initiative ?? '—'}</p>
-                    <p className="text-xs text-ink-faint">{INITIATIVE_TYPE_LABELS[r.initiativeType] ?? r.initiativeType}</p>
+                    <p className="text-xs text-ink-faint">
+                      {INITIATIVE_TYPE_LABELS[r.initiativeType] ??
+                        r.initiativeType}
+                    </p>
                   </>
                 ),
               },
-              { key: 'category', header: 'Categoria', sortable: true, render: (r) => IMPACT_CATEGORY_LABELS[r.category] ?? r.category },
+              {
+                key: 'category',
+                header: 'Categoria',
+                sortable: true,
+                render: (r) => IMPACT_CATEGORY_LABELS[r.category] ?? r.category,
+              },
               { key: 'indicatorName', header: 'Indicador', sortable: true },
-              { key: 'valueBefore', header: 'Antes', render: (r) => r.valueBefore ?? '—' },
-              { key: 'valueAfter', header: 'Depois', render: (r) => r.valueAfter ?? '—' },
-              { key: 'variation', header: 'Variação', sortable: true, render: (r) => (r.variation != null ? r.variation : '—') },
+              {
+                key: 'valueBefore',
+                header: 'Antes',
+                render: (r) => r.valueBefore ?? '—',
+              },
+              {
+                key: 'valueAfter',
+                header: 'Depois',
+                render: (r) => r.valueAfter ?? '—',
+              },
+              {
+                key: 'variation',
+                header: 'Variação',
+                sortable: true,
+                render: (r) => (r.variation != null ? r.variation : '—'),
+              },
               {
                 key: 'attributionPercent',
                 header: 'Atribuição',
                 sortable: true,
-                render: (r) => (r.attributionPercent != null ? `${r.attributionPercent}%` : '—'),
+                render: (r) =>
+                  r.attributionPercent != null
+                    ? `${r.attributionPercent}%`
+                    : '—',
               },
               {
                 key: 'attributedImpact',
                 header: 'Impacto atribuído',
                 sortable: true,
-                render: (r) => (r.attributedImpact != null ? r.attributedImpact : '—'),
+                render: (r) =>
+                  r.attributedImpact != null ? r.attributedImpact : '—',
               },
               {
                 key: 'validatedById',
@@ -161,7 +213,12 @@ export function ImpactTab() {
                 header: '',
                 render: (r) =>
                   !r.validatedById && (
-                    <Button size="sm" intent="secondary" loading={validate.isPending} onClick={() => validate.mutate(r.id)}>
+                    <Button
+                      size="sm"
+                      intent="secondary"
+                      loading={validate.isPending}
+                      onClick={() => validate.mutate(r.id)}
+                    >
                       Validar
                     </Button>
                   ),
@@ -171,7 +228,9 @@ export function ImpactTab() {
         </div>
       </Card>
 
-      {modalOpen && <NewImpactRecordModal onClose={() => setModalOpen(false)} />}
+      {modalOpen && (
+        <NewImpactRecordModal onClose={() => setModalOpen(false)} />
+      )}
     </div>
   );
 }

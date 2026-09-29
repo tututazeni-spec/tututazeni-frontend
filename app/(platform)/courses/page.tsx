@@ -28,7 +28,9 @@ export default function CoursesPage() {
   // como não-privilegiado — os separadores restritos aparecem assim que
   // /auth/me resolve.
   const isAdmin = !!role && ADMIN_ROLES.includes(role);
-  const visibleNav = NAV.filter((n) => !n.roles || (!!role && n.roles.includes(role)));
+  const visibleNav = NAV.filter(
+    (n) => !n.roles || (!!role && n.roles.includes(role)),
+  );
 
   const [nav, setNav] = useState<Nav>({ view: 'catalog' });
   const [showCreate, setShowCreate] = useState(false);
@@ -84,17 +86,22 @@ export default function CoursesPage() {
         )}
       </div>
 
-      {/* Tabs */}
+      {/* Tabs — formato de "cartão": cada botão é um cartão independente
+          (borda + fundo branco + rounded), sem o fundo/pill de grupo
+          anterior. Alinhadas horizontal e verticalmente (justify-center +
+          items-center no wrapper). Estado activo usa a mesma condição
+          `nav.view === n.id` de sempre para aplicar destaque azul
+          (borda/fundo/texto primary). */}
       {nav.view !== 'detail' && (
-        <div className="flex gap-1 mb-6 bg-surface-sunken p-1 rounded-card w-fit flex-wrap">
+        <div className="mb-6 flex w-full flex-wrap items-center justify-center gap-2">
           {visibleNav.map((n) => (
             <button
               key={n.id}
               onClick={() => setNav({ view: n.id })}
-              className={`px-4 py-2 text-sm font-medium rounded-control transition-colors ${
+              className={`flex min-w-[140px] items-center justify-center whitespace-nowrap rounded-lg border px-4 py-2 text-center text-sm font-medium transition-colors ${
                 nav.view === n.id
-                  ? 'bg-surface text-ink shadow-resting'
-                  : 'text-ink-muted hover:text-ink'
+                  ? 'border-primary bg-primary/10 text-primary'
+                  : 'border-border bg-white text-ink-muted hover:text-ink'
               }`}
             >
               {n.label}

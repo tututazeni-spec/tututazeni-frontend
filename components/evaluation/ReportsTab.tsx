@@ -20,7 +20,13 @@ import { QueryError } from '@/components/ui/QueryError';
 import { SCORE_COLOR } from './constants';
 import type { EvaluationReportGroup, EvaluationReportsOverview } from './types';
 
-function GroupTable({ title, rows }: { title: string; rows: EvaluationReportGroup[] }) {
+function GroupTable({
+  title,
+  rows,
+}: {
+  title: string;
+  rows: EvaluationReportGroup[];
+}) {
   if (!rows.length) return null;
   return (
     <Card>
@@ -28,7 +34,10 @@ function GroupTable({ title, rows }: { title: string; rows: EvaluationReportGrou
         <h4 className="font-display font-semibold text-ink mb-3">{title}</h4>
         <div className="space-y-2">
           {rows.map((r) => (
-            <div key={r.id} className="flex items-center justify-between text-xs">
+            <div
+              key={r.id}
+              className="flex items-center justify-between text-xs"
+            >
               <span className="text-ink-muted">{r.name}</span>
               <span className={`font-bold ${SCORE_COLOR(r.avgScore)}`}>
                 {r.avgScore.toFixed(1)} ({r.count})
@@ -52,7 +61,9 @@ export function ReportsTab() {
   });
 
   const load = useApiMutation((qs: string) =>
-    apiClient.get<EvaluationReportsOverview>(`/evaluations/reports/overview${qs}`),
+    apiClient.get<EvaluationReportsOverview>(
+      `/evaluations/reports/overview${qs}`,
+    ),
   );
   const data = load.data ?? null;
 
@@ -72,55 +83,79 @@ export function ReportsTab() {
       <Card>
         <CardBody className="flex flex-wrap items-end gap-3">
           <div>
-            <label className="mb-1 block text-xs font-medium text-ink-muted">Ciclo</label>
+            <label className="mb-1 block text-xs font-medium text-ink-muted">
+              Ciclo
+            </label>
             <Input
               value={filters.cycleId}
-              onChange={(e) => setFilters((f) => ({ ...f, cycleId: e.target.value }))}
+              onChange={(e) =>
+                setFilters((f) => ({ ...f, cycleId: e.target.value }))
+              }
               placeholder="ID do ciclo"
               className="w-32"
             />
           </div>
           <div>
-            <label className="mb-1 block text-xs font-medium text-ink-muted">Departamento</label>
+            <label className="mb-1 block text-xs font-medium text-ink-muted">
+              Departamento
+            </label>
             <Input
               value={filters.departmentId}
-              onChange={(e) => setFilters((f) => ({ ...f, departmentId: e.target.value }))}
+              onChange={(e) =>
+                setFilters((f) => ({ ...f, departmentId: e.target.value }))
+              }
               placeholder="ID"
               className="w-24"
             />
           </div>
           <div>
-            <label className="mb-1 block text-xs font-medium text-ink-muted">Unidade</label>
+            <label className="mb-1 block text-xs font-medium text-ink-muted">
+              Unidade
+            </label>
             <Input
               value={filters.unitId}
-              onChange={(e) => setFilters((f) => ({ ...f, unitId: e.target.value }))}
+              onChange={(e) =>
+                setFilters((f) => ({ ...f, unitId: e.target.value }))
+              }
               placeholder="ID"
               className="w-24"
             />
           </div>
           <div>
-            <label className="mb-1 block text-xs font-medium text-ink-muted">Cargo</label>
+            <label className="mb-1 block text-xs font-medium text-ink-muted">
+              Cargo
+            </label>
             <Input
               value={filters.positionId}
-              onChange={(e) => setFilters((f) => ({ ...f, positionId: e.target.value }))}
+              onChange={(e) =>
+                setFilters((f) => ({ ...f, positionId: e.target.value }))
+              }
               placeholder="ID"
               className="w-24"
             />
           </div>
           <div>
-            <label className="mb-1 block text-xs font-medium text-ink-muted">Gestor</label>
+            <label className="mb-1 block text-xs font-medium text-ink-muted">
+              Gestor
+            </label>
             <Input
               value={filters.managerId}
-              onChange={(e) => setFilters((f) => ({ ...f, managerId: e.target.value }))}
+              onChange={(e) =>
+                setFilters((f) => ({ ...f, managerId: e.target.value }))
+              }
               placeholder="ID"
               className="w-24"
             />
           </div>
           <div>
-            <label className="mb-1 block text-xs font-medium text-ink-muted">Período</label>
+            <label className="mb-1 block text-xs font-medium text-ink-muted">
+              Período
+            </label>
             <Input
               value={filters.period}
-              onChange={(e) => setFilters((f) => ({ ...f, period: e.target.value }))}
+              onChange={(e) =>
+                setFilters((f) => ({ ...f, period: e.target.value }))
+              }
               placeholder="2026 ou 2026-03"
               className="w-32"
             />
@@ -150,13 +185,20 @@ export function ReportsTab() {
       </Card>
 
       {load.isPending && (
-        <Skeleton rows={4} wrapperClassName="space-y-3" itemClassName="skeleton-shimmer h-24 rounded-card" />
+        <Skeleton
+          rows={4}
+          wrapperClassName="space-y-3"
+          itemClassName="skeleton-shimmer h-24 rounded-card"
+        />
       )}
 
       {load.isError && <QueryError error={load.error} onRetry={run} />}
 
       {!load.isPending && !data && !load.isError && (
-        <EmptyState title="Sem relatório gerado" description="Ajusta os filtros e carrega em «Gerar Relatório»." />
+        <EmptyState
+          title="Sem relatório gerado"
+          description="Ajusta os filtros e carrega em «Gerar Relatório»."
+        />
       )}
 
       {data && (
@@ -165,19 +207,27 @@ export function ReportsTab() {
             <Card>
               <CardBody>
                 <p className="text-xs text-ink-faint">Total de Avaliações</p>
-                <p className="text-2xl font-bold text-ink">{data.totalEvaluations}</p>
+                <p className="text-2xl font-bold text-ink">
+                  {data.totalEvaluations}
+                </p>
               </CardBody>
             </Card>
             <Card>
               <CardBody>
                 <p className="text-xs text-ink-faint">Score Médio</p>
-                <p className={`text-2xl font-bold ${SCORE_COLOR(data.avgScore)}`}>{data.avgScore.toFixed(1)}</p>
+                <p
+                  className={`text-2xl font-bold ${SCORE_COLOR(data.avgScore)}`}
+                >
+                  {data.avgScore.toFixed(1)}
+                </p>
               </CardBody>
             </Card>
             <Card>
               <CardBody>
                 <p className="text-xs text-ink-faint">Taxa de Conclusão</p>
-                <p className="text-2xl font-bold text-ink">{data.completionRate}%</p>
+                <p className="text-2xl font-bold text-ink">
+                  {data.completionRate}%
+                </p>
               </CardBody>
             </Card>
             <Card>
@@ -202,10 +252,15 @@ export function ReportsTab() {
           {data.competencyGaps.length > 0 && (
             <Card>
               <CardBody>
-                <h4 className="font-display font-semibold text-ink mb-3">Gaps de Competências</h4>
+                <h4 className="font-display font-semibold text-ink mb-3">
+                  Gaps de Competências
+                </h4>
                 <div className="space-y-2">
                   {data.competencyGaps.map((c) => (
-                    <div key={c.competencyId} className="flex items-center justify-between text-xs">
+                    <div
+                      key={c.competencyId}
+                      className="flex items-center justify-between text-xs"
+                    >
                       <span className="text-ink-muted">{c.name}</span>
                       <span className="font-bold text-danger-ink">
                         média {c.avgScore.toFixed(1)} · gap {c.gap.toFixed(1)}
@@ -220,15 +275,22 @@ export function ReportsTab() {
           {data.evolution.length > 1 && (
             <Card>
               <CardBody>
-                <h4 className="font-display font-semibold text-ink mb-3">Evolução do Desempenho</h4>
+                <h4 className="font-display font-semibold text-ink mb-3">
+                  Evolução do Desempenho
+                </h4>
                 <div className="flex items-end gap-2 h-24">
                   {data.evolution.map((e) => (
-                    <div key={e.period} className="flex-1 flex flex-col items-center gap-1">
+                    <div
+                      key={e.period}
+                      className="flex-1 flex flex-col items-center gap-1"
+                    >
                       <div
                         className="w-full rounded-t bg-primary-subtle border-primary"
                         style={{ height: `${(e.avgScore / 5) * 100}%` }}
                       />
-                      <span className="text-[10px] text-ink-faint">{e.period}</span>
+                      <span className="text-[10px] text-ink-faint">
+                        {e.period}
+                      </span>
                     </div>
                   ))}
                 </div>

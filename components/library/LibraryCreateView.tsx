@@ -56,7 +56,9 @@ export function LibraryCreateView({
         <ArrowLeft size={14} strokeWidth={1.75} />
         Voltar à biblioteca
       </Button>
-      <h1 className="mb-6 font-display text-2xl font-bold text-ink">Adicionar Recurso</h1>
+      <h1 className="mb-6 font-display text-2xl font-bold text-ink">
+        Adicionar Recurso
+      </h1>
 
       {error && (
         <div className="mb-4 rounded-card border border-danger bg-danger-subtle p-3 font-body text-sm text-danger-ink">
@@ -168,7 +170,10 @@ export function LibraryCreateView({
               />
             </FormField>
 
-            <FormField label="Categorias (separadas por vírgula)" htmlFor="library-categories">
+            <FormField
+              label="Categorias (separadas por vírgula)"
+              htmlFor="library-categories"
+            >
               <Input
                 id="library-categories"
                 value={form.categoriesText}
@@ -178,7 +183,10 @@ export function LibraryCreateView({
             </FormField>
 
             <div className="md:col-span-2">
-              <FormField label="Palavras-chave (separadas por vírgula)" htmlFor="library-keywords">
+              <FormField
+                label="Palavras-chave (separadas por vírgula)"
+                htmlFor="library-keywords"
+              >
                 <Input
                   id="library-keywords"
                   value={form.keywordsText}

@@ -27,7 +27,10 @@ const post = vi.fn();
 
 vi.mock('@/hooks/useApiQuery', () => ({
   useApiQuery: () => ({ data: queryData, isLoading: false, error: null }),
-  useApiMutation: (fn: () => Promise<unknown>, opts: { onSuccess?: (d: unknown) => void }) => ({
+  useApiMutation: (
+    fn: () => Promise<unknown>,
+    opts: { onSuccess?: (d: unknown) => void },
+  ) => ({
     mutate: async () => {
       const result = await fn();
       opts.onSuccess?.(result);
@@ -46,7 +49,9 @@ describe('QuizPlayer', () => {
   test('mostra as perguntas e desactiva o submeter até todas terem resposta', () => {
     render(<QuizPlayer quizId={1} />);
     expect(screen.getByText('Quanto é 2+2?')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /submeter respostas/i })).toBeDisabled();
+    expect(
+      screen.getByRole('button', { name: /submeter respostas/i }),
+    ).toBeDisabled();
   });
 
   test('submete e mostra o resultado', async () => {
@@ -55,19 +60,29 @@ describe('QuizPlayer', () => {
       passed: true,
       passingScore: 70,
       feedback: 'Aprovado',
-      results: [{ questionId: 10, answer: '4', correct: true, correctAnswer: '4' }],
+      results: [
+        { questionId: 10, answer: '4', correct: true, correctAnswer: '4' },
+      ],
     });
     render(<QuizPlayer quizId={1} />);
     fireEvent.click(screen.getByLabelText('4'));
-    fireEvent.click(screen.getByRole('button', { name: /submeter respostas/i }));
+    fireEvent.click(
+      screen.getByRole('button', { name: /submeter respostas/i }),
+    );
     expect(await screen.findByText(/aprovado/i)).toBeInTheDocument();
-    expect(post).toHaveBeenCalledWith('/courses/quizzes/1/submit', { answers: { '10': '4' } });
+    expect(post).toHaveBeenCalledWith('/courses/quizzes/1/submit', {
+      answers: { '10': '4' },
+    });
   });
 
   test('sem tentativas restantes, mostra aviso em vez do formulário', () => {
     queryData = { ...quiz, attemptsRemaining: 0 };
     render(<QuizPlayer quizId={1} />);
-    expect(screen.getByText(/já não tens tentativas disponíveis/i)).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: /submeter respostas/i })).not.toBeInTheDocument();
+    expect(
+      screen.getByText(/já não tens tentativas disponíveis/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: /submeter respostas/i }),
+    ).not.toBeInTheDocument();
   });
 });

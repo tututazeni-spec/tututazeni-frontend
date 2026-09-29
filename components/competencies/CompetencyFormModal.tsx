@@ -126,11 +126,19 @@ function CompetencyForm({
   const [isCritical, setIsCritical] = useState(initial?.isCritical ?? false);
   const [isStrategic, setIsStrategic] = useState(initial?.isStrategic ?? false);
   const [isMandatory, setIsMandatory] = useState(initial?.isMandatory ?? false);
-  const [isAssessable, setIsAssessable] = useState(initial?.isAssessable ?? true);
-  const [isDevelopable, setIsDevelopable] = useState(initial?.isDevelopable ?? true);
+  const [isAssessable, setIsAssessable] = useState(
+    initial?.isAssessable ?? true,
+  );
+  const [isDevelopable, setIsDevelopable] = useState(
+    initial?.isDevelopable ?? true,
+  );
   const [owner, setOwner] = useState<DirectoryUser | null>(
     initial?.owner
-      ? { id: initial.owner.id, fullName: initial.owner.fullName, avatarUrl: null }
+      ? {
+          id: initial.owner.id,
+          fullName: initial.owner.fullName,
+          avatarUrl: null,
+        }
       : null,
   );
   const [submitError, setSubmitError] = useState('');

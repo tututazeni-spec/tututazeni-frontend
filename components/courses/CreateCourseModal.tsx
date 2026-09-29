@@ -154,18 +154,24 @@ export function CreateCourseModal({
   );
   const prerequisiteItems = [
     { value: NO_PREREQUISITE, label: 'Nenhum' },
-    ...(existingCourses?.data ?? []).map((c) => ({ value: String(c.id), label: c.title })),
+    ...(existingCourses?.data ?? []).map((c) => ({
+      value: String(c.id),
+      label: c.title,
+    })),
   ];
 
   const createCourse = useApiMutation(
     () => {
       const payload: Record<string, unknown> = { title: form.title.trim() };
       const str = (v: string) => v.trim() || undefined;
-      if (str(form.shortDescription)) payload.shortDescription = form.shortDescription.trim();
+      if (str(form.shortDescription))
+        payload.shortDescription = form.shortDescription.trim();
       if (str(form.description)) payload.description = form.description.trim();
       if (str(form.category)) payload.category = form.category.trim();
-      if (str(form.knowledgeArea)) payload.knowledgeArea = form.knowledgeArea.trim();
-      if (str(form.internalCode)) payload.internalCode = form.internalCode.trim();
+      if (str(form.knowledgeArea))
+        payload.knowledgeArea = form.knowledgeArea.trim();
+      if (str(form.internalCode))
+        payload.internalCode = form.internalCode.trim();
       if (form.level) payload.level = form.level;
       if (form.type) payload.type = form.type;
       if (form.modality) payload.modality = form.modality;
@@ -192,20 +198,28 @@ export function CreateCourseModal({
         payload.minCompletionPercent = Math.trunc(minCompletion);
       }
       const certValidity = Number(form.certificateValidityDays);
-      if (form.certificateValidityDays !== '' && Number.isFinite(certValidity)) {
+      if (
+        form.certificateValidityDays !== '' &&
+        Number.isFinite(certValidity)
+      ) {
         payload.certificateValidityDays = Math.trunc(certValidity);
       }
-      if (str(form.certificateCriteria)) payload.certificateCriteria = form.certificateCriteria.trim();
+      if (str(form.certificateCriteria))
+        payload.certificateCriteria = form.certificateCriteria.trim();
 
       if (form.startDate) payload.startDate = form.startDate;
       if (form.endDate) payload.endDate = form.endDate;
       if (str(form.unit)) payload.unit = form.unit.trim();
-      if (form.departmentId !== NO_DEPT) payload.departmentId = Number(form.departmentId);
+      if (form.departmentId !== NO_DEPT)
+        payload.departmentId = Number(form.departmentId);
       if (form.requiredCourseId !== NO_PREREQUISITE)
         payload.requiredCourseId = Number(form.requiredCourseId);
       if (instructor) payload.primaryInstructorId = instructor.id;
 
-      const tags = form.tags.split(',').map((t) => t.trim()).filter(Boolean);
+      const tags = form.tags
+        .split(',')
+        .map((t) => t.trim())
+        .filter(Boolean);
       if (tags.length) payload.tags = tags;
       const targetAudience = form.targetAudience
         .split(',')
@@ -295,7 +309,10 @@ export function CreateCourseModal({
                     placeholder="Ex: Compliance"
                   />
                 </FormField>
-                <FormField label="Área de conhecimento" htmlFor="cc-knowledgeArea">
+                <FormField
+                  label="Área de conhecimento"
+                  htmlFor="cc-knowledgeArea"
+                >
                   <Input
                     id="cc-knowledgeArea"
                     value={form.knowledgeArea}
@@ -403,13 +420,18 @@ export function CreateCourseModal({
                   placeholder="Ex: 8"
                 />
               </FormField>
-              <FormField label="Duração estimada (dias)" htmlFor="cc-estimatedDurationDays">
+              <FormField
+                label="Duração estimada (dias)"
+                htmlFor="cc-estimatedDurationDays"
+              >
                 <Input
                   id="cc-estimatedDurationDays"
                   type="number"
                   min={0}
                   value={form.estimatedDurationDays}
-                  onChange={(e) => setField('estimatedDurationDays', e.target.value)}
+                  onChange={(e) =>
+                    setField('estimatedDurationDays', e.target.value)
+                  }
                   className="w-full"
                 />
               </FormField>
@@ -437,7 +459,10 @@ export function CreateCourseModal({
             </div>
 
             <div className="grid grid-cols-2 gap-3">
-              <FormField label="Nota mínima de aprovação (%)" htmlFor="cc-passingScore">
+              <FormField
+                label="Nota mínima de aprovação (%)"
+                htmlFor="cc-passingScore"
+              >
                 <Input
                   id="cc-passingScore"
                   type="number"
@@ -448,14 +473,19 @@ export function CreateCourseModal({
                   className="w-full"
                 />
               </FormField>
-              <FormField label="% mínima de conclusão" htmlFor="cc-minCompletionPercent">
+              <FormField
+                label="% mínima de conclusão"
+                htmlFor="cc-minCompletionPercent"
+              >
                 <Input
                   id="cc-minCompletionPercent"
                   type="number"
                   min={0}
                   max={100}
                   value={form.minCompletionPercent}
-                  onChange={(e) => setField('minCompletionPercent', e.target.value)}
+                  onChange={(e) =>
+                    setField('minCompletionPercent', e.target.value)
+                  }
                   className="w-full"
                 />
               </FormField>
@@ -475,7 +505,9 @@ export function CreateCourseModal({
                 <input
                   type="checkbox"
                   checked={form.requiresApproval}
-                  onChange={(e) => setField('requiresApproval', e.target.checked)}
+                  onChange={(e) =>
+                    setField('requiresApproval', e.target.checked)
+                  }
                   className="h-3.5 w-3.5 rounded border-border-strong accent-primary"
                 />
                 Requer aprovação para inscrição
@@ -484,7 +516,9 @@ export function CreateCourseModal({
                 <input
                   type="checkbox"
                   checked={form.certificateEnabled}
-                  onChange={(e) => setField('certificateEnabled', e.target.checked)}
+                  onChange={(e) =>
+                    setField('certificateEnabled', e.target.checked)
+                  }
                   className="h-3.5 w-3.5 rounded border-border-strong accent-primary"
                 />
                 Emite certificado
@@ -493,22 +527,32 @@ export function CreateCourseModal({
 
             {form.certificateEnabled && (
               <div className="grid grid-cols-2 gap-3">
-                <FormField label="Critérios para emissão" htmlFor="cc-certificateCriteria">
+                <FormField
+                  label="Critérios para emissão"
+                  htmlFor="cc-certificateCriteria"
+                >
                   <Input
                     id="cc-certificateCriteria"
                     value={form.certificateCriteria}
-                    onChange={(e) => setField('certificateCriteria', e.target.value)}
+                    onChange={(e) =>
+                      setField('certificateCriteria', e.target.value)
+                    }
                     className="w-full"
                     placeholder="Ex: nota final ≥ 70%"
                   />
                 </FormField>
-                <FormField label="Validade do certificado (dias)" htmlFor="cc-certificateValidityDays">
+                <FormField
+                  label="Validade do certificado (dias)"
+                  htmlFor="cc-certificateValidityDays"
+                >
                   <Input
                     id="cc-certificateValidityDays"
                     type="number"
                     min={0}
                     value={form.certificateValidityDays}
-                    onChange={(e) => setField('certificateValidityDays', e.target.value)}
+                    onChange={(e) =>
+                      setField('certificateValidityDays', e.target.value)
+                    }
                     className="w-full"
                     placeholder="Sem expiração"
                   />
@@ -531,7 +575,10 @@ export function CreateCourseModal({
             />
 
             <div className="grid grid-cols-2 gap-3">
-              <FormField label="Departamento responsável" htmlFor="cc-department">
+              <FormField
+                label="Departamento responsável"
+                htmlFor="cc-department"
+              >
                 <Select
                   items={deptItems}
                   value={form.departmentId}
@@ -558,7 +605,10 @@ export function CreateCourseModal({
               />
             </FormField>
 
-            <FormField label="Público-alvo (separado por vírgula)" htmlFor="cc-targetAudience">
+            <FormField
+              label="Público-alvo (separado por vírgula)"
+              htmlFor="cc-targetAudience"
+            >
               <Input
                 id="cc-targetAudience"
                 value={form.targetAudience}

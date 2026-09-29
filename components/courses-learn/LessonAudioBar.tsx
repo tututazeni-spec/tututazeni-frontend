@@ -15,7 +15,8 @@ interface LessonAudioBarProps {
 }
 
 export function LessonAudioBar({ lessonId }: LessonAudioBarProps) {
-  const { state, progress, error, play, pause, stop } = useLessonAudio(lessonId);
+  const { state, progress, error, play, pause, stop } =
+    useLessonAudio(lessonId);
 
   // Card claro sobre a área escura do player, para os botões do design
   // system lerem com o contraste normal.
@@ -47,7 +48,9 @@ export function LessonAudioBar({ lessonId }: LessonAudioBarProps) {
                 loading={state === 'loading'}
                 onClick={() => void play()}
               >
-                {state !== 'loading' && <Volume2 size={14} strokeWidth={1.75} />}
+                {state !== 'loading' && (
+                  <Volume2 size={14} strokeWidth={1.75} />
+                )}
                 {state === 'loading'
                   ? 'A gerar áudio…'
                   : state === 'paused'

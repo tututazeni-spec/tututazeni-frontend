@@ -20,7 +20,12 @@ import { FormField } from '@/components/ui/FormField';
 import { Modal, ModalContent } from '@/components/ui/Modal';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { formatKz } from '@/lib/format';
-import { PLAN_PERIOD_LABEL, PLAN_STATUS_CFG, PRIORITY_CFG, STATUS_CFG } from '../constants';
+import {
+  PLAN_PERIOD_LABEL,
+  PLAN_STATUS_CFG,
+  PRIORITY_CFG,
+  STATUS_CFG,
+} from '../constants';
 import type { Training, TrainingPlan, TrainingPlanExecution } from '../types';
 
 interface PlanDetailViewProps {
@@ -47,14 +52,20 @@ export function PlanDetailView({ planId, onBack }: PlanDetailViewProps) {
   const { data: manageResp } = useApiQuery<{ data: Training[] }>(
     queryKeys.trainings.manage({ limit: 200 }),
     '/trainings/manage',
-    { params: { limit: 200 }, staleTime: STALE_TIME.DYNAMIC, enabled: showAddTraining },
+    {
+      params: { limit: 200 },
+      staleTime: STALE_TIME.DYNAMIC,
+      enabled: showAddTraining,
+    },
   );
 
   const invalidateKeys = [queryKeys.trainingPlans.all];
-  const toastError = (e: Error) => toast({ title: e.message, intent: 'danger' });
+  const toastError = (e: Error) =>
+    toast({ title: e.message, intent: 'danger' });
 
   const addTraining = useApiMutation(
-    (trainingId: number) => apiClient.post(`/training-plans/${planId}/trainings`, { trainingId }),
+    (trainingId: number) =>
+      apiClient.post(`/training-plans/${planId}/trainings`, { trainingId }),
     {
       invalidateKeys,
       onSuccess: () => {
@@ -66,16 +77,21 @@ export function PlanDetailView({ planId, onBack }: PlanDetailViewProps) {
     },
   );
   const removeTraining = useApiMutation(
-    (trainingId: number) => apiClient.delete(`/training-plans/${planId}/trainings/${trainingId}`),
+    (trainingId: number) =>
+      apiClient.delete(`/training-plans/${planId}/trainings/${trainingId}`),
     {
       invalidateKeys,
-      onSuccess: () => toast({ title: 'Formação desassociada.', intent: 'success' }),
+      onSuccess: () =>
+        toast({ title: 'Formação desassociada.', intent: 'success' }),
       onError: toastError,
     },
   );
 
   async function onRemoveTraining(id: number, title: string) {
-    const ok = await confirm({ title: `Desassociar "${title}" deste plano?`, confirmLabel: 'Desassociar' });
+    const ok = await confirm({
+      title: `Desassociar "${title}" deste plano?`,
+      confirmLabel: 'Desassociar',
+    });
     if (ok) removeTraining.mutate(id);
   }
 
@@ -95,22 +111,30 @@ export function PlanDetailView({ planId, onBack }: PlanDetailViewProps) {
       <Card className="p-5">
         <div className="mb-3 flex items-start justify-between gap-3">
           <div>
-            <h2 className="font-display text-lg font-semibold text-ink">{plan.name}</h2>
+            <h2 className="font-display text-lg font-semibold text-ink">
+              {plan.name}
+            </h2>
             <p className="text-xs text-ink-faint">
               {plan.code ? `${plan.code} · ` : ''}
               {plan.year} · {PLAN_PERIOD_LABEL[plan.period]}
             </p>
           </div>
           <div className="flex gap-2">
-            <span className={`rounded px-2 py-0.5 font-body text-xs font-medium ${priorityCfg.cls}`}>
+            <span
+              className={`rounded px-2 py-0.5 font-body text-xs font-medium ${priorityCfg.cls}`}
+            >
               {priorityCfg.label}
             </span>
-            <span className={`rounded px-2 py-0.5 font-body text-xs font-medium ${statusCfg.cls}`}>
+            <span
+              className={`rounded px-2 py-0.5 font-body text-xs font-medium ${statusCfg.cls}`}
+            >
               {statusCfg.label}
             </span>
           </div>
         </div>
-        {plan.description && <p className="mb-2 text-sm text-ink-muted">{plan.description}</p>}
+        {plan.description && (
+          <p className="mb-2 text-sm text-ink-muted">{plan.description}</p>
+        )}
         <div className="grid grid-cols-2 gap-3 text-xs text-ink-faint sm:grid-cols-4">
           <div>
             <div className="text-ink-faint">Responsável</div>
@@ -122,7 +146,9 @@ export function PlanDetailView({ planId, onBack }: PlanDetailViewProps) {
           </div>
           <div>
             <div className="text-ink-faint">Início</div>
-            <div className="text-ink">{plan.startDate?.slice(0, 10) ?? '—'}</div>
+            <div className="text-ink">
+              {plan.startDate?.slice(0, 10) ?? '—'}
+            </div>
           </div>
           <div>
             <div className="text-ink-faint">Fim</div>
@@ -200,22 +226,36 @@ export function PlanDetailView({ planId, onBack }: PlanDetailViewProps) {
         ) : (
           <div className="divide-y divide-border">
             {trainings.map((t) => (
-              <div key={t.id} className="flex flex-wrap items-center gap-3 px-4 py-3">
+              <div
+                key={t.id}
+                className="flex flex-wrap items-center gap-3 px-4 py-3"
+              >
                 <div className="min-w-0 flex-1">
-                  <div className="truncate text-sm font-medium text-ink">{t.title}</div>
+                  <div className="truncate text-sm font-medium text-ink">
+                    {t.title}
+                  </div>
                   <div className="text-xs text-ink-faint">
-                    {t._count.participants} participantes · {t.workloadHours ?? 0}h
+                    {t._count.participants} participantes ·{' '}
+                    {t.workloadHours ?? 0}h
                   </div>
                 </div>
-                <span className={`rounded px-2 py-0.5 font-body text-xs font-medium ${STATUS_CFG[t.status].cls}`}>
+                <span
+                  className={`rounded px-2 py-0.5 font-body text-xs font-medium ${STATUS_CFG[t.status].cls}`}
+                >
                   {STATUS_CFG[t.status].label}
                 </span>
                 <Button
                   intent="danger"
                   size="sm"
                   onClick={() => onRemoveTraining(t.id, t.title)}
-                  disabled={removeTraining.isPending && removeTraining.variables === t.id}
-                  loading={removeTraining.isPending && removeTraining.variables === t.id}
+                  disabled={
+                    removeTraining.isPending &&
+                    removeTraining.variables === t.id
+                  }
+                  loading={
+                    removeTraining.isPending &&
+                    removeTraining.variables === t.id
+                  }
                 >
                   Desassociar
                 </Button>
@@ -241,7 +281,11 @@ export function PlanDetailView({ planId, onBack }: PlanDetailViewProps) {
                 />
               </FormField>
               <div className="flex gap-3">
-                <Button intent="secondary" className="flex-1 justify-center" onClick={() => setShowAddTraining(false)}>
+                <Button
+                  intent="secondary"
+                  className="flex-1 justify-center"
+                  onClick={() => setShowAddTraining(false)}
+                >
                   Cancelar
                 </Button>
                 <Button
@@ -283,10 +327,17 @@ function ExecutionStat({
       <div className="text-xs text-ink-faint">{label}</div>
       <div className="font-mono text-lg font-bold text-ink">
         {fmt(realized)}
-        <span className="text-xs font-normal text-ink-faint"> / {fmt(planned)}</span>
+        <span className="text-xs font-normal text-ink-faint">
+          {' '}
+          / {fmt(planned)}
+        </span>
       </div>
       {rate !== null && (
-        <div className={`text-xs ${rate >= 100 ? 'text-success-ink' : 'text-ink-faint'}`}>{rate}% executado</div>
+        <div
+          className={`text-xs ${rate >= 100 ? 'text-success-ink' : 'text-ink-faint'}`}
+        >
+          {rate}% executado
+        </div>
       )}
     </div>
   );

@@ -101,19 +101,20 @@ export function LibraryItemView({
       </Card>
 
       {/* Leitor embutido (PDF / apresentações) */}
-      {(item.type === 'PDF' || item.type === 'PRESENTATION') && item.fileUrl && (
-        <Card>
-          <CardBody className="p-0">
-            <div className="flex h-[70vh] items-center justify-center overflow-hidden rounded-card bg-ink">
-              {item.type === 'PDF' ? (
-                <PdfViewer src={item.fileUrl} title={item.title} />
-              ) : (
-                <PptxViewer src={item.fileUrl} title={item.title} />
-              )}
-            </div>
-          </CardBody>
-        </Card>
-      )}
+      {(item.type === 'PDF' || item.type === 'PRESENTATION') &&
+        item.fileUrl && (
+          <Card>
+            <CardBody className="p-0">
+              <div className="flex h-[70vh] items-center justify-center overflow-hidden rounded-card bg-ink">
+                {item.type === 'PDF' ? (
+                  <PdfViewer src={item.fileUrl} title={item.title} />
+                ) : (
+                  <PptxViewer src={item.fileUrl} title={item.title} />
+                )}
+              </div>
+            </CardBody>
+          </Card>
+        )}
 
       {/* Metadados */}
       <Card>

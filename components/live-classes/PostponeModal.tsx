@@ -66,7 +66,12 @@ export function PostponeModal({ lc, onClose }: PostponeModalProps) {
           </FormField>
         </div>
         <div className="mt-6 flex gap-3">
-          <Button intent="secondary" className="flex-1 justify-center" onClick={onClose} disabled={postpone.isPending}>
+          <Button
+            intent="secondary"
+            className="flex-1 justify-center"
+            onClick={onClose}
+            disabled={postpone.isPending}
+          >
             Cancelar
           </Button>
           <Button

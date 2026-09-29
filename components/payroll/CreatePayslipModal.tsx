@@ -43,10 +43,15 @@ const DEDUCTIONS = [
 
 type NumKey = (typeof EARNINGS)[number][0] | (typeof DEDUCTIONS)[number][0];
 
-export function CreatePayslipModal({ onClose, onCreated }: CreatePayslipModalProps) {
+export function CreatePayslipModal({
+  onClose,
+  onCreated,
+}: CreatePayslipModalProps) {
   const notify = useToast();
   const [search, setSearch] = useState('');
-  const [picked, setPicked] = useState<{ id: number; fullName: string } | null>(null);
+  const [picked, setPicked] = useState<{ id: number; fullName: string } | null>(
+    null,
+  );
   const [period, setPeriod] = useState('');
   const [paymentDate, setPaymentDate] = useState('');
   const [baseSalary, setBaseSalary] = useState('');
@@ -61,7 +66,8 @@ export function CreatePayslipModal({ onClose, onCreated }: CreatePayslipModalPro
   );
 
   const create = useApiMutation(
-    (body: Record<string, unknown>) => apiClient.post<{ id: number }>('/payslips', body),
+    (body: Record<string, unknown>) =>
+      apiClient.post<{ id: number }>('/payslips', body),
     {
       invalidateKeys: [[...queryKeys.payslips.all, 'admin-list']],
       onSuccess: (created) => {
@@ -81,7 +87,10 @@ export function CreatePayslipModal({ onClose, onCreated }: CreatePayslipModalPro
   );
 
   const valid =
-    !!picked && period.trim() !== '' && paymentDate !== '' && baseSalary.trim() !== '';
+    !!picked &&
+    period.trim() !== '' &&
+    paymentDate !== '' &&
+    baseSalary.trim() !== '';
 
   const handleSubmit = () => {
     if (!picked || !valid || create.isPending) return;
@@ -103,7 +112,10 @@ export function CreatePayslipModal({ onClose, onCreated }: CreatePayslipModalPro
 
   return (
     <Modal open onOpenChange={(open) => !open && onClose()}>
-      <ModalContent title="Novo recibo" className="max-w-lg max-h-[90vh] overflow-y-auto">
+      <ModalContent
+        title="Novo recibo"
+        className="max-w-lg max-h-[90vh] overflow-y-auto"
+      >
         <div className="mt-5 space-y-4">
           <FormField label="Colaborador *" htmlFor="cpm-user">
             {picked ? (
@@ -148,7 +160,9 @@ export function CreatePayslipModal({ onClose, onCreated }: CreatePayslipModalPro
                       <button
                         key={u.id}
                         type="button"
-                        onClick={() => setPicked({ id: u.id, fullName: u.fullName })}
+                        onClick={() =>
+                          setPicked({ id: u.id, fullName: u.fullName })
+                        }
                         className="flex w-full items-center gap-2 px-3 py-2 text-left hover:bg-primary-subtle"
                       >
                         <span className="truncate font-body text-sm text-ink">
@@ -165,7 +179,11 @@ export function CreatePayslipModal({ onClose, onCreated }: CreatePayslipModalPro
             )}
           </FormField>
 
-          <FormField label="Período *" htmlFor="cpm-period" hint="Formato AAAA-MM">
+          <FormField
+            label="Período *"
+            htmlFor="cpm-period"
+            hint="Formato AAAA-MM"
+          >
             <Input
               id="cpm-period"
               value={period}
@@ -235,7 +253,11 @@ export function CreatePayslipModal({ onClose, onCreated }: CreatePayslipModalPro
           <Button intent="ghost" onClick={onClose} disabled={create.isPending}>
             Cancelar
           </Button>
-          <Button onClick={handleSubmit} disabled={!valid} loading={create.isPending}>
+          <Button
+            onClick={handleSubmit}
+            disabled={!valid}
+            loading={create.isPending}
+          >
             Criar recibo
           </Button>
         </div>

@@ -14,7 +14,13 @@ import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
 import type { DepartmentProgressRow, ProgressByDepartment } from './types';
 
-function ProgressTable({ title, rows }: { title: string; rows: DepartmentProgressRow[] }) {
+function ProgressTable({
+  title,
+  rows,
+}: {
+  title: string;
+  rows: DepartmentProgressRow[];
+}) {
   return (
     <Card className="overflow-hidden">
       <div className="border-b border-border px-4 py-3 text-xs font-medium uppercase tracking-wide text-ink-faint">
@@ -38,7 +44,9 @@ function ProgressTable({ title, rows }: { title: string; rows: DepartmentProgres
             >
               <div className="truncate text-sm text-ink">{r.name}</div>
               <div className="font-mono text-sm text-ink-muted">{r.total}</div>
-              <div className="font-mono text-sm text-success-ink">{r.completed}</div>
+              <div className="font-mono text-sm text-success-ink">
+                {r.completed}
+              </div>
               <div
                 className={`font-mono text-sm ${r.overdue > 0 ? 'font-semibold text-danger-ink' : 'text-ink-faint'}`}
               >
@@ -48,7 +56,9 @@ function ProgressTable({ title, rows }: { title: string; rows: DepartmentProgres
                 <div className="flex-1">
                   <ProgressBar value={r.completionRate} />
                 </div>
-                <span className="w-8 font-mono text-xs text-ink-muted">{r.completionRate}%</span>
+                <span className="w-8 font-mono text-xs text-ink-muted">
+                  {r.completionRate}%
+                </span>
               </div>
             </div>
           ))}
@@ -85,7 +95,10 @@ export function DepartmentProgressView() {
 
   return (
     <div className="space-y-4">
-      <ProgressTable title="Progresso por departamento" rows={data.byDepartment} />
+      <ProgressTable
+        title="Progresso por departamento"
+        rows={data.byDepartment}
+      />
       <ProgressTable title="Progresso por unidade" rows={data.byUnit} />
     </div>
   );

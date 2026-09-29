@@ -41,7 +41,8 @@ export function RenameTenantModal({
   );
 
   const trimmed = name.trim();
-  const canSave = trimmed.length > 0 && trimmed !== currentName && !rename.isPending;
+  const canSave =
+    trimmed.length > 0 && trimmed !== currentName && !rename.isPending;
 
   const handleSave = () => {
     if (!canSave) return;
@@ -52,7 +53,10 @@ export function RenameTenantModal({
       },
       onError: (err) => {
         reportError(err, { source: 'RenameTenantModal.handleSave' });
-        notify({ title: 'Não foi possível actualizar o nome', intent: 'danger' });
+        notify({
+          title: 'Não foi possível actualizar o nome',
+          intent: 'danger',
+        });
       },
     });
   };

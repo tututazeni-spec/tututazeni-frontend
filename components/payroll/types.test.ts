@@ -60,11 +60,19 @@ describe('payslip admin management', () => {
 
   test('payslips admin query keys are prefixed and distinct', () => {
     expect(queryKeys.payslips.adminList({ page: 1 })).toEqual([
-      'payslips', 'admin-list', { page: 1 },
+      'payslips',
+      'admin-list',
+      { page: 1 },
     ]);
-    expect(queryKeys.payslips.adminDetail(7)).toEqual(['payslips', 'admin-detail', 7]);
+    expect(queryKeys.payslips.adminDetail(7)).toEqual([
+      'payslips',
+      'admin-detail',
+      7,
+    ]);
     expect(queryKeys.payslips.disputes({ status: 'OPEN' })).toEqual([
-      'payslips', 'disputes', { status: 'OPEN' },
+      'payslips',
+      'disputes',
+      { status: 'OPEN' },
     ]);
   });
 });

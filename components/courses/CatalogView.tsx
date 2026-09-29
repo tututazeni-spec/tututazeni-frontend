@@ -122,7 +122,9 @@ export function CatalogView({ onSelect }: CatalogViewProps) {
         <Select
           items={categoryItems}
           value={category || 'ALL'}
-          onValueChange={(v) => updateFilters({ category: v === 'ALL' ? '' : v })}
+          onValueChange={(v) =>
+            updateFilters({ category: v === 'ALL' ? '' : v })
+          }
         />
         <Select
           items={LEVEL_ITEMS}
@@ -132,13 +134,13 @@ export function CatalogView({ onSelect }: CatalogViewProps) {
         <Select
           items={MANDATORY_ITEMS}
           value={mandatory || 'ALL'}
-          onValueChange={(v) => updateFilters({ mandatory: v === 'ALL' ? '' : v })}
+          onValueChange={(v) =>
+            updateFilters({ mandatory: v === 'ALL' ? '' : v })
+          }
         />
       </div>
 
-      {error && (
-        <div className="text-sm text-danger mb-4">{error.message}</div>
-      )}
+      {error && <div className="text-sm text-danger mb-4">{error.message}</div>}
 
       {loading && <Skeleton rows={3} />}
 

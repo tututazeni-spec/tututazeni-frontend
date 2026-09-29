@@ -19,7 +19,10 @@ export interface AttemptReviewDrilldownProps {
   onClose: () => void;
 }
 
-export function AttemptReviewDrilldown({ attemptId, onClose }: AttemptReviewDrilldownProps) {
+export function AttemptReviewDrilldown({
+  attemptId,
+  onClose,
+}: AttemptReviewDrilldownProps) {
   const { data: attempt, isLoading } = useApiQuery<AttemptReview>(
     queryKeys.formalEvaluations.attemptReview(attemptId),
     `/assessments/attempts/${attemptId}/review`,
@@ -40,10 +43,20 @@ export function AttemptReviewDrilldown({ attemptId, onClose }: AttemptReviewDril
                 <div>
                   <div className="text-xs text-ink-faint">Nota</div>
                   <div className="text-lg font-bold text-ink font-data">
-                    {attempt.displayGrade ?? '—'} / {attempt.assessment.maxGrade}
+                    {attempt.displayGrade ?? '—'} /{' '}
+                    {attempt.assessment.maxGrade}
                   </div>
                 </div>
-                <Badge intent={attempt.qualitativeLabel === 'Excelente' || attempt.qualitativeLabel === 'Bom' ? 'success' : attempt.qualitativeLabel === 'Regular' ? 'warning' : 'danger'}>
+                <Badge
+                  intent={
+                    attempt.qualitativeLabel === 'Excelente' ||
+                    attempt.qualitativeLabel === 'Bom'
+                      ? 'success'
+                      : attempt.qualitativeLabel === 'Regular'
+                        ? 'warning'
+                        : 'danger'
+                  }
+                >
                   {attempt.qualitativeLabel ?? attempt.status}
                 </Badge>
               </Card>
@@ -62,20 +75,30 @@ export function AttemptReviewDrilldown({ attemptId, onClose }: AttemptReviewDril
                   <div className="mb-1 flex items-start gap-2">
                     <span>
                       {ans.isCorrect === null ? (
-                        <Hourglass size={13} strokeWidth={1.75} className="inline" />
+                        <Hourglass
+                          size={13}
+                          strokeWidth={1.75}
+                          className="inline"
+                        />
                       ) : ans.isCorrect ? (
                         '✓'
                       ) : (
                         '✗'
                       )}
                     </span>
-                    <p className="text-xs font-medium text-ink">{ans.question?.questionText}</p>
+                    <p className="text-xs font-medium text-ink">
+                      {ans.question?.questionText}
+                    </p>
                   </div>
                   {ans.textAnswer && (
-                    <p className="mt-1 pl-5 text-xs text-ink-muted">{ans.textAnswer}</p>
+                    <p className="mt-1 pl-5 text-xs text-ink-muted">
+                      {ans.textAnswer}
+                    </p>
                   )}
                   {ans.reviewComment && (
-                    <p className="mt-1 pl-5 text-xs text-primary">{ans.reviewComment}</p>
+                    <p className="mt-1 pl-5 text-xs text-primary">
+                      {ans.reviewComment}
+                    </p>
                   )}
                 </div>
               ))}

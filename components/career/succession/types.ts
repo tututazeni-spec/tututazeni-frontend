@@ -13,7 +13,8 @@ export type ReadinessLevel =
 export type SuccessorPriority = 'PRIMARY' | 'SECONDARY' | 'TERTIARY';
 export type RiskLevel = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
 export type BusinessImpact = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
-export type ReplacementTime = 'IMMEDIATE' | 'SHORT_TERM' | 'MEDIUM_TERM' | 'LONG_TERM';
+export type ReplacementTime =
+  'IMMEDIATE' | 'SHORT_TERM' | 'MEDIUM_TERM' | 'LONG_TERM';
 export type CoverageStatus = 'CRITICAL' | 'AT_RISK' | 'COVERED' | 'UNKNOWN';
 
 export interface SuccessionCandidateRef {

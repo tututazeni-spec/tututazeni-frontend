@@ -47,38 +47,58 @@ export function PlansView({ onOpen }: PlansViewProps) {
   );
 
   const invalidateKeys = [queryKeys.trainingPlans.all];
-  const toastError = (e: Error) => toast({ title: e.message, intent: 'danger' });
+  const toastError = (e: Error) =>
+    toast({ title: e.message, intent: 'danger' });
 
-  const submit = useApiMutation((id: number) => apiClient.patch(`/training-plans/${id}/submit`, {}), {
-    invalidateKeys,
-    onSuccess: () => toast({ title: 'Plano submetido para aprovação.', intent: 'success' }),
-    onError: toastError,
-  });
-  const approve = useApiMutation((id: number) => apiClient.patch(`/training-plans/${id}/approve`, {}), {
-    invalidateKeys,
-    onSuccess: () => toast({ title: 'Plano aprovado.', intent: 'success' }),
-    onError: toastError,
-  });
-  const reject = useApiMutation((id: number) => apiClient.patch(`/training-plans/${id}/reject`, {}), {
-    invalidateKeys,
-    onSuccess: () => toast({ title: 'Plano rejeitado.', intent: 'success' }),
-    onError: toastError,
-  });
-  const publish = useApiMutation((id: number) => apiClient.patch(`/training-plans/${id}/publish`, {}), {
-    invalidateKeys,
-    onSuccess: () => toast({ title: 'Plano publicado.', intent: 'success' }),
-    onError: toastError,
-  });
-  const archive = useApiMutation((id: number) => apiClient.patch(`/training-plans/${id}/archive`, {}), {
-    invalidateKeys,
-    onSuccess: () => toast({ title: 'Plano arquivado.', intent: 'success' }),
-    onError: toastError,
-  });
-  const duplicate = useApiMutation((id: number) => apiClient.post(`/training-plans/${id}/duplicate`, {}), {
-    invalidateKeys,
-    onSuccess: () => toast({ title: 'Plano duplicado.', intent: 'success' }),
-    onError: toastError,
-  });
+  const submit = useApiMutation(
+    (id: number) => apiClient.patch(`/training-plans/${id}/submit`, {}),
+    {
+      invalidateKeys,
+      onSuccess: () =>
+        toast({ title: 'Plano submetido para aprovação.', intent: 'success' }),
+      onError: toastError,
+    },
+  );
+  const approve = useApiMutation(
+    (id: number) => apiClient.patch(`/training-plans/${id}/approve`, {}),
+    {
+      invalidateKeys,
+      onSuccess: () => toast({ title: 'Plano aprovado.', intent: 'success' }),
+      onError: toastError,
+    },
+  );
+  const reject = useApiMutation(
+    (id: number) => apiClient.patch(`/training-plans/${id}/reject`, {}),
+    {
+      invalidateKeys,
+      onSuccess: () => toast({ title: 'Plano rejeitado.', intent: 'success' }),
+      onError: toastError,
+    },
+  );
+  const publish = useApiMutation(
+    (id: number) => apiClient.patch(`/training-plans/${id}/publish`, {}),
+    {
+      invalidateKeys,
+      onSuccess: () => toast({ title: 'Plano publicado.', intent: 'success' }),
+      onError: toastError,
+    },
+  );
+  const archive = useApiMutation(
+    (id: number) => apiClient.patch(`/training-plans/${id}/archive`, {}),
+    {
+      invalidateKeys,
+      onSuccess: () => toast({ title: 'Plano arquivado.', intent: 'success' }),
+      onError: toastError,
+    },
+  );
+  const duplicate = useApiMutation(
+    (id: number) => apiClient.post(`/training-plans/${id}/duplicate`, {}),
+    {
+      invalidateKeys,
+      onSuccess: () => toast({ title: 'Plano duplicado.', intent: 'success' }),
+      onError: toastError,
+    },
+  );
 
   const rowBusy = (id: number) =>
     [submit, approve, reject, publish, archive, duplicate].some(
@@ -86,7 +106,10 @@ export function PlansView({ onOpen }: PlansViewProps) {
     );
 
   async function onSubmit(p: TrainingPlan) {
-    const ok = await confirm({ title: `Submeter "${p.name}" para aprovação?`, confirmLabel: 'Submeter' });
+    const ok = await confirm({
+      title: `Submeter "${p.name}" para aprovação?`,
+      confirmLabel: 'Submeter',
+    });
     if (ok) submit.mutate(p.id);
   }
   async function onReject(p: TrainingPlan) {
@@ -98,7 +121,10 @@ export function PlansView({ onOpen }: PlansViewProps) {
     if (ok) reject.mutate(p.id);
   }
   async function onArchive(p: TrainingPlan) {
-    const ok = await confirm({ title: `Arquivar "${p.name}"?`, confirmLabel: 'Arquivar' });
+    const ok = await confirm({
+      title: `Arquivar "${p.name}"?`,
+      confirmLabel: 'Arquivar',
+    });
     if (ok) archive.mutate(p.id);
   }
 
@@ -126,23 +152,32 @@ export function PlansView({ onOpen }: PlansViewProps) {
             const statusCfg = PLAN_STATUS_CFG[p.status];
             const priorityCfg = PRIORITY_CFG[p.priority];
             return (
-              <div key={p.id} className="flex flex-wrap items-center gap-3 px-4 py-3">
+              <div
+                key={p.id}
+                className="flex flex-wrap items-center gap-3 px-4 py-3"
+              >
                 <button
                   type="button"
                   className="min-w-0 flex-1 text-left"
                   onClick={() => onOpen(p.id)}
                 >
-                  <div className="truncate text-sm font-medium text-ink">{p.name}</div>
+                  <div className="truncate text-sm font-medium text-ink">
+                    {p.name}
+                  </div>
                   <div className="text-xs text-ink-faint">
                     {p.code ? `${p.code} · ` : ''}
                     {p.year} · {PLAN_PERIOD_LABEL[p.period]}
                     {p._count ? ` · ${p._count.trainings} formação(ões)` : ''}
                   </div>
                 </button>
-                <span className={`flex-shrink-0 rounded px-2 py-0.5 font-body text-xs font-medium ${priorityCfg.cls}`}>
+                <span
+                  className={`flex-shrink-0 rounded px-2 py-0.5 font-body text-xs font-medium ${priorityCfg.cls}`}
+                >
                   {priorityCfg.label}
                 </span>
-                <span className={`flex-shrink-0 rounded px-2 py-0.5 font-body text-xs font-medium ${statusCfg.cls}`}>
+                <span
+                  className={`flex-shrink-0 rounded px-2 py-0.5 font-body text-xs font-medium ${statusCfg.cls}`}
+                >
                   {statusCfg.label}
                 </span>
                 <div className="flex flex-shrink-0 items-center gap-2">
@@ -151,7 +186,12 @@ export function PlansView({ onOpen }: PlansViewProps) {
                   </Button>
                   {(p.status === 'DRAFT' || p.status === 'REJECTED') && (
                     <>
-                      <Button intent="ghost" size="sm" onClick={() => setEditPlan(p)} disabled={rowBusy(p.id)}>
+                      <Button
+                        intent="ghost"
+                        size="sm"
+                        onClick={() => setEditPlan(p)}
+                        disabled={rowBusy(p.id)}
+                      >
                         Editar
                       </Button>
                       <Button
@@ -172,7 +212,9 @@ export function PlansView({ onOpen }: PlansViewProps) {
                         size="sm"
                         onClick={() => approve.mutate(p.id)}
                         disabled={rowBusy(p.id)}
-                        loading={approve.isPending && approve.variables === p.id}
+                        loading={
+                          approve.isPending && approve.variables === p.id
+                        }
                       >
                         Aprovar
                       </Button>
@@ -199,7 +241,12 @@ export function PlansView({ onOpen }: PlansViewProps) {
                     </Button>
                   )}
                   {p.status !== 'ARCHIVED' && (
-                    <Button intent="ghost" size="sm" onClick={() => onArchive(p)} disabled={rowBusy(p.id)}>
+                    <Button
+                      intent="ghost"
+                      size="sm"
+                      onClick={() => onArchive(p)}
+                      disabled={rowBusy(p.id)}
+                    >
                       Arquivar
                     </Button>
                   )}
@@ -208,7 +255,9 @@ export function PlansView({ onOpen }: PlansViewProps) {
                     size="sm"
                     onClick={() => duplicate.mutate(p.id)}
                     disabled={rowBusy(p.id)}
-                    loading={duplicate.isPending && duplicate.variables === p.id}
+                    loading={
+                      duplicate.isPending && duplicate.variables === p.id
+                    }
                   >
                     Duplicar
                   </Button>
@@ -229,14 +278,21 @@ export function PlansView({ onOpen }: PlansViewProps) {
         <PlanFormModal
           plan={null}
           onClose={() => setShowCreate(false)}
-          onSuccess={() => toast({ title: 'Plano de formação criado.', intent: 'success' })}
+          onSuccess={() =>
+            toast({ title: 'Plano de formação criado.', intent: 'success' })
+          }
         />
       )}
       {editPlan && (
         <PlanFormModal
           plan={editPlan}
           onClose={() => setEditPlan(null)}
-          onSuccess={() => toast({ title: 'Plano de formação actualizado.', intent: 'success' })}
+          onSuccess={() =>
+            toast({
+              title: 'Plano de formação actualizado.',
+              intent: 'success',
+            })
+          }
         />
       )}
     </div>

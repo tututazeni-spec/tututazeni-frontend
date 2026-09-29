@@ -12,16 +12,23 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { Badge } from '@/components/ui/Badge';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow } from '@/components/ui/Table';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeaderCell,
+  TableRow,
+} from '@/components/ui/Table';
 import { READINESS_LABEL, RISK_INTENT, RISK_LABEL } from './constants';
 import type { SuccessionMatrixRow } from './types';
 
 export function SuccessionMatrixView() {
-  const { data: rows = [], isLoading: loading } = useApiQuery<SuccessionMatrixRow[]>(
-    queryKeys.succession.matrix(),
-    '/succession/matrix',
-    { staleTime: STALE_TIME.SEMI_STATIC },
-  );
+  const { data: rows = [], isLoading: loading } = useApiQuery<
+    SuccessionMatrixRow[]
+  >(queryKeys.succession.matrix(), '/succession/matrix', {
+    staleTime: STALE_TIME.SEMI_STATIC,
+  });
 
   if (loading) return <Skeleton rows={5} />;
   if (rows.length === 0) {
@@ -47,10 +54,14 @@ export function SuccessionMatrixView() {
       </TableHead>
       <TableBody>
         {rows.map((r, i) => (
-          <TableRow key={`${r.criticalPositionId}-${r.sucessor ?? 'none'}-${i}`}>
+          <TableRow
+            key={`${r.criticalPositionId}-${r.sucessor ?? 'none'}-${i}`}
+          >
             <TableCell className="font-medium text-ink">{r.position}</TableCell>
             <TableCell className="text-ink-muted">{r.titular ?? '—'}</TableCell>
-            <TableCell className="text-ink-muted">{r.sucessor ?? '—'}</TableCell>
+            <TableCell className="text-ink-muted">
+              {r.sucessor ?? '—'}
+            </TableCell>
             <TableCell>
               {r.readinessLevel ? (
                 <span className="font-body text-xs text-ink-muted">
@@ -61,10 +72,14 @@ export function SuccessionMatrixView() {
               )}
             </TableCell>
             <TableCell className="text-ink-muted">
-              {r.gap === null ? '—' : `${r.gap} competência${r.gap !== 1 ? 's' : ''}`}
+              {r.gap === null
+                ? '—'
+                : `${r.gap} competência${r.gap !== 1 ? 's' : ''}`}
             </TableCell>
             <TableCell>
-              <Badge intent={RISK_INTENT[r.exitRisk]}>{RISK_LABEL[r.exitRisk]}</Badge>
+              <Badge intent={RISK_INTENT[r.exitRisk]}>
+                {RISK_LABEL[r.exitRisk]}
+              </Badge>
             </TableCell>
           </TableRow>
         ))}

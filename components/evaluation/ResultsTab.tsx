@@ -33,7 +33,10 @@ import { RadarChart } from './RadarChart';
 import { MONTH_OPTIONS, SCORE_BG, SCORE_COLOR, TYPE_LABEL } from './constants';
 import type { EvalResults } from './types';
 
-const MONTH_ITEMS = [{ value: 'ALL', label: 'Todos os meses' }, ...MONTH_OPTIONS];
+const MONTH_ITEMS = [
+  { value: 'ALL', label: 'Todos os meses' },
+  ...MONTH_OPTIONS,
+];
 const YEAR_ITEMS = [
   { value: 'ALL', label: 'Todos os anos' },
   ...Array.from({ length: 5 }, (_, i) => {
@@ -62,7 +65,9 @@ export function ResultsTab() {
   const notify = useToast();
 
   const loadResults = useApiMutation(({ uid, period }: LoadParams) =>
-    apiClient.get<EvalResults>(`/evaluations/results/${uid}${period ? `?period=${period}` : ''}`),
+    apiClient.get<EvalResults>(
+      `/evaluations/results/${uid}${period ? `?period=${period}` : ''}`,
+    ),
   );
   const raw = loadResults.data ?? null;
   const loading = loadResults.isPending;
@@ -326,7 +331,9 @@ export function ResultsTab() {
             <Card>
               <CardBody>
                 <div className="flex items-center justify-between mb-3">
-                  <h4 className="font-display font-semibold text-ink">Objetivos</h4>
+                  <h4 className="font-display font-semibold text-ink">
+                    Objetivos
+                  </h4>
                   {result.objectives.avgAchievement != null && (
                     <span className="text-sm font-bold text-ink">
                       {result.objectives.avgAchievement}% realizado
@@ -335,11 +342,18 @@ export function ResultsTab() {
                 </div>
                 <div className="space-y-2">
                   {result.objectives.items.map((o, i) => (
-                    <div key={i} className="rounded-card border border-border p-3">
+                    <div
+                      key={i}
+                      className="rounded-card border border-border p-3"
+                    >
                       <div className="flex items-center justify-between">
-                        <p className="text-sm font-medium text-ink">{o.objective}</p>
+                        <p className="text-sm font-medium text-ink">
+                          {o.objective}
+                        </p>
                         {o.percentage != null && (
-                          <Badge intent={o.percentage >= 100 ? 'success' : 'warning'}>
+                          <Badge
+                            intent={o.percentage >= 100 ? 'success' : 'warning'}
+                          >
                             {o.percentage}%
                           </Badge>
                         )}
@@ -361,9 +375,15 @@ export function ResultsTab() {
             <Card>
               <CardBody>
                 <div className="flex items-center justify-between mb-3">
-                  <h4 className="font-display font-semibold text-ink">Evolução</h4>
+                  <h4 className="font-display font-semibold text-ink">
+                    Evolução
+                  </h4>
                   {result.evolution.trend != null && (
-                    <Badge intent={result.evolution.trend >= 0 ? 'success' : 'danger'}>
+                    <Badge
+                      intent={
+                        result.evolution.trend >= 0 ? 'success' : 'danger'
+                      }
+                    >
                       {result.evolution.trend >= 0 ? '+' : ''}
                       {result.evolution.trend.toFixed(1)} vs. anterior
                     </Badge>
@@ -371,12 +391,17 @@ export function ResultsTab() {
                 </div>
                 <div className="flex items-end gap-2 h-24">
                   {result.evolution.history.map((h) => (
-                    <div key={h.period} className="flex-1 flex flex-col items-center gap-1">
+                    <div
+                      key={h.period}
+                      className="flex-1 flex flex-col items-center gap-1"
+                    >
                       <div
                         className={`w-full rounded-t ${SCORE_BG(h.avgScore)}`}
                         style={{ height: `${(h.avgScore / 5) * 100}%` }}
                       />
-                      <span className="text-[10px] text-ink-faint">{h.period}</span>
+                      <span className="text-[10px] text-ink-faint">
+                        {h.period}
+                      </span>
                     </div>
                   ))}
                 </div>
@@ -386,7 +411,8 @@ export function ResultsTab() {
 
           {/* Comentários por papel — gestor vs. colaborador */}
           {result.comments &&
-            (result.comments.manager.length > 0 || result.comments.self.length > 0) && (
+            (result.comments.manager.length > 0 ||
+              result.comments.self.length > 0) && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {result.comments.manager.length > 0 && (
                   <Card>
@@ -488,7 +514,10 @@ export function ResultsTab() {
       )}
 
       {!loading && loadResults.isError && (
-        <QueryError error={loadResults.error} onRetry={isColaborador ? loadOwn : load} />
+        <QueryError
+          error={loadResults.error}
+          onRetry={isColaborador ? loadOwn : load}
+        />
       )}
     </div>
   );

@@ -6,7 +6,8 @@
 // Ver memory project_innova_component_separation_audit, item 3.6.
 
 export type CourseStatus = 'DRAFT' | 'PUBLISHED' | 'PAUSED' | 'ARCHIVED';
-export type CourseVisibility = 'PUBLIC' | 'PRIVATE' | 'EMPLOYEES_ONLY' | 'SELECTED_GROUPS';
+export type CourseVisibility =
+  'PUBLIC' | 'PRIVATE' | 'EMPLOYEES_ONLY' | 'SELECTED_GROUPS';
 export type CourseLevel = 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED';
 export type CourseType =
   | 'OBRIGATORIO'
@@ -17,7 +18,8 @@ export type CourseType =
   | 'TECNICO'
   | 'COMPORTAMENTAL'
   | 'LIDERANCA';
-export type CourseModality = 'ONLINE' | 'PRESENCIAL' | 'HIBRIDO' | 'AO_VIVO' | 'AUTOAPRENDIZAGEM';
+export type CourseModality =
+  'ONLINE' | 'PRESENCIAL' | 'HIBRIDO' | 'AO_VIVO' | 'AUTOAPRENDIZAGEM';
 export type LessonType =
   | 'VIDEO'
   | 'PDF'
@@ -76,7 +78,11 @@ export interface Course {
   /** Média de Enrollment.progress dos inscritos — só em GET /courses (findAll). */
   avgProgress?: number;
   competencies: Array<{ competency: { id: number; name: string } }>;
-  primaryInstructor?: { id: number; fullName: string; avatarUrl: string | null } | null;
+  primaryInstructor?: {
+    id: number;
+    fullName: string;
+    avatarUrl: string | null;
+  } | null;
   requiredCourse?: { id: number; title: string } | null;
   instructors?: Array<{
     id: number;
@@ -120,7 +126,12 @@ export interface CourseProgress {
     status: EnrollmentStatus;
     deadline: string | null;
     completedAt?: string | null;
-    certificate?: { id: number; code: string | null; issuedAt: string; fileUrl: string | null } | null;
+    certificate?: {
+      id: number;
+      code: string | null;
+      issuedAt: string;
+      fileUrl: string | null;
+    } | null;
   };
   courseProgress?: {
     totalLessons: number;
@@ -255,10 +266,31 @@ export interface AdminDashboard {
     course: DashboardCourseRef;
   }>;
   recentActivity: {
-    enrollments: Array<{ id: number; enrolledAt: string; user: DashboardActivityUser; course: DashboardCourseRef }>;
-    completions: Array<{ id: number; completedAt: string | null; user: DashboardActivityUser; course: DashboardCourseRef }>;
-    feedbacks: Array<{ id: number; rating: number; createdAt: string; user: DashboardActivityUser; course: DashboardCourseRef }>;
-    certificates: Array<{ id: number; issuedAt: string; user: DashboardActivityUser | null; course: DashboardCourseRef | null }>;
+    enrollments: Array<{
+      id: number;
+      enrolledAt: string;
+      user: DashboardActivityUser;
+      course: DashboardCourseRef;
+    }>;
+    completions: Array<{
+      id: number;
+      completedAt: string | null;
+      user: DashboardActivityUser;
+      course: DashboardCourseRef;
+    }>;
+    feedbacks: Array<{
+      id: number;
+      rating: number;
+      createdAt: string;
+      user: DashboardActivityUser;
+      course: DashboardCourseRef;
+    }>;
+    certificates: Array<{
+      id: number;
+      issuedAt: string;
+      user: DashboardActivityUser | null;
+      course: DashboardCourseRef | null;
+    }>;
   };
   monthlyTrend: {
     enrollments: Array<{ month: string; count: number }>;
@@ -297,7 +329,12 @@ export interface CohortParticipant {
   id: number;
   userId: number;
   enrolledAt: string;
-  user: { id: number; fullName: string; avatarUrl: string | null; email: string };
+  user: {
+    id: number;
+    fullName: string;
+    avatarUrl: string | null;
+    email: string;
+  };
 }
 
 export interface Cohort {
@@ -352,8 +389,15 @@ export interface CourseReports {
   approvalRate: number;
   abandonmentRate: number;
   avgProgress: number;
-  evaluationResults: { totalAttempts: number; avgScore: number; passRate: number };
-  mandatoryPending: { count: number; courses: Array<{ id: number; title: string; pending: number }> };
+  evaluationResults: {
+    totalAttempts: number;
+    avgScore: number;
+    passRate: number;
+  };
+  mandatoryPending: {
+    count: number;
+    courses: Array<{ id: number; title: string; pending: number }>;
+  };
 }
 
 export type View =

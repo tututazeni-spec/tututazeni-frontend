@@ -14,7 +14,10 @@ export function useStopwatch() {
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const startRef = useRef(0);
 
-  const elapsedNow = useCallback(() => Math.round((Date.now() - startRef.current) / 1000), []);
+  const elapsedNow = useCallback(
+    () => Math.round((Date.now() - startRef.current) / 1000),
+    [],
+  );
 
   const start = useCallback(() => {
     startRef.current = Date.now();
@@ -35,7 +38,12 @@ export function useStopwatch() {
     setSeconds(0);
   }, [stop]);
 
-  useEffect(() => () => { if (intervalRef.current) clearInterval(intervalRef.current); }, []);
+  useEffect(
+    () => () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    },
+    [],
+  );
 
   return { seconds, start, stop, reset, elapsedNow };
 }

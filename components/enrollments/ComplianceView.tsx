@@ -60,12 +60,15 @@ export function ComplianceView() {
           {
             label: 'Atrasadas',
             value: dashboard.enrollments.overdue,
-            cls: dashboard.enrollments.overdue > 0 ? 'text-danger-ink' : undefined,
+            cls:
+              dashboard.enrollments.overdue > 0 ? 'text-danger-ink' : undefined,
           },
         ].map(({ label, value, cls }) => (
           <div key={label} className="rounded-card bg-surface-sunken p-4">
             <div className="mb-1 text-xs text-ink-faint">{label}</div>
-            <div className={`font-mono text-2xl font-semibold ${cls ?? 'text-ink'}`}>
+            <div
+              className={`font-mono text-2xl font-semibold ${cls ?? 'text-ink'}`}
+            >
               {value}
             </div>
           </div>
@@ -109,7 +112,9 @@ export function ComplianceView() {
             },
           ].map(({ label, value, cls }) => (
             <div key={label} className="rounded-control bg-surface-sunken p-3">
-              <div className={`font-mono text-xl font-bold ${cls}`}>{value}</div>
+              <div className={`font-mono text-xl font-bold ${cls}`}>
+                {value}
+              </div>
               <div className="text-xs text-ink-faint">{label}</div>
             </div>
           ))}

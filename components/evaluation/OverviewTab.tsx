@@ -11,7 +11,13 @@
 
 'use client';
 
-import { AlertTriangle, CalendarClock, ChevronRight, ClipboardCheck, Layers } from 'lucide-react';
+import {
+  AlertTriangle,
+  CalendarClock,
+  ChevronRight,
+  ClipboardCheck,
+  Layers,
+} from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
 import { queryKeys } from '@/lib/queryKeys';
@@ -26,7 +32,12 @@ import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { RadarChart } from './RadarChart';
 import { SCORE_BG, SCORE_COLOR, TYPE_LABEL } from './constants';
-import type { EvalRequest, EvalResults, MyProgress, OverviewDashboard } from './types';
+import type {
+  EvalRequest,
+  EvalResults,
+  MyProgress,
+  OverviewDashboard,
+} from './types';
 
 const DIST_CONFIG = [
   { key: 'exceptional', label: 'Excepcional', bg: 'bg-success' },
@@ -54,15 +65,35 @@ function OrganizationOverview() {
       <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4">
         <KpiCard label="Em curso" value={data.kpis.inProgress} intent="info" />
         <KpiCard label="Pendentes" value={data.kpis.pending} intent="warning" />
-        <KpiCard label="Concluídas" value={data.kpis.completed} intent="success" />
-        <KpiCard label="Taxa Conclusão" value={`${data.kpis.completionRate}%`} intent="primary" />
-        <KpiCard label="Média Desempenho" value={data.kpis.avgScore.toFixed(1)} intent="accent" />
-        <KpiCard label="Colaboradores Avaliados" value={data.kpis.evaluatedCount} intent="primary" />
+        <KpiCard
+          label="Concluídas"
+          value={data.kpis.completed}
+          intent="success"
+        />
+        <KpiCard
+          label="Taxa Conclusão"
+          value={`${data.kpis.completionRate}%`}
+          intent="primary"
+        />
+        <KpiCard
+          label="Média Desempenho"
+          value={data.kpis.avgScore.toFixed(1)}
+          intent="accent"
+        />
+        <KpiCard
+          label="Colaboradores Avaliados"
+          value={data.kpis.evaluatedCount}
+          intent="primary"
+        />
       </div>
 
       {data.alerts.length > 0 && (
         <div className="bg-danger-subtle border border-danger rounded-card p-3 flex items-center gap-2">
-          <AlertTriangle size={16} strokeWidth={1.75} className="text-danger-ink" />
+          <AlertTriangle
+            size={16}
+            strokeWidth={1.75}
+            className="text-danger-ink"
+          />
           <p className="text-sm font-medium text-danger-ink">
             {data.alerts[0].count} avaliação(ões) em atraso
           </p>
@@ -73,29 +104,40 @@ function OrganizationOverview() {
         <Card>
           <CardBody>
             <h3 className="font-display text-sm font-semibold text-ink mb-3 flex items-center gap-2">
-              <ClipboardCheck size={15} strokeWidth={1.75} /> Distribuição das classificações
+              <ClipboardCheck size={15} strokeWidth={1.75} /> Distribuição das
+              classificações
             </h3>
             <div className="space-y-2">
               {DIST_CONFIG.map((d) => {
                 const count = data.distribution[d.key] ?? 0;
-                const pct = distTotal > 0 ? Math.round((count / distTotal) * 100) : 0;
+                const pct =
+                  distTotal > 0 ? Math.round((count / distTotal) * 100) : 0;
                 return (
                   <div key={d.key}>
                     <div className="flex justify-between text-xs mb-0.5">
                       <span className="text-ink-muted">{d.label}</span>
-                      <span className="font-semibold text-ink">{count} ({pct}%)</span>
+                      <span className="font-semibold text-ink">
+                        {count} ({pct}%)
+                      </span>
                     </div>
                     <div className="h-2 rounded-full bg-surface-sunken overflow-hidden">
-                      <div className={`h-full ${d.bg}`} style={{ width: `${pct}%` }} />
+                      <div
+                        className={`h-full ${d.bg}`}
+                        style={{ width: `${pct}%` }}
+                      />
                     </div>
                   </div>
                 );
               })}
             </div>
             <p className="text-xs text-ink-faint mt-3">
-              <Layers size={12} strokeWidth={1.75} className="inline align-[-2px]" />{' '}
-              {data.activeCycles} ciclo(s) activo(s) · {data.toEvaluateCount} colaborador(es) por
-              avaliar
+              <Layers
+                size={12}
+                strokeWidth={1.75}
+                className="inline align-[-2px]"
+              />{' '}
+              {data.activeCycles} ciclo(s) activo(s) · {data.toEvaluateCount}{' '}
+              colaborador(es) por avaliar
             </p>
           </CardBody>
         </Card>
@@ -108,10 +150,18 @@ function OrganizationOverview() {
             <div className="space-y-2">
               {data.upcomingDeadlines.slice(0, 5).map((d) => (
                 <div key={d.id} className="flex items-center gap-2 text-sm">
-                  <Avatar name={d.evaluated.fullName} url={d.evaluated.avatarUrl} size="sm" />
-                  <span className="flex-1 text-ink-muted truncate">{d.evaluated.fullName}</span>
+                  <Avatar
+                    name={d.evaluated.fullName}
+                    url={d.evaluated.avatarUrl}
+                    size="sm"
+                  />
+                  <span className="flex-1 text-ink-muted truncate">
+                    {d.evaluated.fullName}
+                  </span>
                   <span className="text-xs text-ink-faint">
-                    {d.dueDate ? new Date(d.dueDate).toLocaleDateString('pt') : '—'}
+                    {d.dueDate
+                      ? new Date(d.dueDate).toLocaleDateString('pt')
+                      : '—'}
                   </span>
                 </div>
               ))}

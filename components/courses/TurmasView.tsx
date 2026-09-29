@@ -32,13 +32,14 @@ import { CreateCohortModal } from './CreateCohortModal';
 import { Skeleton } from './shared';
 import type { Cohort, CohortStatus } from './types';
 
-const COHORT_STATUS_MAP: Record<CohortStatus, { label: string; cls: string }> = {
-  DRAFT: { label: 'Rascunho', cls: 'bg-surface-sunken text-ink-muted' },
-  OPEN: { label: 'Inscrições abertas', cls: 'bg-info-subtle text-info-ink' },
-  ACTIVE: { label: 'A decorrer', cls: 'bg-success-subtle text-success-ink' },
-  CLOSED: { label: 'Encerrada', cls: 'bg-surface-sunken text-ink-faint' },
-  CANCELLED: { label: 'Cancelada', cls: 'bg-danger-subtle text-danger-ink' },
-};
+const COHORT_STATUS_MAP: Record<CohortStatus, { label: string; cls: string }> =
+  {
+    DRAFT: { label: 'Rascunho', cls: 'bg-surface-sunken text-ink-muted' },
+    OPEN: { label: 'Inscrições abertas', cls: 'bg-info-subtle text-info-ink' },
+    ACTIVE: { label: 'A decorrer', cls: 'bg-success-subtle text-success-ink' },
+    CLOSED: { label: 'Encerrada', cls: 'bg-surface-sunken text-ink-faint' },
+    CANCELLED: { label: 'Cancelada', cls: 'bg-danger-subtle text-danger-ink' },
+  };
 
 function fmtDate(d: string | null) {
   if (!d) return '—';
@@ -90,7 +91,11 @@ export function TurmasView() {
             emptyText="Nenhum curso encontrado"
           />
         </div>
-        <Button size="sm" onClick={() => setShowCreate(true)} disabled={!courseId}>
+        <Button
+          size="sm"
+          onClick={() => setShowCreate(true)}
+          disabled={!courseId}
+        >
           <Plus size={14} strokeWidth={1.75} />
           Criar turma
         </Button>
@@ -129,7 +134,11 @@ export function TurmasView() {
           </TableHead>
           <TableBody>
             {data.map((c) => (
-              <TableRow key={c.id} className="cursor-pointer" onClick={() => setDetailId(c.id)}>
+              <TableRow
+                key={c.id}
+                className="cursor-pointer"
+                onClick={() => setDetailId(c.id)}
+              >
                 <TableCell className="font-medium text-ink">{c.name}</TableCell>
                 <TableCell className="text-ink-muted">
                   {c.instructor?.fullName ?? '—'}
@@ -140,21 +149,37 @@ export function TurmasView() {
                 <TableCell className="text-ink-muted">
                   {fmtDate(c.startDate)} — {fmtDate(c.endDate)}
                 </TableCell>
-                <TableCell className="text-ink-muted">{c.schedule ?? '—'}</TableCell>
+                <TableCell className="text-ink-muted">
+                  {c.schedule ?? '—'}
+                </TableCell>
                 <TableCell className="text-ink-muted">
                   {c.enrolled}/{c.capacity}
                 </TableCell>
-                <TableCell className="text-ink-muted">{c.availableSlots}</TableCell>
+                <TableCell className="text-ink-muted">
+                  {c.availableSlots}
+                </TableCell>
                 <TableCell>
-                  <StatusBadge value={c.status} map={COHORT_STATUS_MAP} variant="dot" />
+                  <StatusBadge
+                    value={c.status}
+                    map={COHORT_STATUS_MAP}
+                    variant="dot"
+                  />
                 </TableCell>
                 <TableCell onClick={(e) => e.stopPropagation()}>
                   <div className="flex justify-end gap-1">
-                    <Button size="sm" intent="ghost" onClick={() => setDetailId(c.id)}>
+                    <Button
+                      size="sm"
+                      intent="ghost"
+                      onClick={() => setDetailId(c.id)}
+                    >
                       <Users2 size={14} strokeWidth={1.75} />
                     </Button>
                     {c.status !== 'CLOSED' && c.status !== 'CANCELLED' && (
-                      <Button size="sm" intent="secondary" onClick={() => onClose(c)}>
+                      <Button
+                        size="sm"
+                        intent="secondary"
+                        onClick={() => onClose(c)}
+                      >
                         Encerrar
                       </Button>
                     )}
@@ -167,10 +192,16 @@ export function TurmasView() {
       )}
 
       {showCreate && courseId && (
-        <CreateCohortModal courseId={Number(courseId)} onClose={() => setShowCreate(false)} />
+        <CreateCohortModal
+          courseId={Number(courseId)}
+          onClose={() => setShowCreate(false)}
+        />
       )}
       {detailId && (
-        <CohortDetailModal cohortId={detailId} onClose={() => setDetailId(null)} />
+        <CohortDetailModal
+          cohortId={detailId}
+          onClose={() => setDetailId(null)}
+        />
       )}
     </div>
   );

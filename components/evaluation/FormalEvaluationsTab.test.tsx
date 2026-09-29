@@ -28,7 +28,9 @@ vi.mock('./FormalEvaluationResultsPanel', () => ({
   FormalEvaluationResultsPanel: () => <div data-testid="results-panel" />,
 }));
 vi.mock('./FormalEvaluationsParticipantView', () => ({
-  FormalEvaluationsParticipantView: () => <div data-testid="participant-view" />,
+  FormalEvaluationsParticipantView: () => (
+    <div data-testid="participant-view" />
+  ),
 }));
 
 import { FormalEvaluationsTab } from './FormalEvaluationsTab';
@@ -44,7 +46,9 @@ describe('FormalEvaluationsTab', () => {
     expect(screen.queryByTestId('participant-view')).not.toBeInTheDocument();
     // Sem avaliações, a EmptyState também tem um botão "Nova Avaliação" — o
     // do cabeçalho é o primeiro.
-    fireEvent.click(screen.getAllByRole('button', { name: /Nova Avaliação/ })[0]);
+    fireEvent.click(
+      screen.getAllByRole('button', { name: /Nova Avaliação/ })[0],
+    );
     expect(screen.getByTestId('create-modal')).toBeInTheDocument();
   });
 
@@ -52,7 +56,9 @@ describe('FormalEvaluationsTab', () => {
     currentRole = 'COLABORADOR';
     render(<FormalEvaluationsTab />);
     expect(screen.getByTestId('participant-view')).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: /Nova Avaliação/ })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: /Nova Avaliação/ }),
+    ).not.toBeInTheDocument();
   });
 
   test('AUDITOR vê apenas a vista de participante', () => {
@@ -65,7 +71,9 @@ describe('FormalEvaluationsTab', () => {
     for (const role of ['GESTOR', 'RH', 'DIRECTOR', 'LIDER']) {
       currentRole = role;
       const { unmount } = render(<FormalEvaluationsTab />);
-      expect(screen.getAllByRole('button', { name: /Nova Avaliação/ }).length).toBeGreaterThan(0);
+      expect(
+        screen.getAllByRole('button', { name: /Nova Avaliação/ }).length,
+      ).toBeGreaterThan(0);
       unmount();
     }
   });
@@ -74,7 +82,9 @@ describe('FormalEvaluationsTab', () => {
     currentRole = 'INSTRUCTOR';
     render(<FormalEvaluationsTab />);
     expect(screen.getByTestId('participant-view')).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: /Nova Avaliação/ })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: /Nova Avaliação/ }),
+    ).not.toBeInTheDocument();
   });
 
   test('mostra "Resultados" e "Publicar" conforme o estado de cada avaliação', () => {
@@ -99,7 +109,11 @@ describe('FormalEvaluationsTab', () => {
     render(<FormalEvaluationsTab />);
     expect(screen.getByText('Rascunho')).toBeInTheDocument();
     expect(screen.getByText('Publicada')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Publicar' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Resultados/ })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Publicar' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /Resultados/ }),
+    ).toBeInTheDocument();
   });
 });

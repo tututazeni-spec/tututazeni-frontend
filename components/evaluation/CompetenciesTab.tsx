@@ -30,10 +30,15 @@ export function CompetenciesTab() {
   const [selected, setSelected] = useState<DirectoryUser | null>(null);
 
   const userId = isMgmt ? selected?.id : undefined;
-  const url = isMgmt && userId ? `/competencies/user/${userId}/gap` : '/competencies/my/gap';
+  const url =
+    isMgmt && userId
+      ? `/competencies/user/${userId}/gap`
+      : '/competencies/my/gap';
 
   const { data, isLoading: loading } = useApiQuery<CompetencyGapView>(
-    isMgmt ? queryKeys.competencies.gap(userId ?? 'none') : queryKeys.competencies.gap('me'),
+    isMgmt
+      ? queryKeys.competencies.gap(userId ?? 'none')
+      : queryKeys.competencies.gap('me'),
     url,
     { staleTime: STALE_TIME.DYNAMIC, enabled: !isMgmt || !!userId },
   );
@@ -65,7 +70,11 @@ export function CompetenciesTab() {
           description="Escolhe um colaborador para ver o gap de competências face ao cargo actual."
         />
       ) : loading ? (
-        <Skeleton rows={4} wrapperClassName="space-y-3" itemClassName="skeleton-shimmer h-16 rounded-card" />
+        <Skeleton
+          rows={4}
+          wrapperClassName="space-y-3"
+          itemClassName="skeleton-shimmer h-16 rounded-card"
+        />
       ) : data?.noPosition ? (
         <EmptyState
           title="Sem cargo atribuído"
@@ -98,7 +107,9 @@ export function CompetenciesTab() {
             <Card>
               <CardBody className="text-center">
                 <p className="text-xs text-ink-faint">Gap total</p>
-                <p className="text-2xl font-display font-bold text-ink">{data!.totalGap}</p>
+                <p className="text-2xl font-display font-bold text-ink">
+                  {data!.totalGap}
+                </p>
               </CardBody>
             </Card>
           </div>
@@ -110,25 +121,40 @@ export function CompetenciesTab() {
                   <div className="flex items-center gap-4">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap mb-1">
-                        <p className="text-sm font-semibold text-ink">{g.competency.name}</p>
+                        <p className="text-sm font-semibold text-ink">
+                          {g.competency.name}
+                        </p>
                         {g.priority === 'MANDATORY' && (
                           <Badge intent="neutral">Obrigatória</Badge>
                         )}
                         {g.met ? (
                           <Badge intent="success">
-                            <CheckCircle2 size={11} strokeWidth={1.75} className="inline mr-1" />
+                            <CheckCircle2
+                              size={11}
+                              strokeWidth={1.75}
+                              className="inline mr-1"
+                            />
                             Cumprida
                           </Badge>
                         ) : (
                           <Badge intent="warning">
-                            <AlertTriangle size={11} strokeWidth={1.75} className="inline mr-1" />
+                            <AlertTriangle
+                              size={11}
+                              strokeWidth={1.75}
+                              className="inline mr-1"
+                            />
                             Gap de {g.gap}
                           </Badge>
                         )}
                       </div>
-                      <ProgressBar value={(g.currentLevel / Math.max(1, g.requiredLevel)) * 100} />
+                      <ProgressBar
+                        value={
+                          (g.currentLevel / Math.max(1, g.requiredLevel)) * 100
+                        }
+                      />
                       <p className="text-xs text-ink-faint mt-1">
-                        Demonstrado: {g.currentLevel} · Esperado: {g.requiredLevel}
+                        Demonstrado: {g.currentLevel} · Esperado:{' '}
+                        {g.requiredLevel}
                       </p>
                     </div>
                   </div>

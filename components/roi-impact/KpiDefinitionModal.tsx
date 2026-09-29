@@ -23,8 +23,12 @@ import type { DirectoryUser } from '@/components/departments/departmentFormData'
 import { KPI_CATEGORY_LABELS, KPI_FREQUENCY_LABELS } from './utils';
 import type { KpiCategory, KpiDefinitionRow, KpiFrequency } from './types';
 
-const CATEGORY_ITEMS = Object.entries(KPI_CATEGORY_LABELS).map(([value, label]) => ({ value, label }));
-const FREQUENCY_ITEMS = Object.entries(KPI_FREQUENCY_LABELS).map(([value, label]) => ({ value, label }));
+const CATEGORY_ITEMS = Object.entries(KPI_CATEGORY_LABELS).map(
+  ([value, label]) => ({ value, label }),
+);
+const FREQUENCY_ITEMS = Object.entries(KPI_FREQUENCY_LABELS).map(
+  ([value, label]) => ({ value, label }),
+);
 
 export interface KpiDefinitionModalProps {
   kpi?: KpiDefinitionRow;
@@ -37,13 +41,19 @@ export function KpiDefinitionModal({ kpi, onClose }: KpiDefinitionModalProps) {
 
   const [name, setName] = useState(kpi?.name ?? '');
   const [code, setCode] = useState(kpi?.code ?? '');
-  const [category, setCategory] = useState<KpiCategory>(kpi?.category ?? 'PRODUTIVIDADE');
+  const [category, setCategory] = useState<KpiCategory>(
+    kpi?.category ?? 'PRODUTIVIDADE',
+  );
   const [description, setDescription] = useState(kpi?.description ?? '');
   const [unit, setUnit] = useState(kpi?.unit ?? '');
   const [formula, setFormula] = useState(kpi?.formula ?? '');
   const [dataSource, setDataSource] = useState(kpi?.dataSource ?? '');
-  const [frequency, setFrequency] = useState<KpiFrequency>(kpi?.frequency ?? 'MENSAL');
-  const [targetValue, setTargetValue] = useState(kpi?.targetValue != null ? String(kpi.targetValue) : '');
+  const [frequency, setFrequency] = useState<KpiFrequency>(
+    kpi?.frequency ?? 'MENSAL',
+  );
+  const [targetValue, setTargetValue] = useState(
+    kpi?.targetValue != null ? String(kpi.targetValue) : '',
+  );
   const [benchmarkNote, setBenchmarkNote] = useState(kpi?.benchmarkNote ?? '');
   const [responsible, setResponsible] = useState<DirectoryUser | null>(null);
 
@@ -67,16 +77,23 @@ export function KpiDefinitionModal({ kpi, onClose }: KpiDefinitionModalProps) {
         : apiClient.post('/roi-impact/kpis', payload);
     },
     {
-      invalidateKeys: [queryKeys.roiImpact.kpis(), queryKeys.roiImpact.kpisByCategory()],
+      invalidateKeys: [
+        queryKeys.roiImpact.kpis(),
+        queryKeys.roiImpact.kpisByCategory(),
+      ],
       onSuccess: () => {
-        notify({ title: kpi ? 'KPI actualizado' : 'KPI criado', intent: 'success' });
+        notify({
+          title: kpi ? 'KPI actualizado' : 'KPI criado',
+          intent: 'success',
+        });
         onClose();
       },
       onError: (e) => setError(e.message || 'Erro ao guardar o KPI.'),
     },
   );
 
-  const canSave = name.trim().length > 0 && code.trim().length > 0 && unit.trim().length > 0;
+  const canSave =
+    name.trim().length > 0 && code.trim().length > 0 && unit.trim().length > 0;
 
   return (
     <Modal open onOpenChange={(open) => !open && onClose()}>
@@ -95,7 +112,12 @@ export function KpiDefinitionModal({ kpi, onClose }: KpiDefinitionModalProps) {
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
             <FormField label="Nome *" htmlFor="kpi-name">
-              <Input id="kpi-name" value={name} onChange={(e) => setName(e.target.value)} className="w-full" />
+              <Input
+                id="kpi-name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="w-full"
+              />
             </FormField>
             <FormField label="Código *" htmlFor="kpi-code">
               <Input
@@ -196,7 +218,12 @@ export function KpiDefinitionModal({ kpi, onClose }: KpiDefinitionModalProps) {
         </div>
 
         <div className="mt-6 flex gap-3 border-t border-border pt-4">
-          <Button intent="secondary" className="justify-center" onClick={onClose} disabled={save.isPending}>
+          <Button
+            intent="secondary"
+            className="justify-center"
+            onClick={onClose}
+            disabled={save.isPending}
+          >
             Cancelar
           </Button>
           <Button

@@ -27,7 +27,10 @@ export interface NewCriticalPositionModalProps {
   onSuccess: () => void;
 }
 
-export function NewCriticalPositionModal({ onClose, onSuccess }: NewCriticalPositionModalProps) {
+export function NewCriticalPositionModal({
+  onClose,
+  onSuccess,
+}: NewCriticalPositionModalProps) {
   const { options: positionOptions } = usePositionOptions();
   const [keyPersonRisk, setKeyPersonRisk] = useState(false);
   const [requiresDocumentation, setRequiresDocumentation] = useState(false);
@@ -47,7 +50,11 @@ export function NewCriticalPositionModal({ onClose, onSuccess }: NewCriticalPosi
       criticalReason: '',
       minSuccessorsRequired: '2',
     },
-    { positionId: [required()], businessImpact: [required()], replacementTime: [required()] },
+    {
+      positionId: [required()],
+      businessImpact: [required()],
+      replacementTime: [required()],
+    },
   );
 
   const create = useApiMutation(
@@ -82,7 +89,10 @@ export function NewCriticalPositionModal({ onClose, onSuccess }: NewCriticalPosi
 
   return (
     <Modal open onOpenChange={(open) => !open && onClose()}>
-      <ModalContent title="Nova Posição Crítica" className="max-h-[90vh] max-w-lg overflow-y-auto">
+      <ModalContent
+        title="Nova Posição Crítica"
+        className="max-h-[90vh] max-w-lg overflow-y-auto"
+      >
         <div className="mt-4 space-y-4">
           {error && (
             <div className="flex items-center gap-2 rounded-card bg-danger-subtle p-3 text-sm text-danger-ink">
@@ -106,7 +116,9 @@ export function NewCriticalPositionModal({ onClose, onSuccess }: NewCriticalPosi
               <Select
                 items={BUSINESS_IMPACT_OPTIONS}
                 value={form.businessImpact}
-                onValueChange={(v) => setForm((f) => ({ ...f, businessImpact: v }))}
+                onValueChange={(v) =>
+                  setForm((f) => ({ ...f, businessImpact: v }))
+                }
                 placeholder="Seleccionar…"
                 className="w-full"
               />
@@ -115,7 +127,9 @@ export function NewCriticalPositionModal({ onClose, onSuccess }: NewCriticalPosi
               <Select
                 items={REPLACEMENT_TIME_OPTIONS}
                 value={form.replacementTime}
-                onValueChange={(v) => setForm((f) => ({ ...f, replacementTime: v }))}
+                onValueChange={(v) =>
+                  setForm((f) => ({ ...f, replacementTime: v }))
+                }
                 placeholder="Seleccionar…"
                 className="w-full"
               />
@@ -123,8 +137,9 @@ export function NewCriticalPositionModal({ onClose, onSuccess }: NewCriticalPosi
           </div>
 
           <p className="font-body text-xs text-ink-faint">
-            O risco de saída é calculado automaticamente a partir do impacto, do tempo de
-            substituição e da cobertura de sucessores — não é definido manualmente aqui.
+            O risco de saída é calculado automaticamente a partir do impacto, do
+            tempo de substituição e da cobertura de sucessores — não é definido
+            manualmente aqui.
           </p>
 
           <div className="grid grid-cols-2 gap-3">
@@ -133,7 +148,9 @@ export function NewCriticalPositionModal({ onClose, onSuccess }: NewCriticalPosi
                 id="cp-exit-date"
                 type="date"
                 value={form.expectedExitDate}
-                onChange={(e) => setForm((f) => ({ ...f, expectedExitDate: e.target.value }))}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, expectedExitDate: e.target.value }))
+                }
                 className="w-full"
               />
             </FormField>
@@ -143,7 +160,12 @@ export function NewCriticalPositionModal({ onClose, onSuccess }: NewCriticalPosi
                 type="number"
                 min={1}
                 value={form.minSuccessorsRequired}
-                onChange={(e) => setForm((f) => ({ ...f, minSuccessorsRequired: e.target.value }))}
+                onChange={(e) =>
+                  setForm((f) => ({
+                    ...f,
+                    minSuccessorsRequired: e.target.value,
+                  }))
+                }
                 className="w-full"
               />
             </FormField>
@@ -153,7 +175,9 @@ export function NewCriticalPositionModal({ onClose, onSuccess }: NewCriticalPosi
             <Textarea
               id="cp-reason"
               value={form.criticalReason}
-              onChange={(e) => setForm((f) => ({ ...f, criticalReason: e.target.value }))}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, criticalReason: e.target.value }))
+              }
               rows={2}
               className="w-full resize-none"
             />

@@ -10,6 +10,7 @@ eliminando toda a paleta Tailwind crua (blue/purple/green/red/yellow/gray).
 Zero alterações a dados/comportamento.
 
 **Ficheiros:**
+
 - `components/lms/types.ts` — `LEVEL_COLORS`/`STATUS_COLORS` (classes
   Tailwind cruas) → `LEVEL_INTENT`/`STATUS_INTENT` (`BadgeProps['intent']`).
   `PLATFORM_ICONS` fica igual (são emojis, não cor).
@@ -29,6 +30,7 @@ Zero alterações a dados/comportamento.
 precisam de commit próprio.
 
 ## Constraints
+
 - Zero alterações a dados/comportamento — mesmos props, mesmos handlers.
 - Zero classes Tailwind cruas no final.
 - Não criar componentes novos em `components/ui/`.
@@ -40,13 +42,14 @@ precisam de commit próprio.
 - Emojis de conteúdo (🎓, 🟦🟪🟩🟧🔗) mantidos — não são paleta Tailwind.
 
 ## Ordem de execução (commits granulares)
+
 1. `components/lms/types.ts` — mapas de cor → intent.
 2. `components/lms/shared.tsx` — ErrorBanner/Skeletons.
 3. `components/lms/LearningPathsView.tsx`.
 4. `components/lms/MyPathsView.tsx`.
 5. `components/lms/LiveSessionsView.tsx`.
 6. Verificação final: `npx tsc --noEmit`, grep de paleta crua, `npm run
-   build`, `npm test`.
+build`, `npm test`.
 7. Commit final (se necessário) + push + PR.
 
 Cada task: typecheck (`npx tsc --noEmit`, tolerando erros só nos ficheiros

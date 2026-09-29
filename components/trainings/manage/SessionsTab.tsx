@@ -137,16 +137,25 @@ export function SessionsTab({ training }: SessionsTabProps) {
       </div>
 
       {sessions.length === 0 ? (
-        <EmptyState title="Sem sessões" description="Cria a primeira sessão desta formação." />
+        <EmptyState
+          title="Sem sessões"
+          description="Cria a primeira sessão desta formação."
+        />
       ) : (
         <Card className="divide-y divide-border">
           {sessions.map((s) => (
-            <div key={s.id} className="flex flex-wrap items-center gap-3 px-4 py-3">
+            <div
+              key={s.id}
+              className="flex flex-wrap items-center gap-3 px-4 py-3"
+            >
               <div className="min-w-0 flex-1">
-                <div className="text-sm font-medium text-ink">{fmtDate(s.sessionDate)}</div>
+                <div className="text-sm font-medium text-ink">
+                  {fmtDate(s.sessionDate)}
+                </div>
                 <div className="mt-1 flex items-center gap-3 font-body text-xs text-ink-faint">
                   <span className="inline-flex items-center gap-1">
-                    <Clock size={12} strokeWidth={1.75} /> {s.durationMinutes}min
+                    <Clock size={12} strokeWidth={1.75} /> {s.durationMinutes}
+                    min
                   </span>
                   {s.location && (
                     <span className="inline-flex items-center gap-1">
@@ -174,14 +183,18 @@ export function SessionsTab({ training }: SessionsTabProps) {
 
       {editing && (
         <Modal open onOpenChange={(open) => !open && setEditing(null)}>
-          <ModalContent title={editing === 'new' ? 'Nova sessão' : 'Editar sessão'}>
+          <ModalContent
+            title={editing === 'new' ? 'Nova sessão' : 'Editar sessão'}
+          >
             <div className="mt-4 space-y-4">
               <FormField label="Data e hora" htmlFor="st-date">
                 <Input
                   id="st-date"
                   type="datetime-local"
                   value={form.sessionDate}
-                  onChange={(e) => setForm((f) => ({ ...f, sessionDate: e.target.value }))}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, sessionDate: e.target.value }))
+                  }
                   className="w-full"
                 />
               </FormField>
@@ -192,7 +205,12 @@ export function SessionsTab({ training }: SessionsTabProps) {
                     type="number"
                     min={15}
                     value={form.durationMinutes}
-                    onChange={(e) => setForm((f) => ({ ...f, durationMinutes: e.target.value }))}
+                    onChange={(e) =>
+                      setForm((f) => ({
+                        ...f,
+                        durationMinutes: e.target.value,
+                      }))
+                    }
                     className="w-full"
                   />
                 </FormField>
@@ -200,7 +218,9 @@ export function SessionsTab({ training }: SessionsTabProps) {
                   <Select
                     items={MODALITY_ITEMS}
                     value={form.modality}
-                    onValueChange={(v) => setForm((f) => ({ ...f, modality: v }))}
+                    onValueChange={(v) =>
+                      setForm((f) => ({ ...f, modality: v }))
+                    }
                     className="w-full"
                   />
                 </FormField>
@@ -209,15 +229,22 @@ export function SessionsTab({ training }: SessionsTabProps) {
                 <Input
                   id="st-location"
                   value={form.location}
-                  onChange={(e) => setForm((f) => ({ ...f, location: e.target.value }))}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, location: e.target.value }))
+                  }
                   className="w-full"
                 />
               </FormField>
-              <FormField label="Link da reunião (online/híbrida)" htmlFor="st-meetingUrl">
+              <FormField
+                label="Link da reunião (online/híbrida)"
+                htmlFor="st-meetingUrl"
+              >
                 <Input
                   id="st-meetingUrl"
                   value={form.meetingUrl}
-                  onChange={(e) => setForm((f) => ({ ...f, meetingUrl: e.target.value }))}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, meetingUrl: e.target.value }))
+                  }
                   className="w-full"
                 />
               </FormField>
@@ -228,7 +255,12 @@ export function SessionsTab({ training }: SessionsTabProps) {
                     type="number"
                     min={0}
                     value={form.maxParticipants}
-                    onChange={(e) => setForm((f) => ({ ...f, maxParticipants: e.target.value }))}
+                    onChange={(e) =>
+                      setForm((f) => ({
+                        ...f,
+                        maxParticipants: e.target.value,
+                      }))
+                    }
                     className="w-full"
                   />
                 </FormField>
@@ -239,7 +271,10 @@ export function SessionsTab({ training }: SessionsTabProps) {
                       type="checkbox"
                       checked={form.waitlistEnabled}
                       onChange={(e) =>
-                        setForm((f) => ({ ...f, waitlistEnabled: e.target.checked }))
+                        setForm((f) => ({
+                          ...f,
+                          waitlistEnabled: e.target.checked,
+                        }))
                       }
                     />
                     Lista de espera
@@ -250,14 +285,20 @@ export function SessionsTab({ training }: SessionsTabProps) {
                 <Textarea
                   id="st-notes"
                   value={form.notes}
-                  onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, notes: e.target.value }))
+                  }
                   rows={2}
                   className="w-full resize-none"
                 />
               </FormField>
             </div>
             <div className="mt-6 flex gap-3 border-t border-border pt-4">
-              <Button intent="secondary" className="flex-1 justify-center" onClick={() => setEditing(null)}>
+              <Button
+                intent="secondary"
+                className="flex-1 justify-center"
+                onClick={() => setEditing(null)}
+              >
                 Cancelar
               </Button>
               <Button

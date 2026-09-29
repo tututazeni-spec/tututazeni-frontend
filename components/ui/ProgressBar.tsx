@@ -16,7 +16,11 @@ export interface ProgressBarProps {
   className?: string;
 }
 
-export function ProgressBar({ value, intent = 'accent', className }: ProgressBarProps) {
+export function ProgressBar({
+  value,
+  intent = 'accent',
+  className,
+}: ProgressBarProps) {
   const clamped = Math.min(100, Math.max(0, value));
   return (
     <div
@@ -27,7 +31,10 @@ export function ProgressBar({ value, intent = 'accent', className }: ProgressBar
       className={cn('h-1.5 w-full rounded-pill bg-surface-sunken', className)}
     >
       <div
-        className={cn('h-full rounded-pill transition-[width] duration-300', INTENT_FILL[intent])}
+        className={cn(
+          'h-full rounded-pill transition-[width] duration-300',
+          INTENT_FILL[intent],
+        )}
         style={{ width: `${clamped}%` }}
       />
     </div>

@@ -13,11 +13,19 @@ interface ResultsViewProps {
   setActiveType: (t: string) => void;
 }
 
-export function ResultsView({ data, activeType, setActiveType }: ResultsViewProps) {
-  const types = Object.keys(data.grouped).filter((t) => (data.grouped[t]?.length ?? 0) > 0);
+export function ResultsView({
+  data,
+  activeType,
+  setActiveType,
+}: ResultsViewProps) {
+  const types = Object.keys(data.grouped).filter(
+    (t) => (data.grouped[t]?.length ?? 0) > 0,
+  );
 
   const displayResults =
-    activeType === 'all' ? Object.values(data.grouped).flat() : (data.grouped[activeType] ?? []);
+    activeType === 'all'
+      ? Object.values(data.grouped).flat()
+      : (data.grouped[activeType] ?? []);
 
   return (
     <div className="grid grid-cols-1 gap-5 md:grid-cols-4">
@@ -49,7 +57,9 @@ export function ResultsView({ data, activeType, setActiveType }: ResultsViewProp
                   className="mb-0.5 w-full justify-between"
                 >
                   <span>{conf.label}</span>
-                  <span className="text-[10px]">{data.counts[t] ?? data.grouped[t]?.length ?? 0}</span>
+                  <span className="text-[10px]">
+                    {data.counts[t] ?? data.grouped[t]?.length ?? 0}
+                  </span>
                 </Button>
               );
             })}
@@ -61,7 +71,8 @@ export function ResultsView({ data, activeType, setActiveType }: ResultsViewProp
       <div className="md:col-span-3">
         <div className="mb-3 flex items-center justify-between">
           <p className="font-body text-sm text-ink">
-            {displayResults.length} resultado(s) para <strong>&quot;{data.query}&quot;</strong>
+            {displayResults.length} resultado(s) para{' '}
+            <strong>&quot;{data.query}&quot;</strong>
           </p>
         </div>
 

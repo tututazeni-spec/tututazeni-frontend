@@ -22,7 +22,10 @@ import { NewCareerPlanModal } from '../NewCareerPlanModal';
 import { CareerRoadmap } from './CareerRoadmap';
 import type { CareerPlan } from './types';
 
-const STATUS_INTENT: Record<string, 'success' | 'warning' | 'info' | 'neutral'> = {
+const STATUS_INTENT: Record<
+  string,
+  'success' | 'warning' | 'info' | 'neutral'
+> = {
   DRAFT: 'neutral',
   ACTIVE: 'info',
   COMPLETED: 'success',
@@ -37,15 +40,21 @@ export function PlansManagementView() {
     data: resp,
     isLoading: loading,
     refetch,
-  } = useApiQuery<{ data: CareerPlan[] }>(queryKeys.careerPlans.list({}), '/career-plans', {
-    staleTime: STALE_TIME.DYNAMIC,
-  });
+  } = useApiQuery<{ data: CareerPlan[] }>(
+    queryKeys.careerPlans.list({}),
+    '/career-plans',
+    {
+      staleTime: STALE_TIME.DYNAMIC,
+    },
+  );
   const plans = resp?.data ?? [];
 
   return (
     <div>
       <div className="mb-4 flex items-center justify-between">
-        <span className="font-body text-sm text-ink-faint">{plans.length} planos</span>
+        <span className="font-body text-sm text-ink-faint">
+          {plans.length} planos
+        </span>
         <Button size="sm" onClick={() => setShowNew(true)}>
           <Plus size={14} strokeWidth={1.75} /> Novo Plano de Carreira
         </Button>
@@ -74,18 +83,28 @@ export function PlansManagementView() {
                   }
                 }}
                 className={`cursor-pointer p-3 transition-shadow duration-150 hover:shadow-hover ${
-                  selected?.id === plan.id ? 'border-primary bg-primary-subtle' : ''
+                  selected?.id === plan.id
+                    ? 'border-primary bg-primary-subtle'
+                    : ''
                 }`}
               >
                 <div className="flex items-center gap-3">
-                  <Avatar name={plan.user?.fullName ?? '?'} url={plan.user?.avatarUrl ?? undefined} size="sm" />
+                  <Avatar
+                    name={plan.user?.fullName ?? '?'}
+                    url={plan.user?.avatarUrl ?? undefined}
+                    size="sm"
+                  />
                   <div className="min-w-0 flex-1">
                     <div className="truncate font-body text-sm font-medium text-ink">
                       {plan.user?.fullName ?? `Colaborador #${plan.userId}`}
                     </div>
-                    <div className="truncate font-body text-xs text-ink-faint">{plan.title}</div>
+                    <div className="truncate font-body text-xs text-ink-faint">
+                      {plan.title}
+                    </div>
                   </div>
-                  <Badge intent={STATUS_INTENT[plan.status] ?? 'neutral'}>{plan.status}</Badge>
+                  <Badge intent={STATUS_INTENT[plan.status] ?? 'neutral'}>
+                    {plan.status}
+                  </Badge>
                 </div>
               </Card>
             ))}
@@ -98,9 +117,12 @@ export function PlansManagementView() {
               </div>
             ) : (
               <Card className="p-5">
-                <div className="mb-1 font-display text-lg font-bold text-ink">{selected.title}</div>
+                <div className="mb-1 font-display text-lg font-bold text-ink">
+                  {selected.title}
+                </div>
                 <div className="mb-4 font-body text-xs text-ink-faint">
-                  {selected.currentRole?.name ?? '—'} → {selected.targetRole?.name ?? '—'}
+                  {selected.currentRole?.name ?? '—'} →{' '}
+                  {selected.targetRole?.name ?? '—'}
                 </div>
                 {selected.readiness && (
                   <div className="mb-4">
@@ -116,13 +138,17 @@ export function PlansManagementView() {
                   <div className="mt-4 space-y-2">
                     {selected.mentoringNotes && (
                       <div className="rounded-control bg-surface-sunken p-2.5 font-body text-xs text-ink-muted">
-                        <span className="font-semibold text-ink">Mentoring: </span>
+                        <span className="font-semibold text-ink">
+                          Mentoring:{' '}
+                        </span>
                         {selected.mentoringNotes}
                       </div>
                     )}
                     {selected.coachingNotes && (
                       <div className="rounded-control bg-surface-sunken p-2.5 font-body text-xs text-ink-muted">
-                        <span className="font-semibold text-ink">Coaching: </span>
+                        <span className="font-semibold text-ink">
+                          Coaching:{' '}
+                        </span>
                         {selected.coachingNotes}
                       </div>
                     )}

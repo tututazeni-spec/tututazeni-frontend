@@ -60,7 +60,11 @@ export function Sidebar({
               onClick={item.action}
               className="w-full flex items-center gap-2 px-3 py-2 text-sm text-ink-muted rounded-control hover:bg-surface-sunken transition-colors text-left"
             >
-              <item.icon size={15} strokeWidth={1.75} className="text-ink-faint" />
+              <item.icon
+                size={15}
+                strokeWidth={1.75}
+                className="text-ink-faint"
+              />
               <span className="flex-1">{item.label}</span>
               {item.badge != null && item.badge > 0 && (
                 <Badge intent="warning" className="px-1.5 py-0 text-[10px]">

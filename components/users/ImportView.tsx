@@ -46,11 +46,21 @@ import {
   type ParsedCsv,
 } from './importUsersCsv';
 import { auditActionLabel, describeAuditMeta } from './auditLogLabels';
-import type { ImportReport, ImportUserRow, ModuleAuditLogsResponse } from './types';
+import type {
+  ImportReport,
+  ImportUserRow,
+  ModuleAuditLogsResponse,
+} from './types';
 
-const FIELD_ITEMS = IMPORT_FIELDS.map((f) => ({ value: f, label: IMPORT_FIELD_LABELS[f] }));
+const FIELD_ITEMS = IMPORT_FIELDS.map((f) => ({
+  value: f,
+  label: IMPORT_FIELD_LABELS[f],
+}));
 
-const OUTCOME_BADGE: Record<string, { label: string; intent: 'success' | 'info' | 'warning' | 'danger' }> = {
+const OUTCOME_BADGE: Record<
+  string,
+  { label: string; intent: 'success' | 'info' | 'warning' | 'danger' }
+> = {
   create: { label: 'Criar', intent: 'success' },
   update: { label: 'Atualizar', intent: 'info' },
   'skip-duplicate': { label: 'Duplicado no ficheiro', intent: 'warning' },
@@ -81,7 +91,10 @@ export function ImportView() {
   const { data: history } = useApiQuery<ModuleAuditLogsResponse>(
     queryKeys.users.moduleAuditLogs({ action: 'BULK_IMPORT', limit: 5 }),
     '/users/audit-logs',
-    { params: { action: 'BULK_IMPORT', limit: 5 }, staleTime: STALE_TIME.DYNAMIC },
+    {
+      params: { action: 'BULK_IMPORT', limit: 5 },
+      staleTime: STALE_TIME.DYNAMIC,
+    },
   );
 
   const handleFile = (file: File | undefined) => {
@@ -103,11 +116,13 @@ export function ImportView() {
         setStep('map');
       }
     };
-    reader.onerror = () => setReadError('Não foi possível ler o ficheiro. Tenta outra vez.');
+    reader.onerror = () =>
+      setReadError('Não foi possível ler o ficheiro. Tenta outra vez.');
     reader.readAsText(file);
   };
 
-  const mappedHasRequiredFields = mapping.includes('email') && mapping.includes('fullName');
+  const mappedHasRequiredFields =
+    mapping.includes('email') && mapping.includes('fullName');
 
   const draftRows = useMemo(
     () => (parsed ? mapRows(parsed.rows, mapping) : []),
@@ -116,7 +131,9 @@ export function ImportView() {
 
   const handlePreview = () => {
     if (!parsed || !mappedHasRequiredFields) return;
-    const rows: ImportUserRow[] = draftRows.map(({ line: _line, missingRequired: _mr, ...row }) => row);
+    const rows: ImportUserRow[] = draftRows.map(
+      ({ line: _line, missingRequired: _mr, ...row }) => row,
+    );
     setPayloadRows(rows);
     importMutation.mutate(
       { rows, dryRun: true, updateExisting },
@@ -127,7 +144,10 @@ export function ImportView() {
         },
         onError: (err) => {
           reportError(err, { source: 'ImportView.handlePreview' });
-          notify({ title: 'Não foi possível pré-visualizar a importação', intent: 'danger' });
+          notify({
+            title: 'Não foi possível pré-visualizar a importação',
+            intent: 'danger',
+          });
         },
       },
     );
@@ -146,7 +166,10 @@ export function ImportView() {
         },
         onError: (err) => {
           reportError(err, { source: 'ImportView.handleConfirm' });
-          notify({ title: 'Não foi possível concluir a importação', intent: 'danger' });
+          notify({
+            title: 'Não foi possível concluir a importação',
+            intent: 'danger',
+          });
         },
       },
     );
@@ -165,7 +188,9 @@ export function ImportView() {
   return (
     <div className="space-y-6">
       <Card className="p-5">
-        <div className="mb-4 text-sm font-semibold text-ink">1. Carregar ficheiro</div>
+        <div className="mb-4 text-sm font-semibold text-ink">
+          1. Carregar ficheiro
+        </div>
         <FormField
           label="Ficheiro CSV"
           htmlFor="import-file"
@@ -195,15 +220,19 @@ export function ImportView() {
         {parsed && !parsed.error && (
           <div className="mt-3 flex items-center gap-2 font-body text-sm text-ink-muted">
             <FileCheck2 size={16} strokeWidth={1.75} className="text-success" />
-            {fileName} — {parsed.rows.length} linha{parsed.rows.length === 1 ? '' : 's'} de dados,{' '}
-            {parsed.headers.length} coluna{parsed.headers.length === 1 ? '' : 's'}
+            {fileName} — {parsed.rows.length} linha
+            {parsed.rows.length === 1 ? '' : 's'} de dados,{' '}
+            {parsed.headers.length} coluna
+            {parsed.headers.length === 1 ? '' : 's'}
           </div>
         )}
       </Card>
 
       {(step === 'map' || step === 'result') && parsed && !parsed.error && (
         <Card className="p-5">
-          <div className="mb-4 text-sm font-semibold text-ink">2. Mapear colunas</div>
+          <div className="mb-4 text-sm font-semibold text-ink">
+            2. Mapear colunas
+          </div>
           <Table>
             <TableHead>
               <TableRow>
@@ -215,14 +244,22 @@ export function ImportView() {
             <TableBody>
               {parsed.headers.map((header, i) => (
                 <TableRow key={header + i}>
-                  <TableCell className="text-sm font-medium text-ink">{header}</TableCell>
-                  <TableCell className="text-xs text-ink-faint">{parsed.rows[0]?.[i] ?? '—'}</TableCell>
+                  <TableCell className="text-sm font-medium text-ink">
+                    {header}
+                  </TableCell>
+                  <TableCell className="text-xs text-ink-faint">
+                    {parsed.rows[0]?.[i] ?? '—'}
+                  </TableCell>
                   <TableCell>
                     <Select
                       items={FIELD_ITEMS}
                       value={mapping[i] ?? 'ignore'}
                       onValueChange={(v) =>
-                        setMapping((m) => m.map((x, idx) => (idx === i ? (v as ImportField) : x)))
+                        setMapping((m) =>
+                          m.map((x, idx) =>
+                            idx === i ? (v as ImportField) : x,
+                          ),
+                        )
                       }
                       className="w-52"
                     />
@@ -234,7 +271,8 @@ export function ImportView() {
 
           {!mappedHasRequiredFields && (
             <p className="mt-3 font-body text-xs text-danger">
-              Mapeia pelo menos as colunas &ldquo;Email&rdquo; e &ldquo;Nome completo&rdquo; para continuar.
+              Mapeia pelo menos as colunas &ldquo;Email&rdquo; e &ldquo;Nome
+              completo&rdquo; para continuar.
             </p>
           )}
 
@@ -253,7 +291,9 @@ export function ImportView() {
               onClick={handlePreview}
               disabled={!mappedHasRequiredFields || importMutation.isPending}
             >
-              {importMutation.isPending && step !== 'result' ? 'A pré-visualizar…' : 'Pré-visualizar'}
+              {importMutation.isPending && step !== 'result'
+                ? 'A pré-visualizar…'
+                : 'Pré-visualizar'}
             </Button>
           </div>
         </Card>
@@ -263,7 +303,8 @@ export function ImportView() {
         <Card className="p-5">
           <div className="mb-4 flex items-center justify-between">
             <div className="text-sm font-semibold text-ink">
-              3. {report.dryRun ? 'Pré-visualização' : 'Relatório de importação'}
+              3.{' '}
+              {report.dryRun ? 'Pré-visualização' : 'Relatório de importação'}
             </div>
             <div className="flex gap-2">
               <Badge intent="success">{report.created} a criar</Badge>
@@ -287,12 +328,18 @@ export function ImportView() {
                 const cfg = OUTCOME_BADGE[row.outcome];
                 return (
                   <TableRow key={row.line}>
-                    <TableCell className="text-xs text-ink-faint">{row.line}</TableCell>
-                    <TableCell className="text-sm text-ink">{row.email}</TableCell>
+                    <TableCell className="text-xs text-ink-faint">
+                      {row.line}
+                    </TableCell>
+                    <TableCell className="text-sm text-ink">
+                      {row.email}
+                    </TableCell>
                     <TableCell>
                       <Badge intent={cfg.intent}>{cfg.label}</Badge>
                     </TableCell>
-                    <TableCell className="text-xs text-ink-faint">{row.detail ?? '—'}</TableCell>
+                    <TableCell className="text-xs text-ink-faint">
+                      {row.detail ?? '—'}
+                    </TableCell>
                   </TableRow>
                 );
               })}
@@ -304,8 +351,13 @@ export function ImportView() {
               Nova importação
             </Button>
             {report.dryRun && (
-              <Button onClick={handleConfirm} disabled={importMutation.isPending}>
-                {importMutation.isPending ? 'A importar…' : 'Confirmar importação'}
+              <Button
+                onClick={handleConfirm}
+                disabled={importMutation.isPending}
+              >
+                {importMutation.isPending
+                  ? 'A importar…'
+                  : 'Confirmar importação'}
               </Button>
             )}
           </div>
@@ -318,7 +370,9 @@ export function ImportView() {
           Histórico de importações
         </div>
         {!history || history.data.length === 0 ? (
-          <p className="font-body text-sm text-ink-faint">Sem importações registadas.</p>
+          <p className="font-body text-sm text-ink-faint">
+            Sem importações registadas.
+          </p>
         ) : (
           <ul className="space-y-2">
             {history.data.map((log) => (
@@ -326,11 +380,15 @@ export function ImportView() {
                 key={log.id}
                 className="flex items-center justify-between gap-4 border-b border-border py-2 last:border-0 font-body text-sm"
               >
-                <span className="text-ink-muted">{fmtDateTime(log.createdAt)}</span>
+                <span className="text-ink-muted">
+                  {fmtDateTime(log.createdAt)}
+                </span>
                 <span className="text-ink-faint">
                   {log.performedBy?.fullName ?? auditActionLabel(log.action)}
                 </span>
-                <span className="text-ink">{describeAuditMeta(log.action, log.meta) ?? '—'}</span>
+                <span className="text-ink">
+                  {describeAuditMeta(log.action, log.meta) ?? '—'}
+                </span>
               </li>
             ))}
           </ul>

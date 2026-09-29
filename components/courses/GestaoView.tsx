@@ -61,12 +61,18 @@ const STATUS_ITEMS = [
 
 const TYPE_ITEMS = [
   { value: 'ALL', label: 'Todos os tipos' },
-  ...Object.entries(COURSE_TYPE_LABELS).map(([value, label]) => ({ value, label })),
+  ...Object.entries(COURSE_TYPE_LABELS).map(([value, label]) => ({
+    value,
+    label,
+  })),
 ];
 
 const MODALITY_ITEMS = [
   { value: 'ALL', label: 'Todas as modalidades' },
-  ...Object.entries(COURSE_MODALITY_LABELS).map(([value, label]) => ({ value, label })),
+  ...Object.entries(COURSE_MODALITY_LABELS).map(([value, label]) => ({
+    value,
+    label,
+  })),
 ];
 
 interface GestaoViewProps {
@@ -77,7 +83,11 @@ interface GestaoViewProps {
   onViewEnrollments?: (courseId: number) => void;
 }
 
-export function GestaoView({ onSelect, onManageModules, onViewEnrollments }: GestaoViewProps) {
+export function GestaoView({
+  onSelect,
+  onManageModules,
+  onViewEnrollments,
+}: GestaoViewProps) {
   const confirm = useConfirm();
   const toast = useToast();
   const [filters, setFilters] = useState({
@@ -118,61 +128,94 @@ export function GestaoView({ onSelect, onManageModules, onViewEnrollments }: Ges
   const { data, isLoading } = useApiQuery<PaginatedCourses>(
     queryKeys.courses.list(params),
     '/courses',
-    { params, staleTime: STALE_TIME.DYNAMIC, placeholderData: keepPreviousData },
+    {
+      params,
+      staleTime: STALE_TIME.DYNAMIC,
+      placeholderData: keepPreviousData,
+    },
   );
-  const { data: cats = [] } = useApiQuery<Array<{ category: string; count: number }>>(
-    queryKeys.courses.categories(),
-    '/courses/categories',
-    { staleTime: STALE_TIME.STATIC },
-  );
+  const { data: cats = [] } = useApiQuery<
+    Array<{ category: string; count: number }>
+  >(queryKeys.courses.categories(), '/courses/categories', {
+    staleTime: STALE_TIME.STATIC,
+  });
   const categoryItems = [
     { value: 'ALL', label: 'Todas as categorias' },
-    ...cats.map((c) => c.category).filter(Boolean).map((c) => ({ value: c as string, label: c as string })),
+    ...cats
+      .map((c) => c.category)
+      .filter(Boolean)
+      .map((c) => ({ value: c as string, label: c as string })),
   ];
 
   const invalidateKeys = [queryKeys.courses.all];
-  const toastError = (e: Error) => toast({ title: e.message, intent: 'danger' });
+  const toastError = (e: Error) =>
+    toast({ title: e.message, intent: 'danger' });
 
-  const publish = useApiMutation((id: number) => apiClient.patch(`/courses/${id}/publish`), {
-    invalidateKeys,
-    onSuccess: () => toast({ title: 'Curso publicado. Já aparece no catálogo.', intent: 'success' }),
-    onError: toastError,
-  });
-  const archive = useApiMutation((id: number) => apiClient.patch(`/courses/${id}/archive`), {
-    invalidateKeys,
-    onSuccess: () => toast({ title: 'Curso arquivado.', intent: 'success' }),
-    onError: toastError,
-  });
+  const publish = useApiMutation(
+    (id: number) => apiClient.patch(`/courses/${id}/publish`),
+    {
+      invalidateKeys,
+      onSuccess: () =>
+        toast({
+          title: 'Curso publicado. Já aparece no catálogo.',
+          intent: 'success',
+        }),
+      onError: toastError,
+    },
+  );
+  const archive = useApiMutation(
+    (id: number) => apiClient.patch(`/courses/${id}/archive`),
+    {
+      invalidateKeys,
+      onSuccess: () => toast({ title: 'Curso arquivado.', intent: 'success' }),
+      onError: toastError,
+    },
+  );
   const restore = useApiMutation(
     (id: number) => apiClient.put(`/courses/${id}`, { status: 'DRAFT' }),
     {
       invalidateKeys,
-      onSuccess: () => toast({ title: 'Curso reposto como rascunho.', intent: 'success' }),
+      onSuccess: () =>
+        toast({ title: 'Curso reposto como rascunho.', intent: 'success' }),
       onError: toastError,
     },
   );
   // Sem endpoint dedicado para pausar/retomar/despublicar (só /publish e
   // /archive têm regras de negócio próprias) — mudança de estado directa.
-  const pause = useApiMutation((id: number) => apiClient.put(`/courses/${id}`, { status: 'PAUSED' }), {
-    invalidateKeys,
-    onSuccess: () => toast({ title: 'Curso despublicado (em pausa).', intent: 'success' }),
-    onError: toastError,
-  });
-  const resume = useApiMutation((id: number) => apiClient.put(`/courses/${id}`, { status: 'PUBLISHED' }), {
-    invalidateKeys,
-    onSuccess: () => toast({ title: 'Curso retomado.', intent: 'success' }),
-    onError: toastError,
-  });
-  const remove = useApiMutation((id: number) => apiClient.delete(`/courses/${id}`), {
-    invalidateKeys,
-    onSuccess: () => toast({ title: 'Curso eliminado.', intent: 'success' }),
-    onError: toastError,
-  });
-  const duplicate = useApiMutation((id: number) => apiClient.post(`/courses/${id}/duplicate`), {
-    invalidateKeys,
-    onSuccess: () => toast({ title: 'Curso duplicado como rascunho.', intent: 'success' }),
-    onError: toastError,
-  });
+  const pause = useApiMutation(
+    (id: number) => apiClient.put(`/courses/${id}`, { status: 'PAUSED' }),
+    {
+      invalidateKeys,
+      onSuccess: () =>
+        toast({ title: 'Curso despublicado (em pausa).', intent: 'success' }),
+      onError: toastError,
+    },
+  );
+  const resume = useApiMutation(
+    (id: number) => apiClient.put(`/courses/${id}`, { status: 'PUBLISHED' }),
+    {
+      invalidateKeys,
+      onSuccess: () => toast({ title: 'Curso retomado.', intent: 'success' }),
+      onError: toastError,
+    },
+  );
+  const remove = useApiMutation(
+    (id: number) => apiClient.delete(`/courses/${id}`),
+    {
+      invalidateKeys,
+      onSuccess: () => toast({ title: 'Curso eliminado.', intent: 'success' }),
+      onError: toastError,
+    },
+  );
+  const duplicate = useApiMutation(
+    (id: number) => apiClient.post(`/courses/${id}/duplicate`),
+    {
+      invalidateKeys,
+      onSuccess: () =>
+        toast({ title: 'Curso duplicado como rascunho.', intent: 'success' }),
+      onError: toastError,
+    },
+  );
 
   const rowBusy = (id: number) =>
     [publish, archive, restore, pause, resume, remove, duplicate].some(
@@ -180,11 +223,19 @@ export function GestaoView({ onSelect, onManageModules, onViewEnrollments }: Ges
     );
 
   async function onArchive(c: Course) {
-    const ok = await confirm({ title: `Arquivar "${c.title}"?`, confirmLabel: 'Arquivar', destructive: true });
+    const ok = await confirm({
+      title: `Arquivar "${c.title}"?`,
+      confirmLabel: 'Arquivar',
+      destructive: true,
+    });
     if (ok) archive.mutate(c.id);
   }
   async function onDelete(c: Course) {
-    const ok = await confirm({ title: `Eliminar "${c.title}"?`, confirmLabel: 'Eliminar', destructive: true });
+    const ok = await confirm({
+      title: `Eliminar "${c.title}"?`,
+      confirmLabel: 'Eliminar',
+      destructive: true,
+    });
     if (ok) remove.mutate(c.id);
   }
 
@@ -204,7 +255,9 @@ export function GestaoView({ onSelect, onManageModules, onViewEnrollments }: Ges
         <Select
           items={categoryItems}
           value={filters.category || 'ALL'}
-          onValueChange={(v) => updateFilters({ category: v === 'ALL' ? '' : v })}
+          onValueChange={(v) =>
+            updateFilters({ category: v === 'ALL' ? '' : v })
+          }
           className="w-44"
         />
         <Select
@@ -216,7 +269,9 @@ export function GestaoView({ onSelect, onManageModules, onViewEnrollments }: Ges
         <Select
           items={MODALITY_ITEMS}
           value={filters.modality || 'ALL'}
-          onValueChange={(v) => updateFilters({ modality: v === 'ALL' ? '' : v })}
+          onValueChange={(v) =>
+            updateFilters({ modality: v === 'ALL' ? '' : v })
+          }
           className="w-44"
         />
         <Select
@@ -232,9 +287,14 @@ export function GestaoView({ onSelect, onManageModules, onViewEnrollments }: Ges
           className="w-40"
         />
         <Select
-          items={[{ value: 'ALL', label: 'Todos os departamentos' }, ...departmentOptions]}
+          items={[
+            { value: 'ALL', label: 'Todos os departamentos' },
+            ...departmentOptions,
+          ]}
           value={filters.departmentId || 'ALL'}
-          onValueChange={(v) => updateFilters({ departmentId: v === 'ALL' ? '' : v })}
+          onValueChange={(v) =>
+            updateFilters({ departmentId: v === 'ALL' ? '' : v })
+          }
           className="w-48"
         />
         <Input
@@ -244,7 +304,9 @@ export function GestaoView({ onSelect, onManageModules, onViewEnrollments }: Ges
           onChange={(e) => updateFilters({ unit: e.target.value })}
           className="w-36"
         />
-        <span className="ml-auto text-sm text-ink-faint">{data?.total ?? 0} cursos</span>
+        <span className="ml-auto text-sm text-ink-faint">
+          {data?.total ?? 0} cursos
+        </span>
       </div>
 
       {isLoading && <Skeleton rows={4} />}
@@ -281,11 +343,21 @@ export function GestaoView({ onSelect, onManageModules, onViewEnrollments }: Ges
                 key={c.id}
                 className="grid min-w-[1200px] grid-cols-[100px_1.6fr_130px_120px_110px_140px_90px_90px_90px_110px_110px_110px_40px] items-center gap-3 border-b border-border px-4 py-3 last:border-0 hover:bg-surface-sunken"
               >
-                <div className="truncate text-xs font-mono text-ink-faint">{c.internalCode ?? '—'}</div>
-                <button type="button" className="min-w-0 text-left" onClick={() => onSelect(c.id)}>
-                  <div className="truncate text-sm font-medium text-ink">{c.title}</div>
+                <div className="truncate text-xs font-mono text-ink-faint">
+                  {c.internalCode ?? '—'}
+                </div>
+                <button
+                  type="button"
+                  className="min-w-0 text-left"
+                  onClick={() => onSelect(c.id)}
+                >
+                  <div className="truncate text-sm font-medium text-ink">
+                    {c.title}
+                  </div>
                 </button>
-                <div className="truncate text-xs text-ink-muted">{c.category ?? '—'}</div>
+                <div className="truncate text-xs text-ink-muted">
+                  {c.category ?? '—'}
+                </div>
                 <div className="truncate text-xs text-ink-muted">
                   {c.type ? COURSE_TYPE_LABELS[c.type] : '—'}
                 </div>
@@ -295,22 +367,42 @@ export function GestaoView({ onSelect, onManageModules, onViewEnrollments }: Ges
                 <div className="flex min-w-0 items-center gap-1.5">
                   {c.primaryInstructor ? (
                     <>
-                      <Avatar name={c.primaryInstructor.fullName} url={c.primaryInstructor.avatarUrl ?? undefined} size="sm" />
-                      <span className="truncate text-xs text-ink-muted">{c.primaryInstructor.fullName}</span>
+                      <Avatar
+                        name={c.primaryInstructor.fullName}
+                        url={c.primaryInstructor.avatarUrl ?? undefined}
+                        size="sm"
+                      />
+                      <span className="truncate text-xs text-ink-muted">
+                        {c.primaryInstructor.fullName}
+                      </span>
                     </>
                   ) : (
                     <span className="text-xs text-ink-faint">—</span>
                   )}
                 </div>
-                <div className="text-xs text-ink-muted">{fmtDuration(c.workloadHours)}</div>
-                <div className="text-xs text-ink-muted">{LEVEL_ITEMS.find((l) => l.value === c.level)?.label ?? '—'}</div>
-                <div className="font-mono text-xs text-ink-muted">{c._count.enrollments}</div>
-                <div className="font-mono text-xs text-ink-muted">{c.avgProgress ?? 0}%</div>
+                <div className="text-xs text-ink-muted">
+                  {fmtDuration(c.workloadHours)}
+                </div>
+                <div className="text-xs text-ink-muted">
+                  {LEVEL_ITEMS.find((l) => l.value === c.level)?.label ?? '—'}
+                </div>
+                <div className="font-mono text-xs text-ink-muted">
+                  {c._count.enrollments}
+                </div>
+                <div className="font-mono text-xs text-ink-muted">
+                  {c.avgProgress ?? 0}%
+                </div>
                 <div>
-                  <StatusBadge value={c.status} map={COURSE_STATUS_MAP} variant="dot" />
+                  <StatusBadge
+                    value={c.status}
+                    map={COURSE_STATUS_MAP}
+                    variant="dot"
+                  />
                 </div>
                 <div className="text-xs text-ink-faint">
-                  {c.publishedAt ? new Date(c.publishedAt).toLocaleDateString('pt') : '—'}
+                  {c.publishedAt
+                    ? new Date(c.publishedAt).toLocaleDateString('pt')
+                    : '—'}
                 </div>
                 <div>
                   <DropdownMenu>
@@ -324,9 +416,15 @@ export function GestaoView({ onSelect, onManageModules, onViewEnrollments }: Ges
                       </button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuItem onSelect={() => onSelect(c.id)}>Ver</DropdownMenuItem>
-                      <DropdownMenuItem onSelect={() => setEditCourseId(c.id)}>Editar</DropdownMenuItem>
-                      <DropdownMenuItem onSelect={() => duplicate.mutate(c.id)}>Duplicar</DropdownMenuItem>
+                      <DropdownMenuItem onSelect={() => onSelect(c.id)}>
+                        Ver
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onSelect={() => setEditCourseId(c.id)}>
+                        Editar
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onSelect={() => duplicate.mutate(c.id)}>
+                        Duplicar
+                      </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       {c.status === 'DRAFT' && (
                         <DropdownMenuItem
@@ -337,32 +435,48 @@ export function GestaoView({ onSelect, onManageModules, onViewEnrollments }: Ges
                         </DropdownMenuItem>
                       )}
                       {c.status === 'PUBLISHED' && (
-                        <DropdownMenuItem onSelect={() => pause.mutate(c.id)}>Despublicar</DropdownMenuItem>
+                        <DropdownMenuItem onSelect={() => pause.mutate(c.id)}>
+                          Despublicar
+                        </DropdownMenuItem>
                       )}
                       {c.status === 'PAUSED' && (
-                        <DropdownMenuItem onSelect={() => resume.mutate(c.id)}>Retomar</DropdownMenuItem>
+                        <DropdownMenuItem onSelect={() => resume.mutate(c.id)}>
+                          Retomar
+                        </DropdownMenuItem>
                       )}
                       {c.status === 'ARCHIVED' ? (
-                        <DropdownMenuItem onSelect={() => restore.mutate(c.id)}>Repor rascunho</DropdownMenuItem>
+                        <DropdownMenuItem onSelect={() => restore.mutate(c.id)}>
+                          Repor rascunho
+                        </DropdownMenuItem>
                       ) : (
-                        <DropdownMenuItem onSelect={() => onArchive(c)}>Arquivar</DropdownMenuItem>
+                        <DropdownMenuItem onSelect={() => onArchive(c)}>
+                          Arquivar
+                        </DropdownMenuItem>
                       )}
                       <DropdownMenuSeparator />
                       <DropdownMenuItem onSelect={() => setEnrollFor(c.id)}>
                         Inscrever colaboradores
                       </DropdownMenuItem>
                       {onViewEnrollments && (
-                        <DropdownMenuItem onSelect={() => onViewEnrollments(c.id)}>
+                        <DropdownMenuItem
+                          onSelect={() => onViewEnrollments(c.id)}
+                        >
                           Ver inscrições / progresso
                         </DropdownMenuItem>
                       )}
                       {onManageModules && (
-                        <DropdownMenuItem onSelect={() => onManageModules(c.id)}>
+                        <DropdownMenuItem
+                          onSelect={() => onManageModules(c.id)}
+                        >
                           Gerir módulos
                         </DropdownMenuItem>
                       )}
                       <DropdownMenuItem onSelect={() => setAddModuleFor(c.id)}>
-                        <Plus size={14} strokeWidth={1.75} className="mr-1 inline" />
+                        <Plus
+                          size={14}
+                          strokeWidth={1.75}
+                          className="mr-1 inline"
+                        />
                         Adicionar módulo
                       </DropdownMenuItem>
                       {c.requiresApproval && (
@@ -373,7 +487,10 @@ export function GestaoView({ onSelect, onManageModules, onViewEnrollments }: Ges
                       {(c.status === 'DRAFT' || c.status === 'ARCHIVED') && (
                         <>
                           <DropdownMenuSeparator />
-                          <DropdownMenuItem className="text-danger-ink" onSelect={() => onDelete(c)}>
+                          <DropdownMenuItem
+                            className="text-danger-ink"
+                            onSelect={() => onDelete(c)}
+                          >
                             Eliminar
                           </DropdownMenuItem>
                         </>
@@ -420,7 +537,10 @@ export function GestaoView({ onSelect, onManageModules, onViewEnrollments }: Ges
           otherModules={[]}
           onClose={() => setAddModuleFor(null)}
           onSaved={() =>
-            toast({ title: 'Módulo adicionado. Já podes publicar o curso.', intent: 'success' })
+            toast({
+              title: 'Módulo adicionado. Já podes publicar o curso.',
+              intent: 'success',
+            })
           }
         />
       )}
@@ -429,7 +549,9 @@ export function GestaoView({ onSelect, onManageModules, onViewEnrollments }: Ges
         <EditCourseModal
           courseId={editCourseId}
           onClose={() => setEditCourseId(null)}
-          onSuccess={() => toast({ title: 'Curso actualizado.', intent: 'success' })}
+          onSuccess={() =>
+            toast({ title: 'Curso actualizado.', intent: 'success' })
+          }
         />
       )}
 
@@ -442,7 +564,10 @@ export function GestaoView({ onSelect, onManageModules, onViewEnrollments }: Ges
       )}
 
       {enrollFor !== null && (
-        <EnrollUserModal initialCourseId={enrollFor} onClose={() => setEnrollFor(null)} />
+        <EnrollUserModal
+          initialCourseId={enrollFor}
+          onClose={() => setEnrollFor(null)}
+        />
       )}
     </div>
   );

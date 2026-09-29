@@ -9,7 +9,11 @@ import { useMemo, useState } from 'react';
 import { cn } from '@/lib/cn';
 import { ChartTooltip } from './ChartTooltip';
 import { ChartLegend } from './ChartLegend';
-import { CATEGORICAL, CATEGORICAL_OTHER_COLOR, CATEGORICAL_OTHER_LABEL } from './palette';
+import {
+  CATEGORICAL,
+  CATEGORICAL_OTHER_COLOR,
+  CATEGORICAL_OTHER_LABEL,
+} from './palette';
 
 export interface DonutChartDatum {
   label: string;
@@ -33,7 +37,14 @@ function polarToCartesian(cx: number, cy: number, r: number, angleDeg: number) {
   return { x: cx + r * Math.cos(angleRad), y: cy + r * Math.sin(angleRad) };
 }
 
-function donutSlicePath(cx: number, cy: number, rOuter: number, rInner: number, startDeg: number, endDeg: number) {
+function donutSlicePath(
+  cx: number,
+  cy: number,
+  rOuter: number,
+  rInner: number,
+  startDeg: number,
+  endDeg: number,
+) {
   const largeArc = endDeg - startDeg > 180 ? 1 : 0;
   const p1 = polarToCartesian(cx, cy, rOuter, startDeg);
   const p2 = polarToCartesian(cx, cy, rOuter, endDeg);
@@ -48,7 +59,13 @@ function donutSlicePath(cx: number, cy: number, rOuter: number, rInner: number, 
   ].join(' ');
 }
 
-export function DonutChart({ data, size = 180, centerLabel, valueFormat = String, className }: DonutChartProps) {
+export function DonutChart({
+  data,
+  size = 180,
+  centerLabel,
+  valueFormat = String,
+  className,
+}: DonutChartProps) {
   const [hover, setHover] = useState<number | null>(null);
 
   const slices = useMemo(() => {
@@ -57,9 +74,16 @@ export function DonutChart({ data, size = 180, centerLabel, valueFormat = String
     const top = sorted.slice(0, MAX_SLICES);
     const rest = sorted.slice(MAX_SLICES);
     const restTotal = rest.reduce((sum, d) => sum + d.value, 0);
-    const items = top.map((d, i) => ({ ...d, color: d.color ?? CATEGORICAL[i % CATEGORICAL.length] }));
+    const items = top.map((d, i) => ({
+      ...d,
+      color: d.color ?? CATEGORICAL[i % CATEGORICAL.length],
+    }));
     if (restTotal > 0) {
-      items.push({ label: CATEGORICAL_OTHER_LABEL, value: restTotal, color: CATEGORICAL_OTHER_COLOR });
+      items.push({
+        label: CATEGORICAL_OTHER_LABEL,
+        value: restTotal,
+        color: CATEGORICAL_OTHER_COLOR,
+      });
     }
     return items;
   }, [data]);
@@ -72,7 +96,9 @@ export function DonutChart({ data, size = 180, centerLabel, valueFormat = String
 
   const withAngles = useMemo(
     () =>
-      slices.reduce<(typeof slices[number] & { startDeg: number; endDeg: number })[]>((acc, d) => {
+      slices.reduce<
+        ((typeof slices)[number] & { startDeg: number; endDeg: number })[]
+      >((acc, d) => {
         const prevEnd = acc.length > 0 ? acc[acc.length - 1].endDeg : 0;
         const endDeg = prevEnd + (d.value / total) * 360;
         return [...acc, { ...d, startDeg: prevEnd, endDeg }];
@@ -83,7 +109,13 @@ export function DonutChart({ data, size = 180, centerLabel, valueFormat = String
   return (
     <div className={cn('flex flex-col items-center gap-3', className)}>
       <div className="relative">
-        <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} role="img" aria-label={centerLabel ?? 'Distribuição'}>
+        <svg
+          width={size}
+          height={size}
+          viewBox={`0 0 ${size} ${size}`}
+          role="img"
+          aria-label={centerLabel ?? 'Distribuição'}
+        >
           {withAngles.map((d, i) => {
             const hasGap = withAngles.length > 1;
             const start = hasGap ? d.startDeg + GAP_DEG / 2 : d.startDeg;
@@ -91,7 +123,14 @@ export function DonutChart({ data, size = 180, centerLabel, valueFormat = String
             return (
               <path
                 key={d.label}
-                d={donutSlicePath(cx, cy, rOuter, rInner, start, Math.max(start, end))}
+                d={donutSlicePath(
+                  cx,
+                  cy,
+                  rOuter,
+                  rInner,
+                  start,
+                  Math.max(start, end),
+                )}
                 fill={d.color}
                 onMouseEnter={() => setHover(i)}
                 onMouseLeave={() => setHover(null)}
@@ -100,8 +139,14 @@ export function DonutChart({ data, size = 180, centerLabel, valueFormat = String
           })}
         </svg>
         <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-          <p className="font-display text-xl font-bold text-ink">{valueFormat(total)}</p>
-          {centerLabel && <p className="font-body text-[10px] text-ink-faint">{centerLabel}</p>}
+          <p className="font-display text-xl font-bold text-ink">
+            {valueFormat(total)}
+          </p>
+          {centerLabel && (
+            <p className="font-body text-[10px] text-ink-faint">
+              {centerLabel}
+            </p>
+          )}
         </div>
         {hover != null && (
           <ChartTooltip xPct={50} yPct={0}>
@@ -110,7 +155,13 @@ export function DonutChart({ data, size = 180, centerLabel, valueFormat = String
           </ChartTooltip>
         )}
       </div>
-      <ChartLegend items={withAngles.map((d) => ({ label: d.label, color: d.color, value: valueFormat(d.value) }))} />
+      <ChartLegend
+        items={withAngles.map((d) => ({
+          label: d.label,
+          color: d.color,
+          value: valueFormat(d.value),
+        }))}
+      />
     </div>
   );
 }

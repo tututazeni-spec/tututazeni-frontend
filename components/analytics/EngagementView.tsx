@@ -9,15 +9,51 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Avatar } from '@/components/ui/Avatar';
 import { Card } from '@/components/ui/Card';
-import { KpiCard } from '@/components/ui/KpiCard';
+import type { LucideIcon } from 'lucide-react';
+import {
+  BookOpen,
+  Bot,
+  GraduationCap,
+  UserCheck,
+  Users,
+  Zap,
+} from 'lucide-react';
 import { Skeleton } from '@/components/ui/Skeleton';
 import type { EngagementMetrics } from './types';
 
-function Tile({ label, value }: { label: string; value: string | number }) {
+type Tone = 'blue' | 'green' | 'gold' | 'red';
+
+const TONES: Record<Tone, { bar: string; text: string }> = {
+  blue: { bar: 'bg-[#2B6CC4]', text: 'text-[#2B6CC4]' },
+  green: { bar: 'bg-[#2E8B3E]', text: 'text-[#2E8B3E]' },
+  gold: { bar: 'bg-[#C9A227]', text: 'text-[#B8912A]' },
+  red: { bar: 'bg-[#C0453F]', text: 'text-[#C0453F]' },
+};
+
+function TopBarKpiCard({
+  icon: Icon,
+  label,
+  value,
+  tone,
+}: {
+  icon: LucideIcon;
+  label: string;
+  value: string | number;
+  tone: Tone;
+}) {
+  const t = TONES[tone];
   return (
-    <div className="rounded-card bg-surface-sunken p-3">
-      <div className="mb-1 font-body text-xs text-ink-faint">{label}</div>
-      <div className="font-data text-xl font-bold text-black">{value}</div>
+    <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting">
+      <div className={`h-1.5 w-full ${t.bar}`} />
+      <div className="p-5 pt-6">
+        <Icon size={22} strokeWidth={1.75} className={t.text} />
+        <p className={`mt-3 font-display text-3xl font-bold ${t.text}`}>
+          {value}
+        </p>
+        <p className="mt-1 font-body text-sm font-medium text-ink-muted">
+          {label}
+        </p>
+      </div>
     </div>
   );
 }
@@ -33,31 +69,46 @@ export function EngagementView() {
 
   return (
     <div className="space-y-5">
-      <div className="grid grid-cols-3 gap-3">
-        <KpiCard
+      <div className="grid grid-cols-3 gap-4">
+        <TopBarKpiCard
+          icon={Users}
           label="Colaboradores"
           value={data.totalUsers}
-          intent="primary"
-          className="w-full [&_p]:text-black"
+          tone="blue"
         />
-        <KpiCard
+        <TopBarKpiCard
+          icon={UserCheck}
           label="Activos (últimos 30 dias)"
           value={data.activeUsersLast30d}
-          intent="success"
-          className="w-full [&_p]:text-black"
+          tone="green"
         />
-        <KpiCard
-          label="Taxa de engagement"
+        <TopBarKpiCard
+          icon={Zap}
+          label="Taxa de engajamento"
           value={`${data.engagementRate}%`}
-          intent="accent"
-          className="w-full [&_p]:text-black"
+          tone="gold"
         />
       </div>
 
       <div className="grid grid-cols-3 gap-3">
-        <Tile label="Interacções com a base de conhecimento" value={data.knowledgeInteractions} />
-        <Tile label="Sessões de tutor AI" value={data.aiTutorSessions} />
-        <Tile label="Acessos a micro-learning" value={data.microLearningAccess} />
+        <TopBarKpiCard
+          icon={BookOpen}
+          label="Interacções com a base de conhecimento"
+          value={data.knowledgeInteractions}
+          tone="gold"
+        />
+        <TopBarKpiCard
+          icon={Bot}
+          label="Sessões de tutor AI"
+          value={data.aiTutorSessions}
+          tone="blue"
+        />
+        <TopBarKpiCard
+          icon={GraduationCap}
+          label="Acessos a micro-learning"
+          value={data.microLearningAccess}
+          tone="green"
+        />
       </div>
 
       <Card className="overflow-hidden">
@@ -72,9 +123,15 @@ export function EngagementView() {
             <div className="w-5 text-right font-data text-xs font-bold text-ink-faint">
               {i + 1}
             </div>
-            <Avatar name={u.fullName} url={u.avatarUrl ?? undefined} size="sm" />
+            <Avatar
+              name={u.fullName}
+              url={u.avatarUrl ?? undefined}
+              size="sm"
+            />
             <div className="flex-1 text-sm text-ink">{u.fullName}</div>
-            <div className="text-sm font-data font-bold text-black">{u.points} XP</div>
+            <div className="text-sm font-data font-bold text-black">
+              {u.points} XP
+            </div>
           </div>
         ))}
         {data.leaderboard.length === 0 && (

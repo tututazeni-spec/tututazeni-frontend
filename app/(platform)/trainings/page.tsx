@@ -67,18 +67,24 @@ export default function TrainingsPage() {
         </div>
       </div>
 
+      {/* Tabs — formato de "cartão": cada botão é um cartão independente
+          (borda + fundo branco + rounded), sem o fundo/pill de grupo
+          anterior. Alinhadas horizontal e verticalmente (justify-center +
+          items-center no wrapper) com largura mínima uniforme. Estado
+          activo usa a mesma condição `nav.view === n.id` de sempre para
+          aplicar destaque azul (borda/fundo/texto primary). */}
       {nav.view !== 'detail' &&
         nav.view !== 'manage-detail' &&
         nav.view !== 'plan-detail' && (
-          <div className="mb-6 flex w-fit gap-1 rounded-xl bg-surface-sunken p-1">
+          <div className="mb-6 flex w-full flex-wrap items-center justify-center gap-2">
             {visibleNav.map((n) => (
               <button
                 key={n.id}
                 onClick={() => setNav({ view: n.id })}
-                className={`rounded-lg px-4 py-2 font-body text-sm font-medium transition-colors ${
+                className={`flex min-w-[140px] items-center justify-center whitespace-nowrap rounded-lg border px-4 py-2 text-center font-body text-sm font-medium transition-colors ${
                   nav.view === n.id
-                    ? 'bg-surface text-ink shadow-resting'
-                    : 'text-ink-muted hover:text-ink'
+                    ? 'border-primary bg-primary/10 text-primary'
+                    : 'border-border bg-white text-ink-muted hover:text-ink'
                 }`}
               >
                 {n.label}

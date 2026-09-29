@@ -75,7 +75,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
 // Modelos, que aqui são só agregados, não recriados).
 const TABS = [
   { id: 'overview', label: 'Visão Geral', icon: Star },
-  { id: 'evaluations', label: 'Avaliações', icon: ClipboardCheck, roles: MGMT_ROLES },
+  {
+    id: 'evaluations',
+    label: 'Avaliações',
+    icon: ClipboardCheck,
+    roles: MGMT_ROLES,
+  },
   { id: 'cycles', label: 'Ciclos de Avaliação', icon: Layers },
   { id: 'templates', label: 'Modelos', icon: Layers, roles: MGMT_ROLES },
   { id: 'criteria', label: 'Critérios', icon: ListChecks, roles: MGMT_ROLES },
@@ -85,7 +90,12 @@ const TABS = [
   { id: 'results', label: 'Resultados', icon: BarChart2 },
   { id: 'analytics', label: 'Análises', icon: TrendingUp, roles: ADMIN_ROLES },
   { id: 'calibration', label: 'Calibração', icon: Shield, roles: ADMIN_ROLES },
-  { id: 'reports', label: 'Relatórios', icon: FileBarChart, roles: ADMIN_ROLES },
+  {
+    id: 'reports',
+    label: 'Relatórios',
+    icon: FileBarChart,
+    roles: ADMIN_ROLES,
+  },
   { id: 'settings', label: 'Configurações', icon: Settings, roles: MGMT_ROLES },
 ];
 
@@ -112,21 +122,23 @@ export default function EvaluationsPage() {
         </div>
       </div>
 
-      {/* Tabs */}
+      {/* Tabs — formato de "cartão": cada trigger é um cartão independente
+          (borda + fundo branco + rounded), sem underline no container.
+          Alinhadas horizontal e verticalmente (justify-center +
+          items-center no TabsList, flex items-center em cada TabsTrigger)
+          com largura mínima uniforme. Estado activo usa data-[state=active]
+          do Radix para aplicar destaque azul (borda/fundo/texto primary). */}
       <Tabs defaultValue="overview">
-        <div className="border-b border-border bg-surface px-6">
-          <TabsList className="mx-auto max-w-7xl overflow-x-auto gap-0">
-            {visibleTabs.map((t, i) => {
+        <div className="bg-surface px-6 py-3">
+          <TabsList className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-2 overflow-x-auto bg-transparent p-0">
+            {visibleTabs.map((t) => {
               const Icon = t.icon;
               return (
                 <TabsTrigger
                   key={t.id}
                   value={t.id}
-                  className={
-                    i < visibleTabs.length - 1
-                      ? 'gap-2 whitespace-nowrap mr-[1cm]!'
-                      : 'gap-2 whitespace-nowrap'
-                  }
+                  className="flex min-w-[140px] items-center justify-center gap-2 whitespace-nowrap rounded-lg border border-border bg-white px-4 py-2 text-center text-sm font-medium text-foreground shadow-none
+                             data-[state=active]:border-primary data-[state=active]:bg-primary/10 data-[state=active]:text-primary"
                 >
                   <Icon size={16} strokeWidth={1.75} />
                   {t.label}

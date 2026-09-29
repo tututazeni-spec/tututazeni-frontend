@@ -20,7 +20,11 @@ import { Modal, ModalContent } from '@/components/ui/Modal';
 import { Select } from '@/components/ui/Select';
 import { DepartmentUserPicker } from '@/components/departments/DepartmentUserPicker';
 import type { DirectoryUser } from '@/components/departments/departmentFormData';
-import { INITIATIVE_TYPE_LABELS, IMPACT_CATEGORY_LABELS, IMPACT_SUBJECT_TYPE_LABELS } from './utils';
+import {
+  INITIATIVE_TYPE_LABELS,
+  IMPACT_CATEGORY_LABELS,
+  IMPACT_SUBJECT_TYPE_LABELS,
+} from './utils';
 import type {
   ImpactCategory,
   ImpactSubjectType,
@@ -28,18 +32,24 @@ import type {
   RoiInitiativeType,
 } from './types';
 
-const SUBJECT_TYPE_ITEMS = Object.entries(IMPACT_SUBJECT_TYPE_LABELS).map(([value, label]) => ({
-  value,
-  label,
-}));
-const INITIATIVE_TYPE_ITEMS = Object.entries(INITIATIVE_TYPE_LABELS).map(([value, label]) => ({
-  value,
-  label,
-}));
-const CATEGORY_ITEMS = Object.entries(IMPACT_CATEGORY_LABELS).map(([value, label]) => ({
-  value,
-  label,
-}));
+const SUBJECT_TYPE_ITEMS = Object.entries(IMPACT_SUBJECT_TYPE_LABELS).map(
+  ([value, label]) => ({
+    value,
+    label,
+  }),
+);
+const INITIATIVE_TYPE_ITEMS = Object.entries(INITIATIVE_TYPE_LABELS).map(
+  ([value, label]) => ({
+    value,
+    label,
+  }),
+);
+const CATEGORY_ITEMS = Object.entries(IMPACT_CATEGORY_LABELS).map(
+  ([value, label]) => ({
+    value,
+    label,
+  }),
+);
 
 export interface NewImpactRecordModalProps {
   onClose: () => void;
@@ -49,15 +59,18 @@ export function NewImpactRecordModal({ onClose }: NewImpactRecordModalProps) {
   const notify = useToast();
   const [error, setError] = useState('');
 
-  const [subjectType, setSubjectType] = useState<ImpactSubjectType>('DEPARTAMENTO');
+  const [subjectType, setSubjectType] =
+    useState<ImpactSubjectType>('DEPARTAMENTO');
   const [userSubject, setUserSubject] = useState<DirectoryUser | null>(null);
   const [team, setTeam] = useState('');
   const [subjectDepartmentId, setSubjectDepartmentId] = useState('');
 
-  const [initiativeType, setInitiativeType] = useState<RoiInitiativeType>('FORMACAO');
+  const [initiativeType, setInitiativeType] =
+    useState<RoiInitiativeType>('FORMACAO');
   const [initiativeId, setInitiativeId] = useState('');
 
-  const [category, setCategory] = useState<ImpactCategory>('SATISFACAO_CLIENTE');
+  const [category, setCategory] =
+    useState<ImpactCategory>('SATISFACAO_CLIENTE');
   const [indicatorName, setIndicatorName] = useState('');
   const [valueBefore, setValueBefore] = useState('');
   const [valueAfter, setValueAfter] = useState('');
@@ -66,11 +79,11 @@ export function NewImpactRecordModal({ onClose }: NewImpactRecordModalProps) {
   const [attributionPercent, setAttributionPercent] = useState('');
   const [dataSource, setDataSource] = useState('');
 
-  const { data: deptTree } = useApiQuery<{ id: number; name: string; children?: unknown[] }[]>(
-    queryKeys.departments.tree(),
-    '/departments/tree',
-    { staleTime: STALE_TIME.SEMI_STATIC },
-  );
+  const { data: deptTree } = useApiQuery<
+    { id: number; name: string; children?: unknown[] }[]
+  >(queryKeys.departments.tree(), '/departments/tree', {
+    staleTime: STALE_TIME.SEMI_STATIC,
+  });
   const departments = useMemo(() => {
     const flat: { id: number; name: string }[] = [];
     const walk = (nodes: typeof deptTree) => {
@@ -95,7 +108,10 @@ export function NewImpactRecordModal({ onClose }: NewImpactRecordModalProps) {
         subjectType,
         userId: subjectType === 'COLABORADOR' ? userSubject?.id : undefined,
         team: subjectType === 'EQUIPA' ? team.trim() || undefined : undefined,
-        departmentId: subjectType === 'DEPARTAMENTO' ? Number(subjectDepartmentId) : undefined,
+        departmentId:
+          subjectType === 'DEPARTAMENTO'
+            ? Number(subjectDepartmentId)
+            : undefined,
         initiativeType,
         initiativeId: initiativeId ? Number(initiativeId) : undefined,
         category,
@@ -104,7 +120,9 @@ export function NewImpactRecordModal({ onClose }: NewImpactRecordModalProps) {
         valueAfter: valueAfter ? Number(valueAfter) : undefined,
         observationPeriodStart: observationPeriodStart || undefined,
         observationPeriodEnd: observationPeriodEnd || undefined,
-        attributionPercent: attributionPercent ? Number(attributionPercent) : undefined,
+        attributionPercent: attributionPercent
+          ? Number(attributionPercent)
+          : undefined,
         dataSource: dataSource.trim() || undefined,
       }),
     {
@@ -116,15 +134,18 @@ export function NewImpactRecordModal({ onClose }: NewImpactRecordModalProps) {
         notify({ title: 'Registo de impacto guardado', intent: 'success' });
         onClose();
       },
-      onError: (e) => setError(e.message || 'Erro ao guardar o registo de impacto.'),
+      onError: (e) =>
+        setError(e.message || 'Erro ao guardar o registo de impacto.'),
     },
   );
 
   const missing: string[] = [];
   if (!indicatorName.trim()) missing.push('indicador');
-  if (subjectType === 'COLABORADOR' && !userSubject) missing.push('colaborador');
+  if (subjectType === 'COLABORADOR' && !userSubject)
+    missing.push('colaborador');
   if (subjectType === 'EQUIPA' && !team.trim()) missing.push('equipa');
-  if (subjectType === 'DEPARTAMENTO' && !subjectDepartmentId) missing.push('departamento');
+  if (subjectType === 'DEPARTAMENTO' && !subjectDepartmentId)
+    missing.push('departamento');
   const canSave = missing.length === 0;
 
   return (
@@ -171,13 +192,21 @@ export function NewImpactRecordModal({ onClose }: NewImpactRecordModalProps) {
           )}
           {subjectType === 'EQUIPA' && (
             <FormField label="Equipa *" htmlFor="ir-team">
-              <Input id="ir-team" value={team} onChange={(e) => setTeam(e.target.value)} className="w-full" />
+              <Input
+                id="ir-team"
+                value={team}
+                onChange={(e) => setTeam(e.target.value)}
+                className="w-full"
+              />
             </FormField>
           )}
           {subjectType === 'DEPARTAMENTO' && (
             <FormField label="Departamento *" htmlFor="ir-dept">
               <Select
-                items={departments.map((d) => ({ value: String(d.id), label: d.name }))}
+                items={departments.map((d) => ({
+                  value: String(d.id),
+                  label: d.name,
+                }))}
                 value={subjectDepartmentId}
                 onValueChange={setSubjectDepartmentId}
                 placeholder="Selecionar…"
@@ -200,7 +229,10 @@ export function NewImpactRecordModal({ onClose }: NewImpactRecordModalProps) {
             </FormField>
             <FormField label="Iniciativa" htmlFor="ir-init">
               <Select
-                items={(initiativeOptions ?? []).map((o) => ({ value: String(o.id), label: o.label }))}
+                items={(initiativeOptions ?? []).map((o) => ({
+                  value: String(o.id),
+                  label: o.label,
+                }))}
                 value={initiativeId}
                 onValueChange={setInitiativeId}
                 placeholder="Selecionar…"
@@ -209,7 +241,10 @@ export function NewImpactRecordModal({ onClose }: NewImpactRecordModalProps) {
             </FormField>
           </div>
 
-          <FormField label="Indicador de negócio afetado *" htmlFor="ir-indicator">
+          <FormField
+            label="Indicador de negócio afetado *"
+            htmlFor="ir-indicator"
+          >
             <Input
               id="ir-indicator"
               placeholder="ex.: NPS, taxa de erro, produção/hora…"
@@ -241,7 +276,10 @@ export function NewImpactRecordModal({ onClose }: NewImpactRecordModalProps) {
           </div>
 
           <div className="grid grid-cols-2 gap-3">
-            <FormField label="Período de observação — início" htmlFor="ir-obs-start">
+            <FormField
+              label="Período de observação — início"
+              htmlFor="ir-obs-start"
+            >
               <Input
                 id="ir-obs-start"
                 type="date"
@@ -262,7 +300,10 @@ export function NewImpactRecordModal({ onClose }: NewImpactRecordModalProps) {
           </div>
 
           <div className="grid grid-cols-2 gap-3">
-            <FormField label="Grau de atribuição — % atribuível" htmlFor="ir-attribution">
+            <FormField
+              label="Grau de atribuição — % atribuível"
+              htmlFor="ir-attribution"
+            >
               <Input
                 id="ir-attribution"
                 type="number"
@@ -285,7 +326,12 @@ export function NewImpactRecordModal({ onClose }: NewImpactRecordModalProps) {
         </div>
 
         <div className="mt-6 flex gap-3 border-t border-border pt-4">
-          <Button intent="secondary" className="justify-center" onClick={onClose} disabled={create.isPending}>
+          <Button
+            intent="secondary"
+            className="justify-center"
+            onClick={onClose}
+            disabled={create.isPending}
+          >
             Cancelar
           </Button>
           <Button
@@ -298,7 +344,9 @@ export function NewImpactRecordModal({ onClose }: NewImpactRecordModalProps) {
           </Button>
         </div>
         {!canSave && (
-          <p className="mt-2 text-xs text-ink-faint">Falta preencher: {missing.join(', ')}</p>
+          <p className="mt-2 text-xs text-ink-faint">
+            Falta preencher: {missing.join(', ')}
+          </p>
         )}
       </ModalContent>
     </Modal>

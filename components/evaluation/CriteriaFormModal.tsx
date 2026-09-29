@@ -27,9 +27,15 @@ export interface CriteriaFormModalProps {
   onClose: () => void;
 }
 
-const CATEGORY_ITEMS = CRITERIA_CATEGORY_OPTIONS.map((c) => ({ value: c, label: c }));
+const CATEGORY_ITEMS = CRITERIA_CATEGORY_OPTIONS.map((c) => ({
+  value: c,
+  label: c,
+}));
 
-export function CriteriaFormModal({ criteria, onClose }: CriteriaFormModalProps) {
+export function CriteriaFormModal({
+  criteria,
+  onClose,
+}: CriteriaFormModalProps) {
   const notify = useToast();
   const isEdit = !!criteria;
 
@@ -77,11 +83,16 @@ export function CriteriaFormModal({ criteria, onClose }: CriteriaFormModalProps)
     {
       invalidateKeys: [queryKeys.evaluation.criteria()],
       onSuccess: () => {
-        notify({ title: isEdit ? 'Critério actualizado' : 'Critério criado', intent: 'success' });
+        notify({
+          title: isEdit ? 'Critério actualizado' : 'Critério criado',
+          intent: 'success',
+        });
         onClose();
       },
       onError: (e) =>
-        setSubmitError(e instanceof Error ? e.message : 'Erro ao guardar o critério.'),
+        setSubmitError(
+          e instanceof Error ? e.message : 'Erro ao guardar o critério.',
+        ),
     },
   );
 
@@ -171,7 +182,10 @@ export function CriteriaFormModal({ criteria, onClose }: CriteriaFormModalProps)
             />
           </FormField>
 
-          <FormField label="Indicadores comportamentais" htmlFor="crit-indicators">
+          <FormField
+            label="Indicadores comportamentais"
+            htmlFor="crit-indicators"
+          >
             <Textarea
               id="crit-indicators"
               value={form.behavioralIndicators}
@@ -196,7 +210,11 @@ export function CriteriaFormModal({ criteria, onClose }: CriteriaFormModalProps)
         </div>
 
         <div className="mt-6 flex gap-3 border-t border-border pt-4">
-          <Button intent="secondary" className="flex-1 justify-center" onClick={onClose}>
+          <Button
+            intent="secondary"
+            className="flex-1 justify-center"
+            onClick={onClose}
+          >
             Cancelar
           </Button>
           <Button

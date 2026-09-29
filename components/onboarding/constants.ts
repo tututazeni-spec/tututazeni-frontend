@@ -250,16 +250,51 @@ export const TABS: Array<{
   roles?: readonly Role[];
 }> = [
   { id: 'my-plan', label: 'O Meu Plano', icon: UserCheck },
-  { id: 'overview', label: 'Visão Geral', icon: LayoutDashboard, roles: EXECUTIVE_ROLES },
-  { id: 'plans', label: 'Onboardings', icon: ClipboardList, roles: EXECUTIVE_ROLES },
+  {
+    id: 'overview',
+    label: 'Visão Geral',
+    icon: LayoutDashboard,
+    roles: EXECUTIVE_ROLES,
+  },
+  {
+    id: 'plans',
+    label: 'Onboardings',
+    icon: ClipboardList,
+    roles: EXECUTIVE_ROLES,
+  },
   { id: 'templates', label: 'Planos de Integração', icon: Layers },
   { id: 'stages', label: 'Etapas', icon: Milestone },
   { id: 'tasks', label: 'Tarefas', icon: ListChecks, roles: EXECUTIVE_ROLES },
-  { id: 'documents', label: 'Documentos', icon: FileText, roles: EXECUTIVE_ROLES },
-  { id: 'training', label: 'Formação', icon: GraduationCap, roles: EXECUTIVE_ROLES },
-  { id: 'checkins', label: 'Acompanhamento', icon: MessageCircle, roles: EXECUTIVE_ROLES },
-  { id: 'integration-evaluations', label: 'Avaliação de Integração', icon: ClipboardCheck, roles: EXECUTIVE_ROLES },
+  {
+    id: 'documents',
+    label: 'Documentos',
+    icon: FileText,
+    roles: EXECUTIVE_ROLES,
+  },
+  {
+    id: 'training',
+    label: 'Formação',
+    icon: GraduationCap,
+    roles: EXECUTIVE_ROLES,
+  },
+  {
+    id: 'checkins',
+    label: 'Acompanhamento',
+    icon: MessageCircle,
+    roles: EXECUTIVE_ROLES,
+  },
+  {
+    id: 'integration-evaluations',
+    label: 'Avaliação de Integração',
+    icon: ClipboardCheck,
+    roles: EXECUTIVE_ROLES,
+  },
   // Relatórios espelha @Roles(ADMIN, RH) de GET /onboarding/reports/overview
   // — mais restrito que as outras (sem GESTOR), por isso usa ADMIN_ROLES.
-  { id: 'reports', label: 'Relatórios', icon: FileBarChart, roles: ADMIN_ROLES },
+  {
+    id: 'reports',
+    label: 'Relatórios',
+    icon: FileBarChart,
+    roles: ADMIN_ROLES,
+  },
 ];

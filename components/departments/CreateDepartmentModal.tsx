@@ -74,7 +74,13 @@ function flattenTree(
   ]);
 }
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+function Section({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
   return (
     <div className="flex flex-col gap-4 border-t border-border pt-4 first:border-t-0 first:pt-0">
       <h3 className="font-body text-xs font-semibold uppercase tracking-wide text-ink-faint">
@@ -104,7 +110,9 @@ export function CreateDepartmentModal({
   const [unitId, setUnitId] = useState(NO_UNIT);
   const [location, setLocation] = useState('');
   const [head, setHead] = useState<DirectoryUser | null>(null);
-  const [directManager, setDirectManager] = useState<DirectoryUser | null>(null);
+  const [directManager, setDirectManager] = useState<DirectoryUser | null>(
+    null,
+  );
   const [costCenter, setCostCenter] = useState('');
   const [annualBudget, setAnnualBudget] = useState('');
   const [maxEmployees, setMaxEmployees] = useState('');
@@ -134,7 +142,10 @@ export function CreateDepartmentModal({
   ];
   const unitItems = [
     { value: NO_UNIT, label: 'Sem unidade/empresa associada' },
-    ...units.map((u) => ({ value: String(u.id), label: `${u.name} (${u.code})` })),
+    ...units.map((u) => ({
+      value: String(u.id),
+      label: `${u.name} (${u.code})`,
+    })),
   ];
 
   const canSubmit = name.trim().length > 0 && code.trim().length > 0;
@@ -172,14 +183,22 @@ export function CreateDepartmentModal({
       ...(maxEmployees.trim() ? { maxEmployees: Number(maxEmployees) } : {}),
       status,
       ...(operationalStartDate ? { operationalStartDate } : {}),
-      ...(institutionalEmail.trim() ? { institutionalEmail: institutionalEmail.trim() } : {}),
-      ...(phoneExtension.trim() ? { phoneExtension: phoneExtension.trim() } : {}),
-      ...(physicalLocation.trim() ? { physicalLocation: physicalLocation.trim() } : {}),
+      ...(institutionalEmail.trim()
+        ? { institutionalEmail: institutionalEmail.trim() }
+        : {}),
+      ...(phoneExtension.trim()
+        ? { phoneExtension: phoneExtension.trim() }
+        : {}),
+      ...(physicalLocation.trim()
+        ? { physicalLocation: physicalLocation.trim() }
+        : {}),
       ...(objective.trim() ? { objective: objective.trim() } : {}),
       ...(mainResponsibilities.trim()
         ? { mainResponsibilities: mainResponsibilities.trim() }
         : {}),
-      ...(functionalArea.trim() ? { functionalArea: functionalArea.trim() } : {}),
+      ...(functionalArea.trim()
+        ? { functionalArea: functionalArea.trim() }
+        : {}),
       isStrategic: isStrategic === 'true',
       ...(notes.trim() ? { notes: notes.trim() } : {}),
       ...(color ? { color } : {}),
@@ -255,7 +274,10 @@ export function CreateDepartmentModal({
             </div>
 
             <div className="sm:col-span-2">
-              <FormField label="Objectivo do departamento" htmlFor="cd-objective">
+              <FormField
+                label="Objectivo do departamento"
+                htmlFor="cd-objective"
+              >
                 <Textarea
                   id="cd-objective"
                   value={objective}
@@ -268,7 +290,10 @@ export function CreateDepartmentModal({
             </div>
 
             <div className="sm:col-span-2">
-              <FormField label="Principais responsabilidades" htmlFor="cd-responsibilities">
+              <FormField
+                label="Principais responsabilidades"
+                htmlFor="cd-responsibilities"
+              >
                 <Textarea
                   id="cd-responsibilities"
                   value={mainResponsibilities}
@@ -347,7 +372,10 @@ export function CreateDepartmentModal({
               />
             </FormField>
 
-            <FormField label="Número máximo de colaboradores" htmlFor="cd-max-employees">
+            <FormField
+              label="Número máximo de colaboradores"
+              htmlFor="cd-max-employees"
+            >
               <Input
                 id="cd-max-employees"
                 type="number"
@@ -367,7 +395,10 @@ export function CreateDepartmentModal({
               />
             </FormField>
 
-            <FormField label="Data de início de funcionamento" htmlFor="cd-start-date">
+            <FormField
+              label="Data de início de funcionamento"
+              htmlFor="cd-start-date"
+            >
               <Input
                 id="cd-start-date"
                 type="date"
@@ -409,7 +440,10 @@ export function CreateDepartmentModal({
               />
             </FormField>
 
-            <FormField label="Localização física" htmlFor="cd-physical-location">
+            <FormField
+              label="Localização física"
+              htmlFor="cd-physical-location"
+            >
               <Input
                 id="cd-physical-location"
                 value={physicalLocation}

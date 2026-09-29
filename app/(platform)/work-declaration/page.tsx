@@ -17,7 +17,10 @@ import {
 import type { LucideIcon } from 'lucide-react';
 import { CreateModal } from '@/components/work-declaration/CreateModal';
 import { DeclarationRow } from '@/components/work-declaration/DeclarationRow';
-import { MOCK_DECLARATIONS, MOCK_STATS } from '@/components/work-declaration/mockData';
+import {
+  MOCK_DECLARATIONS,
+  MOCK_STATS,
+} from '@/components/work-declaration/mockData';
 import { StatCard } from '@/components/work-declaration/StatCard';
 import type {
   Declaration,
@@ -43,7 +46,10 @@ const STAT_CARDS: Array<{
   { key: 'draft', label: 'Rascunhos', icon: Clock, intent: 'warning' },
 ];
 
-const STATUS_FILTERS: Array<{ value: DeclarationStatus | 'all'; label: string }> = [
+const STATUS_FILTERS: Array<{
+  value: DeclarationStatus | 'all';
+  label: string;
+}> = [
   { value: 'all', label: 'Todas' },
   { value: 'draft', label: 'Rascunho' },
   { value: 'issued', label: 'Emitida' },
@@ -52,10 +58,13 @@ const STATUS_FILTERS: Array<{ value: DeclarationStatus | 'all'; label: string }>
 ];
 
 export default function WorkDeclarationsPage() {
-  const [declarations, setDeclarations] = useState<Declaration[]>(MOCK_DECLARATIONS);
+  const [declarations, setDeclarations] =
+    useState<Declaration[]>(MOCK_DECLARATIONS);
   const [stats] = useState<Stats>(MOCK_STATS);
   const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState<DeclarationStatus | 'all'>('all');
+  const [statusFilter, setStatusFilter] = useState<DeclarationStatus | 'all'>(
+    'all',
+  );
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const notify = useToast();
@@ -76,7 +85,10 @@ export default function WorkDeclarationsPage() {
           prev.map((d) => (d.id === id ? { ...d, status: 'issued' } : d)),
         );
       }
-      notify({ title: messages[action] ?? 'Ação executada.', intent: 'success' });
+      notify({
+        title: messages[action] ?? 'Ação executada.',
+        intent: 'success',
+      });
     },
     [notify],
   );
@@ -202,7 +214,11 @@ export default function WorkDeclarationsPage() {
                   </tr>
                 ) : (
                   filtered.map((dec) => (
-                    <DeclarationRow key={dec.id} dec={dec} onAction={handleAction} />
+                    <DeclarationRow
+                      key={dec.id}
+                      dec={dec}
+                      onAction={handleAction}
+                    />
                   ))
                 )}
               </TableBody>
@@ -238,8 +254,8 @@ export default function WorkDeclarationsPage() {
               Verificação de Autenticidade
             </p>
             <p className="mt-0.5 font-body text-xs text-ink-muted">
-              Qualquer declaração pode ser verificada publicamente via QR Code ou pelo código
-              único.
+              Qualquer declaração pode ser verificada publicamente via QR Code
+              ou pelo código único.
             </p>
           </div>
           <Link
@@ -253,7 +269,9 @@ export default function WorkDeclarationsPage() {
       </div>
 
       {/* ── Create Modal ── */}
-      {showCreateModal && <CreateModal onClose={() => setShowCreateModal(false)} />}
+      {showCreateModal && (
+        <CreateModal onClose={() => setShowCreateModal(false)} />
+      )}
     </div>
   );
 }

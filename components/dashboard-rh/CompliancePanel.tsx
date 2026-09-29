@@ -11,6 +11,8 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { Badge } from '@/components/ui/Badge';
 import { KpiCard } from '@/components/ui/KpiCard';
 import { Skeleton } from '@/components/ui/Skeleton';
+import type { LucideIcon } from 'lucide-react';
+import { ClipboardList, ShieldAlert } from 'lucide-react';
 import { GaugeChart } from '@/components/ui/charts/GaugeChart';
 import type { ComplianceData, DocumentsDashboardData } from './types';
 
@@ -24,6 +26,100 @@ const RISK_INTENT: Record<string, 'danger' | 'warning' | 'success'> = {
   MEDIUM: 'warning',
   LOW: 'success',
 };
+
+type Tone = 'blue' | 'green' | 'gold' | 'red';
+
+const TONES: Record<Tone, { bar: string; text: string }> = {
+  blue: { bar: 'bg-[#2B6CC4]', text: 'text-[#2B6CC4]' },
+  green: { bar: 'bg-[#2E8B3E]', text: 'text-[#2E8B3E]' },
+  gold: { bar: 'bg-[#C9A227]', text: 'text-[#B8912A]' },
+  red: { bar: 'bg-[#C0453F]', text: 'text-[#C0453F]' },
+};
+
+function TopBarKpiCard({
+  icon: Icon,
+  label,
+  value,
+  sub,
+  tone,
+}: {
+  icon: LucideIcon;
+  label: string;
+  value: string | number;
+  sub?: string;
+  tone: Tone;
+}) {
+  const t = TONES[tone];
+  return (
+    <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting transition-shadow hover:shadow-lg">
+      <div className={`h-1.5 w-full ${t.bar}`} />
+      <div className="p-5 pt-6">
+        <Icon size={22} strokeWidth={1.75} className={t.text} />
+        <p className={`mt-3 font-display text-3xl font-bold ${t.text}`}>
+          {value}
+        </p>
+        <p className="mt-1 font-body text-sm font-medium text-ink-muted">
+          {label}
+        </p>
+        {sub && <p className="mt-1 font-body text-xs text-ink-faint">{sub}</p>}
+      </div>
+    </div>
+  );
+}
+
+const RISK_PERCENT: Record<string, number> = {
+  LOW: 30,
+  MEDIUM: 65,
+  HIGH: 100,
+};
+
+const RISK_HEX: Record<string, string> = {
+  LOW: '#2E8B3E',
+  MEDIUM: '#C9A227',
+  HIGH: '#C0453F',
+};
+
+function ThermometerKpiCard({
+  icon: Icon,
+  label,
+  value,
+  risk,
+}: {
+  icon: LucideIcon;
+  label: string;
+  value: string;
+  risk: string;
+}) {
+  const pct = RISK_PERCENT[risk] ?? 30;
+  const color = RISK_HEX[risk] ?? '#2E8B3E';
+
+  return (
+    <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting transition-shadow hover:shadow-lg">
+      <div className="h-1.5 w-full" style={{ backgroundColor: color }} />
+      <div className="flex items-center gap-4 p-5 pt-6">
+        <div className="relative flex h-20 w-6 shrink-0 flex-col items-center justify-end rounded-full bg-[#E3E8EF] p-1">
+          <div
+            className="w-full rounded-full transition-all"
+            style={{ height: `${pct}%`, backgroundColor: color }}
+          />
+          <div
+            className="absolute -bottom-1.5 h-5 w-5 rounded-full border-2 border-white"
+            style={{ backgroundColor: color }}
+          />
+        </div>
+        <div className="min-w-0">
+          <Icon size={22} strokeWidth={1.75} style={{ color }} />
+          <p className="mt-2 font-display text-2xl font-bold" style={{ color }}>
+            {value}
+          </p>
+          <p className="mt-1 font-body text-sm font-medium text-ink-muted">
+            {label}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export function CompliancePanel() {
   const { data, isLoading: loading } = useApiQuery<ComplianceData>(
@@ -53,17 +149,17 @@ export function CompliancePanel() {
             size={120}
           />
         </div>
-        <KpiCard
+        <ThermometerKpiCard
+          icon={ShieldAlert}
           label="Nível de Risco"
           value={RISK_LABEL[risk]}
-          intent={RISK_INTENT[risk]}
-          className="w-full"
+          risk={risk}
         />
-        <KpiCard
+        <TopBarKpiCard
+          icon={ClipboardList}
           label="Eventos de Auditoria (mês)"
           value={data?.auditEvents ?? 0}
-          intent="info"
-          className="w-full"
+          tone="blue"
         />
       </div>
 

@@ -49,8 +49,12 @@ function DistributionList({
           {items.slice(0, 8).map((item, i) => (
             <div key={i}>
               <div className="mb-0.5 flex items-center justify-between text-xs">
-                <span className="truncate pr-2 text-ink-muted">{item.label}</span>
-                <span className="flex-shrink-0 font-data text-ink-faint">{item.count}</span>
+                <span className="truncate pr-2 text-ink-muted">
+                  {item.label}
+                </span>
+                <span className="flex-shrink-0 font-data text-ink-faint">
+                  {item.count}
+                </span>
               </div>
               <div className="h-1.5 overflow-hidden rounded-full bg-surface-sunken">
                 <div
@@ -95,7 +99,9 @@ function CourseRankList({
               {idx + 1}
             </span>
             <div className="min-w-0 flex-1">
-              <div className="truncate text-xs font-medium text-ink">{c.title}</div>
+              <div className="truncate text-xs font-medium text-ink">
+                {c.title}
+              </div>
             </div>
             <div className="flex-shrink-0 text-xs text-ink-muted">
               {c.value}
@@ -170,19 +176,31 @@ export function RelatoriosView({ onSelect }: RelatoriosViewProps) {
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <CourseRankList
           title="Cursos mais frequentados"
-          items={data.topCourses.map((c) => ({ id: c.id, title: c.title, value: c.enrollments }))}
+          items={data.topCourses.map((c) => ({
+            id: c.id,
+            title: c.title,
+            value: c.enrollments,
+          }))}
           suffix=" formandos"
           onSelect={onSelect}
         />
         <CourseRankList
           title="Maior taxa de conclusão"
-          items={data.bestCompletion.map((c) => ({ id: c.id, title: c.title, value: c.rate }))}
+          items={data.bestCompletion.map((c) => ({
+            id: c.id,
+            title: c.title,
+            value: c.rate,
+          }))}
           suffix="%"
           onSelect={onSelect}
         />
         <CourseRankList
           title="Menor taxa de conclusão"
-          items={data.worstCompletion.map((c) => ({ id: c.id, title: c.title, value: c.rate }))}
+          items={data.worstCompletion.map((c) => ({
+            id: c.id,
+            title: c.title,
+            value: c.rate,
+          }))}
           suffix="%"
           onSelect={onSelect}
         />
@@ -191,7 +209,10 @@ export function RelatoriosView({ onSelect }: RelatoriosViewProps) {
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <DistributionList
           title="Formação por departamento"
-          items={data.byDepartment.map((d) => ({ label: d.department, count: d.count }))}
+          items={data.byDepartment.map((d) => ({
+            label: d.department,
+            count: d.count,
+          }))}
         />
         <DistributionList
           title="Formação por unidade"
@@ -210,7 +231,9 @@ export function RelatoriosView({ onSelect }: RelatoriosViewProps) {
               className="flex cursor-pointer items-center justify-between border-b border-border px-4 py-2.5 last:border-0 hover:bg-surface-sunken"
               onClick={() => onSelect(c.id)}
             >
-              <span className="truncate text-xs font-medium text-ink">{c.title}</span>
+              <span className="truncate text-xs font-medium text-ink">
+                {c.title}
+              </span>
               <span className="flex-shrink-0 text-xs text-warning-ink">
                 {c.pending} formando(s) por concluir
               </span>

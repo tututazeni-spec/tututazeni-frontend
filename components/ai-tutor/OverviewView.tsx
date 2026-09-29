@@ -48,7 +48,11 @@ export function OverviewView() {
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap gap-3">
-        <KpiCard icon={MessageCircle} label="Conversas hoje" value={data.conversasHoje} />
+        <KpiCard
+          icon={MessageCircle}
+          label="Conversas hoje"
+          value={data.conversasHoje}
+        />
         {isPrivileged && (
           <KpiCard
             icon={Users}
@@ -106,7 +110,9 @@ export function OverviewView() {
                   key={i}
                   className="flex items-center justify-between gap-3 px-4 py-2.5 border-b border-border last:border-0"
                 >
-                  <span className="font-body text-sm text-ink truncate">{q.question}</span>
+                  <span className="font-body text-sm text-ink truncate">
+                    {q.question}
+                  </span>
                   <span className="font-body text-xs text-ink-faint flex-shrink-0">
                     {q.count}×
                   </span>
@@ -134,7 +140,9 @@ export function OverviewView() {
                     strokeWidth={1.75}
                     className="text-primary flex-shrink-0"
                   />
-                  <span className="font-body text-sm text-ink flex-1 truncate">{c.title}</span>
+                  <span className="font-body text-sm text-ink flex-1 truncate">
+                    {c.title}
+                  </span>
                   <span className="font-body text-xs text-ink-faint flex-shrink-0">
                     {c.count} sessões
                   </span>
@@ -180,7 +188,9 @@ export function OverviewView() {
                   key={u.userId}
                   className="flex items-center justify-between gap-3 px-4 py-2.5 border-b border-border last:border-0"
                 >
-                  <span className="font-body text-sm text-ink truncate">{u.fullName}</span>
+                  <span className="font-body text-sm text-ink truncate">
+                    {u.fullName}
+                  </span>
                   <span className="font-body text-xs text-ink-faint flex-shrink-0">
                     {u.count} perguntas
                   </span>

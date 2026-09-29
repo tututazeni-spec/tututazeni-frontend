@@ -143,7 +143,9 @@ export function CreateRunModal({ onClose, onCreated }: CreateRunModalProps) {
                       onChange={() => toggleDep(d.value)}
                       className="h-4 w-4 rounded border-border-strong accent-primary"
                     />
-                    <span className="font-body text-sm text-ink">{d.label}</span>
+                    <span className="font-body text-sm text-ink">
+                      {d.label}
+                    </span>
                   </label>
                 ))
               )}

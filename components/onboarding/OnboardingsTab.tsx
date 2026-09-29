@@ -27,7 +27,12 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { STATUS_CFG } from './constants';
 import { PlanDetailModal } from './PlanDetailModal';
-import { useDepartmentOptions, useTemplateOptions, useUnitOptions, usePositionOptions } from './planData';
+import {
+  useDepartmentOptions,
+  useTemplateOptions,
+  useUnitOptions,
+  usePositionOptions,
+} from './planData';
 import type { OnboardingPlanListItem } from './types';
 
 interface Paginated {
@@ -37,7 +42,10 @@ interface Paginated {
 
 const STATUS_ITEMS = [
   { value: 'ALL', label: 'Todos os estados' },
-  ...Object.entries(STATUS_CFG).map(([value, cfg]) => ({ value, label: cfg.label })),
+  ...Object.entries(STATUS_CFG).map(([value, cfg]) => ({
+    value,
+    label: cfg.label,
+  })),
 ];
 
 const PROGRESS_ITEMS = [
@@ -82,14 +90,17 @@ export function OnboardingsTab({
   }
 
   const [minProgress, maxProgress] =
-    filters.progress === 'ALL' ? [undefined, undefined] : filters.progress.split('-').map(Number);
+    filters.progress === 'ALL'
+      ? [undefined, undefined]
+      : filters.progress.split('-').map(Number);
 
   const params = {
     page: filters.page,
     limit: 20,
     status: filters.status === 'ALL' ? undefined : filters.status,
     templateId: filters.templateId === 'ALL' ? undefined : filters.templateId,
-    departmentId: filters.departmentId === 'ALL' ? undefined : filters.departmentId,
+    departmentId:
+      filters.departmentId === 'ALL' ? undefined : filters.departmentId,
     unitId: filters.unitId === 'ALL' ? undefined : filters.unitId,
     positionId: filters.positionId === 'ALL' ? undefined : filters.positionId,
     minProgress,
@@ -101,20 +112,34 @@ export function OnboardingsTab({
   const { data, isLoading } = useApiQuery<Paginated>(
     queryKeys.onboarding.plans(params),
     '/onboarding',
-    { params, staleTime: STALE_TIME.DYNAMIC, placeholderData: keepPreviousData },
+    {
+      params,
+      staleTime: STALE_TIME.DYNAMIC,
+      placeholderData: keepPreviousData,
+    },
   );
 
   return (
     <div>
       <div className="mb-5 flex flex-wrap items-end gap-3">
-        <Select items={STATUS_ITEMS} value={filters.status} onValueChange={(v) => updateFilters({ status: v })} />
         <Select
-          items={[{ value: 'ALL', label: 'Todos os planos' }, ...templateOptions]}
+          items={STATUS_ITEMS}
+          value={filters.status}
+          onValueChange={(v) => updateFilters({ status: v })}
+        />
+        <Select
+          items={[
+            { value: 'ALL', label: 'Todos os planos' },
+            ...templateOptions,
+          ]}
           value={filters.templateId}
           onValueChange={(v) => updateFilters({ templateId: v })}
         />
         <Select
-          items={[{ value: 'ALL', label: 'Todos os departamentos' }, ...departmentOptions]}
+          items={[
+            { value: 'ALL', label: 'Todos os departamentos' },
+            ...departmentOptions,
+          ]}
           value={filters.departmentId}
           onValueChange={(v) => updateFilters({ departmentId: v })}
         />
@@ -124,14 +149,23 @@ export function OnboardingsTab({
           onValueChange={(v) => updateFilters({ unitId: v })}
         />
         <Select
-          items={[{ value: 'ALL', label: 'Todos os cargos' }, ...positionOptions]}
+          items={[
+            { value: 'ALL', label: 'Todos os cargos' },
+            ...positionOptions,
+          ]}
           value={filters.positionId}
           onValueChange={(v) => updateFilters({ positionId: v })}
         />
-        <Select items={PROGRESS_ITEMS} value={filters.progress} onValueChange={(v) => updateFilters({ progress: v })} />
+        <Select
+          items={PROGRESS_ITEMS}
+          value={filters.progress}
+          onValueChange={(v) => updateFilters({ progress: v })}
+        />
         <div className="flex items-end gap-2">
           <div>
-            <label className="mb-1 block font-body text-xs text-ink-faint">De</label>
+            <label className="mb-1 block font-body text-xs text-ink-faint">
+              De
+            </label>
             <input
               type="date"
               value={filters.from}
@@ -140,7 +174,9 @@ export function OnboardingsTab({
             />
           </div>
           <div>
-            <label className="mb-1 block font-body text-xs text-ink-faint">Até</label>
+            <label className="mb-1 block font-body text-xs text-ink-faint">
+              Até
+            </label>
             <input
               type="date"
               value={filters.to}
@@ -149,13 +185,18 @@ export function OnboardingsTab({
             />
           </div>
         </div>
-        <span className="ml-auto font-body text-sm text-ink-faint">{data?.meta.total ?? 0} onboardings</span>
+        <span className="ml-auto font-body text-sm text-ink-faint">
+          {data?.meta.total ?? 0} onboardings
+        </span>
       </div>
 
       {isLoading ? (
         <Skeleton rows={5} />
       ) : !data || data.data.length === 0 ? (
-        <EmptyState title="Sem onboardings" description="Nenhum processo de integração corresponde aos filtros." />
+        <EmptyState
+          title="Sem onboardings"
+          description="Nenhum processo de integração corresponde aos filtros."
+        />
       ) : (
         <div className="overflow-hidden rounded-card border border-border bg-surface">
           {data.data.map((plan) => (
@@ -165,23 +206,33 @@ export function OnboardingsTab({
               onClick={() => setDetailId(plan.id)}
               className="flex w-full items-center gap-4 border-b border-border px-4 py-3 text-left last:border-0 hover:bg-surface-sunken"
             >
-              <Avatar name={plan.user.fullName} url={plan.user.avatarUrl ?? undefined} size="md" />
+              <Avatar
+                name={plan.user.fullName}
+                url={plan.user.avatarUrl ?? undefined}
+                size="md"
+              />
               <div className="min-w-0 flex-1">
                 <div className="truncate font-body text-sm font-medium text-ink">
                   {plan.user.fullName}
                   {plan.user.employeeNumber && (
-                    <span className="ml-1.5 font-mono text-xs text-ink-faint">#{plan.user.employeeNumber}</span>
+                    <span className="ml-1.5 font-mono text-xs text-ink-faint">
+                      #{plan.user.employeeNumber}
+                    </span>
                   )}
                 </div>
                 <div className="truncate font-body text-xs text-ink-faint">
                   {plan.user.position?.name ?? plan.user.email}
-                  {plan.user.department && ` · ${plan.user.department.name}`} · {plan.template.name}
+                  {plan.user.department &&
+                    ` · ${plan.user.department.name}`} · {plan.template.name}
                 </div>
               </div>
               <div className="hidden shrink-0 font-body text-xs text-ink-faint sm:block">
-                {plan._count.taskInstances} tarefas · {plan._count.documents} docs
+                {plan._count.taskInstances} tarefas · {plan._count.documents}{' '}
+                docs
               </div>
-              <div className="w-12 shrink-0 text-right font-mono text-xs text-ink-faint">{plan.progress}%</div>
+              <div className="w-12 shrink-0 text-right font-mono text-xs text-ink-faint">
+                {plan.progress}%
+              </div>
               <div className="shrink-0 font-body text-xs text-ink-faint">
                 {fmtDate(plan.startDate)}
                 {plan.expectedEndDate && ` → ${fmtDate(plan.expectedEndDate)}`}

@@ -37,7 +37,10 @@ export function PptxViewer({ src, title }: PptxViewerProps) {
       container.innerHTML = '';
 
       try {
-        const [{ init }, res] = await Promise.all([import('pptx-preview'), fetch(src)]);
+        const [{ init }, res] = await Promise.all([
+          import('pptx-preview'),
+          fetch(src),
+        ]);
         if (cancelled) return;
         if (!res.ok) throw new Error('Falha ao obter o ficheiro');
         const buffer = await res.arrayBuffer();
@@ -83,7 +86,9 @@ export function PptxViewer({ src, title }: PptxViewerProps) {
       {status === 'loading' && (
         <div className="text-canvas flex flex-col items-center gap-2">
           <Loader2 size={32} strokeWidth={1.75} className="animate-spin" />
-          <span className="font-body text-sm text-canvas/70">A abrir apresentação…</span>
+          <span className="font-body text-sm text-canvas/70">
+            A abrir apresentação…
+          </span>
         </div>
       )}
       <div className="w-full overflow-auto px-4 flex justify-center">

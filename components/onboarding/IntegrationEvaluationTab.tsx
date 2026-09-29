@@ -24,7 +24,9 @@ const STATUS_BADGE: Record<string, 'success' | 'warning' | 'neutral'> = {
 };
 
 export function IntegrationEvaluationTab() {
-  const { data = [], isLoading } = useApiQuery<OnboardingIntegrationEvaluation[]>(
+  const { data = [], isLoading } = useApiQuery<
+    OnboardingIntegrationEvaluation[]
+  >(
     queryKeys.onboarding.integrationEvaluations(),
     '/onboarding/integration-evaluations',
     { staleTime: STALE_TIME.DYNAMIC },
@@ -44,13 +46,24 @@ export function IntegrationEvaluationTab() {
   return (
     <div className="overflow-hidden rounded-card border border-border bg-surface">
       {data.map((row) => (
-        <div key={row.planId} className="flex items-center gap-4 border-b border-border px-4 py-3 last:border-0">
-          <Avatar name={row.user.fullName} url={row.user.avatarUrl ?? undefined} size="sm" />
+        <div
+          key={row.planId}
+          className="flex items-center gap-4 border-b border-border px-4 py-3 last:border-0"
+        >
+          <Avatar
+            name={row.user.fullName}
+            url={row.user.avatarUrl ?? undefined}
+            size="sm"
+          />
           <div className="min-w-0 flex-1">
-            <div className="truncate font-body text-sm font-medium text-ink">{row.user.fullName}</div>
+            <div className="truncate font-body text-sm font-medium text-ink">
+              {row.user.fullName}
+            </div>
             <div className="truncate font-body text-xs text-ink-faint">
-              {row.evaluation?.evaluator && `Avaliador: ${row.evaluation.evaluator.fullName}`}
-              {row.onboardingCompletedAt && ` · Onboarding concluído ${fmtDate(row.onboardingCompletedAt)}`}
+              {row.evaluation?.evaluator &&
+                `Avaliador: ${row.evaluation.evaluator.fullName}`}
+              {row.onboardingCompletedAt &&
+                ` · Onboarding concluído ${fmtDate(row.onboardingCompletedAt)}`}
             </div>
           </div>
           <div className="hidden shrink-0 font-body text-xs text-ink-faint sm:block">
@@ -61,7 +74,10 @@ export function IntegrationEvaluationTab() {
                 : '—'}
           </div>
           {row.evaluation && (
-            <Badge dot={false} intent={STATUS_BADGE[row.evaluation.status] ?? 'neutral'}>
+            <Badge
+              dot={false}
+              intent={STATUS_BADGE[row.evaluation.status] ?? 'neutral'}
+            >
               {row.evaluation.status}
             </Badge>
           )}

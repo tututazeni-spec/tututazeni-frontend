@@ -81,7 +81,12 @@ export interface CalibrationData {
   globalAvg?: number;
   participants?: CalibrationParticipant[];
   byDepartment?: CalibrationByDepartment[];
-  distribution?: { exceptional: number; above: number; expected: number; below: number };
+  distribution?: {
+    exceptional: number;
+    above: number;
+    expected: number;
+    below: number;
+  };
 }
 
 export interface CalibrationHistoryEntry {
@@ -158,7 +163,12 @@ export interface EvaluationRequestRow {
   type: string;
   purpose: string | null;
   name: string | null;
-  cycle: { id: number; name: string; startDate: string; endDate: string } | null;
+  cycle: {
+    id: number;
+    name: string;
+    startDate: string;
+    endDate: string;
+  } | null;
   period: string | null;
   status: string;
   progress: number;
@@ -227,7 +237,12 @@ export interface EvalScale {
   minValue: number;
   maxValue: number;
   isDefault: boolean;
-  levels?: { id: number; value: number; label: string; description?: string | null }[];
+  levels?: {
+    id: number;
+    value: number;
+    label: string;
+    description?: string | null;
+  }[];
 }
 
 export interface EvalCriteria {
@@ -269,7 +284,12 @@ export interface EvalTemplate {
 // (src/competencies/competencies.service.ts) — reutilizado tal e qual,
 // sem duplicar o cálculo do lado do Evaluation.
 export interface CompetencyGapItem {
-  competency: { id: number; name: string; category?: string; scaleMax?: number };
+  competency: {
+    id: number;
+    name: string;
+    category?: string;
+    scaleMax?: number;
+  };
   requiredLevel: number;
   currentLevel: number;
   gap: number;
@@ -363,7 +383,12 @@ export interface EvaluationReportsOverview {
   totalEvaluations: number;
   avgScore: number;
   completionRate: number;
-  distribution: { exceptional: number; above: number; expected: number; below: number };
+  distribution: {
+    exceptional: number;
+    above: number;
+    expected: number;
+    below: number;
+  };
   byDepartment: EvaluationReportGroup[];
   byUnit: EvaluationReportGroup[];
   byPosition: EvaluationReportGroup[];

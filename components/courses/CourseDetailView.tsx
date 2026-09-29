@@ -101,7 +101,7 @@ export function CourseDetailView({
   const continueOrReviewLesson = () => {
     const modules = progress?.modules ?? [];
     const target =
-      modules.flatMap(m => m.lessons).find(l => !l.completed) ??
+      modules.flatMap((m) => m.lessons).find((l) => !l.completed) ??
       modules[0]?.lessons[0];
     if (target) onSelectLesson(target);
   };
@@ -122,8 +122,8 @@ export function CourseDetailView({
             Pedido de inscrição enviado — aguarda aprovação
           </p>
           <p className="m-0 mt-1 text-xs text-warning-ink/80">
-            Este curso requer aprovação para inscrição. Vais poder aceder ao conteúdo assim
-            que o pedido for aprovado.
+            Este curso requer aprovação para inscrição. Vais poder aceder ao
+            conteúdo assim que o pedido for aprovado.
           </p>
         </Card>
       )}
@@ -388,8 +388,10 @@ export function CourseDetailView({
               {progress.enrollment.completedAt && (
                 <p className="m-0 mt-1 text-xs text-success-ink/80">
                   Concluído em{' '}
-                  {new Date(progress.enrollment.completedAt).toLocaleDateString('pt')} ·{' '}
-                  {progressPct}% do conteúdo
+                  {new Date(progress.enrollment.completedAt).toLocaleDateString(
+                    'pt',
+                  )}{' '}
+                  · {progressPct}% do conteúdo
                 </p>
               )}
             </div>
@@ -406,7 +408,8 @@ export function CourseDetailView({
                       download
                       className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-canvas hover:bg-primary/90"
                     >
-                      <Download size={14} strokeWidth={1.75} /> Descarregar certificado
+                      <Download size={14} strokeWidth={1.75} /> Descarregar
+                      certificado
                     </a>
                   )}
                 </>
@@ -417,9 +420,13 @@ export function CourseDetailView({
       )}
 
       {/* Sobre o curso — secção 3 */}
-      {(course.description || course.targetAudience.length > 0 || course.requiredCourse) && (
+      {(course.description ||
+        course.targetAudience.length > 0 ||
+        course.requiredCourse) && (
         <Card className="p-5 mb-6">
-          <div className="text-sm font-semibold text-ink mb-3">Sobre o curso</div>
+          <div className="text-sm font-semibold text-ink mb-3">
+            Sobre o curso
+          </div>
           {course.description && (
             <p className="text-sm text-ink-muted whitespace-pre-wrap mb-3">
               {course.description}
@@ -482,14 +489,18 @@ export function CourseDetailView({
                   />
                 ) : (
                   <div className="w-9 h-9 rounded-full bg-primary-subtle flex items-center justify-center text-xs font-semibold text-primary">
-                    {course.primaryInstructor.fullName.slice(0, 2).toUpperCase()}
+                    {course.primaryInstructor.fullName
+                      .slice(0, 2)
+                      .toUpperCase()}
                   </div>
                 )}
                 <div>
                   <div className="text-sm font-medium text-ink">
                     {course.primaryInstructor.fullName}
                   </div>
-                  <div className="text-xs text-ink-faint">Instrutor principal</div>
+                  <div className="text-xs text-ink-faint">
+                    Instrutor principal
+                  </div>
                 </div>
               </div>
             )}
@@ -518,16 +529,22 @@ export function CourseDetailView({
 
       {/* Informações adicionais — secção 8 */}
       <Card className="p-5 mb-6">
-        <div className="text-sm font-semibold text-ink mb-3">Informações adicionais</div>
+        <div className="text-sm font-semibold text-ink mb-3">
+          Informações adicionais
+        </div>
         <dl className="grid grid-cols-2 sm:grid-cols-3 gap-4">
           <div>
             <dt className="text-xs text-ink-faint">Nível</dt>
-            <dd className="text-sm text-ink">{COURSE_LEVEL_MAP[course.level]?.label ?? course.level}</dd>
+            <dd className="text-sm text-ink">
+              {COURSE_LEVEL_MAP[course.level]?.label ?? course.level}
+            </dd>
           </div>
           {course.workloadHours && (
             <div>
               <dt className="text-xs text-ink-faint">Duração</dt>
-              <dd className="text-sm text-ink">{fmtDuration(course.workloadHours)}</dd>
+              <dd className="text-sm text-ink">
+                {fmtDuration(course.workloadHours)}
+              </dd>
             </div>
           )}
           <div>
@@ -542,7 +559,9 @@ export function CourseDetailView({
           </div>
           <div>
             <dt className="text-xs text-ink-faint">Certificado</dt>
-            <dd className="text-sm text-ink">{course.certificateEnabled ? 'Sim' : 'Não'}</dd>
+            <dd className="text-sm text-ink">
+              {course.certificateEnabled ? 'Sim' : 'Não'}
+            </dd>
           </div>
           {course.passingScore != null && (
             <div>
@@ -560,8 +579,12 @@ export function CourseDetailView({
             <Award size={16} strokeWidth={1.75} /> Certificação
           </div>
           <ul className="space-y-1 text-sm text-ink-muted">
-            {course.certificateCriteria && <li>{course.certificateCriteria}</li>}
-            {course.passingScore != null && <li>Nota mínima: {course.passingScore}%</li>}
+            {course.certificateCriteria && (
+              <li>{course.certificateCriteria}</li>
+            )}
+            {course.passingScore != null && (
+              <li>Nota mínima: {course.passingScore}%</li>
+            )}
             {course.minCompletionPercent != null && (
               <li>Conclusão mínima: {course.minCompletionPercent}%</li>
             )}
@@ -590,17 +613,24 @@ export function CourseDetailView({
       {/* Cursos relacionados — secção 11 */}
       {(course.relatedCourses?.length ?? 0) > 0 && (
         <Card className="p-5 mb-6">
-          <div className="text-sm font-semibold text-ink mb-3">Cursos relacionados</div>
+          <div className="text-sm font-semibold text-ink mb-3">
+            Cursos relacionados
+          </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             {course.relatedCourses!.map((rc) => (
-              <div key={rc.id} className="rounded-card border border-border overflow-hidden">
+              <div
+                key={rc.id}
+                className="rounded-card border border-border overflow-hidden"
+              >
                 <div className="aspect-video bg-surface-sunken">
                   {rc.thumbnailUrl && (
                     <CourseThumbnail src={rc.thumbnailUrl} alt={rc.title} />
                   )}
                 </div>
                 <div className="p-2">
-                  <div className="text-xs font-medium text-ink truncate">{rc.title}</div>
+                  <div className="text-xs font-medium text-ink truncate">
+                    {rc.title}
+                  </div>
                   {rc.category && (
                     <div className="text-xs text-ink-faint">{rc.category}</div>
                   )}

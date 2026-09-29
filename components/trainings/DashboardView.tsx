@@ -37,34 +37,74 @@ export function DashboardView() {
     <div className="space-y-6">
       {/* Formações */}
       <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
-        <KpiCard label="Total formações" value={data.trainings.total} intent="primary" />
-        <KpiCard label="Planeadas" value={data.trainings.planned} intent="info" />
-        <KpiCard label="Agendadas" value={data.trainings.scheduled} intent="info" />
-        <KpiCard label="Em curso" value={data.trainings.inProgress} intent="warning" />
-        <KpiCard label="Concluídas" value={data.trainings.completed} intent="success" />
-        <KpiCard label="Canceladas" value={data.trainings.cancelled} intent="danger" />
+        <KpiCard
+          label="Total formações"
+          value={data.trainings.total}
+          intent="primary"
+        />
+        <KpiCard
+          label="Planeadas"
+          value={data.trainings.planned}
+          intent="info"
+        />
+        <KpiCard
+          label="Agendadas"
+          value={data.trainings.scheduled}
+          intent="info"
+        />
+        <KpiCard
+          label="Em curso"
+          value={data.trainings.inProgress}
+          intent="warning"
+        />
+        <KpiCard
+          label="Concluídas"
+          value={data.trainings.completed}
+          intent="success"
+        />
+        <KpiCard
+          label="Canceladas"
+          value={data.trainings.cancelled}
+          intent="danger"
+        />
       </div>
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <KpiCard label="Turmas activas" value={data.trainings.activeClasses} />
         <KpiCard label="Formadores activos" value={data.activeInstructors} />
         <KpiCard label="Salas em utilização" value={data.roomsInUse} />
-        <KpiCard label="Obrigatórias" value={data.trainings.mandatory} intent="danger" />
+        <KpiCard
+          label="Obrigatórias"
+          value={data.trainings.mandatory}
+          intent="danger"
+        />
       </div>
 
       {/* Participantes */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         <Card className="p-4">
-          <div className="mb-1 font-body text-xs text-ink-faint">Participantes inscritos</div>
-          <div className="font-mono text-3xl font-bold text-ink">{data.participants.registered}</div>
+          <div className="mb-1 font-body text-xs text-ink-faint">
+            Participantes inscritos
+          </div>
+          <div className="font-mono text-3xl font-bold text-ink">
+            {data.participants.registered}
+          </div>
         </Card>
         <Card className="p-4">
-          <div className="mb-1 font-body text-xs text-ink-faint">Em formação</div>
-          <div className="font-mono text-3xl font-bold text-ink">{data.participants.inTraining}</div>
+          <div className="mb-1 font-body text-xs text-ink-faint">
+            Em formação
+          </div>
+          <div className="font-mono text-3xl font-bold text-ink">
+            {data.participants.inTraining}
+          </div>
         </Card>
         <Card className="p-4">
-          <div className="mb-1 font-body text-xs text-ink-faint">Concluídos</div>
-          <div className="font-mono text-3xl font-bold text-ink">{data.participants.completed}</div>
+          <div className="mb-1 font-body text-xs text-ink-faint">
+            Concluídos
+          </div>
+          <div className="font-mono text-3xl font-bold text-ink">
+            {data.participants.completed}
+          </div>
         </Card>
       </div>
 
@@ -74,21 +114,48 @@ export function DashboardView() {
           Indicadores
         </h3>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <KpiCard label="Taxa de conclusão" value={`${data.completionRate}%`} intent="success" />
-          <KpiCard label="Taxa de participação" value={`${data.participationRate}%`} intent="info" />
-          <KpiCard label="Taxa de aprovação" value={`${data.approvalRate}%`} intent="info" />
-          <KpiCard label="Execução do plano" value={`${data.planExecutionRate}%`} intent="primary" />
-          <KpiCard label="Execução orçamental" value={`${data.budgetExecutionRate}%`} intent="warning" />
+          <KpiCard
+            label="Taxa de conclusão"
+            value={`${data.completionRate}%`}
+            intent="success"
+          />
+          <KpiCard
+            label="Taxa de participação"
+            value={`${data.participationRate}%`}
+            intent="info"
+          />
+          <KpiCard
+            label="Taxa de aprovação"
+            value={`${data.approvalRate}%`}
+            intent="info"
+          />
+          <KpiCard
+            label="Execução do plano"
+            value={`${data.planExecutionRate}%`}
+            intent="primary"
+          />
+          <KpiCard
+            label="Execução orçamental"
+            value={`${data.budgetExecutionRate}%`}
+            intent="warning"
+          />
           <KpiCard label="Horas/colaborador" value={data.hoursPerEmployee} />
-          <KpiCard label="Custo/participante" value={formatKz(data.costPerParticipant)} />
+          <KpiCard
+            label="Custo/participante"
+            value={formatKz(data.costPerParticipant)}
+          />
           <KpiCard label="Custo/hora" value={formatKz(data.costPerHour)} />
         </div>
       </div>
 
       <Card className="p-4">
-        <div className="mb-1 font-body text-xs text-ink-faint">Satisfação média</div>
+        <div className="mb-1 font-body text-xs text-ink-faint">
+          Satisfação média
+        </div>
         <div className="flex items-center gap-2">
-          <div className="font-mono text-3xl font-bold text-accent">{data.avgRating.toFixed(1)}</div>
+          <div className="font-mono text-3xl font-bold text-accent">
+            {data.avgRating.toFixed(1)}
+          </div>
           <StarRating value={data.avgRating} />
         </div>
       </Card>
@@ -100,9 +167,14 @@ export function DashboardView() {
             Próximas sessões
           </div>
           {data.upcomingSessions.map((s) => (
-            <div key={s.id} className="flex items-center gap-4 border-b border-border px-4 py-3 last:border-0">
+            <div
+              key={s.id}
+              className="flex items-center gap-4 border-b border-border px-4 py-3 last:border-0"
+            >
               <div className="flex-1">
-                <div className="font-body text-sm font-medium text-ink">{s.title}</div>
+                <div className="font-body text-sm font-medium text-ink">
+                  {s.title}
+                </div>
                 <div className="font-body text-xs text-ink-faint">
                   {formatDateTime(s.date)}
                   {s.location ? ` · ${s.location}` : ''}

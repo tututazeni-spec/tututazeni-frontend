@@ -10,13 +10,16 @@ vi.mock('@/lib/apiClient', () => ({
 
 vi.mock('@/hooks/useApiQuery', () => ({
   useApiQuery: (_key: unknown, path: string) => {
-    if (path === '/evaluations/templates') return { data: templatesData, isLoading: false };
+    if (path === '/evaluations/templates')
+      return { data: templatesData, isLoading: false };
     return { data: undefined, isLoading: false };
   },
 }));
 
 let currentRole: string | undefined = 'ADMIN';
-vi.mock('@/hooks/useCurrentRole', () => ({ useCurrentRole: () => currentRole }));
+vi.mock('@/hooks/useCurrentRole', () => ({
+  useCurrentRole: () => currentRole,
+}));
 
 const confirmFn = vi.fn().mockResolvedValue(true);
 vi.mock('@/providers/ConfirmProvider', () => ({ useConfirm: () => confirmFn }));
@@ -51,7 +54,17 @@ describe('ModelsTab', () => {
 
   test('GESTOR (leitura) não vê acções de gestão', () => {
     currentRole = 'GESTOR';
-    templatesData = [{ id: 1, name: 'Modelo Anual', type: 'Avaliação anual', isDefault: false, isActive: true, criteria: [], _count: { criteria: 3 } }];
+    templatesData = [
+      {
+        id: 1,
+        name: 'Modelo Anual',
+        type: 'Avaliação anual',
+        isDefault: false,
+        isActive: true,
+        criteria: [],
+        _count: { criteria: 3 },
+      },
+    ];
     render(<ModelsTab />);
     expect(screen.getByText('Modelo Anual')).toBeInTheDocument();
     expect(screen.queryByText('Novo Modelo')).not.toBeInTheDocument();
@@ -59,10 +72,22 @@ describe('ModelsTab', () => {
   });
 
   test('remover um modelo pede confirmação e chama o DELETE', async () => {
-    templatesData = [{ id: 5, name: 'Modelo X', type: 'GENERIC', isDefault: false, isActive: true, criteria: [], _count: { criteria: 0 } }];
+    templatesData = [
+      {
+        id: 5,
+        name: 'Modelo X',
+        type: 'GENERIC',
+        isDefault: false,
+        isActive: true,
+        criteria: [],
+        _count: { criteria: 0 },
+      },
+    ];
     render(<ModelsTab />);
     fireEvent.click(screen.getByText('Remover'));
     expect(confirmFn).toHaveBeenCalled();
-    await waitFor(() => expect(del).toHaveBeenCalledWith('/evaluations/templates/5'));
+    await waitFor(() =>
+      expect(del).toHaveBeenCalledWith('/evaluations/templates/5'),
+    );
   });
 });

@@ -93,31 +93,36 @@ export function useApiMutation<TData, TVariables>(
 export function useOptimisticMutation<TData, TVariables>(config: {
   key: QueryKey;
   mutationFn: (vars: TVariables) => Promise<TData>;
-  applyOptimistic: (previous: TData | undefined, vars: TVariables) => TData | undefined;
+  applyOptimistic: (
+    previous: TData | undefined,
+    vars: TVariables,
+  ) => TData | undefined;
   onError?: (error: Error, vars: TVariables) => void;
   onSuccess?: (data: TData, vars: TVariables) => void;
 }) {
   const qc = useQueryClient();
-  return useMutation<TData, Error, TVariables, { previous: TData | undefined }>({
-    mutationFn: config.mutationFn,
-    onMutate: async (vars) => {
-      // Cancela refetches em curso para não sobreporem o optimistic update.
-      await qc.cancelQueries({ queryKey: config.key });
-      const previous = qc.getQueryData<TData>(config.key);
-      qc.setQueryData<TData>(config.key, (prev) =>
-        config.applyOptimistic(prev, vars),
-      );
-      return { previous };
+  return useMutation<TData, Error, TVariables, { previous: TData | undefined }>(
+    {
+      mutationFn: config.mutationFn,
+      onMutate: async (vars) => {
+        // Cancela refetches em curso para não sobreporem o optimistic update.
+        await qc.cancelQueries({ queryKey: config.key });
+        const previous = qc.getQueryData<TData>(config.key);
+        qc.setQueryData<TData>(config.key, (prev) =>
+          config.applyOptimistic(prev, vars),
+        );
+        return { previous };
+      },
+      onError: (error, vars, ctx) => {
+        // Rollback.
+        if (ctx) qc.setQueryData(config.key, ctx.previous);
+        config.onError?.(error, vars);
+      },
+      onSuccess: (data, vars) => config.onSuccess?.(data, vars),
+      onSettled: () => {
+        // Garante consistência com o servidor.
+        qc.invalidateQueries({ queryKey: config.key });
+      },
     },
-    onError: (error, vars, ctx) => {
-      // Rollback.
-      if (ctx) qc.setQueryData(config.key, ctx.previous);
-      config.onError?.(error, vars);
-    },
-    onSuccess: (data, vars) => config.onSuccess?.(data, vars),
-    onSettled: () => {
-      // Garante consistência com o servidor.
-      qc.invalidateQueries({ queryKey: config.key });
-    },
-  });
+  );
 }

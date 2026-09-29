@@ -6,7 +6,8 @@
 // EvaluationFormTab) — page.tsx é só o container que liga o hook à
 // Evaluation360View. Ver memory project_innova_component_separation_audit.
 
-export type EvaluatorRole = 'SELF' | 'MANAGER' | 'PEER' | 'SUBORDINATE' | 'EXTERNAL';
+export type EvaluatorRole =
+  'SELF' | 'MANAGER' | 'PEER' | 'SUBORDINATE' | 'EXTERNAL';
 export type AlertType = 'STRENGTH' | 'GAP' | 'INFO';
 export type TabId =
   | 'overview'
@@ -140,7 +141,12 @@ export interface Evaluation360OverviewData {
   bottomCompetencies: { competencyId: string; name: string; average: number }[];
   pendingAssignments: number;
   upcomingDeadline: { id: string; name: string; endDate: string }[];
-  recentCompleted: { id: string; name: string; endDate: string; createdByName: string }[];
+  recentCompleted: {
+    id: string;
+    name: string;
+    endDate: string;
+    createdByName: string;
+  }[];
 }
 
 export interface ContinuousFeedback {
@@ -213,7 +219,12 @@ export interface ParticipantDetail {
     invitedAt: string | null;
     completedAt: string | null;
   }[];
-  progress: { totalAssigned: number; completed: number; pending: number; completionPercent: number };
+  progress: {
+    totalAssigned: number;
+    completed: number;
+    pending: number;
+    completionPercent: number;
+  };
   status: 'PENDING' | 'IN_PROGRESS' | 'COMPLETED';
   result: {
     overallScore: number;
@@ -223,7 +234,12 @@ export interface ParticipantDetail {
     peerScore: number | null;
     subordinateScore: number | null;
     externalScore: number | null;
-    gaps: { competencyId: string; name: string; score: number | null; gap: number | null }[];
+    gaps: {
+      competencyId: string;
+      name: string;
+      score: number | null;
+      gap: number | null;
+    }[];
     strengths: { competencyId: string; name: string; score: number | null }[];
   } | null;
   comments: { text: string; evaluatorRole: EvaluatorRole; question: string }[];
@@ -272,7 +288,13 @@ export interface QuestionnaireListItem {
 export interface QuestionnaireQuestionItem {
   id: string;
   text: string;
-  type: 'LIKERT' | 'FREQUENCY' | 'MULTIPLE_CHOICE' | 'YES_NO' | 'OPEN_TEXT' | 'SITUATIONAL';
+  type:
+    | 'LIKERT'
+    | 'FREQUENCY'
+    | 'MULTIPLE_CHOICE'
+    | 'YES_NO'
+    | 'OPEN_TEXT'
+    | 'SITUATIONAL';
   isRequired: boolean;
   allowComment: boolean;
   order: number;
@@ -343,7 +365,13 @@ export interface CycleFeedbackRow {
 // relatórios pedidos no documento que fazem sentido para UM ciclo; a
 // evolução/comparação entre vários ciclos vem à parte (CycleEvolutionPoint).
 export interface CycleReportData {
-  cycle: { id: string; name: string; status: string; startDate: string; endDate: string };
+  cycle: {
+    id: string;
+    name: string;
+    status: string;
+    startDate: string;
+    endDate: string;
+  };
   overall: {
     totalParticipants: number;
     avgOverall: number;
@@ -363,9 +391,23 @@ export interface CycleReportData {
   };
   selfVsExternal: { a: number | null; b: number | null; diff: number | null };
   managerVsPeer: { a: number | null; b: number | null; diff: number | null };
-  managerVsSubordinate: { a: number | null; b: number | null; diff: number | null };
-  topStrengths: { competencyId: string; name: string; occurrences: number; avgScore: number | null }[];
-  topGaps: { competencyId: string; name: string; occurrences: number; avgScore: number | null }[];
+  managerVsSubordinate: {
+    a: number | null;
+    b: number | null;
+    diff: number | null;
+  };
+  topStrengths: {
+    competencyId: string;
+    name: string;
+    occurrences: number;
+    avgScore: number | null;
+  }[];
+  topGaps: {
+    competencyId: string;
+    name: string;
+    occurrences: number;
+    avgScore: number | null;
+  }[];
   participationRate: number;
   completionRate: number;
   pendingEvaluators: {

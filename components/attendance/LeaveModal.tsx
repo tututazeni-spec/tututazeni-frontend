@@ -161,11 +161,7 @@ export function LeaveModal({ onClose, onSuccess }: LeaveModalProps) {
         </div>
 
         <div className="p-6 border-t border-border flex gap-3">
-          <Button
-            intent="secondary"
-            onClick={onClose}
-            className="flex-1"
-          >
+          <Button intent="secondary" onClick={onClose} className="flex-1">
             Cancelar
           </Button>
           <Button

@@ -32,7 +32,12 @@ interface QuizForAttempt {
   timeLimitMinutes: number | null;
   attemptsUsed: number;
   attemptsRemaining: number | null;
-  myAttempts: Array<{ id: number; score: number; passed: boolean; submittedAt: string }>;
+  myAttempts: Array<{
+    id: number;
+    score: number;
+    passed: boolean;
+    submittedAt: string;
+  }>;
   questions: QuizQuestion[];
 }
 
@@ -76,7 +81,9 @@ export function QuizPlayer({ quizId }: QuizPlayerProps) {
   if (isLoading || !quiz) return <Skeleton rows={3} />;
 
   const noAttemptsLeft = quiz.attemptsRemaining === 0;
-  const allAnswered = quiz.questions.every((q) => (answers[String(q.id)] ?? '').trim());
+  const allAnswered = quiz.questions.every((q) =>
+    (answers[String(q.id)] ?? '').trim(),
+  );
 
   return (
     <div className="rounded-lg border border-border p-4">
@@ -95,20 +102,32 @@ export function QuizPlayer({ quizId }: QuizPlayerProps) {
         <div className="space-y-3">
           <div
             className={`rounded-lg p-3 text-sm font-medium ${
-              result.passed ? 'bg-success-subtle text-success-ink' : 'bg-danger-subtle text-danger-ink'
+              result.passed
+                ? 'bg-success-subtle text-success-ink'
+                : 'bg-danger-subtle text-danger-ink'
             }`}
           >
-            {result.passed ? <Check size={14} className="inline mr-1" /> : <X size={14} className="inline mr-1" />}
-            {result.feedback ?? (result.passed ? 'Aprovado' : 'Reprovado')} — {result.score}% (mínimo {result.passingScore}%)
+            {result.passed ? (
+              <Check size={14} className="inline mr-1" />
+            ) : (
+              <X size={14} className="inline mr-1" />
+            )}
+            {result.feedback ?? (result.passed ? 'Aprovado' : 'Reprovado')} —{' '}
+            {result.score}% (mínimo {result.passingScore}%)
           </div>
           {result.results.map((r) => {
             const q = quiz.questions.find((qq) => qq.id === r.questionId);
             return (
-              <div key={r.questionId} className="text-xs text-ink-muted border-b border-border pb-2 last:border-0">
+              <div
+                key={r.questionId}
+                className="text-xs text-ink-muted border-b border-border pb-2 last:border-0"
+              >
                 <div className="font-medium text-ink">{q?.question}</div>
                 <div>A tua resposta: {r.answer ?? '—'}</div>
                 {r.correct === false && r.correctAnswer && (
-                  <div className="text-success-ink">Resposta certa: {r.correctAnswer}</div>
+                  <div className="text-success-ink">
+                    Resposta certa: {r.correctAnswer}
+                  </div>
                 )}
                 {r.note && <div className="italic">{r.note}</div>}
               </div>
@@ -135,23 +154,38 @@ export function QuizPlayer({ quizId }: QuizPlayerProps) {
         <div className="space-y-4">
           {quiz.questions.map((q) => (
             <div key={q.id}>
-              <div className="text-sm font-medium text-ink mb-1.5">{q.question}</div>
+              <div className="text-sm font-medium text-ink mb-1.5">
+                {q.question}
+              </div>
               {q.type === 'OPEN' ? (
                 <Textarea
                   value={answers[String(q.id)] ?? ''}
-                  onChange={(e) => setAnswers((a) => ({ ...a, [String(q.id)]: e.target.value }))}
+                  onChange={(e) =>
+                    setAnswers((a) => ({
+                      ...a,
+                      [String(q.id)]: e.target.value,
+                    }))
+                  }
                   rows={2}
                   className="w-full resize-none"
                 />
               ) : (
                 <div className="flex flex-col gap-1.5">
                   {(q.options ?? []).map((o, i) => (
-                    <label key={i} className="flex items-center gap-2 text-sm text-ink-muted">
+                    <label
+                      key={i}
+                      className="flex items-center gap-2 text-sm text-ink-muted"
+                    >
                       <input
                         type="radio"
                         name={`q-${q.id}`}
                         checked={answers[String(q.id)] === o.text}
-                        onChange={() => setAnswers((a) => ({ ...a, [String(q.id)]: o.text ?? '' }))}
+                        onChange={() =>
+                          setAnswers((a) => ({
+                            ...a,
+                            [String(q.id)]: o.text ?? '',
+                          }))
+                        }
                       />
                       {o.text}
                     </label>
@@ -160,7 +194,10 @@ export function QuizPlayer({ quizId }: QuizPlayerProps) {
               )}
             </div>
           ))}
-          <Button disabled={!allAnswered || submit.isPending} onClick={() => submit.mutate(undefined)}>
+          <Button
+            disabled={!allAnswered || submit.isPending}
+            onClick={() => submit.mutate(undefined)}
+          >
             {submit.isPending ? 'A submeter…' : 'Submeter respostas'}
           </Button>
         </div>

@@ -171,34 +171,36 @@ export function AnalyticsTab() {
 
       {/* Compliance de leitura obrigatória — Documentos Corporativos (ADMIN/RH/DIRECTOR) */}
       {canSeeCompliance && (
-      <Card>
-        <CardBody>
-          <h3 className="mb-4 font-body font-semibold text-ink">
-            Compliance de Leitura Obrigatória
-          </h3>
-          {complianceLoading ? (
-            <Skeleton rows={3} />
-          ) : compliance.length === 0 ? (
-            <p className="py-6 text-center font-body text-sm text-ink-faint">
-              Nenhum documento exige confirmação de leitura no momento.
-            </p>
-          ) : (
-            <div className="space-y-3">
-              {compliance.map((c) => (
-                <div key={c.id} className="flex items-center gap-3">
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate font-body text-xs font-medium text-ink">{c.title}</p>
-                    <ProgressBar value={c.percentage} className="mt-1 h-2" />
+        <Card>
+          <CardBody>
+            <h3 className="mb-4 font-body font-semibold text-ink">
+              Compliance de Leitura Obrigatória
+            </h3>
+            {complianceLoading ? (
+              <Skeleton rows={3} />
+            ) : compliance.length === 0 ? (
+              <p className="py-6 text-center font-body text-sm text-ink-faint">
+                Nenhum documento exige confirmação de leitura no momento.
+              </p>
+            ) : (
+              <div className="space-y-3">
+                {compliance.map((c) => (
+                  <div key={c.id} className="flex items-center gap-3">
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate font-body text-xs font-medium text-ink">
+                        {c.title}
+                      </p>
+                      <ProgressBar value={c.percentage} className="mt-1 h-2" />
+                    </div>
+                    <span className="shrink-0 font-body text-xs font-bold text-ink-muted">
+                      {c.confirmedCount}/{c.totalRequired} ({c.percentage}%)
+                    </span>
                   </div>
-                  <span className="shrink-0 font-body text-xs font-bold text-ink-muted">
-                    {c.confirmedCount}/{c.totalRequired} ({c.percentage}%)
-                  </span>
-                </div>
-              ))}
-            </div>
-          )}
-        </CardBody>
-      </Card>
+                ))}
+              </div>
+            )}
+          </CardBody>
+        </Card>
       )}
     </div>
   );

@@ -42,8 +42,16 @@ import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { PARTICIPANT_STATUS } from './constants';
-import { useDepartmentOptions, useEventPickerOptions, useUnitOptions } from './eventFormData';
-import type { AddParticipantsResult, EventParticipantRow, ParticipantStatus } from './types';
+import {
+  useDepartmentOptions,
+  useEventPickerOptions,
+  useUnitOptions,
+} from './eventFormData';
+import type {
+  AddParticipantsResult,
+  EventParticipantRow,
+  ParticipantStatus,
+} from './types';
 
 interface Paginated<T> {
   data: T[];
@@ -52,7 +60,10 @@ interface Paginated<T> {
 
 const STATUS_ITEMS = [
   { value: 'ALL', label: 'Todos os estados' },
-  ...Object.entries(PARTICIPANT_STATUS).map(([value, cfg]) => ({ value, label: cfg.label })),
+  ...Object.entries(PARTICIPANT_STATUS).map(([value, cfg]) => ({
+    value,
+    label: cfg.label,
+  })),
 ];
 
 export function ParticipantsTab() {
@@ -62,7 +73,12 @@ export function ParticipantsTab() {
   const [eventId, setEventId] = useState<number | null>(null);
   const [search, setSearch] = useState('');
   const debouncedSearch = useDebounce(search);
-  const [filters, setFilters] = useState({ status: 'ALL', departmentId: 'ALL', unitId: 'ALL', page: 1 });
+  const [filters, setFilters] = useState({
+    status: 'ALL',
+    departmentId: 'ALL',
+    unitId: 'ALL',
+    page: 1,
+  });
   const [showAdd, setShowAdd] = useState(false);
 
   const { options: departmentOptions } = useDepartmentOptions();
@@ -78,11 +94,14 @@ export function ParticipantsTab() {
     limit: 20,
     search: debouncedSearch || undefined,
     status: filters.status === 'ALL' ? undefined : filters.status,
-    departmentId: filters.departmentId === 'ALL' ? undefined : filters.departmentId,
+    departmentId:
+      filters.departmentId === 'ALL' ? undefined : filters.departmentId,
     unitId: filters.unitId === 'ALL' ? undefined : filters.unitId,
   };
 
-  const { data, isLoading, error, refetch } = useApiQuery<Paginated<EventParticipantRow>>(
+  const { data, isLoading, error, refetch } = useApiQuery<
+    Paginated<EventParticipantRow>
+  >(
     queryKeys.events.participants(eventId ?? 0, params),
     `/events/${eventId}/participants`,
     {
@@ -97,7 +116,8 @@ export function ParticipantsTab() {
   const onErr = (e: Error) => notify({ title: e.message, intent: 'danger' });
 
   const approveMutation = useApiMutation<unknown, number>(
-    (userId) => apiClient.patch(`/events/${eventId}/participants/${userId}/approve`, {}),
+    (userId) =>
+      apiClient.patch(`/events/${eventId}/participants/${userId}/approve`, {}),
     {
       onSuccess: () => {
         invalidate();
@@ -107,7 +127,8 @@ export function ParticipantsTab() {
     },
   );
   const rejectMutation = useApiMutation<unknown, number>(
-    (userId) => apiClient.patch(`/events/${eventId}/participants/${userId}/reject`, {}),
+    (userId) =>
+      apiClient.patch(`/events/${eventId}/participants/${userId}/reject`, {}),
     {
       onSuccess: () => {
         invalidate();
@@ -117,7 +138,8 @@ export function ParticipantsTab() {
     },
   );
   const cancelMutation = useApiMutation<unknown, number>(
-    (userId) => apiClient.patch(`/events/${eventId}/participants/${userId}/cancel`, {}),
+    (userId) =>
+      apiClient.patch(`/events/${eventId}/participants/${userId}/cancel`, {}),
     {
       onSuccess: () => {
         invalidate();
@@ -131,7 +153,8 @@ export function ParticipantsTab() {
     if (
       await confirm({
         title: `Cancelar inscrição de ${name}?`,
-        message: 'Se houver lista de espera, o próximo é promovido automaticamente.',
+        message:
+          'Se houver lista de espera, o próximo é promovido automaticamente.',
         confirmLabel: 'Cancelar inscrição',
         destructive: true,
       })
@@ -197,9 +220,16 @@ export function ParticipantsTab() {
           onChange={(e) => setSearch(e.target.value)}
           className="w-56"
         />
-        <Select items={STATUS_ITEMS} value={filters.status} onValueChange={(v) => updateFilters({ status: v })} />
         <Select
-          items={[{ value: 'ALL', label: 'Todos os departamentos' }, ...departmentOptions]}
+          items={STATUS_ITEMS}
+          value={filters.status}
+          onValueChange={(v) => updateFilters({ status: v })}
+        />
+        <Select
+          items={[
+            { value: 'ALL', label: 'Todos os departamentos' },
+            ...departmentOptions,
+          ]}
           value={filters.departmentId}
           onValueChange={(v) => updateFilters({ departmentId: v })}
         />
@@ -208,7 +238,9 @@ export function ParticipantsTab() {
           value={filters.unitId}
           onValueChange={(v) => updateFilters({ unitId: v })}
         />
-        <span className="ml-auto font-body text-sm text-ink-faint">{data?.meta.total ?? 0} inscrições</span>
+        <span className="ml-auto font-body text-sm text-ink-faint">
+          {data?.meta.total ?? 0} inscrições
+        </span>
       </div>
 
       {error ? (
@@ -216,28 +248,44 @@ export function ParticipantsTab() {
       ) : isLoading ? (
         <Skeleton rows={5} />
       ) : !data || data.data.length === 0 ? (
-        <EmptyState title="Sem participantes" description="Nenhuma inscrição corresponde aos filtros." />
+        <EmptyState
+          title="Sem participantes"
+          description="Nenhuma inscrição corresponde aos filtros."
+        />
       ) : (
         <div className="overflow-hidden rounded-card border border-border bg-surface">
           {data.data.map((p) => {
-            const isApproving = approveMutation.isPending && approveMutation.variables === p.userId;
-            const isRejecting = rejectMutation.isPending && rejectMutation.variables === p.userId;
-            const isCancelling = cancelMutation.isPending && cancelMutation.variables === p.userId;
-            const canApprove = p.status === 'PENDING' || p.status === 'WAITLIST';
+            const isApproving =
+              approveMutation.isPending &&
+              approveMutation.variables === p.userId;
+            const isRejecting =
+              rejectMutation.isPending && rejectMutation.variables === p.userId;
+            const isCancelling =
+              cancelMutation.isPending && cancelMutation.variables === p.userId;
+            const canApprove =
+              p.status === 'PENDING' || p.status === 'WAITLIST';
             const canReject = p.status === 'PENDING';
-            const canCancel = !(['CANCELLED', 'REJECTED', 'NO_SHOW'] as ParticipantStatus[]).includes(p.status);
+            const canCancel = !(
+              ['CANCELLED', 'REJECTED', 'NO_SHOW'] as ParticipantStatus[]
+            ).includes(p.status);
 
             return (
               <div
                 key={p.id}
                 className="flex w-full flex-wrap items-center gap-3 border-b border-border px-4 py-3 last:border-0"
               >
-                <Avatar name={p.user.fullName} url={p.user.avatarUrl ?? undefined} size="sm" />
+                <Avatar
+                  name={p.user.fullName}
+                  url={p.user.avatarUrl ?? undefined}
+                  size="sm"
+                />
                 <div className="min-w-0 flex-1">
                   <div className="truncate font-body text-sm font-medium text-ink">
                     {p.user.fullName}
                     {p.user.employeeNumber && (
-                      <span className="ml-1.5 font-mono text-xs text-ink-faint">#{p.user.employeeNumber}</span>
+                      <span className="ml-1.5 font-mono text-xs text-ink-faint">
+                        #{p.user.employeeNumber}
+                      </span>
                     )}
                   </div>
                   <div className="truncate font-body text-xs text-ink-faint">
@@ -251,7 +299,9 @@ export function ParticipantsTab() {
                   Inscrito {formatDate(p.registeredAt)}
                 </div>
                 <div className="hidden w-32 shrink-0 font-body text-xs text-ink-faint md:block">
-                  {p.confirmedAt ? `Confirmado ${formatDate(p.confirmedAt)}` : '—'}
+                  {p.confirmedAt
+                    ? `Confirmado ${formatDate(p.confirmedAt)}`
+                    : '—'}
                 </div>
                 <div className="hidden w-32 shrink-0 font-body text-xs text-ink-faint lg:block">
                   {p.checkedInAt ? formatTime(p.checkedInAt) : '—'}
@@ -285,19 +335,31 @@ export function ParticipantsTab() {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       {canApprove && (
-                        <DropdownMenuItem disabled={isApproving} onSelect={() => approveMutation.mutate(p.userId)}>
-                          {isApproving ? 'A aprovar…' : p.status === 'WAITLIST' ? 'Confirmar' : 'Aprovar'}
+                        <DropdownMenuItem
+                          disabled={isApproving}
+                          onSelect={() => approveMutation.mutate(p.userId)}
+                        >
+                          {isApproving
+                            ? 'A aprovar…'
+                            : p.status === 'WAITLIST'
+                              ? 'Confirmar'
+                              : 'Aprovar'}
                         </DropdownMenuItem>
                       )}
                       {canReject && (
-                        <DropdownMenuItem disabled={isRejecting} onSelect={() => rejectMutation.mutate(p.userId)}>
+                        <DropdownMenuItem
+                          disabled={isRejecting}
+                          onSelect={() => rejectMutation.mutate(p.userId)}
+                        >
                           {isRejecting ? 'A rejeitar…' : 'Rejeitar'}
                         </DropdownMenuItem>
                       )}
                       {canCancel && (
                         <DropdownMenuItem
                           disabled={isCancelling}
-                          onSelect={() => handleCancel(p.userId, p.user.fullName)}
+                          onSelect={() =>
+                            handleCancel(p.userId, p.user.fullName)
+                          }
                         >
                           {isCancelling ? 'A cancelar…' : 'Cancelar inscrição'}
                         </DropdownMenuItem>
@@ -320,7 +382,11 @@ export function ParticipantsTab() {
       )}
 
       {showAdd && (
-        <AddParticipantsModal eventId={eventId} onClose={() => setShowAdd(false)} onDone={invalidate} />
+        <AddParticipantsModal
+          eventId={eventId}
+          onClose={() => setShowAdd(false)}
+          onDone={invalidate}
+        />
       )}
     </div>
   );
@@ -344,9 +410,9 @@ function AddParticipantsModal({
   const notify = useToast();
   const [deptFilter, setDeptFilter] = useState('ALL');
   const [userSearch, setUserSearch] = useState('');
-  const [selected, setSelected] = useState<Map<number, { id: number; fullName: string; avatarUrl: string | null }>>(
-    new Map(),
-  );
+  const [selected, setSelected] = useState<
+    Map<number, { id: number; fullName: string; avatarUrl: string | null }>
+  >(new Map());
   const [result, setResult] = useState<AddParticipantsResult | null>(null);
 
   const { options: departmentOptions } = useDepartmentOptions();
@@ -358,16 +424,28 @@ function AddParticipantsModal({
 
   const selectedIds = useMemo(() => [...selected.keys()], [selected]);
 
-  const toggle = (u: { id: number; fullName: string; avatarUrl?: string | null }) =>
+  const toggle = (u: {
+    id: number;
+    fullName: string;
+    avatarUrl?: string | null;
+  }) =>
     setSelected((prev) => {
       const next = new Map(prev);
       if (next.has(u.id)) next.delete(u.id);
-      else next.set(u.id, { id: u.id, fullName: u.fullName, avatarUrl: u.avatarUrl ?? null });
+      else
+        next.set(u.id, {
+          id: u.id,
+          fullName: u.fullName,
+          avatarUrl: u.avatarUrl ?? null,
+        });
       return next;
     });
 
   const addMutation = useApiMutation<AddParticipantsResult, void>(
-    () => apiClient.post<AddParticipantsResult>(`/events/${eventId}/participants`, { userIds: selectedIds }),
+    () =>
+      apiClient.post<AddParticipantsResult>(`/events/${eventId}/participants`, {
+        userIds: selectedIds,
+      }),
     {
       invalidateKeys: [queryKeys.events.all],
       onSuccess: (res) => setResult(res),
@@ -391,7 +469,8 @@ function AddParticipantsModal({
                 {result.success} inscrito{result.success === 1 ? '' : 's'}
               </p>
               <p className="text-ink-muted">
-                {result.skipped} já inscrito{result.skipped === 1 ? '' : 's'} · {result.errors} erro
+                {result.skipped} já inscrito{result.skipped === 1 ? '' : 's'} ·{' '}
+                {result.errors} erro
                 {result.errors === 1 ? '' : 's'} · {result.total} no total
               </p>
             </div>
@@ -420,7 +499,10 @@ function AddParticipantsModal({
             <div className="mt-5 space-y-4">
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <Select
-                  items={[{ value: 'ALL', label: 'Todos os departamentos' }, ...departmentOptions]}
+                  items={[
+                    { value: 'ALL', label: 'Todos os departamentos' },
+                    ...departmentOptions,
+                  ]}
                   value={deptFilter}
                   onValueChange={setDeptFilter}
                   className="w-full"
@@ -453,7 +535,9 @@ function AddParticipantsModal({
                     <Skeleton rows={4} />
                   </div>
                 ) : users.length === 0 ? (
-                  <div className="px-3 py-8 text-center text-sm text-ink-faint">Nenhum colaborador encontrado</div>
+                  <div className="px-3 py-8 text-center text-sm text-ink-faint">
+                    Nenhum colaborador encontrado
+                  </div>
                 ) : (
                   users.map((u) => (
                     <label
@@ -466,10 +550,18 @@ function AddParticipantsModal({
                         onChange={() => toggle(u)}
                         className="h-4 w-4 rounded border-border-strong accent-primary"
                       />
-                      <Avatar name={u.fullName} url={u.avatarUrl ?? undefined} size="sm" />
+                      <Avatar
+                        name={u.fullName}
+                        url={u.avatarUrl ?? undefined}
+                        size="sm"
+                      />
                       <div className="min-w-0 flex-1">
-                        <div className="truncate text-sm text-ink">{u.fullName}</div>
-                        <div className="truncate text-xs text-ink-faint">{u.department?.name ?? u.email ?? '—'}</div>
+                        <div className="truncate text-sm text-ink">
+                          {u.fullName}
+                        </div>
+                        <div className="truncate text-xs text-ink-faint">
+                          {u.department?.name ?? u.email ?? '—'}
+                        </div>
                       </div>
                     </label>
                   ))
@@ -478,7 +570,11 @@ function AddParticipantsModal({
             </div>
 
             <div className="mt-6 flex gap-3 border-t border-border pt-4">
-              <Button intent="secondary" className="flex-1 justify-center" onClick={onClose}>
+              <Button
+                intent="secondary"
+                className="flex-1 justify-center"
+                onClick={onClose}
+              >
                 Cancelar
               </Button>
               <Button

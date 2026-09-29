@@ -10,7 +10,9 @@ vi.mock('@/lib/apiClient', () => ({
 }));
 
 vi.mock('@/hooks/useCurrentUser', () => ({
-  useCurrentUser: () => ({ data: { id: 1, department: { id: 5, name: 'Engenharia' } } }),
+  useCurrentUser: () => ({
+    data: { id: 1, department: { id: 5, name: 'Engenharia' } },
+  }),
 }));
 
 vi.mock('@/hooks/useApiQuery', () => ({
@@ -127,17 +129,23 @@ describe('GiveFeedbackModal', () => {
     fireEvent.change(screen.getByLabelText('Mensagem *'), {
       target: { value: 'Excelente trabalho na apresentação.' },
     });
-    expect(screen.getByRole('button', { name: 'Enviar Feedback' })).toBeDisabled();
+    expect(
+      screen.getByRole('button', { name: 'Enviar Feedback' }),
+    ).toBeDisabled();
   });
 
   test('mensagem demasiado curta mantém o botão desactivado', () => {
     render(<GiveFeedbackModal onClose={vi.fn()} />);
     const [colleagueSelect] = screen.getAllByTestId('select');
     fireEvent.change(colleagueSelect, { target: { value: '7' } });
-    expect(screen.getByRole('button', { name: 'Enviar Feedback' })).toBeDisabled();
+    expect(
+      screen.getByRole('button', { name: 'Enviar Feedback' }),
+    ).toBeDisabled();
     fireEvent.change(screen.getByLabelText('Mensagem *'), {
       target: { value: 'ok' },
     });
-    expect(screen.getByRole('button', { name: 'Enviar Feedback' })).toBeDisabled();
+    expect(
+      screen.getByRole('button', { name: 'Enviar Feedback' }),
+    ).toBeDisabled();
   });
 });

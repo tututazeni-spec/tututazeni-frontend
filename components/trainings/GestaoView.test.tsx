@@ -91,14 +91,18 @@ describe('GestaoView (trainings)', () => {
   test('Publicar (DRAFT) chama PATCH /trainings/:id/publish', async () => {
     render(<GestaoView onManage={vi.fn()} />);
     fireEvent.click(screen.getByRole('button', { name: 'Publicar' }));
-    await waitFor(() => expect(patch).toHaveBeenCalledWith('/trainings/1/publish'));
+    await waitFor(() =>
+      expect(patch).toHaveBeenCalledWith('/trainings/1/publish'),
+    );
   });
 
   test('Arquivar confirma e chama PATCH /trainings/:id/archive', async () => {
     render(<GestaoView onManage={vi.fn()} />);
     fireEvent.click(screen.getAllByRole('button', { name: 'Arquivar' })[0]);
     await waitFor(() => expect(confirmFn).toHaveBeenCalled());
-    await waitFor(() => expect(patch).toHaveBeenCalledWith('/trainings/1/archive'));
+    await waitFor(() =>
+      expect(patch).toHaveBeenCalledWith('/trainings/1/archive'),
+    );
   });
 
   test('Eliminar confirma e chama DELETE /trainings/:id', async () => {
@@ -119,12 +123,16 @@ describe('GestaoView (trainings)', () => {
     render(<GestaoView onManage={vi.fn()} />);
     expect(screen.queryByTestId('training-form-modal')).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: /Nova Formação/ }));
-    expect(screen.getByTestId('training-form-modal')).toHaveTextContent('creating');
+    expect(screen.getByTestId('training-form-modal')).toHaveTextContent(
+      'creating',
+    );
   });
 
   test('"Editar" abre o modal com a formação da linha', () => {
     render(<GestaoView onManage={vi.fn()} />);
     fireEvent.click(screen.getAllByRole('button', { name: 'Editar' })[0]);
-    expect(screen.getByTestId('training-form-modal')).toHaveTextContent('editing-1');
+    expect(screen.getByTestId('training-form-modal')).toHaveTextContent(
+      'editing-1',
+    );
   });
 });

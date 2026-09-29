@@ -37,22 +37,37 @@ const STATUS_ITEMS = [
 export function FilterPanel({ filters, onChange, onClose }: FilterPanelProps) {
   const seniorityItems = [
     { value: 'ALL', label: 'Todos' },
-    ...Object.entries(SENIORITY_LABELS).map(([k, v]) => ({ value: k, label: v })),
+    ...Object.entries(SENIORITY_LABELS).map(([k, v]) => ({
+      value: k,
+      label: v,
+    })),
   ];
   const workModeItems = [
     { value: 'ALL', label: 'Todos' },
-    ...Object.entries(WORKMODE_LABELS).map(([k, v]) => ({ value: k, label: v })),
+    ...Object.entries(WORKMODE_LABELS).map(([k, v]) => ({
+      value: k,
+      label: v,
+    })),
   ];
   const contractItems = [
     { value: 'ALL', label: 'Todos' },
-    ...Object.entries(CONTRACT_LABELS).map(([k, v]) => ({ value: k, label: v })),
+    ...Object.entries(CONTRACT_LABELS).map(([k, v]) => ({
+      value: k,
+      label: v,
+    })),
   ];
 
   return (
     <div className="absolute right-0 top-full mt-2 w-80 bg-surface rounded-card border border-border shadow-elevated z-30 p-5">
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-semibold text-ink">Filtros</h3>
-        <IconButton icon={X} label="Fechar" intent="ghost" size="sm" onClick={onClose} />
+        <IconButton
+          icon={X}
+          label="Fechar"
+          intent="ghost"
+          size="sm"
+          onClick={onClose}
+        />
       </div>
 
       <div className="space-y-3">
@@ -97,7 +112,9 @@ export function FilterPanel({ filters, onChange, onClose }: FilterPanelProps) {
           <Select
             items={contractItems}
             value={filters.contractType || 'ALL'}
-            onValueChange={(v) => onChange({ contractType: v === 'ALL' ? '' : v })}
+            onValueChange={(v) =>
+              onChange({ contractType: v === 'ALL' ? '' : v })
+            }
             className="w-full"
           />
         </FormField>

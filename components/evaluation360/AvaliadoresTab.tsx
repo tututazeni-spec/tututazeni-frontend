@@ -38,7 +38,11 @@ const ROLE_OPTIONS: SelectItemOption[] = [
 ];
 
 export function AvaliadoresTab() {
-  const { cycles, options: cycleOptions, loading: cyclesLoading } = useCycleSelectorOptions();
+  const {
+    cycles,
+    options: cycleOptions,
+    loading: cyclesLoading,
+  } = useCycleSelectorOptions();
   const [cycleId, setCycleId] = useState('');
   useEffect(() => {
     if (!cycleId && cycles.length > 0) setCycleId(cycles[0].id);
@@ -51,7 +55,10 @@ export function AvaliadoresTab() {
   if (status !== ALL) params.status = status;
   if (role !== ALL) params.role = role;
 
-  const { data, isLoading } = useApiQuery<{ data: CycleEvaluatorRow[]; total: number }>(
+  const { data, isLoading } = useApiQuery<{
+    data: CycleEvaluatorRow[];
+    total: number;
+  }>(
     queryKeys.evaluation360.cycleEvaluators(cycleId, params),
     `/evaluation360/cycles/${cycleId}/evaluators`,
     { params, staleTime: STALE_TIME.DYNAMIC, enabled: !!cycleId },
@@ -63,7 +70,9 @@ export function AvaliadoresTab() {
       <div>
         <h2 className="m-0 text-lg font-bold text-ink">Avaliadores</h2>
         <p className="m-0 mt-1 text-sm text-ink-muted">
-          {cycleId && data ? `${data.total} atribuição(ões) neste ciclo` : 'Escolhe um ciclo de avaliação 360°.'}
+          {cycleId && data
+            ? `${data.total} atribuição(ões) neste ciclo`
+            : 'Escolhe um ciclo de avaliação 360°.'}
         </p>
       </div>
 
@@ -79,11 +88,19 @@ export function AvaliadoresTab() {
           />
         </div>
         <div>
-          <div className="text-xs font-semibold text-ink-muted mb-1">Estado</div>
-          <Select items={STATUS_OPTIONS} value={status} onValueChange={setStatus} />
+          <div className="text-xs font-semibold text-ink-muted mb-1">
+            Estado
+          </div>
+          <Select
+            items={STATUS_OPTIONS}
+            value={status}
+            onValueChange={setStatus}
+          />
         </div>
         <div>
-          <div className="text-xs font-semibold text-ink-muted mb-1">Tipo de avaliador</div>
+          <div className="text-xs font-semibold text-ink-muted mb-1">
+            Tipo de avaliador
+          </div>
           <Select items={ROLE_OPTIONS} value={role} onValueChange={setRole} />
         </div>
       </div>
@@ -93,7 +110,9 @@ export function AvaliadoresTab() {
           Ainda não existe nenhum ciclo de avaliação 360º.
         </div>
       )}
-      {cycleId && isLoading && <div className="text-sm text-ink-muted">A carregar…</div>}
+      {cycleId && isLoading && (
+        <div className="text-sm text-ink-muted">A carregar…</div>
+      )}
       {cycleId && !isLoading && rows.length === 0 && (
         <div className="rounded-lg border border-border bg-surface p-5 text-sm text-ink-muted">
           Nenhum avaliador encontrado com estes filtros.
@@ -120,10 +139,18 @@ export function AvaliadoresTab() {
             <tbody>
               {rows.map((e) => (
                 <tr key={e.id} className="border-b border-border last:border-0">
-                  <td className="px-4 py-3 font-semibold text-ink">{e.evaluatorName}</td>
-                  <td className="px-4 py-3 text-ink-muted">{e.position ?? '—'}</td>
-                  <td className="px-4 py-3 text-ink-muted">{e.department ?? '—'}</td>
-                  <td className="px-4 py-3 text-ink-muted">{evaluatorRoleLabel[e.role] ?? e.role}</td>
+                  <td className="px-4 py-3 font-semibold text-ink">
+                    {e.evaluatorName}
+                  </td>
+                  <td className="px-4 py-3 text-ink-muted">
+                    {e.position ?? '—'}
+                  </td>
+                  <td className="px-4 py-3 text-ink-muted">
+                    {e.department ?? '—'}
+                  </td>
+                  <td className="px-4 py-3 text-ink-muted">
+                    {evaluatorRoleLabel[e.role] ?? e.role}
+                  </td>
                   <td className="px-4 py-3 text-ink-muted">{e.role}</td>
                   <td className="px-4 py-3 text-ink">{e.evaluateeName}</td>
                   <td className="px-4 py-3 text-ink-muted whitespace-nowrap">
@@ -137,7 +164,9 @@ export function AvaliadoresTab() {
                       {evaluatorAssignmentStatusLabel[e.status] ?? e.status}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-right text-ink">{e.progressPercent}%</td>
+                  <td className="px-4 py-3 text-right text-ink">
+                    {e.progressPercent}%
+                  </td>
                 </tr>
               ))}
             </tbody>

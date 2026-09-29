@@ -18,17 +18,30 @@ interface UserFilterSearchProps {
   className?: string;
 }
 
-export function UserFilterSearch({ selected, onChange, className }: UserFilterSearchProps) {
+export function UserFilterSearch({
+  selected,
+  onChange,
+  className,
+}: UserFilterSearchProps) {
   const [search, setSearch] = useState('');
-  const { users, loading } = useDirectoryUsers(search, search.trim().length > 0);
+  const { users, loading } = useDirectoryUsers(
+    search,
+    search.trim().length > 0,
+  );
 
   if (selected) {
     return (
       <div
         className={`flex items-center gap-2 rounded-control border-[1.5px] border-border-strong bg-surface px-2.5 py-1.5 ${className ?? ''}`}
       >
-        <Avatar name={selected.fullName} url={selected.avatarUrl ?? undefined} size="sm" />
-        <span className="truncate font-body text-sm text-ink">{selected.fullName}</span>
+        <Avatar
+          name={selected.fullName}
+          url={selected.avatarUrl ?? undefined}
+          size="sm"
+        />
+        <span className="truncate font-body text-sm text-ink">
+          {selected.fullName}
+        </span>
         <button
           type="button"
           aria-label="Remover filtro de colaborador"
@@ -52,7 +65,9 @@ export function UserFilterSearch({ selected, onChange, className }: UserFilterSe
       {search.trim().length > 0 && (
         <div className="absolute z-20 mt-1 max-h-56 w-full overflow-y-auto rounded-card border border-border bg-surface shadow-elevated">
           {loading && (
-            <div className="px-3 py-2 font-body text-sm text-ink-muted">A pesquisar…</div>
+            <div className="px-3 py-2 font-body text-sm text-ink-muted">
+              A pesquisar…
+            </div>
           )}
           {!loading && users.length === 0 && (
             <div className="px-3 py-2 font-body text-sm text-ink-muted">
@@ -69,9 +84,15 @@ export function UserFilterSearch({ selected, onChange, className }: UserFilterSe
               }}
               className="flex w-full items-center gap-2 px-3 py-2 text-left hover:bg-primary-subtle"
             >
-              <Avatar name={u.fullName} url={u.avatarUrl ?? undefined} size="sm" />
+              <Avatar
+                name={u.fullName}
+                url={u.avatarUrl ?? undefined}
+                size="sm"
+              />
               <div className="min-w-0">
-                <div className="truncate font-body text-sm text-ink">{u.fullName}</div>
+                <div className="truncate font-body text-sm text-ink">
+                  {u.fullName}
+                </div>
                 <div className="truncate font-body text-xs text-ink-faint">
                   {u.department?.name ?? u.email ?? '—'}
                 </div>

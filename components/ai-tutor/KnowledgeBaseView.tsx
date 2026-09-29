@@ -6,7 +6,13 @@
 'use client';
 
 import { useState } from 'react';
-import { Search, BookOpen, GraduationCap, Library, FileText } from 'lucide-react';
+import {
+  Search,
+  BookOpen,
+  GraduationCap,
+  Library,
+  FileText,
+} from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -32,20 +38,24 @@ export function KnowledgeBaseView() {
   const [results, setResults] = useState<KnowledgeSource[] | null>(null);
   const [searching, setSearching] = useState(false);
 
-  const { data: sources, isLoading: loadingSources } = useApiQuery<KnowledgeSources>(
-    queryKeys.aiTutor.knowledgeSources(),
-    '/ai-tutor/knowledge/sources',
-    { staleTime: STALE_TIME.SEMI_STATIC },
-  );
+  const { data: sources, isLoading: loadingSources } =
+    useApiQuery<KnowledgeSources>(
+      queryKeys.aiTutor.knowledgeSources(),
+      '/ai-tutor/knowledge/sources',
+      { staleTime: STALE_TIME.SEMI_STATIC },
+    );
 
   const search = async () => {
     const q = query.trim();
     if (!q) return;
     setSearching(true);
     try {
-      const data = await apiClient.get<KnowledgeSource[]>('/ai-tutor/knowledge/search', {
-        params: { q, limit: 10 },
-      });
+      const data = await apiClient.get<KnowledgeSource[]>(
+        '/ai-tutor/knowledge/search',
+        {
+          params: { q, limit: 10 },
+        },
+      );
       setResults(data);
       setSearched(q);
     } finally {
@@ -64,21 +74,33 @@ export function KnowledgeBaseView() {
       ) : sources ? (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           <Card className="p-4">
-            <div className="font-display text-xl font-bold text-ink">{sources.courses}</div>
-            <div className="font-body text-xs text-ink-muted">Cursos indexados</div>
+            <div className="font-display text-xl font-bold text-ink">
+              {sources.courses}
+            </div>
+            <div className="font-body text-xs text-ink-muted">
+              Cursos indexados
+            </div>
           </Card>
           <Card className="p-4">
-            <div className="font-display text-xl font-bold text-ink">{sources.lessons}</div>
-            <div className="font-body text-xs text-ink-muted">Lições com conteúdo</div>
+            <div className="font-display text-xl font-bold text-ink">
+              {sources.lessons}
+            </div>
+            <div className="font-body text-xs text-ink-muted">
+              Lições com conteúdo
+            </div>
           </Card>
           <Card className="p-4">
             <div className="font-display text-xl font-bold text-ink">
               {sources.libraryItems}
             </div>
-            <div className="font-body text-xs text-ink-muted">Itens da Biblioteca</div>
+            <div className="font-body text-xs text-ink-muted">
+              Itens da Biblioteca
+            </div>
           </Card>
           <Card className="p-4">
-            <div className="font-display text-xl font-bold text-ink">{sources.documents}</div>
+            <div className="font-display text-xl font-bold text-ink">
+              {sources.documents}
+            </div>
             <div className="font-body text-xs text-ink-muted">
               Documentos internos (normas, manuais, políticas…)
             </div>
@@ -101,8 +123,9 @@ export function KnowledgeBaseView() {
           Pesquisar na Base de Conhecimento
         </div>
         <p className="font-body text-xs text-ink-faint mb-4">
-          A mesma pesquisa corre automaticamente sempre que um colaborador pergunta algo à
-          Ísis, para responder com fontes autorizadas em vez de inventar.
+          A mesma pesquisa corre automaticamente sempre que um colaborador
+          pergunta algo à Ísis, para responder com fontes autorizadas em vez de
+          inventar.
         </p>
         <div className="flex gap-2">
           <Input
@@ -139,7 +162,9 @@ export function KnowledgeBaseView() {
                     <Icon size={16} strokeWidth={1.75} />
                   </div>
                   <div className="min-w-0">
-                    <div className="font-body text-sm font-medium text-ink">{r.label}</div>
+                    <div className="font-body text-sm font-medium text-ink">
+                      {r.label}
+                    </div>
                     <div className="font-body text-xs text-ink-faint mt-1 leading-relaxed">
                       {r.snippet}
                     </div>

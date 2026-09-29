@@ -58,19 +58,48 @@ const QUESTION_TYPE_ITEMS = [
 
 function emptyQuestion(type: QuestionType = 'MULTIPLE_CHOICE'): QuestionRow {
   if (type === 'TRUE_FALSE') {
-    return { question: '', type, options: [{ text: 'Verdadeiro', isCorrect: true }, { text: 'Falso', isCorrect: false }], points: 1 };
+    return {
+      question: '',
+      type,
+      options: [
+        { text: 'Verdadeiro', isCorrect: true },
+        { text: 'Falso', isCorrect: false },
+      ],
+      points: 1,
+    };
   }
   if (type === 'OPEN') {
     return { question: '', type, options: [], points: 1 };
   }
-  return { question: '', type, options: [{ text: '', isCorrect: true }, { text: '', isCorrect: false }], points: 1 };
+  return {
+    question: '',
+    type,
+    options: [
+      { text: '', isCorrect: true },
+      { text: '', isCorrect: false },
+    ],
+    points: 1,
+  };
 }
 
 function rowsFromApi(questions: QuizQuestionApi[]): QuestionRow[] {
   return questions.map((q) => {
-    if (q.type === 'OPEN') return { question: q.question, type: q.type, options: [], points: q.points };
-    const opts: { text: string; isCorrect: boolean }[] = q.options ? JSON.parse(q.options) : [];
-    return { question: q.question, type: q.type, options: opts, points: q.points };
+    if (q.type === 'OPEN')
+      return {
+        question: q.question,
+        type: q.type,
+        options: [],
+        points: q.points,
+      };
+    const opts: { text: string; isCorrect: boolean }[] = q.options
+      ? JSON.parse(q.options)
+      : [];
+    return {
+      question: q.question,
+      type: q.type,
+      options: opts,
+      points: q.points,
+    };
   });
 }
 
@@ -80,7 +109,11 @@ interface QuizEditorModalProps {
   onClose: () => void;
 }
 
-export function QuizEditorModal({ lessonId, lessonTitle, onClose }: QuizEditorModalProps) {
+export function QuizEditorModal({
+  lessonId,
+  lessonTitle,
+  onClose,
+}: QuizEditorModalProps) {
   const notify = useToast();
   const { data: quiz, isLoading } = useApiQuery<QuizApi | null>(
     queryKeys.courses.lessonQuiz(lessonId),
@@ -103,12 +136,18 @@ export function QuizEditorModal({ lessonId, lessonTitle, onClose }: QuizEditorMo
     setTitle(quiz.title);
     setPassingScore(quiz.passingScore);
     setMaxAttempts(quiz.maxAttempts);
-    setTimeLimitMinutes(quiz.timeLimitMinutes != null ? String(quiz.timeLimitMinutes) : '');
+    setTimeLimitMinutes(
+      quiz.timeLimitMinutes != null ? String(quiz.timeLimitMinutes) : '',
+    );
     setShuffleQuestions(quiz.shuffleQuestions);
     setShuffleAnswers(quiz.shuffleAnswers);
     setShowCorrectAnswers(quiz.showCorrectAnswers);
     setAutoFeedback(quiz.autoFeedback);
-    setQuestions(quiz.questions.length > 0 ? rowsFromApi(quiz.questions) : [emptyQuestion()]);
+    setQuestions(
+      quiz.questions.length > 0
+        ? rowsFromApi(quiz.questions)
+        : [emptyQuestion()],
+    );
   }, [quiz]);
 
   const payload = () => ({
@@ -127,7 +166,9 @@ export function QuizEditorModal({ lessonId, lessonTitle, onClose }: QuizEditorMo
         type: q.type,
         options: q.type === 'OPEN' ? undefined : q.options,
         correctAnswer:
-          q.type === 'OPEN' ? undefined : q.options.find((o) => o.isCorrect)?.text,
+          q.type === 'OPEN'
+            ? undefined
+            : q.options.find((o) => o.isCorrect)?.text,
         points: q.points,
       })),
   });
@@ -150,16 +191,23 @@ export function QuizEditorModal({ lessonId, lessonTitle, onClose }: QuizEditorMo
   const canSave = title.trim() && questions.some((q) => q.question.trim());
 
   function updateQuestion(idx: number, patch: Partial<QuestionRow>) {
-    setQuestions((rows) => rows.map((r, i) => (i === idx ? { ...r, ...patch } : r)));
+    setQuestions((rows) =>
+      rows.map((r, i) => (i === idx ? { ...r, ...patch } : r)),
+    );
   }
-  function updateOption(qIdx: number, oIdx: number, patch: Partial<{ text: string; isCorrect: boolean }>) {
+  function updateOption(
+    qIdx: number,
+    oIdx: number,
+    patch: Partial<{ text: string; isCorrect: boolean }>,
+  ) {
     setQuestions((rows) =>
       rows.map((r, i) => {
         if (i !== qIdx) return r;
         const options = r.options.map((o, j) => {
           if (j === oIdx) return { ...o, ...patch };
           // MULTIPLE_CHOICE: só uma opção correcta (mesma regra do grading em submitQuiz).
-          if (patch.isCorrect && r.type === 'MULTIPLE_CHOICE') return { ...o, isCorrect: false };
+          if (patch.isCorrect && r.type === 'MULTIPLE_CHOICE')
+            return { ...o, isCorrect: false };
           return o;
         });
         return { ...r, options };
@@ -168,7 +216,10 @@ export function QuizEditorModal({ lessonId, lessonTitle, onClose }: QuizEditorMo
   }
 
   return (
-    <div className="fixed inset-0 z-600 bg-black/45 flex items-center justify-center p-4" onClick={onClose}>
+    <div
+      className="fixed inset-0 z-600 bg-black/45 flex items-center justify-center p-4"
+      onClick={onClose}
+    >
       <Card
         className="w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-elevated"
         onClick={(e) => e.stopPropagation()}
@@ -176,9 +227,14 @@ export function QuizEditorModal({ lessonId, lessonTitle, onClose }: QuizEditorMo
         <CardBody className="flex flex-col gap-5">
           <div className="flex justify-between items-center">
             <h2 className="flex items-center gap-2 text-lg font-bold text-ink">
-              <FileQuestion size={18} strokeWidth={1.75} /> Avaliação — {lessonTitle}
+              <FileQuestion size={18} strokeWidth={1.75} /> Avaliação —{' '}
+              {lessonTitle}
             </h2>
-            <button type="button" onClick={onClose} className="text-ink-faint hover:text-ink">
+            <button
+              type="button"
+              onClick={onClose}
+              className="text-ink-faint hover:text-ink"
+            >
               <X size={18} strokeWidth={1.75} />
             </button>
           </div>
@@ -189,7 +245,11 @@ export function QuizEditorModal({ lessonId, lessonTitle, onClose }: QuizEditorMo
             <>
               <div className="grid grid-cols-2 gap-3">
                 <FormField label="Título" htmlFor="quiz-title">
-                  <Input id="quiz-title" value={title} onChange={(e) => setTitle(e.target.value)} />
+                  <Input
+                    id="quiz-title"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                  />
                 </FormField>
                 <FormField label="Nota mínima (%)" htmlFor="quiz-passing-score">
                   <Input
@@ -201,7 +261,10 @@ export function QuizEditorModal({ lessonId, lessonTitle, onClose }: QuizEditorMo
                     onChange={(e) => setPassingScore(Number(e.target.value))}
                   />
                 </FormField>
-                <FormField label="Nº de tentativas (0 = ilimitadas)" htmlFor="quiz-max-attempts">
+                <FormField
+                  label="Nº de tentativas (0 = ilimitadas)"
+                  htmlFor="quiz-max-attempts"
+                >
                   <Input
                     id="quiz-max-attempts"
                     type="number"
@@ -210,7 +273,10 @@ export function QuizEditorModal({ lessonId, lessonTitle, onClose }: QuizEditorMo
                     onChange={(e) => setMaxAttempts(Number(e.target.value))}
                   />
                 </FormField>
-                <FormField label="Tempo limite (minutos)" htmlFor="quiz-time-limit">
+                <FormField
+                  label="Tempo limite (minutos)"
+                  htmlFor="quiz-time-limit"
+                >
                   <Input
                     id="quiz-time-limit"
                     type="number"
@@ -224,39 +290,66 @@ export function QuizEditorModal({ lessonId, lessonTitle, onClose }: QuizEditorMo
 
               <div className="flex flex-wrap gap-4 text-xs text-ink-muted">
                 <label className="flex items-center gap-1.5">
-                  <input type="checkbox" checked={shuffleQuestions} onChange={(e) => setShuffleQuestions(e.target.checked)} />
+                  <input
+                    type="checkbox"
+                    checked={shuffleQuestions}
+                    onChange={(e) => setShuffleQuestions(e.target.checked)}
+                  />
                   Embaralhar perguntas
                 </label>
                 <label className="flex items-center gap-1.5">
-                  <input type="checkbox" checked={shuffleAnswers} onChange={(e) => setShuffleAnswers(e.target.checked)} />
+                  <input
+                    type="checkbox"
+                    checked={shuffleAnswers}
+                    onChange={(e) => setShuffleAnswers(e.target.checked)}
+                  />
                   Embaralhar respostas
                 </label>
                 <label className="flex items-center gap-1.5">
-                  <input type="checkbox" checked={showCorrectAnswers} onChange={(e) => setShowCorrectAnswers(e.target.checked)} />
+                  <input
+                    type="checkbox"
+                    checked={showCorrectAnswers}
+                    onChange={(e) => setShowCorrectAnswers(e.target.checked)}
+                  />
                   Mostrar respostas correctas
                 </label>
                 <label className="flex items-center gap-1.5">
-                  <input type="checkbox" checked={autoFeedback} onChange={(e) => setAutoFeedback(e.target.checked)} />
+                  <input
+                    type="checkbox"
+                    checked={autoFeedback}
+                    onChange={(e) => setAutoFeedback(e.target.checked)}
+                  />
                   Feedback automático
                 </label>
               </div>
 
               <div className="border-t border-border pt-4">
-                <h3 className="m-0 mb-3 text-sm font-bold text-ink">Perguntas</h3>
+                <h3 className="m-0 mb-3 text-sm font-bold text-ink">
+                  Perguntas
+                </h3>
                 <div className="flex flex-col gap-4">
                   {questions.map((q, qIdx) => (
-                    <div key={qIdx} className="rounded-lg border border-border p-3">
+                    <div
+                      key={qIdx}
+                      className="rounded-lg border border-border p-3"
+                    >
                       <div className="flex items-start gap-2 mb-2">
                         <Textarea
                           value={q.question}
-                          onChange={(e) => updateQuestion(qIdx, { question: e.target.value })}
+                          onChange={(e) =>
+                            updateQuestion(qIdx, { question: e.target.value })
+                          }
                           placeholder="Enunciado da pergunta"
                           rows={2}
                           className="flex-1 resize-none"
                         />
                         <button
                           type="button"
-                          onClick={() => setQuestions((rows) => rows.filter((_, i) => i !== qIdx))}
+                          onClick={() =>
+                            setQuestions((rows) =>
+                              rows.filter((_, i) => i !== qIdx),
+                            )
+                          }
                           className="text-ink-faint hover:text-danger mt-1"
                           aria-label="Remover pergunta"
                         >
@@ -267,14 +360,23 @@ export function QuizEditorModal({ lessonId, lessonTitle, onClose }: QuizEditorMo
                         <Select
                           items={QUESTION_TYPE_ITEMS}
                           value={q.type}
-                          onValueChange={(v) => updateQuestion(qIdx, emptyQuestion(v as QuestionType))}
+                          onValueChange={(v) =>
+                            updateQuestion(
+                              qIdx,
+                              emptyQuestion(v as QuestionType),
+                            )
+                          }
                           className="w-56"
                         />
                         <Input
                           type="number"
                           min={1}
                           value={q.points}
-                          onChange={(e) => updateQuestion(qIdx, { points: Number(e.target.value) })}
+                          onChange={(e) =>
+                            updateQuestion(qIdx, {
+                              points: Number(e.target.value),
+                            })
+                          }
                           className="w-20"
                           aria-label="Pontos"
                         />
@@ -289,34 +391,50 @@ export function QuizEditorModal({ lessonId, lessonTitle, onClose }: QuizEditorMo
                                 type="radio"
                                 name={`correct-${qIdx}`}
                                 checked={o.isCorrect}
-                                onChange={() => updateOption(qIdx, oIdx, { isCorrect: true })}
+                                onChange={() =>
+                                  updateOption(qIdx, oIdx, { isCorrect: true })
+                                }
                               />
                               <Input
                                 value={o.text}
-                                onChange={(e) => updateOption(qIdx, oIdx, { text: e.target.value })}
+                                onChange={(e) =>
+                                  updateOption(qIdx, oIdx, {
+                                    text: e.target.value,
+                                  })
+                                }
                                 disabled={q.type === 'TRUE_FALSE'}
                                 className="flex-1"
                                 placeholder="Opção"
                               />
-                              {q.type === 'MULTIPLE_CHOICE' && q.options.length > 2 && (
-                                <button
-                                  type="button"
-                                  onClick={() =>
-                                    updateQuestion(qIdx, { options: q.options.filter((_, i) => i !== oIdx) })
-                                  }
-                                  className="text-ink-faint hover:text-danger"
-                                  aria-label="Remover opção"
-                                >
-                                  <X size={14} strokeWidth={1.75} />
-                                </button>
-                              )}
+                              {q.type === 'MULTIPLE_CHOICE' &&
+                                q.options.length > 2 && (
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      updateQuestion(qIdx, {
+                                        options: q.options.filter(
+                                          (_, i) => i !== oIdx,
+                                        ),
+                                      })
+                                    }
+                                    className="text-ink-faint hover:text-danger"
+                                    aria-label="Remover opção"
+                                  >
+                                    <X size={14} strokeWidth={1.75} />
+                                  </button>
+                                )}
                             </div>
                           ))}
                           {q.type === 'MULTIPLE_CHOICE' && (
                             <button
                               type="button"
                               onClick={() =>
-                                updateQuestion(qIdx, { options: [...q.options, { text: '', isCorrect: false }] })
+                                updateQuestion(qIdx, {
+                                  options: [
+                                    ...q.options,
+                                    { text: '', isCorrect: false },
+                                  ],
+                                })
                               }
                               className="self-start text-xs text-accent hover:text-accent-hover mt-1"
                             >
@@ -333,7 +451,9 @@ export function QuizEditorModal({ lessonId, lessonTitle, onClose }: QuizEditorMo
                   intent="secondary"
                   size="sm"
                   className="mt-3"
-                  onClick={() => setQuestions((rows) => [...rows, emptyQuestion()])}
+                  onClick={() =>
+                    setQuestions((rows) => [...rows, emptyQuestion()])
+                  }
                 >
                   <Plus size={14} strokeWidth={1.75} /> Adicionar pergunta
                 </Button>

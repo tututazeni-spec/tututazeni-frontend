@@ -36,24 +36,60 @@ export function DashboardView() {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-        <KpiCard icon={Calendar} label="Agendadas" value={cards.scheduled} intent="info" />
-        <KpiCard icon={Video} label="Em curso" value={cards.inProgress} intent="danger" />
-        <KpiCard icon={Clapperboard} label="Concluídas" value={cards.completed} intent="success" />
+        <KpiCard
+          icon={Calendar}
+          label="Agendadas"
+          value={cards.scheduled}
+          intent="info"
+        />
+        <KpiCard
+          icon={Video}
+          label="Em curso"
+          value={cards.inProgress}
+          intent="danger"
+        />
+        <KpiCard
+          icon={Clapperboard}
+          label="Concluídas"
+          value={cards.completed}
+          intent="success"
+        />
         <KpiCard label="Canceladas" value={cards.cancelled} intent="warning" />
         <KpiCard label="Hoje" value={cards.today} />
         <KpiCard label="Esta semana" value={cards.thisWeek} />
       </div>
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <KpiCard icon={Calendar} label="Próximas" value={cards.upcoming} intent="primary" />
-        <KpiCard icon={Users} label="Participantes" value={cards.totalParticipants} />
-        <KpiCard label="Presença média" value={`${cards.averageAttendancePercent}%`} intent="success" />
-        <KpiCard icon={Clock} label="Horas realizadas" value={cards.hoursDelivered} />
+        <KpiCard
+          icon={Calendar}
+          label="Próximas"
+          value={cards.upcoming}
+          intent="primary"
+        />
+        <KpiCard
+          icon={Users}
+          label="Participantes"
+          value={cards.totalParticipants}
+        />
+        <KpiCard
+          label="Presença média"
+          value={`${cards.averageAttendancePercent}%`}
+          intent="success"
+        />
+        <KpiCard
+          icon={Clock}
+          label="Horas realizadas"
+          value={cards.hoursDelivered}
+        />
       </div>
 
       <Card className="p-4">
-        <div className="mb-1 font-body text-xs text-ink-faint">Gravações disponíveis</div>
-        <div className="font-mono text-3xl font-bold text-ink">{cards.recordingsAvailable}</div>
+        <div className="mb-1 font-body text-xs text-ink-faint">
+          Gravações disponíveis
+        </div>
+        <div className="font-mono text-3xl font-bold text-ink">
+          {cards.recordingsAvailable}
+        </div>
       </Card>
 
       {data.byModality.length > 0 && (
@@ -62,9 +98,16 @@ export function DashboardView() {
             Aulas por modalidade
           </div>
           {data.byModality.map((m) => (
-            <div key={m.modality} className="flex items-center justify-between border-b border-border px-4 py-3 last:border-0">
-              <span className="font-body text-sm text-ink">{MODALITY_CFG[m.modality]?.label ?? m.modality}</span>
-              <span className="font-mono text-sm font-semibold text-ink">{m.count}</span>
+            <div
+              key={m.modality}
+              className="flex items-center justify-between border-b border-border px-4 py-3 last:border-0"
+            >
+              <span className="font-body text-sm text-ink">
+                {MODALITY_CFG[m.modality]?.label ?? m.modality}
+              </span>
+              <span className="font-mono text-sm font-semibold text-ink">
+                {m.count}
+              </span>
             </div>
           ))}
         </Card>
@@ -80,8 +123,12 @@ export function DashboardView() {
               key={i.instructorId ?? 'sem-formador'}
               className="flex items-center justify-between border-b border-border px-4 py-3 last:border-0"
             >
-              <span className="font-body text-sm text-ink">{i.instructorName}</span>
-              <span className="font-mono text-sm font-semibold text-ink">{i.count}</span>
+              <span className="font-body text-sm text-ink">
+                {i.instructorName}
+              </span>
+              <span className="font-mono text-sm font-semibold text-ink">
+                {i.count}
+              </span>
             </div>
           ))}
         </Card>

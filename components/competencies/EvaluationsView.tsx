@@ -45,17 +45,26 @@ const ALL = 'ALL';
 
 const HIERARCHY_LEVEL_ITEMS = [
   { value: ALL, label: 'Todos os níveis hierárquicos' },
-  ...Object.entries(POSITION_LEVEL_CFG).map(([value, cfg]) => ({ value, label: cfg.label })),
+  ...Object.entries(POSITION_LEVEL_CFG).map(([value, cfg]) => ({
+    value,
+    label: cfg.label,
+  })),
 ];
 
 const TYPE_ITEMS = [
   { value: ALL, label: 'Todos os tipos' },
-  ...Object.entries(EVALUATION_TYPE_LABELS).map(([value, label]) => ({ value, label })),
+  ...Object.entries(EVALUATION_TYPE_LABELS).map(([value, label]) => ({
+    value,
+    label,
+  })),
 ];
 
 const STATUS_ITEMS = [
   { value: ALL, label: 'Todos os estados' },
-  ...Object.entries(EVALUATION_STATUS_CFG).map(([value, cfg]) => ({ value, label: cfg.label })),
+  ...Object.entries(EVALUATION_STATUS_CFG).map(([value, cfg]) => ({
+    value,
+    label: cfg.label,
+  })),
 ];
 
 export function EvaluationsView() {
@@ -81,17 +90,21 @@ export function EvaluationsView() {
     userId: user?.id,
   };
 
-  const { data: rows, isLoading: loading } = useApiQuery<CompetencyEvaluation[]>(
-    queryKeys.competencies.evaluations(params),
-    '/competencies/evaluations',
-    { params, staleTime: STALE_TIME.DYNAMIC },
-  );
+  const { data: rows, isLoading: loading } = useApiQuery<
+    CompetencyEvaluation[]
+  >(queryKeys.competencies.evaluations(params), '/competencies/evaluations', {
+    params,
+    staleTime: STALE_TIME.DYNAMIC,
+  });
 
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap gap-2">
         <Select
-          items={[{ value: ALL, label: 'Todos os departamentos' }, ...departmentOptions]}
+          items={[
+            { value: ALL, label: 'Todos os departamentos' },
+            ...departmentOptions,
+          ]}
           value={departmentId}
           onValueChange={setDepartmentId}
         />
@@ -101,14 +114,25 @@ export function EvaluationsView() {
           onValueChange={setPositionId}
         />
         <Select
-          items={[{ value: ALL, label: 'Todas as competências' }, ...competencyOptions]}
+          items={[
+            { value: ALL, label: 'Todas as competências' },
+            ...competencyOptions,
+          ]}
           value={competencyId}
           onValueChange={setCompetencyId}
         />
-        <Select items={HIERARCHY_LEVEL_ITEMS} value={hierarchyLevel} onValueChange={setHierarchyLevel} />
+        <Select
+          items={HIERARCHY_LEVEL_ITEMS}
+          value={hierarchyLevel}
+          onValueChange={setHierarchyLevel}
+        />
         <Select items={TYPE_ITEMS} value={source} onValueChange={setSource} />
         <Select items={STATUS_ITEMS} value={status} onValueChange={setStatus} />
-        <UserFilterSearch selected={user} onChange={setUser} className="w-[220px]" />
+        <UserFilterSearch
+          selected={user}
+          onChange={setUser}
+          className="w-[220px]"
+        />
       </div>
 
       {loading ? (
@@ -151,21 +175,35 @@ export function EvaluationsView() {
                       size="sm"
                     />
                     <div>
-                      <p className="text-sm font-medium text-ink">{r.colaborador}</p>
+                      <p className="text-sm font-medium text-ink">
+                        {r.colaborador}
+                      </p>
                       <p className="text-[11px] text-ink-faint">
                         {r.departamento ?? '—'} · {r.cargo ?? '—'}
                       </p>
                     </div>
                   </div>
                 </TableCell>
-                <TableCell className="text-sm text-ink-muted">{r.avaliador ?? '—'}</TableCell>
+                <TableCell className="text-sm text-ink-muted">
+                  {r.avaliador ?? '—'}
+                </TableCell>
                 <TableCell>
                   <p className="text-sm text-ink">{r.competencia}</p>
-                  <StatusBadge value={r.categoria} map={CATEGORY_CFG} className="mt-0.5" />
+                  <StatusBadge
+                    value={r.categoria}
+                    map={CATEGORY_CFG}
+                    className="mt-0.5"
+                  />
                 </TableCell>
-                <TableCell className="text-xs text-ink-muted">{r.tipoAvaliacao}</TableCell>
-                <TableCell className="text-sm font-medium text-ink">{r.nivelObtido}</TableCell>
-                <TableCell className="text-sm text-ink-muted">{r.nivelEsperado ?? '—'}</TableCell>
+                <TableCell className="text-xs text-ink-muted">
+                  {r.tipoAvaliacao}
+                </TableCell>
+                <TableCell className="text-sm font-medium text-ink">
+                  {r.nivelObtido}
+                </TableCell>
+                <TableCell className="text-sm text-ink-muted">
+                  {r.nivelEsperado ?? '—'}
+                </TableCell>
                 <TableCell
                   className={
                     r.gap != null && r.gap > 0
@@ -181,14 +219,22 @@ export function EvaluationsView() {
                 <TableCell>
                   <StatusBadge value={r.estado} map={EVALUATION_STATUS_CFG} />
                 </TableCell>
-                <TableCell className="max-w-[180px] truncate text-xs text-ink-muted" title={r.comentarios ?? ''}>
+                <TableCell
+                  className="max-w-[180px] truncate text-xs text-ink-muted"
+                  title={r.comentarios ?? ''}
+                >
                   {r.comentarios ?? '—'}
                 </TableCell>
-                <TableCell className="max-w-[140px] truncate text-xs text-ink-muted" title={r.evidencias ?? ''}>
+                <TableCell
+                  className="max-w-[140px] truncate text-xs text-ink-muted"
+                  title={r.evidencias ?? ''}
+                >
                   {r.evidencias ?? '—'}
                 </TableCell>
                 <TableCell className="text-xs text-ink-faint">
-                  {r.proximaAvaliacao ? new Date(r.proximaAvaliacao).toLocaleDateString('pt') : '—'}
+                  {r.proximaAvaliacao
+                    ? new Date(r.proximaAvaliacao).toLocaleDateString('pt')
+                    : '—'}
                 </TableCell>
               </TableRow>
             ))}

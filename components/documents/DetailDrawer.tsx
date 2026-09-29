@@ -64,16 +64,18 @@ export function DetailDrawer({ doc, onClose, onDownload }: DetailDrawerProps) {
   const [showRejectReason, setShowRejectReason] = useState(false);
   const [rejectReason, setRejectReason] = useState('');
 
-  const { data: detail } = useApiQuery<Document & { versions: DocVersionRow[] }>(
-    queryKeys.documents.detail(doc.id),
-    `/documents/${doc.id}`,
-    { enabled: showHistory },
-  );
+  const { data: detail } = useApiQuery<
+    Document & { versions: DocVersionRow[] }
+  >(queryKeys.documents.detail(doc.id), `/documents/${doc.id}`, {
+    enabled: showHistory,
+  });
 
   const { data: pendingReads } = usePendingReads();
   const isPendingForMe = pendingReads.some((p) => p.id === doc.id);
   const { data: readStatus } = useReadStatus(
-    APPROVER_ROLES.includes(role ?? '') && doc.requiresReadConfirmation ? doc.id : null,
+    APPROVER_ROLES.includes(role ?? '') && doc.requiresReadConfirmation
+      ? doc.id
+      : null,
   );
 
   const workflow = useDocumentWorkflow();
@@ -105,10 +107,17 @@ export function DetailDrawer({ doc, onClose, onDownload }: DetailDrawerProps) {
               <h2 className="font-bold text-ink text-lg">{doc.title}</h2>
               <div className="mt-1.5 flex flex-wrap gap-1.5">
                 {catCfg && <Badge intent={catCfg.intent}>{catCfg.label}</Badge>}
-                {statusCfg && <Badge intent={statusCfg.intent}>{statusCfg.label}</Badge>}
+                {statusCfg && (
+                  <Badge intent={statusCfg.intent}>{statusCfg.label}</Badge>
+                )}
               </div>
             </div>
-            <IconButton icon={X} label="Fechar" intent="ghost" onClick={onClose} />
+            <IconButton
+              icon={X}
+              label="Fechar"
+              intent="ghost"
+              onClick={onClose}
+            />
           </div>
         </div>
 
@@ -133,7 +142,8 @@ export function DetailDrawer({ doc, onClose, onDownload }: DetailDrawerProps) {
             <div className="rounded-card border border-border bg-surface-sunken p-3 text-sm">
               <p className="text-ink-muted mb-1">Confirmação de leitura</p>
               <p className="font-semibold text-ink">
-                {readStatus.confirmedCount} / {readStatus.totalRequired} ({readStatus.percentage}%)
+                {readStatus.confirmedCount} / {readStatus.totalRequired} (
+                {readStatus.percentage}%)
               </p>
               {readStatus.pendingCount > 0 && (
                 <p className="mt-1 text-xs text-ink-faint">
@@ -220,7 +230,9 @@ export function DetailDrawer({ doc, onClose, onDownload }: DetailDrawerProps) {
                   <Button
                     size="sm"
                     intent="secondary"
-                    onClick={() => workflow.mutate({ id: doc.id, action: 'submit-review' })}
+                    onClick={() =>
+                      workflow.mutate({ id: doc.id, action: 'submit-review' })
+                    }
                   >
                     Enviar para revisão
                   </Button>
@@ -229,7 +241,9 @@ export function DetailDrawer({ doc, onClose, onDownload }: DetailDrawerProps) {
                   <Button
                     size="sm"
                     intent="secondary"
-                    onClick={() => workflow.mutate({ id: doc.id, action: 'submit-approval' })}
+                    onClick={() =>
+                      workflow.mutate({ id: doc.id, action: 'submit-approval' })
+                    }
                   >
                     Enviar para aprovação
                   </Button>
@@ -238,7 +252,9 @@ export function DetailDrawer({ doc, onClose, onDownload }: DetailDrawerProps) {
                   <>
                     <Button
                       size="sm"
-                      onClick={() => workflow.mutate({ id: doc.id, action: 'approve' })}
+                      onClick={() =>
+                        workflow.mutate({ id: doc.id, action: 'approve' })
+                      }
                     >
                       Aprovar
                     </Button>
@@ -254,7 +270,9 @@ export function DetailDrawer({ doc, onClose, onDownload }: DetailDrawerProps) {
                 {doc.status === 'APROVADO' && (
                   <Button
                     size="sm"
-                    onClick={() => workflow.mutate({ id: doc.id, action: 'publish' })}
+                    onClick={() =>
+                      workflow.mutate({ id: doc.id, action: 'publish' })
+                    }
                   >
                     Publicar
                   </Button>
@@ -263,7 +281,9 @@ export function DetailDrawer({ doc, onClose, onDownload }: DetailDrawerProps) {
                   <Button
                     size="sm"
                     intent="secondary"
-                    onClick={() => workflow.mutate({ id: doc.id, action: 'suspend' })}
+                    onClick={() =>
+                      workflow.mutate({ id: doc.id, action: 'suspend' })
+                    }
                   >
                     Suspender
                   </Button>
@@ -271,7 +291,9 @@ export function DetailDrawer({ doc, onClose, onDownload }: DetailDrawerProps) {
                 {doc.status === 'SUSPENSO' && (
                   <Button
                     size="sm"
-                    onClick={() => workflow.mutate({ id: doc.id, action: 'publish' })}
+                    onClick={() =>
+                      workflow.mutate({ id: doc.id, action: 'publish' })
+                    }
                   >
                     Republicar
                   </Button>
@@ -306,13 +328,19 @@ export function DetailDrawer({ doc, onClose, onDownload }: DetailDrawerProps) {
             <Button onClick={() => onDownload(doc)}>
               <Download size={15} strokeWidth={1.75} /> Download
             </Button>
-            <Button intent="secondary" onClick={() => toggleFavorite.mutate(doc.id)}>
+            <Button
+              intent="secondary"
+              onClick={() => toggleFavorite.mutate(doc.id)}
+            >
               <Star size={15} strokeWidth={1.75} /> Favorito
             </Button>
             <Button intent="secondary">
               <Share2 size={15} strokeWidth={1.75} /> Partilhar
             </Button>
-            <Button intent="secondary" onClick={() => setShowHistory((s) => !s)}>
+            <Button
+              intent="secondary"
+              onClick={() => setShowHistory((s) => !s)}
+            >
               <History size={15} strokeWidth={1.75} /> Histórico de versões
               {showHistory ? (
                 <ChevronUp size={14} strokeWidth={1.75} />
@@ -325,17 +353,24 @@ export function DetailDrawer({ doc, onClose, onDownload }: DetailDrawerProps) {
                 {!detail ? (
                   <p className="text-xs text-ink-faint">A carregar…</p>
                 ) : detail.versions.length === 0 ? (
-                  <p className="text-xs text-ink-faint">Sem histórico de versões.</p>
+                  <p className="text-xs text-ink-faint">
+                    Sem histórico de versões.
+                  </p>
                 ) : (
                   detail.versions.map((v) => (
-                    <div key={v.id} className="text-xs border-b border-border last:border-0 pb-2">
+                    <div
+                      key={v.id}
+                      className="text-xs border-b border-border last:border-0 pb-2"
+                    >
                       <div className="flex justify-between font-medium text-ink">
                         <span>v{v.versionNumber}.0</span>
                         <span className="text-ink-faint">
                           {new Date(v.createdAt).toLocaleDateString('pt-PT')}
                         </span>
                       </div>
-                      <p className="text-ink-muted mt-0.5">{v.changeDescription}</p>
+                      <p className="text-ink-muted mt-0.5">
+                        {v.changeDescription}
+                      </p>
                     </div>
                   ))
                 )}

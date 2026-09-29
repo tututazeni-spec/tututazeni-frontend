@@ -91,7 +91,8 @@ export function ListView({ onSelect }: ListViewProps) {
           intent="secondary"
           size="sm"
           onClick={() => {
-            const monthParam = exportMonth === 'ALL' ? '' : `&month=${exportMonth}`;
+            const monthParam =
+              exportMonth === 'ALL' ? '' : `&month=${exportMonth}`;
             window.open(
               `${API_BASE}/payslips/my/annual-summary/export?year=${year}${monthParam}&format=pdf`,
               '_blank',

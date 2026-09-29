@@ -33,31 +33,31 @@
 
 ### PR 1 — backend (`innova`)
 
-| File | Responsibility |
-|---|---|
-| `src/payslips/payslips.dto.ts` (modify) | + `DisputeFilterDto`, `ResolveDisputeDto` |
-| `src/payslips/payslips.service.ts` (modify) | + `listDisputes(filters)`, `resolveDispute(id, dto)`; `findOne` includes `disputes`; `getAccessLogs` includes `user` |
-| `src/payslips/payslips.controller.ts` (modify) | + `GET /payslips/disputes`, `PATCH /payslips/disputes/:id/resolve` (both before `@Get(':id')`) |
-| `test/integration/payslips/payslips.integration-spec.ts` (modify) | + `describe('Disputas (RH) — listagem e resolução')`; + assertions on `disputes`/`user` includes |
+| File                                                              | Responsibility                                                                                                       |
+| ----------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| `src/payslips/payslips.dto.ts` (modify)                           | + `DisputeFilterDto`, `ResolveDisputeDto`                                                                            |
+| `src/payslips/payslips.service.ts` (modify)                       | + `listDisputes(filters)`, `resolveDispute(id, dto)`; `findOne` includes `disputes`; `getAccessLogs` includes `user` |
+| `src/payslips/payslips.controller.ts` (modify)                    | + `GET /payslips/disputes`, `PATCH /payslips/disputes/:id/resolve` (both before `@Get(':id')`)                       |
+| `test/integration/payslips/payslips.integration-spec.ts` (modify) | + `describe('Disputas (RH) — listagem e resolução')`; + assertions on `disputes`/`user` includes                     |
 
 ### PR 2 — frontend (`innova/frontend`)
 
-| File | Responsibility |
-|---|---|
-| `components/payroll/types.ts` (modify) | + `AdminPayslip`, `PayslipDispute`, `PayslipAccessLog`, `DisputeStatus`, `HrDashboard`, `DISPUTE_STATUS_MAP` |
-| `lib/queryKeys.ts` (modify) | + `payslips.adminList/adminDetail/accessLogs/dashboard/disputes` |
-| `components/payslips/PayslipAmountBreakdown.tsx` (create) | Presentational money breakdown (rem./ded./líquido), extracted from `PayslipDetailView` |
-| `components/payslips/PayslipDetailView.tsx` (modify) | Composes `<PayslipAmountBreakdown>` instead of inline markup |
-| `components/payroll/PayslipListView.tsx` (create) | Paginated all-payslips table + filters + "Emitir" row action + "+ Novo recibo" |
-| `components/payroll/CreatePayslipModal.tsx` (create) | `POST /payslips` form with employee picker |
-| `components/payroll/EditPayslipModal.tsx` (create) | `PUT /payslips/:id` form (DRAFT-reversion warning) |
-| `components/payroll/AccessLogsPanel.tsx` (create) | Read-only access-log table for one payslip |
-| `components/payroll/AdminPayslipDetailView.tsx` (create) | Header + status-conditioned action bar + breakdown + disputes section + access-logs panel |
-| `components/payroll/HrDashboardView.tsx` (create) | `GET /payslips/dashboard` KPI groups |
-| `components/payroll/ResolveDisputeModal.tsx` (create) | `PATCH /payslips/disputes/:id/resolve` (resolution + opt-in reissue) |
-| `components/payroll/DisputesView.tsx` (create) | Paginated disputes table + status filter + resolve action |
-| `app/(platform)/payroll/page.tsx` (modify) | Tab strip `Runs · Recibos · Dashboard · Disputas` + discriminated `Nav` |
-| `components/payroll/*.test.tsx`, `components/payslips/PayslipAmountBreakdown.test.tsx` | one test file per component above |
+| File                                                                                   | Responsibility                                                                                               |
+| -------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| `components/payroll/types.ts` (modify)                                                 | + `AdminPayslip`, `PayslipDispute`, `PayslipAccessLog`, `DisputeStatus`, `HrDashboard`, `DISPUTE_STATUS_MAP` |
+| `lib/queryKeys.ts` (modify)                                                            | + `payslips.adminList/adminDetail/accessLogs/dashboard/disputes`                                             |
+| `components/payslips/PayslipAmountBreakdown.tsx` (create)                              | Presentational money breakdown (rem./ded./líquido), extracted from `PayslipDetailView`                       |
+| `components/payslips/PayslipDetailView.tsx` (modify)                                   | Composes `<PayslipAmountBreakdown>` instead of inline markup                                                 |
+| `components/payroll/PayslipListView.tsx` (create)                                      | Paginated all-payslips table + filters + "Emitir" row action + "+ Novo recibo"                               |
+| `components/payroll/CreatePayslipModal.tsx` (create)                                   | `POST /payslips` form with employee picker                                                                   |
+| `components/payroll/EditPayslipModal.tsx` (create)                                     | `PUT /payslips/:id` form (DRAFT-reversion warning)                                                           |
+| `components/payroll/AccessLogsPanel.tsx` (create)                                      | Read-only access-log table for one payslip                                                                   |
+| `components/payroll/AdminPayslipDetailView.tsx` (create)                               | Header + status-conditioned action bar + breakdown + disputes section + access-logs panel                    |
+| `components/payroll/HrDashboardView.tsx` (create)                                      | `GET /payslips/dashboard` KPI groups                                                                         |
+| `components/payroll/ResolveDisputeModal.tsx` (create)                                  | `PATCH /payslips/disputes/:id/resolve` (resolution + opt-in reissue)                                         |
+| `components/payroll/DisputesView.tsx` (create)                                         | Paginated disputes table + status filter + resolve action                                                    |
+| `app/(platform)/payroll/page.tsx` (modify)                                             | Tab strip `Runs · Recibos · Dashboard · Disputas` + discriminated `Nav`                                      |
+| `components/payroll/*.test.tsx`, `components/payslips/PayslipAmountBreakdown.test.tsx` | one test file per component above                                                                            |
 
 ---
 
@@ -70,12 +70,14 @@
 ### Task 1: `GET /payslips/disputes` — list disputes (Admin/RH)
 
 **Files:**
+
 - Modify: `src/payslips/payslips.dto.ts`
 - Modify: `src/payslips/payslips.service.ts`
 - Modify: `src/payslips/payslips.controller.ts`
 - Test: `test/integration/payslips/payslips.integration-spec.ts`
 
 **Interfaces:**
+
 - Consumes: `BaseFilterDto` (`src/common/dtos/pagination.dto.ts`), `calculatePagination` + `buildPaginatedResponse` (`src/common/helpers/pagination.helper.ts`), `DisputeStatus` enum (`@prisma/client`).
 - Produces: `PayslipsService.listDisputes(filters: DisputeFilterDto): Promise<PaginatedResponse<PayslipDispute & { payslip, user }>>`; route `GET /payslips/disputes`.
 
@@ -84,57 +86,60 @@
 Append this `describe` block inside `test/integration/payslips/payslips.integration-spec.ts`, immediately after the existing `describe('Administração (RH) — listagem, dashboard, logs', ...)` block (still inside the top-level `describe('Payslips Integration', ...)`):
 
 ```ts
-  describe('Disputas (RH) — listagem e resolução', () => {
-    let disputePayslipId: number;
-    let disputeId: number;
+describe('Disputas (RH) — listagem e resolução', () => {
+  let disputePayslipId: number;
+  let disputeId: number;
 
-    beforeAll(async () => {
-      const created = await request(app.getHttpServer())
-        .post('/payslips')
-        .set('Authorization', `Bearer ${rhToken}`)
-        .send({
-          userId: otherEmployeeId,
-          period: '2026-06',
-          paymentDate: '2026-06-25',
-          baseSalary: 200000,
-        })
-        .expect(201);
-      disputePayslipId = created.body.id;
+  beforeAll(async () => {
+    const created = await request(app.getHttpServer())
+      .post('/payslips')
+      .set('Authorization', `Bearer ${rhToken}`)
+      .send({
+        userId: otherEmployeeId,
+        period: '2026-06',
+        paymentDate: '2026-06-25',
+        baseSalary: 200000,
+      })
+      .expect(201);
+    disputePayslipId = created.body.id;
 
-      await request(app.getHttpServer())
-        .patch(`/payslips/${disputePayslipId}/issue`)
-        .set('Authorization', `Bearer ${rhToken}`)
-        .expect(200);
+    await request(app.getHttpServer())
+      .patch(`/payslips/${disputePayslipId}/issue`)
+      .set('Authorization', `Bearer ${rhToken}`)
+      .expect(200);
 
-      const opened = await request(app.getHttpServer())
-        .post(`/payslips/my/${disputePayslipId}/dispute`)
-        .set('Authorization', `Bearer ${otherEmployeeToken}`)
-        .send({ reason: 'IRT mal calculado', details: 'Escalão errado' })
-        .expect(201);
-      disputeId = opened.body.id;
-    });
-
-    it('colaborador não pode listar disputas → 403', async () => {
-      await request(app.getHttpServer())
-        .get('/payslips/disputes')
-        .set('Authorization', `Bearer ${otherEmployeeToken}`)
-        .expect(403);
-    });
-
-    it('RH lista disputas abertas com recibo e colaborador incluídos → 200', async () => {
-      const res = await request(app.getHttpServer())
-        .get('/payslips/disputes?status=OPEN')
-        .set('Authorization', `Bearer ${rhToken}`)
-        .expect(200);
-      expect(res.body).toHaveProperty('data');
-      expect(res.body).toHaveProperty('meta.totalPages');
-      const row = res.body.data.find((d: any) => d.id === disputeId);
-      expect(row).toBeDefined();
-      expect(row.status).toBe('OPEN');
-      expect(row.payslip).toMatchObject({ id: disputePayslipId, period: '2026-06' });
-      expect(row.user).toMatchObject({ id: otherEmployeeId });
-    });
+    const opened = await request(app.getHttpServer())
+      .post(`/payslips/my/${disputePayslipId}/dispute`)
+      .set('Authorization', `Bearer ${otherEmployeeToken}`)
+      .send({ reason: 'IRT mal calculado', details: 'Escalão errado' })
+      .expect(201);
+    disputeId = opened.body.id;
   });
+
+  it('colaborador não pode listar disputas → 403', async () => {
+    await request(app.getHttpServer())
+      .get('/payslips/disputes')
+      .set('Authorization', `Bearer ${otherEmployeeToken}`)
+      .expect(403);
+  });
+
+  it('RH lista disputas abertas com recibo e colaborador incluídos → 200', async () => {
+    const res = await request(app.getHttpServer())
+      .get('/payslips/disputes?status=OPEN')
+      .set('Authorization', `Bearer ${rhToken}`)
+      .expect(200);
+    expect(res.body).toHaveProperty('data');
+    expect(res.body).toHaveProperty('meta.totalPages');
+    const row = res.body.data.find((d: any) => d.id === disputeId);
+    expect(row).toBeDefined();
+    expect(row.status).toBe('OPEN');
+    expect(row.payslip).toMatchObject({
+      id: disputePayslipId,
+      period: '2026-06',
+    });
+    expect(row.user).toMatchObject({ id: otherEmployeeId });
+  });
+});
 ```
 
 - [ ] **Step 2: Run test to verify it fails**
@@ -238,12 +243,14 @@ git commit -m "$(printf 'feat(payslips): GET /payslips/disputes — admin disput
 ### Task 2: `PATCH /payslips/disputes/:id/resolve` — resolve a dispute (opt-in reissue)
 
 **Files:**
+
 - Modify: `src/payslips/payslips.dto.ts`
 - Modify: `src/payslips/payslips.service.ts`
 - Modify: `src/payslips/payslips.controller.ts`
 - Test: `test/integration/payslips/payslips.integration-spec.ts`
 
 **Interfaces:**
+
 - Consumes: `createNotificationSafe` (`src/common/helpers/notification.helper.ts`), `ConflictException`/`NotFoundException` (`@nestjs/common`, already imported).
 - Produces: `PayslipsService.resolveDispute(id: number, dto: ResolveDisputeDto): Promise<PayslipDispute & { payslip }>`; route `PATCH /payslips/disputes/:id/resolve`.
 
@@ -252,71 +259,71 @@ git commit -m "$(printf 'feat(payslips): GET /payslips/disputes — admin disput
 Add these `it` blocks inside the `describe('Disputas (RH) — listagem e resolução')` block from Task 1 (after the list test):
 
 ```ts
-    it('resolver sem reissue → disputa RESOLVED, recibo continua DISPUTED', async () => {
-      const res = await request(app.getHttpServer())
-        .patch(`/payslips/disputes/${disputeId}/resolve`)
-        .set('Authorization', `Bearer ${rhToken}`)
-        .send({ resolution: 'Recalculado manualmente, sem alteração.' })
-        .expect(200);
-      expect(res.body.status).toBe('RESOLVED');
-      expect(res.body.resolvedAt).toBeTruthy();
+it('resolver sem reissue → disputa RESOLVED, recibo continua DISPUTED', async () => {
+  const res = await request(app.getHttpServer())
+    .patch(`/payslips/disputes/${disputeId}/resolve`)
+    .set('Authorization', `Bearer ${rhToken}`)
+    .send({ resolution: 'Recalculado manualmente, sem alteração.' })
+    .expect(200);
+  expect(res.body.status).toBe('RESOLVED');
+  expect(res.body.resolvedAt).toBeTruthy();
 
-      const detail = await request(app.getHttpServer())
-        .get(`/payslips/${disputePayslipId}`)
-        .set('Authorization', `Bearer ${rhToken}`)
-        .expect(200);
-      expect(detail.body.status).toBe('DISPUTED');
-    });
+  const detail = await request(app.getHttpServer())
+    .get(`/payslips/${disputePayslipId}`)
+    .set('Authorization', `Bearer ${rhToken}`)
+    .expect(200);
+  expect(detail.body.status).toBe('DISPUTED');
+});
 
-    it('resolver disputa já RESOLVED → 409', async () => {
-      await request(app.getHttpServer())
-        .patch(`/payslips/disputes/${disputeId}/resolve`)
-        .set('Authorization', `Bearer ${rhToken}`)
-        .send({ resolution: 'de novo' })
-        .expect(409);
-    });
+it('resolver disputa já RESOLVED → 409', async () => {
+  await request(app.getHttpServer())
+    .patch(`/payslips/disputes/${disputeId}/resolve`)
+    .set('Authorization', `Bearer ${rhToken}`)
+    .send({ resolution: 'de novo' })
+    .expect(409);
+});
 
-    it('resolution vazio → 400', async () => {
-      const second = await request(app.getHttpServer())
-        .post(`/payslips/my/${disputePayslipId}/dispute`)
-        .set('Authorization', `Bearer ${otherEmployeeToken}`)
-        .send({ reason: 'segunda disputa' })
-        .expect(201);
-      await request(app.getHttpServer())
-        .patch(`/payslips/disputes/${second.body.id}/resolve`)
-        .set('Authorization', `Bearer ${rhToken}`)
-        .send({ resolution: '' })
-        .expect(400);
-    });
+it('resolution vazio → 400', async () => {
+  const second = await request(app.getHttpServer())
+    .post(`/payslips/my/${disputePayslipId}/dispute`)
+    .set('Authorization', `Bearer ${otherEmployeeToken}`)
+    .send({ reason: 'segunda disputa' })
+    .expect(201);
+  await request(app.getHttpServer())
+    .patch(`/payslips/disputes/${second.body.id}/resolve`)
+    .set('Authorization', `Bearer ${rhToken}`)
+    .send({ resolution: '' })
+    .expect(400);
+});
 
-    it('resolver com reissue → disputa RESOLVED e recibo volta a ISSUED', async () => {
-      const open = await request(app.getHttpServer())
-        .get('/payslips/disputes?status=OPEN')
-        .set('Authorization', `Bearer ${rhToken}`)
-        .expect(200);
-      const pending = open.body.data.find(
-        (d: any) => d.payslip.id === disputePayslipId,
-      );
-      await request(app.getHttpServer())
-        .patch(`/payslips/disputes/${pending.id}/resolve`)
-        .set('Authorization', `Bearer ${rhToken}`)
-        .send({ resolution: 'Corrigido e reemitido.', reissue: true })
-        .expect(200);
+it('resolver com reissue → disputa RESOLVED e recibo volta a ISSUED', async () => {
+  const open = await request(app.getHttpServer())
+    .get('/payslips/disputes?status=OPEN')
+    .set('Authorization', `Bearer ${rhToken}`)
+    .expect(200);
+  const pending = open.body.data.find(
+    (d: any) => d.payslip.id === disputePayslipId,
+  );
+  await request(app.getHttpServer())
+    .patch(`/payslips/disputes/${pending.id}/resolve`)
+    .set('Authorization', `Bearer ${rhToken}`)
+    .send({ resolution: 'Corrigido e reemitido.', reissue: true })
+    .expect(200);
 
-      const detail = await request(app.getHttpServer())
-        .get(`/payslips/${disputePayslipId}`)
-        .set('Authorization', `Bearer ${rhToken}`)
-        .expect(200);
-      expect(detail.body.status).toBe('ISSUED');
-    });
+  const detail = await request(app.getHttpServer())
+    .get(`/payslips/${disputePayslipId}`)
+    .set('Authorization', `Bearer ${rhToken}`)
+    .expect(200);
+  expect(detail.body.status).toBe('ISSUED');
+});
 
-    it('colaborador não pode resolver → 403', async () => {
-      await request(app.getHttpServer())
-        .patch(`/payslips/disputes/999999/resolve`)
-        .set('Authorization', `Bearer ${otherEmployeeToken}`)
-        .send({ resolution: 'x' })
-        .expect(403);
-    });
+it('colaborador não pode resolver → 403', async () => {
+  await request(app.getHttpServer())
+    .patch(`/payslips/disputes/999999/resolve`)
+    .set('Authorization', `Bearer ${otherEmployeeToken}`)
+    .send({ resolution: 'x' })
+    .expect(403);
+});
 ```
 
 - [ ] **Step 2: Run tests to verify they fail**
@@ -335,7 +342,9 @@ export class ResolveDisputeDto {
   @MinLength(1)
   resolution: string;
 
-  @ApiPropertyOptional({ description: 'Se true e o recibo está DISPUTED, volta a ISSUED' })
+  @ApiPropertyOptional({
+    description: 'Se true e o recibo está DISPUTED, volta a ISSUED',
+  })
   @IsOptional()
   @IsBoolean()
   reissue?: boolean;
@@ -417,10 +426,12 @@ git commit -m "$(printf 'feat(payslips): PATCH /payslips/disputes/:id/resolve �
 ### Task 3: `findOne` includes `disputes`; `getAccessLogs` includes `user`
 
 **Files:**
+
 - Modify: `src/payslips/payslips.service.ts`
 - Test: `test/integration/payslips/payslips.integration-spec.ts`
 
 **Interfaces:**
+
 - Produces: `PayslipsService.findOne` return value now has `disputes: PayslipDispute[]`; `getAccessLogs` rows now have `user: { id, fullName }`.
 
 - [ ] **Step 1: Write the failing assertions**
@@ -428,22 +439,22 @@ git commit -m "$(printf 'feat(payslips): PATCH /payslips/disputes/:id/resolve �
 Add to the `describe('Administração (RH) — listagem, dashboard, logs')` block:
 
 ```ts
-    it('detalhe de recibo inclui as disputas → 200', async () => {
-      const res = await request(app.getHttpServer())
-        .get(`/payslips/${payslipId}`)
-        .set('Authorization', `Bearer ${rhToken}`)
-        .expect(200);
-      expect(Array.isArray(res.body.disputes)).toBe(true);
-    });
+it('detalhe de recibo inclui as disputas → 200', async () => {
+  const res = await request(app.getHttpServer())
+    .get(`/payslips/${payslipId}`)
+    .set('Authorization', `Bearer ${rhToken}`)
+    .expect(200);
+  expect(Array.isArray(res.body.disputes)).toBe(true);
+});
 
-    it('logs de acesso incluem o nome de quem acedeu → 200', async () => {
-      const res = await request(app.getHttpServer())
-        .get(`/payslips/${payslipId}/access-logs`)
-        .set('Authorization', `Bearer ${rhToken}`)
-        .expect(200);
-      expect(res.body.length).toBeGreaterThan(0);
-      expect(res.body[0].user).toHaveProperty('fullName');
-    });
+it('logs de acesso incluem o nome de quem acedeu → 200', async () => {
+  const res = await request(app.getHttpServer())
+    .get(`/payslips/${payslipId}/access-logs`)
+    .set('Authorization', `Bearer ${rhToken}`)
+    .expect(200);
+  expect(res.body.length).toBeGreaterThan(0);
+  expect(res.body[0].user).toHaveProperty('fullName');
+});
 ```
 
 - [ ] **Step 2: Run to verify they fail**
@@ -499,11 +510,13 @@ Poll `gh pr checks --watch`. When `quality` is green, squash-merge (`gh pr merge
 ### Task 4: Types + query keys
 
 **Files:**
+
 - Modify: `components/payroll/types.ts`
 - Modify: `lib/queryKeys.ts`
 - Test: `components/payroll/types.test.ts` (modify)
 
 **Interfaces:**
+
 - Produces:
   - `AdminPayslip = Payslip & { disputes: PayslipDispute[]; run?: { id: number; status: string } | null }`
   - `interface PayslipDispute { id; payslipId; userId; reason; details: string|null; status: DisputeStatus; createdAt; resolvedAt: string|null; resolution: string|null; user?: { id; fullName; employeeNumber: string|null }; payslip?: { id; receiptCode: string|null; period; userId; status: PayslipStatus } }`
@@ -528,11 +541,19 @@ test('DISPUTE_STATUS_MAP covers both statuses', () => {
 
 test('payslips admin query keys are prefixed and distinct', () => {
   expect(queryKeys.payslips.adminList({ page: 1 })).toEqual([
-    'payslips', 'admin-list', { page: 1 },
+    'payslips',
+    'admin-list',
+    { page: 1 },
   ]);
-  expect(queryKeys.payslips.adminDetail(7)).toEqual(['payslips', 'admin-detail', 7]);
+  expect(queryKeys.payslips.adminDetail(7)).toEqual([
+    'payslips',
+    'admin-detail',
+    7,
+  ]);
   expect(queryKeys.payslips.disputes({ status: 'OPEN' })).toEqual([
-    'payslips', 'disputes', { status: 'OPEN' },
+    'payslips',
+    'disputes',
+    { status: 'OPEN' },
   ]);
 });
 ```
@@ -649,11 +670,13 @@ git commit -m "$(printf 'feat(payslips): admin types + query keys for payslip ma
 ### Task 5: Extract `PayslipAmountBreakdown` from `PayslipDetailView`
 
 **Files:**
+
 - Create: `components/payslips/PayslipAmountBreakdown.tsx`
 - Modify: `components/payslips/PayslipDetailView.tsx`
 - Test: `components/payslips/PayslipAmountBreakdown.test.tsx`
 
 **Interfaces:**
+
 - Produces: `PayslipAmountBreakdown({ payslip }: { payslip: PayslipAmountBreakdownProps['payslip'] })` — a pure presentational component rendering the Remunerações / Deduções / Resumo final block. No callbacks, no fetch.
 - Consumes: `formatKz` from `@/lib/format`.
 
@@ -668,14 +691,33 @@ import { PayslipAmountBreakdown } from './PayslipAmountBreakdown';
 import type { Payslip } from './types';
 
 const base: Payslip = {
-  id: 1, receiptCode: 'REC-1', period: '2026-06', paymentDate: '2026-06-25',
-  netSalary: 180000, grossSalary: 250000, baseSalary: 250000,
-  mealAllowance: 0, vacationAllowance: 0, christmasAllowance: 0,
-  overtime: 0, bonuses: 0, otherAllowances: 0,
-  incomeTax: 40000, socialSecurity: 7500, employerInss: 20000,
-  healthInsurance: 0, loanDeduction: 0, advanceDeduction: 0, otherDeductions: 0,
-  totalDeductions: 70000, irtBracketRate: 0.13, irtFormula: null,
-  status: 'ISSUED', issuedAt: null, acknowledgedAt: null, notes: null,
+  id: 1,
+  receiptCode: 'REC-1',
+  period: '2026-06',
+  paymentDate: '2026-06-25',
+  netSalary: 180000,
+  grossSalary: 250000,
+  baseSalary: 250000,
+  mealAllowance: 0,
+  vacationAllowance: 0,
+  christmasAllowance: 0,
+  overtime: 0,
+  bonuses: 0,
+  otherAllowances: 0,
+  incomeTax: 40000,
+  socialSecurity: 7500,
+  employerInss: 20000,
+  healthInsurance: 0,
+  loanDeduction: 0,
+  advanceDeduction: 0,
+  otherDeductions: 0,
+  totalDeductions: 70000,
+  irtBracketRate: 0.13,
+  irtFormula: null,
+  status: 'ISSUED',
+  issuedAt: null,
+  acknowledgedAt: null,
+  notes: null,
 };
 
 describe('PayslipAmountBreakdown', () => {
@@ -688,11 +730,15 @@ describe('PayslipAmountBreakdown', () => {
 
   test('hides optional earning rows when zero', () => {
     render(<PayslipAmountBreakdown payslip={base} />);
-    expect(screen.queryByText(/Subsídio de alimentação/i)).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(/Subsídio de alimentação/i),
+    ).not.toBeInTheDocument();
   });
 
   test('shows an optional earning row when > 0', () => {
-    render(<PayslipAmountBreakdown payslip={{ ...base, mealAllowance: 15000 }} />);
+    render(
+      <PayslipAmountBreakdown payslip={{ ...base, mealAllowance: 15000 }} />,
+    );
     expect(screen.getByText(/Subsídio de alimentação/i)).toBeInTheDocument();
   });
 });
@@ -720,11 +766,24 @@ import type { Payslip } from './types';
 export interface PayslipAmountBreakdownProps {
   payslip: Pick<
     Payslip,
-    | 'baseSalary' | 'mealAllowance' | 'vacationAllowance' | 'christmasAllowance'
-    | 'overtime' | 'bonuses' | 'otherAllowances' | 'grossSalary'
-    | 'incomeTax' | 'socialSecurity' | 'employerInss' | 'healthInsurance'
-    | 'loanDeduction' | 'advanceDeduction' | 'otherDeductions'
-    | 'totalDeductions' | 'netSalary' | 'irtBracketRate'
+    | 'baseSalary'
+    | 'mealAllowance'
+    | 'vacationAllowance'
+    | 'christmasAllowance'
+    | 'overtime'
+    | 'bonuses'
+    | 'otherAllowances'
+    | 'grossSalary'
+    | 'incomeTax'
+    | 'socialSecurity'
+    | 'employerInss'
+    | 'healthInsurance'
+    | 'loanDeduction'
+    | 'advanceDeduction'
+    | 'otherDeductions'
+    | 'totalDeductions'
+    | 'netSalary'
+    | 'irtBracketRate'
   >;
 }
 
@@ -740,7 +799,9 @@ function SalaryRow({ label, amount, type = 'neutral', sub }: SalaryRowProps) {
     <div className="flex items-baseline justify-between border-b border-border py-1.5 last:border-0">
       <div>
         <span className="font-body text-sm text-ink-muted">{label}</span>
-        {sub && <span className="ml-2 font-body text-xs text-ink-faint">{sub}</span>}
+        {sub && (
+          <span className="ml-2 font-body text-xs text-ink-faint">{sub}</span>
+        )}
       </div>
       <span
         className={`font-mono text-sm font-medium ${
@@ -758,7 +819,9 @@ function SalaryRow({ label, amount, type = 'neutral', sub }: SalaryRowProps) {
   );
 }
 
-export function PayslipAmountBreakdown({ payslip: data }: PayslipAmountBreakdownProps) {
+export function PayslipAmountBreakdown({
+  payslip: data,
+}: PayslipAmountBreakdownProps) {
   const irtSub =
     data.irtBracketRate !== null
       ? `${((data.irtBracketRate ?? 0) * 100).toFixed(0)}%`
@@ -773,25 +836,51 @@ export function PayslipAmountBreakdown({ payslip: data }: PayslipAmountBreakdown
           </div>
           <SalaryRow label="Salário base" amount={data.baseSalary} />
           {data.mealAllowance > 0 && (
-            <SalaryRow label="Subsídio de alimentação" amount={data.mealAllowance} type="positive" />
+            <SalaryRow
+              label="Subsídio de alimentação"
+              amount={data.mealAllowance}
+              type="positive"
+            />
           )}
           {data.vacationAllowance > 0 && (
-            <SalaryRow label="Subsídio de férias" amount={data.vacationAllowance} type="positive" />
+            <SalaryRow
+              label="Subsídio de férias"
+              amount={data.vacationAllowance}
+              type="positive"
+            />
           )}
           {data.christmasAllowance > 0 && (
-            <SalaryRow label="Subsídio de Natal" amount={data.christmasAllowance} type="positive" />
+            <SalaryRow
+              label="Subsídio de Natal"
+              amount={data.christmasAllowance}
+              type="positive"
+            />
           )}
           {data.overtime > 0 && (
-            <SalaryRow label="Horas extras" amount={data.overtime} type="positive" />
+            <SalaryRow
+              label="Horas extras"
+              amount={data.overtime}
+              type="positive"
+            />
           )}
           {data.bonuses > 0 && (
-            <SalaryRow label="Prémios / Comissões" amount={data.bonuses} type="positive" />
+            <SalaryRow
+              label="Prémios / Comissões"
+              amount={data.bonuses}
+              type="positive"
+            />
           )}
           {data.otherAllowances > 0 && (
-            <SalaryRow label="Outros subsídios" amount={data.otherAllowances} type="positive" />
+            <SalaryRow
+              label="Outros subsídios"
+              amount={data.otherAllowances}
+              type="positive"
+            />
           )}
           <div className="mt-1 flex items-baseline justify-between py-2">
-            <span className="font-body text-sm font-medium text-ink">Total bruto</span>
+            <span className="font-body text-sm font-medium text-ink">
+              Total bruto
+            </span>
             <span className="font-mono text-sm font-semibold text-ink">
               {fmtKz(data.grossSalary)}
             </span>
@@ -801,22 +890,49 @@ export function PayslipAmountBreakdown({ payslip: data }: PayslipAmountBreakdown
           <div className="mb-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
             Deduções
           </div>
-          <SalaryRow label="IRT" amount={data.incomeTax} type="deduction" sub={irtSub} />
-          <SalaryRow label="INSS colaborador (3%)" amount={data.socialSecurity} type="deduction" />
+          <SalaryRow
+            label="IRT"
+            amount={data.incomeTax}
+            type="deduction"
+            sub={irtSub}
+          />
+          <SalaryRow
+            label="INSS colaborador (3%)"
+            amount={data.socialSecurity}
+            type="deduction"
+          />
           {data.healthInsurance > 0 && (
-            <SalaryRow label="Seguro de saúde" amount={data.healthInsurance} type="deduction" />
+            <SalaryRow
+              label="Seguro de saúde"
+              amount={data.healthInsurance}
+              type="deduction"
+            />
           )}
           {data.loanDeduction > 0 && (
-            <SalaryRow label="Dedução empréstimo" amount={data.loanDeduction} type="deduction" />
+            <SalaryRow
+              label="Dedução empréstimo"
+              amount={data.loanDeduction}
+              type="deduction"
+            />
           )}
           {data.advanceDeduction > 0 && (
-            <SalaryRow label="Adiantamento salarial" amount={data.advanceDeduction} type="deduction" />
+            <SalaryRow
+              label="Adiantamento salarial"
+              amount={data.advanceDeduction}
+              type="deduction"
+            />
           )}
           {data.otherDeductions > 0 && (
-            <SalaryRow label="Outras deduções" amount={data.otherDeductions} type="deduction" />
+            <SalaryRow
+              label="Outras deduções"
+              amount={data.otherDeductions}
+              type="deduction"
+            />
           )}
           <div className="mt-1 flex items-baseline justify-between py-2">
-            <span className="font-body text-sm font-medium text-ink">Total deduções</span>
+            <span className="font-body text-sm font-medium text-ink">
+              Total deduções
+            </span>
             <span className="font-mono text-sm font-semibold text-danger">
               − {fmtKz(data.totalDeductions)}
             </span>
@@ -826,13 +942,18 @@ export function PayslipAmountBreakdown({ payslip: data }: PayslipAmountBreakdown
 
       <div className="flex items-center justify-between rounded-card bg-primary-subtle px-5 py-4">
         <div>
-          <div className="font-body text-sm font-semibold text-ink">Salário líquido</div>
+          <div className="font-body text-sm font-semibold text-ink">
+            Salário líquido
+          </div>
           <div className="mt-0.5 font-body text-xs text-ink-muted">
             INSS empregador (informativo): {fmtKz(data.employerInss)}
-            &nbsp;·&nbsp; Encargo total empresa: {fmtKz(data.grossSalary + data.employerInss)}
+            &nbsp;·&nbsp; Encargo total empresa:{' '}
+            {fmtKz(data.grossSalary + data.employerInss)}
           </div>
         </div>
-        <div className="font-mono text-2xl font-bold text-primary">{fmtKz(data.netSalary)}</div>
+        <div className="font-mono text-2xl font-bold text-primary">
+          {fmtKz(data.netSalary)}
+        </div>
       </div>
     </div>
   );
@@ -846,7 +967,7 @@ In `components/payslips/PayslipDetailView.tsx`: remove the local `SalaryRow` def
 ```tsx
 import { PayslipAmountBreakdown } from './PayslipAmountBreakdown';
 // ...
-<PayslipAmountBreakdown payslip={data} />
+<PayslipAmountBreakdown payslip={data} />;
 ```
 
 Keep everything else (header, colaborador/dados fiscais grid, `irtFormula` warning box, actions, dispute modal) unchanged.
@@ -868,10 +989,12 @@ git commit -m "$(printf 'refactor(payslips): extract PayslipAmountBreakdown for 
 ### Task 6: `PayslipListView`
 
 **Files:**
+
 - Create: `components/payroll/PayslipListView.tsx`
 - Test: `components/payroll/PayslipListView.test.tsx`
 
 **Interfaces:**
+
 - Consumes: `queryKeys.payslips.adminList`, `Paginated<Payslip>`, `PAYSLIP_STATUS_MAP`, `formatKz`, `formatDate`, `fmtPeriod`, `apiClient.patch`, `useConfirm`, `useToast`.
 - Produces: `PayslipListView({ onSelect, onCreate }: { onSelect: (id: number) => void; onCreate: () => void })`. `onCreate` opens the create modal owned by `page.tsx` (Task 14) — this component does not own `CreatePayslipModal`.
 
@@ -892,37 +1015,62 @@ vi.mock('@/hooks/useApiQuery', () => ({
   useApiQuery: (...a: unknown[]) => useApiQuery(...a),
   useApiMutation: (fn: (v: unknown) => Promise<unknown>, opts: any) => ({
     mutate: (v: unknown) =>
-      Promise.resolve(fn(v)).then((d) => opts?.onSuccess?.(d, v), (e) => opts?.onError?.(e)),
+      Promise.resolve(fn(v)).then(
+        (d) => opts?.onSuccess?.(d, v),
+        (e) => opts?.onError?.(e),
+      ),
     isPending: false,
   }),
 }));
-vi.mock('@/lib/apiClient', () => ({ apiClient: { patch: (...a: unknown[]) => patch(...a) } }));
+vi.mock('@/lib/apiClient', () => ({
+  apiClient: { patch: (...a: unknown[]) => patch(...a) },
+}));
 vi.mock('@/providers/ConfirmProvider', () => ({ useConfirm: () => confirm }));
 vi.mock('@/providers/ToastProvider', () => ({ useToast: () => notify }));
 
 import { PayslipListView } from './PayslipListView';
 
 const row = {
-  id: 1, receiptCode: 'REC-1', period: '2026-06', paymentDate: '2026-06-25',
-  grossSalary: 250000, netSalary: 180000, status: 'DRAFT',
+  id: 1,
+  receiptCode: 'REC-1',
+  period: '2026-06',
+  paymentDate: '2026-06-25',
+  grossSalary: 250000,
+  netSalary: 180000,
+  status: 'DRAFT',
   user: { id: 7, fullName: 'Ana Silva', employeeNumber: 'E-7' },
 };
-const page = { data: [row], meta: { total: 1, page: 1, limit: 20, totalPages: 1 } };
+const page = {
+  data: [row],
+  meta: { total: 1, page: 1, limit: 20, totalPages: 1 },
+};
 
 beforeEach(() => {
   useApiQuery.mockReset();
-  patch.mockClear(); confirm.mockClear(); notify.mockClear();
+  patch.mockClear();
+  confirm.mockClear();
+  notify.mockClear();
 });
 
 describe('PayslipListView', () => {
   test('shows skeleton while loading', () => {
-    useApiQuery.mockReturnValue({ data: undefined, isLoading: true, error: null });
-    const { container } = render(<PayslipListView onSelect={vi.fn()} onCreate={vi.fn()} />);
+    useApiQuery.mockReturnValue({
+      data: undefined,
+      isLoading: true,
+      error: null,
+    });
+    const { container } = render(
+      <PayslipListView onSelect={vi.fn()} onCreate={vi.fn()} />,
+    );
     expect(container.querySelector('.animate-pulse')).toBeTruthy();
   });
 
   test('shows an error message, not the empty state, when the fetch fails', () => {
-    useApiQuery.mockReturnValue({ data: undefined, isLoading: false, error: new Error('boom') });
+    useApiQuery.mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      error: new Error('boom'),
+    });
     render(<PayslipListView onSelect={vi.fn()} onCreate={vi.fn()} />);
     expect(screen.getByText('boom')).toBeInTheDocument();
     expect(screen.queryByText(/Sem recibos/i)).not.toBeInTheDocument();
@@ -931,7 +1079,8 @@ describe('PayslipListView', () => {
   test('shows empty state when there are no rows', () => {
     useApiQuery.mockReturnValue({
       data: { data: [], meta: { total: 0, page: 1, limit: 20, totalPages: 0 } },
-      isLoading: false, error: null,
+      isLoading: false,
+      error: null,
     });
     render(<PayslipListView onSelect={vi.fn()} onCreate={vi.fn()} />);
     expect(screen.getByText(/Sem recibos/i)).toBeInTheDocument();
@@ -948,7 +1097,9 @@ describe('PayslipListView', () => {
   test('status filter change refetches with the chosen status', () => {
     useApiQuery.mockReturnValue({ data: page, isLoading: false, error: null });
     render(<PayslipListView onSelect={vi.fn()} onCreate={vi.fn()} />);
-    fireEvent.change(screen.getByRole('combobox'), { target: { value: 'ISSUED' } });
+    fireEvent.change(screen.getByRole('combobox'), {
+      target: { value: 'ISSUED' },
+    });
     const lastCall = useApiQuery.mock.calls.at(-1)!;
     expect(lastCall[2].params).toMatchObject({ status: 'ISSUED' });
   });
@@ -958,16 +1109,21 @@ describe('PayslipListView', () => {
     render(<PayslipListView onSelect={vi.fn()} onCreate={vi.fn()} />);
     fireEvent.click(screen.getByRole('button', { name: 'Emitir' }));
     await waitFor(() => expect(confirm).toHaveBeenCalled());
-    await waitFor(() => expect(patch).toHaveBeenCalledWith('/payslips/1/issue'));
+    await waitFor(() =>
+      expect(patch).toHaveBeenCalledWith('/payslips/1/issue'),
+    );
   });
 
   test('no "Emitir" button when the row is already ISSUED', () => {
     useApiQuery.mockReturnValue({
       data: { ...page, data: [{ ...row, status: 'ISSUED' }] },
-      isLoading: false, error: null,
+      isLoading: false,
+      error: null,
     });
     render(<PayslipListView onSelect={vi.fn()} onCreate={vi.fn()} />);
-    expect(screen.queryByRole('button', { name: 'Emitir' })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Emitir' }),
+    ).not.toBeInTheDocument();
   });
 });
 ```
@@ -994,7 +1150,10 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { formatKz as fmtKz, formatDate as fmtDate } from '@/lib/format';
 import { fmtPeriod } from '@/components/payslips/format';
-import { PAYSLIP_STATUS_MAP, type PayslipStatus } from '@/components/payslips/types';
+import {
+  PAYSLIP_STATUS_MAP,
+  type PayslipStatus,
+} from '@/components/payslips/types';
 import { Button, IconButton } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
@@ -1049,7 +1208,11 @@ export function PayslipListView({ onSelect, onCreate }: PayslipListViewProps) {
   const { data, isLoading, error } = useApiQuery<Paginated<AdminPayslipRow>>(
     queryKeys.payslips.adminList(params),
     '/payslips',
-    { params, staleTime: STALE_TIME.DYNAMIC, placeholderData: keepPreviousData },
+    {
+      params,
+      staleTime: STALE_TIME.DYNAMIC,
+      placeholderData: keepPreviousData,
+    },
   );
 
   const issue = useApiMutation(
@@ -1083,37 +1246,66 @@ export function PayslipListView({ onSelect, onCreate }: PayslipListViewProps) {
         <Select
           items={STATUS_ITEMS}
           value={status}
-          onValueChange={(v) => { setStatus(v); setPage(1); }}
+          onValueChange={(v) => {
+            setStatus(v);
+            setPage(1);
+          }}
           className="w-48"
         />
         <Input
           value={period}
-          onChange={(e) => { setPeriod(e.target.value); setPage(1); }}
+          onChange={(e) => {
+            setPeriod(e.target.value);
+            setPage(1);
+          }}
           placeholder="Período (AAAA-MM)"
           className="w-40"
         />
         <Input
           value={year}
-          onChange={(e) => { setYear(e.target.value); setPage(1); }}
+          onChange={(e) => {
+            setYear(e.target.value);
+            setPage(1);
+          }}
           placeholder="Ano (AAAA)"
           className="w-32"
         />
-        <Button className="ml-auto" onClick={onCreate}>+ Novo recibo</Button>
+        <Button className="ml-auto" onClick={onCreate}>
+          + Novo recibo
+        </Button>
       </div>
 
-      {isLoading && <Skeleton rows={8} wrapperClassName="space-y-2 animate-pulse" itemClassName="h-12 rounded-card bg-surface-sunken" />}
-      {error && <div className="font-body text-sm text-danger">{error.message}</div>}
+      {isLoading && (
+        <Skeleton
+          rows={8}
+          wrapperClassName="space-y-2 animate-pulse"
+          itemClassName="h-12 rounded-card bg-surface-sunken"
+        />
+      )}
+      {error && (
+        <div className="font-body text-sm text-danger">{error.message}</div>
+      )}
 
       {!isLoading && !error && rows.length === 0 && (
-        <EmptyState title="Sem recibos" description="Nenhum recibo corresponde aos filtros." />
+        <EmptyState
+          title="Sem recibos"
+          description="Nenhum recibo corresponde aos filtros."
+        />
       )}
 
       {!isLoading && rows.length > 0 && (
         <div className="overflow-x-auto">
           <div className="min-w-[900px] overflow-hidden rounded-card border border-border bg-surface">
-            <div className={`${COLS} border-b border-border px-4 py-2.5 font-body text-xs font-medium uppercase tracking-wide text-ink-faint`}>
-              <div>Colaborador</div><div>Período</div><div>Pagamento</div>
-              <div>Bruto</div><div>Líquido</div><div>Estado</div><div>Acções</div>
+            <div
+              className={`${COLS} border-b border-border px-4 py-2.5 font-body text-xs font-medium uppercase tracking-wide text-ink-faint`}
+            >
+              <div>Colaborador</div>
+              <div>Período</div>
+              <div>Pagamento</div>
+              <div>Bruto</div>
+              <div>Líquido</div>
+              <div>Estado</div>
+              <div>Acções</div>
             </div>
             {rows.map((r) => (
               <div
@@ -1129,15 +1321,42 @@ export function PayslipListView({ onSelect, onCreate }: PayslipListViewProps) {
                     {r.user?.employeeNumber ?? '—'}
                   </div>
                 </div>
-                <div className="font-body text-sm text-ink-muted">{fmtPeriod(r.period)}</div>
-                <div className="font-body text-sm text-ink-muted">{fmtDate(r.paymentDate)}</div>
-                <div className="font-mono text-sm text-ink-muted">{fmtKz(r.grossSalary)}</div>
-                <div className="font-mono text-sm font-semibold text-ink">{fmtKz(r.netSalary)}</div>
-                <div><StatusBadge value={r.status} map={PAYSLIP_STATUS_MAP} variant="dot" /></div>
-                <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
-                  <IconButton icon={Eye} label="Ver detalhe" intent="ghost" size="sm" onClick={() => onSelect(r.id)} />
+                <div className="font-body text-sm text-ink-muted">
+                  {fmtPeriod(r.period)}
+                </div>
+                <div className="font-body text-sm text-ink-muted">
+                  {fmtDate(r.paymentDate)}
+                </div>
+                <div className="font-mono text-sm text-ink-muted">
+                  {fmtKz(r.grossSalary)}
+                </div>
+                <div className="font-mono text-sm font-semibold text-ink">
+                  {fmtKz(r.netSalary)}
+                </div>
+                <div>
+                  <StatusBadge
+                    value={r.status}
+                    map={PAYSLIP_STATUS_MAP}
+                    variant="dot"
+                  />
+                </div>
+                <div
+                  className="flex gap-2"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <IconButton
+                    icon={Eye}
+                    label="Ver detalhe"
+                    intent="ghost"
+                    size="sm"
+                    onClick={() => onSelect(r.id)}
+                  />
                   {r.status === 'DRAFT' && (
-                    <Button size="sm" intent="secondary" onClick={() => handleIssue(r)}>
+                    <Button
+                      size="sm"
+                      intent="secondary"
+                      onClick={() => handleIssue(r)}
+                    >
                       Emitir
                     </Button>
                   )}
@@ -1171,10 +1390,12 @@ git commit -m "$(printf 'feat(payslips): admin PayslipListView (list-all + filte
 ### Task 7: `CreatePayslipModal`
 
 **Files:**
+
 - Create: `components/payroll/CreatePayslipModal.tsx`
 - Test: `components/payroll/CreatePayslipModal.test.tsx`
 
 **Interfaces:**
+
 - Consumes: `useDirectoryUsers` (from `@/components/payslips/compensationData`), `apiClient.post`, `Modal`/`ModalContent`, `FormField`, `Input`, `Textarea`, `Button`, `useToast`, `queryKeys`.
 - Produces: `CreatePayslipModal({ onClose, onCreated }: { onClose: () => void; onCreated: (id: number) => void })`. Posts `POST /payslips`; on 409 shows a toast; on success calls `onCreated(created.id)`.
 
@@ -1189,18 +1410,28 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 const post = vi.fn().mockResolvedValue({ id: 42 });
 const notify = vi.fn();
 
-vi.mock('@/lib/apiClient', () => ({ apiClient: { post: (...a: unknown[]) => post(...a) } }));
+vi.mock('@/lib/apiClient', () => ({
+  apiClient: { post: (...a: unknown[]) => post(...a) },
+}));
 vi.mock('@/providers/ToastProvider', () => ({ useToast: () => notify }));
 vi.mock('@/hooks/useApiQuery', () => ({
   useApiMutation: (fn: (v: unknown) => Promise<unknown>, opts: any) => ({
     mutate: (v: unknown) =>
-      Promise.resolve(fn(v)).then((d) => opts?.onSuccess?.(d, v), (e) => opts?.onError?.(e)),
+      Promise.resolve(fn(v)).then(
+        (d) => opts?.onSuccess?.(d, v),
+        (e) => opts?.onError?.(e),
+      ),
     isPending: false,
   }),
 }));
 vi.mock('@/components/ui/Modal', () => ({
   Modal: ({ children }: any) => <div>{children}</div>,
-  ModalContent: ({ title, children }: any) => <div><h2>{title}</h2>{children}</div>,
+  ModalContent: ({ title, children }: any) => (
+    <div>
+      <h2>{title}</h2>
+      {children}
+    </div>
+  ),
 }));
 vi.mock('@/components/payslips/compensationData', () => ({
   useDirectoryUsers: () => ({
@@ -1211,7 +1442,10 @@ vi.mock('@/components/payslips/compensationData', () => ({
 
 import { CreatePayslipModal } from './CreatePayslipModal';
 
-beforeEach(() => { post.mockClear(); notify.mockClear(); });
+beforeEach(() => {
+  post.mockClear();
+  notify.mockClear();
+});
 
 describe('CreatePayslipModal', () => {
   test('submit is disabled until employee, period, payment date and base salary are set', () => {
@@ -1219,43 +1453,76 @@ describe('CreatePayslipModal', () => {
     const submit = screen.getByRole('button', { name: 'Criar recibo' });
     expect(submit).toBeDisabled();
 
-    fireEvent.change(screen.getByPlaceholderText(/Pesquisar colaborador/i), { target: { value: 'Ana' } });
+    fireEvent.change(screen.getByPlaceholderText(/Pesquisar colaborador/i), {
+      target: { value: 'Ana' },
+    });
     fireEvent.click(screen.getByText('Ana Silva'));
-    fireEvent.change(screen.getByLabelText(/Período/i), { target: { value: '2026-06' } });
-    fireEvent.change(screen.getByLabelText(/Data de pagamento/i), { target: { value: '2026-06-25' } });
-    fireEvent.change(screen.getByLabelText(/Salário base/i), { target: { value: '250000' } });
+    fireEvent.change(screen.getByLabelText(/Período/i), {
+      target: { value: '2026-06' },
+    });
+    fireEvent.change(screen.getByLabelText(/Data de pagamento/i), {
+      target: { value: '2026-06-25' },
+    });
+    fireEvent.change(screen.getByLabelText(/Salário base/i), {
+      target: { value: '250000' },
+    });
     expect(submit).toBeEnabled();
   });
 
   test('sends only filled fields; blank advanced fields are omitted', async () => {
     const onCreated = vi.fn();
     render(<CreatePayslipModal onClose={vi.fn()} onCreated={onCreated} />);
-    fireEvent.change(screen.getByPlaceholderText(/Pesquisar colaborador/i), { target: { value: 'Ana' } });
+    fireEvent.change(screen.getByPlaceholderText(/Pesquisar colaborador/i), {
+      target: { value: 'Ana' },
+    });
     fireEvent.click(screen.getByText('Ana Silva'));
-    fireEvent.change(screen.getByLabelText(/Período/i), { target: { value: '2026-06' } });
-    fireEvent.change(screen.getByLabelText(/Data de pagamento/i), { target: { value: '2026-06-25' } });
-    fireEvent.change(screen.getByLabelText(/Salário base/i), { target: { value: '250000' } });
+    fireEvent.change(screen.getByLabelText(/Período/i), {
+      target: { value: '2026-06' },
+    });
+    fireEvent.change(screen.getByLabelText(/Data de pagamento/i), {
+      target: { value: '2026-06-25' },
+    });
+    fireEvent.change(screen.getByLabelText(/Salário base/i), {
+      target: { value: '250000' },
+    });
     fireEvent.click(screen.getByRole('button', { name: 'Criar recibo' }));
 
     await waitFor(() => expect(post).toHaveBeenCalledTimes(1));
     const [url, body] = post.mock.calls[0];
     expect(url).toBe('/payslips');
     expect(body).toEqual({
-      userId: 7, period: '2026-06', paymentDate: '2026-06-25', baseSalary: 250000,
+      userId: 7,
+      period: '2026-06',
+      paymentDate: '2026-06-25',
+      baseSalary: 250000,
     });
     expect(onCreated).toHaveBeenCalledWith(42);
   });
 
   test('409 shows an error toast', async () => {
-    post.mockRejectedValueOnce(Object.assign(new Error('Recibo já existe'), { status: 409 }));
+    post.mockRejectedValueOnce(
+      Object.assign(new Error('Recibo já existe'), { status: 409 }),
+    );
     render(<CreatePayslipModal onClose={vi.fn()} onCreated={vi.fn()} />);
-    fireEvent.change(screen.getByPlaceholderText(/Pesquisar colaborador/i), { target: { value: 'Ana' } });
+    fireEvent.change(screen.getByPlaceholderText(/Pesquisar colaborador/i), {
+      target: { value: 'Ana' },
+    });
     fireEvent.click(screen.getByText('Ana Silva'));
-    fireEvent.change(screen.getByLabelText(/Período/i), { target: { value: '2026-06' } });
-    fireEvent.change(screen.getByLabelText(/Data de pagamento/i), { target: { value: '2026-06-25' } });
-    fireEvent.change(screen.getByLabelText(/Salário base/i), { target: { value: '250000' } });
+    fireEvent.change(screen.getByLabelText(/Período/i), {
+      target: { value: '2026-06' },
+    });
+    fireEvent.change(screen.getByLabelText(/Data de pagamento/i), {
+      target: { value: '2026-06-25' },
+    });
+    fireEvent.change(screen.getByLabelText(/Salário base/i), {
+      target: { value: '250000' },
+    });
     fireEvent.click(screen.getByRole('button', { name: 'Criar recibo' }));
-    await waitFor(() => expect(notify).toHaveBeenCalledWith(expect.objectContaining({ intent: 'error' })));
+    await waitFor(() =>
+      expect(notify).toHaveBeenCalledWith(
+        expect.objectContaining({ intent: 'error' }),
+      ),
+    );
   });
 });
 ```
@@ -1309,10 +1576,15 @@ const DEDUCTIONS = [
 
 type NumKey = (typeof EARNINGS)[number][0] | (typeof DEDUCTIONS)[number][0];
 
-export function CreatePayslipModal({ onClose, onCreated }: CreatePayslipModalProps) {
+export function CreatePayslipModal({
+  onClose,
+  onCreated,
+}: CreatePayslipModalProps) {
   const notify = useToast();
   const [search, setSearch] = useState('');
-  const [picked, setPicked] = useState<{ id: number; fullName: string } | null>(null);
+  const [picked, setPicked] = useState<{ id: number; fullName: string } | null>(
+    null,
+  );
   const [period, setPeriod] = useState('');
   const [paymentDate, setPaymentDate] = useState('');
   const [baseSalary, setBaseSalary] = useState('');
@@ -1320,10 +1592,15 @@ export function CreatePayslipModal({ onClose, onCreated }: CreatePayslipModalPro
   const [advanced, setAdvanced] = useState(false);
   const [nums, setNums] = useState<Partial<Record<NumKey, string>>>({});
 
-  const { users, loading } = useDirectoryUsers(search, '', !picked && search.trim().length > 0);
+  const { users, loading } = useDirectoryUsers(
+    search,
+    '',
+    !picked && search.trim().length > 0,
+  );
 
   const create = useApiMutation(
-    (body: Record<string, unknown>) => apiClient.post<{ id: number }>('/payslips', body),
+    (body: Record<string, unknown>) =>
+      apiClient.post<{ id: number }>('/payslips', body),
     {
       invalidateKeys: [[...queryKeys.payslips.all, 'admin-list']],
       onSuccess: (created) => {
@@ -1341,7 +1618,11 @@ export function CreatePayslipModal({ onClose, onCreated }: CreatePayslipModalPro
     },
   );
 
-  const valid = !!picked && period.trim() !== '' && paymentDate !== '' && baseSalary.trim() !== '';
+  const valid =
+    !!picked &&
+    period.trim() !== '' &&
+    paymentDate !== '' &&
+    baseSalary.trim() !== '';
 
   const handleSubmit = () => {
     if (!valid || create.isPending) return;
@@ -1368,11 +1649,16 @@ export function CreatePayslipModal({ onClose, onCreated }: CreatePayslipModalPro
           <FormField label="Colaborador *" htmlFor="cpm-user">
             {picked ? (
               <div className="flex items-center gap-2">
-                <span className="font-body text-sm text-ink">{picked.fullName}</span>
+                <span className="font-body text-sm text-ink">
+                  {picked.fullName}
+                </span>
                 <button
                   type="button"
                   className="font-body text-xs text-primary hover:underline"
-                  onClick={() => { setPicked(null); setSearch(''); }}
+                  onClick={() => {
+                    setPicked(null);
+                    setSearch('');
+                  }}
                 >
                   alterar
                 </button>
@@ -1388,19 +1674,29 @@ export function CreatePayslipModal({ onClose, onCreated }: CreatePayslipModalPro
                 />
                 {search.trim().length > 0 && (
                   <div className="mt-1 max-h-40 overflow-auto rounded-control border border-border">
-                    {loading && <div className="px-3 py-2 font-body text-xs text-ink-faint">A pesquisar…</div>}
+                    {loading && (
+                      <div className="px-3 py-2 font-body text-xs text-ink-faint">
+                        A pesquisar…
+                      </div>
+                    )}
                     {!loading && users.length === 0 && (
-                      <div className="px-3 py-2 font-body text-xs text-ink-faint">Sem resultados</div>
+                      <div className="px-3 py-2 font-body text-xs text-ink-faint">
+                        Sem resultados
+                      </div>
                     )}
                     {users.map((u) => (
                       <button
                         key={u.id}
                         type="button"
                         className="block w-full px-3 py-2 text-left font-body text-sm hover:bg-surface-sunken"
-                        onClick={() => setPicked({ id: u.id, fullName: u.fullName })}
+                        onClick={() =>
+                          setPicked({ id: u.id, fullName: u.fullName })
+                        }
                       >
                         {u.fullName}
-                        <span className="ml-2 font-mono text-xs text-ink-faint">{u.employeeNumber ?? ''}</span>
+                        <span className="ml-2 font-mono text-xs text-ink-faint">
+                          {u.employeeNumber ?? ''}
+                        </span>
                       </button>
                     ))}
                   </div>
@@ -1409,14 +1705,36 @@ export function CreatePayslipModal({ onClose, onCreated }: CreatePayslipModalPro
             )}
           </FormField>
 
-          <FormField label="Período *" htmlFor="cpm-period" hint="Formato AAAA-MM">
-            <Input id="cpm-period" value={period} onChange={(e) => setPeriod(e.target.value)} placeholder="2026-06" className="w-full" />
+          <FormField
+            label="Período *"
+            htmlFor="cpm-period"
+            hint="Formato AAAA-MM"
+          >
+            <Input
+              id="cpm-period"
+              value={period}
+              onChange={(e) => setPeriod(e.target.value)}
+              placeholder="2026-06"
+              className="w-full"
+            />
           </FormField>
           <FormField label="Data de pagamento *" htmlFor="cpm-pay">
-            <Input id="cpm-pay" type="date" value={paymentDate} onChange={(e) => setPaymentDate(e.target.value)} className="w-full" />
+            <Input
+              id="cpm-pay"
+              type="date"
+              value={paymentDate}
+              onChange={(e) => setPaymentDate(e.target.value)}
+              className="w-full"
+            />
           </FormField>
           <FormField label="Salário base *" htmlFor="cpm-base">
-            <Input id="cpm-base" type="number" value={baseSalary} onChange={(e) => setBaseSalary(e.target.value)} className="w-full" />
+            <Input
+              id="cpm-base"
+              type="number"
+              value={baseSalary}
+              onChange={(e) => setBaseSalary(e.target.value)}
+              className="w-full"
+            />
           </FormField>
 
           <button
@@ -1442,7 +1760,13 @@ export function CreatePayslipModal({ onClose, onCreated }: CreatePayslipModalPro
               ))}
               <div className="col-span-2">
                 <FormField label="Notas internas" htmlFor="cpm-notes">
-                  <Textarea id="cpm-notes" value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} className="w-full" />
+                  <Textarea
+                    id="cpm-notes"
+                    value={notes}
+                    onChange={(e) => setNotes(e.target.value)}
+                    rows={2}
+                    className="w-full"
+                  />
                 </FormField>
               </div>
             </div>
@@ -1450,8 +1774,14 @@ export function CreatePayslipModal({ onClose, onCreated }: CreatePayslipModalPro
         </div>
 
         <div className="mt-6 flex justify-end gap-3">
-          <Button intent="ghost" onClick={onClose} disabled={create.isPending}>Cancelar</Button>
-          <Button onClick={handleSubmit} disabled={!valid} loading={create.isPending}>
+          <Button intent="ghost" onClick={onClose} disabled={create.isPending}>
+            Cancelar
+          </Button>
+          <Button
+            onClick={handleSubmit}
+            disabled={!valid}
+            loading={create.isPending}
+          >
             Criar recibo
           </Button>
         </div>
@@ -1480,10 +1810,12 @@ git commit -m "$(printf 'feat(payslips): CreatePayslipModal (individual payslip,
 ### Task 8: `EditPayslipModal`
 
 **Files:**
+
 - Create: `components/payroll/EditPayslipModal.tsx`
 - Test: `components/payroll/EditPayslipModal.test.tsx`
 
 **Interfaces:**
+
 - Consumes: `apiClient.put`, `Modal`/`ModalContent`, `FormField`, `Input`, `Textarea`, `Button`, `useToast`, `queryKeys`, `AdminPayslip` type.
 - Produces: `EditPayslipModal({ payslip, onClose }: { payslip: AdminPayslip; onClose: () => void })`. `PUT /payslips/:id`; pre-filled; DRAFT-reversion warning banner.
 
@@ -1498,41 +1830,75 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 const put = vi.fn().mockResolvedValue({ id: 3 });
 const notify = vi.fn();
 
-vi.mock('@/lib/apiClient', () => ({ apiClient: { put: (...a: unknown[]) => put(...a) } }));
+vi.mock('@/lib/apiClient', () => ({
+  apiClient: { put: (...a: unknown[]) => put(...a) },
+}));
 vi.mock('@/providers/ToastProvider', () => ({ useToast: () => notify }));
 vi.mock('@/hooks/useApiQuery', () => ({
   useApiMutation: (fn: (v: unknown) => Promise<unknown>, opts: any) => ({
     mutate: (v: unknown) =>
-      Promise.resolve(fn(v)).then((d) => opts?.onSuccess?.(d, v), (e) => opts?.onError?.(e)),
+      Promise.resolve(fn(v)).then(
+        (d) => opts?.onSuccess?.(d, v),
+        (e) => opts?.onError?.(e),
+      ),
     isPending: false,
   }),
 }));
 vi.mock('@/components/ui/Modal', () => ({
   Modal: ({ children }: any) => <div>{children}</div>,
-  ModalContent: ({ title, children }: any) => <div><h2>{title}</h2>{children}</div>,
+  ModalContent: ({ title, children }: any) => (
+    <div>
+      <h2>{title}</h2>
+      {children}
+    </div>
+  ),
 }));
 
 import { EditPayslipModal } from './EditPayslipModal';
 import type { AdminPayslip } from './types';
 
 const payslip = {
-  id: 3, receiptCode: 'REC-3', period: '2026-06', paymentDate: '2026-06-25',
-  netSalary: 180000, grossSalary: 250000, baseSalary: 250000,
-  mealAllowance: 0, vacationAllowance: 0, christmasAllowance: 0,
-  overtime: 0, bonuses: 0, otherAllowances: 0,
-  incomeTax: 40000, socialSecurity: 7500, employerInss: 20000,
-  healthInsurance: 0, loanDeduction: 0, advanceDeduction: 0, otherDeductions: 0,
-  totalDeductions: 70000, irtBracketRate: 0.13, irtFormula: null,
-  status: 'DRAFT', issuedAt: null, acknowledgedAt: null, notes: null,
+  id: 3,
+  receiptCode: 'REC-3',
+  period: '2026-06',
+  paymentDate: '2026-06-25',
+  netSalary: 180000,
+  grossSalary: 250000,
+  baseSalary: 250000,
+  mealAllowance: 0,
+  vacationAllowance: 0,
+  christmasAllowance: 0,
+  overtime: 0,
+  bonuses: 0,
+  otherAllowances: 0,
+  incomeTax: 40000,
+  socialSecurity: 7500,
+  employerInss: 20000,
+  healthInsurance: 0,
+  loanDeduction: 0,
+  advanceDeduction: 0,
+  otherDeductions: 0,
+  totalDeductions: 70000,
+  irtBracketRate: 0.13,
+  irtFormula: null,
+  status: 'DRAFT',
+  issuedAt: null,
+  acknowledgedAt: null,
+  notes: null,
   disputes: [],
 } as unknown as AdminPayslip;
 
-beforeEach(() => { put.mockClear(); notify.mockClear(); });
+beforeEach(() => {
+  put.mockClear();
+  notify.mockClear();
+});
 
 describe('EditPayslipModal', () => {
   test('shows the DRAFT-reversion warning', () => {
     render(<EditPayslipModal payslip={payslip} onClose={vi.fn()} />);
-    expect(screen.getByText(/devolve o recibo a Rascunho/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/devolve o recibo a Rascunho/i),
+    ).toBeInTheDocument();
   });
 
   test('pre-fills base salary from the payslip', () => {
@@ -1543,7 +1909,9 @@ describe('EditPayslipModal', () => {
   test('PUTs the changed fields to /payslips/:id', async () => {
     const onClose = vi.fn();
     render(<EditPayslipModal payslip={payslip} onClose={onClose} />);
-    fireEvent.change(screen.getByLabelText(/Salário base/i), { target: { value: '300000' } });
+    fireEvent.change(screen.getByLabelText(/Salário base/i), {
+      target: { value: '300000' },
+    });
     fireEvent.click(screen.getByRole('button', { name: 'Guardar' }));
     await waitFor(() => expect(put).toHaveBeenCalledTimes(1));
     const [url, body] = put.mock.calls[0];
@@ -1553,10 +1921,18 @@ describe('EditPayslipModal', () => {
   });
 
   test('403 shows an error toast', async () => {
-    put.mockRejectedValueOnce(Object.assign(new Error('Recibo não editável no estado actual'), { status: 403 }));
+    put.mockRejectedValueOnce(
+      Object.assign(new Error('Recibo não editável no estado actual'), {
+        status: 403,
+      }),
+    );
     render(<EditPayslipModal payslip={payslip} onClose={vi.fn()} />);
     fireEvent.click(screen.getByRole('button', { name: 'Guardar' }));
-    await waitFor(() => expect(notify).toHaveBeenCalledWith(expect.objectContaining({ intent: 'error' })));
+    await waitFor(() =>
+      expect(notify).toHaveBeenCalledWith(
+        expect.objectContaining({ intent: 'error' }),
+      ),
+    );
   });
 });
 ```
@@ -1612,19 +1988,24 @@ export function EditPayslipModal({ payslip, onClose }: EditPayslipModalProps) {
   const [notes, setNotes] = useState(payslip.notes ?? '');
   const [nums, setNums] = useState<Record<NumKey, string>>(() => {
     const init = {} as Record<NumKey, string>;
-    for (const [k] of NUM_FIELDS) init[k] = String((payslip as Record<string, number>)[k] ?? 0);
+    for (const [k] of NUM_FIELDS)
+      init[k] = String((payslip as Record<string, number>)[k] ?? 0);
     return init;
   });
 
   const save = useApiMutation(
-    (body: Record<string, unknown>) => apiClient.put(`/payslips/${payslip.id}`, body),
+    (body: Record<string, unknown>) =>
+      apiClient.put(`/payslips/${payslip.id}`, body),
     {
       invalidateKeys: [
         queryKeys.payslips.adminDetail(payslip.id),
         [...queryKeys.payslips.all, 'admin-list'],
       ],
       onSuccess: () => {
-        notify({ title: 'Recibo actualizado (voltou a Rascunho)', intent: 'success' });
+        notify({
+          title: 'Recibo actualizado (voltou a Rascunho)',
+          intent: 'success',
+        });
         onClose();
       },
       onError: (e: Error) =>
@@ -1648,14 +2029,24 @@ export function EditPayslipModal({ payslip, onClose }: EditPayslipModalProps) {
 
   return (
     <Modal open onOpenChange={(o) => !o && onClose()}>
-      <ModalContent title={`Editar recibo ${payslip.receiptCode ?? payslip.id}`} className="max-w-lg">
+      <ModalContent
+        title={`Editar recibo ${payslip.receiptCode ?? payslip.id}`}
+        className="max-w-lg"
+      >
         <div className="mt-4 rounded-control bg-warning-subtle p-3 font-body text-xs text-warning-ink">
-          Guardar devolve o recibo a Rascunho e recalcula IRT, INSS e líquido a partir dos valores introduzidos.
+          Guardar devolve o recibo a Rascunho e recalcula IRT, INSS e líquido a
+          partir dos valores introduzidos.
         </div>
 
         <div className="mt-4 space-y-4">
           <FormField label="Data de pagamento" htmlFor="epm-pay">
-            <Input id="epm-pay" type="date" value={paymentDate} onChange={(e) => setPaymentDate(e.target.value)} className="w-full" />
+            <Input
+              id="epm-pay"
+              type="date"
+              value={paymentDate}
+              onChange={(e) => setPaymentDate(e.target.value)}
+              className="w-full"
+            />
           </FormField>
           <div className="grid grid-cols-2 gap-3">
             {NUM_FIELDS.map(([key, label]) => (
@@ -1664,20 +2055,32 @@ export function EditPayslipModal({ payslip, onClose }: EditPayslipModalProps) {
                   id={`epm-${key}`}
                   type="number"
                   value={nums[key]}
-                  onChange={(e) => setNums((s) => ({ ...s, [key]: e.target.value }))}
+                  onChange={(e) =>
+                    setNums((s) => ({ ...s, [key]: e.target.value }))
+                  }
                   className="w-full"
                 />
               </FormField>
             ))}
           </div>
           <FormField label="Notas internas" htmlFor="epm-notes">
-            <Textarea id="epm-notes" value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} className="w-full" />
+            <Textarea
+              id="epm-notes"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              rows={2}
+              className="w-full"
+            />
           </FormField>
         </div>
 
         <div className="mt-6 flex justify-end gap-3">
-          <Button intent="ghost" onClick={onClose} disabled={save.isPending}>Cancelar</Button>
-          <Button onClick={handleSubmit} loading={save.isPending}>Guardar</Button>
+          <Button intent="ghost" onClick={onClose} disabled={save.isPending}>
+            Cancelar
+          </Button>
+          <Button onClick={handleSubmit} loading={save.isPending}>
+            Guardar
+          </Button>
         </div>
       </ModalContent>
     </Modal>
@@ -1702,10 +2105,12 @@ git commit -m "$(printf 'feat(payslips): EditPayslipModal (PUT with DRAFT-revers
 ### Task 9: `AccessLogsPanel`
 
 **Files:**
+
 - Create: `components/payroll/AccessLogsPanel.tsx`
 - Test: `components/payroll/AccessLogsPanel.test.tsx`
 
 **Interfaces:**
+
 - Consumes: `useApiQuery`, `queryKeys.payslips.accessLogs`, `formatDate`, `PayslipAccessLog` type.
 - Produces: `AccessLogsPanel({ payslipId }: { payslipId: number })`.
 
@@ -1718,7 +2123,9 @@ import { describe, expect, test, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 
 const useApiQuery = vi.fn();
-vi.mock('@/hooks/useApiQuery', () => ({ useApiQuery: (...a: unknown[]) => useApiQuery(...a) }));
+vi.mock('@/hooks/useApiQuery', () => ({
+  useApiQuery: (...a: unknown[]) => useApiQuery(...a),
+}));
 
 import { AccessLogsPanel } from './AccessLogsPanel';
 
@@ -1728,10 +2135,18 @@ describe('AccessLogsPanel', () => {
   test('renders rows with viewer name, action label and IP', () => {
     useApiQuery.mockReturnValue({
       data: [
-        { id: 1, payslipId: 3, userId: 9, action: 'ADMIN_VIEW', ipAddress: '10.0.0.2',
-          accessedAt: '2026-06-26T10:00:00Z', user: { id: 9, fullName: 'RH User' } },
+        {
+          id: 1,
+          payslipId: 3,
+          userId: 9,
+          action: 'ADMIN_VIEW',
+          ipAddress: '10.0.0.2',
+          accessedAt: '2026-06-26T10:00:00Z',
+          user: { id: 9, fullName: 'RH User' },
+        },
       ],
-      isLoading: false, error: null,
+      isLoading: false,
+      error: null,
     });
     render(<AccessLogsPanel payslipId={3} />);
     expect(screen.getByText('RH User')).toBeInTheDocument();
@@ -1740,7 +2155,11 @@ describe('AccessLogsPanel', () => {
   });
 
   test('shows an error message, not "sem acessos", when the fetch fails', () => {
-    useApiQuery.mockReturnValue({ data: undefined, isLoading: false, error: new Error('nope') });
+    useApiQuery.mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      error: new Error('nope'),
+    });
     render(<AccessLogsPanel payslipId={3} />);
     expect(screen.getByText('nope')).toBeInTheDocument();
     expect(screen.queryByText(/Sem acessos/i)).not.toBeInTheDocument();
@@ -1794,20 +2213,34 @@ export function AccessLogsPanel({ payslipId }: AccessLogsPanelProps) {
         Últimos 50 acessos
       </h3>
       {isLoading && <Skeleton rows={3} />}
-      {error && <div className="font-body text-sm text-danger">{error.message}</div>}
+      {error && (
+        <div className="font-body text-sm text-danger">{error.message}</div>
+      )}
       {!isLoading && !error && (data?.length ?? 0) === 0 && (
-        <p className="font-body text-sm text-ink-faint">Sem acessos registados.</p>
+        <p className="font-body text-sm text-ink-faint">
+          Sem acessos registados.
+        </p>
       )}
       {!isLoading && !error && (data?.length ?? 0) > 0 && (
         <div className="overflow-hidden rounded-card border border-border bg-surface">
           <div className="grid grid-cols-[160px_1fr_140px_180px] gap-3 border-b border-border px-4 py-2.5 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
-            <div>Acção</div><div>Quem</div><div>IP</div><div>Quando</div>
+            <div>Acção</div>
+            <div>Quem</div>
+            <div>IP</div>
+            <div>Quando</div>
           </div>
           {data!.map((log) => (
-            <div key={log.id} className="grid grid-cols-[160px_1fr_140px_180px] gap-3 border-b border-border px-4 py-2.5 last:border-0 font-body text-sm">
+            <div
+              key={log.id}
+              className="grid grid-cols-[160px_1fr_140px_180px] gap-3 border-b border-border px-4 py-2.5 last:border-0 font-body text-sm"
+            >
               <div className="text-ink-muted">{ACTION_LABEL[log.action]}</div>
-              <div className="text-ink">{log.user?.fullName ?? `#${log.userId}`}</div>
-              <div className="font-mono text-xs text-ink-faint">{log.ipAddress ?? '—'}</div>
+              <div className="text-ink">
+                {log.user?.fullName ?? `#${log.userId}`}
+              </div>
+              <div className="font-mono text-xs text-ink-faint">
+                {log.ipAddress ?? '—'}
+              </div>
               <div className="text-ink-muted">{fmtDate(log.accessedAt)}</div>
             </div>
           ))}
@@ -1835,10 +2268,12 @@ git commit -m "$(printf 'feat(payslips): AccessLogsPanel (read-only payslip acce
 ### Task 10: `AdminPayslipDetailView`
 
 **Files:**
+
 - Create: `components/payroll/AdminPayslipDetailView.tsx`
 - Test: `components/payroll/AdminPayslipDetailView.test.tsx`
 
 **Interfaces:**
+
 - Consumes: `useApiQuery` (`queryKeys.payslips.adminDetail`), `PayslipAmountBreakdown`, `AccessLogsPanel`, `EditPayslipModal`, `ResolveDisputeModal` (Task 12), `useApiMutation` + `apiClient.patch` for issue, `useConfirm`, `useToast`, `StatusBadge` + `PAYSLIP_STATUS_MAP` + `DISPUTE_STATUS_MAP`, `fmtPeriod`, `formatDate`.
 - Produces: `AdminPayslipDetailView({ payslipId, onBack }: { payslipId: number; onBack: () => void })`.
 
@@ -1853,30 +2288,66 @@ import { render, screen } from '@testing-library/react';
 const useApiQuery = vi.fn();
 vi.mock('@/hooks/useApiQuery', () => ({
   useApiQuery: (...a: unknown[]) => useApiQuery(...a),
-  useApiMutation: (fn: any, opts: any) => ({ mutate: (v: unknown) => Promise.resolve(fn(v)).then((d: unknown) => opts?.onSuccess?.(d, v)), isPending: false }),
+  useApiMutation: (fn: any, opts: any) => ({
+    mutate: (v: unknown) =>
+      Promise.resolve(fn(v)).then((d: unknown) => opts?.onSuccess?.(d, v)),
+    isPending: false,
+  }),
 }));
-vi.mock('@/lib/apiClient', () => ({ apiClient: { patch: vi.fn().mockResolvedValue({}) } }));
-vi.mock('@/providers/ConfirmProvider', () => ({ useConfirm: () => vi.fn().mockResolvedValue(true) }));
+vi.mock('@/lib/apiClient', () => ({
+  apiClient: { patch: vi.fn().mockResolvedValue({}) },
+}));
+vi.mock('@/providers/ConfirmProvider', () => ({
+  useConfirm: () => vi.fn().mockResolvedValue(true),
+}));
 vi.mock('@/providers/ToastProvider', () => ({ useToast: () => vi.fn() }));
-vi.mock('./AccessLogsPanel', () => ({ AccessLogsPanel: () => <div>access-logs</div> }));
-vi.mock('./EditPayslipModal', () => ({ EditPayslipModal: () => <div>edit-modal</div> }));
-vi.mock('./ResolveDisputeModal', () => ({ ResolveDisputeModal: () => <div>resolve-modal</div> }));
+vi.mock('./AccessLogsPanel', () => ({
+  AccessLogsPanel: () => <div>access-logs</div>,
+}));
+vi.mock('./EditPayslipModal', () => ({
+  EditPayslipModal: () => <div>edit-modal</div>,
+}));
+vi.mock('./ResolveDisputeModal', () => ({
+  ResolveDisputeModal: () => <div>resolve-modal</div>,
+}));
 
 import { AdminPayslipDetailView } from './AdminPayslipDetailView';
 
 const make = (over: Record<string, unknown> = {}) => ({
   data: {
-    id: 3, receiptCode: 'REC-3', period: '2026-06', paymentDate: '2026-06-25',
-    netSalary: 180000, grossSalary: 250000, baseSalary: 250000,
-    mealAllowance: 0, vacationAllowance: 0, christmasAllowance: 0, overtime: 0, bonuses: 0, otherAllowances: 0,
-    incomeTax: 40000, socialSecurity: 7500, employerInss: 20000,
-    healthInsurance: 0, loanDeduction: 0, advanceDeduction: 0, otherDeductions: 0,
-    totalDeductions: 70000, irtBracketRate: 0.13, irtFormula: null,
-    status: 'DRAFT', issuedAt: null, acknowledgedAt: null, notes: null,
+    id: 3,
+    receiptCode: 'REC-3',
+    period: '2026-06',
+    paymentDate: '2026-06-25',
+    netSalary: 180000,
+    grossSalary: 250000,
+    baseSalary: 250000,
+    mealAllowance: 0,
+    vacationAllowance: 0,
+    christmasAllowance: 0,
+    overtime: 0,
+    bonuses: 0,
+    otherAllowances: 0,
+    incomeTax: 40000,
+    socialSecurity: 7500,
+    employerInss: 20000,
+    healthInsurance: 0,
+    loanDeduction: 0,
+    advanceDeduction: 0,
+    otherDeductions: 0,
+    totalDeductions: 70000,
+    irtBracketRate: 0.13,
+    irtFormula: null,
+    status: 'DRAFT',
+    issuedAt: null,
+    acknowledgedAt: null,
+    notes: null,
     user: { id: 7, fullName: 'Ana Silva', employeeNumber: 'E-7' },
-    disputes: [], ...over,
+    disputes: [],
+    ...over,
   },
-  isLoading: false, error: null,
+  isLoading: false,
+  error: null,
 });
 
 beforeEach(() => useApiQuery.mockReset());
@@ -1892,40 +2363,80 @@ describe('AdminPayslipDetailView', () => {
   test('ISSUED hides Editar and Emitir', () => {
     useApiQuery.mockReturnValue(make({ status: 'ISSUED' }));
     render(<AdminPayslipDetailView payslipId={3} onBack={vi.fn()} />);
-    expect(screen.queryByRole('button', { name: 'Editar' })).not.toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'Emitir' })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Editar' }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Emitir' }),
+    ).not.toBeInTheDocument();
     expect(screen.getByText(/já não é editável/i)).toBeInTheDocument();
   });
 
   test('ACKNOWLEDGED hides the actions', () => {
     useApiQuery.mockReturnValue(make({ status: 'ACKNOWLEDGED' }));
     render(<AdminPayslipDetailView payslipId={3} onBack={vi.fn()} />);
-    expect(screen.queryByRole('button', { name: 'Editar' })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Editar' }),
+    ).not.toBeInTheDocument();
   });
 
   test('DISPUTED with an OPEN dispute shows the dispute and a Resolver button', () => {
-    useApiQuery.mockReturnValue(make({
-      status: 'DISPUTED',
-      disputes: [{ id: 11, payslipId: 3, userId: 7, reason: 'IRT errado', details: null,
-        status: 'OPEN', createdAt: '2026-06-26T00:00:00Z', resolvedAt: null, resolution: null }],
-    }));
+    useApiQuery.mockReturnValue(
+      make({
+        status: 'DISPUTED',
+        disputes: [
+          {
+            id: 11,
+            payslipId: 3,
+            userId: 7,
+            reason: 'IRT errado',
+            details: null,
+            status: 'OPEN',
+            createdAt: '2026-06-26T00:00:00Z',
+            resolvedAt: null,
+            resolution: null,
+          },
+        ],
+      }),
+    );
     render(<AdminPayslipDetailView payslipId={3} onBack={vi.fn()} />);
     expect(screen.getByText('IRT errado')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Resolver' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Resolver' }),
+    ).toBeInTheDocument();
   });
 
   test('a RESOLVED dispute shows no Resolver button', () => {
-    useApiQuery.mockReturnValue(make({
-      status: 'DISPUTED',
-      disputes: [{ id: 11, payslipId: 3, userId: 7, reason: 'x', details: null,
-        status: 'RESOLVED', createdAt: '2026-06-26T00:00:00Z', resolvedAt: '2026-06-27T00:00:00Z', resolution: 'feito' }],
-    }));
+    useApiQuery.mockReturnValue(
+      make({
+        status: 'DISPUTED',
+        disputes: [
+          {
+            id: 11,
+            payslipId: 3,
+            userId: 7,
+            reason: 'x',
+            details: null,
+            status: 'RESOLVED',
+            createdAt: '2026-06-26T00:00:00Z',
+            resolvedAt: '2026-06-27T00:00:00Z',
+            resolution: 'feito',
+          },
+        ],
+      }),
+    );
     render(<AdminPayslipDetailView payslipId={3} onBack={vi.fn()} />);
-    expect(screen.queryByRole('button', { name: 'Resolver' })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Resolver' }),
+    ).not.toBeInTheDocument();
   });
 
   test('renders an error message, not a blank panel, when the fetch fails', () => {
-    useApiQuery.mockReturnValue({ data: undefined, isLoading: false, error: new Error('kaboom') });
+    useApiQuery.mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      error: new Error('kaboom'),
+    });
     render(<AdminPayslipDetailView payslipId={3} onBack={vi.fn()} />);
     expect(screen.getByText('kaboom')).toBeInTheDocument();
   });
@@ -1962,7 +2473,11 @@ import { useToast } from '@/providers/ToastProvider';
 import { AccessLogsPanel } from './AccessLogsPanel';
 import { EditPayslipModal } from './EditPayslipModal';
 import { ResolveDisputeModal } from './ResolveDisputeModal';
-import { DISPUTE_STATUS_MAP, type AdminPayslip, type PayslipDispute } from './types';
+import {
+  DISPUTE_STATUS_MAP,
+  type AdminPayslip,
+  type PayslipDispute,
+} from './types';
 
 export interface AdminPayslipDetailViewProps {
   payslipId: number;
@@ -1975,7 +2490,10 @@ const LOCKED_NOTE: Record<string, string> = {
   DISPUTED: 'Recibo em disputa — já não é editável.',
 };
 
-export function AdminPayslipDetailView({ payslipId, onBack }: AdminPayslipDetailViewProps) {
+export function AdminPayslipDetailView({
+  payslipId,
+  onBack,
+}: AdminPayslipDetailViewProps) {
   const confirm = useConfirm();
   const notify = useToast();
   const [editing, setEditing] = useState(false);
@@ -2010,7 +2528,8 @@ export function AdminPayslipDetailView({ payslipId, onBack }: AdminPayslipDetail
   };
 
   if (isLoading) return <Skeleton rows={8} />;
-  if (error) return <div className="font-body text-sm text-danger">{error.message}</div>;
+  if (error)
+    return <div className="font-body text-sm text-danger">{error.message}</div>;
   if (!data) return null;
 
   const editable = data.status === 'DRAFT' && data.run?.status !== 'PUBLISHED';
@@ -2031,17 +2550,30 @@ export function AdminPayslipDetailView({ payslipId, onBack }: AdminPayslipDetail
             {data.user?.fullName ?? '—'}
           </h2>
           <p className="font-body text-sm text-ink-faint">
-            {fmtPeriod(data.period)} · <span className="font-mono">{data.receiptCode ?? data.id}</span>
+            {fmtPeriod(data.period)} ·{' '}
+            <span className="font-mono">{data.receiptCode ?? data.id}</span>
           </p>
         </div>
-        <StatusBadge value={data.status} map={PAYSLIP_STATUS_MAP} variant="dot" />
+        <StatusBadge
+          value={data.status}
+          map={PAYSLIP_STATUS_MAP}
+          variant="dot"
+        />
       </div>
 
       <div className="mb-6 flex flex-wrap items-center gap-2">
         {editable ? (
           <>
-            <Button size="sm" intent="secondary" onClick={() => setEditing(true)}>Editar</Button>
-            <Button size="sm" onClick={handleIssue} disabled={issue.isPending}>Emitir</Button>
+            <Button
+              size="sm"
+              intent="secondary"
+              onClick={() => setEditing(true)}
+            >
+              Editar
+            </Button>
+            <Button size="sm" onClick={handleIssue} disabled={issue.isPending}>
+              Emitir
+            </Button>
           </>
         ) : (
           <p className="font-body text-sm text-ink-faint">
@@ -2063,20 +2595,40 @@ export function AdminPayslipDetailView({ payslipId, onBack }: AdminPayslipDetail
           </h3>
           <div className="space-y-3">
             {data.disputes.map((d) => (
-              <div key={d.id} className="rounded-card border border-border bg-surface p-4">
+              <div
+                key={d.id}
+                className="rounded-card border border-border bg-surface p-4"
+              >
                 <div className="flex items-center justify-between">
-                  <span className="font-body text-sm font-medium text-ink">{d.reason}</span>
-                  <StatusBadge value={d.status} map={DISPUTE_STATUS_MAP} variant="plain" />
+                  <span className="font-body text-sm font-medium text-ink">
+                    {d.reason}
+                  </span>
+                  <StatusBadge
+                    value={d.status}
+                    map={DISPUTE_STATUS_MAP}
+                    variant="plain"
+                  />
                 </div>
-                {d.details && <p className="mt-1 font-body text-sm text-ink-muted">{d.details}</p>}
-                <p className="mt-1 font-body text-xs text-ink-faint">Aberta em {fmtDate(d.createdAt)}</p>
+                {d.details && (
+                  <p className="mt-1 font-body text-sm text-ink-muted">
+                    {d.details}
+                  </p>
+                )}
+                <p className="mt-1 font-body text-xs text-ink-faint">
+                  Aberta em {fmtDate(d.createdAt)}
+                </p>
                 {d.status === 'RESOLVED' && (
                   <p className="mt-1 font-body text-xs text-success-ink">
                     Resolvida em {fmtDate(d.resolvedAt)} — {d.resolution}
                   </p>
                 )}
                 {d.status === 'OPEN' && (
-                  <Button size="sm" intent="secondary" className="mt-3" onClick={() => setResolving(d)}>
+                  <Button
+                    size="sm"
+                    intent="secondary"
+                    className="mt-3"
+                    onClick={() => setResolving(d)}
+                  >
                     Resolver
                   </Button>
                 )}
@@ -2090,7 +2642,9 @@ export function AdminPayslipDetailView({ payslipId, onBack }: AdminPayslipDetail
         <AccessLogsPanel payslipId={payslipId} />
       </div>
 
-      {editing && <EditPayslipModal payslip={data} onClose={() => setEditing(false)} />}
+      {editing && (
+        <EditPayslipModal payslip={data} onClose={() => setEditing(false)} />
+      )}
       {resolving && (
         <ResolveDisputeModal
           disputeId={resolving.id}
@@ -2120,10 +2674,12 @@ git commit -m "$(printf 'feat(payslips): AdminPayslipDetailView (status-gated ac
 ### Task 11: `HrDashboardView`
 
 **Files:**
+
 - Create: `components/payroll/HrDashboardView.tsx`
 - Test: `components/payroll/HrDashboardView.test.tsx`
 
 **Interfaces:**
+
 - Consumes: `useApiQuery` (`queryKeys.payslips.dashboard`), `KpiCard`, `Input`, `Skeleton`, `formatKz`, `HrDashboard` type.
 - Produces: `HrDashboardView()` (no props).
 
@@ -2136,15 +2692,30 @@ import { describe, expect, test, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 
 const useApiQuery = vi.fn();
-vi.mock('@/hooks/useApiQuery', () => ({ useApiQuery: (...a: unknown[]) => useApiQuery(...a) }));
+vi.mock('@/hooks/useApiQuery', () => ({
+  useApiQuery: (...a: unknown[]) => useApiQuery(...a),
+}));
 
 import { HrDashboardView } from './HrDashboardView';
 
 const dash = {
   period: '2026-06',
-  counts: { total: 10, issued: 6, acknowledged: 3, disputed: 1, notViewed: 3, draft: 0 },
-  financials: { totalGross: 2500000, totalNet: 1800000, totalIRT: 400000,
-    totalINSSEmployee: 75000, totalINSSEmployer: 200000, avgNet: 180000 },
+  counts: {
+    total: 10,
+    issued: 6,
+    acknowledged: 3,
+    disputed: 1,
+    notViewed: 3,
+    draft: 0,
+  },
+  financials: {
+    totalGross: 2500000,
+    totalNet: 1800000,
+    totalIRT: 400000,
+    totalINSSEmployee: 75000,
+    totalINSSEmployer: 200000,
+    avgNet: 180000,
+  },
   compliance: { viewRate: '30.0%', pendingAcknowledgement: 3 },
 };
 
@@ -2161,7 +2732,11 @@ describe('HrDashboardView', () => {
   });
 
   test('shows an error message when the fetch fails', () => {
-    useApiQuery.mockReturnValue({ data: undefined, isLoading: false, error: new Error('down') });
+    useApiQuery.mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      error: new Error('down'),
+    });
     render(<HrDashboardView />);
     expect(screen.getByText('down')).toBeInTheDocument();
   });
@@ -2169,7 +2744,9 @@ describe('HrDashboardView', () => {
   test('changing the period refetches with the chosen period', () => {
     useApiQuery.mockReturnValue({ data: dash, isLoading: false, error: null });
     render(<HrDashboardView />);
-    fireEvent.change(screen.getByPlaceholderText(/AAAA-MM/i), { target: { value: '2026-05' } });
+    fireEvent.change(screen.getByPlaceholderText(/AAAA-MM/i), {
+      target: { value: '2026-05' },
+    });
     const last = useApiQuery.mock.calls.at(-1)!;
     expect(last[2].params).toEqual({ period: '2026-05' });
   });
@@ -2219,39 +2796,90 @@ export function HrDashboardView() {
       </div>
 
       {isLoading && <Skeleton rows={6} />}
-      {error && <div className="font-body text-sm text-danger">{error.message}</div>}
+      {error && (
+        <div className="font-body text-sm text-danger">{error.message}</div>
+      )}
 
       {!isLoading && !error && data && (
         <div className="space-y-8">
           <section>
-            <h3 className="mb-3 font-body text-sm font-semibold uppercase tracking-wide text-ink-faint">Contagens</h3>
+            <h3 className="mb-3 font-body text-sm font-semibold uppercase tracking-wide text-ink-faint">
+              Contagens
+            </h3>
             <div className="flex flex-wrap gap-3">
               <KpiCard label="Total" value={data.counts.total} />
-              <KpiCard label="Emitidos" value={data.counts.issued} intent="success" />
-              <KpiCard label="Confirmados" value={data.counts.acknowledged} intent="info" />
-              <KpiCard label="Em disputa" value={data.counts.disputed} intent="danger" />
-              <KpiCard label="Por confirmar" value={data.counts.notViewed} intent="warning" />
+              <KpiCard
+                label="Emitidos"
+                value={data.counts.issued}
+                intent="success"
+              />
+              <KpiCard
+                label="Confirmados"
+                value={data.counts.acknowledged}
+                intent="info"
+              />
+              <KpiCard
+                label="Em disputa"
+                value={data.counts.disputed}
+                intent="danger"
+              />
+              <KpiCard
+                label="Por confirmar"
+                value={data.counts.notViewed}
+                intent="warning"
+              />
               <KpiCard label="Rascunhos" value={data.counts.draft} />
             </div>
           </section>
 
           <section>
-            <h3 className="mb-3 font-body text-sm font-semibold uppercase tracking-wide text-ink-faint">Financeiro</h3>
+            <h3 className="mb-3 font-body text-sm font-semibold uppercase tracking-wide text-ink-faint">
+              Financeiro
+            </h3>
             <div className="flex flex-wrap gap-3">
-              <KpiCard label="Bruto total" value={fmtKz(data.financials.totalGross)} />
-              <KpiCard label="Líquido total" value={fmtKz(data.financials.totalNet)} intent="success" />
-              <KpiCard label="IRT total" value={fmtKz(data.financials.totalIRT)} />
-              <KpiCard label="INSS colaborador" value={fmtKz(data.financials.totalINSSEmployee)} />
-              <KpiCard label="INSS empregador" value={fmtKz(data.financials.totalINSSEmployer)} />
-              <KpiCard label="Líquido médio" value={fmtKz(data.financials.avgNet)} />
+              <KpiCard
+                label="Bruto total"
+                value={fmtKz(data.financials.totalGross)}
+              />
+              <KpiCard
+                label="Líquido total"
+                value={fmtKz(data.financials.totalNet)}
+                intent="success"
+              />
+              <KpiCard
+                label="IRT total"
+                value={fmtKz(data.financials.totalIRT)}
+              />
+              <KpiCard
+                label="INSS colaborador"
+                value={fmtKz(data.financials.totalINSSEmployee)}
+              />
+              <KpiCard
+                label="INSS empregador"
+                value={fmtKz(data.financials.totalINSSEmployer)}
+              />
+              <KpiCard
+                label="Líquido médio"
+                value={fmtKz(data.financials.avgNet)}
+              />
             </div>
           </section>
 
           <section>
-            <h3 className="mb-3 font-body text-sm font-semibold uppercase tracking-wide text-ink-faint">Compliance</h3>
+            <h3 className="mb-3 font-body text-sm font-semibold uppercase tracking-wide text-ink-faint">
+              Compliance
+            </h3>
             <div className="flex flex-wrap gap-3">
-              <KpiCard label="Taxa de confirmação" value={data.compliance.viewRate} intent="info" />
-              <KpiCard label="Pendentes de confirmação" value={data.compliance.pendingAcknowledgement} intent="warning" />
+              <KpiCard
+                label="Taxa de confirmação"
+                value={data.compliance.viewRate}
+                intent="info"
+              />
+              <KpiCard
+                label="Pendentes de confirmação"
+                value={data.compliance.pendingAcknowledgement}
+                intent="warning"
+              />
             </div>
           </section>
         </div>
@@ -2278,10 +2906,12 @@ git commit -m "$(printf 'feat(payslips): HrDashboardView (compliance + financial
 ### Task 12: `ResolveDisputeModal`
 
 **Files:**
+
 - Create: `components/payroll/ResolveDisputeModal.tsx`
 - Test: `components/payroll/ResolveDisputeModal.test.tsx`
 
 **Interfaces:**
+
 - Consumes: `useApiMutation` + `apiClient.patch`, `Modal`/`ModalContent`, `Textarea`, `Button`, `useToast`, `queryKeys`.
 - Produces: `ResolveDisputeModal({ disputeId, payslipId, onClose }: { disputeId: number; payslipId: number; onClose: () => void })`. `PATCH /payslips/disputes/:id/resolve` with `{ resolution, reissue }`.
 
@@ -2296,36 +2926,57 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 const patch = vi.fn().mockResolvedValue({ id: 11, status: 'RESOLVED' });
 const notify = vi.fn();
 
-vi.mock('@/lib/apiClient', () => ({ apiClient: { patch: (...a: unknown[]) => patch(...a) } }));
+vi.mock('@/lib/apiClient', () => ({
+  apiClient: { patch: (...a: unknown[]) => patch(...a) },
+}));
 vi.mock('@/providers/ToastProvider', () => ({ useToast: () => notify }));
 vi.mock('@/hooks/useApiQuery', () => ({
   useApiMutation: (fn: (v: unknown) => Promise<unknown>, opts: any) => ({
     mutate: (v: unknown) =>
-      Promise.resolve(fn(v)).then((d) => opts?.onSuccess?.(d, v), (e) => opts?.onError?.(e)),
+      Promise.resolve(fn(v)).then(
+        (d) => opts?.onSuccess?.(d, v),
+        (e) => opts?.onError?.(e),
+      ),
     isPending: false,
   }),
 }));
 vi.mock('@/components/ui/Modal', () => ({
   Modal: ({ children }: any) => <div>{children}</div>,
-  ModalContent: ({ title, children }: any) => <div><h2>{title}</h2>{children}</div>,
+  ModalContent: ({ title, children }: any) => (
+    <div>
+      <h2>{title}</h2>
+      {children}
+    </div>
+  ),
 }));
 
 import { ResolveDisputeModal } from './ResolveDisputeModal';
 
-beforeEach(() => { patch.mockClear(); notify.mockClear(); });
+beforeEach(() => {
+  patch.mockClear();
+  notify.mockClear();
+});
 
 describe('ResolveDisputeModal', () => {
   test('confirm is disabled until resolution has text', () => {
-    render(<ResolveDisputeModal disputeId={11} payslipId={3} onClose={vi.fn()} />);
+    render(
+      <ResolveDisputeModal disputeId={11} payslipId={3} onClose={vi.fn()} />,
+    );
     const btn = screen.getByRole('button', { name: 'Resolver disputa' });
     expect(btn).toBeDisabled();
-    fireEvent.change(screen.getByLabelText(/Resolução/i), { target: { value: 'Corrigido' } });
+    fireEvent.change(screen.getByLabelText(/Resolução/i), {
+      target: { value: 'Corrigido' },
+    });
     expect(btn).toBeEnabled();
   });
 
   test('reissue defaults to false and is only sent when checked', async () => {
-    render(<ResolveDisputeModal disputeId={11} payslipId={3} onClose={vi.fn()} />);
-    fireEvent.change(screen.getByLabelText(/Resolução/i), { target: { value: 'Corrigido' } });
+    render(
+      <ResolveDisputeModal disputeId={11} payslipId={3} onClose={vi.fn()} />,
+    );
+    fireEvent.change(screen.getByLabelText(/Resolução/i), {
+      target: { value: 'Corrigido' },
+    });
     fireEvent.click(screen.getByRole('button', { name: 'Resolver disputa' }));
     await waitFor(() => expect(patch).toHaveBeenCalledTimes(1));
     expect(patch.mock.calls[0]).toEqual([
@@ -2335,20 +2986,37 @@ describe('ResolveDisputeModal', () => {
   });
 
   test('reissue true is sent when the checkbox is ticked', async () => {
-    render(<ResolveDisputeModal disputeId={11} payslipId={3} onClose={vi.fn()} />);
-    fireEvent.change(screen.getByLabelText(/Resolução/i), { target: { value: 'Corrigido e reemitido' } });
+    render(
+      <ResolveDisputeModal disputeId={11} payslipId={3} onClose={vi.fn()} />,
+    );
+    fireEvent.change(screen.getByLabelText(/Resolução/i), {
+      target: { value: 'Corrigido e reemitido' },
+    });
     fireEvent.click(screen.getByLabelText(/Reemitir recibo/i));
     fireEvent.click(screen.getByRole('button', { name: 'Resolver disputa' }));
     await waitFor(() => expect(patch).toHaveBeenCalledTimes(1));
-    expect(patch.mock.calls[0][1]).toEqual({ resolution: 'Corrigido e reemitido', reissue: true });
+    expect(patch.mock.calls[0][1]).toEqual({
+      resolution: 'Corrigido e reemitido',
+      reissue: true,
+    });
   });
 
   test('409 shows an error toast', async () => {
-    patch.mockRejectedValueOnce(Object.assign(new Error('Disputa já resolvida'), { status: 409 }));
-    render(<ResolveDisputeModal disputeId={11} payslipId={3} onClose={vi.fn()} />);
-    fireEvent.change(screen.getByLabelText(/Resolução/i), { target: { value: 'x' } });
+    patch.mockRejectedValueOnce(
+      Object.assign(new Error('Disputa já resolvida'), { status: 409 }),
+    );
+    render(
+      <ResolveDisputeModal disputeId={11} payslipId={3} onClose={vi.fn()} />,
+    );
+    fireEvent.change(screen.getByLabelText(/Resolução/i), {
+      target: { value: 'x' },
+    });
     fireEvent.click(screen.getByRole('button', { name: 'Resolver disputa' }));
-    await waitFor(() => expect(notify).toHaveBeenCalledWith(expect.objectContaining({ intent: 'error' })));
+    await waitFor(() =>
+      expect(notify).toHaveBeenCalledWith(
+        expect.objectContaining({ intent: 'error' }),
+      ),
+    );
   });
 });
 ```
@@ -2378,7 +3046,11 @@ export interface ResolveDisputeModalProps {
   onClose: () => void;
 }
 
-export function ResolveDisputeModal({ disputeId, payslipId, onClose }: ResolveDisputeModalProps) {
+export function ResolveDisputeModal({
+  disputeId,
+  payslipId,
+  onClose,
+}: ResolveDisputeModalProps) {
   const notify = useToast();
   const [resolution, setResolution] = useState('');
   const [reissue, setReissue] = useState(false);
@@ -2400,7 +3072,9 @@ export function ResolveDisputeModal({ disputeId, payslipId, onClose }: ResolveDi
       onError: (e: Error) =>
         notify({
           title:
-            (e as { status?: number }).status === 409 ? 'Disputa já resolvida' : e.message,
+            (e as { status?: number }).status === 409
+              ? 'Disputa já resolvida'
+              : e.message,
           intent: 'error',
         }),
     },
@@ -2416,7 +3090,10 @@ export function ResolveDisputeModal({ disputeId, payslipId, onClose }: ResolveDi
       <ModalContent title="Resolver disputa" className="max-w-md">
         <div className="mt-5 space-y-4">
           <div>
-            <label htmlFor="rdm-resolution" className="mb-1 block font-body text-sm text-ink-muted">
+            <label
+              htmlFor="rdm-resolution"
+              className="mb-1 block font-body text-sm text-ink-muted"
+            >
               Resolução *
             </label>
             <Textarea
@@ -2438,15 +3115,22 @@ export function ResolveDisputeModal({ disputeId, payslipId, onClose }: ResolveDi
             <span>
               Reemitir recibo (volta a Emitido)
               <span className="mt-0.5 block font-body text-xs text-ink-faint">
-                Marca apenas se a correcção já está feita e o recibo pode sair do estado Disputa.
+                Marca apenas se a correcção já está feita e o recibo pode sair
+                do estado Disputa.
               </span>
             </span>
           </label>
         </div>
 
         <div className="mt-6 flex justify-end gap-3">
-          <Button intent="ghost" onClick={onClose} disabled={resolve.isPending}>Cancelar</Button>
-          <Button onClick={handleSubmit} disabled={!resolution.trim()} loading={resolve.isPending}>
+          <Button intent="ghost" onClick={onClose} disabled={resolve.isPending}>
+            Cancelar
+          </Button>
+          <Button
+            onClick={handleSubmit}
+            disabled={!resolution.trim()}
+            loading={resolve.isPending}
+          >
             Resolver disputa
           </Button>
         </div>
@@ -2473,10 +3157,12 @@ git commit -m "$(printf 'feat(payslips): ResolveDisputeModal (resolution + opt-i
 ### Task 13: `DisputesView`
 
 **Files:**
+
 - Create: `components/payroll/DisputesView.tsx`
 - Test: `components/payroll/DisputesView.test.tsx`
 
 **Interfaces:**
+
 - Consumes: `useApiQuery` (`queryKeys.payslips.disputes`), `Paginated<PayslipDispute>`, `DISPUTE_STATUS_MAP`, `ResolveDisputeModal`, `fmtPeriod`, `formatDate`, `Select`, `Pagination`, `StatusBadge`, `EmptyState`, `Skeleton`.
 - Produces: `DisputesView({ onOpenPayslip }: { onOpenPayslip: (id: number) => void })`.
 
@@ -2489,18 +3175,38 @@ import { describe, expect, test, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 
 const useApiQuery = vi.fn();
-vi.mock('@/hooks/useApiQuery', () => ({ useApiQuery: (...a: unknown[]) => useApiQuery(...a) }));
-vi.mock('./ResolveDisputeModal', () => ({ ResolveDisputeModal: () => <div>resolve-modal</div> }));
+vi.mock('@/hooks/useApiQuery', () => ({
+  useApiQuery: (...a: unknown[]) => useApiQuery(...a),
+}));
+vi.mock('./ResolveDisputeModal', () => ({
+  ResolveDisputeModal: () => <div>resolve-modal</div>,
+}));
 
 import { DisputesView } from './DisputesView';
 
 const row = {
-  id: 11, payslipId: 3, userId: 7, reason: 'IRT errado', details: null,
-  status: 'OPEN', createdAt: '2026-06-26T00:00:00Z', resolvedAt: null, resolution: null,
+  id: 11,
+  payslipId: 3,
+  userId: 7,
+  reason: 'IRT errado',
+  details: null,
+  status: 'OPEN',
+  createdAt: '2026-06-26T00:00:00Z',
+  resolvedAt: null,
+  resolution: null,
   user: { id: 7, fullName: 'Ana Silva', employeeNumber: 'E-7' },
-  payslip: { id: 3, receiptCode: 'REC-3', period: '2026-06', userId: 7, status: 'DISPUTED' },
+  payslip: {
+    id: 3,
+    receiptCode: 'REC-3',
+    period: '2026-06',
+    userId: 7,
+    status: 'DISPUTED',
+  },
 };
-const page = { data: [row], meta: { total: 1, page: 1, limit: 20, totalPages: 1 } };
+const page = {
+  data: [row],
+  meta: { total: 1, page: 1, limit: 20, totalPages: 1 },
+};
 
 beforeEach(() => useApiQuery.mockReset());
 
@@ -2513,7 +3219,11 @@ describe('DisputesView', () => {
   });
 
   test('shows an error message, not the empty state, on fetch failure', () => {
-    useApiQuery.mockReturnValue({ data: undefined, isLoading: false, error: new Error('argh') });
+    useApiQuery.mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      error: new Error('argh'),
+    });
     render(<DisputesView onOpenPayslip={vi.fn()} />);
     expect(screen.getByText('argh')).toBeInTheDocument();
     expect(screen.queryByText(/Sem disputas/i)).not.toBeInTheDocument();
@@ -2521,11 +3231,24 @@ describe('DisputesView', () => {
 
   test('"Resolver" only shows on OPEN rows', () => {
     useApiQuery.mockReturnValue({
-      data: { ...page, data: [{ ...row, status: 'RESOLVED', resolvedAt: '2026-06-27T00:00:00Z', resolution: 'ok' }] },
-      isLoading: false, error: null,
+      data: {
+        ...page,
+        data: [
+          {
+            ...row,
+            status: 'RESOLVED',
+            resolvedAt: '2026-06-27T00:00:00Z',
+            resolution: 'ok',
+          },
+        ],
+      },
+      isLoading: false,
+      error: null,
     });
     render(<DisputesView onOpenPayslip={vi.fn()} />);
-    expect(screen.queryByRole('button', { name: 'Resolver' })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Resolver' }),
+    ).not.toBeInTheDocument();
   });
 
   test('clicking the receipt calls onOpenPayslip', () => {
@@ -2539,7 +3262,9 @@ describe('DisputesView', () => {
   test('changing the filter to RESOLVED refetches', () => {
     useApiQuery.mockReturnValue({ data: page, isLoading: false, error: null });
     render(<DisputesView onOpenPayslip={vi.fn()} />);
-    fireEvent.change(screen.getByRole('combobox'), { target: { value: 'RESOLVED' } });
+    fireEvent.change(screen.getByRole('combobox'), {
+      target: { value: 'RESOLVED' },
+    });
     const last = useApiQuery.mock.calls.at(-1)!;
     expect(last[2].params).toMatchObject({ status: 'RESOLVED' });
   });
@@ -2570,7 +3295,11 @@ import { Pagination } from '@/components/ui/Pagination';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { Button } from '@/components/ui/Button';
 import { ResolveDisputeModal } from './ResolveDisputeModal';
-import { DISPUTE_STATUS_MAP, type Paginated, type PayslipDispute } from './types';
+import {
+  DISPUTE_STATUS_MAP,
+  type Paginated,
+  type PayslipDispute,
+} from './types';
 
 export interface DisputesViewProps {
   onOpenPayslip: (payslipId: number) => void;
@@ -2595,7 +3324,11 @@ export function DisputesView({ onOpenPayslip }: DisputesViewProps) {
   const { data, isLoading, error } = useApiQuery<Paginated<PayslipDispute>>(
     queryKeys.payslips.disputes(params),
     '/payslips/disputes',
-    { params, staleTime: STALE_TIME.DYNAMIC, placeholderData: keepPreviousData },
+    {
+      params,
+      staleTime: STALE_TIME.DYNAMIC,
+      placeholderData: keepPreviousData,
+    },
   );
 
   const rows = data?.data ?? [];
@@ -2607,13 +3340,18 @@ export function DisputesView({ onOpenPayslip }: DisputesViewProps) {
         <Select
           items={STATUS_ITEMS}
           value={status}
-          onValueChange={(v) => { setStatus(v); setPage(1); }}
+          onValueChange={(v) => {
+            setStatus(v);
+            setPage(1);
+          }}
           className="w-44"
         />
       </div>
 
       {isLoading && <Skeleton rows={6} />}
-      {error && <div className="font-body text-sm text-danger">{error.message}</div>}
+      {error && (
+        <div className="font-body text-sm text-danger">{error.message}</div>
+      )}
 
       {!isLoading && !error && rows.length === 0 && (
         <EmptyState
@@ -2625,13 +3363,25 @@ export function DisputesView({ onOpenPayslip }: DisputesViewProps) {
       {!isLoading && rows.length > 0 && (
         <div className="overflow-x-auto">
           <div className="min-w-[900px] overflow-hidden rounded-card border border-border bg-surface">
-            <div className={`${COLS} border-b border-border px-4 py-2.5 font-body text-xs font-medium uppercase tracking-wide text-ink-faint`}>
-              <div>Colaborador</div><div>Recibo</div><div>Motivo</div>
-              <div>Estado</div><div>Aberta em</div><div>Resolvida em</div><div>Acções</div>
+            <div
+              className={`${COLS} border-b border-border px-4 py-2.5 font-body text-xs font-medium uppercase tracking-wide text-ink-faint`}
+            >
+              <div>Colaborador</div>
+              <div>Recibo</div>
+              <div>Motivo</div>
+              <div>Estado</div>
+              <div>Aberta em</div>
+              <div>Resolvida em</div>
+              <div>Acções</div>
             </div>
             {rows.map((d) => (
-              <div key={d.id} className={`${COLS} items-center border-b border-border px-4 py-3 last:border-0 font-body text-sm`}>
-                <div className="min-w-0 truncate text-ink">{d.user?.fullName ?? `#${d.userId}`}</div>
+              <div
+                key={d.id}
+                className={`${COLS} items-center border-b border-border px-4 py-3 last:border-0 font-body text-sm`}
+              >
+                <div className="min-w-0 truncate text-ink">
+                  {d.user?.fullName ?? `#${d.userId}`}
+                </div>
                 <button
                   type="button"
                   className="truncate text-left font-mono text-xs text-primary hover:underline"
@@ -2641,12 +3391,26 @@ export function DisputesView({ onOpenPayslip }: DisputesViewProps) {
                   {d.payslip ? ` · ${fmtPeriod(d.payslip.period)}` : ''}
                 </button>
                 <div className="truncate text-ink-muted">{d.reason}</div>
-                <div><StatusBadge value={d.status} map={DISPUTE_STATUS_MAP} variant="plain" /></div>
+                <div>
+                  <StatusBadge
+                    value={d.status}
+                    map={DISPUTE_STATUS_MAP}
+                    variant="plain"
+                  />
+                </div>
                 <div className="text-ink-muted">{fmtDate(d.createdAt)}</div>
-                <div className="text-ink-muted">{d.resolvedAt ? fmtDate(d.resolvedAt) : '—'}</div>
+                <div className="text-ink-muted">
+                  {d.resolvedAt ? fmtDate(d.resolvedAt) : '—'}
+                </div>
                 <div>
                   {d.status === 'OPEN' && (
-                    <Button size="sm" intent="secondary" onClick={() => setResolving(d)}>Resolver</Button>
+                    <Button
+                      size="sm"
+                      intent="secondary"
+                      onClick={() => setResolving(d)}
+                    >
+                      Resolver
+                    </Button>
                   )}
                 </div>
               </div>
@@ -2686,10 +3450,12 @@ git commit -m "$(printf 'feat(payslips): DisputesView (list + status filter + re
 ### Task 14: Wire the tab strip into `/payroll` `page.tsx`
 
 **Files:**
+
 - Modify: `app/(platform)/payroll/page.tsx`
 - Test: `app/(platform)/payroll/page.test.tsx` (create)
 
 **Interfaces:**
+
 - Consumes: `RunListView`, `RunDetailView` (existing), `PayslipListView`, `AdminPayslipDetailView`, `CreatePayslipModal`, `HrDashboardView`, `DisputesView`.
 - Produces: the full `/payroll` page with 4 tabs.
 
@@ -2701,8 +3467,12 @@ Create `app/(platform)/payroll/page.test.tsx`:
 import { describe, expect, test, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 
-vi.mock('@/components/payroll/RunListView', () => ({ RunListView: () => <div>run-list</div> }));
-vi.mock('@/components/payroll/RunDetailView', () => ({ RunDetailView: () => <div>run-detail</div> }));
+vi.mock('@/components/payroll/RunListView', () => ({
+  RunListView: () => <div>run-list</div>,
+}));
+vi.mock('@/components/payroll/RunDetailView', () => ({
+  RunDetailView: () => <div>run-detail</div>,
+}));
 vi.mock('@/components/payroll/PayslipListView', () => ({
   PayslipListView: ({ onSelect, onCreate }: any) => (
     <div>
@@ -2714,9 +3484,15 @@ vi.mock('@/components/payroll/PayslipListView', () => ({
 vi.mock('@/components/payroll/AdminPayslipDetailView', () => ({
   AdminPayslipDetailView: () => <div>payslip-detail</div>,
 }));
-vi.mock('@/components/payroll/CreatePayslipModal', () => ({ CreatePayslipModal: () => <div>create-modal</div> }));
-vi.mock('@/components/payroll/HrDashboardView', () => ({ HrDashboardView: () => <div>hr-dashboard</div> }));
-vi.mock('@/components/payroll/DisputesView', () => ({ DisputesView: () => <div>disputes-view</div> }));
+vi.mock('@/components/payroll/CreatePayslipModal', () => ({
+  CreatePayslipModal: () => <div>create-modal</div>,
+}));
+vi.mock('@/components/payroll/HrDashboardView', () => ({
+  HrDashboardView: () => <div>hr-dashboard</div>,
+}));
+vi.mock('@/components/payroll/DisputesView', () => ({
+  DisputesView: () => <div>disputes-view</div>,
+}));
 
 import PayrollPage from './page';
 
@@ -2741,7 +3517,9 @@ describe('PayrollPage tabs', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Recibos' }));
     fireEvent.click(screen.getByText('open-payslip'));
     expect(screen.getByText('payslip-detail')).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'Dashboard' })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Dashboard' }),
+    ).not.toBeInTheDocument();
   });
 });
 ```
@@ -2804,7 +3582,9 @@ export default function PayrollPage() {
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
       <div className="mb-6">
-        <h1 className="font-display text-xl font-semibold text-ink">{TITLES[nav.tab]}</h1>
+        <h1 className="font-display text-xl font-semibold text-ink">
+          {TITLES[nav.tab]}
+        </h1>
       </div>
 
       {!isDetail && (
@@ -2823,15 +3603,22 @@ export default function PayrollPage() {
       )}
 
       {nav.tab === 'runs' && nav.view === 'list' && (
-        <RunListView onSelect={(runId) => setNav({ tab: 'runs', view: 'detail', runId })} />
+        <RunListView
+          onSelect={(runId) => setNav({ tab: 'runs', view: 'detail', runId })}
+        />
       )}
       {nav.tab === 'runs' && nav.view === 'detail' && (
-        <RunDetailView runId={nav.runId} onBack={() => setNav({ tab: 'runs', view: 'list' })} />
+        <RunDetailView
+          runId={nav.runId}
+          onBack={() => setNav({ tab: 'runs', view: 'list' })}
+        />
       )}
 
       {nav.tab === 'payslips' && nav.view === 'list' && (
         <PayslipListView
-          onSelect={(payslipId) => setNav({ tab: 'payslips', view: 'detail', payslipId })}
+          onSelect={(payslipId) =>
+            setNav({ tab: 'payslips', view: 'detail', payslipId })
+          }
           onCreate={() => setCreating(true)}
         />
       )}
@@ -2845,7 +3632,9 @@ export default function PayrollPage() {
       {nav.tab === 'dashboard' && <HrDashboardView />}
       {nav.tab === 'disputes' && (
         <DisputesView
-          onOpenPayslip={(payslipId) => setNav({ tab: 'payslips', view: 'detail', payslipId })}
+          onOpenPayslip={(payslipId) =>
+            setNav({ tab: 'payslips', view: 'detail', payslipId })
+          }
         />
       )}
 
@@ -2896,38 +3685,39 @@ Edit `C:/Users/PLÁCIDO COSTA/.claude/projects/C--Users-PL-CIDO-COSTA-innova/mem
 
 **1. Spec coverage:**
 
-| Spec section | Task(s) |
-|---|---|
-| §1 route & navigation (tab strip, discriminated Nav) | Task 14 |
-| §2.1 `GET /payslips/disputes` | Task 1 |
-| §2.2 `PATCH /payslips/disputes/:id/resolve` (opt-in reissue) | Task 2 |
-| §2.3 `findOne` includes `disputes` | Task 3 |
-| §2.4 `getAccessLogs` includes `user` | Task 3 |
-| §2.5 DTOs | Tasks 1, 2 |
-| §2.6 integration spec | Tasks 1, 2, 3 |
-| §3 query keys + invalidation map | Task 4 (keys); Tasks 6/8/10/12 (invalidation per mutation) |
-| §4 `PayslipListView` | Task 6 |
-| §5 `PayslipAmountBreakdown` + `PayslipDetailView` rewire | Task 5 |
-| §6 `AdminPayslipDetailView` (status-gated action bar) | Task 10 |
-| §7 `AccessLogsPanel` | Task 9 |
-| §8 `CreatePayslipModal` | Task 7 |
-| §9 `EditPayslipModal` | Task 8 |
-| §10 `HrDashboardView` | Task 11 |
-| §11 `DisputesView` + `ResolveDisputeModal` | Tasks 13, 12 |
-| §12 types | Task 4 |
-| §13 tests | every task's Step 1 |
-| §"Fora de âmbito" | nothing built (bulk-create, admin PDF, name search, log pagination, PayslipItem) — correct |
-| §"Riscos" — breakdown extraction is a pure lift | Task 5 Step 4-5 (existing test must stay green) |
-| §"Riscos" — action bar vs `assertPayslipEditable` | Task 10 tests every status |
-| §"Riscos" — route order `disputes` before `:id` | Task 1 Step 5 + test fails first if misordered |
-| §"Riscos" — `invalidateKeys` by prefix | Tasks use bare `[...all, 'admin-list']` prefixes, matching the C convention |
-| §"Riscos" — merge order | Global Constraints + Task 3 Step 7 gate |
+| Spec section                                                 | Task(s)                                                                                    |
+| ------------------------------------------------------------ | ------------------------------------------------------------------------------------------ |
+| §1 route & navigation (tab strip, discriminated Nav)         | Task 14                                                                                    |
+| §2.1 `GET /payslips/disputes`                                | Task 1                                                                                     |
+| §2.2 `PATCH /payslips/disputes/:id/resolve` (opt-in reissue) | Task 2                                                                                     |
+| §2.3 `findOne` includes `disputes`                           | Task 3                                                                                     |
+| §2.4 `getAccessLogs` includes `user`                         | Task 3                                                                                     |
+| §2.5 DTOs                                                    | Tasks 1, 2                                                                                 |
+| §2.6 integration spec                                        | Tasks 1, 2, 3                                                                              |
+| §3 query keys + invalidation map                             | Task 4 (keys); Tasks 6/8/10/12 (invalidation per mutation)                                 |
+| §4 `PayslipListView`                                         | Task 6                                                                                     |
+| §5 `PayslipAmountBreakdown` + `PayslipDetailView` rewire     | Task 5                                                                                     |
+| §6 `AdminPayslipDetailView` (status-gated action bar)        | Task 10                                                                                    |
+| §7 `AccessLogsPanel`                                         | Task 9                                                                                     |
+| §8 `CreatePayslipModal`                                      | Task 7                                                                                     |
+| §9 `EditPayslipModal`                                        | Task 8                                                                                     |
+| §10 `HrDashboardView`                                        | Task 11                                                                                    |
+| §11 `DisputesView` + `ResolveDisputeModal`                   | Tasks 13, 12                                                                               |
+| §12 types                                                    | Task 4                                                                                     |
+| §13 tests                                                    | every task's Step 1                                                                        |
+| §"Fora de âmbito"                                            | nothing built (bulk-create, admin PDF, name search, log pagination, PayslipItem) — correct |
+| §"Riscos" — breakdown extraction is a pure lift              | Task 5 Step 4-5 (existing test must stay green)                                            |
+| §"Riscos" — action bar vs `assertPayslipEditable`            | Task 10 tests every status                                                                 |
+| §"Riscos" — route order `disputes` before `:id`              | Task 1 Step 5 + test fails first if misordered                                             |
+| §"Riscos" — `invalidateKeys` by prefix                       | Tasks use bare `[...all, 'admin-list']` prefixes, matching the C convention                |
+| §"Riscos" — merge order                                      | Global Constraints + Task 3 Step 7 gate                                                    |
 
 No gaps.
 
 **2. Placeholder scan:** No "TBD"/"handle edge cases"/"similar to Task N" — every code step has full code. Two "before implementing, check X" notes (Task 1 dispute `user` relation; Task 6/7 `Select` markup and `useDirectoryUsers` signature) are explicit verification instructions with a defined fallback, not placeholders.
 
 **3. Type consistency:**
+
 - `queryKeys.payslips.adminDetail(id)` used verbatim in Tasks 4, 8, 10, 12. ✓
 - Prefix invalidation arrays `[...queryKeys.payslips.all, 'admin-list' | 'dashboard' | 'disputes' | 'admin-detail']` consistent across Tasks 6, 8, 10, 12. ✓
 - `AdminPayslip` (Task 4) = `Payslip & { disputes; run? }` — consumed in Tasks 8, 10. `EditPayslipModal` reads `(payslip as Record<string, number>)[k]` for numeric fields — safe because `Payslip` declares all of them as `number`. ✓

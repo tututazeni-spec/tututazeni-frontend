@@ -9,15 +9,15 @@ Construída em **Next.js 15 + React 19 + TypeScript**.
 
 ## 🛠️ Stack
 
-| Camada | Tecnologia |
-|---|---|
-| Framework | Next.js 15 (App Router) |
-| UI | React 19 |
-| Linguagem | TypeScript |
-| Estilos | Tailwind CSS 4 |
+| Camada         | Tecnologia                    |
+| -------------- | ----------------------------- |
+| Framework      | Next.js 15 (App Router)       |
+| UI             | React 19                      |
+| Linguagem      | TypeScript                    |
+| Estilos        | Tailwind CSS 4                |
 | Estado / dados | Zustand, TanStack React Query |
-| HTTP | Axios |
-| Ícones | lucide-react |
+| HTTP           | Axios                         |
+| Ícones         | lucide-react                  |
 
 A aplicação corre na **porta `3000`** e consome a API do backend na **porta `4000`**.
 
@@ -26,6 +26,7 @@ A aplicação corre na **porta `3000`** e consome a API do backend na **porta `4
 ## 🚀 Arranque
 
 ### Pré-requisitos
+
 - Node.js `20.x`
 - Backend INNOVA a correr em `http://localhost:4000`
 
@@ -81,4 +82,4 @@ As páginas da área `(platform)` usam esse token no header `Authorization: Bear
 
 ---
 
-*Projeto privado — INNOVA.*
+_Projeto privado — INNOVA._

@@ -10,16 +10,62 @@
 
 'use client';
 
-import { Target, Clock, Zap } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
+import {
+  Award,
+  BookOpen,
+  CheckCircle2,
+  ClipboardList,
+  Clock,
+  Target,
+  Zap,
+} from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Avatar } from '@/components/ui/Avatar';
-import { KpiCard } from '@/components/ui/KpiCard';
+import { Card } from '@/components/ui/Card';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { AlertBanner } from './AlertBanner';
 import { ALERTS_POLL_MS, type Alert, type MyDashboardData } from './types';
+
+// Cartão tipo "curso" (ícone + número em destaque) inspirado nos tiles de
+// progresso da Udemy/MasterClass — só usado aqui; o KpiCard partilhado
+// (components/ui/KpiCard) mantém-se inalterado para os restantes
+// dashboards que o usam.
+type KpiTone = 'blue' | 'green' | 'gold' | 'red' | 'orange';
+
+// Classes completas: o Tailwind não detecta nomes montados dinamicamente
+const KPI_TONES: Record<KpiTone, { bar: string; text: string }> = {
+  blue: { bar: 'bg-blue-500', text: 'text-blue-600' },
+  green: { bar: 'bg-green-600', text: 'text-green-600' },
+  gold: { bar: 'bg-amber-500', text: 'text-amber-600' },
+  red: { bar: 'bg-red-500', text: 'text-red-600' },
+  orange: { bar: 'bg-orange-500', text: 'text-orange-600' },
+};
+
+function CourseStyleKpiCard({
+  icon: Icon,
+  label,
+  value,
+  tone,
+}: {
+  icon: LucideIcon;
+  label: string;
+  value: string | number;
+  tone: KpiTone;
+}) {
+  const t = KPI_TONES[tone];
+  return (
+    <div className="group relative overflow-hidden rounded-2xl border border-border bg-surface p-5 pt-6 shadow-resting transition-shadow duration-150 hover:shadow-hover">
+      <span aria-hidden className={`absolute inset-x-0 top-0 h-1.5 ${t.bar}`} />
+      <Icon size={26} strokeWidth={1.75} className={`mb-4 ${t.text}`} />
+      <p className={`font-display text-4xl font-bold ${t.text}`}>{value}</p>
+      <p className="mt-1 font-body text-sm text-ink">{label}</p>
+    </div>
+  );
+}
 
 export function ColaboradorDashboard() {
   // Duas queries independentes → correm em paralelo (sem waterfall).
@@ -103,25 +149,29 @@ export function ColaboradorDashboard() {
 
       {/* KPIs */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-        <KpiCard
+        <CourseStyleKpiCard
+          icon={BookOpen}
+          tone="blue"
           label="Cursos em Progresso"
           value={data?.learning?.inProgress ?? 0}
-          intent="info"
         />
-        <KpiCard
+        <CourseStyleKpiCard
+          icon={CheckCircle2}
+          tone="green"
           label="Cursos Concluídos"
           value={data?.learning?.completed ?? 0}
-          intent="success"
         />
-        <KpiCard
+        <CourseStyleKpiCard
+          icon={Award}
+          tone="gold"
           label="Distintivos Conquistados"
           value={data?.gamification?.recentBadges?.length ?? 0}
-          intent="warning"
         />
-        <KpiCard
+        <CourseStyleKpiCard
+          icon={ClipboardList}
+          tone="red"
           label="Avaliações Pendentes"
           value={data?.engagement?.pendingSurveys ?? 0}
-          intent="accent"
         />
       </div>
 
@@ -157,26 +207,30 @@ export function ColaboradorDashboard() {
         )}
 
         {/* Pending items */}
-        <div className="rounded-card border border-border bg-surface p-5">
-          <h3 className="mb-3 flex items-center gap-2 font-body font-semibold text-ink-muted">
-            <Clock size={14} strokeWidth={1.75} className="text-warning-ink" />
-            Pendentes
-          </h3>
-          {(data?.pendingItems ?? []).length === 0 ? null : (
-            <div className="space-y-2">
-              {(data?.pendingItems ?? []).map((item, i) => (
-                <div
-                  key={i}
-                  className="flex items-center gap-2 font-body text-sm text-ink-muted"
-                >
-                  <span
-                    className={`h-2 w-2 shrink-0 rounded-full ${item.priority === 'HIGH' ? 'bg-danger' : 'bg-warning'}`}
-                  />
-                  {item.label}
-                </div>
-              ))}
+        <div className="relative overflow-hidden rounded-2xl border border-border bg-surface p-5 pt-6 shadow-resting">
+          <span
+            aria-hidden
+            className="absolute inset-x-0 top-0 h-1.5 bg-orange-500"
+          />
+          <div className="mb-3 flex items-center gap-2">
+            <div className="rounded-control bg-orange-100 p-2 text-orange-600">
+              <Clock size={18} strokeWidth={1.75} />
             </div>
-          )}
+            <h3 className="font-body font-semibold text-ink">Pendentes</h3>
+          </div>
+          <p className="font-display text-4xl font-bold text-orange-600">
+            {(data?.pendingItems ?? []).length}
+          </p>
+          {(() => {
+            const highCount = (data?.pendingItems ?? []).filter(
+              (item) => item.priority === 'HIGH',
+            ).length;
+            return highCount > 0 ? (
+              <p className="mt-1 font-body text-xs text-danger">
+                {highCount} de alta prioridade
+              </p>
+            ) : null;
+          })()}
         </div>
       </div>
 

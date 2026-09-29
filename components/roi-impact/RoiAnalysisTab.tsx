@@ -38,11 +38,22 @@ export function RoiAnalysisTab() {
   );
 
   const approve = useApiMutation(
-    (id: number) => apiClient.post(`/roi-impact/analyses/${id}/approve`, { status: 'VALIDADO' }),
+    (id: number) =>
+      apiClient.post(`/roi-impact/analyses/${id}/approve`, {
+        status: 'VALIDADO',
+      }),
     {
-      invalidateKeys: [queryKeys.roiImpact.analyses(), queryKeys.roiImpact.executive()],
+      invalidateKeys: [
+        queryKeys.roiImpact.analyses(),
+        queryKeys.roiImpact.executive(),
+      ],
       onSuccess: () => notify({ title: 'Análise validada', intent: 'success' }),
-      onError: (e) => notify({ title: 'Erro ao validar', description: e.message, intent: 'danger' }),
+      onError: (e) =>
+        notify({
+          title: 'Erro ao validar',
+          description: e.message,
+          intent: 'danger',
+        }),
     },
   );
 
@@ -61,7 +72,8 @@ export function RoiAnalysisTab() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <p className="font-body text-sm text-ink-muted">
-          {data?.total ?? 0} análise(s) — Quanto custou? O que mudou? Valeu a pena?
+          {data?.total ?? 0} análise(s) — Quanto custou? O que mudou? Valeu a
+          pena?
         </p>
         <Button size="sm" onClick={() => setWizardOpen(true)}>
           <Plus size={14} strokeWidth={1.75} className="mr-1" />
@@ -85,52 +97,72 @@ export function RoiAnalysisTab() {
                 render: (a) => (
                   <>
                     <p className="font-medium text-ink">{a.name}</p>
-                    <p className="text-xs text-ink-faint">{a.initiative ?? '—'}</p>
+                    <p className="text-xs text-ink-faint">
+                      {a.initiative ?? '—'}
+                    </p>
                   </>
                 ),
               },
               {
                 key: 'initiativeType',
                 header: 'Tipo',
-                render: (a) => INITIATIVE_TYPE_LABELS[a.initiativeType] ?? a.initiativeType,
+                render: (a) =>
+                  INITIATIVE_TYPE_LABELS[a.initiativeType] ?? a.initiativeType,
               },
               { key: 'participants', header: 'Participantes', sortable: true },
-              { key: 'totalCost', header: 'Custo total', sortable: true, render: (a) => fmt$(a.totalCost) },
+              {
+                key: 'totalCost',
+                header: 'Custo total',
+                sortable: true,
+                render: (a) => fmt$(a.totalCost),
+              },
               {
                 key: 'costPerParticipant',
                 header: 'Custo/participante',
                 sortable: true,
-                render: (a) => (a.costPerParticipant != null ? fmt$(a.costPerParticipant) : '—'),
+                render: (a) =>
+                  a.costPerParticipant != null
+                    ? fmt$(a.costPerParticipant)
+                    : '—',
               },
               {
                 key: 'realizedBenefit',
                 header: 'Benefício realizado',
                 sortable: true,
-                render: (a) => (a.realizedBenefit != null ? fmt$(a.realizedBenefit) : '—'),
+                render: (a) =>
+                  a.realizedBenefit != null ? fmt$(a.realizedBenefit) : '—',
               },
               {
                 key: 'roiPercent',
                 header: 'ROI',
                 sortable: true,
-                render: (a) => (a.roiPercent != null ? `${a.roiPercent}%` : '—'),
+                render: (a) =>
+                  a.roiPercent != null ? `${a.roiPercent}%` : '—',
               },
               {
                 key: 'paybackMonths',
                 header: 'Payback',
                 sortable: true,
-                render: (a) => (a.paybackMonths != null ? `${a.paybackMonths}m` : '—'),
+                render: (a) =>
+                  a.paybackMonths != null ? `${a.paybackMonths}m` : '—',
               },
               {
                 key: 'confidenceLevel',
                 header: 'Confiança',
-                render: (a) => (a.confidenceLevel ? (CONFIDENCE_LABELS[a.confidenceLevel] ?? a.confidenceLevel) : '—'),
+                render: (a) =>
+                  a.confidenceLevel
+                    ? (CONFIDENCE_LABELS[a.confidenceLevel] ??
+                      a.confidenceLevel)
+                    : '—',
               },
               {
                 key: 'status',
                 header: 'Estado',
                 sortable: true,
                 render: (a) => (
-                  <Badge intent={ANALYSIS_STATUS_INTENTS[a.status] ?? 'neutral'}>
+                  <Badge
+                    intent={ANALYSIS_STATUS_INTENTS[a.status] ?? 'neutral'}
+                  >
                     {ANALYSIS_STATUS_LABELS[a.status] ?? a.status}
                   </Badge>
                 ),
@@ -140,7 +172,12 @@ export function RoiAnalysisTab() {
                 header: '',
                 render: (a) =>
                   a.status === 'CALCULADO' && (
-                    <Button size="sm" intent="secondary" loading={approve.isPending} onClick={() => approve.mutate(a.id)}>
+                    <Button
+                      size="sm"
+                      intent="secondary"
+                      loading={approve.isPending}
+                      onClick={() => approve.mutate(a.id)}
+                    >
                       Validar
                     </Button>
                   ),
@@ -150,7 +187,9 @@ export function RoiAnalysisTab() {
         </div>
       </Card>
 
-      {wizardOpen && <NewRoiAnalysisWizard onClose={() => setWizardOpen(false)} />}
+      {wizardOpen && (
+        <NewRoiAnalysisWizard onClose={() => setWizardOpen(false)} />
+      )}
     </div>
   );
 }

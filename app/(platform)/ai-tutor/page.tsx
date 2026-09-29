@@ -2,7 +2,11 @@
 'use client';
 
 import { useState } from 'react';
-import { EMPLOYEE_NAV, ADMIN_NAV, TITLES } from '@/components/ai-tutor/constants';
+import {
+  EMPLOYEE_NAV,
+  ADMIN_NAV,
+  TITLES,
+} from '@/components/ai-tutor/constants';
 import { ChatView } from '@/components/ai-tutor/ChatView';
 import { OverviewView } from '@/components/ai-tutor/OverviewView';
 import { KnowledgeBaseView } from '@/components/ai-tutor/KnowledgeBaseView';
@@ -27,14 +31,27 @@ export default function AiTutorPage() {
     <div className="max-w-5xl mx-auto px-4 py-8">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="font-display text-xl font-semibold text-ink">{TITLES[view]}</h1>
+          <h1 className="font-display text-xl font-semibold text-ink">
+            {TITLES[view]}
+          </h1>
         </div>
       </div>
 
+      {/* Tabs — formato de "cartão": cada trigger é um cartão independente
+          (borda + fundo branco + rounded), sem underline no container.
+          Alinhadas horizontal e verticalmente (justify-center +
+          items-center no TabsList, flex items-center em cada TabsTrigger)
+          com largura mínima uniforme. Estado activo usa data-[state=active]
+          do Radix para aplicar destaque azul (borda/fundo/texto primary). */}
       <Tabs value={view} onValueChange={(v) => setView(v as View)}>
-        <TabsList className="mb-6 w-fit">
+        <TabsList className="mb-6 flex w-full flex-wrap items-center justify-center gap-2 bg-transparent p-0">
           {nav.map((n) => (
-            <TabsTrigger key={n.id} value={n.id}>
+            <TabsTrigger
+              key={n.id}
+              value={n.id}
+              className="flex min-w-[140px] items-center justify-center whitespace-nowrap rounded-lg border border-border bg-white px-4 py-2 text-center text-sm font-medium text-foreground shadow-none
+                         data-[state=active]:border-primary data-[state=active]:bg-primary/10 data-[state=active]:text-primary"
+            >
               {n.label}
             </TabsTrigger>
           ))}

@@ -46,9 +46,13 @@ export function useDirectoryUsers(rawSearch: string, enabled = true) {
 
 /** Lista de unidades/filiais (GET /units) — para o Select "Unidade/empresa". */
 export function useUnits(enabled = true) {
-  const query = useApiQuery<UnitOption[]>(queryKeys.departments.units(), '/units', {
-    staleTime: STALE_TIME.SEMI_STATIC,
-    enabled,
-  });
+  const query = useApiQuery<UnitOption[]>(
+    queryKeys.departments.units(),
+    '/units',
+    {
+      staleTime: STALE_TIME.SEMI_STATIC,
+      enabled,
+    },
+  );
   return { units: query.data ?? [], loading: query.isLoading };
 }

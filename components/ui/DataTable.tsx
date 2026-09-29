@@ -9,7 +9,14 @@ import { useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react';
 import { cn } from '@/lib/cn';
-import { Table, TableHead, TableBody, TableRow, TableHeaderCell, TableCell } from './Table';
+import {
+  Table,
+  TableHead,
+  TableBody,
+  TableRow,
+  TableHeaderCell,
+  TableCell,
+} from './Table';
 import { Pagination } from './Pagination';
 import { Input } from './Input';
 import { EmptyState } from './EmptyState';
@@ -46,35 +53,52 @@ export function DataTable<T>({
   emptyLabel = 'Não há registos para mostrar.',
   className,
 }: DataTableProps<T>) {
-  const [sort, setSort] = useState<{ key: string; dir: 'asc' | 'desc' } | null>(null);
+  const [sort, setSort] = useState<{ key: string; dir: 'asc' | 'desc' } | null>(
+    null,
+  );
   const [query, setQuery] = useState('');
   const [page, setPage] = useState(1);
 
   const filtered = useMemo(() => {
     if (!query || !searchKeys?.length) return data;
     const q = query.toLowerCase();
-    return data.filter((row) => searchKeys.some((key) => String(row[key] ?? '').toLowerCase().includes(q)));
+    return data.filter((row) =>
+      searchKeys.some((key) =>
+        String(row[key] ?? '')
+          .toLowerCase()
+          .includes(q),
+      ),
+    );
   }, [data, query, searchKeys]);
 
   const sorted = useMemo(() => {
     if (!sort) return filtered;
     const col = columns.find((c) => c.key === sort.key);
     if (!col) return filtered;
-    const getValue = col.accessor ?? ((row: T) => (row as Record<string, unknown>)[col.key] as string | number);
+    const getValue =
+      col.accessor ??
+      ((row: T) =>
+        (row as Record<string, unknown>)[col.key] as string | number);
     return [...filtered].sort((a, b) => {
       const va = getValue(a);
       const vb = getValue(b);
       if (va == null && vb == null) return 0;
       if (va == null) return 1;
       if (vb == null) return -1;
-      const cmp = typeof va === 'number' && typeof vb === 'number' ? va - vb : String(va).localeCompare(String(vb));
+      const cmp =
+        typeof va === 'number' && typeof vb === 'number'
+          ? va - vb
+          : String(va).localeCompare(String(vb));
       return sort.dir === 'asc' ? cmp : -cmp;
     });
   }, [filtered, sort, columns]);
 
   const totalPages = Math.max(1, Math.ceil(sorted.length / pageSize));
   const currentPage = Math.min(page, totalPages);
-  const pageRows = sorted.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+  const pageRows = sorted.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize,
+  );
 
   function toggleSort(key: string) {
     setSort((prev) => {
@@ -109,8 +133,13 @@ export function DataTable<T>({
                 {columns.map((col) => (
                   <TableHeaderCell
                     key={col.key}
-                    className={cn(col.sortable && 'cursor-pointer select-none', col.className)}
-                    onClick={col.sortable ? () => toggleSort(col.key) : undefined}
+                    className={cn(
+                      col.sortable && 'cursor-pointer select-none',
+                      col.className,
+                    )}
+                    onClick={
+                      col.sortable ? () => toggleSort(col.key) : undefined
+                    }
                   >
                     <span className="inline-flex items-center gap-1">
                       {col.header}
@@ -122,7 +151,11 @@ export function DataTable<T>({
                             <ArrowDown size={12} strokeWidth={2} />
                           )
                         ) : (
-                          <ArrowUpDown size={12} strokeWidth={2} className="text-ink-faint" />
+                          <ArrowUpDown
+                            size={12}
+                            strokeWidth={2}
+                            className="text-ink-faint"
+                          />
                         ))}
                     </span>
                   </TableHeaderCell>
@@ -134,14 +167,22 @@ export function DataTable<T>({
                 <TableRow key={rowKey(row)}>
                   {columns.map((col) => (
                     <TableCell key={col.key} className={col.className}>
-                      {col.render ? col.render(row) : String((row as Record<string, unknown>)[col.key] ?? '—')}
+                      {col.render
+                        ? col.render(row)
+                        : String(
+                            (row as Record<string, unknown>)[col.key] ?? '—',
+                          )}
                     </TableCell>
                   ))}
                 </TableRow>
               ))}
             </TableBody>
           </Table>
-          <Pagination page={currentPage} totalPages={totalPages} onPageChange={setPage} />
+          <Pagination
+            page={currentPage}
+            totalPages={totalPages}
+            onPageChange={setPage}
+          />
         </>
       )}
     </div>

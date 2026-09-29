@@ -11,7 +11,11 @@ import type { Funder } from '@/components/crm/funders/types';
 
 export function useFundersList() {
   const { page, setPage, search, onSearchChange, filters, setFilter, query } =
-    usePaginatedListQuery<{ data: Funder[]; total: number; totalPages: number }>({
+    usePaginatedListQuery<{
+      data: Funder[];
+      total: number;
+      totalPages: number;
+    }>({
       queryKey: (params) => queryKeys.funders.list(params),
       path: '/crm/funders',
       filterKeys: ['type', 'status'],

@@ -1,135 +1,102 @@
+// src/app/(dashboard)/events/page.tsx
 'use client';
 
-// ─── app/(dashboard)/processes/page.tsx ──────────────────────────────────────
-// INNOVA — Process Standard (BPM/SOP)
+// Container: gere a navegação entre as abas principais do módulo
+// (docs/events.md) e monta o CreateEventModal. Remodel em curso — uma
+// tarefa do events.md de cada vez; cada aba arranca como placeholder
+// (EmptyState) e ganha conteúdo real quando a respectiva tarefa for
+// trabalhada. CatalogView/MyEventsView/OrganizerView/DetailView (nav
+// anterior: catálogo/os meus eventos/organizador) ficam por agora sem
+// referência — o trabalho de cada secção decide o que delas é reaproveitado.
 //
-// Container: gere a navegação entre os 5 separadores/vistas (cada um
-// auto-contido — dados + apresentação, mesmo padrão de
-// components/payslips/page.tsx). Ver memory
-// project_innova_component_separation_audit.
-// ─────────────────────────────────────────────────────────────────────────────
+// O botão "Criar evento" abria só um toast placeholder — ver memory
+// project_innova_frontend_placeholder_toast_buttons. Monta o
+// CreateEventModal (POST /events), visível apenas para ADMIN/RH/GESTOR
+// (espelha @Roles em src/events/events.controller.ts#create).
 
 import { useState } from 'react';
 import { Plus } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
-import { ADMIN_ROLES } from '@/lib/roles';
-import { CreateProcessModal } from '@/components/processes/CreateProcessModal';
-import { DashboardView } from '@/components/processes/DashboardView';
-import { LibraryView } from '@/components/processes/LibraryView';
-import { MyTasksView } from '@/components/processes/MyTasksView';
-import { ProcessViewer } from '@/components/processes/ProcessViewer';
-import { TaskRunner } from '@/components/processes/TaskRunner';
+import type { Role } from '@/lib/roles';
+import { NAV, TITLES } from '@/components/events/constants';
+import { CalendarTab } from '@/components/events/CalendarTab';
+import { CheckinAttendanceTab } from '@/components/events/CheckinAttendanceTab';
+import { CommunicationTab } from '@/components/events/CommunicationTab';
+import { CreateEventModal } from '@/components/events/CreateEventModal';
+import { EvaluationTab } from '@/components/events/EvaluationTab';
+import { EventsTab } from '@/components/events/EventsTab';
+import { OverviewTab } from '@/components/events/OverviewTab';
+import { ParticipantsTab } from '@/components/events/ParticipantsTab';
+import { ReportsTab } from '@/components/events/ReportsTab';
+import { ScheduleTab } from '@/components/events/ScheduleTab';
+import { SpeakersGuestsTab } from '@/components/events/SpeakersGuestsTab';
+import { VenuesLogisticsTab } from '@/components/events/VenuesLogisticsTab';
+import type { Nav } from '@/components/events/types';
+import { Button } from '@/components/ui/Button';
 
-type TabKey = 'library' | 'tasks' | 'dashboard';
+// Espelha @Roles(ADMIN, RH, GESTOR) em src/events/events.controller.ts#create.
+const CAN_CREATE_ROLES: readonly Role[] = ['ADMIN', 'RH', 'GESTOR'];
 
-type Nav =
-  | { view: 'library' }
-  | { view: 'tasks' }
-  | { view: 'dashboard' }
-  | { view: 'viewer'; processId: number }
-  | { view: 'runner'; instanceId: number; processId: number | null };
-
-const NAV: Array<{ id: TabKey; label: string }> = [
-  { id: 'library', label: 'Biblioteca' },
-  { id: 'tasks', label: 'Minhas tarefas' },
-  { id: 'dashboard', label: 'Dashboard' },
-];
-
-export default function ProcessStandardPage() {
+export default function EventsPage() {
   const role = useCurrentRole();
-  const canCreate = !!role && ADMIN_ROLES.includes(role);
+  const canCreate = !!role && CAN_CREATE_ROLES.includes(role);
 
-  const [nav, setNav] = useState<Nav>({ view: 'library' });
+  const [nav, setNav] = useState<Nav>({ view: 'overview' });
   const [showCreate, setShowCreate] = useState(false);
-
-  const handleSelectProcess = (id: number) => {
-    setNav({ view: 'viewer', processId: id });
-  };
-
-  const handleStartInstance = (instanceId: number) => {
-    setNav({
-      view: 'runner',
-      instanceId,
-      processId: nav.view === 'viewer' ? nav.processId : null,
-    });
-  };
-
-  const handleOpenInstance = (instanceId: number) => {
-    setNav({ view: 'runner', instanceId, processId: null });
-  };
-
-  const handleBack = () => {
-    if (nav.view === 'runner' && nav.processId !== null) {
-      setNav({ view: 'viewer', processId: nav.processId });
-    } else {
-      setNav({ view: 'library' });
-    }
-  };
-
-  const titles: Record<Nav['view'], string> = {
-    library: 'Biblioteca de Processos',
-    viewer: 'Visualizar Processo',
-    runner: 'Executar Processo',
-    tasks: 'Minhas Tarefas',
-    dashboard: 'Dashboard Operacional',
-  };
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-8">
-      {/* Header */}
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="font-display text-xl font-semibold text-ink">
-            {titles[nav.view]}
-          </h1>
+          <div className="mb-1">
+            <h1 className="font-display text-xl font-semibold text-ink">
+              {TITLES[nav.view]}
+            </h1>
+          </div>
         </div>
-        {nav.view === 'library' && canCreate && (
-          <Button onClick={() => setShowCreate(true)}>
-            <Plus size={16} strokeWidth={1.75} />
-            Novo processo
+        {canCreate && (
+          <Button size="sm" onClick={() => setShowCreate(true)}>
+            <Plus size={14} strokeWidth={1.75} />
+            Criar evento
           </Button>
         )}
       </div>
 
-      {/* Tabs (não mostrar em viewer/runner) */}
-      {nav.view !== 'viewer' && nav.view !== 'runner' && (
-        <div className="mb-6 flex w-fit gap-1 rounded-card bg-surface-sunken p-1">
-          {NAV.map((n) => (
-            <Button
-              key={n.id}
-              size="sm"
-              intent={nav.view === n.id ? 'primary' : 'ghost'}
-              onClick={() => setNav({ view: n.id })}
-            >
-              {n.label}
-            </Button>
-          ))}
-        </div>
-      )}
+      {/* Tabs — formato de "cartão": cada botão é um cartão independente
+          (borda + fundo branco + rounded), sem o fundo/pill de grupo
+          anterior. Alinhadas horizontal e verticalmente (justify-center +
+          items-center no wrapper) com largura mínima uniforme. Estado
+          activo usa a mesma condição `nav.view === n.id` de sempre para
+          aplicar destaque azul (borda/fundo/texto primary). */}
+      <div className="mb-6 flex w-full flex-wrap items-center justify-center gap-2">
+        {NAV.map((n) => (
+          <button
+            key={n.id}
+            onClick={() => setNav({ view: n.id })}
+            className={`flex min-w-[140px] items-center justify-center whitespace-nowrap rounded-lg border px-4 py-2 text-center text-sm font-medium transition-colors ${
+              nav.view === n.id
+                ? 'border-primary bg-primary/10 text-primary'
+                : 'border-border bg-white text-ink-muted hover:text-ink'
+            }`}
+          >
+            {n.label}
+          </button>
+        ))}
+      </div>
 
-      {/* Views */}
-      {nav.view === 'library' && <LibraryView onSelect={handleSelectProcess} />}
-      {nav.view === 'viewer' && (
-        <ProcessViewer
-          processId={nav.processId}
-          onBack={handleBack}
-          onStartInstance={handleStartInstance}
-        />
-      )}
-      {nav.view === 'runner' && (
-        <TaskRunner instanceId={nav.instanceId} onBack={handleBack} />
-      )}
-      {nav.view === 'tasks' && (
-        <MyTasksView onOpenInstance={handleOpenInstance} />
-      )}
-      {nav.view === 'dashboard' && (
-        <DashboardView onOpenInstance={handleOpenInstance} />
-      )}
+      {nav.view === 'overview' && <OverviewTab />}
+      {nav.view === 'events' && <EventsTab />}
+      {nav.view === 'calendar' && <CalendarTab />}
+      {nav.view === 'participants' && <ParticipantsTab />}
+      {nav.view === 'schedule' && <ScheduleTab />}
+      {nav.view === 'venues-logistics' && <VenuesLogisticsTab />}
+      {nav.view === 'speakers-guests' && <SpeakersGuestsTab />}
+      {nav.view === 'communication' && <CommunicationTab />}
+      {nav.view === 'checkin-attendance' && <CheckinAttendanceTab />}
+      {nav.view === 'evaluation' && <EvaluationTab />}
+      {nav.view === 'reports' && <ReportsTab />}
 
-      {showCreate && (
-        <CreateProcessModal onClose={() => setShowCreate(false)} />
-      )}
+      {showCreate && <CreateEventModal onClose={() => setShowCreate(false)} />}
     </div>
   );
 }

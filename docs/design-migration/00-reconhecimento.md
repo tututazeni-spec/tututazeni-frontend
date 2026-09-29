@@ -15,21 +15,21 @@ deixado limpo em `main`, sem branch nem ficheiros novos.
 
 ## 1. Stack e configuração confirmada
 
-| Parâmetro | Valor |
-|---|---|
-| Next.js | 15.3.6, App Router |
-| React | 19.2.3 |
-| TypeScript | ^5 |
-| Alias de importação | `@/*` → raiz do repo |
-| Estilos | **Tailwind CSS v4** (config 100% em CSS via `@theme` em `app/globals.css`, sem `tailwind.config.js`). Não há CSS Modules nem styled-components no projecto. |
-| Ícones | `lucide-react` **já instalado** (^1.7.0) — não é preciso `npm i`. |
-| Fonte actual | Sora (display) + Inter (body) + IBM Plex Mono (dados), self-hosted via `next/font/local` (ficheiros `.woff2` no repo, não `next/font/google` — ver risco 4). |
-| Gráficos | **Nenhuma biblioteca de gráficos instalada** (sem Chart.js/Recharts/D3). Não há nada a remover na Fase 7 nesse ponto. |
-| Sessão/utilizador | `hooks/useCurrentUser.ts` (React Query sobre cookie httpOnly `token`), `hooks/useCurrentRole.ts` para RBAC. |
-| Middleware | `middleware.ts` — protege tudo exceto `/login` (público) e `/verify`, `/health` (abertos), via cookie `token`. |
-| Grupo de rotas autenticadas | **`app/(platform)/`, já existe** — layout próprio (`app/(platform)/layout.tsx`) com `<Sidebar />` + `<Topbar />`. A Fase 2 do guia (criar grupo `(app)`) já está feita sob outro nome; não é preciso criar nada, só adaptar o layout existente. |
-| Rotas públicas fora do grupo | `app/login/`, `app/page.tsx`, `app/error.tsx`, `app/global-error.tsx`, `app/health/`. |
-| `tenantName` | Não existe no código actual (nem em `Topbar.tsx` nem em `useCurrentUser`). Consistente com o guia: usar `"INNOVA"` por omissão até existir em Definições. |
+| Parâmetro                    | Valor                                                                                                                                                                                                                                           |
+| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Next.js                      | 15.3.6, App Router                                                                                                                                                                                                                              |
+| React                        | 19.2.3                                                                                                                                                                                                                                          |
+| TypeScript                   | ^5                                                                                                                                                                                                                                              |
+| Alias de importação          | `@/*` → raiz do repo                                                                                                                                                                                                                            |
+| Estilos                      | **Tailwind CSS v4** (config 100% em CSS via `@theme` em `app/globals.css`, sem `tailwind.config.js`). Não há CSS Modules nem styled-components no projecto.                                                                                     |
+| Ícones                       | `lucide-react` **já instalado** (^1.7.0) — não é preciso `npm i`.                                                                                                                                                                               |
+| Fonte actual                 | Sora (display) + Inter (body) + IBM Plex Mono (dados), self-hosted via `next/font/local` (ficheiros `.woff2` no repo, não `next/font/google` — ver risco 4).                                                                                    |
+| Gráficos                     | **Nenhuma biblioteca de gráficos instalada** (sem Chart.js/Recharts/D3). Não há nada a remover na Fase 7 nesse ponto.                                                                                                                           |
+| Sessão/utilizador            | `hooks/useCurrentUser.ts` (React Query sobre cookie httpOnly `token`), `hooks/useCurrentRole.ts` para RBAC.                                                                                                                                     |
+| Middleware                   | `middleware.ts` — protege tudo exceto `/login` (público) e `/verify`, `/health` (abertos), via cookie `token`.                                                                                                                                  |
+| Grupo de rotas autenticadas  | **`app/(platform)/`, já existe** — layout próprio (`app/(platform)/layout.tsx`) com `<Sidebar />` + `<Topbar />`. A Fase 2 do guia (criar grupo `(app)`) já está feita sob outro nome; não é preciso criar nada, só adaptar o layout existente. |
+| Rotas públicas fora do grupo | `app/login/`, `app/page.tsx`, `app/error.tsx`, `app/global-error.tsx`, `app/health/`.                                                                                                                                                           |
+| `tenantName`                 | Não existe no código actual (nem em `Topbar.tsx` nem em `useCurrentUser`). Consistente com o guia: usar `"INNOVA"` por omissão até existir em Definições.                                                                                       |
 
 ## 2. ⚠️ Risco principal — já existe um design system completo, é diferente do novo
 
@@ -43,6 +43,7 @@ todos os módulos** (rollout "Vagas 1-5", concluído — ver `components/ui/`,
 `StatusBadge`, `PathProgress`) e uma rota `/styleguide` que o documenta.
 
 Esse sistema actual (`app/globals.css`, bloco `@theme`) é:
+
 - **Tema claro apenas** — `color-scheme: light` fixado deliberadamente
   (comentário no código explica que isto evita que o "Auto Dark Mode" do
   Chrome/Edge tente escurecer conteúdo montado em Portal — modais, toasts —
@@ -135,15 +136,15 @@ ponto de paragem.
 73 páginas em 61 pastas de módulo. Agrupamento proposto, seguindo a ordem
 sugerida no guia e ajustado aos módulos reais deste projecto:
 
-| Lote | Módulos (pasta em `app/(platform)/`) |
-|---|---|
-| A | `courses`, `courses/modulos`, `courses/[courseId]`, `trainings`, `enrollments` |
-| B | `crm`, `crm/beneficiaries`, `crm/partners`, `crm/funders` |
-| C | `development-plans` (PDI), `career`, `competencies`, `competency-map` |
-| D | `evaluation`, `evaluation360`, `assessments`, `feedback` |
-| E | `events`, `live-classes`, `onboarding` |
-| F | `organization`, `departments`, `employees`, `users`, `roles-permissions`, `acl`, `settings` |
-| G | `library`, `content-library`, `knowledge`, `automation`, `processes`, `api-integrations`, `scalability`, `ai-tutor` |
+| Lote                                                           | Módulos (pasta em `app/(platform)/`)                                                                                                                                                                                                                                                                    |
+| -------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| A                                                              | `courses`, `courses/modulos`, `courses/[courseId]`, `trainings`, `enrollments`                                                                                                                                                                                                                          |
+| B                                                              | `crm`, `crm/beneficiaries`, `crm/partners`, `crm/funders`                                                                                                                                                                                                                                               |
+| C                                                              | `development-plans` (PDI), `career`, `competencies`, `competency-map`                                                                                                                                                                                                                                   |
+| D                                                              | `evaluation`, `evaluation360`, `assessments`, `feedback`                                                                                                                                                                                                                                                |
+| E                                                              | `events`, `live-classes`, `onboarding`                                                                                                                                                                                                                                                                  |
+| F                                                              | `organization`, `departments`, `employees`, `users`, `roles-permissions`, `acl`, `settings`                                                                                                                                                                                                             |
+| G                                                              | `library`, `content-library`, `knowledge`, `automation`, `processes`, `api-integrations`, `scalability`, `ai-tutor`                                                                                                                                                                                     |
 | H (fora da lista original do guia, específicos deste projecto) | `dashboard-rh`, `dashboard/institutional`, `analytics`, `executive-reports`, `reports`, `monitoring`, `monitoring/indicators`, `audit`, `attendance`, `leave`, `payroll`, `payslips`, `declarations`, `work-declaration`, `documents`, `history`, `notifications`, `roi-impact`, `search`, `styleguide` |
 
 `styleguide` é a página que documenta o design system **actual** — decisão

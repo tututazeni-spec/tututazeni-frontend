@@ -26,9 +26,11 @@
 ### Task 1: `app/(platform)/engagement/page.tsx`
 
 **Files:**
+
 - Modify: `app/(platform)/engagement/page.tsx`
 
 **Interfaces:**
+
 - Consumes: `Button` (`@/components/ui/Button`), `Tabs`/`TabsList`/`TabsTrigger`/`TabsContent` (`@/components/ui/Tabs`).
 
 - [ ] **Step 1: Reescrever `app/(platform)/engagement/page.tsx`**
@@ -79,7 +81,9 @@ export default function EngagementPage() {
               <div className="rounded-control bg-primary-subtle p-1.5">
                 <Smile size={18} strokeWidth={1.75} className="text-primary" />
               </div>
-              <h1 className="font-display text-xl font-bold text-ink">Engagement</h1>
+              <h1 className="font-display text-xl font-bold text-ink">
+                Engagement
+              </h1>
             </div>
             <p className="font-body text-sm text-ink-faint">
               Surveys · Reconhecimento · Feedback · Mood · Analytics
@@ -105,7 +109,11 @@ export default function EngagementPage() {
             {TABS.map((t) => {
               const Icon = t.icon;
               return (
-                <TabsTrigger key={t.id} value={t.id} className="gap-2 whitespace-nowrap">
+                <TabsTrigger
+                  key={t.id}
+                  value={t.id}
+                  className="gap-2 whitespace-nowrap"
+                >
                   <Icon size={15} strokeWidth={1.75} />
                   {t.label}
                 </TabsTrigger>
@@ -163,9 +171,11 @@ Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>"
 ### Task 2: `components/engagement/constants.ts`
 
 **Files:**
+
 - Modify: `components/engagement/constants.ts`
 
 **Interfaces:**
+
 - Produces: `LEVEL_CONFIG: Record<string, { label: string; color: string; bg: string }>` (mesma forma, valores agora são classes de token), `GRADE_COLOR: Record<string, { text: string; border: string }>` (**forma nova** — antes era `Record<string, string>` com uma string combinada tipo `"text-X border-Y"` que o `OverviewTab` fatiava com `.split(' ')[0]`; a Task 3 consome a forma nova directamente, sem `.split`).
 - `MOOD_EMOJI`/`MOOD_LABEL` não mudam.
 
@@ -255,9 +265,11 @@ Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>"
 ### Task 3: `components/engagement/OverviewTab.tsx`
 
 **Files:**
+
 - Modify: `components/engagement/OverviewTab.tsx`
 
 **Interfaces:**
+
 - Consumes: `Avatar`, `Badge`(não usado aqui, ver nota), `Button`, `Card`/`CardBody`, `KpiCard`, `ProgressBar`, `Skeleton` (`@/components/ui/*`); `GRADE_COLOR`/`LEVEL_CONFIG` na forma nova da Task 2.
 
 - [ ] **Step 1: Reescrever `components/engagement/OverviewTab.tsx`**
@@ -360,11 +372,15 @@ export function OverviewTab({ userId }: OverviewTabProps) {
               </span>
             </div>
             <div className="text-right">
-              <p className="font-body text-xs text-ink-muted">Human Success Score</p>
+              <p className="font-body text-xs text-ink-muted">
+                Human Success Score
+              </p>
               <div
                 className={`flex h-16 w-16 flex-col items-center justify-center rounded-full border-4 ${grade.border}`}
               >
-                <span className={`font-display text-2xl font-black ${grade.text}`}>
+                <span
+                  className={`font-display text-2xl font-black ${grade.text}`}
+                >
                   {summary.hssGrade}
                 </span>
               </div>
@@ -407,14 +423,18 @@ export function OverviewTab({ userId }: OverviewTabProps) {
         {/* eNPS visual */}
         <Card>
           <CardBody>
-            <h3 className="mb-4 font-display font-semibold text-ink">eNPS Breakdown</h3>
+            <h3 className="mb-4 font-display font-semibold text-ink">
+              eNPS Breakdown
+            </h3>
             {dash?.enpsBreakdown && (
               <div className="space-y-3">
                 {ENPS_ROWS.map((row) => (
                   <div key={row.key}>
                     <div className="mb-1 flex justify-between text-xs">
                       <span className="flex items-center gap-1.5 text-ink-muted">
-                        <span className={`h-1.5 w-1.5 rounded-full ${row.dotClass}`} />
+                        <span
+                          className={`h-1.5 w-1.5 rounded-full ${row.dotClass}`}
+                        />
                         {row.label}
                       </span>
                       <span className="font-semibold text-ink">
@@ -425,7 +445,9 @@ export function OverviewTab({ userId }: OverviewTabProps) {
                   </div>
                 ))}
                 <div className="mt-4 flex items-center justify-between border-t border-border pt-3">
-                  <span className="font-body text-sm text-ink-muted">Score eNPS</span>
+                  <span className="font-body text-sm text-ink-muted">
+                    Score eNPS
+                  </span>
                   <span
                     className={`font-display text-2xl font-bold ${(dash.enpsBreakdown.enps ?? 0) >= 0 ? 'text-success' : 'text-danger'}`}
                   >
@@ -451,18 +473,28 @@ export function OverviewTab({ userId }: OverviewTabProps) {
               <div className="space-y-3">
                 {dash?.recentRecognitions.map((r, i) => (
                   <div key={i} className="flex items-center gap-3">
-                    <Avatar name={r.from?.fullName ?? 'User'} url={r.from?.avatarUrl} size="sm" />
+                    <Avatar
+                      name={r.from?.fullName ?? 'User'}
+                      url={r.from?.avatarUrl}
+                      size="sm"
+                    />
                     <div className="min-w-0 flex-1">
                       <p className="font-body text-xs text-ink-muted">
-                        <span className="font-medium text-ink">{r.from?.fullName}</span>
+                        <span className="font-medium text-ink">
+                          {r.from?.fullName}
+                        </span>
                         {' → '}
-                        <span className="font-medium text-ink">{r.to?.fullName}</span>
+                        <span className="font-medium text-ink">
+                          {r.to?.fullName}
+                        </span>
                       </p>
                       <p className="truncate font-body text-[10px] text-ink-faint">
                         {r.message}
                       </p>
                     </div>
-                    <span className="text-sm">{r.type === 'KUDOS' ? '👏' : '🏅'}</span>
+                    <span className="text-sm">
+                      {r.type === 'KUDOS' ? '👏' : '🏅'}
+                    </span>
                   </div>
                 ))}
               </div>
@@ -475,7 +507,11 @@ export function OverviewTab({ userId }: OverviewTabProps) {
       {(summary?.surveys.length ?? 0) > 0 && (
         <div className="rounded-card border border-warning bg-warning-subtle p-4">
           <div className="mb-3 flex items-center gap-2">
-            <AlertTriangle size={16} strokeWidth={1.75} className="text-warning-ink" />
+            <AlertTriangle
+              size={16}
+              strokeWidth={1.75}
+              className="text-warning-ink"
+            />
             <p className="font-body text-sm font-semibold text-warning-ink">
               {summary!.surveys.length} survey
               {summary!.surveys.length > 1 ? 's' : ''} pendente
@@ -489,7 +525,9 @@ export function OverviewTab({ userId }: OverviewTabProps) {
                 className="flex items-center justify-between rounded-control bg-surface px-3 py-2"
               >
                 <div>
-                  <p className="font-body text-sm font-medium text-ink">{s.title}</p>
+                  <p className="font-body text-sm font-medium text-ink">
+                    {s.title}
+                  </p>
                   <p className="font-body text-xs text-ink-faint">{s.type}</p>
                 </div>
                 <Button size="sm">Responder</Button>
@@ -523,9 +561,11 @@ Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>"
 ### Task 4: `components/engagement/SurveysTab.tsx`
 
 **Files:**
+
 - Modify: `components/engagement/SurveysTab.tsx`
 
 **Interfaces:**
+
 - Consumes: `Badge` (+ `BadgeProps` type), `Button`, `Card`/`CardBody`, `EmptyState`, `ProgressBar`, `Skeleton` (`@/components/ui/*`).
 
 - [ ] **Step 1: Reescrever `components/engagement/SurveysTab.tsx`**
@@ -617,9 +657,13 @@ export function SurveysTab() {
             <CardBody>
               <div className="mb-3 flex items-start justify-between">
                 <span className="text-2xl">{TYPE_ICON[s.type] ?? '📋'}</span>
-                <Badge intent={STATUS_INTENT[s.status] ?? 'neutral'}>{s.status}</Badge>
+                <Badge intent={STATUS_INTENT[s.status] ?? 'neutral'}>
+                  {s.status}
+                </Badge>
               </div>
-              <h4 className="mb-1 font-display text-sm font-semibold text-ink">{s.title}</h4>
+              <h4 className="mb-1 font-display text-sm font-semibold text-ink">
+                {s.title}
+              </h4>
               <p className="mb-3 line-clamp-2 font-body text-xs text-ink-faint">
                 {s.description}
               </p>
@@ -683,9 +727,11 @@ Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>"
 ### Task 5: `components/engagement/RecognitionTab.tsx`
 
 **Files:**
+
 - Modify: `components/engagement/RecognitionTab.tsx`
 
 **Interfaces:**
+
 - Consumes: `Avatar`, `Badge`, `Button`, `Card`/`CardBody`, `EmptyState`, `Input`, `Skeleton` (`@/components/ui/*`).
 
 - [ ] **Step 1: Reescrever `components/engagement/RecognitionTab.tsx`**
@@ -751,7 +797,9 @@ export function RecognitionTab() {
         {/* Quick kudos box */}
         <Card>
           <CardBody>
-            <h3 className="mb-3 font-display font-semibold text-ink">👏 Dar Kudos</h3>
+            <h3 className="mb-3 font-display font-semibold text-ink">
+              👏 Dar Kudos
+            </h3>
             <div className="flex gap-2">
               <Input
                 value={kudosTo}
@@ -776,13 +824,19 @@ export function RecognitionTab() {
             <Card key={i}>
               <CardBody>
                 <div className="flex items-start gap-3">
-                  <Avatar name={r.from?.fullName ?? 'User'} url={r.from?.avatarUrl} size="md" />
+                  <Avatar
+                    name={r.from?.fullName ?? 'User'}
+                    url={r.from?.avatarUrl}
+                    size="md"
+                  />
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="font-body text-sm font-semibold text-ink">
                         {r.from?.fullName}
                       </span>
-                      <span className="font-body text-xs text-ink-faint">reconheceu</span>
+                      <span className="font-body text-xs text-ink-faint">
+                        reconheceu
+                      </span>
                       <span className="font-body text-sm font-semibold text-primary">
                         {r.to?.fullName}
                       </span>
@@ -794,7 +848,9 @@ export function RecognitionTab() {
                             : r.type}
                       </Badge>
                     </div>
-                    <p className="mt-1 font-body text-sm text-ink-muted">{r.message}</p>
+                    <p className="mt-1 font-body text-sm text-ink-muted">
+                      {r.message}
+                    </p>
                     <p className="mt-1 font-body text-[10px] text-ink-faint">
                       {new Date(r.createdAt).toLocaleDateString('pt')}
                       {r.to?.department?.name && ` · ${r.to.department.name}`}
@@ -818,16 +874,28 @@ export function RecognitionTab() {
       {/* Leaderboard */}
       <Card className="h-fit">
         <CardBody>
-          <h3 className="mb-4 font-display font-semibold text-ink">🏅 Leaderboard</h3>
+          <h3 className="mb-4 font-display font-semibold text-ink">
+            🏅 Leaderboard
+          </h3>
           <div className="space-y-3">
             {board.map((u, i) => (
               <div key={i} className="flex items-center gap-3">
                 <span
                   className={`w-6 text-center text-sm font-bold ${RANK_COLOR[i] ?? 'text-ink-faint'}`}
                 >
-                  {i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `#${i + 1}`}
+                  {i === 0
+                    ? '🥇'
+                    : i === 1
+                      ? '🥈'
+                      : i === 2
+                        ? '🥉'
+                        : `#${i + 1}`}
                 </span>
-                <Avatar name={u.user?.fullName ?? 'User'} url={u.user?.avatarUrl} size="sm" />
+                <Avatar
+                  name={u.user?.fullName ?? 'User'}
+                  url={u.user?.avatarUrl}
+                  size="sm"
+                />
                 <div className="min-w-0 flex-1">
                   <p className="truncate font-body text-sm font-medium text-ink">
                     {u.user?.fullName}
@@ -868,9 +936,11 @@ Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>"
 ### Task 6: `components/engagement/FeedbackTab.tsx`
 
 **Files:**
+
 - Modify: `components/engagement/FeedbackTab.tsx`
 
 **Interfaces:**
+
 - Consumes: `Avatar`, `Badge` (+ `BadgeProps`), `Button`, `Card`/`CardBody`, `EmptyState`, `Skeleton`, `Textarea` (`@/components/ui/*`).
 
 - [ ] **Step 1: Reescrever `components/engagement/FeedbackTab.tsx`**
@@ -963,7 +1033,9 @@ export function FeedbackTab({ userId }: FeedbackTabProps) {
       {/* New feedback box */}
       <Card>
         <CardBody>
-          <h3 className="mb-3 font-display font-semibold text-ink">💬 Novo Feedback</h3>
+          <h3 className="mb-3 font-display font-semibold text-ink">
+            💬 Novo Feedback
+          </h3>
           <div className="mb-3 flex gap-2">
             {NEW_FEEDBACK_TYPES.map((t) => (
               <Button
@@ -1034,9 +1106,13 @@ export function FeedbackTab({ userId }: FeedbackTabProps) {
                     </p>
                   </div>
                 </div>
-                <Badge intent={TYPE_INTENT[f.type] ?? 'neutral'}>{f.type}</Badge>
+                <Badge intent={TYPE_INTENT[f.type] ?? 'neutral'}>
+                  {f.type}
+                </Badge>
               </div>
-              <p className="ml-10 font-body text-sm text-ink-muted">{f.message}</p>
+              <p className="ml-10 font-body text-sm text-ink-muted">
+                {f.message}
+              </p>
               {f.reply && (
                 <div className="ml-10 mt-2 rounded-control border-l-2 border-primary bg-surface-sunken p-2">
                   <p className="font-body text-xs text-ink-muted">Resposta:</p>
@@ -1047,10 +1123,7 @@ export function FeedbackTab({ userId }: FeedbackTabProps) {
           </Card>
         ))}
         {data.length === 0 && (
-          <EmptyState
-            icon={MessageSquare}
-            title="Nenhum feedback encontrado"
-          />
+          <EmptyState icon={MessageSquare} title="Nenhum feedback encontrado" />
         )}
       </div>
     </div>
@@ -1076,9 +1149,11 @@ Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>"
 ### Task 7: `components/engagement/AnalyticsTab.tsx`
 
 **Files:**
+
 - Modify: `components/engagement/AnalyticsTab.tsx`
 
 **Interfaces:**
+
 - Consumes: `Button`, `Card`/`CardBody`, `ProgressBar`, `Skeleton` (`@/components/ui/*`), `LEVEL_CONFIG` (forma da Task 2).
 
 - [ ] **Step 1: Reescrever `components/engagement/AnalyticsTab.tsx`**
@@ -1130,7 +1205,9 @@ function heatmapCellClass(pct: number | null): string {
 }
 
 export function AnalyticsTab() {
-  const [metric, setMetric] = useState<'score' | 'participation' | 'mood'>('score');
+  const [metric, setMetric] = useState<'score' | 'participation' | 'mood'>(
+    'score',
+  );
 
   const indexQuery = useApiQuery<EngagementIndex>(
     queryKeys.engagement.index(),
@@ -1164,7 +1241,9 @@ export function AnalyticsTab() {
         >
           <div className="flex items-start justify-between">
             <div>
-              <p className="mb-1 font-body text-xs text-ink-muted">Índice de Engajamento</p>
+              <p className="mb-1 font-body text-xs text-ink-muted">
+                Índice de Engajamento
+              </p>
               <p
                 className={`font-display text-4xl font-black ${LEVEL_CONFIG[index.level]?.color ?? 'text-ink'}`}
               >
@@ -1200,14 +1279,19 @@ export function AnalyticsTab() {
       {(index?.history.length ?? 0) > 0 && (
         <Card>
           <CardBody>
-            <h3 className="mb-4 font-display font-semibold text-ink">Histórico de Surveys</h3>
+            <h3 className="mb-4 font-display font-semibold text-ink">
+              Histórico de Surveys
+            </h3>
             <div className="space-y-3">
               {index!.history.map((h, i) => (
                 <div key={i} className="flex items-center gap-4">
                   <div className="min-w-0 flex-1">
-                    <p className="truncate font-body text-xs font-medium text-ink">{h.title}</p>
+                    <p className="truncate font-body text-xs font-medium text-ink">
+                      {h.title}
+                    </p>
                     <p className="font-body text-[10px] text-ink-faint">
-                      {h.responses} respostas · {new Date(h.date).toLocaleDateString('pt')}
+                      {h.responses} respostas ·{' '}
+                      {new Date(h.date).toLocaleDateString('pt')}
                     </p>
                   </div>
                   <div className="flex shrink-0 items-center gap-3">
@@ -1231,7 +1315,9 @@ export function AnalyticsTab() {
       <Card>
         <CardBody>
           <div className="mb-4 flex items-center justify-between">
-            <h3 className="font-display font-semibold text-ink">Heatmap por Departamento</h3>
+            <h3 className="font-display font-semibold text-ink">
+              Heatmap por Departamento
+            </h3>
             <div className="flex gap-1">
               {METRICS.map((m) => (
                 <Button
@@ -1276,7 +1362,9 @@ export function AnalyticsTab() {
                     )}
                   </div>
                   {pct === null && (
-                    <span className="font-body text-xs text-ink-faint">Sem dados</span>
+                    <span className="font-body text-xs text-ink-faint">
+                      Sem dados
+                    </span>
                   )}
                 </div>
               );
@@ -1313,9 +1401,11 @@ Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>"
 ### Task 8: `components/engagement/MoodCheckin.tsx`
 
 **Files:**
+
 - Modify: `components/engagement/MoodCheckin.tsx`
 
 **Interfaces:**
+
 - Consumes: `IconButton` (`@/components/ui/Button`), `Input` (`@/components/ui/Input`).
 
 - [ ] **Step 1: Reescrever `components/engagement/MoodCheckin.tsx`**
@@ -1378,7 +1468,9 @@ export function MoodCheckin({ onDone }: MoodCheckinProps) {
 
   return (
     <div className="rounded-card border border-primary-subtle bg-gradient-to-br from-primary-subtle to-accent-subtle p-5">
-      <p className="mb-3 font-body text-sm font-semibold text-ink">💫 Como te sentes hoje?</p>
+      <p className="mb-3 font-body text-sm font-semibold text-ink">
+        💫 Como te sentes hoje?
+      </p>
       <div className="mb-3 flex gap-3">
         {[5, 4, 3, 2, 1].map((m) => (
           <button
@@ -1391,7 +1483,9 @@ export function MoodCheckin({ onDone }: MoodCheckinProps) {
             }`}
           >
             <span className="text-2xl">{MOOD_EMOJI[m]}</span>
-            <span className="font-body text-[10px] text-ink-muted">{MOOD_LABEL[m]}</span>
+            <span className="font-body text-[10px] text-ink-muted">
+              {MOOD_LABEL[m]}
+            </span>
           </button>
         ))}
       </div>
@@ -1403,7 +1497,12 @@ export function MoodCheckin({ onDone }: MoodCheckinProps) {
             placeholder="Nota opcional (não é obrigatório)..."
             className="flex-1"
           />
-          <IconButton icon={Send} label="Enviar" onClick={submit} disabled={submitting} />
+          <IconButton
+            icon={Send}
+            label="Enviar"
+            onClick={submit}
+            disabled={submitting}
+          />
         </div>
       )}
     </div>
@@ -1429,14 +1528,17 @@ Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>"
 ### Task 9: Eliminar `atoms.tsx` + verificação final
 
 **Files:**
+
 - Delete: `components/engagement/atoms.tsx`
 
 - [ ] **Step 1: Confirmar que nada importa de `./atoms`**
 
 Run (PowerShell ou Bash):
+
 ```
 grep -rn "from './atoms'" components/engagement/
 ```
+
 Expected: 0 resultados (Tasks 3-8 já removeram todos os imports).
 
 - [ ] **Step 2: Eliminar o ficheiro**
@@ -1448,9 +1550,11 @@ git rm components/engagement/atoms.tsx
 - [ ] **Step 3: Grep de paleta crua**
 
 Run:
+
 ```
 grep -rniE "(violet|indigo|slate|amber|emerald|red|teal)-[0-9]{2,3}|text-white\b" components/engagement/ "app/(platform)/engagement/page.tsx"
 ```
+
 Expected: 0 resultados. Se aparecer algo, é uma classe que escapou à
 migração de uma task anterior — corrigir antes de continuar (não é um
 gap novo, é uma reversão a uma task já feita).

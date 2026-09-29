@@ -65,12 +65,21 @@ const TYPE_LABEL: Record<string, string> = {
   PROJECT: 'Por Projecto',
   CUSTOM: 'Personalizado',
 };
-const TYPE_ITEMS = Object.entries(TYPE_LABEL).map(([value, label]) => ({ value, label }));
+const TYPE_ITEMS = Object.entries(TYPE_LABEL).map(([value, label]) => ({
+  value,
+  label,
+}));
 
 // Espelha o enum EvaluatorRole do backend. Pesos por omissão pedidos: 10%
 // autoavaliação, 30% gestor directo, 20% pares (mesma função), 40%
 // equipa/subordinados — soma 100.
-const WEIGHT_TYPES = ['SELF', 'MANAGER', 'PEER', 'SUBORDINATE', 'EXTERNAL'] as const;
+const WEIGHT_TYPES = [
+  'SELF',
+  'MANAGER',
+  'PEER',
+  'SUBORDINATE',
+  'EXTERNAL',
+] as const;
 type WeightType = (typeof WEIGHT_TYPES)[number];
 const WEIGHT_LABEL: Record<WeightType, string> = {
   SELF: 'Autoavaliação',
@@ -93,10 +102,12 @@ const ANONYMITY_LABEL: Record<string, string> = {
   SEMI_ANONYMOUS: 'Semi-anónimo (visível apenas para RH)',
   OPEN: 'Aberto (identidade visível para o avaliado)',
 };
-const ANONYMITY_ITEMS = Object.entries(ANONYMITY_LABEL).map(([value, label]) => ({
-  value,
-  label,
-}));
+const ANONYMITY_ITEMS = Object.entries(ANONYMITY_LABEL).map(
+  ([value, label]) => ({
+    value,
+    label,
+  }),
+);
 
 interface CompetencyOption {
   id: number;
@@ -116,9 +127,13 @@ interface QuestionnaireOption {
   code: string;
 }
 
-export function CreateCycleModal({ onClose, onSuccess }: CreateCycleModalProps) {
+export function CreateCycleModal({
+  onClose,
+  onSuccess,
+}: CreateCycleModalProps) {
   const notify = useToast();
-  const { options: departmentOptions, loading: departmentsLoading } = useDepartmentOptions();
+  const { options: departmentOptions, loading: departmentsLoading } =
+    useDepartmentOptions();
   const {
     values: form,
     setField,
@@ -136,7 +151,8 @@ export function CreateCycleModal({ onClose, onSuccess }: CreateCycleModalProps) 
   );
 
   const [departmentIds, setDepartmentIds] = useState<string[]>([]);
-  const [weights, setWeights] = useState<Record<WeightType, string>>(DEFAULT_WEIGHTS);
+  const [weights, setWeights] =
+    useState<Record<WeightType, string>>(DEFAULT_WEIGHTS);
   const [submitError, setSubmitError] = useState('');
 
   // docs/evaluation360.md §3 "Configuração" + "Privacidade" — campos reais
@@ -160,28 +176,41 @@ export function CreateCycleModal({ onClose, onSuccess }: CreateCycleModalProps) 
     Record<number, { weight: string; isRequired: boolean }>
   >({});
 
-  const { data: competencyCatalogue, isLoading: competenciesLoading } = useApiQuery<
-    CompetencyOption[]
-  >(queryKeys.evaluation360.competencies(), '/evaluation360/competencies', {
-    enabled: useCustomCompetencies,
-    staleTime: STALE_TIME.STATIC,
-  });
+  const { data: competencyCatalogue, isLoading: competenciesLoading } =
+    useApiQuery<CompetencyOption[]>(
+      queryKeys.evaluation360.competencies(),
+      '/evaluation360/competencies',
+      {
+        enabled: useCustomCompetencies,
+        staleTime: STALE_TIME.STATIC,
+      },
+    );
 
   // Questionário (docs/evaluation360.md §6) — alternativa a
   // competências avulsas/doutrina-padrão: sobrepõe-se a `useCustomCompetencies`
   // quando escolhido (evaluation360.service.ts#createCycle clona as
   // competências+perguntas do questionário para o ciclo).
   const [questionnaireId, setQuestionnaireId] = useState('');
-  const { data: questionnairesData, isLoading: questionnairesLoading } = useApiQuery<{
-    data: QuestionnaireOption[];
-  }>(
-    queryKeys.evaluation360.questionnaires({ tenantId: 'default', status: 'PUBLISHED' }),
-    '/evaluation360/questionnaires',
-    { params: { tenantId: 'default', status: 'PUBLISHED', limit: '100' }, staleTime: STALE_TIME.STATIC },
-  );
+  const { data: questionnairesData, isLoading: questionnairesLoading } =
+    useApiQuery<{
+      data: QuestionnaireOption[];
+    }>(
+      queryKeys.evaluation360.questionnaires({
+        tenantId: 'default',
+        status: 'PUBLISHED',
+      }),
+      '/evaluation360/questionnaires',
+      {
+        params: { tenantId: 'default', status: 'PUBLISHED', limit: '100' },
+        staleTime: STALE_TIME.STATIC,
+      },
+    );
   const questionnaireOptions = [
     { value: '', label: 'Nenhum (usar competências abaixo)' },
-    ...(questionnairesData?.data ?? []).map((q) => ({ value: q.id, label: `${q.name} (${q.code})` })),
+    ...(questionnairesData?.data ?? []).map((q) => ({
+      value: q.id,
+      label: `${q.name} (${q.code})`,
+    })),
   ];
 
   const toggleCompetency = (id: number) =>
@@ -197,7 +226,9 @@ export function CreateCycleModal({ onClose, onSuccess }: CreateCycleModalProps) 
     );
   const toggleCompetencyRequired = (id: number) =>
     setCompetencySelection((prev) =>
-      prev[id] ? { ...prev, [id]: { ...prev[id], isRequired: !prev[id].isRequired } } : prev,
+      prev[id]
+        ? { ...prev, [id]: { ...prev[id], isRequired: !prev[id].isRequired } }
+        : prev,
     );
   const selectedCompetencyIds = Object.keys(competencySelection).map(Number);
 
@@ -211,7 +242,10 @@ export function CreateCycleModal({ onClose, onSuccess }: CreateCycleModalProps) 
       ) as Record<string, number>,
     [weights],
   );
-  const weightTotal = WEIGHT_TYPES.reduce((s, t) => s + (Number(weights[t]) || 0), 0);
+  const weightTotal = WEIGHT_TYPES.reduce(
+    (s, t) => s + (Number(weights[t]) || 0),
+    0,
+  );
 
   const toggleDepartment = (id: string) =>
     setDepartmentIds((prev) =>
@@ -220,37 +254,45 @@ export function CreateCycleModal({ onClose, onSuccess }: CreateCycleModalProps) 
 
   const createAndDistribute = useApiMutation(
     async () => {
-      const cycle = await apiClient.post<CreatedCycle>('/evaluation360/cycles', {
-        tenantId: 'default',
-        name: form.name.trim(),
-        model: 'DEG_360',
-        type: form.type,
-        startDate: form.startDate,
-        endDate: form.endDate,
-        ...weightPayload,
-        anonymityMode,
-        quorumMinimum: Number(quorumMinimum) || 3,
-        gracePeriodDays: Number(gracePeriodDays) || 0,
-        linkedToPdi,
-        linkedToBonus,
-        linkedToOkrs,
-        ...(form.description.trim() ? { description: form.description.trim() } : {}),
-        ...(questionnaireId
-          ? { questionnaireId }
-          : useCustomCompetencies && selectedCompetencyIds.length > 0
-            ? {
-                competencies: selectedCompetencyIds.map((id, order) => ({
-                  competencyId: String(id),
-                  weight: Number(competencySelection[id].weight) || 1,
-                  isRequired: competencySelection[id].isRequired,
-                  order,
-                })),
-              }
+      const cycle = await apiClient.post<CreatedCycle>(
+        '/evaluation360/cycles',
+        {
+          tenantId: 'default',
+          name: form.name.trim(),
+          model: 'DEG_360',
+          type: form.type,
+          startDate: form.startDate,
+          endDate: form.endDate,
+          ...weightPayload,
+          anonymityMode,
+          quorumMinimum: Number(quorumMinimum) || 3,
+          gracePeriodDays: Number(gracePeriodDays) || 0,
+          linkedToPdi,
+          linkedToBonus,
+          linkedToOkrs,
+          ...(form.description.trim()
+            ? { description: form.description.trim() }
             : {}),
-      });
-      await apiClient.post(`/evaluation360/cycles/${cycle.id}/participants/by-department`, {
-        departmentIds,
-      });
+          ...(questionnaireId
+            ? { questionnaireId }
+            : useCustomCompetencies && selectedCompetencyIds.length > 0
+              ? {
+                  competencies: selectedCompetencyIds.map((id, order) => ({
+                    competencyId: String(id),
+                    weight: Number(competencySelection[id].weight) || 1,
+                    isRequired: competencySelection[id].isRequired,
+                    order,
+                  })),
+                }
+              : {}),
+        },
+      );
+      await apiClient.post(
+        `/evaluation360/cycles/${cycle.id}/participants/by-department`,
+        {
+          departmentIds,
+        },
+      );
       return apiClient.post(`/evaluation360/cycles/${cycle.id}/distribute`);
     },
     {
@@ -269,15 +311,20 @@ export function CreateCycleModal({ onClose, onSuccess }: CreateCycleModalProps) 
         onClose();
       },
       onError: () =>
-        setSubmitError('Erro ao criar/distribuir o ciclo. Verifica os dados e tenta de novo.'),
+        setSubmitError(
+          'Erro ao criar/distribuir o ciclo. Verifica os dados e tenta de novo.',
+        ),
     },
   );
   const loading = createAndDistribute.isPending;
 
   const localError = (() => {
-    if (!form.startDate || !form.endDate) return 'Indica as datas de início e fim.';
-    if (form.endDate < form.startDate) return 'A data de fim não pode ser anterior à de início.';
-    if (departmentIds.length === 0) return 'Escolhe pelo menos um departamento a avaliar.';
+    if (!form.startDate || !form.endDate)
+      return 'Indica as datas de início e fim.';
+    if (form.endDate < form.startDate)
+      return 'A data de fim não pode ser anterior à de início.';
+    if (departmentIds.length === 0)
+      return 'Escolhe pelo menos um departamento a avaliar.';
     if (weightTotal !== 100)
       return `Os pesos por papel têm de somar 100 (soma actual: ${weightTotal}).`;
     if (useCustomCompetencies && selectedCompetencyIds.length === 0)
@@ -371,7 +418,9 @@ export function CreateCycleModal({ onClose, onSuccess }: CreateCycleModalProps) 
             </p>
             <div className="max-h-40 overflow-y-auto rounded-card border border-border p-2 space-y-1">
               {departmentsLoading && (
-                <div className="px-1 py-1 text-sm text-ink-muted">A carregar…</div>
+                <div className="px-1 py-1 text-sm text-ink-muted">
+                  A carregar…
+                </div>
               )}
               {!departmentsLoading && departmentOptions.length === 0 && (
                 <div className="px-1 py-1 text-sm text-ink-muted">
@@ -411,8 +460,8 @@ export function CreateCycleModal({ onClose, onSuccess }: CreateCycleModalProps) 
               </span>
             </div>
             <p className="mt-1 mb-2 font-body text-xs text-ink-muted">
-              A soma tem de dar 100. Valores por omissão: 10% autoavaliação,
-              30% gestor directo, 20% pares, 40% equipa/subordinados.
+              A soma tem de dar 100. Valores por omissão: 10% autoavaliação, 30%
+              gestor directo, 20% pares, 40% equipa/subordinados.
             </p>
             <div className="space-y-2">
               {WEIGHT_TYPES.map((type) => (
@@ -429,7 +478,9 @@ export function CreateCycleModal({ onClose, onSuccess }: CreateCycleModalProps) 
                     min={0}
                     max={100}
                     value={weights[type]}
-                    onChange={(e) => setWeights((w) => ({ ...w, [type]: e.target.value }))}
+                    onChange={(e) =>
+                      setWeights((w) => ({ ...w, [type]: e.target.value }))
+                    }
                     className="w-24"
                   />
                 </div>
@@ -451,7 +502,11 @@ export function CreateCycleModal({ onClose, onSuccess }: CreateCycleModalProps) 
             />
           </FormField>
 
-          <div className={questionnaireId ? 'opacity-50 pointer-events-none' : undefined}>
+          <div
+            className={
+              questionnaireId ? 'opacity-50 pointer-events-none' : undefined
+            }
+          >
             <label className="flex items-center gap-2 font-body text-sm font-medium text-ink">
               <input
                 type="checkbox"
@@ -464,23 +519,29 @@ export function CreateCycleModal({ onClose, onSuccess }: CreateCycleModalProps) 
             </label>
             <p className="mt-1 mb-2 font-body text-xs text-ink-muted">
               Por omissão o ciclo usa as 8 competências-padrão da INNOVA. Aqui
-              podes escolher outras do módulo Competências e ajustar o peso e
-              se são obrigatórias.
+              podes escolher outras do módulo Competências e ajustar o peso e se
+              são obrigatórias.
             </p>
             {useCustomCompetencies && (
               <div className="max-h-48 overflow-y-auto rounded-card border border-border p-2 space-y-1">
                 {competenciesLoading && (
-                  <div className="px-1 py-1 text-sm text-ink-muted">A carregar…</div>
-                )}
-                {!competenciesLoading && (competencyCatalogue ?? []).length === 0 && (
                   <div className="px-1 py-1 text-sm text-ink-muted">
-                    Nenhuma competência encontrada no catálogo.
+                    A carregar…
                   </div>
                 )}
+                {!competenciesLoading &&
+                  (competencyCatalogue ?? []).length === 0 && (
+                    <div className="px-1 py-1 text-sm text-ink-muted">
+                      Nenhuma competência encontrada no catálogo.
+                    </div>
+                  )}
                 {(competencyCatalogue ?? []).map((c) => {
                   const selection = competencySelection[c.id];
                   return (
-                    <div key={c.id} className="rounded-control px-1 py-1 hover:bg-surface-sunken">
+                    <div
+                      key={c.id}
+                      className="rounded-control px-1 py-1 hover:bg-surface-sunken"
+                    >
                       <label className="flex items-center gap-2 font-body text-sm text-ink">
                         <input
                           type="checkbox"
@@ -503,7 +564,9 @@ export function CreateCycleModal({ onClose, onSuccess }: CreateCycleModalProps) 
                             type="number"
                             min={0}
                             value={selection.weight}
-                            onChange={(e) => setCompetencyWeight(c.id, e.target.value)}
+                            onChange={(e) =>
+                              setCompetencyWeight(c.id, e.target.value)
+                            }
                             className="w-20"
                           />
                           <label className="flex items-center gap-2 font-body text-xs text-ink-muted">
@@ -548,7 +611,10 @@ export function CreateCycleModal({ onClose, onSuccess }: CreateCycleModalProps) 
                 className="w-full"
               />
             </FormField>
-            <FormField label="Dias de tolerância após o prazo" htmlFor="cyc-grace">
+            <FormField
+              label="Dias de tolerância após o prazo"
+              htmlFor="cyc-grace"
+            >
               <Input
                 id="cyc-grace"
                 type="number"
@@ -561,7 +627,9 @@ export function CreateCycleModal({ onClose, onSuccess }: CreateCycleModalProps) 
           </div>
 
           <div>
-            <span className="font-body text-sm font-medium text-ink">Ligações</span>
+            <span className="font-body text-sm font-medium text-ink">
+              Ligações
+            </span>
             <p className="mt-1 mb-2 font-body text-xs text-ink-muted">
               Os resultados deste ciclo podem alimentar outros módulos.
             </p>
@@ -598,10 +666,18 @@ export function CreateCycleModal({ onClose, onSuccess }: CreateCycleModalProps) 
         </div>
 
         <div className="mt-6 flex gap-3 border-t border-border pt-4">
-          <Button intent="secondary" className="flex-1 justify-center" onClick={onClose}>
+          <Button
+            intent="secondary"
+            className="flex-1 justify-center"
+            onClick={onClose}
+          >
             Cancelar
           </Button>
-          <Button className="flex-1 justify-center" onClick={handleSubmit} loading={loading}>
+          <Button
+            className="flex-1 justify-center"
+            onClick={handleSubmit}
+            loading={loading}
+          >
             {loading ? 'A criar e distribuir...' : 'Criar e Distribuir'}
           </Button>
         </div>

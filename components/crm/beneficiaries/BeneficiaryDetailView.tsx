@@ -59,7 +59,9 @@ export function BeneficiaryDetailView({
           >
             ← Voltar à lista
           </button>
-          <h1 className="font-display text-2xl font-bold text-ink">{b.fullName}</h1>
+          <h1 className="font-display text-2xl font-bold text-ink">
+            {b.fullName}
+          </h1>
           <p className="font-mono font-body text-ink-muted">{b.code}</p>
         </div>
         <div className="flex items-center gap-3">
@@ -167,24 +169,36 @@ export function BeneficiaryDetailView({
         <Card>
           <div className="divide-y divide-border">
             {b.needs.length === 0 ? (
-              <p className="p-4 font-body text-ink-faint">Sem necessidades registadas</p>
+              <p className="p-4 font-body text-ink-faint">
+                Sem necessidades registadas
+              </p>
             ) : (
               b.needs.map((n) => (
-                <div key={n.id} className="p-4 flex justify-between items-center">
+                <div
+                  key={n.id}
+                  className="p-4 flex justify-between items-center"
+                >
                   <div>
-                    <p className="font-medium font-body text-ink">{n.category}</p>
-                    <p className="font-body text-sm text-ink-muted">{n.description}</p>
+                    <p className="font-medium font-body text-ink">
+                      {n.category}
+                    </p>
+                    <p className="font-body text-sm text-ink-muted">
+                      {n.description}
+                    </p>
                   </div>
                   <div className="flex items-center gap-2">
                     <span
                       className={cn(
                         'inline-flex items-center rounded-pill px-2 py-1 font-body text-xs font-semibold',
-                        PRIORITY_COLORS[n.priority] ?? 'bg-surface-sunken text-ink-muted',
+                        PRIORITY_COLORS[n.priority] ??
+                          'bg-surface-sunken text-ink-muted',
                       )}
                     >
                       {n.priority}
                     </span>
-                    <span className="font-body text-xs text-ink-muted">{n.status}</span>
+                    <span className="font-body text-xs text-ink-muted">
+                      {n.status}
+                    </span>
                   </div>
                 </div>
               ))
@@ -204,7 +218,10 @@ export function BeneficiaryDetailView({
               <p className="p-4 font-body text-ink-faint">Sem documentos</p>
             ) : (
               b.documents.map((d) => (
-                <div key={d.id} className="p-4 flex justify-between items-center">
+                <div
+                  key={d.id}
+                  className="p-4 flex justify-between items-center"
+                >
                   <div>
                     <a
                       href={d.fileUrl}
@@ -246,10 +263,7 @@ export function BeneficiaryDetailView({
         </div>
 
         {showForm && (
-          <form
-            onSubmit={submitInteraction}
-            className="mb-4 space-y-3"
-          >
+          <form onSubmit={submitInteraction} className="mb-4 space-y-3">
             <Card>
               <CardBody className="space-y-3">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -281,7 +295,9 @@ export function BeneficiaryDetailView({
                   required
                   placeholder="Assunto"
                   value={form.subject}
-                  onChange={(e) => setForm({ ...form, subject: e.target.value })}
+                  onChange={(e) =>
+                    setForm({ ...form, subject: e.target.value })
+                  }
                 />
                 <Textarea
                   required
@@ -295,7 +311,9 @@ export function BeneficiaryDetailView({
                 <Input
                   placeholder="Resultado (opcional)"
                   value={form.outcome}
-                  onChange={(e) => setForm({ ...form, outcome: e.target.value })}
+                  onChange={(e) =>
+                    setForm({ ...form, outcome: e.target.value })
+                  }
                 />
                 <Button type="submit">Guardar Interacção</Button>
               </CardBody>
@@ -306,7 +324,9 @@ export function BeneficiaryDetailView({
         <Card>
           <div className="divide-y divide-border">
             {b.interactions.length === 0 ? (
-              <p className="p-4 font-body text-ink-faint">Sem interacções registadas</p>
+              <p className="p-4 font-body text-ink-faint">
+                Sem interacções registadas
+              </p>
             ) : (
               b.interactions.map((it) => (
                 <div
@@ -324,7 +344,9 @@ export function BeneficiaryDetailView({
                       {it._optimistic ? 'A guardar…' : formatDate(it.date)}
                     </span>
                   </div>
-                  <p className="font-body text-sm text-ink-muted mt-1">{it.description}</p>
+                  <p className="font-body text-sm text-ink-muted mt-1">
+                    {it.description}
+                  </p>
                   <div className="flex gap-4 mt-1 font-body text-xs text-ink-faint">
                     {it.user?.fullName && <span>Por: {it.user.fullName}</span>}
                     {it.outcome && <span>Resultado: {it.outcome}</span>}

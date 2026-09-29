@@ -22,9 +22,14 @@ export interface ScenarioCompareModalProps {
   onClose: () => void;
 }
 
-export function ScenarioCompareModal({ ids, onClose }: ScenarioCompareModalProps) {
+export function ScenarioCompareModal({
+  ids,
+  onClose,
+}: ScenarioCompareModalProps) {
   const compare = useApiMutation((scenarioIds: number[]) =>
-    apiClient.post<ScenarioCompareData>('/roi-impact/scenarios/compare', { ids: scenarioIds }),
+    apiClient.post<ScenarioCompareData>('/roi-impact/scenarios/compare', {
+      ids: scenarioIds,
+    }),
   );
 
   useEffect(() => {
@@ -42,7 +47,11 @@ export function ScenarioCompareModal({ ids, onClose }: ScenarioCompareModalProps
         className="max-h-[90vh] max-w-3xl overflow-y-auto"
       >
         {compare.isPending || !data ? (
-          <Skeleton rows={2} wrapperClassName="space-y-3 animate-pulse" itemClassName="h-20 rounded-card bg-surface-sunken" />
+          <Skeleton
+            rows={2}
+            wrapperClassName="space-y-3 animate-pulse"
+            itemClassName="h-20 rounded-card bg-surface-sunken"
+          />
         ) : (
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             {data.scenarios.map((s, i) => (
@@ -59,7 +68,11 @@ export function ScenarioCompareModal({ ids, onClose }: ScenarioCompareModalProps
                   </p>
                   {s.id === data.bestId && (
                     <Badge intent="success">
-                      <Trophy size={12} strokeWidth={2} className="mr-1 inline" />
+                      <Trophy
+                        size={12}
+                        strokeWidth={2}
+                        className="mr-1 inline"
+                      />
                       Melhor ROI
                     </Badge>
                   )}
@@ -69,7 +82,8 @@ export function ScenarioCompareModal({ ids, onClose }: ScenarioCompareModalProps
                   <div className="flex justify-between">
                     <span className="text-ink-faint">Iniciativa</span>
                     <span className="text-ink">
-                      {INITIATIVE_TYPE_LABELS[s.initiativeType] ?? s.initiativeType}
+                      {INITIATIVE_TYPE_LABELS[s.initiativeType] ??
+                        s.initiativeType}
                     </span>
                   </div>
                   <div className="flex justify-between">
@@ -79,11 +93,15 @@ export function ScenarioCompareModal({ ids, onClose }: ScenarioCompareModalProps
                   <div className="flex justify-between">
                     <span className="text-ink-faint">Benefício esperado</span>
                     <span className="text-ink">
-                      {s.expectedBenefit != null ? fmt$(s.expectedBenefit) : '—'}
+                      {s.expectedBenefit != null
+                        ? fmt$(s.expectedBenefit)
+                        : '—'}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-ink-faint">ROI projectado (12 meses)</span>
+                    <span className="text-ink-faint">
+                      ROI projectado (12 meses)
+                    </span>
                     <span className="font-semibold text-ink">
                       {s.roiPercent != null ? `${s.roiPercent}%` : '—'}
                     </span>
@@ -91,7 +109,9 @@ export function ScenarioCompareModal({ ids, onClose }: ScenarioCompareModalProps
                   <div className="flex justify-between">
                     <span className="text-ink-faint">Payback projectado</span>
                     <span className="text-ink">
-                      {s.paybackMonths != null ? `${s.paybackMonths} meses` : '—'}
+                      {s.paybackMonths != null
+                        ? `${s.paybackMonths} meses`
+                        : '—'}
                     </span>
                   </div>
                 </div>
@@ -101,7 +121,11 @@ export function ScenarioCompareModal({ ids, onClose }: ScenarioCompareModalProps
         )}
 
         <div className="mt-6 flex border-t border-border pt-4">
-          <Button intent="secondary" className="flex-1 justify-center" onClick={onClose}>
+          <Button
+            intent="secondary"
+            className="flex-1 justify-center"
+            onClick={onClose}
+          >
             Fechar
           </Button>
         </div>

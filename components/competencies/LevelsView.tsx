@@ -49,7 +49,8 @@ export function LevelsView({ canManage }: LevelsViewProps) {
   );
 
   const remove = useApiMutation(
-    (levelId: number) => apiClient.delete(`/competencies/proficiency-levels/${levelId}`),
+    (levelId: number) =>
+      apiClient.delete(`/competencies/proficiency-levels/${levelId}`),
     {
       invalidateKeys: [queryKeys.competencies.all],
       onSuccess: () => toast({ title: 'Nível eliminado.', intent: 'success' }),
@@ -81,7 +82,10 @@ export function LevelsView({ canManage }: LevelsViewProps) {
     <div>
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
         <Select
-          items={[{ value: 'ALL', label: 'Todas as competências' }, ...competencyOptions]}
+          items={[
+            { value: 'ALL', label: 'Todas as competências' },
+            ...competencyOptions,
+          ]}
           value={competencyId}
           onValueChange={setCompetencyId}
           className="min-w-[220px]"
@@ -112,7 +116,10 @@ export function LevelsView({ canManage }: LevelsViewProps) {
                 <div className="font-body text-sm font-semibold text-ink">
                   {levels[0].competency.name}
                 </div>
-                <StatusBadge value={levels[0].competency.category} map={CATEGORY_CFG} />
+                <StatusBadge
+                  value={levels[0].competency.category}
+                  map={CATEGORY_CFG}
+                />
               </div>
               {levels
                 .sort((a, b) => a.value - b.value)
@@ -134,7 +141,9 @@ export function LevelsView({ canManage }: LevelsViewProps) {
                         )}
                       </div>
                       {lvl.description && (
-                        <div className="font-body text-xs text-ink-faint">{lvl.description}</div>
+                        <div className="font-body text-xs text-ink-faint">
+                          {lvl.description}
+                        </div>
                       )}
                     </div>
                     {(lvl.minScore != null || lvl.maxScore != null) && (
@@ -173,11 +182,14 @@ export function LevelsView({ canManage }: LevelsViewProps) {
       {form && (
         <LevelFormModal
           level={form.mode === 'edit' ? form.level : null}
-          competencyId={competencyId !== 'ALL' ? parseInt(competencyId, 10) : null}
+          competencyId={
+            competencyId !== 'ALL' ? parseInt(competencyId, 10) : null
+          }
           onClose={() => setForm(null)}
           onSuccess={() =>
             toast({
-              title: form.mode === 'edit' ? 'Nível actualizado.' : 'Nível criado.',
+              title:
+                form.mode === 'edit' ? 'Nível actualizado.' : 'Nível criado.',
               intent: 'success',
             })
           }

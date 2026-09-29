@@ -28,20 +28,23 @@ export default function ApiIntegrationsPage() {
         </div>
       </div>
 
+      {/* Tabs — formato de "cartão": cada trigger é um cartão independente
+          (borda + fundo branco + rounded), sem underline no container.
+          Alinhadas horizontal e verticalmente (justify-center +
+          items-center no TabsList, flex items-center em cada TabsTrigger)
+          com largura mínima uniforme. Estado activo usa data-[state=active]
+          do Radix para aplicar destaque azul (borda/fundo/texto primary). */}
       <Tabs defaultValue="integrations">
-        <div className="border-b border-border bg-surface px-6">
-          <TabsList className="mx-auto max-w-7xl overflow-x-auto gap-0">
-            {TABS.map((t, i) => {
+        <div className="bg-surface px-6 py-3">
+          <TabsList className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-2 overflow-x-auto bg-transparent p-0">
+            {TABS.map((t) => {
               const Icon = t.icon;
               return (
                 <TabsTrigger
                   key={t.id}
                   value={t.id}
-                  className={
-                    i < TABS.length - 1
-                      ? 'gap-2 whitespace-nowrap mr-[1cm]!'
-                      : 'gap-2 whitespace-nowrap'
-                  }
+                  className="flex min-w-[140px] items-center justify-center gap-2 whitespace-nowrap rounded-lg border border-border bg-white px-4 py-2 text-center text-sm font-medium text-foreground shadow-none
+                             data-[state=active]:border-primary data-[state=active]:bg-primary/10 data-[state=active]:text-primary"
                 >
                   <Icon size={16} strokeWidth={1.75} />
                   {t.label}

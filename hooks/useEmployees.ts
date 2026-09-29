@@ -10,8 +10,10 @@ import { useApiQuery } from './useApiQuery';
 import { queryKeys } from '../lib/queryKeys';
 import { STALE_TIME } from '../lib/queryClient';
 
-export type EmployeeStatus = 'ACTIVE' | 'INACTIVE' | 'ON_LEAVE' | 'TERMINATED' | 'SUSPENDED';
-export type SeniorityLevel = 'JUNIOR' | 'MID' | 'SENIOR' | 'LEAD' | 'MANAGER' | 'DIRECTOR' | 'C_LEVEL';
+export type EmployeeStatus =
+  'ACTIVE' | 'INACTIVE' | 'ON_LEAVE' | 'TERMINATED' | 'SUSPENDED';
+export type SeniorityLevel =
+  'JUNIOR' | 'MID' | 'SENIOR' | 'LEAD' | 'MANAGER' | 'DIRECTOR' | 'C_LEVEL';
 export type WorkMode = 'REMOTE' | 'HYBRID' | 'ON_SITE';
 export type ContractType =
   | 'INDEFINITE'
@@ -73,7 +75,8 @@ export interface EmployeesListMeta {
 
 export function useEmployees(filters: FilterState, page: number) {
   const params = {
-    page, limit: 20,
+    page,
+    limit: 20,
     search: filters.search,
     department: filters.department,
     status: filters.status,
@@ -82,8 +85,13 @@ export function useEmployees(filters: FilterState, page: number) {
     contractType: filters.contractType,
   };
   const q = useApiQuery<{ data: Employee[]; meta: EmployeesListMeta }>(
-    queryKeys.employees.list(params), '/employees',
-    { params, staleTime: STALE_TIME.DYNAMIC, placeholderData: keepPreviousData },
+    queryKeys.employees.list(params),
+    '/employees',
+    {
+      params,
+      staleTime: STALE_TIME.DYNAMIC,
+      placeholderData: keepPreviousData,
+    },
   );
   return {
     data: q.data ?? null,
@@ -95,7 +103,8 @@ export function useEmployees(filters: FilterState, page: number) {
 
 export function useHeadcount() {
   const q = useApiQuery<HeadcountStats>(
-    queryKeys.employees.headcount(), '/employees/headcount',
+    queryKeys.employees.headcount(),
+    '/employees/headcount',
     { staleTime: STALE_TIME.SEMI_STATIC },
   );
   return { stats: q.data ?? null, loading: q.isLoading };

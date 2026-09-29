@@ -59,13 +59,21 @@ export function DashboardView({
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-        <SummaryCard label="Total" value={String(totals.total)} color="text-ink" />
+        <SummaryCard
+          label="Total"
+          value={String(totals.total)}
+          color="text-ink"
+        />
         <SummaryCard
           label="Novos este mês"
           value={String(totals.newThisMonth)}
           color="text-primary"
         />
-        <SummaryCard label="Activos" value={String(totals.active)} color="text-success-ink" />
+        <SummaryCard
+          label="Activos"
+          value={String(totals.active)}
+          color="text-success-ink"
+        />
         <SummaryCard
           label="Follow-ups a 30 dias"
           value={String(totals.pendingFollowUps)}
@@ -79,8 +87,16 @@ export function DashboardView({
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <DistributionList title="Por tipo" data={distributions.byType} labelKey="type" />
-        <DistributionList title="Por estado" data={distributions.byStatus} labelKey="status" />
+        <DistributionList
+          title="Por tipo"
+          data={distributions.byType}
+          labelKey="type"
+        />
+        <DistributionList
+          title="Por estado"
+          data={distributions.byStatus}
+          labelKey="status"
+        />
         <DistributionList
           title="Por província"
           data={distributions.byProvince}
@@ -96,18 +112,27 @@ export function DashboardView({
         </div>
         <div className="divide-y divide-border">
           {recentInteractions.length === 0 ? (
-            <p className="p-4 font-body text-ink-faint">Sem interacções recentes</p>
+            <p className="p-4 font-body text-ink-faint">
+              Sem interacções recentes
+            </p>
           ) : (
             recentInteractions.map((it) => (
-              <div key={it.id} className="p-4 flex justify-between items-center">
+              <div
+                key={it.id}
+                className="p-4 flex justify-between items-center"
+              >
                 <div>
-                  <p className="font-body text-sm font-medium text-ink">{it.subject}</p>
+                  <p className="font-body text-sm font-medium text-ink">
+                    {it.subject}
+                  </p>
                   <p className="font-body text-xs text-ink-muted">
                     {it.beneficiary.fullName} ({it.beneficiary.code})
                     {it.user?.fullName ? ` · ${it.user.fullName}` : ''}
                   </p>
                 </div>
-                <span className="font-body text-xs text-ink-faint">{formatDate(it.date)}</span>
+                <span className="font-body text-xs text-ink-faint">
+                  {formatDate(it.date)}
+                </span>
               </div>
             ))
           )}

@@ -4,7 +4,15 @@
 // app/(platform)/courses/[courseId]/learn/page.tsx.
 
 export type LessonType =
-  'VIDEO' | 'PDF' | 'TEXT' | 'AUDIO' | 'SLIDE' | 'LINK' | 'SCORM' | 'QUIZ' | 'LIVE';
+  | 'VIDEO'
+  | 'PDF'
+  | 'TEXT'
+  | 'AUDIO'
+  | 'SLIDE'
+  | 'LINK'
+  | 'SCORM'
+  | 'QUIZ'
+  | 'LIVE';
 export type ModuleType = 'THEORETICAL' | 'PRACTICAL' | 'ASSESSMENT' | 'PROJECT';
 export type ModuleStatus = 'DRAFT' | 'PUBLISHED';
 

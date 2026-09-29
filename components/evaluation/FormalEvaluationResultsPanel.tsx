@@ -77,13 +77,21 @@ export function FormalEvaluationResultsPanel({
                     className="cursor-pointer"
                     onClick={() => setReviewAttemptId(row.attemptId)}
                   >
-                    <TableCell className="font-medium text-ink">{row.fullName}</TableCell>
-                    <TableCell className="text-ink-muted">{row.department ?? '—'}</TableCell>
+                    <TableCell className="font-medium text-ink">
+                      {row.fullName}
+                    </TableCell>
+                    <TableCell className="text-ink-muted">
+                      {row.department ?? '—'}
+                    </TableCell>
                     <TableCell className="font-data">
                       {row.displayGrade ?? '—'} / {data.assessment.maxGrade}
                     </TableCell>
                     <TableCell>
-                      <Badge intent={LABEL_INTENT[row.qualitativeLabel ?? ''] ?? 'neutral'}>
+                      <Badge
+                        intent={
+                          LABEL_INTENT[row.qualitativeLabel ?? ''] ?? 'neutral'
+                        }
+                      >
                         {row.qualitativeLabel ?? row.status}
                       </Badge>
                     </TableCell>

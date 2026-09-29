@@ -28,7 +28,9 @@ export function useDocuments(filters: DocFilters) {
     ...(filters.tag ? { tag: filters.tag } : {}),
     ...(filters.expiringSoon ? { expiringSoon: 'true' } : {}),
     ...(filters.status ? { status: filters.status } : {}),
-    ...(filters.requiresReadConfirmation ? { requiresReadConfirmation: 'true' } : {}),
+    ...(filters.requiresReadConfirmation
+      ? { requiresReadConfirmation: 'true' }
+      : {}),
   };
   const { data, isLoading, refetch } = useApiQuery<{
     data: Document[];
@@ -125,15 +127,15 @@ export function useToggleFavorite() {
 // ─── docs/biblioteca.md — Fluxo de aprovação ────────────────────────────────
 
 type WorkflowAction =
-  | 'submit-review'
-  | 'submit-approval'
-  | 'approve'
-  | 'publish'
-  | 'suspend';
+  'submit-review' | 'submit-approval' | 'approve' | 'publish' | 'suspend';
 
 export function useDocumentWorkflow() {
-  return useApiMutation<Document, { id: number; action: WorkflowAction; body?: object }>(
-    ({ id, action, body }) => apiClient.patch(`/documents/${id}/${action}`, body ?? {}),
+  return useApiMutation<
+    Document,
+    { id: number; action: WorkflowAction; body?: object }
+  >(
+    ({ id, action, body }) =>
+      apiClient.patch(`/documents/${id}/${action}`, body ?? {}),
     { invalidateKeys: [queryKeys.documents.all] },
   );
 }

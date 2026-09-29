@@ -7,7 +7,10 @@ import { cn } from '@/lib/cn';
 
 export const Tabs = RadixTabs.Root;
 
-export function TabsList({ className, ...props }: ComponentProps<typeof RadixTabs.List>) {
+export function TabsList({
+  className,
+  ...props
+}: ComponentProps<typeof RadixTabs.List>) {
   return (
     <RadixTabs.List
       className={cn('flex gap-1 border-b border-border', className)}
@@ -16,7 +19,10 @@ export function TabsList({ className, ...props }: ComponentProps<typeof RadixTab
   );
 }
 
-export function TabsTrigger({ className, ...props }: ComponentProps<typeof RadixTabs.Trigger>) {
+export function TabsTrigger({
+  className,
+  ...props
+}: ComponentProps<typeof RadixTabs.Trigger>) {
   return (
     <RadixTabs.Trigger
       className={cn(
@@ -31,10 +37,16 @@ export function TabsTrigger({ className, ...props }: ComponentProps<typeof Radix
   );
 }
 
-export function TabsContent({ className, ...props }: ComponentProps<typeof RadixTabs.Content>) {
+export function TabsContent({
+  className,
+  ...props
+}: ComponentProps<typeof RadixTabs.Content>) {
   return (
     <RadixTabs.Content
-      className={cn('pt-4 font-body text-sm text-ink focus-visible:outline-none', className)}
+      className={cn(
+        'pt-4 font-body text-sm text-ink focus-visible:outline-none',
+        className,
+      )}
       {...props}
     />
   );

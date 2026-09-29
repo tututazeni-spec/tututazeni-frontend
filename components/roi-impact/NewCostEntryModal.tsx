@@ -29,16 +29,25 @@ import {
   CATEGORY_BY_COST_SUBCATEGORY,
   COST_CATEGORY_LABELS,
 } from './utils';
-import type { CostSubCategory, InitiativeOption, LaborCostEstimateData, RoiInitiativeType } from './types';
+import type {
+  CostSubCategory,
+  InitiativeOption,
+  LaborCostEstimateData,
+  RoiInitiativeType,
+} from './types';
 
-const INITIATIVE_TYPE_ITEMS = Object.entries(INITIATIVE_TYPE_LABELS).map(([value, label]) => ({
-  value,
-  label,
-}));
-const SUBCATEGORY_ITEMS = Object.entries(COST_SUBCATEGORY_LABELS).map(([value, label]) => ({
-  value,
-  label: `${label} (${COST_CATEGORY_LABELS[CATEGORY_BY_COST_SUBCATEGORY[value]]})`,
-}));
+const INITIATIVE_TYPE_ITEMS = Object.entries(INITIATIVE_TYPE_LABELS).map(
+  ([value, label]) => ({
+    value,
+    label,
+  }),
+);
+const SUBCATEGORY_ITEMS = Object.entries(COST_SUBCATEGORY_LABELS).map(
+  ([value, label]) => ({
+    value,
+    label: `${label} (${COST_CATEGORY_LABELS[CATEGORY_BY_COST_SUBCATEGORY[value]]})`,
+  }),
+);
 
 export interface NewCostEntryModalProps {
   onClose: () => void;
@@ -48,9 +57,11 @@ export function NewCostEntryModal({ onClose }: NewCostEntryModalProps) {
   const notify = useToast();
   const [error, setError] = useState('');
 
-  const [initiativeType, setInitiativeType] = useState<RoiInitiativeType>('FORMACAO');
+  const [initiativeType, setInitiativeType] =
+    useState<RoiInitiativeType>('FORMACAO');
   const [initiativeId, setInitiativeId] = useState('');
-  const [subCategory, setSubCategory] = useState<CostSubCategory>('FORMADOR_CONSULTOR');
+  const [subCategory, setSubCategory] =
+    useState<CostSubCategory>('FORMADOR_CONSULTOR');
   const [description, setDescription] = useState('');
   const [amount, setAmount] = useState('');
   const [source, setSource] = useState('');
@@ -67,19 +78,30 @@ export function NewCostEntryModal({ onClose }: NewCostEntryModalProps) {
 
   const estimate = useApiMutation(
     () =>
-      apiClient.post<LaborCostEstimateData>('/roi-impact/costs/estimate-labor-cost', {
-        userIds: estimateUser ? [estimateUser.id] : [],
-        hours: Number(estimateHours),
-      }),
+      apiClient.post<LaborCostEstimateData>(
+        '/roi-impact/costs/estimate-labor-cost',
+        {
+          userIds: estimateUser ? [estimateUser.id] : [],
+          hours: Number(estimateHours),
+        },
+      ),
     {
       onSuccess: (data) => {
         setAmount(String(data.totalCost));
         setSource(
           `Payroll — ${estimateHours}h × salário/hora${data.note ? ` (${data.note})` : ''}`,
         );
-        notify({ title: 'Custo estimado a partir do Payroll', intent: 'success' });
+        notify({
+          title: 'Custo estimado a partir do Payroll',
+          intent: 'success',
+        });
       },
-      onError: (e) => notify({ title: 'Erro ao estimar', description: e.message, intent: 'danger' }),
+      onError: (e) =>
+        notify({
+          title: 'Erro ao estimar',
+          description: e.message,
+          intent: 'danger',
+        }),
     },
   );
 
@@ -95,16 +117,23 @@ export function NewCostEntryModal({ onClose }: NewCostEntryModalProps) {
         incurredAt: incurredAt || undefined,
       }),
     {
-      invalidateKeys: [queryKeys.roiImpact.costs(), queryKeys.roiImpact.costsConsolidation()],
+      invalidateKeys: [
+        queryKeys.roiImpact.costs(),
+        queryKeys.roiImpact.costsConsolidation(),
+      ],
       onSuccess: () => {
         notify({ title: 'Linha de custo guardada', intent: 'success' });
         onClose();
       },
-      onError: (e) => setError(e.message || 'Erro ao guardar a linha de custo.'),
+      onError: (e) =>
+        setError(e.message || 'Erro ao guardar a linha de custo.'),
     },
   );
 
-  const canEstimate = subCategory === 'HORAS_TRABALHO_PERDIDAS' && !!estimateUser && Number(estimateHours) > 0;
+  const canEstimate =
+    subCategory === 'HORAS_TRABALHO_PERDIDAS' &&
+    !!estimateUser &&
+    Number(estimateHours) > 0;
   const canSave = amount !== '' && Number(amount) >= 0;
 
   return (
@@ -136,7 +165,10 @@ export function NewCostEntryModal({ onClose }: NewCostEntryModalProps) {
             </FormField>
             <FormField label="Iniciativa" htmlFor="ce-init">
               <Select
-                items={(initiativeOptions ?? []).map((o) => ({ value: String(o.id), label: o.label }))}
+                items={(initiativeOptions ?? []).map((o) => ({
+                  value: String(o.id),
+                  label: o.label,
+                }))}
                 value={initiativeId}
                 onValueChange={setInitiativeId}
                 placeholder="Selecionar…"
@@ -167,7 +199,10 @@ export function NewCostEntryModal({ onClose }: NewCostEntryModalProps) {
                   value={estimateUser}
                   onChange={setEstimateUser}
                 />
-                <FormField label="Horas em formação" htmlFor="ce-estimate-hours">
+                <FormField
+                  label="Horas em formação"
+                  htmlFor="ce-estimate-hours"
+                >
                   <Input
                     id="ce-estimate-hours"
                     type="number"
@@ -233,7 +268,12 @@ export function NewCostEntryModal({ onClose }: NewCostEntryModalProps) {
         </div>
 
         <div className="mt-6 flex gap-3 border-t border-border pt-4">
-          <Button intent="secondary" className="justify-center" onClick={onClose} disabled={create.isPending}>
+          <Button
+            intent="secondary"
+            className="justify-center"
+            onClick={onClose}
+            disabled={create.isPending}
+          >
             Cancelar
           </Button>
           <Button

@@ -75,56 +75,64 @@ de paletas cruas (`gray-500`, `indigo-600`, …) por nomes semânticos:
 ```css
 @theme {
   /* superfícies */
-  --color-canvas: #F7F5EF;
-  --color-surface: #FFFFFF;
-  --color-surface-sunken: #F1EEE5;
-  --color-border: #E7E2D4;
-  --color-border-strong: #D8D1BE;
+  --color-canvas: #f7f5ef;
+  --color-surface: #ffffff;
+  --color-surface-sunken: #f1eee5;
+  --color-border: #e7e2d4;
+  --color-border-strong: #d8d1be;
 
   /* texto */
-  --color-ink: #20241F;
-  --color-ink-muted: #6E756B;
-  --color-ink-faint: #9AA097;
+  --color-ink: #20241f;
+  --color-ink-muted: #6e756b;
+  --color-ink-faint: #9aa097;
 
   /* marca */
-  --color-primary: #163A2E;
-  --color-primary-hover: #1F4E3D;
-  --color-primary-active: #0E2820;
-  --color-primary-subtle: #E7EFEA;
-  --color-accent: #D6963A;
-  --color-accent-hover: #C2822A;
-  --color-accent-subtle: #F3E1BE;
+  --color-primary: #163a2e;
+  --color-primary-hover: #1f4e3d;
+  --color-primary-active: #0e2820;
+  --color-primary-subtle: #e7efea;
+  --color-accent: #d6963a;
+  --color-accent-hover: #c2822a;
+  --color-accent-subtle: #f3e1be;
 
   /* semântica de estado — 4 pares (o pedido não mencionava "info";
      acrescentado porque os módulos já usam azul para "novo/informativo"
      de forma ad-hoc e sem token) */
-  --color-success: #2F9E63; --color-success-subtle: #E4F5EC; --color-success-ink: #1E7A4C;
-  --color-warning: #C97A1F; --color-warning-subtle: #FBEEDC; --color-warning-ink: #9C5F17;
-  --color-danger:  #B3432E; --color-danger-subtle:  #FBE7E2; --color-danger-ink:  #8F3421;
-  --color-info:    #3B6FA0; --color-info-subtle:    #E7EEF5; --color-info-ink:    #2C557E;
+  --color-success: #2f9e63;
+  --color-success-subtle: #e4f5ec;
+  --color-success-ink: #1e7a4c;
+  --color-warning: #c97a1f;
+  --color-warning-subtle: #fbeedc;
+  --color-warning-ink: #9c5f17;
+  --color-danger: #b3432e;
+  --color-danger-subtle: #fbe7e2;
+  --color-danger-ink: #8f3421;
+  --color-info: #3b6fa0;
+  --color-info-subtle: #e7eef5;
+  --color-info-ink: #2c557e;
 
   /* forma — nomes próprios, não colidem com a escala nativa do Tailwind */
-  --radius-control: 6px;  /* inputs, botões, badges não-pill */
-  --radius-card: 10px;    /* cards */
-  --radius-panel: 14px;   /* modais, painéis grandes */
-  --radius-pill: 999px;   /* badges de estado, avatar, chips */
+  --radius-control: 6px; /* inputs, botões, badges não-pill */
+  --radius-card: 10px; /* cards */
+  --radius-panel: 14px; /* modais, painéis grandes */
+  --radius-pill: 999px; /* badges de estado, avatar, chips */
 
   /* profundidade — subtil por omissão; cards assentam sobretudo no
      border, a sombra só cresce em hover/elevação real */
-  --shadow-resting: 0 1px 2px rgba(22,58,46,.06);  /* card em repouso */
-  --shadow-hover: 0 4px 12px rgba(22,58,46,.08);   /* hover, menus */
-  --shadow-elevated: 0 12px 32px rgba(22,58,46,.14); /* modal, popover */
+  --shadow-resting: 0 1px 2px rgba(22, 58, 46, 0.06); /* card em repouso */
+  --shadow-hover: 0 4px 12px rgba(22, 58, 46, 0.08); /* hover, menus */
+  --shadow-elevated: 0 12px 32px rgba(22, 58, 46, 0.14); /* modal, popover */
 
   /* ritmo de espaçamento — a regra explícita que o pedido descreveu
      ("espaço entre secções maior que dentro de uma secção") */
-  --space-stack: 12px;    /* gap entre elementos dentro da mesma secção */
-  --space-section: 40px;  /* gap entre secções maiores de uma página */
+  --space-stack: 12px; /* gap entre elementos dentro da mesma secção */
+  --space-section: 40px; /* gap entre secções maiores de uma página */
 
   /* movimento */
-  --duration-micro: 150ms;  /* hover, press */
-  --duration-base: 200ms;   /* aparecer/desaparecer pequenos */
-  --duration-panel: 250ms;  /* modal, painel lateral */
-  --ease-out: cubic-bezier(.16,1,.3,1);
+  --duration-micro: 150ms; /* hover, press */
+  --duration-base: 200ms; /* aparecer/desaparecer pequenos */
+  --duration-panel: 250ms; /* modal, painel lateral */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 
   /* tipografia — via next/font (ver secção 2) */
   --font-display: var(--font-sora);
@@ -133,7 +141,9 @@ de paletas cruas (`gray-500`, `indigo-600`, …) por nomes semânticos:
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+  *,
+  *::before,
+  *::after {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
@@ -149,16 +159,16 @@ para corpo/UI, IBM Plex Mono (400/500) para dados tabulares (payslips,
 audit, IDs). Escala (mantém o `body` a 14px que já está em uso, para não
 mudar a densidade geral da app):
 
-| Nome | Tamanho/altura | Peso | Uso |
-|---|---|---|---|
-| `display` | 32/40 | 800 | hero raro (ex.: número grande de dashboard executivo) |
-| `h1` | 24/32 | 700 | título de página |
-| `h2` | 20/28 | 700 | título de secção |
-| `h3` | 16/24 | 600 | título de card/sub-secção |
-| `body` | 14/22 | 400 | texto corrente (default actual) |
-| `body-sm` | 13/20 | 400 | texto secundário |
-| `caption` | 12/16 | 500, uppercase, tracking .04em | eyebrows, labels de campo |
-| `mono-data` | 13/20 | 500, tabular-nums | valores monetários, IDs, timestamps |
+| Nome        | Tamanho/altura | Peso                           | Uso                                                   |
+| ----------- | -------------- | ------------------------------ | ----------------------------------------------------- |
+| `display`   | 32/40          | 800                            | hero raro (ex.: número grande de dashboard executivo) |
+| `h1`        | 24/32          | 700                            | título de página                                      |
+| `h2`        | 20/28          | 700                            | título de secção                                      |
+| `h3`        | 16/24          | 600                            | título de card/sub-secção                             |
+| `body`      | 14/22          | 400                            | texto corrente (default actual)                       |
+| `body-sm`   | 13/20          | 400                            | texto secundário                                      |
+| `caption`   | 12/16          | 500, uppercase, tracking .04em | eyebrows, labels de campo                             |
+| `mono-data` | 13/20          | 500, tabular-nums              | valores monetários, IDs, timestamps                   |
 
 ### 3. Biblioteca de componentes (`components/ui/`)
 
@@ -171,25 +181,25 @@ acessibilidade real (focus trap, keyboard nav, ARIA), usa-se `radix-ui`
 (pacote unificado) como base não-estilizada, com a aparência aplicada pelos
 tokens acima:
 
-| Componente | Base | Notas |
-|---|---|---|
-| `Button` | custom + cva | variantes `primary/secondary/ghost/danger`, tamanhos `sm/md`, estado `loading` (spinner + `aria-busy`), `disabled` |
-| `IconButton` | custom + cva | mesmas variantes, alvo de toque ≥ 36px |
-| `Input`, `Textarea`, `Select` | Radix Select p/ `Select`; custom p/ resto | label, hint, estado de erro (`aria-invalid` + `aria-describedby`) integrados num só `FormField` wrapper |
-| `Card` | custom | `shadow-resting` em repouso, `shadow-hover` em hover quando interactivo |
-| `Badge` (`StatusBadge` existente, revisto) | custom | usa os 4 pares semânticos + neutro, pill |
-| `Modal` | Radix Dialog | `ConfirmDialog` passa a consumir este primitivo em vez de reimplementar foco/ESC |
-| `Tabs` | Radix Tabs | |
-| `DropdownMenu` | Radix DropdownMenu | |
-| `Tooltip` | Radix Tooltip | delay 400ms, só desktop (hover) |
-| `Toast` + `ToastProvider` | Radix Toast | fila, auto-dismiss 4s, pausa em hover |
-| `Table` | custom | `Table`, `TableHead`, `TableRow`, `TableCell`, zebra opcional |
-| `Avatar` | custom | iniciais + gradiente determinístico por nome (substitui o de `engagement/atoms.tsx`), ou imagem |
-| `ProgressBar` | custom | barra linear simples (substitui as várias versões locais) |
-| `PathProgress` | custom (**assinatura**) | indicador de passos em ponto-e-linha; usar apenas onde a ordem é real (progresso de curso/módulo, PDI, plano de carreira, wizard multi-passo) — não como decoração genérica |
-| `KpiCard` | custom | ícone + valor + label + tendência opcional (substitui os `KpiCard` locais de `engagement`, etc.) |
-| `EmptyState` | custom | ícone num círculo `accent-subtle`, título, descrição curta, acção primária opcional |
-| `Skeleton` | extende o existente | shimmer com `prefers-reduced-motion` a cair para pulso estático sem gradiente animado |
+| Componente                                 | Base                                      | Notas                                                                                                                                                                       |
+| ------------------------------------------ | ----------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Button`                                   | custom + cva                              | variantes `primary/secondary/ghost/danger`, tamanhos `sm/md`, estado `loading` (spinner + `aria-busy`), `disabled`                                                          |
+| `IconButton`                               | custom + cva                              | mesmas variantes, alvo de toque ≥ 36px                                                                                                                                      |
+| `Input`, `Textarea`, `Select`              | Radix Select p/ `Select`; custom p/ resto | label, hint, estado de erro (`aria-invalid` + `aria-describedby`) integrados num só `FormField` wrapper                                                                     |
+| `Card`                                     | custom                                    | `shadow-resting` em repouso, `shadow-hover` em hover quando interactivo                                                                                                     |
+| `Badge` (`StatusBadge` existente, revisto) | custom                                    | usa os 4 pares semânticos + neutro, pill                                                                                                                                    |
+| `Modal`                                    | Radix Dialog                              | `ConfirmDialog` passa a consumir este primitivo em vez de reimplementar foco/ESC                                                                                            |
+| `Tabs`                                     | Radix Tabs                                |                                                                                                                                                                             |
+| `DropdownMenu`                             | Radix DropdownMenu                        |                                                                                                                                                                             |
+| `Tooltip`                                  | Radix Tooltip                             | delay 400ms, só desktop (hover)                                                                                                                                             |
+| `Toast` + `ToastProvider`                  | Radix Toast                               | fila, auto-dismiss 4s, pausa em hover                                                                                                                                       |
+| `Table`                                    | custom                                    | `Table`, `TableHead`, `TableRow`, `TableCell`, zebra opcional                                                                                                               |
+| `Avatar`                                   | custom                                    | iniciais + gradiente determinístico por nome (substitui o de `engagement/atoms.tsx`), ou imagem                                                                             |
+| `ProgressBar`                              | custom                                    | barra linear simples (substitui as várias versões locais)                                                                                                                   |
+| `PathProgress`                             | custom (**assinatura**)                   | indicador de passos em ponto-e-linha; usar apenas onde a ordem é real (progresso de curso/módulo, PDI, plano de carreira, wizard multi-passo) — não como decoração genérica |
+| `KpiCard`                                  | custom                                    | ícone + valor + label + tendência opcional (substitui os `KpiCard` locais de `engagement`, etc.)                                                                            |
+| `EmptyState`                               | custom                                    | ícone num círculo `accent-subtle`, título, descrição curta, acção primária opcional                                                                                         |
+| `Skeleton`                                 | extende o existente                       | shimmer com `prefers-reduced-motion` a cair para pulso estático sem gradiente animado                                                                                       |
 
 Ícones: `lucide-react` (já em uso, mantém-se), convenção fixada —
 `strokeWidth={1.75}`, `currentColor`, tamanhos nomeados `14/16/18/20/24`

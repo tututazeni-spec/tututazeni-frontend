@@ -1,5 +1,11 @@
 'use client';
-import { createContext, useCallback, useContext, useRef, useState } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useRef,
+  useState,
+} from 'react';
 import { ConfirmDialog } from '../components/ui/ConfirmDialog';
 
 export interface ConfirmOptions {
@@ -34,7 +40,11 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
     <ConfirmContext.Provider value={confirm}>
       {children}
       {options && (
-        <ConfirmDialog {...options} onCancel={() => close(false)} onConfirm={() => close(true)} />
+        <ConfirmDialog
+          {...options}
+          onCancel={() => close(false)}
+          onConfirm={() => close(true)}
+        />
       )}
     </ConfirmContext.Provider>
   );
@@ -42,6 +52,7 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
 
 export function useConfirm(): ConfirmFn {
   const ctx = useContext(ConfirmContext);
-  if (!ctx) throw new Error('useConfirm deve ser usado dentro de <ConfirmProvider>');
+  if (!ctx)
+    throw new Error('useConfirm deve ser usado dentro de <ConfirmProvider>');
   return ctx;
 }

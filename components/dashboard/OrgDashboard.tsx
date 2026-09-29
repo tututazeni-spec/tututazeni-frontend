@@ -12,14 +12,26 @@
 
 import { useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
+import type { LucideIcon } from 'lucide-react';
 import {
   AlertTriangle,
   Award,
+  BadgeCheck,
+  BookOpen,
   Brain,
+  Building2,
+  CheckCircle2,
   GitCompare,
+  HeartHandshake,
+  Library,
   MapPin,
   Save,
   ShieldAlert,
+  Smile,
+  Star,
+  Target,
+  Users,
+  Wallet,
 } from 'lucide-react';
 import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
@@ -28,7 +40,6 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { useToast } from '@/providers/ToastProvider';
 import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
-import { KpiCard } from '@/components/ui/KpiCard';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { AreaLineChart } from '@/components/ui/charts/AreaLineChart';
@@ -46,6 +57,121 @@ const PERIODS = [
   { id: 'QUARTER', label: 'Trimestre' },
   { id: 'YEAR', label: 'Ano' },
 ];
+
+type KpiTone = 'blue' | 'green' | 'gold' | 'red' | 'orange';
+
+// Classes completas: o Tailwind não detecta nomes montados dinamicamente
+const KPI_TONES: Record<KpiTone, { bar: string; text: string }> = {
+  blue: { bar: 'bg-blue-500', text: 'text-blue-600' },
+  green: { bar: 'bg-green-600', text: 'text-green-600' },
+  gold: { bar: 'bg-amber-500', text: 'text-amber-600' },
+  red: { bar: 'bg-red-500', text: 'text-red-600' },
+  orange: { bar: 'bg-orange-500', text: 'text-orange-600' },
+};
+
+function HighlightKpiCard({
+  icon: Icon,
+  label,
+  value,
+  sub,
+  trend,
+  tone,
+}: {
+  icon: LucideIcon;
+  label: string;
+  value: string | number;
+  sub?: string;
+  trend?: number | null;
+  tone: KpiTone;
+}) {
+  const t = KPI_TONES[tone];
+  return (
+    <div className="relative overflow-hidden rounded-2xl border border-border bg-surface p-5 pt-6 shadow-resting transition-shadow duration-150 hover:shadow-hover">
+      <span aria-hidden className={`absolute inset-x-0 top-0 h-1.5 ${t.bar}`} />
+      <Icon size={26} strokeWidth={1.75} className={`mb-4 ${t.text}`} />
+      <div className="flex items-baseline gap-2">
+        <p className={`font-display text-4xl font-bold ${t.text}`}>{value}</p>
+        {typeof trend === 'number' && trend !== 0 && (
+          <span
+            className={`font-body text-xs font-semibold ${trend > 0 ? 'text-success' : 'text-danger'}`}
+          >
+            {trend > 0 ? '▲' : '▼'} {Math.abs(trend)}
+          </span>
+        )}
+      </div>
+      <p className="mt-1 font-body text-sm text-ink">{label}</p>
+      {sub && <p className="mt-1 font-body text-xs text-ink-faint">{sub}</p>}
+    </div>
+  );
+}
+
+// TODO: substituir por dados reais quando soubermos o campo da API
+// (ex.: summary.crm.fundingByQuarter) com a distribuição do financiamento
+// ao longo do período. Enquanto isso, usa-se uma série de exemplo.
+const MOCK_FUNDING_BREAKDOWN = [
+  { label: 'T1', value: 0.6 },
+  { label: 'T2', value: 0.9 },
+  { label: 'T3', value: 0.75 },
+  { label: 'T4', value: 1.2 },
+];
+
+function FundingKpiCard({
+  icon: Icon,
+  label,
+  value,
+  sub,
+  breakdown,
+  tone,
+}: {
+  icon: LucideIcon;
+  label: string;
+  value: string | number;
+  sub?: string;
+  breakdown: { label: string; value: number }[];
+  tone: KpiTone;
+}) {
+  const t = KPI_TONES[tone];
+  const max = Math.max(...breakdown.map((b) => b.value), 1);
+
+  const BAR_COLOR: Record<KpiTone, string> = {
+    blue: '#3B82F6',
+    green: '#16A34A',
+    gold: '#F59E0B',
+    red: '#EF4444',
+    orange: '#F97316',
+  };
+
+  return (
+    <div className="relative overflow-hidden rounded-2xl border border-border bg-surface p-5 pt-6 shadow-resting transition-shadow duration-150 hover:shadow-hover">
+      <span aria-hidden className={`absolute inset-x-0 top-0 h-1.5 ${t.bar}`} />
+      <Icon size={26} strokeWidth={1.75} className={`mb-4 ${t.text}`} />
+      <p className={`font-display text-4xl font-bold ${t.text}`}>{value}</p>
+      <p className="mt-1 font-body text-sm text-ink">{label}</p>
+      {sub && <p className="mt-1 font-body text-xs text-ink-faint">{sub}</p>}
+
+      <div className="mt-4 flex h-12 items-end gap-1.5">
+        {breakdown.map((b) => (
+          <div
+            key={b.label}
+            className="flex flex-1 flex-col items-center gap-1"
+          >
+            <div
+              className="w-full rounded-t"
+              style={{
+                height: `${Math.max((b.value / max) * 100, 6)}%`,
+                backgroundColor: BAR_COLOR[tone],
+                opacity: 0.85,
+              }}
+            />
+            <span className="font-body text-[9px] text-ink-faint">
+              {b.label}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 // Linha label/valor dentro de um ModulePanel.
 function Stat({ label, value }: { label: string; value: string | number }) {
@@ -121,7 +247,10 @@ function SnapshotsPanel() {
     '/dashboard-institutional/snapshots',
     { params: { page: 1, limit: 12 }, staleTime: STALE_TIME.SEMI_STATIC },
   );
-  const snapshots = useMemo(() => snapshotsQ.data?.data ?? [], [snapshotsQ.data]);
+  const snapshots = useMemo(
+    () => snapshotsQ.data?.data ?? [],
+    [snapshotsQ.data],
+  );
 
   const saveSnapshot = useApiMutation<ExecutiveSnapshot, void>(
     () =>
@@ -131,15 +260,21 @@ function SnapshotsPanel() {
       }),
     {
       invalidateKeys: [queryKeys.dashboard.executiveSnapshots()],
-      onSuccess: () => notify({ title: 'Snapshot guardado', intent: 'success' }),
+      onSuccess: () =>
+        notify({ title: 'Snapshot guardado', intent: 'success' }),
       onError: (err) =>
-        notify({ title: err.message || 'Erro ao guardar snapshot', intent: 'danger' }),
+        notify({
+          title: err.message || 'Erro ao guardar snapshot',
+          intent: 'danger',
+        }),
     },
   );
 
   const [period1, setPeriod1] = useState<string>();
   const [period2, setPeriod2] = useState<string>();
-  const [compareResult, setCompareResult] = useState<CompareResult | null>(null);
+  const [compareResult, setCompareResult] = useState<CompareResult | null>(
+    null,
+  );
   const [comparing, setComparing] = useState(false);
 
   const periodOptions = useMemo(
@@ -158,7 +293,8 @@ function SnapshotsPanel() {
       setCompareResult(result);
     } catch (err) {
       notify({
-        title: err instanceof Error ? err.message : 'Erro ao comparar snapshots',
+        title:
+          err instanceof Error ? err.message : 'Erro ao comparar snapshots',
         intent: 'danger',
       });
     } finally {
@@ -204,10 +340,16 @@ function SnapshotsPanel() {
                 <tbody>
                   {snapshots.map((s) => (
                     <tr key={s.id} className="border-t border-border">
-                      <td className="py-2 font-semibold text-ink">{s.period}</td>
+                      <td className="py-2 font-semibold text-ink">
+                        {s.period}
+                      </td>
                       <td className="py-2 text-ink-muted">{s.totalUsers}</td>
-                      <td className="py-2 text-ink-muted">{s.totalEnrollments}</td>
-                      <td className="py-2 text-ink-muted">{s.completionRate}%</td>
+                      <td className="py-2 text-ink-muted">
+                        {s.totalEnrollments}
+                      </td>
+                      <td className="py-2 text-ink-muted">
+                        {s.completionRate}%
+                      </td>
                       <td className="py-2 text-ink-faint">
                         {s.createdBy?.fullName ?? '—'}
                       </td>
@@ -219,7 +361,9 @@ function SnapshotsPanel() {
 
             <div className="flex flex-wrap items-end gap-3 border-t border-border pt-4">
               <div>
-                <p className="mb-1 font-body text-xs text-ink-faint">Período A</p>
+                <p className="mb-1 font-body text-xs text-ink-faint">
+                  Período A
+                </p>
                 <Select
                   items={periodOptions}
                   value={period1}
@@ -228,7 +372,9 @@ function SnapshotsPanel() {
                 />
               </div>
               <div>
-                <p className="mb-1 font-body text-xs text-ink-faint">Período B</p>
+                <p className="mb-1 font-body text-xs text-ink-faint">
+                  Período B
+                </p>
                 <Select
                   items={periodOptions}
                   value={period2}
@@ -325,81 +471,121 @@ export function OrgDashboard() {
       </div>
 
       {/* Alertas institucionais */}
-      {alerts && (alerts.critical > 0 || alerts.warnings > 0 || alerts.reminders > 0) && (
-        <div className="flex flex-wrap gap-4">
-          {alerts.critical > 0 && (
-            <div className="min-w-[180px] flex-1 rounded-card border border-danger bg-danger-subtle px-4 py-3">
-              <span className="font-body font-semibold text-danger-ink">
-                {alerts.critical} alertas críticos
-              </span>
-            </div>
-          )}
-          {alerts.warnings > 0 && (
-            <div className="min-w-[180px] flex-1 rounded-card border border-warning bg-warning-subtle px-4 py-3">
-              <span className="font-body font-semibold text-warning-ink">
-                {alerts.warnings} avisos
-              </span>
-            </div>
-          )}
-          {alerts.reminders > 0 && (
-            <div className="min-w-[180px] flex-1 rounded-card border border-info bg-info-subtle px-4 py-3">
-              <span className="font-body font-semibold text-info-ink">
-                {alerts.reminders} lembretes
-              </span>
-            </div>
-          )}
-        </div>
-      )}
+      {alerts &&
+        (alerts.critical > 0 ||
+          alerts.warnings > 0 ||
+          alerts.reminders > 0) && (
+          <div className="flex flex-wrap gap-4">
+            {alerts.critical > 0 && (
+              <div className="min-w-[180px] flex-1 rounded-card border border-danger bg-danger-subtle px-4 py-3">
+                <span className="font-body font-semibold text-danger-ink">
+                  {alerts.critical} alertas críticos
+                </span>
+              </div>
+            )}
+            {alerts.warnings > 0 && (
+              <div className="min-w-[180px] flex-1 rounded-card border border-warning bg-warning-subtle px-4 py-3">
+                <span className="font-body font-semibold text-warning-ink">
+                  {alerts.warnings} avisos
+                </span>
+              </div>
+            )}
+            {alerts.reminders > 0 && (
+              <div className="min-w-[180px] flex-1 rounded-card border border-info bg-info-subtle px-4 py-3">
+                <span className="font-body font-semibold text-info-ink">
+                  {alerts.reminders} lembretes
+                </span>
+              </div>
+            )}
+          </div>
+        )}
 
       {/* KPIs — organização */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-        <KpiCard
+        <HighlightKpiCard
+          icon={Users}
+          tone="blue"
           label="Colaboradores Activos"
           value={k.headcount?.active ?? 0}
           sub={`+${k.headcount?.new ?? 0} no período`}
           trend={k.headcount?.newTrend}
         />
-        <KpiCard
+        <HighlightKpiCard
+          icon={CheckCircle2}
+          tone="green"
           label="Conclusões de Cursos"
           value={k.learning?.completions ?? 0}
           trend={k.learning?.completionsTrend}
-          intent="info"
         />
-        <KpiCard
+        <HighlightKpiCard
+          icon={Target}
+          tone="gold"
           label="PDIs Activos"
           value={k.development?.activePlans ?? 0}
           sub={`Cobertura: ${k.development?.coverage ?? 0}%`}
         />
-        <KpiCard
+        <HighlightKpiCard
+          icon={Star}
+          tone="orange"
           label="Pontuação Média Geral"
           value={k.performance?.avgScore?.toFixed(1) ?? '–'}
-          intent="warning"
         />
       </div>
 
       {/* KPIs — CRM & conhecimento (getExecutiveSummary) */}
       {summary && (
         <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-          <KpiCard label="Cursos" value={summary.learning.courses} intent="accent" />
-          <KpiCard label="Beneficiários" value={summary.crm.beneficiaries} />
-          <KpiCard
+          <HighlightKpiCard
+            icon={BookOpen}
+            tone="blue"
+            label="Cursos"
+            value={summary.learning.courses}
+          />
+          <HighlightKpiCard
+            icon={HeartHandshake}
+            tone="green"
+            label="Beneficiários"
+            value={summary.crm.beneficiaries}
+          />
+          <FundingKpiCard
+            icon={Wallet}
+            tone="gold"
             label="Financiamento"
             value={`AOA ${(summary.crm.totalFunding / 1_000_000).toFixed(1)}M`}
-            intent="accent"
+            sub="Distribuição por trimestre"
+            breakdown={MOCK_FUNDING_BREAKDOWN}
           />
-          <KpiCard label="Parceiros" value={summary.crm.partners} />
-          <KpiCard label="Certificados" value={summary.knowledge.certificates} />
-          <KpiCard
+          <HighlightKpiCard
+            icon={Building2}
+            tone="orange"
+            label="Parceiros"
+            value={summary.crm.partners}
+          />
+          <HighlightKpiCard
+            icon={Award}
+            tone="gold"
+            label="Certificados"
+            value={summary.knowledge.certificates}
+          />
+          <HighlightKpiCard
+            icon={Library}
+            tone="blue"
             label="Biblioteca"
             value={summary.knowledge.libraryItems}
             sub="recursos"
           />
-          <KpiCard label="Badges Emitidos" value={summary.knowledge.badgesIssued} />
-          <KpiCard
+          <HighlightKpiCard
+            icon={BadgeCheck}
+            tone="orange"
+            label="Distintivos Emitidos"
+            value={summary.knowledge.badgesIssued}
+          />
+          <HighlightKpiCard
+            icon={Smile}
+            tone="green"
             label="eNPS"
             value={org.enps?.enps ?? '—'}
             sub={org.enps ? `${org.enps.total} respostas` : 'Sem dados'}
-            intent="success"
           />
         </div>
       )}
@@ -453,10 +639,15 @@ export function OrgDashboard() {
           {(org.departments ?? []).length > 0 ? (
             <DonutChart
               centerLabel="Colaboradores"
-              data={(org.departments ?? []).map((d) => ({ label: d.name, value: d.headcount }))}
+              data={(org.departments ?? []).map((d) => ({
+                label: d.name,
+                value: d.headcount,
+              }))}
             />
           ) : (
-            <p className="py-6 text-center font-body text-sm text-ink-faint">Sem dados</p>
+            <p className="py-6 text-center font-body text-sm text-ink-faint">
+              Sem dados
+            </p>
           )}
         </div>
 
@@ -553,11 +744,13 @@ export function OrgDashboard() {
               series={[
                 {
                   label: 'Novos colaboradores',
-                  points: data.growthTrend.map((d: ExecutiveTrendPoint, i: number) => ({
-                    x: i,
-                    y: d.users,
-                    xLabel: d.month.split(' ')[0],
-                  })),
+                  points: data.growthTrend.map(
+                    (d: ExecutiveTrendPoint, i: number) => ({
+                      x: i,
+                      y: d.users,
+                      xLabel: d.month.split(' ')[0],
+                    }),
+                  ),
                 },
               ]}
             />
@@ -566,31 +759,32 @@ export function OrgDashboard() {
       )}
 
       {/* Distribuição geográfica */}
-      {data?.geographic && data.geographic.beneficiariesByProvince.length > 0 && (
-        <Card>
-          <CardBody>
-            <h3 className="mb-4 flex items-center gap-2 font-display font-semibold text-ink">
-              <MapPin size={16} strokeWidth={1.75} className="text-accent" />
-              Beneficiários por Província
-            </h3>
-            <div className="grid grid-cols-2 gap-2 md:grid-cols-3">
-              {data.geographic.beneficiariesByProvince.map((p) => (
-                <div
-                  key={p.province ?? 'sem-provincia'}
-                  className="flex items-center justify-between rounded-control border border-border px-3 py-2"
-                >
-                  <span className="font-body text-xs text-ink-muted">
-                    {p.province ?? 'Sem província'}
-                  </span>
-                  <span className="font-body text-sm font-semibold text-ink">
-                    {p._count.id}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </CardBody>
-        </Card>
-      )}
+      {data?.geographic &&
+        data.geographic.beneficiariesByProvince.length > 0 && (
+          <Card>
+            <CardBody>
+              <h3 className="mb-4 flex items-center gap-2 font-display font-semibold text-ink">
+                <MapPin size={16} strokeWidth={1.75} className="text-accent" />
+                Beneficiários por Província
+              </h3>
+              <div className="grid grid-cols-2 gap-2 md:grid-cols-3">
+                {data.geographic.beneficiariesByProvince.map((p) => (
+                  <div
+                    key={p.province ?? 'sem-provincia'}
+                    className="flex items-center justify-between rounded-control border border-border px-3 py-2"
+                  >
+                    <span className="font-body text-xs text-ink-muted">
+                      {p.province ?? 'Sem província'}
+                    </span>
+                    <span className="font-body text-sm font-semibold text-ink">
+                      {p._count.id}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </CardBody>
+          </Card>
+        )}
 
       {/* Top content */}
       {(org.topContent?.length ?? 0) > 0 && (
@@ -679,7 +873,10 @@ export function OrgDashboard() {
             <ModulePanel title="Declarações" data={modules.declarations}>
               {modules.declarations && (
                 <>
-                  <Stat label="Pendentes" value={modules.declarations.pending} />
+                  <Stat
+                    label="Pendentes"
+                    value={modules.declarations.pending}
+                  />
                   <Stat label="Emitidas" value={modules.declarations.issued} />
                   <Stat label="Total" value={modules.declarations.total} />
                 </>
@@ -689,7 +886,10 @@ export function OrgDashboard() {
             <ModulePanel title="Auditoria" data={modules.audit}>
               {modules.audit && (
                 <>
-                  <Stat label="Eventos totais" value={modules.audit.totalEvents} />
+                  <Stat
+                    label="Eventos totais"
+                    value={modules.audit.totalEvents}
+                  />
                   <Stat label="Hoje" value={modules.audit.todayEvents} />
                   <Stat label="Críticos" value={modules.audit.criticalEvents} />
                 </>
@@ -700,7 +900,10 @@ export function OrgDashboard() {
               {modules.automation && (
                 <>
                   <Stat label="Regras" value={modules.automation.totalRules} />
-                  <Stat label="Activas" value={modules.automation.activeRules} />
+                  <Stat
+                    label="Activas"
+                    value={modules.automation.activeRules}
+                  />
                   <div className="flex justify-center pt-1">
                     <GaugeChart
                       value={modules.automation.successRate}
@@ -724,7 +927,10 @@ export function OrgDashboard() {
                       size={120}
                     />
                   </div>
-                  <Stat label="Alertas abertos" value={modules.platform.openAlerts} />
+                  <Stat
+                    label="Alertas abertos"
+                    value={modules.platform.openAlerts}
+                  />
                   <Stat
                     label="Alertas críticos"
                     value={modules.platform.criticalAlerts}

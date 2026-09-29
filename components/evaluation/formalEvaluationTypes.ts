@@ -4,9 +4,7 @@
 // components/evaluation/types.ts (ciclos 360°, backend src/evaluation).
 
 export type FormalQuestionType =
-  | 'MULTIPLE_CHOICE_SINGLE'
-  | 'MULTIPLE_CHOICE_MULTI'
-  | 'OPEN_TEXT';
+  'MULTIPLE_CHOICE_SINGLE' | 'MULTIPLE_CHOICE_MULTI' | 'OPEN_TEXT';
 
 export type FormalEvaluationStatus = 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
 
@@ -39,7 +37,12 @@ export interface RosterRow {
 }
 
 export interface ResultsRoster {
-  assessment: { id: number; title: string; maxGrade: number; passingScore: number };
+  assessment: {
+    id: number;
+    title: string;
+    maxGrade: number;
+    passingScore: number;
+  };
   roster: RosterRow[];
 }
 

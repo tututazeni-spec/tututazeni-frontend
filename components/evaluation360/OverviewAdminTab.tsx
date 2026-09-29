@@ -36,7 +36,12 @@ interface RawOverview {
   bottomCompetencies: { competencyId: string; name: string; average: number }[];
   pendingAssignments: number;
   upcomingDeadline: { id: string; name: string; endDate: string }[];
-  recentCompleted: { id: string; name: string; endDate: string; createdByName: string }[];
+  recentCompleted: {
+    id: string;
+    name: string;
+    endDate: string;
+    createdByName: string;
+  }[];
 }
 
 function Stat({ label, value }: { label: string; value: string | number }) {
@@ -45,7 +50,9 @@ function Stat({ label, value }: { label: string; value: string | number }) {
       <div className="text-xs font-semibold uppercase tracking-wider text-ink-muted mb-2">
         {label}
       </div>
-      <div className="text-2xl font-bold leading-tight tracking-tighter text-ink">{value}</div>
+      <div className="text-2xl font-bold leading-tight tracking-tighter text-ink">
+        {value}
+      </div>
     </div>
   );
 }
@@ -58,7 +65,9 @@ export function OverviewAdminTab() {
   );
 
   if (isLoading) {
-    return <div className="text-sm text-ink-muted">A carregar painel geral…</div>;
+    return (
+      <div className="text-sm text-ink-muted">A carregar painel geral…</div>
+    );
   }
   if (!data) {
     return (
@@ -73,8 +82,8 @@ export function OverviewAdminTab() {
       <div>
         <h2 className="m-0 text-lg font-bold text-ink">Painel Geral</h2>
         <p className="m-0 mt-1 text-sm text-ink-muted">
-          Visão agregada de todas as avaliações 360° — nunca identifica um colaborador ou
-          avaliador individual.
+          Visão agregada de todas as avaliações 360° — nunca identifica um
+          colaborador ou avaliador individual.
         </p>
       </div>
 
@@ -91,13 +100,22 @@ export function OverviewAdminTab() {
       {/* Participação */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         <Stat label="Colaboradores avaliados" value={data.evaluatedCount} />
-        <Stat label="Avaliadores convidados" value={data.invitedEvaluatorsCount} />
-        <Stat label="Avaliadores que responderam" value={data.respondedEvaluatorsCount} />
+        <Stat
+          label="Avaliadores convidados"
+          value={data.invitedEvaluatorsCount}
+        />
+        <Stat
+          label="Avaliadores que responderam"
+          value={data.respondedEvaluatorsCount}
+        />
         <Stat label="Avaliações pendentes" value={data.pendingAssignments} />
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <Stat label="Taxa de participação" value={`${data.participationRate}%`} />
+        <Stat
+          label="Taxa de participação"
+          value={`${data.participationRate}%`}
+        />
         <Stat label="Taxa de conclusão" value={`${data.completionRate}%`} />
         <Stat
           label="Média global"
@@ -111,12 +129,16 @@ export function OverviewAdminTab() {
           Média por competência
         </div>
         {data.competencyAverages.length === 0 && (
-          <div className="text-sm text-ink-muted">Sem dados suficientes ainda.</div>
+          <div className="text-sm text-ink-muted">
+            Sem dados suficientes ainda.
+          </div>
         )}
         <div className="flex flex-col gap-2.5">
           {data.competencyAverages.map((c) => (
             <div key={c.competencyId} className="flex items-center gap-3">
-              <span className="text-sm text-ink w-44 shrink-0 truncate">{c.name}</span>
+              <span className="text-sm text-ink w-44 shrink-0 truncate">
+                {c.name}
+              </span>
               <div className="flex-1 bg-surface-sunken rounded h-2 overflow-hidden">
                 <div
                   className="h-full rounded"
@@ -144,12 +166,20 @@ export function OverviewAdminTab() {
             Competências com maior pontuação
           </div>
           {data.topCompetencies.length === 0 && (
-            <div className="text-sm text-ink-muted">Sem dados suficientes ainda.</div>
+            <div className="text-sm text-ink-muted">
+              Sem dados suficientes ainda.
+            </div>
           )}
           {data.topCompetencies.map((c) => (
-            <div key={c.competencyId} className="flex justify-between items-center mb-2.5">
+            <div
+              key={c.competencyId}
+              className="flex justify-between items-center mb-2.5"
+            >
               <span className="text-sm font-semibold text-ink">{c.name}</span>
-              <span className="text-sm font-bold" style={{ color: scoreColor(c.average) }}>
+              <span
+                className="text-sm font-bold"
+                style={{ color: scoreColor(c.average) }}
+              >
                 {c.average.toFixed(1)}
               </span>
             </div>
@@ -160,12 +190,20 @@ export function OverviewAdminTab() {
             Competências com menor pontuação
           </div>
           {data.bottomCompetencies.length === 0 && (
-            <div className="text-sm text-ink-muted">Sem dados suficientes ainda.</div>
+            <div className="text-sm text-ink-muted">
+              Sem dados suficientes ainda.
+            </div>
           )}
           {data.bottomCompetencies.map((c) => (
-            <div key={c.competencyId} className="flex justify-between items-center mb-2.5">
+            <div
+              key={c.competencyId}
+              className="flex justify-between items-center mb-2.5"
+            >
               <span className="text-sm font-semibold text-ink">{c.name}</span>
-              <span className="text-sm font-bold" style={{ color: scoreColor(c.average) }}>
+              <span
+                className="text-sm font-bold"
+                style={{ color: scoreColor(c.average) }}
+              >
                 {c.average.toFixed(1)}
               </span>
             </div>
@@ -180,12 +218,19 @@ export function OverviewAdminTab() {
             Avaliações próximas do prazo (7 dias)
           </div>
           {data.upcomingDeadline.length === 0 && (
-            <div className="text-sm text-ink-muted">Nenhuma avaliação a terminar em breve.</div>
+            <div className="text-sm text-ink-muted">
+              Nenhuma avaliação a terminar em breve.
+            </div>
           )}
           {data.upcomingDeadline.map((c) => (
-            <div key={c.id} className="flex justify-between items-center mb-2.5">
+            <div
+              key={c.id}
+              className="flex justify-between items-center mb-2.5"
+            >
               <span className="text-sm font-semibold text-ink">{c.name}</span>
-              <span className="text-xs text-ink-muted">{c.endDate.slice(0, 10)}</span>
+              <span className="text-xs text-ink-muted">
+                {c.endDate.slice(0, 10)}
+              </span>
             </div>
           ))}
         </div>
@@ -194,15 +239,24 @@ export function OverviewAdminTab() {
             Últimas avaliações realizadas
           </div>
           {data.recentCompleted.length === 0 && (
-            <div className="text-sm text-ink-muted">Ainda nenhuma avaliação concluída.</div>
+            <div className="text-sm text-ink-muted">
+              Ainda nenhuma avaliação concluída.
+            </div>
           )}
           {data.recentCompleted.map((c) => (
-            <div key={c.id} className="flex justify-between items-center mb-2.5">
+            <div
+              key={c.id}
+              className="flex justify-between items-center mb-2.5"
+            >
               <div>
                 <span className="text-sm font-semibold text-ink">{c.name}</span>
-                <span className="text-xs text-ink-muted ml-2">por {c.createdByName}</span>
+                <span className="text-xs text-ink-muted ml-2">
+                  por {c.createdByName}
+                </span>
               </div>
-              <span className="text-xs text-ink-muted">{c.endDate.slice(0, 10)}</span>
+              <span className="text-xs text-ink-muted">
+                {c.endDate.slice(0, 10)}
+              </span>
             </div>
           ))}
         </div>

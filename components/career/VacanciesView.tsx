@@ -44,23 +44,33 @@ const MANAGE_STATUS_FILTERS = [
 export function VacanciesView() {
   const notify = useToast();
   const { data: me } = useCurrentUser();
-  const canManage = isRoleAllowed(EXECUTIVE_ROLES, me?.role?.name as Role | undefined);
+  const canManage = isRoleAllowed(
+    EXECUTIVE_ROLES,
+    me?.role?.name as Role | undefined,
+  );
   const [typeFilter, setTypeFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [applying, setApplying] = useState<number | null>(null);
   const [publishing, setPublishing] = useState<number | null>(null);
   const [showNew, setShowNew] = useState(false);
-  const [applicationsFor, setApplicationsFor] = useState<InternalVacancy | null>(null);
+  const [applicationsFor, setApplicationsFor] =
+    useState<InternalVacancy | null>(null);
 
   const {
     data: resp,
     isLoading: loading,
     refetch,
   } = useApiQuery<{ data: InternalVacancy[] }>(
-    queryKeys.career.vacancies(typeFilter, canManage ? statusFilter : undefined),
+    queryKeys.career.vacancies(
+      typeFilter,
+      canManage ? statusFilter : undefined,
+    ),
     '/career/vacancies',
     {
-      params: { type: typeFilter, ...(canManage && statusFilter ? { status: statusFilter } : {}) },
+      params: {
+        type: typeFilter,
+        ...(canManage && statusFilter ? { status: statusFilter } : {}),
+      },
       staleTime: STALE_TIME.SEMI_STATIC,
     },
   );
@@ -71,10 +81,16 @@ export function VacanciesView() {
     try {
       await apiClient.patch(`/career/vacancies/${vacancyId}/publish`, {});
       await refetch();
-      notify({ title: 'Vaga publicada — colaboradores compatíveis foram notificados', intent: 'success' });
+      notify({
+        title: 'Vaga publicada — colaboradores compatíveis foram notificados',
+        intent: 'success',
+      });
     } catch (e) {
       reportError(e, { source: 'VacanciesView.publish' });
-      notify({ title: e instanceof Error ? e.message : String(e), intent: 'danger' });
+      notify({
+        title: e instanceof Error ? e.message : String(e),
+        intent: 'danger',
+      });
     } finally {
       setPublishing(null);
     }
@@ -122,7 +138,11 @@ export function VacanciesView() {
           </Button>
         ))}
         {canManage && (
-          <Button size="sm" className="ml-auto" onClick={() => setShowNew(true)}>
+          <Button
+            size="sm"
+            className="ml-auto"
+            onClick={() => setShowNew(true)}
+          >
             <Plus size={14} strokeWidth={1.75} /> Nova Oportunidade
           </Button>
         )}
@@ -162,7 +182,9 @@ export function VacanciesView() {
                   <div className="flex items-center gap-1.5">
                     <Badge intent={typeCfg.intent}>{typeCfg.label}</Badge>
                     {v.status !== 'OPEN' && (
-                      <Badge intent={v.status === 'DRAFT' ? 'warning' : 'neutral'}>
+                      <Badge
+                        intent={v.status === 'DRAFT' ? 'warning' : 'neutral'}
+                      >
                         {v.status === 'DRAFT'
                           ? 'Rascunho'
                           : v.status === 'CLOSED'

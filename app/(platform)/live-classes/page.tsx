@@ -24,7 +24,11 @@ import { ADMIN_ROLES } from '@/lib/roles';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { AttendanceView } from '@/components/live-classes/AttendanceView';
 import { CalendarView } from '@/components/live-classes/CalendarView';
-import { CAN_VIEW_LIVE_CLASSES_REPORTS_ROLES, NAV, type NavId } from '@/components/live-classes/constants';
+import {
+  CAN_VIEW_LIVE_CLASSES_REPORTS_ROLES,
+  NAV,
+  type NavId,
+} from '@/components/live-classes/constants';
 import { DashboardView } from '@/components/live-classes/DashboardView';
 import { EvaluationsView } from '@/components/live-classes/EvaluationsView';
 import { InstructorsView } from '@/components/live-classes/InstructorsView';
@@ -42,17 +46,29 @@ import { Toast } from '@/components/live-classes/Toast';
 import { getStatus } from '@/components/live-classes/utils';
 import { CreateLiveClassWizard } from '@/components/live-classes/wizard/CreateLiveClassWizard';
 import type { Filters } from '@/components/live-classes/LiveClassesView';
-import type { LiveClass, PaginatedClasses } from '@/components/live-classes/types';
+import type {
+  LiveClass,
+  PaginatedClasses,
+} from '@/components/live-classes/types';
 
-const INITIAL_FILTERS: Filters = { page: 1, courseId: '', type: '', status: '', modality: '' };
+const INITIAL_FILTERS: Filters = {
+  page: 1,
+  courseId: '',
+  type: '',
+  status: '',
+  modality: '',
+};
 
 export default function LivePage() {
   const router = useRouter();
   const role = useCurrentRole();
   const canCreate = !!role && ADMIN_ROLES.includes(role);
-  const canViewReports = !!role && CAN_VIEW_LIVE_CLASSES_REPORTS_ROLES.includes(role);
+  const canViewReports =
+    !!role && CAN_VIEW_LIVE_CLASSES_REPORTS_ROLES.includes(role);
   const visibleNav = NAV.filter(
-    (n) => (n.id !== 'settings' || canCreate) && (n.id !== 'reports' && n.id !== 'evaluations' ? true : canViewReports),
+    (n) =>
+      (n.id !== 'settings' || canCreate) &&
+      (n.id !== 'reports' && n.id !== 'evaluations' ? true : canViewReports),
   );
 
   const [nav, setNav] = useState<NavId>('list');
@@ -204,13 +220,21 @@ export default function LivePage() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
-      <div className="mb-6 flex w-fit flex-wrap gap-1 rounded-xl bg-surface-sunken p-1">
+      {/* Abas em formato de "cartão": cada botão é um cartão independente
+          (borda + fundo branco + rounded), sem o fundo/pill de grupo
+          anterior. Alinhadas horizontal e verticalmente (justify-center +
+          items-center no wrapper) com largura mínima uniforme. Estado
+          activo usa a mesma condição `nav === n.id` de sempre para aplicar
+          destaque azul (borda/fundo/texto primary). */}
+      <div className="mb-6 flex w-full flex-wrap items-center justify-center gap-2">
         {visibleNav.map((n) => (
           <button
             key={n.id}
             onClick={() => setNav(n.id)}
-            className={`rounded-lg px-4 py-2 font-body text-sm font-medium transition-colors ${
-              nav === n.id ? 'bg-surface text-ink shadow-resting' : 'text-ink-muted hover:text-ink'
+            className={`flex min-w-[140px] items-center justify-center whitespace-nowrap rounded-lg border px-4 py-2 text-center font-body text-sm font-medium transition-colors ${
+              nav === n.id
+                ? 'border-primary bg-primary/10 text-primary'
+                : 'border-border bg-white text-ink-muted hover:text-ink'
             }`}
           >
             {n.label}
@@ -258,12 +282,28 @@ export default function LivePage() {
           />
 
           {/* ── Modals ── */}
-          {showCreate && <CreateLiveClassWizard onClose={() => setShowCreate(false)} />}
-          {viewRecording && (
-            <RecordingModal lc={viewRecording} onClose={() => setViewRecording(null)} />
+          {showCreate && (
+            <CreateLiveClassWizard onClose={() => setShowCreate(false)} />
           )}
-          {postponing && <PostponeModal lc={postponing} onClose={() => setPostponing(null)} />}
-          {toast && <Toast msg={toast.msg} type={toast.type} onClose={() => setToast(null)} />}
+          {viewRecording && (
+            <RecordingModal
+              lc={viewRecording}
+              onClose={() => setViewRecording(null)}
+            />
+          )}
+          {postponing && (
+            <PostponeModal
+              lc={postponing}
+              onClose={() => setPostponing(null)}
+            />
+          )}
+          {toast && (
+            <Toast
+              msg={toast.msg}
+              type={toast.type}
+              onClose={() => setToast(null)}
+            />
+          )}
         </>
       )}
     </div>

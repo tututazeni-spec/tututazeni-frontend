@@ -35,9 +35,11 @@ cor — não precisam de alterações.
 ### Task 1: `components/certification/TemplatesView.tsx`
 
 **Files:**
+
 - Modify: `components/certification/TemplatesView.tsx`
 
 **Interfaces:**
+
 - Consumes: `Badge`, `Button`, `FormField`, `Input`, `Select`, `Skeleton`, `Textarea` (`@/components/ui/*`).
 - Props (`TemplatesViewProps`) e assinatura do componente **não mudam** — mesmo contrato com `app/(platform)/certification/templates/page.tsx` e `hooks/useCertificateTemplates.ts`.
 
@@ -113,7 +115,9 @@ export function TemplatesView({
           <h1 className="font-display text-2xl font-bold text-ink">
             Templates de Certificado
           </h1>
-          <p className="font-body text-sm text-ink-faint">{data.length} templates</p>
+          <p className="font-body text-sm text-ink-faint">
+            {data.length} templates
+          </p>
         </div>
         <Button onClick={() => setShowForm((s) => !s)}>
           {showForm ? 'Cancelar' : '+ Novo Template'}
@@ -147,7 +151,9 @@ export function TemplatesView({
               <Input
                 id="template-description"
                 value={form.description}
-                onChange={(e) => setForm({ ...form, description: e.target.value })}
+                onChange={(e) =>
+                  setForm({ ...form, description: e.target.value })
+                }
               />
             </FormField>
           </div>
@@ -172,15 +178,22 @@ export function TemplatesView({
             <Input
               id="template-signatory-name"
               value={form.signatoryName}
-              onChange={(e) => setForm({ ...form, signatoryName: e.target.value })}
+              onChange={(e) =>
+                setForm({ ...form, signatoryName: e.target.value })
+              }
             />
           </FormField>
 
-          <FormField label="Cargo do signatário" htmlFor="template-signatory-title">
+          <FormField
+            label="Cargo do signatário"
+            htmlFor="template-signatory-title"
+          >
             <Input
               id="template-signatory-title"
               value={form.signatoryTitle}
-              onChange={(e) => setForm({ ...form, signatoryTitle: e.target.value })}
+              onChange={(e) =>
+                setForm({ ...form, signatoryTitle: e.target.value })
+              }
             />
           </FormField>
 
@@ -189,7 +202,9 @@ export function TemplatesView({
               id="template-validity-days"
               type="number"
               value={form.validityDays}
-              onChange={(e) => setForm({ ...form, validityDays: e.target.value })}
+              onChange={(e) =>
+                setForm({ ...form, validityDays: e.target.value })
+              }
             />
           </FormField>
 
@@ -197,7 +212,9 @@ export function TemplatesView({
             <input
               type="checkbox"
               checked={form.isDefault}
-              onChange={(e) => setForm({ ...form, isDefault: e.target.checked })}
+              onChange={(e) =>
+                setForm({ ...form, isDefault: e.target.checked })
+              }
               className="rounded accent-primary"
             />
             Template por omissão para este tipo
@@ -213,7 +230,9 @@ export function TemplatesView({
 
       <div className="divide-y divide-border rounded-card border border-border bg-surface shadow-resting">
         {data.length === 0 ? (
-          <p className="p-4 font-body text-sm text-ink-faint">Sem templates criados</p>
+          <p className="p-4 font-body text-sm text-ink-faint">
+            Sem templates criados
+          </p>
         ) : (
           data.map((t) => (
             <div key={t.id} className="flex items-center justify-between p-4">
@@ -224,7 +243,9 @@ export function TemplatesView({
                 </p>
                 <p className="font-body text-xs text-ink-faint">
                   {t.type}
-                  {t.validityDays ? ` · válido ${t.validityDays} dias` : ' · sem expiração'}
+                  {t.validityDays
+                    ? ` · válido ${t.validityDays} dias`
+                    : ' · sem expiração'}
                   {' · '}
                   {t._count?.certificates ?? 0} emitidos
                 </p>
@@ -242,6 +263,7 @@ export function TemplatesView({
 ```
 
 Notas:
+
 - `interface TemplatesViewProps` deixa de ser `export`ada (não era consumida fora deste
   ficheiro — `page.tsx` só importa `TemplatesView`); mantém-se local tal como estava, sem
   mudar o contrato real.
@@ -272,6 +294,7 @@ Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>"
 ```
 grep -rniE "(violet|indigo|slate|amber|emerald|red|teal|purple|blue|green|yellow|orange|gray|zinc|neutral|stone|cyan|sky|rose|pink|fuchsia|lime)-[0-9]{2,3}|text-white\b" components/certification/ "app/(platform)/certification"
 ```
+
 Expected: 0 resultados.
 
 - [ ] **Step 2: Typecheck completo**

@@ -19,10 +19,24 @@ import { Input } from '@/components/ui/Input';
 import { Modal, ModalContent } from '@/components/ui/Modal';
 import { Textarea } from '@/components/ui/Textarea';
 import { INITIATIVE_TYPE_LABELS } from './utils';
-import type { RoiEvaluationLevel, RoiEvaluationModelRow, RoiInitiativeType } from './types';
+import type {
+  RoiEvaluationLevel,
+  RoiEvaluationModelRow,
+  RoiInitiativeType,
+} from './types';
 
-const DEFAULT_LEVELS: (RoiEvaluationLevel & { included: boolean; measures: string })[] = [
-  { level: 1, name: 'Reação', mandatory: true, weight: 10, included: true, measures: 'Satisfação com a formação' },
+const DEFAULT_LEVELS: (RoiEvaluationLevel & {
+  included: boolean;
+  measures: string;
+})[] = [
+  {
+    level: 1,
+    name: 'Reação',
+    mandatory: true,
+    weight: 10,
+    included: true,
+    measures: 'Satisfação com a formação',
+  },
   {
     level: 2,
     name: 'Aprendizagem',
@@ -47,16 +61,32 @@ const DEFAULT_LEVELS: (RoiEvaluationLevel & { included: boolean; measures: strin
     included: true,
     measures: 'Impacto nos indicadores de negócio',
   },
-  { level: 5, name: 'ROI', mandatory: false, weight: 20, included: true, measures: 'Retorno financeiro' },
+  {
+    level: 5,
+    name: 'ROI',
+    mandatory: false,
+    weight: 20,
+    included: true,
+    measures: 'Retorno financeiro',
+  },
 ];
 
-const INITIATIVE_TYPE_OPTIONS = Object.entries(INITIATIVE_TYPE_LABELS) as [RoiInitiativeType, string][];
+const INITIATIVE_TYPE_OPTIONS = Object.entries(INITIATIVE_TYPE_LABELS) as [
+  RoiInitiativeType,
+  string,
+][];
 
 function toFormLevels(levels: RoiEvaluationLevel[] | undefined) {
   return DEFAULT_LEVELS.map((d) => {
     const existing = levels?.find((l) => l.level === d.level);
     return existing
-      ? { ...d, name: existing.name, mandatory: existing.mandatory, weight: existing.weight, included: true }
+      ? {
+          ...d,
+          name: existing.name,
+          mandatory: existing.mandatory,
+          weight: existing.weight,
+          included: true,
+        }
       : { ...d, included: !levels };
   });
 }
@@ -66,7 +96,10 @@ export interface RoiEvaluationModelModalProps {
   onClose: () => void;
 }
 
-export function RoiEvaluationModelModal({ model, onClose }: RoiEvaluationModelModalProps) {
+export function RoiEvaluationModelModal({
+  model,
+  onClose,
+}: RoiEvaluationModelModalProps) {
   const notify = useToast();
   const [error, setError] = useState('');
   const [name, setName] = useState(model?.name ?? '');
@@ -75,9 +108,13 @@ export function RoiEvaluationModelModal({ model, onClose }: RoiEvaluationModelMo
   const [initiativeTypes, setInitiativeTypes] = useState<RoiInitiativeType[]>(
     model?.applicability?.initiativeTypes ?? [],
   );
-  const [criticality, setCriticality] = useState((model?.applicability?.criticality ?? []).join(', '));
+  const [criticality, setCriticality] = useState(
+    (model?.applicability?.criticality ?? []).join(', '),
+  );
   const [minCost, setMinCost] = useState(
-    model?.applicability?.minCost != null ? String(model.applicability.minCost) : '',
+    model?.applicability?.minCost != null
+      ? String(model.applicability.minCost)
+      : '',
   );
 
   const save = useApiMutation(
@@ -87,11 +124,19 @@ export function RoiEvaluationModelModal({ model, onClose }: RoiEvaluationModelMo
         description: description.trim() || undefined,
         levels: levels
           .filter((l) => l.included)
-          .map((l) => ({ level: l.level, name: l.name, mandatory: l.mandatory, weight: l.weight })),
+          .map((l) => ({
+            level: l.level,
+            name: l.name,
+            mandatory: l.mandatory,
+            weight: l.weight,
+          })),
         applicability: {
           initiativeTypes: initiativeTypes.length ? initiativeTypes : undefined,
           criticality: criticality.trim()
-            ? criticality.split(',').map((c) => c.trim()).filter(Boolean)
+            ? criticality
+                .split(',')
+                .map((c) => c.trim())
+                .filter(Boolean)
             : undefined,
           minCost: minCost ? Number(minCost) : undefined,
         },
@@ -103,15 +148,21 @@ export function RoiEvaluationModelModal({ model, onClose }: RoiEvaluationModelMo
     {
       invalidateKeys: [queryKeys.roiImpact.evaluationModels()],
       onSuccess: () => {
-        notify({ title: model ? 'Modelo actualizado' : 'Modelo criado', intent: 'success' });
+        notify({
+          title: model ? 'Modelo actualizado' : 'Modelo criado',
+          intent: 'success',
+        });
         onClose();
       },
-      onError: (e) => setError(e.message || 'Erro ao guardar o modelo de avaliação.'),
+      onError: (e) =>
+        setError(e.message || 'Erro ao guardar o modelo de avaliação.'),
     },
   );
 
   const toggleInitiativeType = (t: RoiInitiativeType) => {
-    setInitiativeTypes((prev) => (prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]));
+    setInitiativeTypes((prev) =>
+      prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t],
+    );
   };
 
   const updateLevel = <K extends 'included' | 'name' | 'mandatory' | 'weight'>(
@@ -119,7 +170,9 @@ export function RoiEvaluationModelModal({ model, onClose }: RoiEvaluationModelMo
     field: K,
     value: (typeof DEFAULT_LEVELS)[number][K],
   ) => {
-    setLevels((prev) => prev.map((l) => (l.level === level ? { ...l, [field]: value } : l)));
+    setLevels((prev) =>
+      prev.map((l) => (l.level === level ? { ...l, [field]: value } : l)),
+    );
   };
 
   const canSave = name.trim().length > 0 && levels.some((l) => l.included);
@@ -127,7 +180,9 @@ export function RoiEvaluationModelModal({ model, onClose }: RoiEvaluationModelMo
   return (
     <Modal open onOpenChange={(open) => !open && onClose()}>
       <ModalContent
-        title={model ? 'Editar Modelo de Avaliação' : 'Novo Modelo de Avaliação'}
+        title={
+          model ? 'Editar Modelo de Avaliação' : 'Novo Modelo de Avaliação'
+        }
         description="Kirkpatrick (4 níveis) + extensão Phillips (5º nível, ROI) — docs/roi-impact.md §4"
         className="max-h-[90vh] max-w-2xl overflow-y-auto"
       >
@@ -140,7 +195,12 @@ export function RoiEvaluationModelModal({ model, onClose }: RoiEvaluationModelMo
 
         <div className="space-y-4">
           <FormField label="Nome do modelo *" htmlFor="rem-name">
-            <Input id="rem-name" value={name} onChange={(e) => setName(e.target.value)} className="w-full" />
+            <Input
+              id="rem-name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="w-full"
+            />
           </FormField>
           <FormField label="Descrição" htmlFor="rem-description">
             <Textarea
@@ -153,7 +213,9 @@ export function RoiEvaluationModelModal({ model, onClose }: RoiEvaluationModelMo
           </FormField>
 
           <div>
-            <p className="mb-2 font-body text-sm font-medium text-ink">Níveis incluídos</p>
+            <p className="mb-2 font-body text-sm font-medium text-ink">
+              Níveis incluídos
+            </p>
             <div className="overflow-hidden rounded-card border border-border">
               <table className="w-full text-sm">
                 <thead className="bg-surface-sunken text-xs text-ink-faint">
@@ -168,12 +230,17 @@ export function RoiEvaluationModelModal({ model, onClose }: RoiEvaluationModelMo
                 </thead>
                 <tbody className="divide-y divide-border">
                   {levels.map((l) => (
-                    <tr key={l.level} className={l.included ? '' : 'opacity-50'}>
+                    <tr
+                      key={l.level}
+                      className={l.included ? '' : 'opacity-50'}
+                    >
                       <td className="px-3 py-2">
                         <input
                           type="checkbox"
                           checked={l.included}
-                          onChange={(e) => updateLevel(l.level, 'included', e.target.checked)}
+                          onChange={(e) =>
+                            updateLevel(l.level, 'included', e.target.checked)
+                          }
                         />
                       </td>
                       <td className="px-3 py-2 text-ink-faint">{l.level}</td>
@@ -181,17 +248,23 @@ export function RoiEvaluationModelModal({ model, onClose }: RoiEvaluationModelMo
                         <Input
                           value={l.name}
                           disabled={!l.included}
-                          onChange={(e) => updateLevel(l.level, 'name', e.target.value)}
+                          onChange={(e) =>
+                            updateLevel(l.level, 'name', e.target.value)
+                          }
                           className="w-full"
                         />
                       </td>
-                      <td className="px-3 py-2 text-xs text-ink-faint">{l.measures}</td>
+                      <td className="px-3 py-2 text-xs text-ink-faint">
+                        {l.measures}
+                      </td>
                       <td className="px-3 py-2">
                         <input
                           type="checkbox"
                           checked={l.mandatory}
                           disabled={!l.included}
-                          onChange={(e) => updateLevel(l.level, 'mandatory', e.target.checked)}
+                          onChange={(e) =>
+                            updateLevel(l.level, 'mandatory', e.target.checked)
+                          }
                         />
                       </td>
                       <td className="px-3 py-2">
@@ -201,7 +274,13 @@ export function RoiEvaluationModelModal({ model, onClose }: RoiEvaluationModelMo
                           max={100}
                           disabled={!l.included}
                           value={l.weight}
-                          onChange={(e) => updateLevel(l.level, 'weight', Number(e.target.value))}
+                          onChange={(e) =>
+                            updateLevel(
+                              l.level,
+                              'weight',
+                              Number(e.target.value),
+                            )
+                          }
                           className="w-20"
                         />
                       </td>
@@ -211,16 +290,22 @@ export function RoiEvaluationModelModal({ model, onClose }: RoiEvaluationModelMo
               </table>
             </div>
             <p className="mt-2 text-xs text-ink-faint">
-              Regra recomendada: exigir medição até ao Nível 3 para todas as formações; Nível 4/5 só
-              para iniciativas acima de um limiar de custo/criticidade.
+              Regra recomendada: exigir medição até ao Nível 3 para todas as
+              formações; Nível 4/5 só para iniciativas acima de um limiar de
+              custo/criticidade.
             </p>
           </div>
 
           <div>
-            <p className="mb-2 font-body text-sm font-medium text-ink">Aplicável a</p>
+            <p className="mb-2 font-body text-sm font-medium text-ink">
+              Aplicável a
+            </p>
             <div className="flex flex-wrap gap-3">
               {INITIATIVE_TYPE_OPTIONS.map(([value, label]) => (
-                <label key={value} className="flex items-center gap-1.5 text-sm text-ink">
+                <label
+                  key={value}
+                  className="flex items-center gap-1.5 text-sm text-ink"
+                >
                   <input
                     type="checkbox"
                     checked={initiativeTypes.includes(value)}
@@ -233,7 +318,10 @@ export function RoiEvaluationModelModal({ model, onClose }: RoiEvaluationModelMo
           </div>
 
           <div className="grid grid-cols-2 gap-3">
-            <FormField label="Criticidade (separada por vírgulas)" htmlFor="rem-criticality">
+            <FormField
+              label="Criticidade (separada por vírgulas)"
+              htmlFor="rem-criticality"
+            >
               <Input
                 id="rem-criticality"
                 placeholder="ex.: estratégica, alta visibilidade"
@@ -256,7 +344,12 @@ export function RoiEvaluationModelModal({ model, onClose }: RoiEvaluationModelMo
         </div>
 
         <div className="mt-6 flex gap-3 border-t border-border pt-4">
-          <Button intent="secondary" className="justify-center" onClick={onClose} disabled={save.isPending}>
+          <Button
+            intent="secondary"
+            className="justify-center"
+            onClick={onClose}
+            disabled={save.isPending}
+          >
             Cancelar
           </Button>
           <Button

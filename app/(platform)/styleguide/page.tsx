@@ -17,7 +17,12 @@ import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
 import { FormField } from '@/components/ui/FormField';
 import { Select } from '@/components/ui/Select';
-import { Modal, ModalTrigger, ModalContent, ModalClose } from '@/components/ui/Modal';
+import {
+  Modal,
+  ModalTrigger,
+  ModalContent,
+  ModalClose,
+} from '@/components/ui/Modal';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/Tabs';
 import {
   DropdownMenu,
@@ -27,7 +32,14 @@ import {
   DropdownMenuSeparator,
 } from '@/components/ui/DropdownMenu';
 import { Tooltip } from '@/components/ui/Tooltip';
-import { Table, TableHead, TableBody, TableRow, TableHeaderCell, TableCell } from '@/components/ui/Table';
+import {
+  Table,
+  TableHead,
+  TableBody,
+  TableRow,
+  TableHeaderCell,
+  TableCell,
+} from '@/components/ui/Table';
 import { Avatar } from '@/components/ui/Avatar';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { PathProgress } from '@/components/ui/PathProgress';
@@ -84,28 +96,51 @@ export default function StyleguidePage() {
       <StyleguideSection title="Card">
         <Card className="w-64">
           <CardHeader>
-            <h3 className="font-display text-sm font-bold text-ink">Título do card</h3>
+            <h3 className="font-display text-sm font-bold text-ink">
+              Título do card
+            </h3>
           </CardHeader>
           <CardBody>
-            <p className="text-sm text-ink-muted">Conteúdo de exemplo do corpo do card.</p>
+            <p className="text-sm text-ink-muted">
+              Conteúdo de exemplo do corpo do card.
+            </p>
           </CardBody>
           <CardFooter>
             <Button size="sm">Acção</Button>
           </CardFooter>
         </Card>
         <Card interactive className="w-64 p-4">
-          <p className="text-sm text-ink-muted">Card interactivo (hover para ver a sombra crescer).</p>
+          <p className="text-sm text-ink-muted">
+            Card interactivo (hover para ver a sombra crescer).
+          </p>
         </Card>
       </StyleguideSection>
       <StyleguideSection title="Input / Textarea">
-        <FormField label="Email" htmlFor="sg-email" hint="Usa o teu email corporativo">
-          <Input id="sg-email" placeholder="nome@empresa.co.ao" className="w-64" />
+        <FormField
+          label="Email"
+          htmlFor="sg-email"
+          hint="Usa o teu email corporativo"
+        >
+          <Input
+            id="sg-email"
+            placeholder="nome@empresa.co.ao"
+            className="w-64"
+          />
         </FormField>
-        <FormField label="NIF" htmlFor="sg-nif" error="NIF inválido — verifica o formato">
+        <FormField
+          label="NIF"
+          htmlFor="sg-nif"
+          error="NIF inválido — verifica o formato"
+        >
           <Input id="sg-nif" defaultValue="00512345" invalid className="w-64" />
         </FormField>
         <FormField label="Notas" htmlFor="sg-notes">
-          <Textarea id="sg-notes" rows={3} placeholder="Escreve aqui…" className="w-64" />
+          <Textarea
+            id="sg-notes"
+            rows={3}
+            placeholder="Escreve aqui…"
+            className="w-64"
+          />
         </FormField>
       </StyleguideSection>
       <StyleguideSection title="Select">
@@ -124,7 +159,10 @@ export default function StyleguidePage() {
           <ModalTrigger asChild>
             <Button intent="secondary">Abrir modal</Button>
           </ModalTrigger>
-          <ModalContent title="Exemplo de modal" description="Descrição de apoio ao título.">
+          <ModalContent
+            title="Exemplo de modal"
+            description="Descrição de apoio ao título."
+          >
             <div className="mt-6 flex justify-end gap-3">
               <ModalClose asChild>
                 <Button intent="ghost">Cancelar</Button>
@@ -149,13 +187,19 @@ export default function StyleguidePage() {
       <StyleguideSection title="DropdownMenu">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <IconButton icon={MoreVertical} label="Mais opções" intent="ghost" />
+            <IconButton
+              icon={MoreVertical}
+              label="Mais opções"
+              intent="ghost"
+            />
           </DropdownMenuTrigger>
           <DropdownMenuContent>
             <DropdownMenuItem>Editar</DropdownMenuItem>
             <DropdownMenuItem>Duplicar</DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-danger">Eliminar</DropdownMenuItem>
+            <DropdownMenuItem className="text-danger">
+              Eliminar
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </StyleguideSection>
@@ -165,13 +209,21 @@ export default function StyleguidePage() {
         </Tooltip>
       </StyleguideSection>
       <StyleguideSection title="Toast">
-        <Button onClick={() => toast({ title: 'Guardado com sucesso', intent: 'success' })}>
+        <Button
+          onClick={() =>
+            toast({ title: 'Guardado com sucesso', intent: 'success' })
+          }
+        >
           Disparar toast de sucesso
         </Button>
         <Button
           intent="danger"
           onClick={() =>
-            toast({ title: 'Falha ao guardar', description: 'Tenta novamente.', intent: 'danger' })
+            toast({
+              title: 'Falha ao guardar',
+              description: 'Tenta novamente.',
+              intent: 'danger',
+            })
           }
         >
           Disparar toast de erro
@@ -190,12 +242,16 @@ export default function StyleguidePage() {
             <TableRow>
               <TableCell>Ana Silva</TableCell>
               <TableCell>Recursos Humanos</TableCell>
-              <TableCell><Badge intent="success">Activo</Badge></TableCell>
+              <TableCell>
+                <Badge intent="success">Activo</Badge>
+              </TableCell>
             </TableRow>
             <TableRow>
               <TableCell>João Pedro</TableCell>
               <TableCell>Tecnologia</TableCell>
-              <TableCell><Badge intent="neutral">Inactivo</Badge></TableCell>
+              <TableCell>
+                <Badge intent="neutral">Inactivo</Badge>
+              </TableCell>
             </TableRow>
           </TableBody>
         </Table>
@@ -219,8 +275,21 @@ export default function StyleguidePage() {
         />
       </StyleguideSection>
       <StyleguideSection title="KpiCard">
-        <KpiCard icon={Target} label="Progresso" value="78%" intent="primary" trend={4} />
-        <KpiCard icon={Target} label="eNPS" value="8.4" intent="accent" trend={-2} sub="vs. trimestre anterior" />
+        <KpiCard
+          icon={Target}
+          label="Progresso"
+          value="78%"
+          intent="primary"
+          trend={4}
+        />
+        <KpiCard
+          icon={Target}
+          label="eNPS"
+          value="8.4"
+          intent="accent"
+          trend={-2}
+          sub="vs. trimestre anterior"
+        />
       </StyleguideSection>
       <StyleguideSection title="EmptyState">
         <EmptyState

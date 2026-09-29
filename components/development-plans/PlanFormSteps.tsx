@@ -84,7 +84,10 @@ function UserPicker({
 }) {
   const [search, setSearch] = useState('');
   const [open, setOpen] = useState(false);
-  const { users, loading } = useDirectoryUsers(search, open && !value && search.trim().length > 0);
+  const { users, loading } = useDirectoryUsers(
+    search,
+    open && !value && search.trim().length > 0,
+  );
   const results = users.filter((u) => u.id !== excludeId);
 
   const select = (u: DirectoryUser) => {
@@ -97,12 +100,18 @@ function UserPicker({
     <FormField label={label} htmlFor={htmlFor}>
       {value ? (
         <div className="flex items-center gap-2 rounded-control border-[1.5px] border-border-strong bg-surface px-2 py-1.5">
-          <Avatar name={value.fullName} url={value.avatarUrl ?? undefined} size="sm" />
+          <Avatar
+            name={value.fullName}
+            url={value.avatarUrl ?? undefined}
+            size="sm"
+          />
           <div className="min-w-0 flex-1">
             <div className="truncate text-sm text-ink">{value.fullName}</div>
             {(value.position?.name || value.department?.name) && (
               <div className="truncate text-xs text-ink-faint">
-                {[value.position?.name, value.department?.name].filter(Boolean).join(' · ')}
+                {[value.position?.name, value.department?.name]
+                  .filter(Boolean)
+                  .join(' · ')}
               </div>
             )}
           </div>
@@ -140,9 +149,15 @@ function UserPicker({
               onCloseAutoFocus={(e) => e.preventDefault()}
               className="z-[60] max-h-56 w-[--radix-popover-trigger-width] overflow-y-auto rounded-card border border-border bg-surface shadow-elevated"
             >
-              {loading && <div className="px-3 py-2 text-sm text-ink-muted">A pesquisar…</div>}
+              {loading && (
+                <div className="px-3 py-2 text-sm text-ink-muted">
+                  A pesquisar…
+                </div>
+              )}
               {!loading && results.length === 0 && (
-                <div className="px-3 py-2 text-sm text-ink-muted">Nenhum colaborador encontrado</div>
+                <div className="px-3 py-2 text-sm text-ink-muted">
+                  Nenhum colaborador encontrado
+                </div>
               )}
               {results.map((u) => (
                 <button
@@ -151,9 +166,15 @@ function UserPicker({
                   onClick={() => select(u)}
                   className="flex w-full items-center gap-2 px-3 py-2 text-left hover:bg-primary-subtle"
                 >
-                  <Avatar name={u.fullName} url={u.avatarUrl ?? undefined} size="sm" />
+                  <Avatar
+                    name={u.fullName}
+                    url={u.avatarUrl ?? undefined}
+                    size="sm"
+                  />
                   <div className="min-w-0">
-                    <div className="truncate text-sm text-ink">{u.fullName}</div>
+                    <div className="truncate text-sm text-ink">
+                      {u.fullName}
+                    </div>
                     <div className="truncate text-xs text-ink-faint">
                       {u.department?.name ?? u.email ?? '—'}
                     </div>
@@ -179,7 +200,15 @@ interface ListEditorProps<T> {
   render: (row: T, index: number, locked: boolean) => React.ReactNode;
 }
 
-function ListEditor<T>({ title, hint, rows, onAdd, onRemove, isLocked, render }: ListEditorProps<T>) {
+function ListEditor<T>({
+  title,
+  hint,
+  rows,
+  onAdd,
+  onRemove,
+  isLocked,
+  render,
+}: ListEditorProps<T>) {
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
@@ -190,7 +219,9 @@ function ListEditor<T>({ title, hint, rows, onAdd, onRemove, isLocked, render }:
       </div>
       {hint && <p className="font-body text-xs text-ink-faint">{hint}</p>}
       {rows.length === 0 && (
-        <p className="font-body text-xs text-ink-faint">Nenhuma linha adicionada ainda.</p>
+        <p className="font-body text-xs text-ink-faint">
+          Nenhuma linha adicionada ainda.
+        </p>
       )}
       {rows.map((row, i) => {
         const locked = isLocked(row);
@@ -201,7 +232,9 @@ function ListEditor<T>({ title, hint, rows, onAdd, onRemove, isLocked, render }:
           >
             <div className="flex-1 space-y-2">{render(row, i, locked)}</div>
             {locked ? (
-              <span className="mt-1.5 flex-shrink-0 font-body text-xs text-success">Guardado</span>
+              <span className="mt-1.5 flex-shrink-0 font-body text-xs text-success">
+                Guardado
+              </span>
             ) : (
               <button
                 type="button"
@@ -219,8 +252,17 @@ function ListEditor<T>({ title, hint, rows, onAdd, onRemove, isLocked, render }:
   );
 }
 
-export function PlanFormSteps({ stepId, form, setField, addRow, removeRow, setRow }: PlanFormStepsProps) {
-  const { options: competencyOptions } = useCompetencyOptions(stepId === 'competencies');
+export function PlanFormSteps({
+  stepId,
+  form,
+  setField,
+  addRow,
+  removeRow,
+  setRow,
+}: PlanFormStepsProps) {
+  const { options: competencyOptions } = useCompetencyOptions(
+    stepId === 'competencies',
+  );
   const { options: courseOptions } = useCourseOptions(stepId === 'actionPlan');
 
   switch (stepId) {
@@ -265,7 +307,9 @@ export function PlanFormSteps({ stepId, form, setField, addRow, removeRow, setRo
               <Select
                 items={PRIORITY_ITEMS}
                 value={form.priority}
-                onValueChange={(v) => setField('priority', v as WizardForm['priority'])}
+                onValueChange={(v) =>
+                  setField('priority', v as WizardForm['priority'])
+                }
                 className="w-full"
               />
             </FormField>
@@ -301,7 +345,9 @@ export function PlanFormSteps({ stepId, form, setField, addRow, removeRow, setRo
                 type="date"
                 value={form.endDate}
                 onChange={(e) => setField('endDate', e.target.value)}
-                disabled={form.durationPreset !== 'custom' && form.durationPreset !== ''}
+                disabled={
+                  form.durationPreset !== 'custom' && form.durationPreset !== ''
+                }
                 className="w-full"
               />
             </FormField>
@@ -316,12 +362,17 @@ export function PlanFormSteps({ stepId, form, setField, addRow, removeRow, setRo
             <Select
               items={ORIGIN_ITEMS}
               value={form.origin || undefined}
-              onValueChange={(v) => setField('origin', v as WizardForm['origin'])}
+              onValueChange={(v) =>
+                setField('origin', v as WizardForm['origin'])
+              }
               placeholder="Por que razão este PDI foi criado?"
               className="w-full"
             />
           </FormField>
-          <FormField label="Justificação para a criação do PDI" htmlFor="pdi-origin-just">
+          <FormField
+            label="Justificação para a criação do PDI"
+            htmlFor="pdi-origin-just"
+          >
             <Textarea
               id="pdi-origin-just"
               value={form.originJustification}
@@ -341,7 +392,10 @@ export function PlanFormSteps({ stepId, form, setField, addRow, removeRow, setRo
               className="w-full"
             />
           </FormField>
-          <FormField label="Principais necessidades de desenvolvimento" htmlFor="pdi-needs">
+          <FormField
+            label="Principais necessidades de desenvolvimento"
+            htmlFor="pdi-needs"
+          >
             <Textarea
               id="pdi-needs"
               value={form.developmentNeeds}
@@ -368,7 +422,9 @@ export function PlanFormSteps({ stepId, form, setField, addRow, removeRow, setRo
               <Select
                 items={competencyOptions}
                 value={row.competencyId || undefined}
-                onValueChange={(v) => setRow('competencyGaps', i, { competencyId: v })}
+                onValueChange={(v) =>
+                  setRow('competencyGaps', i, { competencyId: v })
+                }
                 placeholder="Competência"
                 className="w-full sm:col-span-2"
               />
@@ -377,7 +433,9 @@ export function PlanFormSteps({ stepId, form, setField, addRow, removeRow, setRo
                 min={0}
                 placeholder="Nível actual"
                 value={row.currentLevel}
-                onChange={(e) => setRow('competencyGaps', i, { currentLevel: e.target.value })}
+                onChange={(e) =>
+                  setRow('competencyGaps', i, { currentLevel: e.target.value })
+                }
                 className="w-full"
               />
               <Input
@@ -385,13 +443,17 @@ export function PlanFormSteps({ stepId, form, setField, addRow, removeRow, setRo
                 min={0}
                 placeholder="Nível desejado"
                 value={row.targetLevel}
-                onChange={(e) => setRow('competencyGaps', i, { targetLevel: e.target.value })}
+                onChange={(e) =>
+                  setRow('competencyGaps', i, { targetLevel: e.target.value })
+                }
                 className="w-full"
               />
               <Select
                 items={GAP_PRIORITY_ITEMS}
                 value={row.priority}
-                onValueChange={(v) => setRow('competencyGaps', i, { priority: v })}
+                onValueChange={(v) =>
+                  setRow('competencyGaps', i, { priority: v })
+                }
                 className="w-full sm:col-span-4 sm:w-48"
               />
             </div>
@@ -414,12 +476,16 @@ export function PlanFormSteps({ stepId, form, setField, addRow, removeRow, setRo
                   : 'border-border-strong bg-surface text-ink-muted',
               )}
             >
-              {form.careerLinked ? '✓ ' : ''}Este PDI está associado a um objectivo de carreira
+              {form.careerLinked ? '✓ ' : ''}Este PDI está associado a um
+              objectivo de carreira
             </button>
           </div>
           {form.careerLinked && (
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <FormField label="ID do plano de carreira" htmlFor="pdi-career-id">
+              <FormField
+                label="ID do plano de carreira"
+                htmlFor="pdi-career-id"
+              >
                 <Input
                   id="pdi-career-id"
                   type="number"
@@ -430,14 +496,19 @@ export function PlanFormSteps({ stepId, form, setField, addRow, removeRow, setRo
                   className="w-full"
                 />
               </FormField>
-              <FormField label="Nível de prontidão actual (%)" htmlFor="pdi-readiness">
+              <FormField
+                label="Nível de prontidão actual (%)"
+                htmlFor="pdi-readiness"
+              >
                 <Input
                   id="pdi-readiness"
                   type="number"
                   min={0}
                   max={100}
                   value={form.careerReadinessPercent}
-                  onChange={(e) => setField('careerReadinessPercent', e.target.value)}
+                  onChange={(e) =>
+                    setField('careerReadinessPercent', e.target.value)
+                  }
                   placeholder="Ex.: 65"
                   className="w-full"
                 />
@@ -458,14 +529,18 @@ export function PlanFormSteps({ stepId, form, setField, addRow, removeRow, setRo
                   placeholder="Nome do objectivo"
                   value={row.title}
                   disabled={locked}
-                  onChange={(e) => setRow('goals', i, { title: e.target.value })}
+                  onChange={(e) =>
+                    setRow('goals', i, { title: e.target.value })
+                  }
                   className="w-full sm:col-span-2"
                 />
                 <Textarea
                   placeholder="Descrição (opcional)"
                   value={row.description}
                   disabled={locked}
-                  onChange={(e) => setRow('goals', i, { description: e.target.value })}
+                  onChange={(e) =>
+                    setRow('goals', i, { description: e.target.value })
+                  }
                   rows={2}
                   className="w-full sm:col-span-2"
                 />
@@ -473,14 +548,18 @@ export function PlanFormSteps({ stepId, form, setField, addRow, removeRow, setRo
                   placeholder="Indicador de sucesso"
                   value={row.successIndicator}
                   disabled={locked}
-                  onChange={(e) => setRow('goals', i, { successIndicator: e.target.value })}
+                  onChange={(e) =>
+                    setRow('goals', i, { successIndicator: e.target.value })
+                  }
                   className="w-full"
                 />
                 <Input
                   type="date"
                   value={row.dueDate}
                   disabled={locked}
-                  onChange={(e) => setRow('goals', i, { dueDate: e.target.value })}
+                  onChange={(e) =>
+                    setRow('goals', i, { dueDate: e.target.value })
+                  }
                   className="w-full"
                 />
                 <Input
@@ -490,7 +569,9 @@ export function PlanFormSteps({ stepId, form, setField, addRow, removeRow, setRo
                   placeholder="Peso (0-100)"
                   value={row.weight}
                   disabled={locked}
-                  onChange={(e) => setRow('goals', i, { weight: e.target.value })}
+                  onChange={(e) =>
+                    setRow('goals', i, { weight: e.target.value })
+                  }
                   className="w-full"
                 />
               </div>
@@ -514,21 +595,27 @@ export function PlanFormSteps({ stepId, form, setField, addRow, removeRow, setRo
                 placeholder="Nome da acção"
                 value={row.title}
                 disabled={locked}
-                onChange={(e) => setRow('actions', i, { title: e.target.value })}
+                onChange={(e) =>
+                  setRow('actions', i, { title: e.target.value })
+                }
                 className="w-full sm:col-span-2"
               />
               <Textarea
                 placeholder="Descrição (opcional)"
                 value={row.description}
                 disabled={locked}
-                onChange={(e) => setRow('actions', i, { description: e.target.value })}
+                onChange={(e) =>
+                  setRow('actions', i, { description: e.target.value })
+                }
                 rows={2}
                 className="w-full sm:col-span-2"
               />
               <Select
                 items={ACTION_TYPE_ITEMS}
                 value={row.type}
-                onValueChange={(v) => setRow('actions', i, { type: v as ActionType })}
+                onValueChange={(v) =>
+                  setRow('actions', i, { type: v as ActionType })
+                }
                 disabled={locked}
                 className="w-full"
               />
@@ -548,14 +635,18 @@ export function PlanFormSteps({ stepId, form, setField, addRow, removeRow, setRo
                 placeholder="Carga horária (h)"
                 value={row.workloadHours}
                 disabled={locked}
-                onChange={(e) => setRow('actions', i, { workloadHours: e.target.value })}
+                onChange={(e) =>
+                  setRow('actions', i, { workloadHours: e.target.value })
+                }
                 className="w-full"
               />
               <Input
                 type="date"
                 value={row.dueDate}
                 disabled={locked}
-                onChange={(e) => setRow('actions', i, { dueDate: e.target.value })}
+                onChange={(e) =>
+                  setRow('actions', i, { dueDate: e.target.value })
+                }
                 className="w-full"
               />
               <label className="flex items-center gap-2 font-body text-xs text-ink-muted">
@@ -563,7 +654,9 @@ export function PlanFormSteps({ stepId, form, setField, addRow, removeRow, setRo
                   type="checkbox"
                   checked={row.mandatory}
                   disabled={locked}
-                  onChange={(e) => setRow('actions', i, { mandatory: e.target.checked })}
+                  onChange={(e) =>
+                    setRow('actions', i, { mandatory: e.target.checked })
+                  }
                   className="h-4 w-4 rounded border-border-strong accent-primary"
                 />
                 Obrigatória
@@ -588,14 +681,18 @@ export function PlanFormSteps({ stepId, form, setField, addRow, removeRow, setRo
                 placeholder="Título (ex.: Rever progresso do curso)"
                 value={row.title}
                 disabled={locked}
-                onChange={(e) => setRow('checkpoints', i, { title: e.target.value })}
+                onChange={(e) =>
+                  setRow('checkpoints', i, { title: e.target.value })
+                }
                 className="w-full sm:col-span-2"
               />
               <Textarea
                 placeholder="Descrição (opcional)"
                 value={row.description}
                 disabled={locked}
-                onChange={(e) => setRow('checkpoints', i, { description: e.target.value })}
+                onChange={(e) =>
+                  setRow('checkpoints', i, { description: e.target.value })
+                }
                 rows={2}
                 className="w-full sm:col-span-2"
               />
@@ -603,7 +700,9 @@ export function PlanFormSteps({ stepId, form, setField, addRow, removeRow, setRo
                 type="date"
                 value={row.scheduledAt}
                 disabled={locked}
-                onChange={(e) => setRow('checkpoints', i, { scheduledAt: e.target.value })}
+                onChange={(e) =>
+                  setRow('checkpoints', i, { scheduledAt: e.target.value })
+                }
                 className="w-full"
               />
               <Select
@@ -612,7 +711,11 @@ export function PlanFormSteps({ stepId, form, setField, addRow, removeRow, setRo
                   { value: 'STRUCTURED', label: 'Check-in estruturado' },
                 ]}
                 value={row.type}
-                onValueChange={(v) => setRow('checkpoints', i, { type: v as CheckpointDraft['type'] })}
+                onValueChange={(v) =>
+                  setRow('checkpoints', i, {
+                    type: v as CheckpointDraft['type'],
+                  })
+                }
                 disabled={locked}
                 className="w-full"
               />
@@ -633,7 +736,9 @@ export function PlanFormSteps({ stepId, form, setField, addRow, removeRow, setRo
           <dt className="text-ink-faint">Objectivo geral</dt>
           <dd className="text-ink">{form.goal || '—'}</dd>
           <dt className="text-ink-faint">Competências</dt>
-          <dd className="text-ink">{form.competencyGaps.length} a desenvolver</dd>
+          <dd className="text-ink">
+            {form.competencyGaps.length} a desenvolver
+          </dd>
           <dt className="text-ink-faint">Objectivos</dt>
           <dd className="text-ink">{form.goals.length} definidos</dd>
           <dt className="text-ink-faint">Acções</dt>

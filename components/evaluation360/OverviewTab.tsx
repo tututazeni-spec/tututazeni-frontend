@@ -34,7 +34,12 @@ export interface OverviewTabProps {
   cycleId?: string;
 }
 
-export function OverviewTab({ result, participant, cycle, cycleId }: OverviewTabProps) {
+export function OverviewTab({
+  result,
+  participant,
+  cycle,
+  cycleId,
+}: OverviewTabProps) {
   return (
     <div className="flex flex-col gap-6">
       {/* Participant header — sempre o próprio, independente de já haver
@@ -42,7 +47,11 @@ export function OverviewTab({ result, participant, cycle, cycleId }: OverviewTab
       <div className="rounded-xl border border-border bg-surface p-7 flex items-center gap-4">
         {participant ? (
           <>
-            <Avatar name={participant.fullName} url={participant.avatarUrl ?? undefined} size="lg" />
+            <Avatar
+              name={participant.fullName}
+              url={participant.avatarUrl ?? undefined}
+              size="lg"
+            />
             <div>
               <div className="text-xl font-bold text-ink tracking-tight">
                 {participant.fullName}
@@ -114,13 +123,22 @@ export function OverviewTab({ result, participant, cycle, cycleId }: OverviewTab
                 Pontos Fortes
               </div>
               {result.strengths.length === 0 && (
-                <div className="text-sm text-ink-muted">Sem dados suficientes ainda.</div>
+                <div className="text-sm text-ink-muted">
+                  Sem dados suficientes ainda.
+                </div>
               )}
               {result.strengths.map((s) => (
-                <div key={s.id} className="flex justify-between items-center mb-2.5">
+                <div
+                  key={s.id}
+                  className="flex justify-between items-center mb-2.5"
+                >
                   <div>
-                    <span className="text-sm font-semibold text-ink">{s.name}</span>
-                    <span className="text-xs text-ink-muted ml-2">{s.category}</span>
+                    <span className="text-sm font-semibold text-ink">
+                      {s.name}
+                    </span>
+                    <span className="text-xs text-ink-muted ml-2">
+                      {s.category}
+                    </span>
                   </div>
                   <span className="text-sm font-bold text-success-ink">
                     {s.othersScore.toFixed(1)}
@@ -133,13 +151,22 @@ export function OverviewTab({ result, participant, cycle, cycleId }: OverviewTab
                 Oportunidades de Desenvolvimento
               </div>
               {result.gaps.length === 0 && (
-                <div className="text-sm text-ink-muted">Sem dados suficientes ainda.</div>
+                <div className="text-sm text-ink-muted">
+                  Sem dados suficientes ainda.
+                </div>
               )}
               {result.gaps.map((g) => (
-                <div key={g.id} className="flex justify-between items-center mb-2.5">
+                <div
+                  key={g.id}
+                  className="flex justify-between items-center mb-2.5"
+                >
                   <div>
-                    <span className="text-sm font-semibold text-ink">{g.name}</span>
-                    <span className="text-xs text-ink-muted ml-2">{g.category}</span>
+                    <span className="text-sm font-semibold text-ink">
+                      {g.name}
+                    </span>
+                    <span className="text-xs text-ink-muted ml-2">
+                      {g.category}
+                    </span>
                   </div>
                   <span className="text-sm font-bold text-danger-ink">
                     {g.othersScore.toFixed(1)}

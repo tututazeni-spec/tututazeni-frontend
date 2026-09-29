@@ -90,7 +90,10 @@ function CategoryModal({
       return;
     }
     setError('');
-    const vars = { name: form.name.trim(), description: form.description.trim() || undefined };
+    const vars = {
+      name: form.name.trim(),
+      description: form.description.trim() || undefined,
+    };
     if (category) update.mutate(vars);
     else create.mutate(vars);
   }
@@ -103,7 +106,9 @@ function CategoryModal({
       >
         <div className="mt-4 space-y-4">
           {error && (
-            <p className="rounded-card bg-danger-subtle p-3 text-sm text-danger-ink">{error}</p>
+            <p className="rounded-card bg-danger-subtle p-3 text-sm text-danger-ink">
+              {error}
+            </p>
           )}
           <FormField label="Nome *" htmlFor="cat-name">
             <Input
@@ -117,14 +122,20 @@ function CategoryModal({
             <Textarea
               id="cat-desc"
               value={form.description}
-              onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, description: e.target.value }))
+              }
               rows={3}
               className="w-full"
             />
           </FormField>
         </div>
         <div className="mt-6 flex gap-3 border-t border-border pt-4">
-          <Button intent="secondary" className="flex-1 justify-center" onClick={onClose}>
+          <Button
+            intent="secondary"
+            className="flex-1 justify-center"
+            onClick={onClose}
+          >
             Cancelar
           </Button>
           <Button
@@ -144,7 +155,9 @@ function CategoryModal({
 export function CategoriasView() {
   const confirm = useConfirm();
   const toast = useToast();
-  const [modalFor, setModalFor] = useState<CourseCategoryManaged | 'new' | null>(null);
+  const [modalFor, setModalFor] = useState<
+    CourseCategoryManaged | 'new' | null
+  >(null);
 
   const { data = [], isLoading } = useApiQuery<CourseCategoryManaged[]>(
     queryKeys.courses.categoriesManaged(),
@@ -159,15 +172,24 @@ export function CategoriasView() {
 
   const toggleActive = useApiMutation(
     (vars: { id: number; isActive: boolean }) =>
-      apiClient.patch(`/courses/categories/${vars.id}`, { isActive: vars.isActive }),
-    { invalidateKeys, onError: (e) => toast({ title: e.message, intent: 'danger' }) },
+      apiClient.patch(`/courses/categories/${vars.id}`, {
+        isActive: vars.isActive,
+      }),
+    {
+      invalidateKeys,
+      onError: (e) => toast({ title: e.message, intent: 'danger' }),
+    },
   );
 
-  const remove = useApiMutation((id: number) => apiClient.delete(`/courses/categories/${id}`), {
-    invalidateKeys,
-    onSuccess: () => toast({ title: 'Categoria removida', intent: 'success' }),
-    onError: (e) => toast({ title: e.message, intent: 'danger' }),
-  });
+  const remove = useApiMutation(
+    (id: number) => apiClient.delete(`/courses/categories/${id}`),
+    {
+      invalidateKeys,
+      onSuccess: () =>
+        toast({ title: 'Categoria removida', intent: 'success' }),
+      onError: (e) => toast({ title: e.message, intent: 'danger' }),
+    },
+  );
 
   async function onDelete(cat: CourseCategoryManaged) {
     const ok = await confirm({
@@ -208,30 +230,53 @@ export function CategoriasView() {
           <TableBody>
             {data.map((cat) => (
               <TableRow key={cat.id}>
-                <TableCell className="font-medium text-ink">{cat.name}</TableCell>
-                <TableCell className="text-ink-muted">{cat.description || '—'}</TableCell>
-                <TableCell className="text-ink-muted">{cat.courseCount}</TableCell>
+                <TableCell className="font-medium text-ink">
+                  {cat.name}
+                </TableCell>
+                <TableCell className="text-ink-muted">
+                  {cat.description || '—'}
+                </TableCell>
+                <TableCell className="text-ink-muted">
+                  {cat.courseCount}
+                </TableCell>
                 <TableCell>
                   <button
                     onClick={() =>
-                      toggleActive.mutate({ id: cat.id, isActive: !cat.isActive })
+                      toggleActive.mutate({
+                        id: cat.id,
+                        isActive: !cat.isActive,
+                      })
                     }
                   >
                     <StatusBadge
                       value={cat.isActive ? 'ACTIVE' : 'INACTIVE'}
                       map={{
-                        ACTIVE: { label: 'Activa', cls: 'bg-success-subtle text-success-ink' },
-                        INACTIVE: { label: 'Inactiva', cls: 'bg-surface-sunken text-ink-faint' },
+                        ACTIVE: {
+                          label: 'Activa',
+                          cls: 'bg-success-subtle text-success-ink',
+                        },
+                        INACTIVE: {
+                          label: 'Inactiva',
+                          cls: 'bg-surface-sunken text-ink-faint',
+                        },
                       }}
                     />
                   </button>
                 </TableCell>
                 <TableCell>
                   <div className="flex justify-end gap-1">
-                    <Button size="sm" intent="ghost" onClick={() => setModalFor(cat)}>
+                    <Button
+                      size="sm"
+                      intent="ghost"
+                      onClick={() => setModalFor(cat)}
+                    >
                       <Pencil size={14} strokeWidth={1.75} />
                     </Button>
-                    <Button size="sm" intent="ghost" onClick={() => onDelete(cat)}>
+                    <Button
+                      size="sm"
+                      intent="ghost"
+                      onClick={() => onDelete(cat)}
+                    >
                       <Trash2 size={14} strokeWidth={1.75} />
                     </Button>
                   </div>

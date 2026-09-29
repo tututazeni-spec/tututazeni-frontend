@@ -46,7 +46,9 @@ describe('PdfViewer', () => {
     render(<PdfViewer src="blob:mock" title="Manual em PDF" />);
 
     await waitFor(() => {
-      expect(screen.getByText(/não foi possível abrir este pdf/i)).toBeInTheDocument();
+      expect(
+        screen.getByText(/não foi possível abrir este pdf/i),
+      ).toBeInTheDocument();
     });
   });
 

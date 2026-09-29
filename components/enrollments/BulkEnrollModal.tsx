@@ -47,7 +47,10 @@ interface BulkResult {
   };
 }
 
-export function BulkEnrollModal({ onClose, initialCourseId }: BulkEnrollModalProps) {
+export function BulkEnrollModal({
+  onClose,
+  initialCourseId,
+}: BulkEnrollModalProps) {
   const [courseId, setCourseId] = useState(
     initialCourseId ? String(initialCourseId) : '',
   );

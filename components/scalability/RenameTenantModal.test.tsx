@@ -24,7 +24,10 @@ vi.mock('@/hooks/useApiQuery', () => ({
   useApiMutation: (fn: (v: unknown) => Promise<unknown>) => ({
     mutate: (
       v: unknown,
-      opts?: { onSuccess?: (d: unknown) => void; onError?: (e: unknown) => void },
+      opts?: {
+        onSuccess?: (d: unknown) => void;
+        onError?: (e: unknown) => void;
+      },
     ) =>
       Promise.resolve(fn(v)).then(
         (d) => opts?.onSuccess?.(d),
@@ -79,7 +82,9 @@ describe('RenameTenantModal', () => {
       tenantName: 'Sonangol Holding',
     });
     await waitFor(() =>
-      expect(notify).toHaveBeenCalledWith(expect.objectContaining({ intent: 'success' })),
+      expect(notify).toHaveBeenCalledWith(
+        expect.objectContaining({ intent: 'success' }),
+      ),
     );
     expect(onClose).toHaveBeenCalledTimes(1);
   });
@@ -101,7 +106,9 @@ describe('RenameTenantModal', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Guardar' }));
 
     await waitFor(() =>
-      expect(notify).toHaveBeenCalledWith(expect.objectContaining({ intent: 'danger' })),
+      expect(notify).toHaveBeenCalledWith(
+        expect.objectContaining({ intent: 'danger' }),
+      ),
     );
     expect(onClose).not.toHaveBeenCalled();
   });

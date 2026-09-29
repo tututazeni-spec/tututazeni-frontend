@@ -45,7 +45,9 @@ export function DeclarationRow({ dec, onAction }: DeclarationRowProps) {
           <span className="font-body text-sm font-medium leading-snug text-ink">
             {dec.title}
           </span>
-          <span className="font-body text-xs text-ink-faint">{TYPE_LABELS[dec.type]}</span>
+          <span className="font-body text-xs text-ink-faint">
+            {TYPE_LABELS[dec.type]}
+          </span>
         </div>
       </TableCell>
 
@@ -70,7 +72,11 @@ export function DeclarationRow({ dec, onAction }: DeclarationRowProps) {
           <span>Criada: {dec.createdAt}</span>
           {dec.issuedAt && <span>Emitida: {dec.issuedAt}</span>}
           {dec.expiresAt && (
-            <span className={dec.status === 'expired' ? 'text-warning-ink' : 'text-ink-faint'}>
+            <span
+              className={
+                dec.status === 'expired' ? 'text-warning-ink' : 'text-ink-faint'
+              }
+            >
               Expira: {dec.expiresAt}
             </span>
           )}
@@ -105,7 +111,11 @@ export function DeclarationRow({ dec, onAction }: DeclarationRowProps) {
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <IconButton icon={MoreHorizontal} label="Mais ações" intent="ghost" />
+              <IconButton
+                icon={MoreHorizontal}
+                label="Mais ações"
+                intent="ghost"
+              />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onSelect={() => onAction('send-email', dec.id)}>

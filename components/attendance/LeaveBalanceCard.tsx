@@ -14,9 +14,7 @@ interface LeaveBalanceCardProps {
 export function LeaveBalanceCard({ balances }: LeaveBalanceCardProps) {
   return (
     <div className="bg-surface rounded-panel border border-border shadow-sm p-5">
-      <h3 className="font-semibold text-ink text-sm mb-4">
-        Saldo de Licenças
-      </h3>
+      <h3 className="font-semibold text-ink text-sm mb-4">Saldo de Licenças</h3>
       <div className="space-y-3">
         {balances.map((b) => {
           const pct =

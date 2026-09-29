@@ -2,7 +2,12 @@
 // Envolve label + hint/erro à volta de um Input/Textarea/Select — id/aria
 // ligados automaticamente para não repetir a lógica de a11y em cada página.
 
-import { cloneElement, isValidElement, type ReactElement, type ReactNode } from 'react';
+import {
+  cloneElement,
+  isValidElement,
+  type ReactElement,
+  type ReactNode,
+} from 'react';
 
 export interface FormFieldProps {
   label: string;
@@ -12,7 +17,13 @@ export interface FormFieldProps {
   children: ReactNode;
 }
 
-export function FormField({ label, htmlFor, hint, error, children }: FormFieldProps) {
+export function FormField({
+  label,
+  htmlFor,
+  hint,
+  error,
+  children,
+}: FormFieldProps) {
   const hintId = hint ? `${htmlFor}-hint` : undefined;
   const errorId = error ? `${htmlFor}-error` : undefined;
 
@@ -30,7 +41,10 @@ export function FormField({ label, htmlFor, hint, error, children }: FormFieldPr
 
   return (
     <div className="flex flex-col gap-1.5">
-      <label htmlFor={htmlFor} className="font-body text-xs font-medium text-ink">
+      <label
+        htmlFor={htmlFor}
+        className="font-body text-xs font-medium text-ink"
+      >
         {label}
       </label>
       {child}

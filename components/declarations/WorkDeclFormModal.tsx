@@ -72,13 +72,17 @@ export function WorkDeclFormModal({
     submitForm.mutate(draft);
   };
 
-  function renderField(q: NonNullable<WorkForm['questions']>[number]): ReactNode {
+  function renderField(
+    q: NonNullable<WorkForm['questions']>[number],
+  ): ReactNode {
     if (q.fieldType === 'TEXTAREA') {
       return (
         <Textarea
           id={`wq-${q.key}`}
           value={String(answers[q.key] ?? '')}
-          onChange={(e) => setAnswers((a) => ({ ...a, [q.key]: e.target.value }))}
+          onChange={(e) =>
+            setAnswers((a) => ({ ...a, [q.key]: e.target.value }))
+          }
           rows={3}
           className="w-full resize-none"
         />
@@ -89,7 +93,9 @@ export function WorkDeclFormModal({
         <Input
           id={`wq-${q.key}`}
           value={String(answers[q.key] ?? '')}
-          onChange={(e) => setAnswers((a) => ({ ...a, [q.key]: e.target.value }))}
+          onChange={(e) =>
+            setAnswers((a) => ({ ...a, [q.key]: e.target.value }))
+          }
           className="w-full"
         />
       );
@@ -100,7 +106,9 @@ export function WorkDeclFormModal({
           {['Sim', 'Não'].map((opt) => (
             <button
               key={opt}
-              onClick={() => setAnswers((a) => ({ ...a, [q.key]: opt === 'Sim' }))}
+              onClick={() =>
+                setAnswers((a) => ({ ...a, [q.key]: opt === 'Sim' }))
+              }
               className={cn(
                 'flex-1 rounded-control border-2 py-2.5 font-body text-sm font-medium transition-colors',
                 answers[q.key] === (opt === 'Sim')
@@ -131,7 +139,9 @@ export function WorkDeclFormModal({
           id={`wq-${q.key}`}
           type="date"
           value={String(answers[q.key] ?? '')}
-          onChange={(e) => setAnswers((a) => ({ ...a, [q.key]: e.target.value }))}
+          onChange={(e) =>
+            setAnswers((a) => ({ ...a, [q.key]: e.target.value }))
+          }
           className="w-full"
         />
       );
@@ -142,7 +152,9 @@ export function WorkDeclFormModal({
           id={`wq-${q.key}`}
           type="number"
           value={String(answers[q.key] ?? '')}
-          onChange={(e) => setAnswers((a) => ({ ...a, [q.key]: +e.target.value }))}
+          onChange={(e) =>
+            setAnswers((a) => ({ ...a, [q.key]: +e.target.value }))
+          }
           className="w-full"
         />
       );
@@ -152,11 +164,16 @@ export function WorkDeclFormModal({
 
   return (
     <Modal open onOpenChange={(open) => !open && onClose()}>
-      <ModalContent title={form.title} className="max-h-[90vh] max-w-xl overflow-y-auto">
+      <ModalContent
+        title={form.title}
+        className="max-h-[90vh] max-w-xl overflow-y-auto"
+      >
         <div className="mt-1.5">
           <Badge intent="info">{WORK_TYPE_LABELS[form.type]}</Badge>
           {form.description && (
-            <p className="mt-1.5 font-body text-sm text-ink-muted">{form.description}</p>
+            <p className="mt-1.5 font-body text-sm text-ink-muted">
+              {form.description}
+            </p>
           )}
         </div>
 
@@ -180,7 +197,11 @@ export function WorkDeclFormModal({
         </div>
 
         <div className="mt-6 flex gap-3 border-t border-border pt-4">
-          <Button intent="secondary" disabled={loading} onClick={() => handleSubmit(true)}>
+          <Button
+            intent="secondary"
+            disabled={loading}
+            onClick={() => handleSubmit(true)}
+          >
             Guardar Rascunho
           </Button>
           <div className="flex-1" />

@@ -33,10 +33,14 @@ export function useDepartmentOptions(enabled = true) {
 }
 
 export function useJobFamilyOptions(enabled = true) {
-  const query = useApiQuery<JobFamily[]>(queryKeys.career.jobFamilies(), '/career/job-families', {
-    staleTime: STALE_TIME.STATIC,
-    enabled,
-  });
+  const query = useApiQuery<JobFamily[]>(
+    queryKeys.career.jobFamilies(),
+    '/career/job-families',
+    {
+      staleTime: STALE_TIME.STATIC,
+      enabled,
+    },
+  );
   const options: SelectOption[] = (query.data ?? []).map((f) => ({
     value: String(f.id),
     label: f.code ? `${f.name} (${f.code})` : f.name,
@@ -45,10 +49,14 @@ export function useJobFamilyOptions(enabled = true) {
 }
 
 export function usePositionOptions(enabled = true) {
-  const query = useApiQuery<Position[]>(queryKeys.career.positions(), '/career/positions', {
-    staleTime: STALE_TIME.STATIC,
-    enabled,
-  });
+  const query = useApiQuery<Position[]>(
+    queryKeys.career.positions(),
+    '/career/positions',
+    {
+      staleTime: STALE_TIME.STATIC,
+      enabled,
+    },
+  );
   const options: SelectOption[] = (query.data ?? []).map((p) => ({
     value: String(p.id),
     label: p.level ? `${p.name} · ${p.level}` : p.name,

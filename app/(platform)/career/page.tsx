@@ -23,7 +23,12 @@ import { apiClient } from '@/lib/apiClient';
 import { reportError } from '@/lib/errorReporting';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { EXECUTIVE_ROLES, filterByRole, type Role, type RoleRestricted } from '@/lib/roles';
+import {
+  EXECUTIVE_ROLES,
+  filterByRole,
+  type Role,
+  type RoleRestricted,
+} from '@/lib/roles';
 import { useToast } from '@/providers/ToastProvider';
 import { Button } from '@/components/ui/Button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
@@ -37,7 +42,10 @@ import { MyCareerTab } from '@/components/career/plans/MyCareerTab';
 import { PlansManagementView } from '@/components/career/plans/PlansManagementView';
 import { SimulateModal } from '@/components/career/plans/SimulateModal';
 import { SuccessionTab } from '@/components/career/succession/SuccessionTab';
-import type { CareerPlan as CareerPlansPlan, Role as CareerPlansRole } from '@/components/career/plans/types';
+import type {
+  CareerPlan as CareerPlansPlan,
+  Role as CareerPlansRole,
+} from '@/components/career/plans/types';
 
 type CareerTab =
   | 'overview'
@@ -113,10 +121,16 @@ export default function CareerPage() {
     <div className="mx-auto max-w-6xl px-4 py-8">
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="font-display text-xl font-semibold text-ink">Carreira</h1>
+          <h1 className="font-display text-xl font-semibold text-ink">
+            Carreira
+          </h1>
         </div>
         <div className="flex items-center gap-2">
-          <Button intent="secondary" size="sm" onClick={() => setShowSimulate(true)}>
+          <Button
+            intent="secondary"
+            size="sm"
+            onClick={() => setShowSimulate(true)}
+          >
             <Compass size={15} strokeWidth={1.75} /> Simular Carreira
           </Button>
           <button
@@ -133,16 +147,25 @@ export default function CareerPage() {
         </div>
       </div>
 
-      <Tabs value={tab} onValueChange={v => setTab(v as CareerTab)}>
-        <div className="overflow-x-auto">
-          <TabsList>
-            {visibleTabs.map(t => (
-              <TabsTrigger key={t.id} value={t.id} className="whitespace-nowrap">
-                {t.label}
-              </TabsTrigger>
-            ))}
-          </TabsList>
-        </div>
+      {/* Tabs — formato de "cartão": cada trigger é um cartão independente
+          (borda + fundo branco + rounded), sem underline no container.
+          Alinhadas horizontal e verticalmente (justify-center +
+          items-center no TabsList, flex items-center em cada TabsTrigger)
+          com largura mínima uniforme. Estado activo usa data-[state=active]
+          do Radix para aplicar destaque azul (borda/fundo/texto primary). */}
+      <Tabs value={tab} onValueChange={(v) => setTab(v as CareerTab)}>
+        <TabsList className="mb-6 flex w-full flex-wrap items-center justify-center gap-2 overflow-x-auto bg-transparent p-0">
+          {visibleTabs.map((t) => (
+            <TabsTrigger
+              key={t.id}
+              value={t.id}
+              className="flex min-w-[140px] items-center justify-center whitespace-nowrap rounded-lg border border-border bg-white px-4 py-2 text-center text-sm font-medium text-foreground shadow-none
+                         data-[state=active]:border-primary data-[state=active]:bg-primary/10 data-[state=active]:text-primary"
+            >
+              {t.label}
+            </TabsTrigger>
+          ))}
+        </TabsList>
 
         <TabsContent value="overview">
           <OverviewTab />
@@ -150,7 +173,11 @@ export default function CareerPage() {
         <TabsContent value="me">
           <div className="space-y-6">
             <DashboardView />
-            <MyCareerTab loading={plansLoading} myPlan={myPlan} onGoalProgress={handleGoalProgress} />
+            <MyCareerTab
+              loading={plansLoading}
+              myPlan={myPlan}
+              onGoalProgress={handleGoalProgress}
+            />
           </div>
         </TabsContent>
         <TabsContent value="paths">

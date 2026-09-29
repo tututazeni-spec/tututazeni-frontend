@@ -24,28 +24,30 @@
 
 ## File Structure
 
-| File | Responsibility |
-|---|---|
-| `vitest.config.ts` (modify) | Add jsdom environment + React/tsconfig-paths plugins so component tests can render JSX and resolve `@/*` imports. |
-| `vitest.setup.ts` (create) | Registers `@testing-library/jest-dom` matchers (`toBeInTheDocument`, `toBeDisabled`, ...) globally. |
-| `components/ui/Pagination.tsx` (create) | The promoted shared pagination component. |
-| `components/ui/Pagination.test.tsx` (create) | Render/interaction tests for the component. |
-| `components/employees/Pagination.tsx` (delete) | Superseded by `components/ui/Pagination.tsx`. |
-| `app/(platform)/employees/page.tsx` (modify) | Repoint import, rename prop usage. |
-| `lib/queryKeys.ts` (modify) | `queryKeys.acl.audit` gains a `page` parameter so each page gets its own cache entry. |
-| `components/acl/AuditTab.tsx` (modify) | Add `page` state, pass `params`/updated key to `useApiQuery`, render `<Pagination />` instead of static text. |
-| `components/history/TimelineTab.tsx` (modify) | Swap manual prev/next JSX block for `<Pagination />`. |
+| File                                           | Responsibility                                                                                                    |
+| ---------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `vitest.config.ts` (modify)                    | Add jsdom environment + React/tsconfig-paths plugins so component tests can render JSX and resolve `@/*` imports. |
+| `vitest.setup.ts` (create)                     | Registers `@testing-library/jest-dom` matchers (`toBeInTheDocument`, `toBeDisabled`, ...) globally.               |
+| `components/ui/Pagination.tsx` (create)        | The promoted shared pagination component.                                                                         |
+| `components/ui/Pagination.test.tsx` (create)   | Render/interaction tests for the component.                                                                       |
+| `components/employees/Pagination.tsx` (delete) | Superseded by `components/ui/Pagination.tsx`.                                                                     |
+| `app/(platform)/employees/page.tsx` (modify)   | Repoint import, rename prop usage.                                                                                |
+| `lib/queryKeys.ts` (modify)                    | `queryKeys.acl.audit` gains a `page` parameter so each page gets its own cache entry.                             |
+| `components/acl/AuditTab.tsx` (modify)         | Add `page` state, pass `params`/updated key to `useApiQuery`, render `<Pagination />` instead of static text.     |
+| `components/history/TimelineTab.tsx` (modify)  | Swap manual prev/next JSX block for `<Pagination />`.                                                             |
 
 ---
 
 ### Task 1: Add component-testing infrastructure
 
 **Files:**
+
 - Modify: `package.json`
 - Modify: `vitest.config.ts`
 - Create: `vitest.setup.ts`
 
 **Interfaces:**
+
 - Consumes: nothing (first task).
 - Produces: a working `render`/`screen`/`fireEvent` test environment for any `*.test.tsx` file under this repo, with `@/*` imports resolving and `jest-dom` matchers available globally. Task 2 depends on this.
 
@@ -54,6 +56,7 @@ This task has no new application behavior to drive with a red/green cycle — it
 - [ ] **Step 1: Install the new devDependencies**
 
 Run:
+
 ```bash
 npm install --save-dev @testing-library/react@16.3.2 @testing-library/jest-dom@7.0.1 jsdom@30.0.1 @vitejs/plugin-react@6.1.0 vite-tsconfig-paths@6.1.1
 ```
@@ -72,6 +75,7 @@ import '@testing-library/jest-dom/vitest';
 - [ ] **Step 3: Update vitest.config.ts to add jsdom + plugins**
 
 Current content:
+
 ```typescript
 import { defineConfig } from 'vitest/config';
 import { configDefaults } from 'vitest/config';
@@ -84,6 +88,7 @@ export default defineConfig({
 ```
 
 Replace with:
+
 ```typescript
 import { defineConfig, configDefaults } from 'vitest/config';
 import react from '@vitejs/plugin-react';
@@ -116,10 +121,12 @@ git commit -m "chore(test): add component-testing infra (jsdom, Testing Library,
 ### Task 2: Create the shared Pagination component
 
 **Files:**
+
 - Create: `components/ui/Pagination.tsx`
 - Test: `components/ui/Pagination.test.tsx`
 
 **Interfaces:**
+
 - Consumes: jsdom/Testing Library environment from Task 1.
 - Produces: `export interface PaginationProps { page: number; totalPages: number; onPageChange: (page: number) => void }` and `export function Pagination(props: PaginationProps): JSX.Element | null` from `components/ui/Pagination.tsx`, imported elsewhere as `import { Pagination } from '@/components/ui/Pagination'`. Tasks 3, 4, and 5 depend on this exact export.
 
@@ -144,9 +151,7 @@ describe('Pagination', () => {
     ['1', '2', '3', '4', '5'].forEach((label) => {
       expect(screen.getByRole('button', { name: label })).toBeInTheDocument();
     });
-    expect(
-      screen.queryByRole('button', { name: '6' }),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: '6' })).not.toBeInTheDocument();
   });
 
   test('mostra a janela de 5 páginas centrada numa página intermédia', () => {
@@ -177,27 +182,21 @@ describe('Pagination', () => {
 
   test('chama onPageChange com o número correcto ao clicar num botão numerado', () => {
     const onPageChange = vi.fn();
-    render(
-      <Pagination page={5} totalPages={10} onPageChange={onPageChange} />,
-    );
+    render(<Pagination page={5} totalPages={10} onPageChange={onPageChange} />);
     fireEvent.click(screen.getByRole('button', { name: '7' }));
     expect(onPageChange).toHaveBeenCalledWith(7);
   });
 
   test('chama onPageChange com page - 1 ao clicar na seta "anterior"', () => {
     const onPageChange = vi.fn();
-    render(
-      <Pagination page={5} totalPages={10} onPageChange={onPageChange} />,
-    );
+    render(<Pagination page={5} totalPages={10} onPageChange={onPageChange} />);
     fireEvent.click(screen.getByRole('button', { name: '←' }));
     expect(onPageChange).toHaveBeenCalledWith(4);
   });
 
   test('chama onPageChange com page + 1 ao clicar na seta "seguinte"', () => {
     const onPageChange = vi.fn();
-    render(
-      <Pagination page={5} totalPages={10} onPageChange={onPageChange} />,
-    );
+    render(<Pagination page={5} totalPages={10} onPageChange={onPageChange} />);
     fireEvent.click(screen.getByRole('button', { name: '→' }));
     expect(onPageChange).toHaveBeenCalledWith(6);
   });
@@ -292,21 +291,25 @@ git commit -m "feat(ui): add shared Pagination component"
 ### Task 3: Repoint employees page to the shared component
 
 **Files:**
+
 - Modify: `app/(platform)/employees/page.tsx`
 - Delete: `components/employees/Pagination.tsx`
 
 **Interfaces:**
+
 - Consumes: `Pagination`/`PaginationProps` from Task 2 (`components/ui/Pagination.tsx`).
 - Produces: nothing new — this is the first real consumer switch, proving the import move is safe.
 
 - [ ] **Step 1: Update the import in employees/page.tsx**
 
 Current (line 55):
+
 ```tsx
 import { Pagination } from '@/components/employees/Pagination';
 ```
 
 Replace with:
+
 ```tsx
 import { Pagination } from '@/components/ui/Pagination';
 ```
@@ -314,32 +317,43 @@ import { Pagination } from '@/components/ui/Pagination';
 - [ ] **Step 2: Rename the onPage prop to onPageChange**
 
 Current (around lines 415-422):
+
 ```tsx
-        {/* ── Pagination */}
-        {data && (
-          <Pagination
-            page={data.meta.page}
-            totalPages={data.meta.totalPages}
-            onPage={setPage}
-          />
-        )}
+{
+  /* ── Pagination */
+}
+{
+  data && (
+    <Pagination
+      page={data.meta.page}
+      totalPages={data.meta.totalPages}
+      onPage={setPage}
+    />
+  );
+}
 ```
 
 Replace with:
+
 ```tsx
-        {/* ── Pagination */}
-        {data && (
-          <Pagination
-            page={data.meta.page}
-            totalPages={data.meta.totalPages}
-            onPageChange={setPage}
-          />
-        )}
+{
+  /* ── Pagination */
+}
+{
+  data && (
+    <Pagination
+      page={data.meta.page}
+      totalPages={data.meta.totalPages}
+      onPageChange={setPage}
+    />
+  );
+}
 ```
 
 - [ ] **Step 3: Delete the old local component**
 
 Run:
+
 ```bash
 git rm components/employees/Pagination.tsx
 ```
@@ -347,11 +361,13 @@ git rm components/employees/Pagination.tsx
 - [ ] **Step 4: Verify no remaining references and the build type-checks**
 
 Run:
+
 ```bash
 grep -rn "components/employees/Pagination" --include="*.ts*" .
 npx tsc --noEmit
 npm test
 ```
+
 Expected: the grep returns no matches; `tsc --noEmit` passes with no errors; `npm test` still passes (existing 4 files + the 9 new `Pagination.test.tsx` tests).
 
 - [ ] **Step 5: Commit**
@@ -366,21 +382,25 @@ git commit -m "refactor(employees): use shared components/ui/Pagination, remove 
 ### Task 4: Fix the broken pagination in AuditTab.tsx
 
 **Files:**
+
 - Modify: `lib/queryKeys.ts`
 - Modify: `components/acl/AuditTab.tsx`
 
 **Interfaces:**
+
 - Consumes: `Pagination`/`PaginationProps` from Task 2.
 - Produces: `queryKeys.acl.audit(view: string, page: number)` — the new two-argument signature other code must use if it ever calls this key (currently `AuditTab.tsx` is the only caller, confirmed by repo-wide grep).
 
 - [ ] **Step 1: Add page to the acl.audit query key**
 
 Current (`lib/queryKeys.ts`, in the `acl` section):
+
 ```typescript
     audit: (view: string) => [...queryKeys.acl.all, 'audit', view] as const,
 ```
 
 Replace with:
+
 ```typescript
     audit: (view: string, page: number) =>
       [...queryKeys.acl.all, 'audit', view, page] as const,
@@ -389,14 +409,17 @@ Replace with:
 - [ ] **Step 2: Verify no other call site breaks**
 
 Run:
+
 ```bash
 grep -rn "queryKeys.acl.audit" --include="*.ts*" .
 ```
+
 Expected: the only match is inside `components/acl/AuditTab.tsx`, which Step 3 below updates in the same task — no other file needs a change.
 
 - [ ] **Step 3: Rewrite AuditTab.tsx to add page state and the shared Pagination component**
 
 Current full file:
+
 ```tsx
 // components/acl/AuditTab.tsx
 
@@ -418,7 +441,8 @@ export function AuditTab() {
     { staleTime: STALE_TIME.DYNAMIC },
   );
 
-  if (loading) return <Skeleton rows={3} itemClassName="h-16 bg-surface rounded-xl" />;
+  if (loading)
+    return <Skeleton rows={3} itemClassName="h-16 bg-surface rounded-xl" />;
 
   return (
     <div className="space-y-4">
@@ -483,7 +507,11 @@ export function AuditTab() {
           })}
           {(data?.data?.length ?? 0) === 0 && (
             <div className="py-12 text-center text-ink-faint">
-              <Activity size={32} strokeWidth={1.75} className="mx-auto mb-2 opacity-30" />
+              <Activity
+                size={32}
+                strokeWidth={1.75}
+                className="mx-auto mb-2 opacity-30"
+              />
               <p className="text-sm">Sem registos de auditoria</p>
             </div>
           )}
@@ -503,6 +531,7 @@ export function AuditTab() {
 ```
 
 Replace the whole file with:
+
 ```tsx
 // components/acl/AuditTab.tsx
 
@@ -526,7 +555,8 @@ export function AuditTab() {
     { params: { page }, staleTime: STALE_TIME.DYNAMIC },
   );
 
-  if (loading) return <Skeleton rows={3} itemClassName="h-16 bg-surface rounded-xl" />;
+  if (loading)
+    return <Skeleton rows={3} itemClassName="h-16 bg-surface rounded-xl" />;
 
   return (
     <div className="space-y-4">
@@ -594,7 +624,11 @@ export function AuditTab() {
           })}
           {(data?.data?.length ?? 0) === 0 && (
             <div className="py-12 text-center text-ink-faint">
-              <Activity size={32} strokeWidth={1.75} className="mx-auto mb-2 opacity-30" />
+              <Activity
+                size={32}
+                strokeWidth={1.75}
+                className="mx-auto mb-2 opacity-30"
+              />
               <p className="text-sm">Sem registos de auditoria</p>
             </div>
           )}
@@ -614,10 +648,12 @@ export function AuditTab() {
 - [ ] **Step 4: Verify the build and existing suite are unaffected**
 
 Run:
+
 ```bash
 npx tsc --noEmit
 npm test
 ```
+
 Expected: both pass — `page` is now a real `useState`, sent as a query param, and folded into the cache key so switching pages triggers a real refetch instead of being invisible to React Query.
 
 - [ ] **Step 5: Commit**
@@ -632,15 +668,18 @@ git commit -m "fix(acl): wire up AuditTab pagination (was static, page 2+ unreac
 ### Task 5: Migrate TimelineTab.tsx to the shared component
 
 **Files:**
+
 - Modify: `components/history/TimelineTab.tsx`
 
 **Interfaces:**
+
 - Consumes: `Pagination`/`PaginationProps` from Task 2.
 - Produces: nothing new — proves the swap for the majority prev/next-with-count pattern used across the remaining ~23 candidate files.
 
 - [ ] **Step 1: Swap the Button import for a Pagination import**
 
 Current (lines 14-17):
+
 ```tsx
 import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -649,6 +688,7 @@ import { Skeleton } from '@/components/ui/Skeleton';
 ```
 
 Replace with (alphabetical order, `Button` is no longer used anywhere else in this file):
+
 ```tsx
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Input } from '@/components/ui/Input';
@@ -659,43 +699,53 @@ import { Skeleton } from '@/components/ui/Skeleton';
 - [ ] **Step 2: Replace the manual prev/next block with the shared component**
 
 Current (lines 157-180):
+
 ```tsx
-          {/* Pagination */}
-          {data && data.meta.totalPages > 1 && (
-            <div className="flex justify-center items-center gap-2 pt-2">
-              <Button
-                intent="secondary"
-                size="sm"
-                disabled={page === 1}
-                onClick={() => setPage((p) => p - 1)}
-              >
-                ← Anterior
-              </Button>
-              <span className="px-4 py-2 text-sm text-ink-muted">
-                {page} / {data.meta.totalPages}
-              </span>
-              <Button
-                intent="secondary"
-                size="sm"
-                disabled={page === data.meta.totalPages}
-                onClick={() => setPage((p) => p + 1)}
-              >
-                Próxima →
-              </Button>
-            </div>
-          )}
+{
+  /* Pagination */
+}
+{
+  data && data.meta.totalPages > 1 && (
+    <div className="flex justify-center items-center gap-2 pt-2">
+      <Button
+        intent="secondary"
+        size="sm"
+        disabled={page === 1}
+        onClick={() => setPage((p) => p - 1)}
+      >
+        ← Anterior
+      </Button>
+      <span className="px-4 py-2 text-sm text-ink-muted">
+        {page} / {data.meta.totalPages}
+      </span>
+      <Button
+        intent="secondary"
+        size="sm"
+        disabled={page === data.meta.totalPages}
+        onClick={() => setPage((p) => p + 1)}
+      >
+        Próxima →
+      </Button>
+    </div>
+  );
+}
 ```
 
 Replace with:
+
 ```tsx
-          {/* Pagination */}
-          {data && (
-            <Pagination
-              page={page}
-              totalPages={data.meta.totalPages}
-              onPageChange={setPage}
-            />
-          )}
+{
+  /* Pagination */
+}
+{
+  data && (
+    <Pagination
+      page={page}
+      totalPages={data.meta.totalPages}
+      onPageChange={setPage}
+    />
+  );
+}
 ```
 
 (`Pagination` already renders `null` when `totalPages <= 1`, so the outer `data.meta.totalPages > 1` guard from the old code is no longer needed — only the `data` presence check remains.)
@@ -703,11 +753,13 @@ Replace with:
 - [ ] **Step 3: Verify no stray Button usage remains and the build is clean**
 
 Run:
+
 ```bash
 grep -n "Button" components/history/TimelineTab.tsx
 npx tsc --noEmit
 npm test
 ```
+
 Expected: the grep returns no matches (confirming the removed import was safe); `tsc --noEmit` and `npm test` both pass.
 
 - [ ] **Step 4: Commit**
@@ -722,6 +774,7 @@ git commit -m "refactor(history): migrate TimelineTab to shared Pagination compo
 ## Self-Review
 
 **1. Spec coverage:**
+
 - Component API (prop rename, `null` on `totalPages <= 1`, unchanged window logic) → Task 2. ✅
 - "Promote, don't rewrite" architecture → Task 2 (impl copied verbatim except the rename) + Task 3 (old file deleted, import repointed). ✅
 - Pilot 1 (`AuditTab.tsx`: `page` state, reset on view change, `params`, query-key with `page`, replace static text) → Task 4, all 4 spec bullet points covered. ✅

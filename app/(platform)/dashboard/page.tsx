@@ -10,7 +10,7 @@
 // migrado).
 
 import { useState } from 'react';
-import { LayoutDashboard, Users, BarChart2 } from 'lucide-react';
+import { BarChart2, CircleCheck, LayoutDashboard, Users } from 'lucide-react';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
 import {
   AUTHENTICATED_ROLES,
@@ -35,16 +35,24 @@ const TABS = [
   {
     id: 'personal',
     label: 'O Meu Dashboard',
+    hint: 'Resumo pessoal',
     icon: LayoutDashboard,
     roles: AUTHENTICATED_ROLES,
   },
   {
     id: 'manager',
     label: 'Gestor',
+    hint: 'Equipa e desempenho',
     icon: Users,
     roles: MGMT_ROLES,
   },
-  { id: 'org', label: 'Executivo', icon: BarChart2, roles: EXECUTIVE_ROLES },
+  {
+    id: 'org',
+    label: 'Executivo',
+    hint: 'Visão estratégica',
+    icon: BarChart2,
+    roles: EXECUTIVE_ROLES,
+  },
 ];
 
 export default function DashboardPage() {
@@ -53,8 +61,38 @@ export default function DashboardPage() {
 
   const availableTabs = filterByRole(TABS, role);
 
+  const activeTab =
+    availableTabs.find((item) => item.id === tab) ?? availableTabs[0];
+
+  const ActiveIcon = activeTab?.icon;
+
   return (
     <div className="min-h-screen bg-canvas">
+      {/* Header dinâmico */}
+      <div className="border-b border-border bg-canvas px-6 py-5">
+        <div className="mx-auto flex max-w-7xl items-center gap-3">
+          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+            {ActiveIcon && (
+              <ActiveIcon
+                size={22}
+                strokeWidth={1.8}
+                className="transition-all duration-300"
+              />
+            )}
+          </div>
+
+          <div>
+            <h1 className="font-display text-xl font-bold text-ink">
+              Dashboard
+            </h1>
+            {activeTab?.hint && (
+              <p className="mt-0.5 font-body text-xs text-ink-muted">
+                {activeTab.hint}
+              </p>
+            )}
+          </div>
+        </div>
+      </div>
       {/* Slideshow — mesma posição de sempre: acima das tabs, visível em
           qualquer separador. */}
       <div className="mx-auto max-w-7xl px-6 pt-6">
@@ -62,30 +100,57 @@ export default function DashboardPage() {
       </div>
 
       <Tabs value={tab} onValueChange={setTab}>
-        <div className="border-b border-border bg-surface px-6">
-          <TabsList className="mx-auto max-w-7xl overflow-x-auto gap-0">
-            {availableTabs.map((t, i) => {
-              const Icon = t.icon;
-              return (
-                <TabsTrigger
-                  key={t.id}
-                  value={t.id}
-                  className={
-                    i < availableTabs.length - 1
-                      ? 'gap-2 whitespace-nowrap mr-[1cm]!'
-                      : 'gap-2 whitespace-nowrap'
-                  }
-                >
-                  <Icon size={14} strokeWidth={1.75} />
-                  {t.label}
-                </TabsTrigger>
-              );
-            })}
-          </TabsList>
+        {/* Abas em "glassmorphism": contentor translúcido com desfoque
+            (backdrop-blur) e botões em forma de pílula com ícone, título e
+            subtítulo (`hint` definido em TABS). A aba activa
+            (data-[state=active] do Radix) ganha gradiente azul, sombra e
+            um visto à direita. As manchas desfocadas atrás existem só
+            para o efeito de vidro ser visível sobre o fundo claro. */}
+        <div className="relative bg-canvas px-6 py-5">
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 overflow-hidden"
+          >
+            <div className="absolute -left-16 top-0 h-40 w-72 rounded-full bg-primary/20 blur-3xl" />
+            <div className="absolute -right-10 bottom-0 h-40 w-72 rounded-full bg-primary/15 blur-3xl" />
+          </div>
+
+          <div className="relative mx-auto max-w-7xl rounded-3xl border border-white/60 bg-white/50 p-3 shadow-[0_8px_32px_rgba(31,38,135,0.12)] backdrop-blur-xl">
+            <TabsList className="flex h-auto w-full flex-wrap items-center justify-center gap-2 bg-transparent p-0">
+              {availableTabs.map((t) => {
+                const Icon = t.icon;
+                return (
+                  <TabsTrigger
+                    key={t.id}
+                    value={t.id}
+                    className="group flex h-auto items-center gap-3 whitespace-nowrap rounded-full border border-white/70 bg-white/60 py-2 pl-2 pr-4 text-left text-ink shadow-sm backdrop-blur transition-all
+                               hover:bg-white/80
+                               focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40
+                               data-[state=active]:border-transparent data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/70 data-[state=active]:text-white data-[state=active]:shadow-lg"
+                  >
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/70 text-ink/70 group-data-[state=active]:bg-white/20 group-data-[state=active]:text-white">
+                      <Icon size={16} strokeWidth={1.75} />
+                    </span>
+                    <span className="flex flex-col items-start leading-tight">
+                      <span className="text-sm font-semibold">{t.label}</span>
+                      <span className="text-xs opacity-70 group-data-[state=active]:opacity-85">
+                        {t.hint}
+                      </span>
+                    </span>
+                    <CircleCheck
+                      size={16}
+                      strokeWidth={2}
+                      className="hidden shrink-0 group-data-[state=active]:block"
+                    />
+                  </TabsTrigger>
+                );
+              })}
+            </TabsList>
+          </div>
         </div>
 
         <div className="mx-auto max-w-7xl px-6 py-6">
-          <TabsContent value="personal" className="pt-[0,10cm]!">
+          <TabsContent value="personal">
             <ColaboradorDashboard />
           </TabsContent>
           <TabsContent value="manager">

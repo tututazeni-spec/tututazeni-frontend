@@ -30,12 +30,18 @@ interface Paginated {
 
 const STATUS_ITEMS = [
   { value: 'ALL', label: 'Todos os estados' },
-  ...Object.entries(TASK_STATUS_CFG).map(([value]) => ({ value, label: value })),
+  ...Object.entries(TASK_STATUS_CFG).map(([value]) => ({
+    value,
+    label: value,
+  })),
 ];
 
 const CATEGORY_ITEMS = [
   { value: 'ALL', label: 'Todas as categorias' },
-  ...Object.entries(CATEGORY_CFG).map(([value, cfg]) => ({ value, label: cfg.label })),
+  ...Object.entries(CATEGORY_CFG).map(([value, cfg]) => ({
+    value,
+    label: cfg.label,
+  })),
 ];
 
 const PRIORITY_BADGE: Record<TaskPriority, 'danger' | 'warning' | 'neutral'> = {
@@ -56,7 +62,10 @@ export interface TasksTabProps {
   canManageTasks?: boolean;
 }
 
-export function TasksTab({ canManagePlan = false, canManageTasks = false }: TasksTabProps) {
+export function TasksTab({
+  canManagePlan = false,
+  canManageTasks = false,
+}: TasksTabProps) {
   const [filters, setFilters] = useState({
     status: 'ALL',
     category: 'ALL',
@@ -72,7 +81,8 @@ export function TasksTab({ canManagePlan = false, canManageTasks = false }: Task
   const params = {
     page: filters.page,
     limit: 20,
-    status: filters.overdue || filters.status === 'ALL' ? undefined : filters.status,
+    status:
+      filters.overdue || filters.status === 'ALL' ? undefined : filters.status,
     category: filters.category === 'ALL' ? undefined : filters.category,
     overdue: filters.overdue || undefined,
   };
@@ -80,30 +90,49 @@ export function TasksTab({ canManagePlan = false, canManageTasks = false }: Task
   const { data, isLoading } = useApiQuery<Paginated>(
     queryKeys.onboarding.tasks(params),
     '/onboarding/tasks',
-    { params, staleTime: STALE_TIME.DYNAMIC, placeholderData: keepPreviousData },
+    {
+      params,
+      staleTime: STALE_TIME.DYNAMIC,
+      placeholderData: keepPreviousData,
+    },
   );
 
   return (
     <div>
       <div className="mb-5 flex flex-wrap items-center gap-3">
-        <Select items={STATUS_ITEMS} value={filters.status} onValueChange={(v) => updateFilters({ status: v })} />
-        <Select items={CATEGORY_ITEMS} value={filters.category} onValueChange={(v) => updateFilters({ category: v })} />
+        <Select
+          items={STATUS_ITEMS}
+          value={filters.status}
+          onValueChange={(v) => updateFilters({ status: v })}
+        />
+        <Select
+          items={CATEGORY_ITEMS}
+          value={filters.category}
+          onValueChange={(v) => updateFilters({ category: v })}
+        />
         <button
           type="button"
           onClick={() => updateFilters({ overdue: !filters.overdue })}
           className={`rounded-control border px-3 py-2 font-body text-sm ${
-            filters.overdue ? 'border-danger bg-danger-subtle text-danger-ink' : 'border-border text-ink-muted'
+            filters.overdue
+              ? 'border-danger bg-danger-subtle text-danger-ink'
+              : 'border-border text-ink-muted'
           }`}
         >
           Só em atraso
         </button>
-        <span className="ml-auto font-body text-sm text-ink-faint">{data?.meta.total ?? 0} tarefas</span>
+        <span className="ml-auto font-body text-sm text-ink-faint">
+          {data?.meta.total ?? 0} tarefas
+        </span>
       </div>
 
       {isLoading ? (
         <Skeleton rows={5} />
       ) : !data || data.data.length === 0 ? (
-        <EmptyState title="Sem tarefas" description="Nenhuma tarefa corresponde aos filtros." />
+        <EmptyState
+          title="Sem tarefas"
+          description="Nenhuma tarefa corresponde aos filtros."
+        />
       ) : (
         <div className="overflow-hidden rounded-card border border-border bg-surface">
           {data.data.map((t) => {
@@ -115,11 +144,18 @@ export function TasksTab({ canManagePlan = false, canManageTasks = false }: Task
                 onClick={() => setDetailId(t.plan.id)}
                 className="flex w-full items-center gap-4 border-b border-border px-4 py-3 text-left last:border-0 hover:bg-surface-sunken"
               >
-                <Avatar name={t.plan.user.fullName} url={t.plan.user.avatarUrl ?? undefined} size="sm" />
+                <Avatar
+                  name={t.plan.user.fullName}
+                  url={t.plan.user.avatarUrl ?? undefined}
+                  size="sm"
+                />
                 <div className="min-w-0 flex-1">
-                  <div className="truncate font-body text-sm font-medium text-ink">{t.templateTask.title}</div>
+                  <div className="truncate font-body text-sm font-medium text-ink">
+                    {t.templateTask.title}
+                  </div>
                   <div className="truncate font-body text-xs text-ink-faint">
-                    {t.plan.user.fullName} · {PHASE_LABELS[t.templateTask.phase]}
+                    {t.plan.user.fullName} ·{' '}
+                    {PHASE_LABELS[t.templateTask.phase]}
                     {catCfg ? ` · ${catCfg.label}` : ''}
                   </div>
                 </div>
@@ -129,7 +165,9 @@ export function TasksTab({ canManagePlan = false, canManageTasks = false }: Task
                 <div className="hidden shrink-0 font-body text-xs text-ink-faint sm:block">
                   {t.dueDate ? fmtDate(t.dueDate) : '—'}
                 </div>
-                <div className="shrink-0 font-body text-xs text-ink-faint">{t.status}</div>
+                <div className="shrink-0 font-body text-xs text-ink-faint">
+                  {t.status}
+                </div>
               </button>
             );
           })}

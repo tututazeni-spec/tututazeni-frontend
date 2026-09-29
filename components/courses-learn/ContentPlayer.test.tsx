@@ -215,7 +215,10 @@ describe('ContentPlayer — vídeo embebido', () => {
     );
     const frame = screen.getByTitle('Aula em vídeo');
     expect(frame.tagName).toBe('IFRAME');
-    expect(frame).toHaveAttribute('src', 'https://www.youtube.com/embed/abc123');
+    expect(frame).toHaveAttribute(
+      'src',
+      'https://www.youtube.com/embed/abc123',
+    );
   });
 
   test('URL directa (não YouTube/Vimeo) usa <video> nativo', () => {
@@ -248,10 +251,23 @@ describe('ContentPlayer — actividades e recursos', () => {
           type: 'TEXT',
           textContent: 'texto',
           activities: [
-            { id: 1, type: 'QUIZ', title: 'Quiz final', description: null, contentUrl: null, seq: 0 },
+            {
+              id: 1,
+              type: 'QUIZ',
+              title: 'Quiz final',
+              description: null,
+              contentUrl: null,
+              seq: 0,
+            },
           ],
           resources: [
-            { id: 1, title: 'Guia de Feedback.pdf', url: 'https://cdn.example.com/guia.pdf', fileType: 'pdf', fileSizeKb: 120 },
+            {
+              id: 1,
+              title: 'Guia de Feedback.pdf',
+              url: 'https://cdn.example.com/guia.pdf',
+              fileType: 'pdf',
+              fileSizeKb: 120,
+            },
           ],
         }}
         onComplete={noop}

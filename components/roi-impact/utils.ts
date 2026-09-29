@@ -15,7 +15,9 @@ export function fmt$(val: number): string {
 export function ptInsight(text: string): string {
   return text
     .replace(/\$\s?/g, 'AOA ')
-    .replace(/turnover/gi, (m) => (m[0] === m[0].toUpperCase() ? 'Rotatividade' : 'rotatividade'));
+    .replace(/turnover/gi, (m) =>
+      m[0] === m[0].toUpperCase() ? 'Rotatividade' : 'rotatividade',
+    );
 }
 
 export const CONFIDENCE_LABELS: Record<string, string> = {
@@ -24,7 +26,10 @@ export const CONFIDENCE_LABELS: Record<string, string> = {
   LOW: 'Baixa Confiança',
 };
 
-export const CONFIDENCE_INTENTS: Record<string, 'success' | 'warning' | 'danger'> = {
+export const CONFIDENCE_INTENTS: Record<
+  string,
+  'success' | 'warning' | 'danger'
+> = {
   HIGH: 'success',
   MEDIUM: 'warning',
   LOW: 'danger',
@@ -50,7 +55,10 @@ export const ANALYSIS_STATUS_LABELS: Record<string, string> = {
   ARQUIVADO: 'Arquivado',
 };
 
-export const ANALYSIS_STATUS_INTENTS: Record<string, 'success' | 'warning' | 'danger' | 'info' | 'neutral'> = {
+export const ANALYSIS_STATUS_INTENTS: Record<
+  string,
+  'success' | 'warning' | 'danger' | 'info' | 'neutral'
+> = {
   EM_PREPARACAO: 'neutral',
   EM_MEDICAO: 'info',
   DADOS_INSUFICIENTES: 'warning',
@@ -112,7 +120,10 @@ export const COST_CATEGORY_LABELS: Record<string, string> = {
   OPORTUNIDADE: 'Oportunidade',
 };
 
-export const COST_CATEGORY_INTENTS: Record<string, 'info' | 'warning' | 'danger'> = {
+export const COST_CATEGORY_INTENTS: Record<
+  string,
+  'info' | 'warning' | 'danger'
+> = {
   DIRETO: 'info',
   INDIRETO: 'warning',
   OPORTUNIDADE: 'danger',
@@ -144,18 +155,23 @@ export const COST_SUBCATEGORIES_BY_CATEGORY: Record<string, string[]> = {
     'DESLOCACAO_ALOJAMENTO',
     'CERTIFICACAO',
   ],
-  INDIRETO: ['HORAS_TRABALHO_PERDIDAS', 'SUBSTITUICAO_COBERTURA', 'COORDENACAO_GESTAO_RH'],
+  INDIRETO: [
+    'HORAS_TRABALHO_PERDIDAS',
+    'SUBSTITUICAO_COBERTURA',
+    'COORDENACAO_GESTAO_RH',
+  ],
   OPORTUNIDADE: ['PRODUCAO_NAO_REALIZADA', 'ATRASO_PROJETOS'],
 };
 
 // Inverso do mapa acima — só para pré-visualização no formulário (a
 // categoria real é sempre derivada no backend a partir da subcategoria
 // escolhida, nunca aceite do cliente).
-export const CATEGORY_BY_COST_SUBCATEGORY: Record<string, string> = Object.fromEntries(
-  Object.entries(COST_SUBCATEGORIES_BY_CATEGORY).flatMap(([category, subs]) =>
-    subs.map((sub) => [sub, category]),
-  ),
-);
+export const CATEGORY_BY_COST_SUBCATEGORY: Record<string, string> =
+  Object.fromEntries(
+    Object.entries(COST_SUBCATEGORIES_BY_CATEGORY).flatMap(([category, subs]) =>
+      subs.map((sub) => [sub, category]),
+    ),
+  );
 
 // Indicadores & KPIs (docs/roi-impact.md §6)
 export const KPI_CATEGORY_LABELS: Record<string, string> = {
@@ -214,7 +230,10 @@ export const SCENARIO_CASE_LABELS: Record<string, string> = {
   PESSIMISTA: 'Pessimista',
 };
 
-export const SCENARIO_CASE_INTENTS: Record<string, 'success' | 'info' | 'warning'> = {
+export const SCENARIO_CASE_INTENTS: Record<
+  string,
+  'success' | 'info' | 'warning'
+> = {
   OTIMISTA: 'success',
   REALISTA: 'info',
   PESSIMISTA: 'warning',

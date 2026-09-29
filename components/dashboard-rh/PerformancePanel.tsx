@@ -9,12 +9,13 @@
 
 'use client';
 
+import { AlertTriangle, Award, Star, Users } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { KpiCard } from '@/components/ui/KpiCard';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { BarChart } from '@/components/ui/charts/BarChart';
+import { TopBarCard } from '@/components/ui/TopBarCard';
 import type { PerformanceData } from './types';
 
 export function PerformancePanel() {
@@ -28,39 +29,38 @@ export function PerformancePanel() {
       <Skeleton
         rows={4}
         wrapperClassName="grid grid-cols-2 md:grid-cols-4 gap-4 animate-pulse"
-        itemClassName="h-24 rounded-card bg-surface-sunken"
+        itemClassName="h-28 rounded-2xl bg-surface-sunken"
       />
     );
   const dist = data?.distribution ?? {};
 
   return (
     <div className="space-y-5">
+      {/* KPIs — cartão estilo Udemy/MasterClass */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-        <KpiCard
+        <TopBarCard
           label="Pontuação Média"
           value={data?.avgScore?.toFixed(1) ?? '–'}
-          sub={data?.status}
-          intent="warning"
-          className="w-full"
+          tone="gold"
+          icon={<Star className="h-6 w-6" />}
         />
-        <KpiCard
+        <TopBarCard
           label="Avaliados"
           value={data?.total ?? 0}
-          intent="primary"
-          className="w-full"
+          tone="blue"
+          icon={<Users className="h-6 w-6" />}
         />
-        <KpiCard
+        <TopBarCard
           label="Profissionais de Alto Potencial"
           value={data?.hiPos ?? 0}
-          sub={`${data?.hiPoRatio ?? 0}% da equipa`}
-          intent="success"
-          className="w-full"
+          tone="green"
+          icon={<Award className="h-6 w-6" />}
         />
-        <KpiCard
+        <TopBarCard
           label="Em Risco"
           value={data?.atRisk ?? 0}
-          intent="danger"
-          className="w-full"
+          tone="red"
+          icon={<AlertTriangle className="h-6 w-6" />}
         />
       </div>
 
@@ -71,13 +71,23 @@ export function PerformancePanel() {
             Distribuição de Performance
           </h4>
           <BarChart
-            categories={['Excepcional', 'Acima', 'Esperado', 'Abaixo', 'Crítico']}
+            categories={[
+              'Excepcional',
+              'Acima',
+              'Esperado',
+              'Abaixo',
+              'Crítico',
+            ]}
             series={[
               {
                 label: 'Colaboradores',
-                values: ['exceptional', 'above', 'expected', 'below', 'critical'].map(
-                  (key) => dist[key] ?? 0,
-                ),
+                values: [
+                  'exceptional',
+                  'above',
+                  'expected',
+                  'below',
+                  'critical',
+                ].map((key) => dist[key] ?? 0),
               },
             ]}
           />
@@ -91,14 +101,23 @@ export function PerformancePanel() {
           {(data?.byDepartment ?? []).length > 0 ? (
             <BarChart
               orientation="horizontal"
-              categories={(data?.byDepartment ?? []).slice(0, 6).map((d) => d.department)}
+              categories={(data?.byDepartment ?? [])
+                .slice(0, 6)
+                .map((d) => d.department)}
               series={[
-                { label: 'Pontuação média', values: (data?.byDepartment ?? []).slice(0, 6).map((d) => d.avgScore) },
+                {
+                  label: 'Pontuação média',
+                  values: (data?.byDepartment ?? [])
+                    .slice(0, 6)
+                    .map((d) => d.avgScore),
+                },
               ]}
               yFormat={(v) => v.toFixed(1)}
             />
           ) : (
-            <p className="font-body text-xs text-ink-faint">Sem dados suficientes.</p>
+            <p className="font-body text-xs text-ink-faint">
+              Sem dados suficientes.
+            </p>
           )}
         </div>
       </div>

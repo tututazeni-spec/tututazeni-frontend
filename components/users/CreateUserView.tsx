@@ -29,11 +29,7 @@ import {
   CONTRACT_LABELS,
   WORKMODE_LABELS,
 } from '@/components/employees/constants';
-import {
-  ACCOUNT_STATUS_MAP,
-  HR_STATUS_MAP,
-  type DirectoryUser,
-} from './types';
+import { ACCOUNT_STATUS_MAP, HR_STATUS_MAP, type DirectoryUser } from './types';
 import {
   useCompetencyOptions,
   useCourseOptions,
@@ -130,7 +126,13 @@ function Field({
 }: FieldProps) {
   return (
     <FormField label={required ? `${label} *` : label} htmlFor={id}>
-      <Input id={id} type={type} value={value} onChange={onChange} className="w-full" />
+      <Input
+        id={id}
+        type={type}
+        value={value}
+        onChange={onChange}
+        className="w-full"
+      />
     </FormField>
   );
 }
@@ -239,18 +241,18 @@ const GENDER_OPTIONS: ComboboxOption[] = [
   { value: 'OTHER', label: 'Outro' },
 ];
 
-const CONTRACT_TYPE_OPTIONS: ComboboxOption[] = Object.entries(CONTRACT_LABELS).map(
-  ([value, label]) => ({ value, label }),
-);
+const CONTRACT_TYPE_OPTIONS: ComboboxOption[] = Object.entries(
+  CONTRACT_LABELS,
+).map(([value, label]) => ({ value, label }));
 const WORK_MODE_OPTIONS: ComboboxOption[] = Object.entries(WORKMODE_LABELS).map(
   ([value, label]) => ({ value, label }),
 );
 const HR_STATUS_OPTIONS: ComboboxOption[] = Object.entries(HR_STATUS_MAP).map(
   ([value, cfg]) => ({ value, label: cfg.label }),
 );
-const ACCOUNT_STATUS_OPTIONS: ComboboxOption[] = Object.entries(ACCOUNT_STATUS_MAP).map(
-  ([value, cfg]) => ({ value, label: cfg.label }),
-);
+const ACCOUNT_STATUS_OPTIONS: ComboboxOption[] = Object.entries(
+  ACCOUNT_STATUS_MAP,
+).map(([value, cfg]) => ({ value, label: cfg.label }));
 const LANGUAGE_OPTIONS: ComboboxOption[] = [
   { value: 'pt', label: 'Português' },
   { value: 'en', label: 'English' },
@@ -338,21 +340,28 @@ export function CreateUserView({ onBack, onCreated }: CreateUserViewProps) {
   // Gestor direto — pesquisa no diretório interno, mesmo padrão de
   // EnrollUserModal para o picker de colaborador.
   const [managerSearch, setManagerSearch] = useState('');
-  const [selectedManager, setSelectedManager] = useState<DirectoryUser | null>(null);
+  const [selectedManager, setSelectedManager] = useState<DirectoryUser | null>(
+    null,
+  );
   const { users: managerResults, loading: managersLoading } = useDirectoryUsers(
     managerSearch,
     !selectedManager && managerSearch.trim().length > 0,
   );
 
-  const { options: departmentOptions, loading: departmentsLoading } = useDepartmentOptions();
-  const { options: positionOptions, loading: positionsLoading } = usePositionOptions();
+  const { options: departmentOptions, loading: departmentsLoading } =
+    useDepartmentOptions();
+  const { options: positionOptions, loading: positionsLoading } =
+    usePositionOptions();
   const { options: unitOptions, loading: unitsLoading } = useUnitOptions();
   const { options: roleOptions, loading: rolesLoading } = useRoleOptions();
-  const { options: permissionOptions, loading: permissionsLoading } = usePermissionOptions();
-  const { options: courseOptions, loading: coursesLoading } = useCourseOptions();
+  const { options: permissionOptions, loading: permissionsLoading } =
+    usePermissionOptions();
+  const { options: courseOptions, loading: coursesLoading } =
+    useCourseOptions();
   const { options: learningPathOptions, loading: learningPathsLoading } =
     useLearningPathOptions();
-  const { options: competencyOptions, loading: competenciesLoading } = useCompetencyOptions();
+  const { options: competencyOptions, loading: competenciesLoading } =
+    useCompetencyOptions();
 
   const create = useApiMutation(
     () =>
@@ -402,8 +411,12 @@ export function CreateUserView({ onBack, onCreated }: CreateUserViewProps) {
         isInstructor: form.isInstructor,
         contentAccessLevel: form.contentAccessLevel || undefined,
         courseIds: form.courseIds.length ? form.courseIds : undefined,
-        learningPathIds: form.learningPathIds.length ? form.learningPathIds : undefined,
-        competencyIds: form.competencyIds.length ? form.competencyIds : undefined,
+        learningPathIds: form.learningPathIds.length
+          ? form.learningPathIds
+          : undefined,
+        competencyIds: form.competencyIds.length
+          ? form.competencyIds
+          : undefined,
         additionalPermissionIds: form.additionalPermissionIds.length
           ? form.additionalPermissionIds
           : undefined,
@@ -431,7 +444,9 @@ export function CreateUserView({ onBack, onCreated }: CreateUserViewProps) {
         Cancelar
       </Button>
       <Card className="p-6">
-        <div className="text-base font-semibold text-ink mb-5">Novo utilizador</div>
+        <div className="text-base font-semibold text-ink mb-5">
+          Novo utilizador
+        </div>
 
         {error && (
           <div className="bg-danger-subtle border border-danger/30 text-danger-ink rounded-control p-3 text-sm mb-4">
@@ -441,19 +456,77 @@ export function CreateUserView({ onBack, onCreated }: CreateUserViewProps) {
 
         <div className="grid grid-cols-2 gap-5 mb-6">
           <SectionTitle>Dados pessoais</SectionTitle>
-          <Field label="Nome completo" id="fullName" required value={form.fullName} onChange={handle('fullName')} />
-          <Field label="Nome preferencial" id="preferredName" value={form.preferredName} onChange={handle('preferredName')} />
-          <Field label="Fotografia (URL)" id="avatarUrl" value={form.avatarUrl} onChange={handle('avatarUrl')} />
-          <EnumSelect id="gender" label="Género" value={form.gender} onChange={(v) => setField('gender', v)} options={GENDER_OPTIONS} />
-          <Field label="Data de nascimento" id="birthDate" type="date" value={form.birthDate} onChange={handle('birthDate')} />
-          <Field label="Nacionalidade" id="nationality" value={form.nationality} onChange={handle('nationality')} />
-          <Field label="País de residência" id="country" value={form.country} onChange={handle('country')} />
-          <Field label="Número de identificação" id="identificationNumber" value={form.identificationNumber} onChange={handle('identificationNumber')} />
-          <Field label="NIF" id="nif" value={form.nif} onChange={handle('nif')} />
+          <Field
+            label="Nome completo"
+            id="fullName"
+            required
+            value={form.fullName}
+            onChange={handle('fullName')}
+          />
+          <Field
+            label="Nome preferencial"
+            id="preferredName"
+            value={form.preferredName}
+            onChange={handle('preferredName')}
+          />
+          <Field
+            label="Fotografia (URL)"
+            id="avatarUrl"
+            value={form.avatarUrl}
+            onChange={handle('avatarUrl')}
+          />
+          <EnumSelect
+            id="gender"
+            label="Género"
+            value={form.gender}
+            onChange={(v) => setField('gender', v)}
+            options={GENDER_OPTIONS}
+          />
+          <Field
+            label="Data de nascimento"
+            id="birthDate"
+            type="date"
+            value={form.birthDate}
+            onChange={handle('birthDate')}
+          />
+          <Field
+            label="Nacionalidade"
+            id="nationality"
+            value={form.nationality}
+            onChange={handle('nationality')}
+          />
+          <Field
+            label="País de residência"
+            id="country"
+            value={form.country}
+            onChange={handle('country')}
+          />
+          <Field
+            label="Número de identificação"
+            id="identificationNumber"
+            value={form.identificationNumber}
+            onChange={handle('identificationNumber')}
+          />
+          <Field
+            label="NIF"
+            id="nif"
+            value={form.nif}
+            onChange={handle('nif')}
+          />
 
           <SectionTitle>Dados profissionais</SectionTitle>
-          <Field label="Nº funcionário" id="employeeNumber" value={form.employeeNumber} onChange={handle('employeeNumber')} />
-          <Field label="Empresa" id="companyName" value={form.companyName} onChange={handle('companyName')} />
+          <Field
+            label="Nº funcionário"
+            id="employeeNumber"
+            value={form.employeeNumber}
+            onChange={handle('employeeNumber')}
+          />
+          <Field
+            label="Empresa"
+            id="companyName"
+            value={form.companyName}
+            onChange={handle('companyName')}
+          />
           <FormField label="Unidade" htmlFor="unitId">
             <Combobox
               items={unitOptions}
@@ -468,28 +541,53 @@ export function CreateUserView({ onBack, onCreated }: CreateUserViewProps) {
               items={departmentOptions}
               value={form.departmentId || undefined}
               onValueChange={(v) => setField('departmentId', v)}
-              placeholder={departmentsLoading ? 'A carregar…' : 'Selecionar departamento'}
+              placeholder={
+                departmentsLoading ? 'A carregar…' : 'Selecionar departamento'
+              }
               disabled={departmentsLoading}
             />
           </FormField>
-          <Field label="Área" id="area" value={form.area} onChange={handle('area')} />
+          <Field
+            label="Área"
+            id="area"
+            value={form.area}
+            onChange={handle('area')}
+          />
           <FormField label="Cargo" htmlFor="positionId">
             <Combobox
               items={positionOptions}
               value={form.positionId || undefined}
               onValueChange={(v) => setField('positionId', v)}
-              placeholder={positionsLoading ? 'A carregar…' : 'Selecionar cargo'}
+              placeholder={
+                positionsLoading ? 'A carregar…' : 'Selecionar cargo'
+              }
               disabled={positionsLoading}
             />
           </FormField>
-          <Field label="Função" id="jobFunction" value={form.jobFunction} onChange={handle('jobFunction')} />
-          <Field label="Categoria profissional" id="professionalCategory" value={form.professionalCategory} onChange={handle('professionalCategory')} />
+          <Field
+            label="Função"
+            id="jobFunction"
+            value={form.jobFunction}
+            onChange={handle('jobFunction')}
+          />
+          <Field
+            label="Categoria profissional"
+            id="professionalCategory"
+            value={form.professionalCategory}
+            onChange={handle('professionalCategory')}
+          />
 
           <FormField label="Gestor direto" htmlFor="managerSearch">
             {selectedManager ? (
               <div className="flex items-center gap-2 rounded-control border-[1.5px] border-border-strong bg-surface px-2 py-1.5">
-                <Avatar name={selectedManager.fullName} url={selectedManager.avatarUrl ?? undefined} size="sm" />
-                <div className="min-w-0 flex-1 truncate text-sm text-ink">{selectedManager.fullName}</div>
+                <Avatar
+                  name={selectedManager.fullName}
+                  url={selectedManager.avatarUrl ?? undefined}
+                  size="sm"
+                />
+                <div className="min-w-0 flex-1 truncate text-sm text-ink">
+                  {selectedManager.fullName}
+                </div>
                 <button
                   type="button"
                   aria-label="Remover gestor"
@@ -512,10 +610,14 @@ export function CreateUserView({ onBack, onCreated }: CreateUserViewProps) {
                 {managerSearch.trim().length > 0 && (
                   <div className="absolute z-10 mt-1 max-h-56 w-full overflow-y-auto rounded-card border border-border bg-surface shadow-elevated">
                     {managersLoading && (
-                      <div className="px-3 py-2 text-sm text-ink-muted">A pesquisar…</div>
+                      <div className="px-3 py-2 text-sm text-ink-muted">
+                        A pesquisar…
+                      </div>
                     )}
                     {!managersLoading && managerResults.length === 0 && (
-                      <div className="px-3 py-2 text-sm text-ink-muted">Nenhum colaborador encontrado</div>
+                      <div className="px-3 py-2 text-sm text-ink-muted">
+                        Nenhum colaborador encontrado
+                      </div>
                     )}
                     {managerResults.map((u) => (
                       <button
@@ -527,10 +629,18 @@ export function CreateUserView({ onBack, onCreated }: CreateUserViewProps) {
                         }}
                         className="flex w-full items-center gap-2 px-3 py-2 text-left hover:bg-primary-subtle"
                       >
-                        <Avatar name={u.fullName} url={u.avatarUrl ?? undefined} size="sm" />
+                        <Avatar
+                          name={u.fullName}
+                          url={u.avatarUrl ?? undefined}
+                          size="sm"
+                        />
                         <div className="min-w-0">
-                          <div className="truncate text-sm text-ink">{u.fullName}</div>
-                          <div className="truncate text-xs text-ink-faint">{u.department?.name ?? u.email ?? '—'}</div>
+                          <div className="truncate text-sm text-ink">
+                            {u.fullName}
+                          </div>
+                          <div className="truncate text-xs text-ink-faint">
+                            {u.department?.name ?? u.email ?? '—'}
+                          </div>
                         </div>
                       </button>
                     ))}
@@ -539,24 +649,105 @@ export function CreateUserView({ onBack, onCreated }: CreateUserViewProps) {
               </div>
             )}
           </FormField>
-          <Field label="Localização" id="workLocation" value={form.workLocation} onChange={handle('workLocation')} />
-          <Field label="Data de admissão" id="hireDate" type="date" value={form.hireDate} onChange={handle('hireDate')} />
-          <EnumSelect id="contractType" label="Tipo de contrato" value={form.contractType} onChange={(v) => setField('contractType', v)} options={CONTRACT_TYPE_OPTIONS} />
-          <EnumSelect id="workMode" label="Regime de trabalho" value={form.workMode} onChange={(v) => setField('workMode', v)} options={WORK_MODE_OPTIONS} />
-          <EnumSelect id="hrStatus" label="Estado do colaborador" value={form.hrStatus} onChange={(v) => setField('hrStatus', v)} options={HR_STATUS_OPTIONS} />
+          <Field
+            label="Localização"
+            id="workLocation"
+            value={form.workLocation}
+            onChange={handle('workLocation')}
+          />
+          <Field
+            label="Data de admissão"
+            id="hireDate"
+            type="date"
+            value={form.hireDate}
+            onChange={handle('hireDate')}
+          />
+          <EnumSelect
+            id="contractType"
+            label="Tipo de contrato"
+            value={form.contractType}
+            onChange={(v) => setField('contractType', v)}
+            options={CONTRACT_TYPE_OPTIONS}
+          />
+          <EnumSelect
+            id="workMode"
+            label="Regime de trabalho"
+            value={form.workMode}
+            onChange={(v) => setField('workMode', v)}
+            options={WORK_MODE_OPTIONS}
+          />
+          <EnumSelect
+            id="hrStatus"
+            label="Estado do colaborador"
+            value={form.hrStatus}
+            onChange={(v) => setField('hrStatus', v)}
+            options={HR_STATUS_OPTIONS}
+          />
 
           <SectionTitle>Dados de contacto</SectionTitle>
-          <Field label="Email profissional" id="email" type="email" required value={form.email} onChange={handle('email')} />
-          <Field label="Email pessoal" id="personalEmail" type="email" value={form.personalEmail} onChange={handle('personalEmail')} />
-          <Field label="Telefone" id="phone" type="tel" value={form.phone} onChange={handle('phone')} />
-          <Field label="Telefone alternativo" id="alternatePhone" type="tel" value={form.alternatePhone} onChange={handle('alternatePhone')} />
-          <Field label="Endereço" id="address" value={form.address} onChange={handle('address')} />
-          <Field label="Contacto de emergência (nome)" id="emergencyContactName" value={form.emergencyContactName} onChange={handle('emergencyContactName')} />
-          <Field label="Contacto de emergência (telefone)" id="emergencyContactPhone" type="tel" value={form.emergencyContactPhone} onChange={handle('emergencyContactPhone')} />
+          <Field
+            label="Email profissional"
+            id="email"
+            type="email"
+            required
+            value={form.email}
+            onChange={handle('email')}
+          />
+          <Field
+            label="Email pessoal"
+            id="personalEmail"
+            type="email"
+            value={form.personalEmail}
+            onChange={handle('personalEmail')}
+          />
+          <Field
+            label="Telefone"
+            id="phone"
+            type="tel"
+            value={form.phone}
+            onChange={handle('phone')}
+          />
+          <Field
+            label="Telefone alternativo"
+            id="alternatePhone"
+            type="tel"
+            value={form.alternatePhone}
+            onChange={handle('alternatePhone')}
+          />
+          <Field
+            label="Endereço"
+            id="address"
+            value={form.address}
+            onChange={handle('address')}
+          />
+          <Field
+            label="Contacto de emergência (nome)"
+            id="emergencyContactName"
+            value={form.emergencyContactName}
+            onChange={handle('emergencyContactName')}
+          />
+          <Field
+            label="Contacto de emergência (telefone)"
+            id="emergencyContactPhone"
+            type="tel"
+            value={form.emergencyContactPhone}
+            onChange={handle('emergencyContactPhone')}
+          />
 
           <SectionTitle>Conta de acesso</SectionTitle>
-          <Field label="Password provisória" id="password" type="password" value={form.password} onChange={handle('password')} />
-          <Field label="Username" id="username" value={form.username} onChange={handle('username')} />
+          <Field
+            label="Password provisória"
+            id="password"
+            type="password"
+            value={form.password}
+            onChange={handle('password')}
+          />
+          <Field
+            label="Username"
+            id="username"
+            value={form.username}
+            onChange={handle('username')}
+          />
           <FormField label="Perfil de acesso" htmlFor="roleId">
             <Combobox
               items={roleOptions}
@@ -566,10 +757,32 @@ export function CreateUserView({ onBack, onCreated }: CreateUserViewProps) {
               disabled={rolesLoading}
             />
           </FormField>
-          <Field label="Função no sistema" id="systemFunction" value={form.systemFunction} onChange={handle('systemFunction')} />
-          <EnumSelect id="accountStatus" label="Estado da conta" value={form.accountStatus} onChange={(v) => setField('accountStatus', v)} options={ACCOUNT_STATUS_OPTIONS} />
-          <EnumSelect id="language" label="Idioma" value={form.language} onChange={(v) => setField('language', v)} options={LANGUAGE_OPTIONS} />
-          <Field label="Fuso horário" id="timezone" value={form.timezone} onChange={handle('timezone')} />
+          <Field
+            label="Função no sistema"
+            id="systemFunction"
+            value={form.systemFunction}
+            onChange={handle('systemFunction')}
+          />
+          <EnumSelect
+            id="accountStatus"
+            label="Estado da conta"
+            value={form.accountStatus}
+            onChange={(v) => setField('accountStatus', v)}
+            options={ACCOUNT_STATUS_OPTIONS}
+          />
+          <EnumSelect
+            id="language"
+            label="Idioma"
+            value={form.language}
+            onChange={(v) => setField('language', v)}
+            options={LANGUAGE_OPTIONS}
+          />
+          <Field
+            label="Fuso horário"
+            id="timezone"
+            value={form.timezone}
+            onChange={handle('timezone')}
+          />
           <label className="flex items-center gap-2 pb-2.5 text-sm text-ink-muted">
             <input
               type="checkbox"
@@ -592,8 +805,18 @@ export function CreateUserView({ onBack, onCreated }: CreateUserViewProps) {
           </div>
 
           <SectionTitle>Academia</SectionTitle>
-          <Field label="Perfil de aprendizagem" id="learningProfile" value={form.learningProfile} onChange={handle('learningProfile')} />
-          <Field label="Nível de acesso aos conteúdos" id="contentAccessLevel" value={form.contentAccessLevel} onChange={handle('contentAccessLevel')} />
+          <Field
+            label="Perfil de aprendizagem"
+            id="learningProfile"
+            value={form.learningProfile}
+            onChange={handle('learningProfile')}
+          />
+          <Field
+            label="Nível de acesso aos conteúdos"
+            id="contentAccessLevel"
+            value={form.contentAccessLevel}
+            onChange={handle('contentAccessLevel')}
+          />
           <label className="col-span-2 flex items-center gap-2 pb-1 text-sm text-ink-muted">
             <input
               type="checkbox"
@@ -638,9 +861,25 @@ export function CreateUserView({ onBack, onCreated }: CreateUserViewProps) {
           </div>
 
           <SectionTitle>RH</SectionTitle>
-          <Field label="Centro de custo" id="costCenter" value={form.costCenter} onChange={handle('costCenter')} />
-          <Field label="Data de fim" id="exitDate" type="date" value={form.exitDate} onChange={handle('exitDate')} />
-          <Field label="Horário" id="workSchedule" value={form.workSchedule} onChange={handle('workSchedule')} />
+          <Field
+            label="Centro de custo"
+            id="costCenter"
+            value={form.costCenter}
+            onChange={handle('costCenter')}
+          />
+          <Field
+            label="Data de fim"
+            id="exitDate"
+            type="date"
+            value={form.exitDate}
+            onChange={handle('exitDate')}
+          />
+          <Field
+            label="Horário"
+            id="workSchedule"
+            value={form.workSchedule}
+            onChange={handle('workSchedule')}
+          />
         </div>
 
         <div className="flex gap-3">

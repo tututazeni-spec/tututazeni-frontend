@@ -51,7 +51,10 @@ export function CyclesTab() {
       .then(() => window.location.reload())
       .catch((e) => {
         reportError(e, { source: `CyclesTab.${action}` });
-        notify({ title: e instanceof Error ? e.message : String(e), intent: 'danger' });
+        notify({
+          title: e instanceof Error ? e.message : String(e),
+          intent: 'danger',
+        });
       });
   };
 
@@ -149,16 +152,30 @@ export function CyclesTab() {
                 <span>{new Date(cycle.endDate).toLocaleDateString('pt')}</span>
               </div>
 
-              {(cycle.selfEvalDueDate || cycle.managerEvalDueDate || cycle.targetUnitIds?.length) && (
+              {(cycle.selfEvalDueDate ||
+                cycle.managerEvalDueDate ||
+                cycle.targetUnitIds?.length) && (
                 <div className="mt-1.5 flex flex-wrap gap-x-3 gap-y-0.5 text-[10px] text-ink-faint">
                   {cycle.selfEvalDueDate && (
-                    <span>Prazo autoavaliação: {new Date(cycle.selfEvalDueDate).toLocaleDateString('pt')}</span>
+                    <span>
+                      Prazo autoavaliação:{' '}
+                      {new Date(cycle.selfEvalDueDate).toLocaleDateString('pt')}
+                    </span>
                   )}
                   {cycle.managerEvalDueDate && (
-                    <span>Prazo gestor: {new Date(cycle.managerEvalDueDate).toLocaleDateString('pt')}</span>
+                    <span>
+                      Prazo gestor:{' '}
+                      {new Date(cycle.managerEvalDueDate).toLocaleDateString(
+                        'pt',
+                      )}
+                    </span>
                   )}
-                  {!!cycle.targetUnitIds?.length && <span>{cycle.targetUnitIds.length} unidade(s)</span>}
-                  {!!cycle.targetDeptIds?.length && <span>{cycle.targetDeptIds.length} departamento(s)</span>}
+                  {!!cycle.targetUnitIds?.length && (
+                    <span>{cycle.targetUnitIds.length} unidade(s)</span>
+                  )}
+                  {!!cycle.targetDeptIds?.length && (
+                    <span>{cycle.targetDeptIds.length} departamento(s)</span>
+                  )}
                 </div>
               )}
 
@@ -174,28 +191,49 @@ export function CyclesTab() {
                 </Button>
               )}
               {canManageCycle && cycle.status === 'PUBLISHED' && (
-                <Button size="sm" className="mt-3 w-full" onClick={() => runCycleAction(cycle.id, 'activate', 'POST')}>
+                <Button
+                  size="sm"
+                  className="mt-3 w-full"
+                  onClick={() => runCycleAction(cycle.id, 'activate', 'POST')}
+                >
                   Activar
                 </Button>
               )}
               {canManageCycle && cycle.status === 'ACTIVE' && (
                 <div className="mt-3 grid grid-cols-2 gap-2">
-                  <Button size="sm" intent="secondary" onClick={() => runCycleAction(cycle.id, 'pause', 'PATCH')}>
+                  <Button
+                    size="sm"
+                    intent="secondary"
+                    onClick={() => runCycleAction(cycle.id, 'pause', 'PATCH')}
+                  >
                     Pausar
                   </Button>
-                  <Button size="sm" intent="secondary" onClick={() => runCycleAction(cycle.id, 'close', 'PATCH')}>
+                  <Button
+                    size="sm"
+                    intent="secondary"
+                    onClick={() => runCycleAction(cycle.id, 'close', 'PATCH')}
+                  >
                     Encerrar
                   </Button>
-                  <Button size="sm" intent="secondary" onClick={() => runCycleAction(cycle.id, 'remind', 'POST')}>
+                  <Button
+                    size="sm"
+                    intent="secondary"
+                    onClick={() => runCycleAction(cycle.id, 'remind', 'POST')}
+                  >
                     Lembretes
                   </Button>
                 </div>
               )}
-              {canManageCycle && (cycle.status === 'PAUSED' || cycle.status === 'COMPLETED') && (
-                <Button size="sm" className="mt-3 w-full" onClick={() => runCycleAction(cycle.id, 'reopen', 'PATCH')}>
-                  Reabrir
-                </Button>
-              )}
+              {canManageCycle &&
+                (cycle.status === 'PAUSED' || cycle.status === 'COMPLETED') && (
+                  <Button
+                    size="sm"
+                    className="mt-3 w-full"
+                    onClick={() => runCycleAction(cycle.id, 'reopen', 'PATCH')}
+                  >
+                    Reabrir
+                  </Button>
+                )}
             </CardBody>
           </Card>
         ))}

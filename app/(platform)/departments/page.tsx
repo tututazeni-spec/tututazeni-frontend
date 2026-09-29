@@ -50,18 +50,26 @@ export default function DepartmentsPage() {
         />
       )}
 
-      {/* Tabs */}
+      {/* Tabs — formato de "cartão": cada botão é um cartão independente
+          (borda + fundo branco + rounded), sem o fundo/pill de grupo
+          anterior. Alinhadas horizontal e verticalmente (justify-center +
+          items-center no wrapper) com largura mínima uniforme. Estado
+          activo usa a mesma condição `nav.view === n.id` de sempre para
+          aplicar destaque azul (borda/fundo/texto primary). */}
       {nav.view !== 'detail' && (
-        <div className="mb-6 flex w-fit gap-1 rounded-control bg-surface-sunken p-1">
+        <div className="mb-6 flex w-full flex-wrap items-center justify-center gap-2">
           {NAV.map((n) => (
-            <Button
+            <button
               key={n.id}
-              size="sm"
-              intent={nav.view === n.id ? 'primary' : 'ghost'}
               onClick={() => setNav({ view: n.id })}
+              className={`flex min-w-[140px] items-center justify-center whitespace-nowrap rounded-lg border px-4 py-2 text-center text-sm font-medium transition-colors ${
+                nav.view === n.id
+                  ? 'border-primary bg-primary/10 text-primary'
+                  : 'border-border bg-white text-ink-muted hover:text-ink'
+              }`}
             >
               {n.label}
-            </Button>
+            </button>
           ))}
         </div>
       )}

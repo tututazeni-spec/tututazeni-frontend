@@ -39,7 +39,15 @@ import {
   type DocFilters,
 } from '@/components/documents/types';
 
-type QuickFilter = 'all' | 'unread' | 'mandatory' | 'recent' | 'favorites' | 'active' | 'expired' | 'archived';
+type QuickFilter =
+  | 'all'
+  | 'unread'
+  | 'mandatory'
+  | 'recent'
+  | 'favorites'
+  | 'active'
+  | 'expired'
+  | 'archived';
 
 const QUICK_FILTERS: { id: QuickFilter; label: string }[] = [
   { id: 'all', label: 'Todos' },
@@ -78,8 +86,15 @@ export function CorporateDocsTab() {
     requiresReadConfirmation: quickFilter === 'mandatory',
   };
 
-  const usingList = quickFilter !== 'unread' && quickFilter !== 'recent' && quickFilter !== 'favorites';
-  const { data: listData, loading: listLoading, refetch } = useDocuments(filters);
+  const usingList =
+    quickFilter !== 'unread' &&
+    quickFilter !== 'recent' &&
+    quickFilter !== 'favorites';
+  const {
+    data: listData,
+    loading: listLoading,
+    refetch,
+  } = useDocuments(filters);
   const { data: pending, loading: pendingLoading } = usePendingReads();
   const { data: recent, loading: recentLoading } = useRecentDocuments();
   const { data: favorites, loading: favLoading } = useFavoriteDocuments();
@@ -89,27 +104,42 @@ export function CorporateDocsTab() {
 
   const handleDownload = async (doc: Document) => {
     try {
-      const result = await apiClient.get<{ fileUrl: string }>(`/documents/${doc.id}/download`);
+      const result = await apiClient.get<{ fileUrl: string }>(
+        `/documents/${doc.id}/download`,
+      );
       window.open(result.fileUrl, '_blank');
     } catch (e) {
       reportError(e, { source: 'CorporateDocsTab.handleDownload' });
-      notify({ title: e instanceof Error ? e.message : String(e), intent: 'danger' });
+      notify({
+        title: e instanceof Error ? e.message : String(e),
+        intent: 'danger',
+      });
     }
   };
 
   const docsToShow: Document[] =
-    quickFilter === 'recent' ? recent : quickFilter === 'favorites' ? favorites : (listData?.data ?? []);
+    quickFilter === 'recent'
+      ? recent
+      : quickFilter === 'favorites'
+        ? favorites
+        : (listData?.data ?? []);
   const loading =
-    quickFilter === 'recent' ? recentLoading : quickFilter === 'favorites' ? favLoading : listLoading;
+    quickFilter === 'recent'
+      ? recentLoading
+      : quickFilter === 'favorites'
+        ? favLoading
+        : listLoading;
 
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="font-display text-lg font-bold text-ink">Documentos Corporativos</h2>
+          <h2 className="font-display text-lg font-bold text-ink">
+            Documentos Corporativos
+          </h2>
           <p className="text-sm text-ink-muted">
-            Normas, políticas, circulares, ordens de serviço, leis & regulamentos, procedimentos,
-            formulários e modelos.
+            Normas, políticas, circulares, ordens de serviço, leis &
+            regulamentos, procedimentos, formulários e modelos.
           </p>
         </div>
         {canAuthor && (
@@ -180,13 +210,17 @@ export function CorporateDocsTab() {
                 className="flex items-center justify-between rounded-card border border-border bg-surface p-3"
               >
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-medium text-ink">{p.title}</p>
+                  <p className="truncate text-sm font-medium text-ink">
+                    {p.title}
+                  </p>
                   <div className="mt-1 flex items-center gap-2">
                     <Badge intent={CATEGORY_CONFIG[p.category].intent}>
                       {CATEGORY_CONFIG[p.category].label}
                     </Badge>
                     {p.deadline && (
-                      <span className={`text-xs ${p.overdue ? 'text-danger' : 'text-ink-faint'}`}>
+                      <span
+                        className={`text-xs ${p.overdue ? 'text-danger' : 'text-ink-faint'}`}
+                      >
                         {p.overdue ? 'Prazo expirado: ' : 'Prazo: '}
                         {new Date(p.deadline).toLocaleDateString('pt-PT')}
                       </span>
@@ -198,7 +232,8 @@ export function CorporateDocsTab() {
                   onClick={() => confirmRead.mutate(p.id)}
                   loading={confirmRead.isPending}
                 >
-                  <CheckCircle2 size={14} strokeWidth={1.75} /> Confirmar leitura
+                  <CheckCircle2 size={14} strokeWidth={1.75} /> Confirmar
+                  leitura
                 </Button>
               </div>
             ))}
@@ -219,7 +254,12 @@ export function CorporateDocsTab() {
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {docsToShow.map((d) => (
-            <DocCard key={d.id} doc={d} onView={setSelectedDoc} onDownload={handleDownload} />
+            <DocCard
+              key={d.id}
+              doc={d}
+              onView={setSelectedDoc}
+              onDownload={handleDownload}
+            />
           ))}
         </div>
       )}

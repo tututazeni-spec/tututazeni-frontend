@@ -6,15 +6,15 @@
 
 'use client';
 
-import { Trophy } from 'lucide-react';
+import { Clock, TrendingDown, Trophy, UserCheck, Users } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Avatar } from '@/components/ui/Avatar';
-import { KpiCard } from '@/components/ui/KpiCard';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { AreaLineChart } from '@/components/ui/charts/AreaLineChart';
+import { TopBarCard } from '@/components/ui/TopBarCard';
 import { BarChart } from '@/components/ui/charts/BarChart';
 import type {
   AnniversaryUser,
@@ -43,38 +43,37 @@ export function HeadcountPanel() {
       <Skeleton
         rows={4}
         wrapperClassName="grid grid-cols-2 md:grid-cols-4 gap-4 animate-pulse"
-        itemClassName="h-24 rounded-card bg-surface-sunken"
+        itemClassName="h-28 rounded-2xl bg-surface-sunken"
       />
     );
 
   return (
     <div className="space-y-5">
-      {/* KPIs */}
+      {/* KPIs — cartão estilo Udemy/MasterClass */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-        <KpiCard
+        <TopBarCard
           label="Total"
           value={data?.total ?? 0}
-          intent="primary"
-          className="w-full"
+          tone="blue"
+          icon={<Users className="h-6 w-6" />}
         />
-        <KpiCard
+        <TopBarCard
           label="Activos"
           value={data?.active ?? 0}
-          intent="success"
-          className="w-full"
+          tone="green"
+          icon={<UserCheck className="h-6 w-6" />}
         />
-        <KpiCard
+        <TopBarCard
           label="Taxa de Rotatividade"
           value={`${data?.turnoverRate ?? 0}%`}
-          intent="danger"
-          className="w-full"
+          tone="red"
+          icon={<TrendingDown className="h-6 w-6" />}
         />
-        <KpiCard
+        <TopBarCard
           label="Tempo Médio de Serviço"
           value={`${data?.avgTenureMonths ?? 0}m`}
-          sub={`≈ ${((data?.avgTenureMonths ?? 0) / 12).toFixed(1)} anos`}
-          intent="primary"
-          className="w-full"
+          tone="gold"
+          icon={<Clock className="h-6 w-6" />}
         />
       </div>
 
@@ -87,7 +86,12 @@ export function HeadcountPanel() {
             </h4>
             <BarChart
               categories={Object.keys(data.byTenure)}
-              series={[{ label: 'Colaboradores', values: Object.values(data.byTenure) }]}
+              series={[
+                {
+                  label: 'Colaboradores',
+                  values: Object.values(data.byTenure),
+                },
+              ]}
             />
           </div>
         )}
@@ -102,12 +106,18 @@ export function HeadcountPanel() {
               series={[
                 {
                   label: 'Colaboradores',
-                  points: trend.map((t, i) => ({ x: i, y: t.count, xLabel: t.month })),
+                  points: trend.map((t, i) => ({
+                    x: i,
+                    y: t.count,
+                    xLabel: t.month,
+                  })),
                 },
               ]}
             />
           ) : (
-            <p className="font-body text-xs text-ink-faint">Sem dados suficientes.</p>
+            <p className="font-body text-xs text-ink-faint">
+              Sem dados suficientes.
+            </p>
           )}
         </div>
       </div>
@@ -170,7 +180,10 @@ function EmploymentSegmentationWidget() {
     field: string,
   ) =>
     (arr ?? [])
-      .map((r) => ({ label: String(r[field] ?? 'Não definido'), count: r._count }))
+      .map((r) => ({
+        label: String(r[field] ?? 'Não definido'),
+        count: r._count,
+      }))
       .sort((a, b) => b.count - a.count);
 
   return (

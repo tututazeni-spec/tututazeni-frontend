@@ -35,19 +35,31 @@ export function MyDocsTab({ myDocs, onRequestNew }: MyDocsTabProps) {
             icon={FileText}
             title="Nenhum pedido ainda"
             description="Solicite a sua primeira declaração para a ver aqui."
-            action={{ label: 'Solicitar primeira declaração', onClick: onRequestNew }}
+            action={{
+              label: 'Solicitar primeira declaração',
+              onClick: onRequestNew,
+            }}
           />
         </div>
       ) : (
         <div className="divide-y divide-border">
           {myDocs?.data.map((d) => (
-            <div key={d.id} className="group flex items-center justify-between px-5 py-4">
+            <div
+              key={d.id}
+              className="group flex items-center justify-between px-5 py-4"
+            >
               <div className="flex items-center gap-3">
                 <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-control bg-info-subtle">
-                  <FileText size={16} strokeWidth={1.75} className="text-info-ink" />
+                  <FileText
+                    size={16}
+                    strokeWidth={1.75}
+                    className="text-info-ink"
+                  />
                 </div>
                 <div>
-                  <p className="font-body text-sm font-semibold text-ink">{d.template?.name}</p>
+                  <p className="font-body text-sm font-semibold text-ink">
+                    {d.template?.name}
+                  </p>
                   <p className="mt-0.5 font-body text-xs text-ink-faint">
                     {d.purpose?.name && `${d.purpose.name} · `}
                     {new Date(d.createdAt).toLocaleDateString('pt-PT')}
@@ -56,7 +68,9 @@ export function MyDocsTab({ myDocs, onRequestNew }: MyDocsTabProps) {
               </div>
               <div className="flex items-center gap-3">
                 {d.referenceNumber && (
-                  <span className="font-data text-xs text-ink-faint">{d.referenceNumber}</span>
+                  <span className="font-data text-xs text-ink-faint">
+                    {d.referenceNumber}
+                  </span>
                 )}
                 <StatusBadge status={d.status} type="doc" />
                 {(d.status === 'GENERATED' || d.status === 'ISSUED') && (

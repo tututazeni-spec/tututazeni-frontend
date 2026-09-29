@@ -54,8 +54,12 @@ export function FundersListView({
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="font-display text-2xl font-bold text-ink">Financiadores</h1>
-          <p className="font-body text-ink-muted">{total} financiadores registados</p>
+          <h1 className="font-display text-2xl font-bold text-ink">
+            Financiadores
+          </h1>
+          <p className="font-body text-ink-muted">
+            {total} financiadores registados
+          </p>
         </div>
         <div className="flex gap-2">
           <Link href="/crm/funders/dashboard">
@@ -110,27 +114,51 @@ export function FundersListView({
           <table className="w-full font-body text-sm">
             <thead className="bg-surface-sunken text-ink-muted uppercase">
               <tr>
-                <th className="px-4 py-3 text-left font-medium text-xs">Código</th>
-                <th className="px-4 py-3 text-left font-medium text-xs">Nome</th>
-                <th className="px-4 py-3 text-left font-medium text-xs">Tipo</th>
-                <th className="px-4 py-3 text-left font-medium text-xs">País</th>
-                <th className="px-4 py-3 text-left font-medium text-xs">Estado</th>
-                <th className="px-4 py-3 text-right font-medium text-xs">Comprometido</th>
-                <th className="px-4 py-3 text-right font-medium text-xs">Recebido</th>
-                <th className="px-4 py-3 text-center font-medium text-xs">Grants</th>
-                <th className="px-4 py-3 text-left font-medium text-xs">Acções</th>
+                <th className="px-4 py-3 text-left font-medium text-xs">
+                  Código
+                </th>
+                <th className="px-4 py-3 text-left font-medium text-xs">
+                  Nome
+                </th>
+                <th className="px-4 py-3 text-left font-medium text-xs">
+                  Tipo
+                </th>
+                <th className="px-4 py-3 text-left font-medium text-xs">
+                  País
+                </th>
+                <th className="px-4 py-3 text-left font-medium text-xs">
+                  Estado
+                </th>
+                <th className="px-4 py-3 text-right font-medium text-xs">
+                  Comprometido
+                </th>
+                <th className="px-4 py-3 text-right font-medium text-xs">
+                  Recebido
+                </th>
+                <th className="px-4 py-3 text-center font-medium text-xs">
+                  Grants
+                </th>
+                <th className="px-4 py-3 text-left font-medium text-xs">
+                  Acções
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
               {data.length === 0 ? (
                 <tr>
-                  <td colSpan={9} className="px-4 py-8 text-center text-ink-faint">
+                  <td
+                    colSpan={9}
+                    className="px-4 py-8 text-center text-ink-faint"
+                  >
                     Nenhum financiador encontrado
                   </td>
                 </tr>
               ) : (
                 data.map((f) => (
-                  <tr key={f.id} className="hover:bg-surface-sunken transition-colors">
+                  <tr
+                    key={f.id}
+                    className="hover:bg-surface-sunken transition-colors"
+                  >
                     <td className="px-4 py-3 font-mono text-primary">
                       {f.code}
                     </td>
@@ -145,7 +173,8 @@ export function FundersListView({
                       <span
                         className={cn(
                           'inline-flex items-center rounded-pill px-2 py-1 font-body text-xs font-semibold',
-                          STATUS_COLORS[f.status] ?? 'bg-surface-sunken text-ink-muted',
+                          STATUS_COLORS[f.status] ??
+                            'bg-surface-sunken text-ink-muted',
                         )}
                       >
                         {f.status}

@@ -21,13 +21,23 @@ import type { CareerOverview } from './types';
 // Comparação entre categorias nomeadas (departamento/unidade/cargo) — antes
 // eram barras horizontais desenhadas à mão, sem hover; agora usa o
 // BarChart partilhado do design system (mesma cor de série, tooltip incluído).
-function EvolutionList({ title, items }: { title: string; items: Array<{ key: string; count: number }> }) {
+function EvolutionList({
+  title,
+  items,
+}: {
+  title: string;
+  items: Array<{ key: string; count: number }>;
+}) {
   const top = items.slice(0, 6);
   return (
     <Card className="p-4">
-      <div className="mb-3 font-body text-sm font-semibold text-ink">{title}</div>
+      <div className="mb-3 font-body text-sm font-semibold text-ink">
+        {title}
+      </div>
       {top.length === 0 ? (
-        <div className="py-3 text-center font-body text-xs text-ink-faint">Sem dados</div>
+        <div className="py-3 text-center font-body text-xs text-ink-faint">
+          Sem dados
+        </div>
       ) : (
         <BarChart
           orientation="horizontal"
@@ -49,7 +59,8 @@ export function OverviewTab() {
   if (loading) return <Skeleton rows={5} />;
   if (!overview) return null;
 
-  const { careerAnalytics, careerPlansAnalytics, successionDashboard } = overview;
+  const { careerAnalytics, careerPlansAnalytics, successionDashboard } =
+    overview;
 
   return (
     <div className="space-y-5">
@@ -98,7 +109,9 @@ export function OverviewTab() {
           label="Posições críticas"
           value={successionDashboard.kpis.totalCriticalPositions}
           sub={`${successionDashboard.kpis.withoutSuccessor} sem sucessor`}
-          intent={successionDashboard.kpis.withoutSuccessor > 0 ? 'danger' : 'success'}
+          intent={
+            successionDashboard.kpis.withoutSuccessor > 0 ? 'danger' : 'success'
+          }
         />
       </div>
 
@@ -110,9 +123,18 @@ export function OverviewTab() {
             thresholds={{ warning: 70, danger: 40 }}
           />
         </Card>
-        <EvolutionList title="Planos por Departamento" items={overview.evolutionByDepartment} />
-        <EvolutionList title="Planos por Unidade" items={overview.evolutionByUnit} />
-        <EvolutionList title="Planos por Cargo" items={overview.evolutionByPosition} />
+        <EvolutionList
+          title="Planos por Departamento"
+          items={overview.evolutionByDepartment}
+        />
+        <EvolutionList
+          title="Planos por Unidade"
+          items={overview.evolutionByUnit}
+        />
+        <EvolutionList
+          title="Planos por Cargo"
+          items={overview.evolutionByPosition}
+        />
       </div>
 
       <Card className="p-4">
@@ -126,7 +148,10 @@ export function OverviewTab() {
         ) : (
           <DonutChart
             centerLabel="Movimentações"
-            data={overview.internalMovements.map((m) => ({ label: m.changeType, value: m.count }))}
+            data={overview.internalMovements.map((m) => ({
+              label: m.changeType,
+              value: m.count,
+            }))}
           />
         )}
       </Card>
