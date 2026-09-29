@@ -7,12 +7,13 @@
 'use client';
 
 import { CheckCircle2, Clock, GraduationCap, ShieldAlert } from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { GaugeChart } from '@/components/ui/charts/GaugeChart';
 import { BarChart } from '@/components/ui/charts/BarChart';
+import { TopBarCard } from '@/components/ui/TopBarCard';
 import type { TrainingData } from './types';
 
 export function TrainingPanel() {
@@ -33,31 +34,34 @@ export function TrainingPanel() {
   return (
     <div className="space-y-5">
       {/* KPIs — cartão estilo Udemy/MasterClass */}
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-        <StatCard
-          icon={CheckCircle2}
+            <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+        <TopBarCard
           label="Conclusões (mês)"
           value={data?.completed ?? 0}
-          intent="info"
+          tone="blue"
+          icon={<CheckCircle2 className="h-6 w-6" />}
         />
-        <StatCard
-          icon={GraduationCap}
-          label="Taxa de Conclusão"
-          value={`${data?.completionRate ?? 0}%`}
-          intent="primary"
-        />
-        <StatCard
-          icon={ShieldAlert}
-          label="Formações Obrigatórias"
-          value={`${data?.mandatoryRate ?? 0}%`}
-          sub={data?.mandatoryStatus}
-          intent="danger"
-        />
-        <StatCard
-          icon={Clock}
+                <div className="flex flex-col items-center justify-center rounded-2xl border border-border bg-white p-4 shadow-resting">
+          <GaugeChart
+            value={data?.completionRate ?? 0}
+            label="Taxa de Conclusão"
+            thresholds={{ warning: 50, danger: 25 }}
+            size={120}
+          />
+        </div>
+        <div className="flex flex-col items-center justify-center rounded-2xl border border-border bg-white p-4 shadow-resting">
+          <GaugeChart
+            value={data?.mandatoryRate ?? 0}
+            label="Formações Obrigatórias"
+            thresholds={{ warning: 50, danger: 25 }}
+            size={120}
+          />
+        </div>
+        <TopBarCard
           label="Horas Estimadas"
           value={`${data?.estimatedHours ?? 0}h`}
-          intent="accent"
+          tone="gold"
+          icon={<Clock className="h-6 w-6" />}
         />
       </div>
 
@@ -109,44 +113,3 @@ export function TrainingPanel() {
   );
 }
 
-// Cartão estilo Udemy/MasterClass: badge de ícone colorido, número grande
-// em destaque, etiqueta discreta por baixo, elevação subtil ao hover.
-// Local a este painel — não substitui o KpiCard partilhado.
-type StatIntent = 'primary' | 'info' | 'success' | 'warning' | 'danger' | 'accent';
-
-const STAT_INTENT_STYLES: Record<StatIntent, { badge: string }> = {
-  primary: { badge: 'bg-primary/10 text-primary' },
-  info: { badge: 'bg-info/10 text-info' },
-  success: { badge: 'bg-success/10 text-success' },
-  warning: { badge: 'bg-warning/10 text-warning' },
-  danger: { badge: 'bg-danger/10 text-danger' },
-  accent: { badge: 'bg-accent/10 text-accent' },
-};
-
-function StatCard({
-  icon: Icon,
-  label,
-  value,
-  sub,
-  intent = 'primary',
-}: {
-  icon: LucideIcon;
-  label: string;
-  value: string | number;
-  sub?: string;
-  intent?: StatIntent;
-}) {
-  const styles = STAT_INTENT_STYLES[intent];
-  return (
-    <div className="group relative overflow-hidden rounded-2xl border border-border bg-surface p-5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg">
-      <div
-        className={`mb-4 inline-flex h-11 w-11 items-center justify-center rounded-xl ${styles.badge}`}
-      >
-        <Icon size={20} strokeWidth={1.75} />
-      </div>
-      <p className="font-display text-2xl font-bold text-ink">{value}</p>
-      <p className="mt-1 font-body text-sm font-medium text-ink-muted">{label}</p>
-      {sub && <p className="mt-0.5 font-body text-xs text-ink-faint">{sub}</p>}
-    </div>
-  );
-}
