@@ -1,4 +1,7 @@
 'use client';
+
+import { useState } from 'react';
+
 // src/app/(dashboard)/dashboard-rh/page.tsx
 //
 // Container: gere o painel activo (via Tabs do Radix); delega dados+
@@ -67,16 +70,38 @@ const PANELS: {
 ];
 
 export default function DashboardRhPage() {
+  const [activePanel, setActivePanel] = useState<Panel>('overview');
+
+  const activePanelConfig =
+    PANELS.find((panel) => panel.id === activePanel) ?? PANELS[0];
+
+  const ActiveIcon = activePanelConfig.icon;
+
   return (
     <div className="min-h-screen bg-surface">
       {/* Header */}
       <div className="border-b border-border bg-surface px-6 py-5">
         <div className="mx-auto flex max-w-7xl items-start justify-between">
-          <div>
-            <h1 className="font-display text-xl font-bold text-ink">
-              Dashboard RH
-            </h1>
-          </div>
+         <div className="flex items-center gap-3">
+  <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+    {ActiveIcon && (
+      <ActiveIcon
+        size={22}
+        strokeWidth={1.8}
+        className="transition-all duration-300"
+      />
+    )}
+  </div>
+
+  <div>
+    <h1 className="font-display text-xl font-bold text-ink">
+      Dashboard RH 
+    </h1>
+    <p className="mt-0.5 font-body text-xs text-ink-muted">
+      {activePanelConfig.hint}
+    </p>
+  </div>
+</div>
           <IconButton
             icon={RefreshCw}
             label="Actualizar"
@@ -86,7 +111,10 @@ export default function DashboardRhPage() {
         </div>
       </div>
 
-      <Tabs defaultValue="overview">
+      <Tabs
+  value={activePanel}
+  onValueChange={(value) => setActivePanel(value as Panel)}
+>
         {/* Tabs — barra flutuante em "glassmorphism": contentor translúcido
             com desfoque (backdrop-blur) e botões em forma de pílula com
             ícone, título e subtítulo. A aba activa (data-[state=active]
