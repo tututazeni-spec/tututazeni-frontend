@@ -9,7 +9,17 @@
 
 'use client';
 
-import { Brain } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
+import {
+  BarChart2,
+  Brain,
+  TrendingDown,
+  TrendingUp,
+  UserCheck,
+  UserPlus,
+  Users,
+  UserX,
+} from 'lucide-react';
 import { Card, CardBody } from '@/components/ui/Card';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import type { ReportData } from './types';
@@ -78,6 +88,28 @@ const SUMMARY_LABELS: Record<string, string> = {
   passRate: 'Taxa de Aprovação',
 };
 
+type Tone = 'blue' | 'green' | 'gold' | 'red';
+
+const TONES: Record<Tone, { bar: string; text: string }> = {
+  blue: { bar: 'bg-[#2B6CC4]', text: 'text-[#2B6CC4]' },
+  green: { bar: 'bg-[#2E8B3E]', text: 'text-[#2E8B3E]' },
+  gold: { bar: 'bg-[#C9A227]', text: 'text-[#B8912A]' },
+  red: { bar: 'bg-[#C0453F]', text: 'text-[#C0453F]' },
+};
+
+const KEY_STYLE: Record<string, { icon: LucideIcon; tone: Tone }> = {
+  total: { icon: Users, tone: 'blue' },
+  active: { icon: UserCheck, tone: 'green' },
+  inactive: { icon: UserX, tone: 'red' },
+  newHires: { icon: UserPlus, tone: 'green' },
+  newHiresTrend: { icon: TrendingUp, tone: 'gold' },
+  turnoverRate: { icon: TrendingDown, tone: 'red' },
+};
+
+const DEFAULT_KEY_STYLE: { icon: LucideIcon; tone: Tone } = {
+  icon: BarChart2,
+  tone: 'blue',
+};
 export function ReportOutput({ data }: ReportOutputProps) {
   const summary = data.summary ?? {};
 
@@ -99,7 +131,7 @@ export function ReportOutput({ data }: ReportOutputProps) {
       )}
 
       {/* Summary KPIs */}
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+           <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         {Object.entries(summary)
           .slice(0, 8)
           .map(([k, v]) => {
@@ -113,17 +145,25 @@ export function ReportOutput({ data }: ReportOutputProps) {
               k.toLowerCase().includes('rate') ||
               k.toLowerCase().includes('pct') ||
               k.toLowerCase().includes('ratio');
+            const style = KEY_STYLE[k] ?? DEFAULT_KEY_STYLE;
+            const Icon = style.icon;
+            const t = TONES[style.tone];
             return (
-              <Card key={k}>
-                <CardBody>
-                  <p className="font-display text-xl font-bold text-ink">
+              <div
+                key={k}
+                className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting"
+              >
+                <div className={`h-1.5 w-full ${t.bar}`} />
+                <div className="p-5 pt-6">
+                  <Icon size={22} strokeWidth={1.75} className={t.text} />
+                  <p className={`mt-3 font-display text-2xl font-bold ${t.text}`}>
                     {typeof v === 'number' ? (isRate ? `${v}%` : v) : String(v)}
                   </p>
-                  <p className="mt-0.5 font-body text-[10px] text-ink-faint">
+                  <p className="mt-1 font-body text-xs font-medium text-ink-muted">
                     {label}
                   </p>
-                </CardBody>
-              </Card>
+                </div>
+              </div>
             );
           })}
       </div>
