@@ -38,7 +38,6 @@ import {
   Download,
   Building2,
   LogOut,
-  Share2,
   Wallet,
 } from 'lucide-react';
 import { useState } from 'react';
@@ -155,7 +154,6 @@ const NAV: Array<{ label: string; items: NavItem[] }> = [
         label: 'Folha de Pagamento',
         roles: ADMIN_ROLES,
       },
-      { href: '/organization', icon: Share2, label: 'Organograma' },
       { href: '/trainings', icon: GraduationCap, label: 'Gestão de Formações' },
     ],
   },

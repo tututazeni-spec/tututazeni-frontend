@@ -15,7 +15,7 @@ import { useDebounce } from '@/hooks/useDebounce';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import type { DirectoryUser } from '@/components/users/types';
-import type { Position } from '@/components/organization/types';
+import type { Position } from '@/components/departments/types';
 
 export type { DirectoryUser };
 
@@ -32,7 +32,7 @@ export function useDepartmentOptions(enabled = true) {
     '/departments',
     { params, staleTime: STALE_TIME.STATIC, enabled },
   );
-  const options: Option[] = (query.data?.data ?? []).map((d) => ({
+  const options: Option[] = (query.data ?? []).map((d) => ({
     value: String(d.id),
     label: d.name,
   }));
@@ -48,7 +48,7 @@ export function useCompetencyOptions(enabled = true) {
     '/competencies',
     { params, staleTime: STALE_TIME.SEMI_STATIC, enabled },
   );
-  const options: Option[] = (query.data?.data ?? []).map((c) => ({
+  const options: Option[] = (query.data ?? []).map((c) => ({
     value: String(c.id),
     label: c.name,
   }));
@@ -84,7 +84,7 @@ export function useSubDepartmentOptions(departmentId?: number, enabled = true) {
       enabled: enabled && !!departmentId,
     },
   );
-  const options: Option[] = (query.data?.data ?? []).map((d) => ({
+  const options: Option[] = (query.data ?? []).map((d) => ({
     value: String(d.id),
     label: d.name,
   }));
@@ -95,12 +95,12 @@ export function useSubDepartmentOptions(departmentId?: number, enabled = true) {
  *  "Avaliações" (docs/módulo_competencies.md §5/§6). Mesma fonte que
  *  components/onboarding/planData.ts#usePositionOptions. */
 export function usePositionOptions(enabled = true) {
-  const query = useApiQuery<{ data: Position[] }>(
-    queryKeys.organization.positions(''),
-    '/organization/positions',
+  const query = useApiQuery<Position[]>(
+    queryKeys.positions.list(),
+    '/positions',
     { staleTime: STALE_TIME.STATIC, enabled },
   );
-  const options: Option[] = (query.data?.data ?? []).map((p) => ({
+  const options: Option[] = (query.data ?? []).map((p) => ({
     value: String(p.id),
     label: p.name,
   }));

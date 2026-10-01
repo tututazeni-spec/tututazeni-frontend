@@ -308,3 +308,21 @@ export type View =
 // — um único estado torna "detail sem id" irrepresentável.
 export type Nav =
   { view: Exclude<View, 'detail'> } | { view: 'detail'; selectedId: number };
+
+export type PosLevel =
+  | 'INTERN'
+  | 'JUNIOR'
+  | 'MID'
+  | 'SENIOR'
+  | 'LEAD'
+  | 'MANAGER'
+  | 'DIRECTOR'
+  | 'EXECUTIVE';
+
+// Item mínimo devolvido por GET /positions (picker simples usado por vários módulos).
+export interface Position {
+  id: number;
+  name: string;
+  code: string | null;
+  level: PosLevel;
+}

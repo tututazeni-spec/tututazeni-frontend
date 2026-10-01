@@ -4,7 +4,8 @@
 // const local dentro do componente principal; hoisted para módulo,
 // mesmo padrão de NAV/TITLES usado nos restantes módulos deste tipo).
 
-import type { View } from './types';
+import type { StatusBadgeMap } from '@/lib/statusBadge';
+import type { PosLevel, View } from './types';
 
 export const NAV: Array<{ id: Exclude<View, 'detail'>; label: string }> = [
   { id: 'list', label: 'Lista' },
@@ -31,4 +32,18 @@ export const TITLES: Record<View, string> = {
   relatorios: 'Relatórios',
   detail: 'Detalhe do Departamento',
   dashboard: 'Dashboard Organizacional',
+};
+
+// 8 níveis de cargo sem correspondência semântica directa — cor de
+// nível/profundidade tratada como decorativa, usa os 6 tokens de intent
+// como paleta categórica estável (INTERN neutro; DIRECTOR/EXECUTIVE danger).
+export const LEVEL_CFG: StatusBadgeMap<PosLevel> = {
+  INTERN: { label: 'Estagiário', cls: 'bg-surface-sunken text-ink-muted' },
+  JUNIOR: { label: 'Júnior', cls: 'bg-success-subtle text-success-ink' },
+  MID: { label: 'Pleno', cls: 'bg-info-subtle text-info-ink' },
+  SENIOR: { label: 'Sénior', cls: 'bg-primary-subtle text-primary' },
+  LEAD: { label: 'Lead', cls: 'bg-accent-subtle text-accent' },
+  MANAGER: { label: 'Gestor', cls: 'bg-warning-subtle text-warning-ink' },
+  DIRECTOR: { label: 'Director', cls: 'bg-danger-subtle text-danger-ink' },
+  EXECUTIVE: { label: 'Executivo', cls: 'bg-danger-subtle text-danger-ink' },
 };

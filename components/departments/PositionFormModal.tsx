@@ -1,7 +1,7 @@
 // components/departments/PositionFormModal.tsx
 // Modal "Novo cargo" do separador "Cargos & Funções"
 // (docs/modulo_departments.md Ponto 6). Distinto de
-// components/organization/CreatePositionModal.tsx (separador Cargos do
+// o antigo CreatePositionModal (separador Cargos do
 // módulo Organização): ambos escrevem na mesma tabela Position via DTOs
 // diferentes, mas só este expõe os campos do Ponto 6 (função, família
 // profissional, responsabilidades/requisitos, formação/experiência
@@ -18,8 +18,8 @@ import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { LEVEL_CFG } from '@/components/organization/constants';
-import type { PosLevel } from '@/components/organization/types';
+import { LEVEL_CFG } from './constants';
+import type { PosLevel } from './types';
 import { Button } from '@/components/ui/Button';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';

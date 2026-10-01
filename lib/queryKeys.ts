@@ -845,17 +845,9 @@ export const queryKeys = {
       [...queryKeys.leadership.all, 'program', id, 'costs'] as const,
   },
 
-  organization: {
-    all: ['organization'] as const,
-    stats: () => [...queryKeys.organization.all, 'stats'] as const,
-    headcount: () => [...queryKeys.organization.all, 'headcount'] as const,
-    chart: (depth: number) =>
-      [...queryKeys.organization.all, 'chart', depth] as const,
-    departments: (search: string) =>
-      [...queryKeys.organization.all, 'departments', search] as const,
-    positions: (level: string) =>
-      [...queryKeys.organization.all, 'positions', level] as const,
-    timeline: () => [...queryKeys.organization.all, 'timeline'] as const,
+  positions: {
+    all: ['positions'] as const,
+    list: () => [...queryKeys.positions.all, 'list'] as const,
   },
 
   developmentPlans: {

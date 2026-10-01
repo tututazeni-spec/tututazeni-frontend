@@ -28,7 +28,7 @@ export function useDepartmentOptions(enabled = true) {
     '/departments',
     { params, staleTime: STALE_TIME.STATIC, enabled },
   );
-  const options: Option[] = (query.data?.data ?? []).map((d) => ({
+  const options: Option[] = (query.data ?? []).map((d) => ({
     value: String(d.id),
     label: d.name,
   }));
@@ -64,12 +64,12 @@ export function useUnitOptions(enabled = true) {
  *  (docs/evaluation360.md §2) — mesma fonte que
  *  components/onboarding/planData.ts#usePositionOptions. */
 export function usePositionOptions(enabled = true) {
-  const query = useApiQuery<{ data: Position[] }>(
-    queryKeys.organization.positions(''),
-    '/organization/positions',
+  const query = useApiQuery<Position[]>(
+    queryKeys.positions.list(),
+    '/positions',
     { staleTime: STALE_TIME.STATIC, enabled },
   );
-  const options: Option[] = (query.data?.data ?? []).map((p) => ({
+  const options: Option[] = (query.data ?? []).map((p) => ({
     value: String(p.id),
     label: p.name,
   }));
