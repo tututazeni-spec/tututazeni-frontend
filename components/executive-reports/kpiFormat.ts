@@ -51,3 +51,16 @@ export function formatDateTime(iso: string): string {
     timeStyle: 'short',
   });
 }
+
+export const CONTRACT_LABEL: Record<string, string> = {
+  INDEFINITE: 'Efectivo',
+  FIXED_TERM: 'Termo certo',
+  UNCERTAIN_TERM: 'Termo incerto',
+  APPRENTICESHIP: 'Aprendizagem',
+  INTERNSHIP: 'Estágio',
+  SERVICE_PROVISION: 'Prestação de serviços',
+  TEMPORARY_PLACEMENT: 'Cedência temporária',
+  PART_TIME: 'Tempo parcial',
+  NOT_SET: 'Não definido',
+  OTHER: 'Outros',
+};

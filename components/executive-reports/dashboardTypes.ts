@@ -34,6 +34,11 @@ export interface ExecutiveFilters {
   unitId?: number;
   departmentId?: number;
   compareWith: CompareFilter;
+  // Filtros adicionais (§5)
+  positionId?: number;
+  contractType?: string;
+  courseId?: number;
+  kpiState?: KpiState;
 }
 
 export type KpiState =
@@ -66,6 +71,10 @@ export interface ExecutiveContext {
   compareWith: CompareFilter;
   unitId: number | null;
   departmentId: number | null;
+  positionId?: number | null;
+  contractType?: string | null;
+  courseId?: number | null;
+  kpiState?: KpiState | null;
   current: { start: string; end: string };
   comparison: { start: string; end: string } | null;
 }
@@ -130,4 +139,125 @@ export interface ExecutiveKpisResponse {
 export interface Unit {
   id: number;
   name: string;
+}
+
+export interface FilterOptions {
+  positions: { id: number; name: string }[];
+  courses: { id: number; title: string }[];
+  contractTypes: string[];
+  kpiStates: KpiState[];
+}
+
+// ─── Gráficos (§6) ───────────────────────────────────────────────────────────
+
+export interface DepartmentRow {
+  id: number;
+  name: string;
+  headcount: number;
+  performance: number | null;
+  trainingCompletion: number | null;
+  absenteeism: number | null;
+  turnover: number | null;
+  overduePdi: number;
+  overdueMandatory: number;
+}
+
+export interface DepartmentChartsResponse {
+  context: ExecutiveContext;
+  departments: DepartmentRow[];
+  targets: {
+    performance: number | null;
+    trainingCompletion: number | null;
+    absenteeism: number | null;
+    turnover: number | null;
+  };
+  composition: {
+    categories: string[];
+    series: { key: string; values: number[] }[];
+  };
+}
+
+export interface GoalChartsResponse {
+  context: ExecutiveContext;
+  vsTarget: {
+    code: string;
+    label: string;
+    actual: number;
+    target: number;
+    deviation: number | null;
+    direction: ExecutiveKpi['direction'];
+    state: KpiState;
+    unit: ExecutiveKpi['unit'];
+  }[];
+  execution: {
+    label: string;
+    done: number;
+    total: number;
+    pct: number | null;
+    source: string;
+  }[];
+}
+
+export type RiskLevel = 'OK' | 'WARNING' | 'CRITICAL' | 'NO_DATA';
+export type RiskColumn =
+  | 'turnover'
+  | 'absenteeism'
+  | 'overduePdi'
+  | 'overdueMandatory';
+
+export interface RiskCell {
+  value: number | null;
+  rate?: number | null;
+  level: RiskLevel;
+}
+
+export interface RiskException {
+  id: number;
+  title: string;
+  person: string;
+  department: string | null;
+  dueDate: string | null;
+  daysOverdue: number | null;
+}
+
+export interface RiskChartsResponse {
+  context: ExecutiveContext;
+  criteria: Record<
+    RiskColumn,
+    { label: string; warning: number; critical: number; rule: string }
+  >;
+  heatmap: {
+    id: number;
+    name: string;
+    headcount: number;
+    cells: Record<RiskColumn, RiskCell>;
+  }[];
+  exceptions: {
+    overduePdiActions: RiskException[];
+    overdueMandatoryTraining: RiskException[];
+    staleLeaveApprovals: RiskException[];
+  };
+}
+
+export type SourceStatus = 'INTEGRATED' | 'PLANNED' | 'CONTEXT' | 'REPLACED';
+
+export interface SourceEntry {
+  module: string;
+  consumes: string;
+  status: SourceStatus;
+  usedBy: string[];
+  restricted?: boolean;
+  note?: string;
+  recordCount: number | null;
+}
+
+export interface SourcesResponse {
+  summary: {
+    total: number;
+    integrated: number;
+    withData: number;
+    planned: number;
+  };
+  sources: SourceEntry[];
+  checkedAt: string;
 }

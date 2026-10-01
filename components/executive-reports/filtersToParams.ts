@@ -16,5 +16,9 @@ export function filtersToParams(
   }
   if (f.unitId) p.unitId = f.unitId;
   if (f.departmentId) p.departmentId = f.departmentId;
+  if (f.positionId) p.positionId = f.positionId;
+  if (f.contractType) p.contractType = f.contractType;
+  if (f.courseId) p.courseId = f.courseId;
+  if (f.kpiState) p.kpiState = f.kpiState;
   return p;
 }

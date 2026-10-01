@@ -876,6 +876,16 @@ export const queryKeys = {
       [...queryKeys.executiveReports.all, 'overview', params] as const,
     kpis: (params: Record<string, unknown>) =>
       [...queryKeys.executiveReports.all, 'kpis', params] as const,
+    chartsDepartments: (params: Record<string, unknown>) =>
+      [...queryKeys.executiveReports.all, 'charts-departments', params] as const,
+    chartsGoals: (params: Record<string, unknown>) =>
+      [...queryKeys.executiveReports.all, 'charts-goals', params] as const,
+    chartsRisks: (params: Record<string, unknown>) =>
+      [...queryKeys.executiveReports.all, 'charts-risks', params] as const,
+    sources: (params: Record<string, unknown>) =>
+      [...queryKeys.executiveReports.all, 'sources', params] as const,
+    filterOptions: () =>
+      [...queryKeys.executiveReports.all, 'filter-options'] as const,
   },
 
   instructor: {

@@ -36,10 +36,12 @@ import { IconButton } from '@/components/ui/Button';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { QueryError } from '@/components/ui/QueryError';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
+import { DepartmentsPanel } from '@/components/executive-reports/DepartmentsPanel';
 import { ExecutiveFiltersBar } from '@/components/executive-reports/ExecutiveFiltersBar';
 import { HistoryPanel } from '@/components/executive-reports/HistoryPanel';
 import { OverviewPanel } from '@/components/executive-reports/OverviewPanel';
 import { PendingPhasePanel } from '@/components/executive-reports/PendingPhasePanel';
+import { RisksPanel } from '@/components/executive-reports/RisksPanel';
 import { StrategicPanel } from '@/components/executive-reports/StrategicPanel';
 import type {
   ExecutiveFilters,
@@ -64,7 +66,13 @@ const TAB_ICONS: Record<ExecutiveTabId, LucideIcon> = {
 };
 
 // Separadores já implementados; os restantes mostram o marcador de fase.
-const IMPLEMENTED: ExecutiveTabId[] = ['overview', 'strategic', 'history'];
+const IMPLEMENTED: ExecutiveTabId[] = [
+  'overview',
+  'strategic',
+  'departments',
+  'risks',
+  'history',
+];
 
 const DEFAULT_FILTERS: ExecutiveFilters = {
   period: 'year',
@@ -198,6 +206,12 @@ export default function ExecutiveReportsPage() {
             </TabsContent>
             <TabsContent value="strategic">
               <StrategicPanel filters={filters} />
+            </TabsContent>
+            <TabsContent value="departments">
+              <DepartmentsPanel filters={filters} onFiltersChange={setFilters} />
+            </TabsContent>
+            <TabsContent value="risks">
+              <RisksPanel filters={filters} onFiltersChange={setFilters} />
             </TabsContent>
             <TabsContent value="history">
               <HistoryPanel />

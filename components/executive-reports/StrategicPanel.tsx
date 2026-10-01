@@ -10,8 +10,13 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { QueryError } from '@/components/ui/QueryError';
-import { BarChart } from '@/components/ui/charts/BarChart';
-import type { ExecutiveFilters, ExecutiveKpisResponse } from './dashboardTypes';
+import { ProgressBars } from './charts/ProgressBars';
+import { SourcesMatrix } from './SourcesMatrix';
+import type {
+  ExecutiveFilters,
+  ExecutiveKpisResponse,
+  GoalChartsResponse,
+} from './dashboardTypes';
 import { filtersToParams } from './filtersToParams';
 import {
   STATE_BADGE,
@@ -33,6 +38,12 @@ export function StrategicPanel({ filters }: StrategicPanelProps) {
     { params, staleTime: STALE_TIME.DYNAMIC },
   );
 
+  const goalsQ = useApiQuery<GoalChartsResponse>(
+    queryKeys.executiveReports.chartsGoals(params),
+    '/executive-reports/charts/goals',
+    { params, staleTime: STALE_TIME.DYNAMIC },
+  );
+
   if (q.isLoading)
     return (
       <Skeleton
@@ -44,32 +55,37 @@ export function StrategicPanel({ filters }: StrategicPanelProps) {
   if (q.error || !q.data)
     return <QueryError error={q.error} onRetry={() => q.refetch()} />;
 
-  // Realizado vs. meta (§6.4): só KPIs percentuais com valor e meta.
-  const vsTarget = q.data.kpis.filter(
-    (k) => k.unit === '%' && k.value !== null && k.target !== null,
-  );
+  const goals = goalsQ.data;
 
   return (
     <div className="space-y-5">
-      {vsTarget.length > 0 && (
+      {goals && goals.vsTarget.length > 0 && (
         <div className="rounded-card border border-border bg-surface p-5">
           <h3 className="mb-4 font-body font-semibold text-ink-muted">
-            Realizado vs. meta (%)
+            Realizado vs. meta
           </h3>
-          <BarChart
-            categories={vsTarget.map((k) => k.shortLabel)}
-            series={[
-              {
-                label: 'Realizado',
-                values: vsTarget.map((k) => k.value as number),
-              },
-              {
-                label: 'Meta',
-                values: vsTarget.map((k) => k.target as number),
-              },
-            ]}
-            height={240}
-            yFormat={(v) => `${v}%`}
+          <ProgressBars
+            rows={goals.vsTarget.map((g) => ({
+              label: g.label,
+              actual: g.actual,
+              target: g.target,
+              direction: g.direction === 'NEUTRAL' ? undefined : g.direction,
+            }))}
+          />
+        </div>
+      )}
+
+      {goals && (
+        <div className="rounded-card border border-border bg-surface p-5">
+          <h3 className="mb-4 font-body font-semibold text-ink-muted">
+            Execução de planos
+          </h3>
+          <ProgressBars
+            rows={goals.execution.map((e) => ({
+              label: e.label,
+              actual: e.pct,
+              detail: `${e.done} de ${e.total}`,
+            }))}
           />
         </div>
       )}
@@ -149,6 +165,8 @@ export function StrategicPanel({ filters }: StrategicPanelProps) {
           );
         })}
       </div>
+
+      <SourcesMatrix filters={filters} />
     </div>
   );
 }
