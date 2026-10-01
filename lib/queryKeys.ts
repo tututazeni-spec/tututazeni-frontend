@@ -189,6 +189,8 @@ export const queryKeys = {
     metrics: (id: number) =>
       [...queryKeys.departments.all, 'metrics', id] as const,
     comparative: () => [...queryKeys.departments.all, 'comparative'] as const,
+    heads: () => [...queryKeys.departments.all, 'heads'] as const,
+    headsHistory: () => [...queryKeys.departments.all, 'heads', 'history'] as const,
   },
 
   competencies: {

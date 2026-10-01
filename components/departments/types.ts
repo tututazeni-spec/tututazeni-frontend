@@ -25,6 +25,11 @@ export interface Department {
 
 export interface DepartmentNode extends Omit<Department, 'children'> {
   children: DepartmentNode[];
+  // Enriquecido em GET /departments/tree (docs/modulo_departments.md Ponto 3)
+  level: number;
+  positionsCount: number;
+  location: string | null;
+  unit: { id: number; name: string } | null;
 }
 
 export interface Member {
@@ -68,7 +73,35 @@ export interface ComparativeRow {
   active: boolean;
 }
 
-export type View = 'list' | 'tree' | 'detail' | 'dashboard';
+// GET /departments/heads (docs/modulo_departments.md Ponto 4 — Responsáveis)
+export interface HeadRow {
+  departmentId: number;
+  departmentName: string;
+  departmentCode: string;
+  head: { id: number; fullName: string; email: string } | null;
+  position: string | null;
+  deputyHead: { id: number; fullName: string } | null;
+  startedAt: string | null;
+  status: string;
+  active: boolean;
+  contact: string | null;
+  usersUnderResponsibility: number;
+  subdepartmentsUnderResponsibility: number;
+}
+
+// GET /departments/heads/history
+export interface HeadHistoryRow {
+  id: number;
+  department: { id: number; name: string; code: string };
+  previousHead: { id: number; fullName: string } | null;
+  newHead: { id: number; fullName: string };
+  changedAt: string;
+  endedAt: string | null;
+  reason: string | null;
+  changedBy: { id: number; fullName: string } | null;
+}
+
+export type View = 'list' | 'tree' | 'structure' | 'heads' | 'detail' | 'dashboard';
 
 // view e selectedId eram dois useState separados sempre definidos em conjunto
 // — um único estado torna "detail sem id" irrepresentável.
